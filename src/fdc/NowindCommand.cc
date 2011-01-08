@@ -336,7 +336,7 @@ void NowindCommand::tabCompletion(vector<string>& tokens) const
 	extra.insert("--image");    extra.insert("-i");
 	extra.insert("--hdimage");  extra.insert("-m");
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, extra);
+	completeFileName(tokens, context, extra);
 }
 
 } // namespace openmsx

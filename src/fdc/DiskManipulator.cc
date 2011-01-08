@@ -294,7 +294,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context);
+		completeFileName(tokens, context);
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
@@ -326,7 +326,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
 			UserFileContext context;
-			completeFileName(getCommandController(), tokens, context);
+			completeFileName(tokens, context);
 		} else if (tokens[1] == "create") {
 			set<string> cmds;
 			cmds.insert("360");

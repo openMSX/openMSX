@@ -384,7 +384,7 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 			"-audioonly", "-doublesize", "-mono", "-stereo" };
 		std::set<string> cmds(str, str + 6);
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context, cmds);
+		completeFileName(tokens, context, cmds);
 	}
 }
 

@@ -101,9 +101,8 @@ UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 	: emptyInfo(KeyInfo())
 {
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
 	string filename = context.resolve(
-		*controller, "unicodemaps/unicodemap." + keyboardType);
+		"unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
 		unsigned size;

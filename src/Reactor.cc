@@ -319,8 +319,7 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 void Reactor::getHwConfigs(const string& type, set<string>& result)
 {
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	vector<string> paths = context.getPaths(*controller);
+	vector<string> paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string path = FileOperations::join(*it, type);
@@ -492,8 +491,7 @@ void Reactor::run(CommandLineParser& parser)
 	// execute init.tcl
 	try {
 		PreferSystemFileContext context;
-		commandController.source(
-			context.resolve(commandController, "init.tcl"));
+		commandController.source(context.resolve("init.tcl"));
 	} catch (FileException&) {
 		// no init.tcl, ignore
 	}
@@ -506,8 +504,7 @@ void Reactor::run(CommandLineParser& parser)
 		PRT_DEBUG("Reactor::run Executing startup script..." << *it);
 		try {
 			UserFileContext context;
-			commandController.source(
-				context.resolve(commandController, *it));
+			commandController.source(context.resolve(*it));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
@@ -982,7 +979,7 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 	set<string> defaults;
 	// TODO: put the default files in defaults (state files in user's savestates dir)
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, defaults);
+	completeFileName(tokens, context, defaults);
 }
 
 

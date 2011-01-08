@@ -28,8 +28,7 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 			SystemFileContext context;
 			std::string filename = StringOp::Builder() <<
 				samplesBaseName << i << ".wav";
-			samples[i].reset(new WavData(context.resolve(
-				motherBoard.getCommandController(), filename)));
+			samples[i].reset(new WavData(context.resolve(filename)));
 		} catch (MSXException& e) {
 			if (!alreadyWarned) {
 				alreadyWarned = true;

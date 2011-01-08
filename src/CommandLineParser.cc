@@ -278,7 +278,7 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	string originalName(arg);
 	try {
 		UserFileContext context;
-		File file(context.resolve(getGlobalCommandController(), arg));
+		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException&) {
 		// ignore

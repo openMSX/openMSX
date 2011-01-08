@@ -32,12 +32,12 @@ namespace openmsx {
 
 const char* const FILE_CACHE = "/.filecache";
 
-static string initialFilePoolSettingValue(CommandController& controller)
+static string initialFilePoolSettingValue()
 {
 	TclObject result;
 
 	SystemFileContext context;
-	vector<string> paths = context.getPaths(controller);
+	vector<string> paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		TclObject entry1;
@@ -62,7 +62,7 @@ FilePool::FilePool(CommandController& controller, EventDistributor& distributor_
 		"__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
-		initialFilePoolSettingValue(controller)))
+		initialFilePoolSettingValue()))
 	, distributor(distributor_)
 	, cliComm(controller.getCliComm())
 	, quit(false)

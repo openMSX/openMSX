@@ -78,7 +78,7 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	LocalFileReference file(context.resolve(commandController, filename));
+	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
 	xmlElement->setFileContext(
 		auto_ptr<FileContext>(new SystemFileContext()));
@@ -163,7 +163,7 @@ void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		SystemFileContext context;
-		completeFileName(getCommandController(), tokens, context);
+		completeFileName(tokens, context);
 	}
 }
 
@@ -197,7 +197,7 @@ void LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		SystemFileContext context;
-		completeFileName(getCommandController(), tokens, context);
+		completeFileName(tokens, context);
 	}
 }
 

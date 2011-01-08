@@ -136,20 +136,18 @@ void Completer::completeString(vector<string>& tokens, set<string>& st,
 	}
 }
 
-void Completer::completeFileName(CommandController& controller,
-                                 vector<string>& tokens,
+void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context)
 {
 	set<string> empty;
-	completeFileName(controller, tokens, context, empty);
+	completeFileName(tokens, context, empty);
 }
 
-void Completer::completeFileName(CommandController& controller,
-                                 vector<string>& tokens,
+void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context,
                                  const set<string>& extra)
 {
-	vector<string> paths(context.getPaths(controller));
+	vector<string> paths(context.getPaths());
 
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);

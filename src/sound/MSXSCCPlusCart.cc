@@ -27,8 +27,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		// read the rom file
 		const std::string& filename = fileElem->getData();
 		try {
-			File file(config.getFileContext().resolve(
-				motherBoard.getCommandController(), filename));
+			File file(config.getFileContext().resolve(filename));
 			int romSize = file.getSize();
 			file.read(&(*ram)[0], romSize);
 		} catch (FileException&) {

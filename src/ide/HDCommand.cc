@@ -59,9 +59,9 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 					"Missing argument to insert subcommand");
 			}
 		}
-		CommandController& controller = getCommandController();
 		try {
-			Filename filename(tokens[fileToken]->getString(), controller);
+			UserFileContext context;
+			Filename filename(tokens[fileToken]->getString(), context);
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here
@@ -87,7 +87,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("insert");
 	}
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, extra);
+	completeFileName(tokens, context, extra);
 }
 
 bool HDCommand::needRecord(const vector<string>& tokens) const

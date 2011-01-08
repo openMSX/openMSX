@@ -194,10 +194,11 @@ int DiskChanger::insertDisk(const string& filename)
 
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
+	UserFileContext context;
 	const string& diskImage = FileOperations::getConventionalPath(args[1]->getString());
 	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
 	for (unsigned i = 2; i < args.size(); ++i) {
-		Filename filename(args[i]->getString(), controller);
+		Filename filename(args[i]->getString(), context);
 		newDisk->applyPatch(filename);
 	}
 
@@ -323,7 +324,7 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("ramdsk");
 		extra.insert("insert");
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context, extra);
+		completeFileName(tokens, context, extra);
 	}
 }
 
@@ -371,7 +372,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	ar.serialize("checksum", oldChecksum);
 
 	if (ar.isLoader()) {
-		diskname.updateAfterLoadState(controller);
+		diskname.updateAfterLoadState();
 		string name = diskname.getResolved(); // TODO use Filename
 		if (!name.empty()) {
 			// Only when the original file doesn't exist on this
@@ -393,7 +394,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			objs.push_back(TclObject(name));
 			for (vector<Filename>::iterator it = patches.begin();
 			     it != patches.end(); ++it) {
-				it->updateAfterLoadState(controller);
+				it->updateAfterLoadState();
 				objs.push_back(TclObject(it->getResolved())); // TODO
 			}
 

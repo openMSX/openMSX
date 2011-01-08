@@ -575,18 +575,17 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// resolve the filename
 	UserDataFileContext context(REPLAY_DIR);
 	string fileNameArg = arguments[0];
-	CommandController& controller = motherBoard.getCommandController();
 	string filename;
 	try {
 		// Try filename as typed by user.
-		filename = context.resolve(controller, fileNameArg);
+		filename = context.resolve(fileNameArg);
 	} catch (MSXException& /*e1*/) { try {
 		// Not found, try adding '.omr'.
-		filename = context.resolve(controller, fileNameArg + ".omr");
+		filename = context.resolve(fileNameArg + ".omr");
 	} catch (MSXException& e2) { try {
 		// Again not found, try adding '.gz'.
 		// (this is for backwards compatibility).
-		filename = context.resolve(controller, fileNameArg + ".gz");
+		filename = context.resolve(fileNameArg + ".gz");
 	} catch (MSXException& /*e3*/) {
 		// Show error message that includes the default extension.
 		throw e2;
@@ -955,7 +954,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 				cmds = std::set<string>(str, str + 2);
 			}
 			UserDataFileContext context(REPLAY_DIR);
-			completeFileName(getCommandController(), tokens, context, cmds);
+			completeFileName(tokens, context, cmds);
 		} else if (tokens[1] == "viewonlymode") {
 			set<string> options;
 			options.insert("true");

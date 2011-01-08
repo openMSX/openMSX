@@ -98,7 +98,7 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context);
+		completeFileName(tokens, context);
 	}
 }
 
@@ -808,7 +808,8 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 {
 	stop(time);
-	oggImage = Filename(newImage, motherBoard.getCommandController());
+	UserFileContext context;
+	oggImage = Filename(newImage, context);
 	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
 	sampleClock.setFreq(video->getSampleRate());
 	setOutputRate(outputRate);

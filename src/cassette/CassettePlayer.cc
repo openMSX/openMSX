@@ -656,7 +656,8 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result << "Changing tape";
-			Filename filename(tokens[2], getCommandController());
+			UserFileContext context;
+			Filename filename(tokens[2], context);
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -725,7 +726,8 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else {
 		try {
 			result << "Changing tape";
-			Filename filename(tokens[1], getCommandController());
+			UserFileContext context;
+			Filename filename(tokens[1], context);
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -829,10 +831,10 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("getpos");
 		extra.insert("getlength");
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context, extra);
+		completeFileName(tokens, context, extra);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		UserFileContext context;
-		completeFileName(getCommandController(), tokens, context);
+		completeFileName(tokens, context);
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
 		set<string> extra;
 		extra.insert("on");
@@ -876,7 +878,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		removeTape(getCurrentTime());
-		casImage.updateAfterLoadState(commandController);
+		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
 			std::auto_ptr<File> file = filePool.getFile(

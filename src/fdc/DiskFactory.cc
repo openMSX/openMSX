@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "Reactor.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "DSKDiskImage.hh"
 #include "XSADiskImage.hh"
 #include "RamDSKDiskImage.hh"
@@ -44,17 +45,16 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 
 Disk* DiskFactory::createDisk(const string& diskImage)
 {
-	CommandController& controller = reactor.getCommandController();
-
 	if (diskImage == "ramdsk") {
 		return new RamDSKDiskImage();
 	}
 
-	Filename filename(diskImage, controller);
+	UserFileContext context;
+	Filename filename(diskImage, context);
 	try {
 		// First try DirAsDSK
 		return new DirAsDSK(
-			controller.getCliComm(),
+			reactor.getCliComm(),
 			filename,
 			syncDirAsDSKSetting->getValue(),
 			bootSectorSetting->getValue());

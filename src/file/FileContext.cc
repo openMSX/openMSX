@@ -3,11 +3,6 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "GlobalSettings.hh"
-#include "CommandController.hh"
-#include "CliComm.hh"
-#include "CommandException.hh"
-#include "StringSetting.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
@@ -25,23 +20,6 @@ const string USER_DATA    = "{{USER_DATA}}";
 const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 
-static void getUserDirs(CommandController& controller, vector<string>& result)
-{
-	assert(&controller);
-	// TODO: Either remove user dirs feature or find a better home for the
-	//       "user_directories" setting.
-	const string& list =
-		""; //controller.getGlobalSettings().getUserDirSetting().getValue();
-	vector<string> dirs;
-	try {
-		controller.splitList(list, dirs);
-	} catch (CommandException& e) {
-		controller.getCliComm().printWarning(
-			"user directories: " + e.getMessage());
-	}
-	result.insert(result.end(), dirs.begin(), dirs.end());
-}
-
 static string subst(const string& path, const string& before,
                     const string& after)
 {
@@ -49,8 +27,7 @@ static string subst(const string& path, const string& before,
 	return after + path.substr(before.size());
 }
 
-static vector<string> getPathsHelper(CommandController& controller,
-                                     const vector<string>& input)
+static vector<string> getPathsHelper(const vector<string>& input)
 {
 	vector<string> result;
 	for (vector<string>::const_iterator it = input.begin();
@@ -65,7 +42,7 @@ static vector<string> getPathsHelper(CommandController& controller,
 			result.push_back(subst(*it, SYSTEM_DATA,
 			                       FileOperations::getSystemDataDir()));
 		} else if (*it == USER_DIRS) {
-			getUserDirs(controller, result);
+			// Nothing. Keep USER_DIRS for isUserContext()
 		} else {
 			result.push_back(*it);
 		}
@@ -97,10 +74,9 @@ static string resolveHelper(const vector<string>& pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const string FileContext::resolve(CommandController& controller,
-                                  const string& filename) const
+const string FileContext::resolve(const string& filename) const
 {
-	vector<string> pathList = getPathsHelper(controller, paths);
+	vector<string> pathList = getPathsHelper(paths);
 	string result = resolveHelper(pathList, filename);
 	assert(FileOperations::expandTilde(result) == result);
 	return result;
@@ -109,8 +85,7 @@ const string FileContext::resolve(CommandController& controller,
 const string FileContext::resolveCreate(const string& filename) const
 {
 	string result;
-	CommandController* controller = NULL;
-	vector<string> pathList = getPathsHelper(*controller, savePaths);
+	vector<string> pathList = getPathsHelper(savePaths);
 	try {
 		result = resolveHelper(pathList, filename);
 	} catch (FileException&) {
@@ -127,9 +102,9 @@ const string FileContext::resolveCreate(const string& filename) const
 	return result;
 }
 
-vector<string> FileContext::getPaths(CommandController& controller) const
+vector<string> FileContext::getPaths() const
 {
-	return getPathsHelper(controller, paths);
+	return getPathsHelper(paths);
 }
 
 bool FileContext::isUserContext() const

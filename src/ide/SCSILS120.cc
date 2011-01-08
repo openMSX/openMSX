@@ -863,7 +863,7 @@ void LSXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 		try {
 			UserFileContext context;
 			string filename = context.resolve(
-				getCommandController(), tokens[fileToken]->getString());
+				tokens[fileToken]->getString());
 			ls.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
@@ -889,7 +889,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 	extra.insert("eject");
 	extra.insert("insert");
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, extra);
+	completeFileName(tokens, context, extra);
 }
 
 

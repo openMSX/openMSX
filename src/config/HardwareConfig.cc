@@ -69,8 +69,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 			                   option + '\"');
 		}
 		if (option == "-ips") {
-			if (!FileOperations::isRegularFile(context->resolve(
-				motherBoard.getCommandController(), *it))) {
+			if (!FileOperations::isRegularFile(context->resolve(*it))) {
 				throw MSXException("Invalid IPS file: " + *it);
 			}
 			ipsfiles.push_back(*it);
@@ -87,8 +86,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 
 	string resolvedFilename = FileOperations::getAbsolutePath(
-		context->resolve(
-			motherBoard.getCommandController(), romfile));
+		context->resolve(romfile));
 	if (!FileOperations::isRegularFile(resolvedFilename)) {
 		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
@@ -237,9 +235,7 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 	const string& path, const string& hwName, const string& userName)
 {
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
 	string filename = context.resolve(
-		*controller, // NULL
 		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	try {
 		LocalFileReference fileRef(filename);

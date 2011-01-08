@@ -75,8 +75,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	CommandController& controller = motherBoard.getCommandController();
-
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
@@ -128,8 +126,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			string name = filenameElem->getData();
 			try {
 				Filename filename(name,
-						  config.getFileContext(),
-						  controller);
+				                  config.getFileContext());
 				file.reset(new File(filename));
 			} catch (FileException&) {
 				// ignore
@@ -225,7 +222,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			patchesElem->getChildren("ips", patches);
 			for (XMLElement::Children::const_iterator it
 			       = patches.begin(); it != patches.end(); ++it) {
-				Filename filename((*it)->getData(), context, controller);
+				Filename filename((*it)->getData(), context);
 				patch.reset(new IPSPatch(filename, patch));
 			}
 			unsigned patchSize = patch->getSize();

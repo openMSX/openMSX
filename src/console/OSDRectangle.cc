@@ -187,8 +187,7 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		return new IMAGE(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
 		SystemFileContext context;
-		CommandController* controller = NULL; // ok for SystemFileContext
-		string file = context.resolve(*controller, imageName);
+		string file = context.resolve(imageName);
 		if (takeImageDimensions()) {
 			double factor = getScaleFactor(output) * scale;
 			return new IMAGE(file, factor);

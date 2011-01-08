@@ -22,10 +22,7 @@ class Filename
 public:
 	Filename();
 	explicit Filename(const std::string& filename);
-	Filename(const std::string& filename, CommandController& controller);
 	Filename(const std::string& filename, const FileContext& context);
-	Filename(const std::string& filename, const FileContext& context,
-	         CommandController& controller);
 
 	const std::string& getOriginal() const;
 	const std::string& getResolved() const;
@@ -35,7 +32,7 @@ public:
 	  * snapshot is loaded on a different host machine), we fallback to
 	  * the original filename.
 	  */
-	void updateAfterLoadState(CommandController& controller);
+	void updateAfterLoadState();
 
 	/** Convenience method to test for empty filename.
 	 * In any case getOriginal().empty() and getResolved().empty() return

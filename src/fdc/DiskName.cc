@@ -23,9 +23,9 @@ string DiskName::getResolved() const
 	return name.getResolved() + extra;
 }
 
-void DiskName::updateAfterLoadState(CommandController& controller)
+void DiskName::updateAfterLoadState()
 {
-	name.updateAfterLoadState(controller);
+	name.updateAfterLoadState();
 }
 
 bool DiskName::empty() const

@@ -33,7 +33,6 @@ public:
 	BooleanSetting& getPauseSetting();
 	BooleanSetting& getPowerSetting();
 	BooleanSetting& getAutoSaveSetting();
-	StringSetting&  getUserDirSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<Resample::ResampleType>& getResampleSetting();
@@ -49,7 +48,6 @@ private:
 	std::auto_ptr<BooleanSetting> pauseSetting;
 	std::auto_ptr<BooleanSetting> powerSetting;
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
-	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<EnumSetting<Resample::ResampleType> > resampleSetting;

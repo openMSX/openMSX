@@ -60,8 +60,7 @@ void OSDText::setProperty(const string& name, const TclObject& value)
 		string val = value.getString();
 		if (fontfile != val) {
 			SystemFileContext context;
-			CommandController* controller = NULL; // ok for SystemFileContext
-			string file = context.resolve(*controller, val);
+			string file = context.resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
 				throw CommandException("Not a valid font file: " + val);
 			}
@@ -182,8 +181,7 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
 	if (!font.get()) {
 		try {
 			SystemFileContext context;
-			CommandController* controller = NULL; // ok for SystemFileContext
-			string file = context.resolve(*controller, fontfile);
+			string file = context.resolve(fontfile);
 			int ptSize = size * scale;
 			font.reset(new TTFFont(file, ptSize));
 		} catch (MSXException& e) {

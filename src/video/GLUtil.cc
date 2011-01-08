@@ -287,8 +287,7 @@ bool PixelBuffers::enabled = true;
 static string readTextFile(const string& filename)
 {
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	File file(context.resolve(*controller, filename));
+	File file(context.resolve(filename));
 	unsigned size;
 	const byte* data = file.mmap(size);
 	return string(reinterpret_cast<const char*>(data), size);

@@ -534,7 +534,7 @@ void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 	extra.insert("-with-osd");
 	extra.insert("-no-sprites");
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, extra);
+	completeFileName(tokens, context, extra);
 }
 
 

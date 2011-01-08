@@ -204,7 +204,7 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 		if (tmp.empty()) {
 			// lazily open file specified in config
 		} else {
-			tmp.updateAfterLoadState(motherBoard.getCommandController());
+			tmp.updateAfterLoadState();
 			switchImage(tmp);
 			assert(file.get());
 		}

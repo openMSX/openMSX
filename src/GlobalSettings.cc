@@ -26,8 +26,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	autoSaveSetting.reset(new BooleanSetting(commandController,
 	        "save_settings_on_exit",
 	        "automatically save settings when openMSX exits", true));
-	userDirSetting.reset(new StringSetting(commandController,
-	        "user_directories", "list of user directories", ""));
 	pauseOnLostFocusSetting.reset(new BooleanSetting(commandController, "pause_on_lost_focus",
 	       "pause emulation when the openMSX window loses focus", false));
 	umrCallBackSetting.reset(new StringSetting(commandController,
@@ -85,11 +83,6 @@ ThrottleManager& GlobalSettings::getThrottleManager()
 StringSetting& GlobalSettings::getUMRCallBackSetting()
 {
 	return *umrCallBackSetting.get();
-}
-
-StringSetting& GlobalSettings::getUserDirSetting()
-{
-	return *userDirSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()

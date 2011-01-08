@@ -415,7 +415,7 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 		extra.insert("insert");
 	}
 	UserFileContext context;
-	completeFileName(getCommandController(), tokens, context, extra);
+	completeFileName(tokens, context, extra);
 }
 
 bool CartCmd::needRecord(const vector<string>& tokens) const

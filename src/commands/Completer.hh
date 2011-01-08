@@ -12,7 +12,6 @@ namespace openmsx {
 
 class FileContext;
 class InterpreterOutput;
-class CommandController;
 
 class Completer : private noncopyable
 {
@@ -33,11 +32,9 @@ public:
 	static void completeString(std::vector<std::string>& tokens,
 	                           std::set<std::string>& set,
 	                           bool caseSensitive = true);
-	static void completeFileName(CommandController& controller,
-	                             std::vector<std::string>& tokens,
+	static void completeFileName(std::vector<std::string>& tokens,
                                      const FileContext& context);
-	static void completeFileName(CommandController& controller,
-	                             std::vector<std::string>& tokens,
+	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context,
 	                             const std::set<std::string>& extra);
 

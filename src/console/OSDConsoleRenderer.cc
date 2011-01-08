@@ -266,8 +266,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(const string& value)
 {
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	string filename = context.resolve(*controller, value);
+	string filename = context.resolve(value);
 	font.reset(new TTFFont(filename, fontSizeSetting->getValue()));
 }
 
@@ -278,8 +277,7 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 		return;
 	}
 	SystemFileContext context;
-	CommandController* controller = NULL; // ok for SystemFileContext
-	string filename = context.resolve(*controller, value);
+	string filename = context.resolve(value);
 	if (!openGL) {
 		backgroundImage.reset(new SDLImage(filename, destW, destH));
 	}

@@ -14,7 +14,7 @@ public:
 
 	std::string getOriginal() const;
 	std::string getResolved() const;
-	void updateAfterLoadState(CommandController& controller);
+	void updateAfterLoadState();
 	bool empty() const;
 	const Filename& getFilename() const;
 

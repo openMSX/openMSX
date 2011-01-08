@@ -8,16 +8,13 @@
 
 namespace openmsx {
 
-class CommandController;
-
 class FileContext
 {
 public:
-	const std::string resolve(CommandController& controller,
-	                          const std::string& filename) const;
+	const std::string resolve(const std::string& filename) const;
 	const std::string resolveCreate(const std::string& filename) const;
 
-	std::vector<std::string> getPaths(CommandController& controller) const;
+	std::vector<std::string> getPaths() const;
 	bool isUserContext() const;
 
 	template<typename Archive>
