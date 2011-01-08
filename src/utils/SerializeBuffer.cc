@@ -3,6 +3,7 @@
 #include "SerializeBuffer.hh"
 #include "likely.hh"
 #include <algorithm>
+#include <new> // for bad_alloc
 #include <cstdlib>
 
 namespace openmsx {
@@ -85,7 +86,11 @@ byte* OutputBuffer::allocateGrow(unsigned len)
 {
 	unsigned oldSize = end - begin;
 	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-	begin = static_cast<byte*>(realloc(begin, newSize));
+	byte* newBegin = static_cast<byte*>(realloc(begin, newSize));
+	if (!newBegin) {
+		throw std::bad_alloc();
+	}
+	begin = newBegin;
 	end = begin + oldSize + len;
 	finish = begin + newSize;
 	return begin + oldSize;

@@ -105,9 +105,9 @@ bool Completer::completeString2(string& str, set<string>& st,
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		string string2 = (*it).substr(0, str.size() + 1);
-		for (;  it != st.end(); it++) {
-			if (!equal(string2, (*it).substr(0, string2.size()),
+		string string2 = it->substr(0, str.size() + 1);
+		for (/**/; it != st.end(); ++it) {
+			if (!equal(string2, it->substr(0, string2.size()),
 				   caseSensitive)) {
 				goto out; // TODO rewrite this
 			}

@@ -441,7 +441,7 @@ void CommandConsole::prevCommand()
 	bool match = false;
 	History::const_iterator tempScrollBack = commandScrollBack;
 	while ((tempScrollBack != history.begin()) && !match) {
-		tempScrollBack--;
+		--tempScrollBack;
 		match = StringOp::startsWith(*tempScrollBack, currentLine);
 	}
 	if (match) {

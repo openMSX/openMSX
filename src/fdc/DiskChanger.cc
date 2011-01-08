@@ -231,7 +231,6 @@ DiskCommand::DiskCommand(CommandController& commandController,
 
 void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
-	int firstFileToken = 1;
 	if (tokens.size() == 1) {
 		result.addListElement(diskChanger.getDriveName() + ':');
 		result.addListElement(diskChanger.getDiskName().getResolved());
@@ -276,6 +275,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		args.push_back("eject");
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
+		int firstFileToken = 1;
 		if (tokens[1]->getString() == "insert") {
 			if (tokens.size() > 2) {
 				firstFileToken = 2; // skip this subcommand as filearg

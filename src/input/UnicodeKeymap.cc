@@ -144,7 +144,6 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		unsigned deadKeyIndex = 0;
 		bool isDeadKey = segmentStartsWith(begin, tokenEnd, "DEADKEY");
 		if (isDeadKey) {
-			bool ok;
 			const char* begin2 = begin + strlen("DEADKEY");
 			if (begin2 == tokenEnd) {
 				// The normal keywords are
@@ -152,6 +151,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 				// but for backwards compatibility also still recognize
 				//    DEADKEY
 			} else {
+				bool ok;
 				deadKeyIndex = parseHex(begin2, tokenEnd, ok);
 				deadKeyIndex--; // Make index 0 based instead of 1 based
 				if (!ok || deadKeyIndex >= NUM_DEAD_KEYS) {

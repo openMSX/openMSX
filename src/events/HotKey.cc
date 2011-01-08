@@ -339,7 +339,7 @@ string BindCmd::execute(const vector<string>& tokens)
 	case 1:
 		// show all bounded keys
 		for (HotKey::BindMap::const_iterator it = cmdMap.begin();
-		     it != cmdMap.end(); it++) {
+		     it != cmdMap.end(); ++it) {
 			result += formatBinding(it);
 		}
 		break;

@@ -115,7 +115,7 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	inline void updateDisplayEnabled(bool enabled, EmuTime::param time) {
-		enabled = enabled; // avoid warning
+		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -125,7 +125,7 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	inline void updateSpritesEnabled(bool enabled, EmuTime::param time) {
-		enabled = enabled; // avoid warning
+		(void)enabled;
 		sync(time);
 		// TODO: Speed up sprite checking in display disabled case.
 	}
@@ -137,7 +137,7 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	inline void updateSpriteSizeMag(byte sizeMag, EmuTime::param time) {
-		sizeMag = sizeMag; // avoid warning
+		(void)sizeMag;
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -147,7 +147,7 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	inline void updateVerticalScroll(int scroll, EmuTime::param time) {
-		scroll = scroll; // avoid warning
+		(void)scroll;
 		sync(time);
 		// TODO: Precalc something?
 	}
@@ -238,13 +238,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned offset, EmuTime::param time) {
-		offset = offset; // avoid warning
+	void updateVRAM(unsigned /*offset*/, EmuTime::param time) {
 		checkUntil(time);
 	}
 
-	void updateWindow(bool enabled, EmuTime::param time) {
-		enabled = enabled; // avoid warning
+	void updateWindow(bool /*enabled*/, EmuTime::param time) {
 		sync(time);
 	}
 
