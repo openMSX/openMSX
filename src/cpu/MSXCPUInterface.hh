@@ -224,6 +224,11 @@ public:
 		return isBreaked();
 	}
 
+	// In fast-forward mode, breakpoints, watchpoints and conditions should
+	// not trigger.
+	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
+	bool isFastForward() const { return fastForward; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -306,6 +311,8 @@ private:
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
 	unsigned expanded[4];
+
+	bool fastForward; // no need to serialize
 
 	//  All CPUs (Z80 and R800) of all MSX machines share this state.
 	static BreakPoints breakPoints;

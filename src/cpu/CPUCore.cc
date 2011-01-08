@@ -2417,13 +2417,21 @@ template <class T> void CPUCore<T>::executeSlow()
 	}
 }
 
-template <class T> void CPUCore<T>::execute()
+template <class T> void CPUCore<T>::execute(bool fastForward)
 {
-	// This assert triggers when in "debug break" mode you use the reverse
-	// mechanism (it starts emulating from a snapshot in fast-forward
-	// mode). At first sight simply disabling this assert seems fine.
-	//assert(!interface->isBreaked());
+	// In fast-forward mode, breakpoints, watchpoints or debug condtions
+	// won't trigger. It is possible we already are in break mode, but
+	// break is ignored in fast-forward mode.
+	assert(fastForward || !interface->isBreaked());
+	if (fastForward) {
+		interface->setFastForward(true);
+	}
+	execute2(fastForward);
+	interface->setFastForward(false);
+}
 
+template <class T> void CPUCore<T>::execute2(bool fastForward)
+{
 	// note: Don't use getTimeFast() here, because 'once in a while' we
 	//       need to CPUClock::sync() to avoid overflow.
 	//       Should be done at least once per second (approx). So only
@@ -2431,7 +2439,7 @@ template <class T> void CPUCore<T>::execute()
 	scheduler.schedule(T::getTime());
 	setSlowInstructions();
 
-	if (interface->isContinue() || interface->isStep()) {
+	if (!fastForward && (interface->isContinue() || interface->isStep())) {
 		// at least one instruction
 		interface->setContinue(false);
 		executeSlow();
@@ -2447,7 +2455,8 @@ template <class T> void CPUCore<T>::execute()
 	// Note: we call scheduler _after_ executing the instruction and before
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
-	if (!interface->anyBreakPoints() && !traceSetting.getValue()) {
+	if (fastForward ||
+	    (!interface->anyBreakPoints() && !traceSetting.getValue())) {
 		// fast path, no breakpoints, no tracing
 		while (!needExitCPULoop()) {
 			if (slowInstructions) {

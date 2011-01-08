@@ -169,6 +169,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
+	, fastForward(false)
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = dummyDevice.get();
@@ -908,6 +909,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
                                       unsigned address, unsigned value)
 {
 	assert(!watchPoints.empty());
+	if (isFastForward()) return;
 
 	Tcl_Interp* interp = watchPoints.front()->getInterpreter();
 	Tcl_SetVar(interp, "wp_last_address", StringOp::toString(address).c_str(),
@@ -934,6 +936,7 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 
 void MSXCPUInterface::doBreak()
 {
+	assert(!isFastForward());
 	if (breaked) return;
 	breaked = true;
 
@@ -947,6 +950,7 @@ void MSXCPUInterface::doBreak()
 
 void MSXCPUInterface::doStep()
 {
+	assert(!isFastForward());
 	if (breaked) {
 		step = true;
 		doContinue2();
@@ -955,6 +959,7 @@ void MSXCPUInterface::doStep()
 
 void MSXCPUInterface::doContinue()
 {
+	assert(!isFastForward());
 	if (breaked) {
 		continued = true;
 		doContinue2();

@@ -670,12 +670,15 @@ bool MSXMotherBoardImpl::execute()
 	}
 	assert(getMachineConfig()); // otherwise powered cannot be true
 
-	getCPU().execute();
+	getCPU().execute(false);
 	return true;
 }
 
 void MSXMotherBoardImpl::fastForward(EmuTime::param time)
 {
+	assert(powered);
+	assert(getMachineConfig());
+
 	if (time <= getCurrentTime()) return;
 
 	realTime->disable();
@@ -683,7 +686,7 @@ void MSXMotherBoardImpl::fastForward(EmuTime::param time)
 	fastForwardHelper->setTarget(time);
 	while (time > getCurrentTime()) {
 		// note: this can run (slightly) past the requested time
-		execute();
+		getCPU().execute(true); // fast-forward mode
 	}
 	realTime->enable();
 	msxMixer->unmute();

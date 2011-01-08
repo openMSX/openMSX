@@ -122,7 +122,7 @@ void MSXCPU::setDRAMmode(bool dram)
 	r800->setDRAMmode(dram);
 }
 
-void MSXCPU::execute()
+void MSXCPU::execute(bool fastForward)
 {
 	if (newCPU) {
 		newCPU->warp(activeCPU->getCurrentTime());
@@ -130,7 +130,7 @@ void MSXCPU::execute()
 		activeCPU = newCPU;
 		newCPU = 0;
 	}
-	activeCPU->execute();
+	activeCPU->execute(fastForward);
 }
 
 void MSXCPU::exitCPULoopSync()

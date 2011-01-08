@@ -37,7 +37,7 @@ public:
 	 */
 	void doReset(EmuTime::param time);
 
-	virtual void execute();
+	virtual void execute(bool fastForward);
 	virtual void exitCPULoopSync();
 	virtual void exitCPULoopAsync();
 	virtual void warp(EmuTime::param time);
@@ -84,6 +84,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void execute2(bool fastForward);
 	bool needExitCPULoop();
 	void setSlowInstructions();
 	void doSetFreq();

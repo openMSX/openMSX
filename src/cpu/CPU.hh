@@ -383,7 +383,7 @@ public:
 	/**
 	 * TODO
 	 */
-	virtual void execute() = 0;
+	virtual void execute(bool fastForward) = 0;
 
 	/** Request to exit the main CPU emulation loop.
 	  * This method may only be called from the main thread. The CPU loop

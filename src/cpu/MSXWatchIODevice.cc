@@ -42,6 +42,8 @@ MSXWatchIODevice& WatchIO::getDevice(byte port)
 
 void WatchIO::doReadCallback(unsigned port)
 {
+	if (cpuInterface.isFastForward()) return;
+
 	Tcl_Interp* interp = getInterpreter();
 	Tcl_SetVar(interp, "wp_last_address",
 	           StringOp::toString(port).c_str(), TCL_GLOBAL_ONLY);
@@ -58,6 +60,8 @@ void WatchIO::doReadCallback(unsigned port)
 
 void WatchIO::doWriteCallback(unsigned port, unsigned value)
 {
+	if (cpuInterface.isFastForward()) return;
+
 	Tcl_Interp* interp = getInterpreter();
 	Tcl_SetVar(interp, "wp_last_address",
 	           StringOp::toString(port).c_str(), TCL_GLOBAL_ONLY);

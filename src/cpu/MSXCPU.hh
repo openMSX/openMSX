@@ -133,7 +133,7 @@ public:
 
 private:
 	// only for MSXMotherBoard
-	void execute();
+	void execute(bool fastForward);
 	friend class MSXMotherBoardImpl;
 
 	/**
