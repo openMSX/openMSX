@@ -1230,11 +1230,10 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.isLoader()) {
-		if (powerSetting.getValue()) {
-			powered = true;
-			getLedStatus().setLed(LedStatus::POWER, true);
-			msxMixer->unmute();
-		}
+		powered = true; // must come before changing power setting
+		powerSetting.changeValue(true);
+		getLedStatus().setLed(LedStatus::POWER, true);
+		msxMixer->unmute();
 	}
 
 	if (version == 2) {
