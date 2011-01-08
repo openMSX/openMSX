@@ -54,10 +54,11 @@ private:
 	int faze;
 	int xrel, yrel;
 	int curxrel, curyrel;
+	int absHostX, absHostY;
 	byte status;
 	bool mouseMode;
 };
-SERIALIZE_CLASS_VERSION(Mouse, 2);
+SERIALIZE_CLASS_VERSION(Mouse, 3);
 
 } // namespace openmsx
 

@@ -64,6 +64,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
+	absHostX = absHostY = 0;
 	mouseMode = true;
 }
 
@@ -120,13 +121,13 @@ byte Mouse::read(EmuTime::param /*time*/)
 	if (mouseMode) {
 		switch (faze) {
 		case FAZE_XHIGH:
-			return (((xrel / SCALE) >> 4) & 0x0F) | status;
+			return ((xrel >> 4) & 0x0F) | status;
 		case FAZE_XLOW:
-			return  ((xrel / SCALE)       & 0x0F) | status;
+			return  (xrel       & 0x0F) | status;
 		case FAZE_YHIGH:
-			return (((yrel / SCALE) >> 4) & 0x0F) | status;
+			return ((yrel >> 4) & 0x0F) | status;
 		case FAZE_YLOW:
-			return  ((yrel / SCALE)       & 0x0F) | status;
+			return  (yrel       & 0x0F) | status;
 		default:
 			UNREACHABLE; return 0;
 		}
@@ -288,8 +289,20 @@ void Mouse::signalStateChange(shared_ptr<StateChange> event)
 	MouseState* ms = dynamic_cast<MouseState*>(event.get());
 	if (!ms) return;
 
-	curxrel += ms->getDeltaX();
-	curyrel += ms->getDeltaY();
+	// This is almost the same as
+	//    relMsxXY = ms->getDeltaXY() / SCALE
+	// except that it doesn't accumulate rounding errors
+	int oldMsxX = absHostX / SCALE;
+	int oldMsxY = absHostY / SCALE;
+	absHostX += ms->getDeltaX();
+	absHostY += ms->getDeltaY();
+	int newMsxX = absHostX / SCALE;
+	int newMsxY = absHostY / SCALE;
+	int relMsxX = newMsxX - oldMsxX;
+	int relMsxY = newMsxY - oldMsxY;
+
+	curxrel += relMsxX;
+	curyrel += relMsxY;
 	status = (status & ~ms->getPress()) | ms->getRelease();
 }
 
@@ -308,6 +321,7 @@ void Mouse::stopReplay(EmuTime::param time)
 //            not serialized.
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
+// version 3: variables '(cur){x,y}rel' are scaled to MSX coordinates
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
@@ -321,9 +335,17 @@ void Mouse::serialize(Archive& ar, unsigned version)
 		ar.serialize("curyrel", curyrel);
 		ar.serialize("status",  status);
 	}
+	if (ar.versionBelow(version, 3)) {
+		xrel    /= SCALE;
+		yrel    /= SCALE;
+		curxrel /= SCALE;
+		curyrel /= SCALE;
+
+	}
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper2();
 	}
+	// no need to serialize absHostX,Y
 }
 INSTANTIATE_SERIALIZE_METHODS(Mouse);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
