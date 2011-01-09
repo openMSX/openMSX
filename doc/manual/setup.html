@@ -216,13 +216,13 @@ or download it directly from the
 C-BIOS can be used to run most MSX1, MSX2 and MSX2+ cartridge-based games.
 It does not include MSX-BASIC and does not support disk drives yet,
 so programs depending on that will not run.
-openMSX contains three machine configurations using C-BIOS.
+openMSX contains several machine configurations using C-BIOS.
 The machine <code>C-BIOS_MSX1</code> is an MSX1 with 64 kB RAM.
 The machine <code>C-BIOS_MSX2</code> is an MSX2 with 512 kB RAM and 128 kB VRAM.
 The machine <code>C-BIOS_MSX2+</code> is an MSX2+ with 512 kB RAM, 128 kB VRAM and MSX-MUSIC.
 The latter is the default machine for openMSX after installation,
 so if you change nothing to the openMSX configuration,
-then <code>C-BIOS_MSX2+</code> is the machine that will be booted.
+then <code>C-BIOS_MSX2+</code> is the machine that will be booted. The mentioned machines have an international keyboard layout and character set and run at 50Hz (PAL) interrupt frequency. From C-BIOS 0.25, there are also localized versions available: Japanese and Brazilian types. You can recognize them easily.
 </p>
 
 <p>
@@ -321,8 +321,17 @@ copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
 </div>
 
 <h4><a id="romchecksums">3.4.3 Checksums</a></h4>
+
 <p>
-You can check whether you have the same images as the machine configuration
+All necessary system ROM files used in machines and extensions are primarily identified with a checksum: a sha1sum. This enables openMSX to find the right ROM
+file from one of the <a class="external" href="commands.html#filepool">file
+pool</a>s of type <code>system_rom</code>, without depending on the
+file name. So the actual content is guaranteed to be what was intended. If the
+ROM is explicitly specified in the configuration file (which is also supported) and the sha1sum doesn't match, a warning will be printed.
+</p>
+
+<p>
+You can also check whether you have the same images as the machine configuration
 was tested with using the <code>SHA1SUMS</code> file.
 This file contains checksums of ROM images that are known to work.
 You can compare the checksums of your ROM images to this file with the
@@ -333,14 +342,6 @@ If the checksums match, it is almost certain you have correct system ROMs.
 If the checksums do not match, it could mean something went wrong
 dumping the ROMs, or it could mean you have a slightly older/newer model
 which contains different system ROMs.
-</p>
-
-<p>
-The sha1sums are also included in the
-machine configuration files. This enables openMSX to find the right ROM
-file from one of the file pools. If the ROM is explicitly specified in
-the configuration file and the sha1sum doesn't match a warning will be
-printed.
 </p>
 
 <p>
@@ -498,9 +499,7 @@ some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code
 </pre>
 
 <p>
-Don't forget to add the <code>fmpac.rom</code> file to the roms directory of
-your machine, or add the file with the mentioned sha1sum to one of your ROM
-pools.
+Don't forget to add the <code>fmpac.rom</code> file to one of your <code>system_rom</code> file pools or the roms directory of your machine.
 </p>
 
 <p>
@@ -537,7 +536,7 @@ configuration file or the extensions and see what you can find.
 Devices that contain ROM or RAM will have to be put inside a slot of the MSX,
 using the <code>&lt;primary&gt;</code> and <code>&lt;secondary&gt;</code> tags
 as is demonstrated with the above mentioned FMPAC example. Other devices don't
-need this. 
+need this.
 Remember that you can not put two devices that have a ROM in the same (sub)slot!
 Just use a new free subslot if you need to add such a device and all your
 primary slots are full. Devices that do not need a slot, like the MSX-Audio
