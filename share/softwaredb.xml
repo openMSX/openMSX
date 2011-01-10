@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1294518169">
+<softwaredb xml:lang="en" timestamp="1294691885">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2266,6 +2266,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2010</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9be7612db1f968455dcd0b115239efcb91474e91</hash><remark><text>MSXDev10 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">053c7ff78dce7c3b24250f64ca6b139182e14844</hash><remark><text>Flashrom Version / MSXDev10 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Darwin 4078</title>
@@ -11732,6 +11733,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2583
-Parse time 6.420 seconds on Sat Jan 8 21:22:56 CET 2011
+Roms in this database:2584
+Parse time 6.994 seconds on Mon Jan 10 21:38:12 CET 2011
  -->
