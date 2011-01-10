@@ -16,6 +16,7 @@
   <h1>openMSX Console Command Reference</h1>
 
   <ol class="inlinetoccat">
+    <li>Introduction</li>
     <li>Commands
 
       <ol class="inlinetoc">
@@ -328,6 +329,10 @@
       </ol>
     </li>
   </ol>
+
+  <h2><a id="commands">Introduction</a></h2>
+
+  <p>This manual describes all commands and settings which are available in openMSX. You can use them to control openMSX fully from the Console (a built in command line interface, use F10 to call it), via Tcl scripts and via remote connections (explained in <a class="external" href="openmsx-control.html">Controlling openMSX from External Applications</a>). If you want to unleash the full potential of openMSX or just want a reference of all available possibilities, this manual should serve you well.</p>
 
   <h2><a id="commands">Commands</a></h2>
 
@@ -1839,7 +1844,7 @@
 
   <h3><a id="reverse">reverse</a></h3>
 
-  <p>Controls the reverse feature. When this feature is enabled, openMSX will collect data while emulating, which enables you to go back (and forward) in MSX time. In other words: you cannot use the commands to go back and forward in time, without having the reverse feature enabled first.</p>
+  <p>Controls the reverse feature. When this feature is enabled (the default), openMSX will collect data while emulating, which enables you to go back (and forward) in MSX time. In other words: you cannot use the commands to go back and forward in time, if you disable the feature.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1896,6 +1901,11 @@
 
   <table>
     <tr>
+      <td><code>go_back_one_second</code> / <code>go_forward_one_second</code></td>
+
+      <td>Go back or forward one second in time (if possible). These are used for the default PageUp and PageDown key bindings.</td>
+    </tr>
+    <tr>
       <td><code>reverse_prev [&lt;min&gt; [&lt;max&gt;]]</code></td>
 
       <td>Go back in time to the previous (internal) snapshot. The further back in the past the less dense the amount of snapshots are. So, executing this command multiple times, will take successively bigger steps in the past. You can optionally specify a minimal and maximal step size. You will at least go back the minimal amount of time (even if there's a snapshot closer to the current time) and at most the maximal amount of time (even if there's no snapshot within the maximum specified time from the current time).</td>
@@ -1907,7 +1917,7 @@
     </tr>
   </table>
 
-  <p>If you frequently use the reverse feature, it might be useful to set the <code><a class="internal" href="#auto_enable_reverse">auto_enable_reverse</a></code> setting.</p>
+  <p>Because the reverse feature is very useful, it is automatically enabled via <code><a class="internal" href="#auto_enable_reverse">auto_enable_reverse</a></code> setting.</p>
 
   <h3><a id="save_settings">save_settings</a></h3>
 
