@@ -34,7 +34,6 @@
 		<ol class="toc">
 			<li><a class="internal" href="#getrelease">3.1 Released Version</a></li>
 			<li><a class="internal" href="#getsvn">3.2 SVN Checkout</a></li>
-			<li><a class="internal" href="#getsnapshot">3.3 SVN Snapshot</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#local">4. Binary for Local System</a>
@@ -384,24 +383,15 @@ so once in a while it breaks.
 Also there may be changes that are not documented yet.
 </dd>
 
-<dt><a class="internal" href="#getsnapshot">SVN Snapshot</a></dt>
-<dd>
-A snapshot is created from a recent SVN checkout,
-in a <code>tar.gz</code>  archive.
-A snapshot is therefore quite similar to a SVN checkout,
-but it doesn't require you to install and use SVN. <strong>We really do not recommend to use SVN snapshots anymore, as they are usually very outdated and have other disadvantages.</strong>
-</dd>
-
 </dl>
 
 <p>
-Releases are intended for general users, SVN and SVN snapshots are intended for
+Releases are intended for general users, SVN is intended for
 (would be) developers, heavy testers and people who want to follow new
 developments closely. It might be a good idea to play with a release first. If
 you like what you see and want to get in deeper, you can switch to SVN later.
-If you update often, it is best to use a SVN checkout rather than
-a SVN snapshot, because with a checkout you can do efficient incremental
-updates, saving network bandwidth and compile time.
+An SVN checkout is very comfortable, because then you can do efficient
+incremental updates, saving network bandwidth and compile time.
 </p>
 
 <p>
@@ -498,23 +488,6 @@ svn up
 or right click on the openMSX directory in Windows Explorer and select "SVN Update".
 </p>
 
-<h3><a id="getsnapshot">3.3 SVN Snapshot</a></h3>
-
-<p>As we stated above: better not use this anymore.</p>
-
-<!--
-<p>
-First, download the <a class="external" href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz" >most recent SVN snapshot</a>.
-</p>
-
-<p>
-After downloading, type the following in a UNIX or MSYS shell, or use another decompression tool:
-</p>
-<div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
-<p>
-The directory that is created by uncompressing the <code>tar.gz</code> file is called <em>the top of the source tree</em>.
-</p>
--->
 <h2><a id="local">4. Binary for Local System</a></h2>
 
 <p>
