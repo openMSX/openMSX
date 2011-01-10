@@ -144,7 +144,11 @@ Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is 
 </p>
 
 <p>
-Catapult doesn't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did our best to make this console as easy to use as possible.
+An alternative to Catapult, is the built in OSD menu. You can call it by pressing the MENU key (usually left of the right CTRL key on your keyboard). This menu is also used on handhelds, like the Dingoo.
+</p>
+
+<p>
+Catapult and the OSD menu don't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did our best to make this console as easy to use as possible.
 </p>
 
 <p>
@@ -326,11 +330,11 @@ In general people wonder why you need 200MHz+ machines to emulate a computer bas
 <h3><a id="perfect_videos">How do I create perfect play videos, like Vampier's YouTube videos?</a></h3>
 
 <p>
-The trick is to use the <a class="external" href="user.html#reverse">reverse</a> feature to correct any mistake you make during game play. You enable the feature (if you don't have it <a class="external" href="commands.html#auto_enable_reverse">auto-enabled</a>) at the point where you would like to start the perfect video and play, play, play, correcting all mistakes you make by going back in time a bit (using PageUp) when you (e.g.) die and doing it better.
+The trick is to use the <a class="external" href="user.html#reverse">reverse</a> feature to correct any mistake you make during game play. You just play, play, play, correcting all mistakes you make by going back in time a bit (using PageUp) when you (e.g.) die and doing it better.
 </p>
 <p>As soon as you get to the end of the game, we recommend to save the whole replay (using the <a class="external" href="commands.html#reverse"><code>reverse savereplay</code></a>), so that you can always load it and play it again (using <a class="external" href="commands.html#reverse"><code>reverse loadreplay</code></a>).
 </p>
-<p>Next step is to pause openMSX, load back the replay (if you saved it) or simply go back to the complete start (using the command <a class="external" href="commands.html#reverse"><code>reverse goto 0</code></a>). Now you're ready to record your heroic movie! (Note: if you had the reverse feature auto-enabled, you might be going too far back here... just let it play until it reaches the right position, or use another parameter for the <code>reverse goto</code> command or just search a bit with PageUp/PageDown.)
+<p>Next step is to pause openMSX, load back the replay (if you saved it) or simply go back to the complete start (click at the start of the reverse bar, or use the command <a class="external" href="commands.html#reverse"><code>reverse goto 0</code></a>). Now you're ready to record your heroic movie! (Note: if you want to record a video from a later point in time, just let it play until it reaches the right position, or click on another part of the reverse bar, or just search a bit with PageUp/PageDown.)
 </p>
 <p>So finally, <a class="external" href="user.html#recording">start recording</a> and unpause openMSX. If you want it quickly, run in <a class="external" href="commands.html#throttle">full throttle</a> (F9 by default) to speed things up. The resulting movie will be the same. If you want to split up the recorded video in chunks that are accepted by YouTube, you probably want to look at the <a class="external" href="commands.html#record">record_chunks</a> command.
 </p>
