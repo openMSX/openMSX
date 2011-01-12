@@ -297,6 +297,36 @@ DirAsDSK::~DirAsDSK()
 
 void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 {
+	// This method behaves different in 'peek-mode' (see
+	// SectorAccessibleDisk.hh) In peek-mode we don't sync with the host
+	// filesystem. Instead all reads come directly from the in-memory
+	// caches. Peek-mode is (only) used to read the (whole) disk to
+	// calculate a sha1sum for the periodic reverse snapshots. This is far
+	// from ideal: ideally we want each snapshot to have an up-to-date
+	// sha1sum for the dir-as-disk image. But this mode was required to
+	// work around a far worse problem: disk-corruption. It happens for
+	// example in the following scenario:
+	// - Save a file to dir-as-disk using a Philips-NMS-8250 (disk rom
+	//   matters). Also the timing matters, I could easily trigger the
+	//   problem while saving a screen 5 image in Paint4, but not when
+	//   saving a similar file in MSX-BASIC. Now the following sectors are
+	//   read/written:
+	// - First the directory entry is created with the correct filename,
+	//   but filesize and start-cluster are both still set to zero.
+	// - Data sectors are written.
+	// - Every second the writes are interrupted with a read of the whole
+	//   disk (sectors 0-1439) to calculate the sha1sum. At this point this
+	//   doesn't cause problems (yet).
+	// - Now the directory entry is written with the correct filesize and
+	//   cluster number. But at this point the FAT is not yet updated.
+	// - Often at this point the whole disk is read again and this leads
+	//   to disk corruption: Because the host filesize and the filesize
+	//   in the directory entry don't match both files will be synced, but
+	//   because the FAT is not yet in a consistent state, this sync will
+	//   go wrong (in the end the filesize in the directory entry will be
+	//   set to the wrong value).
+	// - Last the MSX writes the FAT sectors, but the earlier host sync
+	//   already screwed up the filesize in the directory entry.
 	debug("DirAsDSK::readSectorImpl: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
@@ -336,8 +366,10 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		// we check all files in the faked disk for altered filesize
 		// remapping each fat entry to its direntry and do some bookkeeping
 		// to avoid multiple checks will probably be slower than this
-		for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-			checkAlterFileInDisk(i);
+		if (!isPeekMode()) {
+			for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
+				checkAlterFileInDisk(i);
+			}
 		}
 
 		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
@@ -349,11 +381,11 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		unsigned dirCount = sector * DIR_ENTRIES_PER_SECTOR;
 		// check if there are new files on the host when we read the
 		// first directory sector
-		if (dirCount == 0) {
+		if (!isPeekMode() && dirCount == 0) {
 			scanHostDir(true);
 		}
 		for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i, ++dirCount) {
-			checkAlterFileInDisk(dirCount);
+			if (!isPeekMode()) checkAlterFileInDisk(dirCount);
 			memcpy(&buf[sizeof(MSXDirEntry) * i], &(mapdir[dirCount].msxinfo), sizeof(MSXDirEntry));
 		}
 
@@ -371,30 +403,32 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			// first copy cached data
 			// in case (end of) file only fills partial sector
 			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
-			// read data from host file
-			unsigned offset = sectormap[sector].fileOffset;
-			string shortname = mapdir[sectormap[sector].dirEntryNr].shortname;
-			checkAlterFileInDisk(shortname);
-			// now try to read from file if possible
-			try {
-				string fullfilename = hostDir + shortname;
-				File file(fullfilename);
-				unsigned size = file.getSize();
-				file.seek(offset);
-				if (offset < size) {
-					file.read(buf, std::min(size - offset, SECTOR_SIZE));
-				} else {
-					// Normally shouldn't happen because
-					// checkAlterFileInDisk() above synced
-					// host file size with MSX file size.
+			if (!isPeekMode()) {
+				// read data from host file
+				unsigned offset = sectormap[sector].fileOffset;
+				string shortname = mapdir[sectormap[sector].dirEntryNr].shortname;
+				checkAlterFileInDisk(shortname);
+				// now try to read from file if possible
+				try {
+					string fullfilename = hostDir + shortname;
+					File file(fullfilename);
+					unsigned size = file.getSize();
+					file.seek(offset);
+					if (offset < size) {
+						file.read(buf, std::min(size - offset, SECTOR_SIZE));
+					} else {
+						// Normally shouldn't happen because
+						// checkAlterFileInDisk() above synced
+						// host file size with MSX file size.
+					}
+					// and store the newly read data again in the sector cache
+					// since checkAlterFileInDisk => updateFileInDisk only reads
+					// altered data if filesize has been changed and not if only
+					// content in file has changed
+					memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
+				} catch (FileException&) {
+					// couldn't open/read cached sector file
 				}
-				// and store the newly read data again in the sector cache
-				// since checkAlterFileInDisk => updateFileInDisk only reads
-				// altered data if filesize has been changed and not if only
-				// content in file has changed
-				memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
-			} catch (FileException&) {
-				// couldn't open/read cached sector file
 			}
 		}
 	}

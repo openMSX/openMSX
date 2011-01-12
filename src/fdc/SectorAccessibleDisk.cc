@@ -11,6 +11,7 @@ namespace openmsx {
 SectorAccessibleDisk::SectorAccessibleDisk()
 	: patch(new EmptyDiskPatch(*this))
 	, forcedWriteProtect(false)
+	, peekMode(false)
 {
 }
 
@@ -71,14 +72,21 @@ bool SectorAccessibleDisk::hasPatches() const
 std::string SectorAccessibleDisk::getSha1Sum()
 {
 	if (sha1cache.empty()) {
-		SHA1 sha1;
-		unsigned nbSectors = getNbSectors();
-		for (unsigned i = 0; i < nbSectors; ++i) {
-			byte buf[SECTOR_SIZE];
-			readSector(i, buf);
-			sha1.update(buf, SECTOR_SIZE);
+		try {
+			setPeekMode(true);
+			SHA1 sha1;
+			unsigned nbSectors = getNbSectors();
+			for (unsigned i = 0; i < nbSectors; ++i) {
+				byte buf[SECTOR_SIZE];
+				readSector(i, buf);
+				sha1.update(buf, SECTOR_SIZE);
+			}
+			sha1cache = sha1.hex_digest();
+			setPeekMode(false);
+		} catch (MSXException&) {
+			setPeekMode(false);
+			throw;
 		}
-		sha1cache = sha1.hex_digest();
 	}
 	return sha1cache;
 }

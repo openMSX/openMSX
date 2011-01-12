@@ -53,6 +53,12 @@ public:
 protected:
 	SectorAccessibleDisk();
 
+	// Peek-mode changes the behaviour of readSector(). ATM it only has
+	// an effect on DirAsDSK. See comment in DirAsDSK::readSectorImpl()
+	// for more details.
+	void setPeekMode(bool peek) { peekMode = peek; }
+	bool isPeekMode() const { return peekMode; }
+
 private:
 	virtual void readSectorImpl(unsigned sector, byte* buf) = 0;
 	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;
@@ -62,6 +68,7 @@ private:
 	std::auto_ptr<const PatchInterface> patch;
 	std::string sha1cache;
 	bool forcedWriteProtect;
+	bool peekMode;
 
 	friend class EmptyDiskPatch;
 };
