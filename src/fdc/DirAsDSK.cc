@@ -732,8 +732,9 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	// about identifier bytes above)
 	static const unsigned MAX_FAT_ENTRIES_PER_SECTOR =
 		(SECTOR_SIZE * 2 + (3 - 1)) / 3; // rounded up
+	unsigned fatSector = sector - FIRST_SECTOR_2ND_FAT;
 	unsigned startcluster = std::max(FIRST_CLUSTER,
-	                                 ((sector - FIRST_SECTOR_2ND_FAT) * 2) / 3);
+	                                 ((fatSector * SECTOR_SIZE) * 2) / 3);
 	unsigned endcluster = std::min(startcluster + MAX_FAT_ENTRIES_PER_SECTOR,
 	                               MAX_CLUSTER);
 	for (unsigned i = startcluster; i < endcluster; ++i) {
@@ -742,7 +743,6 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 		}
 	}
 
-	unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
 	memcpy(&fat2[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
 }
 
