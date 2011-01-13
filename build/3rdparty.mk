@@ -273,6 +273,7 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		LDFLAGS="$(_LDFLAGS)"
 
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
+
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_OGG)
 	mkdir -p $(@D)
@@ -285,7 +286,8 @@ $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \
 		PKG_CONFIG=/nowhere
 
 $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_VORBIS)
+  $(SOURCE_DIR)/$(PACKAGE_VORBIS) \
+  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-shared \
@@ -297,18 +299,28 @@ $(BUILD_DIR)/$(PACKAGE_VORBIS)/Makefile: \
 		LDFLAGS="$(_LDFLAGS)" \
 		PKG_CONFIG=/nowhere
 
+# Note: According to its spec file, Theora has a build dependency on both
+#       Ogg and Vorbis, a runtime dependency on Vorbis and a development
+#       package dependency on Ogg.
 $(BUILD_DIR)/$(PACKAGE_THEORA)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_THEORA)
+  $(SOURCE_DIR)/$(PACKAGE_THEORA) \
+  $(TIMESTAMP_DIR)/install-$(PACKAGE_OGG) \
+  $(TIMESTAMP_DIR)/install-$(PACKAGE_VORBIS)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-shared \
+		--disable-oggtest \
+		--disable-vorbistest \
+		--disable-sdltest \
 		--disable-encode \
 		--disable-examples \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-ogg=$(PWD)/$(INSTALL_DIR) \
+		--with-vorbis=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)"
+		LDFLAGS="$(_LDFLAGS)" \
+		PKG_CONFIG=/nowhere
 
 endif
 
