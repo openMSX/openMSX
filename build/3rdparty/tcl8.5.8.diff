@@ -1,6 +1,6 @@
 diff -ru tcl8.5.8.org/generic/tcl.h tcl8.5.8/generic/tcl.h
 --- tcl8.5.8.org/generic/tcl.h	2009-11-03 20:21:37.000000000 +0100
-+++ tcl8.5.8/generic/tcl.h	2011-01-14 00:14:45.000000000 +0100
++++ tcl8.5.8/generic/tcl.h	2011-01-13 23:53:12.000000000 +0100
 @@ -170,7 +170,7 @@
   *       MSVCRT.  
   */
@@ -12,7 +12,7 @@ diff -ru tcl8.5.8.org/generic/tcl.h tcl8.5.8/generic/tcl.h
  #       define DLLIMPORT
 diff -ru tcl8.5.8.org/generic/tclPosixStr.c tcl8.5.8/generic/tclPosixStr.c
 --- tcl8.5.8.org/generic/tclPosixStr.c	2009-10-21 15:54:45.000000000 +0200
-+++ tcl8.5.8/generic/tclPosixStr.c	2011-01-14 00:14:45.000000000 +0100
++++ tcl8.5.8/generic/tclPosixStr.c	2011-01-13 23:53:12.000000000 +0100
 @@ -343,7 +343,7 @@
  #ifdef EPERM
      case EPERM: return "EPERM";
@@ -51,7 +51,7 @@ diff -ru tcl8.5.8.org/generic/tclPosixStr.c tcl8.5.8/generic/tclPosixStr.c
  #ifdef ESPIPE
 diff -ru tcl8.5.8.org/generic/tclStrToD.c tcl8.5.8/generic/tclStrToD.c
 --- tcl8.5.8.org/generic/tclStrToD.c	2009-07-16 22:50:54.000000000 +0200
-+++ tcl8.5.8/generic/tclStrToD.c	2011-01-14 00:14:45.000000000 +0100
++++ tcl8.5.8/generic/tclStrToD.c	2011-01-13 23:53:12.000000000 +0100
 @@ -71,9 +71,10 @@
  
  /*
@@ -76,7 +76,7 @@ diff -ru tcl8.5.8.org/generic/tclStrToD.c tcl8.5.8/generic/tclStrToD.c
      mipsCR.fc_word = get_fpc_csr();
 diff -ru tcl8.5.8.org/unix/configure tcl8.5.8/unix/configure
 --- tcl8.5.8.org/unix/configure	2009-11-13 19:38:45.000000000 +0100
-+++ tcl8.5.8/unix/configure	2011-01-14 00:14:45.000000000 +0100
++++ tcl8.5.8/unix/configure	2011-01-13 23:53:12.000000000 +0100
 @@ -14966,7 +14966,7 @@
  else
  
@@ -88,7 +88,7 @@ diff -ru tcl8.5.8.org/unix/configure tcl8.5.8/unix/configure
  /* confdefs.h.  */
 diff -ru tcl8.5.8.org/unix/Makefile.in tcl8.5.8/unix/Makefile.in
 --- tcl8.5.8.org/unix/Makefile.in	2009-11-13 19:38:45.000000000 +0100
-+++ tcl8.5.8/unix/Makefile.in	2011-01-14 00:14:45.000000000 +0100
++++ tcl8.5.8/unix/Makefile.in	2011-01-13 23:53:12.000000000 +0100
 @@ -745,7 +745,7 @@
  	fi
  	@EXTRA_INSTALL_BINARIES@
@@ -98,3 +98,15 @@ diff -ru tcl8.5.8.org/unix/Makefile.in tcl8.5.8/unix/Makefile.in
  	@for i in "$(INCLUDE_INSTALL_DIR)" "$(SCRIPT_INSTALL_DIR)"; \
  	    do \
  	    if [ ! -d "$$i" ] ; then \
+diff -ru tcl8.5.8.org/win/Makefile.in tcl8.5.8/win/Makefile.in
+--- tcl8.5.8.org/win/Makefile.in	2009-11-13 19:38:45.000000000 +0100
++++ tcl8.5.8/win/Makefile.in	2011-01-14 00:09:11.000000000 +0100
+@@ -597,7 +597,7 @@
+ 	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg1.2; \
+ 	    fi
+ 
+-install-libraries: libraries install-tzdata install-msgs
++install-libraries: libraries
+ 	@for i in $(prefix)/lib $(INCLUDE_INSTALL_DIR) \
+ 		$(SCRIPT_INSTALL_DIR); \
+ 	    do \
