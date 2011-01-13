@@ -306,6 +306,7 @@ LINK_FLAGS+=$(TARGET_FLAGS)
 
 # Determine compiler.
 CXX?=g++
+WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
@@ -540,7 +541,7 @@ $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) forceversionextraction
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 	@echo "Compiling resources..."
 	@mkdir -p $(@D)
-	@windres $(addprefix --include-dir=,$(^D)) -o $@ -i $<
+	@$(WINDRES) $(addprefix --include-dir=,$(^D)) -o $@ -i $<
 endif
 
 # Link executable.
