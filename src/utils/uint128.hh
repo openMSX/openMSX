@@ -138,6 +138,7 @@ public:
 	uint128& operator*=(const uint128& b);
 
 private:
+	uint128() {}
 	uint128(uint64 a, uint64 b) : lo(a), hi(b) {}
 	uint128 div(const uint128& ds, uint128& remainder) const;
 	bool bit(unsigned n) const;
