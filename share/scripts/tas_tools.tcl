@@ -187,12 +187,29 @@ variable addr_watches   ;# sorted list of RAM watch addresses
 set_help_text ram_watch_add\
 {Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.}
 
+variable type_formatters
+set type_formatters(d) "%d"
+set type_formatters(u) "%u"
+set type_formatters(x) "0x%0SX"
+set type_formatters(c) "'%c'"
+
+variable size_peekers
+set size_peekers(b) "peek"
+set size_peekers(w) "peek16"
+
+variable size_digits
+set size_digits(b) 2
+set size_digits(w) 4
+
 proc ram_watch_add {addr_str args} {
 	variable addr_watches
+	variable type_formatters
+	variable size_peekers
 
+	# defaults
 	set description "?"
 	set size "b"
-	set type "h"
+	set type "x"
 
 	while (1) {
 		switch -- [lindex $args 0] {
@@ -202,10 +219,16 @@ proc ram_watch_add {addr_str args} {
 			}
 			"-size" {
 				set size [lindex $args 1]
+				if {![info exists size_peekers($size)]} {
+					error "Unsupported size... choose from: [array names size_peekers]"
+				}
 				set args [lrange $args 2 end]
 			}
 			"-type" {
 				set type [lindex $args 1]
+				if {![info exists type_formatters($type)]} {
+					error "Unsupported type... choose from: [array names type_formatters]"
+				}
 				set args [lrange $args 2 end]
 			}
 			"default" {
@@ -234,10 +257,10 @@ proc ram_watch_add {addr_str args} {
 		osd create rectangle ram_watch \
 			-x 0 -y 0 -h 240 -w 320 -scaled true -rgba 0x00000000
 		osd create rectangle ram_watch.addr \
-			-x 288 -y 1 -w 31 -h 221 \
+			-x 257 -y 1 -w 62 -h 221 \
 			-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 			-borderrgba 0x00000040 -bordersize 0.5
-		osd create text ram_watch.addr.title -text "Ram Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
+		osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
 	}
 
 	# add one extra entry
@@ -246,8 +269,12 @@ proc ram_watch_add {addr_str args} {
 	osd create text  ram_watch.addr.mem$old_nof_watches.text \
 		-size 4 -rgba 0xffffffff
 	osd create rectangle ram_watch.addr.val$old_nof_watches \
-		-x 19 -y [expr 8+($old_nof_watches*6)] -h 5 -w 10 -rgba 0x40404080
+		-x 19 -y [expr 8+($old_nof_watches*6)] -h 5 -w 16 -rgba 0x40404080
 	osd create text  ram_watch.addr.val$old_nof_watches.text \
+		-size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.desc$old_nof_watches \
+		-x 36 -y [expr 8+($old_nof_watches*6)] -h 5 -w 24 -rgba 0x40404080 -clip true
+	osd create text  ram_watch.addr.desc$old_nof_watches.text \
 		-size 4 -rgba 0xffffffff
 
 	ram_watch_update_addresses
@@ -282,6 +309,7 @@ proc ram_watch_remove {addr_str} {
 	#remove one OSD entry
 	osd destroy ram_watch.addr.mem$i
 	osd destroy ram_watch.addr.val$i
+	osd destroy ram_watch.addr.desc$i
 
 	#if all elements are gone don't display anything anymore.
 	if {$i == 0} {
@@ -298,17 +326,23 @@ proc ram_watch_update_addresses {} {
 	set i 0
 	foreach addr [lsort [array names addr_watches]] {
 		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
+		osd configure ram_watch.addr.desc$i.text -text [dict get $addr_watches($addr) description]
 		incr i
 	}
 }
 
 proc ram_watch_update_values {} {
 	variable addr_watches
+	variable type_formatters
+	variable size_peekers
+	variable size_digits
+
 	if {[array size addr_watches] == 0} return
 
 	set i 0
 	foreach addr [lsort [array names addr_watches]] {
-		osd configure ram_watch.addr.val$i.text -text [format 0x%02X [peek $addr]]
+		set size [dict get $addr_watches($addr) size]
+		osd configure ram_watch.addr.val$i.text -text [format [string map [list S $size_digits($size)] $type_formatters([dict get $addr_watches($addr) type])] [$size_peekers($size) $addr]]
 		incr i
 	}
 	after frame [namespace code ram_watch_update_values]
