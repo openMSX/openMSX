@@ -182,8 +182,16 @@ proc toggle_cursors {} {
 
 ### RAM Watch ###
 
+# TODO:
+# - be smarter with coordinates, by using negative ones
+# - maybe put description on separate line to make window narrow again?
+
 set_help_text ram_watch_add\
-{Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.}
+{Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes. Optional arguments are:
+-desc <description> describes the address
+-size <size>        byte or word sized value
+-type <type>        format of value: (d)ec, (u)nsigned, he(x), (c)har
+}
 
 variable addr_watches   ;# list of RAM watches
 
@@ -320,6 +328,17 @@ proc ram_watch_remove {addr_str} {
 	return ""
 }
 
+set_help_text ram_watch_clear\
+{Removes all RAM watches.}
+
+proc ram_watch_clear {} {
+	variable addr_watches
+	array unset addr_watches
+	osd destroy ram_watch
+	return ""
+}
+
+
 proc ram_watch_update_addresses {} {
 	variable addr_watches
 
@@ -346,13 +365,6 @@ proc ram_watch_update_values {} {
 		incr i
 	}
 	after frame [namespace code ram_watch_update_values]
-}
-
-proc ram_watch_clear {} {
-	variable addr_watches
-	array unset addr_watches
-	osd destroy ram_watch
-	return ""
 }
 
 namespace export toggle_frame_counter
