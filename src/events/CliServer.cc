@@ -142,7 +142,7 @@ void CliServer::createSocket()
 	if (listenSock == OPENMSX_INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
-	portNumber = openPort(listenSock);
+	int portNumber = openPort(listenSock);
 
 	// write port number to file
 	FileOperations::unlink(socketName); // ignore error

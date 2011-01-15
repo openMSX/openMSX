@@ -35,7 +35,6 @@ private:
 
 	Thread thread;
 	std::string socketName;
-	int portNumber; // windows only
 	SOCKET listenSock;
 	bool exitLoop;
 

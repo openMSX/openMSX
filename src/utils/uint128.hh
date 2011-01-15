@@ -23,7 +23,6 @@ inline uint64 toUint64(uint128 a) { return a; }
 class uint128
 {
 public:
-	uint128() {}
 	uint128(const uint128& a) : lo(a.lo), hi(a.hi) {}
 	uint128(uint64 a)         : lo(a), hi(0) {}
 

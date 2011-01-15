@@ -77,7 +77,6 @@ private:
 	typedef std::vector<StateChangeListener*> Listeners;
 	Listeners listeners;
 	StateChangeRecorder* recorder;
-	bool replaying;
 	bool viewOnlyMode;
 };
 

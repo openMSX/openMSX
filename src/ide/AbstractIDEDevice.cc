@@ -457,6 +457,8 @@ void AbstractIDEDevice::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("devHeadReg", devHeadReg);
 	ar.serialize("statusReg", statusReg);
 	ar.serialize("featureReg", featureReg);
+	bool transferIdentifyBlock = false; // remove on next version increment
+	                                    // no need to break bw-compat now
 	ar.serialize("transferIdentifyBlock", transferIdentifyBlock);
 	ar.serialize("transferRead", transferRead);
 	ar.serialize("transferWrite", transferWrite);

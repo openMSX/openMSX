@@ -4,9 +4,7 @@
 #include "uint128.hh"
 #include <cassert>
 
-typedef unsigned long long uint64;
-
-static unsigned log2(uint64 i)
+static unsigned log2(DivModBySame::uint64 i)
 {
 	unsigned t = 0;
 	i >>= 1;

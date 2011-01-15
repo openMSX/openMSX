@@ -39,11 +39,10 @@ public:
 
 private:
 	struct HotKeyInfo {
-		HotKeyInfo() {}
 		HotKeyInfo(const std::string& command_, bool repeat_ = false)
 			: command(command_), repeat(repeat_) {}
-		std::string command;
-		bool repeat;
+		const std::string command;
+		const bool repeat;
 	};
 	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr> > BindMap;
 	typedef std::set<EventPtr,             deref_less<EventPtr> > KeySet;

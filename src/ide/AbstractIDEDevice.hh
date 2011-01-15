@@ -230,10 +230,6 @@ private:
 	byte statusReg;
 	byte featureReg;
 
-	/** True iff the current transfer is part of an IDENTIFY DEVICE command.
-	  */
-	bool transferIdentifyBlock;
-
 	bool transferRead;
 	bool transferWrite;
 };
