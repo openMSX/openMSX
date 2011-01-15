@@ -50,7 +50,6 @@ private:
 	PostProcessor* postProcessor1;
 	PostProcessor* postProcessor2;
 	MSXMixer* mixer;
-	double frameDuration;
 	EmuDuration duration;
 	EmuTime prevTime;
 	unsigned sampleRate;

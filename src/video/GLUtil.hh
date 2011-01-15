@@ -132,42 +132,6 @@ public:
 	                 GLbyte* data);
 };
 
-class StoredFrame
-{
-public:
-	StoredFrame();
-	bool isStored() { return stored; }
-	void store(unsigned x, unsigned y);
-	void draw(int offsetX, int offsetY, int width, int height);
-	void drawBlend(int offsetX, int offsetY,
-	               int width, int height, double alpha);
-
-private:
-	/** Texture reserved for storing frame image data.
-	  */
-	Texture texture;
-
-	/** Width of the stored image.
-	  */
-	unsigned width;
-
-	/** Height of the stored image.
-	  */
-	unsigned height;
-
-	/** Width of the texture.
-	  */
-	unsigned textureWidth;
-
-	/** Height of the texture.
-	  */
-	unsigned textureHeight;
-
-	/** Was the previous frame image stored?
-	  */
-	bool stored;
-};
-
 class FrameBufferObject
 {
 public:
