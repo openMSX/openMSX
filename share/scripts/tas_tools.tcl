@@ -376,39 +376,54 @@ proc ram_watch_update_values {} {
 	after frame [namespace code ram_watch_update_values]
 }
 
+proc ram_watch_tabcompletion { args } {
+        return [list_ram_watch_files]
+}
+
+set_tabcompletion_proc ram_watch_save [namespace code ram_watch_tabcompletion]
+
 set_help_text ram_watch_save\
 {Saves the RAM watch list to the given file.}
 
-proc ram_watch_save { filename } {
+proc ram_watch_save { name } {
 	variable addr_watches
 
 	if { [array size addr_watches] == 0 } {
 		error "No RAM watches present."
 	}
 
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
+	file mkdir $directory
+	set fullname [file join $directory ${name}.wch]
+
 	if {[catch {
-		set the_file [open $filename {WRONLY TRUNC CREAT}]
+		set the_file [open $fullname {WRONLY TRUNC CREAT}]
 		puts $the_file [array get addr_watches]
 		close $the_file
 	} errorText ]} {
-		error "Failed to save to $filename: $errorText"
+		error "Failed to save to $fullname: $errorText"
 	}
-	return "Successfully saved RAM watch to $filename"
+	return "Successfully saved RAM watch to $fullname"
 }
 
 set_help_text ram_watch_load\
 {Loads a RAM watch list from the given file.}
 
-proc ram_watch_load { filename } {
+set_tabcompletion_proc ram_watch_load [namespace code ram_watch_tabcompletion]
+
+proc ram_watch_load { name } {
 	variable addr_watches
 	ram_watch_clear
 
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
+	set fullname [file join $directory ${name}.wch]
+
 	if {[catch {
-		set the_file [open $filename {RDONLY}]
+		set the_file [open $fullname {RDONLY}]
 		array set addr_watches [read $the_file]
 		close $the_file
 	} errorText ]} {
-		error "Failed to load from $filename: $errorText"
+		error "Failed to load from $fullname: $errorText"
 	}
 
 	ram_watch_init_widget
@@ -417,7 +432,16 @@ proc ram_watch_load { filename } {
 	}
 	ram_watch_update_addresses
 	ram_watch_update_values
-	return "Successfully loaded $filename"
+	return "Successfully loaded $fullname"
+}
+
+proc list_ram_watch_files {} {
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
+	set results [list]
+	foreach f [lsort [glob -tails -directory $directory -type f -nocomplain *.wch]] {
+		lappend results [file rootname $f]
+	}
+	return $results
 }
 
 namespace export toggle_frame_counter
