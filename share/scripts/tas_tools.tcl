@@ -182,10 +182,10 @@ proc toggle_cursors {} {
 
 ### RAM Watch ###
 
-variable addr_watches   ;# sorted list of RAM watch addresses
-
 set_help_text ram_watch_add\
 {Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.}
+
+variable addr_watches   ;# list of RAM watches
 
 variable type_formatters
 set type_formatters(d) "%d"
@@ -348,6 +348,12 @@ proc ram_watch_update_values {} {
 	after frame [namespace code ram_watch_update_values]
 }
 
+proc ram_watch_clear {} {
+	variable addr_watches
+	array unset addr_watches
+	osd destroy ram_watch
+	return ""
+}
 
 namespace export toggle_frame_counter
 namespace export advance_frame
@@ -355,6 +361,7 @@ namespace export reverse_frame
 namespace export enable_tas_mode
 namespace export ram_watch_add
 namespace export ram_watch_remove
+namespace export ram_watch_clear
 namespace export toggle_cursors
 }
 
