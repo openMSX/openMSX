@@ -154,15 +154,16 @@ struct IncrByteAddr7;
 struct IncrPixelAddr4;
 struct IncrPixelAddr5;
 struct IncrPixelAddr6;
-struct IncrPixelAddr7;
 struct IncrMask4;
 struct IncrMask5;
-struct IncrMask6;
 struct IncrMask7;
 struct IncrShift4;
 struct IncrShift5;
-struct IncrShift6;
 struct IncrShift7;
+typedef IncrByteAddr7 IncrPixelAddr7;
+typedef IncrMask4 IncrMask6;
+typedef IncrShift4 IncrShift6;
+
 
 template <typename LogOp> static void psetFast(
 	EmuTime::param time, VDPVRAM& vram, unsigned addr,
@@ -188,6 +189,7 @@ struct Graphic4Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	static inline byte duplicate(byte color);
 };
 
 inline unsigned Graphic4Mode::addressOf(
@@ -214,6 +216,12 @@ inline void Graphic4Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(15 << sh));
 }
 
+inline byte Graphic4Mode::duplicate(byte color)
+{
+	assert((color & 0xF0) == 0);
+	return color | (color << 4);
+}
+
 /** Represents V9938 Graphic 5 mode (SCREEN6).
   */
 struct Graphic5Mode
@@ -231,6 +239,7 @@ struct Graphic5Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	static inline byte duplicate(byte color);
 };
 
 inline unsigned Graphic5Mode::addressOf(
@@ -257,6 +266,14 @@ inline void Graphic5Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(3 << sh));
 }
 
+inline byte Graphic5Mode::duplicate(byte color)
+{
+	assert((color & 0xFC) == 0);
+	color |= color << 2;
+	color |= color << 4;
+	return color;
+}
+
 /** Represents V9938 Graphic 6 mode (SCREEN7).
   */
 struct Graphic6Mode
@@ -274,6 +291,7 @@ struct Graphic6Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	static inline byte duplicate(byte color);
 };
 
 inline unsigned Graphic6Mode::addressOf(
@@ -300,6 +318,12 @@ inline void Graphic6Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(15 << sh));
 }
 
+inline byte Graphic6Mode::duplicate(byte color)
+{
+	assert((color & 0xF0) == 0);
+	return color | (color << 4);
+}
+
 /** Represents V9938 Graphic 7 mode (SCREEN8).
   */
 struct Graphic7Mode
@@ -317,6 +341,7 @@ struct Graphic7Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	static inline byte duplicate(byte color);
 };
 
 inline unsigned Graphic7Mode::addressOf(
@@ -341,12 +366,16 @@ inline void Graphic7Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color, 0);
 }
 
+inline byte Graphic7Mode::duplicate(byte color)
+{
+	return color;
+}
 
 /** Incremental address calculation (byte based, no extended VRAM)
  */
 struct IncrByteAddr4
 {
-	void init(unsigned x, unsigned y, int /*tx*/)
+	IncrByteAddr4(unsigned x, unsigned y, int /*tx*/)
 	{
 		addr = Graphic4Mode::addressOf(x, y, false);
 	}
@@ -365,7 +394,7 @@ private:
 
 struct IncrByteAddr5
 {
-	void init(unsigned x, unsigned y, int /*tx*/)
+	IncrByteAddr5(unsigned x, unsigned y, int /*tx*/)
 	{
 		addr = Graphic5Mode::addressOf(x, y, false);
 	}
@@ -384,11 +413,11 @@ private:
 
 struct IncrByteAddr7
 {
-	void init(unsigned x, unsigned y, int tx)
+	IncrByteAddr7(unsigned x, unsigned y, int tx)
+		: delta2((tx > 0) ? ( 0x10000 ^ (1 - 0x10000))
+		                  : (-0x10000 ^ (0x10000 - 1)))
 	{
 		addr = Graphic7Mode::addressOf(x, y, false);
-		delta2 = (tx > 0) ? ( 0x10000 ^ (1 - 0x10000))
-		                  : (-0x10000 ^ (0x10000 - 1));
 		delta = (tx > 0) ? 0x10000 : (0x10000 - 1);
 		if (x & 1) delta ^= delta2;
 	}
@@ -405,14 +434,14 @@ struct IncrByteAddr7
 private:
 	unsigned addr;
 	unsigned delta;
-	unsigned delta2;
+	const unsigned delta2;
 };
 
 struct IncrByteAddr6 : IncrByteAddr7
 {
-	void init(unsigned x, unsigned y, int tx)
+	IncrByteAddr6(unsigned x, unsigned y, int tx)
+		: IncrByteAddr7(x >> 1, y, tx)
 	{
-		IncrByteAddr7::init(x >> 1, y, tx);
 	}
 };
 
@@ -420,7 +449,7 @@ struct IncrByteAddr6 : IncrByteAddr7
  */
 struct IncrPixelAddr4
 {
-	void init(unsigned x, unsigned y, int tx)
+	IncrPixelAddr4(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic4Mode::addressOf(x, y, false);
 		delta = (tx == 1) ? (x & 1) : ((x & 1) - 1);
@@ -438,16 +467,16 @@ private:
 
 struct IncrPixelAddr5
 {
-	void init(unsigned x, unsigned y, int tx)
+	IncrPixelAddr5(unsigned x, unsigned y, int tx)
 	{
 		addr = Graphic5Mode::addressOf(x, y, false);
-								// x |  0 |  1 |  2 |  3
-								//-----------------------
-		c1 = -(signed(x) & 1);	//   |  0 | -1 |  0 | -1
-		c2 = (x & 2) >> 1;		//   |  0 |  0 |  1 |  1
+		                       // x |  0 |  1 |  2 |  3
+		                       //-----------------------
+		c1 = -(signed(x) & 1); //   |  0 | -1 |  0 | -1
+		c2 = (x & 2) >> 1;     //   |  0 |  0 |  1 |  1
 		if (tx < 0) {
-			c1 = ~c1;			//   | -1 |  0 | -1 |  0
-			c2 -= 1;			//   | -1 | -1 |  0 |  0
+			c1 = ~c1;      //   | -1 |  0 | -1 |  0
+			c2 -= 1;       //   | -1 | -1 |  0 |  0
 		}
 	}
 	unsigned getAddr() const { return addr; }
@@ -465,17 +494,17 @@ private:
 
 struct IncrPixelAddr6
 {
-	void init(unsigned x, unsigned y, int tx)
+	IncrPixelAddr6(unsigned x, unsigned y, int tx)
+		: c3((tx == 1) ? unsigned(0x10000 ^ (1 - 0x10000))   // == -0x1FFFF
+		               : unsigned(-0x10000 ^ (0x10000 - 1))) // == -1
 	{
 		addr = Graphic6Mode::addressOf(x, y, false);
 		c1 = -(signed(x) & 1);
 		if (tx == 1) {
 			c2 = (x & 2) ? (1 - 0x10000) :  0x10000;
-			c3 = unsigned(0x10000 ^ (1 - 0x10000));  // == -0x1FFFF
 		} else {
 			c1 = ~c1;
 			c2 = (x & 2) ? -0x10000 : (0x10000 - 1);
-			c3 = unsigned(-0x10000 ^ (0x10000 - 1)); // == -1
 		}
 	}
 	unsigned getAddr() const { return addr; }
@@ -489,10 +518,8 @@ private:
 	unsigned addr;
 	unsigned c1;
 	unsigned c2;
-	unsigned c3;
+	const unsigned c3;
 };
-
-struct IncrPixelAddr7 : IncrByteAddr7 {}; // same as for byte
 
 
 /** Incremental mask calculation.
@@ -500,8 +527,7 @@ struct IncrPixelAddr7 : IncrByteAddr7 {}; // same as for byte
  */
 struct IncrMask4
 {
-	IncrMask4(int /*tx*/) {}
-	void init(unsigned x)
+	IncrMask4(unsigned x, int /*tx*/)
 	{
 		mask = 0x0F << ((x & 1) << 2);
 	}
@@ -513,22 +539,14 @@ struct IncrMask4
 	{
 		mask = ~mask;
 	}
-	byte duplicate(byte color) const
-	{
-		assert((color & 0xF) == color);
-		return color | (color << 4);
-	}
 private:
 	byte mask;
 };
 
 struct IncrMask5
 {
-	IncrMask5(int tx)
-	{
-		shift = (tx > 0) ? 6 : 2;
-	}
-	void init(unsigned x)
+	IncrMask5(unsigned x, int tx)
+		: shift((tx > 0) ? 6 : 2)
 	{
 		mask = ~(0xC0 >> ((x & 3) << 1));
 	}
@@ -540,36 +558,19 @@ struct IncrMask5
 	{
 		mask = (mask << shift) | (mask >> (8 - shift));
 	}
-	byte duplicate(byte color) const
-	{
-		assert((color & 0x3) == color);
-		color |= color << 2;
-		color |= color << 4;
-		return color;
-	}
 private:
 	byte mask;
-	byte shift;
-};
-
-struct IncrMask6 : IncrMask4
-{
-	IncrMask6(int tx) : IncrMask4(tx) {}
+	const byte shift;
 };
 
 struct IncrMask7
 {
-	IncrMask7(int /*tx*/) {}
-	void init(unsigned /*x*/) {}
+	IncrMask7(unsigned /*x*/, int /*tx*/) {}
 	byte getMask() const
 	{
 		return 0;
 	}
 	void step() {}
-	byte duplicate(byte color) const
-	{
-		return color;
-	}
 };
 
 
@@ -577,37 +578,35 @@ struct IncrMask7
  */
 struct IncrShift4
 {
-	void init(unsigned sx, unsigned dx)
+	IncrShift4(unsigned sx, unsigned dx)
+		: shift(((dx - sx) & 1) * 4)
 	{
-		shift = ((dx - sx) & 1) * 4;
 	};
 	byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << shift);
 	}
 private:
-	byte shift;
+	const byte shift;
 };
 
 struct IncrShift5
 {
-	void init(unsigned sx, unsigned dx)
+	IncrShift5(unsigned sx, unsigned dx)
+		: shift(((dx - sx) & 3) * 2)
 	{
-		shift = ((dx - sx) & 3) * 2;
 	};
 	byte doShift(byte color) const
 	{
 		return (color >> shift) | (color << (8 - shift));
 	}
 private:
-	byte shift;
+	const byte shift;
 };
-
-struct IncrShift6 : IncrShift4 {};
 
 struct IncrShift7
 {
-	void init(unsigned /*sx*/, unsigned /*dx*/) {}
+	IncrShift7(unsigned /*sx*/, unsigned /*dx*/) {}
 	byte doShift(byte color) const
 	{
 		return color;
@@ -969,12 +968,10 @@ void LmmvCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		}
 	} else {
 		// fast-path, no extended VRAM
-		typename Mode::IncrPixelAddr dstAddr;
-		typename Mode::IncrMask dstMask(TX);
-		CL = dstMask.duplicate(CL);
+		CL = Mode::duplicate(CL);
 		while (engine.clock.before(time)) {
-			dstAddr.init(engine.ADX, engine.DY, TX);
-			dstMask.init(engine.ADX);
+			typename Mode::IncrPixelAddr dstAddr(engine.ADX, engine.DY, TX);
+			typename Mode::IncrMask      dstMask(engine.ADX, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
 			unsigned num = delta
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
@@ -1075,15 +1072,11 @@ void LmmmCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		}
 	} else {
 		// fast-path, no extended VRAM
-		typename Mode::IncrPixelAddr srcAddr;
-		typename Mode::IncrPixelAddr dstAddr;
-		typename Mode::IncrMask dstMask(TX);
-		typename Mode::IncrShift shift;
 		while (engine.clock.before(time)) {
-			srcAddr.init(engine.ASX, engine.SY, TX);
-			dstAddr.init(engine.ADX, engine.DY, TX);
-			dstMask.init(engine.ADX);
-			shift  .init(engine.ASX, engine.ADX);
+			typename Mode::IncrPixelAddr srcAddr(engine.ASX, engine.SY, TX);
+			typename Mode::IncrPixelAddr dstAddr(engine.ADX, engine.DY, TX);
+			typename Mode::IncrMask      dstMask(engine.ADX,            TX);
+			typename Mode::IncrShift     shift  (engine.ASX, engine.ADX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
 			unsigned num = delta
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
@@ -1305,9 +1298,8 @@ void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		}
 	} else {
 		// fast-path, no extended VRAM
-		typename Mode::IncrByteAddr dstAddr;
 		while (engine.clock.before(time)) {
-			dstAddr.init(engine.ADX, engine.DY, TX);
+			typename Mode::IncrByteAddr dstAddr(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
 			unsigned num = delta
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
@@ -1406,11 +1398,9 @@ void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		}
 	} else {
 		// fast-path, no extended VRAM
-		typename Mode::IncrByteAddr srcAddr;
-		typename Mode::IncrByteAddr dstAddr;
 		while (engine.clock.before(time)) {
-			srcAddr.init(engine.ASX, engine.SY, TX);
-			dstAddr.init(engine.ADX, engine.DY, TX);
+			typename Mode::IncrByteAddr srcAddr(engine.ASX, engine.SY, TX);
+			typename Mode::IncrByteAddr dstAddr(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
 			unsigned num = delta
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
@@ -1511,11 +1501,9 @@ void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		}
 	} else {
 		// fast-path, no extended VRAM
-		typename Mode::IncrByteAddr srcAddr;
-		typename Mode::IncrByteAddr dstAddr;
 		while (engine.clock.before(time)) {
-			srcAddr.init(engine.ADX, engine.SY, TX);
-			dstAddr.init(engine.ADX, engine.DY, TX);
+			typename Mode::IncrByteAddr srcAddr(engine.ADX, engine.SY, TX);
+			typename Mode::IncrByteAddr dstAddr(engine.ADX, engine.DY, TX);
 			unsigned ticks = engine.clock.getTicksTillUp(time);
 			unsigned num = delta
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
