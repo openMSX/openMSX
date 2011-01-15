@@ -185,6 +185,8 @@ proc toggle_cursors {} {
 # TODO:
 # - be smarter with coordinates, by using negative ones
 # - maybe put description on separate line to make window narrow again?
+# - make a single ram_watch command with subcommands, instead of all these
+#   commands
 
 set_help_text ram_watch_add\
 {Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes. Optional arguments are:
@@ -262,34 +264,42 @@ proc ram_watch_add {addr_str args} {
 
 	# if OSD doesn't exist yet create it
 	if {$old_nof_watches == 0} {
-		osd create rectangle ram_watch \
-			-x 0 -y 0 -h 240 -w 320 -scaled true -rgba 0x00000000
-		osd create rectangle ram_watch.addr \
-			-x 257 -y 1 -w 62 -h 221 \
-			-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
-			-borderrgba 0x00000040 -bordersize 0.5
-		osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
+		ram_watch_init_widget
 	}
 
 	# add one extra entry
-	osd create rectangle ram_watch.addr.mem$old_nof_watches \
-		-x 2 -y [expr 8+($old_nof_watches*6)] -h 5 -w 16 -rgba 0x40404080
-	osd create text  ram_watch.addr.mem$old_nof_watches.text \
-		-size 4 -rgba 0xffffffff
-	osd create rectangle ram_watch.addr.val$old_nof_watches \
-		-x 19 -y [expr 8+($old_nof_watches*6)] -h 5 -w 16 -rgba 0x40404080
-	osd create text  ram_watch.addr.val$old_nof_watches.text \
-		-size 4 -rgba 0xffffffff
-	osd create rectangle ram_watch.addr.desc$old_nof_watches \
-		-x 36 -y [expr 8+($old_nof_watches*6)] -h 5 -w 24 -rgba 0x40404080 -clip true
-	osd create text  ram_watch.addr.desc$old_nof_watches.text \
-		-size 4 -rgba 0xffffffff
+	ram_watch_add_to_widget $old_nof_watches
 
 	ram_watch_update_addresses
 	if {$old_nof_watches == 0} {
 		ram_watch_update_values
 	}
 	return ""
+}
+
+proc ram_watch_init_widget {} {
+	osd create rectangle ram_watch \
+		-x 0 -y 0 -h 240 -w 320 -scaled true -rgba 0x00000000
+	osd create rectangle ram_watch.addr \
+		-x 257 -y 1 -w 62 -h 221 \
+		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
+		-borderrgba 0x00000040 -bordersize 0.5
+	osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
+}
+
+proc ram_watch_add_to_widget { nr } {
+	osd create rectangle ram_watch.addr.mem$nr \
+		-x 2 -y [expr 8+($nr*6)] -h 5 -w 16 -rgba 0x40404080
+	osd create text  ram_watch.addr.mem$nr.text \
+		-size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.val$nr \
+		-x 19 -y [expr 8+($nr*6)] -h 5 -w 16 -rgba 0x40404080
+	osd create text  ram_watch.addr.val$nr.text \
+		-size 4 -rgba 0xffffffff
+	osd create rectangle ram_watch.addr.desc$nr \
+		-x 36 -y [expr 8+($nr*6)] -h 5 -w 24 -rgba 0x40404080 -clip true
+	osd create text  ram_watch.addr.desc$nr.text \
+		-size 4 -rgba 0xffffffff
 }
 
 set_help_text ram_watch_remove\
@@ -338,7 +348,6 @@ proc ram_watch_clear {} {
 	return ""
 }
 
-
 proc ram_watch_update_addresses {} {
 	variable addr_watches
 
@@ -367,6 +376,50 @@ proc ram_watch_update_values {} {
 	after frame [namespace code ram_watch_update_values]
 }
 
+set_help_text ram_watch_save\
+{Saves the RAM watch list to the given file.}
+
+proc ram_watch_save { filename } {
+	variable addr_watches
+
+	if { [array size addr_watches] == 0 } {
+		error "No RAM watches present."
+	}
+
+	if {[catch {
+		set the_file [open $filename {WRONLY TRUNC CREAT}]
+		puts $the_file [array get addr_watches]
+		close $the_file
+	} errorText ]} {
+		error "Failed to save to $filename: $errorText"
+	}
+	return "Successfully saved RAM watch to $filename"
+}
+
+set_help_text ram_watch_load\
+{Loads a RAM watch list from the given file.}
+
+proc ram_watch_load { filename } {
+	variable addr_watches
+	ram_watch_clear
+
+	if {[catch {
+		set the_file [open $filename {RDONLY}]
+		array set addr_watches [read $the_file]
+		close $the_file
+	} errorText ]} {
+		error "Failed to load from $filename: $errorText"
+	}
+
+	ram_watch_init_widget
+	for {set i 0} {$i < [array size addr_watches]} {incr i} {
+		ram_watch_add_to_widget $i
+	}
+	ram_watch_update_addresses
+	ram_watch_update_values
+	return "Successfully loaded $filename"
+}
+
 namespace export toggle_frame_counter
 namespace export advance_frame
 namespace export reverse_frame
@@ -374,6 +427,8 @@ namespace export enable_tas_mode
 namespace export ram_watch_add
 namespace export ram_watch_remove
 namespace export ram_watch_clear
+namespace export ram_watch_save
+namespace export ram_watch_load
 namespace export toggle_cursors
 }
 
