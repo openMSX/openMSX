@@ -182,13 +182,37 @@ proc toggle_cursors {} {
 
 ### RAM Watch ###
 
-variable addr_watches [list]   ;# sorted list of RAM watch addresses
+variable addr_watches   ;# sorted list of RAM watch addresses
 
 set_help_text ram_watch_add\
 {Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.}
 
-proc ram_watch_add {addr_str} {
+proc ram_watch_add {addr_str args} {
 	variable addr_watches
+
+	set description "?"
+	set size "b"
+	set type "h"
+
+	while (1) {
+		switch -- [lindex $args 0] {
+			"-desc" {
+				set description [lindex $args 1]
+				set args [lrange $args 2 end]
+			}
+			"-size" {
+				set size [lindex $args 1]
+				set args [lrange $args 2 end]
+			}
+			"-type" {
+				set type [lindex $args 1]
+				set args [lrange $args 2 end]
+			}
+			"default" {
+				break
+			}
+		}
+	}
 
 	# sanitize input
 	set addr [expr int($addr_str)]
@@ -197,19 +221,16 @@ proc ram_watch_add {addr_str} {
 	}
 
 	# check for duplicates
-	#puts stderr "| $addr_watches |"
-	#puts stderr "| [lsearch $addr_watches $addr] |"
-	if {[lsearch $addr_watches $addr] != -1} {
+	if {[info exists addr_watches($addr)]} {
 		error "Address [format 0x%04X $addr] already being watched."
 	}
 
-	# add address to list
-	set i [llength $addr_watches]
-	lappend addr_watches $addr
-	set addr_watches [lsort -integer $addr_watches]
+	# add watch to watches
+	set old_nof_watches [array size addr_watches]
+	set addr_watches($addr) [dict create description $description size $size type $type]
 
 	# if OSD doesn't exist yet create it
-	if {$i == 0} {
+	if {$old_nof_watches == 0} {
 		osd create rectangle ram_watch \
 			-x 0 -y 0 -h 240 -w 320 -scaled true -rgba 0x00000000
 		osd create rectangle ram_watch.addr \
@@ -220,17 +241,17 @@ proc ram_watch_add {addr_str} {
 	}
 
 	# add one extra entry
-	osd create rectangle ram_watch.addr.mem$i \
-		-x 2 -y [expr 8+($i*6)] -h 5 -w 16 -rgba 0x40404080
-	osd create text  ram_watch.addr.mem$i.text \
+	osd create rectangle ram_watch.addr.mem$old_nof_watches \
+		-x 2 -y [expr 8+($old_nof_watches*6)] -h 5 -w 16 -rgba 0x40404080
+	osd create text  ram_watch.addr.mem$old_nof_watches.text \
 		-size 4 -rgba 0xffffffff
-	osd create rectangle ram_watch.addr.val$i \
-		-x 19 -y [expr 8+($i*6)] -h 5 -w 10 -rgba 0x40404080
-	osd create text  ram_watch.addr.val$i.text \
+	osd create rectangle ram_watch.addr.val$old_nof_watches \
+		-x 19 -y [expr 8+($old_nof_watches*6)] -h 5 -w 10 -rgba 0x40404080
+	osd create text  ram_watch.addr.val$old_nof_watches.text \
 		-size 4 -rgba 0xffffffff
 
 	ram_watch_update_addresses
-	if {$i == 0} {
+	if {$old_nof_watches == 0} {
 		ram_watch_update_values
 	}
 	return ""
@@ -249,14 +270,14 @@ proc ram_watch_remove {addr_str} {
 	}
 
 	# check watch exists
-	set index [lsearch $addr_watches $addr]
-	if {$index == -1} {
+	if {![info exists addr_watches($addr)]} {
 		error "Address [format 0x%04X $addr] was not being watched."
 	}
 
-	#remove address from list
-	set addr_watches [lreplace $addr_watches $index $index]
-	set i [llength $addr_watches]
+	#remove address
+	unset addr_watches($addr)
+
+	set i [array size addr_watches]
 
 	#remove one OSD entry
 	osd destroy ram_watch.addr.mem$i
@@ -275,7 +296,7 @@ proc ram_watch_update_addresses {} {
 	variable addr_watches
 
 	set i 0
-	foreach addr $addr_watches {
+	foreach addr [lsort [array names addr_watches]] {
 		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
 		incr i
 	}
@@ -283,10 +304,10 @@ proc ram_watch_update_addresses {} {
 
 proc ram_watch_update_values {} {
 	variable addr_watches
-	if {[llength $addr_watches] == 0} return
+	if {[array size addr_watches] == 0} return
 
 	set i 0
-	foreach addr $addr_watches {
+	foreach addr [lsort [array names addr_watches]] {
 		osd configure ram_watch.addr.val$i.text -text [format 0x%02X [peek $addr]]
 		incr i
 	}
