@@ -334,7 +334,7 @@ public:
 			// cleared
 			afterNext_ = 0x00;
 		}
-		inline bool isNextAfterClear() {
+		inline bool isNextAfterClear() const {
 			// In the fast code path we avoid calling clearNextAfter()
 			// before every instruction. But in debug mode we want
 			// to verify that this optimzation is valid.

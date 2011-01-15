@@ -32,8 +32,8 @@ public:
 protected:
 	static const int CLOCK_FREQ = 7159090;
 
-	ALWAYS_INLINE unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
-	ALWAYS_INLINE bool isR800() const   { return true; }
+	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
+	ALWAYS_INLINE bool isR800() const { return true; }
 
 	R800TYPE(EmuTime::param time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)

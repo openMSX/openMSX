@@ -100,7 +100,7 @@ protected:
 private:
 	mutable DynamicClock clock;
 	Scheduler& scheduler;
-	mutable int remaining;
+	int remaining;
 	mutable int limit;
 	bool limitEnabled;
 };

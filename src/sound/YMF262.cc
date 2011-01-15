@@ -89,7 +89,7 @@ class YMF262Slot
 {
 public:
 	YMF262Slot();
-	inline int op_calc(unsigned phase, unsigned lfo_am);
+	inline int op_calc(unsigned phase, unsigned lfo_am) const;
 	inline void FM_KEYON(byte key_set);
 	inline void FM_KEYOFF(byte key_clr);
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
@@ -791,7 +791,7 @@ void YMF262Impl::advance()
 }
 
 
-inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am)
+inline int YMF262Slot::op_calc(unsigned phase, unsigned lfo_am) const
 {
 	unsigned env = (TLL + volume + (lfo_am & AMmask)) << 4;
 	int p = env + wavetable[phase & SIN_MASK];

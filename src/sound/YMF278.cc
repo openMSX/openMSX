@@ -44,11 +44,11 @@ class YMF278Slot
 public:
 	YMF278Slot();
 	void reset();
-	int compute_rate(int val);
+	int compute_rate(int val) const;
 	unsigned decay_rate(int num, int sample_rate);
 	void envelope_next(int sample_rate);
-	inline int compute_vib();
-	inline int compute_am();
+	inline int compute_vib() const;
+	inline int compute_am() const;
 	void set_lfo(int newlfo);
 
 	template<typename Archive>
@@ -348,7 +348,7 @@ void YMF278Slot::reset()
 	pos = sample1 = sample2 = 0;
 }
 
-int YMF278Slot::compute_rate(int val)
+int YMF278Slot::compute_rate(int val) const
 {
 	if (val == 0) {
 		return 0;
@@ -373,13 +373,13 @@ int YMF278Slot::compute_rate(int val)
 	return res;
 }
 
-int YMF278Slot::compute_vib()
+int YMF278Slot::compute_vib() const
 {
 	return (((lfo_step << 8) / lfo_max) * vib_depth[int(vib)]) >> 24;
 }
 
 
-int YMF278Slot::compute_am()
+int YMF278Slot::compute_am() const
 {
 	if (lfo_active && AM) {
 		return (((lfo_step << 8) / lfo_max) * am_depth[int(AM)]) >> 12;
