@@ -225,7 +225,7 @@ void HotKey::bind(EventPtr event, const HotKeyInfo& info)
 	unboundKeys.erase(event);
 	boundKeys.insert(event);
 	defaultMap.erase(event);
-	cmdMap.insert(std::make_pair(event, info));
+	cmdMap[event] = info;
 
 	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
@@ -248,9 +248,9 @@ void HotKey::bindDefault(EventPtr event, const HotKeyInfo& info)
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
-		cmdMap.insert(std::make_pair(event, info));
+		cmdMap[event] = info;
 	}
-	defaultMap.insert(std::make_pair(event, info));
+	defaultMap[event] = info;
 }
 
 void HotKey::unbindDefault(EventPtr event)
