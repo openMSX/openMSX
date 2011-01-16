@@ -1,6 +1,18 @@
-diff -ru glew-1.5.4.org//Makefile glew-1.5.4/Makefile
---- glew-1.5.4.org//Makefile	2010-04-28 00:16:36.000000000 +0200
-+++ glew-1.5.4/Makefile	2010-06-16 22:49:13.000000000 +0200
+diff -ru glew-1.5.4.org/Makefile glew-1.5.4/Makefile
+--- glew-1.5.4.org/Makefile	2010-04-28 00:16:36.000000000 +0200
++++ glew-1.5.4/Makefile	2011-01-16 15:00:36.000000000 +0100
+@@ -53,9 +53,9 @@
+ DIST_SRC_ZIP = glew-$(GLEW_VERSION).zip
+ DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
+ 
+-AR = ar
++AR?=ar
+ INSTALL = install
+-STRIP = strip
++STRIP?=strip
+ RM = rm -f
+ LN = ln -sf
+ ifeq ($(MAKECMDGOALS), debug)
 @@ -64,7 +64,9 @@
  OPT = $(POPT)
  endif
