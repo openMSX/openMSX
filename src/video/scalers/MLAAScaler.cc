@@ -176,8 +176,8 @@ void MLAAScaler<Pixel>::scaleImage(
 		assert(x == srcWidth);
 		edgePtr += srcWidth;
 	}
-	assert(edgePtr - edges == srcNumLines * srcWidth);
-	assert(horizontalGenPtr - horizontals == srcNumLines * srcWidth);
+	assert(unsigned(edgePtr - edges) == srcNumLines * srcWidth);
+	assert(unsigned(horizontalGenPtr - horizontals) == srcNumLines * srcWidth);
 
 	// Find vertical edges.
 	VLA(unsigned, verticals, srcNumLines * srcWidth);
@@ -264,10 +264,10 @@ void MLAAScaler<Pixel>::scaleImage(
 			}
 		}
 		assert(y == srcNumLines);
-		assert(verticalGenPtr - verticals == x + srcNumLines * srcWidth);
+		assert(unsigned(verticalGenPtr - verticals) == x + srcNumLines * srcWidth);
 		edgePtr++;
 	}
-	assert(edgePtr - edges == srcWidth);
+	assert(unsigned(edgePtr - edges) == srcWidth);
 
 	dst.lock();
 	// Do a mosaic scale so every destination pixel has a color.
@@ -455,7 +455,7 @@ void MLAAScaler<Pixel>::scaleImage(
 		assert(x == srcWidth);
 		dstY += zoomFactorY;
 	}
-	assert(horizontalPtr - horizontals == srcNumLines * srcWidth);
+	assert(unsigned(horizontalPtr - horizontals) == srcNumLines * srcWidth);
 
 	// Render the vertical edges.
 	for (unsigned x = 0; x < srcWidth; x++) {
