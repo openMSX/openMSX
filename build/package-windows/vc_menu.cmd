@@ -7,12 +7,11 @@ cls
 echo ------------------------------------------------------
 echo openMSX build menu for VC++
 echo ------------------------------------------------------
-echo ** Compiling x64 files after a Win32 WILL NOT work **
 echo.
 echo [1] Update from Repository 
 echo [2] Get 3rd Party Files
 echo.
-echo  Win 32 Options
+echo  Win32 Options
 echo   [3] Compile Release
 echo   [4] Compile 3rd-party files
 echo   [5] Generate Installer and Packages
@@ -56,7 +55,7 @@ goto start
 :win32
 cls
 echo --- Set Compiler ---
-call "%VS90COMNTOOLS%\vsvars32.bat"
+call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86
 echo --- Build openMSX ---
 msbuild -p:Configuration=Release;Platform=Win32 build\msvc\openmsx.sln 
 pause
@@ -65,7 +64,7 @@ goto start
 :win32pkg
 cls
 echo --- Set Compiler ---
-call "%VS90COMNTOOLS%\vsvars32.bat"
+call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x86
 echo --- Build 3rd party ---
 msbuild -p:Configuration=Release;Platform=win32  build\3rdparty\3rdparty.sln 
 rem /verbosity:diag 
@@ -82,6 +81,7 @@ goto start
 :win64
 cls
 echo --- Build openMSX Win64 ---
+call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
 msbuild -p:Configuration=Release;Platform=x64  build\msvc\openmsx.sln
 pause
 goto start
@@ -89,6 +89,7 @@ goto start
 :win64pkg
 cls
 echo --- Build 3rd party Win64 ---
+call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
 msbuild -p:Configuration=Release;Platform=x64  build\3rdparty\3rdparty.sln 
 rem /verbosity:diag 
 pause
