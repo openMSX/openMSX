@@ -1,3 +1,15 @@
+diff -ru glew-1.5.4.org/include/GL/glew.h glew-1.5.4/include/GL/glew.h
+--- glew-1.5.4.org/include/GL/glew.h	2010-04-28 00:16:36.000000000 +0200
++++ glew-1.5.4/include/GL/glew.h	2011-01-16 15:39:03.000000000 +0100
+@@ -109,7 +109,7 @@
+ #define GLEW_APIENTRY_DEFINED
+ #  if defined(__MINGW32__) || defined(__CYGWIN__)
+ #    define APIENTRY __stdcall
+-#  elif (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED) || defined(__BORLANDC__)
++#  elif (defined(_MSC_VER) && (_MSC_VER >= 800)) || defined(_STDCALL_SUPPORTED) || defined(__BORLANDC__)
+ #    define APIENTRY __stdcall
+ #  else
+ #    define APIENTRY
 diff -ru glew-1.5.4.org/Makefile glew-1.5.4/Makefile
 --- glew-1.5.4.org/Makefile	2010-04-28 00:16:36.000000000 +0200
 +++ glew-1.5.4/Makefile	2011-01-16 15:00:36.000000000 +0100
