@@ -192,20 +192,52 @@ variable type_formatters [dict create d "%d"  u "%u"  x "0x%0SX"  c "'%c'"]
 variable size_peekers    [dict create b "peek" w "peek16"]
 variable size_digits     [dict create b 2      w 4]
 
+# TODO move to utils?
+proc dict_insert_sorted {dictname key value} {
+	upvar $dictname d
+	set i 0
+	dict for {k v} $d {
+		if {$key <= $k} {
+			if {$key == $k} {
+				dict set d $key $value
+				return $d
+			}
+			break
+		}
+		incr i 2
+	}
+	set d [linsert $d $i $key $value]
+}
+
 proc ram_watch_add {addr_str args} {
 	variable addr_watches
 	variable type_formatters
 	variable size_peekers
 
+	# sanitize input
+	set addr [format 0x%04X $addr_str]
+	if {($addr < 0) || ($addr > 0xffff)} {
+		error "Address must be in range 0x0..0xffff, got: $addr_str"
+	}
+
+	set addr_already_watched [dict exists $addr_watches $addr]
+
 	# defaults
-	set description "?"
+	set desc "?"
 	set size "b"
 	set type "x"
+	if {$addr_already_watched} {
+		# start from the previously set values
+		set desc [dict get $addr_watches $addr desc]
+		set size [dict get $addr_watches $addr size]
+		set type [dict get $addr_watches $addr type]
+	}
 
-	while (1) {
-		switch -- [lindex $args 0] {
+	while {[llength $args] > 0} {
+		set option [lindex $args 0]
+		switch -- $option {
 			"-desc" {
-				set description [lindex $args 1]
+				set desc [lindex $args 1]
 				set args [lrange $args 2 end]
 			}
 			"-size" {
@@ -223,33 +255,24 @@ proc ram_watch_add {addr_str args} {
 				set args [lrange $args 2 end]
 			}
 			"default" {
-				break
+				error "Invalid option: $option."
 			}
 		}
 	}
 
-	# sanitize input
-	set addr [expr int($addr_str)]
-	if {($addr < 0) || ($addr > 0xffff)} {
-		error "Please use a 16 bit address."
-	}
-
-	# check for duplicates
-	if {[dict exists $addr_watches $addr]} {
-		error "Address [format 0x%04X $addr] already being watched."
-	}
-
 	# add watch to watches
 	set old_nof_watches [dict size $addr_watches]
-	dict set addr_watches $addr [dict create description $description size $size type $type]
+	dict_insert_sorted addr_watches $addr [dict create desc $desc size $size type $type]
 
 	# if OSD doesn't exist yet create it
 	if {$old_nof_watches == 0} {
 		ram_watch_init_widget
 	}
 
-	# add one extra entry
-	ram_watch_add_to_widget $old_nof_watches
+	# (possibly) add one extra entry
+	if {!$addr_already_watched} {
+		ram_watch_add_to_widget $old_nof_watches
+	}
 
 	ram_watch_update_addresses
 	if {$old_nof_watches == 0} {
@@ -287,14 +310,12 @@ proc ram_watch_remove {addr_str} {
 	variable addr_watches
 
 	# sanitize input
-	set addr [expr int($addr_str)]
-	if {($addr < 0) || ($addr > 0xffff)} {
-		error "Please use a 16 bit address."
-	}
+	set addr [format 0x%04X $addr_str]
 
 	# check watch exists
 	if {![dict exists $addr_watches $addr]} {
-		error "Address [format 0x%04X $addr] was not being watched."
+		# not an error
+		return
 	}
 
 	#remove address
@@ -327,9 +348,9 @@ proc ram_watch_update_addresses {} {
 	variable addr_watches
 
 	set i 0
-	foreach addr [lsort [dict keys $addr_watches]] {
+	dict for {addr v} $addr_watches {
 		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
-		osd configure ram_watch.addr.desc$i.text -text [dict get $addr_watches $addr description]
+		osd configure ram_watch.addr.desc$i.text -text [dict get $v desc]
 		incr i
 	}
 }
@@ -341,9 +362,9 @@ proc ram_watch_update_values {} {
 	variable size_digits
 
 	set i 0
-	foreach addr [lsort [dict keys $addr_watches]] {
-		set size [dict get $addr_watches $addr size]
-		osd configure ram_watch.addr.val$i.text -text [format [string map [list S [dict get $size_digits $size]] [dict get $type_formatters [dict get $addr_watches $addr type]]] [[dict get $size_peekers $size] $addr]]
+	dict for {addr v} $addr_watches {
+		set size [dict get $v size]
+		osd configure ram_watch.addr.val$i.text -text [format [string map [list S [dict get $size_digits $size]] [dict get $type_formatters [dict get $v type]]] [[dict get $size_peekers $size] $addr]]
 		incr i
 	}
 	if {$i != 0} {
@@ -353,10 +374,6 @@ proc ram_watch_update_values {} {
 
 proc ram_watch_save { name } {
 	variable addr_watches
-
-	if {[dict size $addr_watches] == 0} {
-		error "No RAM watches present."
-	}
 
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
 	file mkdir $directory
