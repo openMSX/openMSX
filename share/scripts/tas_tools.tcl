@@ -188,10 +188,6 @@ proc toggle_cursors {} {
 
 variable addr_watches [dict create]  ;# dict of RAM watches
 
-variable type_formatters [dict create d "%d"  u "%u"  x "0x%0SX"  c "'%c'"]
-variable size_peekers    [dict create b "peek" w "peek16"]
-variable size_digits     [dict create b 2      w 4]
-
 # TODO move to utils?
 proc dict_insert_sorted {dictname key value} {
 	upvar $dictname d
@@ -211,8 +207,10 @@ proc dict_insert_sorted {dictname key value} {
 
 proc ram_watch_add {addr_str args} {
 	variable addr_watches
-	variable type_formatters
-	variable size_peekers
+
+	set type_formatters [dict create d "%d"  u "%u"  x "0x%0SX"  c "'%c'"]
+	set size_peekers    [dict create b "peek" w "peek16"]
+	set size_digits     [dict create b 2      w 4]
 
 	# sanitize input
 	set addr [format 0x%04X $addr_str]
@@ -228,9 +226,9 @@ proc ram_watch_add {addr_str args} {
 	set type "x"
 	if {$addr_already_watched} {
 		# start from the previously set values
-		set desc [dict get $addr_watches $addr desc]
-		set size [dict get $addr_watches $addr size]
-		set type [dict get $addr_watches $addr type]
+		set desc [dict get $addr_watches $addr -desc]
+		set size [dict get $addr_watches $addr -size]
+		set type [dict get $addr_watches $addr -type]
 	}
 
 	while {[llength $args] > 0} {
@@ -260,9 +258,13 @@ proc ram_watch_add {addr_str args} {
 		}
 	}
 
+	set fmtStr1 [dict get $type_formatters $type]
+	set fmtStr2 [string map [list S [dict get $size_digits $size]] $fmtStr1]
+	set exprStr "format $fmtStr2 \[[dict get $size_peekers $size] $addr\]"
+
 	# add watch to watches
 	set old_nof_watches [dict size $addr_watches]
-	dict_insert_sorted addr_watches $addr [dict create desc $desc size $size type $type]
+	dict_insert_sorted addr_watches $addr [dict create -desc $desc -size $size -type $type exprStr $exprStr]
 
 	# if OSD doesn't exist yet create it
 	if {$old_nof_watches == 0} {
@@ -349,22 +351,19 @@ proc ram_watch_update_addresses {} {
 
 	set i 0
 	dict for {addr v} $addr_watches {
-		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
-		osd configure ram_watch.addr.desc$i.text -text [dict get $v desc]
+		osd configure ram_watch.addr.mem$i.text -text $addr
+		osd configure ram_watch.addr.desc$i.text -text [dict get $v -desc]
 		incr i
 	}
 }
 
 proc ram_watch_update_values {} {
 	variable addr_watches
-	variable type_formatters
-	variable size_peekers
-	variable size_digits
 
 	set i 0
 	dict for {addr v} $addr_watches {
-		set size [dict get $v size]
-		osd configure ram_watch.addr.val$i.text -text [format [string map [list S [dict get $size_digits $size]] [dict get $type_formatters [dict get $v type]]] [[dict get $size_peekers $size] $addr]]
+		set exprStr [dict get $v exprStr]
+		osd configure ram_watch.addr.val$i.text -text [eval $exprStr]
 		incr i
 	}
 	if {$i != 0} {
@@ -375,13 +374,19 @@ proc ram_watch_update_values {} {
 proc ram_watch_save { name } {
 	variable addr_watches
 
+	# exprStr property doesn't need to be saved
+	set filtered_watches [dict create]
+	dict for {addr v} $addr_watches {
+		dict set filtered_watches $addr [dict filter $v key -*]
+	}
+
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
 	file mkdir $directory
 	set fullname [file join $directory ${name}.wch]
 
 	if {[catch {
 		set the_file [open $fullname {WRONLY TRUNC CREAT}]
-		puts $the_file $addr_watches
+		puts $the_file $filtered_watches
 		close $the_file
 	} errorText ]} {
 		error "Failed to save to $fullname: $errorText"
@@ -404,13 +409,9 @@ proc ram_watch_load { name } {
 	}
 
 	ram_watch_clear
-	set addr_watches $new_addr_watches
-	ram_watch_init_widget
-	for {set i 0} {$i < [dict size $addr_watches]} {incr i} {
-		ram_watch_add_to_widget $i
+	dict for {addr v} $new_addr_watches {
+		ram_watch_add $addr {*}$v
 	}
-	ram_watch_update_addresses
-	ram_watch_update_values
 	return "Successfully loaded $fullname"
 }
 
