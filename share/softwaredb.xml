@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1294691885">
+<softwaredb xml:lang="en" timestamp="1295308090">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -880,6 +880,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">ee7dbd36a2b0bbae11c68ac4de75077f283bed05</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f86a7945b34c97cc58d5ee27964968870bfcef93</hash></rom></dump>
 		<dump><rom><hash algo="sha1">efe44e5f4593036a6c00358638462a933d16b979</hash><remark><text>[a2]</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">9b58c70b976ca1d841185de862e7d663ec9db56b</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Battle Cross</title>
@@ -2114,6 +2115,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d29414f61bc1c4f8c1fe4a243a8a8afc2d4f6925</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">2f4fa99f80313358e43084490ec44f673268bc52</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">bbe8df034869a06cb263255ac04374de469c00ba</hash></rom></dump>
+		<dump><rom><hash algo="sha1">8aca0ee5845b0b39af624e8a998bb04f02d0fda4</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Crimson</title>
@@ -10757,6 +10759,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">174437bfb20e2895f0f552602da823ca17b2fe93</hash></rom></dump>
+		<dump><rom><hash algo="sha1">37c85041128ee21300327726b7300a20ef6b84dd</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Topple Zip - MSX1 Version</title>
@@ -11733,6 +11736,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2584
-Parse time 6.994 seconds on Mon Jan 10 21:38:12 CET 2011
+Roms in this database:2587
+Parse time 7.117 seconds on Tue Jan 18 0:48:18 CET 2011
  -->
