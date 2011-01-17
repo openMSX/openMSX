@@ -37,6 +37,13 @@ proc set_help_text { command help } {
 set_help_text set_help_text \
 {Associate a help-text with a Tcl proc. This is normally only used in Tcl scripts.}
 
+proc set_help_proc { command procname } {
+	variable help_proc
+	set help_proc($command) $procname
+}
+set_help_text set_help_proc \
+{Associate a help-proc with a Tcl proc. This is normally only used in Tcl scripts.}
+
 # internal proc to make tabcompletion available to Tcl procs
 proc tabcompletion { args } {
 	variable tabcompletion_proc_sensitive
@@ -76,6 +83,7 @@ proc data_file { file } {
 }
 
 namespace export set_help_text
+namespace export set_help_proc
 namespace export set_tabcompletion_proc
 namespace export data_file
 

@@ -185,15 +185,6 @@ proc toggle_cursors {} {
 # TODO:
 # - be smarter with coordinates, by using negative ones
 # - maybe put description on separate line to make window narrow again?
-# - make a single ram_watch command with subcommands, instead of all these
-#   commands
-
-set_help_text ram_watch_add\
-{Add an address (in hex) in RAM to the list of watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes. Optional arguments are:
--desc <description> describes the address
--size <size>        byte or word sized value
--type <type>        format of value: (d)ec, (u)nsigned, he(x), (c)har
-}
 
 variable addr_watches   ;# list of RAM watches
 
@@ -302,9 +293,6 @@ proc ram_watch_add_to_widget { nr } {
 		-size 4 -rgba 0xffffffff
 }
 
-set_help_text ram_watch_remove\
-{Remove an address (in hex) in RAM from the list of watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.}
-
 proc ram_watch_remove {addr_str} {
 	variable addr_watches
 
@@ -337,9 +325,6 @@ proc ram_watch_remove {addr_str} {
 	}
 	return ""
 }
-
-set_help_text ram_watch_clear\
-{Removes all RAM watches.}
 
 proc ram_watch_clear {} {
 	variable addr_watches
@@ -376,15 +361,6 @@ proc ram_watch_update_values {} {
 	after frame [namespace code ram_watch_update_values]
 }
 
-proc ram_watch_tabcompletion { args } {
-        return [list_ram_watch_files]
-}
-
-set_tabcompletion_proc ram_watch_save [namespace code ram_watch_tabcompletion]
-
-set_help_text ram_watch_save\
-{Saves the RAM watch list to the given file.}
-
 proc ram_watch_save { name } {
 	variable addr_watches
 
@@ -405,11 +381,6 @@ proc ram_watch_save { name } {
 	}
 	return "Successfully saved RAM watch to $fullname"
 }
-
-set_help_text ram_watch_load\
-{Loads a RAM watch list from the given file.}
-
-set_tabcompletion_proc ram_watch_load [namespace code ram_watch_tabcompletion]
 
 proc ram_watch_load { name } {
 	variable addr_watches
@@ -444,16 +415,78 @@ proc list_ram_watch_files {} {
 	return $results
 }
 
+proc ram_watch {subcmd args} {
+	switch -- $subcmd {
+		"add"    {ram_watch_add    {*}$args}
+		"remove" {ram_watch_remove {*}$args}
+		"clear"  {ram_watch_clear  {*}$args}
+		"load"   {ram_watch_load   {*}$args}
+		"save"   {ram_watch_save   {*}$args}
+		default { error "Invalid subcommand: $subcmd" }
+	}
+}
+
+set_help_proc ram_watch [namespace code ram_watch_help]
+proc ram_watch_help {args} {
+	switch -- [lindex $args 1] {
+		"add"    { return {Add an address to the list of RAM watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.
+
+Syntax: ram_watch add <address> [<options>...]
+Possible options are:
+    -desc <description> describes the address
+    -size <size>        byte or word sized value
+    -type <type>        format of value: (d)ec, (u)nsigned, he(x), (c)har
+}}
+		"remove" { return {Remove an address from the list of RAM watch addresses from the list of RAM watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.
+
+Syntax: ram_watch remove <address>
+}}
+		"clear"  { return {Removes all RAM watches.
+
+Syntax: ram_watch clear
+}}
+		"save"   { return {Save the current list of RAM watches to a file.
+
+Syntax: ram_watch save <filename>
+}}
+		"load"   { return {Load a list of RAM watches from file.
+
+Syntax: ram_watch load <filename>
+}}
+		default { return {Control the RAM watch functionality.
+
+Syntax:  ram_watch <sub-command> [<arguments>]
+Where sub-command is one of:
+    add      Add (or modify) a new RAM watch address
+    remove   Remove a previously added address
+    clear    Shortcut to remove all addresses
+    save     Save current list of RAM watches to a file
+    load     Load a previously saved list of RAM watches
+
+Use 'help ram_watch <sub-command>' to get more detailed help on a specific sub-command.
+}}
+	}
+}
+
+set_tabcompletion_proc ram_watch [namespace code ram_watch_tabcompletion]
+proc ram_watch_tabcompletion {args} {
+	if {[llength $args] == 2} {
+		return [list "add" "remove" "clear" "save" "load"]
+	}
+	switch -- [lindex $args 2] {
+		"add"  { return [list -desc -type -size] }
+		"load" -
+		"save" { return [list_ram_watch_files] }
+	}
+}
+
+
 namespace export toggle_frame_counter
 namespace export advance_frame
 namespace export reverse_frame
 namespace export enable_tas_mode
-namespace export ram_watch_add
-namespace export ram_watch_remove
-namespace export ram_watch_clear
-namespace export ram_watch_save
-namespace export ram_watch_load
 namespace export toggle_cursors
+namespace export ram_watch
 }
 
 namespace import tas::*
