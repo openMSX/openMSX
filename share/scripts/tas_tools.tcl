@@ -482,7 +482,7 @@ proc ram_watch_tabcompletion {args} {
 	if {[llength $args] == 2} {
 		return [list "add" "remove" "clear" "save" "load"]
 	}
-	switch -- [lindex $args 2] {
+	switch -- [lindex $args 1] {
 		"add"  { return [list -desc -type -size] }
 		"load" -
 		"save" { return [list_ram_watch_files] }
