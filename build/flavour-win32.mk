@@ -7,9 +7,8 @@
 CXXFLAGS+= \
 	-Os -mpreferred-stack-boundary=4 \
 	-mtune=pentium3 -march=pentium-mmx -mmmx \
-	-fno-force-mem -fno-force-addr \
 	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2 \
-	-fomit-frame-pointer -fno-default-inline 
+	-fomit-frame-pointer -fno-default-inline
 #	-DNDEBUG 
 
 # Strip executable?
