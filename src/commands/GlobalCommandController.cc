@@ -461,7 +461,7 @@ void GlobalCommandController::source(const string& script)
 		interpreter->executeFile(file.getFilename());
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
-			 "While executing init.tcl: " + e.getMessage());
+			 "While executing " + script + ": " + e.getMessage());
 	}
 }
 
