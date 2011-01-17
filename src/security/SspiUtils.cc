@@ -14,7 +14,7 @@
 namespace openmsx {
 namespace sspiutils {
 
-SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, wchar_t* securityPackage)
+SspiPackageBase::SspiPackageBase(StreamWrapper& userStream, const SEC_WCHAR* securityPackage)
 	: stream(userStream)
 	, cbMaxTokenSize(GetPackageMaxTokenSize(securityPackage))
 {
@@ -218,10 +218,10 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 	return psd;
 }
 
-unsigned long GetPackageMaxTokenSize(wchar_t* package)
+unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package)
 {
 	PSecPkgInfoW pkgInfo;
-	SECURITY_STATUS ss = QuerySecurityPackageInfoW(package, &pkgInfo);
+	SECURITY_STATUS ss = QuerySecurityPackageInfoW(const_cast<SEC_WCHAR*>(package), &pkgInfo);
 	DebugPrintSecurityStatus("QuerySecurityPackageInfoW", ss);
 	if (ss != SEC_E_OK) {
 		return 0;

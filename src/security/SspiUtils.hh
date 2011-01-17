@@ -42,7 +42,7 @@ protected:
 	StreamWrapper& stream;
 	const unsigned int cbMaxTokenSize;
 
-	SspiPackageBase(StreamWrapper& stream, wchar_t* securityPackage);
+	SspiPackageBase(StreamWrapper& stream, const SEC_WCHAR* securityPackage);
 	~SspiPackageBase();
 };
 
@@ -63,7 +63,7 @@ void DebugPrintSecurityPackageName(PCtxtHandle phContext);
 void DebugPrintSecurityPrincipalName(PCtxtHandle phContext);
 void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd);
 PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor();
-unsigned long GetPackageMaxTokenSize(wchar_t* package);
+unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package);
 
 bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb);
 bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32 cbMaxSize);

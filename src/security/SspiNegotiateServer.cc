@@ -30,7 +30,7 @@ bool SspiNegotiateServer::Authenticate()
 	TimeStamp tsCredsExpiry;
 	SECURITY_STATUS ss = AcquireCredentialsHandleW(
 		NULL,
-		NEGOSSP_NAME_W,
+		const_cast<SEC_WCHAR*>(NEGOSSP_NAME_W),
 		SECPKG_CRED_INBOUND,
 		NULL,
 		NULL,
