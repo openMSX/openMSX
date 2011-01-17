@@ -36,6 +36,7 @@ class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
+class AfterCommand;
 class QuitCommand;
 class MachineCommand;
 class TestMachineCommand;
@@ -145,8 +146,8 @@ private:
 
 	const std::auto_ptr<UserSettings> userSettings;
 	const std::auto_ptr<RomDatabase> softwareDatabase;
-	const std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
 
+	const std::auto_ptr<AfterCommand> afterCommand;
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
 	const std::auto_ptr<TestMachineCommand> testMachineCommand;
@@ -160,6 +161,7 @@ private:
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 	const std::auto_ptr<RealTimeInfo> realTimeInfo;
+	const std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock

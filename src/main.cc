@@ -8,7 +8,6 @@
 #include "Reactor.hh"
 #include "GlobalCommandController.hh"
 #include "CommandLineParser.hh"
-#include "AfterCommand.hh"
 #include "CliServer.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
@@ -69,9 +68,6 @@ static int main(int argc, char **argv)
 		Thread::setMainThread();
 		Reactor reactor;
 		reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
-		AfterCommand afterCommand(reactor,
-		                          reactor.getEventDistributor(),
-		                          reactor.getCommandController());
 #ifdef _WIN32
 		ArgumentGenerator arggen;
 		argv = arggen.GetArguments(argc);

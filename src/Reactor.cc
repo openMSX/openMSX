@@ -16,6 +16,7 @@
 #include "MSXMotherBoard.hh"
 #include "StateChangeDistributor.hh"
 #include "Command.hh"
+#include "AfterCommand.hh"
 #include "CommandException.hh"
 #include "GlobalCliComm.hh"
 #include "InfoTopic.hh"
@@ -201,8 +202,8 @@ Reactor::Reactor()
 	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
 	, userSettings(new UserSettings(*globalCommandController))
 	, softwareDatabase(new RomDatabase(*globalCommandController, *globalCliComm))
-	, tclCallbackMessages(new TclCallbackMessages(*globalCliComm,
-	                                              *globalCommandController))
+	, afterCommand(new AfterCommand(*this, *eventDistributor,
+	                                *globalCommandController))
 	, quitCommand(new QuitCommand(*globalCommandController, *eventDistributor))
 	, machineCommand(new MachineCommand(*globalCommandController, *this))
 	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
@@ -216,6 +217,8 @@ Reactor::Reactor()
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
 	, realTimeInfo(new RealTimeInfo(getOpenMSXInfoCommand()))
+	, tclCallbackMessages(new TclCallbackMessages(*globalCliComm,
+	                                              *globalCommandController))
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
