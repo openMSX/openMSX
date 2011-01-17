@@ -186,21 +186,11 @@ proc toggle_cursors {} {
 # - be smarter with coordinates, by using negative ones
 # - maybe put description on separate line to make window narrow again?
 
-variable addr_watches   ;# list of RAM watches
+variable addr_watches [dict create]  ;# dict of RAM watches
 
-variable type_formatters
-set type_formatters(d) "%d"
-set type_formatters(u) "%u"
-set type_formatters(x) "0x%0SX"
-set type_formatters(c) "'%c'"
-
-variable size_peekers
-set size_peekers(b) "peek"
-set size_peekers(w) "peek16"
-
-variable size_digits
-set size_digits(b) 2
-set size_digits(w) 4
+variable type_formatters [dict create d "%d"  u "%u"  x "0x%0SX"  c "'%c'"]
+variable size_peekers    [dict create b "peek" w "peek16"]
+variable size_digits     [dict create b 2      w 4]
 
 proc ram_watch_add {addr_str args} {
 	variable addr_watches
@@ -220,15 +210,15 @@ proc ram_watch_add {addr_str args} {
 			}
 			"-size" {
 				set size [lindex $args 1]
-				if {![info exists size_peekers($size)]} {
-					error "Unsupported size... choose from: [array names size_peekers]"
+				if {![dict exists $size_peekers $size]} {
+					error "Unsupported size: $size. Choose from: [dict keys $size_peekers]"
 				}
 				set args [lrange $args 2 end]
 			}
 			"-type" {
 				set type [lindex $args 1]
-				if {![info exists type_formatters($type)]} {
-					error "Unsupported type... choose from: [array names type_formatters]"
+				if {![dict exists $type_formatters $type]} {
+					error "Unsupported type: $type. Choose from: [dict keys $type_formatters]"
 				}
 				set args [lrange $args 2 end]
 			}
@@ -245,13 +235,13 @@ proc ram_watch_add {addr_str args} {
 	}
 
 	# check for duplicates
-	if {[info exists addr_watches($addr)]} {
+	if {[dict exists $addr_watches $addr]} {
 		error "Address [format 0x%04X $addr] already being watched."
 	}
 
 	# add watch to watches
-	set old_nof_watches [array size addr_watches]
-	set addr_watches($addr) [dict create description $description size $size type $type]
+	set old_nof_watches [dict size $addr_watches]
+	dict set addr_watches $addr [dict create description $description size $size type $type]
 
 	# if OSD doesn't exist yet create it
 	if {$old_nof_watches == 0} {
@@ -303,14 +293,14 @@ proc ram_watch_remove {addr_str} {
 	}
 
 	# check watch exists
-	if {![info exists addr_watches($addr)]} {
+	if {![dict exists $addr_watches $addr]} {
 		error "Address [format 0x%04X $addr] was not being watched."
 	}
 
 	#remove address
-	unset addr_watches($addr)
+	dict unset addr_watches $addr
 
-	set i [array size addr_watches]
+	set i [dict size $addr_watches]
 
 	#remove one OSD entry
 	osd destroy ram_watch.addr.mem$i
@@ -328,7 +318,7 @@ proc ram_watch_remove {addr_str} {
 
 proc ram_watch_clear {} {
 	variable addr_watches
-	array unset addr_watches
+	set addr_watches [dict create]
 	osd destroy ram_watch
 	return ""
 }
@@ -337,9 +327,9 @@ proc ram_watch_update_addresses {} {
 	variable addr_watches
 
 	set i 0
-	foreach addr [lsort [array names addr_watches]] {
+	foreach addr [lsort [dict keys $addr_watches]] {
 		osd configure ram_watch.addr.mem$i.text -text [format 0x%04X $addr]
-		osd configure ram_watch.addr.desc$i.text -text [dict get $addr_watches($addr) description]
+		osd configure ram_watch.addr.desc$i.text -text [dict get $addr_watches $addr description]
 		incr i
 	}
 }
@@ -350,21 +340,21 @@ proc ram_watch_update_values {} {
 	variable size_peekers
 	variable size_digits
 
-	if {[array size addr_watches] == 0} return
-
 	set i 0
-	foreach addr [lsort [array names addr_watches]] {
-		set size [dict get $addr_watches($addr) size]
-		osd configure ram_watch.addr.val$i.text -text [format [string map [list S $size_digits($size)] $type_formatters([dict get $addr_watches($addr) type])] [$size_peekers($size) $addr]]
+	foreach addr [lsort [dict keys $addr_watches]] {
+		set size [dict get $addr_watches $addr size]
+		osd configure ram_watch.addr.val$i.text -text [format [string map [list S [dict get $size_digits $size]] [dict get $type_formatters [dict get $addr_watches $addr type]]] [[dict get $size_peekers $size] $addr]]
 		incr i
 	}
-	after frame [namespace code ram_watch_update_values]
+	if {$i != 0} {
+		after frame [namespace code ram_watch_update_values]
+	}
 }
 
 proc ram_watch_save { name } {
 	variable addr_watches
 
-	if { [array size addr_watches] == 0 } {
+	if {[dict size $addr_watches] == 0} {
 		error "No RAM watches present."
 	}
 
@@ -374,7 +364,7 @@ proc ram_watch_save { name } {
 
 	if {[catch {
 		set the_file [open $fullname {WRONLY TRUNC CREAT}]
-		puts $the_file [array get addr_watches]
+		puts $the_file $addr_watches
 		close $the_file
 	} errorText ]} {
 		error "Failed to save to $fullname: $errorText"
@@ -384,21 +374,22 @@ proc ram_watch_save { name } {
 
 proc ram_watch_load { name } {
 	variable addr_watches
-	ram_watch_clear
 
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
 	set fullname [file join $directory ${name}.wch]
 
 	if {[catch {
 		set the_file [open $fullname {RDONLY}]
-		array set addr_watches [read $the_file]
+		set new_addr_watches [read $the_file]
 		close $the_file
 	} errorText ]} {
 		error "Failed to load from $fullname: $errorText"
 	}
 
+	ram_watch_clear
+	set addr_watches $new_addr_watches
 	ram_watch_init_widget
-	for {set i 0} {$i < [array size addr_watches]} {incr i} {
+	for {set i 0} {$i < [dict size $addr_watches]} {incr i} {
 		ram_watch_add_to_widget $i
 	}
 	ram_watch_update_addresses
