@@ -7,6 +7,7 @@
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <cstring>
 
 namespace openmsx {
 
@@ -126,8 +127,10 @@ void Wav16Writer::write(const int* buffer, unsigned samples, int amp)
 
 void Wav16Writer::writeSilence(unsigned samples)
 {
+	VLA(short, buf, samples);
 	unsigned size = sizeof(short) * samples;
-	file->truncate(file->getSize() + size);
+	memset(buf, 0, size);
+	file->write(buf, size);
 	bytes += size;
 }
 
