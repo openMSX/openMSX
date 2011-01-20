@@ -2,53 +2,122 @@ namespace eval disasm {
 
 # very common debug functions
 
-set_help_text peek \
-{Read a byte from the given memory location.
-Equivalent to "debug read memory <addr>".
-
-usage:
-  peek <addr>
-}
 proc peek {addr} {
-	return [debug read memory $addr]
+	debug read memory $addr
 }
-
-set_help_text peek16 \
-{Read a 16-bit value (in little endian format) from the given memory location.
-
-usage:
-  peek16 <addr>
+proc peek8 {addr} {
+	peek $addr
+}
+proc peek_u8 {addr} {
+	peek $addr
+}
+proc peek_s8 {addr} {
+	set b [peek $addr]
+	expr {($b < 128) ? $b : ($b - 256)}
 }
 proc peek16 {addr} {
-	return [expr [peek $addr] + 256 * [peek [expr $addr + 1]]]
+	expr {[peek $addr] + 256 * [peek [expr $addr + 1]]}
+}
+proc peek16_LE {addr} {
+	peek16 $addr
+}
+proc peek16_BE {addr} {
+	expr {256 * [peek $addr] + [peek [expr $addr + 1]]}
+}
+proc peek_u16 {addr} {
+	peek16 $addr
+}
+proc peek_u16LE {addr} {
+	peek16 $addr
+}
+proc peek_u16BE {addr} {
+	peek16_BE $addr
+}
+proc peek_s16 {addr} {
+	set w [peek16 $addr]
+	expr {($w < 32768) ? $w : ($w - 65536)}
+}
+proc peek_s16LE {addr} {
+	peek_s16 $addr
+}
+proc peek_s16BE {addr} {
+	set w [peek16_BE $addr]
+	expr {($w < 32768) ? $w : ($w - 65536)}
 }
 
-set_help_text poke \
-{Write a byte to the given memory location.
-Equivalent to "debug write memory <addr> <val>".
+set help_text_peek \
+{Read a byte or word from the given memory location.
 
 usage:
-  poke <addr> <val>
+  peek        <addr>  Read unsigned 8-bit value from address
+  peek8       <addr>       unsigned 8-bit
+  peek_u8     <addr>       unsigned 8-bit
+  peek_s8     <addr>         signed 8-bit
+  peek16      <addr>       unsigned 16-bit little endian
+  peek16_LE   <addr>       unsigned 16-bit little endian
+  peek16_BE   <addr>       unsigned 16-bit big    endian
+  peek_u16    <addr>       unsigned 16-bit little endian
+  peek_u16_LE <addr>       unsigned 16-bit little endian
+  peek_u16_BE <addr>       unsigned 16-bit big    endian
+  peek_s16    <addr>         signed 16-bit little endian
+  peek_s16_LE <addr>         signed 16-bit little endian
+  peek_s16_BE <addr>         signed 16-bit big    endian
 }
+set_help_text peek        $help_text_peek
+set_help_text peek8       $help_text_peek
+set_help_text peek_u8     $help_text_peek
+set_help_text peek_s8     $help_text_peek
+set_help_text peek16      $help_text_peek
+set_help_text peek16_LE   $help_text_peek
+set_help_text peek16_BE   $help_text_peek
+set_help_text peek_u16    $help_text_peek
+set_help_text peek_u16_LE $help_text_peek
+set_help_text peek_u16_BE $help_text_peek
+set_help_text peek_s16    $help_text_peek
+set_help_text peek_s16_LE $help_text_peek
+set_help_text peek_s16_BE $help_text_peek
+
+
 proc poke {addr val} {
 	debug write memory $addr $val
 }
-
-#because of reverse we can now save replays to a file, poke-ing adds an entry into the replay file and therefore
-#the file size can grow significantly. Therefor dpoke (poke if different or diffpoke) is introduced.
-proc dpoke {addr val} {
-	if {[debug read memory $addr]!=$val} {debug write memory $addr $val}
-}
-
-set_help_text poke16 \
-{Write a 16-bit value (in little endian format) to the given memory location.
-
-usage:
-  poke16 <addr> <val>
+proc poke8 {addr val} {
+	poke $addr $val
 }
 proc poke16 {addr val} {
-	debug write memory       $addr      [expr $val & 255]
-	debug write memory [expr $addr + 1] [expr $val >> 8]
+	debug write memory       $addr        [expr { $val       & 255}]
+	debug write memory [expr {$addr + 1}] [expr {($val >> 8) & 255}]
+}
+proc poke16_LE {addr val} {
+	poke16 $addr $val
+}
+proc poke16_BE {addr val} {
+	debug write memory       $addr        [expr {($val >> 8) & 255}]
+	debug write memory [expr {$addr + 1}] [expr { $val       & 255}]
+}
+set help_text_poke \
+{Write a byte or word to the given memory location.
+
+usage:
+  poke      <addr> <val>    Write 8-bit value
+  poke8     <addr> <val>          8-bit
+  poke16    <addr> <val>         16-bit little endian
+  poke16_LE <addr> <val>         16-bit little endian
+  poke16_BE <addr> <val>         16-bit big    endian
+}
+set_help_text poke      $help_text_poke
+set_help_text poke8     $help_text_poke
+set_help_text poke16    $help_text_poke
+set_help_text poke16_LE $help_text_poke
+set_help_text poke16_BE $help_text_poke
+
+
+# because of reverse we can now save replays to a file,
+# poke-ing adds an entry into the replay file and therefore
+# the file size can grow significantly. Therefor dpoke (poke
+# if different or diffpoke) is introduced.
+proc dpoke {addr val} {
+	if {[debug read memory $addr]!=$val} {debug write memory $addr $val}
 }
 
 
@@ -197,10 +266,24 @@ proc skip_instruction {} {
 }
 
 namespace export peek
+namespace export peek8
+namespace export peek_u8
+namespace export peek_s8
 namespace export peek16
+namespace export peek16_LE
+namespace export peek16_BE
+namespace export peek_u16
+namespace export peek_u16_LE
+namespace export peek_u16_BE
+namespace export peek_s16
+namespace export peek_s16_LE
+namespace export peek_s16_BE
 namespace export poke
-namespace export dpoke
+namespace export poke8
 namespace export poke16
+namespace export poke16_LE
+namespace export poke16_BE
+namespace export dpoke
 namespace export disasm
 namespace export run_to
 namespace export step_over
