@@ -208,9 +208,13 @@ proc dict_insert_sorted {dictname key value} {
 proc ram_watch_add {addr_str args} {
 	variable addr_watches
 
-	set type_formatters [dict create d "%d"  u "%u"  x "0x%0SX"  c "'%c'"]
-	set size_peekers    [dict create b "peek" w "peek16"]
-	set size_digits     [dict create b 2      w 4]
+	set type_dict [dict create byte   {peek      2} b      {peek        2} \
+	                           u8     {peek      2} s8     {peek_s8     2} \
+	                           word   {peek16    4} w      {peek16      4} \
+	                           u16    {peek16    4} s16    {peek_s16    4} \
+	                           u16_LE {peek16    4} s16_LE {peek_s16    4} \
+	                           u16_BE {peek16_BE 4} s16_BE {peek_s16_BE 4}]
+	set format_dict [dict create dec "%d" hex "0x%0SX"]
 
 	# sanitize input
 	set addr [format 0x%04X $addr_str]
@@ -222,13 +226,13 @@ proc ram_watch_add {addr_str args} {
 
 	# defaults
 	set desc "?"
-	set size "b"
-	set type "x"
+	set type "byte"
+	set format "hex"
 	if {$addr_already_watched} {
 		# start from the previously set values
-		set desc [dict get $addr_watches $addr -desc]
-		set size [dict get $addr_watches $addr -size]
-		set type [dict get $addr_watches $addr -type]
+		set desc   [dict get $addr_watches $addr -desc]
+		set type   [dict get $addr_watches $addr -type]
+		set format [dict get $addr_watches $addr -format]
 	}
 
 	while {[llength $args] > 0} {
@@ -238,17 +242,17 @@ proc ram_watch_add {addr_str args} {
 				set desc [lindex $args 1]
 				set args [lrange $args 2 end]
 			}
-			"-size" {
-				set size [lindex $args 1]
-				if {![dict exists $size_peekers $size]} {
-					error "Unsupported size: $size. Choose from: [dict keys $size_peekers]"
+			"-type" {
+				set type [lindex $args 1]
+				if {![dict exists $type_dict $type]} {
+					error "Unsupported type: $type. Choose from: [dict keys $type_dict]"
 				}
 				set args [lrange $args 2 end]
 			}
-			"-type" {
-				set type [lindex $args 1]
-				if {![dict exists $type_formatters $type]} {
-					error "Unsupported type: $type. Choose from: [dict keys $type_formatters]"
+			"-format" {
+				set format [lindex $args 1]
+				if {![dict exists $format_dict $format]} {
+					error "Unsupported format: $format. Choose from: [dict keys $format_dict]"
 				}
 				set args [lrange $args 2 end]
 			}
@@ -258,13 +262,14 @@ proc ram_watch_add {addr_str args} {
 		}
 	}
 
-	set fmtStr1 [dict get $type_formatters $type]
-	set fmtStr2 [string map [list S [dict get $size_digits $size]] $fmtStr1]
-	set exprStr "format $fmtStr2 \[[dict get $size_peekers $size] $addr\]"
+	lassign [dict get $type_dict $type] peek_method num_hex_digits
+	set fmtStr1 [dict get $format_dict $format]
+	set fmtStr2 [string map [list S $num_hex_digits] $fmtStr1]
+	set exprStr "set v \[$peek_method $addr\]; set r \"\[expr \{(\$v < 0) ? \"-\" : \"\"\}\]\[format $fmtStr2 \[expr \{abs(\$v)\}\]\]\"; set r"
 
 	# add watch to watches
 	set old_nof_watches [dict size $addr_watches]
-	dict_insert_sorted addr_watches $addr [dict create -desc $desc -size $size -type $type exprStr $exprStr]
+	dict_insert_sorted addr_watches $addr [dict create -desc $desc -format $format -type $type exprStr $exprStr]
 
 	# if OSD doesn't exist yet create it
 	if {$old_nof_watches == 0} {
@@ -299,11 +304,11 @@ proc ram_watch_add_to_widget { nr } {
 	osd create text  ram_watch.addr.mem$nr.text \
 		-size 4 -rgba 0xffffffff
 	osd create rectangle ram_watch.addr.val$nr \
-		-x 19 -y [expr 8+($nr*6)] -h 5 -w 16 -rgba 0x40404080
+		-x 19 -y [expr 8+($nr*6)] -h 5 -w 17 -rgba 0x40404080
 	osd create text  ram_watch.addr.val$nr.text \
 		-size 4 -rgba 0xffffffff
 	osd create rectangle ram_watch.addr.desc$nr \
-		-x 36 -y [expr 8+($nr*6)] -h 5 -w 24 -rgba 0x40404080 -clip true
+		-x 37 -y [expr 8+($nr*6)] -h 5 -w 23 -rgba 0x40404080 -clip true
 	osd create text  ram_watch.addr.desc$nr.text \
 		-size 4 -rgba 0xffffffff
 }
@@ -443,8 +448,8 @@ proc ram_watch_help {args} {
 Syntax: ram_watch add <address> [<options>...]
 Possible options are:
     -desc <description> describes the address
-    -size <size>        byte or word sized value
-    -type <type>        format of value: (d)ec, (u)nsigned, he(x), (c)har
+    -type <type>        datatype: byte, word
+    -format <format>    formatting: dec, hex
 }}
 		"remove" { return {Remove an address from the list of RAM watch addresses from the list of RAM watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.
 
