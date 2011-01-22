@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1295308090">
+<softwaredb xml:lang="en" timestamp="1295719192">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2157,6 +2157,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c6f090882886dcf783e5b65bff75c5e034fbb2eb</hash><remark><text>[a]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Cubic Duel</title>
+	<system>MSX</system>
+	<company>Concrete Digital Designs</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">5d8897b91f02ec8d56a51fd768b307f3a224348f</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Custar</title>
 	<genmsxid>440</genmsxid>
 	<system>MSX</system>
@@ -2441,6 +2449,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>KW</country>
 		<dump><rom><hash algo="sha1">39a40c1265cc663eef0d21dea01a9bf52c8c140e</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Dodgin Raven</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2009</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">03cbca9e6e9a8ef5742ce0ae173a3884f74dbd54</hash><remark><text>Only works on 60Hz</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Doki Doki Penguin Land</title>
@@ -11736,6 +11752,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2587
-Parse time 7.117 seconds on Tue Jan 18 0:48:18 CET 2011
+Roms in this database:2589
+Parse time 6.882 seconds on Sat Jan 22 18:59:59 CET 2011
  -->
