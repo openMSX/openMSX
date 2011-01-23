@@ -121,13 +121,16 @@ proc load_replay_slot {} {
 proc show_keys {} {
 	if {![osd exists cursors]} return
 
-	show_key_press right [is_key_pressed 8 7]
-	show_key_press down  [is_key_pressed 8 6]
-	show_key_press up    [is_key_pressed 8 5]
-	show_key_press left  [is_key_pressed 8 4]
-	show_key_press space [is_key_pressed 8 0]
+	# get joysticka values
+	set joy [debug read joystickports 0]
 
-	show_key_press m     [is_key_pressed 4 2]
+	show_key_press up    [expr ([is_key_pressed 8 5] || !($joy &  1))]
+	show_key_press down  [expr ([is_key_pressed 8 6] || !($joy &  2))]
+	show_key_press left  [expr ([is_key_pressed 8 4] || !($joy &  4))]
+	show_key_press right [expr ([is_key_pressed 8 7] || !($joy &  8))]
+	show_key_press space [expr ([is_key_pressed 8 0] || !($joy & 16))]
+
+	show_key_press m     [expr ([is_key_pressed 4 2] || !($joy & 32))]
 	show_key_press n     [is_key_pressed 4 3]
 	show_key_press z     [is_key_pressed 5 7]
 	show_key_press x     [is_key_pressed 5 5]
