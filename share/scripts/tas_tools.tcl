@@ -451,7 +451,7 @@ proc ram_watch_help {args} {
 Syntax: ram_watch add <address> [<options>...]
 Possible options are:
     -desc <description> describes the address
-    -type <type>        datatype: byte, word
+    -type <type>        datatype: byte, word, u8, s8, u16, s16, u16_BE, ...
     -format <format>    formatting: dec, hex
 }}
 		"remove" { return {Remove an address from the list of RAM watch addresses from the list of RAM watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.
