@@ -39,21 +39,21 @@
 			<li><a class="internal" href="#installrom">3.4 Installing ROMs</a>
 				<ol class="toc">
 					<li><a class="internal" href="#romlocation">3.4.1 ROM Locations</a></li>
-					<li><a class="internal" href="#romsplit">3.4.2 How to handle split ROMs</a></li>
-					<li><a class="internal" href="#romchecksums">3.4.3 Checksums</a></li>
+					<li><a class="internal" href="#romchecksums">3.4.2 Checksums</a></li>
+					<li><a class="internal" href="#romsplit">3.4.3 How to handle split ROMs</a></li>
 				</ol>
 			</li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#laserdisc">4. Palcom Laserdiscs</a></li>
 	<li><a class="internal" href="#settings">5. User Preferences</a></li>
-	<li><a class="internal" href="#hardwareedit">6. Writing Hardware Descriptions</a></li>
-	<li><a class="internal" href="#tuning">7. Performance Tuning</a>
+	<li><a class="internal" href="#tuning">6. Performance Tuning</a>
 		<ol class="toc">
-			<li><a class="internal" href="#opengl">7.1 OpenGL</a></li>
-			<li><a class="internal" href="#tuningvarious">7.2 Various Tuning Tips</a></li>
+			<li><a class="internal" href="#opengl">6.1 OpenGL</a></li>
+			<li><a class="internal" href="#tuningvarious">6.2 Various Tuning Tips</a></li>
 		</ol>
 	</li>
+	<li><a class="internal" href="#hardwareedit">7. Writing Hardware Descriptions</a></li>
 	<li><a class="internal" href="#contact">8. Contact Info</a></li>
 </ol>
 
@@ -284,8 +284,12 @@ Whatever you decide, is your own responsibility.
 <h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
 
 <p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
-for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool for system ROMs is the <code>share/systemroms</code>
-directory. So, you can just
+for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool for system ROMs is the <code>systemroms</code>
+directory. This directory is present in the installation directory of openMSX, typically in <code>C:\Program Files\openMSX\share</code> on Windows or something like <code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code> on UNIX-like operating systems. If you don't have access to these system wide installation directories (or don't want to touch them), you can also use your own user directory: <code>My Documents\openMSX\share</code> (Windows) or <code>~/.openMSX/share</code> (UNIX).
+</p>
+
+<p>
+So, you can just
 put all your system ROMs in that directory. More info about file pools is in the documentation of the <code><a class="external" href="commands.html#filepool">filepool</a></code> command. If you can't get this working, please read one of the next sections about Checksums.
 </p>
 
@@ -299,28 +303,7 @@ Look in the file hardwareconfig.xml for the file names openMSX expects
 the ROM images to have. However, usually, you can just use the file pool as explained in the previous paragraph.
 </p>
 
-<h4><a id="romsplit">3.4.2 How to handle split ROMs</a></h4>
-
-<p>
-The machine configurations bundled with openMSX often refer to ROM files
-that span multiple 16 kB pages.
-For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
-expected in a single 32 kB ROM image.
-If you created two 16 kB images when dumping or got those from downloading,
-you can concatenate them using tools included with your OS.
-In Linux and other Unix(-like) systems you can do it like this:
-</p>
-<div class="commandline">
-cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
-</div>
-<p>
-In Windows, open a command prompt and issue this command:
-</p>
-<div class="commandline">
-copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
-</div>
-
-<h4><a id="romchecksums">3.4.3 Checksums</a></h4>
+<h4><a id="romchecksums">3.4.2 Checksums</a></h4>
 
 <p>
 All necessary system ROM files used in machines and extensions are primarily identified with a checksum: a sha1sum. This enables openMSX to find the right ROM
@@ -352,6 +335,28 @@ controller. When you are sure it is correct, don't put it in a file pool, but pu
 Alternatively, you could add the checksum in the XML file that describes
 the machine you made the ROM dump for (multiple checksums can be present, they will be checked in the same order as they are in the file).
 </p>
+
+<h4><a id="romsplit">3.4.3 How to handle split ROMs</a></h4>
+
+<p>
+The machine configurations bundled with openMSX often refer to ROM files
+that span multiple 16 kB pages.
+For example, in the NMS 8250 configuration, the BIOS and MSX-BASIC are
+expected in a single 32 kB ROM image.
+If you created two 16 kB images when dumping or got those from downloading,
+you can concatenate them using tools included with your OS.
+In Linux and other Unix(-like) systems you can do it like this:
+</p>
+<div class="commandline">
+cat bios.rom basic.rom &gt; nms8250_basic-bios2.rom
+</div>
+<p>
+In Windows, open a command prompt and issue this command:
+</p>
+<div class="commandline">
+copy /b bios.rom + basic.rom nms8250_basic-bios2.rom
+</div>
+
 
 <h2><a id="laserdisc">4. Palcom Laserdiscs</a></h2>
 
@@ -414,7 +419,7 @@ Note that the emulated Pioneer PX-7 and Pioneer PX-V60 are virtually identical, 
 <h2><a id="settings">5. User Preferences</a></h2>
 
 <p>
-Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts.
+Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in your personal settings file. The settings file will be loaded every time openMSX starts.
 </p>
 
 <p>
@@ -426,13 +431,6 @@ the machine openMSX uses if you did not specify one on the command line. The nam
 By using the <code><a class="external" href="commands.html#bind">bind</a></code> command you can create custom key bindings. These bindings will also be saved as settings in your settings file if you issue a <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command.
 </p>
 
-<!--
-<p>
-You can also register more file extensions in the <code>settings.xml</code> file.
-See the "FileTypes" section of the file.
-</p>
--->
-
 <p>
 The other settings are discussed in <a class="external" href="user.html#controlling">the User's Manual</a> and there is an overview in the <a class="external" href="commands.html">Console Command Reference</a>.
 </p>
@@ -441,7 +439,82 @@ The other settings are discussed in <a class="external" href="user.html#controll
 If you're a power user and want to specify commands which are executed at the start of each openMSX start up, put those commands in a text file, one command per line (i.e. a script) and put it in the <code>share/scripts</code> directory. You can also explicitly specify a Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
-<h2><a id="hardwareedit">6. Writing Hardware Descriptions</a></h2>
+<h2><a id="tuning">6. Performance Tuning</a></h2>
+
+<p>
+This chapter contains some tips for tuning the performance of openMSX
+on your system.
+</p>
+
+<h3><a id="opengl">6.1 OpenGL</a></h3>
+
+<p>
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
+If your OpenGL driver is not hardware accelerated,
+use the SDL renderer instead.
+If you have hardware accelerated OpenGL, but an older graphics card,
+try disabling scanlines, blur and glow (set them to 0). Running SDLGL-PP needs a graphics card and drivers that support OpenGL 2.0. For nVidia cards we know that the GeForce 4 and lower cards won't work with SDLGL-PP, GeForce 5 should work, but might be slow at some times and GeForce 6 should be just fine. For ATI we only know that all works fine on a Radeon 9700Pro. Newer cards than mentioned probably work as well.
+</p>
+<p>
+For OpenGL under Linux, you might have to take some additional steps to get it hardware accelerated.
+If you have an nVidia card, go to the
+<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
+for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
+For other cards, try Mesa, which can be found in packages like
+<code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
+or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
+However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
+</p>
+<p>
+You need to have the GLX module loaded in your X server and
+also accelerated graphics (DRI).
+You can verify this by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
+</p>
+<p>
+In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
+</p>
+
+<h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
+
+<p>
+CPU and graphics performance varies a lot, depending on the openMSX
+settings and the MSX hardware and software you're emulating.
+Some things run fine on a 200MHz machine, others are slow on a 2GHz
+machine.
+</p>
+
+<p>
+If openMSX runs slow, you can try the following measures:
+</p>
+<ul>
+<li>
+Make sure there are no CPU or I/O heavy background processes is running.
+Downloads, P2P software, distributed calculation efforts, search indexers etc may grab
+the CPU from time to time, leaving less time for openMSX to do its job.
+Even if they only do so only once in a while, it may be enough to cause
+emulation to stutter.
+</li>
+<li>
+Use 16-bit color mode ("High Colors", "65536 colors") instead of 32-bit ("True Colors", "millions of colors").
+openMSX uses your platform's default setting.
+</li>
+<li>
+Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
+</li>
+<li>
+Use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
+games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines. Turning off special effects can also mean a speed up, of course.
+</li>
+<li>
+Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
+</li>
+<li>
+Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
+instead of MoonSound (maximum 18+24 channels).
+</li>
+</ul>
+
+<h2><a id="hardwareedit">7. Writing Hardware Descriptions</a></h2>
 
 <p>
 There are two ways to use extra devices in your emulated MSX:
@@ -453,7 +526,7 @@ As in the real world, extensions are easier to use,
 but modifying the machine gives you more possibilities.
 Normal usage of machines and extensions is covered in the
 <a class="external" href="user.html">User's Manual</a>;
-this chapter tells you how you can create or modify these hardware descriptions.
+this chapter tells you how you can create or modify these hardware descriptions, which is a topic for advanced users and definitely something very few people will (want to) do.
 By editing the XML files, you can for example increase the amount of RAM,
 add a built-in MSX-MUSIC, add a disk drive, create extra cartridge slots etc.
 </p>
@@ -557,81 +630,6 @@ If you understand the basics of XML, you should be able to compose your MSX now!
 You can use the ready-made configurations in <code>share/machines</code> as
 examples.
 </p>
-
-<h2><a id="tuning">7. Performance Tuning</a></h2>
-
-<p>
-This chapter contains some tips for tuning the performance of openMSX
-on your system.
-</p>
-
-<h3><a id="opengl">7.1 OpenGL</a></h3>
-
-<p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
-If your OpenGL driver is not hardware accelerated,
-use the SDL renderer instead.
-If you have hardware accelerated OpenGL, but an older graphics card,
-try disabling scanlines, blur and glow (set them to 0). Running SDLGL-PP needs a graphics card and drivers that support OpenGL 2.0. For nVidia cards we know that the GeForce 4 and lower cards won't work with SDLGL-PP, GeForce 5 should work, but might be slow at some times and GeForce 6 should be just fine. For ATI we only know that all works fine on a Radeon 9700Pro. Newer cards than mentioned probably work as well.
-</p>
-<p>
-For OpenGL under Linux, you might have to take some additional steps to get it hardware accelerated.
-If you have an nVidia card, go to the
-<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
-For other cards, try Mesa, which can be found in packages like
-<code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
-or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
-However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
-</p>
-<p>
-You need to have the GLX module loaded in your X server and
-also accelerated graphics (DRI).
-You can verify this by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
-</p>
-<p>
-In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
-</p>
-
-<h3><a id="tuningvarious">7.2 Various Tuning Tips</a></h3>
-
-<p>
-CPU and graphics performance varies a lot, depending on the openMSX
-settings and the MSX hardware and software you're emulating.
-Some things run fine on a 200MHz machine, others are slow on a 2GHz
-machine.
-</p>
-
-<p>
-If openMSX runs slow, you can try the following measures:
-</p>
-<ul>
-<li>
-Make sure there are no CPU or I/O heavy background processes is running.
-Downloads, P2P software, distributed calculation efforts, search indexers etc may grab
-the CPU from time to time, leaving less time for openMSX to do its job.
-Even if they only do so only once in a while, it may be enough to cause
-emulation to stutter.
-</li>
-<li>
-Use 16-bit color mode ("High Colors", "65536 colors") instead of 32-bit ("True Colors", "millions of colors").
-openMSX uses your platform's default setting.
-</li>
-<li>
-Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
-</li>
-<li>
-Use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
-games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines. Turning off special effects can also mean a speed up, of course.
-</li>
-<li>
-Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
-</li>
-<li>
-Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
-instead of MoonSound (maximum 18+24 channels).
-</li>
-</ul>
 
 <h2><a id="contact">8. Contact Info</a></h2>
 
