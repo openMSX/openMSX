@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1295719192">
+<softwaredb xml:lang="en" timestamp="1296314149">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -218,6 +218,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">43084db72dd13112450a7af4b513e13e9266defb</hash><remark><text>[RC-744] / cheat version</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">90b57b582675360916ad68ba65e9284926d93f4a</hash><remark><text>[RC-744] / Ulver crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">aa13b346e11644f8426fc546b359bc6fd7c6b357</hash><remark><text>[RC-744]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark><text>ProSoft rip</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Albatros</title>
@@ -11731,6 +11732,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">4cc5f197d2bd3f0306c07a880590b4b4a5574e12</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Zombie Near</title>
+	<system>MSX</system>
+	<company>&#211;scar Toledo Guti&#233;rrez</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark><text>MSXDev10 Entry</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Zoom 909</title>
 	<genmsxid>521</genmsxid>
 	<system>MSX</system>
@@ -11752,6 +11761,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2589
-Parse time 6.882 seconds on Sat Jan 22 18:59:59 CET 2011
+Roms in this database:2591
+Parse time 7.357 seconds on Sat Jan 29 16:15:56 CET 2011
  -->
