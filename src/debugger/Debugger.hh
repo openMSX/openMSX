@@ -3,6 +3,7 @@
 #ifndef DEBUGGER_HH
 #define DEBUGGER_HH
 
+#include "WatchPoint.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <map>
@@ -45,6 +46,11 @@ private:
 
 	void insertProbeBreakPoint(std::auto_ptr<ProbeBreakPoint> bp);
 	void removeProbeBreakPoint(const std::string& name);
+
+	unsigned setWatchPoint(std::auto_ptr<TclObject> command,
+	                       std::auto_ptr<TclObject> condition,
+	                       WatchPoint::Type type,
+	                       unsigned beginAddr, unsigned endAddr);
 
 	MSXMotherBoard& motherBoard;
 	friend class DebugCmd;

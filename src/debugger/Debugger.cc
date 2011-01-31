@@ -244,6 +244,24 @@ void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 	probeBreakPoints.erase(it);
 }
 
+unsigned Debugger::setWatchPoint(auto_ptr<TclObject> command,
+                                 auto_ptr<TclObject> condition,
+                                 WatchPoint::Type type,
+                                 unsigned beginAddr, unsigned endAddr)
+{
+	shared_ptr<WatchPoint> wp;
+	if ((type == WatchPoint::READ_IO) || (type == WatchPoint::WRITE_IO)) {
+		wp.reset(new WatchIO(motherBoard, type, beginAddr, endAddr,
+		                     command, condition));
+	} else {
+		wp.reset(new WatchPoint(motherBoard.getReactor().getGlobalCliComm(),
+			command, condition, type, beginAddr, endAddr));
+	}
+	motherBoard.getCPUInterface().setWatchPoint(wp);
+	return wp->getId();
+}
+
+
 // class DebugCmd
 
 static word getAddress(const vector<TclObject*>& tokens)
@@ -537,14 +555,15 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
                              TclObject& result)
 {
-	shared_ptr<WatchPoint> wp;
 	auto_ptr<TclObject> command(
 		new TclObject(result.getInterpreter(), "debug break"));
 	auto_ptr<TclObject> condition;
+	unsigned beginAddr, endAddr;
+	WatchPoint::Type type;
 
 	switch (tokens.size()) {
 	case 6: // command
-		command->setString(tokens[5]->getString());
+		command.reset(new TclObject(*tokens[5]));
 		command->checkCommand();
 		// fall-through
 	case 5: // condition
@@ -555,7 +574,6 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		// fall-through
 	case 4: { // address + type
 		string typeStr = tokens[2]->getString();
-		WatchPoint::Type type;
 		unsigned max;
 		if (typeStr == "read_io") {
 			type = WatchPoint::READ_IO;
@@ -572,7 +590,6 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		} else {
 			throw CommandException("Invalid type: " + typeStr);
 		}
-		unsigned beginAddr, endAddr;
 		if (tokens[3]->getListLength() == 2) {
 			beginAddr = tokens[3]->getListIndex(0).getInt();
 			endAddr   = tokens[3]->getListIndex(1).getInt();
@@ -587,9 +604,6 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		if (endAddr >= max) {
 			throw CommandException("Invalid address: out of range");
 		}
-		wp.reset(new WatchIO(debugger.motherBoard, type,
-		                     beginAddr, endAddr,
-		                     command, condition));
 		break;
 	}
 	default:
@@ -599,8 +613,9 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "wp#" << wp->getId());
-	debugger.motherBoard.getCPUInterface().setWatchPoint(wp);
+	unsigned id = debugger.setWatchPoint(
+		command, condition, type, beginAddr, endAddr);
+	result.setString(StringOp::Builder() << "wp#" << id);
 }
 
 void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
