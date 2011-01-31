@@ -201,9 +201,16 @@ void Debugger::getProbes(std::set<std::string>& result) const
 }
 
 
-void Debugger::insertProbeBreakPoint(auto_ptr<ProbeBreakPoint> bp)
+unsigned Debugger::insertProbeBreakPoint(
+	std::auto_ptr<TclObject> command,
+	std::auto_ptr<TclObject> condition,
+	ProbeBase& probe, unsigned newId /*= -1*/)
 {
-	probeBreakPoints.push_back(bp.release());
+	ProbeBreakPoint* bp = new ProbeBreakPoint(
+		motherBoard.getReactor().getGlobalCliComm(),
+		command, condition, *this, probe, newId);
+	probeBreakPoints.push_back(bp);
+	return bp->getId();
 }
 
 void Debugger::removeProbeBreakPoint(const string& name)
@@ -265,11 +272,7 @@ unsigned Debugger::setWatchPoint(auto_ptr<TclObject> command,
 void Debugger::transfer(Debugger& other)
 {
 	// Copy watchpoints to new machine.
-	// Breakpoints and conditions are (currently) global, so no need to
-	// copy those.
-	// TODO probes
 	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
-
 	const MSXCPUInterface::WatchPoints& watchPoints =
 		other.motherBoard.getCPUInterface().getWatchPoints();
 	for (MSXCPUInterface::WatchPoints::const_iterator it =
@@ -279,6 +282,21 @@ void Debugger::transfer(Debugger& other)
 		              wp.getType(), wp.getBeginAddress(),
 		              wp.getEndAddress(), wp.getId());
 	}
+
+	// Copy probes to new machine.
+	assert(probeBreakPoints.empty());
+	for (ProbeBreakPoints::const_iterator it = other.probeBreakPoints.begin();
+	     it != other.probeBreakPoints.end(); ++it) {
+		const ProbeBreakPoint& bp = **it;
+		if (ProbeBase* probe = findProbe(bp.getProbe().getName())) {
+			insertProbeBreakPoint(bp.getCommandObj(),
+			                      bp.getConditionObj(),
+			                      *probe, bp.getId());
+		}
+	}
+
+	// Breakpoints and conditions are (currently) global, so no need to
+	// copy those.
 }
 
 
@@ -836,13 +854,14 @@ void DebugCmd::probeRead(const vector<TclObject*>& tokens,
 void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
                                   TclObject& result)
 {
-	auto_ptr<ProbeBreakPoint> bp;
 	auto_ptr<TclObject> command(
 		new TclObject(result.getInterpreter(), "debug break"));
 	auto_ptr<TclObject> condition;
+	ProbeBase* probe;
+
 	switch (tokens.size()) {
 	case 6: // command
-		command->setString(tokens[5]->getString());
+		command.reset(new TclObject(*tokens[5]));
 		command->checkCommand();
 		// fall-through
 	case 5: // condition
@@ -852,9 +871,7 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 		}
 		// fall-through
 	case 4: { // probe
-		ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
-		bp.reset(new ProbeBreakPoint(cliComm, command, condition,
-		                             debugger, probe));
+		probe = &debugger.getProbe(tokens[3]->getString());
 		break;
 	}
 	default:
@@ -864,8 +881,9 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "pp#" << bp->getId());
-	debugger.insertProbeBreakPoint(bp);
+
+	unsigned id = debugger.insertProbeBreakPoint(command, condition, *probe);
+	result.setString(StringOp::Builder() << "pp#" << id);
 }
 void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
                                      TclObject& /*result*/)

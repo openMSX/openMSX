@@ -19,7 +19,8 @@ public:
 	                std::auto_ptr<TclObject> command,
 	                std::auto_ptr<TclObject> condition,
 	                Debugger& debugger,
-	                ProbeBase& probe);
+	                ProbeBase& probe,
+	                unsigned newId = -1);
 	~ProbeBreakPoint();
 
 	unsigned getId() const;

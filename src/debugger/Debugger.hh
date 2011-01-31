@@ -46,7 +46,10 @@ private:
 	ProbeBase& getProbe(const std::string& name);
 	void getProbes(std::set<std::string>& result) const;
 
-	void insertProbeBreakPoint(std::auto_ptr<ProbeBreakPoint> bp);
+	unsigned insertProbeBreakPoint(
+		std::auto_ptr<TclObject> command,
+		std::auto_ptr<TclObject> condition,
+		ProbeBase& probe, unsigned newId = -1);
 	void removeProbeBreakPoint(const std::string& name);
 
 	unsigned setWatchPoint(std::auto_ptr<TclObject> command,
