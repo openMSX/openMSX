@@ -5,6 +5,7 @@
 #include "EventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "Keyboard.hh"
+#include "Debugger.hh"
 #include "EventDelay.hh"
 #include "MSXMixer.hh"
 #include "XMLException.hh"
@@ -417,20 +418,8 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		ReverseManager& newManager = newBoard->getReverseManager();
 		newManager.transferHistory(history, it->second.eventCount);
 
-		// Transfer viewonly mode
-		const StateChangeDistributor& oldDistributor =
-			motherBoard.getStateChangeDistributor();
-		StateChangeDistributor& newDistributor =
-			newBoard->getStateChangeDistributor();
-		newDistributor.setViewOnlyMode(oldDistributor.isViewOnlyMode());
-
-		// transfer keyboard state
-		if (newManager.keyboard && keyboard) {
-			newManager.keyboard->transferHostKeyMatrix(*keyboard);
-		}
-
-		// copy rerecord count
-		newManager.reRecordCount = reRecordCount;
+		// transfer (or copy) state from old to new machine
+		transferState(*newBoard);
 
 		// In case of load-replay it's possible we are not collecting,
 		// but calling stop() anyway is ok.
@@ -455,6 +444,28 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		mixer.unmute();
 		throw;
 	}
+}
+
+void ReverseManager::transferState(MSXMotherBoard& newBoard)
+{
+	// Transfer viewonly mode
+	const StateChangeDistributor& oldDistributor =
+		motherBoard.getStateChangeDistributor();
+	StateChangeDistributor& newDistributor =
+		newBoard.getStateChangeDistributor();
+	newDistributor.setViewOnlyMode(oldDistributor.isViewOnlyMode());
+
+	// transfer keyboard state
+	ReverseManager& newManager = newBoard.getReverseManager();
+	if (newManager.keyboard && keyboard) {
+		newManager.keyboard->transferHostKeyMatrix(*keyboard);
+	}
+
+	// transfer watchpoints
+	newBoard.getDebugger().transfer(motherBoard.getDebugger());
+
+	// copy rerecord count
+	newManager.reRecordCount = reRecordCount;
 }
 
 void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)

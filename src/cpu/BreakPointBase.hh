@@ -21,6 +21,8 @@ class BreakPointBase : private noncopyable
 public:
 	std::string getCondition() const;
 	std::string getCommand() const;
+	std::auto_ptr<TclObject> getConditionObj() const;
+	std::auto_ptr<TclObject> getCommandObj() const;
 	void checkAndExecute();
 
 	// get associated interpreter

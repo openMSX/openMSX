@@ -37,6 +37,8 @@ public:
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu);
 
+	void transfer(Debugger& other);
+
 private:
 	Debuggable& getDebuggable(const std::string& name);
 	void getDebuggables(std::set<std::string>& result) const;
@@ -50,7 +52,8 @@ private:
 	unsigned setWatchPoint(std::auto_ptr<TclObject> command,
 	                       std::auto_ptr<TclObject> condition,
 	                       WatchPoint::Type type,
-	                       unsigned beginAddr, unsigned endAddr);
+	                       unsigned beginAddr, unsigned endAddr,
+	                       unsigned newId = -1);
 
 	MSXMotherBoard& motherBoard;
 	friend class DebugCmd;

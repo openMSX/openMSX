@@ -30,6 +30,18 @@ std::string BreakPointBase::getCommand() const
 	return command->getString();
 }
 
+std::auto_ptr<TclObject> BreakPointBase::getConditionObj() const
+{
+	return std::auto_ptr<TclObject>(condition.get()
+	                                ? new TclObject(*condition)
+	                                : NULL);
+}
+
+std::auto_ptr<TclObject> BreakPointBase::getCommandObj() const
+{
+	return std::auto_ptr<TclObject>(new TclObject(*command));
+}
+
 bool BreakPointBase::isTrue() const
 {
 	if (!condition.get()) {

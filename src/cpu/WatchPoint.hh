@@ -21,7 +21,8 @@ public:
 	WatchPoint(GlobalCliComm& CliComm,
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition,
-	           Type type, unsigned beginAddr, unsigned endAddr);
+	           Type type, unsigned beginAddr, unsigned endAddr,
+	           unsigned newId = -1);
 	virtual ~WatchPoint(); // needed for dynamic_cast
 
 	unsigned getId() const;

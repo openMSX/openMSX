@@ -247,18 +247,38 @@ void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 unsigned Debugger::setWatchPoint(auto_ptr<TclObject> command,
                                  auto_ptr<TclObject> condition,
                                  WatchPoint::Type type,
-                                 unsigned beginAddr, unsigned endAddr)
+                                 unsigned beginAddr, unsigned endAddr,
+                                 unsigned newId /*= -1*/)
 {
 	shared_ptr<WatchPoint> wp;
 	if ((type == WatchPoint::READ_IO) || (type == WatchPoint::WRITE_IO)) {
 		wp.reset(new WatchIO(motherBoard, type, beginAddr, endAddr,
-		                     command, condition));
+		                     command, condition, newId));
 	} else {
 		wp.reset(new WatchPoint(motherBoard.getReactor().getGlobalCliComm(),
-			command, condition, type, beginAddr, endAddr));
+			command, condition, type, beginAddr, endAddr, newId));
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
 	return wp->getId();
+}
+
+void Debugger::transfer(Debugger& other)
+{
+	// Copy watchpoints to new machine.
+	// Breakpoints and conditions are (currently) global, so no need to
+	// copy those.
+	// TODO probes
+	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
+
+	const MSXCPUInterface::WatchPoints& watchPoints =
+		other.motherBoard.getCPUInterface().getWatchPoints();
+	for (MSXCPUInterface::WatchPoints::const_iterator it =
+	     watchPoints.begin(); it != watchPoints.end(); ++it) {
+		const WatchPoint& wp = **it;
+		setWatchPoint(wp.getCommandObj(), wp.getConditionObj(),
+		              wp.getType(), wp.getBeginAddress(),
+		              wp.getEndAddress(), wp.getId());
+	}
 }
 
 

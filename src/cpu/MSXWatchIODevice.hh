@@ -18,7 +18,8 @@ public:
 	        WatchPoint::Type type,
 	        unsigned beginAddr, unsigned endAddr,
 	        std::auto_ptr<TclObject> command,
-	        std::auto_ptr<TclObject> condition);
+	        std::auto_ptr<TclObject> condition,
+	        unsigned newId = -1);
 	virtual ~WatchIO();
 
 	MSXWatchIODevice& getDevice(byte port);

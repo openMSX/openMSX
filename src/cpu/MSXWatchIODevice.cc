@@ -17,9 +17,10 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard,
                  WatchPoint::Type type,
                  unsigned beginAddr, unsigned endAddr,
                  std::auto_ptr<TclObject> command,
-                 std::auto_ptr<TclObject> condition)
+                 std::auto_ptr<TclObject> condition,
+                 unsigned newId /*= -1*/)
 	: WatchPoint(motherboard.getReactor().getGlobalCliComm(), command,
-	             condition, type, beginAddr, endAddr)
+	             condition, type, beginAddr, endAddr, newId)
 	, cpuInterface(motherboard.getCPUInterface())
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {

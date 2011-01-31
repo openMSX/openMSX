@@ -85,7 +85,8 @@ private:
 	void goTo(EmuTime::param targetTime);
 	void goTo(EmuTime::param targetTime, ReverseHistory& history);
 	void transferHistory(ReverseHistory& oldHistory,
-                             unsigned oldEventCount);
+	                     unsigned oldEventCount);
+	void transferState(MSXMotherBoard& newBoard);
 	void takeSnapshot(EmuTime::param time);
 	void schedule(EmuTime::param time);
 	void replayNextEvent();
