@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1296314149">
+<softwaredb xml:lang="en" timestamp="1296438004">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -218,7 +218,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">43084db72dd13112450a7af4b513e13e9266defb</hash><remark><text>[RC-744] / cheat version</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">90b57b582675360916ad68ba65e9284926d93f4a</hash><remark><text>[RC-744] / Ulver crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">aa13b346e11644f8426fc546b359bc6fd7c6b357</hash><remark><text>[RC-744]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark><text>ProSoft rip</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">bf0e576c84efc27941a378b6c77d3a999bac9bb1</hash><remark><text>[RC-744] / ProSoft rip</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Albatros</title>
@@ -1367,6 +1367,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">c5edd1c74e72ddaeba1027da1e848e2c4fda94f5</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">a40674b5e0ba449078cbb07406edfd2627306122</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">d66068f5a8b6cad09ed57893ceb0f3dd37ce8715</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Bubble Utilize</title>
+	<system>MSX</system>
+	<company>Pastel Hope</company>
+	<year>1992</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">27731d0f0900ad900cd229d69e9bc4eab6ea4135</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Burger Time</title>
@@ -4449,6 +4457,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6844ddf610e1a98b55e77fcc364b38a037751a2b</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Heroes Arena</title>
+	<system>MSX</system>
+	<company>Imanok</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">fa6172ba3a78c03ed6194dee6e26a1dc3adb939f</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Heroes of The Lance</title>
 	<genmsxid>1643</genmsxid>
 	<system>MSX</system>
@@ -5750,7 +5766,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">89ccb1a7ffaaa75cee9bdc9b4a9ec9b063af7199</hash><remark><text>[a1][RC-732]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">a0ed2c50e55241d23bb5d12cb6528a2a0c3bc156</hash><remark><text>[a2][RC-732]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash><remark><text>[RC-732]</text></remark></rom></dump>
-		<dump><rom><hash algo="sha1">34019d5bc3687ec1255fd7ad7571830a67241ddd</hash><remark><text>Konami Antiques MSX Collection 3</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">34019d5bc3687ec1255fd7ad7571830a67241ddd</hash><remark><text>[RC-732] / Konami Antiques MSX Collection 3</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">5bef9572d71848966222819c3a1dd954994a4028</hash><remark><text>[RC-732] / enhancement patch</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Konami&#39;s Synthesizer</title>
@@ -7305,7 +7322,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Z80ST</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">328bf269bc38a706f1b6dec688d4f47e4a830199</hash><remark><text>MSXDev10 entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">328bf269bc38a706f1b6dec688d4f47e4a830199</hash><remark><text>v1.0 / MSXDev10 entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">e110e7165e571c64d268efa1f811d62f1a8da769</hash><remark><text>v1.1 / MSXDev10 entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Nessen Koushiyen - Casio Baseball</title>
@@ -8246,6 +8264,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">b8f9248a6f2bc02ed2dcae3f21d6fe0e572e23fe</hash><remark><text>[h Boram Soft]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Poyopoyo Life 1</title>
+	<system>MSX</system>
+	<company>Pastel Hope</company>
+	<year>1991</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f3cf0e4d88ccfd6720fff8feed8e6a3caada83a0</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Poyopoyo Life 2</title>
+	<system>MSX</system>
+	<company>Pastel Hope</company>
+	<year>1992</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">6630158b46f96756d1a90d2df909c4dcc4bca6c7</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Praying Hands</title>
 	<system>MSX</system>
 	<company>WYZ</company>
@@ -8496,7 +8530,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Z80ST</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark><text>MSXDev2010 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark><text>v1.0 / MSXDev2010 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4921e9ed9455e56371fb14481f1963957b1caeb1</hash><remark><text>v1.1 / MSXDev2010 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Quarth</title>
@@ -10584,6 +10619,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f6711e1e2bac04d45b8988f1d03529ad777abf4e</hash><remark><text>[a1]</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">The best off Hamaraja Night</title>
+	<system>MSX</system>
+	<company>Pastel Hope</company>
+	<year>1994</year>
+	<country>JP</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">b30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">The Chess Game</title>
 	<genmsxid>2442</genmsxid>
 	<system>MSX</system>
@@ -11761,6 +11804,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2591
-Parse time 7.357 seconds on Sat Jan 29 16:15:56 CET 2011
+Roms in this database:2599
+Parse time 6.940 seconds on Mon Jan 31 2:40:11 CET 2011
  -->
