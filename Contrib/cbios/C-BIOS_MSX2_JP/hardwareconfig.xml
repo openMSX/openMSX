@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml 577 2010-10-31 13:59:35Z manuelbi $ -->
+<!-- $Id: hardwareconfig.xml 579 2010-10-31 18:00:44Z manuelbi $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2</code>
-    <release_year>2003</release_year>
-    <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <code>MSX2 JP</code>
+    <release_year>2010</release_year>
+    <description>An MSX2 machine using C-BIOS, with a Japanese keyboard layout and 60Hz interrupt frequency.</description>
     <type>MSX2</type>
   </info>
 
@@ -18,11 +18,11 @@
   <devices>
 
     <primary slot="0">
-      <ROM id="C-BIOS Main ROM">
+      <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>adb9411124bbb98996c0e494e2ad26840f62548d</sha1>
-          <filename>roms/cbios_main_msx2.rom</filename>
+          <sha1>7d704a6116d5478661eb8743e44d148aa036d721</sha1>
+          <filename>roms/cbios_main_msx2_jp.rom</filename>
         </rom>
       </ROM>
 
@@ -66,9 +66,9 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>false</key_ghosting>
-      <keyboard_type>int</keyboard_type>
+      <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>true</has_keypad>
-      <code_kana_locks>false</code_kana_locks>
+      <code_kana_locks>true</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
 
@@ -81,6 +81,7 @@
 
     <PSG id="PSG">
       <type>YM2149</type>
+      <keyboardlayout>50on</keyboardlayout>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
@@ -91,7 +92,7 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>cbios-msx2.cmos</sramname>
+      <sramname>cbios-msx2_jp.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">

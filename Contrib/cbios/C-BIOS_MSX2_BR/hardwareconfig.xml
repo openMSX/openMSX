@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml 577 2010-10-31 13:59:35Z manuelbi $ -->
+<!-- $Id: hardwareconfig.xml 584 2010-11-20 15:08:23Z manuelbi $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2</code>
-    <release_year>2003</release_year>
-    <description>An MSX2 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <code>MSX2 BR</code>
+    <release_year>2010</release_year>
+    <description>An MSX2 machine using C-BIOS, with Brazillian settings, like 60Hz interrupt frequency.</description>
     <type>MSX2</type>
   </info>
 
@@ -21,8 +21,8 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>adb9411124bbb98996c0e494e2ad26840f62548d</sha1>
-          <filename>roms/cbios_main_msx2.rom</filename>
+          <sha1>a197a7f78900fd9a168d8e726c3651706357671e</sha1>
+          <filename>roms/cbios_main_msx2_br.rom</filename>
         </rom>
       </ROM>
 

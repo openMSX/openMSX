@@ -1,13 +1,13 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml 577 2010-10-31 13:59:35Z manuelbi $ -->
+<!-- $Id: hardwareconfig.xml 584 2010-11-20 15:08:23Z manuelbi $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX1</code>
-    <release_year>2003</release_year>
-    <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
+    <code>MSX1 BR</code>
+    <release_year>2010</release_year>
+    <description>An MSX1 machine using C-BIOS, with Brazillian settings, like 60Hz interrupt frequency.</description>
     <type>MSX</type>
   </info>
 
@@ -16,11 +16,11 @@
   <devices>
 
     <primary slot="0">
-      <ROM id="C-BIOS Main ROM">
+      <ROM id="C-BIOS Main ROM JP">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>d96e4ba798a866ba97eb75c29c9581a13ef3917b</sha1>
-          <filename>roms/cbios_main_msx1.rom</filename>
+          <sha1>7ff9dea68aa3d9ad4e465c7b3f72633fc12f595f</sha1>
+          <filename>roms/cbios_main_msx1_br.rom</filename>
         </rom>
       </ROM>
 
@@ -50,7 +50,7 @@
       </sound>
       <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
-      <has_keypad>false</has_keypad>
+      <has_keypad>true</has_keypad>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
     </PPI>
@@ -58,7 +58,7 @@
     <VDP id="VDP">
       <io base="0x98" num="2" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>TMS9929A</version>
+      <version>TMS99X8A</version>
       <vram>16</vram>
     </VDP>
 

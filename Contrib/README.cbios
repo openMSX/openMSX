@@ -1,6 +1,6 @@
 $Id$
 
-C-BIOS 0.24
+C-BIOS 0.25
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -19,9 +19,9 @@ License
 Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
 Copyright (c) 2004-2006,2008-2010 Maarten ter Huurne.  All rights reserved.
-Copyright (c) 2004-2006,2008-2010 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004-2006,2008-2011 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004-2005 Patrick van Arkel.  All rights reserved.
-Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+Copyright (c) 2004,2010-2011 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
 Copyright (c) 2004-2006 Jussi Pitkänen.  All rights reserved.
 Copyright (c) 2004-2007 Eric Boon.  All rights reserved.
@@ -187,9 +187,17 @@ ver 0.23  2009-01-04(CET)
           * A couple of other bug fixes.
 ver 0.24  2010-05-24(CET)
           * VRAM size is now properly checked, fixing R-Type's V9938 detection.
-          * C-BIOS doesn't lie anymore about the interrupt frequency. Don't di;
-            halt when no ROM is found, the warning in openMSX may be confusing
+          * C-BIOS doesn't lie anymore about the interrupt frequency.
+          * Don't di; halt when no ROM is found, the warning in openMSX may be
+            confusing
           * A few minor bug fixes and tweaks.
+ver 0.25  2011-02-01(CET)
+          * C-BIOS now offers localized versions in the flavours INT (default),
+            JP and BR.
+          * Bug fixes for compatibility with Mirai, Family Billiards.
+          * A couple of other bug fixes.
+          * This version only compiles with Pasmo 0.5.3, due to lack of
+            standards in assembler directives...
 
 Special Thanks
 --------------

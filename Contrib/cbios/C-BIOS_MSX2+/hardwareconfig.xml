@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id$ -->
+<!-- $Id: hardwareconfig.xml 592 2011-01-09 13:08:37Z manuelbi $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -7,7 +7,7 @@
     <manufacturer>C-BIOS</manufacturer>
     <code>MSX2+</code>
     <release_year>2005</release_year>
-    <description>An MSX2+ machine using C-BIOS</description>
+    <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX2+</type>
   </info>
 
@@ -21,7 +21,7 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <sha1>1423ddcf06c2033ded10cae4a8c01dd640d9b8a9</sha1>
+          <sha1>e73ceb475e3f91492e700f45809c9b328dbee3fd</sha1>
           <filename>roms/cbios_main_msx2+.rom</filename>
         </rom>
       </ROM>
@@ -29,7 +29,7 @@
       <ROM id="C-BIOS Logo ROM">
         <mem base="0x8000" size="0x4000"/>
         <rom>
-          <sha1>a9b093982064bf8494215c528bb28c6ddf01a47f</sha1>
+          <sha1>ea405e0937035271528df13f6bf4a893ace8c644</sha1>
           <filename>roms/cbios_logo_msx2+.rom</filename>
         </rom>
       </ROM>
@@ -45,7 +45,7 @@
         <ROM id="C-BIOS Sub ROM">
           <mem base="0x0000" size="0x4000"/>
           <rom>
-            <sha1>570874efdf6663b49f0933e2e49d445d47fe996f</sha1>
+            <sha1>2fcb40413e7d373f0f2dbdc815ce18746ddf3684</sha1>
             <filename>roms/cbios_sub.rom</filename>
           </rom>
         </ROM>
@@ -82,6 +82,8 @@
       <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
     </PPI>
 
     <VDP id="VDP">
@@ -110,10 +112,10 @@
       <io base="0x90" num="2"/>
     </PrinterPort>
 
-    <F4Device id="F4Device">
+    <ResetStatusRegister id="Reset Status register">
       <io base="0xF4" num="1"/>
       <inverted>true</inverted>
-    </F4Device>
+    </ResetStatusRegister>
 
   </devices>
 
