@@ -7,6 +7,7 @@
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
 #include "CommandException.hh"
+#include "Version.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -95,7 +96,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		scalerMap["hqlite"] = SCALER_HQLITE;
 		scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
 		scalerMap["TV"] = SCALER_TV;
-		scalerMap["MLAA"] = SCALER_MLAA;
+		if (!Version::RELEASE) {
+			// This scaler is not ready yet for the upcoming 0.8.1
+			// release, so disable it. As soon as it is ready we
+			// can remove this test.
+			scalerMap["MLAA"] = SCALER_MLAA;
+		}
 	}
 	scaleAlgorithmSetting.reset(new EnumSetting<ScaleAlgorithm>(commandController,
 		"scale_algorithm", "scale algorithm",
