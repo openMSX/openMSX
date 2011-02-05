@@ -225,10 +225,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, sdlReleasesCapslock(sdlVersionAtleast_1_2_14())
 {
 	// SDL version >= 1.2.14 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
-	// environment variable is set
-	if (sdlReleasesCapslock) {
-		SDL_putenv(const_cast<char*>("SDL_DISABLE_LOCK_KEYS=1"));
-	}
+	// environment variable is already set in main.cc (because here it
+	// would be too late)
 
 	keysChanged = false;
 	msxCapsLockOn = false;

@@ -65,6 +65,17 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
+
+		// Constructing Reactor already causes parts of SDL to be used
+		// and initialized. If we want to set environment variables
+		// before this, we have to do it here...
+		//
+		// This is to make sure we get no annoying behaviour from SDL
+		// with regards to CAPS lock. This only works in SDL 1.2.14 or
+		// later, but it can't hurt to always set it
+
+		SDL_putenv(const_cast<char*>("SDL_DISABLE_LOCK_KEYS=1"));
+
 		Thread::setMainThread();
 		Reactor reactor;
 		reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
