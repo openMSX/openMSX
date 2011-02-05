@@ -219,7 +219,7 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	cd $(@D) && ./configure \
 		--prefix=$(PWD)/$(INSTALL_DIR)
 # It is not possible to pass CFLAGS to zlib's configure.
-MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
+MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)" AR="$(AR) rc"
 # Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
 #       itself. If we mess with it, the build breaks.
 
