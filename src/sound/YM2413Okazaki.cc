@@ -742,6 +742,7 @@ void YM2413::update_rhythm_mode()
 		ch7.mod.setEnvelopeState(FINISH);
 		ch7.car.setEnvelopeState(FINISH);
 		ch7.setPatch(17, *this);
+		ch7.mod.setVolume((reg[0x37] >> 4) << 2);
 	}
 
 	Channel& ch8 = channels[8];
@@ -756,6 +757,7 @@ void YM2413::update_rhythm_mode()
 		ch8.mod.setEnvelopeState(FINISH);
 		ch8.car.setEnvelopeState(FINISH);
 		ch8.setPatch(18, *this);
+		ch8.mod.setVolume((reg[0x38] >> 4) << 2);
 	}
 }
 
