@@ -36,12 +36,13 @@ New or improved emulator features:
 - Fixed bug in per-soundchip-channel audio recording
 - Fixed auto stereo recording for mbstereo-like configurations (was done in
   mono)
-- Show warning/error messages that were previously only shown on
-  standard-output in a OSD text box
+- OSD:
+  - Show warning/error messages that were previously only shown on
+    standard-output in an OSD text box
+  - Added gradients for rectangles to make the OSD look more polished
+  - Added border property to OSD rectangle
 - Added script to find cases of too fast VDP access (of which the consequences
   are not emulated)
-- Added gradients for OSD rectangles to make the OSD look more polished
-- Added border property to OSD rectangle
 - Added setting to disable sprites and option to make screenshot without
   sprites (especially useful for map makers!)
 - Added script to record movies in multiple files, especially useful for
