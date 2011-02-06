@@ -1,9 +1,0 @@
-Document: openmsx
-Title: openMSX Manual
-Author: <openmsx-devel@lists.sourceforge.net>
-Abstract: A detailed description of configuring and using openMSX
-Section: Emulators
-
-Format: HTML
-Index: /usr/share/doc/openmsx-data/manual/index.html
-Files: /usr/share/doc/openmsx-data/manual/*.html
