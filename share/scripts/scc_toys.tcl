@@ -14,7 +14,7 @@ namespace eval scc_toys {
 
 #scc viewer
 variable scc_viewer_active false
-variable scc_devices ""
+variable scc_devices [list]
 variable num_samples 32
 variable num_channels 5
 variable vertical_downscale_factor 4
@@ -49,6 +49,10 @@ proc scc_viewer_init {} {
 				lappend scc_devices $soundchip
 			}
 		}
+	}
+
+	if { [llength $scc_devices] == 0 } {
+		error "No SCC devices present..."
 	}
 
 	#set base element
@@ -136,7 +140,7 @@ proc update_scc_viewer {} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				set scc_wave_new [expr {[get_scc_wave [lindex $scc_regs [expr {($chan * $num_samples) + $pos}]]] / $vertical_downscale_factor}]
 					osd configure scc_viewer.$device.$chan.$pos \
-											-h $scc_wave_new
+						-h $scc_wave_new
 			}
 			set volume [expr {[lindex $scc_regs [expr {$volume_address + $chan}]] * 4}]
 			osd configure scc_viewer.$device.$chan.volume \
@@ -170,8 +174,8 @@ proc toggle_scc_viewer {} {
 		set scc_viewer_active false
 		osd destroy scc_viewer
 	} else {
-		set scc_viewer_active true
 		scc_viewer_init
+		set scc_viewer_active true
 		update_scc_viewer
 	}
 	return ""
@@ -297,7 +301,7 @@ proc toggle_scc_editor {} {
 	variable select_device
 	variable scc_devices
 
-	set select_device [lindex scc_devices 0]
+	set select_device [lindex $scc_devices 0]
 
 	bind_default "mouse button1 down" {scc_toys::checkclick}
 
@@ -353,10 +357,11 @@ proc checkclick {} {
 	#check editor matrix
 	for {set i 0} {$i < 32} {incr i} {
 	foreach {x y} [osd info "scc.slider$i" -mousecoord] {}
-		if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 			debug write "$select_device SCC" [expr $select_device_chan*32+$i] [expr int(255*$y-128) & 0xff]
-			osd configure scc.slider$i.val	-y [expr $y*255] \
-											-h [expr 128-($y*255)]
+			osd configure scc.slider$i.val \
+				-y [expr $y*255] \
+				-h [expr 128 - ($y*255)]
 		}
 	}
 
@@ -364,7 +369,7 @@ proc checkclick {} {
 	foreach device $scc_devices {
 		for {set i 0} {$i < 5} {incr i} {
 			foreach {x y} [osd info "scc_viewer.$device.$i" -mousecoord] {}
-				if {($x>=0 && $x<=1)&&($y>=0 && $y<=1)} {
+				if {( $x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 
 				#store device and channel picked from the SCC_viewer in memory
 				set select_device $device
@@ -376,12 +381,13 @@ proc checkclick {} {
 				set sel_x [osd info "scc_viewer.$device.$i" -x]
 				set sel_y [osd info "scc_viewer.$device.$i" -y]
 
-				osd configure selected 	-x [expr int($sel_x)+$abs_x] \
-										-y [expr int($sel_y)] \
-										-w [expr $sel_w+4] \
-										-h [expr $sel_h+4] \
-										-z 1 \
-										-rgba 0xff0000ff
+				osd configure selected \
+					-x [expr int($sel_x)+$abs_x] \
+					-y [expr int($sel_y)] \
+					-w [expr $sel_w+4] \
+					-h [expr $sel_h+4] \
+					-z 1 \
+					-rgba 0xff0000ff
 
 				set base $i*32
 
