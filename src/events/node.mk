@@ -14,7 +14,6 @@ SRC_HDR:= \
 	InputEventGenerator InputEventFactory
 
 HDR_ONLY:= \
-	CliMessages \
 	EventListener \
 	FinishFrameEvent
 
