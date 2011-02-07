@@ -32,14 +32,9 @@ variable regs [list 0xa0 0xa1 0xa2 0xa3 0xa4 0xa5 -1 0xaf 0xaa 0xab 0xac -1 -1 -
 variable select_device
 variable select_device_chan 0
 
-proc scc_viewer_init {} {
-	variable machine_switch_trigger_id
-	variable scc_viewer_active
+proc update_device_list {} {
 	variable scc_devices
-	variable num_channels
-	variable num_samples
-	variable vertical_downscale_factor
-	variable channel_height
+	variable select_device
 
 	set scc_devices [list]
 	foreach soundchip [machine_info sounddevice] {
@@ -54,6 +49,21 @@ proc scc_viewer_init {} {
 	if { [llength $scc_devices] == 0 } {
 		error "No SCC devices present..."
 	}
+
+	# for now, always select the first device
+	set select_device [lindex $scc_devices 0]
+}
+
+proc scc_viewer_init {} {
+	variable machine_switch_trigger_id
+	variable scc_viewer_active
+	variable scc_devices
+	variable num_channels
+	variable num_samples
+	variable vertical_downscale_factor
+	variable channel_height
+
+	update_device_list
 
 	#set base element
 	osd create rectangle scc_viewer \
@@ -182,9 +192,12 @@ proc toggle_scc_viewer {} {
 }
 
 proc init {} {
-	set_scc_wave 0 3
-	set_scc_wave 1 2
-	set_scc_wave 2 3
+	variable select_device
+	update_device_list
+
+	set_scc_wave $select_device 0 3
+	set_scc_wave $select_device 1 2
+	set_scc_wave $select_device 2 3
 }
 
 proc update1 {} {
@@ -195,96 +208,102 @@ proc update1 {} {
 proc update2 {} {
 	variable latch
 	variable regs
+	variable select_device
 
 	set reg [expr ($latch == -1) ? $latch : [lindex $regs $latch]]
 	set val $::wp_last_value
 	if {$latch == 7} { set val [expr ($val ^ 0x07) & 0x07] }
-	if {$reg != -1} { debug write "SCC SCC" $reg $val }
+	if {$reg != -1} { debug write "$select_device SCC" $reg $val }
 }
 
 proc toggle_psg2scc {} {
 	variable active
 	variable cur_wp1
 	variable cur_wp2
+	variable select_device
 
 	set active [expr !$active]
 	if {$active} {
 		init
 		set cur_wp1 [debug set_watchpoint write_io 0xa0 1 { scc_toys::update1 }]
 		set cur_wp2 [debug set_watchpoint write_io 0xa1 1 { scc_toys::update2 }]
+		return "Activated."
 	} else {
 		debug remove_watchpoint $cur_wp1
 		debug remove_watchpoint $cur_wp2
-		debug write "SCC SCC" 0xaf 0
+		debug write "$select_device SCC" 0xaf 0
+		return "Deactivated."
 	}
 }
 
-proc set_scc_form {channel wave} {
+proc set_scc_form {device channel wave} {
 	set base [expr $channel*32]
 
 	for {set i 0} {$i < 32} {incr i} {
-		debug write "SCC SCC" [expr $base+$i] "0x[string range $wave [expr $i*2] [expr $i*2]+1]"
+		debug write "$device SCC" [expr $base+$i] "0x[string range $wave [expr $i*2] [expr $i*2]+1]"
 	}
 }
 
-proc set_scc_wave {channel form} {
+proc set_scc_wave {device channel form} {
 
 	set base [expr $channel*32]
 
 	switch $form {
 		0 {
 			#Saw Tooth
-			set_scc_form $channel "fff7efe7dfd7cfc7bfb7afa79f978f877f776f675f574f473f372f271f170f07"
+			set_scc_form $device $channel "fff7efe7dfd7cfc7bfb7afa79f978f877f776f675f574f473f372f271f170f07"
 		}
 
 		1 {
 			#Square
-			set_scc_form $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
+			set_scc_form $device $channel "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f80808080808080808080808080808080"
 		}
 
 		2 {	#Triangle
-			set_scc_form $channel "7f7060504030201000f0e0d0c0b0a0908090a0b0c0d0e0f00010203040506070"
+			set_scc_form $device $channel "7f7060504030201000f0e0d0c0b0a0908090a0b0c0d0e0f00010203040506070"
 		}
 
 		3 {
 			#Sin Wave
-			set_scc_form $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
+			set_scc_form $device $channel "001931475A6A757D7F7D756A5A47311900E7CFB9A6968B8380838B96A6B9CFE7"
 		}
 
 		4 {
 			#Organ
-			set_scc_form $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
+			set_scc_form $device $channel "0070502050703000507F6010304000B0106000E0F000B090C010E0A0C0F0C0A0"
 		}
 
 		5 {
 			#SAWWY001
-			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+			set_scc_form $device $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
 		}
 
 		6 {
 			#SQROOT01
-			set_scc_form $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
+			set_scc_form $device $channel "00407F401001EAD6C3B9AFA49C958F8A86838183868A8F959CA4AFB9C3D6EAFF"
 		}
 
 		7 {
 			#SQROOT01
-			set_scc_form $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
+			set_scc_form $device $channel "636E707070705F2198858080808086AB40706F8C879552707052988080808EC1"
 		}
 
 		8 {
 			#DYERVC01
-			set_scc_form $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
+			set_scc_form $device $channel "00407F4001C081C001407F4001C0014001E0012001F0011001FFFFFFFF404040"
 		}
 
 		9 {
 			#SPACY
-			set_scc_form $channel "808ea0c0e000203f3e3c3a373129201c1000e6c0d000203f10e080c000200090"
+			set_scc_form $device $channel "808ea0c0e000203f3e3c3a373129201c1000e6c0d000203f10e080c000200090"
 		}
 	}
 }
 
 #SCC editor/copier
 proc toggle_scc_editor {} {
+
+	variable select_device
 
 	if {![osd exists scc_viewer]} { toggle_scc_viewer }
 
@@ -297,11 +316,6 @@ proc toggle_scc_editor {} {
 		unbind_default "mouse button1 down"
 		return ""
 	}
-
-	variable select_device
-	variable scc_devices
-
-	set select_device [lindex $scc_devices 0]
 
 	bind_default "mouse button1 down" {scc_toys::checkclick}
 
@@ -394,8 +408,8 @@ proc checkclick {} {
 				for {set q 0} {$q < 32} {incr q} {
 					set sccwave_new [get_scc_wave [debug read "$device SCC" [expr $base+$q]]]
 					set sccwave_old [osd info scc.slider$q.val -h]
-						osd configure scc.slider$q.val 	-y [expr 128+$y] \
-														-h $sccwave_new
+					osd configure scc.slider$q.val 	-y [expr 128+$y] \
+						-h $sccwave_new
 				}
 			}
 		}
