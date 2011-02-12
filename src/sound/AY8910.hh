@@ -186,7 +186,6 @@ private:
 	Amplitude amplitude;
 	Envelope envelope;
 	byte regs[16];
-	bool warningPrinted;
 	bool isAY8910;
 };
 

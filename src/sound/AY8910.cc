@@ -50,6 +50,9 @@ static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_DOUBLE + 0.5);
 
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
+
+static bool warningPrinted = false;
+
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
 	AY_CFINE = 4, AY_CCOARSE = 5, AY_NOISEPER = 6, AY_ENABLE = 7,
@@ -497,7 +500,6 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 		5.0, 1.0, 100.0))
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
-	, warningPrinted(false)
 	, isAY8910(checkAY8910(config))
 {
 	initDetune();
@@ -596,7 +598,7 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 			cliComm.printWarning(
 				"The running MSX software has set unsafe PSG "
 				"port directions. "
-				"Some (older) MSX models can get damaged "
+				"Real (older) MSX machines can get damaged "
 				"by this.");
 		}
 		// portA -> input
