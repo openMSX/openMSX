@@ -241,7 +241,7 @@ ifeq ($(OPENMSX_TARGET_OS),mingw32)
 TCL_OS:=win
 else
 ifeq ($(OPENMSX_TARGET_OS),darwin)
-TCL_OS:=maxosx
+TCL_OS:=macosx
 else
 TCL_OS:=unix
 endif
