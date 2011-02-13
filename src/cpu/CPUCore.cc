@@ -160,6 +160,20 @@
 // instruction, otherwise we would enter the IRQ routine a couple of
 // instructions too late.
 
+#if (__GNUC__ == 4) && (__GNUC_MINOR__ == 0) \
+ && defined(__i386__) && defined(NDEBUG)
+#warning Applying workaround for GCC 4.0 internal compiler error.
+// When compiling on Mac OS X for x86 in "opt" flavour, GCC crashes.
+// The crash does not occur when compiling for PPC.
+// The crash can be avoided by enabling asserts ("devel" flavour) or disabling
+// optimization completely (-O0). However, with some strategically placed calls
+// to abort() we can get the same effect with less impact on the generated
+// code. The define below enables those calls.
+#define WORK_AROUND_GCC40_SEGFAULT
+#include <cstdlib> // for abort()
+#include "likely.hh" // for unlikely()
+#endif
+
 #include "CPUCore.hh"
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
