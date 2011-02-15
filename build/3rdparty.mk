@@ -240,11 +240,9 @@ MAKEVAR_OVERRIDE_GLEW:=CC="$(_CC) $(_CFLAGS)" LD="$(_CC) $(_LDFLAGS)"
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 TCL_OS:=win
 else
-ifeq ($(OPENMSX_TARGET_OS),darwin)
-TCL_OS:=macosx
-else
+# Note: Use "unix" on Mac OS X as well. There is a "configure" script in
+#       the "macosx" dir, but that is only intended for use with Xcode.
 TCL_OS:=unix
-endif
 endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)
