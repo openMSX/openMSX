@@ -252,10 +252,9 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--disable-shared \
 		--disable-threads \
-		--disable-load \
-		--without-tzdata
-# Tcl's configure ignores CFLAGS passed to it.
-MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
+		--without-tzdata \
+		CFLAGS="$(_CFLAGS)" \
+		LDFLAGS="$(_LDFLAGS)"
 
 # Configure libxml2.
 $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
