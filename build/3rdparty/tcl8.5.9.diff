@@ -1,0 +1,87 @@
+diff -ru tcl8.5.9.org/generic/tcl.h tcl8.5.9/generic/tcl.h
+--- tcl8.5.9.org/generic/tcl.h	2010-08-04 19:02:39.000000000 +0200
++++ tcl8.5.9/generic/tcl.h	2011-02-19 18:25:49.000000000 +0100
+@@ -170,7 +170,7 @@
+  *       MSVCRT.
+  */
+ 
+-#if (defined(__WIN32__) && (defined(_MSC_VER) || (__BORLANDC__ >= 0x0550) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
++#if (defined(__WIN32__) && (defined(_MSC_VER) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0550)) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
+ #   define HAVE_DECLSPEC 1
+ #   ifdef STATIC_BUILD
+ #       define DLLIMPORT
+diff -ru tcl8.5.9.org/generic/tclPosixStr.c tcl8.5.9/generic/tclPosixStr.c
+--- tcl8.5.9.org/generic/tclPosixStr.c	2010-06-28 10:24:44.000000000 +0200
++++ tcl8.5.9/generic/tclPosixStr.c	2011-02-19 18:25:49.000000000 +0100
+@@ -343,7 +343,7 @@
+ #ifdef EPERM
+     case EPERM: return "EPERM";
+ #endif
+-#if defined(EPFNOSUPPORT) && (!defined(ENOLCK) || (ENOLCK != EPFNOSUPPORT))
++#if !defined(_MSC_VER) && defined(EPFNOSUPPORT) && (!defined(ENOLCK) || (ENOLCK != EPFNOSUPPORT))
+     case EPFNOSUPPORT: return "EPFNOSUPPORT";
+ #endif
+ #ifdef EPIPE
+@@ -403,7 +403,7 @@
+ #ifdef ESHUTDOWN
+     case ESHUTDOWN: return "ESHUTDOWN";
+ #endif
+-#ifdef ESOCKTNOSUPPORT
++#if !defined(_MSC_VER) && defined ESOCKTNOSUPPORT
+     case ESOCKTNOSUPPORT: return "ESOCKTNOSUPPORT";
+ #endif
+ #ifdef ESPIPE
+@@ -791,7 +791,7 @@
+ #ifdef EPERM
+     case EPERM: return "not owner";
+ #endif
+-#if defined(EPFNOSUPPORT) && (!defined(ENOLCK) || (ENOLCK != EPFNOSUPPORT))
++#if !defined(_MSC_VER) && defined(EPFNOSUPPORT) && (!defined(ENOLCK) || (ENOLCK != EPFNOSUPPORT))
+     case EPFNOSUPPORT: return "protocol family not supported";
+ #endif
+ #ifdef EPIPE
+@@ -851,7 +851,7 @@
+ #ifdef ESHUTDOWN
+     case ESHUTDOWN: return "can't send after socket shutdown";
+ #endif
+-#ifdef ESOCKTNOSUPPORT
++#if !defined(_MSC_VER) && defined ESOCKTNOSUPPORT
+     case ESOCKTNOSUPPORT: return "socket type not supported";
+ #endif
+ #ifdef ESPIPE
+diff -ru tcl8.5.9.org/unix/Makefile.in tcl8.5.9/unix/Makefile.in
+--- tcl8.5.9.org/unix/Makefile.in	2010-09-08 19:40:48.000000000 +0200
++++ tcl8.5.9/unix/Makefile.in	2011-02-19 18:25:54.000000000 +0100
+@@ -737,7 +737,7 @@
+ 	fi
+ 	@EXTRA_INSTALL_BINARIES@
+ 
+-install-libraries: libraries $(INSTALL_TZDATA) install-msgs
++install-libraries: libraries $(INSTALL_TZDATA)
+ 	@for i in "$(INCLUDE_INSTALL_DIR)" "$(SCRIPT_INSTALL_DIR)"; \
+ 	    do \
+ 	    if [ ! -d "$$i" ] ; then \
+diff -ru tcl8.5.9.org/unix/configure tcl8.5.9/unix/configure
+--- tcl8.5.9.org/unix/configure	2010-09-08 19:40:48.000000000 +0200
++++ tcl8.5.9/unix/configure	2011-02-19 18:25:54.000000000 +0100
+@@ -14898,7 +14898,7 @@
+ else
+ 
+ 	    if test "$cross_compiling" = yes; then
+-  tcl_cv_strtod_buggy=buggy
++  tcl_cv_strtod_buggy=ok
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
+diff -ru tcl8.5.9.org/win/Makefile.in tcl8.5.9/win/Makefile.in
+--- tcl8.5.9.org/win/Makefile.in	2010-09-08 19:40:49.000000000 +0200
++++ tcl8.5.9/win/Makefile.in	2011-02-19 18:25:54.000000000 +0100
+@@ -600,7 +600,7 @@
+ 	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg1.2; \
+ 	    fi
+ 
+-install-libraries: libraries install-tzdata install-msgs
++install-libraries: libraries
+ 	@for i in $(prefix)/lib $(INCLUDE_INSTALL_DIR) \
+ 		$(SCRIPT_INSTALL_DIR); \
+ 	    do \
