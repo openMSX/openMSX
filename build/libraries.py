@@ -373,7 +373,7 @@ class TCL(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform == 'darwin'
+		return False
 
 	@classmethod
 	def getTclConfig(cls, platform, distroRoot):
