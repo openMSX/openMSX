@@ -975,6 +975,17 @@ void MSXCPUInterface::doContinue2()
 	reactor.unblock();
 }
 
+void MSXCPUInterface::cleanup()
+{
+	// before the Tcl interpreter is destroyed, we must delete all
+	// TclObjects. Breakpoints and conditions contain such objects
+	// for the condition and action.
+	// TODO it would be nicer if breakpoints and conditions were not
+	//      global objects.
+	breakPoints.clear();
+	conditions.clear();
+}
+
 
 // class MemoryDebug
 

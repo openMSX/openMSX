@@ -7,6 +7,7 @@
 #include "CommandException.hh"
 #include "Setting.hh"
 #include "InterpreterOutput.hh"
+#include "MSXCPUInterface.hh"
 #include "openmsx.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -104,6 +105,9 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 
 Interpreter::~Interpreter()
 {
+	// see comment in MSXCPUInterface::cleanup()
+	MSXCPUInterface::cleanup();
+
 	eventDistributor.unregisterEventListener(OPENMSX_POLL_EVENT, *this);
 
 	if (!Tcl_InterpDeleted(interp)) {

@@ -224,6 +224,9 @@ public:
 		return isBreaked();
 	}
 
+	// cleanup global variables
+	static void cleanup();
+
 	// In fast-forward mode, breakpoints, watchpoints and conditions should
 	// not trigger.
 	void setFastForward(bool fastForward_) { fastForward = fastForward_; }
