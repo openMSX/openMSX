@@ -389,9 +389,7 @@ void VDP::resetInit()
 
 void VDP::resetMasks(EmuTime::param time)
 {
-	// TODO: Use the updateNameBase method instead of duplicating the effort
-	//       here for the initial state.
-	vram->nameTable.setMask(~(-1 << 10), -1 << 17, time);
+	updateNameBase(time);
 	updateColorBase(time);
 	updatePatternBase(time);
 	updateSpriteAttributeBase(time);
@@ -1498,6 +1496,9 @@ void VDP::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		renderer->reInit();
+
+		// recalculate from other state
+		resetMasks(Schedulable::getCurrentTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);
