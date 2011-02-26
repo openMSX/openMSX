@@ -24,6 +24,7 @@ Preparing for a release
 Creating a release candidate
 ----------------------------
 
+- Update the release date in the release notes.
 - Tag the SVN archive:
     svn copy \
       https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk \
@@ -39,6 +40,7 @@ Creating a release candidate
 - Save the created file somewhere you can find it again:
     mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
   This is the release candidate.
+- NOTE: for a Windows build, you also need a RC of Catapult!
 
 Sanity check on release candidate
 ---------------------------------
