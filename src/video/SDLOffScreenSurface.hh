@@ -12,12 +12,14 @@ class SDLOffScreenSurface : public OutputSurface
 {
 public:
 	explicit SDLOffScreenSurface(const SDL_Surface& prototype);
+	~SDLOffScreenSurface();
 
 private:
 	// OutputSurface
 	virtual void saveScreenshot(const std::string& filename);
 
 	SDLSurfacePtr surface;
+	void* buffer;
 };
 
 } // namespace openmsx
