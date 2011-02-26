@@ -175,24 +175,25 @@ void VDPVRAM::clear()
 
 void VDPVRAM::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 {
-	renderer->updateDisplayMode(mode, time);
+	assert(vdp.isInsideFrame(time));
 	cmdEngine->updateDisplayMode(mode, time);
+	renderer->updateDisplayMode(mode, time);
 	spriteChecker->updateDisplayMode(mode, time);
 }
 
 void VDPVRAM::updateDisplayEnabled(bool enabled, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
-	renderer->updateDisplayEnabled(enabled, time);
 	cmdEngine->sync(time);
+	renderer->updateDisplayEnabled(enabled, time);
 	spriteChecker->updateDisplayEnabled(enabled, time);
 }
 
 void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 {
 	assert(vdp.isInsideFrame(time));
-	renderer->updateSpritesEnabled(enabled, time);
 	cmdEngine->sync(time);
+	renderer->updateSpritesEnabled(enabled, time);
 	spriteChecker->updateSpritesEnabled(enabled, time);
 }
 
