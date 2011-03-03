@@ -255,6 +255,47 @@ proc step_over {} {
 	}
 }
 
+
+#
+# step_back
+#
+set_help_text step_back \
+{Step back. Go back in time till right before the last instruction was
+executed. Note that this operation is relatively slow (compared to the other
+step functions). Also the reverse feature must be enabled for this to work
+(normally it's enabled by default).}
+proc step_back {} {
+	# z80 or r800
+	set cpu [get_active_cpu]
+	# Get duration of one CPU cycle
+	#  TODO this doesn't take '<cpu>_freq_locked' into account
+	#       maybe create a 'cpu_freq' info topic?
+	set cycle [expr {1.0 / [set ::${cpu}_freq]}]
+	# On z80 an instruction takes at least 5 cycles, use that to speedup
+	# the search.
+	set step [expr {($cpu eq "z80") ? 5 : 1}]
+
+	# get current time
+	array set stat [reverse status]
+	set start_time $stat(current)
+	set pos 0
+
+	# Take small steps back till the current time changes.
+	# This works because reverse can't go to a point in time that is
+	# somewhere in the middle of an instruction. Instead it will fully
+	# execute that partial instruction and stop right after it.
+	while {1} {
+		incr pos $step
+		set t [expr $start_time - $pos * $cycle]
+		if {$t < 0} break
+		reverse goto $t
+		array set stat [reverse status]
+		set curr_time $stat(current)
+		if {$curr_time != $start_time} break
+	}
+}
+
+
 #
 # skip one instruction
 #
@@ -287,6 +328,7 @@ namespace export dpoke
 namespace export disasm
 namespace export run_to
 namespace export step_over
+namespace export step_back
 namespace export step_out
 namespace export step_in
 namespace export skip_instruction
