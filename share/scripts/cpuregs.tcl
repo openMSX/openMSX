@@ -1,3 +1,5 @@
+namespace eval cpuregs {
+
 # reg command
 
 set_help_text reg \
@@ -23,8 +25,6 @@ Usage is similar to the builtin Tcl proc 'set'
    reg C 7         write 7 to register C
    reg AF 0x1234   write 0x12 to register A and 0x34 to F
 }
-
-namespace eval cpuregs {
 
 variable regB
 variable regW
@@ -80,15 +80,10 @@ proc reg { name { val "" } } {
 	}
 }
 
-namespace export reg
-
-} ;# namespace cpuregs
 
 # cpuregs command
 
 set_help_text cpuregs "Gives an overview of all Z80 registers."
-
-namespace eval cpuregs {
 
 proc cw { reg } { format "%04X" [reg $reg] }
 proc cb { reg } { format "%02X" [reg $reg] }
@@ -102,8 +97,27 @@ proc cpuregs {} {
 	return $result
 }
 
-namespace export cpuregs
 
-} ;# namespace cpureegs
+# get_active_cpu
+
+set_help_text get_active_cpu "Returns the name of the active CPU ('z80' or 'r800')."
+
+proc get_active_cpu {} {
+	set result "z80"
+	catch {
+		# On non-turbor machines this debuggable doesn't exist
+		if {([debug read "S1990 regs" 6] & 0x20) == 0} {
+			set result "r800"
+		}
+	}
+	return $result
+}
+
+
+namespace export reg
+namespace export cpuregs
+namespace export get_active_cpu
+
+} ;# namespace cpuregs
 
 namespace import cpuregs::*
