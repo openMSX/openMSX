@@ -116,7 +116,7 @@ void MSXS1990::setCPUStatus(byte value)
 
 S1990Debuggable::S1990Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990_)
 	: SimpleDebuggable(motherBoard, s1990_.getName() + " regs",
-	                   "S19990 registers", 16)
+	                   "S1990 registers", 16)
 	, s1990(s1990_)
 {
 }
