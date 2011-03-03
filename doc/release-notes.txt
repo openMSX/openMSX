@@ -30,6 +30,7 @@ New or improved emulator features:
     location is share/software
   - added hover with time indicator on reverse bar
   - fixed bug when using DirAsDisk in combination with reverse
+  - added step_back function: while debugging step back one instruction
 - Added info topic to query VDP timing information
 - Fixed saving of replays, screenshots, etc., when the directory wasn't
   available yet
