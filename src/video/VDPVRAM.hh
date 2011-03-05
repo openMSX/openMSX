@@ -37,7 +37,7 @@ But invoking the objects directly should be inlined.
 
 Timing:
 
-Each window reflects the state of the VRAM as a specified moment in time.
+Each window reflects the state of the VRAM at a specified moment in time.
 
 Because the CPU has full-range write access, it is incorrect for any window
 to be ahead in time compared to the CPU. Because multi-cycle operations are
@@ -54,7 +54,7 @@ Solutions:
 Window ranges are not at fixed. But they can only be changed by the CPU, so
 they are fixed until CPU time, which subsystems will never go beyond anyway.
 
-Two only two subsystems with write access are CPU and command engine.
+The only two subsystems with write access are CPU and command engine.
 The command engine can only start executing a new command if instructed so
 by the CPU. Therefore it is known which area the command engine can write
 in until CPU time:
@@ -83,13 +83,14 @@ Using this approach instead of syncing on read makes sure there is no
 re-entrance on the subsystem update methods.
 
 Note: command engine reads through write window when doing logic-ops.
+So "source window" and "destination window" would be better names.
 
 Interesting observation:
 Each window is at the same moment in time as the command engine (C):
-- if a window doesn't overlap with the command write window, it is stable
-  from a moment before C until the CPU time T
-- if a window overlaps with the command window, it cannot be before C
-  (incorrect) or after C (uncertainty)
+- if a window doesn't overlap with the command destination window, it is
+  stable from a moment before C until the CPU time T
+- if a window overlaps with the command destination window, it cannot be
+  before C (incorrect) or after C (uncertainty)
 Since there is only one time for the entire VRAM, the VRAM itself can be said
 to be at C. This is a justification for having the sync method in VDPVRAM
 instead of in Window.
