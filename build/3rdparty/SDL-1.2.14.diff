@@ -1,37 +1,6 @@
-diff -ru SDL-1.2.14.org/src/video/windib/SDL_dibevents.c SDL-1.2.14/src/video/windib/SDL_dibevents.c
---- SDL-1.2.14.org/src/video/windib/SDL_dibevents.c	Mon Feb 15 11:49:09 2010
-+++ SDL-1.2.14/src/video/windib/SDL_dibevents.c	Mon Feb 15 11:51:15 2010
-@@ -328,12 +328,13 @@
- 	extern int mouse_relative;
- 	extern int posted;
- 
--	POINT mouse;
-+	POINT mouse, originalMouse;
- #ifdef _WIN32_WCE
- 	if ( !GetCursorPos(&mouse) && !GetLastStylusPos(&mouse) ) return;
- #else
- 	if ( !GetCursorPos(&mouse) ) return;
- #endif
-+	originalMouse = mouse;
- 
- 	if ( mouse_relative ) {
- 		POINT center;
-@@ -345,7 +346,11 @@
- 		mouse.y -= center.y;
- 		if ( mouse.x || mouse.y ) {
- 			SetCursorPos(center.x, center.y);
--			posted = SDL_PrivateMouseMotion(0, 1, (Sint16)mouse.x, (Sint16)mouse.y);
-+			GetCursorPos(&mouse);
-+			// Make sure the mouse position actually changed
-+			if (mouse.x != originalMouse.x || mouse.y != originalMouse.y) {
-+				posted = SDL_PrivateMouseMotion(0, 1, (Sint16)mouse.x, (Sint16)mouse.y);
-+			}
- 		}
- 	} else {
- 		ScreenToClient(SDL_Window, &mouse);
 diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.14/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.14.org/src/video/quartz/SDL_QuartzEvents.m	2009-10-13 01:07:14.000000000 +0200
-+++ SDL-1.2.14/src/video/quartz/SDL_QuartzEvents.m	2009-12-17 22:07:33.000000000 +0100
++++ SDL-1.2.14/src/video/quartz/SDL_QuartzEvents.m	2011-03-04 21:43:30.000000000 +0100
 @@ -280,7 +280,9 @@
          the scancode/keysym.
      */
@@ -54,7 +23,7 @@ diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.14/src/video
  
 diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.h
 --- SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.h	2009-10-13 01:07:14.000000000 +0200
-+++ SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.h	2009-12-17 23:23:22.000000000 +0100
++++ SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.h	2011-03-04 21:43:30.000000000 +0100
 @@ -38,6 +38,7 @@
  - (void)appWillUnhide:(NSNotification*)note;
  - (void)appDidUnhide:(NSNotification*)note;
@@ -65,7 +34,7 @@ diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.14/src/video
  /* Delegate for our NSWindow to send SDLQuit() on close */
 diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.m
 --- SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.m	2009-10-13 01:07:14.000000000 +0200
-+++ SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.m	2009-12-17 22:07:33.000000000 +0100
++++ SDL-1.2.14/src/video/quartz/SDL_QuartzWindow.m	2011-03-04 21:43:30.000000000 +0100
 @@ -197,6 +197,14 @@
      return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
  }
@@ -82,9 +51,24 @@ diff -ru SDL-1.2.14.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.14/src/video
  
  @implementation SDL_QuartzWindowDelegate
 diff -ru SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c SDL-1.2.14/src/video/wincommon/SDL_sysevents.c
---- SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c      2009-10-13 01:07:14.000000000 +0200
-+++ SDL-1.2.14/src/video/wincommon/SDL_sysevents.c      2010-05-31 22:25:10.000000000 +0200
-@@ -337,7 +337,7 @@
+--- SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c	2009-10-13 01:07:14.000000000 +0200
++++ SDL-1.2.14/src/video/wincommon/SDL_sysevents.c	2011-03-04 21:46:56.000000000 +0100
+@@ -316,10 +316,10 @@
+ 			if ( active ) {
+ 				/* Gain the following states */
+ 				appstate = SDL_APPACTIVE|SDL_APPINPUTFOCUS;
+-				if ( this->input_grab != SDL_GRAB_OFF ) {
+-					WIN_GrabInput(this, SDL_GRAB_ON);
+-				}
+-				if ( !(SDL_GetAppState()&SDL_APPINPUTFOCUS) ) {
++				if ( !(SDL_GetAppState() & SDL_APPINPUTFOCUS) ) {
++					if ( this->input_grab != SDL_GRAB_OFF ) {
++						WIN_GrabInput(this, SDL_GRAB_ON);
++					}
+ 					if ( ! DDRAW_FULLSCREEN() ) {
+ 						DIB_SwapGamma(this);
+ 					}
+@@ -337,21 +337,23 @@
  				}
  #endif
  				posted = SDL_PrivateAppActive(1, appstate);
@@ -93,3 +77,102 @@ diff -ru SDL-1.2.14.org/src/video/wincommon/SDL_sysevents.c SDL-1.2.14/src/video
  			} else {
  				/* Lose the following states */
  				appstate = SDL_APPINPUTFOCUS;
+ 				if ( minimized ) {
+ 					appstate |= SDL_APPACTIVE;
+ 				}
+-				if ( this->input_grab != SDL_GRAB_OFF ) {
+-					WIN_GrabInput(this, SDL_GRAB_OFF);
+-				}
++
+ 				if ( SDL_GetAppState() & SDL_APPINPUTFOCUS ) {
++					if ( this->input_grab != SDL_GRAB_OFF ) {
++						WIN_GrabInput(this, SDL_GRAB_OFF);
++					}
+ 					if ( ! DDRAW_FULLSCREEN() ) {
+ 						DIB_SwapGamma(this);
+ 					}
+ 					if ( WINDIB_FULLSCREEN() ) {
++						appstate |= SDL_APPMOUSEFOCUS;
+ 						SDL_RestoreDesktopMode();
+ #if defined(_WIN32_WCE)
+ 						LoadAygshell();
+@@ -372,8 +374,7 @@
+ 		case WM_MOUSEMOVE: {
+ 
+ #ifdef WM_MOUSELEAVE
+-			/* No need to handle SDL_APPMOUSEFOCUS when fullscreen */
+-			if ( SDL_VideoSurface && !FULLSCREEN() ) {
++			if ( SDL_VideoSurface ) {
+ 				/* mouse has entered the window */
+ 
+ 				if ( !(SDL_GetAppState() & SDL_APPMOUSEFOCUS) ) {
+@@ -398,11 +399,8 @@
+ #ifdef WM_MOUSELEAVE
+ 		case WM_MOUSELEAVE: {
+ 
+-			/* No need to handle SDL_APPMOUSEFOCUS when fullscreen */
+-			if ( SDL_VideoSurface && !FULLSCREEN() ) {
++			if ( SDL_VideoSurface ) {
+ 				/* mouse has left the window */
+-				/* or */
+-				/* Elvis has left the building! */
+ 				posted = SDL_PrivateAppActive(0, SDL_APPMOUSEFOCUS);
+ 			}
+ 		}
+diff -ru SDL-1.2.14.org/src/video/windx5/SDL_dx5events.c SDL-1.2.14/src/video/windx5/SDL_dx5events.c
+--- SDL-1.2.14.org/src/video/windx5/SDL_dx5events.c	2009-10-13 01:07:15.000000000 +0200
++++ SDL-1.2.14/src/video/windx5/SDL_dx5events.c	2011-03-04 21:46:59.000000000 +0100
+@@ -149,8 +149,8 @@
+ #else
+ 		&c_dfDIMouse,
+ #endif
+-		(DISCL_FOREGROUND|DISCL_NONEXCLUSIVE),
+-		(DISCL_FOREGROUND|DISCL_NONEXCLUSIVE), handle_mouse },
++		(DISCL_BACKGROUND|DISCL_NONEXCLUSIVE),
++		(DISCL_BACKGROUND|DISCL_NONEXCLUSIVE), handle_mouse },
+ 	{ NULL, NULL, NULL, 0, 0, NULL }
+ };
+ 	
+@@ -297,8 +297,7 @@
+ {
+ 	extern int mouse_relative;
+ 
+-	if ( (SDL_GetAppState() & (SDL_APPINPUTFOCUS|SDL_APPMOUSEFOCUS)) ==
+-		(SDL_APPINPUTFOCUS|SDL_APPMOUSEFOCUS) ) {
++	if ( SDL_GetAppState() & SDL_APPMOUSEFOCUS ) {
+ 		posted = SDL_PrivateMouseMotion(
+ 			0, relative, x, y);
+ 
+@@ -355,10 +354,6 @@
+ 			ClientToScreen(SDL_Window, &center);
+ 			SetCursorPos(center.x, center.y);
+ 		}
+-	} else {
+-		/* No window or mouse focus, control is lost */
+-		mouse_lost = 1;
+-		ClipCursor(NULL);
+ 	}
+ }
+ 
+@@ -375,6 +370,12 @@
+ 		return;
+ 	}
+ 
++	/* If mouse focus has been lost, make sure we release the cursor. */
++	if ( !(SDL_GetAppState() & SDL_APPMOUSEFOCUS) ) {
++		mouse_lost = 1;
++		ClipCursor(NULL);
++	}
++
+ 	/* If the mouse was lost, regain some sense of mouse state */
+ 	if ( mouse_lost && (SDL_GetAppState() & SDL_APPMOUSEFOCUS) ) {
+ 		POINT mouse_pos;
+@@ -666,7 +667,7 @@
+ 	}
+ 
+ 	/* Pump the DirectInput flow */
+-	if ( SDL_GetAppState() & SDL_APPINPUTFOCUS ) {
++	if ( SDL_GetAppState() & SDL_APPMOUSEFOCUS ) {
+ 		for ( i=0; i<MAX_INPUTS; ++i ) {
+ 			if ( SDL_DIdev[i] != NULL ) {
+ 				result = IDirectInputDevice2_Poll(SDL_DIdev[i]);
