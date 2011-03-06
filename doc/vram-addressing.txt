@@ -300,10 +300,11 @@ In real MSX machines, the following group combinations are used:
    64K    64K     0K    MSX2 with 128K VRAM
    64K    64K    64K    MSX2 with 128K VRAM and 64K expansion (*3)
 
-*1: The Spectravideo SVI-738 X'PRESS. The only V9938-specific display mode that
-    it can display is 80-columns text mode (TEXT2).
+*1: Examples are the Spectravideo SVI-738 X'PRESS and the Yamaha CX5MII/128.
+    The only V9938-specific display mode that they can fully display is
+    80-columns text mode (TEXT2).
 *2: Known 64K VRAM machines: Canon V-25, Hitachi MB-H3, Talent TPP-311 and 312,
-    Toshiba HX-23.
+    Toshiba HX-23 (not certain about this last one).
 *3: No known machines shipped with expansion VRAM. It was a popular amateur
     upgrade for users of FastCopy, to reduce the number of required disk swaps.
 
