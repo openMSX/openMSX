@@ -284,8 +284,39 @@ Four patterns define the look of a single sprite, like this:
 Planar Addressing
 -----------------
 
-TODO: What is it? Where in the 'pipeline' does it happen?
+The V9938 has 3 pins that select a group of VRAM ICs each: CAS0, CAS1 and CASX.
+CASX is used to select the expansion RAM, which can be accessed through the CPU
+interface and through commands, but cannot be displayed directly.
 
+Each VRAM group can be 0K, 16K or 64K. A group can consist of 8 chips of 1-bit
+wide RAM or 2 chips of 4-bit wide RAM, but for the purpose of addressing we can
+just pretend it is 1 chip with 8-bit wide RAM.
+
+In real MSX machines, the following group combinations are used:
+
+  CAS0:  CAS1:  CASX:   Description:
+   16K     0K     0K    MSX1 with V9938 and 16K VRAM (*1)
+   64K     0K     0K    MSX2 with 64K VRAM (*2)
+   64K    64K     0K    MSX2 with 128K VRAM
+   64K    64K    64K    MSX2 with 128K VRAM and 64K expansion (*3)
+
+*1: The Spectravideo SVI-738 X'PRESS. The only V9938-specific display mode that
+    it can display is 80-columns text mode (TEXT2).
+*2: Known 64K VRAM machines: Canon V-25, Hitachi MB-H3, Talent TPP-311 and 312,
+    Toshiba HX-23.
+*3: No known machines shipped with expansion VRAM. It was a popular amateur
+    upgrade for users of FastCopy, to reduce the number of required disk swaps.
+
+In most display modes addressing is linear, meaning the lower 64K of address
+space uses the VRAM connected to CAS0 and the upper 64K of address space uses
+the VRAM connected to CAS1.
+
+In SCREEN7/8 (Graphic 6/7) the addressing is planar, meaning that even VRAM
+addresses are mapped to CAS0 and odd addresses are mapped to CAS1. This means
+that SCREEN 7/8 are only available on 128K VRAM machines. The most likely
+reason for using planar addressing is getting a higher bandwidth: even though
+the data lines are shared between all VRAM groups, the row select has to be
+done only once.
 
 VR=0 / VR=1 mode
 ----------------
