@@ -541,7 +541,7 @@ without those characteristic sounds?
 </p>
 
 <p>
-To make it even more comfortable to run software from CAS images, try the following experimental setting, that will attempt to type the loading instruction for you after the MSX has started up:
+To make it even more comfortable to run software from CAS images, try the following setting, that will attempt to type the loading instruction for you after the MSX has started up:
 </p>
 <div class="commandline">
      set <a class="external" href="commands.html#autoruncassettes">autoruncassettes</a> on
@@ -742,7 +742,7 @@ Several emulator functions are available under keys as well (which can be change
   <tr> <td>F12 or ALT+Enter</td> <td>Cmd+F (Full)</td> <td>Toggle <a class="external" href="commands.html#fullscreen">full screen</a> mode</td> </tr>
   <tr> <td>ALT+F7</td>     <td>Cmd+R (Restore)</td>    <td>Quick <a class="external" href="commands.html#savestate">loadstate</a> (from 'quicksave' slot)</td> </tr>
   <tr> <td>ALT+F8</td>     <td>Cmd+S (Save)</td>       <td>Quick <a class="external" href="commands.html#savestate">savestate</a> (to 'quicksave' slot)</td> </tr>
-  <tr> <td>MENU</td>       <td>Cmd+O (Open menu)</td>  <td>Show the On-Screen-Display menu (note: experimental feature!)</td> </tr>
+  <tr> <td>MENU</td>       <td>Cmd+O (Open menu)</td>  <td>Show the On-Screen-Display menu</td> </tr>
 </table>
 <!--
 <p class="todo">
@@ -1227,7 +1227,7 @@ A feature of emulators which is particularly useful is saving the state of the e
 The easiest way to use it is by using the keyboard shortcuts for quickly saving and loading a state, see the <a class="internal" href="#keymapping">key mapping section</a>. These shortcuts basically use the <a class="external" href="commands.html#savestate">savestate</a> and loadstate commands, with the parameter <code>quicksave</code>, i.e. they use a savestate file with the name 'quicksave'. You can also use the commands directly yourself, with the argument as the name of the slot you save the state to (use TAB or the <code>list_savestates</code> command to see your previously saved states). Without having to browse the file system of your computer, you can also conveniently delete existing save games with the <code>delete_savestate</code> command.
 </p>
 
-<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the experimental On-Screen-Display and in a prototype version of a new Catapult.)
+<p>Note that when saving the state of the machine, a screenshot will also be saved with it, so that those could be used for save state browsing. (Currently only used on the On-Screen-Display and in a prototype version of a new Catapult.)
 </p>
 
 <h3><a id="reverse">8.2 Reverse</a></h3>
