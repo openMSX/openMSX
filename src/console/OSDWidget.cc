@@ -10,6 +10,7 @@
 #include "unreachable.hh"
 #include <SDL.h>
 #include <algorithm>
+#include <limits>
 
 using std::string;
 using std::set;
@@ -401,6 +402,20 @@ void OSDWidget::transformReverse(
 
 void OSDWidget::getMouseCoord(double& outx, double& outy) const
 {
+	if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) {
+		// Host cursor is not visible. Return dummy mouse coords for
+		// the OSD cursor position.
+		// The reason for doing this is that otherwise (e.g. when using
+		// the mouse in an MSX program) it's possible to accidentally
+		// click on the reversebar. This will also block the OSD mouse
+		// in other Tcl scripts (e.g. vampier's nemesis script), but
+		// almost always those scripts will also not be useful when the
+		// host mouse cursor is not visible.
+		outx = std::numeric_limits<double>::quiet_NaN();
+		outy = std::numeric_limits<double>::quiet_NaN();
+		return;
+	}
+
 	SDL_Surface* surface = SDL_GetVideoSurface();
 	if (!surface) {
 		throw CommandException(

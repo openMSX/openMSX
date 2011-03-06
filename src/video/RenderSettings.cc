@@ -151,7 +151,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"pointer_hide_delay",
 		"number of seconds after which the pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
-		1.0, -1.0, 60.0));
+		2.0, -1.0, 60.0));
 }
 
 RenderSettings::~RenderSettings()
