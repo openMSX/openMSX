@@ -213,7 +213,14 @@ proc update2 {} {
 	set reg [expr ($latch == -1) ? $latch : [lindex $regs $latch]]
 	set val $::wp_last_value
 	if {$latch == 7} { set val [expr ($val ^ 0x07) & 0x07] }
-	if {$reg != -1} { debug write "$select_device SCC" $reg $val }
+	if {$reg != -1} {
+		if { [catch {
+			debug write "$select_device SCC" $reg $val }
+		]} {
+			# device gone? Let's deactivate
+			toggle_psg2scc
+		}
+	}
 }
 
 proc toggle_psg2scc {} {
@@ -222,16 +229,19 @@ proc toggle_psg2scc {} {
 	variable cur_wp2
 	variable select_device
 
-	set active [expr !$active]
-	if {$active} {
+	if {!$active} {
 		init
+		set active true
 		set cur_wp1 [debug set_watchpoint write_io 0xa0 1 { scc_toys::update1 }]
 		set cur_wp2 [debug set_watchpoint write_io 0xa1 1 { scc_toys::update2 }]
 		return "Activated."
 	} else {
 		debug remove_watchpoint $cur_wp1
 		debug remove_watchpoint $cur_wp2
-		debug write "$select_device SCC" 0xaf 0
+		catch { ;# may fail if device is gone
+			debug write "$select_device SCC" 0xaf 0
+		}
+		set active false
 		return "Deactivated."
 	}
 }
