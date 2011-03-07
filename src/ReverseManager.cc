@@ -543,10 +543,16 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		history.events.push_back(shared_ptr<StateChange>(
 			new EndLogEvent(getCurrentTime())));
 	}
-
-	XmlOutputArchive out(filename);
-	replay.events = &history.events;
-	out.serialize("replay", replay);
+	try {
+		XmlOutputArchive out(filename);
+		replay.events = &history.events;
+		out.serialize("replay", replay);
+	} catch (MSXException&) {
+		if (addSentinel) {
+			history.events.pop_back();
+		}
+		throw;
+	}
 
 	if (addSentinel) {
 		// Is there a cleaner way to only add the sentinel in the log?
