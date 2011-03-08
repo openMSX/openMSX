@@ -3,6 +3,7 @@ namespace eval mog_overlay {
 variable num_enemies 16
 variable num_rocks 8
 variable mog_overlay_active false
+variable mog_editor_active false
 variable item_cache
 variable tomb_cache
 variable ladder_cache
@@ -42,6 +43,20 @@ variable enemy_names [list \
 	"Crab's Breath" "Seed" "5A" "5B" "5C" "5D" "5E" "5F" \
 	"Maner's Arm" "61" "Gero's Tongue" "63" "Shoe 2" "Breath" "66" "67" ]
 
+set_help_text toggle_mog_overlay \
+"Shows OSD widgets that help you play The Maze of Galious. Only useful if you
+are actually running this game... If you are not, you may get a lot of weird
+stuff on your screen :) The script shows the Great Demon summon spells, ladders
+which will disappear, walls which will grow, hitpoints of enemies, hidden
+items, etc.\nSee also toggle_mog_editor."
+
+set_help_text toggle_mog_editor \
+"Gives you mouse bindings to fool around in The Maze of Galious. Only useful if
+you are actually running this game... If you are not, you may get a lot of
+weird stuff on your screen :) With this editor, you can draw walls with one
+mouse button and put Popolon on your position of choice with the other. Needs
+the MoG overlay to work, see toggle_mog_overlay."
+
 #Init Overlays
 proc init {} {
 	
@@ -59,19 +74,6 @@ proc init {} {
 	variable max_ep
 
 	msx_init mog
-
-	bind_default "mouse button1 down" {
-		set mog_overlay::mouse1_pressed true
-		mog_overlay::draw_block
-	}
-
-	bind_default "mouse button1 up" {
-		set mog_overlay::mouse1_pressed false
-	}
-
-	bind_default "mouse button3 down" {
-		mog_overlay::put_popolon
-	}
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
 		create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
@@ -229,7 +231,8 @@ proc update_overlay {} {
 
 	if {([peek 0xe0d2] != 0) && ([peek 0xe710] != 0)} {
 		osd configure mog.demon -relx 112 -rely 26
-		print_mog_text 1 1 "Now Fighting [lindex $spell [expr [peek 0xe041] - 1]]"
+		# let's not print text, it destroys a replay
+		# print_mog_text 1 1 "Now Fighting [lindex $spell [expr [peek 0xe041] - 1]]"
 		set new_demon [peek 0xe710]
 		if {$new_demon != $demon_cache} {
 			set demon_cache $new_demon
@@ -253,6 +256,7 @@ proc update_overlay {} {
 	after frame [namespace code update_overlay]
 }
 
+# better don't use this if you want to keep your replay OK
 proc print_mog_text {x y text} {
 	set text [string tolower $text]
 	for {set i 0} {$i < [string length $text]} {incr i} {
@@ -263,6 +267,30 @@ proc print_mog_text {x y text} {
 		poke [expr 0xed80 + $x + $y * 32 + $i] $ascii
 	}
 }
+
+proc toggle_mog_overlay {} {
+	variable mog_overlay_active
+	variable mog_editor_active
+
+	set mog_overlay_active [expr !$mog_overlay_active]
+
+	if {$mog_overlay_active} {
+		init
+		update_overlay
+		return "MoG overlay activated!"
+	} else {
+		set retval ""
+		if {$mog_editor_active} {
+			set retval "[toggle_mog_editor]\n"
+		}
+		osd destroy mog
+		return "${retval}MoG overlay deactivated."
+	}
+}
+
+# MoG editor
+# Separated from MoG overlay, because the overlay is useful for TASing and the
+# editor will ruin your replay
 
 proc draw_block {} {
 	osd_widgets::msx_update "mog"
@@ -278,22 +306,41 @@ proc put_popolon {} {
 	poke 0xe505 [utils::clip 0 212 [expr int($y)]]
 }
 
-proc toggle_mog_overlay {} {
+proc toggle_mog_editor {} {
+	variable mog_editor_active
 	variable mog_overlay_active
-	set mog_overlay_active [expr !$mog_overlay_active]
-	if {$mog_overlay_active} {
-		init
-		update_overlay
+
+	if {!$mog_editor_active && !$mog_overlay_active} {
+		error "You need to have the MoG overlay active to use this editor!"
+	}
+
+	set mog_editor_active [expr !$mog_editor_active]
+
+	if {$mog_editor_active} {
+		bind_default "mouse button1 down" {
+			set mog_overlay::mouse1_pressed true
+			mog_overlay::draw_block
+		}
+
+		bind_default "mouse button1 up" {
+			set mog_overlay::mouse1_pressed false
+		}
+
+		bind_default "mouse button3 down" {
+			mog_overlay::put_popolon
+		}
+		return "MoG editor activated!"
 	} else {
-		osd destroy mog
 		unbind_default "mouse button1 down"
 		unbind_default "mouse button1 up"
 		unbind_default "mouse button3 down"
+		return "MoG editor deactivated."
 	}
 	return ""
 }
 
 namespace export toggle_mog_overlay
+namespace export toggle_mog_editor
 
 };# namespace mog_overlay
 
