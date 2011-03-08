@@ -16,8 +16,8 @@
 #include "StringOp.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <cassert>
-
 #include <iostream>
 
 using std::string;
@@ -133,8 +133,8 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, const string& hwNam
 	: motherBoard(motherBoard_)
 	, hwName(hwName_)
 {
-	for (int ps = 0; ps < 4; ++ps) {
-		for (int ss = 0; ss < 4; ++ss) {
+	for (auto ps : xrange(4)) {
+		for (auto ss : xrange(4)) {
 			externalSlots[ps][ss] = false;
 		}
 		externalPrimSlots[ps] = false;
@@ -160,8 +160,8 @@ HardwareConfig::~HardwareConfig()
 		devices.pop_back();
 	}
 	auto& slotManager = motherBoard.getSlotManager();
-	for (int ps = 0; ps < 4; ++ps) {
-		for (int ss = 0; ss < 4; ++ss) {
+	for (auto ps : xrange(4)) {
+		for (auto ss : xrange(4)) {
 			if (externalSlots[ps][ss]) {
 				slotManager.removeExternalSlot(ps, ss);
 			}
@@ -186,8 +186,8 @@ void HardwareConfig::testRemove() const
 		alreadyRemoved.push_back(it->get());
 	}
 	auto& slotManager = motherBoard.getSlotManager();
-	for (int ps = 0; ps < 4; ++ps) {
-		for (int ss = 0; ss < 4; ++ss) {
+	for (auto ps : xrange(4)) {
+		for (auto ss : xrange(4)) {
 			if (externalSlots[ps][ss]) {
 				slotManager.testRemoveExternalSlot(ps, ss, *this);
 			}

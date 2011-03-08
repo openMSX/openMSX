@@ -22,6 +22,7 @@
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -236,7 +237,7 @@ unsigned CommandConsole::getScrollBack() const
 ConsoleLine CommandConsole::getLine(unsigned line) const
 {
 	unsigned count = 0;
-	for (unsigned buf = 0; buf < lines.size(); ++buf) {
+	for (auto buf : xrange(lines.size())) {
 		count += (lines[buf].numChars() / getColumns()) + 1;
 		if (count > line) {
 			return lines[buf].substr(

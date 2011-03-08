@@ -1,5 +1,6 @@
 #include "MSXMultiIODevice.hh"
 #include "StringOp.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -37,7 +38,7 @@ std::string MSXMultiIODevice::getName() const
 	assert(!devices.empty());
 	StringOp::Builder result;
 	result << devices[0]->getName();
-	for (unsigned i = 1; i < devices.size(); ++i) {
+	for (auto i : xrange(size_t(1), devices.size())) {
 		result << "  " << devices[i]->getName();
 	}
 	return result;

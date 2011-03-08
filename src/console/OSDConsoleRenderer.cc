@@ -16,6 +16,7 @@
 #include "openmsx.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -435,8 +436,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		backgroundImage->draw(output, destX, destY, visibility);
 	}
 
-	int screenlines = destH / font.getHeight();
-	for (int loop = 0; loop < screenlines; ++loop) {
+	for (auto loop : xrange(destH / font.getHeight())) {
 		drawText(output,
 		         console.getLine(loop + console.getScrollBack()),
 		         destX + CHAR_BORDER,

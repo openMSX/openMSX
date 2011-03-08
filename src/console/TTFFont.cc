@@ -3,6 +3,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
@@ -198,7 +199,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	}
 
 	// Actually render the text:
-	for (unsigned i = 0; i < lines.size(); ++i) {
+	for (auto i : xrange(lines.size())) {
 		// Render single line
 		if (lines[i].empty()) {
 			// SDL_TTF gives an error on empty lines, but we can

@@ -13,6 +13,7 @@
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <cassert>
 
 using std::string;
@@ -83,7 +84,8 @@ CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 
 CartridgeSlotManager::~CartridgeSlotManager()
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
+		(void)slot;
 		assert(!slots[slot].exists());
 		assert(!slots[slot].used());
 	}
@@ -124,7 +126,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 	if (isExternalSlot(ps, ss, false)) {
 		throw MSXException("Slot is already an external slot.");
 	}
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
@@ -143,7 +145,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 
 int CartridgeSlotManager::getSlot(int ps, int ss) const
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			return slot;
@@ -202,7 +204,7 @@ void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 {
 	// search for the lowest free slot
 	ps = 4; // mark no free slot
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		if (slots[slot].exists() && !slots[slot].used()) {
 			int p = slots[slot].ps;
 			int s = slots[slot].ss;
@@ -220,7 +222,7 @@ void CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss) const
 void CartridgeSlotManager::allocatePrimarySlot(
 		int& ps, const HardwareConfig& hwConfig)
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used()) {
@@ -246,7 +248,7 @@ void CartridgeSlotManager::freePrimarySlot(
 void CartridgeSlotManager::allocateSlot(
 		int ps, int ss, const HardwareConfig& hwConfig)
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		if (!slots[slot].exists()) continue;
 		if ((slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			if (slots[slot].useCount == 0) {
@@ -268,7 +270,7 @@ void CartridgeSlotManager::allocateSlot(
 void CartridgeSlotManager::freeSlot(
 		int ps, int ss, const HardwareConfig& hwConfig)
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		if (!slots[slot].exists()) continue;
 		if ((slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			assert(slots[slot].config == &hwConfig); (void)hwConfig;
@@ -285,7 +287,7 @@ void CartridgeSlotManager::freeSlot(
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	for (unsigned slot = 0; slot < MAX_SLOTS; ++slot) {
+	for (auto slot : xrange(MAX_SLOTS)) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
 		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (tmp == ss)) {
@@ -434,7 +436,7 @@ void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
 	case 2: {
 		// return list of slots
 		string slot = "slotX";
-		for (unsigned i = 0; i < CartridgeSlotManager::MAX_SLOTS; ++i) {
+		for (auto i : xrange(CartridgeSlotManager::MAX_SLOTS)) {
 			if (!manager.slots[i].exists()) continue;
 			slot[4] = char('a' + i);
 			result.addListElement(slot);

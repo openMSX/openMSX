@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "FileException.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <limits>
 #include <cstring>
@@ -38,7 +39,7 @@ static void cbStartElement(
 	auto* helper = static_cast<XMLLoaderHelper*>(helper_);
 	XMLElement newElem(reinterpret_cast<const char*>(localname));
 
-	for (int i = 0; i < nb_attributes; ++i) {
+	for (auto i : xrange(nb_attributes)) {
 		auto valueStart =
 			reinterpret_cast<const char*>(attrs[i * 5 + 3]);
 		auto valueEnd =

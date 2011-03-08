@@ -1,6 +1,7 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <tcl.h>
 
@@ -282,7 +283,7 @@ void TclObject::parse(const char* str, int len, bool expression) const
 			                       procname + '\"');
 		}
 	}
-	for (int i = 0; i < info.numTokens; ++i) {
+	for (auto i : xrange(info.numTokens)) {
 		Tcl_Token& token = info.tokenPtr[i];
 		if (token.type == TCL_TOKEN_COMMAND) {
 			parse(token.start + 1, token.size - 2, false);

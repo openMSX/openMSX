@@ -12,6 +12,7 @@
 #include "HostCPU.hh"
 #include "Math.hh"
 #include "aligned.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -428,7 +429,7 @@ std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	for (unsigned y = 0; y < screen.getHeight(); ++y) {
+	for (auto y : xrange(screen.getHeight())) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;
 	}
 

@@ -12,6 +12,7 @@
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <iostream>
 //#include <tk.h>
 #include "openmsx.hh"
@@ -161,7 +162,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		auto& command = *static_cast<Command*>(clientData);
 		vector<TclObject> tokens;
 		tokens.reserve(objc);
-		for (int i = 0; i < objc; ++i) {
+		for (auto i : xrange(objc)) {
 			tokens.push_back(TclObject(interp, objv[i]));
 		}
 		int res = TCL_OK;

@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -49,7 +50,7 @@ static bool overlap(unsigned start1, unsigned size1,
 
 bool MSXMultiMemDevice::canAdd(int base, int size)
 {
-	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
+	for (auto i : xrange(ranges.size() - 1)) {
 		if (overlap(base, size, ranges[i].base, ranges[i].size)) {
 			return false;
 		}
@@ -79,7 +80,7 @@ bool MSXMultiMemDevice::empty() const
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
 	std::vector<MSXDevice*> result;
-	for (unsigned i = 0; i < (ranges.size() - 1); ++i) {
+	for (auto i : xrange(ranges.size() - 1)) {
 		result.push_back(ranges[i].device);
 	}
 	return result;
@@ -90,7 +91,7 @@ std::string MSXMultiMemDevice::getName() const
 	assert(!empty());
 	StringOp::Builder result;
 	result << ranges[0].device->getName();
-	for (unsigned i = 1; i < (ranges.size() - 1); ++i) {
+	for (auto i : xrange(size_t(1), ranges.size() - 1)) {
 		result << "  " << ranges[i].device->getName();
 	}
 	return result;

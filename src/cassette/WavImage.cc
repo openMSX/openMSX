@@ -71,7 +71,7 @@ unsigned WavImage::getFrequency() const
 void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
 	if (pos < wav.getSize()) {
-		for (unsigned i = 0; i < num; ++i) {
+		for (auto i : xrange(num)) {
 			bufs[0][i] = getSample(pos + i);
 		}
 	} else {

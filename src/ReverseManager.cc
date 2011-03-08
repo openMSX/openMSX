@@ -22,6 +22,7 @@
 #include "serialize_stl.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <functional>
 #include <cassert>
 
@@ -317,7 +318,7 @@ static void parseGoTo(const vector<TclObject>& tokens, bool& novideo, double& ti
 {
 	novideo = false;
 	bool hasTime = false;
-	for (unsigned i = 2; i < tokens.size(); ++i) {
+	for (auto i : xrange(size_t(2), tokens.size())) {
 		if (tokens[i].getString() == "-novideo") {
 			novideo = true;
 		} else {
@@ -636,7 +637,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	const TclObject* whereArg = nullptr;
 	bool enableViewOnly = false;
 
-	for (unsigned i = 2; i < tokens.size(); ++i) {
+	for (auto i : xrange(size_t(2), tokens.size())) {
 		string_ref token = tokens[i].getString();
 		if (token == "-viewonly") {
 			enableViewOnly = true;

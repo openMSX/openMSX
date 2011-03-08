@@ -27,6 +27,7 @@
 #include "HostCPU.hh"
 #include "StringOp.hh"
 #include "utf8_checked.hh"
+#include "xrange.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
 #include "RomInfo.hh"
@@ -331,7 +332,7 @@ void CommandLineParser::parse(int argc, char** argv)
 
 	deque<string> cmdLine;
 	deque<string> backupCmdLine;
-	for (int i = 1; i < argc; i++) {
+	for (auto i : xrange(1, argc)) {
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 

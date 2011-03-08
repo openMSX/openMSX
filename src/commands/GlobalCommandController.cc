@@ -296,8 +296,7 @@ void GlobalCommandController::split(string_ref str, vector<string>& tokens,
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
 
-	for (unsigned i = 0; i < str.size(); ++i) {
-		char chr = str[i];
+	for (auto chr : str) {
 		switch (state) {
 			case Alpha:
 				if (tokens.empty()) {
@@ -335,8 +334,7 @@ string GlobalCommandController::removeEscaping(const string& str)
 	ParseState state = Alpha;
 
 	string result;
-	for (unsigned i = 0; i < str.size(); ++i) {
-		char chr = str[i];
+	for (auto chr : str) {
 		switch (state) {
 			case Alpha:
 				if (chr == '\\') {
@@ -381,8 +379,7 @@ vector<string> GlobalCommandController::removeEscaping(
 static string escapeChars(const string& str, const string& chars)
 {
 	string result;
-	for (unsigned i = 0; i < str.size(); ++i) {
-		char chr = str[i];
+	for (auto chr : str) {
 		if (chars.find(chr) != string::npos) {
 			result += '\\';
 		}

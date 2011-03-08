@@ -4,6 +4,7 @@
 #include "CliComm.hh"
 #include "Clock.hh"
 #include "MSXException.hh"
+#include "xrange.hh"
 #include <cstring> // for memcmp
 
 namespace openmsx {
@@ -75,10 +76,11 @@ void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
 	size_t nbSamples = output.size();
 	if ((pos / AUDIO_OVERSAMPLE) < nbSamples) {
-		for (unsigned i = 0; i < num; ++i, ++pos) {
+		for (auto i : xrange(num)) {
 			bufs[0][i] = ((pos / AUDIO_OVERSAMPLE) < nbSamples)
 			           ? output[pos / AUDIO_OVERSAMPLE] * 256
 			           : 0;
+			++pos;
 		}
 	} else {
 		bufs[0] = nullptr;
@@ -120,7 +122,7 @@ void CasImage::writeByte(byte b)
 	// one start bit
 	write0();
 	// eight data bits
-	for (int i = 0; i < 8; ++i) {
+	for (auto i : xrange(8)) {
 		if (b & (1 << i)) {
 			write1();
 		} else {

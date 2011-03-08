@@ -7,6 +7,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
+#include "xrange.hh"
 #include <cassert>
 
 using std::string;
@@ -23,7 +24,7 @@ OSDImageBasedWidget::OSDImageBasedWidget(const OSDGUI& gui_, const string& name)
 	, startFadeValue(1.0)
 	, error(false)
 {
-	for (int i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		rgba[i] = 0x000000ff;
 	}
 }
@@ -47,12 +48,12 @@ static void get4(const TclObject& value, unsigned* result)
 {
 	unsigned len = value.getListLength();
 	if (len == 4) {
-		for (unsigned i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			result[i] = value.getListIndex(i).getInt();
 		}
 	} else if (len == 1) {
 		unsigned val = value.getInt();
-		for (unsigned i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			result[i] = val;
 		}
 	} else {
@@ -69,7 +70,7 @@ void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
 		unsigned newRGB[4];
 		get4(value, newRGB);
 		unsigned newRGBA[4];
-		for (unsigned i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
 			             ((newRGB[i] << 8) & 0xffffff00);
 		}
@@ -78,7 +79,7 @@ void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
 		unsigned newAlpha[4];
 		get4(value, newAlpha);
 		unsigned newRGBA[4];
-		for (unsigned i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
 			             (newAlpha[i] & 0x000000ff);
 		}
@@ -107,7 +108,7 @@ void OSDImageBasedWidget::setRGBA(const unsigned newRGBA[4])
 		return;
 	}
 	invalidateLocal();
-	for (unsigned i = 0; i < 4; ++i) {
+	for (auto i : xrange(4)) {
 		rgba[i] = newRGBA[i];
 	}
 }
@@ -118,7 +119,7 @@ static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObjec
 		result.setInt((rgba[0] & mask) >> shift);
 	} else {
 
-		for (unsigned i = 0; i < 4; ++i) {
+		for (auto i : xrange(4)) {
 			result.addListElement(int((rgba[i] & mask) >> shift));
 		}
 	}
