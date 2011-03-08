@@ -1496,9 +1496,6 @@ void VDP::serialize(Archive& ar, unsigned version)
 
 	if (ar.isLoader()) {
 		renderer->reInit();
-
-		// recalculate from other state
-		resetMasks(Schedulable::getCurrentTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);

@@ -340,9 +340,6 @@ void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 
-// version 1: initial version
-// version 2: don't store nameTable, colorTable, patternTable,
-//                        spriteAttribTable, spritePatternTable
 template<typename Archive>
 void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -354,12 +351,15 @@ void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize_blob("data", &data[0], actualSize);
 	ar.serialize("cmdReadWindow",       cmdReadWindow);
 	ar.serialize("cmdWriteWindow",      cmdWriteWindow);
+	ar.serialize("nameTable",           nameTable);
+	// TODO: Find a way of changing the line below to "colorTable",
+	// without breaking backwards compatibility
+	ar.serialize("colourTable",         colorTable);
+	ar.serialize("patternTable",        patternTable);
 	ar.serialize("bitmapVisibleWindow", bitmapVisibleWindow);
 	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
-
-	// These are restored in VDP::serialize()
-	//  nameTable, colorTable, patternTable
-	//  spriteAttribTable, spritePatternTable
+	ar.serialize("spriteAttribTable",   spriteAttribTable);
+	ar.serialize("spritePatternTable",  spritePatternTable);
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 

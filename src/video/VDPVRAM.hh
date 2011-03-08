@@ -9,7 +9,6 @@
 #include "DisplayMode.hh"
 #include "Ram.hh"
 #include "Math.hh"
-#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "likely.hh"
@@ -628,7 +627,6 @@ public:
 	VRAMWindow spriteAttribTable;
 	VRAMWindow spritePatternTable;
 };
-SERIALIZE_CLASS_VERSION(VDPVRAM, 2);
 
 } // namespace openmsx
 
