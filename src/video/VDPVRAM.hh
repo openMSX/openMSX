@@ -217,17 +217,18 @@ public:
 	inline void getReadAreaPlanar(
 			unsigned index, unsigned size,
 			const byte*& ptr0, const byte*& ptr1) const {
+		assert((index & 1) == 0);
+		assert((size & 1) == 0);
 		unsigned endIndex = index + size - 1;
 		unsigned areaBits = Math::floodRight(index ^ endIndex);
+		areaBits = ((areaBits << 16) | (areaBits >> 1)) & 0x1FFFF;
 		(void)areaBits;
 		assert((areaBits & effectiveBaseMask) == areaBits);
 		assert((areaBits & ~indexMask)        == areaBits);
 		assert(isEnabled());
-		unsigned addr = effectiveBaseMask & (indexMask | index);
-		assert((addr & 1) == 0);
-		assert((size & 1) == 0);
-		ptr0 = &data[(addr / 2) | 0x00000];
-		ptr1 = &data[(addr / 2) | 0x10000];
+		unsigned addr = effectiveBaseMask & (indexMask | (index >> 1));
+		ptr0 = &data[addr | 0x00000];
+		ptr1 = &data[addr | 0x10000];
 	}
 
 	/** Reads a byte from VRAM in its current state.
@@ -243,8 +244,8 @@ public:
 	  */
 	inline byte readPlanar(unsigned index) const {
 		assert(isEnabled());
+		index = ((index << 16) | (index >> 1)) & 0x1FFFF;
 		unsigned addr = effectiveBaseMask & index;
-		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 		return data[addr];
 	}
 

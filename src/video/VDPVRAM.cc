@@ -199,9 +199,13 @@ void VDPVRAM::updateSpritesEnabled(bool enabled, EmuTime::param time)
 
 void VDPVRAM::setSizeMask(EmuTime::param time)
 {
-	unsigned vrMask = vrMode ? 0xffffffff // VR=1, no extra masking
-	                         : 0x8000;    // VR=0, mask at 32kB
-	sizeMask = std::min(vrMask, Math::powerOfTwo(actualSize)) - 1;
+	sizeMask = (
+		  vrMode
+		// VR = 1: 64K address space, CAS0/1 is determined by A16
+		? (Math::powerOfTwo(actualSize) - 1) | (1u << 16)
+		// VR = 0: 16K address space, CAS0/1 is determined by A14
+		: (std::min(Math::powerOfTwo(actualSize), 16384u) - 1) | (1u << 14)
+		) | (1u << 17); // CASX (expansion RAM) is always relevant
 
 	cmdReadWindow.setSizeMask(sizeMask, time);
 	cmdWriteWindow.setSizeMask(sizeMask, time);
