@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1298391757">
+<softwaredb xml:lang="en" timestamp="1299702228">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6568,6 +6568,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>Konami</type><hash algo="sha1">804be21493a151a0be2075e86c94759dd96f0bf7</hash><remark><text>[RC-750]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">8dfe236a6a5734824035725a4f513b8fd31b310a</hash><remark><text>[RC-750]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">1417f9e8ca99deb3b422c5968fdfa03cfa633ec6</hash><remark><text>[RC-750]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">bd819202a90aae4d5ef0c590757db34e47a74234</hash><remark><text>[RC-750] / Turbo Fix V2</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">238cddaf5f8566cf042530333ccbbdaef84a8799</hash><remark><text>[RC-750] / Turbo Fix V1</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Metal Gear 2 - Solid Snake</title>
@@ -11822,6 +11824,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2602
-Parse time 7.695 seconds on Tue Feb 22 17:22:45 CET 2011
+Roms in this database:2604
+Parse time 6.960 seconds on Wed Mar 9 21:23:55 CET 2011
  -->
