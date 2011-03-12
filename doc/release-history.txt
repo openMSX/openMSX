@@ -3,6 +3,80 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.8.1 (2011-03-12)
+--------------------------
+
+This release builds on the previous one, in the sense that we worked out the
+features a little more. We added a lot of scripts to help you with Tool
+Assisted Speedruns (TAS), one of the reasons openMSX got officially approved as
+a TAS capable emulator on TASvideos.org. The reverse feature also got some
+updates while doing this.
+For the rest, this release does a lot of smaller fixes and additions, see the
+list below.
+
+Here's the list with all highlights:
+
+New or improved emulator features:
+- Quite complete support for TAS (see http://www.tasvideos.org/)
+  - TAS mode with many TAS widgets activated automatically
+  - extended tools: keyboard view per frame, frame reverse/advance, robust
+    frame counter, save slot mechanism, RAM watch, etc.
+- Updates on reverse (and related features):
+  - enabled by default now (except on Dingoo)
+  - changed (default) extensions of replays and savestates to OMR and OMS
+    respectively
+  - added a view only mode to the reverse feature (watch replays without
+    interrupting them)
+  - replays now usually contain multiple snapshots, so you can quickly jump
+    around in a just loaded replay (e.g. to the end!)
+  - huge performance improvements when loading replays/savestates
+  - added filepools to put your software files in; when loading a replay with a
+    file which is not available, openMSX will scan the filepools: default
+    location is share/software
+  - added hover with time indicator on reverse bar
+  - fixed bug when using DirAsDisk in combination with reverse
+  - added step_back function: while debugging step back one instruction
+- Added info topic to query VDP timing information
+- Fixed saving of replays, screenshots, etc., when the directory wasn't
+  available yet
+- Fixed bug in per-soundchip-channel audio recording
+- Fixed auto stereo recording for mbstereo-like configurations (was done in
+  mono)
+- OSD:
+  - Show warning/error messages that were previously only shown on
+    standard-output in an OSD text box
+  - Added gradients for rectangles to make the OSD look more polished
+  - Added border property to OSD rectangle
+- Added script to find cases of too fast VDP access (of which the consequences
+  are not emulated)
+- Added setting to disable sprites and option to make screenshot without
+  sprites (especially useful for map makers!)
+- Added script to record movies in multiple files, especially useful for
+  YouTube (record_chunks)
+- Replaced automatic printing of ROM info (from the software database) with a
+  command to get the info on demand (rom_info)
+- Automatically plug in real joysticks into the MSX
+- Several performance improvements to several toys scripts
+
+MSX device support:
+- Fixed accuracy of mouse emulation
+- Fixed bug in sprite collision detection (sprites can't collide in the border)
+- Better support for keyboard of Brazilian MSX machines
+- Don't emulate Yes/No keys on machines that don't have them
+- Accuracy improvements:
+  - (minor) fixes in MSX-AUDIO, YM2413 (Okazaki) and R800 emulation
+- Added emulation of the Mega Flash ROM SCC+ and ASCII Japanese MSX-DOS2
+- Added emulation of seek delay, head-load and rotational delay on TC8566AF
+  based disk drives
+- Added Sony HB-F5 and CIEL Expert Turbo machine
+
+Build system, packaging, documentation:
+- Updates of libraries used in the static builds
+- Windows binary built with Visual Studio 2010
+- Basic (experimental) support for cross compilation of Windows 32 bit binaries
+  from Linux (using MinGW)
+- Updated C-BIOS to 0.25, with support for various localized machines
+
 openMSX 0.8.0 (2010-06-02)
 --------------------------
 

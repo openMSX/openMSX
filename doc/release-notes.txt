@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.8.1 (2011-02-xx)
+Release Notes for openMSX 0.8.1 (2011-03-12)
 ============================================
 
 This release builds on the previous one, in the sense that we worked out the
