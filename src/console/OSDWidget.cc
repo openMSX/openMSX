@@ -411,8 +411,15 @@ void OSDWidget::getMouseCoord(double& outx, double& outy) const
 		// in other Tcl scripts (e.g. vampier's nemesis script), but
 		// almost always those scripts will also not be useful when the
 		// host mouse cursor is not visible.
-		outx = std::numeric_limits<double>::quiet_NaN();
-		outy = std::numeric_limits<double>::quiet_NaN();
+		//
+		// We need to return coordinates that lay outside any
+		// reasonable range. Initially we returned (NaN, NaN). But for
+		// some reason that didn't work on dingoo: Dingoo uses
+		// softfloat, in c++ NaN seems to behave as expected, but maybe
+		// there's a problem on the tcl side? Anyway, when we return
+		// +inf instead of NaN it does work.
+		outx = std::numeric_limits<double>::infinity();
+		outy = std::numeric_limits<double>::infinity();
 		return;
 	}
 
