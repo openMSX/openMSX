@@ -392,14 +392,14 @@ unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 	if (midiInOpen(reinterpret_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
-	memset(&inhdr, 0, sizeof(MIDIHDR));
+	memset(&inhdr, 0, sizeof(inhdr));
 	inhdr.lpData = inlongmes;
 	inhdr.dwBufferLength = OPENMSX_W32_MIDI_SYSMES_MAXLEN;
 	if (midiInPrepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle),
-		                static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+		                static_cast<LPMIDIHDR>(&inhdr), sizeof(inhdr)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
-	if (midiInAddBuffer(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+	if (midiInAddBuffer(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(inhdr)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	return idx;
@@ -410,7 +410,7 @@ int w32_midiInClose(unsigned idx)
 	midiInStop(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle));
 	midiInReset(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle));
 	midiInUnprepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle),
-	                      static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR));
+	                      static_cast<LPMIDIHDR>(&inhdr), sizeof(inhdr));
 	if (midiInClose(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {

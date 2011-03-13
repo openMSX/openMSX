@@ -462,7 +462,7 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 #ifdef _WIN32
 	} else if (type == "pipe") {
 		OSVERSIONINFO info;
-		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		info.dwOSVersionInfoSize = sizeof(info);
 		GetVersionEx(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 			connection.reset(new PipeConnection(

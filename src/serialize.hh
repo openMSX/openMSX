@@ -682,7 +682,7 @@ public:
 		unsigned beginPos = openSections.back();
 		openSections.pop_back();
 		unsigned skip = endPos - beginPos;
-		buffer.insertAt(beginPos - sizeof(unsigned),
+		buffer.insertAt(beginPos - sizeof(skip),
 		                &skip, sizeof(skip));
 	}
 

@@ -164,7 +164,7 @@ void CliServer::createSocket()
 	sockaddr_un addr;
 	strcpy(addr.sun_path, socketName.c_str());
 	addr.sun_family = AF_UNIX;
-	if (bind(listenSock, reinterpret_cast<sockaddr*>(&addr), sizeof(sockaddr_un)) == -1) {
+	if (bind(listenSock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
 		throw MSXException("Couldn't open socket.");
 	}
 	if (chmod(socketName.c_str(), 0600) == -1) {

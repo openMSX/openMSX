@@ -123,7 +123,7 @@ void GLHQLiteScaler::uploadBlock(
 	unsigned tmpBuf2[320 / 2];
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
-	memset(tmpBuf2, 0, (320 / 2) * sizeof(unsigned));
+	memset(tmpBuf2, 0, sizeof(tmpBuf2));
 	#endif
 
 	const Pixel* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);

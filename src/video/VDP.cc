@@ -384,7 +384,7 @@ void VDP::resetInit()
 		0x171, 0x373, 0x661, 0x664, 0x411, 0x265, 0x555, 0x777
 	};
 	// Init the palette.
-	memcpy(palette, V9938_PALETTE, 16 * sizeof(word));
+	memcpy(palette, V9938_PALETTE, sizeof(V9938_PALETTE));
 }
 
 void VDP::resetMasks(EmuTime::param time)

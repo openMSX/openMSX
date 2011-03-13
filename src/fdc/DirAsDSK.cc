@@ -792,7 +792,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 	for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i) {
 		unsigned dirindex = sector * DIR_ENTRIES_PER_SECTOR + i;
 		const MSXDirEntry& entry = *reinterpret_cast<const MSXDirEntry*>(&buf[sizeof(MSXDirEntry) * i]);
-		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, sizeof(MSXDirEntry)) != 0) {
+		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, sizeof(entry)) != 0) {
 			writeDIREntry(dirindex, entry);
 		}
 	}
@@ -883,7 +883,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 		// the single shot Dir update when creating new files)
 		if (oldSize < newSize) {
 			// new size is bigger, file has grown
-			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(entry));
 			extractCacheToFile(dirindex);
 		} else {
 			// new size is smaller, file has been reduced
@@ -893,7 +893,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 			// the size is set to zero before it is set to the new value. If we
 			// didn't cache this, then all the 'mapped' sectors would lose their
 			// value
-			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(entry));
 			truncateCorrespondingFile(dirindex);
 			if (newSize != 0) {
 				extractCacheToFile(dirindex); // see copy remark above
@@ -908,7 +908,7 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 	}
 
 	// for now blindly take over info
-	memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(MSXDirEntry));
+	memcpy(&(mapdir[dirindex].msxinfo), &entry, sizeof(entry));
 }
 
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)

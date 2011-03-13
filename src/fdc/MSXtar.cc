@@ -603,7 +603,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	readLogicalSector(dirEntry.sector, buf);
 	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 	MSXDirEntry& direntry = direntries[dirEntry.index];
-	memset(&direntry, 0, sizeof(MSXDirEntry));
+	memset(&direntry, 0, sizeof(direntry));
 	memcpy(&direntry, msxName.data(), 11);
 	direntry.attrib = T_MSX_REG;
 

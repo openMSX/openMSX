@@ -57,7 +57,7 @@ DIR* opendir(const char* name)
 	dir->fd = reinterpret_cast<INT_PTR>(hnd);
 	dir->data = new WIN32_FIND_DATAW;
 	dir->filepos = 0;
-	memcpy(dir->data, &find, sizeof(WIN32_FIND_DATAW));
+	memcpy(dir->data, &find, sizeof(find));
 	return dir;
 }
 

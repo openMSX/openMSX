@@ -38,8 +38,8 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	}
 
 	DSCAPS capabilities;
-	memset(&capabilities, 0, sizeof(DSCAPS));
-	capabilities.dwSize = sizeof(DSCAPS);
+	memset(&capabilities, 0, sizeof(capabilities));
+	capabilities.dwSize = sizeof(capabilities);
 	IDirectSound_GetCaps(directSound, &capabilities);
 	if (!((capabilities.dwFlags & DSCAPS_PRIMARY16BIT) ||
 	      (capabilities.dwFlags & DSCAPS_SECONDARY16BIT))) {
@@ -53,7 +53,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	}
 
 	PCMWAVEFORMAT pcmwf;
-	memset(&pcmwf, 0, sizeof(PCMWAVEFORMAT));
+	memset(&pcmwf, 0, sizeof(pcmwf));
 	pcmwf.wf.wFormatTag = WAVE_FORMAT_PCM;
 	pcmwf.wf.nChannels = CHANNELS;
 	pcmwf.wf.nSamplesPerSec = sampleRate;
@@ -62,8 +62,8 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	pcmwf.wf.nAvgBytesPerSec = pcmwf.wf.nSamplesPerSec * pcmwf.wf.nBlockAlign;
 
 	DSBUFFERDESC desc;
-	memset(&desc, 0, sizeof(DSBUFFERDESC));
-	desc.dwSize = sizeof(DSBUFFERDESC);
+	memset(&desc, 0, sizeof(desc));
+	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
 
 	bufferSize = 2 * samples * BYTES_PER_SAMPLE * CHANNELS;
@@ -83,8 +83,8 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
 
-	memset(&desc, 0, sizeof(DSBUFFERDESC));
-	desc.dwSize = sizeof(DSBUFFERDESC);
+	memset(&desc, 0, sizeof(desc));
+	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GETCURRENTPOSITION2
 	             | DSBCAPS_CTRLFREQUENCY      | DSBCAPS_CTRLPAN
 	             | DSBCAPS_CTRLVOLUME         | DSBCAPS_GLOBALFOCUS;
@@ -97,7 +97,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	}
 
 	WAVEFORMATEX wfex;
-	memset(&wfex, 0, sizeof(WAVEFORMATEX));
+	memset(&wfex, 0, sizeof(wfex));
 	wfex.wFormatTag = WAVE_FORMAT_PCM;
 	wfex.nChannels = CHANNELS;
 	wfex.nSamplesPerSec = sampleRate;

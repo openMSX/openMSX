@@ -209,27 +209,27 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 #if 0
 	// gzip
 	uLongf dstLen = len + len / 1000 + 12; // upper bound for required size
-	char* buf = buffer.allocate(sizeof(uLongf) + dstLen);
+	char* buf = buffer.allocate(sizeof(dstLen) + dstLen);
 
-	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(uLongf)]), &dstLen,
+	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(dstLen)]), &dstLen,
 	              reinterpret_cast<const Bytef*>(data), len, 1)
 	    != Z_OK) {
 		UNREACHABLE;
 	}
 
-	memcpy(buf, &dstLen, sizeof(uLongf)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(uLongf) + dstLen]); // dealloc unused portion
+	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
+	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
 #else
 	// lzo
 	unsigned dstLen = len + len / 16 + 64 + 3; // upper bound
-	byte* buf = buffer.allocate(sizeof(unsigned) + dstLen);
+	byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
 
 	lzo1x_1_compress(reinterpret_cast<const byte*>(data), len,
-	                 reinterpret_cast<byte*>(&buf[sizeof(unsigned)]),
+	                 reinterpret_cast<byte*>(&buf[sizeof(dstLen)]),
 	                 dstLen);
 
-	memcpy(buf, &dstLen, sizeof(unsigned)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(unsigned) + dstLen]); // dealloc unused portion
+	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
+	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
 #endif
 }
 

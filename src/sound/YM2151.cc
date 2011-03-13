@@ -1059,7 +1059,7 @@ void YM2151Impl::reset(EmuTime::param time)
 {
 	// initialize hardware registers
 	for (int i = 0; i < 32; ++i) {
-		memset(&oper[i], '\0', sizeof(YM2151Operator));
+		memset(&oper[i], '\0', sizeof(oper[i]));
 		oper[i].volume = MAX_ATT_INDEX;
 	}
 

@@ -140,7 +140,7 @@ void GLHQScaler::uploadBlock(
 	unsigned tmpBuf2[320 / 2];
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
-	memset(tmpBuf2, 0, (320 / 2) * sizeof(unsigned));
+	memset(tmpBuf2, 0, sizeof(tmpBuf2));
 	#endif
 
 	EdgeHQ edgeOp(0, 8, 16);
