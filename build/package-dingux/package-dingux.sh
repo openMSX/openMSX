@@ -17,16 +17,14 @@ rm -rf $DISTDIR/../$ZIPFILE
 #PATCH=$DISTDIR/openmsx-dingux-r`echo "$REVISION" | grep -o '[0-9]*'`.diff
 #svn diff > $PATCH
 
-cp doc/dingux-readme.txt $DISTDIR/README.txt
-
 mkdir -p $DISTDIR/local
 mkdir -p $DISTDIR/local/doc
-mkdir -p $DISTDIR/local/sbin
 mkdir -p $DISTDIR/local/share
 cp -r derived/mipsel-dingux-opt-3rd/bindist/install/bin $DISTDIR/local/bin
 cp build/package-dingux/openmsx-start.sh $DISTDIR/local/bin
 chmod a+x $DISTDIR/local/bin/openmsx-start.sh
 cp -r derived/mipsel-dingux-opt-3rd/bindist/install/doc $DISTDIR/local/doc/openmsx
+cp doc/dingux-readme.txt $DISTDIR/local/doc/openmsx/README.txt
 cp -r derived/mipsel-dingux-opt-3rd/bindist/install/share $DISTDIR/local/share/openmsx
 
 cd $DISTDIR && zip ../$ZIPFILE -r .
