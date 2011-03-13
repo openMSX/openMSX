@@ -1,4 +1,5 @@
 #!/bin/bash
+# $Id$
 DISTDIR=derived/dist/dingux
 ZIPFILE=openmsx-dingux-bin-`date +%Y-%m-%d`.zip
 rm -rf $DISTDIR

@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id$
 # Startup script for openMSX.
 # Run this to start openMSX; running the executable directly does not work.
 echo -n 1 > /proc/sys/vm/overcommit_memory
