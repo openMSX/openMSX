@@ -1,4 +1,4 @@
-// $Id: ResampleHQ.hh 6481 2007-05-17 11:13:22Z m9710797 $
+// $Id$
 
 #ifndef RESAMPLEHQ_HH
 #define RESAMPLEHQ_HH

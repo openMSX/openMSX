@@ -1,4 +1,4 @@
-// $Id: ResampleAlgo.hh 6481 2007-05-17 11:13:22Z m9710797 $
+// $Id$
 
 #ifndef RESAMPLEALGO_HH
 #define RESAMPLEALGO_HH

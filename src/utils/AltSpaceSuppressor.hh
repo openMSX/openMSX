@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef ALTSPACESUPPRESSOR_HH
 #define ALTSPACESUPPRESSOR_HH
 

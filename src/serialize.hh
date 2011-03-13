@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef SERIALIZE_HH
 #define SERIALIZE_HH
 

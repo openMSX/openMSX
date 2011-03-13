@@ -1,4 +1,4 @@
-// $Id: ResampleLQ.cc 6476 2007-05-14 18:12:29Z m9710797 $
+// $Id$
 
 #include "ResampleLQ.hh"
 #include "Resample.hh"

@@ -1,4 +1,4 @@
-// $Id: omSynthesizer.cc 4531 2005-06-26 19:17:47Z m9710797 $
+// $Id$
 
 #include "RomPlayBall.hh"
 #include "SamplePlayer.hh"

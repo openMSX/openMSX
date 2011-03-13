@@ -1,4 +1,4 @@
-// $Id: GLRGBScaler.cc 6100 2007-02-19 18:56:40Z m9710797 $
+// $Id$
 
 #include "GLRGBScaler.hh"
 #include "GLUtil.hh"

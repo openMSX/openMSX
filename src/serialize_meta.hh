@@ -1,3 +1,5 @@
+// $Id$
+
 #ifndef SERIALIZE_META_HH
 #define SERIALIZE_META_HH
 

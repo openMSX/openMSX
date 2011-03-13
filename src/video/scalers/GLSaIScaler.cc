@@ -1,4 +1,4 @@
-// $Id: GLSaIScaler.cc 5474 2006-06-20 20:02:56Z m9710797 $
+// $Id$
 
 #include "GLSaIScaler.hh"
 
