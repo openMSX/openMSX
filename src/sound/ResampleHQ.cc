@@ -19,6 +19,7 @@
 #include "HostCPU.hh"
 #include "noncopyable.hh"
 #include "vla.hh"
+#include "countof.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <map>
@@ -37,7 +38,7 @@ static const float coeffs[] = {
 };
 
 static const int INDEX_INC = 128;
-static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
+static const int COEFF_LEN = countof(coeffs);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
 

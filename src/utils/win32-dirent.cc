@@ -27,6 +27,7 @@
 #include "utf8_checked.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "countof.hh"
 #include <windows.h>
 #include <cstring>
 #include <cstdlib>
@@ -75,8 +76,7 @@ dirent* readdir(DIR* dir)
 	}
 
 	std::string d_name = utf8::utf16to8(find->cFileName);
-	strncpy(entry.d_name, d_name.c_str(),
-	        sizeof(entry.d_name) / sizeof(entry.d_name[0]));
+	strncpy(entry.d_name, d_name.c_str(), countof(entry.d_name));
 
 	entry.d_off = dir->filepos;
 	entry.d_reclen = static_cast<unsigned short>(strlen(entry.d_name));
