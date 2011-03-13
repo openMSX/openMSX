@@ -1,9 +1,7 @@
 # $Id$
 
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
-from os.path import (
-	dirname, exists, isdir, isfile, islink, join as joinpath, normpath
-	)
+from os.path import dirname, isdir, isfile, islink, join as joinpath
 from shutil import copyfile
 
 try:
@@ -12,71 +10,31 @@ except ImportError:
 	def symlink(src, dst): # pylint: disable-msg=W0613
 		raise OSError('This platform does not support symbolic links')
 
-def scanTree(baseDir, selection = None):
+def scanTree(baseDir):
 	'''Scans files and directories from the given base directory and iterates
 	through the paths of the files and directories it finds; these paths are
 	relative to the base directory.
-	If no selection is given all files and directories inside the source
-	directory are selected, otherwise the selection is the sequence of names of
-	files and directories inside the source directory that will be included.
 	Directories will always be returned before any of the files they contain.
 	The base directory itself is not returned.
 	Hidden files and directories are not returned.
 	All paths returned use the OS native separator character (os.sep),
 	regardless of which separator characters were used in the arguments.
 	Raises IOError if there is an I/O error scanning the base directory.
-	Raises ValueError if the selection is invalid.
 	'''
 	if altsep is not None:
 		# Make sure all paths use the OS native separator, so we can safely
 		# compare paths and have consistent error messages.
 		baseDir = baseDir.replace(altsep, sep)
-		if selection is not None:
-			selection = [ path.replace(altsep, sep) for path in selection ]
 	baseDir = baseDir.rstrip(sep)
 
 	if not isdir(baseDir):
 		raise IOError('Directory "%s" does not exist' % baseDir)
-
-	if selection is None:
-		selectedDirs = None
-		selectedFiles = None
-	else:
-		selectedDirs = set()
-		selectedFiles = set()
-		for selected in selection:
-			normSel = normpath(selected)
-			if normSel == '.':
-				# Although strictly speaking there is no need to treat this as
-				# a fatal problem, it is very likely that the caller made a
-				# mistake.
-				raise ValueError(
-					'Selection element "%s" selects entire source directory'
-					% selected
-					)
-			if normSel == '..' or normSel.startswith('..' + sep):
-				raise ValueError(
-					'Selection element "%s" reaches outside source directory'
-					% selected
-					)
-			path = joinpath(baseDir, normSel)
-			if isdir(path):
-				selectedDirs.add(normSel)
-			elif exists(path):
-				selectedFiles.add(normSel)
-			else:
-				raise IOError('Selected path "%s" does not exist' % path)
 
 	def escalate(ex):
 		raise IOError(
 			'Error scanning directory entry "%s": %s' % (ex.filename, ex)
 			)
 	for dirPath, dirNames, fileNames in walk(baseDir, onerror = escalate):
-		if dirPath == baseDir and selection is not None:
-			# For the top-level directory, use selection.
-			dirNames[ : ] = sorted(selectedDirs)
-			fileNames = sorted(selectedFiles)
-
 		# Skip hidden directories.
 		# We are deleting items from the list we are iterating over; that
 		# requires some extra care.
