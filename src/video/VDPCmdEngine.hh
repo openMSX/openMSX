@@ -18,6 +18,7 @@ class CommandController;
 class RenderSettings;
 class Setting;
 class BooleanSetting;
+class StringSetting;
 
 
 /** This is an abstract base class the VDP commands
@@ -166,6 +167,7 @@ private:
 	/** Only call reportVdpCommand() when this setting is turned on
 	  */
 	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
+	const std::auto_ptr<StringSetting>  cmdInProgressSetting;
 
 	VDPCmd* commands[256][4];
 	VDPCmd* currentCommand;
