@@ -30,12 +30,12 @@ proc get_selected_slot { page } {
 #
 set_help_text slotselect \
 {Returns a nicely formatted overview of the selected slots.}
-proc slotselect { } {
+proc slotselect {} {
 	set result ""
-	for { set page 0 } { $page < 4 } { incr page } {
-		foreach {ps ss} [get_selected_slot $page] {}
-		append result [format "%04X: slot %d" [expr 0x4000 * $page] $ps]
-		if {$ss != "X"} { append result "." $ss }
+	for {set page 0} {$page < 4} {incr page} {
+		lassign [get_selected_slot $page] ps ss
+		append result [format "%04X: slot %d" [expr {0x4000 * $page}] $ps]
+		if {$ss != "X"} {append result "." $ss}
 		append result "\n"
 	}
 	return $result
@@ -64,9 +64,9 @@ proc get_mapper_size { ps ss } {
 set_help_text pc_in_slot \
 {Test whether the CPU's program counter is inside a certain slot.
 Typically used to set breakpoints in specific slots.}
-proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
+proc pc_in_slot {ps {ss "X"} {mapper "X"}} {
 	set page [expr [reg PC] >> 14]
-	foreach {pc_ps pc_ss} [get_selected_slot $page] {}
+	lassign [get_selected_slot $page] pc_ps pc_ss
 	if {($ps != "X") &&                    ($pc_ps != $ps)} { return false }
 	if {($ss != "X") && ($pc_ss != "X") && ($pc_ss != $ss)} { return false }
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]

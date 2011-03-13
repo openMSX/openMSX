@@ -198,7 +198,7 @@ fade out. You can make it reappear by moving the mouse over it.
 		array set stats [reverse status]
 
 		set x 2 ; set y 2
-		catch { foreach {x y} [osd info "reverse.int" -mousecoord] {} }
+		catch {lassign [osd info "reverse.int" -mousecoord] x y}
 		set mouseInside [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
 
 		switch $stats(status) {
@@ -270,8 +270,8 @@ fade out. You can make it reappear by moving the mouse over it.
 	}
 
 	proc check_mouse {} {
-		set x 2 ; set y 2
-		catch { foreach {x y} [osd info "reverse.int" -mousecoord] {} }
+		set x 2; set y 2
+		catch {lassign [osd info "reverse.int" -mousecoord] x y}
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 			array set stats [reverse status]
 			reverse goto [expr $stats(begin) + $x * ($stats(end) - $stats(begin))]

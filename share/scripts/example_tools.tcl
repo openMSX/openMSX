@@ -241,7 +241,7 @@ proc get_color_count {args} {
 	set palette ""
 	foreach pixelinfo $pixelstatlistsorted {
 		incr number
-		foreach {color amount} $pixelinfo {}
+		lassign $pixelinfo color amount
 		if {$mode != 8} {
 			set palette " ([getcolor $color])"
 		}

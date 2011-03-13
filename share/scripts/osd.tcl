@@ -55,10 +55,10 @@ proc display_message { message {category info} } {
 
 set message_callback osd::display_message
 
-proc is_cursor_in { widget } {
+proc is_cursor_in {widget} {
 	set x 2; set y 2
-	catch { foreach {x y} [osd info $widget -mousecoord] {} }
-	return [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
+	catch {lassign [osd info $widget -mousecoord] x y}
+	expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}
 }
 
 # only export stuff that is useful in other scripts or for the console user

@@ -18,7 +18,7 @@ variable row_starts
 variable key_color "0x999999c0 0xbbbbbbc0 0xddddddc0 0xffffffc0"
 variable key_pressed_color "0x994400c0 0xbb5500c0 0xdd6600c0 0xff8800c0"
 variable key_background_color 0x00000080
-variable key_hold_color "0x009933f0 0x00bb44f0 0x00dd66f0 0x00ff88ff" 
+variable key_hold_color "0x009933f0 0x00bb44f0 0x00dd66f0 0x00ff88ff"
 variable key_select_color "0x999933f0 0xbbbb44f0 0xdddd66f0 0xffff88f0"
 variable key_edge_color 0xaaaaaaa0
 variable key_edge_color_select 0xaaaa00a0
@@ -137,7 +137,7 @@ proc enable_osd_keyboard {} {
 		lappend row_starts $keycount
 		set x $board_hborder
 		foreach {keys} [split [lindex $rows $y]  "|"] {
-			foreach {key_text key_width} [split $keys "*"] {}
+			lassign [split $keys "*"] key_text key_width
 			if {$key_width < 1} {set key_width $key_basewidth}
 			if {$key_text != "null"} {
 				set key_y $y_base
@@ -347,12 +347,9 @@ proc key_at_coord {x y} {
 }
 
 proc key_at_mouse {} {
-	foreach {x y} [osd info kb -mousecoord] {
-		return [key_at_coord \
-			[expr $x * [osd info kb -w]] \
-			[expr $y * [osd info kb -h]] \
-			]
-	}
+	lassign [osd info kb -mousecoord] x y
+	key_at_coord [expr {$x * [osd info kb -w]}] \
+	             [expr {$y * [osd info kb -h]}]
 }
 
 proc key_hold_toggle {} {

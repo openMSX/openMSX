@@ -294,14 +294,14 @@ proc toggle_mog_overlay {} {
 
 proc draw_block {} {
 	osd_widgets::msx_update "mog"
-	foreach {x y} [osd info "mog" -mousecoord] {}
+	lassign [osd info "mog" -mousecoord] x y
 	poke [expr 0xed80 + int($x/8) + int(($y-32)/8) * 32] 240
 	if {$mog_overlay::mouse1_pressed} { after frame mog_overlay::draw_block }
 }
 
 proc put_popolon {} {
 	osd_widgets::msx_update "mog"
-	foreach {x y} [osd info "mog" -mousecoord] {}
+	lassign [osd info "mog" -mousecoord] x y
 	poke 0xe507 [utils::clip 0 255 [expr int($x)]]
 	poke 0xe505 [utils::clip 0 212 [expr int($y)]]
 }

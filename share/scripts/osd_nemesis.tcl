@@ -60,7 +60,7 @@ namespace eval osd_nemesis {
 
 		if {$move_active} {
 			# move vic viper to mouse position
-			foreach {x y} [osd info "nemesis1" -mousecoord] {}
+			lassign [osd info "nemesis1" -mousecoord] x y
 			poke 0xe206 [utils::clip 0 255 [expr int($x)]]
 			poke 0xe204 [utils::clip 0 212 [expr int($y)]]
 		}

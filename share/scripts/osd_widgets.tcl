@@ -159,7 +159,7 @@ proc text_box {name args} {
 	# Adjust height of rectangle to actual text height (depends on newlines
 	# and text wrapping).
 	catch {
-		foreach {x y} [osd info $name.text -query-size] {}
+		lassign [osd info $name.text -query-size] x y
 		osd configure $name -h [expr 4 + $y]
 	}
 

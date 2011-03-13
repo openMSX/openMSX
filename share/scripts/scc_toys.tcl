@@ -380,7 +380,7 @@ proc checkclick {} {
 
 	#check editor matrix
 	for {set i 0} {$i < 32} {incr i} {
-	foreach {x y} [osd info "scc.slider$i" -mousecoord] {}
+	lassign [osd info "scc.slider$i" -mousecoord] x y
 		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 			debug write "$select_device SCC" [expr $select_device_chan*32+$i] [expr int(255*$y-128) & 0xff]
 			osd configure scc.slider$i.val \
@@ -392,7 +392,7 @@ proc checkclick {} {
 	#check scc viewer channels
 	foreach device $scc_devices {
 		for {set i 0} {$i < 5} {incr i} {
-			foreach {x y} [osd info "scc_viewer.$device.$i" -mousecoord] {}
+			lassign [osd info "scc_viewer.$device.$i" -mousecoord] x y
 				if {( $x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 
 				#store device and channel picked from the SCC_viewer in memory
