@@ -11,6 +11,7 @@
 #include "CliServer.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
+#include "EventDistributor.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
@@ -92,6 +93,13 @@ static int main(int argc, char **argv)
 			if (!parser.isHiddenStartup()) {
 				reactor.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();
+				// Switching renderer requires events, handle
+				// these events before continuing with the rest
+				// of initialization. This fixes a bug where
+				// you have a '-script bla.tcl' command line
+				// argument where bla.tcl contains a line like
+				// 'ext gfx9000'.
+				reactor.getEventDistributor().deliverEvents();
 			}
 			if (parseStatus != CommandLineParser::TEST) {
 				CliServer cliServer(reactor.getCommandController(),
