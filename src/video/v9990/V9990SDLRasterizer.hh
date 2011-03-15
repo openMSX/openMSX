@@ -72,7 +72,7 @@ private:
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	RawFrame* workFrame;
+	std::auto_ptr<RawFrame> workFrame;
 
 	/** The current renderer settings (gamma, brightness, contrast)
 	  */

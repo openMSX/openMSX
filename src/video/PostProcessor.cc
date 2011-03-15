@@ -31,10 +31,10 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, display(display_)
 {
 	if (getVideoSource() != VIDEO_LASERDISC) {
-		currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
-		prevFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
-		deinterlacedFrame = new DeinterlacedFrame(screen.getSDLFormat());
-		interlacedFrame   = new DoubledFrame     (screen.getSDLFormat());
+		currFrame.reset(new RawFrame(screen.getSDLFormat(), maxWidth, height));
+		prevFrame.reset(new RawFrame(screen.getSDLFormat(), maxWidth, height));
+		deinterlacedFrame.reset(new DeinterlacedFrame(screen.getSDLFormat()));
+		interlacedFrame  .reset(new DoubledFrame     (screen.getSDLFormat()));
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need prevFrame, deinterlacedFrame and interlacedFrame. Also
@@ -52,12 +52,6 @@ PostProcessor::~PostProcessor()
 			"changed machine or changed a video setting "
 			"during recording.");
 		recorder->stop();
-	}
-	if (getVideoSource() != VIDEO_LASERDISC) {
-		delete currFrame;
-		delete prevFrame;
-		delete deinterlacedFrame;
-		delete interlacedFrame;
 	}
 }
 
@@ -91,22 +85,21 @@ const std::string& PostProcessor::getName()
 	}
 }
 
-RawFrame* PostProcessor::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field,
+std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
+	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	RawFrame* reuseFrame;
+	std::auto_ptr<RawFrame> reuseFrame;
 	if (getVideoSource() != VIDEO_LASERDISC) {
 		reuseFrame = prevFrame;
 		prevFrame = currFrame;
 		currFrame = finishedFrame;
+		reuseFrame->init(field);
 	} else {
-		reuseFrame = finishedFrame;
 		currFrame = finishedFrame;
-		assert(field == FrameSource::FIELD_NONINTERLACED);
-
+		assert(field                 == FrameSource::FIELD_NONINTERLACED);
+		assert(currFrame->getField() == FrameSource::FIELD_NONINTERLACED);
 	}
-	reuseFrame->init(field);
 
 	// TODO: When frames are being skipped or if (de)interlace was just
 	//       turned on, it's not guaranteed that prevFrame is a
@@ -118,20 +111,20 @@ RawFrame* PostProcessor::rotateFrames(
 		if (renderSettings.getDeinterlace().getValue()) {
 			// deinterlaced
 			if (currType == FrameSource::FIELD_ODD) {
-				deinterlacedFrame->init(prevFrame, currFrame);
+				deinterlacedFrame->init(prevFrame.get(), currFrame.get());
 			} else {
-				deinterlacedFrame->init(currFrame, prevFrame);
+				deinterlacedFrame->init(currFrame.get(), prevFrame.get());
 			}
-			paintFrame = deinterlacedFrame;
+			paintFrame = deinterlacedFrame.get();
 		} else {
 			// interlaced
-			interlacedFrame->init(currFrame,
+			interlacedFrame->init(currFrame.get(),
 				(currType == FrameSource::FIELD_ODD) ? 1 : 0);
-			paintFrame = interlacedFrame;
+			paintFrame = interlacedFrame.get();
 		}
 	} else {
 		// non interlaced
-		paintFrame = currFrame;
+		paintFrame = currFrame.get();
 	}
 
 	if (recorder) {
@@ -139,7 +132,11 @@ RawFrame* PostProcessor::rotateFrames(
 		paintFrame->freeLineBuffers();
 	}
 
-	return reuseFrame;
+	if (getVideoSource() != VIDEO_LASERDISC) {
+		return reuseFrame;
+	} else {
+		return currFrame;
+	}
 }
 
 void PostProcessor::getScaledFrame(unsigned height, const void** lines)

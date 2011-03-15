@@ -39,7 +39,7 @@ private:
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	RawFrame* workFrame;
+	std::auto_ptr<RawFrame> workFrame;
 
 	const SDL_PixelFormat pixelFormat;
 };

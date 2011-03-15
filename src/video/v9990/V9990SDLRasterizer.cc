@@ -31,6 +31,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
+	, workFrame(new RawFrame(screen.getSDLFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR
@@ -40,8 +41,6 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, p1Converter(new V9990P1Converter<Pixel>(vdp, palette64))
 	, p2Converter(new V9990P2Converter<Pixel>(vdp, palette64))
 {
-	workFrame = new RawFrame(screen.getSDLFormat(), 1280, 240);
-
 	// Fill palettes
 	preCalcPalettes();
 
@@ -58,8 +57,6 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 	renderSettings.getGamma()      .detach(*this);
 	renderSettings.getBrightness() .detach(*this);
 	renderSettings.getContrast()   .detach(*this);
-
-	delete workFrame;
 }
 
 template <class Pixel>

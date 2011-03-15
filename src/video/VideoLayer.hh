@@ -57,7 +57,7 @@ private:
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
 	/** Video source that displays on this layer. */
-	VideoSource videoSource;
+	const VideoSource videoSource;
 };
 
 } // namespace openmsx

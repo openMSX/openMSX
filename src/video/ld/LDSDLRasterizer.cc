@@ -22,7 +22,6 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 template <class Pixel>
 LDSDLRasterizer<Pixel>::~LDSDLRasterizer()
 {
-	delete workFrame;
 }
 
 template <class Pixel>
@@ -47,7 +46,7 @@ void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 template<class Pixel>
 RawFrame* LDSDLRasterizer<Pixel>::getRawFrame()
 {
-	return workFrame;
+	return workFrame.get();
 }
 
 

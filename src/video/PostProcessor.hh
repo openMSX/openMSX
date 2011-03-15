@@ -6,6 +6,7 @@
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
 #include "EmuTime.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -44,8 +45,8 @@ public:
 	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field,
+	virtual std::auto_ptr<RawFrame> rotateFrames(
+		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
 	virtual void setSuperimposeFrame(const RawFrame* videoSource) = 0;
@@ -89,16 +90,16 @@ protected:
 	OutputSurface& screen;
 
 	/** The last finished frame, ready to be displayed. */
-	RawFrame* currFrame;
+	std::auto_ptr<RawFrame> currFrame;
 
 	/** The frame before currFrame, ready to be displayed. */
-	RawFrame* prevFrame;
+	std::auto_ptr<RawFrame> prevFrame;
 
 	/** Combined currFrame and prevFrame. */
-	DeinterlacedFrame* deinterlacedFrame;
+	std::auto_ptr<DeinterlacedFrame> deinterlacedFrame;
 
 	/** Each line of currFrame twice, to get double vertical resolution. */
-	DoubledFrame* interlacedFrame;
+	std::auto_ptr<DoubledFrame> interlacedFrame;
 
 	/** Represents a frame as it should be displayed.
 	  * This can be simply a RawFrame or two RawFrames combined in a

@@ -223,11 +223,11 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	}
 }
 
-RawFrame* GLPostProcessor::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field,
+std::auto_ptr<RawFrame> GLPostProcessor::rotateFrames(
+	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	RawFrame* reuseFrame =
+	std::auto_ptr<RawFrame> reuseFrame =
 		PostProcessor::rotateFrames(finishedFrame, field, time);
 	uploadFrame();
 	++frameCounter;

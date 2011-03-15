@@ -29,8 +29,8 @@ public:
 	// Layer interface:
 	virtual void paint(OutputSurface& output);
 
-	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field,
+	virtual std::auto_ptr<RawFrame> rotateFrames(
+		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 	virtual void setSuperimposeFrame(const RawFrame* videoSource);
 

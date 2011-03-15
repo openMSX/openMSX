@@ -1,6 +1,7 @@
 // $Id$
 
 #include "FBPostProcessor.hh"
+#include "RawFrame.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
@@ -412,8 +413,8 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 }
 
 template <class Pixel>
-RawFrame* FBPostProcessor<Pixel>::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field,
+std::auto_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
+	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {

@@ -75,14 +75,13 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(postProcessor_)
+	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
 	, bitmapConverter(new BitmapConverter<Pixel>(
 	                                    palFg, PALETTE256, V9958_COLORS))
 	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
 {
-	workFrame = new RawFrame(screen.getSDLFormat(), 640, 240);
-
 	// Init the palette.
 	precalcPalette();
 
@@ -107,8 +106,6 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 	renderSettings.getGamma()      .detach(*this);
 	renderSettings.getBrightness() .detach(*this);
 	renderSettings.getContrast()   .detach(*this);
-
-	delete workFrame;
 }
 
 template <class Pixel>
