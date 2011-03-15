@@ -1012,9 +1012,7 @@ void YMF262Impl::chan_calc_rhythm(unsigned lfo_am)
 void YMF262Impl::init_tables()
 {
 	static bool alreadyInit = false;
-	if (alreadyInit) {
-		return;
-	}
+	if (alreadyInit) return;
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; x++) {

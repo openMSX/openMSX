@@ -351,8 +351,7 @@ void Display::repaint()
 	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
-	OutputSurface* surface = videoSystem->getOutputSurface();
-	if (surface) {
+	if (OutputSurface* surface = videoSystem->getOutputSurface()) {
 		repaint(*surface);
 		videoSystem->flush();
 	}

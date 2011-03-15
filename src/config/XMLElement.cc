@@ -295,8 +295,7 @@ int XMLElement::getChildDataAsInt(const char* name, int defaultValue) const
 
 void XMLElement::setChildData(const char* name, const string& value)
 {
-	XMLElement* child = findChild(name);
-	if (child) {
+	if (XMLElement* child = findChild(name)) {
 		child->setData(value);
 	} else {
 		addChild(auto_ptr<XMLElement>(new XMLElement(name, value)));

@@ -355,8 +355,7 @@ template<typename TP> struct PointerSaver
 			ar.attribute("id_ref", id);
 			return;
 		}
-		unsigned id = ar.getId(tp);
-		if (id) {
+		if (unsigned id = ar.getId(tp)) {
 			ar.attribute("id_ref", id);
 		} else {
 			if (is_polymorphic<T>::value) {
@@ -583,8 +582,7 @@ template<typename TP> struct PointerLoader
 			// null-pointer
 			tp = NULL;
 		} else {
-			void* p = ar.getPointer(id);
-			if (p) {
+			if (void* p = ar.getPointer(id)) {
 				tp = static_cast<T*>(p);
 			} else {
 				PointerLoader2<T> loader;

@@ -131,9 +131,8 @@ void SettingsManager::loadSettings(const XMLElement& config)
 		const string& name = it->first;
 		Setting& setting = *it->second;
 		if (!setting.needLoadSave()) continue;
-		const XMLElement* elem = settings->findChildWithAttribute(
-			"setting", "id", name);
-		if (elem) {
+		if (const XMLElement* elem = settings->findChildWithAttribute(
+		                                     "setting", "id", name)) {
 			try {
 				setting.changeValueString(elem->getData());
 			} catch (MSXException&) {

@@ -128,8 +128,7 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned blur = settings.getBlurFactor() / 3;
-	if (blur) {
+	if (unsigned blur = settings.getBlurFactor() / 3) {
 		blur_1on3->setBlur(blur);
 		PolyScaleRef<Pixel, Blur_1on3<Pixel> > op(*blur_1on3);
 		doScale1(src, srcStartY, srcEndY, srcWidth,

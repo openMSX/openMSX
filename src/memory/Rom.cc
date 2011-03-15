@@ -209,8 +209,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 
 	if (size != 0) {
-		const XMLElement* patchesElem = config.findChild("patches");
-		if (patchesElem) {
+		if (const XMLElement* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
 			getOriginalSHA1();
 

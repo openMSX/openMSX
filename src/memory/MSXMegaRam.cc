@@ -88,8 +88,7 @@ const byte* MSXMegaRam::getReadCacheLine(word address) const
 
 void MSXMegaRam::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
-	byte* tmp = getWriteCacheLine(address);
-	if (tmp) {
+	if (byte* tmp = getWriteCacheLine(address)) {
 		*tmp = value;
 	} else {
 		assert(!romMode && !writeMode);

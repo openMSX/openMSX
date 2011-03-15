@@ -41,9 +41,8 @@ CommandController& CommandCompleter::getCommandController() const
 
 GlobalCommandController& CommandCompleter::getGlobalCommandController() const
 {
-	GlobalCommandController* globalCommandController =
-		dynamic_cast<GlobalCommandController*>(&commandController);
-	if (globalCommandController) {
+	if (GlobalCommandController* globalCommandController =
+	    dynamic_cast<GlobalCommandController*>(&commandController)) {
 		return *globalCommandController;
 	} else {
 		return checked_cast<MSXCommandController*>(&commandController)

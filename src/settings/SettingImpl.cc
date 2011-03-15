@@ -25,11 +25,9 @@ void SettingImplBase::init()
 	if (needLoadSave()) {
 		XMLElement& settingsConfig = Setting::getGlobalCommandController()
 			.getSettingsConfig().getXMLElement();
-		const XMLElement* config = settingsConfig.findChild("settings");
-		if (config) {
-			const XMLElement* elem = config->findChildWithAttribute(
-				"setting", "id", getName());
-			if (elem) {
+		if (const XMLElement* config = settingsConfig.findChild("settings")) {
+			if (const XMLElement* elem = config->findChildWithAttribute(
+			                                "setting", "id", getName())) {
 				try {
 					setValueString2(elem->getData(), false);
 				} catch (MSXException&) {

@@ -149,8 +149,7 @@ void GLHQScaler::uploadBlock(
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer->bind();
-	unsigned short* mapped = edgeBuffer->mapWrite();
-	if (mapped) {
+	if (unsigned short* mapped = edgeBuffer->mapWrite()) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
 			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);

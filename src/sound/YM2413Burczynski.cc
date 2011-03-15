@@ -604,9 +604,7 @@ static inline int genPhaseCymbal(int phaseM7, int phaseC8)
 static void initTables()
 {
 	static bool alreadyInit = false;
-	if (alreadyInit) {
-		return;
-	}
+	if (alreadyInit) return;
 	alreadyInit = true;
 
 	for (int x = 0; x < TL_RES_LEN; ++x) {

@@ -462,8 +462,7 @@ string getUserDataDir()
 string getSystemDataDir()
 {
 	const char* const NAME = "OPENMSX_SYSTEM_DATA";
-	char* value = getenv(NAME);
-	if (value) {
+	if (char* value = getenv(NAME)) {
 		return value;
 	}
 

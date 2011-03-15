@@ -267,8 +267,7 @@ static string getSafeValueString(Setting& setting)
 }
 void Interpreter::registerSetting(Setting& variable, const string& name)
 {
-	const char* tclVarValue = getVariable(name);
-	if (tclVarValue) {
+	if (const char* tclVarValue = getVariable(name)) {
 		// Tcl var already existed, use this value
 		try {
 			variable.setValueStringDirect(tclVarValue);

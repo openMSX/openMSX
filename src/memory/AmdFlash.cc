@@ -160,8 +160,7 @@ byte AmdFlash::peek(unsigned address) const
 	unsigned sector, sectorSize, offset;
 	getSectorInfo(address, sector, sectorSize, offset);
 	if (state == ST_IDLE) {
-		const byte* addr = readAddress[sector];
-		if (addr) {
+		if (const byte* addr = readAddress[sector]) {
 			return addr[offset];
 		} else {
 			return 0xFF;

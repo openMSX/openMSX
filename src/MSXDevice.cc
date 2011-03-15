@@ -449,8 +449,7 @@ void MSXDevice::writeMem(word address, byte /*value*/,
 byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 {
 	word base = address & CacheLine::HIGH;
-	const byte* cache = getReadCacheLine(base);
-	if (cache) {
+	if (const byte* cache = getReadCacheLine(base)) {
 		word offset = address & CacheLine::LOW;
 		return cache[offset];
 	} else {

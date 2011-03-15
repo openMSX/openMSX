@@ -122,8 +122,7 @@ auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 		throw XMLException(filename + ": Could not create XML parser context");
 	}
 	const int parseError = xmlParseChunk(
-		ctxt, reinterpret_cast<const char *>(fileContent), size, true
-		);
+		ctxt, reinterpret_cast<const char *>(fileContent), size, true);
 	xmlFreeParserCtxt(ctxt);
 	if (parseError) {
 		throw XMLException(filename + ": Document parsing failed");

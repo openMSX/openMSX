@@ -79,9 +79,10 @@ void Setting::sync(XMLElement& config) const
 	XMLElement& settings = config.getCreateChild("settings");
 	if (!needLoadSave() || hasDefaultValue()) {
 		// remove setting
-		const XMLElement* elem = settings.findChildWithAttribute(
-				"setting", "id", getName());
-		if (elem) settings.removeChild(*elem);
+		if (const XMLElement* elem = settings.findChildWithAttribute(
+				"setting", "id", getName())) {
+			settings.removeChild(*elem);
+		}
 	} else {
 		// add (or overwrite) setting
 		XMLElement& elem = settings.getCreateChildWithAttribute(
@@ -108,9 +109,8 @@ CommandController& Setting::getCommandController() const
 
 GlobalCommandController& Setting::getGlobalCommandController() const
 {
-	GlobalCommandController* globalCommandController =
-		dynamic_cast<GlobalCommandController*>(&commandController);
-	if (globalCommandController) {
+	if (GlobalCommandController* globalCommandController =
+	    dynamic_cast<GlobalCommandController*>(&commandController)) {
 		return *globalCommandController;
 	} else {
 		return checked_cast<MSXCommandController*>(&commandController)

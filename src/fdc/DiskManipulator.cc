@@ -306,8 +306,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 			names.insert(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
-			SectorAccessibleDisk* disk = it->drive->getSectorAccessibleDisk();
-			if (disk) {
+			if (SectorAccessibleDisk* disk =
+			    it->drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);

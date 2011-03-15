@@ -478,13 +478,13 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 	}
 	case 3: {
 		string arg = tokens[2]->getString();
-		const Connector* connector = pluggingController.findConnector(arg);
-		if (connector) {
+		if (const Connector* connector =
+		    pluggingController.findConnector(arg)) {
 			result.setString(connector->getClass());
 			break;
 		}
-		const Pluggable* pluggable = pluggingController.findPluggable(arg);
-		if (pluggable) {
+		if (const Pluggable* pluggable =
+		    pluggingController.findPluggable(arg)) {
 			result.setString(pluggable->getClass());
 			break;
 		}
