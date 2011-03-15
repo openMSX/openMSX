@@ -75,7 +75,7 @@ public:
 	virtual void forceFormFeed();
 
 protected:
-	explicit ImagePrinter(MSXMotherBoard& motherBoard);
+	ImagePrinter(MSXMotherBoard& motherBoard, bool graphicsHiLo);
 	~ImagePrinter();
 
 	void resetEmulatedPrinter();
@@ -157,7 +157,6 @@ protected:
 	bool normalAfterLine;
 	bool ninePinGraphics;
 	bool leftToRight;
-	bool graphicsHiLo;
 	bool elite;
 	bool compressed;
 	bool noHighEscapeCodes;
@@ -167,6 +166,8 @@ private:
 	std::auto_ptr<Paper> paper;
 
 	IntegerSetting* dpiSetting;
+
+	const bool graphicsHiLo;
 };
 
 // emulated MSX printer

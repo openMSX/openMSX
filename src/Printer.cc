@@ -119,8 +119,9 @@ void RawPrinter::forceFormFeed()
 
 // class ImagePrinter
 
-ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_)
+ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 	: motherBoard(motherBoard_)
+	, graphicsHiLo(graphicsHiLo_)
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("print-resolution");
@@ -646,10 +647,8 @@ static const byte MSXFontRaw[256 * 8] = {
 static byte MSXFont[256 * 9];
 
 ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard)
-	: ImagePrinter(motherBoard)
+	: ImagePrinter(motherBoard, true)
 {
-	graphicsHiLo  = true;
-
 	msxPrnSetFont(MSXFontRaw);
 	resetEmulatedPrinter();
 }
@@ -1231,10 +1230,8 @@ static const byte EpsonFontRom[] = {
 };
 
 ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard)
-	: ImagePrinter(motherBoard)
+	: ImagePrinter(motherBoard, false)
 {
-	graphicsHiLo = false;
-
 	resetEmulatedPrinter();
 }
 
