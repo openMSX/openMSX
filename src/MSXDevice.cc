@@ -76,11 +76,10 @@ MSXDevice::~MSXDevice()
 void MSXDevice::staticInit()
 {
 	static bool alreadyInit = false;
-	if (alreadyInit) {
-		return;
-	}
+	if (alreadyInit) return;
 	alreadyInit = true;
-	memset(unmappedRead, 0xFF, 0x10000);
+
+	memset(unmappedRead, 0xFF, sizeof(unmappedRead));
 }
 
 const HardwareConfig& MSXDevice::getHardwareConfig() const

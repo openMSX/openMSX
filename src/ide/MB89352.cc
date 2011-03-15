@@ -164,7 +164,7 @@ void MB89352::softReset()
 		regs[i] = 0;
 	}
 	regs[15] = 0xFF;               // un mapped
-	memset(cdb, 0, 12);
+	memset(cdb, 0, sizeof(cdb));
 
 	cdbIdx = 0;
 	bufIdx = 0;

@@ -237,7 +237,7 @@ void format(SectorAccessibleDisk& disk)
 	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors
-	memset(buf, 0x00, SECTOR_SIZE);
+	memset(buf, 0x00, sizeof(buf));
 	for (unsigned i = 2; i < firstDataSector; ++i) {
 		disk.writeSector(i, buf);
 	}
@@ -250,7 +250,7 @@ void format(SectorAccessibleDisk& disk)
 	disk.writeSector(1, buf);
 
 	// write 'empty' data sectors
-	memset(buf, 0xE5, SECTOR_SIZE);
+	memset(buf, 0xE5, sizeof(buf));
 	for (unsigned i = firstDataSector; i < nbSectors; ++i) {
 		disk.writeSector(i, buf);
 	}
@@ -274,7 +274,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	assert(sizes.size() <= 31);
 
 	byte buf[SECTOR_SIZE];
-	memset(buf, 0, SECTOR_SIZE);
+	memset(buf, 0, sizeof(buf));
 	memcpy(buf, PARTAB_HEADER, 11);
 	buf[SECTOR_SIZE - 2] = 0x55;
 	buf[SECTOR_SIZE - 1] = 0xAA;

@@ -327,7 +327,7 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 			memcpy(dst, src, 64);
 		}
 	}
-	memcpy(&data[0], tmp, 0x4000);
+	memcpy(&data[0], tmp, sizeof(tmp));
 }
 
 

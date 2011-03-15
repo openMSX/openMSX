@@ -45,8 +45,8 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	, audiorate(freq_)
 {
 	char dummy[AVI_HEADER_SIZE];
-	memset(dummy, 0, AVI_HEADER_SIZE);
-	file->write(dummy, AVI_HEADER_SIZE);
+	memset(dummy, 0, sizeof(dummy));
+	file->write(dummy, sizeof(dummy));
 
 	index.resize(8);
 
@@ -67,7 +67,7 @@ AviWriter::~AviWriter()
 	assert(fps != 0.0); // a decent fps should have been set
 
 	unsigned char avi_header[AVI_HEADER_SIZE];
-	memset(&avi_header, 0, AVI_HEADER_SIZE);
+	memset(&avi_header, 0, sizeof(avi_header));
 	unsigned header_pos = 0;
 
 #define AVIOUT4(_S_) memcpy(&avi_header[header_pos],_S_,4);header_pos+=4;

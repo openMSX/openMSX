@@ -266,7 +266,8 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	};
 	controlRegMask = (isMSX1VDP() ? 0x07 : 0x3F);
 	memcpy(controlValueMasks,
-		isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2, 32);
+	       isMSX1VDP() ? VALUE_MASKS_MSX1 : VALUE_MASKS_MSX2,
+	       sizeof(controlValueMasks));
 	if (version == V9958) {
 		// Enable V9958-specific control registers.
 		controlValueMasks[25] = 0x7F;

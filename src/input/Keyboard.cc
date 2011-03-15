@@ -237,7 +237,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 	memset(hostKeyMatrix, 255, sizeof(hostKeyMatrix));
-	memset(dynKeymap, 0, sizeof(dynKeymap));
+	memset(dynKeymap,       0, sizeof(dynKeymap));
 
 	msxEventDistributor.registerEventListener(*this);
 	stateChangeDistributor.registerListener(*this);

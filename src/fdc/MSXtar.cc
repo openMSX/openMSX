@@ -273,7 +273,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 
 	// clear this cluster
 	byte buf[SECTOR_SIZE];
-	memset(buf, 0, SECTOR_SIZE);
+	memset(buf, 0, sizeof(buf));
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
 		writeLogicalSector(i + nextSector, buf);
 	}
@@ -415,7 +415,7 @@ unsigned MSXtar::addSubdir(
 
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curcl);
-	memset(buf, 0, SECTOR_SIZE);
+	memset(buf, 0, sizeof(buf));
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
 		writeLogicalSector(i + logicalSector, buf);
 	}
@@ -523,7 +523,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 		unsigned logicalSector = clusterToSector(curcl);
 		for (unsigned j = 0; (j < sectorsPerCluster) && remaining; ++j) {
 			byte buf[SECTOR_SIZE];
-			memset(buf, 0, SECTOR_SIZE);
+			memset(buf, 0, sizeof(buf));
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
 			file.read(buf, chunkSize);
 			writeLogicalSector(logicalSector + j, buf);

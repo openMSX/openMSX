@@ -90,7 +90,7 @@ public:
 
 WorkspaceBlock::WorkspaceBlock(const byte buffer[64])
 {
-	memcpy(data, buffer, 64);
+	memcpy(data, buffer, sizeof(data));
 }
 
 

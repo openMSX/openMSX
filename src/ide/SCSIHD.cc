@@ -378,7 +378,7 @@ byte SCSIHD::getStatusCode()
 unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
 	PRT_DEBUG("SCSI Command: " << int(cdb[0]));
-	memcpy(cdb, cdb_, 12);
+	memcpy(cdb, cdb_, sizeof(cdb));
 	message = 0;
 	phase = SCSI::STATUS;
 	blocks = 0;

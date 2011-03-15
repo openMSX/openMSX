@@ -46,7 +46,7 @@ void FileBase::truncate(unsigned newSize)
 
 	const unsigned BUF_SIZE = 4096;
 	byte buf[BUF_SIZE];
-	memset(buf, 0, BUF_SIZE);
+	memset(buf, 0, sizeof(buf));
 	while (remaining) {
 		unsigned chunkSize = std::min(BUF_SIZE, remaining);
 		write(buf, chunkSize);

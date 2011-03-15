@@ -237,8 +237,8 @@ void DirAsDSK::cleandisk()
 	}
 
 	// Make a full clear FAT
-	memset(fat,  0, SECTOR_SIZE * SECTORS_PER_FAT);
-	memset(fat2, 0, SECTOR_SIZE * SECTORS_PER_FAT);
+	memset(fat,  0, sizeof(fat ));
+	memset(fat2, 0, sizeof(fat2));
 	// for some reason the first 3bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2. Some sources say
 	// that this indicates the disk format and fat[0] should 0xF7 for
@@ -283,7 +283,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
 		  bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
-	memcpy(bootBlock, bootSector, SECTOR_SIZE);
+	memcpy(bootBlock, bootSector, sizeof(bootBlock));
 
 	// make a clean initial disk
 	cleandisk();

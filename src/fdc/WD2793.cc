@@ -719,7 +719,7 @@ void WD2793::writeTrackCmd(EmuTime::param time)
 		// TODO wait for indexPulse
 		formatting = true;
 		dataCurrent = 0;
-		memset(dataBuffer, 0, Disk::RAWTRACK_SIZE);
+		memset(dataBuffer, 0, sizeof(dataBuffer));
 		setDRQ(true, time);
 	}
 }
