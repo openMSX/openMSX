@@ -26,7 +26,7 @@ namespace openmsx {
 class Paper
 {
 public:
-	Paper(unsigned x, unsigned y);
+	Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY);
 	~Paper();
 
 	std::string save() const;
@@ -281,13 +281,14 @@ void ImagePrinter::ensurePrintPage()
 		double dpi = dpiSetting->getValue();
 		unsigned paperSizeX = unsigned((210 / 25.4) * dpi);
 		unsigned paperSizeY = unsigned((297 / 25.4) * dpi);
-		paper.reset(new Paper(paperSizeX, paperSizeY));
 
 		unsigned dotsX, dotsY;
 		getNumberOfDots(dotsX, dotsY);
 		pixelSizeX = double(paperSizeX) / dotsX;
 		pixelSizeY = double(paperSizeY) / dotsY;
-		paper->setDotSize(pixelSizeX, pixelSizeY);
+
+		paper.reset(new Paper(paperSizeX, paperSizeY,
+		                      pixelSizeX, pixelSizeY));
 	}
 }
 
@@ -1684,11 +1685,12 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpso
 
 // class Paper
 
-Paper::Paper(unsigned x, unsigned y)
+Paper::Paper(unsigned x, unsigned y, double dotSizeX, double dotSizeY)
 	: buf(x * y)
 	, sizeX(x), sizeY(y)
 {
 	memset(buf.data(), 255, x * y);
+	setDotSize(dotSizeX, dotSizeY);
 }
 
 Paper::~Paper()
