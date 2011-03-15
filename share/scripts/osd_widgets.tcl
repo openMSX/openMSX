@@ -25,7 +25,7 @@ proc msx_init {name} {
 
 proc msx_update {name} {
 	# compensate for horizontal-stretch and set-adjust
-	set hstretch [expr {$::renderer != "SDL"} ? $::horizontal_stretch : 320]
+	set hstretch [expr {$::renderer ne "SDL"} ? $::horizontal_stretch : 320]
 	set xsize   [expr 320.0 / $hstretch]
 	set xoffset [expr ($hstretch - 256) / 2 * $xsize]
 	set ysize 1
@@ -139,7 +139,7 @@ proc text_box {name args} {
 		}
 	}
 
-	if {$message == ""} return
+	if {$message eq ""} return
 
 	# For handheld devices set minimal text size to 9
 	#  TODO: does this belong here or at some higher level?

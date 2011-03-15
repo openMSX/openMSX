@@ -46,7 +46,7 @@ proc update_device_list {} {
 		}
 	}
 
-	if { [llength $scc_devices] == 0 } {
+	if {[llength $scc_devices] == 0} {
 		error "No SCC devices present..."
 	}
 

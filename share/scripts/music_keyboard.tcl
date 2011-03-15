@@ -57,7 +57,7 @@ proc keyboard_init {} {
 		# determine number of channels
 		set channel_count [soundchip_utils::get_num_channels $soundchip]
                 # skip devices which don't have freq expressions (not implemented yet)
-		if {[soundchip_utils::get_frequency_expr $soundchip 0] == "x"} continue
+		if {[soundchip_utils::get_frequency_expr $soundchip 0] eq "x"} continue
 
 		lappend soundchips $soundchip
                 set nof_channels($soundchip) $channel_count
@@ -88,7 +88,7 @@ proc keyboard_init {} {
 			for {set note 0} {$note < $num_notes} { incr note} {
 				set z -1
 				set xcor 0
-				if {[string range [lindex $note_strings [expr $note % 12]] end end] == "#"} {
+				if {[string range [lindex $note_strings [expr {$note % 12}]] end end] eq "#"} {
 					# black key
 					set note_key_color($note) 0x000000
 					set h [expr round($white_key_height * 0.7)]

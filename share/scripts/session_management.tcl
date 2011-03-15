@@ -129,8 +129,8 @@ proc load_session { name } {
 			set newID [restore_machine $fullname]
 			append result "Restored $state as $newID ([get_machine_representation $newID])...\n"
 			# activate saved active machine or alternatively, first machine
-			if {(($active_machine != "") && ($state == $active_machine)) || \
-				(($active_machine == "") && $first)} {
+			if {(($active_machine ne "") && ($state eq $active_machine)) || \
+			    (($active_machine eq "") && $first)} {
 				activate_machine $newID
 			}
 			set first false
@@ -149,7 +149,7 @@ proc load_session { name } {
 	}
 
 	# if the active machine failed to load, activate the first machine (if available):
-	if {[activate_machine] == "" && [llength [list_machines]] > 0 } {
+	if {[activate_machine] eq "" && [llength [list_machines]] > 0 } {
 		activate_machine [lindex [list_machines] 0]
 	}
 

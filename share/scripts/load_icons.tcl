@@ -79,14 +79,14 @@ proc redraw_osd_icons { icon } {
 	}
 }
 
-proc load_icons {{set_name "-show"} { position_param "default" }} {
+proc load_icons {{set_name "-show"} {position_param "default"}} {
 	variable icon_list
 	variable current_osd_leds_set
 	variable current_osd_leds_pos
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
 
-	if {$set_name == "-show"} {
+	if {$set_name eq "-show"} {
 		# Show list of available skins
 		set user_skins   \
 		    [glob -tails -types d -directory $::env(OPENMSX_USER_DATA)/skins   *]
@@ -106,11 +106,7 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 	}
 
 	# Check position
-	if {($position_param != "top") &&
-	    ($position_param != "bottom") &&
-	    ($position_param != "left") &&
-	    ($position_param != "right") &&
-	    ($position_param != "default")} {
+	if {$position_param ni [list "top" "bottom" "left" "right" "default"]} {
 		error "Invalid position: $position_param"
 	}
 
@@ -141,23 +137,23 @@ proc load_icons {{set_name "-show"} { position_param "default" }} {
 	set yspacing [expr $yspacing * $invscale]
 
 	# change according to <position> parameter
-	if {$position == "default"} {
+	if {$position eq "default"} {
 		# script didn't set a default, so we choose a "default default"
 		set position "bottom"
 	}
-	if { $position == "left" } {
+	if {$position eq "left"} {
 		set horizontal 0
-	} elseif { $position == "right" } {
+	} elseif {$position eq "right"} {
 		set horizontal 0
 	        set xbase [expr 320 - $xwidth]
-	} elseif { $position == "bottom" } {
+	} elseif {$position eq "bottom"} {
 	        set ybase [expr 240 - $yheight]
 	}
 	set vertical [expr !$horizontal]
 
 	proc __try_dirs { skin_set_dir file fallback } {
 		# don't touch already resolved pathnames
-		if {[file normalize $file] == $file} { return $file }
+		if {[file normalize $file] eq $file} {return $file}
 		# first look in specified skin-set directory
 		set f1 [file normalize $skin_set_dir/$file]
 		if [file isfile $f1] { return $f1 }
@@ -266,8 +262,8 @@ proc trace_osd_icon_vars {name1 name2 op} {
 
 	# avoid executing load_icons multiple times
 	# (because of the assignments to the settings in that proc)
-	if {($::osd_leds_set == $current_osd_leds_set) &&
-	    ($::osd_leds_pos == $current_osd_leds_pos)} {
+	if {($::osd_leds_set eq $current_osd_leds_set) &&
+	    ($::osd_leds_pos eq $current_osd_leds_pos)} {
 		return
 	}
 	load_icons $::osd_leds_set $::osd_leds_pos

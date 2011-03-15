@@ -47,7 +47,7 @@ set_tabcompletion_proc unmute_channels [namespace code tab_sounddevice_channels]
 set_tabcompletion_proc solo            [namespace code tab_sounddevice_channels]
 proc tab_sounddevice_channels { args } {
 	set result [machine_info sounddevice]
-	if {([lindex $args 0] == "record_channels") && ([llength $args] == 2)} {
+	if {([lindex $args 0] eq "record_channels") && ([llength $args] == 2)} {
 		set result [concat $result "start stop list"]
 	}
 	return $result
@@ -99,7 +99,7 @@ proc get_recording_channels { } {
 		set active [list]
 		foreach ch [get_all_channels $device] {
 			set var ::${device}_ch${ch}_record
-			if {[set $var] != ""} {
+			if {[set $var] ne ""} {
 				lappend active $ch
 			}
 		}
@@ -138,7 +138,7 @@ proc parse_device_channels { tokens } {
 			error "Unknown sounddevice: $device"
 		}
 		set range [lindex $tokens 0]
-		if {($range != "") && ($range ni $sounddevices)} {
+		if {($range ne "") && ($range ni $sounddevices)} {
 			set channels [parse_channel_numbers $range]
 			set tokens [lrange $tokens 1 end]
 			foreach ch $channels {

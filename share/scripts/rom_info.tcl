@@ -9,7 +9,7 @@ proc tab { args } {
 	set result [list]
 
 	foreach device [machine_info device] {
-		if {[lindex [machine_info device $device] 0] == "ROM"} {
+		if {[lindex [machine_info device $device] 0] eq "ROM"} {
 			lappend result $device
 		}
 	}
@@ -18,10 +18,10 @@ proc tab { args } {
 
 set_tabcompletion_proc rom_info [namespace code tab]
 
-proc rom_info { {romdevice ""} } {
-	if {$romdevice == ""} {
+proc rom_info {{romdevice ""}} {
+	if {$romdevice eq ""} {
 		set romdevice [guess_rom_title]
-		if {$romdevice == ""} {
+		if {$romdevice eq ""} {
 			error "No (external) ROM device found"
 		}
 	}
@@ -31,7 +31,7 @@ proc rom_info { {romdevice ""} } {
 	}
 
 	set device_type [lindex [machine_info device $romdevice] 0]
-	if {$device_type != "ROM"} {
+	if {$device_type ne "ROM"} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
@@ -43,7 +43,7 @@ proc rom_info { {romdevice ""} } {
 
 	# dummy info for missing items
 	foreach key [list year company] {
-		if { $infomap($key) == "" } {
+		if {$infomap($key) eq ""} {
 			set infomap($key) "(info not available)"
 		}
 	}
@@ -75,7 +75,7 @@ proc rom_info { {romdevice ""} } {
 	append result [format "Company:  %s\n" $infomap(company)]
 	append result [format "Country:  %s\n" $infomap(country)]
 	append result [format "Status:   %s" $status]
-	if {$infomap(remark) != ""} {
+	if {$infomap(remark) ne ""} {
 		append result [format "\nRemark:   %s" $infomap(remark)]
 	}
 	return $result

@@ -139,13 +139,13 @@ proc enable_osd_keyboard {} {
 		foreach {keys} [split [lindex $rows $y]  "|"] {
 			lassign [split $keys "*"] key_text key_width
 			if {$key_width < 1} {set key_width $key_basewidth}
-			if {$key_text != "null"} {
+			if {$key_text ne "null"} {
 				set key_y $y_base
 				set key_h $key_height
 				set bordersize 1
-				if {$key_text == "Return"} {
+				if {$key_text eq "Return"} {
 					set bordersize 0
-				} elseif {$key_text == "<--"} {
+				} elseif {$key_text eq "<--"} {
 					set bordersize 0
 					incr key_y -$key_vspace
 					incr key_h  $key_vspace

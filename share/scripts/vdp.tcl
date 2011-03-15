@@ -20,7 +20,7 @@ usage:
 }
 proc setcolor { index rgb } {
 	if [catch {
-		if {[string length $rgb] != 3 } error
+		if {[string length $rgb] != 3} error
 		set r [string index $rgb 0]
 		set g [string index $rgb 1]
 		set b [string index $rgb 2]
@@ -104,7 +104,7 @@ set mode_lookup(00011100) 8;# Screen 8
 set_help_text get_screen_mode_number "Decodes the current screen mode from the VDP registers (as would be used in the BASIC SCREEN command)"
 proc get_screen_mode_number {} {
 	set mode [get_screen_mode]
-	if {[string range $mode 0 3] == "TEXT"} {
+	if {[string range $mode 0 3] eq "TEXT"} {
 		return 0
 	} else {
 		return $mode

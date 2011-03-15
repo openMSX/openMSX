@@ -45,7 +45,7 @@ proc check_time { access_type } {
 	if {($cycles < $cycle_max) && $screen_enabled && !$vblank} {
 		if {$pc ni $address_list} {
 			set valuetext ""
-			if { $access_type == "write" } {
+			if {$access_type eq "write"} {
 				set valuetext [format " (value 0x%02X)" $::wp_last_value]
 			}
 			puts [format "VDP $last_access_type on port 0x%02X followed by a $access_type${valuetext} on port 0x%02X on address $pc and time $current_time with too few cycles in between: $cycles (< $cycle_max)" $last_access_port $port]

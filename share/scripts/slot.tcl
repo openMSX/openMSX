@@ -35,7 +35,7 @@ proc slotselect {} {
 	for {set page 0} {$page < 4} {incr page} {
 		lassign [get_selected_slot $page] ps ss
 		append result [format "%04X: slot %d" [expr {0x4000 * $page}] $ps]
-		if {$ss != "X"} {append result "." $ss}
+		if {$ss ne "X"} {append result "." $ss}
 		append result "\n"
 	}
 	return $result
@@ -51,7 +51,7 @@ proc get_mapper_size { ps ss } {
 	set result 0
 	catch {
 		set device [machine_info slot $ps $ss 0]
-		if { [debug desc $device] == "memory mapper" } {
+		if {[debug desc $device] eq "memory mapper"} {
 			set result [expr [debug size $device] / 0x4000]
 		}
 	}
@@ -67,10 +67,10 @@ Typically used to set breakpoints in specific slots.}
 proc pc_in_slot {ps {ss "X"} {mapper "X"}} {
 	set page [expr [reg PC] >> 14]
 	lassign [get_selected_slot $page] pc_ps pc_ss
-	if {($ps != "X") &&                    ($pc_ps != $ps)} { return false }
-	if {($ss != "X") && ($pc_ss != "X") && ($pc_ss != $ss)} { return false }
+	if {($ps ne "X") &&                    ($pc_ps != $ps)} {return false}
+	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return false}
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
-	if {($mapper_size == 0) || ($mapper == "X")} { return true }
+	if {($mapper_size == 0) || ($mapper eq "X")} {return true}
 	set pc_mapper [debug read "MapperIO" $page]
 	return [expr $mapper == ($pc_mapper & ($mapper_size - 1))]
 }

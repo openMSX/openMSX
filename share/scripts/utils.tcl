@@ -12,10 +12,10 @@
 namespace eval utils {
 
 proc get_machine_display_name { { machineid "" } } {
-	if {$machineid == ""} {
+	if {$machineid eq ""} {
 		set machineid [machine]
 	}
-	if {$machineid == ""} {
+	if {$machineid eq ""} {
 		return "<none>"
 	}
 	set config_name [${machineid}::machine_info config_name]
@@ -33,9 +33,9 @@ proc get_extension_display_name_by_config_name { config_name } {
 proc get_display_name_by_config_name { config_name type} {
 	if {[catch {
 		array set names [openmsx_info $type $config_name]
-		if {$type == "machines"} {
+		if {$type eq "machines"} {
 			set keylist [list "manufacturer" "code"]
-		} elseif {$type == "extensions"} {
+		} elseif {$type eq "extensions"} {
 			set keylist [list "manufacturer" "code" "name"]
 		} else {
 			error "Unsupported type: $type"
@@ -43,13 +43,13 @@ proc get_display_name_by_config_name { config_name type} {
 		set arglist [list]
 		foreach key $keylist {
 			set arg $names($key)
-			if {$arg != ""} {
+			if {$arg ne ""} {
 				lappend arglist $arg
 			}
 		}
 		set result [join $arglist]
 		# fallback if this didn't give useful results:
-		if {$result == ""} {
+		if {$result eq ""} {
 			set result $config_name
 		}
 	}]} {

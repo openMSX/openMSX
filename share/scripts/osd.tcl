@@ -10,7 +10,7 @@ This is mainly useful to debug a OSD related script.}
 
 proc show_osd {{widgets ""}} {
 	set result ""
-	if {$widgets == ""} {
+	if {$widgets eq ""} {
 		# all widgets
 		set widgets [osd info]
 	}

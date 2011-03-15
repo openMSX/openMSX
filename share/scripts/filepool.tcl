@@ -67,11 +67,11 @@ proc filepool_add { args } {
 	set path ""
 	set types ""
 	foreach {name value} $args {
-		if {$name == "-position"} {
+		if {$name eq "-position"} {
 			set pos [expr $value - 1]
-		} elseif {$name == "-path"} {
+		} elseif {$name eq "-path"} {
 			set path $value
-		} elseif {$name == "-types"} {
+		} elseif {$name eq "-types"} {
 			filepool_checktypes $value
 			set types $value
 		} else {
@@ -81,10 +81,10 @@ proc filepool_add { args } {
 	if {($pos < 0) || ($pos > [llength $::__filepool])} {
 		error "Value out of range: [expr $pos + 1]"
 	}
-	if {$path == ""} {
+	if {$path eq ""} {
 		error "Missing -path"
 	}
-	if {$types == ""} {
+	if {$types eq ""} {
 		error "Missing -types"
 	}
 

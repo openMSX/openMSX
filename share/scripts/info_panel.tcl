@@ -49,7 +49,7 @@ proc info_panel_init {} {
 	set panel_info(ram,title) "RAM"
 	set panel_info(ram,width) 51
 	set panel_info(ram,row) 1
-	set panel_info(ram,method) {set ramsize 0; foreach device [debug list] {set desc [debug desc $device]; if {$desc == "memory mapper" || $desc == "ram"} {incr ramsize [debug size $device]}}; format "%dkB" [expr $ramsize / 1024]}
+	set panel_info(ram,method) {set ramsize 0; foreach device [debug list] {set desc [debug desc $device]; if {$desc eq "memory mapper" || $desc eq "ram"} {incr ramsize [debug size $device]}}; format "%dkB" [expr $ramsize / 1024]}
 
 	set panel_info(mtime,title) "Time"
 	set panel_info(mtime,width) 60
@@ -73,7 +73,7 @@ proc info_panel_init {} {
 			incr software_width $panel_info($name,width)
 			incr software_width $panel_margin
 		} else {
-			if {$name != "software"} {
+			if {$name ne "software"} {
 				incr software_width -$panel_info($name,width)
 				incr software_width -$panel_margin
 			}

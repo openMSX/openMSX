@@ -4,7 +4,7 @@ namespace eval savestate {
 
 proc savestate_common {} {
 	uplevel {
-		if {$name == ""} { set name "quicksave" }
+		if {$name eq ""} {set name "quicksave"}
 		set directory [file normalize $::env(OPENMSX_USER_DATA)/../savestates]
 		set fullname_oms [file join $directory ${name}.oms]
 		set fullname_gz  [file join $directory ${name}.xml.gz]
@@ -43,7 +43,7 @@ proc loadstate { {name ""} } {
 	savestate_common
 	set newID [restore_machine $fullname_bwcompat]
 	set currentID [machine]
-	if {$currentID != ""} { delete_machine $currentID }
+	if {$currentID ne ""} {delete_machine $currentID}
 	activate_machine $newID
 	return $name
 }
@@ -78,7 +78,7 @@ proc list_savestates { args } {
 			set sort_order "-decreasing"
 		}
 		"-l" {
-			if {[info commands clock] != ""} {
+			if {[info commands clock] ne ""} {
 				set long_format true
 			} else {
 				error "Sorry, long format not supported on this system (missing clock.tcl)"
@@ -173,7 +173,7 @@ set_tabcompletion_proc delete_savestate [namespace code savestate_tab]
 
 
 # keybindings
-if {$tcl_platform(os) == "Darwin"} {
+if {$tcl_platform(os) eq "Darwin"} {
 	bind_default META+S savestate
 	bind_default META+R loadstate
 } else {

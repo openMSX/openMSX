@@ -31,8 +31,8 @@ proc sprite_viewer_action {action} {
 	variable title_pos
 	variable max_sprites
 
-	if {$action==1} {incr title_pos -1}
-	if {$action==2} {incr title_pos 1}
+	if {$action == 1} {incr title_pos -1}
+	if {$action == 2} {incr title_pos  1}
 
 	if {$title_pos>$max_sprites} {set title_pos 0}
 	if {$title_pos<0} {set title_pos $max_sprites}
@@ -61,7 +61,7 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 	set x 16
 
 	#Intro Fade
-	if {$frame_render==0} {
+	if {$frame_render == 0} {
 	   osd configure $osd_object -x $x -fadeTarget 1 -fadePeriod 0.25
 	}
 

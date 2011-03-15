@@ -13,7 +13,7 @@ namespace eval reverse {
 	proc auto_enable {} {
 		set stat_list [reverse status]
 		array set stat $stat_list
-		if {$stat(status) == "disabled"} {
+		if {$stat(status) eq "disabled"} {
 			reverse start
 		}
 		return $stat_list
@@ -99,9 +99,9 @@ snapshot in the future (if possible).
 	bind_default PAGEDOWN -repeat "go_forward_one_second"
 
 	proc after_switch {} {
-		if {$::auto_enable_reverse == "on"} {
+		if {$::auto_enable_reverse eq "on"} {
 			auto_enable
-		} elseif {$::auto_enable_reverse == "gui"} {
+		} elseif {$::auto_enable_reverse eq "gui"} {
 			reverse_widgets::enable_reversebar false
 		}
 		after machine_switch [namespace code after_switch]

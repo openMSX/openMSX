@@ -133,7 +133,7 @@ proc update_vdp_reg_viewer {} {
 
 	for {set i 0} {$i < $vdpreg} {incr i} {
 		set vdp_stat "[format 0x%02X [debug read VDP\ regs $i]]"
-		if {$vdp_stat != [osd info vdp_reg_viewer.stat$i -text]} {
+		if {$vdp_stat ne [osd info vdp_reg_viewer.stat$i -text]} {
 			osd configure vdp_reg_viewer.stat$i -text "$vdp_stat"
 			osd configure vdp_reg_viewer.indi$i -fadeCurrent 1
 		}
@@ -141,7 +141,7 @@ proc update_vdp_reg_viewer {} {
 	
 	for {set i 0} {$i < $vdpsta} {incr i} {
 		set vdp_stat "[format 0x%02X [debug read VDP\ status\ regs $i]]"
-		if {$vdp_stat != [osd info vdp_statreg_viewer.stat$i -text]} {
+		if {$vdp_stat ne [osd info vdp_statreg_viewer.stat$i -text]} {
 			osd configure vdp_statreg_viewer.stat$i -text "$vdp_stat"
 			osd configure vdp_statreg_viewer.indi$i -fadeCurrent 1
 		}

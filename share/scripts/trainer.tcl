@@ -53,7 +53,7 @@ proc trainer {args} {
 
 	if {[llength $args] > 0} {
 		set name [lindex $args 0]
-		if {$name != "deactivate"} {
+		if {$name ne "deactivate"} {
 			set requested_items [lrange $args 1 end]
 			if ![info exists trainers($name)] {
 				error "no trainer for $name."
@@ -87,7 +87,7 @@ proc parse_items {name requested_items} {
 	set i 1
 	foreach {item_name item_impl} $items {
 		set active 0
-		if {($requested_items == "all") ||
+		if {($requested_items eq "all") ||
 		    ($i         in $requested_items) ||
 		    ($item_name in $requested_items)} {
 			set active 1
@@ -102,7 +102,7 @@ proc print {} {
 	variable active_trainer
 	variable items_active
 
-	if {$active_trainer == ""} {
+	if {$active_trainer eq ""} {
 		return "no trainer active"
 	}
 	set result [list]

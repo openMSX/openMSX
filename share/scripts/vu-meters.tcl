@@ -52,7 +52,7 @@ proc vu_meters_init {} {
 		# determine number of channels
 		set channel_count [soundchip_utils::get_num_channels $soundchip]
 		# skip devices which don't have volume expressions (not implemented yet)
-		if {[soundchip_utils::get_volume_expr $soundchip 0] == "x"} continue
+		if {[soundchip_utils::get_volume_expr $soundchip 0] eq "x"} continue
 			
 		lappend soundchips $soundchip
 		set nof_channels($soundchip) $channel_count

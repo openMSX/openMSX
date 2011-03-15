@@ -321,10 +321,10 @@ proc prepare_menu_list { lst num menu_def_list } {
 		lappend actions "RIGHT" "osd_menu::move_selection  $menu_len"
 		set item [list "text" "\[osd_menu::list_menu_item_show $i\]" \
 		               "actions" $actions]
-		if {$on_select != ""} {
+		if {$on_select ne ""} {
 			lappend item "on-select" "osd_menu::list_menu_item_select $i $on_select"
 		}
-		if {$on_deselect != ""} {
+		if {$on_deselect ne ""} {
 			lappend item "on-deselect" "osd_menu::list_menu_item_select $i $on_deselect"
 		}
 		lappend items [concat $item $item_extra]
@@ -596,7 +596,7 @@ proc menu_create_running_machine_list {} {
 
 	set presentation [list]
 	foreach i $items {
-		if { [activate_machine] == $i } {
+		if {[activate_machine] eq $i} {
 			set postfix_text "current"
 		} else {
 			set postfix_text [utils::get_machine_time $i]
@@ -614,9 +614,9 @@ proc menu_machine_tab_select_exec { item } {
 }
 
 proc menu_create_load_machine_list {{mode "replace"}} {
-	if {$mode == "replace"} {
+	if {$mode eq "replace"} {
 		set proc_to_exec osd_menu::menu_load_machine_exec_replace
-	} elseif {$mode == "add"} {
+	} elseif {$mode eq "add"} {
 		set proc_to_exec osd_menu::menu_load_machine_exec_add
 	} else {
 		error "Undefined mode: $mode"
@@ -838,7 +838,7 @@ proc menu_select_disk { item } {
 proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
 	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {
-		if {[info commands clock] != ""} {
+		if {[info commands clock] ne ""} {
 			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X" ]]
 		} else {
 			set pres_str [lindex $i 0]
@@ -912,7 +912,7 @@ proc menu_loadstate_exec { item } {
 }
 
 proc menu_savestate_exec { item } {
-	if {$item == "create new"} {
+	if {$item eq "create new"} {
 		set item [menu_free_savestate_name]
 	} else {
 		#TODO "Overwrite are you sure?" -dialog
@@ -937,7 +937,7 @@ proc menu_free_savestate_name {} {
 }
 
 # keybindings
-if {$tcl_platform(os) == "Darwin"} { ;# Mac
+if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default "keyb META+O" main_menu_toggle
 } elseif {$is_dingoo} { ;# Dingoo
 	bind_default "keyb ESCAPE" main_menu_toggle ;# select button

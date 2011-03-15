@@ -17,14 +17,14 @@ set_tabcompletion_proc soundlog [namespace code soundlog_tab]
 proc soundlog_tab {args} {
 	if {[llength $args] == 2} {
 		return [list "start" "stop" "toggle"]
-	} elseif {[llength $args] == 3 && [lindex $args 2] == "start"} {
+	} elseif {[llength $args] == 3 && [lindex $args 2] eq "start"} {
 		return [list "-prefix"]
 	}
 	return [list]
 }
 
 proc soundlog {args} {
-	if {$args == [list "stop"]} {
+	if {$args eq [list "stop"]} {
 		record stop
 	} else {
 		eval "record $args -audioonly"

@@ -155,9 +155,9 @@ proc get_color_count {args} {
 		"" break
 		"-sort" {
 			set sortfield [lindex $args 1]
-			if {$sortfield == "color"} {
+			if {$sortfield eq "color"} {
 				set sortindex 0
-			} elseif {$sortfield == "amount"} {
+			} elseif {$sortfield eq "amount"} {
 				set sortindex 1
 			} else {
 				error "Unsupported sort field: $sortfield"

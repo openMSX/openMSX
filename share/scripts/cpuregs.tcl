@@ -64,7 +64,7 @@ proc reg { name { val "" } } {
 		error "Unknown Z80 register: $name"
 	}
 	set d "CPU regs"
-	if { $val == "" } {
+	if {$val eq ""} {
 		if { $single } {
 			return [debug read $d $i]
 		} else {

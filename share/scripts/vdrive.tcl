@@ -99,6 +99,6 @@ proc vdrive {{diskdrive "diska"}} {
 			diska $test
 			return "New diskimage: $test"
 		}
-		if {$digit == $origdigit} { return }
+		if {$digit == $origdigit} return
 	}
 }

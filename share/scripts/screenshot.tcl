@@ -6,7 +6,7 @@ proc screenshot {args} {
 	set args2 [list]
 	set sprites true
 	foreach arg $args {
-		if {$arg == "-no-sprites"} {
+		if {$arg eq "-no-sprites"} {
 			set sprites false
 		} else {
 			lappend args2 $arg

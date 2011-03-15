@@ -117,7 +117,7 @@ set_help_text poke16_BE $help_text_poke
 # the file size can grow significantly. Therefor dpoke (poke
 # if different or diffpoke) is introduced.
 proc dpoke {addr val} {
-	if {[debug read memory $addr]!=$val} {debug write memory $addr $val}
+	if {[debug read memory $addr] != $val} {debug write memory $addr $val}
 }
 
 

@@ -29,7 +29,7 @@ set psg_profiles(detune_vibrato) { 1.0 5.0 0.5 5.0 }
 proc equal_psg_profile { values } {
 	variable psg_settings
 	foreach setting $psg_settings value $values {
-		if {$value != "-"} {
+		if {$value ne "-"} {
 			if {[set $setting] != $value} {
 				return false
 			}
@@ -50,7 +50,7 @@ proc get_psg_profile { } {
 proc set_psg_profile { values } {
 	variable psg_settings
 	foreach setting $psg_settings value $values {
-		if {$value != "-"} {
+		if {$value ne "-"} {
 			set $setting $value
 		}
 	}

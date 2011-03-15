@@ -22,7 +22,7 @@ proc tab_cycle { args } {
 	set result [list]
 	foreach setting [openmsx_info setting] {
 		set type [lindex [openmsx_info setting $setting] 0]
-		if {($type == "enumeration") || ($type == "boolean")} {
+		if {($type eq "enumeration") || ($type eq "boolean")} {
 			lappend result $setting
 		}
 	}
@@ -32,11 +32,11 @@ proc tab_cycle { args } {
 proc cycle { setting {cycle_list {}} {step 1} } {
 	set setting_info [openmsx_info setting $setting]
 	set type [lindex $setting_info 0]
-	if {$type == "enumeration"} {
+	if {$type eq "enumeration"} {
 		if {[llength $cycle_list] == 0} {
 			set cycle_list [lindex $setting_info 2]
 		}
-	} elseif {$type == "boolean"} {
+	} elseif {$type eq "boolean"} {
 		set cycle_list [list "true" "false"]
 	} else {
 		error "Not an enumeration setting: $setting"

@@ -30,8 +30,8 @@ proc tab_reg_log { args } {
 variable log_file
 variable data
 
-proc reg_log { subcommand debuggable {filename ""} } {
-	if {$filename == ""} { set filename ${debuggable}.log }
+proc reg_log {subcommand debuggable {filename ""}} {
+	if {$filename eq ""} {set filename ${debuggable}.log}
 	switch $subcommand {
 		"record" { return [record $debuggable $filename] }
 		"play"   { return [play $debuggable $filename] }

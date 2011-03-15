@@ -85,7 +85,7 @@ proc record_chunks { args } {
 				error "Expected another argument: the name of your video!"
 			}
 			array set stat [record status]
-			if {$stat(status) != "idle" } {
+			if {$stat(status) ne "idle"} {
 				error "Already recording!"
 			}
 			set filenamebase [lindex $args 1]
@@ -135,7 +135,7 @@ proc record_next_part {} {
 	record stop
 
 	incr iteration
-	if {$iteration == 1 && $cmd  == "record_chunks::stop_recording"} {
+	if {$iteration == 1 && $cmd eq "record_chunks::stop_recording"} {
 		# if we're only going to record one movie, no need to number it
 		set fname $filenamebase
 	} else {
