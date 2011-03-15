@@ -132,6 +132,13 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 		}
 	}
 	reset(false);
+
+	// avoid UMR on savestate
+	memset(buffer.data(), 0, SCSIDevice::BUFFER_SIZE);
+	msgin = 0;
+	blockCounter = 0;
+	nextPhase = SCSI::UNDEFINED;
+	targetId = 0;
 }
 
 MB89352::~MB89352()

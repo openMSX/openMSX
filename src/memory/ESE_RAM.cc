@@ -51,6 +51,7 @@ ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, sram(createSRAM(motherBoard, config, getName()))
 	, blockMask((sram->getSize() / 8192) - 1)
 {
+	reset(EmuTime::dummy());
 }
 
 ESE_RAM::~ESE_RAM()

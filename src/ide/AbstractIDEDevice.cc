@@ -18,6 +18,11 @@ AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	transferRead = false;
 	transferWrite = false;
 	transferIdx = 0;
+
+	// avoid UMR on serialize
+	memset(buffer, 0, sizeof(buffer));
+	bufferLeft = 0;
+	transferCount = 0;
 }
 
 AbstractIDEDevice::~AbstractIDEDevice()

@@ -145,6 +145,12 @@ WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 		}
 	}
 	reset(false);
+
+	// avoid UMR on savestate
+	memset(buffer.data(), 0, SCSIDevice::BUFFER_SIZE);
+	counter = 0;
+	blockCounter = 0;
+	targetId = 0;
 }
 
 WD33C93::~WD33C93()

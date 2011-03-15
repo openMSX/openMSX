@@ -42,6 +42,9 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 
 	registerSound(config);
 	reset();
+
+	// avoid UMR on serialize
+	index = 0;
 }
 
 SamplePlayer::~SamplePlayer()
