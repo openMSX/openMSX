@@ -18,7 +18,7 @@ proc do_autoplug {} {
 	}
 
 	# cassette port
-	if {[lsearch $connectors "cassetteport"] != -1} {
+	if {"cassetteport" in $connectors} {
 		if {[string first "--empty--" [plug cassetteport]] != -1} {
 			# only when nothing already plugged
 			plug cassetteport cassetteplayer
@@ -27,8 +27,7 @@ proc do_autoplug {} {
 
 	# joystick ports
 	if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
-
-		if {[lsearch $connectors "joyporta"] != -1} {
+		if {"joyporta" in $connectors} {
 			set ::keyjoystick1.triga LCTRL
 			set ::keyjoystick1.trigb LALT
 			if {[string first "--empty--" [plug joyporta]] != -1} {
@@ -37,15 +36,15 @@ proc do_autoplug {} {
 			}
 		}
 	} else {
-		if {([lsearch $connectors "joyporta"] != -1) &&
-			  ([lsearch $pluggables "joystick1"] != -1)} {
+		if {("joyporta" in $connectors) &&
+		    ("joystick1" in $pluggables)} {
 			if {[string first "--empty--" [plug joyporta]] != -1} {
 				# only when nothing already plugged
 				plug joyporta joystick1
 			}
 		}
-		if {([lsearch $connectors "joyportb"] != -1) &&
-			  ([lsearch $pluggables "joystick2"] != -1)} {
+		if {("joyportb" in $connectors) &&
+		    ("joystick2" in $pluggables)} {
 			if {[string first "--empty--" [plug joyportb]] != -1} {
 				# only when nothing already plugged
 				plug joyportb joystick2

@@ -88,8 +88,8 @@ proc parse_items {name requested_items} {
 	foreach {item_name item_impl} $items {
 		set active 0
 		if {($requested_items == "all") ||
-		  ([lsearch $requested_items $i] != -1) ||
-		  ([lsearch $requested_items $item_name] != -1)} {
+		    ($i         in $requested_items) ||
+		    ($item_name in $requested_items)} {
 			set active 1
 		}
 		lappend result $active

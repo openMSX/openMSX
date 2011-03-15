@@ -263,7 +263,7 @@ proc key_release {} {
 
 	set key_id $key_pressed
 	set key_pressed -1
-	set index [lsearch $keys_held $key_id]
+	set index [lsearch -exact $keys_held $key_id]
 	if {$index != -1} {
 		set keys_held [lreplace $keys_held $index $index]
 	}
@@ -314,7 +314,7 @@ proc update_key_color {key_id} {
 	} elseif {$key_id == $key_selected} {
 		set color $key_select_color
 		set edge_color $key_edge_color_select
-	} elseif {[lsearch $keys_held $key_id] != -1} {
+	} elseif {$key_id in $keys_held} {
 		set color $key_hold_color
 		set edge_color $key_edge_color_hold
 	} else {
@@ -363,7 +363,7 @@ proc key_hold_toggle {} {
 		set key_id [key_at_mouse]
 	}
 	if {$key_id >= 0} {
-		set index [lsearch $keys_held $key_id]
+		set index [lsearch -exact $keys_held $key_id]
 		if {$index == -1} {
 			key_matrix $key_id down
 			lappend keys_held $key_id

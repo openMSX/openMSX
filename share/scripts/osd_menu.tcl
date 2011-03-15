@@ -713,7 +713,7 @@ proc menu_create_plugged_extensions_list {} {
 
 	set useful_items [list]
 	foreach item $items {
-		if {[lsearch $possible_items $item] != -1} {
+		if {$item in $possible_items} {
 			lappend useful_items $item
 		}
 	}
@@ -929,7 +929,7 @@ proc menu_free_savestate_name {} {
 	set i 1
 	while 1 {
 		set name [format "savestate%04d" $i]
-		if {[lsearch $existing $name] == -1} {
+		if {$name ni $existing} {
 			return $name
 		}
 		incr i

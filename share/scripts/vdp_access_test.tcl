@@ -43,7 +43,7 @@ proc check_time { access_type } {
 	set vblank [expr [debug read "VDP status regs" 2] & 64]
 	set pc [format "%04x" [reg PC]]
 	if {($cycles < $cycle_max) && $screen_enabled && !$vblank} {
-		if {[lsearch -exact $address_list $pc] == -1} {
+		if {$pc ni $address_list} {
 			set valuetext ""
 			if { $access_type == "write" } {
 				set valuetext [format " (value 0x%02X)" $::wp_last_value]

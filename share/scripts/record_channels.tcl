@@ -134,11 +134,11 @@ proc parse_device_channels { tokens } {
 	while {[llength $tokens]} {
 		set device [lindex $tokens 0]
 		set tokens [lrange $tokens 1 end]
-		if {[lsearch $sounddevices $device] == -1} {
+		if {$device ni $sounddevices} {
 			error "Unknown sounddevice: $device"
 		}
 		set range [lindex $tokens 0]
-		if {($range != "") && ([lsearch $sounddevices $range] == -1)} {
+		if {($range != "") && ($range ni $sounddevices)} {
 			set channels [parse_channel_numbers $range]
 			set tokens [lrange $tokens 1 end]
 			foreach ch $channels {

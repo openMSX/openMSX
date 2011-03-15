@@ -41,7 +41,7 @@ proc reg_log { subcommand debuggable {filename ""} } {
 }
 
 proc check { debuggable } {
-	if {[lsearch [debug list] $debuggable] == -1} {
+	if {$debuggable ni [debug list]} {
 		error "No such debuggable: $debuggable"
 	}
 }

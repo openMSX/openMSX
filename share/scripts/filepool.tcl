@@ -56,8 +56,7 @@ proc filepool_list {}  {
 proc filepool_checktypes { types } {
 	set valid [list "system_rom" "rom" "disk" "tape"]
 	foreach type $types {
-		set idx [lsearch $valid $type]
-		if {$idx == -1} {
+		if {$type ni $valid} {
 			error "Invalid type, expected one of '$valid', but got '$type'"
 		}
 	}

@@ -50,11 +50,11 @@ proc vdrive {{diskdrive "diska"}} {
 
 	# skip for empty drive or 'special' disk
 	set options [lindex $cmd 2]
-	if       {[lsearch $options "empty"    ] != -1} {
+	if       {"empty" in $options} {
 		error "No disk in drive: $diskdrive"
-	} elseif {[lsearch $options "ramdsk"   ] != -1} {
+	} elseif {"ramdsk" in $options} {
 		error "Vdrive not possible on ramdsk"
-	} elseif {[lsearch $options "dirasdisk"] != -1} {
+	} elseif {"dirasdisk" in $options} {
 		error "Vdrive not possible on DirAsDisk"
 	}
 
