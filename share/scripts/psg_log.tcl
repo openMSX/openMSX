@@ -52,17 +52,17 @@ proc tab_psg_log { args } {
 
 variable psg_log_file -1
 
-proc psg_log { subcommand {filename "log.psg"} } {
+proc psg_log {subcommand {filename "log.psg"}} {
 	variable psg_log_file
-	if [string equal $subcommand "start"] {
-		if {$psg_log_file != -1} { close $psg_log_file }
+	if {$subcommand eq "start"} {
+		if {$psg_log_file != -1} {close $psg_log_file}
 		set psg_log_file [open $filename {WRONLY TRUNC CREAT}]
 		fconfigure $psg_log_file -translation binary
 		set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
 		puts -nonewline $psg_log_file [binary format c16 $header]
 		do_psg_log
 		return ""
-	} elseif [string equal $subcommand "stop"] {
+	} elseif {$subcommand eq "stop"} {
 		close $psg_log_file
 		set psg_log_file -1
 		return ""

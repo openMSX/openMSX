@@ -784,8 +784,8 @@ proc menu_create_ROM_list { path } {
                                              post-spacing 6 }}]
 }
 
-proc menu_select_rom { item } {
-	if [string equal $item "--eject--"] {
+proc menu_select_rom {item} {
+	if {$item eq "--eject--"} {
 		menu_close_all
 		carta eject
 		reset
@@ -818,8 +818,8 @@ proc menu_create_disk_list { path } {
 	                                     post-spacing 6 }}]
 }
 
-proc menu_select_disk { item } {
-	if [string equal $item "--eject--"] {
+proc menu_select_disk {item} {
+	if {$item eq "--eject--"} {
 		menu_close_all
 		diska eject
 	} else {

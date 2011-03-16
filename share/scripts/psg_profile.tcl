@@ -56,17 +56,17 @@ proc set_psg_profile { values } {
 	}
 }
 
-proc psg_profile { {profile ""} } {
+proc psg_profile {{profile ""}} {
 	variable psg_settings
 	variable psg_profiles
-	if [string equal $profile ""] {
+	if {$profile eq ""} {
 		foreach profile [array names psg_profiles] {
 			if [equal_psg_profile $psg_profiles($profile)] {
 				return $profile
 			}
 		}
 		return "Custom profile: [get_psg_profile]"
-	} elseif [string equal $profile "-list"] {
+	} elseif {$profile eq "-list"} {
 		return [array names psg_profiles]
 	} else {
 		if [info exists psg_profiles($profile)] {

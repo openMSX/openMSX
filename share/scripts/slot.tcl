@@ -88,10 +88,10 @@ proc slotmap_helper { ps ss } {
 	}
 	return $result
 }
-proc slotmap_name { ps ss } {
+proc slotmap_name {ps ss} {
 	set t [list $ps $ss]
 	foreach slot [machine_info external_slot] {
-		if {[string equal [lrange [machine_info external_slot $slot] 0 1] $t]} {
+		if {[lrange [machine_info external_slot $slot] 0 1] eq $t} {
 			return " (${slot})"
 		}
 	}
@@ -118,8 +118,8 @@ proc slotmap { } {
 #
 set_help_text iomap \
 {Gives an overview of the devices connected to the different I/O ports.}
-proc iomap_helper { prefix begin end name } {
-	if [string equal $name "empty"] return ""
+proc iomap_helper {prefix begin end name} {
+	if {$name eq "empty"} {return ""}
 	set result [format "port %02X" $begin]
 	if {$begin == ($end - 1)} {
 		append result ":   "
@@ -135,12 +135,12 @@ proc iomap {} {
 		set in  [machine_info input_port  $port]
 		set out [machine_info output_port $port]
 		set end [expr $port + 1]
-		while { ($end < 256) &&
-		        [string equal $in  [machine_info input_port  $end]] &&
-		        [string equal $out [machine_info output_port $end]] } {
+		while {($end < 256) &&
+		       ($in  eq [machine_info input_port  $end]) &&
+		       ($out eq [machine_info output_port $end])} {
 			incr end
 		}
-		if [string equal $in $out] {
+		if {$in eq $out} {
 			append result [iomap_helper "I/O" $port $end $in ]
 		} else {
 			append result [iomap_helper "I  " $port $end $in ]

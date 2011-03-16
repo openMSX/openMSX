@@ -7,7 +7,7 @@ proc about { cmd } {
 	foreach command [info commands] {
 		catch {
 			if {[regexp -nocase -- $cmd [help $command]] ||
-			    [string equal $command $cmd]} {
+			    ($command eq $cmd)} {
 				lappend matches $command
 			}
 		}

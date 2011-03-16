@@ -32,14 +32,14 @@ set monitors(monochrome_white_bright) {{ .333 .333 .333 } { .333 .333 .333 } { .
 proc monitor_type { {monitor ""} } {
 	variable monitors
 	
-	if [string equal $monitor ""] {
+	if {$monitor eq ""} {
 		foreach type [array names monitors] {
-			if [string equal $monitors($type) $::color_matrix] {
+			if {$monitors($type) eq $::color_matrix} {
 				return $type
 			}
 		}
 		return "Custom monitor type: $::color_matrix"
-	} elseif [string equal $monitor "-list"] {
+	} elseif {$monitor eq "-list"} {
 		return [array names monitors]
 	} else {
 		if [info exists monitors($monitor)] {

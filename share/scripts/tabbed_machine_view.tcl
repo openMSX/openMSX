@@ -52,7 +52,7 @@ proc update {} {
 		set rel_width [expr 1.0/[llength [list_machines]]]
 		set tab_count 0
 		foreach machine [utils::get_ordered_machine_list] {
-			if { [string equal $machine [activate_machine]] } {
+			if {$machine eq [activate_machine]} {
 				set bg_color $curtab_bgcolor
 				set text_color $curtab_text_color
 				set display_text [utils::get_machine_display_name $machine]
