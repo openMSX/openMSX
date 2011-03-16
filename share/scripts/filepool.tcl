@@ -33,7 +33,7 @@ proc filepool { args } {
 	set args [lrange $args 1 end]
 	switch -- $cmd {
 		"list"   { filepool_list }
-		"add"    { eval filepool_add    $args }
+		"add"    { filepool_add {*}$args }
 		"remove" { filepool_remove $args }
 		"reset"  { filepool_reset }
 		"default" {

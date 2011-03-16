@@ -137,7 +137,7 @@ proc execute {} {
 			eval $item_impl
 		}
 	}
-	set after_id [eval "after $repeat trainer::execute"]
+	set after_id [after {*}$repeat trainer::execute]
 }
 proc deactivate {} {
 	variable after_id

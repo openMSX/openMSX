@@ -151,7 +151,7 @@ proc text_box {name args} {
 	osd destroy $name
 
 	# Guess height of rectangle
-	eval "osd create rectangle \{$name\} $rect_props -h [expr 4 + $txt_size]"
+	osd create rectangle $name {*}$rect_props -h [expr {4 + $txt_size}]
 
 	osd create text $name.text -x 2 -y 2 -size $txt_size -rgb $txt_color \
 		-text $message -wrap word -wraprelw 1.0 -wrapw -4
