@@ -31,7 +31,7 @@ set monitors(monochrome_white_bright) {{ .333 .333 .333 } { .333 .333 .333 } { .
 
 proc monitor_type { {monitor ""} } {
 	variable monitors
-	
+
 	if {$monitor eq ""} {
 		foreach type [array names monitors] {
 			if {$monitors($type) eq $::color_matrix} {

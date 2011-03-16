@@ -38,8 +38,8 @@ proc tab_cheat_type { args } {
 	lappend result "less"
 	lappend result "notequal"
 	lappend result "equal"
-	lappend result "loe"	
-	lappend result "moe"	
+	lappend result "loe"
+	lappend result "moe"
 	lappend result "-max"
 	return $result
 }
@@ -52,7 +52,7 @@ variable translate
 # Restart cheat finder.
 proc start {} {
 	variable mem
-	
+
 	set mymem [debug read_block memory 0 0x10000]
 	binary scan $mymem c* values
 	set addr 0

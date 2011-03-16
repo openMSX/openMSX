@@ -9,15 +9,14 @@ variable title_pos 0
 variable max_sprites 0
 
 proc sprite_viewer {} {
-
-	bind_default "keyb LEFT"    -repeat { osd_sprite_info::sprite_viewer_action 1 }
-	bind_default "keyb RIGHT"   -repeat { osd_sprite_info::sprite_viewer_action 2 }
-	bind_default "keyb ESCAPE"  -repeat	{ osd_sprite_info::sprite_viewer_hide	}
-	bind_default "keyb SPACE"   -repeat	{ osd_sprite_info::sprite_viewer_action 0}
+	bind_default "keyb LEFT"   -repeat {osd_sprite_info::sprite_viewer_action 1}
+	bind_default "keyb RIGHT"  -repeat {osd_sprite_info::sprite_viewer_action 2}
+	bind_default "keyb ESCAPE" -repeat {osd_sprite_info::sprite_viewer_hide}
+	bind_default "keyb SPACE"  -repeat {osd_sprite_info::sprite_viewer_action 0}
 
 	osd create rectangle sprite_viewer -x 5 -y 100 -w 128 -h 190 -rgba 0x00000080
 	osd create rectangle sprite_viewer.title -x 0 -y 15 -w 128 -h 32 -rgba 0x0000ff80 -clip on
-	osd create text	sprite_viewer.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
+	osd create text sprite_viewer.title.text -x 24 -text "" -size 18 -rgba 0xffffffff
 	osd create text sprite_viewer.index -x 70 -y 38 -text "" -size 8 -rgba 0xffffffff
 	osd create text sprite_viewer.refresh -x 8 -y 170 -size 8 -text "\[Space\] Refresh Sprite" -rgba 0xffffffff
 	osd create text sprite_viewer.escape -x 8 -y 180 -size 8 -text "\[Escape\] to Exit Viewer" -rgba 0xffffffff
@@ -26,7 +25,6 @@ proc sprite_viewer {} {
 }
 
 proc sprite_viewer_action {action} {
-
 	variable title
 	variable title_pos
 	variable max_sprites
@@ -42,9 +40,8 @@ proc sprite_viewer_action {action} {
 
 	#fade/ease
 	osd configure sprite_viewer.title.text -text "Sprite $title_pos" -fadeCurrent 0
-	osd configure sprite_viewer.index	-text "In mem: $max_sprites"
+	osd configure sprite_viewer.index      -text "In mem: $max_sprites"
 	ease_text sprite_viewer.title.text 0 $action
-
 }
 
 proc sprite_viewer_hide {} {
@@ -56,7 +53,6 @@ proc sprite_viewer_hide {} {
 }
 
 proc ease_text {osd_object {frame_render 0} {action 0}} {
-
 	#Ease in length
 	set x 16
 
@@ -130,7 +126,6 @@ proc draw_matrix {matrixname x y blocksize matrixsize matrixgap} {
 				-rgba 0x0000ff80
 		}
 	}
-
 
 	return ""
 }

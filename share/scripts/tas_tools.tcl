@@ -30,7 +30,7 @@ proc framecount_update {} {
 ### frame advance/reverse and helper procs for TAS mode key bindings ###
 
 proc get_frame_time {} {
-	return [expr (1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)]
+	expr {(1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)}
 }
 
 set_help_text advance_frame \
@@ -138,7 +138,7 @@ proc show_keys {} {
 	show_key_press graph [is_key_pressed 6 2]
 	show_key_press ctrl  [is_key_pressed 6 1]
 	show_key_press shift [is_key_pressed 6 0]
-	
+
 	after realtime 0.1 [namespace code show_keys]
 }
 

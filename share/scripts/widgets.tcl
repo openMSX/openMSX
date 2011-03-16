@@ -3,7 +3,6 @@ namespace eval debug_widgets {
 #TODO: Help Texts
 
 proc toggle_show_palette {} {
-
 	if [osd exists palette_viewer] {
 		osd destroy palette_viewer
 		return ""
@@ -25,7 +24,7 @@ proc toggle_show_palette {} {
 			-size 10 \
 			-text ""
 	}
-	
+
 	update_palette
 	return ""
 }
@@ -39,7 +38,7 @@ proc update_palette {} {
 		set r [string range $color 0 0]
 		set g [string range $color 1 1]
 		set b [string range $color 2 2]
-		
+
 		set rgbval [expr ($r << (5 + 16)) + ($g << (5 + 8)) + ($b << 5)]
 		osd configure palette_viewer.$i -rgb $rgbval
 		osd configure palette_viewer.$i.text -text "[format %02d $i]     $color"
@@ -48,7 +47,6 @@ proc update_palette {} {
 }
 
 proc toggle_vdp_reg_viewer {} {
-
 	if [osd exists vdp_reg_viewer] {
 		osd destroy vdp_reg_viewer
 		osd destroy vdp_statreg_viewer
@@ -96,7 +94,7 @@ proc toggle_vdp_reg_viewer {} {
 			-text "[format 0x%02X [debug read VDP\ regs $i]]" \
 			-rgba 0xffffffff
 	}
-	
+
 	for {set i 0} {$i < $vdpsta} {incr i} {
 		osd create rectangle vdp_statreg_viewer.indi$i \
 			-x 0 \
@@ -124,7 +122,6 @@ proc toggle_vdp_reg_viewer {} {
 }
 
 proc update_vdp_reg_viewer {} {
-
 	if {![osd exists vdp_reg_viewer]} return
 
 	# note: this method of VDP detection will fail on e.g. MSX1 machines with V9938
@@ -138,7 +135,7 @@ proc update_vdp_reg_viewer {} {
 			osd configure vdp_reg_viewer.indi$i -fadeCurrent 1
 		}
 	}
-	
+
 	for {set i 0} {$i < $vdpsta} {incr i} {
 		set vdp_stat "[format 0x%02X [debug read VDP\ status\ regs $i]]"
 		if {$vdp_stat ne [osd info vdp_statreg_viewer.stat$i -text]} {

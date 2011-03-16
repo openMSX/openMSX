@@ -38,7 +38,6 @@ variable total_time
 variable next_after_id
 
 proc record_chunks { args } {
-
 	variable filenamebase
 	variable iteration
 	variable chunk_time

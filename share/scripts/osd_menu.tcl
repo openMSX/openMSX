@@ -664,7 +664,6 @@ proc menu_load_machine_exec_add { item } {
 }
 
 proc menu_create_extensions_list {} {
-
 	set menu_def {
 	         execute menu_add_extension_exec
 	         font-size 8
@@ -696,7 +695,6 @@ proc menu_add_extension_exec { item } {
 }
 
 proc menu_create_plugged_extensions_list {} {
-
 	set menu_def {
 	         execute menu_remove_extension_exec
 	         font-size 8

@@ -128,7 +128,7 @@ proc execute {} {
 	variable active_trainer
 	variable items_active
 	variable after_id
-	
+
 	set stuff $trainers($active_trainer)
 	set items [lindex $stuff 0]
 	set repeat [lindex $stuff 1]

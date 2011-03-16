@@ -67,11 +67,10 @@ proc get_machine_representation { machine_id } {
 }
 
 proc save_session { {name "untitled"} } {
-
 	if {[llength [list_machines]] == 0} {
 		return "Nothing to save..."
 	}
-	
+
 	set result ""
 
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions/${name}]
@@ -95,7 +94,6 @@ proc save_session { {name "untitled"} } {
 }
 
 proc load_session { name } {
-
 	set result ""
 
 	# get all savestate files

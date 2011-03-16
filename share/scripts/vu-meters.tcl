@@ -32,7 +32,6 @@ variable machine_switch_trigger_id 0
 variable frame_trigger_id 0
 
 proc vu_meters_init {} {
-
 	variable volume_cache
 	variable volume_expr
 	variable nof_channels
@@ -53,7 +52,7 @@ proc vu_meters_init {} {
 		set channel_count [soundchip_utils::get_num_channels $soundchip]
 		# skip devices which don't have volume expressions (not implemented yet)
 		if {[soundchip_utils::get_volume_expr $soundchip 0] eq "x"} continue
-			
+
 		lappend soundchips $soundchip
 		set nof_channels($soundchip) $channel_count
 		for {set i 0} {$i < $channel_count} {incr i} {
@@ -71,11 +70,9 @@ proc vu_meters_init {} {
 	if {$bar_length > (320/4)} {set bar_length [expr 320/4]}
 
 	# create widgets for each sound chip:
-
 	set vu_meter_offset 0
 
 	foreach soundchip $soundchips {
-
 		# create surrounding widget for this chip
 		osd create rectangle vu_meters.$soundchip \
 			-rgba 0x00000080 \
@@ -92,8 +89,8 @@ proc vu_meters_init {} {
 			-size [expr $vu_meter_title_height - 1]
 
 		# create vu meters for this sound chip
-		for {set channel 0} {$channel < $nof_channels($soundchip)}  {incr channel} {
-				osd create rectangle vu_meters.${soundchip}.ch${channel} \
+		for {set channel 0} {$channel < $nof_channels($soundchip)} {incr channel} {
+			osd create rectangle vu_meters.${soundchip}.ch${channel} \
 				-rgba 0xff0000ff \
 				-x 0 \
 				-y [expr $vu_meter_title_height + 1 + (($bar_width + 1) * $channel)] \

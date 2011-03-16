@@ -99,7 +99,7 @@ proc keyboard_init {} {
 					set h $white_key_height
 					set note_key_color($note) 0xFFFFFF
 					set z -2
-				}				
+				}
 				osd create rectangle music_keyboard.chip${soundchip}ch${channel}.key${note} -x [expr ($note - $nof_blacks) * $step_white + $border + $xcor] -y 0 -w $key_width -h $h -rgb $note_key_color($note) -z $z
 			}
 
@@ -113,11 +113,10 @@ proc keyboard_init {} {
 		}
 	}
 
-	set machine_switch_trigger_id [after machine_switch [namespace code music_keyboard_reset]]	
+	set machine_switch_trigger_id [after machine_switch [namespace code music_keyboard_reset]]
 }
 
 proc update_keyboard {} {
-
 	variable num_notes
 	variable nof_channels
 	variable note_strings

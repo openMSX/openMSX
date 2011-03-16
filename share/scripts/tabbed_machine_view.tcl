@@ -7,7 +7,7 @@
 
 # TODO:
 # - needs events to know when a machine got deleted or created... now only
-#   updates when there was a switch... 
+#   updates when there was a switch...
 #   (Luckily, that is very often... but not enough!)
 
 namespace eval tabbed_machine_view {

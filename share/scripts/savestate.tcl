@@ -92,7 +92,7 @@ proc list_savestates { args } {
 	}
 
 	set sorted_sublists [lsort ${sort_option} ${sort_order} -index $sort_key [list_savestates_raw]]
-	
+
 	if {!$long_format} {
 		set sorted_result [list]
 		foreach sublist $sorted_sublists {lappend sorted_result [lindex $sublist 0]}

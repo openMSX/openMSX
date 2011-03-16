@@ -176,7 +176,6 @@ proc text_box {name args} {
 }
 
 proc click_handler { name } {
-
 	if {[osd::is_cursor_in $name]} {
 		kill_widget $name
 	}
@@ -220,12 +219,11 @@ proc timer_handler { name } {
 }
 
 proc volume_control {incr_val} {
-		
 	if {![osd exists volume]} {
 		osd create rectangle volume -x 0 -y 0 -h 32 -w 320 -rgba 0x000000a0 -scaled true
 		osd create rectangle volume.bar -x 16 -y 16 -h 8 -w 290 -rgba 0x000000c0 -borderrgba 0xffffffff -bordersize 1
 		osd create rectangle volume.bar.meter -x 1 -y 1 -h 6 -w 288 -rgba "0x00aa33e8 0x00dd66e8 0x00cc55e8 0x00ff77e8"
-		osd create text 	 volume.text -x 16 -y 3 -size 10 -rgba 0xffffffff
+		osd create text      volume.text -x 16 -y 3 -size 10 -rgba 0xffffffff
 	}
 
 	incr ::master_volume $incr_val

@@ -59,7 +59,6 @@ the MoG overlay to work, see toggle_mog_overlay."
 
 #Init Overlays
 proc init {} {
-	
 	namespace import ::osd_widgets::*
 
 	variable num_enemies
@@ -143,12 +142,11 @@ proc update_overlay {} {
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]
 		set enemy_hp [peek [expr $addr + 0x10]]
-		
+
 		# If enemy's power is 0 set max power to 0
 		if {$enemy_hp==0 && $max_ep($i)>0} {set max_ep($i) 0}
-		
+
 		if {$enemy_type > 0 && $enemy_hp > 0 && $enemy_hp < 200} {
-			
 			#Set Max Power Recorded for Enemy
 			if {$max_ep($i) < $enemy_hp} {set max_ep($i) $enemy_hp}
 

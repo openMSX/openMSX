@@ -301,11 +301,10 @@ proc update_key_color {key_id} {
 	variable key_pressed_color
 	variable key_hold_color
 	variable key_edge_color
-	variable key_edge_color_select 
+	variable key_edge_color_select
 	variable key_edge_color_hold
 	variable key_edge_color_pressed
-	
-	
+
 	if {$key_id < 0} {
 		return
 	} elseif {$key_id == $key_pressed} {
@@ -330,6 +329,7 @@ proc key_at_coord {x y} {
 	variable key_vspace
 	variable board_vborder
 	variable row_starts
+
 	set row [expr int(floor( \
 		($y - $board_vborder + $key_vspace / 2) / ($key_height + $key_vspace) \
 		))]
