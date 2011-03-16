@@ -8,7 +8,7 @@ foreach subdir $subdirs {
 		set sourcedir [file normalize $::env(OPENMSX_SYSTEM_DATA)/$subdir]
 		file mkdir $directory
 		if {[file exists $sourcedir/README]} {
-			file copy $sourcedir/README $directory
+			file copy -- $sourcedir/README $directory
 		}
 	}
 }

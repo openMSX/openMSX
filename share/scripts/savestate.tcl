@@ -27,7 +27,7 @@ proc savestate { {name ""} } {
 		if {[catch { screenshot $png }]} {
 			# even this failed, but (try to) remove old screenshot
 			# to avoid confusion
-			catch { file delete $png }
+			catch {file delete -- $png}
 		}
 	}
 	set currentID [machine]
@@ -108,8 +108,8 @@ proc list_savestates { args } {
 
 proc delete_savestate { {name ""} } {
 	savestate_common
-	catch { file delete -- $fullname_bwcompat }
-	catch { file delete -- $png }
+	catch {file delete -- $fullname_bwcompat}
+	catch {file delete -- $png}
 	return ""
 }
 
