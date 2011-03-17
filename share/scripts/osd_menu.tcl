@@ -13,19 +13,15 @@ variable default_header_text_color 0xff9020ff
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
 
-proc get_optional { array_name key default } {
-	upvar $array_name arr
-	if [info exists arr($key)] {
-		return $arr($key)
-	} else {
-		return $default
-	}
+proc get_optional {dict_name key default} {
+	upvar $dict_name d
+	expr {[dict exists $d $key] ? [dict get $d $key] : $default}
 }
 
-proc set_optional { array_name key value } {
-	upvar $array_name arr
-	if ![info exists arr($key)] {
-		set arr($key) $value
+proc set_optional {dict_name key value} {
+	upvar $dict_name d
+	if {![dict exists $d $key]} {
+		dict set d $key $value
 	}
 }
 
@@ -37,7 +33,10 @@ proc push_menu_info {} {
 	incr menulevels 1
 	set levelname "menuinfo_$menulevels"
 	variable $levelname
-	array set $levelname [uplevel { list name $name lst $lst menu_len $menu_len presentation $presentation menutexts $menutexts selectinfo $selectinfo selectidx $selectidx scrollidx $scrollidx on_close $on_close }]
+	set $levelname [uplevel {dict create \
+		name $name lst $lst menu_len $menu_len presentation $presentation \
+		menutexts $menutexts selectinfo $selectinfo selectidx $selectidx \
+		scrollidx $scrollidx on_close $on_close}]
 }
 
 proc peek_menu_info {} {
@@ -45,26 +44,24 @@ proc peek_menu_info {} {
 	uplevel upvar #0 osd_menu::menuinfo_$menulevels menuinfo
 }
 
-proc set_selectidx { value } {
+proc set_selectidx {value} {
 	peek_menu_info
-	array set menuinfo [list selectidx $value]
+	dict set menuinfo selectidx $value
 }
 
-proc set_scrollidx { value } {
+proc set_scrollidx {value} {
 	peek_menu_info
-	array set menuinfo [list scrollidx $value]
+	dict set menuinfo scrollidx $value
 }
 
-proc menu_create { menu_def_list } {
+proc menu_create {menudef} {
 	variable menulevels
 	variable default_bg_color
 	variable default_text_color
 	variable default_select_color
 	variable default_header_text_color
 
-	set name "menu[expr $menulevels + 1]"
-
-	array set menudef $menu_def_list
+	set name "menu[expr {$menulevels + 1}]"
 
 	set defactions   [get_optional menudef "actions" ""]
 	set bgcolor      [get_optional menudef "bg-color" $default_bg_color]
@@ -82,42 +79,37 @@ proc menu_create { menu_def_list } {
 	set y $bordersize
 	set selectinfo [list]
 	set menutexts [list]
-	set items $menudef(items)
-	foreach itemdef $items {
-		array unset itemarr
-		array set itemarr $itemdef
-		set selectable [get_optional itemarr "selectable" true]
-		incr y [get_optional itemarr "pre-spacing" 0]
-		set fontsize  [get_optional itemarr "font-size"  $deffontsize]
-		set font      [get_optional itemarr "font"       $deffont]
-		if {$selectable} {
-			set textcolor [get_optional itemarr "text-color" $deftextcolor]
-		} else {
-			set textcolor [get_optional itemarr "text-color" $default_header_text_color]
-		}
-		set actions     [get_optional itemarr "actions"     ""]
-		set on_select   [get_optional itemarr "on-select"   ""]
-		set on_deselect [get_optional itemarr "on-deselect" ""]
+	foreach itemdef [dict get $menudef items] {
+		set selectable  [get_optional itemdef "selectable" true]
+		incr y          [get_optional itemdef "pre-spacing" 0]
+		set fontsize    [get_optional itemdef "font-size" $deffontsize]
+		set font        [get_optional itemdef "font"      $deffont]
+		set textcolor [expr {$selectable
+		              ? [get_optional itemdef "text-color" $deftextcolor]
+		              : [get_optional itemdef "text-color" $default_header_text_color]}]
+		set actions     [get_optional itemdef "actions"     ""]
+		set on_select   [get_optional itemdef "on-select"   ""]
+		set on_deselect [get_optional itemdef "on-deselect" ""]
 		set textid "${name}.item${y}"
-		set text $itemarr(text)
+		set text [dict get $itemdef text]
 		lappend menutexts $textid $text
 		osd create text $textid -font $font -size $fontsize \
 					-rgba $textcolor -x $bordersize -y $y
-		if $selectable {
+		if {$selectable} {
 			set allactions [concat $defactions $actions]
 			lappend selectinfo [list $y $fontsize $allactions $on_select $on_deselect]
 		}
 		incr y $fontsize
-		incr y [get_optional itemarr "post-spacing" 0]
+		incr y [get_optional itemdef "post-spacing" 0]
 	}
 
-	set width $menudef(width)
-	set height [expr $y + $bordersize]
-	set xpos [get_optional menudef "xpos" [expr (320 - $width)  / 2]]
-	set ypos [get_optional menudef "ypos" [expr (240 - $height) / 2]]
+	set width [dict get $menudef width]
+	set height [expr {$y + $bordersize}]
+	set xpos [get_optional menudef "xpos" [expr {(320 - $width)  / 2}]]
+	set ypos [get_optional menudef "ypos" [expr {(240 - $height) / 2}]]
 	osd configure $name -x $xpos -y $ypos -w $width -h $height
 
-	set selw [expr $width - 2 * $bordersize]
+	set selw [expr {$width - 2 * $bordersize}]
 	osd create rectangle "${name}.selection" -z -1 -rgba $selectcolor \
 		-x $bordersize -w $selw
 
@@ -136,24 +128,25 @@ proc menu_create { menu_def_list } {
 
 proc menu_refresh_top {} {
 	peek_menu_info
-	foreach { osdid text } $menuinfo(menutexts) {
+	foreach {osdid text} [dict get $menuinfo menutexts] {
 		set cmd [list subst $text]
 		osd configure $osdid -text [uplevel #0 $cmd]
 	}
 
-	if {[llength $menuinfo(selectinfo)] == 0} return
-	set sely [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 0]
-	set selh [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 1]
-	osd configure "$menuinfo(name).selection" -y $sely -h $selh
+	set selectinfo [dict get $menuinfo selectinfo]
+	if {[llength $selectinfo] == 0} return
+	set selectidx  [dict get $menuinfo selectidx ]
+	lassign [lindex $selectinfo $selectidx] sely selh
+	osd configure "[dict get $menuinfo name].selection" -y $sely -h $selh
 }
 
 proc menu_close_top {} {
 	variable menulevels
 	peek_menu_info
-	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
-	uplevel #0 $menuinfo(on_close)
-	osd destroy $menuinfo(name)
-	array unset menuinfo
+	menu_on_deselect [dict get $menuinfo selectinfo] [dict get $menuinfo selectidx]
+	uplevel #0 [dict get $menuinfo on_close]
+	osd destroy [dict get $menuinfo name]
+	unset menuinfo
 	incr menulevels -1
 	if {$menulevels == 0} {
 		menu_last_closed
@@ -167,49 +160,55 @@ proc menu_close_all {} {
 	}
 }
 
-proc menu_setting { cmd_result } {
+proc menu_setting {cmd_result} {
 	menu_refresh_top
 }
 
-proc menu_updown { delta } {
+proc menu_updown {delta} {
 	peek_menu_info
-	set num [llength $menuinfo(selectinfo)]
+	set selectinfo [dict get $menuinfo selectinfo]
+	set num [llength $selectinfo]
 	if {$num == 0} return
 
-	menu_on_deselect $menuinfo(selectinfo) $menuinfo(selectidx)
-	set_selectidx [expr ($menuinfo(selectidx) + $delta) % $num]
-	menu_on_select $menuinfo(selectinfo) $menuinfo(selectidx)
+	set selectidx  [dict get $menuinfo selectidx ]
+	menu_on_deselect $selectinfo $selectidx
+	set selectidx [expr {($selectidx + $delta) % $num}]
+	set_selectidx $selectidx
+	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
 }
 
-proc menu_on_select { selectinfo selectidx } {
+proc menu_on_select {selectinfo selectidx} {
 	set on_select [lindex $selectinfo $selectidx 3]
 	uplevel #0 $on_select
 }
 
-proc menu_on_deselect { selectinfo selectidx } {
+proc menu_on_deselect {selectinfo selectidx} {
 	set on_deselect [lindex $selectinfo $selectidx 4]
 	uplevel #0 $on_deselect
 }
 
-proc menu_action { button } {
+proc menu_action {button} {
 	peek_menu_info
-	array set actions [lindex $menuinfo(selectinfo) $menuinfo(selectidx) 2]
-	set_optional actions UP   { osd_menu::menu_updown -1 }
-	set_optional actions DOWN { osd_menu::menu_updown  1 }
-	set_optional actions B    { osd_menu::menu_close_top }
+	set selectinfo [dict get $menuinfo selectinfo]
+	set selectidx  [dict get $menuinfo selectidx ]
+
+	set actions [lindex $selectinfo $selectidx 2]
+	set_optional actions UP   {osd_menu::menu_updown -1}
+	set_optional actions DOWN {osd_menu::menu_updown  1}
+	set_optional actions B    {osd_menu::menu_close_top}
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
 }
 
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
-if ![file exists $::osd_rom_path] {
+if {![file exists $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
 }
 
-if ![file exists $::osd_disk_path] {
+if {![file exists $::osd_disk_path]} {
 	# revert to default (should always exist)
 	unset ::osd_disk_path
 }
@@ -219,7 +218,7 @@ proc main_menu_open {} {
 	do_menu_open $main_menu
 }
 
-proc do_menu_open { top_menu } {
+proc do_menu_open {top_menu} {
 	variable is_dingoo
 
 	# close console, because the menu interferes with it
@@ -230,23 +229,23 @@ proc do_menu_open { top_menu } {
 		eval $::osd_control::close
 	}
 	# end tell how to close this widget
-	namespace eval ::osd_control { set close ::osd_menu::main_menu_close }
+	namespace eval ::osd_control {set close ::osd_menu::main_menu_close}
 
 	menu_create $top_menu
 
 	set ::pause true
 	# TODO make these bindings easier to customize
-	bind_default "keyb UP"     -repeat { osd_menu::menu_action UP    }
-	bind_default "keyb DOWN"   -repeat { osd_menu::menu_action DOWN  }
-	bind_default "keyb LEFT"   -repeat { osd_menu::menu_action LEFT  }
-	bind_default "keyb RIGHT"  -repeat { osd_menu::menu_action RIGHT }
+	bind_default "keyb UP"     -repeat {osd_menu::menu_action UP   }
+	bind_default "keyb DOWN"   -repeat {osd_menu::menu_action DOWN }
+	bind_default "keyb LEFT"   -repeat {osd_menu::menu_action LEFT }
+	bind_default "keyb RIGHT"  -repeat {osd_menu::menu_action RIGHT}
 	if {$is_dingoo} {
-		bind_default "keyb LCTRL"  { osd_menu::menu_action A     }
-		bind_default "keyb LALT"   { osd_menu::menu_action B     }
+		bind_default "keyb LCTRL"  {osd_menu::menu_action A    }
+		bind_default "keyb LALT"   {osd_menu::menu_action B    }
 	} else {
-		bind_default "keyb SPACE"  { osd_menu::menu_action A     }
-		bind_default "keyb RETURN" { osd_menu::menu_action A     }
-		bind_default "keyb ESCAPE" { osd_menu::menu_action B     }
+		bind_default "keyb SPACE"  {osd_menu::menu_action A    }
+		bind_default "keyb RETURN" {osd_menu::menu_action A    }
+		bind_default "keyb ESCAPE" {osd_menu::menu_action B    }
 	}
 }
 
@@ -283,32 +282,25 @@ proc menu_last_closed {} {
 		unbind_default "keyb ESCAPE"
 	}
 
-	namespace eval ::osd_control { unset close }
+	namespace eval ::osd_control {unset close}
 }
 
-proc prepare_menu { menu_def_list } {
-	# In the past we added default stuff here (like default actions
-	# for UP, DOWN, B). Maybe remove this proc completely in the future.
-	return $menu_def_list
-}
-
-proc prepare_menu_list { lst num menu_def_list } {
-	array set menudef $menu_def_list
-	set execute $menudef(execute)
-	set header $menudef(header)
+proc prepare_menu_list {lst num menudef} {
+	set execute [dict get $menudef execute]
+	set header  [dict get $menudef header]
 	set item_extra   [get_optional menudef item ""]
 	set on_select    [get_optional menudef on-select ""]
 	set on_deselect  [get_optional menudef on-deselect ""]
 	set presentation [get_optional menudef presentation $lst]
 	# 'assert': presentation should have same length as item list!
-	if { [llength $presentation] != [llength $lst]} {
+	if {[llength $presentation] != [llength $lst]} {
 		error "Presentation should be of same length as item list!"
 	}
-	set menudef(presentation) $presentation
+	dict set menudef presentation $presentation
 	lappend header "selectable" "false"
 	set items [list $header]
 	set lst_len [llength $lst]
-	set menu_len [expr $lst_len < $num ? $lst_len : $num]
+	set menu_len [expr {$lst_len < $num ? $lst_len : $num}]
 	for {set i 0} {$i < $menu_len} {incr i} {
 		set actions [list "A" "osd_menu::list_menu_item_exec $execute $i"]
 		if {$i == 0} {
@@ -329,35 +321,35 @@ proc prepare_menu_list { lst num menu_def_list } {
 		}
 		lappend items [concat $item $item_extra]
 	}
-	set menudef(items) $items
-	set menudef(lst) $lst
-	set menudef(menu_len) $menu_len
-	return [prepare_menu [array get menudef]]
+	dict set menudef items $items
+	dict set menudef lst $lst
+	dict set menudef menu_len $menu_len
+	return $menudef
 }
 
-proc list_menu_item_exec { execute pos } {
+proc list_menu_item_exec {execute pos} {
 	peek_menu_info
-	$execute [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
+	$execute [lindex [dict get $menuinfo lst] [expr {$pos + [dict get $menuinfo scrollidx]}]]
 }
 
-proc list_menu_item_show { pos } {
+proc list_menu_item_show {pos} {
 	peek_menu_info
-	return [lindex $menuinfo(presentation) [expr $pos + $menuinfo(scrollidx)]]
+	return [lindex [dict get $menuinfo presentation] [expr {$pos + [dict get $menuinfo scrollidx]}]]
 }
 
-proc list_menu_item_select { pos select_proc } {
+proc list_menu_item_select {pos select_proc} {
 	peek_menu_info
-	$select_proc [lindex $menuinfo(lst) [expr $pos + $menuinfo(scrollidx)]]
+	$select_proc [lindex [dict get $menuinfo lst] [expr {$pos + [dict get $menuinfo scrollidx]}]]
 }
 
-proc move_selection { delta } {
+proc move_selection {delta} {
 	peek_menu_info
-	set lst_last [expr [llength $menuinfo(lst)] - 1]
-	set scrollidx $menuinfo(scrollidx)
-	set selectidx $menuinfo(selectidx)
+	set lst_last [expr {[llength [dict get $menuinfo lst]] - 1}]
+	set scrollidx [dict get $menuinfo scrollidx]
+	set selectidx [dict get $menuinfo selectidx]
 
-	set old_itemidx [expr $scrollidx + $selectidx]
-	set new_itemidx [expr $old_itemidx + $delta]
+	set old_itemidx [expr {$scrollidx + $selectidx}]
+	set new_itemidx [expr {$old_itemidx + $delta}]
 
 	if {$new_itemidx < 0} {
 		# Before first element
@@ -382,33 +374,34 @@ proc move_selection { delta } {
 	select_menu_idx $new_itemidx
 }
 
-proc select_menu_idx { itemidx } {
+proc select_menu_idx {itemidx} {
 	peek_menu_info
-	set menu_len $menuinfo(menu_len)
-	set scrollidx $menuinfo(scrollidx)
-	set selectidx $menuinfo(selectidx)
+	set menu_len   [dict get $menuinfo menu_len]
+	set scrollidx  [dict get $menuinfo scrollidx]
+	set selectidx  [dict get $menuinfo selectidx]
+	set selectinfo [dict get $menuinfo selectinfo]
 
-	menu_on_deselect $menuinfo(selectinfo) $selectidx
+	menu_on_deselect $selectinfo $selectidx
 
-	set selectidx [expr $itemidx - $scrollidx]
+	set selectidx [expr {$itemidx - $scrollidx}]
 	if {$selectidx < 0} {
 		incr scrollidx $selectidx
 		set selectidx 0
 	} elseif {$selectidx >= $menu_len} {
-		set selectidx [expr $menu_len - 1]
-		set scrollidx [expr $itemidx - $selectidx]
+		set selectidx [expr {$menu_len - 1}]
+		set scrollidx [expr {$itemidx - $selectidx}]
 	}
 
 	set_selectidx $selectidx
 	set_scrollidx $scrollidx
-	menu_on_select $menuinfo(selectinfo) $selectidx
+	menu_on_select $selectinfo $selectidx
 	menu_refresh_top
 }
 
-proc select_menu_item { item } {
+proc select_menu_item {item} {
 	peek_menu_info
 
-	set index [lsearch -exact $menuinfo(lst) $item]
+	set index [lsearch -exact [dict get $menuinfo lst] $item]
 	if {$index == -1} return
 
 	select_menu_idx $index
@@ -418,7 +411,7 @@ proc select_menu_item { item } {
 # definitions of menus
 #
 
-set main_menu [prepare_menu {
+set main_menu {
 	font-size 10
 	border-size 2
 	width 160
@@ -452,9 +445,9 @@ set main_menu [prepare_menu {
 	       { text "Reset MSX"
 	         actions { A { reset ; osd_menu::menu_close_all }}}
 	       { text "Exit openMSX"
-	         actions { A exit }}}}]
+	         actions { A exit }}}}
 
-set misc_setting_menu [prepare_menu {
+set misc_setting_menu {
 	font-size 8
 	border-size 2
 	width 150
@@ -472,9 +465,9 @@ set misc_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [incr minframeskip  1] }}}
 	       { text "Maximal Frameskip: $maxframeskip"
 	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
-	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}]
+	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}
 
-set sound_setting_menu [prepare_menu {
+set sound_setting_menu {
 	font-size 8
 	border-size 2
 	width 150
@@ -489,9 +482,9 @@ set sound_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [incr master_volume  5] }}}
 	       { text "Mute: $mute"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
-	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}]
+	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}
 
-set video_setting_menu [prepare_menu {
+set video_setting_menu {
 	font-size 8
 	border-size 2
 	width 150
@@ -516,9 +509,9 @@ set video_setting_menu [prepare_menu {
 	                   RIGHT { osd_menu::menu_setting [incr blur  1] }}}
 	       { text "Glow: $glow"
 	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
-	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}]
+	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}
 
-set hardware_menu [prepare_menu {
+set hardware_menu {
 	font-size 8
 	border-size 2
 	width 175
@@ -531,9 +524,9 @@ set hardware_menu [prepare_menu {
 	       { text "Change Machine..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
 	       { text "Extensions..."
-	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}}}]
+	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}}}
 
-set extensions_menu [prepare_menu {
+set extensions_menu {
 	font-size 8
 	border-size 2
 	width 175
@@ -546,9 +539,9 @@ set extensions_menu [prepare_menu {
 	       { text "Add..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_extensions_list] }}}
 	       { text "Remove..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_plugged_extensions_list] }}}}}]
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_plugged_extensions_list] }}}}}
 
-set advanced_menu [prepare_menu {
+set advanced_menu {
 	font-size 8
 	border-size 2
 	width 175
@@ -561,9 +554,9 @@ set advanced_menu [prepare_menu {
 	       { text "Manage Running Machines..."
 	         actions { A { osd_menu::menu_create $osd_menu::running_machines_menu }}}
 	       { text "Toys..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}]
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_toys_list] }}}}}
 
-set running_machines_menu [prepare_menu {
+set running_machines_menu {
 	font-size 8
 	border-size 2
 	width 175
@@ -578,7 +571,7 @@ set running_machines_menu [prepare_menu {
 	       { text "New Running Machine Tab"
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list "add"] }}}
 	       { text "Close Current Machine Tab"
-	         actions { A { set old_active_machine [activate_machine]; cycle_machine; delete_machine $old_active_machine }}}}}]
+	         actions { A { set old_active_machine [activate_machine]; cycle_machine; delete_machine $old_active_machine }}}}}
 
 proc menu_create_running_machine_list {} {
 	set menu_def {
@@ -608,7 +601,7 @@ proc menu_create_running_machine_list {} {
 	return [prepare_menu_list $items 5 $menu_def]
 }
 
-proc menu_machine_tab_select_exec { item } {
+proc menu_machine_tab_select_exec {item} {
 	menu_close_top
 	activate_machine $item
 }
@@ -643,17 +636,17 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_load_machine_exec_replace { item } {
-	if { [catch "machine $item" errorText] } {
+proc menu_load_machine_exec_replace {item} {
+	if {[catch "machine $item" errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
 	}
 }
 
-proc menu_load_machine_exec_add { item } {
+proc menu_load_machine_exec_add {item} {
 	set id [create_machine]
-	set err [catch { ${id}::load_machine $item } error_result ]
+	set err [catch {${id}::load_machine $item} error_result]
 	if {$err} {
 		delete_machine $id
 		osd::display_message "Error starting [utils::get_machine_display_name_by_config_name $item]: $error_result" error
@@ -686,8 +679,8 @@ proc menu_create_extensions_list {} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_add_extension_exec { item } {
-	if { [catch "ext $item" errorText] } {
+proc menu_add_extension_exec {item} {
+	if {[catch "ext $item" errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
@@ -726,7 +719,7 @@ proc menu_create_plugged_extensions_list {} {
 	return [prepare_menu_list $useful_items 10 $menu_def]
 }
 
-proc menu_remove_extension_exec { item } {
+proc menu_remove_extension_exec {item} {
 	menu_close_all
 	remove_extension $item
 }
@@ -754,11 +747,11 @@ proc menu_create_toys_list {} {
 	return [prepare_menu_list $items 5 $menu_def]
 }
 
-proc menu_toys_exec { toy } {
+proc menu_toys_exec {toy} {
 	return [$toy]
 }
 
-proc ls { directory extensions } {
+proc ls {directory extensions} {
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
@@ -768,7 +761,7 @@ proc ls { directory extensions } {
 	return [concat ".." [lsort $dirs2] [lsort $roms]]
 }
 
-proc menu_create_ROM_list { path } {
+proc menu_create_ROM_list {path} {
 	return [prepare_menu_list [concat "--eject--" [ls $path "rom,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_rom
@@ -779,7 +772,7 @@ proc menu_create_ROM_list { path } {
 	                            ypos 120
 	                            header { text "ROMS  $::osd_rom_path"
 	                                     font-size 10
-                                             post-spacing 6 }}]
+	                                     post-spacing 6 }}]
 }
 
 proc menu_select_rom {item} {
@@ -789,7 +782,7 @@ proc menu_select_rom {item} {
 		reset
 	} else {
 		set fullname [file join $::osd_rom_path $item]
-		if [file isdirectory $fullname] {
+		if {[file isdirectory $fullname]} {
 			menu_close_top
 			set ::osd_rom_path [file normalize $fullname]
 			menu_create [menu_create_ROM_list $::osd_rom_path]
@@ -802,7 +795,7 @@ proc menu_select_rom {item} {
 	}
 }
 
-proc menu_create_disk_list { path } {
+proc menu_create_disk_list {path} {
 	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz,xsa"]] \
 	                          10 \
 	                          { execute menu_select_disk
@@ -822,7 +815,7 @@ proc menu_select_disk {item} {
 		diska eject
 	} else {
 		set fullname [file join $::osd_disk_path $item]
-		if [file isdirectory $fullname] {
+		if {[file isdirectory $fullname]} {
 			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
 			menu_create [menu_create_disk_list $::osd_disk_path]
@@ -837,7 +830,7 @@ proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
 	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {
 		if {[info commands clock] ne ""} {
-			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X" ]]
+			set pres_str [format "%s (%s)" [lindex $i 0] [clock format [lindex $i 1] -format "%x - %X"]]
 		} else {
 			set pres_str [lindex $i 0]
 		}
@@ -860,7 +853,7 @@ proc menu_create_load_state {} {
 	         on-deselect menu_loadstate_deselect
 	         header { text "Load State"
 	                  font-size 10
-                          post-spacing 6 }}
+	                  post-spacing 6 }}
 
 	set items [list_savestates -t]
 
@@ -892,30 +885,30 @@ proc menu_create_save_state {} {
 	return [prepare_menu_list $items 10 $menu_def]
 }
 
-proc menu_loadstate_select { item } {
+proc menu_loadstate_select {item} {
 	set png $::env(OPENMSX_USER_DATA)/../savestates/${item}.png
 	catch {osd create rectangle "preview.image" -relx 0.05 -rely 0.05 -w 80 -h 60 -image $png}
 }
 
-proc menu_loadstate_deselect { item } {
+proc menu_loadstate_deselect {item} {
 	osd destroy "preview.image"
 }
 
-proc menu_loadstate_exec { item } {
-	if { [catch "loadstate $item" errorText] } {
+proc menu_loadstate_exec {item} {
+	if {[catch "loadstate $item" errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
 	}
 }
 
-proc menu_savestate_exec { item } {
+proc menu_savestate_exec {item} {
 	if {$item eq "create new"} {
 		set item [menu_free_savestate_name]
 	} else {
 		#TODO "Overwrite are you sure?" -dialog
 	}
-	if { [catch "savestate $item" errorText] } {
+	if {[catch "savestate $item" errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
