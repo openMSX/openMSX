@@ -5,7 +5,7 @@ shown.}
 
 namespace eval rom_info {
 
-proc tab { args } {
+proc tab {args} {
 	set result [list]
 
 	foreach device [machine_info device] {
@@ -26,7 +26,7 @@ proc rom_info {{romdevice ""}} {
 		}
 	}
 
-	if [catch {set device_info [machine_info device $romdevice]}] {
+	if {[catch {set device_info [machine_info device $romdevice]}]} {
 		error "No such device: $romdevice"
 	}
 
@@ -35,50 +35,49 @@ proc rom_info {{romdevice ""}} {
 		error [format "Device is not of type ROM, but %s" $device_type]
 	}
 
-	if [catch {set rominfo [openmsx_info software [lindex $device_info 2]]}] {
+	if {[catch {set rominfo [openmsx_info software [lindex $device_info 2]]}]} {
 		return "No ROM info available on $romdevice"
 	}
 
-	array set infomap $rominfo
-
-	# dummy info for missing items
-	foreach key [list year company] {
-		if {$infomap($key) eq ""} {
-			set infomap($key) "(info not available)"
-		}
-	}
-
-	if {$infomap(original)} {
-		# this is an unmodified original dump
-		set status [format "Unmodified dump (confirmed by %s)" $infomap(orig_type)]
-	} else {
-		# not original or unknown
-		switch $infomap(orig_type) {
-			"broken" {
-				set status "Bad dump (game is broken)"
-			}
-			"translated" {
-				set status "Translated from original"
-			}
-			"working" {
-				set status "Modified but confirmed working"
-			}
-			default {
-				set status "Unknown"
+	dict with rominfo {
+		# dummy info for missing items
+		foreach key [list year company] {
+			if {[set $key] eq ""} {
+				set $key "(info not available)"
 			}
 		}
-	}
 
-	set result ""
-	append result [format "Title:    %s\n" $infomap(title)]
-	append result [format "Year:     %s\n" $infomap(year)]
-	append result [format "Company:  %s\n" $infomap(company)]
-	append result [format "Country:  %s\n" $infomap(country)]
-	append result [format "Status:   %s" $status]
-	if {$infomap(remark) ne ""} {
-		append result [format "\nRemark:   %s" $infomap(remark)]
+		if {$original} {
+			# this is an unmodified original dump
+			set status [format "Unmodified dump (confirmed by %s)" $orig_type]
+		} else {
+			# not original or unknown
+			switch $orig_type {
+				"broken" {
+					set status "Bad dump (game is broken)"
+				}
+				"translated" {
+					set status "Translated from original"
+				}
+				"working" {
+					set status "Modified but confirmed working"
+				}
+				default {
+					set status "Unknown"
+				}
+			}
+		}
+
+		append result "Title:    ${title}\n"
+		append result "Year:     ${year}\n"
+		append result "Company:  ${company}\n"
+		append result "Country:  ${country}\n"
+		append result "Status:   ${status}"
+		if {$remark ne ""} {
+			append result "\nRemark:   ${remark}"
+		}
+		return $result
 	}
-	return $result
 }
 
 namespace export rom_info
