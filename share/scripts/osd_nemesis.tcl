@@ -86,7 +86,7 @@ proc after_frame {} {
 		set b [peek [expr $addr + 4]]
 
 		# Not in contact with shield? Then do nothing.
-		if {(pow($a - ($x+6), 2) + pow($b - ($y + 7), 2)) >= 961} continue
+		if {((($a - $x + 6) ** 2) + (($b - $y + 7) ** 2)) >= 961} continue
 
 		# ground turrets change into razor discs :)
 		if {$id == 1 && $i < 16} {poke $addr 2}

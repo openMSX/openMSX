@@ -18,8 +18,8 @@ namespace eval music_keyboard {
 # some useful constants
 variable note_strings [list "C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B"]
 # we define these outside the proc to gain some speed (they are precalculated)
-variable loga [expr log(pow(2, 1/12.0))]
-variable r3 [expr log(440.0)/$loga - 57]
+variable loga [expr {log(2 ** (1 / 12.0))}]
+variable r3 [expr {log(440.0) / $loga - 57}]
 
 variable soundchips
 variable frequency_expr
