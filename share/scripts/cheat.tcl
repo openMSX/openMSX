@@ -23,95 +23,94 @@ Examples:
   findcheat -start new < 10    restart and search for values less than 10
   findcheat -max 40 smaller    search for smaller values, show max 40 results
   findcheat -start addr>0xe000 && addr<0xefff search in defined memory locations
-  }
+}
 
 namespace eval cheat_finder {
 
+variable max_num_results 15 ;# maximum to display cheats
+variable mem
+
+# build translation dictionary for convenience expressions
+variable translate [dict create \
+	""         "true"       \
+	                        \
+	"smaller"  "new < old"  \
+	"less"     "new < old"  \
+	"bigger"   "new > old"  \
+	"more"     "new > old"  \
+	"greater"  "new > old"  \
+	                        \
+	"le"       "new <= old" \
+	"loe"      "new <= old" \
+	"ge"       "new >= old" \
+	"goe"      "new >= old" \
+	"moe"      "new >= old" \
+	                        \
+	"equal"    "new == old" \
+	"eq"       "new == old" \
+	"notequal" "new != old" \
+	"ne"       "new != old" \
+	                        \
+	"<="       "new <= old" \
+	">="       "new >= old" \
+	"<"        "new <  old" \
+	">"        "new <  old" \
+	"=="       "new == old" \
+	"!="       "new != old"]
+
 set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
 
-proc tab_cheat_type { args } {
-	set result [list]
-	lappend result "-start"
-	lappend result "bigger"
-	lappend result "smaller"
-	lappend result "more"
-	lappend result "less"
-	lappend result "notequal"
-	lappend result "equal"
-	lappend result "loe"
-	lappend result "moe"
-	lappend result "-max"
+proc tab_cheat_type {args} {
+	set result [dict keys $translate]
+	lappend result "-start" "-max"
 	return $result
 }
 
-#set maximum to display cheats
-variable max_num_results 15
-variable mem
-variable translate
-
 # Restart cheat finder.
 proc start {} {
-	variable mem
+	variable mem [dict create]
 
 	set mymem [debug read_block memory 0 0x10000]
 	binary scan $mymem c* values
 	set addr 0
 	foreach val $values {
-		set mem($addr) $val
+		dict append mem $addr $val
 		incr addr
 	}
 }
 
 # Helper function to do the actual search.
 # Returns a list of triplets (addr, old, new)
-proc search { expression } {
+proc search {expression} {
 	variable mem
 
 	set result [list]
-	foreach {addr old} [array get mem] {
+	dict for {addr old} $mem {
 		set new [debug read memory $addr]
-		if [expr $expression] {
-			set mem($addr) $new
+		if {[expr $expression]} {
+			dict set mem $addr $new
 			lappend result [list $addr $old $new]
 		} else {
-			unset mem($addr)
+			dict unset mem $addr
 		}
 	}
 	return $result
 }
 
 # main routine
-proc findcheat { args } {
+proc findcheat {args} {
 	variable mem
 	variable max_num_results
 	variable translate
 
-	# create mem array
-	if ![array exists mem] start
-
-	# build translation array for convenience expressions
-	if ![array exists translate] {
-		# TODO add more here
-		set translate()         "true"
-
-		set translate(bigger)   "new > old"
-		set translate(smaller)  "new < old"
-
-		set translate(more)     "new > old"
-		set translate(less)     "new < old"
-
-		set translate(notequal) "new != old"
-		set translate(equal)    "new == old"
-
-		set translate(loe)      "new <= old"
-		set translate(moe)      "new >= old"
-	}
+	# create mem dictionary
+	if {![info exists mem]} start
 
 	# parse options
 	while (1) {
 		switch -- [lindex $args 0] {
 		"-max" {
-			  set max_num_results  [lindex $args 1]
+			  set max_num_results [lindex $args 1]
 			  set args [lrange $args 2 end]
 		}
 		"-start" {
@@ -125,10 +124,10 @@ proc findcheat { args } {
 	# all remaining arguments form the expression
 	set expression [join $args]
 
-	if [info exists translate($expression)] {
+	if {[dict exists $translate $expression]} {
 		# translate a convenience expression into a real expression
-		set expression $translate($expression)
-	} elseif [string is integer $expression] {
+		set expression [dict get $translate $expression]
+	} elseif {[string is integer $expression]} {
 		# search for a specific value
 		set expression "new == $expression"
 	}
