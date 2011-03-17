@@ -11,12 +11,11 @@ if {$is_dingoo} {
 # Enable reverse if not yet enabled. As an optimization, also return
 # reverse-status info (so that caller doesn't have to query it again).
 proc auto_enable {} {
-	set stat_list [reverse status]
-	array set stat $stat_list
-	if {$stat(status) eq "disabled"} {
+	set stat_dict [reverse status]
+	if {[dict get $stat_dict status] eq "disabled"} {
 		reverse start
 	}
-	return $stat_list
+	return $stat_dict
 }
 
 set_help_text reverse_prev \
@@ -29,22 +28,23 @@ is also slightly faster than going back to an arbitrary point in time\
 (let's say going back a fixed amount of time).
 }
 proc reverse_prev {{minimum 1} {maximum 15}} {
-	array set revstat [auto_enable]
-	if {[llength $revstat(snapshots)] == 0} return
+	set stats [auto_enable]
+	set snapshots [dict get $stats snapshots]
+	set num_snapshots [llength $snapshots]
+	if {$num_snapshots == 0} return
 
-	set upperTarget [expr $revstat(current) - $minimum]
-	set lowerTarget [expr $revstat(current) - $maximum]
+	set current [dict get $stats current]
+	set upperTarget [expr {$current - $minimum}]
+	set lowerTarget [expr {$current - $maximum}]
 
 	# search latest snapshot that is still before upperTarget
-	set i [expr [llength $revstat(snapshots)] - 1]
-	while {([lindex $revstat(snapshots) $i] > $upperTarget) && ($i > 0)} {
+	set i [expr {$num_snapshots - 1}]
+	while {([lindex $snapshots $i] > $upperTarget) && ($i > 0)} {
 		incr i -1
 	}
 	# but don't go below lowerTarget
-	set t [lindex $revstat(snapshots) $i]
-	if {$t < $lowerTarget} {
-		set t $lowerTarget
-	}
+	set t [lindex $snapshots $i]
+	if {$t < $lowerTarget} {set t $lowerTarget}
 
 	reverse goto $t
 }
@@ -54,34 +54,33 @@ set_help_text reverse_next \
 snapshot in the future (if possible).
 }
 proc reverse_next {{minimum 0} {maximum 15}} {
-	array set revstat [auto_enable]
-	if {[llength $revstat(snapshots)] == 0} return
+	set stats [auto_enable]
+	set snapshots [dict get $stats snapshots]
+	set num_snapshots [llength $snapshots]
+	if {$num_snapshots == 0} return
 
-	set lowerTarget [expr $revstat(current) + $minimum]
-	set upperTarget [expr $revstat(current) + $maximum]
+	set current [dict get $stats current]
+	set lowerTarget [expr {$current + $minimum}]
+	set upperTarget [expr {$current + $maximum}]
 
 	# search first snapshot that is after lowerTarget
-	lappend revstat(snapshots) $revstat(end)
-	set l [llength $revstat(snapshots)]
+	lappend snapshots [dict get $stats end]
 	set i 0
-	while {($i < $l) && ([lindex $revstat(snapshots) $i] < $lowerTarget)} {
+	while {($i < $num_snapshots) && ([lindex $snapshots $i] < $lowerTarget)} {
 		incr i
 	}
 
-	if {$i < $l} {
+	if {$i < $num_snapshots} {
 		# but don't go above upperTarget
-		set t [lindex $revstat(snapshots) $i]
-		if {$t > $upperTarget} {
-			set t $upperTarget
-		}
+		set t [lindex $snapshots $i]
+		if {$t > $upperTarget} {set t $upperTarget}
 		reverse goto $t
 	}
 }
 
-proc goto_time_delta { delta } {
-	array set stat [reverse status]
-	set t [expr $stat(current) + $delta]
-	if {$t < 0} { set t 0 }
+proc goto_time_delta {delta} {
+	set t [expr {[dict get [reverse status] current] + $delta}]
+	if {$t < 0} {set t 0}
 	reverse goto $t
 }
 
@@ -107,12 +106,13 @@ proc after_switch {} {
 	after machine_switch [namespace code after_switch]
 }
 
-
 namespace export reverse_prev
 namespace export reverse_next
 namespace export go_back_one_second
 namespace export go_forward_one_second
-}
+
+} ;# namespace reverse
+
 
 namespace eval reverse_widgets {
 
@@ -132,7 +132,7 @@ specific point in time. If the current position is at the end of the history\
 fade out. You can make it reappear by moving the mouse over it.
 }
 proc toggle_reversebar {} {
-	if [osd exists reverse] {
+	if {[osd exists reverse]} {
 		disable_reversebar
 	} else {
 		enable_reversebar
@@ -143,7 +143,7 @@ proc toggle_reversebar {} {
 proc enable_reversebar {{visible true}} {
 	reverse::auto_enable
 
-	if [osd exists reverse] {
+	if {[osd exists reverse]} {
 		# osd already enabled
 		return
 	}
@@ -154,12 +154,12 @@ proc enable_reversebar {{visible true}} {
 	if {[catch {set led_y [osd info osd_icons -y]}]} {
 		set led_y 0
 	}
-	set y [expr ($led_y == 0) ? 231 : 1]
+	set y [expr {($led_y == 0) ? 231 : 1}]
 	# Set time indicator position (depending on reverse bar position)
-	variable overlayOffset [expr ($led_y > 16) ? 1.1 : -0.85]
+	variable overlayOffset [expr {($led_y > 16) ? 1.1 : -0.85}]
 
 	# Reversebar
-	set fade [expr $visible ? 1.0 : 0.0]
+	set fade [expr {$visible ? 1.0 : 0.0}]
 	osd create rectangle reverse \
 		-scaled true -x 34 -y $y -w 252 -h 8 \
 		-rgba 0x00000080 -fadeCurrent $fade -fadeTarget $fade \
@@ -196,13 +196,13 @@ proc disable_reversebar {} {
 }
 
 proc update_reversebar {} {
-	array set stats [reverse status]
+	set stats [reverse status]
 
-	set x 2 ; set y 2
+	set x 2; set y 2
 	catch {lassign [osd info "reverse.int" -mousecoord] x y}
 	set mouseInside [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
 
-	switch $stats(status) {
+	switch [dict get $stats status] {
 		"disabled" {
 			disable_reversebar
 			return
@@ -219,11 +219,14 @@ proc update_reversebar {} {
 		}
 	}
 
-	set snapshots $stats(snapshots)
-	set totLenght [expr $stats(end) - $stats(begin)]
-	set playLength [expr $stats(current) - $stats(begin)]
-	set reciprocalLength [expr ($totLenght != 0) ? (1.0 / $totLenght) : 0]
-	set fraction [expr $playLength * $reciprocalLength]
+	set snapshots [dict get $stats snapshots]
+	set begin     [dict get $stats begin]
+	set end       [dict get $stats end]
+	set current   [dict get $stats current]
+	set totLenght  [expr {$end     - $begin}]
+	set playLength [expr {$current - $begin}]
+	set reciprocalLength [expr {($totLenght != 0) ? (1.0 / $totLenght) : 0}]
+	set fraction [expr {$playLength * $reciprocalLength}]
 
 	# Check if cursor moved compared to previous update,
 	# if so reset counter (see below)
@@ -240,8 +243,8 @@ proc update_reversebar {} {
 	# Hide when mouse hasn't moved for some time
 	if {$mouseInside && $overlay_counter < 8} {
 		variable overlayOffset
-		osd configure reverse.mousetime -rely $overlayOffset -relx [expr $x - 0.05]
-		osd configure reverse.mousetime.text -text "[formatTime [expr $x*$totLenght]]"
+		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}]
+		osd configure reverse.mousetime.text -text "[formatTime [expr {$x * $totLenght}]]"
 		incr overlay_counter
 	} else {
 		osd configure reverse.mousetime -rely -100
@@ -254,7 +257,7 @@ proc update_reversebar {} {
 			# create new if it doesn't exist yet
 			osd create rectangle $name -w 0.5 -relh 1 -rgba 0x444444ff -z 2
 		}
-		osd configure $name -relx [expr ($snapshot - $stats(begin)) * $reciprocalLength]
+		osd configure $name -relx [expr {($snapshot - $begin) * $reciprocalLength}]
 		incr count
 	}
 	# destroy all with higher count number
@@ -274,19 +277,22 @@ proc check_mouse {} {
 	set x 2; set y 2
 	catch {lassign [osd info "reverse.int" -mousecoord] x y}
 	if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
-		array set stats [reverse status]
-		reverse goto [expr $stats(begin) + $x * ($stats(end) - $stats(begin))]
+		set stats [reverse status]
+		set begin [dict get $stats begin]
+		set end   [dict get $stats end]
+		reverse goto [expr {$begin + $x * ($end - $begin)}]
 	}
 	variable mouse_after_id
 	set mouse_after_id [after "mouse button1 down" [namespace code check_mouse]]
 }
 
 proc formatTime {seconds} {
-	format "%02d:%02d" [expr int($seconds / 60)] [expr int($seconds) % 60]
+	format "%02d:%02d" [expr {int($seconds / 60)}] [expr {int($seconds) % 60}]
 }
 
 namespace export toggle_reversebar
-}
+
+} ;# namespace reverse_widgets
 
 namespace import reverse::*
 namespace import reverse_widgets::*
