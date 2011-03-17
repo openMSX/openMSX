@@ -7,19 +7,26 @@
 
 namespace openmsx {
 
+using std::string;
+
 JoyTap::JoyTap(PluggingController& pluggingController,
-               const std::string& name_)
+               const string& name_)
 	: name(name_)
 {
-	for (int i = 0; i < 4; ++i) {
-		slaves[i].reset(new JoystickPort(
-			pluggingController,
-			StringOp::Builder() << name << "_port_" << char('1' + i)));
-	}
+	createPorts(pluggingController, "Joy Tap port ");
 }
 
 JoyTap::~JoyTap()
 {
+}
+
+void JoyTap::createPorts(PluggingController& pluggingController, const string& baseDescription) {
+	for (int i = 0; i < 4; ++i) {
+		slaves[i].reset(new JoystickPort(
+			pluggingController,
+			StringOp::Builder() << name << "_port_" << char('1' + i),
+			StringOp::Builder() << baseDescription << char('1' + i)));
+	}
 }
 
 const std::string& JoyTap::getDescription() const

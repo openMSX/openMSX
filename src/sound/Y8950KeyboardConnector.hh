@@ -21,7 +21,7 @@ public:
 	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
-	virtual const std::string& getDescription() const;
+	virtual const std::string getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, EmuTime::param time);
 

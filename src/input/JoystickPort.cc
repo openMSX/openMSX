@@ -5,16 +5,18 @@
 #include "DummyJoystick.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include <cctype>
 
 using std::string;
 
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           const string& name)
+                           const string& name, const string& description_)
 	: Connector(pluggingController_, name,
 	            std::auto_ptr<Pluggable>(new DummyJoystick()))
 	, lastValue(255) // != 0
+	, description(description_)
 {
 }
 
@@ -22,10 +24,9 @@ JoystickPort::~JoystickPort()
 {
 }
 
-const string& JoystickPort::getDescription() const
+const string JoystickPort::getDescription() const
 {
-	static const string desc("MSX Joystick port.");
-	return desc;
+	return description;
 }
 
 const string& JoystickPort::getClass() const

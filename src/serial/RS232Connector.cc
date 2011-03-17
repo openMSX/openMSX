@@ -19,10 +19,9 @@ RS232Connector::~RS232Connector()
 {
 }
 
-const std::string& RS232Connector::getDescription() const
+const std::string RS232Connector::getDescription() const
 {
-	static const std::string desc("Serial RS232 connector.");
-	return desc;
+	return "Serial RS232 connector";
 }
 
 const std::string& RS232Connector::getClass() const

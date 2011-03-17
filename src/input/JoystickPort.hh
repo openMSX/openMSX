@@ -15,13 +15,13 @@ class JoystickPort : public Connector
 {
 public:
 	JoystickPort(PluggingController& pluggingController,
-	             const std::string& name);
+	             const std::string& name, const std::string& description);
 	virtual ~JoystickPort();
 
 	JoystickDevice& getPluggedJoyDev() const;
 
 	// Connector
-	virtual const std::string& getDescription() const;
+	virtual const std::string getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& device, EmuTime::param time);
 
@@ -33,6 +33,7 @@ public:
 
 private:
 	byte lastValue;
+	const std::string description;
 };
 
 } // namespace openmsx

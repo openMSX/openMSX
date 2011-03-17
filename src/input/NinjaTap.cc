@@ -10,6 +10,8 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
                    const std::string& name)
 	: JoyTap(pluggingController, name)
 {
+	createPorts(pluggingController, "Ninja Tap port ");
+
 	status = 0x3F; // TODO check initial value
 	previous = 0;
 	for (int i = 0; i < 4; ++i) {

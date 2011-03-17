@@ -33,10 +33,9 @@ byte Y8950KeyboardConnector::read(EmuTime::param time)
 	return getPluggedKeyb().read(time);
 }
 
-const std::string& Y8950KeyboardConnector::getDescription() const
+const std::string Y8950KeyboardConnector::getDescription() const
 {
-	static const std::string desc("MSX-AUDIO keyboard connector.");
-	return desc;
+	return "MSX-AUDIO keyboard connector";
 }
 
 const std::string& Y8950KeyboardConnector::getClass() const

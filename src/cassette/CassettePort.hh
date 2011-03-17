@@ -75,7 +75,7 @@ public:
 	virtual bool lastOut() const;
 
 	// Connector
-	virtual const std::string& getDescription() const;
+	virtual const std::string getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void unplug(EmuTime::param time);
 

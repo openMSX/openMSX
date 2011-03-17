@@ -19,10 +19,9 @@ MidiInConnector::~MidiInConnector()
 {
 }
 
-const std::string& MidiInConnector::getDescription() const
+const std::string MidiInConnector::getDescription() const
 {
-	static const std::string desc("Midi-IN connector.");
-	return desc;
+	return "MIDI-in connector";
 }
 
 const std::string& MidiInConnector::getClass() const

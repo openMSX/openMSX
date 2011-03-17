@@ -25,7 +25,7 @@ public:
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 
 	// Connector
-	virtual const std::string& getDescription() const;
+	virtual const std::string getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, EmuTime::param time);
 

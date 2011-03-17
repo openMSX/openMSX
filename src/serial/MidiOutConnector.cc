@@ -21,10 +21,9 @@ MidiOutConnector::~MidiOutConnector()
 {
 }
 
-const string& MidiOutConnector::getDescription() const
+const string MidiOutConnector::getDescription() const
 {
-	static const string desc("Midi-OUT connector.");
-	return desc;
+	return "MIDI-out connector";
 }
 
 const string& MidiOutConnector::getClass() const

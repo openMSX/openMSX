@@ -135,10 +135,9 @@ void CassettePort::unplug(EmuTime::param time)
 	Connector::unplug(time);
 }
 
-const string& CassettePort::getDescription() const
+const string CassettePort::getDescription() const
 {
-	static const string desc("MSX Cassette port.");
-	return desc;
+	return "MSX Cassette port";
 }
 
 const string& CassettePort::getClass() const

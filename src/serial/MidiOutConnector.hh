@@ -20,7 +20,7 @@ public:
 	MidiOutDevice& getPluggedMidiOutDev() const;
 
 	// Connector
-	virtual const std::string& getDescription() const;
+	virtual const std::string getDescription() const;
 	virtual const std::string& getClass() const;
 
 	// SerialDataInterface

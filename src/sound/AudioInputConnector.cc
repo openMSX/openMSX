@@ -19,10 +19,9 @@ AudioInputConnector::~AudioInputConnector()
 {
 }
 
-const std::string& AudioInputConnector::getDescription() const
+const std::string AudioInputConnector::getDescription() const
 {
-	static const std::string desc("Audio input connector.");
-	return desc;
+	return "Audio input connector";
 }
 
 const std::string& AudioInputConnector::getClass() const

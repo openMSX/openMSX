@@ -72,10 +72,9 @@ void MSXPrinterPort::writeData(byte newData, EmuTime::param time)
 	}
 }
 
-const string& MSXPrinterPort::getDescription() const
+const string MSXPrinterPort::getDescription() const
 {
-	static const string desc("MSX Printer port.");
-	return desc;
+	return "MSX Printer port";
 }
 
 const string& MSXPrinterPort::getClass() const

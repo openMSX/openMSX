@@ -35,8 +35,8 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
 	selectedPort = 0;
 	PluggingController& controller = motherBoard.getPluggingController();
-	ports[0].reset(new JoystickPort(controller, "joyporta"));
-	ports[1].reset(new JoystickPort(controller, "joyportb"));
+	ports[0].reset(new JoystickPort(controller, "joyporta", "MSX Joystick port A"));
+	ports[1].reset(new JoystickPort(controller, "joyportb", "MSX Joystick port B"));
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();

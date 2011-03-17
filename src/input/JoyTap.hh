@@ -41,6 +41,7 @@ public:
 
 protected:
 	std::auto_ptr<JoystickPort> slaves[4];
+	void createPorts(PluggingController& pluggingController, const std::string &baseDescription);
 
 private:
 	const std::string name;
