@@ -9,24 +9,22 @@ Usage:
   psg_profile <profile>  Select a new profile
 }
 
-variable psg_profiles
-variable psg_settings
+variable psg_settings {::PSG_vibrato_percent ::PSG_vibrato_frequency
+                       ::PSG_detune_percent  ::PSG_detune_frequency}
+variable psg_profiles [dict create \
+	normal         { 0.0  -  0.0  -  } \
+	vibrato        { 1.0 5.0 0.0  -  } \
+	detune         { 0.0  -  0.5 5.0 } \
+	detune_vibrato { 1.0 5.0 0.5 5.0 }]
 
 set_tabcompletion_proc psg_profile [namespace code tab_psg_profile]
-proc tab_psg_profile { args } {
+proc tab_psg_profile {args} {
 	variable psg_profiles
-	set result [array names psg_profiles]
+	set result [dict keys $psg_profiles]
 	lappend result "-list"
 }
 
-set psg_settings {::PSG_vibrato_percent ::PSG_vibrato_frequency
-                    ::PSG_detune_percent  ::PSG_detune_frequency}
-set psg_profiles(normal)         { 0.0  -  0.0  -  }
-set psg_profiles(vibrato)        { 1.0 5.0 0.0  -  }
-set psg_profiles(detune)         { 0.0  -  0.5 5.0 }
-set psg_profiles(detune_vibrato) { 1.0 5.0 0.5 5.0 }
-
-proc equal_psg_profile { values } {
+proc equal_psg_profile {values} {
 	variable psg_settings
 	foreach setting $psg_settings value $values {
 		if {$value ne "-"} {
@@ -38,7 +36,7 @@ proc equal_psg_profile { values } {
 	return true
 }
 
-proc get_psg_profile { } {
+proc get_psg_profile {} {
 	variable psg_settings
 	set result [list]
 	foreach setting $psg_settings {
@@ -47,7 +45,7 @@ proc get_psg_profile { } {
 	return $result
 }
 
-proc set_psg_profile { values } {
+proc set_psg_profile {values} {
 	variable psg_settings
 	foreach setting $psg_settings value $values {
 		if {$value ne "-"} {
@@ -57,23 +55,21 @@ proc set_psg_profile { values } {
 }
 
 proc psg_profile {{profile ""}} {
-	variable psg_settings
 	variable psg_profiles
 	if {$profile eq ""} {
-		foreach profile [array names psg_profiles] {
-			if [equal_psg_profile $psg_profiles($profile)] {
-				return $profile
+		dict for {name value} $psg_profiles {
+			if {[equal_psg_profile $value]} {
+				return $name
 			}
 		}
 		return "Custom profile: [get_psg_profile]"
 	} elseif {$profile eq "-list"} {
-		return [array names psg_profiles]
+		return [dict keys $psg_profiles]
 	} else {
-		if [info exists psg_profiles($profile)] {
-			set_psg_profile $psg_profiles($profile)
-		} else {
+		if {![dict exists $psg_profiles $profile]} {
 			error "No such profile: $profile"
 		}
+		set_psg_profile [dict get $psg_profiles $profile]
 	}
 }
 

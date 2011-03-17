@@ -26,56 +26,55 @@ Usage is similar to the builtin Tcl proc 'set'
    reg AF 0x1234   write 0x12 to register A and 0x34 to F
 }
 
-variable regB
-variable regW
+variable regB [dict create \
+	A    0    F    1    B    2    C    3 \
+	D    4    E    5    H    6    L    7 \
+	A2   8    F2   9    B2  10    C2  11 \
+	D2  12    E2  13    H2  14    L2  15 \
+	IXH 16    IXL 17    IYH 18    IYL 19 \
+	PCH 20    PCL 21    SPH 22    SPL 23 \
+	I   24    R   25    IM  26    IFF 27 ]
 
-set regB(A)    0 ; set regB(F)    1 ; set regB(B)    2 ; set regB(C)    3
-set regB(D)    4 ; set regB(E)    5 ; set regB(H)    6 ; set regB(L)    7
-set regB(A2)   8 ; set regB(F2)   9 ; set regB(B2)  10 ; set regB(C2)  11
-set regB(D2)  12 ; set regB(E2)  13 ; set regB(H2)  14 ; set regB(L2)  15
-set regB(IXh) 16 ; set regB(IXl) 17 ; set regB(IYh) 18 ; set regB(IYl) 19
-set regB(PCh) 20 ; set regB(PCl) 21 ; set regB(SPh) 22 ; set regB(SPl) 23
-set regB(I)   24 ; set regB(R)   25 ; set regB(IM)  26 ; set regB(IFF) 27
-
-set regW(AF)   0 ; set regW(BC)   2 ; set regW(DE)   4 ; set regW(HL)   6
-set regW(AF2)  8 ; set regW(BC2) 10 ; set regW(DE2) 12 ; set regW(HL2) 14
-set regW(IX)  16 ; set regW(IY)  18 ; set regW(PC)  20 ; set regW(SP)  22
+variable regW [dict create \
+	AF   0    BC   2    DE   4    HL   6 \
+	AF2  8    BC2 10    DE2 12    HL2 14 \
+	IX  16    IY  18    PC  20    SP  22 ]
 
 set_tabcompletion_proc reg [namespace code __tab_reg] false
 
-proc __tab_reg { args } {
+proc __tab_reg {args} {
 	variable regB
 	variable regW
-	concat [array names regB] [array names regW]
+	concat [dict keys regB] [dict keys regW]
 }
 
-proc reg { name { val "" } } {
+proc reg {name {val ""}} {
 	variable regB
 	variable regW
 
 	set name [string toupper $name]
-	if [info exists regB($name)] {
-		set i $regB($name)
+	if {[dict exists $regB $name]} {
+		set i [dict get $regB $name]
 		set single 1
-	} elseif [info exists regW($name)] {
-		set i $regW($name)
+	} elseif {[dict exists $regW $name]} {
+		set i [dict get $regW $name]
 		set single 0
 	} else {
 		error "Unknown Z80 register: $name"
 	}
 	set d "CPU regs"
 	if {$val eq ""} {
-		if { $single } {
+		if {$single} {
 			return [debug read $d $i]
 		} else {
-			return [expr 256 * [debug read $d $i] + [debug read $d [expr $i + 1]]]
+			return [expr {256 * [debug read $d $i] + [debug read $d [expr {$i + 1}]]}]
 		}
 	} else {
-		if { $single } {
+		if {$single} {
 			debug write $d $i $val
 		} else {
-			debug write $d $i [expr $val / 256]
-			debug write $d [expr $i + 1] [expr $val & 255]
+			debug write $d $i [expr {$val / 256}]
+			debug write $d [expr {$i + 1}] [expr {$val & 255}]
 		}
 	}
 }
@@ -85,8 +84,8 @@ proc reg { name { val "" } } {
 
 set_help_text cpuregs "Gives an overview of all Z80 registers."
 
-proc cw { reg } { format "%04X" [reg $reg] }
-proc cb { reg } { format "%02X" [reg $reg] }
+proc cw {reg} {format "%04X" [reg $reg]}
+proc cb {reg} {format "%02X" [reg $reg]}
 
 proc cpuregs {} {
 	set result ""

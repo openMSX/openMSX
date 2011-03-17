@@ -25,18 +25,14 @@ namespace eval vu_meters {
 variable vu_meters_active false
 variable volume_cache
 variable volume_expr
-variable nof_channels
 variable bar_length
-variable soundchips
 variable machine_switch_trigger_id 0
 variable frame_trigger_id 0
 
 proc vu_meters_init {} {
 	variable volume_cache
 	variable volume_expr
-	variable nof_channels
 	variable bar_length
-	variable soundchips
 	variable machine_switch_trigger_id
 
 	# create root object for vu_meters
@@ -45,41 +41,38 @@ proc vu_meters_init {} {
 		-alpha 0 \
 		-z 1
 
-	set soundchips [list]
-
 	foreach soundchip [machine_info sounddevice] {
-		# determine number of channels
-		set channel_count [soundchip_utils::get_num_channels $soundchip]
 		# skip devices which don't have volume expressions (not implemented yet)
 		if {[soundchip_utils::get_volume_expr $soundchip 0] eq "x"} continue
 
-		lappend soundchips $soundchip
-		set nof_channels($soundchip) $channel_count
+		# determine number of channels
+		set channel_count [soundchip_utils::get_num_channels $soundchip]
+
 		for {set i 0} {$i < $channel_count} {incr i} {
 			# create the volume cache and the expressions
-			set volume_cache($soundchip,$i) -1
-			set volume_expr($soundchip,$i) [soundchip_utils::get_volume_expr $soundchip $i]
+			dict set volume_cache $soundchip $i -1
+			dict set volume_expr  $soundchip $i [soundchip_utils::get_volume_expr $soundchip $i]
 		}
 	}
 
-	#puts stderr [utils::print_array volume_expr]; # debug
-
+	set nof_soundchips [dict size $volume_expr]
 	set bar_width 2; # this value could be customized
 	set vu_meter_title_height 8; # this value could be customized
-	set bar_length [expr (320 - [llength $soundchips]) / [llength $soundchips]]
-	if {$bar_length > (320/4)} {set bar_length [expr 320/4]}
+	set bar_length [expr {(320 - $nof_soundchips) / $nof_soundchips}]
+	if {$bar_length > (320 / 4)} {set bar_length [expr {320 / 4}]}
 
 	# create widgets for each sound chip:
 	set vu_meter_offset 0
 
-	foreach soundchip $soundchips {
+	dict for {soundchip channel_dict} $volume_expr {
+		set nof_channels [dict size $channel_dict]
 		# create surrounding widget for this chip
 		osd create rectangle vu_meters.$soundchip \
 			-rgba 0x00000080 \
 			-x ${vu_meter_offset} \
 			-y 0 \
 			-w $bar_length \
-			-h [expr $vu_meter_title_height + 1 + $nof_channels($soundchip) * ($bar_width + 1)] \
+			-h [expr {$vu_meter_title_height + 1 + $nof_channels * ($bar_width + 1)}] \
 			-clip true
 		osd create text vu_meters.${soundchip}.title \
 			-x 1 \
@@ -89,7 +82,7 @@ proc vu_meters_init {} {
 			-size [expr $vu_meter_title_height - 1]
 
 		# create vu meters for this sound chip
-		for {set channel 0} {$channel < $nof_channels($soundchip)} {incr channel} {
+		dict for {channel volExpr} $channel_dict {
 			osd create rectangle vu_meters.${soundchip}.ch${channel} \
 				-rgba 0xff0000ff \
 				-x 0 \
@@ -108,19 +101,17 @@ proc update_meters {} {
 	variable vu_meters_active
 	variable volume_cache
 	variable volume_expr
-	variable nof_channels
-	variable soundchips
 	variable frame_trigger_id
 
 	# update meters with the volumes
 	if {!$vu_meters_active} return
 
-	foreach soundchip $soundchips {
-		for {set channel 0} {$channel < $nof_channels($soundchip)}  {incr channel} {
-			set new_volume [eval $volume_expr($soundchip,$channel)]
-			if {$volume_cache($soundchip,$channel) != $new_volume} {
+	dict for {soundchip channel_dict} $volume_expr {
+		dict for {channel volExpr} $channel_dict {
+			set new_volume [eval $volExpr]
+			if {[dict get $volume_cache $soundchip $channel] != $new_volume} {
+				dict set volume_cache $soundchip $channel $new_volume
 				update_meter "vu_meters.${soundchip}.ch${channel}" $new_volume
-				set volume_cache($soundchip,$channel) $new_volume
 			}
 		}
 	}
@@ -154,18 +145,16 @@ proc toggle_vu_meters {} {
 	variable vu_meters_active
 	variable machine_switch_trigger_id
 	variable frame_trigger_id
-	variable soundchips
 	variable bar_length
 	variable volume_cache
 	variable volume_expr
-	variable nof_channels
 
 	if {$vu_meters_active} {
 		after cancel $machine_switch_trigger_id
 		after cancel $frame_trigger_id
 		set vu_meters_active false
 		osd destroy vu_meters
-		unset soundchips bar_length volume_cache volume_expr nof_channels
+		unset bar_length volume_cache volume_expr
 	} else {
 		set vu_meters_active true
 		vu_meters_init

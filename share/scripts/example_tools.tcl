@@ -218,18 +218,18 @@ proc get_color_count {args} {
 
 	# analyze pixels
 	for {set p 0} {$p < $nrcolors} {incr p} {
-		set pixelstats($p) 0
+		dict set pixelstats $p 0
 	}
 	set mask [expr $nrcolors - 1]
 	foreach byte $myvram {
 		for {set pixel 0} {$pixel < $nofpixels_per_byte} {incr pixel} {
 			set color [expr {($byte >> ($pixel * $bpp)) & $mask}]
-			incr pixelstats($color)
+			dict incr pixelstats $color
 		}
 	}
 	# convert to list
 	set pixelstatlist [list]
-	foreach {key val} [array get pixelstats] {
+	dict for {key val} $pixelstats {
 		if {$showall || ($val != 0)} {
 			lappend pixelstatlist [list $key $val]
 		}

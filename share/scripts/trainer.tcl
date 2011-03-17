@@ -26,18 +26,16 @@ proc tab_trainer {args} {
 	variable trainers
 
 	if {[llength $args] == 2} {
-		set result [array names trainers]
+		set result [dict keys $trainers]
 		lappend result "deactivate"
 	} else {
 		set result [list]
 		set name [lindex $args 1]
-		if [info exists trainers($name)] {
-			set stuff $trainers($name)
-			set items [lindex $stuff 0]
+		if {[dict exists $trainers $name]} {
+			set items [dict get $trainers $name items]
 			set i 1
 			foreach {item_name item_impl} $items {
-				lappend result $item_name
-				lappend result $i
+				lappend result $item_name $i
 				incr i
 			}
 		}
@@ -55,15 +53,15 @@ proc trainer {args} {
 		set name [lindex $args 0]
 		if {$name ne "deactivate"} {
 			set requested_items [lrange $args 1 end]
-			if ![info exists trainers($name)] {
+			if {![dict exists $trainers $name]} {
 				error "no trainer for $name."
 			}
 			set same_trainer [string equal $name $active_trainer]
 			set items [parse_items $name $requested_items]
-			if $same_trainer {
+			if {$same_trainer} {
 				set new_items [list]
 				foreach item1 $items item2 $items_active {
-					lappend new_items [expr $item1 ^ $item2]
+					lappend new_items [expr {$item1 ^ $item2}]
 				}
 				set items_active $new_items
 			} else {
@@ -81,18 +79,13 @@ proc trainer {args} {
 }
 proc parse_items {name requested_items} {
 	variable trainers
-	set stuff $trainers($name)
-	set items [lindex $stuff 0]
+	set items [dict get $trainers $name items]
 	set result [list]
 	set i 1
 	foreach {item_name item_impl} $items {
-		set active 0
-		if {($requested_items eq "all") ||
-		    ($i         in $requested_items) ||
-		    ($item_name in $requested_items)} {
-			set active 1
-		}
-		lappend result $active
+		lappend result [expr {($requested_items eq "all")      ||
+		                      ($i         in $requested_items) ||
+		                      ($item_name in $requested_items)}]
 		incr i
 	}
 	return $result
@@ -106,17 +99,12 @@ proc print {} {
 		return "no trainer active"
 	}
 	set result [list]
-	set stuff $trainers($active_trainer)
-	set items [lindex $stuff 0]
+	set items [dict get $trainers $active_trainer items]
 	lappend result "active trainer: $active_trainer"
 	set i 1
 	foreach {item_name item_impl} $items item_active $items_active {
 		set line "$i \["
-		if $item_active {
-			append line "x"
-		} else {
-			append line " "
-		}
+		append line [expr {$item_active ? "x" : " "}]
 		append line "\] $item_name"
 		lappend result $line
 		incr i
@@ -129,11 +117,10 @@ proc execute {} {
 	variable items_active
 	variable after_id
 
-	set stuff $trainers($active_trainer)
-	set items [lindex $stuff 0]
-	set repeat [lindex $stuff 1]
+	set items  [dict get $trainers $active_trainer items ]
+	set repeat [dict get $trainers $active_trainer repeat]
 	foreach {item_name item_impl} $items item_active $items_active {
-		if $item_active {
+		if {$item_active} {
 			eval $item_impl
 		}
 	}
@@ -146,7 +133,7 @@ proc deactivate {} {
 	after cancel $after_id
 	set active_trainer ""
 }
-proc deactivate_after { event } {
+proc deactivate_after {event} {
 	deactivate
 	after $event "trainer::deactivate_after $event"
 }
@@ -155,7 +142,7 @@ deactivate_after machine_switch
 
 proc create_trainer {name repeat items} {
 	variable trainers
-	set trainers($name) [list $items $repeat]
+	dict set trainers $name [dict create items $items repeat $repeat]
 }
 
 # source the trainer definitions (user may override system defaults) and ignore errors

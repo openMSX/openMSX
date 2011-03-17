@@ -8,27 +8,29 @@ namespace eval mode {
 variable modes_info
 variable old_mode
 
-proc register { name enter_proc leave_proc description } {
+proc register {name enter_proc leave_proc description} {
 	variable modes_info
-	set modes_info($name) [list $enter_proc $leave_proc $description]
+	dict set modes_info $name [dict create enter_proc $enter_proc \
+	                                       leave_proc $leave_proc \
+	                                       description $description]
 }
 
-proc mode_changed { name1 name2 op } {
+proc mode_changed {name1 name2 op} {
 	variable modes_info
 	variable old_mode
 
 	set new_mode $::mode
-	if {![info exists modes_info($new_mode)]} {
+	if {![dict exists $modes_info $new_mode]} {
 		# New mode doesn't exist, restore variable and give an error
 		set ::mode $old_mode
-		error "No such mode: $new_mode. Possible values are: [array names modes_info]"
+		error "No such mode: $new_mode. Possible values are: [dict keys $modes_info]"
 	}
 
 	# Leave old mode
-	eval [lindex $modes_info($old_mode) 1]
+	eval [dict get $modes_info $old_mode leave_proc]
 
 	# Enter new mode
-	eval [lindex $modes_info($new_mode) 0]
+	eval [dict get $modes_info $new_mode enter_proc]
 
 	set old_mode $new_mode
 }
@@ -71,10 +73,10 @@ proc enter_tas_mode {} {
 }
 
 proc leave_tas_mode {} {
-	if [osd exists framecount] {
+	if {[osd exists framecount]} {
 		toggle_frame_counter
 	}
-	if [osd exists cursors] {
+	if {[osd exists cursors]} {
 		toggle_cursors
 	}
 	# Leave reverse enabled, including bar
@@ -98,8 +100,8 @@ register "tas" [namespace code enter_tas_mode] \
 # Create setting (uses info from registered modes above)
 
 set help_text "This setting switches between different openMSX modes. A mode is a set of settings (mostly keybindings, but also OSD widgets that are activated) that are most suitable for a certain task. Currently these modes exist:"
-foreach name [lsort [array names modes_info]] {
-	append help_text "\n  $name: [lindex $modes_info($name) 2]"
+foreach name [lsort [dict keys $modes_info]] {
+	append help_text "\n  $name: [dict get $modes_info $name description]"
 }
 
 user_setting create string mode $help_text normal
@@ -110,6 +112,6 @@ trace add variable ::mode write [namespace code mode_changed]
 ## Enter initial mode
 
 set old_mode $::mode
-after realtime 0 { eval [lindex $mode::modes_info($::mode) 0] }
+after realtime 0 {eval [dict get $mode::modes_info $::mode enter_proc]}
 
 }

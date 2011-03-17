@@ -37,7 +37,7 @@ variable chunk_time
 variable total_time
 variable next_after_id
 
-proc record_chunks { args } {
+proc record_chunks {args} {
 	variable filenamebase
 	variable iteration
 	variable chunk_time
@@ -75,7 +75,7 @@ proc record_chunks { args } {
 
 	# do this outside of the loop, so that the order of options isn't too strict
 	if {$num_chunks > 0} {
-		set total_time [expr $num_chunks * $chunk_time]
+		set total_time [expr {$num_chunks * $chunk_time}]
 	}
 
 	switch -- [lindex $args 0] {
@@ -83,8 +83,7 @@ proc record_chunks { args } {
 			if {[llength $args] != 2} {
 				error "Expected another argument: the name of your video!"
 			}
-			array set stat [record status]
-			if {$stat(status) ne "idle"} {
+			if {[dict get [record status] status] ne "idle"} {
 				error "Already recording!"
 			}
 			set filenamebase [lindex $args 1]

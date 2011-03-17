@@ -30,9 +30,9 @@ proc get_extension_display_name_by_config_name { config_name } {
 	return [get_display_name_by_config_name $config_name "extensions"]
 }
 
-proc get_display_name_by_config_name { config_name type} {
+proc get_display_name_by_config_name {config_name type} {
 	if {[catch {
-		array set names [openmsx_info $type $config_name]
+		set names [openmsx_info $type $config_name]
 		if {$type eq "machines"} {
 			set keylist [list "manufacturer" "code"]
 		} elseif {$type eq "extensions"} {
@@ -42,7 +42,7 @@ proc get_display_name_by_config_name { config_name type} {
 		}
 		set arglist [list]
 		foreach key $keylist {
-			set arg $names($key)
+			set arg [dict get $names $key]
 			if {$arg ne ""} {
 				lappend arglist $arg
 			}
@@ -84,15 +84,6 @@ proc get_random_number {max} {
 
 proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
-}
-
-proc print_array {name} {
-	upvar $name local
-	set result ""
-	foreach key [array names local] {
-		append result "${name}(${key}) = $local($key)\n"
-	}
-	return $result
 }
 
 } ;# namespace utils

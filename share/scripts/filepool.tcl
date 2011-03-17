@@ -46,8 +46,7 @@ proc filepool_list {}  {
 	set result ""
 	set i 1
 	foreach pool $::__filepool {
-		array set a $pool
-		append result "$i: $a(-path)  \[$a(-types)\]\n"
+		append result "$i: [dict get $pool -path]  \[[dict get $pool -types]\]\n"
 		incr i
 	}
 	return $result
@@ -88,7 +87,7 @@ proc filepool_add { args } {
 		error "Missing -types"
 	}
 
-	set newpool [list -path $path -types $types]
+	set newpool [dict create -path $path -types $types]
 	if {$pos == [llength $::__filepool]} {
 		lappend ::__filepool $newpool
 	} else {
