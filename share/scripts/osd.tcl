@@ -28,16 +28,16 @@ proc show_osd {{widgets ""}} {
 
 # this can display only one message at a time, the previous message
 # will get overwritten by a new one
-proc display_message { message {category info} } {
+proc display_message {message {category info}} {
 	variable default_color
 	variable error_color
 	variable warning_color
 	switch -- $category {
-		"info"     { set bg_color $default_color }
-		"progress" { set bg_color $default_color }
-		"warning"  { set bg_color $warning_color }
-		"error"    { set bg_color $error_color   }
-		"default"  { error "Invalid category: $category" }
+		"info"     {set bg_color $default_color}
+		"progress" {set bg_color $default_color}
+		"warning"  {set bg_color $warning_color}
+		"error"    {set bg_color $error_color  }
+		"default"  {error "Invalid category: $category"}
 	}
 
 	osd_widgets::text_box osd_display_message \

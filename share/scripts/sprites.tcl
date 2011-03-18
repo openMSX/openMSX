@@ -1,5 +1,5 @@
 #attributes
-#expr ([vdpreg 11] << 15) + (([vdpreg 5] & 0xf8) << 7)
+#expr {([vdpreg 11] << 15) + (([vdpreg 5] & 0xf8) << 7)}
 
 namespace eval osd_sprite_info {
 
@@ -32,8 +32,8 @@ proc sprite_viewer_action {action} {
 	if {$action == 1} {incr title_pos -1}
 	if {$action == 2} {incr title_pos  1}
 
-	if {$title_pos>$max_sprites} {set title_pos 0}
-	if {$title_pos<0} {set title_pos $max_sprites}
+	if {$title_pos > $max_sprites} {set title_pos 0}
+	if {$title_pos < 0} {set title_pos $max_sprites}
 
 	#show sprite matrix
 	show_sprite $title_pos
@@ -61,16 +61,16 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 	   osd configure $osd_object -x $x -fadeTarget 1 -fadePeriod 0.25
 	}
 
-	if {$frame_render>$x} {
+	if {$frame_render > $x} {
 		#leave routine
 		return ""
 	}
 
 	#ease in
 	if {$action == 2} {
-		osd configure $osd_object -x [expr (($x*-1)+$frame_render)]
+		osd configure $osd_object -x [expr {$frame_render - $x}]
 	} else {
-		osd configure $osd_object -x [expr ($x-$frame_render)]
+		osd configure $osd_object -x [expr {$x - $frame_render}]
 	}
 
 	incr frame_render 4
@@ -82,9 +82,9 @@ proc ease_text {osd_object {frame_render 0} {action 0}} {
 proc show_sprite {sprite} {
 	variable max_sprites
 
-	set sprite_size [expr ([vdpreg 1] & 2) ? 16 : 8]
-	set factor [expr ($sprite_size == 8) ? 1 : 4]
-	set max_sprites [expr (256 / $factor) - 1]
+	set sprite_size [expr {([vdpreg 1] & 2) ? 16 : 8}]
+	set factor [expr {($sprite_size == 8) ? 1 : 4}]
+	set max_sprites [expr {(256 / $factor) - 1}]
 	if {($sprite > $max_sprites) || ($sprite < 0)} {
 		error "Please choose a value between 0 and $max_sprites"
 	}
@@ -92,18 +92,18 @@ proc show_sprite {sprite} {
 	osd destroy sprite_viewer.sprite_osd
 	draw_matrix "sprite_viewer.sprite_osd" 7 56 7 $sprite_size 1
 
-	set addr [expr ([vdpreg 6] << 11) + ($sprite * $factor * 8)]
+	set addr [expr {([vdpreg 6] << 11) + ($sprite * $factor * 8)}]
 	for {set y 0} {$y < $sprite_size} {incr y; incr addr} {
 		set pattern [vpeek $addr]
-		set mask [expr ($sprite_size == 8) ? 0x80 : 0x8000]
+		set mask [expr {($sprite_size == 8) ? 0x80 : 0x8000}]
 		if {$sprite_size == 16} {
-			set pattern [expr ($pattern << 8) + [vpeek [expr $addr + 16]]]
+			set pattern [expr {($pattern << 8) + [vpeek [expr {$addr + 16}]]}]
 		}
 		for {set x 0} {$x < $sprite_size} {incr x} {
 			if {$pattern & $mask} {
 				osd configure sprite_viewer.sprite_osd.${x}_${y} -rgba 0xffffffff
 			}
-			set mask [expr $mask >> 1]
+			set mask [expr {$mask >> 1}]
 		}
 	}
 }
@@ -112,17 +112,17 @@ proc draw_matrix {matrixname x y blocksize matrixsize matrixgap} {
 	osd create rectangle $matrixname \
 		-x $x \
 		-y $y \
-		-h [expr $matrixsize * $blocksize] \
-		-w [expr $matrixsize * $blocksize] \
+		-h [expr {$matrixsize * $blocksize}] \
+		-w [expr {$matrixsize * $blocksize}] \
 		-rgba 0x00000040
 
 	for {set x 0} {$x < $matrixsize} {incr x} {
 		for {set y 0} {$y < $matrixsize} {incr y} {
 			osd create rectangle $matrixname.${x}_${y} \
-				-h [expr $blocksize - $matrixgap] \
-				-w [expr $blocksize - $matrixgap] \
-				-x [expr $x * $blocksize] \
-				-y [expr $y * $blocksize] \
+				-h [expr {$blocksize - $matrixgap}] \
+				-w [expr {$blocksize - $matrixgap}] \
+				-x [expr {$x * $blocksize}] \
+				-y [expr {$y * $blocksize}] \
 				-rgba 0x0000ff80
 		}
 	}

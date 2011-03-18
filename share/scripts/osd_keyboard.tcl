@@ -33,7 +33,7 @@ variable board_hborder 4
 variable board_vborder 4
 
 proc toggle_osd_keyboard {} {
-	if [osd exists kb] {
+	if {[osd exists kb]} {
 		disable_osd_keyboard
 	} else {
 		enable_osd_keyboard
@@ -65,7 +65,7 @@ proc disable_osd_keyboard {} {
 		keymatrixup $i 255
 	}
 
-	namespace eval ::osd_control { unset close }
+	namespace eval ::osd_control {unset close}
 }
 
 proc enable_osd_keyboard {} {
@@ -82,7 +82,7 @@ proc enable_osd_keyboard {} {
 		eval $::osd_control::close
 	}
 	# and tell how to close this widget
-	namespace eval ::osd_control { set close ::osd_keyboard::disable_osd_keyboard }
+	namespace eval ::osd_control {set close ::osd_keyboard::disable_osd_keyboard}
 
 	#bind stuff
 	bind_default "mouse button1 down"  {osd_keyboard::key_handler true}
@@ -90,17 +90,17 @@ proc enable_osd_keyboard {} {
 
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
 
-	bind_default "keyb UP"     -repeat { osd_keyboard::selection_row -1  }
-	bind_default "keyb DOWN"   -repeat { osd_keyboard::selection_row +1  }
-	bind_default "keyb LEFT"   -repeat { osd_keyboard::selection_col -1  }
-	bind_default "keyb RIGHT"  -repeat { osd_keyboard::selection_col +1  }
+	bind_default "keyb UP"     -repeat {osd_keyboard::selection_row -1}
+	bind_default "keyb DOWN"   -repeat {osd_keyboard::selection_row +1}
+	bind_default "keyb LEFT"   -repeat {osd_keyboard::selection_col -1}
+	bind_default "keyb RIGHT"  -repeat {osd_keyboard::selection_col +1}
 	if {$is_dingoo} {
-		bind_default "keyb LCTRL,PRESS"    { osd_keyboard::selection_press   }
-		bind_default "keyb LCTRL,RELEASE"  { osd_keyboard::selection_release }
-		bind_default "keyb LALT"           { osd_keyboard::key_hold_toggle   }
+		bind_default "keyb LCTRL,PRESS"    {osd_keyboard::selection_press  }
+		bind_default "keyb LCTRL,RELEASE"  {osd_keyboard::selection_release}
+		bind_default "keyb LALT"           {osd_keyboard::key_hold_toggle  }
 	} else {
-		bind_default "keyb SPACE,PRESS"    { osd_keyboard::selection_press   }
-		bind_default "keyb SPACE,RELEASE"  { osd_keyboard::selection_release }
+		bind_default "keyb SPACE,PRESS"    {osd_keyboard::selection_press  }
+		bind_default "keyb SPACE,RELEASE"  {osd_keyboard::selection_release}
 	}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
@@ -123,20 +123,20 @@ proc enable_osd_keyboard {} {
 
 	# Create widgets.
 	set board_width \
-		[expr 15 * $key_basewidth + 14 * $key_hspace + 2 * $board_hborder]
+		[expr {15 * $key_basewidth + 14 * $key_hspace + 2 * $board_hborder}]
 	set board_height \
-		[expr 6 * $key_height + 5 * $key_vspace + 2 * $board_vborder]
+		[expr {6 * $key_height + 5 * $key_vspace + 2 * $board_vborder}]
 	osd create rectangle kb \
-		-x [expr (320 - $board_width) / 2 ] \
+		-x [expr {(320 - $board_width) / 2}] \
 		-y 4 \
 		-w $board_width \
 		-h $board_height -scaled true -rgba $key_background_color
 	set keycount 0
 	for {set y 0} {$y <= [llength $rows]} {incr y} {
-		set y_base [expr $board_vborder + $y * ($key_height + $key_vspace)]
+		set y_base [expr {$board_vborder + $y * ($key_height + $key_vspace)}]
 		lappend row_starts $keycount
 		set x $board_hborder
-		foreach {keys} [split [lindex $rows $y]  "|"] {
+		foreach {keys} [split [lindex $rows $y] "|"] {
 			lassign [split $keys "*"] key_text key_width
 			if {$key_width < 1} {set key_width $key_basewidth}
 			if {$key_text ne "null"} {
@@ -163,7 +163,7 @@ proc enable_osd_keyboard {} {
 					-size 8
 				incr keycount
 			}
-			set x [expr $x + $key_width + $key_hspace]
+			set x [expr {$x + $key_width + $key_hspace}]
 		}
 	}
 
@@ -171,9 +171,8 @@ proc enable_osd_keyboard {} {
 	if {$key_selected == -1} {
 		# Select the key in the middle of the keyboard.
 		key_select [key_at_coord \
-			[expr $board_width / 2] \
-			[expr $board_vborder + 3.5 * ($key_height + $key_vspace)] \
-			]
+			[expr {$board_width / 2}] \
+			[expr {$board_vborder + 3.5 * ($key_height + $key_vspace)}]]
 	} else {
 		update_key_color $key_selected
 	}
@@ -188,25 +187,24 @@ proc selection_row {delta} {
 	# Note: Delta as bias makes sure that if a key is exactly in the middle
 	#       above/below two other keys, an up/down or down/up sequence will
 	#       end on the same key it started on.
-	set x [expr \
+	set x [expr {\
 		[osd info kb.$key_selected -x] + [osd info kb.$key_selected -w] / 2 \
-		+ $delta ]
-	set num_rows [expr [llength $row_starts] - 1]
+		+ $delta}]
+	set num_rows [expr {[llength $row_starts] - 1}]
 	set row [row_for_key $key_selected]
 	while {1} {
 		# Determine new row.
 		incr row $delta
 		if {$row < 0} {
-			set row [expr $num_rows - 1]
+			set row [expr {$num_rows - 1}]
 		} elseif {$row >= $num_rows} {
 			set row 0
 		}
 
 		# Get key at new coordinates.
 		set first_key [lindex $row_starts $row]
-		set y [expr \
-			[osd info kb.$first_key -y] + [osd info kb.$first_key -h] / 2 \
-			]
+		set y [expr {\
+			[osd info kb.$first_key -y] + [osd info kb.$first_key -h] / 2}]
 		set new_selection [key_at_coord $x $y]
 		if {$new_selection >= 0} {
 			break
@@ -223,12 +221,12 @@ proc selection_col {delta} {
 	# Figure out first and last key of current row.
 	set row [row_for_key $key_selected]
 	set row_start [lindex $row_starts $row]
-	set row_end [lindex $row_starts [expr $row + 1]]
+	set row_end [lindex $row_starts [expr {$row + 1}]]
 
 	# Move left or right.
-	set new_selection [expr $key_selected + $delta]
+	set new_selection [expr {$key_selected + $delta}]
 	if {$new_selection < $row_start} {
-		set new_selection [expr $row_end - 1]
+		set new_selection [expr {$row_end - 1}]
 	} elseif {$new_selection >= $row_end} {
 		set new_selection $row_start
 	}
@@ -284,7 +282,7 @@ proc row_for_key {key_id} {
 	variable row_starts
 	for {set row 0} {$row < [llength $row_starts] - 1} {incr row} {
 		set row_start [lindex $row_starts $row]
-		set row_end [lindex $row_starts [expr $row + 1]]
+		set row_end [lindex $row_starts [expr {$row + 1}]]
 		if {$row_start <= $key_id && $key_id < $row_end} {
 			return $row
 		}
@@ -330,14 +328,14 @@ proc key_at_coord {x y} {
 	variable board_vborder
 	variable row_starts
 
-	set row [expr int(floor( \
+	set row [expr {int(floor( \
 		($y - $board_vborder + $key_vspace / 2) / ($key_height + $key_vspace) \
-		))]
+		))}]
 	if {$row >= 0 && $row < [llength $row_starts] - 1} {
 		set row_start [lindex $row_starts $row]
-		set row_end [lindex $row_starts [expr $row + 1]]
+		set row_end [lindex $row_starts [expr {$row + 1}]]
 		for {set key_id $row_start} {$key_id < $row_end} {incr key_id} {
-			set relx [expr $x - [osd info kb.$key_id -x] + $key_hspace / 2]
+			set relx [expr {$x - [osd info kb.$key_id -x] + $key_hspace / 2}]
 			if {$relx >= 0 && $relx < [osd info kb.$key_id -w] + $key_hspace} {
 				return $key_id
 			}

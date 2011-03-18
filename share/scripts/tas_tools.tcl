@@ -6,7 +6,7 @@ set_help_text toggle_frame_counter\
 {Toggles display of a frame counter in the lower right corner.}
 
 proc toggle_frame_counter {} {
-	if [osd exists framecount] {
+	if {[osd exists framecount]} {
 		osd destroy framecount
 		return ""
 	}
@@ -49,12 +49,12 @@ bind to a key in combination with advance_frame.}
 
 proc reverse_frame {} {
 	array set stat [reverse status]
-	set t [expr $stat(current) - [get_frame_time]]
-	if {$t < 0} { set t 0 }
+	set t [expr {$stat(current) - [get_frame_time]}]
+	if {$t < 0} {set t 0}
 	reverse goto $t
 }
 
-proc load_replay { name } {
+proc load_replay {name} {
 	reverse loadreplay -goto savetime $name
 	return ""
 }
@@ -88,7 +88,7 @@ proc menu_create_slot_menu {} {
 	return [osd_menu::prepare_menu_list $items 10 $menu_def]
 }
 
-proc set_slot { item } {
+proc set_slot {item} {
 	osd_menu::menu_close_all
 	set ::current_replay_slot $item
 }
@@ -124,13 +124,13 @@ proc show_keys {} {
 	# get joysticka values
 	set joy [debug read joystickports 0]
 
-	show_key_press up    [expr ([is_key_pressed 8 5] || !($joy &  1))]
-	show_key_press down  [expr ([is_key_pressed 8 6] || !($joy &  2))]
-	show_key_press left  [expr ([is_key_pressed 8 4] || !($joy &  4))]
-	show_key_press right [expr ([is_key_pressed 8 7] || !($joy &  8))]
-	show_key_press space [expr ([is_key_pressed 8 0] || !($joy & 16))]
+	show_key_press up    [expr {([is_key_pressed 8 5] || !($joy &  1))}]
+	show_key_press down  [expr {([is_key_pressed 8 6] || !($joy &  2))}]
+	show_key_press left  [expr {([is_key_pressed 8 4] || !($joy &  4))}]
+	show_key_press right [expr {([is_key_pressed 8 7] || !($joy &  8))}]
+	show_key_press space [expr {([is_key_pressed 8 0] || !($joy & 16))}]
 
-	show_key_press m     [expr ([is_key_pressed 4 2] || !($joy & 32))]
+	show_key_press m     [expr {([is_key_pressed 4 2] || !($joy & 32))}]
 	show_key_press n     [is_key_pressed 4 3]
 	show_key_press z     [is_key_pressed 5 7]
 	show_key_press x     [is_key_pressed 5 5]
@@ -144,7 +144,7 @@ proc show_keys {} {
 
 #move to other TCL script?
 proc is_key_pressed {row bit} {
-	return [expr !([debug read keymatrix $row] & (1 << $bit))]
+	expr {!([debug read keymatrix $row] & (1 << $bit))}
 }
 
 proc show_key_press {key state} {
@@ -160,7 +160,7 @@ proc create_key {name x y} {
 }
 
 proc toggle_cursors {} {
-	if [osd exists cursors] {
+	if {[osd exists cursors]} {
 		osd destroy cursors
 	} else {
 		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
@@ -268,7 +268,7 @@ proc ram_watch_add {addr_str args} {
 	lassign [dict get $type_dict $type] peek_method num_hex_digits
 	set fmtStr1 [dict get $format_dict $format]
 	set fmtStr2 [string map [list S $num_hex_digits] $fmtStr1]
-	set exprStr "set v \[$peek_method $addr\]; set r \"\[expr \{(\$v < 0) ? \"-\" : \"\"\}\]\[format $fmtStr2 \[expr \{abs(\$v)\}\]\]\"; set r"
+	set exprStr "set v \[$peek_method $addr\]; set r \"\[expr {(\$v < 0) ? \"-\" : \"\"}\]\[format $fmtStr2 \[expr {abs(\$v)}\]\]\"; set r"
 
 	# add watch to watches
 	set old_nof_watches [dict size $addr_watches]
@@ -301,17 +301,17 @@ proc ram_watch_init_widget {} {
 	osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
 }
 
-proc ram_watch_add_to_widget { nr } {
+proc ram_watch_add_to_widget {nr} {
 	osd create rectangle ram_watch.addr.mem$nr \
-		-x 2 -y [expr 8+($nr*6)] -h 5 -w 16 -rgba 0x40404080
+		-x 2 -y [expr {8 + ($nr * 6)}] -h 5 -w 16 -rgba 0x40404080
 	osd create text  ram_watch.addr.mem$nr.text \
 		-size 4 -rgba 0xffffffff
 	osd create rectangle ram_watch.addr.val$nr \
-		-x 19 -y [expr 8+($nr*6)] -h 5 -w 17 -rgba 0x40404080
+		-x 19 -y [expr {8 + ($nr * 6)}] -h 5 -w 17 -rgba 0x40404080
 	osd create text  ram_watch.addr.val$nr.text \
 		-size 4 -rgba 0xffffffff
 	osd create rectangle ram_watch.addr.desc$nr \
-		-x 37 -y [expr 8+($nr*6)] -h 5 -w 23 -rgba 0x40404080 -clip true
+		-x 37 -y [expr {8 + ($nr * 6)}] -h 5 -w 23 -rgba 0x40404080 -clip true
 	osd create text  ram_watch.addr.desc$nr.text \
 		-size 4 -rgba 0xffffffff
 }
@@ -325,7 +325,7 @@ proc ram_watch_remove {addr_str} {
 	# check watch exists
 	if {![dict exists $addr_watches $addr]} {
 		# not an error
-		return
+		return ""
 	}
 
 	#remove address
@@ -379,7 +379,7 @@ proc ram_watch_update_values {} {
 	}
 }
 
-proc ram_watch_save { name } {
+proc ram_watch_save {name} {
 	variable addr_watches
 
 	# exprStr property doesn't need to be saved
@@ -396,13 +396,13 @@ proc ram_watch_save { name } {
 		set the_file [open $fullname {WRONLY TRUNC CREAT}]
 		puts $the_file $filtered_watches
 		close $the_file
-	} errorText ]} {
+	} errorText]} {
 		error "Failed to save to $fullname: $errorText"
 	}
 	return "Successfully saved RAM watch to $fullname"
 }
 
-proc ram_watch_load { name } {
+proc ram_watch_load {name} {
 	variable addr_watches
 
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../ramwatches]
@@ -412,7 +412,7 @@ proc ram_watch_load { name } {
 		set the_file [open $fullname {RDONLY}]
 		set new_addr_watches [read $the_file]
 		close $the_file
-	} errorText ]} {
+	} errorText]} {
 		error "Failed to load from $fullname: $errorText"
 	}
 
@@ -439,14 +439,14 @@ proc ram_watch {subcmd args} {
 		"clear"  {ram_watch_clear  {*}$args}
 		"load"   {ram_watch_load   {*}$args}
 		"save"   {ram_watch_save   {*}$args}
-		default { error "Invalid subcommand: $subcmd" }
+		default  {error "Invalid subcommand: $subcmd"}
 	}
 }
 
 set_help_proc ram_watch [namespace code ram_watch_help]
 proc ram_watch_help {args} {
 	switch -- [lindex $args 1] {
-		"add"    { return {Add an address to the list of RAM watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.
+		"add"    {return {Add an address to the list of RAM watch addresses on the right side of the screen. The list will be updated in real time, whenever a value changes.
 
 Syntax: ram_watch add <address> [<options>...]
 Possible options are:
@@ -454,23 +454,23 @@ Possible options are:
     -type <type>        datatype: byte, word, u8, s8, u16, s16, u16_BE, ...
     -format <format>    formatting: dec, hex
 }}
-		"remove" { return {Remove an address from the list of RAM watch addresses from the list of RAM watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.
+		"remove" {return {Remove an address from the list of RAM watch addresses from the list of RAM watch addresses on the right side of the screen. When the last address is removed, the list will disappear automatically.
 
 Syntax: ram_watch remove <address>
 }}
-		"clear"  { return {Removes all RAM watches.
+		"clear"  {return {Removes all RAM watches.
 
 Syntax: ram_watch clear
 }}
-		"save"   { return {Save the current list of RAM watches to a file.
+		"save"   {return {Save the current list of RAM watches to a file.
 
 Syntax: ram_watch save <filename>
 }}
-		"load"   { return {Load a list of RAM watches from file.
+		"load"   {return {Load a list of RAM watches from file.
 
 Syntax: ram_watch load <filename>
 }}
-		default { return {Control the RAM watch functionality.
+		default {return {Control the RAM watch functionality.
 
 Syntax:  ram_watch <sub-command> [<arguments>]
 Where sub-command is one of:
@@ -491,10 +491,11 @@ proc ram_watch_tabcompletion {args} {
 		return [list "add" "remove" "clear" "save" "load"]
 	}
 	switch -- [lindex $args 1] {
-		"add"  { return [list -desc -type -size] }
+		"add"  {return [list -desc -type -size]}
 		"load" -
-		"save" { return [list_ram_watch_files] }
+		"save" {return [list_ram_watch_files]}
 	}
+	return [list]
 }
 
 

@@ -2,7 +2,7 @@ set_help_text about \
 "Shows a list of commands that seem related to the given keyword.
 If there is only one such command the helptext for that command is also shown."
 
-proc about { cmd } {
+proc about {cmd} {
 	set matches [list]
 	foreach command [info commands] {
 		catch {

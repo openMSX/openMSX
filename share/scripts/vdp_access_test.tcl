@@ -27,7 +27,7 @@ not 100% accurate! Keep testing on a real MSX as well. The script has some
 tuning options; edit the script to do so, it's explained at the top what can be
 tuned."
 
-proc check_time { access_type } {
+proc check_time {access_type} {
 	variable last_access_time
 	variable last_access_type
 	variable last_access_port
@@ -36,11 +36,11 @@ proc check_time { access_type } {
 	variable enable_break
 	variable address_list
 
-	set port [expr $::wp_last_address & 255]
+	set port [expr {$::wp_last_address & 255}]
 	set current_time [machine_info time]
-	set cycles [expr round(3579545*($current_time - $last_access_time))]
-	set screen_enabled [expr [debug read "VDP regs" 1] & 64]
-	set vblank [expr [debug read "VDP status regs" 2] & 64]
+	set cycles [expr {round(3579545 * ($current_time - $last_access_time))}]
+	set screen_enabled [expr {[debug read "VDP regs" 1] & 64}]
+	set vblank [expr {[debug read "VDP status regs" 2] & 64}]
 	set pc [format "%04x" [reg PC]]
 	if {($cycles < $cycle_max) && $screen_enabled && !$vblank} {
 		if {$pc ni $address_list} {
@@ -58,9 +58,9 @@ proc check_time { access_type } {
 		}
 	} else {
 		if {$debug} {
-			if { !$screen_enabled } {
+			if {!$screen_enabled} {
 				set reason "screen is disabled"
-			} elseif { $vblank } {
+			} elseif {$vblank} {
 				set reason "in vblank"
 			} else {
 				set reason "last access was $cycles cycles ago, >= $cycle_max"
@@ -81,8 +81,8 @@ proc toggle_vdp_access_test {} {
 	variable ioports
 
 	if {!$is_enabled} {
-		set watchpoint_write_id [debug set_watchpoint write_io $ioports {} { vdp_access_test::check_time "write" } ]
-		set watchpoint_read_id [debug set_watchpoint read_io $ioports {} { vdp_access_test::check_time "read" } ]
+		set watchpoint_write_id [debug set_watchpoint write_io $ioports {} {vdp_access_test::check_time "write"}]
+		set watchpoint_read_id  [debug set_watchpoint read_io  $ioports {} {vdp_access_test::check_time "read"}]
 		set is_enabled true
 		set address_list [list]
 	} else {

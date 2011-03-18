@@ -9,7 +9,7 @@ proc get_screen {} {
 	switch $mode {
 		0 {
 			set addr 0
-			set width [expr ([debug read "VDP regs" 0] & 0x04) ? 80 : 40]
+			set width [expr {([debug read "VDP regs" 0] & 0x04) ? 80 : 40}]
 		}
 		1 {
 			set addr 6144
@@ -62,7 +62,7 @@ proc listing {} {
 		"ERL" "ERR" "STRING$" "USING" "INSRT" "" "VARPTR" "CSRLIN" \
 		"ATTR$" "DSKI$" "OFF" "INKEY$" "POINT" ">" "=" "<" "+" "-" "*" \
 		"/" "^" "AND" "OR" "XOR" "EQV" "IMP" "MOD" "\\" "" "" \
-		"{escape-code}" ]
+		"{escape-code}"]
 	set tokens2 [list \
 		"" "LEFT$" "RIGHT$" "MID$" "SGN" "INT" "ABS" "SQR" "RND" "SIN" \
 		"LOG" "EXP" "COS" "TAN" "ATN" "FRE" "INP" "POS" "LEN" "STR$" \
@@ -72,7 +72,7 @@ proc listing {} {
 		"MK$" "MKD$" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
-		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ]
+		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""]
 
 	# Loop over all lines
 	set listing ""
@@ -83,17 +83,17 @@ proc listing {} {
 		incr addr 2
 		# Loop over tokens in one line
 		while {true} {
-			set token [peek $addr] ; incr addr
+			set token [peek $addr]; incr addr
 			if {0x80 < $token && $token < 0xff} {
-				set t [lindex $tokens1 [expr $token - 0x80]]
+				set t [lindex $tokens1 [expr {$token - 0x80}]]
 			} elseif {$token == 0xff} {
-				set t [lindex $tokens2 [expr [peek $addr] - 0x80]]
+				set t [lindex $tokens2 [expr {[peek $addr] - 0x80}]]
 				incr addr
 			} elseif {$token == 0x3a} {
 				switch [peek $addr] {
-					0xa1    { set t "ELSE" ; incr addr }
-					0x8f    { set t "'"    ; incr addr }
-					default { set t ":"                }
+					0xa1    {set t "ELSE"; incr addr}
+					0x8f    {set t "'"   ; incr addr}
+					default {set t ":"              }
 				}
 			} elseif {$token == 0x0} {
 				break
@@ -105,7 +105,7 @@ proc listing {} {
 				incr addr 2
 			} elseif {$token == 0x0D} {
 				# line number (stored as address)
-				set t [format "0x%x" [expr [peek16 $addr] + 1]]
+				set t [format "0x%x" [expr {[peek16 $addr] + 1}]]
 				incr addr 2
 			} elseif {$token == 0x0E} {
 				set t [format "%d" [peek16 $addr]]
@@ -123,7 +123,7 @@ proc listing {} {
 				set t "(TODO: Double)"
 				incr addr
 			} elseif {0x11 <= $token && $token <= 0x1a} {
-				set t [expr $token - 0x11]
+				set t [expr {$token - 0x11}]
 			} else {
 				set t [format "%c" $token]
 			}
@@ -150,7 +150,7 @@ proc get_color_count {args} {
 	set showall false
 
 	# parse options
-	while (1) {
+	while {1} {
 		switch -- [lindex $args 0] {
 		"" break
 		"-sort" {
@@ -179,48 +179,49 @@ proc get_color_count {args} {
 	}
 
 	set mode [get_screen_mode_number]
-	if { $mode < 5 || $mode > 8 } {
+	if {$mode < 5 || $mode > 8} {
 		error "Screen mode $mode not supported (yet)"
 	}
-	set page [expr (([debug read "VDP regs" 2] & 96) >> 5)]
-	set noflines [expr ([debug read "VDP regs" 9] & 128) ? 212 : 192]
+	set page [expr {([debug read "VDP regs" 2] & 96) >> 5}]
+	set noflines [expr {([debug read "VDP regs" 9] & 128) ? 212 : 192}]
 	append result "Counting pixels of screen $mode, page $page with $noflines lines...\n"
 
 	switch $mode {
 		5 {
 			set nofbytes_per_line 128
 			set nofpixels_per_byte 2
-			set page_size [expr 32*1024]
+			set page_size [expr {32 * 1024}]
 		}
 		6 {
 			set nofbytes_per_line 128
 			set nofpixels_per_byte 4
-			set page_size [expr 32*1024]
+			set page_size [expr {32 * 1024}]
 		}
 		7 {
 			set nofbytes_per_line 256
 			set nofpixels_per_byte 2
-			set page_size [expr 64*1024]
+			set page_size [expr {64 * 1024}]
 		}
 		8 {
 			set nofbytes_per_line 256
 			set nofpixels_per_byte 1
-			set page_size [expr 64*1024]
+			set page_size [expr {64 * 1024}]
 		}
 	}
-	set bpp [expr 8 / $nofpixels_per_byte]
-	set nrcolors [expr 1 << $bpp]
+	set bpp [expr {8 / $nofpixels_per_byte}]
+	set nrcolors [expr {1 << $bpp}]
 
 	# get bytes into large list
-	set offset [expr $page_size * $page]
-	set nrbytes [expr $noflines * $nofbytes_per_line]
+	set offset [expr {$page_size * $page}]
+	set nrbytes [expr {$noflines * $nofbytes_per_line}]
 	binary scan [debug read_block VRAM $offset $nrbytes] c* myvram
 
 	# analyze pixels
+	set pixelstats [dict create]
 	for {set p 0} {$p < $nrcolors} {incr p} {
 		dict set pixelstats $p 0
 	}
-	set mask [expr $nrcolors - 1]
+	set mask [expr {$nrcolors - 1}]
 	foreach byte $myvram {
 		for {set pixel 0} {$pixel < $nofpixels_per_byte} {incr pixel} {
 			set color [expr {($byte >> ($pixel * $bpp)) & $mask}]
@@ -237,7 +238,7 @@ proc get_color_count {args} {
 	set pixelstatlistsorted [lsort -integer $sortorder -index $sortindex $pixelstatlist]
 	# print results
 	set number 0
-	set colorwidth [expr ($mode == 8) ? 3 : 2]
+	set colorwidth [expr {($mode == 8) ? 3 : 2}]
 	set palette ""
 	foreach pixelinfo $pixelstatlistsorted {
 		incr number

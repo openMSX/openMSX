@@ -11,7 +11,7 @@
 
 namespace eval utils {
 
-proc get_machine_display_name { { machineid "" } } {
+proc get_machine_display_name {{machineid ""}} {
 	if {$machineid eq ""} {
 		set machineid [machine]
 	}
@@ -22,11 +22,11 @@ proc get_machine_display_name { { machineid "" } } {
 	return [get_machine_display_name_by_config_name $config_name]
 }
 
-proc get_machine_display_name_by_config_name { config_name } {
+proc get_machine_display_name_by_config_name {config_name} {
 	return [get_display_name_by_config_name $config_name "machines"]
 }
 
-proc get_extension_display_name_by_config_name { config_name } {
+proc get_extension_display_name_by_config_name {config_name} {
 	return [get_display_name_by_config_name $config_name "extensions"]
 }
 
@@ -59,7 +59,7 @@ proc get_display_name_by_config_name {config_name type} {
 	return $result
 }
 
-proc get_machine_time { { machineid "" } } {
+proc get_machine_time {{machineid ""}} {
 	if {$machineid eq ""} {
 		set machineid [machine]
 	}
@@ -70,16 +70,16 @@ proc get_machine_time { { machineid "" } } {
 	return [format_time $mtime]
 }
 
-proc format_time { time } {
-	return [format "%02d:%02d:%02d" [expr int($time / 3600)] [expr int($time / 60) % 60] [expr int($time) % 60]]
+proc format_time {time} {
+	format "%02d:%02d:%02d" [expr {int($time / 3600)}] [expr {int($time / 60) % 60}] [expr {int($time) % 60}]
 }
 
 proc get_ordered_machine_list {} {
-	return [lsort -dictionary [list_machines]]
+	lsort -dictionary [list_machines]
 }
 
 proc get_random_number {max} {
-	return value [expr floor(rand()*$max)]
+	expr {floor(rand() * $max)}
 }
 
 proc clip {min max val} {

@@ -16,13 +16,13 @@ proc peek_s8 {addr} {
 	expr {($b < 128) ? $b : ($b - 256)}
 }
 proc peek16 {addr} {
-	expr {[peek $addr] + 256 * [peek [expr $addr + 1]]}
+	expr {[peek $addr] + 256 * [peek [expr {$addr + 1}]]}
 }
 proc peek16_LE {addr} {
 	peek16 $addr
 }
 proc peek16_BE {addr} {
-	expr {256 * [peek $addr] + [peek [expr $addr + 1]]}
+	expr {256 * [peek $addr] + [peek [expr {$addr + 1}]]}
 }
 proc peek_u16 {addr} {
 	peek16 $addr
@@ -133,11 +133,11 @@ Usage:
   disasm <addr> <num>   Disassemble <num> instr starting at address <addr>
 }
 proc disasm {{address -1} {num 8}} {
-	if {$address == -1} { set address [reg PC] }
+	if {$address == -1} {set address [reg PC]}
 	for {set i 0} {$i < $num} {incr i} {
 		set l [debug disasm $address]
 		append result [format "%04X  %s\n" $address [join $l]]
-		set address [expr $address + [llength $l] - 1]
+		set address [expr {$address + [llength $l] - 1}]
 	}
 	return $result
 }
@@ -192,24 +192,24 @@ proc step_out_after_break {} {
 	variable step_out_bp2
 
 	# also clean up when breaked, but not because of step_out
-	catch { debug remove_condition $step_out_bp1 }
-	catch { debug remove_condition $step_out_bp2 }
+	catch {debug remove_condition $step_out_bp1}
+	catch {debug remove_condition $step_out_bp2}
 }
 proc step_out_after_next {} {
 	variable step_out_bp1
 	variable step_out_bp2
 	variable step_out_sp
 
-	catch { debug remove_condition $step_out_bp2 }
+	catch {debug remove_condition $step_out_bp2}
 	if {[reg sp] > $step_out_sp} {
-		catch { debug remove_condition $step_out_bp1 }
+		catch {debug remove_condition $step_out_bp1}
 		debug break
 	}
 }
 proc step_out_after_ret {} {
 	variable step_out_bp2
 
-	catch { debug remove_condition $step_out_bp2 }
+	catch {debug remove_condition $step_out_bp2}
 	set step_out_bp2 [debug set_condition 1 [namespace code step_out_after_next]]
 }
 proc step_out {} {
@@ -217,8 +217,8 @@ proc step_out {} {
 	variable step_out_bp2
 	variable step_out_sp
 
-	catch { debug remove_condition $step_out_bp1 }
-	catch { debug remove_condition $step_out_bp2 }
+	catch {debug remove_condition $step_out_bp1}
+	catch {debug remove_condition $step_out_bp2}
 	set step_out_sp [reg sp]
 	set step_out_bp1 [debug set_condition {[disasm::step_out_is_ret]} [namespace code step_out_after_ret]]
 	after break [namespace code step_out_after_break]
@@ -249,7 +249,7 @@ proc step_over {} {
 	    [string match "indr*" $instr] ||
 	    [string match "otdr*" $instr] ||
 	    [string match "halt*" $instr]} {
-		run_to [expr $address + [llength $l] - 1]
+		run_to [expr {$address + [llength $l] - 1}]
 	} else {
 		debug step
 	}
@@ -303,7 +303,7 @@ set_help_text skip_instruction \
 {Skip the current instruction. In other words increase the program counter with the length of the current instruction.}
 proc skip_instruction {} {
 	set pc [reg pc]
-	reg pc [expr $pc + [llength [debug disasm $pc]] - 1]
+	reg pc [expr {$pc + [llength [debug disasm $pc]] - 1}]
 }
 
 namespace export peek

@@ -13,16 +13,16 @@ This proc is typically used as a helper for a larger proc.
          Second element is the secondary slot (0-3) or 'X'
          in case this slot was not expanded
 }
-proc get_selected_slot { page } {
+proc get_selected_slot {page} {
 	set ps_reg [debug read "ioports" 0xA8]
-	set ps [expr ($ps_reg >> (2 * $page)) & 0x03]
-	if [machine_info "issubslotted" $ps] {
-		set ss_reg [debug read "slotted memory" [expr 0x40000 * $ps + 0xFFFF]]
-		set ss [expr (($ss_reg ^ 255) >> (2 * $page)) & 0x03]
+	set ps [expr {($ps_reg >> (2 * $page)) & 0x03}]
+	if {[machine_info "issubslotted" $ps]} {
+		set ss_reg [debug read "slotted memory" [expr {0x40000 * $ps + 0xFFFF}]]
+		set ss [expr {(($ss_reg ^ 255) >> (2 * $page)) & 0x03}]
 	} else {
 		set ss "X"
 	}
-	return [list $ps $ss]
+	list $ps $ss
 }
 
 #
@@ -47,12 +47,12 @@ proc slotselect {} {
 set_help_text get_mapper_size \
 {Returns the size of the memory mapper in a given slot.
 Result is 0 when there is no memory mapper in the slot.}
-proc get_mapper_size { ps ss } {
+proc get_mapper_size {ps ss} {
 	set result 0
 	catch {
 		set device [machine_info slot $ps $ss 0]
 		if {[debug desc $device] eq "memory mapper"} {
-			set result [expr [debug size $device] / 0x4000]
+			set result [expr {[debug size $device] / 0x4000}]
 		}
 	}
 	return $result
@@ -65,14 +65,14 @@ set_help_text pc_in_slot \
 {Test whether the CPU's program counter is inside a certain slot.
 Typically used to set breakpoints in specific slots.}
 proc pc_in_slot {ps {ss "X"} {mapper "X"}} {
-	set page [expr [reg PC] >> 14]
+	set page [expr {[reg PC] >> 14}]
 	lassign [get_selected_slot $page] pc_ps pc_ss
 	if {($ps ne "X") &&                    ($pc_ps != $ps)} {return false}
 	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return false}
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
 	if {($mapper_size == 0) || ($mapper eq "X")} {return true}
 	set pc_mapper [debug read "MapperIO" $page]
-	return [expr $mapper == ($pc_mapper & ($mapper_size - 1))]
+	expr {$mapper == ($pc_mapper & ($mapper_size - 1))}
 }
 
 #
@@ -80,11 +80,11 @@ proc pc_in_slot {ps {ss "X"} {mapper "X"}} {
 #
 set_help_text slotmap \
 {Gives an overview of the devices in the different slots.}
-proc slotmap_helper { ps ss } {
+proc slotmap_helper {ps ss} {
 	set result ""
-	for { set page 0 } { $page < 4 } { incr page } {
+	for {set page 0} {$page < 4} {incr page} {
 		set name [machine_info slot $ps $ss $page]
-		append result [format "%04X: %s\n" [expr $page * 0x4000] $name]
+		append result [format "%04X: %s\n" [expr {$page * 0x4000}] $name]
 	}
 	return $result
 }
@@ -97,11 +97,11 @@ proc slotmap_name {ps ss} {
 	}
 	return ""
 }
-proc slotmap { } {
+proc slotmap {} {
 	set result ""
-	for { set ps 0 } { $ps < 4 } { incr ps } {
-		if [machine_info issubslotted $ps] {
-			for { set ss 0 } { $ss < 4 } { incr ss } {
+	for {set ps 0} {$ps < 4} {incr ps} {
+		if {[machine_info issubslotted $ps]} {
+			for {set ss 0} {$ss < 4} {incr ss} {
 				append result "slot $ps.$ss[slotmap_name $ps $ss]:\n"
 				append result [slotmap_helper $ps $ss]
 			}
@@ -124,7 +124,7 @@ proc iomap_helper {prefix begin end name} {
 	if {$begin == ($end - 1)} {
 		append result ":   "
 	} else {
-		append result [format "-%02X:" [expr $end - 1]]
+		append result [format "-%02X:" [expr {$end - 1}]]
 	}
 	append result " $prefix $name\n"
 }
@@ -134,7 +134,7 @@ proc iomap {} {
 	while {$port < 256} {
 		set in  [machine_info input_port  $port]
 		set out [machine_info output_port $port]
-		set end [expr $port + 1]
+		set end [expr {$port + 1}]
 		while {($end < 256) &&
 		       ($in  eq [machine_info input_port  $end]) &&
 		       ($out eq [machine_info output_port $end])} {

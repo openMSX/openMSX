@@ -11,22 +11,22 @@ Usage:
 }
 
 set_tabcompletion_proc showdebuggable [namespace code tab_showdebuggable]
-proc tab_showdebuggable { args } {
-        if {[llength $args] == 2} {
-                return [debug list]
-        }
+proc tab_showdebuggable {args} {
+	if {[llength $args] == 2} {
+		return [debug list]
+	}
 }
 
 proc showdebuggable_line {debuggable address} {
 	set size [debug size $debuggable]
-	set num [expr (($address + 16) <= $size) ? 16 : ($size - $address)]
+	set num [expr {(($address + 16) <= $size) ? 16 : ($size - $address)}]
 	set mem "[debug read_block $debuggable $address $num]"
 	binary scan $mem c* values
 	set hex ""
 	foreach val $values {
-		append hex [format "%02x " [expr $val & 0xff]]
+		append hex [format "%02x " [expr {$val & 0xff}]]
 	}
-	set pad [string repeat "   " [expr 16 - $num]]
+	set pad [string repeat "   " [expr {16 - $num}]]
 	set asc [regsub -all {[^ !-~]} $mem {.}]
 	return [format "%04x: %s%s %s\n" $address $hex $pad $asc]
 }
@@ -52,7 +52,7 @@ Usage:
 }
 
 proc showmem {{address 0} {lines 8}} {
-	return [showdebuggable memory $address $lines]
+	showdebuggable memory $address $lines
 }
 
 namespace export showdebuggable

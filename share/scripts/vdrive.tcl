@@ -46,7 +46,7 @@ bind_default ALT+F10 "vdrive diskb"
 
 proc vdrive {{diskdrive "diska"}} {
 	# get current disk
-	if [catch {set cmd [$diskdrive]}] { error "No such drive: $diskdrive" }
+	if {[catch {set cmd [$diskdrive]}]} {error "No such drive: $diskdrive"}
 
 	# skip for empty drive or 'special' disk
 	set options [lindex $cmd 2]
@@ -63,8 +63,8 @@ proc vdrive {{diskdrive "diska"}} {
 	set ext ""
 
 	set ext2 [file extension $image]
-	foreach i {".gz" ".zip"} {
-		if [string equal -nocase $i $ext2] {
+	foreach i [list ".gz" ".zip"] {
+		if {[string equal -nocase $i $ext2]} {
 			set ext $ext2
 			set image [file rootname $image]
 			break
@@ -73,7 +73,7 @@ proc vdrive {{diskdrive "diska"}} {
 
 	set ext2 [file extension $image]
 	foreach i {".dsk" ".di1" ".di2" ".xsa"} {
-		if [string equal -nocase $i $ext2] {
+		if {[string equal -nocase $i $ext2]} {
 			set ext ${ext2}${ext}
 			set image [file rootname $image]
 			break
@@ -93,12 +93,12 @@ proc vdrive {{diskdrive "diska"}} {
 	set origdigit $digit
 	while {true} {
 		incr digit
-		if {$digit == 10} { set digit 0 }
+		if {$digit == 10} {set digit 0}
 		set test ${image}${digit}${ext}
 		if {[file exists $test]} {
 			diska $test
 			return "New diskimage: $test"
 		}
-		if {$digit == $origdigit} return
+		if {$digit == $origdigit} {return ""}
 	}
 }

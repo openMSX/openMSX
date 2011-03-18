@@ -16,8 +16,8 @@ proc text_echo {} {
 	variable graph 0
 	variable escape 0
 	variable escape_count 0
-	debug set_bp 0x0018 {[pc_in_slot 0 0]} { text_echo::print }
-	debug set_bp 0x00A2 {[pc_in_slot 0 0]} { text_echo::print }
+	debug set_bp 0x0018 {[pc_in_slot 0 0]} {text_echo::print}
+	debug set_bp 0x00A2 {[pc_in_slot 0 0]} {text_echo::print}
 	return ""
 }
 

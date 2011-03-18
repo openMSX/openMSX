@@ -19,7 +19,7 @@ set_help_text filepool \
     Reset the filepool settings to the default values.
 }
 
-proc filepool_completion { args } {
+proc filepool_completion {args} {
 	if {[llength $args] == 2} {
 		return [list list add remove reset]
 	}
@@ -28,21 +28,21 @@ proc filepool_completion { args } {
 set_tabcompletion_proc filepool [namespace code filepool_completion]
 
 
-proc filepool { args } {
+proc filepool {args} {
 	set cmd [lindex $args 0]
 	set args [lrange $args 1 end]
 	switch -- $cmd {
-		"list"   { filepool_list }
-		"add"    { filepool_add {*}$args }
-		"remove" { filepool_remove $args }
-		"reset"  { filepool_reset }
+		"list"   {filepool_list}
+		"add"    {filepool_add {*}$args}
+		"remove" {filepool_remove $args}
+		"reset"  {filepool_reset}
 		"default" {
 			error "Invalid subcommand, expected one of 'list add remove reset', but got '$cmd'"
 		}
 	}
 }
 
-proc filepool_list {}  {
+proc filepool_list {} {
 	set result ""
 	set i 1
 	foreach pool $::__filepool {
@@ -52,7 +52,7 @@ proc filepool_list {}  {
 	return $result
 }
 
-proc filepool_checktypes { types } {
+proc filepool_checktypes {types} {
 	set valid [list "system_rom" "rom" "disk" "tape"]
 	foreach type $types {
 		if {$type ni $valid} {
@@ -61,13 +61,13 @@ proc filepool_checktypes { types } {
 	}
 }
 
-proc filepool_add { args } {
+proc filepool_add {args} {
 	set pos [llength $::__filepool]
 	set path ""
 	set types ""
 	foreach {name value} $args {
 		if {$name eq "-position"} {
-			set pos [expr $value - 1]
+			set pos [expr {$value - 1}]
 		} elseif {$name eq "-path"} {
 			set path $value
 		} elseif {$name eq "-types"} {
@@ -78,7 +78,7 @@ proc filepool_add { args } {
 		}
 	}
 	if {($pos < 0) || ($pos > [llength $::__filepool])} {
-		error "Value out of range: [expr $pos + 1]"
+		error "Value out of range: [expr {$pos + 1}]"
 	}
 	if {$path eq ""} {
 		error "Missing -path"
@@ -96,11 +96,11 @@ proc filepool_add { args } {
 	return ""
 }
 
-proc filepool_remove { id } {
+proc filepool_remove {id} {
 	if {($id < 1) || ($id > [llength $::__filepool])} {
 		error "Value out of range: $id"
 	}
-	set idx [expr $id - 1]
+	set idx [expr {$id - 1}]
 	set ::__filepool [lreplace $::__filepool $idx $idx]
 	return ""
 }

@@ -11,7 +11,7 @@ variable after_frame_id
 variable after_mouse_button_id
 
 proc toggle_nemesis_1_shield {} {
-	if [osd exists "nemesis1"] {
+	if {[osd exists "nemesis1"]} {
 		disable_nemesis_1_shield
 	} else {
 		enable_nemesis_1_shield
@@ -49,7 +49,7 @@ proc after_mouse {} {
 	# click to capture and click again to release
 	variable move_active
 	variable after_mouse_button_id
-	set move_active [expr !$move_active]
+	set move_active [expr {!$move_active}]
 	set after_mouse_button_id [after "mouse button1 down" osd_nemesis::after_mouse]
 }
 
@@ -62,18 +62,18 @@ proc after_frame {} {
 	if {$move_active} {
 		# move vic viper to mouse position
 		lassign [osd info "nemesis1" -mousecoord] x y
-		poke 0xe206 [utils::clip 0 255 [expr int($x)]]
-		poke 0xe204 [utils::clip 0 212 [expr int($y)]]
+		poke 0xe206 [utils::clip 0 255 [expr {int($x)}]]
+		poke 0xe204 [utils::clip 0 212 [expr {int($y)}]]
 	}
 
 	# vic viper location
 	set x [peek 0xe206]
 	set y [peek 0xe204]
-	osd configure "nemesis1.shield" -relx [expr $x - 9] -rely [expr $y - 9]
+	osd configure "nemesis1.shield" -relx [expr {$x - 9}] -rely [expr {$y - 9}]
 
 	for {set i 0} {$i < 32} {incr i} {
 		# set base address
-		set addr [expr 0xe300 + ($i*0x20)]
+		set addr [expr {0xe300 + ($i * 0x20)}]
 
 		# get enemy id
 		set id [peek $addr]
@@ -82,8 +82,8 @@ proc after_frame {} {
 		# endless score pod / explosion / end brain connections
 		if {(17 <= $id) && ($id <= 26) && ($id != 20)} continue
 
-		set a [peek [expr $addr + 6]]
-		set b [peek [expr $addr + 4]]
+		set a [peek [expr {$addr + 6}]]
+		set b [peek [expr {$addr + 4}]]
 
 		# Not in contact with shield? Then do nothing.
 		if {((($a - $x + 6) ** 2) + (($b - $y + 7) ** 2)) >= 961} continue
@@ -95,18 +95,18 @@ proc after_frame {} {
 		if {$id == 4 || $id == 5} {poke $addr 21}
 
 		# change color of sprite when in contact with shield
-		# poke [expr $addr + 13] 15
+		# poke [expr {$addr + 13}] 15
 
 		# Shield routine (hit front/back/top/bottom)
 		set shieldstrength 2
-		set dx [expr ($x > $a) ? -$shieldstrength : $shieldstrength]
-		set dy [expr ($y > $b) ? -$shieldstrength : $shieldstrength]
-		set xn [expr $a + $dx]
-		set yn [expr $b + $dy]
-		poke [expr $addr +  6] [utils::clip 0 255 $xn]
-		poke [expr $addr +  4] [utils::clip 0 255 $yn]
-		poke [expr $addr +  8] [expr $dy & 255]
-		poke [expr $addr + 10] [expr $dx & 255]
+		set dx [expr {($x > $a) ? -$shieldstrength : $shieldstrength}]
+		set dy [expr {($y > $b) ? -$shieldstrength : $shieldstrength}]
+		set xn [expr {$a + $dx}]
+		set yn [expr {$b + $dy}]
+		poke [expr {$addr +  6}] [utils::clip 0 255 $xn]
+		poke [expr {$addr +  4}] [utils::clip 0 255 $yn]
+		poke [expr {$addr +  8}] [expr {$dy & 255}]
+		poke [expr {$addr + 10}] [expr {$dx & 255}]
 
 		# make shield visible
 		osd configure "nemesis1.shield" -fadeCurrent 0.5

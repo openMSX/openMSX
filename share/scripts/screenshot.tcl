@@ -21,10 +21,10 @@ proc screenshot {args} {
 		after frame [namespace code [list screenshot_helper1 $orig_disable_sprites $args2]]
 	}
 }
-proc screenshot_helper1 { orig_disable_sprites args2 } {
+proc screenshot_helper1 {orig_disable_sprites args2} {
 	after frame [namespace code [list screenshot_helper2 $orig_disable_sprites $args2]]
 }
-proc screenshot_helper2 { orig_disable_sprites args2 } {
+proc screenshot_helper2 {orig_disable_sprites args2} {
 	# take screenshot and restore 'disablesprites' setting
 	old_screenshot {*}$args2
 	set ::disablesprites $orig_disable_sprites

@@ -18,10 +18,10 @@ variable scc_devices [list]
 variable num_samples 32
 variable num_channels 5
 variable vertical_downscale_factor 4
-variable channel_height [expr 256 / $vertical_downscale_factor]
+variable channel_height [expr {256 / $vertical_downscale_factor}]
 variable machine_switch_trigger_id 0
 variable frame_trigger_id 0
-variable volume_address [expr $num_samples * $num_channels + 2 * $num_channels]
+variable volume_address [expr {$num_samples * $num_channels + 2 * $num_channels}]
 
 #scc editor / PSG2SCC
 variable active false
@@ -75,16 +75,16 @@ proc scc_viewer_init {} {
 	set textheight 15
 	set border_width 2
 	set inter_channel_spacing 8
-	set device_width [expr $num_channels * ($num_samples + $inter_channel_spacing) \
-	                       - $inter_channel_spacing + 2 * $border_width]
+	set device_width [expr {$num_channels * ($num_samples + $inter_channel_spacing) \
+	                       - $inter_channel_spacing + 2 * $border_width}]
 
 	#create channels
 	set number 0
 	set offset 0
 	foreach device $scc_devices {
 		osd create rectangle scc_viewer.$device \
-			-x [expr $offset + $number * $device_width] \
-			-h [expr $channel_height + 2 * $border_width + $textheight] \
+			-x [expr {$offset + $number * $device_width}] \
+			-h [expr {$channel_height + 2 * $border_width + $textheight}] \
 			-w $device_width \
 			-rgba 0xffffff20 \
 			-clip true
@@ -94,8 +94,8 @@ proc scc_viewer_init {} {
 			-size $textheight
 		for {set chan 0} {$chan < $num_channels} {incr chan} {
 			osd create rectangle scc_viewer.$device.$chan \
-				-x [expr ($chan * ($num_samples + $inter_channel_spacing)) + $border_width] \
-				-y [expr $border_width + $textheight] \
+				-x [expr {($chan * ($num_samples + $inter_channel_spacing)) + $border_width}] \
+				-y [expr {$border_width + $textheight}] \
 				-h $channel_height \
 				-w $num_samples \
 				-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
@@ -107,7 +107,7 @@ proc scc_viewer_init {} {
 				-rgba 0x0077ff80 \
 				-borderrgba 0x0077ffc0 -bordersize 1
 			osd create rectangle scc_viewer.$device.$chan.mid \
-				-y [expr $channel_height / 2] \
+				-y [expr {$channel_height / 2}] \
 				-h 1 \
 				-relw 1 \
 				-z 3 \
@@ -120,7 +120,7 @@ proc scc_viewer_init {} {
 			for {set pos 0} {$pos < $num_samples} {incr pos} {
 				osd create rectangle scc_viewer.$device.$chan.$pos \
 					-x $pos \
-					-y [expr $channel_height / 2] \
+					-y [expr {$channel_height / 2}] \
 					-w 2 \
 					-z 2 \
 					-rgba 0xffffffb0
@@ -212,9 +212,9 @@ proc update2 {} {
 	variable regs
 	variable select_device
 
-	set reg [expr ($latch == -1) ? $latch : [lindex $regs $latch]]
+	set reg [expr {($latch == -1) ? $latch : [lindex $regs $latch]}]
 	set val $::wp_last_value
-	if {$latch == 7} { set val [expr ($val ^ 0x07) & 0x07] }
+	if {$latch == 7} {set val [expr {($val ^ 0x07) & 0x07}]}
 	if {$reg != -1} {
 		if {[catch {debug write "$select_device SCC" $reg $val}]} {
 			# device gone? Let's deactivate
@@ -232,8 +232,8 @@ proc toggle_psg2scc {} {
 	if {!$active} {
 		init
 		set active true
-		set cur_wp1 [debug set_watchpoint write_io 0xa0 1 { scc_toys::update1 }]
-		set cur_wp2 [debug set_watchpoint write_io 0xa1 1 { scc_toys::update2 }]
+		set cur_wp1 [debug set_watchpoint write_io 0xa0 1 {scc_toys::update1}]
+		set cur_wp2 [debug set_watchpoint write_io 0xa1 1 {scc_toys::update2}]
 		return "Activated."
 	} else {
 		debug remove_watchpoint $cur_wp1
@@ -247,14 +247,13 @@ proc toggle_psg2scc {} {
 }
 
 proc set_scc_form {device channel wave} {
-	set base [expr $channel*32]
+	set base [expr {$channel * 32}]
 	for {set i 0} {$i < 32} {incr i} {
-		debug write "$device SCC" [expr $base+$i] "0x[string range $wave [expr $i*2] [expr $i*2]+1]"
+		debug write "$device SCC" [expr {$base + $i}] "0x[string range $wave [expr {$i * 2}] [expr {$i * 2 + 1}]]"
 	}
 }
 
 proc set_scc_wave {device channel form} {
-	set base [expr $channel*32]
 	switch $form {
 		0 { #Saw Tooth
 			set_scc_form $device $channel "fff7efe7dfd7cfc7bfb7afa79f978f877f776f675f574f473f372f271f170f07"
@@ -293,10 +292,10 @@ proc set_scc_wave {device channel form} {
 proc toggle_scc_editor {} {
 	variable select_device
 
-	if {![osd exists scc_viewer]} { toggle_scc_viewer }
+	if {![osd exists scc_viewer]} {toggle_scc_viewer}
 
 	# If exists destory/reset and exit
-	if [osd exists scc] {
+	if {[osd exists scc]} {
 		osd destroy scc
 		osd destroy selected
 		# Let's assume the user doesn't have the SCC Viewer active
@@ -312,13 +311,13 @@ proc toggle_scc_editor {} {
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 		-borderrgba 0xffffffff -bordersize 1
 	for {set i 0} {$i < 32} {incr i} {
-		osd create rectangle scc.slider$i -x [expr ($i*8)] -y 0 -h 255 -w 8 -rgba 0x0000ff80
+		osd create rectangle scc.slider$i -x [expr {$i * 8}] -y 0 -h 255 -w 8 -rgba 0x0000ff80
 		osd create rectangle scc.slider$i.val -x 0 -y 127 -h 1 -w 8 -rgba 0xffffff90
 	}
 
 	for {set i 0} {$i < 32} {incr i} {
-		osd create rectangle "scc.hline$i" -x [expr ($i*8)-1] -y 0 -h 255 -w 1 -rgba 0xffffff60
-		osd create rectangle "scc.vline$i" -x 0 -y [expr ($i*8)-1] -h 1 -w 255 -rgba 0xffffff60
+		osd create rectangle "scc.hline$i" -x [expr {$i * 8 - 1}] -y 0 -h 255 -w 1 -rgba 0xffffff60
+		osd create rectangle "scc.vline$i" -x 0 -y [expr {$i * 8 - 1}] -h 1 -w 255 -rgba 0xffffff60
 	}
 
 	osd create rectangle "scc.hmid1" -x 63 -y 0 -h 255 -w 1 -rgba 0xff000080
@@ -359,10 +358,10 @@ proc checkclick {} {
 	for {set i 0} {$i < 32} {incr i} {
 		lassign [osd info "scc.slider$i" -mousecoord] x y
 		if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
-			debug write "$select_device SCC" [expr $select_device_chan*32+$i] [expr int(255*$y-128) & 0xff]
+			debug write "$select_device SCC" [expr {$select_device_chan * 32 + $i}] [expr {int(255 * $y - 128) & 0xff}]
 			osd configure scc.slider$i.val \
-				-y [expr $y*255] \
-				-h [expr 128 - ($y*255)]
+				-y [expr {$y * 255}] \
+				-h [expr {128 - ($y * 255)}]
 		}
 	}
 
@@ -370,7 +369,7 @@ proc checkclick {} {
 	foreach device $scc_devices {
 		for {set i 0} {$i < 5} {incr i} {
 			lassign [osd info "scc_viewer.$device.$i" -mousecoord] x y
-			if {( $x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
+			if {($x >= 0 && $x <= 1) && ($y >= 0 && $y <= 1)} {
 				#store device and channel picked from the SCC_viewer in memory
 				set select_device $device
 				set select_device_chan $i
@@ -382,16 +381,16 @@ proc checkclick {} {
 				set sel_y [osd info "scc_viewer.$device.$i" -y]
 
 				osd configure selected \
-					-x [expr int($sel_x)+$abs_x] \
-					-y [expr int($sel_y)] \
-					-w [expr $sel_w+4] \
-					-h [expr $sel_h+4] \
+					-x [expr {int($sel_x) + $abs_x}] \
+					-y [expr {int($sel_y)}] \
+					-w [expr {$sel_w + 4}] \
+					-h [expr {$sel_h + 4}] \
 					-z 1 \
 					-rgba 0xff0000ff
 
 				set base [expr {$i * 32}]
 				for {set q 0} {$q < 32} {incr q} {
-					set sccwave_new [get_scc_wave [debug read "$device SCC" [expr $base+$q]]]
+					set sccwave_new [get_scc_wave [debug read "$device SCC" [expr {$base + $q}]]]
 					set sccwave_old [osd info scc.slider$q.val -h]
 					osd configure scc.slider$q.val \
 						-y [expr {128 + $y}] \
@@ -412,7 +411,7 @@ proc get_scc_string_from_matrix {name} {
 	set output [open $outputfile "w"]
 
 	for {set i 0} {$i < 32} {incr i} {
-		set a [format %02x [get_val_matrix_column [expr int([osd info scc.slider$i.val -h])]]]
+		set a [format %02x [get_val_matrix_column [expr {int([osd info scc.slider$i.val -h])}]]]
 		set sccstring [concat $sccstring$a]
 	}
 

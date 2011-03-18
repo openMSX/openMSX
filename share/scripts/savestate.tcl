@@ -19,12 +19,12 @@ proc savestate_common {} {
 	}
 }
 
-proc savestate { {name ""} } {
+proc savestate {{name ""}} {
 	savestate_common
 	file mkdir $directory
-	if {[catch { screenshot -raw -doublesize $png }]} {
+	if {[catch {screenshot -raw -doublesize $png}]} {
 		# some renderers don't support msx-only screenshots
-		if {[catch { screenshot $png }]} {
+		if {[catch {screenshot $png}]} {
 			# even this failed, but (try to) remove old screenshot
 			# to avoid confusion
 			catch {file delete -- $png}
@@ -39,7 +39,7 @@ proc savestate { {name ""} } {
 	return $name
 }
 
-proc loadstate { {name ""} } {
+proc loadstate {{name ""}} {
 	savestate_common
 	set newID [restore_machine $fullname_bwcompat]
 	set currentID [machine]
@@ -61,7 +61,7 @@ proc list_savestates_raw {} {
 	return $results
 }
 
-proc list_savestates { args } {
+proc list_savestates {args} {
 	set sort_key 0
 	set long_format false
 	set sort_option "-ascii"
@@ -100,25 +100,25 @@ proc list_savestates { args } {
 	} else {
 		set stringres ""
 		foreach sublist $sorted_sublists {
-			append stringres [format "%-[expr round(${::consolecolumns} / 2)]s %s\n" [lindex $sublist 0] [clock format [lindex $sublist 1] -format "%a %b %d %Y - %H:%M:%S" ]]
+			append stringres [format "%-[expr {round(${::consolecolumns} / 2)}]s %s\n" [lindex $sublist 0] [clock format [lindex $sublist 1] -format "%a %b %d %Y - %H:%M:%S"]]
 		}
 		return $stringres
 	}
 }
 
-proc delete_savestate { {name ""} } {
+proc delete_savestate {{name ""}} {
 	savestate_common
 	catch {file delete -- $fullname_bwcompat}
 	catch {file delete -- $png}
 	return ""
 }
 
-proc savestate_tab { args } {
-	return [list_savestates]
+proc savestate_tab {args} {
+	list_savestates
 }
 
-proc savestate_list_tab { args } {
-	return {"-l" "-t"}
+proc savestate_list_tab {args} {
+	list "-l" "-t"
 }
 
 # savestate

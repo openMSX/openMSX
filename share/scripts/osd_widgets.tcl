@@ -25,17 +25,17 @@ proc msx_init {name} {
 
 proc msx_update {name} {
 	# compensate for horizontal-stretch and set-adjust
-	set hstretch [expr {$::renderer ne "SDL"} ? $::horizontal_stretch : 320]
-	set xsize   [expr 320.0 / $hstretch]
-	set xoffset [expr ($hstretch - 256) / 2 * $xsize]
+	set hstretch [expr {($::renderer ne "SDL") ? $::horizontal_stretch : 320}]
+	set xsize   [expr {320.0 / $hstretch}]
+	set xoffset [expr {($hstretch - 256) / 2 * $xsize}]
 	set ysize 1
-	set lines [expr ([vdpreg 9] & 128) ? 212 : 192]
-	set yoffset [expr (240 - $lines) / 2 * $ysize]
+	set lines [expr {([vdpreg 9] & 128) ? 212 : 192}]
+	set yoffset [expr {(240 - $lines) / 2 * $ysize}]
 	set adjreg [vdpreg 18]
-	set hadj [expr (($adjreg & 15) ^ 7) - 7]
-	set vadj [expr (($adjreg >> 4) ^ 7) - 7]
-	set xoffset [expr $xoffset + $xsize * $hadj]
-	set yoffset [expr $yoffset + $ysize * $vadj]
+	set hadj [expr {(($adjreg & 15) ^ 7) - 7}]
+	set vadj [expr {(($adjreg >> 4) ^ 7) - 7}]
+	set xoffset [expr {$xoffset + $xsize * $hadj}]
+	set yoffset [expr {$yoffset + $ysize * $vadj}]
 	osd configure $name -x $xoffset -y $yoffset -w $xsize -h $ysize
 }
 
@@ -92,7 +92,7 @@ variable fps_after
 
 proc toggle_fps {} {
 	variable fps_after
-	if [info exists fps_after] {
+	if {[info exists fps_after]} {
 		after cancel $osd_widgets::fps_after
 		osd destroy fps_viewer
 		unset fps_after
@@ -132,10 +132,10 @@ proc text_box {name args} {
 	set rect_props [list]
 	foreach {key val} $args {
 		switch -- $key {
-			-text     { set message $val }
-			-textrgba { set txt_color    $val }
-			-textsize { set txt_size     $val }
-			default   { lappend rect_props $key $val }
+			-text     {set message $val}
+			-textrgba {set txt_color $val}
+			-textsize {set txt_size  $val}
+			default   {lappend rect_props $key $val}
 		}
 	}
 
@@ -160,7 +160,7 @@ proc text_box {name args} {
 	# and text wrapping).
 	catch {
 		lassign [osd info $name.text -query-size] x y
-		osd configure $name -h [expr 4 + $y]
+		osd configure $name -h [expr {4 + $y}]
 	}
 
 	# if the widget was still active, kill old click handler
@@ -175,14 +175,14 @@ proc text_box {name args} {
 	return ""
 }
 
-proc click_handler { name } {
+proc click_handler {name} {
 	if {[osd::is_cursor_in $name]} {
 		kill_widget $name
 	}
 	return ""
 }
 
-proc kill_widget { name } {
+proc kill_widget {name} {
 	variable widget_click_handlers
 
 	after cancel $widget_click_handlers($name)
@@ -190,7 +190,7 @@ proc kill_widget { name } {
 	osd destroy $name
 }
 
-proc timer_handler { name } {
+proc timer_handler {name} {
 	variable opaque_duration
 	variable fade_out_duration
 	variable fade_in_duration
@@ -228,7 +228,7 @@ proc volume_control {incr_val} {
 
 	incr ::master_volume $incr_val
 	if {$::master_volume == 0} {set ::mute on} else {set ::mute off}
-	osd configure volume.bar.meter -w [expr ($::master_volume / 100.00)*288]
+	osd configure volume.bar.meter -w [expr {($::master_volume / 100.00) * 288}]
 	osd configure volume.text -text [format "Volume: %03d" $::master_volume]
 	osd configure volume -fadePeriod 5 -fadeTarget 0 -fadeCurrent 1
 }

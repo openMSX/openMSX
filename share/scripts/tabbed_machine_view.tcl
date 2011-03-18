@@ -38,8 +38,7 @@ proc update {} {
 
 	osd destroy tabbed_machine_view
 
-	if { [llength [list_machines]] > 1 } {
-
+	if {[llength [list_machines]] > 1} {
 		# init
 		osd create rectangle tabbed_machine_view \
 			-relw 1 \
@@ -49,7 +48,7 @@ proc update {} {
 			-y 0
 
 		# create new ones
-		set rel_width [expr 1.0/[llength [list_machines]]]
+		set rel_width [expr {1.0 / [llength [list_machines]]}]
 		set tab_count 0
 		foreach machine [utils::get_ordered_machine_list] {
 			if {$machine eq [activate_machine]} {
@@ -62,12 +61,12 @@ proc update {} {
 				set display_text [format "%s (%s)" [utils::get_machine_display_name $machine] [utils::get_machine_time $machine]]
 			}
 			osd create rectangle tabbed_machine_view.${machine}_rect \
-				-relx [expr $tab_count * $rel_width] \
-				-x [expr 2 * $tab_margin] \
+				-relx [expr {$tab_count * $rel_width}] \
+				-x [expr { 2 * $tab_margin}] \
 				-relw $rel_width \
-				-w [expr -2 * $tab_margin] \
+				-w [expr {-2 * $tab_margin}] \
 				-y $top_spacing \
-				-h [expr $total_height - $top_spacing + -$tab_main_spacing] \
+				-h [expr {$total_height - $top_spacing + -$tab_main_spacing}] \
 				-rgba $bg_color \
 				-clip true
 			osd create text tabbed_machine_view.${machine}_rect.text \
@@ -82,7 +81,7 @@ proc update {} {
 			-x 0 \
 			-relw 1 \
 			-rely 1 \
-			-y [expr -$tab_main_spacing] \
+			-y [expr {-$tab_main_spacing}] \
 			-h $tab_main_spacing \
 			-rgba $curtab_bgcolor
 	}

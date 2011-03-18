@@ -20,10 +20,10 @@ Examples:
 }
 
 set_tabcompletion_proc reg_log [namespace code tab_reg_log]
-proc tab_reg_log { args } {
+proc tab_reg_log {args} {
 	switch [llength $args] {
-		2 { return "record play stop" }
-		3 { return [debug list] }
+		2 {return "record play stop"}
+		3 {return [debug list]}
 	}
 }
 
@@ -33,20 +33,20 @@ variable data
 proc reg_log {subcommand debuggable {filename ""}} {
 	if {$filename eq ""} {set filename ${debuggable}.log}
 	switch $subcommand {
-		"record" { return [record $debuggable $filename] }
-		"play"   { return [play $debuggable $filename] }
-		"stop"   { return [stop $debuggable] }
-		default  { error "bad option \"$subcommand\": must be record, play or stop" }
+		"record" {return [record $debuggable $filename]}
+		"play"   {return [play $debuggable $filename]}
+		"stop"   {return [stop $debuggable]}
+		default  {error "bad option \"$subcommand\": must be record, play or stop"}
 	}
 }
 
-proc check { debuggable } {
+proc check {debuggable} {
 	if {$debuggable ni [debug list]} {
 		error "No such debuggable: $debuggable"
 	}
 }
 
-proc record { debuggable filename } {
+proc record {debuggable filename} {
 	variable log_file
 	check $debuggable
 	stop $debuggable
@@ -55,7 +55,7 @@ proc record { debuggable filename } {
 	return ""
 }
 
-proc play { debuggable filename } {
+proc play {debuggable filename} {
 	variable data
 	check $debuggable
 	stop $debuggable
@@ -66,22 +66,22 @@ proc play { debuggable filename } {
 	return ""
 }
 
-proc stop { debuggable } {
+proc stop {debuggable} {
 	variable log_file
 	global file data
-	if [info exists log_file($debuggable)] {
+	if {[info exists log_file($debuggable)]} {
 		close $log_file($debuggable)
 		unset log_file($debuggable)
 	}
-	if [info exists data($debuggable)] {
+	if {[info exists data($debuggable)]} {
 		unset data($debuggable)
 	}
 	return ""
 }
 
-proc do_reg_record { debuggable } {
+proc do_reg_record {debuggable} {
 	variable log_file
-	if ![info exists log_file($debuggable)] return
+	if {![info exists log_file($debuggable)]} return
 	set size [debug size $debuggable]
 	for {set i 0} {$i < $size} {incr i} {
 		puts -nonewline $log_file($debuggable) "[debug read $debuggable $i] "
@@ -90,9 +90,9 @@ proc do_reg_record { debuggable } {
 	after frame [list reg_log::do_reg_record $debuggable]
 }
 
-proc do_reg_play { debuggable } {
+proc do_reg_play {debuggable} {
 	variable data
-	if ![info exists data($debuggable)] return
+	if {![info exists data($debuggable)]} return
 	set reg 0
 	foreach val [lindex $data($debuggable) 0] {
 		debug write $debuggable $reg $val

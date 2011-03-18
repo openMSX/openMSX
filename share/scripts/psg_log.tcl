@@ -44,7 +44,7 @@ Examples:
 
 set_tabcompletion_proc psg_log [namespace code tab_psg_log]
 
-proc tab_psg_log { args } {
+proc tab_psg_log {args} {
 	if {[llength $args] == 2} {
 		return "start stop"
 	}

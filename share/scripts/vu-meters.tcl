@@ -79,19 +79,19 @@ proc vu_meters_init {} {
 			-y 1 \
 			-rgba 0xffffffff \
 			-text $soundchip \
-			-size [expr $vu_meter_title_height - 1]
+			-size [expr {$vu_meter_title_height - 1}]
 
 		# create vu meters for this sound chip
 		dict for {channel volExpr} $channel_dict {
 			osd create rectangle vu_meters.${soundchip}.ch${channel} \
 				-rgba 0xff0000ff \
 				-x 0 \
-				-y [expr $vu_meter_title_height + 1 + (($bar_width + 1) * $channel)] \
+				-y [expr {$vu_meter_title_height + 1 + (($bar_width + 1) * $channel)}] \
 				-w 0 \
 				-h $bar_width \
 		}
 
-		incr vu_meter_offset [expr $bar_length + 1]
+		incr vu_meter_offset [expr {$bar_length + 1}]
 	}
 
 	set machine_switch_trigger_id [after machine_switch [namespace code vu_meters_reset]]

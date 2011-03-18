@@ -1,5 +1,5 @@
 # Since we are now supporting specific platforms we need a
-# a solution to support key bindings for multiple devices.
+# solution to support key bindings for multiple devices.
 
 if {[string match *-dingux* $::tcl_platform(osVersion)]} {
 	bind_default TAB -repeat "volume_control -2"

@@ -42,7 +42,7 @@ See also 'save_session', 'load_session' and 'list_sessions'.
 
 user_setting create boolean enable_session_management "Whether to save your session at exit and restore it again at start up." false
 
-proc tabcompletion { args } {
+proc tabcompletion {args} {
 	return [list_sessions]
 }
 
@@ -50,7 +50,7 @@ set_tabcompletion_proc load_session [namespace code tabcompletion]
 set_tabcompletion_proc save_session [namespace code tabcompletion]
 set_tabcompletion_proc delete_session [namespace code tabcompletion]
 
-proc delete_session { name } {
+proc delete_session {name} {
 	set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions/${name}]
 
 	# remove old session under this name
@@ -58,15 +58,15 @@ proc delete_session { name } {
 }
 
 proc list_sessions {} {
-        set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions]
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../sessions]
 	return [lsort [glob -tails -directory $directory -type d -nocomplain *]]
 }
 
-proc get_machine_representation { machine_id } {
+proc get_machine_representation {machine_id} {
 	return "[utils::get_machine_display_name $machine_id] @ [utils::get_machine_time $machine_id]"
 }
 
-proc save_session { {name "untitled"} } {
+proc save_session {{name "untitled"}} {
 	if {[llength [list_machines]] == 0} {
 		return "Nothing to save..."
 	}
@@ -93,7 +93,7 @@ proc save_session { {name "untitled"} } {
 	return $result
 }
 
-proc load_session { name } {
+proc load_session {name} {
 	set result ""
 
 	# get all savestate files
@@ -147,7 +147,7 @@ proc load_session { name } {
 	}
 
 	# if the active machine failed to load, activate the first machine (if available):
-	if {[activate_machine] eq "" && [llength [list_machines]] > 0 } {
+	if {[activate_machine] eq "" && [llength [list_machines]] > 0} {
 		activate_machine [lindex [list_machines] 0]
 	}
 
@@ -157,16 +157,16 @@ proc load_session { name } {
 variable after_quit_id
 
 # do actual session management
-if { $::enable_session_management } {
+if {$::enable_session_management} {
 	# need after realtime command here, because openMSX needs to have started up first
 	after realtime 0 {load_session "default_session"}
 	set after_quit_id [after quit {save_session "default_session"}]
 }
 
-proc setting_changed { name1 name2 op } {
+proc setting_changed {name1 name2 op} {
 	variable after_quit_id
 
-	if { $::enable_session_management } {;# setting changed from disabled to enabled
+	if {$::enable_session_management} {;# setting changed from disabled to enabled
 		set after_quit_id [after quit {save_session "default_session"}]
 	} else { ;# setting changed from enabled to disabled
 		after cancel $after_quit_id
