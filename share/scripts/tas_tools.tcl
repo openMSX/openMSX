@@ -491,11 +491,11 @@ proc ram_watch_tabcompletion {args} {
 		return [list "add" "remove" "clear" "save" "load"]
 	}
 	switch -- [lindex $args 1] {
-		"add"  {return [list -desc -type -size]}
-		"load" -
-		"save" {return [list_ram_watch_files]}
+		"add"   {return [list -desc -type -size]}
+		"load"  -
+		"save"  {return [list_ram_watch_files]}
+		default {return [list]}
 	}
-	return [list]
 }
 
 

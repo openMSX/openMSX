@@ -6,7 +6,7 @@ set_help_text get_screen \
 
 proc get_screen {} {
 	set mode [get_screen_mode_number]
-	switch $mode {
+	switch -- $mode {
 		0 {
 			set addr 0
 			set width [expr {([debug read "VDP regs" 0] & 0x04) ? 80 : 40}]
@@ -90,7 +90,7 @@ proc listing {} {
 				set t [lindex $tokens2 [expr {[peek $addr] - 0x80}]]
 				incr addr
 			} elseif {$token == 0x3a} {
-				switch [peek $addr] {
+				switch -- [peek $addr] {
 					0xa1    {set t "ELSE"; incr addr}
 					0x8f    {set t "'"   ; incr addr}
 					default {set t ":"              }
@@ -179,14 +179,7 @@ proc get_color_count {args} {
 	}
 
 	set mode [get_screen_mode_number]
-	if {$mode < 5 || $mode > 8} {
-		error "Screen mode $mode not supported (yet)"
-	}
-	set page [expr {([debug read "VDP regs" 2] & 96) >> 5}]
-	set noflines [expr {([debug read "VDP regs" 9] & 128) ? 212 : 192}]
-	append result "Counting pixels of screen $mode, page $page with $noflines lines...\n"
-
-	switch $mode {
+	switch -- $mode {
 		5 {
 			set nofbytes_per_line 128
 			set nofpixels_per_byte 2
@@ -207,9 +200,15 @@ proc get_color_count {args} {
 			set nofpixels_per_byte 1
 			set page_size [expr {64 * 1024}]
 		}
+		default {
+			error "Screen mode $mode not supported (yet)"
+		}
 	}
+	set page [expr {([debug read "VDP regs" 2] & 96) >> 5}]
+	set noflines [expr {([debug read "VDP regs" 9] & 128) ? 212 : 192}]
 	set bpp [expr {8 / $nofpixels_per_byte}]
 	set nrcolors [expr {1 << $bpp}]
+	append result "Counting pixels of screen $mode, page $page with $noflines lines...\n"
 
 	# get bytes into large list
 	set offset [expr {$page_size * $page}]
