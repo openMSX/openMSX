@@ -18,7 +18,7 @@ set_help_text cycle_back $help_cycle
 set_tabcompletion_proc cycle      [namespace code tab_cycle]
 set_tabcompletion_proc cycle_back [namespace code tab_cycle]
 
-proc tab_cycle { args } {
+proc tab_cycle {args} {
 	set result [list]
 	foreach setting [openmsx_info setting] {
 		set type [lindex [openmsx_info setting $setting] 0]
@@ -29,7 +29,7 @@ proc tab_cycle { args } {
 	return $result
 }
 
-proc cycle { setting {cycle_list {}} {step 1} } {
+proc cycle {setting {cycle_list {}} {step 1}} {
 	set setting_info [openmsx_info setting $setting]
 	set type [lindex $setting_info 0]
 	if {$type eq "enumeration"} {
@@ -41,12 +41,12 @@ proc cycle { setting {cycle_list {}} {step 1} } {
 	} else {
 		error "Not an enumeration setting: $setting"
 	}
-	set cur [lsearch -exact $cycle_list [set ::$setting]]
-	set new [expr ($cur + $step) % [llength $cycle_list]]
+	set cur [lsearch -exact -nocase $cycle_list [set ::$setting]]
+	set new [expr {($cur + $step) % [llength $cycle_list]}]
 	set ::$setting [lindex $cycle_list $new]
 }
 
-proc cycle_back { setting } {
+proc cycle_back {setting} {
 	cycle $setting {} -1
 }
 
@@ -62,7 +62,7 @@ Example:
 
 set_tabcompletion_proc toggle [namespace code tab_cycle]
 
-proc toggle { setting } {
+proc toggle {setting} {
         cycle $setting "on off"
 }
 
