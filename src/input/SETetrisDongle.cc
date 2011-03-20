@@ -19,10 +19,9 @@ const std::string& SETetrisDongle::getName() const
 	return name;
 }
 
-const std::string& SETetrisDongle::getDescription() const
+const std::string SETetrisDongle::getDescription() const
 {
-	static const std::string desc = "Tetris II Special Edition dongle";
-	return desc;
+	return "Tetris II Special Edition dongle";
 }
 
 void SETetrisDongle::plugHelper(

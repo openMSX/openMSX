@@ -19,9 +19,9 @@ void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)
 	// do nothing
 }
 
-const std::string& DummyCassetteDevice::getDescription() const
+const std::string DummyCassetteDevice::getDescription() const
 {
-	static const std::string EMPTY;
+	const std::string EMPTY;
 	return EMPTY;
 }
 

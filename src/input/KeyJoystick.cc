@@ -78,11 +78,11 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-const string& KeyJoystick::getDescription() const
+const string KeyJoystick::getDescription() const
 {
-	static const string desc(
-		"Key-Joystick, use your keyboard to emulate an MSX joystick. "
-		"See manual for information on how to configure this.");
+	const string desc(string("Key-Joystick ") + char(*getName().rbegin()) +
+		string(", use your keyboard to emulate an MSX joystick. "
+		"See manual for information on how to configure this."));
 	return desc;
 }
 

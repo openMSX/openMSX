@@ -79,10 +79,9 @@ const string& ArkanoidPad::getName() const
 	return name;
 }
 
-const string& ArkanoidPad::getDescription() const
+const string ArkanoidPad::getDescription() const
 {
-	static const string desc("Arkanoid pad.");
-	return desc;
+	return "Arkanoid pad";
 }
 
 void ArkanoidPad::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

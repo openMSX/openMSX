@@ -37,13 +37,11 @@ const std::string& MidiOutLogger::getName() const
 	return name;
 }
 
-const std::string& MidiOutLogger::getDescription() const
+const std::string MidiOutLogger::getDescription() const
 {
-	static const std::string desc(
-		"Midi output logger. Log all data that is sent to this "
+	return	"Midi output logger. Log all data that is sent to this "
 		"pluggable to a file. The filename is set with the "
-		"'midi-out-logfilename' setting.");
-	return desc;
+		"'midi-out-logfilename' setting.";
 }
 
 void MidiOutLogger::recvByte(byte value, EmuTime::param /*time*/)

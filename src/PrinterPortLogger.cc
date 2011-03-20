@@ -67,13 +67,11 @@ const std::string& PrinterPortLogger::getName() const
 	return name;
 }
 
-const std::string& PrinterPortLogger::getDescription() const
+const std::string PrinterPortLogger::getDescription() const
 {
-	static const std::string desc(
-		"Log everything that is sent to the printer port to a "
+	return	"Log everything that is sent to the printer port to a "
 		"file. The filename can be set with the "
-		"'printerlogfilename' setting.");
-	return desc;
+		"'printerlogfilename' setting.";
 }
 
 template<typename Archive>

@@ -515,14 +515,13 @@ const string& CassettePlayer::getName() const
 	return name;
 }
 
-const string& CassettePlayer::getDescription() const
+const string CassettePlayer::getDescription() const
 {
 	// TODO: this description is not entirely accurate, but it is used
-	// as an identifier for this device in e.g. Catapult. We should use
-	// another way to identify devices A.S.A.P.!
-	static const string desc(
-		"Cassetteplayer, use to read .cas or .wav files.");
-	return desc;
+	// as an identifier for this audio device in e.g. Catapult. We should
+	// use another way to identify audio devices A.S.A.P.!
+
+	return "Cassetteplayer, use to read .cas or .wav files.";
 }
 
 void CassettePlayer::plugHelper(Connector& connector, EmuTime::param time)

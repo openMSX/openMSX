@@ -82,14 +82,12 @@ const std::string& RS232Tester::getName() const
 	return name;
 }
 
-const std::string& RS232Tester::getDescription() const
+const std::string RS232Tester::getDescription() const
 {
-	static const std::string desc(
-		"RS232 tester pluggable. Reads all data from file specified "
+	return	"RS232 tester pluggable. Reads all data from file specified "
 		"with the 'rs-232-inputfilename' setting. Writes all data "
 		"to the file specified with the 'rs232-outputfilename' "
-		"setting.");
-	return desc;
+		"setting.";
 }
 
 // Runnable

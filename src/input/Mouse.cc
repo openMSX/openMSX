@@ -83,10 +83,9 @@ const string& Mouse::getName() const
 	return name;
 }
 
-const string& Mouse::getDescription() const
+const string Mouse::getDescription() const
 {
-	static const string desc("MSX mouse.");
-	return desc;
+	return "MSX mouse";
 }
 
 void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)

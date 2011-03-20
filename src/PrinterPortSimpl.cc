@@ -59,10 +59,9 @@ const std::string& PrinterPortSimpl::getName() const
 	return name;
 }
 
-const std::string& PrinterPortSimpl::getDescription() const
+const std::string PrinterPortSimpl::getDescription() const
 {
-	static const std::string desc("Play samples via your printer port.");
-	return desc;
+	return "Play samples via your printer port.";
 }
 
 template<typename Archive>

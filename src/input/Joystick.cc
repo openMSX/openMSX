@@ -103,7 +103,7 @@ const string& Joystick::getName() const
 	return name;
 }
 
-const string& Joystick::getDescription() const
+const string Joystick::getDescription() const
 {
 	return desc;
 }

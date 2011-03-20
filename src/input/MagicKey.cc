@@ -13,11 +13,9 @@ const std::string& MagicKey::getName() const
 	return NAME;
 }
 
-const std::string& MagicKey::getDescription() const
+const std::string MagicKey::getDescription() const
 {
-	static const std::string DESC =
-		"Dongle used by some Japanese games to enable cheat mode";
-	return DESC;
+	return "Dongle used by some Japanese games to enable cheat mode";
 }
 
 void MagicKey::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

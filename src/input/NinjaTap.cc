@@ -19,10 +19,9 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
 	}
 }
 
-const std::string& NinjaTap::getDescription() const
+const std::string NinjaTap::getDescription() const
 {
-	static const std::string desc("MSX NinjaTap device.");
-	return desc;
+	return "MSX NinjaTap device";
 }
 
 byte NinjaTap::read(EmuTime::param /*time*/)

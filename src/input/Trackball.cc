@@ -77,10 +77,9 @@ const string& Trackball::getName() const
 	return name;
 }
 
-const string& Trackball::getDescription() const
+const string Trackball::getDescription() const
 {
-	static const string desc("Trackball.");
-	return desc;
+	return "MSX Trackball";
 }
 
 void Trackball::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

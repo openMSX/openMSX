@@ -659,12 +659,10 @@ const string& ImagePrinterMSX::getName() const
 	return name;
 }
 
-const string& ImagePrinterMSX::getDescription() const
+const string ImagePrinterMSX::getDescription() const
 {
 	// TODO which printer type
-	static const string desc(
-		"Emulate MSX printer, prints to image.");
-	return desc;
+	return "Emulate MSX printer, prints to image.";
 }
 
 void ImagePrinterMSX::msxPrnSetFont(const byte* msxBits)
@@ -1241,13 +1239,12 @@ const string& ImagePrinterEpson::getName() const
 	return name;
 }
 
-const string& ImagePrinterEpson::getDescription() const
+const string ImagePrinterEpson::getDescription() const
 {
 	// TODO which printer type
-	static const string desc(
-		"Emulate Epson FX80 printer, prints to image.");
-	return desc;
+	return "Emulate Epson FX80 printer, prints to image.";
 }
+
 void ImagePrinterEpson::getNumberOfDots(unsigned& dotsX, unsigned& dotsY)
 {
 	dotsX = 610;
