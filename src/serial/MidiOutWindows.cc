@@ -55,7 +55,7 @@ const string& MidiOutWindows::getName() const
 	return name;
 }
 
-const string& MidiOutWindows::getDescription() const
+const string MidiOutWindows::getDescription() const
 {
 	return desc;
 }
