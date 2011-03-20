@@ -9,11 +9,11 @@ namespace openmsx {
 
 using std::string;
 
-JoyTap::JoyTap(PluggingController& pluggingController,
+JoyTap::JoyTap(PluggingController& pluggingController_,
                const string& name_)
-	: name(name_)
+	: pluggingController(pluggingController_)
+	, name(name_)
 {
-	createPorts(pluggingController, "Joy Tap port ");
 }
 
 JoyTap::~JoyTap()
@@ -31,7 +31,7 @@ void JoyTap::createPorts(PluggingController& pluggingController, const string& b
 
 const std::string JoyTap::getDescription() const
 {
-	return "MSX JoyTap device";
+	return "MSX Joy Tap device";
 }
 
 const std::string& JoyTap::getName() const
@@ -41,12 +41,15 @@ const std::string& JoyTap::getName() const
 
 void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	// TODO move create of the joystickports to here???
+	createPorts(pluggingController, "Joy Tap port ");
 }
 
-void JoyTap::unplugHelper(EmuTime::param /*time*/)
+void JoyTap::unplugHelper(EmuTime::param time)
 {
-	// TODO move destruction of the joystickports to here???
+	for (int i = 0; i < 4; ++i) {
+		slaves[i]->unplug(time);
+		slaves[i].reset();
+	}
 }
 
 byte JoyTap::read(EmuTime::param time)

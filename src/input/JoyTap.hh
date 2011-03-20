@@ -13,11 +13,11 @@ class PluggingController;
 class JoystickPort;
 
 /** This device is pluged in into the joyports and consolidates several other
- * joysticks plugged into it. This jotap simply ANDs all the joystick
- * outputs, acting as a simple wireing of all digital joysticks into one
+ * joysticks plugged into it. This joytap simply ANDs all the joystick
+ * outputs, acting as a simple wiring of all digital joysticks into one
  * connector.
  * This is the base class for the NinjaTap device and the FNano2 multiplayer
- * extention, who basicly have other read and write methods
+ * extension, who basicly have other read and write methods
  */
 class JoyTap : public JoystickDevice
 {
@@ -42,6 +42,7 @@ public:
 protected:
 	std::auto_ptr<JoystickPort> slaves[4];
 	void createPorts(PluggingController& pluggingController, const std::string &baseDescription);
+	PluggingController& pluggingController;
 
 private:
 	const std::string name;

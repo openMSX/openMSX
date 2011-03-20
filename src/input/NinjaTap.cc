@@ -10,8 +10,6 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
                    const std::string& name)
 	: JoyTap(pluggingController, name)
 {
-	createPorts(pluggingController, "Ninja Tap port ");
-
 	status = 0x3F; // TODO check initial value
 	previous = 0;
 	for (int i = 0; i < 4; ++i) {
@@ -21,7 +19,13 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
 
 const std::string NinjaTap::getDescription() const
 {
-	return "MSX NinjaTap device";
+	return "MSX Ninja Tap device";
+}
+
+
+void NinjaTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+{
+	createPorts(pluggingController, "Ninja Tap port ");
 }
 
 byte NinjaTap::read(EmuTime::param /*time*/)

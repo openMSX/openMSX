@@ -15,6 +15,7 @@ public:
 
 	// Pluggable
 	virtual const std::string getDescription() const;
+	virtual void plugHelper(Connector& connector, EmuTime::param time);
 
 	// JoystickDevice
 	virtual byte read(EmuTime::param time);
