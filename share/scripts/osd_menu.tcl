@@ -302,7 +302,7 @@ proc prepare_menu_list {lst num menudef} {
 	set lst_len [llength $lst]
 	set menu_len [expr {$lst_len < $num ? $lst_len : $num}]
 	for {set i 0} {$i < $menu_len} {incr i} {
-		set actions [list "A" "osd_menu::list_menu_item_exec $execute $i"]
+		set actions [list "A" "osd_menu::list_menu_item_exec {$execute} $i"]
 		if {$i == 0} {
 			lappend actions "UP" "osd_menu::move_selection -1"
 		}
@@ -329,7 +329,7 @@ proc prepare_menu_list {lst num menudef} {
 
 proc list_menu_item_exec {execute pos} {
 	peek_menu_info
-	$execute [lindex [dict get $menuinfo lst] [expr {$pos + [dict get $menuinfo scrollidx]}]]
+	{*}$execute [lindex [dict get $menuinfo lst] [expr {$pos + [dict get $menuinfo scrollidx]}]]
 }
 
 proc list_menu_item_show {pos} {
@@ -524,7 +524,10 @@ set hardware_menu {
 	       { text "Change Machine..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
 	       { text "Extensions..."
-	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}}}
+	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
+	       { text "Connectors..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_connectors_list] }}}
+	 }}
 
 set extensions_menu {
 	font-size 8
@@ -722,6 +725,111 @@ proc menu_create_plugged_extensions_list {} {
 proc menu_remove_extension_exec {item} {
 	menu_close_all
 	remove_extension $item
+}
+
+proc get_pluggable_for_connector {connector} {
+	return [lindex [split [plug $connector] ": "] 2]
+}
+
+proc menu_create_connectors_list {} {
+	set menu_def {
+	         execute menu_connector_exec
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 100
+	         ypos 120
+	         header { text "Connectors"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	set items [machine_info connector]
+
+	set presentation [list]
+	foreach item $items {
+		set plugged [get_pluggable_for_connector $item]
+		set plugged_presentation ""
+		if {$plugged ne "--empty--"} {
+			set plugged_presentation "  ([machine_info pluggable $plugged])"
+		}
+		lappend presentation "[machine_info connector $item]: $plugged$plugged_presentation"
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_connector_exec {item} {
+	menu_create [create_menu_pluggable_list $item]
+	select_menu_item [get_pluggable_for_connector $item]
+}
+
+proc create_menu_pluggable_list {connector} {
+	set menu_def [list \
+	         execute [list menu_plug_exec $connector] \
+	         font-size 8 \
+	         border-size 2 \
+	         width 200 \
+	         xpos 110 \
+	         ypos 140 \
+	         header [list text "What to Plug into [machine_info connector $connector]?" \
+	                  font-size 10 \
+	                  post-spacing 6 ]]
+
+	set items [list]
+
+	set class [machine_info connectionclass $connector]
+
+	# find out which pluggables are already plugged
+	# (currently a pluggable can be used only once per machine)
+	set already_plugged [list]
+	foreach other_connector [machine_info connector] {
+		set other_plugged [get_pluggable_for_connector $other_connector]
+		if {$other_plugged ne "--empty--" && $other_connector ne $connector} {
+			lappend already_plugged $other_plugged
+		}
+	}
+
+	# get a list of all pluggables that fit this connector
+	# and which are not plugged yet in other connectors
+	foreach pluggable [machine_info pluggable] {
+		if {$pluggable ni $already_plugged && [machine_info connectionclass $pluggable] eq $class} {
+			lappend items $pluggable
+		}
+	}
+
+	set presentation [list]
+	foreach item $items {
+		lappend presentation "$item: [machine_info pluggable $item]"
+	}
+
+	set plugged [get_pluggable_for_connector $connector]
+
+	if {$plugged ne "--empty--"} {
+		set items [linsert $items 0 "--unplug--"]
+		set presentation [linsert $presentation 0 "Nothing, unplug $plugged ([machine_info pluggable $plugged])"]
+	}
+
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_plug_exec {connector pluggable} {
+	set command ""
+	if {$pluggable eq "--unplug--"} {
+		set command "unplug $connector"
+	} else {
+		set command "plug $connector $pluggable"
+	}
+	if {[catch [eval $command] errorText]} {
+		osd::display_message $errorText error
+	} else {
+		menu_close_top
+		# refresh the connectors menu
+		menu_close_top
+		menu_create [menu_create_connectors_list]
+	}
 }
 
 proc menu_create_toys_list {} {
