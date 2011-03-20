@@ -11,8 +11,7 @@ void DummyMidiInDevice::signal(EmuTime::param /*time*/)
 
 const std::string DummyMidiInDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyMidiInDevice::plugHelper(Connector& /*connector*/,

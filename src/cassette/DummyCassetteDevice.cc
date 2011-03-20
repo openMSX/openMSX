@@ -21,8 +21,7 @@ void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)
 
 const std::string DummyCassetteDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyCassetteDevice::plugHelper(Connector& /*connector*/,

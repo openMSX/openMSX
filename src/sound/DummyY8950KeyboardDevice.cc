@@ -16,8 +16,7 @@ byte DummyY8950KeyboardDevice::read(EmuTime::param /*time*/)
 
 const std::string DummyY8950KeyboardDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyY8950KeyboardDevice::plugHelper(Connector& /*connector*/,

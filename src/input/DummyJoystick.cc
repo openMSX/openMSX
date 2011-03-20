@@ -16,8 +16,7 @@ void DummyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 
 const std::string DummyJoystick::getDescription() const
 {
-	static const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyJoystick::plugHelper(Connector& /*connector*/,

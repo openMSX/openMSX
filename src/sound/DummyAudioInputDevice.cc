@@ -6,8 +6,7 @@ namespace openmsx {
 
 const std::string DummyAudioInputDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyAudioInputDevice::plugHelper(Connector& /*connector*/,

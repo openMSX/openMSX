@@ -11,8 +11,7 @@ void DummyRS232Device::signal(EmuTime::param /*time*/)
 
 const std::string DummyRS232Device::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyRS232Device::plugHelper(Connector& /*connector*/,

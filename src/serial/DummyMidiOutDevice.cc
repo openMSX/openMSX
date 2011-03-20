@@ -11,8 +11,7 @@ void DummyMidiOutDevice::recvByte(byte /*value*/, EmuTime::param /*time*/)
 
 const std::string DummyMidiOutDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyMidiOutDevice::plugHelper(

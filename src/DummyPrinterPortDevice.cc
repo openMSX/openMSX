@@ -21,8 +21,7 @@ void DummyPrinterPortDevice::writeData(byte /*data*/, EmuTime::param /*time*/)
 
 const std::string DummyPrinterPortDevice::getDescription() const
 {
-	const std::string EMPTY;
-	return EMPTY;
+	return "";
 }
 
 void DummyPrinterPortDevice::plugHelper(
