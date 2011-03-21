@@ -1301,7 +1301,9 @@ SERIALIZE_ENUM(YM2413Burczynski::Slot::EnvelopeState, envelopeStateInfo);
 namespace YM2413Burczynski {
 
 // version 1: initial version
-// version 2: removed kcodeScaled
+// version 2: - removed kcodeScaled
+//            - calculated more members from other state
+//              (TLL, freq, eg_sel_*, eg_sh_*)
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1314,9 +1316,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	ar.serialize("phase", phase);
-	ar.serialize("freq", freq);
 	ar.serialize("TL", TL);
-	ar.serialize("TLL", TLL);
 	ar.serialize("volume", egout);
 	ar.serialize("sl", sl);
 	ar.serialize("state", state);
@@ -1324,16 +1324,6 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("eg_sustain", eg_sustain);
 	ar.serialize("fb_shift", fb_shift);
 	ar.serialize("key", key);
-	ar.serialize("eg_sh_dp", eg_sh_dp);
-	ar.serialize("eg_sel_dp", eg_sel_dp);
-	ar.serialize("eg_sh_ar", eg_sh_ar);
-	ar.serialize("eg_sel_ar", eg_sel_ar);
-	ar.serialize("eg_sh_dr", eg_sh_dr);
-	ar.serialize("eg_sel_dr", eg_sel_dr);
-	ar.serialize("eg_sh_rr", eg_sh_rr);
-	ar.serialize("eg_sel_rr", eg_sel_rr);
-	ar.serialize("eg_sh_rs", eg_sh_rs);
-	ar.serialize("eg_sel_rs", eg_sel_rs);
 	ar.serialize("ar", this->ar);
 	ar.serialize("dr", dr);
 	ar.serialize("rr", rr);
@@ -1342,6 +1332,12 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("mul", mul);
 	ar.serialize("AMmask", AMmask);
 	ar.serialize("vib", vib);
+
+	// These are calculated by updateTotalLevel()
+	//   TLL
+	// These are calculated by updateGenerators()
+	//   freq, eg_sh_ar, eg_sel_ar, eg_sh_dr, eg_sel_dr, eg_sh_rr, eg_sel_rr
+	//   eg_sh_rs, eg_sel_rs, eg_sh_dp, eg_sel_dp
 }
 
 // version 1: original version
@@ -1362,6 +1358,11 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);
 	ar.serialize("sus", sus);
+
+	if (ar.isLoader()) {
+		mod.updateFrequency(*this);
+		car.updateFrequency(*this);
+	}
 }
 
 // version 1:  initial version
