@@ -291,6 +291,7 @@ private:
 } // namespace YM2413Burczynski
 
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 2);
+SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 2);
 
 } // namespace openmsx
 

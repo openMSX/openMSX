@@ -807,7 +807,7 @@ Channel::Channel()
 	: fc(0)
 {
 	instvol_r = 0;
-	block_fnum = ksl_base = kcode = 0;
+	block_fnum = ksl_base = 0;
 	sus = false;
 }
 
@@ -816,8 +816,6 @@ void Channel::setFrequency(int block_fnum_)
 	if (block_fnum == block_fnum_) return;
 	block_fnum = block_fnum_;
 
-	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
-	kcode    = (block_fnum & 0x0F00) >> 8;
 	ksl_base = ksl_tab[block_fnum >> 5];
 	fc       = fnumToIncrement(block_fnum * 2);
 
@@ -853,7 +851,8 @@ int Channel::getKeyScaleLevelBase() const
 
 byte Channel::getKeyCode() const
 {
-	return kcode;
+	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
+	return (block_fnum & 0x0F00) >> 8;
 }
 
 bool Channel::isSustained() const
@@ -1344,6 +1343,8 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("vib", vib);
 }
 
+// version 1: original version
+// version 2: removed kcode
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1359,7 +1360,6 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);
-	ar.serialize("kcode", kcode);
 	ar.serialize("sus", sus);
 }
 
