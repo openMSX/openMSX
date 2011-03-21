@@ -142,6 +142,11 @@ private:
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 
+	unsigned eg_mask_dp; // == (1 << eg_sh_dp) - 1
+	unsigned eg_mask_ar; // == (1 << eg_sh_ar) - 1
+	unsigned eg_mask_dr; // == (1 << eg_sh_dr) - 1
+	unsigned eg_mask_rr; // == (1 << eg_sh_rr) - 1
+	unsigned eg_mask_rs; // == (1 << eg_sh_rs) - 1
 	byte eg_sh_dp;	// (dump state)
 	byte eg_sel_dp;	// (dump state)
 	byte eg_sh_ar;	// (attack state)

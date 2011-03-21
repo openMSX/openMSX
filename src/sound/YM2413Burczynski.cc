@@ -369,7 +369,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 		// When CARRIER envelope gets down to zero level, phases in BOTH
 		// operators are reset (at the same time?).
 		// TODO: That sounds logical, but it does not match the implementation.
-		if (!(eg_cnt & ((1 << eg_sh_dp) - 1))) {
+		if (!(eg_cnt & eg_mask_dp)) {
 			egout += eg_inc[eg_sel_dp][(eg_cnt >> eg_sh_dp) & 7];
 			if (egout >= MAX_ATT_INDEX) {
 				egout = MAX_ATT_INDEX;
@@ -380,7 +380,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 		break;
 
 	case EG_ATTACK:
-		if (!(eg_cnt & ((1 << eg_sh_ar) - 1))) {
+		if (!(eg_cnt & eg_mask_ar)) {
 			egout +=
 				(~egout * eg_inc[eg_sel_ar][(eg_cnt >> eg_sh_ar) & 7]) >> 2;
 			if (egout <= MIN_ATT_INDEX) {
@@ -391,7 +391,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 		break;
 
 	case EG_DECAY:
-		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
+		if (!(eg_cnt & eg_mask_dr)) {
 			egout += eg_inc[eg_sel_dr][(eg_cnt >> eg_sh_dr) & 7];
 			if (egout >= sl) {
 				setEnvelopeState(EG_SUSTAIN);
@@ -411,7 +411,7 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 			// percussive mode
 			// during sustain phase chip adds Release Rate (in
 			// percussive mode)
-			if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
+			if (!(eg_cnt & eg_mask_rr)) {
 				egout += eg_inc[eg_sel_rr][(eg_cnt >> eg_sh_rr) & 7];
 				if (egout >= MAX_ATT_INDEX) {
 					egout = MAX_ATT_INDEX;
@@ -427,8 +427,9 @@ inline int Slot::calc_envelope(Channel& channel, unsigned eg_cnt, bool carrier)
 		if (carrier) {
 			const bool sustain = !eg_sustain || channel.isSustained();
 			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
-			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
-			if (!(eg_cnt & ((1 << shift) - 1))) {
+			const unsigned mask = sustain ? eg_mask_rs : eg_mask_rr;
+			if (!(eg_cnt & mask)) {
+				const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
 				egout += eg_inc[sel][(eg_cnt >> shift) & 7];
 				if (egout >= MAX_ATT_INDEX) {
 					egout = MAX_ATT_INDEX;
@@ -473,18 +474,21 @@ inline void Slot::updateAttackRate(int kcodeScaled)
 		eg_sh_ar  = 0;
 		eg_sel_ar = 13;
 	}
+	eg_mask_ar = (1 << eg_sh_ar) - 1;
 }
 
 inline void Slot::updateDecayRate(int kcodeScaled)
 {
 	eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
 	eg_sel_dr = eg_rate_select[dr + kcodeScaled];
+	eg_mask_dr = (1 << eg_sh_dr) - 1;
 }
 
 inline void Slot::updateReleaseRate(int kcodeScaled)
 {
 	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
+	eg_mask_rr = (1 << eg_sh_rr) - 1;
 }
 
 inline int Slot::calcOutput(Channel& channel, unsigned eg_cnt, bool carrier,
@@ -651,6 +655,7 @@ Slot::Slot()
 	TL = TLL = egout = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
+	eg_mask_dp = eg_mask_ar = eg_mask_dr = eg_mask_rr = eg_mask_rs = 0;
 	eg_sustain = false;
 	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
@@ -801,6 +806,9 @@ void Slot::updateGenerators(Channel& channel)
 	const int dp = 16 + (13 << 2);
 	eg_sh_dp  = eg_rate_shift [dp + kcodeScaled];
 	eg_sel_dp = eg_rate_select[dp + kcodeScaled];
+
+	eg_mask_rs = (1 << eg_sh_rs) - 1;
+	eg_mask_dp = (1 << eg_sh_dp) - 1;
 }
 
 Channel::Channel()
