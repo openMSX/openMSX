@@ -84,15 +84,15 @@ public:
 
 	/** Sets the attack rate [0..15].
 	 */
-	void setAttackRate(byte value);
+	void setAttackRate(const Channel& channel, byte value);
 
 	/** Sets the decay rate [0..15].
 	 */
-	void setDecayRate(byte value);
+	void setDecayRate(const Channel& channel, byte value);
 
 	/** Sets the release rate [0..15].
 	 */
-	void setReleaseRate(byte value);
+	void setReleaseRate(const Channel& channel, byte value);
 
 	/** Sets the sustain level [0..15].
 	 */
@@ -119,9 +119,9 @@ private:
 	void setEnvelopeState(EnvelopeState state);
 
 	inline void updateTotalLevel(Channel& channel);
-	inline void updateAttackRate();
-	inline void updateDecayRate();
-	inline void updateReleaseRate();
+	inline void updateAttackRate(int kcodeScaled);
+	inline void updateDecayRate(int kcodeScaled);
+	inline void updateReleaseRate(int kcodeScaled);
 
 	unsigned* wavetable;	// waveform select
 
@@ -158,7 +158,6 @@ private:
 	byte rr;	// release rate:RR<<2
 	byte KSR;	// key scale rate
 	byte ksl;	// keyscale level
-	byte kcodeScaled;	// key scale rate: kcode>>KSR
 	byte mul;	// multiple: mul_tab[ML]
 
 	// LFO
@@ -292,6 +291,7 @@ private:
 
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 2);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 2);
+SERIALIZE_CLASS_VERSION(YM2413Burczynski::Slot, 2);
 
 } // namespace openmsx
 

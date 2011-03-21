@@ -464,7 +464,7 @@ inline void Slot::updateTotalLevel(Channel& channel)
 	TLL = TL + (channel.getKeyScaleLevelBase() >> ksl);
 }
 
-inline void Slot::updateAttackRate()
+inline void Slot::updateAttackRate(int kcodeScaled)
 {
 	if ((ar + kcodeScaled) < (16 + 62)) {
 		eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
@@ -475,13 +475,13 @@ inline void Slot::updateAttackRate()
 	}
 }
 
-inline void Slot::updateDecayRate()
+inline void Slot::updateDecayRate(int kcodeScaled)
 {
 	eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
 	eg_sel_dr = eg_rate_select[dr + kcodeScaled];
 }
 
-inline void Slot::updateReleaseRate()
+inline void Slot::updateReleaseRate(int kcodeScaled)
 {
 	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
@@ -646,7 +646,7 @@ static void initTables()
 Slot::Slot()
 	: phase(0), freq(0)
 {
-	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
+	ar = dr = rr = KSR = ksl = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
 	TL = TLL = egout = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
@@ -744,22 +744,25 @@ void Slot::setFeedbackShift(byte value)
 	fb_shift = value ? 8 - value : 0;
 }
 
-void Slot::setAttackRate(byte value)
+void Slot::setAttackRate(const Channel& channel, byte value)
 {
+	int kcodeScaled = channel.getKeyCode() >> KSR;
 	ar = value ? 16 + (value << 2) : 0;
-	updateAttackRate();
+	updateAttackRate(kcodeScaled);
 }
 
-void Slot::setDecayRate(byte value)
+void Slot::setDecayRate(const Channel& channel, byte value)
 {
+	int kcodeScaled = channel.getKeyCode() >> KSR;
 	dr = value ? 16 + (value << 2) : 0;
-	updateDecayRate();
+	updateDecayRate(kcodeScaled);
 }
 
-void Slot::setReleaseRate(byte value)
+void Slot::setReleaseRate(const Channel& channel, byte value)
 {
+	int kcodeScaled = channel.getKeyCode() >> KSR;
 	rr = value ? 16 + (value << 2) : 0;
-	updateReleaseRate();
+	updateReleaseRate(kcodeScaled);
 }
 
 void Slot::setSustainLevel(byte value)
@@ -785,14 +788,11 @@ void Slot::updateGenerators(Channel& channel)
 	// (frequency) phase increment counter
 	freq = channel.getFrequencyIncrement() * mul;
 
-	const int kcodeScaledNew = channel.getKeyCode() >> KSR;
-	if (kcodeScaled != kcodeScaledNew) {
-		kcodeScaled = kcodeScaledNew;
-		// calculate envelope generator rates
-		updateAttackRate();
-		updateDecayRate();
-		updateReleaseRate();
-	}
+	// calculate envelope generator rates
+	const int kcodeScaled = channel.getKeyCode() >> KSR;
+	updateAttackRate(kcodeScaled);
+	updateDecayRate(kcodeScaled);
+	updateReleaseRate(kcodeScaled);
 
 	const int rs = channel.isSustained() ? 16 + (5 << 2) : 16 + (7 << 2);
 	eg_sh_rs  = eg_rate_shift [rs + kcodeScaled];
@@ -895,20 +895,20 @@ void Channel::updateInstrumentPart(int part, byte value)
 		car.setWaveform((value & 0x10) >> 4);
 		break;
 	case 4:
-		mod.setAttackRate(value >> 4);
-		mod.setDecayRate(value & 0x0F);
+		mod.setAttackRate(*this, value >> 4);
+		mod.setDecayRate(*this, value & 0x0F);
 		break;
 	case 5:
-		car.setAttackRate(value >> 4);
-		car.setDecayRate(value & 0x0F);
+		car.setAttackRate(*this, value >> 4);
+		car.setDecayRate(*this, value & 0x0F);
 		break;
 	case 6:
 		mod.setSustainLevel(value >> 4);
-		mod.setReleaseRate(value & 0x0F);
+		mod.setReleaseRate(*this, value & 0x0F);
 		break;
 	case 7:
 		car.setSustainLevel(value >> 4);
-		car.setReleaseRate(value & 0x0F);
+		car.setReleaseRate(*this, value & 0x0F);
 		break;
 	}
 }
@@ -1300,6 +1300,8 @@ SERIALIZE_ENUM(YM2413Burczynski::Slot::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Burczynski {
 
+// version 1: initial version
+// version 2: removed kcodeScaled
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1337,7 +1339,6 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("rr", rr);
 	ar.serialize("KSR", KSR);
 	ar.serialize("ksl", ksl);
-	ar.serialize("kcodeScaled", kcodeScaled);
 	ar.serialize("mul", mul);
 	ar.serialize("AMmask", AMmask);
 	ar.serialize("vib", vib);
