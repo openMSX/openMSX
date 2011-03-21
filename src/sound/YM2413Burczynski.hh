@@ -194,10 +194,9 @@ public:
 	void updateInstrumentPart(int part, byte value);
 
 	/** Sets all synthesis parameters as specified by the instrument.
-	 * @param global the actual YM2413 core, private implementation
-	 * @param instrument Number of the instrument.
+	 * @param inst Instrument data.
 	 */
-	void updateInstrument(YM2413& global, int instrument);
+	void updateInstrument(const byte* inst);
 
 	/** Sets all synthesis parameters as specified by the current instrument.
 	 * The current instrument is determined by instvol_r.

@@ -838,7 +838,8 @@ void Channel::setFrequencyHigh(byte value)
 
 void Channel::updateInstrument(YM2413& ym2413)
 {
-	updateInstrument(ym2413, instvol_r >> 4);
+	const byte* inst = ym2413.getInstrument(instvol_r >> 4);
+	updateInstrument(inst);
 }
 
 int Channel::getBlockFNum() const
@@ -919,9 +920,8 @@ void Channel::updateInstrumentPart(int part, byte value)
 	}
 }
 
-void Channel::updateInstrument(YM2413& ym2413, int instrument)
+void Channel::updateInstrument(const byte* inst)
 {
-	const byte* inst = ym2413.getInstrument(instrument);
 	for (int part = 0; part < 8; ++part) {
 		updateInstrumentPart(part, inst[part]);
 	}
@@ -962,14 +962,14 @@ void YM2413::setRhythmMode(bool rhythm_)
 
 	if (rhythm) { // OFF -> ON
 		// Bass drum.
-		channels[6].updateInstrument(*this, 16);
+		channels[6].updateInstrument(inst_tab[16]);
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
-		ch7.updateInstrument(*this, 17);
+		ch7.updateInstrument(inst_tab[17]);
 		ch7.mod.setTotalLevel(ch7, (ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
-		ch8.updateInstrument(*this, 18);
+		ch8.updateInstrument(inst_tab[18]);
 		ch8.mod.setTotalLevel(ch8, (ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
 		channels[6].updateInstrument(*this);
