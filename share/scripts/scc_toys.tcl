@@ -48,8 +48,11 @@ proc update_device_list {} {
 
 	if {[llength $scc_devices] == 0} {
 		#if no SCC is present try to plug in SCC
-		catch [ext scc]
-		update_device_list
+		if {![catch {ext scc} errorText]} {
+			update_device_list
+		} else {
+			error "No SCC devices present and failed to insert one: $errorText"
+		}
 	}
 
 	# for now, always select the first device
