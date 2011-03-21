@@ -47,7 +47,7 @@ proc update_device_list {} {
 	}
 
 	if {[llength $scc_devices] == 0} {
-		#if no SCC is pressent try to plug in SCC
+		#if no SCC is present try to plug in SCC
 		catch [ext scc]
 		update_device_list
 	}
