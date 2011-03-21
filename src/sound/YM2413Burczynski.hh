@@ -198,12 +198,6 @@ public:
 	 */
 	void updateInstrument(const byte* inst);
 
-	/** Sets all synthesis parameters as specified by the current instrument.
-	 * The current instrument is determined by instvol_r.
-	 * @param global the actual YM2413 core, private implementation
-	 */
-	void updateInstrument(YM2413& global);
-
 	int getBlockFNum() const;
 	FreqIndex getFrequencyIncrement() const;
 	int getKeyScaleLevelBase() const;
@@ -233,8 +227,6 @@ class YM2413 : public YM2413Core
 {
 public:
 	YM2413();
-
-	const byte* getInstrument(int instrument) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

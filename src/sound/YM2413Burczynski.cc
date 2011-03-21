@@ -836,12 +836,6 @@ void Channel::setFrequencyHigh(byte value)
 	setFrequency((value << 8) | (block_fnum & 0x00FF));
 }
 
-void Channel::updateInstrument(YM2413& ym2413)
-{
-	const byte* inst = ym2413.getInstrument(instvol_r >> 4);
-	updateInstrument(inst);
-}
-
 int Channel::getBlockFNum() const
 {
 	return block_fnum;
@@ -960,32 +954,33 @@ void YM2413::setRhythmMode(bool rhythm_)
 	if (rhythm == rhythm_) return;
 	rhythm = rhythm_;
 
+	Channel& ch6 = channels[6];
+	Channel& ch7 = channels[7];
+	Channel& ch8 = channels[8];
 	if (rhythm) { // OFF -> ON
 		// Bass drum.
-		channels[6].updateInstrument(inst_tab[16]);
+		ch6.updateInstrument(inst_tab[16]);
 		// High hat and snare drum.
-		Channel& ch7 = channels[7];
 		ch7.updateInstrument(inst_tab[17]);
 		ch7.mod.setTotalLevel(ch7, (ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
-		Channel& ch8 = channels[8];
 		ch8.updateInstrument(inst_tab[18]);
 		ch8.mod.setTotalLevel(ch8, (ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
-		channels[6].updateInstrument(*this);
-		channels[7].updateInstrument(*this);
-		channels[8].updateInstrument(*this);
+		ch6.updateInstrument(inst_tab[ch6.instvol_r >> 4]);
+		ch7.updateInstrument(inst_tab[ch7.instvol_r >> 4]);
+		ch8.updateInstrument(inst_tab[ch8.instvol_r >> 4]);
 		// BD key off
-		channels[6].mod.setKeyOff(Slot::KEY_RHYTHM);
-		channels[6].car.setKeyOff(Slot::KEY_RHYTHM);
+		ch6.mod.setKeyOff(Slot::KEY_RHYTHM);
+		ch6.car.setKeyOff(Slot::KEY_RHYTHM);
 		// HH key off
-		channels[7].mod.setKeyOff(Slot::KEY_RHYTHM);
+		ch7.mod.setKeyOff(Slot::KEY_RHYTHM);
 		// SD key off
-		channels[7].car.setKeyOff(Slot::KEY_RHYTHM);
+		ch7.car.setKeyOff(Slot::KEY_RHYTHM);
 		// TOM key off
-		channels[8].mod.setKeyOff(Slot::KEY_RHYTHM);
+		ch8.mod.setKeyOff(Slot::KEY_RHYTHM);
 		// TOP-CY off
-		channels[8].car.setKeyOff(Slot::KEY_RHYTHM);
+		ch8.car.setKeyOff(Slot::KEY_RHYTHM);
 	}
 }
 
@@ -1036,11 +1031,6 @@ void YM2413::resetOperators()
 		channels[ch].mod.resetOperators();
 		channels[ch].car.resetOperators();
 	}
-}
-
-const byte* YM2413::getInstrument(int instrument) const
-{
-	return inst_tab[instrument];
 }
 
 int YM2413::getNumMelodicChannels() const
@@ -1282,7 +1272,7 @@ void YM2413::writeReg(byte r, byte v)
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				ch.updateInstrument(*this);
+				ch.updateInstrument(inst_tab[v >> 4]);
 			}
 		}
 		break;
