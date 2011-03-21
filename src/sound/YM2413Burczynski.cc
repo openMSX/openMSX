@@ -871,59 +871,59 @@ void Channel::setSustain(bool sustained)
 	sus = sustained;
 }
 
-void Channel::updateInstrumentPart(YM2413& ym2413, int instrument, int part)
+void Channel::updateInstrumentPart(int part, byte value)
 {
-	const byte* inst = ym2413.getInstrument(instrument);
 	switch (part) {
 	case 0:
-		mod.setFrequencyMultiplier(inst[0] & 0x0F);
-		mod.setKeyScaleRate((inst[0] & 0x10) != 0);
-		mod.setEnvelopeSustained((inst[0] & 0x20) != 0);
-		mod.setVibrato((inst[0] & 0x40) != 0);
-		mod.setAmplitudeModulation((inst[0] & 0x80) != 0);
+		mod.setFrequencyMultiplier(value & 0x0F);
+		mod.setKeyScaleRate((value & 0x10) != 0);
+		mod.setEnvelopeSustained((value & 0x20) != 0);
+		mod.setVibrato((value & 0x40) != 0);
+		mod.setAmplitudeModulation((value & 0x80) != 0);
 		mod.updateGenerators(*this);
 		break;
 	case 1:
-		car.setFrequencyMultiplier(inst[1] & 0x0F);
-		car.setKeyScaleRate((inst[1] & 0x10) != 0);
-		car.setEnvelopeSustained((inst[1] & 0x20) != 0);
-		car.setVibrato((inst[1] & 0x40) != 0);
-		car.setAmplitudeModulation((inst[1] & 0x80) != 0);
+		car.setFrequencyMultiplier(value & 0x0F);
+		car.setKeyScaleRate((value & 0x10) != 0);
+		car.setEnvelopeSustained((value & 0x20) != 0);
+		car.setVibrato((value & 0x40) != 0);
+		car.setAmplitudeModulation((value & 0x80) != 0);
 		car.updateGenerators(*this);
 		break;
 	case 2:
-		mod.setKeyScaleLevel(*this, inst[2] >> 6);
-		mod.setTotalLevel(*this, inst[2] & 0x3F);
+		mod.setKeyScaleLevel(*this, value >> 6);
+		mod.setTotalLevel(*this, value & 0x3F);
 		break;
 	case 3:
-		mod.setWaveform((inst[3] & 0x08) >> 3);
-		mod.setFeedbackShift(inst[3] & 0x07);
-		car.setKeyScaleLevel(*this, inst[3] >> 6);
-		car.setWaveform((inst[3] & 0x10) >> 4);
+		mod.setWaveform((value & 0x08) >> 3);
+		mod.setFeedbackShift(value & 0x07);
+		car.setKeyScaleLevel(*this, value >> 6);
+		car.setWaveform((value & 0x10) >> 4);
 		break;
 	case 4:
-		mod.setAttackRate(inst[4] >> 4);
-		mod.setDecayRate(inst[4] & 0x0F);
+		mod.setAttackRate(value >> 4);
+		mod.setDecayRate(value & 0x0F);
 		break;
 	case 5:
-		car.setAttackRate(inst[5] >> 4);
-		car.setDecayRate(inst[5] & 0x0F);
+		car.setAttackRate(value >> 4);
+		car.setDecayRate(value & 0x0F);
 		break;
 	case 6:
-		mod.setSustainLevel(inst[6] >> 4);
-		mod.setReleaseRate(inst[6] & 0x0F);
+		mod.setSustainLevel(value >> 4);
+		mod.setReleaseRate(value & 0x0F);
 		break;
 	case 7:
-		car.setSustainLevel(inst[7] >> 4);
-		car.setReleaseRate(inst[7] & 0x0F);
+		car.setSustainLevel(value >> 4);
+		car.setReleaseRate(value & 0x0F);
 		break;
 	}
 }
 
 void Channel::updateInstrument(YM2413& ym2413, int instrument)
 {
+	const byte* inst = ym2413.getInstrument(instrument);
 	for (int part = 0; part < 8; ++part) {
-		updateInstrumentPart(ym2413, instrument, part);
+		updateInstrumentPart(part, inst[part]);
 	}
 }
 
@@ -950,7 +950,7 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		Channel& channel = channels[ch];
 		if ((channel.instvol_r & 0xF0) == 0) {
-			channel.updateInstrumentPart(*this, 0, part);
+			channel.updateInstrumentPart(part, value);
 		}
 	}
 }

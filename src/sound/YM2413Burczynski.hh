@@ -188,11 +188,10 @@ public:
 	void setFrequencyHigh(byte value);
 
 	/** Sets some synthesis parameters as specified by the instrument.
-	 * @param global the actual YM2413 core, private implementation
-	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
+	 * @param value New value for this part.
 	 */
-	void updateInstrumentPart(YM2413& global, int instrument, int part);
+	void updateInstrumentPart(int part, byte value);
 
 	/** Sets all synthesis parameters as specified by the instrument.
 	 * @param global the actual YM2413 core, private implementation
