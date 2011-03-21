@@ -142,21 +142,21 @@ private:
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 
+	const byte* eg_sel_dp;
+	const byte* eg_sel_ar;
+	const byte* eg_sel_dr;
+	const byte* eg_sel_rr;
+	const byte* eg_sel_rs;
 	unsigned eg_mask_dp; // == (1 << eg_sh_dp) - 1
 	unsigned eg_mask_ar; // == (1 << eg_sh_ar) - 1
 	unsigned eg_mask_dr; // == (1 << eg_sh_dr) - 1
 	unsigned eg_mask_rr; // == (1 << eg_sh_rr) - 1
 	unsigned eg_mask_rs; // == (1 << eg_sh_rs) - 1
 	byte eg_sh_dp;	// (dump state)
-	byte eg_sel_dp;	// (dump state)
 	byte eg_sh_ar;	// (attack state)
-	byte eg_sel_ar;	// (attack state)
 	byte eg_sh_dr;	// (decay state)
-	byte eg_sel_dr;	// (decay state)
 	byte eg_sh_rr;	// (release state for non-perc.)
-	byte eg_sel_rr;	// (release state for non-perc.)
 	byte eg_sh_rs;	// (release state for perc.mode)
-	byte eg_sel_rs;	// (release state for perc.mode)
 
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
