@@ -103,7 +103,6 @@ public:
 	// for Envelope Generator (EG)
 	unsigned volume;	// Current volume
 	unsigned tll;		// Total Level + Key scale level
-	EnvPhaseIndex* dphaseARTableRks;
 	EnvPhaseIndex* dphaseDRTableRks;
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase

@@ -156,9 +156,9 @@ static unsigned PM_DPHASE =
 // Liner to Log curve conversion table (for Attack rate).
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
 
-// Phase incr table for Attack (note: indices swapped compared to original code)
-static EnvPhaseIndex dphaseARTable[16][16];
-// Phase incr table for Decay and Release (note: indices swapped)
+// Phase incr table for attack, decay and release
+//  note: original code had indices swapped. It also had
+//        a separate table for attack.
 static EnvPhaseIndex dphaseDRTable[16][16];
 
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
@@ -297,21 +297,6 @@ static void makeTllTable()
 	}
 }
 
-// Rate Table for Attack
-static void makeDphaseARTable()
-{
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseARTable[Rks][0] = EnvPhaseIndex(0);
-		for (unsigned AR = 1; AR < 15; ++AR) {
-			unsigned RM = std::min(AR + (Rks >> 2), 15u);
-			unsigned RL = Rks & 3;
-			dphaseARTable[Rks][AR] =
-				EnvPhaseIndex(12 * (RL + 4)) >> (16 - RM);
-		}
-		dphaseARTable[Rks][15] = EnvPhaseIndex(0); // EG_DP_MAX
-	}
-}
-
 // Rate Table for Decay
 static void makeDphaseDRTable()
 {
@@ -394,7 +379,6 @@ void Slot::reset()
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	dphaseARTableRks = dphaseARTable[0];
 	dphaseDRTableRks = dphaseDRTable[0];
 	tll = 0;
 	sustain = false;
@@ -423,7 +407,6 @@ void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
-	dphaseARTableRks = dphaseARTable[rks];
 	dphaseDRTableRks = dphaseDRTable[rks];
 }
 
@@ -436,7 +419,16 @@ void Slot::updateEG()
 {
 	switch (state) {
 	case ATTACK:
-		eg_dphase = dphaseARTableRks[patch.AR];
+		// Original code had separate table for AR, the values in
+		// this table were 12 times bigger than the values in the
+		// dphaseDRTableRks table, expect for the value for AR=15.
+		// But when AR=15, the value doesn't matter.
+		//
+		// This factor 12 can also be seen in the attack/decay rates
+		// table in the ym2413 application manual (table III-7, page
+		// 13). For other chips like OPL1, OPL3 this ratio seems to be
+		// different.
+		eg_dphase = dphaseDRTableRks[patch.AR] * 12;
 		break;
 	case DECAY:
 		eg_dphase = dphaseDRTableRks[patch.DR];
@@ -649,7 +641,6 @@ YM2413::YM2413()
 	makeAdjustTable();
 	makeTllTable();
 	makeSinTable();
-	makeDphaseARTable();
 	makeDphaseDRTable();
 
 	reset();
@@ -1542,7 +1533,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("slot_on_flag", slot_on_flag);
 
 	// These are restored by call to updateAll() in YM2413::serialize()
-	//   eg_dphase, dphaseARTableRks, dphaseDRTableRks, tll, dphase, sintbl
+	//   eg_dphase, dphaseDRTableRks, tll, dphase, sintbl
 	// and by setEnvelopeState()
 	//   eg_phase_max
 	// and by setPatch()
