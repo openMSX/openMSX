@@ -147,11 +147,13 @@ const std::string& DiskChanger::getContainerName() const
 void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 {
 	// note: might throw MSXException
-	StateChangeDistributor::EventPtr event(
-		new MSXCommandEvent(args, scheduler->getCurrentTime()));
 	if (stateChangeDistributor) {
+		StateChangeDistributor::EventPtr event(
+			new MSXCommandEvent(args, scheduler->getCurrentTime()));
 		stateChangeDistributor->distributeNew(event);
 	} else {
+		StateChangeDistributor::EventPtr event(
+			new MSXCommandEvent(args, EmuTime::zero));
 		signalStateChange(event);
 	}
 }
