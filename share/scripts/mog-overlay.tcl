@@ -104,16 +104,6 @@ proc init {} {
 	create_power_bar mog.demon 48 4 0x2bdd2bff 0x00000080 0xffffffff
 	set demon_cache 0
 
-#	#set field
-#	for {set y 4} {$y < 24} {incr y} {
-#		for {set x 0} {$x < 32} {incr x} {
-#			osd create rectangle chr_${x}_${y} \
-#			                    -relx [expr {$x * 8}] \
-#			                    -rely [expr {$y * 8}] \
-#			                    -relh 8 -relw  8 -rgba 0xffffff00
-#		}
-#	}
-
 	# Enemy Power
 	for {set i 0} {$i < $num_enemies} {incr i} {set max_ep($i) 0}
 }
@@ -238,20 +228,13 @@ proc update_overlay {} {
 			set demon_cache $new_demon
 			set demon_max [lindex $demon_power [peek 0xe041]]
 			if {$demon_max > 0} {
-				set power [expr {$demon_cache * ([peek 0xe076] + 1) / $demon_max.0}]
+				set power [expr ($demon_cache * ([peek 0xe076] + 1) / ($demon_max*1.0))]
 				osd configure mog.demon.bar -relw $power
 			}
 		}
 	} else {
 		osd configure mog.demon -rely 999
 	}
-
-#	for {set y 4} {$y < 24} {incr y} {
-#		for {set x 0} {$x < 32} {incr x} {
-#			set alpha [expr {([peek [expr {0xed00 + $x + $y * 32}]] == 108) ? 128 : 0}]
-#			osd configure chr_${x}_${y} -alpha $alpha
-#		}
-#	}
 
 	after frame [namespace code update_overlay]
 }
