@@ -228,7 +228,7 @@ proc update_overlay {} {
 			set demon_cache $new_demon
 			set demon_max [lindex $demon_power [peek 0xe041]]
 			if {$demon_max > 0} {
-				set power [expr ($demon_cache * ([peek 0xe076] + 1) / ($demon_max*1.0))]
+				set power [expr {$demon_cache * ([peek 0xe076] + 1.0) / $demon_max}]
 				osd configure mog.demon.bar -relw $power
 			}
 		}
