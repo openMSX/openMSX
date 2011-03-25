@@ -112,10 +112,12 @@ public:
 	bool slot_on_flag;
 
 	Patch patch;
+	Slot* sibling; // pointer to sibling slot (only valid for car -> mod)
 };
 
 class Channel {
 public:
+	Channel();
 	void reset(YM2413& global);
 	inline void setPatch(unsigned num, YM2413& global);
 	inline void setSustain(bool sustain, bool modActAsCarrier);

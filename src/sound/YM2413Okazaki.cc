@@ -444,7 +444,20 @@ void Slot::updateEG()
 		break;
 	}
 	case SETTLE:
-		eg_dphase = dphaseDRTable[0][15];
+		// Value based on ym2413 application manual:
+		//  - p10: (envelope graph)
+		//         DP: 10ms
+		//  - p13: (table III-7 attack and decay rates)
+		//         Rate 12-0 -> 10.22ms
+		//         Rate 12-1 ->  8.21ms
+		//         Rate 12-2 ->  6.84ms
+		//         Rate 12-3 ->  5.87ms
+		// The datasheet doesn't say anything about key-scaling for
+		// this state (in fact it doesn't say much at all about this
+		// state). Experiments showed that the with key-scaling the
+		// output matches closer the real HW. Also all other states use
+		// key-scaling.
+		eg_dphase = dphaseDRTableRks[12];
 		break;
 	case SUSHOLD:
 	case FINISH:
@@ -484,11 +497,9 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 	case SUSHOLD:
 		eg_phase_max = EG_DP_INF;
 		break;
+	case SETTLE:
 	case SUSTAIN:
 	case RELEASE:
-		eg_phase_max = EG_DP_MAX;
-		break;
-	case SETTLE:
 		eg_phase_max = EG_DP_MAX;
 		break;
 	case FINISH:
@@ -544,7 +555,13 @@ void Slot::setVolume(unsigned newVolume)
 //
 // Channel
 //
-//
+
+Channel::Channel()
+{
+	car.sibling = &mod; // car needs a pointer to its sibling
+	mod.sibling = NULL; // mod doesn't need this pointer
+}
+
 void Channel::reset(YM2413& ym2413)
 {
 	freq = 0;
@@ -590,8 +607,10 @@ void Channel::setFreq(unsigned freq_)
 // Channel key on
 void Channel::keyOn()
 {
-	if (!mod.slot_on_flag) mod.slotOn();
-	if (!car.slot_on_flag) car.slotOn();
+	if (!car.slot_on_flag) {
+		car.setEnvelopeState(SETTLE);
+		// this will shortly set both car and mod to ATTACK state
+	}
 }
 
 // Channel key off
@@ -669,6 +688,7 @@ void YM2413::keyOn_BD()
 }
 void YM2413::keyOn_HH()
 {
+	// TODO do these also use the SETTLE stuff?
 	if (!channels[7].mod.slot_on_flag) channels[7].mod.slotOn2();
 }
 void YM2413::keyOn_SD()
@@ -815,7 +835,11 @@ void Slot::calc_envelope_outline(unsigned& out)
 		setEnvelopeState(FINISH);
 		break;
 	case SETTLE:
-		setEnvelopeState(ATTACK);
+		// Comment copied from Burczynski code (didn't verify myself):
+		//   When CARRIER envelope gets down to zero level, phases in
+		//   BOTH operators are reset (at the same time?).
+		slotOn();
+		sibling->slotOn();
 		break;
 	case SUSHOLD:
 	case FINISH:
@@ -1075,6 +1099,9 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			                   (ch.car.state == FINISH);
 			bool modFixedEnv = (ch.mod.state == SUSHOLD) ||
 			                   (ch.mod.state == FINISH);
+			if (ch.car.state == SETTLE) {
+				modFixedEnv = false;
+			}
 			unsigned flags = ch.patchFlags |
 			                 (carFixedEnv ? 32 : 0) |
 			                 (modFixedEnv ? 64 : 0);
