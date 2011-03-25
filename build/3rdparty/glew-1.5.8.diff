@@ -12,7 +12,7 @@ diff -ru glew-1.5.8.org/include/GL/glew.h glew-1.5.8/include/GL/glew.h
  #    define APIENTRY
 diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
 --- glew-1.5.8.org/Makefile	2011-01-31 15:17:27.000000000 +0100
-+++ glew-1.5.8/Makefile	2011-03-25 19:46:16.000000000 +0100
++++ glew-1.5.8/Makefile	2011-03-25 21:53:14.000000000 +0100
 @@ -53,9 +53,9 @@
  DIST_SRC_ZIP = glew-$(GLEW_VERSION).zip
  DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
@@ -36,7 +36,7 @@ diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
  
  LIB.SRCS = src/glew.c
  LIB.OBJS = $(LIB.SRCS:.c=.o)
-@@ -143,11 +145,11 @@
+@@ -143,15 +145,15 @@
  	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
  	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
  	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
@@ -50,3 +50,8 @@ diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
  	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
  endif
  # utilities
+-	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
++#	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
+ 
+ uninstall:
+ 	$(RM) $(INCDIR)/wglew.h
