@@ -1,6 +1,6 @@
-diff -ru glew-1.5.4.org/include/GL/glew.h glew-1.5.4/include/GL/glew.h
---- glew-1.5.4.org/include/GL/glew.h	2010-04-28 00:16:36.000000000 +0200
-+++ glew-1.5.4/include/GL/glew.h	2011-01-16 15:39:03.000000000 +0100
+diff -ru glew-1.5.8.org/include/GL/glew.h glew-1.5.8/include/GL/glew.h
+--- glew-1.5.8.org/include/GL/glew.h	2011-01-31 15:17:27.000000000 +0100
++++ glew-1.5.8/include/GL/glew.h	2011-03-25 19:43:53.000000000 +0100
 @@ -109,7 +109,7 @@
  #define GLEW_APIENTRY_DEFINED
  #  if defined(__MINGW32__) || defined(__CYGWIN__)
@@ -10,9 +10,9 @@ diff -ru glew-1.5.4.org/include/GL/glew.h glew-1.5.4/include/GL/glew.h
  #    define APIENTRY __stdcall
  #  else
  #    define APIENTRY
-diff -ru glew-1.5.4.org/Makefile glew-1.5.4/Makefile
---- glew-1.5.4.org/Makefile	2010-04-28 00:16:36.000000000 +0200
-+++ glew-1.5.4/Makefile	2011-01-16 15:00:36.000000000 +0100
+diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
+--- glew-1.5.8.org/Makefile	2011-01-31 15:17:27.000000000 +0100
++++ glew-1.5.8/Makefile	2011-03-25 19:46:16.000000000 +0100
 @@ -53,9 +53,9 @@
  DIST_SRC_ZIP = glew-$(GLEW_VERSION).zip
  DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
@@ -36,13 +36,13 @@ diff -ru glew-1.5.4.org/Makefile glew-1.5.4/Makefile
  
  LIB.SRCS = src/glew.c
  LIB.OBJS = $(LIB.SRCS:.c=.o)
-@@ -139,11 +141,11 @@
+@@ -143,11 +145,11 @@
  	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
  	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
  	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
 +	$(STRIP) -x lib/$(LIB.STATIC)
 +	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
- ifeq ($(patsubst mingw%,mingw,$(SYSTEM)), mingw)
+ ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
  	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
  else
 -	$(STRIP) -x lib/$(LIB.STATIC)

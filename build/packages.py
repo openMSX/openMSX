@@ -88,11 +88,11 @@ class GLEW(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/glew'
 	niceName = 'GLEW'
 	sourceName = 'glew'
-	version = '1.5.4'
-	fileLength = 459341
+	version = '1.5.8'
+	fileLength = 487073
 	checksums = {
 		'sha256':
-			'ddb8402453d48b63fd5d230a8b26885fbe29bc887cf8f7d12459fc8ab9ea8e32',
+			'33fdccbbd16fff6f9672e813d020e731b3afaa4e864f68dd2c8c08f236ef4584',
 		}
 
 	@classmethod
