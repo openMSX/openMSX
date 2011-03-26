@@ -1,8 +1,8 @@
-# Cheat definitions - Version 3.1
+# Cheat definitions - Version 3.2
 #
-# Copyright 2005-2010 Benoit Delvaux all rights reserved
-# Copyright 2005-2010 Albert Beevendorp all rights reserved
-# Copyright 2005-2010 Patrick van Arkel all rights reserved
+# Copyright 2005-2011 Benoit Delvaux all rights reserved
+# Copyright 2005-2011 Albert Beevendorp all rights reserved
+# Copyright 2005-2011 Patrick van Arkel all rights reserved
 #
 # The definition of cheating according to google:
 # - Defeat someone in an expectation through trickery or deceit
@@ -13,61 +13,60 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2010/08/02
+# Updated @ 2011/03/26
 #
-
 
 create_trainer "1942 - MSX1 Version" {time 1} {
 	"9 Lives Left" {dpoke 0xed2f 9}
 	"9 Loops Left" {dpoke 0xee81 9}
-	"Four Middle Shots" {dpoke 0xee83 1}
-	"Four Middle Shots + Right Shot" {dpoke 0xee83 3}
-	"Ghost Plane Left" {dpoke 0xee76 1}
-	"Ghost Plane Right" {dpoke 0xee66 1}
-	"Invulnerable + Four Middle Shots + Right Shot" {dpoke 0xee83 251}
-	"Invulnerable + Left Shot + Four Middle Shots" {dpoke 0xee83 253}
-	"Invulnerable + Left Shot + Four Middle Shots + Right Shot" {dpoke 0xee83 255}
-	"Invulnerable + Left Shot + Two Middle Shots" {dpoke 0xee83 252}
-	"Invulnerable + Left Shot + Two Middle Shots + Right Shot" {dpoke 0xee83 254}
-	"Invulnerable + Two Middle Shots + Right Shot" {dpoke 0xee83 250}
-	"Left Shot + Four Middle Shots" {dpoke 0xee83 5}
-	"Left Shot + Four Middle Shots + Right Shot" {dpoke 0xee83 7}
-	"Left Shot + Two Middle Shots" {dpoke 0xee83 4}
-	"Left Shot + Two Middle Shots + Right Shot" {dpoke 0xee83 6}
-	"Stage 01" {dpoke 0xed20 1}
-	"Stage 02" {dpoke 0xed20 2}
-	"Stage 03" {dpoke 0xed20 3}
-	"Stage 04" {dpoke 0xed20 4}
-	"Stage 05" {dpoke 0xed20 5}
-	"Stage 06" {dpoke 0xed20 6}
-	"Stage 07" {dpoke 0xed20 7}
-	"Stage 08" {dpoke 0xed20 8}
-	"Stage 09" {dpoke 0xed20 9}
-	"Stage 10" {dpoke 0xed20 10}
-	"Stage 11" {dpoke 0xed20 11}
-	"Stage 12" {dpoke 0xed20 12}
-	"Stage 13" {dpoke 0xed20 13}
-	"Stage 14" {dpoke 0xed20 14}
-	"Stage 15" {dpoke 0xed20 15}
-	"Stage 16" {dpoke 0xed20 16}
-	"Stage 17" {dpoke 0xed20 17}
-	"Stage 18" {dpoke 0xed20 18}
-	"Stage 19" {dpoke 0xed20 19}
-	"Stage 20" {dpoke 0xed20 20}
-	"Stage 21" {dpoke 0xed20 21}
-	"Stage 22" {dpoke 0xed20 22}
-	"Stage 23" {dpoke 0xed20 23}
-	"Stage 24" {dpoke 0xed20 24}
-	"Stage 25" {dpoke 0xed20 25}
-	"Stage 26" {dpoke 0xed20 26}
-	"Stage 27" {dpoke 0xed20 27}
-	"Stage 28" {dpoke 0xed20 28}
-	"Stage 29" {dpoke 0xed20 29}
-	"Stage 30" {dpoke 0xed20 30}
-	"Stage 31" {dpoke 0xed20 31}
-	"Stage 32" {dpoke 0xed20 32}
-	"Two Middle Shots" {dpoke 0xee83 0}
-	"Two Middle Shots + Right Shot" {dpoke 0xee83 2}
+	"Stage Select: Stage 01" {dpoke 0xed20 1}
+	"Stage Select: Stage 02" {dpoke 0xed20 2}
+	"Stage Select: Stage 03" {dpoke 0xed20 3}
+	"Stage Select: Stage 04" {dpoke 0xed20 4}
+	"Stage Select: Stage 05" {dpoke 0xed20 5}
+	"Stage Select: Stage 06" {dpoke 0xed20 6}
+	"Stage Select: Stage 07" {dpoke 0xed20 7}
+	"Stage Select: Stage 08" {dpoke 0xed20 8}
+	"Stage Select: Stage 09" {dpoke 0xed20 9}
+	"Stage Select: Stage 10" {dpoke 0xed20 10}
+	"Stage Select: Stage 11" {dpoke 0xed20 11}
+	"Stage Select: Stage 12" {dpoke 0xed20 12}
+	"Stage Select: Stage 13" {dpoke 0xed20 13}
+	"Stage Select: Stage 14" {dpoke 0xed20 14}
+	"Stage Select: Stage 15" {dpoke 0xed20 15}
+	"Stage Select: Stage 16" {dpoke 0xed20 16}
+	"Stage Select: Stage 17" {dpoke 0xed20 17}
+	"Stage Select: Stage 18" {dpoke 0xed20 18}
+	"Stage Select: Stage 19" {dpoke 0xed20 19}
+	"Stage Select: Stage 20" {dpoke 0xed20 20}
+	"Stage Select: Stage 21" {dpoke 0xed20 21}
+	"Stage Select: Stage 22" {dpoke 0xed20 22}
+	"Stage Select: Stage 23" {dpoke 0xed20 23}
+	"Stage Select: Stage 24" {dpoke 0xed20 24}
+	"Stage Select: Stage 25" {dpoke 0xed20 25}
+	"Stage Select: Stage 26" {dpoke 0xed20 26}
+	"Stage Select: Stage 27" {dpoke 0xed20 27}
+	"Stage Select: Stage 28" {dpoke 0xed20 28}
+	"Stage Select: Stage 29" {dpoke 0xed20 29}
+	"Stage Select: Stage 30" {dpoke 0xed20 30}
+	"Stage Select: Stage 31" {dpoke 0xed20 31}
+	"Stage Select: Stage 32" {dpoke 0xed20 32}
+	"Weapon: Four Middle Shots" {dpoke 0xee83 1}
+	"Weapon: Four Middle Shots + Right Shot" {dpoke 0xee83 3}
+	"Weapon: Ghost Plane Left" {dpoke 0xee76 1}
+	"Weapon: Ghost Plane Right" {dpoke 0xee66 1}
+	"Weapon: Invulnerable + Four Middle Shots + Right Shot" {dpoke 0xee83 251}
+	"Weapon: Invulnerable + Left Shot + Four Middle Shots" {dpoke 0xee83 253}
+	"Weapon: Invulnerable + Left Shot + Four Middle Shots + Right Shot" {dpoke 0xee83 255}
+	"Weapon: Invulnerable + Left Shot + Two Middle Shots" {dpoke 0xee83 252}
+	"Weapon: Invulnerable + Left Shot + Two Middle Shots + Right Shot" {dpoke 0xee83 254}
+	"Weapon: Invulnerable + Two Middle Shots + Right Shot" {dpoke 0xee83 250}
+	"Weapon: Left Shot + Four Middle Shots" {dpoke 0xee83 5}
+	"Weapon: Left Shot + Four Middle Shots + Right Shot" {dpoke 0xee83 7}
+	"Weapon: Left Shot + Two Middle Shots" {dpoke 0xee83 4}
+	"Weapon: Left Shot + Two Middle Shots + Right Shot" {dpoke 0xee83 6}
+	"Weapon: Two Middle Shots" {dpoke 0xee83 0}
+	"Weapon: Two Middle Shots + Right Shot" {dpoke 0xee83 2}
 }
 
 create_trainer "1942 - MSX2 Version" {time 1} {
@@ -124,7 +123,7 @@ create_trainer "1942 - MSX2 Version" {time 1} {
 }
 
 create_trainer "3D Bomberman" {time 1} {
-	"Lives" {dpoke 0xe80f 3}
+	"Lives: Lives" {dpoke 0xe80f 3}
 }
 
 create_trainer "A Life M36 Planet" {time 1} {
@@ -144,16 +143,16 @@ create_trainer "A.E" {time 1} {
 }
 
 create_trainer "A1 Spirit - The Way To Formula 1" {time 1} {
-	"All Combis With Konami Carts" {dpoke 0xe1de 2}
-	"Escon Cheat Active" {dpoke 0xe1fd 1}
-	"Hyperoff  Cheat Active" {dpoke 0xe1d6 1}
-	"Maxpoint Cheat Active" {dpoke 0xe1df 1}
-	"Player 1 First Position" {dpoke 0xe331 1}
-	"Player 1 Full Fuel" {dpoke 0xe310 255}
-	"Player 1 No Damage" {dpoke 0xe328 0}
-	"Player 2 First Position" {dpoke 0xe3f1 1}
-	"Player 2 Full Fuel" {dpoke 0xe3d0 255}
-	"Player 2 No Damage" {dpoke 0xe3e8 0}
+	"Cheats: All Combis With Konami Carts" {dpoke 0xe1de 2}
+	"Cheats: Escon Cheat Active" {dpoke 0xe1fd 1}
+	"Cheats: Hyperoff  Cheat Active" {dpoke 0xe1d6 1}
+	"Cheats: Maxpoint Cheat Active" {dpoke 0xe1df 1}
+	"Player 1 Settings: Player 1 First Position" {dpoke 0xe331 1}
+	"Player 1 Settings: Player 1 Full Fuel" {dpoke 0xe310 255}
+	"Player 1 Settings: Player 1 No Damage" {dpoke 0xe328 0}
+	"Player 2 Settings: Player 2 First Position" {dpoke 0xe3f1 1}
+	"Player 2 Settings: Player 2 Full Fuel" {dpoke 0xe3d0 255}
+	"Player 2 Settings: Player 2 No Damage" {dpoke 0xe3e8 0}
 }
 
 create_trainer "Abu Simbel Profanation MSX1" {time 1} {
@@ -251,72 +250,72 @@ create_trainer "Afterburner" {time 10} {
 }
 
 create_trainer "Akumajyo Drakyula - Vampire Killer" {time 1} {
-	"Activate Map" {dpoke 0xc70f 3}
-	"Axe" {dpoke 0xc416 3}
-	"Black Bible" {dpoke 0xc702 64}
-	"Blue Cross" {dpoke 0xc416 4}
-	"Boots" {dpoke 0xc431 8}
-	"Boots + Wings" {dpoke 0xc431 24}
-	"Boss Dies After 1 Hit" {dpoke 0xc418 0}
-	"Candle" {dpoke 0xc702 1}
-	"Candle + Black Bible" {dpoke 0xc702 65}
-	"Candle + White Bible" {dpoke 0xc702 129}
-	"Chain Whip" {dpoke 0xc416 1}
-	"Enemies Frozen" {dpoke 0xd010 1}
-	"Enemies Unfrozen " {dpoke 0xd010 0}
-	"Flashing Screen (gold Cross)" {dpoke 0xc43e 255}
-	"Game Master Combo" {dpoke 0xe600 255}
-	"Have Yellow Key" {dpoke 0xc700 255}
-	"Hearts" {dpoke 0xc417 153}
-	"Hide Enemy 1" {dpoke 0xc805 128}
-	"Hide Enemy 2" {dpoke 0xc885 128}
-	"Hide Enemy 3" {dpoke 0xc905 128}
-	"Holy Water" {dpoke 0xc416 5}
-	"Invincible" {dpoke 0xc42d 255}
-	"Invisible (blue Crystal)" {dpoke 0xc43a 255}
-	"Invulnerable (sapphire Ring)" {dpoke 0xc434 255}
-	"Kill Enemies With 1 Hit" {dpoke 0xc80d 1;poke 0xc88d 1;dpoke 0xc90d 1}
-	"Leather Whip" {dpoke 0xc416 0}
-	"Lives" {dpoke 0xc410 153}
-	"Power" {dpoke 0xc415 32}
-	"Silver Cross" {dpoke 0xc440 255}
-	"Sword" {dpoke 0xc416 2}
-	"White Bible" {dpoke 0xc702 128}
-	"White Key" {dpoke 0xc701 1}
-	"White Key + Gold Shield" {dpoke 0xc701 32}
-	"White Key + Gold Shield + Hourglass" {dpoke 0xc701 96}
-	"White Key + Gold Shield + Hourglass + Map" {dpoke 0xc701 224}
-	"White Key + Gold Shield + Map" {dpoke 0xc701 160}
-	"White Key + Holy Water" {dpoke 0xc701 8}
-	"White Key + Holy Water + Gold Shield" {dpoke 0xc701 40}
-	"White Key + Holy Water + Gold Shield + Hourglass" {dpoke 0xc701 104}
-	"White Key + Holy Water + Gold Shield + Hourglass + Map" {dpoke 0xc701 232}
-	"White Key + Holy Water + Gold Shield + Map" {dpoke 0xc701 168}
-	"White Key + Holy Water + Hourglass" {dpoke 0xc701 72}
-	"White Key + Holy Water + Hourglass + Map" {dpoke 0xc701 200}
-	"White Key + Holy Water + Map" {dpoke 0xc701 136}
-	"White Key + Holy Water + Red Shield" {dpoke 0xc701 24}
-	"White Key + Holy Water + Red Shield + Gold Shield" {dpoke 0xc701 56}
-	"White Key + Holy Water + Red Shield + Gold Shield + Hourglass" {dpoke 0xc701 120}
-	"White Key + Holy Water + Red Shield + Gold Shield + Hourglass + Map" {dpoke 0xc701 255}
-	"White Key + Holy Water + Red Shield + Gold Shield + Map" {dpoke 0xc701 184}
-	"White Key + Holy Water + Red Shield + Hourglass" {dpoke 0xc701 88}
-	"White Key + Holy Water + Red Shield + Hourglass + Map" {dpoke 0xc701 216}
-	"White Key + Holy Water + Red Shield + Map" {dpoke 0xc701 152}
-	"White Key + Hourglass" {dpoke 0xc701 64}
-	"White Key + Hourglass + Map" {dpoke 0xc701 192}
-	"White Key + Map" {dpoke 0xc701 128}
-	"White Key + Red Shield" {dpoke 0xc701 16}
-	"White Key + Red Shield + Gold Shield" {dpoke 0xc701 48}
-	"White Key + Red Shield + Gold Shield + Hourglass" {dpoke 0xc701 112}
-	"White Key + Red Shield + Gold Shield + Hourglass + Map" {dpoke 0xc701 240}
-	"White Key + Red Shield + Gold Shield + Map" {dpoke 0xc701 176}
-	"White Key + Red Shield + Hourglass" {dpoke 0xc701 80}
-	"White Key + Red Shield + Hourglass + Map" {dpoke 0xc701 208}
-	"White Key + Red Shield + Map" {dpoke 0xc701 144}
-	"Wings" {dpoke 0xc431 16}
-	"X-pos Hero (0-255)" {dpoke 0xc427 0}
-	"Y-pos Hero (0-192)" {dpoke 0xc425 0}
+	"Cheats: Game Master Combo" {dpoke 0xe600 255}
+	"Debug Pos: X-pos Hero (0-255)" {dpoke 0xc427 0}
+	"Debug Pos: Y-pos Hero (0-192)" {dpoke 0xc425 0}
+	"Enemy: Boss Dies After 1 Hit" {dpoke 0xc418 0}
+	"Enemy: Enemies Frozen" {dpoke 0xd010 1}
+	"Enemy: Enemies Unfrozen " {dpoke 0xd010 0}
+	"Enemy: Hide Enemy 1" {dpoke 0xc805 128}
+	"Enemy: Hide Enemy 2" {dpoke 0xc885 128}
+	"Enemy: Hide Enemy 3" {dpoke 0xc905 128}
+	"Enemy: Kill Enemies With 1 Hit" {dpoke 0xc80d 1;poke 0xc88d 1;dpoke 0xc90d 1}
+	"Items: Activate Map" {dpoke 0xc70f 3}
+	"Items: Black Bible" {dpoke 0xc702 64}
+	"Items: Boots" {dpoke 0xc431 8}
+	"Items: Boots + Wings" {dpoke 0xc431 24}
+	"Items: Candle" {dpoke 0xc702 1}
+	"Items: Candle + Black Bible" {dpoke 0xc702 65}
+	"Items: Candle + White Bible" {dpoke 0xc702 129}
+	"Items: Flashing Screen (gold Cross)" {dpoke 0xc43e 255}
+	"items: Have Yellow Key" {dpoke 0xc700 255}
+	"Items: Hearts" {dpoke 0xc417 153}
+	"items: Silver Cross" {dpoke 0xc440 255}
+	"items: White Bible" {dpoke 0xc702 128}
+	"items: White Key" {dpoke 0xc701 1}
+	"items: White Key + Gold Shield" {dpoke 0xc701 32}
+	"items: White Key + Gold Shield + Hourglass" {dpoke 0xc701 96}
+	"items: White Key + Gold Shield + Hourglass + Map" {dpoke 0xc701 224}
+	"items: White Key + Gold Shield + Map" {dpoke 0xc701 160}
+	"items: White Key + Holy Water" {dpoke 0xc701 8}
+	"items: White Key + Holy Water + Gold Shield" {dpoke 0xc701 40}
+	"items: White Key + Holy Water + Gold Shield + Hourglass" {dpoke 0xc701 104}
+	"items: White Key + Holy Water + Gold Shield + Hourglass + Map" {dpoke 0xc701 232}
+	"items: White Key + Holy Water + Gold Shield + Map" {dpoke 0xc701 168}
+	"items: White Key + Holy Water + Hourglass" {dpoke 0xc701 72}
+	"items: White Key + Holy Water + Hourglass + Map" {dpoke 0xc701 200}
+	"items: White Key + Holy Water + Map" {dpoke 0xc701 136}
+	"items: White Key + Holy Water + Red Shield" {dpoke 0xc701 24}
+	"items: White Key + Holy Water + Red Shield + Gold Shield" {dpoke 0xc701 56}
+	"items: White Key + Holy Water + Red Shield + Gold Shield + Hourglass" {dpoke 0xc701 120}
+	"items: White Key + Holy Water + Red Shield + Gold Shield + Hourglass + Map" {dpoke 0xc701 255}
+	"items: White Key + Holy Water + Red Shield + Gold Shield + Map" {dpoke 0xc701 184}
+	"items: White Key + Holy Water + Red Shield + Hourglass" {dpoke 0xc701 88}
+	"items: White Key + Holy Water + Red Shield + Hourglass + Map" {dpoke 0xc701 216}
+	"items: White Key + Holy Water + Red Shield + Map" {dpoke 0xc701 152}
+	"items: White Key + Hourglass" {dpoke 0xc701 64}
+	"items: White Key + Hourglass + Map" {dpoke 0xc701 192}
+	"items: White Key + Map" {dpoke 0xc701 128}
+	"items: White Key + Red Shield" {dpoke 0xc701 16}
+	"items: White Key + Red Shield + Gold Shield" {dpoke 0xc701 48}
+	"items: White Key + Red Shield + Gold Shield + Hourglass" {dpoke 0xc701 112}
+	"items: White Key + Red Shield + Gold Shield + Hourglass + Map" {dpoke 0xc701 240}
+	"items: White Key + Red Shield + Gold Shield + Map" {dpoke 0xc701 176}
+	"items: White Key + Red Shield + Hourglass" {dpoke 0xc701 80}
+	"items: White Key + Red Shield + Hourglass + Map" {dpoke 0xc701 208}
+	"items: White Key + Red Shield + Map" {dpoke 0xc701 144}
+	"items: Wings" {dpoke 0xc431 16}
+	"Player: Invincible" {dpoke 0xc42d 255}
+	"Player: Invisible (blue Crystal)" {dpoke 0xc43a 255}
+	"Player: Invulnerable (sapphire Ring)" {dpoke 0xc434 255}
+	"Player: Lives" {dpoke 0xc410 153}
+	"Player: Power" {dpoke 0xc415 32}
+	"Weapons: Axe" {dpoke 0xc416 3}
+	"Weapons: Blue Cross" {dpoke 0xc416 4}
+	"Weapons: Chain Whip" {dpoke 0xc416 1}
+	"Weapons: Holy Water" {dpoke 0xc416 5}
+	"Weapons: Leather Whip" {dpoke 0xc416 0}
+	"Weapons: Sword" {dpoke 0xc416 2}
 }
 
 create_trainer "Albatros" {time 1} {
@@ -359,19 +358,19 @@ create_trainer "Aleste" {time 1} {
 }
 
 create_trainer "Aleste 2" {time 1} {
-	"Full Power On Primary Weapons" {dpoke 0xc841 10;poke 0xc8f8 10}
-	"Full Power On Secondary Weapons" {dpoke 0xc84e 50;poke 0xc84f 5}
-	"Have Weapon 1" {dpoke 0xc84a 1}
-	"Have Weapon 2" {dpoke 0xc84a 2}
-	"Have Weapon 3" {dpoke 0xc84a 3}
-	"Have Weapon 4" {dpoke 0xc84a 4}
-	"Have Weapon 5" {dpoke 0xc84a 5}
-	"Have Weapon 6" {dpoke 0xc84a 6}
-	"Have Weapon 7" {dpoke 0xc84a 7}
-	"Have Weapon 8" {dpoke 0xc84a 8}
-	"Invincible" {dpoke 0xbc18 255}
-	"Lives" {dpoke 0xc840 99}
-	"Secondary Weapon Has No Time Limit" {dpoke 0xc84d 255}
+	"Player: Invincible" {dpoke 0xbc18 255}
+	"Player: Lives" {dpoke 0xc840 99}
+	"Weapon: Full Power On Primary Weapons" {dpoke 0xc841 10;poke 0xc8f8 10}
+	"Weapon: Full Power On Secondary Weapons" {dpoke 0xc84e 50;poke 0xc84f 5}
+	"Weapon: Have Weapon 1" {dpoke 0xc84a 1}
+	"Weapon: Have Weapon 2" {dpoke 0xc84a 2}
+	"Weapon: Have Weapon 3" {dpoke 0xc84a 3}
+	"Weapon: Have Weapon 4" {dpoke 0xc84a 4}
+	"Weapon: Have Weapon 5" {dpoke 0xc84a 5}
+	"Weapon: Have Weapon 6" {dpoke 0xc84a 6}
+	"Weapon: Have Weapon 7" {dpoke 0xc84a 7}
+	"Weapon: Have Weapon 8" {dpoke 0xc84a 8}
+	"Weapon: Secondary Weapon Has No Time Limit" {dpoke 0xc84d 255}
 }
 
 create_trainer "Aleste Demo" {time 1} {
@@ -561,60 +560,60 @@ create_trainer "Aramo" {time 1} {
 }
 
 create_trainer "Arc" {time 1} {
-	"All Areas Are Accesible" {dpoke 0xc030 255}
-	"All Weapons" {dpoke 0xc061 3}
-	"Open Laser Doors Hi-tech Stage" {dpoke 0xc020 255}
-	"Power" {dpoke 0xc019 255}
-	"Set Weapon 1 : Beamslash" {dpoke 0xc01c 0}
-	"Set Weapon 2 : Bullet" {dpoke 0xc01c 1}
-	"Set Weapon 3 : Wavegun" {dpoke 0xc01c 2}
-	"Set Weapon 4 : Mega Laser" {dpoke 0xc01c 3}
-	"Time To 00:00:00" {dpoke 0xc000 0;poke 0xc001 0;dpoke 0xc002 0}
-	"Transformation Possible" {dpoke 0xc063 255}
+	"Laser Doors: Open Laser Doors Hi-tech Stage" {dpoke 0xc020 255}
+	"Location: All Areas Are Accesible" {dpoke 0xc030 255}
+	"Power: Power" {dpoke 0xc019 255}
+	"Timer: Time To 00:00:00" {dpoke 0xc000 0;poke 0xc001 0;dpoke 0xc002 0}
+	"Transform: Transformation Possible" {dpoke 0xc063 255}
+	"Weapon: All Weapons" {dpoke 0xc061 3}
+	"Weapon: Set Weapon 1 : Beamslash" {dpoke 0xc01c 0}
+	"Weapon: Set Weapon 2 : Bullet" {dpoke 0xc01c 1}
+	"Weapon: Set Weapon 3 : Wavegun" {dpoke 0xc01c 2}
+	"Weapon: Set Weapon 4 : Mega Laser" {dpoke 0xc01c 3}
 }
 
 create_trainer "Arkanoid" {time 0.1} {
-	"Always Fire" {dpoke 0xe551 1}
-	"Invulnerable" {dpoke 0xe24e 1;poke 0xe54b 1;dpoke 0xe54e 0}
-	"Lives" {dpoke 0xe01d 99}
-	"Long Bat" {dpoke 0xe0d7 4;poke 0xe0d8 14;dpoke 0xe0db 12;dpoke 0xe0dc 8;dpoke 0xe321 2;dpoke 0xe550 2}
-	"Magnetic Ball" {dpoke 0xe324 1}
-	"Normal Ball Speed" {dpoke 0xe255 12}
-	"Open Door To Next Round" {dpoke 0xe326 1}
-	"Round 00" {dpoke 0xe01b 0}
-	"Round 01" {dpoke 0xe01b 1}
-	"Round 02" {dpoke 0xe01b 2}
-	"Round 03" {dpoke 0xe01b 3}
-	"Round 04" {dpoke 0xe01b 4}
-	"Round 05" {dpoke 0xe01b 5}
-	"Round 06" {dpoke 0xe01b 6}
-	"Round 07" {dpoke 0xe01b 7}
-	"Round 08" {dpoke 0xe01b 8}
-	"Round 09" {dpoke 0xe01b 9}
-	"Round 10" {dpoke 0xe01b 10}
-	"Round 11" {dpoke 0xe01b 11}
-	"Round 12" {dpoke 0xe01b 12}
-	"Round 13" {dpoke 0xe01b 13}
-	"Round 14" {dpoke 0xe01b 14}
-	"Round 15" {dpoke 0xe01b 15}
-	"Round 16" {dpoke 0xe01b 16}
-	"Round 17" {dpoke 0xe01b 17}
-	"Round 18" {dpoke 0xe01b 18}
-	"Round 19" {dpoke 0xe01b 19}
-	"Round 20" {dpoke 0xe01b 20}
-	"Round 21" {dpoke 0xe01b 21}
-	"Round 22" {dpoke 0xe01b 22}
-	"Round 23" {dpoke 0xe01b 23}
-	"Round 24" {dpoke 0xe01b 24}
-	"Round 25" {dpoke 0xe01b 25}
-	"Round 26" {dpoke 0xe01b 26}
-	"Round 27" {dpoke 0xe01b 27}
-	"Round 28" {dpoke 0xe01b 28}
-	"Round 29" {dpoke 0xe01b 29}
-	"Round 30" {dpoke 0xe01b 30}
-	"Round 31" {dpoke 0xe01b 31}
-	"Second Ball" {dpoke 0xe262 1}
-	"Third Ball" {dpoke 0xe276 1}
+	"Ball Adjustment: Magnetic Ball" {dpoke 0xe324 1}
+	"Ball Adjustment: Normal Ball Speed" {dpoke 0xe255 12}
+	"Ball Adjustment: Second Ball" {dpoke 0xe262 1}
+	"Ball Adjustment: Third Ball" {dpoke 0xe276 1}
+	"Bat Adjustment: Always Fire" {dpoke 0xe551 1}
+	"Bat Adjustment: Long Bat" {dpoke 0xe0d7 4;poke 0xe0d8 14;dpoke 0xe0db 12;dpoke 0xe0dc 8;dpoke 0xe321 2;dpoke 0xe550 2}
+	"Lives: Lives" {dpoke 0xe01d 99}
+	"Player: Invulnerable" {dpoke 0xe24e 1;poke 0xe54b 1;dpoke 0xe54e 0}
+	"Stage Select: Open Door To Next Round" {dpoke 0xe326 1}
+	"Stage Select: Round 00" {dpoke 0xe01b 0}
+	"Stage Select: Round 01" {dpoke 0xe01b 1}
+	"Stage Select: Round 02" {dpoke 0xe01b 2}
+	"Stage Select: Round 03" {dpoke 0xe01b 3}
+	"Stage Select: Round 04" {dpoke 0xe01b 4}
+	"Stage Select: Round 05" {dpoke 0xe01b 5}
+	"Stage Select: Round 06" {dpoke 0xe01b 6}
+	"Stage Select: Round 07" {dpoke 0xe01b 7}
+	"Stage Select: Round 08" {dpoke 0xe01b 8}
+	"Stage Select: Round 09" {dpoke 0xe01b 9}
+	"Stage Select: Round 10" {dpoke 0xe01b 10}
+	"Stage Select: Round 11" {dpoke 0xe01b 11}
+	"Stage Select: Round 12" {dpoke 0xe01b 12}
+	"Stage Select: Round 13" {dpoke 0xe01b 13}
+	"Stage Select: Round 14" {dpoke 0xe01b 14}
+	"Stage Select: Round 15" {dpoke 0xe01b 15}
+	"Stage Select: Round 16" {dpoke 0xe01b 16}
+	"Stage Select: Round 17" {dpoke 0xe01b 17}
+	"Stage Select: Round 18" {dpoke 0xe01b 18}
+	"Stage Select: Round 19" {dpoke 0xe01b 19}
+	"Stage Select: Round 20" {dpoke 0xe01b 20}
+	"Stage Select: Round 21" {dpoke 0xe01b 21}
+	"Stage Select: Round 22" {dpoke 0xe01b 22}
+	"Stage Select: Round 23" {dpoke 0xe01b 23}
+	"Stage Select: Round 24" {dpoke 0xe01b 24}
+	"Stage Select: Round 25" {dpoke 0xe01b 25}
+	"Stage Select: Round 26" {dpoke 0xe01b 26}
+	"Stage Select: Round 27" {dpoke 0xe01b 27}
+	"Stage Select: Round 28" {dpoke 0xe01b 28}
+	"Stage Select: Round 29" {dpoke 0xe01b 29}
+	"Stage Select: Round 30" {dpoke 0xe01b 30}
+	"Stage Select: Round 31" {dpoke 0xe01b 31}
 }
 
 create_trainer "Arkanoid 2" {time 0.1} {
@@ -701,12 +700,12 @@ create_trainer "Ashguine 2" {time 2} {
 	"Experience Level" {dpoke 0xc023 9;poke 0xc024 9;dpoke 0xc025 9}
 	"Keys" {dpoke 0xc020 9;poke 0xc021 9;dpoke 0xc022 8}
 	"Life" {dpoke 0xc016 255}
-	"Red Rotating Shield" {dpoke 0xc003 13}
 	"Shoes" {dpoke 0xc019 2}
 	"Stage (1-6)" {dpoke 0xc000 1}
 	"Time" {dpoke 0xc039 255}
 	"Weapon (0-2)" {dpoke 0xc001 2}
-	"Yellow Rotating Shield" {dpoke 0xc003 10}
+	"shield: Red Rotating Shield" {dpoke 0xc003 13}
+	"shield: Yellow Rotating Shield" {dpoke 0xc003 10}
 }
 
 create_trainer "Ashguine 3" {time 1} {
@@ -763,34 +762,34 @@ create_trainer "Astron Belt" {time 1} {
 }
 
 create_trainer "Athletic Land" {time 0.1} {
-	"Infinite Time (de-select In Beta Version To Get Bonus) " {dpoke 0xe003 0}
-	"Lives" {dpoke 0xe050 99}
-	"No Enemies" {dpoke 0xe158 20}
-	"No Red Balls" {dpoke 0xe159 0}
-	"Scene (0-99)" {dpoke 0xe054 99}
-	"Stage (1-99)" {dpoke 0xe051 1}
-	"X-pos (0-255) Hero" {dpoke 0xe135 0}
-	"X-pos Bee" {dpoke 0xe101 0}
-	"X-pos First Fish" {dpoke 0xe0dd 0}
-	"X-pos First Red Ball" {dpoke 0xe0e9 0}
-	"X-pos First White Ball" {dpoke 0xe0f1 0}
-	"X-pos Second Fish" {dpoke 0xe0e1 0}
-	"X-pos Second Red Ball" {dpoke 0xe0ed 0}
-	"X-pos Second White Ball" {dpoke 0xe0f5 0}
-	"X-pos Stone" {dpoke 0xe109 0}
-	"X-pos Third Fish" {dpoke 0xe0e5 0}
-	"X-pos Third White Ball" {dpoke 0xe0f9 0}
-	"Y-pos (0-108) Hero" {dpoke 0xe134 0}
-	"Y-pos Bee" {dpoke 0xe100 0}
-	"Y-pos First Fish" {dpoke 0xe0dc 0}
-	"Y-pos First Red Ball" {dpoke 0xe0e8 0}
-	"Y-pos First White Ball" {dpoke 0xe0f0 0}
-	"Y-pos Second Fish" {dpoke 0xe0e0 0}
-	"Y-pos Second Red Ball" {dpoke 0xe0ec 0}
-	"Y-pos Second White Ball" {dpoke 0xe0f4 0}
-	"Y-pos Stone" {dpoke 0xe108 0}
-	"Y-pos Third Fish" {dpoke 0xe0e4 0}
-	"Y-pos Third White Ball" {dpoke 0xe0f8 0}
+	"Hide Enemy: No Enemies" {dpoke 0xe158 20}
+	"Hide Enemy: No Red Balls" {dpoke 0xe159 0}
+	"Hide Enemy: X-pos (0-255) Hero" {dpoke 0xe135 0}
+	"Hide Enemy: X-pos Bee" {dpoke 0xe101 0}
+	"Hide Enemy: X-pos First Fish" {dpoke 0xe0dd 0}
+	"Hide Enemy: X-pos First Red Ball" {dpoke 0xe0e9 0}
+	"Hide Enemy: X-pos First White Ball" {dpoke 0xe0f1 0}
+	"Hide Enemy: X-pos Second Fish" {dpoke 0xe0e1 0}
+	"Hide Enemy: X-pos Second Red Ball" {dpoke 0xe0ed 0}
+	"Hide Enemy: X-pos Second White Ball" {dpoke 0xe0f5 0}
+	"Hide Enemy: X-pos Stone" {dpoke 0xe109 0}
+	"Hide Enemy: X-pos Third Fish" {dpoke 0xe0e5 0}
+	"Hide Enemy: X-pos Third White Ball" {dpoke 0xe0f9 0}
+	"Hide Enemy: Y-pos (0-108) Hero" {dpoke 0xe134 0}
+	"Hide Enemy: Y-pos Bee" {dpoke 0xe100 0}
+	"Hide Enemy: Y-pos First Fish" {dpoke 0xe0dc 0}
+	"Hide Enemy: Y-pos First Red Ball" {dpoke 0xe0e8 0}
+	"Hide Enemy: Y-pos First White Ball" {dpoke 0xe0f0 0}
+	"Hide Enemy: Y-pos Second Fish" {dpoke 0xe0e0 0}
+	"Hide Enemy: Y-pos Second Red Ball" {dpoke 0xe0ec 0}
+	"Hide Enemy: Y-pos Second White Ball" {dpoke 0xe0f4 0}
+	"Hide Enemy: Y-pos Stone" {dpoke 0xe108 0}
+	"Hide Enemy: Y-pos Third Fish" {dpoke 0xe0e4 0}
+	"Hide Enemy: Y-pos Third White Ball" {dpoke 0xe0f8 0}
+	"Lives: Lives" {dpoke 0xe050 99}
+	"Stage Select: Scene (0-99)" {dpoke 0xe054 99}
+	"Stage Select: Stage (1-99)" {dpoke 0xe051 1}
+	"Time: Infinite Time (de-select In Beta Version To Get Bonus) " {dpoke 0xe003 0}
 }
 
 create_trainer "Auf Wiedersehen Monty" {time 1} {
@@ -829,7 +828,7 @@ create_trainer "Back To The Future" {time 0.1} {
 }
 
 create_trainer "Badlands" {frame} {
-	"Lives" {dpoke 0xe050 99}
+	"Lives: Lives" {dpoke 0xe050 99}
 }
 
 create_trainer "Balance" {time 1} {
@@ -929,8 +928,8 @@ create_trainer "Beamrider CAS" {time 5} {
 }
 
 create_trainer "Becky" {time 1} {
-	"9 Lives" {dpoke 0xe1a7 9}
-	"Infinite Time" {dpoke 0xe1b3 38}
+	"Lives: 9 Lives" {dpoke 0xe1a7 9}
+	"Time: Infinite Time" {dpoke 0xe1b3 38}
 }
 
 create_trainer "Bestial Warrior" {time 1} {
@@ -959,31 +958,31 @@ create_trainer "Black Beard" {time 1} {
 }
 
 create_trainer "Black Cyclon" {frame} {
-	"Enemy 01 Power" {dpoke 0xc049 0}
-	"Enemy 02 Power" {dpoke 0xc089 0}
-	"Enemy 03 Power" {dpoke 0xc0c9 0}
-	"Enemy 04 Power" {dpoke 0xc109 0}
-	"Enemy 05 Power" {dpoke 0xc149 0}
-	"Enemy 06 Power" {dpoke 0xc189 0}
-	"Enemy 07 Power" {dpoke 0xc1c9 0}
-	"Enemy 08 Power" {dpoke 0xc209 0}
-	"Enemy 09 Power" {dpoke 0xc249 0}
-	"Enemy 10 Power" {dpoke 0xc289 0}
-	"Enemy 11 Power" {dpoke 0xc2c9 0}
-	"Enemy 12 Power" {dpoke 0xc309 0}
-	"Enemy 13 Power" {dpoke 0xc349 0}
-	"Enemy 14 Power" {dpoke 0xc389 0}
-	"Enemy 15 Power" {dpoke 0xc3c9 0}
-	"Enemy 16 Power" {dpoke 0xc409 0}
-	"Enemy 17 Power" {dpoke 0xc449 0}
-	"Enemy 18 Power" {dpoke 0xc489 0}
-	"Enemy 19 Power" {dpoke 0xc4c9 0}
-	"Lives" {dpoke 0xd15a 8}
-	"Power" {dpoke 0xd13e 255}
-	"Weapon 1 : Wave Gun" {dpoke 0xd125 0}
-	"Weapon 2 : Needle Gun" {dpoke 0xd125 1}
-	"Weapon 3 : Spread Gun" {dpoke 0xd125 2}
-	"Weapon 4 : Bomb Gun" {dpoke 0xd125 3}
+	"Enemy Power: Enemy 01 Power" {dpoke 0xc049 0}
+	"Enemy Power: Enemy 02 Power" {dpoke 0xc089 0}
+	"Enemy Power: Enemy 03 Power" {dpoke 0xc0c9 0}
+	"Enemy Power: Enemy 04 Power" {dpoke 0xc109 0}
+	"Enemy Power: Enemy 05 Power" {dpoke 0xc149 0}
+	"Enemy Power: Enemy 06 Power" {dpoke 0xc189 0}
+	"Enemy Power: Enemy 07 Power" {dpoke 0xc1c9 0}
+	"Enemy Power: Enemy 08 Power" {dpoke 0xc209 0}
+	"Enemy Power: Enemy 09 Power" {dpoke 0xc249 0}
+	"Enemy Power: Enemy 10 Power" {dpoke 0xc289 0}
+	"Enemy Power: Enemy 11 Power" {dpoke 0xc2c9 0}
+	"Enemy Power: Enemy 12 Power" {dpoke 0xc309 0}
+	"Enemy Power: Enemy 13 Power" {dpoke 0xc349 0}
+	"Enemy Power: Enemy 14 Power" {dpoke 0xc389 0}
+	"Enemy Power: Enemy 15 Power" {dpoke 0xc3c9 0}
+	"Enemy Power: Enemy 16 Power" {dpoke 0xc409 0}
+	"Enemy Power: Enemy 17 Power" {dpoke 0xc449 0}
+	"Enemy Power: Enemy 18 Power" {dpoke 0xc489 0}
+	"Enemy Power: Enemy 19 Power" {dpoke 0xc4c9 0}
+	"Player Lives: Lives" {dpoke 0xd15a 8}
+	"Player Power: Power" {dpoke 0xd13e 255}
+	"Weapon: Weapon 1 : Wave Gun" {dpoke 0xd125 0}
+	"Weapon: Weapon 2 : Needle Gun" {dpoke 0xd125 1}
+	"Weapon: Weapon 3 : Spread Gun" {dpoke 0xd125 2}
+	"Weapon: Weapon 4 : Bomb Gun" {dpoke 0xd125 3}
 }
 
 create_trainer "Black Jack Hentai" {time 1} {
@@ -1302,34 +1301,34 @@ create_trainer "Bytebusters" {time 1} {
 }
 
 create_trainer "Cabbage Patch Kids" {time 0.1} {
-	"Infinite Time" {dpoke 0xe003 0}
-	"Lives" {dpoke 0xe050 99}
-	"No Cabbages" {dpoke 0xe159 0}
-	"No Enemies" {dpoke 0xe158 20}
-	"Set Scene 99" {dpoke 0xe054 99}
-	"Set Stage 99" {dpoke 0xe051 99}
-	"X-pos (0-255)" {dpoke 0xe135 0}
-	"X-pos Bird" {dpoke 0xe101 0}
-	"X-pos First Cabbage" {dpoke 0xe0e9 0}
-	"X-pos First Fish" {dpoke 0xe0dd 0}
-	"X-pos First Spider" {dpoke 0xe0f1 0}
-	"X-pos Second Cabbage" {dpoke 0xe0ed 0}
-	"X-pos Second Fish" {dpoke 0xe0e1 0}
-	"X-pos Second Spider" {dpoke 0xe0f5 0}
-	"X-pos Stone" {dpoke 0xe109 0}
-	"X-pos Third Fish" {dpoke 0xe0e5 0}
-	"X-pos Third Spider" {dpoke 0xe0f9 0}
-	"Y-pos (0-108)" {dpoke 0xe134 0}
-	"Y-pos Bird" {dpoke 0xe100 0}
-	"Y-pos First Cabbage" {dpoke 0xe0e8 0}
-	"Y-pos First Fish" {dpoke 0xe0dc 0}
-	"Y-pos First Spider" {dpoke 0xe0f0 0}
-	"Y-pos Second Cabbage" {dpoke 0xe0ec 0}
-	"Y-pos Second Fish" {dpoke 0xe0e0 0}
-	"Y-pos Second Spider" {dpoke 0xe0f4 0}
-	"Y-pos Stone" {dpoke 0xe108 0}
-	"Y-pos Third Fish" {dpoke 0xe0e4 0}
-	"Y-pos Third Spider" {dpoke 0xe0f8 0}
+	"Enemy: No Cabbages" {dpoke 0xe159 0}
+	"Enemy: No Enemies" {dpoke 0xe158 20}
+	"Enemy Position: X-pos Bird" {dpoke 0xe101 0}
+	"Enemy Position: X-pos First Cabbage" {dpoke 0xe0e9 0}
+	"Enemy Position: X-pos First Fish" {dpoke 0xe0dd 0}
+	"Enemy Position: X-pos First Spider" {dpoke 0xe0f1 0}
+	"Enemy Position: X-pos Second Cabbage" {dpoke 0xe0ed 0}
+	"Enemy Position: X-pos Second Fish" {dpoke 0xe0e1 0}
+	"Enemy Position: X-pos Second Spider" {dpoke 0xe0f5 0}
+	"Enemy Position: X-pos Stone" {dpoke 0xe109 0}
+	"Enemy Position: X-pos Third Fish" {dpoke 0xe0e5 0}
+	"Enemy Position: X-pos Third Spider" {dpoke 0xe0f9 0}
+	"Enemy Position: Y-pos Bird" {dpoke 0xe100 0}
+	"Enemy Position: Y-pos First Cabbage" {dpoke 0xe0e8 0}
+	"Enemy Position: Y-pos First Fish" {dpoke 0xe0dc 0}
+	"Enemy Position: Y-pos First Spider" {dpoke 0xe0f0 0}
+	"Enemy Position: Y-pos Second Cabbage" {dpoke 0xe0ec 0}
+	"Enemy Position: Y-pos Second Fish" {dpoke 0xe0e0 0}
+	"Enemy Position: Y-pos Second Spider" {dpoke 0xe0f4 0}
+	"Enemy Position: Y-pos Stone" {dpoke 0xe108 0}
+	"Enemy Position: Y-pos Third Fish" {dpoke 0xe0e4 0}
+	"Enemy Position: Y-pos Third Spider" {dpoke 0xe0f8 0}
+	"Lives: Lives" {dpoke 0xe050 99}
+	"Player Pos: X-pos (0-255)" {dpoke 0xe135 0}
+	"Player Pos: Y-pos (0-108)" {dpoke 0xe134 0}
+	"Stage Select: Set Scene 99" {dpoke 0xe054 99}
+	"Stage Select: Set Stage 99" {dpoke 0xe051 99}
+	"Time: Infinite Time" {dpoke 0xe003 0}
 }
 
 create_trainer "Camelot Warriors" {time 1} {
@@ -1625,7 +1624,7 @@ create_trainer "Cosmo Explorer" {time 1} {
 }
 
 create_trainer "Cosmos Circuit" {time 1} {
-	"Time 999" {dpoke 0x97b1 29;poke 0x97b2 29;dpoke 0x97b3 29}
+	"Time: Time 999" {dpoke 0x97b1 29;poke 0x97b2 29;dpoke 0x97b3 29}
 }
 
 create_trainer "Craze" {time 2} {
@@ -1797,20 +1796,20 @@ create_trainer "Crimson DSK" {time 1} {
 }
 
 create_trainer "Cross Blaim" {time 0.25} {
-	"All Keys" {dpoke 0xeeb0 1;poke 0xeeb1 1;dpoke 0xeeb2 1;dpoke 0xeeb3 1;dpoke 0xeeb4 1}
-	"Big Laser Gun" {dpoke 0xeea2 255}
-	"Big Laser Gun 2" {dpoke 0xeea3 255}
-	"Bullet For Bazooka (1)" {dpoke 0xeeb8 255}
-	"Bullet For Gun (1)" {dpoke 0xeeb6 255}
-	"Darts" {dpoke 0xeea7 255}
-	"Engine 1" {dpoke 0xeeab 255}
-	"Engine 2" {dpoke 0xeeac 255}
-	"Engine 3" {dpoke 0xeead 255}
-	"Hand Grenades" {dpoke 0xeea6 255}
-	"Money 999999" {dpoke 0xeebb 153;poke 0xeebc 153;dpoke 0xeebd 153}
-	"Power" {dpoke 0xead4 255}
-	"Power Container 1" {dpoke 0xeeae 250}
-	"Power Container 2" {dpoke 0xeeaf 250}
+	"Ammo: Bullet For Bazooka (1)" {dpoke 0xeeb8 255}
+	"Ammo: Bullet For Gun (1)" {dpoke 0xeeb6 255}
+	"Ammo: Hand Grenades" {dpoke 0xeea6 255}
+	"Items: Engine 1" {dpoke 0xeeab 255}
+	"Items: Engine 2" {dpoke 0xeeac 255}
+	"Items: Engine 3" {dpoke 0xeead 255}
+	"Items: Power Container 1" {dpoke 0xeeae 250}
+	"Items: Power Container 2" {dpoke 0xeeaf 250}
+	"Keys: All Keys" {dpoke 0xeeb0 1;poke 0xeeb1 1;dpoke 0xeeb2 1;dpoke 0xeeb3 1;dpoke 0xeeb4 1}
+	"Money: Money 999999" {dpoke 0xeebb 153;poke 0xeebc 153;dpoke 0xeebd 153}
+	"Power: Power" {dpoke 0xead4 255}
+	"Weapon: Big Laser Gun" {dpoke 0xeea2 255}
+	"Weapon: Big Laser Gun 2" {dpoke 0xeea3 255}
+	"Weapon: Darts" {dpoke 0xeea7 255}
 }
 
 create_trainer "Crusader" {time 1} {
@@ -2175,27 +2174,27 @@ create_trainer "Dragon Slayer 4 - MSX2 Version" {time 1} {
 }
 
 create_trainer "Dragon Slayer 6" {time 60} {
-	"Experience Gale (max Exp)" {dpoke 0x23cc 255;poke 0x23cd 255;dpoke 0x23ce 255}
-	"Experience Ro (max Exp)" {dpoke 0x238c 255;poke 0x238d 255;dpoke 0x238e 255}
-	"Experience Runan (max Exp)" {dpoke 0x234c 255;poke 0x234d 255;dpoke 0x234e 255}
-	"Experience Selios (max Exp)" {dpoke 0x230c 255;poke 0x230d 255;dpoke 0x230e 255}
-	"Life Gale" {dpoke 0x23c4 15;poke 0x23c5 39}
-	"Life Ro" {dpoke 0x2384 15;poke 0x2385 39}
-	"Life Runan" {dpoke 0x2344 15;poke 0x2345 39}
-	"Life Selios" {dpoke 0x2304 15;poke 0x2305 39}
-	"Magic Gale" {dpoke 0x23c8 15;poke 0x23c9 39}
-	"Magic Ro" {dpoke 0x2388 15;poke 0x2389 39}
-	"Magic Runan" {dpoke 0x2348 15;poke 0x2349 39}
-	"Magic Selios" {dpoke 0x2308 15;poke 0x2309 39}
-	"Max Gold" {dpoke 0x208c 255;poke 0x208d 255;dpoke 0x208e 255}
-	"Max Life Gale" {dpoke 0x23c6 15;poke 0x23c7 39}
-	"Max Life Ro" {dpoke 0x2386 15;poke 0x2387 39}
-	"Max Life Runan" {dpoke 0x2346 15;poke 0x2347 39}
-	"Max Life Selios" {dpoke 0x2306 15;poke 0x2307 39}
-	"Max Magic Gale" {dpoke 0x23ca 15;poke 0x23cb 39}
-	"Max Magic Ro" {dpoke 0x238a 15;poke 0x238b 39}
-	"Max Magic Runan" {dpoke 0x234a 15;poke 0x234b 39}
-	"Max Magic Selios" {dpoke 0x230a 15;poke 0x230b 39}
+	"Money: Max Gold" {dpoke 0x208c 255;poke 0x208d 255;dpoke 0x208e 255}
+	"Player Stats Gale: Experience Gale (max Exp)" {dpoke 0x23cc 255;poke 0x23cd 255;dpoke 0x23ce 255}
+	"Player Stats Gale: Life Gale" {dpoke 0x23c4 15;poke 0x23c5 39}
+	"Player Stats Gale: Magic Gale" {dpoke 0x23c8 15;poke 0x23c9 39}
+	"Player Stats Gale: Max Life Gale" {dpoke 0x23c6 15;poke 0x23c7 39}
+	"Player Stats Gale: Max Magic Gale" {dpoke 0x23ca 15;poke 0x23cb 39}
+	"Player Stats Ro: Experience Ro (max Exp)" {dpoke 0x238c 255;poke 0x238d 255;dpoke 0x238e 255}
+	"Player Stats Ro: Life Ro" {dpoke 0x2384 15;poke 0x2385 39}
+	"Player Stats Ro: Magic Ro" {dpoke 0x2388 15;poke 0x2389 39}
+	"Player Stats Ro: Max Life Ro" {dpoke 0x2386 15;poke 0x2387 39}
+	"Player Stats Ro: Max Magic Ro" {dpoke 0x238a 15;poke 0x238b 39}
+	"Player Stats Runan: Experience Runan (max Exp)" {dpoke 0x234c 255;poke 0x234d 255;dpoke 0x234e 255}
+	"Player Stats Runan: Life Runan" {dpoke 0x2344 15;poke 0x2345 39}
+	"Player Stats Runan: Magic Runan" {dpoke 0x2348 15;poke 0x2349 39}
+	"Player Stats Runan: Max Life Runan" {dpoke 0x2346 15;poke 0x2347 39}
+	"Player Stats Runan: Max Magic Runan" {dpoke 0x234a 15;poke 0x234b 39}
+	"Player Stats Selios: Experience Selios (max Exp)" {dpoke 0x230c 255;poke 0x230d 255;dpoke 0x230e 255}
+	"Player Stats Selios: Life Selios" {dpoke 0x2304 15;poke 0x2305 39}
+	"Player Stats Selios: Magic Selios" {dpoke 0x2308 15;poke 0x2309 39}
+	"Player Stats Selios: Max Life Selios" {dpoke 0x2306 15;poke 0x2307 39}
+	"Player Stats Selios: Max Magic Selios" {dpoke 0x230a 15;poke 0x230b 39}
 }
 
 create_trainer "Drainer" {time 1} {
@@ -2375,25 +2374,25 @@ create_trainer "Fairy Land Story, The" {time 5} {
 }
 
 create_trainer "Famicle Parodic" {time 2} {
-	"Eggs" {dpoke 0xe025 255}
-	"Full Weapons" {dpoke 0xe050 4;poke 0xe051 4;dpoke 0xe052 4;dpoke 0xe053 4;dpoke 0xe054 4;dpoke 0xe055 4;dpoke 0xe056 4;dpoke 0xe057 4;dpoke 0xe058 4;dpoke 0xe059 2}
-	"Hero 0" {dpoke 0xe318 0}
-	"Hero 1" {dpoke 0xe318 1}
-	"Hero 2" {dpoke 0xe318 2}
-	"Hero 3" {dpoke 0xe318 3}
-	"Hero 4" {dpoke 0xe318 4}
-	"Invulnerable" {dpoke 0xe30e 255}
-	"Lives" {dpoke 0xe003 153}
-	"Stage 0" {dpoke 0xe317 0}
-	"Stage 1" {dpoke 0xe317 1}
-	"Stage 2" {dpoke 0xe317 2}
-	"Stage 3" {dpoke 0xe317 3}
-	"Stage 4" {dpoke 0xe317 4}
-	"Stage 5" {dpoke 0xe317 5}
-	"Stage 6" {dpoke 0xe317 6}
-	"Stage 7" {dpoke 0xe317 7}
-	"Stage 8" {dpoke 0xe317 8}
-	"Stage 9" {dpoke 0xe317 9}
+	"Money: Eggs" {dpoke 0xe025 255}
+	"Player Select: Hero 0" {dpoke 0xe318 0}
+	"Player Select: Hero 1" {dpoke 0xe318 1}
+	"Player Select: Hero 2" {dpoke 0xe318 2}
+	"Player Select: Hero 3" {dpoke 0xe318 3}
+	"Player Select: Hero 4" {dpoke 0xe318 4}
+	"Player Stats: Invulnerable" {dpoke 0xe30e 255}
+	"Player Stats: Lives" {dpoke 0xe003 153}
+	"Stage Select: Stage 0" {dpoke 0xe317 0}
+	"Stage Select: Stage 1" {dpoke 0xe317 1}
+	"Stage Select: Stage 2" {dpoke 0xe317 2}
+	"Stage Select: Stage 3" {dpoke 0xe317 3}
+	"Stage Select: Stage 4" {dpoke 0xe317 4}
+	"Stage Select: Stage 5" {dpoke 0xe317 5}
+	"Stage Select: Stage 6" {dpoke 0xe317 6}
+	"Stage Select: Stage 7" {dpoke 0xe317 7}
+	"Stage Select: Stage 8" {dpoke 0xe317 8}
+	"Stage Select: Stage 9" {dpoke 0xe317 9}
+	"Weapons: Full Weapons" {dpoke 0xe050 4;poke 0xe051 4;dpoke 0xe052 4;dpoke 0xe053 4;dpoke 0xe054 4;dpoke 0xe055 4;dpoke 0xe056 4;dpoke 0xe057 4;dpoke 0xe058 4;dpoke 0xe059 2}
 }
 
 create_trainer "Famicle Parodic 2" {time 1} {
@@ -2466,22 +2465,22 @@ create_trainer "Feud" {time 2} {
 }
 
 create_trainer "Final Fantasy" {time 1} {
-	"Gold" {dpoke 0xc255 255;poke 0xc256 255}
 	"Player 1 Black Belt" {dpoke 0xc000 1}
 	"Player 1 Black Mage" {dpoke 0xc000 5}
 	"Player 1 Fighter" {dpoke 0xc000 0}
-	"Player 1 Level" {dpoke 0xc026 99}
-	"Player 1 Life " {dpoke 0xc008 255}
-	"Player 1 Life" {dpoke 0xc009 255;poke 0xc00a 99}
 	"Player 1 Red Mage" {dpoke 0xc000 3}
 	"Player 1 Thief" {dpoke 0xc000 2}
 	"Player 1 White Mage" {dpoke 0xc000 4}
-	"Player 2 Level" {dpoke 0xc066 99}
-	"Player 2 Life" {dpoke 0xc048 255;poke 0xc049 255;dpoke 0xc04a 99}
-	"Player 3 Level" {dpoke 0xc0a6 99}
-	"Player 3 Life" {dpoke 0xc088 255;poke 0xc089 255;dpoke 0xc08a 99}
-	"Player 4 Level" {dpoke 0xc0e6 99}
-	"Player 4 Life" {dpoke 0xc0c8 255;poke 0xc0c9 255;dpoke 0xc0ca 99}
+	"Gold: Gold" {dpoke 0xc255 255;poke 0xc256 255}
+	"Level: Player 1 Level" {dpoke 0xc026 99}
+	"Level: Player 2 Level" {dpoke 0xc066 99}
+	"Level: Player 3 Level" {dpoke 0xc0a6 99}
+	"Level: Player 4 Level" {dpoke 0xc0e6 99}
+	"Life: Player 1 Life " {dpoke 0xc008 255}
+	"Life: Player 1 Life" {dpoke 0xc009 255;poke 0xc00a 99}
+	"Life: Player 2 Life" {dpoke 0xc048 255;poke 0xc049 255;dpoke 0xc04a 99}
+	"Life: Player 3 Life" {dpoke 0xc088 255;poke 0xc089 255;dpoke 0xc08a 99}
+	"Life: Player 4 Life" {dpoke 0xc0c8 255;poke 0xc0c9 255;dpoke 0xc0ca 99}
 }
 
 create_trainer "Final Justice" {time 1} {
@@ -2679,21 +2678,21 @@ create_trainer "Game Over part 2" {time 1} {
 }
 
 create_trainer "Ganbare Goemon - Samurai" {time 2} {
-	"3 Permission Passes" {dpoke 0xc279 3}
-	"99 Lives" {dpoke 0xc260 153}
-	"A Lot Of Money" {dpoke 0xc265 255;poke 0xc266 255}
-	"Armor" {dpoke 0xc272 5}
-	"Bamboo Hat" {dpoke 0xc275 5}
-	"Candle" {dpoke 0xc278 1}
-	"Cart Combos" {dpoke 0xef00 255}
-	"Catapult" {dpoke 0xc271 1}
-	"Charm" {dpoke 0xc273 5}
-	"Food" {dpoke 0xc277 5}
-	"Full Vitality" {dpoke 0xc481 255}
-	"Helmet" {dpoke 0xc276 5}
-	"Invincible" {dpoke 0xc4a7 255}
-	"Seal Case" {dpoke 0xc274 5}
-	"Shoes X3" {dpoke 0xc270 3}
+	"Cheats: Cart Combos" {dpoke 0xef00 255}
+	"Cheats: Invincible" {dpoke 0xc4a7 255}
+	"Item: 3 Permission Passes" {dpoke 0xc279 3}
+	"Item: Armor" {dpoke 0xc272 5}
+	"Item: Bamboo Hat" {dpoke 0xc275 5}
+	"Item: Candle" {dpoke 0xc278 1}
+	"Item: Charm" {dpoke 0xc273 5}
+	"Item: Food" {dpoke 0xc277 5}
+	"Item: Full Vitality" {dpoke 0xc481 255}
+	"Item: Helmet" {dpoke 0xc276 5}
+	"Item: Seal Case" {dpoke 0xc274 5}
+	"Item: Shoes X3" {dpoke 0xc270 3}
+	"Lives: 99 Lives" {dpoke 0xc260 153}
+	"Money: A Lot Of Money" {dpoke 0xc265 255;poke 0xc266 255}
+	"Weapon: Catapult" {dpoke 0xc271 1}
 }
 
 create_trainer "Gandhara " {time 1} {
@@ -3015,26 +3014,26 @@ create_trainer "Gradius 2 - Nemesis 2" {time 0.5} {
 	"Stage: Stage 5" {dpoke 0xe201 5}
 	"Stage: Stage 6" {dpoke 0xe201 6}
 	"Stage: Stage 7" {dpoke 0xe201 7}
-	"Weapon: Back Beam" {dpoke 0xe436 2}
-	"Weapon: Deactivate Normal Shoot" {dpoke 0xe430 0}
-	"Weapon: Double" {dpoke 0xe431 2}
-	"Weapon: Double Laser" {dpoke 0xe432 2}
-	"Weapon: Double Missile" {dpoke 0xe433 2}
-	"Weapon: Down Laser" {dpoke 0xe435 2}
-	"Weapon: Extended Laser" {dpoke 0xe432 3}
-	"Weapon: Fire Blaster" {dpoke 0xe432 6}
-	"Weapon: Napalm Missile" {dpoke 0xe433 3}
-	"Weapon: Normal Laser" {dpoke 0xe432 1}
-	"Weapon: Normal Missile" {dpoke 0xe433 1}
-	"Weapon: Option Ring" {dpoke 0xe439 3}
-	"Weapon: Options" {dpoke 0xe40b 2;poke 0xe410 1;dpoke 0xe420 1}
-	"Weapon: Reflex Ring" {dpoke 0xe432 5}
-	"Weapon: Rotary Drill" {dpoke 0xe439 4}
-	"Weapon: Shield Off" {dpoke 0xe400 0}
-	"Weapon: Shield On" {dpoke 0xe400 2}
-	"Weapon: Speed Set To 5" {dpoke 0xe402 5}
-	"Weapon: Up Laser" {dpoke 0xe434 2}
-	"Weapon: Vector Laser" {dpoke 0xe439 7}
+	"Weapon: Weapon: Back Beam" {dpoke 0xe436 2}
+	"Weapon: Weapon: Deactivate Normal Shoot" {dpoke 0xe430 0}
+	"Weapon: Weapon: Double" {dpoke 0xe431 2}
+	"Weapon: Weapon: Double Laser" {dpoke 0xe432 2}
+	"Weapon: Weapon: Double Missile" {dpoke 0xe433 2}
+	"Weapon: Weapon: Down Laser" {dpoke 0xe435 2}
+	"Weapon: Weapon: Extended Laser" {dpoke 0xe432 3}
+	"Weapon: Weapon: Fire Blaster" {dpoke 0xe432 6}
+	"Weapon: Weapon: Napalm Missile" {dpoke 0xe433 3}
+	"Weapon: Weapon: Normal Laser" {dpoke 0xe432 1}
+	"Weapon: Weapon: Normal Missile" {dpoke 0xe433 1}
+	"Weapon: Weapon: Option Ring" {dpoke 0xe439 3}
+	"Weapon: Weapon: Options" {dpoke 0xe40b 2;poke 0xe410 1;dpoke 0xe420 1}
+	"Weapon: Weapon: Reflex Ring" {dpoke 0xe432 5}
+	"Weapon: Weapon: Rotary Drill" {dpoke 0xe439 4}
+	"Weapon: Weapon: Shield Off" {dpoke 0xe400 0}
+	"Weapon: Weapon: Shield On" {dpoke 0xe400 2}
+	"Weapon: Weapon: Speed Set To 5" {dpoke 0xe402 5}
+	"Weapon: Weapon: Up Laser" {dpoke 0xe434 2}
+	"Weapon: Weapon: Vector Laser" {dpoke 0xe439 7}
 }
 
 create_trainer "Green Beret" {time 0.1} {
@@ -3266,56 +3265,56 @@ create_trainer "Hard Boiled" {time 1} {
 	"2nd Item: Vertical Bullets" {dpoke 0xd04f 4}
 	"2nd Item: Wooden Shoe" {dpoke 0xd04f 30}
 	"2nd Item: Yellow Banana" {dpoke 0xd04f 24}
-	"A Lot Of Fuel" {dpoke 0xd04b 0}
-	"Alarm Clock" {dpoke 0xd04b 16}
-	"Alpha Key" {dpoke 0xd04b 19}
-	"Another Half" {dpoke 0xd04b 41}
-	"Bad Guy" {dpoke 0xd04b 36}
-	"Beta Key" {dpoke 0xd04b 20}
-	"Blue Diamond" {dpoke 0xd04b 8}
-	"Bottle Of Wine" {dpoke 0xd04b 28}
-	"Bunch Of Grapes" {dpoke 0xd04b 34}
-	"Candle" {dpoke 0xd04b 11}
-	"Clothes Peg" {dpoke 0xd04b 18}
-	"Coffee" {dpoke 0xd04b 12}
-	"Coin" {dpoke 0xd04b 42}
-	"Cold Beer" {dpoke 0xd04b 14}
-	"Cork Screw" {dpoke 0xd04b 29}
-	"Cup" {dpoke 0xd04b 45}
-	"Cup And Saucer" {dpoke 0xd04b 33}
-	"Delta Key" {dpoke 0xd04b 22}
-	"Egg" {dpoke 0xd04b 2}
-	"Fuel" {dpoke 0xd047 32}
-	"Gamma Key" {dpoke 0xd04b 21}
-	"Glass Of Wine" {dpoke 0xd04b 37}
-	"Good Guy" {dpoke 0xd04b 47}
-	"Green Dice" {dpoke 0xd04b 26}
-	"Hammer" {dpoke 0xd04b 10}
-	"Joystick" {dpoke 0xd04b 9}
-	"Key-card Next Sector" {dpoke 0xd04b 39}
-	"Knife And Fork" {dpoke 0xd04b 15}
-	"Light Bulb" {dpoke 0xd04b 23}
 	"Lives" {dpoke 0xd047 5}
-	"Low Hit Bullets" {dpoke 0xd04b 5}
 	"Money" {dpoke 0xd04b 43}
-	"Nice Apple" {dpoke 0xd04b 32}
-	"No Saucer" {dpoke 0xd04b 46}
-	"Nothing" {dpoke 0xd04b 27}
-	"One Half" {dpoke 0xd04b 40}
-	"Pear" {dpoke 0xd04b 35}
-	"Pepper" {dpoke 0xd04b 7}
-	"Petrol Pump" {dpoke 0xd04b 44}
-	"Portable Radio" {dpoke 0xd04b 3}
-	"Question-mark" {dpoke 0xd04b 38}
-	"Red Telephone" {dpoke 0xd04b 1}
-	"Safety Pin" {dpoke 0xd04b 25}
-	"Salt" {dpoke 0xd04b 6}
-	"Screw" {dpoke 0xd04b 31}
-	"Tea" {dpoke 0xd04b 13}
-	"Tv With Antenna" {dpoke 0xd04b 17}
 	"Vertical Bullets" {dpoke 0xd04b 4}
-	"Wooden Shoe" {dpoke 0xd04b 30}
-	"Yellow Banana" {dpoke 0xd04b 24}
+	"Item In Labyrinth: A Lot Of Fuel" {dpoke 0xd04b 0}
+	"Item In Labyrinth: Alarm Clock" {dpoke 0xd04b 16}
+	"Item In Labyrinth: Alpha Key" {dpoke 0xd04b 19}
+	"Item In Labyrinth: Another Half" {dpoke 0xd04b 41}
+	"Item In Labyrinth: Bad Guy" {dpoke 0xd04b 36}
+	"Item In Labyrinth: Beta Key" {dpoke 0xd04b 20}
+	"Item In Labyrinth: Blue Diamond" {dpoke 0xd04b 8}
+	"Item In Labyrinth: Bottle Of Wine" {dpoke 0xd04b 28}
+	"Item In Labyrinth: Bunch Of Grapes" {dpoke 0xd04b 34}
+	"Item In Labyrinth: Candle" {dpoke 0xd04b 11}
+	"Item In Labyrinth: Clothes Peg" {dpoke 0xd04b 18}
+	"Item In Labyrinth: Coffee" {dpoke 0xd04b 12}
+	"Item In Labyrinth: Coin" {dpoke 0xd04b 42}
+	"Item In Labyrinth: Cold Beer" {dpoke 0xd04b 14}
+	"Item In Labyrinth: Cork Screw" {dpoke 0xd04b 29}
+	"Item In Labyrinth: Cup" {dpoke 0xd04b 45}
+	"Item In Labyrinth: Cup And Saucer" {dpoke 0xd04b 33}
+	"Item In Labyrinth: Delta Key" {dpoke 0xd04b 22}
+	"Item In Labyrinth: Egg" {dpoke 0xd04b 2}
+	"Item In Labyrinth: Fuel" {dpoke 0xd047 32}
+	"Item In Labyrinth: Gamma Key" {dpoke 0xd04b 21}
+	"Item In Labyrinth: Glass Of Wine" {dpoke 0xd04b 37}
+	"Item In Labyrinth: Good Guy" {dpoke 0xd04b 47}
+	"Item In Labyrinth: Green Dice" {dpoke 0xd04b 26}
+	"Item In Labyrinth: Hammer" {dpoke 0xd04b 10}
+	"Item In Labyrinth: Joystick" {dpoke 0xd04b 9}
+	"Item In Labyrinth: Key-card Next Sector" {dpoke 0xd04b 39}
+	"Item In Labyrinth: Knife And Fork" {dpoke 0xd04b 15}
+	"Item In Labyrinth: Light Bulb" {dpoke 0xd04b 23}
+	"Item In Labyrinth: Low Hit Bullets" {dpoke 0xd04b 5}
+	"Item In Labyrinth: Nice Apple" {dpoke 0xd04b 32}
+	"Item In Labyrinth: No Saucer" {dpoke 0xd04b 46}
+	"Item In Labyrinth: Nothing" {dpoke 0xd04b 27}
+	"Item In Labyrinth: One Half" {dpoke 0xd04b 40}
+	"Item In Labyrinth: Pear" {dpoke 0xd04b 35}
+	"Item In Labyrinth: Pepper" {dpoke 0xd04b 7}
+	"Item In Labyrinth: Petrol Pump" {dpoke 0xd04b 44}
+	"Item In Labyrinth: Portable Radio" {dpoke 0xd04b 3}
+	"Item In Labyrinth: Question-mark" {dpoke 0xd04b 38}
+	"Item In Labyrinth: Red Telephone" {dpoke 0xd04b 1}
+	"Item In Labyrinth: Safety Pin" {dpoke 0xd04b 25}
+	"Item In Labyrinth: Salt" {dpoke 0xd04b 6}
+	"Item In Labyrinth: Screw" {dpoke 0xd04b 31}
+	"Item In Labyrinth: Tea" {dpoke 0xd04b 13}
+	"Item In Labyrinth: Tv With Antenna" {dpoke 0xd04b 17}
+	"Item In Labyrinth: Wooden Shoe" {dpoke 0xd04b 30}
+	"Item In Labyrinth: Yellow Banana" {dpoke 0xd04b 24}
 }
 
 create_trainer "Haunted House" {time 1} {
@@ -3481,11 +3480,11 @@ create_trainer "Hustle Chumy" {time 1} {
 }
 
 create_trainer "Hydefos" {time 0.25} {
-	"Invincible" {dpoke 0xc10a 8}
 	"Laser Pods" {dpoke 0x111 199;poke 0xc110 199}
-	"Lives" {dpoke 0xd404 100}
-	"Power" {dpoke 0xc118 100;poke 0xc11c 255}
-	"Speed" {dpoke 0xc106 16}
+	"Lives: Lives" {dpoke 0xd404 100}
+	"Power: Invincible" {dpoke 0xc10a 8}
+	"Power: Power" {dpoke 0xc118 100;poke 0xc11c 255}
+	"Speed: Speed" {dpoke 0xc106 16}
 }
 
 create_trainer "Hydlide (MSX2)" {time 1} {
@@ -3717,11 +3716,11 @@ create_trainer "Inter Stellar" {time 1} {
 create_trainer "Invasion of the Zombie Monsters" {time 1} {
 	"Low End Boss Power" {dpoke 0xd72a 0}
 	"Time Stays @ 99" {dpoke 0xc012 99}
-	"Weapon Power Level 0" {dpoke 0xd887 0}
-	"Weapon Power Level 1" {dpoke 0xd887 1}
-	"Weapon Power Level 2" {dpoke 0xfd88 2}
-	"Weapon Power Level 3" {dpoke 0xd887 3}
-	"Weapon Power Level 4" {dpoke 0xd887 4}
+	"Weapon: Weapon Power Level 0" {dpoke 0xd887 0}
+	"Weapon: Weapon Power Level 1" {dpoke 0xd887 1}
+	"Weapon: Weapon Power Level 2" {dpoke 0xfd88 2}
+	"Weapon: Weapon Power Level 3" {dpoke 0xd887 3}
+	"Weapon: Weapon Power Level 4" {dpoke 0xd887 4}
 }
 
 create_trainer "Iriegas - Illegus" {time 1} {
@@ -3822,8 +3821,8 @@ create_trainer "Jungle Hunt" {time 1} {
 }
 
 create_trainer "Juno First" {time 1} {
-	"Ininite Time" {dpoke 0xe065 96}
-	"Lives" {dpoke 0xe062 99}
+	"Lives: Lives" {dpoke 0xe062 99}
+	"Time: Ininite Time" {dpoke 0xe065 96}
 }
 
 create_trainer "Kageno Densetsu - The Legend Of Kage" {time 1} {
@@ -3855,32 +3854,8 @@ create_trainer "King & Balloon" {time 60} {
 }
 
 create_trainer "King Kong 2" {time 2} {
-	"Agnos Key In Inventory" {dpoke 0xc2d0 20}
-	"Always Boomerangs (don't Select Before Taking First Boomerang)" {dpoke 0xc349 153}
-	"Always Fireballs" {dpoke 0xc348 153}
-	"Always Herbs" {dpoke 0xc34f 153}
-	"Always Iron Keys" {dpoke 0xc363 153}
-	"Always Meat" {dpoke 0xc354 153}
-	"Always Papyrus" {dpoke 0xc35c 153}
-	"Always Stones" {dpoke 0xc347 153}
-	"Always Water Sandals" {dpoke 0xc35d 153}
-	"Always Yellow Stones" {dpoke 0xc35e 153}
-	"Amulet In Inventory" {dpoke 0xc2d8 24}
-	"Axe In Inventory" {dpoke 0xc2a8 5}
-	"Book In Inventory" {dpoke 0xc2e4 33}
-	"Boomerangs In Inventory" {dpoke 0xc2b2 10}
 	"Bosses Die After 1 Hit" {dpoke 0xd00d 1}
 	"Bridge Over Gap (area 8)" {dpoke 0xc810 1;poke 0xc811 72;dpoke 0xc812 72}
-	"Club In Inventory" {dpoke 0xc2a4 3}
-	"Days Passed" {dpoke 0xc127 0;poke 0xc128 0}
-	"Dorian Fruit In Inventory" {dpoke 0xc2d6 23}
-	"Enemies Are Frozen" {dpoke 0xc147 255}
-	"Experience" {dpoke 0xc12b 153;poke 0xc12c 153}
-	"Fireballs In Inventory" {dpoke 0xc2b0 9}
-	"Harpoon In Inventory" {dpoke 0xc2b4 11}
-	"Herbs In Inventory" {dpoke 0xc2c8 16}
-	"Invulnerable" {dpoke 0xc325 255}
-	"Iron Keys In Inventory" {dpoke 0xc2e8 36}
 	"Kill 1 Batt To Get Meat (area 8)" {dpoke 0xdfd1 1}
 	"Kill 1 Bowler To Get Axe (area 2)" {dpoke 0xdfc2 1}
 	"Kill 1 Bowler To Get Message (area 3)" {dpoke 0xdfd6 1}
@@ -3897,25 +3872,7 @@ create_trainer "King Kong 2" {time 2} {
 	"Kill 1 Whitefire To Get Liquid Of Lamera (area 2)" {dpoke 0xdfdb 1}
 	"Kill High Centipede 1 Time To Get Message (area 2)" {dpoke 0xdfc1 2}
 	"Kill Low Centipede 1 Time To Get Message (area 2)" {dpoke 0xdfc0 2}
-	"Knife In Inventory" {dpoke 0xc2a0 1}
-	"Kong's Claw In Inventory" {dpoke 0xc2ac 7}
-	"Kong's Eye In Inventory" {dpoke 0xc2dc 26}
-	"Kong's Fang In Inventory" {dpoke 0xc2cc 18}
-	"Kong's Roar In Inventory" {dpoke 0xc2de 27}
-	"Kong's Tear In Inventory" {dpoke 0xc2d4 22}
-	"Lakuna's Orb In Inventory" {dpoke 0xc2e0 28}
-	"Letter In Inventory (see Remark)" {dpoke 0xc2e8 32}
-	"Level" {dpoke 0xc12e 153}
-	"Life" {dpoke 0xc129 153;poke 0xc12a 153}
-	"Liquid Of Lamera In Inventory" {dpoke 0xc2c6 15}
-	"Magic" {dpoke 0xc12f 153}
-	"Makapora Spell In Inventory" {dpoke 0xc2c4 14}
-	"Meat In Inventory" {dpoke 0xc2d2 21}
-	"Money" {dpoke 0xc135 153;poke 0xc136 153}
-	"Money Bag In Inventory (see Remark)" {dpoke 0xc2aa 6}
 	"Most Enemies Die After 1 Hit" {dpoke 0xd08d 1;poke 0xd10d 1;dpoke 0xd18d 1;dpoke 0xd20d 1;dpoke 0xd28d 1;dpoke 0xd30d 1;dpoke 0xd38d 1;dpoke 0xd40d 1;dpoke 0xd48d 1}
-	"Nemuri Spell In Inventory" {dpoke 0xc2c2 13}
-	"Number Of Continues" {dpoke 0xc16e 0}
 	"Open 1st Barrier (area 3)" {dpoke 0xc596 0}
 	"Open 1st Secret Cave (area 1)" {dpoke 0xc587 0}
 	"Open 2nd Barrier (area 3)" {dpoke 0xc597 0}
@@ -3946,57 +3903,99 @@ create_trainer "King Kong 2" {time 2} {
 	"Open Access To Kong's Tear (area 7)" {dpoke 0xc592 0}
 	"Open Access To Landing Field (area 8)" {dpoke 0xc590 0}
 	"Open Access To Savage (area 7)" {dpoke 0xc591 0}
-	"Papyrus In Inventory" {dpoke 0xc2e2 29}
-	"Power Orb In Inventory" {dpoke 0xc2ca 17}
 	"Protected From Bug's Poison" {dpoke 0xc146 0}
-	"Radio In Inventory" {dpoke 0xc2da 25}
-	"Radio Is Not Broken" {dpoke 0xc14e 1}
-	"Rod In Inventory" {dpoke 0xc2a2 2}
-	"Selected Shot 1 - Axe" {dpoke 0xc140 5}
-	"Selected Shot 1 - Boomerangs" {dpoke 0xc140 10}
-	"Selected Shot 1 - Club" {dpoke 0xc140 3}
-	"Selected Shot 1 - Fireballs" {dpoke 0xc140 9}
-	"Selected Shot 1 - Harpoon" {dpoke 0xc140 11}
-	"Selected Shot 1 - Knife" {dpoke 0xc140 1}
-	"Selected Shot 1 - Kong's Claw" {dpoke 0xc140 7}
-	"Selected Shot 1 - Long Sword (see Remark)" {dpoke 0xc140 6}
-	"Selected Shot 1 - Rod" {dpoke 0xc140 2}
-	"Selected Shot 1 - Stones" {dpoke 0xc140 8}
-	"Selected Shot 1 - Sword" {dpoke 0xc140 4}
-	"Selected Shot 1 - Yellow Stones" {dpoke 0xc140 31}
-	"Selected Shot 2 - Agnos Key" {dpoke 0xc141 20}
-	"Selected Shot 2 - Amulet" {dpoke 0xc141 24}
-	"Selected Shot 2 - Book" {dpoke 0xc141 33}
-	"Selected Shot 2 - Dorian Fruit" {dpoke 0xc141 23}
-	"Selected Shot 2 - Herbs" {dpoke 0xc141 16}
-	"Selected Shot 2 - Iron Keys" {dpoke 0xc141 36}
-	"Selected Shot 2 - Kong's Eye" {dpoke 0xc141 26}
-	"Selected Shot 2 - Kong's Fang" {dpoke 0xc141 18}
-	"Selected Shot 2 - Kong's Roar" {dpoke 0xc141 27}
-	"Selected Shot 2 - Kong's Tear" {dpoke 0xc141 22}
-	"Selected Shot 2 - Lakuna's Orb" {dpoke 0xc141 28}
-	"Selected Shot 2 - Letter" {dpoke 0xc141 32}
-	"Selected Shot 2 - Liquid Of Lamera" {dpoke 0xc141 15}
-	"Selected Shot 2 - Makapora Spell" {dpoke 0xc141 14}
-	"Selected Shot 2 - Meat" {dpoke 0xc141 21}
-	"Selected Shot 2 - Nemuri Spell" {dpoke 0xc141 13}
-	"Selected Shot 2 - Papyrus" {dpoke 0xc141 29}
-	"Selected Shot 2 - Power Orb" {dpoke 0xc141 17}
-	"Selected Shot 2 - Radio" {dpoke 0xc141 25}
-	"Selected Shot 2 - Temusa Spell" {dpoke 0xc141 12}
-	"Selected Shot 2 - Water Sandals" {dpoke 0xc141 30}
-	"Selected Shot 2 - Whirl Spell" {dpoke 0xc141 34}
-	"Selected Shot 2 - Whisper" {dpoke 0xc141 19}
-	"Selected Shot 2 - Wood Key" {dpoke 0xc141 35}
-	"Speed" {dpoke 0xc2f0 153}
-	"Stones In Inventory" {dpoke 0xc2ae 8}
-	"Sword In Inventory" {dpoke 0xc2a6 4}
-	"Temusa Spell In Inventory" {dpoke 0xc2c0 12}
-	"Water Sandals In Inventory (see Remark)" {dpoke 0xc2e8 30}
-	"Whirl Spell In Inventory" {dpoke 0xc2e6 34}
-	"Whisper In Inventory" {dpoke 0xc2ce 19}
-	"Wood Key In Inventory (see Remark)" {dpoke 0xc2e8 35}
-	"Yellow Stones In Inventory" {dpoke 0xc2b6 31}
+	"Item: Agnos Key In Inventory" {dpoke 0xc2d0 20}
+	"Item: Amulet In Inventory" {dpoke 0xc2d8 24}
+	"Item: Axe In Inventory" {dpoke 0xc2a8 5}
+	"Item: Book In Inventory" {dpoke 0xc2e4 33}
+	"Item: Boomerangs In Inventory" {dpoke 0xc2b2 10}
+	"Item: Club In Inventory" {dpoke 0xc2a4 3}
+	"Item: Dorian Fruit In Inventory" {dpoke 0xc2d6 23}
+	"Item: Fireballs In Inventory" {dpoke 0xc2b0 9}
+	"Item: Harpoon In Inventory" {dpoke 0xc2b4 11}
+	"Item: Herbs In Inventory" {dpoke 0xc2c8 16}
+	"Item: Iron Keys In Inventory" {dpoke 0xc2e8 36}
+	"Item: Knife In Inventory" {dpoke 0xc2a0 1}
+	"Item: Kong's Claw In Inventory" {dpoke 0xc2ac 7}
+	"Item: Kong's Eye In Inventory" {dpoke 0xc2dc 26}
+	"Item: Kong's Fang In Inventory" {dpoke 0xc2cc 18}
+	"Item: Kong's Roar In Inventory" {dpoke 0xc2de 27}
+	"Item: Kong's Tear In Inventory" {dpoke 0xc2d4 22}
+	"Item: Lakuna's Orb In Inventory" {dpoke 0xc2e0 28}
+	"Item: Letter In Inventory (see Remark)" {dpoke 0xc2e8 32}
+	"Item: Liquid Of Lamera In Inventory" {dpoke 0xc2c6 15}
+	"Item: Makapora Spell In Inventory" {dpoke 0xc2c4 14}
+	"Item: Meat In Inventory" {dpoke 0xc2d2 21}
+	"Item: Money Bag In Inventory (see Remark)" {dpoke 0xc2aa 6}
+	"Item: Nemuri Spell In Inventory" {dpoke 0xc2c2 13}
+	"Item: Papyrus In Inventory" {dpoke 0xc2e2 29}
+	"Item: Power Orb In Inventory" {dpoke 0xc2ca 17}
+	"Item: Radio In Inventory" {dpoke 0xc2da 25}
+	"Item: Radio Is Not Broken" {dpoke 0xc14e 1}
+	"Item: Rod In Inventory" {dpoke 0xc2a2 2}
+	"Item: Stones In Inventory" {dpoke 0xc2ae 8}
+	"Item: Sword In Inventory" {dpoke 0xc2a6 4}
+	"Item: Temusa Spell In Inventory" {dpoke 0xc2c0 12}
+	"Item: Water Sandals In Inventory (see Remark)" {dpoke 0xc2e8 30}
+	"Item: Whirl Spell In Inventory" {dpoke 0xc2e6 34}
+	"Item: Whisper In Inventory" {dpoke 0xc2ce 19}
+	"Item: Wood Key In Inventory (see Remark)" {dpoke 0xc2e8 35}
+	"Item: Yellow Stones In Inventory" {dpoke 0xc2b6 31}
+	"Received Items: Always Boomerangs (don't Select Before Taking First Boomerang)" {dpoke 0xc349 153}
+	"Received Items: Always Fireballs" {dpoke 0xc348 153}
+	"Received Items: Always Herbs" {dpoke 0xc34f 153}
+	"Received Items: Always Iron Keys" {dpoke 0xc363 153}
+	"Received Items: Always Meat" {dpoke 0xc354 153}
+	"Received Items: Always Papyrus" {dpoke 0xc35c 153}
+	"Received Items: Always Stones" {dpoke 0xc347 153}
+	"Received Items: Always Water Sandals" {dpoke 0xc35d 153}
+	"Received Items: Always Yellow Stones" {dpoke 0xc35e 153}
+	"Stats: Days Passed" {dpoke 0xc127 0;poke 0xc128 0}
+	"Stats: Enemies Are Frozen" {dpoke 0xc147 255}
+	"Stats: Experience" {dpoke 0xc12b 153;poke 0xc12c 153}
+	"Stats: Invulnerable" {dpoke 0xc325 255}
+	"Stats: Level" {dpoke 0xc12e 153}
+	"Stats: Life" {dpoke 0xc129 153;poke 0xc12a 153}
+	"Stats: Magic" {dpoke 0xc12f 153}
+	"Stats: Money" {dpoke 0xc135 153;poke 0xc136 153}
+	"Stats: Number Of Continues" {dpoke 0xc16e 0}
+	"Stats: Speed" {dpoke 0xc2f0 153}
+	"Weapon Select: Selected Shot 1 - Axe" {dpoke 0xc140 5}
+	"Weapon Select: Selected Shot 1 - Boomerangs" {dpoke 0xc140 10}
+	"Weapon Select: Selected Shot 1 - Club" {dpoke 0xc140 3}
+	"Weapon Select: Selected Shot 1 - Fireballs" {dpoke 0xc140 9}
+	"Weapon Select: Selected Shot 1 - Harpoon" {dpoke 0xc140 11}
+	"Weapon Select: Selected Shot 1 - Knife" {dpoke 0xc140 1}
+	"Weapon Select: Selected Shot 1 - Kong's Claw" {dpoke 0xc140 7}
+	"Weapon Select: Selected Shot 1 - Long Sword (see Remark)" {dpoke 0xc140 6}
+	"Weapon Select: Selected Shot 1 - Rod" {dpoke 0xc140 2}
+	"Weapon Select: Selected Shot 1 - Stones" {dpoke 0xc140 8}
+	"Weapon Select: Selected Shot 1 - Sword" {dpoke 0xc140 4}
+	"Weapon Select: Selected Shot 1 - Yellow Stones" {dpoke 0xc140 31}
+	"Weapon Select: Selected Shot 2 - Agnos Key" {dpoke 0xc141 20}
+	"Weapon Select: Selected Shot 2 - Amulet" {dpoke 0xc141 24}
+	"Weapon Select: Selected Shot 2 - Book" {dpoke 0xc141 33}
+	"Weapon Select: Selected Shot 2 - Dorian Fruit" {dpoke 0xc141 23}
+	"Weapon Select: Selected Shot 2 - Herbs" {dpoke 0xc141 16}
+	"Weapon Select: Selected Shot 2 - Iron Keys" {dpoke 0xc141 36}
+	"Weapon Select: Selected Shot 2 - Kong's Eye" {dpoke 0xc141 26}
+	"Weapon Select: Selected Shot 2 - Kong's Fang" {dpoke 0xc141 18}
+	"Weapon Select: Selected Shot 2 - Kong's Roar" {dpoke 0xc141 27}
+	"Weapon Select: Selected Shot 2 - Kong's Tear" {dpoke 0xc141 22}
+	"Weapon Select: Selected Shot 2 - Lakuna's Orb" {dpoke 0xc141 28}
+	"Weapon Select: Selected Shot 2 - Letter" {dpoke 0xc141 32}
+	"Weapon Select: Selected Shot 2 - Liquid Of Lamera" {dpoke 0xc141 15}
+	"Weapon Select: Selected Shot 2 - Makapora Spell" {dpoke 0xc141 14}
+	"Weapon Select: Selected Shot 2 - Meat" {dpoke 0xc141 21}
+	"Weapon Select: Selected Shot 2 - Nemuri Spell" {dpoke 0xc141 13}
+	"Weapon Select: Selected Shot 2 - Papyrus" {dpoke 0xc141 29}
+	"Weapon Select: Selected Shot 2 - Power Orb" {dpoke 0xc141 17}
+	"Weapon Select: Selected Shot 2 - Radio" {dpoke 0xc141 25}
+	"Weapon Select: Selected Shot 2 - Temusa Spell" {dpoke 0xc141 12}
+	"Weapon Select: Selected Shot 2 - Water Sandals" {dpoke 0xc141 30}
+	"Weapon Select: Selected Shot 2 - Whirl Spell" {dpoke 0xc141 34}
+	"Weapon Select: Selected Shot 2 - Whisper" {dpoke 0xc141 19}
+	"Weapon Select: Selected Shot 2 - Wood Key" {dpoke 0xc141 35}
 }
 
 create_trainer "King's Knight" {frame} {
@@ -4217,17 +4216,17 @@ create_trainer "Laydock" {time 2} {
 }
 
 create_trainer "Laydock 2 - The Last Attack" {time 1} {
-	"Player 1 Weapon 01: Bullbup" {dpoke 0x6a0e 0}
-	"Player 1 Weapon 02: Mine" {dpoke 0x6a0e 1}
-	"Player 1 Weapon 03: Merry" {dpoke 0x6a0e 2}
-	"Player 1 Weapon 04: Double" {dpoke 0x6a0e 3}
-	"Player 1 Weapon 05: Alpha" {dpoke 0x6a0e 4}
-	"Player 1 Weapon 06: Killer" {dpoke 0x6a0e 5}
-	"Player 1 Weapon 07: Tora" {dpoke 0x6a0e 6}
-	"Player 1 Weapon 08: Condor" {dpoke 0x6a0e 7}
-	"Player 1 Weapon 09: D-aden" {dpoke 0x6a0e 8}
-	"Player 1 Weapon 10: Fire" {dpoke 0x6a0e 9}
-	"Power Player 1 " {dpoke 0x6817 32}
+	"Power: Power Player 1 " {dpoke 0x6817 32}
+	"Weapons: Player 1 Weapon 01: Bullbup" {dpoke 0x6a0e 0}
+	"Weapons: Player 1 Weapon 02: Mine" {dpoke 0x6a0e 1}
+	"Weapons: Player 1 Weapon 03: Merry" {dpoke 0x6a0e 2}
+	"Weapons: Player 1 Weapon 04: Double" {dpoke 0x6a0e 3}
+	"Weapons: Player 1 Weapon 05: Alpha" {dpoke 0x6a0e 4}
+	"Weapons: Player 1 Weapon 06: Killer" {dpoke 0x6a0e 5}
+	"Weapons: Player 1 Weapon 07: Tora" {dpoke 0x6a0e 6}
+	"Weapons: Player 1 Weapon 08: Condor" {dpoke 0x6a0e 7}
+	"Weapons: Player 1 Weapon 09: D-aden" {dpoke 0x6a0e 8}
+	"Weapons: Player 1 Weapon 10: Fire" {dpoke 0x6a0e 9}
 }
 
 create_trainer "Leather Skirts" {time 1} {
@@ -4363,10 +4362,10 @@ create_trainer "Magical Tree" {time 2} {
 }
 
 create_trainer "Magnar" {time 1} {
-	"Ammo Weapon 1 : Normal Gun" {dpoke 0xca52 255}
-	"Invincible" {dpoke 0xca44 1}
-	"Lives (255 Is Game Over)" {dpoke 0xca7f 250}
-	"Power" {dpoke 0xca09 24}
+	"Ammo: Ammo Weapon 1 : Normal Gun" {dpoke 0xca52 255}
+	"Lives: Lives (255 Is Game Over)" {dpoke 0xca7f 250}
+	"Power: Power" {dpoke 0xca09 24}
+	"Timer: Invincible" {dpoke 0xca44 1}
 }
 
 create_trainer "Magunam" {time 1} {
@@ -4521,84 +4520,83 @@ create_trainer "Meikyushinwa - Eggerland Mystery 2" {time 1} {
 }
 
 create_trainer "Metal Gear" {time 1} {
-	"4th Class Rank" {dpoke 0xc132 0;poke 0xc132 1;dpoke 0xc132 2;dpoke 0xc132 3}
-	"Always Ammo For Handgun" {dpoke 0xc500 1;poke 0xc501 153;dpoke 0xc502 9}
-	"Always Ammo For Sub Machine Gun" {dpoke 0xc504 2;poke 0xc505 153;dpoke 0xc506 9}
-	"Always Grenades" {dpoke 0xc508 3;poke 0xc509 153;dpoke 0xc50a 9}
-	"Always Mines" {dpoke 0xc514 6;poke 0xc515 153;dpoke 0xc516 9}
-	"Always Missiles" {dpoke 0xc518 7;poke 0xc519 153;dpoke 0xc51a 9}
-	"Always Plastic Bombs" {dpoke 0xc510 5;poke 0xc511 153;dpoke 0xc512 9}
-	"Always Ratios" {dpoke 0xc584 22;poke 0xc585 153;dpoke 0xc586 9}
-	"Always Rockets" {dpoke 0xc50c 4;poke 0xc50d 153;dpoke 0xc50e 9}
-	"Antenna In Inventory" {dpoke 0xc54c 8}
-	"Antidote In Inventory" {dpoke 0xc560 13}
-	"Binoculars In Inventory" {dpoke 0xc550 9}
-	"Body Armor In Inventory" {dpoke 0xc530 1}
-	"Bomb Blast Suit In Inventory" {dpoke 0xc534 2}
 	"Bosses Die Faster" {dpoke 0xd00d 1}
-	"Box In Inventory" {dpoke 0xc590 25}
-	"Card 1 In Inventory" {dpoke 0xc564 14}
-	"Card 2 In Inventory" {dpoke 0xc568 15}
-	"Card 3 In Inventory" {dpoke 0xc56c 16}
-	"Card 4 In Inventory" {dpoke 0xc570 17}
-	"Card 5 In Inventory" {dpoke 0xc574 18}
-	"Card 6 In Inventory" {dpoke 0xc578 19}
-	"Card 7 In Inventory" {dpoke 0xc57c 20}
-	"Card 8 In Inventory" {dpoke 0xc580 21}
-	"Cigarets In Inventory" {dpoke 0xc544 6}
-	"Compass In Inventory" {dpoke 0xc558 11}
 	"Electrified Zones Without Danger" {dpoke 0xc616 0}
 	"Enemies Can't Hurt You" {dpoke 0xc199 255}
 	"Enemy 1 Gone" {dpoke 0xd005 0}
 	"Enemy 2 Gone" {dpoke 0xd085 0}
 	"Enemy 3 Gone" {dpoke 0xd105 0}
 	"Enemy 4 Gone" {dpoke 0xd185 0}
-	"Flash Light In Inventory" {dpoke 0xc538 3}
-	"Gas Mask In Inventory" {dpoke 0xc540 5}
-	"Goggles In Inventory" {dpoke 0xc53c 4}
-	"Keep most Guards asleep" {dpoke 0xd046 255}
-	"Mine Detector In Inventory" {dpoke 0xc548 7}
+	"Keep Most Guards Asleep" {dpoke 0xd046 255}
 	"No Extra Guards When Detected" {dpoke 0xc602 0}
 	"Open All Doors And Passages" {dpoke 0xc3d1 0;poke 0xc3e1 0;dpoke 0xc3f1 0}
-	"Oxygen In Inventory" {dpoke 0xc554 10}
-	"Parachute In Inventory" {dpoke 0xc55c 12}
-	"Power Bar" {dpoke 0xc131 48}
 	"Scorpions Can't Poison You" {dpoke 0xc139 0}
-	"Selected Item - Antenna" {dpoke 0xc135 8}
-	"Selected Item - Antidote" {dpoke 0xc135 13}
-	"Selected Item - Binoculars" {dpoke 0xc135 9}
-	"Selected Item - Body Armor" {dpoke 0xc135 1}
-	"Selected Item - Bomb Blast Suit" {dpoke 0xc135 2}
-	"Selected Item - Box" {dpoke 0xc135 25}
-	"Selected Item - Card 1" {dpoke 0xc135 14}
-	"Selected Item - Card 2" {dpoke 0xc135 15}
-	"Selected Item - Card 3" {dpoke 0xc135 16}
-	"Selected Item - Card 4" {dpoke 0xc135 17}
-	"Selected Item - Card 5" {dpoke 0xc135 18}
-	"Selected Item - Card 6" {dpoke 0xc135 19}
-	"Selected Item - Card 7" {dpoke 0xc135 20}
-	"Selected Item - Card 8" {dpoke 0xc135 21}
-	"Selected Item - Cigarets" {dpoke 0xc135 6}
-	"Selected Item - Compass" {dpoke 0xc135 11}
-	"Selected Item - Flash Light" {dpoke 0xc135 3}
-	"Selected Item - Gas Mask" {dpoke 0xc135 5}
-	"Selected Item - Goggles" {dpoke 0xc135 4}
-	"Selected Item - Mine Detector" {dpoke 0xc135 7}
-	"Selected Item - Oxygen" {dpoke 0xc135 10}
-	"Selected Item - Parachute" {dpoke 0xc135 12}
-	"Selected Item - Ratios" {dpoke 0xc135 22}
-	"Selected Item - Transmitter" {dpoke 0xc135 23}
-	"Selected Item - Uniform" {dpoke 0xc135 24}
 	"Selected Weapon - Handgun" {dpoke 0xc134 1}
 	"Selected Weapon - Mines" {dpoke 0xc134 6}
 	"Selected Weapon - Missiles" {dpoke 0xc134 7}
 	"Selected Weapon - Plastic Bombs" {dpoke 0xc134 5}
 	"Selected Weapon - Rockets" {dpoke 0xc134 4}
 	"Selected Weapon - Sub Machine Gun" {dpoke 0xc134 2}
-	"Silencer In Inventory" {dpoke 0xc51c 8}
 	"Stop Destruction Timer (de-select To See End Demo)" {dpoke 0xc13d 153;poke 0xc13e 153}
-	"Transmitter In Inventory" {dpoke 0xc588 23}
-	"Uniform In Inventory" {dpoke 0xc58c 24}
+	"Ammo: Always Ammo For Handgun" {dpoke 0xc500 1;poke 0xc501 153;dpoke 0xc502 9}
+	"Ammo: Always Ammo For Sub Machine Gun" {dpoke 0xc504 2;poke 0xc505 153;dpoke 0xc506 9}
+	"Item: Antenna In Inventory" {dpoke 0xc54c 8}
+	"Item: Antidote In Inventory" {dpoke 0xc560 13}
+	"Item: Binoculars In Inventory" {dpoke 0xc550 9}
+	"Item: Body Armor In Inventory" {dpoke 0xc530 1}
+	"Item: Bomb Blast Suit In Inventory" {dpoke 0xc534 2}
+	"Item: Card 1 In Inventory" {dpoke 0xc564 14}
+	"Item: Card 2 In Inventory" {dpoke 0xc568 15}
+	"Item: Card 3 In Inventory" {dpoke 0xc56c 16}
+	"Item: Card 4 In Inventory" {dpoke 0xc570 17}
+	"Item: Card 5 In Inventory" {dpoke 0xc574 18}
+	"Item: Card 6 In Inventory" {dpoke 0xc578 19}
+	"Item: Card 7 In Inventory" {dpoke 0xc57c 20}
+	"Item: Card 8 In Inventory" {dpoke 0xc580 21}
+	"Item: Cigarets In Inventory" {dpoke 0xc544 6}
+	"Item: Selected Item - Cigarets" {dpoke 0xc135 6}
+	"Item: Selected Item - Compass" {dpoke 0xc135 11}
+	"Item: Selected Item - Flash Light" {dpoke 0xc135 3}
+	"Item: Selected Item - Gas Mask" {dpoke 0xc135 5}
+	"Item: Selected Item - Goggles" {dpoke 0xc135 4}
+	"Item: Selected Item - Mine Detector" {dpoke 0xc135 7}
+	"Item: Selected Item - Oxygen" {dpoke 0xc135 10}
+	"Item: Selected Item - Parachute" {dpoke 0xc135 12}
+	"Item: Selected Item - Ratios" {dpoke 0xc135 22}
+	"Item: Selected Item - Transmitter" {dpoke 0xc135 23}
+	"Item: Selected Item - Uniform" {dpoke 0xc135 24}
+	"Items: Always Ratios" {dpoke 0xc584 22;poke 0xc585 153;dpoke 0xc586 9}
+	"Items: Box In Inventory" {dpoke 0xc590 25}
+	"Items: Compass In Inventory" {dpoke 0xc558 11}
+	"Items: Flash Light In Inventory" {dpoke 0xc538 3}
+	"Items: Gas Mask In Inventory" {dpoke 0xc540 5}
+	"Items: Goggles In Inventory" {dpoke 0xc53c 4}
+	"Items: Mine Detector In Inventory" {dpoke 0xc548 7}
+	"Items: Oxygen In Inventory" {dpoke 0xc554 10}
+	"Items: Parachute In Inventory" {dpoke 0xc55c 12}
+	"Items: Selected Item - Antenna" {dpoke 0xc135 8}
+	"Items: Selected Item - Antidote" {dpoke 0xc135 13}
+	"Items: Selected Item - Binoculars" {dpoke 0xc135 9}
+	"Items: Selected Item - Body Armor" {dpoke 0xc135 1}
+	"Items: Selected Item - Bomb Blast Suit" {dpoke 0xc135 2}
+	"Items: Transmitter In Inventory" {dpoke 0xc588 23}
+	"Items: Uniform In Inventory" {dpoke 0xc58c 24}
+	"Key cards: Selected Item - Card 1" {dpoke 0xc135 14}
+	"Key cards: Selected Item - Card 2" {dpoke 0xc135 15}
+	"Key cards: Selected Item - Card 3" {dpoke 0xc135 16}
+	"Key cards: Selected Item - Card 4" {dpoke 0xc135 17}
+	"Key cards: Selected Item - Card 5" {dpoke 0xc135 18}
+	"Key cards: Selected Item - Card 6" {dpoke 0xc135 19}
+	"Key cards: Selected Item - Card 7" {dpoke 0xc135 20}
+	"Key cards: Selected Item - Card 8" {dpoke 0xc135 21}
+	"Life: Power Bar" {dpoke 0xc131 48}
+	"Rank: 4th Class Rank" {dpoke 0xc132 0;poke 0xc132 1;dpoke 0xc132 2;dpoke 0xc132 3}
+	"Weapons: Always Grenades" {dpoke 0xc508 3;poke 0xc509 153;dpoke 0xc50a 9}
+	"Weapons: Always Mines" {dpoke 0xc514 6;poke 0xc515 153;dpoke 0xc516 9}
+	"Weapons: Always Missiles" {dpoke 0xc518 7;poke 0xc519 153;dpoke 0xc51a 9}
+	"Weapons: Always Plastic Bombs" {dpoke 0xc510 5;poke 0xc511 153;dpoke 0xc512 9}
+	"Weapons: Always Rockets" {dpoke 0xc50c 4;poke 0xc50d 153;dpoke 0xc50e 9}
+	"Weapons: Silencer In Inventory" {dpoke 0xc51c 8}
 }
 
 create_trainer "Metal Gear 2 - Solid Snake" {time 2} {
@@ -4622,8 +4620,8 @@ create_trainer "Metal Gear 2 - Solid Snake" {time 2} {
 }
 
 create_trainer "Meteorite Kiss" {time 0.5} {
-	"Infinite Lives" {dpoke 0x33cc 99}
-	"Invincible" {dpoke 0x8c59 32}
+	"Invincible: Invincible" {dpoke 0x8c59 32}
+	"Lives: Infinite Lives" {dpoke 0x33cc 99}
 }
 
 create_trainer "Mike Gunner" {time 1} {
@@ -4848,12 +4846,12 @@ create_trainer "Night Shade" {time 1} {
 }
 
 create_trainer "Ninja Kun" {time 1} {
-	"4 way fire" {dpoke 0xcb7a 4}
-	"50 Bonus Scrolls" {dpoke 0xcb2e 99}
-	"99 Lives" {dpoke 0xcb34 99}
-	"Bombs" {dpoke 0xcb7a 3}
-	"Boomerang" {dpoke 0xcb7a 2}
-	"Throwing stars" {dpoke 0xcb7a 1}
+	"items: 50 Bonus Scrolls" {dpoke 0xcb2e 99}
+	"Lives: 99 Lives" {dpoke 0xcb34 99}
+	"Weapon: 4 way fire" {dpoke 0xcb7a 4}
+	"Weapon: Bombs" {dpoke 0xcb7a 3}
+	"Weapon: Boomerang" {dpoke 0xcb7a 2}
+	"Weapon: Throwing stars" {dpoke 0xcb7a 1}
 }
 
 create_trainer "Ninja Kun (Ninja II)" {time 1} {
@@ -5236,9 +5234,6 @@ create_trainer "Psycho World" {time 2} {
 }
 
 create_trainer "Pumpkin Adventure 3" {time 1} {
-	"Bishop Experience" {dpoke 0xd5fb 153;poke 0xd5fc 153;dpoke 0xd5fd 153}
-	"Bishop Life" {dpoke 0xd5f3 153;poke 0xd5f4 153}
-	"Bishop Max Experience" {dpoke 0xd5f5 153;poke 0xd5f6 153;dpoke 0xd5fe 0;dpoke 0xd5ff 0;dpoke 0xd600 1}
 	"Bishop Max Mp" {dpoke 0xd5f9 153;poke 0xd5fa 153}
 	"Bishop Mp" {dpoke 0xd5f7 153;poke 0xd5f8 153}
 	"Black Key" {dpoke 0xd493 1}
@@ -5303,6 +5298,9 @@ create_trainer "Pumpkin Adventure 3" {time 1} {
 	"Weapon" {dpoke 0xd5cd 9;poke 0xd606 9;dpoke 0xd63f 9;dpoke 0xd678 9}
 	"Weed Key" {dpoke 0xd497 1}
 	"White Keycard 2" {dpoke 0xd49f 1}
+	"Experience: Bishop Experience" {dpoke 0xd5fb 153;poke 0xd5fc 153;dpoke 0xd5fd 153}
+	"Experience: Bishop Max Experience" {dpoke 0xd5f5 153;poke 0xd5f6 153;dpoke 0xd5fe 0;dpoke 0xd5ff 0;dpoke 0xd600 1}
+	"Life: Bishop Life" {dpoke 0xd5f3 153;poke 0xd5f4 153}
 }
 
 create_trainer "Pyramid Warp" {time 1} {
@@ -5512,16 +5510,16 @@ create_trainer "Rocket Roger" {time 1} {
 }
 
 create_trainer "Rolling Blaster" {time 1} {
-	"Infinite Lives" {dpoke 0xf108 9}
+	"Lives: Infinite Lives" {dpoke 0xf108 9}
 }
 
 create_trainer "Romancia MSX2" {time 1} {
-	"be able to receive Unlimited Potions" {dpoke 0xd09b 1}
-	"Gold" {dpoke 0xd067 63}
-	"Hearts" {dpoke 0xd063 255}
-	"Shields" {dpoke 0xd066 64}
-	"Swords" {dpoke 0xd064 255}
-	"unlimited time" {dpoke 0xd075 0x99;poke 0xd076 0x99}
+	"Defense: Shields" {dpoke 0xd066 64}
+	"items: be able to receive Unlimited Potions" {dpoke 0xd09b 1}
+	"Money: Gold" {dpoke 0xd067 63}
+	"Power: Hearts" {dpoke 0xd063 255}
+	"Time: unlimited time" {dpoke 0xd075 0x99;poke 0xd076 0x99}
+	"Weapons: Swords" {dpoke 0xd064 255}
 }
 
 create_trainer "Rona" {time 1} {
@@ -5563,75 +5561,75 @@ create_trainer "Saimazoom" {time 1} {
 }
 
 create_trainer "Salamander - Operation X" {time 1} {
-	"All Special Weapons " {dpoke 0xe310 7}
-	"Invincible - Activate" {dpoke 0xe202 0}
-	"Invincible - De-activate" {dpoke 0xe202 1}
-	"Lives " {dpoke 0xe300 153}
-	"Next Stage Stage 1" {dpoke 0xe301 1}
-	"Next Stage Stage 2" {dpoke 0xe301 2}
-	"Next Stage Stage 3" {dpoke 0xe301 3}
-	"Next Stage Stage 4" {dpoke 0xe310 4}
-	"Next Stage Stage 5" {dpoke 0xe301 5}
-	"Next Stage Stage 6" {dpoke 0xe301 6}
-	"Next Stage Stage 7 - Operation X" {dpoke 0xe301 7}
-	"Scroll Stop (only For Part Of Stage 1)" {dpoke 0xe309 1}
-	"Simulate Nemesis 2 In Slot 2" {dpoke 0xf0f5 1}
-	"Spark Light For Planet Lavinia" {dpoke 0xe630 3}
-	"Weapon Option 1" {dpoke 0xe400 1}
-	"Weapon Option 1 In Position 1" {dpoke 0xe402 1}
-	"Weapon Option 1 Player 2 (0=player 1)" {dpoke 0xe401 1}
-	"Weapon Option 2 Active" {dpoke 0xe410 1}
-	"Weapon Option 2 In Position 2" {dpoke 0xe412 2}
-	"Weapon Option 2 Player 2 (0=player 1)" {dpoke 0xe411 1}
-	"Weapon Option 3 Active" {dpoke 0xe420 1}
-	"Weapon Option 3 In Position 3" {dpoke 0xe422 3}
-	"Weapon Option 3 Player 2 (0=player 1)" {dpoke 0xe421 1}
-	"Weapon Option 4 Active (not In Dual Mode)" {dpoke 0xe430 1}
-	"Weapon Option 4 In Position 4" {dpoke 0xe432 4}
-	"Weapon Player 1 Arming Ball Missile" {dpoke 0xe341 4}
-	"Weapon Player 1 Double Laser" {dpoke 0xe340 6}
-	"Weapon Player 1 Extra Level After One Energy Pod" {dpoke 0xe31b 20}
-	"Weapon Player 1 Hawkwind Missile" {dpoke 0xe341 2}
-	"Weapon Player 1 Homing Missile" {dpoke 0xe341 3}
-	"Weapon Player 1 Laser" {dpoke 0xe340 3}
-	"Weapon Player 1 Meteor Laser" {dpoke 0xe340 5}
-	"Weapon Player 1 Normal Missile" {dpoke 0xe341 1}
-	"Weapon Player 1 Normal Shoot" {dpoke 0xe340 1}
-	"Weapon Player 1 Option Hold " {dpoke 0xe334 1}
-	"Weapon Player 1 Ripple Laser" {dpoke 0xe340 2}
-	"Weapon Player 1 Screw Laser" {dpoke 0xe340 4}
-	"Weapon Player 1 Ship Speed 1" {dpoke 0xe337 1}
-	"Weapon Player 1 Ship Speed 2" {dpoke 0xe337 2}
-	"Weapon Player 1 Ship Speed 3" {dpoke 0xe337 3}
-	"Weapon Player 1 Ship Speed 4" {dpoke 0xe337 4}
-	"Weapon Player 1 Ship Speed 5" {dpoke 0xe337 5}
-	"Weapon Player 1 Ship Speed 6" {dpoke 0xe337 6}
-	"Weapon Player 1 Ship Speed 7" {dpoke 0xe337 7}
-	"Weapon Player 1 Trampling Missile" {dpoke 0xe342 1}
-	"Weapon Player 1 Triple Laser" {dpoke 0xe340 7}
-	"Weapon Player 2 All Special Weapons " {dpoke 0xe390 7}
-	"Weapon Player 2 Arming Ball Missile" {dpoke 0xe3c1 4}
-	"Weapon Player 2 Double Laser" {dpoke 0xe3c0 6}
-	"Weapon Player 2 Extra Level After One Energy Pod" {dpoke 0xe39b 20}
-	"Weapon Player 2 Hawkwind Missile" {dpoke 0xe3c1 2}
-	"Weapon Player 2 Homing Missile" {dpoke 0xe3c1 3}
-	"Weapon Player 2 Laser" {dpoke 0xe3c0 3}
-	"Weapon Player 2 Lives" {dpoke 0xe380 153}
-	"Weapon Player 2 Meteor Laser" {dpoke 0xe3c0 5}
-	"Weapon Player 2 Normal Missile" {dpoke 0xe3c1 1}
-	"Weapon Player 2 Normal Shoot" {dpoke 0xe3c0 1}
-	"Weapon Player 2 Option" {dpoke 0xe3b4 1}
-	"Weapon Player 2 Ripple Laser" {dpoke 0xe3c0 2}
-	"Weapon Player 2 Screw Laser" {dpoke 0xe3c0 4}
-	"Weapon Player 2 Ship Speed 1 " {dpoke 0xe3b7 1}
-	"Weapon Player 2 Ship Speed 2 " {dpoke 0xe3b7 2}
-	"Weapon Player 2 Ship Speed 3 " {dpoke 0xe3b7 3}
-	"Weapon Player 2 Ship Speed 4 " {dpoke 0xe3b7 4}
-	"Weapon Player 2 Ship Speed 5 " {dpoke 0xe3b7 5}
-	"Weapon Player 2 Ship Speed 6 " {dpoke 0xe3b7 6}
-	"Weapon Player 2 Ship Speed 7 " {dpoke 0xe3b7 7}
-	"Weapon Player 2 Trampling Missile" {dpoke 0xe3c2 1}
-	"Weapon Player 2 Triple Laser" {dpoke 0xe3c0 7}
+	"Combinations: Simulate Nemesis 2 In Slot 2" {dpoke 0xf0f5 1}
+	"Help Items: Scroll Stop (only For Part Of Stage 1)" {dpoke 0xe309 1}
+	"Help Items: Spark Light For Planet Lavinia" {dpoke 0xe630 3}
+	"Invincible : Invincible - Activate" {dpoke 0xe202 0}
+	"Invincible : Invincible - De-activate" {dpoke 0xe202 1}
+	"Lives: Lives " {dpoke 0xe300 153}
+	"Stage: Next Stage Stage 1" {dpoke 0xe301 1}
+	"Stage: Next Stage Stage 2" {dpoke 0xe301 2}
+	"Stage: Next Stage Stage 3" {dpoke 0xe301 3}
+	"Stage: Next Stage Stage 4" {dpoke 0xe310 4}
+	"Stage: Next Stage Stage 5" {dpoke 0xe301 5}
+	"Stage: Next Stage Stage 6" {dpoke 0xe301 6}
+	"Stage: Next Stage Stage 7 - Operation X" {dpoke 0xe301 7}
+	"Weapons: All Special Weapons " {dpoke 0xe310 7}
+	"Weapons: Weapon Option 1" {dpoke 0xe400 1}
+	"Weapons: Weapon Option 1 In Position 1" {dpoke 0xe402 1}
+	"Weapons: Weapon Option 1 Player 2 (0=player 1)" {dpoke 0xe401 1}
+	"Weapons: Weapon Option 2 Active" {dpoke 0xe410 1}
+	"Weapons: Weapon Option 2 In Position 2" {dpoke 0xe412 2}
+	"Weapons: Weapon Option 2 Player 2 (0=player 1)" {dpoke 0xe411 1}
+	"Weapons: Weapon Option 3 Active" {dpoke 0xe420 1}
+	"Weapons: Weapon Option 3 In Position 3" {dpoke 0xe422 3}
+	"Weapons: Weapon Option 3 Player 2 (0=player 1)" {dpoke 0xe421 1}
+	"Weapons: Weapon Option 4 Active (not In Dual Mode)" {dpoke 0xe430 1}
+	"Weapons: Weapon Option 4 In Position 4" {dpoke 0xe432 4}
+	"Weapons: Weapon Player 1 Arming Ball Missile" {dpoke 0xe341 4}
+	"Weapons: Weapon Player 1 Double Laser" {dpoke 0xe340 6}
+	"Weapons: Weapon Player 1 Extra Level After One Energy Pod" {dpoke 0xe31b 20}
+	"Weapons: Weapon Player 1 Hawkwind Missile" {dpoke 0xe341 2}
+	"Weapons: Weapon Player 1 Homing Missile" {dpoke 0xe341 3}
+	"Weapons: Weapon Player 1 Laser" {dpoke 0xe340 3}
+	"Weapons: Weapon Player 1 Meteor Laser" {dpoke 0xe340 5}
+	"Weapons: Weapon Player 1 Normal Missile" {dpoke 0xe341 1}
+	"Weapons: Weapon Player 1 Normal Shoot" {dpoke 0xe340 1}
+	"Weapons: Weapon Player 1 Option Hold " {dpoke 0xe334 1}
+	"Weapons: Weapon Player 1 Ripple Laser" {dpoke 0xe340 2}
+	"Weapons: Weapon Player 1 Screw Laser" {dpoke 0xe340 4}
+	"Weapons: Weapon Player 1 Ship Speed 1" {dpoke 0xe337 1}
+	"Weapons: Weapon Player 1 Ship Speed 2" {dpoke 0xe337 2}
+	"Weapons: Weapon Player 1 Ship Speed 3" {dpoke 0xe337 3}
+	"Weapons: Weapon Player 1 Ship Speed 4" {dpoke 0xe337 4}
+	"Weapons: Weapon Player 1 Ship Speed 5" {dpoke 0xe337 5}
+	"Weapons: Weapon Player 1 Ship Speed 6" {dpoke 0xe337 6}
+	"Weapons: Weapon Player 1 Ship Speed 7" {dpoke 0xe337 7}
+	"Weapons: Weapon Player 1 Trampling Missile" {dpoke 0xe342 1}
+	"Weapons: Weapon Player 1 Triple Laser" {dpoke 0xe340 7}
+	"Weapons: Weapon Player 2 All Special Weapons " {dpoke 0xe390 7}
+	"Weapons: Weapon Player 2 Arming Ball Missile" {dpoke 0xe3c1 4}
+	"Weapons: Weapon Player 2 Double Laser" {dpoke 0xe3c0 6}
+	"Weapons: Weapon Player 2 Extra Level After One Energy Pod" {dpoke 0xe39b 20}
+	"Weapons: Weapon Player 2 Hawkwind Missile" {dpoke 0xe3c1 2}
+	"Weapons: Weapon Player 2 Homing Missile" {dpoke 0xe3c1 3}
+	"Weapons: Weapon Player 2 Laser" {dpoke 0xe3c0 3}
+	"Weapons: Weapon Player 2 Lives" {dpoke 0xe380 153}
+	"Weapons: Weapon Player 2 Meteor Laser" {dpoke 0xe3c0 5}
+	"Weapons: Weapon Player 2 Normal Missile" {dpoke 0xe3c1 1}
+	"Weapons: Weapon Player 2 Normal Shoot" {dpoke 0xe3c0 1}
+	"Weapons: Weapon Player 2 Option" {dpoke 0xe3b4 1}
+	"Weapons: Weapon Player 2 Ripple Laser" {dpoke 0xe3c0 2}
+	"Weapons: Weapon Player 2 Screw Laser" {dpoke 0xe3c0 4}
+	"Weapons: Weapon Player 2 Ship Speed 1 " {dpoke 0xe3b7 1}
+	"Weapons: Weapon Player 2 Ship Speed 2 " {dpoke 0xe3b7 2}
+	"Weapons: Weapon Player 2 Ship Speed 3 " {dpoke 0xe3b7 3}
+	"Weapons: Weapon Player 2 Ship Speed 4 " {dpoke 0xe3b7 4}
+	"Weapons: Weapon Player 2 Ship Speed 5 " {dpoke 0xe3b7 5}
+	"Weapons: Weapon Player 2 Ship Speed 6 " {dpoke 0xe3b7 6}
+	"Weapons: Weapon Player 2 Ship Speed 7 " {dpoke 0xe3b7 7}
+	"Weapons: Weapon Player 2 Trampling Missile" {dpoke 0xe3c2 1}
+	"Weapons: Weapon Player 2 Triple Laser" {dpoke 0xe3c0 7}
 }
 
 create_trainer "Sammyu Densetsu" {time 15} {
@@ -5660,8 +5658,8 @@ create_trainer "Scentipede" {time 1} {
 
 create_trainer "Science Fiction" {time 1} {
 	"Lives" {dpoke 0xa465 9}
-	"Tears Shoot Down" {dpoke 0xa460 1}
-	"Tears Shoot Up" {dpoke 0xa461 1}
+	"Tears: Tears Shoot Down" {dpoke 0xa460 1}
+	"Tears: Tears Shoot Up" {dpoke 0xa461 1}
 }
 
 create_trainer "Scion" {time 1} {
@@ -5686,71 +5684,73 @@ create_trainer "Scramble Formation" {time 1} {
 }
 
 create_trainer "SD-Snatcher" {time 1} {
-	"3d Goggles" {dpoke 0xC470 1;poke 0xC471 1}
 	"All Locations Accessible" {dpoke 0xcdc0 255;poke 0xcdc1 1}
-	"Ammo For B. Hawk" {dpoke 0xc3d1 231;poke 0xc3d2 3}
-	"Ammo For Big 9 Matrix" {dpoke 0xc3f9 231;poke 0xc3fa 3}
-	"Ammo For F. Ball" {dpoke 0xc3b1 231;poke 0xc3b2 3}
-	"Ammo For G.hound" {dpoke 0xc3d9 231;poke 0xc3da 3}
-	"Ammo For I. Cepter" {dpoke 0xc3e1 231;poke 0xc3e2 3}
-	"Ammo For K. Sprint" {dpoke 0xc3b9 231;poke 0xc3ba 3;dpoke 0xc3c9 231;dpoke 0xc3ca 3}
-	"Ammo For N. Point" {dpoke 0xc3f1 231;poke 0xc3f2 3}
-	"Ammo For S. Grade" {dpoke 0xc3e9 231;poke 0xc3ea 3}
-	"Ammo For Stingray" {dpoke 0xc3a9 231;poke 0xc3aa 3}
-	"Ammo For Storm" {dpoke 0xc3c1 231;poke 0xc3c2 3}
-	"B. Hawk" {dpoke 0xc3d0 2;poke 0xc4d1 255}
-	"Big 9 Matrix" {dpoke 0xc3f8 2;poke 0xc4f9 255}
-	"Blue Spider" {dpoke 0xC4A0 1;poke 0xC4A1 1}
-	"Bomb" {dpoke 0xc400 2;poke 0xc401 255}
-	"C Killer" {dpoke 0xc440 2;poke 0xc441 255}
-	"Card" {dpoke 0xC488 1;poke 0xC489 1}
-	"Chaf" {dpoke 0xc430 2;poke 0xc431 255}
-	"Comet" {dpoke 0xc428 2;poke 0xc429 255}
-	"Dball" {dpoke 0xc408 2;poke 0xc409 255}
-	"Door to the 3rd floor is open (24 candles blown out)" {dpoke 0xxe9b 24}
-	"F. Ball" {dpoke 0xc3b0 2;poke 0xc4b1 255}
-	"Flare" {dpoke 0xc448 2;poke 0xc449 255}
-	"G Mine" {dpoke 0xc420 2;poke 0xc421 255}
-	"G. Hound" {dpoke 0xc3d8 2;poke 0xc4d9 255}
-	"I. Cepter" {dpoke 0xc3e0 2;poke 0xc4e1 255}
-	"Junkers" {dpoke 0xc451 99}
-	"Jyro" {dpoke 0xc461 99}
-	"K. Sprint" {dpoke 0xc3b8 2;poke 0xc3c8 2;dpoke 0xc4b9 255;dpoke 0xc4c9 255}
+	"Door To The 3rd Church's Floor Is Open (24 Candles Blown Out)" {dpoke 0xxe9b 24}
 	"Kill Little Spiders In One Blast" {dpoke 0xc820 0;poke 0xc840 0}
 	"L. Angel" {dpoke 0xC4B0 1;poke 0xC4B1 1}
 	"Lingu Disk" {dpoke 0xC490 1;poke 0xC491 1}
 	"Mars Coupon" {dpoke 0xC478 1;poke 0xC479 1}
 	"Master Key" {dpoke 0xC498 1;poke 0xC499 1}
-	"Max Deference Level" {dpoke 0xce87 64}
-	"Max Life" {dpoke 0xce81 255}
-	"Max Out All Stats" {dpoke 0xce82 255;poke 0xce83 255;dpoke 0xce85 255;dpoke 0xce86 255;dpoke 0xce88 255;dpoke 0xce89 255;dpoke 0xce8b 255;dpoke 0xce8c 255}
-	"Max Rank" {dpoke 0xce80 64}
-	"Max Speed Level" {dpoke 0xce8a 64}
-	"Max Strength Level" {dpoke 0xce84 64}
 	"Milkyway" {dpoke 0xc438 2;poke 0xc439 255}
-	"Money" {dpoke 0xce8d 255;poke 0xce8e 255}
-	"Movie Ticket" {dpoke 0xC480 1;poke 0xC481 1}
-	"N. Point" {dpoke 0xc3f0 2;poke 0xc4f1 255}
 	"Newtrits" {dpoke 0xc459 99}
 	"Rancher" {dpoke 0xc410 2;poke 0xc411 255}
-	"Red Spider" {dpoke 0xC468 1;poke 0xC469 1}
-	"S. Grade" {dpoke 0xc3e8 2;poke 0xc4e9 255}
-	"Skill For B. Hawk" {dpoke 0xc3d5 100}
-	"Skill For F. Ball" {dpoke 0xc3b5 100}
-	"Skill For G. Hound" {dpoke 0xc3dd 100}
-	"Skill For G. Matrix" {dpoke 0xc3fd 100}
-	"Skill For I. Cepter" {dpoke 0xc3e5 100}
-	"Skill For K. Sprint" {dpoke 0xc3bd 100;poke 0xc3cd 100}
-	"Skill For N. Point" {dpoke 0xc3f5 100}
-	"Skill For S. Grade" {dpoke 0xc3ed 100}
-	"Skill For Stingray" {dpoke 0xc3ad 100}
-	"Skill For Storm" {dpoke 0xc3c5 100}
+	"Red Spider" {dpoke 0xC468 1}
+	"S. Grade" {dpoke 0xc4e9 255}
 	"Stingray" {dpoke 0xc3a8 2;poke 0xc4a9 255}
 	"Storm" {dpoke 0xc3c0 2;poke 0xc4c1 255}
 	"T Blaster" {dpoke 0xc418 2;poke 0xc419 255}
-	"Vip Card" {dpoke 0xC4A8 1;poke 0xC4A9 1}
 	"Walk Trough Walls Off" {dpoke 0x92b6 0}
 	"Walk Trough Walls On" {dpoke 0x92b6 201}
+	"Ammo: Ammo For B. Hawk" {dpoke 0xc3d1 231;poke 0xc3d2 3}
+	"Ammo: Ammo For Big 9 Matrix" {dpoke 0xc3f9 231;poke 0xc3fa 3}
+	"Ammo: Ammo For F. Ball" {dpoke 0xc3b1 231;poke 0xc3b2 3}
+	"Ammo: Ammo For G.hound" {dpoke 0xc3d9 231;poke 0xc3da 3}
+	"Ammo: Ammo For I. Cepter" {dpoke 0xc3e1 231;poke 0xc3e2 3}
+	"Ammo: Ammo For K. Sprint" {dpoke 0xc3b9 231;poke 0xc3ba 3;dpoke 0xc3c9 231;dpoke 0xc3ca 3}
+	"Ammo: Ammo For N. Point" {dpoke 0xc3f1 231;poke 0xc3f2 3}
+	"Ammo: Ammo For S. Grade" {dpoke 0xc3e9 231;poke 0xc3ea 3}
+	"Ammo: Ammo For Stingray" {dpoke 0xc3a9 231;poke 0xc3aa 3}
+	"Ammo: Ammo For Storm" {dpoke 0xc3c1 231;poke 0xc3c2 3}
+	"Gun: B. Hawk" {dpoke 0xc3d0 2;poke 0xc4d1 255}
+	"Gun: Big 9 Matrix" {dpoke 0xc3f8 2;poke 0xc4f9 255}
+	"Gun: N. Point" {dpoke 0xc3f0 2;poke 0xc4f1 255}
+	"Gun Skill: Skill For B. Hawk" {dpoke 0xc3d5 100}
+	"Gun Skill: Skill For F. Ball" {dpoke 0xc3b5 100}
+	"Gun Skill: Skill For G. Hound" {dpoke 0xc3dd 100}
+	"Gun Skill: Skill For G. Matrix" {dpoke 0xc3fd 100}
+	"Gun Skill: Skill For I. Cepter" {dpoke 0xc3e5 100}
+	"Gun Skill: Skill For K. Sprint" {dpoke 0xc3bd 100;poke 0xc3cd 100}
+	"Gun Skill: Skill For N. Point" {dpoke 0xc3f5 100}
+	"Gun Skill: Skill For S. Grade" {dpoke 0xc3ed 100}
+	"Gun Skill: Skill For Stingray" {dpoke 0xc3ad 100}
+	"Gun Skill: Skill For Storm" {dpoke 0xc3c5 100}
+	"Important Item: 3d Goggles" {dpoke 0xC470 1;poke 0xC471 1}
+	"Important Item: Blue Spider" {dpoke 0xC4A0 1;poke 0xC4A1 1}
+	"Important Item: Movie Ticket" {dpoke 0xC480 1;poke 0xC481 1}
+	"Important Item: Red Spider" {dpoke 0xC469 1}
+	"Important Item: S. Grade" {dpoke 0xc3e8 2}
+	"Important Item: Vip Card" {dpoke 0xC4A8 1;poke 0xC4A9 1}
+	"Item: Bomb" {dpoke 0xc400 2;poke 0xc401 255}
+	"Item: C Killer" {dpoke 0xc440 2;poke 0xc441 255}
+	"Item: Card" {dpoke 0xC488 1;poke 0xC489 1}
+	"Item: Chaf" {dpoke 0xc430 2;poke 0xc431 255}
+	"Item: Comet" {dpoke 0xc428 2;poke 0xc429 255}
+	"Item: Dball" {dpoke 0xc408 2;poke 0xc409 255}
+	"Item: F. Ball" {dpoke 0xc3b0 2;poke 0xc4b1 255}
+	"Item: Flare" {dpoke 0xc448 2;poke 0xc449 255}
+	"Item: G Mine" {dpoke 0xc420 2;poke 0xc421 255}
+	"Item: G. Hound" {dpoke 0xc3d8 2;poke 0xc4d9 255}
+	"Item: I. Cepter" {dpoke 0xc3e0 2;poke 0xc4e1 255}
+	"Item: Junkers" {dpoke 0xc451 99}
+	"Item: Jyro" {dpoke 0xc461 99}
+	"Item: K. Sprint" {dpoke 0xc3b8 2;poke 0xc3c8 2;dpoke 0xc4b9 255;dpoke 0xc4c9 255}
+	"Stats: Max Deference Level" {dpoke 0xce87 64}
+	"Stats: Max Life" {dpoke 0xce81 255}
+	"Stats: Max Out All Stats" {dpoke 0xce82 255;poke 0xce83 255;dpoke 0xce85 255;dpoke 0xce86 255;dpoke 0xce88 255;dpoke 0xce89 255;dpoke 0xce8b 255;dpoke 0xce8c 255}
+	"Stats: Max Rank" {dpoke 0xce80 64}
+	"Stats: Max Speed Level" {dpoke 0xce8a 64}
+	"Stats: Max Strength Level" {dpoke 0xce84 64}
+	"Stats: Money" {dpoke 0xce8d 255;poke 0xce8e 255}
 }
 
 create_trainer "Seiken Acho - Kung-Fu Master Taekwondo" {time 1} {
@@ -5868,7 +5868,7 @@ create_trainer "Soukoban Pocket" {time 1} {
 }
 
 create_trainer "Soul of a Robot" {time 1} {
-	"Lives" {dpoke 0x17f1 9;poke 0x17f2 9}
+	"Lives: Lives" {dpoke 0x17f1 9;poke 0x17f2 9}
 }
 
 create_trainer "Space Busters" {time 1} {
@@ -5892,23 +5892,12 @@ create_trainer "Space Manbow" {time 1} {
 	"Finished Space Manbow 1x" {dpoke 0xca04 1}
 	"Finished Space Manbow 2x" {dpoke 0xca04 2}
 	"Finished Space Manbow 3x" {dpoke 0xca04 3}
-	"Have Flash Bomb" {dpoke 0xcb1d 1}
 	"Invincible" {dpoke 0xca53 03;poke 0xca54 03}
 	"Lives" {dpoke 0xcb0f 153}
-	"Missile" {dpoke 0xcb48 128;poke 0xcb49 3}
-	"Option 1" {dpoke 0xcac0 2;poke 0xcac1 3;dpoke 0xcad8 253;dpoke 0xcb51 1}
-	"Option 1 Shoots Backwards" {dpoke 0xcb50 6}
-	"Option 1 Shoots Forwards" {dpoke 0xcb50 8}
-	"Option 1 Shoots Upwards" {dpoke 0xcb50 7}
-	"Option 2" {dpoke 0xcae0 2;poke 0xcae1 3;dpoke 0xcaf8 2;dpoke 0xcb59 1}
-	"Option 2 Shoots Backwards" {dpoke 0xcb58 4}
-	"Option 2 Shoots Downwards" {dpoke 0xcb58 3}
-	"Option 2 Shoots Forwards" {dpoke 0xcb58 2}
 	"Player Speed 1" {dpoke 0xcb01 1}
 	"Player Speed 2" {dpoke 0xcb01 2}
 	"Player Speed 3" {dpoke 0xcb01 3}
 	"Player Speed 4" {dpoke 0xcb01 4}
-	"Power Bar" {dpoke 0xcb08 16}
 	"Stage 0" {dpoke 0xca10 0}
 	"Stage 1" {dpoke 0xca10 1}
 	"Stage 2" {dpoke 0xca10 2}
@@ -5918,6 +5907,17 @@ create_trainer "Space Manbow" {time 1} {
 	"Stage 6" {dpoke 0xca10 6}
 	"Stage 7" {dpoke 0xca10 7}
 	"Stage 8" {dpoke 0xca10 8}
+	"Weapons: Have Flash Bomb" {dpoke 0xcb1d 1}
+	"Weapons: Missile" {dpoke 0xcb48 128;poke 0xcb49 3}
+	"Weapons: Option 1" {dpoke 0xcac0 2;poke 0xcac1 3;dpoke 0xcad8 253;dpoke 0xcb51 1}
+	"Weapons: Option 1 Shoots Backwards" {dpoke 0xcb50 6}
+	"Weapons: Option 1 Shoots Forwards" {dpoke 0xcb50 8}
+	"Weapons: Option 1 Shoots Upwards" {dpoke 0xcb50 7}
+	"Weapons: Option 2" {dpoke 0xcae0 2;poke 0xcae1 3;dpoke 0xcaf8 2;dpoke 0xcb59 1}
+	"Weapons: Option 2 Shoots Backwards" {dpoke 0xcb58 4}
+	"Weapons: Option 2 Shoots Downwards" {dpoke 0xcb58 3}
+	"Weapons: Option 2 Shoots Forwards" {dpoke 0xcb58 2}
+	"Weapons: Power Bar" {dpoke 0xcb08 16}
 }
 
 create_trainer "Space Rescue" {time 1} {
@@ -6059,24 +6059,24 @@ create_trainer "Super Boy III" {time 1} {
 	"Fire (on Graph Key)" {dpoke 0xe191 255}
 	"Invulnerable (don't Fall)" {dpoke 0xe177 255;poke 0xe192 255}
 	"Lives" {dpoke 0xe26b 99}
-	"Round 01" {dpoke 0xe26c 1}
-	"Round 02" {dpoke 0xe26c 2}
-	"Round 03" {dpoke 0xe26c 3}
-	"Round 04" {dpoke 0xe26c 4}
-	"Round 05" {dpoke 0xe26c 5}
-	"Round 06" {dpoke 0xe26c 6}
-	"Round 07" {dpoke 0xe26c 7}
-	"Round 08" {dpoke 0xe26c 8}
-	"Round 09" {dpoke 0xe26c 9}
-	"Round 10" {dpoke 0xe26c 10}
-	"Round 11" {dpoke 0xe26c 11}
-	"Round 12" {dpoke 0xe26c 12}
-	"Round 13" {dpoke 0xe26c 13}
-	"Round 14" {dpoke 0xe26c 14}
-	"Round 15" {dpoke 0xe26c 15}
-	"Round 16" {dpoke 0xe26c 16}
 	"Stones" {dpoke 0xe18a 8}
 	"Time" {dpoke 0xe18c 255}
+	"Stage Select: Round 01" {dpoke 0xe26c 1}
+	"Stage Select: Round 02" {dpoke 0xe26c 2}
+	"Stage Select: Round 03" {dpoke 0xe26c 3}
+	"Stage Select: Round 04" {dpoke 0xe26c 4}
+	"Stage Select: Round 05" {dpoke 0xe26c 5}
+	"Stage Select: Round 06" {dpoke 0xe26c 6}
+	"Stage Select: Round 07" {dpoke 0xe26c 7}
+	"Stage Select: Round 08" {dpoke 0xe26c 8}
+	"Stage Select: Round 09" {dpoke 0xe26c 9}
+	"Stage Select: Round 10" {dpoke 0xe26c 10}
+	"Stage Select: Round 11" {dpoke 0xe26c 11}
+	"Stage Select: Round 12" {dpoke 0xe26c 12}
+	"Stage Select: Round 13" {dpoke 0xe26c 13}
+	"Stage Select: Round 14" {dpoke 0xe26c 14}
+	"Stage Select: Round 15" {dpoke 0xe26c 15}
+	"Stage Select: Round 16" {dpoke 0xe26c 16}
 }
 
 create_trainer "Super Cobra" {time 2} {
@@ -6187,11 +6187,11 @@ create_trainer "Tele bunny" {time 1} {
 }
 
 create_trainer "Tengoku Yoitoko - Heaven" {time 1} {
-	"Attack Power" {dpoke 0xe03c 0x99;poke 0xe03d 0x99}
-	"Gold" {dpoke 0xe03e 0x99;poke 0xe03f 0x99}
 	"Invincible" {dpoke 0xe31e 255}
-	"Virtue" {dpoke 0xe03a 0x99;poke 0xe03b 0x99}
-	"Vitality" {dpoke 0xe038 0x99;poke 0xe039 0x99}
+	"Stats: Attack Power" {dpoke 0xe03c 0x99;poke 0xe03d 0x99}
+	"Stats: Gold" {dpoke 0xe03e 0x99;poke 0xe03f 0x99}
+	"Stats: Virtue" {dpoke 0xe03a 0x99;poke 0xe03b 0x99}
+	"Stats: Vitality" {dpoke 0xe038 0x99;poke 0xe039 0x99}
 }
 
 create_trainer "Tennis - MSX Magazine 2003" {time 1} {
@@ -6232,20 +6232,20 @@ create_trainer "Thexder" {time 2} {
 }
 
 create_trainer "Thexder 2 (Firehawk)" {time 2} {
-	"Dart Missiles" {dpoke 0x134e 99}
-	"Do Not Loose Power While Shooting" {dpoke 0x12d5 255}
-	"Ecm Gas" {dpoke 0x1351 99}
-	"Flashers" {dpoke 0x1350 99}
-	"Full Power" {dpoke 0x12d5 250}
-	"Get Extremely Powerfull Laser" {dpoke 0x130f 255}
-	"Get Normal Laser" {dpoke 0x130f 1}
-	"Get Very Weak Laser" {dpoke 0x130f 0}
-	"Max Energy 500" {dpoke 0x12d8 250}
-	"Missiles" {dpoke 0x12e6 99}
-	"Napalm Bombs" {dpoke 0x134f 99}
-	"Shield Power Does Not Decline" {dpoke 0x12f8 255}
-	"Stoppers" {dpoke 0x134d 99}
-	"Unlimited Power" {dpoke 0x12d6 250}
+	"Power: Do Not Loose Power While Shooting" {dpoke 0x12d5 255}
+	"Power: Full Power" {dpoke 0x12d5 250}
+	"Power: Max Energy 500" {dpoke 0x12d8 250}
+	"Power: Shield Power Does Not Decline" {dpoke 0x12f8 255}
+	"Power: Unlimited Power" {dpoke 0x12d6 250}
+	"Sub Weapons: Dart Missiles" {dpoke 0x134e 99}
+	"Sub Weapons: Ecm Gas" {dpoke 0x1351 99}
+	"Sub Weapons: Flashers" {dpoke 0x1350 99}
+	"Sub Weapons: Missiles" {dpoke 0x12e6 99}
+	"Sub Weapons: Napalm Bombs" {dpoke 0x134f 99}
+	"Sub Weapons: Stoppers" {dpoke 0x134d 99}
+	"Weapons: Get Extremely Powerfull Laser" {dpoke 0x130f 255}
+	"Weapons: Get Normal Laser" {dpoke 0x130f 1}
+	"Weapons: Get Very Weak Laser" {dpoke 0x130f 0}
 }
 
 create_trainer "Thing Bounces Back" {time 1} {
@@ -6337,32 +6337,32 @@ create_trainer "Trailblazer" {time 1} {
 }
 
 create_trainer "Treasure Of Usas, The" {time 1} {
-	"All Combis With Konami Carts" {dpoke 0xc205 255}
-	"Cles's Mood Angry" {dpoke 0xc2b6 3}
-	"Cles's Mood Happy" {dpoke 0xc2b6 0}
-	"Cles's Mood Normal" {dpoke 0xc2b6 1}
-	"Cles's Mood Sad" {dpoke 0xc2b6 2}
-	"Cles's Stars For Jumping" {dpoke 0xc2d2 2}
-	"Cles's Stars For Speed" {dpoke 0xc2d1 4}
-	"Free Cles" {dpoke 0xc2d0 0}
-	"Free Wit" {dpoke 0xc2b0 0}
-	"Invincible Player" {dpoke 0xc256 1}
-	"Jump Rate 1 Coin" {dpoke 0xc2da 1;poke 0xc2db 0;dpoke 0xc2dc 1;dpoke 0xc2dd 0}
-	"Life For Cles" {dpoke 0xc2d5 255}
-	"Life For Wit" {dpoke 0xc2b5 255}
-	"Money" {dpoke 49753 153;poke 49754 153}
-	"Speed Rate 1 Coin" {dpoke 0xc2bc 1;poke 0xc2bd 0;dpoke 0xc2d8 1;dpoke 0xc2d9 0}
-	"Stage Boss Door Open" {dpoke 0xe328 1}
-	"Temple Boss Door Open" {dpoke 0xd510 0;poke 0xd514 48}
-	"Vitality Rate 1 Coin" {dpoke 0xc2b8 1;poke 0xc2b9 0;dpoke 0xc2ba 1;dpoke 0xc2bb 0}
-	"Weak Enemies" {dpoke 0xc412 1;poke 0xc492 1;dpoke 0xc512 1;dpoke 0xc592 1;dpoke 0xc612 1;dpoke 0xc692 1;dpoke 0xc712 1;dpoke 0xc792 1}
-	"Wit's Mood Angry" {dpoke 0xc2d6 3}
-	"Wit's Mood Happy" {dpoke 0xc2d6 0}
-	"Wit's Mood Normal" {dpoke 0xc2d6 1}
-	"Wit's Mood Sad" {dpoke 0xc2d6 2}
-	"Wit's Stars For Jumping" {dpoke 0xc2b2 2}
-	"Wit's Stars For Speed" {dpoke 0xc2b1 4}
-	"Wit's Unlimited Air Walk" {dpoke 0xc266 255}
+	"Cheats: All Combis With Konami Carts" {dpoke 0xc205 255}
+	"Cheats: Free Cles" {dpoke 0xc2d0 0}
+	"Cheats: Free Wit" {dpoke 0xc2b0 0}
+	"Cheats: Invincible Player" {dpoke 0xc256 1}
+	"Enemy: Stage Boss Door Open" {dpoke 0xe328 1}
+	"Enemy: Temple Boss Door Open" {dpoke 0xd510 0;poke 0xd514 48}
+	"Enemy: Weak Enemies" {dpoke 0xc412 1;poke 0xc492 1;dpoke 0xc512 1;dpoke 0xc592 1;dpoke 0xc612 1;dpoke 0xc692 1;dpoke 0xc712 1;dpoke 0xc792 1}
+	"Money: Money" {dpoke 49753 153;poke 49754 153}
+	"Mood: Cles's Mood Angry" {dpoke 0xc2b6 3}
+	"Mood: Cles's Mood Happy" {dpoke 0xc2b6 0}
+	"Mood: Cles's Mood Normal" {dpoke 0xc2b6 1}
+	"Mood: Cles's Mood Sad" {dpoke 0xc2b6 2}
+	"Mood: Wit's Mood Angry" {dpoke 0xc2d6 3}
+	"Mood: Wit's Mood Happy" {dpoke 0xc2d6 0}
+	"Mood: Wit's Mood Normal" {dpoke 0xc2d6 1}
+	"Mood: Wit's Mood Sad" {dpoke 0xc2d6 2}
+	"Special Power: Wit's Unlimited Air Walk" {dpoke 0xc266 255}
+	"Stats: Cles's Stars For Jumping" {dpoke 0xc2d2 2}
+	"Stats: Cles's Stars For Speed" {dpoke 0xc2d1 4}
+	"Stats: Jump Rate 1 Coin" {dpoke 0xc2da 1;poke 0xc2db 0;dpoke 0xc2dc 1;dpoke 0xc2dd 0}
+	"Stats: Life For Cles" {dpoke 0xc2d5 255}
+	"Stats: Life For Wit" {dpoke 0xc2b5 255}
+	"Stats: Speed Rate 1 Coin" {dpoke 0xc2bc 1;poke 0xc2bd 0;dpoke 0xc2d8 1;dpoke 0xc2d9 0}
+	"Stats: Vitality Rate 1 Coin" {dpoke 0xc2b8 1;poke 0xc2b9 0;dpoke 0xc2ba 1;dpoke 0xc2bb 0}
+	"Stats: Wit's Stars For Jumping" {dpoke 0xc2b2 2}
+	"Stats: Wit's Stars For Speed" {dpoke 0xc2b1 4}
 }
 
 create_trainer "Tritorn" {time 1} {
@@ -6488,33 +6488,33 @@ create_trainer "Vaxol - Heavy Armed Storm Vehicle" {time 1} {
 }
 
 create_trainer "Vectron" {time 1} {
-	"Full Credits" {dpoke 0xd906 255;poke 0xd907 255}
-	"Full Power" {dpoke 0xd905 48}
-	"Invincible" {dpoke 0xd821 255}
-	"Item 00" {dpoke 0xd830 0}
-	"Item 00 X99" {dpoke 0xd831 153}
-	"Item 01" {dpoke 0xd832 1}
-	"Item 01 X99" {dpoke 0xd833 153}
-	"Item 02" {dpoke 0xd834 2}
-	"Item 02 X99" {dpoke 0xd835 153}
-	"Item 03" {dpoke 0xd836 5}
-	"Item 03 X99" {dpoke 0xd837 153}
-	"Item 04" {dpoke 0xd838 6}
-	"Item 04 X99" {dpoke 0xd839 153}
-	"Item 05" {dpoke 0xd83a 7}
-	"Item 05 X99" {dpoke 0xd83b 153}
-	"Item 06" {dpoke 0xd83c 10}
-	"Item 06 X99" {dpoke 0xd83d 153}
-	"Item 07" {dpoke 0xd83e 11}
-	"Item 07 X99" {dpoke 0xd83f 153}
-	"Item 08" {dpoke 0xd840 12}
-	"Item 08 X99" {dpoke 0xd841 153}
-	"Item 09" {dpoke 0xd842 13}
-	"Item 09 X 99" {dpoke 0xd843 153}
-	"Item 10" {dpoke 0xd844 14}
-	"Item 10 X99" {dpoke 0xd845 153}
-	"Item 11" {dpoke 0xd846 15}
-	"Item 11 X99" {dpoke 0xd847 153}
+	"Items: Item 00" {dpoke 0xd830 0}
+	"Items: Item 00 X99" {dpoke 0xd831 153}
+	"Items: Item 01" {dpoke 0xd832 1}
+	"Items: Item 01 X99" {dpoke 0xd833 153}
+	"Items: Item 02" {dpoke 0xd834 2}
+	"Items: Item 02 X99" {dpoke 0xd835 153}
+	"Items: Item 03" {dpoke 0xd836 5}
+	"Items: Item 03 X99" {dpoke 0xd837 153}
+	"Items: Item 04" {dpoke 0xd838 6}
+	"Items: Item 04 X99" {dpoke 0xd839 153}
+	"Items: Item 05" {dpoke 0xd83a 7}
+	"Items: Item 05 X99" {dpoke 0xd83b 153}
+	"Items: Item 06" {dpoke 0xd83c 10}
+	"Items: Item 06 X99" {dpoke 0xd83d 153}
+	"Items: Item 07" {dpoke 0xd83e 11}
+	"Items: Item 07 X99" {dpoke 0xd83f 153}
+	"Items: Item 08" {dpoke 0xd840 12}
+	"Items: Item 08 X99" {dpoke 0xd841 153}
+	"Items: Item 09" {dpoke 0xd842 13}
+	"Items: Item 09 X 99" {dpoke 0xd843 153}
+	"Items: Item 10" {dpoke 0xd844 14}
+	"Items: Item 10 X99" {dpoke 0xd845 153}
+	"Items: Item 11" {dpoke 0xd846 15}
+	"Items: Item 11 X99" {dpoke 0xd847 153}
+	"Money: Full Credits" {dpoke 0xd906 255;poke 0xd907 255}
+	"Power: Full Power" {dpoke 0xd905 48}
+	"Power: Invincible" {dpoke 0xd821 255}
 }
 
 create_trainer "Venom Strikes Back" {time 1} {
@@ -6612,10 +6612,10 @@ create_trainer "Won-Si-In" {time 1} {
 	"Invincible" {dpoke 0xe138 200}
 	"Lives" {dpoke 0xe130 0x99}
 	"Unlimited Power" {dpoke 0xe132 5}
-	"Weapon 1 - Small Fire" {dpoke 0xe136 0}
-	"Weapon 2 - Axe" {dpoke 0xe136 1}
-	"Weapon 3 - Boomerang" {dpoke 0xe136 2}
-	"Weapon 4 - Big Fire" {dpoke 0xe136 3}
+	"Weapon: Weapon 1 - Small Fire" {dpoke 0xe136 0}
+	"Weapon: Weapon 2 - Axe" {dpoke 0xe136 1}
+	"Weapon: Weapon 3 - Boomerang" {dpoke 0xe136 2}
+	"Weapon: Weapon 4 - Big Fire" {dpoke 0xe136 3}
 }
 
 create_trainer "Woody Poco" {time 2} {
@@ -6631,66 +6631,66 @@ create_trainer "Woody Poco" {time 2} {
 }
 
 create_trainer "Xak 1 - The Art of Visual Stage" {time 2} {
-	"Benura" {dpoke 0x1c2e 99}
-	"Blue Xak Deaple" {dpoke 0x1c34 99}
-	"Bread" {dpoke 0x1c25 99}
-	"Cloak Of Fire" {dpoke 0x1c2d 99}
-	"Cloak Of Life " {dpoke 0x1c37 99}
-	"Death Spell Scroll" {dpoke 0x1c30 99}
-	"Disintegrate Scroll" {dpoke 0x1c31 99}
-	"Dispel Magic Scroll" {dpoke 0x1c32 99}
-	"Dragon Ring" {dpoke 0x1c2a 99}
-	"Dried Meat" {dpoke 0x1c26 99}
-	"Enchanted Armor 1" {dpoke 0x1c19 99}
-	"Enchanted Armor 2" {dpoke 0x1c1a 99}
-	"Enchanted Armor 3" {dpoke 0x1c1b 99}
-	"Enchanted Armor 4" {dpoke 0x1c1c 99}
-	"Enchanted Armor 5" {dpoke 0x1c1d 99}
-	"Enchanted Armor 6" {dpoke 0x1c1e 99}
-	"Enchanted Shield 1" {dpoke 0x1c1f 99}
-	"Enchanted Shield 2" {dpoke 0x1c20 99}
-	"Enchanted Shield 3" {dpoke 0x1c21 99}
-	"Enchanted Shield 4" {dpoke 0x1c22 99}
-	"Enchanted Shield 5" {dpoke 0x1c23 99}
-	"Enchanted Shield 6" {dpoke 0x1c24 99}
-	"Enchanted Sword 1" {dpoke 0x1c13 99}
-	"Enchanted Sword 2" {dpoke 0x1c14 99}
-	"Enchanted Sword 3" {dpoke 0x1c15 99}
-	"Enchanted Sword 4" {dpoke 0x1c16 99}
-	"Enchanted Sword 5" {dpoke 0x1c17 99}
-	"Enchanted Sword 6" {dpoke 0x1c18 99}
-	"Esp Medal" {dpoke 0x1c2c 99}
-	"Exp" {dpoke 0x1c60 255;poke 0x1c61 255}
-	"Gas Mask" {dpoke 0x1c39 99}
-	"Gemil Potion" {dpoke 0x1c2b 99}
-	"Glasses" {dpoke 0x1c27 99}
-	"Gold" {dpoke 0x1c62 255;poke 0x1c63 255}
-	"Green Xak Deaple" {dpoke 0x1c35 99}
-	"Guantlet" {dpoke 0x1c28 99}
-	"Herb from the Ruins" {dpoke 0x1c42 1}
-	"Kettle With Soup" {dpoke 0x1c38 99}
-	"Key - Blue" {dpoke 0x1c3c 99}
-	"Key - Yellow " {dpoke 0x1c3b 99}
-	"Life" {dpoke 0x1c52 255;poke 0x2337 255}
-	"Lightning Scroll" {dpoke 0x1c2f 99}
-	"Medicine" {dpoke 0x1c3a 99}
-	"Medicine Room Key" {dpoke 0x1c43 1}
-	"Nill's Box" {dpoke 0x1c3d 99}
-	"Pirate Liquor" {dpoke 0x1c41 1}
-	"Protection Ring" {dpoke 0x1c29 99}
-	"Rabby" {dpoke 0x1c3e 99}
-	"Red Stone" {dpoke 0x1c40 1}
-	"Red Xak Deaple" {dpoke 0x1c36 99}
-	"Royal Crest" {dpoke 0x1c3f 1}
-	"Super Latok Mode" {dpoke 0x1fd4 1;poke 0x2473 68}
-	"Teleport Scroll" {dpoke 0x1c33 99}
-	"Treasure Key" {dpoke 0x1c44 1}
+	"Armor: Enchanted Armor 1" {dpoke 0x1c19 99}
+	"Armor: Enchanted Armor 2" {dpoke 0x1c1a 99}
+	"Armor: Enchanted Armor 3" {dpoke 0x1c1b 99}
+	"Armor: Enchanted Armor 4" {dpoke 0x1c1c 99}
+	"Armor: Enchanted Armor 5" {dpoke 0x1c1d 99}
+	"Armor: Enchanted Armor 6" {dpoke 0x1c1e 99}
+	"Deaple: Blue Xak Deaple" {dpoke 0x1c34 99}
+	"Deaple: Green Xak Deaple" {dpoke 0x1c35 99}
+	"Deaple: Red Xak Deaple" {dpoke 0x1c36 99}
+	"Debug Mode: Super Latok Mode" {dpoke 0x1fd4 1;poke 0x2473 68}
+	"Item: Benura" {dpoke 0x1c2e 99}
+	"Item: Bread" {dpoke 0x1c25 99}
+	"Item: Cloak Of Fire" {dpoke 0x1c2d 99}
+	"Item: Cloak Of Life " {dpoke 0x1c37 99}
+	"Item: Dragon Ring" {dpoke 0x1c2a 99}
+	"Item: Dried Meat" {dpoke 0x1c26 99}
+	"Item: Esp Medal" {dpoke 0x1c2c 99}
+	"Item: Gas Mask" {dpoke 0x1c39 99}
+	"Item: Gemil Potion" {dpoke 0x1c2b 99}
+	"Item: Glasses" {dpoke 0x1c27 99}
+	"Item: Guantlet" {dpoke 0x1c28 99}
+	"Item: Herb from the Ruins" {dpoke 0x1c42 1}
+	"Item: Kettle With Soup" {dpoke 0x1c38 99}
+	"Item: Key - Blue" {dpoke 0x1c3c 99}
+	"Item: Key - Yellow " {dpoke 0x1c3b 99}
+	"Item: Medicine" {dpoke 0x1c3a 99}
+	"Item: Medicine Room Key" {dpoke 0x1c43 1}
+	"Item: Nill's Box" {dpoke 0x1c3d 99}
+	"Item: Pirate Liquor" {dpoke 0x1c41 1}
+	"Item: Protection Ring" {dpoke 0x1c29 99}
+	"Item: Rabby" {dpoke 0x1c3e 99}
+	"Item: Red Stone" {dpoke 0x1c40 1}
+	"Item: Royal Crest" {dpoke 0x1c3f 1}
+	"Item: Treasure Key" {dpoke 0x1c44 1}
+	"Scroll: Death Spell Scroll" {dpoke 0x1c30 99}
+	"Scroll: Disintegrate Scroll" {dpoke 0x1c31 99}
+	"Scroll: Dispel Magic Scroll" {dpoke 0x1c32 99}
+	"Scroll: Lightning Scroll" {dpoke 0x1c2f 99}
+	"Scroll: Teleport Scroll" {dpoke 0x1c33 99}
+	"Shield : Enchanted Shield 1" {dpoke 0x1c1f 99}
+	"Shield : Enchanted Shield 2" {dpoke 0x1c20 99}
+	"Shield : Enchanted Shield 3" {dpoke 0x1c21 99}
+	"Shield : Enchanted Shield 4" {dpoke 0x1c22 99}
+	"Shield : Enchanted Shield 5" {dpoke 0x1c23 99}
+	"Shield : Enchanted Shield 6" {dpoke 0x1c24 99}
+	"Stats: Exp" {dpoke 0x1c60 255;poke 0x1c61 255}
+	"Stats: Gold" {dpoke 0x1c62 255;poke 0x1c63 255}
+	"Stats: Life" {dpoke 0x1c52 255;poke 0x2337 255}
+	"Weapon: Enchanted Sword 1" {dpoke 0x1c13 99}
+	"Weapon: Enchanted Sword 2" {dpoke 0x1c14 99}
+	"Weapon: Enchanted Sword 3" {dpoke 0x1c15 99}
+	"Weapon: Enchanted Sword 4" {dpoke 0x1c16 99}
+	"Weapon: Enchanted Sword 5" {dpoke 0x1c17 99}
+	"Weapon: Enchanted Sword 6" {dpoke 0x1c18 99}
 }
 
 create_trainer "Xak 2 - Rising of the red moon" {time 10} {
-	"Max Life" {dpoke 0x6dfe 255;poke 0x6dff 255}
-	"Max Out Experience" {dpoke 0x6e10 255;poke 0x6e11 255}
-	"Money" {dpoke 0x6e14 255;poke 0x6e15 255}
+	"Experience: Max Out Experience" {dpoke 0x6e10 255;poke 0x6e11 255}
+	"Life: Max Life" {dpoke 0x6dfe 255;poke 0x6dff 255}
+	"Money: Money" {dpoke 0x6e14 255;poke 0x6e15 255}
 }
 
 create_trainer "Xak 3 - The Tower of Gazel" {time 1} {
@@ -6710,40 +6710,6 @@ create_trainer "Xanadu MSX1" {time 1} {
 	"Max Hp" {dpoke 0xf036 255;poke 0xf037 255;dpoke 0xf038 99}
 	"Max Mgr" {dpoke 0xf039 255}
 	"Max Str" {dpoke 0xf040 255}
-	"Slot 1 - +2 Battle Axe" {dpoke 0xf052 10}
-	"Slot 1 - Battle Axe" {dpoke 0xf053 5}
-	"Slot 1 - Broad Sword" {dpoke 0xf054 6}
-	"Slot 1 - Dagger" {dpoke 0xf055 0}
-	"Slot 1 - Disrupt Mace" {dpoke 0xf056 14}
-	"Slot 1 - Dragon Slayer" {dpoke 0xf057 16}
-	"Slot 1 - Giant Slayer" {dpoke 0xf058 11}
-	"Slot 1 - Halbred" {dpoke 0xf059 9}
-	"Slot 1 - Hand Axe" {dpoke 0xf05a 3}
-	"Slot 1 - Lance" {dpoke 0xf05b 8}
-	"Slot 1 - Long Sword" {dpoke 0xf05c 4}
-	"Slot 1 - Luck Blade" {dpoke 0xf05d 12}
-	"Slot 1 - Morning Star" {dpoke 0xf05e 7}
-	"Slot 1 - Murasume Blade" {dpoke 0xf05f 13}
-	"Slot 1 - Short Sword" {dpoke 0xf060 1}
-	"Slot 1 - Spear" {dpoke 0xf061 2}
-	"Slot 1 - Vorpal Weapon" {dpoke 0xf062 15}
-	"Slot 2 - +2 Full Plate" {dpoke 0xf047 14}
-	"Slot 2 - +2 Leather" {dpoke 0xf047 11}
-	"Slot 2 - +2 Reflex" {dpoke 0xf047 15}
-	"Slot 2 - +2 Ring Mail" {dpoke 0xf047 13}
-	"Slot 2 - Banded Armor" {dpoke 0xf047 8}
-	"Slot 2 - Battle Suits" {dpoke 0xf047 16}
-	"Slot 2 - Chain Mail" {dpoke 0xf047 6}
-	"Slot 2 - Cloth" {dpoke 0xf047 0}
-	"Slot 2 - Full Plate" {dpoke 0xf047 10}
-	"Slot 2 - Half Plate" {dpoke 0xf047 9}
-	"Slot 2 - Leather Armor" {dpoke 0xf047 1}
-	"Slot 2 - Padded Mail" {dpoke 0xf047 2}
-	"Slot 2 - Reflex" {dpoke 0xf047 12}
-	"Slot 2 - Ring Mail" {dpoke 0xf047 4}
-	"Slot 2 - Scale Armor" {dpoke 0xf047 5}
-	"Slot 2 - Split Mail" {dpoke 0xf047 7}
-	"Slot 2 - Studded Mail" {dpoke 0xf047 3}
 	"Slot 3 - Corrosion" {dpoke 0xf049 10}
 	"Slot 3 - Death" {dpoke 0xf049 16}
 	"Slot 3 - Deg Corrosion" {dpoke 0xf049 14}
@@ -6762,6 +6728,40 @@ create_trainer "Xanadu MSX1" {time 1} {
 	"Slot 3 - Thunder" {dpoke 0xf049 6}
 	"Slot 3 - Tilte" {dpoke 0xf049 12}
 	"W.exp" {dpoke 0xf030 255;poke 0xf031 255;dpoke 0xf032 99}
+	"Armor: Slot 2 - +2 Full Plate" {dpoke 0xf047 14}
+	"Armor: Slot 2 - +2 Leather" {dpoke 0xf047 11}
+	"Armor: Slot 2 - +2 Reflex" {dpoke 0xf047 15}
+	"Armor: Slot 2 - +2 Ring Mail" {dpoke 0xf047 13}
+	"Armor: Slot 2 - Banded Armor" {dpoke 0xf047 8}
+	"Armor: Slot 2 - Battle Suits" {dpoke 0xf047 16}
+	"Armor: Slot 2 - Chain Mail" {dpoke 0xf047 6}
+	"Armor: Slot 2 - Cloth" {dpoke 0xf047 0}
+	"Armor: Slot 2 - Full Plate" {dpoke 0xf047 10}
+	"Armor: Slot 2 - Half Plate" {dpoke 0xf047 9}
+	"Armor: Slot 2 - Leather Armor" {dpoke 0xf047 1}
+	"Armor: Slot 2 - Padded Mail" {dpoke 0xf047 2}
+	"Armor: Slot 2 - Reflex" {dpoke 0xf047 12}
+	"Armor: Slot 2 - Ring Mail" {dpoke 0xf047 4}
+	"Armor: Slot 2 - Scale Armor" {dpoke 0xf047 5}
+	"Armor: Slot 2 - Split Mail" {dpoke 0xf047 7}
+	"Armor: Slot 2 - Studded Mail" {dpoke 0xf047 3}
+	"Weapons: Slot 1 - +2 Battle Axe" {dpoke 0xf052 10}
+	"Weapons: Slot 1 - Battle Axe" {dpoke 0xf053 5}
+	"Weapons: Slot 1 - Broad Sword" {dpoke 0xf054 6}
+	"Weapons: Slot 1 - Dagger" {dpoke 0xf055 0}
+	"Weapons: Slot 1 - Disrupt Mace" {dpoke 0xf056 14}
+	"Weapons: Slot 1 - Dragon Slayer" {dpoke 0xf057 16}
+	"Weapons: Slot 1 - Giant Slayer" {dpoke 0xf058 11}
+	"Weapons: Slot 1 - Halbred" {dpoke 0xf059 9}
+	"Weapons: Slot 1 - Hand Axe" {dpoke 0xf05a 3}
+	"Weapons: Slot 1 - Lance" {dpoke 0xf05b 8}
+	"Weapons: Slot 1 - Long Sword" {dpoke 0xf05c 4}
+	"Weapons: Slot 1 - Luck Blade" {dpoke 0xf05d 12}
+	"Weapons: Slot 1 - Morning Star" {dpoke 0xf05e 7}
+	"Weapons: Slot 1 - Murasume Blade" {dpoke 0xf05f 13}
+	"Weapons: Slot 1 - Short Sword" {dpoke 0xf060 1}
+	"Weapons: Slot 1 - Spear" {dpoke 0xf061 2}
+	"Weapons: Slot 1 - Vorpal Weapon" {dpoke 0xf062 15}
 }
 
 create_trainer "Xevious - Fardraut Saga" {time 2} {
@@ -6989,49 +6989,49 @@ create_trainer "Zambeze" {time 1} {
 }
 
 create_trainer "Zanac A.I." {time 1} {
-	"Enemy 01 Power" {dpoke 0xe3b9 1}
-	"Enemy 02 Power" {dpoke 0xe3d9 1}
-	"Enemy 03 Power" {dpoke 0xe3f9 1}
-	"Enemy 04 Power" {dpoke 0xe419 1}
-	"Enemy 05 Power" {dpoke 0xe439 1}
-	"Enemy 06 Power" {dpoke 0xe459 1}
-	"Enemy 07 Power" {dpoke 0xe479 1}
-	"Enemy 08 Power" {dpoke 0xe499 1}
-	"Enemy 09 Power" {dpoke 0xe4b9 1}
-	"Enemy 10 Power" {dpoke 0xe4d9 1}
-	"Enemy 11 Power" {dpoke 0xe4f9 1}
-	"Enemy 12 Power" {dpoke 0xe519 1}
-	"Enemy 13 Power" {dpoke 0xe539 1}
-	"Enemy 14 Power" {dpoke 0xe559 1}
-	"Enemy 15 Power" {dpoke 0xe579 1}
-	"Enemy 16 Power" {dpoke 0xe599 1}
-	"Enemy 17 Power" {dpoke 0xe5b9 1}
-	"Enemy 18 Power" {dpoke 0xe5d9 1}
-	"Enemy 19 Power" {dpoke 0xe5f9 1}
-	"Enemy 20 Power" {dpoke 0xe619 1}
 	"Invincible" {dpoke 0xe305 128;poke 0xe31b 255}
 	"Lives" {dpoke 0xe10a 99}
 	"Super Shot" {dpoke 0xe10f 48}
+	"Enemy Power: Enemy 01 Power" {dpoke 0xe3b9 1}
+	"Enemy Power: Enemy 02 Power" {dpoke 0xe3d9 1}
+	"Enemy Power: Enemy 03 Power" {dpoke 0xe3f9 1}
+	"Enemy Power: Enemy 04 Power" {dpoke 0xe419 1}
+	"Enemy Power: Enemy 05 Power" {dpoke 0xe439 1}
+	"Enemy Power: Enemy 06 Power" {dpoke 0xe459 1}
+	"Enemy Power: Enemy 07 Power" {dpoke 0xe479 1}
+	"Enemy Power: Enemy 08 Power" {dpoke 0xe499 1}
+	"Enemy Power: Enemy 09 Power" {dpoke 0xe4b9 1}
+	"Enemy Power: Enemy 10 Power" {dpoke 0xe4d9 1}
+	"Enemy Power: Enemy 11 Power" {dpoke 0xe4f9 1}
+	"Enemy Power: Enemy 12 Power" {dpoke 0xe519 1}
+	"Enemy Power: Enemy 13 Power" {dpoke 0xe539 1}
+	"Enemy Power: Enemy 14 Power" {dpoke 0xe559 1}
+	"Enemy Power: Enemy 15 Power" {dpoke 0xe579 1}
+	"Enemy Power: Enemy 16 Power" {dpoke 0xe599 1}
+	"Enemy Power: Enemy 17 Power" {dpoke 0xe5b9 1}
+	"Enemy Power: Enemy 18 Power" {dpoke 0xe5d9 1}
+	"Enemy Power: Enemy 19 Power" {dpoke 0xe5f9 1}
+	"Enemy Power: Enemy 20 Power" {dpoke 0xe619 1}
 }
 
 create_trainer "Zanac A.I. - 2nd Version" {time 1} {
-	"Enemy 01 Power" {dpoke 0xe559 1}
-	"Enemy 02 Power" {dpoke 0xe569 1}
-	"Enemy 03 Power" {dpoke 0xe579 1}
-	"Enemy 04 Power" {dpoke 0xe589 1}
-	"Enemy 05 Power" {dpoke 0xe599 1}
-	"Enemy 06 Power" {dpoke 0xe5a9 1}
-	"Enemy 07 Power" {dpoke 0xe5b9 1}
-	"Enemy 08 Power" {dpoke 0xe5c9 1}
-	"Enemy 09 Power" {dpoke 0xe5d9 1}
-	"Enemy 10 Power" {dpoke 0xe5e9 1}
-	"Enemy 11 Power" {dpoke 0xe5f9 1}
-	"Enemy 12 Power" {dpoke 0xe619 1}
-	"Enemy 13 Power" {dpoke 0xe629 1}
-	"Enemy 14 Power" {dpoke 0xe639 1}
 	"Invincible" {dpoke 0xe305 128;poke 0xe31b 255}
 	"Lives" {dpoke 0xe10a 99}
 	"Super Shot" {dpoke 0xe10f 48}
+	"Enemy Power: Enemy 01 Power" {dpoke 0xe559 1}
+	"Enemy Power: Enemy 02 Power" {dpoke 0xe569 1}
+	"Enemy Power: Enemy 03 Power" {dpoke 0xe579 1}
+	"Enemy Power: Enemy 04 Power" {dpoke 0xe589 1}
+	"Enemy Power: Enemy 05 Power" {dpoke 0xe599 1}
+	"Enemy Power: Enemy 06 Power" {dpoke 0xe5a9 1}
+	"Enemy Power: Enemy 07 Power" {dpoke 0xe5b9 1}
+	"Enemy Power: Enemy 08 Power" {dpoke 0xe5c9 1}
+	"Enemy Power: Enemy 09 Power" {dpoke 0xe5d9 1}
+	"Enemy Power: Enemy 10 Power" {dpoke 0xe5e9 1}
+	"Enemy Power: Enemy 11 Power" {dpoke 0xe5f9 1}
+	"Enemy Power: Enemy 12 Power" {dpoke 0xe619 1}
+	"Enemy Power: Enemy 13 Power" {dpoke 0xe629 1}
+	"Enemy Power: Enemy 14 Power" {dpoke 0xe639 1}
 }
 
 create_trainer "Zanac-Ex" {time 1} {
@@ -7071,11 +7071,11 @@ create_trainer "Zombie Hunter" {time 1} {
 }
 
 create_trainer "Zone Terra" {time 1} {
-	"1x Main Shot " {dpoke 0x57e2 0}
-	"2x Main Shot " {dpoke 0x57e2 1}
-	"3x Main Shot " {dpoke 0x57e2 2}
-	"Full Power" {dpoke 0x57af 255}
-	"Max Main Shot Speed" {dpoke 0x57e1 8}
+	"Main Shot: 1x Main Shot " {dpoke 0x57e2 0}
+	"Main Shot: 2x Main Shot " {dpoke 0x57e2 1}
+	"Main Shot: 3x Main Shot " {dpoke 0x57e2 2}
+	"Main Shot: Max Main Shot Speed" {dpoke 0x57e1 8}
+	"Power: Full Power" {dpoke 0x57af 255}
 }
 
 create_trainer "Zoo" {time 1} {
@@ -7092,4 +7092,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {dpoke 0xe062 153}
 }
 
-# File Created in : 3.659 seconds. 748 trainers -  having 5763 pokes
+# File Created in : 3.860 seconds. 748 trainers -  having 5762 pokes
