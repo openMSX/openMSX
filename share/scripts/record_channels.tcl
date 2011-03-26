@@ -182,17 +182,28 @@ proc record_channels {args} {
 		}
 	}
 
+	set retval ""
 	# actually start/stop recording
 	foreach {device channels} $device_channels {
 		foreach ch $channels {
 			set var ::${device}_ch${ch}_record
 			if {$start} {
-				set $var ${device}-ch${ch}.wav
+				set directory [file normalize $::env(OPENMSX_USER_DATA)/../soundlogs]
+				set software_section [guess_title]
+				if {$software_section ne ""} {
+					set software_section "${software_section}-"
+				}
+				set $var [file join $directory ${software_section}${device}-ch${ch}.wav]
+				append retval "Recording $device channel $ch to [set $var]...\n"
 			} else {
+				if {[set $var] ne ""} {
+					append retval "Stopped recording $device channel $ch to [set $var]...\n"
+				}
 				set $var ""
 			}
 		}
 	}
+	return $retval
 }
 
 proc do_mute_channels {device_channels state} {
