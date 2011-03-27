@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1299702228">
+<softwaredb xml:lang="en" timestamp="1301251418">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1137,6 +1137,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1983</year>
 	<country>JP</country>
 		<dump><rom><hash algo="sha1">cef76580a01cc8e16704590d0d884d7eeadaa3a8</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">5c904e7d202d9df2ff2ef9c8300f00d207670e82</hash><remark><text>Kralizec MSX2 Version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bomb Man</title>
@@ -5553,22 +5554,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d4a188a7ee514c18dc65f3c6dea7668b6cedc374</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Knightmare II - The Maze of Galious</title>
-	<genmsxid>916</genmsxid>
-	<system>MSX</system>
-	<company>Konami</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><megarom><type>ASCII8</type><hash algo="sha1">ee60e88ae409ddd93d4259b79586dacb2e5ee372</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">4d51d3c5036311392b173a576bc7d91dc9fed6cb</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">d94327745bbb865a394e31e150a6c77263ee95da</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">7a786959d8fc0b518b35341422f096dd6019468d</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">fb053becf87f12e196e00b3e153ec8029ebf1ff8</hash><remark><text>[RC-749] / Ulver full crack</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">e7273feaa30b676941b25061ef0631ec09ccdb7c</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">7d07fdf58c7a86d9f93af35a35acf2d7ded02ff1</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">0c425d8fc1ad36c9b8e248e477b1796cd62d9bed</hash><remark><text>[RC-749]</text></remark></megarom></dump>
-</software>
-<software>
 	<title xml:lang="en">Knightmare III - Shalom</title>
 	<genmsxid>946</genmsxid>
 	<system>MSX</system>
@@ -6285,6 +6270,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">06cc2eca2930d67f23568ccf77a894f475f27efe</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">0c52d589f0c8e7e778a61d7f4561f37316a5fa63</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Majyo Densetsu - Knightmare</title>
@@ -7653,7 +7639,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash><remark><text>MSX-DEV06 V1</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark><text>MSX-DEV06 V2</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5971dd9906de38ff3668e9e0330008e204f60f23</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">6287c1f05ea958e1abe86b87de073bef50977478</hash><remark><text>MSX-DEV06 V3</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6287c1f05ea958e1abe86b87de073bef50977478</hash><remark><text>MSX-DEV06 V3</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Optics</title>
@@ -10712,6 +10698,22 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash><remark><text>English / MSX-DEV05</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">The Maze of Galious - Knightmare II</title>
+	<genmsxid>916</genmsxid>
+	<system>MSX</system>
+	<company>Konami</company>
+	<year>1987</year>
+	<country>JP</country>
+		<dump><megarom><type>ASCII8</type><hash algo="sha1">ee60e88ae409ddd93d4259b79586dacb2e5ee372</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">4d51d3c5036311392b173a576bc7d91dc9fed6cb</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">d94327745bbb865a394e31e150a6c77263ee95da</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">7a786959d8fc0b518b35341422f096dd6019468d</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">fb053becf87f12e196e00b3e153ec8029ebf1ff8</hash><remark><text>[RC-749] / Ulver full crack</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">e7273feaa30b676941b25061ef0631ec09ccdb7c</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">7d07fdf58c7a86d9f93af35a35acf2d7ded02ff1</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">0c425d8fc1ad36c9b8e248e477b1796cd62d9bed</hash><remark><text>[RC-749]</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">The Three Dragon Story</title>
 	<genmsxid>3241</genmsxid>
 	<system>MSX</system>
@@ -11800,7 +11802,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>&#211;scar Toledo Guti&#233;rrez</company>
 	<year>2011</year>
 	<country>ES</country>
-		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark><text>MSXDev10 Entry</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark><text>Version 1.0 / MSXDev10 Entry</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">32c84735c30e0679733d5d1918ccec9a625c4d3b</hash><remark><text>Version 1.1 / MSXDev10 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Zoom 909</title>
@@ -11824,6 +11827,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2604
-Parse time 6.960 seconds on Wed Mar 9 21:23:55 CET 2011
+Roms in this database:2607
+Parse time 8.317 seconds on Sun Mar 27 20:43:47 CEST 2011
  -->
