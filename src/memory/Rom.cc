@@ -44,27 +44,42 @@ private:
 
 
 Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
-         const string& description_, const XMLElement& config)
-	: name(name_), description(description_)
-{
-	init(motherBoard, config.getChild("rom"));
-}
-
-Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
          const string& description_, const XMLElement& config,
-         const string& id)
+         const string& id /*= ""*/)
 	: name(name_), description(description_)
 {
+	// Try all <rom> tags with matching "id" attribute.
+	string errors;
 	XMLElement::Children romConfigs;
 	config.getChildren("rom", romConfigs);
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
-		if ((*it)->getId() == id) {
-			init(motherBoard, **it);
-			return;
+		if ((*it)->getAttribute("id", "") == id) {
+			try {
+				init(motherBoard, **it);
+				return;
+			} catch (MSXException& e) {
+				// remember error message, and try next
+				if (!errors.empty() && (*errors.rbegin() != '\n')) {
+					errors += '\n';
+				}
+				errors += e.getMessage();
+			}
 		}
 	}
-	throw ConfigException("ROM tag \"" + id + "\" missing.");
+	if (errors.empty()) {
+		// No matching <rom> tag.
+		StringOp::Builder err;
+		err << "Missing <rom> tag";
+		if (!id.empty()) {
+			err << " with id=\"" << id << '"';
+		}
+		throw ConfigException(err);
+	} else {
+		// We got at least one matching <rom>, but it failed to load.
+		// Report error messages of all failed attempts.
+		throw ConfigException(errors);
+	}
 }
 
 void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)

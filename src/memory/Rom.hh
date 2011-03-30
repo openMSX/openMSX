@@ -22,10 +22,8 @@ class Rom : private noncopyable
 {
 public:
 	Rom(MSXMotherBoard& motherBoard, const std::string& name,
-	    const std::string& description, const XMLElement& config);
-	Rom(MSXMotherBoard& motherBoard, const std::string& name,
 	    const std::string& description, const XMLElement& config,
-	    const std::string& id);
+	    const std::string& id = "");
 	virtual ~Rom();
 
 	const byte& operator[](unsigned address) const {
