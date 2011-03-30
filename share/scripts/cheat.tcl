@@ -61,6 +61,8 @@ variable translate [dict create \
 set_tabcompletion_proc findcheat [namespace code tab_cheat_type]
 
 proc tab_cheat_type {args} {
+	variable translate
+
 	set result [dict keys $translate]
 	lappend result "-start" "-max"
 	return $result
