@@ -7,6 +7,7 @@ from compilers import CompileCommand, LinkCommand
 from components import iterComponents, requiredLibrariesFor
 from configurations import getConfiguration
 from executils import captureStdout, shjoin
+from itertools import chain
 from libraries import librariesByName
 from makeutils import extractMakeVariables, parseBool
 from outpututils import rewriteIfChanged
@@ -104,6 +105,11 @@ def evaluateBackticks(log, expression):
 def normalizeWhitespace(expression):
 	return shjoin(shsplit(expression))
 
+def iterTypeTraits(result):
+	yield '#define HAVE_TYPE_TRAITS %d' % {
+		'std': 2, 'tr1': 1, 'missing': 0
+		}[result]
+
 class TargetSystem(object):
 
 	def __init__(
@@ -123,6 +129,7 @@ class TargetSystem(object):
 		self.outHeaderPath = outDir + '/systemfuncs.hh'
 		self.outVars = {}
 		self.functionResults = {}
+		self.typeTraitsResult = None
 		self.libraries = sorted(requiredLibrariesFor(
 			configuration.iterDesiredComponents()
 			))
@@ -135,6 +142,7 @@ class TargetSystem(object):
 			self.checkFunc(func)
 		for library in self.libraries:
 			self.checkLibrary(library)
+		self.checkTypeTraits()
 
 	def writeAll(self):
 		def iterVars():
@@ -152,7 +160,10 @@ class TargetSystem(object):
 
 		rewriteIfChanged(
 			self.outHeaderPath,
-			iterSystemFuncsHeader(self.functionResults)
+			chain(
+				iterSystemFuncsHeader(self.functionResults),
+				iterTypeTraits(self.typeTraitsResult)
+				)
 			)
 
 	def printResults(self):
@@ -190,6 +201,24 @@ class TargetSystem(object):
 			func.getFunctionName()
 			)
 		self.functionResults[func.getMakeName()] = ok
+
+	def checkTypeTraits(self):
+		'''Probe for <type_traits>.
+		'''
+		def testNoTR1():
+			yield '#include <type_traits>'
+			yield 'const bool value = std::is_abstract<int>::value;'
+		def testTR1():
+			yield '#include <tr1/type_traits>'
+			yield 'const bool value = std::tr1::is_abstract<int>::value;'
+		compileCommand = CompileCommand.fromLine(self.compileCommandStr, '')
+		outPath = self.outDir + '/type_traits.cc'
+		if tryCompile(self.log, compileCommand, outPath, testNoTR1()):
+			self.typeTraitsResult = 'std'
+		elif tryCompile(self.log, compileCommand, outPath, testTR1()):
+			self.typeTraitsResult = 'tr1'
+		else:
+			self.typeTraitsResult = 'missing'
 
 	def checkLibrary(self, makeName):
 		library = librariesByName[makeName]

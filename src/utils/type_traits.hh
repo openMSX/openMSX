@@ -4,11 +4,13 @@
 #define TYPE_TRAITS_HH
 
 #include "static_assert.hh"
+#include "systemfuncs.hh"
 #include <string>
 
-#if __GNUC__ >= 4
-// tr1 library was added in gcc-4.0
+#if HAVE_TYPE_TRAITS == 1
 #include <tr1/type_traits>
+#elif HAVE_TYPE_TRAITS == 2
+#include <type_traits>
 #endif
 
 
@@ -75,7 +77,9 @@ template<typename T> struct is_polymorphic
 // is_abstract<T>
 template<typename T> struct is_abstract
 {
-#if __GNUC__ >= 4
+#if HAVE_TYPE_TRAITS == 2
+	static const bool value = std::is_abstract<T>::value;
+#elif HAVE_TYPE_TRAITS == 1
 	// The implementation below doesn't work on arm-gcc (for some unknown
 	// reason). However the version in the tr1 library does work, so we
 	// use that if it's available (gcc started shipping this library from
