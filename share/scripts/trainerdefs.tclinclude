@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2011/03/27
+# Updated @ 2011/04/03
 #
 
 
@@ -6144,76 +6144,78 @@ create_trainer "Tetris" {time 1} {
 }
 
 create_trainer "The Maze of Galious - Knightmare II" {time 1} {
-	"Active Weapon - Arrow" {dpoke 0xe510 1}
-	"Active Weapon - Ceramic Arrow" {dpoke 0xe510 2}
-	"Active Weapon - Fire" {dpoke 0xe510 3}
-	"Active Weapon - Magnifying Glass" {dpoke 0xe510 6}
-	"Active Weapon - Mine" {dpoke 0xe510 5}
-	"Active Weapon - Nothing" {dpoke 0xe510 0}
-	"Active Weapon - Rolling Fire" {dpoke 0xe510 4}
-	"All Combos With Konami Carts" {dpoke 0xf0f8 255}
-	"Aphrodite" {dpoke 0xe052 255;poke 0xe053 255}
-	"Armor" {dpoke 0xe086 1}
-	"Arrows" {dpoke 0xe046 153;poke 0xe047 9;dpoke 0xe070 1}
-	"Bell" {dpoke 0xe083 1}
-	"Bible" {dpoke 0xe08f 1}
-	"Bible (ctrl) Uses Left" {dpoke 0xe531 255}
-	"Boots" {dpoke 0xe080 1}
-	"Bracelet" {dpoke 0xe08d 1}
-	"Bread And Water" {dpoke 0xe098 1}
-	"Candle" {dpoke 0xe085 1}
-	"Carpet" {dpoke 0xe087 1}
-	"Ceramic Arrows" {dpoke 0xe071 1}
-	"Coin" {dpoke 0xe048 153;poke 0xe049 9}
-	"Cross" {dpoke 0xe07a 1}
-	"Crown" {dpoke 0xe07d 1}
-	"Dagger" {dpoke 0xe095 1}
-	"Decorative Doll" {dpoke 0xe081 1}
-	"Earrings" {dpoke 0xe08c 1}
-	"Feather" {dpoke 0xe096 1}
-	"Fire" {dpoke 0xe073 1}
-	"Halo" {dpoke 0xe084 1}
-	"Harp" {dpoke 0xe090 1}
-	"Helm" {dpoke 0xe07e 1}
-	"Helmet" {dpoke 0xe088 1}
-	"Invulnerable" {dpoke 0xe518 1}
-	"Keys" {dpoke 0xe04a 153;poke 0xe04b 9}
-	"Lamp" {dpoke 0xe089 1}
-	"Magnifying Glass" {dpoke 0xe075 1}
-	"Max Exp" {dpoke 0xe051 1;poke 0xe055 1}
-	"Mine" {dpoke 0xe074 255}
-	"Necklace" {dpoke 0xe07c 1}
-	"Oar" {dpoke 0xe07f 1}
-	"Pendant" {dpoke 0xe08b 1}
-	"Pitcher" {dpoke 0xe093 1}
-	"Ring" {dpoke 0xe08e 1}
-	"Robe" {dpoke 0xe082 1}
-	"Rolling Fire" {dpoke 0xe072 1}
-	"Sabre" {dpoke 0xe094 1}
-	"Salt" {dpoke 0xe099 1}
-	"Screen Stays Frozen For As Long As You Are In That Screen" {dpoke 0xe0d6 64}
-	"Shield" {dpoke 0xe097 3}
-	"Triangle" {dpoke 0xe091 1}
-	"Trumpet Shell" {dpoke 0xe092 1}
-	"Use Bible Until Kingdom Come" {dpoke 0xe531 1}
-	"Vase" {dpoke 0xe08a 1}
-	"Vitality Popolon" {dpoke 0xe056 255;poke 0xe057 255}
-	"World 1 Items" {dpoke 0xe063 240}
-	"World 10 Activator (must Activate) If Using World 10 S" {dpoke 0xe06d 1}
-	"World 10 Items" {dpoke 0xe06c 224}
-	"World 10 Location At Start" {dpoke 0xe06e 3}
-	"World 10 Location Left Tower" {dpoke 0xe06e 2}
-	"World 10 Location Middle Tower" {dpoke 0xe06e 0}
-	"World 10 Location Right Tower" {dpoke 0xe06e 1}
-	"World 2 Items" {dpoke 0xe064 240}
-	"World 3 Items" {dpoke 0xe065 240}
-	"World 4 Items" {dpoke 0xe066 240}
-	"World 5 Items" {dpoke 0xe067 240}
-	"World 6 Items" {dpoke 0xe068 240}
-	"World 7 Items" {dpoke 0xe069 240}
-	"World 8 Items" {dpoke 0xe06a 240}
-	"World 9 Items" {dpoke 0xe06b 240}
-	"Zeus Cheat" {dpoke 0xe027 1}
+	"Items: Armor" {dpoke 0xe086 1}
+	"Items: Bell" {dpoke 0xe083 1}
+	"Items: Bible" {dpoke 0xe08f 1}
+	"Items: Boots" {dpoke 0xe080 1}
+	"Items: Bracelet" {dpoke 0xe08d 1}
+	"Items: Bread And Water" {dpoke 0xe098 1}
+	"Items: Candle" {dpoke 0xe085 1}
+	"Items: Carpet" {dpoke 0xe087 1}
+	"Items: Cross" {dpoke 0xe07a 1}
+	"Items: Crown" {dpoke 0xe07d 1}
+	"Items: Dagger" {dpoke 0xe095 1}
+	"Items: Decorative Doll" {dpoke 0xe081 1}
+	"Items: Earrings" {dpoke 0xe08c 1}
+	"Items: Feather" {dpoke 0xe096 1}
+	"Items: Halo" {dpoke 0xe084 1}
+	"Items: Harp" {dpoke 0xe090 1}
+	"Items: Helm" {dpoke 0xe07e 1}
+	"Items: Helmet" {dpoke 0xe088 1}
+	"Items: Invulnerable" {dpoke 0xe518 1}
+	"Items: Lamp" {dpoke 0xe089 1}
+	"Items: Magnifying Glass" {dpoke 0xe075 1}
+	"Items: Necklace" {dpoke 0xe07c 1}
+	"Items: Oar" {dpoke 0xe07f 1}
+	"Items: Pendant" {dpoke 0xe08b 1}
+	"Items: Pitcher" {dpoke 0xe093 1}
+	"Items: Ring" {dpoke 0xe08e 1}
+	"Items: Robe" {dpoke 0xe082 1}
+	"Items: Sabre" {dpoke 0xe094 1}
+	"Items: Salt" {dpoke 0xe099 1}
+	"Items: Shield" {dpoke 0xe097 3}
+	"Items: Triangle" {dpoke 0xe091 1}
+	"Items: Trumpet Shell" {dpoke 0xe092 1}
+	"Items: Vase" {dpoke 0xe08a 1}
+	"Items: World 01 Items" {dpoke 0xe063 240}
+	"Items: World 02 Items" {dpoke 0xe064 240}
+	"Items: World 03 Items" {dpoke 0xe065 240}
+	"Items: World 04 Items" {dpoke 0xe066 240}
+	"Items: World 05 Items" {dpoke 0xe067 240}
+	"Items: World 06 Items" {dpoke 0xe068 240}
+	"Items: World 07 Items" {dpoke 0xe069 240}
+	"Items: World 08 Items" {dpoke 0xe06a 240}
+	"Items: World 09 Items" {dpoke 0xe06b 240}
+	"Items: World 10 Items" {dpoke 0xe06c 224}
+	"Misc: All Combos With Konami Carts" {dpoke 0xf0f8 255}
+	"Misc: Bible (ctrl) Uses Left" {dpoke 0xe531 255}
+	"Misc: Fall Down When Hit" {dpoke 0xe50b 1}
+	"Misc: Screen Stays Frozen" {dpoke 0xe0d6 64}
+	"Misc: Unlimited Bible Uses" {dpoke 0xe531 1}
+	"Misc: Zeus Cheat" {dpoke 0xe027 1}
+	"Stats: Arrows" {dpoke 0xe046 153;poke 0xe047 9}
+	"Stats: Coins" {dpoke 0xe048 153;poke 0xe049 9}
+	"Stats: Keys" {dpoke 0xe04a 153;poke 0xe04b 9}
+	"Stats: Max Exp" {dpoke 0xe051 1;poke 0xe055 1}
+	"Stats: Vitality Aphrodite" {dpoke 0xe052 255;poke 0xe053 255}
+	"Stats: Vitality Popolon" {dpoke 0xe056 255;poke 0xe057 255}
+	"Weapon Active: Arrow" {dpoke 0xe510 1}
+	"Weapon Active: Ceramic Arrow" {dpoke 0xe510 2}
+	"Weapon Active: Fire" {dpoke 0xe510 3}
+	"Weapon Active: Magnifying Glass" {dpoke 0xe510 6}
+	"Weapon Active: Mine" {dpoke 0xe510 5}
+	"Weapon Active: Nothing" {dpoke 0xe510 0}
+	"Weapon Active: Rolling Fire" {dpoke 0xe510 4}
+	"Weapons: Arrows" {dpoke 0xe070 1}
+	"Weapons: Ceramic Arrows" {dpoke 0xe071 1}
+	"Weapons: Fire" {dpoke 0xe073 1}
+	"Weapons: Mine" {dpoke 0xe074 255}
+	"Weapons: Rolling Fire" {dpoke 0xe072 1}
+	"World 10 location: Location At Start" {dpoke 0xe06e 3}
+	"World 10 location: Location Left Tower" {dpoke 0xe06e 2}
+	"World 10 location: Location Middle Tower" {dpoke 0xe06e 0}
+	"World 10 location: Location Right Tower" {dpoke 0xe06e 1}
+	"World 10 location: World 10 Activator" {dpoke 0xe06d 1}
 }
 
 create_trainer "Theseus" {time 1} {
@@ -7093,4 +7095,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Something Else" {dpoke 0xe062 153}
 }
 
-# File Created in : 4.479 seconds. 748 trainers -  having 5762 pokes
+# File Created in : 3.439 seconds. 748 trainers -  having 5763 pokes
