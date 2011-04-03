@@ -55,11 +55,11 @@ proc get_volume_expr {soundchip channel} {
 			set regs "\"${soundchip} regs\""
 			set vol_expr "(\[debug read $regs [expr {$channel + 0x30}]\] & 0x0F)"
 			set keyon_expr "(\[debug read $regs [expr {$channel + 0x20}]\] & 0x10)"
-			set music_mode_expr "{$keyon_expr ? ((15 - $vol_expr) / 15.0) : 0.0}"
+			set music_mode_expr "$keyon_expr ? ((15 - $vol_expr) / 15.0) : 0.0"
 			set rhythm_expr "\[debug read $regs 0x0E\]"
 			if {$channel < 6} {
 				# always melody channel
-				return "expr $music_mode_expr"
+				return "expr {$music_mode_expr}"
 			} elseif {$channel < 9} {
 				# melody channel when not in rhythm mode
 				return "expr {($rhythm_expr & 0x20) ? 0.0 : $music_mode_expr}"
