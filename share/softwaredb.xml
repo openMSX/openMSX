@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1301251418">
+<softwaredb xml:lang="en" timestamp="1302060549">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6271,6 +6271,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">06cc2eca2930d67f23568ccf77a894f475f27efe</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">0c52d589f0c8e7e778a61d7f4561f37316a5fa63</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">061aa9a046ba457a3743482a9a1af314c8019913</hash><remark><text>MultiROM version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Majyo Densetsu - Knightmare</title>
@@ -6827,6 +6828,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash><remark><text>Spanish Version - Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">1c238009e77c5536d0059631954c2c4a52527283</hash><remark><text>English Version - Push 0 to use SCC / MSX-DEV06</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">ca45da2f9cd8edf4ab04ffd542b9c60ef6a9a254</hash><remark><text>Push 0 to use SCC / MSX-DEV06 (Spanish Version)</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>ASCII8</type><hash algo="sha1">8e125216f162012731b1c2bad835d9c0dda185fa</hash><remark><text>Extended edition</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Monster&#39;s Fair</title>
@@ -7640,6 +7642,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash><remark><text>MSX-DEV06 V2</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5971dd9906de38ff3668e9e0330008e204f60f23</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">6287c1f05ea958e1abe86b87de073bef50977478</hash><remark><text>MSX-DEV06 V3</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">d2de46235b396fe84b6331f3fa4ddfef6a6e88fa</hash><remark><text>MultiROM version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Optics</title>
@@ -9359,6 +9362,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">16351e6a7d7fc38c23b54ee15ac6f0275621ba96</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">SHM</title>
+	<genmsxid>3490</genmsxid>
+	<system>MSX</system>
+	<company>NAMCO</company>
+	<year>1989</year>
+	<country>JP</country>
+		<dump><megarom><type>ASCII8</type><hash algo="sha1">cadb57400c45135f15b2709ddcc897aedfb7aec3</hash></megarom></dump>
+		<dump><megarom><type>GenericKonami</type><hash algo="sha1">c74325fbeaa7293b46766c99a2dd8bd57db3a7e9</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Shougi Meijin</title>
@@ -11827,6 +11840,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2607
-Parse time 8.317 seconds on Sun Mar 27 20:43:47 CEST 2011
+Roms in this database:2612
+Parse time 7.192 seconds on Wed Apr 6 5:29:17 CEST 2011
  -->
