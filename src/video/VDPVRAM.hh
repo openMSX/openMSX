@@ -244,7 +244,7 @@ public:
 	  */
 	inline byte readPlanar(unsigned index) const {
 		assert(isEnabled());
-		index = ((index << 16) | (index >> 1)) & 0x1FFFF;
+		index = ((index & 1) << 16) | ((index & 0x1FFFE) >> 1);
 		unsigned addr = effectiveBaseMask & index;
 		return data[addr];
 	}
