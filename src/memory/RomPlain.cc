@@ -42,7 +42,7 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	unsigned romBase = (start == -1)
 	                 ? guessLocation(windowBase, windowSize)
-	                 : start;
+	                 : unsigned(start);
 	if ((start == -1) &&
 	    (!isInside(romBase,               windowBase, windowSize) ||
 	     !isInside(romBase + romSize - 1, windowBase, windowSize))) {
