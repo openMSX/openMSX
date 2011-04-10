@@ -25,7 +25,7 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 			"WavData error: " << SDL_GetError());
 	}
 
-	freq = (wantedFreq == 0) ? wavSpec.freq : wantedFreq;
+	freq = (wantedFreq == 0) ? unsigned(wavSpec.freq) : wantedFreq;
 	bits = (wantedBits == 0) ? (is8Bit(wavSpec.format) ? 8 : 16)
 	                         : wantedBits;
 	channels = wavSpec.channels;
