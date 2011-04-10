@@ -308,6 +308,14 @@ LINK_FLAGS+=$(TARGET_FLAGS)
 CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
+ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
+  # Clang does support -Wunused-macros, but it triggers on SDL's headers,
+  # causing way too many false positives that we cannot fix.
+  COMPILE_FLAGS+=-Wall -Wextra -Wundef
+  CC:=$(subst clang++,clang,$(CXX))
+  LD:=ld
+  DEPEND_FLAGS+=-MP
+else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
@@ -365,6 +373,7 @@ else
   else
     $(warning Unsupported compiler: $(CXX), please update Makefile)
   endif
+endif
 endif
 # Check if ccache usage was requested
 ifeq ($(USE_CCACHE),true)
