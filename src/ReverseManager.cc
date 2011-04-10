@@ -506,7 +506,10 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// determine which extra snapshots to put in the replay
 	const EmuTime& startTime = chunks.begin()->second.time;
-	const EmuTime& endTime   = chunks.rbegin()->second.time;
+	// The code below works around what seems to be a bug in libc++:
+	// on the original code we get a compile error.
+	//const EmuTime& endTime   = chunks.rbegin()->second.time;
+	const EmuTime& endTime   = (*chunks.rbegin()).second.time;
 	EmuDuration totalLength = endTime - startTime;
 	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
 	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
