@@ -1420,8 +1420,12 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 		engine.clock += delta;
 		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, 0); // TODO optimize
-		tmp <<= Mode::BITS_PER_PIXEL;
-		tmp |= src;
+		if (Mode::BITS_PER_PIXEL == 16) {
+			tmp = src;
+		} else {
+			tmp <<= Mode::BITS_PER_PIXEL;
+			tmp |= src;
+		}
 		engine.bitsLeft -= Mode::BITS_PER_PIXEL;
 		if (!engine.bitsLeft) {
 			vram.writeVRAMBx(engine.dstAddress++, tmp & 0xFF);
