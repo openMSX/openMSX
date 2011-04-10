@@ -2001,8 +2001,8 @@ void VDPCmdEngine::reportVdpCommand()
 	std::cerr << "VDPCmd " << COMMANDS[CMD >> 4] << '-' << OPS[CMD & 15]
 		<<  '(' << int(SX) << ',' << int(SY) << ")->("
 		        << int(DX) << ',' << int(DY) << ")," << int(COL)
-		<< " [" << int((ARG & DIX) ? -signed(NX) : NX)
-		<<  ',' << int((ARG & DIY) ? -signed(NY) : NY) << ']' << std::endl;
+		<< " [" << int((ARG & DIX) ? -int(NX) : int(NX))
+		<<  ',' << int((ARG & DIY) ? -int(NY) : int(NY)) << ']' << std::endl;
 }
 
 void VDPCmdEngine::commandDone(EmuTime::param time)
