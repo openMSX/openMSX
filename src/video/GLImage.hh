@@ -20,7 +20,7 @@ public:
 	GLImage(const std::string& filename, int width, int height);
 	GLImage(int width, int height, unsigned rgba);
 	GLImage(int width, int height, const unsigned* rgba,
-	        unsigned borderSize, unsigned borderRGBA);
+	        int borderSize, unsigned borderRGBA);
 	virtual ~GLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,
@@ -33,7 +33,7 @@ private:
 	int width;
 	int height;
 	GLfloat texCoord[4];
-	unsigned borderSize;
+	int borderSize;
 	int a[4], borderA;
 	byte r[4], g[4], b[4];
 	byte borderR, borderG, borderB;

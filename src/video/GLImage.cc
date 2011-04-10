@@ -104,7 +104,7 @@ GLImage::GLImage(int width_, int height_, unsigned rgba)
 }
 
 GLImage::GLImage(int width_, int height_, const unsigned* rgba,
-                 unsigned borderSize_, unsigned borderRGBA)
+                 int borderSize_, unsigned borderRGBA)
 {
 	checkSize(width_, height_);
 	texture = 0;
@@ -154,8 +154,8 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 		glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
 		glEnd();
 	} else {
-		bool onlyBorder = ((2 * borderSize) >= unsigned(abs(width ))) ||
-		                  ((2 * borderSize) >= unsigned(abs(height)));
+		bool onlyBorder = (2 * borderSize >= abs(width )) ||
+		                  (2 * borderSize >= abs(height));
 		if (onlyBorder) {
 			glBegin(GL_QUADS);
 			glColor4ub(borderR, borderG, borderB,
@@ -167,8 +167,8 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			glEnd();
 		} else {
 			// interior
-			int bx = (width  > 0) ? borderSize : -int(borderSize);
-			int by = (height > 0) ? borderSize : -int(borderSize);
+			int bx = (width  > 0) ? borderSize : -borderSize;
+			int by = (height > 0) ? borderSize : -borderSize;
 			glBegin(GL_QUADS);
 			glColor4ub(r[0], g[0], b[0], (a[0] * alpha) / 256);
 			glVertex2i(x + bx,         y + by        );
