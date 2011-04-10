@@ -61,6 +61,8 @@ Tcl_ChannelType Interpreter::channelType = {
 	NULL,			 // Tcl_DriverFlushProc
 	NULL,			 // Tcl_DriverHandlerProc
 	NULL,			 // Tcl_DriverWideSeekProc
+	NULL,			 // Tcl_DriverThreadActionProc
+	NULL,			 // Tcl_DriverTruncateProc
 };
 
 void Interpreter::init(const char* programName)
