@@ -265,7 +265,7 @@ inline Pixel PixelOperations<Pixel>::avgDown(Pixel p1, Pixel p2) const
 	// Average can be calculated as:
 	//    floor((x + y) / 2.0) = (x & y) + (x ^ y) / 2
 	// see "Average of Integers" on http://aggregate.org/MAGIC/
-	Pixel mask = (sizeof(Pixel) == 4) ? 0xFEFEFEFE : blendMask;
+	Pixel mask = (sizeof(Pixel) == 4) ? Pixel(0xFEFEFEFE) : blendMask;
 	return (p1 & p2) + (((p1 ^ p2) & mask) >> 1);
 }
 template<typename Pixel>
@@ -273,7 +273,7 @@ inline Pixel PixelOperations<Pixel>::avgUp(Pixel p1, Pixel p2) const
 {
 	// Similar to above, but rounds up
 	//    ceil((x + y) / 2.0) = (x | y) - (x ^ y) / 2
-	Pixel mask = (sizeof(Pixel) == 4) ? 0xFEFEFEFE : blendMask;
+	Pixel mask = (sizeof(Pixel) == 4) ? Pixel(0xFEFEFEFE) : blendMask;
 	return (p1 | p2) - (((p1 ^ p2) & mask) >> 1);
 }
 
