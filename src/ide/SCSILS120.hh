@@ -85,7 +85,7 @@ private:
 	std::auto_ptr<LSXCommand> lsxCommand;
 	std::string name;
 	const int mode;
-	int keycode;           // Sense key, ASC, ASCQ
+	unsigned keycode;      // Sense key, ASC, ASCQ
 	unsigned currentSector;
 	unsigned currentLength;
 	const byte scsiId;     // SCSI ID 0..7
