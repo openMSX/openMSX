@@ -220,7 +220,7 @@ void RP5C01::updateTimeRegs(EmuTime::param time)
 			months++;
 		}
 		unsigned carryYears = (testReg & TEST_YEARS)
-		                    ? elapsed : months / 12;
+		                    ? elapsed : unsigned(months / 12);
 		years    += carryYears;
 		leapYear += carryYears;
 
