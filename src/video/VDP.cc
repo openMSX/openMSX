@@ -367,7 +367,7 @@ void VDP::resetInit()
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
 	displayEnabled = false;
-	superimposing = false;
+	superimposing = NULL;
 	externalVideo = NULL;
 
 	// Init status registers.
