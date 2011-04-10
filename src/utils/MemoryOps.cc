@@ -456,14 +456,14 @@ template struct MemSet2<unsigned, false>;
 // see comment in V9990BitmapConverter
 STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
 #else
-template<> class MemSet <GLUtil::NoExpansion, true > {};
-template<> class MemSet <GLUtil::NoExpansion, false> {};
-template<> class MemSet2<GLUtil::NoExpansion, true > {};
-template<> class MemSet2<GLUtil::NoExpansion, false> {};
-template class MemSet <GLUtil::ExpandGL, true >;
-template class MemSet <GLUtil::ExpandGL, false>;
-template class MemSet2<GLUtil::ExpandGL, true >;
-template class MemSet2<GLUtil::ExpandGL, false>;
+template<> struct MemSet <GLUtil::NoExpansion, true > {};
+template<> struct MemSet <GLUtil::NoExpansion, false> {};
+template<> struct MemSet2<GLUtil::NoExpansion, true > {};
+template<> struct MemSet2<GLUtil::NoExpansion, false> {};
+template struct MemSet <GLUtil::ExpandGL, true >;
+template struct MemSet <GLUtil::ExpandGL, false>;
+template struct MemSet2<GLUtil::ExpandGL, true >;
+template struct MemSet2<GLUtil::ExpandGL, false>;
 #endif
 #endif // COMPONENT_GL
 
