@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1302060549">
+<softwaredb xml:lang="en" timestamp="1302462253">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -894,6 +894,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">9b58c70b976ca1d841185de862e7d663ec9db56b</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Battle Colonies</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">8379dfd36f2b3b686f9aa5c2c800a47a347a0f46</hash><remark><text>unfinished game</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Battle Cross</title>
 	<genmsxid>271</genmsxid>
 	<system>MSX</system>
@@ -1405,6 +1413,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="false">translated</original><rom><hash algo="sha1">01b506cfecb366f7e00bcabb717e86e8974c02a2</hash><remark><text>[tr En]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">613c741535c92dfb01afec4135ef8ebddb49f999</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Bust a Move</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">59ee15e914910314781c69cd58c91e6c45625733</hash><remark><text>unfinished game</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Butamaru Pants</title>
@@ -3331,6 +3347,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d086280dea7fb10fabaae26ed9d404bbe69c70c4</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Final Race</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2005</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6ca349d1ba2fc90c17a57fa01a337fdea7acfd9d</hash><remark><text>unfinished game</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Final Zone Wolf</title>
@@ -6484,6 +6508,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">778472f9113eb6a80144cc717151eb48474b9d34</hash><remark><text>Version 1.0</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Mega Twince</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2005</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">1ef558c7e8e96f7c649110901ab8c86b3f7c68b6</hash><remark><text>unfinished game</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Megalopolis SOS</title>
 	<genmsxid>78</genmsxid>
 	<system>MSX</system>
@@ -6817,6 +6849,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e61f407e51ea4411145e236272842bdb3e0743e6</hash><remark><text>[RC-702] / [a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6fefe304cc8cd099456bbbbbcb23ff776cb113c9</hash><remark><text>[RC-702] / [a2]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">e0d84b3b2ac7675c3ed104797840d43bc2347a5b</hash><remark><text>[RC-702]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Monster Bash</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2005</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">76bc839b786d67081471790268ecacbb3e33e3f3</hash><remark><text>unfinished game</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Monster Hunter</title>
@@ -7631,6 +7671,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">fa4f31ba6d0d9ac821592a8bb224dad390fae0c4</hash><remark><text>[b]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">c4c49d01eca572ce2e35d91453270f4d3e27152e</hash><remark><text>[b][u]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5b53794d3d73df29cbcec411c0f65e9e9898977f</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Operation Crossbow</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">4ac0b569ddd4ea74d5eef4f4574e5ef9759f66c3</hash><remark><text>unfinished game</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Operation Wolf</title>
@@ -8649,6 +8697,16 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">1efcf9e9a8ea38bad319a70a5f7319e2589d4a8b</hash><remark><text>hacked by RicBit / hacked by RicBit</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">1a90b7c7f24bb7fa93c84bde2d1b655e30c4a7cb</hash><remark><text>hacked by RicBit / h RicBit</text></remark></rom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">441dacb74a47ca4b7d1ce47300d182bc7424ffac</hash><remark><text>Alternative Intro</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Rapid Burst</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2004</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">57cdb8c1a9ba733cf62dbe00333aa0343297c76f</hash><remark><text>unfinished game</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">2bea430e0a74ea88c7d49fe1dd1fc5a8bb0dc7b0</hash><remark><text>unfinished game (PSG Music)</text></remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">2e4c9e5a8fbdc747122ff2991a557042fc5d2ad8</hash><remark><text>unfinished game (SCC Music)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Rastan Saga</title>
@@ -11508,6 +11566,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">1c4e9d38a8f57212dbf12f7aaba6549683b93ed4</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Xphere</title>
+	<system>MSX</system>
+	<company>Karoshi Corporation</company>
+	<year>2007</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">810ea313fffaefacde167c0c75e82494245d29dc</hash><remark><text>unfinished game</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Xyxolog</title>
 	<genmsxid>485</genmsxid>
 	<system>MSX</system>
@@ -11840,6 +11906,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2612
-Parse time 7.192 seconds on Wed Apr 6 5:29:17 CEST 2011
+Roms in this database:2622
+Parse time 6.991 seconds on Sun Apr 10 21:04:20 CEST 2011
  -->
