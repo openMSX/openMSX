@@ -103,8 +103,8 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 
 unsigned SDLSoundDriver::getBufferFilled() const
 {
-	int tmp = writeIdx - readIdx;
-	int result = (0 <= tmp) ? tmp : tmp + bufferSize;
+	int result = writeIdx - readIdx;
+	if (result < 0) result += bufferSize;
 	assert((0 <= result) && (unsigned(result) < bufferSize));
 	return result;
 }
