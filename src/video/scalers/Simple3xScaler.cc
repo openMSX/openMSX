@@ -327,7 +327,9 @@ void Blur_1on3<Pixel>::operator()(
 	 *      curr = next;
 	 *  }
 	 */
-	#if ASM_X86
+	// Skip the inline assembly when using Clang, since it triggers a bug.
+	//   http://llvm.org/bugs/show_bug.cgi?id=9671
+	#if ASM_X86 && !defined(__clang__)
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
