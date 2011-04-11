@@ -327,9 +327,7 @@ void Blur_1on3<Pixel>::operator()(
 	 *      curr = next;
 	 *  }
 	 */
-	// Skip the inline assembly when using Clang, since it triggers a bug.
-	//   http://llvm.org/bugs/show_bug.cgi?id=9671
-	#if ASM_X86 && !defined(__clang__)
+	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
@@ -447,10 +445,12 @@ void Blur_1on3<Pixel>::operator()(
 			"emms;"
 
 			: "=&r" (t0), "=&r" (t1), "=&r" (t2), "=&r" (t3)
-			: [IN]   "0" (in)
-			, [OUT]  "1" (out + (dstWidth - 6))
+			// The typecasts are required to avoid a Clang bug.
+			//   http://llvm.org/bugs/show_bug.cgi?id=9671
+			: [IN]   "0" (reinterpret_cast<unsigned long>(in))
+			, [OUT]  "1" (reinterpret_cast<unsigned long>(out + (dstWidth - 6)))
 			, [Y]    "2" (-4 * (dstWidth - 6))
-			, [CNST] "3" (&c)
+			, [CNST] "3" (reinterpret_cast<unsigned long>(&c))
 			: "memory"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
