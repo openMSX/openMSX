@@ -508,6 +508,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	const EmuTime& startTime = chunks.begin()->second.time;
 	// The code below works around what seems to be a bug in libc++:
 	// on the original code we get a compile error.
+	//   http://llvm.org/bugs/show_bug.cgi?id=9672
 	//const EmuTime& endTime   = chunks.rbegin()->second.time;
 	const EmuTime& endTime   = (*chunks.rbegin()).second.time;
 	EmuDuration totalLength = endTime - startTime;
