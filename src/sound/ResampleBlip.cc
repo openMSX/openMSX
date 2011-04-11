@@ -32,7 +32,10 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	if (required > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
 #if ASM_X86
-		VLA_ALIGNED(int, buf, required * CHANNELS + std::max(3u, CHANNELS), 16);
+		// Clang will produce a link error if the length expression is put
+		// inside the macro.
+		const unsigned len = required * CHANNELS + std::max(3u, CHANNELS);
+		VLA_ALIGNED(int, buf, len, 16);
 #else
 		VLA(int, buf, required * CHANNELS + std::max(3u, CHANNELS));
 #endif
