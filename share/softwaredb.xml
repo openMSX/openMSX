@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1302462253">
+<softwaredb xml:lang="en" timestamp="1302499058">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8542,6 +8542,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>Normal</type><hash algo="sha1">1eb9f2bd558dd8ecafcde3ce61881bfa27f70f1f</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">PWND 2 - Of Je Assembly Lust</title>
+	<system>MSX</system>
+	<company>Metal Soft (Vampier)</company>
+	<year>2011</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6ac076f0c5dd09186fef2ebbee2b74221882538f</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Pyramid Warp</title>
 	<genmsxid>64</genmsxid>
 	<system>MSX</system>
@@ -11906,6 +11914,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2622
-Parse time 6.991 seconds on Sun Apr 10 21:04:20 CEST 2011
+Roms in this database:2623
+Parse time 7.144 seconds on Mon Apr 11 7:17:45 CEST 2011
  -->
