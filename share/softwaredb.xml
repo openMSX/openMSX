@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1302499058">
+<softwaredb xml:lang="en" timestamp="1302637473">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3785,6 +3785,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>19xx</year>
 	<country>KR</country>
 		<dump><megarom><type>Zemina90in1</type><hash algo="sha1">edd109e4b518c41eb30a2b6f2a492598c9a08008</hash></megarom></dump>
+		<dump><megarom><type>Zemina90in1</type><hash algo="sha1">517e2771e65fb6f2aebb3beb97bf501b61dbd1fa</hash><remark><text>bug fixed</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ganbare Goemon - Samurai</title>
@@ -11914,6 +11915,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2623
-Parse time 7.144 seconds on Mon Apr 11 7:17:45 CEST 2011
+Roms in this database:2624
+Parse time 7.094 seconds on Tue Apr 12 21:44:40 CEST 2011
  -->
