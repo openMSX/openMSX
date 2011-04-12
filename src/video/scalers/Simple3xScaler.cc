@@ -351,7 +351,8 @@ void Blur_1on3<Pixel>::operator()(
 		Blur_1on3_4_SSE(in, out, dstWidth, &c);
 		return;
 	#else
-		unsigned long t0, t1, t2, t3;
+		void *t0, *t1, *t3;
+		long t2;
 		asm volatile (
 			"pxor      %%mm0, %%mm0;"
 			"pshufw    $0,40(%[CNST]),%%mm1;"
@@ -447,10 +448,10 @@ void Blur_1on3<Pixel>::operator()(
 			: "=&r" (t0), "=&r" (t1), "=&r" (t2), "=&r" (t3)
 			// The typecasts are required to avoid a Clang bug.
 			//   http://llvm.org/bugs/show_bug.cgi?id=9671
-			: [IN]   "0" (reinterpret_cast<unsigned long>(in))
-			, [OUT]  "1" (reinterpret_cast<unsigned long>(out + (dstWidth - 6)))
+			: [IN]   "0" (in)
+			, [OUT]  "1" (static_cast<void *>(out + (dstWidth - 6)))
 			, [Y]    "2" (-4 * (dstWidth - 6))
-			, [CNST] "3" (reinterpret_cast<unsigned long>(&c))
+			, [CNST] "3" (static_cast<void *>(&c))
 			: "memory"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
