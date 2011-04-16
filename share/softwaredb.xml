@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1302637473">
+<softwaredb xml:lang="en" timestamp="1302973522">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -209,7 +209,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Daou</company>
 	<year>1991</year>
 	<country>KR</country>
-		<dump><rom><hash algo="sha1">dbac346f03950fbef81a003b4a42b2898a4e54c1</hash></rom></dump>
+		<dump><megarom><type>dooly</type><hash algo="sha1">dbac346f03950fbef81a003b4a42b2898a4e54c1</hash></megarom></dump>
 		<dump><rom><hash algo="sha1">6867a6f616c457101ee30df3d3d57ea7f8d0a14d</hash><remark><text>normal rom crack</text></remark></rom></dump>
 </software>
 <software>
@@ -11916,5 +11916,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2624
-Parse time 7.094 seconds on Tue Apr 12 21:44:40 CEST 2011
+Parse time 7.948 seconds on Sat Apr 16 19:05:30 CEST 2011
  -->
