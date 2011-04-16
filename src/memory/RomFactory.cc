@@ -40,6 +40,7 @@
 #include "RomMatraInk.hh"
 #include "RomArc.hh"
 #include "MegaFlashRomSCCPlus.hh"
+#include "RomDooly.hh"
 #include "Rom.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -338,6 +339,9 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
 		result.reset(new MegaFlashRomSCCPlus(motherBoard, config, rom));
+		break;
+	case ROM_DOOLY:
+		result.reset(new RomDooly(motherBoard, config, rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");
