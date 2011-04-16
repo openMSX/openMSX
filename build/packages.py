@@ -100,7 +100,7 @@ class GLEW(DownloadablePackage):
 		return '%s-%s.tgz' % (cls.sourceName, cls.version)
 
 class LibAO(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases'
+	downloadURL = 'http://downloads.xiph.org/releases/ao'
 	niceName = 'libao'
 	sourceName = 'libao'
 	version = '1.1.0'
