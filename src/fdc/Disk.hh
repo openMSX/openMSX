@@ -29,7 +29,7 @@ public:
 	void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 
-	bool isDoubleSided() const;
+	bool isDoubleSided();
 
 protected:
 	explicit Disk(const DiskName& name);
