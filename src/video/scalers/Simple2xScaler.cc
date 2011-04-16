@@ -24,9 +24,9 @@ Simple2xScaler<Pixel>::Simple2xScaler(
 	: Scaler2<Pixel>(pixelOps_)
 	, settings(renderSettings)
 	, pixelOps(pixelOps_)
-	, mult1(pixelOps.format)
-	, mult2(pixelOps.format)
-	, mult3(pixelOps.format)
+	, mult1(pixelOps)
+	, mult2(pixelOps)
+	, mult3(pixelOps)
 	, scanline(pixelOps)
 {
 }
@@ -508,7 +508,7 @@ void Simple2xScaler<Pixel>::scaleImage(
 		// better, but much more work to implement in software (in
 		// openGL shaders it's very easy). Maybe we can improve this
 		// later (if required at all).
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

@@ -5,9 +5,9 @@
 
 #include "openmsx.hh"
 
-struct SDL_PixelFormat;
-
 namespace openmsx {
+
+template<typename Pixel> class PixelOperations;
 
 /**
  * Helper class to perform 'pixel x scalar' calculations.
@@ -18,7 +18,7 @@ template<typename Pixel> class Multiply32;
 template<> class Multiply32<unsigned>
 {
 public:
-	explicit Multiply32(const SDL_PixelFormat* format);
+	explicit Multiply32(const PixelOperations<unsigned>& format);
 
 	inline void setFactor32(unsigned f)
 	{
@@ -49,7 +49,7 @@ template<> class Multiply32<word>
 	}
 
 public:
-	explicit Multiply32(const SDL_PixelFormat* format);
+	explicit Multiply32(const PixelOperations<word>& format);
 
 	void setFactor32(unsigned factor);
 

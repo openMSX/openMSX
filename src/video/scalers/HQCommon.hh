@@ -85,8 +85,9 @@ EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 	if (sizeof(Pixel) == 2) {
 		return EdgeHQ(0, 8, 16);
 	} else {
-		const SDL_PixelFormat& format = pixelOps.getSDLPixelFormat();
-		return EdgeHQ(format.Rshift, format.Gshift, format.Bshift);
+		return EdgeHQ(pixelOps.getRshift(),
+		              pixelOps.getGshift(),
+		              pixelOps.getBshift());
 	}
 }
 

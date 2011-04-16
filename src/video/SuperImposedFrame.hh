@@ -17,7 +17,7 @@ class SuperImposedFrame : public FrameSource
 {
 public:
 	SuperImposedFrame(const FrameSource& src, const FrameSource& super,
-	                  const SDL_PixelFormat& format);
+	                  const PixelOperations<Pixel>& pixelOps);
 
 private:
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;

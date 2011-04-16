@@ -1,15 +1,15 @@
 // $Id$
 
 #include "Multiply32.hh"
+#include "PixelOperations.hh"
 #include "build-info.hh"
 #include <cstring>
-#include <SDL.h> // TODO
 
 namespace openmsx {
 
 // class Multiply32<unsigned>
 
-Multiply32<unsigned>::Multiply32(const SDL_PixelFormat* /*format*/)
+Multiply32<unsigned>::Multiply32(const PixelOperations<unsigned>& /*pixelOps*/)
 {
 	// nothing
 }
@@ -26,26 +26,26 @@ static inline unsigned rotLeft(unsigned a, unsigned n)
 	return (a << n) | (a >> (32 - n));
 }
 
-Multiply32<word>::Multiply32(const SDL_PixelFormat* format)
+Multiply32<word>::Multiply32(const PixelOperations<word>& pixelOps)
 {
-	Rmask1 = format->Rmask;
-	Gmask1 = format->Gmask;
-	Bmask1 = format->Bmask;
+	Rmask1 = pixelOps.getRmask();
+	Gmask1 = pixelOps.getGmask();
+	Bmask1 = pixelOps.getBmask();
 
-	Rshift1 = ((2 + format->Rloss) - format->Rshift) & 31;
-	Gshift1 = ((2 + format->Gloss) - format->Gshift) & 31;
-	Bshift1 = ((2 + format->Bloss) - format->Bshift) & 31;
+	Rshift1 = ((2 + pixelOps.getRloss()) - pixelOps.getRshift()) & 31;
+	Gshift1 = ((2 + pixelOps.getGloss()) - pixelOps.getGshift()) & 31;
+	Bshift1 = ((2 + pixelOps.getBloss()) - pixelOps.getBshift()) & 31;
 
-	Rmask2 = ((1 << (2 + format->Rloss)) - 1) <<
-	                (10 + format->Rshift - 2 * (2 + format->Rloss));
-	Gmask2 = ((1 << (2 + format->Gloss)) - 1) <<
-	                (10 + format->Gshift - 2 * (2 + format->Gloss));
-	Bmask2 = ((1 << (2 + format->Bloss)) - 1) <<
-	                (10 + format->Bshift - 2 * (2 + format->Bloss));
+	Rmask2 = ((1 << (2 + pixelOps.getRloss())) - 1) <<
+	                (10 + pixelOps.getRshift() - 2 * (2 + pixelOps.getRloss()));
+	Gmask2 = ((1 << (2 + pixelOps.getGloss())) - 1) <<
+	                (10 + pixelOps.getGshift() - 2 * (2 + pixelOps.getGloss()));
+	Bmask2 = ((1 << (2 + pixelOps.getBloss())) - 1) <<
+	                (10 + pixelOps.getBshift() - 2 * (2 + pixelOps.getBloss()));
 
-	Rshift2 = (2 * (2 + format->Rloss) - format->Rshift - 10) & 31;
-	Gshift2 = (2 * (2 + format->Gloss) - format->Gshift - 10) & 31;
-	Bshift2 = (2 * (2 + format->Bloss) - format->Bshift - 10) & 31;
+	Rshift2 = (2 * (2 + pixelOps.getRloss()) - pixelOps.getRshift() - 10) & 31;
+	Gshift2 = (2 * (2 + pixelOps.getGloss()) - pixelOps.getGshift() - 10) & 31;
+	Bshift2 = (2 * (2 + pixelOps.getBloss()) - pixelOps.getBshift() - 10) & 31;
 
 	Rshift3 = (Rshift1 +  0) & 31;
 	Gshift3 = (Gshift1 + 10) & 31;

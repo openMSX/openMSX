@@ -381,7 +381,7 @@ void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* sup
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (superImpose) {
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

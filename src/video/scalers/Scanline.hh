@@ -16,13 +16,13 @@ template<typename Pixel> class Multiply;
 template<> class Multiply<word>
 {
 public:
-	explicit Multiply(const SDL_PixelFormat* format);
+	explicit Multiply(const PixelOperations<word>& pixelOps);
 	void setFactor(unsigned f);
 	inline word multiply(word p, unsigned factor) const;
 	inline word multiply(word p) const;
 	inline const word* getTable() const;
 private:
-	const SDL_PixelFormat* format;
+	const PixelOperations<word>& pixelOps;
 	unsigned factor;
 	word tab[0x10000];
 };
@@ -30,7 +30,7 @@ private:
 template<> class Multiply<unsigned>
 {
 public:
-	explicit Multiply(const SDL_PixelFormat* format);
+	explicit Multiply(const PixelOperations<unsigned>& pixelOps);
 	void setFactor(unsigned f);
 	inline unsigned multiply(unsigned p, unsigned factor) const;
 	inline unsigned multiply(unsigned p) const;

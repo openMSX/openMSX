@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Scanline.hh"
+#include "PixelOperations.hh"
 #include "HostCPU.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -11,8 +12,8 @@ namespace openmsx {
 
 // class Multiply<word>
 
-Multiply<word>::Multiply(const SDL_PixelFormat* format_)
-	: format(format_)
+Multiply<word>::Multiply(const PixelOperations<word>& pixelOps_)
+	: pixelOps(pixelOps_)
 {
 	factor = 0;
 	memset(tab, 0, sizeof(tab));
@@ -26,17 +27,17 @@ void Multiply<word>::setFactor(unsigned f)
 	factor = f;
 
 	for (unsigned p = 0; p < 0x10000; ++p) {
-		tab[p] = ((((p & format->Rmask) * f) >> 8) & format->Rmask) |
-		         ((((p & format->Gmask) * f) >> 8) & format->Gmask) |
-		         ((((p & format->Bmask) * f) >> 8) & format->Bmask);
+		tab[p] = ((((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask()) |
+		         ((((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask()) |
+		         ((((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask());
 	}
 }
 
 inline word Multiply<word>::multiply(word p, unsigned f) const
 {
-	unsigned r = (((p & format->Rmask) * f) >> 8) & format->Rmask;
-	unsigned g = (((p & format->Gmask) * f) >> 8) & format->Gmask;
-	unsigned b = (((p & format->Bmask) * f) >> 8) & format->Bmask;
+	unsigned r = (((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask();
+	unsigned g = (((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask();
+	unsigned b = (((p & pixelOps.getBmask()) * f) >> 8) & pixelOps.getBmask();
 	return r | g | b;
 }
 
@@ -53,7 +54,7 @@ inline const word* Multiply<word>::getTable() const
 
 // class Multiply<unsigned>
 
-Multiply<unsigned>::Multiply(const SDL_PixelFormat* /*format*/)
+Multiply<unsigned>::Multiply(const PixelOperations<unsigned>& /*pixelOps*/)
 {
 }
 
@@ -91,9 +92,9 @@ extern "C"
 #endif
 
 template <class Pixel>
-Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps)
-	: darkener(pixelOps.format)
-	, pixelOps(*pixelOps.format)
+Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
+	: darkener(pixelOps_)
+	, pixelOps(pixelOps_)
 {
 }
 

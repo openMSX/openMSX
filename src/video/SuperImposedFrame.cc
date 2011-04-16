@@ -11,9 +11,9 @@ namespace openmsx {
 template <typename Pixel>
 SuperImposedFrame<Pixel>::SuperImposedFrame(
 		const FrameSource& src_, const FrameSource& super_,
-		const SDL_PixelFormat& format)
-	: FrameSource(format)
-	, src(src_), super(super_), pixelOps(format)
+		const PixelOperations<Pixel>& pixelOps_)
+	: FrameSource(pixelOps_.getSDLPixelFormat())
+	, src(src_), super(super_), pixelOps(pixelOps_)
 {
 	setHeight(src.getHeight());
 }

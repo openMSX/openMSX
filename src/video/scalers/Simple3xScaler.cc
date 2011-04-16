@@ -295,10 +295,10 @@ extern "C"
 
 template <class Pixel>
 Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
-	: mult0(pixelOps.format)
-	, mult1(pixelOps.format)
-	, mult2(pixelOps.format)
-	, mult3(pixelOps.format)
+	: mult0(pixelOps)
+	, mult1(pixelOps)
+	, mult2(pixelOps)
+	, mult3(pixelOps)
 {
 }
 
@@ -522,7 +522,7 @@ void Simple3xScaler<Pixel>::scaleImage(
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (superImpose) {
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps.getSDLPixelFormat());
+		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);
