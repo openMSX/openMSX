@@ -500,6 +500,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\BooleanSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\EnumSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\FilenameSetting.cc" />
@@ -996,7 +997,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh" />
-    <None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
+	<None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
+	<None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
     <None Include="$(OpenMSXSrcDir)\settings\BooleanSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\EnumSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\FilenameSetting.hh" />
