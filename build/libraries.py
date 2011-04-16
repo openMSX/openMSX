@@ -254,6 +254,12 @@ class GLEW(Library):
 		else:
 			return flags
 
+class LibAO(Library):
+	libName = 'ao'
+	makeName = 'AO'
+	header = '<ao/ao.h>'
+	function = 'ao_open_live'
+
 class LibPNG(Library):
 	libName = 'png12'
 	makeName = 'PNG'

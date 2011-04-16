@@ -5,6 +5,7 @@
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
 #include "DirectXSoundDriver.hh"
+#include "LibAOSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "IntegerSetting.hh"
@@ -12,6 +13,7 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "unreachable.hh"
+#include "components.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -43,6 +45,9 @@ Mixer::Mixer(CommandController& commandController_)
 #ifdef _WIN32
 	soundDriverMap["directx"] = SND_DIRECTX;
 	defaultSoundDriver = SND_DIRECTX;
+#endif
+#if COMPONENT_AO
+	soundDriverMap["libao"] = SND_LIBAO;
 #endif
 
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
@@ -89,6 +94,13 @@ void Mixer::reloadDriver()
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver.reset(new DirectXSoundDriver(
+				frequencySetting->getValue(),
+				samplesSetting->getValue()));
+			break;
+#endif
+#if COMPONENT_AO
+		case SND_LIBAO:
+			driver.reset(new LibAOSoundDriver(
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));
 			break;

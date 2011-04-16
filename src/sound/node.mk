@@ -34,6 +34,9 @@ HDR_ONLY:= \
 	ResampleAlgo \
 	YM2413Core \
 
+SRC_HDR_$(COMPONENT_AO)+= \
+	LibAOSoundDriver
+
 DIST:= \
 	ResampleCoeffs.ii \
 	ResampleHQ-x64.asm \
