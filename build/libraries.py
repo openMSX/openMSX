@@ -110,7 +110,12 @@ class Library(object):
 					)
 				for name in cls.dependsOn
 				]
-			return ' '.join(flags + dependentFlags)
+			systemDependentFlags = list(cls.getSystemDependentFlags(platform))
+			return ' '.join(flags + dependentFlags + systemDependentFlags)
+
+	@classmethod
+	def getSystemDependentFlags(cls, platform):
+		return ()
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -259,6 +264,13 @@ class LibAO(Library):
 	makeName = 'AO'
 	header = '<ao/ao.h>'
 	function = 'ao_open_live'
+
+	@classmethod
+	def getSystemDependentFlags(cls, platform):
+		if platform in ('linux', 'dingux'):
+			return ('-ldl', )
+		else:
+			return ()
 
 class LibPNG(Library):
 	libName = 'png12'
