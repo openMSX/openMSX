@@ -365,8 +365,6 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 	}
 	ar.serialize("patches", patches);
 
-	ar.serialize("diskChanged", diskChangedFlag);
-
 	string oldChecksum;
 	if (!ar.isLoader()) {
 		oldChecksum = calcSha1(getSectorAccessibleDisk());
@@ -430,6 +428,9 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			disk->forceWriteProtect();
 		}
 	}
+
+	// This should only be restored after disk is inserted
+	ar.serialize("diskChanged", diskChangedFlag);
 }
 
 // extra (local) constructor arguments for polymorphic de-serialization
