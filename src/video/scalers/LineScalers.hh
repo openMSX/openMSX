@@ -228,6 +228,8 @@ public:
 	explicit AlphaBlendLines(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in1, const Pixel* in2,
 	                Pixel* out, unsigned width);
+	void operator()(Pixel in1, const Pixel* in2,
+	                Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -1271,6 +1273,30 @@ void AlphaBlendLines<Pixel>::operator()(
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
+	}
+}
+
+template <typename Pixel>
+void AlphaBlendLines<Pixel>::operator()(
+	Pixel in1, const Pixel* __restrict in2,
+	Pixel* __restrict out, unsigned width) __restrict
+{
+	// ATM this routine is only called when 'in1' is not fully opaque nor
+	// fully transparent. This cannot happen in 16bpp modes.
+	assert(sizeof(Pixel) == 4);
+
+	unsigned alpha = pixelOps.alpha(in1);
+
+	// When one of the two colors is loop-invariant, using the
+	// pre-multiplied-alpha-blending equation is a tiny bit more efficient
+	// than using alphaBlend() or even lerp().
+	//    for (unsigned i = 0; i < width; ++i) {
+	//        out[i] = pixelOps.lerp(in1, in2[i], alpha);
+	//    }
+	Pixel in1M = pixelOps.multiply(in1, alpha);
+	unsigned alpha2 = 256 - alpha;
+	for (unsigned i = 0; i < width; ++i) {
+		out[i] = in1M + pixelOps.multiply(in2[i], alpha2);
 	}
 }
 

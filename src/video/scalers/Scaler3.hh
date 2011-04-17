@@ -8,16 +8,14 @@
 
 namespace openmsx {
 
-template<typename Pixel> class ScalerOutput;
-
 /** Base class for 3x scalers
   */
-template <class Pixel> class Scaler3 : public Scaler
+template <class Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 protected:
 	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);

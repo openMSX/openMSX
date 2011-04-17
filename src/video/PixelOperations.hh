@@ -168,6 +168,11 @@ public:
 	inline unsigned blue(Pixel p) const;
 	inline unsigned alpha(Pixel p) const;
 
+	// alpha is maximum
+	inline bool isFullyOpaque(Pixel p) const;
+	// alpha is minimum
+	inline bool isFullyTransparent(Pixel p) const;
+
 	/** Same as above, but result is scaled to [0..255]
 	  */
 	inline unsigned red256(Pixel p) const;
@@ -209,6 +214,16 @@ public:
 	template <unsigned w1, unsigned w2, unsigned w3,
 	          unsigned w4, unsigned w5, unsigned w6>
 	inline Pixel blend6(const Pixel* p) const;
+
+	/** Perform a component wise multiplication of a pixel with an 8-bit
+	  * fractional value:
+	  *     result = (pixel * x) / 256  [component wise]
+	  * 'x' must be in range [0..256].
+	  * For x=0   the result is 0.
+	  * For x=255 the result in the original value.
+	  * Note: ATM only implemented for 32bpp.
+	  */
+	static inline Pixel multiply(Pixel p, unsigned x);
 
 	/** Perform linear interpolation between two pixels.
 	 * This calculates component-wise:
@@ -273,6 +288,25 @@ inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 	} else {
 		assert(false); return 0;
 		//return (p & getAmask()) >> getAshift();
+	}
+}
+
+template <typename Pixel>
+inline bool PixelOperations<Pixel>::isFullyOpaque(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return alpha(p) == 255;
+	} else {
+		return p != 0x0001;
+	}
+}
+template <typename Pixel>
+inline bool PixelOperations<Pixel>::isFullyTransparent(Pixel p) const
+{
+	if (sizeof(Pixel) == 4) {
+		return alpha(p) == 0;
+	} else {
+		return p == 0x0001;
 	}
 }
 
@@ -556,6 +590,17 @@ template <unsigned w1, unsigned w2, unsigned w3,
 inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
 {
 	return blend<w1, w2, w3, w4, w5, w6>(p[0], p[1], p[2], p[3], p[4], p[5]);
+}
+
+template <typename Pixel>
+inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
+{
+	if (sizeof(Pixel) == 4) {
+		return ((((p       & 0x00FF00FF) * x) & 0xFF00FF00) >> 8)
+		     | ((((p >> 8) & 0x00FF00FF) * x) & 0xFF00FF00);
+	} else {
+		assert(false); return 0;
+	}
 }
 
 template <typename Pixel>

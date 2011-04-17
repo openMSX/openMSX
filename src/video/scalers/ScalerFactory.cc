@@ -25,34 +25,39 @@ using std::auto_ptr;
 namespace openmsx {
 
 template <class Pixel>
-auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
+auto_ptr<Scaler<Pixel> > ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
-		return auto_ptr<Scaler>(new Scaler1<Pixel>(pixelOps));
+		return auto_ptr<Scaler<Pixel> >(new Scaler1<Pixel>(pixelOps));
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return auto_ptr<Scaler>(
+			return auto_ptr<Scaler<Pixel> >(
 				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
-			return auto_ptr<Scaler>(new SaI2xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new SaI2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return auto_ptr<Scaler>(new Scale2xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new Scale2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return auto_ptr<Scaler>(new HQ2xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new HQ2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return auto_ptr<Scaler>(new HQ2xLiteScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new HQ2xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return auto_ptr<Scaler>(
+			return auto_ptr<Scaler<Pixel> >(
 				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_MLAA:
-			return auto_ptr<Scaler>(new MLAAScaler<Pixel>(640, pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new MLAAScaler<Pixel>(640, pixelOps));
 		default:
 			UNREACHABLE;
 		}
@@ -62,22 +67,27 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 	case 4: // fallback
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return auto_ptr<Scaler>(
+			return auto_ptr<Scaler<Pixel> >(
 				new Simple3xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
-			return auto_ptr<Scaler>(new SaI3xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new SaI3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return auto_ptr<Scaler>(new Scale3xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new Scale3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return auto_ptr<Scaler>(new HQ3xScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new HQ3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return auto_ptr<Scaler>(new HQ3xLiteScaler<Pixel>(pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new HQ3xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return auto_ptr<Scaler>(
+			return auto_ptr<Scaler<Pixel> >(
 				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_MLAA:
-			return auto_ptr<Scaler>(new MLAAScaler<Pixel>(960, pixelOps));
+			return auto_ptr<Scaler<Pixel> >(
+				new MLAAScaler<Pixel>(960, pixelOps));
 		default:
 			UNREACHABLE;
 		}
@@ -85,7 +95,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 	default:
 		UNREACHABLE;
 	}
-	return auto_ptr<Scaler>(); // avoid warning
+	return auto_ptr<Scaler<Pixel> >(); // avoid warning
 }
 
 // Force template instantiation.

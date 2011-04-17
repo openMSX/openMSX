@@ -4,7 +4,7 @@
 #include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
-#include "DirectScalerOutput.hh"
+#include "ScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
@@ -496,9 +496,8 @@ template <class Pixel>
 void Simple2xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	DirectScalerOutput<Pixel> dst(out);
 	if (superImpose) {
 		// Note: this implementation is different from the openGL
 		// version. Here we first alpha-blend and then scale, so the

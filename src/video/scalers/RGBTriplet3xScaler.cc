@@ -399,9 +399,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	DirectScalerOutput<Pixel> dst(out);
 	if (superImpose) {
 		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);

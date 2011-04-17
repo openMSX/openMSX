@@ -11,8 +11,8 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class Scaler;
 class Display;
+template<typename Pixel> class Scaler;
 
 /** Rasterizer using SDL.
   */
@@ -45,7 +45,7 @@ private:
 
 	/** The currently active scaler.
 	  */
-	std::auto_ptr<Scaler> currScaler;
+	std::auto_ptr<Scaler<Pixel> > currScaler;
 
 	const RawFrame* superImposeFrame;
 

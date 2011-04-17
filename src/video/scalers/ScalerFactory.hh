@@ -7,9 +7,9 @@
 
 namespace openmsx {
 
-class Scaler;
 class RenderSettings;
-template <typename Pixel> class PixelOperations;
+template<typename Pixel> class Scaler;
+template<typename Pixel> class PixelOperations;
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
@@ -21,7 +21,7 @@ public:
 	/** Instantiates a Scaler.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static std::auto_ptr<Scaler> createScaler(
+	static std::auto_ptr<Scaler<Pixel> > createScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 };

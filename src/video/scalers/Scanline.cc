@@ -65,8 +65,7 @@ void Multiply<unsigned>::setFactor(unsigned f)
 
 inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned f) const
 {
-	return ((((p       & 0x00FF00FF) * f) & 0xFF00FF00) >> 8)
-	     | ((((p >> 8) & 0x00FF00FF) * f) & 0xFF00FF00);
+	return PixelOperations<unsigned>::multiply(p, f);
 }
 
 inline unsigned Multiply<unsigned>::multiply(unsigned p) const

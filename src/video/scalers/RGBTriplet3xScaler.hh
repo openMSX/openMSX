@@ -24,7 +24,7 @@ public:
 protected:
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 	virtual void scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,

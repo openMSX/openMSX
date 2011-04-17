@@ -2,6 +2,7 @@
 
 #include "FBPostProcessor.hh"
 #include "RawFrame.hh"
+#include "DirectScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
@@ -397,10 +398,11 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
+		DirectScalerOutput<Pixel> dst(output);
 		currScaler->scaleImage(
 			*paintFrame, superImposeFrame,
 			srcStartY, srcEndY, lineWidth, // source
-			output, dstStartY, dstEndY); // dest
+			dst, dstStartY, dstEndY); // dest
 		paintFrame->freeLineBuffers();
 
 		// next region

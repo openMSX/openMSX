@@ -4,8 +4,7 @@
 #include "LineScalers.hh"
 #include "FrameSource.hh"
 #include "RawFrame.hh"
-#include "OutputSurface.hh"
-#include "DirectScalerOutput.hh"
+#include "SuperImposeScalerOutput.hh"
 #include "openmsx.hh"
 #include "vla.hh"
 #include "unreachable.hh"
@@ -344,20 +343,16 @@ void Scaler1<Pixel>::dispatchScale(FrameSource& src,
 template <class Pixel>
 void Scaler1<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	DirectScalerOutput<Pixel> dst(out);
-	dispatchScale(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
-
-	// TODO move superimpose to ScalerOutput pipeline
 	if (superImpose) {
-		AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-		for (unsigned y = dstStartY; y < dstEndY; ++y) {
-			Pixel* dstLine = out.getLinePtrDirect<Pixel>(y);
-			const Pixel* srcLine = superImpose->getLinePtr320_240<Pixel>(y);
-			alphaBlend(dstLine, srcLine, dstLine, 320);
-			superImpose->freeLineBuffers();
-		}
+		SuperImposeScalerOutput<Pixel> dst2(
+			dst, *superImpose, pixelOps);
+		dispatchScale(src, srcStartY, srcEndY, srcWidth,
+		              dst2, dstStartY, dstEndY);
+	} else {
+		dispatchScale(src, srcStartY, srcEndY, srcWidth,
+		              dst, dstStartY, dstEndY);
 	}
 }
 

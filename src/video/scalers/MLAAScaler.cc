@@ -1,8 +1,8 @@
 // $Id$
 
 #include "MLAAScaler.hh"
-#include "DirectScalerOutput.hh"
 #include "FrameSource.hh"
+#include "ScalerOutput.hh"
 #include "Math.hh"
 #include "openmsx.hh"
 #include "vla.hh"
@@ -24,10 +24,8 @@ template <class Pixel>
 void MLAAScaler<Pixel>::scaleImage(
 		FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	DirectScalerOutput<Pixel> dst(out);
-
 	(void)superImpose; // TODO: Support superimpose.
 	//fprintf(stderr, "scale line [%d..%d) to [%d..%d), width %d to %d\n",
 	//	srcStartY, srcEndY, dstStartY, dstEndY, srcWidth, dstWidth

@@ -18,14 +18,14 @@ namespace openmsx {
   * images that the original algorithm was designed for.
   */
 template <class Pixel>
-class MLAAScaler : public Scaler
+class MLAAScaler : public Scaler<Pixel>
 {
 public:
 	MLAAScaler(unsigned dstWidth, const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	const PixelOperations<Pixel> pixelOps;

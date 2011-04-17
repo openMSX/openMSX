@@ -4,7 +4,7 @@
 #include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
-#include "DirectScalerOutput.hh"
+#include "ScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "Multiply32.hh"
 #include "HostCPU.hh"
@@ -519,9 +519,8 @@ template <class Pixel>
 void Simple3xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	DirectScalerOutput<Pixel> dst(out);
 	if (superImpose) {
 		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);

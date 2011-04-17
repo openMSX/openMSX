@@ -7,12 +7,12 @@ namespace openmsx {
 
 class FrameSource;
 class RawFrame;
-class OutputSurface;
+template<typename Pixel> class ScalerOutput;
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
-class Scaler
+template<typename Pixel> class Scaler
 {
 public:
 	virtual ~Scaler() {}
@@ -31,7 +31,7 @@ public:
 	  */
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) = 0;
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) = 0;
 };
 
 } // namespace openmsx
