@@ -31,6 +31,7 @@ class Library(object):
 	#       only used by the implementation. As a result, it is possible to
 	#       compile against SDL_ttf without having the FreeType headers
 	#       installed. But our getCompileFlags() does not support this.
+	#       In pkg-config these are called private dependencies.
 	dependsOn = ()
 
 	@classmethod
