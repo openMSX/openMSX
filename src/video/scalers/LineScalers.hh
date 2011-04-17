@@ -213,6 +213,19 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+/** Stretch (or zoom) a given input line to a wider output line.
+ */
+template<typename Pixel>
+class ZoomLine
+{
+public:
+	explicit ZoomLine(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in,  unsigned inWidth,
+	                      Pixel* out, unsigned outWidth) const;
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
 
 /**  AlphaBlendLines functor
  * Generate an output line that is a per-pixel-alpha-blend of the two input
@@ -1256,6 +1269,30 @@ void BlendLines<Pixel, w1, w2>::operator()(
 	// pure C++ version
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
+	}
+}
+
+
+template<typename Pixel>
+ZoomLine<Pixel>::ZoomLine(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template<typename Pixel>
+void ZoomLine<Pixel>::operator()(
+	const Pixel* in,  unsigned inWidth,
+	      Pixel* out, unsigned outWidth) const
+{
+	static const unsigned FACTOR = 256;
+
+	unsigned step = FACTOR * inWidth / outWidth;
+	unsigned i = 0 * FACTOR;
+	for (unsigned o = 0; o < outWidth; ++o) {
+		Pixel p0 = in[(i / FACTOR) + 0];
+		Pixel p1 = in[(i / FACTOR) + 1];
+		out[o] = pixelOps.lerp(p0, p1, i % FACTOR);
+		i += step;
 	}
 }
 

@@ -5,7 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	ScalerFactory \
 	Scaler1 \
-	DirectScalerOutput SuperImposeScalerOutput
+	DirectScalerOutput SuperImposeScalerOutput StretchScalerOutput
 
 ifneq ($(MAX_SCALE_FACTOR), 1)
 SRC_HDR += \
