@@ -323,7 +323,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wunused-macros
   # Flag that is not accepted by old GCC versions.
   COMPILE_FLAGS+=$(shell \
-    echo | gcc -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
+    echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
     && echo -Wno-missing-field-initializers \
     )
   # Empty definition of used headers, so header removal doesn't break things.
