@@ -3,6 +3,7 @@
 #include "FBPostProcessor.hh"
 #include "RawFrame.hh"
 #include "StretchScalerOutput.hh"
+#include "ScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"

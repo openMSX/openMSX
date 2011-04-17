@@ -128,10 +128,10 @@ auto_ptr<ScalerOutput<Pixel> > StretchScalerOutputFactory<Pixel>::create(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class StretchScalerOutputFactory<word>;
+template struct StretchScalerOutputFactory<word>;
 #endif
 #if HAVE_32BPP
-template class StretchScalerOutputFactory<unsigned>;
+template struct StretchScalerOutputFactory<unsigned>;
 #endif
 
 } // namespace openmsx
