@@ -269,6 +269,8 @@ class LibAO(Library):
 	def getSystemDependentFlags(cls, platform):
 		if platform in ('linux', 'dingux'):
 			return ('-ldl', )
+		elif platform == 'mingw32':
+			return ('-lwinmm', )
 		else:
 			return ()
 
