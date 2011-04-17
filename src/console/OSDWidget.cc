@@ -63,7 +63,7 @@ SDLScopedClip::SDLScopedClip(OutputSurface& output, int x, int y, int w, int h)
 	intersect(origClip.x, origClip.y, origClip.w, origClip.h,
 	          x,  y,  w,  h,
 	          xn, yn, wn, hn);
-	SDL_Rect newClip = { xn, yn, wn, hn };
+	SDL_Rect newClip = { Sint16(xn), Sint16(yn), Uint16(wn), Uint16(hn) };
 	SDL_SetClipRect(surface, &newClip);
 }
 
