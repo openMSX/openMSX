@@ -164,7 +164,7 @@ HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
 	EdgeHQLite edgeOp;
@@ -176,7 +176,7 @@ void HQ2xLiteScaler<Pixel>::scale1x1to3x2(FrameSource& src,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
 	EdgeHQLite edgeOp;
@@ -188,7 +188,7 @@ void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
 	EdgeHQLite edgeOp;
@@ -200,7 +200,7 @@ void HQ2xLiteScaler<Pixel>::scale2x1to3x2(FrameSource& src,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
 	EdgeHQLite edgeOp;
@@ -212,7 +212,7 @@ void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
 	EdgeHQLite edgeOp;
@@ -224,7 +224,7 @@ void HQ2xLiteScaler<Pixel>::scale4x1to3x2(FrameSource& src,
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
 	EdgeHQLite edgeOp;

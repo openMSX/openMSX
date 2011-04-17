@@ -396,6 +396,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
+		output.lock();
 		currScaler->scaleImage(
 			*paintFrame, superImposeFrame,
 			srcStartY, srcEndY, lineWidth, // source

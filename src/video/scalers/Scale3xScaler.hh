@@ -17,7 +17,7 @@ public:
 
 	virtual void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	void scaleLine1on3Half(Pixel* dst,

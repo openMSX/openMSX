@@ -4,9 +4,8 @@
 #include "SuperImposedFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
-#include "OutputSurface.hh"
+#include "DirectScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include "vla.hh"
@@ -34,24 +33,21 @@ Simple2xScaler<Pixel>::Simple2xScaler(
 template <class Pixel>
 void Simple2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 
-	unsigned stopDstY = (dstEndY == dst.getHeight())
+	unsigned dstHeight = dst.getHeight();
+	unsigned stopDstY = (dstEndY == dstHeight)
 	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
 		Pixel color0 = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		memset(dstLine0, dst.getWidth(), color0);
+		dst.fillLine(dstY + 0, color0);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		memset(dstLine1, dst.getWidth(), color1);
+		dst.fillLine(dstY + 1, color1);
 	}
-	if (dstY != dst.getHeight()) {
+	if (dstY != dstHeight) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
 		assert(src.getLineWidth(srcY) == 1);
 		assert(nextLineWidth != 1);
@@ -425,79 +421,84 @@ void Simple2xScaler<Pixel>::drawScanline(
 template <class Pixel>
 void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
 	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* prevDstLine0 = dst.getLinePtrDirect<Pixel>(dstY++);
-	blur1on2(srcLine, prevDstLine0, blur, srcWidth);
+	Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+	blur1on2(srcLine, dstLine0, blur, srcWidth);
 
-	while (dstY < dstEndY - 1) {
+	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		blur1on2(srcLine, dstLine0, blur, srcWidth);
+		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		blur1on2(srcLine, dstLine2, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
-		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor,
+		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
 		             2 * srcWidth);
 
-		prevDstLine0 = dstLine0;
-		dstY += 2;
+		dst.releaseLine(dstY + 0, dstLine0);
+		dst.releaseLine(dstY + 1, dstLine1);
+		dstLine0 = dstLine2;
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
 	VLA(Pixel, buf, 2 * srcWidth);
 	blur1on2(srcLine, buf, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
-	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, 2 * srcWidth);
+	Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf, dstLine1, scanlineFactor, 2 * srcWidth);
+	dst.releaseLine(dstY + 0, dstLine0);
+	dst.releaseLine(dstY + 1, dstLine1);
 }
 
 template <class Pixel>
 void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
 	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* prevDstLine0 = dst.getLinePtrDirect<Pixel>(dstY++);
-	blur1on1(srcLine, prevDstLine0, blur, srcWidth);
+	Pixel* dstLine0 = dst.acquireLine(dstY);
+	blur1on1(srcLine, dstLine0, blur, srcWidth);
 
-	while (dstY < dstEndY - 1) {
+	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		blur1on1(srcLine, dstLine0, blur, srcWidth);
+		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		blur1on1(srcLine, dstLine2, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor,
+		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
 		             srcWidth);
 
-		prevDstLine0 = dstLine0;
-		dstY += 2;
+		dst.releaseLine(dstY + 0, dstLine0);
+		dst.releaseLine(dstY + 1, dstLine1);
+		dstLine0 = dstLine2;
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
 	VLA(Pixel, buf, srcWidth);
 	blur1on1(srcLine, buf, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY);
-	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, srcWidth);
+	Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf, dstLine1, scanlineFactor, srcWidth);
+	dst.releaseLine(dstY + 0, dstLine0);
+	dst.releaseLine(dstY + 1, dstLine1);
 }
 
 template <class Pixel>
 void Simple2xScaler<Pixel>::scaleImage(
 	FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
 {
+	DirectScalerOutput<Pixel> dst(out);
 	if (superImpose) {
 		// Note: this implementation is different from the openGL
 		// version. Here we first alpha-blend and then scale, so the

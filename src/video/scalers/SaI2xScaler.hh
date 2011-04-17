@@ -18,13 +18,13 @@ public:
 	explicit SaI2xScaler(const PixelOperations<Pixel>& pixelOps);
 	virtual void scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1x1to2x2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 	virtual void scale1x1to1x2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
 	void scaleLine1on2(

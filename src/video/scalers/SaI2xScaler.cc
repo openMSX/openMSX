@@ -8,8 +8,7 @@
 
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
-#include "OutputSurface.hh"
-#include "MemoryOps.hh"
+#include "ScalerOutput.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -26,21 +25,18 @@ SaI2xScaler<Pixel>::SaI2xScaler(const PixelOperations<Pixel>& pixelOps_)
 template <class Pixel>
 void SaI2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
-	unsigned stopDstY = (dstEndY == dst.getHeight())
+	unsigned dstHeight = dst.getHeight();
+	unsigned stopDstY = (dstEndY == dstHeight)
 	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
 		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		memset(dstLine1, dst.getWidth(), color);
+		dst.fillLine(dstY + 0, color);
+		dst.fillLine(dstY + 1, color);
 	}
-	if (dstY != dst.getHeight()) {
+	if (dstY != dstHeight) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
 		assert(src.getLineWidth(srcY) == 1);
 		assert(nextLineWidth != 1);
@@ -275,21 +271,22 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 template <class Pixel>
 void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	assert(dst.getWidth() == srcWidth * 2);
 
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
-		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		Pixel* dstUpper = dst.acquireLine(dstY + 0);
+		Pixel* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on2(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
+		dst.releaseLine(dstY + 0, dstUpper);
+		dst.releaseLine(dstY + 1, dstLower);
 		srcLine0 = srcLine1;
 		srcLine1 = srcLine2;
 		srcLine2 = srcLine3;
@@ -299,21 +296,22 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 template <class Pixel>
 void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	assert(dst.getWidth() == srcWidth);
 
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
-		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		Pixel* dstUpper = dst.acquireLine(dstY + 0);
+		Pixel* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on1(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
+		dst.releaseLine(dstY + 0, dstUpper);
+		dst.releaseLine(dstY + 1, dstLower);
 		srcLine0 = srcLine1;
 		srcLine1 = srcLine2;
 		srcLine2 = srcLine3;

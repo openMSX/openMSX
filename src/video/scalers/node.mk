@@ -4,7 +4,8 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	ScalerFactory \
-	Scaler1
+	Scaler1 \
+	DirectScalerOutput
 
 ifneq ($(MAX_SCALE_FACTOR), 1)
 SRC_HDR += \
@@ -21,7 +22,7 @@ endif
 
 HDR_ONLY:= \
 	LineScalers \
-	Scaler \
+	Scaler ScalerOutput \
 	HQCommon
 
 DIST:= \

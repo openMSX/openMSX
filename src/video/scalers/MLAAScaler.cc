@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MLAAScaler.hh"
-#include "OutputSurface.hh"
+#include "DirectScalerOutput.hh"
 #include "FrameSource.hh"
 #include "Math.hh"
 #include "openmsx.hh"
@@ -24,8 +24,10 @@ template <class Pixel>
 void MLAAScaler<Pixel>::scaleImage(
 		FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
 {
+	DirectScalerOutput<Pixel> dst(out);
+
 	(void)superImpose; // TODO: Support superimpose.
 	//fprintf(stderr, "scale line [%d..%d) to [%d..%d), width %d to %d\n",
 	//	srcStartY, srcEndY, dstStartY, dstEndY, srcWidth, dstWidth
@@ -269,17 +271,20 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 	assert(unsigned(edgePtr - edges) == srcWidth);
 
-	dst.lock();
+	VLA(Pixel*, dstLines, dst.getHeight());
+	for (unsigned i = dstStartY; i < dstEndY; ++i) {
+		dstLines[i] = dst.acquireLine(i);
+	}
+
 	// Do a mosaic scale so every destination pixel has a color.
 	unsigned dstY = dstStartY;
 	for (int y = 0; y < srcNumLines; y++) {
 		const Pixel* srcLinePtr = srcLinePtrs[y];
 		for (unsigned x = 0; x < srcWidth; x++) {
 			Pixel col = srcLinePtr[x];
-			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
-				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
-				for (unsigned ix = 0; ix < zoomFactorX; ix++) {
-					dstLinePtr[x * zoomFactorX + ix] = col;
+			for (unsigned iy = 0; iy < zoomFactorY; ++iy) {
+				for (unsigned ix = 0; ix < zoomFactorX; ++ix) {
+					dstLines[dstY + iy][x * zoomFactorX + ix] = col;
 				}
 			}
 		}
@@ -349,7 +354,7 @@ void MLAAScaler<Pixel>::scaleImage(
 				  : x3
 				  );
 			for (unsigned iy = 0; iy < zoomFactorY; iy++) {
-				Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dstY + iy);
+				Pixel* dstLinePtr = dstLines[dstY + iy];
 
 				// Figure out which parts of the line should be blended.
 				bool blendTopLeft = false;
@@ -547,8 +552,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						lineX = ix / float(zoomFactorX);
 					}
 					for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-						Pixel* dstLinePtr =
-							dst.getLinePtrDirect<Pixel>(dstStartY + fy / 2);
+						Pixel* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y0) / float(y1 - y0);
 						float rx = 0.5f + ry * 0.5f;
 						float weight = (rx - lineX) * zoomFactorX;
@@ -573,8 +577,7 @@ void MLAAScaler<Pixel>::scaleImage(
 						lineX = ix / float(zoomFactorX);
 					}
 					for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-						Pixel* dstLinePtr =
-							dst.getLinePtrDirect<Pixel>(dstStartY + fy / 2);
+						Pixel* dstLinePtr = dstLines[dstStartY + fy / 2];
 						float ry = (fy - y2) / float(y3 - y2);
 						float rx = 1.0f - ry * 0.5f;
 						float weight = (rx - lineX) * zoomFactorX;
@@ -591,16 +594,16 @@ void MLAAScaler<Pixel>::scaleImage(
 					if (ix == 0) {
 						if (slopeTopLeft) {
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
-									dstStartY + fy / 2);
+								Pixel* dstLinePtr = dstLines[
+									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(255, 0, 0);
 							}
 						}
 						if (slopeBotLeft) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
-									dstStartY + fy / 2);
+								Pixel* dstLinePtr = dstLines[
+									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(255, 255, 0);
 							}
@@ -608,16 +611,16 @@ void MLAAScaler<Pixel>::scaleImage(
 					} else if (ix == zoomFactorX - 1) {
 						if (slopeTopRight) {
 							for (unsigned fy = y0 | 1; fy < y1; fy += 2) {
-								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
-									dstStartY + fy / 2);
+								Pixel* dstLinePtr = dstLines[
+									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(0, 0, 255);
 							}
 						}
 						if (slopeBotRight) {
 							for (unsigned fy = y2 | 1; fy < y3; fy += 2) {
-								Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(
-									dstStartY + fy / 2);
+								Pixel* dstLinePtr = dstLines[
+									dstStartY + fy / 2];
 								dstLinePtr[fx] =
 									pixelOps.combine256(0, 255, 0);
 							}
@@ -638,9 +641,8 @@ void MLAAScaler<Pixel>::scaleImage(
 				unsigned(srcNumLines)
 				);
 			Pixel col = srcLinePtrs[sy][srcWidth - 1];
-			Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dy);
 			for (unsigned dx = srcWidth * zoomFactorX; dx < dstWidth; dx++) {
-				dstLinePtr[dx] = col;
+				dstLines[dy][dx] = col;
 			}
 		}
 	}
@@ -649,14 +651,17 @@ void MLAAScaler<Pixel>::scaleImage(
 		// However, we're inside a workaround anyway, so it's good enough.
 		Pixel col = srcLinePtrs[srcNumLines - 1][srcWidth - 1];
 		for (unsigned dy = dstY; dy < dstEndY; dy++) {
-			Pixel* dstLinePtr = dst.getLinePtrDirect<Pixel>(dy);
 			for (unsigned dx = 0; dx < dstWidth; dx++) {
-				dstLinePtr[dx] = col;
+				dstLines[dy][dx] = col;
 			}
 		}
 	}
 
 	src.freeLineBuffers();
+
+	for (unsigned i = dstStartY; i < dstEndY; ++i) {
+		dst.releaseLine(i, dstLines[i]);
+	}
 }
 
 

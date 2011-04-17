@@ -4,7 +4,7 @@
 #define HQCOMMON_HH
 
 #include "FrameSource.hh"
-#include "OutputSurface.hh"
+#include "ScalerOutput.hh"
 #include "LineScalers.hh"
 #include "PixelOperations.hh"
 #include "build-info.hh"
@@ -214,7 +214,7 @@ static void calcInitialEdges(
 template <typename Pixel, typename HQScale, typename EdgeOp>
 static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
@@ -224,13 +224,12 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	unsigned edgeBuf[1024];
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
-	dst.lock();
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel buf0[2 * 1024], buf1[2 * 1024];
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dst0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		Pixel* dst1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		Pixel* dst0 = dst.acquireLine(dstY + 0);
+		Pixel* dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
 			      srcWidth, edgeBuf, edgeOp);
@@ -240,6 +239,8 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 			postScale(buf0, dst0, dstWidth);
 			postScale(buf1, dst1, dstWidth);
 		}
+		dst.releaseLine(dstY + 0, dst0);
+		dst.releaseLine(dstY + 1, dst1);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
@@ -248,7 +249,7 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 template <typename Pixel, typename HQScale, typename EdgeOp>
 static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& postScale,
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
@@ -258,14 +259,13 @@ static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	unsigned edgeBuf[1024];
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
-	dst.lock();
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dst0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		Pixel* dst1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		Pixel* dst2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
+		Pixel* dst0 = dst.acquireLine(dstY + 0);
+		Pixel* dst1 = dst.acquireLine(dstY + 1);
+		Pixel* dst2 = dst.acquireLine(dstY + 2);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
 			        srcWidth, edgeBuf, edgeOp);
@@ -276,6 +276,9 @@ static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 			postScale(buf1, dst1, dstWidth);
 			postScale(buf2, dst2, dstWidth);
 		}
+		dst.releaseLine(dstY + 0, dst0);
+		dst.releaseLine(dstY + 1, dst1);
+		dst.releaseLine(dstY + 2, dst2);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}

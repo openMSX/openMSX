@@ -14,7 +14,7 @@ Visit the Scale2x site for info:
 
 #include "Scale3xScaler.hh"
 #include "FrameSource.hh"
-#include "OutputSurface.hh"
+#include "ScalerOutput.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
 
@@ -153,20 +153,26 @@ void Scale3xScaler<Pixel>::scaleLine1on3Mid(
 template <class Pixel>
 void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstUpper  = dst.getLinePtrDirect<Pixel>(dstY + 0);
+
+		Pixel* dstUpper  = dst.acquireLine(dstY + 0);
 		scaleLine1on3Half(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstMiddle = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		dst.releaseLine(dstY + 0, dstUpper);
+
+		Pixel* dstMiddle = dst.acquireLine(dstY + 1);
 		scaleLine1on3Mid(dstMiddle, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstLower  = dst.getLinePtrDirect<Pixel>(dstY + 2);
+		dst.releaseLine(dstY + 1, dstMiddle);
+
+		Pixel* dstLower  = dst.acquireLine(dstY + 2);
 		scaleLine1on3Half(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
+		dst.releaseLine(dstY + 2, dstLower);
+
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}

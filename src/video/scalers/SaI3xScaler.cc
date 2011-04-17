@@ -8,8 +8,7 @@
 
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
-#include "OutputSurface.hh"
-#include "MemoryOps.hh"
+#include "ScalerOutput.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -26,23 +25,19 @@ SaI3xScaler<Pixel>::SaI3xScaler(const PixelOperations<Pixel>& pixelOps_)
 template <class Pixel>
 void SaI3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
-	unsigned stopDstY = (dstEndY == dst.getHeight())
+	unsigned dstHeight = dst.getHeight();
+	unsigned stopDstY = (dstEndY == dstHeight)
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		memset(dstLine1, dst.getWidth(), color);
-		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
-		memset(dstLine2, dst.getWidth(), color);
+		for (int i = 0; i < 3; ++i) {
+			dst.fillLine(dstY + i, color);
+		}
 	}
-	if (dstY != dst.getHeight()) {
+	if (dstY != dstHeight) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
 		assert(src.getLineWidth(srcY) == 1);
 		assert(nextLineWidth != 1);
@@ -330,9 +325,9 @@ public:
 	inline static void scaleFixedLine(
 		const Pixel* __restrict src0, const Pixel* __restrict src1,
 		const Pixel* __restrict src2, const Pixel* __restrict src3,
-		unsigned srcWidth, OutputSurface& dst, unsigned& dstY)
+		unsigned srcWidth, ScalerOutput<Pixel>& dst, unsigned& dstY)
 	{
-		Pixel* dp = dst.getLinePtrDirect<Pixel>(dstY++);
+		Pixel* dp = dst.acquireLine(dstY);
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 
@@ -373,6 +368,8 @@ public:
 					);
 			}
 		}
+		dst.releaseLine(dstY, dp);
+		++dstY;
 
 		LineRepeater<i - 1>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
@@ -386,7 +383,7 @@ public:
 	inline static void scaleFixedLine(
 		const Pixel* /*src0*/, const Pixel* /*src1*/, const Pixel* /*src2*/,
 		const Pixel* /*src3*/, unsigned /*srcWidth*/,
-		OutputSurface& /*dst*/, unsigned& /*dstY*/)
+		ScalerOutput<Pixel>& /*dst*/, unsigned& /*dstY*/)
 	{ }
 };
 
@@ -394,12 +391,11 @@ template <typename Pixel>
 template <unsigned NX, unsigned NY>
 void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
@@ -417,10 +413,8 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 template <typename Pixel>
 void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY) __restrict
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) __restrict
 {
-	dst.lock();
-
 	// Calculate fixed point end coordinates and deltas.
 	const unsigned wfinish = (srcWidth - 1) << 16;
 	const unsigned dw = wfinish / (dst.getWidth() - 1);
@@ -438,7 +432,8 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		const Pixel* __restrict src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
 
 		// Get destination line pointer.
-		Pixel* __restrict dp = dst.getLinePtrDirect<Pixel>(dstY);
+		Pixel* dstLine = dst.acquireLine(dstY);
+		Pixel* __restrict dp = dstLine;
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;
@@ -526,13 +521,14 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 				} while ((w >> 16) == pos1);
 			}
 		}
+		dst.releaseLine(dstY, dstLine);
 	}
 }
 
 template <typename Pixel>
 void SaI3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	scaleFixed<3, 3>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
 }

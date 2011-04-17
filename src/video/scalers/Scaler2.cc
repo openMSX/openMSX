@@ -4,7 +4,7 @@
 #include "LineScalers.hh"
 #include "RawFrame.hh"
 #include "OutputSurface.hh"
-#include "MemoryOps.hh"
+#include "DirectScalerOutput.hh"
 #include "openmsx.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -21,69 +21,65 @@ Scaler2<Pixel>::Scaler2(const PixelOperations<Pixel>& pixelOps_)
 template <class Pixel>
 void Scaler2<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
-		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
-		memset(dstLine1, dst.getWidth(), color);
+		dst.fillLine(dstY + 0, color);
+		dst.fillLine(dstY + 1, color);
 	}
 }
 
 template <class Pixel>
 void Scaler2<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
-		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
 		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
-		memset(dstLine, dst.getWidth(), color);
+		dst.fillLine(dstY, color);
 	}
 }
 
 template <typename Pixel>
 static void doScale1(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
-	dst.lock();
 	Scale_1on1<Pixel> copy;
 	bool isStreaming = scale.isStreaming();
+	unsigned dstWidth = dst.getWidth();
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(y + 0);
-		scale(srcLine, dstLine1, dst.getWidth());
-		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 1);
+		Pixel* dstLine0 = dst.acquireLine(y + 0);
+		scale(srcLine, dstLine0, dstWidth);
+		Pixel* dstLine1 = dst.acquireLine(y + 1);
 		if (isStreaming) {
-			scale(srcLine, dstLine2, dst.getWidth());
+			scale(srcLine, dstLine1, dstWidth);
 		} else {
-			copy(dstLine1, dstLine2, dst.getWidth());
+			copy(dstLine0, dstLine1, dstWidth);
 		}
+		dst.releaseLine(y + 0, dstLine0);
+		dst.releaseLine(y + 1, dstLine1);
 	}
 }
 
 template <typename Pixel>
 static void doScale2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
-	dst.lock();
+	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
-		Pixel*       dstLine = dst.getLinePtrDirect<Pixel>(dstY);
-		scale(srcLine, dstLine, dst.getWidth());
+		Pixel*       dstLine = dst.acquireLine(dstY);
+		scale(srcLine, dstLine, dstWidth);
+		dst.releaseLine(dstY, dstLine);
 	}
 }
 
@@ -91,7 +87,7 @@ static void doScale2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on3<Pixel> > op;
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -101,7 +97,7 @@ void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on3<Pixel> > op;
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -117,7 +113,7 @@ void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on2<Pixel> > op;
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -127,7 +123,7 @@ void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on2<Pixel> > op;
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -137,7 +133,7 @@ void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -147,7 +143,7 @@ void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -157,7 +153,7 @@ void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > op;
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -167,7 +163,7 @@ void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_1on1<Pixel> > op;
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -177,7 +173,7 @@ void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -187,7 +183,7 @@ void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -197,7 +193,7 @@ void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -207,7 +203,7 @@ void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
 	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
@@ -217,7 +213,7 @@ void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::dispatchScale(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (src.getHeight() == 240) {
 		switch (srcWidth) {
@@ -292,14 +288,16 @@ void Scaler2<Pixel>::dispatchScale(FrameSource& src,
 template <class Pixel>
 void Scaler2<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& out, unsigned dstStartY, unsigned dstEndY)
 {
+	DirectScalerOutput<Pixel> dst(out);
 	dispatchScale(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY);
 
+	// TODO move superimpose to ScalerOutput pipeline
 	if (superImpose) {
 		AlphaBlendLines<Pixel> alphaBlend(pixelOps);
 		for (unsigned y = dstStartY; y < dstEndY; ++y) {
-			Pixel* dstLine = dst.getLinePtrDirect<Pixel>(y);
+			Pixel* dstLine = out.getLinePtrDirect<Pixel>(y);
 			const Pixel* srcLine = superImpose->getLinePtr640_480<Pixel>(y);
 			alphaBlend(dstLine, srcLine, dstLine, 640);
 			superImpose->freeLineBuffers();

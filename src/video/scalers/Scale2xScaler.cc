@@ -14,7 +14,7 @@ Visit the Scale2x site for info:
 
 #include "Scale2xScaler.hh"
 #include "FrameSource.hh"
-#include "OutputSurface.hh"
+#include "ScalerOutput.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include "build-info.hh"
@@ -1099,18 +1099,19 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 template <class Pixel>
 void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dstUpper = dst.acquireLine(dstY + 0);
 		scaleLineHalf_1on2(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		dst.releaseLine(dstY + 0, dstUpper);
+		Pixel* dstLower = dst.acquireLine(dstY + 1);
 		scaleLineHalf_1on2(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
+		dst.releaseLine(dstY + 1, dstLower);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
@@ -1119,18 +1120,19 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 template <class Pixel>
 void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dstUpper = dst.acquireLine(dstY + 0);
 		scaleLineHalf_1on1(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		dst.releaseLine(dstY + 0, dstUpper);
+		Pixel* dstLower = dst.acquireLine(dstY + 1);
 		scaleLineHalf_1on1(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
+		dst.releaseLine(dstY + 1, dstLower);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
