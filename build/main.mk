@@ -329,7 +329,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Allow STL to use C++11 features, if available.
   # TODO: This feature is disabled by default for now, since there are many
   #       warnings about auto_ptr being deprecated.
-  ifneq ($(USE_CXX11),true)
+  ifeq ($(USE_CXX11),true)
   COMPILE_FLAGS+=$(shell \
     echo | $(CXX) -E -std=c++0x - >/dev/null 2>&1 \
     && echo -std=c++0x \
