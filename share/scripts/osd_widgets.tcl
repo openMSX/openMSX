@@ -25,7 +25,7 @@ proc msx_init {name} {
 
 proc msx_update {name} {
 	# compensate for horizontal-stretch and set-adjust
-	set hstretch [expr {$::horizontal_stretch}]
+	set hstretch $::horizontal_stretch
 	set xsize   [expr {320.0 / $hstretch}]
 	set xoffset [expr {($hstretch - 256) / 2 * $xsize}]
 	set ysize 1
