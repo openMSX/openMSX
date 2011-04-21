@@ -283,7 +283,8 @@ $(BUILD_DIR)/$(PACKAGE_AO)/Makefile: \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)"
+		LDFLAGS="$(_LDFLAGS)" \
+		PKG_CONFIG=/nowhere
 
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
