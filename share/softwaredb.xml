@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1302973522">
+<softwaredb xml:lang="en" timestamp="1303627754">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -9802,7 +9802,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">9447e50d1266b7cb96a414eaf9ee16c0f99e55f3</hash><remark><text>[RC-768]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ad1081f398ac69c0c92e4afadde482574fe875bb</hash><remark><text>[RC-768] / [t]</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">17583adb63d16d64ae51820055cd32c0e935425a</hash><remark><text>[RC-768] / Ulver crack</text></remark></megarom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">92edf9bd66c229758420cbc6ffc4d635e0c620d0</hash><remark><text>FRS Turbo Fix</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">92edf9bd66c229758420cbc6ffc4d635e0c620d0</hash><remark><text>[RC-768] / FRS Turbo Fix v1.0</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">1d995cf4521da949072344e8185c44744711f472</hash><remark><text>[RC-768] / FRS Turbo Fix v1.1</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Space Maze Attack</title>
@@ -11915,6 +11916,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2624
-Parse time 7.948 seconds on Sat Apr 16 19:05:30 CEST 2011
+Roms in this database:2625
+Parse time 13.044 seconds on Sun Apr 24 8:49:27 CEST 2011
  -->
