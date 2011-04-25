@@ -431,27 +431,30 @@ template<typename Pixel>
 template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 {
+	static const unsigned total = w1 + w2;
 	if (w1 > w2) {
 		return blend<w2, w1>(p2, p1);
+
 	} else if (w1 == w2) {
-		// <1, 1>
+		// <1,1>
 		return avgDown(p1, p2);
 	} else if ((3 * w1) == w2) {
-		// <1, 3>
+		// <1,3>
 		Pixel p11 = avgDown(p1, p2);
 		return avgUp(p11, p2);
 	} else if ((7 * w1) == w2) {
-		// <1, 7>
+		// <1,7>
 		Pixel p11 = avgDown(p1, p2);
 		Pixel p13 = avgDown(p11, p2);
 		return avgUp(p13, p2);
 	} else if ((5 * w1) == (3 * w2)) {
-		// <3, 5>   mix rounding up/down to get a more accurate result
+		// <3,5>   mix rounding up/down to get a more accurate result
 		Pixel p11 = avgUp  (p1, p2);
 		Pixel p13 = avgDown(p11, p2);
 		return avgDown(p11, p13);
+
 	} else if ((2 * w1) == w2) {
-		// <1, 2>
+		// <1,2>
 		Pixel a1b1    = avgUp  (p1,     p2);
 		Pixel a1b3    = avgDown(a1b1,   p2);
 		Pixel a5b3    = avgUp  (a1b3,   p2);
@@ -467,23 +470,91 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 			// approx as <21, 43>, enough for 6 bit precision
 			return a21b43;
 		}
-	} else {
-		static const unsigned total = w1 + w2;
-		if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
-			unsigned l2 = IsPow2<total>::log2;
-			unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
-			                (p2 & 0x00FF00FF) * w2
-			               ) >> l2) & 0x00FF00FF;
-			unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
-			               ((p2 & 0xFF00FF00) >> l2) * w2
-			              ) & 0xFF00FF00;
-			return c1 | c2;
+
+	} else if ((1 * w2) == (6 * w1)) {
+		// <1,6>
+		return blend< 37, 219>(p1, p2); // approx
+	} else if ((2 * w2) == (5 * w1)) {
+		// <2,5>
+		return blend< 73, 183>(p1, p2); // approx
+	} else if ((3 * w2) == (4 * w1)) {
+		// <3,4>
+		return blend<110, 146>(p1, p2); // approx
+
+	} else if ((1 * w2) == (8 * w1)) {
+		// <1,8>
+		return blend< 28, 228>(p1, p2); // approx
+	} else if ((2 * w2) == (7 * w1)) {
+		// <2,7>
+		return blend< 57, 199>(p1, p2); // approx
+	} else if ((3 * w2) == (6 * w1)) {
+		// <3,6>
+		return blend< 85, 171>(p1, p2); // approx
+	} else if ((4 * w2) == (5 * w1)) {
+		// <4,5>
+		return blend<114, 142>(p1, p2); // approx
+
+	} else if ((1 * w2) == (16 * w1)) {
+		// <1,16>
+		return blend< 15, 241>(p1, p2); // approx
+	} else if ((2 * w2) == (15 * w1)) {
+		// <2,15>
+		return blend< 30, 226>(p1, p2); // approx
+	} else if ((3 * w2) == (14 * w1)) {
+		// <3,14>
+		return blend< 45, 211>(p1, p2); // approx
+	} else if ((4 * w2) == (13 * w1)) {
+		// <4,13>
+		return blend< 60, 196>(p1, p2); // approx
+	} else if ((5 * w2) == (12 * w1)) {
+		// <5,12>
+		return blend< 75, 181>(p1, p2); // approx
+	} else if ((6 * w2) == (11 * w1)) {
+		// <6,11>
+		return blend< 90, 166>(p1, p2); // approx
+	} else if ((7 * w2) == (10 * w1)) {
+		// <7,10>
+		return blend<105, 151>(p1, p2); // approx
+	} else if ((8 * w2) == ( 9 * w1)) {
+		// <8, 9>
+		return blend<120, 136>(p1, p2); // approx
+
+	} else if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+		unsigned l2 = IsPow2<total>::log2;
+		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
+				(p2 & 0x00FF00FF) * w2
+			       ) >> l2) & 0x00FF00FF;
+		unsigned c2 = (((p1 & 0xFF00FF00) >> l2) * w1 +
+			       ((p2 & 0xFF00FF00) >> l2) * w2
+			      ) & 0xFF00FF00;
+		return c1 | c2;
+
+	} else if (isRGB565() && IsPow2<total>::result) {
+		if (total > 64) {
+			// reduce to maximum 6-bit
+			// note: DIV64 only exists to work around a
+			//       division by zero in dead code
+			static const unsigned DIV64 = (total > 64) ? 64 : 1;
+			static const unsigned factor = total / DIV64;
+			static const unsigned round = factor / 2;
+			static const unsigned ww1 = (w1 + round) / factor;
+			static const unsigned ww2 = 64 - ww1;
+			return blend<ww1, ww2>(p1, p2);
 		} else {
-			unsigned r = (red  (p1) * w1 + red  (p2) * w2) / total;
-			unsigned g = (green(p1) * w1 + green(p2) * w2) / total;
-			unsigned b = (blue (p1) * w1 + blue (p2) * w2) / total;
-			return combine(r, g, b);
+			unsigned l2 = IsPow2<total>::log2;
+			unsigned c1 = (((unsigned(p1) & 0xF81F) * w1) +
+			               ((unsigned(p2) & 0xF81F) * w2)) & (0xF81F << l2);
+			unsigned c2 = (((unsigned(p1) & 0x07E0) * w1) +
+				       ((unsigned(p2) & 0x07E0) * w2)) & (0x07E0 << l2);
+			return (c1 | c2) >> l2;
 		}
+
+	} else {
+		// generic version
+		unsigned r = (red  (p1) * w1 + red  (p2) * w2) / total;
+		unsigned g = (green(p1) * w1 + green(p2) * w2) / total;
+		unsigned b = (blue (p1) * w1 + blue (p2) * w2) / total;
+		return combine(r, g, b);
 	}
 }
 
