@@ -42,6 +42,12 @@ public:
 	  */
 	inline Pixel getBlendMask() const { return blendMask; }
 
+	/** Return true if it's statically known that the pixelformat has
+	  * a 5-6-5 format (not specified wihich component goes where, but
+	  * usually it will be BGR). This method is currently used to pick
+	  * a faster version for lerp() on dingoo. */
+	inline bool isRGB565() const { return false; }
+
 private:
 	inline Pixel calcBlendMask() const
 	{
@@ -86,6 +92,8 @@ public:
 	inline int getAloss()  const { return 0;             }
 
 	inline unsigned getBlendMask() const { return 0xFEFEFEFE; }
+
+	inline bool isRGB565() const { return false; }
 
 private:
 	const SDL_PixelFormat& format;
@@ -136,6 +144,8 @@ public:
 	inline int getAloss()  const { return 8; }
 
 	inline unsigned short getBlendMask() const { return 0xF7DE; }
+
+	inline bool isRGB565() const { return true; }
 };
 #endif
 
@@ -158,6 +168,7 @@ public:
 	using PixelOpBase<Pixel>::getBloss;
 	using PixelOpBase<Pixel>::getAloss;
 	using PixelOpBase<Pixel>::getBlendMask;
+	using PixelOpBase<Pixel>::isRGB565;
 
 	explicit PixelOperations(const SDL_PixelFormat& format);
 
@@ -622,6 +633,22 @@ inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 		unsigned ag  = (tag + (ag1 << 8)) & 0xFF00FF00;
 
 		return rb | ag;
+
+	} else if (isRGB565()) {
+		unsigned rb1 = p1 & 0xF81F;
+		unsigned rb2 = p2 & 0xF81F;
+		unsigned g1  = p1 & 0x07E0;
+		unsigned g2  = p2 & 0x07E0;
+
+		x >>= 2;
+		unsigned trb = ((rb2 - rb1) * x) >> 6;
+		unsigned tg  = ((g2  - g1 ) * x) >> 6;
+
+		unsigned rb = (trb + rb1) & 0xF81F;
+		unsigned g  = (tg  + g1 ) & 0x07E0;
+
+		return rb | g;
+
 	} else {
 		int r1 = red(p1),   r2 = red(p2);
 		int g1 = green(p1), g2 = green(p2);
