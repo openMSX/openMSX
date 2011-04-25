@@ -195,6 +195,42 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+template <typename Pixel> class Scale_4on5
+{
+public:
+	explicit Scale_4on5(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_7on8
+{
+public:
+	explicit Scale_7on8(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_17on20
+{
+public:
+	explicit Scale_17on20(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_9on10
+{
+public:
+	explicit Scale_9on10(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
 
 /**  BlendLines functor
  * Generate an output line that is an iterpolation of two input lines.
@@ -1251,6 +1287,113 @@ void Scale_8on9<Pixel>::operator()(
 	if ((i + 5) < width) out[i + 5] = 0;
 	if ((i + 6) < width) out[i + 6] = 0;
 	if ((i + 7) < width) out[i + 7] = 0;
+}
+
+
+template <typename Pixel>
+Scale_4on5<Pixel>::Scale_4on5(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_4on5<Pixel>::operator()(
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
+{
+	assert((width % 5) == 0);
+	for (unsigned i = 0, j = 0; i < width; i += 5, j += 4) {
+		out[i + 0] =                                 in[j + 0];
+		out[i + 1] = pixelOps.template blend2<1, 3>(&in[j + 0]);
+		out[i + 2] = pixelOps.template blend2<1, 1>(&in[j + 1]);
+		out[i + 3] = pixelOps.template blend2<3, 1>(&in[j + 2]);
+		out[i + 4] =                                 in[j + 3];
+	}
+}
+
+
+template <typename Pixel>
+Scale_7on8<Pixel>::Scale_7on8(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_7on8<Pixel>::operator()(
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
+{
+	assert((width % 8) == 0);
+	for (unsigned i = 0, j = 0; i < width; i += 8, j += 7) {
+		out[i + 0] =                                 in[j + 0];
+		out[i + 1] = pixelOps.template blend2<1, 6>(&in[j + 0]);
+		out[i + 2] = pixelOps.template blend2<2, 5>(&in[j + 1]);
+		out[i + 3] = pixelOps.template blend2<3, 4>(&in[j + 2]);
+		out[i + 4] = pixelOps.template blend2<4, 3>(&in[j + 3]);
+		out[i + 5] = pixelOps.template blend2<5, 2>(&in[j + 4]);
+		out[i + 6] = pixelOps.template blend2<6, 1>(&in[j + 5]);
+		out[i + 7] =                                 in[j + 6];
+	}
+}
+
+
+template <typename Pixel>
+Scale_17on20<Pixel>::Scale_17on20(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_17on20<Pixel>::operator()(
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
+{
+	assert((width % 20) == 0);
+	for (unsigned i = 0, j = 0; i < width; i += 20, j += 17) {
+		out[i +  0] =                                   in[j +  0];
+		out[i +  1] = pixelOps.template blend2< 3, 14>(&in[j +  0]);
+		out[i +  2] = pixelOps.template blend2< 6, 11>(&in[j +  1]);
+		out[i +  3] = pixelOps.template blend2< 9,  8>(&in[j +  2]);
+		out[i +  4] = pixelOps.template blend2<12,  5>(&in[j +  3]);
+		out[i +  5] = pixelOps.template blend2<15,  2>(&in[j +  4]);
+		out[i +  6] =                                   in[j +  5];
+		out[i +  7] = pixelOps.template blend2< 1, 16>(&in[j +  5]);
+		out[i +  8] = pixelOps.template blend2< 4, 13>(&in[j +  6]);
+		out[i +  9] = pixelOps.template blend2< 7, 10>(&in[j +  7]);
+		out[i + 10] = pixelOps.template blend2<10,  7>(&in[j +  8]);
+		out[i + 11] = pixelOps.template blend2<13,  4>(&in[j +  9]);
+		out[i + 12] = pixelOps.template blend2<16,  1>(&in[j + 10]);
+		out[i + 13] =                                   in[j + 11];
+		out[i + 14] = pixelOps.template blend2< 2, 15>(&in[j + 11]);
+		out[i + 15] = pixelOps.template blend2< 5, 12>(&in[j + 12]);
+		out[i + 16] = pixelOps.template blend2< 8,  9>(&in[j + 13]);
+		out[i + 17] = pixelOps.template blend2<11,  6>(&in[j + 14]);
+		out[i + 18] = pixelOps.template blend2<14,  3>(&in[j + 15]);
+		out[i + 19] =                                   in[j + 16];
+	}
+}
+
+
+template <typename Pixel>
+Scale_9on10<Pixel>::Scale_9on10(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_9on10<Pixel>::operator()(
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
+{
+	assert((width % 10) == 0);
+	for (unsigned i = 0, j = 0; i < width; i += 10, j += 9) {
+		out[i + 0] =                                 in[j + 0];
+		out[i + 1] = pixelOps.template blend2<1, 8>(&in[j + 0]);
+		out[i + 2] = pixelOps.template blend2<2, 7>(&in[j + 1]);
+		out[i + 3] = pixelOps.template blend2<3, 6>(&in[j + 2]);
+		out[i + 4] = pixelOps.template blend2<4, 5>(&in[j + 3]);
+		out[i + 5] = pixelOps.template blend2<5, 4>(&in[j + 4]);
+		out[i + 6] = pixelOps.template blend2<6, 3>(&in[j + 5]);
+		out[i + 7] = pixelOps.template blend2<7, 2>(&in[j + 6]);
+		out[i + 8] = pixelOps.template blend2<8, 1>(&in[j + 7]);
+		out[i + 9] =                                 in[j + 8];
+	}
 }
 
 
