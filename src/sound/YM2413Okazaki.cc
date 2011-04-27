@@ -383,7 +383,7 @@ void Slot::reset()
 	tll = 0;
 	sustain = false;
 	volume = 0;
-	slot_on_flag = false;
+	slot_on_flag = 0;
 }
 
 void Slot::updatePG(unsigned freq)
@@ -533,6 +533,7 @@ void Slot::slotOn2()
 // Slot key off
 void Slot::slotOff()
 {
+	if (state == FINISH) return; // already in off state
 	if (state == ATTACK) {
 		eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 	}
@@ -607,17 +608,28 @@ void Channel::setFreq(unsigned freq_)
 // Channel key on
 void Channel::keyOn()
 {
+	// TODO Should we also test mod.slot_on_flag?
+	//      Should we    set    mod.slot_on_flag?
+	//      Can make a difference for channel 7/8 in ryhthm mode.
 	if (!car.slot_on_flag) {
 		car.setEnvelopeState(SETTLE);
 		// this will shortly set both car and mod to ATTACK state
 	}
+	car.slot_on_flag |= 1;
+	mod.slot_on_flag |= 1;
 }
 
 // Channel key off
 void Channel::keyOff()
 {
 	// Note: no mod.slotOff() in original code!!!
-	if (car.slot_on_flag) car.slotOff();
+	if (car.slot_on_flag) {
+		car.slot_on_flag &= ~1;
+		mod.slot_on_flag &= ~1;
+		if (!car.slot_on_flag) {
+			car.slotOff();
+		}
+	}
 }
 
 
@@ -684,50 +696,104 @@ void YM2413::reset()
 // Drum key on
 void YM2413::keyOn_BD()
 {
-	channels[6].keyOn();
+	Channel& ch6 = channels[6];
+	if (!ch6.car.slot_on_flag) {
+		ch6.car.setEnvelopeState(SETTLE);
+		// this will shortly set both car and mod to ATTACK state
+	}
+	ch6.car.slot_on_flag |= 2;
+	ch6.mod.slot_on_flag |= 2;
 }
 void YM2413::keyOn_HH()
 {
 	// TODO do these also use the SETTLE stuff?
-	if (!channels[7].mod.slot_on_flag) channels[7].mod.slotOn2();
+	Channel& ch7 = channels[7];
+	if (!ch7.mod.slot_on_flag) {
+		ch7.mod.slotOn2();
+	}
+	ch7.mod.slot_on_flag |= 2;
 }
 void YM2413::keyOn_SD()
 {
-	if (!channels[7].car.slot_on_flag) channels[7].car.slotOn ();
+	Channel& ch7 = channels[7];
+	if (!ch7.car.slot_on_flag) {
+		ch7.car.slotOn();
+	}
+	ch7.car.slot_on_flag |= 2;
 }
 void YM2413::keyOn_TOM()
 {
-	if (!channels[8].mod.slot_on_flag) channels[8].mod.slotOn ();
+	Channel& ch8 = channels[8];
+	if (!ch8.mod.slot_on_flag) {
+		ch8.mod.slotOn();
+	}
+	ch8.mod.slot_on_flag |= 2;
 }
 void YM2413::keyOn_CYM()
 {
-	if (!channels[8].car.slot_on_flag) channels[8].car.slotOn2();
+	Channel& ch8 = channels[8];
+	if (!ch8.car.slot_on_flag) {
+		ch8.car.slotOn2();
+	}
+	ch8.car.slot_on_flag |= 2;
 }
 
 // Drum key off
 void YM2413::keyOff_BD()
 {
-	channels[6].keyOff();
+	Channel& ch6 = channels[6];
+	if (ch6.car.slot_on_flag) {
+		ch6.car.slot_on_flag &= ~2;
+		ch6.mod.slot_on_flag &= ~2;
+		if (!ch6.car.slot_on_flag) {
+			ch6.car.slotOff();
+		}
+	}
 }
 void YM2413::keyOff_HH()
 {
-	if (channels[7].mod.slot_on_flag) channels[7].mod.slotOff();
+	Channel& ch7 = channels[7];
+	if (ch7.mod.slot_on_flag) {
+		ch7.mod.slot_on_flag &= ~2;
+		if (ch7.mod.slot_on_flag) {
+			ch7.mod.slotOff();
+		}
+	}
 }
 void YM2413::keyOff_SD()
 {
-	if (channels[7].car.slot_on_flag) channels[7].car.slotOff();
+	Channel& ch7 = channels[7];
+	if (ch7.car.slot_on_flag) {
+		ch7.car.slot_on_flag &= ~2;
+		if (!ch7.car.slot_on_flag) {
+			ch7.car.slotOff();
+		}
+	}
 }
 void YM2413::keyOff_TOM()
 {
-	if (channels[8].mod.slot_on_flag) channels[8].mod.slotOff();
+	Channel& ch8 = channels[8];
+	if (ch8.mod.slot_on_flag) {
+		ch8.mod.slot_on_flag &= ~2;
+		if (!ch8.mod.slot_on_flag) {
+			ch8.mod.slotOff();
+		}
+	}
 }
 void YM2413::keyOff_CYM()
 {
-	if (channels[8].car.slot_on_flag) channels[8].car.slotOff();
+	Channel& ch8 = channels[8];
+	if (ch8.car.slot_on_flag) {
+		ch8.car.slot_on_flag &= ~2;
+		if (!ch8.car.slot_on_flag) {
+			ch8.car.slotOff();
+		}
+	}
 }
 
 void YM2413::update_rhythm_mode()
 {
+	// TODO compare this to Burczynski core and real hw
 	Channel& ch6 = channels[6];
 	if (ch6.patch_number & 0x10) {
 		if (!(ch6.car.slot_on_flag || isRhythm())) {
@@ -775,21 +841,21 @@ void YM2413::update_rhythm_mode()
 void YM2413::update_key_status()
 {
 	for (unsigned i = 0; i < 9; ++i) {
-		bool slot_on = (reg[0x20 + i] & 0x10) != 0;
+		int slot_on = (reg[0x20 + i] & 0x10) ? 1 : 0;
 		Channel& ch = channels[i];
 		ch.mod.slot_on_flag = slot_on;
 		ch.car.slot_on_flag = slot_on;
 	}
 	if (isRhythm()) {
 		Channel& ch6 = channels[6];
-		ch6.mod.slot_on_flag |= (reg[0x0e] & 0x10) != 0; // BD1
-		ch6.car.slot_on_flag |= (reg[0x0e] & 0x10) != 0; // BD2
+		ch6.mod.slot_on_flag |= (reg[0x0e] & 0x10) ? 2 : 0; // BD1
+		ch6.car.slot_on_flag |= (reg[0x0e] & 0x10) ? 2 : 0; // BD2
 		Channel& ch7 = channels[7];
-		ch7.mod.slot_on_flag |= (reg[0x0e] & 0x01) != 0; // HH
-		ch7.car.slot_on_flag |= (reg[0x0e] & 0x08) != 0; // SD
+		ch7.mod.slot_on_flag |= (reg[0x0e] & 0x01) ? 2 : 0; // HH
+		ch7.car.slot_on_flag |= (reg[0x0e] & 0x08) ? 2 : 0; // SD
 		Channel& ch8 = channels[8];
-		ch8.mod.slot_on_flag |= (reg[0x0e] & 0x04) != 0; // TOM
-		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) != 0; // SYM
+		ch8.mod.slot_on_flag |= (reg[0x0e] & 0x04) ? 2 : 0; // TOM
+		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) ? 2 : 0; // SYM
 	}
 }
 
@@ -1435,7 +1501,6 @@ void YM2413::writeReg(byte regis, byte data)
 			if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
 			if (data & 0x01) keyOn_HH();  else keyOff_HH();
 		}
-		update_key_status();
 
 		Channel& ch6 = channels[6];
 		ch6.mod.updateAll(ch6.freq, false);
@@ -1476,7 +1541,6 @@ void YM2413::writeReg(byte regis, byte data)
 		}
 		ch.mod.updateAll(ch.freq, modActAsCarrier);
 		ch.car.updateAll(ch.freq, true);
-		update_key_status();
 		update_rhythm_mode();
 		break;
 	}

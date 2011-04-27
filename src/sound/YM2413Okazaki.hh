@@ -108,8 +108,8 @@ public:
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
 	EnvPhaseIndex eg_phase_max;
+	byte slot_on_flag;
 	bool sustain;		// Sustain
-	bool slot_on_flag;
 
 	Patch patch;
 	Slot* sibling; // pointer to sibling slot (only valid for car -> mod)
