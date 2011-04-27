@@ -194,7 +194,7 @@ private:
 
 } // namespace YM2413Okazaki
 
-SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 2);
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 3);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 2);
 
 } // namespace openmsx

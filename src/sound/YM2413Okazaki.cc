@@ -1547,6 +1547,7 @@ void Patch::serialize(Archive& ar, unsigned /*version*/)
 // version 1:  initial version
 // version 2:  don't serialize "type / actAsCarrier" anymore, it's now
 //             a calculated value
+// version 3: don't serialize slot_on_flag anymore
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1557,7 +1558,6 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("state", state);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("sustain", sustain);
-	ar.serialize("slot_on_flag", slot_on_flag);
 
 	// These are restored by call to updateAll() in YM2413::serialize()
 	//   eg_dphase, dphaseDRTableRks, tll, dphase, sintbl
@@ -1565,6 +1565,8 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	//   eg_phase_max
 	// and by setPatch()
 	//   patch
+	// and by update_key_status()
+	//   slot_on_flag
 }
 
 template<typename Archive>
@@ -1608,6 +1610,7 @@ void YM2413::serialize(Archive& ar, unsigned version)
 			ch.mod.setEnvelopeState(ch.mod.state);
 			ch.car.setEnvelopeState(ch.car.state);
 		}
+		update_key_status();
 	}
 }
 
