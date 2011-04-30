@@ -1357,6 +1357,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ReplayCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ReverseManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RP5C01.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\SaveStateCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Scheduler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\serialize.cc" />
@@ -2868,6 +2869,7 @@
     <None Include="$(OpenMSXSrcDir)\ReplayCLI.hh" />
     <None Include="$(OpenMSXSrcDir)\ReverseManager.hh" />
     <None Include="$(OpenMSXSrcDir)\RP5C01.hh" />
+    <None Include="$(OpenMSXSrcDir)\SaveStateCLI.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />
     <None Include="$(OpenMSXSrcDir)\Scheduler.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize.hh" />

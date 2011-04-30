@@ -32,6 +32,7 @@ class TestConfigOption;
 class MSXRomCLI;
 class CliExtension;
 class ReplayCLI;
+class SaveStateCLI;
 class CassettePlayerCLI;
 class LaserdiscPlayerCLI;
 class DiskImageCLI;
@@ -104,6 +105,7 @@ private:
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<ReplayCLI> replayCLI;
+	const std::auto_ptr<SaveStateCLI> saveStateCLI;
 	const std::auto_ptr<CassettePlayerCLI> cassettePlayerCLI;
 #if COMPONENT_LASERDISC
 	const std::auto_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;

@@ -16,6 +16,7 @@ SRC_HDR:= \
 	MSXPPI I8255 \
 	DeviceFactory \
 	Reactor Scheduler Schedulable \
+	SaveStateCLI \
 	MSXE6Timer \
 	MSXResetStatusRegister \
 	MSXTurboRPause \
