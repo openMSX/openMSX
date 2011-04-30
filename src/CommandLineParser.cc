@@ -84,12 +84,16 @@ private:
 	CommandLineParser& parser;
 };
 
-class ScriptOption : public CLIOption
+class ScriptOption : public CLIOption, public CLIFileType
 {
 public:
 	const CommandLineParser::Scripts& getScripts() const;
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
 	virtual const string& optionHelp() const;
+	virtual void parseFileType(const std::string& filename,
+                                   std::deque<std::string>& cmdLine);
+	virtual const std::string& fileTypeHelp() const;
+
 private:
 	CommandLineParser::Scripts scripts;
 };
@@ -190,6 +194,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("--version",   *versionOption, 1, 1);
 	registerOption("-control",    *controlOption, 1, 1);
 	registerOption("-script",     *scriptOption, 1, 1);
+	registerFileClass("Tcl script", *scriptOption);
 	#if ASM_X86
 	registerOption("-nommx",      *noMMXOption, 1, 1);
 	registerOption("-nosse",      *noSSEOption, 1, 1);
@@ -248,6 +253,7 @@ void CommandLineParser::registerFileTypes()
 		fileExtMap["cas"] = "cassetteimage";
 		fileExtMap["ogv"] = "laserdiscimage";
 		fileExtMap["omr"] = "openMSX replay";
+		fileExtMap["tcl"] = "Tcl script";
 		for (map<string, string>::const_iterator j = fileExtMap.begin();
 		     j != fileExtMap.end(); ++j) {
 			FileClassMap::const_iterator i = fileClassMap.find(j->second);
@@ -500,7 +506,7 @@ const CommandLineParser::Scripts& ScriptOption::getScripts() const
 
 bool ScriptOption::parseOption(const string& option, deque<string>& cmdLine)
 {
-	scripts.push_back(getArgument(option, cmdLine));
+	parseFileType(getArgument(option, cmdLine), cmdLine);
 	return true;
 }
 
@@ -510,6 +516,18 @@ const string& ScriptOption::optionHelp() const
 	return text;
 }
 
+void ScriptOption::parseFileType(const string& filename,
+                                   deque<std::string>& /*cmdLine*/)
+{
+	scripts.push_back(filename);
+}
+
+const string& ScriptOption::fileTypeHelp() const
+{
+	static const string text(
+	  "Extra Tcl script to run at startup");
+	return text;
+}
 
 // Help option
 
