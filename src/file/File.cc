@@ -127,7 +127,8 @@ const string File::getLocalReference() const
 
 const string File::getOriginalName()
 {
-	return file->getOriginalName();
+	string orig = file->getOriginalName();
+	return !orig.empty() ? orig : getURL();
 }
 
 bool File::isReadOnly() const
