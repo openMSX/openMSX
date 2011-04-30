@@ -323,10 +323,10 @@ Possible values for this setting:
 #  - The problem is that we don't serialize information for unplugged devices
 #    ((only) in the initial snapshot, the cassetteplayer is not yet plugged). So
 #    the information about the inserted tape is lost.
-# As a temporary solution/hack, we call 'reverse::after_switch' from the
-# autoplug script (so we're sure it runs after the auto plugging). An
-# alternative is to also serialize the state of unplugged pluggables.
-#
-#after boot {
-#	reverse::after_switch
-#}
+
+# As a solution/hack, we trigger this script at emutime=0. This is after the
+# autoplug script (which triggers at 'after boot'. But also this is also
+# triggered when openmsx is started via a replay file from the command line
+# (in such case 'after boot' is skipped).
+
+after time 0 {reverse::after_switch}

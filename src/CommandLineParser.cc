@@ -13,6 +13,7 @@
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
 #include "CliConnection.hh"
+#include "ReplayCLI.hh"
 #include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
@@ -168,6 +169,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, testConfigOption(new TestConfigOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
+	, replayCLI(new ReplayCLI(*this))
 	, cassettePlayerCLI(new CassettePlayerCLI(*this))
 #if COMPONENT_LASERDISC
 	, laserdiscPlayerCLI(new LaserdiscPlayerCLI(*this))
@@ -245,6 +247,7 @@ void CommandLineParser::registerFileTypes()
 		fileExtMap["wav"] = "cassetteimage";
 		fileExtMap["cas"] = "cassetteimage";
 		fileExtMap["ogv"] = "laserdiscimage";
+		fileExtMap["omr"] = "openMSX replay";
 		for (map<string, string>::const_iterator j = fileExtMap.begin();
 		     j != fileExtMap.end(); ++j) {
 			FileClassMap::const_iterator i = fileClassMap.find(j->second);

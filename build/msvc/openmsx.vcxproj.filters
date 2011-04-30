@@ -1354,6 +1354,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\Reactor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RealTime.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RenShaTurbo.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\ReplayCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ReverseManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RP5C01.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
@@ -2864,6 +2865,7 @@
     <None Include="$(OpenMSXSrcDir)\Reactor.hh" />
     <None Include="$(OpenMSXSrcDir)\RealTime.hh" />
     <None Include="$(OpenMSXSrcDir)\RenShaTurbo.hh" />
+    <None Include="$(OpenMSXSrcDir)\ReplayCLI.hh" />
     <None Include="$(OpenMSXSrcDir)\ReverseManager.hh" />
     <None Include="$(OpenMSXSrcDir)\RP5C01.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />

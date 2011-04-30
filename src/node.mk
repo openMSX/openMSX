@@ -42,7 +42,7 @@ SRC_HDR:= \
 	Version \
 	LedStatus \
 	serialize serialize_meta serialize_core openmsx \
-	ReverseManager \
+	ReverseManager ReplayCLI \
 	MSXException
 
 SRC_ONLY:= \
