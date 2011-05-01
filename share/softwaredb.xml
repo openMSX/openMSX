@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1303627754">
+<softwaredb xml:lang="en" timestamp="1304276983">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8947,6 +8947,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">c960c1b895557ef1b336035029d5c6d553c64085</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Robots</title>
+	<system>MSX</system>
+	<company>Michel d&#39;Alger</company>
+	<year>2011</year>
+	<country>EU</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">c1577863c6ac7aab87cc0c2d64cc0577e2e5e360</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Robowres 2001</title>
 	<genmsxid>1043</genmsxid>
 	<system>MSX</system>
@@ -11916,6 +11924,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2625
-Parse time 13.044 seconds on Sun Apr 24 8:49:27 CEST 2011
+Roms in this database:2626
+Parse time 7.452 seconds on Sun May 1 21:09:50 CEST 2011
  -->
