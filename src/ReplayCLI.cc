@@ -5,8 +5,6 @@
 #include "GlobalCommandController.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
-#include "Filename.hh"
-#include "FileContext.hh"
 
 using std::deque;
 using std::string;
@@ -40,10 +38,7 @@ void ReplayCLI::parseFileType(const string& filename,
 	command.addListElement("reverse");
 	command.addListElement("loadreplay");
 	command.addListElement("-viewonly");
-	// resolve also current dir file context...
-	CurrentDirFileContext context;
-	Filename fileName(Filename(filename, context));
-	command.addListElement(fileName.getResolved());
+	command.addListElement(filename);
 	command.executeCommand();
 }
 
