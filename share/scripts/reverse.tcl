@@ -84,18 +84,18 @@ proc goto_time_delta {delta} {
 	reverse goto $t
 }
 
-proc go_back_one_second {} {
-	goto_time_delta -1
+proc go_back_one_step {} {
+	goto_time_delta [expr -$::speed/100.0]
 }
 
-proc go_forward_one_second {} {
-	goto_time_delta +1
+proc go_forward_one_step {} {
+	goto_time_delta [expr $::speed/100.0]
 }
 
 # note: you can't use bindings with modifiers like SHIFT, because they
 # will already stop the replay, as they are MSX keys as well
-bind_default PAGEUP   -repeat "go_back_one_second"
-bind_default PAGEDOWN -repeat "go_forward_one_second"
+bind_default PAGEUP   -repeat "reverse::go_back_one_step"
+bind_default PAGEDOWN -repeat "reverse::go_forward_one_step"
 
 proc after_switch {} {
 	if {$::auto_enable_reverse eq "on"} {
@@ -108,8 +108,7 @@ proc after_switch {} {
 
 namespace export reverse_prev
 namespace export reverse_next
-namespace export go_back_one_second
-namespace export go_forward_one_second
+namespace export goto_time_delta
 
 } ;# namespace reverse
 
