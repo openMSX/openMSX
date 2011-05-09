@@ -519,7 +519,7 @@ string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 		"screenshot <filename>        Write screenshot to indicated file\n"
 		"screenshot -prefix foo       Write screenshot to file \"fooNNNN.png\"\n"
 		"screenshot -raw              320x240 raw screenshot (of MSX screen only)\n"
-		"screenshot -raw -doublesize  640x480 rw screenshot (of MSX screen only)\n"
+		"screenshot -raw -doublesize  640x480 raw screenshot (of MSX screen only)\n"
 		"screenshot -with-osd         Include OSD elements in the screenshot\n"
 		"screenshot -no-sprites       Don't include sprites in the screenshot\n";
 }
