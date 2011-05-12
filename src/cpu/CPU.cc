@@ -10,7 +10,6 @@ byte CPU::ZSXYTable[256];
 byte CPU::ZSPTable[256];
 byte CPU::ZSPXYTable[256];
 byte CPU::ZSPHTable[256];
-word CPU::DAATable[0x800];
 
 
 CPU::CPU(bool r800)
@@ -42,38 +41,6 @@ CPU::CPU(bool r800)
 	assert(ZSPXYTable[  0] == ZSPXY0);
 	assert(ZSTable   [255] == ZS255);
 	assert(ZSXYTable [255] == ZSXY255);
-
-	for (int x = 0; x < 0x800; ++x) {
-		bool hf = (x & 0x400) != 0;
-		bool nf = (x & 0x200) != 0;
-		bool cf = (x & 0x100) != 0;
-		byte a = x & 0xFF;
-		byte hi = a / 16;
-		byte lo = a & 15;
-		byte diff;
-		if (cf) {
-			diff = ((lo <= 9) && !hf) ? 0x60 : 0x66;
-		} else {
-			if (lo >= 10) {
-				diff = (hi <= 8) ? 0x06 : 0x66;
-			} else {
-				if (hi >= 10) {
-					diff = hf ? 0x66 : 0x60;
-				} else {
-					diff = hf ? 0x06 : 0x00;
-				}
-			}
-		}
-		byte res_a = nf ? a - diff : a + diff;
-		byte res_f = ZSPXYTable[res_a] | (nf ? N_FLAG : 0);
-		if (cf || ((lo <= 9) ? (hi >= 10) : (hi >= 9))) {
-			res_f |= C_FLAG;
-		}
-		if (nf ? (hf && (lo <= 5)) : (lo >= 10)) {
-			res_f |= H_FLAG;
-		}
-		DAATable[x] = (res_a << 8) + res_f;
-	}
 }
 
 CPU::~CPU()

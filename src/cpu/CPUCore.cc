@@ -4012,15 +4012,25 @@ template <class T> int CPUCore<T>::cpl() {
 	return T::CC_CPL;
 }
 template <class T> int CPUCore<T>::daa() {
-	unsigned i = R.getA();
-	i |= (R.getF() & (C_FLAG | N_FLAG)) << 8; // 0x100 0x200
-	i |= (R.getF() &  H_FLAG)           << 6; // 0x400
-	if (T::isR800()) {
-		R.setAF((R.getF()    &  (X_FLAG | Y_FLAG)) |
-		        (DAATable[i] & ~(X_FLAG | Y_FLAG)));
+	byte a = R.getA();
+	byte f = R.getF();
+	if (f & N_FLAG) {
+		if ((f & H_FLAG) || ((a & 0xf) > 9)) a -= 6;
+		if ((f & C_FLAG) || (R.getA() > 0x99)) a -= 0x60;
 	} else {
-		R.setAF(DAATable[i]);
+		if ((f & H_FLAG) || ((a & 0xf) > 9)) a += 6;
+		if ((f & C_FLAG) || (R.getA() > 0x99)) a += 0x60;
 	}
+	if (T::isR800()) {
+		f &= C_FLAG | N_FLAG | X_FLAG | Y_FLAG;
+		f |= ZSPTable[a];
+	} else {
+		f &= C_FLAG | N_FLAG;
+		f |= ZSPXYTable[a];
+	}
+	f |= (R.getA() > 0x99) | ((R.getA() ^ a) & H_FLAG);
+	R.setA(a);
+	R.setF(f);
 	return T::CC_DAA;
 }
 template <class T> int CPUCore<T>::neg() {
