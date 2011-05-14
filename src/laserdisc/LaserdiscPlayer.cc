@@ -548,6 +548,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		case 0xfa:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
+			stillOnWaitFrame = false;
 			nonseekack = false;
 			break;
 		case 0x82:
@@ -623,7 +624,11 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			seekState = SEEK_NONE;
 			break;
 		case 0x2a: // S+ (frame step forward)
-			stepFrame(true);
+			if (seekState == SEEK_WAIT) {
+				stillOnWaitFrame = true;
+			} else {
+				stepFrame(true);
+			}
 			break;
 		case 0x0a: // S- (frame step backwards)
 			stepFrame(false);
@@ -771,6 +776,12 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 		// Leave ACK raised until the next command 
 		ack = true;
 		waitFrame = 0;
+
+		if (stillOnWaitFrame) {
+			playingFromSample = getCurrentSample(time);
+			playerState = PLAYER_STILL;
+			stillOnWaitFrame = false;
+		}
 	}
 
 	if (playerState == PLAYER_MULTISPEED) {
@@ -1273,6 +1284,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 
 		// Playing state
 		ar.serialize("WaitFrame", waitFrame);
+		ar.serialize("StillOnWaitFrame", stillOnWaitFrame);
 		ar.serialize("ACK", ack);
 		ar.serialize("PlayingSpeed", playingSpeed);
 

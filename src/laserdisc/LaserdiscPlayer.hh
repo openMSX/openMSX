@@ -185,6 +185,9 @@ private:
 	/* frame the MSX has requested to wait for */
 	int waitFrame;
 
+	// pause playing back on reaching wait frame
+	bool stillOnWaitFrame;
+
 	/* The specific frame or chapter we are seeking to */
 	int seekNum;
 
