@@ -4014,13 +4014,10 @@ template <class T> int CPUCore<T>::cpl() {
 template <class T> int CPUCore<T>::daa() {
 	byte a = R.getA();
 	byte f = R.getF();
-	if (f & N_FLAG) {
-		if ((f & H_FLAG) || ((a & 0xf) > 9)) a -= 6;
-		if ((f & C_FLAG) || (R.getA() > 0x99)) a -= 0x60;
-	} else {
-		if ((f & H_FLAG) || ((a & 0xf) > 9)) a += 6;
-		if ((f & C_FLAG) || (R.getA() > 0x99)) a += 0x60;
-	}
+	byte adjust = 0;
+	if ((f & H_FLAG) || ((R.getA() & 0xf) > 9)) adjust += 6;
+	if ((f & C_FLAG) || (R.getA() > 0x99)) adjust += 0x60;
+	a += (f & N_FLAG) ? -adjust : adjust;
 	if (T::isR800()) {
 		f &= C_FLAG | N_FLAG | X_FLAG | Y_FLAG;
 		f |= ZSPTable[a];
