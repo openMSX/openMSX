@@ -3,6 +3,7 @@
 #include "MSXKanji.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -15,6 +16,7 @@ MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config)
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw MSXException("MSXKanji: wrong kanji rom");
 	}
+	isLascom = config.getChildData("type") == "lascom";
 
 	reset(EmuTime::dummy());
 }
@@ -51,6 +53,10 @@ byte MSXKanji::readIO(word port, EmuTime::param time)
 {
 	byte result = peekIO(port, time);
 	switch (port & 0x03) {
+	case 0:
+		if (!isLascom) {
+			break;
+		}
 	case 1:
 		adr1 = (adr1 & ~0x1f) | ((adr1 + 1) & 0x1f);
 		break;
@@ -63,20 +69,20 @@ byte MSXKanji::readIO(word port, EmuTime::param time)
 
 byte MSXKanji::peekIO(word port, EmuTime::param /*time*/) const
 {
-	byte result;
+	byte result = 0xff;
 	switch (port & 0x03) {
+	case 0:
+		if (!isLascom) {
+			break;
+		}
 	case 1:
 		result = (*rom)[adr1];
 		break;
 	case 3:
 		if (rom->getSize() == 0x40000) { // temp workaround
 			result = (*rom)[adr2];
-		} else {
-			result = 0xFF;
 		}
 		break;
-	default:
-		result = 0xFF;
 	}
 	return result;
 }

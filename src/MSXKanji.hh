@@ -27,6 +27,7 @@ public:
 private:
 	const std::auto_ptr<Rom> rom;
 	unsigned adr1, adr2;
+	bool isLascom;
 };
 
 } // namespace openmsx

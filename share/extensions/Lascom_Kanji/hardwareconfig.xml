@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6802 2007-08-05 08:44:39Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Lascom Kanji ROM Cartridge</name>
+    <type>kanji font expansion</type>
+  </info>
+  <devices>
+    <Kanji id="Lascom Kanji ROM">
+      <type>lascom</type>
+      <rom>
+        <filename>roms/lascom_kanji.rom</filename>
+      </rom>
+      <io base="0xD8" num="2" type="O"/>
+      <io base="0xD8" num="1" type="I"/>
+    </Kanji>
+  </devices>
+</msxconfig>
