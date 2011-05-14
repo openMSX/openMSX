@@ -78,7 +78,7 @@ def detectOS():
 def detectMaemo5():
 	try:
 		proc = Popen(
-			[ "pkg-config", "--modversion", "maemo-version"],
+			["pkg-config", "--silence-errors", "--modversion", "maemo-version"],
 			stdin = None,
 			stdout = PIPE,
 			stderr = None);
