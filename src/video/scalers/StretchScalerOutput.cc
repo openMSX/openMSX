@@ -181,7 +181,7 @@ StretchScalerOutput<Pixel>::StretchScalerOutput(
 template<typename Pixel>
 void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
-	Pixel* dstLine = releasePre(y, buf);
+	Pixel* dstLine = this->releasePre(y, buf);
 
 	unsigned dstWidth = StretchScalerOutputBase<Pixel>::getWidth();
 	unsigned srcWidth = (dstWidth / 320) * inWidth;
@@ -189,7 +189,7 @@ void StretchScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 	ZoomLine<Pixel> zoom(this->pixelOps);
 	zoom(buf + srcOffset, srcWidth, dstLine, dstWidth);
 
-	releasePost(y, dstLine);
+	this->releasePost(y, dstLine);
 }
 
 
@@ -206,7 +206,7 @@ StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::StretchScalerOutputN(
 template<typename Pixel, unsigned IN_WIDTH, typename SCALE>
 void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel* buf)
 {
-	Pixel* dstLine = releasePre(y, buf);
+	Pixel* dstLine = this->releasePre(y, buf);
 
 	unsigned dstWidth = StretchScalerOutputBase<Pixel>::getWidth();
 	unsigned srcWidth = (dstWidth / 320) * IN_WIDTH;
@@ -214,7 +214,7 @@ void StretchScalerOutputN<Pixel, IN_WIDTH, SCALE>::releaseLine(unsigned y, Pixel
 	SCALE scale(this->pixelOps);
 	scale(buf + srcOffset, dstLine, dstWidth);
 
-	releasePost(y, dstLine);
+	this->releasePost(y, dstLine);
 }
 
 
