@@ -56,10 +56,10 @@ proc listing {} {
 		"OPEN" "FIELD" "GET" "PUT" "CLOSE" "LOAD" "MERGE" "FILES" \
 		"LSET" "RSET" "SAVE" "LFILES" "CIRCLE" "COLOR" "DRAW" "PAINT" \
 		"BEEP" "PLAY" "PSET" "PRESET" "SOUND" "SCREEN" "VPOKE" \
-		"SPRITE" "VDP" "word" "CALL" "TIME" "KEY" "MAX" "MOTOR" \
+		"SPRITE" "VDP" "BASE" "CALL" "TIME" "KEY" "MAX" "MOTOR" \
 		"BLOAD" "BSAVE" "DSKO$" "SET" "NAME" "KILL" "IPL" "COPY" "CMD" \
-		"LOCATE" "TO" "THEN" "TABC" "STEP" "USR" "FN" "SPCL" "NOT" \
-		"ERL" "ERR" "STRING$" "USING" "INSRT" "" "VARPTR" "CSRLIN" \
+		"LOCATE" "TO" "THEN" "TAB(" "STEP" "USR" "FN" "SPC(" "NOT" \
+		"ERL" "ERR" "STRING$" "USING" "INSTR" "" "VARPTR" "CSRLIN" \
 		"ATTR$" "DSKI$" "OFF" "INKEY$" "POINT" ">" "=" "<" "+" "-" "*" \
 		"/" "^" "AND" "OR" "XOR" "EQV" "IMP" "MOD" "\\" "" "" \
 		"{escape-code}"]
@@ -69,14 +69,14 @@ proc listing {} {
 		"VAL" "ASC" "CHR$" "PEEK" "VPEEK" "SPACE$" "OCT$" "HEX$" \
 		"LPOS" "BIN$" "CINT" "CSNG" "CDBL" "FIX" "STICK" "STRIG" "PDL" \
 		"PAD" "DSKF" "FPOS" "CVI" "CVS" "CVD" "EOF" "LOC" "LOF" "MKI$" \
-		"MK$" "MKD$" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
+		"MKS$" "MKD$" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" \
 		"" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""]
 
 	# Loop over all lines
 	set listing ""
-	for {set addr [peek16 0xf676]} {[peek $addr] != 0} {} {
+	for {set addr [peek16 0xf676]} {[peek16 $addr] != 0} {} {
 		append listing [format "0x%x > " $addr]
 		incr addr 2
 		append listing "[peek16 $addr] "
@@ -101,7 +101,7 @@ proc listing {} {
 				set t [format "&O%o" [peek16 $addr]]
 				incr addr 2
 			} elseif {$token == 0x0C} {
-				set t [format "&H%x" [peek16 $addr]]
+				set t [format "&H%X" [peek16 $addr]]
 				incr addr 2
 			} elseif {$token == 0x0D} {
 				# line number (stored as address)
