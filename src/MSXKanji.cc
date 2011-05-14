@@ -16,7 +16,7 @@ MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config)
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw MSXException("MSXKanji: wrong kanji rom");
 	}
-	isLascom = config.getChildData("type") == "lascom";
+	isLascom = config.getChildData("type", "") == "lascom";
 
 	reset(EmuTime::dummy());
 }
