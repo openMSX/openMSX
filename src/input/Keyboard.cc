@@ -184,11 +184,17 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, KeyMatrixState, "KeyMatrixState");
 
 
-static bool sdlVersionAtleast_1_2_14()
+static bool checkSDLReleasesCapslock()
 {
 	const SDL_version* v = SDL_Linked_Version();
-	return SDL_VERSIONNUM(v->major, v->minor, v->patch) >=
-	       SDL_VERSIONNUM(1, 2, 14);
+	if (SDL_VERSIONNUM(v->major, v->minor, v->patch) < SDL_VERSIONNUM(1, 2, 14)) {
+		// Feature was introduced in SDL 1.2.14.
+		return false;
+	} else {
+		// Check whether feature was enabled by envvar.
+		char *val = SDL_getenv("SDL_DISABLE_LOCK_KEYS");
+		return val && (strcmp(val, "1") == 0 || strcmp(val, "2") == 0);
+	}
 }
 
 Keyboard::Keyboard(MSXMotherBoard& motherBoard,
@@ -222,7 +228,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, keyGhostingSGCprotected(keyGhostSGCprotected)
 	, codeKanaLocks(codeKanaLocks_)
 	, graphLocks(graphLocks_)
-	, sdlReleasesCapslock(sdlVersionAtleast_1_2_14())
+	, sdlReleasesCapslock(checkSDLReleasesCapslock())
 {
 	// SDL version >= 1.2.14 releases caps-lock key when SDL_DISABLED_LOCK_KEYS
 	// environment variable is already set in main.cc (because here it
@@ -472,13 +478,13 @@ void Keyboard::processDeadKeyEvent(unsigned n, EmuTime::param time, bool down)
 void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 {
 	if (sdlReleasesCapslock) {
-		debug("Changing CAPSlock state according to SDL request\n");
+		debug("Changing CAPS lock state according to SDL request\n");
 		if (down) {
 			msxCapsLockOn = !msxCapsLockOn;
 		}
 		updateKeyMatrix(time, down, 6, CAPS_MASK);
 	} else {
-		debug("Pressing CAPS-lock and scheduling a release\n");
+		debug("Pressing CAPS lock and scheduling a release\n");
 		msxCapsLockOn = !msxCapsLockOn;
 		updateKeyMatrix(time, true, 6, CAPS_MASK);
 		Clock<10> now(time);
@@ -488,7 +494,7 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 
 void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
 {
-	debug("Releasing CAPS-lock\n");
+	debug("Releasing CAPS lock\n");
 	updateKeyMatrix(time, false, 6, CAPS_MASK);
 }
 
@@ -1246,11 +1252,13 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 	if (keyboard.msxCapsLockOn != hostCapsLockOn) {
+		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
 		shared_ptr<const Event> event(new KeyDownEvent(Keys::K_CAPSLOCK));
 		msxEventDistributor.distributeEvent(event, time);
 		if (keyboard.sdlReleasesCapslock) {
+			keyboard.debug("Sending fake CAPS release\n");
 			state = MUST_DISTRIBUTE_KEY_RELEASE;
 			Clock<10> now(time);
 			setSyncPoint(now + 1); // 0.1 second (MSX time)
