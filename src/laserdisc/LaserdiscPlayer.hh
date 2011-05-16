@@ -220,6 +220,8 @@ private:
 	friend class LaserdiscCommand;
 };
 
+SERIALIZE_CLASS_VERSION(LaserdiscPlayer,  2);
+
 } // namespace openmsx
 
 #endif

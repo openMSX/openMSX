@@ -1245,7 +1245,7 @@ static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 
 template<typename Archive>
-void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
+void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
@@ -1284,7 +1284,12 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned /*version*/)
 
 		// Playing state
 		ar.serialize("WaitFrame", waitFrame);
-		ar.serialize("StillOnWaitFrame", stillOnWaitFrame);
+
+		// This was not yet implemented in openmsx 0.8.1 and earlier
+		if (ar.versionAtLeast(version, 2)) {
+			ar.serialize("StillOnWaitFrame", stillOnWaitFrame);
+		}
+
 		ar.serialize("ACK", ack);
 		ar.serialize("PlayingSpeed", playingSpeed);
 
