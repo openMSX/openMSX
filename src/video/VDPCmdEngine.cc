@@ -170,13 +170,6 @@ typedef IncrMask4 IncrMask6;
 typedef IncrShift4 IncrShift6;
 
 
-template <typename LogOp> static void psetFast(
-	EmuTime::param time, VDPVRAM& vram, unsigned addr,
-	byte color, byte mask, LogOp op)
-{
-	op(time, vram, addr, color, mask);
-}
-
 /** Represents V9938 Graphic 4 mode (SCREEN5).
   */
 struct Graphic4Mode
@@ -194,7 +187,12 @@ struct Graphic4Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	template <typename LogOp>
+	static inline void psetFast(EmuTime::param time, VDPVRAM& vram,
+		unsigned addr, byte color, byte mask, LogOp op);
 	static inline byte duplicate(byte color);
+	static inline void vpoke(VDPVRAM& vram, unsigned addr, byte value,
+	                         EmuTime::param time);
 };
 
 inline unsigned Graphic4Mode::addressOf(
@@ -221,11 +219,26 @@ inline void Graphic4Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(15 << sh));
 }
 
+template <typename LogOp>
+inline void Graphic4Mode::psetFast(
+	EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	byte color, byte mask, LogOp op)
+{
+	op(time, vram, addr, color, mask);
+}
+
 inline byte Graphic4Mode::duplicate(byte color)
 {
 	assert((color & 0xF0) == 0);
 	return color | (color << 4);
 }
+
+inline void Graphic4Mode::vpoke(VDPVRAM& vram, unsigned addr, byte value,
+                                EmuTime::param time)
+{
+	vram.cmdWrite(addr, value, time);
+}
+
 
 /** Represents V9938 Graphic 5 mode (SCREEN6).
   */
@@ -244,7 +257,12 @@ struct Graphic5Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	template <typename LogOp>
+	static inline void psetFast(EmuTime::param time, VDPVRAM& vram,
+		unsigned addr, byte color, byte mask, LogOp op);
 	static inline byte duplicate(byte color);
+	static inline void vpoke(VDPVRAM& vram, unsigned addr, byte value,
+	                         EmuTime::param time);
 };
 
 inline unsigned Graphic5Mode::addressOf(
@@ -271,6 +289,14 @@ inline void Graphic5Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(3 << sh));
 }
 
+template <typename LogOp>
+inline void Graphic5Mode::psetFast(
+	EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	byte color, byte mask, LogOp op)
+{
+	op(time, vram, addr, color, mask);
+}
+
 inline byte Graphic5Mode::duplicate(byte color)
 {
 	assert((color & 0xFC) == 0);
@@ -278,6 +304,13 @@ inline byte Graphic5Mode::duplicate(byte color)
 	color |= color << 4;
 	return color;
 }
+
+inline void Graphic5Mode::vpoke(VDPVRAM& vram, unsigned addr, byte value,
+                                EmuTime::param time)
+{
+	vram.cmdWrite(addr, value, time);
+}
+
 
 /** Represents V9938 Graphic 6 mode (SCREEN7).
   */
@@ -296,7 +329,12 @@ struct Graphic6Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	template <typename LogOp>
+	static inline void psetFast(EmuTime::param time, VDPVRAM& vram,
+		unsigned addr, byte color, byte mask, LogOp op);
 	static inline byte duplicate(byte color);
+	static inline void vpoke(VDPVRAM& vram, unsigned addr, byte value,
+	                         EmuTime::param time);
 };
 
 inline unsigned Graphic6Mode::addressOf(
@@ -323,11 +361,26 @@ inline void Graphic6Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color << sh, ~(15 << sh));
 }
 
+template <typename LogOp>
+inline void Graphic6Mode::psetFast(
+	EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	byte color, byte mask, LogOp op)
+{
+	op(time, vram, addr, color, mask);
+}
+
 inline byte Graphic6Mode::duplicate(byte color)
 {
 	assert((color & 0xF0) == 0);
 	return color | (color << 4);
 }
+
+inline void Graphic6Mode::vpoke(VDPVRAM& vram, unsigned addr, byte value,
+                                EmuTime::param time)
+{
+	vram.cmdWrite(addr, value, time);
+}
+
 
 /** Represents V9938 Graphic 7 mode (SCREEN8).
   */
@@ -346,7 +399,12 @@ struct Graphic7Mode
 	template <typename LogOp>
 	static inline void pset(EmuTime::param time, VDPVRAM& vram,
 		unsigned x, unsigned y, bool extVRAM, byte color, LogOp op);
+	template <typename LogOp>
+	static inline void psetFast(EmuTime::param time, VDPVRAM& vram,
+		unsigned addr, byte color, byte mask, LogOp op);
 	static inline byte duplicate(byte color);
+	static inline void vpoke(VDPVRAM& vram, unsigned addr, byte value,
+	                         EmuTime::param time);
 };
 
 inline unsigned Graphic7Mode::addressOf(
@@ -371,10 +429,25 @@ inline void Graphic7Mode::pset(
 	op(time, vram, addressOf(x, y, extVRAM), color, 0);
 }
 
+template <typename LogOp>
+inline void Graphic7Mode::psetFast(
+	EmuTime::param time, VDPVRAM& vram, unsigned addr,
+	byte color, byte mask, LogOp op)
+{
+	op(time, vram, addr, color, mask);
+}
+
 inline byte Graphic7Mode::duplicate(byte color)
 {
 	return color;
 }
+
+inline void Graphic7Mode::vpoke(VDPVRAM& vram, unsigned addr, byte value,
+                                EmuTime::param time)
+{
+	vram.cmdWrite(addr, value, time);
+}
+
 
 /** Incremental address calculation (byte based, no extended VRAM)
  */
@@ -983,8 +1056,9 @@ void LmmvCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte mask = dstMask.getMask();
-				psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
-					 CL & ~mask, mask, LogOp());
+				Mode::psetFast(engine.clock.getTime(), vram,
+				               dstAddr.getAddr(),
+				               CL & ~mask, mask, LogOp());
 				engine.clock.fastAdd(delta);
 				dstAddr.step(TX);
 				dstMask.step();
@@ -1090,8 +1164,9 @@ void LmmmCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
 				p = shift.doShift(p);
 				byte mask = dstMask.getMask();
-				psetFast(engine.clock.getTime(), vram, dstAddr.getAddr(),
-					 p & ~mask, mask, LogOp());
+				Mode::psetFast(engine.clock.getTime(), vram,
+				               dstAddr.getAddr(),
+				               p & ~mask, mask, LogOp());
 				engine.clock.fastAdd(delta);
 				srcAddr.step(TX);
 				dstAddr.step(TX);
@@ -1287,7 +1362,7 @@ void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 		bool doPset = !dstExt || engine.hasExtendedVRAM;
 		while (engine.clock.before(time)) {
 			if (likely(doPset)) {
-				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+				Mode::vpoke(vram, Mode::addressOf(engine.ADX, engine.DY, dstExt),
 					      engine.COL, engine.clock.getTime());
 			}
 			engine.clock.fastAdd(delta);
@@ -1310,7 +1385,7 @@ void HmmvCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			             ? std::min((ticks + delta - 1) / delta, engine.ANX)
 			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
-				vram.cmdWrite(dstAddr.getAddr(), engine.COL,
+				Mode::vpoke(vram, dstAddr.getAddr(), engine.COL,
 					      engine.clock.getTime());
 				engine.clock.fastAdd(delta);
 				dstAddr.step(TX);
@@ -1387,7 +1462,7 @@ void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 				       ? vram.cmdReadWindow.readNP(
 					       Mode::addressOf(engine.ASX, engine.SY, srcExt))
 				       : 0xFF;
-				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+				Mode::vpoke(vram, Mode::addressOf(engine.ADX, engine.DY, dstExt),
 					      p, engine.clock.getTime());
 			}
 			engine.clock.fastAdd(delta);
@@ -1412,7 +1487,7 @@ void HmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
-				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
+				Mode::vpoke(vram, dstAddr.getAddr(), p, engine.clock.getTime());
 				engine.clock.fastAdd(delta);
 				srcAddr.step(TX);
 				dstAddr.step(TX);
@@ -1490,7 +1565,7 @@ void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			if (likely(doPset)) {
 				byte p = vram.cmdReadWindow.readNP(
 					      Mode::addressOf(engine.ADX, engine.SY, dstExt));
-				vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+				Mode::vpoke(vram, Mode::addressOf(engine.ADX, engine.DY, dstExt),
 					      p, engine.clock.getTime());
 			}
 			engine.clock.fastAdd(delta);
@@ -1515,7 +1590,7 @@ void YmmmCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			             : engine.ANX;
 			for (unsigned i = 0; i < num; ++i) {
 				byte p = vram.cmdReadWindow.readNP(srcAddr.getAddr());
-				vram.cmdWrite(dstAddr.getAddr(), p, engine.clock.getTime());
+				Mode::vpoke(vram, dstAddr.getAddr(), p, engine.clock.getTime());
 				engine.clock.fastAdd(delta);
 				srcAddr.step(TX);
 				dstAddr.step(TX);
@@ -1584,7 +1659,7 @@ void HmmcCmd<Mode>::execute(EmuTime::param time, VDPCmdEngine& engine)
 	if (engine.transfer) {
 		// TODO: Write time is inaccurate.
 		if (likely(doPset)) {
-			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
+			Mode::vpoke(vram, Mode::addressOf(engine.ADX, engine.DY, dstExt),
 			              engine.COL, time);
 		}
 		// Execution is emulated as instantaneous, so don't bother
