@@ -443,7 +443,7 @@ set main_menu {
 	         actions { A { osd_menu::menu_create $osd_menu::advanced_menu }}
 	         post-spacing 10 }
 	       { text "Reset MSX"
-	         actions { A { reset ; osd_menu::menu_close_all }}}
+	         actions { A { reset; osd_menu::menu_close_all }}}
 	       { text "Exit openMSX"
 	         actions { A exit }}}}
 
@@ -484,10 +484,12 @@ set sound_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}
 
+set horizontal_stretch_desc [dict create 320.00 "none (large borders)" 288.00 "a bit more than all border pixels" 284.00 "all border pixels" 280.00 "a bit less than all border pixels" 272.00 "realistic" 256.00 "no borders at all"]
+
 set video_setting_menu {
 	font-size 8
 	border-size 2
-	width 150
+	width 210
 	xpos 100
 	ypos 120
 	items {{ text "Video Settings"
@@ -497,17 +499,19 @@ set video_setting_menu {
 	       { text "Scaler: $scale_algorithm"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
 	                   RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
-	       { text "Scale Factor: $scale_factor X"
+	       { text "Scale Factor: ${scale_factor}x"
 	         actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
-	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}
+	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+	       { text "Horizontal Stretch: [dict get $osd_menu::horizontal_stretch_desc $horizontal_stretch]"
+	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $::horizontal_stretch }}
 	         post-spacing 6 }
-	       { text "Scanline: $scanline"
+	       { text "Scanline: $scanline%"
 	         actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
 	                   RIGHT { osd_menu::menu_setting [incr scanline  1] }}}
-	       { text "Blur: $blur"
+	       { text "Blur: $blur%"
 	         actions { LEFT  { osd_menu::menu_setting [incr blur -1] }
 	                   RIGHT { osd_menu::menu_setting [incr blur  1] }}}
-	       { text "Glow: $glow"
+	       { text "Glow: $glow%"
 	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
 	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}
 
@@ -607,6 +611,39 @@ proc menu_create_running_machine_list {} {
 proc menu_machine_tab_select_exec {item} {
 	menu_close_top
 	activate_machine $item
+}
+
+proc menu_create_stretch_list {} {
+
+	set menu_def [list \
+	         execute menu_stretch_exec \
+	         font-size 8 \
+	         border-size 2 \
+	         width 150 \
+	         xpos 110 \
+	         ypos 130 \
+	         header { text "Select Horizontal Stretch:"
+	                  font-size 10
+	                  post-spacing 6 }]
+
+	set items [list]
+	set presentation [list]
+
+	dict for {value desc} $osd_menu::horizontal_stretch_desc {
+		lappend items $value
+		lappend presentation $desc
+	}
+	lappend menu_def presentation $presentation
+
+	return [prepare_menu_list $items 6 $menu_def]
+}
+
+proc menu_stretch_exec {value} {
+	set ::horizontal_stretch $value
+	menu_close_top
+	# refresh the video settings menu
+	menu_close_top
+	menu_create $osd_menu::video_setting_menu
 }
 
 proc menu_create_load_machine_list {{mode "replace"}} {
