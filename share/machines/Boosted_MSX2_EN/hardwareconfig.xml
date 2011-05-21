@@ -117,7 +117,14 @@
           </rom>
           <sramname>fmpac.pac</sramname>
         </FMPAC>
-      </secondary>
+        <ROM id="BASIC Compiler">
+          <rom>
+            <filename>roms/phc-70fd2_basickun.rom</filename>
+            <sha1>22b3191d865010264001b9d896186a9818478a6b</sha1>
+          </rom>
+          <mem base="0x8000" size="0x4000"/>
+        </ROM>
+    </secondary>
 
     </primary>
 
