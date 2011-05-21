@@ -502,7 +502,7 @@ set video_setting_menu {
 	       { text "Scale Factor: ${scale_factor}x"
 	         actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
 	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
-	       { text "Horizontal Stretch: [dict get $osd_menu::horizontal_stretch_desc $horizontal_stretch]"
+	       { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $::horizontal_stretch }}
 	         post-spacing 6 }
 	       { text "Scanline: $scanline%"
@@ -613,6 +613,14 @@ proc menu_machine_tab_select_exec {item} {
 	activate_machine $item
 }
 
+proc get_horizontal_stretch_presentation { value } {
+	if {[dict exists $osd_menu::horizontal_stretch_desc $value]} {
+		return [dict get $osd_menu::horizontal_stretch_desc $value]
+	} else {
+		return "custom: $::horizontal_stretch"
+	}
+}
+
 proc menu_create_stretch_list {} {
 
 	set menu_def [list \
@@ -629,9 +637,13 @@ proc menu_create_stretch_list {} {
 	set items [list]
 	set presentation [list]
 
-	dict for {value desc} $osd_menu::horizontal_stretch_desc {
+	set values [dict keys $osd_menu::horizontal_stretch_desc]
+	if {$::horizontal_stretch ni $values} {
+		lappend values $::horizontal_stretch
+	}
+	foreach value $values {
 		lappend items $value
-		lappend presentation $desc
+		lappend presentation [osd_menu::get_horizontal_stretch_presentation $value]
 	}
 	lappend menu_def presentation $presentation
 
