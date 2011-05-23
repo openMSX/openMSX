@@ -1945,6 +1945,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 	}
 
 	if (newScrMode != scrMode) {
+		sync(time);
 		if (currentCommand) {
 			PRT_DEBUG("VDP mode switch while command in progress");
 			if (newScrMode == -1) {
@@ -1957,7 +1958,6 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 				currentCommand = commands[CMD][newScrMode];
 			}
 		}
-		sync(time);
 		scrMode = newScrMode;
 	}
 }
