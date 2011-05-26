@@ -123,14 +123,23 @@ void Y8950Adpcm::schedule()
 {
 	assert(isPlaying());
 	if ((stopAddr > startAddr) && (delta != 0)) {
-		// we already did a sync(time), so clock is up-to-date
-		Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> stop(clock);
-		uint64 samples = stopAddr - emu.memPntr + 1;
-		uint64 length = (samples << STEP_BITS) +
-		                ((1 << STEP_BITS) - emu.nowStep) +
-		                (delta - 1);
-		stop += unsigned(length / delta);
-		setSyncPoint(stop.getTime());
+		// TODO possible optimization, no need to set sync points if
+		//      the corresponding bit is masked in the interupt enable
+		//      register
+		if (reg7 & R07_MEMORY_DATA) {
+			// we already did a sync(time), so clock is up-to-date
+			Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> stop(clock);
+			uint64 samples = stopAddr - emu.memPntr + 1;
+			uint64 length = (samples << STEP_BITS) +
+					((1 << STEP_BITS) - emu.nowStep) +
+					(delta - 1);
+			stop += unsigned(length / delta);
+			setSyncPoint(stop.getTime());
+		} else {
+			// TODO we should also set a syncpoint in this case
+			//      because this mode sets the STATUS_BUF_RDY bit
+			//      which also triggers an IRQ
+		}
 	}
 }
 
