@@ -85,21 +85,34 @@ static EventPtr parseJoystickEvent(
 	if (components.size() != 3) {
 		throw CommandException("Invalid joystick event: " + str);
 	}
-	int joystick = StringOp::stringToInt(components[0].substr(3)) - 1;
-	if (joystick < 0) {
-		throw CommandException("Invalid joystick number");
+	int joystick;
+	string joyString = components[0].substr(3);
+	if (!StringOp::stringToInt(joyString, joystick) || (joystick == 0)) {
+		throw CommandException("Invalid joystick number: " + joyString);
 	}
+	--joystick;
 
 	if (StringOp::startsWith(components[1], "button")) {
-		unsigned button = StringOp::stringToInt(components[1].substr(6));
+		int button;
+		string joyButtonString = components[1].substr(6);
+		if (!StringOp::stringToInt(joyButtonString, button)) {
+			throw CommandException("Invalid joystick button number: " + joyButtonString);
+		}
 		if (upDown(components[2])) {
 			return EventPtr(new JoystickButtonUpEvent(joystick, button));
 		} else {
 			return EventPtr(new JoystickButtonDownEvent(joystick, button));
 		}
 	} else if (StringOp::startsWith(components[1], "axis")) {
-		unsigned axis = StringOp::stringToInt(components[1].substr(4));
-		short value = StringOp::stringToInt(components[2]);
+		int axis;
+		string axisString = components[1].substr(4);
+		if (!StringOp::stringToInt(axisString, axis)) {
+			throw CommandException("Invalid axis number: " + axisString);
+		}
+		int value;
+		if (!StringOp::stringToInt(components[2], value) || (short(value) != value)) {
+			throw CommandException("Invalid value: " + components[2]);
+		}
 		return EventPtr(new JoystickAxisMotionEvent(joystick, axis, value));
 	} else {
 		throw CommandException("Invalid joystick event: " + str);
