@@ -190,7 +190,7 @@ void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
 		const JoystickAxisMotionEvent& motionEvent =
 			checked_cast<const JoystickAxisMotionEvent&>(*event);
 		short value = motionEvent.getValue();
-		switch (motionEvent.getAxis()) {
+		switch (motionEvent.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
 				// left, not right
