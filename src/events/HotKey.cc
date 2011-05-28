@@ -81,6 +81,8 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
 }
 
@@ -89,6 +91,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
@@ -151,10 +154,10 @@ void HotKey::initDefaultBindings()
 static HotKey::EventPtr createEvent(const string& str)
 {
 	HotKey::EventPtr event = InputEventFactory::createInputEvent(str);
-	if (!dynamic_cast<const KeyEvent*>           (event.get()) &&
-	    !dynamic_cast<const MouseButtonEvent*>   (event.get()) &&
-	    !dynamic_cast<const JoystickButtonEvent*>(event.get()) &&
-	    !dynamic_cast<const FocusEvent*>         (event.get())) {
+	if (!dynamic_cast<const KeyEvent*>         (event.get()) &&
+	    !dynamic_cast<const MouseButtonEvent*> (event.get()) &&
+	    !dynamic_cast<const JoystickEvent*>    (event.get()) &&
+	    !dynamic_cast<const FocusEvent*>       (event.get())) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;
@@ -190,7 +193,6 @@ void HotKey::loadBindings(const XMLElement& config)
 		}
 	}
 }
-
 
 void HotKey::saveBindings(XMLElement& config) const
 {
