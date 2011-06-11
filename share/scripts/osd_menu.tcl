@@ -203,6 +203,7 @@ proc menu_action {button} {
 
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
 if {![file exists $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
@@ -211,6 +212,11 @@ if {![file exists $::osd_rom_path]} {
 if {![file exists $::osd_disk_path]} {
 	# revert to default (should always exist)
 	unset ::osd_disk_path
+}
+
+if {![file exists $::osd_tape_path]} {
+	# revert to default (should always exist)
+	unset ::osd_tape_path
 }
 
 proc main_menu_open {} {
@@ -422,7 +428,9 @@ set main_menu {
 	       { text "Load ROM..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_ROM_list $::osd_rom_path] }}}
 	       { text "Insert Disk..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path] }}
+	         actions { A { if {[catch diska]} { osd::display_message "No disk drive on this machine..." error } else {osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path]} }}}
+	       { text "Set Tape..."
+	         actions { A { if {[catch "machine_info connector cassetteport"]} { osd::display_message "No cassette port on this machine..." error } else { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]} }}
 	         post-spacing 3 }
 	       { text "Save State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
@@ -979,6 +987,40 @@ proc menu_select_disk {item} {
 		} else {
 			menu_close_all
 			diska $fullname
+		}
+	}
+}
+
+proc menu_create_tape_list {path} {
+	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas,wav,gz"]] \
+	                          10 \
+	                          { execute menu_select_tape
+	                            font-size 8
+	                            border-size 2
+	                            width 200
+	                            xpos 100
+	                            ypos 120
+	                            header { text "Tapes  $::osd_tape_path"
+	                                     font-size 10
+	                                     post-spacing 6 }}]
+}
+
+proc menu_select_tape {item} {
+	if {$item eq "--eject--"} {
+		menu_close_all
+		cassetteplayer eject
+	} elseif {$item eq "--rewind--"} {
+		menu_close_all
+		cassetteplayer rewind
+	} else {
+		set fullname [file join $::osd_tape_path $item]
+		if {[file isdirectory $fullname]} {
+			menu_close_top
+			set ::osd_tape_path [file normalize $fullname]
+			menu_create [menu_create_tape_list $::osd_tape_path]
+		} else {
+			menu_close_all
+			cassetteplayer $fullname
 		}
 	}
 }
