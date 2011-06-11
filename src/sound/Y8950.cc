@@ -155,8 +155,8 @@ public:
 	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg, EmuTime::param time);
 	byte peekReg(byte reg, EmuTime::param time) const;
-	byte readStatus();
-	byte peekStatus() const;
+	byte readStatus(EmuTime::param time);
+	byte peekStatus(EmuTime::param time) const;
 
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
@@ -1141,6 +1141,7 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 				timer2.setStart((data & Y8950::R04_ST2) != 0, time);
 				reg[rg] = data;
 			}
+			adpcm->resetStatus();
 			break;
 
 		case 0x06: // (KEYBOARD OUT)
@@ -1355,16 +1356,16 @@ byte Y8950Impl::peekReg(byte rg, EmuTime::param time) const
 	}
 }
 
-byte Y8950Impl::readStatus()
+byte Y8950Impl::readStatus(EmuTime::param time)
 {
-	setStatus(Y8950::STATUS_BUF_RDY);	// temp hack
-	byte result = peekStatus();
+	byte result = peekStatus(time);
 	//std::cout << "status: " << (int)result << std::endl;
 	return result;
 }
 
-byte Y8950Impl::peekStatus() const
+byte Y8950Impl::peekStatus(EmuTime::param time) const
 {
+	adpcm->sync(time);
 	return (status & (0x80 | statusMask)) | 0x06; // bit 1 and 2 are always 1
 }
 
@@ -1556,14 +1557,14 @@ byte Y8950::peekReg(byte reg, EmuTime::param time) const
 	return pimple->peekReg(reg, time);
 }
 
-byte Y8950::readStatus()
+byte Y8950::readStatus(EmuTime::param time)
 {
-	return pimple->readStatus();
+	return pimple->readStatus(time);
 }
 
-byte Y8950::peekStatus() const
+byte Y8950::peekStatus(EmuTime::param time) const
 {
-	return pimple->peekStatus();
+	return pimple->peekStatus(time);
 }
 
 void Y8950::setStatus(byte flags)

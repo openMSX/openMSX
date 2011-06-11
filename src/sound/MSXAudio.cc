@@ -69,7 +69,7 @@ byte MSXAudio::readIO(word port, EmuTime::param time)
 		result = 255;
 	} else {
 		result = (port & 1) ? y8950->readReg(registerLatch, time)
-		                    : y8950->readStatus();
+		                    : y8950->readStatus(time);
 	}
 	return result;
 }
@@ -81,7 +81,7 @@ byte MSXAudio::peekIO(word port, EmuTime::param time) const
 		return 255; // read always returns 255
 	} else {
 		return (port & 1) ? y8950->peekReg(registerLatch, time)
-		                  : y8950->peekStatus();
+		                  : y8950->peekStatus(time);
 	}
 }
 

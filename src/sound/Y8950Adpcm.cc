@@ -159,6 +159,9 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 	switch (rg) {
 	case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
 		reg7 = data;
+		if (reg7 & R07_RESET) {
+			reg7 = 0;
+		}
 		if (reg7 & R07_START) {
 			// start ADPCM
 			restart(emu);
@@ -169,14 +172,14 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 			emu.memPntr = startAddr;
 			aud.memPntr = startAddr;
 			readDelay = 2; // two dummy reads
+			if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+				// we're ready to accept data
+				y8950.setStatus(Y8950::STATUS_BUF_RDY);
+			}
 		} else {
 			// access via CPU
 			emu.memPntr = 0;
 			aud.memPntr = 0;
-		}
-		if (reg7 & R07_RESET) {
-			reg7 = 0;
-			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 		}
 		removeSyncPoint();
 		if (isPlaying()) {
@@ -322,6 +325,22 @@ byte Y8950Adpcm::peekReg(byte rg) const
 	}
 }
 
+void Y8950Adpcm::resetStatus()
+{
+	// If the BUF_RDY mask is cleared (e.g. by writing the value 0x80 to
+	// register R#4). Reading the status register still has the BUF_RDY
+	// bit set. Without this behavior demos like 'NOP Unknown reality'
+	// hang when testing the amount of sample ram or when uploading data
+	// to the sample ram.
+	//
+	// Before this code was added, those demos also worked but only
+	// because we had a hack that always kept bit BUF_RDY set.
+	if ((reg7 & R07_MODE & ~R07_REC) == R07_MEMORY_DATA) {
+		// transfer to or from sample ram
+		y8950.setStatus(Y8950::STATUS_BUF_RDY);
+	}
+}
+
 byte Y8950Adpcm::readData()
 {
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
@@ -337,6 +356,7 @@ byte Y8950Adpcm::readData()
 		if (readDelay) {
 			// two dummy reads
 			--readDelay;
+			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 		} else if (emu.memPntr > stopAddr) {
 			// set EOS bit in status register
 			y8950.setStatus(Y8950::STATUS_EOS);

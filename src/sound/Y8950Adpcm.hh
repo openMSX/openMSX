@@ -30,6 +30,8 @@ public:
 	byte readReg(byte rg, EmuTime::param time);
 	byte peekReg(byte rg, EmuTime::param time);
 	int calcSample();
+	void sync(EmuTime::param time);
+	void resetStatus();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -50,7 +52,6 @@ private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
 
-	void sync(EmuTime::param time);
 	void schedule();
 	void restart(PlayData& pd);
 
