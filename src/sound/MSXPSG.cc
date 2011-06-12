@@ -40,7 +40,7 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();
-	ay8910.reset(new AY8910(motherBoard, *this, config, time));
+	ay8910.reset(new AY8910(motherBoard, "PSG", *this, config, time));
 	reset(time);
 }
 

@@ -48,9 +48,9 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const XMLElement& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
-	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime(),
+	, scc(new SCC(motherBoard, "MFR SCC+ SCC-I", config, getCurrentTime(),
 	              SCC::SCC_Compatible))
-	, psg(new AY8910(motherBoard, DummyAY8910Peripehery::instance(), config,
+	, psg(new AY8910(motherBoard, "MFR SCC+ PSG", DummyAY8910Peripehery::instance(), config,
 	                 getCurrentTime()))
 	, flash(new AmdFlash(motherBoard, *rom,
 	                     std::vector<unsigned>(sectorSizes, sectorSizes + 19),

@@ -479,9 +479,10 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 // AY8910 main class:
 
-AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
-               const XMLElement& config, EmuTime::param time)
-	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
+AY8910::AY8910(MSXMotherBoard& motherBoard, const std::string& name,
+		AY8910Periphery& periphery_, const XMLElement& config,
+		EmuTime::param time)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "PSG", 3)
 	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)

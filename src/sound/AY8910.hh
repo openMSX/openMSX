@@ -24,8 +24,9 @@ class FloatSetting;
 class AY8910 : public SoundDevice, private Resample
 {
 public:
-	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
-	       const XMLElement& config, EmuTime::param time);
+	AY8910(MSXMotherBoard& motherBoard, const std::string& name,
+			AY8910Periphery& periphery_, const XMLElement& config,
+			EmuTime::param time);
 	virtual ~AY8910();
 
 	byte readRegister(unsigned reg, EmuTime::param time);
