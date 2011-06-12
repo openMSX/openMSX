@@ -162,8 +162,8 @@ private:
 	StereoMode stereoMode;
 
 	enum SyncType {
-		FRAME,
-		VBLANK,
+		EVEN_FRAME,
+		ODD_FRAME,
 		ACK
 	};
 

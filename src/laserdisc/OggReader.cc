@@ -150,8 +150,12 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 			throw MSXException("Video must be size 640x480");
 		}
 
-		if (ti.fps_numerator != 30000 || ti.fps_denominator != 1001) {
-			throw MSXException("Video must be 29.97Hz");
+		if (ti.fps_numerator == 30000 && ti.fps_denominator == 1001) {
+			frameRate = 30;
+		} else if (ti.fps_numerator == 60000 && ti.fps_denominator == 1001) {
+			frameRate = 60;
+		} else {
+			throw MSXException("Video frame rate must be 59.94Hz or 29.97Hz");
 		}
 
 		// FIXME: Support YUV444 before release

@@ -168,8 +168,8 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 	Clock<60000, 1001> frameClock(time);
 	// The video is 29.97Hz, however we need to do vblank processing
 	// at the full 59.94Hz
-	setSyncPoint(frameClock + 1, VBLANK);
-	setSyncPoint(frameClock + 2, FRAME); // FRAME will execute VBLANK
+	setSyncPoint(frameClock + 1, ODD_FRAME);
+	setSyncPoint(frameClock + 2, EVEN_FRAME);
 }
 
 // The protocol used to communicate over the cable for commands to the
@@ -691,8 +691,11 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		seeking = false;
 		PRT_DEBUG("Laserdisc: ACK cleared");
 		break;
-	case FRAME:
-		// end of video
+	case ODD_FRAME:
+		if (video.get() == NULL || video->getFrameRate() != 60)
+			break;
+
+	case EVEN_FRAME:
 		if (playerState != PLAYER_STOPPED &&
 		    currentFrame > video->getFrames()) {
 			playerState = PLAYER_STOPPED;
@@ -702,9 +705,20 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			renderer->frameStart(time);
 
 			if (isVideoOutputAvailable(time)) {
-				video->getFrameNo(*rawFrame, currentFrame);
+				int frame = currentFrame;
 
-				nextFrame(time);
+				if (video->getFrameRate() == 60) {
+					frame *= 2;
+					if (userdata == ODD_FRAME) {
+						frame++;
+					}
+				}
+
+				video->getFrameNo(*rawFrame, frame);
+
+				if (userdata == EVEN_FRAME) {
+					nextFrame(time);
+				}
 			} else {
 				renderer->drawBlank(0, 128, 196);
 			}
@@ -715,9 +729,12 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		loadingIndicator->update(seeking || sampleReads > 500);
 		sampleReads = 0;
 
-		scheduleDisplayStart(time);
-		// fall-through
-	case VBLANK:
+		if (userdata == EVEN_FRAME) {
+			scheduleDisplayStart(time);
+		}
+	}
+
+	if (userdata == EVEN_FRAME || userdata == ODD_FRAME) {
 		// Processing of the remote control happens at each frame
 		// (even and odd, so at 59.94Hz)
 		if (remoteProtocol == IR_NEC) {
@@ -1075,7 +1092,10 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	playingFromSample = samplePos;
 
 	if (needseek) {
-		video->seek(currentFrame, samplePos);
+		if (video->getFrameRate() == 60)
+			video->seek(currentFrame * 2, samplePos);
+		else
+			video->seek(currentFrame, samplePos);
 	}
 }
 
@@ -1118,7 +1138,10 @@ void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
 			long long samplePos = (toframe - 1ll) * 1001ll *
 					video->getSampleRate() / 30000ll;
 
-			video->seek(toframe, samplePos);
+			if (video->getFrameRate() == 60)
+				video->seek(toframe * 2, samplePos);
+			else
+				video->seek(toframe, samplePos);
 
 			playerState = PLAYER_STILL;
 			playingFromSample = samplePos;
@@ -1317,7 +1340,10 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 			}
 
 			unsigned sample = getCurrentSample(getCurrentTime());
-			video->seek(currentFrame, sample);
+			if (video->getFrameRate() == 60) 
+				video->seek(currentFrame * 2, sample);
+			else
+				video->seek(currentFrame, sample);
 			lastPlayedSample = sample;
 		}
 	}

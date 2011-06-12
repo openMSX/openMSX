@@ -47,6 +47,7 @@ public:
 	void getFrameNo(RawFrame& frame, int frameno);
 	const AudioFragment* getAudio(unsigned sample);
 	int getFrames() const;
+	int getFrameRate() const { return frameRate; }
 
 	// metadata
 	bool stopFrame(int frame) const;
@@ -91,6 +92,7 @@ private:
 
 	// video
 	th_dec_ctx* theora;
+	int frameRate;
 	int keyFrame;
 	int currentFrame;
 	int granuleShift;
