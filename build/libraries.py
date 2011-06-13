@@ -417,7 +417,7 @@ class TCL(Library):
 				roots = (distroRoot, )
 			for root in roots:
 				if isdir(root):
-					for libdir in ('lib', 'lib64'):
+					for libdir in ('lib', 'lib64', 'lib/tcl'):
 						libpath = root + '/' + libdir
 						if isdir(libpath):
 							yield libpath
