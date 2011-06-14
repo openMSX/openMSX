@@ -79,3 +79,6 @@ else
 
 # Nothing to define.
 endif
+
+# Link against CoreMIDI.
+LINK_FLAGS+=-framework CoreMIDI

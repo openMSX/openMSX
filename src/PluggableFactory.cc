@@ -24,6 +24,9 @@
 #include "MidiInWindows.hh"
 #include "MidiOutWindows.hh"
 #endif
+#if defined(__APPLE__)
+#include "MidiOutCoreMIDI.hh"
+#endif
 
 
 namespace openmsx {
@@ -82,6 +85,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 #if defined(_WIN32)
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
+#endif
+#if defined(__APPLE__)
+	controller.registerPluggable(new MidiOutCoreMIDIVirtual());
 #endif
 
 	// Printers
