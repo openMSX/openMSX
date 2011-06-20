@@ -88,6 +88,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 #endif
 #if defined(__APPLE__)
 	controller.registerPluggable(new MidiOutCoreMIDIVirtual());
+	MidiOutCoreMIDI::registerAll(controller);
 #endif
 
 	// Printers
