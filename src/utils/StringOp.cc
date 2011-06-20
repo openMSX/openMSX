@@ -318,4 +318,29 @@ void parseRange(const string& str, set<unsigned>& result,
 	}
 }
 
+#if defined(__APPLE__)
+
+std::string fromCFString(CFStringRef str)
+{
+	// Try the quick route first.
+	const char *cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);
+	if (cstr) {
+		// String was already in UTF8 encoding.
+		return std::string(cstr);
+	}
+
+	// Convert to UTF8 encoding.
+	CFIndex len = CFStringGetLength(str);
+	CFRange range = CFRangeMake(0, len);
+	CFIndex usedBufLen = 0;
+	CFStringGetBytes(
+		str, range, kCFStringEncodingUTF8, '?', false, NULL, len, &usedBufLen);
+	UInt8 buffer[usedBufLen];
+	CFStringGetBytes(
+		str, range, kCFStringEncodingUTF8, '?', false, buffer, len, &usedBufLen);
+	return std::string(reinterpret_cast<const char *>(buffer), usedBufLen);
+}
+
+#endif
+
 } // namespace StringOp

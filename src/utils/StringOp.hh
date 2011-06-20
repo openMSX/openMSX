@@ -9,6 +9,9 @@
 #include <set>
 #include <sstream>
 #include <iomanip>
+#if defined(__APPLE__)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 namespace StringOp
 {
@@ -107,6 +110,10 @@ namespace StringOp
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 		}
 	};
+
+#if defined(__APPLE__)
+	std::string fromCFString(CFStringRef str);
+#endif
 }
 
 #endif
