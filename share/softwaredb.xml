@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1304276983">
+<softwaredb xml:lang="en" timestamp="1308676726">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8590,6 +8590,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">a7a2a867f7e90458f3e8614e8c227da944a6092c</hash><remark><text>v1.0 / MSXDev2010 Entry</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">4921e9ed9455e56371fb14481f1963957b1caeb1</hash><remark><text>v1.1 / MSXDev2010 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">680be3a41a605ff95a4f5a8d6d1b79714439e1ae</hash><remark><text>v1.2 / Post MSXDev2010 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Quarth</title>
@@ -11924,6 +11925,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2626
-Parse time 7.452 seconds on Sun May 1 21:09:50 CEST 2011
+Roms in this database:2627
+Parse time 7.283 seconds on Tue Jun 21 19:18:54 CEST 2011
  -->
