@@ -52,7 +52,7 @@ protected:
 private:
 	Joystick(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
-	         unsigned joyNum);
+	         SDL_Joystick* joystick);
 
 	void plugHelper2();
 	byte calcInitialState();
@@ -69,10 +69,10 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
-	const std::string name;
-	const std::string desc;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
+	const std::string name;
+	const std::string desc;
 
 	byte status;
 #endif // SDL_JOYSTICK_DISABLED

@@ -34,8 +34,19 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 
 	unsigned numJoysticks = SDL_NumJoysticks();
 	for (unsigned i = 0; i < numJoysticks; i++) {
-		controller.registerPluggable(new Joystick(
-			eventDistributor, stateChangeDistributor, i));
+		SDL_Joystick* joystick = SDL_JoystickOpen(i);
+		if (joystick) {
+			// Avoid devices that have axes but no buttons, like accelerometers.
+			// SDL 1.2.14 in Linux has an issue where it rejects a device from
+			// /dev/input/event* if it has no buttons but does not reject a
+			// device from /dev/input/js* if it has no buttons, while
+			// accelerometers do end up being symlinked as a joystick in
+			// practice.
+			if (SDL_JoystickNumButtons(joystick) != 0) {
+				controller.registerPluggable(new Joystick(
+					eventDistributor, stateChangeDistributor, joystick));
+			}
+		}
 	}
 #endif
 }
@@ -76,13 +87,13 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 // the open/close calls.
 Joystick::Joystick(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   unsigned joyNum_)
+                   SDL_Joystick* joystick_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, joystick(joystick_)
+	, joyNum(SDL_JoystickIndex(joystick_))
 	, name("joystickX") // 'X' is filled in below
-	, desc(string(SDL_JoystickName(joyNum_)))
-	, joystick(SDL_JoystickOpen(joyNum_))
-	, joyNum(joyNum_)
+	, desc(string(SDL_JoystickName(joyNum)))
 {
 	const_cast<string&>(name)[8] = char('1' + joyNum);
 }
