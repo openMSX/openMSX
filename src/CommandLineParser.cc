@@ -287,22 +287,35 @@ bool CommandLineParser::parseOption(
 
 bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 {
-	string originalName(arg);
-	try {
-		UserFileContext context;
-		File file(context.resolve(arg));
-		originalName = file.getOriginalName();
-	} catch (FileException&) {
-		// ignore
+	// First try the fileName as we get it from the commandline. This may
+	// be more interesting than the original fileName of a (g)zipped file:
+	// in case of an OMR file for instance, we want to select on the
+	// original extension, and not on the extension inside the gzipped
+	// file.
+	bool processed = parseFileNameInner(arg, arg, cmdLine);
+	if (!processed) {
+		try {
+			UserFileContext context;
+			File file(context.resolve(arg));
+			string originalName = file.getOriginalName();
+			processed = parseFileNameInner(originalName, arg, cmdLine);
+		} catch (FileException&) {
+			// ignore
+		}
 	}
-	string extension = FileOperations::getExtension(originalName);
+	return processed;
+}
+
+bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, deque<string>& cmdLine)
+{
+	string extension = FileOperations::getExtension(name);
 	if (!extension.empty()) {
 		// there is an extension
 		FileTypeMap::const_iterator it = fileTypeMap.find(extension);
 		if (it != fileTypeMap.end()) {
 			try {
 				// parse filetype
-				it->second->parseFileType(arg, cmdLine);
+				it->second->parseFileType(originalPath, cmdLine);
 				return true; // file processed
 			} catch (MSXException& e) {
 				throw FatalError(e.getMessage());
@@ -311,7 +324,6 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	}
 	return false; // unknown
 }
-
 
 void CommandLineParser::parse(int argc, char** argv)
 {

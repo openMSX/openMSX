@@ -75,6 +75,8 @@ private:
 
 	bool parseFileName(const std::string& arg,
 	                   std::deque<std::string>& cmdLine);
+	bool parseFileNameInner(const std::string& arg, const std::string&
+	                   originalPath, std::deque<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
 	                 std::deque<std::string>& cmdLine, unsigned prio);
 	void registerFileTypes();
