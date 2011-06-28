@@ -295,15 +295,14 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	} catch (FileException&) {
 		// ignore
 	}
-	string::size_type begin = originalName.find_last_of('.');
-	if (begin != string::npos) {
+	string extension = FileOperations::getExtension(originalName);
+	if (!extension.empty()) {
 		// there is an extension
-		string extension = originalName.substr(begin + 1);
-		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
-		if (it2 != fileTypeMap.end()) {
+		FileTypeMap::const_iterator it = fileTypeMap.find(extension);
+		if (it != fileTypeMap.end()) {
 			try {
 				// parse filetype
-				it2->second->parseFileType(arg, cmdLine);
+				it->second->parseFileType(arg, cmdLine);
 				return true; // file processed
 			} catch (MSXException& e) {
 				throw FatalError(e.getMessage());
