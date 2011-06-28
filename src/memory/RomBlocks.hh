@@ -28,7 +28,7 @@ protected:
 	 * @param motherBoard
 	 * @param config
 	 * @param rom
-	 * @debugBankSizeShift Sometimes the mapper is implemented with a
+	 * @param debugBankSizeShift Sometimes the mapper is implemented with a
 	 *      smaller block size than the blocks that get logically switched.
 	 *      For example RomGameMaster2 is implemented as a 4kB mapper but
 	 *      blocks get switched in 8kB chunks (done like this because there
