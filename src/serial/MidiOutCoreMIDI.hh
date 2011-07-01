@@ -32,13 +32,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 
-private:	
+private:
 	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
 
-	MIDIClientRef client;	
-	MIDIPortRef	port;
+	MIDIClientRef client;
+	MIDIPortRef port;
 	MIDIEndpointRef endpoint;
-	
+
 	std::string name;
 };
 

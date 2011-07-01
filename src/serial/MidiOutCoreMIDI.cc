@@ -12,7 +12,7 @@
 namespace openmsx {
 
 // MidiOutCoreMIDI ===========================================================
-	
+
 void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 {
 	ItemCount numberOfEndpoints = MIDIGetNumberOfDestinations();
@@ -71,7 +71,7 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 }
 
 const std::string& MidiOutCoreMIDI::getName() const
-{	
+{
 	return name;
 }
 
@@ -127,7 +127,7 @@ void MidiOutCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI endpoint (" << status << ")");
 	}
-	
+
 	//struct mach_timebase_info timebaseInfo;
 	//mach_timebase_info(&timebaseInfo);
 }
