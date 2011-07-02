@@ -132,7 +132,12 @@ public:
 	  * This 'consumes' the read bytes, so a future read() will continue
 	  * where this read stopped.
 	  */
-	void read(void* __restrict result, unsigned len) __restrict
+	// Workaround gcc-4.5.x compiler bug:
+	//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48764
+	// This causes 'load savestate' or 'load replay' to sometimes read
+	// the wrong data (so read different data as was previously saved).
+	//void read(void* __restrict result, unsigned len) __restrict
+	void read(void* result, unsigned len)
 	{
 		memcpy(result, buf, len);
 		buf += len;
