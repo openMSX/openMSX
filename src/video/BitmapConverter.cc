@@ -124,24 +124,24 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		asm volatile (
 		"0:\n\t"
 			"ldmia	%[vram]!, {r3,r4}\n\t"
-			"and	r5,  r3, #0x00FF0000\n\t"
-			"and	r6,  r3, #0xFF000000\n\t"
-			"and	r7,  r4, #0x000000FF\n\t"
-			"and	r8,  r4, #0x0000FF00\n\t"
-			"and	r9,  r4, #0x00FF0000\n\t"
-			"and	r10, r4, #0xFF000000\n\t"
-			"and	r4,  r3, #0x0000FF00\n\t"
-			"and	r3,  r3, #0x000000FF\n\t"
-			"ldr	r3,  [%[pal], r3, lsl  #2]\n\t"
-			"ldr	r4,  [%[pal], r4, lsr  #6]\n\t"
-			"ldr	r5,  [%[pal], r5, lsr #14]\n\t"
-			"ldr	r6,  [%[pal], r6, lsr #22]\n\t"
-			"ldr	r7,  [%[pal], r7, lsl  #2]\n\t"
-			"ldr	r8,  [%[pal], r8, lsr  #6]\n\t"
-			"ldr	r9,  [%[pal], r9, lsr #14]\n\t"
-			"ldr	r10, [%[pal], r10,lsr #22]\n\t"
+			"and	r5,  %[m255], r3, lsr #16\n\t"
+			"and	r6,  %[m255], r3, lsr #24\n\t"
+			"and	r8,  %[m255], r4\n\t"
+			"and	r9,  %[m255], r4, lsr #8\n\t"
+			"and	r10, %[m255], r4, lsr #16\n\t"
+			"and	r12, %[m255], r4, lsr #24\n\t"
+			"and	r4,  %[m255], r3, lsr #8\n\t"
+			"and	r3,  %[m255], r3\n\t"
+			"ldr	r3,  [%[pal], r3, lsl #2]\n\t"
+			"ldr	r4,  [%[pal], r4, lsl #2]\n\t"
+			"ldr	r5,  [%[pal], r5, lsl #2]\n\t"
+			"ldr	r6,  [%[pal], r6, lsl #2]\n\t"
+			"ldr	r8,  [%[pal], r8, lsl #2]\n\t"
+			"ldr	r9,  [%[pal], r9, lsl #2]\n\t"
+			"ldr	r10, [%[pal], r10,lsl #2]\n\t"
+			"ldr	r12, [%[pal], r12,lsl #2]\n\t"
 			"subs	%[count], %[count], #1\n\t"
-			"stmia	%[out]!, {r3-r10}\n\t"
+			"stmia	%[out]!, {r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
 			"bne	0b\n\t"
 
 			: [vram]  "=r"     (vramPtr0)
@@ -150,7 +150,8 @@ void BitmapConverter<Pixel>::renderGraphic4(
 			,         "[out]"  (pixelPtr)
 			, [pal]   "r"      (dPalette)
 			, [count] "r"      (16)
-			: "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
+			, [m255]  "r"      (255)
+			: "r3", "r4", "r5", "r6", "r8", "r9", "r10", "r12"
 		);
 		return;
 	}

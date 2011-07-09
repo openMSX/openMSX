@@ -174,22 +174,22 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 		// 0th order interpolation
 		asm volatile (
 		"0:\n\t"
-			"mov	%[t],%[p],LSR #16\n\t"
+			"lsrs	%[t],%[p],#16\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	%[t],%[p],LSR #16\n\t"
+			"lsrs	%[t],%[p],#16\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	%[t],%[p],LSR #16\n\t"
+			"lsrs	%[t],%[p],#16\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	%[t],%[p],LSR #16\n\t"
+			"lsrs	%[t],%[p],#16\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"

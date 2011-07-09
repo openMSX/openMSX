@@ -755,10 +755,10 @@ void Scale_1on1<Pixel, streaming>::operator()(
 
 	asm volatile (
 	"0:\n\t"
-		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
-		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
-		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
-		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
+		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
+		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
+		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
+		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
 		"subs	%0,%0,#64;\n\t"
 		"bne	0b;\n\t"
 
@@ -766,7 +766,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 		: "r" (nBytes)
 		, "r" (in)
 		, "r" (out)
-		: "r0","r1","r2","r3","r4","r5","r6","r7"
+		: "r0","r1","r2","r3","r4","r5","r6","r8"
 	);
 	return;
 #endif

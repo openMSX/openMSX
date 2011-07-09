@@ -164,7 +164,7 @@ public:
 		unsigned res;
 		unsigned dummy;
 		asm volatile (
-			"ldmia	%[RES],{r3,r4,r5,r6,r7}\n\t"
+			"ldmia	%[RES],{r3,r4,r5,r6,r8}\n\t"
 
 			"umull	%[T],%[RES],%[AL],r3\n\t" // RES:T  = AL * BL
 			"adds	%[T],%[T],r5\n\t"         // T += CL
@@ -179,17 +179,19 @@ public:
 			"adc	r3,r5,r5\n\t"             // r3 = carry
 			"umlal	r6,r3,%[AH],r4\n\t"       // r3:r6 = AH:AL * BH:BL + CH:CL
 
-			"rsb	%[T],r7,#32\n\t"
-			"mov	%[RES],r6,LSR r7\n\t"
-			"orr	%[RES],%[RES],r3,LSL %[T]\n\t"
-			//"mov	%[AL],r3,LSR r7\n\t"     // high word of result, should be 0
+			"rsb	%[T],r8,#32\n\t"
+			"lsr	%[RES],r6,r8\n\t"
+			//"orr	%[RES],%[RES],r3,LSL %[T]\n\t" // not thumb2
+			"lsls	r3,r3,%[T]\n\t"
+			"orrs	%[RES],%[RES],r3\n\t"
+			//"mov	%[AL],r3,LSR r8\n\t"     // high word of result, should be 0
 
 			: [RES] "=r"    (res)
 			, [T]   "=&r"   (dummy)
 			:       "[RES]" (this)
 			, [AL]  "r"     (unsigned(dividend))
 			, [AH]  "r"     (dividend >> 32)
-			: "r3","r4","r5","r6","r7"
+			: "r3","r4","r5","r6","r8"
 		);
 		return res;
 	#else
@@ -223,7 +225,7 @@ public:
 		unsigned res;
 		unsigned dummy;
 		asm volatile (
-			"ldmia	%[RES],{r3,r4,r5,r6,r7,r8}\n\t"
+			"ldmia	%[RES],{r3,r4,r5,r6,r8,r9}\n\t"
 
 			"umull	%[T],%[RES],%[AL],r3\n\t" // RES:T  = AL * BL
 			"adds	%[T],%[T],r5\n\t"         // T += CL
@@ -238,11 +240,13 @@ public:
 			"adc	r3,r5,r5\n\t"             // r3 = carry
 			"umlal	r6,r3,%[AH],r4\n\t"       // r3:r6 = AH:AL * BH:BL + CH:CL
 
-			"rsb	%[T],r7,#32\n\t"
-			"mov	%[RES],r6,LSR r7\n\t"
-			"orr	%[RES],%[RES],r3,LSL %[T]\n\t" // RES = quotient (must fit in 32-bit)
+			"rsb	%[T],r8,#32\n\t"
+			"lsr	%[RES],r6,r8\n\t"
+			//"orr	%[RES],%[RES],r3,LSL %[T]\n\t" // not thumb2
+			"lsls	r3,r3,%[T]\n\t"
+			"orrs	%[RES],%[RES],r3\n\t"          // RES = quotient (must fit in 32-bit)
 
-			"mul	%[AH],%[RES],r8\n\t"           // AH = q * divisor
+			"mul	%[AH],%[RES],r9\n\t"           // AH = q * divisor
 			"sub	%[RES],%[AL],%[AH]\n\t"        // RES = D - q*d
 
 			: [RES] "=r"    (res)
@@ -250,7 +254,7 @@ public:
 			:       "[RES]" (this)
 			, [AL]  "r"     (unsigned(dividend))
 			, [AH]  "r"     (dividend >> 32)
-			: "r3","r4","r5","r6","r7","r8"
+			: "r3","r4","r5","r6","r8","r9"
 		);
 		return res;
 	#else

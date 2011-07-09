@@ -268,7 +268,7 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		unsigned th,tl;
 		asm volatile (
 			"umull	%[TH],%[TL],%[AL],%[BL]\n\t"
-			"mov	%[TH],#0\n\t"
+			"eors	%[TH],%[TH]\n\t"
 			"umlal	%[TL],%[TH],%[AH],%[BL]\n\t"
 
 			"umull	%[BL],%[AL],%[BH],%[AL]\n\t"
@@ -278,8 +278,10 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			"adc	%[TL],%[TL],%[TL]\n\t"
 			"umlal	%[TH],%[TL],%[AH],%[BH]\n\t"
 
-			"mov	%[RES],%[TH],LSR %[S]\n\t"
-			"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t"
+			"lsr	%[RES],%[TH],%[S]\n\t"
+			//"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t" // not thumb2
+			"lsls	%[TL],%[TL],%[S32]\n\t"
+			"orrs	%[RES],%[RES],%[TL]\n\t"
 			: [RES] "=r"    (res)
 			, [TH]  "=&r"   (th)
 			, [TL]  "=&r"   (tl)
@@ -384,8 +386,10 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 			"adc	%[TL],%[TL],%[TL]\n\t"
 			"umlal	%[TH],%[TL],%[AH],%[BH]\n\t"
 
-			"mov	%[RES],%[TH],LSR %[S]\n\t"
-			"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t"
+			"lsr	%[RES],%[TH],%[S]\n\t"
+			//"orr	%[RES],%[RES],%[TL],LSL %[S32]\n\t" // not thumb2
+			"lsls	%[TL],%[TL],%[S32]\n\t"
+			"orrs	%[RES],%[RES],%[TL]\n\t"
 			: [RES] "=r"    (res)
 			, [TH]  "=&r"   (th)
 			, [TL]  "=&r"   (tl)

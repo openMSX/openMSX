@@ -243,12 +243,12 @@ void MSXMixer::generate(short* output, unsigned samples,
 #ifdef __arm__
 						asm volatile (
 						"0:\n\t"
-							"ldmia	%[in]!,{r4-r7}\n\t"
-							"mul	r4,%[f],r4\n\t"
-							"mul	r5,%[f],r5\n\t"
-							"mul	r6,%[f],r6\n\t"
-							"mul	r7,%[f],r7\n\t"
-							"stmia	%[out]!,{r4-r7}\n\t"
+							"ldmia	%[in]!,{r3-r6}\n\t"
+							"muls	r3,%[f],r3\n\t"
+							"muls	r4,%[f],r4\n\t"
+							"muls	r5,%[f],r5\n\t"
+							"muls	r6,%[f],r6\n\t"
+							"stmia	%[out]!,{r3-r6}\n\t"
 							"subs	%[n],%[n],#4\n\t"
 							"bgt	0b\n\t"
 							: // no output
@@ -256,7 +256,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 							, [out] "r" (monoBuf)
 							, [f]   "r" (l1)
 							, [n]   "r" (samples)
-							: "r4","r5","r6","r7"
+							: "r3","r4","r5","r6"
 						);
 #else
 						for (unsigned i = 0; i < samples; ++i) {
@@ -268,13 +268,13 @@ void MSXMixer::generate(short* output, unsigned samples,
 #ifdef __arm__
 						asm volatile (
 						"0:\n\t"
-							"ldmia	%[in]!,{r3-r6}\n\t"
-							"ldmia	%[out],{r7-r10}\n\t"
-							"mla	r3,%[f],r3,r7\n\t"
-							"mla	r4,%[f],r4,r8\n\t"
-							"mla	r5,%[f],r5,r9\n\t"
-							"mla	r6,%[f],r6,r10\n\t"
-							"stmia	%[out]!,{r3-r6}\n\t"
+							"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
+							"ldmia	%[out],{r8,r9,r10,r12}\n\t"
+							"mla	r3,%[f],r3,r8\n\t"
+							"mla	r4,%[f],r4,r9\n\t"
+							"mla	r5,%[f],r5,r10\n\t"
+							"mla	r6,%[f],r6,r12\n\t"
+							"stmia	%[out]!,{r3,r4,r5,r6}\n\t"
 							"subs	%[n],%[n],#4\n\t"
 							"bgt	0b\n\t"
 							: // no output
@@ -283,7 +283,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 							, [f]   "r" (l1)
 							, [n]   "r" (samples)
 							: "r3","r4","r5","r6"
-							, "r7","r8","r9","r10"
+							, "r8","r9","r10","r12"
 						);
 #else
 						for (unsigned i = 0; i < samples; ++i) {
@@ -408,10 +408,11 @@ void MSXMixer::generate(short* output, unsigned samples,
 				"rsb	%[o],%[o],%[o],LSL #9\n\t"
 				"rsb	%[o],%[p],%[o],ASR #9\n\t"
 				"ldr	%[p],[%[in]],#4\n\t"
-				"mov	%[p],%[p],ASR #8\n\t"
+				"asrs	%[p],%[p],#8\n\t"
 				"add	%[o],%[o],%[p]\n\t"
-				"mov	%[t],%[o],LSL #16\n\t"
+				"lsls	%[t],%[o],#16\n\t"
 				"cmp	%[o],%[t],ASR #16\n\t"
+				"it ne\n\t"
 				"subne	%[o],%[m],%[o],ASR #31\n\t"
 				"strh	%[o],[%[out]],#2\n\t"
 				"strh	%[o],[%[out]],#2\n\t"

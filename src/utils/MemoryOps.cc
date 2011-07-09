@@ -322,35 +322,38 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 	memset_32_2<STREAMING>(dest, num, val, val);
 #endif
 #elif defined __arm__
+	register int val_r3 asm("r3") = val;
 	asm volatile (
-		"mov     r3, %[val]\n\t"
-		"mov     r4, %[val]\n\t"
-		"mov     r5, %[val]\n\t"
-		"mov     r6, %[val]\n\t"
+		"mov     r4, r3\n\t"
+		"mov     r5, r3\n\t"
+		"mov     r6, r3\n\t"
 		"subs    %[num],%[num],#8\n\t"
 		"bmi     1f\n"
-		"mov     r7, %[val]\n\t"
-		"mov     r8, %[val]\n\t"
-		"mov     r9, %[val]\n\t"
-		"mov     r10,%[val]\n\t"
+		"mov     r8, r3\n\t"
+		"mov     r9, r3\n\t"
+		"mov     r10,r3\n\t"
+		"mov     r12,r3\n\t"
 	"0:\n\t"
-		"stmia   %[dest]!,{r3-r10}\n\t"
+		"stmia   %[dest]!,{r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
 		"subs    %[num],%[num],#8\n\t"
 		"bpl     0b\n\t"
 	"1:\n\t"
 		"tst     %[num],#4\n\t"
-		"stmneia %[dest]!,{r3-r6}\n\t"
+		"it      ne\n\t"
+		"stmne   %[dest]!,{r3,r4,r5,r6}\n\t"
 		"tst     %[num],#2\n\t"
-		"stmneia %[dest]!,{r3-r4}\n\t"
+		"it      ne\n\t"
+		"stmne   %[dest]!,{r3,r4}\n\t"
 		"tst     %[num],#1\n\t"
+		"it      ne\n\t"
 		"strne   r3,[%[dest]]\n\t"
 
 		: [dest] "=r"    (dest)
-		, [num] "=r"    (num)
+		, [num] "=r"     (num)
 		:       "[dest]" (dest)
-		,       "[num]" (num)
-		, [val] "r"     (val)
-		: "r3","r4","r5","r6","r7","r8","r9","r10"
+		,       "[num]"  (num)
+		,       "r"      (val_r3)
+		: "r4","r5","r6","r8","r9","r10","r12"
 	);
 	return;
 #else
