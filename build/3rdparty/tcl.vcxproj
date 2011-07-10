@@ -292,6 +292,8 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_mul_digs.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sqr.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_s_mp_sub.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_set_int.c" />	
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_init_set_int.c" />			
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bncore.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regcomp.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\regerror.c" />
