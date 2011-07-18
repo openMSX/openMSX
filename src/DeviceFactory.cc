@@ -6,6 +6,7 @@
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXFacMidiInterface.hh"
+#include "MSXHiResTimer.hh"
 #include "MSXResetStatusRegister.hh"
 #include "MSXTurboRPause.hh"
 #include "MSXTurboRPCM.hh"
@@ -115,6 +116,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<VDP>(conf);
 	} else if (type == "E6Timer") {
 		result = make_unique<MSXE6Timer>(conf);
+	} else if (type == "HiResTimer") {
+		result = make_unique<MSXHiResTimer>(conf);
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
 		result = make_unique<MSXResetStatusRegister>(conf);
 	} else if (type == "TurboRPause") {
