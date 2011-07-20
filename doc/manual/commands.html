@@ -428,8 +428,13 @@
   <h3><a id="bind">bind / unbind / bind_default / unbind_default</a></h3>
 
   <p>Associate events (such as key presses) with commands. Whenever the specified event occurs (e.g. you press the
-  specified key), the corresponding command will be executed. To customize your bindings you should use the (un)bind
-  commands. A script that wants to provide a default binding for its functionality needs to use bind_default.</p>
+  specified key), the corresponding command will be executed. Any Tcl command
+  or combination of commands separated with <tt>;</tt> (normal Tcl syntax) can
+  be used. To customize your bindings you should use the (un)bind commands. A
+  script that wants to provide a default binding for its functionality needs to
+  use <tt>bind_default</tt>. Using the <tt>-repeat</tt> option makes sure that
+  if the event is repeated (especially useful for key events, so when keeping a
+  key pressed), the command is repeated as well.</p>
 
   <p>Events can be:</p>
 
@@ -540,6 +545,9 @@
     Use PageUp/Down to increase/decrease emulation speed.<br/>
     <code>bind PAGEUP   -repeat "incr speed  1"</code><br />
     <code>bind PAGEDOWN -repeat "incr speed -1"</code><br />
+    <br />
+    Toggle fullscreen with ALT and ENTER.<br/>
+    <code>bind ALT+RETURN toggle fullscreen</code><br />
   </div>
 
   <h3><a id="cart">cart / cart&lt;x&gt;</a></h3>
