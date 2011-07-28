@@ -793,44 +793,32 @@ void YM2413::keyOff_CYM()
 
 void YM2413::update_rhythm_mode()
 {
-	// TODO compare this to Burczynski core and real hw
 	Channel& ch6 = channels[6];
+	Channel& ch7 = channels[7];
+	Channel& ch8 = channels[8];
+	assert((ch6.patch_number & 0x10) == (ch7.patch_number & 0x10));
+	assert((ch6.patch_number & 0x10) == (ch8.patch_number & 0x10));
 	if (ch6.patch_number & 0x10) {
-		if (!(ch6.car.slot_on_flag || isRhythm())) {
-			ch6.mod.setEnvelopeState(FINISH);
-			ch6.car.setEnvelopeState(FINISH);
+		if (!isRhythm()) {
+			// ON -> OFF
 			ch6.setPatch(reg[0x36] >> 4, *this);
+			keyOff_BD();
+			ch7.setPatch(reg[0x37] >> 4, *this);
+			keyOff_SD();
+			keyOff_HH();
+			ch8.setPatch(reg[0x38] >> 4, *this);
+			keyOff_TOM();
+			keyOff_CYM();
 		}
 	} else if (isRhythm()) {
+		// OFF -> ON
 		ch6.mod.setEnvelopeState(FINISH);
 		ch6.car.setEnvelopeState(FINISH);
 		ch6.setPatch(16, *this);
-	}
-
-	Channel& ch7 = channels[7];
-	if (ch7.patch_number & 0x10) {
-		if (!((ch7.mod.slot_on_flag && ch7.car.slot_on_flag) ||
-		      isRhythm())) {
-			ch7.mod.setEnvelopeState(FINISH);
-			ch7.car.setEnvelopeState(FINISH);
-			ch7.setPatch(reg[0x37] >> 4, *this);
-		}
-	} else if (isRhythm()) {
 		ch7.mod.setEnvelopeState(FINISH);
 		ch7.car.setEnvelopeState(FINISH);
 		ch7.setPatch(17, *this);
 		ch7.mod.setVolume((reg[0x37] >> 4) << 2);
-	}
-
-	Channel& ch8 = channels[8];
-	if (ch8.patch_number & 0x10) {
-		if (!((ch8.mod.slot_on_flag && ch8.car.slot_on_flag) ||
-		      isRhythm())) {
-			ch8.mod.setEnvelopeState(FINISH);
-			ch8.car.setEnvelopeState(FINISH);
-			ch8.setPatch(reg[0x38] >> 4, *this);
-		}
-	} else if (isRhythm()) {
 		ch8.mod.setEnvelopeState(FINISH);
 		ch8.car.setEnvelopeState(FINISH);
 		ch8.setPatch(18, *this);
@@ -1541,7 +1529,6 @@ void YM2413::writeReg(byte regis, byte data)
 		}
 		ch.mod.updateAll(ch.freq, modActAsCarrier);
 		ch.car.updateAll(ch.freq, true);
-		update_rhythm_mode();
 		break;
 	}
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
