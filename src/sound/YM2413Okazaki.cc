@@ -843,7 +843,7 @@ void YM2413::update_key_status()
 		ch7.car.slot_on_flag |= (reg[0x0e] & 0x08) ? 2 : 0; // SD
 		Channel& ch8 = channels[8];
 		ch8.mod.slot_on_flag |= (reg[0x0e] & 0x04) ? 2 : 0; // TOM
-		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) ? 2 : 0; // SYM
+		ch8.car.slot_on_flag |= (reg[0x0e] & 0x02) ? 2 : 0; // CYM
 	}
 }
 
