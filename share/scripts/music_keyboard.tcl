@@ -167,14 +167,11 @@ proc music_keyboard_reset {} {
 proc toggle_music_keyboard {} {
 	variable machine_switch_trigger_id
 	variable frame_trigger_id
-	variable volume_expr
-	variable frequency_expr
 
 	if {[osd exists music_keyboard]} {
 		after cancel $machine_switch_trigger_id
 		after cancel $frame_trigger_id
 		osd destroy music_keyboard
-		unset volume_expr frequency_expr
 	} else {
 		keyboard_init
 		update_keyboard
