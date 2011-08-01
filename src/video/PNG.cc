@@ -167,7 +167,7 @@ SDLSurfacePtr load(const std::string& filename)
 				"Attempted to create a surface with excessive height: "
 				<< height << ", max " << MAX_SIZE);
 		}
-		int bpp = png.info->channels * 8;
+		int bpp = png_get_channels(png.ptr, png.info) * 8;
 		assert(bpp == 24 || bpp == 32);
 		Uint32 redMask, grnMask, bluMask, alpMask;
 		if (OPENMSX_BIGENDIAN) {
