@@ -616,8 +616,10 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 			continue;
 		}
 
-		// Remove unneeded frames
-		while (frameList.size() >= 2 && frameList[1]->no <= frameno) {
+		// Remove unneeded frames. Note that at 60Hz the odd and
+		// and even frame are displayed during still, so we can 
+		// only throw away the one two frames ago
+		while (frameList.size() >= 3 && frameList[2]->no <= frameno) {
 			recycleFrameList.push_back(frameList[0]);
 			frameList.pop_front();
 		}
@@ -636,6 +638,22 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 				 frameno < frameList[1]->no)) {
 			frame = frameList[0];
 			break;
+		}
+
+		if (frameList.size() >= 3 && 
+				(frameno >= frameList[1]->no && 
+				 frameno < frameList[2]->no)) {
+			frame = frameList[1];
+			break;
+		}
+
+		// Sanity check, should not happen
+		if (frameList.size() > (2 << granuleShift)) {
+			// We've got more than twice as many frames
+			// as the maximum distance between key frames.
+			cli.printWarning("Cannot find frame " +
+				StringOp::toString(frameno));
+			return;	
 		}
 
 		// ..add read some new ones
