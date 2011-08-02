@@ -475,10 +475,6 @@ void OggReader::readMetadata(th_comment& tc)
 
 void OggReader::readTheora(ogg_packet* packet)
 {
-	if (unlikely(packet->packetno <= 2)) {
-		return;
-	}
-
 	int frameno = frameNo(packet);
 
 	if (state != PLAYING && frameno == -1) {
@@ -515,10 +511,26 @@ void OggReader::readTheora(ogg_packet* packet)
 	}
 
 	keyFrame = -1;
+	Frame* frame;
 
-	if (th_decode_packetin(theora, packet, NULL) != 0) {
+	int rc = th_decode_packetin(theora, packet, NULL);
+	if (rc == TH_DUPFRAME) {
+		if (frameList.empty()) {
+			cli.printWarning("Theora error: dup frame encountered "
+					 "without preceding frame");
+		} else {
+			frame = frameList.back();
+			frame->length++;
+		}
 		return;
 	}
+
+	if (rc) {
+		// FIXME: Two theora header packet produce errors on seek to
+		// the beginning
+		return;
+	}
+	
 
 	th_ycbcr_buffer yuv;
 
@@ -526,13 +538,12 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
-	if (frameno < currentFrame) {
+	if (frameno != -1 && frameno < currentFrame) {
 		return;
 	}
 
 	currentFrame = frameno + 1;
 
-	Frame* frame;
 	int y_size = yuv[0].height * yuv[0].stride;
 	int uv_size = yuv[1].height * yuv[1].stride;
 
@@ -555,27 +566,74 @@ void OggReader::readTheora(ogg_packet* packet)
 	memcpy(frame->buffer[0].data, yuv[0].data, y_size);
 	memcpy(frame->buffer[1].data, yuv[1].data, uv_size);
 	memcpy(frame->buffer[2].data, yuv[2].data, uv_size);
+
+	// At lot of frames have framenumber -1, only some have the correct
+	// frame number. We continue counting from the previous known
+	// postion
+	Frame *last = NULL;
+
+	if (!frameList.empty()) {
+		last = frameList.back();
+	}
+
+	if (last && last->no != -1) {
+		if (frameno != -1 && frameno != last->no + last->length) {
+			cli.printWarning("Theora frame sequence wrong");
+		} else {
+			frameno = last->no + last->length;
+		}
+	}
+
 	frame->no = frameno;
+	frame->length = 1;
+
+	// We may read some frames before we encounter one with a proper 
+	// frame number. When we do, go back and populate the frame 
+	// numbers correctly
+	if (!frameList.empty() && frameno != -1 && frameList[0]->no == -1) {
+		for (Frames::reverse_iterator it = frameList.rbegin();
+					it != frameList.rend(); ++it) {
+			frameno -= (*it)->length;
+			(*it)->no = frameno;
+		}
+	}
 
 	frameList.push_back(frame);
 }
 
 void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 {
-	// Note that when frames are unchanged they will simply not be
-	// present in the theora stream. This means that with frames
-	// 8,9,10,13,14 in the list, 11 and 12 must be drawn as 10.
-
 	Frame* frame;
+
 	while (true) {
+		// If there are no frames or the frames we have read 
+		// does not include a proper frame number, just read
+		// more data
+		if (frameList.empty() || frameList[0]->no == -1) {
+			if (!nextPacket()) {
+				return;
+			}
+			continue;
+		}
+
 		// Remove unneeded frames
 		while (frameList.size() >= 2 && frameList[1]->no <= frameno) {
 			recycleFrameList.push_back(frameList[0]);
 			frameList.pop_front();
 		}
 
-		if (frameList.size() >= 2 && (frameList[0]->no == frameno ||
-					      frameList[1]->no >= frameno)) {
+		if (!frameList.empty() && frameList[0]->no > frameno) {
+			// we're missing frames!	
+			frame = frameList[0];
+			cli.printWarning("Cannot find frame " +
+				StringOp::toString(frameno) + " using " +
+				StringOp::toString(frame->no) + " instead");
+			break;
+		}
+
+		if (frameList.size() >= 2 && 
+				(frameno >= frameList[0]->no && 
+				 frameno < frameList[1]->no)) {
 			frame = frameList[0];
 			break;
 		}

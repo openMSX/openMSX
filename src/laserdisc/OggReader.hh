@@ -34,6 +34,7 @@ struct Frame
 {
 	th_ycbcr_buffer buffer;
 	int no;
+	int length;
 };
 
 class OggReader : private noncopyable
