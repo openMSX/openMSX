@@ -375,11 +375,13 @@ const Pixel* FrameSource::scaleLine(
 template const word* FrameSource::getLinePtr320_240<word>(unsigned) const;
 template const word* FrameSource::getLinePtr640_480<word>(unsigned) const;
 template const word* FrameSource::getLinePtr960_720<word>(unsigned) const;
+template const word* FrameSource::scaleLine<word>(const word*, unsigned, unsigned) const;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
 template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned) const;
 template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned) const;
 template const unsigned* FrameSource::getLinePtr960_720<unsigned>(unsigned) const;
+template const unsigned* FrameSource::scaleLine<unsigned>(const unsigned*, unsigned, unsigned) const;
 #endif
 
 } // namespace openmsx
