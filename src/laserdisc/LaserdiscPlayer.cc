@@ -709,8 +709,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 
 				if (video->getFrameRate() == 60) {
 					frame *= 2;
-					if (userdata == EVEN_FRAME) {
-						frame++;
+					if (userdata == ODD_FRAME) {
+						frame--;
 					}
 				}
 
