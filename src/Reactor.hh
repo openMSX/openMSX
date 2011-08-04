@@ -104,7 +104,7 @@ public:
 
 	typedef shared_ptr<MSXMotherBoard> Board;
 	Board createEmptyMotherBoard();
-	void replaceActiveBoard(Board newBoard); // experiment for ReverseManager
+	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
 	typedef std::vector<Board> Boards;

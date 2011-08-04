@@ -392,12 +392,30 @@ Reactor::Board Reactor::createEmptyMotherBoard()
 	return Board(new MSXMotherBoard(*this));
 }
 
-void Reactor::replaceActiveBoard(Board newBoard)
+void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard)
 {
+	assert(Thread::isMainThread());
+
+	// Add new board.
 	boards.push_back(newBoard);
-	Board oldBoard = activeBoard;
-	switchBoard(newBoard);
-	deleteBoard(oldBoard);
+
+	// Lookup old board (it must be present).
+	Boards::iterator it = boards.begin();
+	while (it->get() != &oldBoard_) {
+		++it;
+		assert(it != boards.end());
+	}
+
+	// If the old board was the active board, then activate the new board
+	if (*it == activeBoard) {
+		switchBoard(newBoard);
+	}
+
+	// Remove (=delete) the old board.
+	// Note that we don't use the 'garbageBoards' mechanism as used in
+	// deleteBoard(). This means oldBoard cannot be used  anymore right
+	// after this method returns.
+	boards.erase(it);
 }
 
 void Reactor::switchMachine(const string& machine)

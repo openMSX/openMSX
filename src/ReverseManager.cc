@@ -429,14 +429,15 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		newBoard->fastForward(preTarget);
 
 		// switch to the new MSXMotherBoard
-		// TODO this is not correct if this board was not the active board
-		reactor.replaceActiveBoard(newBoard);
+		//  Note: this deletes the current MSXMotherBoard and
+		//  ReverseManager. So we can't access those objects anymore.
+		reactor.replaceBoard(motherBoard, newBoard);
 
 		// Fast forward to actual target time with board activated.
 		// This makes sure the video output gets rendered.
 		newBoard->fastForward(targetTime);
 
-		assert(!isCollecting());
+		//assert(!isCollecting()); // can't access 'this->' members anymore!
 		assert(newManager.isCollecting());
 	} catch (MSXException&) {
 		// Make sure mixer doesn't stay muted in case of error.
