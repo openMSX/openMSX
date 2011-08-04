@@ -268,9 +268,7 @@ proc step_back {} {
 	# z80 or r800
 	set cpu [get_active_cpu]
 	# Get duration of one CPU cycle
-	#  TODO this doesn't take '<cpu>_freq_locked' into account
-	#       maybe create a 'cpu_freq' info topic?
-	set cycle [expr {1.0 / [set ::${cpu}_freq]}]
+	set cycle [expr {1.0 / [machine_info ${cpu}_freq]}]
 	# On z80 an instruction takes at least 5 cycles, use that to speedup
 	# the search.
 	set step [expr {($cpu eq "z80") ? 5 : 1}]

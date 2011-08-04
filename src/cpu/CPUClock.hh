@@ -14,6 +14,9 @@ class Scheduler;
 
 class CPUClock
 {
+public:
+	unsigned getFreq() const { return clock.getFreq(); }
+
 protected:
 	CPUClock(EmuTime::param time, Scheduler& scheduler);
 

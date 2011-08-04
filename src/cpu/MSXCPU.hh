@@ -19,6 +19,7 @@ class R800TYPE;
 template <typename T> class CPUCore;
 class Setting;
 class TimeInfoTopic;
+class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
 
 class MSXCPU : private Observer<Setting>, private noncopyable
@@ -159,7 +160,9 @@ private:
 
 	friend class TimeInfoTopic;
 	friend class MSXCPUDebuggable;
-	const std::auto_ptr<TimeInfoTopic> timeInfo;
+	const std::auto_ptr<TimeInfoTopic>    timeInfo;
+	const std::auto_ptr<CPUFreqInfoTopic> z80FreqInfo;
+	const std::auto_ptr<CPUFreqInfoTopic> r800FreqInfo;
 	const std::auto_ptr<MSXCPUDebuggable> debuggable;
 };
 

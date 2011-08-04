@@ -28,9 +28,21 @@ public:
 	              MSXCPU& msxcpu);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
-	virtual std::string help (const vector<string>& tokens) const;
+	virtual string help (const vector<string>& tokens) const;
 private:
 	MSXCPU& msxcpu;
+};
+
+class CPUFreqInfoTopic : public InfoTopic
+{
+public:
+	CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
+	                 const string& name, CPUClock& clock);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help (const vector<string>& tokens) const;
+private:
+	CPUClock& clock;
 };
 
 class MSXCPUDebuggable : public SimpleDebuggable
@@ -58,6 +70,10 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(
 		motherboard.getMachineInfoCommand(), *this))
+	, z80FreqInfo(new CPUFreqInfoTopic(
+		motherboard.getMachineInfoCommand(), "z80_freq",  *z80))
+	, r800FreqInfo(r800.get() ? new CPUFreqInfoTopic(
+		motherboard.getMachineInfoCommand(), "r800_freq", *r800) : 0)
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get(); // setActiveCPU(CPU_Z80);
@@ -268,6 +284,31 @@ void TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
 string TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
+}
+
+
+// class CPUFreqInfoTopic
+
+CPUFreqInfoTopic::CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
+                                   const string& name, CPUClock& clock_)
+	: InfoTopic(machineInfoCommand, name)
+	, clock(clock_)
+{
+}
+
+void CPUFreqInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+                               TclObject& result) const
+{
+	result.setInt(clock.getFreq());
+}
+
+string CPUFreqInfoTopic::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the actual frequency of this CPU.\n"
+	       "This frequency can vary because:\n"
+	       " - the user has overridden the freq via the '{z80,r800}_freq' setting\n"
+	       " - (only on some MSX machines) the MSX software can switch the Z80 between 2 frequencies\n"
+	       "See also the '{z80,r800}_freq_locked' setting.\n";
 }
 
 
