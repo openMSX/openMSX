@@ -172,8 +172,8 @@ void Y8950Adpcm::writeReg(byte rg, byte data, EmuTime::param time)
 			emu.memPntr = startAddr;
 			aud.memPntr = startAddr;
 			readDelay = 2; // two dummy reads
-			if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
-				// we're ready to accept data
+			if ((reg7 & 0xA0) == 0x20) {
+				// Memory read or write
 				y8950.setStatus(Y8950::STATUS_BUF_RDY);
 			}
 		} else {
