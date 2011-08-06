@@ -82,8 +82,8 @@ private:
 	void loadReplay(const std::vector<TclObject*>& tokens, TclObject& result);
 	
 	EmuTime::param getEndTime(const ReverseHistory& history) const;
-	void goTo(EmuTime::param targetTime);
-	void goTo(EmuTime::param targetTime, ReverseHistory& history);
+	void goTo(EmuTime::param targetTime, bool novideo);
+	void goTo(EmuTime::param targetTime, bool novideo, ReverseHistory& history);
 	void transferHistory(ReverseHistory& oldHistory,
 	                     unsigned oldEventCount);
 	void transferState(MSXMotherBoard& newBoard);

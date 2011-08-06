@@ -303,12 +303,29 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result.setString(res);
 }
 
-void ReverseManager::goBack(const vector<TclObject*>& tokens)
+static void parseGoTo(const vector<TclObject*>& tokens, bool& novideo, double& time)
 {
-	if (tokens.size() != 3) {
+	novideo = false;
+	bool hasTime = false;
+	for (unsigned i = 2; i < tokens.size(); ++i) {
+		if (tokens[i]->getString() == "-novideo") {
+			novideo = true;
+		} else {
+			time = tokens[i]->getDouble();
+			hasTime = true;
+		}
+	}
+	if (!hasTime) {
 		throw SyntaxError();
 	}
-	double t = tokens[2]->getDouble();
+}
+
+void ReverseManager::goBack(const vector<TclObject*>& tokens)
+{
+	bool novideo;
+	double t;
+	parseGoTo(tokens, novideo, t);
+
 	EmuTime now = getCurrentTime();
 	EmuTime target(EmuTime::dummy());
 	if (t >= 0) {
@@ -321,28 +338,30 @@ void ReverseManager::goBack(const vector<TclObject*>& tokens)
 	} else {
 		target = now + EmuDuration(-t);
 	}
-	goTo(target);
+	goTo(target, novideo);
 }
 
 void ReverseManager::goTo(const std::vector<TclObject*>& tokens)
 {
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	goTo(EmuTime::zero + EmuDuration(tokens[2]->getDouble()));
+	bool novideo;
+	double t;
+	parseGoTo(tokens, novideo, t);
+
+	EmuTime target = EmuTime::zero + EmuDuration(t);
+	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(EmuTime::param target)
+void ReverseManager::goTo(EmuTime::param target, bool novideo)
 {
 	if (!isCollecting()) {
 		throw CommandException(
 			"Reverse was not enabled. First execute the 'reverse "
 			"start' command to start collecting data.");
 	}
-	goTo(target, history); // move in current time-line
+	goTo(target, novideo, history); // move in current time-line
 }
 
-void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
+void ReverseManager::goTo(EmuTime::param target, bool novideo, ReverseHistory& history)
 {
 	MSXMixer& mixer = motherBoard.getMSXMixer();
 	try {
@@ -369,9 +388,10 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		// rate of the active video chip (v99x8/v9990) at the target
 		// time. This is quite complex to get and the difference between
 		// 2 PAL and 2 NTSC frames isn't that big.
-		EmuDuration dur2frames(2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0));
-		EmuTime preTarget = ((targetTime - firstTime) > dur2frames)
-		                  ? targetTime - dur2frames
+		double dur2frames = 2.0 * (313.0 * 1368.0) / (3579545.0 * 6.0);
+		EmuDuration preDelta(novideo ? 0.0 : dur2frames);
+		EmuTime preTarget = ((targetTime - firstTime) > preDelta)
+		                  ? targetTime - preDelta
 		                  : firstTime;
 
 		// find oldest snapshot that is not newer than requested time
@@ -698,7 +718,8 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// Note: untill this point we didn't make any changes to the current
 	// ReverseManager/MSXMotherBoard yet
 	reRecordCount = newReverseManager.reRecordCount;
-	goTo(destination, newHistory);
+	bool novideo = false;
+	goTo(destination, novideo, newHistory);
 
 	result.setString("Loaded replay from " + filename);
 }
