@@ -265,32 +265,74 @@ executed. Note that this operation is relatively slow (compared to the other
 step functions). Also the reverse feature must be enabled for this to work
 (normally it's enabled by default).}
 proc step_back {} {
-	# z80 or r800
+	# In the past this proc was implemented totally different. It's worth
+	# mentioning this old algorithm and explain why it wasn't good enough.
+	# The old algorithm went like this:
+	#  - take small steps back till we're not at the start instruction
+	#    anymore (this works because 'reverse goto' only stops after
+	#    emulating a full instruction)
+	# The problem was that on R800 it could take _many_ (more than 80)
+	# steps till the destination was reached.
+	#
+	# The current algorithm goes like this:
+	#  - take a large step back
+	#  - take small steps forward till we're back at the start
+	#  - we now know where the previous instruction started, so go there
+	#    (= take a small step back again)
+	#
+	# So the old algorithm takes (potentially) many backwards steps. While
+	# the new algorithm takes exactly 2 backwards steps and (potentially)
+	# many forward steps. In the current openMSX implementation, (small)
+	# forward steps are orders of magnitude faster than backwards steps (an
+	# optimization I added specifically for this use case). So the worst
+	# execution time should now be much better.
+
+	# 'z80' or 'r800'
 	set cpu [get_active_cpu]
-	# Get duration of one CPU cycle
-	set cycle [expr {1.0 / [machine_info ${cpu}_freq]}]
-	# On z80 an instruction takes at least 5 cycles, use that to speedup
-	# the search.
-	set step [expr {($cpu eq "z80") ? 5 : 1}]
 
-	# get current time
-	array set stat [reverse status]
-	set start_time $stat(current)
-	set pos 0
+	# Get duration of one CPU cycle.
+	set cycle_period [expr {1.0 / [machine_info ${cpu}_freq]}]
 
-	# Take small steps back till the current time changes.
-	# This works because reverse can't go to a point in time that is
-	# somewhere in the middle of an instruction. Instead it will fully
-	# execute that partial instruction and stop right after it.
-	while {1} {
-		incr pos $step
-		set t [expr $start_time - $pos * $cycle]
-		if {$t < 0} break
-		reverse goto $t
-		array set stat [reverse status]
-		set curr_time $stat(current)
-		if {$curr_time != $start_time} break
+	# (Overestimation) for the maximum instruction length.
+	#  On Z80 the slowest instruction is probably 'EX (SP),IX' (25 cycles).
+	#  On R800 it's probably some I/O instruction to the VDP, followed by
+	#  a memory refresh (up to 87(!) cycles). I added some extra cycles as
+	#  a safety margin in case I forgot some extra penalty cycles (e.g.
+	#  access to a device that inserts extra wait cycles).
+	set max_instr_len [expr {(($cpu eq "z80") ? 35 : 100) * $cycle_period}]
+
+	# Get time of the start instruction.
+	set start [dict get [reverse status] "current"]
+
+	# Go back till a moment that's certainly before the start instruction.
+	reverse goback -novideo $max_instr_len
+	set curr [dict get [reverse status] "current"]
+	if {$curr >= $start} {
+		error "Internal error: initial step-back was not big enough"
 	}
+
+	# Take small steps (forward) till we again reach the start instruction.
+	while {1} {
+		# Note that 'reverse goto' for a small forward step is
+		# orders of magnitudes faster than a backwards 'reverse goto'.
+		# The '-novideo' flag is required to not (temporarily
+		# internally) step back a few video frames (so that immediately
+		# after 'reverse goto' we have the correct video output).
+		# Also note that this may take a bigger step forward than
+		# requested: it will only stop after a complete instruction is
+		# emulated.
+		reverse goto -novideo [expr {$curr + $cycle_period}]
+		set next [dict get [reverse status] "current"]
+		if {$next > $start} {
+			error "Internal error: overshot destination"
+		}
+		if {$next == $start} break
+		set curr $next
+	}
+
+	# The previous step was the correct one, so go back there.
+	# Note that (only here) we don't pass the '-novideo' flag
+	reverse goto $curr
 }
 
 
