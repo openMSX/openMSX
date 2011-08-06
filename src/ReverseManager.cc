@@ -294,7 +294,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 		const ReverseChunk& chunk = it->second;
 		res << it->first << ' '
 		    << (chunk.time - EmuTime::zero).toDouble() << ' '
-		    << ((chunk.time - EmuTime::zero).toDouble() / (motherBoard.getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
+		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
 		    << " (" << chunk.savestate->size() << ')'
 		    << " (next event index: " << chunk.eventCount << ")\n";
 		totalSize += chunk.savestate->size();
@@ -386,43 +386,58 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		// one that's not newer (thus older or equal).
 		assert(it != history.chunks.begin());
 		--it;
-		assert(it->second.time <= preTarget);
+		EmuTime snapshotTime = it->second.time;
+		assert(snapshotTime <= preTarget);
 
-		// Note: we don't (anymore) erase future snapshots
-
-		// -- restore old snapshot --
+		// IF current time is before the wanted time AND either
+		//   - current time is closer than the closest (earlier) snapshot
+		//   - OR current time is close enough (I arbitrarily choose 1s)
+		// THEN it's cheaper to start from the current position (and
+		//      emulated forward) than to start from a snapshot
 		Reactor& reactor = motherBoard.getReactor();
-		Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-		MemInputArchive in(it->second.savestate->data(),
-		                   it->second.savestate->size());
-		in.serialize("machine", *newBoard);
+		EmuTime currentTime = getCurrentTime();
+		MSXMotherBoard* newBoard;
+		Reactor::Board newBoard_; // either NULL or the same as newBoard
+		if ((currentTime <= preTarget) &&
+		    ((snapshotTime <= currentTime) ||
+		     ((preTarget - currentTime) < EmuDuration(1.0)))) {
+			newBoard = &motherBoard; // use current board
+		} else {
+			// Note: we don't (anymore) erase future snapshots
+			// -- restore old snapshot --
+			newBoard_ = reactor.createEmptyMotherBoard();
+			newBoard = newBoard_.get();
+			MemInputArchive in(it->second.savestate->data(),
+					   it->second.savestate->size());
+			in.serialize("machine", *newBoard);
 
-		if (eventDelay) {
-			// Handle all events that are scheduled, but not yet
-			// distributed. This makes sure no events get lost
-			// (important to keep host/msx keyboard in sync).
-			eventDelay->flush();
+			if (eventDelay) {
+				// Handle all events that are scheduled, but not yet
+				// distributed. This makes sure no events get lost
+				// (important to keep host/msx keyboard in sync).
+				eventDelay->flush();
+			}
+
+			// terminate replay log with EndLogEvent (if not there already)
+			if (history.events.empty() ||
+			    !dynamic_cast<const EndLogEvent*>(history.events.back().get())) {
+				history.events.push_back(shared_ptr<StateChange>(
+					new EndLogEvent(currentTime)));
+			}
+
+			// Transfer history to the new ReverseManager.
+			// Also we should stop collecting in this ReverseManager,
+			// and start collecting in the new one.
+			ReverseManager& newManager = newBoard->getReverseManager();
+			newManager.transferHistory(history, it->second.eventCount);
+
+			// transfer (or copy) state from old to new machine
+			transferState(*newBoard);
+
+			// In case of load-replay it's possible we are not collecting,
+			// but calling stop() anyway is ok.
+			stop();
 		}
-
-		// terminate replay log with EndLogEvent (if not there already)
-		if (history.events.empty() ||
-		    !dynamic_cast<const EndLogEvent*>(history.events.back().get())) {
-			history.events.push_back(shared_ptr<StateChange>(
-				new EndLogEvent(getCurrentTime())));
-		}
-
-		// Transfer history to the new ReverseManager.
-		// Also we should stop collecting in this ReverseManager,
-		// and start collecting in the new one.
-		ReverseManager& newManager = newBoard->getReverseManager();
-		newManager.transferHistory(history, it->second.eventCount);
-
-		// transfer (or copy) state from old to new machine
-		transferState(*newBoard);
-
-		// In case of load-replay it's possible we are not collecting,
-		// but calling stop() anyway is ok.
-		stop();
 
 		// -- goto correct time within snapshot --
 		// fast forward 2 frames before target time
@@ -431,14 +446,16 @@ void ReverseManager::goTo(EmuTime::param target, ReverseHistory& history)
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
 		//  ReverseManager. So we can't access those objects anymore.
-		reactor.replaceBoard(motherBoard, newBoard);
+		if (newBoard_.get()) {
+			reactor.replaceBoard(motherBoard, newBoard_);
+		}
 
 		// Fast forward to actual target time with board activated.
 		// This makes sure the video output gets rendered.
 		newBoard->fastForward(targetTime);
 
 		//assert(!isCollecting()); // can't access 'this->' members anymore!
-		assert(newManager.isCollecting());
+		assert(newBoard->getReverseManager().isCollecting());
 	} catch (MSXException&) {
 		// Make sure mixer doesn't stay muted in case of error.
 		mixer.unmute();
@@ -495,7 +512,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// store current time (possibly somewhere in the middle of the timeline)
 	// so that on load we can go back there
-	replay.currentTime = motherBoard.getCurrentTime();
+	replay.currentTime = getCurrentTime();
 
 	// restore first snapshot to be able to serialize it to a file
 	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
