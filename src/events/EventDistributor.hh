@@ -69,6 +69,8 @@ public:
 	bool sleep(unsigned us);
 
 private:
+	bool isRegistered(EventType type, EventListener* listener) const;
+
 	Reactor& reactor;
 
 	typedef std::multimap<Priority, EventListener*, std::greater<Priority> >

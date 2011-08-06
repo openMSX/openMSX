@@ -73,6 +73,21 @@ void EventDistributor::distributeEvent(Event* event)
 	}
 }
 
+bool EventDistributor::isRegistered(EventType type, EventListener* listener) const
+{
+	TypeMap::const_iterator it = listeners.find(type);
+	if (it == listeners.end()) return false;
+
+	const PriorityMap& priorityMap = it->second;
+	for (PriorityMap::const_iterator it2 = priorityMap.begin();
+	     it2 != priorityMap.end(); ++it2) {
+		if (it2->second == listener) {
+			return true;
+		}
+	}
+	return false;
+}
+
 void EventDistributor::deliverEvents()
 {
 	assert(Thread::isMainThread());
@@ -92,11 +107,16 @@ void EventDistributor::deliverEvents()
 		for (EventQueue::const_iterator it = eventsCopy.begin();
 		     it != eventsCopy.end(); ++it) {
 			EventPtr event = *it;
-			PriorityMap priorityMapCopy = listeners[event->getType()];
+			EventType type = event->getType();
+			PriorityMap priorityMapCopy = listeners[type];
 			sem.up();
 			unsigned allowPriorities = unsigned(-1); // all priorities
 			for (PriorityMap::const_iterator it = priorityMapCopy.begin();
 			     it != priorityMapCopy.end(); ++it) {
+				// It's possible delivery to one of the previous
+				// Listeners unregistered the current Listener.
+				if (!isRegistered(type, it->second)) continue;
+
 				unsigned currentPriority = it->first;
 				if (!(currentPriority & allowPriorities)) continue;
 
