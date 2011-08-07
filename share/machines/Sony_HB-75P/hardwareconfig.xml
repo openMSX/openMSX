@@ -54,7 +54,7 @@
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
-      <ROM id="MSX Database">
+      <ROM id="Personal Data Bank">
         <rom>
           <filename>roms/hb-75p_firmware.rom</filename>
           <sha1>b262aedc71b445303f84efe5e865cbb71fd7d952</sha1> <!-- Confirmed on Sjoerd Lammertsma's machine -->
