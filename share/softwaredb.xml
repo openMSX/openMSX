@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1312236305">
+<softwaredb xml:lang="en" timestamp="1312909951">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -712,6 +712,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">c5f1897c416f62cd58cd6257282e3428155cd698</hash></rom></dump>
 		<dump><rom><hash algo="sha1">c6c64d803d65ce439d00034a86a570f8c77d18d5</hash><remark><text>[Topia]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Azzurro 8bit Jam</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">e7ac2fb16598e3e446a7d1c9708f10cf4c332a77</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">B.C&#39;s Quest</title>
@@ -11934,6 +11942,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2636
-Parse time 8.157 seconds on Tue Aug 2 0:05:13 CEST 2011
+Roms in this database:2637
+Parse time 7.353 seconds on Tue Aug 9 19:12:38 CEST 2011
  -->
