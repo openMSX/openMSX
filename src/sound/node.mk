@@ -5,7 +5,9 @@ include build/node-start.mk
 SRC_HDR:= \
 	Mixer MSXMixer NullSoundDriver \
 	SDLSoundDriver DirectXSoundDriver \
-	SoundDevice \
+	SoundDevice ResampledSoundDevice \
+	ResampleTrivial ResampleHQ ResampleLQ ResampleBlip \
+	BlipBuffer \
 	MSXPSG AY8910 AY8910Periphery \
 	DACSound16S DACSound8U \
 	KeyClick \
@@ -25,9 +27,7 @@ SRC_HDR:= \
 	DummyAudioInputDevice WavAudioInput \
 	WavWriter \
 	SamplePlayer \
-	WavData \
-	Resample ResampleTrivial ResampleHQ ResampleLQ ResampleBlip \
-	BlipBuffer
+	WavData
 
 HDR_ONLY:= \
 	SoundDriver \

@@ -77,12 +77,8 @@ chirp 12-..: vokume   0   : silent
 */
 
 #include "VLM5030.hh"
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "Rom.hh"
-#include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
 #include "serialize.hh"
@@ -91,7 +87,7 @@ chirp 12-..: vokume   0   : silent
 
 namespace openmsx {
 
-class VLM5030Impl : public SoundDevice, private Resample
+class VLM5030Impl : public ResampledSoundDevice
 {
 public:
 	VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
@@ -112,14 +108,7 @@ private:
 	void setST (bool pin);
 
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(
-		unsigned length, int* buffer, EmuTime::param start,
-		EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	void setupParameter(byte param);
 	int getBits(unsigned sbit, unsigned bits);
@@ -586,8 +575,7 @@ void VLM5030Impl::setST(bool pin)
 
 VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config)
-	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
@@ -611,31 +599,16 @@ VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
 
 	address_mask = rom->getSize() - 1;
 
+	const int CLOCK_FREQ = 3579545;
+	double input = CLOCK_FREQ / 440.0;
+	setInputRate(int(input + 0.5));
+
 	registerSound(config);
 }
 
 VLM5030Impl::~VLM5030Impl()
 {
 	unregisterSound();
-}
-
-void VLM5030Impl::setOutputRate(unsigned sampleRate)
-{
-       const int CLOCK_FREQ = 3579545;
-       double input = CLOCK_FREQ / 440.0;
-       setInputRate(int(input + 0.5));
-       setResampleRatio(input, sampleRate, isStereo());
-}
-
-bool VLM5030Impl::generateInput(int* buffer, unsigned length)
-{
-	return mixChannels(buffer, length);
-}
-
-bool VLM5030Impl::updateBuffer(unsigned length, int* buffer,
-                           EmuTime::param /*start*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 template<typename Archive>

@@ -2,8 +2,6 @@
 
 #include "SamplePlayer.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "WavData.hh"
 #include "MSXCliComm.hh"
 #include "FileContext.hh"
@@ -17,10 +15,10 @@ namespace openmsx {
 SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
                            const std::string& desc, const XMLElement& config,
                            const std::string& samplesBaseName, unsigned numSamples)
-	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
-	, inFreq(44100)
+	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
+	setInputRate(44100); // Initialize with dummy value
+
 	bool alreadyWarned = false;
 	samples.resize(numSamples); // initialize with NULL ptrs
 	for (unsigned i = 0; i < numSamples; ++i) {
@@ -63,13 +61,6 @@ void SamplePlayer::stopRepeat()
 	nextSampleNum = unsigned(-1);
 }
 
-void SamplePlayer::setOutputRate(unsigned outFreq_)
-{
-	outFreq = outFreq_;
-	setInputRate(inFreq);
-	setResampleRatio(inFreq, outFreq, isStereo());
-}
-
 void SamplePlayer::play(unsigned sampleNum)
 {
 	assert(sampleNum < samples.size());
@@ -90,12 +81,12 @@ void SamplePlayer::setWavParams()
 		bits8 = (bits == 8);
 
 		unsigned freq = wav->getFreq();
-		if (freq != inFreq) {
+		if (freq != getInputRate()) {
 			// this potentially switches resampler, so there might be
 			// some dropped samples if this is done in the middle of
 			// playing, though this shouldn't happen often (or at all)
-			inFreq = freq;
-			setOutputRate(outFreq);
+			setInputRate(freq);
+			createResampler();
 		}
 	} else {
 		reset();
@@ -145,17 +136,6 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 void SamplePlayer::doRepeat()
 {
 	play(nextSampleNum);
-}
-
-bool SamplePlayer::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool SamplePlayer::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 template<typename Archive>

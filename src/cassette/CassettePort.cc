@@ -68,13 +68,12 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
-		motherBoard.getMSXMixer(),
+		motherBoard,
 		motherBoard.getScheduler(),
 		motherBoard.getStateChangeDistributor(),
 		motherBoard.getReactor().getEventDistributor(),
 		motherBoard.getMSXCliComm(),
 		motherBoard.getReactor().getFilePool(),
-		motherBoard.getReactor().getGlobalSettings().getResampleSetting(),
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()));
 	getPluggingController().registerPluggable(cassettePlayer.get());
 }

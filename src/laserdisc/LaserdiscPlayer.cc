@@ -13,7 +13,6 @@
 #include "Display.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
@@ -107,10 +106,9 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 LaserdiscPlayer::LaserdiscPlayer(
 		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_,
 		ThrottleManager& throttleManager)
-	: SoundDevice(motherBoard_.getMSXMixer(), "laserdiscplayer",
-		      "Laserdisc Player", 1, true)
+	: ResampledSoundDevice(motherBoard_, "laserdiscplayer",
+	                       "Laserdisc Player", 1, true)
 	, Schedulable(motherBoard_.getScheduler())
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
 	, motherBoard(motherBoard_)
 	, ldcontrol(ldcontrol_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
@@ -152,6 +150,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 	createRenderer();
 	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
 	scheduleDisplayStart(Schedulable::getCurrentTime());
+
+	setInputRate(44100); // Initialize with dummy value
 
 	registerSound(laserdiscPlayerConfig);
 }
@@ -839,8 +839,13 @@ void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 	UserFileContext context;
 	oggImage = Filename(newImage, context);
 	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
-	sampleClock.setFreq(video->getSampleRate());
-	setOutputRate(outputRate);
+
+	unsigned inputRate = video->getSampleRate();
+	sampleClock.setFreq(inputRate);
+	if (inputRate != getInputRate()) {
+		setInputRate(inputRate);
+		createResampler();
+	}
 }
 
 int LaserdiscPlayer::signalEvent(shared_ptr<const Event> event)
@@ -871,14 +876,6 @@ void LaserdiscPlayer::autoRun()
 			"Error executing loading instruction for AutoRun: " +
 			e.getMessage() + "\n Please report a bug.");
 	}
-}
-
-void LaserdiscPlayer::setOutputRate(unsigned newOutputRate)
-{
-	outputRate = newOutputRate;
-	unsigned inputRate = video.get() ? video->getSampleRate() : outputRate;
-	setInputRate(inputRate);
-	setResampleRatio(inputRate, outputRate, isStereo());
 }
 
 void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
@@ -950,16 +947,11 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	}
 }
 
-bool LaserdiscPlayer::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
 bool LaserdiscPlayer::updateBuffer(unsigned length, int *buffer,
-		EmuTime::param start_, EmuDuration::param /*sampDur*/)
+		EmuTime::param start_, EmuDuration::param sampDur)
 {
 	start = start_;
-	return generateOutput(buffer, length);
+	return ResampledSoundDevice::updateBuffer(length, buffer, start_, sampDur);
 }
 
 void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)

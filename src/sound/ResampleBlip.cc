@@ -1,7 +1,7 @@
 // $Id$
 
 #include "ResampleBlip.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "static_assert.hh"
 #include "likely.hh"
 #include "vla.hh"
@@ -12,7 +12,7 @@
 namespace openmsx {
 
 template <unsigned CHANNELS>
-ResampleBlip<CHANNELS>::ResampleBlip(Resample& input_, double ratio_)
+ResampleBlip<CHANNELS>::ResampleBlip(ResampledSoundDevice& input_, double ratio_)
 	: input(input_)
 	, ratio(ratio_)
 	, invRatio(1.0 / ratio_)

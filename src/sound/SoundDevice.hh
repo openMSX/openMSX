@@ -81,6 +81,7 @@ protected:
 	void updateStream(EmuTime::param time);
 
 	void setInputRate(unsigned sampleRate);
+	unsigned getInputRate() const { return inputSampleRate; }
 
 public: // Will be called by Mixer:
 	/**

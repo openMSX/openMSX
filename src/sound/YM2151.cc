@@ -7,20 +7,17 @@
 ******************************************************************************/
 
 #include "YM2151.hh"
-#include "SoundDevice.hh"
+#include "ResampledSoundDevice.hh"
 #include "EmuTimer.hh"
-#include "Resample.hh"
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
 
 namespace openmsx {
 
-class YM2151Impl : public SoundDevice, private EmuTimerCallback, private Resample
+class YM2151Impl : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
@@ -94,13 +91,7 @@ private:
 	void setConnect(YM2151Operator* om1, int cha, int v);
 
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-	                          EmuTime::param start, EmuDuration::param sampDur);
-
-	 // Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	void callback(byte flag);
 	void setStatus(byte flags);
@@ -1026,14 +1017,17 @@ void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                EmuTime::param time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, desc, 8, true)
 	, irq(motherBoard, getName() + ".IRQ")
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
 {
 	initTables();
 	initChipTables();
+
+	static const int CLCK_FREQ = 3579545;
+	double input = CLCK_FREQ / 64.0;
+	setInputRate(int(input + 0.5));
 
 	reset(time);
 
@@ -1669,25 +1663,6 @@ void YM2151Impl::generateChannels(int** bufs, unsigned num)
 		}
 		advance();
 	}
-}
-
-bool YM2151Impl::generateInput(int* buffer, unsigned length)
-{
-	return mixChannels(buffer, length);
-}
-
-bool YM2151Impl::updateBuffer(unsigned length, int* buffer,
-		EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
-}
-
-void YM2151Impl::setOutputRate(unsigned sampleRate)
-{
-	static const int CLCK_FREQ = 3579545;
-	double input = CLCK_FREQ / 64.0;
-	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void YM2151Impl::callback(byte flag)

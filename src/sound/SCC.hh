@@ -3,8 +3,7 @@
 #ifndef SCC_HH
 #define SCC_HH
 
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -14,7 +13,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class SCCDebuggable;
 
-class SCC : public SoundDevice, private Resample
+class SCC : public ResampledSoundDevice
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -38,13 +37,7 @@ public:
 private:
 	// SoundDevice
 	virtual int getAmplificationFactor() const;
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(signed char wav, byte vol);
 	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;

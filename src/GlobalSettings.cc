@@ -30,16 +30,16 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	       "pause emulation when the openMSX window loses focus", false));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
-	EnumSetting<Resample::ResampleType>::Map resampleMap;
-	resampleMap["hq"]   = Resample::RESAMPLE_HQ;
-	resampleMap["fast"] = Resample::RESAMPLE_LQ;
-	resampleMap["blip"] = Resample::RESAMPLE_BLIP;
-	resampleSetting.reset(new EnumSetting<Resample::ResampleType>(
+	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap;
+	resampleMap["hq"]   = ResampledSoundDevice::RESAMPLE_HQ;
+	resampleMap["fast"] = ResampledSoundDevice::RESAMPLE_LQ;
+	resampleMap["blip"] = ResampledSoundDevice::RESAMPLE_BLIP;
+	resampleSetting.reset(new EnumSetting<ResampledSoundDevice::ResampleType>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
-		Resample::RESAMPLE_LQ,
+		ResampledSoundDevice::RESAMPLE_LQ,
 #else
-		Resample::RESAMPLE_BLIP,
+		ResampledSoundDevice::RESAMPLE_BLIP,
 #endif
 		resampleMap));
 
@@ -90,7 +90,7 @@ BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()
 	return *pauseOnLostFocusSetting.get();
 }
 
-EnumSetting<Resample::ResampleType>& GlobalSettings::getResampleSetting()
+EnumSetting<ResampledSoundDevice::ResampleType>& GlobalSettings::getResampleSetting()
 {
 	return *resampleSetting.get();
 }

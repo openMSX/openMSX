@@ -4,9 +4,6 @@
 #include "YM2413Okazaki.hh"
 #include "YM2413Burczynski.hh"
 #include "SimpleDebuggable.hh"
-#include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
 
@@ -57,11 +54,13 @@ static YM2413Core* createCore(const XMLElement& config)
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 9 + 5)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, "MSX-MUSIC", 9 + 5)
 	, core(createCore(config))
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
+	double input = YM2413Core::CLOCK_FREQ / 72.0;
+	setInputRate(int(input + 0.5));
+
 	registerSound(config);
 }
 
@@ -90,24 +89,6 @@ void YM2413::generateChannels(int** bufs, unsigned num)
 int YM2413::getAmplificationFactor() const
 {
 	return core->getAmplificationFactor();
-}
-
-bool YM2413::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-void YM2413::setOutputRate(unsigned sampleRate)
-{
-	double input = YM2413Core::CLOCK_FREQ / 72.0;
-	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate, isStereo());
-}
-
-bool YM2413::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 

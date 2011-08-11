@@ -3,8 +3,7 @@
 #ifndef LASERDISCPLAYER_HH
 #define LASERDISCPLAYER_HH
 
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
@@ -27,9 +26,8 @@ class LoadingIndicator;
 class ThrottleManager;
 class EventDistributor;
 
-class LaserdiscPlayer : public SoundDevice
+class LaserdiscPlayer : public ResampledSoundDevice
 		      , public Schedulable
-		      , private Resample
 		      , private EventListener
 		      , private VideoSystemChangeListener
 {
@@ -122,11 +120,9 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	void setOutputRate(unsigned sampleRate);
-	void generateChannels(int** bufs, unsigned num);
-	bool updateBuffer(unsigned length, int* buffer,
-	                  EmuTime::param time, EmuDuration::param sampDur);
-	bool generateInput(int* buffer, unsigned num);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int *buffer,
+		EmuTime::param start_, EmuDuration::param sampDur);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);
@@ -155,7 +151,6 @@ private:
 	// Audio state
 	DynamicClock sampleClock;
 	EmuTime start;
-	unsigned outputRate;
 	unsigned playingFromSample;
 	unsigned lastPlayedSample;
 	bool muteLeft, muteRight;

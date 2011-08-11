@@ -11,14 +11,11 @@
 #include "Y8950KeyboardConnector.hh"
 #include "Y8950Periphery.hh"
 #include "MSXAudio.hh"
-#include "SoundDevice.hh"
+#include "ResampledSoundDevice.hh"
 #include "EmuTimer.hh"
-#include "Resample.hh"
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "DACSound16S.hh"
 #include "FixedPoint.hh"
 #include "Math.hh"
@@ -140,7 +137,7 @@ public:
 	bool alg;
 };
 
-class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resample
+class Y8950Impl : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
@@ -168,13 +165,7 @@ public:
 private:
 	// SoundDevice
 	virtual int getAmplificationFactor() const;
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param start, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();
@@ -673,8 +664,7 @@ void Y8950Channel::keyOff()
 Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
                      unsigned sampleRam, MSXAudio& audio)
-	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 9 + 5 + 1)
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard_, name, "MSX-AUDIO", 9 + 5 + 1)
 	, motherBoard(motherBoard_)
 	, periphery(audio.createPeriphery(getName()))
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
@@ -704,6 +694,9 @@ void Y8950Impl::init(const XMLElement& config, EmuTime::param time)
 	makeDphaseARTable();
 	makeDphaseDRTable();
 
+	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
+	setInputRate(int(input + 0.5));
+
 	reset(time);
 	registerSound(config);
 }
@@ -711,13 +704,6 @@ void Y8950Impl::init(const XMLElement& config, EmuTime::param time)
 Y8950Impl::~Y8950Impl()
 {
 	unregisterSound();
-}
-
-void Y8950Impl::setOutputRate(unsigned sampleRate)
-{
-	double input = Y8950::CLOCK_FREQ / double(Y8950::CLOCK_FREQ_DIV);
-	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void Y8950Impl::clearRam()
@@ -1055,17 +1041,6 @@ void Y8950Impl::generateChannels(int** bufs, unsigned num)
 
 		bufs[14][sample] += adpcm->calcSample();
 	}
-}
-
-bool Y8950Impl::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool Y8950Impl::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 //

@@ -40,15 +40,12 @@
  */
 
 #include "YMF262.hh"
-#include "SoundDevice.hh"
+#include "ResampledSoundDevice.hh"
 #include "EmuTimer.hh"
-#include "Resample.hh"
 #include "IRQHelper.hh"
 #include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <cmath>
@@ -181,7 +178,7 @@ public:
 	               // channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262Impl : private SoundDevice, private EmuTimerCallback, private Resample
+class YMF262Impl : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
@@ -201,13 +198,7 @@ public:
 private:
 	// SoundDevice
 	virtual int getAmplificationFactor() const;
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	void callback(byte flag);
 
@@ -1107,14 +1098,6 @@ void YMF262Impl::init_tables()
 }
 
 
-void YMF262Impl::setOutputRate(unsigned sampleRate)
-{
-	const int CLOCK_FREQ = 3579545 * 4;
-	double input = CLOCK_FREQ / (8.0 * 36.0);
-	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate, isStereo());
-}
-
 void YMF262Slot::FM_KEYON(byte key_set)
 {
 	if (!key) {
@@ -1676,9 +1659,8 @@ void YMF262Impl::reset(EmuTime::param time)
 
 YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
                        const XMLElement& config, bool isYMF278_)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
-	              18, true)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, "MoonSound FM-part",
+	                       18, true)
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1697,6 +1679,10 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	memset(reg, 0, sizeof(reg));
 
 	init_tables();
+
+	const int CLOCK_FREQ = 3579545 * 4;
+	double input = CLOCK_FREQ / (8.0 * 36.0);
+	setInputRate(int(input + 0.5));
 
 	reset(motherBoard.getCurrentTime());
 	registerSound(config);
@@ -1812,17 +1798,6 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 
 		advance();
 	}
-}
-
-bool YMF262Impl::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool YMF262Impl::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 

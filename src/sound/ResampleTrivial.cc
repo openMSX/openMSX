@@ -1,13 +1,13 @@
 // $Id$
 
 #include "ResampleTrivial.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
 
-ResampleTrivial::ResampleTrivial(Resample& input_)
+ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
 	: input(input_)
 {
 }

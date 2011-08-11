@@ -7,16 +7,16 @@
 
 namespace openmsx {
 
-class Resample;
+class ResampledSoundDevice;
 
 class ResampleTrivial : public ResampleAlgo
 {
 public:
-	ResampleTrivial(Resample& input);
+	ResampleTrivial(ResampledSoundDevice& input);
 	virtual bool generateOutput(int* dataOut, unsigned num);
 
 private:
-	Resample& input;
+	ResampledSoundDevice& input;
 };
 
 } // namespace openmsx

@@ -13,7 +13,7 @@
 //     (e.g. remove all error checking)
 
 #include "ResampleHQ.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
@@ -176,7 +176,7 @@ void ResampleCoeffs::calcTable(
 
 
 template <unsigned CHANNELS>
-ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
+ResampleHQ<CHANNELS>::ResampleHQ(ResampledSoundDevice& input_, double ratio_)
 	: input(input_)
 	, ratio(float(ratio_))
 {

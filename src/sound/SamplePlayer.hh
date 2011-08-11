@@ -3,8 +3,7 @@
 #ifndef SAMPLEPLAYER_HH
 #define SAMPLEPLAYER_HH
 
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "shared_ptr.hh"
 #include <vector>
 
@@ -13,7 +12,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class WavData;
 
-class SamplePlayer : public SoundDevice, private Resample
+class SamplePlayer : public ResampledSoundDevice
 {
 public:
 	SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
@@ -55,19 +54,11 @@ private:
 	void doRepeat();
 
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	std::vector<shared_ptr<WavData> > samples; // change to unique_ptr in the future
 
 	const void* sampBuf;
-	unsigned inFreq;
-	unsigned outFreq;
 	unsigned index;
 	unsigned bufferSize;
 	unsigned currentSampleNum;

@@ -7,13 +7,13 @@
 
 namespace openmsx {
 
-class Resample;
+class ResampledSoundDevice;
 
 template <unsigned CHANNELS>
 class ResampleHQ : public ResampleAlgo
 {
 public:
-	ResampleHQ(Resample& input, double ratio);
+	ResampleHQ(ResampledSoundDevice& input, double ratio);
 	virtual ~ResampleHQ();
 
 	virtual bool generateOutput(int* dataOut, unsigned num);
@@ -24,7 +24,7 @@ private:
 	void calcOutput(float lastPos, int* output);
 	void prepareData(unsigned request);
 
-	Resample& input;
+	ResampledSoundDevice& input;
 	const float ratio;
 	float lastPos;
 	unsigned bufStart;

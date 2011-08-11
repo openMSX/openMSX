@@ -3,13 +3,10 @@
 // Based on ymf278b.c written by R. Belmont and O. Galibert
 
 #include "YMF278.hh"
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "Clock.hh"
 #include "MemBuffer.hh"
 #include "serialize.hh"
@@ -92,7 +89,7 @@ public:
 	bool lfo_active;
 };
 
-class YMF278Impl : public SoundDevice, private Resample
+class YMF278Impl : public ResampledSoundDevice
 {
 public:
 	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
@@ -111,13 +108,7 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readMem(unsigned address) const;
@@ -653,17 +644,6 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YMF278Impl::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool YMF278Impl::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
-}
-
 void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
@@ -930,9 +910,8 @@ byte YMF278Impl::peekStatus(EmuTime::param time) const
 
 YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
                        int ramSize, const XMLElement& config)
-	: SoundDevice(motherBoard_.getMSXMixer(), name, "MoonSound wave-part",
-	              24, true)
-	, Resample(motherBoard_.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard_, name, "MoonSound wave-part",
+	                       24, true)
 	, motherBoard(motherBoard_)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
@@ -944,7 +923,8 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, endRam(endRom + ram.size())
 {
 	memadr = 0; // avoid UMR
-	setOutputRate(44100); // make valgrind happy
+
+	setInputRate(44100);
 
 	reset(motherBoard.getCurrentTime());
 	registerSound(config);
@@ -982,12 +962,6 @@ void YMF278Impl::reset(EmuTime::param time)
 	fm_l = fm_r = pcm_l = pcm_r = 0;
 	busyTime = time;
 	loadTime = time;
-}
-
-void YMF278Impl::setOutputRate(unsigned sampleRate)
-{
-	setInputRate(44100);
-	setResampleRatio(44100, sampleRate, isStereo());
 }
 
 byte YMF278Impl::readMem(unsigned address) const

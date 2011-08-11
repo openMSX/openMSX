@@ -5,7 +5,7 @@
 
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include <memory>
 
 namespace openmsx {
@@ -35,7 +35,7 @@ public:
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
-	EnumSetting<Resample::ResampleType>& getResampleSetting();
+	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
 private:
@@ -50,7 +50,7 @@ private:
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
-	std::auto_ptr<EnumSetting<Resample::ResampleType> > resampleSetting;
+	std::auto_ptr<EnumSetting<ResampledSoundDevice::ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };
 

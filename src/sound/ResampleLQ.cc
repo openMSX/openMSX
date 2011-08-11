@@ -1,7 +1,7 @@
 // $Id$
 
 #include "ResampleLQ.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "aligned.hh"
 #include <cassert>
 #include <cstring>
@@ -15,7 +15,7 @@ ALIGNED(static int bufferInt[BUFSIZE + 4], 16);
 
 template<unsigned CHANNELS>
 std::auto_ptr<ResampleLQ<CHANNELS> > ResampleLQ<CHANNELS>::create(
-	Resample& input, double ratio)
+	ResampledSoundDevice& input, double ratio)
 {
 	std::auto_ptr<ResampleLQ<CHANNELS> > result;
 	if (ratio < 1.0) {
@@ -27,7 +27,7 @@ std::auto_ptr<ResampleLQ<CHANNELS> > ResampleLQ<CHANNELS>::create(
 }
 
 template <unsigned CHANNELS>
-ResampleLQ<CHANNELS>::ResampleLQ(Resample& input_, double ratio)
+ResampleLQ<CHANNELS>::ResampleLQ(ResampledSoundDevice& input_, double ratio)
 	: input(input_), pos(0), step(ratio)
 {
 	for (unsigned j = 0; j < CHANNELS; ++j) {
@@ -64,7 +64,7 @@ bool ResampleLQ<CHANNELS>::fetchData(unsigned num)
 ////
 
 template <unsigned CHANNELS>
-ResampleLQUp<CHANNELS>::ResampleLQUp(Resample& input, double ratio)
+ResampleLQUp<CHANNELS>::ResampleLQUp(ResampledSoundDevice& input, double ratio)
 	: ResampleLQ<CHANNELS>(input, ratio)
 {
 	assert(ratio < 1.0); // only upsampling
@@ -95,7 +95,7 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 ////
 
 template <unsigned CHANNELS>
-ResampleLQDown<CHANNELS>::ResampleLQDown(Resample& input, double ratio)
+ResampleLQDown<CHANNELS>::ResampleLQDown(ResampledSoundDevice& input, double ratio)
 	: ResampleLQ<CHANNELS>(input, ratio)
 {
 	assert(ratio > 1.0); // can only do downsampling

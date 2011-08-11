@@ -13,8 +13,6 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "CliComm.hh"
 #include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
@@ -482,8 +480,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, const std::string& name,
 		AY8910Periphery& periphery_, const XMLElement& config,
 		EmuTime::param time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "PSG", 3)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, "PSG", 3)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
@@ -511,7 +508,8 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, const std::string& name,
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
-	setOutputRate(44100);
+
+	setInputRate(NATIVE_FREQ_INT);
 
 	reset(time);
 	registerSound(config);
@@ -661,12 +659,6 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 		}
 		break;
 	}
-}
-
-void AY8910::setOutputRate(unsigned sampleRate)
-{
-	setInputRate(NATIVE_FREQ_INT);
-	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate, isStereo());
 }
 
 static void addFill(int*& buf, int val, unsigned num)
@@ -1005,17 +997,6 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	if (envelope.isChanging() && !envelopeUpdated) {
 		envelope.advance(length);
 	}
-}
-
-bool AY8910::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool AY8910::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 

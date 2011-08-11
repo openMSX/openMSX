@@ -5,8 +5,7 @@
 
 #include "EventListener.hh"
 #include "CassetteDevice.hh"
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "Schedulable.hh"
 #include "Filename.hh"
 #include "EmuTime.hh"
@@ -17,7 +16,7 @@
 namespace openmsx {
 
 class CassetteImage;
-class MSXMixer;
+class MSXMotherBoard;
 class Scheduler;
 class CliComm;
 class FilePool;
@@ -30,18 +29,16 @@ class CommandController;
 class StateChangeDistributor;
 class EventDistributor;
 
-class CassettePlayer : public CassetteDevice, public SoundDevice
-                     , private Resample, private EventListener
-                     , private Schedulable
+class CassettePlayer : public CassetteDevice, public ResampledSoundDevice
+                     , private EventListener, private Schedulable
 {
 public:
 	CassettePlayer(CommandController& commandController,
-	               MSXMixer& mixer, Scheduler& Scheduler,
+	               MSXMotherBoard& motherBoard, Scheduler& Scheduler,
 	               StateChangeDistributor& stateChangeDistributor,
 	               EventDistributor& eventDistributor,
 	               CliComm& cliComm,
 	               FilePool& filePool,
-	               EnumSetting<ResampleType>& resampleSetting,
 	               ThrottleManager& throttleManager);
 	virtual ~CassettePlayer();
 
@@ -57,13 +54,7 @@ public:
 	virtual void unplugHelper(EmuTime::param time);
 
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -155,7 +146,6 @@ private:
 
 	// SoundDevice
 	unsigned audioPos;
-	unsigned outputRate;
 	Filename casImage;
 
 	CommandController& commandController;

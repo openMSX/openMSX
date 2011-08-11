@@ -3,8 +3,7 @@
 #ifndef AY8910_HH
 #define AY8910_HH
 
-#include "SoundDevice.hh"
-#include "Resample.hh"
+#include "ResampledSoundDevice.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -21,7 +20,7 @@ class FloatSetting;
   * Only the AY-3-8910 is emulated, no surrounding hardware,
   * use the class AY8910Periphery to connect peripherals.
   */
-class AY8910 : public SoundDevice, private Resample
+class AY8910 : public ResampledSoundDevice
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, const std::string& name,
@@ -164,14 +163,8 @@ private:
 		bool hold, alternate, holding;
 	};
 
-	// SoundDevice:
-	virtual void setOutputRate(unsigned sampleRate);
+	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param time, EmuDuration::param sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
 
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 

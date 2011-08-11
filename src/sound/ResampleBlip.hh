@@ -8,19 +8,19 @@
 
 namespace openmsx {
 
-class Resample;
+class ResampledSoundDevice;
 
 template <unsigned CHANNELS>
 class ResampleBlip : public ResampleAlgo
 {
 public:
-	ResampleBlip(Resample& input, double ratio);
+	ResampleBlip(ResampledSoundDevice& input, double ratio);
 
 	virtual bool generateOutput(int* dataOut, unsigned num);
 
 private:
 	BlipBuffer blip[CHANNELS];
-	Resample& input;
+	ResampledSoundDevice& input;
 	const double ratio;
 	const double invRatio;
 	double lastPos;

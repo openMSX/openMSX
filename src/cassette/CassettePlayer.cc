@@ -81,15 +81,13 @@ private:
 
 CassettePlayer::CassettePlayer(
 		CommandController& commandController_,
-		MSXMixer& mixer, Scheduler& scheduler,
+		MSXMotherBoard& motherBoard, Scheduler& scheduler,
 		StateChangeDistributor& stateChangeDistributor,
 		EventDistributor& eventDistributor_,
 		CliComm& cliComm_,
 		FilePool& filePool_,
-		EnumSetting<ResampleType>& resampleSetting,
 		ThrottleManager& throttleManager)
-	: SoundDevice(mixer, getName(), getDescription(), 1)
-	, Resample(resampleSetting)
+	: ResampledSoundDevice(motherBoard, getName(), getDescription(), 1)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
@@ -109,6 +107,8 @@ CassettePlayer::CassettePlayer(
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
+	setInputRate(44100); // Initialize with dummy value
+
 	removeTape(EmuTime::zero);
 
 	static XMLElement cassettePlayerConfig("cassetteplayer");
@@ -336,6 +336,15 @@ void CassettePlayer::insertTape(const Filename& filename)
 		// getImageName() returns a reference, this 'filename'
 		// parameter now also is an empty string.
 	}
+
+	// possibly recreate resampler
+	unsigned inputRate = playImage.get() ? playImage->getFrequency()
+	                                     : 44100;
+	if (inputRate != getInputRate()) {
+		setInputRate(inputRate);
+		createResampler();
+	}
+
 	setImageName(filename);
 }
 
@@ -349,7 +358,6 @@ void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 	insertTape(filename);
 	rewind(time); // sets PLAY mode
 	autoRun();
-	setOutputRate(outputRate); // recalculate resample stuff
 }
 
 void CassettePlayer::rewind(EmuTime::param time)
@@ -537,15 +545,6 @@ void CassettePlayer::unplugHelper(EmuTime::param time)
 }
 
 
-void CassettePlayer::setOutputRate(unsigned newOutputRate)
-{
-	outputRate = newOutputRate;
-	unsigned inputRate = playImage.get() ? playImage->getFrequency()
-	                                     : outputRate;
-	setInputRate(inputRate);
-	setResampleRatio(inputRate, outputRate, isStereo());
-}
-
 void CassettePlayer::generateChannels(int** buffers, unsigned num)
 {
 	if ((getState() != PLAY) || !isRolling()) {
@@ -557,17 +556,6 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 	//       one channel this doesn't matter (buffer contains all zeros).
 	playImage->fillBuffer(audioPos, buffers, num);
 	audioPos += num;
-}
-
-bool CassettePlayer::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool CassettePlayer::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 

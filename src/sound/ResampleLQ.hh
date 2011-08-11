@@ -9,20 +9,20 @@
 
 namespace openmsx {
 
-class Resample;
+class ResampledSoundDevice;
 
 template <unsigned CHANNELS>
 class ResampleLQ: public ResampleAlgo
 {
 public:
 	static std::auto_ptr<ResampleLQ<CHANNELS> > create(
-		Resample& input, double ratio);
+		ResampledSoundDevice& input, double ratio);
 
 protected:
-	ResampleLQ(Resample& input, double ratio);
+	ResampleLQ(ResampledSoundDevice& input, double ratio);
 	bool fetchData(unsigned num);
 
-	Resample& input;
+	ResampledSoundDevice& input;
 	typedef FixedPoint<16> Pos;
 	Pos pos;
 	const Pos step;
@@ -33,7 +33,7 @@ template <unsigned CHANNELS>
 class ResampleLQDown : public ResampleLQ<CHANNELS>
 {
 private:
-	ResampleLQDown(Resample& input, double ratio);
+	ResampleLQDown(ResampledSoundDevice& input, double ratio);
 	virtual bool generateOutput(int* dataOut, unsigned num);
 	friend class ResampleLQ<CHANNELS>;
 };
@@ -42,7 +42,7 @@ template <unsigned CHANNELS>
 class ResampleLQUp : public ResampleLQ<CHANNELS>
 {
 private:
-	ResampleLQUp(Resample& input, double ratio);
+	ResampleLQUp(ResampledSoundDevice& input, double ratio);
 	virtual bool generateOutput(int* dataOut, unsigned num);
 	friend class ResampleLQ<CHANNELS>;
 };

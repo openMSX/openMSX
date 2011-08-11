@@ -100,9 +100,6 @@
 
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
-#include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
@@ -129,8 +126,7 @@ static string calcDescription(SCC::ChipMode mode)
 
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, EmuTime::param time, ChipMode mode)
-	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode), 5)
-	, Resample(motherBoard.getReactor().getGlobalSettings().getResampleSetting())
+	: ResampledSoundDevice(motherBoard, name, calcDescription(mode), 5)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
 	, deformTimer(time)
 	, currentChipMode(mode)
@@ -139,6 +135,10 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	for (int i = 0; i < 5; ++i) {
 		orgPeriod[i] = 0;
 	}
+
+	double input = 3579545.0 / 32;
+	setInputRate(int(input + 0.5));
+
 	powerUp(time);
 	registerSound(config);
 }
@@ -191,13 +191,6 @@ void SCC::reset(EmuTime::param /*time*/)
 
 	setDeformRegHelper(0);
 	ch_enable = 0;
-}
-
-void SCC::setOutputRate(unsigned sampleRate)
-{
-	double input = 3579545.0 / 32;
-	setInputRate(int(input + 0.5));
-	setResampleRatio(input, sampleRate, isStereo());
 }
 
 void SCC::setChipMode(ChipMode newMode)
@@ -561,17 +554,6 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			out[i] = 0;
 		}
 	}
-}
-
-bool SCC::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool SCC::updateBuffer(unsigned length, int* buffer,
-                       EmuTime::param /*time*/, EmuDuration::param /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 
