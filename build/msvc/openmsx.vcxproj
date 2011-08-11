@@ -537,7 +537,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\MSXYamahaSFG.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\NullSoundDriver.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\sound\Resample.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleBlip.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleHQ.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\ResampleLQ.cc" />
@@ -1043,7 +1043,7 @@
     <None Include="$(OpenMSXSrcDir)\sound\MSXTurboRPCM.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\MSXYamahaSFG.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\NullSoundDriver.hh" />
-    <None Include="$(OpenMSXSrcDir)\sound\Resample.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\ResampledSoundDevice.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleAlgo.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleBlip.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\ResampleCoeffs.ii" />
