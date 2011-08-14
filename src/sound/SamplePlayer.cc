@@ -31,7 +31,7 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 			if (!alreadyWarned) {
 				alreadyWarned = true;
 				motherBoard.getMSXCliComm().printWarning(
-					"Couldn't read playball sample data: " +
+					"Couldn't read " + name + " sample data: " +
 					e.getMessage() +
 					". Continuing without sample data.");
 			}
