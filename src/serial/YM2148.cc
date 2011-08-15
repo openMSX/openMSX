@@ -4,6 +4,7 @@
 
 #include "YM2148.hh"
 #include "serialize.hh"
+#include <cstring>
 
 namespace openmsx {
 
@@ -101,6 +102,7 @@ void YM2148::reset()
 
 YM2148::YM2148()
 {
+	memset(rxQueue, 0, sizeof(rxQueue)); // avoid UMR on savestate
 	/* TODO:
 	midiIo = midiIoCreate(midiInCallback, this);
 	semaphore = archSemaphoreCreate(1);

@@ -1022,6 +1022,11 @@ YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
 {
+	// Avoid UMR on savestate
+	// TODO Registers 0x20-0xFF are cleared on reset.
+	//      Should we do the same for registers 0x00-0x1F?
+	memset(regs, 0, sizeof(regs));
+
 	initTables();
 	initChipTables();
 
