@@ -1060,6 +1060,7 @@ void YM2151Impl::reset(EmuTime::param time)
 	for (int i = 0; i < 32; ++i) {
 		memset(&oper[i], '\0', sizeof(oper[i]));
 		oper[i].volume = MAX_ATT_INDEX;
+		oper[i].kc_i = 768; // min kc_i value
 	}
 
 	eg_timer = 0;
