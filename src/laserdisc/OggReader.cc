@@ -648,7 +648,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 		}
 
 		// Sanity check, should not happen
-		if (frameList.size() > (2 << granuleShift)) {
+		if (frameList.size() > (2u << granuleShift)) {
 			// We've got more than twice as many frames
 			// as the maximum distance between key frames.
 			cli.printWarning("Cannot find frame " +
