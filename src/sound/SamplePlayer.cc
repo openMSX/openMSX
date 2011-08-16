@@ -97,6 +97,9 @@ void SamplePlayer::repeat(unsigned sampleNum)
 {
 	assert(sampleNum < samples.size());
 	nextSampleNum = sampleNum;
+	if (!isPlaying()) {
+		doRepeat();
+	}
 }
 
 bool SamplePlayer::isPlaying() const
