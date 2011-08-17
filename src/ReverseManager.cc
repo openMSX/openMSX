@@ -474,6 +474,12 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo, ReverseHistory& h
 		// This makes sure the video output gets rendered.
 		newBoard->fastForward(targetTime);
 
+		// In case we didn't actually create a new board, don't leave
+		// the (old) board muted.
+		if (!newBoard_.get()) {
+			mixer.unmute();
+		}
+
 		//assert(!isCollecting()); // can't access 'this->' members anymore!
 		assert(newBoard->getReverseManager().isCollecting());
 	} catch (MSXException&) {
