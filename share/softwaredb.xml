@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1312909951">
+<softwaredb xml:lang="en" timestamp="1313680996">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5401,7 +5401,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Konami</company>
 	<year>1984</year>
 	<country>JP</country>
-		<dump><rom><hash algo="sha1">2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash><remark><text>the _voice ROM should always be with the ROM image</text></remark></rom></dump>
+		<dump><rom><type>Keyboardmaster</type><hash algo="sha1">2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash><remark><text>the _voice ROM should always be with the ROM image</text></remark></rom></dump>
 		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">4f36d139ee4baa7d5980f765de9895570ee05f40</hash><remark><text>the _voice ROM should always be with the ROM image</text></remark></rom></dump>
 </software>
 <software>
@@ -11943,5 +11943,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2637
-Parse time 7.353 seconds on Tue Aug 9 19:12:38 CEST 2011
+Parse time 7.295 seconds on Thu Aug 18 17:23:23 CEST 2011
  -->
