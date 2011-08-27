@@ -60,7 +60,7 @@ public:
 	                       const byte* vramPtr0, const byte* vramPtr1);
 
 	/** Select the display mode to use for scanline conversion.
-	  * @param mode The new display mode.
+	  * @param mode_ The new display mode.
 	  */
 	inline void setDisplayMode(DisplayMode mode_)
 	{
