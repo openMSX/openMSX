@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DACSound16S.hh"
+#include "DynamicClock.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -8,9 +9,8 @@ namespace openmsx {
 DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
                          const std::string& desc, const XMLElement& config)
 	: SoundDevice(mixer, name, desc, 1)
-	, start(EmuTime::zero) // dummy
+	, lastWrittenValue(0)
 {
-	lastWrittenValue = 0;
 	registerSound(config);
 }
 
@@ -31,31 +31,16 @@ void DACSound16S::reset(EmuTime::param time)
 
 void DACSound16S::writeDAC(short value, EmuTime::param time)
 {
-	assert(queue.empty() || (queue.back().time <= time));
-
 	int delta = value - lastWrittenValue;
 	if (delta == 0) return;
 	lastWrittenValue = value;
 
-	queue.push_back(Sample(time, delta));
+	double t = getHostSampleClock().getTicksTillDouble(time);
+	blip.addDelta(BlipBuffer::TimeIndex(t), delta);
 }
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)
 {
-	// purge samples before start
-	Queue::iterator it = queue.begin();
-	while ((it != queue.end()) && (it->time < start)) ++it;
-	if (it != queue.begin()) {
-		queue.erase(queue.begin(), it);
-	}
-
-	// BlipBuffer based implementation
-	EmuTime stop = start + sampDur * num;
-	while (!queue.empty() && (queue.front().time < stop)) {
-		double t = (queue.front().time - start).div(sampDur);
-		blip.addDelta(BlipBuffer::TimeIndex(t), queue.front().delta);
-		queue.pop_front();
-	}
 	// Note: readSamples() replaces the values in the buffer. It should add
 	//       to the existing values in the buffer. But because there is only
 	//       one channel this doesn't matter (buffer contains all zeros).
@@ -65,12 +50,8 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 }
 
 bool DACSound16S::updateBuffer(unsigned length, int* buffer,
-     EmuTime::param start_, EmuDuration::param sampDur_)
+                               EmuTime::param /*time*/)
 {
-	// start and sampDur members are only used to pass extra parameters
-	// to the generateChannels() method
-	start = start_;
-	sampDur = sampDur_;
 	return mixChannels(buffer, length);
 }
 
@@ -84,7 +65,6 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 	short lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
 	if (ar.isLoader()) {
-		assert(queue.empty());
 		writeDAC(lastValue, EmuTime::zero);
 	}
 }

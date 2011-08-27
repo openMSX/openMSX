@@ -4,6 +4,7 @@
 #define RESAMPLEHQ_HH
 
 #include "ResampleAlgo.hh"
+#include "DynamicClock.hh"
 
 namespace openmsx {
 
@@ -13,20 +14,24 @@ template <unsigned CHANNELS>
 class ResampleHQ : public ResampleAlgo
 {
 public:
-	ResampleHQ(ResampledSoundDevice& input, double ratio);
+	ResampleHQ(ResampledSoundDevice& input,
+	           const DynamicClock& hostClock, unsigned emuSampleRate);
 	virtual ~ResampleHQ();
 
-	virtual bool generateOutput(int* dataOut, unsigned num);
+	virtual bool generateOutput(int* dataOut, unsigned num,
+	                            EmuTime::param time);
 
 private:
 	static const unsigned BUF_LEN = 16384;
 
-	void calcOutput(float lastPos, int* output);
-	void prepareData(unsigned request);
+	void calcOutput(float pos, int* output);
+	void prepareData(unsigned emuNum);
 
 	ResampledSoundDevice& input;
+	const DynamicClock& hostClock;
+	DynamicClock emuClock;
+
 	const float ratio;
-	float lastPos;
 	unsigned bufStart;
 	unsigned bufEnd;
 	unsigned nonzeroSamples;

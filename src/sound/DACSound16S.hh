@@ -7,8 +7,6 @@
 
 #include "SoundDevice.hh"
 #include "BlipBuffer.hh"
-#include "EmuTime.hh"
-#include <deque>
 
 namespace openmsx {
 
@@ -30,20 +28,9 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	        EmuTime::param start, EmuDuration::param sampDur);
-
-	struct Sample {
-		Sample(EmuTime::param time_, int delta_)
-			: time(time_), delta(delta_) {}
-		EmuTime time;
-		int delta;
-	};
-	typedef std::deque<Sample> Queue;
-	Queue queue;
+	                          EmuTime::param time);
 
 	BlipBuffer blip;
-	EmuTime start;
-	EmuDuration sampDur;
 	short lastWrittenValue;
 };
 

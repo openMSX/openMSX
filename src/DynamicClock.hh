@@ -19,11 +19,20 @@ class DynamicClock
 public:
 	// Note: default copy constructor and assigment operator are ok.
 
-	/** Create a new clock, which starts ticking at time zero.
+	/** Create a new clock, which starts ticking at given time.
 	  * The initial frequency is infinite;
 	  * in other words, the clock stands still.
 	  */
 	explicit DynamicClock(EmuTime::param time) : lastTick(time) {}
+
+	/** Create a new clock, which starts ticking at given time with
+	  * given frequency.
+	  */
+	DynamicClock(EmuTime::param time, unsigned freq)
+		: lastTick(time)
+	{
+		setFreq(freq);
+	}
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
@@ -53,6 +62,11 @@ public:
 	unsigned getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return divmod.div(e.time - lastTick.time + (getStep() - 1));
+	}
+
+	double getTicksTillDouble(EmuTime::param e) const {
+		assert(e.time >= lastTick.time);
+		return double(e.time - lastTick.time) / getStep();
 	}
 
 	unsigned long long getTotalTicks() const {

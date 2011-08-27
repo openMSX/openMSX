@@ -1206,7 +1206,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 	// MSXMixer has already set syncpoints, those are invalid now
 	// the following call will fix this
 	if (ar.isLoader()) {
-		msxMixer->reschedule();
+		msxMixer->reInit();
 	}
 
 	ar.serialize("name", machineName);

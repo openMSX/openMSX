@@ -6,7 +6,7 @@
 #include "Schedulable.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
-#include "EmuDuration.hh"
+#include "DynamicClock.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -76,6 +76,13 @@ public:
 	 */
 	void setMixerParams(unsigned fragmentSize, unsigned sampleRate);
 
+	/** Clock that ticks at the exact moment(s) in time that a host sample
+	  * should be generated. The current time of this clock is the time of
+	  * the last generated sample. The rate of this clock is the same as
+	  * the host sample rate.
+	  */
+	const DynamicClock& getHostSampleClock() const;
+
 	// Called by AviRecorder
 	bool needStereoRecording() const;
 	void setRecorder(AviRecorder* recorder);
@@ -83,7 +90,7 @@ public:
 
 	SoundDevice* findDevice(const std::string& name) const;
 
-	void reschedule();
+	void reInit();
 
 private:
 	struct SoundDeviceInfo {
@@ -101,10 +108,9 @@ private:
 
 	void updateVolumeParams(Infos::iterator it);
 	void updateMasterVolume();
-	void reInit();
-	void updateStream2(EmuTime::param time);
-	void generate(short* buffer, unsigned samples, EmuTime::param start,
-	              EmuDuration::param sampDur);
+	void reschedule();
+	void reschedule2();
+	void generate(short* buffer, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);
@@ -117,7 +123,6 @@ private:
 	void changeRecordSetting(const Setting& setting);
 	void changeMuteSetting(const Setting& setting);
 
-	unsigned sampleRate;
 	unsigned fragmentSize;
 
 	Infos infos;
@@ -129,10 +134,7 @@ private:
 	IntegerSetting& speedSetting;
 	ThrottleManager& throttleManager;
 
-	EmuTime prevTime;
-	EmuDuration interval1; ///<  (Estimated) duration for one sample
-	EmuDuration interval1min;
-	EmuDuration interval1max;
+	DynamicClock prevTime;
 
 	friend class SoundDeviceInfoTopic;
 	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;

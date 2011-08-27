@@ -5,6 +5,7 @@
 
 #include "ResampleAlgo.hh"
 #include "BlipBuffer.hh"
+#include "DynamicClock.hh"
 
 namespace openmsx {
 
@@ -14,18 +15,21 @@ template <unsigned CHANNELS>
 class ResampleBlip : public ResampleAlgo
 {
 public:
-	ResampleBlip(ResampledSoundDevice& input, double ratio);
+	ResampleBlip(ResampledSoundDevice& input,
+	             const DynamicClock& hostClock, unsigned emuSampleRate);
 
-	virtual bool generateOutput(int* dataOut, unsigned num);
+	virtual bool generateOutput(int* dataOut, unsigned num,
+	                            EmuTime::param time);
 
 private:
 	BlipBuffer blip[CHANNELS];
 	ResampledSoundDevice& input;
-	const double ratio;
-	const double invRatio;
-	double lastPos;
+	const DynamicClock& hostClock; // time of the last host-sample,
+	                               //    ticks once per host sample
+	DynamicClock emuClock;         // time of the last emu-sample,
+	                               //    ticks once per emu-sample
 	typedef FixedPoint<16> FP;
-	const FP invRatioFP;
+	const FP step;
 	int lastInput[CHANNELS];
 };
 

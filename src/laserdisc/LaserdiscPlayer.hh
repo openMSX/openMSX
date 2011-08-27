@@ -121,8 +121,8 @@ private:
 
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int *buffer,
-		EmuTime::param start_, EmuDuration::param sampDur);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+	                          EmuTime::param time);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);

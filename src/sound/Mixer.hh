@@ -44,6 +44,7 @@ public:
 
 	/** Upload new sample data
 	 */
+	// TODO remove return type
 	double uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len);
 
 	IntegerSetting& getMasterVolume() const;

@@ -16,6 +16,7 @@ class XMLElement;
 class EmuDuration;
 class Wav16Writer;
 class Filename;
+class DynamicClock;
 
 class SoundDevice : private noncopyable
 {
@@ -94,12 +95,7 @@ public: // Will be called by Mixer:
 	/** Generate sample data
 	  * @param length The number of required samples
 	  * @param buffer This buffer should be filled
-	  * @param start EmuTime of the first sample. This might not be 100%
-	  *              exact, but it is guaranteed to increase monotonically.
-	  * @param sampDur Estimated duration of one sample. Note that the
-	  *                following equation is not always true (because it's
-	  *                just an estimation, otherwise it is true)
-	  *                  start + samples * length  !=  next(start)
+	  * @param time current time
 	  * @result false iff the output is empty. IOW filling the buffer with
 	  *         zeros or returning false has the same effect, but the latter
 	  *         can be more efficient
@@ -115,7 +111,7 @@ public: // Will be called by Mixer:
 	  * buffer has enough space to hold them.
 	  */
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	        EmuTime::param start, EmuDuration::param sampDur) = 0;
+	                          EmuTime::param time) = 0;
 
 protected:
 	/** Abstract method to generate the actual sound data.
@@ -146,6 +142,9 @@ protected:
 	  * buffer has enough space to hold them.
 	  */
 	bool mixChannels(int* dataOut, unsigned num);
+
+	/** See MSXMixer::getHostSampleClock(). */
+	const DynamicClock& getHostSampleClock() const;
 
 private:
 	MSXMixer& mixer;

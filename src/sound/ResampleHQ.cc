@@ -176,17 +176,22 @@ void ResampleCoeffs::calcTable(
 
 
 template <unsigned CHANNELS>
-ResampleHQ<CHANNELS>::ResampleHQ(ResampledSoundDevice& input_, double ratio_)
+ResampleHQ<CHANNELS>::ResampleHQ(
+		ResampledSoundDevice& input_,
+		const DynamicClock& hostClock_, unsigned emuSampleRate)
 	: input(input_)
-	, ratio(float(ratio_))
+	, hostClock(hostClock_)
+	, emuClock(hostClock.getTime(), emuSampleRate)
+	, ratio(float(emuSampleRate) / hostClock.getFreq())
 {
-	lastPos = 0.0f;
-
-	bufStart = 0;
-	bufEnd   = 0;
-	nonzeroSamples = 0;
-
 	ResampleCoeffs::instance().getCoeffs(ratio, table, filterLen);
+
+	// fill buffer with 'enough' zero's
+	unsigned extra = int(filterLen + 1 + ratio + 1);
+	bufStart = 0;
+	bufEnd   = extra;
+	nonzeroSamples = 0;
+	memset(buffer, 0, extra * CHANNELS * sizeof(float));
 }
 
 template <unsigned CHANNELS>
@@ -197,13 +202,14 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 
 template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
-	float lastPos, int* __restrict output) __restrict
+	float pos, int* __restrict output) __restrict
 {
 	assert((filterLen & 3) == 0);
-	int t = int(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
+	int t = int(pos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
-	int bufIdx = bufStart * CHANNELS;
+	int bufIdx = (int(pos) + bufStart) * CHANNELS;
+	assert((bufIdx + filterLen) <= bufEnd);
 
 	#if ASM_X86 && !defined(__APPLE__)
 	// On Mac OS X, we are one register short, because EBX is not available.
@@ -387,83 +393,73 @@ void ResampleHQ<CHANNELS>::calcOutput(
 }
 
 template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::prepareData(unsigned request)
+void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 {
-	assert(bufStart <= bufEnd);
-	assert(bufEnd <= BUF_LEN);
-
-	unsigned available = bufEnd - bufStart;
-	assert(request > available);
-	unsigned missing = request - available;
-
+	// Still enough free space at end of buffer?
 	unsigned free = BUF_LEN - bufEnd;
-	int overflow = missing - free;
-	if (overflow > 0) {
-		// close to end, restart at begin
+	if (free < emuNum) {
+		// No, then move everything to the start
+		// (data needs to be in a contiguous memory block)
+		unsigned available = bufEnd - bufStart;
 		memmove(buffer, &buffer[bufStart * CHANNELS],
 			available * CHANNELS * sizeof(float));
 		bufStart = 0;
 		bufEnd = available;
-		missing = std::min(missing, BUF_LEN - bufEnd);
+		free = BUF_LEN - bufEnd;
+		assert(free >= emuNum);
 	}
 #if ASM_X86
-	VLA_ALIGNED(int, tmpBuf, missing * CHANNELS + 3, 16);
+	VLA_ALIGNED(int, tmpBuf, emuNum * CHANNELS + 3, 16);
 #else
-	VLA(int, tmpBuf, missing * CHANNELS + 3);
+	VLA(int, tmpBuf, emuNum * CHANNELS + 3);
 #endif
-	if (input.generateInput(tmpBuf, missing)) {
-		for (unsigned i = 0; i < missing * CHANNELS; ++i) {
+	if (input.generateInput(tmpBuf, emuNum)) {
+		for (unsigned i = 0; i < emuNum * CHANNELS; ++i) {
 			buffer[bufEnd * CHANNELS + i] = float(tmpBuf[i]);
 		}
-		bufEnd += missing;
+		bufEnd += emuNum;
 		nonzeroSamples = bufEnd - bufStart;
 	} else {
-		memset(&buffer[bufEnd * CHANNELS], 0, missing * sizeof(float));
-		bufEnd += missing;
+		memset(&buffer[bufEnd * CHANNELS], 0,
+		       emuNum * CHANNELS * sizeof(float));
+		bufEnd += emuNum;
 	}
 
-	assert((bufEnd - bufStart) >= filterLen);
 	assert(bufStart <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
 }
 
 template <unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned num) __restrict
+	int* __restrict dataOut, unsigned hostNum, EmuTime::param time) __restrict
 {
-	bool anyNonZero = false;
-
-	// main processing loop
-	for (unsigned i = 0; i < num; ++i) {
-		// need to reload buffer?
-		assert(bufStart <= bufEnd);
-		unsigned available = bufEnd - bufStart;
-		if (available < filterLen) {
-			int extra = (ratio > 1.0f)
-			          ? lrint((num - i) * ratio) + 1
-			          :       (num - i);
-			prepareData(filterLen + extra);
-		}
-		if (nonzeroSamples) {
-			calcOutput(lastPos, &dataOut[i * CHANNELS]);
-			anyNonZero = true;
-		} else {
-			for (unsigned j = 0; j < CHANNELS; ++j) {
-				dataOut[i * CHANNELS + j] = 0;
-			}
-		}
-
-		// figure out the next index
-		lastPos += ratio;
-		assert(lastPos >= 0.0f);
-		float intPos = truncf(lastPos);
-		lastPos -= intPos;
-		int consumed = lrint(intPos);
-		bufStart += consumed;
-		nonzeroSamples = std::max<int>(0, nonzeroSamples - consumed);
-		assert(bufStart <= bufEnd);
+	unsigned emuNum = emuClock.getTicksTill(time);
+	if (emuNum > 0) {
+		prepareData(emuNum);
 	}
-	return anyNonZero;
+
+	bool notMuted = nonzeroSamples > 0;
+	if (notMuted) {
+		// main processing loop
+		EmuTime host1 = hostClock.getFastAdd(1);
+		assert(host1 > emuClock.getTime());
+		float pos = emuClock.getTicksTillDouble(host1);
+		assert(pos <= (ratio + 2));
+		for (unsigned i = 0; i < hostNum; ++i) {
+			calcOutput(pos, &dataOut[i * CHANNELS]);
+			pos += ratio;
+		}
+	}
+	emuClock += emuNum;
+	bufStart += emuNum;
+	nonzeroSamples = std::max<int>(0, nonzeroSamples - emuNum);
+
+	assert(bufStart <= bufEnd);
+	unsigned available = bufEnd - bufStart;
+	unsigned extra = int(filterLen + 1 + ratio + 1);
+	assert(available == extra); (void)available; (void)extra;
+
+	return notMuted;
 }
 
 // Force template instantiation.

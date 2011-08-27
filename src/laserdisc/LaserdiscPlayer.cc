@@ -947,11 +947,12 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	}
 }
 
-bool LaserdiscPlayer::updateBuffer(unsigned length, int *buffer,
-		EmuTime::param start_, EmuDuration::param sampDur)
+bool LaserdiscPlayer::updateBuffer(unsigned length, int* buffer,
+                                   EmuTime::param time)
 {
-	start = start_;
-	return ResampledSoundDevice::updateBuffer(length, buffer, start_, sampDur);
+	bool result = ResampledSoundDevice::updateBuffer(length, buffer, time);
+	start = time; // current end-time is next start-time
+	return result;
 }
 
 void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)

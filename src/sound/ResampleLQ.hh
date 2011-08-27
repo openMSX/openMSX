@@ -4,6 +4,7 @@
 #define RESAMPLELQ_HH
 
 #include "ResampleAlgo.hh"
+#include "DynamicClock.hh"
 #include "FixedPoint.hh"
 #include <memory>
 
@@ -12,39 +13,48 @@ namespace openmsx {
 class ResampledSoundDevice;
 
 template <unsigned CHANNELS>
-class ResampleLQ: public ResampleAlgo
+class ResampleLQ : public ResampleAlgo
 {
 public:
 	static std::auto_ptr<ResampleLQ<CHANNELS> > create(
-		ResampledSoundDevice& input, double ratio);
+		ResampledSoundDevice& input,
+		const DynamicClock& hostClock, unsigned emuSampleRate);
 
 protected:
-	ResampleLQ(ResampledSoundDevice& input, double ratio);
-	bool fetchData(unsigned num);
+	ResampleLQ(ResampledSoundDevice& input,
+	           const DynamicClock& hostClock, unsigned emuSampleRate);
+	bool fetchData(EmuTime::param time, unsigned& valid);
 
 	ResampledSoundDevice& input;
-	typedef FixedPoint<16> Pos;
-	Pos pos;
-	const Pos step;
-	int lastInput[CHANNELS];
+	const DynamicClock& hostClock;
+	DynamicClock emuClock;
+	typedef FixedPoint<16> FP;
+	const FP step;
+	int lastInput[2 * CHANNELS];
 };
 
 template <unsigned CHANNELS>
 class ResampleLQDown : public ResampleLQ<CHANNELS>
 {
+public:
+	ResampleLQDown(ResampledSoundDevice& input,
+	               const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	ResampleLQDown(ResampledSoundDevice& input, double ratio);
-	virtual bool generateOutput(int* dataOut, unsigned num);
-	friend class ResampleLQ<CHANNELS>;
+	virtual bool generateOutput(int* dataOut, unsigned num,
+	                            EmuTime::param time);
+	typedef typename ResampleLQ<CHANNELS>::FP FP;
 };
 
 template <unsigned CHANNELS>
 class ResampleLQUp : public ResampleLQ<CHANNELS>
 {
+public:
+	ResampleLQUp(ResampledSoundDevice& input,
+	             const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	ResampleLQUp(ResampledSoundDevice& input, double ratio);
-	virtual bool generateOutput(int* dataOut, unsigned num);
-	friend class ResampleLQ<CHANNELS>;
+	virtual bool generateOutput(int* dataOut, unsigned num,
+	                            EmuTime::param time);
+	typedef typename ResampleLQ<CHANNELS>::FP FP;
 };
 
 } // namespace openmsx

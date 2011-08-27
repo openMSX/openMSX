@@ -54,19 +54,18 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, masterVolume(mixer.getMasterVolume())
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
-	, prevTime(EmuTime::zero)
+	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
 	              msxCommandController_.getMachineInfoCommand(), *this))
 	, recorder(0)
 	, synchronousCounter(0)
 {
-	sampleRate = 0;
 	fragmentSize = 0;
 
 	muteCount = 1;
 	unmute(); // calls Mixer::registerMixer()
 
-	reInit();
+	reschedule2();
 
 	masterVolume.attach(*this);
 	speedSetting.attach(*this);
@@ -123,7 +122,7 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	}
 
 	infos[&device] = info;
-	device.setOutputRate(sampleRate);
+	device.setOutputRate(getSampleRate());
 
 	Infos::iterator it = infos.find(&device);
 	assert(it != infos.end());
@@ -154,6 +153,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 
 void MSXMixer::setSynchronousMode(bool synchronous)
 {
+	// TODO ATM synchronous is not used anymore
 	if (synchronous) {
 		++synchronousCounter;
 	} else {
@@ -164,45 +164,25 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 
 void MSXMixer::updateStream(EmuTime::param time)
 {
-	if ((!muteCount && fragmentSize) || synchronousCounter) {
-		updateStream2(time);
-	}
-}
+	unsigned count = prevTime.getTicksTill(time);
 
-void MSXMixer::updateStream2(EmuTime::param time)
-{
-	assert(prevTime <= time);
-	EmuDuration duration = time - prevTime;
-	unsigned count = duration / interval1;
-	if (count == 0) return;
-
+	// call generate() even if count==0 and even if muted
 	short mixBuffer[8192 * 2];
-	count = std::min(8192u, count);
-	assert((!muteCount && fragmentSize) || synchronousCounter);
-	generate(mixBuffer, count, prevTime, interval1);
-	prevTime += interval1 * count;
-	double factor = 1.0;
+	assert(count <= 8192);
+	generate(mixBuffer, time, count);
+
 	if (!muteCount && fragmentSize) {
-		factor = mixer.uploadBuffer(*this, mixBuffer, count);
+		mixer.uploadBuffer(*this, mixBuffer, count);
 	}
-	if (synchronousCounter) {
-		if (recorder) {
-			recorder->addWave(count, mixBuffer);
-		}
-		factor = 1.0;
+
+	if (recorder) {
+		recorder->addWave(count, mixBuffer);
 	}
-	if (factor != 1.0) {
-		// check for 1.0 to avoid accumulating rounding errors
-		factor = (factor + 15.0) / 16.0; // don't adjust too quickly
-		interval1 *= factor;
-		interval1 = std::min(interval1, interval1max);
-		interval1 = std::max(interval1, interval1min);
-		//std::cerr << "DEBUG interval1: " << interval1.toDouble() << std::endl;
-	}
+
+	prevTime += count;
 }
 
-void MSXMixer::generate(short* output, unsigned samples,
-	EmuTime::param start, EmuDuration::param sampDur)
+void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 {
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
@@ -210,11 +190,6 @@ void MSXMixer::generate(short* output, unsigned samples,
 	// After these specialization this routine runs about two times
 	// faster for the common cases (mono output or no sound at all).
 	// In total emulation time this gave a speedup of about 2%.
-
-	assert((!muteCount && fragmentSize) || synchronousCounter);
-	assert(samples <= 8192);
-
-	if (samples == 0) return;
 
 	VLA(int, stereoBuf, 2 * samples + 3);
 	VLA(int, monoBuf, samples + 3);
@@ -232,8 +207,10 @@ void MSXMixer::generate(short* output, unsigned samples,
 	// devices are handled first
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
+		// When samples==0, call updateBuffer() but skip mixing
 		SoundDevice& device = *it->first;
-		if (device.updateBuffer(samples, tmpBuf, start, sampDur)) {
+		if (device.updateBuffer(samples, tmpBuf, time) &&
+		    (samples > 0)) {
 			if (!device.isStereo()) {
 				int l1 = it->second.left1;
 				int r1 = it->second.right1;
@@ -350,6 +327,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 	switch (usedBuffers) {
 	case 0:
 		// no new input
+		if (samples == 0) break;
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			if ((outLeft == 0) && (prevLeft == 0)) {
 				// output was already zero, after DC-filter
@@ -500,7 +478,6 @@ void MSXMixer::mute()
 {
 	if (muteCount == 0) {
 		mixer.unregisterMixer(*this);
-		reInit();
 	}
 	++muteCount;
 }
@@ -512,58 +489,44 @@ void MSXMixer::unmute()
 		prevLeft = outLeft = 0;
 		prevRight = outRight = 0;
 		mixer.registerMixer(*this);
-		reInit();
 	}
-}
-
-void MSXMixer::reschedule()
-{
-	reInit();
 }
 
 void MSXMixer::reInit()
 {
-	if (synchronousCounter) {
-		// do as if speed=100
-		interval1 = EmuDuration(1.0 / sampleRate);
-	} else {
-		double percent = speedSetting.getValue();
-		interval1 = EmuDuration(percent / (sampleRate * 100));
-	}
-	interval1max = interval1 * 4;
-	interval1min = interval1 / 4;
-
+	// TODO take 'speed' setting into account
+	prevTime.reset(getCurrentTime());
+	reschedule();
+}
+void MSXMixer::reschedule()
+{
 	removeSyncPoints();
-	if (fragmentSize || !muteCount) {
-		prevTime = getCurrentTime();
-		EmuDuration interval2 = interval1 * fragmentSize;
-		setSyncPoint(prevTime + interval2);
-	} else if (synchronousCounter) {
-		prevTime = getCurrentTime();
-		EmuDuration interval2 = interval1 * 512;
-		setSyncPoint(prevTime + interval2);
-	}
+	reschedule2();
+}
+void MSXMixer::reschedule2()
+{
+	unsigned size = (!muteCount && fragmentSize) ? fragmentSize : 512;
+	setSyncPoint(prevTime.getFastAdd(size));
 }
 
 void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
-	bool needReInit = false;
+	// TODO old code checked that values did actually change,
+	//      investigate if this optimization is worth it
+	prevTime.setFreq(newSampleRate);
+	fragmentSize = newFragmentSize;
 
-	if (sampleRate != newSampleRate) {
-		sampleRate = newSampleRate;
-		needReInit = true;
-		for (Infos::const_iterator it = infos.begin();
-		     it != infos.end(); ++it) {
-			it->first->setOutputRate(sampleRate);
-		}
+	reInit(); // must come before call to setOutputRate()
+
+	for (Infos::const_iterator it = infos.begin();
+	     it != infos.end(); ++it) {
+		it->first->setOutputRate(newSampleRate);
 	}
+}
 
-	if (fragmentSize != newFragmentSize) {
-		fragmentSize = newFragmentSize;
-		needReInit = true;
-	}
-
-	if (needReInit) reInit();
+const DynamicClock& MSXMixer::getHostSampleClock() const
+{
+	return prevTime;
 }
 
 void MSXMixer::setRecorder(AviRecorder* newRecorder)
@@ -572,12 +535,11 @@ void MSXMixer::setRecorder(AviRecorder* newRecorder)
 		setSynchronousMode(newRecorder != NULL);
 	}
 	recorder = newRecorder;
-	reInit();
 }
 
 unsigned MSXMixer::getSampleRate() const
 {
-	return sampleRate;
+	return prevTime.getFreq();
 }
 
 void MSXMixer::update(const Setting& setting)
@@ -585,7 +547,7 @@ void MSXMixer::update(const Setting& setting)
 	if (&setting == &masterVolume) {
 		updateMasterVolume();
 	} else if (&setting == &speedSetting) {
-		reInit();
+		//reInit();
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() &&
@@ -643,7 +605,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 
 void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
 {
-	reInit();
+	//reInit();
 }
 
 void MSXMixer::updateVolumeParams(Infos::iterator it)
@@ -692,15 +654,8 @@ void MSXMixer::updateMasterVolume()
 
 void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 {
-	if (!muteCount && fragmentSize) {
-		updateStream2(time);
-		EmuDuration interval2 = interval1 * fragmentSize;
-		setSyncPoint(time + interval2);
-	} else if (synchronousCounter) {
-		updateStream2(time);
-		EmuDuration interval2 = interval1 * 512;
-		setSyncPoint(time + interval2);
-	}
+	updateStream(time);
+	reschedule2();
 }
 
 

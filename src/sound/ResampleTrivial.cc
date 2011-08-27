@@ -12,7 +12,8 @@ ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
 {
 }
 
-bool ResampleTrivial::generateOutput(int* dataOut, unsigned num)
+bool ResampleTrivial::generateOutput(int* dataOut, unsigned num,
+                                     EmuTime::param /*time*/)
 {
 #if ASM_X86
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned

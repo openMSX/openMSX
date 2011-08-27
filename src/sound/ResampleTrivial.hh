@@ -13,7 +13,8 @@ class ResampleTrivial : public ResampleAlgo
 {
 public:
 	ResampleTrivial(ResampledSoundDevice& input);
-	virtual bool generateOutput(int* dataOut, unsigned num);
+	virtual bool generateOutput(int* dataOut, unsigned num,
+	                            EmuTime::param time);
 
 private:
 	ResampledSoundDevice& input;

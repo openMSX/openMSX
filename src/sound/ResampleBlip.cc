@@ -12,50 +12,53 @@
 namespace openmsx {
 
 template <unsigned CHANNELS>
-ResampleBlip<CHANNELS>::ResampleBlip(ResampledSoundDevice& input_, double ratio_)
+ResampleBlip<CHANNELS>::ResampleBlip(
+		ResampledSoundDevice& input_,
+		const DynamicClock& hostClock_, unsigned emuSampleRate)
 	: input(input_)
-	, ratio(ratio_)
-	, invRatio(1.0 / ratio_)
-	, invRatioFP(invRatio)
+	, hostClock(hostClock_)
+	, emuClock(hostClock.getTime(), emuSampleRate)
+	, step(double(hostClock.getFreq()) / emuSampleRate)
 {
-	lastPos = 0.0;
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 		lastInput[ch] = 0;
 	}
 }
 
 template <unsigned CHANNELS>
-bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
+bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
+                                            EmuTime::param time)
 {
-	double len = num * ratio;
-	int required = int(ceil(len - lastPos));
-	if (required > 0) {
+	unsigned emuNum = emuClock.getTicksTill(time);
+	if (emuNum > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
 #if ASM_X86
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
-		const unsigned len = required * CHANNELS + std::max(3u, CHANNELS);
+		const unsigned len = emuNum * CHANNELS + std::max(3u, CHANNELS);
 		VLA_ALIGNED(int, buf, len, 16);
 #else
-		VLA(int, buf, required * CHANNELS + std::max(3u, CHANNELS));
+		VLA(int, buf, emuNum * CHANNELS + std::max(3u, CHANNELS));
 #endif
-		if (input.generateInput(buf, required)) {
+		EmuTime emu1 = emuClock.getFastAdd(1); // time of 1st emu-sample
+		assert(emu1 > hostClock.getTime());
+		double pos1 = hostClock.getTicksTillDouble(emu1);
+		if (input.generateInput(buf, emuNum)) {
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				// In case of PSG (and to a lesser degree SCC) it happens
 				// very often that two consecutive samples have the same
 				// value. We can benefit from this by setting a sentinel
 				// at the end of the buffer and move the end-of-loop test
 				// into the 'samples differ' branch.
-				assert(required > 0);
-				buf[CHANNELS * required + ch] =
-					buf[CHANNELS * (required - 1) + ch] + 1;
-				FP pos(lastPos * invRatio);
+				assert(emuNum > 0);
+				buf[CHANNELS * emuNum + ch] =
+					buf[CHANNELS * (emuNum - 1) + ch] + 1;
+				FP pos(pos1);
 				int last = lastInput[ch]; // local var is slightly faster
-				int i = 0;
-				while (true) {
+				for (unsigned i = 0; /**/; ++i) {
 					int delta = buf[CHANNELS * i + ch] - last;
 					if (unlikely(delta != 0)) {
-						if (i == required) {
+						if (i == emuNum) {
 							break;
 						}
 						last = buf[CHANNELS * i + ch];
@@ -63,31 +66,29 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 							BlipBuffer::TimeIndex(pos),
 							delta);
 					}
-					pos += invRatioFP;
-					++i;
+					pos += step;
 				}
 				lastInput[ch] = last;
 			}
 		} else {
 			// input all zero
+			BlipBuffer::TimeIndex pos(pos1);
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				if (lastInput[ch] != 0) {
 					int delta = -lastInput[ch];
 					lastInput[ch] = 0;
-					double pos = lastPos * invRatio;
-					blip[ch].addDelta(
-						BlipBuffer::TimeIndex(pos), delta);
+					blip[ch].addDelta(pos, delta);
 				}
 			}
 		}
-		lastPos += required;
+		emuClock += emuNum;
+		assert(emuClock.getTime() <= time);
+		assert(emuClock.getFastAdd(1) > time);
 	}
-	lastPos -= len;
-	assert(lastPos >= 0.0);
 
 	bool results[CHANNELS];
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, num);
+		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
 	STATIC_ASSERT((CHANNELS == 1) || (CHANNELS == 2));
 	bool result;
@@ -101,7 +102,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 			// One channel muted, the other not.
 			// We have to set the muted channel to all-zero.
 			unsigned offset = results[0] ? 1 : 0;
-			for (unsigned i = 0; i < num; ++i) {
+			for (unsigned i = 0; i < hostNum; ++i) {
 				dataOut[2 * i + offset] = 0;
 			}
 			result = true;

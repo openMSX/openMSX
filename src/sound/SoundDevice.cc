@@ -317,4 +317,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	return true;
 }
 
+const DynamicClock& SoundDevice::getHostSampleClock() const
+{
+	return mixer.getHostSampleClock();
+}
+
 } // namespace openmsx

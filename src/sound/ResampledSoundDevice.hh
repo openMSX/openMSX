@@ -34,7 +34,7 @@ protected:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual bool updateBuffer(unsigned length, int* buffer,
-		EmuTime::param start, EmuDuration::param sampDur);
+	                          EmuTime::param time);
 
 	void createResampler();
 
@@ -44,7 +44,6 @@ private:
 
 	EnumSetting<ResampleType>& resampleSetting;
 	std::auto_ptr<ResampleAlgo> algo;
-	unsigned outputRate;
 };
 
 } // namespace openmsx
