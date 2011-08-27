@@ -4,6 +4,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "StringOp.hh"
+#include "Timer.hh"
 #include "build-info.hh"
 #include <SDL.h>
 #include <algorithm>
@@ -34,19 +35,11 @@ SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
 		throw MSXException(StringOp::Builder()
 			<< "Unable to open SDL audio: " << SDL_GetError());
 	}
-	//std::cerr << "DEBUG wanted: " << wantedSamples
-	//          <<     "  actual: " << audioSpec.size / 4 << std::endl;
+
 	frequency = audioSpec.freq;
-	unsigned bufferSize = 4 * (audioSpec.size / sizeof(short));
+	fragmentSize = audioSpec.samples;
 
-	fragmentSize = 256;
-	while ((bufferSize / fragmentSize) >= 32) {
-		fragmentSize *= 2;
-	}
-	while ((bufferSize / fragmentSize) < 8) {
-		fragmentSize /= 2;
-	}
-
+	unsigned bufferSize = 3 * (audioSpec.size / sizeof(short)) + 2;
 	mixBuffer.resize(bufferSize);
 	reInit();
 }
@@ -60,9 +53,8 @@ SDLSoundDriver::~SDLSoundDriver()
 void SDLSoundDriver::reInit()
 {
 	SDL_LockAudio();
-	memset(mixBuffer.data(), 0, mixBuffer.size() * sizeof(short));
 	readIdx  = 0;
-	writeIdx = (5 * mixBuffer.size()) / 8;
+	writeIdx = 0;
 	SDL_UnlockAudio();
 }
 
@@ -148,17 +140,23 @@ void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	SDL_LockAudio();
 	len *= 2; // stereo
 	unsigned free = getBufferFree();
-	//if (len > free) {
-	//	PRT_DEBUG("DEBUG overrun: " << len - free);
-	//}
-	unsigned num = std::min(len, free); // ignore overrun (drop samples)
-	if ((writeIdx + num) < mixBuffer.size()) {
-		memcpy(&mixBuffer[writeIdx], buffer, num * sizeof(short));
-		writeIdx += num;
+	if (len > free) {
+		// TODO don't sleep on full-throttle
+		do {
+			SDL_UnlockAudio();
+			Timer::sleep(5000); // 5ms
+			SDL_LockAudio();
+			free = getBufferFree();
+		} while (len > free);
+	}
+	assert(len <= free);
+	if ((writeIdx + len) < mixBuffer.size()) {
+		memcpy(&mixBuffer[writeIdx], buffer, len * sizeof(short));
+		writeIdx += len;
 	} else {
 		unsigned len1 = mixBuffer.size() - writeIdx;
 		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
-		unsigned len2 = num - len1;
+		unsigned len2 = len - len1;
 		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(short));
 		writeIdx = len2;
 	}
