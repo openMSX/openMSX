@@ -236,7 +236,7 @@ void DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 	count *= (CHANNELS * BYTES_PER_SAMPLE);
 	if (skipCount > 0) {
 		skipCount -= count;
-		return 1.0;
+		return;
 	}
 	skipCount = dxCanWrite(bufferOffset, count);
 	if (skipCount <= 0) {
