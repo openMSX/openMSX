@@ -1,6 +1,11 @@
 // $Id$
 
 #include "SDLSoundDriver.hh"
+#include "Reactor.hh"
+#include "MSXMotherBoard.hh"
+#include "RealTime.hh"
+#include "GlobalSettings.hh"
+#include "ThrottleManager.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "StringOp.hh"
@@ -13,8 +18,10 @@
 
 namespace openmsx {
 
-SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
-	: muted(true)
+SDLSoundDriver::SDLSoundDriver(Reactor& reactor_,
+                               unsigned wantedFreq, unsigned wantedSamples)
+	: reactor(reactor_)
+	, muted(true)
 {
 	SDL_AudioSpec desired;
 	desired.freq     = wantedFreq;
@@ -141,13 +148,20 @@ void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	len *= 2; // stereo
 	unsigned free = getBufferFree();
 	if (len > free) {
-		// TODO don't sleep on full-throttle
-		do {
-			SDL_UnlockAudio();
-			Timer::sleep(5000); // 5ms
-			SDL_LockAudio();
-			free = getBufferFree();
-		} while (len > free);
+		if (reactor.getGlobalSettings().getThrottleManager().isThrottled()) {
+			do {
+				SDL_UnlockAudio();
+				Timer::sleep(5000); // 5ms
+				SDL_LockAudio();
+				if (MSXMotherBoard* board = reactor.getMotherBoard()) {
+					board->getRealTime().resync();
+				}
+				free = getBufferFree();
+			} while (len > free);
+		} else {
+			// drop excess samples
+			len = free;
+		}
 	}
 	assert(len <= free);
 	if ((writeIdx + len) < mixBuffer.size()) {

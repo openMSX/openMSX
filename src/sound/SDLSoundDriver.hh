@@ -10,10 +10,13 @@
 
 namespace openmsx {
 
+class Reactor;
+
 class SDLSoundDriver : public SoundDriver, private noncopyable
 {
 public:
-	SDLSoundDriver(unsigned frequency, unsigned samples);
+	SDLSoundDriver(Reactor& reactor,
+	               unsigned frequency, unsigned samples);
 	virtual ~SDLSoundDriver();
 
 	virtual void mute();
@@ -31,6 +34,7 @@ private:
 	static void audioCallbackHelper(void* userdata, byte* strm, int len);
 	void audioCallback(short* stream, unsigned len);
 
+	Reactor& reactor;
 	MemBuffer<short> mixBuffer;
 	unsigned frequency;
 	unsigned fragmentSize;

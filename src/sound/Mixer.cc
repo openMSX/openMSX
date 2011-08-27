@@ -24,8 +24,9 @@ static const int defaultsamples = 2048;
 static const int defaultsamples = 1024;
 #endif
 
-Mixer::Mixer(CommandController& commandController_)
-	: commandController(commandController_)
+Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
+	: reactor(reactor_)
+	, commandController(commandController_)
 	, muteSetting(new BooleanSetting(commandController,
 		"mute", "(un)mute the emulation sound", false,
 		Setting::DONT_SAVE))
@@ -88,6 +89,7 @@ void Mixer::reloadDriver()
 			break;
 		case SND_SDL:
 			driver.reset(new SDLSoundDriver(
+				reactor,
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));
 			break;

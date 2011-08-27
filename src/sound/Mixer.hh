@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class SoundDriver;
+class Reactor;
 class CommandController;
 class MSXMixer;
 class IntegerSetting;
@@ -21,7 +22,7 @@ class Setting;
 class Mixer : private Observer<Setting>, private noncopyable
 {
 public:
-	explicit Mixer(CommandController& commandController);
+	Mixer(Reactor& reactor, CommandController& commandController);
 	virtual ~Mixer();
 
 	/** Register per-machine mixer
@@ -59,6 +60,7 @@ private:
 	MSXMixers msxMixers;
 
 	std::auto_ptr<SoundDriver> driver;
+	Reactor& reactor;
 	CommandController& commandController;
 
 	const std::auto_ptr<BooleanSetting> muteSetting;

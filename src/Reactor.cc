@@ -192,7 +192,7 @@ Reactor::Reactor()
 	, globalSettings(new GlobalSettings(*globalCommandController))
 	, inputEventGenerator(new InputEventGenerator(
 		*globalCommandController, *eventDistributor))
-	, mixer(new Mixer(*globalCommandController))
+	, mixer(new Mixer(*this, *globalCommandController))
 	, diskFactory(new DiskFactory(*this))
 	, diskManipulator(new DiskManipulator(*globalCommandController, *this))
 	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
