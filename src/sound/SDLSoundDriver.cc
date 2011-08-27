@@ -37,7 +37,7 @@ SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
 	//std::cerr << "DEBUG wanted: " << wantedSamples
 	//          <<     "  actual: " << audioSpec.size / 4 << std::endl;
 	frequency = audioSpec.freq;
-	bufferSize = 4 * (audioSpec.size / sizeof(short));
+	unsigned bufferSize = 4 * (audioSpec.size / sizeof(short));
 
 	fragmentSize = 256;
 	while ((bufferSize / fragmentSize) >= 32) {
@@ -60,10 +60,9 @@ SDLSoundDriver::~SDLSoundDriver()
 void SDLSoundDriver::reInit()
 {
 	SDL_LockAudio();
-	memset(mixBuffer.data(), 0, bufferSize * sizeof(short));
+	memset(mixBuffer.data(), 0, mixBuffer.size() * sizeof(short));
 	readIdx  = 0;
-	writeIdx = (5 * bufferSize) / 8;
-	filledStat = 1.0;
+	writeIdx = (5 * mixBuffer.size()) / 8;
 	SDL_UnlockAudio();
 }
 
@@ -104,8 +103,8 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 unsigned SDLSoundDriver::getBufferFilled() const
 {
 	int result = writeIdx - readIdx;
-	if (result < 0) result += bufferSize;
-	assert((0 <= result) && (unsigned(result) < bufferSize));
+	if (result < 0) result += mixBuffer.size();
+	assert((0 <= result) && (unsigned(result) < mixBuffer.size()));
 	return result;
 }
 
@@ -115,8 +114,8 @@ unsigned SDLSoundDriver::getBufferFree() const
 	// (in both cases readIx would be equal to writeIdx), so instead
 	// we define full as '(writeIdx + 2) == readIdx' (note that index
 	// increases in steps of 2 (stereo)).
-	int result = bufferSize - 2 - getBufferFilled();
-	assert((0 <= result) && (unsigned(result) < bufferSize));
+	int result = mixBuffer.size() - 2 - getBufferFilled();
+	assert((0 <= result) && (unsigned(result) < mixBuffer.size()));
 	return result;
 }
 
@@ -126,11 +125,11 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 	unsigned available = getBufferFilled();
 	//PRT_DEBUG("DEBUG callback: " << available);
 	unsigned num = std::min(len, available);
-	if ((readIdx + num) < bufferSize) {
+	if ((readIdx + num) < mixBuffer.size()) {
 		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
 		readIdx += num;
 	} else {
-		unsigned len1 = bufferSize - readIdx;
+		unsigned len1 = mixBuffer.size() - readIdx;
 		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(short));
 		unsigned len2 = num - len1;
 		memcpy(&stream[len1], &mixBuffer[0], len2 * sizeof(short));
@@ -142,14 +141,9 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 		//PRT_DEBUG("DEBUG underrun: " << missing);
 		memset(&stream[available], 0, missing * sizeof(short));
 	}
-
-	unsigned target = (5 * bufferSize) / 8;
-	double factor = double(available) / target;
-	filledStat = (63 * filledStat + factor) / 64;
-	//PRT_DEBUG("DEBUG filledStat: " << filledStat);
 }
 
-double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
+void SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 {
 	SDL_LockAudio();
 	len *= 2; // stereo
@@ -158,22 +152,18 @@ double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 	//	PRT_DEBUG("DEBUG overrun: " << len - free);
 	//}
 	unsigned num = std::min(len, free); // ignore overrun (drop samples)
-	if ((writeIdx + num) < bufferSize) {
+	if ((writeIdx + num) < mixBuffer.size()) {
 		memcpy(&mixBuffer[writeIdx], buffer, num * sizeof(short));
 		writeIdx += num;
 	} else {
-		unsigned len1 = bufferSize - writeIdx;
+		unsigned len1 = mixBuffer.size() - writeIdx;
 		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
 		unsigned len2 = num - len1;
 		memcpy(&mixBuffer[0], &buffer[len1], len2 * sizeof(short));
 		writeIdx = len2;
 	}
 
-	//unsigned available = getBufferFilled();
-	double result = filledStat;
-	filledStat = 1.0; // only report difference once
 	SDL_UnlockAudio();
-	return result;
 }
 
 } // namespace openmsx

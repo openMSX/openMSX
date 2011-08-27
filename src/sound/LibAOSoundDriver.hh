@@ -24,7 +24,7 @@ public:
 	virtual unsigned getFrequency() const;
 	virtual unsigned getSamples() const;
 
-	virtual double uploadBuffer(short* buffer, unsigned len);
+	virtual void uploadBuffer(short* buffer, unsigned len);
 
 private:
 	ao_device* device;

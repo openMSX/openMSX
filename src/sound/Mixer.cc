@@ -169,12 +169,12 @@ IntegerSetting& Mixer::getMasterVolume() const
 	return *masterVolume;
 }
 
-double Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
+void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 {
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());
 
-	return driver->uploadBuffer(buffer, len);
+	driver->uploadBuffer(buffer, len);
 }
 
 void Mixer::update(const Setting& setting)

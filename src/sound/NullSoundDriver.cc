@@ -22,9 +22,8 @@ unsigned NullSoundDriver::getSamples() const
 	return 0;
 }
 
-double NullSoundDriver::uploadBuffer(short* /*buffer*/, unsigned /*len*/)
+void NullSoundDriver::uploadBuffer(short* /*buffer*/, unsigned /*len*/)
 {
-	return 1.0;
 }
 
 } // namespace openmsx

@@ -215,9 +215,9 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 	bufferOffset %= bufferSize;
 }
 
-double DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
+void DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 {
-	if (state == DX_SOUND_DISABLED) return 1.0;
+	if (state == DX_SOUND_DISABLED) return;
 
 	if (state == DX_SOUND_ENABLED) {
 		DWORD readPos, writePos;
@@ -242,7 +242,6 @@ double DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 	if (skipCount <= 0) {
 		dxWriteOne(buffer, count);
 	}
-	return 1.0;
 }
 
 } // namespace openmsx

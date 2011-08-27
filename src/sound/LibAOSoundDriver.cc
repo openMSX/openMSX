@@ -2,10 +2,8 @@
 
 #include "LibAOSoundDriver.hh"
 #include "MSXException.hh"
-
 #include <ao/ao.h>
 #include <cstring>
-
 
 namespace openmsx {
 
@@ -31,8 +29,6 @@ LibAOSoundDriver::LibAOSoundDriver(unsigned sampleRate_, unsigned bufferSize_)
 	if (!device) {
 		throw MSXException("Couldn't open audio device");
 	}
-
-	
 }
 
 LibAOSoundDriver::~LibAOSoundDriver()
@@ -59,14 +55,11 @@ unsigned LibAOSoundDriver::getSamples() const
 	return bufferSize;
 }
 
-double LibAOSoundDriver::uploadBuffer(short* buffer, unsigned len)
+void LibAOSoundDriver::uploadBuffer(short* buffer, unsigned len)
 {
-	ao_play(
-		device,
-		reinterpret_cast<char*>(buffer),
-		len * CHANNELS * (BITS_PER_SAMPLE / 8)
-		);
-	return 1.0;
+	ao_play(device,
+	        reinterpret_cast<char*>(buffer),
+	        len * CHANNELS * (BITS_PER_SAMPLE / 8));
 }
 
 } // namespace openmsx

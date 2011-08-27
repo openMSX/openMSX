@@ -22,7 +22,7 @@ public:
 	virtual unsigned getFrequency() const;
 	virtual unsigned getSamples() const;
 
-	virtual double uploadBuffer(short* buffer, unsigned len);
+	virtual void uploadBuffer(short* buffer, unsigned len);
 
 private:
 	void reInit();
@@ -32,12 +32,8 @@ private:
 	void audioCallback(short* stream, unsigned len);
 
 	MemBuffer<short> mixBuffer;
-	double filledStat; /**< average filled status, 1.0 means filled exactly
-	                        the right amount, less than 1.0 mean under
-	                        filled, more than 1.0 means overfilled. */
 	unsigned frequency;
 	unsigned fragmentSize;
-	unsigned bufferSize;
 	unsigned readIdx, writeIdx;
 	bool muted;
 };

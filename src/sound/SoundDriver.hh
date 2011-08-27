@@ -28,7 +28,7 @@ public:
 	  */
 	virtual unsigned getSamples() const = 0;
 
-	virtual double uploadBuffer(short* buffer, unsigned len) = 0;
+	virtual void uploadBuffer(short* buffer, unsigned len) = 0;
 
 protected:
 	SoundDriver() {}
