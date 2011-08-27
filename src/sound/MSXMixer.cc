@@ -60,6 +60,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, recorder(0)
 	, synchronousCounter(0)
 {
+	hostSampleRate = 44100;
 	fragmentSize = 0;
 
 	muteCount = 1;
@@ -160,6 +161,14 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 		assert(synchronousCounter > 0);
 		--synchronousCounter;
 	}
+	setMixerParams(fragmentSize, hostSampleRate);
+}
+
+double MSXMixer::getEffectiveSpeed() const
+{
+	return synchronousCounter
+	     ? 1.0
+	     : speedSetting.getValue() / 100.0;
 }
 
 void MSXMixer::updateStream(EmuTime::param time)
@@ -494,8 +503,8 @@ void MSXMixer::unmute()
 
 void MSXMixer::reInit()
 {
-	// TODO take 'speed' setting into account
 	prevTime.reset(getCurrentTime());
+	prevTime.setFreq(hostSampleRate / getEffectiveSpeed());
 	reschedule();
 }
 void MSXMixer::reschedule()
@@ -513,7 +522,7 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
 	// TODO old code checked that values did actually change,
 	//      investigate if this optimization is worth it
-	prevTime.setFreq(newSampleRate);
+	hostSampleRate = newSampleRate;
 	fragmentSize = newFragmentSize;
 
 	reInit(); // must come before call to setOutputRate()
@@ -539,7 +548,7 @@ void MSXMixer::setRecorder(AviRecorder* newRecorder)
 
 unsigned MSXMixer::getSampleRate() const
 {
-	return prevTime.getFreq();
+	return hostSampleRate;
 }
 
 void MSXMixer::update(const Setting& setting)
@@ -547,7 +556,7 @@ void MSXMixer::update(const Setting& setting)
 	if (&setting == &masterVolume) {
 		updateMasterVolume();
 	} else if (&setting == &speedSetting) {
-		//reInit();
+		setMixerParams(fragmentSize, hostSampleRate);
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() &&
@@ -606,6 +615,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
 {
 	//reInit();
+	// TODO Should this be removed?
 }
 
 void MSXMixer::updateVolumeParams(Infos::iterator it)

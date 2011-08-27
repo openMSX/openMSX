@@ -321,5 +321,9 @@ const DynamicClock& SoundDevice::getHostSampleClock() const
 {
 	return mixer.getHostSampleClock();
 }
+double SoundDevice::getEffectiveSpeed() const
+{
+	return mixer.getEffectiveSpeed();
+}
 
 } // namespace openmsx

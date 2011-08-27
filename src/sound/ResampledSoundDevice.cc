@@ -58,7 +58,7 @@ void ResampledSoundDevice::createResampler()
 {
 	const DynamicClock& hostClock = getHostSampleClock();
 	unsigned outputRate = hostClock.getFreq();
-	unsigned inputRate  = getInputRate();
+	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
 
 	if (outputRate == inputRate) {
 		algo.reset(new ResampleTrivial(*this));

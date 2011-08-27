@@ -145,6 +145,7 @@ protected:
 
 	/** See MSXMixer::getHostSampleClock(). */
 	const DynamicClock& getHostSampleClock() const;
+	double getEffectiveSpeed() const;
 
 private:
 	MSXMixer& mixer;

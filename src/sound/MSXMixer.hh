@@ -58,7 +58,17 @@ public:
 	 */
 	void updateStream(EmuTime::param time);
 
-	// TODO
+	/** Returns the ratio of emutime-speed per realtime-speed.
+	 * In other words how many times faster emutime goes compared to
+	 * realtime. This depends on the 'speed' setting but also on whether
+	 * we're recording or not (in case of recording we want to generate
+	 * sound as if realtime and emutime go at the same speed.
+	 */
+	double getEffectiveSpeed() const;
+
+	/** If we're recording, we want to emulate sound at 100% emutime speed.
+	 * See alsoe getEffectiveSpeed().
+	 */
 	void setSynchronousMode(bool synchronous);
 
 	/** TODO
@@ -80,12 +90,18 @@ public:
 	  * should be generated. The current time of this clock is the time of
 	  * the last generated sample. The rate of this clock is the same as
 	  * the host sample rate.
+	  * Note that this rate is not the same as the frequency set with the
+	  * 'frequency' setting. Either because the sound driver can't handle
+	  * the requested speed or because the 'speed' setting is different
+	  * from 100.
 	  */
 	const DynamicClock& getHostSampleClock() const;
 
 	// Called by AviRecorder
 	bool needStereoRecording() const;
 	void setRecorder(AviRecorder* recorder);
+
+	// Returns the nominal host sample rate (not adjusted for speed setting)
 	unsigned getSampleRate() const;
 
 	SoundDevice* findDevice(const std::string& name) const;
@@ -124,6 +140,8 @@ private:
 	void changeMuteSetting(const Setting& setting);
 
 	unsigned fragmentSize;
+	unsigned hostSampleRate; // requested freq by sound driver,
+	                         // not compensated for speed
 
 	Infos infos;
 
