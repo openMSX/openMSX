@@ -54,12 +54,30 @@ namespace StringOp
 		std::ostringstream buf;
 	};
 
+	// Generic toString implementation, works for all 'streamable' types.
 	template <typename T> std::string toString(const T& t)
 	{
 		std::ostringstream s;
 		s << t;
 		return s.str();
 	}
+	// Overloads for specific types. These are much faster than the generic
+	// version. Having them non-inline also reduces size of executable.
+	std::string toString(long long a);
+	std::string toString(unsigned long long a);
+	std::string toString(long a);
+	std::string toString(unsigned long a);
+	std::string toString(int a);
+	std::string toString(unsigned a);
+	std::string toString(short a);
+	std::string toString(unsigned short a);
+	std::string toString(char a);
+	std::string toString(signed char a);
+	std::string toString(unsigned char a);
+	std::string toString(bool a);
+	// These are simple enough to inline.
+	inline std::string        toString(const char* s)        { return s; }
+	inline const std::string& toString(const std::string& s) { return s; }
 
 	template <typename T> std::string toHexString(const T& t, int width)
 	{

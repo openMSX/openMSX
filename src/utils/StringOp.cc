@@ -1,9 +1,10 @@
 // $Id$
 
-#include "cstdlibp.hh"
-#include <algorithm>
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include <algorithm>
+#include <limits>
+#include "cstdlibp.hh"
 
 using std::advance;
 using std::equal;
@@ -87,6 +88,84 @@ Builder::operator std::string() const
 }
 
 
+// Returns a fast type that is (at least) big enough to hold the absolute value
+// of values of the given type. (It always returns 'unsigned' except for 64-bit
+// integers it returns unsigned long long).
+template<typename T> struct FastUnsigned           { typedef unsigned           type; };
+template<> struct FastUnsigned<long long>          { typedef unsigned long long type; };
+template<> struct FastUnsigned<unsigned long long> { typedef unsigned long long type; };
+template<> struct FastUnsigned<long>               { typedef unsigned long      type; };
+template<> struct FastUnsigned<unsigned long>      { typedef unsigned long      type; };
+
+// This does the equivalent of
+//   unsigned u = (t < 0) ? -t : t;
+// but it avoids a compiler warning on the operations
+//   't < 0' and '-t'
+// when 't' is actually an unsigned type.
+template<bool IS_SIGNED> struct AbsHelper;
+template<> struct AbsHelper<true> {
+	template<typename T>
+	inline typename FastUnsigned<T>::type operator()(T t) const {
+		return (t < 0) ? -t : t;
+	}
+};
+template<> struct AbsHelper<false> {
+	template<typename T>
+	inline typename FastUnsigned<T>::type operator()(T t) const {
+		return t;
+	}
+};
+
+// Does the equivalent of   if (t < 0) *--p = '-';
+// but it avoids a compiler warning on 't < 0' when 't' is an unsigned type.
+template<bool IS_SIGNED> struct PutSign;
+template<> struct PutSign<true> {
+	template<typename T> inline void operator()(T t, char*& p) const {
+		if (t < 0) *--p = '-';
+	}
+};
+template<> struct PutSign<false> {
+	template<typename T> inline void operator()(T /*t*/, char*& /*p*/) const {
+		// nothing
+	}
+};
+
+// This routine is inspired by boost::lexical_cast. It's much faster than a
+// generic version using std::stringstream. See this page for some numbers:
+// http://www.boost.org/doc/libs/1_47_0/libs/conversion/lexical_cast.htm#performance
+template<typename T> static inline string toStringImpl(T t)
+{
+	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
+	static const unsigned BUF_SIZE = 1 + std::numeric_limits<T>::digits10
+	                               + (IS_SIGNED ? 1 : 0);
+
+	char buf[BUF_SIZE];
+	char* p = &buf[BUF_SIZE];
+
+	AbsHelper<IS_SIGNED> absHelper;
+	typename FastUnsigned<T>::type a = absHelper(t);
+	do {
+		*--p = '0' + (a % 10);
+		a /= 10;
+	} while (a);
+
+	PutSign<IS_SIGNED> putSign;
+	putSign(t, p);
+
+	return string(p, &buf[BUF_SIZE] - p);
+}
+string toString(long long a)          { return toStringImpl(a); }
+string toString(unsigned long long a) { return toStringImpl(a); }
+string toString(long a)               { return toStringImpl(a); }
+string toString(unsigned long a)      { return toStringImpl(a); }
+string toString(int a)                { return toStringImpl(a); }
+string toString(unsigned a)           { return toStringImpl(a); }
+string toString(short a)              { return toStringImpl(a); }
+string toString(unsigned short a)     { return toStringImpl(a); }
+string toString(char a)               { return string(1, a); }
+string toString(signed char a)        { return string(1, a); }
+string toString(unsigned char a)      { return string(1, a); }
+string toString(bool a)               { return string(1, '0' + a); }
 
 std::string toHexString(unsigned char t, int width)
 {
