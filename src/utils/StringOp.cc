@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <limits>
 #include "cstdlibp.hh"
+#include <cassert>
 
 using std::advance;
 using std::equal;
@@ -167,10 +168,22 @@ string toString(signed char a)        { return string(1, a); }
 string toString(unsigned char a)      { return string(1, a); }
 string toString(bool a)               { return string(1, '0' + a); }
 
-std::string toHexString(unsigned char t, int width)
+static inline char hexDigit(unsigned x)
 {
-	// promote byte to int before printing
-	return toHexString(unsigned(t), width);
+	return (x < 10) ? ('0' + x) : ('a' + x - 10);
+}
+string toHexString(unsigned x, unsigned width)
+{
+	assert((0 < width) && (width <= 8));
+
+	char buf[8];
+	char* p = &buf[8];
+	int i = width;
+	do {
+		*--p = hexDigit(x & 15);
+		x >>= 4;
+	} while (--i);
+	return string(p, width);
 }
 
 int stringToInt(const string& str)

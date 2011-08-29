@@ -79,13 +79,9 @@ namespace StringOp
 	inline std::string        toString(const char* s)        { return s; }
 	inline const std::string& toString(const std::string& s) { return s; }
 
-	template <typename T> std::string toHexString(const T& t, int width)
-	{
-		std::ostringstream s;
-		s << std::hex << std::setw(width) << std::setfill('0') << t;
-		return s.str();
-	}
-	std::string toHexString(unsigned char t, int width);
+	// Print the lower 'width' number of digits of 'a' in hex format
+	// (without leading '0x' and with a-f in lower case).
+	std::string toHexString(unsigned a, unsigned width);
 
 	int stringToInt(const std::string& str);
 	bool stringToInt(const std::string& str, int& result);
