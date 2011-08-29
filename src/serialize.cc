@@ -284,6 +284,10 @@ XmlOutputArchive::~XmlOutputArchive()
 	gzclose(file);
 }
 
+void XmlOutputArchive::saveChar(char c)
+{
+	save(string(1, c));
+}
 void XmlOutputArchive::save(const string& str)
 {
 	assert(current);
@@ -301,6 +305,10 @@ void XmlOutputArchive::save(unsigned char b)
 	save(unsigned(b));
 }
 void XmlOutputArchive::save(signed char c)
+{
+	save(int(c));
+}
+void XmlOutputArchive::save(char c)
 {
 	save(int(c));
 }
@@ -361,6 +369,13 @@ void XmlInputArchive::init(const XMLElement* e)
 	elems.push_back(std::make_pair(e, 0));
 }
 
+void XmlInputArchive::loadChar(char& c)
+{
+	std::string str;
+	load(str);
+	std::istringstream is(str);
+	is >> c;
+}
 void XmlInputArchive::load(string& t)
 {
 	if (!elems.back().first->getChildren().empty()) {
@@ -389,6 +404,12 @@ void XmlInputArchive::load(unsigned char& b)
 	b = i;
 }
 void XmlInputArchive::load(signed char& c)
+{
+	int i;
+	load(i);
+	c = i;
+}
+void XmlInputArchive::load(char& c)
 {
 	int i;
 	load(i);

@@ -10,6 +10,7 @@
 #include "Clock.hh"
 #include "MemBuffer.hh"
 #include "serialize.hh"
+#include "serialize_meta.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -88,6 +89,7 @@ public:
 	byte state;
 	bool lfo_active;
 };
+SERIALIZE_CLASS_VERSION(YMF278Slot, 2);
 
 class YMF278Impl : public ResampledSoundDevice
 {
@@ -986,9 +988,12 @@ void YMF278Impl::writeMem(unsigned address, byte value)
 	}
 }
 
-
+// version 1: initial version, some variables were saved as char
+// version 2: serialization framework was fixed to save/load chars as numbers
+//            but for backwards compatibility we still load old savestates as
+//            characters
 template<typename Archive>
-void YMF278Slot::serialize(Archive& ar, unsigned /*version*/)
+void YMF278Slot::serialize(Archive& ar, unsigned version)
 {
 	// TODO restore more state from registers
 	ar.serialize("startaddr", startaddr);
@@ -1006,19 +1011,35 @@ void YMF278Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("DL", DL);
 	ar.serialize("wave", wave);
 	ar.serialize("FN", FN);
-	ar.serialize("OCT", OCT);
-	ar.serialize("PRVB", PRVB);
-	ar.serialize("LD", LD);
-	ar.serialize("TL", TL);
-	ar.serialize("pan", pan);
-	ar.serialize("lfo", lfo);
-	ar.serialize("vib", vib);
-	ar.serialize("AM", AM);
-	ar.serialize("AR", AR);
-	ar.serialize("D1R", D1R);
-	ar.serialize("D2R", D2R);
-	ar.serialize("RC", RC);
-	ar.serialize("RR", RR);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("OCT", OCT);
+		ar.serialize("PRVB", PRVB);
+		ar.serialize("LD", LD);
+		ar.serialize("TL", TL);
+		ar.serialize("pan", pan);
+		ar.serialize("lfo", lfo);
+		ar.serialize("vib", vib);
+		ar.serialize("AM", AM);
+		ar.serialize("AR", AR);
+		ar.serialize("D1R", D1R);
+		ar.serialize("D2R", D2R);
+		ar.serialize("RC", RC);
+		ar.serialize("RR", RR);
+	} else {
+		ar.serializeChar("OCT", OCT);
+		ar.serializeChar("PRVB", PRVB);
+		ar.serializeChar("LD", LD);
+		ar.serializeChar("TL", TL);
+		ar.serializeChar("pan", pan);
+		ar.serializeChar("lfo", lfo);
+		ar.serializeChar("vib", vib);
+		ar.serializeChar("AM", AM);
+		ar.serializeChar("AR", AR);
+		ar.serializeChar("D1R", D1R);
+		ar.serializeChar("D2R", D2R);
+		ar.serializeChar("RC", RC);
+		ar.serializeChar("RR", RR);
+	}
 	ar.serialize("bits", bits);
 	ar.serialize("active", active);
 	ar.serialize("state", state);

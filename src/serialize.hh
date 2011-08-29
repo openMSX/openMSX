@@ -472,6 +472,14 @@ public:
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
 
+	// You shouldn't use this, it only exists for backwards compatibility
+	void serializeChar(const char* tag, char c)
+	{
+		this->self().beginTag(tag);
+		this->self().saveChar(c);
+		this->self().endTag(tag);
+	}
+
 protected:
 	OutputArchiveBase() {}
 };
@@ -577,6 +585,14 @@ public:
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
 
+	// You shouldn't use this, it only exists for backwards compatibility
+	void serializeChar(const char* tag, char& c)
+	{
+		this->self().beginTag(tag);
+		this->self().loadChar(c);
+		this->self().endTag(tag);
+	}
+
 /*internal*/
 	// Actual loader method. Heavy lifting is done in the Loader class.
 	template<typename T, typename TUPLE>
@@ -667,6 +683,10 @@ public:
 	{
 		put(&t, sizeof(t));
 	}
+	inline void saveChar(char c)
+	{
+		save(c);
+	}
 	void save(const std::string& s);
 	void serialize_blob(const char*, const void* data, unsigned len);
 
@@ -724,6 +744,10 @@ public:
 	{
 		get(&t, sizeof(t));
 	}
+	inline void loadChar(char& c)
+	{
+		load(c);
+	}
 	void load(std::string& s);
 	void serialize_blob(const char*, void* data, unsigned len);
 
@@ -765,10 +789,12 @@ public:
 	{
 		saveImpl(t);
 	}
+	void saveChar(char c);
 	void save(const std::string& str);
 	void save(bool b);
 	void save(unsigned char b);
 	void save(signed char c);
+	void save(char c);
 	void save(int i);                  // these 3 are not strictly needed
 	void save(unsigned u);             // but having them non-inline
 	void save(unsigned long long ull); // saves quite a bit of code
@@ -822,10 +848,12 @@ public:
 		std::istringstream is(str);
 		is >> t;
 	}
+	void loadChar(char& c);
 	void load(std::string& t);
 	void load(bool& b);
 	void load(unsigned char& b);
 	void load(signed char& c);
+	void load(char& c);
 	void load(int& i);                  // these 3 are not strictly needed
 	void load(unsigned& u);             // but having them non-inline
 	void load(unsigned long long& ull); // saves quite a bit of code
