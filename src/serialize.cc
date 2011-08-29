@@ -389,9 +389,9 @@ void XmlInputArchive::load(bool& b)
 		throw XMLException("No child tags expected for boolean types");
 	}
 	string s = elems.back().first->getData();
-	if (s == "true") {
+	if ((s == "true") || (s == "1")) {
 		b = true;
-	} else if (s == "false") {
+	} else if ((s == "false") || (s == "0")) {
 		b = false;
 	} else {
 		throw XMLException("Bad value found for boolean: " + s);
