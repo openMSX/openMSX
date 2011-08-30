@@ -1684,8 +1684,9 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 
 	init_tables();
 
-	const int CLOCK_FREQ = 3579545 * 4;
-	double input = CLOCK_FREQ / (8.0 * 36.0);
+	double input = isYMF278
+	             ?    33868800.0 / (19 * 36)
+	             : 4 * 3579545.0 / ( 8 * 36);
 	setInputRate(int(input + 0.5));
 
 	reset(motherBoard.getCurrentTime());
