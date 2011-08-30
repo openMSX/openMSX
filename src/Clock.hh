@@ -17,23 +17,17 @@ namespace openmsx {
   * A clock has a current time, which can be increased by
   * an integer number of ticks.
   */
-template <unsigned FREQ_NOM, unsigned FREQ_DENOM = 1>
+template <unsigned FREQ_NUM, unsigned FREQ_DENOM = 1>
 class Clock
 {
 private:
 	// stuff below calculates:
-	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NOM / FREQ_DENOM) + 0.5
-	// intermediate results are 96bit, that's why it's a bit complicated
-	static const unsigned long long P =
-		(MAIN_FREQ & 0xFFFFFFFF) * FREQ_DENOM + (FREQ_NOM / 2);
-	static const unsigned long long Q =
-		(MAIN_FREQ >> 32) * FREQ_DENOM + (P >> 32);
-	static const unsigned long long R1 = Q / FREQ_NOM;
-	static const unsigned long long R0 =
-		(((Q - (R1 * FREQ_NOM)) << 32) + (P & 0xFFFFFFFF)) / FREQ_NOM;
-	static const unsigned long long MASTER_TICKS = (R1 << 32) + R0;
+	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NUM / FREQ_DENOM) + 0.5
+	STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
+	static const unsigned long long P = MAIN_FREQ * FREQ_DENOM + (FREQ_NUM / 2);
+	static const unsigned long long MASTER_TICKS = P / FREQ_NUM;
+	STATIC_ASSERT(MASTER_TICKS < (1ull << 32));
 	static const unsigned MASTER_TICKS32 = MASTER_TICKS;
-	STATIC_ASSERT(MASTER_TICKS < 0x100000000ull);
 
 public:
 	// Note: default copy constructor and assigment operator are ok.

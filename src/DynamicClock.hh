@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
+#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -82,6 +83,17 @@ public:
 		unsigned newStep = MAIN_FREQ32 / freq;
 		assert(newStep);
 		divmod.setDivisor(newStep);
+	}
+	/** Equivalent to setFreq(freq_num / freq_denom), but possibly with
+	  * less rounding errors.
+	  */
+	void setFreq(unsigned freq_num, unsigned freq_denom) {
+		STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
+		unsigned long long p = MAIN_FREQ * freq_denom + (freq_num / 2);
+		unsigned long long newStep = p / freq_num;
+		assert(newStep < (1ull << 32));
+		assert(newStep);
+		divmod.setDivisor(unsigned(newStep));
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
