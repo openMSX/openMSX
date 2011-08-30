@@ -121,8 +121,8 @@ private:
 	IRQHelper irq;
 
 	// Timers (see EmuTimer class for details about timing)
-	EmuTimerOPM_1 timer1;
-	EmuTimerOPM_2 timer2;
+	const std::auto_ptr<EmuTimer> timer1;
+	const std::auto_ptr<EmuTimer> timer2;
 
 	YM2151Operator oper[32]; // the 32 operators
 
@@ -826,17 +826,17 @@ void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 		case 0x10:
 			timer_A_val &= 0x03;
 			timer_A_val |= v << 2;
-			timer1.setValue(timer_A_val);
+			timer1->setValue(timer_A_val);
 			break;
 
 		case 0x11:
 			timer_A_val &= 0x03fc;
 			timer_A_val |= v & 3;
-			timer1.setValue(timer_A_val);
+			timer1->setValue(timer_A_val);
 			break;
 
 		case 0x12:
-			timer2.setValue(v);
+			timer2->setValue(v);
 			break;
 
 		case 0x14: // CSM, irq flag reset, irq enable, timer start/stop
@@ -847,8 +847,8 @@ void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 			if (v & 0x20) { // reset timer B irq flag
 				resetStatus(2);
 			}
-			timer1.setStart((v & 4) != 0, time);
-			timer2.setStart((v & 8) != 0, time);
+			timer1->setStart((v & 4) != 0, time);
+			timer2->setStart((v & 8) != 0, time);
 			break;
 
 		case 0x18: // LFO frequency
@@ -1019,8 +1019,8 @@ YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                EmuTime::param time)
 	: ResampledSoundDevice(motherBoard, name, desc, 8, true)
 	, irq(motherBoard, getName() + ".IRQ")
-	, timer1(motherBoard.getScheduler(), *this)
-	, timer2(motherBoard.getScheduler(), *this)
+	, timer1(EmuTimer::createOPM_1(motherBoard.getScheduler(), *this))
+	, timer2(EmuTimer::createOPM_2(motherBoard.getScheduler(), *this))
 {
 	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.
@@ -1078,8 +1078,8 @@ void YM2151Impl::reset(EmuTime::param time)
 	test = 0;
 
 	irq_enable = 0;
-	timer1.setStart(0, time);
-	timer2.setStart(0, time);
+	timer1->setStart(0, time);
+	timer2->setStart(0, time);
 
 	noise     = 0;
 	noise_rng = 0;
@@ -1754,8 +1754,8 @@ template<typename Archive>
 void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("irq", irq);
-	ar.serialize("timer1", timer1);
-	ar.serialize("timer2", timer2);
+	ar.serialize("timer1", *timer1);
+	ar.serialize("timer2", *timer2);
 	ar.serialize("operators", oper);
 	//ar.serialize("pan", pan); // recalculated from regs[0x20-0x27]
 	ar.serialize("eg_cnt", eg_cnt);
@@ -1789,7 +1789,7 @@ void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
 
 	if (ar.isLoader()) {
 		// TODO restore more state from registers
-		EmuTime::param time = timer1.getCurrentTime();
+		EmuTime::param time = timer1->getCurrentTime();
 		for (int r = 0x20; r < 0x28; ++r) {
 			writeReg(r , regs[r], time);
 		}

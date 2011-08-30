@@ -4,7 +4,9 @@
 #define EMUTIMER_HH
 
 #include "Schedulable.hh"
+#include "DynamicClock.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -16,41 +18,44 @@ protected:
 	virtual ~EmuTimerCallback() {}
 };
 
-class EmuTimerBase : public Schedulable
+
+class EmuTimer : public Schedulable
 {
 public:
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	static std::auto_ptr<EmuTimer> createOPM_1(
+		Scheduler& scheduler, EmuTimerCallback& cb);
+	static std::auto_ptr<EmuTimer> createOPM_2(
+		Scheduler& scheduler, EmuTimerCallback& cb);
+	static std::auto_ptr<EmuTimer> createOPL3_1(
+		Scheduler& scheduler, EmuTimerCallback& cb);
+	static std::auto_ptr<EmuTimer> createOPL3_2(
+		Scheduler& scheduler, EmuTimerCallback& cb);
+	static std::auto_ptr<EmuTimer> createOPL4_1(
+		Scheduler& scheduler, EmuTimerCallback& cb);
+	static std::auto_ptr<EmuTimer> createOPL4_2(
+		Scheduler& scheduler, EmuTimerCallback& cb);
 
-protected:
-	EmuTimerBase(Scheduler& scheduler, EmuTimerCallback& cb, unsigned count);
-	void unschedule();
-
-protected:
-	EmuTimerCallback& cb;
-	int count;
-	bool counting;
-};
-
-template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
-class EmuTimer : public EmuTimerBase
-{
-public:
-	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
 	void setValue(int value);
 	void setStart(bool start, EmuTime::param time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
+	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb,
+	         byte flag, unsigned freq_num, unsigned freq_denom,
+	         unsigned maxval);
 	virtual void executeUntil(EmuTime::param time, int userData);
 	void schedule(EmuTime::param time);
-};
+	void unschedule();
 
-typedef EmuTimer<0x40,  3579545, 64 * 2     , 1024> EmuTimerOPM_1;
-typedef EmuTimer<0x20,  3579545, 64 * 2 * 16, 256 > EmuTimerOPM_2;
-typedef EmuTimer<0x40,  3579545, 72 *  4    , 256 > EmuTimerOPL3_1;
-typedef EmuTimer<0x20,  3579545, 72 *  4 * 4, 256 > EmuTimerOPL3_2;
-typedef EmuTimer<0x40, 33868800, 72 * 38    , 256 > EmuTimerOPL4_1;
-typedef EmuTimer<0x20, 33868800, 72 * 38 * 4, 256 > EmuTimerOPL4_2;
+	EmuTimerCallback& cb;
+	DynamicClock clock;
+	const unsigned maxval;
+	int count;
+	const byte flag;
+	bool counting;
+};
 
 } // namespace openmsx
 

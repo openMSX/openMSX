@@ -239,8 +239,8 @@ private:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 	// Timers (see EmuTimer class for details about timing)
-	EmuTimerOPL4_1 timer1; //  80.8us OPL4  ( 80.5us OPL3)
-	EmuTimerOPL4_2 timer2; // 323.1us OPL4  (321.8us OPL3)
+	const std::auto_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
+	const std::auto_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)
 
 	IRQHelper irq;
 
@@ -1325,11 +1325,11 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 			break;
 
 		case 0x02: // Timer 1
-			timer1.setValue(v);
+			timer1->setValue(v);
 			break;
 
 		case 0x03: // Timer 2
-			timer2.setValue(v);
+			timer2->setValue(v);
 			break;
 
 		case 0x04: // IRQ clear / mask and Timer enable
@@ -1338,8 +1338,8 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 				resetStatus(0x60);
 			} else {
 				changeStatusMask((~v) & 0x60);
-				timer1.setStart((v & R04_ST1) != 0, time);
-				timer2.setStart((v & R04_ST2) != 0, time);
+				timer1->setStart((v & R04_ST1) != 0, time);
+				timer2->setStart((v & R04_ST2) != 0, time);
 			}
 			break;
 
@@ -1662,8 +1662,12 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	: ResampledSoundDevice(motherBoard, name, "MoonSound FM-part",
 	                       18, true)
 	, debuggable(new YMF262Debuggable(motherBoard, *this))
-	, timer1(motherBoard.getScheduler(), *this)
-	, timer2(motherBoard.getScheduler(), *this)
+	, timer1(isYMF278_
+	         ? EmuTimer::createOPL4_1(motherBoard.getScheduler(), *this)
+	         : EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
+	, timer2(isYMF278_
+	         ? EmuTimer::createOPL4_2(motherBoard.getScheduler(), *this)
+	         : EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 	, isYMF278(isYMF278_)
@@ -1870,8 +1874,8 @@ void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void YMF262Impl::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("timer1", timer1);
-	ar.serialize("timer2", timer2);
+	ar.serialize("timer1", *timer1);
+	ar.serialize("timer2", *timer2);
 	ar.serialize("irq", irq);
 	ar.serialize("chanout", chanout);
 	ar.serialize_blob("registers", reg, sizeof(reg));
@@ -1894,7 +1898,7 @@ void YMF262Impl::serialize(Archive& ar, unsigned version)
 
 	// TODO restore more state by rewriting register values
 	//   this handles pan
-	EmuTime::param time = timer1.getCurrentTime();
+	EmuTime::param time = timer1->getCurrentTime();
 	for (int i = 0xC0; i <= 0xC8; ++i) {
 		writeRegDirect(i + 0x000, reg[i + 0x000], time);
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);

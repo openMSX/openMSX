@@ -194,8 +194,8 @@ private:
 	const std::auto_ptr<Y8950Debuggable> debuggable;
 	friend class Y8950Debuggable;
 
-	EmuTimerOPL3_1 timer1; //  80us timer
-	EmuTimerOPL3_2 timer2; // 320us timer
+	const std::auto_ptr<EmuTimer> timer1; //  80us timer
+	const std::auto_ptr<EmuTimer> timer2; // 320us timer
 	IRQHelper irq;
 
 	byte reg[0x100];
@@ -672,8 +672,8 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
-	, timer1(motherBoard.getScheduler(), *this)
-	, timer2(motherBoard.getScheduler(), *this)
+	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
+	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
 	, enabled(true)
 {
@@ -1098,12 +1098,12 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 			break;
 
 		case 0x02: // TIMER1 (reso. 80us)
-			timer1.setValue(data);
+			timer1->setValue(data);
 			reg[rg] = data;
 			break;
 
 		case 0x03: // TIMER2 (reso. 320us)
-			timer2.setValue(data);
+			timer2->setValue(data);
 			reg[rg] = data;
 			break;
 
@@ -1112,8 +1112,8 @@ void Y8950Impl::writeReg(byte rg, byte data, EmuTime::param time)
 				resetStatus(0x78);	// reset all flags
 			} else {
 				changeStatusMask((~data) & 0x78);
-				timer1.setStart((data & Y8950::R04_ST1) != 0, time);
-				timer2.setStart((data & Y8950::R04_ST2) != 0, time);
+				timer1->setStart((data & Y8950::R04_ST1) != 0, time);
+				timer2->setStart((data & Y8950::R04_ST2) != 0, time);
 				reg[rg] = data;
 			}
 			adpcm->resetStatus();
@@ -1434,8 +1434,8 @@ void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("keyboardConnector", *connector);
 	ar.serialize("adpcm", *adpcm);
-	ar.serialize("timer1", timer1);
-	ar.serialize("timer2", timer2);
+	ar.serialize("timer1", *timer1);
+	ar.serialize("timer2", *timer2);
 	ar.serialize("irq", irq);
 	ar.serialize_blob("registers", reg, sizeof(reg));
 	ar.serialize("pm_phase", pm_phase);
