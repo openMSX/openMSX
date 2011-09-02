@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1313680996">
+<softwaredb xml:lang="en" timestamp="1314992506">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5607,7 +5607,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">f999e0187023413d839a67337d0595e150b2398f</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">8c609b8bee4245a1bb81e37d888ac5efb66533cf</hash><remark><text>[RC-754]</text></remark></megarom></dump>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">d33508c89656b18063893cadb74573e0b656792d</hash><remark><text>[RC-754]</text></remark></megarom></dump>
-		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">828a38535cb6246469a65f429834db8ab469d914</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">828a38535cb6246469a65f429834db8ab469d914</hash><remark><text>[RC-754] / English Translation [B4]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">87a6681c98a933d54d043bf603ba137f866696a8</hash><remark><text>[RC-754] / English Translation [B4][disk fix]</text></remark></megarom></dump>
 </software>
 <software>
@@ -11943,5 +11943,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2637
-Parse time 7.295 seconds on Thu Aug 18 17:23:23 CEST 2011
+Parse time 9.177 seconds on Fri Sep 2 21:41:55 CEST 2011
  -->
