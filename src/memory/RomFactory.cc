@@ -63,13 +63,8 @@ static RomType guessRomType(const Rom& rom)
 	}
 	const byte* data = &rom[0];
 
-	if (size <= 0x10000) {
-		if (size == 0x10000) {
-			// There are some programs convert from tape to
-			// 64kB rom cartridge these 'fake'roms are from
-			// the ASCII16 type
-			return ROM_ASCII16;
-		} else if ((size <= 0x4000) &&
+	if (size < 0x10000) {
+		if ((size <= 0x4000) &&
 		           (data[0] == 'A') && (data[1] == 'B')) {
 			word initAddr = data[2] + 256 * data[3];
 			word textAddr = data[8] + 256 * data[9];
@@ -132,13 +127,15 @@ static RomType guessRomType(const Rom& rom)
 		if (typeGuess[ROM_ASCII8]) typeGuess[ROM_ASCII8]--; // -1 -> max_int
 		RomType type = ROM_GENERIC_8KB; // 0
 		for (int i=ROM_GENERIC_8KB; i <= ROM_ASCII16; ++i) {
+			// debug: fprintf(stderr, "%d: %d\n", i, typeGuess[i]);
 			if (typeGuess[i] && (typeGuess[i] >= typeGuess[type])) {
 				type = static_cast<RomType>(i);
 			}
 		}
-		// in case of doubt we go for type 0
-		// in case of even type 5 and 4 we would prefer 5
-		// but we would still prefer 0 above 4 or 5
+		// in case of doubt we go for type ROM_GENERIC_8KB
+		// in case of even type ROM_ASCII16 and ROM_ASCII8 we would
+		// prefer ROM_ASCII16 but we would still prefer ROM_GENERIC_8KB
+		// above ROM_ASCII8 or ROM_ASCII16
 		if ((type == ROM_ASCII16) &&
 		    (typeGuess[ROM_GENERIC_8KB] == typeGuess[ROM_ASCII16])) {
 			type = ROM_GENERIC_8KB;
