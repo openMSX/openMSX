@@ -24,6 +24,7 @@ A million repetitions of "a"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <memory.h>
 
 using std::string;
