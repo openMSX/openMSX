@@ -281,6 +281,7 @@ class LibPNG(Library):
 	header = '<png.h>'
 	configScriptName = 'libpng-config'
 	dynamicLibsOption = '--ldflags'
+	staticLibsOption = '--static --libs'
 	function = 'png_write_image'
 	dependsOn = ('ZLIB', )
 
