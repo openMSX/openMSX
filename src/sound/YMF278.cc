@@ -55,8 +55,9 @@ public:
 	unsigned startaddr;
 	unsigned loopaddr;
 	unsigned endaddr;
-	unsigned step;		// fixed-point frequency step
-	unsigned stepptr;	// fixed-point pointer into the sample
+	unsigned step;       // fixed-point frequency step
+	                     // invariant: step == calcStep(OCT, FN)
+	unsigned stepptr;    // fixed-point pointer into the sample
 	unsigned pos;
 	short sample1, sample2;
 
@@ -68,8 +69,8 @@ public:
 
 	int DL;
 	short wave;		// wavetable number
-	short FN;		// f-number
-	char OCT;		// octave
+	short FN;		// f-number         TODO store 'FN | 1024'?
+	char OCT;		// octave [0..15]   TODO store sign-extended?
 	char PRVB;		// pseudo-reverb
 	char LD;		// level direct
 	char TL;		// total level
@@ -89,7 +90,7 @@ public:
 	byte state;
 	bool lfo_active;
 };
-SERIALIZE_CLASS_VERSION(YMF278Slot, 2);
+SERIALIZE_CLASS_VERSION(YMF278Slot, 3);
 
 class YMF278Impl : public ResampledSoundDevice
 {
@@ -323,11 +324,32 @@ YMF278Slot::YMF278Slot()
 	reset();
 }
 
+// Sign extend a 4-bit value to int (32-bit)
+// require: x in range [0..15]
+static inline int sign_extend_4(int x)
+{
+	return (x ^ 8) - 8;
+}
+
+// Params: oct in [0 ..   15]
+//         fn  in [0 .. 1023]
+// We want to interpret oct as a signed 4-bit number and calculate
+//    ((fn | 1024) + vib) << (5 + sign_extend_4(oct))
+// Though in this formula the shift can go over a negative distance (in that
+// case we should shift in the other direction).
+static inline unsigned calcStep(unsigned oct, unsigned fn, unsigned vib = 0)
+{
+	oct ^= 8; // [0..15] -> [8..15][0..7] == sign_extend_4(x) + 8
+	unsigned t = (fn + 1024 + vib) << oct; // use '+' iso '|' (generates slightly better code)
+	return t >> 3; // was shifted 3 positions too far
+}
+
 void YMF278Slot::reset()
 {
 	wave = FN = OCT = PRVB = LD = TL = pan = lfo = vib = AM = 0;
 	AR = D1R = DL = D2R = RC = RR = 0;
-	step = stepptr = 0;
+	stepptr = 0;
+	step = calcStep(OCT, FN);
 	bits = startaddr = loopaddr = endaddr = 0;
 	env_vol = MAX_ATT_INDEX;
 
@@ -351,10 +373,8 @@ int YMF278Slot::compute_rate(int val) const
 	}
 	int res;
 	if (RC != 15) {
-		int oct = OCT;
-		if (oct & 8) {
-			oct |= -8;
-		}
+		// TODO it may be faster to store 'OCT' sign extended
+		int oct = sign_extend_4(OCT);
 		res = (oct + RC) * 2 + (FN & 0x200 ? 1 : 0) + val * 4;
 	} else {
 		res = val * 4;
@@ -619,19 +639,10 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 			bufs[i][2 * j + 0] += (sample * volume[volLeft] ) >> 14;
 			bufs[i][2 * j + 1] += (sample * volume[volRight]) >> 14;
 
-			if (sl.lfo_active && sl.vib) {
-				int oct = sl.OCT;
-				if (oct & 8) {
-					oct |= -8;
-				}
-				oct += 5;
-				unsigned step = (oct >= 0)
-					? ((sl.FN | 1024) + sl.compute_vib()) << oct
-					: ((sl.FN | 1024) + sl.compute_vib()) >> -oct;
-				sl.stepptr += step;
-			} else {
-				sl.stepptr += sl.step;
-			}
+			unsigned step = (sl.lfo_active && sl.vib)
+			              ? calcStep(sl.OCT, sl.FN, sl.compute_vib())
+			              : sl.step;
+			sl.stepptr += step;
 
 			while (sl.stepptr >= 0x10000) {
 				sl.stepptr -= 0x10000;
@@ -651,15 +662,6 @@ void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
 
-	int oct = slot.OCT;
-	if (oct & 8) {
-		oct |= -8;
-	}
-	oct += 5;
-	unsigned step = (oct >= 0)
-		? (slot.FN | 1024) << oct
-		: (slot.FN | 1024) >> -oct;
-	slot.step = step;
 	slot.state = EG_ATT;
 	slot.stepptr = 0;
 	slot.pos = 0;
@@ -717,30 +719,14 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 		case 1: {
 			slot.wave = (slot.wave & 0xFF) | ((data & 0x1) << 8);
 			slot.FN = (slot.FN & 0x380) | (data >> 1);
-			int oct = slot.OCT;
-			if (oct & 8) {
-				oct |= -8;
-			}
-			oct += 5;
-			unsigned step = (oct >= 0)
-				? (slot.FN | 1024) << oct
-				: (slot.FN | 1024) >> -oct;
-			slot.step = step;
+			slot.step = calcStep(slot.OCT, slot.FN);
 			break;
 		}
 		case 2: {
 			slot.FN = (slot.FN & 0x07F) | ((data & 0x07) << 7);
 			slot.PRVB = ((data & 0x08) >> 3);
 			slot.OCT =  ((data & 0xF0) >> 4);
-			int oct = slot.OCT;
-			if (oct & 8) {
-				oct |= -8;
-			}
-			oct += 5;
-			unsigned step = (oct >= 0)
-				? (slot.FN | 1024) << oct
-				: (slot.FN | 1024) >> -oct;
-			slot.step = step;
+			slot.step = calcStep(slot.OCT, slot.FN);
 			break;
 		}
 		case 3:
@@ -997,6 +983,7 @@ void YMF278Impl::writeMem(unsigned address, byte value)
 // version 2: serialization framework was fixed to save/load chars as numbers
 //            but for backwards compatibility we still load old savestates as
 //            characters
+// version 3: 'step' is no longer stored (it is recalculated)
 template<typename Archive>
 void YMF278Slot::serialize(Archive& ar, unsigned version)
 {
@@ -1004,7 +991,6 @@ void YMF278Slot::serialize(Archive& ar, unsigned version)
 	ar.serialize("startaddr", startaddr);
 	ar.serialize("loopaddr", loopaddr);
 	ar.serialize("endaddr", endaddr);
-	ar.serialize("step", step);
 	ar.serialize("stepptr", stepptr);
 	ar.serialize("pos", pos);
 	ar.serialize("sample1", sample1);
@@ -1050,10 +1036,21 @@ void YMF278Slot::serialize(Archive& ar, unsigned version)
 	ar.serialize("state", state);
 	ar.serialize("lfo_active", lfo_active);
 
-	// Older version also had "env_vol_step" and "env_vol_lim"
-	// but those members were nowhere used, so removed those
-	// in the current version (it's ok to remove members from the
-	// savestate without updating the version number).
+	// Recalculate redundant state
+	if (ar.isLoader()) {
+		step = calcStep(OCT, FN);
+	}
+
+	// This old comment is NOT completely true:
+	//    Older version also had "env_vol_step" and "env_vol_lim" but those
+	//    members were nowhere used, so removed those in the current
+	//    version (it's ok to remove members from the savestate without
+	//    updating the version number).
+	// When you remove member variables without increasing the version
+	// number, new openMSX executables can still read old savestates. And
+	// if you try to load a new savestate in an old openMSX version you do
+	// get a (cryptic) error message. But if the version number is
+	// increased the error message is much clearer.
 }
 
 template<typename Archive>
