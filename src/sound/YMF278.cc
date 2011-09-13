@@ -144,14 +144,12 @@ private:
 	const unsigned endRom;
 	const unsigned endRam;
 
-	/** Precalculated attenuation values with some marging for
-	  * enveloppe and pan levels.
+	/** Precalculated attenuation values with some margin for
+	  * envelope and pan levels.
 	  */
 	int volume[256 * 4];
 
 	byte regs[256];
-	char wavetblhdr;
-	char memmode;
 };
 // Don't set SERIALIZE_CLASS_VERSION on YMF278Impl, instead set it on YMF278.
 
@@ -662,6 +660,7 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 		switch ((reg - 8) / 24) {
 		case 0: {
 			slot.wave = (slot.wave & 0x100) | data;
+			int wavetblhdr = (regs[2] >> 2) & 0x7;
 			int base = (slot.wave < 384 || !wavetblhdr) ?
 			           (slot.wave * 12) :
 			           (wavetblhdr * 0x80000 + ((slot.wave - 384) * 12));
@@ -777,8 +776,8 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			break;
 
 		case 0x02:
-			wavetblhdr = (data >> 2) & 0x7;
-			memmode = data & 1;
+			// wave-table-header / memory-type / memory-access-mode
+			// Simply store in regs[2]
 			break;
 
 		case 0x03:
@@ -920,7 +919,7 @@ void YMF278Impl::reset(EmuTime::param time)
 	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(i, 0, time);
 	}
-	wavetblhdr = memmode = memadr = 0;
+	memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
 }
 
@@ -1046,7 +1045,6 @@ void YMF278Impl::serialize(Archive& ar, unsigned version)
 
 	// TODO restore more state from registers
 	static const byte rewriteRegs[] = {
-		2,       // wavetblhdr, memmode
 		0xf8,    // fm_l, fm_r
 		0xf9,    // pcm_l, pcm_r
 	};
