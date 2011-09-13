@@ -244,7 +244,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 
 bool MSXMoonSound::getNew2() const
 {
-	return ymf262->peekReg(0x105) & 0x02;
+	return (ymf262->peekReg(0x105) & 0x02) != 0;
 }
 
 byte MSXMoonSound::readYMF278Status(EmuTime::param time) const
