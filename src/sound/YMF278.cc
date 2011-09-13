@@ -2,15 +2,19 @@
 
 // Based on ymf278b.c written by R. Belmont and O. Galibert
 
+// This class doesn't model a full YMF278b chip. Instead it only models the
+// wave part. The FM part in modeled in YMF262 (it's almost 100% compatible,
+// the small differences are handled in YMF262). The status register and
+// interaction with the FM registers (e.g. the NEW2 bit) is currently handled
+// in the MSXMoonSound class.
+
 #include "YMF278.hh"
 #include "ResampledSoundDevice.hh"
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
-#include "Clock.hh"
 #include "MemBuffer.hh"
 #include "serialize.hh"
-#include "serialize_meta.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -100,11 +104,9 @@ public:
 	virtual ~YMF278Impl();
 	void clearRam();
 	void reset(EmuTime::param time);
-	void writeRegOPL4(byte reg, byte data, EmuTime::param time);
-	byte readReg(byte reg, EmuTime::param time);
+	void writeReg(byte reg, byte data, EmuTime::param time);
+	byte readReg(byte reg);
 	byte peekReg(byte reg) const;
-	byte readStatus(EmuTime::param time);
-	byte peekStatus(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -113,7 +115,6 @@ private:
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	void writeReg(byte reg, byte data, EmuTime::param time);
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
@@ -127,28 +128,6 @@ private:
 	friend class DebugMemory;
 	const std::auto_ptr<DebugRegisters> debugRegisters;
 	const std::auto_ptr<DebugMemory>    debugMemory;
-
-	/** The master clock, running at 33MHz. */
-	typedef Clock<33868800> MasterClock;
-
-	/** Required delay between register select and register read/write.
-	  * TODO: Not used yet: register selection is done in MSXMoonSound class,
-	  *       but it should be moved here.
-	  */
-	static const EmuDuration REG_SELECT_DELAY;
-	/** Required delay after register write. */
-	static const EmuDuration REG_WRITE_DELAY;
-	/** Required delay after memory read. */
-	static const EmuDuration MEM_READ_DELAY;
-	/** Required delay after memory write (instead of register write delay). */
-	static const EmuDuration MEM_WRITE_DELAY;
-	/** Required delay after instrument load. */
-	static const EmuDuration LOAD_DELAY;
-
-	/** Time at which instrument loading is finished. */
-	EmuTime loadTime;
-	/** Time until which the YMF278 is busy. */
-	EmuTime busyTime;
 
 	YMF278Slot slots[24];
 
@@ -175,12 +154,6 @@ private:
 	char memmode;
 };
 
-const EmuDuration YMF278Impl::REG_SELECT_DELAY = MasterClock::duration(88);
-const EmuDuration YMF278Impl::REG_WRITE_DELAY = MasterClock::duration(88);
-const EmuDuration YMF278Impl::MEM_READ_DELAY = MasterClock::duration(38);
-const EmuDuration YMF278Impl::MEM_WRITE_DELAY = MasterClock::duration(28);
-// 10000 ticks is approx 300us; exact delay is unknown.
-const EmuDuration YMF278Impl::LOAD_DELAY = MasterClock::duration(10000);
 
 const int EG_SH = 16; // 16.16 fixed point (EG timing)
 const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
@@ -670,12 +643,6 @@ void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 	slot.sample2 = getSample(slot);
 }
 
-void YMF278Impl::writeRegOPL4(byte reg, byte data, EmuTime::param time)
-{
-	busyTime = time + REG_WRITE_DELAY;
-	writeReg(reg, data, time);
-}
-
 void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
@@ -690,8 +657,6 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 		YMF278Slot& slot = slots[snum];
 		switch ((reg - 8) / 24) {
 		case 0: {
-			loadTime = time + LOAD_DELAY;
-
 			slot.wave = (slot.wave & 0x100) | data;
 			int base = (slot.wave < 384 || !wavetblhdr) ?
 			           (slot.wave * 12) :
@@ -823,7 +788,6 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			break;
 
 		case 0x06:  // memory data
-			busyTime = time + MEM_WRITE_DELAY;
 			writeMem(memadr, data);
 			memadr = (memadr + 1) & 0xFFFFFF;
 			break;
@@ -844,17 +808,16 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 	regs[reg] = data;
 }
 
-byte YMF278Impl::readReg(byte reg, EmuTime::param time)
+byte YMF278Impl::readReg(byte reg)
 {
 	// no need to call updateStream(time)
 	byte result;
-	switch(reg) {
+	switch (reg) {
 		case 2: // 3 upper bits are device ID
 			result = (regs[2] & 0x1F) | 0x20;
 			break;
 
 		case 6: // Memory Data Register
-			busyTime = time + MEM_READ_DELAY;
 			result = readMem(memadr);
 			memadr = (memadr + 1) & 0xFFFFFF;
 			break;
@@ -869,7 +832,7 @@ byte YMF278Impl::readReg(byte reg, EmuTime::param time)
 byte YMF278Impl::peekReg(byte reg) const
 {
 	byte result;
-	switch(reg) {
+	switch (reg) {
 		case 2: // 3 upper bits are device ID
 			result = (regs[2] & 0x1F) | 0x20;
 			break;
@@ -885,20 +848,6 @@ byte YMF278Impl::peekReg(byte reg) const
 	return result;
 }
 
-byte YMF278Impl::readStatus(EmuTime::param time)
-{
-	// no need to call updateStream(time)
-	return peekStatus(time);
-}
-
-byte YMF278Impl::peekStatus(EmuTime::param time) const
-{
-	byte result = 0;
-	if (time < busyTime) result |= 0x01;
-	if (time < loadTime) result |= 0x02;
-	return result;
-}
-
 YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
                        int ramSize, const XMLElement& config)
 	: ResampledSoundDevice(motherBoard_, name, "MoonSound wave-part",
@@ -906,8 +855,6 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	, motherBoard(motherBoard_)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
-	, loadTime(motherBoard.getCurrentTime())
-	, busyTime(motherBoard.getCurrentTime())
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 	, endRom(rom->getSize())
@@ -953,8 +900,6 @@ void YMF278Impl::reset(EmuTime::param time)
 	}
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
-	busyTime = time;
-	loadTime = time;
 }
 
 byte YMF278Impl::readMem(unsigned address) const
@@ -1053,11 +998,11 @@ void YMF278Slot::serialize(Archive& ar, unsigned version)
 	// increased the error message is much clearer.
 }
 
+// version 1: initial version
+// version 2: loadTime and busyTime moved to MSXMoonSound class
 template<typename Archive>
 void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 {
-	ar.serialize("loadTime", loadTime);
-	ar.serialize("busyTime", busyTime);
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
 	ar.serialize_blob("ram", ram.data(), ram.size());
@@ -1143,29 +1088,19 @@ void YMF278::reset(EmuTime::param time)
 	pimple->reset(time);
 }
 
-void YMF278::writeRegOPL4(byte reg, byte data, EmuTime::param time)
+void YMF278::writeReg(byte reg, byte data, EmuTime::param time)
 {
-	pimple->writeRegOPL4(reg, data, time);
+	pimple->writeReg(reg, data, time);
 }
 
-byte YMF278::readReg(byte reg, EmuTime::param time)
+byte YMF278::readReg(byte reg)
 {
-	return pimple->readReg(reg, time);
+	return pimple->readReg(reg);
 }
 
 byte YMF278::peekReg(byte reg) const
 {
 	return pimple->peekReg(reg);
-}
-
-byte YMF278::readStatus(EmuTime::param time)
-{
-	return pimple->readStatus(time);
-}
-
-byte YMF278::peekStatus(EmuTime::param time) const
-{
-	return pimple->peekStatus(time);
 }
 
 template<typename Archive>

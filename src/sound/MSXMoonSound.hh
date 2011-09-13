@@ -29,14 +29,21 @@ public:
 
 private:
 	bool getNew2() const;
+	byte readYMF278Status(EmuTime::param time) const;
 
 	const std::auto_ptr<YMF262> ymf262;
 	const std::auto_ptr<YMF278> ymf278;
+
+	/** Time at which instrument loading is finished. */
+	EmuTime ymf278LoadTime;
+	/** Time until which the YMF278 is busy. */
+	EmuTime ymf278BusyTime;
+
 	int opl3latch;
 	byte opl4latch;
 	bool alreadyReadID;
 };
-SERIALIZE_CLASS_VERSION(MSXMoonSound, 2);
+SERIALIZE_CLASS_VERSION(MSXMoonSound, 3);
 
 } // namespace openmsx
 

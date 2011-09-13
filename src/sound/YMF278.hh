@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -22,11 +23,9 @@ public:
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);
-	void writeRegOPL4(byte reg, byte data, EmuTime::param time);
-	byte readReg(byte reg, EmuTime::param time);
+	void writeReg(byte reg, byte data, EmuTime::param time);
+	byte readReg(byte reg);
 	byte peekReg(byte reg) const;
-	byte readStatus(EmuTime::param time);
-	byte peekStatus(EmuTime::param time) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -34,6 +33,7 @@ public:
 private:
 	const std::auto_ptr<YMF278Impl> pimple;
 };
+SERIALIZE_CLASS_VERSION(YMF278, 2);
 
 } // namespace openmsx
 
