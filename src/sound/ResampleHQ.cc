@@ -208,8 +208,9 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	int t = int(pos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
-	int bufIdx = (int(pos) + bufStart) * CHANNELS;
+	int bufIdx = int(pos) + bufStart;
 	assert((bufIdx + filterLen) <= bufEnd);
+	bufIdx *= CHANNELS;
 
 	#if ASM_X86 && !defined(__APPLE__)
 	// On Mac OS X, we are one register short, because EBX is not available.
