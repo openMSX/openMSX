@@ -113,6 +113,7 @@ private:
 	virtual void generateChannels(int** bufs, unsigned num);
 
 	void writeReg(byte reg, byte data, EmuTime::param time);
+	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	byte readMem(unsigned address) const;
 	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
@@ -676,6 +677,11 @@ void YMF278Impl::writeRegOPL4(byte reg, byte data, EmuTime::param time)
 void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
+	writeRegDirect(reg, data, time);
+}
+
+void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
+{
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
 		int snum = (reg - 8) % 24;
@@ -693,19 +699,16 @@ void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
 				buf[i] = readMem(base + i);
 			}
 			slot.bits = (buf[0] & 0xC0) >> 6;
-			slot.set_lfo((buf[7] >> 3) & 7);
-			slot.vib  = buf[7] & 7;
-			slot.AR   = buf[8] >> 4;
-			slot.D1R  = buf[8] & 0xF;
-			slot.DL   = dl_tab[buf[9] >> 4];
-			slot.D2R  = buf[9] & 0xF;
-			slot.RC   = buf[10] >> 4;
-			slot.RR   = buf[10] & 0xF;
-			slot.AM   = buf[11] & 7;
 			slot.startaddr = buf[2] | (buf[1] << 8) |
 			                 ((buf[0] & 0x3F) << 16);
 			slot.loopaddr = buf[4] + (buf[3] << 8);
 			slot.endaddr  = (((buf[6] + (buf[5] << 8)) ^ 0xFFFF) + 1);
+			for (int i = 7; i < 12; ++i) {
+				// Verified on real YMF278:
+				// After tone loading, if you read these
+				// registers, their value actually has changed.
+				writeRegDirect(8 + snum + (i - 2) * 24, buf[i], time);
+			}
 			if ((regs[reg + 4] & 0x080)) {
 				keyOnHelper(slot);
 			}
@@ -952,13 +955,15 @@ void YMF278Impl::clearRam()
 
 void YMF278Impl::reset(EmuTime::param time)
 {
+	updateStream(time);
+
 	eg_cnt = 0;
 
 	for (int i = 0; i < 24; ++i) {
 		slots[i].reset();
 	}
 	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
-		writeRegOPL4(i, 0, time);
+		writeRegDirect(i, 0, time);
 	}
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
@@ -1072,7 +1077,7 @@ void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
 		EmuTime::param time = motherBoard.getCurrentTime();
 		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
 			byte reg = rewriteRegs[i];
-			writeReg(reg, regs[reg], time);
+			writeRegDirect(reg, regs[reg], time);
 		}
 	}
 }
