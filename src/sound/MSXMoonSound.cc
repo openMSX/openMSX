@@ -40,9 +40,9 @@ void MSXMoonSound::reset(EmuTime::param time)
 	ymf262->reset(time);
 	ymf278->reset(time);
 
-	// TODO check
-	opl4latch = 0;
-	opl3latch = 0;
+	opl4latch = 0; // TODO check
+	opl3latch = 0; // TODO check
+	alreadyReadID = false;
 }
 
 byte MSXMoonSound::readIO(word port, EmuTime::param time)
@@ -67,6 +67,18 @@ byte MSXMoonSound::readIO(word port, EmuTime::param time)
 		case 2:
 			result = ymf262->readStatus() |
 			         ymf278->readStatus(time);
+			if (!alreadyReadID && getNew2()) {
+				// Verified on real YMF278:
+				// Only once after switching NEW2=1, reading
+				// the status register returns '0x02'. This
+				// behavior doesn't re-occur till after a
+				// reset (datasheet confirms this behavior).
+				// Also verified that only bit 1 changes (so
+				// it's not the whole value that is forced to
+				// 0x02, datasheet isn't clear about that).
+				alreadyReadID = true;
+				result |= 0x02;
+			}
 			break;
 		case 1:
 		case 3: // read fm register
@@ -101,6 +113,9 @@ byte MSXMoonSound::peekIO(word port, EmuTime::param time) const
 		case 2:
 			result = ymf262->peekStatus() |
 			         ymf278->peekStatus(time);
+			if (!alreadyReadID && getNew2()) {
+				result |= 0x02;
+			}
 			break;
 		case 1:
 		case 3: // read fm register
@@ -117,7 +132,7 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 {
 	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
-		if (ymf262->peekReg(0x105) & 0x02) { // NEW2 bit
+		if (getNew2()) {
 			switch (port & 0x01) {
 			case 0: // select register
 				opl4latch = value;
@@ -150,15 +165,28 @@ void MSXMoonSound::writeIO(word port, byte value, EmuTime::param time)
 	}
 }
 
+bool MSXMoonSound::getNew2() const
+{
+	return ymf262->peekReg(0x105) & 0x02;
+}
 
+// version 1: initial version
+// version 2: added alreadyReadID
 template<typename Archive>
-void MSXMoonSound::serialize(Archive& ar, unsigned /*version*/)
+void MSXMoonSound::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ymf262", *ymf262);
 	ar.serialize("ymf278", *ymf278);
 	ar.serialize("opl3latch", opl3latch);
 	ar.serialize("opl4latch", opl4latch);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("alreadyReadID", alreadyReadID);
+	} else {
+		assert(ar.isLoader());
+		alreadyReadID = true; // we can't know the actual value, but
+		                      // 'true' is the safest value
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMoonSound);
 REGISTER_MSXDEVICE(MSXMoonSound, "MoonSound");

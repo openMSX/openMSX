@@ -4,6 +4,7 @@
 #define MSXMOONSOUND_HH
 
 #include "MSXDevice.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -27,11 +28,15 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	bool getNew2() const;
+
 	const std::auto_ptr<YMF262> ymf262;
 	const std::auto_ptr<YMF278> ymf278;
 	int opl3latch;
 	byte opl4latch;
+	bool alreadyReadID;
 };
+SERIALIZE_CLASS_VERSION(MSXMoonSound, 2);
 
 } // namespace openmsx
 
