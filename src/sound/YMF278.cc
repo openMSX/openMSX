@@ -534,6 +534,9 @@ void YMF278Impl::advance()
 
 short YMF278Impl::getSample(YMF278Slot& op)
 {
+	// TODO How does this behave when R#2 bit 0 = 1?
+	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
+	//      sound generation blocked at some higher level?
 	short sample;
 	switch (op.bits) {
 	case 0: {
@@ -663,6 +666,8 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			           (wavetblhdr * 0x80000 + ((slot.wave - 384) * 12));
 			byte buf[12];
 			for (int i = 0; i < 12; ++i) {
+				// TODO What if R#2 bit 0 = 1?
+				//      See also getSample()
 				buf[i] = readMem(base + i);
 			}
 			slot.bits = (buf[0] & 0xC0) >> 6;
@@ -788,8 +793,14 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			break;
 
 		case 0x06:  // memory data
-			writeMem(memadr, data);
-			memadr = (memadr + 1) & 0xFFFFFF;
+			if (regs[2] & 1) {
+				writeMem(memadr, data);
+				memadr = (memadr + 1) & 0xFFFFFF;
+			} else {
+				// Verified on real YMF278:
+				//  - writes are ignored
+				//  - memadr is NOT increased
+			}
 			break;
 
 		case 0xF8:
@@ -811,20 +822,14 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 byte YMF278Impl::readReg(byte reg)
 {
 	// no need to call updateStream(time)
-	byte result;
-	switch (reg) {
-		case 2: // 3 upper bits are device ID
-			result = (regs[2] & 0x1F) | 0x20;
-			break;
-
-		case 6: // Memory Data Register
-			result = readMem(memadr);
+	byte result = peekReg(reg);
+	if (reg == 6) {
+		// Memory Data Register
+		if (regs[2] & 1) {
+			// Verified on real YMF278:
+			// memadr is only increased when 'regs[2] & 1'
 			memadr = (memadr + 1) & 0xFFFFFF;
-			break;
-
-		default:
-			result = regs[reg];
-			break;
+		}
 	}
 	return result;
 }
@@ -838,7 +843,12 @@ byte YMF278Impl::peekReg(byte reg) const
 			break;
 
 		case 6: // Memory Data Register
-			result = readMem(memadr);
+			if (regs[2] & 1) {
+				result = readMem(memadr);
+			} else {
+				// Verified on real YMF278
+				result = 0xff;
+			}
 			break;
 
 		default:
