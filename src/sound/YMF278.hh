@@ -33,7 +33,7 @@ public:
 private:
 	const std::auto_ptr<YMF278Impl> pimple;
 };
-SERIALIZE_CLASS_VERSION(YMF278, 2);
+SERIALIZE_CLASS_VERSION(YMF278, 3);
 
 } // namespace openmsx
 

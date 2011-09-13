@@ -153,6 +153,7 @@ private:
 	char wavetblhdr;
 	char memmode;
 };
+// Don't set SERIALIZE_CLASS_VERSION on YMF278Impl, instead set it on YMF278.
 
 
 const int EG_SH = 16; // 16.16 fixed point (EG timing)
@@ -781,21 +782,32 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 			break;
 
 		case 0x03:
-			memadr = (memadr & 0x00FFFF) | (data << 16);
+			// Verified on real YMF278:
+			// * Don't update the 'memadr' variable on writes to
+			//   reg 3 and 4. Only store the value in the 'regs'
+			//   array for later use.
+			// * The upper 2 bits are not used to address the
+			//   external memories (so from a HW pov they don't
+			//   matter). But if you read back this register, the
+			//   upper 2 bits always read as '0' (even if you wrote
+			//   '1'). So we mask the bits here already.
+			data &= 0x3F;
 			break;
 
 		case 0x04:
-			memadr = (memadr & 0xFF00FF) | (data << 8);
+			// See reg 3.
 			break;
 
 		case 0x05:
-			memadr = (memadr & 0xFFFF00) | data;
+			// Verified on real YMF278: (see above)
+			// Only writes to reg 5 change the (full) 'memadr'.
+			memadr = (regs[3] << 16) | (regs[4] << 8) | data;
 			break;
 
 		case 0x06:  // memory data
 			if (regs[2] & 1) {
 				writeMem(memadr, data);
-				memadr = (memadr + 1) & 0xFFFFFF;
+				++memadr; // no need to mask (again) here
 			} else {
 				// Verified on real YMF278:
 				//  - writes are ignored
@@ -828,7 +840,7 @@ byte YMF278Impl::readReg(byte reg)
 		if (regs[2] & 1) {
 			// Verified on real YMF278:
 			// memadr is only increased when 'regs[2] & 1'
-			memadr = (memadr + 1) & 0xFFFFFF;
+			++memadr; // no need to mask (again) here
 		}
 	}
 	return result;
@@ -914,6 +926,8 @@ void YMF278Impl::reset(EmuTime::param time)
 
 byte YMF278Impl::readMem(unsigned address) const
 {
+	// Verified on real YMF278: address space wraps at 4MB.
+	address &= 0x3FFFFF;
 	if (address < endRom) {
 		return (*rom)[address];
 	} else if (address < endRam) {
@@ -925,6 +939,7 @@ byte YMF278Impl::readMem(unsigned address) const
 
 void YMF278Impl::writeMem(unsigned address, byte value)
 {
+	address &= 0x3FFFFF;
 	if (address < endRom) {
 		// can't write to ROM
 	} else if (address < endRam) {
@@ -1010,18 +1025,28 @@ void YMF278Slot::serialize(Archive& ar, unsigned version)
 
 // version 1: initial version
 // version 2: loadTime and busyTime moved to MSXMoonSound class
+// version 3: memadr cannot be restored from register values
 template<typename Archive>
-void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
+void YMF278Impl::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
 	ar.serialize_blob("ram", ram.data(), ram.size());
 	ar.serialize_blob("registers", regs, sizeof(regs));
+	if (ar.versionAtLeast(version, 3)) { // must come after 'regs'
+		ar.serialize("memadr", memadr);
+	} else {
+		assert(ar.isLoader());
+		// Old formats didn't store 'memadr' so we also can't magically
+		// restore the correct value. The best we can do is restore the
+		// last set address.
+		regs[3] &= 0x3F; // mask upper two bits
+		memadr = (regs[3] << 16) | (regs[4] << 8) | regs[5];
+	}
 
 	// TODO restore more state from registers
 	static const byte rewriteRegs[] = {
 		2,       // wavetblhdr, memmode
-		3, 4, 5, // memadr
 		0xf8,    // fm_l, fm_r
 		0xf9,    // pcm_l, pcm_r
 	};
