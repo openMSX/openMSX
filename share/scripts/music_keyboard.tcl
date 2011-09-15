@@ -146,6 +146,7 @@ proc update_keyboard {} {
 				} else {
 					set note_text ""
 				}
+				dict set keyb_dict $soundchip $channel prev_note $note
 			} else {
 				set note_text ""
 			}
