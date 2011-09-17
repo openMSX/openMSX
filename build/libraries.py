@@ -54,7 +54,9 @@ class Library(object):
 		elif platform == 'dingux' and cls.isSystemLibrary(platform):
 			# TODO: A generic mechanism for locating config scripts in SDKs.
 			#       Note that distroRoot is for non-system libs only.
-			return '/opt/mipsel-linux-uclibc/usr/bin/%s' % scriptName
+			#       Trying a path relative to the compiler location would
+			#       probably work well.
+			return '/opt/opendingux-toolchain/usr/bin/%s' % scriptName
 		elif distroRoot is None:
 			return scriptName
 		else:

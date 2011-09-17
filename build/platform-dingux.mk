@@ -6,7 +6,7 @@
 ifeq ($(OPENMSX_TARGET_CPU),mipsel)
 # Automatically select the cross compiler from its default location.
 ifeq ($(origin CXX),default)
-CXX:=/opt/mipsel-linux-uclibc/usr/bin/mipsel-linux-uclibc-g++
+CXX:=/opt/opendingux-toolchain/usr/bin/mipsel-linux-g++
 endif
 # Use MIPS32 instruction set.
 COMPILE_FLAGS+=-march=mips32
