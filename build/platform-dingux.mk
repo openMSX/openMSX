@@ -9,7 +9,7 @@ ifeq ($(origin CXX),default)
 CXX:=/opt/opendingux-toolchain/usr/bin/mipsel-linux-g++
 endif
 # Use MIPS32 instruction set.
-COMPILE_FLAGS+=-march=mips32
+TARGET_FLAGS+=-march=mips32
 endif
 
 # Dingux is a Linux/uClibc system.
