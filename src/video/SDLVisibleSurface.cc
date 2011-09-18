@@ -32,13 +32,14 @@ SDLVisibleSurface::SDLVisibleSurface(
 	// fast enough).
 	int flags = SDL_HWSURFACE; // | SDL_DOUBLEBUF;
 #elif PLATFORM_DINGUX
-	// Double buffering hangs openMSX (tested 2009-07-22).
+	// The OpenDingux kernel supports double buffering, while the legacy
+	// kernel will hang apps that try to use double buffering.
 	// The Dingoo seems to have a hardware problem that makes it hard or
 	// impossible to know when vsync happens:
 	//   http://www.dingux.com/2009/07/on-screen-tearing.html
-	// Hardware buffer without double buffering works but then there is very
-	// annoying flickering of the OSD elements.
-	int flags = SDL_SWSURFACE;
+	// However, double buffering increases performance and does reduce
+	// the tearing somewhat, so it is worth having.
+	int flags = SDL_HWSURFACE | SDL_DOUBLEBUF;
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
@@ -75,6 +76,12 @@ void SDLVisibleSurface::finish()
 	                getSDLDisplaySurface(), NULL);
 #endif
 	SDL_Flip(getSDLDisplaySurface());
+#if !PLATFORM_GP2X
+	// The pixel pointer might be invalidated by the flip.
+	// This is certainly the case when double buffering.
+	SDL_Surface* workSurface = getSDLDisplaySurface();
+	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);
+#endif
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
