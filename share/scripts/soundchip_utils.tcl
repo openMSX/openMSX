@@ -40,7 +40,7 @@ proc get_volume_expr {soundchip channel} {
 	switch [machine_info sounddevice $soundchip] {
 		"PSG" {
 			set regs "\"${soundchip} regs\""
-			return "set keybits \[debug read $regs 7\]; expr {((\[debug read $regs [expr {$channel + 8}]\] &0xF)) / 15.0 * !((\$keybits >> $channel) & (\$keybits >> [expr {$channel + 3}]) & 1)}"
+			return "set keybits \[debug read $regs 7\]; set val \[debug read $regs [expr {$channel + 8}]\]; expr {(\$val & 0x10) ? 1.0 : ((\$val & 0xF) / 15.0) * !((\$keybits >> $channel) & (\$keybits >> [expr {$channel + 3}]) & 1)}"
 		}
 		"MoonSound wave-part" {
 			set regs "\"${soundchip} regs\""
