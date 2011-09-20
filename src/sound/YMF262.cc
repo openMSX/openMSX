@@ -1555,7 +1555,7 @@ void YMF262Impl::writeRegDirect(unsigned r, byte v, EmuTime::param time)
 
 		if (isExtended(chan_no)) {
 			unsigned chan_no0 = getFirstOfPairNum(chan_no);
-			unsigned chan_no3 = chan_no + 3;
+			unsigned chan_no3 = chan_no0 + 3;
 			YMF262Channel& ch0 = getFirstOfPair(chan_no);
 			YMF262Channel& ch3 = getSecondOfPair(chan_no);
 			switch ((ch0.slot[MOD].CON ? 2:0) | (ch3.slot[MOD].CON ? 1:0)) {
