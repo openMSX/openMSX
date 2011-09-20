@@ -934,6 +934,7 @@ void YMF278Impl::reset(EmuTime::param time)
 	for (int i = 0; i < 24; ++i) {
 		slots[i].reset();
 	}
+	regs[2] = 0; // avoid UMR
 	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
 		writeRegDirect(i, 0, time);
 	}
