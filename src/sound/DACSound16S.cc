@@ -65,7 +65,7 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 	short lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
 	if (ar.isLoader()) {
-		writeDAC(lastValue, EmuTime::zero);
+		writeDAC(lastValue, getHostSampleClock().getTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(DACSound16S);
