@@ -10,6 +10,8 @@ to list which channels are currently being recorded.
   record_channels [start] [<device> [<channels>]]
   record_channels  stop   [<device> [<channels>]]
   record_channels  list
+When starting recording, you can optionally specify a prefix for the
+destination file names with the -prefix option.
 
 Some examples will make it much clearer:
   - To start recording:
@@ -18,6 +20,8 @@ Some examples will make it much clearer:
       record_channels SCC 1,3-5      only record channels 1 and 3 to 5
       record_channels SCC PSG 1      record all SCC channels + PSG channel 1
       record_channels all            record all channels of all devices
+      record_channels all -prefix t  record all channels of all devices using
+                                     prefix 't'
   - To stop recording
       record_channels stop           stop all recording
       record_channels stop PSG       stop recording all PSG channels
@@ -178,6 +182,16 @@ proc record_channels {args} {
 		}
 	}
 
+	if {$start} {
+		set prefix [guess_title]
+		# see if there's a -prefix option to override the default
+		set prefix_index [lsearch -exact $args "-prefix"]
+		if {$prefix_index >= 0 && $prefix_index < [expr [llength $args] - 1]} {
+			set prefix [lindex $args [expr $prefix_index + 1]]
+			set args [lreplace $args $prefix_index [expr $prefix_index + 1]]
+		}
+	}
+
 	# parse devices/channels
 	set device_channels [parse_device_channels $args]
 
@@ -198,7 +212,7 @@ proc record_channels {args} {
 				set directory [file normalize $::env(OPENMSX_USER_DATA)/../soundlogs]
 				# create dir always
 				file mkdir $directory
-				set software_section [guess_title]
+				set software_section $prefix
 				if {$software_section ne ""} {
 					set software_section "${software_section}-"
 				}
