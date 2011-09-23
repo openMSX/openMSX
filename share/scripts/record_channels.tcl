@@ -17,6 +17,7 @@ Some examples will make it much clearer:
       record_channels PSG            the 'start' keyword can be left out
       record_channels SCC 1,3-5      only record channels 1 and 3 to 5
       record_channels SCC PSG 1      record all SCC channels + PSG channel 1
+      record_channels all            record all channels of all devices
   - To stop recording
       record_channels stop           stop all recording
       record_channels stop PSG       stop recording all PSG channels
@@ -48,7 +49,7 @@ set_tabcompletion_proc solo            [namespace code tab_sounddevice_channels]
 proc tab_sounddevice_channels {args} {
 	set result [machine_info sounddevice]
 	if {([lindex $args 0] eq "record_channels") && ([llength $args] == 2)} {
-		set result [concat $result "start stop list"]
+		set result [concat $result "start stop list all"]
 	}
 	return $result
 }
@@ -131,6 +132,12 @@ proc get_muted_channels {} {
 proc parse_device_channels {tokens} {
 	set sounddevices [machine_info sounddevice]
 	set device_channels [list]
+	if {[lindex $tokens 0] == "all"} {
+		foreach device $sounddevices {
+			lappend device_channels $device [get_all_channels $device]
+		}
+		return $device_channels
+	}
 	while {[llength $tokens]} {
 		set device [lindex $tokens 0]
 		set tokens [lrange $tokens 1 end]
