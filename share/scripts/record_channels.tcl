@@ -196,6 +196,8 @@ proc record_channels {args} {
 			set var ::${device}_ch${ch}_record
 			if {$start} {
 				set directory [file normalize $::env(OPENMSX_USER_DATA)/../soundlogs]
+				# create dir always
+				file mkdir $directory
 				set software_section [guess_title]
 				if {$software_section ne ""} {
 					set software_section "${software_section}-"
