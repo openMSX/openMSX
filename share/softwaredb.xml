@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1314992506">
+<softwaredb xml:lang="en" timestamp="1316979615">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5104,6 +5104,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5fe519d6beb8039813d10cd1c08e6e6a08813d2d</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">J.E.T.P.A.C</title>
+	<system>MSX</system>
+	<company>Imanok</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">cc13bac2f50f58bc466d605839187cf09dbe269c</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">J.P. Winkle</title>
 	<genmsxid>759</genmsxid>
 	<system>MSX</system>
@@ -8027,13 +8035,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 <software>
 	<title xml:lang="en">Pepper 2</title>
 	<system>MSX</system>
-	<company>Exidy&#39;s / Muffie</company>
+	<company>Exidy&#39;s</company>
 	<year>2008</year>
 	<country>JP</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark><text>[b1]</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">bf041bc8ce3b5dab7b1f85f623b371b263639aab</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">58530a5080aa54aed05e3b98ed104a1b4c9278ea</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">5f805a670e31b22723aa7738aa3edc3fdbd8f870</hash></rom></dump>
+		<dump><rom><hash algo="sha1">479100e82d3f25bbeb9a291163945d2f5bd62f74</hash><remark><text>[b1] / Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">bf041bc8ce3b5dab7b1f85f623b371b263639aab</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">58530a5080aa54aed05e3b98ed104a1b4c9278ea</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">5f805a670e31b22723aa7738aa3edc3fdbd8f870</hash><remark><text>Muffie Version</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">70e947dfa1d08fe100b5975aa145c3d8a4180f68</hash><remark><text>GDX SCC version</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Perfect Fit</title>
@@ -11942,6 +11951,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2637
-Parse time 9.177 seconds on Fri Sep 2 21:41:55 CEST 2011
+Roms in this database:2639
+Parse time 7.340 seconds on Sun Sep 25 21:40:22 CEST 2011
  -->

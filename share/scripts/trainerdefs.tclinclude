@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2011/08/18
+# Updated @ 2011/09/25
 #
 
 
@@ -3814,6 +3814,12 @@ create_trainer "Jet Set Willy" {time 0.5} {
 	"Lives: Lives" {dpoke 0xf25d 17}
 }
 
+create_trainer "Jetpac" {time 0.1} {
+	"Enemy: Easy End Boss" {dpoke 0xee61 1}
+	"Life: Lives" {dpoke 0xee36 0x9}
+	"Life: Power" {dpoke 0xee67 112}
+}
+
 create_trainer "Jimmy Quest" {time 1} {
 	"Lives: Lives" {dpoke 0xa9d5 9}
 }
@@ -7105,4 +7111,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Item: Item 1-8" {dpoke 0xe066 9;poke 0xe067 9;dpoke 0xe068 9;dpoke 0xe069 9;dpoke 0xe06a 9;dpoke 0xe06b 9;dpoke 0xe06c 9;dpoke 0xe06d 9}
 }
 
-# File Created in : 2.708 seconds. 749 trainers -  having 5771 pokes
+# File Created in : 3.245 seconds. 751 trainers -  having 5774 pokes
