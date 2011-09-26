@@ -3,6 +3,7 @@
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
 #include "MSXMotherBoard.hh"
+#include "CacheLine.hh"
 #include "I8254.hh"
 #include "I8251.hh"
 #include "Ram.hh"
@@ -78,6 +79,8 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
+	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
+	, ioAccessEnabled(!hasMemoryBasedIo)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
@@ -107,13 +110,18 @@ void MSXRS232::reset(EmuTime::param /*time*/)
 	rxrdyIRQenabled = false;
 	rxrdyIRQ.reset();
 
+	ioAccessEnabled = !hasMemoryBasedIo;
+
 	if (ram.get()) {
 		ram->clear();
 	}
 }
 
-byte MSXRS232::readMem(word address, EmuTime::param /*time*/)
+byte MSXRS232::readMem(word address, EmuTime::param time)
 {
+	if (hasMemoryBasedIo && (0xBFF8 <= address) && (address <= 0xBFFF)) {
+		return readIOImpl(address & 0x07, time);
+	}
 	word addr = address & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
@@ -126,6 +134,9 @@ byte MSXRS232::readMem(word address, EmuTime::param /*time*/)
 
 const byte* MSXRS232::getReadCacheLine(word start) const
 {
+        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+                return NULL;
+        }
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
@@ -136,8 +147,20 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	}
 }
 
-void MSXRS232::writeMem(word address, byte value, EmuTime::param /*time*/)
+void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 {
+
+	if (hasMemoryBasedIo && (0xBFF8 <= address) && (address <= 0xBFFF)) {
+		// when the interface has memory based I/O, the I/O port
+		// based I/O is disabled, but it can be enabled by writing
+		// bit 4 to 0xBFFA. It is disabled again at reset.
+		// Source: Sony HB-G900P and Sony HB-G900AP service manuals.
+		// We assume here you can also disable it by writing 0 to it.
+		if (address == 0xBFFA) {
+			ioAccessEnabled = (value & (1 << 4));
+		}
+		return writeIOImpl(address & 0x07, value, time);
+	}
 	word addr = address & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		(*ram)[addr - RAM_OFFSET] = value;
@@ -146,6 +169,9 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
+        if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
+                return NULL;
+        }
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
@@ -156,8 +182,15 @@ byte* MSXRS232::getWriteCacheLine(word start) const
 
 byte MSXRS232::readIO(word port, EmuTime::param time)
 {
+	if (ioAccessEnabled) {
+		return readIOImpl(port & 0x07, time);
+	}
+	return 0xFF;
+}
+
+byte MSXRS232::readIOImpl(word port, EmuTime::param time)
+{
 	byte result;
-	port &= 0x07;
 	switch (port) {
 		case 0: // UART data register
 		case 1: // UART status register
@@ -183,6 +216,7 @@ byte MSXRS232::readIO(word port, EmuTime::param time)
 
 byte MSXRS232::peekIO(word port, EmuTime::param time) const
 {
+	if (hasMemoryBasedIo && !ioAccessEnabled) return 0xFF;
 	byte result;
 	port &= 0x07;
 	switch (port) {
@@ -210,8 +244,12 @@ byte MSXRS232::peekIO(word port, EmuTime::param time) const
 
 void MSXRS232::writeIO(word port, byte value, EmuTime::param time)
 {
-	port &= 0x07;
-	switch (port & 0x07) {
+	if (ioAccessEnabled) writeIOImpl(port & 0x07, value, time);
+}
+
+void MSXRS232::writeIOImpl(word port, byte value, EmuTime::param time)
+{
+	switch (port) {
 		case 0: // UART data register
 		case 1: // UART command register
 			i8251->writeIO(port, value, time);
@@ -422,9 +460,10 @@ void MSXRS232::recvByte(byte value, EmuTime::param time)
 	i8251->recvByte(value, time);
 }
 
-
+// version 1: initial version
+// version 2: added ioAccessEnabled
 template<typename Archive>
-void MSXRS232::serialize(Archive& ar, unsigned /*version*/)
+void MSXRS232::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.template serializeBase<RS232Connector>(*this);
@@ -437,6 +476,14 @@ void MSXRS232::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("rxrdyIRQ", rxrdyIRQ);
 	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
 	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("ioAccessEnabled", ioAccessEnabled);
+	} else {
+		assert(ar.isLoader());
+		ioAccessEnabled = !hasMemoryBasedIo; // we can't know the
+					// actual value, but this is probably
+					// safest
+	}
 
 	// don't serialize cntr0, cntr1, interf
 }

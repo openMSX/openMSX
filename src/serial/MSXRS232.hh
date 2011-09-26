@@ -31,6 +31,7 @@ public:
 	virtual byte peekIO(word port, EmuTime::param time) const;
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
+	// TODO: implement peekMem, because the default isn't OK anymore
 	virtual const byte *getReadCacheLine(word start) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word start) const;
@@ -47,6 +48,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	byte readIOImpl(word port, EmuTime::param time);
+	void writeIOImpl(word port, byte value, EmuTime::param time);
+
 	byte readStatus(EmuTime::param time);
 	void setIRQMask(byte value);
 	void setRxRDYIRQ(bool status);
@@ -64,10 +68,15 @@ private:
 	bool rxrdyIRQlatch;
 	bool rxrdyIRQenabled;
 
+	const bool hasMemoryBasedIo;
+	bool ioAccessEnabled;
+
 	friend class Counter0;
 	friend class Counter1;
 	friend class I8251Interf;
 };
+SERIALIZE_CLASS_VERSION(MSXRS232, 2);
+
 
 } // namespace openmsx
 
