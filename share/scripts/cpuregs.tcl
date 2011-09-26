@@ -40,12 +40,12 @@ variable regW [dict create \
 	AF2  8    BC2 10    DE2 12    HL2 14 \
 	IX  16    IY  18    PC  20    SP  22 ]
 
-set_tabcompletion_proc reg [namespace code __tab_reg] false
+set_tabcompletion_proc reg [namespace code tab_reg] false
 
-proc __tab_reg {args} {
+proc tab_reg {args} {
 	variable regB
 	variable regW
-	concat [dict keys regB] [dict keys regW]
+	concat [dict keys $regB] [dict keys $regW]
 }
 
 proc reg {name {val ""}} {
