@@ -157,7 +157,7 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 		// Source: Sony HB-G900P and Sony HB-G900AP service manuals.
 		// We assume here you can also disable it by writing 0 to it.
 		if (address == 0xBFFA) {
-			ioAccessEnabled = (value & (1 << 4));
+			ioAccessEnabled = (value & (1 << 4))!=0;
 		}
 		return writeIOImpl(address & 0x07, value, time);
 	}
