@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2011/09/25
+# Updated @ 2011/10/18
 #
 
 
@@ -2873,6 +2873,17 @@ create_trainer "Golvellius 2" {time 10} {
 
 create_trainer "Goody" {time 10} {
 	"Invincible" {dpoke 0xaeaf 8}
+}
+
+create_trainer "Goonies r good enough" {time 1} {
+	"Life: Power Andy" {dpoke 0xeef9 48}
+	"Life: Power Brand" {dpoke 0xeef5 48}
+	"Life: Power Chunk" {dpoke 0xeefa 48}
+	"Life: Power Data" {dpoke 0xeef7 48}
+	"Life: Power Mikey" {dpoke 0xeef4 48}
+	"Life: Power Mouth" {dpoke 0xeef6 48}
+	"Life: Power Stef" {dpoke 0xeef8 48}
+	"Status: Invinsible" {dpoke 0xef2f 255}
 }
 
 create_trainer "Goonies, The" {time 1} {
@@ -7111,4 +7122,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Item: Item 1-8" {dpoke 0xe066 9;poke 0xe067 9;dpoke 0xe068 9;dpoke 0xe069 9;dpoke 0xe06a 9;dpoke 0xe06b 9;dpoke 0xe06c 9;dpoke 0xe06d 9}
 }
 
-# File Created in : 3.245 seconds. 751 trainers -  having 5774 pokes
+# File Created in : 1.606 seconds. 751 trainers -  having 5783 pokes
