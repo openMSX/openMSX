@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1319140408">
+<softwaredb xml:lang="en" timestamp="1319142494">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2218,6 +2218,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><rom><hash algo="sha1">f864f825b2270c3b98b3c04671a3ac5f2d95affa</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Cyborg Z</title>
+	<system>MSX</system>
+	<company>Zemina</company>
+	<year>1991</year>
+	<country>KR</country>
+		<dump><megarom><type>Konami</type><hash algo="sha1">c2e661e9b68a78e5a5fae5ae297b5d964d82491e</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">D-Day</title>
@@ -11959,6 +11967,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2640
-Parse time 7.221 seconds on Thu Oct 20 21:53:35 CEST 2011
+Roms in this database:2641
+Parse time 7.222 seconds on Thu Oct 20 22:28:21 CEST 2011
  -->
