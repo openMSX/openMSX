@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1316979615">
+<softwaredb xml:lang="en" timestamp="1319140408">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2600,6 +2600,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1988</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">87a7fa43602f74c47151e79f1aaf7f641331ba51</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Dr. Hello</title>
+	<system>MSX</system>
+	<company>Sis Co.</company>
+	<year>1991</year>
+	<country>KR</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f5bb3c6d41245271faa3c3f54e3948787e181a5e</hash><remark><text>Slotman/GDX conversion</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Dr. Pill</title>
@@ -11951,6 +11959,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2639
-Parse time 7.340 seconds on Sun Sep 25 21:40:22 CEST 2011
+Roms in this database:2640
+Parse time 7.221 seconds on Thu Oct 20 21:53:35 CEST 2011
  -->
