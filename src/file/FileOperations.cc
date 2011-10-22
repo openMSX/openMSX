@@ -142,7 +142,8 @@ static std::string findShareDir()
 					CFRelease(name);
 					if (cmp == kCFCompareEqualTo) {
 						// Clean up.
-						assert(FSCloseIterator(iterator) == noErr);
+						OSErr closeErr = FSCloseIterator(iterator);
+						assert(closeErr == noErr); (void)closeErr;
 						// Get full path of directory.
 						UInt8 path[256];
 						if (FSRefMakePath(
@@ -155,7 +156,8 @@ static std::string findShareDir()
 				}
 			}
 		}
-		assert(FSCloseIterator(iterator) == noErr);
+		OSErr closeErr = FSCloseIterator(iterator);
+		assert(closeErr == noErr); (void)closeErr;
 		// Are we in the root yet?
 		if (FSCompareFSRefs(&location, &root) == noErr) {
 			throw FatalError("Could not find \"share\" directory anywhere");
