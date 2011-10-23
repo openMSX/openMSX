@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1319142494">
+<softwaredb xml:lang="en" timestamp="1319395380">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
-Copyright 2004-2009 Benoit Delvaux		(Database Administrator)
 Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
+Copyright 2004-2009 BlueMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
 A special thanks to both the blueMSX and openMSX team for their support
@@ -8589,7 +8589,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Metal Soft (Vampier)</company>
 	<year>2011</year>
 	<country>US</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">6ac076f0c5dd09186fef2ebbee2b74221882538f</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6ac076f0c5dd09186fef2ebbee2b74221882538f</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">478a75ad54417b1abf95be7a706d971a0d6cff0f</hash><remark><text>MSX.org Donation</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Pyramid Warp</title>
@@ -11967,6 +11968,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2641
-Parse time 7.222 seconds on Thu Oct 20 22:28:21 CEST 2011
+Roms in this database:2642
+Parse time 7.361 seconds on Sun Oct 23 20:43:07 CEST 2011
  -->

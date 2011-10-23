@@ -1,8 +1,8 @@
 # Cheat definitions - Version 3.2
 #
-# Copyright 2005-2011 Benoit Delvaux all rights reserved
 # Copyright 2005-2011 Albert Beevendorp all rights reserved
 # Copyright 2005-2011 Patrick van Arkel all rights reserved
+# Copyright 2005-2009 BlueMSX Team
 #
 # The definition of cheating according to google:
 # - Defeat someone in an expectation through trickery or deceit
@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2011/10/18
+# Updated @ 2011/10/23
 #
 
 
@@ -7122,4 +7122,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Item: Item 1-8" {dpoke 0xe066 9;poke 0xe067 9;dpoke 0xe068 9;dpoke 0xe069 9;dpoke 0xe06a 9;dpoke 0xe06b 9;dpoke 0xe06c 9;dpoke 0xe06d 9}
 }
 
-# File Created in : 1.606 seconds. 751 trainers -  having 5783 pokes
+# File Created in : 1.414 seconds. 751 trainers -  having 5782 pokes
