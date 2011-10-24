@@ -57,6 +57,8 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
 		romTypeMap["MSXDOS2"]        = ROM_MSXDOS2;
 		romTypeMap["Manbow2"]        = ROM_MANBOW2;
+		romTypeMap["Manbow2_2"]      = ROM_MANBOW2_2;
+		romTypeMap["HamarajaNight"]  = ROM_HAMARAJANIGHT;
 		romTypeMap["MegaFlashRomScc"]= ROM_MEGAFLASHROMSCC;
 		romTypeMap["MatraInk"]       = ROM_MATRAINK;
 		romTypeMap["Arc"]            = ROM_ARC;

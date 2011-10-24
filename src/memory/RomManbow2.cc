@@ -3,6 +3,10 @@
 #include "RomManbow2.hh"
 #include "Rom.hh"
 #include "SCC.hh"
+#include "AY8910.hh"
+#include "AY8910Periphery.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXMotherBoard.hh"
 #include "AmdFlash.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -12,24 +16,65 @@ namespace openmsx {
 
 static unsigned getWriteProtected(RomType type)
 {
-	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC));
-	return (type == ROM_MANBOW2) ? 0x7F  // only last 64kb is writeable
-	                             : 0x00; // fully writeable
+	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC) || (type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT));
+	switch (type) {
+	case ROM_MANBOW2:
+	case ROM_MANBOW2_2:
+		return 0x7F; // only the last 64kb is writeable
+	case ROM_HAMARAJANIGHT:
+		return 0xCF; // only 128kb is writeable
+	default:
+		return 0x00; // fully writeable
+	}
 }
+
+class DummyAY8910Peripehery : public AY8910Periphery
+{
+public:
+	static DummyAY8910Peripehery& instance()
+	{
+		static DummyAY8910Peripehery oneInstance;
+		return oneInstance;
+	}
+
+	virtual byte readA(EmuTime::param /*time*/) { return 255; }
+	virtual byte readB(EmuTime::param /*time*/) { return 255; }
+	virtual void writeA(byte /*value*/, EmuTime::param /*time*/) {}
+	virtual void writeB(byte /*value*/, EmuTime::param /*time*/) {}
+
+private:
+	DummyAY8910Peripehery() {}
+	virtual ~DummyAY8910Peripehery() {}
+};
+
 
 RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
+	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
+			new AY8910(motherBoard, "PSG", DummyAY8910Peripehery::instance(), config,
+			getCurrentTime()) : NULL)
 	, flash(new AmdFlash(motherBoard, *rom,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
 	                     getWriteProtected(type), 0x01A4, config))
 {
 	powerUp(getCurrentTime());
+
+	if (psg.get()) {
+		getMotherBoard().getCPUInterface().register_IO_Out(0x10, this);
+		getMotherBoard().getCPUInterface().register_IO_Out(0x11, this);
+		getMotherBoard().getCPUInterface().register_IO_In (0x12, this);
+	}
 }
 
 RomManbow2::~RomManbow2()
 {
+	if (psg.get()) {
+		getMotherBoard().getCPUInterface().unregister_IO_Out(0x10, this);
+		getMotherBoard().getCPUInterface().unregister_IO_Out(0x11, this);
+		getMotherBoard().getCPUInterface().unregister_IO_In (0x12, this);
+	}
 }
 
 void RomManbow2::powerUp(EmuTime::param time)
@@ -46,6 +91,11 @@ void RomManbow2::reset(EmuTime::param time)
 
 	sccEnabled = false;
 	scc->reset(time);
+
+	if (psg.get()) {
+		psgLatch = 0;
+		psg->reset(time);
+	}
 
 	flash->reset();
 }
@@ -131,6 +181,28 @@ byte* RomManbow2::getWriteCacheLine(word address) const
 	}
 }
 
+byte RomManbow2::readIO(word port, EmuTime::param time)
+{
+	assert((port & 0xFF) == 0x12); (void)port;
+	return psg->readRegister(psgLatch, time);
+}
+
+byte RomManbow2::peekIO(word port, EmuTime::param time) const
+{
+	assert((port & 0xFF) == 0x12); (void)port;
+	return psg->peekRegister(psgLatch, time);
+}
+
+void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
+{
+	if ((port & 0xFF) == 0x10) {
+		psgLatch = value & 0x0F;
+	} else {
+		assert((port & 0xFF) == 0x11);
+		psg->writeRegister(psgLatch, value, time);
+	}
+}
+
 
 template<typename Archive>
 void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
@@ -139,6 +211,9 @@ void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("scc", *scc);
+	if (psg.get()) {
+		ar.serialize("psgLatch", psgLatch);
+	}
 	ar.serialize("flash", *flash);
 	ar.serialize("bank", bank);
 	ar.serialize("sccEnabled", sccEnabled);

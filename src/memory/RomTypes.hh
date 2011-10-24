@@ -87,6 +87,9 @@ enum RomType {
 	ROM_KBDMASTER    = 128 + 3,
 	ROM_NETTOU_YAKYUU= 128 + 4,
 
+	ROM_MANBOW2_2    = 192 + 0,
+	ROM_HAMARAJANIGHT= 192 + 1,
+
 	ROM_UNKNOWN      = 256
 };
 

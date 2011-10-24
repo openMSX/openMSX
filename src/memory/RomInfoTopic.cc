@@ -44,6 +44,8 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_FSA1FM2] = "Panasonic FS-A1FM internal mapper 2";
 	description[ROM_DRAM] = "MSXturboR DRAM";
 	description[ROM_MANBOW2] = "Manbow2";
+	description[ROM_MANBOW2_2] = "Manbow2 - Second Release";
+	description[ROM_HAMARAJANIGHT] = "Best of Hamaraja Night";
 	description[ROM_MEGAFLASHROMSCC] = "Mega Flash ROM SCC";
 	description[ROM_MATRAINK] = "Matra Ink";
 	description[ROM_ARC] = "Parallax' ARC";

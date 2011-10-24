@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class SCC;
+class AY8910;
 class AmdFlash;
 
 class RomManbow2 : public MSXRom
@@ -27,6 +28,10 @@ public:
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	virtual byte readIO(word port, EmuTime::param time);
+	virtual byte peekIO(word port, EmuTime::param time) const;
+	virtual void writeIO(word port, byte value, EmuTime::param time);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
@@ -34,7 +39,9 @@ private:
 	void setRom(unsigned region, unsigned block);
 
 	const std::auto_ptr<SCC> scc;
+	const std::auto_ptr<AY8910> psg;
 	const std::auto_ptr<AmdFlash> flash;
+	byte psgLatch;
 	byte bank[4];
 	bool sccEnabled;
 };

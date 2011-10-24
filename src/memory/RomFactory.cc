@@ -324,6 +324,8 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 		result.reset(new RomFSA1FM2(motherBoard, config, rom));
 		break;
 	case ROM_MANBOW2:
+	case ROM_MANBOW2_2:
+	case ROM_HAMARAJANIGHT:
 	case ROM_MEGAFLASHROMSCC:
 		result.reset(new RomManbow2(
 		                   motherBoard, config, rom, type));
