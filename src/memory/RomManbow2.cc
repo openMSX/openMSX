@@ -4,7 +4,7 @@
 #include "Rom.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
-#include "AY8910Periphery.hh"
+#include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "AmdFlash.hh"
@@ -28,32 +28,13 @@ static unsigned getWriteProtected(RomType type)
 	}
 }
 
-class DummyAY8910Peripehery : public AY8910Periphery
-{
-public:
-	static DummyAY8910Peripehery& instance()
-	{
-		static DummyAY8910Peripehery oneInstance;
-		return oneInstance;
-	}
-
-	virtual byte readA(EmuTime::param /*time*/) { return 255; }
-	virtual byte readB(EmuTime::param /*time*/) { return 255; }
-	virtual void writeA(byte /*value*/, EmuTime::param /*time*/) {}
-	virtual void writeB(byte /*value*/, EmuTime::param /*time*/) {}
-
-private:
-	DummyAY8910Peripehery() {}
-	virtual ~DummyAY8910Peripehery() {}
-};
-
 
 RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
-			new AY8910(motherBoard, "PSG", DummyAY8910Peripehery::instance(), config,
+			new AY8910(motherBoard, "PSG", DummyAY8910Periphery::instance(), config,
 			getCurrentTime()) : NULL)
 	, flash(new AmdFlash(motherBoard, *rom,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
@@ -204,14 +185,16 @@ void RomManbow2::writeIO(word port, byte value, EmuTime::param time)
 }
 
 
+// version 1: initial version
+// version 2: added optional built-in PSG
 template<typename Archive>
-void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
+void RomManbow2::serialize(Archive& ar, unsigned version)
 {
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("scc", *scc);
-	if (psg.get()) {
+	if ((ar.versionAtLeast(version, 2)) && (psg.get())) {
 		ar.serialize("psg", *psg);
 		ar.serialize("psgLatch", psgLatch);
 	}

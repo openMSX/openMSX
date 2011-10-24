@@ -4,7 +4,7 @@
 #include "Rom.hh"
 #include "SCC.hh"
 #include "AY8910.hh"
-#include "AY8910Periphery.hh"
+#include "DummyAY8910Periphery.hh"
 #include "AmdFlash.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
@@ -14,25 +14,6 @@
 #include <vector>
 
 namespace openmsx {
-
-class DummyAY8910Peripehery : public AY8910Periphery
-{
-public:
-	static DummyAY8910Peripehery& instance()
-	{
-		static DummyAY8910Peripehery oneInstance;
-		return oneInstance;
-	}
-
-	virtual byte readA(EmuTime::param /*time*/) { return 255; }
-	virtual byte readB(EmuTime::param /*time*/) { return 255; }
-	virtual void writeA(byte /*value*/, EmuTime::param /*time*/) {}
-	virtual void writeB(byte /*value*/, EmuTime::param /*time*/) {}
-
-private:
-	DummyAY8910Peripehery() {}
-	virtual ~DummyAY8910Peripehery() {}
-};
 
 
 static unsigned sectorSizes[19] = {
@@ -50,7 +31,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "MFR SCC+ SCC-I", config, getCurrentTime(),
 	              SCC::SCC_Compatible))
-	, psg(new AY8910(motherBoard, "MFR SCC+ PSG", DummyAY8910Peripehery::instance(), config,
+	, psg(new AY8910(motherBoard, "MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	                 getCurrentTime()))
 	, flash(new AmdFlash(motherBoard, *rom,
 	                     std::vector<unsigned>(sectorSizes, sectorSizes + 19),

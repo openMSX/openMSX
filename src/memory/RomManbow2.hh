@@ -5,6 +5,7 @@
 
 #include "MSXRom.hh"
 #include "RomTypes.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -45,6 +46,7 @@ private:
 	byte bank[4];
 	bool sccEnabled;
 };
+SERIALIZE_CLASS_VERSION(RomManbow2, 2);
 
 } // namespace openmsx
 
