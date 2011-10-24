@@ -212,6 +212,7 @@ void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("scc", *scc);
 	if (psg.get()) {
+		ar.serialize("psg", *psg);
 		ar.serialize("psgLatch", psgLatch);
 	}
 	ar.serialize("flash", *flash);
