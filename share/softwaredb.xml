@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1319395380">
+<softwaredb xml:lang="en" timestamp="1319492419">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -999,6 +999,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2007</year>
 	<country>US</country>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">908bb09ba2883c3ecdec96ed7e0211ccb05c5018</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Best of Hamaraja Night</title>
+	<system>MSX</system>
+	<company>Sunrise/Pastel Hope</company>
+	<year>2010</year>
+	<country>NL</country>
+		<dump><megarom><type>HamarajaNight</type><hash algo="sha1">30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">BeTiled!</title>
@@ -6396,9 +6404,10 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2007</year>
 	<country>NL</country>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>konamiSCC</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">00a81872d548a7278b8901608bf12e8f79009bee</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">76682263b35e846abca6facf6473ce33f1463794</hash><remark><text>SCC flash cart</text></remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>Manbow2_2</type><hash algo="sha1">c2a2663302c845468dddfe7f4eee8823b7d4bdd6</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Manes</title>
@@ -11968,6 +11977,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2642
-Parse time 7.361 seconds on Sun Oct 23 20:43:07 CEST 2011
+Roms in this database:2644
+Parse time 7.236 seconds on Mon Oct 24 23:40:26 CEST 2011
  -->
