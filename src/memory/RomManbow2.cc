@@ -12,8 +12,6 @@
 #include <cassert>
 #include <vector>
 
-using std::string;
-
 namespace openmsx {
 
 static unsigned getWriteProtected(RomType type)
@@ -30,27 +28,13 @@ static unsigned getWriteProtected(RomType type)
 	}
 }
 
-static string getNameFrom(RomType type)
-{
-	switch (type) {
-	case ROM_MANBOW2:
-		return "";
-	case ROM_MANBOW2_2:
-		return "Manbow 2 ";
-	case ROM_HAMARAJANIGHT:
-		return "Hamaraja Nights ";
-	default:
-		return "";
-	}
-}
-
 
 RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
-	, scc(new SCC(motherBoard, getNameFrom(type) + "SCC", config, getCurrentTime()))
+	, scc(new SCC(motherBoard, getName() + " SCC", config, getCurrentTime()))
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
-	      new AY8910(motherBoard, getNameFrom(type) + "PSG", DummyAY8910Periphery::instance(), config,
+	      new AY8910(motherBoard, getName() + " PSG", DummyAY8910Periphery::instance(), config,
 			 getCurrentTime()) : NULL)
 	, flash(new AmdFlash(motherBoard, *rom,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
