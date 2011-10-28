@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1319492419">
+<softwaredb xml:lang="en" timestamp="1319785042">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1006,7 +1006,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Sunrise/Pastel Hope</company>
 	<year>2010</year>
 	<country>NL</country>
-		<dump><megarom><type>HamarajaNight</type><hash algo="sha1">30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
+		<dump><megarom><type>HamarajaNight</type><hash algo="sha1">b30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">BeTiled!</title>
@@ -10766,14 +10766,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f6711e1e2bac04d45b8988f1d03529ad777abf4e</hash><remark><text>[a1]</text></remark></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">The best off Hamaraja Night</title>
-	<system>MSX</system>
-	<company>Pastel Hope</company>
-	<year>1994</year>
-	<country>JP</country>
-		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">b30b17f28e3a3f981cc48102e5c58151ea3fb05c</hash></megarom></dump>
-</software>
-<software>
 	<title xml:lang="en">The Chess Game</title>
 	<genmsxid>2442</genmsxid>
 	<system>MSX</system>
@@ -11879,6 +11871,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Zaxxon</title>
+	<system>MSX</system>
+	<company>Electric Software</company>
+	<year>1985</year>
+	<country>UK</country>
+		<dump><rom><hash algo="sha1">76cf87f9fb8f70918df1aefb470d82d0caa41175</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Zaxxon</title>
 	<genmsxid>487</genmsxid>
 	<system>MSX</system>
 	<company>Sega</company>
@@ -11978,5 +11978,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2644
-Parse time 7.236 seconds on Mon Oct 24 23:40:26 CEST 2011
+Parse time 7.197 seconds on Fri Oct 28 8:57:29 CEST 2011
  -->
