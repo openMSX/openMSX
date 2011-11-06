@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1319785042">
+<softwaredb xml:lang="en" timestamp="1320594989">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -10208,7 +10208,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">75794b50c0ea8ca33d6ffa8ec3b68eb21c35d0d2</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Super Bio Man 4 / Super Bros.World 1</title>
+	<title xml:lang="en">Super Bio Man 4</title>
 	<genmsxid>3036</genmsxid>
 	<system>MSX</system>
 	<company>Segye-ro Electronics</company>
@@ -10802,6 +10802,15 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">2dacf7a08857cbdc706d24b4a46665113d16ff99</hash></rom></dump>
 		<dump><rom><hash algo="sha1">fa7178686ddf5dd2898c9453d8bb2c0b83984c73</hash><remark><text>[h]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">83fba43371d8d3c50a97c96923e52b40df2a7816</hash><remark><text>Dino Sourcers - Jaleco</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">The Goonies r Good Enough</title>
+	<system>MSX</system>
+	<company>Kralizec</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">d54c4820cf311d9f456bf61873e76a201ef0ff68</hash><remark><text>Muffie Hack</text></remark></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f2592e91c9682570401a0bbcac63464e4221c81b</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Karuizawa Kidnapping Guidance</title>
@@ -11871,14 +11880,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Zaxxon</title>
-	<system>MSX</system>
-	<company>Electric Software</company>
-	<year>1985</year>
-	<country>UK</country>
-		<dump><rom><hash algo="sha1">76cf87f9fb8f70918df1aefb470d82d0caa41175</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Zaxxon</title>
 	<genmsxid>487</genmsxid>
 	<system>MSX</system>
 	<company>Sega</company>
@@ -11977,6 +11978,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2644
-Parse time 7.197 seconds on Fri Oct 28 8:57:29 CEST 2011
+Roms in this database:2645
+Parse time 7.266 seconds on Sun Nov 6 16:56:36 CET 2011
  -->
