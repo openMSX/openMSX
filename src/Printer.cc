@@ -129,7 +129,7 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 		assert(info.stuff == NULL);
 		info.stuff = new IntegerSetting(
 		    motherBoard.getCommandController(), "print-resolution",
-		    "resolution of the ouput image of emulated dot matrix printer in DPI",
+		    "resolution of the output image of emulated dot matrix printer in DPI",
 		    300, 72, 1200);
 	}
 	++info.counter;

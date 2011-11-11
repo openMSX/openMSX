@@ -766,7 +766,7 @@ string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
 	       "Use 'load_machine' to actually load a machine configuration "
 	       "into this new machine.\n"
 	       "The main reason create_machine and load_machine are two "
-	       "seperate commands is that sometimes you already want to know "
+	       "separate commands is that sometimes you already want to know "
 	       "the ID of the machine before load_machine starts emitting "
 	       "events for this machine.";
 }

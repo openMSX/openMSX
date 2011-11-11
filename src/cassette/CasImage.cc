@@ -28,7 +28,7 @@ static const unsigned OUTPUT_FREQUENCY = 2400 * FACTOR / 10;
 // So every sample repeated 4 times.
 static const unsigned AUDIO_OVERSAMPLE = 4;
 
-// number of ouput bytes for silent parts
+// number of output bytes for silent parts
 static const unsigned SHORT_SILENCE = OUTPUT_FREQUENCY * 1; // 1 second
 static const unsigned LONG_SILENCE  = OUTPUT_FREQUENCY * 2; // 2 seconds
 
