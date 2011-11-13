@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1320594989">
+<softwaredb xml:lang="en" timestamp="1321218705">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -10809,8 +10809,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Kralizec</company>
 	<year>2010</year>
 	<country>ES</country>
-		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">d54c4820cf311d9f456bf61873e76a201ef0ff68</hash><remark><text>Muffie Hack</text></remark></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f2592e91c9682570401a0bbcac63464e4221c81b</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d54c4820cf311d9f456bf61873e76a201ef0ff68</hash><remark><text>Muffie Hack</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f2592e91c9682570401a0bbcac63464e4221c81b</hash><remark><text>Unhacked (needs mapper implementation)</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Karuizawa Kidnapping Guidance</title>
@@ -11979,5 +11979,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2645
-Parse time 7.266 seconds on Sun Nov 6 16:56:36 CET 2011
+Parse time 7.194 seconds on Sun Nov 13 22:11:53 CET 2011
  -->
