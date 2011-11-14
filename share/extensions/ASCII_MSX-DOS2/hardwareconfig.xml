@@ -15,7 +15,7 @@
 
       <secondary slot="3">
         <ROM id="MSXDOS2 ROM">
-          <mem base="0x4000" size="0x08000"/>
+          <mem base="0x4000" size="0x04000"/>
           <rom>
             <sha1>42f4e3360eb134857b0efa82c1abedf342680124</sha1>
             <filename>roms/ascii_msxdos22.rom</filename>
