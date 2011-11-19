@@ -1,76 +1,83 @@
-Release Notes for openMSX 0.8.1 (2011-03-12)
+Release Notes for openMSX 0.8.2 (2012-xx-xx)
 ============================================
 
-This release builds on the previous one, in the sense that we worked out the
-features a little more. We added a lot of scripts to help you with Tool
-Assisted Speedruns (TAS), one of the reasons openMSX got officially approved as
-a TAS capable emulator on TASvideos.org. The reverse feature also got some
-updates while doing this.
-For the rest, this release does a lot of smaller fixes and additions, see the
-list below.
+This is mostly a bug fix release with some small improvements.
 
 Here's the list with all highlights:
 
 New or improved emulator features:
-- Quite complete support for TAS (see http://www.tasvideos.org/)
-  - TAS mode with many TAS widgets activated automatically
-  - extended tools: keyboard view per frame, frame reverse/advance, robust
-    frame counter, save slot mechanism, RAM watch, etc.
-- Updates on reverse (and related features):
-  - enabled by default now (except on Dingoo)
-  - changed (default) extensions of replays and savestates to OMR and OMS
-    respectively
-  - added a view only mode to the reverse feature (watch replays without
-    interrupting them)
-  - replays now usually contain multiple snapshots, so you can quickly jump
-    around in a just loaded replay (e.g. to the end!)
-  - huge performance improvements when loading replays/savestates
-  - added filepools to put your software files in; when loading a replay with a
-    file which is not available, openMSX will scan the filepools: default
-    location is share/software
-  - added hover with time indicator on reverse bar
-  - fixed bug when using DirAsDisk in combination with reverse
-  - added step_back function: while debugging step back one instruction
-- Added info topic to query VDP timing information
-- Fixed saving of replays, screenshots, etc., when the directory wasn't
-  available yet
-- Fixed bug in per-soundchip-channel audio recording
-- Fixed auto stereo recording for mbstereo-like configurations (was done in
-  mono)
-- OSD:
-  - Show warning/error messages that were previously only shown on
-    standard-output in an OSD text box
-  - Added gradients for rectangles to make the OSD look more polished
-  - Added border property to OSD rectangle
-- Added script to find cases of too fast VDP access (of which the consequences
-  are not emulated)
-- Added setting to disable sprites and option to make screenshot without
-  sprites (especially useful for map makers!)
-- Added script to record movies in multiple files, especially useful for
-  YouTube (record_chunks)
-- Replaced automatic printing of ROM info (from the software database) with a
-  command to get the info on demand (rom_info)
-- Automatically plug in real joysticks into the MSX
-- Several performance improvements to several toys scripts
+- Debugging: added vdpcmdinprogress_callback setting, which can be used to
+  trigger a script when a write to the VDP command engine registers is detected
+  while there is still a VDP command in progress.
+- Updated all scripts to make full use of Tcl 8.5 (and clean them up in the
+  process)
+- Fixed record_channels command to record to the soundlogs directory
+- Added option to record all channels of all sound chips with record_channels
+- Support in the hardware config XML format for using a single ROM image (i.e.
+  a physical (EP)ROM dump) which is used by several devices
+- Added new sound driver based on libao
+- Laserdisc now also works on the SDL renderer
+- Added horizontal stretch for SDL renderer (useful for Dingoo for instance)
+- OSD menu improvements (mostly useful for hand held users):
+  - added connector submenu
+  - added support for running tapes
+  - added support for horizontal stretch setting
+- Added command line option -replay to load and view a replay and also support
+  dropping replays (OMR files) on openMSX to view them
+- Added command line option -savestate to load a savestate and also support
+  dropping savestates (OMS files) on openMSX to view them
+- Added recognition of .tcl extension as extra start up scripts
+- Make PgUp/PgDn reverse step depend on the speed setting
+- Fix Caps lock behaviour on Mac OS X
+- Added new fantasy machine: Boosted MSX2+ JP, based on Panasonic FS-A1WSX
+- Added basic compiler to Boosted MSX2 EN
+- Allow joystick axis motion events to be bound, as the manual promises
+- Made real joystick support a bit more flexible
+- Add support for MIDI output to a virtual endpoint for Mac OS X
+- Fixed recognition of OMR/OMS files which were re-gzipped
+- Fixed sound quality of blip resampler
+- About command now also shows settings
+- Fixed memory usage issue when using step_back (e.g. via debugger)
+- Greatly improved performance for step_back
+- Sync sound to EmuTime (greatly improves sample playback in e.g. Real Motion
+  and TRAX Player
+- Fixed crash in YM2151 (in Yamaha CX5M)
+- Fixed sample playing in Nettou Yakyuu
+- Fixed 64k ROM mapper detection
 
 MSX device support:
-- Fixed accuracy of mouse emulation
-- Fixed bug in sprite collision detection (sprites can't collide in the border)
-- Better support for keyboard of Brazilian MSX machines
-- Don't emulate Yes/No keys on machines that don't have them
 - Accuracy improvements:
-  - (minor) fixes in MSX-AUDIO, YM2413 (Okazaki) and R800 emulation
-- Added emulation of the Mega Flash ROM SCC+ and ASCII Japanese MSX-DOS2
-- Added emulation of seek delay, head-load and rotational delay on TC8566AF
-  based disk drives
-- Added Sony HB-F5 and CIEL Expert Turbo machine
+  - MSX-MUSIC (YM2413 (Okazaki)): implemented SETTLE (or DUMP) phase
+  - MSX-AUDIO (Y8950): BUF_RDY status bit (for sound quality when playing
+    samples)
+  - MoonSound (YMF278): fixed x-tal frequency and some other details
+- Added support for several laserdisc features to be able to run the Lascommate
+  Junior High School Mathematics LD's, including a dummy Lascom Kanji cartridge
+  implementation
+- Fixed bug (regression in 0.8.1) with sprite colors (visible in Ikari for
+  instance)
+- Fixed regression bug in drum sounds of Okazaki YM2413 emulation
+- Fixed bug in VDP emulation, which was visible in Psycho World's 3x3 power up
+  matrix
+- Fixed bug in Y8950 (MSX-AUDIO) when using NOP Real Motion
+- Fixed Gradiente Expert DDPlus FDC configuration
+- Fixed bug in MoonSound FM 4op mode
+- Added emulation of the following mapper types:
+  - Baby Dinosaur Dooly
+  - Manbow 2 2nd release
+  - Best of Hamaraja Night
+- Added emulation of memory based I/O for MSX RS-232C, making emulation of Sony
+  HBI-232 possible
+- Added Sony HB-F9S and Sony HB-G900P machine
 
 Build system, packaging, documentation:
-- Updates of libraries used in the static builds
-- Windows binary built with Visual Studio 2010
-- Basic (experimental) support for cross compilation of Windows 32 bit binaries
-  from Linux (using MinGW)
-- Updated C-BIOS to 0.25, with support for various localized machines
+- Upgraded Tcl dependency to Tcl 8.5
+- Upgraded 3rd party libs
+- Optional additional dependency on libao
+- Added support for the Clang compiler
+- Make our ARM inline asm routines compile in Thumb2 mode
+- Moved Dingux port to OpenDingux: openMSX now only compiles for OpenDingux
+- Added lto flavour to enable Link-Time Optimization
 
 And of course the usual various bug fixes.
 
