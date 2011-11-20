@@ -939,6 +939,7 @@ void MSXCPUInterface::doBreak()
 	assert(!isFastForward());
 	if (breaked) return;
 	breaked = true;
+	msxcpu.exitCPULoopSync();
 
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.block();
