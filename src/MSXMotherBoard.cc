@@ -41,6 +41,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "ScopedAssign.hh"
 #include "unreachable.hh"
 #include "ref.hh"
 #include <cassert>
@@ -76,7 +77,7 @@ public:
 	const string& getMachineName() const;
 
 	bool execute();
-	void fastForward(EmuTime::param time);
+	void fastForward(EmuTime::param time, bool fast);
 	void exitCPULoopAsync();
 	void exitCPULoopSync();
 	void pause();
@@ -85,6 +86,7 @@ public:
 	void doReset();
 	void activate(bool active);
 	bool isActive() const;
+	bool isFastForwarding() const;
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
@@ -207,6 +209,7 @@ private:
 
 	bool powered;
 	bool active;
+	bool fastForwarding;
 };
 
 
@@ -331,6 +334,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)
+	, fastForwarding(false)
 {
 	self.pimple.reset(this);
 
@@ -674,13 +678,14 @@ bool MSXMotherBoardImpl::execute()
 	return true;
 }
 
-void MSXMotherBoardImpl::fastForward(EmuTime::param time)
+void MSXMotherBoardImpl::fastForward(EmuTime::param time, bool fast)
 {
 	assert(powered);
 	assert(getMachineConfig());
 
 	if (time <= getCurrentTime()) return;
 
+	ScopedAssign<bool> sa(fastForwarding, fast);
 	realTime->disable();
 	msxMixer->mute();
 	fastForwardHelper->setTarget(time);
@@ -814,6 +819,10 @@ void MSXMotherBoardImpl::activate(bool active_)
 bool MSXMotherBoardImpl::isActive() const
 {
 	return active;
+}
+bool MSXMotherBoardImpl::isFastForwarding() const
+{
+	return fastForwarding;
 }
 
 void MSXMotherBoardImpl::exitCPULoopAsync()
@@ -1265,9 +1274,9 @@ bool MSXMotherBoard::execute()
 {
 	return pimple->execute();
 }
-void MSXMotherBoard::fastForward(EmuTime::param time)
+void MSXMotherBoard::fastForward(EmuTime::param time, bool fast)
 {
-	return pimple->fastForward(time);
+	return pimple->fastForward(time, fast);
 }
 void MSXMotherBoard::exitCPULoopAsync()
 {
@@ -1292,6 +1301,10 @@ void MSXMotherBoard::activate(bool active)
 bool MSXMotherBoard::isActive() const
 {
 	return pimple->isActive();
+}
+bool MSXMotherBoard::isFastForwarding() const
+{
+	return pimple->isFastForwarding();
 }
 byte MSXMotherBoard::readIRQVector()
 {

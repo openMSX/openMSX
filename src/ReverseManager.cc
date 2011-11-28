@@ -467,7 +467,7 @@ void ReverseManager::goTo(
 
 		// -- goto correct time within snapshot --
 		// fast forward 2 frames before target time
-		newBoard->fastForward(preTarget);
+		newBoard->fastForward(preTarget, true);
 
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
@@ -478,7 +478,7 @@ void ReverseManager::goTo(
 
 		// Fast forward to actual target time with board activated.
 		// This makes sure the video output gets rendered.
-		newBoard->fastForward(targetTime);
+		newBoard->fastForward(targetTime, false);
 
 		// In case we didn't actually create a new board, don't leave
 		// the (old) board muted.

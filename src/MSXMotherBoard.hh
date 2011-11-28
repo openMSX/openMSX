@@ -58,7 +58,7 @@ public:
 
 	/** Run emulation until a certain time in fast forward mode.
 	 */
-	void fastForward(EmuTime::param time);
+	void fastForward(EmuTime::param time, bool fast);
 
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();
@@ -73,6 +73,7 @@ public:
 
 	void activate(bool active);
 	bool isActive() const;
+	bool isFastForwarding() const;
 
 	byte readIRQVector();
 
