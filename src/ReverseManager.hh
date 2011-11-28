@@ -83,7 +83,8 @@ private:
 	
 	EmuTime::param getEndTime(const ReverseHistory& history) const;
 	void goTo(EmuTime::param targetTime, bool novideo);
-	void goTo(EmuTime::param targetTime, bool novideo, ReverseHistory& history);
+	void goTo(EmuTime::param targetTime, bool novideo,
+	          ReverseHistory& history, bool sameTimeLine);
 	void transferHistory(ReverseHistory& oldHistory,
 	                     unsigned oldEventCount);
 	void transferState(MSXMotherBoard& newBoard);

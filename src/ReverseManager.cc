@@ -358,10 +358,12 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo)
 			"Reverse was not enabled. First execute the 'reverse "
 			"start' command to start collecting data.");
 	}
-	goTo(target, novideo, history); // move in current time-line
+	goTo(target, novideo, history, true); // move in current time-line
 }
 
-void ReverseManager::goTo(EmuTime::param target, bool novideo, ReverseHistory& history)
+void ReverseManager::goTo(
+	EmuTime::param target, bool novideo, ReverseHistory& history,
+	bool sameTimeLine)
 {
 	MSXMixer& mixer = motherBoard.getMSXMixer();
 	try {
@@ -414,11 +416,15 @@ void ReverseManager::goTo(EmuTime::param target, bool novideo, ReverseHistory& h
 		//   - OR current time is close enough (I arbitrarily choose 1s)
 		// THEN it's cheaper to start from the current position (and
 		//      emulated forward) than to start from a snapshot
+		// THOUGH only when we're currently in the same time-line
+		//   e.g. OK for a 'reverse goto' command, but not for a
+		//   'reverse loadreplay' command.
 		Reactor& reactor = motherBoard.getReactor();
 		EmuTime currentTime = getCurrentTime();
 		MSXMotherBoard* newBoard;
 		Reactor::Board newBoard_; // either NULL or the same as newBoard
-		if ((currentTime <= preTarget) &&
+		if (sameTimeLine &&
+		    (currentTime <= preTarget) &&
 		    ((snapshotTime <= currentTime) ||
 		     ((preTarget - currentTime) < EmuDuration(1.0)))) {
 			newBoard = &motherBoard; // use current board
@@ -725,7 +731,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	// ReverseManager/MSXMotherBoard yet
 	reRecordCount = newReverseManager.reRecordCount;
 	bool novideo = false;
-	goTo(destination, novideo, newHistory);
+	goTo(destination, novideo, newHistory, false); // move to different time-line
 
 	result.setString("Loaded replay from " + filename);
 }
