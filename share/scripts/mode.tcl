@@ -54,6 +54,9 @@ proc enter_tas_mode {} {
 	if {![osd exists framecount]} {
 		toggle_frame_counter
 	}
+	if {![osd exists lag_counter]} {
+		toggle_lag_counter
+	}
 	if {![osd exists cursors]} {
 		toggle_cursors
 	}
@@ -73,6 +76,9 @@ proc enter_tas_mode {} {
 }
 
 proc leave_tas_mode {} {
+	if {[osd exists lag_counter]} {
+		toggle_lag_counter
+	}
 	if {[osd exists framecount]} {
 		toggle_frame_counter
 	}

@@ -498,6 +498,68 @@ proc ram_watch_tabcompletion {args} {
 	}
 }
 
+### Lag counter ###
+
+variable lag_counter 0
+variable lag_counter_wp
+variable previous_frame_count 0
+variable input_read_in_frame false
+
+proc space_read {} {
+	variable input_read_in_frame
+	set input_read_in_frame true
+}
+
+proc toggle_lag_counter {} {
+	variable lag_counter
+	variable lag_counter_wp
+
+	if {[osd exists lag_counter]} {
+		osd destroy lag_counter
+		debug remove_watchpoint $lag_counter_wp
+		return ""
+	}
+	set lag_counter 0
+
+	set lag_counter_wp [debug set_watchpoint read_io 0xa9 {[expr [debug read ioports 0xaa] & 0x0f] == 0x08} {tas::space_read}]
+
+	osd create rectangle lag_counter \
+		-x 269 -y 213 -h 10 -w 50 -scaled true \
+		-borderrgba 0x00000040 -bordersize 0.5
+	osd create text lag_counter.text -x 3 -y 2 -size 4 -rgba 0xffffffff
+	update_lag_counter
+	return ""
+}
+
+proc update_lag_counter {} {
+	variable lag_counter
+	variable previous_frame_count
+	variable input_read_in_frame
+
+	if {![osd exists lag_counter]} return
+
+	set new_frame_count [machine_info VDP_frame_count]
+	if {$new_frame_count == 1} {
+		# reset lag counter if frame counter is reset (e.g. after reset, or loading replay)
+		set lag_counter 0
+	}
+	# GFX9000 also triggers frame ends, so we should check if we
+	# actually advanced a V99x8 frame here
+	if { $previous_frame_count != $new_frame_count } {
+		set previous_frame_count $new_frame_count
+
+		set col [expr {!$input_read_in_frame ? 0xff000080 : "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"}]
+		osd configure lag_counter -rgba $col
+
+		if {!$input_read_in_frame} {
+			incr lag_counter
+			osd configure lag_counter.text -text "Lag frames: $lag_counter"
+		} else {
+			set input_read_in_frame false
+		}
+	}
+	after frame [namespace code update_lag_counter]
+}
 
 namespace export toggle_frame_counter
 namespace export advance_frame
@@ -505,6 +567,7 @@ namespace export reverse_frame
 namespace export enable_tas_mode
 namespace export toggle_cursors
 namespace export ram_watch
+namespace export toggle_lag_counter
 }
 
 namespace import tas::*
