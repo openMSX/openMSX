@@ -402,6 +402,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 			elif platform == 'pandora':
 				distroRoot = environ.get('LIBTOOL_SYSROOT_PATH')
 				if distroRoot is not None:
+					distroRoot += '/usr'
 					print 'Using libraries from sysroot directory %s.' \
 						% distroRoot
 
