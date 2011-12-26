@@ -208,8 +208,10 @@ proc update_reversebar {} {
 		}
 		"replaying" {
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
+			osd configure reverse.int.text -rgba 0xffffffff
 		}
 		"enabled" {
+			osd configure reverse.int.text -rgba 0xff4040ff
 			if {$mouseInside} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
