@@ -157,11 +157,16 @@ void MSXMixer::setSynchronousMode(bool synchronous)
 	// TODO ATM synchronous is not used anymore
 	if (synchronous) {
 		++synchronousCounter;
+		if (synchronousCounter == 1) {
+			setMixerParams(fragmentSize, hostSampleRate);
+		}
 	} else {
 		assert(synchronousCounter > 0);
 		--synchronousCounter;
+		if (synchronousCounter == 0) {
+			setMixerParams(fragmentSize, hostSampleRate);
+		}
 	}
-	setMixerParams(fragmentSize, hostSampleRate);
 }
 
 double MSXMixer::getEffectiveSpeed() const
@@ -556,7 +561,16 @@ void MSXMixer::update(const Setting& setting)
 	if (&setting == &masterVolume) {
 		updateMasterVolume();
 	} else if (&setting == &speedSetting) {
-		setMixerParams(fragmentSize, hostSampleRate);
+		if (synchronousCounter == 0) {
+			setMixerParams(fragmentSize, hostSampleRate);
+		} else {
+			// Avoid calling reInit() while recording because
+			// each call causes a small hiccup in the sound (and
+			// while recording this call anyway has no effect).
+			// This was noticable while sliding the speed slider
+			// in catapult (becuase this causes many changes in
+			// the speed setting).
+		}
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() &&
