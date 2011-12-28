@@ -287,10 +287,32 @@ public:
 		return *horTiming;
 	}
 
+	/** Get the number of VDP clockticks between the start of the line and
+	  * the end of the left border.
+	  */
+	inline int getLeftBorder() const {
+		return horTiming->blank + horTiming->border1 +
+		       (((regs[DISPLAY_ADJUST] & 0x0F) ^ 7) - 8) * 8;
+	}
+	/** Get the number of VDP clockticks between the start of the line and
+	  * the end of the right border.
+	  */
+	inline int getRightBorder() const {
+		return getLeftBorder() + horTiming->display;
+	}
+
 	/** Get vertical display timings
 	 */
 	inline const V9990DisplayPeriod& getVerticalTiming() const {
 		return *verTiming;
+	}
+
+	inline int getTopBorder() const {
+		return verTiming->blank + verTiming->border1 +
+		       (((regs[DISPLAY_ADJUST] >> 4) ^ 7) - 8);
+	}
+	inline int getBottomBorder() const {
+		return getTopBorder() + verTiming->display;
 	}
 
 	inline unsigned getPriorityControlX() const {

@@ -254,12 +254,10 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 		break;
 
 	case STATUS: {
-		const V9990DisplayPeriod& hor = getHorizontalTiming();
-		const V9990DisplayPeriod& ver = getVerticalTiming();
-		unsigned left   = hor.blank + hor.border1;
-		unsigned right  = left + hor.display;
-		unsigned top    = ver.blank + ver.border1;
-		unsigned bottom = top + ver.display;
+		unsigned left   = getLeftBorder();
+		unsigned right  = getRightBorder();
+		unsigned top    = getTopBorder();
+		unsigned bottom = getBottomBorder();
 		unsigned ticks = getUCTicksThisFrame(time);
 		unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 		unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
@@ -623,6 +621,10 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 		case SCROLL_CONTROL_BX1:
 			renderer->updateScrollBX(time);
 			break;
+		case DISPLAY_ADJUST:
+			// TODO verify on real V9990: when exactly does a
+			//  change in horizontal/vertical adjust take place
+			break;
 	}
 	// commit the change
 	regs[reg] = val;
@@ -695,16 +697,14 @@ void V9990::frameStart(EmuTime::param time)
 		V9990_VSYNC);
 
 	// schedule DISPLAY_START
-	int topBorder = getVerticalTiming().blank + getVerticalTiming().border1;
 	setSyncPoint(
-	        frameStartTime + topBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        V9990_DISPLAY_START);
+	    frameStartTime + getTopBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE,
+	    V9990_DISPLAY_START);
 
 	// schedule VSCAN
-	int bottomBorder = topBorder + getVerticalTiming().display;
 	setSyncPoint(
-	        frameStartTime + bottomBorder * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	        V9990_VSCAN);
+	    frameStartTime + getBottomBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE,
+	    V9990_VSCAN);
 
 	renderer->frameStart(time);
 }
@@ -846,7 +846,7 @@ void V9990::scheduleHscan(EmuTime::param time)
 		offset = ticks - (ticks % V9990DisplayTiming::UC_TICKS_PER_LINE);
 	} else {
 		int line = regs[INTERRUPT_1] + 256 * (regs[INTERRUPT_2] & 3) +
-		           getVerticalTiming().blank + getVerticalTiming().border1;
+		           getTopBorder();
 		offset = line * V9990DisplayTiming::UC_TICKS_PER_LINE;
 	}
 	int mult = (status & 0x04) ? 3 : 2; // MCLK / XTAL1

@@ -95,8 +95,7 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 	accuracy = renderSettings.getAccuracy().getValue();
 	lastX = 0;
 	lastY = 0;
-	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
-	verticalOffsetA = verticalOffsetB = verTiming.blank + verTiming.border1;
+	verticalOffsetA = verticalOffsetB = vdp.getTopBorder();
 
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp.getDisplayMode(), time);
@@ -143,8 +142,6 @@ void V9990PixelRenderer::sync(EmuTime::param time, bool force)
 
 void V9990PixelRenderer::renderUntil(EmuTime::param time)
 {
-	const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
-
 	// Translate time to pixel position
 	int limitTicks = vdp.getUCTicksThisFrame(time);
 	assert(limitTicks <=
@@ -170,8 +167,8 @@ void V9990PixelRenderer::renderUntil(EmuTime::param time)
 	if ((toX == lastX) && (toY == lastY)) return;
 
 	// edges of the DISPLAY part of the vdp output
-	int left       = horTiming.blank + horTiming.border1;
-	int right      = left   + horTiming.display;
+	int left       = vdp.getLeftBorder();
+	int right      = vdp.getRightBorder();
 	int rightEdge  = V9990DisplayTiming::UC_TICKS_PER_LINE;
 
 	if (displayEnabled) {
@@ -232,10 +229,8 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 	} else {
 		assert(type == DRAW_DISPLAY);
 
-		const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
-		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
-		int displayX  = fromX - horTiming.blank - horTiming.border1;
-		int displayY  = fromY - verTiming.blank - verTiming.border1;
+		int displayX  = fromX - vdp.getLeftBorder();
+		int displayY  = fromY - vdp.getTopBorder();
 		int displayYA = fromY - verticalOffsetA;
 		int displayYB = fromY - verticalOffsetB;
 
