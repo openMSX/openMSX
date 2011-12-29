@@ -25,20 +25,25 @@ EXEEXT:=
 # I don't know why, but the linker suggests this.
 LINK_FLAGS+=-bind_at_load
 
-# Select the SDK for the OS X version we want to be compatible with.
+# Select the OS X version we want to be compatible with.
 # TODO: When compiling an executable for local use, we could pick the OS X
 #       version we are running on instead of the oldest version we support.
 #       But at the moment I don't want to make this more complex than it
 #       already is.
 ifeq ($(OPENMSX_TARGET_CPU),x86_64)
-SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
 OSX_VER:=10.6
 OSX_MIN_REQ:=1060
 else
-SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 OSX_VER:=10.4
 OSX_MIN_REQ:=1040
 endif
+
+# Select the SDK to use. This can be higher than the OS X minimum version.
+# Note: Xcode 4.2 does not include PPC support in all of its dylibs, so when
+#       building a PPC/universal binary we must use the SDK from Xcode 3.
+#       If you have Xcode 3 installed in its default location (/Developer),
+#       please remove the "Xcode3" part of the SDK_PATH definition below.
+SDK_PATH:=/Developer/Xcode3/SDKs/MacOSX10.6.sdk
 
 # Compile against the SDK for the selected minimum OS X version.
 COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
@@ -47,16 +52,15 @@ TARGET_FLAGS+=-D__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__=$(OSX_MIN_REQ)
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
 
-# The GCC version depends on the SDK we use: even if a more recent GCC
-# is installed, we cannot use it if the SDK lacks the headers for it.
-ifeq ($(OSX_VER),10.4)
-CXX:=g++-4.0
-else
-ifeq ($(OSX_VER),10.6)
+# Select an appropriate GCC version.
+ifeq ($(OPENMSX_TARGET_CPU),x86_64)
 CXX:=g++-4.2
 else
-$(error No idea which GCC to use for OS X $(OSX_VER))
-endif
+# GCC from Xcode 4.2 fails to link PPC binaries, so use GCC from Xcode 3.
+# GCC 4.2 on PPC and x86 uses a ridiculous amount of memory (about 7 GB)
+# and will therefore never finish in a reasonable amount of time if the build
+# machine has 4 GB of memory or less. GCC 4.0 does not have this problem.
+CXX:=$(SDK_PATH)/../../usr/bin/g++-4.0
 endif
 
 ifeq ($(filter 3RD_%,$(LINK_MODE)),)
