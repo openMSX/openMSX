@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "Joystick.hh"
+#include "JoyMega.hh"
 #include "ArkanoidPad.hh"
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
@@ -61,6 +62,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick2"));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
+	                      controller);
+	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 
 	// Dongles

@@ -9,7 +9,7 @@ SRC_HDR:= \
 	JoystickPort \
 	JoystickDevice \
 	DummyJoystick \
-	Joystick \
+	Joystick JoyMega \
 	KeyJoystick \
 	SETetrisDongle \
 	MagicKey \
