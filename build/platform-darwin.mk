@@ -31,11 +31,9 @@ LINK_FLAGS+=-bind_at_load
 #       But at the moment I don't want to make this more complex than it
 #       already is.
 ifeq ($(OPENMSX_TARGET_CPU),x86_64)
-OSX_VER:=10.6
-OSX_MIN_REQ:=1060
+OSX_MIN_VER:=10.6
 else
-OSX_VER:=10.4
-OSX_MIN_REQ:=1040
+OSX_MIN_VER:=10.4
 endif
 
 # Select the SDK to use. This can be higher than the OS X minimum version.
@@ -50,9 +48,9 @@ SDK_PATH:=/Developer/Xcode3/SDKs/MacOSX10.6.sdk
 endif
 
 # Compile against the SDK for the selected minimum OS X version.
-COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
-LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
-TARGET_FLAGS+=-D__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__=$(OSX_MIN_REQ)
+COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_MIN_VER)
+LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_MIN_VER)
+TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
 
