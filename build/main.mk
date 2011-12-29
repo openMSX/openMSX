@@ -316,7 +316,7 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   LD:=ld
   DEPEND_FLAGS+=-MP
 else
-ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
+ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
   # Stricter warning and error reporting.
