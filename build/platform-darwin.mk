@@ -21,10 +21,6 @@ endif
 # File name extension of executables.
 EXEEXT:=
 
-# Bind when executable is loaded, rather then when symbols are accessed.
-# I don't know why, but the linker suggests this.
-LINK_FLAGS+=-bind_at_load
-
 # Select the OS X version we want to be compatible with.
 # TODO: When compiling an executable for local use, we could pick the OS X
 #       version we are running on instead of the oldest version we support.
