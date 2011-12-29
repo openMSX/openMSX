@@ -39,11 +39,15 @@ OSX_MIN_REQ:=1040
 endif
 
 # Select the SDK to use. This can be higher than the OS X minimum version.
+ifeq ($(OPENMSX_TARGET_CPU),x86_64)
+SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
+else
 # Note: Xcode 4.2 does not include PPC support in all of its dylibs, so when
 #       building a PPC/universal binary we must use the SDK from Xcode 3.
 #       If you have Xcode 3 installed in its default location (/Developer),
 #       please remove the "Xcode3" part of the SDK_PATH definition below.
 SDK_PATH:=/Developer/Xcode3/SDKs/MacOSX10.6.sdk
+endif
 
 # Compile against the SDK for the selected minimum OS X version.
 COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
