@@ -35,6 +35,7 @@ OSX_MIN_VER:=10.6
 else
 OSX_MIN_VER:=10.4
 endif
+TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 
 # Select the SDK to use. This can be higher than the OS X minimum version.
 ifeq ($(OPENMSX_TARGET_CPU),x86_64)
@@ -46,11 +47,6 @@ else
 #       please remove the "Xcode3" part of the SDK_PATH definition below.
 SDK_PATH:=/Developer/Xcode3/SDKs/MacOSX10.6.sdk
 endif
-
-# Compile against the SDK for the selected minimum OS X version.
-COMPILE_ENV+=MACOSX_DEPLOYMENT_TARGET=$(OSX_MIN_VER)
-LINK_ENV+=MACOSX_DEPLOYMENT_TARGET=$(OSX_MIN_VER)
-TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
 # Select an appropriate GCC version.
