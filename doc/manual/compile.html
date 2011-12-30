@@ -167,8 +167,14 @@ Version 4.1 or later is recommended; any version lower than 3.4 will not be able
 <h5>Mac OS X</h5>
 
 <p>
-Install the Xcode Tools from Apple, which you can find on the Mac OS X installation DVD. Alternatively, you can download it from the <a class="external" href="http://connect.apple.com/">Apple Developer Connection</a> (free registration required).
-The Xcode Tools package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.6 (Snow Leopard), make sure you also install support for compiling for Mac OS X 10.4 (Tiger), which is an optional component.
+Install Xcode from Apple, which you can find on the Mac OS X installation DVD or download from the <a class="external" href="http://developer.apple.com/support/xcode/">Apple Developer Connection</a> (free registration required).
+The Xcode package contains up-to-date versions of Make, GCC and SVN. Make sure you also install support for compiling for Mac OS X 10.4 (Tiger), which is an optional component.
+</p>
+<p>
+If you want to do a 64-bit Intel build, you can use either Xcode 3 or 4. If you want to do a universal build or a 32-bit Intel or PowerPC build, you need Xcode 3. If you already have Xcode 4 installed, install Xcode 3 into a separate directory, for example <code>/Developer/Xcode3</code>; this allows version 3 and 4 to co-exist.
+</p>
+<p>
+By default openMSX assumes Xcode 4 installed in <code>/Developer</code> and Xcode 3 installed in <code>/Developer/Xcode3</code>. If the installation paths you used are different, please modify <code>SDK_PATH</code> in <code>build/platform-darwin.mk</code> in the openMSX source tree accordingly.
 </p>
 
 <h5>Microsoft Windows</h5>
