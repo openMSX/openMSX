@@ -75,7 +75,8 @@ New or improved emulator features:
   - Support in the hardware config XML format for using a single ROM image (i.e.
     a physical (EP)ROM dump) which is used by several devices
   - Make PgUp/PgDn reverse step depend on the speed setting
-  - About command now also shows settings
+  - Reverse bar now indicates recording (red) and replaying state
+  - The 'about' console command can now also be used to find settings
   - Fixed 64k ROM mapper detection
 
 Build system, packaging, documentation:
