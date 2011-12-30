@@ -1777,7 +1777,7 @@
 
   <h3><a id="record_channels">record_channels</a></h3>
 
-  <p>A high level command to record individual channels of sound chips to separate files. In the following variants of the command you can specify devices and channels. Multiple devices can be specified and multiple channels as well. If you want to specify channels of a device, put them right after the device.</p>
+  <p>A high level command to record individual channels of sound chips to separate files. In the following variants of the command you can specify devices and channels. Multiple devices can be specified and multiple channels as well. If you want to specify channels of a device, put them right after the device. You can also specify <code>all</code> for the device, which means that all sound devices in the currently running MSX will be recorded. When starting recording, an option <code>-prefix</code> can be given to specify a filename prefix.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1785,7 +1785,7 @@
 
   <table>
     <tr>
-      <td><code>record_channels [start] &lt;device&gt; [&lt;channels&gt;] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+      <td><code>record_channels [start] &lt;device&gt; [&lt;channels&gt;] [&lt;device&gt; [&lt;channels&gt;]] [-prefix &lt;prefix&gt;]</code></td>
 
       <td>Start recording the specified channel(s) of the specified device(s). If no channels are given, all channels of the device are recorded. </td>
     </tr>
@@ -1794,6 +1794,12 @@
       <td><code>record_channels stop [&lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
 
       <td>Stop recording the specified channel(s) of the specified device(s). If no channels are given, recording for all channels is stopped for the given device(s). If no devices are given, all channel recording is stopped.</td>
+    </tr>
+
+    <tr>
+      <td><code>record_channels all -prefix justtesting</code></td>
+
+      <td>Record all channels of all sound devices and create the file names with prefix 'justtesting' (e.g. to quickly delete all these files again).</td>
     </tr>
 
     <tr>
