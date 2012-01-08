@@ -33,7 +33,11 @@ MSX device support:
 New or improved emulator features:
 - Video output:
   - Faster laserdisc rendering
-  - Added horizontal stretch for SDL renderer (useful for Dingoo for instance)
+  - Added horizontal stretch for SDL renderer (useful for Dingoo for instance).
+    As horizontal stretching is enabled by default, the CPU usage of openMSX
+    when using the SDL renderer will now be higher than before. Set
+    horizontal_stretch to 320 to disable it and gain some performance (but have
+    a less accurate aspect ratio of the screen).
 - Sound generation:
   - Sync sound to EmuTime (greatly improves sample playback in e.g. Real Motion
     and TRAX Player
