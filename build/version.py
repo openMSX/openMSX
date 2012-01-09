@@ -43,7 +43,12 @@ def extractSVNGitRevision(log):
 		log, 'git log -n 100', r'\s*git-svn-id:.*@(\d+)'
 		)
 
+_cachedRevision = False # because None is a valid result
+
 def extractRevision():
+	global _cachedRevision
+	if _cachedRevision is not False:
+		return _cachedRevision
 	if not isdir('derived'):
 		makedirs('derived')
 	log = open('derived/version.log', 'w')
@@ -56,6 +61,7 @@ def extractRevision():
 		print >> log, 'Revision number: %s' % revision
 	finally:
 		log.close()
+	_cachedRevision = revision
 	return revision
 
 def extractRevisionNumber():
