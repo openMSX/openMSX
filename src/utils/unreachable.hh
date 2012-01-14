@@ -3,7 +3,11 @@
 #ifndef UNREACHABLE_HH
 #define UNREACHABLE_HH
 
-#if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))) && defined(NDEBUG)
+// GCC targetting MIPS will generate bad code when marking certain code as
+// unreachable. This is very noticable in SDLVideoSystem::getWindowSize(),
+// which does not seem to write the output arguments, making openMSX fail
+// the creation of an SDL video mode since the requested size is rubbish.
+#if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))) && defined(NDEBUG) && !defined(__mips__)
 
 // __builtin_unreachable() was introduced in gcc-4.5
 #define UNREACHABLE __builtin_unreachable()
