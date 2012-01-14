@@ -33,6 +33,7 @@ HDR_ONLY:= \
 	SoundDriver \
 	ResampleAlgo \
 	YM2413Core \
+	DummyAY8910Periphery
 
 SRC_HDR_$(COMPONENT_AO)+= \
 	LibAOSoundDriver
