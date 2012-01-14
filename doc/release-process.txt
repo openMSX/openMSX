@@ -10,7 +10,6 @@ Preparing for a release
 
 - Tell all developers to commit only fixes.
 - Sync with most recent C-BIOS release.
-- Update libraries in the 3rd party build system to latest versions.
 - Check that the "staticbindist" build still works, in particular on win32 and
   Mac OS X universal (default is native!).
 - Verify the documentation is up-to-date.
@@ -108,3 +107,6 @@ Finally:
 - Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
+- Update libraries in the 3rd party build system to latest versions, so that
+  next release will profit from this and you won't forget it. Just before the
+  release is too late (unless it's some minor security fix)!
