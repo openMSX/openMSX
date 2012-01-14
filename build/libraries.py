@@ -269,6 +269,10 @@ class LibAO(Library):
 	function = 'ao_open_live'
 
 	@classmethod
+	def isSystemLibrary(cls, platform):
+		return platform in ('dingux',)
+
+	@classmethod
 	def getSystemDependentFlags(cls, platform):
 		if platform in ('linux', 'dingux'):
 			return ('-ldl', )
