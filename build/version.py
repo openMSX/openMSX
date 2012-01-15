@@ -13,7 +13,7 @@ packageName = 'openmsx'
 # Version number.
 packageVersionNumber = '0.8.2'
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = '-rc2'
+packageVersionSuffix = '-rc3'
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
