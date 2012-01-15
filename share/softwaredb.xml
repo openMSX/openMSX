@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1323025274">
+<softwaredb xml:lang="en" timestamp="1326650172">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5300,6 +5300,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">0b3a217d3278a43d7460136f955171c762a1f8e5</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">JumpinG - The tutorial game</title>
+	<system>MSX</system>
+	<company>Dimension Z</company>
+	<year>2011</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a0643d70c853d667eb680c82b9b5f0a2322a7809</hash><remark><text>Demo Version / MSXDev11 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Jumping Rabbit</title>
 	<genmsxid>175</genmsxid>
 	<system>MSX</system>
@@ -5468,6 +5476,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">38a103e540eb5fbe2627fab2991bda08092635e0</hash><remark><text>[b]</text></remark></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">6d3008b97b48d99522e45056f52ed944e3d8e208</hash></megarom></dump>
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">11f1b9fda9a44f59a6de479aebc18fbc6347f5a7</hash><remark><text>Ulver crack</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">KillMice</title>
+	<system>MSX</system>
+	<company>AG Software</company>
+	<year>2011</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5bf2b21a9b97e744cef71f2f6e9cacbbf695f3f6</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Kinasai</title>
@@ -11979,6 +11995,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2646
-Parse time 7.181 seconds on Sun Dec 4 20:01:21 CET 2011
+Roms in this database:2648
+Parse time 6.826 seconds on Sun Jan 15 18:56:19 CET 2012
  -->
