@@ -3,10 +3,10 @@
 #ifndef UNREACHABLE_HH
 #define UNREACHABLE_HH
 
-// GCC targetting MIPS will generate bad code when marking certain code as
-// unreachable. This is very noticable in SDLVideoSystem::getWindowSize(),
-// which does not seem to write the output arguments, making openMSX fail
-// the creation of an SDL video mode since the requested size is rubbish.
+// GCC targeting MIPS will generate bad code when marking certain code as
+// unreachable. This is very noticeable in SDLVideoSystem::getWindowSize(),
+// which does not seem to write the output arguments, making openMSX fail the
+// creation of an SDL video mode since the requested size is rubbish.
 //
 // This compiler bug has been reported as:
 //    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51861
@@ -19,8 +19,8 @@
 //
 // For openMSX, this UNREACHABLE-optimization is not very important (it does
 // improve speed/code-size, but not in very critical locations). So we decided
-// to only enable this optimization starting from gcc-4.7 or from gcc-4.5 for
-// a few white-listed architectures that we know don't use delay slots.
+// to only enable this optimization starting from gcc-4.7 or from gcc-4.5 for a
+// few white-listed architectures that we know don't use delay slots.
 
 #if defined(NDEBUG)
   // __builtin_unreachable() was introduced in gcc-4.5
@@ -37,7 +37,7 @@
     #define UNREACHABLE __assume(0)
 
   #else
-    // falback
+    // fall-back
     #define UNREACHABLE /*nothing*/
 
   #endif
