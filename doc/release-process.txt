@@ -102,8 +102,7 @@ Announce:
 - Post news item on web site.
 
 Finally:
-- Put "Released openmsx-1.2.3." entry in the ChangeLog in SVN.
-- Set RELEASE_FLAG to false in build/version.mk
+- Set releaseFlag to False in build/version.py
 - Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
