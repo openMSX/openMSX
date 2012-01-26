@@ -168,7 +168,7 @@ proc enable_reversebar {{visible true}} {
 	osd create rectangle reverse.int.bar \
 		-relw 0 -relh 1 -z 3 -rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x55eeff80"
 	osd create rectangle reverse.int.end \
-		-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff80c0
+		-relx 0 -x -1 -w 2 -relh 1      -z 3 -rgba 0xff8000c0
 	osd create text      reverse.int.text \
 		-x -10 -y 0 -relx 0.5 -size 5   -z 6 -rgba 0xffffffff
 
