@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1326650172">
+<softwaredb xml:lang="en" timestamp="1327732318">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -202,6 +202,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1983</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">ae0c0b0c9468e137eba5b52f96241acd55d9746a</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Adventure Kid</title>
+	<system>MSX</system>
+	<company>Open</company>
+	<year>1993</year>
+	<country>KR</country>
+		<dump><megarom><type>16kb</type><hash algo="sha1">c7c1814aec465d3a27a638697f04a351604011df</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Agigongnyong Dooly (Baby Dinosaur Dooly)</title>
@@ -3737,6 +3745,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">15b0ac540b31d83569c275cd3970571b637cc8f2</hash><remark><text>[o2]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">aa2ba89e0b1c91a4405f516ef003ad14a401096c</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e2abb08abacce57703fc008881279890328f6277</hash></rom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark><text>Conversion by GDX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gall Force - Defence Of Chaos</title>
@@ -11995,6 +12004,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2648
-Parse time 6.826 seconds on Sun Jan 15 18:56:19 CET 2012
+Roms in this database:2650
+Parse time 8.605 seconds on Sat Jan 28 7:32:07 CET 2012
  -->
