@@ -1,0 +1,52 @@
+diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m
+--- SDL-1.2.15.org/src/video/quartz/SDL_QuartzEvents.m	2012-01-19 07:30:06.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m	2012-01-29 14:50:43.000000000 +0100
+@@ -345,7 +345,9 @@
+         the scancode/keysym.
+     */
+     if (SDL_TranslateUNICODE && state == SDL_PRESSED) {
+-        [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        if (!([event modifierFlags] & NSCommandKeyMask)) {
++            [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        }
+         chars = [ event characters ];
+         numChars = [ chars length ];
+         if (numChars > 0)
+@@ -383,7 +385,7 @@
+         }
+     }
+     
+-    if (SDL_getenv ("SDL_ENABLEAPPEVENTS"))
++    if (SDL_getenv ("SDL_ENABLEAPPEVENTS") && !(mode_flags & SDL_FULLSCREEN))
+         [ NSApp sendEvent:event ];
+ }
+ 
+diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.h
+--- SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.h	2012-01-19 07:30:06.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.h	2012-01-29 14:53:02.000000000 +0100
+@@ -38,6 +38,7 @@
+ - (void)appWillUnhide:(NSNotification*)note;
+ - (void)appDidUnhide:(NSNotification*)note;
+ - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger)styleMask backing:(NSBackingStoreType)backingType defer:(BOOL)flag;
++- (BOOL)performKeyEquivalent:(NSEvent*)event;
+ @end
+ 
+ /* Delegate for our NSWindow to send SDLQuit() on close */
+diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.m
+--- SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.m	2012-01-19 07:30:06.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.m	2012-01-29 14:54:35.000000000 +0100
+@@ -197,6 +197,14 @@
+     return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
+ }
+ 
++- (BOOL)performKeyEquivalent:(NSEvent*)event
++{
++    /* give the menu a chance to handle the key equivalent */
++    [[NSApp mainMenu] performKeyEquivalent:event];
++    /* avoid beep by pretending we handled it */
++    return YES;	
++}
++
+ @end
+ 
+ @implementation SDL_QuartzWindowDelegate

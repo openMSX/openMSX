@@ -17,7 +17,7 @@
     <LibNameLibPng>libpng-1.2.44</LibNameLibPng>
     <LibNameLibXml>libxml2-2.7.7</LibNameLibXml>
     <LibNameOgg>libogg-1.2.2</LibNameOgg>
-    <LibNameSDL>SDL-1.2.14</LibNameSDL>
+    <LibNameSDL>SDL-1.2.15</LibNameSDL>
     <LibNameSDL_ttf>SDL_ttf-2.0.9</LibNameSDL_ttf>
     <LibNameSDLmain>SDLmain</LibNameSDLmain>
     <LibNameTcl>tcl8.5.10</LibNameTcl>
