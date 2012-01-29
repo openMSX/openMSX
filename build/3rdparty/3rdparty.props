@@ -16,7 +16,7 @@
     <LibNameGlew>glew-1.7.0</LibNameGlew>
     <LibNameLibPng>libpng-1.2.46</LibNameLibPng>
     <LibNameLibXml>libxml2-2.7.7</LibNameLibXml>
-    <LibNameOgg>libogg-1.2.2</LibNameOgg>
+    <LibNameOgg>libogg-1.3.0</LibNameOgg>
     <LibNameSDL>SDL-1.2.15</LibNameSDL>
     <LibNameSDL_ttf>SDL_ttf-2.0.9</LibNameSDL_ttf>
     <LibNameSDLmain>SDLmain</LibNameSDLmain>
