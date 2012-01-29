@@ -105,10 +105,6 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(ThirdPartyIntDir)\$(LibNameSDL)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -139,10 +135,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -173,10 +165,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -215,10 +203,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -257,10 +241,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
@@ -292,10 +272,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">
-    <PreBuildEvent>
-      <Message>Unzipping VisualC.zip...</Message>
-      <Command>python unzip.py $(ThirdPartySrcDir)\$(LibNameSDL)\VisualC.zip $(ThirdPartySrcDir)\$(LibNameSDL)</Command>
-    </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
