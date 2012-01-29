@@ -45,13 +45,6 @@ public:
 	 */
 	void registerPluggable(Pluggable* pluggable);
 
-	/**
-	 * Removes a Pluggable from the registry.
-	 * If you attempt to unregister a Pluggable that is not in the registry,
-	 * nothing happens.
-	 */
-	void unregisterPluggable(Pluggable* pluggable);
-
 	/** Return the Pluggable with given name or
 	  * NULL if there is none with this name.
 	  */

@@ -148,17 +148,6 @@ void PluggingController::registerPluggable(Pluggable* pluggable)
 	pluggables.push_back(pluggable);
 }
 
-void PluggingController::unregisterPluggable(Pluggable* pluggable)
-{
-	for (Pluggables::iterator it = pluggables.begin();
-	     it != pluggables.end(); ++it) {
-		if ((*it) == pluggable) {
-			pluggables.erase(it);
-			return;
-		}
-	}
-}
-
 
 // === Commands ===
 //  plug command

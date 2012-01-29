@@ -11,7 +11,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class CassetteDevice;
-class CassettePlayer;
 #if COMPONENT_LASERDISC
 class LaserdiscPlayer;
 #endif
@@ -87,7 +86,6 @@ private:
 
 	MSXMotherBoard& motherBoard;
 
-	std::auto_ptr<CassettePlayer> cassettePlayer;
 #if COMPONENT_LASERDISC
 	LaserdiscPlayer* laserdiscPlayer;
 #endif
