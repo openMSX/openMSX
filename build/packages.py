@@ -178,7 +178,7 @@ class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
 	sourceName = 'SDL_ttf'
-	version = '2.0.9'
+	version = '2.0.9' # for some reason, I get link errors when using 2.0.10 and 2.0.11
 	fileLength = 3143838
 	checksums = {
 		'sha256':
