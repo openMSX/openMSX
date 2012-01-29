@@ -66,7 +66,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(new CassettePlayer(
+	getPluggingController().registerPluggable(auto_ptr<Pluggable>(new CassettePlayer(
 		motherBoard.getCommandController(),
 		motherBoard,
 		motherBoard.getScheduler(),
@@ -74,7 +74,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getReactor().getEventDistributor(),
 		motherBoard.getMSXCliComm(),
 		motherBoard.getReactor().getFilePool(),
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager()));
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager())));
 }
 
 CassettePort::~CassettePort()

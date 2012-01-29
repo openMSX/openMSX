@@ -143,9 +143,9 @@ void PluggingController::unregisterConnector(Connector& connector)
 }
 
 
-void PluggingController::registerPluggable(Pluggable* pluggable)
+void PluggingController::registerPluggable(std::auto_ptr<Pluggable> pluggable)
 {
-	pluggables.push_back(pluggable);
+	pluggables.push_back(pluggable.release());
 }
 
 

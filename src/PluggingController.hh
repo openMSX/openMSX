@@ -39,11 +39,9 @@ public:
 	  */
 	Connector* findConnector(const std::string& name) const;
 
-	/**
-	 * Add a Pluggable to the registry.
-	 * PluggingController has ownership of all registered Pluggables.
+	/** Add a Pluggable to the registry.
 	 */
-	void registerPluggable(Pluggable* pluggable);
+	void registerPluggable(std::auto_ptr<Pluggable> pluggable);
 
 	/** Return the Pluggable with given name or
 	  * NULL if there is none with this name.

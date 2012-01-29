@@ -29,8 +29,9 @@
 #include "MidiOutCoreMIDI.hh"
 #endif
 
-
 namespace openmsx {
+
+using std::auto_ptr;
 
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
@@ -47,56 +48,64 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
-	controller.registerPluggable(new ArkanoidPad(msxEventDistributor,
-	                                             stateChangeDistributor));
-	controller.registerPluggable(new Mouse(msxEventDistributor,
-	                                       stateChangeDistributor));
-	controller.registerPluggable(new Trackball(msxEventDistributor,
-	                                           stateChangeDistributor));
-	controller.registerPluggable(new JoyTap(controller, "joytap"));
-	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
-	controller.registerPluggable(new KeyJoystick(
+	controller.registerPluggable(auto_ptr<Pluggable>(new ArkanoidPad(
+		msxEventDistributor, stateChangeDistributor)));
+	controller.registerPluggable(auto_ptr<Pluggable>(new Mouse(
+		msxEventDistributor, stateChangeDistributor)));
+	controller.registerPluggable(auto_ptr<Pluggable>(new Trackball(
+		msxEventDistributor, stateChangeDistributor)));
+	controller.registerPluggable(auto_ptr<Pluggable>(new JoyTap(
+		controller, "joytap")));
+	controller.registerPluggable(auto_ptr<Pluggable>(new NinjaTap(
+		controller, "ninjatap")));
+	controller.registerPluggable(auto_ptr<Pluggable>(new KeyJoystick(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, "keyjoystick1"));
-	controller.registerPluggable(new KeyJoystick(
+		stateChangeDistributor, "keyjoystick1")));
+	controller.registerPluggable(auto_ptr<Pluggable>(new KeyJoystick(
 		commandController, msxEventDistributor,
-		stateChangeDistributor, "keyjoystick2"));
+		stateChangeDistributor, "keyjoystick2")));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 
 	// Dongles
-	controller.registerPluggable(new SETetrisDongle());
-	controller.registerPluggable(new MagicKey());
+	controller.registerPluggable(auto_ptr<Pluggable>(new SETetrisDongle()));
+	controller.registerPluggable(auto_ptr<Pluggable>(new MagicKey()));
 
 	// Logging:
-	controller.registerPluggable(new PrinterPortLogger(commandController));
-	controller.registerPluggable(new MidiOutLogger(commandController));
+	controller.registerPluggable(auto_ptr<Pluggable>(new PrinterPortLogger(
+		commandController)));
+	controller.registerPluggable(auto_ptr<Pluggable>(new MidiOutLogger(
+		commandController)));
 
 	// Serial communication:
-	controller.registerPluggable(new RS232Tester(
-		eventDistributor, scheduler, commandController));
+	controller.registerPluggable(auto_ptr<Pluggable>(new RS232Tester(
+		eventDistributor, scheduler, commandController)));
 
 	// Sampled audio:
-	controller.registerPluggable(new PrinterPortSimpl(motherBoard.getMSXMixer()));
-	controller.registerPluggable(new WavAudioInput(commandController));
+	controller.registerPluggable(auto_ptr<Pluggable>(new PrinterPortSimpl(
+		motherBoard.getMSXMixer())));
+	controller.registerPluggable(auto_ptr<Pluggable>(new WavAudioInput(
+		commandController)));
 
 	// MIDI:
-	controller.registerPluggable(new MidiInReader(
-		eventDistributor, scheduler, commandController));
+	controller.registerPluggable(auto_ptr<Pluggable>(new MidiInReader(
+		eventDistributor, scheduler, commandController)));
 #if defined(_WIN32)
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
 #endif
 #if defined(__APPLE__)
-	controller.registerPluggable(new MidiOutCoreMIDIVirtual());
+	controller.registerPluggable(auto_ptr<Pluggable>(new MidiOutCoreMIDIVirtual()));
 	MidiOutCoreMIDI::registerAll(controller);
 #endif
 
 	// Printers
-	controller.registerPluggable(new ImagePrinterMSX(motherBoard));
-	controller.registerPluggable(new ImagePrinterEpson(motherBoard));
+	controller.registerPluggable(auto_ptr<Pluggable>(new ImagePrinterMSX(
+		motherBoard)));
+	controller.registerPluggable(auto_ptr<Pluggable>(new ImagePrinterEpson(
+		motherBoard)));
 }
 
 } // namespace openmsx

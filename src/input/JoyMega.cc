@@ -42,8 +42,10 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
 			if (SDL_JoystickNumButtons(joystick) != 0) {
-				controller.registerPluggable(new JoyMega(
-					eventDistributor, stateChangeDistributor, joystick));
+				controller.registerPluggable(std::auto_ptr<Pluggable>(
+					new JoyMega(eventDistributor,
+					            stateChangeDistributor,
+					            joystick)));
 			}
 		}
 	}
