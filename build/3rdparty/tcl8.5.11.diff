@@ -1,6 +1,6 @@
-diff -ru tcl8.5.10.org/generic/tcl.h tcl8.5.10/generic/tcl.h
---- tcl8.5.10.org/generic/tcl.h	2011-05-31 17:03:45.000000000 +0200
-+++ tcl8.5.10/generic/tcl.h	2011-07-07 19:39:17.000000000 +0200
+diff -ru tcl8.5.11.org/generic/tcl.h tcl8.5.11/generic/tcl.h
+--- tcl8.5.11.org/generic/tcl.h	2011-11-01 15:04:51.000000000 +0100
++++ tcl8.5.11/generic/tcl.h	2012-01-29 16:31:41.000000000 +0100
 @@ -168,7 +168,7 @@
   *       MSVCRT.
   */
@@ -10,9 +10,9 @@ diff -ru tcl8.5.10.org/generic/tcl.h tcl8.5.10/generic/tcl.h
  #   define HAVE_DECLSPEC 1
  #   ifdef STATIC_BUILD
  #       define DLLIMPORT
-diff -ru tcl8.5.10.org/generic/tclPosixStr.c tcl8.5.10/generic/tclPosixStr.c
---- tcl8.5.10.org/generic/tclPosixStr.c	2011-05-31 17:03:46.000000000 +0200
-+++ tcl8.5.10/generic/tclPosixStr.c	2011-07-07 19:39:17.000000000 +0200
+diff -ru tcl8.5.11.org/generic/tclPosixStr.c tcl8.5.11/generic/tclPosixStr.c
+--- tcl8.5.11.org/generic/tclPosixStr.c	2011-11-01 15:04:51.000000000 +0100
++++ tcl8.5.11/generic/tclPosixStr.c	2012-01-29 16:34:52.000000000 +0100
 @@ -341,7 +341,7 @@
  #ifdef EPERM
      case EPERM: return "EPERM";
@@ -49,9 +49,9 @@ diff -ru tcl8.5.10.org/generic/tclPosixStr.c tcl8.5.10/generic/tclPosixStr.c
      case ESOCKTNOSUPPORT: return "socket type not supported";
  #endif
  #ifdef ESPIPE
-diff -ru tcl8.5.10.org/unix/configure tcl8.5.10/unix/configure
---- tcl8.5.10.org/unix/configure	2011-06-23 15:18:36.000000000 +0200
-+++ tcl8.5.10/unix/configure	2011-07-07 19:39:17.000000000 +0200
+diff -ru tcl8.5.11.org/unix/configure tcl8.5.11/unix/configure
+--- tcl8.5.11.org/unix/configure	2011-11-04 13:47:57.000000000 +0100
++++ tcl8.5.11/unix/configure	2012-01-29 16:35:53.000000000 +0100
 @@ -14925,7 +14925,7 @@
  else
  
@@ -61,10 +61,10 @@ diff -ru tcl8.5.10.org/unix/configure tcl8.5.10/unix/configure
  else
    cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
-diff -ru tcl8.5.10.org/unix/Makefile.in tcl8.5.10/unix/Makefile.in
---- tcl8.5.10.org/unix/Makefile.in	2011-06-23 15:18:36.000000000 +0200
-+++ tcl8.5.10/unix/Makefile.in	2011-07-07 19:39:17.000000000 +0200
-@@ -730,7 +730,7 @@
+diff -ru tcl8.5.11.org/unix/Makefile.in tcl8.5.11/unix/Makefile.in
+--- tcl8.5.11.org/unix/Makefile.in	2011-11-04 13:47:57.000000000 +0100
++++ tcl8.5.11/unix/Makefile.in	2012-01-29 16:36:18.000000000 +0100
+@@ -732,7 +732,7 @@
  	fi
  	@EXTRA_INSTALL_BINARIES@
  
@@ -73,10 +73,10 @@ diff -ru tcl8.5.10.org/unix/Makefile.in tcl8.5.10/unix/Makefile.in
  	@for i in "$(INCLUDE_INSTALL_DIR)" "$(SCRIPT_INSTALL_DIR)"; \
  	    do \
  	    if [ ! -d "$$i" ] ; then \
-diff -ru tcl8.5.10.org/win/Makefile.in tcl8.5.10/win/Makefile.in
---- tcl8.5.10.org/win/Makefile.in	2011-06-23 15:18:37.000000000 +0200
-+++ tcl8.5.10/win/Makefile.in	2011-07-07 19:39:17.000000000 +0200
-@@ -600,7 +600,7 @@
+diff -ru tcl8.5.11.org/win/Makefile.in tcl8.5.11/win/Makefile.in
+--- tcl8.5.11.org/win/Makefile.in	2011-11-04 13:47:58.000000000 +0100
++++ tcl8.5.11/win/Makefile.in	2012-01-29 16:36:39.000000000 +0100
+@@ -601,7 +601,7 @@
  	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg1.2; \
  	    fi
  
