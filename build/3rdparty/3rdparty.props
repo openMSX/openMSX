@@ -14,7 +14,7 @@
     <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
     <LibNameFreeType>freetype-2.4.8</LibNameFreeType>
     <LibNameGlew>glew-1.7.0</LibNameGlew>
-    <LibNameLibPng>libpng-1.2.44</LibNameLibPng>
+    <LibNameLibPng>libpng-1.2.46</LibNameLibPng>
     <LibNameLibXml>libxml2-2.7.7</LibNameLibXml>
     <LibNameOgg>libogg-1.2.2</LibNameOgg>
     <LibNameSDL>SDL-1.2.15</LibNameSDL>
