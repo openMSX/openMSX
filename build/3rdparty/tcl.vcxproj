@@ -369,6 +369,7 @@
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtf.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclUtil.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclVar.c" />
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\libtommath\bn_mp_cnt_lsb.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWin32Dll.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinChan.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinConsole.c" />
@@ -398,7 +399,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclIO.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPlatDecls.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclPort.h" />
-    <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.h" />
+	<ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclRegexp.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMath.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\generic\tclTomMathDecls.h" />
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameTcl)\win\tclWinInt.h" />
