@@ -1,6 +1,6 @@
-diff -ru glew-1.5.8.org/include/GL/glew.h glew-1.5.8/include/GL/glew.h
---- glew-1.5.8.org/include/GL/glew.h	2011-01-31 15:17:27.000000000 +0100
-+++ glew-1.5.8/include/GL/glew.h	2011-03-25 19:43:53.000000000 +0100
+diff -ru glew-1.7.0.org/include/GL/glew.h glew-1.7.0/include/GL/glew.h
+--- glew-1.7.0.org/include/GL/glew.h	2011-08-25 16:17:55.000000000 +0200
++++ glew-1.7.0/include/GL/glew.h	2012-01-29 15:37:10.000000000 +0100
 @@ -109,7 +109,7 @@
  #define GLEW_APIENTRY_DEFINED
  #  if defined(__MINGW32__) || defined(__CYGWIN__)
@@ -10,10 +10,10 @@ diff -ru glew-1.5.8.org/include/GL/glew.h glew-1.5.8/include/GL/glew.h
  #    define APIENTRY __stdcall
  #  else
  #    define APIENTRY
-diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
---- glew-1.5.8.org/Makefile	2011-01-31 15:17:27.000000000 +0100
-+++ glew-1.5.8/Makefile	2011-03-25 21:53:14.000000000 +0100
-@@ -53,9 +53,9 @@
+diff -ru glew-1.7.0.org/Makefile glew-1.7.0/Makefile
+--- glew-1.7.0.org/Makefile	2011-08-25 16:17:55.000000000 +0200
++++ glew-1.7.0/Makefile	2012-01-29 15:36:23.000000000 +0100
+@@ -54,9 +54,9 @@
  DIST_SRC_ZIP = glew-$(GLEW_VERSION).zip
  DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
  
@@ -25,7 +25,7 @@ diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
  RM = rm -f
  LN = ln -sf
  ifeq ($(MAKECMDGOALS), debug)
-@@ -64,7 +64,9 @@
+@@ -65,7 +65,9 @@
  OPT = $(POPT)
  endif
  INCLUDE = -Iinclude
@@ -36,22 +36,26 @@ diff -ru glew-1.5.8.org/Makefile glew-1.5.8/Makefile
  
  LIB.SRCS = src/glew.c
  LIB.OBJS = $(LIB.SRCS:.c=.o)
-@@ -143,15 +145,15 @@
- 	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
- 	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
- 	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
-+	$(STRIP) -x lib/$(LIB.STATIC)
-+	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+@@ -192,11 +194,11 @@
+ # development files
  ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
  	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
++	$(STRIP) -x lib/$(LIB.STATIC)
++	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
  else
--	$(STRIP) -x lib/$(LIB.STATIC)
--	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
  	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
  endif
- # utilities
+-	$(STRIP) -x lib/$(LIB.STATIC)
+-	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+ 
+ install.lib.mx: glew.lib.mx
+ 	$(INSTALL) -d -m 0755 $(LIBDIR)
+@@ -221,7 +223,7 @@
+ 
+ install.bin: glew.bin
+ 	$(INSTALL) -d -m 0755 $(BINDIR)
 -	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
 +#	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
  
- uninstall:
- 	$(RM) $(INCDIR)/wglew.h
+ install.include:
+ 	$(INSTALL) -d -m 0755 $(INCDIR)
