@@ -12,7 +12,7 @@
     <OpenMSXIntDir>$(BuildDir)\build</OpenMSXIntDir>
     <OpenMSXOutDir>$(BuildDir)\install</OpenMSXOutDir>
     <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
-    <LibNameFreeType>freetype-2.4.4</LibNameFreeType>
+    <LibNameFreeType>freetype-2.4.8</LibNameFreeType>
     <LibNameGlew>glew-1.5.8</LibNameGlew>
     <LibNameLibPng>libpng-1.2.44</LibNameLibPng>
     <LibNameLibXml>libxml2-2.7.7</LibNameLibXml>

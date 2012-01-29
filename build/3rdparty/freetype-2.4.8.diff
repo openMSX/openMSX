@@ -1,7 +1,7 @@
-diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/include/freetype/config/ftoption.h
---- freetype-2.4.4.org/include/freetype/config/ftoption.h	2010-07-05 06:38:55.000000000 +0200
-+++ freetype-2.4.4/include/freetype/config/ftoption.h	2011-03-25 20:29:46.000000000 +0100
-@@ -149,7 +149,7 @@
+diff -ru freetype-2.4.8.org/include/freetype/config/ftoption.h freetype-2.4.8/include/freetype/config/ftoption.h
+--- freetype-2.4.8.org/include/freetype/config/ftoption.h	2011-07-20 06:46:15.000000000 +0200
++++ freetype-2.4.8/include/freetype/config/ftoption.h	2012-01-29 15:24:38.000000000 +0100
+@@ -148,7 +148,7 @@
    /*                                                                       */
    /*   Define this macro if you want to enable this `feature'.             */
    /*                                                                       */
@@ -10,7 +10,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -164,7 +164,7 @@
+@@ -163,7 +163,7 @@
    /*   Define this macro if you want to enable this `feature'.  See also   */
    /*   the macro FT_CONFIG_OPTION_SYSTEM_ZLIB below.                       */
    /*                                                                       */
@@ -19,16 +19,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -252,7 +252,7 @@
-   /*   You would normally undefine this configuration macro when building  */
-   /*   a version of FreeType that doesn't contain a Type 1 or CFF driver.  */
-   /*                                                                       */
--#define FT_CONFIG_OPTION_POSTSCRIPT_NAMES
-+#undef FT_CONFIG_OPTION_POSTSCRIPT_NAMES
- 
- 
-   /*************************************************************************/
-@@ -270,7 +270,7 @@
+@@ -296,7 +296,7 @@
    /*   able to synthesize a Unicode charmap out of the glyphs found in the */
    /*   fonts.                                                              */
    /*                                                                       */
@@ -37,7 +28,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -283,7 +283,7 @@
+@@ -309,7 +309,7 @@
    /*                                                                       */
    /*   Note that the `FOND' resource isn't checked.                        */
    /*                                                                       */
@@ -46,7 +37,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -428,7 +428,7 @@
+@@ -487,7 +487,7 @@
    /* embedded bitmaps in all formats using the SFNT module (namely         */
    /* TrueType & OpenType).                                                 */
    /*                                                                       */
@@ -55,16 +46,16 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -443,7 +443,7 @@
+@@ -502,7 +502,7 @@
    /*                                                                       */
    /* (By default, the module uses `PSNames' to extract glyph names.)       */
    /*                                                                       */
 -#define TT_CONFIG_OPTION_POSTSCRIPT_NAMES
-+/* #define TT_CONFIG_OPTION_POSTSCRIPT_NAMES */
++#undef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
  
  
    /*************************************************************************/
-@@ -457,7 +457,7 @@
+@@ -516,7 +516,7 @@
    /* Accessing SFNT names is done through the functions declared in        */
    /* `freetype/ftsnames.h'.                                                */
    /*                                                                       */
@@ -73,7 +64,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -588,7 +588,7 @@
+@@ -647,7 +647,7 @@
    /* and avar tables).  This has many similarities to Type 1 Multiple      */
    /* Masters support.                                                      */
    /*                                                                       */
@@ -82,7 +73,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -596,7 +596,7 @@
+@@ -655,7 +655,7 @@
    /* Define TT_CONFIG_OPTION_BDF if you want to include support for        */
    /* an embedded `BDF ' table within SFNT-based bitmap formats.            */
    /*                                                                       */
@@ -91,7 +82,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -642,7 +642,7 @@
+@@ -701,7 +701,7 @@
    /* files into an existing face.  Note that if set, the T1 driver will be */
    /* unable to produce kerning distances.                                  */
    /*                                                                       */
@@ -100,16 +91,7 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*************************************************************************/
-@@ -651,7 +651,7 @@
-   /* compilation of the Multiple Masters font support in the Type 1        */
-   /* driver.                                                               */
-   /*                                                                       */
--#undef T1_CONFIG_OPTION_NO_MM_SUPPORT
-+#define T1_CONFIG_OPTION_NO_MM_SUPPORT
- 
- 
-   /*************************************************************************/
-@@ -689,7 +689,7 @@
+@@ -761,7 +761,7 @@
     * is recommended to disable the macro since it reduces the library's code
     * size and activates a few memory-saving optimizations as well.
     */
@@ -118,9 +100,9 @@ diff -ru freetype-2.4.4.org/include/freetype/config/ftoption.h freetype-2.4.4/in
  
  
    /*
-diff -ru freetype-2.4.4.org/modules.cfg freetype-2.4.4/modules.cfg
---- freetype-2.4.4.org/modules.cfg	2009-03-14 14:45:26.000000000 +0100
-+++ freetype-2.4.4/modules.cfg	2011-03-25 20:29:46.000000000 +0100
+diff -ru freetype-2.4.8.org/modules.cfg freetype-2.4.8/modules.cfg
+--- freetype-2.4.8.org/modules.cfg	2010-12-31 16:46:35.000000000 +0100
++++ freetype-2.4.8/modules.cfg	2012-01-29 15:20:24.000000000 +0100
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -209,9 +191,9 @@ diff -ru freetype-2.4.4.org/modules.cfg freetype-2.4.4/modules.cfg
 -AUX_MODULES += lzw
 +#AUX_MODULES += lzw
  
- # OpenType table validation.  Needs ftotval.c below.
+ # Support for streams compressed with bzip2 (files with suffix .bz2).
  #
-@@ -129,13 +129,13 @@
+@@ -134,13 +134,13 @@
  # Auxiliary PostScript driver component to share common code.
  #
  # This module depends on `psnames'.
@@ -227,7 +209,7 @@ diff -ru freetype-2.4.4.org/modules.cfg freetype-2.4.4/modules.cfg
  
  
  ####
-@@ -145,95 +145,95 @@
+@@ -150,95 +150,95 @@
  # Exact bounding box calculation.
  #
  # See include/freetype/ftbbox.h for the API.
