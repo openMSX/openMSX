@@ -35,6 +35,7 @@ Creating a release candidate
   This step makes sure that exactly the tagged code will be released.
   Export instead of checkout gets rid of the SVN admin directories.
 - Create the distribution tar.gz file:
+    unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
     make dist
 - Save the created file somewhere you can find it again:
     mv derived/dist/openmsx-1.2.3.tar.gz <some_dir>/openmsx-1.2.3-rc1.tar.gz
@@ -84,17 +85,23 @@ Make the release public
 -----------------------
 
 Put the release on SourceForge:
-- On the project page, choose "Project Admin", followed by "File Manager".
-- Add a new folder for the new release 1.2.3 in the directory where the
-  previous release is: click on the gear icon and choose "New Folder" and give
-  it the name "1.2.3"
-- Click the gear icon of the new folder and choose "Upload here" and select the
-  file to upload. Repeat for all files for this release.
-- Upload also the file "doc/release-notes.txt" to the same folder and edit its
-  properties in the web interface to be 'Release Notes'.
-- Select this file as release notes for the 1.2.3 folder. Verify on the Files
-  tab of the project page if it actually worked :)
-- For each folder, you can choose which file is for each platform. Set that up.
+- On the project page, make sure you're logged in. In the menu bar, click Files
+  and then choose the "openmsx" folder.
+- Add a new folder for the new release 1.2.3: click on "Add Folder" and give
+  it the name "1.2.3". You can check the box for Staging the folder. Do this
+  until the folder is complete for release.
+- Click the new folder and choose "Add File" and select the
+  files to upload.
+- Click the 'i' icon to see the sha1sum of the file. Confirm it's the same as
+  what you expect.
+- Upload also the file "doc/release-notes.txt" to the same folder and click the
+  'i' icon to rename it to "README_release-notes.txt". This will trigger the
+  file release system to know that this file contains the release notes so that
+  it will be displayed when browsing this folder.
+- For each file, you can select in the 'i' icon menu that it is the default
+  file for a certain OS. Set this up (choose
+  openmsx-1.2.3-windows-vc-x86-bin-msi.zip for Windows, the dmg file for Mac
+  and the tar.gz source code for the others).
 
 Announce:
 - Post change list to msx.org.
@@ -102,10 +109,10 @@ Announce:
 - Post news item on web site.
 
 Finally:
-- Set releaseFlag to False in build/version.py
 - Update web site to point to new downloads.
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
+- Set releaseFlag to False in build/version.py
 - Update libraries in the 3rd party build system to latest versions, so that
   next release will profit from this and you won't forget it. Just before the
   release is too late (unless it's some minor security fix)!
