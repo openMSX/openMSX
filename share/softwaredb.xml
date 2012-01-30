@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1327732318">
+<softwaredb xml:lang="en" timestamp="1327956977">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -278,9 +278,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Compile</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><megarom><type>ASCII16</type><hash algo="sha1">11b712633bd0e44e8d59ceba5a2d6b1c20a43ef9</hash><remark><text>iPhone version (TR-En)</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">11b712633bd0e44e8d59ceba5a2d6b1c20a43ef9</hash><remark><text>iPhone version (English Translation)</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">12f6f31f495bfb384c9ca9067bfbf8f98af6adf9</hash></megarom></dump>
-		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark><text>tr En</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">be2d023f5f1ee4cfbdc712c8ef9eda9d07278d88</hash><remark><text>English Translation</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">4b506234dfd3b6aa1c315b40cd8ddca024dd15c9</hash></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">f4f7c789dd320192fd544c666ceab720c7f3a747</hash><remark><text>Portugese Translation</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">54b05b9c064232d75299fd31b53335f530c20aea</hash><remark><text>[a]</text></remark></megarom></dump>
@@ -288,6 +288,9 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">fda4422b86daa233fa4e6104e45305e7cb383053</hash></megarom></dump>
 		<dump><megarom><type>ASCII16</type><hash algo="sha1">2761df1ff6bf826e00dbd4f9a346aa145e91c6c6</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">030557706d72199acf17df4480f6b1a8ff798d1e</hash></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">4d0f5ad0f29db7f5e188fe9e84d30079159c1614</hash><remark><text>Spanish Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">366d38aac137899bb1ed3d44c28f1bd27af3af71</hash><remark><text>Spanish Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">19022db5f9d229e9b5f38ba02d7478ad3310d4c8</hash><remark><text>French Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Aleste 2 Theme</title>
@@ -12004,6 +12007,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2650
-Parse time 8.605 seconds on Sat Jan 28 7:32:07 CET 2012
+Roms in this database:2653
+Parse time 7.886 seconds on Mon Jan 30 21:56:25 CET 2012
  -->
