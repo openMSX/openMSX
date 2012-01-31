@@ -19,5 +19,5 @@ COMPILE_FLAGS+= \
 # Linker flags.
 LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -lwinmm -ldsound -lsecur32 \
 	`if test -d /usr/local/lib; then echo '-L/usr/local/lib'; fi` \
-	-mconsole \
+	-mconsole -static-libgcc -static-libstdc++ \
 	$(LINK_FLAGS)
