@@ -179,13 +179,9 @@ By default openMSX assumes Xcode 4 installed in <code>/Developer</code> and Xcod
 
 <h5>Microsoft Windows</h5>
 
-<p>You need to install MinGW and MSYS.</p>
+<p>You need to install MinGW (with MSYS).</p>
 
-<p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.4 is the latest at the time of writing) and download also "MSYS Base System" (use 1.0.11 Release Candidate or newer, if available, because 1.0.10 is too old), i.e. the installer <code>.exe</code> file.
-Double click on the MinGW package after downloading, choose "Download and Install", Package "Current" and add component "g++". Use the default installation directory (<code>C:\MinGW</code>), or at least a directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer). For MSYS, the installer's default settings (destination directory <code>C:\msys\1.0</code>) will be OK. If you get questions in a post-install Command Prompt dialog, type: <code>y</code>, <code>y</code>, <code>C:/MinGW</code> (or the other directory you chose without spaces; but do note that you should use <em>forward slashes</em> in the path here!), <code>y</code>.
-</p>
-
-<p>Note: there is a bug in the <a class="external" href="https://sourceforge.net/project/showfiles.php?group_id=2435&amp;package_id=11598">MinGW Runtime (mingwrt)</a> package version 3.15.1, which will cause FreeType not to compile (and probably more). Make sure you have the latest (newer) version installed! (Which will be the case if you do a fresh install using the instructions above.)
+<p>You can download the latest version of <code>mingw-get-inst</code> from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project (it's the default download if you're on Windows). Double click on this installer after downloading. Click Next, Next, select "Download latest repository catalogues" and click Next again. Accept the license agreement and click Next. Use the default installation directory (<code>C:\MinGW</code>), or at least a directory without spaces and <strong>not</strong> a network folder (i.e. shared folder on another computer) and click Next. Click Next again. In the "Select Components" step, make sure to check "C++ Compiler" and "MSYS Basic System" and click Next. Then click Install. This will then update the package repositories first, which takes a while. After this, it will download all the MinGW packages and install them.
 </p>
 
 <h5>Dingux</h5>
@@ -417,7 +413,7 @@ The latest version is probably the best one. This guide assumes that you are usi
 </p>
 
 <p>
-After downloading, type the following in a UNIX or MSYS shell, or use another
+After downloading, type the following in a UNIX or MinGW Shell (in your start menu), or use another
 decompression tool:
 </p>
 <div class="commandline">tar xzvf openmsx-VERSION.tar.gz</div>
@@ -460,9 +456,9 @@ checked out to (we chose <em>openMSX</em> in this example).
 
 <p>In TortoiseSVN, use <code>https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk</code> as
 the "URL of repository&quot; and the directory of your choice as the "Checkout directory". Use the <code>HEAD</code> revision and click OK.
-When compiling openMSX on Windows with gcc, it's often convenient to use <code>C:\msys\1.0\home\&lt;username&gt;\openMSX</code>
-as the checkout directory, as this is easy to reach from an MSYS shell - it's
-your MSYS home directory.
+When compiling openMSX on Windows with gcc, it's often convenient to use <code>C:\MinGW\msys\1.0\home\&lt;username&gt;\openMSX</code>
+as the checkout directory, as this is easy to reach from your MinGW Shell - it's
+your MinGW home directory.
 </p>
 
 <p>
@@ -683,8 +679,8 @@ Here's the very short version if you want quick results on Microsoft Windows
 with gcc:
 </p>
 <ul>
-<li>Open an MSYS shell</li>
-<li>Go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MSYS home directory as checkout directory)</li>
+<li>Open a MinGW Shell</li>
+<li>Go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MinGW home directory as checkout directory)</li>
 <li>Type: <code>make staticbindist</code></li>
 </ul>
 <p>A complete package will be created in <code>derived\x86-mingw32-i686-3rd\bindist\install</code>.
