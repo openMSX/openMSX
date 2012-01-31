@@ -13,6 +13,7 @@
 // MinGW32 does not define NEGOSSP_NAME_W anywhere. It should.
 #define NEGOSSP_NAME_W  L"Negotiate"
 #endif
+#define SECURITY_WIN32
 #include <security.h>
 #include <vector>
 #include "openmsx.hh"
