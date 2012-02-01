@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1327956977">
+<softwaredb xml:lang="en" timestamp="1328070419">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -392,6 +392,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>NL</country>
 		<dump><rom><hash algo="sha1">6e15b3d92191bf2c5ff07435c9849e31dad3ed1e</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Alter Ego</title>
+	<system>MSX</system>
+	<company>The New Image</company>
+	<year>2012</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">0cf251004caf6d874a66b05e100b599e5eaf9d32</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Amazing Kid</title>
@@ -2545,6 +2553,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Donkey Kong</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1981</year>
+	<country>US</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">f90c58b78d46faac333e0560676473d48c03b5af</hash><remark><text>GDX Conversion</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Donkey Kong</title>
 	<genmsxid>2918</genmsxid>
 	<system>MSX</system>
 	<company>Nintendo</company>
@@ -3738,6 +3754,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Galaxian</title>
+	<system>MSX</system>
+	<company>Atari</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark><text>Conversion by GDX</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Galaxian</title>
 	<genmsxid>142</genmsxid>
 	<system>MSX</system>
 	<company>NAMCO</company>
@@ -3748,7 +3772,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">15b0ac540b31d83569c275cd3970571b637cc8f2</hash><remark><text>[o2]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">aa2ba89e0b1c91a4405f516ef003ad14a401096c</hash><remark><text>[a1]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e2abb08abacce57703fc008881279890328f6277</hash></rom></dump>
-		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">356c2ae4fc06a73449283146332b3a3d7f5fb2fc</hash><remark><text>Conversion by GDX</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gall Force - Defence Of Chaos</title>
@@ -5318,6 +5341,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2011</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">a0643d70c853d667eb680c82b9b5f0a2322a7809</hash><remark><text>Demo Version / MSXDev11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">dbea257c0f3cc4d46a94d2db30370df64eb02221</hash><remark><text>English Version / MSXDev11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">74f7fba8a016e4ead892c2db5970028ed1aa4fa2</hash><remark><text>Spanish Version / MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Jumping Rabbit</title>
@@ -6205,6 +6230,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">95f75fae9b3e961149e352cef3d7e478e9887d5a</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">M-Tanks</title>
+	<system>MSX</system>
+	<company>ASMSoft</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">93f1783d04aa0511130afed8cfd2b4417fe86b3e</hash><remark><text>MSXDev11 Entry</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">M.A.Z.E</title>
 	<system>MSX</system>
 	<company>DVIK &#38; Joyrex productions</company>
@@ -6556,6 +6589,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>UK</country>
 		<dump><rom><hash algo="sha1">7f26383fc61af7beb0176a64eb936bccee0d7a3b</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Mecha 8</title>
+	<system>MSX</system>
+	<company>Oscar Toledo Guti&#233;rrez</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">42d4cd136018252bffa0af09115fe9613c94118b</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mecha Taisen on planet Oldskool</title>
@@ -7519,6 +7560,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">fcc1cf816657e90bb1e0a93898fd17a8325c2cd3</hash><remark><text>MSX-DEV07</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d8b935757e77f0717559291e2abc7f7ad2e397ad</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Night Escape</title>
+	<system>MSX</system>
+	<company>AG Software</company>
+	<year>2011</year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">1ebbc94d106c995ad9499a4e1ff5848ffe3b509a</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Night Pursuit</title>
@@ -11977,9 +12026,18 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">4cc5f197d2bd3f0306c07a880590b4b4a5574e12</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Zombie Incident</title>
+	<system>MSX</system>
+	<company>Nenefranz</company>
+	<year>2012</year>
+	<country>NL</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">daf6574ea74d44a98a02e3ee25994f9779a9e65c</hash><remark><text>Version 1.1 / MSXDev 11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">bfc22015dcedf9100647869dbaf36f0d6165bf3a</hash><remark><text>Version 1,0 / MSXDev11 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Zombie Near</title>
 	<system>MSX</system>
-	<company>&#211;scar Toledo Guti&#233;rrez</company>
+	<company>Oscar Toledo Guti&#233;rrez</company>
 	<year>2011</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ecfc5f25368c3eb9ba827f920822c047d9e1128a</hash><remark><text>Version 1.0 / MSXDev10 Entry</text></remark></megarom></dump>
@@ -12007,6 +12065,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2653
-Parse time 7.886 seconds on Mon Jan 30 21:56:25 CET 2012
+Roms in this database:2662
+Parse time 7.585 seconds on Wed Feb 1 5:27:06 CET 2012
  -->
