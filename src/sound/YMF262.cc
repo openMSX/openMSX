@@ -47,7 +47,6 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
-#include "serialize_meta.hh"
 #include <cmath>
 #include <cstring>
 
@@ -274,7 +273,6 @@ private:
 	const bool isYMF278;		// true iff this is actually a YMF278
 					// ATM only used for NEW2 bit
 };
-SERIALIZE_CLASS_VERSION(YMF262Impl, 2);
 
 
 // envelope output entries
@@ -1905,7 +1903,6 @@ void YMF262Impl::serialize(Archive& ar, unsigned version)
 		writeRegDirect(i + 0x100, reg[i + 0x100], time);
 	}
 }
-INSTANTIATE_SERIALIZE_METHODS(YMF262Impl);
 
 
 // SimpleDebuggable

@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -34,6 +35,7 @@ public:
 private:
 	const std::auto_ptr<YMF262Impl> pimple;
 };
+SERIALIZE_CLASS_VERSION(YMF262, 2);
 
 } // namespace openmsx
 
