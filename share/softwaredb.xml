@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1328109351">
+<softwaredb xml:lang="en" timestamp="1328135176">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -5528,7 +5528,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>AG Software</company>
 	<year>2011</year>
 	<country>IT</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">5bf2b21a9b97e744cef71f2f6e9cacbbf695f3f6</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">5bf2b21a9b97e744cef71f2f6e9cacbbf695f3f6</hash><remark><text>MSXDev11 Entry</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Kinasai</title>
@@ -12052,6 +12052,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">32c84735c30e0679733d5d1918ccec9a625c4d3b</hash><remark><text>Version 1.1 / MSXDev10 Entry</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Zone TNT</title>
+	<system>MSX</system>
+	<company>AG Software</company>
+	<year></year>
+	<country>IT</country>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">6414563c0dd0e9b3cf093d37cfb4ab5eca06f322</hash><remark><text>MSXDev11 Entry</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Zoom 909</title>
 	<genmsxid>521</genmsxid>
 	<system>MSX</system>
@@ -12073,6 +12081,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2663
-Parse time 7.632 seconds on Wed Feb 1 16:15:58 CET 2012
+Roms in this database:2664
+Parse time 7.926 seconds on Wed Feb 1 23:26:24 CET 2012
  -->
