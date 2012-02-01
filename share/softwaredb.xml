@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1328070419">
+<softwaredb xml:lang="en" timestamp="1328109351">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3112,6 +3112,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">b5b28f53b16d43742d9d7daf5ee7dcf74b80e6c8</hash><remark><text>[a]</text></remark></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">ded8d969542b7be02524037fa244e6648c3f4e03</hash></rom></dump>
 		<dump><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">a059f6fb5ffd3762010b9743518833499fe2205f</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">ExChess</title>
+	<system>MSX</system>
+	<company>GarlicSoft</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5d6861cfa10dd57315956e25a3c302a711605e44</hash><remark><text>MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Exciting Jockey</title>
@@ -12065,6 +12073,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2662
-Parse time 7.585 seconds on Wed Feb 1 5:27:06 CET 2012
+Roms in this database:2663
+Parse time 7.632 seconds on Wed Feb 1 16:15:58 CET 2012
  -->
