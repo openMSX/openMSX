@@ -13,7 +13,6 @@ namespace openmsx {
 class MSXAudio;
 class MSXMotherBoard;
 class XMLElement;
-class Y8950Impl;
 
 class Y8950
 {
@@ -68,7 +67,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Y8950Impl> pimple;
+	class Impl;
+	const std::auto_ptr<Impl> pimpl;
 };
 
 } // namespace openmsx

@@ -39,7 +39,6 @@ class DiskManipulator;
 class GlobalSettings;
 class CommandController;
 class InfoCommand;
-class MSXMotherBoardImpl;
 class MSXMapperIO;
 
 class MSXMotherBoard : private noncopyable
@@ -167,9 +166,10 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	class Impl;
 private:
-	std::auto_ptr<MSXMotherBoardImpl> pimple;
-	friend class MSXMotherBoardImpl;
+	std::auto_ptr<Impl> pimpl;
+	friend class Impl;
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 3);
 

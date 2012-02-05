@@ -67,11 +67,11 @@ class MachineNameInfo;
 class DeviceInfo;
 class FastForwardHelper;
 
-class MSXMotherBoardImpl : private Observer<Setting>, private noncopyable
+class MSXMotherBoard::Impl : private Observer<Setting>, private noncopyable
 {
 public:
-	MSXMotherBoardImpl(MSXMotherBoard& self, Reactor& reactor);
-	virtual ~MSXMotherBoardImpl();
+	Impl(MSXMotherBoard& self, Reactor& reactor);
+	virtual ~Impl();
 
 	const string& getMachineID();
 	const string& getMachineName() const;
@@ -216,105 +216,105 @@ private:
 class AddRemoveUpdate
 {
 public:
-	AddRemoveUpdate(MSXMotherBoardImpl& motherBoard);
+	AddRemoveUpdate(MSXMotherBoard::Impl& motherBoard);
 	~AddRemoveUpdate();
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class ResetCmd : public RecordedCommand
 {
 public:
-	ResetCmd(MSXMotherBoardImpl& motherBoard);
+	ResetCmd(MSXMotherBoard::Impl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class LoadMachineCmd : public SimpleCommand
 {
 public:
-	LoadMachineCmd(MSXMotherBoardImpl& motherBoard);
+	LoadMachineCmd(MSXMotherBoard::Impl& motherBoard);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class ListExtCmd : public Command
 {
 public:
-	ListExtCmd(MSXMotherBoardImpl& motherBoard);
+	ListExtCmd(MSXMotherBoard::Impl& motherBoard);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class ExtCmd : public RecordedCommand
 {
 public:
-	ExtCmd(MSXMotherBoardImpl& motherBoard);
+	ExtCmd(MSXMotherBoard::Impl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class RemoveExtCmd : public RecordedCommand
 {
 public:
-	RemoveExtCmd(MSXMotherBoardImpl& motherBoard);
+	RemoveExtCmd(MSXMotherBoard::Impl& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class MachineNameInfo : public InfoTopic
 {
 public:
-	MachineNameInfo(MSXMotherBoardImpl& motherBoard);
+	MachineNameInfo(MSXMotherBoard::Impl& motherBoard);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class DeviceInfo : public InfoTopic
 {
 public:
-	DeviceInfo(MSXMotherBoardImpl& motherBoard);
+	DeviceInfo(MSXMotherBoard::Impl& motherBoard);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 class FastForwardHelper : private Schedulable
 {
 public:
-	FastForwardHelper(MSXMotherBoardImpl& msxMotherBoardImpl);
+	FastForwardHelper(MSXMotherBoard::Impl& msxMotherBoardImpl);
 	void setTarget(EmuTime::param targetTime);
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
-	MSXMotherBoardImpl& motherBoard;
+	MSXMotherBoard::Impl& motherBoard;
 };
 
 static unsigned machineIDCounter = 0;
 
-MSXMotherBoardImpl::MSXMotherBoardImpl(
+MSXMotherBoard::Impl::Impl(
 		MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
 	, reactor(reactor_)
@@ -336,7 +336,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	, active(false)
 	, fastForwarding(false)
 {
-	self.pimple.reset(this);
+	self.pimpl.reset(this);
 
 	slotManager.reset(new CartridgeSlotManager(self));
 	reverseManager.reset(new ReverseManager(self));
@@ -351,7 +351,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	msxMixer->mute(); // powered down
 	// TODO: Initialization of this field cannot be done much earlier because
 	//       EventDelay creates a setting, calling getMSXCliComm()
-	//       on MSXMotherBoard, so "pimple" has to be set up already.
+	//       on MSXMotherBoard, so "pimpl" has to be set up already.
 	eventDelay.reset(new EventDelay(
 		*scheduler, *msxCommandController,
 		reactor.getEventDistributor(), *msxEventDistributor,
@@ -363,7 +363,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
 }
 
-MSXMotherBoardImpl::~MSXMotherBoardImpl()
+MSXMotherBoard::Impl::~Impl()
 {
 	powerSetting.detach(*this);
 	deleteMachine();
@@ -375,7 +375,7 @@ MSXMotherBoardImpl::~MSXMotherBoardImpl()
 	assert(!getMachineConfig());
 }
 
-void MSXMotherBoardImpl::deleteMachine()
+void MSXMotherBoard::Impl::deleteMachine()
 {
 	while (!extensions.empty()) {
 		try {
@@ -392,22 +392,22 @@ void MSXMotherBoardImpl::deleteMachine()
 	machineConfig = NULL;
 }
 
-const string& MSXMotherBoardImpl::getMachineID()
+const string& MSXMotherBoard::Impl::getMachineID()
 {
 	return machineID;
 }
 
-const string& MSXMotherBoardImpl::getMachineName() const
+const string& MSXMotherBoard::Impl::getMachineName() const
 {
 	return machineName;
 }
 
-const HardwareConfig* MSXMotherBoardImpl::getMachineConfig() const
+const HardwareConfig* MSXMotherBoard::Impl::getMachineConfig() const
 {
 	return machineConfig;
 }
 
-void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
+void MSXMotherBoard::Impl::setMachineConfig(HardwareConfig* machineConfig_)
 {
 	assert(!getMachineConfig());
 	machineConfig = machineConfig_;
@@ -416,14 +416,14 @@ void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
 	getCPU();
 }
 
-bool MSXMotherBoardImpl::isTurboR() const
+bool MSXMotherBoard::Impl::isTurboR() const
 {
 	const HardwareConfig* config = getMachineConfig();
 	assert(config);
 	return config->getConfig().getChild("devices").findChild("S1990") != NULL;
 }
 
-void MSXMotherBoardImpl::loadMachine(const string& machine)
+void MSXMotherBoard::Impl::loadMachine(const string& machine)
 {
 	assert(machineName.empty());
 	assert(extensions.empty());
@@ -453,7 +453,7 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 	machineName = machine;
 }
 
-string MSXMotherBoardImpl::loadExtension(const string& name)
+string MSXMotherBoard::Impl::loadExtension(const string& name)
 {
 	auto_ptr<HardwareConfig> extension;
 	try {
@@ -468,7 +468,7 @@ string MSXMotherBoardImpl::loadExtension(const string& name)
 	return insertExtension(name, extension);
 }
 
-string MSXMotherBoardImpl::insertExtension(
+string MSXMotherBoard::Impl::insertExtension(
 	const string& name, auto_ptr<HardwareConfig> extension)
 {
 	try {
@@ -484,7 +484,7 @@ string MSXMotherBoardImpl::insertExtension(
 	return result;
 }
 
-HardwareConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
+HardwareConfig* MSXMotherBoard::Impl::findExtension(const string& extensionName)
 {
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
@@ -495,12 +495,12 @@ HardwareConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
 	return NULL;
 }
 
-const MSXMotherBoardImpl::Extensions& MSXMotherBoardImpl::getExtensions() const
+const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() const
 {
 	return extensions;
 }
 
-void MSXMotherBoardImpl::removeExtension(const HardwareConfig& extension)
+void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
 	Extensions::iterator it =
@@ -511,7 +511,7 @@ void MSXMotherBoardImpl::removeExtension(const HardwareConfig& extension)
 	extensions.erase(it);
 }
 
-CliComm& MSXMotherBoardImpl::getMSXCliComm()
+CliComm& MSXMotherBoard::Impl::getMSXCliComm()
 {
 	if (!msxCliComm.get()) {
 		msxCliComm.reset(new MSXCliComm(self, reactor.getGlobalCliComm()));
@@ -519,37 +519,37 @@ CliComm& MSXMotherBoardImpl::getMSXCliComm()
 	return *msxCliComm;
 }
 
-MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
+MSXEventDistributor& MSXMotherBoard::Impl::getMSXEventDistributor()
 {
 	return *msxEventDistributor;
 }
 
-StateChangeDistributor& MSXMotherBoardImpl::getStateChangeDistributor()
+StateChangeDistributor& MSXMotherBoard::Impl::getStateChangeDistributor()
 {
 	return *stateChangeDistributor;
 }
 
-MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
+MSXCommandController& MSXMotherBoard::Impl::getMSXCommandController()
 {
 	return *msxCommandController;
 }
 
-Scheduler& MSXMotherBoardImpl::getScheduler()
+Scheduler& MSXMotherBoard::Impl::getScheduler()
 {
 	return *scheduler;
 }
 
-CartridgeSlotManager& MSXMotherBoardImpl::getSlotManager()
+CartridgeSlotManager& MSXMotherBoard::Impl::getSlotManager()
 {
 	return *slotManager;
 }
 
-RealTime& MSXMotherBoardImpl::getRealTime()
+RealTime& MSXMotherBoard::Impl::getRealTime()
 {
 	return *realTime;
 }
 
-Debugger& MSXMotherBoardImpl::getDebugger()
+Debugger& MSXMotherBoard::Impl::getDebugger()
 {
 	if (!debugger.get()) {
 		debugger.reset(new Debugger(self));
@@ -557,12 +557,12 @@ Debugger& MSXMotherBoardImpl::getDebugger()
 	return *debugger;
 }
 
-MSXMixer& MSXMotherBoardImpl::getMSXMixer()
+MSXMixer& MSXMotherBoard::Impl::getMSXMixer()
 {
 	return *msxMixer;
 }
 
-PluggingController& MSXMotherBoardImpl::getPluggingController()
+PluggingController& MSXMotherBoard::Impl::getPluggingController()
 {
 	if (!pluggingController.get()) {
 		pluggingController.reset(new PluggingController(self));
@@ -570,7 +570,7 @@ PluggingController& MSXMotherBoardImpl::getPluggingController()
 	return *pluggingController;
 }
 
-MSXCPU& MSXMotherBoardImpl::getCPU()
+MSXCPU& MSXMotherBoard::Impl::getCPU()
 {
 	// because CPU needs to know if we're emulating turbor or not
 	assert(getMachineConfig());
@@ -581,7 +581,7 @@ MSXCPU& MSXMotherBoardImpl::getCPU()
 	return *msxCpu;
 }
 
-MSXCPUInterface& MSXMotherBoardImpl::getCPUInterface()
+MSXCPUInterface& MSXMotherBoard::Impl::getCPUInterface()
 {
 	if (!msxCpuInterface.get()) {
 		assert(getMachineConfig());
@@ -590,7 +590,7 @@ MSXCPUInterface& MSXMotherBoardImpl::getCPUInterface()
 	return *msxCpuInterface;
 }
 
-PanasonicMemory& MSXMotherBoardImpl::getPanasonicMemory()
+PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory()
 {
 	if (!panasonicMemory.get()) {
 		panasonicMemory.reset(new PanasonicMemory(self));
@@ -598,7 +598,7 @@ PanasonicMemory& MSXMotherBoardImpl::getPanasonicMemory()
 	return *panasonicMemory;
 }
 
-MSXDeviceSwitch& MSXMotherBoardImpl::getDeviceSwitch()
+MSXDeviceSwitch& MSXMotherBoard::Impl::getDeviceSwitch()
 {
 	if (!deviceSwitch.get()) {
 		deviceSwitch = DeviceFactory::createDeviceSwitch(self);
@@ -606,7 +606,7 @@ MSXDeviceSwitch& MSXMotherBoardImpl::getDeviceSwitch()
 	return *deviceSwitch;
 }
 
-CassettePortInterface& MSXMotherBoardImpl::getCassettePort()
+CassettePortInterface& MSXMotherBoard::Impl::getCassettePort()
 {
 	if (!cassettePort.get()) {
 		assert(getMachineConfig());
@@ -619,7 +619,7 @@ CassettePortInterface& MSXMotherBoardImpl::getCassettePort()
 	return *cassettePort;
 }
 
-RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
+RenShaTurbo& MSXMotherBoard::Impl::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
 		assert(getMachineConfig());
@@ -630,7 +630,7 @@ RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 	return *renShaTurbo;
 }
 
-LedStatus& MSXMotherBoardImpl::getLedStatus()
+LedStatus& MSXMotherBoard::Impl::getLedStatus()
 {
 	if (!ledStatus.get()) {
 		getMSXCliComm(); // force init, to be on the safe side
@@ -642,32 +642,32 @@ LedStatus& MSXMotherBoardImpl::getLedStatus()
 	return *ledStatus;
 }
 
-ReverseManager& MSXMotherBoardImpl::getReverseManager()
+ReverseManager& MSXMotherBoard::Impl::getReverseManager()
 {
 	return *reverseManager;
 }
 
-Reactor& MSXMotherBoardImpl::getReactor()
+Reactor& MSXMotherBoard::Impl::getReactor()
 {
 	return reactor;
 }
 
-CommandController& MSXMotherBoardImpl::getCommandController()
+CommandController& MSXMotherBoard::Impl::getCommandController()
 {
 	return *msxCommandController;
 }
 
-InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
+InfoCommand& MSXMotherBoard::Impl::getMachineInfoCommand()
 {
 	return msxCommandController->getMachineInfoCommand();
 }
 
-EmuTime::param MSXMotherBoardImpl::getCurrentTime()
+EmuTime::param MSXMotherBoard::Impl::getCurrentTime()
 {
 	return scheduler->getCurrentTime();
 }
 
-bool MSXMotherBoardImpl::execute()
+bool MSXMotherBoard::Impl::execute()
 {
 	if (!powered) {
 		return false;
@@ -678,7 +678,7 @@ bool MSXMotherBoardImpl::execute()
 	return true;
 }
 
-void MSXMotherBoardImpl::fastForward(EmuTime::param time, bool fast)
+void MSXMotherBoard::Impl::fastForward(EmuTime::param time, bool fast)
 {
 	assert(powered);
 	assert(getMachineConfig());
@@ -697,7 +697,7 @@ void MSXMotherBoardImpl::fastForward(EmuTime::param time, bool fast)
 	msxMixer->unmute();
 }
 
-void MSXMotherBoardImpl::pause()
+void MSXMotherBoard::Impl::pause()
 {
 	if (getMachineConfig()) {
 		getCPU().setPaused(true);
@@ -705,7 +705,7 @@ void MSXMotherBoardImpl::pause()
 	msxMixer->mute();
 }
 
-void MSXMotherBoardImpl::unpause()
+void MSXMotherBoard::Impl::unpause()
 {
 	if (getMachineConfig()) {
 		getCPU().setPaused(false);
@@ -713,12 +713,12 @@ void MSXMotherBoardImpl::unpause()
 	msxMixer->unmute();
 }
 
-void MSXMotherBoardImpl::addDevice(MSXDevice& device)
+void MSXMotherBoard::Impl::addDevice(MSXDevice& device)
 {
 	availableDevices.push_back(&device);
 }
 
-void MSXMotherBoardImpl::removeDevice(MSXDevice& device)
+void MSXMotherBoard::Impl::removeDevice(MSXDevice& device)
 {
 	Devices::iterator it = find(availableDevices.begin(),
 	                            availableDevices.end(), &device);
@@ -726,7 +726,7 @@ void MSXMotherBoardImpl::removeDevice(MSXDevice& device)
 	availableDevices.erase(it);
 }
 
-void MSXMotherBoardImpl::doReset()
+void MSXMotherBoard::Impl::doReset()
 {
 	if (!powered) return;
 	assert(getMachineConfig());
@@ -744,7 +744,7 @@ void MSXMotherBoardImpl::doReset()
 		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
-byte MSXMotherBoardImpl::readIRQVector()
+byte MSXMotherBoard::Impl::readIRQVector()
 {
 	byte result = 0xff;
 	for (Devices::iterator it = availableDevices.begin();
@@ -754,7 +754,7 @@ byte MSXMotherBoardImpl::readIRQVector()
 	return result;
 }
 
-void MSXMotherBoardImpl::powerUp()
+void MSXMotherBoard::Impl::powerUp()
 {
 	if (powered) return;
 	if (!getMachineConfig()) return;
@@ -784,7 +784,7 @@ void MSXMotherBoardImpl::powerUp()
 		new SimpleEvent(OPENMSX_BOOT_EVENT));
 }
 
-void MSXMotherBoardImpl::powerDown()
+void MSXMotherBoard::Impl::powerDown()
 {
 	if (!powered) return;
 
@@ -805,7 +805,7 @@ void MSXMotherBoardImpl::powerDown()
 	}
 }
 
-void MSXMotherBoardImpl::activate(bool active_)
+void MSXMotherBoard::Impl::activate(bool active_)
 {
 	active = active_;
 	MSXEventDistributor::EventPtr event = active
@@ -816,29 +816,29 @@ void MSXMotherBoardImpl::activate(bool active_)
 		realTime->resync();
 	}
 }
-bool MSXMotherBoardImpl::isActive() const
+bool MSXMotherBoard::Impl::isActive() const
 {
 	return active;
 }
-bool MSXMotherBoardImpl::isFastForwarding() const
+bool MSXMotherBoard::Impl::isFastForwarding() const
 {
 	return fastForwarding;
 }
 
-void MSXMotherBoardImpl::exitCPULoopAsync()
+void MSXMotherBoard::Impl::exitCPULoopAsync()
 {
 	if (getMachineConfig()) {
 		getCPU().exitCPULoopAsync();
 	}
 }
 
-void MSXMotherBoardImpl::exitCPULoopSync()
+void MSXMotherBoard::Impl::exitCPULoopSync()
 {
 	getCPU().exitCPULoopSync();
 }
 
 // Observer<Setting>
-void MSXMotherBoardImpl::update(const Setting& setting)
+void MSXMotherBoard::Impl::update(const Setting& setting)
 {
 	if (&setting == &powerSetting) {
 		if (powerSetting.getValue()) {
@@ -851,7 +851,7 @@ void MSXMotherBoardImpl::update(const Setting& setting)
 	}
 }
 
-MSXDevice* MSXMotherBoardImpl::findDevice(const string& name)
+MSXDevice* MSXMotherBoard::Impl::findDevice(const string& name)
 {
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -862,13 +862,13 @@ MSXDevice* MSXMotherBoardImpl::findDevice(const string& name)
 	return NULL;
 }
 
-MSXMotherBoard::SharedStuff& MSXMotherBoardImpl::getSharedStuff(
+MSXMotherBoard::SharedStuff& MSXMotherBoard::Impl::getSharedStuff(
 	const string& name)
 {
 	return sharedStuffMap[name];
 }
 
-MSXMapperIO* MSXMotherBoardImpl::createMapperIO()
+MSXMapperIO* MSXMotherBoard::Impl::createMapperIO()
 {
 	if (mapperIOCounter == 0) {
 		mapperIO = DeviceFactory::createMapperIO(self);
@@ -887,7 +887,7 @@ MSXMapperIO* MSXMotherBoardImpl::createMapperIO()
 	return mapperIO.get();
 }
 
-void MSXMotherBoardImpl::destroyMapperIO()
+void MSXMotherBoard::Impl::destroyMapperIO()
 {
 	assert(mapperIO.get());
 	assert(mapperIOCounter);
@@ -907,7 +907,7 @@ void MSXMotherBoardImpl::destroyMapperIO()
 	}
 }
 
-string MSXMotherBoardImpl::getUserName(const string& hwName)
+string MSXMotherBoard::Impl::getUserName(const string& hwName)
 {
 	set<string>& s = userNames[hwName];
 	unsigned n = 0;
@@ -919,7 +919,7 @@ string MSXMotherBoardImpl::getUserName(const string& hwName)
 	return userName;
 }
 
-void MSXMotherBoardImpl::freeUserName(const string& hwName,
+void MSXMotherBoard::Impl::freeUserName(const string& hwName,
                                       const string& userName)
 {
 	set<string>& s = userNames[hwName];
@@ -929,7 +929,7 @@ void MSXMotherBoardImpl::freeUserName(const string& hwName,
 
 // AddRemoveUpdate
 
-AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoardImpl& motherBoard_)
+AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoard::Impl& motherBoard_)
 	: motherBoard(motherBoard_)
 {
 	motherBoard.getReactor().getGlobalCliComm().update(
@@ -944,7 +944,7 @@ AddRemoveUpdate::~AddRemoveUpdate()
 
 
 // ResetCmd
-ResetCmd::ResetCmd(MSXMotherBoardImpl& motherBoard_)
+ResetCmd::ResetCmd(MSXMotherBoard::Impl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -967,7 +967,7 @@ string ResetCmd::help(const vector<string>& /*tokens*/) const
 
 
 // LoadMachineCmd
-LoadMachineCmd::LoadMachineCmd(MSXMotherBoardImpl& motherBoard_)
+LoadMachineCmd::LoadMachineCmd(MSXMotherBoard::Impl& motherBoard_)
 	: SimpleCommand(motherBoard_.getCommandController(), "load_machine")
 	, motherBoard(motherBoard_)
 {
@@ -999,7 +999,7 @@ void LoadMachineCmd::tabCompletion(vector<string>& tokens) const
 
 
 // ListExtCmd
-ListExtCmd::ListExtCmd(MSXMotherBoardImpl& motherBoard_)
+ListExtCmd::ListExtCmd(MSXMotherBoard::Impl& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "list_extensions")
 	, motherBoard(motherBoard_)
 {
@@ -1008,8 +1008,8 @@ ListExtCmd::ListExtCmd(MSXMotherBoardImpl& motherBoard_)
 void ListExtCmd::execute(const vector<TclObject*>& /*tokens*/,
                          TclObject& result)
 {
-	const MSXMotherBoardImpl::Extensions& extensions = motherBoard.getExtensions();
-	for (MSXMotherBoardImpl::Extensions::const_iterator it = extensions.begin();
+	const MSXMotherBoard::Impl::Extensions& extensions = motherBoard.getExtensions();
+	for (MSXMotherBoard::Impl::Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
 		result.addListElement((*it)->getName());
 	}
@@ -1022,7 +1022,7 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 
 
 // ExtCmd
-ExtCmd::ExtCmd(MSXMotherBoardImpl& motherBoard_)
+ExtCmd::ExtCmd(MSXMotherBoard::Impl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -1057,7 +1057,7 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 
 
 // RemoveExtCmd
-RemoveExtCmd::RemoveExtCmd(MSXMotherBoardImpl& motherBoard_)
+RemoveExtCmd::RemoveExtCmd(MSXMotherBoard::Impl& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -1093,7 +1093,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> names;
-		for (MSXMotherBoardImpl::Extensions::const_iterator it =
+		for (MSXMotherBoard::Impl::Extensions::const_iterator it =
 		         motherBoard.getExtensions().begin();
 		     it != motherBoard.getExtensions().end(); ++it) {
 			names.insert((*it)->getName());
@@ -1105,7 +1105,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 
 // MachineNameInfo
 
-MachineNameInfo::MachineNameInfo(MSXMotherBoardImpl& motherBoard_)
+MachineNameInfo::MachineNameInfo(MSXMotherBoard::Impl& motherBoard_)
 	: InfoTopic(motherBoard_.getMachineInfoCommand(), "config_name")
 	, motherBoard(motherBoard_)
 {
@@ -1125,7 +1125,7 @@ string MachineNameInfo::help(const vector<string>& /*tokens*/) const
 
 // DeviceInfo
 
-DeviceInfo::DeviceInfo(MSXMotherBoardImpl& motherBoard_)
+DeviceInfo::DeviceInfo(MSXMotherBoard::Impl& motherBoard_)
 	: InfoTopic(motherBoard_.getMachineInfoCommand(), "device")
 	, motherBoard(motherBoard_)
 {
@@ -1136,7 +1136,7 @@ void DeviceInfo::execute(const vector<TclObject*>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (MSXMotherBoardImpl::Devices::const_iterator it =
+		for (MSXMotherBoard::Impl::Devices::const_iterator it =
 		        motherBoard.availableDevices.begin();
 		     it != motherBoard.availableDevices.end(); ++it) {
 			result.addListElement((*it)->getName());
@@ -1167,7 +1167,7 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (MSXMotherBoardImpl::Devices::const_iterator it =
+		for (MSXMotherBoard::Impl::Devices::const_iterator it =
 		         motherBoard.availableDevices.begin();
 		     it != motherBoard.availableDevices.end(); ++it) {
 			names.insert((*it)->getName());
@@ -1179,7 +1179,7 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 
 // FastForwardHelper
 
-FastForwardHelper::FastForwardHelper(MSXMotherBoardImpl& motherBoard_)
+FastForwardHelper::FastForwardHelper(MSXMotherBoard::Impl& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 {
@@ -1201,7 +1201,7 @@ void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 // version 2: added reRecordCount
 // version 3: removed reRecordCount (moved to ReverseManager)
 template<typename Archive>
-void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
+void MSXMotherBoard::Impl::serialize(Archive& ar, unsigned version)
 {
 	// don't serialize:
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
@@ -1261,215 +1261,215 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned version)
 
 MSXMotherBoard::MSXMotherBoard(Reactor& reactor)
 {
-	new MSXMotherBoardImpl(*this, reactor);
+	new MSXMotherBoard::Impl(*this, reactor);
 }
 MSXMotherBoard::~MSXMotherBoard()
 {
 }
 const string& MSXMotherBoard::getMachineID()
 {
-	return pimple->getMachineID();
+	return pimpl->getMachineID();
 }
 bool MSXMotherBoard::execute()
 {
-	return pimple->execute();
+	return pimpl->execute();
 }
 void MSXMotherBoard::fastForward(EmuTime::param time, bool fast)
 {
-	return pimple->fastForward(time, fast);
+	return pimpl->fastForward(time, fast);
 }
 void MSXMotherBoard::exitCPULoopAsync()
 {
-	pimple->exitCPULoopAsync();
+	pimpl->exitCPULoopAsync();
 }
 void MSXMotherBoard::pause()
 {
-	pimple->pause();
+	pimpl->pause();
 }
 void MSXMotherBoard::unpause()
 {
-	pimple->unpause();
+	pimpl->unpause();
 }
 void MSXMotherBoard::powerUp()
 {
-	pimple->powerUp();
+	pimpl->powerUp();
 }
 void MSXMotherBoard::activate(bool active)
 {
-	pimple->activate(active);
+	pimpl->activate(active);
 }
 bool MSXMotherBoard::isActive() const
 {
-	return pimple->isActive();
+	return pimpl->isActive();
 }
 bool MSXMotherBoard::isFastForwarding() const
 {
-	return pimple->isFastForwarding();
+	return pimpl->isFastForwarding();
 }
 byte MSXMotherBoard::readIRQVector()
 {
-	return pimple->readIRQVector();
+	return pimpl->readIRQVector();
 }
 const HardwareConfig* MSXMotherBoard::getMachineConfig() const
 {
-	return pimple->getMachineConfig();
+	return pimpl->getMachineConfig();
 }
 void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig)
 {
-	pimple->setMachineConfig(machineConfig);
+	pimpl->setMachineConfig(machineConfig);
 }
 bool MSXMotherBoard::isTurboR() const
 {
-	return pimple->isTurboR();
+	return pimpl->isTurboR();
 }
 void MSXMotherBoard::loadMachine(const string& machine)
 {
-	pimple->loadMachine(machine);
+	pimpl->loadMachine(machine);
 }
 HardwareConfig* MSXMotherBoard::findExtension(const string& extensionName)
 {
-	return pimple->findExtension(extensionName);
+	return pimpl->findExtension(extensionName);
 }
 string MSXMotherBoard::loadExtension(const string& extensionName)
 {
-	return pimple->loadExtension(extensionName);
+	return pimpl->loadExtension(extensionName);
 }
 string MSXMotherBoard::insertExtension(
 	const string& name, auto_ptr<HardwareConfig> extension)
 {
-	return pimple->insertExtension(name, extension);
+	return pimpl->insertExtension(name, extension);
 }
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
-	pimple->removeExtension(extension);
+	pimpl->removeExtension(extension);
 }
 CliComm& MSXMotherBoard::getMSXCliComm()
 {
 	// note: return-type is CliComm instead of MSXCliComm
-	return pimple->getMSXCliComm();
+	return pimpl->getMSXCliComm();
 }
 MSXCommandController& MSXMotherBoard::getMSXCommandController()
 {
-	return pimple->getMSXCommandController();
+	return pimpl->getMSXCommandController();
 }
 Scheduler& MSXMotherBoard::getScheduler()
 {
-	return pimple->getScheduler();
+	return pimpl->getScheduler();
 }
 MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
 {
-	return pimple->getMSXEventDistributor();
+	return pimpl->getMSXEventDistributor();
 }
 StateChangeDistributor& MSXMotherBoard::getStateChangeDistributor()
 {
-	return pimple->getStateChangeDistributor();
+	return pimpl->getStateChangeDistributor();
 }
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 {
-	return pimple->getSlotManager();
+	return pimpl->getSlotManager();
 }
 RealTime& MSXMotherBoard::getRealTime()
 {
-	return pimple->getRealTime();
+	return pimpl->getRealTime();
 }
 Debugger& MSXMotherBoard::getDebugger()
 {
-	return pimple->getDebugger();
+	return pimpl->getDebugger();
 }
 MSXMixer& MSXMotherBoard::getMSXMixer()
 {
-	return pimple->getMSXMixer();
+	return pimpl->getMSXMixer();
 }
 PluggingController& MSXMotherBoard::getPluggingController()
 {
-	return pimple->getPluggingController();
+	return pimpl->getPluggingController();
 }
 MSXCPU& MSXMotherBoard::getCPU()
 {
-	return pimple->getCPU();
+	return pimpl->getCPU();
 }
 MSXCPUInterface& MSXMotherBoard::getCPUInterface()
 {
-	return pimple->getCPUInterface();
+	return pimpl->getCPUInterface();
 }
 PanasonicMemory& MSXMotherBoard::getPanasonicMemory()
 {
-	return pimple->getPanasonicMemory();
+	return pimpl->getPanasonicMemory();
 }
 MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 {
-	return pimple->getDeviceSwitch();
+	return pimpl->getDeviceSwitch();
 }
 CassettePortInterface& MSXMotherBoard::getCassettePort()
 {
-	return pimple->getCassettePort();
+	return pimpl->getCassettePort();
 }
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
-	return pimple->getRenShaTurbo();
+	return pimpl->getRenShaTurbo();
 }
 LedStatus& MSXMotherBoard::getLedStatus()
 {
-	return pimple->getLedStatus();
+	return pimpl->getLedStatus();
 }
 ReverseManager& MSXMotherBoard::getReverseManager()
 {
-	return pimple->getReverseManager();
+	return pimpl->getReverseManager();
 }
 Reactor& MSXMotherBoard::getReactor()
 {
-	return pimple->getReactor();
+	return pimpl->getReactor();
 }
 CommandController& MSXMotherBoard::getCommandController()
 {
-	return pimple->getCommandController();
+	return pimpl->getCommandController();
 }
 InfoCommand& MSXMotherBoard::getMachineInfoCommand()
 {
-	return pimple->getMachineInfoCommand();
+	return pimpl->getMachineInfoCommand();
 }
 EmuTime::param MSXMotherBoard::getCurrentTime()
 {
-	return pimple->getCurrentTime();
+	return pimpl->getCurrentTime();
 }
 void MSXMotherBoard::addDevice(MSXDevice& device)
 {
-	pimple->addDevice(device);
+	pimpl->addDevice(device);
 }
 void MSXMotherBoard::removeDevice(MSXDevice& device)
 {
-	pimple->removeDevice(device);
+	pimpl->removeDevice(device);
 }
 MSXDevice* MSXMotherBoard::findDevice(const string& name)
 {
-	return pimple->findDevice(name);
+	return pimpl->findDevice(name);
 }
 MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(const string& name)
 {
-	return pimple->getSharedStuff(name);
+	return pimpl->getSharedStuff(name);
 }
 MSXMapperIO* MSXMotherBoard::createMapperIO()
 {
-	return pimple->createMapperIO();
+	return pimpl->createMapperIO();
 }
 void MSXMotherBoard::destroyMapperIO()
 {
-	pimple->destroyMapperIO();
+	pimpl->destroyMapperIO();
 }
 string MSXMotherBoard::getUserName(const string& hwName)
 {
-	return pimple->getUserName(hwName);
+	return pimpl->getUserName(hwName);
 }
 void MSXMotherBoard::freeUserName(const string& hwName,
                                   const string& userName)
 {
-	pimple->freeUserName(hwName, userName);
+	pimpl->freeUserName(hwName, userName);
 }
 
 template<typename Archive>
 void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 {
-	pimple->serialize(ar, version);
+	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMotherBoard)
 

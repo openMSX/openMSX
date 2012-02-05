@@ -87,12 +87,12 @@ chirp 12-..: vokume   0   : silent
 
 namespace openmsx {
 
-class VLM5030Impl : public ResampledSoundDevice
+class VLM5030::Impl : public ResampledSoundDevice
 {
 public:
-	VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
+	Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	            const std::string& desc, const XMLElement& config);
-	~VLM5030Impl();
+	~Impl();
 
 	void reset();
 	void writeData(byte data);
@@ -242,7 +242,7 @@ static const signed_word K5_table[] = {
 	0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-int VLM5030Impl::getBits(unsigned sbit, unsigned bits)
+int VLM5030::Impl::getBits(unsigned sbit, unsigned bits)
 {
 	unsigned offset = address + (sbit / 8);
 	unsigned data = (*rom)[(offset + 0) & address_mask] +
@@ -253,7 +253,7 @@ int VLM5030Impl::getBits(unsigned sbit, unsigned bits)
 }
 
 // get next frame
-int VLM5030Impl::parseFrame()
+int VLM5030::Impl::parseFrame()
 {
 	// remember previous frame
 	old_energy = new_energy;
@@ -301,7 +301,7 @@ int VLM5030Impl::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030Impl::generateChannels(int** bufs, unsigned length)
+void VLM5030::Impl::generateChannels(int** bufs, unsigned length)
 {
 	if (phase == PH_IDLE) {
 		bufs[0] = 0;
@@ -437,7 +437,7 @@ phase_stop:
 }
 
 // setup parameteroption when RST=H
-void VLM5030Impl::setupParameter(byte param)
+void VLM5030::Impl::setupParameter(byte param)
 {
 	// latch parameter value
 	parameter = param;
@@ -464,7 +464,7 @@ void VLM5030Impl::setupParameter(byte param)
 	}
 }
 
-void VLM5030Impl::reset()
+void VLM5030::Impl::reset()
 {
 	phase = PH_RESET;
 	address = 0;
@@ -486,19 +486,19 @@ void VLM5030Impl::reset()
 }
 
 // get BSY pin level
-bool VLM5030Impl::getBSY(EmuTime::param time)
+bool VLM5030::Impl::getBSY(EmuTime::param time)
 {
 	updateStream(time);
 	return pin_BSY;
 }
 
 // latch control data
-void VLM5030Impl::writeData(byte data)
+void VLM5030::Impl::writeData(byte data)
 {
 	latch_data = data;
 }
 
-void VLM5030Impl::writeControl(byte data, EmuTime::param time)
+void VLM5030::Impl::writeControl(byte data, EmuTime::param time)
 {
 	updateStream(time);
 	setRST((data & 0x01) != 0);
@@ -507,7 +507,7 @@ void VLM5030Impl::writeControl(byte data, EmuTime::param time)
 }
 
 // set RST pin level : reset / set table address A8-A15
-void VLM5030Impl::setRST(bool pin)
+void VLM5030::Impl::setRST(bool pin)
 {
 	if (pin_RST) {
 		if (!pin) { // H -> L : latch parameters
@@ -525,14 +525,14 @@ void VLM5030Impl::setRST(bool pin)
 }
 
 // set VCU pin level : ?? unknown
-void VLM5030Impl::setVCU(bool pin)
+void VLM5030::Impl::setVCU(bool pin)
 {
 	// direct mode / indirect mode
 	pin_VCU = pin;
 }
 
 // set ST pin level  : set table address A0-A7 / start speech
-void VLM5030Impl::setST(bool pin)
+void VLM5030::Impl::setST(bool pin)
 {
 	if (pin_ST == pin) {
 		// pin level unchanged
@@ -573,7 +573,7 @@ void VLM5030Impl::setST(bool pin)
 	}
 }
 
-VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
+VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config)
 	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
@@ -606,13 +606,13 @@ VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-VLM5030Impl::~VLM5030Impl()
+VLM5030::Impl::~Impl()
 {
 	unregisterSound();
 }
 
 template<typename Archive>
-void VLM5030Impl::serialize(Archive& ar, unsigned /*version*/)
+void VLM5030::Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("address_mask", address_mask);
 	ar.serialize("frame_size", frame_size);
@@ -650,7 +650,7 @@ void VLM5030Impl::serialize(Archive& ar, unsigned /*version*/)
 
 VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config)
-	: pimple(new VLM5030Impl(motherBoard, name, desc, config))
+	: pimpl(new Impl(motherBoard, name, desc, config))
 {
 }
 
@@ -660,28 +660,28 @@ VLM5030::~VLM5030()
 
 void VLM5030::reset()
 {
-	pimple->reset();
+	pimpl->reset();
 }
 
 void VLM5030::writeData(byte data)
 {
-	pimple->writeData(data);
+	pimpl->writeData(data);
 }
 
 void VLM5030::writeControl(byte data, EmuTime::param time)
 {
-	pimple->writeControl(data, time);
+	pimpl->writeControl(data, time);
 }
 
 bool VLM5030::getBSY(EmuTime::param time)
 {
-	return pimple->getBSY(time);
+	return pimpl->getBSY(time);
 }
 
 template<typename Archive>
 void VLM5030::serialize(Archive& ar, unsigned version)
 {
-	pimple->serialize(ar, version);
+	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(VLM5030);
 

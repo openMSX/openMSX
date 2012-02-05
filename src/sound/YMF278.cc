@@ -27,21 +27,23 @@ namespace openmsx {
 class DebugRegisters : public SimpleDebuggable
 {
 public:
-	DebugRegisters(YMF278Impl& ymf278, MSXMotherBoard& motherBoard);
+	DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard,
+	               const std::string& name);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, EmuTime::param time);
 private:
-	YMF278Impl& ymf278;
+	YMF278& ymf278;
 };
 
 class DebugMemory : public SimpleDebuggable
 {
 public:
-	DebugMemory(YMF278Impl& ymf278, MSXMotherBoard& motherBoard);
+	DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard,
+	            const std::string& name);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value);
 private:
-	YMF278Impl& ymf278;
+	YMF278& ymf278;
 };
 
 class YMF278Slot
@@ -99,17 +101,19 @@ public:
 };
 SERIALIZE_CLASS_VERSION(YMF278Slot, 3);
 
-class YMF278Impl : public ResampledSoundDevice
+class YMF278::Impl : public ResampledSoundDevice
 {
 public:
-	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	       int ramSize, const XMLElement& config);
-	virtual ~YMF278Impl();
+	Impl(YMF278& self, MSXMotherBoard& motherBoard,
+	     const std::string& name, int ramSize, const XMLElement& config);
+	virtual ~Impl();
 	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte data, EmuTime::param time);
 	byte readReg(byte reg);
 	byte peekReg(byte reg) const;
+	byte readMem(unsigned address) const;
+	void writeMem(unsigned address, byte value);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -120,16 +124,12 @@ private:
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	unsigned getRamAddress(unsigned addr) const;
-	byte readMem(unsigned address) const;
-	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
 	void advance();
 	bool anyActive();
 	void keyOnHelper(YMF278Slot& slot);
 
 	MSXMotherBoard& motherBoard;
-	friend class DebugRegisters;
-	friend class DebugMemory;
 	const std::auto_ptr<DebugRegisters> debugRegisters;
 	const std::auto_ptr<DebugMemory>    debugMemory;
 
@@ -153,7 +153,7 @@ private:
 
 	byte regs[256];
 };
-// Don't set SERIALIZE_CLASS_VERSION on YMF278Impl, instead set it on YMF278.
+// Don't set SERIALIZE_CLASS_VERSION on YMF278::Impl, instead set it on YMF278.
 
 
 const int EG_SH = 16; // 16.16 fixed point (EG timing)
@@ -386,7 +386,7 @@ void YMF278Slot::set_lfo(int newlfo)
 }
 
 
-void YMF278Impl::advance()
+void YMF278::Impl::advance()
 {
 	eg_cnt++;
 	for (int i = 0; i < 24; ++i) {
@@ -533,7 +533,7 @@ void YMF278Impl::advance()
 	}
 }
 
-short YMF278Impl::getSample(YMF278Slot& op)
+short YMF278::Impl::getSample(YMF278Slot& op)
 {
 	// TODO How does this behave when R#2 bit 0 = 1?
 	//      As-if read returns 0xff? (Like for CPU memory reads.) Or is
@@ -571,7 +571,7 @@ short YMF278Impl::getSample(YMF278Slot& op)
 	return sample;
 }
 
-bool YMF278Impl::anyActive()
+bool YMF278::Impl::anyActive()
 {
 	for (int i = 0; i < 24; ++i) {
 		if (slots[i].active) {
@@ -581,7 +581,7 @@ bool YMF278Impl::anyActive()
 	return false;
 }
 
-void YMF278Impl::generateChannels(int** bufs, unsigned num)
+void YMF278::Impl::generateChannels(int** bufs, unsigned num)
 {
 	if (!anyActive()) {
 		// TODO update internal state, even if muted
@@ -635,7 +635,7 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void YMF278Impl::keyOnHelper(YMF278Slot& slot)
+void YMF278::Impl::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
 
@@ -647,13 +647,13 @@ void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 	slot.sample2 = getSample(slot);
 }
 
-void YMF278Impl::writeReg(byte reg, byte data, EmuTime::param time)
+void YMF278::Impl::writeReg(byte reg, byte data, EmuTime::param time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 	writeRegDirect(reg, data, time);
 }
 
-void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
+void YMF278::Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 {
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
@@ -832,7 +832,7 @@ void YMF278Impl::writeRegDirect(byte reg, byte data, EmuTime::param time)
 	regs[reg] = data;
 }
 
-byte YMF278Impl::readReg(byte reg)
+byte YMF278::Impl::readReg(byte reg)
 {
 	// no need to call updateStream(time)
 	byte result = peekReg(reg);
@@ -847,7 +847,7 @@ byte YMF278Impl::readReg(byte reg)
 	return result;
 }
 
-byte YMF278Impl::peekReg(byte reg) const
+byte YMF278::Impl::peekReg(byte reg) const
 {
 	byte result;
 	switch (reg) {
@@ -871,13 +871,14 @@ byte YMF278Impl::peekReg(byte reg) const
 	return result;
 }
 
-YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
-                       int ramSize, const XMLElement& config)
+YMF278::Impl::Impl(YMF278& self, MSXMotherBoard& motherBoard_,
+                       const std::string& name, int ramSize,
+                       const XMLElement& config)
 	: ResampledSoundDevice(motherBoard_, name, "MoonSound wave-part",
 	                       24, true)
 	, motherBoard(motherBoard_)
-	, debugRegisters(new DebugRegisters(*this, motherBoard))
-	, debugMemory   (new DebugMemory   (*this, motherBoard))
+	, debugRegisters(new DebugRegisters(self, motherBoard, getName()))
+	, debugMemory   (new DebugMemory   (self, motherBoard, getName()))
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 {
@@ -915,17 +916,17 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
 	}
 }
 
-YMF278Impl::~YMF278Impl()
+YMF278::Impl::~Impl()
 {
 	unregisterSound();
 }
 
-void YMF278Impl::clearRam()
+void YMF278::Impl::clearRam()
 {
 	memset(ram.data(), 0, ram.size());
 }
 
-void YMF278Impl::reset(EmuTime::param time)
+void YMF278::Impl::reset(EmuTime::param time)
 {
 	updateStream(time);
 
@@ -988,7 +989,7 @@ void YMF278Impl::reset(EmuTime::param time)
 // (For completeness) MoonSound also has 2MB ROM (YRW801), /CE of this ROM is
 // connected to YMF278 /MCS0. In both mode=0 and mode=1 this signal is active
 // for the region 0x000000-0x1FFFFF. (But this routine does not handle ROM).
-unsigned YMF278Impl::getRamAddress(unsigned addr) const
+unsigned YMF278::Impl::getRamAddress(unsigned addr) const
 {
 	addr -= 0x200000; // RAM starts at 0x200000
 	if (unlikely(regs[2] & 2)) {
@@ -1034,7 +1035,7 @@ unsigned YMF278Impl::getRamAddress(unsigned addr) const
 	return addr;
 }
 
-byte YMF278Impl::readMem(unsigned address) const
+byte YMF278::Impl::readMem(unsigned address) const
 {
 	// Verified on real YMF278: address space wraps at 4MB.
 	address &= 0x3FFFFF;
@@ -1052,7 +1053,7 @@ byte YMF278Impl::readMem(unsigned address) const
 	}
 }
 
-void YMF278Impl::writeMem(unsigned address, byte value)
+void YMF278::Impl::writeMem(unsigned address, byte value)
 {
 	address &= 0x3FFFFF;
 	if (address < 0x200000) {
@@ -1145,7 +1146,7 @@ void YMF278Slot::serialize(Archive& ar, unsigned version)
 // version 2: loadTime and busyTime moved to MSXMoonSound class
 // version 3: memadr cannot be restored from register values
 template<typename Archive>
-void YMF278Impl::serialize(Archive& ar, unsigned version)
+void YMF278::Impl::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("slots", slots);
 	ar.serialize("eg_cnt", eg_cnt);
@@ -1179,9 +1180,9 @@ void YMF278Impl::serialize(Archive& ar, unsigned version)
 
 // class DebugRegisters
 
-DebugRegisters::DebugRegisters(YMF278Impl& ymf278_,
-                                       MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, ymf278_.getName() + " regs",
+DebugRegisters::DebugRegisters(YMF278& ymf278_, MSXMotherBoard& motherBoard,
+                               const std::string& name)
+	: SimpleDebuggable(motherBoard, name + " regs",
 	                   "OPL4 registers", 0x100)
 	, ymf278(ymf278_)
 {
@@ -1200,8 +1201,9 @@ void DebugRegisters::write(unsigned address, byte value, EmuTime::param time)
 
 // class DebugMemory
 
-DebugMemory::DebugMemory(YMF278Impl& ymf278_, MSXMotherBoard& motherBoard)
-	: SimpleDebuggable(motherBoard, ymf278_.getName() + " mem",
+DebugMemory::DebugMemory(YMF278& ymf278_, MSXMotherBoard& motherBoard,
+                         const std::string& name)
+	: SimpleDebuggable(motherBoard, name + " mem",
 	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
 	, ymf278(ymf278_)
 {
@@ -1222,7 +1224,7 @@ void DebugMemory::write(unsigned address, byte value)
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name,
                int ramSize, const XMLElement& config)
-	: pimple(new YMF278Impl(motherBoard, name, ramSize, config))
+	: pimpl(new Impl(*this, motherBoard, name, ramSize, config))
 {
 }
 
@@ -1232,33 +1234,43 @@ YMF278::~YMF278()
 
 void YMF278::clearRam()
 {
-	pimple->clearRam();
+	pimpl->clearRam();
 }
 
 void YMF278::reset(EmuTime::param time)
 {
-	pimple->reset(time);
+	pimpl->reset(time);
 }
 
 void YMF278::writeReg(byte reg, byte data, EmuTime::param time)
 {
-	pimple->writeReg(reg, data, time);
+	pimpl->writeReg(reg, data, time);
 }
 
 byte YMF278::readReg(byte reg)
 {
-	return pimple->readReg(reg);
+	return pimpl->readReg(reg);
 }
 
 byte YMF278::peekReg(byte reg) const
 {
-	return pimple->peekReg(reg);
+	return pimpl->peekReg(reg);
+}
+
+byte YMF278::readMem(unsigned address) const
+{
+	return pimpl->readMem(address);
+}
+
+void YMF278::writeMem(unsigned address, byte value)
+{
+	pimpl->writeMem(address, value);
 }
 
 template<typename Archive>
 void YMF278::serialize(Archive& ar, unsigned version)
 {
-	pimple->serialize(ar, version);
+	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(YMF278);
 

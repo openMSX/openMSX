@@ -13,7 +13,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class YMF262Impl;
 
 class YMF262
 {
@@ -23,7 +22,8 @@ public:
 	~YMF262();
 
 	void reset(EmuTime::param time);
-	void writeReg(unsigned r, byte v, EmuTime::param time);
+	void writeReg   (unsigned r, byte v, EmuTime::param time);
+	void writeReg512(unsigned r, byte v, EmuTime::param time);
 	byte readReg(unsigned reg);
 	byte peekReg(unsigned reg) const;
 	byte readStatus();
@@ -33,7 +33,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<YMF262Impl> pimple;
+	class Impl;
+	const std::auto_ptr<Impl> pimpl;
 };
 SERIALIZE_CLASS_VERSION(YMF262, 2);
 

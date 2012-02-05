@@ -17,13 +17,13 @@
 
 namespace openmsx {
 
-class YM2151Impl : public ResampledSoundDevice, private EmuTimerCallback
+class YM2151::Impl : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
+	Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	           const std::string& desc, const XMLElement& config,
 	           EmuTime::param time);
-	~YM2151Impl();
+	~Impl();
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
 	byte readStatus();
@@ -472,7 +472,7 @@ static byte lfo_noise_waveform[256] = {
 0xE2,0x4D,0x8A,0xA6,0x46,0x95,0x0F,0x8F,0xF5,0x15,0x97,0x32,0xD4,0x28,0x1E,0x55
 };
 
-void YM2151Impl::initTables()
+void YM2151::Impl::initTables()
 {
 	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
@@ -529,7 +529,7 @@ void YM2151Impl::initTables()
 	}
 }
 
-void YM2151Impl::initChipTables()
+void YM2151::Impl::initChipTables()
 {
 	// this loop calculates Hertz values for notes from c-0 to b-7
 	// including 64 'cents' (100/64 that is 1.5625 of real cent) per note
@@ -591,7 +591,7 @@ void YM2151Impl::initChipTables()
 	}
 }
 
-void YM2151Impl::keyOn(YM2151Operator* op, unsigned keySet) {
+void YM2151::Impl::keyOn(YM2151Operator* op, unsigned keySet) {
 	if (!op->key) {
 		op->phase = 0; /* clear phase */
 		op->state = EG_ATT; /* KEY ON = attack */
@@ -606,7 +606,7 @@ void YM2151Impl::keyOn(YM2151Operator* op, unsigned keySet) {
 	op->key |= keySet;
 }
 
-void YM2151Impl::keyOff(YM2151Operator* op, unsigned keyClear) {
+void YM2151::Impl::keyOff(YM2151Operator* op, unsigned keyClear) {
 	if (op->key) {
 		op->key &= keyClear;
 		if (!op->key) {
@@ -617,7 +617,7 @@ void YM2151Impl::keyOff(YM2151Operator* op, unsigned keyClear) {
 	}
 }
 
-void YM2151Impl::envelopeKONKOFF(YM2151Operator* op, int v)
+void YM2151::Impl::envelopeKONKOFF(YM2151Operator* op, int v)
 {
 	if (v & 0x08) { // M1
 		keyOn (op + 0, 1);
@@ -641,7 +641,7 @@ void YM2151Impl::envelopeKONKOFF(YM2151Operator* op, int v)
 	}
 }
 
-void YM2151Impl::setConnect(YM2151Operator* om1, int cha, int v)
+void YM2151::Impl::setConnect(YM2151Operator* om1, int cha, int v)
 {
 	YM2151Operator* om2 = om1 + 1;
 	YM2151Operator* oc1 = om1 + 2;
@@ -729,7 +729,7 @@ void YM2151Impl::setConnect(YM2151Operator* om1, int cha, int v)
 	}
 }
 
-void YM2151Impl::refreshEG(YM2151Operator* op)
+void YM2151::Impl::refreshEG(YM2151Operator* op)
 {
 	unsigned kc = op->kc;
 
@@ -798,7 +798,7 @@ void YM2151Impl::refreshEG(YM2151Operator* op)
 	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
 }
 
-void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
+void YM2151::Impl::writeReg(byte r, byte v, EmuTime::param time)
 {
 	updateStream(time);
 
@@ -1014,7 +1014,7 @@ void YM2151Impl::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
-YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
+YM2151::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                EmuTime::param time)
 	: ResampledSoundDevice(motherBoard, name, desc, 8, true)
@@ -1039,12 +1039,12 @@ YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-YM2151Impl::~YM2151Impl()
+YM2151::Impl::~Impl()
 {
 	unregisterSound();
 }
 
-bool YM2151Impl::checkMuteHelper()
+bool YM2151::Impl::checkMuteHelper()
 {
 	for (int i = 0; i < 32; ++i) {
 		if (oper[i].state != EG_OFF) {
@@ -1054,7 +1054,7 @@ bool YM2151Impl::checkMuteHelper()
 	return true;
 }
 
-void YM2151Impl::reset(EmuTime::param time)
+void YM2151::Impl::reset(EmuTime::param time)
 {
 	// initialize hardware registers
 	for (int i = 0; i < 32; ++i) {
@@ -1098,7 +1098,7 @@ void YM2151Impl::reset(EmuTime::param time)
 	irq.reset();
 }
 
-int YM2151Impl::opCalc(YM2151Operator* OP, unsigned env, int pm)
+int YM2151::Impl::opCalc(YM2151Operator* OP, unsigned env, int pm)
 {
 	unsigned p = (env << 3) + sin_tab[(int((OP->phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
@@ -1107,7 +1107,7 @@ int YM2151Impl::opCalc(YM2151Operator* OP, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-int YM2151Impl::opCalc1(YM2151Operator* OP, unsigned env, int pm)
+int YM2151::Impl::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 {
 	int i = (OP->phase & ~FREQ_MASK) + pm;
 	unsigned p = (env << 3) + sin_tab[(i >> FREQ_SH) & SIN_MASK];
@@ -1117,12 +1117,12 @@ int YM2151Impl::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-unsigned YM2151Impl::volumeCalc(YM2151Operator* OP, unsigned AM)
+unsigned YM2151::Impl::volumeCalc(YM2151Operator* OP, unsigned AM)
 {
 	return OP->tl + unsigned(OP->volume) + (AM & OP->AMmask);
 }
 
-void YM2151Impl::chanCalc(unsigned chan)
+void YM2151::Impl::chanCalc(unsigned chan)
 {
 	m2 = c1 = c2 = mem = 0;
 	YM2151Operator* op = &oper[chan*4]; // M1
@@ -1168,7 +1168,7 @@ void YM2151Impl::chanCalc(unsigned chan)
 	op->mem_value = mem;
 }
 
-void YM2151Impl::chan7Calc()
+void YM2151::Impl::chan7Calc()
 {
 	m2 = c1 = c2 = mem = 0;
 	YM2151Operator* op = &oper[7 * 4]; // M1
@@ -1428,7 +1428,7 @@ rate 11 1         |
                                  --
 */
 
-void YM2151Impl::advanceEG()
+void YM2151::Impl::advanceEG()
 {
 	if (eg_timer++ != 3) {
 		// envelope generator timer overlfows every 3 samples (on real chip)
@@ -1485,7 +1485,7 @@ void YM2151Impl::advanceEG()
 	}
 }
 
-void YM2151Impl::advance()
+void YM2151::Impl::advance()
 {
 	// LFO
 	if (test & 2) {
@@ -1643,7 +1643,7 @@ void YM2151Impl::advance()
 	}
 }
 
-void YM2151Impl::generateChannels(int** bufs, unsigned num)
+void YM2151::Impl::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
@@ -1671,7 +1671,7 @@ void YM2151Impl::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void YM2151Impl::callback(byte flag)
+void YM2151::Impl::callback(byte flag)
 {
 	if (flag & 0x20) { // Timer 1
 		if (irq_enable & 0x04) {
@@ -1688,12 +1688,12 @@ void YM2151Impl::callback(byte flag)
 	}
 }
 
-byte YM2151Impl::readStatus()
+byte YM2151::Impl::readStatus()
 {
 	return status;
 }
 
-void YM2151Impl::setStatus(byte flags)
+void YM2151::Impl::setStatus(byte flags)
 {
 	status |= flags;
 	if (status) {
@@ -1701,7 +1701,7 @@ void YM2151Impl::setStatus(byte flags)
 	}
 }
 
-void YM2151Impl::resetStatus(byte flags)
+void YM2151::Impl::resetStatus(byte flags)
 {
 	status &= ~flags;
 	if (!status) {
@@ -1711,7 +1711,7 @@ void YM2151Impl::resetStatus(byte flags)
 
 
 template<typename Archive>
-void YM2151Impl::YM2151Operator::serialize(Archive& ar, unsigned /*version*/)
+void YM2151::Impl::YM2151Operator::serialize(Archive& ar, unsigned /*version*/)
 {
 	//int* connect; // recalculated from regs[0x20-0x27]
 	//int* mem_connect; // recalculated from regs[0x20-0x27]
@@ -1751,7 +1751,7 @@ void YM2151Impl::YM2151Operator::serialize(Archive& ar, unsigned /*version*/)
 };
 
 template<typename Archive>
-void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
+void YM2151::Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("irq", irq);
 	ar.serialize("timer1", *timer1);
@@ -1802,7 +1802,7 @@ void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                EmuTime::param time)
-	: pimple(new YM2151Impl(motherBoard, name, desc, config, time))
+	: pimpl(new Impl(motherBoard, name, desc, config, time))
 {
 }
 
@@ -1812,23 +1812,23 @@ YM2151::~YM2151()
 
 void YM2151::reset(EmuTime::param time)
 {
-	pimple->reset(time);
+	pimpl->reset(time);
 }
 
 void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 {
-	pimple->writeReg(r, v, time);
+	pimpl->writeReg(r, v, time);
 }
 
 byte YM2151::readStatus()
 {
-	return pimple->readStatus();
+	return pimpl->readStatus();
 }
 
 template<typename Archive>
 void YM2151::serialize(Archive& ar, unsigned version)
 {
-	pimple->serialize(ar, version);
+	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(YM2151);
 

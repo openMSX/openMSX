@@ -42,7 +42,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class YM2151Impl;
 
 class YM2151
 {
@@ -60,7 +59,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<YM2151Impl> pimple;
+	class Impl;
+	const std::auto_ptr<Impl> pimpl;
 };
 
 } // namespace openmsx

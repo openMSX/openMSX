@@ -12,7 +12,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class VLM5030Impl;
 
 class VLM5030
 {
@@ -35,7 +34,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<VLM5030Impl> pimple;
+	class Impl;
+	const std::auto_ptr<Impl> pimpl;
 };
 
 } // namespace openmsx

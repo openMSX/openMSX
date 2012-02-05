@@ -13,7 +13,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class YMF278Impl;
 
 class YMF278
 {
@@ -27,11 +26,15 @@ public:
 	byte readReg(byte reg);
 	byte peekReg(byte reg) const;
 
+	byte readMem(unsigned address) const;
+	void writeMem(unsigned address, byte value);
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<YMF278Impl> pimple;
+	class Impl;
+	const std::auto_ptr<Impl> pimpl;
 };
 SERIALIZE_CLASS_VERSION(YMF278, 3);
 

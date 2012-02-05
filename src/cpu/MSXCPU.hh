@@ -135,7 +135,7 @@ public:
 private:
 	// only for MSXMotherBoard
 	void execute(bool fastForward);
-	friend class MSXMotherBoardImpl;
+	friend class MSXMotherBoard;
 
 	/**
 	 * The time returned by this method is not safe to use for Scheduler
