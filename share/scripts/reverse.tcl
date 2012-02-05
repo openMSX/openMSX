@@ -174,11 +174,11 @@ proc enable_reversebar {{visible true}} {
 
 	# on mouse over hover box
 	osd create rectangle reverse.mousetime \
-		-relx 0.5 -rely 1 -relh 0.75 -relw 0.10 -z 4 \
+		-relx 0.5 -rely 1 -relh 0.75 -z 4 \
 		-rgba "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
 		-bordersize 0.5 -borderrgba 0xffff4480
 	osd create text reverse.mousetime.text \
-		-relx 0.25 -size 5 -z 4 -rgba 0x000000ff
+		-size 5 -z 4 -rgba 0x000000ff
 
 	update_reversebar
 
@@ -246,8 +246,10 @@ proc update_reversebar {} {
 	# Hide when mouse hasn't moved for some time
 	if {$mouseInside && $overlay_counter < 8} {
 		variable overlayOffset
-		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}]
-		osd configure reverse.mousetime.text -text "[formatTime [expr {$x * $totLenght}]]"
+		set mousetext [formatTime [expr {$x * $totLenght}]]
+		osd configure reverse.mousetime.text -text $mousetext -relx 0.05
+		set textsize [lindex [osd info reverse.mousetime.text -query-size] 0]
+		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}] -w [expr 1.1 * $textsize]
 		incr overlay_counter
 	} else {
 		osd configure reverse.mousetime -rely -100
