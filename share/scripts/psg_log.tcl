@@ -26,7 +26,8 @@
 namespace eval psg_log {
 
 set_help_text psg_log \
-{This script logs PSG registers 0 through 14 to a file at every frame end.
+{This script logs PSG registers 0 through 13 to a file as they are written,
+seperated each frame.
 The file format is the PSG format used in some emulators. More information
 is here:  http://www.msx.org/forumtopic6258.html (and in the comments of
 this script).
@@ -44,25 +45,30 @@ Examples:
 
 set_tabcompletion_proc psg_log [namespace code tab_psg_log]
 
-proc tab_psg_log {args} {
+proc tab_psg_log { args } {
 	if {[llength $args] == 2} {
 		return "start stop"
 	}
 }
 
 variable psg_log_file -1
+variable psg_log_wp ""
+variable psg_log_reg
 
-proc psg_log {subcommand {filename "log.psg"}} {
+proc psg_log { subcommand {filename "log.psg"} } {
 	variable psg_log_file
+	variable psg_log_wp
 	if {$subcommand eq "start"} {
-		if {$psg_log_file != -1} {close $psg_log_file}
+		if {$psg_log_file != -1} { close $psg_log_file }
 		set psg_log_file [open $filename {WRONLY TRUNC CREAT}]
 		fconfigure $psg_log_file -translation binary
 		set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
 		puts -nonewline $psg_log_file [binary format c16 $header]
-		do_psg_log
+		if {$psg_log_wp == ""} { set psg_log_wp [debug set_watchpoint write_io {0xa0 0xa1} 1 { psg_log::psg_log_write }] }
+		after frame [namespace code do_psg_frame]
 		return ""
 	} elseif {$subcommand eq "stop"} {
+		debug remove_watchpoint $psg_log_wp
 		close $psg_log_file
 		set psg_log_file -1
 		return ""
@@ -71,15 +77,21 @@ proc psg_log {subcommand {filename "log.psg"}} {
 	}
 }
 
-proc do_psg_log {} {
+proc do_psg_frame {} {
 	variable psg_log_file
 	if {$psg_log_file == -1} return
-	for {set i 0} {$i < 14} {incr i} {
-		set value [debug read "PSG regs" $i]
-		puts -nonewline $psg_log_file [binary format c2 "$i $value"]
-	}
 	puts -nonewline $psg_log_file [binary format c 0xFF]
-	after frame [namespace code do_psg_log]
+	after frame [namespace code do_psg_frame]
+}
+
+proc psg_log_write {} {
+	variable psg_log_file
+	variable psg_log_reg
+	if {[expr $::wp_last_address & 1] == 0} {
+		set psg_log_reg $::wp_last_value
+	} else {
+		if {$psg_log_reg < 14} { puts -nonewline $psg_log_file [binary format c2 "$psg_log_reg $::wp_last_value"] }
+	}
 }
 
 namespace export psg_log
