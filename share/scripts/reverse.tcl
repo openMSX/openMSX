@@ -155,7 +155,7 @@ proc enable_reversebar {{visible true}} {
 	}
 	set y [expr {($led_y == 0) ? 231 : 1}]
 	# Set time indicator position (depending on reverse bar position)
-	variable overlayOffset [expr {($led_y > 16) ? 1.1 : -0.85}]
+	variable overlayOffset [expr {($led_y > 16) ? 1.1 : -1.25}]
 
 	# Reversebar
 	set fade [expr {$visible ? 1.0 : 0.0}]
@@ -209,11 +209,11 @@ proc update_reversebar {} {
 		"replaying" {
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 			osd configure reverse.int.bar \
-		-relw 0 -relh 1 -z 3 -rgba "0x00440080 0x22660080 0x00550080 0x55ee0080"
+		-relw 0 -relh 1 -z 3 -rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
 		}
 		"enabled" {
 			osd configure reverse.int.bar \
-					-relw 0 -relh 1 -z 3 -rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
+					-relw 0 -relh 1 -z 3 -rgba "0xff4400a0 0xdd3300a0 0xbb2200a0 0xcccc11a0"
 			if {$mouseInside} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
