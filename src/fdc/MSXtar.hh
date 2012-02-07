@@ -58,7 +58,7 @@ private:
 	unsigned addSubdirToDSK(const std::string& hostName,
 	                   const std::string& msxName, unsigned sector);
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
-	                        byte* sectorbuf);
+	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& hostName, unsigned sector);
 	std::string recurseDirFill(const std::string& dirName, unsigned sector);
 	std::string condensName(const MSXDirEntry& dirEntry);
@@ -71,7 +71,7 @@ private:
 
 
 	SectorAccessibleDisk& disk;
-	MemBuffer<byte> fatBuffer;
+	MemBuffer<SectorBuffer> fatBuffer;
 
 	unsigned maxCluster;
 	unsigned sectorsPerCluster;

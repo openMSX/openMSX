@@ -12,8 +12,6 @@
 namespace openmsx {
 namespace DiskImageUtils {
 
-static const unsigned SECTOR_SIZE = SectorAccessibleDisk::SECTOR_SIZE;
-
 static const char PARTAB_HEADER[11] = {
 	'\353', '\376', '\220', 'M', 'S', 'X', '_', 'I', 'D', 'E', ' '
 };
@@ -24,14 +22,14 @@ static bool isPartitionTableSector(const PartitionTable& pt)
 
 bool hasPartitionTable(SectorAccessibleDisk& disk)
 {
-	PartitionTable pt;
-	disk.readSector(0, reinterpret_cast<byte*>(&pt));
-	return isPartitionTableSector(pt);
+	SectorBuffer buf;
+	disk.readSector(0, buf.raw);
+	return isPartitionTableSector(buf.pt);
 }
 
 
 static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
-                            PartitionTable& pt)
+                            SectorBuffer& buf)
 {
 	// check number in range
 	if (partition < 1 || partition > 31) {
@@ -39,13 +37,13 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 			"Invalid partition number specified (must be 1-31).");
 	}
 	// check drive has a partition table
-	disk.readSector(0, reinterpret_cast<byte*>(&pt));
-	if (!isPartitionTableSector(pt)) {
+	disk.readSector(0, buf.raw);
+	if (!isPartitionTableSector(buf.pt)) {
 		throw CommandException(
 			"No (or invalid) partition table.");
 	}
 	// check valid partition number
-	auto& p = pt.part[31 - partition];
+	auto& p = buf.pt.part[31 - partition];
 	if (p.start == 0) {
 		throw CommandException(StringOp::Builder() <<
 			"No partition number " << partition);
@@ -55,14 +53,14 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 
 void checkValidPartition(SectorAccessibleDisk& disk, unsigned partition)
 {
-	PartitionTable pt;
-	checkImpl(disk, partition, pt);
+	SectorBuffer buf;
+	checkImpl(disk, partition, buf);
 }
 
 void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 {
-	PartitionTable pt;
-	Partition& p = checkImpl(disk, partition, pt);
+	SectorBuffer buf;
+	Partition& p = checkImpl(disk, partition, buf);
 
 	// check partition type
 	if (p.sys_ind != 0x01) {
@@ -76,8 +74,8 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
                           unsigned& firstDataSector, byte& descriptor)
 {
 	// start from the default bootblock ..
-	auto* defaultBootBlock = BootBlocks::dos2BootBlock;
-	memcpy(&boot, defaultBootBlock, SECTOR_SIZE);
+	auto& defaultBootBlock = BootBlocks::dos2BootBlock;
+	memcpy(&boot, &defaultBootBlock, sizeof(boot));
 
 	// .. and fill-in image-size dependent parameters ..
 	// these are the same for most formats
@@ -192,30 +190,29 @@ void format(SectorAccessibleDisk& disk)
 {
 	// first create a bootsector for given partition size
 	size_t nbSectors = disk.getNbSectors();
-	MSXBootSector boot;
+	SectorBuffer buf;
 	unsigned firstDataSector;
 	byte descriptor;
-	setBootSector(boot, nbSectors, firstDataSector, descriptor);
-	disk.writeSector(0, reinterpret_cast<byte*>(&boot));
+	setBootSector(buf.bootSector, nbSectors, firstDataSector, descriptor);
+	disk.writeSector(0, buf.raw);
 
 	// write empty FAT and directory sectors
-	byte buf[SECTOR_SIZE];
-	memset(buf, 0, sizeof(buf));
+	memset(&buf, 0, sizeof(buf));
 	for (unsigned i = 2; i < firstDataSector; ++i) {
-		disk.writeSector(i, buf);
+		disk.writeSector(i, buf.raw);
 	}
 	// first FAT sector is special:
 	//  - first byte contains the media descriptor
 	//  - first two clusters must be marked as EOF
-	buf[0] = descriptor;
-	buf[1] = 0xFF;
-	buf[2] = 0xFF;
-	disk.writeSector(1, buf);
+	buf.raw[0] = descriptor;
+	buf.raw[1] = 0xFF;
+	buf.raw[2] = 0xFF;
+	disk.writeSector(1, buf.raw);
 
 	// write 'empty' data sectors
-	memset(buf, 0xE5, sizeof(buf));
+	memset(&buf, 0xE5, sizeof(buf));
 	for (size_t i = firstDataSector; i < nbSectors; ++i) {
-		disk.writeSector(i, buf);
+		disk.writeSector(i, buf.raw);
 	}
 }
 
@@ -236,15 +233,15 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 {
 	assert(sizes.size() <= 31);
 
-	PartitionTable pt;
-	memset(&pt, 0, sizeof(pt));
-	memcpy(pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
-	pt.end = 0x55AA;
+	SectorBuffer buf;
+	memset(&buf, 0, sizeof(buf));
+	memcpy(buf.pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
+	buf.pt.end = 0x55AA;
 
 	unsigned partitionOffset = 1;
 	for (unsigned i = 0; i < sizes.size(); ++i) {
 		unsigned partitionNbSectors = sizes[i];
-		auto& p = pt.part[30 - i];
+		auto& p = buf.pt.part[30 - i];
 		unsigned startCylinder, startHead, startSector;
 		logicalToCHS(partitionOffset,
 		             startCylinder, startHead, startSector);
@@ -265,7 +262,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 		format(diskPartition);
 		partitionOffset += partitionNbSectors;
 	}
-	disk.writeSector(0, reinterpret_cast<byte*>(&pt));
+	disk.writeSector(0, buf.raw);
 }
 
 } // namespace DiskImageUtils

@@ -3,7 +3,6 @@
 #include "Filename.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "endian.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -33,9 +32,9 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 		setNbSectors(disk.getNbSectors());
 	} else {
 		checkValidPartition(disk, partition); // throws
-		PartitionTable pt;
-		disk.readSector(0, reinterpret_cast<byte*>(&pt));
-		auto& p = pt.part[31 - partition];
+		SectorBuffer buf;
+		disk.readSector(0, buf.raw);
+		auto& p = buf.pt.part[31 - partition];
 		start = p.start;
 		setNbSectors(p.size);
 	}

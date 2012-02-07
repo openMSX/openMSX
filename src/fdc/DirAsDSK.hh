@@ -54,8 +54,8 @@ private:
 		                 // truncated.
 	};
 
-	byte* fat();
-	byte* fat2();
+	SectorBuffer* fat();
+	SectorBuffer* fat2();
 	MSXDirEntry& msxDir(DirIndex dirIndex);
 	void writeFATSector (unsigned sector, const byte* buf);
 	void writeDIRSector (unsigned sector, DirIndex dirDirIndex,
@@ -93,7 +93,7 @@ private:
 	unsigned getFreeCluster();
 	unsigned readFAT(unsigned cluster);
 	void writeFAT12(unsigned cluster, unsigned val);
-	void exportFileFromFATChange(unsigned cluster, byte* oldFAT);
+	void exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT);
 	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
 	bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
 	bool getDirEntryForCluster(unsigned cluster,
@@ -117,7 +117,7 @@ private:
 	EmuTime lastAccess; // last time there was a sector read/write
 
 	// Storage for the whole virtual disk.
-	byte sectors[NUM_SECTORS][SECTOR_SIZE];
+	SectorBuffer sectors[NUM_SECTORS];
 
 	// For each directory entry that has a mapped host file/directory we
 	// store the name, last modification time and size of the corresponding

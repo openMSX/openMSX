@@ -86,6 +86,23 @@ struct PartitionTable {
 	Endian::UA_L16 end;        // +510 // TODO aligned
 };
 static_assert(sizeof(PartitionTable) == 512, "must be size 512");
+static_assert(ALIGNOF(PartitionTable) == 1, "must not have alignment requirements"); // TODO don't require this in the future
+
+
+// Buffer that can hold a (512-byte) disk sector.
+// The main advantages of this type over something like 'byte buf[512]' are:
+//  - No need for reinterpret_cast<> when interpreting the data in a
+//    specific way (this could in theory cause alignment problems).
+//  - TODO in the future give this a stricter alignment, so that memcpy() and
+//    memset() can work faster compared to a raw byte array.
+union SectorBuffer {
+       byte raw[512];            // raw byte data
+       MSXBootSector bootSector; // interpreted as bootSector
+       MSXDirEntry dirEntry[16]; // interpreted as 16 dir entries
+       PartitionTable pt;        // interpreted as Sunrise-IDE partition table
+};
+static_assert(sizeof(SectorBuffer) == 512, "must be size 512");
+static_assert(ALIGNOF(SectorBuffer) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 
 namespace DiskImageUtils {

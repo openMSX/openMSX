@@ -18,6 +18,7 @@ using std::vector;
 
 namespace openmsx {
 
+static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static const unsigned SECTORS_PER_FAT = 3;
 static const unsigned SECTORS_PER_DIR = 7;
 static const unsigned NUM_FATS = 2;
@@ -30,7 +31,7 @@ static const unsigned FIRST_DIR_SECTOR =
 static const unsigned FIRST_DATA_SECTOR =
 	FIRST_DIR_SECTOR + SECTORS_PER_DIR;
 static const unsigned DIR_ENTRIES_PER_SECTOR =
-       DirAsDSK::SECTOR_SIZE / sizeof(MSXDirEntry);
+	SECTOR_SIZE / sizeof(MSXDirEntry);
 
 // First valid regular cluster number.
 static const unsigned FIRST_CLUSTER = 2;
@@ -50,10 +51,11 @@ static unsigned normalizeFAT(unsigned cluster)
 	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
 }
 
-static unsigned readFATHelper(const byte* buf, unsigned cluster)
+static unsigned readFATHelper(const SectorBuffer* fat, unsigned cluster)
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < MAX_CLUSTER);
+	auto* buf = fat[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
@@ -61,10 +63,11 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 	return normalizeFAT(result);
 }
 
-static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
+static void writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val)
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < MAX_CLUSTER);
+	auto* buf = fat[0].raw;
 	auto* p = &buf[(cluster * 3) / 2];
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -75,13 +78,13 @@ static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 	}
 }
 
-byte* DirAsDSK::fat()
+SectorBuffer* DirAsDSK::fat()
 {
-	return sectors[FIRST_FAT_SECTOR];
+	return &sectors[FIRST_FAT_SECTOR];
 }
-byte* DirAsDSK::fat2()
+SectorBuffer* DirAsDSK::fat2()
 {
-	return sectors[FIRST_SECTOR_2ND_FAT];
+	return &sectors[FIRST_SECTOR_2ND_FAT];
 }
 
 // Read entry from FAT.
@@ -138,7 +141,7 @@ static void sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset
 	assert(sector < DirAsDSK::NUM_SECTORS);
 	sector -= FIRST_DATA_SECTOR;
 	cluster = (sector / SECTORS_PER_CLUSTER) + FIRST_CLUSTER;
-	offset  = (sector % SECTORS_PER_CLUSTER) * DirAsDSK::SECTOR_SIZE;
+	offset  = (sector % SECTORS_PER_CLUSTER) * SECTOR_SIZE;
 }
 static unsigned sectorToCluster(unsigned sector)
 {
@@ -151,8 +154,7 @@ MSXDirEntry& DirAsDSK::msxDir(DirIndex dirIndex)
 {
 	assert(dirIndex.sector < NUM_SECTORS);
 	assert(dirIndex.idx    < DIR_ENTRIES_PER_SECTOR);
-	auto dirs = reinterpret_cast<MSXDirEntry*>(sectors[dirIndex.sector]);
-	return dirs[dirIndex.idx];
+	return sectors[dirIndex.sector].dirEntry[dirIndex.idx];
 }
 
 // Returns -1 when there are no more sectors for this directory.
@@ -171,7 +173,7 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 		// Subdirectory.
 		unsigned cluster, offset;
 		sectorToCluster(sector, cluster, offset);
-		if (offset < ((SECTORS_PER_CLUSTER - 1) * DirAsDSK::SECTOR_SIZE)) {
+		if (offset < ((SECTORS_PER_CLUSTER - 1) * SECTOR_SIZE)) {
 			// Next sector still in same cluster.
 			return sector + 1;
 		}
@@ -281,10 +283,10 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	memset(sectors, 0xE5, sizeof(sectors));
 
 	// Use selected bootsector.
-	auto* bootSector = bootSectorType == BOOTSECTOR_DOS1
+	auto& bootSector = bootSectorType == BOOTSECTOR_DOS1
 	                 ? BootBlocks::dos1BootBlock
 	                 : BootBlocks::dos2BootBlock;
-	memcpy(sectors[0], bootSector, SECTOR_SIZE);
+	memcpy(&sectors[0], &bootSector, sizeof(bootSector));
 
 	// Clear FAT1 + FAT2.
 	memset(fat(), 0, SECTOR_SIZE * SECTORS_PER_FAT * NUM_FATS);
@@ -292,11 +294,11 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	//  'cluster 0' contains the media descriptor (0xF9 for us)
 	//  'cluster 1' is marked as EOF_FAT
 	//  So cluster 2 is the first usable cluster number
-	fat ()[0] = 0xF9; fat ()[1] = 0xFF; fat ()[2] = 0xFF;
-	fat2()[0] = 0xF9; fat2()[1] = 0xFF; fat2()[2] = 0xFF;
+	fat ()->raw[0] = 0xF9; fat ()->raw[1] = 0xFF; fat ()->raw[2] = 0xFF;
+	fat2()->raw[0] = 0xF9; fat2()->raw[1] = 0xFF; fat2()->raw[2] = 0xFF;
 
 	// Assign empty directory entries.
-	memset(sectors[FIRST_DIR_SECTOR], 0, SECTOR_SIZE * SECTORS_PER_DIR);
+	memset(&sectors[FIRST_DIR_SECTOR], 0, SECTOR_SIZE * SECTORS_PER_DIR);
 
 	// No host files are mapped to this disk yet.
 	assert(mapDirs.empty());
@@ -358,7 +360,7 @@ void DirAsDSK::readSectorImpl(size_t sector, byte* buf)
 	}
 
 	// Simply return the sector from our virtual disk image.
-	memcpy(buf, sectors[sector], SECTOR_SIZE);
+	memcpy(buf, &sectors[sector], SECTOR_SIZE);
 }
 
 void DirAsDSK::syncWithHost()
@@ -554,7 +556,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				byte* buf = sectors[sector];
+				byte* buf = sectors[sector].raw;
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				auto sz = std::min(remainingSize, SECTOR_SIZE);
 				file.read(buf, sz);
@@ -698,7 +700,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 		// Initialize the new directory.
 		newMsxDirSector = clusterToSector(cluster);
 		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
-			memset(sectors[newMsxDirSector + i], 0, SECTOR_SIZE);
+			memset(&sectors[newMsxDirSector + i], 0, SECTOR_SIZE);
 		}
 		DirIndex idx0(newMsxDirSector, 0); // entry for "."
 		DirIndex idx1(newMsxDirSector, 1); //           ".."
@@ -813,7 +815,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	unsigned cluster = sectorToCluster(msxDirSector);
 	unsigned newCluster = getFreeCluster();
 	unsigned sector = clusterToSector(newCluster);
-	memset(sectors[sector], 0, SECTORS_PER_CLUSTER * SECTOR_SIZE);
+	memset(&sectors[sector], 0, SECTORS_PER_CLUSTER * SECTOR_SIZE);
 	writeFAT12(cluster, newCluster);
 	writeFAT12(newCluster, EOF_FAT);
 
@@ -844,7 +846,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
-		memcpy(sectors[sector], buf, SECTOR_SIZE);
+		memcpy(&sectors[sector], buf, SECTOR_SIZE);
 	} else if (isDirSector(sector, dirDirIndex)) {
 		// Either root- or sub-directory.
 		writeDIRSector(sector, dirDirIndex, buf);
@@ -856,11 +858,11 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
-	byte oldFAT[SECTORS_PER_FAT * SECTOR_SIZE];
-	memcpy(oldFAT, fat(), sizeof(oldFAT));
+	SectorBuffer oldFAT[SECTORS_PER_FAT];
+	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
 
 	// Update current FAT with new data.
-	memcpy(sectors[sector], buf, SECTOR_SIZE);
+	memcpy(&sectors[sector], buf, SECTOR_SIZE);
 
 	// Look for changes.
 	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
@@ -880,7 +882,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	}
 }
 
-void DirAsDSK::exportFileFromFATChange(unsigned cluster, byte* oldFAT)
+void DirAsDSK::exportFileFromFATChange(unsigned cluster, SectorBuffer* oldFAT)
 {
 	// Get first cluster in the FAT chain that contains 'cluster'.
 	unsigned chainLength; // not used
@@ -1181,7 +1183,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
 				auto writeSize = std::min<size_t>(msxSize - offset, SECTOR_SIZE);
-				file.write(sectors[sector], writeSize);
+				file.write(&sectors[sector], writeSize);
 				offset += SECTOR_SIZE;
 			}
 			if (offset >= msxSize) break;
@@ -1206,7 +1208,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 		}
 	}
 	// At this point sector should be updated.
-	assert(memcmp(sectors[sector], buf, SECTOR_SIZE) == 0);
+	assert(memcmp(&sectors[sector], buf, SECTOR_SIZE) == 0);
 }
 
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
@@ -1250,7 +1252,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	assert(sector < NUM_SECTORS);
 
 	// Buffer the write, whether the sector is mapped to a file or not.
-	memcpy(sectors[sector], buf, SECTOR_SIZE);
+	memcpy(&sectors[sector], buf, SECTOR_SIZE);
 
 	// Get first cluster in the FAT chain that contains this sector.
 	unsigned cluster, offset, chainLength;
