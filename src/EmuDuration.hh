@@ -78,6 +78,13 @@ public:
 #endif
 		return unsigned(result);
 	}
+	unsigned divUp(EmuDuration::param d) const {
+		uint64 result = (time + d.time - 1) / d.time;
+#ifdef DEBUG
+		assert(result == unsigned(result));
+#endif
+		return unsigned(result);
+	}
 	double div(EmuDuration::param d) const
 		{ return double(time) / d.time; }
 

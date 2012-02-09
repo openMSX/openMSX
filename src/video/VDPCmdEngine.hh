@@ -6,6 +6,7 @@
 #include "VDP.hh"
 #include "DisplayMode.hh"
 #include "Observer.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "likely.hh"
@@ -180,7 +181,7 @@ private:
 	  * explicitly, but for now we use an average execution time per
 	  * cycle.
 	  */
-	Clock<VDP::TICKS_PER_SECOND> clock;
+	EmuTime time;
 
 	/** Lower bound for the time when the status register will change, IOW
 	  * the status register will not change before this time.
@@ -243,6 +244,7 @@ private:
 	template<typename, typename> friend struct LmmmCmd;
 	template<typename, typename> friend struct LmmcCmd;
 };
+SERIALIZE_CLASS_VERSION(VDPCmdEngine, 2);
 
 } // namespace openmsx
 
