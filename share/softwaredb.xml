@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1328135176">
+<softwaredb xml:lang="en" timestamp="1328809067">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -92,6 +92,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">eafc1ad38a8ac7e0a54917b802377aa5443ac460</hash><remark><text>v0.1b</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">54290e402561c6871e17076dad41f3c8ed939688</hash><remark><text>RU Edition / v0.7b</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">3530ab300f841ec7e92e8d38d50ebc09c5794387</hash><remark><text>v0.9b</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">A B C</title>
@@ -210,6 +211,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1993</year>
 	<country>KR</country>
 		<dump><megarom><type>16kb</type><hash algo="sha1">c7c1814aec465d3a27a638697f04a351604011df</hash></megarom></dump>
+		<dump><megarom><type>16kb</type><hash algo="sha1">0f984330ed5dc929e1207cf6afcc9a35837408d7</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Agigongnyong Dooly (Baby Dinosaur Dooly)</title>
@@ -2567,6 +2569,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">86fdfe9e26d6e77f41cbcb47e10e2f32e5518549</hash><remark><text>[cr Dr. Jekyl and Mr. Hyde]</text></remark></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Donkey Kong Jr.</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash algo="sha1">61752708b2bb3556352799f211a513f1a82c67bc</hash><remark><text>GDX Conversion</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Donpan</title>
@@ -12081,6 +12091,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2664
-Parse time 7.926 seconds on Wed Feb 1 23:26:24 CET 2012
+Roms in this database:2667
+Parse time 7.346 seconds on Thu Feb 9 18:37:54 CET 2012
  -->
