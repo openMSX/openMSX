@@ -555,9 +555,8 @@ void WD2793::step(EmuTime::param time)
 		endType1Cmd();
 	} else {
 		drive.step(directionIn, time);
-		Clock<1000> next(time); // ms
-		next += timePerStep[commandReg & STEP_SPEED];
-		schedule(FSM_SEEK, next.getTime());
+		schedule(FSM_SEEK,
+		         time + EmuDuration::msec(timePerStep[commandReg & STEP_SPEED]));
 	}
 }
 
@@ -595,9 +594,8 @@ void WD2793::startType2Cmd(EmuTime::param time)
 		drive.setHeadLoaded(true, time);
 
 		if (commandReg & E_FLAG) {
-			Clock<1000> next(time); // ms
-			next += 30; // when 1MHz clock
-			schedule(FSM_TYPE2_WAIT_LOAD, next.getTime());
+			schedule(FSM_TYPE2_WAIT_LOAD,
+			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
 			type2WaitLoad(time);
 		}
@@ -607,9 +605,7 @@ void WD2793::startType2Cmd(EmuTime::param time)
 void WD2793::type2WaitLoad(EmuTime::param time)
 {
 	// TODO wait till head loaded, I arbitrarily took 1ms delay
-	Clock<1000> next(time);
-	next += 1;
-	schedule(FSM_TYPE2_LOADED, next.getTime());
+	schedule(FSM_TYPE2_LOADED, time + EmuDuration::msec(1));
 }
 
 void WD2793::type2Loaded(EmuTime::param time)
@@ -658,9 +654,8 @@ void WD2793::startType3Cmd(EmuTime::param time)
 		// WD2795/WD2797 would now set SSO output
 
 		if (commandReg & E_FLAG) {
-			Clock<1000> next(time); // ms
-			next += 30; // when 1MHz clock
-			schedule(FSM_TYPE3_WAIT_LOAD, next.getTime());
+			schedule(FSM_TYPE3_WAIT_LOAD,
+			         time + EmuDuration::msec(30)); // when 1MHz clock
 		} else {
 			type3WaitLoad(time);
 		}
@@ -670,9 +665,7 @@ void WD2793::startType3Cmd(EmuTime::param time)
 void WD2793::type3WaitLoad(EmuTime::param time)
 {
 	// TODO wait till head loaded, I arbitrarily took 1ms delay
-	Clock<1000> next(time);
-	next += 1;
-	schedule(FSM_TYPE3_LOADED, next.getTime());
+	schedule(FSM_TYPE3_LOADED, time + EmuDuration::msec(1));
 }
 
 void WD2793::type3Loaded(EmuTime::param time)

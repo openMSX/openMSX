@@ -290,8 +290,7 @@ void RealDrive::resetTimeOut(EmuTime::param time)
 	timeOut = false;
 	updateLoadingState();
 	removeSyncPoint();
-	Clock<1000> now(time);
-	setSyncPoint(now + 1000);
+	setSyncPoint(time + EmuDuration::sec(1));
 }
 
 template<typename Archive>

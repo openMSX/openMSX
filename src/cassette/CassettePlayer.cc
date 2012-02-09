@@ -42,8 +42,9 @@
 #include "ThrottleManager.hh"
 #include "TclObject.hh"
 #include "DynamicClock.hh"
-#include "Clock.hh"
+#include "EmuDuration.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -446,9 +447,7 @@ void CassettePlayer::updateTapePosition(
 	if ((getState() == PLAY) && !syncScheduled) {
 		// don't sync too often, this improves sound quality
 		syncScheduled = true;
-		Clock<1> next(time);
-		next += 1;
-		setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
+		setSyncPoint(time + EmuDuration::sec(1), SYNC_AUDIO_EMU);
 	}
 }
 

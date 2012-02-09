@@ -341,8 +341,7 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");
 	removeSyncPoint(ACK);
-	Clock<1000> now(time);
-	setSyncPoint(now + wait,  ACK);
+	setSyncPoint(time + EmuDuration::msec(wait), ACK);
 	ack = true;
 }
 

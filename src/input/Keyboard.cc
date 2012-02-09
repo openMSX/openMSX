@@ -3,7 +3,6 @@
 #include "Keyboard.hh"
 #include "KeyboardSettings.hh"
 #include "Keys.hh"
-#include "Clock.hh"
 #include "EventListener.hh"
 #include "EventDistributor.hh"
 #include "InputEventFactory.hh"
@@ -487,8 +486,7 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 		debug("Pressing CAPS lock and scheduling a release\n");
 		msxCapsLockOn = !msxCapsLockOn;
 		updateKeyMatrix(time, true, 6, CAPS_MASK);
-		Clock<10> now(time);
-		setSyncPoint(now + 1);  // 0.1 second (in MSX time)
+		setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (in MSX time)
 	}
 }
 
@@ -1051,8 +1049,7 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 
 	if (!eventQueue.empty()) {
 		// There are still events. Process them in 1/15s from now
-		Clock<15> nextTime(time);
-		setSyncPoint(nextTime + 1);
+		setSyncPoint(time + EmuDuration::hz(15));
 	}
 }
 
@@ -1167,8 +1164,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 
 void KeyInserter::reschedule(EmuTime::param time)
 {
-	Clock<15> nextTime(time);
-	setSyncPoint(nextTime + 1);
+	setSyncPoint(time + EmuDuration::hz(15));
 }
 
 /*
@@ -1211,8 +1207,7 @@ int CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 			alignCapsLock(time);
 		} else if (type == OPENMSX_BOOT_EVENT) {
 			state = MUST_ALIGN_CAPSLOCK;
-			Clock<1> now(time);
-			setSyncPoint(now + 2); // 2 seconds (MSX time)
+			setSyncPoint(time + EmuDuration::sec(2)); // 2s (MSX time)
 		} else {
 			UNREACHABLE;
 		}
@@ -1260,8 +1255,7 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 		if (keyboard.sdlReleasesCapslock) {
 			keyboard.debug("Sending fake CAPS release\n");
 			state = MUST_DISTRIBUTE_KEY_RELEASE;
-			Clock<10> now(time);
-			setSyncPoint(now + 1); // 0.1 second (MSX time)
+			setSyncPoint(time + EmuDuration::hz(10)); // 0.1s (MSX time)
 		} else {
 			state = IDLE;
 		}

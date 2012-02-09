@@ -36,6 +36,15 @@ public:
 	explicit EmuDuration(double duration)
 		: time(uint64(duration * MAIN_FREQ)) {}
 
+	static EmuDuration sec(unsigned x)
+		{ return EmuDuration(x * MAIN_FREQ); }
+	static EmuDuration msec(unsigned x)
+		{ return EmuDuration(x * MAIN_FREQ / 1000); }
+	static EmuDuration usec(unsigned x)
+		{ return EmuDuration(x * MAIN_FREQ / 1000000); }
+	static EmuDuration hz(unsigned x)
+		{ return EmuDuration(MAIN_FREQ / x); }
+
 	// conversions
 	double toDouble() const { return double(time) / MAIN_FREQ32; }
 	uint64 length() const { return time; }
