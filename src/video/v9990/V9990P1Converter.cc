@@ -28,7 +28,7 @@ void V9990P1Converter<Pixel>::convertLine(
 {
 	unsigned prioX = vdp.getPriorityControlX();
 	unsigned prioY = vdp.getPriorityControlY();
-	if (displayY > prioY) prioX = 0;
+	if (displayY >= prioY) prioX = 0;
 
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 511;
 	unsigned displayBX = (displayX + vdp.getScrollBX()) & 511;
