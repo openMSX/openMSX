@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1328809067">
+<softwaredb xml:lang="en" timestamp="1328848371">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4353,6 +4353,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">6e17ee44d62f57be20177a692319e4da14be572f</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Gyruss</title>
+	<system>MSX</system>
+	<company>Parker Brothers</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><rom><hash algo="sha1">4f820cb362346a1580ab41cbf2f8f8fde35725a0</hash><remark><text>GDX Conversion</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">H.E.R.O.</title>
 	<genmsxid>282</genmsxid>
 	<system>MSX</system>
@@ -7034,7 +7042,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<system>MSX</system>
 	<company>Parker Brothers</company>
 	<year>2008</year>
-	<country>BR</country>
+	<country>US</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">b03786528689b2014c90493f3e02d941c73122bc</hash><remark><text>Muffie conversion</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">17e78fd405e65afa3763c2f7271c82ab155c004b</hash><remark><text>Slotman conversion</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">1dc5dfa6cd8d554844f484a1b4e680710c1b9515</hash><remark><text>Muffie conversion</text></remark></rom></dump>
@@ -12091,6 +12099,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2667
-Parse time 7.346 seconds on Thu Feb 9 18:37:54 CET 2012
+Roms in this database:2668
+Parse time 7.375 seconds on Fri Feb 10 5:32:59 CET 2012
  -->
