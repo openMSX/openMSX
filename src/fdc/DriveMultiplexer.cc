@@ -74,12 +74,6 @@ bool DriveMultiplexer::indexPulse(EmuTime::param time)
 	return drive[selected]->indexPulse(time);
 }
 
-int DriveMultiplexer::indexPulseCount(EmuTime::param begin,
-                                      EmuTime::param end)
-{
-	return drive[selected]->indexPulseCount(begin, end);
-}
-
 EmuTime DriveMultiplexer::getTimeTillSector(byte sector, EmuTime::param time)
 {
 	return drive[selected]->getTimeTillSector(sector, time);

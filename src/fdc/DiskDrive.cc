@@ -54,12 +54,6 @@ bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 	return false;
 }
 
-int DummyDrive::indexPulseCount(EmuTime::param /*begin*/,
-                                EmuTime::param /*end*/)
-{
-	return 0;
-}
-
 EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, EmuTime::param time)
 {
 	return time;

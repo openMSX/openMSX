@@ -156,17 +156,6 @@ bool RealDrive::indexPulse(EmuTime::param time)
 	return angle < INDEX_DURATION;
 }
 
-int RealDrive::indexPulseCount(EmuTime::param begin,
-                               EmuTime::param end)
-{
-	if (!motorStatus && isDiskInserted()) {
-		return 0;
-	}
-	int t1 = motorTimer.before(begin) ? motorTimer.getTicksTill(begin) : 0;
-	int t2 = motorTimer.before(end)   ? motorTimer.getTicksTill(end)   : 0;
-	return (t2 / TICKS_PER_ROTATION) - (t1 / TICKS_PER_ROTATION);
-}
-
 EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?

@@ -6,16 +6,19 @@
 #include "Disk.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
 class Scheduler;
 class DiskDrive;
+class CliComm;
 
 class WD2793 : public Schedulable
 {
 public:
-	WD2793(Scheduler& scheduler, DiskDrive& drive, EmuTime::param time);
+	WD2793(Scheduler& scheduler, DiskDrive& drive, CliComm& cliComm,
+	       EmuTime::param time);
 
 	void reset(EmuTime::param time);
 
@@ -50,8 +53,11 @@ public:
 		FSM_TYPE2_WAIT_LOAD,
 		FSM_TYPE2_LOADED,
 		FSM_TYPE2_ROTATED,
+		FSM_WRITE_SECTOR,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
+		FSM_TYPE3_ROTATED,
+		FSM_WRITE_TRACK,
 		FSM_IDX_IRQ
 	};
 
@@ -67,32 +73,36 @@ private:
 
 	void startType2Cmd(EmuTime::param time);
 	void type2WaitLoad(EmuTime::param time);
-	void type2Loaded(EmuTime::param time);
-	void type2Rotated();
+	void type2Loaded  (EmuTime::param time);
+	void type2Rotated (EmuTime::param time);
+	void writeSector();
 
 	void startType3Cmd(EmuTime::param time);
 	void type3WaitLoad(EmuTime::param time);
-	void type3Loaded(EmuTime::param time);
+	void type3Loaded  (EmuTime::param time);
+	void type3Rotated (EmuTime::param time);
 	void readAddressCmd();
 	void readTrackCmd();
 	void writeTrackCmd(EmuTime::param time);
-	void endWriteTrackCmd();
+	void writeTrack();
 
 	void startType4Cmd(EmuTime::param time);
 
 	void endCmd();
 
-	void tryToReadSector();
+	void tryToReadSector(EmuTime::param time);
 	inline void resetIRQ();
 	inline void setIRQ();
-	void setDRQ(bool drq, EmuTime::param time);
 
 	void schedule(FSMState state, EmuTime::param time);
 
 	DiskDrive& drive;
+	CliComm& cliComm;
 
-	EmuTime commandStart;
-	Clock<1000000> DRQTimer; // us
+	static const int TICKS_PER_ROTATION = 6850;
+	static const int ROTATIONS_PER_SECOND = 5;
+	// DRQ is high iff current time is past this time
+	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> drqTime;
 
 	int dataCurrent;   // which byte in dataBuffer is next to be read/write
 	int dataAvailable; // how many bytes left in buffer
@@ -107,12 +117,10 @@ private:
 	bool directionIn;
 	bool INTRQ;
 	bool immediateIRQ;
-	bool DRQ;
-	bool transferring;
-	bool formatting;
 
 	byte dataBuffer[Disk::RAWTRACK_SIZE];
 };
+SERIALIZE_CLASS_VERSION(WD2793, 2);
 
 } // namespace openmsx
 

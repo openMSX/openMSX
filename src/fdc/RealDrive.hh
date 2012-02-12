@@ -31,8 +31,6 @@ public:
 	virtual void step(bool direction, EmuTime::param time);
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual bool indexPulse(EmuTime::param time);
-	virtual int indexPulseCount(EmuTime::param begin,
-	                            EmuTime::param end);
 	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
 	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
 	virtual void setHeadLoaded(bool status, EmuTime::param time);

@@ -58,14 +58,6 @@ public:
 	 */
 	virtual bool indexPulse(EmuTime::param time) = 0;
 
-	/** Count the number index pulses in an interval.
-	 * @param begin Begin time of interval.
-	 * @param end End time of interval.
-	 * @return The number of index pulses between "begin" and "end".
-	 */
-	virtual int indexPulseCount(EmuTime::param begin,
-	                            EmuTime::param end) = 0;
-
 	/** Return the time when the indicated sector will be rotated under
 	 * the drive head.
 	 * TODO what when the requested sector is not present? For the moment
@@ -132,8 +124,6 @@ public:
 	virtual void step(bool direction, EmuTime::param time);
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual bool indexPulse(EmuTime::param time);
-	virtual int indexPulseCount(EmuTime::param begin,
-	                            EmuTime::param end);
 	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
 	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
 	virtual void setHeadLoaded(bool status, EmuTime::param time);
