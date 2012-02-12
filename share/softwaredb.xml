@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1328848371">
+<softwaredb xml:lang="en" timestamp="1329073098">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6493,7 +6493,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">3bfbf89dfe4f896a581b1d130afb57ce722bdf0d</hash></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">00a81872d548a7278b8901608bf12e8f79009bee</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">76682263b35e846abca6facf6473ce33f1463794</hash><remark><text>SCC flash cart</text></remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">76682263b35e846abca6facf6473ce33f1463794</hash><remark><text>SCC flash cart</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>Manbow2_2</type><hash algo="sha1">c2a2663302c845468dddfe7f4eee8823b7d4bdd6</hash></megarom></dump>
 </software>
 <software>
@@ -12100,5 +12100,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2668
-Parse time 7.375 seconds on Fri Feb 10 5:32:59 CET 2012
+Parse time 7.468 seconds on Sun Feb 12 19:58:26 CET 2012
  -->
