@@ -96,6 +96,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
+	, keyTab((keyboardType == "svi") ? sviKeyTab : msxKeyTab)
 	, keyMatrixUpCmd  (commandController, stateChangeDistributor, scheduler)
 	, keyMatrixDownCmd(commandController, stateChangeDistributor, scheduler)
 	, keyTypeCmd      (commandController, stateChangeDistributor, scheduler)
@@ -1351,7 +1352,7 @@ INSTANTIATE_SERIALIZE_METHODS(Keyboard::MsxKeyEventQueue);
 
 // Mapping from SDL keys to MSX keys
 static const byte x = 0xff;
-const byte Keyboard::keyTab[MAX_KEYSYM] = {
+const byte Keyboard::msxKeyTab[MAX_KEYSYM] = {
 // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
    x  , x  , x  , x  , x  , x  , x  , x  ,0x75,0x73, x  , x  , x  ,0x77, x  , x  , //000
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x72, x  , x  , x  , x  , //010
@@ -1373,6 +1374,47 @@ const byte Keyboard::keyTab[MAX_KEYSYM] = {
    x  ,0x85,0x86,0x87,0x84,0x82,0x81, x  , x  , x  ,0x65,0x66,0x67,0x70,0x71, x  , //110
   0x76,0x74, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x63, x  ,0x60, //120
   0x60,0x25,0x61,0x64,0x62,0xB3,0xB1,0xB3,0xB1,0xB1,0xB3, x  , x  , x  , x  , x  , //130
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
+};
+
+// SVI Keyboard Matrix
+//
+// row/bit  7     6     5     4     3     2     1     0
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+//   0   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |
+//   1   |  /  |  .  |  =  |  ,  |  '  |  :  |  9  |  8  |
+//   2   |  G  |  F  |  E  |  D  |  C  |  B  |  A  |  -  |
+//   3   |  O  |  N  |  M  |  L  |  K  |  J  |  I  |  H  |
+//   4   |  W  |  V  |  U  |  T  |  S  |  R  |  Q  |  P  |
+//   5   | UP  | BS  |  ]  |  \  |  [  |  Z  |  Y  |  X  |
+//   6   |LEFT |ENTER|STOP | ESC |RGRAP|LGRAP|CTRL |SHIFT|
+//   7   |DOWN | INS | CLS | F5  | F4  | F3  | F2  | F1  |
+//   8   |RIGHT|     |PRINT| SEL |CAPS | DEL | TAB |SPACE|
+//   9   |  7  |  6  |  5  |  4  |  3  |  2  |  1  |  0  |  Numerical keypad
+//  10   |  ,  |  .  |  /  |  *  |  -  |  +  |  9  |  8  |   SVI-328 only
+//       +-----+-----+-----+-----+-----+-----+-----+-----+
+const byte Keyboard::sviKeyTab[MAX_KEYSYM] = {
+// 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
+   x  , x  , x  , x  , x  , x  , x  , x  ,0x56,0x81, x  , x  , x  ,0x66, x  , x  , //000
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x64, x  , x  , x  , x  , //010
+  0x80, x  , x  , x  , x  , x  , x  ,0x20, x  , x  , x  , x  ,0x14,0x20,0x16,0x17, //020
+  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x10,0x11,0x12, x  , x  ,0x15, x  , x  , //030
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //040
+   x  ,0x67,0x57,0x87,0x77, x  , x  , x  , x  , x  , x  ,0x53,0x54,0x55, x  , x  , //050
+   x  ,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37, //060
+  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x50,0x51,0x52, x  , x  , x  , x  ,0x82, //070
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //080
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //090
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0A0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0B0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0C0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0D0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0E0
+   x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //0F0
+  0x90,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0xA0,0xA1,0xA6,0xA5,0xA4,0xA3,0xA2,0xA7, //100
+   x  ,0x57,0x77,0x87,0x67,0x76, x  , x  , x  , x  ,0x70,0x71,0x72,0x73,0x74, x  , //110
+  0x75,0x65, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  ,0x83, x  ,0x60, //120
+  0x60, x  ,0x61, x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //130
    x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , x  , //140
 };
 

@@ -1,5 +1,6 @@
 #include "MSXFDC.hh"
 #include "RealDrive.hh"
+#include "Rom.hh"
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
@@ -10,7 +11,9 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(getName() + " ROM", "rom", config)
+	, rom(config.findChild("rom")
+		? make_unique<Rom>(getName() + " ROM", "rom", config)
+		: nullptr) // e.g. Spectravideo_SVI-328 doesn't have a diskrom
 {
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);
@@ -56,7 +59,7 @@ byte MSXFDC::peekMem(word address, EmuTime::param /*time*/) const
 
 const byte* MSXFDC::getReadCacheLine(word start) const
 {
-	return &rom[start & 0x3FFF];
+	return &(*rom)[start & 0x3FFF];
 }
 
 

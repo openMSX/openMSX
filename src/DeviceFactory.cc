@@ -3,6 +3,7 @@
 #include "DeviceConfig.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
+#include "SVIPPI.hh"
 #include "VDP.hh"
 #include "MSXE6Timer.hh"
 #include "MSXResetStatusRegister.hh"
@@ -11,6 +12,7 @@
 #include "MSXS1985.hh"
 #include "MSXS1990.hh"
 #include "MSXPSG.hh"
+#include "SVIPSG.hh"
 #include "MSXMusic.hh"
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
@@ -26,6 +28,7 @@
 #include "PasswordCart.hh"
 #include "RomFactory.hh"
 #include "MSXPrinterPort.hh"
+#include "SVIPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
@@ -34,6 +37,7 @@
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
 #include "TurboRFDC.hh"
+#include "SVIFDC.hh"
 #include "SunriseIDE.hh"
 #include "GoudaSCSI.hh"
 #include "MegaSCSI.hh"
@@ -106,6 +110,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result = make_unique<MSXPPI>(conf);
+	} else if (type == "SVIPPI") {
+		result = make_unique<SVIPPI>(conf);
 	} else if (type == "RAM") {
 		result = make_unique<MSXRam>(conf);
 	} else if (type == "VDP") {
@@ -124,6 +130,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXS1990>(conf);
 	} else if (type == "PSG") {
 		result = make_unique<MSXPSG>(conf);
+	} else if (type == "SVIPSG") {
+		result = make_unique<SVIPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
 		result = make_unique<MSXMusic>(conf);
 	} else if (type == "MSX-MUSIC-WX") {
@@ -156,6 +164,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = RomFactory::create(conf);
 	} else if (type == "PrinterPort") {
 		result = make_unique<MSXPrinterPort>(conf);
+	} else if (type == "SVIPrinterPort") {
+		result = make_unique<SVIPrinterPort>(conf);
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
 		result = make_unique<MSXSCCPlusCart>(conf);
 	} else if ((type == "WD2793") || (type == "WD1770")) {
@@ -173,6 +183,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
 		result = make_unique<TurboRFDC>(conf);
+	} else if (type == "SVIFDC") {
+		result = make_unique<SVIFDC>(conf);
 	} else if (type == "SunriseIDE") {
 		result = make_unique<SunriseIDE>(conf);
 	} else if (type == "GoudaSCSI") {
