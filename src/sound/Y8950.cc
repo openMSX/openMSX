@@ -1327,7 +1327,7 @@ byte Y8950::Impl::peekReg(byte rg, EmuTime::param time) const
 			return (output & enable) | (input & ~enable) | 0xF0;
 		}
 		default:
-			return 255;
+			return reg[rg];
 	}
 }
 
