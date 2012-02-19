@@ -12,7 +12,6 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include <cstring>
-#include <zlib.h>
 #include <limits>
 
 using std::string;

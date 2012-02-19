@@ -11,6 +11,7 @@
 #include "type_traits.hh"
 #include "inline.hh"
 #include "unreachable.hh"
+#include <zlib.h>
 #include <string>
 #include <cstring>
 #include <vector>
@@ -19,7 +20,6 @@
 #include <cassert>
 #include <memory>
 
-typedef void* gzFile;
 
 namespace openmsx {
 
