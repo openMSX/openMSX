@@ -55,6 +55,7 @@
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
 #include "MSXMotherBoard.hh"
+#include "CliComm.hh"
 #include "MSXException.hh"
 #include "components.hh"
 
@@ -63,6 +64,29 @@
 #endif
 
 namespace openmsx {
+
+static std::auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard, const XMLElement& conf)
+{
+	std::auto_ptr<MSXDevice> result;
+	const XMLElement* styleEl = conf.findChild("connectionstyle");
+	std::string type;
+	if (styleEl == NULL) {
+		motherBoard.getMSXCliComm().printWarning("WD2793 as FDC type without a connectionstyle is deprecated, please update your config file to use WD2793 with connectionstyle Philips!");
+		type = "Philips";
+	} else {
+		type = styleEl->getData();
+	}
+	if (type == "Philips") {
+		result.reset(new PhilipsFDC(motherBoard, conf));
+	} else if (type == "Microsol") {
+		result.reset(new MicrosolFDC(motherBoard, conf));
+	} else if (type == "National") {
+		result.reset(new NationalFDC(motherBoard, conf));
+	} else {
+		throw MSXException("Unknown WD2793 FDC connection style " + type);
+	}
+	return result;
+}
 
 std::auto_ptr<MSXDevice> DeviceFactory::create(
 	MSXMotherBoard& motherBoard, const HardwareConfig& hwConf,
@@ -123,10 +147,12 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
 		result.reset(new MSXSCCPlusCart(motherBoard, conf));
 	} else if (type == "WD2793") {
-		result.reset(new PhilipsFDC(motherBoard, conf));
+		result = createWD2793BasedFDC(motherBoard, conf);
 	} else if (type == "Microsol") {
+		motherBoard.getMSXCliComm().printWarning("Microsol as FDC type is deprecated, please update your config file to use WD2793 with connectionstyle Microsol!");
 		result.reset(new MicrosolFDC(motherBoard, conf));
 	} else if (type == "MB8877A") {
+		motherBoard.getMSXCliComm().printWarning("MB8877A as FDC type is deprecated, please update your config file to use WD2793 with connectionstyle National!");
 		result.reset(new NationalFDC(motherBoard, conf));
 	} else if (type == "TC8566AF") {
 		result.reset(new TurboRFDC(motherBoard, conf));
