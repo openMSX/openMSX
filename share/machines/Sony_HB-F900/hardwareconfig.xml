@@ -98,6 +98,7 @@
 
       <secondary slot="2">
         <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
           <!-- The 2nd released version of this machine uses another disk rom:
     <parameter name="filename">roms/hb-f900_disk2.rom</parameter>
     -->

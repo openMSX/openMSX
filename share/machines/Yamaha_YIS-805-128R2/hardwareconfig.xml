@@ -54,7 +54,8 @@
           </rom>
         </ROM>
 
-        <MB8877A id="Memory Mapped FDC">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/>
           <broken_fdc_read>false</broken_fdc_read>
           <rom>
@@ -62,7 +63,7 @@
             <filename>roms/yis805-128r2_disk.rom</filename>
           </rom>
           <drives>2</drives>
-        </MB8877A>
+        </WD2793>
       </secondary>
 
       <secondary slot="2">

@@ -14,6 +14,7 @@
     <primary slot="any">
       <secondary slot="any">
         <WD2793 id="Sharp Epcom HB-3600 diskROM/FDC">
+          <connectionstyle>Philips</connectionstyle>
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>608e8e9ab91c67f7015a67ea12f52ea3b0d609cd</sha1>

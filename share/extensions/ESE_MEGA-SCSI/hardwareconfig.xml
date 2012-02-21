@@ -15,12 +15,12 @@
       <secondary slot="any">
         <MegaSCSI id="MEGA-SCSI">
           <mem base="0x4000" size="0x8000"/>
-	  <sramsize>1024</sramsize>
-	  <sramname>MEGA-SCSI_1024.sram</sramname>
+          <sramsize>1024</sramsize>
+          <sramname>MEGA-SCSI_1024.sram</sramname>
           <target id="1">
             <type>SCSIHD</type>
-	    <filename>SCSIhd1.dsk</filename>
-	    <size>100</size>
+            <filename>SCSIhd1.dsk</filename>
+            <size>100</size>
           </target>
           <target id="2">
             <type>SCSILS120</type>

@@ -69,7 +69,8 @@
       </secondary>
 
       <secondary slot="1">
-        <MB8877A id="Memory Mapped FDC">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
           <singlesided/>
           <drives>1</drives>
           <rom>
@@ -77,7 +78,7 @@
             <sha1>f1525de4e0b60a6687156c2a96f8a8b2044b6c56</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
-        </MB8877A>
+        </WD2793>
       </secondary>
 
       <secondary slot="2"/>

@@ -87,6 +87,7 @@
       <secondary slot="1">
 
         <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
           <mem base="0x0000" size="0x10000"/>
           <drives>1</drives>
           <rom>

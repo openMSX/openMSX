@@ -13,7 +13,8 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <Microsol id="DDX_3.0">
+        <WD2793 id="DDX_3.0 FDC">
+          <connectionstyle>Microsol</connectionstyle>
           <io base="0xD0" num="5"/>
           <drives>1</drives>
           <mem base="0x4000" size="0x4000"/>
@@ -21,7 +22,7 @@
             <filename>roms/ddx_3.0.rom</filename>
             <sha1>9e8256c90c37619dccdc2c8a6aa4539fb742a4b3</sha1>
           </rom>
-        </Microsol>
+        </WD2793>
       </secondary>
     </primary>
   </devices>

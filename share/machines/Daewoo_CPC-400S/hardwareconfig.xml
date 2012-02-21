@@ -111,14 +111,15 @@
     <primary external="true" slot="1"/>
 
     <primary slot="2">
-      <MB8877A id="Memory Mapped FDC">
+      <WD2793 id="Memory Mapped FDC">
+        <connectionstyle>National</connectionstyle>
         <drives>1</drives>
         <rom>
           <filename>roms/cpc-400s_disk.rom</filename>
           <sha1>914f6ccb25d78621186001f2f5e2aaa2d628cd0c</sha1>
         </rom>
         <mem base="0x4000" size="0x8000"/>
-      </MB8877A>
+      </WD2793>
     </primary>
 
     <primary external="true" slot="3"/>

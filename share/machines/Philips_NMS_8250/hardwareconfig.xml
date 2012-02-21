@@ -52,6 +52,7 @@
 
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>Philips</connectionstyle>
           <mem base="0x0000" size="0x10000"/>
           <!-- Verified on a real 8250 and 8280: FDC registers are visible
                in all 4 pages, rom only in page 1. This is handled internally

@@ -15,8 +15,8 @@
       <secondary slot="any">
         <ESERAM id="ESE Ramdisk">
           <mem base="0x4000" size="0x8000"/>
-	  <sramsize>256</sramsize> <!-- this seems to be standard -->
-	  <sramname>ESE-RAM_256.sram</sramname>
+          <sramsize>256</sramsize> <!-- this seems to be standard -->
+          <sramname>ESE-RAM_256.sram</sramname>
        </ESERAM>
       </secondary>
     </primary>

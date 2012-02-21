@@ -77,14 +77,15 @@
             <filename>roms/ax350ii_msx2sub.rom</filename>
           </rom>
         </ROM>
-        <MB8877A id="Memory Mapped FDC">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>358e69f427390041b5aa28018550a88f996bddb6</sha1> <!-- on dhau's machine -->
             <filename>roms/ax350ii_disk.rom</filename>
           </rom>
           <drives>1</drives>
-        </MB8877A>
+        </WD2793>
       </secondary>
 
       <secondary slot="2"> <!-- Confirmed by dhau -->

@@ -15,8 +15,8 @@
       <secondary slot="any">
         <WaveSCSI id="ESE WAVE-SCSI">
           <mem base="0x4000" size="0x8000"/>
-	  <sramsize>1024</sramsize>
-	  <sramname>WAVE-SCSI_1024.sram</sramname>
+          <sramsize>1024</sramsize>
+          <sramname>WAVE-SCSI_1024.sram</sramname>
           <sound>
             <volume>13000</volume>
           </sound>

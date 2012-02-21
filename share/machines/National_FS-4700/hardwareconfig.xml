@@ -172,14 +172,15 @@
       </secondary>
 
       <secondary slot="3">
-        <MB8877A id="Memory Mapped FDC">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
           <drives>1</drives>
           <rom>
             <filename>roms/fs-4700_disk.rom</filename>
             <sha1>78cd7f847e77fd8cd51a647efb2725ba93f4c471</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
-        </MB8877A>
+        </WD2793>
       </secondary>
 
     </primary>
