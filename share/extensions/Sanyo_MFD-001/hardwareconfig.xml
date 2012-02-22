@@ -5,7 +5,7 @@
   <info>
     <name>MSX Floppy Disk Unit</name>
     <manufacturer>Sanyo</manufacturer>
-    <code>MDF-001</code>
+    <code>MFD-001</code>
     <release_year></release_year>
     <description>External 5.25" disk drives.</description>
     <type>external disk drive</type>
