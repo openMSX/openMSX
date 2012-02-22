@@ -333,6 +333,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NationalFDC.cc">
       <Filter>fdc</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.cc">
+      <Filter>fdc</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\NowindCommand.cc">
       <Filter>fdc</Filter>
     </ClCompile>
@@ -1660,6 +1663,9 @@
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\NationalFDC.hh">
+      <Filter>fdc</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\fdc\SanyoFDC.hh">
       <Filter>fdc</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\fdc\NowindCommand.hh">
