@@ -7,6 +7,7 @@ SRC_HDR:= \
 	WD2793BasedFDC \
 	PhilipsFDC \
 	NationalFDC \
+	SanyoFDC \
 	MicrosolFDC \
 	WD2793 \
 	TurboRFDC \

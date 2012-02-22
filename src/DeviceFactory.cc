@@ -31,6 +31,7 @@
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
 #include "NationalFDC.hh"
+#include "SanyoFDC.hh"
 #include "TurboRFDC.hh"
 #include "SunriseIDE.hh"
 #include "GoudaSCSI.hh"
@@ -82,6 +83,8 @@ static std::auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard
 		result.reset(new MicrosolFDC(motherBoard, conf));
 	} else if (type == "National") {
 		result.reset(new NationalFDC(motherBoard, conf));
+	} else if (type == "Sanyo") {
+		result.reset(new SanyoFDC(motherBoard, conf));
 	} else {
 		throw MSXException("Unknown WD2793 FDC connection style " + type);
 	}
