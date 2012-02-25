@@ -40,6 +40,7 @@
 #include "ESE_RAM.hh"
 #include "ESE_SCC.hh"
 #include "MSXMatsushita.hh"
+#include "MSXVictorHC9xSystemControl.hh"
 #include "MSXCielTurbo.hh"
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
@@ -176,6 +177,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new ESE_SCC(motherBoard, conf, false));
 	} else if (type == "Matsushita") {
 		result.reset(new MSXMatsushita(motherBoard, conf));
+	} else if (type == "VictorHC9xSystemControl") {
+		result.reset(new MSXVictorHC9xSystemControl(motherBoard, conf));
 	} else if (type == "CielTurbo") {
 		result.reset(new MSXCielTurbo(motherBoard, conf));
 	} else if (type == "Kanji12") {

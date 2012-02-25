@@ -32,6 +32,7 @@ SRC_HDR:= \
 	CartridgeSlotManager \
 	MSXDeviceSwitch MSXSwitchedDevice \
 	MSXMatsushita \
+	MSXVictorHC9xSystemControl \
 	MSXCielTurbo \
 	FirmwareSwitch \
 	CommandLineParser CLIOption \
