@@ -149,7 +149,10 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 
 bool RealDrive::indexPulse(EmuTime::param time)
 {
-	if (!motorStatus && isDiskInserted()) {
+	// Tested on real NMS8250:
+	//  Only when there's a disk inserted and when the motor is spinning
+	//  there are index pulses generated.
+	if (!(motorStatus && isDiskInserted())) {
 		return false;
 	}
 	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
