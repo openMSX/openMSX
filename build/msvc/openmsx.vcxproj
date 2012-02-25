@@ -739,6 +739,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXKanji12.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXMatsushita.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXVictorHC9xSystemControl.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXMotherBoard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXPPI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXPrinterPort.cc" />
@@ -1522,6 +1523,7 @@
     <None Include="$(OpenMSXSrcDir)\MSXKanji.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXKanji12.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXMatsushita.hh" />
+    <None Include="$(OpenMSXSrcDir)\MSXVictorHC9xSystemControl.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXMotherBoard.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXPPI.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXPrinterPort.hh" />
