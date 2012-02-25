@@ -169,13 +169,6 @@ void MSXDevice::registerSlots()
 				getName() + " should be in range "
 				"[0x0000,0x10000).");
 		}
-		if ((base & CacheLine::LOW) || (size & CacheLine::LOW)) {
-			int tmp = CacheLine::SIZE; // solves link error
-			throw MSXException(StringOp::Builder() <<
-				"Invalid memory specification for device " <<
-				getName() << " should be aligned at " <<
-				StringOp::toHexString(tmp, 4) << '.');
-		}
 		tmpMemRegions.push_back(std::make_pair(base, size));
 	}
 	if (tmpMemRegions.empty()) {

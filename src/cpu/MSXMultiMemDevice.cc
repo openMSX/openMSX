@@ -2,9 +2,9 @@
 
 #include "MSXMultiMemDevice.hh"
 #include "DummyDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "StringOp.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -91,26 +91,29 @@ std::string MSXMultiMemDevice::getName() const
 	return result;
 }
 
-MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address)
+const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	Ranges::const_iterator it = ranges.begin();
-	while (true) {
+	for (Ranges::const_iterator it = ranges.begin(); true; ++it) {
 		if (isInside(address, it->base, it->size)) {
-			return it->device;
+			return *it;
 		}
-		++it;
 		assert(it != ranges.end());
 	}
 }
 
-const MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
+MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
 {
-	return const_cast<MSXMultiMemDevice*>(this)->searchDevice(address);
+	return searchRange(address).device;
 }
 
 byte MSXMultiMemDevice::readMem(word address, EmuTime::param time)
 {
 	return searchDevice(address)->readMem(address, time);
+}
+
+byte MSXMultiMemDevice::peekMem(word address, EmuTime::param time) const
+{
+	return searchDevice(address)->peekMem(address, time);
 }
 
 void MSXMultiMemDevice::writeMem(word address, byte value, EmuTime::param time)
@@ -120,17 +123,27 @@ void MSXMultiMemDevice::writeMem(word address, byte value, EmuTime::param time)
 
 const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 {
+	assert((start & CacheLine::HIGH) == start); // start is aligned
+	// Because start is aligned we don't need to wory about the begin
+	// address of the range. But we must make sure the end of the range
+	// doesn't only fill a partial cacheline.
+	const Range& range = searchRange(start);
+	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
+		// The end of this memory device only fills a partial
+		// cacheline. This can't be cached.
+		return NULL;
+	}
 	return searchDevice(start)->getReadCacheLine(start);
 }
 
 byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 {
+	assert((start & CacheLine::HIGH) == start);
+	const Range& range = searchRange(start);
+	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
+		return NULL;
+	}
 	return searchDevice(start)->getWriteCacheLine(start);
-}
-
-byte MSXMultiMemDevice::peekMem(word address, EmuTime::param time) const
-{
-	return searchDevice(address)->peekMem(address, time);
 }
 
 } // namespace openmsx

@@ -14,7 +14,7 @@ class MSXCPUInterface;
 class MSXMultiMemDevice : public MSXMultiDevice
 {
 public:
-	explicit MSXMultiMemDevice(
+	MSXMultiMemDevice(
 		MSXMotherBoard& motherboard, MSXCPUInterface& cpuInterface);
 	virtual ~MSXMultiMemDevice();
 
@@ -26,10 +26,10 @@ public:
 	// MSXDevice
 	virtual std::string getName() const;
 	virtual byte readMem(word address, EmuTime::param time);
+	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
-	virtual byte peekMem(word address, EmuTime::param time) const;
 
 private:
 	struct Range {
@@ -41,8 +41,8 @@ private:
 		MSXDevice* device;
 	};
 
-	MSXDevice* searchDevice(unsigned address);
-	const MSXDevice* searchDevice(unsigned address) const;
+	const Range& searchRange(unsigned address) const;
+	MSXDevice* searchDevice(unsigned address) const;
 
 	typedef std::vector<Range> Ranges;
 	Ranges ranges;
