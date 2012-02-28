@@ -331,9 +331,8 @@ void V9990BitmapConverter<Pixel>::drawCursor(
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::drawCursors(Pixel* buffer, int displayY)
 {
-	// TODO which cursor is in front?
-	drawCursor(buffer, displayY, 0x7FE00, 0x7FF00);
 	drawCursor(buffer, displayY, 0x7FE08, 0x7FF80);
+	drawCursor(buffer, displayY, 0x7FE00, 0x7FF00);
 }
 
 
