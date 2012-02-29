@@ -15,6 +15,7 @@
       <secondary slot="any">
         <WD2793 id="Sony HBD-F1 diskROM/FDC">
           <connectionstyle>Philips</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>e067ce2b444ec7a3dd45d9e2df4b34c1ba732872</sha1>

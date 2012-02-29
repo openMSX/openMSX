@@ -157,6 +157,7 @@
      <secondary slot="2">
          <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom> <!-- EPROM dump by FRS -->
             <filename>roms/Sony_HB-F1XDJ_main.rom</filename>

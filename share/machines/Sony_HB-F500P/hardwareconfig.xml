@@ -79,6 +79,7 @@
         </ROM>
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>
             <filename>roms/hb-f500p_disk.rom</filename>

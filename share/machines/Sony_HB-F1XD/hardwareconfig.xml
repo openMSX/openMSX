@@ -45,7 +45,7 @@
     <S1985 id="S1985"/>
 
     <PSG id="PSG">
-      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->    
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
       <keyboardlayout>JIS</keyboardlayout>
       <sound>
         <volume>21000</volume>
@@ -90,6 +90,7 @@
         </ROM>
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>
             <filename>roms/hb-f1xd_disk.rom</filename>

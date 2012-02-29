@@ -74,6 +74,7 @@
         </ROM>
         <WD2793 id="Memory Mapped FDC">
           <connectionstyle>Philips</connectionstyle>
+          <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
