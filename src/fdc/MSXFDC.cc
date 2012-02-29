@@ -20,9 +20,12 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 		throw MSXException(StringOp::Builder() <<
 			"Invalid number of drives: " << numDrives);
 	}
+	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
+	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i].reset(new RealDrive(getMotherBoard(), !singleSided));
+		drives[i].reset(new RealDrive(
+			getMotherBoard(), motorTimeout, !singleSided));
 	}
 	for ( ; i < 4; ++i) {
 		drives[i].reset(new DummyDrive());

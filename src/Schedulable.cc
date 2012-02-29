@@ -29,9 +29,9 @@ void Schedulable::setSyncPoint(EmuTime::param timestamp, int userData)
 	scheduler.setSyncPoint(timestamp, *this, userData);
 }
 
-void Schedulable::removeSyncPoint(int userData)
+bool Schedulable::removeSyncPoint(int userData)
 {
-	scheduler.removeSyncPoint(*this, userData);
+	return scheduler.removeSyncPoint(*this, userData);
 }
 
 void Schedulable::removeSyncPoints()

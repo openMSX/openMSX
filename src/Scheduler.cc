@@ -113,7 +113,7 @@ void Scheduler::getSyncPoints(SyncPoints& result, const Schedulable& device) con
 	                 FindSchedulable(device));
 }
 
-void Scheduler::removeSyncPoint(Schedulable& device, int userData)
+bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
 	for (SyncPoints::iterator it = syncPoints.begin();
@@ -121,9 +121,10 @@ void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 		if (((*it).getDevice() == &device) &&
 		    ((*it).getUserData() == userData)) {
 			syncPoints.erase(it);
-			break;
+			return true;
 		}
 	}
+	return false; // nothing removed
 }
 
 void Scheduler::removeSyncPoints(Schedulable& device)

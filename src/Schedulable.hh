@@ -52,7 +52,7 @@ protected:
 	virtual ~Schedulable();
 
 	void setSyncPoint(EmuTime::param timestamp, int userData = 0);
-	void removeSyncPoint(int userData = 0);
+	bool removeSyncPoint(int userData = 0);
 	void removeSyncPoints();
 	bool pendingSyncPoint(int userData = 0);
 

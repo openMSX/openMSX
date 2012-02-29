@@ -6,6 +6,7 @@
 #include "DiskDrive.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,7 +20,8 @@ class LoadingIndicator;
 class RealDrive : public DiskDrive, public Schedulable
 {
 public:
-	RealDrive(MSXMotherBoard& motherBoard, bool doubleSided);
+	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
+	          bool doubleSided);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
@@ -52,12 +54,9 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Timer stuff, needed for the notification of the loading state
 	virtual void executeUntil(EmuTime::param time, int userData);
-
-	// This is all for the ThrottleManager
-	void resetTimeOut(EmuTime::param time);
-	void updateLoadingState();
+	void doSetMotor(bool status, EmuTime::param time);
+	void setLoading(EmuTime::param time);
 
 	static const int MAX_TRACK = 85;
 	static const int TICKS_PER_ROTATION = 6850; // TODO
@@ -66,6 +65,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
+	const EmuDuration motorTimeout;
 
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
 	Clock<1000> headLoadTimer; // ms
@@ -74,9 +74,9 @@ private:
 	int side;
 	bool motorStatus;
 	bool headLoadStatus;
-	bool timeOut;
 	const bool doubleSizedDrive;
 };
+SERIALIZE_CLASS_VERSION(RealDrive, 2);
 
 } // namespace openmsx
 

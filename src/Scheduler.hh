@@ -103,8 +103,9 @@ private: // -> intended for Schedulable
 	 * If there is more than one match only one will be removed,
 	 * there is no guarantee that the earliest syncPoint is
 	 * removed.
+	 * Returns false <=> if there was no match (so nothing removed)
 	 */
-	void removeSyncPoint(Schedulable& device, int userdata = 0);
+	bool removeSyncPoint(Schedulable& device, int userdata = 0);
 
 	/** Remove all syncpoints for the given device.
 	  */

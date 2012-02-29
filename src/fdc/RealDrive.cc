@@ -19,18 +19,27 @@ using std::vector;
 
 namespace openmsx {
 
+enum {
+	// Turn off 'loading indicator' (even if the MSX program keeps the
+	// drive motor turning)
+	LOADING_TIMEOUT = 0, // must be zero for backwards compatibility
+	// Delayed motor off
+	MOTOR_TIMEOUT,
+};
+
 static const unsigned MAX_DRIVES = 26; // a-z
 typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
-RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
+RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
+                     bool doubleSided)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
-	, motorTimer(motherBoard.getCurrentTime())
-	, headLoadTimer(motherBoard.getCurrentTime())
+	, motorTimeout(motorTimeout_)
+	, motorTimer(getCurrentTime())
+	, headLoadTimer(getCurrentTime())
 	, headPos(0), side(0), motorStatus(false), headLoadStatus(false)
-	, timeOut(false)
 	, doubleSizedDrive(doubleSided)
 {
 	MSXMotherBoard::SharedStuff& info =
@@ -60,7 +69,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 
 RealDrive::~RealDrive()
 {
-	setMotor(false, motherBoard.getCurrentTime()); // to send LED event
+	doSetMotor(false, getCurrentTime()); // to send LED event
 
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("drivesInUse");
@@ -123,7 +132,10 @@ void RealDrive::step(bool direction, EmuTime::param time)
 		}
 	}
 	PRT_DEBUG("DiskDrive track " << headPos);
-	resetTimeOut(time);
+	// ThrottleManager heuristic:
+	//  If the motor is turning and there is head movement, assume the
+	//  MSX program is (still) loading/saving to disk
+	if (motorStatus) setLoading(time);
 }
 
 bool RealDrive::isTrack00() const
@@ -135,16 +147,90 @@ bool RealDrive::isTrack00() const
 
 void RealDrive::setMotor(bool status, EmuTime::param time)
 {
-	if (motorStatus != status) {
-		motorStatus = status;
-		motorTimer.advance(time);
-		/* The following is a hack to emulate the drive LED behaviour.
-		 * This is in real life dependent on the FDC and should be
-		 * investigated in detail to implement it properly... TODO */
-		motherBoard.getLedStatus().setLed(LedStatus::FDD, motorStatus);
-		updateLoadingState();
-	}
+	// If status = true, motor is immediately turned on. If status = false,
+	// the motor is only turned off after some (configurable) amount of
+	// time (can be zero). Let's call the last passed status parameter the
+	// 'logical' motor status.
+	//
+	// Loading indicator heuristic:
+	// Loading indicator only reacts to _changes_ in the _logical_ motor
+	// status. So when the motor is turned off, we immediately assume the
+	// MSX program is done loading (or saving) (we don't wait for the motor
+	// timeout). Turning the motor on when it already was logically on has
+	// no effect. But turning it back on while it was logically off but
+	// still in the motor-off-timeout phase does reset the loading
+	// indicator.
+	//
+	if (status) {
+		// (Try to) remove scheduled action to turn motor off.
+		if (removeSyncPoint(MOTOR_TIMEOUT)) {
+			// If there actually was such an action scheduled, we
+			// need to turn on the loading indicator.
+			assert(motorStatus);
+			setLoading(time);
+			return;
+		}
+		if (motorStatus) {
+			// Motor was still turning, we're done.
+			// Note: no effect on loading indicator.
+			return;
+		}
+		// Actually turn motor on (it was off before).
+		doSetMotor(true, time);
+		setLoading(time);
+	} else {
+		if (!motorStatus) {
+			// Motor was already off, we're done.
+			return;
+		}
+		if (pendingSyncPoint(MOTOR_TIMEOUT)) {
+			// We had already scheduled an action to turn the motor
+			// off, we're done.
+			return;
+		}
+		// Heuristic:
+		//  Immediately react to 'logical' motor status, even if the
+		//  motor will (possibly) still keep rotating for a few
+		//  seconds.
+		removeSyncPoint(LOADING_TIMEOUT);
+		loadingIndicator->update(false);
 
+		// Turn the motor off after some timeout (timeout could be 0)
+		setSyncPoint(time + motorTimeout, MOTOR_TIMEOUT);
+	}
+}
+
+void RealDrive::doSetMotor(bool status, EmuTime::param time)
+{
+	motorStatus = status;
+	motorTimer.advance(time);
+
+	// TODO The following is a hack to emulate the drive LED behaviour.
+	//      This should be moved to the FDC mapping code.
+	// TODO Each drive should get it's own independent LED.
+	motherBoard.getLedStatus().setLed(LedStatus::FDD, status);
+}
+
+void RealDrive::setLoading(EmuTime::param time)
+{
+	assert(motorStatus);
+	loadingIndicator->update(true);
+
+	// ThrottleManager heuristic:
+	//  We want to avoid getting stuck in 'loading state' when the MSX
+	//  program forgets to turn off the motor.
+	removeSyncPoint(LOADING_TIMEOUT);
+	setSyncPoint(time + EmuDuration::sec(1), LOADING_TIMEOUT);
+}
+
+void RealDrive::executeUntil(EmuTime::param time, int userData)
+{
+	if (userData == LOADING_TIMEOUT) {
+		loadingIndicator->update(false);
+	} else {
+		assert(userData == MOTOR_TIMEOUT);
+		doSetMotor(false, time);
+	}
 }
 
 bool RealDrive::indexPulse(EmuTime::param time)
@@ -265,26 +351,8 @@ bool RealDrive::isDummyDrive() const
 	return false;
 }
 
-void RealDrive::executeUntil(EmuTime::param /*time*/, int /*userData*/)
-{
-	timeOut = true;
-	updateLoadingState();
-}
-
-void RealDrive::updateLoadingState()
-{
-	loadingIndicator->update(motorStatus && (!timeOut));
-}
-
-
-void RealDrive::resetTimeOut(EmuTime::param time)
-{
-	timeOut = false;
-	updateLoadingState();
-	removeSyncPoint();
-	setSyncPoint(time + EmuDuration::sec(1));
-}
-
+// version 1: initial version
+// version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -296,9 +364,10 @@ void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("side", side);
 	ar.serialize("motorStatus", motorStatus);
 	ar.serialize("headLoadStatus", headLoadStatus);
-	ar.serialize("timeOut", timeOut);
 	if (ar.isLoader()) {
-		updateLoadingState();
+		// Right after a loadstate, the 'loading indicator' state may
+		// be wrong, but that's OK. It's anyway only a heuristic and
+		// it will be correct after at most one second.
 
 		// This is a workaround for the fact that we can have multiple drives
 		// (and only one is on), in which case the 2nd drive will turn off the
