@@ -13,6 +13,7 @@ MSXS1985::MSXS1985(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, ram(new Ram(motherBoard, getName() + " RAM", "S1985 RAM", 0x10))
 {
+	reset(EmuTime::dummy());
 	// TODO load ram
 }
 
@@ -28,6 +29,7 @@ void MSXS1985::powerUp(EmuTime::param /*time*/)
 
 void MSXS1985::reset(EmuTime::param /*time*/)
 {
+	color1 = color2 = pattern = address = 0; // TODO check this
 }
 
 byte MSXS1985::readSwitchedIO(word port, EmuTime::param time)

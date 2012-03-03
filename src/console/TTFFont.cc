@@ -182,7 +182,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (vector<string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
 		unsigned w;
-		getSize(it->c_str(), w, lineHeight);
+		getSize(*it, w, lineHeight);
 		width = std::max(width, w);
 	}
 	// There might be extra space between two successive lines

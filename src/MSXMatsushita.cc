@@ -30,7 +30,7 @@ MSXMatsushita::~MSXMatsushita()
 
 void MSXMatsushita::reset(EmuTime::param /*time*/)
 {
-	address = 0; // TODO check this
+	color1 = color2 = pattern = address = 0; // TODO check this
 }
 
 byte MSXMatsushita::readSwitchedIO(word port, EmuTime::param time)

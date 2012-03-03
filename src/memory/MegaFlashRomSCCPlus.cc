@@ -346,7 +346,7 @@ byte MegaFlashRomSCCPlus::readIO(word port, EmuTime::param time)
 
 byte MegaFlashRomSCCPlus::peekIO(word port, EmuTime::param time) const
 {
-	assert((port && 0xFF) == 0x12); (void)port;
+	assert((port & 0xFF) == 0x12); (void)port;
 	return psg->peekRegister(psgLatch, time);
 }
 
