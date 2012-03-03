@@ -29,7 +29,7 @@ static const int DRIVE_A_MOTOR = 0x01;
 static const int DRIVE_B_MOTOR = 0x02;
 static const int DRIVE_SELECT  = 0x04;
 static const int SIDE_SELECT   = 0x08;
-static const int DRIVE_ENABLE  = 0x10;
+static const int DRIVE_DISABLE = 0x10; // renamed due to inverse logic
 static const int DATA_REQUEST  = 0x40;
 static const int INTR_REQUEST  = 0x80;
 
@@ -37,6 +37,16 @@ static const int INTR_REQUEST  = 0x80;
 VictorFDC::VictorFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: WD2793BasedFDC(motherBoard, config)
 {
+	reset(getCurrentTime());
+}
+
+void VictorFDC::reset(EmuTime::param time)
+{
+	WD2793BasedFDC::reset(time);
+	// initialize in such way that drives are disabled
+	// (and motors off, etc.)
+	// TODO: test on real machine (this is an assumption)
+	writeMem(0x7FFC, DRIVE_DISABLE, time);
 }
 
 byte VictorFDC::readMem(word address, EmuTime::param time)
@@ -134,7 +144,7 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 		break;
 	case 0x7FFC:
 		DriveMultiplexer::DriveNum drive;
-		if ((value & DRIVE_ENABLE) != 0) {
+		if ((value & DRIVE_DISABLE) != 0) {
 			drive = DriveMultiplexer::NO_DRIVE;
 		} else {
 			drive = ((value & DRIVE_SELECT) != 0) ? DriveMultiplexer::DRIVE_B : DriveMultiplexer::DRIVE_A;
@@ -143,7 +153,7 @@ void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 		multiplexer->setSide((value & SIDE_SELECT) != 0);
 		multiplexer->setMotor((drive == DriveMultiplexer::DRIVE_A) ? ((value & DRIVE_A_MOTOR) != 0) : ((value & DRIVE_B_MOTOR) != 0), time); // this is not 100% correct: the motors can be controlled independently via bit 0 and 1
 		// back up for reading:
-		driveControls = value & (DRIVE_A_MOTOR | DRIVE_B_MOTOR | DRIVE_SELECT | SIDE_SELECT | DRIVE_ENABLE);
+		driveControls = value & (DRIVE_A_MOTOR | DRIVE_B_MOTOR | DRIVE_SELECT | SIDE_SELECT | DRIVE_DISABLE);
 		break;
 	}
 }

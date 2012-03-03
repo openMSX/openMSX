@@ -12,6 +12,7 @@ class VictorFDC : public WD2793BasedFDC
 public:
 	VictorFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
 
+	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
