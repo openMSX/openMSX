@@ -112,6 +112,9 @@ private:
 	bool oldCodeKanaLockOn;
 	bool oldGraphLockOn;
 	bool oldCapsLockOn;
+
+	bool releaseBeforePress;
+	unsigned typingFrequency;
 };
 
 class CapsLockAligner : private EventListener, private Schedulable
@@ -1071,20 +1074,48 @@ KeyInserter::KeyInserter(CommandController& commandController,
 	oldCodeKanaLockOn = false;
 	oldGraphLockOn = false;
 	oldCapsLockOn = false;
+	releaseBeforePress = false;
+	typingFrequency = 15;
 }
 
 string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
-	if (tokens.size() != 2) {
+	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
-	type(tokens[1]);
+
+	releaseBeforePress = false;
+	typingFrequency = 15;
+
+        vector<string> arguments;
+	for (unsigned i = 1; i < tokens.size(); ++i) {
+		const string token = tokens[i];
+		if (token == "-release") {
+			releaseBeforePress = true;
+		} else if (token == "-freq") {
+			if (++i == tokens.size()) {
+				throw CommandException("Missing argument");
+			}
+			if (!StringOp::stringToUint(tokens[i], typingFrequency) || (typingFrequency == 0)) {
+				throw CommandException("Wrong argument for -freq (should be a positive number)");
+			}
+		} else {
+			arguments.push_back(token);
+		}
+	}
+
+	if (arguments.size() != 1) throw SyntaxError();
+
+	type(arguments[0]);
+
 	return "";
 }
 
 string KeyInserter::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText = "Type a string in the emulated MSX.";
+	static const string helpText = "Type a string in the emulated MSX.\n" \
+		"Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
+		"Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 	return helpText;
 }
 
@@ -1140,7 +1171,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 	try {
 		string::iterator it = text_utf8.begin();
 		unsigned current = utf8::next(it, text_utf8.end());
-		if (releaseLast == true && keyboard.commonKeys(last, current)) {
+		if (releaseLast == true && (releaseBeforePress || keyboard.commonKeys(last, current))) {
 			// There are common keys between previous and current character
 			// Do not immediately press again but give MSX the time to notice
 			// that the keys have been released
@@ -1154,6 +1185,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 				releaseLast = true;
 				text_utf8.erase(text_utf8.begin(), it);
 			}
+			if (releaseBeforePress) releaseLast = true;
 		}
 		reschedule(time);
 	} catch (std::exception&) {
@@ -1164,7 +1196,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 
 void KeyInserter::reschedule(EmuTime::param time)
 {
-	setSyncPoint(time + EmuDuration::hz(15));
+	setSyncPoint(time + EmuDuration::hz(typingFrequency));
 }
 
 /*
