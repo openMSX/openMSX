@@ -35,6 +35,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -100,6 +101,7 @@ private:
 	// Command
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
@@ -1123,6 +1125,14 @@ string KeyInserter::help(const vector<string>& /*tokens*/) const
 		"Use -release to make sure the keys are always released before typing new ones (necessary for some game input routines, but in general, this means typing is twice as slow).\n" \
 		"Use -freq to tweak how fast typing goes and how long the keys will be pressed (and released in case -release was used). Keys will be typed at the given frequency and will remain pressed/released for 1/freq seconds";
 	return helpText;
+}
+
+void KeyInserter::tabCompletion(vector<string>& tokens) const
+{
+	set<string> options;
+	if (find(tokens.begin(), tokens.end(), "-release") == tokens.end()) options.insert("-release");
+	if (find(tokens.begin(), tokens.end(), "-freq") == tokens.end()) options.insert("-freq");
+	completeString(tokens, options);
 }
 
 void KeyInserter::type(const string& str)
