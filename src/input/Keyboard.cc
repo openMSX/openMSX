@@ -1087,6 +1087,12 @@ string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*
 	releaseBeforePress = false;
 	typingFrequency = 15;
 
+	// for full backwards compatibility: one option means type it...
+	if (tokens.size() == 2) {
+		type(tokens[1]);
+		return "";
+	}
+
         vector<string> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
 		const string token = tokens[i];
