@@ -36,20 +36,6 @@ diff -ru glew-1.7.0.org/Makefile glew-1.7.0/Makefile
  
  LIB.SRCS = src/glew.c
  LIB.OBJS = $(LIB.SRCS:.c=.o)
-@@ -192,11 +194,11 @@
- # development files
- ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
- 	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
-+	$(STRIP) -x lib/$(LIB.STATIC)
-+	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
- else
- 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
- endif
--	$(STRIP) -x lib/$(LIB.STATIC)
--	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
- 
- install.lib.mx: glew.lib.mx
- 	$(INSTALL) -d -m 0755 $(LIBDIR)
 @@ -221,7 +223,7 @@
  
  install.bin: glew.bin
