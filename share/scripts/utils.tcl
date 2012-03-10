@@ -86,4 +86,17 @@ proc clip {min max val} {
 	expr {($val < $min) ? $min : (($val > $max) ? $max : $val)}
 }
 
+# provides.... file completion. Currently has a small issue: it adds a space at
+# after a /, which you need to erase to continue completing
+proc file_completion {args} {
+	set result [list]
+	foreach i [glob -nocomplain -path [lindex $args end] *] {
+		if {[file isdirectory $i]} {
+			append i /
+		}
+		lappend result $i
+	}
+	return $result
+}
+
 } ;# namespace utils
