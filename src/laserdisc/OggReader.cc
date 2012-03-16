@@ -475,8 +475,14 @@ void OggReader::readMetadata(th_comment& tc)
 
 void OggReader::readTheora(ogg_packet* packet)
 {
+	if (th_packet_isheader(packet)) {
+		return;
+	}
+
 	int frameno = frameNo(packet);
 
+	// If we're seeking, we're only interested in packets with 
+	// frame numbers
 	if (state != PLAYING && frameno == -1) {
 		return;
 	}
@@ -510,11 +516,18 @@ void OggReader::readTheora(ogg_packet* packet)
 		return;
 	}
 
+	if (packet->bytes == 0 && frameList.empty()) {
+		// No use passing empty packets (which represent dup frame)
+		// before we've read any frame.
+		return;
+	}
+
 	keyFrame = -1;
 	Frame* frame;
 
 	int rc = th_decode_packetin(theora, packet, NULL);
-	if (rc == TH_DUPFRAME) {
+	switch (rc) {
+	case TH_DUPFRAME:
 		if (frameList.empty()) {
 			cli.printWarning("Theora error: dup frame encountered "
 					 "without preceding frame");
@@ -522,15 +535,27 @@ void OggReader::readTheora(ogg_packet* packet)
 			frame = frameList.back();
 			frame->length++;
 		}
-		return;
+		break;
+	case TH_EIMPL:
+		cli.printWarning("Theora error: not capable of reading this");
+		break;
+	case TH_EFAULT:
+		cli.printWarning("Theora error: API not used correctly");
+		break;
+	case TH_EBADPACKET:
+		cli.printWarning("Theora error: bad packet");
+		break;
+	case 0:
+		break;
+	default:
+		cli.printWarning("Theora error: unknown error " +
+					StringOp::toString(rc));
+		break;
 	}
 
 	if (rc) {
-		// FIXME: Two theora header packet produce errors on seek to
-		// the beginning
 		return;
 	}
-	
 
 	th_ycbcr_buffer yuv;
 
