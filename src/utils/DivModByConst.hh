@@ -222,26 +222,26 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 	#else
 		unsigned th, tl, ch, cl;
 		asm (
-			"mov	%[AH],%%eax\n\t"
+			"movl	%[AH],%%eax\n\t"
 			"mull	%[BL]\n\t"
-			"mov	%%eax,%[TL]\n\t"
-			"mov	%%edx,%[TH]\n\t"
-			"mov	%[AL],%%eax\n\t"
+			"movl	%%eax,%[TL]\n\t"
+			"movl	%%edx,%[TH]\n\t"
+			"movl	%[AL],%%eax\n\t"
 			"mull	%[BL]\n\t"
-			"add	%%edx,%[TL]\n\t"
-			"adc	$0,%[TH]\n\t"
+			"addl	%%edx,%[TL]\n\t"
+			"adcl	$0,%[TH]\n\t"
 
-			"mov	%[AH],%%eax\n\t"
+			"movl	%[AH],%%eax\n\t"
 			"mull	%[BH]\n\t"
-			"mov	%%eax,%[CL]\n\t"
-			"mov	%%edx,%[CH]\n\t"
-			"mov	%[AL],%%eax\n\t"
+			"movl	%%eax,%[CL]\n\t"
+			"movl	%%edx,%[CH]\n\t"
+			"movl	%[AL],%%eax\n\t"
 			"mull	%[BH]\n\t"
-			"add	%%eax,%[TL]\n\t"
-			"adc	%%edx,%[TH]\n\t"
-			"adc	$0,%[CH]\n\t"
-			"add	%[TH],%[CL]\n\t"
-			"adc	$0,%[CH]\n\t"
+			"addl	%%eax,%[TL]\n\t"
+			"adcl	%%edx,%[TH]\n\t"
+			"adcl	$0,%[CH]\n\t"
+			"addl	%[TH],%[CL]\n\t"
+			"adcl	$0,%[CH]\n\t"
 
 			: [CH] "=&rm" (ch)
 			, [TH] "=&r"  (th)

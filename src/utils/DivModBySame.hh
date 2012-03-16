@@ -104,15 +104,15 @@ public:
 		unsigned dummy;
 		asm (
 			"mull	%[BL]\n\t"       // eax = [AH]
-			"mov	%%eax,%[TL]\n\t"
-			"mov	%%edx,%[TH]\n\t"
-			"mov	%[AL],%%eax\n\t"
+			"movl	%%eax,%[TL]\n\t"
+			"movl	%%edx,%[TH]\n\t"
+			"movl	%[AL],%%eax\n\t"
 			"mull	%[BL]\n\t"
-			"add	%%eax,%[CL]\n\t"
-			"adc	%%edx,%[CH]\n\t"
-			"adc	$0,%[TH]\n\t"
-			"add	%[CH],%[TL]\n\t"
-			"adc	$0,%[TH]\n\t"
+			"addl	%%eax,%[CL]\n\t"
+			"adcl	%%edx,%[CH]\n\t"
+			"adcl	$0,%[TH]\n\t"
+			"addl	%[CH],%[TL]\n\t"
+			"adcl	$0,%[TH]\n\t"
 
 			: [TH]  "=&rm"  (_th_)
 			, [TL]  "=&r"   (_tl_)
@@ -128,15 +128,15 @@ public:
 		);
 		asm (
 			"mull	%[BH]\n\t"       // eax = [AH]
-			"mov	%%eax,%[CL]\n\t"
-			"mov	%%edx,%[CH]\n\t"
-			"mov	%[AL],%%eax\n\t"
+			"movl	%%eax,%[CL]\n\t"
+			"movl	%%edx,%[CH]\n\t"
+			"movl	%[AL],%%eax\n\t"
 			"mull	%[BH]\n\t"
-			"add	%%eax,%[TL]\n\t"
-			"adc	%%edx,%[TH]\n\t"
-			"adc	$0,%[CH]\n\t"
-			"add	%[TH],%[CL]\n\t"
-			"adc	$0,%[CH]\n\t"
+			"addl	%%eax,%[TL]\n\t"
+			"adcl	%%edx,%[TH]\n\t"
+			"adcl	$0,%[CH]\n\t"
+			"addl	%[TH],%[CL]\n\t"
+			"adcl	$0,%[CH]\n\t"
 
 			: [CH]  "=rm"   (_ch_)
 			, [CL]  "=r"    (_cl_)
