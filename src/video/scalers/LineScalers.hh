@@ -439,165 +439,173 @@ template <typename Pixel, bool streaming>
 void Scale_1on2<Pixel, streaming>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
 {
+	unsigned long width2 = 0;
+
 	#if ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	#ifndef _MSC_VER
-	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
-		// extended-MMX routine 16bpp
-		assert((width % 32) == 0);
-		asm (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
-			"movq	%%mm0, %%mm1;"
-			"movq	%%mm2, %%mm3;"
-			"movq	%%mm4, %%mm5;"
-			"movq	%%mm6, %%mm7;"
-			// Scale.
-			"punpcklwd %%mm0, %%mm0;"
-			"punpckhwd %%mm1, %%mm1;"
-			"punpcklwd %%mm2, %%mm2;"
-			"punpckhwd %%mm3, %%mm3;"
-			"punpcklwd %%mm4, %%mm4;"
-			"punpckhwd %%mm5, %%mm5;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckhwd %%mm7, %%mm7;"
-			// Store.
-			"movntq	%%mm0,   (%1,%2,2);"
-			"movntq	%%mm1,  8(%1,%2,2);"
-			"movntq	%%mm2, 16(%1,%2,2);"
-			"movntq	%%mm3, 24(%1,%2,2);"
-			"movntq	%%mm4, 32(%1,%2,2);"
-			"movntq	%%mm5, 40(%1,%2,2);"
-			"movntq	%%mm6, 48(%1,%2,2);"
-			"movntq	%%mm7, 56(%1,%2,2);"
-			// Increment.
-			"add	$32, %2;"
-			"jnz	0b;"
-			"emms;"
 
-			: // no output
-			: "r" (in  + width / 2) // 0
-			, "r" (out + width) // 1
-			, "r" (-width) // 2
-			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-	}
+	#ifdef _MSC_VER
 
-	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
-		// MMX routine 16bpp
-		assert((width % 32) == 0);
-		asm (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
-			"movq	%%mm0, %%mm1;"
-			"movq	%%mm2, %%mm3;"
-			"movq	%%mm4, %%mm5;"
-			"movq	%%mm6, %%mm7;"
-			// Scale.
-			"punpcklwd %%mm0, %%mm0;"
-			"punpckhwd %%mm1, %%mm1;"
-			"punpcklwd %%mm2, %%mm2;"
-			"punpckhwd %%mm3, %%mm3;"
-			"punpcklwd %%mm4, %%mm4;"
-			"punpckhwd %%mm5, %%mm5;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckhwd %%mm7, %%mm7;"
-			// Store.
-			"movq	%%mm0,   (%1,%2,2);"
-			"movq	%%mm1,  8(%1,%2,2);"
-			"movq	%%mm2, 16(%1,%2,2);"
-			"movq	%%mm3, 24(%1,%2,2);"
-			"movq	%%mm4, 32(%1,%2,2);"
-			"movq	%%mm5, 40(%1,%2,2);"
-			"movq	%%mm6, 48(%1,%2,2);"
-			"movq	%%mm7, 56(%1,%2,2);"
-			// Increment.
-			"add	$32, %2;"
-			"jnz	0b;"
-			"emms;"
-
-			: // no output
-			: "r" (in  + width / 2) // 0
-			, "r" (out + width) // 1
-			, "r" (-width) // 2
-			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-	}
-
-	if ((sizeof(Pixel) == 4) && streaming && cpu.hasSSE()) {
-		// extended-MMX routine 32bpp
-		assert(((2 * width) % 32) == 0);
-		asm (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
-			"movq	%%mm0, %%mm1;"
-			"movq	%%mm2, %%mm3;"
-			"movq	%%mm4, %%mm5;"
-			"movq	%%mm6, %%mm7;"
-			// Scale.
-			"punpckldq %%mm0, %%mm0;"
-			"punpckhdq %%mm1, %%mm1;"
-			"punpckldq %%mm2, %%mm2;"
-			"punpckhdq %%mm3, %%mm3;"
-			"punpckldq %%mm4, %%mm4;"
-			"punpckhdq %%mm5, %%mm5;"
-			"punpckldq %%mm6, %%mm6;"
-			"punpckhdq %%mm7, %%mm7;"
-			// Store.
-			"movntq	%%mm0,   (%1,%2,2);"
-			"movntq	%%mm1,  8(%1,%2,2);"
-			"movntq	%%mm2, 16(%1,%2,2);"
-			"movntq	%%mm3, 24(%1,%2,2);"
-			"movntq	%%mm4, 32(%1,%2,2);"
-			"movntq	%%mm5, 40(%1,%2,2);"
-			"movntq	%%mm6, 48(%1,%2,2);"
-			"movntq	%%mm7, 56(%1,%2,2);"
-			// Increment.
-			"add	$32, %2;"
-			"jnz	0b;"
-			"emms;"
-
-			: // no output
-			: "r" (in  + width / 2) // 0
-			, "r" (out + width) // 1
-			, "r" (-2 * width) // 2
-			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-	}
-	#endif
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine 32bpp
-		assert(((2 * width) % 32) == 0);
-	#ifdef _MSC_VER
-		Scale_1on2_4_MMX(in, out, width);
+		width2 = width & ~15;
+		assert(((2 * width2) % 32) == 0);
+		Scale_1on2_4_MMX(in, out, width2);
+	}
+
 	#else
+
+	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
+		// extended-MMX routine 16bpp
+		width2 = width & ~31;
+		assert((width2 % 32) == 0);
+		asm (
+			".p2align 4,,15;"
+		"0:"
+			// Load.
+			"movq	  (%0,%2), %%mm0;"
+			"movq	 8(%0,%2), %%mm2;"
+			"movq	16(%0,%2), %%mm4;"
+			"movq	24(%0,%2), %%mm6;"
+			"movq	%%mm0, %%mm1;"
+			"movq	%%mm2, %%mm3;"
+			"movq	%%mm4, %%mm5;"
+			"movq	%%mm6, %%mm7;"
+			// Scale.
+			"punpcklwd %%mm0, %%mm0;"
+			"punpckhwd %%mm1, %%mm1;"
+			"punpcklwd %%mm2, %%mm2;"
+			"punpckhwd %%mm3, %%mm3;"
+			"punpcklwd %%mm4, %%mm4;"
+			"punpckhwd %%mm5, %%mm5;"
+			"punpcklwd %%mm6, %%mm6;"
+			"punpckhwd %%mm7, %%mm7;"
+			// Store.
+			"movntq	%%mm0,   (%1,%2,2);"
+			"movntq	%%mm1,  8(%1,%2,2);"
+			"movntq	%%mm2, 16(%1,%2,2);"
+			"movntq	%%mm3, 24(%1,%2,2);"
+			"movntq	%%mm4, 32(%1,%2,2);"
+			"movntq	%%mm5, 40(%1,%2,2);"
+			"movntq	%%mm6, 48(%1,%2,2);"
+			"movntq	%%mm7, 56(%1,%2,2);"
+			// Increment.
+			"add	$32, %2;"
+			"jnz	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (in  + width2 / 2) // 0
+			, "r" (out + width2) // 1
+			, "r" (-width2) // 2
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+
+	} else if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+		// MMX routine 16bpp
+		width2 = width & ~31;
+		assert((width2 % 32) == 0);
+		asm (
+			".p2align 4,,15;"
+		"0:"
+			// Load.
+			"movq	  (%0,%2), %%mm0;"
+			"movq	 8(%0,%2), %%mm2;"
+			"movq	16(%0,%2), %%mm4;"
+			"movq	24(%0,%2), %%mm6;"
+			"movq	%%mm0, %%mm1;"
+			"movq	%%mm2, %%mm3;"
+			"movq	%%mm4, %%mm5;"
+			"movq	%%mm6, %%mm7;"
+			// Scale.
+			"punpcklwd %%mm0, %%mm0;"
+			"punpckhwd %%mm1, %%mm1;"
+			"punpcklwd %%mm2, %%mm2;"
+			"punpckhwd %%mm3, %%mm3;"
+			"punpcklwd %%mm4, %%mm4;"
+			"punpckhwd %%mm5, %%mm5;"
+			"punpcklwd %%mm6, %%mm6;"
+			"punpckhwd %%mm7, %%mm7;"
+			// Store.
+			"movq	%%mm0,   (%1,%2,2);"
+			"movq	%%mm1,  8(%1,%2,2);"
+			"movq	%%mm2, 16(%1,%2,2);"
+			"movq	%%mm3, 24(%1,%2,2);"
+			"movq	%%mm4, 32(%1,%2,2);"
+			"movq	%%mm5, 40(%1,%2,2);"
+			"movq	%%mm6, 48(%1,%2,2);"
+			"movq	%%mm7, 56(%1,%2,2);"
+			// Increment.
+			"add	$32, %2;"
+			"jnz	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (in  + width2 / 2) // 0
+			, "r" (out + width2) // 1
+			, "r" (-width2) // 2
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+
+	} else if ((sizeof(Pixel) == 4) && streaming && cpu.hasSSE()) {
+		// extended-MMX routine 32bpp
+		width2 = width & ~15;
+		assert(((2 * width2) % 32) == 0);
+		asm (
+			".p2align 4,,15;"
+		"0:"
+			// Load.
+			"movq	  (%0,%2), %%mm0;"
+			"movq	 8(%0,%2), %%mm2;"
+			"movq	16(%0,%2), %%mm4;"
+			"movq	24(%0,%2), %%mm6;"
+			"movq	%%mm0, %%mm1;"
+			"movq	%%mm2, %%mm3;"
+			"movq	%%mm4, %%mm5;"
+			"movq	%%mm6, %%mm7;"
+			// Scale.
+			"punpckldq %%mm0, %%mm0;"
+			"punpckhdq %%mm1, %%mm1;"
+			"punpckldq %%mm2, %%mm2;"
+			"punpckhdq %%mm3, %%mm3;"
+			"punpckldq %%mm4, %%mm4;"
+			"punpckhdq %%mm5, %%mm5;"
+			"punpckldq %%mm6, %%mm6;"
+			"punpckhdq %%mm7, %%mm7;"
+			// Store.
+			"movntq	%%mm0,   (%1,%2,2);"
+			"movntq	%%mm1,  8(%1,%2,2);"
+			"movntq	%%mm2, 16(%1,%2,2);"
+			"movntq	%%mm3, 24(%1,%2,2);"
+			"movntq	%%mm4, 32(%1,%2,2);"
+			"movntq	%%mm5, 40(%1,%2,2);"
+			"movntq	%%mm6, 48(%1,%2,2);"
+			"movntq	%%mm7, 56(%1,%2,2);"
+			// Increment.
+			"add	$32, %2;"
+			"jnz	0b;"
+			"emms;"
+
+			: // no output
+			: "r" (in  + width2 / 2) // 0
+			, "r" (out + width2) // 1
+			, "r" (-2 * width2) // 2
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3",
+			  "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+
+	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+		// MMX routine 32bpp
+		width2 = width & ~15;
+		assert(((2 * width2) % 32) == 0);
 		asm (
 			".p2align 4,,15;"
 		"0:"
@@ -634,18 +642,22 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (in  + width / 2) // 0
-			, "r" (out + width) // 1
-			, "r" (-2 * width) // 2
+			: "r" (in  + width2 / 2) // 0
+			, "r" (out + width2) // 1
+			, "r" (-2 * width2) // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
 			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-	#endif
-		return;
 	}
+
 	#endif
+	#endif
+
+	in += width2;
+	out += width2;
+	width -= width2;
 
 	for (unsigned x = 0; x < width / 2; x++) {
 		out[x * 2] = out[x * 2 + 1] = in[x];
@@ -657,16 +669,24 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
 {
 	unsigned long nBytes = width * sizeof(Pixel);
+	unsigned long nBytes2 = 0;
+
 	#if ASM_X86
-	assert((nBytes % 64) == 0);
+
+	nBytes2 = nBytes & ~63;
+	assert((nBytes2 % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
+
+	#ifdef _MSC_VER
+
 	if (streaming && cpu.hasSSE()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
-	#ifdef _MSC_VER
-		Scale_1on1_SSE(in, out, nBytes);
-		return;
+		Scale_1on1_SSE(in, out, nBytes2);
 	}
+
 	#else
+
+	if (streaming && cpu.hasSSE()) {
 		asm (
 			".p2align 4,,15;"
 		"0:"
@@ -694,18 +714,16 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (reinterpret_cast<const char*>(in)  + nBytes) // 0
-			, "r" (reinterpret_cast<char*      >(out) + nBytes) // 1
-			, "r" (-nBytes) // 2
+			: "r" (reinterpret_cast<const char*>(in)  + nBytes2) // 0
+			, "r" (reinterpret_cast<char*      >(out) + nBytes2) // 1
+			, "r" (-nBytes2) // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
 			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-		return;
-	}
 
-	if (cpu.hasMMX()) {
+	} else if (cpu.hasMMX()) {
 		// MMX routine (both 16bpp and 32bpp)
 		asm (
 			".p2align 4,,15;"
@@ -734,22 +752,23 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (reinterpret_cast<const char*>(in)  + nBytes) // 0
-			, "r" (reinterpret_cast<char*      >(out) + nBytes) // 1
-			, "r" (-nBytes) // 2
+			: "r" (reinterpret_cast<const char*>(in)  + nBytes2) // 0
+			, "r" (reinterpret_cast<char*      >(out) + nBytes2) // 1
+			, "r" (-nBytes2) // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
 			  "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-		return;
 	}
+
 	#endif
 	#endif
 
 #ifdef __arm__
-	assert(nBytes > 0);
-	assert((nBytes % 64) == 0);
+	nBytes2 = nBytes & ~63;
+	assert(nBytes2 > 0);
+	assert((nBytes2 % 64) == 0);
 	assert((long(in)  & 3) == 0);
 	assert((long(out) & 3) == 0);
 
@@ -763,15 +782,19 @@ void Scale_1on1<Pixel, streaming>::operator()(
 		"bne	0b;\n\t"
 
 		: // no output
-		: "r" (nBytes)
+		: "r" (nBytes2)
 		, "r" (in)
 		, "r" (out)
 		: "r0","r1","r2","r3","r4","r5","r6","r8"
 	);
-	return;
 #endif
 
-	memcpy(out, in, nBytes);
+	      char* out2 = reinterpret_cast<      char*>(out) + nBytes2;
+	const char* in2  = reinterpret_cast<const char*>(in ) + nBytes2;
+	nBytes -= nBytes2;
+	if (nBytes) {
+		memcpy(out2, in2, nBytes);
+	}
 }
 
 
@@ -785,16 +808,27 @@ template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
 {
+	unsigned long width2 = 0;
+
 	#if ASM_X86
+
 	const HostCPU& cpu = HostCPU::getInstance();
+
+	#ifdef _MSC_VER
+
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
-		assert(((4 * width) % 16) == 0);
-	#ifdef _MSC_VER
-		Scale_2on1_SSE(in, out, width);
-		return;
+		width2 = width & ~3;
+		assert(((4 * width2) % 16) == 0);
+		Scale_2on1_SSE(in, out, width2);
 	}
+
 	#else
+
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+		// extended-MMX routine, 32bpp
+		width2 = width & ~3;
+		assert(((4 * width2) % 16) == 0);
 		asm volatile (
 			".p2align 4,,15;"
 		"0:"
@@ -817,18 +851,18 @@ void Scale_2on1<Pixel>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (in  + 2 * width) // 0
-			, "r" (out +     width) // 1
-			, "r" (-4 * width)      // 2
+			: "r" (in  + 2 * width2) // 0
+			, "r" (out +     width2) // 1
+			, "r" (-4 * width2)      // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
 			#endif
 		);
-		return;
-	}
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+
+	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine, 32bpp
-		assert(((4 * width) % 16) == 0);
+		width2 = width & ~3;
+		assert(((4 * width2) % 16) == 0);
 		asm volatile (
 			"pxor	%%mm7, %%mm7;"
 			".p2align 4,,15;"
@@ -866,19 +900,19 @@ void Scale_2on1<Pixel>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (in  + 2 * width) // 0
-			, "r" (out +     width) // 1
-			, "r" (-4 * width)      // 2
+			: "r" (in  + 2 * width2) // 0
+			, "r" (out +     width2) // 1
+			, "r" (-4 * width2)      // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-		return;
-	}
-	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
+
+	} else if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		// extended-MMX routine, 16bpp
-		assert(((2 * width) % 16) == 0);
+		width2 = width & ~7;
+		assert(((2 * width2) % 16) == 0);
 		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
@@ -927,20 +961,20 @@ void Scale_2on1<Pixel>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (in  + 2 * width) // 0
-			, "r" (out +     width) // 1
+			: "r" (in  + 2 * width2) // 0
+			, "r" (out +     width2) // 1
 			, "r" (mask)             // 2
-			, "r" (-2 * width)      // 3
+			, "r" (-2 * width2)      // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-		return;
-	}
-	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+
+	} else if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
 		// MMX routine, 16bpp
-		assert(((2 * width) % 16) == 0);
+		width2 = width & ~7;
+		assert(((2 * width2) % 16) == 0);
 		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
 		asm volatile (
@@ -989,19 +1023,22 @@ void Scale_2on1<Pixel>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" (in  + 2 * width) // 0
-			, "r" (out +     width) // 1
+			: "r" (in  + 2 * width2) // 0
+			, "r" (out +     width2) // 1
 			, "r" (mask)             // 2
-			, "r" (-2 * width)      // 3
+			, "r" (-2 * width2)      // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
-		return;
 	}
 	#endif
 	#endif
+
+	in += width2;
+	out += width2;
+	width -= width2;
 
 	// pure C++ version
 	for (unsigned i = 0; i < width; ++i) {
