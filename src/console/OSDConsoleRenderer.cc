@@ -291,10 +291,10 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 void OSDConsoleRenderer::drawText(OutputSurface& output, const string& text,
                                   int x, int y, byte alpha)
 {
-	if (text.empty()) return;
 	SDLSurfacePtr surf;
 	try {
 		surf = font->render(text, 255, 255, 255);
+		if (!surf.get()) return; // nothing was rendered, so do nothing
 	} catch (MSXException& e) {
 		static bool alreadyPrinted = false;
 		if (!alreadyPrinted) {
