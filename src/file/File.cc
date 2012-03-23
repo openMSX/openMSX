@@ -38,13 +38,13 @@ static std::unique_ptr<FileBase> init(string_view filename, File::OpenMode mode)
 	return file;
 }
 
-File::File(const Filename& filename, OpenMode mode)
-	: file(init(filename.getResolved(), mode))
+File::File(string_view url, OpenMode mode)
+	: file(init(url, mode))
 {
 }
 
-File::File(string_view filename, OpenMode mode)
-	: file(init(filename, mode))
+File::File(const Filename& filename, OpenMode mode)
+	: File(filename.getResolved(), mode)
 {
 }
 
@@ -54,7 +54,7 @@ File::File(string_view filename, const char* mode)
 }
 
 File::File(const Filename& filename, const char* mode)
-	: file(std::make_unique<LocalFile>(filename.getResolved(), mode))
+	: File(filename.getResolved(), mode)
 {
 }
 

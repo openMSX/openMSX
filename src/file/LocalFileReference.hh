@@ -47,8 +47,7 @@ public:
 	const std::string getFilename() const;
 
 private:
-	void init(const std::string& url);
-	void init(File& file);
+	void init(File& url);
 
 	std::string tmpFile;
 	std::string tmpDir;

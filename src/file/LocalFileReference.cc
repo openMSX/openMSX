@@ -11,25 +11,20 @@ using std::string;
 
 namespace openmsx {
 
-LocalFileReference::LocalFileReference(const Filename& filename)
-{
-	init(filename.getResolved());
-}
-
-LocalFileReference::LocalFileReference(const string& url)
-{
-	init(url);
-}
-
 LocalFileReference::LocalFileReference(File& file)
 {
 	init(file);
 }
 
-void LocalFileReference::init(const string& url)
+LocalFileReference::LocalFileReference(const string& url)
 {
 	File file(url);
 	init(file);
+}
+
+LocalFileReference::LocalFileReference(const Filename& filename)
+	: LocalFileReference(filename.getResolved())
+{
 }
 
 void LocalFileReference::init(File& file)
