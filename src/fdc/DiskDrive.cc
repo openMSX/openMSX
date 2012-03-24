@@ -55,11 +55,6 @@ bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 	return false;
 }
 
-EmuTime DummyDrive::getTimeTillSector(byte /*sector*/, EmuTime::param time)
-{
-	return time;
-}
-
 EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param time)
 {
 	return time;
@@ -73,35 +68,6 @@ void DummyDrive::setHeadLoaded(bool /*status*/, EmuTime::param /*time*/)
 bool DummyDrive::headLoaded(EmuTime::param /*time*/)
 {
 	return false;
-}
-
-void DummyDrive::read(byte /*sector*/, byte* /*buf*/,
-                      byte& /*onDiskTrack*/, byte& /*onDiskSector*/,
-                      byte& /*onDiskSide*/,  int&  /*onDiskSize*/)
-{
-	throw DriveEmptyException("No drive connected");
-}
-
-void DummyDrive::write(byte /*sector*/, const byte* /*buf*/,
-                       byte& /*onDiskTrack*/, byte& /*onDiskSector*/,
-                       byte& /*onDiskSide*/,  int& /*onDiskSize*/)
-{
-	throw DriveEmptyException("No drive connected");
-}
-
-void DummyDrive::getSectorHeader(byte /*sector*/, byte* /*buf*/)
-{
-	throw DriveEmptyException("No drive connected");
-}
-
-void DummyDrive::getTrackHeader(byte* /*buf*/)
-{
-	throw DriveEmptyException("No drive connected");
-}
-
-void DummyDrive::writeTrackData(const byte* /*data*/)
-{
-	// ignore ???
 }
 
 void DummyDrive::writeTrack(const RawTrack& /*track*/)

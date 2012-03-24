@@ -24,12 +24,6 @@ protected:
 private:
 	// Disk
 	virtual unsigned getNbSectorsImpl() const;
-	virtual void read(byte track, byte sector, byte side,
-	                  unsigned size, byte* buf);
-	virtual void readTrackData(byte track, byte side, byte* output);
-	virtual void writeImpl(byte track, byte sector, byte side,
-	                       unsigned size, const byte* buf);
-	virtual void writeTrackDataImpl(byte track, byte side, const byte* data);
 	virtual void readTrack(byte track, byte side, RawTrack& output);
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
 

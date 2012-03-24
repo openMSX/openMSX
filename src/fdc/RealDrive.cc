@@ -245,34 +245,6 @@ bool RealDrive::indexPulse(EmuTime::param time)
 	return angle < INDEX_DURATION;
 }
 
-EmuTime RealDrive::getTimeTillSector(byte sector, EmuTime::param time)
-{
-	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
-		return time;
-	}
-	// TODO this really belongs in the Disk class
-	int delta;
-	if (sector == 0) {
-		// there is no sector 0 on normal disks, but it triggers with
-		// the following command:
-		//    openmsx -machine Sony_HB-F700D -ext msxdos2 -diska dos2.dsk
-		// we'll just search for a complete rotation
-		delta = TICKS_PER_ROTATION - 1;
-	} else {
-		int sectorAngle = ((sector - 1) * (TICKS_PER_ROTATION / 9)) %
-				  TICKS_PER_ROTATION;
-
-		int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
-		delta = sectorAngle - angle;
-		if (delta < 0) delta += TICKS_PER_ROTATION;
-	}
-	assert((0 <= delta) && (delta < TICKS_PER_ROTATION));
-
-	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
-	                      duration(delta);
-	return time + dur;
-}
-
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
@@ -296,43 +268,6 @@ bool RealDrive::headLoaded(EmuTime::param time)
 {
 	return headLoadStatus &&
 	       (headLoadTimer.getTicksTill(time) > 10);
-}
-
-void RealDrive::read(byte sector, byte* buf,
-                     byte& onDiskTrack, byte& onDiskSector,
-                     byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = side;
-	onDiskSize = 512;
-	changer->getDisk().read(headPos, sector, side, 512, buf);
-}
-
-void RealDrive::write(byte sector, const byte* buf,
-                      byte& onDiskTrack, byte& onDiskSector,
-                      byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = side;
-	onDiskSize = 512;
-	changer->getDisk().write(headPos, sector, side, 512, buf);
-}
-
-void RealDrive::getSectorHeader(byte sector, byte* buf)
-{
-	changer->getDisk().getSectorHeader(headPos, sector, side, buf);
-}
-
-void RealDrive::getTrackHeader(byte* buf)
-{
-	changer->getDisk().getTrackHeader(headPos, side, buf);
-}
-
-void RealDrive::writeTrackData(const byte* data)
-{
-	changer->getDisk().writeTrackData(headPos, side, data);
 }
 
 void RealDrive::writeTrack(const RawTrack& track)

@@ -21,46 +21,6 @@ const DiskName& Disk::getName() const
 	return name;
 }
 
-void Disk::write(byte track, byte sector,
-                 byte side, unsigned size, const byte* buf)
-{
-	if (isWriteProtected()) {
-		throw WriteProtectedException("");
-	}
-	writeImpl(track, sector, side, size, buf);
-}
-
-void Disk::writeTrackData(byte track, byte side, const byte* data)
-{
-	if (isWriteProtected()) {
-		throw WriteProtectedException("");
-	}
-	writeTrackDataImpl(track, side, data);
-}
-
-void Disk::getTrackHeader(byte /*track*/, byte /*side*/, byte* /*buf*/)
-{
-	PRT_DEBUG("Disk::getTrackHeader [unimplemented]");
-}
-void Disk::getSectorHeader(byte /*track*/, byte /*sector*/, byte /*side*/,
-                           byte* /*buf*/)
-{
-	PRT_DEBUG("Disk::getSectorHeader [unimplemented]");
-}
-
-void Disk::writeTrackDataImpl(byte /*track*/, byte /*side*/, const byte* /*data*/)
-{
-	PRT_DEBUG("Disk::writeTrackData [unimplemented]");
-}
-
-void Disk::readTrackData(byte /*track*/, byte /*side*/, byte* output)
-{
-	PRT_DEBUG("Disk::readTrackData [unimplemented]");
-	for (int i = 0; i < RAWTRACK_SIZE; ++i) {
-		output[i] = 0xF4;
-	}
-}
-
 void Disk::writeTrack(byte track, byte side, const RawTrack& input)
 {
 	if (isWriteProtected()) {

@@ -74,11 +74,6 @@ bool DriveMultiplexer::indexPulse(EmuTime::param time)
 	return drive[selected]->indexPulse(time);
 }
 
-EmuTime DriveMultiplexer::getTimeTillSector(byte sector, EmuTime::param time)
-{
-	return drive[selected]->getTimeTillSector(sector, time);
-}
-
 EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time)
 {
 	return drive[selected]->getTimeTillIndexPulse(time);
@@ -92,37 +87,6 @@ void DriveMultiplexer::setHeadLoaded(bool status, EmuTime::param time)
 bool DriveMultiplexer::headLoaded(EmuTime::param time)
 {
 	return drive[selected]->headLoaded(time);
-}
-
-void DriveMultiplexer::read(byte sector, byte* buf,
-                            byte& onDiskTrack, byte& onDiskSector,
-                            byte& onDiskSide,  int&  onDiskSize)
-{
-	drive[selected]->read(sector, buf, onDiskTrack,
-	                      onDiskSector, onDiskSide, onDiskSize);
-}
-
-void DriveMultiplexer::write(byte sector, const byte* buf,
-                             byte& onDiskTrack, byte& onDiskSector,
-                             byte& onDiskSide,  int&  onDiskSize)
-{
-	drive[selected]->write(sector, buf, onDiskTrack,
-	                       onDiskSector, onDiskSide, onDiskSize);
-}
-
-void DriveMultiplexer::getSectorHeader(byte sector, byte* buf)
-{
-	drive[selected]->getSectorHeader(sector, buf);
-}
-
-void DriveMultiplexer::getTrackHeader(byte* buf)
-{
-	drive[selected]->getTrackHeader(buf);
-}
-
-void DriveMultiplexer::writeTrackData(const byte* data)
-{
-	drive[selected]->writeTrackData(data);
 }
 
 void DriveMultiplexer::writeTrack(const RawTrack& track)

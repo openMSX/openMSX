@@ -33,19 +33,9 @@ public:
 	virtual void step(bool direction, EmuTime::param time);
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual bool indexPulse(EmuTime::param time);
-	virtual EmuTime getTimeTillSector(byte sector, EmuTime::param time);
 	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
 	virtual void setHeadLoaded(bool status, EmuTime::param time);
 	virtual bool headLoaded(EmuTime::param time);
-	virtual void read (byte sector, byte* buf,
-	                   byte& onDiskTrack, byte& onDiskSector,
-	                   byte& onDiskSide,  int&  onDiskSize);
-	virtual void write(byte sector, const byte* buf,
-	                   byte& onDiskTrack, byte& onDiskSector,
-	                   byte& onDiskSide,  int&  onDiskSize);
-	virtual void getSectorHeader(byte sector, byte* buf);
-	virtual void getTrackHeader(byte* buf);
-	virtual void writeTrackData(const byte* data);
 	virtual void writeTrack(const RawTrack& track);
 	virtual void readTrack (      RawTrack& track);
 	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
