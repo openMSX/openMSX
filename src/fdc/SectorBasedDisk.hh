@@ -8,6 +8,10 @@
 
 namespace openmsx {
 
+/** Abstract class for disk images that only represent the logical sector
+  * information (so not the raw track data that is sometimes needed for
+  * copy-protected disks).
+  */
 class SectorBasedDisk : public Disk, private noncopyable
 {
 protected:
@@ -26,6 +30,8 @@ private:
 	virtual void writeImpl(byte track, byte sector, byte side,
 	                       unsigned size, const byte* buf);
 	virtual void writeTrackDataImpl(byte track, byte side, const byte* data);
+	virtual void readTrack(byte track, byte side, RawTrack& output);
+	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
 
 	unsigned nbSectors;
 };

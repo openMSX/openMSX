@@ -49,6 +49,10 @@ public:
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void writeTrackData(const byte* data);
+	virtual void writeTrack(const RawTrack& track);
+	virtual void readTrack (      RawTrack& track);
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
+	                              RawTrack::Sector& sector);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
 	virtual bool isDummyDrive() const;

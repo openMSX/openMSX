@@ -4,6 +4,7 @@
 #define DISK_HH
 
 #include "SectorAccessibleDisk.hh"
+#include "RawTrack.hh"
 #include "DiskName.hh"
 #include "openmsx.hh"
 
@@ -12,6 +13,8 @@ namespace openmsx {
 class Disk : public SectorAccessibleDisk
 {
 public:
+	// TODO This should be 6250 (see calculation in RawTrack), but it will
+	//      soon be replaced.
 	static const int RAWTRACK_SIZE = 6850;
 
 	virtual ~Disk();
@@ -29,6 +32,12 @@ public:
 	void writeTrackData(byte track, byte side, const byte* data);
 	virtual void readTrackData(byte track, byte side, byte* output);
 
+	/** Replace a full track in this image with the given track. */
+	        void writeTrack(byte track, byte side, const RawTrack& input);
+
+	/** Read a full track from this disk image. */
+	virtual void readTrack (byte track, byte side,       RawTrack& output) = 0;
+
 	bool isDoubleSided();
 
 protected:
@@ -39,11 +48,13 @@ protected:
 	virtual void detectGeometry();
 
 	void setSectorsPerTrack(unsigned num);
+	unsigned getSectorsPerTrack();
 	void setNbSides(unsigned num);
 
 	virtual void writeImpl(byte track, byte sector,
 	                       byte side, unsigned size, const byte* buf) = 0;
 	virtual void writeTrackDataImpl(byte track, byte side, const byte* data);
+	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input) = 0;
 
 private:
 	void detectGeometryFallback();

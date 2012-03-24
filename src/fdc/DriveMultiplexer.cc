@@ -125,6 +125,22 @@ void DriveMultiplexer::writeTrackData(const byte* data)
 	drive[selected]->writeTrackData(data);
 }
 
+void DriveMultiplexer::writeTrack(const RawTrack& track)
+{
+	drive[selected]->writeTrack(track);
+}
+
+void DriveMultiplexer::readTrack(RawTrack& track)
+{
+	drive[selected]->readTrack(track);
+}
+
+EmuTime DriveMultiplexer::getNextSector(EmuTime::param time, RawTrack& track,
+                                        RawTrack::Sector& sector)
+{
+	return drive[selected]->getNextSector(time, track, sector);
+}
+
 bool DriveMultiplexer::diskChanged()
 {
 	return drive[selected]->diskChanged();

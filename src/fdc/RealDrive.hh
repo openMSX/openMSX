@@ -46,6 +46,10 @@ public:
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void writeTrackData(const byte* data);
+	virtual void writeTrack(const RawTrack& track);
+	virtual void readTrack (      RawTrack& track);
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
+	                              RawTrack::Sector& sector);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
 	virtual bool isDummyDrive() const;
@@ -59,7 +63,7 @@ private:
 	void setLoading(EmuTime::param time);
 
 	static const int MAX_TRACK = 85;
-	static const int TICKS_PER_ROTATION = 6850; // TODO
+	static const int TICKS_PER_ROTATION = 6250; // see Disk.hh
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
@@ -67,7 +71,8 @@ private:
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 	const EmuDuration motorTimeout;
 
-	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
+	typedef Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> MotorClock;
+	MotorClock motorTimer;
 	Clock<1000> headLoadTimer; // ms
 	std::auto_ptr<DiskChanger> changer;
 	int headPos;

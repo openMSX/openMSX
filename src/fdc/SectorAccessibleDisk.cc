@@ -22,6 +22,10 @@ SectorAccessibleDisk::~SectorAccessibleDisk()
 void SectorAccessibleDisk::readSector(unsigned sector, byte* buf)
 {
 	if (!isDummyDisk() && // in that case we want DriveEmptyException
+	    (sector > 1) && // allow reading sector 0 and 1 without calling
+	                    // getNbSectors() because this potentially calls
+	                    // detectGeometry() and that would cause an
+	                    // infinite loop
 	    (getNbSectors() <= sector)) {
 		throw NoSuchSectorException("No such sector");
 	}

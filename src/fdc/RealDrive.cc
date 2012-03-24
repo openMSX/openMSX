@@ -280,8 +280,7 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 	}
 	int delta = TICKS_PER_ROTATION -
 	            (motorTimer.getTicksTill(time) % TICKS_PER_ROTATION);
-	EmuDuration dur = Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND>::
-	                      duration(delta);
+	EmuDuration dur = MotorClock::duration(delta);
 	return time + dur;
 }
 
@@ -334,6 +333,30 @@ void RealDrive::getTrackHeader(byte* buf)
 void RealDrive::writeTrackData(const byte* data)
 {
 	changer->getDisk().writeTrackData(headPos, side, data);
+}
+
+void RealDrive::writeTrack(const RawTrack& track)
+{
+	changer->getDisk().writeTrack(headPos, side, track);
+}
+
+void RealDrive::readTrack(RawTrack& track)
+{
+	changer->getDisk().readTrack(headPos, side, track);
+}
+
+EmuTime RealDrive::getNextSector(
+	EmuTime::param time, RawTrack& track, RawTrack::Sector& sector)
+{
+	int idx = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
+	changer->getDisk().readTrack(headPos, side, track);
+	if (!track.decodeNextSector(idx, sector)) {
+		return EmuTime::infinity;
+	}
+	int ticks = sector.addrIdx - idx;
+	if (ticks < 0) ticks += TICKS_PER_ROTATION;
+	assert(0 <= ticks); assert(ticks < TICKS_PER_ROTATION);
+	return time + MotorClock::duration(ticks);
 }
 
 bool RealDrive::diskChanged()

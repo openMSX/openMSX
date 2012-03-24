@@ -4,6 +4,7 @@
 #define DISKDRIVE_HH
 
 #include "EmuTime.hh"
+#include "RawTrack.hh"
 #include "noncopyable.hh"
 #include "openmsx.hh"
 
@@ -98,6 +99,10 @@ public:
 	virtual void getSectorHeader(byte sector, byte* buf) = 0;
 	virtual void getTrackHeader(byte* buf) = 0;
 	virtual void writeTrackData(const byte* data) = 0;
+	virtual void writeTrack(const RawTrack& track) = 0;
+	virtual void readTrack (      RawTrack& track) = 0;
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
+	                              RawTrack::Sector& sector) = 0;
 
 	/** Is disk changed?
 	 */
@@ -137,6 +142,10 @@ public:
 	virtual void getSectorHeader(byte sector, byte* buf);
 	virtual void getTrackHeader(byte* buf);
 	virtual void writeTrackData(const byte* data);
+	virtual void writeTrack(const RawTrack& track);
+	virtual void readTrack (      RawTrack& track);
+	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
+	                              RawTrack::Sector& sector);
 	virtual bool diskChanged();
 	virtual bool peekDiskChanged() const;
 	virtual bool isDummyDrive() const;

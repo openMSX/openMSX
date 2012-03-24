@@ -61,6 +61,14 @@ void Disk::readTrackData(byte /*track*/, byte /*side*/, byte* output)
 	}
 }
 
+void Disk::writeTrack(byte track, byte side, const RawTrack& input)
+{
+	if (isWriteProtected()) {
+		throw WriteProtectedException("");
+	}
+	writeTrackImpl(track, side, input);
+}
+
 bool Disk::isDoubleSided()
 {
 	if (!nbSides) {
@@ -69,26 +77,31 @@ bool Disk::isDoubleSided()
 	return nbSides == 2;
 }
 
+// Note: Special case to convert between logical/physical sector numbers
+//       for the boot sector and the 1st FAT sector (logical sector: 0/1,
+//       physical location: track 0, side 0, sector 1/2): perform this
+//       conversion without relying on the detected geometry parameters.
+//       Otherwise the detectGeometry() method (which itself reads these
+//       two sectors) would get in an infinite loop.
 int Disk::physToLog(byte track, byte side, byte sector)
 {
 	if ((track == 0) && (side == 0)) {
-		// special case for bootsector or 1st FAT sector
 		return sector - 1;
 	}
 	if (!nbSides) {
 		detectGeometry();
 	}
-	int result = sectorsPerTrack * (side + nbSides * track) + (sector - 1);
-	//PRT_DEBUG("Disk::physToLog(track " << (int)track << ", side "
-	//          << (int)side << ", sector " << (int)sector<< ") returns "
-	//          << result);
-	return result;
+	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
 }
-
 void Disk::logToPhys(int log, byte& track, byte& side, byte& sector)
 {
+	if (log <= 1) {
+		track = 0;
+		side = 0;
+		sector = log + 1;
+		return;
+	}
 	if (!nbSides) {
-		// try to guess values from boot sector
 		detectGeometry();
 	}
 	track = log / (nbSides * sectorsPerTrack);
@@ -99,6 +112,13 @@ void Disk::logToPhys(int log, byte& track, byte& side, byte& sector)
 void Disk::setSectorsPerTrack(unsigned num)
 {
 	sectorsPerTrack = num;
+}
+unsigned Disk::getSectorsPerTrack()
+{
+	if (!nbSides) {
+		detectGeometry();
+	}
+	return sectorsPerTrack;
 }
 void Disk::setNbSides(unsigned num)
 {
@@ -150,7 +170,7 @@ void Disk::detectGeometry()
 
 	try {
 		byte buf[SECTOR_SIZE];
-		read(0, 1, 0, SECTOR_SIZE, buf);
+		readSector(0, buf); // bootsector
 		if ((buf[0] == 0xE9) || (buf[0] ==0xEB)) {
 			// use values from bootsector
 			sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
@@ -161,7 +181,7 @@ void Disk::detectGeometry()
 				detectGeometryFallback();
 			}
 		} else {
-			read(0, 2, 0, SECTOR_SIZE, buf);
+			readSector(1, buf); // 1st fat sector
 			byte mediaDescriptor = buf[0];
 			if (mediaDescriptor >= 0xF8) {
 				sectorsPerTrack = (mediaDescriptor & 2) ? 8 : 9;

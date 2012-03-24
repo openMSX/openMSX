@@ -2,6 +2,7 @@
 
 #include "DiskDrive.hh"
 #include "DiskExceptions.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -103,6 +104,22 @@ void DummyDrive::writeTrackData(const byte* /*data*/)
 	// ignore ???
 }
 
+void DummyDrive::writeTrack(const RawTrack& /*track*/)
+{
+	assert(false);
+}
+
+void DummyDrive::readTrack(RawTrack& /*track*/)
+{
+	assert(false);
+}
+
+EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack& /*track*/,
+                                  RawTrack::Sector& /*sector*/)
+{
+	return EmuTime::infinity;
+}
+
 bool DummyDrive::diskChanged()
 {
 	return false;
@@ -117,6 +134,5 @@ bool DummyDrive::isDummyDrive() const
 {
 	return true;
 }
-
 
 } // namespace openmsx
