@@ -7,6 +7,7 @@
 #include "FileContext.hh"
 #include "DSKDiskImage.hh"
 #include "XSADiskImage.hh"
+#include "DMKDiskImage.hh"
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
@@ -62,7 +63,7 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 		// DirAsDSK didn't work, no problem
 	}
 	try {
-		std::auto_ptr<File> file(new File(filename, File::PRE_CACHE));
+		shared_ptr<File> file(new File(filename, File::PRE_CACHE));
 		file->setFilePool(reactor.getFilePool());
 
 		try {
@@ -70,6 +71,13 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 			return new XSADiskImage(filename, *file);
 		} catch (MSXException&) {
 			// XSA didn't work, still no problem
+		}
+		try {
+			// next try dmk
+			file->seek(0);
+			return new DMKDiskImage(filename, file);
+		} catch (MSXException& e) {
+			// DMK didn't work, still no problem
 		}
 		// next try normal DSK
 		return new DSKDiskImage(filename, file);

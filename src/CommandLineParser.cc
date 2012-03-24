@@ -248,6 +248,7 @@ void CommandLineParser::registerFileTypes()
 		fileExtMap["rom"] = "romimage";
 		fileExtMap["ri"]  = "romimage";
 		fileExtMap["dsk"] = "diskimage";
+		fileExtMap["dmk"] = "diskimage";
 		fileExtMap["di1"] = "diskimage";
 		fileExtMap["di2"] = "diskimage";
 		fileExtMap["xsa"] = "diskimage";

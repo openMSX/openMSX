@@ -4,7 +4,7 @@
 #define DSKDISKIMAGE_HH
 
 #include "SectorBasedDisk.hh"
-#include <memory>
+#include "shared_ptr.hh"
 
 namespace openmsx {
 
@@ -14,7 +14,7 @@ class DSKDiskImage : public SectorBasedDisk
 {
 public:
 	explicit DSKDiskImage(const Filename& filename);
-	DSKDiskImage(const Filename& filename, std::auto_ptr<File> file);
+	DSKDiskImage(const Filename& filename, shared_ptr<File> file);
 	virtual ~DSKDiskImage();
 
 private:
@@ -23,7 +23,7 @@ private:
 	virtual bool isWriteProtectedImpl() const;
 	virtual std::string getSha1Sum();
 
-	const std::auto_ptr<File> file;
+	const shared_ptr<File> file;
 };
 
 } // namespace openmsx

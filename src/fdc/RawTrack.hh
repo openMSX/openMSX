@@ -93,6 +93,10 @@ public:
 	byte read(int idx) const { return data[idx % SIZE]; }
 	void write(int idx, byte val) { data[idx % SIZE] = val; }
 
+	      byte* getRawBuffer()       { return data; }
+	const byte* getRawBuffer() const { return data; }
+	const std::vector<int>& getIdamBuffer() const { return idam; }
+
 	/** Get info on all sectors in this track. */
 	std::vector<Sector> decodeAll() const;
 

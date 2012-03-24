@@ -31,6 +31,7 @@ protected:
 	void logToPhys(int log, byte& track, byte& side, byte& sector);
 
 	virtual void detectGeometry();
+	virtual void detectGeometryFallback();
 
 	void setSectorsPerTrack(unsigned num);
 	unsigned getSectorsPerTrack();
@@ -39,8 +40,6 @@ protected:
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input) = 0;
 
 private:
-	void detectGeometryFallback();
-
 	const DiskName name;
 	unsigned sectorsPerTrack;
 	unsigned nbSides;
