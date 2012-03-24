@@ -34,27 +34,14 @@ endif
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 
 # Select the SDK to use. This can be higher than the OS X minimum version.
-ifeq ($(OPENMSX_TARGET_CPU),x86_64)
-SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
-else
-# Note: Xcode 4.2 does not include PPC support in all of its dylibs, so when
-#       building a PPC/universal binary we must use the SDK from Xcode 3.
-#       If you have Xcode 3 installed in its default location (/Developer),
-#       please remove the "Xcode3" part of the SDK_PATH definition below.
-SDK_PATH:=/Developer/Xcode3/SDKs/MacOSX10.6.sdk
-endif
+SDK_PATH:=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/
+# The path above is for Xcode from the Mac App Store. If you're using the older
+# stand-alone Xcode, this is the right path:
+#SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
-# Select an appropriate GCC version.
-ifeq ($(OPENMSX_TARGET_CPU),x86_64)
-CXX:=g++-4.2
-else
-# GCC from Xcode 4.2 fails to link PPC binaries, so use GCC from Xcode 3.
-# GCC 4.2 on PPC and x86 uses a ridiculous amount of memory (about 7 GB)
-# and will therefore never finish in a reasonable amount of time if the build
-# machine has 4 GB of memory or less. GCC 4.0 does not have this problem.
-CXX:=$(SDK_PATH)/../../usr/bin/g++-4.0
-endif
+# Select clang as the compiler.
+CXX:=clang++
 
 ifeq ($(filter 3RD_%,$(LINK_MODE)),)
 # Compile against local libs. We assume the binary is intended to be run on
