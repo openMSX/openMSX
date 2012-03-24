@@ -76,7 +76,7 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 			// next try dmk
 			file->seek(0);
 			return new DMKDiskImage(filename, file);
-		} catch (MSXException& e) {
+		} catch (MSXException& /*e*/) {
 			// DMK didn't work, still no problem
 		}
 		// next try normal DSK

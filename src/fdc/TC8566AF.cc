@@ -427,7 +427,7 @@ EmuTime TC8566AF::locateSector(EmuTime::param time)
 		try {
 			next = drive[driveSelect]->getNextSector(
 				next, trackData, sectorInfo);
-		} catch (MSXException& e) {
+		} catch (MSXException& /*e*/) {
 			return EmuTime::infinity;
 		}
 		if ((next == EmuTime::infinity) ||

@@ -59,7 +59,7 @@ DMKDiskImage::DMKDiskImage(Filename& filename, shared_ptr<File> file_)
 
 	numTracks = header.numTracks;
 	dmkTrackLen = header.trackLen[0] + 256 * header.trackLen[1] - 128;
-	singleSided = header.flags & FLAG_SINGLE_SIDED;
+	singleSided = (header.flags & FLAG_SINGLE_SIDED) != 0;;
 	writeProtected = header.writeProtected == 0xff;
 
 	// TODO should we print a warning when dmkTrackLen is too far from the
@@ -143,7 +143,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	// Write idam table.
 	byte idamOut[2 * 64] = {}; // zero-initialize
 	const vector<int>& idamIn = input.getIdamBuffer();
-	for (int i = 0; i < std::min<int>(64, idamIn.size()); ++i) {
+	for (int i = 0; i < std::min<int>(64, int(idamIn.size())); ++i) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = t & 0xff;
 		idamOut[2 * i + 1] = t >> 8;
@@ -156,7 +156,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	file->write(input.getRawBuffer(), std::min(dmkTrackLen, RawTrack::SIZE));
 	if (dmkTrackLen > RawTrack::SIZE) {
 		vector<byte> pad(dmkTrackLen - RawTrack::SIZE, 0x4e);
-		file->write(&pad[0], pad.size());
+		file->write(&pad[0], unsigned(pad.size()));
 	}
 }
 

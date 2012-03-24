@@ -562,7 +562,7 @@ void WD2793::type2Loaded(EmuTime::param time)
 	while (true) {
 		try {
 			next = drive.getNextSector(next, trackData, sectorInfo);
-		} catch (MSXException& e) {
+		} catch (MSXException& /*e*/) {
 			statusReg |= RECORD_NOT_FOUND;
 			endCmd();
 			return;

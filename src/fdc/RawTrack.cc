@@ -12,7 +12,16 @@ using std::vector;
 
 namespace openmsx {
 
+#ifndef _MSC_VER
+// Workaround vc++ bug???
+//  I'm reasonably sure the following line is required. If it's left out I get
+//  a link error when compiling with gcc (though only in a debug build). This
+//  page also says it's required:
+//    http://www.parashift.com/c++-faq-lite/ctors.html#faq-10.13
+//  Though with this line Vampier got a link error in vc++, removing the line
+//  fixed the problem.
 const int RawTrack::SIZE;
+#endif
 
 RawTrack::RawTrack()
 {
