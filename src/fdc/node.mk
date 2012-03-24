@@ -20,6 +20,7 @@ SRC_HDR:= \
 	DiskFactory \
 	DriveMultiplexer \
 	Disk \
+	RawTrack \
 	DiskName \
 	SectorBasedDisk \
 	DummyDisk \

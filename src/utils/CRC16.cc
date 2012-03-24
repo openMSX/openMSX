@@ -43,19 +43,14 @@ const word CRC16::CRC16Table[256] = {
 } // namespace openmsx
 
 #if 0
-using openmsx::CRC16;
-int main(int argc, char** argv)
+#include <cassert>
+int main()
 {
-	CRC16 crc1;
-	assert(crc1.getValue() == 0xFFFF);
-	crc1.update(0xA1);
-	crc1.update(0xA1);
-	crc1.update(0xA1);
-	assert(crc1.getValue() == 0xCDB4);
-
-	CRC16 crc2;
-	byte test[3] = { 0xA1, 0xA1, 0xA1 };
-	crc2.update(test, 3);
-	assert(crc2.getValue() == 0xCDB4);
+	openmsx::CRC16 crc;
+	assert(crc.getValue() == 0xFFFF);
+	crc.update(0xA1);
+	crc.update(0xA1);
+	crc.update(0xA1);
+	assert(crc.getValue() == 0xCDB4);
 }
 #endif

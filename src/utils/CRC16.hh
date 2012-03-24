@@ -18,6 +18,13 @@ public:
 	 */
 	explicit CRC16(word initialCRC = 0xFFFF)
 	{
+		init(initialCRC);
+	}
+
+	/** (Re)initialize the current value
+	 */
+	void init(word initialCRC)
+	{
 		crc = initialCRC;
 	}
 
@@ -26,15 +33,6 @@ public:
 	void update(byte value)
 	{
 		crc = (crc << 8) ^ CRC16Table[(crc >> 8) ^ value];
-	}
-
-	/** Update CRC with a buffer of bytes
-	 */
-	void update(byte* values, int num)
-	{
-		while (num--) {
-			update(*values++);
-		}
 	}
 
 	/** Get current CRC value
