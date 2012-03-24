@@ -3,9 +3,10 @@
 #ifndef WD2793_HH
 #define WD2793_HH
 
-#include "Disk.hh"
+#include "RawTrack.hh"
 #include "Clock.hh"
 #include "Schedulable.hh"
+#include "CRC16.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
@@ -71,41 +72,46 @@ private:
 	void seekNext(EmuTime::param time);
 	void endType1Cmd();
 
-	void startType2Cmd(EmuTime::param time);
-	void type2WaitLoad(EmuTime::param time);
-	void type2Loaded  (EmuTime::param time);
-	void type2Rotated (EmuTime::param time);
-	void writeSector();
+	void startType2Cmd  (EmuTime::param time);
+	void type2WaitLoad  (EmuTime::param time);
+	void type2Loaded    (EmuTime::param time);
+	void type2Rotated   (EmuTime::param time);
+	void startReadSector(EmuTime::param time);
+	void doneWriteSector();
 
-	void startType3Cmd(EmuTime::param time);
-	void type3WaitLoad(EmuTime::param time);
-	void type3Loaded  (EmuTime::param time);
-	void type3Rotated (EmuTime::param time);
-	void readAddressCmd();
-	void readTrackCmd();
-	void writeTrackCmd(EmuTime::param time);
-	void writeTrack();
+	void startType3Cmd (EmuTime::param time);
+	void type3WaitLoad (EmuTime::param time);
+	void type3Loaded   (EmuTime::param time);
+	void type3Rotated  (EmuTime::param time);
+	void readAddressCmd(EmuTime::param time);
+	void readTrackCmd  (EmuTime::param time);
+	void writeTrackCmd (EmuTime::param time);
+	void doneWriteTrack();
 
 	void startType4Cmd(EmuTime::param time);
 
 	void endCmd();
 
-	void tryToReadSector(EmuTime::param time);
 	inline void resetIRQ();
 	inline void setIRQ();
 
 	void schedule(FSMState state, EmuTime::param time);
 
+private:
 	DiskDrive& drive;
 	CliComm& cliComm;
 
-	static const int TICKS_PER_ROTATION = 6850;
-	static const int ROTATIONS_PER_SECOND = 5;
+	static const int TICKS_PER_ROTATION = RawTrack::SIZE;
+	static const int ROTATIONS_PER_SECOND = 5; // 300rpm
+
 	// DRQ is high iff current time is past this time
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> drqTime;
 
-	int dataCurrent;   // which byte in dataBuffer is next to be read/write
-	int dataAvailable; // how many bytes left in buffer
+	RawTrack trackData;
+	int dataCurrent;   // which byte in track is next to be read/write
+	int dataAvailable; // how many bytes left to read/write
+
+	CRC16 crc;
 
 	FSMState fsmState;
 	byte statusReg;
@@ -117,10 +123,9 @@ private:
 	bool directionIn;
 	bool INTRQ;
 	bool immediateIRQ;
-
-	byte dataBuffer[Disk::RAWTRACK_SIZE];
+	bool lastWasA1;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 2);
+SERIALIZE_CLASS_VERSION(WD2793, 3);
 
 } // namespace openmsx
 

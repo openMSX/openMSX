@@ -6,7 +6,6 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include <cstring>
 
 namespace openmsx {
 
@@ -39,6 +38,7 @@ static const int IMM_IRQ    = 0x08;
 // Sync point types
 enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
 
+
 WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
                EmuTime::param time)
 	: Schedulable(scheduler)
@@ -47,9 +47,9 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
 	, drqTime(EmuTime::infinity)
 {
 	// avoid (harmless) UMR in serialize()
-	memset(dataBuffer, 0, sizeof(dataBuffer));
 	dataCurrent = 0;
 	dataAvailable = 0;
+	lastWasA1 = false;
 
 	reset(time);
 }
@@ -225,19 +225,60 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 	if (!getDTRQ(time)) return;
 	assert(statusReg & BUSY);
 
-	if (((commandReg & 0xE0) == 0xA0) ||
-	    ((commandReg & 0xF0) == 0xF0)) {
-		// write sector  or  write track
+	if (((commandReg & 0xE0) == 0xA0) || // write sector
+	    ((commandReg & 0xF0) == 0xF0)) { // write track
+		// handle lost bytes
 		drqTime += 1; // time when next byte will be accepted
 		while (dataAvailable && unlikely(getDTRQ(time))) {
 			statusReg |= LOST_DATA;
 			drqTime += 1;
-			dataCurrent++;
+			trackData.write(dataCurrent++, 0);
+			crc.update(0);
 			dataAvailable--;
 		}
+
+		byte write = value; // written value not always same as given value
+		if ((commandReg & 0xF0) == 0xF0) {
+			// write track, handle chars with special meaning
+			bool prevA1 = lastWasA1;
+			lastWasA1 = false;
+			if (value == 0xF5) {
+				// write A1 with missing clock transitions
+				write = 0xA1;
+				lastWasA1 = true;
+				// Initialize CRC: the calculated CRC value
+				// includes the 3 A1 bytes. So when starting
+				// from the initial value 0xffff, we should not
+				// re-initialize the CRC value on the 2nd and
+				// 3rd A1 byte. Though what we do instead is on
+				// each A1 byte initialize the value as if
+				// there were already 2 A1 bytes written.
+				crc.init(0x968B);
+			} else if (value == 0xF6) {
+				// write C2 with missing clock transitions
+				write = 0xC2;
+			} else if (value == 0xF7) {
+				// write 2 CRC bytes, big endian
+				word crcVal = crc.getValue();
+				if (dataAvailable) {
+					drqTime += 1;
+					trackData.write(dataCurrent++, crcVal >> 8);
+					dataAvailable--;
+				}
+				write = crcVal & 0xFF;
+			} else if (value == 0xFE) {
+				// Record locations of 0xA1 (with missing clock
+				// transition) followed by 0xFE. The FE byte has
+				// no special meaning for the WD2793 itself,
+				// but it does for the DMK file format.
+				if (prevA1) {
+					trackData.addIdam(dataCurrent);
+				}
+			}
+		}
 		if (dataAvailable) {
-			dataBuffer[dataCurrent] = value;
-			dataCurrent++;
+			trackData.write(dataCurrent++, write);
+			crc.update(write);
 			dataAvailable--;
 		}
 		assert(!dataAvailable || !getDTRQ(time));
@@ -246,28 +287,46 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 
 byte WD2793::getDataReg(EmuTime::param time)
 {
-	if (((commandReg & 0xE0) == 0x80) && getDTRQ(time)) {
-		// read sector
+	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
+	     ((commandReg & 0xF0) == 0xC0) ||   // read address
+	     ((commandReg & 0xF0) == 0xE0)) &&  // read track
+	    getDTRQ(time)) {
 		assert(statusReg & BUSY);
 
-		dataReg = dataBuffer[dataCurrent];
-		dataCurrent++;
+		dataReg = trackData.read(dataCurrent++);
+		crc.update(dataReg);
 		dataAvailable--;
 		drqTime += 1; // time when the next byte will be available
 		while (dataAvailable && unlikely(getDTRQ(time))) {
 			statusReg |= LOST_DATA;
-			dataCurrent++;
+			dataReg = trackData.read(dataCurrent++);
+			crc.update(dataReg);
 			dataAvailable--;
 			drqTime += 1;
 		}
 		assert(!dataAvailable || !getDTRQ(time));
 		if (dataAvailable == 0) {
-			if (!(commandReg & M_FLAG)) {
-				endCmd();
+			if ((commandReg & 0xE0) == 0x80) {
+				// read sector
+				// update crc status flag
+				word diskCrc  = 256 * trackData.read(dataCurrent++);
+				     diskCrc +=       trackData.read(dataCurrent++);
+				if (diskCrc == crc.getValue()) {
+					statusReg &= ~CRC_ERROR;
+				} else {
+					statusReg |=  CRC_ERROR;
+				}
+				if (!(commandReg & M_FLAG)) {
+					endCmd();
+				} else {
+					// TODO multi sector read
+					sectorReg++;
+					endCmd();
+				}
 			} else {
-				// TODO check if this is correct
-				sectorReg++;
-				tryToReadSector(time);
+				// read track, read address
+				// TODO check CRC error on 'read address'
+				endCmd();
 			}
 		}
 	}
@@ -276,36 +335,13 @@ byte WD2793::getDataReg(EmuTime::param time)
 
 byte WD2793::peekDataReg(EmuTime::param time)
 {
-	if (((commandReg & 0xE0) == 0x80) && getDTRQ(time)) {
-		// read sector
-		return dataBuffer[dataCurrent];
+	if ((((commandReg & 0xE0) == 0x80) ||   // read sector
+	     ((commandReg & 0xF0) == 0xC0) ||   // read address
+	     ((commandReg & 0xF0) == 0xE0)) &&  // read track
+	    peekDTRQ(time)) {
+		return trackData.read(dataCurrent);
 	} else {
 		return dataReg;
-	}
-}
-
-void WD2793::tryToReadSector(EmuTime::param time)
-{
-	try {
-		byte onDiskTrack, onDiskSector, onDiskSide;
-		int  onDiskSize;
-		drive.read(sectorReg, dataBuffer,
-		           onDiskTrack, onDiskSector, onDiskSide, onDiskSize);
-		if (onDiskTrack != trackReg) {
-			// TODO we should wait for 6 index holes
-			statusReg |= RECORD_NOT_FOUND;
-			endCmd();
-			return;
-		}
-		assert(onDiskSize == 512);
-		dataCurrent = 0;
-		dataAvailable = onDiskSize;
-		drqTime.reset(time);
-		drqTime += 1; // (first) byte can be read in a moment
-	} catch (MSXException& e) {
-		PRT_DEBUG("WD2793: read sector failed: " << e.getMessage());
-		(void)&e; // Prevent warning
-		statusReg = 0; // reset flags
 	}
 }
 
@@ -355,7 +391,7 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 		case FSM_WRITE_SECTOR:
 			if ((commandReg & 0xE0) == 0xA0) {
 				// write sector command
-				writeSector();
+				doneWriteSector();
 			}
 			break;
 		case FSM_TYPE3_WAIT_LOAD:
@@ -382,7 +418,7 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 		case FSM_WRITE_TRACK:
 			if ((commandReg & 0xF0) == 0xF0) {
 				// write track command
-				writeTrack();
+				doneWriteTrack();
 			}
 			break;
 		default:
@@ -516,61 +552,120 @@ void WD2793::type2Loaded(EmuTime::param time)
 		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
-	} else {
-		schedule(FSM_TYPE2_ROTATED,
-		         drive.getTimeTillSector(sectorReg, time));
+		return;
 	}
+
+	// Locate sector on disk.
+	RawTrack::Sector sectorInfo;
+	int firstIdx = -1;
+	EmuTime next = time;
+	while (true) {
+		try {
+			next = drive.getNextSector(next, trackData, sectorInfo);
+		} catch (MSXException& e) {
+			statusReg |= RECORD_NOT_FOUND;
+			endCmd();
+			return;
+		}
+		// TODO we should spread this search over time, so that
+		// the CRC status bit toggles correctly.
+		if ((next == EmuTime::infinity) ||      // no sectors on this track
+		    (sectorInfo.addrIdx == firstIdx)) { // already seen this index
+			// TODO real WD2793 searches till 5 index holes
+			//      have passed
+			// TODO actually let EmuTime pass
+			statusReg |= RECORD_NOT_FOUND;
+			endCmd();
+			return;
+		}
+		if (sectorInfo.addrCrcErr) {
+			statusReg |=  CRC_ERROR;
+		} else {
+			statusReg &= ~CRC_ERROR;
+		}
+		if (firstIdx == -1) firstIdx = sectorInfo.addrIdx;
+		if (sectorInfo.addrCrcErr)          continue;
+		if (sectorInfo.track  != trackReg)  continue;
+		if (sectorInfo.sector != sectorReg) continue;
+		// TODO implement (optional) head compare
+		break;
+	}
+
+	// Found sector.
+	// Get sectorsize from disk: 128, 256, 512 or 1024 bytes
+	// TODO are other sizes supported?
+	//      IOW does the WD2793 only look at the lower 2 bits?
+	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
+	dataCurrent = sectorInfo.dataIdx;
+
+	if ((commandReg & 0xE0) == 0xA0) {
+		// write sector
+		// TODO actually we should
+		//  - skip 22 bytes (from end of data block)
+		//  - write 12 bytes of zero
+		//  - write A1 A1 A1 FB   (or F8)
+		// But ATM we reuse the previous location of the data block
+	}
+	crc.init(0xE295); // A1 A1 A1 FB
+
+	// wait till sector is actually rotated under head
+	schedule(FSM_TYPE2_ROTATED, next);
 }
 
 void WD2793::type2Rotated(EmuTime::param time)
 {
 	switch (commandReg & 0xF0) {
-		case 0x80: // read sector
-		case 0x90: // read sector (multi)
-			tryToReadSector(time);
-			break;
+	case 0x80: // read sector
+	case 0x90: // read sector (multi)
+		startReadSector(time);
+		break;
 
-		case 0xA0: // write sector
-		case 0xB0: // write sector (multi)
-			// TODO By now the CPU should already have written the
-			// first byte, otherwise the write sector command
-			// doesn't even start. This is not yet implemented.
+	case 0xA0: // write sector
+	case 0xB0: // write sector (multi)
+		// TODO By now the CPU should already have written the first
+		// byte, otherwise the write sector command doesn't even start.
+		// This is not yet implemented.
+		drqTime.reset(time); // DRQ = true
 
-			// Bytes that were not filled in by the CPU are written
-			// as zero. We implement this by pre-filling the buffer
-			// with zeros.
-			memset(dataBuffer, 0, 512);
-			dataCurrent = 0;
-			dataAvailable = 512; // TODO should come from sector header
-			drqTime.reset(time); // DRQ = true
-
-			// Moment in time when the sector will be written
-			// (whether the CPU wrote all required data or not)
-			schedule(FSM_WRITE_SECTOR, drqTime + 512);
-			break;
+		// Moment in time when the sector will be written (whether the
+		// CPU wrote all required data or not)
+		schedule(FSM_WRITE_SECTOR, drqTime + dataAvailable);
+		break;
 	}
 }
 
-void WD2793::writeSector()
+void WD2793::startReadSector(EmuTime::param time)
+{
+	drqTime.reset(time);
+	drqTime += 1; // (first) byte can be read in a moment
+}
+
+void WD2793::doneWriteSector()
 {
 	try {
-		byte onDiskTrack, onDiskSector, onDiskSide;
-		int  onDiskSize;
-		drive.write(sectorReg, dataBuffer,
-			    onDiskTrack, onDiskSector,
-			    onDiskSide, onDiskSize);
-		if (onDiskTrack != trackReg) {
-			// TODO we should wait for 6 index holes
-			PRT_DEBUG("WD2793: Record not found");
-			statusReg |= RECORD_NOT_FOUND;
-			endCmd();
-			return;
+		// any lost data?
+		while (dataAvailable) {
+			statusReg |= LOST_DATA;
+			trackData.write(dataCurrent++, 0);
+			crc.update(0);
+			dataAvailable--;
 		}
-		assert(onDiskSize == 512);
+
+		// write 2 CRC bytes (big endian)
+		trackData.write(dataCurrent++, crc.getValue() >> 8);
+		trackData.write(dataCurrent++, crc.getValue() & 0xFF);
+		// write one byte of 0xFE
+		// TODO check this, datasheet is not very clear about this
+		trackData.write(dataCurrent++, 0xFE);
+
+		// write sector (actually full track) to disk.
+		drive.writeTrack(trackData);
+
 		if (!(commandReg & M_FLAG)) {
 			endCmd();
 		} else {
 			// TODO multi sector write
+			sectorReg++;
 			endCmd();
 		}
 	} catch (MSXException&) {
@@ -580,6 +675,7 @@ void WD2793::writeSector()
 		endCmd();
 	}
 }
+
 
 void WD2793::startType3Cmd(EmuTime::param time)
 {
@@ -615,19 +711,45 @@ void WD2793::type3Loaded(EmuTime::param time)
 		// write track command and write protected
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
-	} else {
-		schedule(FSM_TYPE3_ROTATED, drive.getTimeTillIndexPulse(time));
+		return;
 	}
+
+	EmuTime next(EmuTime::dummy());
+	if ((commandReg & 0xF0) == 0xC0) {
+		// read address
+		try {
+			// wait till next sector header
+			RawTrack::Sector sector;
+			next = drive.getNextSector(time, trackData, sector);
+			if (next == EmuTime::infinity) {
+				// TODO wait for 5 revolutions
+				endCmd();
+				return;
+			}
+			dataCurrent = sector.addrIdx;
+			dataAvailable = 6;
+		} catch (MSXException& e) {
+			PRT_DEBUG("WD2793: read addr failed: " << e.getMessage()); (void)&e;
+			// TODO status bits?
+			endCmd();
+			return;
+		}
+	} else {
+		// read/write track
+		// wait till next index pulse
+		next = drive.getTimeTillIndexPulse(time);
+	}
+	schedule(FSM_TYPE3_ROTATED, next);
 }
 
 void WD2793::type3Rotated(EmuTime::param time)
 {
 	switch (commandReg & 0xF0) {
 	case 0xC0: // read Address
-		readAddressCmd();
+		readAddressCmd(time);
 		break;
 	case 0xE0: // read track
-		readTrackCmd();
+		readTrackCmd(time);
 		break;
 	case 0xF0: // write track
 		writeTrackCmd(time);
@@ -635,41 +757,54 @@ void WD2793::type3Rotated(EmuTime::param time)
 	}
 }
 
-void WD2793::readAddressCmd()
+void WD2793::readAddressCmd(EmuTime::param time)
 {
-	PRT_DEBUG("WD2793 command: read address  NOT YET IMPLEMENTED");
-	endCmd();
+	drqTime.reset(time);
+	drqTime += 1; // (first) byte can be read in a moment
 }
 
-void WD2793::readTrackCmd()
+void WD2793::readTrackCmd(EmuTime::param time)
 {
-	PRT_DEBUG("WD2793 command: read track   NOT YET IMPLEMENTED");
-	endCmd();
+	try {
+		drive.readTrack(trackData);
+		dataCurrent = 0;
+		dataAvailable = RawTrack::SIZE;
+		drqTime.reset(time);
+		drqTime += 1; // (first) byte can be read in a moment
+	} catch (MSXException& e) {
+		PRT_DEBUG("WD2793: read track failed: " << e.getMessage()); (void)&e;
+		// TODO status bits?
+		endCmd();
+	}
 }
 
 void WD2793::writeTrackCmd(EmuTime::param time)
 {
-	// TODO By now the CPU should already have written the
-	// first byte, otherwise the write sector command
-	// doesn't even start. This is not yet implemented.
-
-	// Bytes that were not filled in by the CPU are written
-	// as zero. We implement this by pre-filling the buffer
-	// with zeros.
-	memset(dataBuffer, 0, sizeof(dataBuffer));
+	// TODO By now the CPU should already have written the first byte,
+	// otherwise the write track command doesn't even start. This is not
+	// yet implemented.
+	trackData.clear();
 	dataCurrent = 0;
-	dataAvailable = sizeof(dataBuffer);
+	dataAvailable = RawTrack::SIZE;
 	drqTime.reset(time); // DRQ = true
+	lastWasA1 = false;
 
-	// Moment in time when the track will be written
-	// (whether the CPU wrote all required data or not)
-	schedule(FSM_WRITE_TRACK, drqTime + sizeof(dataBuffer));
+	// Moment in time when the track will be written (whether the CPU wrote
+	// all required data or not).
+	schedule(FSM_WRITE_TRACK, drqTime + RawTrack::SIZE);
 }
 
-void WD2793::writeTrack()
+void WD2793::doneWriteTrack()
 {
 	try {
-		drive.writeTrackData(dataBuffer);
+		// any lost data?
+		while (dataAvailable) {
+			statusReg |= LOST_DATA;
+			trackData.write(dataCurrent, 0);
+			dataCurrent++;
+			dataAvailable--;
+		}
+		drive.writeTrack(trackData);
 	} catch (MSXException&) {
 		// Ignore. Should rarely happen, because
 		// write-protected is already checked at the
@@ -677,33 +812,8 @@ void WD2793::writeTrack()
 		// when disk is swapped during format)
 	}
 	endCmd();
-
-	// TODO currently the following logic is implemented in the backend.
-	// It should be moved here (because it's WD2793 specific).
-	/*switch (value) {
-	case 0xFE:
-	case 0xFD:
-	case 0xFC:
-	case 0xFB:
-	case 0xFA:
-	case 0xF9:
-	case 0xF8:
-	       PRT_DEBUG("CRC generator initializing");
-	       break;
-	case 0xF6:
-	       PRT_DEBUG("write C2 ?");
-	       break;
-	case 0xF5:
-	       PRT_DEBUG("CRC generator initializing in MFM, write A1?");
-	       break;
-	case 0xF7:
-	       PRT_DEBUG("two CRC characters");
-	       break;
-	default:
-	       // Normal write to track
-	       break;
-	}*/
 }
+
 
 void WD2793::startType4Cmd(EmuTime::param time)
 {
@@ -762,6 +872,12 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 //            and write track) has changed. So this could result in replay-sync
 //            errors.
 //            (Also the enum FSMState has changed, but that's not a problem.)
+// version3: Added members 'crc' and 'lastWasA1'.
+//           Replaced 'dataBuffer' with 'trackData'. We don't attempt to migrate
+//           the old 'dataBuffer' content to 'trackData' (doing so would be
+//           quite difficult). This means that old savestates that were in the
+//           middle of a sector/track read/write command probably won't work
+//           correctly anymore. We do give a warning on this.
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
@@ -778,7 +894,6 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	ar.serialize("INTRQ", INTRQ);
 	ar.serialize("immediateIRQ", immediateIRQ);
 
-	ar.serialize_blob("dataBuffer", dataBuffer, sizeof(dataBuffer));
 	ar.serialize("dataCurrent", dataCurrent);
 	ar.serialize("dataAvailable", dataAvailable);
 
@@ -797,6 +912,31 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		// implemented very differently. We don't attempt to restore
 		// the correct state from the old savestate. But we do give a
 		// warning.
+		if ((statusReg & BUSY) &&
+		    (((commandReg & 0xC0) == 0x80) ||  // read/write sector
+		     ((commandReg & 0xF0) == 0xF0))) { // write track
+			cliComm.printWarning(
+				"Loading an old savestate that had an "
+				"in-progress WD2793 data-transfer command. "
+				"This is not fully backwards-compatible and "
+				"could cause wrong emulation behavior.");
+		}
+	}
+
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("trackData", trackData);
+		ar.serialize("lastWasA1", lastWasA1);
+		word crcVal = crc.getValue();
+		ar.serialize("crc", crcVal);
+		crc.init(crcVal);
+	} else {
+		assert(ar.isLoader());
+		//ar.serialize_blob("dataBuffer", dataBuffer, sizeof(dataBuffer));
+		// Compared to version 1 or 2, the databuffer works different:
+		// before we only stored the data of the logical sector, now
+		// we store the full content of the raw track. We don't attempt
+		// to migrate the old format to the new one (it's not very
+		// easy). We only give a warning.
 		if ((statusReg & BUSY) &&
 		    (((commandReg & 0xC0) == 0x80) ||  // read/write sector
 		     ((commandReg & 0xF0) == 0xF0))) { // write track
