@@ -387,6 +387,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RealDrive.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SectorAccessibleDisk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SectorBasedDisk.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793.cc" />
@@ -881,6 +883,7 @@
     <None Include="$(OpenMSXSrcDir)\fdc\NowindInterface.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\NowindRomDisk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\PhilipsFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\RawTrack.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\RamDSKDiskImage.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\RealDrive.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\SectorAccessibleDisk.hh" />
