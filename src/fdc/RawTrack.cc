@@ -35,12 +35,11 @@ void RawTrack::addIdam(int idx)
 bool RawTrack::decodeSector(int idx, Sector& sector) const
 {
 	// read (and check) address mark
-	CRC16 addrCrc;
 	// assume addr mark starts with three A1 bytes (should be
 	// located right before the current 'idx' position)
-	for (int i = 0; i < 3; ++i) {
-		addrCrc.update(0xA1);
-	}
+	CRC16 addrCrc;
+	addrCrc.init<0xA1, 0xA1, 0xA1>();
+
 	if (read(idx++) != 0xFE) return false;
 	addrCrc.update(0xFE);
 	int addrIdx = idx;

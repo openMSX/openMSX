@@ -253,7 +253,7 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 				// 3rd A1 byte. Though what we do instead is on
 				// each A1 byte initialize the value as if
 				// there were already 2 A1 bytes written.
-				crc.init(0x968B);
+				crc.init<0xA1, 0xA1>();
 			} else if (value == 0xF6) {
 				// write C2 with missing clock transitions
 				write = 0xC2;
@@ -606,7 +606,7 @@ void WD2793::type2Loaded(EmuTime::param time)
 		//  - write A1 A1 A1 FB   (or F8)
 		// But ATM we reuse the previous location of the data block
 	}
-	crc.init(0xE295); // A1 A1 A1 FB
+	crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
 
 	// wait till sector is actually rotated under head
 	schedule(FSM_TYPE2_ROTATED, next);

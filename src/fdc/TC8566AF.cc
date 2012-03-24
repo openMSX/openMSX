@@ -502,7 +502,7 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			}
 			// Initialize crc
 			// TODO 0xFB vs 0xF8 depends on deleted vs normal data
-			crc.init(0xE295); // A1 A1 A1 FB
+			crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
 
 			// first byte is available when it's rotated below the
 			// drive-head
