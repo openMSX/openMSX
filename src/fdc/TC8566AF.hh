@@ -4,6 +4,8 @@
 #define TC8566AF_HH
 
 #include "Clock.hh"
+#include "RawTrack.hh"
+#include "CRC16.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
@@ -12,11 +14,13 @@ namespace openmsx {
 
 class Scheduler;
 class DiskDrive;
+class CliComm;
 
 class TC8566AF : public Schedulable /* private noncopyable */
 {
 public:
-	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], EmuTime::param time);
+	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], CliComm& cliComm,
+	         EmuTime::param time);
 
 	void reset(EmuTime::param time);
 	byte readReg(int reg, EmuTime::param time);
@@ -58,12 +62,12 @@ private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int state);
 
-	byte peekDataPort() const;
+	byte peekDataPort(EmuTime::param time) const;
 	byte readDataPort(EmuTime::param time);
 	byte peekStatus() const;
 	byte readStatus(EmuTime::param time);
-	byte executionPhasePeek() const;
-	byte executionPhaseRead();
+	byte executionPhasePeek(EmuTime::param time) const;
+	byte executionPhaseRead(EmuTime::param time);
 	byte resultsPhasePeek() const;
 	byte resultsPhaseRead(EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
@@ -71,7 +75,8 @@ private:
 	void commandPhase1(byte value);
 	void commandPhaseWrite(byte value, EmuTime::param time);
 	void doSeek(EmuTime::param time);
-	void executionPhaseWrite(byte value);
+	void executionPhaseWrite(byte value, EmuTime::param time);
+	void resultPhase();
 	void endCommand(EmuTime::param time);
 
 	bool isHeadLoaded(EmuTime::param time) const;
@@ -79,8 +84,18 @@ private:
 	EmuDuration getHeadUnloadDelay() const;
 	EmuDuration getSeekDelay() const;
 
+	EmuTime locateSector(EmuTime::param time);
+	void writeSector();
+	void initTrackHeader();
+	void formatSector();
+
+private:
+	static const int TICKS_PER_ROTATION = RawTrack::SIZE;
+	static const int ROTATIONS_PER_SECOND = 5; // 300rpm
+
+	CliComm& cliComm;
 	DiskDrive* drive[4];
-	Clock<1000000> delayTime;
+	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> delayTime;
 	EmuTime headUnloadTime; // Before this time head is loaded, after
 	                        // this time it's unloaded. Set to zero/infinity
 	                        // to force a (un)loaded head.
@@ -89,11 +104,12 @@ private:
 	Phase phase;
 	int phaseStep;
 
-	int sectorSize;
-	int sectorOffset;
 	//bool interrupt;
 
-	byte sectorBuf[4096];
+	RawTrack trackData;
+	int dataAvailable;
+	int dataCurrent;
+	CRC16 crc;
 
 	byte driveSelect;
 	byte mainStatus;
@@ -110,10 +126,11 @@ private:
 	byte currentTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
+	byte gapLength;
 	byte specifyData[2]; // filled in by SPECIFY command
 	byte seekValue;
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 2);
+SERIALIZE_CLASS_VERSION(TC8566AF, 3);
 
 } // namespace openmsx
 

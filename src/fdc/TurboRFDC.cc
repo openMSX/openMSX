@@ -19,6 +19,7 @@ TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, cpu(motherBoard.getCPU())
 	, controller(new TC8566AF(motherBoard.getScheduler(),
 	                          reinterpret_cast<DiskDrive**>(drives),
+	                          getMotherBoard().getMSXCliComm(),
 	                          getCurrentTime()))
 	, blockMask((rom->getSize() / 0x4000) - 1)
 {
