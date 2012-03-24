@@ -272,7 +272,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			break;
 		case 0x20: {
 			// Konami
-			if (((configReg & 0x08) == 0x00) && (addr < 0x6000)) {
+			if (((configReg & 0x08) == 0x08) && (addr < 0x6000)) {
 				// Switching 0x4000-0x5FFF disabled.
 				// This bit blocks writing to the bank register
 				// (an alternative was forcing a 0 on read).
@@ -281,7 +281,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			}
 			// Making of the mapper bits is done on
 			// write (and only in Konami(-scc) mode)
-			byte mask = (configReg & 0x01) ? 0x1F : 0xFF;
+			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
+			byte mask = (configReg & 0x01) ? 0x1F : 0x7F;
 			bankRegs[subslot][page8] = value & mask;
 			invalidateMemCache(0x4000 + 0x2000 * page8, 0x2000);
 			break;
