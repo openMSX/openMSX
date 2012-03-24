@@ -51,6 +51,7 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	void doSetMotor(bool status, EmuTime::param time);
 	void setLoading(EmuTime::param time);
+	int getCurrentAngle(EmuTime::param time) const;
 
 	static const int MAX_TRACK = 85;
 	static const int TICKS_PER_ROTATION = 6250; // see Disk.hh
@@ -67,11 +68,12 @@ private:
 	std::auto_ptr<DiskChanger> changer;
 	int headPos;
 	int side;
+	int startAngle;
 	bool motorStatus;
 	bool headLoadStatus;
 	const bool doubleSizedDrive;
 };
-SERIALIZE_CLASS_VERSION(RealDrive, 2);
+SERIALIZE_CLASS_VERSION(RealDrive, 3);
 
 } // namespace openmsx
 

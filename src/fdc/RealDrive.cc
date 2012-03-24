@@ -39,7 +39,8 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())
 	, headLoadTimer(getCurrentTime())
-	, headPos(0), side(0), motorStatus(false), headLoadStatus(false)
+	, headPos(0), side(0), startAngle(0)
+	, motorStatus(false), headLoadStatus(false)
 	, doubleSizedDrive(doubleSided)
 {
 	MSXMotherBoard::SharedStuff& info =
@@ -200,8 +201,21 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 	}
 }
 
+int RealDrive::getCurrentAngle(EmuTime::param time) const
+{
+	if (motorStatus) {
+		// rotating, take passed time into account
+		int deltaAngle = motorTimer.getTicksTill(time);
+		return (startAngle + deltaAngle) % TICKS_PER_ROTATION;
+	} else {
+		// not rotating, angle didn't change
+		return startAngle;
+	}
+}
+
 void RealDrive::doSetMotor(bool status, EmuTime::param time)
 {
+	startAngle = getCurrentAngle(time);
 	motorStatus = status;
 	motorTimer.advance(time);
 
@@ -241,8 +255,7 @@ bool RealDrive::indexPulse(EmuTime::param time)
 	if (!(motorStatus && isDiskInserted())) {
 		return false;
 	}
-	int angle = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
-	return angle < INDEX_DURATION;
+	return getCurrentAngle(time) < INDEX_DURATION;
 }
 
 EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
@@ -250,8 +263,7 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
 		return time;
 	}
-	int delta = TICKS_PER_ROTATION -
-	            (motorTimer.getTicksTill(time) % TICKS_PER_ROTATION);
+	int delta = TICKS_PER_ROTATION - getCurrentAngle(time);
 	EmuDuration dur = MotorClock::duration(delta);
 	return time + dur;
 }
@@ -283,7 +295,7 @@ void RealDrive::readTrack(RawTrack& track)
 EmuTime RealDrive::getNextSector(
 	EmuTime::param time, RawTrack& track, RawTrack::Sector& sector)
 {
-	int idx = motorTimer.getTicksTill(time) % TICKS_PER_ROTATION;
+	int idx = getCurrentAngle(time);
 	changer->getDisk().readTrack(headPos, side, track);
 	if (!track.decodeNextSector(idx, sector)) {
 		return EmuTime::infinity;
@@ -311,8 +323,9 @@ bool RealDrive::isDummyDrive() const
 
 // version 1: initial version
 // version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
+// version 3: added 'startAngle'
 template<typename Archive>
-void RealDrive::serialize(Archive& ar, unsigned /*version*/)
+void RealDrive::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("motorTimer", motorTimer);
@@ -322,6 +335,12 @@ void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("side", side);
 	ar.serialize("motorStatus", motorStatus);
 	ar.serialize("headLoadStatus", headLoadStatus);
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("startAngle", startAngle);
+	} else {
+		assert(ar.isLoader());
+		startAngle = 0;
+	}
 	if (ar.isLoader()) {
 		// Right after a loadstate, the 'loading indicator' state may
 		// be wrong, but that's OK. It's anyway only a heuristic and
