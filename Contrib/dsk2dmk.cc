@@ -54,8 +54,6 @@ public:
 		fclose(f);
 	}
 
-	operator FILE*() const { return f; }
-
 	void read(void* data, int size)
 	{
 		if (fread(data, size, 1, f) != 1) {
@@ -89,8 +87,6 @@ static void fill(byte*& p, int len, byte value)
 
 void convert(const DiskInfo& info, const string& input, const string& output)
 {
-	File inf(input, "rb");
-
 	int numSides = info.doubleSided ? 2 : 1;
 	int sectorSize = 128 << info.sectorSizeCode;
 	int totalTracks = numSides * info.numberCylinders;
@@ -98,11 +94,12 @@ void convert(const DiskInfo& info, const string& input, const string& output)
 	int totalSize = totalSectors * sectorSize;
 
 	struct stat st;
-	fstat(fileno(inf), &st);
+	stat(input.c_str(), &st);
 	if (st.st_size != totalSize) {
 		throw runtime_error("Wrong input filesize");
 	}
 
+	File inf(input, "rb");
 	File outf(output, "wb");
 
 	int rawSectorLen =
