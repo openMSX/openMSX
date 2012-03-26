@@ -81,6 +81,7 @@ chirp 12-..: vokume   0   : silent
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
+#include "FileOperations.hh"
 #include "serialize.hh"
 #include <cstring>
 #include <cstdlib>
@@ -91,7 +92,8 @@ class VLM5030::Impl : public ResampledSoundDevice
 {
 public:
 	Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	            const std::string& desc, const XMLElement& config);
+	            const std::string& desc, const std::string& romFilename,
+	            const XMLElement& config);
 	~Impl();
 
 	void reset();
@@ -574,7 +576,8 @@ void VLM5030::Impl::setST(bool pin)
 }
 
 VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const XMLElement& config)
+                 const std::string& desc, const std::string& romFilename,
+                 const XMLElement& config)
 	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
 	XMLElement voiceROMconfig(name);
@@ -585,6 +588,8 @@ VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
 		std::auto_ptr<XMLElement>(new XMLElement("rom")));
 	romElement->addChild(std::auto_ptr<XMLElement>( // load by sha1sum
 		new XMLElement("sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40")));
+	romElement->addChild(std::auto_ptr<XMLElement>( // load by predefined filename in software rom's dir
+		new XMLElement("filename", FileOperations::stripExtension(romFilename) + "_voice.rom")));
 	romElement->addChild(std::auto_ptr<XMLElement>( // or hardcoded filename in ditto dir
 		new XMLElement("filename", "keyboardmaster/voice.rom")));
 	voiceROMconfig.addChild(romElement);
@@ -649,8 +654,9 @@ void VLM5030::Impl::serialize(Archive& ar, unsigned /*version*/)
 // class VLM5030
 
 VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const XMLElement& config)
-	: pimpl(new Impl(motherBoard, name, desc, config))
+                 const std::string& desc, const std::string& romFilename,
+                 const XMLElement& config)
+	: pimpl(new Impl(motherBoard, name, desc, romFilename, config))
 {
 }
 

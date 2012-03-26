@@ -17,7 +17,8 @@ class VLM5030
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-	        const std::string& desc, const XMLElement& config);
+	        const std::string& desc, const std::string& romFilename,
+	        const XMLElement& config);
 	~VLM5030();
 	void reset();
 
