@@ -317,6 +317,16 @@ string getExtension(const string& path)
 	}
 }
 
+string stripExtension (const string& path)
+{
+	string::size_type pos = path.rfind('.');
+	if (pos == string::npos) {
+		return path;
+	} else {
+		return path.substr(0, pos);
+	}
+}
+
 string join(const string& part1, const string& part2)
 {
 	if (isAbsolutePath(part2)) {
