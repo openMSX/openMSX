@@ -333,6 +333,11 @@ Rom::~Rom()
 {
 }
 
+string Rom::getFilename() const
+{
+	return file.get() ? file->getURL() : "";
+}
+
 const string& Rom::getName() const
 {
 	return name;

@@ -32,6 +32,7 @@ public:
 	}
 	unsigned getSize() const { return size; }
 
+	std::string getFilename() const;
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 	const std::string& getOriginalSHA1() const;
