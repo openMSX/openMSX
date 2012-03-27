@@ -14,26 +14,35 @@ namespace openmsx {
 
 SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
                            const std::string& desc, const XMLElement& config,
-                           const std::string& samplesBaseName, unsigned numSamples)
+                           const std::string& samplesBaseName, unsigned numSamples,
+                           const std::string& alternativeName)
 	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
 	setInputRate(44100); // Initialize with dummy value
 
 	bool alreadyWarned = false;
 	samples.resize(numSamples); // initialize with NULL ptrs
+	SystemFileContext context;
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {
-			SystemFileContext context;
 			std::string filename = StringOp::Builder() <<
 				samplesBaseName << i << ".wav";
 			samples[i].reset(new WavData(context.resolve(filename)));
-		} catch (MSXException& e) {
-			if (!alreadyWarned) {
-				alreadyWarned = true;
-				motherBoard.getMSXCliComm().printWarning(
-					"Couldn't read " + name + " sample data: " +
-					e.getMessage() +
-					". Continuing without sample data.");
+		} catch (MSXException& e1) {
+			try {
+				if (alternativeName.empty()) throw;
+				std::string filename = StringOp::Builder() <<
+					alternativeName << i << ".wav";
+				samples[i].reset(new WavData(context.resolve(filename)));
+			} catch (MSXException& e2) {
+				if (!alreadyWarned) {
+					alreadyWarned = true;
+					// print message from the 1st error
+					motherBoard.getMSXCliComm().printWarning(
+						"Couldn't read " + name + " sample data: " +
+						e1.getMessage() +
+						". Continuing without sample data.");
+				}
 			}
 		}
 	}

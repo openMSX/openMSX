@@ -4,16 +4,18 @@
 #include "SamplePlayer.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "FileOperations.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
+                         std::auto_ptr<Rom> rom_)
+	: Rom16kBBlocks(motherBoard, config, rom_)
 	, samplePlayer(new SamplePlayer(motherBoard, "Playball-DAC",
 	                                "Sony Playball's DAC", config,
-	                                "playball/playball_", 15))
+	                                FileOperations::stripExtension(rom->getFilename()) + "_",
+	                                15, "playball/playball_"))
 {
 	setUnmapped(0);
 	setRom(1, 0);

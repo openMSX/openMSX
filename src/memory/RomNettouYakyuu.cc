@@ -42,6 +42,7 @@
 
 #include "RomNettouYakyuu.hh"
 #include "Rom.hh"
+#include "FileOperations.hh"
 #include "SamplePlayer.hh"
 #include "serialize.hh"
 
@@ -49,11 +50,12 @@ namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
+		std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(motherBoard, config, rom_)
 	, samplePlayer(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
 	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-	                         "nettou_yakyuu/nettou_yakyuu_", 16))
+	                         FileOperations::stripExtension(rom->getFilename()) + "_",
+	                         16, "nettou_yakyuu/nettou_yakyuu_"))
 {
 	reset(EmuTime::dummy());
 }
