@@ -114,9 +114,9 @@ void GLPostProcessor::createRegions()
 			dstEndY += dstStep;
 		}
 
-		regions.push_back(Region(srcStartY, srcEndY,
-		                         dstStartY, dstEndY,
-		                         lineWidth));
+		regions.emplace_back(srcStartY, srcEndY,
+		                     dstStartY, dstEndY,
+		                     lineWidth);
 
 		// next region
 		srcStartY = srcEndY;

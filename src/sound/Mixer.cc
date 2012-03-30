@@ -48,11 +48,11 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 		{ "sdl",  SND_SDL } };
 	SoundDriverType defaultSoundDriver = SND_SDL;
 #ifdef _WIN32
-	soundDriverMap.push_back(std::make_pair("directx", SND_DIRECTX));
+	soundDriverMap.emplace_back("directx", SND_DIRECTX);
 	defaultSoundDriver = SND_DIRECTX;
 #endif
 #if COMPONENT_AO
-	soundDriverMap.push_back(std::make_pair("libao", SND_LIBAO));
+	soundDriverMap.emplace_back("libao", SND_LIBAO);
 #endif
 	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
 		commandController, "sound_driver",

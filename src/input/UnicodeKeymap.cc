@@ -208,14 +208,15 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		}
 
 		if (isDeadKey) {
-			deadKeys[deadKeyIndex].row = (rowcol >> 4) & 0x0f;
-			deadKeys[deadKeyIndex].keymask = 1 << (rowcol & 7);
-			deadKeys[deadKeyIndex].modmask = 0;
+			deadKeys[deadKeyIndex] = KeyInfo(
+				(rowcol >> 4) & 0x0f, // row
+				1 << (rowcol & 7),    // keymask
+				0);                   // modmask
 		} else {
-			KeyInfo info((rowcol >> 4) & 0x0f, // row
-							1 << (rowcol & 7),    // keymask
-							modmask);             // modmask
-			mapdata.push_back(std::make_pair(unicode, info));
+			mapdata.emplace_back(unicode, KeyInfo(
+				(rowcol >> 4) & 0x0f, // row
+				1 << (rowcol & 7),    // keymask
+				modmask));            // modmask
 		}
 	}
 	sort(mapdata.begin(), mapdata.end(), LessTupleElement<0>());

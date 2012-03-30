@@ -349,7 +349,7 @@ void XmlOutputArchive::endTag(const char* tag)
 XmlInputArchive::XmlInputArchive(const string& filename)
 	: elem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 {
-	elems.push_back(std::make_pair(&elem, 0));
+	elems.emplace_back(&elem, 0);
 }
 
 void XmlInputArchive::loadChar(char& c)
@@ -484,7 +484,7 @@ void XmlInputArchive::beginTag(const char* tag)
 			"No child tag \"" << tag <<
 			"\" found at location \"" << path << '\"');
 	}
-	elems.push_back(std::make_pair(child, 0));
+	elems.emplace_back(child, 0);
 }
 void XmlInputArchive::endTag(const char* tag)
 {

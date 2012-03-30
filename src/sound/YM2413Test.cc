@@ -184,21 +184,21 @@ static void testViolin(YM2413Core& core)
 	Log log;
 	{
 		LogEvent event;
-		event.regWrites.push_back(RegWrite(0x30, 0x10)); // instrument / volume
-		event.regWrites.push_back(RegWrite(0x10, 0xAD)); // frequency
-		event.regWrites.push_back(RegWrite(0x20, 0x14)); // key-on / frequency
+		event.regWrites.emplace_back(0x30, 0x10); // instrument / volume
+		event.regWrites.emplace_back(0x10, 0xAD); // frequency
+		event.regWrites.emplace_back(0x20, 0x14); // key-on / frequency
 		event.samples = 11000;
 		log.push_back(event);
 	}
 	{
 		LogEvent event;
-		event.regWrites.push_back(RegWrite(0x20, 0x16)); // change freq
+		event.regWrites.emplace_back(0x20, 0x16); // change freq
 		event.samples = 11000;
 		log.push_back(event);
 	}
 	{
 		LogEvent event;
-		event.regWrites.push_back(RegWrite(0x20, 0x06)); // key-off
+		event.regWrites.emplace_back(0x20, 0x06); // key-off
 		event.samples = 11000;
 		log.push_back(event);
 	}

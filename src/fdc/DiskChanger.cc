@@ -375,7 +375,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 				{ TclObject("dummy"), TclObject(name) };
 			for (auto& p : patches) {
 				p.updateAfterLoadState();
-				args.push_back(TclObject(p.getResolved())); // TODO
+				args.emplace_back(p.getResolved()); // TODO
 			}
 
 			try {

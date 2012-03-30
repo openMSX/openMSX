@@ -122,7 +122,7 @@ MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param t
 	: StateChange(time)
 {
 	for (auto& t : tokens_) {
-		tokens.push_back(TclObject(t));
+		tokens.emplace_back(t);
 	}
 }
 

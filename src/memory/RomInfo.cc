@@ -46,7 +46,7 @@ static void init(RomType type, string_ref name,
                  unsigned blockSize, string_ref description)
 {
 	romTypeMap[name] = type;
-	romTypeInfoMap.push_back(std::make_tuple(type, description, blockSize));
+	romTypeInfoMap.emplace_back(type, description, blockSize);
 }
 static void initAlias(RomType type, string_ref name)
 {

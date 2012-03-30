@@ -104,7 +104,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 	static int counter = 0; // id's are globally unique
 
 	assert(!has(source));
-	sources.push_back(std::make_pair(source, ++counter));
+	sources.emplace_back(source, ++counter);
 
 	// First announce extended set of allowed values before announcing a
 	// (possibly) different value.

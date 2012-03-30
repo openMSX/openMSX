@@ -63,7 +63,7 @@ XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name
 void XMLElement::addAttribute(string_ref name, string_ref value)
 {
 	assert(findAttribute(name) == attributes.end());
-	attributes.push_back(make_pair(name.str(), value.str()));
+	attributes.emplace_back(name.str(), value.str());
 }
 
 void XMLElement::setAttribute(string_ref name, string_ref value)
@@ -72,7 +72,7 @@ void XMLElement::setAttribute(string_ref name, string_ref value)
 	if (it != attributes.end()) {
 		it->second = value.str();
 	} else {
-		attributes.push_back(make_pair(name.str(), value.str()));
+		attributes.emplace_back(name.str(), value.str());
 	}
 }
 

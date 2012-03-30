@@ -159,8 +159,8 @@ UserFileContext::UserFileContext(string_ref savePath)
 
 UserDataFileContext::UserDataFileContext(string_ref subDir)
 {
-	paths.push_back("");
-	paths.push_back(USER_OPENMSX + '/' + subDir);
+	paths.emplace_back();
+	paths.emplace_back(USER_OPENMSX + '/' + subDir);
 }
 
 CurrentDirFileContext::CurrentDirFileContext()

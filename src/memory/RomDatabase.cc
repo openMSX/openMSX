@@ -385,10 +385,10 @@ void DBParser::addEntries()
 	}
 
 	for (auto& d : dumps) {
-		db.push_back(std::make_pair(d.hash, RomInfo(
+		db.emplace_back(d.hash, RomInfo(
 			title, year, company, country,
 			d.origValue, d.origData, d.remark, d.type,
-			genMSXid)));
+			genMSXid));
 	}
 }
 
@@ -588,7 +588,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	for (auto& p : paths) {
 		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {
-			buffers.push_back(MemBuffer<char>());
+			buffers.emplace_back();
 			parseDB(cliComm, filename, buffers.back(), db, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
 			cliComm.printWarning(StringOp::Builder() <<

@@ -27,7 +27,6 @@
 using std::min;
 using std::max;
 using std::string;
-using std::make_pair;
 
 namespace openmsx {
 
@@ -45,7 +44,7 @@ ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
 
 void ConsoleLine::addChunk(string_ref text, unsigned rgb)
 {
-	chunks.push_back(make_pair(rgb, line.size()));
+	chunks.emplace_back(rgb, line.size());
 	line.append(text.data(), text.size());
 }
 
@@ -103,10 +102,10 @@ ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
 	while ((i < chunks.size()) && (chunks[i].second <= bpos)) {
 		++i;
 	}
-	result.chunks.push_back(make_pair(chunks[i - 1].first, 0));
+	result.chunks.emplace_back(chunks[i - 1].first, 0);
 	while ((i < chunks.size()) && (chunks[i].second < bend)) {
-		result.chunks.push_back(make_pair(chunks[i].first,
-		                                  chunks[i].second - bpos));
+		result.chunks.emplace_back(chunks[i].first,
+		                           chunks[i].second - bpos);
 		++i;
 	}
 	return result;

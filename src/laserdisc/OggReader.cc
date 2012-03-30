@@ -458,7 +458,7 @@ void OggReader::readMetadata(th_comment& tc)
 			++p;
 			size_t frame = atol(p);
 			if (frame) {
-				chapters.push_back(std::make_pair(chapter, frame));
+				chapters.emplace_back(chapter, frame);
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			size_t stopframe = atol(p + 6);

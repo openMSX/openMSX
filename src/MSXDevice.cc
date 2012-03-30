@@ -200,7 +200,7 @@ void MSXDevice::registerSlots()
 				getName() + " should be in range "
 				"[0x0000,0x10000).");
 		}
-		tmpMemRegions.push_back(std::make_pair(base, size));
+		tmpMemRegions.emplace_back(base, size);
 	}
 	if (tmpMemRegions.empty()) {
 		return;

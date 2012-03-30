@@ -406,7 +406,7 @@ void OSDConsoleRenderer::clearCache()
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
-	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
+	textCache.emplace_back("", 0, nullptr, 0);
 	cacheHint = textCache.begin();
 }
 

@@ -200,18 +200,14 @@ CommandLineParser::~CommandLineParser()
 void CommandLineParser::registerOption(
 	const char* str, CLIOption& cliOption, ParsePhase phase, unsigned length)
 {
-	OptionData temp;
-	temp.option = &cliOption;
-	temp.phase = phase;
-	temp.length = length;
-	options.push_back(std::make_pair(str, temp));
+	options.emplace_back(str, OptionData{&cliOption, phase, length});
 }
 
 void CommandLineParser::registerFileType(
 	string_ref extensions, CLIFileType& cliFileType)
 {
 	for (auto& ext: StringOp::split(extensions, ',')) {
-		fileTypes.push_back(std::make_pair(ext, &cliFileType));
+		fileTypes.emplace_back(ext, &cliFileType);
 	}
 }
 

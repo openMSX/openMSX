@@ -99,7 +99,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			// This scaler is not ready yet for the upcoming 0.8.1
 			// release, so disable it. As soon as it is ready we
 			// can remove this test.
-			scalerMap.push_back(std::make_pair("MLAA", SCALER_MLAA));
+			scalerMap.emplace_back("MLAA", SCALER_MLAA);
 		}
 	}
 	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
