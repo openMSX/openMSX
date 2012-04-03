@@ -107,6 +107,8 @@ Announce:
 - Post change list to msx.org.
 - Post news item on sourceforge.net.
 - Post news item on web site.
+- Post news and/or change list to openmsx-devel and openmsx-user mailinglists
+  (at least one packager uses it to get a trigger)
 
 Finally:
 - Update web site to point to new downloads.
