@@ -206,6 +206,7 @@ byte TC8566AF::executionPhaseRead(EmuTime::param time)
 		mainStatus &= ~STM_RQM;
 		if (delayTime.before(time)) {
 			// lost data
+			status0 |= ST0_IC0;
 			status1 |= ST1_OR;
 			resultPhase();
 		} else if (!dataAvailable) {
@@ -213,6 +214,7 @@ byte TC8566AF::executionPhaseRead(EmuTime::param time)
 			word diskCrc  = 256 * trackData.read(dataCurrent++);
 			     diskCrc +=       trackData.read(dataCurrent++);
 			if (diskCrc != crc.getValue()) {
+				status0 |= ST0_IC0;
 				status1 |= ST1_DE;
 				status2 |= ST2_DD;
 			}
@@ -697,12 +699,14 @@ void TC8566AF::executionPhaseWrite(byte value, EmuTime::param time)
 		mainStatus &= ~STM_RQM;
 		if (delayTime.before(time)) {
 			// lost data
+			status0 |= ST0_IC0;
 			status1 |= ST1_OR;
 			resultPhase();
 		} else if (!dataAvailable) {
 			try {
 				writeSector();
 			} catch (MSXException&) {
+				status0 |= ST0_IC0;
 				status1 |= ST1_NW;
 			}
 			resultPhase();
@@ -734,6 +738,7 @@ void TC8566AF::executionPhaseWrite(byte value, EmuTime::param time)
 			try {
 				drive[driveSelect]->writeTrack(trackData);
 			} catch (MSXException&) {
+				status0 |= ST0_IC0;
 				status1 |= ST1_NW;
 			}
 			resultPhase();
