@@ -399,7 +399,7 @@ template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 {
 	// Still enough free space at end of buffer?
-	unsigned free = (buffer.size() / CHANNELS) - bufEnd;
+	unsigned free = unsigned(buffer.size() / CHANNELS) - bufEnd;
 	if (free < emuNum) {
 		// No, then move everything to the start
 		// (data needs to be in a contiguous memory block)
@@ -409,7 +409,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 		bufStart = 0;
 		bufEnd = available;
 
-		free = (buffer.size() / CHANNELS) - bufEnd;
+		free = unsigned(buffer.size() / CHANNELS) - bufEnd;
 		int missing = emuNum - free;
 		if (unlikely(missing > 0)) {
 			// Still not enough room: grow the buffer.
