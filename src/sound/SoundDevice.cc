@@ -8,8 +8,10 @@
 #include "StringOp.hh"
 #include "HostCPU.hh"
 #include "MemoryOps.hh"
+#include "MemBuffer.hh"
 #include "MSXException.hh"
 #include "aligned.hh"
+#include "likely.hh"
 #include "vla.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -22,9 +24,19 @@ using std::set;
 
 namespace openmsx {
 
-static const unsigned MAX_FACTOR = 16; // 200kHz (PSG) -> 22kHz
-static const unsigned MAX_SAMPLES = 8192 * MAX_FACTOR;
-ALIGNED(static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2], 16); // align for SSE access
+MemBuffer<int> mixBufferStorage;
+int* mixBuffer; // 16-byte aligned ptr into mixBufferStorage (for SSE access)
+
+static void allocateMixBuffer(unsigned size)
+{
+	size += 3; // to be able to align
+	if (unlikely(mixBufferStorage.size() < size)) {
+		mixBufferStorage.resize(size);
+		// align at 16-byte boundary
+		size_t tmp = reinterpret_cast<size_t>(mixBufferStorage.data());
+		mixBuffer = reinterpret_cast<int*>((tmp + 15) & ~15);
+	}
+}
 
 static string makeUnique(MSXMixer& mixer, const string& name)
 {
@@ -185,7 +197,6 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 #if ASM_X86
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
-	assert(samples <= MAX_SAMPLES);
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
@@ -204,12 +215,23 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			bufs[i] = dataOut;
 		} else {
 			// muted or recorded channels must go separate
-			bufs[i] = &mixBuffer[pitch * separateChannels];
+			//  cannot yet fill in bufs[i] here
 			++separateChannels;
 		}
 	}
-	mset(reinterpret_cast<unsigned*>(mixBuffer),
-	     pitch * separateChannels, 0);
+	if (separateChannels) {
+		allocateMixBuffer(pitch * separateChannels);
+		mset(reinterpret_cast<unsigned*>(mixBuffer),
+		     pitch * separateChannels, 0);
+		// still need to fill in (some) bufs[i] pointers
+		unsigned count = 0;
+		for (unsigned i = 0; i < numChannels; ++i) {
+			if (!(!channelMuted[i] && !writer[i].get() && balanceCenter)) {
+				bufs[i] = &mixBuffer[pitch * count++];
+			}
+		}
+		assert(count == separateChannels);
+	}
 
 	// note: some SoundDevices (DACSound16S and CassettePlayer) replace the
 	//	 (single) channel data instead of adding to the exiting data.
