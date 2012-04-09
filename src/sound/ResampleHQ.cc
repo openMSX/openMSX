@@ -20,6 +20,7 @@
 #include "noncopyable.hh"
 #include "vla.hh"
 #include "countof.hh"
+#include "likely.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <map>
@@ -191,7 +192,8 @@ ResampleHQ<CHANNELS>::ResampleHQ(
 	bufStart = 0;
 	bufEnd   = extra;
 	nonzeroSamples = 0;
-	memset(buffer, 0, extra * CHANNELS * sizeof(float));
+	unsigned initialSize = 4000; // buffer grows dynamically if this is too small
+	buffer.resize((initialSize + extra) * CHANNELS); // zero-initialized
 }
 
 template <unsigned CHANNELS>
@@ -397,17 +399,28 @@ template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 {
 	// Still enough free space at end of buffer?
-	unsigned free = BUF_LEN - bufEnd;
+	unsigned free = (buffer.size() / CHANNELS) - bufEnd;
 	if (free < emuNum) {
 		// No, then move everything to the start
 		// (data needs to be in a contiguous memory block)
 		unsigned available = bufEnd - bufStart;
-		memmove(buffer, &buffer[bufStart * CHANNELS],
+		memmove(&buffer[0], &buffer[bufStart * CHANNELS],
 			available * CHANNELS * sizeof(float));
 		bufStart = 0;
 		bufEnd = available;
-		free = BUF_LEN - bufEnd;
-		assert(free >= emuNum);
+
+		free = (buffer.size() / CHANNELS) - bufEnd;
+		int missing = emuNum - free;
+		if (unlikely(missing > 0)) {
+			// Still not enough room: grow the buffer.
+			// TODO an alternative is to instead of using a large
+			// buffer, chop the work in multiple smaller pieces.
+			// That may have the advantage that the data fits in
+			// the CPU's data cache. OTOH too small chunks have
+			// more overhead. (Not yet implemented because it's
+			// more complex).
+			buffer.resize(buffer.size() + missing * CHANNELS);
+		}
 	}
 #if ASM_X86
 	VLA_ALIGNED(int, tmpBuf, emuNum * CHANNELS + 3, 16);
@@ -427,7 +440,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 	}
 
 	assert(bufStart <= bufEnd);
-	assert(bufEnd <= BUF_LEN);
+	assert(bufEnd <= (buffer.size() / CHANNELS));
 }
 
 template <unsigned CHANNELS>

@@ -5,6 +5,7 @@
 
 #include "ResampleAlgo.hh"
 #include "DynamicClock.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -22,8 +23,6 @@ public:
 	                            EmuTime::param time);
 
 private:
-	static const unsigned BUF_LEN = 16384;
-
 	void calcOutput(float pos, int* output);
 	void prepareData(unsigned emuNum);
 
@@ -36,7 +35,7 @@ private:
 	unsigned bufEnd;
 	unsigned nonzeroSamples;
 	unsigned filterLen;
-	float buffer[BUF_LEN * CHANNELS];
+	std::vector<float> buffer;
 	float* table;
 };
 
