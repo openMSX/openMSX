@@ -109,7 +109,8 @@ void SRAM::load(bool* loaded)
 		}
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't load SRAM " + filename +
-		                     " (" + e.getMessage() + ").");
+		    " (" + e.getMessage() + "). (This is normal when you " +
+		    "see this after starting a machine for the first time.)");
 	}
 }
 
