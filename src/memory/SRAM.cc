@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FileNotFoundException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "CliComm.hh"
@@ -107,10 +108,12 @@ void SRAM::load(bool* loaded)
 			cliComm.printWarning(
 				"Warning no correct SRAM file: " + filename);
 		}
+	} catch (FileNotFoundException& e) {
+		cliComm.printInfo("SRAM file " + filename + " not found" +
+		                  ", assuming blank SRAM content.");
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't load SRAM " + filename +
-		    " (" + e.getMessage() + "). (This is normal when you " +
-		    "see this after starting a machine for the first time.)");
+		                     " (" + e.getMessage() + ").");
 	}
 }
 

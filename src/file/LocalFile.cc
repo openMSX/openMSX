@@ -14,6 +14,7 @@
 #include "LocalFile.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
+#include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
 #include "StringOp.hh"
 #include <cstring> // for strchr
@@ -63,7 +64,11 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 		}
 	}
 	if (!file) {
-		throw FileException("Error opening file \"" + filename + "\"");
+		if (!FileOperations::exists(filename)) {
+			throw FileNotFoundException("File \"" + filename + "\" not found");
+		} else {
+			throw FileException("Error opening file \"" + filename + "\"");
+		}
 	}
 }
 

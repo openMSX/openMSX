@@ -30,7 +30,8 @@ public:
 	/** Create file object and open underlying file.
 	 * @param filename Name of the file to be opened.
 	 * @param mode Mode to open the file in:
-	 * @throws FileException
+	 * @throws FileNotFoundException if file not found
+	 * @throws FileException for other errors
 	 */
 	explicit File(const std::string& filename, OpenMode mode = NORMAL);
 	explicit File(const Filename&    filename, OpenMode mode = NORMAL);

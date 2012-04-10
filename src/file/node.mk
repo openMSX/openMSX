@@ -19,7 +19,8 @@ SRC_HDR:= \
 	LocalFileReference
 
 HDR_ONLY:= \
-	FileException
+	FileException \
+	FileNotFoundException
 
 include build/node-end.mk
 
