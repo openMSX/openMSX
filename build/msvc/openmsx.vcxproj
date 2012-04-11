@@ -898,6 +898,7 @@
     <None Include="$(OpenMSXSrcDir)\file\FileBase.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileContext.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileException.hh" />
+    <None Include="$(OpenMSXSrcDir)\file\FileNotFoundException.hh" />	
     <None Include="$(OpenMSXSrcDir)\file\Filename.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FilePool.hh" />
