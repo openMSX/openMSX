@@ -21,7 +21,7 @@ def detectCPU():
 		return 'x86_64'
 	elif cpu in ('x86', 'i386', 'i486', 'i586', 'i686'):
 		return 'x86'
-	elif cpu.startswith('ppc') or cpu.startswith('power'):
+	elif cpu.startswith('ppc') or cpu.endswith('ppc') or cpu.startswith('power'):
 		return 'ppc64' if cpu.endswith('64') else 'ppc'
 	elif cpu.startswith('arm'):
 		return 'arm'
