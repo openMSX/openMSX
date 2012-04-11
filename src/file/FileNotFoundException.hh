@@ -3,7 +3,7 @@
 #ifndef FILENOTFOUNDEXCEPTION_HH
 #define FILENOTFOUNDEXCEPTION_HH
 
-#include "MSXException.hh"
+#include "FileException.hh"
 
 namespace openmsx {
 

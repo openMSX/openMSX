@@ -44,6 +44,7 @@
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
+#include <cassert>
 
 #ifndef _MSC_VER
 #include <dirent.h>
@@ -254,6 +255,10 @@ int rmdir(const std::string& path)
 
 FILE* openFile(const std::string& filename, const std::string& mode)
 {
+	// Mode must contain a 'b' character. On unix this doesn't make any
+	// difference. But on windows this is required to open the file
+	// in binary mode.
+	assert(mode.find('b') != std::string::npos);
 #ifdef _WIN32
 	return _wfopen(
 		utf8to16(filename).c_str(),

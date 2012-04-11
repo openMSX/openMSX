@@ -17,7 +17,8 @@
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
 #include "StringOp.hh"
-#include <cstring> // for strchr
+#include <cstring> // for strchr, strerror
+#include <cerrno>
 #include <cassert>
 
 using std::string;
@@ -64,10 +65,14 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 		}
 	}
 	if (!file) {
-		if (!FileOperations::exists(filename)) {
-			throw FileNotFoundException("File \"" + filename + "\" not found");
+		int err = errno;
+		if (err == ENOENT) {
+			throw FileNotFoundException(
+				"File \"" + filename + "\" not found");
 		} else {
-			throw FileException("Error opening file \"" + filename + "\"");
+			throw FileException(
+				"Error opening file \"" + filename + "\": " +
+				strerror(err));
 		}
 	}
 }
