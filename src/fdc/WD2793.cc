@@ -50,6 +50,7 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
 	dataCurrent = 0;
 	dataAvailable = 0;
 	lastWasA1 = false;
+	setDrqRate();
 
 	reset(time);
 }
@@ -82,6 +83,11 @@ bool WD2793::getDTRQ(EmuTime::param time)
 bool WD2793::peekDTRQ(EmuTime::param time)
 {
 	return getDTRQ(time);
+}
+
+void WD2793::setDrqRate()
+{
+	drqTime.setFreq(trackData.getLength() * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
 bool WD2793::getIRQ(EmuTime::param /*time*/)
@@ -562,6 +568,7 @@ void WD2793::type2Loaded(EmuTime::param time)
 	while (true) {
 		try {
 			next = drive.getNextSector(next, trackData, sectorInfo);
+			setDrqRate();
 		} catch (MSXException& /*e*/) {
 			statusReg |= RECORD_NOT_FOUND;
 			endCmd();
@@ -593,8 +600,9 @@ void WD2793::type2Loaded(EmuTime::param time)
 
 	// Found sector.
 	// Get sectorsize from disk: 128, 256, 512 or 1024 bytes
-	// TODO are other sizes supported?
-	//      IOW does the WD2793 only look at the lower 2 bits?
+	// Verified on real WD2793:
+	//   sizecode=255 results in a sector size of 1024 bytes,
+	// This suggests the WD2793 only looks at the lower 2 bits.
 	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
 	dataCurrent = sectorInfo.dataIdx;
 
@@ -721,6 +729,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			// wait till next sector header
 			RawTrack::Sector sector;
 			next = drive.getNextSector(time, trackData, sector);
+			setDrqRate();
 			if (next == EmuTime::infinity) {
 				// TODO wait for 5 revolutions
 				endCmd();
@@ -767,8 +776,9 @@ void WD2793::readTrackCmd(EmuTime::param time)
 {
 	try {
 		drive.readTrack(trackData);
+		setDrqRate();
 		dataCurrent = 0;
-		dataAvailable = RawTrack::SIZE;
+		dataAvailable = trackData.getLength();
 		drqTime.reset(time);
 		drqTime += 1; // (first) byte can be read in a moment
 	} catch (MSXException& e) {
@@ -783,15 +793,25 @@ void WD2793::writeTrackCmd(EmuTime::param time)
 	// TODO By now the CPU should already have written the first byte,
 	// otherwise the write track command doesn't even start. This is not
 	// yet implemented.
-	trackData.clear();
+	try {
+		// The _only_ reason we call readTrack() is to get the track
+		// length of the existing track. Ideally we should just
+		// overwrite the track with another length. But the DMK file
+		// format cannot handle tracks with different lengths.
+		drive.readTrack(trackData);
+	} catch (MSXException& /*e*/) {
+		endCmd();
+	}
+	trackData.clear(trackData.getLength());
+	setDrqRate();
 	dataCurrent = 0;
-	dataAvailable = RawTrack::SIZE;
+	dataAvailable = trackData.getLength();
 	drqTime.reset(time); // DRQ = true
 	lastWasA1 = false;
 
 	// Moment in time when the track will be written (whether the CPU wrote
 	// all required data or not).
-	schedule(FSM_WRITE_TRACK, drqTime + RawTrack::SIZE);
+	schedule(FSM_WRITE_TRACK, drqTime + dataAvailable);
 }
 
 void WD2793::doneWriteTrack()

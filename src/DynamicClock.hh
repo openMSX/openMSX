@@ -124,6 +124,13 @@ public:
 		lastTick.time += n * getStep();
 	}
 
+	/** Calculate the time at which this clock will have ticked the given
+	  * number of times (counted from its last tick).
+	  */
+	const EmuTime operator+(uint64 n) const {
+		return EmuTime(lastTick.time + n * getStep());
+	}
+
 	/** Advance this clock by the given number of ticks.
 	  * This method is similar to operator+=, but it's optimized for
 	  * speed. OTOH the amount of ticks should not be too large,

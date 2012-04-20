@@ -70,6 +70,7 @@ TC8566AF::TC8566AF(Scheduler& scheduler, DiskDrive* drv[4], CliComm& cliComm_,
 	// avoid UMR (on savestate)
 	dataAvailable = 0;
 	dataCurrent = 0;
+	setDrqRate();
 
 	drive[0] = drv[0];
 	drive[1] = drv[1];
@@ -148,6 +149,11 @@ byte TC8566AF::readStatus(EmuTime::param time)
 		mainStatus |= STM_RQM;
 	}
 	return peekStatus();
+}
+
+void TC8566AF::setDrqRate()
+{
+	delayTime.setFreq(trackData.getLength() * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
 byte TC8566AF::peekDataPort(EmuTime::param time) const
@@ -429,6 +435,7 @@ EmuTime TC8566AF::locateSector(EmuTime::param time)
 		try {
 			next = drive[driveSelect]->getNextSector(
 				next, trackData, sectorInfo);
+			setDrqRate();
 		} catch (MSXException& /*e*/) {
 			return EmuTime::infinity;
 		}
@@ -535,7 +542,7 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 			phase        = PHASE_DATATRANSFER;
 			phaseStep    = 0;
 			//interrupt    = true;
-			initTrackHeader();
+			initTrackHeader(time);
 			break;
 		}
 		break;
@@ -585,11 +592,18 @@ void TC8566AF::commandPhaseWrite(byte value, EmuTime::param time)
 	}
 }
 
-void TC8566AF::initTrackHeader()
+void TC8566AF::initTrackHeader(EmuTime::param time)
 {
-	trackData.clear();
+	try {
+		// get track length, see comment in WD2793 for details.
+		drive[driveSelect]->readTrack(trackData);
+	} catch (MSXException& /*e*/) {
+		endCommand(time);
+	}
+	trackData.clear(trackData.getLength());
+	setDrqRate();
 	dataCurrent = 0;
-	dataAvailable = RawTrack::SIZE;
+	dataAvailable = trackData.getLength();
 
 	for (int i = 0; i < 80; ++i) trackData.write(dataCurrent++, 0x4E); // gap4a
 	for (int i = 0; i < 12; ++i) trackData.write(dataCurrent++, 0x00); // sync

@@ -4,6 +4,7 @@
 #define RAWTRACK_HH
 
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <vector>
 
 namespace openmsx {
@@ -59,12 +60,14 @@ namespace openmsx {
 
 struct RawTrack {
 public:
-	// 250kbps, 300rpm -> 6250 bytes per rotation.
+	// Typical track length is 6250 bytes:
+	//    250kbps, 300rpm -> 6250 bytes per rotation.
 	// The IBM Disk Format Specification confirms this number.
 	// Of course this is in ideal circumstances: in reality the rotation
 	// speed can vary and thus the disk can be formatted with slightly more
-	// or slightly less raw bytes per track.
-	static const int SIZE = 6250;
+	// or slightly less raw bytes per track. This class can also represent
+	// tracks of different lengths.
+	static const unsigned STANDARD_SIZE = 6250;
 
 	struct Sector
 	{
@@ -82,20 +85,23 @@ public:
 	/* Construct a (cleared) track. */
 	RawTrack();
 
-	/** Clear track data. */
-	void clear();
+	/** Clear track data. Also sets the track length. */
+	void clear(unsigned size);
 
-	void addIdam(int idx);
+	/** Get track length. */
+	unsigned getLength() const { return data.size(); }
+
+	void addIdam(unsigned idx);
 
 	// In the methods below, 'index' is allowed to be 'out-of-bounds',
 	// it will wrap like in a circular buffer.
 
-	byte read(int idx) const { return data[idx % SIZE]; }
-	void write(int idx, byte val) { data[idx % SIZE] = val; }
+	byte read(int idx) const { return data[idx % int(data.size())]; }
+	void write(int idx, byte val) { data[idx % int(data.size())] = val; }
 
-	      byte* getRawBuffer()       { return data; }
-	const byte* getRawBuffer() const { return data; }
-	const std::vector<int>& getIdamBuffer() const { return idam; }
+	      byte* getRawBuffer()       { return data.data(); }
+	const byte* getRawBuffer() const { return data.data(); }
+	const std::vector<unsigned>& getIdamBuffer() const { return idam; }
 
 	/** Get info on all sectors in this track. */
 	std::vector<Sector> decodeAll() const;
@@ -121,18 +127,19 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	bool decodeSector(int idx, Sector& sector) const;
+	bool decodeSectorImpl(int idx, Sector& sector) const;
 
 	// Index into 'data'-array to positions where an address mark
 	// starts (it points to the 'FE' byte in the 'A1 A1 A1 FE ..'
 	// sequence.
-	std::vector<int> idam;
+	std::vector<unsigned> idam;
 
 	// MFM-decoded raw data, this does NOT include the missing clock
 	// transitions that can occur in the encodings of the 'A1' and
 	// 'C2' bytes.
-	byte data[SIZE];
+	std::vector<byte> data;
 };
+SERIALIZE_CLASS_VERSION(RawTrack, 2);
 
 } // namespace openmsx
 

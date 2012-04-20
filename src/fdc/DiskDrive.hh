@@ -16,6 +16,8 @@ namespace openmsx {
 class DiskDrive : private noncopyable
 {
 public:
+	static const unsigned ROTATIONS_PER_SECOND = 5; // 300rpm
+
 	virtual ~DiskDrive();
 
 	/** Is drive ready?

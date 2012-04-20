@@ -82,10 +82,9 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned getTicksTillUp(EmuTime::param e) const {
+	unsigned long long getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-		DivModByConst<MASTER_TICKS32> dm;
-		return dm.div(e.time - lastTick.time + MASTER_TICKS32 - 1);
+		return (e.time - lastTick.time + MASTER_TICKS - 1) / MASTER_TICKS;
 	}
 
 	/** Calculate the time at which this clock will have ticked the given

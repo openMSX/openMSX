@@ -51,12 +51,11 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	void doSetMotor(bool status, EmuTime::param time);
 	void setLoading(EmuTime::param time);
-	int getCurrentAngle(EmuTime::param time) const;
+	unsigned getCurrentAngle(EmuTime::param time) const;
 
-	static const int MAX_TRACK = 85;
-	static const int TICKS_PER_ROTATION = 6250; // see Disk.hh
-	static const int ROTATIONS_PER_SECOND = 5;
-	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
+	static const unsigned MAX_TRACK = 85;
+	static const unsigned TICKS_PER_ROTATION = 200000;
+	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
@@ -66,9 +65,9 @@ private:
 	MotorClock motorTimer;
 	Clock<1000> headLoadTimer; // ms
 	std::auto_ptr<DiskChanger> changer;
-	int headPos;
-	int side;
-	int startAngle;
+	unsigned headPos;
+	unsigned side;
+	unsigned startAngle;
 	bool motorStatus;
 	bool headLoadStatus;
 	const bool doubleSizedDrive;

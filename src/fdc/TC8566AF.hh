@@ -3,7 +3,7 @@
 #ifndef TC8566AF_HH
 #define TC8566AF_HH
 
-#include "Clock.hh"
+#include "DynamicClock.hh"
 #include "RawTrack.hh"
 #include "CRC16.hh"
 #include "Schedulable.hh"
@@ -86,16 +86,14 @@ private:
 
 	EmuTime locateSector(EmuTime::param time);
 	void writeSector();
-	void initTrackHeader();
+	void initTrackHeader(EmuTime::param time);
 	void formatSector();
+	void setDrqRate();
 
 private:
-	static const int TICKS_PER_ROTATION = RawTrack::SIZE;
-	static const int ROTATIONS_PER_SECOND = 5; // 300rpm
-
 	CliComm& cliComm;
 	DiskDrive* drive[4];
-	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> delayTime;
+	DynamicClock delayTime;
 	EmuTime headUnloadTime; // Before this time head is loaded, after
 	                        // this time it's unloaded. Set to zero/infinity
 	                        // to force a (un)loaded head.

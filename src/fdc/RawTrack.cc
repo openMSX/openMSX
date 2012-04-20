@@ -20,28 +20,28 @@ namespace openmsx {
 //    http://www.parashift.com/c++-faq-lite/ctors.html#faq-10.13
 //  Though with this line Vampier got a link error in vc++, removing the line
 //  fixed the problem.
-const int RawTrack::SIZE;
+const unsigned RawTrack::STANDARD_SIZE;
 #endif
 
 RawTrack::RawTrack()
 {
-	clear();
+	clear(STANDARD_SIZE);
 }
 
-void RawTrack::clear()
+void RawTrack::clear(unsigned size)
 {
 	idam.clear();
-	memset(data, 0x4e, sizeof(data));
+	data.assign(size, 0x4e);
 }
 
-void RawTrack::addIdam(int idx)
+void RawTrack::addIdam(unsigned idx)
 {
-	assert(idx < SIZE);
+	assert(idx < data.size());
 	assert(idam.empty() || (idx > idam.back()));
 	idam.push_back(idx);
 }
 
-bool RawTrack::decodeSector(int idx, Sector& sector) const
+bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 {
 	// read (and check) address mark
 	// assume addr mark starts with three A1 bytes (should be
@@ -111,20 +111,20 @@ bool RawTrack::decodeSector(int idx, Sector& sector) const
 vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	vector<Sector> result;
-	for (vector<int>::const_iterator it = idam.begin();
+	for (vector<unsigned>::const_iterator it = idam.begin();
 	     it != idam.end(); ++it) {
 		Sector sector;
-		if (decodeSector(*it, sector)) {
+		if (decodeSectorImpl(*it, sector)) {
 			result.push_back(sector);
 		}
 	}
 	return result;
 }
 
-static vector<int> rotateIdam(vector<int> idam, int startIdx)
+static vector<unsigned> rotateIdam(vector<unsigned> idam, int startIdx)
 {
 	// find first element that is equal or bigger
-	vector<int>::iterator it = lower_bound(idam.begin(), idam.end(), startIdx);
+	vector<unsigned>::iterator it = lower_bound(idam.begin(), idam.end(), startIdx);
 	// rotate range so that we start at that element
 	if (it != idam.end()) {
 		rotate(idam.begin(), it, idam.end());
@@ -134,11 +134,11 @@ static vector<int> rotateIdam(vector<int> idam, int startIdx)
 
 bool RawTrack::decodeNextSector(int startIdx, Sector& sector) const
 {
-	vector<int> idamCopy = rotateIdam(idam, startIdx);
+	vector<unsigned> idamCopy = rotateIdam(idam, startIdx);
 	// get first valid sector
-	for (vector<int>::const_iterator it = idamCopy.begin();
+	for (vector<unsigned>::const_iterator it = idamCopy.begin();
 	     it != idamCopy.end(); ++it) {
-		if (decodeSector(*it, sector)) {
+		if (decodeSectorImpl(*it, sector)) {
 			return true;
 		}
 	}
@@ -147,9 +147,9 @@ bool RawTrack::decodeNextSector(int startIdx, Sector& sector) const
 
 bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
 {
-	for (vector<int>::const_iterator it = idam.begin();
+	for (vector<unsigned>::const_iterator it = idam.begin();
 	     it != idam.end(); ++it) {
-		if (decodeSector(*it, sector) &&
+		if (decodeSectorImpl(*it, sector) &&
 		    (sector.sector == sectorNum)) {
 			return true;
 		}
@@ -179,12 +179,23 @@ word RawTrack::calcCrc(int idx, int size) const
 	return crc.getValue();
 }
 
-
+// version 1: initial version (fixed track length of 6250)
+// version 2: variable track length
 template<typename Archive>
-void RawTrack::serialize(Archive& ar, unsigned /*version*/)
+void RawTrack::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("idam", idam);
-	ar.serialize_blob("data", data, sizeof(data));
+	unsigned len = data.size();
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("trackLength", len);
+	} else {
+		assert(ar.isLoader());
+		len = 6250;
+	}
+	if (ar.isLoader()) {
+		data.resize(len);
+	}
+	ar.serialize_blob("data", data.data(), data.size());
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 

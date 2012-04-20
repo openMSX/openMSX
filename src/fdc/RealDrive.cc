@@ -201,11 +201,11 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 	}
 }
 
-int RealDrive::getCurrentAngle(EmuTime::param time) const
+unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 {
 	if (motorStatus) {
 		// rotating, take passed time into account
-		int deltaAngle = motorTimer.getTicksTill(time);
+		unsigned long long deltaAngle = motorTimer.getTicksTillUp(time);
 		return (startAngle + deltaAngle) % TICKS_PER_ROTATION;
 	} else {
 		// not rotating, angle didn't change
@@ -263,7 +263,7 @@ EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
 		return time;
 	}
-	int delta = TICKS_PER_ROTATION - getCurrentAngle(time);
+	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
 	EmuDuration dur = MotorClock::duration(delta);
 	return time + dur;
 }
@@ -292,18 +292,25 @@ void RealDrive::readTrack(RawTrack& track)
 	changer->getDisk().readTrack(headPos, side, track);
 }
 
+static inline unsigned divUp(unsigned a, unsigned b)
+{
+	return (a + b - 1) / b;
+}
 EmuTime RealDrive::getNextSector(
 	EmuTime::param time, RawTrack& track, RawTrack::Sector& sector)
 {
-	int idx = getCurrentAngle(time);
+	int currentAngle = getCurrentAngle(time);
 	changer->getDisk().readTrack(headPos, side, track);
+	unsigned trackLen = track.getLength();
+	int idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
 	if (!track.decodeNextSector(idx, sector)) {
 		return EmuTime::infinity;
 	}
-	int ticks = sector.addrIdx - idx;
-	if (ticks < 0) ticks += TICKS_PER_ROTATION;
-	assert(0 <= ticks); assert(ticks < TICKS_PER_ROTATION);
-	return time + MotorClock::duration(ticks);
+	int sectorAngle = divUp(sector.addrIdx * TICKS_PER_ROTATION, trackLen);
+	int delta = sectorAngle - currentAngle;
+	if (delta < 0) delta += TICKS_PER_ROTATION;
+	assert(0 <= delta); assert(unsigned(delta) < TICKS_PER_ROTATION);
+	return time + MotorClock::duration(delta);
 }
 
 bool RealDrive::diskChanged()

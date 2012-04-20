@@ -71,9 +71,9 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 	//
 	// (*) Missing clock transitions in MFM encoding
 
-	output.clear(); // clear idam positions
+	output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
 
-	int idx = 0;
+	unsigned idx = 0;
 	for (int i = 0; i < 80; ++i) output.write(idx++, 0x4E); // gap4a
 	for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
 	for (int i = 0; i <  3; ++i) output.write(idx++, 0xC2); // index mark (1)
@@ -113,7 +113,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 	}
 
 	for (int i = 0; i < 182; ++i) output.write(idx++, 0x4E); // gap4b
-	assert(idx == RawTrack::SIZE);
+	assert(idx == RawTrack::STANDARD_SIZE);
 }
 
 unsigned SectorBasedDisk::getNbSectorsImpl() const

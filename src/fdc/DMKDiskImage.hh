@@ -35,8 +35,8 @@ private:
 	void seekTrack(byte track, byte side);
 
 	shared_ptr<File> file;
-	int numTracks;
-	int dmkTrackLen;
+	unsigned numTracks;
+	unsigned dmkTrackLen;
 	bool singleSided;
 	bool writeProtected;
 };

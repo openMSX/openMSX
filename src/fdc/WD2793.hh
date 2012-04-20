@@ -4,7 +4,7 @@
 #define WD2793_HH
 
 #include "RawTrack.hh"
-#include "Clock.hh"
+#include "DynamicClock.hh"
 #include "Schedulable.hh"
 #include "CRC16.hh"
 #include "serialize_meta.hh"
@@ -94,6 +94,7 @@ private:
 
 	inline void resetIRQ();
 	inline void setIRQ();
+	void setDrqRate();
 
 	void schedule(FSMState state, EmuTime::param time);
 
@@ -101,11 +102,10 @@ private:
 	DiskDrive& drive;
 	CliComm& cliComm;
 
-	static const int TICKS_PER_ROTATION = RawTrack::SIZE;
-	static const int ROTATIONS_PER_SECOND = 5; // 300rpm
-
 	// DRQ is high iff current time is past this time
-	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> drqTime;
+	//  This clock ticks at the 'byte-rate' of the current track,
+	//  typically '6250 bytes/rotation * 5 rotations/second'.
+	DynamicClock drqTime;
 
 	RawTrack trackData;
 	int dataCurrent;   // which byte in track is next to be read/write

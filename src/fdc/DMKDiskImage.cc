@@ -23,8 +23,8 @@ struct DmkHeader
 STATIC_ASSERT(sizeof(DmkHeader) == 16);
 
 static const byte FLAG_SINGLE_SIDED = 0x10;
-static const int  IDAM_FLAGS_MASK   = 0xC000;
-static const int  FLAG_MFM_SECTOR   = 0x8000;
+static const unsigned IDAM_FLAGS_MASK = 0xC000;
+static const unsigned FLAG_MFM_SECTOR = 0x8000;
 
 
 static bool isValidDmkHeader(const DmkHeader& header)
@@ -77,7 +77,7 @@ void DMKDiskImage::seekTrack(byte track, byte side)
 void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 {
 	assert(side < 2);
-	output.clear();
+	output.clear(dmkTrackLen);
 	if ((singleSided && side) || (track >= numTracks)) {
 		// no such side/track, only clear output
 		return;
@@ -89,15 +89,13 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 	byte idamBuf[2 * 64];
 	file->read(idamBuf, sizeof(idamBuf));
 
-	// Read raw track data. In case
-	//   dmkTrackLen > RawTrack::SIZE : ignore extra data
-	//   dmkTrackLen < RawTrack::SIZE : extra data initialized by clear()
-	file->read(output.getRawBuffer(), std::min(dmkTrackLen, RawTrack::SIZE));
+	// Read raw track data.
+	file->read(output.getRawBuffer(), dmkTrackLen);
 
 	// Convert idam data into an easier to work with internal format.
 	int lastIdam = -1;
 	for (int i = 0; i < 64; ++i) {
-		int idx = idamBuf[2 * i + 0] + 256 * idamBuf[2 * i + 1];
+		unsigned idx = idamBuf[2 * i + 0] + 256 * idamBuf[2 * i + 1];
 		if (idx == 0) break; // end of table reached
 
 		if ((idx & IDAM_FLAGS_MASK) != FLAG_MFM_SECTOR) {
@@ -116,7 +114,7 @@ void DMKDiskImage::readTrack(byte track, byte side, RawTrack& output)
 			continue;
 		}
 
-		if (idx <= lastIdam) {
+		if (int(idx) <= lastIdam) {
 			// Invalid IDAM offset:
 			//   must be strictly bigger than previous, ignore
 			continue;
@@ -142,7 +140,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 
 	// Write idam table.
 	byte idamOut[2 * 64] = {}; // zero-initialize
-	const vector<int>& idamIn = input.getIdamBuffer();
+	const vector<unsigned>& idamIn = input.getIdamBuffer();
 	for (int i = 0; i < std::min<int>(64, int(idamIn.size())); ++i) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = t & 0xff;
@@ -150,14 +148,9 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 	}
 	file->write(idamOut, sizeof(idamOut));
 
-	// Write raw track data. In case
-	//   dmkTrackLen > RawTrack::SIZE : extra bytes filled with 0x4e
-	//   dmkTrackLen < RawTrack::SIZE : extra bytes are ignored
-	file->write(input.getRawBuffer(), std::min(dmkTrackLen, RawTrack::SIZE));
-	if (dmkTrackLen > RawTrack::SIZE) {
-		vector<byte> pad(dmkTrackLen - RawTrack::SIZE, 0x4e);
-		file->write(&pad[0], unsigned(pad.size()));
-	}
+	// Write raw track data.
+	assert(input.getLength() == dmkTrackLen);
+	file->write(input.getRawBuffer(), dmkTrackLen);
 }
 
 
