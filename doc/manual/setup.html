@@ -488,7 +488,10 @@ If openMSX runs slow, you can try the following measures:
 </p>
 <ul>
 <li>
-Disable horizontal stretching (mostly useful when using the SDL renderer), which is enabled by default: (<code>set <a class="external" href="commands.html#horizontal_stretch">horizontal_stretch</a> 320</code>.
+Disable horizontal stretching (mostly useful when using the SDL renderer), which is enabled by default: <code>set <a class="external" href="commands.html#horizontal_stretch">horizontal_stretch</a> 320</code>.
+</li>
+<li>
+Disable the <a class="external" href="user.html#reverse">reverse</a> feature (especially if the platform you're running on has a low amount of RAM), which is enabled by default on most platforms: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> "off"</code>
 </li>
 <li>
 Make sure there are no CPU or I/O heavy background processes is running.
