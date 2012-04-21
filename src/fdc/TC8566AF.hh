@@ -128,7 +128,7 @@ private:
 	byte specifyData[2]; // filled in by SPECIFY command
 	byte seekValue;
 };
-SERIALIZE_CLASS_VERSION(TC8566AF, 3);
+SERIALIZE_CLASS_VERSION(TC8566AF, 4);
 
 } // namespace openmsx
 

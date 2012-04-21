@@ -3,6 +3,7 @@
 #include "WD2793.hh"
 #include "DiskDrive.hh"
 #include "CliComm.hh"
+#include "Clock.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -892,12 +893,13 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 //            and write track) has changed. So this could result in replay-sync
 //            errors.
 //            (Also the enum FSMState has changed, but that's not a problem.)
-// version3: Added members 'crc' and 'lastWasA1'.
-//           Replaced 'dataBuffer' with 'trackData'. We don't attempt to migrate
-//           the old 'dataBuffer' content to 'trackData' (doing so would be
-//           quite difficult). This means that old savestates that were in the
-//           middle of a sector/track read/write command probably won't work
-//           correctly anymore. We do give a warning on this.
+// version 3: Added members 'crc' and 'lastWasA1'.
+//            Replaced 'dataBuffer' with 'trackData'. We don't attempt to migrate
+//            the old 'dataBuffer' content to 'trackData' (doing so would be
+//            quite difficult). This means that old savestates that were in the
+//            middle of a sector/track read/write command probably won't work
+//            correctly anymore. We do give a warning on this.
+// version 4: changed type of drqTime from Clock to DynamicClock
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
@@ -918,7 +920,15 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	ar.serialize("dataAvailable", dataAvailable);
 
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("drqTime", drqTime);
+		if (ar.versionAtLeast(version, 4)) {
+			ar.serialize("drqTime", drqTime);
+		} else {
+			assert(ar.isLoader());
+			Clock<6250 * 5> c(EmuTime::dummy());
+			ar.serialize("drqTime", c);
+			drqTime.reset(c.getTime());
+			drqTime.setFreq(6250 * 5);
+		}
 	} else {
 		assert(ar.isLoader());
 		//ar.serialize("commandStart", commandStart);

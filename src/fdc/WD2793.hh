@@ -125,7 +125,7 @@ private:
 	bool immediateIRQ;
 	bool lastWasA1;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 3);
+SERIALIZE_CLASS_VERSION(WD2793, 4);
 
 } // namespace openmsx
 

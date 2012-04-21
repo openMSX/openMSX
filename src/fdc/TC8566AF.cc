@@ -7,6 +7,7 @@
 
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
+#include "Clock.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -849,10 +850,19 @@ SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
 //            with 'dataAvailable', 'dataCurrent', .trackData'.
 //            Not 100% backwardscompatible, see also comments in WD2793.
 //            Added 'crc' and 'gapLength'.
+// version 4: changed type of delayTime from Clock to DynamicClock
 template<typename Archive>
 void TC8566AF::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("delayTime", delayTime);
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("delayTime", delayTime);
+	} else {
+		assert(ar.isLoader());
+		Clock<6250 * 5> c(EmuTime::dummy());
+		ar.serialize("delayTime", c);
+		delayTime.reset(c.getTime());
+		delayTime.setFreq(6250 * 5);
+	}
 	ar.serialize("command", command);
 	ar.serialize("phase", phase);
 	ar.serialize("phaseStep", phaseStep);
