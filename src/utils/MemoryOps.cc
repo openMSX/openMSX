@@ -322,8 +322,13 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 	memset_32_2<STREAMING>(dest, num, val, val);
 #endif
 #elif defined __arm__
-	register int val_r3 asm("r3") = val;
+	// Ideally the first mov(*) instruction could be omitted (and then
+	// replace 'r3' with '%[val]'. But this can cause problems in the
+	// 'stm' instructions when the compiler chooses a register
+	// 'bigger' than r4 for [val]. See commit message for LOTS more
+	// details.
 	asm volatile (
+		"mov     r3, %[val]\n\t"  // (*) should not be needed
 		"mov     r4, r3\n\t"
 		"mov     r5, r3\n\t"
 		"mov     r6, r3\n\t"
@@ -352,8 +357,8 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 		, [num] "=r"     (num)
 		:       "[dest]" (dest)
 		,       "[num]"  (num)
-		,       "r"      (val_r3)
-		: "r4","r5","r6","r8","r9","r10","r12"
+		, [val] "r"      (val)
+		: "r3","r4","r5","r6","r8","r9","r10","r12"
 	);
 	return;
 #else
