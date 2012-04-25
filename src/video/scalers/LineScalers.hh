@@ -774,19 +774,23 @@ void Scale_1on1<Pixel, streaming>::operator()(
 
 	asm volatile (
 	"0:\n\t"
-		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
-		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
-		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
-		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r8};\n\t"
-		"subs	%0,%0,#64;\n\t"
+		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
+		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
+		"ldmia	%[IN]! ,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
+		"stmia	%[OUT]!,{r3,r4,r5,r6,r8,r9,r10,r12};\n\t"
+		"subs	%[NUM],%[NUM],#64;\n\t"
 		"bne	0b;\n\t"
 
-		: // no output
-		: "r" (nBytes2)
-		, "r" (in)
-		, "r" (out)
-		: "r0","r1","r2","r3","r4","r5","r6","r8"
+		: [NUM] "=r"    (nBytes2)
+		, [IN]  "=r"    (in)
+		, [OUT] "=r"    (out)
+		:       "[NUM]" (nBytes2)
+		,       "[IN]"  (in)
+		,       "[OUT]" (out)
+		: "r3","r4","r5","r6","r8","r9","r10","r12"
 	);
+	nBytes2 = 0;  // in,out-pointers are already updated
+	nBytes &= 63; // remaining bytes
 #endif
 
 	      char* out2 = reinterpret_cast<      char*>(out) + nBytes2;
