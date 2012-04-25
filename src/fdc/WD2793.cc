@@ -733,6 +733,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			setDrqRate();
 			if (next == EmuTime::infinity) {
 				// TODO wait for 5 revolutions
+				statusReg |= RECORD_NOT_FOUND;
 				endCmd();
 				return;
 			}
@@ -740,7 +741,7 @@ void WD2793::type3Loaded(EmuTime::param time)
 			dataAvailable = 6;
 		} catch (MSXException& e) {
 			PRT_DEBUG("WD2793: read addr failed: " << e.getMessage()); (void)&e;
-			// TODO status bits?
+			statusReg |= RECORD_NOT_FOUND;
 			endCmd();
 			return;
 		}

@@ -71,49 +71,58 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 	//
 	// (*) Missing clock transitions in MFM encoding
 
-	output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
+	try {
+		output.clear(RawTrack::STANDARD_SIZE); // clear idam positions
 
-	unsigned idx = 0;
-	for (int i = 0; i < 80; ++i) output.write(idx++, 0x4E); // gap4a
-	for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
-	for (int i = 0; i <  3; ++i) output.write(idx++, 0xC2); // index mark (1)
-	for (int i = 0; i <  1; ++i) output.write(idx++, 0xFC); //            (2)
-	for (int i = 0; i < 50; ++i) output.write(idx++, 0x4E); // gap1
-
-	for (int j = 0; j < 9; ++j) {
+		unsigned idx = 0;
+		for (int i = 0; i < 80; ++i) output.write(idx++, 0x4E); // gap4a
 		for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
+		for (int i = 0; i <  3; ++i) output.write(idx++, 0xC2); // index mark (1)
+		for (int i = 0; i <  1; ++i) output.write(idx++, 0xFC); //            (2)
+		for (int i = 0; i < 50; ++i) output.write(idx++, 0x4E); // gap1
 
-		for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // addr mark (1)
-		output.addIdam(idx);
-		for (int i = 0; i <  1; ++i) output.write(idx++, 0xFE); //           (2)
-		output.write(idx++, track); // C: Cylinder number
-		output.write(idx++, side);  // H: Head Address
-		output.write(idx++, j + 1); // R: Record
-		output.write(idx++, 0x02);  // N: Number (length of sector: 512 = 128 << 2)
-		word addrCrc = output.calcCrc(idx - 8, 8);
-		output.write(idx++, addrCrc >> 8);   // CRC (high byte)
-		output.write(idx++, addrCrc & 0xff); //     (low  byte)
+		for (int j = 0; j < 9; ++j) {
+			for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
 
-		for (int i = 0; i < 22; ++i) output.write(idx++, 0x4E); // gap2
-		for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
+			for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // addr mark (1)
+			output.addIdam(idx);
+			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFE); //           (2)
+			output.write(idx++, track); // C: Cylinder number
+			output.write(idx++, side);  // H: Head Address
+			output.write(idx++, j + 1); // R: Record
+			output.write(idx++, 0x02);  // N: Number (length of sector: 512 = 128 << 2)
+			word addrCrc = output.calcCrc(idx - 8, 8);
+			output.write(idx++, addrCrc >> 8);   // CRC (high byte)
+			output.write(idx++, addrCrc & 0xff); //     (low  byte)
 
-		for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // data mark (1)
-		for (int i = 0; i <  1; ++i) output.write(idx++, 0xFB); //           (2)
+			for (int i = 0; i < 22; ++i) output.write(idx++, 0x4E); // gap2
+			for (int i = 0; i < 12; ++i) output.write(idx++, 0x00); // sync
 
-		unsigned logicalSector = physToLog(track, side, j + 1);
-		byte sectorBuf[512];
-		readSector(logicalSector, sectorBuf);
-		for (int i = 0; i < 512; ++i) output.write(idx++, sectorBuf[i]);
+			for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // data mark (1)
+			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFB); //           (2)
 
-		word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
-		output.write(idx++, dataCrc >> 8);   // CRC (high byte)
-		output.write(idx++, dataCrc & 0xff); //     (low  byte)
+			unsigned logicalSector = physToLog(track, side, j + 1);
+			byte sectorBuf[512];
+			readSector(logicalSector, sectorBuf);
+			for (int i = 0; i < 512; ++i) output.write(idx++, sectorBuf[i]);
 
-		for (int i = 0; i < 84; ++i) output.write(idx++, 0x4E); // gap3
+			word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
+			output.write(idx++, dataCrc >> 8);   // CRC (high byte)
+			output.write(idx++, dataCrc & 0xff); //     (low  byte)
+
+			for (int i = 0; i < 84; ++i) output.write(idx++, 0x4E); // gap3
+		}
+
+		for (int i = 0; i < 182; ++i) output.write(idx++, 0x4E); // gap4b
+		assert(idx == RawTrack::STANDARD_SIZE);
+	} catch (MSXException& /*e*/) {
+		// There was an error while reading the actual sector data.
+		// Most likely this is because we're reading the 81th track on
+		// a disk with only 80 tracks (or similar). If you do this on a
+		// real disk, you simply read an 'empty' track. So we do the
+		// same here.
+		output.clear(RawTrack::STANDARD_SIZE);
 	}
-
-	for (int i = 0; i < 182; ++i) output.write(idx++, 0x4E); // gap4b
-	assert(idx == RawTrack::STANDARD_SIZE);
 }
 
 unsigned SectorBasedDisk::getNbSectorsImpl() const
