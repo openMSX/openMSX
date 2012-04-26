@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1329073098">
+<softwaredb xml:lang="en" timestamp="1335478381">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -93,6 +93,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">eafc1ad38a8ac7e0a54917b802377aa5443ac460</hash><remark><text>v0.1b</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">54290e402561c6871e17076dad41f3c8ed939688</hash><remark><text>RU Edition / v0.7b</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">3530ab300f841ec7e92e8d38d50ebc09c5794387</hash><remark><text>v0.9b</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">a9721f4a8c846621b77c2283e1eee4d34433581e</hash><remark><text>v0.99b</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">A B C</title>
@@ -10915,6 +10916,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d54c4820cf311d9f456bf61873e76a201ef0ff68</hash><remark><text>Muffie Hack</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f2592e91c9682570401a0bbcac63464e4221c81b</hash><remark><text>Unhacked (needs mapper implementation)</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">440030109b3a0af8fa0c86dd216b5089761bd4f1</hash><remark><text>Kralizec farewall gift</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Karuizawa Kidnapping Guidance</title>
@@ -12099,6 +12101,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2668
-Parse time 7.468 seconds on Sun Feb 12 19:58:26 CET 2012
+Roms in this database:2670
+Parse time 7.561 seconds on Fri Apr 27 0:13:08 CEST 2012
  -->
