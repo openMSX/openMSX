@@ -138,42 +138,44 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		return;
 	}
 	#else
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			"pcmpeqb  %%xmm7, %%xmm7;"
 			"psllw    $15, %%xmm7;"
 			"packsswb %%xmm7, %%xmm7;"
 			".p2align 4,,15;"
 		"0:"
-			"movdqa     (%0, %3), %%xmm0;"
-			"movdqa   16(%0, %3), %%xmm1;"
-			"movdqa   32(%0, %3), %%xmm2;"
+			"movdqa     (%[IN], %[CNT]), %%xmm0;"
+			"movdqa   16(%[IN], %[CNT]), %%xmm1;"
+			"movdqa   32(%[IN], %[CNT]), %%xmm2;"
 			"pxor     %%xmm7, %%xmm0;"
-			"movdqa   48(%0, %3), %%xmm3;"
+			"movdqa   48(%[IN], %[CNT]), %%xmm3;"
 			"pxor     %%xmm7, %%xmm1;"
 			"pxor     %%xmm7, %%xmm2;"
-			"paddsb     (%2, %3), %%xmm0;"
+			"paddsb     (%[NOISE], %[CNT]), %%xmm0;"
 			"pxor     %%xmm7, %%xmm3;"
-			"paddsb   16(%2, %3), %%xmm1;"
-			"paddsb   32(%2, %3), %%xmm2;"
+			"paddsb   16(%[NOISE], %[CNT]), %%xmm1;"
+			"paddsb   32(%[NOISE], %[CNT]), %%xmm2;"
 			"pxor     %%xmm7, %%xmm0;"
-			"paddsb   48(%2, %3), %%xmm3;"
+			"paddsb   48(%[NOISE], %[CNT]), %%xmm3;"
 			"pxor     %%xmm7, %%xmm1;"
 			"pxor     %%xmm7, %%xmm2;"
-			"movdqa   %%xmm0,   (%1, %3);"
+			"movdqa   %%xmm0,   (%[OUT], %[CNT]);"
 			"pxor     %%xmm7, %%xmm3;"
-			"movdqa   %%xmm1, 16(%1, %3);"
-			"movdqa   %%xmm2, 32(%1, %3);"
-			"movdqa   %%xmm3, 48(%1, %3);"
-			"add      $64, %3;"
+			"movdqa   %%xmm1, 16(%[OUT], %[CNT]);"
+			"movdqa   %%xmm2, 32(%[OUT], %[CNT]);"
+			"movdqa   %%xmm3, 48(%[OUT], %[CNT]);"
+			"add      $64, %[CNT];"
 			"jnz      0b;"
 
-			: // no output
-			: "r" (in    + width)     // 0
-			, "r" (out   + width)     // 1
-			, "r" (noise + 4 * width) // 2
-			, "r" (-4 * width)        // 3
+			: [CNT]   "=r"    (dummy)
+			: [IN]    "r"     (in    + width)
+			, [OUT]   "r"     (out   + width)
+			, [NOISE] "r"     (noise + 4 * width)
+			,         "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __SSE__
-			: "xmm0", "xmm1", "xmm2", "xmm3", "xmm7"
+			, "xmm0", "xmm1", "xmm2", "xmm3", "xmm7"
 			#endif
 		);
 		return;
@@ -181,44 +183,46 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX 32bpp
 		assert(((4 * width) % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			"pcmpeqb  %%mm7, %%mm7;"
 			"psllw    $15, %%mm7;"
 			"packsswb %%mm7, %%mm7;"
 			".p2align 4,,15;"
 		"0:"
-			"prefetchnta 320(%0, %3);"
-			"movq       (%0, %3), %%mm0;"
-			"movq      8(%0, %3), %%mm1;"
-			"movq     16(%0, %3), %%mm2;"
+			"prefetchnta 320(%[IN], %[CNT]);"
+			"movq       (%[IN], %[CNT]), %%mm0;"
+			"movq      8(%[IN], %[CNT]), %%mm1;"
+			"movq     16(%[IN], %[CNT]), %%mm2;"
 			"pxor     %%mm7, %%mm0;"
-			"movq     24(%0, %3), %%mm3;"
+			"movq     24(%[IN], %[CNT]), %%mm3;"
 			"pxor     %%mm7, %%mm1;"
 			"pxor     %%mm7, %%mm2;"
-			"paddsb     (%2, %3), %%mm0;"
+			"paddsb     (%[NOISE], %[CNT]), %%mm0;"
 			"pxor     %%mm7, %%mm3;"
-			"paddsb    8(%2, %3), %%mm1;"
-			"paddsb   16(%2, %3), %%mm2;"
+			"paddsb    8(%[NOISE], %[CNT]), %%mm1;"
+			"paddsb   16(%[NOISE], %[CNT]), %%mm2;"
 			"pxor     %%mm7, %%mm0;"
-			"paddsb   24(%2, %3), %%mm3;"
+			"paddsb   24(%[NOISE], %[CNT]), %%mm3;"
 			"pxor     %%mm7, %%mm1;"
 			"pxor     %%mm7, %%mm2;"
-			"movq     %%mm0,   (%1, %3);"
+			"movq     %%mm0,   (%[OUT], %[CNT]);"
 			"pxor     %%mm7, %%mm3;"
-			"movq     %%mm1,  8(%1, %3);"
-			"movq     %%mm2, 16(%1, %3);"
-			"movq     %%mm3, 24(%1, %3);"
-			"add      $32, %3;"
+			"movq     %%mm1,  8(%[OUT], %[CNT]);"
+			"movq     %%mm2, 16(%[OUT], %[CNT]);"
+			"movq     %%mm3, 24(%[OUT], %[CNT]);"
+			"add      $32, %[CNT];"
 			"jnz      0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in    + width)     // 0
-			, "r" (out   + width)     // 1
-			, "r" (noise + 4 * width) // 2
-			, "r" (-4 * width)        // 3
+			: [CNT]   "=r"    (dummy)
+			: [IN]    "r"     (in    + width)
+			, [OUT]   "r"     (out   + width)
+			, [NOISE] "r"     (noise + 4 * width)
+			,         "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm7"
 			#endif
 		);
 		return;
@@ -226,43 +230,45 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX 32bpp
 		assert((4 * width % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			"pcmpeqb  %%mm7, %%mm7;"
 			"psllw    $15, %%mm7;"
 			"packsswb %%mm7, %%mm7;"
 			".p2align 4,,15;"
 		"0:"
-			"movq       (%0, %3), %%mm0;"
-			"movq      8(%0, %3), %%mm1;"
-			"movq     16(%0, %3), %%mm2;"
+			"movq       (%[IN], %[CNT]), %%mm0;"
+			"movq      8(%[IN], %[CNT]), %%mm1;"
+			"movq     16(%[IN], %[CNT]), %%mm2;"
 			"pxor     %%mm7, %%mm0;"
-			"movq     24(%0, %3), %%mm3;"
+			"movq     24(%[IN], %[CNT]), %%mm3;"
 			"pxor     %%mm7, %%mm1;"
 			"pxor     %%mm7, %%mm2;"
-			"paddsb     (%2, %3), %%mm0;"
+			"paddsb     (%[NOISE], %[CNT]), %%mm0;"
 			"pxor     %%mm7, %%mm3;"
-			"paddsb    8(%2, %3), %%mm1;"
-			"paddsb   16(%2, %3), %%mm2;"
+			"paddsb    8(%[NOISE], %[CNT]), %%mm1;"
+			"paddsb   16(%[NOISE], %[CNT]), %%mm2;"
 			"pxor     %%mm7, %%mm0;"
-			"paddsb   24(%2, %3), %%mm3;"
+			"paddsb   24(%[NOISE], %[CNT]), %%mm3;"
 			"pxor     %%mm7, %%mm1;"
 			"pxor     %%mm7, %%mm2;"
-			"movq     %%mm0,   (%1, %3);"
+			"movq     %%mm0,   (%[OUT], %[CNT]);"
 			"pxor     %%mm7, %%mm3;"
-			"movq     %%mm1,  8(%1, %3);"
-			"movq     %%mm2, 16(%1, %3);"
-			"movq     %%mm3, 24(%1, %3);"
-			"add      $32, %3;"
+			"movq     %%mm1,  8(%[OUT], %[CNT]);"
+			"movq     %%mm2, 16(%[OUT], %[CNT]);"
+			"movq     %%mm3, 24(%[OUT], %[CNT]);"
+			"add      $32, %[CNT];"
 			"jnz      0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in    + width)     // 0
-			, "r" (out   + width)     // 1
-			, "r" (noise + 4 * width) // 2
-			, "r" (-4 * width)        // 3
+			: [CNT]   "=r"    (dummy)
+			: [IN]    "r"     (in    + width)
+			, [OUT]   "r"     (out   + width)
+			, [NOISE] "r"     (noise + 4 * width)
+			,         "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm7"
 			#endif
 		);
 		return;
