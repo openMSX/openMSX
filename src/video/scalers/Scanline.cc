@@ -116,16 +116,16 @@ void Scanline<Pixel>::draw(
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
 		// SSE2 routine, 32bpp
 		assert(((4 * width) % 64) == 0);
-
-		asm (
-			"movd	%3, %%xmm6;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[F], %%xmm6;"
 			"pshuflw $0, %%xmm6, %%xmm6;"
 			"pxor	%%xmm7, %%xmm7;"
 			"pshufd  $0, %%xmm6, %%xmm6;"
 			".p2align 4,,15;"
 		"1:"
-			"movdqa	(%0,%4), %%xmm0;"
-			"pavgb	(%1,%4), %%xmm0;"
+			"movdqa	(%[IN1],%[CNT]), %%xmm0;"
+			"pavgb	(%[IN2],%[CNT]), %%xmm0;"
 			"movdqa	%%xmm0, %%xmm4;"
 			"punpcklbw %%xmm7, %%xmm0;"
 			"punpckhbw %%xmm7, %%xmm4;"
@@ -133,8 +133,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%xmm6, %%xmm4;"
 			"packuswb %%xmm4, %%xmm0;"
 
-			"movdqa	16(%0,%4), %%xmm1;"
-			"pavgb	16(%1,%4), %%xmm1;"
+			"movdqa	16(%[IN1],%[CNT]), %%xmm1;"
+			"pavgb	16(%[IN2],%[CNT]), %%xmm1;"
 			"movdqa	%%xmm1, %%xmm5;"
 			"punpcklbw %%xmm7, %%xmm1;"
 			"punpckhbw %%xmm7, %%xmm5;"
@@ -142,8 +142,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%xmm6, %%xmm5;"
 			"packuswb %%xmm5, %%xmm1;"
 
-			"movdqa	32(%0,%4), %%xmm2;"
-			"pavgb	32(%1,%4), %%xmm2;"
+			"movdqa	32(%[IN1],%[CNT]), %%xmm2;"
+			"pavgb	32(%[IN2],%[CNT]), %%xmm2;"
 			"movdqa	%%xmm2, %%xmm4;"
 			"punpcklbw %%xmm7, %%xmm2;"
 			"punpckhbw %%xmm7, %%xmm4;"
@@ -151,8 +151,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%xmm6, %%xmm4;"
 			"packuswb %%xmm4, %%xmm2;"
 
-			"movdqa	48(%0,%4), %%xmm3;"
-			"pavgb	48(%1,%4), %%xmm3;"
+			"movdqa	48(%[IN1],%[CNT]), %%xmm3;"
+			"pavgb	48(%[IN2],%[CNT]), %%xmm3;"
 			"movdqa	%%xmm3, %%xmm5;"
 			"punpcklbw %%xmm7, %%xmm3;"
 			"punpckhbw %%xmm7, %%xmm5;"
@@ -160,23 +160,24 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%xmm6, %%xmm5;"
 			"packuswb %%xmm5, %%xmm3;"
 
-			"movntps %%xmm0,   (%2,%4);"
-			"movntps %%xmm1, 16(%2,%4);"
-			"movntps %%xmm2, 32(%2,%4);"
-			"movntps %%xmm3, 48(%2,%4);"
+			"movntps %%xmm0,   (%[OUT],%[CNT]);"
+			"movntps %%xmm1, 16(%[OUT],%[CNT]);"
+			"movntps %%xmm2, 32(%[OUT],%[CNT]);"
+			"movntps %%xmm3, 48(%[OUT],%[CNT]);"
 
-			"add	$64, %4;"
+			"add	$64, %[CNT];"
 			"jnz	1b;"
 
-			: // no output
-			: "r" (src1 + width) // 0
-			, "r" (src2 + width) // 1
-			, "r" (dst  + width) // 2
-			, "r" (factor << 8)  // 3
-			, "r" (-4 * width)   // 4
+			: [CNT] "=r"    (dummy)
+			: [IN1] "r"     (src1 + width)
+			, [IN2] "r"     (src2 + width)
+			, [OUT] "r"     (dst  + width)
+			, [F]   "r"     (factor << 8)
+			,       "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __SSE__
-			: "xmm0", "xmm1", "xmm2", "xmm3",
-			  "xmm4", "xmm5", "xmm6", "xmm7"
+			, "xmm0", "xmm1", "xmm2", "xmm3"
+			, "xmm4", "xmm5", "xmm6", "xmm7"
 			#endif
 		);
 		return;
@@ -184,14 +185,15 @@ void Scanline<Pixel>::draw(
 	} else if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
 		assert(((4 * width) % 32) == 0);
-		asm (
-			"movd	%3, %%mm6;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[F], %%mm6;"
 			"pxor	%%mm7, %%mm7;"
 			"pshufw $0, %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
-			"movq	(%0,%4), %%mm0;"
-			"pavgb	(%1,%4), %%mm0;"
+			"movq	(%[IN1],%[CNT]), %%mm0;"
+			"pavgb	(%[IN2],%[CNT]), %%mm0;"
 			"movq	%%mm0, %%mm4;"
 			"punpcklbw %%mm7, %%mm0;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -199,8 +201,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm0;"
 
-			"movq	8(%0,%4), %%mm1;"
-			"pavgb	8(%1,%4), %%mm1;"
+			"movq	8(%[IN1],%[CNT]), %%mm1;"
+			"pavgb	8(%[IN2],%[CNT]), %%mm1;"
 			"movq	%%mm1, %%mm5;"
 			"punpcklbw %%mm7, %%mm1;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -208,8 +210,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm1;"
 
-			"movq	16(%0,%4), %%mm2;"
-			"pavgb	16(%1,%4), %%mm2;"
+			"movq	16(%[IN1],%[CNT]), %%mm2;"
+			"pavgb	16(%[IN2],%[CNT]), %%mm2;"
 			"movq	%%mm2, %%mm4;"
 			"punpcklbw %%mm7, %%mm2;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -217,8 +219,8 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm2;"
 
-			"movq	24(%0,%4), %%mm3;"
-			"pavgb	24(%1,%4), %%mm3;"
+			"movq	24(%[IN1],%[CNT]), %%mm3;"
+			"pavgb	24(%[IN2],%[CNT]), %%mm3;"
 			"movq	%%mm3, %%mm5;"
 			"punpcklbw %%mm7, %%mm3;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -226,24 +228,25 @@ void Scanline<Pixel>::draw(
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm3;"
 
-			"movntq %%mm0,   (%2,%4);"
-			"movntq %%mm1,  8(%2,%4);"
-			"movntq %%mm2, 16(%2,%4);"
-			"movntq %%mm3, 24(%2,%4);"
+			"movntq %%mm0,   (%[OUT],%[CNT]);"
+			"movntq %%mm1,  8(%[OUT],%[CNT]);"
+			"movntq %%mm2, 16(%[OUT],%[CNT]);"
+			"movntq %%mm3, 24(%[OUT],%[CNT]);"
 
-			"add	$32, %4;"
+			"add	$32, %[CNT];"
 			"jnz	1b;"
 
 			"emms;"
 
-			: // no output
-			: "r" (src1 + width) // 0
-			, "r" (src2 + width) // 1
-			, "r" (dst  + width) // 2
-			, "r" (factor << 8)  // 3
-			, "r" (-4 * width)   // 4
+			: [CNT] "=r"    (dummy)
+			: [IN1] "r"     (src1 + width)
+			, [IN2] "r"     (src2 + width)
+			, [OUT] "r"     (dst  + width)
+			, [F]   "r"     (factor << 8)
+			,       "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -251,17 +254,18 @@ void Scanline<Pixel>::draw(
 	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine, 32bpp
 		assert(((4 * width) % 8) == 0);
-		asm (
-			"movd	%3, %%mm6;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[F], %%mm6;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
 			// load
-			"movq	(%0,%4), %%mm0;"
+			"movq	(%[IN1],%[CNT]), %%mm0;"
 			"movq	%%mm0, %%mm1;"
-			"movq	(%1,%4), %%mm2;"
+			"movq	(%[IN2],%[CNT]), %%mm2;"
 			"movq	%%mm2, %%mm3;"
 			// unpack
 			"punpcklbw %%mm7, %%mm0;"
@@ -277,21 +281,22 @@ void Scanline<Pixel>::draw(
 			// pack
 			"packuswb %%mm1, %%mm0;"
 			// store
-			"movq %%mm0, (%2,%4);"
+			"movq %%mm0, (%[OUT],%[CNT]);"
 
-			"add	$8, %4;"
+			"add	$8, %[CNT];"
 			"jnz	1b;"
 
 			"emms;"
 
-			: // no output
-			: "r" (src1 + width) // 0
-			, "r" (src2 + width) // 1
-			, "r" (dst + width)  // 2
-			, "r" (factor << 7)  // 3
-			, "r" (-4 * width)   // 4
+			: [CNT] "=r"    (dummy)
+			: [IN1] "r"     (src1 + width)
+			, [IN2] "r"     (src2 + width)
+			, [OUT] "r"     (dst + width)
+			, [F]   "r"     (factor << 7)
+			,       "[CNT]" (-4 * width)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -309,15 +314,16 @@ void Scanline<Pixel>::draw(
 		const Pixel* table = darkener.getTable();
 		Pixel mask = pixelOps.getBlendMask();
 
-		asm (
-			"movd	%5, %%mm7;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[MASK], %%mm7;"
 			"pshufw	$0, %%mm7, %%mm7;"
 
 			".p2align 4,,15;"
-		"1:"	"movq	 (%0,%4), %%mm0;"
-			"movq	8(%0,%4), %%mm1;"
-			"movq	 (%1,%4), %%mm2;"
-			"movq	8(%1,%4), %%mm3;"
+		"1:"	"movq	 (%[IN1],%[CNT]), %%mm0;"
+			"movq	8(%[IN1],%[CNT]), %%mm1;"
+			"movq	 (%[IN2],%[CNT]), %%mm2;"
+			"movq	8(%[IN2],%[CNT]), %%mm3;"
 
 			"movq	%%mm7, %%mm4;"
 			"movq	%%mm7, %%mm5;"
@@ -333,46 +339,46 @@ void Scanline<Pixel>::draw(
 			"paddw	%%mm5, %%mm1;"
 
 			"pextrw	$0, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$0, %%eax, %%mm0;"
 			"pextrw	$0, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$0, %%eax, %%mm1;"
 
 			"pextrw	$1, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$1, %%eax, %%mm0;"
 			"pextrw	$1, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$1, %%eax, %%mm1;"
 
 			"pextrw	$2, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$2, %%eax, %%mm0;"
 			"pextrw	$2, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$2, %%eax, %%mm1;"
 
 			"pextrw	$3, %%mm0, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$3, %%eax, %%mm0;"
 			"pextrw	$3, %%mm1, %%eax;"
-			"movw	(%2,%%eax,2), %%ax;"
+			"movw	(%[TAB],%%eax,2), %%ax;"
 			"pinsrw	$3, %%eax, %%mm1;"
 
-			"movntq	%%mm0,   (%3,%4);"
-			"movntq	%%mm1,  8(%3,%4);"
+			"movntq	%%mm0,  (%[OUT],%[CNT]);"
+			"movntq	%%mm1, 8(%[OUT],%[CNT]);"
 
-			"add	$16, %4;"
+			"add	$16, %[CNT];"
 			"jnz	1b;"
 			"emms;"
-			: // no output
-			: "r" (src1 + width) // 0
-			, "r" (src2 + width) // 1
-			, "r" (table)        // 2
-			, "r" (dst + width)  // 3
-			, "r" (-2 * width)   // 4
-			, "m" (mask)         // 5
+			: [CNT]  "=r"    (dummy)
+			: [IN1]  "r"     (src1 + width)
+			, [IN2]  "r"     (src2 + width)
+			, [TAB]  "r"     (table)
+			, [OUT]  "r"     (dst + width)
+			, [MASK] "m"     (mask)
+			,        "[CNT]" (-2 * width)
 			: "eax"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
