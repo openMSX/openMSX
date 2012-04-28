@@ -459,14 +459,15 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		// extended-MMX routine 16bpp
 		width2 = width & ~31;
 		assert((width2 % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm2;"
+			"movq	16(%[IN],%[CNT]), %%mm4;"
+			"movq	24(%[IN],%[CNT]), %%mm6;"
 			"movq	%%mm0, %%mm1;"
 			"movq	%%mm2, %%mm3;"
 			"movq	%%mm4, %%mm5;"
@@ -481,26 +482,27 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckhwd %%mm7, %%mm7;"
 			// Store.
-			"movntq	%%mm0,   (%1,%2,2);"
-			"movntq	%%mm1,  8(%1,%2,2);"
-			"movntq	%%mm2, 16(%1,%2,2);"
-			"movntq	%%mm3, 24(%1,%2,2);"
-			"movntq	%%mm4, 32(%1,%2,2);"
-			"movntq	%%mm5, 40(%1,%2,2);"
-			"movntq	%%mm6, 48(%1,%2,2);"
-			"movntq	%%mm7, 56(%1,%2,2);"
+			"movntq	%%mm0,   (%[OUT],%[CNT],2);"
+			"movntq	%%mm1,  8(%[OUT],%[CNT],2);"
+			"movntq	%%mm2, 16(%[OUT],%[CNT],2);"
+			"movntq	%%mm3, 24(%[OUT],%[CNT],2);"
+			"movntq	%%mm4, 32(%[OUT],%[CNT],2);"
+			"movntq	%%mm5, 40(%[OUT],%[CNT],2);"
+			"movntq	%%mm6, 48(%[OUT],%[CNT],2);"
+			"movntq	%%mm7, 56(%[OUT],%[CNT],2);"
 			// Increment.
-			"add	$32, %2;"
+			"add	$32, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + width2 / 2) // 0
-			, "r" (out + width2) // 1
-			, "r" (-width2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + width2 / 2)
+			, [OUT] "r"     (out + width2)
+			,       "[CNT]" (-width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 
@@ -508,14 +510,15 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		// MMX routine 16bpp
 		width2 = width & ~31;
 		assert((width2 % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm2;"
+			"movq	16(%[IN],%[CNT]), %%mm4;"
+			"movq	24(%[IN],%[CNT]), %%mm6;"
 			"movq	%%mm0, %%mm1;"
 			"movq	%%mm2, %%mm3;"
 			"movq	%%mm4, %%mm5;"
@@ -530,26 +533,27 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckhwd %%mm7, %%mm7;"
 			// Store.
-			"movq	%%mm0,   (%1,%2,2);"
-			"movq	%%mm1,  8(%1,%2,2);"
-			"movq	%%mm2, 16(%1,%2,2);"
-			"movq	%%mm3, 24(%1,%2,2);"
-			"movq	%%mm4, 32(%1,%2,2);"
-			"movq	%%mm5, 40(%1,%2,2);"
-			"movq	%%mm6, 48(%1,%2,2);"
-			"movq	%%mm7, 56(%1,%2,2);"
+			"movq	%%mm0,   (%[OUT],%[CNT],2);"
+			"movq	%%mm1,  8(%[OUT],%[CNT],2);"
+			"movq	%%mm2, 16(%[OUT],%[CNT],2);"
+			"movq	%%mm3, 24(%[OUT],%[CNT],2);"
+			"movq	%%mm4, 32(%[OUT],%[CNT],2);"
+			"movq	%%mm5, 40(%[OUT],%[CNT],2);"
+			"movq	%%mm6, 48(%[OUT],%[CNT],2);"
+			"movq	%%mm7, 56(%[OUT],%[CNT],2);"
 			// Increment.
-			"add	$32, %2;"
+			"add	$32, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + width2 / 2) // 0
-			, "r" (out + width2) // 1
-			, "r" (-width2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + width2 / 2)
+			, [OUT] "r"     (out + width2)
+			,       "[CNT]" (-width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 
@@ -557,14 +561,15 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		// extended-MMX routine 32bpp
 		width2 = width & ~15;
 		assert(((2 * width2) % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm2;"
+			"movq	16(%[IN],%[CNT]), %%mm4;"
+			"movq	24(%[IN],%[CNT]), %%mm6;"
 			"movq	%%mm0, %%mm1;"
 			"movq	%%mm2, %%mm3;"
 			"movq	%%mm4, %%mm5;"
@@ -579,26 +584,27 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"punpckldq %%mm6, %%mm6;"
 			"punpckhdq %%mm7, %%mm7;"
 			// Store.
-			"movntq	%%mm0,   (%1,%2,2);"
-			"movntq	%%mm1,  8(%1,%2,2);"
-			"movntq	%%mm2, 16(%1,%2,2);"
-			"movntq	%%mm3, 24(%1,%2,2);"
-			"movntq	%%mm4, 32(%1,%2,2);"
-			"movntq	%%mm5, 40(%1,%2,2);"
-			"movntq	%%mm6, 48(%1,%2,2);"
-			"movntq	%%mm7, 56(%1,%2,2);"
+			"movntq	%%mm0,   (%[OUT],%[CNT],2);"
+			"movntq	%%mm1,  8(%[OUT],%[CNT],2);"
+			"movntq	%%mm2, 16(%[OUT],%[CNT],2);"
+			"movntq	%%mm3, 24(%[OUT],%[CNT],2);"
+			"movntq	%%mm4, 32(%[OUT],%[CNT],2);"
+			"movntq	%%mm5, 40(%[OUT],%[CNT],2);"
+			"movntq	%%mm6, 48(%[OUT],%[CNT],2);"
+			"movntq	%%mm7, 56(%[OUT],%[CNT],2);"
 			// Increment.
-			"add	$32, %2;"
+			"add	$32, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + width2 / 2) // 0
-			, "r" (out + width2) // 1
-			, "r" (-2 * width2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + width2 / 2)
+			, [OUT] "r"     (out + width2)
+			,       "[CNT]" (-2 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 
@@ -606,14 +612,15 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		// MMX routine 32bpp
 		width2 = width & ~15;
 		assert(((2 * width2) % 32) == 0);
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm2;"
-			"movq	16(%0,%2), %%mm4;"
-			"movq	24(%0,%2), %%mm6;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm2;"
+			"movq	16(%[IN],%[CNT]), %%mm4;"
+			"movq	24(%[IN],%[CNT]), %%mm6;"
 			"movq	%%mm0, %%mm1;"
 			"movq	%%mm2, %%mm3;"
 			"movq	%%mm4, %%mm5;"
@@ -628,26 +635,27 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"punpckldq %%mm6, %%mm6;"
 			"punpckhdq %%mm7, %%mm7;"
 			// Store.
-			"movq	%%mm0,   (%1,%2,2);"
-			"movq	%%mm1,  8(%1,%2,2);"
-			"movq	%%mm2, 16(%1,%2,2);"
-			"movq	%%mm3, 24(%1,%2,2);"
-			"movq	%%mm4, 32(%1,%2,2);"
-			"movq	%%mm5, 40(%1,%2,2);"
-			"movq	%%mm6, 48(%1,%2,2);"
-			"movq	%%mm7, 56(%1,%2,2);"
+			"movq	%%mm0,   (%[OUT],%[CNT],2);"
+			"movq	%%mm1,  8(%[OUT],%[CNT],2);"
+			"movq	%%mm2, 16(%[OUT],%[CNT],2);"
+			"movq	%%mm3, 24(%[OUT],%[CNT],2);"
+			"movq	%%mm4, 32(%[OUT],%[CNT],2);"
+			"movq	%%mm5, 40(%[OUT],%[CNT],2);"
+			"movq	%%mm6, 48(%[OUT],%[CNT],2);"
+			"movq	%%mm7, 56(%[OUT],%[CNT],2);"
 			// Increment.
-			"add	$32, %2;"
+			"add	$32, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + width2 / 2) // 0
-			, "r" (out + width2) // 1
-			, "r" (-2 * width2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + width2 / 2)
+			, [OUT] "r"     (out + width2)
+			,       "[CNT]" (-2 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 	}
@@ -687,77 +695,81 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	#else
 
 	if (streaming && cpu.hasSSE()) {
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm1;"
-			"movq	16(%0,%2), %%mm2;"
-			"movq	24(%0,%2), %%mm3;"
-			"movq	32(%0,%2), %%mm4;"
-			"movq	40(%0,%2), %%mm5;"
-			"movq	48(%0,%2), %%mm6;"
-			"movq	56(%0,%2), %%mm7;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm1;"
+			"movq	16(%[IN],%[CNT]), %%mm2;"
+			"movq	24(%[IN],%[CNT]), %%mm3;"
+			"movq	32(%[IN],%[CNT]), %%mm4;"
+			"movq	40(%[IN],%[CNT]), %%mm5;"
+			"movq	48(%[IN],%[CNT]), %%mm6;"
+			"movq	56(%[IN],%[CNT]), %%mm7;"
 			// Store.
-			"movntq	%%mm0,   (%1,%2);"
-			"movntq	%%mm1,  8(%1,%2);"
-			"movntq	%%mm2, 16(%1,%2);"
-			"movntq	%%mm3, 24(%1,%2);"
-			"movntq	%%mm4, 32(%1,%2);"
-			"movntq	%%mm5, 40(%1,%2);"
-			"movntq	%%mm6, 48(%1,%2);"
-			"movntq	%%mm7, 56(%1,%2);"
+			"movntq	%%mm0,   (%[OUT],%[CNT]);"
+			"movntq	%%mm1,  8(%[OUT],%[CNT]);"
+			"movntq	%%mm2, 16(%[OUT],%[CNT]);"
+			"movntq	%%mm3, 24(%[OUT],%[CNT]);"
+			"movntq	%%mm4, 32(%[OUT],%[CNT]);"
+			"movntq	%%mm5, 40(%[OUT],%[CNT]);"
+			"movntq	%%mm6, 48(%[OUT],%[CNT]);"
+			"movntq	%%mm7, 56(%[OUT],%[CNT]);"
 			// Increment.
-			"add	$64, %2;"
+			"add	$64, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (reinterpret_cast<const char*>(in)  + nBytes2) // 0
-			, "r" (reinterpret_cast<char*      >(out) + nBytes2) // 1
-			, "r" (-nBytes2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (reinterpret_cast<const char*>(in)  + nBytes2)
+			, [OUT] "r"     (reinterpret_cast<char*      >(out) + nBytes2)
+			,       "[CNT]" (-nBytes2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 
 	} else if (cpu.hasMMX()) {
 		// MMX routine (both 16bpp and 32bpp)
-		asm (
+		unsigned long dummy;
+		asm volatile (
 			".p2align 4,,15;"
 		"0:"
 			// Load.
-			"movq	  (%0,%2), %%mm0;"
-			"movq	 8(%0,%2), %%mm1;"
-			"movq	16(%0,%2), %%mm2;"
-			"movq	24(%0,%2), %%mm3;"
-			"movq	32(%0,%2), %%mm4;"
-			"movq	40(%0,%2), %%mm5;"
-			"movq	48(%0,%2), %%mm6;"
-			"movq	56(%0,%2), %%mm7;"
+			"movq	  (%[IN],%[CNT]), %%mm0;"
+			"movq	 8(%[IN],%[CNT]), %%mm1;"
+			"movq	16(%[IN],%[CNT]), %%mm2;"
+			"movq	24(%[IN],%[CNT]), %%mm3;"
+			"movq	32(%[IN],%[CNT]), %%mm4;"
+			"movq	40(%[IN],%[CNT]), %%mm5;"
+			"movq	48(%[IN],%[CNT]), %%mm6;"
+			"movq	56(%[IN],%[CNT]), %%mm7;"
 			// Store.
-			"movq	%%mm0,   (%1,%2);"
-			"movq	%%mm1,  8(%1,%2);"
-			"movq	%%mm2, 16(%1,%2);"
-			"movq	%%mm3, 24(%1,%2);"
-			"movq	%%mm4, 32(%1,%2);"
-			"movq	%%mm5, 40(%1,%2);"
-			"movq	%%mm6, 48(%1,%2);"
-			"movq	%%mm7, 56(%1,%2);"
+			"movq	%%mm0,   (%[OUT],%[CNT]);"
+			"movq	%%mm1,  8(%[OUT],%[CNT]);"
+			"movq	%%mm2, 16(%[OUT],%[CNT]);"
+			"movq	%%mm3, 24(%[OUT],%[CNT]);"
+			"movq	%%mm4, 32(%[OUT],%[CNT]);"
+			"movq	%%mm5, 40(%[OUT],%[CNT]);"
+			"movq	%%mm6, 48(%[OUT],%[CNT]);"
+			"movq	%%mm7, 56(%[OUT],%[CNT]);"
 			// Increment.
-			"add	$64, %2;"
+			"add	$64, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (reinterpret_cast<const char*>(in)  + nBytes2) // 0
-			, "r" (reinterpret_cast<char*      >(out) + nBytes2) // 1
-			, "r" (-nBytes2) // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (reinterpret_cast<const char*>(in)  + nBytes2)
+			, [OUT] "r"     (reinterpret_cast<char*      >(out) + nBytes2)
+			,       "[CNT]" (-nBytes2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3",
-			  "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3"
+			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 	}
@@ -833,33 +845,35 @@ void Scale_2on1<Pixel>::operator()(
 		// extended-MMX routine, 32bpp
 		width2 = width & ~3;
 		assert(((4 * width2) % 16) == 0);
+		unsigned long dummy;
 		asm volatile (
 			".p2align 4,,15;"
 		"0:"
-			"movq	  (%0,%2,2), %%mm0;"    // 0 = AB
-			"movq	 8(%0,%2,2), %%mm1;"    // 1 = CD
-			"movq	16(%0,%2,2), %%mm2;"    // 2 = EF
-			"movq	24(%0,%2,2), %%mm3;"    // 3 = GH
-			"movq	%%mm0, %%mm4;"          // 4 = AB
-			"punpckhdq	%%mm1, %%mm0;"  // 0 = BD
-			"punpckldq	%%mm1, %%mm4;"  // 4 = AC
-			"movq	%%mm2, %%mm5;"          // 5 = EF
-			"punpckhdq	%%mm3, %%mm2;"  // 2 = FH
-			"punpckldq	%%mm3, %%mm5;"  // 5 = EG
-			"pavgb	%%mm0, %%mm4;"          // 4 = ab cd
-			"movntq	%%mm4,  (%1,%2);"
-			"pavgb	%%mm2, %%mm5;"          // 5 = ef gh
-			"movntq	%%mm5, 8(%1,%2);"
-			"add	$16, %2;"
+			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = AB
+			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = CD
+			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = EF
+			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = GH
+			"movq	%%mm0, %%mm4;"              // 4 = AB
+			"punpckhdq	%%mm1, %%mm0;"      // 0 = BD
+			"punpckldq	%%mm1, %%mm4;"      // 4 = AC
+			"movq	%%mm2, %%mm5;"              // 5 = EF
+			"punpckhdq	%%mm3, %%mm2;"      // 2 = FH
+			"punpckldq	%%mm3, %%mm5;"      // 5 = EG
+			"pavgb	%%mm0, %%mm4;"              // 4 = ab cd
+			"movntq	%%mm4,  (%[OUT],%[CNT]);"
+			"pavgb	%%mm2, %%mm5;"              // 5 = ef gh
+			"movntq	%%mm5, 8(%[OUT],%[CNT]);"
+			"add	$16, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + 2 * width2) // 0
-			, "r" (out +     width2) // 1
-			, "r" (-4 * width2)      // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + 2 * width2)
+			, [OUT] "r"     (out +     width2)
+			,       "[CNT]" (-4 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
 			#endif
 		);
 
@@ -867,48 +881,50 @@ void Scale_2on1<Pixel>::operator()(
 		// MMX routine, 32bpp
 		width2 = width & ~3;
 		assert(((4 * width2) % 16) == 0);
+		unsigned long dummy;
 		asm volatile (
 			"pxor	%%mm7, %%mm7;"
 			".p2align 4,,15;"
 		"0:"
-			"movq	  (%0,%2,2), %%mm0;"    // 0 = AB
-			"movq	%%mm0, %%mm4;"          // 4 = AB
-			"punpckhbw	%%mm7, %%mm0;"  // 0 = 0B
-			"movq	 8(%0,%2,2), %%mm1;"    // 1 = CD
-			"movq	16(%0,%2,2), %%mm2;"    // 2 = EF
-			"punpcklbw	%%mm7, %%mm4;"  // 4 = 0A
-			"movq	%%mm1, %%mm5;"          // 5 = CD
-			"paddw	%%mm4, %%mm0;"          // 0 = A + B
-			"punpckhbw	%%mm7, %%mm1;"  // 1 = 0D
-			"punpcklbw	%%mm7, %%mm5;"  // 5 = 0C
-			"psrlw	$1, %%mm0;"             // 0 = (A + B) / 2
-			"paddw	%%mm5, %%mm1;"          // 1 = C + D
-			"movq	%%mm2, %%mm4;"          // 4 = EF
-			"punpckhbw	%%mm7, %%mm2;"  // 2 = 0F
-			"punpcklbw	%%mm7, %%mm4;"  // 4 = 0E
-			"psrlw	$1, %%mm1;"             // 1 = (C + D) / 2
-			"paddw	%%mm4, %%mm2;"          // 2 = E + F
-			"movq	24(%0,%2,2), %%mm3;"    // 3 = GH
-			"movq	%%mm3, %%mm5;"          // 5 = GH
-			"punpckhbw	%%mm7, %%mm3;"  // 3 = 0H
-			"packuswb	%%mm1, %%mm0;"  // 0 = ab cd
-			"punpcklbw	%%mm7, %%mm5;"  // 5 = 0G
-			"psrlw	$1, %%mm2;"             // 2 = (E + F) / 2
-			"paddw	%%mm5, %%mm3;"          // 3 = G + H
-			"psrlw	$1, %%mm3;"             // 3 = (G + H) / 2
-			"packuswb	%%mm3, %%mm2;"  // 2 = ef gh
-			"movq	%%mm0,  (%1,%2);"
-			"movq	%%mm2, 8(%1,%2);"
-			"add	$16, %2;"
+			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = AB
+			"movq	%%mm0, %%mm4;"              // 4 = AB
+			"punpckhbw	%%mm7, %%mm0;"      // 0 = 0B
+			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = CD
+			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = EF
+			"punpcklbw	%%mm7, %%mm4;"      // 4 = 0A
+			"movq	%%mm1, %%mm5;"              // 5 = CD
+			"paddw	%%mm4, %%mm0;"              // 0 = A + B
+			"punpckhbw	%%mm7, %%mm1;"      // 1 = 0D
+			"punpcklbw	%%mm7, %%mm5;"      // 5 = 0C
+			"psrlw	$1, %%mm0;"                 // 0 = (A + B) / 2
+			"paddw	%%mm5, %%mm1;"              // 1 = C + D
+			"movq	%%mm2, %%mm4;"              // 4 = EF
+			"punpckhbw	%%mm7, %%mm2;"      // 2 = 0F
+			"punpcklbw	%%mm7, %%mm4;"      // 4 = 0E
+			"psrlw	$1, %%mm1;"                 // 1 = (C + D) / 2
+			"paddw	%%mm4, %%mm2;"              // 2 = E + F
+			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = GH
+			"movq	%%mm3, %%mm5;"              // 5 = GH
+			"punpckhbw	%%mm7, %%mm3;"      // 3 = 0H
+			"packuswb	%%mm1, %%mm0;"      // 0 = ab cd
+			"punpcklbw	%%mm7, %%mm5;"      // 5 = 0G
+			"psrlw	$1, %%mm2;"                 // 2 = (E + F) / 2
+			"paddw	%%mm5, %%mm3;"              // 3 = G + H
+			"psrlw	$1, %%mm3;"                 // 3 = (G + H) / 2
+			"packuswb	%%mm3, %%mm2;"      // 2 = ef gh
+			"movq	%%mm0,  (%[OUT],%[CNT]);"
+			"movq	%%mm2, 8(%[OUT],%[CNT]);"
+			"add	$16, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + 2 * width2) // 0
-			, "r" (out +     width2) // 1
-			, "r" (-4 * width2)      // 2
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (in  + 2 * width2)
+			, [OUT] "r"     (out +     width2)
+			,       "[CNT]" (-4 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3"
+			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
@@ -919,58 +935,60 @@ void Scale_2on1<Pixel>::operator()(
 		assert(((2 * width2) % 16) == 0);
 		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
+		unsigned long dummy;
 		asm volatile (
-			"movd	%2, %%mm7;"
+			"movd	%[MASK], %%mm7;"
 			"punpckldq	%%mm7, %%mm7;"
 			".p2align 4,,15;"
 		"0:"
-			"movq	  (%0,%3,2), %%mm0;"    // 0 = ABCD
-			"movq	 8(%0,%3,2), %%mm1;"    // 1 = EFGH
-			"movq	%%mm0, %%mm4;"          // 4 = ABCD
-			"movq	16(%0,%3,2), %%mm2;"    // 2 = IJKL
-			"punpcklwd	%%mm1, %%mm0;"  // 0 = AEBF
-			"punpckhwd	%%mm1, %%mm4;"  // 4 = CGDH
-			"movq	%%mm0, %%mm6;"          // 6 = AEBF
-			"movq	24(%0,%3,2), %%mm3;"    // 3 = MNOP
-			"movq	%%mm2, %%mm5;"          // 5 = IJKL
-			"punpckhwd	%%mm4, %%mm0;"  // 0 = BDFH
-			"punpcklwd	%%mm4, %%mm6;"  // 6 = ACEG
-			"punpcklwd	%%mm3, %%mm2;"  // 2 = IMJN
-			"punpckhwd	%%mm3, %%mm5;"  // 5 = KOLP
-			"movq	%%mm2, %%mm1;"          // 1 = IMJN
-			"movq	%%mm6, %%mm3;"          // 3 = ACEG
-			"movq	%%mm7, %%mm4;"          // 4 = M
-			"punpckhwd	%%mm5, %%mm2;"  // 2 = JLNP
-			"punpcklwd	%%mm5, %%mm1;"  // 1 = IKMO
-			"pandn	%%mm6, %%mm4;"          // 4 = ACEG & ~M
-			"pand	%%mm7, %%mm3;"          // 3 = ACEG & M
-			"pand	%%mm7, %%mm2;"          // 2 = JLNP & M
-			"pand	%%mm7, %%mm0;"          // 0 = BDFH & M
-			"movq	%%mm1, %%mm6;"          // 6 = IKMO
-			"movq	%%mm7, %%mm5;"          // 5 = M
-			"psrlw	$1, %%mm3;"             // 3 = (ACEG & M) >> 1
-			"psrlw	$1, %%mm2;"             // 2 = (JLNP & M) >> 1
-			"pand	%%mm7, %%mm6;"          // 6 = IKMO & M
-			"psrlw	$1, %%mm0;"             // 0 = (BDFH & M) >> 1
-			"pandn	%%mm1, %%mm5;"          // 5 = IKMO & ~M
-			"psrlw	$1, %%mm6;"             // 6 = (IKMO & M) >> 1
-			"paddw	%%mm4, %%mm3;"          // 3 = ACEG & M  +  ACEG & ~M
-			"paddw	%%mm2, %%mm6;"          // 6 = IKMO & M  +  JLNP & M
-			"paddw	%%mm0, %%mm3;"          // 3 = ab cd ef gh
-			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
-			"movntq	%%mm3,  (%1,%3);"
-			"movntq	%%mm6, 8(%1,%3);"
-			"add	$16, %3;"
+			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = ABCD
+			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = EFGH
+			"movq	%%mm0, %%mm4;"              // 4 = ABCD
+			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = IJKL
+			"punpcklwd	%%mm1, %%mm0;"      // 0 = AEBF
+			"punpckhwd	%%mm1, %%mm4;"      // 4 = CGDH
+			"movq	%%mm0, %%mm6;"              // 6 = AEBF
+			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = MNOP
+			"movq	%%mm2, %%mm5;"              // 5 = IJKL
+			"punpckhwd	%%mm4, %%mm0;"      // 0 = BDFH
+			"punpcklwd	%%mm4, %%mm6;"      // 6 = ACEG
+			"punpcklwd	%%mm3, %%mm2;"      // 2 = IMJN
+			"punpckhwd	%%mm3, %%mm5;"      // 5 = KOLP
+			"movq	%%mm2, %%mm1;"              // 1 = IMJN
+			"movq	%%mm6, %%mm3;"              // 3 = ACEG
+			"movq	%%mm7, %%mm4;"              // 4 = M
+			"punpckhwd	%%mm5, %%mm2;"      // 2 = JLNP
+			"punpcklwd	%%mm5, %%mm1;"      // 1 = IKMO
+			"pandn	%%mm6, %%mm4;"              // 4 = ACEG & ~M
+			"pand	%%mm7, %%mm3;"              // 3 = ACEG & M
+			"pand	%%mm7, %%mm2;"              // 2 = JLNP & M
+			"pand	%%mm7, %%mm0;"              // 0 = BDFH & M
+			"movq	%%mm1, %%mm6;"              // 6 = IKMO
+			"movq	%%mm7, %%mm5;"              // 5 = M
+			"psrlw	$1, %%mm3;"                 // 3 = (ACEG & M) >> 1
+			"psrlw	$1, %%mm2;"                 // 2 = (JLNP & M) >> 1
+			"pand	%%mm7, %%mm6;"              // 6 = IKMO & M
+			"psrlw	$1, %%mm0;"                 // 0 = (BDFH & M) >> 1
+			"pandn	%%mm1, %%mm5;"              // 5 = IKMO & ~M
+			"psrlw	$1, %%mm6;"                 // 6 = (IKMO & M) >> 1
+			"paddw	%%mm4, %%mm3;"              // 3 = ACEG & M  +  ACEG & ~M
+			"paddw	%%mm2, %%mm6;"              // 6 = IKMO & M  +  JLNP & M
+			"paddw	%%mm0, %%mm3;"              // 3 = ab cd ef gh
+			"paddw	%%mm5, %%mm6;"              // 6 = ij kl mn op
+			"movntq	%%mm3,  (%[OUT],%[CNT]);"
+			"movntq	%%mm6, 8(%[OUT],%[CNT]);"
+			"add	$16, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + 2 * width2) // 0
-			, "r" (out +     width2) // 1
-			, "r" (mask)             // 2
-			, "r" (-2 * width2)      // 3
+			: [CNT]  "=r"    (dummy)
+			: [IN]   "r"     (in  + 2 * width2)
+			, [OUT]  "r"     (out +     width2)
+			, [MASK] "r"     (mask)
+			,        "[CNT]" (-2 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3"
+			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
@@ -981,58 +999,60 @@ void Scale_2on1<Pixel>::operator()(
 		assert(((2 * width2) % 16) == 0);
 		unsigned mask = ~pixelOps.getBlendMask();
 		mask = ~(mask | (mask << 16));
+		unsigned long dummy;
 		asm volatile (
-			"movd	%2, %%mm7;"
+			"movd	%[MASK], %%mm7;"
 			"punpckldq	%%mm7, %%mm7;"
 			".p2align 4,,15;"
 		"0:"
-			"movq	  (%0,%3,2), %%mm0;"    // 0 = ABCD
-			"movq	 8(%0,%3,2), %%mm1;"    // 1 = EFGH
-			"movq	%%mm0, %%mm4;"          // 4 = ABCD
-			"movq	16(%0,%3,2), %%mm2;"    // 2 = IJKL
-			"punpcklwd	%%mm1, %%mm0;"  // 0 = AEBF
-			"punpckhwd	%%mm1, %%mm4;"  // 4 = CGDH
-			"movq	%%mm0, %%mm6;"          // 6 = AEBF
-			"movq	24(%0,%3,2), %%mm3;"    // 3 = MNOP
-			"movq	%%mm2, %%mm5;"          // 5 = IJKL
-			"punpckhwd	%%mm4, %%mm0;"  // 0 = BDFH
-			"punpcklwd	%%mm4, %%mm6;"  // 6 = ACEG
-			"punpcklwd	%%mm3, %%mm2;"  // 2 = IMJN
-			"punpckhwd	%%mm3, %%mm5;"  // 5 = KOLP
-			"movq	%%mm2, %%mm1;"          // 1 = IMJN
-			"movq	%%mm6, %%mm3;"          // 3 = ACEG
-			"movq	%%mm7, %%mm4;"          // 4 = M
-			"punpckhwd	%%mm5, %%mm2;"  // 2 = JLNP
-			"punpcklwd	%%mm5, %%mm1;"  // 1 = IKMO
-			"pandn	%%mm6, %%mm4;"          // 4 = ACEG & ~M
-			"pand	%%mm7, %%mm3;"          // 3 = ACEG & M
-			"pand	%%mm7, %%mm2;"          // 2 = JLNP & M
-			"pand	%%mm7, %%mm0;"          // 0 = BDFH & M
-			"movq	%%mm1, %%mm6;"          // 6 = IKMO
-			"movq	%%mm7, %%mm5;"          // 5 = M
-			"psrlw	$1, %%mm3;"             // 3 = (ACEG & M) >> 1
-			"psrlw	$1, %%mm2;"             // 2 = (JLNP & M) >> 1
-			"pand	%%mm7, %%mm6;"          // 6 = IKMO & M
-			"psrlw	$1, %%mm0;"             // 0 = (BDFH & M) >> 1
-			"pandn	%%mm1, %%mm5;"          // 5 = IKMO & ~M
-			"psrlw	$1, %%mm6;"             // 6 = (IKMO & M) >> 1
-			"paddw	%%mm4, %%mm3;"          // 3 = ACEG & M  +  ACEG & ~M
-			"paddw	%%mm2, %%mm6;"          // 6 = IKMO & M  +  JLNP & M
-			"paddw	%%mm0, %%mm3;"          // 3 = ab cd ef gh
-			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
-			"movq	%%mm3,  (%1,%3);"
-			"movq	%%mm6, 8(%1,%3);"
-			"add	$16, %3;"
+			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = ABCD
+			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = EFGH
+			"movq	%%mm0, %%mm4;"              // 4 = ABCD
+			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = IJKL
+			"punpcklwd	%%mm1, %%mm0;"      // 0 = AEBF
+			"punpckhwd	%%mm1, %%mm4;"      // 4 = CGDH
+			"movq	%%mm0, %%mm6;"              // 6 = AEBF
+			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = MNOP
+			"movq	%%mm2, %%mm5;"              // 5 = IJKL
+			"punpckhwd	%%mm4, %%mm0;"      // 0 = BDFH
+			"punpcklwd	%%mm4, %%mm6;"      // 6 = ACEG
+			"punpcklwd	%%mm3, %%mm2;"      // 2 = IMJN
+			"punpckhwd	%%mm3, %%mm5;"      // 5 = KOLP
+			"movq	%%mm2, %%mm1;"              // 1 = IMJN
+			"movq	%%mm6, %%mm3;"              // 3 = ACEG
+			"movq	%%mm7, %%mm4;"              // 4 = M
+			"punpckhwd	%%mm5, %%mm2;"      // 2 = JLNP
+			"punpcklwd	%%mm5, %%mm1;"      // 1 = IKMO
+			"pandn	%%mm6, %%mm4;"              // 4 = ACEG & ~M
+			"pand	%%mm7, %%mm3;"              // 3 = ACEG & M
+			"pand	%%mm7, %%mm2;"              // 2 = JLNP & M
+			"pand	%%mm7, %%mm0;"              // 0 = BDFH & M
+			"movq	%%mm1, %%mm6;"              // 6 = IKMO
+			"movq	%%mm7, %%mm5;"              // 5 = M
+			"psrlw	$1, %%mm3;"                 // 3 = (ACEG & M) >> 1
+			"psrlw	$1, %%mm2;"                 // 2 = (JLNP & M) >> 1
+			"pand	%%mm7, %%mm6;"              // 6 = IKMO & M
+			"psrlw	$1, %%mm0;"                 // 0 = (BDFH & M) >> 1
+			"pandn	%%mm1, %%mm5;"              // 5 = IKMO & ~M
+			"psrlw	$1, %%mm6;"                 // 6 = (IKMO & M) >> 1
+			"paddw	%%mm4, %%mm3;"              // 3 = ACEG & M  +  ACEG & ~M
+			"paddw	%%mm2, %%mm6;"              // 6 = IKMO & M  +  JLNP & M
+			"paddw	%%mm0, %%mm3;"              // 3 = ab cd ef gh
+			"paddw	%%mm5, %%mm6;"              // 6 = ij kl mn op
+			"movq	%%mm3,  (%[OUT],%[CNT]);"
+			"movq	%%mm6, 8(%[OUT],%[CNT]);"
+			"add	$16, %[CNT];"
 			"jnz	0b;"
 			"emms;"
 
-			: // no output
-			: "r" (in  + 2 * width2) // 0
-			, "r" (out +     width2) // 1
-			, "r" (mask)             // 2
-			, "r" (-2 * width2)      // 3
+			: [CNT]  "=r"    (dummy)
+			: [IN]   "r"     (in  + 2 * width2)
+			, [OUT]  "r"     (out +     width2)
+			, [MASK] "r"     (mask)
+			,        "[CNT]" (-2 * width2)
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3"
+			, "mm0", "mm1", "mm2", "mm3"
 			, "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
