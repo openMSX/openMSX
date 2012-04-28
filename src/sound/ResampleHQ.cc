@@ -235,41 +235,43 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		return;
 	}
 	#else
-		asm (
+		long dummy1;
+		unsigned dummy2;
+		asm volatile (
 			"xorps	%%xmm0,%%xmm0;"
 			"xorps	%%xmm1,%%xmm1;"
 			"xorps	%%xmm2,%%xmm2;"
 			"xorps	%%xmm3,%%xmm3;"
 		"1:"
-			"movups	  (%0,%3),%%xmm4;"
-			"mulps	  (%1,%3),%%xmm4;"
-			"movups	16(%0,%3),%%xmm5;"
-			"mulps	16(%1,%3),%%xmm5;"
-			"movups	32(%0,%3),%%xmm6;"
-			"mulps	32(%1,%3),%%xmm6;"
-			"movups	48(%0,%3),%%xmm7;"
-			"mulps	48(%1,%3),%%xmm7;"
+			"movups	  (%[BUF],%[FL16]),%%xmm4;"
+			"mulps	  (%[TAB],%[FL16]),%%xmm4;"
+			"movups	16(%[BUF],%[FL16]),%%xmm5;"
+			"mulps	16(%[TAB],%[FL16]),%%xmm5;"
+			"movups	32(%[BUF],%[FL16]),%%xmm6;"
+			"mulps	32(%[TAB],%[FL16]),%%xmm6;"
+			"movups	48(%[BUF],%[FL16]),%%xmm7;"
+			"mulps	48(%[TAB],%[FL16]),%%xmm7;"
 			"addps	%%xmm4,%%xmm0;"
 			"addps	%%xmm5,%%xmm1;"
 			"addps	%%xmm6,%%xmm2;"
 			"addps	%%xmm7,%%xmm3;"
-			"add	$64,%3;"
+			"add	$64,%[FL16];"
 			"jnz	1b;"
 
-			"test	$8,%4;"
+			"test	$8,%[FLR];"
 			"jz	2f;"
-			"movups	  (%0,%3), %%xmm4;"
-			"mulps	  (%1,%3), %%xmm4;"
-			"movups	16(%0,%3), %%xmm5;"
-			"mulps	16(%1,%3), %%xmm5;"
+			"movups	  (%[BUF],%[FL16]), %%xmm4;"
+			"mulps	  (%[TAB],%[FL16]), %%xmm4;"
+			"movups	16(%[BUF],%[FL16]), %%xmm5;"
+			"mulps	16(%[TAB],%[FL16]), %%xmm5;"
 			"addps	%%xmm4,%%xmm0;"
 			"addps	%%xmm5,%%xmm1;"
-			"add	$32,%3;"
+			"add	$32,%[FL16];"
 		"2:"
-			"test	$4,%4;"
+			"test	$4,%[FLR];"
 			"jz	3f;"
-			"movups	  (%0,%3), %%xmm6;"
-			"mulps	  (%1,%3), %%xmm6;"
+			"movups	  (%[BUF],%[FL16]), %%xmm6;"
+			"mulps	  (%[TAB],%[FL16]), %%xmm6;"
 			"addps	%%xmm6,%%xmm2;"
 		"3:"
 			"addps	%%xmm1,%%xmm0;"
@@ -281,16 +283,17 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			"movaps	%%xmm7,%%xmm0;"
 			"shufps	$177,%%xmm7,%%xmm0;"
 			"addss	%%xmm7,%%xmm0;"
-			"cvtss2si %%xmm0,%%edx;"
-			"mov	%%edx,(%2);"
+			"cvtss2si %%xmm0,%[TMP];"
+			"mov	%[TMP],(%[OUT]);"
 
-			: // no output
-			: "r" (&buffer[bufIdx + filterLen16]) // 0
-			, "r" (&table[tabIdx + filterLen16]) // 1
-			, "r" (output) // 2
-			, "r" (-4 * filterLen16) // 3
-			, "r" (filterLenRest) // 4
-			: "edx"
+			: [FL16] "=r"     (dummy1)
+			, [TMP]  "=&r"    (dummy2)
+			: [BUF]  "r"      (&buffer[bufIdx + filterLen16])
+			, [TAB]  "r"      (&table[tabIdx + filterLen16])
+			, [OUT]  "r"      (output)
+			,        "[FL16]" (-4 * filterLen16)
+			, [FLR]  "r"      (filterLenRest)
+			: "memory"
 			#ifdef __SSE__
 			, "xmm0", "xmm1", "xmm2", "xmm3"
 			, "xmm4", "xmm5", "xmm6", "xmm7"
@@ -303,15 +306,16 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		// SSE version, stereo
 		long filterLen8 = filterLen & ~7;
 		unsigned filterLenRest = filterLen - filterLen8;
-		asm (
+		long dummy;
+		asm volatile (
 			"xorps	%%xmm0,%%xmm0;"
 			"xorps	%%xmm1,%%xmm1;"
 			"xorps	%%xmm2,%%xmm2;"
 			"xorps	%%xmm3,%%xmm3;"
 		"1:"
-			"movups	  (%0,%3,2),%%xmm4;"
-			"movups	16(%0,%3,2),%%xmm5;"
-			"movaps	  (%1,%3),%%xmm6;"
+			"movups	  (%[BUF],%[FL8],2),%%xmm4;"
+			"movups	16(%[BUF],%[FL8],2),%%xmm5;"
+			"movaps	  (%[TAB],%[FL8]),%%xmm6;"
 			"movaps	%%xmm6,%%xmm7;"
 			"shufps	 $80,%%xmm6,%%xmm6;"
 			"shufps	$250,%%xmm7,%%xmm7;"
@@ -320,9 +324,9 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			"addps	%%xmm6,%%xmm0;"
 			"addps	%%xmm7,%%xmm1;"
 
-			"movups	32(%0,%3,2),%%xmm4;"
-			"movups	48(%0,%3,2),%%xmm5;"
-			"movaps	16(%1,%3),%%xmm6;"
+			"movups	32(%[BUF],%[FL8],2),%%xmm4;"
+			"movups	48(%[BUF],%[FL8],2),%%xmm5;"
+			"movaps	16(%[TAB],%[FL8]),%%xmm6;"
 			"movaps	%%xmm6,%%xmm7;"
 			"shufps	 $80,%%xmm6,%%xmm6;"
 			"shufps	$250,%%xmm7,%%xmm7;"
@@ -331,14 +335,14 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			"addps	%%xmm6,%%xmm2;"
 			"addps	%%xmm7,%%xmm3;"
 
-			"add	$32,%3;"
+			"add	$32,%[FL8];"
 			"jnz	1b;"
 
-			"test	$4,%4;"
+			"test	$4,%[FLR];"
 			"jz	2f;"
-			"movups	  (%0,%3,2),%%xmm4;"
-			"movups	16(%0,%3,2),%%xmm5;"
-			"movaps	  (%1,%3),%%xmm6;"
+			"movups	  (%[BUF],%[FL8],2),%%xmm4;"
+			"movups	16(%[BUF],%[FL8],2),%%xmm5;"
+			"movaps	  (%[TAB],%[FL8]),%%xmm6;"
 			"movaps	%%xmm6,%%xmm7;"
 			"shufps	 $80,%%xmm6,%%xmm6;"
 			"shufps	$250,%%xmm7,%%xmm7;"
@@ -354,17 +358,18 @@ void ResampleHQ<CHANNELS>::calcOutput(
 			"shufps	$78,%%xmm0,%%xmm0;"
 			"addps	%%xmm4,%%xmm0;"
 			"cvtps2pi %%xmm0,%%mm0;"
-			"movq	%%mm0,(%2);"
+			"movq	%%mm0,(%[OUT]);"
 			"emms;"
 
-			: // no output
-			: "r" (&buffer[bufIdx + 2 * filterLen8]) // 0
-			, "r" (&table[tabIdx + filterLen8]) // 1
-			, "r" (output) // 2
-			, "r" (-4 * filterLen8) // 3
-			, "r" (filterLenRest) // 4
+			: [FL8] "=r"    (dummy)
+			: [BUF] "r"     (&buffer[bufIdx + 2 * filterLen8])
+			, [TAB] "r"     (&table[tabIdx + filterLen8])
+			, [OUT] "r"     (output)
+			,       "[FL8]" (-4 * filterLen8)
+			, [FLR] "r"     (filterLenRest) // 4
+			: "memory"
 			#ifdef __SSE__
-			: "mm0"
+			, "mm0"
 			, "xmm0", "xmm1", "xmm2", "xmm3"
 			, "xmm4", "xmm5", "xmm6", "xmm7"
 			#endif
