@@ -226,14 +226,16 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 
 			"subs	%[n],%[n],#4\n\t"
 			"bgt	0b\n\t"
-			: [p]   "=r"  (pos)
-			, [t]   "=&r" (dummy)
-			:       "[p]" (pos)
-			, [buf] "r"   (buffer)
-			, [out] "r"   (dataOut)
-			, [s]   "r"   (this->step)
-			, [n]   "r"   (hostNum)
-			: "r9"
+			: [p]   "=r"    (pos)
+			, [out] "=r"    (dataOut)
+			, [n]   "=r"    (hostNum)
+			, [t]   "=&r"   (dummy)
+			:       "[p]"   (pos)
+			,       "[out]" (dataOut)
+			,       "[n]"   (hostNum)
+			, [buf] "r"     (buffer)
+			, [s]   "r"     (this->step)
+			: "memory"
 		);
 	} else {
 #endif
