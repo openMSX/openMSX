@@ -121,16 +121,17 @@ void Simple2xScaler<Pixel>::blur1on2(
 	#ifdef _MSC_VER
 		Simple2xScaler_blur1on2_4_MMX(pIn, pOut, srcWidth, c1, c2);
 	#else
-		asm (
-			"movd	%2, %%mm5;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[C1], %%mm5;"
 			"punpcklwd %%mm5, %%mm5;"
 			"punpckldq %%mm5, %%mm5;"	// mm5 = c1
-			"movd	%3, %%mm6;"
+			"movd	%[C2], %%mm6;"
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
 			"pxor	%%mm7, %%mm7;"
 
-			"movd	(%0,%4), %%mm0;"
+			"movd	(%[IN],%[CNT]), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
 			"movq	%%mm0, %%mm2;"
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
@@ -143,30 +144,30 @@ void Simple2xScaler<Pixel>::blur1on2(
 			"paddw	%%mm3, %%mm0;"
 			"psrlw	$8, %%mm0;"		// f1 + tmp
 
-			"movd	4(%0,%4), %%mm1;"
+			"movd	4(%[IN],%[CNT]), %%mm1;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm1, %%mm3;"
 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
 			"paddw	%%mm3, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f1 + tmp
 			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%1,%4,2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+			"movq	%%mm0, (%[OUT],%[CNT],2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
 
 			"pmullw	%%mm6, %%mm1;"
 			"movq	%%mm1, %%mm4;"		// tmp = multiply(p1, c2)
 			"paddw	%%mm2, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f0 + tmp
 
-			"movd	8(%0,%4), %%mm0;"
+			"movd	8(%[IN],%[CNT]), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[x + 2]
 			"movq	%%mm0, %%mm2;"
 			"pmullw %%mm5, %%mm2;"		// f0 = multiply(p0, c1)
 			"paddw	%%mm2, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f0 + tmp
 			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%1,%4,2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
+			"movq	%%mm1, 8(%[OUT],%[CNT],2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
 
-			"add	$8, %4;"
+			"add	$8, %[CNT];"
 			"jnz	1b;"
 
 			"pmullw	%%mm6, %%mm0;"
@@ -174,14 +175,14 @@ void Simple2xScaler<Pixel>::blur1on2(
 			"paddw	%%mm3, %%mm0;"
 			"psrlw	$8, %%mm0;"		// f1 + tmp
 
-			"movd	4(%0), %%mm1;"
+			"movd	4(%[IN]), %%mm1;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm1, %%mm3;"
 			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
 			"paddw	%%mm3, %%mm4;"
 			"psrlw	$8, %%mm4;"		// f1 + tmp
 			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%1);"		// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+			"movq	%%mm0, (%[OUT]);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
 
 			"movq	%%mm1, %%mm4;"
 			"pmullw	%%mm6, %%mm1;"		// tmp = multiply(p1, c2)
@@ -189,18 +190,19 @@ void Simple2xScaler<Pixel>::blur1on2(
 			"psrlw	$8, %%mm1;"		// f0 + tmp
 
 			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%1);"		// pOut[2*x+0] = ..  pOut[2*x+1] = ..
+			"movq	%%mm1, 8(%[OUT]);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
 
 			"emms;"
 
-			: // no output
-			: "r" (pIn  +     (srcWidth - 2)) // 0
-			, "r" (pOut + 2 * (srcWidth - 2)) // 1
-			, "r" (c1)                         // 2
-			, "r" (c2)                         // 3
-			, "r" (-4 * (srcWidth - 2))       // 4
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (pIn  +     (srcWidth - 2))
+			, [OUT] "r"     (pOut + 2 * (srcWidth - 2))
+			, [C1]  "r"     (c1)
+			, [C2]  "r"     (c2)
+			,       "[CNT]" (-4 * (srcWidth - 2))
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 	#endif
@@ -297,16 +299,17 @@ void Simple2xScaler<Pixel>::blur1on1(
 	#ifdef _MSC_VER
 		Simple2xScaler_blur1on1_4_MMX(pIn, pOut, srcWidth, c1, c2);
 	#else
-		asm (
-			"movd	%2, %%mm5;"
+		unsigned long dummy;
+		asm volatile (
+			"movd	%[C1], %%mm5;"
 			"punpcklwd %%mm5, %%mm5;"
 			"punpckldq %%mm5, %%mm5;"	// mm5 = c1
-			"movd	%3, %%mm6;"
+			"movd	%[C2], %%mm6;"
 			"punpcklwd %%mm6, %%mm6;"
 			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
 			"pxor	%%mm7, %%mm7;"
 
-			"movd	(%0,%4), %%mm0;"
+			"movd	(%[IN],%[CNT]), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
 			"movq	%%mm0, %%mm2;"
 			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
@@ -314,7 +317,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 
 			".p2align 4,,15;"
 		"1:"
-			"movd	4(%0,%4), %%mm1;"
+			"movd	4(%[IN],%[CNT]), %%mm1;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm0, %%mm4;"
@@ -326,7 +329,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 			"psrlw	$8, %%mm4;"		// f0 + t + t0
 			"movq	%%mm0, %%mm2;"		// f0 = t0
 
-			"movd	8(%0,%4), %%mm0;"
+			"movd	8(%[IN],%[CNT]), %%mm0;"
 			"punpcklbw %%mm7, %%mm0;"
 			"movq	%%mm1, %%mm7;"
 			"pmullw	%%mm6, %%mm7;"		// t = multiply(p1, c2)
@@ -337,12 +340,12 @@ void Simple2xScaler<Pixel>::blur1on1(
 			"psrlw	$8, %%mm7;"		// f1 + t + t1
 			"movq	%%mm1, %%mm3;"		// f1 = t1
 			"packuswb %%mm7, %%mm4;"
-			"movq	%%mm4, (%1,%4);"	// pOut[x] = ..  pOut[x+1] = ..
+			"movq	%%mm4, (%[OUT],%[CNT]);"	// pOut[x] = ..  pOut[x+1] = ..
 
-			"add	$8, %4;"
+			"add	$8, %[CNT];"
 			"jnz	1b;"
 
-			"movd	4(%0), %%mm1;"
+			"movd	4(%[IN]), %%mm1;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
 			"movq	%%mm0, %%mm4;"
@@ -358,18 +361,19 @@ void Simple2xScaler<Pixel>::blur1on1(
 			"paddw	%%mm0, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f1 + t + t1
 			"packuswb %%mm1, %%mm4;"
-			"movq	%%mm4, (%1);"		// pOut[x] = ..  pOut[x+1] = ..
+			"movq	%%mm4, (%[OUT]);"	// pOut[x] = ..  pOut[x+1] = ..
 
 			"emms;"
 
-			: // no output
-			: "r" (pIn  + srcWidth - 2) // 0
-			, "r" (pOut + srcWidth - 2) // 1
-			, "r" (c1)                   // 2
-			, "r" (c2)                   // 3
-			, "r" (-4 * (srcWidth - 2)) // 4
+			: [CNT] "=r"    (dummy)
+			: [IN]  "r"     (pIn  + srcWidth - 2)
+			, [OUT] "r"     (pOut + srcWidth - 2)
+			, [C1]  "r"     (c1)
+			, [C2]  "r"     (c2)
+			,       "[CNT]" (-4 * (srcWidth - 2))
+			: "memory"
 			#ifdef __MMX__
-			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 	#endif
