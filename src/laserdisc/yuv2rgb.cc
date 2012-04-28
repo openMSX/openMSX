@@ -81,7 +81,7 @@ static inline void yuv2rgb_sse2(
 	// Each block calculates 16 RGB values. Each block uses 16 unique 'Y'
 	// values, but all 4 blocks share the same 'Cr' and 'Cb' values.
 
-	__asm__ __volatile__ (
+	asm volatile (
 		"movdqa (%[U]),%%xmm2;"            // xmm2 = u0f
 		"movdqa (%[V]),%%xmm3;"            // xmm3 = v0f
 		"punpcklbw -16(%[COEF]),%%xmm2;"   // xmm2 = u07    (ZERO)
@@ -148,15 +148,16 @@ static inline void yuv2rgb_sse2(
 		, [Y0]   "r" (y0)
 		, [OUT0] "r" (out0)
 		, [COEF] "r" (coef + 3 * 8)
+		: "memory"
 		#ifdef __SSE2__
-		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		, "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
 		#endif
 	);
 	// At this point the following registers are still live:
 	//  xmm2 = db07
 	//  xmm3 = dg07
 	//  xmm4 = dr07
-	__asm__ __volatile__ (
+	asm volatile (
 		"movdqa %%xmm4,%%xmm6;"            // xmm6 = dr07
 		"movdqa (%[Y1]),%%xmm7;"           // xmm7 = y10_0f
 		"movdqa %%xmm3,%%xmm5;"            // xmm5 = dg07
@@ -202,12 +203,13 @@ static inline void yuv2rgb_sse2(
 		: [Y1]   "r" (y1)
 		, [OUT1] "r" (out1)
 		, [COEF] "r" (coef + 3 * 8)
+		: "memory"
 		#ifdef __SSE2__
-		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		, "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
 		#endif
 	);
 	// At this point no (xmm?) registers are live.
-	__asm__ __volatile__ (
+	asm volatile (
 		"movdqa (%[U]),%%xmm2;"            // xmm2 = u0f
 		"movdqa (%[V]),%%xmm3;"            // xmm3 = v0f
 		"punpckhbw -16(%[COEF]),%%xmm2;"   // xmm2 = u8f    (ZERO)
@@ -274,15 +276,16 @@ static inline void yuv2rgb_sse2(
 		, [Y0]   "r" (y0)
 		, [OUT0] "r" (out0)
 		, [COEF] "r" (coef + 3 * 8)
+		: "memory"
 		#ifdef __SSE2__
-		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		, "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
 		#endif
 	);
 	// At this point the following registers are still live:
 	//  xmm2 = db8f
 	//  xmm3 = dg8f
 	//  xmm4 = dr8f
-	__asm__ __volatile__ (
+	asm volatile (
 		"movdqa %%xmm4,%%xmm6;"            // xmm6 = dr8f
 		"movdqa 0x10(%[Y1]),%%xmm7;"       // xmm7 = y11_0f
 		"movdqa %%xmm3,%%xmm5;"            // xmm5 = dg8f
@@ -328,8 +331,9 @@ static inline void yuv2rgb_sse2(
 		: [Y1]   "r" (y1)
 		, [OUT1] "r" (out1)
 		, [COEF] "r" (coef + 3 * 8)
+		: "memory"
 		#ifdef __SSE2__
-		: "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
+		, "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"
 		#endif
 	);
 }
