@@ -232,6 +232,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 					if (!(usedBuffers & HAS_MONO_FLAG)) {
 						usedBuffers |= HAS_MONO_FLAG;
 #ifdef __arm__
+						unsigned dummy1, dummy2, dummy3;
 						asm volatile (
 						"0:\n\t"
 							"ldmia	%[in]!,{r3-r6}\n\t"
@@ -242,12 +243,14 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 							"stmia	%[out]!,{r3-r6}\n\t"
 							"subs	%[n],%[n],#4\n\t"
 							"bgt	0b\n\t"
-							: // no output
-							: [in]  "r" (tmpBuf)
-							, [out] "r" (monoBuf)
-							, [f]   "r" (l1)
-							, [n]   "r" (samples)
-							: "r3","r4","r5","r6"
+							: [in]  "=r"    (dummy1)
+							, [out] "=r"    (dummy2)
+							, [n]   "=r"    (dummy3)
+							:       "[in]"  (tmpBuf)
+							,       "[out]" (monoBuf)
+							,       "[n]"   (samples)
+							, [f]   "r"     (l1)
+							: "memory", "r3","r4","r5","r6"
 						);
 #else
 						for (unsigned i = 0; i < samples; ++i) {
@@ -257,6 +260,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 #endif
 					} else {
 #ifdef __arm__
+						unsigned dummy1, dummy2, dummy3;
 						asm volatile (
 						"0:\n\t"
 							"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
@@ -268,12 +272,15 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 							"stmia	%[out]!,{r3,r4,r5,r6}\n\t"
 							"subs	%[n],%[n],#4\n\t"
 							"bgt	0b\n\t"
-							: // no output
-							: [in]  "r" (tmpBuf)
-							, [out] "r" (monoBuf)
-							, [f]   "r" (l1)
-							, [n]   "r" (samples)
-							: "r3","r4","r5","r6"
+							: [in]  "=r"    (dummy1)
+							, [out] "=r"    (dummy2)
+							, [n]   "=r"    (dummy3)
+							:       "[in]"  (tmpBuf)
+							,       "[out]" (monoBuf)
+							,       "[n]"   (samples)
+							, [f]   "r"     (l1)
+							: "memory"
+							, "r3","r4","r5","r6"
 							, "r8","r9","r10","r12"
 						);
 #else
@@ -394,7 +401,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 			//  - the outLeft variable is set to the clipped value
 			// Though this difference is very small, and we need
 			// the extra speed.
-			unsigned dummy;
+			unsigned dummy1, dummy2, dummy3, dummy4;
 			asm volatile (
 			"0:\n\t"
 				"rsb	%[o],%[o],%[o],LSL #9\n\t"
@@ -410,15 +417,19 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 				"strh	%[o],[%[out]],#2\n\t"
 				"subs	%[n],%[n],#1\n\t"
 				"bne	0b\n\t"
-				: [o]   "=r"  (outLeft)
-				, [p]   "=r"  (prevLeft)
-				, [t]   "=&r" (dummy)
-				:       "[o]" (outLeft)
-				,       "[p]" (prevLeft)
-				, [in]  "r"   (monoBuf)
-				, [out] "r"   (output)
-				, [m]   "r"   (0x7FFF)
-				, [n]   "r"   (samples)
+				: [o]   "=r"    (outLeft)
+				, [p]   "=r"    (prevLeft)
+				, [in]  "=r"    (dummy1)
+				, [out] "=r"    (dummy2)
+				, [n]   "=r"    (dummy3)
+				, [t]   "=&r"   (dummy4)
+				:       "[o]"   (outLeft)
+				,       "[p]"   (prevLeft)
+				,       "[in]"  (monoBuf)
+				,       "[out]" (output)
+				,       "[n]"   (samples)
+				, [m]   "r"     (0x7FFF)
+				: "memory"
 			);
 #else
 			for (unsigned j = 0; j < samples; ++j) {
