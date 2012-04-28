@@ -44,10 +44,11 @@ static inline void memset_128_SSE_streaming(
 		}
 #else
 		asm volatile (
-			"movntps %%xmm0,   (%0);"
-			"movntps %%xmm0, 16(%0);"
+			"movntps %%xmm0,   (%[OUT]);"
+			"movntps %%xmm0, 16(%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 #endif
 	}
@@ -58,9 +59,10 @@ static inline void memset_128_SSE_streaming(
 		}
 #else
 		asm volatile (
-			"movntps %%xmm0, (%0);"
+			"movntps %%xmm0, (%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 #endif
 	}
@@ -80,10 +82,11 @@ static inline void memset_128_SSE(
 		}
 #else
 		asm volatile (
-			"movaps %%xmm0,   (%0);"
-			"movaps %%xmm0, 16(%0);"
+			"movaps %%xmm0,   (%[OUT]);"
+			"movaps %%xmm0, 16(%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 #endif
 	}
@@ -95,9 +98,10 @@ static inline void memset_128_SSE(
 		}
 #else
 		asm volatile (
-			"movaps %%xmm0, (%0);"
+			"movaps %%xmm0, (%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 #endif
 	}
@@ -121,10 +125,10 @@ static inline void memset_64_SSE(
 		// Double word). Though very old binutils don't support the more
 		// logical 'movq' syntax. See this bug report for more details.
 		//    [2492575] (0.7.0) compilation fails on FreeBSD/amd64
-		"movd         %0, %%xmm0;"
+		"movd     %[VAL], %%xmm0;"
 		"unpcklps %%xmm0, %%xmm0;"
 		: // no output
-		: "r" (val)
+		: [VAL] "r" (val)
 		#if defined __SSE__
 		: "xmm0"
 		#endif
@@ -142,14 +146,14 @@ static inline void memset_64_SSE(
 	}
 #else
 	asm volatile (
-		"movss        %0, %%xmm0;"
-		"movss        %1, %%xmm1;"
+		"movss    %[LOW], %%xmm0;"
+		"movss   %[HIGH], %%xmm1;"
 		"unpcklps %%xmm0, %%xmm0;"
 		"unpcklps %%xmm1, %%xmm1;"
 		"unpcklps %%xmm1, %%xmm0;"
 		: // no output
-		: "m" (_low_)
-		, "m" (_high_)
+		: [LOW]  "m" (_low_)
+		, [HIGH] "m" (_high_)
 		#if defined __SSE__
 		: "xmm0", "xmm1"
 		#endif
@@ -208,12 +212,12 @@ end:
 #else
 	// note can be better on X86_64, but there we anyway use SSE
 	asm volatile (
-		"movd      %0,%%mm0;"
-		"movd      %1,%%mm1;"
+		"movd     %[LOW],%%mm0;"
+		"movd    %[HIGH],%%mm1;"
 		"punpckldq %%mm1,%%mm0;"
 		: // no output
-		: "r" (unsigned(val >>  0))
-		, "r" (unsigned(val >> 32))
+		: [LOW]  "r" (unsigned(val >>  0))
+		, [HIGH] "r" (unsigned(val >> 32))
 		#if defined __MMX__
 		: "mm0", "mm1"
 		#endif
@@ -221,28 +225,31 @@ end:
 	unsigned long long* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
 		asm volatile (
-			"movq %%mm0,   (%0);"
-			"movq %%mm0,  8(%0);"
-			"movq %%mm0, 16(%0);"
-			"movq %%mm0, 24(%0);"
+			"movq %%mm0,   (%[OUT]);"
+			"movq %%mm0,  8(%[OUT]);"
+			"movq %%mm0, 16(%[OUT]);"
+			"movq %%mm0, 24(%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 	}
 	if (unlikely(num & 2)) {
 		asm volatile (
-			"movq %%mm0,  (%0);"
-			"movq %%mm0, 8(%0);"
+			"movq %%mm0,  (%[OUT]);"
+			"movq %%mm0, 8(%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 		dest += 2;
 	}
 	if (unlikely(num & 1)) {
 		asm volatile (
-			"movq %%mm0, (%0);"
+			"movq %%mm0, (%[OUT]);"
 			: // no output
-			: "r" (dest)
+			: [OUT] "r" (dest)
+			: "memory"
 		);
 	}
 	asm volatile ("emms");
@@ -358,7 +365,8 @@ static inline void memset_32(unsigned* dest, unsigned num, unsigned val)
 		:       "[dest]" (dest)
 		,       "[num]"  (num)
 		, [val] "r"      (val)
-		: "r3","r4","r5","r6","r8","r9","r10","r12"
+		: "memory"
+		, "r3","r4","r5","r6","r8","r9","r10","r12"
 	);
 	return;
 #else
@@ -572,34 +580,36 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 		if (likely(n2)) {
 			src += n2;
 			dst += n2;
+			unsigned long dummy;
 			asm volatile (
 				".p2align 4,,15;"
 			"0:"
-				"prefetchnta 320(%0,%2);"
-				"movq    (%0,%2), %%mm0;"
-				"movq   8(%0,%2), %%mm1;"
-				"movq  16(%0,%2), %%mm2;"
-				"movq  24(%0,%2), %%mm3;"
-				"movq  32(%0,%2), %%mm4;"
-				"movq  40(%0,%2), %%mm5;"
-				"movq  48(%0,%2), %%mm6;"
-				"movq  56(%0,%2), %%mm7;"
-				"movntq  %%mm0,   (%1,%2);"
-				"movntq  %%mm1,  8(%1,%2);"
-				"movntq  %%mm2, 16(%1,%2);"
-				"movntq  %%mm3, 24(%1,%2);"
-				"movntq  %%mm4, 32(%1,%2);"
-				"movntq  %%mm5, 40(%1,%2);"
-				"movntq  %%mm6, 48(%1,%2);"
-				"movntq  %%mm7, 56(%1,%2);"
-				"add  $64, %2;"
+				"prefetchnta 320(%[IN],%[CNT]);"
+				"movq    (%[IN],%[CNT]), %%mm0;"
+				"movq   8(%[IN],%[CNT]), %%mm1;"
+				"movq  16(%[IN],%[CNT]), %%mm2;"
+				"movq  24(%[IN],%[CNT]), %%mm3;"
+				"movq  32(%[IN],%[CNT]), %%mm4;"
+				"movq  40(%[IN],%[CNT]), %%mm5;"
+				"movq  48(%[IN],%[CNT]), %%mm6;"
+				"movq  56(%[IN],%[CNT]), %%mm7;"
+				"movntq  %%mm0,   (%[OUT],%[CNT]);"
+				"movntq  %%mm1,  8(%[OUT],%[CNT]);"
+				"movntq  %%mm2, 16(%[OUT],%[CNT]);"
+				"movntq  %%mm3, 24(%[OUT],%[CNT]);"
+				"movntq  %%mm4, 32(%[OUT],%[CNT]);"
+				"movntq  %%mm5, 40(%[OUT],%[CNT]);"
+				"movntq  %%mm6, 48(%[OUT],%[CNT]);"
+				"movntq  %%mm7, 56(%[OUT],%[CNT]);"
+				"add  $64, %[CNT];"
 				"jnz   0b;"
-				: // no output
-				: "r" (src)
-				, "r" (dst)
-				, "r" (-4 * n2)
+				: [CNT] "=r"    (dummy)
+				: [IN]  "r"     (src)
+				, [OUT] "r"     (dst)
+				,       "[CNT]" (-4 * n2)
+				: "memory"
 				#if defined __MMX__
-				: "mm0", "mm1", "mm2", "mm3"
+				, "mm0", "mm1", "mm2", "mm3"
 				, "mm4", "mm5", "mm6", "mm7"
 				#endif
 			);
@@ -607,19 +617,20 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 		}
 		if (unlikely(num & 8)) {
 			asm volatile (
-				"movq    (%0), %%mm0;"
-				"movq   8(%0), %%mm1;"
-				"movq  16(%0), %%mm2;"
-				"movq  24(%0), %%mm3;"
-				"movntq  %%mm0,   (%1);"
-				"movntq  %%mm1,  8(%1);"
-				"movntq  %%mm2, 16(%1);"
-				"movntq  %%mm3, 24(%1);"
+				"movq    (%[IN]), %%mm0;"
+				"movq   8(%[IN]), %%mm1;"
+				"movq  16(%[IN]), %%mm2;"
+				"movq  24(%[IN]), %%mm3;"
+				"movntq  %%mm0,   (%[OUT]);"
+				"movntq  %%mm1,  8(%[OUT]);"
+				"movntq  %%mm2, 16(%[OUT]);"
+				"movntq  %%mm3, 24(%[OUT]);"
 				: // no output
-				: "r" (src)
-				, "r" (dst)
+				: [IN]  "r" (src)
+				, [OUT] "r" (dst)
+				: "memory"
 				#if defined __MMX__
-				: "mm0", "mm1", "mm2", "mm3"
+				, "mm0", "mm1", "mm2", "mm3"
 				#endif
 			);
 			src += 8;
@@ -627,15 +638,16 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 		}
 		if (unlikely(num & 4)) {
 			asm volatile (
-				"movq    (%0), %%mm0;"
-				"movq   8(%0), %%mm1;"
-				"movntq  %%mm0,   (%1);"
-				"movntq  %%mm1,  8(%1);"
+				"movq  (%[IN]), %%mm0;"
+				"movq 8(%[IN]), %%mm1;"
+				"movntq  %%mm0,  (%[OUT]);"
+				"movntq  %%mm1, 8(%[OUT]);"
 				: // no output
-				: "r" (src)
-				, "r" (dst)
+				: [IN]  "r" (src)
+				, [OUT] "r" (dst)
+				: "memory"
 				#if defined __MMX__
-				: "mm0", "mm1"
+				, "mm0", "mm1"
 				#endif
 			);
 			src += 4;
@@ -643,13 +655,14 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 		}
 		if (unlikely(num & 2)) {
 			asm volatile (
-				"movq    (%0), %%mm0;"
-				"movntq  %%mm0,   (%1);"
+				"movq  (%[IN]), %%mm0;"
+				"movntq  %%mm0, (%[OUT]);"
 				: // no output
-				: "r" (src)
-				, "r" (dst)
+				: [IN]  "r" (src)
+				, [OUT] "r" (dst)
+				: "memory"
 				#if defined __MMX__
-				: "mm0"
+				, "mm0"
 				#endif
 			);
 			src += 2;
