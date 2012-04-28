@@ -121,6 +121,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 #ifdef __arm__
 	if (sizeof(Pixel) == 2) {
 		// only 16bpp
+		unsigned dummy;
 		asm volatile (
 		"0:\n\t"
 			"ldmia	%[vram]!, {r3,r4}\n\t"
@@ -144,12 +145,13 @@ void BitmapConverter<Pixel>::renderGraphic4(
 			"stmia	%[out]!, {r3,r4,r5,r6,r8,r9,r10,r12}\n\t"
 			"bne	0b\n\t"
 
-			: [vram]  "=r"     (vramPtr0)
-			, [out]   "=r"     (pixelPtr)
-			:         "[vram]" (vramPtr0)
-			,         "[out]"  (pixelPtr)
+			: [vram]  "=r"      (vramPtr0)
+			, [out]   "=r"      (pixelPtr)
+			, [count] "=r"      (dummy)
+			:         "[vram]"  (vramPtr0)
+			,         "[out]"   (pixelPtr)
+			,         "[count]" (16)
 			, [pal]   "r"      (dPalette)
-			, [count] "r"      (16)
 			, [m255]  "r"      (255)
 			: "r3", "r4", "r5", "r6", "r8", "r9", "r10", "r12"
 		);
