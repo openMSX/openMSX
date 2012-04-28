@@ -445,13 +445,16 @@ void Blur_1on3<Pixel>::operator()(
 
 			"emms;"
 
-			: "=&r" (t0), "=&r" (t1), "=&r" (t2), "=&r" (t3)
+			: [IN]   "=r" (t0)
+			, [OUT]  "=r" (t1)
+			, [Y]    "=r" (t2)
+			, [CNST] "=r" (t3)
 			// The typecasts are required to avoid a Clang bug.
 			//   http://llvm.org/bugs/show_bug.cgi?id=9671
-			: [IN]   "0" (in)
-			, [OUT]  "1" (static_cast<void *>(out + (dstWidth - 6)))
-			, [Y]    "2" (-4 * (dstWidth - 6))
-			, [CNST] "3" (static_cast<void *>(&c))
+			:        "[IN]"   (in)
+			,        "[OUT]"  (static_cast<void *>(out + (dstWidth - 6)))
+			,        "[Y]"    (-4 * (dstWidth - 6))
+			,        "[CNST]" (static_cast<void *>(&c))
 			: "memory"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
