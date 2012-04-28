@@ -486,7 +486,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 #ifdef __arm__
 			unsigned dummy;
 			int* buf = bufs[i];
-			asm (
+			asm volatile (
 			"0:\n\t"
 				"ldr	%[T],[%[B]]\n\t"
 				"add	%[T],%[T],%[O]\n\t"
@@ -521,7 +521,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 				, [E]  "r"    (&buf[num])
 				,      "[PO]" (pos[i])
 				, [V]  "r"    (volAdjustedWave[i])
-				: "cc"
+				: "memory", "cc"
 			);
 #else
 			int out2 = out[i];
