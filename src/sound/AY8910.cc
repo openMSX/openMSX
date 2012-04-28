@@ -701,7 +701,7 @@ static void addFill(int*& buf, int val, unsigned num)
 		:       "[buf]" (buf)
 		, [val] "r"     (val)
 		,       "[num]" (num)
-		: "r3","r4","r5","r6"
+		: "memory", "r3","r4","r5","r6"
 	);
 	return;
 #endif
