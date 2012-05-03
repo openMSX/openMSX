@@ -13,7 +13,7 @@ Disk::Disk(DiskName name_)
 void Disk::writeTrack(byte track, byte side, const RawTrack& input)
 {
 	if (isWriteProtected()) {
-		throw WriteProtectedException("");
+		throw WriteProtectedException({});
 	}
 	writeTrackImpl(track, side, input);
 	flushCaches();

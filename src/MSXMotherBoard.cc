@@ -417,7 +417,7 @@ JoystickPortIf& MSXMotherBoard::getJoystickPort(unsigned port)
 		// some MSX machines only have 1 instead of 2 joystick ports
 		string_ref ports = getMachineConfig()->getConfig().getChildData(
 			"JoystickPorts", "AB");
-		if ((ports != "AB") && (ports != "") &&
+		if ((ports != "AB") && (!ports.empty()) &&
 		    (ports != "A") && (ports != "B")) {
 			throw ConfigException(
 				"Invalid JoystickPorts specification, "

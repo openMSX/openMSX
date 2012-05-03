@@ -9,7 +9,7 @@ void DummyMidiOutDevice::recvByte(byte /*value*/, EmuTime::param /*time*/)
 
 string_ref DummyMidiOutDevice::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyMidiOutDevice::plugHelper(

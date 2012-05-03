@@ -473,7 +473,7 @@ void SCSILS120::eject()
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
 void SCSILS120::insert(string_ref filename)
@@ -766,7 +766,7 @@ void LSXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 	if (tokens.size() == 1) {
 		auto& file = ls.file;
 		result.addListElement(ls.name + ':');
-		result.addListElement(file.is_open() ? file.getURL() : "");
+		result.addListElement(file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
@@ -820,7 +820,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file.is_open() ? file.getURL() : "";
+	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert disk before restoring 'mediaChanged'

@@ -19,7 +19,7 @@ void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)
 
 string_ref DummyCassetteDevice::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyCassetteDevice::plugHelper(Connector& /*connector*/,

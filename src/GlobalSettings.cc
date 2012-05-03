@@ -23,11 +23,11 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	, pauseOnLostFocusSetting(commandController, "pause_on_lost_focus",
 	       "pause emulation when the openMSX window loses focus", false)
 	, umrCallBackSetting(commandController, "umr_callback",
-		"Tcl proc to call when an UMR is detected", "")
+		"Tcl proc to call when an UMR is detected", {})
 	, invalidPsgDirectionsSetting(commandController,
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
-		"")
+		{})
 	, resampleSetting(commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
 		// For Dingux, LQ is good compromise between quality and performance

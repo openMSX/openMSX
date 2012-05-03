@@ -22,7 +22,7 @@ public:
 	~SettingsConfig();
 
 	void loadSetting(const FileContext& context, string_ref filename);
-	void saveSetting(string_ref filename = "");
+	void saveSetting(string_ref filename = {});
 	void setSaveSettings(bool save) { mustSaveSettings = save; }
 	void setSaveFilename(const FileContext& context, string_ref filename);
 

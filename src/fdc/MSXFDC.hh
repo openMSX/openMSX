@@ -22,7 +22,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = "");
+	explicit MSXFDC(const DeviceConfig& config, const std::string& romId = {});
 	~MSXFDC();
 
 	std::unique_ptr<Rom> rom;

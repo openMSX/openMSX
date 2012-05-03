@@ -308,7 +308,7 @@ void IDECDROM::eject()
 	file.close();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, "");
+	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, {});
 }
 
 void IDECDROM::insert(const string& filename)
@@ -337,7 +337,7 @@ void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 	if (tokens.size() == 1) {
 		auto& file = cd.file;
 		result.addListElement(cd.name + ':');
-		result.addListElement(file.is_open() ? file.getURL() : "");
+		result.addListElement(file.is_open() ? file.getURL() : string{});
 		if (!file.is_open()) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1] == "eject") || (tokens[1] == "-eject"))) {
@@ -393,7 +393,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	string filename = file.is_open() ? file.getURL() : "";
+	string filename = file.is_open() ? file.getURL() : string{};
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'

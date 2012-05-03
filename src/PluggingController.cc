@@ -147,7 +147,7 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		// complete pluggable
 		vector<string_ref> pluggableNames;
 		auto* connector = pluggingController.findConnector(tokens[1]);
-		string_ref className = connector ? connector->getClass() : "";
+		string_ref className = connector ? connector->getClass() : string_ref{};
 		for (auto& p : pluggingController.pluggables) {
 			if (p->getClass() == className) {
 				pluggableNames.emplace_back(p->getName());
@@ -184,7 +184,7 @@ void PluggingController::UnplugCmd::execute(
 	string_ref connName = tokens[1].getString();
 	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
-	pluggingController.getCliComm().update(CliComm::UNPLUG, connName, "");
+	pluggingController.getCliComm().update(CliComm::UNPLUG, connName, {});
 }
 
 string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const

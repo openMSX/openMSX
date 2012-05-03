@@ -746,7 +746,7 @@ static string stripquotes(const string& str)
 	auto last = str.find_last_of ('\"');
 	if (first == last) {
 		// Error, there's only a single double-quote char.
-		return "";
+		return {};
 	}
 	// Return the part between the quotes.
 	return str.substr(first + 1, last - first - 1);

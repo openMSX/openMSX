@@ -325,7 +325,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
 		result.addListElement(cartname + ':');
-		result.addListElement(extConf ? extConf->getName() : "");
+		result.addListElement(extConf ? extConf->getName() : string{});
 		if (!extConf) {
 			TclObject options;
 			options.addListElement("empty");
@@ -341,7 +341,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		if (auto* extConf = getExtensionConfig(cartname)) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
-				cliComm.update(CliComm::MEDIA, cartname, "");
+				cliComm.update(CliComm::MEDIA, cartname, {});
 			} catch (MSXException& e) {
 				throw CommandException("Can't remove cartridge: " +
 				                       e.getMessage());
@@ -453,7 +453,7 @@ void CartridgeSlotManager::CartridgeSlotInfo::execute(
 		if (slot.config) {
 			result.addListElement(slot.config->getName());
 		} else {
-			result.addListElement("");
+			result.addListElement(string_ref{});
 		}
 		break;
 	}

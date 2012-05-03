@@ -598,7 +598,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 		throw;
 	}
 	writeLogicalSector(entry.sector, buf);
-	return "";
+	return {};
 }
 
 // Transfer directory and all its subdirectories to the MSX diskimage
@@ -811,7 +811,7 @@ string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
 		// it is a file
 		fileExtract(fullName, msxDirEntry);
 	}
-	return "";
+	return {};
 }
 
 

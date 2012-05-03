@@ -20,7 +20,7 @@ string CLIOption::getArgument(const string& option, array_ref<string>& cmdLine) 
 
 string CLIOption::peekArgument(const array_ref<string>& cmdLine) const
 {
-	return cmdLine.empty() ? "" : cmdLine.front();
+	return cmdLine.empty() ? string{} : cmdLine.front();
 }
 
 } // namespace openmsx

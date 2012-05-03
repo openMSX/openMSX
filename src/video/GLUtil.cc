@@ -166,7 +166,7 @@ static string readTextFile(const string& filename)
 
 Shader::Shader(GLenum type, const string& filename)
 {
-	init(type, "", filename);
+	init(type, {}, filename);
 }
 
 Shader::Shader(GLenum type, const string& header, const string& filename)

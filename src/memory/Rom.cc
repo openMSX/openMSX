@@ -44,13 +44,13 @@ private:
 
 
 Rom::Rom(string name_, string description_,
-         const DeviceConfig& config, const string& id /*= ""*/)
+         const DeviceConfig& config, const string& id /*= {}*/)
 	: name(std::move(name_)), description(std::move(description_))
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
 	for (auto& c : config.getXML()->getChildren("rom")) {
-		if (c->getAttribute("id", "") == id) {
+		if (c->getAttribute("id", {}) == id) {
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
@@ -352,7 +352,7 @@ Rom::~Rom() = default;
 
 string Rom::getFilename() const
 {
-	return file.is_open() ? file.getURL() : "";
+	return file.is_open() ? file.getURL() : string{};
 }
 
 const Sha1Sum& Rom::getOriginalSHA1() const

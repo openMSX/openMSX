@@ -100,7 +100,7 @@ void Completer::completeString(
 	if (completeImpl(str,
 	                 filter(str, possibleValues, caseSensitive),
 	                 caseSensitive)) {
-		tokens.push_back("");
+		tokens.emplace_back();
 	}
 }
 
@@ -114,7 +114,7 @@ void Completer::completeString(
 	if (completeImpl(str,
 	                 filter(str, begin, end, caseSensitive),
 	                 caseSensitive)) {
-		tokens.push_back("");
+		tokens.emplace_back();
 	}
 }
 

@@ -333,7 +333,7 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 
 string Reactor::getMachineID() const
 {
-	return activeBoard ? activeBoard->getMachineID() : "";
+	return activeBoard ? activeBoard->getMachineID() : string{};
 }
 
 vector<string_ref> Reactor::getMachineIDs() const

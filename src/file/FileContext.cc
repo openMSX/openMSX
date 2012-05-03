@@ -165,18 +165,18 @@ FileContext userFileContext(string_ref savePath)
 		savePaths = { FileOperations::join(
 		                 USER_OPENMSX, "persistent", savePath) };
 	}
-	return { { "", USER_DIRS }, std::move(savePaths) };
+	return { { string{}, USER_DIRS }, std::move(savePaths) };
 }
 
 FileContext userDataFileContext(string_ref subDir)
 {
-	return { { "", USER_OPENMSX + '/' + subDir },
+	return { { string{}, USER_OPENMSX + '/' + subDir },
 	         {} };
 }
 
 FileContext currentDirFileContext()
 {
-	return { { "" },
+	return { { string{} },
 	         {} };
 }
 

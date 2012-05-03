@@ -9,7 +9,7 @@ void DummyRS232Device::signal(EmuTime::param /*time*/)
 
 string_ref DummyRS232Device::getDescription() const
 {
-	return "";
+	return {};
 }
 
 void DummyRS232Device::plugHelper(Connector& /*connector*/,

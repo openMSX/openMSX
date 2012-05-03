@@ -211,7 +211,7 @@ SettingsManager::SettingCompleter::SettingCompleter(
 
 string SettingsManager::SettingCompleter::help(const vector<string>& /*tokens*/) const
 {
-	return ""; // TODO
+	return {}; // TODO
 }
 
 void SettingsManager::SettingCompleter::tabCompletion(vector<string>& tokens) const

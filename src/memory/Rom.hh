@@ -21,7 +21,7 @@ class Rom final
 {
 public:
 	Rom(std::string name, std::string description,
-	    const DeviceConfig& config, const std::string& id = "");
+	    const DeviceConfig& config, const std::string& id = {});
 	Rom(Rom&& other) noexcept;
 	~Rom();
 

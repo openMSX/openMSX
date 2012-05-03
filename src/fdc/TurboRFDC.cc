@@ -22,12 +22,12 @@ namespace openmsx {
 
 static TurboRFDC::Type parseType(const DeviceConfig& config)
 {
-	auto ioregs = config.getChildData("io_regs", "");
+	auto ioregs = config.getChildData("io_regs", {});
 	if (ioregs == "7FF2") {
 		return TurboRFDC::R7FF2;
 	} else if (ioregs == "7FF8") {
 		return TurboRFDC::R7FF8;
-	} else if (ioregs == "") {
+	} else if (ioregs.empty()) {
 		// for backwards compatibility
 		return TurboRFDC::BOTH;
 	} else {

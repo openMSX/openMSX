@@ -193,7 +193,7 @@ string expandTilde(string_ref path)
 	}
 	auto pos = path.find_first_of('/');
 	string_ref user = ((path.size() == 1) || (pos == 1))
-	                ? ""
+	                ? string_ref{}
 	                : path.substr(1, (pos == string_ref::npos) ? pos : pos - 1);
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
@@ -395,7 +395,7 @@ string_ref getBaseName(string_ref path)
 {
 	auto pos = path.rfind('/');
 	if (pos == string_ref::npos) {
-		return "";
+		return {};
 	} else {
 		return path.substr(0, pos + 1);
 	}
@@ -532,7 +532,7 @@ string getUserHomeDir(string_ref username)
 	if (pw) {
 		dir = pw->pw_dir;
 	}
-	return dir ? dir : "";
+	return dir ? dir : string{};
 #endif
 }
 
@@ -633,7 +633,7 @@ bool getStat(string_ref filename_, Stat& st)
 	auto pos = filename.find_last_not_of('/');
 	if (pos == string::npos) {
 		// string was either empty or a (sequence of) '/' character(s)
-		filename = filename.empty() ? "" : "/";
+		filename = filename.empty() ? string{} : "/";
 	} else {
 		filename.resize(pos + 1);
 	}

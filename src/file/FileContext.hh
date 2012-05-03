@@ -30,7 +30,7 @@ private:
 FileContext configFileContext(string_ref path, string_ref hwDescr, string_ref userName);
 FileContext systemFileContext();
 FileContext preferSystemFileContext();
-FileContext userFileContext(string_ref savePath = "");
+FileContext userFileContext(string_ref savePath = {});
 FileContext userDataFileContext(string_ref subdir);
 FileContext currentDirFileContext();
 

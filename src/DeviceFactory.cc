@@ -277,7 +277,7 @@ static XMLElement createConfig(string_ref name, string_ref id)
 unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
-	static XMLElement xml(createConfig("Dummy", ""));
+	static XMLElement xml(createConfig("Dummy", {}));
 	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 

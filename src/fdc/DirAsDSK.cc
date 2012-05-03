@@ -393,7 +393,7 @@ void DirAsDSK::syncWithHost()
 	checkModifiedHostFiles();
 
 	// Last add new host files (this can only consume virtual disk space).
-	addNewHostFiles("", firstDirSector);
+	addNewHostFiles({}, firstDirSector);
 }
 
 void DirAsDSK::checkDeletedHostFiles()

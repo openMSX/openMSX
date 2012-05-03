@@ -35,7 +35,7 @@ static string_ref type2string(int type)
 		return "operator";
 	default:
 		assert(false);
-		return "";
+		return {};
 	}
 }
 #endif

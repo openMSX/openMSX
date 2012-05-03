@@ -45,7 +45,7 @@ void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 {
 	if (isWriteProtected()) {
-		throw WriteProtectedException("");
+		throw WriteProtectedException({});
 	}
 	if (!isDummyDisk() && (getNbSectors() <= sector)) {
 		throw NoSuchSectorException("No such sector");

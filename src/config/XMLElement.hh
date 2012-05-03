@@ -83,7 +83,7 @@ public:
 	std::vector<const XMLElement*> getChildren(string_ref name) const;
 
 	XMLElement& getCreateChild(string_ref name,
-	                           string_ref defaultValue = "");
+	                           string_ref defaultValue = {});
 	XMLElement& getCreateChildWithAttribute(
 		string_ref name, string_ref attName,
 		string_ref attValue);

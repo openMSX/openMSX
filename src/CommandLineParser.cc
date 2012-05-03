@@ -580,7 +580,7 @@ void CommandLineParser::BashOption::parseOption(
 	const string& /*option*/, array_ref<string>& cmdLine)
 {
 	auto& parser = OUTER(CommandLineParser, bashOption);
-	string last = cmdLine.empty() ? "" : cmdLine.front();
+	string_ref last = cmdLine.empty() ? string_ref{} : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 
 	if (last == "-machine") {
@@ -605,7 +605,7 @@ void CommandLineParser::BashOption::parseOption(
 
 string_ref CommandLineParser::BashOption::optionHelp() const
 {
-	return ""; // don't include this option in --help
+	return {}; // don't include this option in --help
 }
 
 } // namespace openmsx

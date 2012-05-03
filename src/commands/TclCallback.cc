@@ -17,7 +17,7 @@ TclCallback::TclCallback(
 		bool useCliComm_,
 		bool save)
 	: callbackSetting2(make_unique<StringSetting>(
-		controller, name, description, "",
+		controller, name, description, string_ref{},
 		save ? Setting::SAVE : Setting::DONT_SAVE))
 	, callbackSetting(*callbackSetting2)
 	, useCliComm(useCliComm_)
