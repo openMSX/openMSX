@@ -71,7 +71,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, manipulator(manipulator_)
 	, driveName(driveName_)
 {
-	init("", createCmd);
+	init({}, createCmd);
 }
 
 void DiskChanger::init(const string& prefix, bool createCmd)
@@ -319,7 +319,7 @@ bool DiskCommand::needRecord(const vector<string>& tokens) const
 
 static string calcSha1(SectorAccessibleDisk* disk)
 {
-	return disk ? disk->getSha1Sum().toString() : "";
+	return disk ? disk->getSha1Sum().toString() : string();
 }
 
 // version 1:  initial version
@@ -335,7 +335,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 		if (filename.getOriginal() == "ramdisk") {
 			diskname = DiskName(Filename(), "ramdisk");
 		} else {
-			diskname = DiskName(filename, "");
+			diskname = DiskName(filename, {});
 		}
 	} else {
 		ar.serialize("disk", diskname);

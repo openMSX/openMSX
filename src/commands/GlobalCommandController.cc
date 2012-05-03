@@ -671,7 +671,7 @@ string UpdateCmd::execute(const vector<string>& tokens)
 	} else {
 		throw SyntaxError();
 	}
-	return "";
+	return {};
 }
 
 string UpdateCmd::help(const vector<string>& /*tokens*/) const

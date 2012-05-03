@@ -357,7 +357,7 @@ vector<string_ref> split(string_ref str, char chars)
 
 string join(const vector<string_ref>& elems, char separator)
 {
-	if (elems.empty()) return string();
+	if (elems.empty()) return {};
 
 	auto it = elems.begin();
 	Builder result;

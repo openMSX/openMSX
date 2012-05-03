@@ -56,7 +56,7 @@ const string FileBase::getLocalReference()
 {
 	// default implementation, file is not backed (uncompressed) on
 	// the local file system
-	return "";
+	return {};
 }
 
 const string FileBase::getOriginalName()

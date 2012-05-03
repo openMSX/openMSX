@@ -643,7 +643,7 @@ JoystickPortIf& MSXMotherBoard::Impl::getJoystickPort(
 		// some MSX machines only have 1 instead of 2 joystick ports
 		string_ref ports = getMachineConfig()->getConfig().getChildData(
 			"JoystickPorts", "AB");
-		if ((ports != "AB") && (ports != "") &&
+		if ((ports != "AB") && (!ports.empty()) &&
 		    (ports != "A") && (ports != "B")) {
 			throw ConfigException(
 				"Invalid JoystickPorts specification, "
@@ -1004,7 +1004,7 @@ string ResetCmd::execute(const vector<string>& /*tokens*/,
                          EmuTime::param /*time*/)
 {
 	motherBoard.doReset();
-	return "";
+	return {};
 }
 
 string ResetCmd::help(const vector<string>& /*tokens*/) const
@@ -1148,7 +1148,7 @@ string RemoveExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time
 		throw CommandException("Can't remove extension '" + tokens[1] +
 		                       "': " + e.getMessage());
 	}
-	return "";
+	return {};
 }
 
 string RemoveExtCmd::help(const vector<string>& /*tokens*/) const

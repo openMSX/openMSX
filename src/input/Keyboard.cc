@@ -777,7 +777,7 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 		cmdKeyMatrix[row] &= ~mask;
 	}
 	keysChanged = true;
-	return "";
+	return {};
 }
 
 /*
@@ -1121,7 +1121,7 @@ string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*
 	// for full backwards compatibility: one option means type it...
 	if (tokens.size() == 2) {
 		type(tokens[1]);
-		return "";
+		return {};
 	}
 
         vector<string> arguments;
@@ -1145,7 +1145,7 @@ string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*
 
 	type(arguments[0]);
 
-	return "";
+	return {};
 }
 
 string KeyInserter::help(const vector<string>& /*tokens*/) const

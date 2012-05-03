@@ -335,7 +335,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		auto* extConf = getExtensionConfig(cartname);
 		TclObject object(getInterpreter());
 		object.addListElement(cartname + ':');
-		object.addListElement(extConf ? extConf->getName() : "");
+		object.addListElement(extConf ? extConf->getName() : string_ref());
 		TclObject options(getInterpreter());
 		if (!extConf) {
 			options.addListElement("empty");
@@ -353,7 +353,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		if (auto* extConf = getExtensionConfig(cartname)) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
-				cliComm.update(CliComm::MEDIA, cartname, "");
+				cliComm.update(CliComm::MEDIA, cartname, {});
 			} catch (MSXException& e) {
 				throw CommandException("Can't remove cartridge: " +
 				                       e.getMessage());
@@ -463,7 +463,7 @@ void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
 		if (slot.config) {
 			result.addListElement(slot.config->getName());
 		} else {
-			result.addListElement("");
+			result.addListElement(string_ref());
 		}
 		break;
 	}

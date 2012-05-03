@@ -26,7 +26,7 @@ static string getUserName()
 	return "default";
 #else
 	struct passwd* pw = getpwuid(getuid());
-	return pw->pw_name ? pw->pw_name : "";
+	return pw->pw_name ? pw->pw_name : string();
 #endif
 }
 

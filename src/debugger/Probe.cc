@@ -41,7 +41,7 @@ void Probe<void>::signal()
 
 std::string Probe<void>::getValue() const
 {
-	return "";
+	return {};
 }
 
 } // namespace openmsx

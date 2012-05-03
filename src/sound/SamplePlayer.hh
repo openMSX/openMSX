@@ -13,7 +13,7 @@ public:
 	SamplePlayer(const std::string& name, const std::string& desc,
 	             const DeviceConfig& config,
 	             const std::string& samplesBaseName, unsigned numSamples,
-	             const std::string& alternativeName = "");
+	             const std::string& alternativeName = {});
 	~SamplePlayer();
 
 	void reset();

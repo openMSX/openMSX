@@ -173,7 +173,7 @@ void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
 	case 2: {
 		// list widget names
 		vector<string> names;
-		gui.getTopWidget().listWidgetNames("", names);
+		gui.getTopWidget().listWidgetNames({}, names);
 		result.addListElements(names);
 		break;
 	}
@@ -303,13 +303,13 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {
 		vector<string> names;
-		gui.getTopWidget().listWidgetNames("", names);
+		gui.getTopWidget().listWidgetNames({}, names);
 		completeString(tokens, names);
 	} else {
 		try {
 			vector<string_ref> properties;
 			if (tokens[1] == "create") {
-				shared_ptr<OSDWidget> widget = create(tokens[2], "");
+				shared_ptr<OSDWidget> widget = create(tokens[2], {});
 				properties = widget->getProperties();
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {

@@ -37,7 +37,7 @@ void SaveStateCLI::parseFileType(const string& filename,
 	command = TclObject(controller.getInterpreter());
 	command.addListElement("machine");
 	string currentId = command.executeCommand();
-	if (currentId != "") {
+	if (!currentId.empty()) {
 		command = TclObject(controller.getInterpreter());
 		command.addListElement("delete_machine");
 		command.addListElement(currentId);

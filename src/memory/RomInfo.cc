@@ -188,7 +188,7 @@ string_ref RomInfo::romTypeToName(RomType type)
 			return p.first();
 		}
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
 vector<string_ref> RomInfo::getAllRomTypes()

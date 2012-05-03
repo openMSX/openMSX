@@ -438,7 +438,7 @@ string EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);
 	}
-	return "";
+	return {};
 }
 
 string EscapeGrabCmd::help(const vector<string>& /*tokens*/) const

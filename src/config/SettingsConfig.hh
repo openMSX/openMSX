@@ -24,7 +24,7 @@ public:
 	~SettingsConfig();
 
 	void loadSetting(const FileContext& context, const std::string& filename);
-	void saveSetting(const std::string& filename = "");
+	void saveSetting(const std::string& filename = {});
 	void setSaveSettings(bool save);
 	void setSaveFilename(const FileContext& context, const std::string& filename);
 

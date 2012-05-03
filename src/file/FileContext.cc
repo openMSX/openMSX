@@ -150,7 +150,7 @@ PreferSystemFileContext::PreferSystemFileContext()
 
 UserFileContext::UserFileContext(string_ref savePath)
 {
-	paths = { "", USER_DIRS };
+	paths = { string(), USER_DIRS };
 	if (!savePath.empty()) {
 		savePaths = { FileOperations::join(
 		                 USER_OPENMSX, "persistent", savePath) };
@@ -165,7 +165,7 @@ UserDataFileContext::UserDataFileContext(string_ref subDir)
 
 CurrentDirFileContext::CurrentDirFileContext()
 {
-	paths = { "" };
+	paths = { string() };
 }
 
 

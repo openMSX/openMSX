@@ -142,7 +142,7 @@ string SaveSettingsCommand::execute(const vector<string>& tokens)
 	} catch (FileException& e) {
 		throw CommandException(e.getMessage());
 	}
-	return "";
+	return {};
 }
 
 string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
@@ -174,7 +174,7 @@ string LoadSettingsCommand::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	settingsConfig.loadSetting(SystemFileContext(), tokens[1]);
-	return "";
+	return {};
 }
 
 string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const

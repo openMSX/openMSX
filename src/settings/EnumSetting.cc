@@ -35,7 +35,7 @@ string_ref EnumSettingBase::toStringBase(int value) const
 			return p.first;
 		}
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
 std::vector<string_ref> EnumSettingBase::getPossibleValues() const

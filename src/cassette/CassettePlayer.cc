@@ -215,7 +215,7 @@ string CassettePlayer::getStateString() const
 		case RECORD: return "record";
 		case STOP:   return "stop";
 	}
-	UNREACHABLE; return "";
+	UNREACHABLE; return {};
 }
 
 bool CassettePlayer::isRolling() const
@@ -667,7 +667,7 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 		string prefix = "openmsx";
 		string extension = ".wav";
 		string filename = FileOperations::parseCommandFileArgument(
-			(tokens.size() == 3) ? tokens[2] : "",
+			(tokens.size() == 3) ? tokens[2] : string(),
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
 		result << "Created new cassette image file: " << filename
@@ -883,7 +883,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	}
 	if (ar.versionAtLeast(version, 2)) {
 		string oldChecksumStr = oldChecksum.empty()
-		                      ? ""
+		                      ? string()
 		                      : oldChecksum.toString();
 		ar.serialize("checksum", oldChecksumStr);
 		oldChecksum = oldChecksumStr.empty()
