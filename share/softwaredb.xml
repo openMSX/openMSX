@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1335478381">
+<softwaredb xml:lang="en" timestamp="1336414463">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -3954,6 +3954,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1992</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">74d1c7f66242335c736da29413037bd23384efaa</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Genesis</title>
+	<system>MSX</system>
+	<company>Retroworks</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ff79f5f9c29041083c2359f85dd75b02fe07bfc6</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Genghis Khan - MSX1 Version</title>
@@ -12101,6 +12109,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2670
-Parse time 7.561 seconds on Fri Apr 27 0:13:08 CEST 2012
+Roms in this database:2671
+Parse time 7.523 seconds on Mon May 7 20:14:31 CEST 2012
  -->
