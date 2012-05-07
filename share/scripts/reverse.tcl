@@ -209,11 +209,11 @@ proc update_reversebar {} {
 		"replaying" {
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 			osd configure reverse.int.bar \
-		-relw 0 -relh 1 -z 3 -rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
+				-rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
 		}
 		"enabled" {
 			osd configure reverse.int.bar \
-					-relw 0 -relh 1 -z 3 -rgba "0xff4400a0 0xdd3300a0 0xbb2200a0 0xcccc11a0"
+				-rgba "0xff4400a0 0xdd3300a0 0xbb2200a0 0xcccc11a0"
 			if {$mouseInside} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
@@ -270,6 +270,8 @@ proc update_reversebar {} {
 		incr count
 	}
 
+	# Round fraction to avoid excessive redraws caused by rounding errors
+	set fraction [expr {round($fraction * 10000) / 10000.0}]
 	osd configure reverse.int.bar -relw $fraction
 	osd configure reverse.int.end -relx $fraction
 	osd configure reverse.int.text \
