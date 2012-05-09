@@ -392,24 +392,35 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 		a = -1;
 	}
 
-	// create surface of correct size without alpha channel
-	SDL_Surface* videoSurface = SDL_GetVideoSurface();
-	assert(videoSurface);
-	const SDL_PixelFormat& format = *videoSurface->format;
-	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		abs(width), abs(height), format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, 0));
-	if (!image.get()) {
-		throw MSXException("Couldn't allocate surface.");
+	// Figure out required bpp and color masks.
+	Uint32 rmask, gmask, bmask, amask;
+	unsigned bpp;
+	if (a == -1) {
+		// We need an alpha channel.
+		//  The SDL documentation doesn't specify this, but I've
+		//  checked the implemenation (SDL-1.2.15):
+		//  SDL_DisplayFormatAlpha() always returns a 32bpp surface,
+		//  also when the current display surface is 16bpp.
+		bpp = 32;
+		getRGBAmasks32(rmask, gmask, bmask, amask);
+	} else {
+		// No alpha channel, copy format of the display surface.
+		SDL_Surface* videoSurface = SDL_GetVideoSurface();
+		assert(videoSurface);
+		const SDL_PixelFormat& format = *videoSurface->format;
+		bpp   = format.BitsPerPixel;
+		rmask = format.Rmask;
+		gmask = format.Gmask;
+		bmask = format.Bmask;
+		amask = 0;
 	}
 
-	if (a == -1) {
-		// we need an alpha channel
-		// TODO is it possible to immediately construct the surface
-		//      with an alpha channel?
-		// TODO What about alpha channel in 16bpp?
-		SDLSurfacePtr tmp(image.release());
-		image.reset(SDL_DisplayFormatAlpha(tmp.get()));
+	// Create surface with correct size/masks.
+	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
+		abs(width), abs(height), bpp,
+		rmask, gmask, bmask, amask));
+	if (!image.get()) {
+		throw MSXException("Couldn't allocate surface.");
 	}
 
 	// draw interior
