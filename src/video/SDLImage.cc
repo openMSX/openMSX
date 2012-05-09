@@ -3,6 +3,7 @@
 #include "SDLImage.hh"
 #include "PNG.hh"
 #include "OutputSurface.hh"
+#include "PixelOperations.hh"
 #include "MSXException.hh"
 #include "vla.hh"
 #include "unreachable.hh"
@@ -68,58 +69,56 @@ static SDLSurfacePtr convertToDisplayFormat(SDL_Surface* input)
 	}
 }
 
-static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool flipX, bool flipY)
+static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
+                        bool flipX, bool flipY)
 {
+	assert(src->format->BitsPerPixel == 32);
+	assert(dst->format->BitsPerPixel == 32);
+
+	PixelOperations<unsigned> pixelOps(*dst->format);
+
 	// For interpolation: assume source dimension is one pixel
 	// smaller to avoid overflow on right and bottom edge.
 	int sx = int(65536.0 * double(src->w - 1) / double(dst->w));
 	int sy = int(65536.0 * double(src->h - 1) / double(dst->h));
 
 	// Interpolating Zoom, Scan destination
-	Uint8* sp = static_cast<Uint8*>(src->pixels);
-	Uint8* dp = static_cast<Uint8*>(dst->pixels);
-	if (flipY) dp += (dst->h - 1) * dst->pitch;
+	const unsigned* sp = static_cast<const unsigned*>(src->pixels);
+	      unsigned* dp = static_cast<      unsigned*>(dst->pixels);
+	int srcPitch = src->pitch / sizeof(unsigned);
+	int dstPitch = dst->pitch / sizeof(unsigned);
+	if (flipY) dp += (dst->h - 1) * dstPitch;
 	for (int y = 0, csy = 0; y < dst->h; ++y, csy += sy) {
-		sp += (csy >> 16) * src->pitch;
-		Uint8* c00 = sp;
-		Uint8* c10 = sp + src->pitch;
-		Uint8* c01 = c00 + 4;
-		Uint8* c11 = c10 + 4;
+		sp += (csy >> 16) * srcPitch;
+		const unsigned* c00 = sp;
+		const unsigned* c10 = sp + srcPitch;
 		csy &= 0xffff;
 		if (!flipX) {
 			// not horizontally mirrored
 			for (int x = 0, csx = 0; x < dst->w; ++x, csx += sx) {
 				int sstep = csx >> 16;
-				c00 += 4 * sstep;
-				c01 += 4 * sstep;
-				c10 += 4 * sstep;
-				c11 += 4 * sstep;
+				c00 += sstep;
+				c10 += sstep;
 				csx &= 0xffff;
 				// Interpolate RGBA
-				for (int i = 0; i < 4; ++i) {
-					int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
-					int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
-					dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
-				}
+				unsigned t1 = pixelOps.lerp(c00[0], c00[1], (csx >> 8));
+				unsigned t2 = pixelOps.lerp(c10[0], c10[1], (csx >> 8));
+				dp[x] = pixelOps.lerp(t1 , t2 , (csy >> 8));
 			}
 		} else {
-			// not horizontally mirrored
+			// horizontally mirrored
 			for (int x = dst->w - 1, csx = 0; x >= 0; --x, csx += sx) {
 				int sstep = csx >> 16;
-				c00 += 4 * sstep;
-				c01 += 4 * sstep;
-				c10 += 4 * sstep;
-				c11 += 4 * sstep;
+				c00 += sstep;
+				c10 += sstep;
 				csx &= 0xffff;
 				// Interpolate RGBA
-				for (int i = 0; i < 4; ++i) {
-					int t1 = (((c01[i] - c00[i]) * csx) >> 16) + c00[i];
-					int t2 = (((c11[i] - c10[i]) * csx) >> 16) + c10[i];
-					dp[4 * x + i] = (((t2 - t1) * csy) >> 16) + t1;
-				}
+				unsigned t1 = pixelOps.lerp(c00[0], c00[1], (csx >> 8));
+				unsigned t2 = pixelOps.lerp(c10[0], c10[1], (csx >> 8));
+				dp[x] = pixelOps.lerp(t1 , t2 , (csy >> 8));
 			}
 		}
-		dp += flipY ? -dst->pitch : dst->pitch;
+		dp += flipY ? -dstPitch : dstPitch;
 	}
 }
 
