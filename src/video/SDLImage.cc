@@ -150,7 +150,10 @@ static SDLSurfacePtr scaleImage32(
 
 static SDLSurfacePtr loadImage(const string& filename)
 {
-	SDLSurfacePtr picture(PNG::load(filename));
+	// If the output surface is 32bpp, then always load the PNG as
+	// 32bpp (even if it has no alpha channel).
+	bool want32bpp = SDL_GetVideoSurface()->format->BitsPerPixel == 32;
+	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
 	return convertToDisplayFormat(picture.get());
 }
 
@@ -159,7 +162,8 @@ static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
 	if (scaleFactor == 1.0) {
 		return loadImage(filename);
 	}
-	SDLSurfacePtr picture(PNG::load(filename));
+	bool want32bpp = true; // scaleImage32 needs 32bpp
+	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
 	int width  = int(picture->w * scaleFactor);
 	int height = int(picture->h * scaleFactor);
 	BaseImage::checkSize(width, height);
@@ -177,7 +181,8 @@ static SDLSurfacePtr loadImage(
 	if ((width == 0) || (height == 0)) {
 		return SDLSurfacePtr();
 	}
-	SDLSurfacePtr picture(PNG::load(filename));
+	bool want32bpp = true; // scaleImage32 needs 32bpp
+	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
 	SDLSurfacePtr scaled(scaleImage32(picture.get(), width, height));
 	return convertToDisplayFormat(scaled.get());
 }

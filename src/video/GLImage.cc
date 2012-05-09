@@ -56,7 +56,7 @@ static GLuint loadTexture(SDLSurfacePtr surface,
 static GLuint loadTexture(const string& filename,
 	int& width, int& height, GLfloat* texCoord)
 {
-	SDLSurfacePtr surface(PNG::load(filename));
+	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {
 		return loadTexture(surface, width, height, texCoord);
 	} catch (MSXException& e) {

@@ -101,7 +101,7 @@ static void readData(png_structp ctx, png_bytep area, png_size_t size)
 	file->read(area, unsigned(size));
 }
 
-SDLSurfacePtr load(const std::string& filename)
+SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 {
 	File file(filename);
 
@@ -110,8 +110,7 @@ SDLSurfacePtr load(const std::string& filename)
 		PNGReadHandle png;
 		png.ptr = png_create_read_struct(
 			PNG_LIBPNG_VER_STRING,
-			const_cast<char*>("decoding"), handleError, handleWarning
-			);
+			const_cast<char*>("decoding"), handleError, handleWarning);
 		if (!png.ptr) {
 			throw MSXException("Failed to allocate main struct");
 		}
@@ -144,6 +143,22 @@ SDLSurfacePtr load(const std::string& filename)
 		// - changes paletted images to RGB
 		// - adds a full alpha channel if there is transparency information in a tRNS chunk
 		png_set_expand(png.ptr);
+
+		if (want32bpp) {
+			png_set_filler(png.ptr, 0xff, PNG_FILLER_AFTER);
+		}
+
+		bool bgr = false;
+		// If the output surface has BGR format (24bpp or 32bpp), also
+		// read the PNG in BGR format.
+		// When the output surface is 16bpp, still produce PNG in BGR
+		// format because SDL *seems* to be better optimized for this
+		// format (not documented, but I checked SDL-1.2.15 source code).
+		const SDL_PixelFormat& format = *SDL_GetVideoSurface()->format;
+		if ((format.Rshift == 16) || (format.BitsPerPixel < 24)) {
+			png_set_bgr(png.ptr);
+			bgr = true;
+		}
 
 		// always convert grayscale to RGB
 		//  together with all the above conversions, the resulting image will
@@ -182,6 +197,7 @@ SDLSurfacePtr load(const std::string& filename)
 			bluMask = 0x00FF0000;
 			alpMask = bpp == 32 ? 0xFF000000 : 0;
 		}
+		if (bgr) std::swap(redMask, bluMask);
 		SDLSurfacePtr surface(SDL_CreateRGBSurface(
 			SDL_SWSURFACE, width, height, bpp,
 			redMask, grnMask, bluMask, alpMask));
@@ -208,10 +224,9 @@ SDLSurfacePtr load(const std::string& filename)
 
 		return surface;
 	} catch (MSXException& e) {
-		throw MSXException(
-			"Error while loading PNG file \"" + filename + "\": " +
-			e.getMessage()
-			);
+		throw MSXException(StringOp::Builder() <<
+			"Error while loading PNG file \"" << filename <<
+			"\": " << e.getMessage());
 	}
 }
 
