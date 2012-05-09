@@ -19,53 +19,59 @@ using std::string;
 
 namespace openmsx {
 
-template<typename Pixel>
-static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
+static bool hasConstantAlpha(const SDL_Surface& surface, byte& alpha)
 {
-	unsigned Amask = surface->format->Amask;
-	const char* data = static_cast<const char*>(surface->pixels);
-	Pixel pixel0 = *reinterpret_cast<const Pixel*>(data);
-	if (Amask != 0) {
-		// There is an alpha layer. Scan image and compare alpha from
-		// each pixel. Are they all the same?
-		Pixel alpha0 = pixel0 & Amask;
-		for (int y = 0; y < surface->h; ++y) {
-			const char* p = data + y * surface->pitch;
-			for (int x = 0; x < surface->w; ++x) {
-				if ((*reinterpret_cast<const Pixel*>(p) & Amask)
-				    != alpha0) {
-					return false;
-				}
-				p += surface->format->BytesPerPixel;
-			}
+	unsigned amask = surface.format->Amask;
+	if (amask == 0) {
+		// If there's no alpha layer, the surface has a constant
+		// opaque alpha value.
+		alpha = SDL_ALPHA_OPAQUE;
+		return true;
+	}
+
+	// There is an alpha layer, surface must be 32bpp.
+	assert(surface.format->BitsPerPixel == 32);
+	assert(surface.format->Aloss == 0);
+
+	// Compare alpha from each pixel. Are they all the same?
+	const unsigned* data = reinterpret_cast<const unsigned*>(surface.pixels);
+	unsigned alpha0 = data[0] & amask;
+	for (int y = 0; y < surface.h; ++y) {
+		const unsigned* p = data + y * (surface.pitch / sizeof(unsigned));
+		for (int x = 0; x < surface.w; ++x) {
+			if ((p[x] & amask) != alpha0) return false;
 		}
 	}
-	byte dummyR, dummyG, dummyB;
-	SDL_GetRGBA(pixel0, surface->format, &dummyR, &dummyG, &dummyB, &alpha);
+
+	// The alpha value of each pixel is constant, get that value.
+	alpha = alpha0 >> surface.format->Ashift;
 	return true;
 }
-static bool hasConstantAlpha(const SDL_Surface* surface, byte& alpha)
-{
-	switch (surface->format->BytesPerPixel) {
-	case 1:
-		return hasConstantAlpha<byte>(surface, alpha);
-	case 2:
-		return hasConstantAlpha<word>(surface, alpha);
-	case 3: case 4:
-		return hasConstantAlpha<unsigned>(surface, alpha);
-	default:
-		UNREACHABLE; return false;
-	}
-}
 
-static SDLSurfacePtr convertToDisplayFormat(SDL_Surface* input)
+static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
 {
+	SDL_PixelFormat& inFormat  = *input->format;
+	SDL_PixelFormat& outFormat = *SDL_GetVideoSurface()->format;
+	assert((inFormat.BitsPerPixel == 24) || (inFormat.BitsPerPixel == 32));
+
 	byte alpha;
-	if (hasConstantAlpha(input, alpha)) {
-		SDL_SetAlpha(input, SDL_SRCALPHA, alpha);
-		return SDLSurfacePtr(SDL_DisplayFormat(input));
+	if (hasConstantAlpha(*input, alpha)) {
+		Uint32 flags = (alpha == SDL_ALPHA_OPAQUE) ? 0 : SDL_SRCALPHA;
+		SDL_SetAlpha(input.get(), flags, alpha);
+		if (inFormat.BitsPerPixel == outFormat.BitsPerPixel) {
+			assert(inFormat.Rmask == outFormat.Rmask);
+			assert(inFormat.Gmask == outFormat.Gmask);
+			assert(inFormat.Bmask == outFormat.Bmask);
+			return input;
+		}
+		// 32bpp should never need this conversion
+		assert(outFormat.BitsPerPixel != 32);
+		return SDLSurfacePtr(SDL_DisplayFormat(input.get()));
 	} else {
-		return SDLSurfacePtr(SDL_DisplayFormatAlpha(input));
+		assert(inFormat.Amask != 0);
+		assert(inFormat.BitsPerPixel == 32);
+		// We need an alpha channel, so leave the image in 32bpp format.
+		return input;
 	}
 }
 
@@ -174,8 +180,7 @@ static SDLSurfacePtr loadImage(const string& filename)
 	// If the output surface is 32bpp, then always load the PNG as
 	// 32bpp (even if it has no alpha channel).
 	bool want32bpp = SDL_GetVideoSurface()->format->BitsPerPixel == 32;
-	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
-	return convertToDisplayFormat(picture.get());
+	return convertToDisplayFormat(PNG::load(filename, want32bpp));
 }
 
 static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
@@ -191,8 +196,7 @@ static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
 	if ((width == 0) || (height == 0)) {
 		return SDLSurfacePtr();
 	}
-	SDLSurfacePtr scaled(scaleImage32(picture, width, height));
-	return convertToDisplayFormat(scaled.get());
+	return convertToDisplayFormat(scaleImage32(picture, width, height));
 }
 
 static SDLSurfacePtr loadImage(
@@ -204,8 +208,7 @@ static SDLSurfacePtr loadImage(
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
 	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
-	SDLSurfacePtr scaled(scaleImage32(picture, width, height));
-	return convertToDisplayFormat(scaled.get());
+	return convertToDisplayFormat(scaleImage32(picture, width, height));
 }
 
 
