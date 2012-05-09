@@ -211,10 +211,10 @@ static SDLSurfacePtr loadImage(
 	return convertToDisplayFormat(scaleImage32(picture, width, height));
 }
 
-
-// 0 -- 1
-// |    |
-// 2 -- 3
+// Helper functions to draw a gradient
+//  Extract R,G,B,A components to 8.16 bit fixed point.
+//  Note the order R,G,B,A is arbitrary, the actual pixel value may have the
+//  components in a different order.
 static void unpackRGBA(unsigned rgba,
                        unsigned& r, unsigned&g, unsigned&b, unsigned& a)
 {
@@ -223,26 +223,91 @@ static void unpackRGBA(unsigned rgba,
 	b = (((rgba >>  8) & 0xFF) << 16) + 0x8000;
 	a = (((rgba >>  0) & 0xFF) << 16) + 0x8000;
 }
-static unsigned packRGBA(unsigned r, unsigned g, unsigned b, unsigned a)
+// Setup outer loop (vertical) interpolation parameters.
+//  For each component there is a pair of (initial,delta) values. These values
+//  are 8.16 bit fixed point, delta is signed.
+static void setupInterp1(unsigned rgba0, unsigned rgba1, unsigned length,
+                         unsigned& r0, unsigned& g0, unsigned& b0, unsigned& a0,
+                         int& dr, int& dg, int& db, int& da)
 {
-	r >>= 16; g >>= 16; b >>= 16; a >>= 16;
-	return (r << 24) | (g << 16) | (b << 8) | (a << 0);
-}
-static void setupInterp(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
-                        unsigned r1, unsigned g1, unsigned b1, unsigned a1,
-                        unsigned length,
-                        int& dr, int& dg, int& db, int& da)
-{
+	unpackRGBA(rgba0, r0, g0, b0, a0);
 	if (length == 1) {
 		dr = dg = db = da = 0;
 	} else {
+		unsigned r1, g1, b1, a1;
+		unpackRGBA(rgba1, r1, g1, b1, a1);
 		dr = int(r1 - r0) / int(length - 1);
 		dg = int(g1 - g0) / int(length - 1);
 		db = int(b1 - b0) / int(length - 1);
 		da = int(a1 - a0) / int(length - 1);
 	}
 }
-static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
+// Setup inner loop (horizontal) interpolation parameters.
+// - Like above we also output a pair of (initial,delta) values for each
+//   component. But we pack two components in one 32-bit value. This leaves only
+//   16 bits per component, so now the values are 8.8 bit fixed point.
+// - To avoid carry/borrow from the lower to the upper pack, we make the lower
+//   component always a positive number and output a boolean to indicate whether
+//   we should add or subtract the delta from the initial value.
+// - The 8.8 fixed point calculations in the inner loop are less accurate than
+//   the 8.16 calculations in the outer loop. This could result in not 100%
+//   accurate gradients. Though only on very wide images and the error is
+//   so small that it will hardly be visible (if at all).
+// - Packing 2 components in one value is not beneficial in the outer loop
+//   because in this routine we need the individual components of the values
+//   that are calculated by setupInterp1(). (It would also make the code even
+//   more complex).
+static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
+                         unsigned r1, unsigned g1, unsigned b1, unsigned a1,
+                         unsigned length,
+                         unsigned&  rb, unsigned&  ga,
+                         unsigned& drb, unsigned& dga,
+                         bool&   subRB, bool&   subGA)
+{
+	// Pack the initial values for the components R,B and G,A into
+	// a vector-type: two 8.16 scalars -> one [8.8 ; 8.8] vector
+	rb = ((r0 << 8) & 0xffff0000) |
+	     ((b0 >> 8) & 0x0000ffff);
+	ga = ((g0 << 8) & 0xffff0000) |
+	     ((a0 >> 8) & 0x0000ffff);
+	subRB = subGA = false;
+	if (length == 1) {
+		drb = dga = 0;
+	} else {
+		// calculate delta values
+		int dr = int(r1 - r0) / int(length - 1);
+		int dg = int(g1 - g0) / int(length - 1);
+		int db = int(b1 - b0) / int(length - 1);
+		int da = int(a1 - a0) / int(length - 1);
+		if (db < 0) { // make sure db is positive
+			dr = -dr;
+			db = -db;
+			subRB = true;
+		}
+		if (da < 0) { // make sure da is positive
+			dg = -dg;
+			da = -da;
+			subGA = true;
+		}
+		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
+		drb = ((dr << 8) & 0xffff0000) |
+		      ((db >> 8) & 0x0000ffff);
+		dga = ((dg << 8) & 0xffff0000) |
+		      ((da >> 8) & 0x0000ffff);
+	}
+}
+// Pack two [8.8 ; 8.8] vectors into one pixel.
+static unsigned packRGBA(unsigned rb, unsigned ga)
+{
+	return (rb & 0xff00ff00) | ((ga & 0xff00ff00) >> 8);
+}
+
+// Draw a gradient on the given surface. This is a bilinear interpolation
+// between 4 RGBA colors. One color for each corner, in this order:
+//    0 -- 1
+//    |    |
+//    2 -- 3
+void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 {
 	int width  = surface.w - 2 * borderSize;
 	int height = surface.h - 2 * borderSize;
@@ -250,29 +315,48 @@ static void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned border
 
 	unsigned r0, g0, b0, a0;
 	unsigned r1, g1, b1, a1;
-	unsigned r2, g2, b2, a2;
-	unsigned r3, g3, b3, a3;
-	unpackRGBA(rgba[0], r0, g0, b0, a0);
-	unpackRGBA(rgba[1], r1, g1, b1, a1);
-	unpackRGBA(rgba[2], r2, g2, b2, a2);
-	unpackRGBA(rgba[3], r3, g3, b3, a3);
-
 	int dr02, dg02, db02, da02;
 	int dr13, dg13, db13, da13;
-	setupInterp(r0, g0, b0, a0, r2, g2, b2, a2, height, dr02, dg02, db02, da02);
-	setupInterp(r1, g1, b1, a1, r3, g3, b3, a3, height, dr13, dg13, db13, da13);
+	setupInterp1(rgba[0], rgba[2], height, r0, g0, b0, a0, dr02, dg02, db02, da02);
+	setupInterp1(rgba[1], rgba[3], height, r1, g1, b1, a1, dr13, dg13, db13, da13);
 
 	unsigned* buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
 	for (int y = 0; y < height; ++y) {
-		int dr, dg, db, da;
-		setupInterp(r0, g0, b0, a0, r1, g1, b1, a1, width, dr, dg, db, da);
+		unsigned  rb,  ga;
+		unsigned drb, dga;
+		bool   subRB, subGA;
+		setupInterp2(r0, g0, b0, a0, r1, g1, b1, a1, width,
+		             rb, ga, drb, dga, subRB, subGA);
 
-		unsigned r = r0, g = g0, b = b0, a = a0;
-		for (int x = 0; x < width; ++x) {
-			buffer[x] = packRGBA(r, g, b, a);
-			r += dr; g += dg; b += db; a += da;
+		// Depending on the subRB/subGA booleans, we need to add or
+		// subtract the delta to/from the initial value. There are
+		// 2 booleans so 4 combinations:
+		if (!subRB) {
+			if (!subGA) {
+				for (int x = 0; x < width; ++x) {
+					buffer[x] = packRGBA(rb, ga);
+					rb += drb; ga += dga;
+				}
+			} else {
+				for (int x = 0; x < width; ++x) {
+					buffer[x] = packRGBA(rb, ga);
+					rb += drb; ga -= dga;
+				}
+			}
+		} else {
+			if (!subGA) {
+				for (int x = 0; x < width; ++x) {
+					buffer[x] = packRGBA(rb, ga);
+					rb -= drb; ga += dga;
+				}
+			} else {
+				for (int x = 0; x < width; ++x) {
+					buffer[x] = packRGBA(rb, ga);
+					rb -= drb; ga -= dga;
+				}
+			}
 		}
 
 		r0 += dr02; g0 += dg02; b0 += db02; a0 += da02;
