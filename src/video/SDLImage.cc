@@ -461,13 +461,28 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	}
 
 	SDLSurfacePtr tmp32 = create32BppSurface(width, height, a == -1);
+	for (int i = 0; i < 4; ++i) {
+		rgba[i] = convertColor(*tmp32->format, rgba[i]);
+	}
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
-	if (a == -1) {
-		image.reset(SDL_DisplayFormatAlpha(tmp32.get()));
+	SDL_PixelFormat& outFormat = *SDL_GetVideoSurface()->format;
+	if ((outFormat.BitsPerPixel == 32) || (a == -1)) {
+		if (outFormat.BitsPerPixel == 32) {
+			// for 32bpp the format must match
+			SDL_PixelFormat& inFormat  = *tmp32->format;
+			assert(inFormat.Rmask == outFormat.Rmask);
+			assert(inFormat.Gmask == outFormat.Gmask);
+			assert(inFormat.Bmask == outFormat.Bmask);
+			// don't compare Amask
+		} else {
+			// For 16bpp with alpha channel, also create a 32bpp
+			// image surface. See also comments in initSolid().
+		}
+		image = tmp32;
 	} else {
-		image.reset(SDL_DisplayFormat     (tmp32.get()));
+		image.reset(SDL_DisplayFormat(tmp32.get()));
 	}
 }
 
