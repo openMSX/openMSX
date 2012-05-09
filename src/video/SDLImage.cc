@@ -556,6 +556,7 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 		if (outFormat.BitsPerPixel == 32) {
 			// for 32bpp the format must match
 			SDL_PixelFormat& inFormat  = *tmp32->format;
+			(void)&inFormat;
 			assert(inFormat.Rmask == outFormat.Rmask);
 			assert(inFormat.Gmask == outFormat.Gmask);
 			assert(inFormat.Bmask == outFormat.Bmask);
