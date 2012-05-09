@@ -122,12 +122,34 @@ static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
 	}
 }
 
-static SDLSurfacePtr create32BppSurface(int width, int height)
+static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& amask)
 {
-	static const Uint32 rmask = 0xff000000;
-	static const Uint32 gmask = 0x00ff0000;
-	static const Uint32 bmask = 0x0000ff00;
-	static const Uint32 amask = 0x000000ff;
+	SDL_PixelFormat& format = *SDL_GetVideoSurface()->format;
+	if ((format.BitsPerPixel == 32) && (format.Rloss == 0) &&
+	    (format.Gloss == 0) && (format.Bloss == 0)) {
+		rmask = format.Rmask;
+		gmask = format.Gmask;
+		bmask = format.Bmask;
+		// on a display surface Amask is often 0, so instead
+		// we use the bits that are not yet used for RGB
+		//amask = format.Amask;
+		amask = ~(rmask | gmask | bmask);
+		assert((amask == 0x000000ff) || (amask == 0x0000ff00) ||
+		       (amask == 0x00ff0000) || (amask == 0xff000000));
+	} else {
+		// ARGB8888 (this seems to be the 'default' format in SDL)
+		amask = 0xff000000;
+		rmask = 0x00ff0000;
+		gmask = 0x0000ff00;
+		bmask = 0x000000ff;
+	}
+}
+
+static SDLSurfacePtr create32BppSurface(int width, int height, bool alpha)
+{
+	Uint32 rmask, gmask, bmask, amask;
+	getRGBAmasks32(rmask, gmask, bmask, amask);
+	if (!alpha) amask = 0;
 
 	SDLSurfacePtr result(SDL_CreateRGBSurface(
 		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask));
@@ -137,14 +159,13 @@ static SDLSurfacePtr create32BppSurface(int width, int height)
 	return result;
 }
 
-static SDLSurfacePtr scaleImage32(
-	SDL_Surface* input, int width, int height)
+static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
-	SDLSurfacePtr result = create32BppSurface(width, height);
-	SDLSurfacePtr tmp32(
-		SDL_ConvertSurface(input, result->format, SDL_SWSURFACE));
-	zoomSurface(tmp32.get(), result.get(), width < 0, height < 0);
+	assert(input->format->BitsPerPixel == 32);
+	bool alpha = input->format->Amask != 0;
+	SDLSurfacePtr result = create32BppSurface(width, height, alpha);
+	zoomSurface(input.get(), result.get(), width < 0, height < 0);
 	return result;
 }
 
@@ -170,7 +191,7 @@ static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
 	if ((width == 0) || (height == 0)) {
 		return SDLSurfacePtr();
 	}
-	SDLSurfacePtr scaled(scaleImage32(picture.get(), width, height));
+	SDLSurfacePtr scaled(scaleImage32(picture, width, height));
 	return convertToDisplayFormat(scaled.get());
 }
 
@@ -183,7 +204,7 @@ static SDLSurfacePtr loadImage(
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
 	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
-	SDLSurfacePtr scaled(scaleImage32(picture.get(), width, height));
+	SDLSurfacePtr scaled(scaleImage32(picture, width, height));
 	return convertToDisplayFormat(scaled.get());
 }
 
@@ -425,7 +446,7 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 		std::swap(rgba[1], rgba[3]);
 	}
 
-	SDLSurfacePtr tmp32 = create32BppSurface(width, height);
+	SDLSurfacePtr tmp32 = create32BppSurface(width, height, a == -1);
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
