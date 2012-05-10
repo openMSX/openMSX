@@ -3,9 +3,9 @@
 #ifndef PIXELOPERATIONS_HH
 #define PIXELOPERATIONS_HH
 
+#include "unreachable.hh"
 #include "build-info.hh"
 #include <SDL.h>
-#include <cassert>
 
 namespace openmsx {
 
@@ -297,7 +297,7 @@ inline unsigned PixelOperations<Pixel>::alpha(Pixel p) const
 	if (sizeof(Pixel) == 4) {
 		return (p >> getAshift()) & 0xFF;
 	} else {
-		assert(false); return 0;
+		UNREACHABLE; return 0;
 		//return (p & getAmask()) >> getAshift();
 	}
 }
@@ -681,7 +681,7 @@ inline Pixel PixelOperations<Pixel>::multiply(Pixel p, unsigned x)
 		return ((((p       & 0x00FF00FF) * x) & 0xFF00FF00) >> 8)
 		     | ((((p >> 8) & 0x00FF00FF) * x) & 0xFF00FF00);
 	} else {
-		assert(false); return 0;
+		UNREACHABLE; return 0;
 	}
 }
 

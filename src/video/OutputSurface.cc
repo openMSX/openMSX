@@ -3,7 +3,6 @@
 #include "OutputSurface.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <cassert>
 
 namespace openmsx {
 
@@ -76,7 +75,7 @@ void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)
 			format.Ashift = 24;
 			format.Aloss  = 0;
 		} else {
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 #endif

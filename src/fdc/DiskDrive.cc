@@ -2,7 +2,7 @@
 
 #include "DiskDrive.hh"
 #include "DiskExceptions.hh"
-#include <cassert>
+#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -72,12 +72,12 @@ bool DummyDrive::headLoaded(EmuTime::param /*time*/)
 
 void DummyDrive::writeTrack(const RawTrack& /*track*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 void DummyDrive::readTrack(RawTrack& /*track*/)
 {
-	assert(false);
+	UNREACHABLE;
 }
 
 EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack& /*track*/,
