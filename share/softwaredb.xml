@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1336414463">
+<softwaredb xml:lang="en" timestamp="1336756288">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1437,6 +1437,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 <software>
 	<title xml:lang="en">Burger Time</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">ccf2bdb5cbdfae61d810a096ba48569e41873940</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Burger Time</title>
 	<genmsxid>822</genmsxid>
 	<system>MSX</system>
 	<company>Radio Wave Newspaper Publisher Company</company>
@@ -2560,7 +2568,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Coleco</company>
 	<year>1981</year>
 	<country>US</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">f90c58b78d46faac333e0560676473d48c03b5af</hash><remark><text>GDX Conversion</text></remark></rom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">f90c58b78d46faac333e0560676473d48c03b5af</hash><remark><text>GDX Conversion</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Donkey Kong</title>
@@ -3680,6 +3688,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><rom><hash algo="sha1">bb3df0a7656249e486accc60f583d3dd41db590b</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Frenzy</title>
+	<system>MSX</system>
+	<company>Stern</company>
+	<year>1982</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d92af75f2f4c1a9cb338be6ffc3cd378b1928c60</hash><remark><text>GDX Conversion</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Frogger</title>
 	<genmsxid>70</genmsxid>
 	<system>MSX</system>
@@ -3956,7 +3972,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">74d1c7f66242335c736da29413037bd23384efaa</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Genesis</title>
+	<title xml:lang="en">Genesis: Dawn of a new day</title>
 	<system>MSX</system>
 	<company>Retroworks</company>
 	<year>2012</year>
@@ -5584,16 +5600,17 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1986</year>
 	<country>JP</country>
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">99330820cf8aef8bb34d56a666accb4b1ca90e30</hash><remark><text>[RC-745]</text></remark></megarom></dump>
-		<dump><megarom><type>ASCII8</type><hash algo="sha1">ecb538238fc7c5e374d723f4d6120d1b2ef5d80e</hash><remark><text>[tr En][RC-745]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII8</type><hash algo="sha1">ecb538238fc7c5e374d723f4d6120d1b2ef5d80e</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
 		<dump><original value="true">GoodMSX</original><megarom><type>Konami</type><hash algo="sha1">fe4bd35e87dd50fddd255172129b9bec38691188</hash><remark><text>[RC-745]</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">c6d2aa3e7303e0e2244256bfcfc113bafe2d6b59</hash><remark><text>[RC-745]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">2b4c386a56dddd2a3354bdf1a0041d3faa0ccc72</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">e178917d1974ac85fd58cb93b936eb9a6f44ba0d</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark><text>[tr En][RC-745] / cheat version</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">de2349227d765db73cdc44efc6338f6b530eb133</hash><remark><text>[tr En][RC-745] / Ulver crack</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash><remark><text>[RC-745] / English Translation \ cheat version</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">de2349227d765db73cdc44efc6338f6b530eb133</hash><remark><text>[RC-745] / English Translation \ Ulver crack</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">a5963fa6c95fbe34482862b0f7221b7766e3a194</hash><remark><text>[RC-745]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">bd9852ea114e8b8ff781115d1d6e6da6f8dfafff</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
-		<dump><megarom><type>Konami</type><hash algo="sha1">65a5bda34d1e1b22cfa697e4e7fdf1829cf2238d</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">65a5bda34d1e1b22cfa697e4e7fdf1829cf2238d</hash><remark><text>[RC-745]</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">ec9136f01292ca230dd10029301fe6f8df68eac6</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">King&#39;s Knight</title>
@@ -10664,6 +10681,14 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>ASCII8</type><hash algo="sha1">a8ac24a702d2c850c7a15b5196893817b0c93123</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Tapper</title>
+	<system>MSX</system>
+	<company>Bally Midway</company>
+	<year>1984</year>
+	<country>US</country>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">9bae0bd973bf8be95dcd6b037b85989be0901f6f</hash><remark><text>GDX Conversion</text></remark></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Tatica</title>
 	<genmsxid>542</genmsxid>
 	<system>MSX</system>
@@ -12109,6 +12134,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2671
-Parse time 7.523 seconds on Mon May 7 20:14:31 CEST 2012
+Roms in this database:2675
+Parse time 10.839 seconds on Fri May 11 19:11:39 CEST 2012
  -->
