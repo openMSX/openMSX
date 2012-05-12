@@ -75,10 +75,10 @@ public:
 
 private:
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
+	virtual void signalEvent(const shared_ptr<const Event>& event,
 	                         EmuTime::param time);
 	// StateChangeListener
-	virtual void signalStateChange(shared_ptr<StateChange> event);
+	virtual void signalStateChange(const shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 
 	// Schedulable
@@ -94,7 +94,7 @@ private:
 	void processGraphChange(EmuTime::param time, bool down);
 	void processKeypadEnterKey(EmuTime::param time, bool down);
 	void processSdlKey(EmuTime::param time, bool down, int key);
-	bool processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time);
+	bool processQueuedEvent(const Event& event, EmuTime::param time);
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);
 	void doKeyGhosting();

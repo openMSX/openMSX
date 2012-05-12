@@ -558,7 +558,7 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 }
 
 
-int CassettePlayer::signalEvent(shared_ptr<const Event> event)
+int CassettePlayer::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT) {
 		if (!getImageName().empty()) {

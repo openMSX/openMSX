@@ -81,7 +81,8 @@ void VideoLayer::calcCoverage()
 	setCoverage(coverage);
 }
 
-void VideoLayer::signalEvent(shared_ptr<const Event> event, EmuTime::param /*time*/)
+void VideoLayer::signalEvent(const shared_ptr<const Event>& event,
+                             EmuTime::param /*time*/)
 {
 	if ((event->getType() == OPENMSX_MACHINE_ACTIVATED) ||
 	    (event->getType() == OPENMSX_MACHINE_DEACTIVATED)) {

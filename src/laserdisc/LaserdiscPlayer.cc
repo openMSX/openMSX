@@ -847,7 +847,7 @@ void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 	}
 }
 
-int LaserdiscPlayer::signalEvent(shared_ptr<const Event> event)
+int LaserdiscPlayer::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT && video.get()) {
 		autoRun();

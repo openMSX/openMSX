@@ -17,7 +17,7 @@ public:
 
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
-	virtual void signalEvent(shared_ptr<const Event> event,
+	virtual void signalEvent(const shared_ptr<const Event>& event,
 	                         EmuTime::param time) = 0;
 
 protected:

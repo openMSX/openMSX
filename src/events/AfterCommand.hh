@@ -37,7 +37,7 @@ private:
 	template<EventType T> void executeEvents();
 	template<EventType T> std::string afterEvent(
 		const std::vector<std::string>& tokens);
-	std::string afterInputEvent(EventPtr event,
+	std::string afterInputEvent(const EventPtr& event,
 	                            const std::vector<std::string>& tokens);
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterRealTime(const std::vector<std::string>& tokens);
@@ -48,7 +48,7 @@ private:
 	void executeRealTime();
 
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	typedef std::vector<shared_ptr<AfterCmd> > AfterCmds;
 	AfterCmds afterCmds;

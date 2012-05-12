@@ -414,7 +414,7 @@ void FilePool::removeSha1Sum(File& file)
 	}
 }
 
-int FilePool::signalEvent(shared_ptr<const Event> event)
+int FilePool::signalEvent(const shared_ptr<const Event>& event)
 {
 	(void)event; // avoid warning for non-assert compiles
 	assert(event->getType() == OPENMSX_QUIT_EVENT);

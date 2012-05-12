@@ -34,7 +34,7 @@ void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
 }
 
-void MSXEventDistributor::distributeEvent(EventPtr event, EmuTime::param time)
+void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)
 {
 	// Iterate over a copy because signalEvent() may indirect call back into
 	// registerEventListener().

@@ -50,7 +50,7 @@ void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
 	recorder = NULL;
 }
 
-void StateChangeDistributor::distributeNew(EventPtr event)
+void StateChangeDistributor::distributeNew(const EventPtr& event)
 {
 	if (viewOnlyMode && isReplaying()) return;
 
@@ -60,13 +60,13 @@ void StateChangeDistributor::distributeNew(EventPtr event)
 	distribute(event);
 }
 
-void StateChangeDistributor::distributeReplay(EventPtr event)
+void StateChangeDistributor::distributeReplay(const EventPtr& event)
 {
 	assert(isReplaying());
 	distribute(event);
 }
 
-void StateChangeDistributor::distribute(EventPtr event)
+void StateChangeDistributor::distribute(const EventPtr& event)
 {
 	// Iterate over a copy because signalStateChange() may indirect call
 	// back into registerListener().

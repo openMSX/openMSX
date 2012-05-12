@@ -12,7 +12,7 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName)
 	setNbSectors(file->getSize() / SECTOR_SIZE);
 }
 
-DSKDiskImage::DSKDiskImage(const Filename& fileName, shared_ptr<File> file_)
+DSKDiskImage::DSKDiskImage(const Filename& fileName, const shared_ptr<File>& file_)
 	: SectorBasedDisk(fileName)
 	, file(file_)
 {

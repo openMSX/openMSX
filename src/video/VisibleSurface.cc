@@ -236,7 +236,7 @@ void VisibleSurface::update(const Setting& /*setting*/)
 	updateCursor();
 }
 
-int VisibleSurface::signalEvent(shared_ptr<const Event> event)
+int VisibleSurface::signalEvent(const shared_ptr<const Event>& event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_POINTER_TIMER_EVENT) {

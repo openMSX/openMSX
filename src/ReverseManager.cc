@@ -810,7 +810,7 @@ void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 	}
 }
 
-int ReverseManager::signalEvent(shared_ptr<const Event> event)
+int ReverseManager::signalEvent(const shared_ptr<const Event>& event)
 {
 	(void)event;
 	assert(event->getType() == OPENMSX_TAKE_REVERSE_SNAPSHOT);
@@ -866,7 +866,7 @@ void ReverseManager::replayNextEvent()
 	setSyncPoint(history.events[replayIndex]->getTime(), INPUT_EVENT);
 }
 
-void ReverseManager::signalStateChange(shared_ptr<StateChange> event)
+void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	if (isReplaying()) {
 		// this is an event we just replayed

@@ -71,7 +71,7 @@ EventDelay::~EventDelay()
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
 }
 
-int EventDelay::signalEvent(EventPtr event)
+int EventDelay::signalEvent(const EventPtr& event)
 {
 	toBeScheduledEvents.push_back(event);
 	return 0;
@@ -111,7 +111,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
-		EventPtr event = scheduledEvents.front();
+		EventPtr event = scheduledEvents.front(); // TODO move out
 		scheduledEvents.pop_front();
 		msxEventDistributor.distributeEvent(event, time);
 	} catch (MSXException&) {

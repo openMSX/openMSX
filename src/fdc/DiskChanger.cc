@@ -148,17 +148,17 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 {
 	// note: might throw MSXException
 	if (stateChangeDistributor) {
-		StateChangeDistributor::EventPtr event(
-			new MSXCommandEvent(args, scheduler->getCurrentTime()));
-		stateChangeDistributor->distributeNew(event);
+		stateChangeDistributor->distributeNew(
+			StateChangeDistributor::EventPtr(new MSXCommandEvent(
+				args, scheduler->getCurrentTime())));
 	} else {
-		StateChangeDistributor::EventPtr event(
-			new MSXCommandEvent(args, EmuTime::zero));
-		signalStateChange(event);
+		signalStateChange(
+			StateChangeDistributor::EventPtr(
+				new MSXCommandEvent(args, EmuTime::zero)));
 	}
 }
 
-void DiskChanger::signalStateChange(shared_ptr<StateChange> event)
+void DiskChanger::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	MSXCommandEvent* commandEvent =
 		dynamic_cast<MSXCommandEvent*>(event.get());

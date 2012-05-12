@@ -49,15 +49,15 @@ private:
 	typedef std::set<EventPtr,             deref_less<EventPtr> > KeySet;
 
 	void initDefaultBindings();
-	void bind  (EventPtr event, const HotKeyInfo& info);
-	void unbind(EventPtr event);
-	void bindDefault  (EventPtr event, const HotKeyInfo& info);
-	void unbindDefault(EventPtr event);
-	void startRepeat(EventPtr event);
+	void bind         (const EventPtr& event, const HotKeyInfo& info);
+	void unbind       (const EventPtr& event);
+	void bindDefault  (const EventPtr& event, const HotKeyInfo& info);
+	void unbindDefault(const EventPtr& event);
+	void startRepeat  (const EventPtr& event);
 	void stopRepeat();
 
 	// EventListener
-	virtual int signalEvent(EventPtr event);
+	virtual int signalEvent(const EventPtr& event);
 
 	friend class BindCmd;
 	friend class UnbindCmd;

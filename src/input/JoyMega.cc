@@ -224,7 +224,7 @@ unsigned JoyMega::calcInitialState()
 }
 
 // MSXEventListener
-void JoyMega::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
+void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
 	const JoystickEvent* joyEvent =
 		dynamic_cast<const JoystickEvent*>(event.get());
@@ -308,7 +308,7 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 }
 
 // StateChangeListener
-void JoyMega::signalStateChange(shared_ptr<StateChange> event)
+void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	const JoyMegaState* js = dynamic_cast<const JoyMegaState*>(event.get());
 	if (!js) return;

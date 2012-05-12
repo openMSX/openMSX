@@ -112,7 +112,7 @@ void KeyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
 
 
 // MSXEventListener
-void KeyJoystick::signalEvent(shared_ptr<const Event> event,
+void KeyJoystick::signalEvent(const shared_ptr<const Event>& event,
                               EmuTime::param time)
 {
 	byte press = 0;
@@ -152,7 +152,7 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 }
 
 // StateChangeListener
-void KeyJoystick::signalStateChange(shared_ptr<StateChange> event)
+void KeyJoystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	const KeyJoyState* kjs = dynamic_cast<const KeyJoyState*>(event.get());
 	if (!kjs) return;

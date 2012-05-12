@@ -32,7 +32,7 @@ public:
 	const OSDWidget* getParent() const;
 	OSDWidget* findSubWidget(const std::string& name);
 	const OSDWidget* findSubWidget(const std::string& name) const;
-	void addWidget(shared_ptr<OSDWidget> widget);
+	void addWidget(const shared_ptr<OSDWidget>& widget);
 	void deleteWidget(OSDWidget& widget);
 
 	virtual void getProperties(std::set<std::string>& result) const;
@@ -75,6 +75,7 @@ private:
 	                     std::set<std::string>& result) const;
 	friend class OSDCommand;
 
+	// note: must be shared_ptr (not unique_ptr), see OSDWidget::paintSDLRecursive()
 	typedef std::vector<shared_ptr<OSDWidget> > SubWidgets;
 	typedef std::map<std::string, OSDWidget*> SubWidgetsMap;
 

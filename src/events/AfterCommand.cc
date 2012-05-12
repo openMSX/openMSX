@@ -96,7 +96,7 @@ class AfterInputEventCmd : public AfterCmd
 {
 public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
-	                   AfterCommand::EventPtr event,
+	                   const AfterCommand::EventPtr& event,
 	                 const string& command);
 	virtual string getType() const;
 	AfterCommand::EventPtr getEvent() const { return event; }
@@ -224,8 +224,9 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else {
 		// try to interpret token as an event name
 		try {
-			EventPtr event(InputEventFactory::createInputEvent(tokens[1]));
-			return afterInputEvent(event, tokens);
+			return afterInputEvent(
+				InputEventFactory::createInputEvent(tokens[1]),
+				tokens);
 		} catch (MSXException&) {
 			throw SyntaxError();
 		}
@@ -289,7 +290,8 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	return cmd->getId();
 }
 
-string AfterCommand::afterInputEvent(EventPtr event, const vector<string>& tokens)
+string AfterCommand::afterInputEvent(const EventPtr& event,
+                                     const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -408,7 +410,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 }
 
 template<EventType T> struct AfterEventPred {
-	bool operator()(shared_ptr<AfterCmd> x) const {
+	bool operator()(const shared_ptr<AfterCmd>& x) const {
 		return !dynamic_cast<AfterEventCmd<T>*>(x.get());
 	}
 };
@@ -418,7 +420,7 @@ template<EventType T> void AfterCommand::executeEvents()
 }
 
 struct AfterTimePred {
-	bool operator()(shared_ptr<AfterCmd> x) const {
+	bool operator()(const shared_ptr<AfterCmd>& x) const {
 		if (AfterRealTimeCmd* realtimeCmd =
 		              dynamic_cast<AfterRealTimeCmd*>(x.get())) {
 			if (realtimeCmd->hasExpired()) {
@@ -434,9 +436,9 @@ void AfterCommand::executeRealTime()
 }
 
 struct AfterInputEventPred {
-	AfterInputEventPred(AfterCommand::EventPtr event_)
+	AfterInputEventPred(const AfterCommand::EventPtr& event_)
 		: event(event_) {}
-	bool operator()(shared_ptr<AfterCmd> x) const {
+	bool operator()(const shared_ptr<AfterCmd>& x) const {
 		if (AfterInputEventCmd* cmd =
 		                 dynamic_cast<AfterInputEventCmd*>(x.get())) {
 			if (*cmd->getEvent() == *event) return false;
@@ -446,7 +448,7 @@ struct AfterInputEventPred {
 	AfterCommand::EventPtr event;
 };
 
-int AfterCommand::signalEvent(shared_ptr<const Event> event)
+int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
@@ -614,7 +616,8 @@ string AfterEventCmd<T>::getType() const
 // AfterInputEventCmd
 
 AfterInputEventCmd::AfterInputEventCmd(
-		AfterCommand& afterCommand, AfterCommand::EventPtr event_,
+		AfterCommand& afterCommand,
+		const AfterCommand::EventPtr& event_,
 		const string& command)
 	: AfterCmd(afterCommand, command)
 	, event(event_)

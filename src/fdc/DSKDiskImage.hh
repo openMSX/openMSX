@@ -14,7 +14,7 @@ class DSKDiskImage : public SectorBasedDisk
 {
 public:
 	explicit DSKDiskImage(const Filename& filename);
-	DSKDiskImage(const Filename& filename, shared_ptr<File> file);
+	DSKDiskImage(const Filename& filename, const shared_ptr<File>& file);
 	virtual ~DSKDiskImage();
 
 private:

@@ -89,7 +89,7 @@ private:
 	void update(const Setting& setting);
 
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 
 	const std::auto_ptr<StringSetting> filePoolSetting;

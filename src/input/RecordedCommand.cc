@@ -72,7 +72,7 @@ static string getBaseName(const std::string& str)
 	return (pos == string::npos) ? str : str.substr(pos + 2);
 }
 
-void RecordedCommand::signalStateChange(shared_ptr<StateChange> event)
+void RecordedCommand::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	MSXCommandEvent* commandEvent =
 		dynamic_cast<MSXCommandEvent*>(event.get());

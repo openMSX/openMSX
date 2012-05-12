@@ -179,18 +179,22 @@ public:
 
 	DummyDevice& getDummyDevice();
 
-	static void insertBreakPoint(shared_ptr<BreakPoint> bp);
+	static void insertBreakPoint(const shared_ptr<BreakPoint>& bp);
 	static void removeBreakPoint(const BreakPoint& bp);
+	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
+	// TODO use multi_set sorted on BreakPoint->getAddress()
 	typedef std::multimap<word, shared_ptr<BreakPoint> > BreakPoints;
 	static const BreakPoints& getBreakPoints();
 
-	void setWatchPoint(shared_ptr<WatchPoint> watchPoint);
+	void setWatchPoint(const shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(shared_ptr<WatchPoint> watchPoint);
+	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	typedef std::vector<shared_ptr<WatchPoint> > WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
-	static void setCondition(shared_ptr<DebugCondition> cond);
+	static void setCondition(const shared_ptr<DebugCondition>& cond);
 	static void removeCondition(const DebugCondition& cond);
+	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
 	typedef std::vector<shared_ptr<DebugCondition> > Conditions;
 	static const Conditions& getConditions();
 

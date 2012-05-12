@@ -17,7 +17,7 @@ class File;
 class DMKDiskImage : public Disk
 {
 public:
-	DMKDiskImage(Filename& filename, shared_ptr<File> file);
+	DMKDiskImage(Filename& filename, const shared_ptr<File>& file);
 
 	virtual void readTrack(byte track, byte side, RawTrack& output);
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);

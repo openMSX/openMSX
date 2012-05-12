@@ -128,7 +128,7 @@ void RealTime::executeUntil(EmuTime::param time, int /*userData*/)
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));
 }
 
-int RealTime::signalEvent(shared_ptr<const Event> event)
+int RealTime::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (!motherBoard.isActive() || !enabled) {
 		// these are global events, only the active machine should

@@ -75,7 +75,7 @@ void LedStatus::handleEvent(Led led)
 		ledValue[led] ? ON : OFF);
 }
 
-int LedStatus::signalEvent(shared_ptr<const Event> /*event*/)
+int LedStatus::signalEvent(const shared_ptr<const Event>& /*event*/)
 {
 	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {

@@ -392,7 +392,7 @@ Reactor::Board Reactor::createEmptyMotherBoard()
 	return Board(new MSXMotherBoard(*this));
 }
 
-void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard)
+void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
 {
 	assert(Thread::isMainThread());
 
@@ -444,7 +444,7 @@ void Reactor::switchMachine(const string& machine)
 	deleteBoard(oldBoard);
 }
 
-void Reactor::switchBoard(Board newBoard)
+void Reactor::switchBoard(const Board& newBoard)
 {
 	assert(Thread::isMainThread());
 	assert(!newBoard.get() ||
@@ -471,6 +471,11 @@ void Reactor::switchBoard(Board newBoard)
 
 void Reactor::deleteBoard(Board board)
 {
+	// Note: pass 'board' by-value to keep the parameter from changing
+	// after the call to switchBoard(). switchBoard() changes the
+	// 'activeBoard' member variable, so the 'board' parameter would change
+	// if it were passed by reference to this method (AFAICS this only
+	// happens in ~Reactor()).
 	assert(Thread::isMainThread());
 	if (!board.get()) return;
 
@@ -613,7 +618,7 @@ void Reactor::update(const Setting& setting)
 }
 
 // EventListener
-int Reactor::signalEvent(shared_ptr<const Event> event)
+int Reactor::signalEvent(const shared_ptr<const Event>& event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
@@ -786,8 +791,7 @@ string DeleteMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	Reactor::Board board = reactor.getMachine(tokens[1]);
-	reactor.deleteBoard(board);
+	reactor.deleteBoard(reactor.getMachine(tokens[1]));
 	return "";
 }
 
@@ -842,8 +846,7 @@ string ActivateMachineCommand::execute(const vector<string>& tokens)
 	case 1:
 		return reactor.getMachineID();
 	case 2: {
-		Reactor::Board board = reactor.getMachine(tokens[1]);
-		reactor.switchBoard(board);
+		reactor.switchBoard(reactor.getMachine(tokens[1]));
 		return reactor.getMachineID();
 	}
 	default:

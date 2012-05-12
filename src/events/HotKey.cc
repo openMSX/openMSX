@@ -222,7 +222,7 @@ void HotKey::saveBindings(XMLElement& config) const
 	}
 }
 
-void HotKey::bind(EventPtr event, const HotKeyInfo& info)
+void HotKey::bind(const EventPtr& event, const HotKeyInfo& info)
 {
 	unboundKeys.erase(event);
 	boundKeys.insert(event);
@@ -232,7 +232,7 @@ void HotKey::bind(EventPtr event, const HotKeyInfo& info)
 	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
-void HotKey::unbind(EventPtr event)
+void HotKey::unbind(const EventPtr& event)
 {
 	if (boundKeys.find(event) == boundKeys.end()) {
 		// only when not a regular bound event
@@ -245,7 +245,7 @@ void HotKey::unbind(EventPtr event)
 	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
-void HotKey::bindDefault(EventPtr event, const HotKeyInfo& info)
+void HotKey::bindDefault(const EventPtr& event, const HotKeyInfo& info)
 {
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {
@@ -255,7 +255,7 @@ void HotKey::bindDefault(EventPtr event, const HotKeyInfo& info)
 	defaultMap[event] = info;
 }
 
-void HotKey::unbindDefault(EventPtr event)
+void HotKey::unbindDefault(const EventPtr& event)
 {
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {
@@ -265,8 +265,9 @@ void HotKey::unbindDefault(EventPtr event)
 	defaultMap.erase(event);
 }
 
-int HotKey::signalEvent(EventPtr event)
+int HotKey::signalEvent(const EventPtr& event_)
 {
+	EventPtr event = event_;
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
 		if (!lastEvent.get()) return true;
 		event = lastEvent;
@@ -291,7 +292,7 @@ int HotKey::signalEvent(EventPtr event)
 	return EventDistributor::MSX; // deny event to MSX listeners
 }
 
-void HotKey::startRepeat(EventPtr event)
+void HotKey::startRepeat(const EventPtr& event)
 {
 	// I initially thought about using the builtin SDL key-repeat feature,
 	// but that won't work for example on joystick buttons. So we have to

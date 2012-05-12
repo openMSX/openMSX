@@ -40,7 +40,7 @@ public:
 	  *       method doesn't catch them (in case of an exception it's
 	  *       undefined which listeners receive the event)
 	  */
-	void distributeEvent(EventPtr event, EmuTime::param time);
+	void distributeEvent(const EventPtr& event, EmuTime::param time);
 
 private:
 	bool isRegistered(MSXEventListener* listener) const;

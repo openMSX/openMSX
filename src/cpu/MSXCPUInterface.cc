@@ -716,7 +716,7 @@ DummyDevice& MSXCPUInterface::getDummyDevice()
 }
 
 
-void MSXCPUInterface::insertBreakPoint(shared_ptr<BreakPoint> bp)
+void MSXCPUInterface::insertBreakPoint(const shared_ptr<BreakPoint>& bp)
 {
 	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
 }
@@ -758,7 +758,7 @@ void MSXCPUInterface::checkBreakPoints(
 }
 
 
-void MSXCPUInterface::setWatchPoint(shared_ptr<WatchPoint> watchPoint)
+void MSXCPUInterface::setWatchPoint(const shared_ptr<WatchPoint>& watchPoint)
 {
 	watchPoints.push_back(watchPoint);
 	WatchPoint::Type type = watchPoint->getType();
@@ -780,9 +780,9 @@ void MSXCPUInterface::setWatchPoint(shared_ptr<WatchPoint> watchPoint)
 
 void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 {
-	// Pass by shared_ptr to keep the object alive for the duration of
-	// this function, otherwise it gets deleted as soon as it's
-	// removed from the watchPoints collection.
+	// Pass shared_ptr by value to keep the object alive for the duration
+	// of this function, otherwise it gets deleted as soon as it's removed
+	// from the watchPoints collection.
 	for (WatchPoints::iterator it = watchPoints.begin();
 	     it != watchPoints.end(); ++it) {
 		if (*it == watchPoint) {
@@ -814,7 +814,7 @@ const MSXCPUInterface::WatchPoints& MSXCPUInterface::getWatchPoints() const
 }
 
 
-void MSXCPUInterface::setCondition(shared_ptr<DebugCondition> cond)
+void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 {
 	conditions.push_back(cond);
 }

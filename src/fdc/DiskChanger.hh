@@ -65,7 +65,7 @@ private:
 	void sendChangeDiskEvent(const std::vector<std::string>& args);
 
 	// StateChangeListener
-	virtual void signalStateChange(shared_ptr<StateChange> event);
+	virtual void signalStateChange(const shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 
 	CommandController& controller;

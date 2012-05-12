@@ -49,8 +49,8 @@ public:
 	 * always starts from a freshly restored snapshot.
 	 * @param event The event
 	 */
-	void distributeNew   (EventPtr event);
-	void distributeReplay(EventPtr event);
+	void distributeNew   (const EventPtr& event);
+	void distributeReplay(const EventPtr& event);
 
 	/** Explicitly stop replay.
 	 * Should be called when replay->live transition cannot be signaled via
@@ -72,7 +72,7 @@ public:
 
 private:
 	bool isRegistered(StateChangeListener* listener) const;
-	void distribute(EventPtr event);
+	void distribute(const EventPtr& event);
 
 	typedef std::vector<StateChangeListener*> Listeners;
 	Listeners listeners;

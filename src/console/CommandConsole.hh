@@ -47,7 +47,7 @@ private:
 	virtual unsigned getOutputColumns() const;
 
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();

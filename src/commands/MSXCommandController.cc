@@ -175,7 +175,7 @@ CliComm& MSXCommandController::getCliComm()
 }
 
 void MSXCommandController::signalEvent(
-	shared_ptr<const Event> event, EmuTime::param /*time*/)
+	const shared_ptr<const Event>& event, EmuTime::param /*time*/)
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 

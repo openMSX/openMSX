@@ -178,7 +178,7 @@ void MidiInWindows::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInWindows::signalEvent(shared_ptr<const Event> /*event*/)
+int MidiInWindows::signalEvent(const shared_ptr<const Event>& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

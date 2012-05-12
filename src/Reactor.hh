@@ -104,13 +104,13 @@ public:
 
 	typedef shared_ptr<MSXMotherBoard> Board;
 	Board createEmptyMotherBoard();
-	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
+	void replaceBoard(MSXMotherBoard& oldBoard, const Board& newBoard); // for reverse
 
 private:
 	typedef std::vector<Board> Boards;
 
 	void createMachineSetting();
-	void switchBoard(Board newBoard);
+	void switchBoard(const Board& newBoard);
 	void deleteBoard(Board board);
 	Board getMachine(const std::string& machineID) const;
 	void getMachineIDs(std::set<std::string>& result) const;
@@ -119,7 +119,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	void unpause();
 	void pause();

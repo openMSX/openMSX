@@ -126,7 +126,8 @@ void Trackball::write(byte value, EmuTime::param /*time*/)
 }
 
 // MSXEventListener
-void Trackball::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
+void Trackball::signalEvent(const shared_ptr<const Event>& event,
+                            EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -186,7 +187,7 @@ void Trackball::createTrackballStateChange(
 }
 
 // StateChangeListener
-void Trackball::signalStateChange(shared_ptr<StateChange> event)
+void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	TrackballState* ts = dynamic_cast<TrackballState*>(event.get());
 	if (!ts) return;

@@ -188,7 +188,8 @@ byte Joystick::calcInitialState()
 }
 
 // MSXEventListener
-void Joystick::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
+void Joystick::signalEvent(const shared_ptr<const Event>& event,
+                           EmuTime::param time)
 {
 	const JoystickEvent* joyEvent =
 		dynamic_cast<const JoystickEvent*>(event.get());
@@ -280,7 +281,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 }
 
 // StateChangeListener
-void Joystick::signalStateChange(shared_ptr<StateChange> event)
+void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
 	if (!js) return;

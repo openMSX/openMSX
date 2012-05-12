@@ -106,7 +106,7 @@ void EventDistributor::deliverEvents()
 
 		for (EventQueue::const_iterator it = eventsCopy.begin();
 		     it != eventsCopy.end(); ++it) {
-			EventPtr event = *it;
+			const EventPtr& event = *it;
 			EventType type = event->getType();
 			PriorityMap priorityMapCopy = listeners[type];
 			sem.up();

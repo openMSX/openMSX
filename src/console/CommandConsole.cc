@@ -164,7 +164,7 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-int CommandConsole::signalEvent(shared_ptr<const Event> event)
+int CommandConsole::signalEvent(const shared_ptr<const Event>& event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 	if (!consoleSetting->getValue()) {

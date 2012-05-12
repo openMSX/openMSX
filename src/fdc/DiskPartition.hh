@@ -21,7 +21,7 @@ public:
 	 *              will then take (shared) ownership of that Disk.
 	 */
 	DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-	              shared_ptr<SectorAccessibleDisk> owned =
+	              const shared_ptr<SectorAccessibleDisk>& owned =
 	                  shared_ptr<SectorAccessibleDisk>());
 
 	DiskPartition(SectorAccessibleDisk& parent,

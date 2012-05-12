@@ -170,7 +170,7 @@ const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
 	return const_cast<OSDWidget*>(this)->findSubWidget(name);
 }
 
-void OSDWidget::addWidget(shared_ptr<OSDWidget> widget)
+void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 {
 	widget->setParent(this);
 	subWidgets.push_back(widget);
@@ -195,8 +195,8 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 }
 
 struct AscendingZ {
-	bool operator()(const shared_ptr<OSDWidget> lhs,
-	                const shared_ptr<OSDWidget> rhs) const {
+	bool operator()(const shared_ptr<OSDWidget>& lhs,
+	                const shared_ptr<OSDWidget>& rhs) const {
 		return lhs->getZ() < rhs->getZ();
 	}
 };

@@ -97,10 +97,10 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	// StateChangeRecorder
-	virtual void signalStateChange(shared_ptr<StateChange> event);
+	virtual void signalStateChange(const shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 	virtual bool isReplaying() const;
 

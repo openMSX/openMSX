@@ -61,7 +61,7 @@ private:
 	std::string getFullName(const std::string& name);
 
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
+	virtual void signalEvent(const shared_ptr<const Event>& event,
 	                         EmuTime::param time);
 
 	GlobalCommandController& globalCommandController;

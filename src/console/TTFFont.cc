@@ -54,7 +54,7 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
-		shared_ptr<LocalFileReference> file; // c++0x unique_ptr may also work
+		shared_ptr<LocalFileReference> file; // TODO use c++11 unique_ptr
 		TTF_Font* font;
 		int count;
 	};

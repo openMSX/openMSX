@@ -118,7 +118,8 @@ void ArkanoidPad::write(byte value, EmuTime::param /*time*/)
 }
 
 // MSXEventListener
-void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time)
+void ArkanoidPad::signalEvent(const shared_ptr<const Event>& event,
+                              EmuTime::param time)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
@@ -155,7 +156,7 @@ void ArkanoidPad::signalEvent(shared_ptr<const Event> event, EmuTime::param time
 }
 
 // StateChangeListener
-void ArkanoidPad::signalStateChange(shared_ptr<StateChange> event)
+void ArkanoidPad::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	ArkanoidState* as = dynamic_cast<ArkanoidState*>(event.get());
 	if (!as) return;

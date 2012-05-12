@@ -73,7 +73,7 @@ class MsxKeyEventQueue : public Schedulable
 {
 public:
 	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
-	void process_asap(EmuTime::param time, shared_ptr<const Event> event);
+	void process_asap(EmuTime::param time, const shared_ptr<const Event>& event);
 	void clear();
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -129,7 +129,7 @@ public:
 
 private:
 	// EventListener
-	virtual int signalEvent(shared_ptr<const Event> event);
+	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
@@ -305,7 +305,7 @@ void Keyboard::transferHostKeyMatrix(const Keyboard& source)
  *  OPENMSX_KEY_DOWN_EVENT
  *  OPENMSX_KEY_UP_EVENT
  */
-void Keyboard::signalEvent(shared_ptr<const Event> event,
+void Keyboard::signalEvent(const shared_ptr<const Event>& event,
                            EmuTime::param time)
 {
 	EventType type = event->getType();
@@ -319,7 +319,7 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 	}
 }
 
-void Keyboard::signalStateChange(shared_ptr<StateChange> event)
+void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 {
 	KeyMatrixState* kms = dynamic_cast<KeyMatrixState*>(event.get());
 	if (!kms) return;
@@ -377,11 +377,11 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 		new KeyMatrixState(time, row, press, release)));
 }
 
-bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, EmuTime::param time)
+bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	bool insertCodeKanaRelease = false;
-	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-	bool down = event->getType() == OPENMSX_KEY_DOWN_EVENT;
+	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(event);
+	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
 	Keys::KeyCode key = static_cast<Keys::KeyCode>
 		(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 	if (down) {
@@ -1015,7 +1015,8 @@ MsxKeyEventQueue::MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard_)
 {
 }
 
-void MsxKeyEventQueue::process_asap(EmuTime::param time, shared_ptr<const Event> event)
+void MsxKeyEventQueue::process_asap(EmuTime::param time,
+                                    const shared_ptr<const Event>& event)
 {
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
@@ -1034,7 +1035,7 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	// Get oldest event from the queue and process it
 	shared_ptr<const Event> event = eventQueue.front();
-	bool insertCodeKanaRelease = keyboard.processQueuedEvent(event, time);
+	bool insertCodeKanaRelease = keyboard.processQueuedEvent(*event, time);
 
 	if (insertCodeKanaRelease) {
 		// The processor pressed the CODE/KANA key
@@ -1246,7 +1247,7 @@ CapsLockAligner::~CapsLockAligner()
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
 }
 
-int CapsLockAligner::signalEvent(shared_ptr<const Event> event)
+int CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 {
 	if (state == IDLE) {
 		EmuTime::param time = getCurrentTime();

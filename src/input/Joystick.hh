@@ -60,10 +60,10 @@ private:
 	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event,
+	virtual void signalEvent(const shared_ptr<const Event>& event,
 	                         EmuTime::param time);
 	// StateChangeListener
-	virtual void signalStateChange(shared_ptr<StateChange> event);
+	virtual void signalStateChange(const shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 
 	MSXEventDistributor& eventDistributor;
