@@ -302,7 +302,7 @@ EmuTime RealDrive::getNextSector(
 	int currentAngle = getCurrentAngle(time);
 	changer->getDisk().readTrack(headPos, side, track);
 	unsigned trackLen = track.getLength();
-	int idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
+	unsigned idx = divUp(currentAngle * trackLen, TICKS_PER_ROTATION);
 	if (!track.decodeNextSector(idx, sector)) {
 		return EmuTime::infinity;
 	}

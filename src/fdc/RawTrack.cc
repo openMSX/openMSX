@@ -121,7 +121,7 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 	return result;
 }
 
-static vector<unsigned> rotateIdam(vector<unsigned> idam, int startIdx)
+static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
 	vector<unsigned>::iterator it = lower_bound(idam.begin(), idam.end(), startIdx);
@@ -132,7 +132,7 @@ static vector<unsigned> rotateIdam(vector<unsigned> idam, int startIdx)
 	return idam;
 }
 
-bool RawTrack::decodeNextSector(int startIdx, Sector& sector) const
+bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 {
 	vector<unsigned> idamCopy = rotateIdam(idam, startIdx);
 	// get first valid sector
@@ -185,7 +185,7 @@ template<typename Archive>
 void RawTrack::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("idam", idam);
-	unsigned len = data.size();
+	unsigned len = unsigned(data.size());
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("trackLength", len);
 	} else {
@@ -195,7 +195,7 @@ void RawTrack::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader()) {
 		data.resize(len);
 	}
-	ar.serialize_blob("data", data.data(), data.size());
+	ar.serialize_blob("data", data.data(), unsigned(data.size()));
 }
 INSTANTIATE_SERIALIZE_METHODS(RawTrack);
 

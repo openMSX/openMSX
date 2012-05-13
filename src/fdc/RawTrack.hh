@@ -107,7 +107,7 @@ public:
 	std::vector<Sector> decodeAll() const;
 
 	/** Get the next sector (starting from a certain index). */
-	bool decodeNextSector(int startIdx, Sector& sector) const;
+	bool decodeNextSector(unsigned startIdx, Sector& sector) const;
 
 	/** Get a sector with a specific number.
 	  * Note that if a sector with the same number occurs multiple times,
