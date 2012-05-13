@@ -89,7 +89,7 @@ public:
 	void clear(unsigned size);
 
 	/** Get track length. */
-	unsigned getLength() const { return data.size(); }
+	unsigned getLength() const { return unsigned(data.size()); }
 
 	void addIdam(unsigned idx);
 
