@@ -28,11 +28,6 @@ TODO:
 
 namespace openmsx {
 
-/** Line number where top border starts.
-  * This is independent of PAL/NTSC timing or number of lines per screen.
-  */
-static const int LINE_TOP_BORDER = 3 + 13;
-
 void PixelRenderer::draw(
 	int startX, int startY, int endX, int endY, DrawType drawType, bool atEnd)
 {
