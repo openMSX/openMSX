@@ -531,15 +531,17 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 
 	// Calculate when (lines and time) display starts.
 	lineZero =
-		( palTiming
-		? (controlRegs[9] & 0x80 ? 3 + 13 + 36 : 3 + 13 + 46)
-		: (controlRegs[9] & 0x80 ? 3 + 13 +  9 : 3 + 13 + 19)
-		) + verticalAdjust;
-	displayStart =
+		// sync + top erase:
+		3 + 13 +
+		// top border:
 		( isDisplayArea // overscan?
-		? 3 + 13 // sync + top erase
-		: lineZero
-		) * TICKS_PER_LINE
+		? 0
+		: (palTiming ? 36 : 9) +
+		  (controlRegs[9] & 0x80 ? 0 : 10) +
+		  verticalAdjust
+		);
+	displayStart =
+		lineZero * TICKS_PER_LINE
 		+ 100 + 102; // VR flips at start of left border
 	displayStartSyncTime = frameStartTime + displayStart;
 	//cerr << "new DISPLAY_START is " << (displayStart / TICKS_PER_LINE) << "\n";
@@ -669,7 +671,7 @@ void VDP::frameStart(EmuTime::param time)
 	}
 
 	// TODO: Presumably this is done here
-	// Note that if superimposing is enabled but no external video 
+	// Note that if superimposing is enabled but no external video
 	// signal is provided then the VDP stops producing a signal
 	// (at least on an MSX1, VDP(0)=1 produces "signal lost" on my
 	// monitor)
