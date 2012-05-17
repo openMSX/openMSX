@@ -46,11 +46,6 @@ XMLElement::~XMLElement()
 	removeAllChildren();
 }
 
-XMLElement* XMLElement::getParent()
-{
-	return parent;
-}
-
 const XMLElement* XMLElement::getParent() const
 {
 	return parent;

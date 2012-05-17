@@ -824,7 +824,8 @@ public:
 
 private:
 	gzFile file;
-	XMLElement* current;
+	std::auto_ptr<XMLElement> root;
+	std::vector<XMLElement*> current;
 };
 
 class XmlInputArchive : public InputArchiveBase<XmlInputArchive>
@@ -891,7 +892,8 @@ private:
 	void init(const XMLElement* e);
 
 	std::auto_ptr<XMLElement> elem;
-	std::vector<std::pair<const XMLElement*, unsigned> > elems;
+	typedef std::vector<std::pair<const XMLElement*, unsigned> > Elems;
+	Elems elems;
 };
 
 /*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \

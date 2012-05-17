@@ -46,7 +46,6 @@ public:
 	void removeAttribute(const char* name);
 
 	// parent
-	XMLElement* getParent();
 	const XMLElement* getParent() const;
 
 	// child

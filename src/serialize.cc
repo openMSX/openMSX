@@ -258,7 +258,7 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 ////
 
 XmlOutputArchive::XmlOutputArchive(const string& filename)
-	: current(new XMLElement("serial"))
+	: root(new XMLElement("serial"))
 {
 	FILE* f = FileOperations::openFile(filename, "wb");
 	if (!f) {
@@ -269,6 +269,7 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 		fclose(f);
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
+	current.push_back(root.get());
 }
 
 XmlOutputArchive::~XmlOutputArchive()
@@ -277,8 +278,7 @@ XmlOutputArchive::~XmlOutputArchive()
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
 	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
-	string dump = current->dump();
-	delete current;
+	string dump = root->dump();
 	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
 	gzclose(file);
 }
@@ -289,15 +289,15 @@ void XmlOutputArchive::saveChar(char c)
 }
 void XmlOutputArchive::save(const string& str)
 {
-	assert(current);
-	assert(current->getData().empty());
-	current->setData(str);
+	assert(!current.empty());
+	assert(current.back()->getData().empty());
+	current.back()->setData(str);
 }
 void XmlOutputArchive::save(bool b)
 {
-	assert(current);
-	assert(current->getData().empty());
-	current->setData(b ? "true" : "false");
+	assert(!current.empty());
+	assert(current.back()->getData().empty());
+	current.back()->setData(b ? "true" : "false");
 }
 void XmlOutputArchive::save(unsigned char b)
 {
@@ -326,9 +326,9 @@ void XmlOutputArchive::save(unsigned long long ull)
 
 void XmlOutputArchive::attribute(const char* name, const string& str)
 {
-	assert(current);
-	assert(!current->hasAttribute(name));
-	current->addAttribute(name, str);
+	assert(!current.empty());
+	assert(!current.back()->hasAttribute(name));
+	current.back()->addAttribute(name, str);
 }
 void XmlOutputArchive::attribute(const char* name, int i)
 {
@@ -342,17 +342,15 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 void XmlOutputArchive::beginTag(const char* tag)
 {
 	XMLElement* elem = new XMLElement(tag);
-	if (current) {
-		current->addChild(std::auto_ptr<XMLElement>(elem));
-	}
-	current = elem;
+	assert(!current.empty());
+	current.back()->addChild(std::auto_ptr<XMLElement>(elem));
+	current.push_back(elem);
 }
 void XmlOutputArchive::endTag(const char* tag)
 {
-	assert(current);
-	assert(current->getName() == tag);
-	(void)tag;
-	current = current->getParent();
+	assert(!current.empty());
+	assert(current.back()->getName() == tag); (void)tag;
+	current.pop_back();
 }
 
 ////
@@ -493,10 +491,9 @@ void XmlInputArchive::beginTag(const char* tag)
 		tag, elems.back().second);
 	if (!child) {
 		string path;
-		const XMLElement* elem = elems.back().first;
-		while (elem) {
-			path = elem->getName() + '/' + path;
-			elem = elem->getParent();
+		for (Elems::const_iterator it = elems.begin();
+		     it != elems.end(); ++it) {
+			path += it->first->getName() + '/';
 		}
 		throw XMLException(StringOp::Builder() <<
 			"No child tag \"" << tag <<

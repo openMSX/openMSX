@@ -19,12 +19,11 @@ namespace XMLLoader {
 struct XMLLoaderHelper
 {
 	XMLLoaderHelper()
-		: current(NULL)
 	{
 	}
 
 	std::auto_ptr<XMLElement> root;
-	XMLElement* current;
+	std::vector<XMLElement*> current;
 	std::string data;
 	std::string systemID;
 };
@@ -51,36 +50,35 @@ static void cbStartElement(
 	}
 
 	XMLElement* newElem2 = newElem.get();
-	if (helper->current) {
-		helper->current->addChild(newElem);
+	if (!helper->current.empty()) {
+		helper->current.back()->addChild(newElem);
 	} else {
 		helper->root = newElem;
 	}
-	helper->current = newElem2;
+	helper->current.push_back(newElem2);
 
 	helper->data.clear();
 }
 
 static void cbEndElement(
 	XMLLoaderHelper* helper,
-	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/
-	)
+	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/)
 {
-	assert(helper->current);
-	assert(reinterpret_cast<const char*>(localname)
-		== helper->current->getName());
+	assert(!helper->current.empty());
+	XMLElement& current = *helper->current.back();
+	assert(reinterpret_cast<const char*>(localname) == current.getName());
 	(void)localname;
 
-	if (!helper->current->hasChildren()) {
-		helper->current->setData(helper->data);
+	if (!current.hasChildren()) {
+		current.setData(helper->data);
 	}
-	helper->current = helper->current->getParent();
+	helper->current.pop_back();
 }
 
 static void cbCharacters(XMLLoaderHelper* helper, const xmlChar* chars, int len)
 {
-	assert(helper->current);
-	if (!helper->current->hasChildren()) {
+	assert(!helper->current.empty());
+	if (!helper->current.back()->hasChildren()) {
 		helper->data.append(reinterpret_cast<const char*>(chars), len);
 	}
 }
