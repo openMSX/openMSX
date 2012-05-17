@@ -264,7 +264,7 @@ public:
 	  * but not so during overscan.
 	  */
 	inline int getLineZero() const {
-		return lineZero;
+		return displayStart / TICKS_PER_LINE;
 	}
 
 	/** Is PAL timing active?
@@ -748,11 +748,6 @@ private:
 	  */
 	int horizontalScanOffset;
 
-	/** Absolute line number of display line zero.
-	  * @see getLineZero
-	  */
-	int lineZero;
-
 	/** Horizontal display adjust.
 	  * This value is update at the start of a line.
 	  */
@@ -872,7 +867,7 @@ private:
 	  * is printed.  */
 	bool warningPrinted;
 };
-SERIALIZE_CLASS_VERSION(VDP, 3);
+SERIALIZE_CLASS_VERSION(VDP, 4);
 
 } // namespace openmsx
 

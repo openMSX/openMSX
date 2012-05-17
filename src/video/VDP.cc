@@ -530,7 +530,7 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 
 	// Calculate when (lines and time) display starts.
 	int verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
-	lineZero =
+	int lineZero =
 		// sync + top erase:
 		3 + 13 +
 		// top border:
@@ -1433,6 +1433,7 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 // version 1: initial version
 // version 2: added frameCount
 // version 3: removed verticalAdjust
+// version 4: removed lineZero
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned version)
 {
@@ -1454,7 +1455,6 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("hScanSyncTime", hScanSyncTime);
 	ar.serialize("displayStart", displayStart);
 	ar.serialize("horizontalScanOffset", horizontalScanOffset);
-	ar.serialize("lineZero", lineZero);
 	ar.serialize("horizontalAdjust", horizontalAdjust);
 	ar.serialize("registers", controlRegs);
 	ar.serialize("blinkCount", blinkCount);
