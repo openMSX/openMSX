@@ -16,12 +16,12 @@ namespace openmsx {
 class MSXMotherBoard;
 class HDCommand;
 class File;
-class XMLElement;
+class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
-	HD(MSXMotherBoard& motherBoard, const XMLElement& config);
+	HD(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~HD();
 
 	const std::string& getName() const;

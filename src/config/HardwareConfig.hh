@@ -3,6 +3,7 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
+#include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -14,13 +15,13 @@ namespace openmsx {
 class MSXMotherBoard;
 class MSXDevice;
 class XMLElement;
+class FileContext;
 
 class HardwareConfig : private noncopyable
 {
 public:
 	static std::auto_ptr<XMLElement> loadConfig(
-		const std::string& path, const std::string& hwName,
-		const std::string& userName);
+		const std::string& filename);
 
 	static std::auto_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
@@ -32,6 +33,9 @@ public:
 
 	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
 	~HardwareConfig();
+
+	const FileContext& getFileContext() const;
+	void setFileContext(std::auto_ptr<FileContext> context);
 
 	const XMLElement& getConfig() const;
 	const std::string& getName() const;
@@ -64,6 +68,7 @@ private:
 	std::string hwName;
 	std::string userName;
 	std::auto_ptr<XMLElement> config;
+	std::auto_ptr<FileContext> context;
 
 	bool externalSlots[4][4];
 	bool externalPrimSlots[4];
@@ -77,6 +82,7 @@ private:
 
 	friend struct SerializeConstructorArgs<HardwareConfig>;
 };
+SERIALIZE_CLASS_VERSION(HardwareConfig, 2);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {

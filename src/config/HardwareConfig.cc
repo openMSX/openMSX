@@ -127,7 +127,6 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		               mapper.empty() ? "auto" : mapper)));
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
-	device->setFileContext(context);
 
 	secondary->addChild(device);
 	primary->addChild(secondary);
@@ -136,6 +135,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 
 	result->setConfig(extension);
 	result->setName(romfile);
+	result->setFileContext(context);
 
 	return result;
 }
@@ -215,6 +215,15 @@ void HardwareConfig::testRemove() const
 	}
 }
 
+const FileContext& HardwareConfig::getFileContext() const
+{
+	return *context;
+}
+void HardwareConfig::setFileContext(std::auto_ptr<FileContext> context_)
+{
+	context = context_;
+}
+
 const XMLElement& HardwareConfig::getConfig() const
 {
 	return *config;
@@ -231,21 +240,11 @@ const XMLElement& HardwareConfig::getDevices() const
 	return getConfig().getChild("devices");
 }
 
-std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
-	const string& path, const string& hwName, const string& userName)
+std::auto_ptr<XMLElement> HardwareConfig::loadConfig(const string& filename)
 {
-	SystemFileContext context;
-	string filename = context.resolve(
-		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	try {
 		LocalFileReference fileRef(filename);
-		std::auto_ptr<XMLElement> result = XMLLoader::load(
-			fileRef.getFilename(), "msxconfig2.dtd");
-
-		string baseName = FileOperations::getBaseName(filename);
-		result->setFileContext(std::auto_ptr<FileContext>(
-			new ConfigFileContext(baseName, hwName, userName)));
-		return result;
+		return XMLLoader::load(fileRef.getFilename(), "msxconfig2.dtd");
 	} catch (XMLException& e) {
 		throw MSXException(
 			"Loading of hardware configuration failed: " +
@@ -255,8 +254,14 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 
 void HardwareConfig::load(const string& path)
 {
+	string filename = SystemFileContext().resolve(
+		FileOperations::join(path, hwName, "hardwareconfig.xml"));
+	setConfig(loadConfig(filename));
+
 	assert(!userName.empty());
-	setConfig(loadConfig(path, hwName, userName));
+	string baseName = FileOperations::getBaseName(filename);
+	setFileContext(std::auto_ptr<FileContext>(
+		new ConfigFileContext(baseName, hwName, userName)));
 }
 
 void HardwareConfig::parseSlots()
@@ -391,16 +396,26 @@ void HardwareConfig::setName(const string& proposedName)
 }
 
 
-// serialize
+// version 1: initial version
+// version 2: moved FileContext here (was part of config)
 template<typename Archive>
-void HardwareConfig::serialize(Archive& ar, unsigned /*version*/)
+void HardwareConfig::serialize(Archive& ar, unsigned version)
 {
 	// filled-in by constructor:
 	//   motherBoard, hwName, userName
 	// filled-in by parseSlots()
 	//   externalSlots, externalPrimSlots, expandedSlots, allocatedPrimarySlots
 
-	ar.serialize("config", config);
+	if (ar.versionBelow(version, 2)) {
+		XMLElement::getLastSerializedFileContext(); // clear any previous value
+	}
+	ar.serialize("config", config); // fills in getLastSerializedFileContext()
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("context", context);
+	} else {
+		context = XMLElement::getLastSerializedFileContext();
+		assert(context.get());
+	}
 	if (ar.isLoader()) {
 		if (!motherBoard.getMachineConfig()) {
 			// must be done before parseSlots()

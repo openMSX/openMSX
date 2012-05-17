@@ -21,7 +21,7 @@
 
 namespace openmsx {
 
-class XMLElement;
+class DeviceConfig;
 class MSXMotherBoard;
 class LSXCommand;
 
@@ -29,7 +29,7 @@ class SCSILS120 : public SCSIDevice, public SectorAccessibleDisk,
                   public DiskContainer, private noncopyable
 {
 public:
-	SCSILS120(MSXMotherBoard& motherBoard, const XMLElement& targetconfig,
+	SCSILS120(MSXMotherBoard& motherBoard, const DeviceConfig& targetconfig,
 	          byte* const buf, unsigned mode);
 	virtual ~SCSILS120();
 

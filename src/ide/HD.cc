@@ -4,7 +4,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
@@ -23,7 +23,7 @@ using std::vector;
 static const unsigned MAX_HD = 26;
 typedef std::bitset<MAX_HD> HDInUse;
 
-HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
+HD::HD(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
 	: motherBoard(motherBoard_)
 	, name("hdX")
 {

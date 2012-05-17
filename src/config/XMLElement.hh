@@ -4,6 +4,7 @@
 #define XMLELEMENT_HH
 
 #include "serialize_constr.hh"
+#include "serialize_meta.hh"
 #include <utility>
 #include <string>
 #include <vector>
@@ -54,10 +55,6 @@ public:
 	std::auto_ptr<XMLElement> removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
 	bool hasChildren() const { return !children.empty(); }
-
-	// filecontext
-	void setFileContext(std::auto_ptr<FileContext> context);
-	FileContext& getFileContext() const;
 
 	//
 	// Convenience functions
@@ -122,6 +119,9 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	// For backwards compatibility with older savestates
+	static std::auto_ptr<FileContext> getLastSerializedFileContext();
+
 private:
 	typedef std::pair<std::string, std::string> Attribute;
 	typedef std::vector<Attribute> Attributes;
@@ -134,8 +134,8 @@ private:
 	Children children;
 	Attributes attributes;
 	XMLElement* parent;
-	std::auto_ptr<FileContext> context;
 };
+SERIALIZE_CLASS_VERSION(XMLElement, 2);
 
 template<> struct SerializeConstructorArgs<XMLElement>
 {

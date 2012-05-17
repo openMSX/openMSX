@@ -1049,8 +1049,12 @@ void ConfigInfo::execute(const vector<TclObject*>& tokens,
 	}
 	case 3: {
 		try {
-			std::auto_ptr<XMLElement> config = HardwareConfig::loadConfig(
-				configName, tokens[2]->getString(), "dummy");
+			string filename = SystemFileContext().resolve(
+				FileOperations::join(
+					configName, tokens[2]->getString(),
+					"hardwareconfig.xml"));
+			std::auto_ptr<XMLElement> config =
+				HardwareConfig::loadConfig(filename);
 			if (XMLElement* info = config->findChild("info")) {
 				const XMLElement::Children& children =
 					info->getChildren();

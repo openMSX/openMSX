@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config)
+IDEHD::IDEHD(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: HD(motherBoard, config)
 	, AbstractIDEDevice(motherBoard)
 	, diskManipulator(motherBoard.getReactor().getDiskManipulator())

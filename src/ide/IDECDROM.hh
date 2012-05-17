@@ -11,14 +11,14 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 class File;
 class CDXCommand;
 
 class IDECDROM : public AbstractIDEDevice, private noncopyable
 {
 public:
-	IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& config);
+	IDECDROM(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~IDECDROM();
 
 	void eject();

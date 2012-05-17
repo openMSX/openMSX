@@ -2,7 +2,7 @@
 
 #include "XMLElement.hh"
 #include "StringOp.hh"
-#include "FileContext.hh"
+#include "FileContext.hh" // for bwcompat
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
@@ -356,16 +356,6 @@ bool XMLElement::findAttributeInt(const char* attName,
 	}
 }
 
-void XMLElement::setFileContext(auto_ptr<FileContext> context_)
-{
-	context = context_;
-}
-
-FileContext& XMLElement::getFileContext() const
-{
-	return context.get() ? *context.get() : getParent()->getFileContext();
-}
-
 const XMLElement& XMLElement::operator=(const XMLElement& element)
 {
 	if (&element == this) {
@@ -426,14 +416,19 @@ string XMLElement::XMLEscape(const string& str)
 	return result;
 }
 
-template<typename Archive>
-void XMLElement::serialize(Archive& ar, unsigned /*version*/)
+static auto_ptr<FileContext> lastSerializedFileContext;
+auto_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 {
-	// note1: filecontext is not (yet?) serialized
-	//
-	// note2: In the past attributes were stored in a map instead of a
-	//        vector. To keep backwards compatible with the serialized
-	//        format, we still convert attributes to this format.
+	return lastSerializedFileContext; // this also sets value to NULL;
+}
+// version 1: initial version
+// version 2: removed 'context' tag
+template<typename Archive>
+void XMLElement::serialize(Archive& ar, unsigned version)
+{
+	// note: In the past attributes were stored in a map instead of a
+	//       vector. To keep backwards compatible with the serialized
+	//       format, we still convert attributes to this format.
 	typedef std::map<string, string> AttributesMap;
 
 	if (!ar.isLoader()) {
@@ -457,8 +452,17 @@ void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 			addChild(auto_ptr<XMLElement>(*it));
 		}
 	}
-	ar.serialize("context", context);
+	if (ar.versionBelow(version, 2)) {
+		assert(ar.isLoader());
+		auto_ptr<FileContext> context;
+		ar.serialize("context", context);
+		if (context.get()) {
+			assert(!lastSerializedFileContext.get());
+			lastSerializedFileContext = context;
+		}
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(XMLElement);
+
 
 } // namespace openmsx

@@ -113,13 +113,14 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 			throw MSXException(StringOp::Builder() <<
 				"Duplicate SCSI id: " << id);
 		}
+		DeviceConfig conf(config, target);
 		const XMLElement& typeElem = target.getChild("type");
 		const string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(motherBoard, target, buffer.data(),
+			dev[id].reset(new SCSIHD(motherBoard, conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else if (type == "SCSILS120") {
-			dev[id].reset(new SCSILS120(motherBoard, target, buffer.data(),
+			dev[id].reset(new SCSILS120(motherBoard, conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);

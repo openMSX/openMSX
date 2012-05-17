@@ -80,8 +80,6 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
 	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
-	xmlElement->setFileContext(
-		auto_ptr<FileContext>(new SystemFileContext()));
 	getSettingsManager().loadSettings(*xmlElement);
 	hotKey.loadBindings(*xmlElement);
 

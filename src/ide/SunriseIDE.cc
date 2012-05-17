@@ -13,8 +13,10 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
-	device[0] = IDEDeviceFactory::create(motherBoard, config.findChild("master"));
-	device[1] = IDEDeviceFactory::create(motherBoard, config.findChild("slave" ));
+	device[0] = IDEDeviceFactory::create(motherBoard,
+		DeviceConfig(config, config.findChild("master")));
+	device[1] = IDEDeviceFactory::create(motherBoard,
+		DeviceConfig(config, config.findChild("slave")));
 
 	// make valgrind happy
 	internalBank = 0;

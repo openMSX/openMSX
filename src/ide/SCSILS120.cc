@@ -27,7 +27,7 @@
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "RecordedCommand.hh"
 #include "CliComm.hh"
 #include "TclObject.hh"
@@ -106,7 +106,7 @@ private:
 static const unsigned MAX_LS = 26;
 typedef std::bitset<MAX_LS> LSInUse;
 
-SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
+SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const DeviceConfig& targetconfig,
 		byte* const buf, unsigned mode_)
 	: motherBoard(motherBoard_)
 	, buffer(buf)

@@ -11,13 +11,13 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 class DiskManipulator;
 
 class IDEHD : public HD, public AbstractIDEDevice, private noncopyable
 {
 public:
-	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config);
+	IDEHD(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~IDEHD();
 
 	template<typename Archive>

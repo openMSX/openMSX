@@ -25,7 +25,7 @@
 #include "MSXException.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <cstring>
@@ -67,7 +67,7 @@ static const byte inqdata[36] = {
 static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
                                           SectorAccessibleDisk::SECTOR_SIZE;
 
-SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
+SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const DeviceConfig& targetconfig,
                byte* const buf, unsigned mode_)
 	: HD(motherBoard_, targetconfig)
 	, motherBoard(motherBoard_)

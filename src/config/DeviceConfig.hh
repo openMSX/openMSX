@@ -4,6 +4,7 @@
 #define DEVICECONFIG_HH
 
 #include "XMLElement.hh"
+#include "HardwareConfig.hh"
 #include <string>
 #include <cassert>
 
@@ -31,6 +32,10 @@ public:
 		: hwConf(other.hwConf), devConf(&devConf_)
 	{
 	}
+	DeviceConfig(const DeviceConfig& other, const XMLElement* devConf_)
+		: hwConf(other.hwConf), devConf(devConf_)
+	{
+	}
 
 	const HardwareConfig& getHardwareConfig() const
 	{
@@ -41,12 +46,13 @@ public:
 	{
 		return devConf;
 	}
-	FileContext& getFileContext() const
-	{
-		return getXML()->getFileContext(); // TODO move to hwConf
-	}
 
-	// convenience methods
+	// convenience methods:
+	//  methods below simply delegate to HardwareConfig or XMLElement
+	const FileContext& getFileContext() const
+	{
+		return getHardwareConfig().getFileContext();
+	}
 	const XMLElement& getChild(const char* name) const
 	{
 		return getXML()->getChild(name);
