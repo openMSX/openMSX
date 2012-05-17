@@ -306,6 +306,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\commands\ProxyCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclObject.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\HardwareConfig.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
@@ -798,6 +799,7 @@
     <None Include="$(OpenMSXSrcDir)\commands\TclObject.hh" />
     <None Include="$(OpenMSXSrcDir)\config\ConfigException.hh" />
     <None Include="$(OpenMSXSrcDir)\config\HardwareConfig.hh" />
+    <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />	
     <None Include="$(OpenMSXSrcDir)\config\SettingsConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLElement.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
