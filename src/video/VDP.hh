@@ -62,26 +62,6 @@ class VDP : public MSXDevice, public Schedulable,
             private VideoSystemChangeListener
 {
 public:
-	/** VDP version: the VDP model being emulated.
-	  */
-	enum VdpVersion {
-		/** MSX1 VDP, NTSC version.
-		  * TMS9918A has NTSC encoding built in,
-		  * while TMS9928A has color difference output;
-		  * in emulation there is no difference.
-		  */
-		TMS99X8A,
-		/** MSX1 VDP, PAL version.
-		  */
-		TMS9929A,
-		/** MSX2 VDP.
-		  */
-		V9938,
-		/** MSX2+ and turbo R VDP.
-		  */
-		V9958
-	};
-
 	/** Number of VDP clock ticks per second.
 	  */
 	static const int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
@@ -235,15 +215,6 @@ public:
 		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
 	}
 
-	/** Is spritechecking done on this line?
-	  * This method is alomost equivalent to
-	  *     spritesEnabled() && isDisplayEnabled()
-	  * excepts that 'display enabled' is shifted one line to above.
-	  */
-	inline bool needSpriteChecks(int line) const {
-		return spritesEnabled() && (isDisplayArea || line == lineZero - 1);
-	}
-
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
@@ -286,13 +257,6 @@ public:
 	  */
 	inline bool isMultiPageScrolling() const {
 		return (controlRegs[25] & 0x01) && (controlRegs[2] & 0x20);
-	}
-
-	/** Gets the current horizontal display adjust.
-	  * @return Adjust: 0 is leftmost, 7 is center, 15 is rightmost.
-	  */
-	inline int getHorizontalAdjust() const {
-		return horizontalAdjust;
 	}
 
 	/** Get the absolute line number of display line zero.
@@ -492,17 +456,25 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	/** Time at which the internal VDP display line counter is reset,
-	  * expressed in ticks after vsync.
-	  * I would expect the counter to reset at line 16, but measurements
-	  * on NMS8250 show it is one line earlier. I'm not sure whether the
-	  * actual counter reset happens on line 15 or whether the VDP
-	  * timing may be one line off for some reason.
-	  * TODO: This is just an assumption, more measurements on real MSX
-	  *       are necessary to verify there is really such a thing and
-	  *       if so, that the value is accurate.
+	/** VDP version: the VDP model being emulated.
 	  */
-	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
+	enum VdpVersion {
+		/** MSX1 VDP, NTSC version.
+		  * TMS9918A has NTSC encoding built in,
+		  * while TMS9928A has color difference output;
+		  * in emulation there is no difference.
+		  */
+		TMS99X8A,
+		/** MSX1 VDP, PAL version.
+		  */
+		TMS9929A,
+		/** MSX2 VDP.
+		  */
+		V9938,
+		/** MSX2+ and turbo R VDP.
+		  */
+		V9958
+	};
 
 	/** Types of VDP sync points that can be scheduled.
 	  */
@@ -529,6 +501,18 @@ private:
 		  */
 		SET_BLANK
 	};
+
+	/** Time at which the internal VDP display line counter is reset,
+	  * expressed in ticks after vsync.
+	  * I would expect the counter to reset at line 16, but measurements
+	  * on NMS8250 show it is one line earlier. I'm not sure whether the
+	  * actual counter reset happens on line 15 or whether the VDP
+	  * timing may be one line off for some reason.
+	  * TODO: This is just an assumption, more measurements on real MSX
+	  *       are necessary to verify there is really such a thing and
+	  *       if so, that the value is accurate.
+	  */
+	static const int LINE_COUNT_RESET_TICKS = 15 * TICKS_PER_LINE;
 
 	/** Gets the number of display lines per screen.
 	  * @return 192 or 212.
@@ -771,7 +755,6 @@ private:
 
 	/** Horizontal display adjust.
 	  * This value is update at the start of a line.
-	  * @see getHorizontalAdjust.
 	  */
 	int horizontalAdjust;
 
