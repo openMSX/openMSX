@@ -94,6 +94,20 @@ RealDrive::~RealDrive()
 
 bool RealDrive::isDiskInserted() const
 {
+	// The game 'Trojka' mentions on the disk label that it works on a
+	// single-sided drive. The 2nd side of the disk actually contains a
+	// copy protection (obviously only checked on machines with a double
+	// sided drive). This copy-protection works fine in openMSX (when using
+	// a proper DMK disk image). The real disk also runs fine on machines
+	// with single sided drives. Though when we initially ran this game in
+	// an emulated machine with a single sided drive, the copy-protection
+	// check didn't pass. Initially we emulated single sided drives by
+	// simply ignoring the side-select signal. Now when the 2nd side is
+	// selected on a single sided drive, we disable the drive-ready signal.
+	// This makes the 'Trojka' copy-protection check pass.
+	// TODO verify that this is indeed how single sided drives behave
+	if (!doubleSizedDrive && (side != 0)) return false;
+
 	return !changer->getDisk().isDummyDisk();
 }
 
@@ -112,11 +126,7 @@ bool RealDrive::isDoubleSided() const
 
 void RealDrive::setSide(bool side_)
 {
-	if (doubleSizedDrive) {
-		side = side_ ? 1 : 0;
-	} else {
-		assert(side == 0);
-	}
+	side = side_ ? 1 : 0; // also for single-sided drives
 }
 
 void RealDrive::step(bool direction, EmuTime::param time)
