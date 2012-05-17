@@ -188,7 +188,7 @@ public:
 
 	/** Get the mother board this device belongs to
 	  */
-	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+	MSXMotherBoard& getMotherBoard() const;
 
 	/** Get the configuration section for this device.
 	  * This was passed as a constructor argument.
@@ -261,7 +261,6 @@ private:
 	std::vector<byte> inPorts;
 	std::vector<byte> outPorts;
 
-	MSXMotherBoard& motherBoard;
 	DeviceConfig deviceConfig;
 	std::string deviceName;
 

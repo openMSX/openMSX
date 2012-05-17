@@ -27,15 +27,15 @@ byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
 
-MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const DeviceConfig& config,
+MSXDevice::MSXDevice(MSXMotherBoard& /*motherBoard_*/, const DeviceConfig& config,
                      const string& name)
-	: motherBoard(motherBoard_), deviceConfig(config)
+	: deviceConfig(config)
 {
 	initName(name);
 }
 
-MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
-	: motherBoard(motherBoard_), deviceConfig(config)
+MSXDevice::MSXDevice(MSXMotherBoard& /*motherBoard_*/, const DeviceConfig& config)
+	: deviceConfig(config)
 {
 	initName(getDeviceConfig().getAttribute("id"));
 }
@@ -43,11 +43,11 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
 void MSXDevice::initName(const string& name)
 {
 	deviceName = name;
-	if (motherBoard.findDevice(deviceName)) {
+	if (getMotherBoard().findDevice(deviceName)) {
 		unsigned n = 0;
 		do {
 			deviceName = StringOp::Builder() << name << " (" << ++n << ')';
-		} while (motherBoard.findDevice(deviceName));
+		} while (getMotherBoard().findDevice(deviceName));
 	}
 }
 
@@ -80,6 +80,11 @@ void MSXDevice::staticInit()
 const HardwareConfig& MSXDevice::getHardwareConfig() const
 {
 	return deviceConfig.getHardwareConfig();
+}
+
+MSXMotherBoard& MSXDevice::getMotherBoard() const
+{
+	return getHardwareConfig().getMotherBoard();
 }
 
 const XMLElement& MSXDevice::getDeviceConfig() const
@@ -123,7 +128,7 @@ void MSXDevice::lockDevices()
 	for (XMLElement::Children::const_iterator it = refConfigs.begin();
 	     it != refConfigs.end(); ++it) {
 		string name = (*it)->getAttribute("idref");
-		MSXDevice* dev = motherBoard.findDevice(name);
+		MSXDevice* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
 			throw MSXException(
 				"Unsatisfied dependency: '" + getName() +
@@ -216,7 +221,7 @@ void MSXDevice::registerSlots()
 	// decode special values for 'ss'
 	if ((-128 <= ss) && (ss < 0)) {
 		if ((0 <= ps) && (ps < 4) &&
-		    motherBoard.getCPUInterface().isExpanded(ps)) {
+		    getMotherBoard().getCPUInterface().isExpanded(ps)) {
 			ss += 128;
 		} else {
 			ss = 0;
@@ -233,7 +238,7 @@ void MSXDevice::registerSlots()
 		// numerical specified slot (0, 1, 2, 3)
 	}
 
-	if (!motherBoard.getCPUInterface().isExpanded(ps)) {
+	if (!getMotherBoard().getCPUInterface().isExpanded(ps)) {
 		ss = -1;
 	}
 

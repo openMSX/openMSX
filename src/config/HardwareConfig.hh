@@ -34,6 +34,8 @@ public:
 	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
 	~HardwareConfig();
 
+	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+
 	const FileContext& getFileContext() const;
 	void setFileContext(std::auto_ptr<FileContext> context);
 
