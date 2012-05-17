@@ -16,27 +16,26 @@ using std::string;
 namespace openmsx {
 
 XMLElement::XMLElement(const string& name_)
-	: name(name_), parent(NULL)
+	: name(name_)
 {
 }
 
 XMLElement::XMLElement(const char* name_)
-	: name(name_), parent(NULL)
+	: name(name_)
 {
 }
 
 XMLElement::XMLElement(const string& name_, const string& data_)
-	: name(name_), data(data_), parent(NULL)
+	: name(name_), data(data_)
 {
 }
 
 XMLElement::XMLElement(const char* name_, const char* data_)
-	: name(name_), data(data_), parent(NULL)
+	: name(name_), data(data_)
 {
 }
 
 XMLElement::XMLElement(const XMLElement& element)
-	: parent(NULL)
 {
 	*this = element;
 }
@@ -44,11 +43,6 @@ XMLElement::XMLElement(const XMLElement& element)
 XMLElement::~XMLElement()
 {
 	removeAllChildren();
-}
-
-const XMLElement* XMLElement::getParent() const
-{
-	return parent;
 }
 
 void XMLElement::addChild(auto_ptr<XMLElement> child)
@@ -62,8 +56,6 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	// ignored when this node is later written to disk. In the case of
 	// settings.xml this behaviour is fine.
 	assert(child.get());
-	assert(!child->getParent());
-	child->parent = this;
 	XMLElement* child2 = child.release();
 	children.push_back(child2);
 }
@@ -73,7 +65,6 @@ auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 	assert(std::count(children.begin(), children.end(), &child) == 1);
 	children.erase(std::find(children.begin(), children.end(), &child));
 	XMLElement& child2 = const_cast<XMLElement&>(child);
-	child2.parent = NULL;
 	return auto_ptr<XMLElement>(&child2);
 }
 
@@ -423,6 +414,7 @@ auto_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 }
 // version 1: initial version
 // version 2: removed 'context' tag
+//            also removed 'parent', but that was never serialized
 template<typename Archive>
 void XMLElement::serialize(Archive& ar, unsigned version)
 {

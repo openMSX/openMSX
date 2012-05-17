@@ -46,9 +46,6 @@ public:
 	void setAttribute(const char* name, const std::string& value);
 	void removeAttribute(const char* name);
 
-	// parent
-	const XMLElement* getParent() const;
-
 	// child
 	typedef std::vector<XMLElement*> Children;
 	void addChild(std::auto_ptr<XMLElement> child);
@@ -133,7 +130,6 @@ private:
 	std::string data;
 	Children children;
 	Attributes attributes;
-	XMLElement* parent;
 };
 SERIALIZE_CLASS_VERSION(XMLElement, 2);
 

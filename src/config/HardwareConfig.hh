@@ -56,7 +56,8 @@ private:
 	void load(const std::string& path);
 
 	const XMLElement& getDevices() const;
-	void createDevices(const XMLElement& elem);
+	void createDevices(const XMLElement& elem,
+	                   const XMLElement* primary, const XMLElement* secondary);
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);

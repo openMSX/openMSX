@@ -179,31 +179,19 @@ void MSXDevice::registerSlots()
 		return;
 	}
 
+	// find primary and secondary slot specification
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
-	ps = 0;
-	ss = 0;
-
-	// find <primary> and <secondary> parent tags
-	const XMLElement& config = getDeviceConfig();
-	XMLElement* primaryConfig   = NULL;
-	XMLElement* secondaryConfig = NULL;
-	const XMLElement* parent = config.getParent();
-	while (true) {
-		const string& name = parent->getName();
-		if (name == "secondary") {
-			const string& secondSlot = parent->getAttribute("slot");
-			ss = slotManager.getSlotNum(secondSlot);
-			secondaryConfig = const_cast<XMLElement*>(parent);
-		} else if (name == "primary") {
-			const string& primSlot = parent->getAttribute("slot");
-			ps = slotManager.getSlotNum(primSlot);
-			primaryConfig = const_cast<XMLElement*>(parent);
-			break;
-		}
-		parent = parent->getParent();
-		if (!parent) {
-			throw MSXException("Invalid memory specification");
-		}
+	XMLElement* primaryConfig   = getDeviceConfig2().getPrimary();
+	XMLElement* secondaryConfig = getDeviceConfig2().getSecondary();
+	if (primaryConfig) {
+		ps = slotManager.getSlotNum(primaryConfig->getAttribute("slot"));
+	} else {
+		throw MSXException("Invalid memory specification");
+	}
+	if (secondaryConfig) {
+		ss = slotManager.getSlotNum(secondaryConfig->getAttribute("slot"));
+	} else {
+		ss = 0;
 	}
 
 	// This is only for backwards compatibility: in the past we added extra
@@ -212,6 +200,7 @@ void MSXDevice::registerSlots()
 	// the (possibly shared) <primary> and <secondary> tags. When loading
 	// an old savestate these tags can still occur, so keep this code. Also
 	// remove these attributes to convert to the new format.
+	const XMLElement& config = getDeviceConfig();
 	if (config.hasAttribute("primary_slot")) {
 		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
 		const string primSlot = config.getAttribute("primary_slot");

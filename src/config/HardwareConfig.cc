@@ -314,21 +314,25 @@ void HardwareConfig::parseSlots()
 
 void HardwareConfig::createDevices()
 {
-	createDevices(getDevices());
+	createDevices(getDevices(), NULL, NULL);
 }
 
-void HardwareConfig::createDevices(const XMLElement& elem)
+void HardwareConfig::createDevices(const XMLElement& elem,
+	const XMLElement* primary, const XMLElement* secondary)
 {
 	const XMLElement::Children& children = elem.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		const XMLElement& sub = **it;
 		const string& name = sub.getName();
-		if ((name == "primary") || (name == "secondary")) {
-			createDevices(sub);
+		if (name == "primary") {
+			createDevices(sub, &sub, secondary);
+		} else if (name == "secondary") {
+			createDevices(sub, primary, &sub);
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
-				motherBoard, DeviceConfig(*this, sub)));
+				motherBoard,
+				DeviceConfig(*this, sub, primary, secondary)));
 			if (device.get()) {
 				addDevice(device.release());
 			} else {

@@ -18,22 +18,33 @@ class DeviceConfig
 public:
 	DeviceConfig()
 		: hwConf(NULL), devConf(NULL)
+		, primary(NULL), secondary(NULL)
 	{
 	}
 	explicit DeviceConfig(const XMLElement& devConf_)
 		: hwConf(NULL), devConf(&devConf_)
+		, primary(NULL), secondary(NULL)
 	{
 	}
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
+		, primary(NULL), secondary(NULL)
+	{
+	}
+	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_,
+	             const XMLElement* primary_, const XMLElement* secondary_)
+		: hwConf(&hwConf_), devConf(&devConf_)
+		, primary(primary_), secondary(secondary_)
 	{
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement& devConf_)
 		: hwConf(other.hwConf), devConf(&devConf_)
+		, primary(NULL), secondary(NULL)
 	{
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement* devConf_)
 		: hwConf(other.hwConf), devConf(devConf_)
+		, primary(NULL), secondary(NULL)
 	{
 	}
 
@@ -45,6 +56,14 @@ public:
 	const XMLElement* getXML() const
 	{
 		return devConf;
+	}
+	XMLElement* getPrimary() const
+	{
+		return const_cast<XMLElement*>(primary);
+	}
+	XMLElement* getSecondary() const
+	{
+		return const_cast<XMLElement*>(secondary);
 	}
 
 	// convenience methods:
@@ -91,6 +110,8 @@ public:
 private:
 	const HardwareConfig* hwConf;
 	const XMLElement* devConf;
+	const XMLElement* primary;
+	const XMLElement* secondary;
 };
 
 } // namespace openmsx
