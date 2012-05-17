@@ -39,7 +39,7 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	: motherBoard(motherBoard_), deviceConfig(config)
 	, hardwareConfig(NULL)
 {
-	initName(getDeviceConfig().getId());
+	initName(getDeviceConfig().getAttribute("id"));
 }
 
 void MSXDevice::initName(const string& name)

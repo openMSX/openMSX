@@ -55,7 +55,7 @@ RomFSA1FMSram::RomFSA1FMSram(MSXMotherBoard& motherBoard_, const XMLElement& con
 		motherBoard.getSharedStuff("FSA1FM-sram");
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
-		info.stuff = new SRAM(motherBoard, config.getId() + " SRAM",
+		info.stuff = new SRAM(motherBoard, config.getAttribute("id") + " SRAM",
 		                      0x2000, config);
 	}
 	++info.counter;

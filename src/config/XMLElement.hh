@@ -80,7 +80,6 @@ public:
 	                      int defaultValue = 0) const;
 	bool findAttributeInt(const char* attName,
 	                      unsigned& result) const;
-	const std::string& getId() const;
 
 	// child
 	const XMLElement* findChild(const char* name) const;

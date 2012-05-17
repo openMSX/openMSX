@@ -165,7 +165,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		if (!file.get()) {
 			StringOp::Builder error;
 			error << "Couldn't find ROM file for \""
-			      << config.getId() << '"';
+			      << name << '"';
 			if (filenameElem) {
 				error << ' ' << filenameElem->getData();
 			}
@@ -201,9 +201,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		// verify SHA1
 		if (!checkSHA1(config)) {
 			motherBoard.getMSXCliComm().printWarning(
-				"SHA1 sum for '" + config.getId() +
-				"' does not match with sum of '" +
-				file->getURL() + "'.");
+				StringOp::Builder() <<
+				"SHA1 sum for '" << name <<
+				"' does not match with sum of '" <<
+				file->getURL() << "'.");
 		}
 
 		// We loaded an extrenal file, so check.

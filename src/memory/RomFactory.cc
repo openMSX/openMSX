@@ -146,7 +146,7 @@ static RomType guessRomType(const Rom& rom)
 
 auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
-	auto_ptr<Rom> rom(new Rom(motherBoard, config.getId(), "rom", config));
+	auto_ptr<Rom> rom(new Rom(motherBoard, config.getAttribute("id"), "rom", config));
 
 	// Get specified mapper type from the config.
 	RomType type;
