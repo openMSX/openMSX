@@ -7,8 +7,8 @@
 
 namespace openmsx {
 
-MicrosolFDC::MicrosolFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: WD2793BasedFDC(motherBoard, config)
+MicrosolFDC::MicrosolFDC(const DeviceConfig& config)
+	: WD2793BasedFDC(config)
 {
 }
 

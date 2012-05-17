@@ -16,30 +16,18 @@
 namespace openmsx {
 
 class CassetteImage;
+class HardwareConfig;
 class MSXMotherBoard;
-class Scheduler;
-class CliComm;
-class FilePool;
 class Wav8Writer;
 class LoadingIndicator;
-class ThrottleManager;
 class BooleanSetting;
 class TapeCommand;
-class CommandController;
-class StateChangeDistributor;
-class EventDistributor;
 
 class CassettePlayer : public CassetteDevice, public ResampledSoundDevice
                      , private EventListener, private Schedulable
 {
 public:
-	CassettePlayer(CommandController& commandController,
-	               MSXMotherBoard& motherBoard, Scheduler& Scheduler,
-	               StateChangeDistributor& stateChangeDistributor,
-	               EventDistributor& eventDistributor,
-	               CliComm& cliComm,
-	               FilePool& filePool,
-	               ThrottleManager& throttleManager);
+	explicit CassettePlayer(const HardwareConfig& hwConf);
 	virtual ~CassettePlayer();
 
 	// CassetteDevice
@@ -148,11 +136,7 @@ private:
 	unsigned audioPos;
 	Filename casImage;
 
-	CommandController& commandController;
-	CliComm& cliComm;
-	FilePool& filePool;
-	EventDistributor& eventDistributor;
-
+	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<TapeCommand> tapeCommand;
 	const std::auto_ptr<LoadingIndicator> loadingIndicator;
 	const std::auto_ptr<BooleanSetting> autoRunSetting;

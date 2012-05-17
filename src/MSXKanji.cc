@@ -7,9 +7,9 @@
 
 namespace openmsx {
 
-MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, rom(new Rom(motherBoard, getName(), "Kanji ROM", config))
+MSXKanji::MSXKanji(const DeviceConfig& config)
+	: MSXDevice(config)
+	, rom(new Rom(getName(), "Kanji ROM", config))
 	, isLascom(config.getChildData("type", "") == "lascom")
 {
 	int size = rom->getSize();

@@ -17,9 +17,8 @@
 
 namespace openmsx {
 
-RomKonami::RomKonami(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
+RomKonami::RomKonami(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(config, rom)
 {
 	// Konami mapper is 256kB in size, even if ROM is smaller.
 	setBlockMask(31);

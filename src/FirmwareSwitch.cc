@@ -5,6 +5,7 @@
 #include "CliComm.hh"
 #include "CommandController.hh"
 #include "DeviceConfig.hh"
+#include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
@@ -15,13 +16,12 @@ namespace openmsx {
 
 static const std::string filename = "firmwareswitch";
 
-FirmwareSwitch::FirmwareSwitch(CommandController& commandController,
-                               const DeviceConfig& config_)
+FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)
-	, setting(new BooleanSetting(commandController, "firmwareswitch",
+	, setting(new BooleanSetting(config.getMotherBoard().getCommandController(),
+	          "firmwareswitch",
 	          "This setting controls the firmware switch",
 	          false, Setting::DONT_SAVE))
-	, cliComm(commandController.getCliComm())
 {
 	// load firmware switch setting from persistent data
 	try {
@@ -31,8 +31,8 @@ FirmwareSwitch::FirmwareSwitch(CommandController& commandController,
 		file.read(&bytebuf, 1);
 		setting->changeValue(bytebuf != 0);
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't load firmwareswitch status: " +
-		                     e.getMessage());
+		config.getMotherBoard().getMSXCliComm().printWarning(
+			"Couldn't load firmwareswitch status: " + e.getMessage());
 	}
 }
 
@@ -45,8 +45,8 @@ FirmwareSwitch::~FirmwareSwitch()
 		byte bytebuf = setting->getValue() ? 0xFF : 0x00;
 		file.write(&bytebuf, 1);
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't save firmwareswitch status: " +
-		                     e.getMessage());
+		config.getMotherBoard().getMSXCliComm().printWarning(
+			"Couldn't save firmwareswitch status: " + e.getMessage());
 	}
 }
 

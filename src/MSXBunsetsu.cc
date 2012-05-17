@@ -7,12 +7,10 @@
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, bunsetsuRom(new Rom(motherBoard, getName() + "_1", "rom",
-	                      config, "bunsetsu"))
-	, jisyoRom   (new Rom(motherBoard, getName() + "_2", "rom",
-	                      config, "jisyo"))
+MSXBunsetsu::MSXBunsetsu(const DeviceConfig& config)
+	: MSXDevice(config)
+	, bunsetsuRom(new Rom(getName() + "_1", "rom", config, "bunsetsu"))
+	, jisyoRom   (new Rom(getName() + "_2", "rom", config, "jisyo"))
 {
 	reset(EmuTime::dummy());
 }

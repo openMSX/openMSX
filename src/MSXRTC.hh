@@ -14,7 +14,7 @@ class RP5C01;
 class MSXRTC : public MSXDevice
 {
 public:
-	MSXRTC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXRTC(const DeviceConfig& config);
 	virtual ~MSXRTC();
 
 	virtual void reset(EmuTime::param time);

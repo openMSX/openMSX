@@ -37,8 +37,8 @@ protected:
 	 *      compared to the implementation block size, it's only used to
 	 *      correctly implement the 'romblocks' debuggable.
 	 */
-	RomBlocks(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	          std::auto_ptr<Rom> rom, unsigned debugBankSizeShift = 0);
+	RomBlocks(const DeviceConfig& config, std::auto_ptr<Rom> rom,
+	          unsigned debugBankSizeShift = 0);
 	~RomBlocks();
 
 	/** Select 'unmapped' memory for this region. Reads from this

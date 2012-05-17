@@ -54,8 +54,7 @@ namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                        const std::string& name)
+static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -65,13 +64,13 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 			sramSize << "kB!");
 	}
 	sramSize *= 1024; // in bytes
-	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+	return new SRAM(name + " SRAM", sramSize, config);
 }
 
-MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, mb89352(new MB89352(motherBoard, config))
-	, sram(createSRAM(motherBoard, config, getName()))
+MegaSCSI::MegaSCSI(const DeviceConfig& config)
+	: MSXDevice(config)
+	, mb89352(new MB89352(config))
+	, sram(createSRAM(config, getName()))
 	, blockMask((sram->getSize() / 0x2000) - 1)
 {
 }

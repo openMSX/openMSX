@@ -46,9 +46,9 @@ template<unsigned A, unsigned R = 0> struct log2
 
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_, unsigned debugBankSizeShift)
-	: MSXRom(motherBoard, config, rom_)
+		const DeviceConfig& config, std::auto_ptr<Rom> rom_,
+		unsigned debugBankSizeShift)
+	: MSXRom(config, rom_)
 	, romBlockDebug(new RomBlockDebuggable(*this, blockNr,
 	                         log2<BANK_SIZE>::value, debugBankSizeShift))
 	, nrBlocks(rom->getSize() / BANK_SIZE)

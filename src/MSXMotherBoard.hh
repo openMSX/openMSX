@@ -36,7 +36,6 @@ class LedStatus;
 class ReverseManager;
 class Display;
 class DiskManipulator;
-class GlobalSettings;
 class CommandController;
 class InfoCommand;
 class MSXMapperIO;

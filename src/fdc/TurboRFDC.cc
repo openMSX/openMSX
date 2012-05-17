@@ -14,10 +14,10 @@
 
 namespace openmsx {
 
-TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXFDC(motherBoard, config)
-	, cpu(motherBoard.getCPU())
-	, controller(new TC8566AF(motherBoard.getScheduler(),
+TurboRFDC::TurboRFDC(const DeviceConfig& config)
+	: MSXFDC(config)
+	, cpu(getMotherBoard().getCPU())
+	, controller(new TC8566AF(getMotherBoard().getScheduler(),
 	                          reinterpret_cast<DiskDrive**>(drives),
 	                          getMotherBoard().getMSXCliComm(),
 	                          getCurrentTime()))

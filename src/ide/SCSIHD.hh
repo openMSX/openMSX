@@ -25,8 +25,7 @@ class MSXMotherBoard;
 class SCSIHD : public HD, public SCSIDevice, private noncopyable
 {
 public:
-	SCSIHD(MSXMotherBoard& motherBoard, const DeviceConfig& targetconfig,
-		byte* const buf, unsigned mode);
+	SCSIHD(const DeviceConfig& targetconfig, byte* const buf, unsigned mode);
 	virtual ~SCSIHD();
 
 	template<typename Archive>

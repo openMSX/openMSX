@@ -15,9 +15,8 @@
 
 namespace openmsx {
 
-RomHarryFox::RomHarryFox(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                         std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
+RomHarryFox::RomHarryFox(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(config, rom)
 {
 	reset(EmuTime::dummy());
 }

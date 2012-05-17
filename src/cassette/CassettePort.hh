@@ -9,6 +9,7 @@
 
 namespace openmsx {
 
+class HardwareConfig;
 class MSXMotherBoard;
 class CassetteDevice;
 #if COMPONENT_LASERDISC
@@ -63,7 +64,7 @@ public:
 class CassettePort : public CassettePortInterface, public Connector
 {
 public:
-	explicit CassettePort(MSXMotherBoard& motherBoard);
+	explicit CassettePort(const HardwareConfig& hwConf);
 	virtual ~CassettePort();
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual void cassetteOut(bool output, EmuTime::param time);

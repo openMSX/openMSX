@@ -11,9 +11,8 @@
 
 namespace openmsx {
 
-RomDooly::RomDooly(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                   std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, rom)
+RomDooly::RomDooly(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: MSXRom(config, rom)
 {
 	conversion = 0;
 }

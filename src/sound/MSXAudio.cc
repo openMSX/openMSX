@@ -14,21 +14,19 @@ namespace openmsx {
 
 // MSXAudio
 
-MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXAudio::MSXAudio(const DeviceConfig& config)
+	: MSXDevice(config)
 	, dacValue(0x80), dacEnabled(false)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		dac.reset(new DACSound8U(motherBoard.getMSXMixer(),
-		                         getName() + " 8-bit DAC",
+		dac.reset(new DACSound8U(getName() + " 8-bit DAC",
 		                         "MSX-AUDIO 8-bit DAC",
 		                         config));
 	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 	EmuTime::param time = getCurrentTime();
-	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
-	                      time, *this));
+	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time, *this));
 	powerUp(time);
 }
 

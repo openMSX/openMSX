@@ -8,8 +8,8 @@
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: WD2793BasedFDC(motherBoard, config)
+PhilipsFDC::PhilipsFDC(const DeviceConfig& config)
+	: WD2793BasedFDC(config)
 {
 	reset(getCurrentTime());
 }

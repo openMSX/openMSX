@@ -52,11 +52,10 @@ static YM2413Core* createCore(const DeviceConfig& config)
 	}
 }
 
-YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-               const DeviceConfig& config)
-	: ResampledSoundDevice(motherBoard, name, "MSX-MUSIC", 9 + 5)
+YM2413::YM2413(const std::string& name, const DeviceConfig& config)
+	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-MUSIC", 9 + 5)
 	, core(createCore(config))
-	, debuggable(new YM2413Debuggable(motherBoard, *this))
+	, debuggable(new YM2413Debuggable(config.getMotherBoard(), *this))
 {
 	double input = YM2413Core::CLOCK_FREQ / 72.0;
 	setInputRate(int(input + 0.5));

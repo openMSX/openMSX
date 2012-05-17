@@ -85,7 +85,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 
 	// Sampled audio:
 	controller.registerPluggable(auto_ptr<Pluggable>(new PrinterPortSimpl(
-		motherBoard.getMSXMixer())));
+		*motherBoard.getMachineConfig())));
 	controller.registerPluggable(auto_ptr<Pluggable>(new WavAudioInput(
 		commandController)));
 

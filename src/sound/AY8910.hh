@@ -23,9 +23,8 @@ class FloatSetting;
 class AY8910 : public ResampledSoundDevice
 {
 public:
-	AY8910(MSXMotherBoard& motherBoard, const std::string& name,
-			AY8910Periphery& periphery_, const DeviceConfig& config,
-			EmuTime::param time);
+	AY8910(const std::string& name, AY8910Periphery& periphery,
+	       const DeviceConfig& config, EmuTime::param time);
 	virtual ~AY8910();
 
 	byte readRegister(unsigned reg, EmuTime::param time);

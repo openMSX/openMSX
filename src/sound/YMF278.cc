@@ -12,6 +12,7 @@
 #include "ResampledSoundDevice.hh"
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
@@ -104,8 +105,8 @@ SERIALIZE_CLASS_VERSION(YMF278Slot, 3);
 class YMF278::Impl : public ResampledSoundDevice
 {
 public:
-	Impl(YMF278& self, MSXMotherBoard& motherBoard,
-	     const std::string& name, int ramSize, const DeviceConfig& config);
+	Impl(YMF278& self, const std::string& name, int ramSize,
+	     const DeviceConfig& config);
 	virtual ~Impl();
 	void clearRam();
 	void reset(EmuTime::param time);
@@ -871,15 +872,14 @@ byte YMF278::Impl::peekReg(byte reg) const
 	return result;
 }
 
-YMF278::Impl::Impl(YMF278& self, MSXMotherBoard& motherBoard_,
-                       const std::string& name, int ramSize,
-                       const DeviceConfig& config)
-	: ResampledSoundDevice(motherBoard_, name, "MoonSound wave-part",
+YMF278::Impl::Impl(YMF278& self, const std::string& name, int ramSize,
+                   const DeviceConfig& config)
+	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound wave-part",
 	                       24, true)
-	, motherBoard(motherBoard_)
+	, motherBoard(config.getMotherBoard())
 	, debugRegisters(new DebugRegisters(self, motherBoard, getName()))
 	, debugMemory   (new DebugMemory   (self, motherBoard, getName()))
-	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
+	, rom(new Rom(name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 {
 	if (rom->getSize() != 0x200000) { // 2MB
@@ -1222,9 +1222,8 @@ void DebugMemory::write(unsigned address, byte value)
 
 // class YMF278
 
-YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-               int ramSize, const DeviceConfig& config)
-	: pimpl(new Impl(*this, motherBoard, name, ramSize, config))
+YMF278::YMF278(const std::string& name, int ramSize, const DeviceConfig& config)
+	: pimpl(new Impl(*this, name, ramSize, config))
 {
 }
 

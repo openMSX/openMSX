@@ -17,8 +17,8 @@ class AmdFlash;
 class RomManbow2 : public MSXRom
 {
 public:
-	RomManbow2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	           std::auto_ptr<Rom> rom, RomType type);
+	RomManbow2(const DeviceConfig& config, std::auto_ptr<Rom> rom,
+	           RomType type);
 	virtual ~RomManbow2();
 
 	virtual void powerUp(EmuTime::param time);

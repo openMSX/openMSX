@@ -20,12 +20,11 @@ class SRAM : private EventListener, private noncopyable
 public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 	     const std::string& description, int size);
-	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,
-	     const DeviceConfig& config, const char* header = NULL,
+	SRAM(const std::string& name,
+	     int size, const DeviceConfig& config, const char* header = NULL,
 	     bool* loaded = NULL);
-	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
-	     const std::string& description, int size,
-	     const DeviceConfig& config, const char* header = NULL,
+	SRAM(const std::string& name, const std::string& description,
+	     int size, const DeviceConfig& config, const char* header = NULL,
 	     bool* loaded = NULL);
 	virtual ~SRAM();
 

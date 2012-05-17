@@ -29,14 +29,14 @@ static unsigned getWriteProtected(RomType type)
 }
 
 
-RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                       std::auto_ptr<Rom> rom_, RomType type)
-	: MSXRom(motherBoard, config, rom_)
-	, scc(new SCC(motherBoard, getName() + " SCC", config, getCurrentTime()))
+RomManbow2::RomManbow2(const DeviceConfig& config, std::auto_ptr<Rom> rom_,
+                       RomType type)
+	: MSXRom(config, rom_)
+	, scc(new SCC(getName() + " SCC", config, getCurrentTime()))
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
-	      new AY8910(motherBoard, getName() + " PSG", DummyAY8910Periphery::instance(), config,
+	      new AY8910(getName() + " PSG", DummyAY8910Periphery::instance(), config,
 			 getCurrentTime()) : NULL)
-	, flash(new AmdFlash(motherBoard, *rom,
+	, flash(new AmdFlash(*rom,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
 	                     getWriteProtected(type), 0x01A4, config))
 {

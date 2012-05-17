@@ -9,10 +9,10 @@ namespace openmsx {
 
 static const byte ID = 0xF7;
 
-MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, MSXSwitchedDevice(motherBoard, ID)
-	, rom(new Rom(motherBoard, getName(), "Kanji-12 ROM", config))
+MSXKanji12::MSXKanji12(const DeviceConfig& config)
+	: MSXDevice(config)
+	, MSXSwitchedDevice(getMotherBoard(), ID)
+	, rom(new Rom(getName(), "Kanji-12 ROM", config))
 {
 	unsigned size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

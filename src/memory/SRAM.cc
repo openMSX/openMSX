@@ -35,26 +35,25 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 {
 }
 
-SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
+SRAM::SRAM(const string& name, int size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
 	: config(config_)
-	, ram(motherBoard, name, "sram", size)
+	, ram(config.getMotherBoard(), name, "sram", size)
 	, header(header_)
-	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	, cliComm(config.getMotherBoard().getMSXCliComm())
+	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
 
-SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
-           const string& description, int size,
+SRAM::SRAM(const string& name, const string& description, int size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
 	: config(config_)
-	, ram(motherBoard, name, description, size)
+	, ram(config.getMotherBoard(), name, description, size)
 	, header(header_)
-	, cliComm(motherBoard.getMSXCliComm())
-	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
+	, cliComm(config.getMotherBoard().getMSXCliComm())
+	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);

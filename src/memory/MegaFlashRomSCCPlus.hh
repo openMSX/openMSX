@@ -15,9 +15,7 @@ class AmdFlash;
 class MegaFlashRomSCCPlus : public MSXRom
 {
 public:
-	MegaFlashRomSCCPlus(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom);
+	MegaFlashRomSCCPlus(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~MegaFlashRomSCCPlus();
 
 	virtual void powerUp(EmuTime::param time);

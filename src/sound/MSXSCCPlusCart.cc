@@ -15,12 +15,10 @@
 
 namespace openmsx {
 
-MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
-                               const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
-	, scc(new SCC(motherBoard, getName(), config, getCurrentTime(),
-	              SCC::SCC_Compatible))
+MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
+	: MSXDevice(config)
+	, ram(new Ram(getMotherBoard(), getName() + " RAM", "SCC+ RAM", 0x20000))
+	, scc(new SCC(getName(), config, getCurrentTime(), SCC::SCC_Compatible))
 {
 	if (const XMLElement* fileElem = config.findChild("filename")) {
 		// read the rom file

@@ -22,11 +22,10 @@ private:
 };
 
 
-MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, firmwareSwitch(
-	      new FirmwareSwitch(motherBoard.getCommandController(), config))
-	, debuggable(new S1990Debuggable(motherBoard, *this))
+MSXS1990::MSXS1990(const DeviceConfig& config)
+	: MSXDevice(config)
+	, firmwareSwitch(new FirmwareSwitch(config))
+	, debuggable(new S1990Debuggable(getMotherBoard(), *this))
 {
 	reset(EmuTime::dummy());
 }

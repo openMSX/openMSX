@@ -23,7 +23,7 @@ class Ram;
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXS1985(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXS1985(const DeviceConfig& config);
 	virtual ~MSXS1985();
 
 	// MSXDevice

@@ -4,9 +4,9 @@
 
 namespace openmsx {
 
-DACSound8U::DACSound8U(MSXMixer& mixer, const std::string& name,
-                       const std::string& desc, const DeviceConfig& config)
-	: DACSound16S(mixer, name, desc, config)
+DACSound8U::DACSound8U(const std::string& name, const std::string& desc,
+                       const DeviceConfig& config)
+	: DACSound16S(name, desc, config)
 {
 }
 

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "IDECDROM.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -39,10 +40,10 @@ private:
 static const unsigned MAX_CD = 26;
 typedef std::bitset<MAX_CD> CDInUse;
 
-IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const DeviceConfig& /*config*/)
-	: AbstractIDEDevice(motherBoard_)
+IDECDROM::IDECDROM(const DeviceConfig& config)
+	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
-	, motherBoard(motherBoard_)
+	, motherBoard(config.getMotherBoard())
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("cdInUse");

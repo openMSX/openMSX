@@ -6,8 +6,8 @@
 
 namespace openmsx {
 
-MC6850::MC6850(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MC6850::MC6850(const DeviceConfig& config)
+	: MSXDevice(config)
 {
 }
 

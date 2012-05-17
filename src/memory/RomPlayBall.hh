@@ -12,8 +12,7 @@ class SamplePlayer;
 class RomPlayBall : public Rom16kBBlocks
 {
 public:
-	RomPlayBall(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	            std::auto_ptr<Rom> rom);
+	RomPlayBall(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomPlayBall();
 
 	virtual void reset(EmuTime::param time);

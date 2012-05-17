@@ -15,10 +15,8 @@
 
 namespace openmsx {
 
-RomZemina80in1::RomZemina80in1(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
+RomZemina80in1::RomZemina80in1(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(config, rom)
 {
 	reset(EmuTime::dummy());
 }

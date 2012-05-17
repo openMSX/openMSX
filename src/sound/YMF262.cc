@@ -45,6 +45,7 @@
 #include "IRQHelper.hh"
 #include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include <cmath>
@@ -181,9 +182,8 @@ public:
 class YMF262::Impl : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	Impl(YMF262& self, MSXMotherBoard& motherBoard,
-	           const std::string& name, const DeviceConfig& config,
-	           bool isYMF278);
+	Impl(YMF262& self, const std::string& name, const DeviceConfig& config,
+	     bool isYMF278);
 	virtual ~Impl();
 
 	void reset(EmuTime::param time);
@@ -1656,19 +1656,18 @@ void YMF262::Impl::reset(EmuTime::param time)
 	}
 }
 
-YMF262::Impl::Impl(YMF262& self, MSXMotherBoard& motherBoard,
-                       const std::string& name, const DeviceConfig& config,
-                       bool isYMF278_)
-	: ResampledSoundDevice(motherBoard, name, "MoonSound FM-part",
+YMF262::Impl::Impl(YMF262& self, const std::string& name,
+                   const DeviceConfig& config, bool isYMF278_)
+	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound FM-part",
 	                       18, true)
-	, debuggable(new YMF262Debuggable(motherBoard, self, getName()))
+	, debuggable(new YMF262Debuggable(config.getMotherBoard(), self, getName()))
 	, timer1(isYMF278_
-	         ? EmuTimer::createOPL4_1(motherBoard.getScheduler(), *this)
-	         : EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
+	         ? EmuTimer::createOPL4_1(config.getMotherBoard().getScheduler(), *this)
+	         : EmuTimer::createOPL3_1(config.getMotherBoard().getScheduler(), *this))
 	, timer2(isYMF278_
-	         ? EmuTimer::createOPL4_2(motherBoard.getScheduler(), *this)
-	         : EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
-	, irq(motherBoard, getName() + ".IRQ")
+	         ? EmuTimer::createOPL4_2(config.getMotherBoard().getScheduler(), *this)
+	         : EmuTimer::createOPL3_2(config.getMotherBoard().getScheduler(), *this))
+	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 	, isYMF278(isYMF278_)
 {
@@ -1689,7 +1688,7 @@ YMF262::Impl::Impl(YMF262& self, MSXMotherBoard& motherBoard,
 	             : 4 * 3579545.0 / ( 8 * 36);
 	setInputRate(int(input + 0.5));
 
-	reset(motherBoard.getCurrentTime());
+	reset(config.getMotherBoard().getCurrentTime());
 	registerSound(config);
 }
 
@@ -1929,9 +1928,8 @@ void YMF262Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 // class YMF262
 
-YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
-               const DeviceConfig& config, bool isYMF278)
-	: pimpl(new Impl(*this, motherBoard, name, config, isYMF278))
+YMF262::YMF262(const std::string& name, const DeviceConfig& config, bool isYMF278)
+	: pimpl(new Impl(*this, name, config, isYMF278))
 {
 }
 

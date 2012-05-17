@@ -54,9 +54,9 @@ private:
 };
 
 
-MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
+MSXMidi::MSXMidi(const DeviceConfig& config)
+	: MSXDevice(config)
+	, MidiInConnector(getMotherBoard().getPluggingController(), "msx-midi-in")
 	, cntr0(new MSXMidiCounter0(*this))
 	, cntr2(new MSXMidiCounter2(*this))
 	, interf(new MSXMidiI8251Interf(*this))
@@ -64,11 +64,11 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
-	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
+	, outConnector(new MidiOutConnector(getMotherBoard().getPluggingController(),
 	                                    "msx-midi-out"))
-	, i8251(new I8251(motherBoard.getScheduler(), *interf,
+	, i8251(new I8251(getMotherBoard().getScheduler(), *interf,
 	                  getCurrentTime()))
-	, i8254(new I8254(motherBoard.getScheduler(),
+	, i8254(new I8254(getMotherBoard().getScheduler(),
 	                  cntr0.get(), NULL, cntr2.get(), getCurrentTime()))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz

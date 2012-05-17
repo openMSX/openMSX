@@ -20,11 +20,9 @@ namespace openmsx {
 
 static byte decryptLUT[256];
 
-RomHolyQuran2::RomHolyQuran2(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: MSXRom(motherBoard, config, rom_)
-	, cpu(motherBoard.getCPU())
+RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: MSXRom(config, rom_)
+	, cpu(getMotherBoard().getCPU())
 {
 	// protection uses a simple rotation on databus, some lines inverted:
 	//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1

@@ -12,7 +12,7 @@ class PanasonicMemory;
 class PanasonicRam : public MSXMemoryMapper
 {
 public:
-	PanasonicRam(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit PanasonicRam(const DeviceConfig& config);
 
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual byte* getWriteCacheLine(word start) const;

@@ -12,8 +12,7 @@ class PanasonicMemory;
 class RomPanasonic : public Rom8kBBlocks
 {
 public:
-	RomPanasonic(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	             std::auto_ptr<Rom> rom);
+	RomPanasonic(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
 
 	virtual void reset(EmuTime::param time);

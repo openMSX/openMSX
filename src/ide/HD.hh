@@ -21,7 +21,7 @@ class DeviceConfig;
 class HD : public SectorAccessibleDisk, public DiskContainer
 {
 public:
-	HD(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit HD(const DeviceConfig& config);
 	virtual ~HD();
 
 	const std::string& getName() const;

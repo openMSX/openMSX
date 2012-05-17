@@ -91,9 +91,8 @@ namespace openmsx {
 class VLM5030::Impl : public ResampledSoundDevice
 {
 public:
-	Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	            const std::string& desc, const std::string& romFilename,
-	            const DeviceConfig& config);
+	Impl(const std::string& name, const std::string& desc,
+	     const std::string& romFilename, const DeviceConfig& config);
 	~Impl();
 
 	void reset();
@@ -575,10 +574,9 @@ void VLM5030::Impl::setST(bool pin)
 	}
 }
 
-VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const std::string& romFilename,
-                 const DeviceConfig& config)
-	: ResampledSoundDevice(motherBoard, name, desc, 1)
+VLM5030::Impl::Impl(const std::string& name, const std::string& desc,
+                    const std::string& romFilename, const DeviceConfig& config)
+	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
@@ -591,7 +589,7 @@ VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	romElement->addChild(std::auto_ptr<XMLElement>( // or hardcoded filename in ditto dir
 		new XMLElement("filename", "keyboardmaster/voice.rom")));
 	voiceROMconfig.addChild(romElement);
-	rom.reset(new Rom(motherBoard, name + " ROM", "rom",
+	rom.reset(new Rom(name + " ROM", "rom",
 	                  DeviceConfig(config, voiceROMconfig)));
 
 	// reset input pins
@@ -652,10 +650,9 @@ void VLM5030::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 // class VLM5030
 
-VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const std::string& romFilename,
-                 const DeviceConfig& config)
-	: pimpl(new Impl(motherBoard, name, desc, romFilename, config))
+VLM5030::VLM5030(const std::string& name, const std::string& desc,
+                 const std::string& romFilename, const DeviceConfig& config)
+	: pimpl(new Impl(name, desc, romFilename, config))
 {
 }
 

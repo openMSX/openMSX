@@ -34,15 +34,14 @@
 
 namespace openmsx {
 
-RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                       std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(motherBoard, config, rom_)
+RomHalnote::RomHalnote(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, rom_)
 {
 	if (rom->getSize() != 0x100000) {
 		throw MSXException(
 			"Rom for HALNOTE mapper must be exactly 1MB in size.");
 	}
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config));
+	sram.reset(new SRAM(getName() + " SRAM", 0x4000, config));
 	reset(EmuTime::dummy());
 }
 

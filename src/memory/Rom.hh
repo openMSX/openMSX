@@ -23,9 +23,8 @@ class RomDebuggable;
 class Rom : private noncopyable
 {
 public:
-	Rom(MSXMotherBoard& motherBoard, const std::string& name,
-	    const std::string& description, const DeviceConfig& config,
-	    const std::string& id = "");
+	Rom(const std::string& name, const std::string& description,
+	    const DeviceConfig& config, const std::string& id = "");
 	virtual ~Rom();
 
 	const byte& operator[](unsigned address) const {

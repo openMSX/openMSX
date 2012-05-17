@@ -23,7 +23,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	MSXFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXFDC(const DeviceConfig& config);
 	virtual ~MSXFDC();
 
 	const std::auto_ptr<Rom> rom;

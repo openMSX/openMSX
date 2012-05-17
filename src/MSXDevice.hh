@@ -210,13 +210,11 @@ public:
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
-	  * @param motherBoard the mother board this device belongs to
 	  * @param config config entry for this device.
 	  * @param name The name for the MSXDevice (will be made unique)
 	  */
-	MSXDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	          const std::string& name);
-	MSXDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	MSXDevice(const DeviceConfig& config, const std::string& name);
+	explicit MSXDevice(const DeviceConfig& config);
 
 	/** Constructing a MSXDevice is a 2-step process, after the constructor
 	  * is called this init() method must be called. The reason is exception

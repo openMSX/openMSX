@@ -10,13 +10,12 @@
 
 namespace openmsx {
 
-MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
-                           const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, mixer(motherBoard.getMSXMixer())
+MSXTurboRPCM::MSXTurboRPCM(const DeviceConfig& config)
+	: MSXDevice(config)
+	, mixer(getMotherBoard().getMSXMixer())
 	, connector(new AudioInputConnector(
-              motherBoard.getPluggingController(), "pcminput"))
-	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config))
+              getMotherBoard().getPluggingController(), "pcminput"))
+	, dac(new DACSound8U("PCM", "Turbo-R PCM", config))
 	, reference(getCurrentTime())
 	, hwMute(false)
 {

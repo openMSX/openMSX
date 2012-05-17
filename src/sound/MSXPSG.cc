@@ -24,22 +24,22 @@ private:
 
 
 // MSXDevice
-MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, joyPortDebuggable(new JoyPortDebuggable(motherBoard, *this))
-	, cassette(motherBoard.getCassettePort())
-	, renShaTurbo(motherBoard.getRenShaTurbo())
+MSXPSG::MSXPSG(const DeviceConfig& config)
+	: MSXDevice(config)
+	, joyPortDebuggable(new JoyPortDebuggable(getMotherBoard(), *this))
+	, cassette(getMotherBoard().getCassettePort())
+	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, prev(255)
 	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
 {
 	selectedPort = 0;
-	PluggingController& controller = motherBoard.getPluggingController();
+	PluggingController& controller = getMotherBoard().getPluggingController();
 	ports[0].reset(new JoystickPort(controller, "joyporta", "MSX Joystick port A"));
 	ports[1].reset(new JoystickPort(controller, "joyportb", "MSX Joystick port B"));
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();
-	ay8910.reset(new AY8910(motherBoard, "PSG", *this, config, time));
+	ay8910.reset(new AY8910("PSG", *this, config, time));
 	reset(time);
 }
 

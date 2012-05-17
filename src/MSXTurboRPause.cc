@@ -8,10 +8,9 @@
 
 namespace openmsx {
 
-MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
-                               const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, pauseSetting(new BooleanSetting(motherBoard.getCommandController(),
+MSXTurboRPause::MSXTurboRPause(const DeviceConfig& config)
+	: MSXDevice(config)
+	, pauseSetting(new BooleanSetting(getMotherBoard().getCommandController(),
 	               "turborpause", "status of the TurboR pause", false))
 	, status(255)
 	, pauseLed(false)

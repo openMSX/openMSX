@@ -15,8 +15,7 @@ class MB89352;
 class ESE_SCC : public MSXDevice
 {
 public:
-	ESE_SCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	        bool withSCSI);
+	ESE_SCC(const DeviceConfig& config, bool withSCSI);
 	virtual ~ESE_SCC();
 
 	virtual void powerUp(EmuTime::param time);

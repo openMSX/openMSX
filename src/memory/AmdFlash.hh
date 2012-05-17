@@ -34,8 +34,7 @@ public:
 	 * @param ID
 	 *   Contains manufacturer and device ID for this flash.
 	 */
-	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
-	         const std::vector<unsigned>& sectorSizes,
+	AmdFlash(const Rom& rom, const std::vector<unsigned>& sectorSizes,
 	         unsigned writeProtectedFlags, word ID,
 	         const DeviceConfig& config);
 	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,

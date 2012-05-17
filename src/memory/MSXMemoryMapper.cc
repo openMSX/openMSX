@@ -12,23 +12,21 @@
 
 namespace openmsx {
 
-static CheckedRam* createRam(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                             const std::string& name)
+static CheckedRam* createRam(const DeviceConfig& config, const std::string& name)
 {
 	int kSize = config.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		throw MSXException(StringOp::Builder() <<
 			"Mapper size is not a multiple of 16K: " << kSize);
 	}
-	return new CheckedRam(motherBoard, name, "memory mapper",
+	return new CheckedRam(config.getMotherBoard(), name, "memory mapper",
 	                      (kSize / 16) * 0x4000);
 }
 
-MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
-                                 const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, checkedRam(createRam(motherBoard, config, getName()))
-	, mapperIO(*motherBoard.createMapperIO())
+MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)
+	: MSXDevice(config)
+	, checkedRam(createRam(config, getName()))
+	, mapperIO(*getMotherBoard().createMapperIO())
 {
 	unsigned nbBlocks = checkedRam->getSize() / 0x4000;
 	mapperIO.registerMapper(nbBlocks);

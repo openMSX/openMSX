@@ -7,11 +7,9 @@
 
 namespace openmsx {
 
-RomMatraInk::RomMatraInk(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: MSXRom(motherBoard, config, rom_)
-	, flash(new AmdFlash(motherBoard, *rom,
+RomMatraInk::RomMatraInk(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: MSXRom(config, rom_)
+	, flash(new AmdFlash(getMotherBoard(), *rom,
 	                     std::vector<unsigned>(2, 0x10000),
 	                     0, 0x01A4)) // don't load/save
 {

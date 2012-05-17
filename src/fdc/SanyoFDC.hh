@@ -10,7 +10,7 @@ namespace openmsx {
 class SanyoFDC : public WD2793BasedFDC
 {
 public:
-	SanyoFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit SanyoFDC(const DeviceConfig& config);
 
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

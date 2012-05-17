@@ -13,7 +13,7 @@ class SRAM;
 class ESE_RAM : public MSXDevice
 {
 public:
-	ESE_RAM(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	ESE_RAM(const DeviceConfig& config);
 	virtual ~ESE_RAM();
 
 	virtual void reset(EmuTime::param time);

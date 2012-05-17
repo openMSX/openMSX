@@ -13,7 +13,7 @@ class YMF262;
 class MSXOPL3Cartridge : public MSXDevice
 {
 public:
-	MSXOPL3Cartridge(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXOPL3Cartridge(const DeviceConfig& config);
 	virtual ~MSXOPL3Cartridge();
 
 	virtual void reset(EmuTime::param time);

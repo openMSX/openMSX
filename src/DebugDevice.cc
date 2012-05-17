@@ -13,12 +13,12 @@ using std::string;
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+DebugDevice::DebugDevice(const DeviceConfig& config)
+	: MSXDevice(config)
 {
 	string outputFile = config.getChildData("filename", "stdout");
 	fileNameSetting.reset(new FilenameSetting(
-		motherBoard.getCommandController(), "debugoutput",
+		getMotherBoard().getCommandController(), "debugoutput",
 		"name of the file the debugdevice outputs to", outputFile));
 	openOutput(fileNameSetting->getValueString());
 	reset(EmuTime::dummy());

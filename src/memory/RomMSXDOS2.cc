@@ -9,10 +9,8 @@
 
 namespace openmsx {
 
-RomMSXDOS2::RomMSXDOS2(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: Rom16kBBlocks(motherBoard, config, rom_)
+RomMSXDOS2::RomMSXDOS2(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: Rom16kBBlocks(config, rom_)
 	, range((*rom)[0x94])
 {
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {

@@ -611,7 +611,7 @@ CassettePortInterface& MSXMotherBoard::Impl::getCassettePort()
 	if (!cassettePort.get()) {
 		assert(getMachineConfig());
 		if (getMachineConfig()->getConfig().findChild("CassettePort")) {
-			cassettePort.reset(new CassettePort(self));
+			cassettePort.reset(new CassettePort(*getMachineConfig()));
 		} else {
 			cassettePort.reset(new DummyCassettePort());
 		}

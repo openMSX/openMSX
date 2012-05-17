@@ -31,8 +31,7 @@
 
 namespace openmsx {
 
-static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                        const std::string& name)
+static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -42,12 +41,12 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 			sramSize << "kB!");
 	}
 	sramSize *= 1024; // in bytes
-	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+	return new SRAM(name + " SRAM", sramSize, config);
 }
 
-ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, sram(createSRAM(motherBoard, config, getName()))
+ESE_RAM::ESE_RAM(const DeviceConfig& config)
+	: MSXDevice(config)
+	, sram(createSRAM(config, getName()))
 	, blockMask((sram->getSize() / 8192) - 1)
 {
 	reset(EmuTime::dummy());

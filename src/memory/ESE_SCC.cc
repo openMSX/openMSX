@@ -57,7 +57,7 @@
 
 namespace openmsx {
 
-static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
+static SRAM* createSRAM(const DeviceConfig& config,
                         bool withSCSI, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
@@ -71,15 +71,14 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");
 	}
 	sramSize *= 1024; // in bytes
-	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
+	return new SRAM(name + " SRAM", sramSize, config);
 }
 
-ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                 bool withSCSI)
-	: MSXDevice(motherBoard, config)
-	, sram(createSRAM(motherBoard, config, withSCSI, getName()))
-	, scc(new SCC(motherBoard, getName(), config, getCurrentTime()))
-	, spc(withSCSI ? new MB89352(motherBoard, config) : NULL)
+ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
+	: MSXDevice(config)
+	, sram(createSRAM(config, withSCSI, getName()))
+	, scc(new SCC(getName(), config, getCurrentTime()))
+	, spc(withSCSI ? new MB89352(config) : NULL)
 	, mapperMask((sram->getSize() / 0x2000) - 1)
 {
 	// initialized mapper

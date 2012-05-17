@@ -21,11 +21,6 @@ public:
 		, primary(NULL), secondary(NULL)
 	{
 	}
-	explicit DeviceConfig(const XMLElement& devConf_)
-		: hwConf(NULL), devConf(&devConf_)
-		, primary(NULL), secondary(NULL)
-	{
-	}
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
 		, primary(NULL), secondary(NULL)
@@ -72,6 +67,11 @@ public:
 	{
 		return getHardwareConfig().getFileContext();
 	}
+	MSXMotherBoard& getMotherBoard() const
+	{
+		return getHardwareConfig().getMotherBoard();
+	}
+
 	const XMLElement& getChild(const char* name) const
 	{
 		return getXML()->getChild(name);

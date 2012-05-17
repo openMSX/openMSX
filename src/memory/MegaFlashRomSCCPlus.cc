@@ -25,15 +25,13 @@ static unsigned sectorSizes[19] = {
 };
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
-		MSXMotherBoard& motherBoard,
-		const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: MSXRom(motherBoard, config, rom_)
-	, scc(new SCC(motherBoard, "MFR SCC+ SCC-I", config, getCurrentTime(),
+		const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: MSXRom(config, rom_)
+	, scc(new SCC("MFR SCC+ SCC-I", config, getCurrentTime(),
 	              SCC::SCC_Compatible))
-	, psg(new AY8910(motherBoard, "MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
+	, psg(new AY8910("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 	                 getCurrentTime()))
-	, flash(new AmdFlash(motherBoard, *rom,
+	, flash(new AmdFlash(*rom,
 	                     std::vector<unsigned>(sectorSizes, sectorSizes + 19),
 	                     0, 0x205B, config))
 {

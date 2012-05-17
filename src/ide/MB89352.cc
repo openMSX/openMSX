@@ -90,7 +90,7 @@ static const byte CMD_MASK          = 0xE0;
 
 static const unsigned MAX_DEV = 8;
 
-MB89352::MB89352(MSXMotherBoard& motherBoard, const DeviceConfig& config)
+MB89352::MB89352(const DeviceConfig& config)
 	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	PRT_DEBUG("spc create");
@@ -117,10 +117,10 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(motherBoard, conf, buffer.data(),
+			dev[id].reset(new SCSIHD(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else if (type == "SCSILS120") {
-			dev[id].reset(new SCSILS120(motherBoard, conf, buffer.data(),
+			dev[id].reset(new SCSILS120(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);

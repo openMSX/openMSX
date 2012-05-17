@@ -19,8 +19,7 @@ class VDPIODelay;
 class DeviceFactory
 {
 public:
-	static std::auto_ptr<MSXDevice> create(
-		MSXMotherBoard& motherBoard, const DeviceConfig& conf);
+	static std::auto_ptr<MSXDevice> create(const DeviceConfig& conf);
 	static std::auto_ptr<DummyDevice> createDummyDevice(
 		MSXMotherBoard& motherBoard);
 	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(

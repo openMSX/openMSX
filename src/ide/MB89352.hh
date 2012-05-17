@@ -25,7 +25,7 @@ class MSXMotherBoard;
 class MB89352
 {
 public:
-	MB89352(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MB89352(const DeviceConfig& config);
 	~MB89352();
 
 	void reset(bool scsireset);

@@ -11,9 +11,8 @@
 
 namespace openmsx {
 
-MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
-                                 const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
+	: MSXDevice(config)
 {
 	for (int i = 0; i < 256; ++i) {
 		devices[i] = NULL;

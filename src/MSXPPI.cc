@@ -18,8 +18,7 @@ namespace openmsx {
 
 // MSXDevice
 
-static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
-                                const DeviceConfig& config)
+static Keyboard* createKeyboard(const DeviceConfig& config)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
 	bool keyGhostingSGCprotected =
@@ -29,6 +28,7 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	bool hasYesNoKeys = config.getChildDataAsBool("has_yesno_keys", false);
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
+	MSXMotherBoard& motherBoard = config.getMotherBoard();
 	return new Keyboard(motherBoard,
 	                    motherBoard.getScheduler(),
 	                    motherBoard.getCommandController(),
@@ -40,13 +40,13 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	                    codeKanaLocks, graphLocks);
 }
 
-MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, cassettePort(motherBoard.getCassettePort())
-	, renshaTurbo(motherBoard.getRenShaTurbo())
-	, i8255(new I8255(*this, getCurrentTime(), motherBoard.getMSXCliComm()))
-	, click(new KeyClick(motherBoard.getMSXMixer(), config))
-	, keyboard(createKeyboard(motherBoard, config))
+MSXPPI::MSXPPI(const DeviceConfig& config)
+	: MSXDevice(config)
+	, cassettePort(getMotherBoard().getCassettePort())
+	, renshaTurbo(getMotherBoard().getRenShaTurbo())
+	, i8255(new I8255(*this, getCurrentTime(), getMotherBoard().getMSXCliComm()))
+	, click(new KeyClick(config))
+	, keyboard(createKeyboard(config))
 	, prevBits(15)
 	, selectedRow(0)
 {

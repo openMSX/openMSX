@@ -13,7 +13,7 @@ class CheckedRam;
 class MSXRam : public MSXDevice
 {
 public:
-	MSXRam(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXRam(const DeviceConfig& config);
 
 	virtual void powerUp(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

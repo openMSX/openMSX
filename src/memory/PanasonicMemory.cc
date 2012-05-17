@@ -19,7 +19,7 @@ static Rom* createRom(MSXMotherBoard& motherBoard)
 
 	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
 	assert(hwConf);
-	return new Rom(motherBoard, "PanasonicRom", "Turbor-R main ROM",
+	return new Rom("PanasonicRom", "Turbor-R main ROM",
 	               DeviceConfig(*hwConf, *elem));
 }
 

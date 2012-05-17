@@ -12,8 +12,7 @@ class SCC;
 class RomKonamiSCC : public Rom8kBBlocks
 {
 public:
-	RomKonamiSCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	           std::auto_ptr<Rom> rom);
+	RomKonamiSCC(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomKonamiSCC();
 
 	virtual void powerUp(EmuTime::param time);

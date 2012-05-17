@@ -7,9 +7,8 @@
 
 namespace openmsx {
 
-MSXRom::MSXRom(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-               std::auto_ptr<Rom> rom_)
-	: MSXDevice(motherBoard, config, rom_->getName())
+MSXRom::MSXRom(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: MSXDevice(config, rom_->getName())
 	, rom(rom_)
 {
 }

@@ -23,8 +23,8 @@ using std::vector;
 static const unsigned MAX_HD = 26;
 typedef std::bitset<MAX_HD> HDInUse;
 
-HD::HD(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
-	: motherBoard(motherBoard_)
+HD::HD(const DeviceConfig& config)
+	: motherBoard(config.getMotherBoard())
 	, name("hdX")
 {
 	MSXMotherBoard::SharedStuff& info =

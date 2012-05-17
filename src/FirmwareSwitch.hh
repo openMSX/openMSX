@@ -10,14 +10,11 @@
 namespace openmsx {
 
 class BooleanSetting;
-class CommandController;
-class CliComm;
 
 class FirmwareSwitch : private noncopyable
 {
 public:
-	FirmwareSwitch(CommandController& commandController,
-	               const DeviceConfig& config);
+	explicit FirmwareSwitch(const DeviceConfig& config);
 	~FirmwareSwitch();
 
 	bool getStatus() const;
@@ -25,7 +22,6 @@ public:
 private:
 	const DeviceConfig config;
 	const std::auto_ptr<BooleanSetting> setting;
-	CliComm& cliComm;
 };
 
 } // namespace openmsx

@@ -71,146 +71,157 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-static auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard, const DeviceConfig& conf)
+static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
+	CliComm& cliComm = conf.getMotherBoard().getMSXCliComm();
+
 	auto_ptr<MSXDevice> result;
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (styleEl == NULL) {
-		motherBoard.getMSXCliComm().printWarning("WD2793 as FDC type without a connectionstyle is deprecated, please update your config file to use WD2793 with connectionstyle Philips!");
+		cliComm.printWarning(
+			"WD2793 as FDC type without a connectionstyle is "
+			"deprecated, please update your config file to use "
+			"WD2793 with connectionstyle Philips!");
 		type = "Philips";
 	} else {
 		type = styleEl->getData();
 	}
 	if (type == "Philips") {
-		result.reset(new PhilipsFDC(motherBoard, conf));
+		result.reset(new PhilipsFDC(conf));
 	} else if (type == "Microsol") {
-		result.reset(new MicrosolFDC(motherBoard, conf));
+		result.reset(new MicrosolFDC(conf));
 	} else if (type == "National") {
-		result.reset(new NationalFDC(motherBoard, conf));
+		result.reset(new NationalFDC(conf));
 	} else if (type == "Sanyo") {
-		result.reset(new SanyoFDC(motherBoard, conf));
+		result.reset(new SanyoFDC(conf));
 	} else if (type == "Victor") {
-		result.reset(new VictorFDC(motherBoard, conf));
+		result.reset(new VictorFDC(conf));
 	} else {
 		throw MSXException("Unknown WD2793 FDC connection style " + type);
 	}
 	return result;
 }
 
-auto_ptr<MSXDevice> DeviceFactory::create(
-	MSXMotherBoard& motherBoard, const DeviceConfig& conf)
+auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
+	CliComm& cliComm = conf.getMotherBoard().getMSXCliComm();
+
 	auto_ptr<MSXDevice> result;
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
-		result.reset(new MSXPPI(motherBoard, conf));
+		result.reset(new MSXPPI(conf));
 	} else if (type == "RAM") {
-		result.reset(new MSXRam(motherBoard, conf));
+		result.reset(new MSXRam(conf));
 	} else if (type == "VDP") {
-		result.reset(new VDP(motherBoard, conf));
+		result.reset(new VDP(conf));
 	} else if (type == "E6Timer") {
-		result.reset(new MSXE6Timer(motherBoard, conf));
+		result.reset(new MSXE6Timer(conf));
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
-		result.reset(new MSXResetStatusRegister(motherBoard, conf));
+		result.reset(new MSXResetStatusRegister(conf));
 	} else if (type == "TurboRPause") {
-		result.reset(new MSXTurboRPause(motherBoard, conf));
+		result.reset(new MSXTurboRPause(conf));
 	} else if (type == "TurboRPCM") {
-		result.reset(new MSXTurboRPCM(motherBoard, conf));
+		result.reset(new MSXTurboRPCM(conf));
 	} else if (type == "S1985") {
-		result.reset(new MSXS1985(motherBoard, conf));
+		result.reset(new MSXS1985(conf));
 	} else if (type == "S1990") {
-		result.reset(new MSXS1990(motherBoard, conf));
+		result.reset(new MSXS1990(conf));
 	} else if (type == "PSG") {
-		result.reset(new MSXPSG(motherBoard, conf));
+		result.reset(new MSXPSG(conf));
 	} else if (type == "MSX-MUSIC") {
-		result.reset(new MSXMusic(motherBoard, conf));
+		result.reset(new MSXMusic(conf));
 	} else if (type == "FMPAC") {
-		result.reset(new MSXFmPac(motherBoard, conf));
+		result.reset(new MSXFmPac(conf));
 	} else if (type == "MSX-AUDIO") {
-		result.reset(new MSXAudio(motherBoard, conf));
+		result.reset(new MSXAudio(conf));
 	} else if (type == "MusicModuleMIDI") {
-		result.reset(new MC6850(motherBoard, conf));
+		result.reset(new MC6850(conf));
 	} else if (type == "YamahaSFG") {
-		result.reset(new MSXYamahaSFG(motherBoard, conf));
+		result.reset(new MSXYamahaSFG(conf));
 	} else if (type == "MoonSound") {
-		result.reset(new MSXMoonSound(motherBoard, conf));
+		result.reset(new MSXMoonSound(conf));
 	} else if (type == "OPL3Cartridge") {
-		result.reset(new MSXOPL3Cartridge(motherBoard, conf));
+		result.reset(new MSXOPL3Cartridge(conf));
 	} else if (type == "Kanji") {
-		result.reset(new MSXKanji(motherBoard, conf));
+		result.reset(new MSXKanji(conf));
 	} else if (type == "Bunsetsu") {
-		result.reset(new MSXBunsetsu(motherBoard, conf));
+		result.reset(new MSXBunsetsu(conf));
 	} else if (type == "MemoryMapper") {
-		result.reset(new MSXMemoryMapper(motherBoard, conf));
+		result.reset(new MSXMemoryMapper(conf));
 	} else if (type == "PanasonicRAM") {
-		result.reset(new PanasonicRam(motherBoard, conf));
+		result.reset(new PanasonicRam(conf));
 	} else if (type == "RTC") {
-		result.reset(new MSXRTC(motherBoard, conf));
+		result.reset(new MSXRTC(conf));
 	} else if (type == "PasswordCart") {
-		result.reset(new PasswordCart(motherBoard, conf));
+		result.reset(new PasswordCart(conf));
 	} else if (type == "ROM") {
-		result = RomFactory::create(motherBoard, conf);
+		result = RomFactory::create(conf);
 	} else if (type == "PrinterPort") {
-		result.reset(new MSXPrinterPort(motherBoard, conf));
+		result.reset(new MSXPrinterPort(conf));
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
-		result.reset(new MSXSCCPlusCart(motherBoard, conf));
+		result.reset(new MSXSCCPlusCart(conf));
 	} else if (type == "WD2793") {
-		result = createWD2793BasedFDC(motherBoard, conf);
+		result = createWD2793BasedFDC(conf);
 	} else if (type == "Microsol") {
-		motherBoard.getMSXCliComm().printWarning("Microsol as FDC type is deprecated, please update your config file to use WD2793 with connectionstyle Microsol!");
-		result.reset(new MicrosolFDC(motherBoard, conf));
+		cliComm.printWarning(
+			"Microsol as FDC type is deprecated, please update "
+			"your config file to use WD2793 with connectionstyle "
+			"Microsol!");
+		result.reset(new MicrosolFDC(conf));
 	} else if (type == "MB8877A") {
-		motherBoard.getMSXCliComm().printWarning("MB8877A as FDC type is deprecated, please update your config file to use WD2793 with connectionstyle National!");
-		result.reset(new NationalFDC(motherBoard, conf));
+		cliComm.printWarning(
+			"MB8877A as FDC type is deprecated, please update your "
+			"config file to use WD2793 with connectionstyle National!");
+		result.reset(new NationalFDC(conf));
 	} else if (type == "TC8566AF") {
-		result.reset(new TurboRFDC(motherBoard, conf));
+		result.reset(new TurboRFDC(conf));
 	} else if (type == "SunriseIDE") {
-		result.reset(new SunriseIDE(motherBoard, conf));
+		result.reset(new SunriseIDE(conf));
 	} else if (type == "GoudaSCSI") {
-		result.reset(new GoudaSCSI(motherBoard, conf));
+		result.reset(new GoudaSCSI(conf));
 	} else if (type == "MegaSCSI") {
-		result.reset(new MegaSCSI(motherBoard, conf));
+		result.reset(new MegaSCSI(conf));
 	} else if (type == "ESERAM") {
-		result.reset(new ESE_RAM(motherBoard, conf));
+		result.reset(new ESE_RAM(conf));
 	} else if (type == "WaveSCSI") {
-		result.reset(new ESE_SCC(motherBoard, conf, true));
+		result.reset(new ESE_SCC(conf, true));
 	} else if (type == "ESESCC") {
-		result.reset(new ESE_SCC(motherBoard, conf, false));
+		result.reset(new ESE_SCC(conf, false));
 	} else if (type == "Matsushita") {
-		result.reset(new MSXMatsushita(motherBoard, conf));
+		result.reset(new MSXMatsushita(conf));
 	} else if (type == "VictorHC9xSystemControl") {
-		result.reset(new MSXVictorHC9xSystemControl(motherBoard, conf));
+		result.reset(new MSXVictorHC9xSystemControl(conf));
 	} else if (type == "CielTurbo") {
-		result.reset(new MSXCielTurbo(motherBoard, conf));
+		result.reset(new MSXCielTurbo(conf));
 	} else if (type == "Kanji12") {
-		result.reset(new MSXKanji12(motherBoard, conf));
+		result.reset(new MSXKanji12(conf));
 	} else if (type == "MSX-MIDI") {
-		result.reset(new MSXMidi(motherBoard, conf));
+		result.reset(new MSXMidi(conf));
 	} else if (type == "MSX-RS232") {
-		result.reset(new MSXRS232(motherBoard, conf));
+		result.reset(new MSXRS232(conf));
 	} else if (type == "MegaRam") {
-		result.reset(new MSXMegaRam(motherBoard, conf));
+		result.reset(new MSXMegaRam(conf));
 	} else if (type == "PAC") {
-		result.reset(new MSXPac(motherBoard, conf));
+		result.reset(new MSXPac(conf));
 	} else if (type == "HBI55") {
-		result.reset(new MSXHBI55(motherBoard, conf));
+		result.reset(new MSXHBI55(conf));
 	} else if (type == "DebugDevice") {
-		result.reset(new DebugDevice(motherBoard, conf));
+		result.reset(new DebugDevice(conf));
 	} else if (type == "V9990") {
-		result.reset(new V9990(motherBoard, conf));
+		result.reset(new V9990(conf));
 	} else if (type == "ADVram") {
-		result.reset(new ADVram(motherBoard, conf));
+		result.reset(new ADVram(conf));
 	} else if (type == "PioneerLDControl") {
 #if COMPONENT_LASERDISC
-		result.reset(new PioneerLDControl(motherBoard, conf));
+		result.reset(new PioneerLDControl(conf));
 #else
 		throw MSXException("Laserdisc component not compiled in");
 #endif
 	} else if (type == "Nowind") {
-		result.reset(new NowindInterface(motherBoard, conf));
+		result.reset(new NowindInterface(conf));
 	} else if (type == "Mirror") {
-		result.reset(new MSXMirrorDevice(motherBoard, conf));
+		result.reset(new MSXMirrorDevice(conf));
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
@@ -233,7 +244,7 @@ auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 {
 	static XMLElement xml(createConfig("Dummy", "empty"));
 	return auto_ptr<DummyDevice>(new DummyDevice(
-		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
 auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
@@ -241,7 +252,7 @@ auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 {
 	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
 	return auto_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
-		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
 auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
@@ -249,7 +260,7 @@ auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 {
 	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
 	return auto_ptr<MSXMapperIO>(new MSXMapperIO(
-		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
 auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
@@ -257,7 +268,6 @@ auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 {
 	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
 	return auto_ptr<VDPIODelay>(new VDPIODelay(
-		motherBoard,
 		DeviceConfig(*motherBoard.getMachineConfig(), xml),
 		cpuInterface));
 }

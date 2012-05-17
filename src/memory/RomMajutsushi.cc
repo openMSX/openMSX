@@ -4,19 +4,15 @@
 // It's a Konami mapper with a DAC.
 
 #include "RomMajutsushi.hh"
-#include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: RomKonami(motherBoard, config, rom)
-	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Majutsushi-DAC",
-		"Hai no Majutsushi's DAC", config))
+RomMajutsushi::RomMajutsushi(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: RomKonami(config, rom)
+	, dac(new DACSound8U("Majutsushi-DAC", "Hai no Majutsushi's DAC", config))
 {
 }
 

@@ -16,7 +16,7 @@ class DACSound8U;
 class MSXTurboRPCM : public MSXDevice
 {
 public:
-	MSXTurboRPCM(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXTurboRPCM(const DeviceConfig& config);
 	virtual ~MSXTurboRPCM();
 
 	virtual void reset(EmuTime::param time);

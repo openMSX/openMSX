@@ -27,14 +27,13 @@ byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
 
-MSXDevice::MSXDevice(MSXMotherBoard& /*motherBoard_*/, const DeviceConfig& config,
-                     const string& name)
+MSXDevice::MSXDevice(const DeviceConfig& config, const string& name)
 	: deviceConfig(config)
 {
 	initName(name);
 }
 
-MSXDevice::MSXDevice(MSXMotherBoard& /*motherBoard_*/, const DeviceConfig& config)
+MSXDevice::MSXDevice(const DeviceConfig& config)
 	: deviceConfig(config)
 {
 	initName(getDeviceConfig().getAttribute("id"));

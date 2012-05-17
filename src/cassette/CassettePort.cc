@@ -8,9 +8,8 @@
 #include "LaserdiscPlayer.hh"
 #endif
 #include "DummyCassetteDevice.hh"
+#include "HardwareConfig.hh"
 #include "MSXMotherBoard.hh"
-#include "GlobalSettings.hh"
-#include "Reactor.hh"
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
@@ -56,25 +55,18 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 // CassettePort
 
-CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
-	: Connector(motherBoard_.getPluggingController(), "cassetteport",
+CassettePort::CassettePort(const HardwareConfig& hwConf)
+	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
 	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
-	, motherBoard(motherBoard_)
+	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
 	, laserdiscPlayer(NULL)
 #endif
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(auto_ptr<Pluggable>(new CassettePlayer(
-		motherBoard.getCommandController(),
-		motherBoard,
-		motherBoard.getScheduler(),
-		motherBoard.getStateChangeDistributor(),
-		motherBoard.getReactor().getEventDistributor(),
-		motherBoard.getMSXCliComm(),
-		motherBoard.getReactor().getFilePool(),
-		motherBoard.getReactor().getGlobalSettings().getThrottleManager())));
+	getPluggingController().registerPluggable(auto_ptr<Pluggable>(
+		new CassettePlayer(hwConf)));
 }
 
 CassettePort::~CassettePort()

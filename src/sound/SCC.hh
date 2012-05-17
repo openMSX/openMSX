@@ -18,9 +18,8 @@ class SCC : public ResampledSoundDevice
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
-	SCC(MSXMotherBoard& motherBoard, const std::string& name,
-	    const DeviceConfig& config, EmuTime::param time,
-	    ChipMode mode = SCC_Real);
+	SCC(const std::string& name, const DeviceConfig& config,
+	    EmuTime::param time, ChipMode mode = SCC_Real);
 	virtual ~SCC();
 
 	// interaction with realCartridge

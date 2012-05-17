@@ -11,6 +11,7 @@
 #include "CassettePort.hh"
 #include "CliComm.hh"
 #include "Display.hh"
+#include "GlobalSettings.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "PioneerLDControl.hh"
@@ -113,18 +114,16 @@ static XMLElement createXML()
 }
 
 LaserdiscPlayer::LaserdiscPlayer(
-		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_,
-		ThrottleManager& throttleManager)
-	: ResampledSoundDevice(motherBoard_, "laserdiscplayer",
+		const HardwareConfig& hwConf, PioneerLDControl& ldcontrol_)
+	: ResampledSoundDevice(hwConf.getMotherBoard(), "laserdiscplayer",
 	                       "Laserdisc Player", 1, true)
-	, Schedulable(motherBoard_.getScheduler())
-	, motherBoard(motherBoard_)
+	, Schedulable(hwConf.getMotherBoard().getScheduler())
+	, motherBoard(hwConf.getMotherBoard())
 	, ldcontrol(ldcontrol_)
-	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, laserdiscCommand(new LaserdiscCommand(
-			   motherBoard_.getCommandController(),
-			   motherBoard_.getStateChangeDistributor(),
-			   motherBoard_.getScheduler(),
+			   motherBoard.getCommandController(),
+			   motherBoard.getStateChangeDistributor(),
+			   motherBoard.getScheduler(),
 			   *this))
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
@@ -137,31 +136,33 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, ack(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
-	, autoRunSetting(new BooleanSetting(motherBoard_.getCommandController(),
+	, autoRunSetting(new BooleanSetting(motherBoard.getCommandController(),
 		"autorunlaserdisc", "automatically try to run Laserdisc", true))
-	, loadingIndicator(new LoadingIndicator(throttleManager))
+	, loadingIndicator(new LoadingIndicator(
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, sampleReads(0)
 {
 	motherBoard.getCassettePort().setLaserdiscPlayer(this);
 
-	Display& display = motherBoard_.getReactor().getDisplay();
-	display.attach(*this);
+	Reactor& reactor = motherBoard.getReactor();
+	reactor.getDisplay().attach(*this);
 
 	createRenderer();
-	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
+	reactor.getEventDistributor().registerEventListener(OPENMSX_BOOT_EVENT, *this);
 	scheduleDisplayStart(Schedulable::getCurrentTime());
 
 	setInputRate(44100); // Initialize with dummy value
 
 	static XMLElement xml = createXML();
-	registerSound(DeviceConfig(xml));
+	registerSound(DeviceConfig(hwConf, xml));
 }
 
 LaserdiscPlayer::~LaserdiscPlayer()
 {
 	unregisterSound();
-	motherBoard.getReactor().getDisplay().detach(*this);
-	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
+	Reactor& reactor = motherBoard.getReactor();
+	reactor.getDisplay().detach(*this);
+	reactor.getEventDistributor().unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
 }
 
 void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)

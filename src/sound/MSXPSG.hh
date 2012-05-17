@@ -18,7 +18,7 @@ class JoyPortDebuggable;
 class MSXPSG : public MSXDevice, public AY8910Periphery
 {
 public:
-	MSXPSG(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXPSG(const DeviceConfig& config);
 	virtual ~MSXPSG();
 
 	virtual void reset(EmuTime::param time);

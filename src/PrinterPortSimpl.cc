@@ -9,8 +9,8 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-PrinterPortSimpl::PrinterPortSimpl(MSXMixer& mixer_)
-	: mixer(mixer_)
+PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
+	: hwConf(hwConf_)
 {
 }
 
@@ -41,8 +41,8 @@ static XMLElement createXML()
 void PrinterPortSimpl::createDAC()
 {
 	static XMLElement xml = createXML();
-	dac.reset(new DACSound8U(mixer, "simpl", getDescription(),
-	                         DeviceConfig(xml)));
+	dac.reset(new DACSound8U("simpl", getDescription(),
+	                         DeviceConfig(hwConf, xml)));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

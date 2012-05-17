@@ -15,9 +15,8 @@ class DeviceConfig;
 class VLM5030
 {
 public:
-	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-	        const std::string& desc, const std::string& romFilename,
-	        const DeviceConfig& config);
+	VLM5030(const std::string& name, const std::string& desc,
+	        const std::string& romFilename, const DeviceConfig& config);
 	~VLM5030();
 	void reset();
 

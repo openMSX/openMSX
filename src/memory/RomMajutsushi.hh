@@ -12,8 +12,7 @@ class DACSound8U;
 class RomMajutsushi : public RomKonami
 {
 public:
-	RomMajutsushi(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	              std::auto_ptr<Rom> rom);
+	RomMajutsushi(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomMajutsushi();
 
 	virtual void reset(EmuTime::param time);

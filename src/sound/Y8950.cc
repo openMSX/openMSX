@@ -15,6 +15,7 @@
 #include "EmuTimer.hh"
 #include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
 #include "FixedPoint.hh"
@@ -141,8 +142,7 @@ public:
 class Y8950::Impl : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	Impl(Y8950& self, MSXMotherBoard& motherBoard,
-	     const std::string& name, const DeviceConfig& config,
+	Impl(Y8950& self, const std::string& name, const DeviceConfig& config,
 	     unsigned sampleRam, MSXAudio& audio);
 	void init(const DeviceConfig& config, EmuTime::param time);
 	virtual ~Impl();
@@ -661,16 +661,15 @@ void Y8950Channel::keyOff()
 }
 
 
-Y8950::Impl::Impl(Y8950& self, MSXMotherBoard& motherBoard_,
-                     const std::string& name, const DeviceConfig& config,
-                     unsigned sampleRam, MSXAudio& audio)
-	: ResampledSoundDevice(motherBoard_, name, "MSX-AUDIO", 9 + 5 + 1)
-	, motherBoard(motherBoard_)
+Y8950::Impl::Impl(Y8950& self, const std::string& name,
+                  const DeviceConfig& config, unsigned sampleRam,
+                  MSXAudio& audio)
+	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-AUDIO", 9 + 5 + 1)
+	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
-	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
-	                        "MSX-AUDIO 13-bit DAC", config))
+	, dac13(new DACSound16S(name + " DAC", "MSX-AUDIO 13-bit DAC", config))
 	, debuggable(new Y8950Debuggable(motherBoard, self, getName()))
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
@@ -1490,10 +1489,10 @@ void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 // class Y8950
 
-Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-             const DeviceConfig& config, unsigned sampleRam, EmuTime::param time,
+Y8950::Y8950(const std::string& name, const DeviceConfig& config,
+             unsigned sampleRam, EmuTime::param time,
              MSXAudio& audio)
-	: pimpl(new Impl(*this, motherBoard, name, config, sampleRam, audio))
+	: pimpl(new Impl(*this, name, config, sampleRam, audio))
 {
 	pimpl->init(config, time);
 }

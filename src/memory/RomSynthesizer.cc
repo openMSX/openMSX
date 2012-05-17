@@ -19,7 +19,6 @@
 */
 
 #include "RomSynthesizer.hh"
-#include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
@@ -27,12 +26,9 @@
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
-	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",
-	                     "Konami Synthesizer's DAC", config))
+RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(config, rom)
+	, dac(new DACSound8U("Synthesizer-DAC", "Konami Synthesizer's DAC", config))
 {
 	setUnmapped(0);
 	setRom(1, 0);

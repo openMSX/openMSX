@@ -17,8 +17,8 @@ class DeviceConfig;
 class YMF278
 {
 public:
-	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-	       int ramSize, const DeviceConfig& config);
+	YMF278(const std::string& name, int ramSize,
+	       const DeviceConfig& config);
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);

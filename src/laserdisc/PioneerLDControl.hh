@@ -18,7 +18,7 @@ class VDP;
 class PioneerLDControl : public MSXDevice
 {
 public:
-	PioneerLDControl(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit PioneerLDControl(const DeviceConfig& config);
 	virtual ~PioneerLDControl();
 
 	virtual void reset(EmuTime::param time);

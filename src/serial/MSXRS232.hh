@@ -22,7 +22,7 @@ class ClockPin;
 class MSXRS232 : public MSXDevice, public RS232Connector
 {
 public:
-	MSXRS232(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXRS232(const DeviceConfig& config);
 	virtual ~MSXRS232();
 
 	virtual void powerUp(EmuTime::param time);

@@ -5,8 +5,8 @@
 
 namespace openmsx {
 
-KeyClick::KeyClick(MSXMixer& mixer, const DeviceConfig& config)
-	: dac(new DACSound8U(mixer, "keyclick", "1-bit click generator", config))
+KeyClick::KeyClick(const DeviceConfig& config)
+	: dac(new DACSound8U("keyclick", "1-bit click generator", config))
 	, status(false)
 {
 }

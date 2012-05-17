@@ -48,14 +48,13 @@
 
 namespace openmsx {
 
-RomNettouYakyuu::RomNettouYakyuu(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(motherBoard, config, rom_)
-	, samplePlayer(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
-	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config,
-	                         FileOperations::stripExtension(rom->getFilename()) + "_",
-	                         16, "nettou_yakyuu/nettou_yakyuu_"))
+RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, rom_)
+	, samplePlayer(new SamplePlayer(
+		"Nettou Yakyuu-DAC",
+		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
+		FileOperations::stripExtension(rom->getFilename()) + '_',
+		16, "nettou_yakyuu/nettou_yakyuu_"))
 {
 	reset(EmuTime::dummy());
 }

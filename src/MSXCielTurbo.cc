@@ -8,9 +8,8 @@
 
 namespace openmsx {
 
-MSXCielTurbo::MSXCielTurbo(MSXMotherBoard& motherBoard,
-                           const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXCielTurbo::MSXCielTurbo(const DeviceConfig& config)
+	: MSXDevice(config)
 {
 	reset(EmuTime::dummy());
 }

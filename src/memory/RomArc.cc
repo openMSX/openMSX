@@ -10,9 +10,8 @@
 
 namespace openmsx {
 
-RomArc::RomArc(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	       std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
+RomArc::RomArc(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(config, rom)
 {
 	setUnmapped(0);
 	setRom(1, 0);

@@ -10,8 +10,7 @@ namespace openmsx {
 class RomDooly : public MSXRom
 {
 public:
-	RomDooly(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	         std::auto_ptr<Rom> rom);
+	RomDooly(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomDooly();
 
 	virtual void reset(EmuTime::param time);

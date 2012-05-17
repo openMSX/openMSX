@@ -5,9 +5,8 @@
 
 namespace openmsx {
 
-MSXResetStatusRegister::MSXResetStatusRegister(MSXMotherBoard& motherBoard,
-                                               const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXResetStatusRegister::MSXResetStatusRegister(const DeviceConfig& config)
+	: MSXDevice(config)
 	, inverted(config.getChildDataAsBool("inverted", false))
 {
 	reset(EmuTime::dummy());

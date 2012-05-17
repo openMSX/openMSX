@@ -1,14 +1,16 @@
 // $Id$
 
 #include "DACSound16S.hh"
+#include "DeviceConfig.hh"
+#include "MSXMotherBoard.hh"
 #include "DynamicClock.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
-                         const std::string& desc, const DeviceConfig& config)
-	: SoundDevice(mixer, name, desc, 1)
+DACSound16S::DACSound16S(const std::string& name, const std::string& desc,
+                         const DeviceConfig& config)
+	: SoundDevice(config.getMotherBoard().getMSXMixer(), name, desc, 1)
 	, lastWrittenValue(0)
 {
 	registerSound(config);

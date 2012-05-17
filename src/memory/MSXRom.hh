@@ -21,8 +21,7 @@ public:
 	virtual void getExtraDeviceInfo(TclObject& result) const;
 
 protected:
-	MSXRom(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	       std::auto_ptr<Rom> rom);
+	MSXRom(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 
 	const std::auto_ptr<Rom> rom;
 };

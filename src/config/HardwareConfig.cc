@@ -331,7 +331,6 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 			createDevices(sub, primary, &sub);
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
-				motherBoard,
 				DeviceConfig(*this, sub, primary, secondary)));
 			if (device.get()) {
 				addDevice(device.release());

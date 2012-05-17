@@ -16,6 +16,7 @@ namespace openmsx {
 
 class LaserdiscCommand;
 class PioneerLDControl;
+class HardwareConfig;
 class MSXMotherBoard;
 class OggReader;
 class BooleanSetting;
@@ -23,8 +24,6 @@ struct AudioFragment;
 class LDRenderer;
 class RawFrame;
 class LoadingIndicator;
-class ThrottleManager;
-class EventDistributor;
 
 class LaserdiscPlayer : public ResampledSoundDevice
 		      , public Schedulable
@@ -32,9 +31,8 @@ class LaserdiscPlayer : public ResampledSoundDevice
 		      , private VideoSystemChangeListener
 {
 public:
-	LaserdiscPlayer(MSXMotherBoard& motherBoard,
-			PioneerLDControl& ldcontrol,
-			ThrottleManager& throttleManager);
+	LaserdiscPlayer(const HardwareConfig& hwConf,
+			PioneerLDControl& ldcontrol);
 	~LaserdiscPlayer();
 
 	// Called from CassettePort
@@ -136,7 +134,6 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
-	EventDistributor& eventDistributor;
 
 	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
 	std::auto_ptr<OggReader> video;

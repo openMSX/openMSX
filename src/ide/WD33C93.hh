@@ -20,12 +20,11 @@ namespace openmsx {
 
 class SCSIDevice;
 class DeviceConfig;
-class MSXMotherBoard;
 
 class WD33C93
 {
 public:
-	WD33C93(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit WD33C93(const DeviceConfig& config);
 	~WD33C93();
 
 	void reset(bool scsireset);

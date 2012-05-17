@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SamplePlayer.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "WavData.hh"
 #include "MSXCliComm.hh"
@@ -12,11 +13,11 @@
 
 namespace openmsx {
 
-SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
-                           const std::string& desc, const DeviceConfig& config,
+SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
+                           const DeviceConfig& config,
                            const std::string& samplesBaseName, unsigned numSamples,
                            const std::string& alternativeName)
-	: ResampledSoundDevice(motherBoard, name, desc, 1)
+	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 1)
 {
 	setInputRate(44100); // Initialize with dummy value
 
@@ -38,7 +39,7 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 				if (!alreadyWarned) {
 					alreadyWarned = true;
 					// print message from the 1st error
-					motherBoard.getMSXCliComm().printWarning(
+					config.getMotherBoard().getMSXCliComm().printWarning(
 						"Couldn't read " + name + " sample data: " +
 						e1.getMessage() +
 						". Continuing without sample data.");

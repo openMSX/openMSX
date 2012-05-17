@@ -17,11 +17,10 @@ using std::vector;
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
-                   const vector<unsigned>& sectorSizes_,
+AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
                    unsigned writeProtectedFlags, word ID_,
                    const DeviceConfig& config)
-	: motherBoard(motherBoard_)
+	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
 	, sectorSizes(sectorSizes_)
 	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
@@ -64,7 +63,7 @@ void AmdFlash::init(unsigned writeProtectedFlags, const DeviceConfig* config)
 	bool loaded = false;
 	if (writableSize) {
 		if (config) {
-			ram.reset(new SRAM(motherBoard, rom.getName() + "_flash",
+			ram.reset(new SRAM(rom.getName() + "_flash",
 			                   "flash rom", writableSize, *config,
 			                   0, &loaded));
 		} else {

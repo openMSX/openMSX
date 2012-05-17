@@ -37,10 +37,10 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 	}
 }
 
-MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, debuggable(new MapperIODebuggable(motherBoard, *this))
-	, engineMask(calcEngineMask(motherBoard))
+MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
+	: MSXDevice(config)
+	, debuggable(new MapperIODebuggable(getMotherBoard(), *this))
+	, engineMask(calcEngineMask(getMotherBoard()))
 {
 	updateMask();
 	reset(EmuTime::dummy());

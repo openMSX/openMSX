@@ -12,6 +12,7 @@
 
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "SimpleDebuggable.hh"
@@ -477,23 +478,22 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 
 // AY8910 main class:
 
-AY8910::AY8910(MSXMotherBoard& motherBoard, const std::string& name,
-		AY8910Periphery& periphery_, const DeviceConfig& config,
-		EmuTime::param time)
-	: ResampledSoundDevice(motherBoard, name, "PSG", 3)
-	, cliComm(motherBoard.getMSXCliComm())
+AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
+               const DeviceConfig& config, EmuTime::param time)
+	: ResampledSoundDevice(config.getMotherBoard(), name, "PSG", 3)
+	, cliComm(config.getMotherBoard().getMSXCliComm())
 	, periphery(periphery_)
-	, debuggable(new AY8910Debuggable(motherBoard, *this))
-	, vibratoPercent(new FloatSetting(motherBoard.getCommandController(),
+	, debuggable(new AY8910Debuggable(config.getMotherBoard(), *this))
+	, vibratoPercent(new FloatSetting(config.getMotherBoard().getCommandController(),
 		getName() + "_vibrato_percent", "controls strength of vibrato effect",
 		0.0, 0.0, 10.0))
-	, vibratoFrequency(new FloatSetting(motherBoard.getCommandController(),
+	, vibratoFrequency(new FloatSetting(config.getMotherBoard().getCommandController(),
 		getName() + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
 		5, 1.0, 10.0))
-	, detunePercent(new FloatSetting(motherBoard.getCommandController(),
+	, detunePercent(new FloatSetting(config.getMotherBoard().getCommandController(),
 		getName() + "_detune_percent", "controls strength of detune effect",
 		0.0, 0.0, 10.0))
-	, detuneFrequency(new FloatSetting(motherBoard.getCommandController(),
+	, detuneFrequency(new FloatSetting(config.getMotherBoard().getCommandController(),
 		getName() + "_detune_frequency", "frequency of detune effect in Hertz",
 		5.0, 1.0, 100.0))
 	, amplitude(config)

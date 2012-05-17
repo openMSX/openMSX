@@ -15,8 +15,7 @@ class AmdFlash;
 class RomMatraInk : public MSXRom
 {
 public:
-	RomMatraInk(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	            std::auto_ptr<Rom> rom);
+	RomMatraInk(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomMatraInk();
 
 	virtual void reset(EmuTime::param time);

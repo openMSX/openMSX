@@ -9,13 +9,13 @@
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
+SunriseIDE::SunriseIDE(const DeviceConfig& config)
+	: MSXDevice(config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
 {
-	device[0] = IDEDeviceFactory::create(motherBoard,
+	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));
-	device[1] = IDEDeviceFactory::create(motherBoard,
+	device[1] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("slave")));
 
 	// make valgrind happy

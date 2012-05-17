@@ -7,10 +7,9 @@
 
 namespace openmsx {
 
-MSXOPL3Cartridge::MSXOPL3Cartridge(MSXMotherBoard& motherBoard,
-                           const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, ymf262(new YMF262(motherBoard, getName(), config, false))
+MSXOPL3Cartridge::MSXOPL3Cartridge(const DeviceConfig& config)
+	: MSXDevice(config)
+	, ymf262(new YMF262(getName(), config, false))
 {
 	reset(getCurrentTime());
 }

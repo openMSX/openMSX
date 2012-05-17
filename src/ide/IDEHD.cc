@@ -2,6 +2,7 @@
 
 #include "IDEHD.hh"
 #include "MSXException.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "DiskManipulator.hh"
@@ -10,12 +11,12 @@
 
 namespace openmsx {
 
-IDEHD::IDEHD(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: HD(motherBoard, config)
-	, AbstractIDEDevice(motherBoard)
-	, diskManipulator(motherBoard.getReactor().getDiskManipulator())
+IDEHD::IDEHD(const DeviceConfig& config)
+	: HD(config)
+	, AbstractIDEDevice(config.getMotherBoard())
+	, diskManipulator(config.getMotherBoard().getReactor().getDiskManipulator())
 {
-	diskManipulator.registerDrive(*this, motherBoard.getMachineID() + "::");
+	diskManipulator.registerDrive(*this, config.getMotherBoard().getMachineID() + "::");
 }
 
 IDEHD::~IDEHD()

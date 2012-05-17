@@ -15,10 +15,9 @@ static unsigned calcBaseAddr(const DeviceConfig& config)
 	return first * 0x2000 - base;
 }
 
-RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                 std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, rom)
-	, panasonicMemory(motherBoard.getPanasonicMemory())
+RomDRAM::RomDRAM(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: MSXRom(config, rom)
+	, panasonicMemory(getMotherBoard().getPanasonicMemory())
 	, baseAddr(calcBaseAddr(config))
 {
 	// ignore result, only called to trigger 'missing rom' error early

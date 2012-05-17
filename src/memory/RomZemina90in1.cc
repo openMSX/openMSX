@@ -21,10 +21,8 @@
 
 namespace openmsx {
 
-RomZemina90in1::RomZemina90in1(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
+RomZemina90in1::RomZemina90in1(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(config, rom)
 {
 	reset(EmuTime::dummy());
 	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);

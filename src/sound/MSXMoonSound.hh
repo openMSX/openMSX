@@ -15,7 +15,7 @@ class YMF278;
 class MSXMoonSound : public MSXDevice
 {
 public:
-	MSXMoonSound(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXMoonSound(const DeviceConfig& config);
 	virtual ~MSXMoonSound();
 
 	virtual void powerUp(EmuTime::param time);

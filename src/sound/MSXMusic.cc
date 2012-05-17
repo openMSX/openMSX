@@ -7,10 +7,10 @@
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, ym2413(new YM2413(motherBoard, getName(), config))
+MSXMusic::MSXMusic(const DeviceConfig& config)
+	: MSXDevice(config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
+	, ym2413(new YM2413(getName(), config))
 {
 	reset(getCurrentTime());
 }

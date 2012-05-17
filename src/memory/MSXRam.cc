@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
-MSXRam::MSXRam(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXRam::MSXRam(const DeviceConfig& config)
+	: MSXDevice(config)
 {
 	// Actual initialization is done in init() because <mem> tags
 	// are not yet processed.

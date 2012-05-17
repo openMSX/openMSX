@@ -20,7 +20,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	WD2793BasedFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit WD2793BasedFDC(const DeviceConfig& config);
 	virtual ~WD2793BasedFDC();
 
 	const std::auto_ptr<DriveMultiplexer> multiplexer;

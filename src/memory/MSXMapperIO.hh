@@ -14,7 +14,7 @@ class MapperIODebuggable;
 class MSXMapperIO : public MSXDevice
 {
 public:
-	MSXMapperIO(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXMapperIO(const DeviceConfig& config);
 	virtual ~MSXMapperIO();
 
 	virtual void reset(EmuTime::param time);

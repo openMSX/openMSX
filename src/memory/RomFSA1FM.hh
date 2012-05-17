@@ -15,7 +15,7 @@ class SRAM;
 class RomFSA1FMSram
 {
 protected:
-	RomFSA1FMSram(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit RomFSA1FMSram(const DeviceConfig& config);
 	~RomFSA1FMSram();
 
 	MSXMotherBoard& motherBoard;
@@ -25,8 +25,7 @@ protected:
 class RomFSA1FM1 : public MSXRom, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	           std::auto_ptr<Rom> rom);
+	RomFSA1FM1(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 
 	virtual void reset(EmuTime::param time);
@@ -47,8 +46,7 @@ private:
 class RomFSA1FM2 : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	           std::auto_ptr<Rom> rom);
+	RomFSA1FM2(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 
 	virtual void reset(EmuTime::param time);

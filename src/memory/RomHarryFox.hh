@@ -10,8 +10,7 @@ namespace openmsx {
 class RomHarryFox : public Rom16kBBlocks
 {
 public:
-	RomHarryFox(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	            std::auto_ptr<Rom> rom);
+	RomHarryFox(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

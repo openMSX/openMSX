@@ -18,9 +18,9 @@ static unsigned getAddressHigh(const DeviceConfig& config)
 	return (prim << 18) | (sec << 16);
 }
 
-MSXMirrorDevice::MSXMirrorDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, interface(motherBoard.getCPUInterface())
+MSXMirrorDevice::MSXMirrorDevice(const DeviceConfig& config)
+	: MSXDevice(config)
+	, interface(getMotherBoard().getCPUInterface())
 	, addressHigh(getAddressHigh(config))
 {
 }

@@ -8,10 +8,9 @@
 
 namespace openmsx {
 
-PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
-                           const DeviceConfig& config)
-	: MSXMemoryMapper(motherBoard, config)
-	, panasonicMemory(motherBoard.getPanasonicMemory())
+PanasonicRam::PanasonicRam(const DeviceConfig& config)
+	: MSXMemoryMapper(config)
+	, panasonicMemory(getMotherBoard().getPanasonicMemory())
 {
 	panasonicMemory.registerRam(checkedRam->getUncheckedRam());
 }

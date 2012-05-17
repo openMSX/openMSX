@@ -8,13 +8,11 @@
 namespace openmsx {
 
 class IDEDevice;
-class MSXMotherBoard;
 class DeviceConfig;
 
 namespace IDEDeviceFactory
 {
-	std::auto_ptr<IDEDevice> create(MSXMotherBoard& motherBoard,
-	                                const DeviceConfig& config);
+	std::auto_ptr<IDEDevice> create(const DeviceConfig& config);
 }
 
 } // namespace openmsx

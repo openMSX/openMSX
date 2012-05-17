@@ -60,19 +60,19 @@ private:
 };
 
 
-MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, RS232Connector(motherBoard.getPluggingController(), "msx-rs232")
+MSXRS232::MSXRS232(const DeviceConfig& config)
+	: MSXDevice(config)
+	, RS232Connector(getMotherBoard().getPluggingController(), "msx-rs232")
 	, cntr0(new Counter0(*this))
 	, cntr1(new Counter1(*this))
-	, i8254(new I8254(motherBoard.getScheduler(),
+	, i8254(new I8254(getMotherBoard().getScheduler(),
 	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
 	, interf(new I8251Interf(*this))
-	, i8251(new I8251(motherBoard.getScheduler(), *interf,
+	, i8251(new I8251(getMotherBoard().getScheduler(), *interf,
 	                  getCurrentTime()))
-	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
+	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
 	, ram(config.getChildDataAsBool("ram", false)
-	      ? new Ram(motherBoard, MSXDevice::getName() + " RAM",
+	      ? new Ram(getMotherBoard(), MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
 	      : NULL)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")

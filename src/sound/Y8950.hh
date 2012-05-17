@@ -44,9 +44,8 @@ public:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 
-	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const DeviceConfig& config, unsigned sampleRam, EmuTime::param time,
-	      MSXAudio& audio);
+	Y8950(const std::string& name, const DeviceConfig& config,
+	      unsigned sampleRam, EmuTime::param time, MSXAudio& audio);
 	~Y8950();
 
 	void setEnabled(bool enabled, EmuTime::param time);

@@ -100,6 +100,7 @@
 
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
+#include "DeviceConfig.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
@@ -124,10 +125,10 @@ static string calcDescription(SCC::ChipMode mode)
 	return (mode == SCC::SCC_Real) ? "Konami SCC" : "Konami SCC+";
 }
 
-SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
-         const DeviceConfig& config, EmuTime::param time, ChipMode mode)
-	: ResampledSoundDevice(motherBoard, name, calcDescription(mode), 5)
-	, debuggable(new SCCDebuggable(motherBoard, *this))
+SCC::SCC(const string& name, const DeviceConfig& config,
+         EmuTime::param time, ChipMode mode)
+	: ResampledSoundDevice(config.getMotherBoard(), name, calcDescription(mode), 5)
+	, debuggable(new SCCDebuggable(config.getMotherBoard(), *this))
 	, deformTimer(time)
 	, currentChipMode(mode)
 {

@@ -14,8 +14,8 @@
 
 namespace openmsx {
 
-SanyoFDC::SanyoFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: WD2793BasedFDC(motherBoard, config)
+SanyoFDC::SanyoFDC(const DeviceConfig& config)
+	: WD2793BasedFDC(config)
 {
 }
 

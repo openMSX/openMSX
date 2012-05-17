@@ -18,8 +18,7 @@ class MSXMotherBoard;
 class YM2413 : public ResampledSoundDevice
 {
 public:
-	YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-	       const DeviceConfig& config);
+	YM2413(const std::string& name, const DeviceConfig& config);
 	virtual ~YM2413();
 
 	void reset(EmuTime::param time);

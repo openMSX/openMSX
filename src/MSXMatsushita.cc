@@ -11,13 +11,11 @@ namespace openmsx {
 
 static const byte ID = 0x08;
 
-MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
-                             const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, MSXSwitchedDevice(motherBoard, ID)
-	, firmwareSwitch(
-	     new FirmwareSwitch(motherBoard.getCommandController(), config))
-	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x800, config))
+MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
+	: MSXDevice(config)
+	, MSXSwitchedDevice(getMotherBoard(), ID)
+	, firmwareSwitch(new FirmwareSwitch(config))
+	, sram(new SRAM(getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 

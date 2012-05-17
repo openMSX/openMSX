@@ -35,6 +35,9 @@
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "CliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "GlobalSettings.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "FileOperations.hh"
@@ -89,27 +92,20 @@ static XMLElement createXML()
 	return xml;
 }
 
-CassettePlayer::CassettePlayer(
-		CommandController& commandController_,
-		MSXMotherBoard& motherBoard, Scheduler& scheduler,
-		StateChangeDistributor& stateChangeDistributor,
-		EventDistributor& eventDistributor_,
-		CliComm& cliComm_,
-		FilePool& filePool_,
-		ThrottleManager& throttleManager)
-	: ResampledSoundDevice(motherBoard, getName(), getDescription(), 1)
-	, Schedulable(scheduler)
+CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
+	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1)
+	, Schedulable(hwConf.getMotherBoard().getScheduler())
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
-	, commandController(commandController_)
-	, cliComm(cliComm_)
-	, filePool(filePool_)
-	, eventDistributor(eventDistributor_)
-	, tapeCommand(new TapeCommand(commandController, stateChangeDistributor,
-	                              scheduler, *this))
-	, loadingIndicator(new LoadingIndicator(throttleManager))
-	, autoRunSetting(new BooleanSetting(commandController,
+	, motherBoard(hwConf.getMotherBoard())
+	, tapeCommand(new TapeCommand(motherBoard.getCommandController(),
+	                              motherBoard.getStateChangeDistributor(),
+	                              motherBoard.getScheduler(), *this))
+	, loadingIndicator(new LoadingIndicator(
+		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
+	, autoRunSetting(new BooleanSetting(
+		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", false))
 	, sampcnt(0)
 	, state(STOP)
@@ -122,10 +118,11 @@ CassettePlayer::CassettePlayer(
 	removeTape(EmuTime::zero);
 
 	static XMLElement xml = createXML();
-	registerSound(DeviceConfig(xml));
+	registerSound(DeviceConfig(hwConf, xml));
 
-	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
-	cliComm.update(CliComm::HARDWARE, getName(), "add");
+	motherBoard.getReactor().getEventDistributor().registerEventListener(
+		OPENMSX_BOOT_EVENT, *this);
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getName(), "add");
 }
 
 CassettePlayer::~CassettePlayer()
@@ -134,8 +131,9 @@ CassettePlayer::~CassettePlayer()
 	if (Connector* connector = getConnector()) {
 		connector->unplug(getCurrentTime());
 	}
-	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
-	cliComm.update(CliComm::HARDWARE, getName(), "remove");
+	motherBoard.getReactor().getEventDistributor().unregisterEventListener(
+		OPENMSX_BOOT_EVENT, *this);
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, getName(), "remove");
 }
 
 void CassettePlayer::autoRun()
@@ -168,9 +166,9 @@ void CassettePlayer::autoRun()
 		"after time 2 \"if $" + var + "==\\$" + var + " { "
 		"type " + loadingInstruction + "\\\\r }\"";
 	try {
-		commandController.executeCommand(command);
+		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
-		cliComm.printWarning(
+		motherBoard.getMSXCliComm().printWarning(
 			"Error executing loading instruction for AutoRun: " +
 			e.getMessage() + "\n Please report a bug.");
 	}
@@ -282,7 +280,8 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
 	}
-	cliComm.update(CliComm::STATUS, "cassetteplayer", getStateString());
+	motherBoard.getMSXCliComm().update(
+		CliComm::STATUS, "cassetteplayer", getStateString());
 
 	updateLoadingState(time); // sets SP for tape-end detection
 
@@ -304,7 +303,8 @@ void CassettePlayer::updateLoadingState(EmuTime::param time)
 void CassettePlayer::setImageName(const Filename& newImage)
 {
 	casImage = newImage;
-	cliComm.update(CliComm::MEDIA, "cassetteplayer", casImage.getResolved());
+	motherBoard.getMSXCliComm().update(
+		CliComm::MEDIA, "cassetteplayer", casImage.getResolved());
 }
 
 const Filename& CassettePlayer::getImageName() const
@@ -315,6 +315,7 @@ const Filename& CassettePlayer::getImageName() const
 void CassettePlayer::insertTape(const Filename& filename)
 {
 	if (!filename.empty()) {
+		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		try {
 			// first try WAV
 			playImage.reset(new WavImage(filename, filePool));
@@ -322,7 +323,7 @@ void CassettePlayer::insertTape(const Filename& filename)
 			try {
 				// if that fails use CAS
 				playImage.reset(new CasImage(
-					filename, filePool, cliComm));
+					filename, filePool, motherBoard.getMSXCliComm()));
 			} catch (MSXException& e2) {
 				throw MSXException(
 					"Failed to insert WAV image: \"" +
@@ -513,7 +514,7 @@ void CassettePlayer::flushOutput()
 		sampcnt = 0;
 		recordImage->flush(); // update wav header
 	} catch (MSXException& e) {
-		cliComm.printWarning(
+		motherBoard.getMSXCliComm().printWarning(
 			"Failed to write to tape: " + e.getMessage());
 	}
 }
@@ -569,7 +570,7 @@ int CassettePlayer::signalEvent(const shared_ptr<const Event>& event)
 			try {
 				playTape(getImageName(), getCurrentTime());
 			} catch (MSXException& e) {
-				cliComm.printWarning(
+				motherBoard.getMSXCliComm().printWarning(
 					"Failed to insert tape: " + e.getMessage());
 			}
 		}
@@ -582,7 +583,7 @@ void CassettePlayer::executeUntil(EmuTime::param time, int userData)
 	switch (userData) {
 	case END_OF_TAPE:
 		// tape ended
-		cliComm.printWarning(
+		motherBoard.getMSXCliComm().printWarning(
 			"Tape end reached... stopping. "
 			"You may need to insert another tape image "
 			"that contains side B. (Or you used the wrong "
@@ -866,6 +867,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	}
 
 	if (ar.isLoader()) {
+		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		removeTape(getCurrentTime());
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
@@ -881,7 +883,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		if (playImage.get() && !oldChecksum.empty()) {
 			string newChecksum = playImage->getSha1Sum();
 			if (oldChecksum != newChecksum) {
-				cliComm.printWarning(
+				motherBoard.getMSXCliComm().printWarning(
 					"The content of the tape " +
 					casImage.getResolved() +
 					" has changed since the time this "

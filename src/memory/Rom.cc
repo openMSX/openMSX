@@ -43,9 +43,8 @@ private:
 };
 
 
-Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
-         const string& description_, const DeviceConfig& config,
-         const string& id /*= ""*/)
+Rom::Rom(const string& name_, const string& description_,
+         const DeviceConfig& config, const string& id /*= ""*/)
 	: name(name_), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
@@ -56,7 +55,7 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getAttribute("id", "") == id) {
 			try {
-				init(motherBoard, **it, config.getFileContext());
+				init(config.getMotherBoard(), **it, config.getFileContext());
 				return;
 			} catch (MSXException& e) {
 				// remember error message, and try next

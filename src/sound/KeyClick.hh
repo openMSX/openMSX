@@ -9,14 +9,13 @@
 
 namespace openmsx {
 
-class MSXMixer;
 class DeviceConfig;
 class DACSound8U;
 
 class KeyClick : private noncopyable
 {
 public:
-	KeyClick(MSXMixer& mixer, const DeviceConfig& config);
+	explicit KeyClick(const DeviceConfig& config);
 	~KeyClick();
 
 	void reset(EmuTime::param time);

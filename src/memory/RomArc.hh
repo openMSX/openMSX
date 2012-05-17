@@ -10,8 +10,7 @@ namespace openmsx {
 class RomArc : public Rom16kBBlocks
 {
 public:
-	RomArc(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-	       std::auto_ptr<Rom> rom);
+	RomArc(const DeviceConfig& config, std::auto_ptr<Rom> rom);
 	virtual ~RomArc();
 
 	virtual void reset(EmuTime::param time);

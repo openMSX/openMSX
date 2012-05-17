@@ -67,10 +67,10 @@ static const byte inqdata[36] = {
 static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
                                           SectorAccessibleDisk::SECTOR_SIZE;
 
-SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const DeviceConfig& targetconfig,
+SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
                byte* const buf, unsigned mode_)
-	: HD(motherBoard_, targetconfig)
-	, motherBoard(motherBoard_)
+	: HD(targetconfig)
+	, motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))

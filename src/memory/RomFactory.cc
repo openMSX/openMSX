@@ -144,16 +144,16 @@ static RomType guessRomType(const Rom& rom)
 	}
 }
 
-auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& config)
+auto_ptr<MSXDevice> create(const DeviceConfig& config)
 {
-	auto_ptr<Rom> rom(new Rom(motherBoard, config.getAttribute("id"), "rom", config));
+	auto_ptr<Rom> rom(new Rom(config.getAttribute("id"), "rom", config));
 
 	// Get specified mapper type from the config.
 	RomType type;
 	string typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
-		const RomInfo* romInfo = motherBoard.getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
+		const RomInfo* romInfo = config.getMotherBoard().getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
 		if (romInfo == NULL) {
 			type = guessRomType(*rom);
 		} else {
@@ -167,12 +167,10 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& conf
 	auto_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
-		result.reset(new RomPlain(motherBoard, config, rom,
-		                          RomPlain::MIRRORED));
+		result.reset(new RomPlain(config, rom, RomPlain::MIRRORED));
 		break;
 	case ROM_NORMAL:
-		result.reset(new RomPlain(motherBoard, config, rom,
-		                          RomPlain::NOT_MIRRORED));
+		result.reset(new RomPlain(config, rom, RomPlain::NOT_MIRRORED));
 		break;
 	case ROM_MIRRORED0000:
 	case ROM_MIRRORED2000:
@@ -182,7 +180,7 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& conf
 	case ROM_MIRROREDA000:
 	case ROM_MIRROREDC000:
 	case ROM_MIRROREDE000:
-		result.reset(new RomPlain(motherBoard, config, rom,
+		result.reset(new RomPlain(config, rom,
 		                     RomPlain::MIRRORED, (type & 7) * 0x2000));
 		break;
 	case ROM_NORMAL0000:
@@ -193,7 +191,7 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& conf
 	case ROM_NORMALA000:
 	case ROM_NORMALC000:
 	case ROM_NORMALE000:
-		result.reset(new RomPlain(motherBoard, config, rom,
+		result.reset(new RomPlain(config, rom,
 		                 RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
 		break;
 	case ROM_PAGE0:
@@ -211,136 +209,130 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& conf
 	case ROM_PAGE023:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
-		result.reset(new RomPageNN(motherBoard, config, rom, type & 0xF));
+		result.reset(new RomPageNN(config, rom, type & 0xF));
 		break;
 	case ROM_DRAM:
-		result.reset(new RomDRAM(motherBoard, config, rom));
+		result.reset(new RomDRAM(config, rom));
 		break;
 	case ROM_GENERIC_8KB:
-		result.reset(new RomGeneric8kB(motherBoard, config, rom));
+		result.reset(new RomGeneric8kB(config, rom));
 		break;
 	case ROM_GENERIC_16KB:
-		result.reset(new RomGeneric16kB(motherBoard, config, rom));
+		result.reset(new RomGeneric16kB(config, rom));
 		break;
 	case ROM_KONAMI_SCC:
-		result.reset(new RomKonamiSCC(motherBoard, config, rom));
+		result.reset(new RomKonamiSCC(config, rom));
 		break;
 	case ROM_KONAMI:
-		result.reset(new RomKonami(motherBoard, config, rom));
+		result.reset(new RomKonami(config, rom));
 		break;
 	case ROM_KBDMASTER:
-		result.reset(new RomKonamiKeyboardMaster(
-		                   motherBoard, config, rom));
+		result.reset(new RomKonamiKeyboardMaster(config, rom));
 		break;
 	case ROM_ASCII8:
-		result.reset(new RomAscii8kB(motherBoard, config, rom));
+		result.reset(new RomAscii8kB(config, rom));
 		break;
 	case ROM_ASCII16:
-		result.reset(new RomAscii16kB(motherBoard, config, rom));
+		result.reset(new RomAscii16kB(config, rom));
 		break;
 	case ROM_PADIAL8:
-		result.reset(new RomPadial8kB(motherBoard, config, rom));
+		result.reset(new RomPadial8kB(config, rom));
 		break;
 	case ROM_PADIAL16:
-		result.reset(new RomPadial16kB(motherBoard, config, rom));
+		result.reset(new RomPadial16kB(config, rom));
 		break;
 	case ROM_SUPERLODERUNNER:
-		result.reset(new RomSuperLodeRunner(motherBoard, config, rom));
+		result.reset(new RomSuperLodeRunner(config, rom));
 		break;
 	case ROM_MSXDOS2:
-		result.reset(new RomMSXDOS2(motherBoard, config, rom));
+		result.reset(new RomMSXDOS2(config, rom));
 		break;
 	case ROM_R_TYPE:
-		result.reset(new RomRType(motherBoard, config, rom));
+		result.reset(new RomRType(config, rom));
 		break;
 	case ROM_CROSS_BLAIM:
-		result.reset(new RomCrossBlaim(motherBoard, config, rom));
+		result.reset(new RomCrossBlaim(config, rom));
 		break;
 	case ROM_HARRY_FOX:
-		result.reset(new RomHarryFox(motherBoard, config, rom));
+		result.reset(new RomHarryFox(config, rom));
 		break;
 	case ROM_ASCII8_8:
-		result.reset(new RomAscii8_8(motherBoard, config, rom,
-		                             RomAscii8_8::ASCII8_8));
+		result.reset(new RomAscii8_8(config, rom, RomAscii8_8::ASCII8_8));
 		break;
 	case ROM_KOEI_8:
-		result.reset(new RomAscii8_8(motherBoard, config, rom,
-		                             RomAscii8_8::KOEI_8));
+		result.reset(new RomAscii8_8(config, rom, RomAscii8_8::KOEI_8));
 		break;
 	case ROM_KOEI_32:
-		result.reset(new RomAscii8_8(motherBoard, config, rom,
-		                             RomAscii8_8::KOEI_32));
+		result.reset(new RomAscii8_8(config, rom, RomAscii8_8::KOEI_32));
 		break;
 	case ROM_WIZARDRY:
-		result.reset(new RomAscii8_8(motherBoard, config, rom,
-		                             RomAscii8_8::WIZARDRY));
+		result.reset(new RomAscii8_8(config, rom, RomAscii8_8::WIZARDRY));
 		break;
 	case ROM_ASCII16_2:
-		result.reset(new RomAscii16_2(motherBoard, config, rom));
+		result.reset(new RomAscii16_2(config, rom));
 		break;
 	case ROM_GAME_MASTER2:
-		result.reset(new RomGameMaster2(motherBoard, config, rom));
+		result.reset(new RomGameMaster2(config, rom));
 		break;
 	case ROM_PANASONIC:
-		result.reset(new RomPanasonic(motherBoard, config, rom));
+		result.reset(new RomPanasonic(config, rom));
 		break;
 	case ROM_NATIONAL:
-		result.reset(new RomNational(motherBoard, config, rom));
+		result.reset(new RomNational(config, rom));
 		break;
 	case ROM_MAJUTSUSHI:
-		result.reset(new RomMajutsushi(motherBoard, config, rom));
+		result.reset(new RomMajutsushi(config, rom));
 		break;
 	case ROM_SYNTHESIZER:
-		result.reset(new RomSynthesizer(motherBoard, config, rom));
+		result.reset(new RomSynthesizer(config, rom));
 		break;
 	case ROM_PLAYBALL:
-		result.reset(new RomPlayBall(motherBoard, config, rom));
+		result.reset(new RomPlayBall(config, rom));
 		break;
 	case ROM_NETTOU_YAKYUU:
-		result.reset(new RomNettouYakyuu(motherBoard, config, rom));
+		result.reset(new RomNettouYakyuu(config, rom));
 		break;
 	case ROM_HALNOTE:
-		result.reset(new RomHalnote(motherBoard, config, rom));
+		result.reset(new RomHalnote(config, rom));
 		break;
 	case ROM_ZEMINA80IN1:
-		result.reset(new RomZemina80in1(motherBoard, config, rom));
+		result.reset(new RomZemina80in1(config, rom));
 		break;
 	case ROM_ZEMINA90IN1:
-		result.reset(new RomZemina90in1(motherBoard, config, rom));
+		result.reset(new RomZemina90in1(config, rom));
 		break;
 	case ROM_ZEMINA126IN1:
-		result.reset(new RomZemina126in1(motherBoard, config, rom));
+		result.reset(new RomZemina126in1(config, rom));
 		break;
 	case ROM_HOLY_QURAN:
-		result.reset(new RomHolyQuran(motherBoard, config, rom));
+		result.reset(new RomHolyQuran(config, rom));
 		break;
 	case ROM_HOLY_QURAN2:
-		result.reset(new RomHolyQuran2(motherBoard, config, rom));
+		result.reset(new RomHolyQuran2(config, rom));
 		break;
 	case ROM_FSA1FM1:
-		result.reset(new RomFSA1FM1(motherBoard, config, rom));
+		result.reset(new RomFSA1FM1(config, rom));
 		break;
 	case ROM_FSA1FM2:
-		result.reset(new RomFSA1FM2(motherBoard, config, rom));
+		result.reset(new RomFSA1FM2(config, rom));
 		break;
 	case ROM_MANBOW2:
 	case ROM_MANBOW2_2:
 	case ROM_HAMARAJANIGHT:
 	case ROM_MEGAFLASHROMSCC:
-		result.reset(new RomManbow2(
-		                   motherBoard, config, rom, type));
+		result.reset(new RomManbow2(config, rom, type));
 		break;
 	case ROM_MATRAINK:
-		result.reset(new RomMatraInk(motherBoard, config, rom));
+		result.reset(new RomMatraInk(config, rom));
 		break;
 	case ROM_ARC:
-		result.reset(new RomArc(motherBoard, config, rom));
+		result.reset(new RomArc(config, rom));
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
-		result.reset(new MegaFlashRomSCCPlus(motherBoard, config, rom));
+		result.reset(new MegaFlashRomSCCPlus(config, rom));
 		break;
 	case ROM_DOOLY:
-		result.reset(new RomDooly(motherBoard, config, rom));
+		result.reset(new RomDooly(config, rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");

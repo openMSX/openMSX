@@ -22,16 +22,15 @@
 
 namespace openmsx {
 
-RomAscii8_8::RomAscii8_8(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_, SubType subType)
-	: Rom8kBBlocks(motherBoard, config, rom_)
+RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
+                         std::auto_ptr<Rom> rom_, SubType subType)
+	: Rom8kBBlocks(config, rom_)
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
 	                                      : rom->getSize() / 0x2000)
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
 	            ? 0x34 : 0x30)
 {
-	sram.reset(new SRAM(motherBoard, getName() + " SRAM",
+	sram.reset(new SRAM(getName() + " SRAM",
 	                    (subType == KOEI_32) ? 0x8000 : 0x2000, config));
 
 	reset(EmuTime::dummy());

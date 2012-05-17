@@ -47,14 +47,14 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-RomFSA1FMSram::RomFSA1FMSram(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
-	: motherBoard(motherBoard_)
+RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
+	: motherBoard(config.getMotherBoard())
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("FSA1FM-sram");
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
-		info.stuff = new SRAM(motherBoard, config.getAttribute("id") + " SRAM",
+		info.stuff = new SRAM(config.getAttribute("id") + " SRAM",
 		                      0x2000, config);
 	}
 	++info.counter;
@@ -79,12 +79,10 @@ RomFSA1FMSram::~RomFSA1FMSram()
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                       std::auto_ptr<Rom> rom_)
-	: MSXRom(motherBoard, config, rom_)
-	, RomFSA1FMSram(motherBoard, config)
-	, firmwareSwitch(
-	      new FirmwareSwitch(motherBoard.getCommandController(), config))
+RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: MSXRom(config, rom_)
+	, RomFSA1FMSram(config)
+	, firmwareSwitch(new FirmwareSwitch(config))
 {
 	if ((rom->getSize() != 0x100000) &&
 	    (rom->getSize() != 0x200000)) {
@@ -188,10 +186,9 @@ REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                       std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, rom)
-	, RomFSA1FMSram(motherBoard, config)
+RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(config, rom)
+	, RomFSA1FMSram(config)
 {
 	reset(EmuTime::dummy());
 }

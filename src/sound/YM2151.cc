@@ -10,6 +10,7 @@
 #include "ResampledSoundDevice.hh"
 #include "EmuTimer.hh"
 #include "IRQHelper.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include <cmath>
@@ -20,9 +21,8 @@ namespace openmsx {
 class YM2151::Impl : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
-	Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	           const std::string& desc, const DeviceConfig& config,
-	           EmuTime::param time);
+	Impl(const std::string& name, const std::string& desc,
+	     const DeviceConfig& config, EmuTime::param time);
 	~Impl();
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
@@ -1014,13 +1014,12 @@ void YM2151::Impl::writeReg(byte r, byte v, EmuTime::param time)
 	}
 }
 
-YM2151::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
-               const std::string& desc, const DeviceConfig& config,
-               EmuTime::param time)
-	: ResampledSoundDevice(motherBoard, name, desc, 8, true)
-	, irq(motherBoard, getName() + ".IRQ")
-	, timer1(EmuTimer::createOPM_1(motherBoard.getScheduler(), *this))
-	, timer2(EmuTimer::createOPM_2(motherBoard.getScheduler(), *this))
+YM2151::Impl::Impl(const std::string& name, const std::string& desc,
+                   const DeviceConfig& config, EmuTime::param time)
+	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 8, true)
+	, irq(config.getMotherBoard(), getName() + ".IRQ")
+	, timer1(EmuTimer::createOPM_1(config.getMotherBoard().getScheduler(), *this))
+	, timer2(EmuTimer::createOPM_2(config.getMotherBoard().getScheduler(), *this))
 {
 	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.
@@ -1799,10 +1798,9 @@ void YM2151::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 // YM2151
 
-YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
-               const std::string& desc, const DeviceConfig& config,
-               EmuTime::param time)
-	: pimpl(new Impl(motherBoard, name, desc, config, time))
+YM2151::YM2151(const std::string& name, const std::string& desc,
+               const DeviceConfig& config, EmuTime::param time)
+	: pimpl(new Impl(name, desc, config, time))
 {
 }
 

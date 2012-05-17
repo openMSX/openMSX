@@ -16,7 +16,7 @@ namespace openmsx {
 class MSXResetStatusRegister : public MSXDevice
 {
 public:
-	MSXResetStatusRegister(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXResetStatusRegister(const DeviceConfig& config);
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

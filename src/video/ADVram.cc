@@ -9,8 +9,8 @@
 
 namespace openmsx {
 
-ADVram::ADVram(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+ADVram::ADVram(const DeviceConfig& config)
+	: MSXDevice(config)
 	, vdp(NULL)
 	, vram(NULL)
 	, hasEnable(config.getChildDataAsBool("hasEnable", true))

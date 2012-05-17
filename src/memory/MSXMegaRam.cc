@@ -32,13 +32,13 @@
 
 namespace openmsx {
 
-MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
+MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
+	: MSXDevice(config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
-	, ram(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
+	, ram(new Ram(getMotherBoard(), getName() + " RAM", "Mega-RAM",
 	              numBlocks * 0x2000))
 	, rom(config.findChild("rom")
-	      ? new Rom(motherBoard, getName() + " ROM", "Mega-RAM DiskROM", config)
+	      ? new Rom(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : NULL)
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {

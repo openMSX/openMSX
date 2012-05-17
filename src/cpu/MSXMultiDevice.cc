@@ -15,7 +15,7 @@ static DeviceConfig getMultiConfig(MSXMotherBoard& motherboard)
 
 // TODO take HardwareConfig parameter instead?
 MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
-	: MSXDevice(motherboard, getMultiConfig(motherboard), "Multi")
+	: MSXDevice(getMultiConfig(motherboard), "Multi")
 {
 }
 

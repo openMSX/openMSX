@@ -16,9 +16,8 @@
 
 namespace openmsx {
 
-RomRType::RomRType(MSXMotherBoard& motherBoard, const DeviceConfig& config,
-                   std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
+RomRType::RomRType(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(config, rom)
 {
 	reset(EmuTime::dummy());
 }

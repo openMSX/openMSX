@@ -15,16 +15,13 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(motherBoard, config, rom_)
-	, panasonicMem(motherBoard.getPanasonicMemory())
+RomPanasonic::RomPanasonic(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, rom_)
+	, panasonicMem(getMotherBoard().getPanasonicMemory())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
-		sram.reset(new SRAM(motherBoard, getName() + " SRAM",
-		                    sramSize * 1024, config));
+		sram.reset(new SRAM(getName() + " SRAM", sramSize * 1024, config));
 	}
 
 	if (config.getChildDataAsBool("sram-mirrored", false)) {

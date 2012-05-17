@@ -50,10 +50,10 @@ static const EmuDuration MEM_WRITE_DELAY = MasterClock::duration(28);
 static const EmuDuration LOAD_DELAY = MasterClock::duration(10000);
 
 
-MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, ymf262(new YMF262(motherBoard, getName() + " FM", config, true))
-	, ymf278(new YMF278(motherBoard, getName() + " wave",
+MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
+	: MSXDevice(config)
+	, ymf262(new YMF262(getName() + " FM", config, true))
+	, ymf278(new YMF278(getName() + " wave",
 	                    config.getChildDataAsInt("sampleram", 512), // size in kb
 	                    config))
 	, ymf278LoadTime(getCurrentTime())

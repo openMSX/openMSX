@@ -10,9 +10,8 @@
 namespace openmsx {
 
 RomSuperLodeRunner::RomSuperLodeRunner(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(motherBoard, config, rom)
+		const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: Rom16kBBlocks(config, rom)
 {
 	getMotherBoard().getCPUInterface().registerGlobalWrite(*this, 0x0000);
 	reset(EmuTime::dummy());

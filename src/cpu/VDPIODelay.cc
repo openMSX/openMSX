@@ -4,16 +4,16 @@
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
+#include "DeviceConfig.hh"
 #include "DummyDevice.hh"
 #include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
 
-VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const DeviceConfig& config,
-                       MSXCPUInterface& cpuInterface)
-	: MSXDevice(motherboard, config)
-	, cpu(motherboard.getCPU())
+VDPIODelay::VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface)
+	: MSXDevice(config)
+	, cpu(config.getMotherBoard().getCPU())
 	, lastTime(EmuTime::zero)
 {
 	for (int port = 0x098; port <= 0x9B; ++port) {

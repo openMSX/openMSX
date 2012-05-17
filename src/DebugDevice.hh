@@ -14,7 +14,7 @@ class FilenameSetting;
 class DebugDevice : public MSXDevice
 {
 public:
-	DebugDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit DebugDevice(const DeviceConfig& config);
 	virtual ~DebugDevice();
 
 	virtual void reset(EmuTime::param time);

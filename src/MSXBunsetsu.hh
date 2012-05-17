@@ -13,7 +13,7 @@ class Rom;
 class MSXBunsetsu : public MSXDevice
 {
 public:
-	MSXBunsetsu(MSXMotherBoard& motherBoard, const DeviceConfig& DeviceConfig);
+	explicit MSXBunsetsu(const DeviceConfig& DeviceConfig);
 	virtual ~MSXBunsetsu();
 
 	virtual void reset(EmuTime::param time);

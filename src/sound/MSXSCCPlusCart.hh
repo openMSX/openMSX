@@ -17,7 +17,7 @@ class Ram;
 class MSXSCCPlusCart : public MSXDevice
 {
 public:
-	MSXSCCPlusCart(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXSCCPlusCart(const DeviceConfig& config);
 	virtual ~MSXSCCPlusCart();
 
 	virtual void powerUp(EmuTime::param time);

@@ -15,7 +15,7 @@ class SRAM;
 class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXMatsushita(MSXMotherBoard& motherBoard, const DeviceConfig& config);
+	explicit MSXMatsushita(const DeviceConfig& config);
 	virtual ~MSXMatsushita();
 
 	// MSXDevice

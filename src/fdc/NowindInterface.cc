@@ -22,17 +22,17 @@ namespace openmsx {
 static const unsigned MAX_NOWINDS = 8; // a-h
 typedef std::bitset<MAX_NOWINDS> NowindsInUse;
 
-NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
-	, flash(new AmdFlash(motherBoard, *rom,
+NowindInterface::NowindInterface(const DeviceConfig& config)
+	: MSXDevice(config)
+	, rom(new Rom(getName() + " ROM", "rom", config))
+	, flash(new AmdFlash(*rom,
 	                     std::vector<unsigned>(rom->getSize() / 0x10000, 0x10000),
 	                     0, 0x01A4, config))
 	, host(new NowindHost(drives))
 	, basename("nowindX")
 {
 	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("nowindsInUse");
+		getMotherBoard().getSharedStuff("nowindsInUse");
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
 		info.stuff = new NowindsInUse();
@@ -50,10 +50,10 @@ NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const DeviceConfig
 	basename[6] = char('a' + i);
 
 	command.reset(new NowindCommand(
-		basename, motherBoard.getCommandController(), *this));
+		basename, getMotherBoard().getCommandController(), *this));
 
 	// start with one (empty) drive
-	DiskChanger* drive = command->createDiskChanger(basename, 0, motherBoard);
+	DiskChanger* drive = command->createDiskChanger(basename, 0, getMotherBoard());
 	drive->createCommand();
 	drives.push_back(drive);
 

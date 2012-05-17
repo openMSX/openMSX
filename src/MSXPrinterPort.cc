@@ -11,9 +11,9 @@ using std::string;
 
 namespace openmsx {
 
-MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, Connector(motherBoard.getPluggingController(), "printerport",
+MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
+	: MSXDevice(config)
+	, Connector(getMotherBoard().getPluggingController(), "printerport",
 	            std::auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;     // != 0;

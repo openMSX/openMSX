@@ -46,9 +46,8 @@ class DeviceConfig;
 class YM2151
 {
 public:
-	YM2151(MSXMotherBoard& motherBoard, const std::string& name,
-	       const std::string& desc, const DeviceConfig& config,
-	       EmuTime::param time);
+	YM2151(const std::string& name, const std::string& desc,
+	       const DeviceConfig& config, EmuTime::param time);
 	~YM2151();
 
 	void reset(EmuTime::param time);

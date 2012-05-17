@@ -106,9 +106,9 @@ private:
 static const unsigned MAX_LS = 26;
 typedef std::bitset<MAX_LS> LSInUse;
 
-SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const DeviceConfig& targetconfig,
-		byte* const buf, unsigned mode_)
-	: motherBoard(motherBoard_)
+SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
+                     byte* const buf, unsigned mode_)
+	: motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
 	, name("lsX")
 	, mode(mode_)

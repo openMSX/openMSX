@@ -12,10 +12,8 @@
 
 namespace openmsx {
 
-RomPadial16kB::RomPadial16kB(
-		MSXMotherBoard& motherBoard, const DeviceConfig& config,
-		std::auto_ptr<Rom> rom)
-	: RomAscii16kB(motherBoard, config, rom)
+RomPadial16kB::RomPadial16kB(const DeviceConfig& config, std::auto_ptr<Rom> rom)
+	: RomAscii16kB(config, rom)
 {
 	reset(EmuTime::dummy());
 }

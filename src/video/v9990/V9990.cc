@@ -75,13 +75,13 @@ static const byte regAccess[64] = {
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990::V9990(MSXMotherBoard& motherBoard, const DeviceConfig& config)
-	: MSXDevice(motherBoard, config)
-	, Schedulable(motherBoard.getScheduler())
+V9990::V9990(const DeviceConfig& config)
+	: MSXDevice(config)
+	, Schedulable(getMotherBoard().getScheduler())
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))
-	, irq(motherBoard, getName() + ".IRQ")
-	, display(motherBoard.getReactor().getDisplay())
+	, irq(getMotherBoard(), getName() + ".IRQ")
+	, display(getMotherBoard().getReactor().getDisplay())
 	, frameStartTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
 	, pendingIRQs(0)
