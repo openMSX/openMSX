@@ -9,7 +9,8 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	ConfigException \
-	XMLException
+	XMLException \
+	DeviceConfig
 
 include build/node-end.mk
 

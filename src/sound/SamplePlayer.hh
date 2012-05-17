@@ -16,7 +16,7 @@ class SamplePlayer : public ResampledSoundDevice
 {
 public:
 	SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
-	             const std::string& desc, const XMLElement& config,
+	             const std::string& desc, const DeviceConfig& config,
 	             const std::string& samplesBaseName, unsigned numSamples,
 	             const std::string& alternativeName = "");
 	~SamplePlayer();

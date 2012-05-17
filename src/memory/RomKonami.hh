@@ -10,7 +10,7 @@ namespace openmsx {
 class RomKonami : public Rom8kBBlocks
 {
 public:
-	RomKonami(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomKonami(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

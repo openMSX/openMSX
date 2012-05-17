@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, ym2413(new YM2413(motherBoard, getName(), config))

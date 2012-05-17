@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-RomPageNN::RomPageNN(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomPageNN::RomPageNN(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                      std::auto_ptr<Rom> rom, byte pages)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {

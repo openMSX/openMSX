@@ -24,7 +24,6 @@ TODO:
 #include "VDPCmdEngine.hh"
 #include "SpriteChecker.hh"
 #include "Display.hh"
-#include "XMLElement.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
 #include "SimpleDebuggable.hh"
@@ -221,7 +220,7 @@ public:
 
 
 
-VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
+VDP::VDP(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, cliComm(motherBoard.getMSXCliComm())

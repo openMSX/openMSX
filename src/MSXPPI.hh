@@ -42,7 +42,7 @@ class Keyboard;
 class MSXPPI: public MSXDevice, public I8255Interface
 {
 public:
-	MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXPPI(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXPPI();
 
 	virtual void reset(EmuTime::param time);

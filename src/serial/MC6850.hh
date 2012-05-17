@@ -10,7 +10,7 @@ namespace openmsx {
 class MC6850 : public MSXDevice
 {
 public:
-	MC6850(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MC6850(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

@@ -10,7 +10,7 @@ namespace openmsx {
 class NationalFDC : public WD2793BasedFDC
 {
 public:
-	NationalFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
+	NationalFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

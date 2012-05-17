@@ -3,14 +3,13 @@
 #include "ADVram.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include <algorithm>
 
 namespace openmsx {
 
-ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config)
+ADVram::ADVram(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, vdp(NULL)
 	, vram(NULL)
@@ -19,9 +18,9 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config)
 	reset(EmuTime::dummy());
 }
 
-void ADVram::init(const HardwareConfig& hwConf)
+void ADVram::init()
 {
-	MSXDevice::init(hwConf);
+	MSXDevice::init();
 
 	const MSXDevice::Devices& references = getReferences();
 	if (references.size() != 1) {

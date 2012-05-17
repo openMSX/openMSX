@@ -12,7 +12,7 @@ class DACSound8U;
 class RomMajutsushi : public RomKonami
 {
 public:
-	RomMajutsushi(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomMajutsushi(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	              std::auto_ptr<Rom> rom);
 	virtual ~RomMajutsushi();
 

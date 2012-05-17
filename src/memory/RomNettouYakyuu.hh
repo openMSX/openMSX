@@ -12,7 +12,7 @@ class SamplePlayer;
 class RomNettouYakyuu : public Rom8kBBlocks
 {
 public:
-	RomNettouYakyuu(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomNettouYakyuu(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	                std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

@@ -49,7 +49,7 @@
 namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 	, samplePlayer(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",

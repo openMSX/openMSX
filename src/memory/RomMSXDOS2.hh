@@ -10,7 +10,7 @@ namespace openmsx {
 class RomMSXDOS2 : public Rom16kBBlocks
 {
 public:
-	RomMSXDOS2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomMSXDOS2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

@@ -15,7 +15,7 @@ class AmdFlash;
 class RomMatraInk : public MSXRom
 {
 public:
-	RomMatraInk(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomMatraInk(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	            std::auto_ptr<Rom> rom);
 	virtual ~RomMatraInk();
 

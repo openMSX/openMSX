@@ -12,7 +12,7 @@ class SamplePlayer;
 class RomPlayBall : public Rom16kBBlocks
 {
 public:
-	RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomPlayBall(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	            std::auto_ptr<Rom> rom);
 	virtual ~RomPlayBall();
 

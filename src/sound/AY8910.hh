@@ -12,7 +12,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class CliComm;
 class AY8910Periphery;
-class XMLElement;
+class DeviceConfig;
 class AY8910Debuggable;
 class FloatSetting;
 
@@ -24,7 +24,7 @@ class AY8910 : public ResampledSoundDevice
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, const std::string& name,
-			AY8910Periphery& periphery_, const XMLElement& config,
+			AY8910Periphery& periphery_, const DeviceConfig& config,
 			EmuTime::param time);
 	virtual ~AY8910();
 
@@ -120,7 +120,7 @@ private:
 
 	class Amplitude {
 	public:
-		explicit Amplitude(const XMLElement& config);
+		explicit Amplitude(const DeviceConfig& config);
 		const unsigned* getEnvVolTable() const;
 		inline unsigned getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);

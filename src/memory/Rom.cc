@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Rom.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
 #include "File.hh"
@@ -44,19 +44,19 @@ private:
 
 
 Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
-         const string& description_, const XMLElement& config,
+         const string& description_, const DeviceConfig& config,
          const string& id /*= ""*/)
 	: name(name_), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
 	XMLElement::Children romConfigs;
-	config.getChildren("rom", romConfigs);
+	config.getXML()->getChildren("rom", romConfigs);
 	for (XMLElement::Children::const_iterator it = romConfigs.begin();
 	     it != romConfigs.end(); ++it) {
 		if ((*it)->getAttribute("id", "") == id) {
 			try {
-				init(motherBoard, **it);
+				init(motherBoard, **it, config.getFileContext());
 				return;
 			} catch (MSXException& e) {
 				// remember error message, and try next
@@ -82,7 +82,8 @@ Rom::Rom(MSXMotherBoard& motherBoard, const string& name_,
 	}
 }
 
-void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
+void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
+               const FileContext& context)
 {
 	// (Only) if the content of this ROM depends on state that is not part
 	// of a savestate, we want to compare the sha1sum of the ROM from the
@@ -126,7 +127,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			}
 		}
 		// .. then try the actual sha1sum ..
-		FilePool::FileType fileType = config.getFileContext().isUserContext()
+		FilePool::FileType fileType = context.isUserContext()
 			? FilePool::ROM : FilePool::SYSTEM_ROM;
 		if (!file.get() && resolvedSha1Elem) {
 			string sha1 = resolvedSha1Elem->getData();
@@ -140,8 +141,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 		if (!file.get() && filenameElem) {
 			string name = filenameElem->getData();
 			try {
-				Filename filename(name,
-				                  config.getFileContext());
+				Filename filename(name, context);
 				file.reset(new File(filename));
 			} catch (FileException&) {
 				// ignore
@@ -232,7 +232,6 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config)
 			auto_ptr<const PatchInterface> patch(
 				new EmptyPatch(rom, size));
 
-			FileContext& context = config.getFileContext();
 			XMLElement::Children patches;
 			patchesElem->getChildren("ips", patches);
 			for (XMLElement::Children::const_iterator it

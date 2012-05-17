@@ -10,7 +10,7 @@ namespace openmsx {
 
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
-MSXFmPac::MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXFmPac::MSXFmPac(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXMusic(motherBoard, config)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1FFE, config,
 	                PAC_Header))

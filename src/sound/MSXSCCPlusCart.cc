@@ -11,13 +11,12 @@
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
-                               const XMLElement& config)
+                               const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
 	, scc(new SCC(motherBoard, getName(), config, getCurrentTime(),

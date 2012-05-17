@@ -13,7 +13,7 @@ class Rom;
 class MSXKanji : public MSXDevice
 {
 public:
-	MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXKanji(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXKanji();
 
 	virtual byte readIO(word port, EmuTime::param time);
@@ -27,7 +27,7 @@ public:
 private:
 	const std::auto_ptr<Rom> rom;
 	unsigned adr1, adr2;
-	bool isLascom;
+	const bool isLascom;
 };
 
 } // namespace openmsx

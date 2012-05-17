@@ -3,6 +3,7 @@
 #ifndef MSXDEVICE_HH
 #define MSXDEVICE_HH
 
+#include "DeviceConfig.hh"
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
@@ -192,7 +193,8 @@ public:
 	/** Get the configuration section for this device.
 	  * This was passed as a constructor argument.
 	  */
-	const XMLElement& getDeviceConfig() const { return deviceConfig; }
+	const XMLElement& getDeviceConfig() const;
+	const DeviceConfig& getDeviceConfig2() const; // TODO
 
 	/** Get the device references that are specified for this device
 	 */
@@ -212,17 +214,15 @@ protected:
 	  * @param config config entry for this device.
 	  * @param name The name for the MSXDevice (will be made unique)
 	  */
-	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+	MSXDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	          const std::string& name);
-	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	/** Constructing a MSXDevice is a 2-step process, after the constructor
 	  * is called this init() method must be called. The reason is exception
 	  * safety (init() might throw and we use the destructor to clean up
 	  * some stuff, this is more difficult when everything is done in the
-	  * constrcutor). Another reason is too avoid having to add the
-	  * HardwareConfig parameter to the constructor of every subclass of
-	  * MSXDevice.
+	  * constrcutor).
 	  * This is also a non-public method. This means you can only construct
 	  * MSXDevices via DeviceFactory.
 	  * In rare cases you need to override this method, for example when you
@@ -230,7 +230,7 @@ protected:
 	  * of this device (e.g. ADVram)
 	  */
 	friend class DeviceFactory;
-	virtual void init(const HardwareConfig& hwConf);
+	virtual void init();
 
 	/** @see getDeviceInfo()
 	 * Default implementation does nothing. Subclasses can override this
@@ -262,8 +262,7 @@ private:
 	std::vector<byte> outPorts;
 
 	MSXMotherBoard& motherBoard;
-	const XMLElement& deviceConfig;
-	const HardwareConfig* hardwareConfig;
+	DeviceConfig deviceConfig;
 	std::string deviceName;
 
 	Devices references;
@@ -272,53 +271,6 @@ private:
 	int ps;
 	int ss;
 };
-
-/*
-#include "DeviceFactory.hh"
-#include "XMLElement.hh"
-#include "serialize_constr.hh"
-#include "ref.hh"
-#include "checked_cast.hh"
-
-REGISTER_BASE_CLASS_2(MSXDevice, "Device",
-                      reference_wrapper<MSXMotherBoard>,
-                      reference_wrapper<HardwareConfig>);
-
-template<> struct SerializeConstructorArgs<MSXDevice>
-{
-	typedef Tuple<reference_wrapper<const XMLElement> > type;
-	template<typename Archive> void save(
-		Archive& ar, const MSXDevice& device)
-	{
-		ar.serialize("config", &device.getDeviceConfig());
-	}
-	template<typename Archive> type load(Archive& ar, unsigned version)
-	{
-		const XMLElement* config;
-		ar.serialize("config", config);
-		return make_tuple(ref(*config));
-	}
-};
-
-template<typename T> struct MSXDeviceCreator
-{
-	T* operator()(Tuple<reference_wrapper<MSXMotherBoard>,
-	                    reference_wrapper<HardwareConfig>,
-	                    reference_wrapper<const XMLElement> > args) {
-		MSXDevice* device =
-			DeviceFactory::create(args.t1, args.t2, args.t3).release();
-		return checked_cast<T*>(device);
-	}
-};
-
-#define REGISTER_MSXDEVICE(CLASS, NAME) \
-REGISTER_POLYMORPHIC_CLASS_2(MSXDevice, CLASS, NAME, \
-                             reference_wrapper<MSXMotherBoard>, \
-                             reference_wrapper<HardwareConfig>); \
-template<> struct Creator<CLASS> : MSXDeviceCreator<CLASS> {}; \
-template<> struct SerializeConstructorArgs<CLASS> \
-	: SerializeConstructorArgs<MSXDevice> {};
-*/
 
 REGISTER_BASE_NAME_HELPER(MSXDevice, "Device");
 

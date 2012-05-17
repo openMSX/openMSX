@@ -70,7 +70,7 @@ public:
 	  */
 	static const int TICKS_PER_LINE = 1368;
 
-	VDP(MSXMotherBoard& motherBoard, const XMLElement& config);
+	VDP(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~VDP();
 
 	virtual void powerUp(EmuTime::param time);

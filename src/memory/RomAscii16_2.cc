@@ -22,7 +22,7 @@
 
 namespace openmsx {
 
-RomAscii16_2::RomAscii16_2(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomAscii16_2::RomAscii16_2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                          std::auto_ptr<Rom> rom)
 	: RomAscii16kB(motherBoard, config, rom)
 {

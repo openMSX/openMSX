@@ -10,7 +10,8 @@ namespace openmsx {
 class MSXVictorHC9xSystemControl : public MSXDevice
 {
 public:
-	MSXVictorHC9xSystemControl(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXVictorHC9xSystemControl(MSXMotherBoard& motherBoard,
+	                           const DeviceConfig& config);
 	virtual ~MSXVictorHC9xSystemControl();
 
 	virtual byte readMem(word address, EmuTime::param time);

@@ -7,7 +7,7 @@
 #include "CommandController.hh"
 #include "EventDistributor.hh"
 #include "FileContext.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "CassettePort.hh"
 #include "CliComm.hh"
 #include "Display.hh"
@@ -103,6 +103,15 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 
 // LaserdiscPlayer
 
+static XMLElement createXML()
+{
+	XMLElement xml("laserdiscplayer");
+	auto_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "30000")));
+	xml.addChild(sound);
+	return xml;
+}
+
 LaserdiscPlayer::LaserdiscPlayer(
 		MSXMotherBoard& motherBoard_, PioneerLDControl& ldcontrol_,
 		ThrottleManager& throttleManager)
@@ -133,15 +142,6 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, loadingIndicator(new LoadingIndicator(throttleManager))
 	, sampleReads(0)
 {
-	static XMLElement laserdiscPlayerConfig("laserdiscplayer");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		auto_ptr<XMLElement> sound(new XMLElement("sound"));
-		sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "30000")));
-		laserdiscPlayerConfig.addChild(sound);
-	}
-
 	motherBoard.getCassettePort().setLaserdiscPlayer(this);
 
 	Display& display = motherBoard_.getReactor().getDisplay();
@@ -153,7 +153,8 @@ LaserdiscPlayer::LaserdiscPlayer(
 
 	setInputRate(44100); // Initialize with dummy value
 
-	registerSound(laserdiscPlayerConfig);
+	static XMLElement xml = createXML();
+	registerSound(DeviceConfig(xml));
 }
 
 LaserdiscPlayer::~LaserdiscPlayer()

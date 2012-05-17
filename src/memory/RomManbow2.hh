@@ -17,7 +17,7 @@ class AmdFlash;
 class RomManbow2 : public MSXRom
 {
 public:
-	RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomManbow2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom, RomType type);
 	virtual ~RomManbow2();
 

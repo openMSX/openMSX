@@ -2,7 +2,6 @@
 
 #include "PioneerLDControl.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include "LaserdiscPlayer.hh"
@@ -37,7 +36,7 @@ namespace openmsx {
  * ends up in the PSG (regardless of muting); if the motor relay is ON
  * then normal tape input is used.
  */
-PioneerLDControl::PioneerLDControl(MSXMotherBoard& motherBoard, const XMLElement& config)
+PioneerLDControl::PioneerLDControl(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, clock(EmuTime::zero)
@@ -45,16 +44,16 @@ PioneerLDControl::PioneerLDControl(MSXMotherBoard& motherBoard, const XMLElement
 	, videoEnabled(false)
 {
 	if (config.getChildDataAsBool("laserdisc", true)) {
-		laserdisc.reset(new LaserdiscPlayer(motherBoard, *this, 
+		laserdisc.reset(new LaserdiscPlayer(motherBoard, *this,
 			motherBoard.getReactor().getGlobalSettings().getThrottleManager()));
 	}
 
 	reset(getCurrentTime());
 }
 
-void PioneerLDControl::init(const HardwareConfig& hwConf)
+void PioneerLDControl::init()
 {
-	MSXDevice::init(hwConf);
+	MSXDevice::init();
 
 	const MSXDevice::Devices& references = getReferences();
 

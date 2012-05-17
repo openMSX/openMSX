@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-MSXBunsetsu::MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXBunsetsu::MSXBunsetsu(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, bunsetsuRom(new Rom(motherBoard, getName() + "_1", "rom",
 	                      config, "bunsetsu"))

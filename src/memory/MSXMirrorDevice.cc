@@ -3,13 +3,12 @@
 #include "MSXMirrorDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-static unsigned getAddressHigh(const XMLElement& config)
+static unsigned getAddressHigh(const DeviceConfig& config)
 {
 	unsigned prim = config.getChildDataAsInt("ps");
 	unsigned sec  = config.getChildDataAsInt("ss", 0);
@@ -19,7 +18,7 @@ static unsigned getAddressHigh(const XMLElement& config)
 	return (prim << 18) | (sec << 16);
 }
 
-MSXMirrorDevice::MSXMirrorDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMirrorDevice::MSXMirrorDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, interface(motherBoard.getCPUInterface())
 	, addressHigh(getAddressHigh(config))

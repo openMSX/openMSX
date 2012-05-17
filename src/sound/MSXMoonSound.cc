@@ -12,7 +12,6 @@
 #include "MSXMoonSound.hh"
 #include "YMF262.hh"
 #include "YMF278.hh"
-#include "XMLElement.hh"
 #include "Clock.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -51,7 +50,7 @@ static const EmuDuration MEM_WRITE_DELAY = MasterClock::duration(28);
 static const EmuDuration LOAD_DELAY = MasterClock::duration(10000);
 
 
-MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, ymf262(new YMF262(motherBoard, getName() + " FM", config, true))
 	, ymf278(new YMF278(motherBoard, getName() + " wave",

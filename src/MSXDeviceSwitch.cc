@@ -12,7 +12,7 @@
 namespace openmsx {
 
 MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
-                                 const XMLElement& config)
+                                 const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 {
 	for (int i = 0; i < 256; ++i) {

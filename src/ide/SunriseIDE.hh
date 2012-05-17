@@ -14,7 +14,7 @@ class Rom;
 class SunriseIDE : public MSXDevice
 {
 public:
-	SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config);
+	SunriseIDE(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~SunriseIDE();
 
 	virtual void powerUp(EmuTime::param time);

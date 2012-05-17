@@ -2,7 +2,6 @@
 
 #include "RomPlain.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
@@ -22,7 +21,7 @@ static std::string toString(unsigned start, unsigned len)
 	        "0x" + StringOp::toHexString(start + len, 4) + ']';
 }
 
-RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomPlain::RomPlain(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                    std::auto_ptr<Rom> rom_, MirrorType mirrored, int start)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 {

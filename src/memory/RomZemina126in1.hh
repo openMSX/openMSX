@@ -10,7 +10,7 @@ namespace openmsx {
 class RomZemina126in1 : public Rom16kBBlocks
 {
 public:
-	RomZemina126in1(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomZemina126in1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	                std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

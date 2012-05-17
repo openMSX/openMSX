@@ -15,7 +15,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "SimpleDebuggable.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "FloatSetting.hh"
@@ -270,7 +270,7 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 // Amplitude:
 
-static bool checkAY8910(const XMLElement& config)
+static bool checkAY8910(const DeviceConfig& config)
 {
 	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
 	if (type == "ay8910") {
@@ -282,7 +282,7 @@ static bool checkAY8910(const XMLElement& config)
 	}
 }
 
-AY8910::Amplitude::Amplitude(const XMLElement& config)
+AY8910::Amplitude::Amplitude(const DeviceConfig& config)
 	: isAY8910(checkAY8910(config))
 {
 	vol[0] = vol[1] = vol[2] = 0;
@@ -478,7 +478,7 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 // AY8910 main class:
 
 AY8910::AY8910(MSXMotherBoard& motherBoard, const std::string& name,
-		AY8910Periphery& periphery_, const XMLElement& config,
+		AY8910Periphery& periphery_, const DeviceConfig& config,
 		EmuTime::param time)
 	: ResampledSoundDevice(motherBoard, name, "PSG", 3)
 	, cliComm(motherBoard.getMSXCliComm())

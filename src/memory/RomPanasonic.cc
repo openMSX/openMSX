@@ -3,7 +3,7 @@
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "SRAM.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
@@ -16,7 +16,7 @@ const int RAM_BASE  = 0x180;
 
 
 RomPanasonic::RomPanasonic(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 	, panasonicMem(motherBoard.getPanasonicMemory())

@@ -22,7 +22,7 @@
 namespace openmsx {
 
 RomZemina90in1::RomZemina90in1(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {

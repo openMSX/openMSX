@@ -75,7 +75,7 @@ static const byte regAccess[64] = {
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
+V9990::V9990(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, v9990RegDebug(new V9990RegDebug(*this))

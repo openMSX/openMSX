@@ -13,7 +13,7 @@ class CheckedRam;
 class MSXRam : public MSXDevice
 {
 public:
-	MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXRam(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual void powerUp(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
@@ -26,7 +26,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void init(const HardwareConfig& hwConf);
+	virtual void init();
 	inline unsigned translate(unsigned address) const;
 
 	/*const*/ unsigned base;

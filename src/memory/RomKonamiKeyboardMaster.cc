@@ -11,7 +11,7 @@
 namespace openmsx {
 
 RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom16kBBlocks(motherBoard, config, rom_)
 	, vlm5030(new VLM5030(motherBoard, "VLM5030",

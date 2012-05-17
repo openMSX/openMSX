@@ -46,7 +46,7 @@
 namespace openmsx {
 
 RomGameMaster2::RomGameMaster2(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom4kBBlocks(motherBoard, config, rom, 1)
 {

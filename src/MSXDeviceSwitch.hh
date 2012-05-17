@@ -57,7 +57,7 @@ class MSXSwitchedDevice;
 class MSXDeviceSwitch : public MSXDevice
 {
 public:
-	MSXDeviceSwitch(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXDeviceSwitch(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXDeviceSwitch();
 
 	// (un)register methods for devices

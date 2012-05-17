@@ -8,14 +8,13 @@
 
 namespace openmsx {
 
-class XMLElement;
 class MSXMapperIO;
 class CheckedRam;
 
 class MSXMemoryMapper : public MSXDevice
 {
 public:
-	MSXMemoryMapper(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXMemoryMapper(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXMemoryMapper();
 
 	virtual void reset(EmuTime::param time);

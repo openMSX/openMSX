@@ -12,7 +12,7 @@ class SCC;
 class RomKonamiSCC : public Rom8kBBlocks
 {
 public:
-	RomKonamiSCC(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomKonamiSCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomKonamiSCC();
 

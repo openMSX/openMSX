@@ -37,7 +37,7 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 	}
 }
 
-MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
 	, engineMask(calcEngineMask(motherBoard))

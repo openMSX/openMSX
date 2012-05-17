@@ -26,7 +26,7 @@ static unsigned sectorSizes[19] = {
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		MSXMotherBoard& motherBoard,
-		const XMLElement& config,
+		const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "MFR SCC+ SCC-I", config, getCurrentTime(),

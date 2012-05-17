@@ -19,7 +19,7 @@ class S1990Debuggable;
 class MSXS1990 : public MSXDevice
 {
 public:
-	MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXS1990(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXS1990();
 
 	virtual void reset(EmuTime::param time);

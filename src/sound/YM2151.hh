@@ -41,13 +41,13 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 class YM2151
 {
 public:
 	YM2151(MSXMotherBoard& motherBoard, const std::string& name,
-	       const std::string& desc, const XMLElement& config,
+	       const std::string& desc, const DeviceConfig& config,
 	       EmuTime::param time);
 	~YM2151();
 

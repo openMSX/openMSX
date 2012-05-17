@@ -14,7 +14,9 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
+class DeviceConfig;
 class File;
+class FileContext;
 class CliComm;
 class RomDebuggable;
 
@@ -22,7 +24,7 @@ class Rom : private noncopyable
 {
 public:
 	Rom(MSXMotherBoard& motherBoard, const std::string& name,
-	    const std::string& description, const XMLElement& config,
+	    const std::string& description, const DeviceConfig& config,
 	    const std::string& id = "");
 	virtual ~Rom();
 
@@ -39,7 +41,8 @@ public:
 	const std::string& getPatchedSHA1() const;
 
 private:
-	void init(MSXMotherBoard& motherBoard, const XMLElement& config);
+	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
+	          const FileContext& context);
 	bool checkSHA1(const XMLElement& config);
 
 	const byte* rom;

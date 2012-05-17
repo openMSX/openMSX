@@ -9,7 +9,6 @@
 #include "Reactor.hh"
 #include "KeyClick.hh"
 #include "CassettePort.hh"
-#include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -20,7 +19,7 @@ namespace openmsx {
 // MSXDevice
 
 static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
-                                const XMLElement& config)
+                                const DeviceConfig& config)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
 	bool keyGhostingSGCprotected =
@@ -41,7 +40,7 @@ static Keyboard* createKeyboard(MSXMotherBoard& motherBoard,
 	                    codeKanaLocks, graphLocks);
 }
 
-MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, cassettePort(motherBoard.getCassettePort())
 	, renshaTurbo(motherBoard.getRenShaTurbo())

@@ -12,7 +12,7 @@ class DACSound8U;
 class RomSynthesizer : public Rom16kBBlocks
 {
 public:
-	RomSynthesizer(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomSynthesizer(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	               std::auto_ptr<Rom> rom);
 	virtual ~RomSynthesizer();
 

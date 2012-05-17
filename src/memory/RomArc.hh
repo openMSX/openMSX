@@ -10,7 +10,7 @@ namespace openmsx {
 class RomArc : public Rom16kBBlocks
 {
 public:
-	RomArc(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomArc(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	       std::auto_ptr<Rom> rom);
 	virtual ~RomArc();
 

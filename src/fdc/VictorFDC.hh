@@ -10,7 +10,7 @@ namespace openmsx {
 class VictorFDC : public WD2793BasedFDC
 {
 public:
-	VictorFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
+	VictorFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

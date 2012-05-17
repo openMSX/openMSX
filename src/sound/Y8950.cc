@@ -142,9 +142,9 @@ class Y8950::Impl : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Impl(Y8950& self, MSXMotherBoard& motherBoard,
-	     const std::string& name, const XMLElement& config,
+	     const std::string& name, const DeviceConfig& config,
 	     unsigned sampleRam, MSXAudio& audio);
-	void init(const XMLElement& config, EmuTime::param time);
+	void init(const DeviceConfig& config, EmuTime::param time);
 	virtual ~Impl();
 
 	void setEnabled(bool enabled, EmuTime::param time);
@@ -662,7 +662,7 @@ void Y8950Channel::keyOff()
 
 
 Y8950::Impl::Impl(Y8950& self, MSXMotherBoard& motherBoard_,
-                     const std::string& name, const XMLElement& config,
+                     const std::string& name, const DeviceConfig& config,
                      unsigned sampleRam, MSXAudio& audio)
 	: ResampledSoundDevice(motherBoard_, name, "MSX-AUDIO", 9 + 5 + 1)
 	, motherBoard(motherBoard_)
@@ -683,7 +683,7 @@ Y8950::Impl::Impl(Y8950& self, MSXMotherBoard& motherBoard_,
 // method). Reason is that adpcm->reset() calls setStatus() via the Y8950
 // object, but before constructor is finished the pointer from Y8950 to
 // Y8950Impl is not yet initialized.
-void Y8950::Impl::init(const XMLElement& config, EmuTime::param time)
+void Y8950::Impl::init(const DeviceConfig& config, EmuTime::param time)
 {
 	makePmTable();
 	makeAdjustTable();
@@ -1491,7 +1491,7 @@ void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 // class Y8950
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-             const XMLElement& config, unsigned sampleRam, EmuTime::param time,
+             const DeviceConfig& config, unsigned sampleRam, EmuTime::param time,
              MSXAudio& audio)
 	: pimpl(new Impl(*this, motherBoard, name, config, sampleRam, audio))
 {

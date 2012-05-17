@@ -125,7 +125,7 @@ static string calcDescription(SCC::ChipMode mode)
 }
 
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
-         const XMLElement& config, EmuTime::param time, ChipMode mode)
+         const DeviceConfig& config, EmuTime::param time, ChipMode mode)
 	: ResampledSoundDevice(motherBoard, name, calcDescription(mode), 5)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
 	, deformTimer(time)

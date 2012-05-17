@@ -25,7 +25,6 @@
  */
 
 #include "MSXMegaRam.hh"
-#include "XMLElement.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 #include "Math.hh"
@@ -33,7 +32,7 @@
 
 namespace openmsx {
 
-MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
 	, ram(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",

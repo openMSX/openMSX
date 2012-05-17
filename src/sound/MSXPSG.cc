@@ -7,7 +7,6 @@
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
 #include "SimpleDebuggable.hh"
-#include "XMLElement.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 
@@ -25,7 +24,7 @@ private:
 
 
 // MSXDevice
-MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, joyPortDebuggable(new JoyPortDebuggable(motherBoard, *this))
 	, cassette(motherBoard.getCassettePort())

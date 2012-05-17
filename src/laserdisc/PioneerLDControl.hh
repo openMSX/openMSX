@@ -18,7 +18,7 @@ class VDP;
 class PioneerLDControl : public MSXDevice
 {
 public:
-	PioneerLDControl(MSXMotherBoard& motherBoard, const XMLElement& config);
+	PioneerLDControl(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~PioneerLDControl();
 
 	virtual void reset(EmuTime::param time);
@@ -27,7 +27,7 @@ public:
 	virtual void writeMem(word address, byte value, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
-	virtual void init(const HardwareConfig& hwConf);
+	virtual void init();
 
 	void videoIn(bool enabled);
 

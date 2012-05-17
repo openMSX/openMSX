@@ -4,7 +4,6 @@
 #include "Clock.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
-#include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include <iostream>
@@ -14,7 +13,7 @@ using std::string;
 
 namespace openmsx {
 
-DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
+DebugDevice::DebugDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 {
 	string outputFile = config.getChildData("filename", "stdout");

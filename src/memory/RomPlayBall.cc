@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                          std::auto_ptr<Rom> rom_)
 	: Rom16kBBlocks(motherBoard, config, rom_)
 	, samplePlayer(new SamplePlayer(motherBoard, "Playball-DAC",

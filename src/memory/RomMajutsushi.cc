@@ -12,7 +12,7 @@
 namespace openmsx {
 
 RomMajutsushi::RomMajutsushi(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: RomKonami(motherBoard, config, rom)
 	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Majutsushi-DAC",

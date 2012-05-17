@@ -15,7 +15,7 @@
 namespace openmsx {
 
 RomZemina126in1::RomZemina126in1(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {

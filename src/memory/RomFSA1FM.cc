@@ -40,7 +40,6 @@
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
-#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
@@ -48,7 +47,7 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-RomFSA1FMSram::RomFSA1FMSram(MSXMotherBoard& motherBoard_, const XMLElement& config)
+RomFSA1FMSram::RomFSA1FMSram(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
 	: motherBoard(motherBoard_)
 {
 	MSXMotherBoard::SharedStuff& info =
@@ -80,7 +79,7 @@ RomFSA1FMSram::~RomFSA1FMSram()
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                        std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
 	, RomFSA1FMSram(motherBoard, config)
@@ -189,7 +188,7 @@ REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                        std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 	, RomFSA1FMSram(motherBoard, config)

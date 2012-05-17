@@ -12,7 +12,7 @@ class VLM5030;
 class RomKonamiKeyboardMaster : public Rom16kBBlocks
 {
 public:
-	RomKonamiKeyboardMaster(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomKonamiKeyboardMaster(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	                        std::auto_ptr<Rom> rom);
 	virtual ~RomKonamiKeyboardMaster();
 

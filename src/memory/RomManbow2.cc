@@ -29,7 +29,7 @@ static unsigned getWriteProtected(RomType type)
 }
 
 
-RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                        std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, getName() + " SCC", config, getCurrentTime()))

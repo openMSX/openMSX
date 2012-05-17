@@ -10,8 +10,7 @@ namespace openmsx {
 class MSXDevice;
 class MSXMotherBoard;
 class MSXCPUInterface;
-class HardwareConfig;
-class XMLElement;
+class DeviceConfig;
 class DummyDevice;
 class MSXDeviceSwitch;
 class MSXMapperIO;
@@ -21,8 +20,7 @@ class DeviceFactory
 {
 public:
 	static std::auto_ptr<MSXDevice> create(
-		MSXMotherBoard& motherBoard, const HardwareConfig& hwConf,
-		const XMLElement& conf);
+		MSXMotherBoard& motherBoard, const DeviceConfig& conf);
 	static std::auto_ptr<DummyDevice> createDummyDevice(
 		MSXMotherBoard& motherBoard);
 	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(

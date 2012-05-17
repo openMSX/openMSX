@@ -2,8 +2,10 @@
 
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "serialize.hh"
+
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -27,20 +29,20 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 	dac->writeDAC(data, time);
 }
 
+static XMLElement createXML()
+{
+	XMLElement xml("simpl");
+	auto_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "12000")));
+	xml.addChild(sound);
+	return xml;
+}
+
 void PrinterPortSimpl::createDAC()
 {
-	static XMLElement simplConfig("simpl");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		std::auto_ptr<XMLElement> soundElem(new XMLElement("sound"));
-		soundElem->addChild(std::auto_ptr<XMLElement>(
-			new XMLElement("volume", "12000")));
-		soundElem->addChild(std::auto_ptr<XMLElement>(
-			new XMLElement("mode", "mono")));
-		simplConfig.addChild(soundElem);
-	}
-	dac.reset(new DACSound8U(mixer, "simpl", getDescription(), simplConfig));
+	static XMLElement xml = createXML();
+	dac.reset(new DACSound8U(mixer, "simpl", getDescription(),
+	                         DeviceConfig(xml)));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

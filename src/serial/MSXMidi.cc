@@ -54,7 +54,7 @@ private:
 };
 
 
-MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
 	, cntr0(new MSXMidiCounter0(*this))

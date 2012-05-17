@@ -20,7 +20,7 @@ namespace openmsx {
 AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
                    const vector<unsigned>& sectorSizes_,
                    unsigned writeProtectedFlags, word ID_,
-                   const XMLElement& config)
+                   const DeviceConfig& config)
 	: motherBoard(motherBoard_)
 	, rom(rom_)
 	, sectorSizes(sectorSizes_)
@@ -44,7 +44,7 @@ AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
 	init(writeProtectedFlags, NULL); // don't load/save
 }
 
-void AmdFlash::init(unsigned writeProtectedFlags, const XMLElement* config)
+void AmdFlash::init(unsigned writeProtectedFlags, const DeviceConfig* config)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 

@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-RomNational::RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomNational::RomNational(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                          std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {

@@ -6,7 +6,6 @@
 #include "DACSound8U.hh"
 #include "MSXMotherBoard.hh"
 #include "StringOp.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 using std::string;
@@ -15,7 +14,7 @@ namespace openmsx {
 
 // MSXAudio
 
-MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, dacValue(0x80), dacEnabled(false)
 {
@@ -42,9 +41,8 @@ MSXAudio::~MSXAudio()
 
 Y8950Periphery& MSXAudio::createPeriphery(const string& soundDeviceName)
 {
-	periphery.reset(
-		Y8950PeripheryFactory::create(*this, getDeviceConfig(), soundDeviceName)
-		);
+	periphery.reset(Y8950PeripheryFactory::create(
+		*this, getDeviceConfig2(), soundDeviceName));
 	return *periphery;
 }
 

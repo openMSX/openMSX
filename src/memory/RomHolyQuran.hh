@@ -10,7 +10,7 @@ namespace openmsx {
 class RomHolyQuran : public Rom8kBBlocks
 {
 public:
-	RomHolyQuran(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomHolyQuran(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	             std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

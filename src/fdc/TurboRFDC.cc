@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXFDC(motherBoard, config)
 	, cpu(motherBoard.getCPU())
 	, controller(new TC8566AF(motherBoard.getScheduler(),

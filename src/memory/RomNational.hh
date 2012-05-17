@@ -10,7 +10,7 @@ namespace openmsx {
 class RomNational : public Rom16kBBlocks
 {
 public:
-	RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomNational(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	            std::auto_ptr<Rom> rom);
 	virtual ~RomNational();
 

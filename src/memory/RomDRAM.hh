@@ -12,7 +12,7 @@ class PanasonicMemory;
 class RomDRAM : public MSXRom
 {
 public:
-	RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomDRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	        std::auto_ptr<Rom> rom);
 
 	virtual byte readMem(word address, EmuTime::param time);

@@ -28,7 +28,7 @@
 namespace openmsx {
 
 RomSynthesizer::RomSynthesizer(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",

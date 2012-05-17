@@ -10,7 +10,7 @@ namespace openmsx {
 class RomZemina90in1 : public Rom8kBBlocks
 {
 public:
-	RomZemina90in1(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomZemina90in1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	               std::auto_ptr<Rom> rom);
 	virtual ~RomZemina90in1();
 

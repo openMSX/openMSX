@@ -20,7 +20,7 @@ class NowindHost;
 class NowindInterface : public MSXDevice
 {
 public:
-	NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config);
+	NowindInterface(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~NowindInterface();
 
 	virtual void reset(EmuTime::param time);

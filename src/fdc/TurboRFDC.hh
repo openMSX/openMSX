@@ -14,7 +14,7 @@ class TC8566AF;
 class TurboRFDC : public MSXFDC
 {
 public:
-	TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
+	TurboRFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~TurboRFDC();
 
 	virtual void reset(EmuTime::param time);

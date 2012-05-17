@@ -11,7 +11,7 @@
 namespace openmsx {
 
 MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
-                           const XMLElement& config)
+                           const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, mixer(motherBoard.getMSXMixer())
 	, connector(new AudioInputConnector(

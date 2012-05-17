@@ -6,7 +6,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "HardwareConfig.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
@@ -15,9 +15,12 @@ static Rom* createRom(MSXMotherBoard& motherBoard)
 {
 	const XMLElement* elem = motherBoard.getMachineConfig()->
 	                      getConfig().findChild("PanasonicRom");
-	return elem ? new Rom(motherBoard, "PanasonicRom",
-	                      "Turbor-R main ROM", *elem)
-	            : NULL;
+	if (!elem) return NULL;
+
+	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
+	assert(hwConf);
+	return new Rom(motherBoard, "PanasonicRom", "Turbor-R main ROM",
+	               DeviceConfig(*hwConf, *elem));
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)

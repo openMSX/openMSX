@@ -34,7 +34,7 @@ static const int DATA_REQUEST  = 0x40;
 static const int INTR_REQUEST  = 0x80;
 
 
-VictorFDC::VictorFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+VictorFDC::VictorFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: WD2793BasedFDC(motherBoard, config)
 {
 	reset(getCurrentTime());

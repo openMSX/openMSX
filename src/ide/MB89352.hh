@@ -19,13 +19,13 @@
 namespace openmsx {
 
 class SCSIDevice;
-class XMLElement;
+class DeviceConfig;
 class MSXMotherBoard;
 
 class MB89352
 {
 public:
-	MB89352(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MB89352(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	~MB89352();
 
 	void reset(bool scsireset);

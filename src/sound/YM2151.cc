@@ -21,7 +21,7 @@ class YM2151::Impl : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	           const std::string& desc, const XMLElement& config,
+	           const std::string& desc, const DeviceConfig& config,
 	           EmuTime::param time);
 	~Impl();
 	void reset(EmuTime::param time);
@@ -1015,7 +1015,7 @@ void YM2151::Impl::writeReg(byte r, byte v, EmuTime::param time)
 }
 
 YM2151::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
-               const std::string& desc, const XMLElement& config,
+               const std::string& desc, const DeviceConfig& config,
                EmuTime::param time)
 	: ResampledSoundDevice(motherBoard, name, desc, 8, true)
 	, irq(motherBoard, getName() + ".IRQ")
@@ -1800,7 +1800,7 @@ void YM2151::Impl::serialize(Archive& ar, unsigned /*version*/)
 // YM2151
 
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
-               const std::string& desc, const XMLElement& config,
+               const std::string& desc, const DeviceConfig& config,
                EmuTime::param time)
 	: pimpl(new Impl(motherBoard, name, desc, config, time))
 {

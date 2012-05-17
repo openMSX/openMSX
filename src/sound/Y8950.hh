@@ -12,7 +12,7 @@ namespace openmsx {
 
 class MSXAudio;
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 class Y8950
 {
@@ -45,7 +45,7 @@ public:
 	static const int STATUS_T1      = R04_MASK_T1;
 
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const XMLElement& config, unsigned sampleRam, EmuTime::param time,
+	      const DeviceConfig& config, unsigned sampleRam, EmuTime::param time,
 	      MSXAudio& audio);
 	~Y8950();
 

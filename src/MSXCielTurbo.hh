@@ -11,7 +11,7 @@ namespace openmsx {
 class MSXCielTurbo : public MSXDevice
 {
 public:
-	MSXCielTurbo(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXCielTurbo(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXCielTurbo();
 
 	// MSXDevice

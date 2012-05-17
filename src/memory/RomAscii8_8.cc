@@ -23,7 +23,7 @@
 namespace openmsx {
 
 RomAscii8_8::RomAscii8_8(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 	, sramEnableBit((subType == WIZARDRY) ? 0x80

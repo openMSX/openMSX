@@ -16,7 +16,7 @@
 
 namespace openmsx {
 
-RomRType::RomRType(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomRType::RomRType(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                    std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {

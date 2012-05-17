@@ -12,7 +12,7 @@ namespace openmsx {
 static const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
-                             const XMLElement& config)
+                             const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, firmwareSwitch(

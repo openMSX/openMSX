@@ -14,7 +14,7 @@
 #include "CommandController.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "serialize.hh"
 #include <string>
 
@@ -45,7 +45,7 @@ class PanasonicAudioPeriphery : public Y8950Periphery
 {
 public:
 	PanasonicAudioPeriphery(
-		MSXAudio& audio, const XMLElement& config,
+		MSXAudio& audio, const DeviceConfig& config,
 		const string& soundDeviceName);
 	~PanasonicAudioPeriphery();
 
@@ -162,7 +162,7 @@ nibble MusicModulePeriphery::read(EmuTime::param /*time*/)
 // PanasonicAudioPeriphery implementation:
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
-		MSXAudio& audio_, const XMLElement& config,
+		MSXAudio& audio_, const DeviceConfig& config,
 		const string& soundDeviceName)
 	: audio(audio_)
 	, swSwitch(audio.getMotherBoard().getCommandController(),
@@ -329,7 +329,7 @@ void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 // Y8950PeripheryFactory implementation:
 
 Y8950Periphery* Y8950PeripheryFactory::create(
-	MSXAudio& audio, const XMLElement& config,
+	MSXAudio& audio, const DeviceConfig& config,
 	const std::string& soundDeviceName)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));

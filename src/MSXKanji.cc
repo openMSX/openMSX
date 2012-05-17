@@ -3,20 +3,19 @@
 #include "MSXKanji.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName(), "Kanji ROM", config))
+	, isLascom(config.getChildData("type", "") == "lascom")
 {
 	int size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
 		throw MSXException("MSXKanji: wrong kanji rom");
 	}
-	isLascom = config.getChildData("type", "") == "lascom";
 
 	reset(EmuTime::dummy());
 }

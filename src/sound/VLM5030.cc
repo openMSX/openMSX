@@ -79,7 +79,7 @@ chirp 12-..: vokume   0   : silent
 #include "VLM5030.hh"
 #include "ResampledSoundDevice.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
@@ -93,7 +93,7 @@ class VLM5030::Impl : public ResampledSoundDevice
 public:
 	Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	            const std::string& desc, const std::string& romFilename,
-	            const XMLElement& config);
+	            const DeviceConfig& config);
 	~Impl();
 
 	void reset();
@@ -577,13 +577,11 @@ void VLM5030::Impl::setST(bool pin)
 
 VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const std::string& romFilename,
-                 const XMLElement& config)
+                 const DeviceConfig& config)
 	: ResampledSoundDevice(motherBoard, name, desc, 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
-	voiceROMconfig.setFileContext(std::auto_ptr<FileContext>(
-		new SystemFileContext()));
 	std::auto_ptr<XMLElement> romElement(
 		std::auto_ptr<XMLElement>(new XMLElement("rom")));
 	romElement->addChild(std::auto_ptr<XMLElement>( // load by sha1sum
@@ -593,8 +591,9 @@ VLM5030::Impl::Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	romElement->addChild(std::auto_ptr<XMLElement>( // or hardcoded filename in ditto dir
 		new XMLElement("filename", "keyboardmaster/voice.rom")));
 	voiceROMconfig.addChild(romElement);
+	rom.reset(new Rom(motherBoard, name + " ROM", "rom",
+	                  DeviceConfig(config, voiceROMconfig)));
 
-	rom.reset(new Rom(motherBoard, name + " ROM", "rom", voiceROMconfig));
 	// reset input pins
 	pin_RST = pin_ST = pin_VCU = false;
 	latch_data = 0;
@@ -655,7 +654,7 @@ void VLM5030::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const std::string& romFilename,
-                 const XMLElement& config)
+                 const DeviceConfig& config)
 	: pimpl(new Impl(motherBoard, name, desc, romFilename, config))
 {
 }

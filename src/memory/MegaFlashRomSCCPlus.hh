@@ -16,7 +16,7 @@ class MegaFlashRomSCCPlus : public MSXRom
 {
 public:
 	MegaFlashRomSCCPlus(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom);
 	virtual ~MegaFlashRomSCCPlus();
 

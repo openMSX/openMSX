@@ -2,6 +2,7 @@
 
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -66,11 +67,13 @@
 #include "PioneerLDControl.hh"
 #endif
 
+using std::auto_ptr;
+
 namespace openmsx {
 
-static std::auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard, const XMLElement& conf)
+static auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard, const DeviceConfig& conf)
 {
-	std::auto_ptr<MSXDevice> result;
+	auto_ptr<MSXDevice> result;
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (styleEl == NULL) {
@@ -95,12 +98,11 @@ static std::auto_ptr<MSXDevice> createWD2793BasedFDC(MSXMotherBoard& motherBoard
 	return result;
 }
 
-std::auto_ptr<MSXDevice> DeviceFactory::create(
-	MSXMotherBoard& motherBoard, const HardwareConfig& hwConf,
-	const XMLElement& conf)
+auto_ptr<MSXDevice> DeviceFactory::create(
+	MSXMotherBoard& motherBoard, const DeviceConfig& conf)
 {
-	std::auto_ptr<MSXDevice> result;
-	const std::string& type = conf.getName();
+	auto_ptr<MSXDevice> result;
+	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result.reset(new MSXPPI(motherBoard, conf));
 	} else if (type == "RAM") {
@@ -214,7 +216,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		                   "\" specified in configuration");
 	}
 	if (result.get()) {
-		result->init(hwConf);
+		result->init();
 	}
 	return result;
 }
@@ -226,43 +228,38 @@ static XMLElement createConfig(const std::string& name, const std::string& id)
 	return config;
 }
 
-std::auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
+auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		MSXMotherBoard& motherBoard)
 {
-	static XMLElement config(createConfig("Dummy", "empty"));
-	std::auto_ptr<DummyDevice> result(
-		new DummyDevice(motherBoard, config));
-	result->init(*motherBoard.getMachineConfig());
-	return result;
+	static XMLElement xml(createConfig("Dummy", "empty"));
+	return auto_ptr<DummyDevice>(new DummyDevice(
+		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
-std::auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
+auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		MSXMotherBoard& motherBoard)
 {
-	static XMLElement config(createConfig("DeviceSwitch", "DeviceSwitch"));
-	std::auto_ptr<MSXDeviceSwitch> result(
-		new MSXDeviceSwitch(motherBoard, config));
-	result->init(*motherBoard.getMachineConfig());
-	return result;
+	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
+	return auto_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
+		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
-std::auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
+auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		MSXMotherBoard& motherBoard)
 {
-	static XMLElement config(createConfig("MapperIO", "MapperIO"));
-	std::auto_ptr<MSXMapperIO> result(new MSXMapperIO(motherBoard, config));
-	result->init(*motherBoard.getMachineConfig());
-	return result;
+	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
+	return auto_ptr<MSXMapperIO>(new MSXMapperIO(
+		motherBoard, DeviceConfig(*motherBoard.getMachineConfig(), xml)));
 }
 
-std::auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
+auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		MSXMotherBoard& motherBoard, MSXCPUInterface& cpuInterface)
 {
-	static XMLElement config(createConfig("VDPIODelay", "VDPIODelay"));
-	std::auto_ptr<VDPIODelay> result(
-		new VDPIODelay(motherBoard, config, cpuInterface));
-	result->init(*motherBoard.getMachineConfig());
-	return result;
+	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
+	return auto_ptr<VDPIODelay>(new VDPIODelay(
+		motherBoard,
+		DeviceConfig(*motherBoard.getMachineConfig(), xml),
+		cpuInterface));
 }
 
 } // namespace openmsx

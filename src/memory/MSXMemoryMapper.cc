@@ -2,7 +2,6 @@
 
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
-#include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
 #include "CheckedRam.hh"
 #include "StringOp.hh"
@@ -13,7 +12,7 @@
 
 namespace openmsx {
 
-static CheckedRam* createRam(MSXMotherBoard& motherBoard, const XMLElement& config,
+static CheckedRam* createRam(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                              const std::string& name)
 {
 	int kSize = config.getChildDataAsInt("size");
@@ -26,7 +25,7 @@ static CheckedRam* createRam(MSXMotherBoard& motherBoard, const XMLElement& conf
 }
 
 MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
-                                 const XMLElement& config)
+                                 const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, checkedRam(createRam(motherBoard, config, getName()))
 	, mapperIO(*motherBoard.createMapperIO())

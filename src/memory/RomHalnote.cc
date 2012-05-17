@@ -34,7 +34,7 @@
 
 namespace openmsx {
 
-RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                        std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 {

@@ -8,7 +8,7 @@
 namespace openmsx {
 
 MSXOPL3Cartridge::MSXOPL3Cartridge(MSXMotherBoard& motherBoard,
-                           const XMLElement& config)
+                           const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, ymf262(new YMF262(motherBoard, getName(), config, false))
 {

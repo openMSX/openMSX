@@ -9,7 +9,7 @@
 namespace openmsx {
 
 WD2793BasedFDC::WD2793BasedFDC(MSXMotherBoard& motherBoard,
-                               const XMLElement& config)
+                               const DeviceConfig& config)
 	: MSXFDC(motherBoard, config)
 	, multiplexer(new DriveMultiplexer(reinterpret_cast<DiskDrive**>(drives)))
 	, controller(new WD2793(motherBoard.getScheduler(), *multiplexer,

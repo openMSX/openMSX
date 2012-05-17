@@ -18,7 +18,7 @@
 #include "DummySCSIDevice.hh"
 #include "SCSIHD.hh"
 #include "SCSILS120.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
@@ -104,13 +104,13 @@ static const byte AS_INT          = 0x80;
 0x60    COMPLETE_RECEIVED
 */
 
-WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
+WD33C93::WD33C93(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	devBusy = false;
 
 	XMLElement::Children targets;
-	config.getChildren("target", targets);
+	config.getXML()->getChildren("target", targets);
 	for (XMLElement::Children::const_iterator it = targets.begin();
 	     it != targets.end(); ++it) {
 		const XMLElement& target = **it;

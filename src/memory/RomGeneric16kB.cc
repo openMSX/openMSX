@@ -7,7 +7,7 @@
 namespace openmsx {
 
 RomGeneric16kB::RomGeneric16kB(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {

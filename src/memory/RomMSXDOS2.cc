@@ -10,7 +10,7 @@
 namespace openmsx {
 
 RomMSXDOS2::RomMSXDOS2(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom16kBBlocks(motherBoard, config, rom_)
 	, range((*rom)[0x94])

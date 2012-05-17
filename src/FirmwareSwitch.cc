@@ -4,7 +4,7 @@
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
 #include "CommandController.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
@@ -16,11 +16,11 @@ namespace openmsx {
 static const std::string filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(CommandController& commandController,
-                               const XMLElement& config_)
-	: setting(new BooleanSetting(commandController, "firmwareswitch",
+                               const DeviceConfig& config_)
+	: config(config_)
+	, setting(new BooleanSetting(commandController, "firmwareswitch",
 	          "This setting controls the firmware switch",
 	          false, Setting::DONT_SAVE))
-	, config(config_)
 	, cliComm(commandController.getCliComm())
 {
 	// load firmware switch setting from persistent data

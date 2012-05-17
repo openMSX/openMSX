@@ -15,7 +15,7 @@ class YM2413;
 class MSXMusic : public MSXDevice
 {
 public:
-	MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXMusic(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXMusic();
 
 	virtual void reset(EmuTime::param time);

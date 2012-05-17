@@ -12,7 +12,7 @@
 namespace openmsx {
 
 class MSXMixer;
-class XMLElement;
+class DeviceConfig;
 class EmuDuration;
 class Wav16Writer;
 class Filename;
@@ -70,7 +70,7 @@ protected:
 	 * calls to updateBuffer, so after all initialisation is done.
 	 * @param config Configuration data for this sound device.
 	 */
-	void registerSound(const XMLElement& config);
+	void registerSound(const DeviceConfig& config);
 
 	/**
 	 * Unregisters this sound device with the Mixer.

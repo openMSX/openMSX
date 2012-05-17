@@ -14,7 +14,7 @@ class Rom;
 class GoudaSCSI : public MSXDevice
 {
 public:
-	GoudaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config);
+	GoudaSCSI(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~GoudaSCSI();
 
 	virtual void reset(EmuTime::param time);

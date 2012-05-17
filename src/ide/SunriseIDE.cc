@@ -4,13 +4,12 @@
 #include "IDEDeviceFactory.hh"
 #include "IDEDevice.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "Math.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config)
+SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {

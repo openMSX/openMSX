@@ -9,7 +9,7 @@
 namespace openmsx {
 
 MSXCielTurbo::MSXCielTurbo(MSXMotherBoard& motherBoard,
-                           const XMLElement& config)
+                           const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 {
 	reset(EmuTime::dummy());

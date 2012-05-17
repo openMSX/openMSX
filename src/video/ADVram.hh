@@ -17,7 +17,7 @@ class VDPVRAM;
 class ADVram : public MSXDevice
 {
 public:
-	ADVram(MSXMotherBoard& motherBoard, const XMLElement& config);
+	ADVram(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	/** This method is called on reset.  Reset the mapper register and
 	 * the planar bit, if the device is configured with an enable bit
@@ -51,7 +51,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void init(const HardwareConfig& hwConf);
+	virtual void init();
 	inline unsigned calcAddress(word address) const;
 
 	VDP* vdp;

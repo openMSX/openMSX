@@ -10,7 +10,7 @@ namespace openmsx {
 class RomGameMaster2 : public Rom4kBBlocks
 {
 public:
-	RomGameMaster2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomGameMaster2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	               std::auto_ptr<Rom> rom);
 	virtual ~RomGameMaster2();
 

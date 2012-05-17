@@ -15,7 +15,7 @@ class SRAM;
 class RomFSA1FMSram
 {
 protected:
-	RomFSA1FMSram(MSXMotherBoard& motherBoard, const XMLElement& config);
+	RomFSA1FMSram(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	~RomFSA1FMSram();
 
 	MSXMotherBoard& motherBoard;
@@ -25,7 +25,7 @@ protected:
 class RomFSA1FM1 : public MSXRom, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomFSA1FM1(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 
@@ -47,7 +47,7 @@ private:
 class RomFSA1FM2 : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomFSA1FM2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 

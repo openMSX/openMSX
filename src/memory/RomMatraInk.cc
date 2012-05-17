@@ -8,7 +8,7 @@
 namespace openmsx {
 
 RomMatraInk::RomMatraInk(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
 	, flash(new AmdFlash(motherBoard, *rom,

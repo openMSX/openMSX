@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
+VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const DeviceConfig& config,
                        MSXCPUInterface& cpuInterface)
 	: MSXDevice(motherboard, config)
 	, cpu(motherboard.getCPU())

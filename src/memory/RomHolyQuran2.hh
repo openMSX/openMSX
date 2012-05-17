@@ -12,7 +12,7 @@ class MSXCPU;
 class RomHolyQuran2 : public MSXRom
 {
 public:
-	RomHolyQuran2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomHolyQuran2(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	             std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

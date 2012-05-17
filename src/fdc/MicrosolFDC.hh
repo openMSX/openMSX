@@ -10,7 +10,7 @@ namespace openmsx {
 class MicrosolFDC : public WD2793BasedFDC
 {
 public:
-	MicrosolFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MicrosolFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;

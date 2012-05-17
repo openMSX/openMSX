@@ -12,13 +12,13 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 class YMF262
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config, bool isYMF278);
+	       const DeviceConfig& config, bool isYMF278);
 	~YMF262();
 
 	void reset(EmuTime::param time);

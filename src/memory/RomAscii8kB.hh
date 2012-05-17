@@ -10,7 +10,7 @@ namespace openmsx {
 class RomAscii8kB : public Rom8kBBlocks
 {
 public:
-	RomAscii8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomAscii8kB(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	            std::auto_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);

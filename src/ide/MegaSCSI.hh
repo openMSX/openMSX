@@ -14,7 +14,7 @@ class SRAM;
 class MegaSCSI : public MSXDevice
 {
 public:
-	MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MegaSCSI(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MegaSCSI();
 
 	virtual void reset(EmuTime::param time);

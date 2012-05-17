@@ -22,7 +22,8 @@
 
 namespace openmsx {
 
-MSXVictorHC9xSystemControl::MSXVictorHC9xSystemControl(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXVictorHC9xSystemControl::MSXVictorHC9xSystemControl(MSXMotherBoard& motherBoard,
+                                                       const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 {
 	systemControlRegister = 0x80;

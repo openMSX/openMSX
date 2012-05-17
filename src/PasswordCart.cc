@@ -10,13 +10,12 @@
  */
 
 #include "PasswordCart.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 #include <algorithm>
 
 namespace openmsx {
 
-PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config)
+PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, password(config.getChildDataAsInt("password", 0))
 {

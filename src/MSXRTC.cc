@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config))
 	, rp5c01(new RP5C01(motherBoard.getCommandController(), *sram,

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SRAM.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -28,7 +28,6 @@ namespace openmsx {
 SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
            const std::string& description, int size)
 	: ram(motherBoard, name, description, size)
-	, config(NULL)
 	, header(NULL) // not used
 	, cliComm(motherBoard.getMSXCliComm()) // not used
 	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
@@ -37,9 +36,9 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 }
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
-           const XMLElement& config_, const char* header_, bool* loaded)
-	: ram(motherBoard, name, "sram", size)
-	, config(&config_)
+           const DeviceConfig& config_, const char* header_, bool* loaded)
+	: config(config_)
+	, ram(motherBoard, name, "sram", size)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
 	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
@@ -50,9 +49,9 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
            const string& description, int size,
-	   const XMLElement& config_, const char* header_, bool* loaded)
-	: ram(motherBoard, name, description, size)
-	, config(&config_)
+	   const DeviceConfig& config_, const char* header_, bool* loaded)
+	: config(config_)
+	, ram(motherBoard, name, description, size)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
 	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
@@ -86,12 +85,12 @@ void SRAM::memset(unsigned addr, byte c, unsigned size)
 
 void SRAM::load(bool* loaded)
 {
-	assert(config);
+	assert(config.getXML());
 	if (loaded) *loaded = false;
-	const string& filename = config->getChildData("sramname");
+	const string& filename = config.getChildData("sramname");
 	try {
 		bool headerOk = true;
-		File file(config->getFileContext().resolveCreate(filename),
+		File file(config.getFileContext().resolveCreate(filename),
 			  File::LOAD_PERSISTENT);
 		if (header) {
 			int length = int(strlen(header));
@@ -119,10 +118,10 @@ void SRAM::load(bool* loaded)
 
 void SRAM::save()
 {
-	if (!config) return;
-	const string& filename = config->getChildData("sramname");
+	if (!config.getXML()) return;
+	const string& filename = config.getChildData("sramname");
 	try {
-		File file(config->getFileContext().resolveCreate(filename),
+		File file(config.getFileContext().resolveCreate(filename),
 			  File::SAVE_PERSISTENT);
 		if (header) {
 			int length = int(strlen(header));

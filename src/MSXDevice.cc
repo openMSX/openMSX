@@ -27,17 +27,15 @@ byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
 
-MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
+MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const DeviceConfig& config,
                      const string& name)
 	: motherBoard(motherBoard_), deviceConfig(config)
-	, hardwareConfig(NULL)
 {
 	initName(name);
 }
 
-MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config)
+MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const DeviceConfig& config)
 	: motherBoard(motherBoard_), deviceConfig(config)
-	, hardwareConfig(NULL)
 {
 	initName(getDeviceConfig().getAttribute("id"));
 }
@@ -53,11 +51,8 @@ void MSXDevice::initName(const string& name)
 	}
 }
 
-void MSXDevice::init(const HardwareConfig& hwConf)
+void MSXDevice::init()
 {
-	assert(!hardwareConfig);
-	hardwareConfig = &hwConf;
-
 	staticInit();
 
 	lockDevices();
@@ -84,8 +79,17 @@ void MSXDevice::staticInit()
 
 const HardwareConfig& MSXDevice::getHardwareConfig() const
 {
-	assert(hardwareConfig);
-	return *hardwareConfig;
+	return deviceConfig.getHardwareConfig();
+}
+
+const XMLElement& MSXDevice::getDeviceConfig() const
+{
+	return *deviceConfig.getXML();
+}
+
+const DeviceConfig& MSXDevice::getDeviceConfig2() const
+{
+	return deviceConfig;
 }
 
 void MSXDevice::testRemove(const Devices& alreadyRemoved) const
@@ -145,7 +149,7 @@ void MSXDevice::unlockDevices()
 
 const MSXDevice::Devices& MSXDevice::getReferences() const
 {
-	assert(hardwareConfig); // init() must already be called
+	// init() must already be called
 	return references;
 }
 
@@ -298,7 +302,7 @@ void MSXDevice::unregisterSlots()
 
 void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 {
-	assert(hardwareConfig); // init() must already be called
+	// init() must already be called
 	if (memRegions.empty()) {
 		base = 0;
 		size = 0;

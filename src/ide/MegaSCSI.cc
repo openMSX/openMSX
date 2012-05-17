@@ -47,7 +47,6 @@
 #include "SRAM.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -55,7 +54,7 @@ namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+static SRAM* createSRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                         const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
@@ -69,7 +68,7 @@ static SRAM* createSRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
 	return new SRAM(motherBoard, name + " SRAM", sramSize, config);
 }
 
-MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
+MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, mb89352(new MB89352(motherBoard, config))
 	, sram(createSRAM(motherBoard, config, getName()))

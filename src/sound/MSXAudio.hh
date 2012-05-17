@@ -16,7 +16,7 @@ class DACSound8U;
 class MSXAudio : public MSXDevice
 {
 public:
-	MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXAudio(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXAudio();
 
 	/** Creates a periphery object for this MSXAudio cartridge.

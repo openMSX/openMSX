@@ -14,7 +14,7 @@ class Rom;
 class MSXMegaRam : public MSXDevice
 {
 public:
-	MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXMegaRam(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 	virtual ~MSXMegaRam();
 
 	virtual void powerUp(EmuTime::param time);

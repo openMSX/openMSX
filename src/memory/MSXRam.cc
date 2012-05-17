@@ -10,16 +10,16 @@
 
 namespace openmsx {
 
-MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXRam::MSXRam(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 {
 	// Actual initialization is done in init() because <mem> tags
 	// are not yet processed.
 }
 
-void MSXRam::init(const HardwareConfig& hwConf)
+void MSXRam::init()
 {
-	MSXDevice::init(hwConf); // parse mem regions
+	MSXDevice::init(); // parse mem regions
 
 	// by default get base/size from the (union of) the <mem> tag(s)
 	getVisibleMemRegion(base, size);

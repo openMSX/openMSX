@@ -4,19 +4,18 @@
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-static unsigned calcBaseAddr(const XMLElement& config)
+static unsigned calcBaseAddr(const DeviceConfig& config)
 {
 	int base = config.getChild("mem").getAttributeAsInt("base");
 	int first = config.getChild("rom").getChildDataAsInt("firstblock");
 	return first * 0x2000 - base;
 }
 
-RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomDRAM::RomDRAM(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                  std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, rom)
 	, panasonicMemory(motherBoard.getPanasonicMemory())

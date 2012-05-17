@@ -4,12 +4,11 @@
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: WD2793BasedFDC(motherBoard, config)
 {
 	reset(getCurrentTime());

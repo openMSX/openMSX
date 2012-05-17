@@ -42,7 +42,7 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, i8255(new I8255(*this, getCurrentTime(), motherBoard.getMSXCliComm()))
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))

@@ -2,7 +2,7 @@
 
 #include "SoundDevice.hh"
 #include "MSXMixer.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "WavWriter.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
@@ -95,7 +95,7 @@ int SoundDevice::getAmplificationFactor() const
 	return 1;
 }
 
-void SoundDevice::registerSound(const XMLElement& config)
+void SoundDevice::registerSound(const DeviceConfig& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
 	double volume = soundConfig.getChildDataAsInt("volume") / 32767.0;

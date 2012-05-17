@@ -10,15 +10,14 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 class VLM5030
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
 	        const std::string& desc, const std::string& romFilename,
-	        const XMLElement& config);
+	        const DeviceConfig& config);
 	~VLM5030();
 	void reset();
 

@@ -9,7 +9,7 @@
 namespace openmsx {
 
 PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
-                           const XMLElement& config)
+                           const DeviceConfig& config)
 	: MSXMemoryMapper(motherBoard, config)
 	, panasonicMemory(motherBoard.getPanasonicMemory())
 {

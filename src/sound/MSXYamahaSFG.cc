@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, ym2151(new YM2151(motherBoard, getName(),

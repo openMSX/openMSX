@@ -21,7 +21,7 @@ namespace openmsx {
 static byte decryptLUT[256];
 
 RomHolyQuran2::RomHolyQuran2(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
 	, cpu(motherBoard.getCPU())

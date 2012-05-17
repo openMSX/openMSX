@@ -105,7 +105,7 @@ class YMF278::Impl : public ResampledSoundDevice
 {
 public:
 	Impl(YMF278& self, MSXMotherBoard& motherBoard,
-	     const std::string& name, int ramSize, const XMLElement& config);
+	     const std::string& name, int ramSize, const DeviceConfig& config);
 	virtual ~Impl();
 	void clearRam();
 	void reset(EmuTime::param time);
@@ -873,7 +873,7 @@ byte YMF278::Impl::peekReg(byte reg) const
 
 YMF278::Impl::Impl(YMF278& self, MSXMotherBoard& motherBoard_,
                        const std::string& name, int ramSize,
-                       const XMLElement& config)
+                       const DeviceConfig& config)
 	: ResampledSoundDevice(motherBoard_, name, "MoonSound wave-part",
 	                       24, true)
 	, motherBoard(motherBoard_)
@@ -1223,7 +1223,7 @@ void DebugMemory::write(unsigned address, byte value)
 // class YMF278
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-               int ramSize, const XMLElement& config)
+               int ramSize, const DeviceConfig& config)
 	: pimpl(new Impl(*this, motherBoard, name, ramSize, config))
 {
 }

@@ -10,7 +10,7 @@ namespace openmsx {
 class RomSuperLodeRunner : public Rom16kBBlocks
 {
 public:
-	RomSuperLodeRunner(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomSuperLodeRunner(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	                   std::auto_ptr<Rom> rom);
 	virtual ~RomSuperLodeRunner();
 

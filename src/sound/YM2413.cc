@@ -4,7 +4,7 @@
 #include "YM2413Okazaki.hh"
 #include "YM2413Burczynski.hh"
 #include "SimpleDebuggable.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -43,7 +43,7 @@ void YM2413Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 // YM2413
 
-static YM2413Core* createCore(const XMLElement& config)
+static YM2413Core* createCore(const DeviceConfig& config)
 {
 	if (config.getChildDataAsBool("alternative", false)) {
 		return new YM2413Burczynski::YM2413();
@@ -53,7 +53,7 @@ static YM2413Core* createCore(const XMLElement& config)
 }
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config)
+               const DeviceConfig& config)
 	: ResampledSoundDevice(motherBoard, name, "MSX-MUSIC", 9 + 5)
 	, core(createCore(config))
 	, debuggable(new YM2413Debuggable(motherBoard, *this))

@@ -12,7 +12,7 @@ class MSXCPUInterface;
 class MSXMirrorDevice : public MSXDevice
 {
 public:
-	MSXMirrorDevice(MSXMotherBoard& motherBoard, const XMLElement& config);
+	MSXMirrorDevice(MSXMotherBoard& motherBoard, const DeviceConfig& config);
 
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

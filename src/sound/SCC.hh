@@ -19,7 +19,7 @@ public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
 
 	SCC(MSXMotherBoard& motherBoard, const std::string& name,
-	    const XMLElement& config, EmuTime::param time,
+	    const DeviceConfig& config, EmuTime::param time,
 	    ChipMode mode = SCC_Real);
 	virtual ~SCC();
 

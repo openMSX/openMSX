@@ -10,7 +10,7 @@ namespace openmsx {
 class RomDooly : public MSXRom
 {
 public:
-	RomDooly(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomDooly(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	         std::auto_ptr<Rom> rom);
 	virtual ~RomDooly();
 

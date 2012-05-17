@@ -1,12 +1,12 @@
 // $Id$
 
 #include "MSXResetStatusRegister.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-MSXResetStatusRegister::MSXResetStatusRegister(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXResetStatusRegister::MSXResetStatusRegister(MSXMotherBoard& motherBoard,
+                                               const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, inverted(config.getChildDataAsBool("inverted", false))
 {

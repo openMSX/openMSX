@@ -8,7 +8,6 @@
 #include "I8251.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "XMLElement.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
@@ -61,7 +60,7 @@ private:
 };
 
 
-MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, RS232Connector(motherBoard.getPluggingController(), "msx-rs232")
 	, cntr0(new Counter0(*this))

@@ -22,7 +22,7 @@ namespace openmsx {
 static const unsigned MAX_NOWINDS = 8; // a-h
 typedef std::bitset<MAX_NOWINDS> NowindsInUse;
 
-NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const XMLElement& config)
+NowindInterface::NowindInterface(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, flash(new AmdFlash(motherBoard, *rom,

@@ -2,8 +2,8 @@
 
 #include "HardwareConfig.hh"
 #include "XMLLoader.hh"
-#include "XMLElement.hh"
 #include "XMLException.hh"
+#include "DeviceConfig.hh"
 #include "LocalFileReference.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
@@ -323,7 +323,7 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 			createDevices(sub);
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
-				motherBoard, *this, sub));
+				motherBoard, DeviceConfig(*this, sub)));
 			if (device.get()) {
 				addDevice(device.release());
 			} else {

@@ -22,7 +22,7 @@ private:
 };
 
 
-MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, firmwareSwitch(
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))

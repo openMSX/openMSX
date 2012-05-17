@@ -14,13 +14,12 @@ namespace openmsx {
 class YM2413Core;
 class YM2413Debuggable;
 class MSXMotherBoard;
-class XMLElement;
 
 class YM2413 : public ResampledSoundDevice
 {
 public:
 	YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config);
+	       const DeviceConfig& config);
 	virtual ~YM2413();
 
 	void reset(EmuTime::param time);

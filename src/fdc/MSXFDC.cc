@@ -3,14 +3,13 @@
 #include "MSXFDC.hh"
 #include "Rom.hh"
 #include "RealDrive.hh"
-#include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {

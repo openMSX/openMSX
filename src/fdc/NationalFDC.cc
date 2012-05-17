@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-NationalFDC::NationalFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+NationalFDC::NationalFDC(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: WD2793BasedFDC(motherBoard, config)
 {
 }

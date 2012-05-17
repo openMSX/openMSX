@@ -45,7 +45,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "RomDatabase.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 
@@ -144,7 +144,7 @@ static RomType guessRomType(const Rom& rom)
 	}
 }
 
-auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config)
+auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 {
 	auto_ptr<Rom> rom(new Rom(motherBoard, config.getAttribute("id"), "rom", config));
 
@@ -350,7 +350,7 @@ auto_ptr<MSXDevice> create(MSXMotherBoard& motherBoard, const XMLElement& config
 	// 'auto' value). This way we're sure that on savestate/loadstate we're
 	// using the same mapper type (for example when the user's rom-database
 	// was updated).
-	XMLElement& writableConfig = const_cast<XMLElement&>(config);
+	XMLElement& writableConfig = const_cast<XMLElement&>(*config.getXML());
 	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
 
 	return auto_ptr<MSXDevice>(result);

@@ -4,6 +4,7 @@
 #define SRAM_HH
 
 #include "Ram.hh"
+#include "DeviceConfig.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -11,7 +12,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
 class CliComm;
 class AlarmEvent;
 
@@ -21,11 +21,11 @@ public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 	     const std::string& description, int size);
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,
-	     const XMLElement& config, const char* header = NULL,
+	     const DeviceConfig& config, const char* header = NULL,
 	     bool* loaded = NULL);
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 	     const std::string& description, int size,
-	     const XMLElement& config, const char* header = NULL,
+	     const DeviceConfig& config, const char* header = NULL,
 	     bool* loaded = NULL);
 	virtual ~SRAM();
 
@@ -50,8 +50,8 @@ private:
 	void load(bool* loaded);
 	void save();
 
+	const DeviceConfig config;
 	Ram ram;
-	const XMLElement* config;
 	const char* const header;
 	CliComm& cliComm;
 

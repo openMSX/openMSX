@@ -16,7 +16,7 @@
 namespace openmsx {
 
 RomZemina80in1::RomZemina80in1(
-		MSXMotherBoard& motherBoard, const XMLElement& config,
+		MSXMotherBoard& motherBoard, const DeviceConfig& config,
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {

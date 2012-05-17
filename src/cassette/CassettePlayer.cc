@@ -28,7 +28,7 @@
 #include "CassettePort.hh"
 #include "CommandController.hh"
 #include "RecordedCommand.hh"
-#include "XMLElement.hh"
+#include "DeviceConfig.hh"
 #include "FileContext.hh"
 #include "FilePool.hh"
 #include "File.hh"
@@ -80,6 +80,15 @@ private:
 };
 
 
+static XMLElement createXML()
+{
+	XMLElement xml("cassetteplayer");
+	auto_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "5000")));
+	xml.addChild(sound);
+	return xml;
+}
+
 CassettePlayer::CassettePlayer(
 		CommandController& commandController_,
 		MSXMotherBoard& motherBoard, Scheduler& scheduler,
@@ -112,15 +121,9 @@ CassettePlayer::CassettePlayer(
 
 	removeTape(EmuTime::zero);
 
-	static XMLElement cassettePlayerConfig("cassetteplayer");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		auto_ptr<XMLElement> sound(new XMLElement("sound"));
-		sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "5000")));
-		cassettePlayerConfig.addChild(sound);
-	}
-	registerSound(cassettePlayerConfig);
+	static XMLElement xml = createXML();
+	registerSound(DeviceConfig(xml));
+
 	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
 	cliComm.update(CliComm::HARDWARE, getName(), "add");
 }

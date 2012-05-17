@@ -21,7 +21,7 @@
 
 namespace openmsx {
 
-RomKonamiSCC::RomKonamiSCC(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomKonamiSCC::RomKonamiSCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
                        std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))

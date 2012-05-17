@@ -12,13 +12,13 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 class YMF278
 {
 public:
 	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-	       int ramSize, const XMLElement& config);
+	       int ramSize, const DeviceConfig& config);
 	~YMF278();
 	void clearRam();
 	void reset(EmuTime::param time);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, reference(getCurrentTime())
 {

@@ -15,7 +15,7 @@ class MB89352;
 class ESE_SCC : public MSXDevice
 {
 public:
-	ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
+	ESE_SCC(MSXMotherBoard& motherBoard, const DeviceConfig& config,
 	        bool withSCSI);
 	virtual ~ESE_SCC();
 

@@ -9,12 +9,12 @@ namespace openmsx {
 
 class MSXDevice;
 class MSXMotherBoard;
-class XMLElement;
+class DeviceConfig;
 
 namespace RomFactory
 {
 	std::auto_ptr<MSXDevice> create(
-		MSXMotherBoard& motherBoard, const XMLElement& config);
+		MSXMotherBoard& motherBoard, const DeviceConfig& config);
 }
 
 } // namespace openmsx

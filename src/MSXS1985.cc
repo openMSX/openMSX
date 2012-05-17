@@ -8,7 +8,7 @@ namespace openmsx {
 
 static const byte ID = 0xFE;
 
-MSXS1985::MSXS1985(MSXMotherBoard& motherBoard, const XMLElement& config)
+MSXS1985::MSXS1985(MSXMotherBoard& motherBoard, const DeviceConfig& config)
 	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, ram(new Ram(motherBoard, getName() + " RAM", "S1985 RAM", 0x10))
