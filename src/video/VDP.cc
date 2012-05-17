@@ -362,7 +362,6 @@ void VDP::resetInit()
 	blinkState = false;
 	blinkCount = 0;
 	horizontalAdjust = 7;
-	verticalAdjust = 0;
 
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
@@ -530,6 +529,7 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 	}
 
 	// Calculate when (lines and time) display starts.
+	int verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 	lineZero =
 		// sync + top erase:
 		3 + 13 +
@@ -650,14 +650,10 @@ void VDP::frameStart(EmuTime::param time)
 
 	// Settings which are fixed at start of frame.
 	// Not sure this is how real MSX does it, but close enough for now.
-	// TODO: verticalAdjust probably influences display start, which is
-	//       "fixed" once it occured, no need to fix verticalAdjust,
-	//       maybe even having this variable is not necessary.
 	// TODO: Interlace is effectuated in border height, according to
 	//       the data book. Exactly when is the fixation point?
 	palTiming = (controlRegs[9] & 0x02) != 0;
 	interlaced = (controlRegs[9] & 0x08) != 0;
-	verticalAdjust = (controlRegs[18] >> 4) ^ 0x07;
 
 	// Blinking.
 	if (blinkCount != 0) { // counter active?
@@ -1436,6 +1432,7 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 
 // version 1: initial version
 // version 2: added frameCount
+// version 3: removed verticalAdjust
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned version)
 {
@@ -1459,7 +1456,6 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("horizontalScanOffset", horizontalScanOffset);
 	ar.serialize("lineZero", lineZero);
 	ar.serialize("horizontalAdjust", horizontalAdjust);
-	ar.serialize("verticalAdjust", verticalAdjust);
 	ar.serialize("registers", controlRegs);
 	ar.serialize("blinkCount", blinkCount);
 	ar.serialize("vramPointer", vramPointer);

@@ -295,13 +295,6 @@ public:
 		return horizontalAdjust;
 	}
 
-	/** Gets the current vertical display adjust.
-	  * @return Adjust: 0 is topmost, 7 is center, 15 is bottommost.
-	  */
-	inline int getVerticalAdjust() const {
-		return verticalAdjust;
-	}
-
 	/** Get the absolute line number of display line zero.
 	  * Usually this is equal to the height of the top border,
 	  * but not so during overscan.
@@ -782,12 +775,6 @@ private:
 	  */
 	int horizontalAdjust;
 
-	/** Vertical display adjust.
-	  * This value is updated at the start of every frame.
-	  * @see getVerticalAdjust.
-	  */
-	int verticalAdjust;
-
 	/** Control registers.
 	  */
 	byte controlRegs[32];
@@ -902,7 +889,7 @@ private:
 	  * is printed.  */
 	bool warningPrinted;
 };
-SERIALIZE_CLASS_VERSION(VDP, 2);
+SERIALIZE_CLASS_VERSION(VDP, 3);
 
 } // namespace openmsx
 
