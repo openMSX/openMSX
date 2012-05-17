@@ -24,7 +24,8 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard,
 	, cpuInterface(motherboard.getCPUInterface())
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
-		ios.push_back(new MSXWatchIODevice(motherboard, *this));
+		ios.push_back(new MSXWatchIODevice(
+			*motherboard.getMachineConfig(), *this));
 	}
 }
 
@@ -81,8 +82,8 @@ void WatchIO::doWriteCallback(unsigned port, unsigned value)
 // class MSXWatchIODevice
 
 MSXWatchIODevice::MSXWatchIODevice(
-		MSXMotherBoard& motherboard, WatchIO& watchIO_)
-	: MSXMultiDevice(motherboard)
+		const HardwareConfig& hwConf, WatchIO& watchIO_)
+	: MSXMultiDevice(hwConf)
 	, watchIO(watchIO_)
 	, device(0)
 {

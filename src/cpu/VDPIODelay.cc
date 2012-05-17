@@ -3,7 +3,6 @@
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
 #include "DummyDevice.hh"
 #include "serialize.hh"
@@ -13,7 +12,7 @@ namespace openmsx {
 
 VDPIODelay::VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface)
 	: MSXDevice(config)
-	, cpu(config.getMotherBoard().getCPU())
+	, cpu(getCPU()) // used frequently, so cache it
 	, lastTime(EmuTime::zero)
 {
 	for (int port = 0x098; port <= 0x9B; ++port) {

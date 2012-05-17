@@ -8,6 +8,8 @@
 #include "EventDistributor.hh"
 #include "FileContext.hh"
 #include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
+#include "XMLElement.hh"
 #include "CassettePort.hh"
 #include "CliComm.hh"
 #include "Display.hh"

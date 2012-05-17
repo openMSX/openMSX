@@ -49,8 +49,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	nowindsInUse[i] = true;
 	basename[6] = char('a' + i);
 
-	command.reset(new NowindCommand(
-		basename, getMotherBoard().getCommandController(), *this));
+	command.reset(new NowindCommand(basename, getCommandController(), *this));
 
 	// start with one (empty) drive
 	DiskChanger* drive = command->createDiskChanger(basename, 0, getMotherBoard());

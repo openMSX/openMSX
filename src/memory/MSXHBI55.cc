@@ -35,7 +35,6 @@
 #include "MSXHBI55.hh"
 #include "I8255.hh"
 #include "SRAM.hh"
-#include "MSXMotherBoard.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -44,7 +43,7 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(new I8255(*this, getCurrentTime(), getMotherBoard().getMSXCliComm()))
+	, i8255(new I8255(*this, getCurrentTime(), getCliComm()))
 	, sram(new SRAM(getName() + " SRAM", 0x1000, config))
 {
 	reset(getCurrentTime());

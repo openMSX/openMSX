@@ -3,9 +3,7 @@
 #include "FirmwareSwitch.hh"
 #include "BooleanSetting.hh"
 #include "CliComm.hh"
-#include "CommandController.hh"
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
@@ -18,7 +16,7 @@ static const std::string filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)
-	, setting(new BooleanSetting(config.getMotherBoard().getCommandController(),
+	, setting(new BooleanSetting(config.getCommandController(),
 	          "firmwareswitch",
 	          "This setting controls the firmware switch",
 	          false, Setting::DONT_SAVE))
@@ -31,7 +29,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 		file.read(&bytebuf, 1);
 		setting->changeValue(bytebuf != 0);
 	} catch (FileException& e) {
-		config.getMotherBoard().getMSXCliComm().printWarning(
+		config.getCliComm().printWarning(
 			"Couldn't load firmwareswitch status: " + e.getMessage());
 	}
 }
@@ -45,7 +43,7 @@ FirmwareSwitch::~FirmwareSwitch()
 		byte bytebuf = setting->getValue() ? 0xFF : 0x00;
 		file.write(&bytebuf, 1);
 	} catch (FileException& e) {
-		config.getMotherBoard().getMSXCliComm().printWarning(
+		config.getCliComm().printWarning(
 			"Couldn't save firmwareswitch status: " + e.getMessage());
 	}
 }

@@ -165,7 +165,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	        motherBoard_.getMachineInfoCommand(), *this, true))
 	, outputPortInfo(new IOInfo(
 	        motherBoard_.getMachineInfoCommand(), *this, false))
-	, dummyDevice(DeviceFactory::createDummyDevice(motherBoard_))
+	, dummyDevice(DeviceFactory::createDummyDevice(*motherBoard_.getMachineConfig()))
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
@@ -200,7 +200,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (motherBoard.isTurboR()) {
 		// TODO also MSX2+ needs (slightly different) VDPIODelay
-		delayDevice = DeviceFactory::createVDPIODelay(motherBoard, *this);
+		delayDevice = DeviceFactory::createVDPIODelay(
+			*motherBoard.getMachineConfig(), *this);
 		for (int port = 0x98; port <= 0x9B; ++port) {
 			assert(IO_In [port] == dummyDevice.get());
 			assert(IO_Out[port] == dummyDevice.get());
@@ -430,7 +431,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 			multi->addDevice(device);
 		} else {
 			// second, create a MultiIO device
-			multi = new MSXMultiIODevice(device->getMotherBoard());
+			multi = new MSXMultiIODevice(device->getHardwareConfig());
 			multi->addDevice(devicePtr);
 			multi->addDevice(device);
 			devicePtr = multi;
@@ -496,7 +497,7 @@ void MSXCPUInterface::registerSlot(
 		if (slot == dummyDevice.get()) {
 			// first
 			MSXMultiMemDevice* multi =
-				new MSXMultiMemDevice(device.getMotherBoard(), *this);
+				new MSXMultiMemDevice(device.getHardwareConfig());
 			multi->add(device, base, size);
 			slot = multi;
 		} else if (MSXMultiMemDevice* multi =

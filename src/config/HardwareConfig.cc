@@ -4,6 +4,7 @@
 #include "XMLLoader.hh"
 #include "XMLException.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "LocalFileReference.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"

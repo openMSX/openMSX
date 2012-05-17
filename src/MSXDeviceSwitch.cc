@@ -3,7 +3,6 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
@@ -39,10 +38,9 @@ void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 	}
 	devices[id] = device;
 	if (count == 0) {
-		MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
 		for (byte port = 0x40; port < 0x50; ++port) {
-			interface.register_IO_In (port, this);
-			interface.register_IO_Out(port, this);
+			getCPUInterface().register_IO_In (port, this);
+			getCPUInterface().register_IO_Out(port, this);
 		}
 	}
 	++count;
@@ -52,10 +50,9 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 {
 	--count;
 	if (count == 0) {
-		MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
 		for (byte port = 0x40; port < 0x50; ++port) {
-			interface.unregister_IO_Out(port, this);
-			interface.unregister_IO_In (port, this);
+			getCPUInterface().unregister_IO_Out(port, this);
+			getCPUInterface().unregister_IO_In (port, this);
 		}
 	}
 	assert(devices[id] != NULL);

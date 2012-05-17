@@ -7,7 +7,6 @@
 #include "TurboRFDC.hh"
 #include "TC8566AF.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
@@ -16,10 +15,9 @@ namespace openmsx {
 
 TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	: MSXFDC(config)
-	, cpu(getMotherBoard().getCPU())
-	, controller(new TC8566AF(getMotherBoard().getScheduler(),
+	, controller(new TC8566AF(getScheduler(),
 	                          reinterpret_cast<DiskDrive**>(drives),
-	                          getMotherBoard().getMSXCliComm(),
+	                          getCliComm(),
 	                          getCurrentTime()))
 	, blockMask((rom->getSize() / 0x4000) - 1)
 {
@@ -44,7 +42,7 @@ byte TurboRFDC::readMem(word address, EmuTime::param time)
 		// cycle. But only in R800 mode. Verified on a real turboR
 		// machine, it happens for all 16 positions in this region
 		// and both for reading and writing.
-		cpu.waitCyclesR800(1);
+		getCPU().waitCyclesR800(1);
 		switch (address & 0x3FFF) {
 		case 0x3FF1:
 			result = 0x33;
@@ -121,7 +119,7 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 {
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// See comment in readMem().
-		cpu.waitCyclesR800(1);
+		getCPU().waitCyclesR800(1);
 	}
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		setBank(value);

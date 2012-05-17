@@ -1,21 +1,20 @@
 // $Id$
 
 #include "MSXMultiDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
 
-static DeviceConfig getMultiConfig(MSXMotherBoard& motherboard)
+static DeviceConfig getMultiConfig(const HardwareConfig& hwConf)
 {
 	static XMLElement xml("Multi");
-	return DeviceConfig(*motherboard.getMachineConfig(), xml);
+	return DeviceConfig(hwConf, xml);
 }
 
-// TODO take HardwareConfig parameter instead?
-MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
-	: MSXDevice(getMultiConfig(motherboard), "Multi")
+MSXMultiDevice::MSXMultiDevice(const HardwareConfig& hwConf)
+	: MSXDevice(getMultiConfig(hwConf), "Multi")
 {
 }
 

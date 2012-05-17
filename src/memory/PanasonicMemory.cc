@@ -5,8 +5,9 @@
 #include "MSXCPU.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "HardwareConfig.hh"
 #include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 
 namespace openmsx {

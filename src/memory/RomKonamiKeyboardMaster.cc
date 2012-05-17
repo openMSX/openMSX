@@ -3,7 +3,6 @@
 #include "RomKonamiKeyboardMaster.hh"
 #include "VLM5030.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -23,18 +22,18 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 
 	reset(EmuTime::dummy());
 
-	getMotherBoard().getCPUInterface().register_IO_Out(0x00, this);
-	getMotherBoard().getCPUInterface().register_IO_Out(0x20, this);
-	getMotherBoard().getCPUInterface().register_IO_In(0x00, this);
-	getMotherBoard().getCPUInterface().register_IO_In(0x20, this);
+	getCPUInterface().register_IO_Out(0x00, this);
+	getCPUInterface().register_IO_Out(0x20, this);
+	getCPUInterface().register_IO_In(0x00, this);
+	getCPUInterface().register_IO_In(0x20, this);
 }
 
 RomKonamiKeyboardMaster::~RomKonamiKeyboardMaster()
 {
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x00, this);
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x20, this);
-	getMotherBoard().getCPUInterface().unregister_IO_In(0x00, this);
-	getMotherBoard().getCPUInterface().unregister_IO_In(0x20, this);
+	getCPUInterface().unregister_IO_Out(0x00, this);
+	getCPUInterface().unregister_IO_Out(0x20, this);
+	getCPUInterface().unregister_IO_In(0x00, this);
+	getCPUInterface().unregister_IO_In(0x20, this);
 }
 
 void RomKonamiKeyboardMaster::reset(EmuTime::param /*time*/)

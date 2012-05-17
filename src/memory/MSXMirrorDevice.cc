@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXMirrorDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -20,7 +19,7 @@ static unsigned getAddressHigh(const DeviceConfig& config)
 
 MSXMirrorDevice::MSXMirrorDevice(const DeviceConfig& config)
 	: MSXDevice(config)
-	, interface(getMotherBoard().getCPUInterface())
+	, interface(getCPUInterface()) // frequently used, so cache
 	, addressHigh(getAddressHigh(config))
 {
 }

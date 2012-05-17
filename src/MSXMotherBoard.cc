@@ -601,7 +601,7 @@ PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory()
 MSXDeviceSwitch& MSXMotherBoard::Impl::getDeviceSwitch()
 {
 	if (!deviceSwitch.get()) {
-		deviceSwitch = DeviceFactory::createDeviceSwitch(self);
+		deviceSwitch = DeviceFactory::createDeviceSwitch(*getMachineConfig());
 	}
 	return *deviceSwitch;
 }
@@ -871,7 +871,7 @@ MSXMotherBoard::SharedStuff& MSXMotherBoard::Impl::getSharedStuff(
 MSXMapperIO* MSXMotherBoard::Impl::createMapperIO()
 {
 	if (mapperIOCounter == 0) {
-		mapperIO = DeviceFactory::createMapperIO(self);
+		mapperIO = DeviceFactory::createMapperIO(*getMachineConfig());
 
 		MSXCPUInterface& cpuInterface = getCPUInterface();
 		cpuInterface.register_IO_Out(0xFC, mapperIO.get());

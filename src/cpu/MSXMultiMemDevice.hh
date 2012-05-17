@@ -14,8 +14,7 @@ class MSXCPUInterface;
 class MSXMultiMemDevice : public MSXMultiDevice
 {
 public:
-	MSXMultiMemDevice(
-		MSXMotherBoard& motherboard, MSXCPUInterface& cpuInterface);
+	MSXMultiMemDevice(const HardwareConfig& hwConf);
 	virtual ~MSXMultiMemDevice();
 
 	bool add(MSXDevice& device, int base, int size);

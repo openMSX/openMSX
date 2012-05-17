@@ -7,8 +7,8 @@
 
 namespace openmsx {
 
-MSXMultiIODevice::MSXMultiIODevice(MSXMotherBoard& motherboard)
-	: MSXMultiDevice(motherboard)
+MSXMultiIODevice::MSXMultiIODevice(const HardwareConfig& hwConf)
+	: MSXMultiDevice(hwConf)
 {
 }
 

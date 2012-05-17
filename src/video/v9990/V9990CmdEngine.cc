@@ -647,7 +647,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time,
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
 		info.stuff = new BooleanSetting(
-			vdp.getMotherBoard().getCommandController(),
+			vdp.getCommandController(),
 			"v9990cmdtrace", "V9990 command tracing on/off", false);
 	}
 	++info.counter;

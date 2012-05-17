@@ -222,9 +222,8 @@ public:
 
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Schedulable(getMotherBoard().getScheduler())
-	, cliComm(getMotherBoard().getMSXCliComm())
-	, display(getMotherBoard().getReactor().getDisplay())
+	, Schedulable(MSXDevice::getScheduler())
+	, display(getReactor().getDisplay())
 	, vdpRegDebug      (new VDPRegDebug      (*this))
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
@@ -296,7 +295,7 @@ VDP::VDP(const DeviceConfig& config)
 
 	// Create command engine.
 	cmdEngine.reset(new VDPCmdEngine(*this, renderSettings,
-		getMotherBoard().getCommandController()));
+		getCommandController()));
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.
@@ -1139,7 +1138,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
 			warningPrinted = true;
-			cliComm.printWarning
+			getCliComm().printWarning
 				("The running MSX software has set bit 0 of VDP register 9 "
 				 "(dot clock direction) to one. In an ordinary MSX, "
 				 "the screen would go black and the CPU would stop running.");

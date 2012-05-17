@@ -2,7 +2,6 @@
 
 #include "SamplePlayer.hh"
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "WavData.hh"
 #include "MSXCliComm.hh"
 #include "FileContext.hh"
@@ -39,7 +38,7 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 				if (!alreadyWarned) {
 					alreadyWarned = true;
 					// print message from the 1st error
-					config.getMotherBoard().getMSXCliComm().printWarning(
+					config.getCliComm().printWarning(
 						"Couldn't read " + name + " sample data: " +
 						e1.getMessage() +
 						". Continuing without sample data.");

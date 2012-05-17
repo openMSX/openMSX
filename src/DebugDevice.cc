@@ -4,7 +4,6 @@
 #include "Clock.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
-#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include <iostream>
 #include <iomanip>
@@ -18,7 +17,7 @@ DebugDevice::DebugDevice(const DeviceConfig& config)
 {
 	string outputFile = config.getChildData("filename", "stdout");
 	fileNameSetting.reset(new FilenameSetting(
-		getMotherBoard().getCommandController(), "debugoutput",
+		getCommandController(), "debugoutput",
 		"name of the file the debugdevice outputs to", outputFile));
 	openOutput(fileNameSetting->getValueString());
 	reset(EmuTime::dummy());

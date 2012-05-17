@@ -7,7 +7,6 @@
 #include "DummyAY8910Periphery.hh"
 #include "AmdFlash.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -37,16 +36,16 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 {
 	powerUp(getCurrentTime());
 
-	getMotherBoard().getCPUInterface().register_IO_Out(0x10, this);
-	getMotherBoard().getCPUInterface().register_IO_Out(0x11, this);
-	getMotherBoard().getCPUInterface().register_IO_In (0x12, this);
+	getCPUInterface().register_IO_Out(0x10, this);
+	getCPUInterface().register_IO_Out(0x11, this);
+	getCPUInterface().register_IO_In (0x12, this);
 }
 
 MegaFlashRomSCCPlus::~MegaFlashRomSCCPlus()
 {
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x10, this);
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x11, this);
-	getMotherBoard().getCPUInterface().unregister_IO_In (0x12, this);
+	getCPUInterface().unregister_IO_Out(0x10, this);
+	getCPUInterface().unregister_IO_Out(0x11, this);
+	getCPUInterface().unregister_IO_In (0x12, this);
 }
 
 void MegaFlashRomSCCPlus::powerUp(EmuTime::param time)

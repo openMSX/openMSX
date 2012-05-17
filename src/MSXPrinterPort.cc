@@ -2,7 +2,6 @@
 
 #include "MSXPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -13,7 +12,7 @@ namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Connector(getMotherBoard().getPluggingController(), "printerport",
+	, Connector(MSXDevice::getPluggingController(), "printerport",
 	            std::auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;     // != 0;

@@ -29,7 +29,6 @@ class CycleInLineInfo;
 class MsxYPosInfo;
 class MsxX256PosInfo;
 class MsxX512PosInfo;
-class CliComm;
 class Display;
 class RawFrame;
 
@@ -650,13 +649,7 @@ private:
 	  */
 	void setPalette(int index, word grb, EmuTime::param time);
 
-
-	/** Command line communications.
-	  * Used to print a warning if the software being emulated would
-	  * cause a normal MSX to freeze.
-	  */
-	CliComm& cliComm;
-
+private:
 	Display& display;
 
 	friend class VDPRegDebug;

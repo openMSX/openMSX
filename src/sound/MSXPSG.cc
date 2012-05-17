@@ -33,7 +33,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
 {
 	selectedPort = 0;
-	PluggingController& controller = getMotherBoard().getPluggingController();
+	PluggingController& controller = getPluggingController();
 	ports[0].reset(new JoystickPort(controller, "joyporta", "MSX Joystick port A"));
 	ports[1].reset(new JoystickPort(controller, "joyportb", "MSX Joystick port B"));
 
@@ -56,7 +56,7 @@ void MSXPSG::reset(EmuTime::param time)
 
 void MSXPSG::powerDown(EmuTime::param /*time*/)
 {
-	getMotherBoard().getLedStatus().setLed(LedStatus::KANA, false);
+	getLedStatus().setLed(LedStatus::KANA, false);
 }
 
 byte MSXPSG::readIO(word /*port*/, EmuTime::param time)
@@ -109,7 +109,7 @@ void MSXPSG::writeB(byte value, EmuTime::param time)
 	selectedPort = (value & 0x40) >> 6;
 
 	if ((prev ^ value) & 0x80) {
-		getMotherBoard().getLedStatus().setLed(LedStatus::KANA, !(value & 0x80));
+		getLedStatus().setLed(LedStatus::KANA, !(value & 0x80));
 	}
 	prev = value;
 }

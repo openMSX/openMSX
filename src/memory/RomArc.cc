@@ -4,7 +4,6 @@
 
 #include "RomArc.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 
@@ -20,14 +19,14 @@ RomArc::RomArc(const DeviceConfig& config, std::auto_ptr<Rom> rom)
 
 	reset(EmuTime::dummy());
 
-	getMotherBoard().getCPUInterface().register_IO_Out(0x7f, this);
-	getMotherBoard().getCPUInterface().register_IO_In (0x7f, this);
+	getCPUInterface().register_IO_Out(0x7f, this);
+	getCPUInterface().register_IO_In (0x7f, this);
 }
 
 RomArc::~RomArc()
 {
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x7f, this);
-	getMotherBoard().getCPUInterface().unregister_IO_In (0x7f, this);
+	getCPUInterface().unregister_IO_Out(0x7f, this);
+	getCPUInterface().unregister_IO_In (0x7f, this);
 }
 
 void RomArc::reset(EmuTime::param /*time*/)

@@ -6,7 +6,6 @@
 #include "AY8910.hh"
 #include "DummyAY8910Periphery.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "AmdFlash.hh"
 #include "serialize.hh"
 #include <cassert>
@@ -43,18 +42,18 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::auto_ptr<Rom> rom_,
 	powerUp(getCurrentTime());
 
 	if (psg.get()) {
-		getMotherBoard().getCPUInterface().register_IO_Out(0x10, this);
-		getMotherBoard().getCPUInterface().register_IO_Out(0x11, this);
-		getMotherBoard().getCPUInterface().register_IO_In (0x12, this);
+		getCPUInterface().register_IO_Out(0x10, this);
+		getCPUInterface().register_IO_Out(0x11, this);
+		getCPUInterface().register_IO_In (0x12, this);
 	}
 }
 
 RomManbow2::~RomManbow2()
 {
 	if (psg.get()) {
-		getMotherBoard().getCPUInterface().unregister_IO_Out(0x10, this);
-		getMotherBoard().getCPUInterface().unregister_IO_Out(0x11, this);
-		getMotherBoard().getCPUInterface().unregister_IO_In (0x12, this);
+		getCPUInterface().unregister_IO_Out(0x10, this);
+		getCPUInterface().unregister_IO_Out(0x11, this);
+		getCPUInterface().unregister_IO_In (0x12, this);
 	}
 }
 

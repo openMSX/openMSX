@@ -3,6 +3,7 @@
 #include "SoundDevice.hh"
 #include "MSXMixer.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "WavWriter.hh"
 #include "Filename.hh"
 #include "StringOp.hh"

@@ -3,6 +3,7 @@
 #include "RomDRAM.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
+#include "XMLElement.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 

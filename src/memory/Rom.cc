@@ -2,6 +2,7 @@
 
 #include "Rom.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
 #include "File.hh"

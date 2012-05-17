@@ -29,6 +29,8 @@
 #include "CommandController.hh"
 #include "RecordedCommand.hh"
 #include "DeviceConfig.hh"
+#include "HardwareConfig.hh"
+#include "XMLElement.hh"
 #include "FileContext.hh"
 #include "FilePool.hh"
 #include "File.hh"

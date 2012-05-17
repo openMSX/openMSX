@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RomSuperLodeRunner.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "Rom.hh"
 #include "serialize.hh"
@@ -13,13 +12,13 @@ RomSuperLodeRunner::RomSuperLodeRunner(
 		const DeviceConfig& config, std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(config, rom)
 {
-	getMotherBoard().getCPUInterface().registerGlobalWrite(*this, 0x0000);
+	getCPUInterface().registerGlobalWrite(*this, 0x0000);
 	reset(EmuTime::dummy());
 }
 
 RomSuperLodeRunner::~RomSuperLodeRunner()
 {
-	getMotherBoard().getCPUInterface().unregisterGlobalWrite(*this, 0x0000);
+	getCPUInterface().unregisterGlobalWrite(*this, 0x0000);
 }
 
 void RomSuperLodeRunner::reset(EmuTime::param /*time*/)

@@ -16,6 +16,14 @@ namespace openmsx {
 
 class XMLElement;
 class MSXMotherBoard;
+class MSXCPU;
+class MSXCPUInterface;
+class Scheduler;
+class CliComm;
+class Reactor;
+class CommandController;
+class LedStatus;
+class PluggingController;
 class HardwareConfig;
 class TclObject;
 
@@ -200,9 +208,16 @@ public:
 	 */
 	const Devices& getReferences() const;
 
-	/** Get the current emulation time.
-	 */
+	// convenience functions, these delegate to MSXMotherBoard
 	EmuTime::param getCurrentTime() const;
+	MSXCPU& getCPU() const;
+	MSXCPUInterface& getCPUInterface() const;
+	Scheduler& getScheduler() const;
+	CliComm& getCliComm() const;
+	Reactor& getReactor() const;
+	CommandController& getCommandController() const;
+	PluggingController& getPluggingController() const;
+	LedStatus& getLedStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

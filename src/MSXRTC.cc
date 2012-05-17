@@ -3,7 +3,6 @@
 #include "MSXRTC.hh"
 #include "SRAM.hh"
 #include "RP5C01.hh"
-#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 
@@ -12,8 +11,7 @@ namespace openmsx {
 MSXRTC::MSXRTC(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sram(new SRAM(getName() + " SRAM", 4 * 13, config))
-	, rp5c01(new RP5C01(getMotherBoard().getCommandController(), *sram,
-	                    getCurrentTime()))
+	, rp5c01(new RP5C01(getCommandController(), *sram, getCurrentTime()))
 {
 	reset(getCurrentTime());
 }

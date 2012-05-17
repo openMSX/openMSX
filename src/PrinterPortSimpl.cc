@@ -3,6 +3,7 @@
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 
 using std::auto_ptr;

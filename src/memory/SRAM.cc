@@ -29,7 +29,6 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const std::string& name,
            const std::string& description, int size)
 	: ram(motherBoard, name, description, size)
 	, header(NULL) // not used
-	, cliComm(motherBoard.getMSXCliComm()) // not used
 	, sramSync(new AlarmEvent(motherBoard.getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM)) // used, but not needed
 {
@@ -40,7 +39,6 @@ SRAM::SRAM(const string& name, int size,
 	: config(config_)
 	, ram(config.getMotherBoard(), name, "sram", size)
 	, header(header_)
-	, cliComm(config.getMotherBoard().getMSXCliComm())
 	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
@@ -52,7 +50,6 @@ SRAM::SRAM(const string& name, const string& description, int size,
 	: config(config_)
 	, ram(config.getMotherBoard(), name, description, size)
 	, header(header_)
-	, cliComm(config.getMotherBoard().getMSXCliComm())
 	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
@@ -103,15 +100,17 @@ void SRAM::load(bool* loaded)
 			file.read(&ram[0], getSize());
 			if (loaded) *loaded = true;
 		} else {
-			cliComm.printWarning(
+			config.getCliComm().printWarning(
 				"Warning no correct SRAM file: " + filename);
 		}
 	} catch (FileNotFoundException& /*e*/) {
-		cliComm.printInfo("SRAM file " + filename + " not found" +
-		                  ", assuming blank SRAM content.");
+		config.getCliComm().printInfo(
+			"SRAM file " + filename + " not found" +
+			", assuming blank SRAM content.");
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't load SRAM " + filename +
-		                     " (" + e.getMessage() + ").");
+		config.getCliComm().printWarning(
+			"Couldn't load SRAM " + filename +
+			" (" + e.getMessage() + ").");
 	}
 }
 
@@ -128,8 +127,9 @@ void SRAM::save()
 		}
 		file.write(&ram[0], getSize());
 	} catch (FileException& e) {
-		cliComm.printWarning("Couldn't save SRAM " + filename +
-		                     " (" + e.getMessage() + ").");
+		config.getCliComm().printWarning(
+			"Couldn't save SRAM " + filename +
+			" (" + e.getMessage() + ").");
 	}
 }
 

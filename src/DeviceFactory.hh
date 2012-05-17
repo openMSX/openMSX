@@ -8,26 +8,26 @@
 namespace openmsx {
 
 class MSXDevice;
-class MSXMotherBoard;
-class MSXCPUInterface;
 class DeviceConfig;
+class HardwareConfig;
 class DummyDevice;
 class MSXDeviceSwitch;
 class MSXMapperIO;
 class VDPIODelay;
+class MSXCPUInterface;
 
 class DeviceFactory
 {
 public:
 	static std::auto_ptr<MSXDevice> create(const DeviceConfig& conf);
 	static std::auto_ptr<DummyDevice> createDummyDevice(
-		MSXMotherBoard& motherBoard);
+		const HardwareConfig& hcConf);
 	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(
-		MSXMotherBoard& motherBoard);
+		const HardwareConfig& hcConf);
 	static std::auto_ptr<MSXMapperIO> createMapperIO(
-		MSXMotherBoard& motherBoard);
+		const HardwareConfig& hcConf);
 	static std::auto_ptr<VDPIODelay> createVDPIODelay(
-		MSXMotherBoard& motherBoard, MSXCPUInterface& cpuInterface);
+		const HardwareConfig& hcConf, MSXCPUInterface& cpuInterface);
 };
 
 } // namespace openmsx

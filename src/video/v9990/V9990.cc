@@ -7,7 +7,6 @@
 #include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
 #include "SimpleDebuggable.hh"
-#include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -77,11 +76,11 @@ static const byte regAccess[64] = {
 
 V9990::V9990(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Schedulable(getMotherBoard().getScheduler())
+	, Schedulable(MSXDevice::getScheduler())
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))
 	, irq(getMotherBoard(), getName() + ".IRQ")
-	, display(getMotherBoard().getReactor().getDisplay())
+	, display(getReactor().getDisplay())
 	, frameStartTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
 	, pendingIRQs(0)

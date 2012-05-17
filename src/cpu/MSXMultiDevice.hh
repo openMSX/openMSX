@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXMultiDevice : public MSXDevice
 {
 public:
-	explicit MSXMultiDevice(MSXMotherBoard& motherboard);
+	explicit MSXMultiDevice(const HardwareConfig& hwConf);
 
 	virtual void reset(EmuTime::param time);
 	virtual void powerUp(EmuTime::param time);

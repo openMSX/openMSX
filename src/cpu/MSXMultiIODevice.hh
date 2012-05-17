@@ -13,7 +13,7 @@ class MSXMultiIODevice : public MSXMultiDevice
 public:
 	typedef std::vector<MSXDevice*> Devices;
 
-	explicit MSXMultiIODevice(MSXMotherBoard& motherboard);
+	explicit MSXMultiIODevice(const HardwareConfig& hwConf);
 	virtual ~MSXMultiIODevice();
 
 	void addDevice(MSXDevice* device);

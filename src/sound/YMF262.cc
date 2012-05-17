@@ -1662,11 +1662,11 @@ YMF262::Impl::Impl(YMF262& self, const std::string& name,
 	                       18, true)
 	, debuggable(new YMF262Debuggable(config.getMotherBoard(), self, getName()))
 	, timer1(isYMF278_
-	         ? EmuTimer::createOPL4_1(config.getMotherBoard().getScheduler(), *this)
-	         : EmuTimer::createOPL3_1(config.getMotherBoard().getScheduler(), *this))
+	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
+	         : EmuTimer::createOPL3_1(config.getScheduler(), *this))
 	, timer2(isYMF278_
-	         ? EmuTimer::createOPL4_2(config.getMotherBoard().getScheduler(), *this)
-	         : EmuTimer::createOPL3_2(config.getMotherBoard().getScheduler(), *this))
+	         ? EmuTimer::createOPL4_2(config.getScheduler(), *this)
+	         : EmuTimer::createOPL3_2(config.getScheduler(), *this))
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
 	, lfo_am_cnt(0), lfo_pm_cnt(0)
 	, isYMF278(isYMF278_)

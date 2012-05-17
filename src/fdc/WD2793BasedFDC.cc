@@ -3,7 +3,6 @@
 #include "WD2793BasedFDC.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
-#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -11,8 +10,8 @@ namespace openmsx {
 WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config)
 	: MSXFDC(config)
 	, multiplexer(new DriveMultiplexer(reinterpret_cast<DiskDrive**>(drives)))
-	, controller(new WD2793(getMotherBoard().getScheduler(), *multiplexer,
-	                        getMotherBoard().getMSXCliComm(), getCurrentTime()))
+	, controller(new WD2793(getScheduler(), *multiplexer,
+	                        getCliComm(), getCurrentTime()))
 {
 }
 

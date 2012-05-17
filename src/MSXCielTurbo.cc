@@ -2,7 +2,6 @@
 
 #include "MSXCielTurbo.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "LedStatus.hh"
 #include "serialize.hh"
 
@@ -40,8 +39,8 @@ void MSXCielTurbo::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
 	bool enabled = (value & 0x80) != 0;
 	unsigned freq = 3579545;
 	if (enabled) freq *= 2;
-	getMotherBoard().getCPU().setZ80Freq(freq);
-	getMotherBoard().getLedStatus().setLed(LedStatus::TURBO, enabled);
+	getCPU().setZ80Freq(freq);
+	getLedStatus().setLed(LedStatus::TURBO, enabled);
 }
 
 template<typename Archive>

@@ -12,7 +12,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class CliComm;
 class AlarmEvent;
 
 class SRAM : private EventListener, private noncopyable
@@ -52,7 +51,6 @@ private:
 	const DeviceConfig config;
 	Ram ram;
 	const char* const header;
-	CliComm& cliComm;
 
 	const std::auto_ptr<AlarmEvent> sramSync;
 };

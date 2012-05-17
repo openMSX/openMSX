@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class MSXCPU;
-
 class RomHolyQuran2 : public MSXRom
 {
 public:
@@ -25,7 +23,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	MSXCPU& cpu;
 	const byte* bank[4];
 	bool decrypt;
 };

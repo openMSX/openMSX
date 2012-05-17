@@ -2,7 +2,6 @@
 
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "I8254.hh"
 #include "I8251.hh"
@@ -62,14 +61,13 @@ private:
 
 MSXRS232::MSXRS232(const DeviceConfig& config)
 	: MSXDevice(config)
-	, RS232Connector(getMotherBoard().getPluggingController(), "msx-rs232")
+	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
 	, cntr0(new Counter0(*this))
 	, cntr1(new Counter1(*this))
-	, i8254(new I8254(getMotherBoard().getScheduler(),
+	, i8254(new I8254(getScheduler(),
 	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
 	, interf(new I8251Interf(*this))
-	, i8251(new I8251(getMotherBoard().getScheduler(), *interf,
-	                  getCurrentTime()))
+	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
 	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
 	, ram(config.getChildDataAsBool("ram", false)
 	      ? new Ram(getMotherBoard(), MSXDevice::getName() + " RAM",

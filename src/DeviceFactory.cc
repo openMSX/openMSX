@@ -58,7 +58,6 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
-#include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "components.hh"
@@ -73,13 +72,11 @@ namespace openmsx {
 
 static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
-	CliComm& cliComm = conf.getMotherBoard().getMSXCliComm();
-
 	auto_ptr<MSXDevice> result;
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (styleEl == NULL) {
-		cliComm.printWarning(
+		conf.getCliComm().printWarning(
 			"WD2793 as FDC type without a connectionstyle is "
 			"deprecated, please update your config file to use "
 			"WD2793 with connectionstyle Philips!");
@@ -105,8 +102,6 @@ static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 
 auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
-	CliComm& cliComm = conf.getMotherBoard().getMSXCliComm();
-
 	auto_ptr<MSXDevice> result;
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
@@ -164,13 +159,13 @@ auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	} else if (type == "WD2793") {
 		result = createWD2793BasedFDC(conf);
 	} else if (type == "Microsol") {
-		cliComm.printWarning(
+		conf.getCliComm().printWarning(
 			"Microsol as FDC type is deprecated, please update "
 			"your config file to use WD2793 with connectionstyle "
 			"Microsol!");
 		result.reset(new MicrosolFDC(conf));
 	} else if (type == "MB8877A") {
-		cliComm.printWarning(
+		conf.getCliComm().printWarning(
 			"MB8877A as FDC type is deprecated, please update your "
 			"config file to use WD2793 with connectionstyle National!");
 		result.reset(new NationalFDC(conf));
@@ -240,36 +235,35 @@ static XMLElement createConfig(const std::string& name, const std::string& id)
 }
 
 auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
-		MSXMotherBoard& motherBoard)
+		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("Dummy", "empty"));
 	return auto_ptr<DummyDevice>(new DummyDevice(
-		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(hwConf, xml)));
 }
 
 auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
-		MSXMotherBoard& motherBoard)
+		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
 	return auto_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
-		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(hwConf, xml)));
 }
 
 auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
-		MSXMotherBoard& motherBoard)
+		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
 	return auto_ptr<MSXMapperIO>(new MSXMapperIO(
-		DeviceConfig(*motherBoard.getMachineConfig(), xml)));
+		DeviceConfig(hwConf, xml)));
 }
 
 auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
-		MSXMotherBoard& motherBoard, MSXCPUInterface& cpuInterface)
+		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
 	return auto_ptr<VDPIODelay>(new VDPIODelay(
-		DeviceConfig(*motherBoard.getMachineConfig(), xml),
-		cpuInterface));
+		DeviceConfig(hwConf, xml), cpuInterface));
 }
 
 } // namespace openmsx

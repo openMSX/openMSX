@@ -5,12 +5,12 @@ include build/node-start.mk
 SRC_HDR:= \
 	XMLLoader XMLElement \
 	HardwareConfig \
-	SettingsConfig
+	SettingsConfig \
+	DeviceConfig \
 
 HDR_ONLY:= \
 	ConfigException \
 	XMLException \
-	DeviceConfig
 
 include build/node-end.mk
 

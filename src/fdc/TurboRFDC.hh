@@ -8,7 +8,6 @@
 
 namespace openmsx {
 
-class MSXCPU;
 class TC8566AF;
 
 class TurboRFDC : public MSXFDC
@@ -31,7 +30,6 @@ public:
 private:
 	void setBank(byte value);
 
-	MSXCPU& cpu;
 	const std::auto_ptr<TC8566AF> controller;
 	const byte* memory;
 	const byte blockMask;

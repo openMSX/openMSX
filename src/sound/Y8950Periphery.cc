@@ -6,7 +6,6 @@
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXDevice.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "Ram.hh"
 #include "Rom.hh"
@@ -165,8 +164,7 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 		MSXAudio& audio_, const DeviceConfig& config,
 		const string& soundDeviceName)
 	: audio(audio_)
-	, swSwitch(audio.getMotherBoard().getCommandController(),
-	           soundDeviceName + "_firmware",
+	, swSwitch(audio.getCommandController(), soundDeviceName + "_firmware",
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",
@@ -254,7 +252,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 void PanasonicAudioPeriphery::setBank(byte value)
 {
 	bankSelect = value & 3;
-	audio.getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+	audio.getCPU().invalidateMemCache(0x0000, 0x10000);
 }
 
 void PanasonicAudioPeriphery::setIOPorts(byte value)
@@ -270,7 +268,7 @@ void PanasonicAudioPeriphery::setIOPorts(byte value)
 }
 void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
 {
-	MSXCPUInterface& cpu = audio.getMotherBoard().getCPUInterface();
+	MSXCPUInterface& cpu = audio.getCPUInterface();
 	if (enable) {
 		cpu.register_IO_In (base + 0, &audio);
 		cpu.register_IO_In (base + 1, &audio);

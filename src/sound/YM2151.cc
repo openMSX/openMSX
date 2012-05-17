@@ -11,7 +11,6 @@
 #include "EmuTimer.hh"
 #include "IRQHelper.hh"
 #include "DeviceConfig.hh"
-#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 #include <cmath>
 #include <cstring>
@@ -1018,8 +1017,8 @@ YM2151::Impl::Impl(const std::string& name, const std::string& desc,
                    const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name, desc, 8, true)
 	, irq(config.getMotherBoard(), getName() + ".IRQ")
-	, timer1(EmuTimer::createOPM_1(config.getMotherBoard().getScheduler(), *this))
-	, timer2(EmuTimer::createOPM_2(config.getMotherBoard().getScheduler(), *this))
+	, timer1(EmuTimer::createOPM_1(config.getScheduler(), *this))
+	, timer2(EmuTimer::createOPM_2(config.getScheduler(), *this))
 {
 	// Avoid UMR on savestate
 	// TODO Registers 0x20-0xFF are cleared on reset.

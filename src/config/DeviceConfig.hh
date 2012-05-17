@@ -3,15 +3,18 @@
 #ifndef DEVICECONFIG_HH
 #define DEVICECONFIG_HH
 
-#include "XMLElement.hh"
-#include "HardwareConfig.hh"
 #include <string>
 #include <cassert>
 
 namespace openmsx {
 
+class XMLElement;
 class HardwareConfig;
 class FileContext;
+class MSXMotherBoard;
+class CliComm;
+class CommandController;
+class Scheduler;
 
 class DeviceConfig
 {
@@ -63,49 +66,22 @@ public:
 
 	// convenience methods:
 	//  methods below simply delegate to HardwareConfig or XMLElement
-	const FileContext& getFileContext() const
-	{
-		return getHardwareConfig().getFileContext();
-	}
-	MSXMotherBoard& getMotherBoard() const
-	{
-		return getHardwareConfig().getMotherBoard();
-	}
+	const FileContext& getFileContext() const;
+	MSXMotherBoard& getMotherBoard() const;
+	CliComm& getCliComm() const;
+	CommandController& getCommandController() const;
+	Scheduler& getScheduler() const;
 
-	const XMLElement& getChild(const char* name) const
-	{
-		return getXML()->getChild(name);
-	}
-	const std::string& getChildData(const char* name) const
-	{
-		return getXML()->getChildData(name);
-	}
+	const XMLElement& getChild(const char* name) const;
+	const std::string& getChildData(const char* name) const;
 	std::string getChildData(const char* name,
-	                         const char* defaultValue) const
-	{
-		return getXML()->getChildData(name, defaultValue);
-	}
-	int getChildDataAsInt(const char* name, int defaultValue = 0) const
-	{
-		return getXML()->getChildDataAsInt(name, defaultValue);
-	}
+	                         const char* defaultValue) const;
+	int getChildDataAsInt(const char* name, int defaultValue = 0) const;
 	bool getChildDataAsBool(const char* name,
-	                        bool defaultValue = false) const
-	{
-		return getXML()->getChildDataAsBool(name, defaultValue);
-	}
-	const XMLElement* findChild(const char* name) const
-	{
-		return getXML()->findChild(name);
-	}
-	const std::string& getAttribute(const char* attName) const
-	{
-		return getXML()->getAttribute(attName);
-	}
-	int getAttributeAsInt(const char* attName, int defaultValue = 0) const
-	{
-		return getXML()->getAttributeAsInt(attName, defaultValue);
-	}
+	                        bool defaultValue = false) const;
+	const XMLElement* findChild(const char* name) const;
+	const std::string& getAttribute(const char* attName) const;
+	int getAttributeAsInt(const char* attName, int defaultValue = 0) const;
 
 private:
 	const HardwareConfig* hwConf;

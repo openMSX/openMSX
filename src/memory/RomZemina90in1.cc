@@ -14,7 +14,6 @@
 
 #include "RomZemina90in1.hh"
 #include "MSXCPUInterface.hh"
-#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
@@ -25,12 +24,12 @@ RomZemina90in1::RomZemina90in1(const DeviceConfig& config, std::auto_ptr<Rom> ro
 	: Rom8kBBlocks(config, rom)
 {
 	reset(EmuTime::dummy());
-	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);
+	getCPUInterface().register_IO_Out(0x77, this);
 }
 
 RomZemina90in1::~RomZemina90in1()
 {
-	getMotherBoard().getCPUInterface().unregister_IO_Out(0x77, this);
+	getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
 void RomZemina90in1::reset(EmuTime::param dummy)

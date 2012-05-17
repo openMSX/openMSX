@@ -19,6 +19,7 @@
 #include "SCSIHD.hh"
 #include "SCSILS120.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"

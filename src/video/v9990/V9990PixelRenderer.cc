@@ -23,11 +23,10 @@ namespace openmsx {
 
 V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
-	, eventDistributor(vdp.getMotherBoard().getReactor().getEventDistributor())
+	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
-	, renderSettings(vdp.getMotherBoard().getReactor().getDisplay().
-	                    getRenderSettings())
-	, rasterizer(vdp.getMotherBoard().getReactor().getDisplay().
+	, renderSettings(vdp.getReactor().getDisplay().getRenderSettings())
+	, rasterizer(vdp.getReactor().getDisplay().
 	                getVideoSystem().createV9990Rasterizer(vdp))
 {
 	frameSkipCounter = 999; // force drawing of frame;

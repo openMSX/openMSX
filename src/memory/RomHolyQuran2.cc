@@ -11,7 +11,6 @@
 #include "RomHolyQuran2.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "likely.hh"
@@ -22,7 +21,6 @@ static byte decryptLUT[256];
 
 RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
 	: MSXRom(config, rom_)
-	, cpu(getMotherBoard().getCPU())
 {
 	// protection uses a simple rotation on databus, some lines inverted:
 	//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1
@@ -53,7 +51,7 @@ byte RomHolyQuran2::readMem(word address, EmuTime::param time)
 {
 	byte result = RomHolyQuran2::peekMem(address, time);
 	if (unlikely(!decrypt)) {
-		if (cpu.isM1Cycle(address)) {
+		if (getCPU().isM1Cycle(address)) {
 			// start decryption when we start executing the rom
 			decrypt = true;
 		}

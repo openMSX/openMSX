@@ -46,6 +46,7 @@
 #include "Reactor.hh"
 #include "RomDatabase.hh"
 #include "DeviceConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
 

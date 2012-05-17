@@ -3,6 +3,7 @@
 #include "MSXDevice.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
+#include "HardwareConfig.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
@@ -161,6 +162,38 @@ EmuTime::param MSXDevice::getCurrentTime() const
 {
 	return getMotherBoard().getCurrentTime();
 }
+MSXCPU& MSXDevice::getCPU() const
+{
+	return getMotherBoard().getCPU();
+}
+MSXCPUInterface& MSXDevice::getCPUInterface() const
+{
+	return getMotherBoard().getCPUInterface();
+}
+Scheduler& MSXDevice::getScheduler() const
+{
+	return getMotherBoard().getScheduler();
+}
+CliComm& MSXDevice::getCliComm() const
+{
+	return getMotherBoard().getMSXCliComm();
+}
+Reactor& MSXDevice::getReactor() const
+{
+	return getMotherBoard().getReactor();
+}
+CommandController& MSXDevice::getCommandController() const
+{
+	return getMotherBoard().getCommandController();
+}
+LedStatus& MSXDevice::getLedStatus() const
+{
+	return getMotherBoard().getLedStatus();
+}
+PluggingController& MSXDevice::getPluggingController() const
+{
+	return getMotherBoard().getPluggingController();
+}
 
 void MSXDevice::registerSlots()
 {
@@ -220,7 +253,7 @@ void MSXDevice::registerSlots()
 	// decode special values for 'ss'
 	if ((-128 <= ss) && (ss < 0)) {
 		if ((0 <= ps) && (ps < 4) &&
-		    getMotherBoard().getCPUInterface().isExpanded(ps)) {
+		    getCPUInterface().isExpanded(ps)) {
 			ss += 128;
 		} else {
 			ss = 0;
@@ -237,7 +270,7 @@ void MSXDevice::registerSlots()
 		// numerical specified slot (0, 1, 2, 3)
 	}
 
-	if (!getMotherBoard().getCPUInterface().isExpanded(ps)) {
+	if (!getCPUInterface().isExpanded(ps)) {
 		ss = -1;
 	}
 
@@ -263,7 +296,7 @@ void MSXDevice::registerSlots()
 	int logicalSS = (ss == -1) ? 0 : ss;
 	for (MemRegions::const_iterator it = tmpMemRegions.begin();
 	     it != tmpMemRegions.end(); ++it) {
-		getMotherBoard().getCPUInterface().registerMemDevice(
+		getCPUInterface().registerMemDevice(
 			*this, ps, logicalSS, it->first, it->second);
 		memRegions.push_back(*it);
 	}
@@ -283,7 +316,7 @@ void MSXDevice::unregisterSlots()
 	int logicalSS = (ss == -1) ? 0 : ss;
 	for (MemRegions::const_iterator it = memRegions.begin();
 	     it != memRegions.end(); ++it) {
-		getMotherBoard().getCPUInterface().unregisterMemDevice(
+		getCPUInterface().unregisterMemDevice(
 			*this, ps, logicalSS, it->first, it->second);
 	}
 
@@ -326,14 +359,13 @@ void MSXDevice::registerPorts()
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
-		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
 		for (unsigned port = base; port < base + num; ++port) {
 			if ((type == "I") || (type == "IO")) {
-				cpuInterface.register_IO_In(port, this);
+				getCPUInterface().register_IO_In(port, this);
 				inPorts.push_back(port);
 			}
 			if ((type == "O") || (type == "IO")) {
-				cpuInterface.register_IO_Out(port, this);
+				getCPUInterface().register_IO_Out(port, this);
 				outPorts.push_back(port);
 			}
 		}
@@ -344,11 +376,11 @@ void MSXDevice::unregisterPorts()
 {
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {
-		getMotherBoard().getCPUInterface().unregister_IO_In(*it, this);
+		getCPUInterface().unregister_IO_In(*it, this);
 	}
 	for (vector<byte>::iterator it = outPorts.begin();
 	     it != outPorts.end(); ++it) {
-		getMotherBoard().getCPUInterface().unregister_IO_Out(*it, this);
+		getCPUInterface().unregister_IO_Out(*it, this);
 	}
 }
 
@@ -461,7 +493,7 @@ byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 
 void MSXDevice::invalidateMemCache(word start, unsigned size)
 {
-	getMotherBoard().getCPU().invalidateMemCache(start, size);
+	getCPU().invalidateMemCache(start, size);
 }
 
 template<typename Archive>

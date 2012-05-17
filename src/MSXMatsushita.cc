@@ -2,7 +2,6 @@
 
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
@@ -79,10 +78,10 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, EmuTime::param /*time
 	case 1:
 		if (value & 1) {
 			// bit0 = 1 -> 3.5MHz
-			getMotherBoard().getCPU().setZ80Freq(3579545);
+			getCPU().setZ80Freq(3579545);
 		} else {
 			// bit0 = 0 -> 5.3MHz
-			getMotherBoard().getCPU().setZ80Freq(5369318);	// 3579545 * 3/2
+			getCPU().setZ80Freq(5369318); // 3579545 * 3/2
 		}
 		break;
 	case 3:

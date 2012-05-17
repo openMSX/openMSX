@@ -44,7 +44,7 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassettePort(getMotherBoard().getCassettePort())
 	, renshaTurbo(getMotherBoard().getRenShaTurbo())
-	, i8255(new I8255(*this, getCurrentTime(), getMotherBoard().getMSXCliComm()))
+	, i8255(new I8255(*this, getCurrentTime(), getCliComm()))
 	, click(new KeyClick(config))
 	, keyboard(createKeyboard(config))
 	, prevBits(15)
@@ -66,7 +66,7 @@ void MSXPPI::reset(EmuTime::param time)
 
 void MSXPPI::powerDown(EmuTime::param /*time*/)
 {
-	getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, false);
+	getLedStatus().setLed(LedStatus::CAPS, false);
 }
 
 byte MSXPPI::readIO(word port, EmuTime::param time)
@@ -142,7 +142,7 @@ byte MSXPPI::peekA(EmuTime::param /*time*/) const
 }
 void MSXPPI::writeA(byte value, EmuTime::param /*time*/)
 {
-	getMotherBoard().getCPUInterface().setPrimarySlots(value);
+	getCPUInterface().setPrimarySlots(value);
 }
 
 byte MSXPPI::readB(EmuTime::param time)
@@ -187,7 +187,7 @@ void MSXPPI::writeC1(nibble value, EmuTime::param time)
 		cassettePort.cassetteOut((value & 2) != 0, time);
 	}
 	if ((prevBits ^ value) & 4) {
-		getMotherBoard().getLedStatus().setLed(LedStatus::CAPS, (value & 4) == 0);
+		getLedStatus().setLed(LedStatus::CAPS, (value & 4) == 0);
 	}
 	if ((prevBits ^ value) & 8) {
 		click->setClick((value & 8) != 0, time);

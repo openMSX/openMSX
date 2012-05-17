@@ -24,12 +24,11 @@ bool MSXMultiMemDevice::Range::operator==(const Range& other) const
 }
 
 
-MSXMultiMemDevice::MSXMultiMemDevice(
-		MSXMotherBoard& motherboard, MSXCPUInterface& cpuInterface)
-	: MSXMultiDevice(motherboard)
+MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
+	: MSXMultiDevice(hwConf)
 {
 	// add sentinel at the end
-	ranges.push_back(Range(0x0000, 0x10000, cpuInterface.getDummyDevice()));
+	ranges.push_back(Range(0x0000, 0x10000, getCPUInterface().getDummyDevice()));
 }
 
 MSXMultiMemDevice::~MSXMultiMemDevice()
