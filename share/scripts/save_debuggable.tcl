@@ -1,16 +1,19 @@
 namespace eval save_debuggable {
 
 set_help_text save_debuggable \
-{Save a debuggable to file. Examples of debuggables are memory, VRAM, ...
+{Save (part of) a debuggable to file. Examples of debuggables are memory, VRAM, ...
 Use 'debug list' to get a complete list of all debuggables.
 
 Usage:
   save_debuggable VRAM vram.raw    Save the content of the MSX VRAM to a file
                                    called 'vram.raw'
+  save_debuggable memory mem.sav 0x4000 0x8000
+                                   Save the 32 kB content of the memory debuggable
+                                   starting from 0x4000 to a file called 'mem.sav'
 }
-proc save_debuggable {debuggable filename} {
-	set size [debug size $debuggable]
-	set data [debug read_block $debuggable 0 $size]
+proc save_debuggable {debuggable filename {start 0} {size 0}} {
+	if {$size == 0} { set size [debug size $debuggable] }
+	set data [debug read_block $debuggable $start $size]
 	set file [open $filename "WRONLY CREAT TRUNC"]
 	fconfigure $file -translation binary -buffersize $size
 	puts -nonewline $file $data
@@ -18,18 +21,18 @@ proc save_debuggable {debuggable filename} {
 }
 
 set_help_text load_debuggable \
-{Load a raw data file into a certain debuggable (see also save_debuggable).
+{Load a raw data file (somewhere) into a certain debuggable (see also save_debuggable).
 Note that saving and reloading the same data again does not always bring the
 MSX in the same state (e.g. the subslotregister). Use 'savestate' and 'loadstate'
 if you want that.
 }
-proc load_debuggable {debuggable filename} {
-	set size [debug size $debuggable]
+proc load_debuggable {debuggable filename {start 0}} {
+	set size [file size $filename]
 	set file [open $filename "RDONLY"]
 	fconfigure $file -translation binary -buffersize $size
 	set data [read $file]
 	close $file
-	debug write_block $debuggable 0 $data
+	debug write_block $debuggable $start $data
 }
 
 set_tabcompletion_proc save_debuggable [namespace code tab_loadsave_debuggable]
