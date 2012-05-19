@@ -127,12 +127,25 @@ proc vram2bmp {filename start dx dy} {
 	close $file
 }
 
+set_help_text save_to_file \
+{Helper proc to easily write something to a file.
+Typically used in combination with another proc. For example:
+  save_to_file my_data.hex [showmem 0x8000 20]
+}
+proc save_to_file {filename data} {
+	set file [open $filename "WRONLY CREAT TRUNC"]
+	fconfigure $file -translation binary
+	puts -nonewline $file $data
+	close $file
+}
+
 namespace export save_debuggable
 namespace export load_debuggable
 namespace export save_all
 namespace export load_all
 namespace export vramdump
 namespace export vram2bmp
+namespace export save_to_file
 
 } ;# namespace save_debuggable
 
