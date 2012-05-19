@@ -107,7 +107,6 @@ private:
 	unsigned maxCluster;
 	unsigned sectorsPerCluster;
 	unsigned sectorsPerFat;
-	unsigned nbSectorsPerCluster;
 	unsigned rootDirStart; // first sector from the root directory
 	unsigned rootDirLast;  // last  sector from the root directory
 	unsigned chrootSector;
