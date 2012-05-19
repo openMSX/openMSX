@@ -12,7 +12,7 @@ Usage:
                                    starting from 0x4000 to a file called 'mem.sav'
 }
 proc save_debuggable {debuggable filename {start 0} {size 0}} {
-	if {$size == 0} { set size [debug size $debuggable] }
+	# || [expr $start + $size] > [debug size $debuggable]} {
 	set data [debug read_block $debuggable $start $size]
 	set file [open $filename "WRONLY CREAT TRUNC"]
 	fconfigure $file -translation binary -buffersize $size
