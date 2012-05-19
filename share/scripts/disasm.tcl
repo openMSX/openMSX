@@ -164,6 +164,11 @@ set_help_text step_in \
 proc step_in {} {
 	debug step
 }
+set_help_text step \
+{Same as step_in.}
+proc step {} {
+	debug step
+}
 
 
 #
@@ -371,6 +376,7 @@ namespace export step_over
 namespace export step_back
 namespace export step_out
 namespace export step_in
+namespace export step
 namespace export skip_instruction
 
 } ;# namespace disasm
