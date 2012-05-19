@@ -347,7 +347,7 @@ bool XMLElement::findAttributeInt(const char* attName,
 	}
 }
 
-const XMLElement& XMLElement::operator=(const XMLElement& element)
+XMLElement& XMLElement::operator=(const XMLElement& element)
 {
 	if (&element == this) {
 		// assign to itself

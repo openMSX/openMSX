@@ -29,7 +29,7 @@ public:
 	XMLElement(const std::string& name, const std::string& data);
 	XMLElement(const char* name, const char* data);
 	XMLElement(const XMLElement& element);
-	const XMLElement& operator=(const XMLElement& element);
+	XMLElement& operator=(const XMLElement& element);
 	~XMLElement();
 
 	// name
