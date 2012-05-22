@@ -43,6 +43,7 @@
  */
 
 #include "MegaSCSI.hh"
+#include "RomBlockDebuggable.hh"
 #include "MB89352.hh"
 #include "SRAM.hh"
 #include "StringOp.hh"
@@ -71,6 +72,7 @@ MegaSCSI::MegaSCSI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, mb89352(new MB89352(config))
 	, sram(createSRAM(config, getName()))
+	, romBlockDebug(new RomBlockDebuggable(*this, mapped, 0x4000, 0x8000, 13))
 	, blockMask((sram->getSize() / 0x2000) - 1)
 {
 }

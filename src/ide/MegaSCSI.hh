@@ -10,6 +10,7 @@ namespace openmsx {
 
 class MB89352;
 class SRAM;
+class RomBlockDebuggable;
 
 class MegaSCSI : public MSXDevice
 {
@@ -33,6 +34,7 @@ private:
 
 	const std::auto_ptr<MB89352> mb89352;
 	const std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // SPC block mapped in this region?

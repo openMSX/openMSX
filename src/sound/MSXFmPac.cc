@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXFmPac.hh"
+#include "RomBlockDebuggable.hh"
 #include "SRAM.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
@@ -13,6 +14,7 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusic(config)
 	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, romBlockDebug(new RomBlockDebuggable(*this, &bank, 0x4000, 0x4000, 14))
 {
 	reset(getCurrentTime());
 }

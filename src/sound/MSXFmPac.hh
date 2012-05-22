@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class SRAM;
+class RomBlockDebuggable;
 
 class MSXFmPac : public MSXMusic
 {
@@ -31,6 +32,7 @@ private:
 	void checkSramEnable();
 
 	const std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	byte enable;
 	byte bank;
 	byte r1ffe, r1fff;

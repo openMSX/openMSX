@@ -13,6 +13,7 @@ namespace openmsx {
 class SCC;
 class AY8910;
 class AmdFlash;
+class RomBlockDebuggable;
 
 class RomManbow2 : public MSXRom
 {
@@ -42,6 +43,7 @@ private:
 	const std::auto_ptr<SCC> scc;
 	const std::auto_ptr<AY8910> psg;
 	const std::auto_ptr<AmdFlash> flash;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	byte psgLatch;
 	byte bank[4];
 	bool sccEnabled;

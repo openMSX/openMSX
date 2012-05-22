@@ -23,6 +23,7 @@
  */
 
 #include "ESE_RAM.hh"
+#include "RomBlockDebuggable.hh"
 #include "SRAM.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
@@ -47,6 +48,7 @@ static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
 ESE_RAM::ESE_RAM(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sram(createSRAM(config, getName()))
+	, romBlockDebug(new RomBlockDebuggable(*this, mapped, 0x4000, 0x8000, 13))
 	, blockMask((sram->getSize() / 8192) - 1)
 {
 	reset(EmuTime::dummy());

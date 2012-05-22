@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class SRAM;
+class RomBlockDebuggable;
 
 class ESE_RAM : public MSXDevice
 {
@@ -30,6 +31,7 @@ private:
 	void setSRAM(unsigned region, byte block);
 
 	const std::auto_ptr<SRAM> sram;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // which block is mapped in this region?

@@ -5,6 +5,7 @@
 //
 
 #include "RomDooly.hh"
+#include "RomBlockDebuggable.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
@@ -13,6 +14,7 @@ namespace openmsx {
 
 RomDooly::RomDooly(const DeviceConfig& config, std::auto_ptr<Rom> rom)
 	: MSXRom(config, rom)
+	, romBlockDebug(new RomBlockDebuggable(*this, &conversion, 0x4000, 0x8000, 15))
 {
 	conversion = 0;
 }

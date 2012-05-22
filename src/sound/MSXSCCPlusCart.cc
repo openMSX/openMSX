@@ -4,6 +4,7 @@
 // renaming, which isn't worth it right now. TODO rename this :)
 
 #include "MSXSCCPlusCart.hh"
+#include "RomBlockDebuggable.hh"
 #include "SCC.hh"
 #include "Ram.hh"
 #include "File.hh"
@@ -20,6 +21,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
 	, ram(new Ram(getMotherBoard(), getName() + " RAM", "SCC+ RAM", 0x20000))
 	, scc(new SCC(getName(), config, getCurrentTime(), SCC::SCC_Compatible))
+	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 13))
 {
 	if (const XMLElement* fileElem = config.findChild("filename")) {
 		// read the rom file

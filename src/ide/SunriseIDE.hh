@@ -10,6 +10,7 @@ namespace openmsx {
 
 class IDEDevice;
 class Rom;
+class RomBlockDebuggable;
 
 class SunriseIDE : public MSXDevice
 {
@@ -40,6 +41,7 @@ private:
 	void writeReg(nibble reg, byte value, EmuTime::param time);
 
 	const std::auto_ptr<Rom> rom;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	std::auto_ptr<IDEDevice> device[2];
 	const byte* internalBank;
 	byte readLatch;

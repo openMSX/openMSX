@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SunriseIDE.hh"
+#include "RomBlockDebuggable.hh"
 #include "IDEDeviceFactory.hh"
 #include "IDEDevice.hh"
 #include "Rom.hh"
@@ -12,6 +13,7 @@ namespace openmsx {
 SunriseIDE::SunriseIDE(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(new Rom(getName() + " ROM", "rom", config))
+	, romBlockDebug(new RomBlockDebuggable(*this, &control, 0x4000, 0x4000, 14))
 {
 	device[0] = IDEDeviceFactory::create(
 		DeviceConfig(config, config.findChild("master")));

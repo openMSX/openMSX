@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class RomBlockDebuggable;
+
 class RomDooly : public MSXRom
 {
 public:
@@ -23,6 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	byte conversion;
 };
 
