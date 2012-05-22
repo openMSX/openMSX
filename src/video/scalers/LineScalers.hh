@@ -681,20 +681,22 @@ void Scale_1on1<Pixel, streaming>::operator()(
 
 	#if ASM_X86
 
-	nBytes2 = nBytes & ~63;
-	assert((nBytes2 % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 
 	#ifdef _MSC_VER
 
 	if (streaming && cpu.hasSSE()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
+		nBytes2 = nBytes & ~63;
+		assert((nBytes2 % 64) == 0);
 		Scale_1on1_SSE(in, out, nBytes2);
 	}
 
 	#else
 
 	if (streaming && cpu.hasSSE()) {
+		nBytes2 = nBytes & ~63;
+		assert((nBytes2 % 64) == 0);
 		unsigned long dummy;
 		asm volatile (
 			".p2align 4,,15;"
@@ -735,6 +737,8 @@ void Scale_1on1<Pixel, streaming>::operator()(
 
 	} else if (cpu.hasMMX()) {
 		// MMX routine (both 16bpp and 32bpp)
+		nBytes2 = nBytes & ~63;
+		assert((nBytes2 % 64) == 0);
 		unsigned long dummy;
 		asm volatile (
 			".p2align 4,,15;"
