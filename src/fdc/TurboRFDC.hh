@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class TC8566AF;
+class RomBlockDebuggable;
 
 class TurboRFDC : public MSXFDC
 {
@@ -31,6 +32,7 @@ private:
 	void setBank(byte value);
 
 	const std::auto_ptr<TC8566AF> controller;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 	const byte* memory;
 	const byte blockMask;
 	byte bank;

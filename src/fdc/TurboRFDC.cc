@@ -5,6 +5,7 @@
  */
 
 #include "TurboRFDC.hh"
+#include "RomBlockDebuggable.hh"
 #include "TC8566AF.hh"
 #include "MSXCPU.hh"
 #include "Rom.hh"
@@ -19,6 +20,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	                          reinterpret_cast<DiskDrive**>(drives),
 	                          getCliComm(),
 	                          getCurrentTime()))
+	, romBlockDebug(new RomBlockDebuggable(*this, &bank, 0x4000, 0x4000, 14))
 	, blockMask((rom->getSize() / 0x4000) - 1)
 {
 	reset(getCurrentTime());
