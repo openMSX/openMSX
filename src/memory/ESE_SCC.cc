@@ -80,7 +80,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	, sram(createSRAM(config, withSCSI, getName()))
 	, scc(new SCC(getName(), config, getCurrentTime()))
 	, spc(withSCSI ? new MB89352(config) : NULL)
-	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 14))
+	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 13))
 	, mapperMask((sram->getSize() / 0x2000) - 1)
 {
 	// initialized mapper

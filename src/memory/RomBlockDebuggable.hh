@@ -11,7 +11,7 @@ class RomBlockDebuggable : public SimpleDebuggable
 public:
 	RomBlockDebuggable(const MSXDevice& device, const byte* blockNr_,
 	                   unsigned startAddress_, unsigned mappedSize_,
-	                   unsigned bankSizeShift_, unsigned debugShift_ = 1)
+	                   unsigned bankSizeShift_, unsigned debugShift_ = 0)
 		: SimpleDebuggable(
 			device.getMotherBoard(),
 			device.getName() + " romblocks",
