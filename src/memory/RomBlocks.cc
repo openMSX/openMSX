@@ -1,6 +1,7 @@
 // $Id$
 
 #include "RomBlocks.hh"
+#include "RomBlockDebuggable.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "SimpleDebuggable.hh"
@@ -10,33 +11,6 @@
 #include "unreachable.hh"
 
 namespace openmsx {
-
-class RomBlockDebuggable : public SimpleDebuggable
-{
-public:
-	RomBlockDebuggable(MSXRom& rom, const byte* blockNr_,
-	                   unsigned bankSizeShift_, unsigned debugShift_)
-		: SimpleDebuggable(rom.getMotherBoard(),
-		                   rom.getName() + " romblocks",
-		                   "Shows for each byte of the mapper which memory block is selected.",
-		                   0x10000)
-		, blockNr(blockNr_), bankSizeShift(bankSizeShift_)
-		, debugShift(debugShift_), debugMask(~((1 << debugShift) - 1))
-	{
-	}
-
-	virtual byte read(unsigned address)
-	{
-		byte tmp = blockNr[(address >> bankSizeShift) & debugMask];
-		return (tmp != 255) ? (tmp >> debugShift) : tmp;
-	}
-
-private:
-	const byte* blockNr;
-	const unsigned bankSizeShift;
-	const unsigned debugShift;
-	const unsigned debugMask;
-};
 
 template<bool C, class T, class F> struct if_log2_             : F {};
 template<        class T, class F> struct if_log2_<true, T, F> : T {};
@@ -49,8 +23,9 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		const DeviceConfig& config, std::auto_ptr<Rom> rom_,
 		unsigned debugBankSizeShift)
 	: MSXRom(config, rom_)
-	, romBlockDebug(new RomBlockDebuggable(*this, blockNr,
-	                         log2<BANK_SIZE>::value, debugBankSizeShift))
+	, romBlockDebug(new RomBlockDebuggable(
+		*this,  blockNr, 0x0000, 0x10000,
+		log2<BANK_SIZE>::value, debugBankSizeShift))
 	, nrBlocks(rom->getSize() / BANK_SIZE)
 {
 	if ((nrBlocks * BANK_SIZE) != rom->getSize()) {

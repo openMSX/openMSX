@@ -11,6 +11,7 @@ namespace openmsx {
 class SRAM;
 class SCC;
 class MB89352;
+class RomBlockDebuggable;
 
 class ESE_SCC : public MSXDevice
 {
@@ -37,6 +38,7 @@ private:
 	const std::auto_ptr<SRAM> sram;
 	const std::auto_ptr<SCC> scc;
 	const std::auto_ptr<MB89352> spc;
+	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
 
 	const byte mapperMask;
 	byte mapper[4];

@@ -33,7 +33,8 @@ SRC_HDR:= \
 	MegaFlashRomSCCPlus
 
 HDR_ONLY:= \
-	RomTypes
+	RomTypes \
+	RomBlockDebuggable \
 
 include build/node-end.mk
 
