@@ -27,6 +27,7 @@
 #include "MSXMegaRam.hh"
 #include "Ram.hh"
 #include "Rom.hh"
+#include "RomBlockDebuggable.hh"
 #include "Math.hh"
 #include "serialize.hh"
 
@@ -40,6 +41,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	, rom(config.findChild("rom")
 	      ? new Rom(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : NULL)
+	, romBlockDebug(new RomBlockDebuggable(*this, bank, 0x0000, 0x10000, 13, 0, 3))
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
 	powerUp(EmuTime::dummy());

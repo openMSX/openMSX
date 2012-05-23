@@ -31,6 +31,16 @@ public:
 		, debugShift(debugShift_), debugMask(~((1 << debugShift) - 1))
 	{
 	}
+	RomBlockDebuggable(const MSXDevice& device, const byte* blockNr_,
+	                   unsigned startAddress_, unsigned mappedSize_,
+	                   unsigned bankSizeShift_, unsigned debugShift_,
+	                   unsigned debugMask_)
+		: RomBlockDebuggableBase(device)
+		, blockNr(blockNr_), startAddress(startAddress_)
+		, mappedSize(mappedSize_), bankSizeShift(bankSizeShift_)
+		, debugShift(debugShift_), debugMask(debugMask_)
+	{
+	}
 
 	virtual byte read(unsigned address)
 	{
