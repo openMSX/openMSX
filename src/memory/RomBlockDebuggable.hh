@@ -6,17 +6,26 @@
 
 namespace openmsx {
 
-class RomBlockDebuggable : public SimpleDebuggable
+class RomBlockDebuggableBase : public SimpleDebuggable
 {
 public:
-	RomBlockDebuggable(const MSXDevice& device, const byte* blockNr_,
-	                   unsigned startAddress_, unsigned mappedSize_,
-	                   unsigned bankSizeShift_, unsigned debugShift_ = 0)
+	RomBlockDebuggableBase(const MSXDevice& device)
 		: SimpleDebuggable(
 			device.getMotherBoard(),
 			device.getName() + " romblocks",
 		        "Shows for each byte of the mapper which memory block is selected.",
 		        0x10000)
+	{
+	}
+};
+
+class RomBlockDebuggable : public RomBlockDebuggableBase
+{
+public:
+	RomBlockDebuggable(const MSXDevice& device, const byte* blockNr_,
+	                   unsigned startAddress_, unsigned mappedSize_,
+	                   unsigned bankSizeShift_, unsigned debugShift_ = 0)
+		: RomBlockDebuggableBase(device)
 		, blockNr(blockNr_), startAddress(startAddress_)
 		, mappedSize(mappedSize_), bankSizeShift(bankSizeShift_)
 		, debugShift(debugShift_), debugMask(~((1 << debugShift) - 1))

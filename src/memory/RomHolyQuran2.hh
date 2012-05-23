@@ -7,6 +7,8 @@
 
 namespace openmsx {
 
+class Quran2RomBlocks;
+
 class RomHolyQuran2 : public MSXRom
 {
 public:
@@ -23,8 +25,11 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	const std::auto_ptr<Quran2RomBlocks> romBlocks;
 	const byte* bank[4];
 	bool decrypt;
+
+	friend class Quran2RomBlocks;
 };
 
 } // namespace openmsx

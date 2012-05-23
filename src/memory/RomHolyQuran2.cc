@@ -9,6 +9,7 @@
 // sharing his implementation with us (and pointing us to it).
 
 #include "RomHolyQuran2.hh"
+#include "RomBlockDebuggable.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
 #include "MSXException.hh"
@@ -17,10 +18,21 @@
 
 namespace openmsx {
 
+class Quran2RomBlocks : public RomBlockDebuggableBase
+{
+public:
+	Quran2RomBlocks(RomHolyQuran2& device);
+	virtual byte read(unsigned address);
+private:
+	RomHolyQuran2& device;
+};
+
+
 static byte decryptLUT[256];
 
 RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
 	: MSXRom(config, rom_)
+	, romBlocks(new Quran2RomBlocks(*this))
 {
 	// protection uses a simple rotation on databus, some lines inverted:
 	//   out0 = ~in3   out1 =  in7   out2 = ~in5   out3 = ~in1
@@ -120,5 +132,19 @@ void RomHolyQuran2::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(RomHolyQuran2);
 REGISTER_MSXDEVICE(RomHolyQuran2, "RomHolyQuran2");
+
+
+Quran2RomBlocks::Quran2RomBlocks(RomHolyQuran2& device_)
+	: RomBlockDebuggableBase(device_)
+	, device(device_)
+{
+}
+
+byte Quran2RomBlocks::read(unsigned address)
+{
+	if ((address < 0x4000) || (address >= 0xc000)) return 255;
+	unsigned page = (address - 0x4000) / 0x2000;
+	return (device.bank[page] - &(*device.rom)[0]) / 0x2000;
+}
 
 } // namespace openmsx
