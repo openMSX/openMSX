@@ -173,9 +173,25 @@ const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
 void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 {
 	widget->setParent(this);
-	subWidgets.push_back(widget);
 	subWidgetsMap[widget->getName()] = widget.get();
-	resort();
+
+	// Insert the new widget in the correct place (sorted on ascending Z)
+	// heuristic: often we have either
+	//  - many widgets with all the same Z
+	//  - only a few total number of subwidgets (possibly with different Z)
+	// In the former case we can simply append at the end. In the latter
+	// case a linear search is probably faster than a binary search. Only
+	// when there are many sub-widgets with not all the same Z (and not
+	// created in sorted Z-order) a binary search would be faster.
+	double z = widget->getZ();
+	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
+		subWidgets.push_back(widget);
+	} else {
+		SubWidgets::iterator it = subWidgets.begin();
+		while ((*it)->getZ() <= z) ++it;
+		subWidgets.insert(it, widget);
+
+	}
 }
 
 void OSDWidget::deleteWidget(OSDWidget& widget)
@@ -194,15 +210,61 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 	UNREACHABLE;
 }
 
+#ifdef DEBUG
+template<class ForwardIterator, class StrictWeakOrdering>
+bool is_sorted(ForwardIterator first, ForwardIterator last,
+               StrictWeakOrdering comp)
+{
+	if (first == last) return true;
+	ForwardIterator next = first;
+	++next;
+	while (next != last) {
+		if (comp(*next, *first)) return false;
+		++first; ++next;
+	}
+	return true;
+}
 struct AscendingZ {
 	bool operator()(const shared_ptr<OSDWidget>& lhs,
 	                const shared_ptr<OSDWidget>& rhs) const {
 		return lhs->getZ() < rhs->getZ();
 	}
 };
-void OSDWidget::resort()
+#endif
+void OSDWidget::resortUp(OSDWidget* elem)
 {
-	std::stable_sort(subWidgets.begin(), subWidgets.end(), AscendingZ());
+	// z-coordinate was increased, first search for elements current position
+	SubWidgets::iterator it1 = subWidgets.begin();
+	while (it1->get() != elem) ++it1;
+	// next search for the position were it belongs
+	double z = elem->getZ();
+	SubWidgets::iterator it2 = it1;
+	++it2;
+	while ((it2 != subWidgets.end()) && ((*it2)->getZ() < z)) ++it2;
+	// now move elements to correct position
+	rotate(it1, it1 + 1, it2);
+#ifdef DEBUG
+	assert(is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+#endif
+}
+void OSDWidget::resortDown(OSDWidget* elem)
+{
+	// z-coordinate was decreased, first search for new position
+	SubWidgets::iterator it1 = subWidgets.begin();
+	double z = elem->getZ();
+	while ((*it1)->getZ() <= z) {
+		++it1;
+		if (it1 == subWidgets.end()) return;
+	}
+	// next search for the elements current position
+	SubWidgets::iterator it2 = it1;
+	if ((it2 != subWidgets.begin()) && ((it2 - 1)->get() == elem)) return;
+	while (it2->get() != elem) ++it2;
+	// now move elements to correct position
+	rotate(it1, it2, it2 + 1);
+#ifdef DEBUG
+	assert(is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+#endif
 }
 
 void OSDWidget::getProperties(set<string>& result) const
@@ -232,9 +294,15 @@ void OSDWidget::setProperty(const string& name, const TclObject& value)
 	} else if (name == "-z") {
 		double z2 = value.getDouble();
 		if (z != z2) {
+			bool up = z2 > z; // was z increased?
 			z = z2;
 			if (OSDWidget* parent = getParent()) {
-				parent->resort();
+				// TODO no need for a full sort: instead remove and re-insert in the correct place
+				if (up) {
+					parent->resortUp(this);
+				} else {
+					parent->resortDown(this);
+				}
 			}
 		}
 	} else if (name == "-relx") {

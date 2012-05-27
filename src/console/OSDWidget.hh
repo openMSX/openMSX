@@ -69,7 +69,8 @@ private:
 	                      double x, double y,
 	                      double& outx, double& outy) const;
 	void setParent(OSDWidget* parent);
-	void resort();
+	void resortUp  (OSDWidget* elem);
+	void resortDown(OSDWidget* elem);
 
 	void listWidgetNames(const std::string& parentName,
 	                     std::set<std::string>& result) const;
