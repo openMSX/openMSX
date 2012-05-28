@@ -106,7 +106,7 @@ void HotKey::initDefaultBindings()
 		// Hot key combos using Mac's Command key.
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_D, Keys::KM_META))),
-		            HotKeyInfo("screenshot"));
+		            HotKeyInfo("screenshot -guess-name"));
 		bindDefault(EventPtr(new KeyDownEvent(
 		               Keys::combine(Keys::K_P, Keys::KM_META))),
 		            HotKeyInfo("toggle pause"));
@@ -128,7 +128,7 @@ void HotKey::initDefaultBindings()
 	} else {
 		// Hot key combos for typical PC keyboards.
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PRINT)),
-		            HotKeyInfo("screenshot"));
+		            HotKeyInfo("screenshot -guess-name"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PAUSE)),
 		            HotKeyInfo("toggle pause"));
 		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F9)),
