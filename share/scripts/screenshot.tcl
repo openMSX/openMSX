@@ -8,6 +8,9 @@ proc screenshot {args} {
 	foreach arg $args {
 		if {$arg eq "-no-sprites"} {
 			set sprites false
+		} elseif {$arg eq "-guess-name"} {
+			set base [guess_title]
+			if {$base ne ""} {lappend args2 -prefix "$base "}
 		} else {
 			lappend args2 $arg
 		}
