@@ -92,15 +92,23 @@ namespace export data_file
 namespace import openmsx::*
 
 namespace eval openmsx {
+
 # Source all .tcl files in user and system scripts directory. Prefer
 # the version in the user directory in case a script exists in both
 set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
 set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
+set profile_list [list]
 foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 	set script [data_file scripts/$script]
+	set t1 [openmsx_info realtime]
 	if {[catch {namespace eval :: [list source $script]}]} {
 		puts stderr "Error while executing $script\n$errorInfo"
 	}
+	set t2 [openmsx_info realtime]
+	lappend profile_list [list [expr {int(1000000 * ($t2 - $t1))}] $script]
+}
+if 0 {
+	foreach e [lsort -integer -index 0 $profile_list] { puts stderr $e }
 }
 
 } ;# namespace openmsx

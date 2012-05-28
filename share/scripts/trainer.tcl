@@ -16,15 +16,24 @@ Examples:
 When switching trainers, the currently active trainer will be deactivated.
 "
 
-variable trainers
+variable trainers ""
 variable active_trainer ""
 variable items_active
 variable after_id 0
 
+proc load_trainers {} {
+	variable trainers
+	if {[dict size $trainers] == 0} {
+		# source the trainer definitions (user may override system defaults) and ignore errors
+		catch {source $::env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}
+		catch {source $::env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}
+	}
+	return $trainers
+}
+
 set_tabcompletion_proc trainer [namespace code tab_trainer] false
 proc tab_trainer {args} {
-	variable trainers
-
+	set trainers [load_trainers]
 	if {[llength $args] == 2} {
 		set result [dict keys $trainers]
 		lappend result "deactivate"
@@ -45,9 +54,9 @@ proc tab_trainer {args} {
 }
 
 proc trainer {args} {
-	variable trainers
 	variable active_trainer
 	variable items_active
+	set trainers [load_trainers]
 
 	if {[llength $args] > 0} {
 		set name [lindex $args 0]
@@ -144,10 +153,6 @@ proc create_trainer {name repeat items} {
 	variable trainers
 	dict set trainers $name [dict create items $items repeat $repeat]
 }
-
-# source the trainer definitions (user may override system defaults) and ignore errors
-catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}
-catch {source $env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}
 
 namespace export trainer
 
