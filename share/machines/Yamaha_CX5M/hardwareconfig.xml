@@ -73,7 +73,8 @@
           <volume>13000</volume>
         </sound>
         <rom>
-          <sha1>6680d7118d85418813f1db9449bf3e20942b16da</sha1> <!-- M5.01.011? -->
+          <sha1>3e85d2a374c7ea0449d5a69b13f445376060611c</sha1> <!-- confirmed by Henk Koekoek -->
+          <sha1>6680d7118d85418813f1db9449bf3e20942b16da</sha1>
           <filename>roms/sfg-05.rom</filename>
         </rom>
       </YamahaSFG>
