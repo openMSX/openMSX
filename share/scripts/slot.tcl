@@ -65,7 +65,27 @@ set_help_text pc_in_slot \
 {Test whether the CPU's program counter is inside a certain slot.
 Typically used to set breakpoints in specific slots.}
 proc pc_in_slot {ps {ss "X"} {mapper "X"}} {
-	set page [expr {[reg PC] >> 14}]
+	return [address_in_slot [reg PC] $ps $ss $mapper]
+}
+
+#
+# watch_in_slot
+#
+set_help_text watch_in_slot \
+{Test whether the address watched is inside a certain slot.
+To be used only to set watchpoints in specific slots.}
+proc watch_in_slot {ps {ss "X"} {mapper "X"}} {
+	return [address_in_slot $::wp_last_address $ps $ss $mapper]
+}
+
+#
+# helper proc for pc_in_slot and watch_in_slot
+#
+set_help_text address_in_slot \
+{Test whether an address is inside a certain slot.
+Typically used by pc_in_slot and watch_in_slot.}
+proc address_in_slot {addr ps {ss "X"} {mapper "X"}} {
+	set page [expr {$addr >> 14}]
 	lassign [get_selected_slot $page] pc_ps pc_ss
 	if {($ps ne "X") &&                    ($pc_ps != $ps)} {return false}
 	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return false}
@@ -155,6 +175,8 @@ namespace export get_selected_slot
 namespace export slotselect
 namespace export get_mapper_size
 namespace export pc_in_slot
+namespace export watch_in_slot
+namespace export address_in_slot
 namespace export slotmap
 namespace export iomap
 
