@@ -23,7 +23,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>jp_ansi</keyboard_type> <!-- not sure yet -->
+      <keyboard_type>jp_ansi</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected> <!-- not sure yet -->
       <code_kana_locks>true</code_kana_locks>
@@ -37,7 +37,7 @@
 
     <PSG id="PSG">
       <type>AY8910</type>
-      <keyboardlayout>50on</keyboardlayout> <!-- not sure yet -->
+      <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
