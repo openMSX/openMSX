@@ -14,7 +14,9 @@ using std::string;
 namespace openmsx {
 
 typedef std::map<RomType, string> Description;
+typedef std::map<RomType, int> BlockSize;
 static Description description;
+static BlockSize blocksize;
 
 RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	: InfoTopic(openMSXInfoCommand, "romtype")
@@ -98,6 +100,86 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_SYNTHESIZER] = "Konami's Synthesizer";
 	description[ROM_PLAYBALL] = "Sony's PlayBall";
 	description[ROM_NETTOU_YAKYUU] = "Nettou Yakuu";
+
+	blocksize[ROM_GENERIC_8KB] = 0x2000;
+	blocksize[ROM_GENERIC_16KB] = 0x4000;
+	blocksize[ROM_KONAMI_SCC] = 0x2000;
+	blocksize[ROM_KONAMI] = 0x2000;
+	blocksize[ROM_KBDMASTER] = 0x4000;	// officially plain 16K
+	blocksize[ROM_ASCII8] = 0x2000;
+	blocksize[ROM_ASCII16] = 0x4000;
+	blocksize[ROM_PADIAL8] = 0x2000;
+	blocksize[ROM_PADIAL16] = 0x4000;
+	blocksize[ROM_SUPERLODERUNNER] = 0x4000;
+	blocksize[ROM_R_TYPE] = 0x4000;
+	blocksize[ROM_CROSS_BLAIM] = 0x4000;
+	blocksize[ROM_MSXDOS2] = 0x4000;
+	blocksize[ROM_MSX_AUDIO] = 0x0000;	// todo: romblocks debuggable
+	blocksize[ROM_HARRY_FOX] = 0x4000;
+	blocksize[ROM_HALNOTE] = 0x2000;
+	blocksize[ROM_ZEMINA80IN1] = 0x2000;
+	blocksize[ROM_ZEMINA90IN1] = 0x2000;
+	blocksize[ROM_ZEMINA126IN1] = 0x2000;
+	blocksize[ROM_HOLY_QURAN]  = 0x2000;
+	blocksize[ROM_HOLY_QURAN2] = 0x2000;
+	blocksize[ROM_FSA1FM1] = 0x0000;	// todo: romblocks debuggable?
+	blocksize[ROM_FSA1FM2] = 0x2000;
+	blocksize[ROM_DRAM] = 0x2000;
+	blocksize[ROM_MANBOW2] = 0x2000;
+	blocksize[ROM_MANBOW2_2] = 0x2000;
+	blocksize[ROM_HAMARAJANIGHT] = 0x2000;
+	blocksize[ROM_MEGAFLASHROMSCC] = 0x2000;
+	blocksize[ROM_MATRAINK] = 0x0000;
+	blocksize[ROM_ARC] = 0x4000;		// officially plain 32K
+	blocksize[ROM_DOOLY] = 0x4000;		// officially 32K blocksize, but spread over 2 pages
+
+	blocksize[ROM_MIRRORED] = 0x2000;
+	blocksize[ROM_MIRRORED0000] = 0x2000;
+	blocksize[ROM_MIRRORED2000] = 0x2000;
+	blocksize[ROM_MIRRORED4000] = 0x2000;
+	blocksize[ROM_MIRRORED6000] = 0x2000;
+	blocksize[ROM_MIRRORED8000] = 0x2000;
+	blocksize[ROM_MIRROREDA000] = 0x2000;
+	blocksize[ROM_MIRROREDC000] = 0x2000;
+	blocksize[ROM_MIRROREDE000] = 0x2000;
+	blocksize[ROM_NORMAL] = 0x2000;
+	blocksize[ROM_NORMAL0000] = 0x2000;
+	blocksize[ROM_NORMAL2000] = 0x2000;
+	blocksize[ROM_NORMAL4000] = 0x2000;
+	blocksize[ROM_NORMAL6000] = 0x2000;
+	blocksize[ROM_NORMAL8000] = 0x2000;
+	blocksize[ROM_NORMALA000] = 0x2000;
+	blocksize[ROM_NORMALC000] = 0x2000;
+	blocksize[ROM_NORMALE000] = 0x2000;
+	blocksize[ROM_PAGE0]    = 0x2000;
+	blocksize[ROM_PAGE1]    = 0x2000;
+	blocksize[ROM_PAGE2]    = 0x2000;
+	blocksize[ROM_PAGE3]    = 0x2000;
+	blocksize[ROM_PAGE01]   = 0x2000;
+	blocksize[ROM_PAGE02]   = 0x2000;
+	blocksize[ROM_PAGE03]   = 0x2000;
+	blocksize[ROM_PAGE12]   = 0x2000;
+	blocksize[ROM_PAGE13]   = 0x2000;
+	blocksize[ROM_PAGE23]   = 0x2000;
+	blocksize[ROM_PAGE012]  = 0x2000;
+	blocksize[ROM_PAGE013]  = 0x2000;
+	blocksize[ROM_PAGE023]  = 0x2000;
+	blocksize[ROM_PAGE123]  = 0x2000;
+	blocksize[ROM_PAGE0123] = 0x2000;
+
+	blocksize[ROM_ASCII8_8] = 0x2000;
+	blocksize[ROM_ASCII16_2] = 0x4000;
+	blocksize[ROM_GAME_MASTER2] = 0x1000;
+	blocksize[ROM_PANASONIC] = 0x2000;
+	blocksize[ROM_NATIONAL] = 0x4000;
+	blocksize[ROM_KOEI_8] = 0x2000;
+	blocksize[ROM_KOEI_32] = 0x2000;
+	blocksize[ROM_WIZARDRY] = 0x2000;
+
+	blocksize[ROM_MAJUTSUSHI] = 0x2000;
+	blocksize[ROM_SYNTHESIZER] = 0x4000;	// officially plain 32K
+	blocksize[ROM_PLAYBALL] = 0x4000;	// officially plain 32K
+	blocksize[ROM_NETTOU_YAKYUU] = 0x2000;
 }
 
 void RomInfoTopic::execute(const vector<TclObject*>& tokens,
@@ -119,7 +201,11 @@ void RomInfoTopic::execute(const vector<TclObject*>& tokens,
 		if (it == description.end()) {
 			result.setString("no info available (TODO)");
 		} else {
-			result.setString(it->second);
+			BlockSize::const_iterator size = blocksize.find(type);
+			result.addListElement("description");
+			result.addListElement(it->second);
+			result.addListElement("blocksize");
+			result.addListElement(size->second);
 		}
 		break;
 	}
