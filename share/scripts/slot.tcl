@@ -91,10 +91,15 @@ proc address_in_slot {addr ps {ss "X"} {mapper "X"}} {
 	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return false}
 	if {$pc_ss eq "X"} {set pc_ss 0}
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
-	set block_size [dict get [openmsx_info romtype [lindex [machine_info device [machine_info slot $pc_ps $pc_ss $page]] 1]] blocksize]
+	set block_size 0
+	if {($mapper_size == 0) && ([machine_info slot $pc_ps $pc_ss $page] ne "Main RAM")} {
+		set block_size [dict get [openmsx_info romtype [lindex [machine_info device [machine_info slot $pc_ps $pc_ss $page]] 1]] blocksize]
+	}
 	if {(($mapper_size != 0) && ($block_size != 0)) || ($mapper eq "X")} {return true}
-	set pc_mapper [debug read "MapperIO" $page]
-	set pc_block [debug read "[eval machine_info slot $pc_ps $pc_ss $page] romblocks" $addr]
+	set pc_mapper 0
+	if {$mapper_size != 0} {set pc_mapper [debug read "MapperIO" $page]}
+	set pc_block 0
+	if {$block_size != 0} {set pc_block [debug read "[eval machine_info slot $pc_ps $pc_ss $page] romblocks" $addr]}
 	expr {($mapper == ($pc_mapper & ($mapper_size - 1))) || ($mapper == $pc_block)}
 }
 
