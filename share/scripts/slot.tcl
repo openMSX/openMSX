@@ -59,6 +59,25 @@ proc get_mapper_size {ps ss} {
 }
 
 #
+# get (rom) block size
+# e.g. for a 'Konami' rom mapper it returns 8kB
+# TODO it would be nice to generalize this so that it also works for memory
+# mappers, or even all memory mapped devices (whether they have switchable
+# blocks or not)
+#
+proc get_block_size {ps ss page} {
+	set block_size 0
+	catch {
+		set device_name [machine_info slot $ps $ss $page]  ;# can return "empty"
+		set device_info [machine_info device $device_name] ;# fails if name == "empty"
+		set romtype [lindex $device_info 1]                ;# can return ""
+		set romtype_info [openmsx_info romtype $romtype]   ;# fails if romtype == ""
+		set block_size [dict get $romtype_info blocksize]  ;# could fail??
+	}
+	return $block_size
+}
+
+#
 # pc_in_slot
 #
 set_help_text pc_in_slot \
@@ -84,23 +103,39 @@ proc watch_in_slot {ps {ss "X"} {mapper "X"}} {
 set_help_text address_in_slot \
 {Test whether an address is inside a certain slot.
 Typically used by pc_in_slot and watch_in_slot.}
-proc address_in_slot {addr ps {ss "X"} {mapper "X"}} {
+proc address_in_slot {addr ps {ss "X"} {block "X"}} {
+	# get current page and slots
 	set page [expr {$addr >> 14}]
 	lassign [get_selected_slot $page] pc_ps pc_ss
-	if {($ps ne "X") &&                    ($pc_ps != $ps)} {return false}
-	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return false}
+
+	# check primary and secondary slot
+	if {($ps ne "X") &&                    ($pc_ps != $ps)} {return 0}
+	if {($ss ne "X") && ($pc_ss ne "X") && ($pc_ss != $ss)} {return 0}
+
+	# need to check block?
+	if {$block eq "X"} {return true}
+
+	# first (try to) check memory mapper
 	if {$pc_ss eq "X"} {set pc_ss 0}
 	set mapper_size [get_mapper_size $pc_ps $pc_ss]
-	set block_size 0
-	if {($mapper_size == 0) && ([machine_info slot $pc_ps $pc_ss $page] ne "Main RAM")} {
-		set block_size [dict get [openmsx_info romtype [lindex [machine_info device [machine_info slot $pc_ps $pc_ss $page]] 1]] blocksize]
+	if {$mapper_size != 0} {
+		set pc_block [debug read "MapperIO" $page]
+		return [expr {$block == ($pc_block & ($mapper_size - 1))}]
 	}
-	if {(($mapper_size != 0) && ($block_size != 0)) || ($mapper eq "X")} {return true}
-	set pc_mapper 0
-	if {$mapper_size != 0} {set pc_mapper [debug read "MapperIO" $page]}
-	set pc_block 0
-	if {$block_size != 0} {set pc_block [debug read "[eval machine_info slot $pc_ps $pc_ss $page] romblocks" $addr]}
-	expr {($mapper == ($pc_mapper & ($mapper_size - 1))) || ($mapper == $pc_block)}
+
+	# next (try to) check rom mapper
+	set block_size [get_block_size $pc_ps $pc_ss $page]
+	if {$block_size != 0} {
+		set device_name [machine_info slot $pc_ps $pc_ss $page]
+		# note: I'm assuming that if get_block_size returns a non-zero
+		#       value, then the "romblocks" debuggable always exixts.
+		#       Is that correct?
+		set pc_block [debug read "$device_name romblocks" $addr]
+		return [expr {$block == $pc_block}]
+	}
+
+	# no mapper present, ok (or should we check block==0 ?)
+	return 1
 }
 
 #
