@@ -500,11 +500,11 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		string filename = FileOperations::join(*it, "softwaredb.xml");
 		try {
 			parseDB(cliComm, filename, romDBSHA1, unknownTypes);
-		} catch (MSXException& e) {
-			cliComm.printWarning(StringOp::Builder() <<
-				"Could not parse ROM DB " << filename <<
-				": " << e.getMessage() << "\n"
-				"Romtype detection might fail because of this.");
+		} catch (MSXException& /*e*/) {
+			// Ignore. It's not unusual the DB in the user
+			// directory is not found. In case there's an error
+			// with both user and system DB, we must give a
+			// warning, but that's done below.
 		}
 	}
 	if (romDBSHA1.empty()) {
