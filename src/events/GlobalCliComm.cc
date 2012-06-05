@@ -65,9 +65,14 @@ void GlobalCliComm::log(LogLevel level, const string& message)
 	ScopedAssign<bool> sa(delivering, true);
 
 	ScopedLock lock(sem);
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
-		(*it)->log(level, message);
+	if (!listeners.empty()) {
+		for (Listeners::const_iterator it = listeners.begin();
+		     it != listeners.end(); ++it) {
+			(*it)->log(level, message);
+		}
+	} else {
+		// don't let the message get lost
+		std::cerr << message << std::endl;
 	}
 }
 
