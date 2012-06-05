@@ -192,15 +192,12 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	// For the last line we don't include spacing between two lines.
 	unsigned height = unsigned((lines.size() - 1) * lineSkip + lineHeight);
 
-	// Create destination surface
+	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
 	if (!destination.get()) {
 		throw MSXException("Couldn't allocate surface for multiline text.");
 	}
-
-	// Now, fill it with some fully transparent color:
-	SDL_FillRect(destination.get(), NULL, 0);
 
 	// Actually render the text:
 	for (unsigned i = 0; i < lines.size(); ++i) {
