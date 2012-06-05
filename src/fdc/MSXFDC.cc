@@ -3,6 +3,7 @@
 #include "MSXFDC.hh"
 #include "Rom.hh"
 #include "RealDrive.hh"
+#include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
@@ -20,11 +21,14 @@ MSXFDC::MSXFDC(const DeviceConfig& config)
 			"Invalid number of drives: " << numDrives);
 	}
 	unsigned timeout = config.getChildDataAsInt("motor_off_timeout_ms", 0);
+	const XMLElement* styleEl = config.findChild("connectionstyle");
+	bool signalsNeedMotorOn = !styleEl || (styleEl->getData() == "Philips");
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
 		drives[i].reset(new RealDrive(
-			getMotherBoard(), motorTimeout, !singleSided));
+			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
+			!singleSided));
 	}
 	for ( ; i < 4; ++i) {
 		drives[i].reset(new DummyDrive());

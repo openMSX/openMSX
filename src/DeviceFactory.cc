@@ -84,7 +84,7 @@ static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 	} else {
 		type = styleEl->getData();
 	}
-	if (type == "Philips") {
+	if ((type == "Philips") || (type == "Sony")) {
 		result.reset(new PhilipsFDC(conf));
 	} else if (type == "Microsol") {
 		result.reset(new MicrosolFDC(conf));

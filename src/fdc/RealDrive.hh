@@ -21,7 +21,7 @@ class RealDrive : public DiskDrive, public Schedulable
 {
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
-	          bool doubleSided);
+	          bool signalsNeedMotorOn, bool doubleSided);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
@@ -71,6 +71,7 @@ private:
 	bool motorStatus;
 	bool headLoadStatus;
 	const bool doubleSizedDrive;
+	const bool signalsNeedMotorOn;
 };
 SERIALIZE_CLASS_VERSION(RealDrive, 3);
 

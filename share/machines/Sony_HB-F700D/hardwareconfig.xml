@@ -89,7 +89,7 @@
            <mem base="0x0000" size="0x4000"/>
          </ROM>
          <WD2793 id="Memory Mapped FDC">
-          <connectionstyle>Philips</connectionstyle>
+          <connectionstyle>Sony</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>

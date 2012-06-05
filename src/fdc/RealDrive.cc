@@ -31,7 +31,7 @@ static const unsigned MAX_DRIVES = 26; // a-z
 typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
-                     bool doubleSided)
+                     bool signalsNeedMotorOn_, bool doubleSided)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
@@ -42,6 +42,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, headPos(0), side(0), startAngle(0)
 	, motorStatus(false), headLoadStatus(false)
 	, doubleSizedDrive(doubleSided)
+	, signalsNeedMotorOn(signalsNeedMotorOn_)
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("drivesInUse");
@@ -113,9 +114,10 @@ bool RealDrive::isDiskInserted() const
 
 bool RealDrive::isWriteProtected() const
 {
-	// write protected bit is always 0 when motor is off
-	// verified on NMS8280
-	return motorStatus && changer->getDisk().isWriteProtected();
+	// On a NMS8280 the write protected signal is never active when the
+	// drive motor is turned off. See also isTrack00().
+	if (signalsNeedMotorOn && !motorStatus) return false;
+	return changer->getDisk().isWriteProtected();
 }
 
 bool RealDrive::isDoubleSided() const
@@ -151,9 +153,12 @@ void RealDrive::step(bool direction, EmuTime::param time)
 
 bool RealDrive::isTrack00() const
 {
-	// track00 bit is always 0 when motor is off
-	// verified on NMS8280
-	return motorStatus && (headPos == 0);
+	// On a Philips-NMS8280 the track00 signal is never active when the
+	// drive motor is turned off. On a National-FS-5500F2 the motor status
+	// doesn't matter, the single/dual drive detection routine (during
+	// the MSX boot sequence) even depends on this signal with motor off.
+	if (signalsNeedMotorOn && !motorStatus) return false;
+	return headPos == 0;
 }
 
 void RealDrive::setMotor(bool status, EmuTime::param time)
