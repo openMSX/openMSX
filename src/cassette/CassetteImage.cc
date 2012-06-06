@@ -37,13 +37,13 @@ std::string CassetteImage::getFirstFileTypeAsString() const
 	}
 }
 
-void CassetteImage::setSha1Sum(const std::string& sha1sum_)
+void CassetteImage::setSha1Sum(const Sha1Sum& sha1sum_)
 {
 	assert(sha1sum.empty());
 	sha1sum = sha1sum_;
 }
 
-const std::string& CassetteImage::getSha1Sum() const
+const Sha1Sum& CassetteImage::getSha1Sum() const
 {
 	assert(!sha1sum.empty());
 	return sha1sum;

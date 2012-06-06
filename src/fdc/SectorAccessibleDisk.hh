@@ -4,6 +4,7 @@
 #define SECTORACCESSIBLEDISK_HH
 
 #include "Filename.hh"
+#include "sha1.hh"
 #include "openmsx.hh"
 #include <vector>
 #include <string>
@@ -39,7 +40,7 @@ public:
 	/** Calculate SHA1 of the content of this disk.
 	 * This value is cached (and flushed on writes).
 	 */
-	virtual std::string getSha1Sum();
+	virtual Sha1Sum getSha1Sum();
 
 	// For compatibility with nowind
 	//  - read/write multiple sectors instead of one-per-one
@@ -66,7 +67,7 @@ private:
 	virtual bool isWriteProtectedImpl() const = 0;
 
 	std::auto_ptr<const PatchInterface> patch;
-	std::string sha1cache;
+	Sha1Sum sha1cache;
 	bool forcedWriteProtect;
 	bool peekMode;
 

@@ -778,7 +778,7 @@ bool SCSILS120::isWriteProtectedImpl() const
 	return false;
 }
 
-std::string SCSILS120::getSha1Sum()
+Sha1Sum SCSILS120::getSha1Sum()
 {
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1Sum();

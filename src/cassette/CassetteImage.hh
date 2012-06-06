@@ -4,6 +4,7 @@
 #define CASSETTEIMAGE_HH
 
 #include "EmuTime.hh"
+#include "sha1.hh"
 #include <string>
 
 namespace openmsx {
@@ -29,16 +30,16 @@ public:
 	 * different bits per sample). This method will give a different
 	 * sha1sum to such files.
 	 */
-	const std::string& getSha1Sum() const;
+	const Sha1Sum& getSha1Sum() const;
 
 protected:
 	CassetteImage();
 	void setFirstFileType(FileType type);
-	void setSha1Sum(const std::string& sha1sum);
+	void setSha1Sum(const Sha1Sum& sha1sum);
 
 private:
 	FileType firstFileType;
-	std::string sha1sum;
+	Sha1Sum sha1sum;
 };
 
 } // namespace openmsx

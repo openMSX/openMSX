@@ -130,7 +130,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		FilePool::FileType fileType = context.isUserContext()
 			? FilePool::ROM : FilePool::SYSTEM_ROM;
 		if (!file.get() && resolvedSha1Elem) {
-			string sha1 = resolvedSha1Elem->getData();
+			Sha1Sum sha1(resolvedSha1Elem->getData());
 			file = filepool.getFile(fileType, sha1);
 			if (file.get()) {
 				// avoid recalculating same sha1 later
@@ -152,7 +152,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		if (!file.get()) {
 			for (XMLElement::Children::const_iterator it = sums.begin();
 			     it != sums.end(); ++it) {
-				const string& sha1 = (*it)->getData();
+				Sha1Sum sha1((*it)->getData());
 				file = filepool.getFile(fileType, sha1);
 				if (file.get()) {
 					// avoid recalculating same sha1 later
@@ -282,9 +282,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	if (checkResolvedSha1) {
 		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
+		string patchedSha1Str = getPatchedSHA1().toString();
 		const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
-			"resolvedSha1", getPatchedSHA1());
-		if (actualSha1Elem.getData() != getPatchedSHA1()) {
+			"resolvedSha1", patchedSha1Str);
+		if (actualSha1Elem.getData() != patchedSha1Str) {
 			string tmp = file.get() ? file->getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
@@ -319,7 +320,7 @@ bool Rom::checkSHA1(const XMLElement& config)
 	if (sums.empty()) {
 		return true;
 	}
-	const string& sha1sum = getOriginalSHA1();
+	string sha1sum = getOriginalSHA1().toString();
 	for (XMLElement::Children::const_iterator it = sums.begin();
 	     it != sums.end(); ++it) {
 		if ((*it)->getData() == sha1sum) {
@@ -348,7 +349,7 @@ const string& Rom::getDescription() const
 	return description;
 }
 
-const string& Rom::getOriginalSHA1() const
+const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {
 		assert(patchedSha1.empty());
@@ -356,7 +357,7 @@ const string& Rom::getOriginalSHA1() const
 	}
 	return originalSha1;
 }
-const string& Rom::getPatchedSHA1() const
+const Sha1Sum& Rom::getPatchedSHA1() const
 {
 	return patchedSha1.empty() ? getOriginalSHA1() : patchedSha1;
 }

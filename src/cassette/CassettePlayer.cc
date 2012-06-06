@@ -860,12 +860,18 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("casImage", casImage);
 
-	string oldChecksum;
+	Sha1Sum oldChecksum;
 	if (!ar.isLoader() && playImage.get()) {
 		oldChecksum = playImage->getSha1Sum();
 	}
 	if (ar.versionAtLeast(version, 2)) {
-		ar.serialize("checksum", oldChecksum);
+		string oldChecksumStr = oldChecksum.empty()
+		                      ? ""
+		                      : oldChecksum.toString();
+		ar.serialize("checksum", oldChecksumStr);
+		oldChecksum = oldChecksumStr.empty()
+		            ? Sha1Sum()
+		            : Sha1Sum(oldChecksumStr);
 	}
 
 	if (ar.isLoader()) {
@@ -883,7 +889,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		insertTape(casImage);
 
 		if (playImage.get() && !oldChecksum.empty()) {
-			string newChecksum = playImage->getSha1Sum();
+			Sha1Sum newChecksum = playImage->getSha1Sum();
 			if (oldChecksum != newChecksum) {
 				motherBoard.getMSXCliComm().printWarning(
 					"The content of the tape " +

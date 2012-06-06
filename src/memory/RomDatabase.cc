@@ -82,7 +82,7 @@ struct DBParser
 
 	struct Dump {
 		string remarks;
-		string hash;
+		Sha1Sum hash;
 		string origData;
 		RomType type;
 		bool origValue;
@@ -91,7 +91,7 @@ struct DBParser
 	RomDatabase::DBMap& romDBSHA1;
 	UnknownTypes& unknownTypes;
 	CliComm& cliComm;
-	set<string> sums;
+	set<Sha1Sum> sums;
 
 	string systemID;
 	string data;
@@ -294,7 +294,8 @@ static void addEntries(DBParser* parser)
 	     it != parser->dumps.end(); ++it) {
 		if (!parser->sums.insert(it->hash).second) {
 			parser->cliComm.printWarning(
-				"duplicate softwaredb entry SHA1: " + it->hash);
+				"duplicate softwaredb entry SHA1: " +
+				it->hash.toString());
 			continue;
 		}
 
@@ -421,7 +422,14 @@ static void cbEndElement(
 		break;
 	case DBParser::HASH:
 		if (parser->algo == "sha1") {
-			copyTrimmed(parser->data, parser->dumps.back().hash);
+			string sha1 = trim(parser->data);
+			try {
+				parser->dumps.back().hash = Sha1Sum(sha1);
+			} catch (MSXException& e) {
+				parser->cliComm.printWarning(StringOp::Builder() <<
+					"Ignoring entry with bad sha1: " <<
+					parser->title << ": " << e.getMessage());
+			}
 		}
 		parser->state = DBParser::ROM;
 		break;
@@ -531,7 +539,7 @@ RomDatabase::~RomDatabase()
 	}
 }
 
-const RomInfo* RomDatabase::fetchRomInfo(const string& sha1sum) const
+const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
 	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
 	if (it == romDBSHA1.end()) {
@@ -557,11 +565,12 @@ void SoftwareInfoTopic::execute(const vector<TclObject*>& tokens,
 		throw CommandException("Wrong number of parameters");
 	}
 
-	const string& sha1sum = tokens[2]->getString();
+	Sha1Sum sha1sum = Sha1Sum(tokens[2]->getString());
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
 	if (romInfo == NULL) {
 		// no match found
-		throw CommandException("Software with sha1sum " + sha1sum + " not found");
+		throw CommandException(
+			"Software with sha1sum " + sha1sum.toString() + " not found");
 	}
 
 	result.addListElement("title");

@@ -6,6 +6,7 @@
 #include "FileOperations.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "sha1.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <map>
@@ -37,13 +38,13 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns a NULL pointer.
 	 */
-	std::auto_ptr<File> getFile(FileType fileType, const std::string& sha1sum);
+	std::auto_ptr<File> getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
 	 * relatively expensive calculation.
 	 */
-	std::string getSha1Sum(File& file);
+	Sha1Sum getSha1Sum(File& file);
 
 	/** Remove sha1sum for this file from the cache.
 	 * When the file was written to, sha1sum changes and it should be
@@ -62,26 +63,27 @@ private:
 	// tuples, that is indexed on both sha1sum and filename. Using
 	// something like boost::multi_index would be both faster and more
 	// compact in memory.
-	//   <sha1sum, <timestamp, filename> >
-	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
+	//   <sha1sum, <timestamp, filename>>
+	typedef std::multimap<Sha1Sum, std::pair<time_t, std::string> > Pool;
 	//   <filename, Pool::iterator>
 	typedef std::map<std::string, Pool::iterator> ReversePool;
 
-	void insert(const std::string& sum, time_t time, const std::string& filename);
+	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
 
 	void readSha1sums();
 	void writeSha1sums();
 
-	std::auto_ptr<File> getFromPool(const std::string& sha1sum);
-	std::auto_ptr<File> scanDirectory(const std::string& sha1sum,
+	std::auto_ptr<File> getFromPool(const Sha1Sum& sha1sum);
+	std::auto_ptr<File> scanDirectory(const Sha1Sum& sha1sum,
 	                                  const std::string& directory,
 	                                  const std::string& poolPath);
-	std::auto_ptr<File> scanFile(const std::string& sha1sum,
+	std::auto_ptr<File> scanFile(const Sha1Sum& sha1sum,
 	                             const std::string& filename,
 	                             const FileOperations::Stat& st,
 	                                  const std::string& poolPath);
 	Pool::iterator findInDatabase(const std::string& filename);
+
 
 	void getDirectories(Directories& result) const;
 

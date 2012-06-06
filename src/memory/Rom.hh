@@ -4,6 +4,7 @@
 #define ROM_HH
 
 #include "MemBuffer.hh"
+#include "sha1.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -36,8 +37,8 @@ public:
 	std::string getFilename() const;
 	const std::string& getName() const;
 	const std::string& getDescription() const;
-	const std::string& getOriginalSHA1() const;
-	const std::string& getPatchedSHA1() const;
+	const Sha1Sum& getOriginalSHA1() const;
+	const Sha1Sum& getPatchedSHA1() const;
 
 private:
 	void init(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -49,8 +50,8 @@ private:
 
 	std::auto_ptr<File> file;
 
-	mutable std::string originalSha1;
-	std::string patchedSha1;
+	mutable Sha1Sum originalSha1;
+	Sha1Sum patchedSha1;
 	std::string name;
 	const std::string description;
 	unsigned size;

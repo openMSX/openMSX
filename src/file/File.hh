@@ -3,6 +3,7 @@
 #ifndef FILE_HH
 #define FILE_HH
 
+#include "sha1.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -134,7 +135,7 @@ public:
 	 * first having called setFilePool(), we might change this in the
 	 * future.
 	 */
-	std::string getSha1Sum();
+	Sha1Sum getSha1Sum();
 
 	/** Set FilePool, see also getSha1Sum()
 	 * FilePool is used to lookup/store sha1sum<->filename mappings. But

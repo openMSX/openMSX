@@ -3,7 +3,7 @@
 #ifndef ROMDATABASE_HH
 #define ROMDATABASE_HH
 
-#include "StringOp.hh"
+#include "sha1.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -19,7 +19,7 @@ class GlobalCommandController;
 class RomDatabase : private noncopyable
 {
 public:
-	typedef std::map<std::string, RomInfo*, StringOp::caseless> DBMap;
+	typedef std::map<Sha1Sum, RomInfo*> DBMap;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
@@ -27,7 +27,7 @@ public:
 	/** Lookup an entry in the database by sha1sum.
 	 * Returns NULL when no corresponding entry was found.
 	 */
-	const RomInfo* fetchRomInfo(const std::string& sha1sum) const;
+	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
 private:
 	DBMap romDBSHA1;

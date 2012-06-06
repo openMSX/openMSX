@@ -27,7 +27,7 @@ public:
 	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 	virtual unsigned getNbSectorsImpl() const;
 	virtual bool isWriteProtectedImpl() const;
-	virtual std::string getSha1Sum();
+	virtual Sha1Sum getSha1Sum();
 
 private:
 	virtual void detectGeometryFallback();

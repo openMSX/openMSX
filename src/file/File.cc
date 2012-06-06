@@ -141,7 +141,7 @@ time_t File::getModificationDate()
 	return file->getModificationDate();
 }
 
-string File::getSha1Sum()
+Sha1Sum File::getSha1Sum()
 {
 	assert(filepool); // must be set
 	return filepool->getSha1Sum(*this);

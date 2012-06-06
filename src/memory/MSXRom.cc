@@ -37,7 +37,7 @@ void MSXRom::getExtraDeviceInfo(TclObject& result) const
 
 	// add sha1sum, to be able to get a unique key for this ROM device,
 	// so that it can be used to look up things in databases
-	result.addListElement(rom->getOriginalSHA1());
+	result.addListElement(rom->getOriginalSHA1().toString());
 }
 
 } // namespace openmsx

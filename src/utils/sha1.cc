@@ -21,6 +21,7 @@ A million repetitions of "a"
 */
 
 #include "sha1.hh"
+#include "MSXException.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdio>
@@ -95,16 +96,100 @@ WorkspaceBlock::WorkspaceBlock(const byte buffer[64])
 }
 
 
+// class Sha1Sum
+
+Sha1Sum::Sha1Sum()
+{
+	clear();
+}
+
+static inline unsigned hex(char x, const string& str)
+{
+	if (('0' <= x) && (x <= '9')) return x - '0';
+	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
+	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
+	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " + str);
+}
+Sha1Sum::Sha1Sum(const std::string& str)
+{
+	if (str.size() != 40) {
+		throw MSXException("Invalid sha1, should be exactly 40 digits long: " + str);
+	}
+	string::const_iterator it = str.begin();
+	for (int i = 0; i < 5; ++i) {
+		unsigned t = 0;
+		for (int j = 0; j < 8; ++j) {
+			t <<= 4;
+			t |= hex(*it++, str);
+		}
+		a[i] = t;
+	}
+}
+
+static inline char digit(unsigned x)
+{
+	return (x < 10) ? (x + '0') : (x - 10 + 'a');
+}
+std::string Sha1Sum::toString() const
+{
+	string result(40, ' ');
+	string::iterator it = result.begin();
+	for (int i = 0; i < 5; ++i) {
+		for (int j = 28; j >= 0; j -= 4) {
+			*it++ = digit((a[i] >> j) & 0xf);
+		}
+	}
+	return result;
+}
+
+bool Sha1Sum::empty() const
+{
+	for (int i = 0; i < 5; ++i) {
+		if (a[i] != 0) return false;
+	}
+	return true;
+}
+void Sha1Sum::clear()
+{
+	for (int i = 0; i < 5; ++i) {
+		a[i] = 0;
+	}
+}
+
+bool Sha1Sum::operator==(const Sha1Sum& other) const
+{
+	for (int i = 0; i < 5; ++i) {
+		if (a[i] != other.a[i]) return false;
+	}
+	return true;
+}
+bool Sha1Sum::operator!=(const Sha1Sum& other) const
+{
+	return !(*this == other);
+}
+
+bool Sha1Sum::operator<(const Sha1Sum& other) const
+{
+	for (int i = 0; i < 5-1; ++i) {
+		if (a[i] != other.a[i]) return a[i] < other.a[i];
+	}
+	return a[5-1] < other.a[5-1];
+}
+
+
+// class SHA1
+
 SHA1::SHA1()
 {
 	// SHA1 initialization constants
-	m_state[0] = 0x67452301;
-	m_state[1] = 0xEFCDAB89;
-	m_state[2] = 0x98BADCFE;
-	m_state[3] = 0x10325476;
-	m_state[4] = 0xC3D2E1F0;
+	m_state.a[0] = 0x67452301;
+	m_state.a[1] = 0xEFCDAB89;
+	m_state.a[2] = 0x98BADCFE;
+	m_state.a[3] = 0x10325476;
+	m_state.a[4] = 0xC3D2E1F0;
 
 	m_count = 0;
+	m_finalized = false;
 }
 
 void SHA1::transform(const byte buffer[64])
@@ -112,11 +197,11 @@ void SHA1::transform(const byte buffer[64])
 	WorkspaceBlock block(buffer);
 
 	// Copy m_state[] to working vars
-	uint32 a = m_state[0];
-	uint32 b = m_state[1];
-	uint32 c = m_state[2];
-	uint32 d = m_state[3];
-	uint32 e = m_state[4];
+	uint32 a = m_state.a[0];
+	uint32 b = m_state.a[1];
+	uint32 c = m_state.a[2];
+	uint32 d = m_state.a[3];
+	uint32 e = m_state.a[4];
 
 	// 4 rounds of 20 operations each. Loop unrolled
 	block.r0(a,b,c,d,e, 0); block.r0(e,a,b,c,d, 1); block.r0(d,e,a,b,c, 2);
@@ -148,17 +233,17 @@ void SHA1::transform(const byte buffer[64])
 	block.r4(c,d,e,a,b,78); block.r4(b,c,d,e,a,79);
 
 	// Add the working vars back into m_state[]
-	m_state[0] += a;
-	m_state[1] += b;
-	m_state[2] += c;
-	m_state[3] += d;
-	m_state[4] += e;
+	m_state.a[0] += a;
+	m_state.a[1] += b;
+	m_state.a[2] += c;
+	m_state.a[3] += d;
+	m_state.a[4] += e;
 }
 
 // Use this function to hash in binary data and strings
 void SHA1::update(const byte* data, unsigned len)
 {
-	assert(digest.empty());
+	assert(!m_finalized);
 	uint32 j = (m_count >> 3) & 63;
 
 	m_count += len << 3;
@@ -179,6 +264,7 @@ void SHA1::update(const byte* data, unsigned len)
 
 void SHA1::finalize()
 {
+	assert(!m_finalized);
 	byte finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	for (int i = 0; i < 8; i++) {
 		finalcount[i] = byte(m_count >> ((7 - i) * 8));
@@ -193,25 +279,22 @@ void SHA1::finalize()
 	char s[41];
 	for (int i = 0; i < 20; ++i) {
 		sprintf(s + i * 2, "%02x",
-		        byte(m_state[i >> 2] >> ((3 - (i & 3)) * 8)));
+		        byte(m_state.a[i >> 2] >> ((3 - (i & 3)) * 8)));
 	}
-	digest = string(s, 40);
+	m_finalized = true;
 }
 
-const string& SHA1::hex_digest()
+Sha1Sum SHA1::digest()
 {
-	if (digest.empty()) {
-		finalize();
-	}
-	assert(!digest.empty());
-	return digest;
+	if (!m_finalized) finalize();
+	return m_state;
 }
 
-string SHA1::calc(const byte* data, unsigned len)
+Sha1Sum SHA1::calc(const byte* data, unsigned len)
 {
 	SHA1 sha1;
 	sha1.update(data, len);
-	return sha1.hex_digest();
+	return sha1.digest();
 }
 
 } // namespace openmsx

@@ -198,7 +198,7 @@ bool DMKDiskImage::isWriteProtectedImpl() const
 	return writeProtected || file->isReadOnly();
 }
 
-std::string DMKDiskImage::getSha1Sum()
+Sha1Sum DMKDiskImage::getSha1Sum()
 {
 	return file->getSha1Sum();
 }

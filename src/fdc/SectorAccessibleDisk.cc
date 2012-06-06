@@ -73,7 +73,7 @@ bool SectorAccessibleDisk::hasPatches() const
 	return !patch->isEmptyPatch();
 }
 
-std::string SectorAccessibleDisk::getSha1Sum()
+Sha1Sum SectorAccessibleDisk::getSha1Sum()
 {
 	if (sha1cache.empty()) {
 		try {
@@ -85,7 +85,7 @@ std::string SectorAccessibleDisk::getSha1Sum()
 				readSector(i, buf);
 				sha1.update(buf, SECTOR_SIZE);
 			}
-			sha1cache = sha1.hex_digest();
+			sha1cache = sha1.digest();
 			setPeekMode(false);
 		} catch (MSXException&) {
 			setPeekMode(false);

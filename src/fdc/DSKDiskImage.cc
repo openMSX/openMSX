@@ -40,7 +40,7 @@ bool DSKDiskImage::isWriteProtectedImpl() const
 	return file->isReadOnly();
 }
 
-std::string DSKDiskImage::getSha1Sum()
+Sha1Sum DSKDiskImage::getSha1Sum()
 {
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1Sum();

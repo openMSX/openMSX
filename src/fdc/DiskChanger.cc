@@ -337,7 +337,7 @@ bool DiskCommand::needRecord(const vector<string>& tokens) const
 
 static string calcSha1(SectorAccessibleDisk* disk)
 {
-	return disk ? disk->getSha1Sum() : "";
+	return disk ? disk->getSha1Sum().toString() : "";
 }
 
 // version 1:  initial version
@@ -383,8 +383,9 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			// I'm not sure which alternative is better.
 			if (!FileOperations::exists(name)) {
 				assert(filePool);
+				assert(!oldChecksum.empty());
 				std::auto_ptr<File> file = filePool->getFile(
-					FilePool::DISK, oldChecksum);
+					FilePool::DISK, Sha1Sum(oldChecksum));
 				if (file.get()) {
 					name = file->getURL();
 				}

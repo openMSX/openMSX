@@ -161,7 +161,7 @@ bool HD::isWriteProtectedImpl() const
 	return file->isReadOnly();
 }
 
-std::string HD::getSha1Sum()
+Sha1Sum HD::getSha1Sum()
 {
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1Sum();
@@ -211,13 +211,19 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	if (file.get()) {
-		string oldChecksum;
+		Sha1Sum oldChecksum;
 		if (!ar.isLoader()) {
 			oldChecksum = getSha1Sum();
 		}
-		ar.serialize("checksum", oldChecksum);
+		string oldChecksumStr = oldChecksum.empty()
+		                      ? ""
+		                      : oldChecksum.toString();
+		ar.serialize("checksum", oldChecksumStr);
+		oldChecksum = oldChecksumStr.empty()
+		            ? Sha1Sum()
+		            : Sha1Sum(oldChecksumStr);
 		if (ar.isLoader()) {
-			string newChecksum = getSha1Sum();
+			Sha1Sum newChecksum = getSha1Sum();
 			if (oldChecksum != newChecksum) {
 				motherBoard.getMSXCliComm().printWarning(
 				    "The content of the harddisk " +
