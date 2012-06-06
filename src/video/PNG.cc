@@ -198,15 +198,8 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 			alpMask = bpp == 32 ? 0xFF000000 : 0;
 		}
 		if (bgr) std::swap(redMask, bluMask);
-		SDLSurfacePtr surface(SDL_CreateRGBSurface(
-			SDL_SWSURFACE, width, height, bpp,
-			redMask, grnMask, bluMask, alpMask));
-		if (!surface.get()) {
-			throw MSXException(StringOp::Builder() <<
-				"Failed to allocate a "
-				<< width << 'x' << height << 'x' << bpp << " surface: "
-				<< SDL_GetError());
-		}
+		SDLSurfacePtr surface(width, height, bpp,
+		                      redMask, grnMask, bluMask, alpMask);
 
 		// Create the array of pointers to image data.
 		VLA(png_bytep, row_pointers, height);
@@ -361,9 +354,9 @@ void save(unsigned width, unsigned height, const void** rowPointers,
           const SDL_PixelFormat& format, const std::string& filename)
 {
 	// this implementation creates 1 extra copy, can be optimized if required
-	SDLSurfacePtr surface(SDL_CreateRGBSurface(
-		SDL_SWSURFACE, width, height, format.BitsPerPixel,
-		format.Rmask, format.Gmask, format.Bmask, format.Amask));
+	SDLSurfacePtr surface(
+		width, height, format.BitsPerPixel,
+		format.Rmask, format.Gmask, format.Bmask, format.Amask);
 	for (unsigned y = 0; y < height; ++y) {
 		memcpy(surface.getLinePtr(y),
 		       rowPointers[y], width * format.BytesPerPixel);

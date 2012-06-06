@@ -25,15 +25,11 @@ static GLuint loadTexture(SDLSurfacePtr surface,
 	texCoord[2] = GLfloat(width)  / w2; // max X
 	texCoord[3] = GLfloat(height) / h2; // max Y
 
-	SDLSurfacePtr image2(SDL_CreateRGBSurface(
-		SDL_SWSURFACE, w2, h2, 32,
+	SDLSurfacePtr image2(w2, h2, 32,
 		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
 		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
-	if (!image2.get()) {
-		throw MSXException("Couldn't allocate surface");
-	}
+		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000);
 
 	SDL_Rect area;
 	area.x = 0;

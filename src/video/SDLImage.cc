@@ -157,12 +157,8 @@ static SDLSurfacePtr create32BppSurface(int width, int height, bool alpha)
 	getRGBAmasks32(rmask, gmask, bmask, amask);
 	if (!alpha) amask = 0;
 
-	SDLSurfacePtr result(SDL_CreateRGBSurface(
-		SDL_SWSURFACE, abs(width), abs(height), 32, rmask, gmask, bmask, amask));
-	if (!result.get()) {
-		throw MSXException("Couldn't allocate surface.");
-	}
-	return result;
+	return SDLSurfacePtr(
+		abs(width), abs(height), 32, rmask, gmask, bmask, amask);
 }
 
 static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, int width, int height)
@@ -500,12 +496,8 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 	}
 
 	// Create surface with correct size/masks.
-	image.reset(SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		abs(width), abs(height), bpp,
-		rmask, gmask, bmask, amask));
-	if (!image.get()) {
-		throw MSXException("Couldn't allocate surface.");
-	}
+	image = SDLSurfacePtr(abs(width), abs(height), bpp,
+	                      rmask, gmask, bmask, amask);
 
 	// draw interior
 	SDL_FillRect(image.get(), NULL, convertColor(*image->format, rgba));

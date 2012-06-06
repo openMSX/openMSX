@@ -5,36 +5,77 @@
 
 #include <SDL.h>
 #include <algorithm>
+#include <new>
 #include <cassert>
+#include <cstdlib>
 
 // This is a helper class, you shouldn't use it directly.
 struct SDLSurfaceRef
 {
-	explicit SDLSurfaceRef(SDL_Surface* surface_)
-		: surface(surface_) {}
+	SDLSurfaceRef(SDL_Surface* surface_, void* buffer_)
+		: surface(surface_), buffer(buffer_) {}
 	SDL_Surface* surface;
+	void* buffer;
 };
 
 
 /** Wrapper around a SDL_Surface.
+ *
  * Makes sure SDL_FreeSurface() is called when this object goes out of scope.
  * It's modeled after std::auto_ptr, so it has the usual get(), reset() and
- * release() methods. It also has the same copy and assignment properties.
+ * operator*() methods. It also has the same 'weird' copy and assignment
+ * semantics.
  *
- * As a bonus it has a getLinePtr() method to hide some of the casting. But
- * apart from this it doesn't try to abstract any SDL functionality.
+ * In addition to the SDL_Surface pointer, this wrapper also (optionally)
+ * manages an extra memory buffer. Normally SDL_CreateRGBSurface() will
+ * allocate/free an internal memory buffer for the surface. On construction
+ * of the surface this buffer will be zero-initialized. Though in many cases
+ * the surface will immediately be overwritten (so zero-initialization is
+ * only extra overhead). It's possible to avoid this by creating the surface
+ * using SDL_CreateRGBSurfaceFrom(). Though the downside of this is that you
+ * have to manage the lifetime of the memory buffer yourself. And that's
+ * exactly what this wrapper can do.
+ *
+ * As a bonus this wrapper has a getLinePtr() method to hide some of the
+ * casting. But apart from this it doesn't try to abstract any SDL
+ * functionality.
  */
 class SDLSurfacePtr
 {
 public:
-	SDLSurfacePtr(SDL_Surface* surface_ = 0)
+	/** Create a (software) surface with uninitialized pixel content.
+	  * throws: bad_alloc (no need to check for NULL pointer). */
+	SDLSurfacePtr(unsigned width, unsigned height, unsigned depth,
+	              Uint32 rMask, Uint32 gMask, Uint32 bMask, Uint32 aMask)
+	{
+		assert((depth % 8) == 0);
+		unsigned pitch = width * (depth >> 3);
+		unsigned size = height * pitch;
+		buffer = malloc(size);
+		if (!buffer) throw std::bad_alloc();
+		surface = SDL_CreateRGBSurfaceFrom(
+			buffer, width, height, depth, pitch,
+			rMask, gMask, bMask, aMask);
+		if (!surface) {
+			free(buffer);
+			throw std::bad_alloc();
+		}
+	}
+
+	SDLSurfacePtr(SDL_Surface* surface_ = NULL, void* buffer_ = NULL)
 		: surface(surface_)
+		, buffer(buffer_)
 	{
 	}
 
 	SDLSurfacePtr(SDLSurfacePtr& other)
-		: surface(other.release())
+		: surface(other.surface)
+		, buffer(other.buffer)
 	{
+		// Like std::auto_ptr, making a copy 'steals' the content
+		// of the original.
+		other.surface = NULL;
+		other.buffer = NULL;
 	}
 
 	~SDLSurfacePtr()
@@ -42,11 +83,13 @@ public:
 		if (surface) {
 			SDL_FreeSurface(surface);
 		}
+		free(buffer);
 	}
 
 	void reset(SDL_Surface* surface_ = 0)
 	{
-		SDLSurfacePtr(surface_).swap(*this);
+		SDLSurfacePtr temp(surface_);
+		temp.swap(*this);
 	}
 
 	SDL_Surface* get()
@@ -58,21 +101,16 @@ public:
 		return surface;
 	}
 
-	SDL_Surface* release()
-	{
-		SDL_Surface* result = surface;
-		surface = 0;
-		return result;
-	}
-
 	void swap(SDLSurfacePtr& other)
 	{
 		std::swap(surface, other.surface);
+		std::swap(buffer,  other.buffer );
 	}
 
 	SDLSurfacePtr& operator=(SDLSurfacePtr& other)
 	{
-		reset(other.release());
+		SDLSurfacePtr temp(other); // this 'steals' the content of 'other'
+		temp.swap(*this);
 		return *this;
 	}
 
@@ -111,22 +149,31 @@ public:
 	// Trick copied from gcc's auto_ptr implementation.
 	SDLSurfacePtr(SDLSurfaceRef ref)
 		: surface(ref.surface)
+		, buffer(ref.buffer)
 	{
 	}
 	SDLSurfacePtr& operator=(SDLSurfaceRef ref)
 	{
 		if (ref.surface != surface) {
-			reset(ref.surface);
+			assert(!buffer || (ref.buffer != buffer));
+			SDLSurfacePtr temp(ref.surface, ref.buffer);
+			temp.swap(*this);
+		} else {
+			assert(ref.buffer == buffer);
 		}
 		return *this;
 	}
 	operator SDLSurfaceRef()
 	{
-		return SDLSurfaceRef(release());
+		SDLSurfaceRef ref(surface, buffer);
+		surface = NULL;
+		buffer = NULL;
+		return ref;
 	}
 
 private:
 	SDL_Surface* surface;
+	void* buffer;
 };
 
 #endif
