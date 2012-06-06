@@ -2,24 +2,21 @@
 
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
-#include "Rom.hh"
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileOperations.hh"
-#include "LocalFileReference.hh"
+#include "FileException.hh"
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include <libxml/parser.h>
-#include <libxml/xmlversion.h>
+#include "MemBuffer.hh"
+#include "rapidsax.hh"
+#include "unreachable.hh"
 #include <set>
-#include <cassert>
-#include <cstring>
 
-using std::auto_ptr;
 using std::map;
 using std::set;
 using std::string;
@@ -32,10 +29,10 @@ class SoftwareInfoTopic : public InfoTopic
 public:
         SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
 
-        virtual void execute(const std::vector<TclObject*>& tokens,
+        virtual void execute(const vector<TclObject*>& tokens,
                              TclObject& result) const;
-        virtual std::string help(const std::vector<std::string>& tokens) const;
-        virtual void tabCompletion(std::vector<std::string>& tokens) const;
+        virtual string help(const vector<string>& tokens) const;
+        virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
 	const RomDatabase& romDatabase;
@@ -45,8 +42,9 @@ private:
 
 typedef std::map<std::string, unsigned> UnknownTypes;
 
-struct DBParser
+class DBParser : public rapidsax::NullHandler
 {
+public:
 	DBParser(RomDatabase::DBMap& romDBSHA1_, UnknownTypes& unknownTypes_,
 	         CliComm& cliComm_)
 		: romDBSHA1(romDBSHA1_)
@@ -56,6 +54,18 @@ struct DBParser
 		, unknownLevel(0)
 	{
 	}
+
+	// rapidsax handler interface
+	void start(string_ref name);
+	void attribute(string_ref name, string_ref value);
+	void text(string_ref text);
+	void stop();
+	void doctype(string_ref text);
+
+	string_ref getSystemID() const { return systemID; }
+
+private:
+	void addEntries();
 
 	enum State {
 		BEGIN,
@@ -83,7 +93,7 @@ struct DBParser
 	struct Dump {
 		string remarks;
 		Sha1Sum hash;
-		string origData;
+		string_ref origData;
 		RomType type;
 		bool origValue;
 	};
@@ -93,18 +103,17 @@ struct DBParser
 	CliComm& cliComm;
 	set<Sha1Sum> sums;
 
-	string systemID;
-	string data;
-	string type;
-	string start;
-	string algo;
+	string_ref systemID;
+	string_ref type;
+	string_ref startVal;
+	string_ref algo;
 
 	vector<Dump> dumps;
-	string system;
-	string title;
-	string company;
-	string year;
-	string country;
+	string_ref system;
+	string_ref title;
+	string_ref company;
+	string_ref year;
+	string_ref country;
 	string remarks;
 	int genMSXid;
 
@@ -112,211 +121,270 @@ struct DBParser
 	unsigned unknownLevel;
 };
 
-void copyTrimmed(const string& input, string& output)
+void DBParser::start(string_ref tag)
 {
-	string::size_type begin = input.find_first_not_of(" \t\n\r");
-	if (begin == string::npos) {
-		output.clear();
-		return;
-	}
-	string::size_type end = input.find_last_not_of(" \t\n\r");
-	assert(end != string::npos);
-	output.assign(input, begin, end - begin + 1);
-}
-static string trim(const string& s)
-{
-	string result;
-	copyTrimmed(s, result);
-	return result;
-}
-
-
-static void joinRemarks(string& result, const string& extra)
-{
-	if (extra.empty()) return;
-	if (!result.empty()) result += '\n';
-	result += extra;
-}
-
-static string getAttribute(const char* wantedAttribute,
-                           int nb_attributes, const xmlChar** attrs)
-{
-	for (int i = 0; i < nb_attributes; i++) {
-		if (strcmp(reinterpret_cast<const char*>(attrs[i * 5 + 0]),
-		           wantedAttribute) == 0) {
-			const char* valueStart =
-				reinterpret_cast<const char*>(attrs[i * 5 + 3]);
-			const char* valueEnd =
-				reinterpret_cast<const char*>(attrs[i * 5 + 4]);
-			return string(valueStart, valueEnd - valueStart);
-		}
-	}
-	return "";
-}
-
-static void cbStartElement(
-	DBParser* parser,
-	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/,
-	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
-	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
-{
-	parser->data.clear();
-	if (parser->unknownLevel) {
-		++parser->unknownLevel;
+	if (unknownLevel) {
+		++unknownLevel;
 		return;
 	}
 
-	const char* tag = reinterpret_cast<const char*>(localname);
-	switch (parser->state) {
-	case DBParser::BEGIN:
-		if (strcmp(tag, "softwaredb") == 0) {
-			parser->state = DBParser::SOFTWAREDB;
+	switch (state) {
+	case BEGIN:
+		if (tag == "softwaredb") {
+			state = SOFTWAREDB;
 		} else {
 			throw MSXException("Expected <softwaredb> as root tag.");
 		}
 		break;
-	case DBParser::SOFTWAREDB:
-		if (strcmp(tag, "software") == 0) {
-			parser->system.clear();
-			parser->title.clear();
-			parser->company.clear();
-			parser->year.clear();
-			parser->country.clear();
-			parser->remarks.clear();
-			parser->genMSXid = 0;
-			parser->dumps.clear();
-			parser->state = DBParser::SOFTWARE;
+	case SOFTWAREDB:
+		if (tag == "software") {
+			system.clear();
+			title.clear();
+			company.clear();
+			year.clear();
+			country.clear();
+			remarks.clear();
+			genMSXid = 0;
+			dumps.clear();
+			state = SOFTWARE;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::SOFTWARE:
-		if        (strcmp(tag, "system") == 0) {
-			parser->state = DBParser::SYSTEM;
-		} else if (strcmp(tag, "title") == 0) {
-			parser->state = DBParser::TITLE;
-		} else if (strcmp(tag, "company") == 0) {
-			parser->state = DBParser::COMPANY;
-		} else if (strcmp(tag, "year") == 0) {
-			parser->state = DBParser::YEAR;
-		} else if (strcmp(tag, "country") == 0) {
-			parser->state = DBParser::COUNTRY;
-		} else if (strcmp(tag, "remark") == 0) {
-			parser->state = DBParser::SW_REMARK;
-		} else if (strcmp(tag, "genmsxid") == 0) {
-			parser->state = DBParser::GENMSXID;
-		} else if (strcmp(tag, "dump") == 0) {
-			parser->dumps.resize(parser->dumps.size() + 1);
-			parser->dumps.back().type = ROM_UNKNOWN;
-			parser->dumps.back().origValue = false;
-			parser->state = DBParser::DUMP;
+	case SOFTWARE:
+		if        (tag == "system") {
+			state = SYSTEM;
+		} else if (tag == "title") {
+			state = TITLE;
+		} else if (tag == "company") {
+			state = COMPANY;
+		} else if (tag == "year") {
+			state = YEAR;
+		} else if (tag == "country") {
+			state = COUNTRY;
+		} else if (tag == "remark") {
+			state = SW_REMARK;
+		} else if (tag == "genmsxid") {
+			state = GENMSXID;
+		} else if (tag == "dump") {
+			dumps.resize(dumps.size() + 1);
+			dumps.back().type = ROM_UNKNOWN;
+			dumps.back().origValue = false;
+			state = DUMP;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::DUMP:
-		if        (strcmp(tag, "original") == 0) {
-			parser->dumps.back().origValue = StringOp::stringToBool(
-				getAttribute("value", nb_attributes, attrs));
-			parser->state = DBParser::ORIGINAL;
-		} else if (strcmp(tag, "megarom") == 0) {
-			parser->type.clear();
-			parser->start.clear();
-			parser->state = DBParser::ROM;
-		} else if (strcmp(tag, "rom") == 0) {
-			parser->type = "Mirrored";
-			parser->start.clear();
-			parser->state = DBParser::ROM;
+	case DUMP:
+		if        (tag == "original") {
+			dumps.back().origValue = false;
+			state = ORIGINAL;
+		} else if (tag == "megarom") {
+			type.clear();
+			startVal.clear();
+			state = ROM;
+		} else if (tag == "rom") {
+			type = "Mirrored";
+			startVal.clear();
+			state = ROM;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::ROM:
-		if        (strcmp(tag, "type") == 0) {
-			parser->state = DBParser::TYPE;
-		} else if (strcmp(tag, "start") == 0) {
-			parser->state = DBParser::START;
-		} else if (strcmp(tag, "remark") == 0) {
-			parser->state = DBParser::DUMP_REMARK;
-		} else if (strcmp(tag, "hash") == 0) {
-			parser->algo = getAttribute("algo", nb_attributes, attrs);
-			parser->state = DBParser::HASH;
+	case ROM:
+		if        (tag == "type") {
+			state = TYPE;
+		} else if (tag == "start") {
+			state = START;
+		} else if (tag == "remark") {
+			state = DUMP_REMARK;
+		} else if (tag == "hash") {
+			algo.clear();
+			state = HASH;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::SW_REMARK:
-		if (strcmp(tag, "text") == 0) {
-			parser->state = DBParser::SW_TEXT;
+	case SW_REMARK:
+		if (tag == "text") {
+			state = SW_TEXT;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::DUMP_REMARK:
-		if (strcmp(tag, "text") == 0) {
-			parser->state = DBParser::DUMP_TEXT;
+	case DUMP_REMARK:
+		if (tag == "text") {
+			state = DUMP_TEXT;
 		} else {
-			++parser->unknownLevel;
+			++unknownLevel;
 		}
 		break;
-	case DBParser::SYSTEM:
-	case DBParser::TITLE:
-	case DBParser::COMPANY:
-	case DBParser::YEAR:
-	case DBParser::COUNTRY:
-	case DBParser::GENMSXID:
-	case DBParser::ORIGINAL:
-	case DBParser::TYPE:
-	case DBParser::START:
-	case DBParser::HASH:
-	case DBParser::SW_TEXT:
-	case DBParser::DUMP_TEXT:
-		++parser->unknownLevel;
+	case SYSTEM:
+	case TITLE:
+	case COMPANY:
+	case YEAR:
+	case COUNTRY:
+	case GENMSXID:
+	case ORIGINAL:
+	case TYPE:
+	case START:
+	case HASH:
+	case SW_TEXT:
+	case DUMP_TEXT:
+		++unknownLevel;
 		break;
 
-	case DBParser::END:
-		throw MSXException("Unexpected opening tag: " + string(tag));
+	case END:
+		throw MSXException("Unexpected opening tag: " + tag);
 
 	default:
-		assert(false);
+		UNREACHABLE;
+	}
+}
+
+void DBParser::attribute(string_ref name, string_ref value)
+{
+	if (unknownLevel) return;
+
+	switch (state) {
+	case ORIGINAL:
+		if (name == "value") {
+			dumps.back().origValue = StringOp::stringToBool(value);
+		}
+		break;
+	case HASH:
+		if (name == "algo") {
+			algo = value;
+		}
+		break;
+	case BEGIN:
+	case SOFTWAREDB:
+	case SOFTWARE:
+	case SYSTEM:
+	case TITLE:
+	case COMPANY:
+	case YEAR:
+	case COUNTRY:
+	case GENMSXID:
+	case SW_REMARK:
+	case SW_TEXT:
+	case DUMP_REMARK:
+	case DUMP_TEXT:
+	case DUMP:
+	case ROM:
+	case TYPE:
+	case START:
+	case END:
+		break;
+	default:
+		UNREACHABLE;
+	}
+}
+
+static void joinRemarks(string& result, string_ref extra)
+{
+	if (extra.empty()) return;
+	if (!result.empty()) result += '\n';
+	result.append(extra.data(), extra.size());
+}
+
+void DBParser::text(string_ref text)
+{
+	if (unknownLevel) return;
+
+	switch (state) {
+	case SYSTEM:
+		system = text;
+		break;
+	case TITLE:
+		title = text;
+		break;
+	case COMPANY:
+		company = text;
+		break;
+	case YEAR:
+		year = text;
+		break;
+	case COUNTRY:
+		country = text;
+		break;
+	case GENMSXID:
+		genMSXid = stoi(text);
+		// TODO error checks?
+		//	cliComm.printWarning(StringOp::Builder() <<
+		//		"Ignoring bad Generation MSX id (genmsxid) "
+		//		"in entry with title '" << title <<
+		//		": " << data);
+		break;
+	case ORIGINAL:
+		dumps.back().origData = text;
+		break;
+	case TYPE:
+		type = text;
+		break;
+	case START:
+		startVal = text;
+		break;
+	case HASH:
+		if (algo == "sha1") {
+			dumps.back().hash = Sha1Sum(text);
+		}
+		break;
+	case SW_REMARK:
+	case SW_TEXT:
+		joinRemarks(remarks, text);
+		break;
+	case DUMP_REMARK:
+	case DUMP_TEXT:
+		joinRemarks(dumps.back().remarks, text);
+		break;
+	case BEGIN:
+	case SOFTWAREDB:
+	case SOFTWARE:
+	case DUMP:
+	case ROM:
+	case END:
+		break;
+	default:
+		UNREACHABLE;
 	}
 }
 
 // called on </software>
-static void addEntries(DBParser* parser)
+void DBParser::addEntries()
 {
-	if (!parser->system.empty() && (parser->system != "MSX")) {
+	if (!system.empty() && (system != "MSX")) {
 		// skip non-MSX entries
 		return;
 	}
 
-	for (vector<DBParser::Dump>::const_iterator it = parser->dumps.begin();
-	     it != parser->dumps.end(); ++it) {
-		if (!parser->sums.insert(it->hash).second) {
-			parser->cliComm.printWarning(
+	for (vector<Dump>::const_iterator it = dumps.begin();
+	     it != dumps.end(); ++it) {
+		if (!sums.insert(it->hash).second) {
+			cliComm.printWarning(
 				"duplicate softwaredb entry SHA1: " +
 				it->hash.toString());
 			continue;
 		}
 
-		RomInfo*& ptr = parser->romDBSHA1[it->hash];
+		RomInfo*& ptr = romDBSHA1[it->hash];
 		if (ptr) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
 			return;
 		}
 
-		string remarks = parser->remarks;
-		joinRemarks(remarks, it->remarks);
+		string r = remarks;
+		joinRemarks(r, it->remarks);
 
 		ptr = new RomInfo(
-			parser->title, parser->year, parser->company, parser->country,
-			it->origValue, it->origData, remarks, it->type,
-			parser->genMSXid);
+			title.str(), year.str(), company.str(), country.str(),
+			it->origValue, it->origData.str(), r, it->type,
+			genMSXid);
 	}
 }
 
-static string parseStart(const string& start)
+static string parseStart(string_ref start)
 {
 	if      (start == "0x0000") return "0000";
 	else if (start == "0x4000") return "4000";
@@ -325,174 +393,101 @@ static string parseStart(const string& start)
 	else return "";
 }
 
-static void cbEndElement(
-	DBParser* parser,
-	const xmlChar* /*localname*/, const xmlChar* /*prefix*/, const xmlChar* /*uri*/)
+void DBParser::stop()
 {
-	if (parser->unknownLevel) {
-		--parser->unknownLevel;
-		parser->data.clear();
+	if (unknownLevel) {
+		--unknownLevel;
 		return;
 	}
 
-	switch (parser->state) {
-	case DBParser::SOFTWAREDB:
-		parser->state = DBParser::END;
+	switch (state) {
+	case SOFTWAREDB:
+		state = END;
 		break;
-	case DBParser::SOFTWARE:
-		addEntries(parser);
-		parser->state = DBParser::SOFTWAREDB;
+	case SOFTWARE:
+		addEntries();
+		state = SOFTWAREDB;
 		break;
-	case DBParser::SYSTEM:
-		copyTrimmed(parser->data, parser->system);
-		parser->state = DBParser::SOFTWARE;
+	case SYSTEM:
+	case TITLE:
+	case COMPANY:
+	case YEAR:
+	case COUNTRY:
+	case GENMSXID:
+	case SW_REMARK:
+		state = SOFTWARE;
 		break;
-	case DBParser::TITLE:
-		copyTrimmed(parser->data, parser->title);
-		parser->state = DBParser::SOFTWARE;
+	case SW_TEXT:
+		state = SW_REMARK;
 		break;
-	case DBParser::COMPANY:
-		copyTrimmed(parser->data, parser->company);
-		parser->state = DBParser::SOFTWARE;
-		break;
-	case DBParser::YEAR:
-		copyTrimmed(parser->data, parser->year);
-		parser->state = DBParser::SOFTWARE;
-		break;
-	case DBParser::COUNTRY:
-		copyTrimmed(parser->data, parser->country);
-		parser->state = DBParser::SOFTWARE;
-		break;
-	case DBParser::GENMSXID:
-		if (!StringOp::stringToInt(trim(parser->data), parser->genMSXid)) {
-			parser->cliComm.printWarning(StringOp::Builder() <<
-				"Ignoring bad Generation MSX id (genmsxid) "
-				"in entry with title '" << parser->title <<
-				": " << parser->data);
-		}
-		parser->state = DBParser::SOFTWARE;
-		break;
-	case DBParser::SW_REMARK:
-		joinRemarks(parser->remarks, trim(parser->data));
-		parser->state = DBParser::SOFTWARE;
-		break;
-	case DBParser::SW_TEXT:
-		joinRemarks(parser->remarks, trim(parser->data));
-		parser->state = DBParser::SW_REMARK;
-		break;
-	case DBParser::DUMP_REMARK:
-		joinRemarks(parser->dumps.back().remarks, trim(parser->data));
-		parser->state = DBParser::ROM;
-		break;
-	case DBParser::DUMP_TEXT:
-		joinRemarks(parser->dumps.back().remarks, trim(parser->data));
-		parser->state = DBParser::DUMP_REMARK;
-		break;
-	case DBParser::DUMP:
-		if (parser->dumps.back().hash.empty()) {
+	case DUMP:
+		if (dumps.back().hash.empty()) {
 			// no sha1 sum specified, drop this dump
-			parser->dumps.pop_back();
+			dumps.pop_back();
 		}
-		parser->state = DBParser::SOFTWARE;
+		state = SOFTWARE;
 		break;
-	case DBParser::ORIGINAL:
-		copyTrimmed(parser->data, parser->dumps.back().origData);
-		parser->state = DBParser::DUMP;
+	case ORIGINAL:
+		state = DUMP;
 		break;
-	case DBParser::ROM: {
-		string type = parser->type;
-		if ((type == "Mirrored") || (type == "Normal")) {
-			type += parseStart(parser->start);
+	case ROM: {
+		string t = type.str();
+		if ((t == "Mirrored") || (t == "Normal")) {
+			t += parseStart(startVal);
 		}
-		RomType romType = RomInfo::nameToRomType(type);
+		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			parser->unknownTypes[type]++;
+			unknownTypes[t]++;
 		}
-		parser->dumps.back().type = romType;
-		parser->state = DBParser::DUMP;
+		dumps.back().type = romType;
+		state = DUMP;
 		break;
 	}
-	case DBParser::TYPE:
-		copyTrimmed(parser->data, parser->type);
-		parser->state = DBParser::ROM;
+	case TYPE:
+	case START:
+	case HASH:
+	case DUMP_REMARK:
+		state = ROM;
 		break;
-	case DBParser::START:
-		copyTrimmed(parser->data, parser->start);
-		parser->state = DBParser::ROM;
+	case DUMP_TEXT:
+		state = DUMP_REMARK;
 		break;
-	case DBParser::HASH:
-		if (parser->algo == "sha1") {
-			string sha1 = trim(parser->data);
-			try {
-				parser->dumps.back().hash = Sha1Sum(sha1);
-			} catch (MSXException& e) {
-				parser->cliComm.printWarning(StringOp::Builder() <<
-					"Ignoring entry with bad sha1: " <<
-					parser->title << ": " << e.getMessage());
-			}
-		}
-		parser->state = DBParser::ROM;
-		break;
-	case DBParser::BEGIN:
-	case DBParser::END:
+	case BEGIN:
+	case END:
 		throw MSXException("Unexpected closing tag");
 
 	default:
-		assert(false);
+		UNREACHABLE;
 	}
-
-	parser->data.clear();
 }
 
-static void cbCharacters(DBParser* parser, const xmlChar* chars, int len)
+void DBParser::doctype(string_ref text)
 {
-	parser->data.append(reinterpret_cast<const char*>(chars), len);
-}
-
-static void cbInternalSubset(DBParser* parser, const xmlChar* /*name*/,
-                             const xmlChar* /*extID*/, const xmlChar* systemID)
-{
-	parser->systemID = reinterpret_cast<const char*>(systemID);
+	unsigned pos1 = text.find(" SYSTEM \"");
+	if (pos1 == string_ref::npos) return;
+	string_ref t = text.substr(pos1 + 9);
+	unsigned pos2 = t.find('"');
+	if (pos2 == string_ref::npos) return;
+	systemID = t.substr(0, pos2);
 }
 
 static void parseDB(CliComm& cliComm, const string& filename,
                     RomDatabase::DBMap& romDBSHA1, UnknownTypes& unknownTypes)
 {
 	File file(filename);
-	unsigned size;
-	const char* buffer = reinterpret_cast<const char*>(file.mmap(size));
+	unsigned size = file.getSize();
+	MemBuffer<char> buf(size + 1);
+	file.read(buf.data(), size);
+	buf[size] = 0;
 
-	xmlSAXHandler handler;
-	memset(&handler, 0, sizeof(handler));
-	handler.startElementNs = (startElementNsSAX2Func)cbStartElement;
-	handler.endElementNs   = (endElementNsSAX2Func)  cbEndElement;
-	handler.characters     = (charactersSAXFunc)     cbCharacters;
-	handler.internalSubset = (internalSubsetSAXFunc) cbInternalSubset;
-	handler.initialized = XML_SAX2_MAGIC;
+	DBParser handler(romDBSHA1, unknownTypes, cliComm);
+	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
 
-	DBParser parser(romDBSHA1, unknownTypes, cliComm);
-
-	xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(
-		&handler, &parser, NULL, 0, filename.c_str());
-	if (!ctxt) {
-		throw MSXException("Could not create XML parser context");
-	}
-	int parseError = xmlParseChunk(ctxt, buffer, size, true);
-	xmlFreeParserCtxt(ctxt);
-
-	if (parseError) {
-		throw MSXException("Document parsing failed");
-	}
-	if (parser.systemID.empty()) {
-		throw MSXException(
-			"Missing systemID.\n"
-			"You're probably using an old incompatible file format.");
-	}
-	if (parser.systemID != "softwaredb1.dtd") {
-		throw MSXException(
-			"systemID doesn't match "
-			"(expected softwaredb1.dtd, got " + parser.systemID + ")\n"
-			"You're probably using an old incompatible file format.");
+	if (handler.getSystemID() != "softwaredb1.dtd") {
+		throw rapidsax::ParseError(
+			"Missing or wrong systemID.\n"
+			"You're probably using an old incompatible file format.",
+			NULL);
 	}
 }
 
@@ -508,6 +503,9 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		string filename = FileOperations::join(*it, "softwaredb.xml");
 		try {
 			parseDB(cliComm, filename, romDBSHA1, unknownTypes);
+		} catch (rapidsax::ParseError& e) {
+			cliComm.printWarning(StringOp::Builder() <<
+				"Rom database parsing failed: " << e.what());
 		} catch (MSXException& /*e*/) {
 			// Ignore. It's not unusual the DB in the user
 			// directory is not found. In case there's an error

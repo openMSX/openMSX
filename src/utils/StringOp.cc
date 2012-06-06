@@ -213,10 +213,14 @@ unsigned long long stringToUint64(const string& str)
        return strtoull(str.c_str(), NULL, 0);
 }
 
-bool stringToBool(const string& str)
+bool stringToBool(string_ref str)
 {
-	string low = toLower(str);
-	return (low == "true") || (low == "yes") || (low == "1");
+	if (str == "1") return true;
+	if ((str.size() == 4) && (strncasecmp(str.data(), "true", 4) == 0))
+		return true;
+	if ((str.size() == 3) && (strncasecmp(str.data(), "yes", 3) == 0))
+		return true;
+	return false;
 }
 
 double stringToDouble(const string& str)

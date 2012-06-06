@@ -4,7 +4,7 @@
 #define SHA1_HH
 
 #include "openmsx.hh"
-#include <string>
+#include "string_ref.hh"
 
 namespace openmsx {
 
@@ -22,7 +22,7 @@ public:
 	// note: default copy and assign are ok
 	Sha1Sum();
 	/** Construct from string, throws when string is malformed. */
-	explicit Sha1Sum(const std::string& hex);
+	explicit Sha1Sum(string_ref hex);
 
 	void parse40(const char* str);
 	std::string toString() const;

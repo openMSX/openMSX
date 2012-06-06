@@ -3,6 +3,7 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
+#include "string_ref.hh"
 #include "stringsp.hh"
 #include <string>
 #include <vector>
@@ -88,7 +89,7 @@ namespace StringOp
 	unsigned stringToUint(const std::string& str);
 	bool stringToUint(const std::string& str, unsigned& result);
 	unsigned long long stringToUint64(const std::string& str);
-	bool stringToBool(const std::string& str);
+	bool stringToBool(string_ref str);
 	double stringToDouble(const std::string& str);
 	bool stringToDouble(const std::string& str, double& result);
 
