@@ -90,7 +90,9 @@ enum RomType {
 	ROM_MANBOW2_2    = 192 + 0,
 	ROM_HAMARAJANIGHT= 192 + 1,
 
-	ROM_UNKNOWN      = 256
+	ROM_UNKNOWN      = 256,
+
+	ROM_ALIAS        = 512,
 };
 
 } // namespace openmsx

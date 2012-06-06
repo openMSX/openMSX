@@ -15,6 +15,19 @@ namespace openmsx {
 
 typedef map<string, RomType, StringOp::caseless> RomTypeMap;
 
+static inline RomType makeAlias(RomType type)
+{
+	return static_cast<RomType>(ROM_ALIAS | type);
+}
+static inline RomType removeAlias(RomType type)
+{
+	return static_cast<RomType>(type & ~ROM_ALIAS);
+}
+static inline bool isAlias(RomType type)
+{
+	return type & ROM_ALIAS;
+}
+
 static const RomTypeMap& getRomTypeMap()
 {
 	static bool init = false;
@@ -24,8 +37,8 @@ static const RomTypeMap& getRomTypeMap()
 
 		// generic ROM types that don't exist in real ROMs
 		// (should not occur in any database!)
-		romTypeMap["8kB"]             = ROM_GENERIC_8KB;
-		romTypeMap["16kB"]            = ROM_GENERIC_16KB;
+		romTypeMap["8kB"]            = ROM_GENERIC_8KB;
+		romTypeMap["16kB"]           = ROM_GENERIC_16KB;
 
 		// ROM mapper types for normal software (mainly games)
 		romTypeMap["Konami"]         = ROM_KONAMI;
@@ -93,6 +106,33 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Page2"]          = ROM_PAGE2;
 		romTypeMap["Page23"]         = ROM_PAGE23;
 		romTypeMap["Page3"]          = ROM_PAGE3;
+
+		// alternative names for rom types, mainly for
+		// backwards compatibility
+		romTypeMap["0"]             = makeAlias(ROM_GENERIC_8KB);
+		romTypeMap["GenericKonami"] = makeAlias(ROM_GENERIC_8KB); // probably actually used in a Zemina Box
+		romTypeMap["1"]             = makeAlias(ROM_GENERIC_16KB);
+		romTypeMap["2"]             = makeAlias(ROM_KONAMI_SCC);
+		romTypeMap["SCC"]           = makeAlias(ROM_KONAMI_SCC);
+		romTypeMap["KONAMI5"]       = makeAlias(ROM_KONAMI_SCC);
+		romTypeMap["KONAMI4"]       = makeAlias(ROM_KONAMI);
+		romTypeMap["3"]             = makeAlias(ROM_KONAMI);
+		romTypeMap["4"]             = makeAlias(ROM_ASCII8);
+		romTypeMap["5"]             = makeAlias(ROM_ASCII16);
+		romTypeMap["64kB"]          = makeAlias(ROM_MIRRORED);
+		romTypeMap["Plain"]         = makeAlias(ROM_MIRRORED);
+		romTypeMap["0x0000"]        = makeAlias(ROM_NORMAL0000);
+		romTypeMap["0x4000"]        = makeAlias(ROM_NORMAL4000);
+		romTypeMap["0x8000"]        = makeAlias(ROM_NORMAL8000);
+		romTypeMap["0xC000"]        = makeAlias(ROM_NORMALC000);
+		romTypeMap["HYDLIDE2"]      = makeAlias(ROM_ASCII16_2);
+		romTypeMap["RC755"]         = makeAlias(ROM_GAME_MASTER2);
+		romTypeMap["ROMBAS"]        = makeAlias(ROM_NORMAL8000);
+		romTypeMap["RTYPE"]         = makeAlias(ROM_R_TYPE);
+		romTypeMap["KOREAN80IN1"]   = makeAlias(ROM_ZEMINA80IN1);
+		romTypeMap["KOREAN90IN1"]   = makeAlias(ROM_ZEMINA90IN1);
+		romTypeMap["KOREAN126IN1"]  = makeAlias(ROM_ZEMINA126IN1);
+		romTypeMap["HolyQuran"]     = makeAlias(ROM_HOLY_QURAN);
 	}
 	return romTypeMap;
 }
@@ -116,54 +156,17 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 
 RomType RomInfo::nameToRomType(string name)
 {
-	typedef map<string, string, StringOp::caseless> AliasMap;
-	static AliasMap aliasMap;
-	static bool aliasMapInit = false;
-	if (!aliasMapInit) {
-		// alternative names for rom types, mainly for
-		// backwards compatibility
-		// map from 'alternative' to 'standard' name
-		aliasMapInit = true;
-		aliasMap["0"]             = "8kB";
-		aliasMap["GenericKonami"] = "8kB"; // probably actually used in a Zemina Box
-		aliasMap["1"]             = "16kB";
-		aliasMap["2"]             = "KonamiSCC";
-		aliasMap["SCC"]           = "KonamiSCC";
-		aliasMap["KONAMI5"]       = "KonamiSCC";
-		aliasMap["KONAMI4"]       = "Konami";
-		aliasMap["3"]             = "Konami";
-		aliasMap["4"]             = "ASCII8";
-		aliasMap["5"]             = "ASCII16";
-		aliasMap["64kB"]          = "Mirrored";
-		aliasMap["Plain"]         = "Mirrored";
-		aliasMap["0x0000"]        = "Normal0000";
-		aliasMap["0x4000"]        = "Normal4000";
-		aliasMap["0x8000"]        = "Normal8000";
-		aliasMap["0xC000"]        = "NormalC000";
-		aliasMap["HYDLIDE2"]      = "ASCII16SRAM2";
-		aliasMap["RC755"]         = "GameMaster2";
-		aliasMap["ROMBAS"]        = "Normal8000";
-		aliasMap["RTYPE"]         = "R-Type";
-		aliasMap["KOREAN80IN1"]   = "Zemina80in1";
-		aliasMap["KOREAN90IN1"]   = "Zemina90in1";
-		aliasMap["KOREAN126IN1"]  = "Zemina126in1";
-		aliasMap["HolyQuran"]     = "AlQuranDecoded";
-	}
 	const RomTypeMap& romTypeMap = getRomTypeMap();
-	AliasMap::const_iterator alias_it = aliasMap.find(name);
-	if (alias_it != aliasMap.end()) {
-		name = alias_it->second;
-		assert(romTypeMap.find(name) != romTypeMap.end());
-	}
 	RomTypeMap::const_iterator it = romTypeMap.find(name);
 	if (it == romTypeMap.end()) {
 		return ROM_UNKNOWN;
 	}
-	return it->second;
+	return removeAlias(it->second);
 }
 
 string RomInfo::romTypeToName(RomType type)
 {
+	assert(!isAlias(type));
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
@@ -179,7 +182,9 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
-		result.insert(it->first);
+		if (!isAlias(it->second)) {
+			result.insert(it->first);
+		}
 	}
 }
 
