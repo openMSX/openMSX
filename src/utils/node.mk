@@ -18,6 +18,7 @@ SRC_HDR:= \
 	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent win32-arggen \
 	lzo \
 	string_ref \
+	rapidsax \
 
 HDR_ONLY:= \
 	my_auto_ptr \
