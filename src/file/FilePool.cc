@@ -70,11 +70,14 @@ FilePool::FilePool(CommandController& controller, EventDistributor& distributor_
 	filePoolSetting->attach(*this);
 	distributor.registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	readSha1sums();
+	needWrite = false;
 }
 
 FilePool::~FilePool()
 {
-	writeSha1sums();
+	if (needWrite) {
+		writeSha1sums();
+	}
 	distributor.unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	filePoolSetting->detach(*this);
 }
@@ -83,12 +86,14 @@ void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
 	Pool::iterator it = pool.insert(make_pair(sum, make_pair(time, filename)));
 	reversePool.insert(make_pair(it->second.second, it));
+	needWrite = true;
 }
 
 void FilePool::remove(Pool::iterator it)
 {
 	reversePool.erase(it->second.second);
 	pool.erase(it);
+	needWrite = true;
 }
 
 static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filename)

@@ -103,6 +103,7 @@ private:
 	unsigned long long lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
 	bool quit;
+	bool needWrite;
 };
 
 } // namespace openmsx
