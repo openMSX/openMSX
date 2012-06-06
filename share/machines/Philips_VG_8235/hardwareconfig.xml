@@ -47,7 +47,7 @@
     </PSG>
 
     <RTC id="Real time clock">
-      <sramname>nms_8250.cmos</sramname>
+      <sramname>nms_8235.cmos</sramname>
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
     </RTC>
