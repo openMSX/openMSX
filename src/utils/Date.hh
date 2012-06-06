@@ -10,7 +10,9 @@ namespace openmsx {
 
 namespace Date {
 
-	time_t fromString(const std::string& line);
+	// 'line' must point to a buffer that is at least 24 characters long
+	time_t fromString(const char* line);
+
 	std::string toString(time_t time);
 
 } // namespace Date

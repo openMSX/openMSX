@@ -24,6 +24,7 @@ public:
 	/** Construct from string, throws when string is malformed. */
 	explicit Sha1Sum(const std::string& hex);
 
+	void parse40(const char* str);
 	std::string toString() const;
 
 	// Test or set 'null' value.

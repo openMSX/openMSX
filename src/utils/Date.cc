@@ -32,15 +32,12 @@ static inline bool parseDigit(unsigned c, T& t)
 	return true;
 }
 
-time_t fromString(const std::string& line)
+time_t fromString(const char* p)
 {
 	struct tm tm;
-	const char* p = line.c_str();
 
 	// skip day
-	if (*p++ == 0) return time_t(-1);
-	if (*p++ == 0) return time_t(-1);
-	if (*p++ == 0) return time_t(-1);
+	p += 3;
 
 	// space
 	if (*p++ != ' ') return time_t(-1);

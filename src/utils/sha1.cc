@@ -103,24 +103,30 @@ Sha1Sum::Sha1Sum()
 	clear();
 }
 
-static inline unsigned hex(char x, const string& str)
-{
-	if (('0' <= x) && (x <= '9')) return x - '0';
-	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
-	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
-	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " + str);
-}
 Sha1Sum::Sha1Sum(const std::string& str)
 {
 	if (str.size() != 40) {
 		throw MSXException("Invalid sha1, should be exactly 40 digits long: " + str);
 	}
-	string::const_iterator it = str.begin();
+	parse40(str.data());
+}
+
+static inline unsigned hex(char x, const char* str)
+{
+	if (('0' <= x) && (x <= '9')) return x - '0';
+	if (('a' <= x) && (x <= 'f')) return x - 'a' + 10;
+	if (('A' <= x) && (x <= 'F')) return x - 'A' + 10;
+	throw MSXException("Invalid sha1, digits should be 0-9, a-f: " +
+	                   string(str, 40));
+}
+void Sha1Sum::parse40(const char* str)
+{
+	const char* p = str;
 	for (int i = 0; i < 5; ++i) {
 		unsigned t = 0;
 		for (int j = 0; j < 8; ++j) {
 			t <<= 4;
-			t |= hex(*it++, str);
+			t |= hex(*p++, str);
 		}
 		a[i] = t;
 	}

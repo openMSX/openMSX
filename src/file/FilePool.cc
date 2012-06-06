@@ -98,20 +98,18 @@ void FilePool::remove(Pool::iterator it)
 
 static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filename)
 {
-	if (line.length() <= 68) {
-		return false;
-	}
+	if (line.size() <= 68) return false;
 
 	try {
-		sha1 = Sha1Sum(line.substr(0, 40));
+		sha1.parse40(line.data());
 	} catch (MSXException& /*e*/) {
 		return false;
 	}
 
-	time = Date::fromString(line.substr(42, 24));
+	time = Date::fromString(line.data() + 42);
 	if (time == time_t(-1)) return false;
 
-	filename = line.substr(68);
+	filename.assign(line, 68, line.size());
 	return true;
 }
 
@@ -119,13 +117,12 @@ void FilePool::readSha1sums()
 {
 	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
 	ifstream file(cacheFile.c_str());
+	string line;
+	Sha1Sum sum;
+	string filename;
+	time_t time;
 	while (file.good()) {
-		string line;
 		getline(file, line);
-
-		Sha1Sum sum;
-		string filename;
-		time_t time;
 		if (parse(line, sum, time, filename)) {
 			insert(sum, time, filename);
 		}
