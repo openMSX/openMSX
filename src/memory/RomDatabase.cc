@@ -384,13 +384,10 @@ void DBParser::addEntries()
 	}
 }
 
-static string parseStart(string_ref start)
+static const char* parseStart(string_ref s)
 {
-	if      (start == "0x0000") return "0000";
-	else if (start == "0x4000") return "4000";
-	else if (start == "0x8000") return "8000";
-	else if (start == "0xC000") return "C000";
-	else return "";
+	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
+	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : NULL;
 }
 
 void DBParser::stop()
@@ -431,13 +428,24 @@ void DBParser::stop()
 		state = DUMP;
 		break;
 	case ROM: {
-		string t = type.str();
-		if ((t == "Mirrored") || (t == "Normal")) {
-			t += parseStart(startVal);
+		string_ref t = type;
+		char buf[12];
+		if (t == "Mirrored") {
+			if (const char* start = parseStart(startVal)) {
+				memcpy(buf, t.data(), 8);
+				memcpy(buf + 8, start, 4);
+				t = string_ref(buf, 12);
+			}
+		} else if (t == "Normal") {
+			if (const char* start = parseStart(startVal)) {
+				memcpy(buf, t.data(), 6);
+				memcpy(buf + 6, start, 4);
+				t = string_ref(buf, 10);
+			}
 		}
 		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			unknownTypes[t]++;
+			unknownTypes[t.str()]++;
 		}
 		dumps.back().type = romType;
 		state = DUMP;

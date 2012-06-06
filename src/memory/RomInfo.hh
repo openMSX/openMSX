@@ -4,7 +4,7 @@
 #define ROMINFO_HH
 
 #include "RomTypes.hh"
-#include <string>
+#include "string_ref.hh"
 #include <set>
 
 namespace openmsx {
@@ -30,7 +30,7 @@ public:
 	bool               getOriginal()  const { return original; }
 	int                getGenMSXid()  const { return genMSXid; }
 
-	static RomType nameToRomType(std::string name);
+	static RomType nameToRomType(string_ref name);
 	static std::string romTypeToName(RomType type);
 	static void getAllRomTypes(std::set<std::string>& result);
 

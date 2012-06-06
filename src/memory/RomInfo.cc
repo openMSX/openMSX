@@ -13,7 +13,7 @@ using std::string;
 
 namespace openmsx {
 
-typedef map<string, RomType, StringOp::caseless> RomTypeMap;
+typedef map<string_ref, RomType, StringOp::caseless> RomTypeMap;
 
 static inline RomType makeAlias(RomType type)
 {
@@ -154,7 +154,7 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 {
 }
 
-RomType RomInfo::nameToRomType(string name)
+RomType RomInfo::nameToRomType(string_ref name)
 {
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	RomTypeMap::const_iterator it = romTypeMap.find(name);
@@ -171,7 +171,7 @@ string RomInfo::romTypeToName(RomType type)
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
 		if (it->second == type) {
-			return it->first;
+			return it->first.str();
 		}
 	}
 	UNREACHABLE; return "";
@@ -183,7 +183,7 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
 		if (!isAlias(it->second)) {
-			result.insert(it->first);
+			result.insert(it->first.str());
 		}
 	}
 }

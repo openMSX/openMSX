@@ -10,6 +10,7 @@
 #include <set>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #endif
@@ -123,6 +124,11 @@ namespace StringOp
 	struct caseless {
 		bool operator()(const std::string& s1, const std::string& s2) const {
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+		}
+		bool operator()(string_ref s1, string_ref s2) const {
+			unsigned m = std::min(s1.size(), s2.size());
+			int r = strncasecmp(s1.data(), s2.data(), m);
+			return (r != 0) ? (r < 0) : (s1.size() < s2.size());
 		}
 	};
 
