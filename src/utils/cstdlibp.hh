@@ -6,7 +6,8 @@
 #include <cstdlib>
 
 #ifdef _MSC_VER
-#define strtoull _strtoi64
+#define strtoll  _strtoi64
+#define strtoull _strtoui64
 #endif
 
 #endif
