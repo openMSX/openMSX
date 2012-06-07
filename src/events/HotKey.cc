@@ -208,9 +208,9 @@ void HotKey::initDefaultBindings()
 	}
 }
 
-static HotKey::EventPtr createEvent(const string& str)
+static HotKey::EventPtr createEvent(const TclObject& obj, Interpreter& interp)
 {
-	auto event = InputEventFactory::createInputEvent(str);
+	auto event = InputEventFactory::createInputEvent(obj, interp);
 	if (!dynamic_cast<const KeyEvent*>             (event.get()) &&
 	    !dynamic_cast<const MouseButtonEvent*>     (event.get()) &&
 	    !dynamic_cast<const MouseMotionGroupEvent*>(event.get()) &&
@@ -220,6 +220,10 @@ static HotKey::EventPtr createEvent(const string& str)
 		throw CommandException("Unsupported event type");
 	}
 	return event;
+}
+static HotKey::EventPtr createEvent(const string& str, Interpreter& interp)
+{
+	return createEvent(TclObject(str), interp);
 }
 
 void HotKey::loadBindings(const XMLElement& config)
@@ -235,12 +239,13 @@ void HotKey::loadBindings(const XMLElement& config)
 	auto copy = *bindingsElement; // dont iterate over changing container
 	for (auto& elem : copy.getChildren()) {
 		try {
+			auto& interp = commandController.getInterpreter();
 			if (elem.getName() == "bind") {
-				bind(createEvent(elem.getAttribute("key")),
+				bind(createEvent(elem.getAttribute("key"), interp),
 				     HotKeyInfo(elem.getData(),
 				                elem.getAttributeAsBool("repeat", false)));
 			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttribute("key")));
+				unbind(createEvent(elem.getAttribute("key"), interp));
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
@@ -547,7 +552,7 @@ void BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 	}
 	case 1: {
 		// show bindings for this key (in this layer)
-		auto it = cmdMap.find(createEvent(tokens[0].getString().str()));
+		auto it = cmdMap.find(createEvent(tokens[0], getInterpreter()));
 		if (it == end(cmdMap)) {
 			throw CommandException("Key not bound");
 		}
@@ -569,7 +574,7 @@ void BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 			command.append(t.data(), t.size());
 		}
 		HotKey::HotKeyInfo info(command, repeat);
-		auto event = createEvent(tokens[0].getString().str());
+		auto event = createEvent(tokens[0], getInterpreter());
 		if (defaultCmd) {
 			hotKey.bindDefault(event, info);
 		} else if (layer.empty()) {
@@ -624,7 +629,7 @@ void UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
 
 	HotKey::EventPtr event;
 	if (tokens.size() == 1) {
-		event = createEvent(tokens[0].getString().str());
+		event = createEvent(tokens[0], getInterpreter());
 	}
 
 	if (defaultCmd) {

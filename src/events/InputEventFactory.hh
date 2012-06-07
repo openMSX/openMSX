@@ -1,17 +1,21 @@
 #ifndef INPUTEVENTFACTORY_HH
 #define INPUTEVENTFACTORY_HH
 
+#include "string_ref.hh"
 #include <memory>
-#include <string>
 
 namespace openmsx {
 
 class Event;
+class TclObject;
+class Interpreter;
 
 namespace InputEventFactory
 {
 	typedef std::shared_ptr<const Event> EventPtr;
-	EventPtr createInputEvent(const std::string& str);
+
+	EventPtr createInputEvent(string_ref str,       Interpreter& interp);
+	EventPtr createInputEvent(const TclObject& str, Interpreter& interp);
 }
 
 } // namespace openmsx

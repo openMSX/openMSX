@@ -225,7 +225,8 @@ void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 			try {
 				// A valid event name?
 				afterInputEvent(
-					InputEventFactory::createInputEvent(subCmd.str()), // TODO
+					InputEventFactory::createInputEvent(
+						tokens[1], getInterpreter()),
 					tokens, result);
 			} catch (MSXException&) {
 				throw SyntaxError();

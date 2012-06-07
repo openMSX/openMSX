@@ -9,6 +9,7 @@
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
 #include "RecordedCommand.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "SimpleDebuggable.hh"
 #include "InputEvents.hh"
@@ -74,7 +75,8 @@ private:
 class MsxKeyEventQueue final : public Schedulable
 {
 public:
-	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
+	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard,
+	                 Interpreter& interp);
 	void process_asap(EmuTime::param time, const shared_ptr<const Event>& event);
 	void clear();
 	template<typename Archive>
@@ -85,6 +87,7 @@ private:
 	void executeUntil(EmuTime::param time, int userData) override;
 	std::deque<shared_ptr<const Event>> eventQueue;
 	Keyboard& keyboard;
+	Interpreter& interp;
 };
 
 class KeyInserter final : public RecordedCommand, public Schedulable
@@ -226,7 +229,8 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, capsLockAligner(make_unique<CapsLockAligner>(
 		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
-	, msxKeyEventQueue(make_unique<MsxKeyEventQueue>(scheduler, *this))
+	, msxKeyEventQueue(make_unique<MsxKeyEventQueue>(
+		scheduler, *this, commandController.getInterpreter()))
 	, keybDebuggable(make_unique<KeybDebuggable>(motherBoard, *this))
 	, unicodeKeymap(make_unique<UnicodeKeymap>(keyboardType))
 	, hasKeypad(hasKP)
@@ -1043,9 +1047,11 @@ string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 
 // class MsxKeyEventQueue
 
-MsxKeyEventQueue::MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard_)
+MsxKeyEventQueue::MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard_,
+                                   Interpreter& interp_)
 	: Schedulable(scheduler)
 	, keyboard(keyboard_)
+	, interp(interp_)
 {
 }
 
@@ -1445,7 +1451,8 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		assert(eventQueue.empty());
 		for (auto& s : eventStrs) {
-			eventQueue.push_back(InputEventFactory::createInputEvent(s));
+			eventQueue.push_back(
+				InputEventFactory::createInputEvent(s, interp));
 		}
 	}
 }
