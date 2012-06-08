@@ -36,7 +36,7 @@ TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 # Select the SDK to use. This can be higher than the OS X minimum version.
 # The SDK path for Xcode from the Mac App Store:
 SDK_PATH:=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/
-ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists),exists)
+ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists)$(filter $(OPENMSX_TARGET_CPU),ppc),exists)
 # The SDK path for the older stand-alone Xcode:
 SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
 endif
@@ -45,8 +45,13 @@ $(error No Mac OS X SDK found)
 endif
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
+ifeq ($(OPENMSX_TARGET_CPU),ppc)
+# Select an appropriate GCC version. Only PPC doesn't use clang yet.
+CXX:=$(SDK_PATH)/../../usr/bin/g++-4.2
+else
 # Select clang as the compiler.
 CXX:=clang++
+endif
 
 ifeq ($(filter 3RD_%,$(LINK_MODE)),)
 # Compile against local libs. We assume the binary is intended to be run on
