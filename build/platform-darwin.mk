@@ -34,10 +34,15 @@ endif
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
 
 # Select the SDK to use. This can be higher than the OS X minimum version.
+# The SDK path for Xcode from the Mac App Store:
 SDK_PATH:=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/
-# The path above is for Xcode from the Mac App Store. If you're using the older
-# stand-alone Xcode, this is the right path:
-#SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
+ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists),exists)
+# The SDK path for the older stand-alone Xcode:
+SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
+endif
+ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists),exists)
+$(error No Mac OS X SDK found)
+endif
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
 # Select clang as the compiler.
