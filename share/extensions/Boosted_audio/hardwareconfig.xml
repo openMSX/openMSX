@@ -35,6 +35,7 @@
          <mem base="0xC000" size="0x3000"/>
          <mappertype>Normal0000</mappertype>
          <rom>
+           <sha1>3b02e5f45603df2c180f9c07d59b2ccc5a87bd0a</sha1> <!-- MSX-Audio BIOS v1.3 -->
            <sha1>dde213b6d9324b94e78ed8df753042469bd31ef0</sha1> <!-- MSX-Audio v1.2pre4 with aditional fixes by SuperSoniqs -->
            <sha1>05e9f40bb7bdc46b557d445c717cb84ad75252f6</sha1> <!-- MSX-Audio v1.2pre4 -->
            <sha1>7f115ff923a1cc0d1944cf280168add946fde854</sha1> <!-- MSX-Audio BIOS v1.0, patched to disable the I/O port configuration, the mute-switch and the SYNTHE-switch  -->
