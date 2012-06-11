@@ -68,7 +68,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
-	destX = destY = destW = destH = 0; // avoid UMR
+	destX = destY = destW = destH = 0; // recalc on first paint()
 	blink = false;
 	lastBlinkTime = Timer::getTime();
 	lastCursorX = lastCursorY = 0;
@@ -128,17 +128,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		"consoleplacement", "position of the console within the emulator",
 		CP_BOTTOM, placeMap));
 
-	updateConsoleRect();
-
-	// background
+	// background (only load backgound on first paint())
 	backgroundSetting.reset(new FilenameSetting(commandController,
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png"));
-	try {
-		backgroundSetting->setChecker(settingChecker.get());
-	} catch (MSXException& e) {
-		reactor.getCliComm().printWarning(e.getMessage());
-	}
+	backgroundSetting->setChecker(settingChecker.get(), false); // don't load
 
 	consoleSetting.attach(*this);
 	fontSizeSetting->attach(*this);
@@ -324,8 +318,8 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	if (updateConsoleRect()) {
 		try {
 			loadBackground(backgroundSetting->getValue());
-		} catch (MSXException&) {
-			// ignore
+		} catch (MSXException& e) {
+			reactor.getCliComm().printWarning(e.getMessage());
 		}
 	}
 

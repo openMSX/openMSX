@@ -71,7 +71,7 @@ public:
 
 	/**
 	 */
-	void setChecker(SettingChecker<POLICY>* checker);
+	void setChecker(SettingChecker<POLICY>* checker, bool checkNow = true);
 
 	// virtual methods from Setting class
 	virtual std::string getTypeString() const;
@@ -195,10 +195,10 @@ void SettingImpl<POLICY>::setRestoreValue(const Type& value)
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_)
+void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_, bool checkNow)
 {
 	checker = checker_;
-	if (checker) {
+	if (checker && checkNow) {
 		setValue2(getValue(), true);
 	}
 }
