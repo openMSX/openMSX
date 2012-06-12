@@ -165,6 +165,9 @@ private:
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
 
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 
 	CliComm& cliComm;
@@ -179,7 +182,9 @@ private:
 	Amplitude amplitude;
 	Envelope envelope;
 	byte regs[16];
-	bool isAY8910;
+	const bool isAY8910;
+	bool doDetune;
+	bool detuneInitialized;
 };
 
 } // namespace openmsx

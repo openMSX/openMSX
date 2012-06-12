@@ -499,7 +499,11 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
 {
-	initDetune();
+	// (lazily) initialize detune stuff
+	detuneInitialized = false;
+	update(*vibratoPercent);
+	vibratoPercent->attach(*this);
+	detunePercent ->attach(*this);
 
 	for (int chan = 0; chan < 3; ++chan) {
 		tone[chan].setParent(*this);
@@ -517,6 +521,8 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 AY8910::~AY8910()
 {
 	unregisterSound();
+	vibratoPercent->detach(*this);
+	detunePercent ->detach(*this);
 }
 
 void AY8910::reset(EmuTime::param time)
@@ -711,9 +717,6 @@ static void addFill(int*& buf, int val, unsigned num)
 
 void AY8910::generateChannels(int** bufs, unsigned length)
 {
-	bool doDetune = (vibratoPercent->getValue() != 0) ||
-	                (detunePercent->getValue()  != 0);
-
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
 	unsigned chanEnable = regs[AY_ENABLE];
@@ -995,6 +998,21 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	// Envelope not yet updated?
 	if (envelope.isChanging() && !envelopeUpdated) {
 		envelope.advance(length);
+	}
+}
+
+void AY8910::update(const Setting& setting)
+{
+	if ((&setting == vibratoPercent.get()) ||
+	    (&setting == detunePercent .get())) {
+		doDetune = (vibratoPercent->getValue() != 0) ||
+			   (detunePercent ->getValue() != 0);
+		if (doDetune && !detuneInitialized) {
+			detuneInitialized = true;
+			initDetune();
+		}
+	} else {
+		ResampledSoundDevice::update(setting);
 	}
 }
 

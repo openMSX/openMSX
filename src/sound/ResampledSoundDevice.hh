@@ -14,7 +14,7 @@ class ResampleAlgo;
 class Setting;
 template<typename T> class EnumSetting;
 
-class ResampledSoundDevice : public SoundDevice, private Observer<Setting>
+class ResampledSoundDevice : public SoundDevice, protected Observer<Setting>
 {
 public:
 	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
@@ -36,12 +36,12 @@ protected:
 	virtual bool updateBuffer(unsigned length, int* buffer,
 	                          EmuTime::param time);
 
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 	void createResampler();
 
 private:
-	// Observer<Setting>
-	void update(const Setting& setting);
-
 	EnumSetting<ResampleType>& resampleSetting;
 	std::auto_ptr<ResampleAlgo> algo;
 };
