@@ -13,12 +13,11 @@
 
 namespace openmsx {
 
+#include "BlipConfig.hh"
+
 class BlipBuffer
 {
 public:
-	// Number bits in phase offset. Fewer than 6 bits (64 phase offsets) results in
-	// noticeable broadband noise when synthesizing high frequency square waves.
-	static const int BLIP_PHASE_BITS = 10;
 	typedef FixedPoint<BLIP_PHASE_BITS> TimeIndex;
 
 	BlipBuffer();
