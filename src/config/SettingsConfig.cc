@@ -23,7 +23,7 @@ using std::vector;
 
 namespace openmsx {
 
-class SaveSettingsCommand : public SimpleCommand
+class SaveSettingsCommand : public Command
 {
 public:
 	SaveSettingsCommand(CommandController& commandController,
@@ -35,7 +35,7 @@ private:
 	SettingsConfig& settingsConfig;
 };
 
-class LoadSettingsCommand : public SimpleCommand
+class LoadSettingsCommand : public Command
 {
 public:
 	LoadSettingsCommand(CommandController& commandController,
@@ -128,7 +128,7 @@ XMLElement& SettingsConfig::getXMLElement()
 SaveSettingsCommand::SaveSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
-	: SimpleCommand(commandController, "save_settings")
+	: Command(commandController, "save_settings")
 	, settingsConfig(settingsConfig_)
 {
 }
@@ -171,7 +171,7 @@ void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 LoadSettingsCommand::LoadSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
-	: SimpleCommand(commandController, "load_settings")
+	: Command(commandController, "load_settings")
 	, settingsConfig(settingsConfig_)
 {
 }

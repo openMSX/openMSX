@@ -41,7 +41,7 @@ using std::set;
 
 namespace openmsx {
 
-class ScreenShotCmd : public SimpleCommand
+class ScreenShotCmd : public Command
 {
 public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
@@ -413,7 +413,7 @@ void Display::updateZ(Layer& layer)
 
 ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
                              Display& display_)
-	: SimpleCommand(commandController, "screenshot")
+	: Command(commandController, "screenshot")
 	, display(display_)
 {
 }

@@ -16,7 +16,7 @@ using std::vector;
 
 namespace openmsx {
 
-class EscapeGrabCmd : public SimpleCommand
+class EscapeGrabCmd : public Command
 {
 public:
 	EscapeGrabCmd(CommandController& commandController,
@@ -349,7 +349,7 @@ void InputEventGenerator::setGrabInput(bool grab)
 // class EscapeGrabCmd
 EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
                              InputEventGenerator& inputEventGenerator_)
-	: SimpleCommand(commandController, "escape_grab")
+	: Command(commandController, "escape_grab")
 	, inputEventGenerator(inputEventGenerator_)
 {
 }

@@ -125,7 +125,7 @@ private:
 AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
                            CommandController& commandController)
-	: SimpleCommand(commandController, "after")
+	: Command(commandController, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
 {

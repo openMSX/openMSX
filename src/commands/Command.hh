@@ -42,7 +42,13 @@ public:
 	  *                          executing this command.
 	  */
 	virtual void execute(const std::vector<TclObject*>& tokens,
-	                     TclObject& result) = 0;
+	                     TclObject& result);
+
+	/** Alternative for the execute() method above.
+	  * It has a simpler interface, but performance is a bit lower.
+	  * Subclasses should override either this method or the one above.
+	  */
+	virtual std::string execute(const std::vector<std::string>& tokens);
 
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.
@@ -61,26 +67,6 @@ protected:
 
 private:
 	void init();
-};
-
-/**
- * Simplified Command class for commands that just need to
- * return a (small) string
- */
-class SimpleCommand : public Command
-{
-public:
-	virtual std::string execute(const std::vector<std::string>& tokens) = 0;
-
-	virtual void execute(const std::vector<TclObject*>& tokens,
-	                     TclObject& result);
-
-protected:
-	SimpleCommand(CommandController& commandController,
-	              const std::string& name);
-	SimpleCommand(CommandController& commandController,
-	              const char* name);
-	virtual ~SimpleCommand();
 };
 
 } // namespace openmsx

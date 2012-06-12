@@ -233,7 +233,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class LoadMachineCmd : public SimpleCommand
+class LoadMachineCmd : public Command
 {
 public:
 	LoadMachineCmd(MSXMotherBoard::Impl& motherBoard);
@@ -968,7 +968,7 @@ string ResetCmd::help(const vector<string>& /*tokens*/) const
 
 // LoadMachineCmd
 LoadMachineCmd::LoadMachineCmd(MSXMotherBoard::Impl& motherBoard_)
-	: SimpleCommand(motherBoard_.getCommandController(), "load_machine")
+	: Command(motherBoard_.getCommandController(), "load_machine")
 	, motherBoard(motherBoard_)
 {
 }

@@ -25,7 +25,7 @@ namespace openmsx {
 NowindCommand::NowindCommand(const string& basename,
                              CommandController& commandController,
                              NowindInterface& interface_)
-	: SimpleCommand(commandController, basename)
+	: Command(commandController, basename)
 	, interface(interface_)
 {
 }

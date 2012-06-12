@@ -53,7 +53,7 @@ private:
 	GlobalCommandController& controller;
 };
 
-class UpdateCmd : public SimpleCommand
+class UpdateCmd : public Command
 {
 public:
 	UpdateCmd(CommandController& commandController,
@@ -650,7 +650,7 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 
 UpdateCmd::UpdateCmd(CommandController& commandController,
                      GlobalCliComm& cliComm_)
-	: SimpleCommand(commandController, "openmsx_update")
+	: Command(commandController, "openmsx_update")
 	, cliComm(cliComm_)
 {
 }

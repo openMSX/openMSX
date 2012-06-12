@@ -52,7 +52,7 @@ using std::set;
 
 namespace openmsx {
 
-class QuitCommand : public SimpleCommand
+class QuitCommand : public Command
 {
 public:
 	QuitCommand(CommandController& commandController, EventDistributor& distributor);
@@ -62,7 +62,7 @@ private:
 	EventDistributor& distributor;
 };
 
-class MachineCommand : public SimpleCommand
+class MachineCommand : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
@@ -73,7 +73,7 @@ private:
 	Reactor& reactor;
 };
 
-class TestMachineCommand : public SimpleCommand
+class TestMachineCommand : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -84,7 +84,7 @@ private:
 	Reactor& reactor;
 };
 
-class CreateMachineCommand : public SimpleCommand
+class CreateMachineCommand : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -94,7 +94,7 @@ private:
 	Reactor& reactor;
 };
 
-class DeleteMachineCommand : public SimpleCommand
+class DeleteMachineCommand : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -116,7 +116,7 @@ private:
 	Reactor& reactor;
 };
 
-class ActivateMachineCommand : public SimpleCommand
+class ActivateMachineCommand : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -127,7 +127,7 @@ private:
 	Reactor& reactor;
 };
 
-class StoreMachineCommand : public SimpleCommand
+class StoreMachineCommand : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -138,7 +138,7 @@ private:
 	Reactor& reactor;
 };
 
-class RestoreMachineCommand : public SimpleCommand
+class RestoreMachineCommand : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -650,7 +650,7 @@ int Reactor::signalEvent(const shared_ptr<const Event>& event)
 
 QuitCommand::QuitCommand(CommandController& commandController,
                          EventDistributor& distributor_)
-	: SimpleCommand(commandController, "exit")
+	: Command(commandController, "exit")
 	, distributor(distributor_)
 {
 }
@@ -671,7 +671,7 @@ string QuitCommand::help(const vector<string>& /*tokens*/) const
 
 MachineCommand::MachineCommand(CommandController& commandController,
                                Reactor& reactor_)
-	: SimpleCommand(commandController, "machine")
+	: Command(commandController, "machine")
 	, reactor(reactor_)
 {
 }
@@ -711,7 +711,7 @@ void MachineCommand::tabCompletion(vector<string>& tokens) const
 
 TestMachineCommand::TestMachineCommand(CommandController& commandController,
                                        Reactor& reactor_)
-	: SimpleCommand(commandController, "test_machine")
+	: Command(commandController, "test_machine")
 	, reactor(reactor_)
 {
 }
@@ -749,7 +749,7 @@ void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 
 CreateMachineCommand::CreateMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "create_machine")
+	: Command(commandController, "create_machine")
 	, reactor(reactor_)
 {
 }
@@ -781,7 +781,7 @@ string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
 
 DeleteMachineCommand::DeleteMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "delete_machine")
+	: Command(commandController, "delete_machine")
 	, reactor(reactor_)
 {
 }
@@ -835,7 +835,7 @@ string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
 
 ActivateMachineCommand::ActivateMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "activate_machine")
+	: Command(commandController, "activate_machine")
 	, reactor(reactor_)
 {
 }
@@ -873,7 +873,7 @@ void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 
 StoreMachineCommand::StoreMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "store_machine")
+	: Command(commandController, "store_machine")
 	, reactor(reactor_)
 {
 }
@@ -928,7 +928,7 @@ void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 
 RestoreMachineCommand::RestoreMachineCommand(
 	CommandController& commandController, Reactor& reactor_)
-	: SimpleCommand(commandController, "restore_machine")
+	: Command(commandController, "restore_machine")
 	, reactor(reactor_)
 {
 }

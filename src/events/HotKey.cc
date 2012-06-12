@@ -27,7 +27,7 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
-class BindCmd : public SimpleCommand
+class BindCmd : public Command
 {
 public:
 	BindCmd(CommandController& commandController, HotKey& hotKey,
@@ -41,7 +41,7 @@ private:
 	const bool defaultCmd;
 };
 
-class UnbindCmd : public SimpleCommand
+class UnbindCmd : public Command
 {
 public:
 	UnbindCmd(CommandController& commandController, HotKey& hotKey,
@@ -318,7 +318,7 @@ static string getBindCmdName(bool defaultCmd)
 
 BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
                  bool defaultCmd_)
-	: SimpleCommand(commandController, getBindCmdName(defaultCmd_))
+	: Command(commandController, getBindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {
@@ -398,7 +398,7 @@ static string getUnbindCmdName(bool defaultCmd)
 
 UnbindCmd::UnbindCmd(CommandController& commandController,
                      HotKey& hotKey_, bool defaultCmd_)
-	: SimpleCommand(commandController, getUnbindCmdName(defaultCmd_))
+	: Command(commandController, getUnbindCmdName(defaultCmd_))
 	, hotKey(hotKey_)
 	, defaultCmd(defaultCmd_)
 {

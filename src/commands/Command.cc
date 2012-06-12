@@ -6,6 +6,7 @@
 #include "MSXCommandController.hh"
 #include "TclObject.hh"
 #include "checked_cast.hh"
+#include "unreachable.hh"
 
 using std::vector;
 using std::string;
@@ -84,32 +85,8 @@ Command::~Command()
 	}
 }
 
-void Command::tabCompletion(vector<string>& /*tokens*/) const
-{
-	// do nothing
-}
-
-
-// class SimpleCommand
-
-SimpleCommand::SimpleCommand(CommandController& commandController,
-                             const string& name)
-	: Command(commandController, name)
-{
-}
-
-SimpleCommand::SimpleCommand(CommandController& commandController,
-                             const char* name)
-	: Command(commandController, name)
-{
-}
-
-SimpleCommand::~SimpleCommand()
-{
-}
-
-void SimpleCommand::execute(const vector<TclObject*>& tokens,
-                            TclObject& result)
+void Command::execute(const vector<TclObject*>& tokens,
+                      TclObject& result)
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
@@ -118,6 +95,18 @@ void SimpleCommand::execute(const vector<TclObject*>& tokens,
 		strings.push_back((*it)->getString());
 	}
 	result.setString(execute(strings));
+}
+
+string Command::execute(const vector<string>& /*tokens*/)
+{
+	// either this method or the method above should be reimplemented
+	// by the subclasses
+	UNREACHABLE; return "";
+}
+
+void Command::tabCompletion(vector<string>& /*tokens*/) const
+{
+	// do nothing
 }
 
 } // namespace openmsx

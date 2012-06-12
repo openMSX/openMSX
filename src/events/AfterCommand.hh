@@ -18,7 +18,7 @@ class CommandController;
 class AfterCmd;
 class Event;
 
-class AfterCommand : public SimpleCommand, private EventListener
+class AfterCommand : public Command, private EventListener
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;

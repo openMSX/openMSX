@@ -35,7 +35,7 @@ const unsigned DiskManipulator::MAX_PARTITIONS;
 
 DiskManipulator::DiskManipulator(CommandController& commandController,
                                  Reactor& reactor_)
-	: SimpleCommand(commandController, "diskmanipulator")
+	: Command(commandController, "diskmanipulator")
 	, reactor(reactor_)
 {
 }
