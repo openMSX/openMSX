@@ -37,8 +37,9 @@ void DACSound16S::writeDAC(short value, EmuTime::param time)
 	if (delta == 0) return;
 	lastWrittenValue = value;
 
-	double t = getHostSampleClock().getTicksTillDouble(time);
-	blip.addDelta(BlipBuffer::TimeIndex(t), delta);
+	BlipBuffer::TimeIndex t;
+	getHostSampleClock().getTicksTill(time, t);
+	blip.addDelta(t, delta);
 }
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)

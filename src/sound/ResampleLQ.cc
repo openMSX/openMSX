@@ -93,7 +93,8 @@ bool ResampleLQUp<CHANNELS>::generateOutput(
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
-	FP pos(this->emuClock.getTicksTillDouble(host1));
+	FP pos;
+	this->emuClock.getTicksTill(host1, pos);
 	assert(pos.toInt() < 2);
 
 	unsigned valid; // only indices smaller than this number are valid
@@ -132,7 +133,8 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
-	FP pos(this->emuClock.getTicksTillDouble(host1));
+	FP pos;
+	this->emuClock.getTicksTill(host1, pos);
 
 	unsigned valid;
 	if (!this->fetchData(time, valid)) return false;

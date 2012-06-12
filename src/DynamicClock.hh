@@ -56,6 +56,13 @@ public:
 		return divmod.div(e.time - lastTick.time);
 	}
 
+	template<typename FIXED>
+	void getTicksTill(EmuTime::param e, FIXED& result) const {
+		assert(e.time >= lastTick.time);
+		uint64 tmp = (e.time - lastTick.time) << FIXED::FRACTION_BITS;
+		result = FIXED::create(divmod.div(tmp + (getStep() / 2)));
+	}
+
 	/** Calculate the number of ticks this clock has to tick to reach
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.

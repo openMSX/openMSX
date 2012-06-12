@@ -42,8 +42,9 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 #endif
 		EmuTime emu1 = emuClock.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
-		double pos1 = hostClock.getTicksTillDouble(emu1);
 		if (input.generateInput(buf, emuNum)) {
+			FP pos1;
+			hostClock.getTicksTill(emu1, pos1);
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				// In case of PSG (and to a lesser degree SCC) it happens
 				// very often that two consecutive samples have the same
@@ -53,7 +54,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 				assert(emuNum > 0);
 				buf[CHANNELS * emuNum + ch] =
 					buf[CHANNELS * (emuNum - 1) + ch] + 1;
-				FP pos(pos1);
+				FP pos = pos1;
 				int last = lastInput[ch]; // local var is slightly faster
 				for (unsigned i = 0; /**/; ++i) {
 					int delta = buf[CHANNELS * i + ch] - last;
@@ -72,7 +73,8 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 			}
 		} else {
 			// input all zero
-			BlipBuffer::TimeIndex pos(pos1);
+			BlipBuffer::TimeIndex pos;
+			hostClock.getTicksTill(emu1, pos);
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 				if (lastInput[ch] != 0) {
 					int delta = -lastInput[ch];

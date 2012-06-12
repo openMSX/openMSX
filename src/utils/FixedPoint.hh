@@ -11,8 +11,13 @@ namespace openmsx {
   * The FRACTION_BITS template argument selects the position of the "binary
   * point" (base 2 equivalent to decimal point).
   */
-template <unsigned FRACTION_BITS>
+template <unsigned FRACTION_BITS_>
 class FixedPoint {
+public:
+	/** Number of fractional bits (export template parameter as a constant
+	  * so that external code can use it more easily). */
+	static const unsigned FRACTION_BITS = FRACTION_BITS_;
+
 private:
 	/** Fixed point representation of 1.
 	  */
@@ -31,6 +36,7 @@ private:
 	  */
 	static const int FRACTION_MASK = ONE - 1;
 
+public:
 	/** Create new fixed point object from given representation.
 	  * Used by the overloaded operators.
 	  * @param value the internal representation.
@@ -41,7 +47,6 @@ private:
 		return ret;
 	}
 
-public:
 	/** Creates an uninitialized fixed point object.
 	  * This must be public to allow arrays of FixedPoint objects.
 	  */
