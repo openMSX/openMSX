@@ -1038,6 +1038,8 @@
     <None Include="$(OpenMSXSrcDir)\sound\AY8910.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\AY8910Periphery.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\BlipBuffer.hh" />
+	<None Include="$(OpenMSXSrcDir)\sound\BlipConfig.hh" />
+	<None Include="$(OpenMSXSrcDir)\sound\BlipTable.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound16S.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound8U.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DirectXSoundDriver.hh" />
