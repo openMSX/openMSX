@@ -6,10 +6,9 @@ using std::string;
 
 namespace openmsx {
 
-const string& AudioInputDevice::getClass() const
+string_ref AudioInputDevice::getClass() const
 {
-	static const string className("Audio Input Port");
-	return className;
+	return "Audio Input Port";
 }
 
 } // namespace openmsx

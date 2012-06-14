@@ -30,7 +30,7 @@ public:
 	 */
 	virtual void write(byte value, EmuTime::param time) = 0;
 
-	virtual const std::string& getClass() const;
+	virtual string_ref getClass() const;
 
 	/* Missing pin descriptions
 	 * pin 5 : +5V

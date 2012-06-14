@@ -4,10 +4,9 @@
 
 namespace openmsx {
 
-const std::string& MidiInDevice::getClass() const
+string_ref MidiInDevice::getClass() const
 {
-	static const std::string className("midi in");
-	return className;
+	return "midi in";
 }
 
 } // namespace openmsx

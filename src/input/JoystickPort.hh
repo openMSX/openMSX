@@ -22,7 +22,7 @@ public:
 
 	// Connector
 	virtual const std::string getDescription() const;
-	virtual const std::string& getClass() const;
+	virtual string_ref getClass() const;
 	virtual void plug(Pluggable& device, EmuTime::param time);
 
 	byte read(EmuTime::param time);

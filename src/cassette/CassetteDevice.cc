@@ -2,14 +2,11 @@
 
 #include "CassetteDevice.hh"
 
-using std::string;
-
 namespace openmsx {
 
-const string& CassetteDevice::getClass() const
+string_ref CassetteDevice::getClass() const
 {
-	static const string className("Cassette Port");
-	return className;
+	return "Cassette Port";
 }
 
 } // namespace openmsx

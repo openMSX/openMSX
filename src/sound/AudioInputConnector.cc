@@ -24,10 +24,9 @@ const std::string AudioInputConnector::getDescription() const
 	return "Audio input connector";
 }
 
-const std::string& AudioInputConnector::getClass() const
+string_ref AudioInputConnector::getClass() const
 {
-	static const std::string className("Audio Input Port");
-	return className;
+	return "Audio Input Port";
 }
 
 short AudioInputConnector::readSample(EmuTime::param time) const

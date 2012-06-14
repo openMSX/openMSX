@@ -26,10 +26,9 @@ const string MidiOutConnector::getDescription() const
 	return "MIDI-out connector";
 }
 
-const string& MidiOutConnector::getClass() const
+string_ref MidiOutConnector::getClass() const
 {
-	static const string className("midi out");
-	return className;
+	return "midi out";
 }
 
 MidiOutDevice& MidiOutConnector::getPluggedMidiOutDev() const

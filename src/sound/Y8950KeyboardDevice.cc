@@ -4,10 +4,9 @@
 
 namespace openmsx {
 
-const std::string& Y8950KeyboardDevice::getClass() const
+string_ref Y8950KeyboardDevice::getClass() const
 {
-	static const std::string className("Y8950 Keyboard Port");
-	return className;
+	return "Y8950 Keyboard Port";
 }
 
 } // namespace openmsx

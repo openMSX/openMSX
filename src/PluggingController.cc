@@ -229,7 +229,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 		// complete pluggable
 		set<string> pluggables;
 		Connector* connector = pluggingController.findConnector(tokens[1]);
-		string className = connector ? connector->getClass() : "";
+		string_ref className = connector ? connector->getClass() : "";
 		for (PluggingController::Pluggables::const_iterator it =
 		                        pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
@@ -451,7 +451,7 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 {
 	switch (tokens.size()) {
 	case 2: {
-		set<string> classes;
+		set<string_ref> classes;
 		for (PluggingController::Connectors::const_iterator it =
 			 pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {

@@ -20,7 +20,7 @@ public:
 
 	// Connector
 	virtual const std::string getDescription() const;
-	virtual const std::string& getClass() const;
+	virtual string_ref getClass() const;
 
 	short readSample(EmuTime::param time) const;
 

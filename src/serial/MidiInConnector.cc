@@ -24,10 +24,9 @@ const std::string MidiInConnector::getDescription() const
 	return "MIDI-in connector";
 }
 
-const std::string& MidiInConnector::getClass() const
+string_ref MidiInConnector::getClass() const
 {
-	static const std::string className("midi in");
-	return className;
+	return "midi in";
 }
 
 MidiInDevice& MidiInConnector::getPluggedMidiInDev() const

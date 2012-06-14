@@ -76,10 +76,9 @@ const string MSXPrinterPort::getDescription() const
 	return "MSX Printer port";
 }
 
-const string& MSXPrinterPort::getClass() const
+string_ref MSXPrinterPort::getClass() const
 {
-	static const string className("Printer Port");
-	return className;
+	return "Printer Port";
 }
 
 void MSXPrinterPort::plug(Pluggable& dev, EmuTime::param time)

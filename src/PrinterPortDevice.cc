@@ -4,10 +4,9 @@
 
 namespace openmsx {
 
-const std::string& PrinterPortDevice::getClass() const
+string_ref PrinterPortDevice::getClass() const
 {
-	static const std::string className("Printer Port");
-	return className;
+	return "Printer Port";
 }
 
 } // namespace openmsx

@@ -38,10 +38,9 @@ const std::string Y8950KeyboardConnector::getDescription() const
 	return "MSX-AUDIO keyboard connector";
 }
 
-const std::string& Y8950KeyboardConnector::getClass() const
+string_ref Y8950KeyboardConnector::getClass() const
 {
-	static const std::string className("Y8950 Keyboard Port");
-	return className;
+	return "Y8950 Keyboard Port";
 }
 
 void Y8950KeyboardConnector::plug(Pluggable& dev, EmuTime::param time)

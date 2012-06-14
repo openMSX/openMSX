@@ -29,10 +29,9 @@ const string JoystickPort::getDescription() const
 	return description;
 }
 
-const string& JoystickPort::getClass() const
+string_ref JoystickPort::getClass() const
 {
-	static const string className("Joystick Port");
-	return className;
+	return "Joystick Port";
 }
 
 JoystickDevice& JoystickPort::getPluggedJoyDev() const

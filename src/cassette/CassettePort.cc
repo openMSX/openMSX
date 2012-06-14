@@ -129,10 +129,9 @@ const string CassettePort::getDescription() const
 	return "MSX Cassette port";
 }
 
-const string& CassettePort::getClass() const
+string_ref CassettePort::getClass() const
 {
-	static const string className("Cassette Port");
-	return className;
+	return "Cassette Port";
 }
 
 CassetteDevice& CassettePort::getPluggedCasDev() const

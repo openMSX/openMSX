@@ -4,10 +4,9 @@
 
 namespace openmsx {
 
-const std::string& RS232Device::getClass() const
+string_ref RS232Device::getClass() const
 {
-	static const std::string className("RS232");
-	return className;
+	return "RS232";
 }
 
 void RS232Device::setDataBits(DataBits /*bits*/)

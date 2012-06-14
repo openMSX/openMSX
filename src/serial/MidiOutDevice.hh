@@ -12,7 +12,7 @@ class MidiOutDevice : public Pluggable, public SerialDataInterface
 {
 public:
 	// Pluggable (part)
-	virtual const std::string& getClass() const;
+	virtual string_ref getClass() const;
 
 	// SerialDataInterface (part)
 	virtual void setDataBits(DataBits bits);

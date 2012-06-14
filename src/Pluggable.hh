@@ -5,7 +5,7 @@
 
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 
 namespace openmsx {
 
@@ -24,7 +24,7 @@ public:
 	/** A pluggable belongs to a certain class. A pluggable only fits in
 	  * connectors of the same class.
 	  */
-	virtual const std::string& getClass() const = 0;
+	virtual string_ref getClass() const = 0;
 
 	/** Description for this pluggable.
 	  */

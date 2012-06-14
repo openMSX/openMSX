@@ -4,12 +4,10 @@
 
 namespace openmsx {
 
-const std::string& MidiOutDevice::getClass() const
+string_ref MidiOutDevice::getClass() const
 {
-	static const std::string className("midi out");
-	return className;
+	return "midi out";
 }
-
 
 void MidiOutDevice::setDataBits(DataBits /*bits*/)
 {

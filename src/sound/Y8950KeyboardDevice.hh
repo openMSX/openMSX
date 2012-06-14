@@ -30,7 +30,7 @@ public:
 	virtual byte read(EmuTime::param time) = 0;
 
 	// pluggable
-	virtual const std::string& getClass() const;
+	virtual string_ref getClass() const;
 };
 
 } // namespace openmsx
