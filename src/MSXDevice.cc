@@ -240,13 +240,13 @@ void MSXDevice::registerSlots()
 	const XMLElement& config = getDeviceConfig();
 	if (config.hasAttribute("primary_slot")) {
 		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
-		const string primSlot = config.getAttribute("primary_slot");
-		mutableConfig.removeAttribute("primary_slot");
+		const string& primSlot = config.getAttribute("primary_slot");
 		ps = slotManager.getSlotNum(primSlot);
+		mutableConfig.removeAttribute("primary_slot");
 		if (config.hasAttribute("secondary_slot")) {
-			const string secondSlot = config.getAttribute("secondary_slot");
-			mutableConfig.removeAttribute("secondary_slot");
+			const string& secondSlot = config.getAttribute("secondary_slot");
 			ss = slotManager.getSlotNum(secondSlot);
+			mutableConfig.removeAttribute("secondary_slot");
 		}
 	}
 

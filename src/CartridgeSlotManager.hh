@@ -4,7 +4,7 @@
 #define CARTRIDGESLOTMANAGER_HH
 
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <memory>
 
 namespace openmsx {
@@ -20,7 +20,7 @@ public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
-	static int getSlotNum(const std::string& slot);
+	static int getSlotNum(string_ref slot);
 
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);

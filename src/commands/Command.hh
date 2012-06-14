@@ -4,7 +4,7 @@
 #define COMMAND_HH
 
 #include "Completer.hh"
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 
 namespace openmsx {
@@ -18,7 +18,7 @@ class CommandCompleter : public Completer
 {
 protected:
 	CommandCompleter(CommandController& commandController,
-	                 const std::string& name);
+	                 string_ref name);
 	virtual ~CommandCompleter();
 
 	CommandController& getCommandController() const;
@@ -60,13 +60,8 @@ public:
 
 protected:
 	Command(CommandController& commandController,
-	        const std::string& name);
-	Command(CommandController& commandController,
-	        const char* name);
+	        string_ref name);
 	virtual ~Command();
-
-private:
-	void init();
 };
 
 } // namespace openmsx

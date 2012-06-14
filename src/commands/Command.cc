@@ -16,7 +16,7 @@ namespace openmsx {
 // class CommandCompleter
 
 CommandCompleter::CommandCompleter(CommandController& commandController_,
-                                   const string& name)
+                                   string_ref name)
 	: Completer(name)
 	, commandController(commandController_)
 {
@@ -59,19 +59,8 @@ Interpreter& CommandCompleter::getInterpreter() const
 
 // class Command
 
-Command::Command(CommandController& commandController, const string& name)
+Command::Command(CommandController& commandController, string_ref name)
 	: CommandCompleter(commandController, name)
-{
-	init();
-}
-
-Command::Command(CommandController& commandController, const char* name)
-	: CommandCompleter(commandController, name)
-{
-	init();
-}
-
-void Command::init()
 {
 	if (!getName().empty()) {
 		getCommandController().registerCommand(*this, getName());

@@ -10,7 +10,7 @@ using std::string;
 namespace openmsx {
 
 Autofire::Autofire(CommandController& commandController,
-                   unsigned newMinInts, unsigned newMaxInts, const string& name)
+                   unsigned newMinInts, unsigned newMaxInts, string_ref name)
 	: min_ints(std::max(newMinInts, 1u))
 	, max_ints(std::max(newMaxInts, min_ints + 1))
 	, speedSetting(new IntegerSetting(commandController, name,

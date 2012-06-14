@@ -18,8 +18,8 @@ namespace openmsx {
 InterpreterOutput* Completer::output = 0;
 
 
-Completer::Completer(const string& name_)
-	: name(name_)
+Completer::Completer(string_ref name_)
+	: name(name_.data(), name_.size())
 {
 }
 

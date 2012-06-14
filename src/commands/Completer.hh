@@ -4,7 +4,7 @@
 #define COMPLETER_HH
 
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 #include <set>
 
@@ -42,7 +42,7 @@ public:
 	static void setOutput(InterpreterOutput* output);
 
 protected:
-	explicit Completer(const std::string& name);
+	explicit Completer(string_ref name);
 	virtual ~Completer();
 
 private:

@@ -696,7 +696,7 @@ void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 
 // Sound device info
 
-SoundDevice* MSXMixer::findDevice(const string& name) const
+SoundDevice* MSXMixer::findDevice(string_ref name) const
 {
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
@@ -725,7 +725,7 @@ void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.findDevice(tokens[2]->getString().str());
+		SoundDevice* device = mixer.findDevice(tokens[2]->getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

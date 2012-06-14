@@ -21,7 +21,7 @@ namespace openmsx {
 RecordedCommand::RecordedCommand(CommandController& commandController,
                                  StateChangeDistributor& stateChangeDistributor_,
                                  Scheduler& scheduler_,
-                                 const string& name)
+                                 string_ref name)
 	: Command(commandController, name)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)

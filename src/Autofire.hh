@@ -7,7 +7,7 @@
 #include "DynamicClock.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <memory>
 
 namespace openmsx {
@@ -29,7 +29,7 @@ class Autofire : private Observer<Setting>, private noncopyable
 public:
 	Autofire(CommandController& commandController,
 	         unsigned newMinInts, unsigned newMaxInts,
-	         const std::string& name);
+	         string_ref name);
 	virtual ~Autofire();
 
 	/** Get the output signal in negative logic.

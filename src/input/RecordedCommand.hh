@@ -81,7 +81,7 @@ protected:
 	RecordedCommand(CommandController& commandController,
 	                StateChangeDistributor& stateChangeDistributor,
 	                Scheduler& scheduler,
-	                const std::string& name);
+	                string_ref name);
 	virtual ~RecordedCommand();
 
 private:

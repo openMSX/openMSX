@@ -26,7 +26,7 @@ class CartCmd : public RecordedCommand
 {
 public:
 	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
-	        const std::string& commandName);
+	        string_ref commandName);
 	virtual string execute(const vector<string>& tokens, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -90,7 +90,7 @@ CartridgeSlotManager::~CartridgeSlotManager()
 	}
 }
 
-int CartridgeSlotManager::getSlotNum(const string& slot)
+int CartridgeSlotManager::getSlotNum(string_ref slot)
 {
 	if ((slot.size() == 1) && ('a' <= slot[0]) && (slot[0] <= 'p')) {
 		return -(1 + slot[0] - 'a');
@@ -106,7 +106,7 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 		}
 		return result - 128;
 	} else {
-		int result = StringOp::stringToInt(slot);
+		int result = stoi(slot);
 		if ((result < 0) || (4 <= result)) {
 			throw MSXException(
 				"Invalid slot specification: " + slot);
@@ -129,7 +129,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
-			string slotName = "carta";
+			char slotName[] = "carta";
 			slotName[4] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
@@ -299,7 +299,7 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 // CartCmd
 CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
-                 const string& commandName)
+                 string_ref commandName)
 	: RecordedCommand(motherBoard.getCommandController(),
 	                  motherBoard.getStateChangeDistributor(),
 	                  motherBoard.getScheduler(),
