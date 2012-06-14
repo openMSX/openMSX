@@ -4,9 +4,9 @@
 #define SETTINGSMANAGER_HH
 
 #include "StringMap.hh"
+#include "string_ref.hh"
 #include "noncopyable.hh"
 #include <set>
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -34,19 +34,18 @@ public:
 	  * @return The Setting with the given name,
 	  *   or NULL if there is no such Setting.
 	  */
-	Setting* getByName(const std::string& name) const;
+	Setting* getByName(string_ref name) const;
 
 	void loadSettings(const XMLElement& config);
 	void saveSettings(XMLElement& config) const;
 
-	void registerSetting(Setting& setting, const std::string& name);
-	void unregisterSetting(Setting& setting, const std::string& name);
-	Setting* findSetting(const std::string& name) const;
+	void registerSetting  (Setting& setting, string_ref name);
+	void unregisterSetting(Setting& setting, string_ref name);
+	Setting* findSetting(string_ref name) const;
 
 private:
 	void getSettingNames(std::set<std::string>& result) const;
-	Setting& getByName(const std::string& cmd,
-	                   const std::string& name) const;
+	Setting& getByName(string_ref cmd, string_ref name) const;
 
 	friend class SettingInfo;
 	friend class SetCompleter;

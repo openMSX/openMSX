@@ -5,10 +5,10 @@
 
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
+#include "string_ref.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
-#include <string>
 
 namespace openmsx {
 
@@ -143,7 +143,7 @@ public:
 		void* stuff;
 		unsigned counter;
 	};
-	SharedStuff& getSharedStuff(const std::string& name);
+	SharedStuff& getSharedStuff(string_ref name);
 
 	/** All memory mappers in one MSX machine share the same four (logical)
 	  * memory mapper registers. These two methods handle this sharing.

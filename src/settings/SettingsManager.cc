@@ -68,19 +68,19 @@ SettingsManager::~SettingsManager()
 	assert(settingsMap.empty());
 }
 
-void SettingsManager::registerSetting(Setting& setting, const string& name)
+void SettingsManager::registerSetting(Setting& setting, string_ref name)
 {
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 }
 
-void SettingsManager::unregisterSetting(Setting& /*setting*/, const string& name)
+void SettingsManager::unregisterSetting(Setting& /*setting*/, string_ref name)
 {
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
 }
 
-Setting* SettingsManager::findSetting(const std::string& name) const
+Setting* SettingsManager::findSetting(string_ref name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
 	return (it != settingsMap.end()) ? it->second : NULL;
@@ -96,7 +96,7 @@ void SettingsManager::getSettingNames(set<string>& result) const
 	}
 }
 
-Setting& SettingsManager::getByName(const string& cmd, const string& name) const
+Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
 	Setting* setting = getByName(name);
 	if (!setting) {
@@ -106,7 +106,7 @@ Setting& SettingsManager::getByName(const string& cmd, const string& name) const
 	return *setting;
 }
 
-Setting* SettingsManager::getByName(const string& name) const
+Setting* SettingsManager::getByName(string_ref name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
 	return it != settingsMap.end() ? it->second : NULL;

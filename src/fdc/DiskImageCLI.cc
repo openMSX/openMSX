@@ -24,7 +24,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
 bool DiskImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
-	parse(option.substr(1), filename, cmdLine);
+	parse(string_ref(option).substr(1), filename, cmdLine);
 	return true;
 }
 const string& DiskImageCLI::optionHelp() const
@@ -45,7 +45,7 @@ const string& DiskImageCLI::fileTypeHelp() const
 	return text;
 }
 
-void DiskImageCLI::parse(const string& drive, const string& image,
+void DiskImageCLI::parse(string_ref drive, string_ref image,
                          deque<string>& cmdLine)
 {
 	if (!commandController.hasCommand(drive)) { // TODO WIP

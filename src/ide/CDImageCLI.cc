@@ -20,7 +20,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& commandLineParser)
 
 bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
-	string cd = option.substr(1); // cda
+	string_ref cd = string_ref(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
 	if (!commandController.hasCommand(cd)) { // TODO WIP
 		throw MSXException("No CDROM named '" + cd + "'.");

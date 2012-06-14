@@ -146,7 +146,7 @@ void GlobalCommandController::registerProxyCommand(const string& name)
 	++proxyCommandMap[name];
 }
 
-void GlobalCommandController::unregisterProxyCommand(const string& name)
+void GlobalCommandController::unregisterProxyCommand(string_ref name)
 {
 	assert(proxyCommandMap[name]);
 	--proxyCommandMap[name];
@@ -238,7 +238,7 @@ void GlobalCommandController::registerCommand(
 }
 
 void GlobalCommandController::unregisterCommand(
-	Command& command, const string& str)
+	Command& command, string_ref str)
 {
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == &command);
@@ -248,14 +248,14 @@ void GlobalCommandController::unregisterCommand(
 }
 
 void GlobalCommandController::registerCompleter(
-	CommandCompleter& completer, const string& str)
+	CommandCompleter& completer, string_ref str)
 {
 	assert(commandCompleters.find(str) == commandCompleters.end());
 	commandCompleters[str] = &completer;
 }
 
 void GlobalCommandController::unregisterCompleter(
-	CommandCompleter& completer, const string& str)
+	CommandCompleter& completer, string_ref str)
 {
 	(void)completer;
 	assert(commandCompleters.find(str) != commandCompleters.end());
@@ -277,7 +277,7 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
-Setting* GlobalCommandController::findSetting(const std::string& name)
+Setting* GlobalCommandController::findSetting(string_ref name)
 {
 	return getSettingsConfig().getSettingsManager().findSetting(name);
 }
@@ -293,7 +293,7 @@ void GlobalCommandController::changeSetting(Setting& setting, const string& valu
 	changeSetting(setting.getName(), value);
 }
 
-bool GlobalCommandController::hasCommand(const string& command) const
+bool GlobalCommandController::hasCommand(string_ref command) const
 {
 	return commands.find(command) != commands.end();
 }

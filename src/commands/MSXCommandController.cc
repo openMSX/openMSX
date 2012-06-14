@@ -69,7 +69,7 @@ InfoCommand& MSXCommandController::getMachineInfoCommand()
 	return *machineInfoCommand;
 }
 
-string MSXCommandController::getFullName(const string& name)
+string MSXCommandController::getFullName(string_ref name)
 {
 	return "::" + machineID + "::" + name;
 }
@@ -84,7 +84,7 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	globalCommandController.registerProxyCommand(str);
 }
 
-void MSXCommandController::unregisterCommand(Command& command, const string& str)
+void MSXCommandController::unregisterCommand(Command& command, string_ref str)
 {
 	assert(hasCommand(str));
 	commandMap.erase(str);
@@ -95,14 +95,14 @@ void MSXCommandController::unregisterCommand(Command& command, const string& str
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
-                                             const string& str)
+                                             string_ref str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
-                                               const string& str)
+                                               string_ref str)
 {
 	string fullname = getFullName(str);
 	globalCommandController.unregisterCompleter(completer, fullname);
@@ -110,7 +110,7 @@ void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
 
 void MSXCommandController::registerSetting(Setting& setting)
 {
-	string name = setting.getName();
+	const string& name = setting.getName();
 	assert(!findSetting(name));
 	settingMap[name] = &setting;
 
@@ -123,7 +123,7 @@ void MSXCommandController::registerSetting(Setting& setting)
 
 void MSXCommandController::unregisterSetting(Setting& setting)
 {
-	string name = setting.getName();
+	const string& name = setting.getName();
 	assert(findSetting(name));
 	settingMap.erase(name);
 
@@ -140,19 +140,19 @@ void MSXCommandController::changeSetting(Setting& setting, const string& value)
 	globalCommandController.changeSetting(fullname, value);
 }
 
-Command* MSXCommandController::findCommand(const std::string& name) const
+Command* MSXCommandController::findCommand(string_ref name) const
 {
 	CommandMap::const_iterator it = commandMap.find(name);
 	return (it != commandMap.end()) ? it->second : NULL;
 }
 
-Setting* MSXCommandController::findSetting(const std::string& name)
+Setting* MSXCommandController::findSetting(string_ref name)
 {
 	SettingMap::const_iterator it = settingMap.find(name);
 	return (it != settingMap.end()) ? it->second : NULL;
 }
 
-bool MSXCommandController::hasCommand(const string& command) const
+bool MSXCommandController::hasCommand(string_ref command) const
 {
 	return findCommand(command) != NULL;
 }

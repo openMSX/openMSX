@@ -4,7 +4,7 @@
 #define USERSETTINGS_HH
 
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 #include <memory>
 
@@ -24,7 +24,7 @@ public:
 
 	void addSetting(std::auto_ptr<Setting> setting);
 	void deleteSetting(Setting& setting);
-	Setting* findSetting(const std::string& name) const;
+	Setting* findSetting(string_ref name) const;
 	const Settings& getSettings() const;
 
 private:

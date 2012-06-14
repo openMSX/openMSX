@@ -3,7 +3,7 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 
 namespace openmsx {
@@ -24,9 +24,9 @@ public:
 	 * (Un)register a command completer, used to complete build-in Tcl cmds
 	 */
 	virtual void   registerCompleter(CommandCompleter& completer,
-	                                 const std::string& str) = 0;
+	                                 string_ref str) = 0;
 	virtual void unregisterCompleter(CommandCompleter& completer,
-	                                 const std::string& str) = 0;
+	                                 string_ref str) = 0;
 
 	/**
 	 * (Un)register a command
@@ -34,12 +34,12 @@ public:
 	virtual void   registerCommand(Command& command,
 	                               const std::string& str) = 0;
 	virtual void unregisterCommand(Command& command,
-	                               const std::string& str) = 0;
+	                               string_ref str) = 0;
 
 	/**
 	 * Does a command with this name already exist?
 	 */
-	virtual bool hasCommand(const std::string& command) const = 0;
+	virtual bool hasCommand(string_ref command) const = 0;
 
 	/**
 	 * Execute the given command
@@ -54,7 +54,7 @@ public:
 	 */
 	virtual void   registerSetting(Setting& setting) = 0;
 	virtual void unregisterSetting(Setting& setting) = 0;
-	virtual Setting* findSetting(const std::string& name) = 0;
+	virtual Setting* findSetting(string_ref name) = 0;
 	virtual void changeSetting(Setting& setting, const std::string& value) = 0;
 
 	virtual CliComm& getCliComm() = 0;

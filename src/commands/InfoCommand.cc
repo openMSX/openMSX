@@ -27,7 +27,7 @@ InfoCommand::~InfoCommand()
 	assert(infoTopics.empty());
 }
 
-void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
+void InfoCommand::registerTopic(InfoTopic& topic, string_ref name)
 {
 #ifndef NDEBUG
 	if (infoTopics.find(name) != infoTopics.end()) {
@@ -39,7 +39,7 @@ void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
 	infoTopics[name] = &topic;
 }
 
-void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
+void InfoCommand::unregisterTopic(InfoTopic& topic, string_ref name)
 {
 	(void)topic;
 	if (infoTopics.find(name) == infoTopics.end()) {

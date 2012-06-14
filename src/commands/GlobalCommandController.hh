@@ -43,7 +43,7 @@ public:
 	void source(const std::string& script);
 
 	void registerProxyCommand(const std::string& name);
-	void unregisterProxyCommand(const std::string& name);
+	void unregisterProxyCommand(string_ref name);
 
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
@@ -52,14 +52,14 @@ public:
 
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 string_ref str);
 	virtual void unregisterCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 string_ref str);
 	virtual void   registerCommand(Command& command,
 	                               const std::string& str);
 	virtual void unregisterCommand(Command& command,
-	                               const std::string& str);
-	virtual bool hasCommand(const std::string& command) const;
+	                               string_ref str);
+	virtual bool hasCommand(string_ref command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
 	/**
@@ -75,7 +75,7 @@ public:
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
-	virtual Setting* findSetting(const std::string& name);
+	virtual Setting* findSetting(string_ref name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual CliComm& getCliComm();
 	virtual Interpreter& getInterpreter();

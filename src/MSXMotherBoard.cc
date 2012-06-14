@@ -127,7 +127,7 @@ public:
 	void removeDevice(MSXDevice& device);
 	MSXDevice* findDevice(const string& name);
 
-	MSXMotherBoard::SharedStuff& getSharedStuff(const string& name);
+	MSXMotherBoard::SharedStuff& getSharedStuff(string_ref name);
 	MSXMapperIO* createMapperIO();
 	void destroyMapperIO();
 
@@ -861,7 +861,7 @@ MSXDevice* MSXMotherBoard::Impl::findDevice(const string& name)
 }
 
 MSXMotherBoard::SharedStuff& MSXMotherBoard::Impl::getSharedStuff(
-	const string& name)
+	string_ref name)
 {
 	return sharedStuffMap[name];
 }
@@ -1442,7 +1442,7 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 {
 	return pimpl->findDevice(name);
 }
-MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(const string& name)
+MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(string_ref name)
 {
 	return pimpl->getSharedStuff(name);
 }

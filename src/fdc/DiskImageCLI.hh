@@ -4,6 +4,7 @@
 #define DISKIMAGEMANAGER_HH
 
 #include "CLIOption.hh"
+#include "string_ref.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,7 @@ public:
 	virtual const std::string& fileTypeHelp() const;
 
 private:
-	void parse(const std::string& drive, const std::string& image,
+	void parse(string_ref drive, string_ref image,
 	           std::deque<std::string>& cmdLine);
 
 	GlobalCommandController& commandController;

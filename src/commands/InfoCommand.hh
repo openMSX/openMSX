@@ -16,8 +16,8 @@ public:
 	InfoCommand(CommandController& commandController, const std::string& name);
 	virtual ~InfoCommand();
 
-	void   registerTopic(InfoTopic& topic, const std::string& name);
-	void unregisterTopic(InfoTopic& topic, const std::string& name);
+	void   registerTopic(InfoTopic& topic, string_ref name);
+	void unregisterTopic(InfoTopic& topic, string_ref name);
 
 private:
 	// Command

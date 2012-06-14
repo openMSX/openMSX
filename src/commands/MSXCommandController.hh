@@ -30,7 +30,7 @@ public:
 	GlobalCommandController& getGlobalCommandController();
 	InfoCommand& getMachineInfoCommand();
 
-	Command* findCommand(const std::string& name) const;
+	Command* findCommand(string_ref name) const;
 
 	/** Returns true iff the machine this controller belongs to is currently
 	  * active.
@@ -39,26 +39,26 @@ public:
 
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 string_ref str);
 	virtual void unregisterCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 string_ref str);
 	virtual void   registerCommand(Command& command,
 	                               const std::string& str);
 	virtual void unregisterCommand(Command& command,
-	                               const std::string& str);
-	virtual bool hasCommand(const std::string& command) const;
+	                               string_ref str);
+	virtual bool hasCommand(string_ref command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
-	virtual Setting* findSetting(const std::string& name);
+	virtual Setting* findSetting(string_ref name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual CliComm& getCliComm();
 
 private:
-	std::string getFullName(const std::string& name);
+	std::string getFullName(string_ref name);
 
 	// MSXEventListener
 	virtual void signalEvent(const shared_ptr<const Event>& event,

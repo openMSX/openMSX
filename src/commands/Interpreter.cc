@@ -149,7 +149,7 @@ void Interpreter::registerCommand(const string& name, Command& command)
 		static_cast<ClientData>(&command), NULL);
 }
 
-void Interpreter::unregisterCommand(const string& name, Command& /*command*/)
+void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
 {
 	CommandTokenMap::iterator it = commandTokenMap.find(name);
 	assert(it != commandTokenMap.end());

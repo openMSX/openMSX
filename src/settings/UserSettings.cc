@@ -79,7 +79,7 @@ void UserSettings::deleteSetting(Setting& setting)
 	UNREACHABLE;
 }
 
-Setting* UserSettings::findSetting(const std::string& name) const
+Setting* UserSettings::findSetting(string_ref name) const
 {
 	for (Settings::const_iterator it = settings.begin();
 	     it != settings.end(); ++it) {
@@ -133,7 +133,7 @@ void UserSettingCommand::create(const vector<TclObject*>& tokens, TclObject& res
 	string_ref type = tokens[2]->getString();
 	string_ref name = tokens[3]->getString();
 
-	if (getCommandController().findSetting(name.str())) {
+	if (getCommandController().findSetting(name)) {
 		throw CommandException(
 			"There already exists a setting with this name: " + name);
 	}
@@ -217,7 +217,7 @@ void UserSettingCommand::destroy(const vector<TclObject*>& tokens,
 	}
 	string_ref name = tokens[2]->getString();
 
-	Setting* setting = userSettings.findSetting(name.str());
+	Setting* setting = userSettings.findSetting(name);
 	if (!setting) {
 		throw CommandException(
 			"There is no user setting with this name: " + name);

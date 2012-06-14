@@ -20,7 +20,7 @@ HDImageCLI::HDImageCLI(CommandLineParser& commandLineParser)
 
 bool HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
-	string hd = option.substr(1); // hda
+	string_ref hd = string_ref(option).substr(1); // hda
 	string filename = getArgument(option, cmdLine);
 	if (!commandController.hasCommand(hd)) { // TODO WIP
 		throw MSXException("No hard disk named '" + hd + "'.");
