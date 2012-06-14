@@ -138,9 +138,9 @@ static string backSubstSymbols(const string& path)
 	return path;
 }
 
-ConfigFileContext::ConfigFileContext(const string& path,
-                                     const string& hwDescr,
-                                     const string& userName)
+ConfigFileContext::ConfigFileContext(string_ref path,
+                                     string_ref hwDescr,
+                                     string_ref userName)
 {
 	paths.push_back(backSubstSymbols(FileOperations::expandTilde(path)));
 	savePaths.push_back(FileOperations::join(

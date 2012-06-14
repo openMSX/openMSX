@@ -55,7 +55,7 @@ public:
 
 private:
 	void setConfig(std::auto_ptr<XMLElement> config);
-	void load(const std::string& path);
+	void load(string_ref path);
 
 	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem,

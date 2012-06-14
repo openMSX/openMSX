@@ -152,7 +152,7 @@ void Completer::completeFileName(vector<string>& tokens,
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
-	string basename = FileOperations::getBaseName(filename);
+	string_ref basename = FileOperations::getBaseName(filename);
 	if (FileOperations::isAbsolutePath(filename)) {
 		paths.push_back("");
 	}

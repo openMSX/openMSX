@@ -3,7 +3,7 @@
 #ifndef FILECONTEXT_HH
 #define FILECONTEXT_HH
 
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 
 namespace openmsx {
@@ -29,9 +29,9 @@ protected:
 class ConfigFileContext : public FileContext
 {
 public:
-	ConfigFileContext(const std::string& path,
-	                  const std::string& hwDescr,
-	                  const std::string& userName);
+	ConfigFileContext(string_ref path,
+	                  string_ref hwDescr,
+	                  string_ref userName);
 };
 
 class SystemFileContext : public FileContext

@@ -53,7 +53,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 {
 	auto_ptr<HardwareConfig> result(
 		new HardwareConfig(motherBoard, "rom"));
-	string sramfile = FileOperations::getFilename(romfile);
+	string_ref sramfile = FileOperations::getFilename(romfile);
 	auto_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
 
 	vector<string> ipsfiles;
@@ -253,14 +253,14 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(const string& filename)
 	}
 }
 
-void HardwareConfig::load(const string& path)
+void HardwareConfig::load(string_ref path)
 {
 	string filename = SystemFileContext().resolve(
 		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	setConfig(loadConfig(filename));
 
 	assert(!userName.empty());
-	string baseName = FileOperations::getBaseName(filename);
+	string_ref baseName = FileOperations::getBaseName(filename);
 	setFileContext(std::auto_ptr<FileContext>(
 		new ConfigFileContext(baseName, hwName, userName)));
 }

@@ -3,9 +3,9 @@
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
+#include "string_ref.hh"
 #include "unistdp.hh" // needed for mode_t definition when building with VC++
 #include "statp.hh"
-#include <string>
 #include <sys/types.h>
 #include <fstream>
 
@@ -25,7 +25,7 @@ namespace FileOperations {
 	 * @param path Pathname, with or without '~' character
 	 * @result The expanded pathname
 	 */
-	std::string expandTilde(const std::string& path);
+	std::string expandTilde(string_ref path);
 
 	/**
 	 * Create the specified directory. Does some sanity checks so that
@@ -46,7 +46,7 @@ namespace FileOperations {
 	 * @param path The path of the directory to create
 	 * @throw FileException
 	 */
-	void mkdirp(const std::string& path);
+	void mkdirp(string_ref path);
 
 	/**
 	 * Call unlink() in a platform-independent manner
@@ -87,7 +87,7 @@ namespace FileOperations {
 	 * @param path The pathname
 	 * @result The file portion
 	 */
-	std::string getFilename(const std::string& path);
+	string_ref getFilename(string_ref path);
 
 	/**
 	 * Returns the directory portion of a path.
@@ -96,7 +96,7 @@ namespace FileOperations {
 	 *         If path doesn't have a directory portion the result
 	 *         is an empty string.
 	 */
-	std::string getBaseName(const std::string& path);
+	string_ref getBaseName(string_ref path);
 
 	/**
 	 * Returns the extension portion of a path.
@@ -105,7 +105,7 @@ namespace FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         is an empty string.
 	 */
-	std::string getExtension(const std::string& path);
+	string_ref getExtension(string_ref path);
 
 	/**
 	 * Returns the path without extension.
@@ -114,7 +114,7 @@ namespace FileOperations {
 	 *         If path doesn't have an extension portion the result
 	 *         remains unchanged.
 	 */
-	std::string stripExtension(const std::string& path);
+	string_ref stripExtension(string_ref path);
 
 	/** Join two paths.
 	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
@@ -122,11 +122,10 @@ namespace FileOperations {
 	 * 'part1' is empty or if it already ends with '/', there will be no
 	 * extra '/' added inbetween 'part1' and 'part2'.
 	 */
-	std::string join(const std::string& part1, const std::string& part2);
-	std::string join(const std::string& part1, const std::string& part2,
-	                 const std::string& part3);
-	std::string join(const std::string& part1, const std::string& part2,
-	                 const std::string& part3, const std::string& part4);
+	std::string join(string_ref part1, string_ref part2);
+	std::string join(string_ref part1, string_ref part2, string_ref part3);
+	std::string join(string_ref part1, string_ref part2,
+	                 string_ref part3, string_ref part4);
 
 	/**
 	 * Returns the path in conventional path-delimiter.
@@ -154,13 +153,13 @@ namespace FileOperations {
 	/** Transform given path into an absolute path
 	 * @throw FileException
 	 */
-	std::string getAbsolutePath(const std::string& path);
+	std::string getAbsolutePath(string_ref path);
 
 	/**
 	 * Checks whether it's a absolute path or not.
 	 * @param path The pathname.
 	 */
-	bool isAbsolutePath(const std::string& path);
+	bool isAbsolutePath(string_ref path);
 
 	/**
 	 * Get user's home directory.
@@ -173,7 +172,7 @@ namespace FileOperations {
 	 *        This is because to support Win9x.
 	 *        Ignores the username parameter
 	 */
-	std::string getUserHomeDir(const std::string& username = "");
+	std::string getUserHomeDir(string_ref username);
 
 	/**
 	 * Get the openMSX dir in the user's home directory.
@@ -244,8 +243,7 @@ namespace FileOperations {
 	 * @param extension Extension of the filename with numbers
 	 */
 	std::string getNextNumberedFileName(
-		const std::string& directory, const std::string& prefix,
-		const std::string& extension);
+		string_ref directory, string_ref prefix, string_ref extension);
 
 	/** Helper function for parsing filename arguments in Tcl commands.
 	 * - If argument is empty then getNextNumberedFileName() is used
@@ -256,8 +254,8 @@ namespace FileOperations {
 	 *   directory is used (and created if required).
 	 */
 	std::string parseCommandFileArgument(
-		const std::string& argument, const std::string& directory,
-		const std::string& prefix,   const std::string& extension);
+		string_ref argument, string_ref directory,
+		string_ref prefix,   string_ref extension);
 
 	/**
 	 * Get the name of the temp directory on the system.

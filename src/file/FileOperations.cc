@@ -176,26 +176,28 @@ static std::string findShareDir()
 
 #endif // __APPLE__
 
-string expandTilde(const string& path)
+string expandTilde(string_ref path)
 {
 	if (path.empty() || path[0] != '~') {
-		return path;
+		return path.str();
 	}
-	string::size_type pos = path.find_first_of('/');
-	string user = ((path.size() == 1) || (pos == 1)) ? "" :
-		path.substr(1, (pos == string::npos) ? pos : pos - 1);
+	string_ref::size_type pos = path.find_first_of('/');
+	string_ref user = ((path.size() == 1) || (pos == 1))
+	                ? ""
+	                : path.substr(1, (pos == string_ref::npos) ? pos : pos - 1);
 	string result = getUserHomeDir(user);
 	if (result.empty()) {
 		// failed to find homedir, return the path unchanged
-		return path;
+		return path.str();
 	}
-	if (pos == string::npos) {
+	if (pos == string_ref::npos) {
 		return result;
 	}
 	if (*result.rbegin() != '/') {
 		result += '/';
 	}
-	result += path.substr(pos + 1);
+	string_ref last = path.substr(pos + 1);
+	result.append(last.data(), last.size());
 	return result;
 }
 
@@ -210,14 +212,14 @@ void mkdir(const string& path, mode_t mode)
 	}
 	int result = _wmkdir(utf8to16(getNativePath(path)).c_str());
 #else
-	int result = ::mkdir(getNativePath(path).c_str(), mode);
+	int result = ::mkdir(path.c_str(), mode);
 #endif
 	if (result && (errno != EEXIST)) {
 		throw FileException("Error creating dir " + path);
 	}
 }
 
-void mkdirp(const string& path_)
+void mkdirp(string_ref path_)
 {
 	if (path_.empty()) {
 		return;
@@ -291,66 +293,66 @@ void openofstream(std::ofstream& stream, const std::string& filename,
 #endif
 }
 
-string getFilename(const string& path)
+string_ref getFilename(string_ref path)
 {
-	string::size_type pos = path.rfind('/');
-	if (pos == string::npos) {
+	string_ref::size_type pos = path.rfind('/');
+	if (pos == string_ref::npos) {
 		return path;
 	} else {
 		return path.substr(pos + 1);
 	}
 }
 
-string getBaseName(const string& path)
+string_ref getBaseName(string_ref path)
 {
-	string::size_type pos = path.rfind('/');
-	if (pos == string::npos) {
+	string_ref::size_type pos = path.rfind('/');
+	if (pos == string_ref::npos) {
 		return "";
 	} else {
 		return path.substr(0, pos + 1);
 	}
 }
 
-string getExtension(const string& path)
+string_ref getExtension(string_ref path)
 {
-	string filename = getFilename(path);
-	string::size_type pos = filename.rfind('.');
-	if (pos == string::npos) {
+	string_ref filename = getFilename(path);
+	string_ref::size_type pos = filename.rfind('.');
+	if (pos == string_ref::npos) {
 		return "";
 	} else {
 		return filename.substr(pos + 1);
 	}
 }
 
-string stripExtension (const string& path)
+string_ref stripExtension(string_ref path)
 {
-	string::size_type pos = path.rfind('.');
-	if (pos == string::npos) {
+	string_ref::size_type pos = path.rfind('.');
+	if (pos == string_ref::npos) {
 		return path;
 	} else {
 		return path.substr(0, pos);
 	}
 }
 
-string join(const string& part1, const string& part2)
+string join(string_ref part1, string_ref part2)
 {
-	if (isAbsolutePath(part2)) {
-		return part2;
+	if (part1.empty() || isAbsolutePath(part2)) {
+		return part2.str();
 	}
-	if (part1.empty() || (*part1.rbegin() == '/')) {
+	if (part1.back() == '/') {
 		return part1 + part2;
 	}
 	return part1 + '/' + part2;
 }
-string join(const string& part1, const string& part2, const string& part3)
+string join(string_ref part1, string_ref part2, string_ref part3)
 {
-	return join(join(part1, part2), part3);
+	return join(part1, join(part2, part3));
 }
 
-string join(const string& part1, const string& part2,
-			const string& part3, const string& part4)
+string join(string_ref part1, string_ref part2,
+            string_ref part3, string_ref part4)
 {
-	return join(join(join(part1, part2), part3), part4);
+	return join(part1, join(part2, join(part3, part4)));
 }
 
 string getNativePath(const string& path)
@@ -394,18 +396,18 @@ string getCurrentWorkingDirectory()
 	return buf;
 }
 
-string getAbsolutePath(const string& path)
+string getAbsolutePath(string_ref path)
 {
 	// In rare cases getCurrentWorkingDirectory() can throw,
 	// so only call it when really necessary.
 	if (isAbsolutePath(path)) {
-		return path;
+		return path.str();
 	}
 	string currentDir = getCurrentWorkingDirectory();
 	return join(currentDir, path);
 }
 
-bool isAbsolutePath(const string& path)
+bool isAbsolutePath(string_ref path)
 {
 #ifdef _WIN32
 	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
@@ -418,7 +420,7 @@ bool isAbsolutePath(const string& path)
 	return !path.empty() && (path[0] == '/');
 }
 
-string getUserHomeDir(const string& username)
+string getUserHomeDir(string_ref username)
 {
 #ifdef _WIN32
 	(void)(&username); // ignore parameter, avoid warning
@@ -450,7 +452,7 @@ string getUserHomeDir(const string& username)
 			pw = getpwuid(getuid());
 		}
 	} else {
-		pw = getpwnam(username.c_str());
+		pw = getpwnam(username.str().c_str());
 	}
 	if (pw) {
 		dir = pw->pw_dir;
@@ -583,19 +585,19 @@ time_t getModificationDate(const Stat& st)
 	return st.st_mtime;
 }
 
-static int getNextNum(dirent* d, const string& prefix, const string& extension,
-					  const unsigned nofdigits)
+static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
+                      unsigned nofdigits)
 {
-	const size_t extensionlen = extension.length();
-	const size_t prefixlen = prefix.length();
-	string name(d->d_name);
+	size_t extensionLen = extension.size();
+	size_t prefixLen = prefix.size();
+	string_ref name(d->d_name);
 
-	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
-		(name.substr(0, prefixlen) != prefix) ||
-		(name.substr(prefixlen + nofdigits, extensionlen) != extension)) {
+	if ((name.size() != (prefixLen + nofdigits + extensionLen)) ||
+	    (name.substr(0, prefixLen) != prefix) ||
+	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
 		return 0;
 	}
-	string num(name.substr(prefixlen, nofdigits));
+	string num(name.substr(prefixLen, nofdigits).str());
 	char* endpos;
 	unsigned long n = strtoul(num.c_str(), &endpos, 10);
 	if (*endpos != '\0') {
@@ -605,7 +607,7 @@ static int getNextNum(dirent* d, const string& prefix, const string& extension,
 }
 
 string getNextNumberedFileName(
-	const string& directory, const string& prefix, const string& extension)
+	string_ref directory, string_ref prefix, string_ref extension)
 {
 	const unsigned nofdigits = 4;
 
@@ -632,15 +634,15 @@ string getNextNumberedFileName(
 }
 
 string parseCommandFileArgument(
-	const string& argument, const string& directory,
-	const string& prefix,   const string& extension)
+	string_ref argument, string_ref directory,
+	string_ref prefix,   string_ref extension)
 {
 	if (argument.empty()) {
 		// directory is also created when needed
 		return getNextNumberedFileName(directory, prefix, extension);
 	}
 
-	string filename = argument;
+	string filename = argument.str();
 	if (getBaseName(filename).empty()) {
 		// no dir given, use standard dir (and create it)
 		string dir = getUserOpenMSXDir() + '/' + directory;
@@ -656,7 +658,7 @@ string parseCommandFileArgument(
 		// when the filename without extension doesn't already exist.
 		// Without this exception stuff like 'soundlog start /dev/null'
 		// reports an error " ... error opening file /dev/null.wav."
-		filename += extension;
+		filename.append(extension.data(), extension.size());
 	}
 	return filename;
 }

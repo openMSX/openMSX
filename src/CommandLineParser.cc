@@ -309,10 +309,10 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 
 bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, deque<string>& cmdLine)
 {
-	string extension = FileOperations::getExtension(name);
+	string_ref extension = FileOperations::getExtension(name);
 	if (!extension.empty()) {
 		// there is an extension
-		FileTypeMap::const_iterator it = fileTypeMap.find(extension);
+		FileTypeMap::const_iterator it = fileTypeMap.find(extension.str());
 		if (it != fileTypeMap.end()) {
 			try {
 				// parse filetype

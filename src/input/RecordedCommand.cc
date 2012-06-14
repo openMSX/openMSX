@@ -66,10 +66,10 @@ bool RecordedCommand::needRecord(const vector<string>& /*tokens*/) const
 	return true;
 }
 
-static string getBaseName(const std::string& str)
+static string_ref getBaseName(string_ref str)
 {
-	string::size_type pos = str.rfind("::");
-	return (pos == string::npos) ? str : str.substr(pos + 2);
+	string_ref::size_type pos = str.rfind("::");
+	return (pos == string_ref::npos) ? str : str.substr(pos + 2);
 }
 
 void RecordedCommand::signalStateChange(const shared_ptr<StateChange>& event)
@@ -79,7 +79,7 @@ void RecordedCommand::signalStateChange(const shared_ptr<StateChange>& event)
 	if (!commandEvent) return;
 
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
-	if (getBaseName(tokens[0]->getString().str()) != getName()) return;
+	if (getBaseName(tokens[0]->getString()) != getName()) return;
 
 	if (needRecord(tokens)) {
 		execute(tokens, *currentResultObject, commandEvent->getTime());

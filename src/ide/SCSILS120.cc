@@ -270,7 +270,7 @@ unsigned SCSILS120::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(file->getURL());
+		string filename = FileOperations::getFilename(file->getURL()).str();
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
