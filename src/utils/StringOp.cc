@@ -30,6 +30,10 @@ Builder& Builder::operator<<(const std::string& t)
 {
 	buf << t; return *this;
 }
+Builder& Builder::operator<<(string_ref t)
+{
+	buf << t; return *this;
+}
 Builder& Builder::operator<<(const char* t)
 {
 	buf << t; return *this;

@@ -27,8 +27,8 @@ Command* ProxyCmd::getMachineCommand(const string& name) const
 
 void ProxyCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
-	string name = tokens[0]->getString();
-	if (Command* command = getMachineCommand(name)) {
+	string_ref name = tokens[0]->getString();
+	if (Command* command = getMachineCommand(name.str())) {
 		command->execute(tokens, result);
 	} else {
 		throw CommandException("Invalid command name \"" + name + '"');

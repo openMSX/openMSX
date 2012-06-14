@@ -3,7 +3,7 @@
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 
-#include <string>
+#include "string_ref.hh"
 #include "openmsx.hh"
 
 struct Tcl_Interp;
@@ -17,8 +17,8 @@ class TclObject
 {
 public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
-	TclObject(Tcl_Interp* interp, const std::string& value);
-	explicit TclObject(const std::string& value);
+	TclObject(Tcl_Interp* interp, string_ref value);
+	explicit TclObject(string_ref value);
 	explicit TclObject(Tcl_Interp* interp);
 	explicit TclObject(Interpreter& interp);
 	TclObject(const TclObject& object);
@@ -34,19 +34,19 @@ public:
 	Tcl_Obj* getTclObject();
 
 	// value setters
-	void setString(const std::string& value);
+	void setString(string_ref value);
 	void setInt(int value);
 	void setBoolean(bool value);
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
-	void addListElement(const std::string& element);
+	void addListElement(string_ref element);
 	void addListElement(int value);
 	void addListElement(double value);
 	void addListElement(TclObject& element);
 	template <typename ITER> void addListElements(ITER begin, ITER end);
 
 	// value getters
-	std::string getString() const;
+	string_ref getString() const;
 	int getInt() const;
 	bool getBoolean() const;
 	double getDouble() const;

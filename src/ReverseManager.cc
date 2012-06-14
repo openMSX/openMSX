@@ -300,7 +300,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 		totalSize += chunk.savestate->size();
 	}
 	res << "total size: " << totalSize << '\n';
-	result.setString(res);
+	result.setString(string(res));
 }
 
 static void parseGoTo(const vector<TclObject*>& tokens, bool& novideo, double& time)
@@ -530,7 +530,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		// nothing
 		break;
 	case 3:
-		filename = tokens[2]->getString();
+		filename = tokens[2]->getString().str();
 		break;
 	default:
 		throw SyntaxError();
@@ -623,7 +623,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 	bool enableViewOnly = false;
 
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		const string token = tokens[i]->getString();
+		string_ref token = tokens[i]->getString();
 		if (token == "-viewonly") {
 			enableViewOnly = true;
 		} else if (token == "-goto") {
@@ -632,7 +632,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 			}
 			whereArg = tokens[i];
 		} else {
-			arguments.push_back(token);
+			arguments.push_back(token.str());
 		}
 	}
 
@@ -673,7 +673,7 @@ void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& res
 
 	// get destination time index
 	EmuTime destination = EmuTime::zero;
-	string where = whereArg == NULL ? "begin" : whereArg->getString();
+	string_ref where = (whereArg == NULL) ? "begin" : whereArg->getString();
 	if (where == "begin") {
 		destination = EmuTime::zero;
 	} else if (where == "end") {
@@ -954,7 +954,7 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
 	}
-	string subcommand = tokens[1]->getString();
+	string_ref subcommand = tokens[1]->getString();
 	if        (subcommand == "start") {
 		manager.start();
 	} else if (subcommand == "stop") {

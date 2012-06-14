@@ -725,7 +725,7 @@ void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.findDevice(tokens[2]->getString());
+		SoundDevice* device = mixer.findDevice(tokens[2]->getString().str());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

@@ -54,7 +54,7 @@ static string initialFilePoolSettingValue()
 		entry2.addListElement("rom disk tape");
 		result.addListElement(entry2);
 	}
-	return result.getString();
+	return result.getString().str();
 }
 
 FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
@@ -150,7 +150,7 @@ static int parseTypes(const TclObject& list)
 	int result = 0;
 	unsigned num = list.getListLength();
 	for (unsigned i = 0; i < num; ++i) {
-		string elem = list.getListIndex(i).getString();
+		string_ref elem = list.getListIndex(i).getString();
 		if (elem == "system_rom") {
 			result |= FilePool::SYSTEM_ROM;
 		} else if (elem == "rom") {
@@ -189,10 +189,10 @@ void FilePool::getDirectories(Directories& result) const
 				"of elements, but got " + line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
-			string name  = line.getListIndex(j + 0).getString();
+			string_ref name  = line.getListIndex(j + 0).getString();
 			TclObject value = line.getListIndex(j + 1);
 			if (name == "-path") {
-				entry.path = value.getString();
+				entry.path = value.getString().str();
 				hasPath = true;
 			} else if (name == "-types") {
 				entry.types = parseTypes(value);

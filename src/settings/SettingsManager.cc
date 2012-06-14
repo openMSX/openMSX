@@ -171,9 +171,9 @@ void SettingInfo::execute(
 		}
 		break;
 	case 3: {
-		string name = tokens[2]->getString();
+		string_ref name = tokens[2]->getString();
 		SettingsManager::SettingsMap::const_iterator it =
-			settingsMap.find(name);
+			settingsMap.find(name.str());
 		if (it == settingsMap.end()) {
 			throw CommandException("No such setting: " + name);
 		}

@@ -17,13 +17,13 @@ TclObject::TclObject(Tcl_Interp* interp_, Tcl_Obj* obj_)
 {
 }
 
-TclObject::TclObject(Tcl_Interp* interp_, const string& value)
+TclObject::TclObject(Tcl_Interp* interp_, string_ref value)
 	: interp(interp_)
 {
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
 
-TclObject::TclObject(const string& value)
+TclObject::TclObject(string_ref value)
 	: interp(0)
 {
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
@@ -102,15 +102,15 @@ void TclObject::unshare()
 
 void TclObject::throwException() const
 {
-	string message = interp ? Tcl_GetStringResult(interp)
+	string_ref message = interp ? Tcl_GetStringResult(interp)
 	                        : "TclObject error";
-	throw CommandException(message);
+	throw CommandException(message.str());
 }
 
-void TclObject::setString(const string& value)
+void TclObject::setString(string_ref value)
 {
 	unshare();
-	Tcl_SetStringObj(obj, value.c_str(), int(value.length()));
+	Tcl_SetStringObj(obj, value.data(), int(value.size()));
 }
 
 void TclObject::setInt(int value)
@@ -137,7 +137,7 @@ void TclObject::setBinary(byte* buf, unsigned length)
 	Tcl_SetByteArrayObj(obj, buf, length);
 }
 
-void TclObject::addListElement(const string& element)
+void TclObject::addListElement(string_ref element)
 {
 	addListElement(Tcl_NewStringObj(element.data(), int(element.size())));
 }
@@ -192,11 +192,11 @@ double TclObject::getDouble() const
 	return result;
 }
 
-string TclObject::getString() const
+string_ref TclObject::getString() const
 {
 	int length;
 	char* buf = Tcl_GetStringFromObj(obj, &length);
-	return string(buf, length);
+	return string_ref(buf, length);
 }
 
 const byte* TclObject::getBinary(unsigned& length) const
@@ -235,13 +235,13 @@ bool TclObject::evalBool() const
 
 void TclObject::checkExpression() const
 {
-	string tmp = getString();
+	string_ref tmp = getString();
 	parse(tmp.data(), int(tmp.size()), true);
 }
 
 void TclObject::checkCommand() const
 {
-	string tmp = getString();
+	string_ref tmp = getString();
 	parse(tmp.data(), int(tmp.size()), false);
 }
 

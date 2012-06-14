@@ -360,7 +360,7 @@ void PluggableInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	case 3: {
 		const Pluggable& pluggable = pluggingController.getPluggable(
-				tokens[2]->getString());
+				tokens[2]->getString().str());
 		result.setString(pluggable.getDescription());
 		break;
 	}
@@ -409,7 +409,7 @@ void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		const Connector& connector = pluggingController.getConnector(tokens[2]->getString());
+		const Connector& connector = pluggingController.getConnector(tokens[2]->getString().str());
 		result.setString(connector.getDescription());
 		break;
 	}
@@ -466,7 +466,7 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	}
 	case 3: {
-		string arg = tokens[2]->getString();
+		string arg = tokens[2]->getString().str();
 		if (const Connector* connector =
 		    pluggingController.findConnector(arg)) {
 			result.setString(connector->getClass());

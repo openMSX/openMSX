@@ -27,6 +27,7 @@ namespace StringOp
 		// the templatized version below (expect for being implicitly
 		// inlined, the template is just fine).
 		Builder& operator<<(const std::string& t);
+		Builder& operator<<(string_ref t);
 		Builder& operator<<(const char* t);
 		Builder& operator<<(unsigned char t);
 		Builder& operator<<(unsigned short t);

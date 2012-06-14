@@ -1143,8 +1143,8 @@ void DeviceInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		string name = tokens[2]->getString();
-		MSXDevice* device = motherBoard.findDevice(name);
+		string_ref name = tokens[2]->getString();
+		MSXDevice* device = motherBoard.findDevice(name.str());
 		if (!device) {
 			throw CommandException("No such device: " + name);
 		}

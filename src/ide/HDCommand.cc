@@ -61,7 +61,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 		}
 		try {
 			UserFileContext context;
-			Filename filename(tokens[fileToken]->getString(), context);
+			Filename filename(tokens[fileToken]->getString().str(), context);
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here

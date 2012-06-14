@@ -49,15 +49,15 @@ void OSDText::getProperties(std::set<string>& result) const
 void OSDText::setProperty(const string& name, const TclObject& value)
 {
 	if (name == "-text") {
-		string val = value.getString();
+		string_ref val = value.getString();
 		if (text != val) {
-			text = val;
+			text = val.str();
 			// note: don't invalidate font (don't reopen font file)
 			OSDImageBasedWidget::invalidateLocal();
 			invalidateChildren();
 		}
 	} else if (name == "-font") {
-		string val = value.getString();
+		string val = value.getString().str();
 		if (fontfile != val) {
 			SystemFileContext context;
 			string file = context.resolve(val);
@@ -74,7 +74,7 @@ void OSDText::setProperty(const string& name, const TclObject& value)
 			invalidateRecursive();
 		}
 	} else if (name == "-wrap") {
-		string val = value.getString();
+		string_ref val = value.getString();
 		WrapMode wrapMode2;
 		if (val == "none") {
 			wrapMode2 = NONE;

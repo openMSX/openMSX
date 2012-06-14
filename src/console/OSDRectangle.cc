@@ -72,7 +72,7 @@ void OSDRectangle::setProperty(const string& name, const TclObject& value)
 			invalidateRecursive();
 		}
 	} else if (name == "-image") {
-		string val = value.getString();
+		string val = value.getString().str();
 		if (imageName != val) {
 			if (!val.empty() && !FileOperations::isRegularFile(val)) {
 				throw CommandException("Not a valid image file: " + val);

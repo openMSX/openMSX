@@ -578,12 +578,12 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 	}
 	default: {
 		 GlobalCommandController::CompleterMap::const_iterator it =
-			controller.commandCompleters.find(tokens[1]->getString());
+			controller.commandCompleters.find(tokens[1]->getString().str());
 		if (it != controller.commandCompleters.end()) {
 			vector<string> tokens2;
 			vector<TclObject*>::const_iterator it2 = tokens.begin();
 			for (++it2; it2 != tokens.end(); ++it2) {
-				tokens2.push_back((*it2)->getString());
+				tokens2.push_back((*it2)->getString().str());
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
@@ -627,7 +627,7 @@ void TabCompletionCmd::execute(const vector<TclObject*>& tokens, TclObject& resu
 	switch (tokens.size()) {
 	case 2: {
 		// TODO this prints list of possible completions in the console
-		string command = tokens[1]->getString();
+		string command = tokens[1]->getString().str();
 		controller.tabCompletion(command);
 		result.setString(command);
 		break;

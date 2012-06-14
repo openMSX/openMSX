@@ -111,7 +111,7 @@ void UserSettingCommand::execute(const vector<TclObject*>& tokens,
 	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
-	string subCommand = tokens[1]->getString();
+	string_ref subCommand = tokens[1]->getString();
 	if (subCommand == "create") {
 		create(tokens, result);
 	} else if (subCommand == "destroy") {
@@ -130,10 +130,10 @@ void UserSettingCommand::create(const vector<TclObject*>& tokens, TclObject& res
 	if (tokens.size() < 5) {
 		throw SyntaxError();
 	}
-	string type = tokens[2]->getString();
-	string name = tokens[3]->getString();
+	string_ref type = tokens[2]->getString();
+	string_ref name = tokens[3]->getString();
 
-	if (getCommandController().findSetting(name)) {
+	if (getCommandController().findSetting(name.str())) {
 		throw CommandException(
 			"There already exists a setting with this name: " + name);
 	}
@@ -162,9 +162,9 @@ auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject*>& tok
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString();
-	string desc = tokens[4]->getString();
-	string initVal = tokens[5]->getString();
+	string name = tokens[3]->getString().str();
+	string desc = tokens[4]->getString().str();
+	string initVal = tokens[5]->getString().str();
 	return auto_ptr<Setting>(new StringSetting(getCommandController(),
 	                                           name, desc, initVal));
 }
@@ -174,8 +174,8 @@ auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject*>& to
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString();
-	string desc = tokens[4]->getString();
+	string name = tokens[3]->getString().str();
+	string desc = tokens[4]->getString().str();
 	bool initVal = tokens[5]->getBoolean();
 	return auto_ptr<Setting>(new BooleanSetting(getCommandController(),
 	                                            name, desc, initVal));
@@ -186,8 +186,8 @@ auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject*>& to
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString();
-	string desc = tokens[4]->getString();
+	string name = tokens[3]->getString().str();
+	string desc = tokens[4]->getString().str();
 	int initVal = tokens[5]->getInt();
 	int minVal  = tokens[6]->getInt();
 	int maxVal  = tokens[7]->getInt();
@@ -200,8 +200,8 @@ auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject*>& toke
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString();
-	string desc = tokens[4]->getString();
+	string name = tokens[3]->getString().str();
+	string desc = tokens[4]->getString().str();
 	double initVal = tokens[5]->getInt();
 	double minVal  = tokens[6]->getInt();
 	double maxVal  = tokens[7]->getInt();
@@ -215,9 +215,9 @@ void UserSettingCommand::destroy(const vector<TclObject*>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	string name = tokens[2]->getString();
+	string_ref name = tokens[2]->getString();
 
-	Setting* setting = userSettings.findSetting(name);
+	Setting* setting = userSettings.findSetting(name.str());
 	if (!setting) {
 		throw CommandException(
 			"There is no user setting with this name: " + name);

@@ -332,7 +332,7 @@ bool DebugCmd::needRecord(const vector<TclObject*>& tokens) const
 	// example would allow to set a callback that can execute arbitrary Tcl
 	// code. See comments in RecordedCommand for more details.
 	if (tokens.size() < 2) return false;
-	string subCmd = tokens[1]->getString();
+	string_ref subCmd = tokens[1]->getString();
 	return (subCmd == "write") || (subCmd == "write_block");
 }
 
@@ -342,7 +342,7 @@ void DebugCmd::execute(const vector<TclObject*>& tokens,
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	string subCmd = tokens[1]->getString();
+	string_ref subCmd = tokens[1]->getString();
 	if (subCmd == "read") {
 		read(tokens, result);
 	} else if (subCmd == "read_block") {
@@ -404,7 +404,7 @@ void DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	result.setString(device.getDescription());
 }
 
@@ -413,7 +413,7 @@ void DebugCmd::size(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	result.setInt(device.getSize());
 }
 
@@ -422,7 +422,7 @@ void DebugCmd::read(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
@@ -435,7 +435,7 @@ void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	unsigned size = device.getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
@@ -459,7 +459,7 @@ void DebugCmd::write(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
@@ -478,7 +478,7 @@ void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	Debuggable& device = debugger.getDebuggable(tokens[2]->getString());
+	Debuggable& device = debugger.getDebuggable(tokens[2]->getString().str());
 	unsigned size = device.getSize();
 	unsigned addr = tokens[3]->getInt();
 	if (addr >= size) {
@@ -525,7 +525,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "bp#" << bp->getId());
+	result.setString(string(StringOp::Builder() << "bp#" << bp->getId()));
 	debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 }
 
@@ -538,10 +538,10 @@ void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const BreakPoints& breakPoints = interface.getBreakPoints();
 
-	string tmp = tokens[2]->getString();
-	if (StringOp::startsWith(tmp, "bp#")) {
+	string_ref tmp = tokens[2]->getString();
+	if (tmp.starts_with("bp#")) {
 		// remove by id
-		unsigned id = StringOp::stringToInt(tmp.substr(3));
+		unsigned id = stoi(tmp.substr(3));
 		for (BreakPoints::const_iterator it = breakPoints.begin();
 		     it != breakPoints.end(); ++it) {
 			const BreakPoint& bp = *it->second;
@@ -580,7 +580,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
 		TclObject line(result.getInterpreter());
-		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
+		line.addListElement(string(StringOp::Builder() << "bp#" << bp.getId()));
 		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());
@@ -611,7 +611,7 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		}
 		// fall-through
 	case 4: { // address + type
-		string typeStr = tokens[2]->getString();
+		string_ref typeStr = tokens[2]->getString();
 		unsigned max;
 		if (typeStr == "read_io") {
 			type = WatchPoint::READ_IO;
@@ -653,7 +653,7 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 	}
 	unsigned id = debugger.setWatchPoint(
 		command, condition, type, beginAddr, endAddr);
-	result.setString(StringOp::Builder() << "wp#" << id);
+	result.setString(string(StringOp::Builder() << "wp#" << id));
 }
 
 void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
@@ -665,10 +665,10 @@ void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::WatchPoints& watchPoints = interface.getWatchPoints();
 
-	string tmp = tokens[2]->getString();
-	if (StringOp::startsWith(tmp, "wp#")) {
+	string_ref tmp = tokens[2]->getString();
+	if (tmp.starts_with("wp#")) {
 		// remove by id
-		unsigned id = StringOp::stringToInt(tmp.substr(3));
+		unsigned id = stoi(tmp.substr(3));
 		for (MSXCPUInterface::WatchPoints::const_iterator it =
 			watchPoints.begin(); it != watchPoints.end(); ++it) {
 			shared_ptr<WatchPoint> wp = *it;
@@ -691,7 +691,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 	     it != watchPoints.end(); ++it) {
 		const WatchPoint& wp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(StringOp::Builder() << "wp#" << wp.getId());
+		line.addListElement(string(StringOp::Builder() << "wp#" << wp.getId()));
 		string type;
 		switch (wp.getType()) {
 		case WatchPoint::READ_IO:
@@ -755,7 +755,7 @@ void DebugCmd::setCondition(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(StringOp::Builder() << "cond#" << dc->getId());
+	result.setString(string(StringOp::Builder() << "cond#" << dc->getId()));
 	debugger.motherBoard.getCPUInterface().setCondition(dc);
 }
 
@@ -768,10 +768,10 @@ void DebugCmd::removeCondition(const vector<TclObject*>& tokens,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
 
-	string tmp = tokens[2]->getString();
-	if (StringOp::startsWith(tmp, "cond#")) {
+	string_ref tmp = tokens[2]->getString();
+	if (tmp.starts_with("cond#")) {
 		// remove by id
-		unsigned id = StringOp::stringToInt(tmp.substr(5));
+		unsigned id = stoi(tmp.substr(5));
 		for (MSXCPUInterface::Conditions::const_iterator it =
 			conditions.begin(); it != conditions.end(); ++it) {
 			DebugCondition& cond = **it;
@@ -794,7 +794,7 @@ void DebugCmd::listConditions(const vector<TclObject*>& /*tokens*/,
 	     it != conditions.end(); ++it) {
 		const DebugCondition& cond = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(StringOp::Builder() << "cond#" << cond.getId());
+		line.addListElement(string(StringOp::Builder() << "cond#" << cond.getId()));
 		line.addListElement(cond.getCondition());
 		line.addListElement(cond.getCommand());
 		res += line.getString() + '\n';
@@ -809,7 +809,7 @@ void DebugCmd::probe(const vector<TclObject*>& tokens,
 	if (tokens.size() < 3) {
 		throw CommandException("Missing argument");
 	}
-	string subCmd = tokens[2]->getString();
+	string_ref subCmd = tokens[2]->getString();
 	if (subCmd == "list") {
 		probeList(tokens, result);
 	} else if (subCmd == "desc") {
@@ -839,7 +839,7 @@ void DebugCmd::probeDesc(const vector<TclObject*>& tokens,
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
+	ProbeBase& probe = debugger.getProbe(tokens[3]->getString().str());
 	result.setString(probe.getDescription());
 }
 void DebugCmd::probeRead(const vector<TclObject*>& tokens,
@@ -848,7 +848,7 @@ void DebugCmd::probeRead(const vector<TclObject*>& tokens,
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	ProbeBase& probe = debugger.getProbe(tokens[3]->getString());
+	ProbeBase& probe = debugger.getProbe(tokens[3]->getString().str());
 	result.setString(probe.getValue());
 }
 void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
@@ -871,7 +871,7 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 		}
 		// fall-through
 	case 4: { // probe
-		probe = &debugger.getProbe(tokens[3]->getString());
+		probe = &debugger.getProbe(tokens[3]->getString().str());
 		break;
 	}
 	default:
@@ -883,7 +883,7 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 	}
 
 	unsigned id = debugger.insertProbeBreakPoint(command, condition, *probe);
-	result.setString(StringOp::Builder() << "pp#" << id);
+	result.setString(string(StringOp::Builder() << "pp#" << id));
 }
 void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
                                      TclObject& /*result*/)
@@ -891,7 +891,7 @@ void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	debugger.removeProbeBreakPoint(tokens[3]->getString());
+	debugger.removeProbeBreakPoint(tokens[3]->getString().str());
 }
 void DebugCmd::probeListBreakPoints(const vector<TclObject*>& /*tokens*/,
                                     TclObject& result)
@@ -902,7 +902,7 @@ void DebugCmd::probeListBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != debugger.probeBreakPoints.end(); ++it) {
 		const ProbeBreakPoint& bp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(StringOp::Builder() << "pp#" << bp.getId());
+		line.addListElement(string(StringOp::Builder() << "pp#" << bp.getId()));
 		line.addListElement(bp.getProbe().getName());
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());

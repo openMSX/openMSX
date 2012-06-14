@@ -26,7 +26,7 @@ std::string Event::toString() const
 {
 	TclObject result;
 	toStringImpl(result);
-	return result.getString();
+	return result.getString().str();
 }
 
 bool Event::operator<(const Event& other) const

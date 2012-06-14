@@ -197,10 +197,10 @@ int DiskChanger::insertDisk(const string& filename)
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	UserFileContext context;
-	const string& diskImage = FileOperations::getConventionalPath(args[1]->getString());
+	const string& diskImage = FileOperations::getConventionalPath(args[1]->getString().str());
 	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
 	for (unsigned i = 2; i < args.size(); ++i) {
-		Filename filename(args[i]->getString(), context);
+		Filename filename(args[i]->getString().str(), context);
 		newDisk->applyPatch(filename);
 	}
 
@@ -255,7 +255,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 	} else if (tokens[1]->getString() == "ramdsk") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
-		args.push_back(tokens[1]->getString());
+		args.push_back(tokens[1]->getString().str());
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1]->getString() == "-ramdsk") {
 		vector<string> args;
@@ -289,16 +289,16 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
-				string option = tokens[i]->getString();
+				string_ref option = tokens[i]->getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(
 							"Missing argument for option \"" + option + '\"');
 					}
-					args.push_back(tokens[i]->getString());
+					args.push_back(tokens[i]->getString().str());
 				} else {
 					// backwards compatibility
-					args.push_back(option);
+					args.push_back(option.str());
 				}
 			}
 			diskChanger.sendChangeDiskEvent(args);

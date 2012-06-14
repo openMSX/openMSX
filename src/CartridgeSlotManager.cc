@@ -345,7 +345,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		if (options.getListLength() != 0) {
 			object.addListElement(options);
 		}
-		result = object.getString();
+		result = object.getString().str();
 	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
@@ -449,8 +449,8 @@ void CartridgeSlotInfo::execute(const vector<TclObject*>& tokens,
 	}
 	case 3: {
 		// return info on a particular slot
-		string name = tokens[2]->getString();
-		if ((name.size() != 5) || (name.substr(0, 4) != "slot")) {
+		string_ref name = tokens[2]->getString();
+		if ((name.size() != 5) || (!name.starts_with("slot"))) {
 			throw CommandException("Invalid slot name: " + name);
 		}
 		unsigned num = name[4] - 'a';
