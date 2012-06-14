@@ -27,10 +27,9 @@ bool DiskImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 	parse(string_ref(option).substr(1), filename, cmdLine);
 	return true;
 }
-const string& DiskImageCLI::optionHelp() const
+string_ref DiskImageCLI::optionHelp() const
 {
-	static const string text("Insert the disk image specified in argument");
-	return text;
+	return "Insert the disk image specified in argument";
 }
 
 void DiskImageCLI::parseFileType(const string& filename, deque<string>& cmdLine)
@@ -39,10 +38,9 @@ void DiskImageCLI::parseFileType(const string& filename, deque<string>& cmdLine)
 	++driveLetter;
 }
 
-const string& DiskImageCLI::fileTypeHelp() const
+string_ref DiskImageCLI::fileTypeHelp() const
 {
-	static const string text("Disk image");
-	return text;
+	return "Disk image";
 }
 
 void DiskImageCLI::parse(string_ref drive, string_ref image,

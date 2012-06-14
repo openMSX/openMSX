@@ -31,10 +31,9 @@ bool HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 	command.executeCommand();
 	return true;
 }
-const string& HDImageCLI::optionHelp() const
+string_ref HDImageCLI::optionHelp() const
 {
-	static const string text("Use hard disk image in argument for the IDE or SCSI extensions");
-	return text;
+	return "Use hard disk image in argument for the IDE or SCSI extensions";
 }
 
 } // namespace openmsx

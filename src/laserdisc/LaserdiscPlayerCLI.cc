@@ -24,11 +24,10 @@ bool LaserdiscPlayerCLI::parseOption(const string& option, deque<string>& cmdLin
 	return true;
 }
 
-const string& LaserdiscPlayerCLI::optionHelp() const
+string_ref LaserdiscPlayerCLI::optionHelp() const
 {
-	static const string text(
-	  "Put laserdisc image specified in argument in virtual laserdiscplayer");
-	return text;
+	return "Put laserdisc image specified in argument in "
+	       "virtual laserdiscplayer";
 }
 
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
@@ -44,11 +43,9 @@ void LaserdiscPlayerCLI::parseFileType(const string& filename,
 	command.executeCommand();
 }
 
-const string& LaserdiscPlayerCLI::fileTypeHelp() const
+string_ref LaserdiscPlayerCLI::fileTypeHelp() const
 {
-	static const string text(
-		"Laserdisc image, Ogg Vorbis/Theora");
-	return text;
+	return "Laserdisc image, Ogg Vorbis/Theora";
 }
 
 } // namespace openmsx

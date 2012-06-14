@@ -38,10 +38,9 @@ bool MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& MSXRomCLI::optionHelp() const
+string_ref MSXRomCLI::optionHelp() const
 {
-	static const string text("Insert the ROM file (cartridge) specified in argument");
-	return text;
+	return "Insert the ROM file (cartridge) specified in argument";
 }
 
 void MSXRomCLI::parseFileType(const string& arg, deque<string>& cmdLine)
@@ -49,7 +48,7 @@ void MSXRomCLI::parseFileType(const string& arg, deque<string>& cmdLine)
 	parse(arg, "any", cmdLine);
 }
 
-const string& MSXRomCLI::fileTypeHelp() const
+string_ref MSXRomCLI::fileTypeHelp() const
 {
 	static const string text("ROM image of a cartridge");
 	return text;
@@ -84,11 +83,10 @@ bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
 		"-ips options should immediately follow a ROM or disk image.");
 }
 
-const string& MSXRomCLI::IpsOption::optionHelp() const
+string_ref MSXRomCLI::IpsOption::optionHelp() const
 {
-	static const string text(
-		"Apply the given IPS patch to the ROM or disk image specified in the preceding option");
-	return text;
+	return "Apply the given IPS patch to the ROM or disk image specified "
+	       "in the preceding option";
 }
 
 bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
@@ -97,10 +95,10 @@ bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }
 
-const string& MSXRomCLI::RomTypeOption::optionHelp() const
+string_ref MSXRomCLI::RomTypeOption::optionHelp() const
 {
-	static const string text("Specify the rom type for the ROM image specified in the preceding option");
-	return text;
+	return "Specify the rom type for the ROM image specified in the "
+	       "preceding option";
 }
 
 } // namespace openmsx

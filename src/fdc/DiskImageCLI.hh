@@ -17,10 +17,10 @@ public:
 	explicit DiskImageCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
 	                           std::deque<std::string>& cmdLine);
-	virtual const std::string& fileTypeHelp() const;
+	virtual string_ref fileTypeHelp() const;
 
 private:
 	void parse(string_ref drive, string_ref image,

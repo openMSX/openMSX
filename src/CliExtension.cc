@@ -29,10 +29,9 @@ bool CliExtension::parseOption(const string& option, std::deque<string>& cmdLine
 	return true;
 }
 
-const string& CliExtension::optionHelp() const
+string_ref CliExtension::optionHelp() const
 {
-	static string help("Insert the extension specified in argument");
-	return help;
+	return "Insert the extension specified in argument";
 }
 
 } // namespace openmsx

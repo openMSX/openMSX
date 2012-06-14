@@ -24,11 +24,10 @@ bool CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine
 	return true;
 }
 
-const string& CassettePlayerCLI::optionHelp() const
+string_ref CassettePlayerCLI::optionHelp() const
 {
-	static const string text(
-	  "Put cassette image specified in argument in virtual cassetteplayer");
-	return text;
+	return "Put cassette image specified in argument in "
+	       "virtual cassetteplayer";
 }
 
 void CassettePlayerCLI::parseFileType(const string& filename,
@@ -43,11 +42,9 @@ void CassettePlayerCLI::parseFileType(const string& filename,
 	command.executeCommand();
 }
 
-const string& CassettePlayerCLI::fileTypeHelp() const
+string_ref CassettePlayerCLI::fileTypeHelp() const
 {
-	static const string text(
-		"Cassette image, raw recording or fMSX CAS image");
-	return text;
+	return "Cassette image, raw recording or fMSX CAS image";
 }
 
 } // namespace openmsx

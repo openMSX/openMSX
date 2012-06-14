@@ -16,7 +16,7 @@ public:
 	explicit HDImageCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 
 private:
 	GlobalCommandController& commandController;

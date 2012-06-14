@@ -31,10 +31,9 @@ bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 	command.executeCommand();
 	return true;
 }
-const string& CDImageCLI::optionHelp() const
+string_ref CDImageCLI::optionHelp() const
 {
-	static const string text("Use iso image in argument for the CDROM extension");
-	return text;
+	return "Use iso image in argument for the CDROM extension";
 }
 
 } // namespace openmsx

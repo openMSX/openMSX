@@ -30,6 +30,7 @@
 #include "utf8_checked.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
+#include "StringMap.hh"
 #include "build-info.hh"
 #include "components.hh"
 
@@ -60,7 +61,7 @@ class HelpOption : public CLIOption
 public:
 	explicit HelpOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -70,7 +71,7 @@ class VersionOption : public CLIOption
 public:
 	explicit VersionOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -80,7 +81,7 @@ class ControlOption : public CLIOption
 public:
 	explicit ControlOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -90,10 +91,10 @@ class ScriptOption : public CLIOption, public CLIFileType
 public:
 	const CommandLineParser::Scripts& getScripts() const;
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
                                    std::deque<std::string>& cmdLine);
-	virtual const std::string& fileTypeHelp() const;
+	virtual string_ref fileTypeHelp() const;
 
 private:
 	CommandLineParser::Scripts scripts;
@@ -104,7 +105,7 @@ class MachineOption : public CLIOption
 public:
 	explicit MachineOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -114,7 +115,7 @@ class SettingOption : public CLIOption
 public:
 	explicit SettingOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -123,25 +124,25 @@ class NoMMXOption : public CLIOption
 {
 public:
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 };
 
 class NoSSEOption : public CLIOption {
 public:
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 };
 
 class NoSSE2Option : public CLIOption {
 public:
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 };
 
 class NoPBOOption : public CLIOption {
 public:
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 };
 
 class TestConfigOption : public CLIOption
@@ -149,7 +150,7 @@ class TestConfigOption : public CLIOption
 public:
 	explicit TestConfigOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option, deque<string>& cmdLine);
-	virtual const string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -505,10 +506,9 @@ bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& ControlOption::optionHelp() const
+string_ref ControlOption::optionHelp() const
 {
-	static const string text("Enable external control of openMSX process");
-	return text;
+	return "Enable external control of openMSX process";
 }
 
 
@@ -525,10 +525,9 @@ bool ScriptOption::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& ScriptOption::optionHelp() const
+string_ref ScriptOption::optionHelp() const
 {
-	static const string text("Run extra startup script");
-	return text;
+	return "Run extra startup script";
 }
 
 void ScriptOption::parseFileType(const string& filename,
@@ -537,11 +536,9 @@ void ScriptOption::parseFileType(const string& filename,
 	scripts.push_back(filename);
 }
 
-const string& ScriptOption::fileTypeHelp() const
+string_ref ScriptOption::fileTypeHelp() const
 {
-	static const string text(
-	  "Extra Tcl script to run at startup");
-	return text;
+	return "Extra Tcl script to run at startup";
 }
 
 // Help option
@@ -596,13 +593,13 @@ static string formatHelptext(string_ref helpText,
 	return outText;
 }
 
-static void printItemMap(const map<string, set<string> >& itemMap)
+static void printItemMap(const StringMap<set<string> >& itemMap)
 {
 	set<string> printSet;
-	for (map<string, set<string> >::const_iterator it = itemMap.begin();
+	for (StringMap<set<string> >::const_iterator it = itemMap.begin();
 	     it != itemMap.end(); ++it) {
 		printSet.insert(formatSet(it->second, 15) + ' ' +
-		                formatHelptext(it->first, 50, 20));
+		                formatHelptext(it->first(), 50, 20));
 	}
 	for (set<string>::const_iterator it = printSet.begin();
 	     it != printSet.end(); ++it) {
@@ -629,7 +626,7 @@ bool HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
 
-	map<string, set<string> > optionMap;
+	StringMap<set<string> > optionMap;
 	for (map<string, CommandLineParser::OptionData>::const_iterator it =
 	        parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
 		optionMap[it->second.option->optionHelp()].insert(it->first);
@@ -639,7 +636,7 @@ bool HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
-	map<string, set<string> > extMap;
+	StringMap<set<string> > extMap;
 	for (CommandLineParser::FileTypeMap::const_iterator it =
 	         parser.fileTypeMap.begin();
 	     it != parser.fileTypeMap.end(); ++it) {
@@ -651,10 +648,9 @@ bool HelpOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& HelpOption::optionHelp() const
+string_ref HelpOption::optionHelp() const
 {
-	static const string text("Shows this text");
-	return text;
+	return "Shows this text";
 }
 
 
@@ -675,10 +671,9 @@ bool VersionOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& VersionOption::optionHelp() const
+string_ref VersionOption::optionHelp() const
 {
-	static const string text("Prints openMSX version and exits");
-	return text;
+	return "Prints openMSX version and exits";
 }
 
 
@@ -703,10 +698,9 @@ bool MachineOption::parseOption(const string& option, deque<string>& cmdLine)
 	parser.haveConfig = true;
 	return true;
 }
-const string& MachineOption::optionHelp() const
+string_ref MachineOption::optionHelp() const
 {
-	static const string text("Use machine specified in argument");
-	return text;
+	return "Use machine specified in argument";
 }
 
 
@@ -735,10 +729,9 @@ bool SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& SettingOption::optionHelp() const
+string_ref SettingOption::optionHelp() const
 {
-	static const string text("Load an alternative settings file");
-	return text;
+	return "Load an alternative settings file";
 }
 
 
@@ -752,11 +745,9 @@ bool NoMMXOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& NoMMXOption::optionHelp() const
+string_ref NoMMXOption::optionHelp() const
 {
-	static const string text(
-		"Disables usage of MMX, SSE and SSE2 (for debugging)");
-	return text;
+	return "Disables usage of MMX, SSE and SSE2 (for debugging)";
 }
 
 
@@ -770,11 +761,9 @@ bool NoSSEOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& NoSSEOption::optionHelp() const
+string_ref NoSSEOption::optionHelp() const
 {
-	static const string text(
-		"Disables usage of SSE and SSE2 (for debugging)");
-	return text;
+	return "Disables usage of SSE and SSE2 (for debugging)";
 }
 
 
@@ -788,11 +777,9 @@ bool NoSSE2Option::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& NoSSE2Option::optionHelp() const
+string_ref NoSSE2Option::optionHelp() const
 {
-	static const string text(
-		"Disables usage of SSE2 (for debugging)");
-	return text;
+	return "Disables usage of SSE2 (for debugging)";
 }
 
 
@@ -808,11 +795,9 @@ bool NoPBOOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& NoPBOOption::optionHelp() const
+string_ref NoPBOOption::optionHelp() const
 {
-	static const string text(
-		"Disables usage of openGL PBO (for debugging)");
-	return text;
+	return "Disables usage of openGL PBO (for debugging)";
 }
 
 
@@ -830,10 +815,9 @@ bool TestConfigOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& TestConfigOption::optionHelp() const
+string_ref TestConfigOption::optionHelp() const
 {
-	static const string text("Test if the specified config works and exit");
-	return text;
+	return "Test if the specified config works and exit";
 }
 
 } // namespace openmsx

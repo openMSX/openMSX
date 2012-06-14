@@ -24,11 +24,9 @@ bool SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& SaveStateCLI::optionHelp() const
+string_ref SaveStateCLI::optionHelp() const
 {
-	static const string text(
-	  "Load savestate and start emulation from there");
-	return text;
+	return "Load savestate and start emulation from there";
 }
 
 void SaveStateCLI::parseFileType(const string& filename,
@@ -55,11 +53,9 @@ void SaveStateCLI::parseFileType(const string& filename,
 	command.executeCommand();
 }
 
-const string& SaveStateCLI::fileTypeHelp() const
+string_ref SaveStateCLI::fileTypeHelp() const
 {
-	static const string text(
-		"openMSX savestate");
-	return text;
+	return "openMSX savestate";
 }
 
 } // namespace openmsx

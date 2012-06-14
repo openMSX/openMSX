@@ -24,11 +24,9 @@ bool ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)
 	return true;
 }
 
-const string& ReplayCLI::optionHelp() const
+string_ref ReplayCLI::optionHelp() const
 {
-	static const string text(
-	  "Load replay and start replaying it in view only mode");
-	return text;
+	return "Load replay and start replaying it in view only mode";
 }
 
 void ReplayCLI::parseFileType(const string& filename,
@@ -42,11 +40,9 @@ void ReplayCLI::parseFileType(const string& filename,
 	command.executeCommand();
 }
 
-const string& ReplayCLI::fileTypeHelp() const
+string_ref ReplayCLI::fileTypeHelp() const
 {
-	static const string text(
-		"openMSX replay");
-	return text;
+	return "openMSX replay";
 }
 
 } // namespace openmsx

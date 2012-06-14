@@ -16,11 +16,11 @@ public:
 
 	virtual bool parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual string_ref optionHelp() const;
 
 	virtual void parseFileType(const std::string& filename,
 	                           std::deque<std::string>& cmdLine);
-	virtual const std::string& fileTypeHelp() const;
+	virtual string_ref fileTypeHelp() const;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
@@ -31,12 +31,12 @@ private:
 	class IpsOption : public CLIOption {
 		virtual bool parseOption(const std::string& option,
 		                         std::deque<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
+		virtual string_ref optionHelp() const;
 	} ipsOption;
 	class RomTypeOption : public CLIOption {
 		virtual bool parseOption(const std::string& option,
 		                         std::deque<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
+		virtual string_ref optionHelp() const;
 	} romTypeOption;
 };
 
