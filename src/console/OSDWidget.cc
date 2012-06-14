@@ -154,18 +154,18 @@ void OSDWidget::setParent(OSDWidget* parent_)
 	parent = parent_;
 }
 
-OSDWidget* OSDWidget::findSubWidget(const string& name)
+OSDWidget* OSDWidget::findSubWidget(string_ref name)
 {
 	if (name.empty()) {
 		return this;
 	}
-	string first, last;
+	string_ref first, last;
 	StringOp::splitOnFirst(name, '.', first, last);
 	SubWidgetsMap::const_iterator it = subWidgetsMap.find(first);
 	return it == subWidgetsMap.end() ? NULL : it->second->findSubWidget(last);
 }
 
-const OSDWidget* OSDWidget::findSubWidget(const std::string& name) const
+const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
 {
 	return const_cast<OSDWidget*>(this)->findSubWidget(name);
 }

@@ -194,13 +194,14 @@ static string makeSimpleMSXFileName(string filename)
 {
 	transform(filename.begin(), filename.end(), filename.begin(), toMSXChr);
 
-	string file, ext;
+	string_ref file, ext;
 	StringOp::splitOnLast(filename, '.', file, ext);
-	if (file.empty()) swap(file, ext);
+	if (file.empty()) std::swap(file, ext);
 
-	file.resize(8, ' ');
-	ext .resize(3, ' ');
-	return file + ext;
+	string result(8 + 3, ' ');
+	memcpy(&*result.begin() + 0, file.data(), std::min(8u, file.size()));
+	memcpy(&*result.begin() + 8, ext .data(), std::min(3u, ext .size()));
+	return result;
 }
 
 static unsigned clusterToSector(unsigned cluster)

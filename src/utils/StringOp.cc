@@ -240,25 +240,22 @@ string toLower(const string& str)
 	return result;
 }
 
-bool startsWith(const string& total, const string& part)
+bool startsWith(string_ref total, string_ref part)
 {
-	if (total.size() < part.size()) return false;
-	return equal(part.begin(), part.end(), total.begin());
+	return total.starts_with(part);
 }
-bool startsWith(const string& total, char part)
+bool startsWith(string_ref total, char part)
 {
-	return !total.empty() && (total[0] == part);
+	return !total.empty() && (total.front() == part);
 }
 
-bool endsWith(const string& total, const string& part)
+bool endsWith(string_ref total, string_ref part)
 {
-	string::difference_type offset = total.size() - part.size();
-	if (offset < 0) return false;
-	return equal(part.begin(), part.end(), total.begin() + offset);
+	return total.ends_with(part);
 }
-bool endsWith(const string& total, char part)
+bool endsWith(string_ref total, char part)
 {
-	return !total.empty() && (*total.rbegin() == part);
+	return !total.empty() && (total.back() == part);
 }
 
 void trimRight(string& str, const char* chars)
@@ -279,15 +276,27 @@ void trimRight(string& str, char chars)
 		str.clear();
 	}
 }
+void trimRight(string_ref& str, char chars)
+{
+	while (!str.empty() && (str.back() == chars)) {
+		str.pop_back();
+	}
+}
 void trimLeft (string& str, const char* chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
-
-void splitOnFirst(const string& str, const char* chars, string& first, string& last)
+void trimLeft (string_ref& str, string_ref chars)
 {
-	std::string::size_type pos = str.find_first_of(chars);
-	if (pos == std::string::npos) {
+	while (!str.empty() && (chars.find(str[0]) != string_ref::npos)) {
+		str.pop_front();
+	}
+}
+
+void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_ref& last)
+{
+	string_ref::size_type pos = str.find_first_of(chars);
+	if (pos == string_ref::npos) {
 		first = str;
 		last.clear();
 	} else {
@@ -295,10 +304,10 @@ void splitOnFirst(const string& str, const char* chars, string& first, string& l
 		last  = str.substr(pos + 1);
 	}
 }
-void splitOnFirst(const string& str, char chars, string& first, string& last)
+void splitOnFirst(string_ref str, char chars, string_ref& first, string_ref& last)
 {
-	std::string::size_type pos = str.find_first_of(chars);
-	if (pos == std::string::npos) {
+	string_ref::size_type pos = str.find_first_of(chars);
+	if (pos == string_ref::npos) {
 		first = str;
 		last.clear();
 	} else {
@@ -307,10 +316,10 @@ void splitOnFirst(const string& str, char chars, string& first, string& last)
 	}
 }
 
-void splitOnLast(const string& str, const char* chars, string& first, string& last)
+void splitOnLast(string_ref str, string_ref chars, string_ref& first, string_ref& last)
 {
-	std::string::size_type pos = str.find_last_of(chars);
-	if (pos == std::string::npos) {
+	string_ref::size_type pos = str.find_last_of(chars);
+	if (pos == string_ref::npos) {
 		first.clear();
 		last = str;
 	} else {
@@ -318,10 +327,10 @@ void splitOnLast(const string& str, const char* chars, string& first, string& la
 		last  = str.substr(pos + 1);
 	}
 }
-void splitOnLast(const string& str, char chars, string& first, string& last)
+void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last)
 {
-	std::string::size_type pos = str.find_last_of(chars);
-	if (pos == std::string::npos) {
+	string_ref::size_type pos = str.find_last_of(chars);
+	if (pos == string_ref::npos) {
 		first.clear();
 		last = str;
 	} else {
@@ -330,15 +339,13 @@ void splitOnLast(const string& str, char chars, string& first, string& last)
 	}
 }
 
-void split(const string& str, const char* chars, vector<string>& result)
+void split(string_ref str, string_ref chars, vector<string>& result)
 {
-	// can be implemented more efficiently if needed
-	string tmp = str;
-	while (!tmp.empty()) {
-		string first, last;
-		splitOnFirst(tmp, chars, first, last);
-		result.push_back(first);
-		tmp = last;
+	while (!str.empty()) {
+		string_ref first, last;
+		splitOnFirst(str, chars, first, last);
+		result.push_back(first.str());
+		str = last;
 	}
 }
 

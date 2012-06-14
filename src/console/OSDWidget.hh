@@ -5,7 +5,7 @@
 
 #include "StringMap.hh"
 #include "shared_ptr.hh"
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 #include <memory>
 #include <set>
@@ -30,8 +30,8 @@ public:
 
 	OSDWidget* getParent();
 	const OSDWidget* getParent() const;
-	OSDWidget* findSubWidget(const std::string& name);
-	const OSDWidget* findSubWidget(const std::string& name) const;
+	OSDWidget* findSubWidget(string_ref name);
+	const OSDWidget* findSubWidget(string_ref name) const;
 	void addWidget(const shared_ptr<OSDWidget>& widget);
 	void deleteWidget(OSDWidget& widget);
 

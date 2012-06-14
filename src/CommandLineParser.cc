@@ -473,7 +473,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string fullType = getArgument(option, cmdLine);
-	string type, arguments;
+	string_ref type, arguments;
 	StringOp::splitOnFirst(fullType, ':', type, arguments);
 
 	CommandController& controller = parser.getGlobalCommandController();

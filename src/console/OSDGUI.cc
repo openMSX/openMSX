@@ -113,9 +113,9 @@ void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
 	if (tokens.size() < 4) {
 		throw SyntaxError();
 	}
-	string type = tokens[2]->getString().str();
-	string fullname = tokens[3]->getString().str();
-	string parentname, name;
+	string_ref type = tokens[2]->getString();
+	string_ref fullname = tokens[3]->getString();
+	string_ref parentname, name;
 	StringOp::splitOnLast(fullname, '.', parentname, name);
 	if (name.empty()) std::swap(parentname, name);
 
@@ -130,7 +130,7 @@ void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
 			fullname);
 	}
 
-	shared_ptr<OSDWidget> widget = create(type, name);
+	shared_ptr<OSDWidget> widget = create(type.str(), name.str());
 	configure(*widget, tokens, 4);
 	parent->addWidget(widget);
 

@@ -12,7 +12,7 @@
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 
 namespace openmsx {
 
@@ -82,7 +82,6 @@ private:
 	unsigned getStartCluster(const MSXDirEntry& entry);
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
-	std::string makeSimpleMSXFileName(const std::string& fullfilename);
 	unsigned addSubdir(const std::string& msxName,
 	                   unsigned t, unsigned d, unsigned sector);
 	void alterFileInDSK(MSXDirEntry& msxdirentry, const std::string& hostName);
@@ -98,7 +97,7 @@ private:
 	void recurseDirExtract(const std::string& dirName, unsigned sector);
 	std::string singleItemExtract(const std::string& dirName,
 	                              const std::string& itemName, unsigned sector);
-	void chroot(const std::string& newRootDir, bool createDir);
+	void chroot(string_ref newRootDir, bool createDir);
 
 
 	SectorAccessibleDisk& disk;

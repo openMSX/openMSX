@@ -354,33 +354,35 @@ static char toMSXChr(char a)
 
 // Transform a long hostname in a 8.3 uppercase filename as used in the
 // direntries on an MSX
-string MSXtar::makeSimpleMSXFileName(const string& fullfilename)
+static string makeSimpleMSXFileName(string_ref fullfilename)
 {
-	string dir, fullfile;
+	string_ref dir, fullfile;
 	StringOp::splitOnLast(fullfilename, '/', dir, fullfile);
 
 	// handle speciale case '.' and '..' first
+	string result(8 + 3, ' ');
 	if ((fullfile == ".") || (fullfile == "..")) {
-		fullfile.resize(11, ' ');
-		return fullfile;
+		memcpy(&*result.begin(), fullfile.data(), fullfile.size());
+		return result;
 	}
 
-	string file, ext;
+	string_ref file, ext;
 	StringOp::splitOnLast(fullfile, '.', file, ext);
-	if (file.empty()) swap(file, ext);
+	if (file.empty()) std::swap(file, ext);
 
 	StringOp::trimRight(file, ' ');
 	StringOp::trimRight(ext,  ' ');
 
 	// put in major case and create '_' if needed
-	std::transform(file.begin(), file.end(), file.begin(), toMSXChr);
-	std::transform(ext.begin(),  ext.end(),  ext.begin(),  toMSXChr);
+	string fileS(file.data(), std::min(8u, file.size()));
+	string extS (ext .data(), std::min(3u, ext .size()));
+	std::transform(fileS.begin(), fileS.end(), fileS.begin(), toMSXChr);
+	std::transform(extS .begin(), extS .end(), extS .begin(), toMSXChr);
 
 	// add correct number of spaces
-	file.resize(8, ' ');
-	ext .resize(3, ' ');
-
-	return file + ext;
+	memcpy(&*result.begin() + 0, fileS.data(), fileS.size());
+	memcpy(&*result.begin() + 8, extS .data(), extS .size());
+	return result;
 }
 
 // This function creates a new MSX subdir with given date 'd' and time 't'
@@ -586,7 +588,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 // @throws when file could not be added
 string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 {
-	string dir, hostName;
+	string_ref dir, hostName;
 	StringOp::splitOnLast(fullname, "/\\", dir, hostName);
 	string msxName = makeSimpleMSXFileName(hostName);
 
@@ -752,27 +754,27 @@ void MSXtar::mkdir(const string& newRootDir)
 	chrootSector = tmpMSXchrootSector;
 }
 
-void MSXtar::chroot(const string& newRootDir, bool createDir)
+void MSXtar::chroot(string_ref newRootDir, bool createDir)
 {
-	string work = newRootDir;
-	if (work.find_first_of("/\\") == 0) {
+	if (newRootDir.starts_with("/") || newRootDir.starts_with("\\")) {
 		// absolute path, reset chrootSector
 		chrootSector = rootDirStart;
-		StringOp::trimLeft(work, "/\\");
+		StringOp::trimLeft(newRootDir, "/\\");
 	}
 
-	while (!work.empty()) {
-		string firstpart;
-		StringOp::splitOnFirst(work, "/\\", firstpart, work);
-		StringOp::trimLeft(work, "/\\");
+	while (!newRootDir.empty()) {
+		string_ref firstPart, lastPart;
+		StringOp::splitOnFirst(newRootDir, "/\\", firstPart, lastPart);
+		newRootDir = lastPart;
+		StringOp::trimLeft(newRootDir, "/\\");
 
-		// find 'firstpart' directory or create it if requested
+		// find 'firstPart' directory or create it if requested
 		byte buf[SECTOR_SIZE];
-		string simple = makeSimpleMSXFileName(firstpart);
+		string simple = makeSimpleMSXFileName(firstPart);
 		DirEntry entry = findEntryInDir(simple, chrootSector, buf);
 		if (entry.sector == 0) {
 			if (!createDir) {
-				throw MSXException("Subdirectory " + firstpart +
+				throw MSXException("Subdirectory " + firstPart +
 				                   " not found.");
 			}
 			// creat new subdir
@@ -785,7 +787,7 @@ void MSXtar::chroot(const string& newRootDir, bool createDir)
 			MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 			MSXDirEntry& direntry = direntries[entry.index];
 			if (!(direntry.attrib & T_MSX_DIR)) {
-				throw MSXException(firstpart + " is not a directory.");
+				throw MSXException(firstPart + " is not a directory.");
 			}
 			chrootSector = clusterToSector(getStartCluster(direntry));
 		}
