@@ -22,22 +22,22 @@ CliComm::~CliComm()
 {
 }
 
-void CliComm::printInfo(const std::string& message)
+void CliComm::printInfo(string_ref message)
 {
 	log(INFO, message);
 }
 
-void CliComm::printWarning(const std::string& message)
+void CliComm::printWarning(string_ref message)
 {
 	log(WARNING, message);
 }
 
-void CliComm::printError(const std::string& message)
+void CliComm::printError(string_ref message)
 {
 	log(LOGLEVEL_ERROR, message);
 }
 
-void CliComm::printProgress(const std::string& message)
+void CliComm::printProgress(string_ref message)
 {
 	log(PROGRESS, message);
 }

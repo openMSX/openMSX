@@ -10,10 +10,10 @@ namespace openmsx {
 class StdioMessages : public CliListener
 {
 public:
-	virtual void log(CliComm::LogLevel level, const std::string& message);
+	virtual void log(CliComm::LogLevel level, string_ref message);
 
-	virtual void update(CliComm::UpdateType type, const std::string& machine,
-	                    const std::string& name, const std::string& value);
+	virtual void update(CliComm::UpdateType type, string_ref machine,
+	                    string_ref name, string_ref value);
 };
 
 } // namespace openmsx

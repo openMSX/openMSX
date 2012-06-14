@@ -8,8 +8,6 @@
 #include <cassert>
 #include <iostream>
 
-using std::string;
-
 namespace openmsx {
 
 GlobalCliComm::GlobalCliComm()
@@ -46,7 +44,7 @@ void GlobalCliComm::removeListener(CliListener* listener)
 	listeners.erase(it);
 }
 
-void GlobalCliComm::log(LogLevel level, const string& message)
+void GlobalCliComm::log(LogLevel level, string_ref message)
 {
 	assert(Thread::isMainThread());
 
@@ -75,8 +73,7 @@ void GlobalCliComm::log(LogLevel level, const string& message)
 	}
 }
 
-void GlobalCliComm::update(UpdateType type, const string& name,
-                           const string& value)
+void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
 	PrevValue::iterator it = prevValues[type].find(name);
@@ -84,15 +81,15 @@ void GlobalCliComm::update(UpdateType type, const string& name,
 		if (it->second == value) {
 			return;
 		}
-		it->second = value;
+		it->second.assign(value.data(), value.size());
 	} else {
-		prevValues[type][name] = value;
+		prevValues[type][name].assign(value.data(), value.size());
 	}
 	updateHelper(type, "", name, value);
 }
 
-void GlobalCliComm::updateHelper(UpdateType type, const string& machine,
-                                 const string& name, const string& value)
+void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,
+                                 string_ref name, string_ref value)
 {
 	assert(Thread::isMainThread());
 	ScopedLock lock(sem);

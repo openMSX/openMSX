@@ -27,7 +27,7 @@ TclCallbackMessages::~TclCallbackMessages()
 	cliComm.removeListener(this);
 }
 
-void TclCallbackMessages::log(CliComm::LogLevel level, const string& message)
+void TclCallbackMessages::log(CliComm::LogLevel level, string_ref message)
 {
 	// Possible optimization: listen to setting changes and only register
 	// cliComm listener when value not empty (probably not worth it).
@@ -53,8 +53,8 @@ void TclCallbackMessages::log(CliComm::LogLevel level, const string& message)
 }
 
 void TclCallbackMessages::update(
-	CliComm::UpdateType /*type*/, const string& /*machine*/,
-	const string& /*name*/, const string& /*value*/)
+	CliComm::UpdateType /*type*/, string_ref /*machine*/,
+	string_ref /*name*/, string_ref /*value*/)
 {
 	// ignore
 }

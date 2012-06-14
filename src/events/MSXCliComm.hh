@@ -17,9 +17,9 @@ class MSXCliComm : public CliComm, private noncopyable
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);
 
-	virtual void log(LogLevel level, const std::string& message);
-	virtual void update(UpdateType type, const std::string& name,
-	                    const std::string& value);
+	virtual void log(LogLevel level, string_ref message);
+	virtual void update(UpdateType type, string_ref name,
+	                    string_ref value);
 
 private:
 	MSXMotherBoard& motherBoard;

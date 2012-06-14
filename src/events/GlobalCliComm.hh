@@ -7,7 +7,6 @@
 #include "Semaphore.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <vector>
 #include <memory>
 
@@ -25,13 +24,13 @@ public:
 	void removeListener(CliListener* listener);
 
 	// CliComm
-	virtual void log(LogLevel level, const std::string& message);
-	virtual void update(UpdateType type, const std::string& name,
-	                    const std::string& value);
+	virtual void log(LogLevel level, string_ref message);
+	virtual void update(UpdateType type, string_ref name,
+	                    string_ref value);
 
 private:
-	void updateHelper(UpdateType type, const std::string& machine,
-	                  const std::string& name, const std::string& value);
+	void updateHelper(UpdateType type, string_ref machine,
+	                  string_ref name, string_ref value);
 
 	typedef StringMap<std::string> PrevValue;
 	PrevValue prevValues[NUM_UPDATES];

@@ -4,8 +4,6 @@
 #include "GlobalCliComm.hh"
 #include "MSXMotherBoard.hh"
 
-using std::string;
-
 namespace openmsx {
 
 MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
@@ -14,13 +12,12 @@ MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
 {
 }
 
-void MSXCliComm::log(LogLevel level, const string& message)
+void MSXCliComm::log(LogLevel level, string_ref message)
 {
 	cliComm.log(level, message);
 }
 
-void MSXCliComm::update(UpdateType type, const string& name,
-                        const string& value)
+void MSXCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
 	PrevValue::iterator it = prevValues[type].find(name);
@@ -28,9 +25,9 @@ void MSXCliComm::update(UpdateType type, const string& name,
 		if (it->second == value) {
 			return;
 		}
-		it->second = value;
+		it->second.assign(value.data(), value.size());
 	} else {
-		prevValues[type][name] = value;
+		prevValues[type][name].assign(value.data(), value.size());
 	}
 	cliComm.updateHelper(type, motherBoard.getMachineID(), name, value);
 }

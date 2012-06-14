@@ -96,16 +96,16 @@ bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
 	return updateEnabled[type];
 }
 
-void CliConnection::log(CliComm::LogLevel level, const string& message)
+void CliConnection::log(CliComm::LogLevel level, string_ref message)
 {
 	const char* const* levelStr = CliComm::getLevelStrings();
 	output(StringOp::Builder() <<
 		"<log level=\"" << levelStr[level] << "\">" <<
-		XMLElement::XMLEscape(message) << "</log>\n");
+		XMLElement::XMLEscape(message.str()) << "</log>\n");
 }
 
-void CliConnection::update(CliComm::UpdateType type, const string& machine,
-                              const string& name, const string& value)
+void CliConnection::update(CliComm::UpdateType type, string_ref machine,
+                              string_ref name, string_ref value)
 {
 	if (!getUpdateEnable(type)) return;
 
@@ -116,9 +116,9 @@ void CliConnection::update(CliComm::UpdateType type, const string& machine,
 		tmp << " machine=\"" << machine << '\"';
 	}
 	if (!name.empty()) {
-		tmp << " name=\"" << XMLElement::XMLEscape(name) << '\"';
+		tmp << " name=\"" << XMLElement::XMLEscape(name.str()) << '\"';
 	}
-	tmp << '>' << XMLElement::XMLEscape(value) << "</update>\n";
+	tmp << '>' << XMLElement::XMLEscape(value.str()) << "</update>\n";
 
 	output(tmp);
 }
@@ -272,7 +272,7 @@ void StdioConnection::run()
 	}
 }
 
-void StdioConnection::output(const string& message)
+void StdioConnection::output(string_ref message)
 {
 	if (ok) {
 		std::cout << message << std::flush;
@@ -380,7 +380,7 @@ void PipeConnection::run()
 	pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
 }
 
-void PipeConnection::output(const std::string& message)
+void PipeConnection::output(string_ref message)
 {
 	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		std::cout << message << std::flush;
@@ -449,7 +449,7 @@ void SocketConnection::run()
 	}
 }
 
-void SocketConnection::output(const std::string& message)
+void SocketConnection::output(string_ref message)
 {
 	if (!established) { // TODO needs locking?
 		// Connection isn't authorized yet (and opening tag is not

@@ -30,7 +30,7 @@ protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
 
-	virtual void output(const std::string& message) = 0;
+	virtual void output(string_ref message) = 0;
 
 	/** Starts the helper thread.
 	  * Subclasses should call this method at the end of their constructor.
@@ -63,9 +63,9 @@ private:
 	void execute(const std::string& command);
 
 	// CliListener
-	virtual void log(CliComm::LogLevel level, const std::string& message);
-	virtual void update(CliComm::UpdateType type, const std::string& machine,
-	                    const std::string& name, const std::string& value);
+	virtual void log(CliComm::LogLevel level, string_ref message);
+	virtual void update(CliComm::UpdateType type, string_ref machine,
+	                    string_ref name, string_ref value);
 
 	// EventListener
 	virtual int signalEvent(const shared_ptr<const Event>& event);
@@ -105,7 +105,7 @@ public:
 	                EventDistributor& eventDistributor);
 	virtual ~StdioConnection();
 
-	virtual void output(const std::string& message);
+	virtual void output(string_ref message);
 
 private:
 	virtual void close();
@@ -123,7 +123,7 @@ public:
 	               const std::string& name);
 	virtual ~PipeConnection();
 
-	virtual void output(const std::string& message);
+	virtual void output(string_ref message);
 
 private:
 	virtual void close();
@@ -142,7 +142,7 @@ public:
 	                 SOCKET sd);
 	virtual ~SocketConnection();
 
-	virtual void output(const std::string& message);
+	virtual void output(string_ref message);
 
 private:
 	virtual void close();

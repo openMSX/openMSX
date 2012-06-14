@@ -63,7 +63,7 @@ void Setting::notifyPropertyChange() const
 	TclObject result;
 	info(result);
 	commandController.getCliComm().update(
-		CliComm::SETTINGINFO, getName(), result.getString().str());
+		CliComm::SETTINGINFO, getName(), result.getString());
 }
 
 bool Setting::needLoadSave() const
