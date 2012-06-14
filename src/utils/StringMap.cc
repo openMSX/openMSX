@@ -5,7 +5,7 @@
 //  http://www.isthe.com/chongo/tech/comp/fnv/
 static inline unsigned hashString(string_ref str)
 {
-	unsigned hash = 2166136261;
+	unsigned hash = 2166136261u;
 	for (unsigned i = 0; i < str.size(); ++i) {
 		hash ^= str[i];
 		hash *= 16777619;
