@@ -105,6 +105,7 @@ namespace StringOp
 
 	void trimRight(std::string& str, const char* chars);
 	void trimRight(std::string& str, char chars);
+	void trimRight(string_ref& str, string_ref chars);
 	void trimRight(string_ref& str, char chars);
 	void trimLeft (std::string& str, const char* chars);
 	void trimLeft (string_ref& str, string_ref chars);
@@ -121,7 +122,7 @@ namespace StringOp
 	           std::vector<std::string>& result);
 	std::string join(const std::vector<std::string>& elems,
 	                 const std::string& separator);
-	void parseRange(const std::string& str, std::set<unsigned>& result,
+	void parseRange(string_ref str, std::set<unsigned>& result,
 			unsigned min, unsigned max);
 
 	// case insensitive less then operator

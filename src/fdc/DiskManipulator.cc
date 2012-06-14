@@ -84,7 +84,7 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
-	const string& name)
+	string_ref name)
 {
 	for (Drives::iterator it = drives.begin(); it != drives.end(); ++it) {
 		if (it->driveName == name) {
@@ -95,19 +95,21 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 }
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
-	const string& diskname)
+	string_ref diskname)
 {
-	// first split of the end numbers if present
+	// first split-off the end numbers (if present)
 	// these will be used as partition indication
-	string::size_type pos = diskname.find("::");
-	pos = diskname.find_first_of("0123456789", ((pos != string::npos) ? pos : 0));
-	string tmp = diskname.substr(0, pos);
+	string_ref::size_type pos1 = diskname.find("::");
+	string_ref tmp1 = (pos1 == string_ref::npos) ? diskname : diskname.substr(pos1);
+	string_ref::size_type pos2 = tmp1.find_first_of("0123456789");
+	string_ref::size_type pos1b = (pos1 == string_ref::npos) ? 0 : pos1;
+	string_ref tmp2 = diskname.substr(0, pos2 + pos1b);
 
-	Drives::iterator it = findDriveSettings(tmp);
+	Drives::iterator it = findDriveSettings(tmp2);
 	if (it == drives.end()) {
-		it = findDriveSettings(getMachinePrefix() + tmp);
+		it = findDriveSettings(getMachinePrefix() + tmp2);
 		if (it == drives.end()) {
-			throw CommandException("Unknown drive: "  + tmp);
+			throw CommandException("Unknown drive: " + tmp2);
 		}
 	}
 
@@ -117,14 +119,14 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		throw CommandException("Unsupported disk type.");
 	}
 
-	if (pos == string::npos) {
+	if (pos2 == string_ref::npos) {
 		// whole disk
 		it->partition = 0;
 	} else {
-		string num = diskname.substr(pos);
+		string_ref num = diskname.substr(pos2);
 		SectorAccessibleDisk* disk =
 			it->drive->getSectorAccessibleDisk();
-		int partition = strtol(num.c_str(), NULL, 10);
+		int partition = stoi(num, NULL, 10);
 		DiskImageUtils::checkFAT12Partition(*disk, partition);
 		it->partition = partition;
 	}

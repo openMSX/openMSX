@@ -34,7 +34,7 @@ static EventPtr parseKeyEvent(
 	} else if ((components.size() == 3) &&
 	           (StringOp::startsWith(components[2], "unicode"))) {
 		return parseKeyEvent(components[1],
-		                     StringOp::stringToInt(components[2].substr(7)));
+		                     stoi(string_ref(components[2]).substr(7)));
 	} else {
 		throw CommandException("Invalid keyboard event: " + str);
 	}
@@ -68,7 +68,7 @@ static EventPtr parseMouseEvent(
 		if (components.size() != 3) {
 			throw CommandException("Invalid mouse button event: " + str);
 		}
-		unsigned button = StringOp::stringToInt(components[1].substr(6));
+		unsigned button = stoi(string_ref(components[1]).substr(6));
 		if (upDown(components[2])) {
 			return EventPtr(new MouseButtonUpEvent(button));
 		} else {

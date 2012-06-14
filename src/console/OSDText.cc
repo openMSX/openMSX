@@ -251,7 +251,7 @@ static unsigned findCharSplitPoint(const string& line, unsigned min, unsigned ma
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned max)
+static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 {
 	static const char* const delimiters = " -/";
 
@@ -265,8 +265,8 @@ static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned ma
 
 	// try searching backward (this also checks current position)
 	assert(pos > min);
-	string::size_type pos2 = line.substr(min, pos - min).find_last_of(delimiters);
-	if (pos2 != string::npos) {
+	string_ref::size_type pos2 = line.substr(min, pos - min).find_last_of(delimiters);
+	if (pos2 != string_ref::npos) {
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
@@ -274,8 +274,8 @@ static unsigned findWordSplitPoint(const string& line, unsigned min, unsigned ma
 	}
 
 	// try searching forward
-	string::size_type pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
-	if (pos3 != string::npos) {
+	string_ref::size_type pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
+	if (pos3 != string_ref::npos) {
 		pos3 += pos;
 		assert(pos3 < max);
 		pos3 += 1; // char directly after a delimiter;
@@ -328,7 +328,7 @@ unsigned OSDText::split(const string& line, unsigned maxWidth,
 		assert(cur < max);
 		string curStr = line.substr(0, cur);
 		if (removeTrailingSpaces) {
-			StringOp::trimRight(curStr, " ");
+			StringOp::trimRight(curStr, ' ');
 		}
 		font->getSize(curStr, width, height);
 		if (width <= maxWidth) {
@@ -403,9 +403,9 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 		string line = *it;
 		do {
 			unsigned pos = splitAtWord(line, maxWidth);
-			string first = line.substr(0, pos);
-			StringOp::trimRight(first, " "); // remove trailing spaces
-			wrappedLines.push_back(line.substr(0, pos));
+			string_ref first = string_ref(line).substr(0, pos);
+			StringOp::trimRight(first, ' '); // remove trailing spaces
+			wrappedLines.push_back(first.str());
 			line = line.substr(pos);
 			StringOp::trimLeft(line, " "); // remove leading spaces
 		} while (!line.empty());

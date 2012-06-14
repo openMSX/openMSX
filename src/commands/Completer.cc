@@ -32,12 +32,13 @@ const string& Completer::getName() const
 	return name;
 }
 
-static bool equal(const string& s1, const string& s2, bool caseSensitive)
+static bool isEqual(string_ref s1, string_ref s2, bool caseSensitive)
 {
 	if (caseSensitive) {
 		return s1 == s2;
 	} else {
-		return strcasecmp(s1.c_str(), s2.c_str()) == 0;
+		if (s1.size() != s2.size()) return false;
+		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 	}
 }
 
@@ -80,7 +81,7 @@ bool Completer::completeString2(string& str, set<string>& st,
 {
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
-		if (equal(str, (*it).substr(0, str.size()), caseSensitive)) {
+		if (isEqual(str, string_ref(*it).substr(0, str.size()), caseSensitive)) {
 			++it;
 		} else {
 			set<string>::iterator it2 = it;
@@ -100,20 +101,20 @@ bool Completer::completeString2(string& str, set<string>& st,
 	bool expanded = false;
 	while (true) {
 		it = st.begin();
-		if (equal(str, *it, caseSensitive)) {
+		if (isEqual(str, *it, caseSensitive)) {
 			// match is as long as first word
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		string string2 = it->substr(0, str.size() + 1);
+		string_ref string2 = string_ref(*it).substr(0, str.size() + 1);
 		for (/**/; it != st.end(); ++it) {
-			if (!equal(string2, it->substr(0, string2.size()),
+			if (!isEqual(string2, string_ref(*it).substr(0, string2.size()),
 				   caseSensitive)) {
 				goto out; // TODO rewrite this
 			}
 		}
 		// no conflict found
-		str = string2;
+		str.assign(string2.data(), string2.size());
 		expanded = true;
 	}
 	out:

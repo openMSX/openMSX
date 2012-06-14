@@ -32,7 +32,7 @@ public:
 	virtual void tabCompletion(vector<string>& tokens) const;
 	virtual bool needRecord(const vector<string>& tokens) const;
 private:
-	const HardwareConfig* getExtensionConfig(const string& cartname);
+	const HardwareConfig* getExtensionConfig(string_ref cartname);
 	CartridgeSlotManager& manager;
 	CliComm& cliComm;
 };
@@ -309,7 +309,7 @@ CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
 {
 }
 
-const HardwareConfig* CartCmd::getExtensionConfig(const string& cartname)
+const HardwareConfig* CartCmd::getExtensionConfig(string_ref cartname)
 {
 	if (cartname.size() != 5) {
 		throw SyntaxError();
@@ -321,14 +321,14 @@ const HardwareConfig* CartCmd::getExtensionConfig(const string& cartname)
 string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 {
 	string result;
-	string cartname = tokens[0];
+	string_ref cartname = tokens[0];
 
 	// strip namespace qualification
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
 	//       the event recording feature?
-	string::size_type pos = cartname.rfind("::");
-	if (pos != string::npos) {
+	string_ref::size_type pos = cartname.rfind("::");
+	if (pos != string_ref::npos) {
 		cartname = cartname.substr(pos + 2);
 	}
 	if (tokens.size() == 1) {
@@ -379,7 +379,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 			options.push_back(tokens[i]);
 		}
 		try {
-			string romname = tokens[extensionNameToken];
+			const string& romname = tokens[extensionNameToken];
 			std::auto_ptr<HardwareConfig> extension(
 				HardwareConfig::createRomConfig(
 					manager.motherBoard, romname, slotname, options));

@@ -102,7 +102,7 @@ void CommandConsole::saveHistory()
 		}
 		for (History::const_iterator it = history.begin();
 		     it != history.end(); ++it) {
-			outputfile << it->substr(prompt.size()) << std::endl;
+			outputfile << string_ref(*it).substr(prompt.size()) << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -325,7 +325,7 @@ unsigned CommandConsole::getRows() const
 	return rows;
 }
 
-void CommandConsole::output(const std::string& text)
+void CommandConsole::output(string_ref text)
 {
 	print(text);
 }
@@ -335,23 +335,27 @@ unsigned CommandConsole::getOutputColumns() const
 	return getColumns();
 }
 
-void CommandConsole::print(string text)
+void CommandConsole::print(string_ref text)
 {
-	if (text.empty() || (*text.rbegin() != '\n')) text += '\n';
-	while (!text.empty()) {
-		string::size_type pos = text.find('\n');
+	while (true) {
+		string_ref::size_type pos = text.find('\n');
+		if (pos == string_ref::npos) {
+			newLineConsole(text);
+			return;
+		}
 		newLineConsole(text.substr(0, pos));
 		text = text.substr(pos + 1); // skip newline
+		if (text.empty()) return;
 	}
 }
 
-void CommandConsole::newLineConsole(const string& line)
+void CommandConsole::newLineConsole(string_ref line)
 {
 	if (lines.isFull()) {
 		lines.removeBack();
 	}
 	string tmp = lines[0];
-	lines[0] = line;
+	lines[0].assign(line.data(), line.size());
 	lines.addFront(tmp);
 }
 
@@ -380,7 +384,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(lines[0]);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += lines[0].substr(prompt.size()) + '\n';
+	commandBuffer += string_ref(lines[0]).substr(prompt.size()) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy promt is NOT shown (not even very briefly

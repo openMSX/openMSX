@@ -4,6 +4,7 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
+#include "string_ref.hh"
 #include <vector>
 #include <memory>
 
@@ -46,8 +47,8 @@ private:
 
 	std::string getMachinePrefix() const;
 	Drives::iterator findDriveSettings(DiskContainer& drive);
-	Drives::iterator findDriveSettings(const std::string& name);
-	DriveSettings& getDriveSettings(const std::string& diskname);
+	Drives::iterator findDriveSettings(string_ref name);
+	DriveSettings& getDriveSettings(string_ref diskname);
 	std::auto_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
 	std::auto_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,

@@ -574,24 +574,25 @@ static string formatSet(const set<string>& inputSet, string::size_type columns)
 	return outString;
 }
 
-static string formatHelptext(const string& helpText,
-	string::size_type maxlength, string::size_type indent)
+static string formatHelptext(string_ref helpText,
+	                     unsigned maxLength, unsigned indent)
 {
 	string outText;
-	string::size_type index = 0;
-	while (helpText.substr(index).length() > maxlength) {
-		string::size_type pos = helpText.substr(index).rfind(' ', maxlength);
-		if (pos == string::npos) {
-			pos = helpText.substr(maxlength).find(' ');
-			if (pos == string::npos) {
-				pos = helpText.substr(index).length();
+	string_ref::size_type index = 0;
+	while (helpText.substr(index).size() > maxLength) {
+		string_ref::size_type pos = helpText.substr(index, maxLength).rfind(' ');
+		if (pos == string_ref::npos) {
+			pos = helpText.substr(maxLength).find(' ');
+			if (pos == string_ref::npos) {
+				pos = helpText.substr(index).size();
 			}
 		}
 		outText += helpText.substr(index, index + pos) + '\n' +
 		           string(indent, ' ');
 		index = pos + 1;
 	}
-	outText += helpText.substr(index);
+	string_ref t = helpText.substr(index);
+	outText.append(t.data(), t.size());
 	return outText;
 }
 

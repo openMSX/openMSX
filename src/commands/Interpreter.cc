@@ -131,7 +131,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 	try {
 		InterpreterOutput* output =
 			static_cast<Interpreter*>(clientData)->output;
-		string text(buf, toWrite);
+		string_ref text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
 		}

@@ -594,13 +594,10 @@ static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
 	    (name.substr(prefixLen + nofdigits, extensionLen) != extension)) {
 		return 0;
 	}
-	string num(name.substr(prefixLen, nofdigits).str());
-	char* endpos;
-	unsigned long n = strtoul(num.c_str(), &endpos, 10);
-	if (*endpos != '\0') {
-		return 0;
-	}
-	return n;
+	string_ref num = name.substr(prefixLen, nofdigits);
+	string_ref::size_type idx;
+	unsigned long n = stoul(num, &idx, 10);
+	return (idx == num.size()) ? n : 0;
 }
 
 string getNextNumberedFileName(

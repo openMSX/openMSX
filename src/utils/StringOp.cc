@@ -276,6 +276,12 @@ void trimRight(string& str, char chars)
 		str.clear();
 	}
 }
+void trimRight(string_ref& str, string_ref chars)
+{
+	while (!str.empty() && (chars.find(str.back()) != string_ref::npos)) {
+		str.pop_back();
+	}
+}
 void trimRight(string_ref& str, char chars)
 {
 	while (!str.empty() && (str.back() == chars)) {
@@ -362,15 +368,16 @@ string join(const vector<string>& elems, const string& separator)
 	return result;
 }
 
-static unsigned parseNumber(string str)
+static unsigned parseNumber(string_ref str)
 {
 	// trimRight only: strtoul can handle leading spaces
 	trimRight(str, " \t");
 	if (str.empty()) {
 		throw openmsx::MSXException("Invalid integer: empty string");
 	}
-	unsigned result;
-	if (!stringToUint(str, result)) {
+	string_ref::size_type idx;
+	unsigned result = stoi(str, &idx);
+	if (idx != str.size()) {
 		throw openmsx::MSXException("Invalid integer: " + str);
 	}
 	return result;
@@ -384,15 +391,15 @@ static void insert(unsigned x, set<unsigned>& result, unsigned min, unsigned max
 	result.insert(x);
 }
 
-static void parseRange2(string str, set<unsigned>& result,
+static void parseRange2(string_ref str, set<unsigned>& result,
                         unsigned min, unsigned max)
 {
 	// trimRight only: here we only care about all spaces
 	trimRight(str, " \t");
 	if (str.empty()) return;
 
-	string::size_type pos = str.find('-');
-	if (pos == string::npos) {
+	string_ref::size_type pos = str.find('-');
+	if (pos == string_ref::npos) {
 		insert(parseNumber(str), result, min, max);
 	} else {
 		unsigned begin = parseNumber(str.substr(0, pos));
@@ -406,17 +413,17 @@ static void parseRange2(string str, set<unsigned>& result,
 	}
 }
 
-void parseRange(const string& str, set<unsigned>& result,
+void parseRange(string_ref str, set<unsigned>& result,
 		unsigned min, unsigned max)
 {
-	string::size_type prev = 0;
-	while (prev != string::npos) {
-		string::size_type next = str.find(',', prev);
-		string sub = (next == string::npos)
-		           ? str.substr(prev)
-		           : str.substr(prev, next++ - prev);
+	while (true) {
+		string_ref::size_type next = str.find(',');
+		string_ref sub = (next == string_ref::npos)
+		               ? str
+		               : str.substr(0, next++);
 		parseRange2(sub, result, min, max);
-		prev = next;
+		if (next == string_ref::npos) return;
+		str = str.substr(next);
 	}
 }
 

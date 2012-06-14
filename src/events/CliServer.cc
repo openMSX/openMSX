@@ -63,12 +63,9 @@ static bool checkSocketDir(const string& dir)
 
 static bool checkSocket(const string& socket)
 {
-	string dir  = socket.substr(0, socket.find_last_of('/'));
-	string name = socket.substr(socket.find_last_of('/') + 1);
-
-	if (name.substr(0, 7) != "socket.") {
-		// wrong name
-		return false;
+	string_ref name = FileOperations::getFilename(socket);
+	if (!name.starts_with("socket.")) {
+		return false; // wrong name
 	}
 
 	struct stat st;

@@ -8,8 +8,8 @@
 #include "CircularBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <list>
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -43,7 +43,7 @@ public:
 
 private:
 	// InterpreterOutput
-	virtual void output(const std::string& text);
+	virtual void output(string_ref text);
 	virtual unsigned getOutputColumns() const;
 
 	// EventListener
@@ -60,13 +60,13 @@ private:
 	void delete_key();
 	void normalKey(word chr);
 	void putCommandHistory(const std::string& command);
-	void newLineConsole(const std::string& line);
+	void newLineConsole(string_ref line);
 	void putPrompt();
 	void resetScrollBack();
 
 	/** Prints a string on the console.
 	  */
-	void print(std::string text);
+	void print(string_ref text);
 
 	void loadHistory();
 	void saveHistory();

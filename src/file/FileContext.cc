@@ -20,10 +20,9 @@ const string USER_DATA    = "{{USER_DATA}}";
 const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
 
-static string subst(const string& path, const string& before,
-                    const string& after)
+static string subst(string_ref path, string_ref before, string_ref after)
 {
-	assert(StringOp::startsWith(path, before));
+	assert(path.starts_with(before));
 	return after + path.substr(before.size());
 }
 
