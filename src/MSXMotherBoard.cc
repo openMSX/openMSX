@@ -94,7 +94,7 @@ public:
 
 	typedef std::vector<HardwareConfig*> Extensions;
 	const Extensions& getExtensions() const;
-	HardwareConfig* findExtension(const string& extensionName);
+	HardwareConfig* findExtension(string_ref extensionName);
 	string loadExtension(const string& extensionName);
 	string insertExtension(const std::string& name,
 	                       std::auto_ptr<HardwareConfig> extension);
@@ -125,7 +125,7 @@ public:
 
 	void addDevice(MSXDevice& device);
 	void removeDevice(MSXDevice& device);
-	MSXDevice* findDevice(const string& name);
+	MSXDevice* findDevice(string_ref name);
 
 	MSXMotherBoard::SharedStuff& getSharedStuff(string_ref name);
 	MSXMapperIO* createMapperIO();
@@ -482,7 +482,7 @@ string MSXMotherBoard::Impl::insertExtension(
 	return result;
 }
 
-HardwareConfig* MSXMotherBoard::Impl::findExtension(const string& extensionName)
+HardwareConfig* MSXMotherBoard::Impl::findExtension(string_ref extensionName)
 {
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
@@ -849,7 +849,7 @@ void MSXMotherBoard::Impl::update(const Setting& setting)
 	}
 }
 
-MSXDevice* MSXMotherBoard::Impl::findDevice(const string& name)
+MSXDevice* MSXMotherBoard::Impl::findDevice(string_ref name)
 {
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -1142,7 +1142,7 @@ void DeviceInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	case 3: {
 		string_ref name = tokens[2]->getString();
-		MSXDevice* device = motherBoard.findDevice(name.str());
+		MSXDevice* device = motherBoard.findDevice(name);
 		if (!device) {
 			throw CommandException("No such device: " + name);
 		}
@@ -1324,7 +1324,7 @@ void MSXMotherBoard::loadMachine(const string& machine)
 {
 	pimpl->loadMachine(machine);
 }
-HardwareConfig* MSXMotherBoard::findExtension(const string& extensionName)
+HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 {
 	return pimpl->findExtension(extensionName);
 }
@@ -1438,7 +1438,7 @@ void MSXMotherBoard::removeDevice(MSXDevice& device)
 {
 	pimpl->removeDevice(device);
 }
-MSXDevice* MSXMotherBoard::findDevice(const string& name)
+MSXDevice* MSXMotherBoard::findDevice(string_ref name)
 {
 	return pimpl->findDevice(name);
 }

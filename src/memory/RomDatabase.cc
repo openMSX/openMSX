@@ -378,8 +378,8 @@ void DBParser::addEntries()
 		joinRemarks(r, it->remarks);
 
 		ptr = new RomInfo(
-			title.str(), year.str(), company.str(), country.str(),
-			it->origValue, it->origData.str(), r, it->type,
+			title, year, company, country,
+			it->origValue, it->origData, r, it->type,
 			genMSXid);
 	}
 }

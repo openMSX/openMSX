@@ -132,7 +132,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 		Setting& setting = *it->second;
 		if (!setting.needLoadSave()) continue;
 		if (const XMLElement* elem = settings->findChildWithAttribute(
-		                                     "setting", "id", name.str())) {
+		                                     "setting", "id", name)) {
 			try {
 				setting.changeValueString(elem->getData());
 			} catch (MSXException&) {
@@ -173,7 +173,7 @@ void SettingInfo::execute(
 	case 3: {
 		string_ref name = tokens[2]->getString();
 		SettingsManager::SettingsMap::const_iterator it =
-			settingsMap.find(name.str());
+			settingsMap.find(name);
 		if (it == settingsMap.end()) {
 			throw CommandException("No such setting: " + name);
 		}

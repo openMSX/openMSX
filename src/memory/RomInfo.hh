@@ -14,10 +14,10 @@ class CliComm;
 class RomInfo
 {
 public:
-	RomInfo(const std::string& id,      const std::string& year,
-	        const std::string& company, const std::string& country,
-	        bool original,              const std::string& origType,
-	        const std::string& remark,  const RomType& romType,
+	RomInfo(string_ref id,      string_ref year,
+	        string_ref company, string_ref country,
+	        bool original,      string_ref origType,
+	        string_ref remark,  const RomType& romType,
 	        int genMSXid);
 
 	const std::string& getTitle()     const { return title; }

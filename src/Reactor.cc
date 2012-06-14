@@ -1051,7 +1051,7 @@ void ConfigInfo::execute(const vector<TclObject*>& tokens,
 		try {
 			string filename = SystemFileContext().resolve(
 				FileOperations::join(
-					configName, tokens[2]->getString().str(),
+					configName, tokens[2]->getString(),
 					"hardwareconfig.xml"));
 			std::auto_ptr<XMLElement> config =
 				HardwareConfig::loadConfig(filename);

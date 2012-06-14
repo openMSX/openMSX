@@ -81,7 +81,7 @@ public:
 
 	void loadMachine(const std::string& machine);
 
-	HardwareConfig* findExtension(const std::string& extensionName);
+	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(const std::string& extensionName);
 	std::string insertExtension(const std::string& name,
 	                            std::auto_ptr<HardwareConfig> extension);
@@ -128,7 +128,7 @@ public:
 	  * @return A pointer to the device or NULL if the device could not
 	  *         be found.
 	  */
-	MSXDevice* findDevice(const std::string& name);
+	MSXDevice* findDevice(string_ref name);
 
 	/** Some MSX device parts are shared between several MSX devices
 	  * (e.g. all memory mappers share IO ports 0xFC-0xFF). But this
