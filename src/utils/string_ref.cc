@@ -18,7 +18,7 @@ string string_ref::str() const
 
 // mutators
 
-void string_ref::remove_prefix(unsigned n)
+void string_ref::remove_prefix(size_type n)
 {
 	if (n <= siz) {
 		dat += n;
@@ -28,7 +28,7 @@ void string_ref::remove_prefix(unsigned n)
 	}
 }
 
-void string_ref::remove_suffix(unsigned n)
+void string_ref::remove_suffix(size_type n)
 {
 	if (n <= siz) {
 		siz -= n;
@@ -51,13 +51,13 @@ int string_ref::compare(string_ref rhs) const
 }
 
 
-string_ref string_ref::substr(unsigned pos, unsigned n) const
+string_ref string_ref::substr(size_type pos, size_type n) const
 {
 	if (pos >= siz) return string_ref();
 	return string_ref(dat + pos, std::min(n, siz - pos));
 }
 
-unsigned string_ref::find(string_ref s) const
+string_ref::size_type string_ref::find(string_ref s) const
 {
 	// Simple string search algorithm O(size() * s.size()). An algorithm
 	// like Boyer–Moore has better time complexity and will run a lot
@@ -67,8 +67,8 @@ unsigned string_ref::find(string_ref s) const
 	// std::string::find() in gcc uses a similar simple algorithm.
 	if (s.empty()) return 0;
 	if (s.size() <= siz) {
-		unsigned m = siz - s.size();
-		for (unsigned pos = 0; pos <= m; ++pos) {
+		size_type m = siz - s.size();
+		for (size_type pos = 0; pos <= m; ++pos) {
 			if ((dat[pos] == s[0]) &&
 			    std::equal(s.begin() + 1, s.end(), dat + pos + 1)) {
 				return pos;
@@ -78,22 +78,62 @@ unsigned string_ref::find(string_ref s) const
 	return npos;
 }
 
-unsigned string_ref::find(char c) const
+string_ref::size_type string_ref::find(char c) const
 {
 	const_iterator it = std::find(begin(), end(), c);
 	return (it == end()) ? npos : it - begin();
 }
 
-//unsigned string_ref::rfind(string_ref s) const;
-//unsigned string_ref::rfind(char c) const;
-//unsigned string_ref::find_first_of(string_ref s) const;
-//unsigned string_ref::find_first_of(char c) const;
-//unsigned string_ref::find_first_not_of(string_ref s) const;
-//unsigned string_ref::find_first_not_of(char c) const;
-//unsigned string_ref::find_last_of(string_ref s) const;
-//unsigned string_ref::find_last_of(char c) const;
-//unsigned string_ref::find_last_not_of(string_ref s) const;
-//unsigned string_ref::find_last_not_of(char c) const;
+string_ref::size_type string_ref::rfind(string_ref s) const
+{
+	// see comment in find()
+	if (s.empty()) return siz;
+	if (s.size() <= siz) {
+		size_type m = siz - s.size();
+		for (size_type pos = m; pos != size_type(-1); --pos) {
+			if ((dat[pos] == s[0]) &&
+			    std::equal(s.begin() + 1, s.end(), dat + pos + 1)) {
+				return pos;
+			}
+		}
+	}
+	return npos;
+}
+
+string_ref::size_type string_ref::rfind(char c) const
+{
+	const_reverse_iterator it = std::find(rbegin(), rend(), c);
+	return (it == rend()) ? npos : (it.base() - begin() - 1);
+}
+
+string_ref::size_type string_ref::find_first_of(string_ref s) const
+{
+	const_iterator it = std::find_first_of(begin(), end(), s.begin(), s.end());
+	return (it == end()) ? npos : it - begin();
+}
+
+string_ref::size_type string_ref::find_first_of(char c) const
+{
+	return find(c);
+}
+
+//string_ref::size_type string_ref::find_first_not_of(string_ref s) const;
+//string_ref::size_type string_ref::find_first_not_of(char c) const;
+
+string_ref::size_type string_ref::find_last_of(string_ref s) const
+{
+	const_reverse_iterator it = std::find_first_of(
+		rbegin(), rend(), s.begin(), s.end());
+	return (it == rend()) ? npos : (it.base() - begin() - 1);
+}
+
+string_ref::size_type string_ref::find_last_of(char c) const
+{
+	return rfind(c);
+}
+
+//string_ref::size_type string_ref::find_last_not_of(string_ref s) const;
+//string_ref::size_type string_ref::find_last_not_of(char c) const;
 
 // new string operations (not part of std::string)
 bool string_ref::starts_with(string_ref x) const
@@ -124,7 +164,7 @@ bool operator< (string_ref x, string_ref y)
 
 // numeric conversions
 //  TODO could be implemented more efficient (don't make a copy)
-int stoi(string_ref str, unsigned* idx, int base)
+int stoi(string_ref str, string_ref::size_type* idx, int base)
 {
 	string s = str.str();
 	const char* begin = s.c_str();
@@ -133,7 +173,16 @@ int stoi(string_ref str, unsigned* idx, int base)
 	if (idx) *idx = end - begin;
 	return result;
 }
-long long stoll(string_ref str, unsigned* idx, int base)
+unsigned long stoul (string_ref str, string_ref::size_type* idx, int base)
+{
+	string s = str.str();
+	const char* begin = s.c_str();
+	char* end;
+	int result = strtoul(begin, &end, base);
+	if (idx) *idx = end - begin;
+	return result;
+}
+long long stoll(string_ref str, string_ref::size_type* idx, int base)
 {
 	string s = str.str();
 	const char* begin = s.c_str();

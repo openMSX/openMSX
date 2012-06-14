@@ -4,9 +4,10 @@
 #define STRING_REF_HH
 
 #include <string>
+#include <iterator>
 #include <iosfwd>
 #include <cassert>
-#include "string.h"
+#include <cstring>
 
 /** This class implements a subset of the proposal for std::string_ref
   * (proposed for the next c++ standard (c++1y)).
@@ -19,9 +20,12 @@
 class string_ref
 {
 public:
+	typedef unsigned size_type; // only 32-bit on x86_64
+	typedef int difference_type;
 	typedef const char* const_iterator;
+	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-	static const unsigned npos = unsigned(-1);
+	static const size_type npos = size_type(-1);
 
 	// construct/copy/assign
 	string_ref()
@@ -30,7 +34,7 @@ public:
 		: dat(str.dat), siz(str.siz) {}
 	string_ref(const char* str)
 		: dat(str), siz(str ? strlen(str) : 0) {}
-	string_ref(const char* str, unsigned len)
+	string_ref(const char* str, size_type len)
 		: dat(str), siz(len) { if (dat == NULL) assert(siz == 0); }
 	string_ref(const char* begin, const char* end)
 		: dat(begin), siz(end - begin) { if (dat == NULL) assert(siz == 0); }
@@ -46,21 +50,21 @@ public:
 	// iterators
 	const_iterator begin() const { return dat; }
 	const_iterator end()   const { return dat + siz; }
-	//const_iterator rbegin() const;
-	//const_iterator rend() const;
+	const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
+	const_reverse_iterator rend()   const { return const_reverse_iterator(begin()); }
 
 	// capacity
-	unsigned size()  const { return siz; }
+	size_type size()  const { return siz; }
 	bool     empty() const { return siz == 0; }
-	//unsigned max_size() const;
-	//unsigned length() const;
+	//size_type max_size() const;
+	//size_type length() const;
 
 	// element access
-	char operator[](unsigned i) const {
+	char operator[](size_type i) const {
 		assert(i < siz);
 		return dat[i];
 	}
-	//const char& at(unsigned i) const;
+	//const char& at(size_type i) const;
 	char front() const { return *dat; }
 	char back() const { return *(dat + siz - 1); }
 	const char* data() const { return dat; }
@@ -71,27 +75,27 @@ public:
 
 	// mutators
 	void clear() { siz = 0; } // no need to change 'dat'
-	void remove_prefix(unsigned n);
-	void remove_suffix(unsigned n);
+	void remove_prefix(size_type n);
+	void remove_suffix(size_type n);
 	void pop_back()  { remove_suffix(1); }
 	void pop_front() { remove_prefix(1); }
 
 	// string operations with the same semantics as std::string
 	int compare(string_ref x) const;
-	string_ref substr(unsigned pos, unsigned n = npos) const;
-	//unsigned copy(char* buf) const;
-	unsigned find(string_ref s) const;
-	unsigned find(char c) const;
-	//unsigned rfind(string_ref s) const;
-	//unsigned rfind(char c) const;
-	//unsigned find_first_of(string_ref s) const;
-	//unsigned find_first_of(char c) const;
-	//unsigned find_first_not_of(string_ref s) const;
-	//unsigned find_first_not_of(char c) const;
-	//unsigned find_last_of(string_ref s) const;
-	//unsigned find_last_of(char c) const;
-	//unsigned find_last_not_of(string_ref s) const;
-	//unsigned find_last_not_of(char c) const;
+	string_ref substr(size_type pos, size_type n = npos) const;
+	//size_type copy(char* buf) const;
+	size_type find(string_ref s) const;
+	size_type find(char c) const;
+	size_type rfind(string_ref s) const;
+	size_type rfind(char c) const;
+	size_type find_first_of(string_ref s) const;
+	size_type find_first_of(char c) const;
+	//size_type find_first_not_of(string_ref s) const;
+	//size_type find_first_not_of(char c) const;
+	size_type find_last_of(string_ref s) const;
+	size_type find_last_of(char c) const;
+	//size_type find_last_not_of(string_ref s) const;
+	//size_type find_last_not_of(char c) const;
 
 	// new string operations (not part of std::string)
 	bool starts_with(string_ref x) const;
@@ -99,7 +103,7 @@ public:
 
 private:
 	const char* dat;
-	unsigned siz;
+	size_type siz;
 };
 
 
@@ -112,14 +116,14 @@ inline bool operator<=(string_ref x, string_ref y) { return !(y <  x); }
 inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 
 // numeric conversions
-int                stoi  (string_ref str, unsigned* idx = NULL, int base = 0);
-//long               stol  (string_ref str, unsigned* idx = NULL, int base = 0);
-//unsigned long      stoul (string_ref str, unsigned* idx = NULL, int base = 0);
-long long          stoll (string_ref str, unsigned* idx = NULL, int base = 0);
-//unsigned long long stoull(string_ref str, unsigned* idx = NULL, int base = 0);
-//float              stof  (string_ref str, unsigned* idx = NULL);
-//double             stod  (string_ref str, unsigned* idx = NULL);
-//long double        stold (string_ref str, unsigned* idx = NULL);
+int                stoi  (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
+//long               stol  (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
+unsigned long      stoul (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
+long long          stoll (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
+//unsigned long long stoull(string_ref str, string_ref::size_type* idx = NULL, int base = 0);
+//float              stof  (string_ref str, string_ref::size_type* idx = NULL);
+//double             stod  (string_ref str, string_ref::size_type* idx = NULL);
+//long double        stold (string_ref str, string_ref::size_type* idx = NULL);
 
 // concatenation (this is not part of the std::string_ref proposal)
 std::string operator+(string_ref x, string_ref y);
