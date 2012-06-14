@@ -15,7 +15,7 @@ class RS232Connector : public Connector, public SerialDataInterface
 {
 public:
 	RS232Connector(PluggingController& pluggingController,
-	               const std::string& name);
+	               string_ref name);
 	virtual ~RS232Connector();
 
 	RS232Device& getPluggedRS232Dev() const;

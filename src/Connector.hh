@@ -73,7 +73,7 @@ protected:
 	 * @param dummy Dummy Pluggable whose class matches this Connector.
 	 */
 	Connector(PluggingController& pluggingController,
-	          const std::string& name, std::auto_ptr<Pluggable> dummy);
+	          string_ref name, std::auto_ptr<Pluggable> dummy);
 
 	virtual ~Connector();
 

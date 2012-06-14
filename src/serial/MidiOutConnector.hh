@@ -14,7 +14,7 @@ class MidiOutConnector : public Connector, public SerialDataInterface
 {
 public:
 	MidiOutConnector(PluggingController& pluggingController,
-	                 const std::string& name);
+	                 string_ref name);
 	virtual ~MidiOutConnector();
 
 	MidiOutDevice& getPluggedMidiOutDev() const;

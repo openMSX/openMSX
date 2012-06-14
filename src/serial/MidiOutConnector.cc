@@ -11,7 +11,7 @@ using std::string;
 namespace openmsx {
 
 MidiOutConnector::MidiOutConnector(PluggingController& pluggingController,
-                                   const string& name)
+                                   string_ref name)
 	: Connector(pluggingController, name,
 	            std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
 {

@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
-                           const string& name, const string& description_)
+                           string_ref name, const string& description_)
 	: Connector(pluggingController_, name,
 	            std::auto_ptr<Pluggable>(new DummyJoystick()))
 	, lastValue(255) // != 0

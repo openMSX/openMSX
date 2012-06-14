@@ -15,7 +15,7 @@ class MidiInConnector : public Connector, public SerialDataInterface
 {
 public:
 	MidiInConnector(PluggingController& pluggingController,
-	                const std::string& name);
+	                string_ref name);
 	virtual ~MidiInConnector();
 
 	MidiInDevice& getPluggedMidiInDev() const;

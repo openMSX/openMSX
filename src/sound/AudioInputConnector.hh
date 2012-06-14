@@ -13,7 +13,7 @@ class AudioInputConnector : public Connector
 {
 public:
 	AudioInputConnector(PluggingController& pluggingController,
-	                    const std::string& name);
+	                    string_ref name);
 	virtual ~AudioInputConnector();
 
 	AudioInputDevice& getPluggedAudioDev() const;
