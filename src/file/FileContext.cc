@@ -51,7 +51,7 @@ static vector<string> getPathsHelper(const vector<string>& input)
 }
 
 static string resolveHelper(const vector<string>& pathList,
-                            const string& filename)
+                            string_ref filename)
 {
 	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
@@ -74,7 +74,7 @@ static string resolveHelper(const vector<string>& pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const string FileContext::resolve(const string& filename) const
+const string FileContext::resolve(string_ref filename) const
 {
 	vector<string> pathList = getPathsHelper(paths);
 	string result = resolveHelper(pathList, filename);
@@ -82,7 +82,7 @@ const string FileContext::resolve(const string& filename) const
 	return result;
 }
 
-const string FileContext::resolveCreate(const string& filename) const
+const string FileContext::resolveCreate(string_ref filename) const
 {
 	string result;
 	vector<string> pathList = getPathsHelper(savePaths);
@@ -160,7 +160,7 @@ PreferSystemFileContext::PreferSystemFileContext()
 	paths.push_back(USER_DATA);
 }
 
-UserFileContext::UserFileContext(const string& savePath)
+UserFileContext::UserFileContext(string_ref savePath)
 {
 	paths.push_back("");
 	paths.push_back(USER_DIRS);
@@ -171,7 +171,7 @@ UserFileContext::UserFileContext(const string& savePath)
 	}
 }
 
-UserDataFileContext::UserDataFileContext(const string& subDir)
+UserDataFileContext::UserDataFileContext(string_ref subDir)
 {
 	paths.push_back("");
 	paths.push_back(USER_OPENMSX + '/' + subDir);

@@ -355,26 +355,22 @@ string join(string_ref part1, string_ref part2,
 	return join(part1, join(part2, join(part3, part4)));
 }
 
-string getNativePath(const string& path)
+string getNativePath(string_ref path)
 {
+	string result = path.str();
 #ifdef _WIN32
-	string result(path);
 	replace(result.begin(), result.end(), '/', '\\');
-	return result;
-#else
-	return path;
 #endif
+	return result;
 }
 
-string getConventionalPath(const string& path)
+string getConventionalPath(string_ref path)
 {
+	string result = path.str();
 #ifdef _WIN32
-	string result(path);
 	replace(result.begin(), result.end(), '\\', '/');
-	return result;
-#else
-	return path;
 #endif
+	return result;
 }
 
 string getCurrentWorkingDirectory()
@@ -518,9 +514,9 @@ bool driveExists(char driveLetter)
 }
 #endif
 
-string expandCurrentDirFromDrive(const string& path)
+string expandCurrentDirFromDrive(string_ref path)
 {
-	string result = path;
+	string result = path.str();
 #ifdef _WIN32
 	if (((path.size() == 2) && (path[1] == ':')) ||
 		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
@@ -535,7 +531,8 @@ string expandCurrentDirFromDrive(const string& path)
 					result += '/';
 				}
 				if (path.size() > 2) {
-					result += path.substr(2);
+					string_ref tmp = path.substr(2);
+					result.append(tmp.data(), tmp.size());
 				}
 			}
 		}

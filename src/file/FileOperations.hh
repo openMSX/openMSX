@@ -134,7 +134,7 @@ namespace FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getConventionalPath(const std::string& path);
+	std::string getConventionalPath(string_ref path);
 
 	/**
 	 * Returns the path in native path-delimiter.
@@ -143,7 +143,7 @@ namespace FileOperations {
 	 *    On UNI*Y systems, it will have no effect indeed.
 	 *    Just for portability issue. (Especially for Win32)
 	 */
-	std::string getNativePath(const std::string& path);
+	std::string getNativePath(string_ref path);
 
 	/** Returns the current working directory.
 	 * @throw FileException (for example when directory has been deleted).
@@ -197,7 +197,7 @@ namespace FileOperations {
 	* Get the current directory of the specified drive
 	* Linux: just return an empty string
 	*/
-	std::string expandCurrentDirFromDrive(const std::string& path);
+	std::string expandCurrentDirFromDrive(string_ref path);
 
 #ifdef _WIN32
 	typedef struct _stat Stat;

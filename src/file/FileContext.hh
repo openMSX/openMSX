@@ -11,8 +11,8 @@ namespace openmsx {
 class FileContext
 {
 public:
-	const std::string resolve(const std::string& filename) const;
-	const std::string resolveCreate(const std::string& filename) const;
+	const std::string resolve      (string_ref filename) const;
+	const std::string resolveCreate(string_ref filename) const;
 
 	std::vector<std::string> getPaths() const;
 	bool isUserContext() const;
@@ -49,13 +49,13 @@ public:
 class UserFileContext : public FileContext
 {
 public:
-	explicit UserFileContext(const std::string& savePath = "");
+	explicit UserFileContext(string_ref savePath = "");
 };
 
 class UserDataFileContext : public FileContext
 {
 public:
-	explicit UserDataFileContext(const std::string& subdir);
+	explicit UserDataFileContext(string_ref subdir);
 };
 
 class CurrentDirFileContext : public FileContext

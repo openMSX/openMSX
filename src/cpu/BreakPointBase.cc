@@ -20,14 +20,14 @@ BreakPointBase::~BreakPointBase()
 {
 }
 
-std::string BreakPointBase::getCondition() const
+string_ref BreakPointBase::getCondition() const
 {
-	return condition.get() ? condition->getString().str() : "";
+	return condition.get() ? condition->getString() : "";
 }
 
-std::string BreakPointBase::getCommand() const
+string_ref BreakPointBase::getCommand() const
 {
-	return command->getString().str();
+	return command->getString();
 }
 
 std::auto_ptr<TclObject> BreakPointBase::getConditionObj() const

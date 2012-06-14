@@ -15,7 +15,7 @@ using std::string;
 
 namespace openmsx {
 
-static std::auto_ptr<FileBase> init(const string& url, File::OpenMode mode)
+static std::auto_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 {
 	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
@@ -45,13 +45,13 @@ File::File(const Filename& filename, OpenMode mode)
 {
 }
 
-File::File(const string& url, OpenMode mode)
+File::File(string_ref url, OpenMode mode)
 	: file(init(url, mode))
 	, filepool(NULL)
 {
 }
 
-File::File(const std::string& filename, const char* mode)
+File::File(string_ref filename, const char* mode)
 	: file(new LocalFile(filename, mode))
 	, filepool(NULL)
 {

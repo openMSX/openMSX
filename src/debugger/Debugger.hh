@@ -5,10 +5,10 @@
 
 #include "WatchPoint.hh"
 #include "StringMap.hh"
+#include "string_ref.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <set>
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -26,13 +26,13 @@ public:
 	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
-	void registerDebuggable  (const std::string& name, Debuggable& interface);
-	void unregisterDebuggable(const std::string& name, Debuggable& interface);
-	Debuggable* findDebuggable(const std::string& name);
+	void registerDebuggable   (string_ref name, Debuggable& interface);
+	void unregisterDebuggable (string_ref name, Debuggable& interface);
+	Debuggable* findDebuggable(string_ref name);
 
-	void registerProbe  (const std::string& name, ProbeBase& probe);
-	void unregisterProbe(const std::string& name, ProbeBase& probe);
-	ProbeBase* findProbe(const std::string& name);
+	void registerProbe  (string_ref name, ProbeBase& probe);
+	void unregisterProbe(string_ref name, ProbeBase& probe);
+	ProbeBase* findProbe(string_ref name);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
 	void setCPU(MSXCPU* cpu);
@@ -40,17 +40,17 @@ public:
 	void transfer(Debugger& other);
 
 private:
-	Debuggable& getDebuggable(const std::string& name);
+	Debuggable& getDebuggable(string_ref name);
 	void getDebuggables(std::set<std::string>& result) const;
 
-	ProbeBase& getProbe(const std::string& name);
+	ProbeBase& getProbe(string_ref name);
 	void getProbes(std::set<std::string>& result) const;
 
 	unsigned insertProbeBreakPoint(
 		std::auto_ptr<TclObject> command,
 		std::auto_ptr<TclObject> condition,
 		ProbeBase& probe, unsigned newId = -1);
-	void removeProbeBreakPoint(const std::string& name);
+	void removeProbeBreakPoint(string_ref name);
 
 	unsigned setWatchPoint(std::auto_ptr<TclObject> command,
 	                       std::auto_ptr<TclObject> condition,

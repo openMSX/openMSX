@@ -4,7 +4,7 @@
 #define BREAKPOINTBASE_HH
 
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <memory>
 
 struct Tcl_Interp;
@@ -19,8 +19,8 @@ class TclObject;
 class BreakPointBase : private noncopyable
 {
 public:
-	std::string getCondition() const;
-	std::string getCommand() const;
+	string_ref getCondition() const;
+	string_ref getCommand() const;
 	std::auto_ptr<TclObject> getConditionObj() const;
 	std::auto_ptr<TclObject> getCommandObj() const;
 	void checkAndExecute();

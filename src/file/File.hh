@@ -6,8 +6,8 @@
 #include "sha1.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <memory>
-#include <string>
 #include <ctime>
 
 namespace openmsx {
@@ -34,7 +34,7 @@ public:
 	 * @throws FileNotFoundException if file not found
 	 * @throws FileException for other errors
 	 */
-	explicit File(const std::string& filename, OpenMode mode = NORMAL);
+	explicit File(string_ref         filename, OpenMode mode = NORMAL);
 	explicit File(const Filename&    filename, OpenMode mode = NORMAL);
 
 	/** This constructor maps very closely on the fopen() libc function.
@@ -44,7 +44,7 @@ public:
 	  * @param mode Open mode, same meaning as in fopen(), but we assert
 	  *             that it contains a 'b' character.
 	  */
-	File(const std::string& filename, const char* mode);
+	File(string_ref         filename, const char* mode);
 	File(const Filename&    filename, const char* mode);
 
 	~File();
