@@ -87,7 +87,7 @@ const string& MidiInWindows::getName() const
 	return name;
 }
 
-const string MidiInWindows::getDescription() const
+string_ref MidiInWindows::getDescription() const
 {
 	return desc;
 }

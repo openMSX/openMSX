@@ -295,7 +295,7 @@ static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = reinterpret_cast<HANDLE>(-1);
 
 PipeConnection::PipeConnection(CommandController& commandController,
                                EventDistributor& eventDistributor,
-                               const string& name)
+                               string_ref name)
 	: CliConnection(commandController, eventDistributor)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;

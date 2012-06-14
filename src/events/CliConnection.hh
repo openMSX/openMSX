@@ -120,7 +120,7 @@ class PipeConnection : public CliConnection
 public:
 	PipeConnection(CommandController& commandController,
 	               EventDistributor& eventDistributor,
-	               const std::string& name);
+	               string_ref name);
 	virtual ~PipeConnection();
 
 	virtual void output(string_ref message);
