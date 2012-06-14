@@ -10,9 +10,7 @@ namespace openmsx {
 class FileNotFoundException : public FileException
 {
 public:
-	explicit FileNotFoundException(const std::string& message)
-		: FileException(message) {}
-	explicit FileNotFoundException(const char*        message)
+	explicit FileNotFoundException(string_ref message)
 		: FileException(message) {}
 };
 

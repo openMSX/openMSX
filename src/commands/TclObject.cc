@@ -104,7 +104,7 @@ void TclObject::throwException() const
 {
 	string_ref message = interp ? Tcl_GetStringResult(interp)
 	                        : "TclObject error";
-	throw CommandException(message.str());
+	throw CommandException(message);
 }
 
 void TclObject::setString(string_ref value)

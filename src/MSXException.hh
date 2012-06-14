@@ -3,15 +3,14 @@
 #ifndef MSXEXCEPTION_HH
 #define MSXEXCEPTION_HH
 
-#include <string>
+#include "string_ref.hh"
 
 namespace openmsx {
 
 class MSXException
 {
 public:
-	explicit MSXException(const std::string& message);
-	explicit MSXException(const char*        message);
+	explicit MSXException(string_ref message);
 	~MSXException();
 
 	const std::string& getMessage() const {
@@ -25,8 +24,7 @@ private:
 class FatalError
 {
 public:
-	explicit FatalError(const std::string& message);
-	explicit FatalError(const char*        message);
+	explicit FatalError(string_ref message);
 	~FatalError();
 
 	const std::string& getMessage() const {

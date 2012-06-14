@@ -13,9 +13,7 @@ namespace openmsx {
 class InitException: public MSXException
 {
 public:
-	explicit InitException(const std::string& message)
-		: MSXException(message) {}
-	explicit InitException(const char*        message)
+	explicit InitException(string_ref message)
 		: MSXException(message) {}
 };
 

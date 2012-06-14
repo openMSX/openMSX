@@ -31,6 +31,7 @@
 #ifdef _WIN32
 
 #include "MSXException.hh"
+#include "StringOp.hh"
 #include "cstdiop.hh"
 
 #include <cstring>
@@ -43,7 +44,6 @@
 #define MAXPATHLEN MAX_PATH
 
 using std::string;
-using std::ostringstream;
 
 namespace openmsx {
 
@@ -213,14 +213,12 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	buf_out[idx].header.dwBufferLength = buf_out[idx].longmes_cnt;
 	buf_out[idx].header.dwFlags = 0;
 	if ((i = midiOutPrepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		ostringstream out;
-		out << "midiOutPrepareHeader() returned " << i;
-		throw FatalError(out.str());
+		throw FatalError(StringOp::Builder() <<
+			"midiOutPrepareHeader() returned " << i);
 	}
 	if ((i = midiOutLongMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		ostringstream out;
-		out << "midiOutLongMsg() returned " << i;
-		throw FatalError(out.str());
+		throw FatalError(StringOp::Builder() <<
+			"midiOutLongMsg() returned " << i);
 	}
 	// Wait sending in driver.
 	// This may take long...
@@ -229,9 +227,8 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	}
 	// Sending Exclusive done.
 	if ((i = midiOutUnprepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
-		ostringstream out;
-		out << "midiOutUnPrepareHeader() returned " << i;
-		throw FatalError(out.str());
+		throw FatalError(StringOp::Builder() <<
+			"midiOutUnPrepareHeader() returned " << i);
 	}
 	buf_out[idx].longmes_cnt = 0;
 	return 0;

@@ -4,12 +4,7 @@
 
 namespace openmsx {
 
-CommandException::CommandException(const std::string& message)
-	: MSXException(message)
-{
-}
-
-CommandException::CommandException(const char* message)
+CommandException::CommandException(string_ref message)
 	: MSXException(message)
 {
 }

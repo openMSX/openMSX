@@ -10,9 +10,7 @@ namespace openmsx {
 class FileException : public MSXException
 {
 public:
-	explicit FileException(const std::string& message)
-		: MSXException(message) {}
-	explicit FileException(const char*        message)
+	explicit FileException(string_ref message)
 		: MSXException(message) {}
 };
 

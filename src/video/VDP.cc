@@ -33,8 +33,8 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "StringOp.hh"
 #include "unreachable.hh"
-#include <sstream>
 #include <cstring>
 #include <cassert>
 
@@ -281,9 +281,8 @@ VDP::VDP(const DeviceConfig& config)
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
 	    (vramSize != 128) && (vramSize != 192)) {
-		std::ostringstream out;
-		out << "VRAM size of " << vramSize << "kB is not supported!";
-		throw MSXException(out.str());
+		throw MSXException(StringOp::Builder() <<
+			"VRAM size of " << vramSize << "kB is not supported!");
 	}
 	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
 

@@ -10,8 +10,7 @@ namespace openmsx {
 class CommandException : public MSXException
 {
 public:
-	explicit CommandException(const std::string& message);
-	explicit CommandException(const char*        message);
+	explicit CommandException(string_ref message);
 };
 
 class SyntaxError : public CommandException

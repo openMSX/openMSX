@@ -525,7 +525,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(string(StringOp::Builder() << "bp#" << bp->getId()));
+	result.setString(StringOp::Builder() << "bp#" << bp->getId());
 	debugger.motherBoard.getCPUInterface().insertBreakPoint(bp);
 }
 
@@ -580,7 +580,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
 		TclObject line(result.getInterpreter());
-		line.addListElement(string(StringOp::Builder() << "bp#" << bp.getId()));
+		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
 		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());
@@ -653,7 +653,7 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 	}
 	unsigned id = debugger.setWatchPoint(
 		command, condition, type, beginAddr, endAddr);
-	result.setString(string(StringOp::Builder() << "wp#" << id));
+	result.setString(StringOp::Builder() << "wp#" << id);
 }
 
 void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
@@ -691,7 +691,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 	     it != watchPoints.end(); ++it) {
 		const WatchPoint& wp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(string(StringOp::Builder() << "wp#" << wp.getId()));
+		line.addListElement(StringOp::Builder() << "wp#" << wp.getId());
 		string type;
 		switch (wp.getType()) {
 		case WatchPoint::READ_IO:
@@ -755,7 +755,7 @@ void DebugCmd::setCondition(const vector<TclObject*>& tokens,
 			throw CommandException("Too many arguments.");
 		}
 	}
-	result.setString(string(StringOp::Builder() << "cond#" << dc->getId()));
+	result.setString(StringOp::Builder() << "cond#" << dc->getId());
 	debugger.motherBoard.getCPUInterface().setCondition(dc);
 }
 
@@ -794,7 +794,7 @@ void DebugCmd::listConditions(const vector<TclObject*>& /*tokens*/,
 	     it != conditions.end(); ++it) {
 		const DebugCondition& cond = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(string(StringOp::Builder() << "cond#" << cond.getId()));
+		line.addListElement(StringOp::Builder() << "cond#" << cond.getId());
 		line.addListElement(cond.getCondition());
 		line.addListElement(cond.getCommand());
 		res += line.getString() + '\n';
@@ -883,7 +883,7 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject*>& tokens,
 	}
 
 	unsigned id = debugger.insertProbeBreakPoint(command, condition, *probe);
-	result.setString(string(StringOp::Builder() << "pp#" << id));
+	result.setString(StringOp::Builder() << "pp#" << id);
 }
 void DebugCmd::probeRemoveBreakPoint(const vector<TclObject*>& tokens,
                                      TclObject& /*result*/)
@@ -902,7 +902,7 @@ void DebugCmd::probeListBreakPoints(const vector<TclObject*>& /*tokens*/,
 	     it != debugger.probeBreakPoints.end(); ++it) {
 		const ProbeBreakPoint& bp = **it;
 		TclObject line(result.getInterpreter());
-		line.addListElement(string(StringOp::Builder() << "pp#" << bp.getId()));
+		line.addListElement(StringOp::Builder() << "pp#" << bp.getId());
 		line.addListElement(bp.getProbe().getName());
 		line.addListElement(bp.getCondition());
 		line.addListElement(bp.getCommand());

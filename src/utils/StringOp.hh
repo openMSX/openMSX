@@ -44,17 +44,18 @@ namespace StringOp
 
 		// Templatized version is commented out. There's no problem in
 		// enabling it, but the code works ATM without, and having it
-		// disabled helps the catch future missing overloads in the
+		// disabled helps to catch future missing overloads in the
 		// list above.
 		/*template <typename T> Builder& operator<<(const T& t) {
-			buf << t;
-			return *this;
+			buf += toString(t); return *this;
 		}*/
 
-		operator std::string() const;
+		//operator std::string() const;
+		operator std::string() const { return buf; }
+		operator string_ref()  const { return buf; }
 
 	private:
-		std::ostringstream buf;
+		std::string buf;
 	};
 
 	// Generic toString implementation, works for all 'streamable' types.
