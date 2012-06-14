@@ -588,6 +588,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sdlwin32.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\StringMap.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc"/>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc"/>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\uint128.cc" />
@@ -1123,6 +1124,7 @@
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
+	<None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\checked_cast.hh" />
