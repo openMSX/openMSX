@@ -14,7 +14,7 @@ namespace openmsx {
 
 SettingImplBase::SettingImplBase(
 		CommandController& commandController,
-		const std::string& name, const std::string& description,
+		string_ref name, string_ref description,
 		SaveSetting save)
 	: Setting(commandController, name, description, save)
 {

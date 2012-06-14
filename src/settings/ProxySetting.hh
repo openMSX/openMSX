@@ -14,9 +14,9 @@ class ProxySetting : public Setting
 {
 public:
 	ProxySetting(CommandController& commandController,
-	             Reactor& reactor, const std::string& name);
+	             Reactor& reactor, string_ref name);
 
-	virtual std::string getTypeString() const;
+	virtual string_ref getTypeString() const;
 	virtual std::string getDescription() const;
 	virtual std::string getValueString() const;
 	virtual std::string getDefaultValueString() const;

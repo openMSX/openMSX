@@ -15,17 +15,14 @@ protected:
 	explicit KeyCodeSettingPolicy();
 	std::string toString(Keys::KeyCode key) const;
 	Keys::KeyCode fromString(const std::string& str) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 };
 
 class KeyCodeSetting : public SettingImpl<KeyCodeSettingPolicy>
 {
 public:
 	KeyCodeSetting(CommandController& commandController,
-	               const std::string& name, const std::string& description,
-	               Keys::KeyCode initialValue);
-	KeyCodeSetting(CommandController& commandController,
-	               const char* name, const char* description,
+	               string_ref name, string_ref description,
 	               Keys::KeyCode initialValue);
 };
 

@@ -27,7 +27,7 @@ Keys::KeyCode KeyCodeSettingPolicy::fromString(const string& str) const
 	return code;
 }
 
-std::string KeyCodeSettingPolicy::getTypeString() const
+string_ref KeyCodeSettingPolicy::getTypeString() const
 {
 	return "key";
 }
@@ -35,16 +35,7 @@ std::string KeyCodeSettingPolicy::getTypeString() const
 // class KeyCodeSetting
 
 KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
-                               const string& name, const string& description,
-                               Keys::KeyCode initialValue)
-	: SettingImpl<KeyCodeSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE)
-{
-}
-
-KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
-                               const char* name, const char* description,
+                               string_ref name, string_ref description,
                                Keys::KeyCode initialValue)
 	: SettingImpl<KeyCodeSettingPolicy>(
 		commandController, name, description, initialValue,

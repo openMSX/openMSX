@@ -162,9 +162,9 @@ auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject*>& tok
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString().str();
-	string desc = tokens[4]->getString().str();
-	string initVal = tokens[5]->getString().str();
+	string_ref name = tokens[3]->getString();
+	string_ref desc = tokens[4]->getString();
+	string_ref initVal = tokens[5]->getString();
 	return auto_ptr<Setting>(new StringSetting(getCommandController(),
 	                                           name, desc, initVal));
 }
@@ -174,8 +174,8 @@ auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject*>& to
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString().str();
-	string desc = tokens[4]->getString().str();
+	string_ref name = tokens[3]->getString();
+	string_ref desc = tokens[4]->getString();
 	bool initVal = tokens[5]->getBoolean();
 	return auto_ptr<Setting>(new BooleanSetting(getCommandController(),
 	                                            name, desc, initVal));
@@ -186,8 +186,8 @@ auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject*>& to
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString().str();
-	string desc = tokens[4]->getString().str();
+	string_ref name = tokens[3]->getString();
+	string_ref desc = tokens[4]->getString();
 	int initVal = tokens[5]->getInt();
 	int minVal  = tokens[6]->getInt();
 	int maxVal  = tokens[7]->getInt();
@@ -200,8 +200,8 @@ auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject*>& toke
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string name = tokens[3]->getString().str();
-	string desc = tokens[4]->getString().str();
+	string_ref name = tokens[3]->getString();
+	string_ref desc = tokens[4]->getString();
 	double initVal = tokens[5]->getInt();
 	double minVal  = tokens[6]->getInt();
 	double maxVal  = tokens[7]->getInt();

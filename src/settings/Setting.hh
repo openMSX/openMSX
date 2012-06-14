@@ -5,7 +5,7 @@
 
 #include "Subject.hh"
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <vector>
 
 namespace openmsx {
@@ -28,7 +28,7 @@ public:
 
 	/** Returns a string describing the setting type (integer, string, ..)
 	  */
-	virtual std::string getTypeString() const = 0;
+	virtual string_ref getTypeString() const = 0;
 
 	/** Get the name of this setting.
 	  */
@@ -103,8 +103,8 @@ public:
 	virtual void additionalInfo(TclObject& result) const = 0;
 
 protected:
-	Setting(CommandController& commandController, const std::string& name,
-	        const std::string& description, SaveSetting save);
+	Setting(CommandController& commandController, string_ref name,
+	        string_ref description, SaveSetting save);
 
 	/** Notify all listeners of a change to this setting's value.
 	  * Still needed, because it also informs the CliComm stuff that there

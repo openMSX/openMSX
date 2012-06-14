@@ -14,18 +14,15 @@ class FilenameSettingPolicy : public StringSettingPolicy
 protected:
 	explicit FilenameSettingPolicy();
 	void tabCompletion(std::vector<std::string>& tokens) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 };
 
 class FilenameSetting : public SettingImpl<FilenameSettingPolicy>
 {
 public:
 	FilenameSetting(CommandController& commandController,
-	                const std::string& name, const std::string& description,
-	                const std::string& initialValue);
-	FilenameSetting(CommandController& commandController,
-	                const char* name, const char* description,
-	                const char* initialValue);
+	                string_ref name, string_ref description,
+	                string_ref initialValue);
 };
 
 } // namespace openmsx

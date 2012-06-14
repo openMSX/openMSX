@@ -14,7 +14,7 @@ namespace openmsx {
 
 ProxySetting::ProxySetting(CommandController& commandController,
                            Reactor& reactor_,
-                           const string& name)
+                           string_ref name)
 	: Setting(commandController, name, "proxy", DONT_SAVE)
 	, reactor(reactor_)
 {
@@ -32,7 +32,7 @@ const Setting* ProxySetting::getSetting() const
 	return const_cast<ProxySetting*>(this)->getSetting();
 }
 
-string ProxySetting::getTypeString() const
+string_ref ProxySetting::getTypeString() const
 {
 	if (const Setting* setting = getSetting()) {
 		return setting->getTypeString();

@@ -22,7 +22,7 @@ const string& StringSettingPolicy::fromString(const string& str) const
 	return str;
 }
 
-string StringSettingPolicy::getTypeString() const
+string_ref StringSettingPolicy::getTypeString() const
 {
 	return "string";
 }
@@ -30,18 +30,10 @@ string StringSettingPolicy::getTypeString() const
 // class StringSetting
 
 StringSetting::StringSetting(CommandController& commandController,
-                             const string& name, const string& description,
-                             const string& initialValue, SaveSetting save)
+                             string_ref name, string_ref description,
+                             string_ref initialValue, SaveSetting save)
 	: SettingImpl<StringSettingPolicy>(
-		commandController, name, description, initialValue, save)
-{
-}
-
-StringSetting::StringSetting(CommandController& commandController,
-                             const char* name, const char* description,
-                             const char* initialValue, SaveSetting save)
-	: SettingImpl<StringSettingPolicy>(
-		commandController, name, description, initialValue, save)
+		commandController, name, description, initialValue.str(), save)
 {
 }
 

@@ -14,7 +14,7 @@ protected:
 	FloatSettingPolicy(double minValue, double maxValue);
 	std::string toString(double value) const;
 	double fromString(const std::string& str) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 };
 
 /** A Setting with a floating point value.
@@ -23,10 +23,7 @@ class FloatSetting : public SettingImpl<FloatSettingPolicy>
 {
 public:
 	FloatSetting(CommandController& commandController,
-	             const std::string& name, const std::string& description,
-	             double initialValue, double minValue, double maxValue);
-	FloatSetting(CommandController& commandController,
-	             const char* name, const char* description,
+	             string_ref name, string_ref description,
 	             double initialValue, double minValue, double maxValue);
 };
 

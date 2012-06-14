@@ -17,10 +17,12 @@ using std::string;
 
 namespace openmsx {
 
-Setting::Setting(CommandController& commandController_, const string& name_,
-                 const string& description_, SaveSetting save_)
-	: commandController(commandController_), name(name_)
-	, description(description_), save(save_ == SAVE)
+Setting::Setting(CommandController& commandController_, string_ref name_,
+                 string_ref desc_, SaveSetting save_)
+	: commandController(commandController_)
+	, name       (name_.data(), name_.size())
+	, description(desc_.data(), desc_.size())
+	, save(save_ == SAVE)
 {
 }
 

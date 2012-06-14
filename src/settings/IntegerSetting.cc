@@ -33,7 +33,7 @@ int IntegerSettingPolicy::fromString(const string& str) const
 	return result;
 }
 
-string IntegerSettingPolicy::getTypeString() const
+string_ref IntegerSettingPolicy::getTypeString() const
 {
 	return "integer";
 }
@@ -42,16 +42,7 @@ string IntegerSettingPolicy::getTypeString() const
 // class IntegerSetting
 
 IntegerSetting::IntegerSetting(CommandController& commandController,
-                               const string& name, const string& description,
-                               int initialValue, int minValue, int maxValue)
-	: SettingImpl<IntegerSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE, minValue, maxValue)
-{
-}
-
-IntegerSetting::IntegerSetting(CommandController& commandController,
-                               const char* name, const char* description,
+                               string_ref name, string_ref description,
                                int initialValue, int minValue, int maxValue)
 	: SettingImpl<IntegerSettingPolicy>(
 		commandController, name, description, initialValue,

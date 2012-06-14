@@ -35,7 +35,7 @@ bool BooleanSettingPolicy::fromString(const string& str) const
 	}
 }
 
-string BooleanSettingPolicy::getTypeString() const
+string_ref BooleanSettingPolicy::getTypeString() const
 {
 	return "boolean";
 }
@@ -56,16 +56,8 @@ void BooleanSettingPolicy::tabCompletion(vector<string>& tokens) const
 // class BooleanSetting
 
 BooleanSetting::BooleanSetting(
-		CommandController& commandController, const string& name,
-		const string& description, bool initialValue, SaveSetting save)
-	: SettingImpl<BooleanSettingPolicy>(
-		commandController, name, description, initialValue, save)
-{
-}
-
-BooleanSetting::BooleanSetting(
-		CommandController& commandController, const char* name,
-		const char* description, bool initialValue, SaveSetting save)
+		CommandController& commandController, string_ref name,
+		string_ref description, bool initialValue, SaveSetting save)
 	: SettingImpl<BooleanSettingPolicy>(
 		commandController, name, description, initialValue, save)
 {

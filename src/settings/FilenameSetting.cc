@@ -16,7 +16,7 @@ void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) cons
 	Completer::completeFileName(tokens, context);
 }
 
-std::string FilenameSettingPolicy::getTypeString() const
+string_ref FilenameSettingPolicy::getTypeString() const
 {
 	return "filename";
 }
@@ -24,20 +24,10 @@ std::string FilenameSettingPolicy::getTypeString() const
 
 FilenameSetting::FilenameSetting(
 		CommandController& commandController,
-		const std::string& name, const std::string& description,
-		const std::string& initialValue)
+		string_ref name, string_ref description,
+		string_ref initialValue)
 	: SettingImpl<FilenameSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE)
-{
-}
-
-FilenameSetting::FilenameSetting(
-		CommandController& commandController,
-		const char* name, const char* description,
-		const char* initialValue)
-	: SettingImpl<FilenameSettingPolicy>(
-		commandController, name, description, initialValue,
+		commandController, name, description, initialValue.str(),
 		Setting::SAVE)
 {
 }

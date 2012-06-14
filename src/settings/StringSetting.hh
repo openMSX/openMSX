@@ -14,18 +14,15 @@ protected:
 	explicit StringSettingPolicy();
 	const std::string& toString(const std::string& value) const;
 	const std::string& fromString(const std::string& str) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 };
 
 class StringSetting : public SettingImpl<StringSettingPolicy>
 {
 public:
 	StringSetting(CommandController& commandController,
-	              const std::string& name, const std::string& description,
-	              const std::string& initialValue, SaveSetting save = SAVE);
-	StringSetting(CommandController& commandController,
-	              const char* name, const char* description,
-	              const char* initialValue, SaveSetting save = SAVE);
+	              string_ref name, string_ref description,
+	              string_ref initialValue, SaveSetting save = SAVE);
 };
 
 } // namespace openmsx

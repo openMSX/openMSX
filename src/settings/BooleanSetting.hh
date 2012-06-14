@@ -14,7 +14,7 @@ protected:
 	explicit BooleanSettingPolicy();
 	std::string toString(bool value) const;
 	bool fromString(const std::string& str) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
 };
 
@@ -22,10 +22,7 @@ class BooleanSetting : public SettingImpl<BooleanSettingPolicy>
 {
 public:
 	BooleanSetting(CommandController& commandController,
-	               const std::string& name, const std::string& description,
-	               bool initialValue, SaveSetting save = SAVE);
-	BooleanSetting(CommandController& commandController,
-	               const char* name, const char* description,
+	               string_ref name, string_ref description,
 	               bool initialValue, SaveSetting save = SAVE);
 };
 

@@ -14,7 +14,7 @@ class SettingImplBase : public Setting
 {
 protected:
 	SettingImplBase(CommandController& commandController,
-	                const std::string& name, const std::string& description,
+	                string_ref name, string_ref description,
 	                SaveSetting save);
 	void init();
 	void destroy();
@@ -31,18 +31,18 @@ public:
 	typedef typename POLICY::Type Type;
 
 	SettingImpl(CommandController& commandController,
-	            const std::string& name, const std::string& description,
+	            string_ref name, string_ref description,
 	            const Type& initialValue, SaveSetting save);
 
 	template <typename T1>
 	SettingImpl(CommandController& commandController,
-	            const std::string& name, const std::string& description,
+	            string_ref name, string_ref description,
 	            const Type& initialValue, SaveSetting save,
 	            T1 extra1);
 
 	template <typename T1, typename T2>
 	SettingImpl(CommandController& commandController,
-	            const std::string& name, const std::string& description,
+	            string_ref name, string_ref description,
 	            const Type& initialValue, SaveSetting save,
 	            T1 extra1, T2 extra2);
 
@@ -74,7 +74,7 @@ public:
 	void setChecker(SettingChecker<POLICY>* checker, bool checkNow = true);
 
 	// virtual methods from Setting class
-	virtual std::string getTypeString() const;
+	virtual string_ref getTypeString() const;
 	virtual std::string getValueString() const;
 	virtual std::string getDefaultValueString() const;
 	virtual std::string getRestoreValueString() const;
@@ -107,7 +107,7 @@ protected:
 template<typename POLICY>
 SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
-	const std::string& name, const std::string& description,
+	string_ref name, string_ref description,
 	const Type& initialValue, SaveSetting save)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY()
@@ -122,7 +122,7 @@ template<typename POLICY>
 template<typename T1>
 SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
-	const std::string& name, const std::string& description,
+	string_ref name, string_ref description,
 	const Type& initialValue, SaveSetting save, T1 extra1)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY(extra1)
@@ -137,7 +137,7 @@ template<typename POLICY>
 template<typename T1, typename T2>
 SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
-	const std::string& name, const std::string& description,
+	string_ref name, string_ref description,
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY(extra1, extra2)
@@ -204,7 +204,7 @@ void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_, bool chec
 }
 
 template<typename POLICY>
-std::string SettingImpl<POLICY>::getTypeString() const
+string_ref SettingImpl<POLICY>::getTypeString() const
 {
 	return POLICY::getTypeString();
 }

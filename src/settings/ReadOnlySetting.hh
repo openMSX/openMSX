@@ -16,7 +16,7 @@ class ReadOnlySetting : public SettingChecker<typename Setting::Policy>
 	typedef typename Impl::Type Type;
 public:
 	ReadOnlySetting(CommandController& commandController,
-	                const std::string& name, const std::string& description,
+	                string_ref name, string_ref description,
 	                Type initialValue);
 	void setReadOnlyValue(Type value);
 	Type getValue() const;
@@ -33,7 +33,7 @@ private:
 template <typename Setting>
 ReadOnlySetting<Setting>::ReadOnlySetting(
 		CommandController& commandController,
-		const std::string& name, const std::string& description,
+		string_ref name, string_ref description,
 		Type initialValue)
 	: newValue(initialValue)
 	, setting(commandController, name, description, initialValue,

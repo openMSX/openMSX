@@ -34,7 +34,7 @@ double FloatSettingPolicy::fromString(const string& str) const
 	return result;
 }
 
-string FloatSettingPolicy::getTypeString() const
+string_ref FloatSettingPolicy::getTypeString() const
 {
 	return "float";
 }
@@ -43,16 +43,7 @@ string FloatSettingPolicy::getTypeString() const
 // class FloatSetting
 
 FloatSetting::FloatSetting(CommandController& commandController,
-                           const string& name, const string& description,
-                           double initialValue, double minValue, double maxValue)
-	: SettingImpl<FloatSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE, minValue, maxValue)
-{
-}
-
-FloatSetting::FloatSetting(CommandController& commandController,
-                           const char* name, const char* description,
+                           string_ref name, string_ref description,
                            double initialValue, double minValue, double maxValue)
 	: SettingImpl<FloatSettingPolicy>(
 		commandController, name, description, initialValue,

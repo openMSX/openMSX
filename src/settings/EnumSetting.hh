@@ -44,7 +44,7 @@ protected:
 	T fromString(const std::string& str) const;
 	virtual void checkSetValue(T& value) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
-	std::string getTypeString() const;
+	string_ref getTypeString() const;
 	void additionalInfo(TclObject& result) const;
 
 private:
@@ -55,12 +55,8 @@ private:
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
 {
 public:
-	EnumSetting(CommandController& commandController, const std::string& name,
-	            const std::string& description, T initialValue,
-	            const typename EnumSettingPolicy<T>::Map& map_,
-	            Setting::SaveSetting save = Setting::SAVE);
-	EnumSetting(CommandController& commandController, const char* name,
-	            const char* description, T initialValue,
+	EnumSetting(CommandController& commandController, string_ref name,
+	            string_ref description, T initialValue,
 	            const typename EnumSettingPolicy<T>::Map& map_,
 	            Setting::SaveSetting save = Setting::SAVE);
 };
@@ -121,7 +117,7 @@ void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
 }
 
 template<typename T>
-std::string EnumSettingPolicy<T>::getTypeString() const
+string_ref EnumSettingPolicy<T>::getTypeString() const
 {
 	return "enumeration";
 }
@@ -135,19 +131,8 @@ void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 
 template <typename T>
 EnumSetting<T>::EnumSetting(
-		CommandController& commandController, const std::string& name,
-		const std::string& description, T initialValue,
-		const typename EnumSettingPolicy<T>::Map& map_,
-		Setting::SaveSetting save)
-	: SettingImpl<EnumSettingPolicy<T> >(
-		commandController, name, description, initialValue, save, map_)
-{
-}
-
-template <typename T>
-EnumSetting<T>::EnumSetting(
-		CommandController& commandController, const char* name,
-		const char* description, T initialValue,
+		CommandController& commandController, string_ref name,
+		string_ref description, T initialValue,
 		const typename EnumSettingPolicy<T>::Map& map_,
 		Setting::SaveSetting save)
 	: SettingImpl<EnumSettingPolicy<T> >(
