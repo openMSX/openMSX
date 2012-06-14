@@ -11,6 +11,7 @@ SRC_HDR:= \
 	HostCPU \
 	Math \
 	MemoryOps \
+	StringMap \
 	StringOp \
 	sha1 \
 	uint128 \
