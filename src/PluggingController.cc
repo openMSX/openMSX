@@ -292,7 +292,7 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-Connector* PluggingController::findConnector(const string& name) const
+Connector* PluggingController::findConnector(string_ref name) const
 {
 	for (Connectors::const_iterator it = connectors.begin();
 	     it != connectors.end(); ++it) {
@@ -303,7 +303,7 @@ Connector* PluggingController::findConnector(const string& name) const
 	return NULL;
 }
 
-Connector& PluggingController::getConnector(const string& name) const
+Connector& PluggingController::getConnector(string_ref name) const
 {
 	Connector* result = findConnector(name);
 	if (!result) {
@@ -312,7 +312,7 @@ Connector& PluggingController::getConnector(const string& name) const
 	return *result;
 }
 
-Pluggable* PluggingController::findPluggable(const string& name) const
+Pluggable* PluggingController::findPluggable(string_ref name) const
 {
 	for (Pluggables::const_iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
@@ -323,18 +323,18 @@ Pluggable* PluggingController::findPluggable(const string& name) const
 	return NULL;
 }
 
-CliComm& PluggingController::getCliComm()
-{
-	return cliComm;
-}
-
-Pluggable& PluggingController::getPluggable(const string& name) const
+Pluggable& PluggingController::getPluggable(string_ref name) const
 {
 	Pluggable* result = findPluggable(name);
 	if (!result) {
 		throw CommandException("No such pluggable: " + name);
 	}
 	return *result;
+}
+
+CliComm& PluggingController::getCliComm()
+{
+	return cliComm;
 }
 
 
@@ -360,7 +360,7 @@ void PluggableInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	case 3: {
 		const Pluggable& pluggable = pluggingController.getPluggable(
-				tokens[2]->getString().str());
+				tokens[2]->getString());
 		result.setString(pluggable.getDescription());
 		break;
 	}
@@ -409,7 +409,7 @@ void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		const Connector& connector = pluggingController.getConnector(tokens[2]->getString().str());
+		const Connector& connector = pluggingController.getConnector(tokens[2]->getString());
 		result.setString(connector.getDescription());
 		break;
 	}
@@ -466,7 +466,7 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	}
 	case 3: {
-		string arg = tokens[2]->getString().str();
+		string_ref arg = tokens[2]->getString();
 		if (const Connector* connector =
 		    pluggingController.findConnector(arg)) {
 			result.setString(connector->getClass());

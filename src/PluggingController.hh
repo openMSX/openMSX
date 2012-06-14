@@ -4,8 +4,8 @@
 #define PLUGGINGCONTROLLER_HH
 
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <vector>
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -37,7 +37,7 @@ public:
 	/** Return the Connector with given name or
 	  * NULL if there is none with this name.
 	  */
-	Connector* findConnector(const std::string& name) const;
+	Connector* findConnector(string_ref name) const;
 
 	/** Add a Pluggable to the registry.
 	 */
@@ -46,7 +46,7 @@ public:
 	/** Return the Pluggable with given name or
 	  * NULL if there is none with this name.
 	  */
-	Pluggable* findPluggable(const std::string& name) const;
+	Pluggable* findPluggable(string_ref name) const;
 
 	/**
 	 * Access to the MSX specific CliComm, so that Connectors can get it.
@@ -54,8 +54,8 @@ public:
 	CliComm& getCliComm();
 
 private:
-	Connector& getConnector(const std::string& name) const;
-	Pluggable& getPluggable(const std::string& name) const;
+	Connector& getConnector(string_ref name) const;
+	Pluggable& getPluggable(string_ref name) const;
 
 	typedef std::vector<Connector*> Connectors;
 	Connectors connectors;
