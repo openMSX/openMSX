@@ -39,9 +39,9 @@ static void allocateMixBuffer(unsigned size)
 	}
 }
 
-static string makeUnique(MSXMixer& mixer, const string& name)
+static string makeUnique(MSXMixer& mixer, string_ref name)
 {
-	string result = name;
+	string result(name.data(), name.size());
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -51,12 +51,12 @@ static string makeUnique(MSXMixer& mixer, const string& name)
 	return result;
 }
 
-SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
-			 const string& description_,
+SoundDevice::SoundDevice(MSXMixer& mixer_, string_ref name_,
+			 string_ref description_,
 			 unsigned numChannels_, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
-	, description(description_)
+	, description(description_.data(), description_.size())
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)

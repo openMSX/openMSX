@@ -19,7 +19,7 @@ void DummyPrinterPortDevice::writeData(byte /*data*/, EmuTime::param /*time*/)
 	// ignore data
 }
 
-const std::string DummyPrinterPortDevice::getDescription() const
+string_ref DummyPrinterPortDevice::getDescription() const
 {
 	return "";
 }

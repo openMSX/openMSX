@@ -77,7 +77,7 @@ const string& Trackball::getName() const
 	return name;
 }
 
-const string Trackball::getDescription() const
+string_ref Trackball::getDescription() const
 {
 	return "MSX Trackball";
 }

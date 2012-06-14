@@ -528,7 +528,7 @@ const string& CassettePlayer::getName() const
 	return name;
 }
 
-const string CassettePlayer::getDescription() const
+string_ref CassettePlayer::getDescription() const
 {
 	// TODO: this description is not entirely accurate, but it is used
 	// as an identifier for this audio device in e.g. Catapult. We should

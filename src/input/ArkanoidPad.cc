@@ -79,7 +79,7 @@ const string& ArkanoidPad::getName() const
 	return name;
 }
 
-const string ArkanoidPad::getDescription() const
+string_ref ArkanoidPad::getDescription() const
 {
 	return "Arkanoid pad";
 }

@@ -12,7 +12,7 @@ class DummyJoystick : public JoystickDevice
 public:
 	virtual byte read(EmuTime::param time);
 	virtual void write(byte value, EmuTime::param time);
-	virtual const std::string getDescription() const;
+	virtual string_ref getDescription() const;
 	virtual void plugHelper(Connector& connector, EmuTime::param time);
 	virtual void unplugHelper(EmuTime::param time);
 };

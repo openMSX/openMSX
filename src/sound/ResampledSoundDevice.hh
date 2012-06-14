@@ -26,8 +26,8 @@ public:
 	bool generateInput(int* buffer, unsigned num);
 
 protected:
-	ResampledSoundDevice(MSXMotherBoard& motherBoard, const std::string& name,
-	                     const std::string& description, unsigned channels,
+	ResampledSoundDevice(MSXMotherBoard& motherBoard, string_ref name,
+	                     string_ref description, unsigned channels,
 	                     bool stereo = false);
 	virtual ~ResampledSoundDevice();
 

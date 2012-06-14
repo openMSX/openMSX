@@ -116,7 +116,7 @@ const string& Joystick::getName() const
 	return name;
 }
 
-const string Joystick::getDescription() const
+string_ref Joystick::getDescription() const
 {
 	return desc;
 }

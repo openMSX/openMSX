@@ -19,7 +19,7 @@ void DummyCassetteDevice::setSignal(bool /*output*/, EmuTime::param /*time*/)
 	// do nothing
 }
 
-const std::string DummyCassetteDevice::getDescription() const
+string_ref DummyCassetteDevice::getDescription() const
 {
 	return "";
 }

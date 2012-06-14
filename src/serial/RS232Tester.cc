@@ -82,7 +82,7 @@ const std::string& RS232Tester::getName() const
 	return name;
 }
 
-const std::string RS232Tester::getDescription() const
+string_ref RS232Tester::getDescription() const
 {
 	return	"RS232 tester pluggable. Reads all data from file specified "
 		"with the 'rs-232-inputfilename' setting. Writes all data "

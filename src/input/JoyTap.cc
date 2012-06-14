@@ -29,7 +29,7 @@ void JoyTap::createPorts(PluggingController& pluggingController, const string& b
 	}
 }
 
-const std::string JoyTap::getDescription() const
+string_ref JoyTap::getDescription() const
 {
 	return "MSX Joy Tap device";
 }

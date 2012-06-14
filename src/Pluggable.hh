@@ -28,7 +28,7 @@ public:
 
 	/** Description for this pluggable.
 	  */
-	virtual const std::string getDescription() const = 0;
+	virtual string_ref getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
 	 * connector.

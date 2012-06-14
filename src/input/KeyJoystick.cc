@@ -78,12 +78,10 @@ const string& KeyJoystick::getName() const
 	return name;
 }
 
-const string KeyJoystick::getDescription() const
+string_ref KeyJoystick::getDescription() const
 {
-	const string desc(string("Key-Joystick ") + char(*getName().rbegin()) +
-		string(", use your keyboard to emulate an MSX joystick. "
-		"See manual for information on how to configure this."));
-	return desc;
+	return "Key-Joystick, use your keyboard to emulate an MSX joystick. "
+		"See manual for information on how to configure this.";
 }
 
 void KeyJoystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

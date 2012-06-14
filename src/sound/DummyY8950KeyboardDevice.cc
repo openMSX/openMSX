@@ -14,7 +14,7 @@ byte DummyY8950KeyboardDevice::read(EmuTime::param /*time*/)
 	return 255;
 }
 
-const std::string DummyY8950KeyboardDevice::getDescription() const
+string_ref DummyY8950KeyboardDevice::getDescription() const
 {
 	return "";
 }

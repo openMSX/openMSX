@@ -178,7 +178,7 @@ public:
 
 	// Pluggable
 	virtual const std::string& getName() const;
-	virtual const std::string getDescription() const;
+	virtual string_ref getDescription() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -202,7 +202,7 @@ public:
 
 	// Pluggable
 	virtual const std::string& getName() const;
-	virtual const std::string getDescription() const;
+	virtual string_ref getDescription() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

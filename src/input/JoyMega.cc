@@ -114,7 +114,7 @@ const string& JoyMega::getName() const
 	return name;
 }
 
-const string JoyMega::getDescription() const
+string_ref JoyMega::getDescription() const
 {
 	return desc;
 }

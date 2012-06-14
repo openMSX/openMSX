@@ -17,7 +17,7 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
 	}
 }
 
-const std::string NinjaTap::getDescription() const
+string_ref NinjaTap::getDescription() const
 {
 	return "MSX Ninja Tap device";
 }

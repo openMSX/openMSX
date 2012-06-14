@@ -83,7 +83,7 @@ const string& Mouse::getName() const
 	return name;
 }
 
-const string Mouse::getDescription() const
+string_ref Mouse::getDescription() const
 {
 	return "MSX mouse";
 }

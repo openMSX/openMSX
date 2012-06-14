@@ -5,7 +5,7 @@
 
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include <string>
+#include "string_ref.hh"
 #include <set>
 #include <memory>
 
@@ -59,8 +59,7 @@ protected:
 	  * @param numChannels The number of channels for this device
 	  * @param stereo Is this a stereo device
 	  */
-	SoundDevice(MSXMixer& mixer, const std::string& name,
-	            const std::string& description,
+	SoundDevice(MSXMixer& mixer, string_ref name, string_ref description,
 	            unsigned numChannels, bool stereo = false);
 	virtual ~SoundDevice();
 
