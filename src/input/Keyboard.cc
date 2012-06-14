@@ -207,7 +207,7 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
-                   string& keyboardType, bool hasKP, bool hasYNKeys,
+                   string_ref keyboardType, bool hasKP, bool hasYNKeys,
                    bool keyGhosting_, bool keyGhostSGCprotected,
                    bool codeKanaLocks_, bool graphLocks_)
 	: Schedulable(scheduler)

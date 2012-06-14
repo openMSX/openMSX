@@ -101,7 +101,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 	const XMLElement& soundConfig = config.getChild("sound");
 	double volume = soundConfig.getChildDataAsInt("volume") / 32767.0;
 	int devBalance = 0;
-	string mode = soundConfig.getChildData("mode", "mono");
+	string_ref mode = soundConfig.getChildData("mode", "mono");
 	if (mode == "mono") {
 		devBalance = 0;
 	} else if (mode == "left") {

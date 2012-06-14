@@ -3,7 +3,7 @@
 #ifndef DEVICECONFIG_HH
 #define DEVICECONFIG_HH
 
-#include <string>
+#include "string_ref.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -72,16 +72,16 @@ public:
 	CommandController& getCommandController() const;
 	Scheduler& getScheduler() const;
 
-	const XMLElement& getChild(const char* name) const;
-	const std::string& getChildData(const char* name) const;
-	std::string getChildData(const char* name,
-	                         const char* defaultValue) const;
-	int getChildDataAsInt(const char* name, int defaultValue = 0) const;
-	bool getChildDataAsBool(const char* name,
+	const XMLElement& getChild(string_ref name) const;
+	const std::string& getChildData(string_ref name) const;
+	string_ref getChildData(string_ref name,
+	                        string_ref defaultValue) const;
+	int getChildDataAsInt(string_ref name, int defaultValue = 0) const;
+	bool getChildDataAsBool(string_ref name,
 	                        bool defaultValue = false) const;
-	const XMLElement* findChild(const char* name) const;
-	const std::string& getAttribute(const char* attName) const;
-	int getAttributeAsInt(const char* attName, int defaultValue = 0) const;
+	const XMLElement* findChild(string_ref name) const;
+	const std::string& getAttribute(string_ref attName) const;
+	int getAttributeAsInt(string_ref attName, int defaultValue = 0) const;
 
 private:
 	const HardwareConfig* hwConf;

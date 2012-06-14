@@ -97,7 +97,7 @@ static bool segmentStartsWith(const char* begin, const char* end, const char (&s
 }
 
 
-UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
+UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 	: emptyInfo(KeyInfo())
 {
 	SystemFileContext context;

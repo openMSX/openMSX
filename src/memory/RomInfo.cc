@@ -164,14 +164,14 @@ RomType RomInfo::nameToRomType(string_ref name)
 	return removeAlias(it->second);
 }
 
-string RomInfo::romTypeToName(RomType type)
+string_ref RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
 		if (it->second == type) {
-			return it->first.str();
+			return it->first;
 		}
 	}
 	UNREACHABLE; return "";

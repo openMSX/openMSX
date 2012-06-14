@@ -233,9 +233,9 @@ bool stringToDouble(const string& str, double& result)
 	return *endptr == '\0';
 }
 
-string toLower(const string& str)
+string toLower(string_ref str)
 {
-	string result = str;
+	string result(str.data(), str.size());
 	transform(result.begin(), result.end(), result.begin(), ::tolower);
 	return result;
 }

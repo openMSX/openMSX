@@ -151,7 +151,7 @@ auto_ptr<MSXDevice> create(const DeviceConfig& config)
 
 	// Get specified mapper type from the config.
 	RomType type;
-	string typestr = config.getChildData("mappertype", "Mirrored");
+	string_ref typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		const RomInfo* romInfo = config.getMotherBoard().getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());

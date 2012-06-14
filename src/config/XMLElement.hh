@@ -24,27 +24,25 @@ public:
 	//
 
 	// construction, destruction, copy, assign
-	explicit XMLElement(const std::string& name);
-	explicit XMLElement(const char* name);
-	XMLElement(const std::string& name, const std::string& data);
-	XMLElement(const char* name, const char* data);
+	explicit XMLElement(string_ref name);
+	XMLElement(string_ref name, string_ref data);
 	XMLElement(const XMLElement& element);
 	XMLElement& operator=(const XMLElement& element);
 	~XMLElement();
 
 	// name
 	const std::string& getName() const { return name; }
-	void setName(const std::string& name);
+	void setName(string_ref name);
 	void clearName();
 
 	// data
 	const std::string& getData() const { return data; }
-	void setData(const std::string& data);
+	void setData(string_ref data);
 
 	// attribute
-	void addAttribute(const char* name, const std::string& value);
-	void setAttribute(const char* name, const std::string& value);
-	void removeAttribute(const char* name);
+	void addAttribute(string_ref name, string_ref value);
+	void setAttribute(string_ref name, string_ref value);
+	void removeAttribute(string_ref name);
 
 	// child
 	typedef std::vector<XMLElement*> Children;
@@ -63,49 +61,48 @@ public:
 	double getDataAsDouble() const;
 
 	// attribute
-	bool hasAttribute(const char* name) const;
-	const std::string& getAttribute(const char* attName) const;
-	const std::string  getAttribute(const char* attName,
-	                                const char* defaultValue) const;
-	bool getAttributeAsBool(const char* attName,
+	bool hasAttribute(string_ref name) const;
+	const std::string& getAttribute(string_ref attName) const;
+	string_ref  getAttribute(string_ref attName,
+	                         string_ref defaultValue) const;
+	bool getAttributeAsBool(string_ref attName,
 	                        bool defaultValue = false) const;
-	int getAttributeAsInt(const char* attName,
+	int getAttributeAsInt(string_ref attName,
 	                      int defaultValue = 0) const;
-	bool findAttributeInt(const char* attName,
+	bool findAttributeInt(string_ref attName,
 	                      unsigned& result) const;
 
 	// child
-	const XMLElement* findChild(const char* name) const;
-	XMLElement* findChild(const char* name);
-	const XMLElement& getChild(const char* name) const;
-	XMLElement& getChild(const char* name);
+	const XMLElement* findChild(string_ref name) const;
+	XMLElement* findChild(string_ref name);
+	const XMLElement& getChild(string_ref name) const;
+	XMLElement& getChild(string_ref name);
 
 	const XMLElement* findChildWithAttribute(
-		const char* name, const char* attName,
-		const std::string& attValue) const;
+		string_ref name, string_ref attName,
+		string_ref attValue) const;
 	XMLElement* findChildWithAttribute(
-		const char* name, const char* attName,
-		const std::string& attValue);
-	const XMLElement* findNextChild(const char* name,
+		string_ref name, string_ref attName,
+		string_ref attValue);
+	const XMLElement* findNextChild(string_ref name,
 	                                unsigned& fromIndex) const;
 
-	void getChildren(const std::string& name, Children& result) const;
-	void getChildren(const char* name, Children& result) const;
+	void getChildren(string_ref name, Children& result) const;
 
-	XMLElement& getCreateChild(const char* name,
-	                           const std::string& defaultValue = "");
+	XMLElement& getCreateChild(string_ref name,
+	                           string_ref defaultValue = "");
 	XMLElement& getCreateChildWithAttribute(
-		const char* name, const char* attName,
-		const std::string& attValue);
+		string_ref name, string_ref attName,
+		string_ref attValue);
 
-	const std::string& getChildData(const char* name) const;
-	std::string getChildData(const char* name,
-	                         const char* defaultValue) const;
-	bool getChildDataAsBool(const char* name,
+	const std::string& getChildData(string_ref name) const;
+	string_ref getChildData(string_ref name,
+	                        string_ref defaultValue) const;
+	bool getChildDataAsBool(string_ref name,
 	                        bool defaultValue = false) const;
-	int getChildDataAsInt(const char* name,
+	int getChildDataAsInt(string_ref name,
 	                      int defaultValue = 0) const;
-	void setChildData(const char* name, const std::string& value);
+	void setChildData(string_ref name, string_ref value);
 
 	void removeAllChildren();
 
@@ -122,8 +119,8 @@ public:
 private:
 	typedef std::pair<std::string, std::string> Attribute;
 	typedef std::vector<Attribute> Attributes;
-	Attributes::iterator findAttribute(const char* name);
-	Attributes::const_iterator findAttribute(const char* name) const;
+	Attributes::iterator findAttribute(string_ref name);
+	Attributes::const_iterator findAttribute(string_ref name) const;
 	void dump(StringOp::Builder& result, unsigned indentNum) const;
 
 	std::string name;

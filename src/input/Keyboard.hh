@@ -7,8 +7,8 @@
 #include "StateChangeListener.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+#include "string_ref.hh"
 #include "openmsx.hh"
-#include <string>
 #include <vector>
 #include <memory>
 
@@ -57,7 +57,7 @@ public:
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
-	         std::string& keyboardType, bool hasKeypad,
+	         string_ref keyboardType, bool hasKeypad,
 	         bool hasYesNoKeys, bool keyGhosting,
 	         bool keyGhostingSGCprotected, bool codeKanaLocks,
 	         bool graphLocks);

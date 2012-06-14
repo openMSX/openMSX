@@ -34,7 +34,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 			throw MSXException("Error reading file: " + filename);
 		}
 	}
-	const std::string subtype = config.getChildData("subtype", "expanded");
+	string_ref subtype = config.getChildData("subtype", "expanded");
 	if (subtype == "Snatcher") {
 		mapperMask = 0x0F;
 		lowRAM  = true;

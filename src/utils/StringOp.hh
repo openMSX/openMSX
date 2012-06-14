@@ -96,7 +96,7 @@ namespace StringOp
 	double stringToDouble(const std::string& str);
 	bool stringToDouble(const std::string& str, double& result);
 
-	std::string toLower(const std::string& str);
+	std::string toLower(string_ref str);
 
 	bool startsWith(string_ref total, string_ref part);
 	bool startsWith(string_ref total, char part);

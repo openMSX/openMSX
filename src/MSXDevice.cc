@@ -354,7 +354,7 @@ void MSXDevice::registerPorts()
 	     it != ios.end(); ++it) {
 		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));
 		unsigned num  = StringOp::stringToInt((*it)->getAttribute("num"));
-		string type = (*it)->getAttribute("type", "IO");
+		string_ref type = (*it)->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw MSXException("Invalid IO port specification");

@@ -15,23 +15,14 @@ using std::string;
 
 namespace openmsx {
 
-XMLElement::XMLElement(const string& name_)
-	: name(name_)
+XMLElement::XMLElement(string_ref name_)
+	: name(name_.data(), name_.size())
 {
 }
 
-XMLElement::XMLElement(const char* name_)
-	: name(name_)
-{
-}
-
-XMLElement::XMLElement(const string& name_, const string& data_)
-	: name(name_), data(data_)
-{
-}
-
-XMLElement::XMLElement(const char* name_, const char* data_)
-	: name(name_), data(data_)
+XMLElement::XMLElement(string_ref name_, string_ref data_)
+	: name(name_.data(), name_.size())
+	, data(data_.data(), data_.size())
 {
 }
 
@@ -68,9 +59,8 @@ auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 	return auto_ptr<XMLElement>(&child2);
 }
 
-XMLElement::Attributes::iterator XMLElement::findAttribute(const char* name_)
+XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
 {
-	string name(name_);
 	for (Attributes::iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
 		if (it->first == name) {
@@ -79,9 +69,8 @@ XMLElement::Attributes::iterator XMLElement::findAttribute(const char* name_)
 	}
 	return attributes.end();
 }
-XMLElement::Attributes::const_iterator XMLElement::findAttribute(const char* name_) const
+XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name) const
 {
-	string name(name_);
 	for (Attributes::const_iterator it = attributes.begin();
 	     it != attributes.end(); ++it) {
 		if (it->first == name) {
@@ -91,23 +80,23 @@ XMLElement::Attributes::const_iterator XMLElement::findAttribute(const char* nam
 	return attributes.end();
 }
 
-void XMLElement::addAttribute(const char* name, const string& value)
+void XMLElement::addAttribute(string_ref name, string_ref value)
 {
 	assert(findAttribute(name) == attributes.end());
-	attributes.push_back(make_pair(string(name), value));
+	attributes.push_back(make_pair(name.str(), value.str()));
 }
 
-void XMLElement::setAttribute(const char* name, const string& value)
+void XMLElement::setAttribute(string_ref name, string_ref value)
 {
 	Attributes::iterator it = findAttribute(name);
 	if (it != attributes.end()) {
-		it->second = value;
+		it->second.assign(value.data(), value.size());
 	} else {
-		attributes.push_back(make_pair(name, value));
+		attributes.push_back(make_pair(name.str(), value.str()));
 	}
 }
 
-void XMLElement::removeAttribute(const char* name)
+void XMLElement::removeAttribute(string_ref name)
 {
 	Attributes::iterator it = findAttribute(name);
 	if (it != attributes.end()) {
@@ -130,9 +119,9 @@ double XMLElement::getDataAsDouble() const
 	return StringOp::stringToDouble(getData());
 }
 
-void XMLElement::setName(const string& name_)
+void XMLElement::setName(string_ref name_)
 {
-	name = name_;
+	name.assign(name_.data(), name_.size());
 }
 
 void XMLElement::clearName()
@@ -140,13 +129,13 @@ void XMLElement::clearName()
 	name.clear();
 }
 
-void XMLElement::setData(const string& data_)
+void XMLElement::setData(string_ref data_)
 {
 	assert(children.empty()); // no mixed-content elements
-	data = data_;
+	data.assign(data_.data(), data_.size());
 }
 
-void XMLElement::getChildren(const string& name, Children& result) const
+void XMLElement::getChildren(string_ref name, Children& result) const
 {
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
@@ -155,14 +144,9 @@ void XMLElement::getChildren(const string& name, Children& result) const
 		}
 	}
 }
-void XMLElement::getChildren(const char* name, Children& result) const
-{
-	getChildren(string(name), result);
-}
 
-XMLElement* XMLElement::findChild(const char* name_)
+XMLElement* XMLElement::findChild(string_ref name)
 {
-	string name(name_);
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
@@ -171,12 +155,12 @@ XMLElement* XMLElement::findChild(const char* name_)
 	}
 	return NULL;
 }
-const XMLElement* XMLElement::findChild(const char* name) const
+const XMLElement* XMLElement::findChild(string_ref name) const
 {
 	return const_cast<XMLElement*>(this)->findChild(name);
 }
 
-const XMLElement* XMLElement::findNextChild(const char* name,
+const XMLElement* XMLElement::findNextChild(string_ref name,
 	                                    unsigned& fromIndex) const
 {
 	unsigned numChildren = unsigned(children.size());
@@ -195,8 +179,8 @@ const XMLElement* XMLElement::findNextChild(const char* name,
 	return NULL;
 }
 
-XMLElement* XMLElement::findChildWithAttribute(const char* name,
-	const char* attName, const string& attValue)
+XMLElement* XMLElement::findChildWithAttribute(string_ref name,
+	string_ref attName, string_ref attValue)
 {
 	Children children;
 	getChildren(name, children);
@@ -209,14 +193,14 @@ XMLElement* XMLElement::findChildWithAttribute(const char* name,
 	return NULL;
 }
 
-const XMLElement* XMLElement::findChildWithAttribute(const char* name,
-	const char* attName, const string& attValue) const
+const XMLElement* XMLElement::findChildWithAttribute(string_ref name,
+	string_ref attName, string_ref attValue) const
 {
 	return const_cast<XMLElement*>(this)->findChildWithAttribute(
 		name, attName, attValue);
 }
 
-XMLElement& XMLElement::getChild(const char* name)
+XMLElement& XMLElement::getChild(string_ref name)
 {
 	XMLElement* elem = findChild(name);
 	if (!elem) {
@@ -225,13 +209,13 @@ XMLElement& XMLElement::getChild(const char* name)
 	}
 	return *elem;
 }
-const XMLElement& XMLElement::getChild(const char* name) const
+const XMLElement& XMLElement::getChild(string_ref name) const
 {
 	return const_cast<XMLElement*>(this)->getChild(name);
 }
 
-XMLElement& XMLElement::getCreateChild(const char* name,
-                                       const string& defaultValue)
+XMLElement& XMLElement::getCreateChild(string_ref name,
+                                       string_ref defaultValue)
 {
 	XMLElement* result = findChild(name);
 	if (!result) {
@@ -242,8 +226,8 @@ XMLElement& XMLElement::getCreateChild(const char* name,
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
-	const char* name, const char* attName,
-	const string& attValue)
+	string_ref name, string_ref attName,
+	string_ref attValue)
 {
 	XMLElement* result = findChildWithAttribute(name, attName, attValue);
 	if (!result) {
@@ -254,32 +238,32 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	return *result;
 }
 
-const string& XMLElement::getChildData(const char* name) const
+const string& XMLElement::getChildData(string_ref name) const
 {
 	const XMLElement& child = getChild(name);
 	return child.getData();
 }
 
-string XMLElement::getChildData(const char* name,
-                                const char* defaultValue) const
+string_ref XMLElement::getChildData(string_ref name,
+                                    string_ref defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? child->getData() : defaultValue;
 }
 
-bool XMLElement::getChildDataAsBool(const char* name, bool defaultValue) const
+bool XMLElement::getChildDataAsBool(string_ref name, bool defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
-int XMLElement::getChildDataAsInt(const char* name, int defaultValue) const
+int XMLElement::getChildDataAsInt(string_ref name, int defaultValue) const
 {
 	const XMLElement* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
-void XMLElement::setChildData(const char* name, const string& value)
+void XMLElement::setChildData(string_ref name, string_ref value)
 {
 	if (XMLElement* child = findChild(name)) {
 		child->setData(value);
@@ -297,29 +281,29 @@ void XMLElement::removeAllChildren()
 	children.clear();
 }
 
-bool XMLElement::hasAttribute(const char* name) const
+bool XMLElement::hasAttribute(string_ref name) const
 {
 	return findAttribute(name) != attributes.end();
 }
 
-const string& XMLElement::getAttribute(const char* attName) const
+const string& XMLElement::getAttribute(string_ref attName) const
 {
 	Attributes::const_iterator it = findAttribute(attName);
 	if (it == attributes.end()) {
 		throw ConfigException("Missing attribute \"" +
-		                      string(attName) + "\".");
+		                      attName + "\".");
 	}
 	return it->second;
 }
 
-const string XMLElement::getAttribute(const char* attName,
-	                              const char* defaultValue) const
+string_ref XMLElement::getAttribute(string_ref attName,
+	                            string_ref defaultValue) const
 {
 	Attributes::const_iterator it = findAttribute(attName);
 	return (it == attributes.end()) ? defaultValue : it->second;
 }
 
-bool XMLElement::getAttributeAsBool(const char* attName,
+bool XMLElement::getAttributeAsBool(string_ref attName,
                                     bool defaultValue) const
 {
 	Attributes::const_iterator it = findAttribute(attName);
@@ -327,7 +311,7 @@ bool XMLElement::getAttributeAsBool(const char* attName,
 	                                : StringOp::stringToBool(it->second);
 }
 
-int XMLElement::getAttributeAsInt(const char* attName,
+int XMLElement::getAttributeAsInt(string_ref attName,
                                   int defaultValue) const
 {
 	Attributes::const_iterator it = findAttribute(attName);
@@ -335,7 +319,7 @@ int XMLElement::getAttributeAsInt(const char* attName,
 	                                : StringOp::stringToInt(it->second);
 }
 
-bool XMLElement::findAttributeInt(const char* attName,
+bool XMLElement::findAttributeInt(string_ref attName,
                                   unsigned& result) const
 {
 	Attributes::const_iterator it = findAttribute(attName);

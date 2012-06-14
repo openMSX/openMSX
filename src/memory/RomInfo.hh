@@ -31,7 +31,7 @@ public:
 	int                getGenMSXid()  const { return genMSXid; }
 
 	static RomType nameToRomType(string_ref name);
-	static std::string romTypeToName(RomType type);
+	static string_ref romTypeToName(RomType type);
 	static void getAllRomTypes(std::set<std::string>& result);
 
 private:

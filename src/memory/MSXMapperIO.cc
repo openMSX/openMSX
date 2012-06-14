@@ -26,7 +26,7 @@ private:
 
 static byte calcEngineMask(MSXMotherBoard& motherBoard)
 {
-	string type = motherBoard.getMachineConfig()->getConfig().getChildData(
+	string_ref type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
 		return 0xE0; // upper 3 bits always read "1"

@@ -4,7 +4,7 @@
 #define UNICODEKEYMAP_HH
 
 #include "openmsx.hh"
-#include <string>
+#include "string_ref.hh"
 #include <map>
 #include <cassert>
 
@@ -29,7 +29,7 @@ public:
 		byte row, keymask, modmask;
 	};
 
-	explicit UnicodeKeymap(const std::string& keyboardType);
+	explicit UnicodeKeymap(string_ref keyboardType);
 
 	KeyInfo get(int unicode) const;
 	KeyInfo getDeadkey(unsigned n) const;
