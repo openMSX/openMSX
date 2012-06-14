@@ -13,11 +13,11 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "MemBuffer.hh"
+#include "StringMap.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include <set>
 
-using std::map;
 using std::set;
 using std::string;
 using std::vector;
@@ -40,7 +40,7 @@ private:
 
 
 
-typedef std::map<std::string, unsigned> UnknownTypes;
+typedef StringMap<unsigned> UnknownTypes;
 
 class DBParser : public rapidsax::NullHandler
 {
@@ -445,7 +445,7 @@ void DBParser::stop()
 		}
 		RomType romType = RomInfo::nameToRomType(t);
 		if (romType == ROM_UNKNOWN) {
-			unknownTypes[t.str()]++;
+			unknownTypes[t]++;
 		}
 		dumps.back().type = romType;
 		state = DUMP;
@@ -531,7 +531,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		output << "Unknown mapper types in software database: ";
 		for (UnknownTypes::iterator it = unknownTypes.begin();
 		     it != unknownTypes.end(); ++it) {
-			output << it->first << " (" << it->second << "x); ";
+			output << it->first() << " (" << it->second << "x); ";
 		}
 		cliComm.printWarning(output);
 	}

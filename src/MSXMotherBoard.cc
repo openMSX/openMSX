@@ -45,12 +45,10 @@
 #include "unreachable.hh"
 #include "ref.hh"
 #include <cassert>
-#include <map>
 #include <vector>
 #include <iostream>
 
 using std::set;
-using std::map;
 using std::string;
 using std::vector;
 using std::auto_ptr;
@@ -155,9 +153,9 @@ private:
 	typedef vector<MSXDevice*> Devices;
 	Devices availableDevices; // no ownership
 
-	typedef map<string, MSXMotherBoard::SharedStuff> SharedStuffMap;
+	typedef StringMap<MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;
-	map<string, set<string> > userNames;
+	StringMap<set<string> > userNames;
 
 	auto_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;

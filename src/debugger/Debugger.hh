@@ -4,9 +4,9 @@
 #define DEBUGGER_HH
 
 #include "WatchPoint.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
 #include <vector>
-#include <map>
 #include <set>
 #include <string>
 #include <memory>
@@ -62,8 +62,8 @@ private:
 	friend class DebugCmd;
 	const std::auto_ptr<DebugCmd> debugCmd;
 
-	typedef std::map<std::string, Debuggable*> Debuggables;
-	typedef std::map<std::string, ProbeBase*>  Probes;
+	typedef StringMap<Debuggable*> Debuggables;
+	typedef StringMap<ProbeBase*>  Probes;
 	typedef std::vector<ProbeBreakPoint*> ProbeBreakPoints;
 	Debuggables debuggables;
 	Probes probes;

@@ -4,8 +4,8 @@
 #define MSXCLICOMM_HH
 
 #include "CliComm.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
-#include <map>
 
 namespace openmsx {
 
@@ -25,7 +25,8 @@ private:
 	MSXMotherBoard& motherBoard;
 	GlobalCliComm& cliComm;
 
-	std::map<std::string, std::string> prevValues[NUM_UPDATES];
+	typedef StringMap<std::string> PrevValue;
+	PrevValue prevValues[NUM_UPDATES];
 };
 
 } // namespace openmsx

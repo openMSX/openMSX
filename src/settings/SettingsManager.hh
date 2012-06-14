@@ -3,8 +3,8 @@
 #ifndef SETTINGSMANAGER_HH
 #define SETTINGSMANAGER_HH
 
+#include "StringMap.hh"
 #include "noncopyable.hh"
-#include <map>
 #include <set>
 #include <string>
 #include <memory>
@@ -23,7 +23,7 @@ class SettingCompleter;
 class SettingsManager : private noncopyable
 {
 private:
-	typedef std::map<std::string, Setting*> SettingsMap;
+	typedef StringMap<Setting*> SettingsMap;
 	SettingsMap settingsMap;
 
 public:

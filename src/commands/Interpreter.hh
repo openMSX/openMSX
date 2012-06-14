@@ -4,9 +4,9 @@
 #define INTERPRETER_HH
 
 #include "EventListener.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
 #include "vla.hh"
-#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -89,7 +89,7 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
-	typedef std::map<std::string, Tcl_Command> CommandTokenMap;
+	typedef StringMap<Tcl_Command> CommandTokenMap;
 	CommandTokenMap commandTokenMap;
 	InterpreterOutput* output;
 

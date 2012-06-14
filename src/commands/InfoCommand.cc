@@ -11,7 +11,6 @@
 #include <iostream>
 #include <cassert>
 
-using std::map;
 using std::set;
 using std::string;
 using std::vector;
@@ -60,17 +59,16 @@ void InfoCommand::execute(const vector<TclObject*>& tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		for (map<string, const InfoTopic*>::const_iterator it =
-		       infoTopics.begin(); it != infoTopics.end(); ++it) {
-			result.addListElement(it->first);
+		for (InfoTopics::const_iterator it = infoTopics.begin();
+		     it != infoTopics.end(); ++it) {
+			result.addListElement(it->first());
 		}
 		break;
 	default:
 		// show info about topic
 		assert(tokens.size() >= 2);
 		string_ref topic = tokens[1]->getString();
-		map<string, const InfoTopic*>::const_iterator it =
-			infoTopics.find(topic.str());
+		InfoTopics::const_iterator it = infoTopics.find(topic);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + topic);
 		}
@@ -91,8 +89,7 @@ string InfoCommand::help(const vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 2);
-		map<string, const InfoTopic*>::const_iterator it =
-			infoTopics.find(tokens[1]);
+		InfoTopics::const_iterator it = infoTopics.find(tokens[1]);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + tokens[1]);
 		}
@@ -108,9 +105,9 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	case 2: {
 		// complete topic
 		set<string> topics;
-		for (map<string, const InfoTopic*>::const_iterator it =
-		       infoTopics.begin(); it != infoTopics.end(); ++it) {
-			topics.insert(it->first);
+		for (InfoTopics::const_iterator it = infoTopics.begin();
+		     it != infoTopics.end(); ++it) {
+			topics.insert(it->first().str());
 		}
 		completeString(tokens, topics);
 		break;
@@ -118,8 +115,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 3);
-		map<string, const InfoTopic*>::const_iterator it =
-			infoTopics.find(tokens[1]);
+		InfoTopics::const_iterator it = infoTopics.find(tokens[1]);
 		if (it != infoTopics.end()) {
 			it->second->tabCompletion(tokens);
 		}

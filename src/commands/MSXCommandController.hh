@@ -5,8 +5,8 @@
 
 #include "CommandController.hh"
 #include "MSXEventListener.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
-#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -71,9 +71,9 @@ private:
 	const std::string& machineID;
 	std::auto_ptr<InfoCommand> machineInfoCommand;
 
-	typedef std::map<std::string, Command*> CommandMap;
+	typedef StringMap<Command*> CommandMap;
 	CommandMap commandMap;
-	typedef std::map<std::string, Setting*> SettingMap;
+	typedef StringMap<Setting*> SettingMap;
 	SettingMap settingMap;
 };
 

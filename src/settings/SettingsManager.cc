@@ -92,7 +92,7 @@ void SettingsManager::getSettingNames(set<string>& result) const
 {
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
-		result.insert(it->first);
+		result.insert(it->first().str());
 	}
 }
 
@@ -128,11 +128,11 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	if (!settings) return;
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
-		const string& name = it->first;
+		string_ref name = it->first();
 		Setting& setting = *it->second;
 		if (!setting.needLoadSave()) continue;
 		if (const XMLElement* elem = settings->findChildWithAttribute(
-		                                     "setting", "id", name)) {
+		                                     "setting", "id", name.str())) {
 			try {
 				setting.changeValueString(elem->getData());
 			} catch (MSXException&) {
@@ -167,7 +167,7 @@ void SettingInfo::execute(
 	case 2:
 		for (SettingsManager::SettingsMap::const_iterator it =
 		       settingsMap.begin(); it != settingsMap.end(); ++it) {
-			result.addListElement(it->first);
+			result.addListElement(it->first());
 		}
 		break;
 	case 3: {

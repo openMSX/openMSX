@@ -158,7 +158,7 @@ void Debugger::getDebuggables(set<string>& result) const
 {
 	for (Debuggables::const_iterator it = debuggables.begin();
 	     it != debuggables.end(); ++it) {
-		result.insert(it->first);
+		result.insert(it->first().str());
 	}
 }
 
@@ -196,7 +196,7 @@ void Debugger::getProbes(std::set<std::string>& result) const
 {
 	for (Probes::const_iterator it = probes.begin();
 	     it != probes.end(); ++it) {
-		result.insert(it->first);
+		result.insert(it->first().str());
 	}
 }
 

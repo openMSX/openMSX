@@ -570,7 +570,8 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		for (GlobalCommandController::CompleterMap::const_iterator it =
 		         controller.commandCompleters.begin();
 		     it != controller.commandCompleters.end(); ++it) {
-			text += it->first;
+			string_ref key = it->first();
+			text.append(key.data(), key.size());
 			text += '\n';
 		}
 		result.setString(text);
@@ -578,7 +579,7 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 	}
 	default: {
 		 GlobalCommandController::CompleterMap::const_iterator it =
-			controller.commandCompleters.find(tokens[1]->getString().str());
+			controller.commandCompleters.find(tokens[1]->getString());
 		if (it != controller.commandCompleters.end()) {
 			vector<string> tokens2;
 			vector<TclObject*>::const_iterator it2 = tokens.begin();

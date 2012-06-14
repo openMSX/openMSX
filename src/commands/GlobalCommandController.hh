@@ -4,9 +4,9 @@
 #define GLOBALCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
 #include <string>
-#include <map>
 #include <vector>
 #include <memory>
 
@@ -96,8 +96,8 @@ private:
 	typedef std::vector<std::pair<ProxySetting*, unsigned> > ProxySettings;
 	ProxySettings::iterator findProxySetting(const std::string& name);
 
-	typedef std::map<std::string, Command*> CommandMap;
-	typedef std::map<std::string, CommandCompleter*> CompleterMap;
+	typedef StringMap<Command*> CommandMap;
+	typedef StringMap<CommandCompleter*> CompleterMap;
 	CommandMap commands;
 	CompleterMap commandCompleters;
 
@@ -119,7 +119,7 @@ private:
 	std::auto_ptr<VersionInfo> versionInfo;
 	std::auto_ptr<RomInfoTopic> romInfoTopic;
 
-	std::map<std::string, unsigned> proxyCommandMap;
+	StringMap<unsigned> proxyCommandMap;
 	ProxySettings proxySettings;
 };
 

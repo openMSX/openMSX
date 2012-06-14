@@ -4,7 +4,7 @@
 #define INFOCOMMAND_HH
 
 #include "Command.hh"
-#include <map>
+#include "StringMap.hh"
 
 namespace openmsx {
 
@@ -26,7 +26,8 @@ private:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	std::map<std::string, const InfoTopic*> infoTopics;
+	typedef StringMap<const InfoTopic*> InfoTopics;
+	InfoTopics infoTopics;
 };
 
 } // namespace openmsx

@@ -8,7 +8,6 @@
 #include <cassert>
 #include <iostream>
 
-using std::map;
 using std::string;
 
 namespace openmsx {
@@ -80,7 +79,7 @@ void GlobalCliComm::update(UpdateType type, const string& name,
                            const string& value)
 {
 	assert(type < NUM_UPDATES);
-	map<string, string>::iterator it = prevValues[type].find(name);
+	PrevValue::iterator it = prevValues[type].find(name);
 	if (it != prevValues[type].end()) {
 		if (it->second == value) {
 			return;

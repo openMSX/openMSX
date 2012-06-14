@@ -90,9 +90,8 @@ PolymorphicLoaderRegistry<Archive>& PolymorphicLoaderRegistry<Archive>::instance
 
 template<typename Archive>
 void PolymorphicLoaderRegistry<Archive>::registerHelper(
-	const char* name_, PolymorphicLoaderBase<Archive>* loader)
+	const char* name, PolymorphicLoaderBase<Archive>* loader)
 {
-	std::string name(name_);
 	assert(loaderMap.find(name) == loaderMap.end());
 	loaderMap[name] = loader;
 }
@@ -144,9 +143,8 @@ PolymorphicInitializerRegistry<Archive>& PolymorphicInitializerRegistry<Archive>
 
 template<typename Archive>
 void PolymorphicInitializerRegistry<Archive>::registerHelper(
-	const char* name_, PolymorphicInitializerBase<Archive>* initializer)
+	const char* name, PolymorphicInitializerBase<Archive>* initializer)
 {
-	std::string name(name_);
 	assert(initializerMap.find(name) == initializerMap.end());
 	initializerMap[name] = initializer;
 }

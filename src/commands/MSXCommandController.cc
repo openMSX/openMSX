@@ -46,11 +46,11 @@ MSXCommandController::~MSXCommandController()
 	#ifndef NDEBUG
 	for (CommandMap::const_iterator it = commandMap.begin();
 	     it != commandMap.end(); ++it) {
-		std::cout << "Command not unregistered: " << it->first << std::endl;
+		std::cout << "Command not unregistered: " << it->first() << std::endl;
 	}
 	for (SettingMap::const_iterator it = settingMap.begin();
 	     it != settingMap.end(); ++it) {
-		std::cout << "Setting not unregistered: " << it->first << std::endl;
+		std::cout << "Setting not unregistered: " << it->first() << std::endl;
 	}
 	assert(commandMap.empty());
 	assert(settingMap.empty());

@@ -2,17 +2,16 @@
 
 #include "CompressedFileAdapter.hh"
 #include "FileException.hh"
+#include "StringMap.hh"
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-#include <map>
 
 using std::string;
-using std::map;
 
 namespace openmsx {
 
-typedef map<string, shared_ptr<CompressedFileAdapter::Decompressed> > DecompressCache;
+typedef StringMap<shared_ptr<CompressedFileAdapter::Decompressed> > DecompressCache;
 static DecompressCache decompressCache;
 
 

@@ -5,8 +5,8 @@
 
 #include "CliComm.hh"
 #include "Semaphore.hh"
+#include "StringMap.hh"
 #include "noncopyable.hh"
-#include <map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -33,7 +33,8 @@ private:
 	void updateHelper(UpdateType type, const std::string& machine,
 	                  const std::string& name, const std::string& value);
 
-	std::map<std::string, std::string> prevValues[NUM_UPDATES];
+	typedef StringMap<std::string> PrevValue;
+	PrevValue prevValues[NUM_UPDATES];
 
 	typedef std::vector<CliListener*> Listeners;
 	Listeners listeners;

@@ -4,6 +4,7 @@
 #define SERIALIZE_META_HH
 
 #include "TypeInfo.hh"
+#include "StringMap.hh"
 #include "tuple.hh"
 #include "noncopyable.hh"
 #include "static_assert.hh"
@@ -267,7 +268,7 @@ private:
 	void registerHelper(const char* name,
 	                    PolymorphicLoaderBase<Archive>* loader);
 
-	typedef std::map<std::string, PolymorphicLoaderBase<Archive>*> LoaderMap;
+	typedef StringMap<PolymorphicLoaderBase<Archive>*> LoaderMap;
 	LoaderMap loaderMap;
 };
 
@@ -292,7 +293,7 @@ private:
 	void registerHelper(const char* name,
 	                    PolymorphicInitializerBase<Archive>* initializer);
 
-	typedef std::map<std::string, PolymorphicInitializerBase<Archive>*> InitializerMap;
+	typedef StringMap<PolymorphicInitializerBase<Archive>*> InitializerMap;
 	InitializerMap initializerMap;
 };
 

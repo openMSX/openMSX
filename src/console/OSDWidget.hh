@@ -3,10 +3,10 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
+#include "StringMap.hh"
 #include "shared_ptr.hh"
 #include <string>
 #include <vector>
-#include <map>
 #include <memory>
 #include <set>
 
@@ -78,7 +78,7 @@ private:
 
 	// note: must be shared_ptr (not unique_ptr), see OSDWidget::paintSDLRecursive()
 	typedef std::vector<shared_ptr<OSDWidget> > SubWidgets;
-	typedef std::map<std::string, OSDWidget*> SubWidgetsMap;
+	typedef StringMap<OSDWidget*> SubWidgetsMap;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
 	  */
