@@ -39,7 +39,7 @@ void OSDRectangle::getProperties(set<string>& result) const
 	OSDImageBasedWidget::getProperties(result);
 }
 
-void OSDRectangle::setProperty(const string& name, const TclObject& value)
+void OSDRectangle::setProperty(string_ref name, const TclObject& value)
 {
 	if (name == "-w") {
 		double w2 = value.getDouble();
@@ -103,7 +103,7 @@ void OSDRectangle::setProperty(const string& name, const TclObject& value)
 	}
 }
 
-void OSDRectangle::getProperty(const string& name, TclObject& result) const
+void OSDRectangle::getProperty(string_ref name, TclObject& result) const
 {
 	if (name == "-w") {
 		result.setDouble(w);
@@ -128,7 +128,7 @@ void OSDRectangle::getProperty(const string& name, TclObject& result) const
 	}
 }
 
-std::string OSDRectangle::getType() const
+string_ref OSDRectangle::getType() const
 {
 	return "rectangle";
 }

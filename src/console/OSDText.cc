@@ -46,7 +46,7 @@ void OSDText::getProperties(std::set<string>& result) const
 	OSDImageBasedWidget::getProperties(result);
 }
 
-void OSDText::setProperty(const string& name, const TclObject& value)
+void OSDText::setProperty(string_ref name, const TclObject& value)
 {
 	if (name == "-text") {
 		string_ref val = value.getString();
@@ -110,7 +110,7 @@ void OSDText::setProperty(const string& name, const TclObject& value)
 	}
 }
 
-void OSDText::getProperty(const string& name, TclObject& result) const
+void OSDText::getProperty(string_ref name, TclObject& result) const
 {
 	if (name == "-text") {
 		result.setString(text);
@@ -148,7 +148,7 @@ void OSDText::invalidateLocal()
 }
 
 
-string OSDText::getType() const
+string_ref OSDText::getType() const
 {
 	return "text";
 }

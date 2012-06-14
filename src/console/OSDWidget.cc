@@ -281,7 +281,7 @@ void OSDWidget::getProperties(set<string>& result) const
 	result.insert("-suppressErrors");
 }
 
-void OSDWidget::setProperty(const string& name, const TclObject& value)
+void OSDWidget::setProperty(string_ref name, const TclObject& value)
 {
 	if (name == "-type") {
 		throw CommandException("-type property is readonly");
@@ -324,7 +324,7 @@ void OSDWidget::setProperty(const string& name, const TclObject& value)
 	}
 }
 
-void OSDWidget::getProperty(const string& name, TclObject& result) const
+void OSDWidget::getProperty(string_ref name, TclObject& result) const
 {
 	if (name == "-type") {
 		result.setString(getType());

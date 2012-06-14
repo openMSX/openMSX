@@ -11,7 +11,7 @@ class OSDTopWidget : public OSDWidget
 {
 public:
 	OSDTopWidget();
-	virtual std::string getType() const;
+	virtual string_ref getType() const;
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 

@@ -10,7 +10,7 @@ OSDTopWidget::OSDTopWidget()
 {
 }
 
-std::string OSDTopWidget::getType() const
+string_ref OSDTopWidget::getType() const
 {
 	return "top";
 }

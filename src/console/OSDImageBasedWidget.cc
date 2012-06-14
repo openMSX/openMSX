@@ -61,7 +61,7 @@ static void get4(const TclObject& value, unsigned* result)
 		throw CommandException("Expected either 1 or 4 values.");
 	}
 }
-void OSDImageBasedWidget::setProperty(const string& name, const TclObject& value)
+void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
 {
 	if (name == "-rgba") {
 		unsigned newRGBA[4];
@@ -125,7 +125,7 @@ static void set4(const unsigned rgba[4], unsigned mask, unsigned shift, TclObjec
 		}
 	}
 }
-void OSDImageBasedWidget::getProperty(const string& name, TclObject& result) const
+void OSDImageBasedWidget::getProperty(string_ref name, TclObject& result) const
 {
 	if (name == "-rgba") {
 		set4(rgba, 0xffffffff, 0, result);
