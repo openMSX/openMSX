@@ -207,11 +207,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 
 	VLA(int, stereoBuf, 2 * samples + 3);
 	VLA(int, monoBuf, samples + 3);
-#if ASM_X86
-	VLA_ALIGNED(int, tmpBuf, 2 * samples + 3, 16);
-#else
-	VLA(int, tmpBuf, 2 * samples + 3);
-#endif
+	VLA_SSE_ALIGNED(int, tmpBuf, 2 * samples + 3);
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;

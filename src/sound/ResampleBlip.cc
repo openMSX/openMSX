@@ -32,14 +32,10 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 	unsigned emuNum = emuClock.getTicksTill(time);
 	if (emuNum > 0) {
 		// 3 extra for padding, CHANNELS extra for sentinel
-#if ASM_X86
 		// Clang will produce a link error if the length expression is put
 		// inside the macro.
 		const unsigned len = emuNum * CHANNELS + std::max(3u, CHANNELS);
-		VLA_ALIGNED(int, buf, len, 16);
-#else
-		VLA(int, buf, emuNum * CHANNELS + std::max(3u, CHANNELS));
-#endif
+		VLA_SSE_ALIGNED(int, buf, len);
 		EmuTime emu1 = emuClock.getFastAdd(1); // time of 1st emu-sample
 		assert(emu1 > hostClock.getTime());
 		if (input.generateInput(buf, emuNum)) {

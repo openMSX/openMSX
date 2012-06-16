@@ -427,11 +427,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 			buffer.resize(buffer.size() + missing * CHANNELS);
 		}
 	}
-#if ASM_X86
-	VLA_ALIGNED(int, tmpBuf, emuNum * CHANNELS + 3, 16);
-#else
-	VLA(int, tmpBuf, emuNum * CHANNELS + 3);
-#endif
+	VLA_SSE_ALIGNED(int, tmpBuf, emuNum * CHANNELS + 3);
 	if (input.generateInput(tmpBuf, emuNum)) {
 		for (unsigned i = 0; i < emuNum * CHANNELS; ++i) {
 			buffer[bufEnd * CHANNELS + i] = float(tmpBuf[i]);
