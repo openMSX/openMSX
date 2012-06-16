@@ -1,0 +1,2779 @@
+		org	#0100
+
+		ld	hl,debug_buffer	; circular buffer for debug output
+		ld	(debug_ptr),hl
+
+; TODO simplify commandline parsing
+; parse commandline
+		ld	hl,#0081
+parse_loop	ld	a,(hl)
+		inc	hl
+		or	a
+		jp	z,parse_end
+		cp	13
+		jp	z,parse_end
+		cp	' '
+		jr	z,parse_loop	; skip space
+		cp	9
+		jr	z,parse_loop	; skip tab
+		ld	c,a
+		and	#df		; to upper case
+		cp	'D'
+		jp	z,check_debug
+		cp	'S'
+		jp	z,check_s
+		cp	'T'
+		jp	nz,unknown_option
+check_t		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'Y'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'P'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'E'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		cp	'='
+		jp	nz,unknown_option
+check_type	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'P'
+		jp	z,check_philips
+		cp	'M'
+		jr	z,check_microsol
+		cp	'N'
+		jp	nz,unknown_option
+
+check_national	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'A'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'T'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'I'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'O'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'N'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'A'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'L'
+		jp	nz,unknown_option
+		ld	de,natl_driver
+		ld	(driver),de
+		jp	parse_loop
+
+check_microsol	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'I'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'C'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'R'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'O'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'S'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'O'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'L'
+		jp	nz,unknown_option
+		ld	de,mics_driver
+		ld	(driver),de
+		jp	parse_loop
+
+check_philips	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'H'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'I'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'L'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'I'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'P'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'S'
+		jp	nz,unknown_option
+		ld	de,phil_driver
+		ld	(driver),de
+		jp	parse_loop
+
+check_s		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'T'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'A'
+		jr	z,check_start
+		cp	'O'
+		jp	nz,unknown_option
+check_stop	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'P'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		cp	'='
+		jp	nz,unknown_option
+stop_option	call	parse_dec
+		ld	(stop_track),a
+		ld	a,1
+		ld	(stop_set),a
+		jp	parse_loop
+
+check_start	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'R'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'T'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		cp	'='
+		jp	nz,unknown_option
+start_option	call	parse_dec
+		ld	(start_track),a
+		jp	parse_loop
+
+check_debug	ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'E'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'B'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'U'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		and	#df
+		cp	'G'
+		jp	nz,unknown_option
+		ld	a,(hl)
+		inc	hl
+		cp	'='
+		jp	nz,unknown_option
+debug_option	call	parse_dec
+		ld	(debug),a
+		jp	parse_loop
+
+parse_end
+		; TODO check start_track <= stop_track
+		;       and both <= 85
+
+; Select the correct driver routines
+; For now we only have a driver for Philps machines
+		ld	hl,(driver)
+		ld	de,driver_routines
+		ld	bc,driver_size
+		ldir
+
+		ld	a,'S'
+		call	debug_log
+		call	print_pc
+		db	"Read-DMK version 0.37",13,10
+		db	13,10
+		db	"Insert source      disk in drive A",13,10
+		db      "Insert destination disk in drive B",13,10
+		db      "Press any key to continue ...",0
+		ld	ix,#009f
+		ld	iy,(#fcc0)
+		call	#001c
+		call	print_pc
+		db	13,10,13,10,0
+
+; loop over all cylinders and both sides
+		ld	a,(start_track)
+cylinder_loop	ld	(cylinder),a
+		xor	a
+side_loop	ld	(side),a	; start at side 0
+
+; delete debug file, so that we never by accident end up with a leftover
+; old debug file
+		ld	de,fcb_debug
+		ld	c,#13		; delete file
+		call	#0005
+
+; Prepare drive:
+; - select drive, turn motor on
+; - select side
+; - seek to correct track
+		ld	a,'L'
+		call	debug_log
+		call	select_fdc
+		call	seek
+
+;; TODO currently we always restore the head to track 0 followed by a seek to
+;; the destination track. I tried to use a 'step-in' command instead, but I
+;; couldn't get this to work correctly. I suspect it's because I'm using the
+;; BDOS routines to save a file (although to the B drive) and that interferes
+;; with the state of the A drive. A possible improvement would be to buffer as
+;; much data in (v)ram before writing it out to disk. So minimize the number
+;; of switches between the A and B drives.
+
+		call	print_pc
+		db	13,10
+		db	"Cylinder: ",0
+		ld	a,(cylinder)
+		call	print_dec_a
+		call	print_pc
+		db	" side: ",0
+		ld	a,(side)
+		call	print_dec_a
+
+		call	select_fdc	; TODO is/was this call still/ever needed?
+
+
+; Use the "read address" WD2793 command in a loop to read all address marks
+; on this track. We start this loop right after the index pulse. During the
+; wait-for-next-byte-loop we also increase a counter, and the value of this
+; counter is stored together with the read-address-data. This counter value
+; will later be used to estimate the location of the address mark in the raw
+; track data.
+;
+; We also use this counter to make sure we have read all address marks of the
+; whole track. Experiments on a real MSX have shown that the counter has
+; approximately the value 0x38E0 after one revolution (though rotation speed
+; can vary). We stop the loop after the counter has reached value 0xc000. So
+; this makes sure we have read each address mark at least 3 times (see below
+; why this is needed).
+
+		ld	a,'R'
+		call	debug_log
+		xor	a		; for reasons explained below, we
+		ld	(retries),a	; sometimes need to retry
+retry		call	print_pc
+		db	"   (attempt ",0
+		ld	a,(retries)
+		inc	a
+		call	print_dec_a
+		call	print_pc
+		db	")",13,10,0
+
+		xor	a
+		ld	(addr_retries),a
+
+do_addr_retry
+		ld	a,'r'
+		call	debug_log
+		call	print_pc
+		db	"Read addresses ...",0
+
+		ld	iy,(driver_rd_addr)
+		jp	(iy)
+
+addr_error	; 'Record not found' status bit was set. This means there
+		; wasn't any address mark in this track. This e.g. happens
+		; if you read the 81th track on a normal disk.
+		; don't retry on this
+		jr	skip_addr
+
+read_addr_err	call	print_pc
+		db	"Read address command didn't return 6 bytes.",13,10,0
+
+addr_retry	ld	a,(addr_retries)
+		inc	a
+		ld	(addr_retries),a
+		cp	20
+		jp	c,do_addr_retry
+
+		call	print_pc
+		db	"Couldn't reliably read address marks ... skipped",13,10,0
+
+skip_addr	ld	de,addr_buffer+1	; as long as it's > addr_buffer
+		ld	(addr_buf_end),de
+		ld	hl,0
+		jr	addr_found
+
+addr_done	ld	(addr_buf_end),de
+
+
+; Now each address mark is read for at least 3 full revolutions. Analyze this
+; data to detect the number of address marks in one revolution. Note that it's
+; possible a single track contains several identical address marks. So
+; detecting the number of sectors in the track is not as simple as searching
+; for the 2nd occurrence of the 1st read address mark.
+;
+; Some examples (the latters 'A'-'Z' each represent a unique address mark):
+; * ABCDEFGHIABCDEFGHIABCDEFGHIABCD
+;   -> 'normal' track with 9 unique address marks
+; * ABCDABEABCDABEABCDABEABC
+;   -> 8 unique address marks, the marks A and B appear twice
+; * ABCABCABCABCABCABCABCA
+;   -> the current algorithm detects a track with 3 unique address marks
+;      so it cannot distinguish the track 'ABC' from 'ABCABC'
+;      TODO fix this by taking the timing into account
+;
+; Note that the detection can fail if we did not read at least 2 full
+; revolutions. For example, suppose the actual track contains these marks:
+; 'AAAAAAABAA' (10 unique marks, mark A is duplicated 9 times). Now suppose we
+; only read 'AAAAAAABAAAAAAA'. Valid periods for this sequence could be 8, 9
+; or 10. (The current algorithm would return 8). This ambiguity disappears if
+; we read at least 2 full revolutions.
+
+		ld	hl,0
+next_period	ld	ix,(addr_buf_end)
+		ld	a,ixl
+		and	7
+		jp	nz,read_addr_err
+		ld	de,addr_buffer
+		call	get_period
+addr_found	ld	(nb_sectors),hl
+		; TODO check not more than 64 (DMK cannot handle that)
+		; if (nb_sectors > 64) error("not supported by dmk");
+
+		call	print_pc
+		db	" found ",0
+		ld	hl,(nb_sectors)
+		call	print_dec_hl	; TODO print_dec_a
+		call	print_pc
+		db	" sectors",13,10,0
+
+; We now know the period after which the address marks start repeating.
+; Take the difference of the counter value that was stored at the 1st
+; and address mark and the 1st replica of this mark.
+;
+; This difference should be around 0x38E0 (tested on real machine).
+; TODO if measured value is far below 0x38E0, try doubling, tripling, ...
+; until it gets in range.
+
+		ld	hl,(nb_sectors)
+		ld	a,h
+		or	l
+		jp	z,read_track	; skip ticks-check
+		add	hl,hl
+		add	hl,hl
+		add	hl,hl
+		ld	de,addr_buffer
+		add	hl,de
+		ld	de,(addr_buf_end)
+		or	a
+		sbc	hl,de
+		jr	c,ok_periodic
+
+		; period is whole buffer -> not periodic
+		call	print_pc
+		db	"Not periodic (read noise?)",13,10,0
+		jp	addr_retry
+
+ok_periodic	add	hl,de
+		ld	de,ofst_amark_tick
+		add	hl,de
+		ld	a,(hl)
+		inc	hl
+		ld	h,(hl)
+		ld	l,a
+		ld	de,(addr_buffer+ofst_amark_tick)
+		or	a
+		sbc	hl,de
+		ld	(ticks),hl
+
+		ld	a,(debug)
+		or	a
+		jr	z,debug_2
+		call	print_pc
+		db	", ticks: ",0
+		ld	hl,(ticks)
+		call	print_dec_hl	; is this info useful?
+		call	print_pc
+		db	13,10,0
+debug_2
+
+; If there were read errors during the 'read address' command, then it's
+; possible the detected period is larger than one disk revolution. This for
+; example happened for the disks of 'New Vision Benelux'.
+; We read the address marks for about 3 revolutions, but if there was a read
+; error for e.g. an address mark in the 2nd revolution (so the read address
+; command didn't return the exact same 6 bytes than for revolution 1 and 3),
+; then the get_period routine won't detect the true period, but instead it
+; returns the full 3 revolutions as the period (without internal repetition).
+; We can detect this error by looking at the detected number of ticks for
+; the period. If the detected period is for a single revolution, it should
+; be in range [13834, 15290]. But if it's higher we've probably estimated
+; more than one revolution.
+
+; TODO also check for lower than 13834.
+		ld	hl,(ticks)
+		ld	de,(ticks_min)	; depends on driver
+		or	a
+		sbc	hl,de
+		jr	c,too_short
+		add	hl,de
+		ld	de,(ticks_max)	; depends on driver
+		or	a
+		sbc	hl,de
+		jp	nc,addr_retry	; maybe it works in the next attempt
+		jr	read_track
+
+too_short	ld	hl,(nb_sectors)
+		jp	next_period
+
+
+; Use the WD2793 "read track" command to get the raw track data.
+; Also store the number of read bytes. This is the track length.
+; The 'normal' track length is 6250 bytes, but this can also vary.
+
+read_track
+		ld	a,'t'
+		call	debug_log
+		call	print_pc
+		db	"Read track ...",0
+
+		;; TODO is this call required?
+		;; Quibus reported a hang during 'Read track' at one point.
+		;; The LED of drive B was turned on when that happened.
+		;; The only way I can see how that's possible is that the
+		;; slot in page was somehow changed. Any other explanations???
+track_retry	call	select_fdc
+
+		ld	iy,(driver_rd_trck)
+		jp	(iy)
+
+
+track_too_much	call	print_pc
+		db	"Read track returned too much data",13,10,0
+		jr	read_track
+
+track_err	call	print_pc
+		db	"Read track error",13,10,0
+		jp	debug_exit
+track_no_start	call	print_pc
+		db	"Read track command failed to start!",13,10,0
+		jp	debug_exit
+
+track_end
+		ex	de,hl
+		ld	(track_stop),hl	; store for later
+		ld	de,trck_buffer
+		or	a
+		sbc	hl,de
+		ld	(track_len),hl
+		; TODO check in range [5938, 6562]?
+		call	print_pc
+		db	" length: ",0
+		ld	hl,(track_len)
+		call	print_dec_hl
+		call	print_pc
+		db	13,10,0
+
+; Quibus reported a hang after the tool printed  "Read track .. length=12438"
+; So it seemed the FDC somehow missed the index pulse and read the track data
+; twice. This causes a buffer overflow later in the tool. To workaround this
+; hardware quirk, we check that the tracklength in in range [5800..6700].
+; That's +/-5% of the nominal track length.
+		ld	hl,(track_len)
+		ld	bc,6700+1
+		or	a
+		sbc	hl,bc
+		jr	nc,wrong_length
+		ld	hl,(track_len)
+		ld	bc,5800
+		or	a
+		sbc	hl,bc
+		jr	nc,length_ok
+
+wrong_length	call	print_pc
+		db	"Unexpected track length .. retrying ...",0
+		jp	track_retry
+
+length_ok
+
+
+; Calculate the ratio between the number of ticks (the difference in counter
+; value) and the track length. A typical value for the former is around 14560,
+; for the latter it's around 6250. So the ratio between the two is smaller
+; than 1. We calculate this ration as a 0.16-bit fractional number.
+; Later this ratio will be used to estimate the position of the address marks
+; in the raw track.
+
+		ld	hl,(track_len)
+		ld	bc,(ticks)
+		call	frac_div
+		ld	(ratio),de
+
+
+
+; Copy the track data so that it is twice directly after each other in memory.
+; This is a cheap way to implement 'circular-reads': on a real disk, if you
+; read past the end of a track, you simply wrap around to the beginning of the
+; track. With the copy reads (that only wrap once!) now behave the same.
+;
+; Note that the first dozen or so bytes returned by the read track command are
+; totally unreliable. This is because the FDC has not yet seen any
+; synchronization marks, so it has no idea which bit in the stream is the first
+; bit of a byte. For us this is not a big problem because in the code below we
+; only scan for these synchronization marks.
+
+		ld	bc,(track_len)
+		ld	hl,trck_buffer
+		ld	d,h
+		ld	e,l
+		add	hl,bc
+		ex	de,hl
+		ldir
+
+
+; Clear the DMK header. There is room for 64 IDAM entries. Unused position
+; should contain the value 0x0000.
+
+		ld	hl,dmk_header
+		ld	de,dmk_header+1
+		ld	bc,sizeof_dmk_h-1
+		ld	(hl),0
+		ldir
+
+
+; Later we fill search the position of address and data marks in the raw track
+; data. Clear that table now. Note that this table partly overlaps with the
+; addr_buffer (where we stored the result of the "read address" commands).
+; That's OK, from this point on we only need the first 64 entries from the
+; that table anymore.
+
+		ld	hl,offset_buffer
+		ld	de,offset_buffer+1
+		ld	bc,sizeof_off_buf-1
+		ld	(hl),0
+		ldir
+
+
+; Now, for each data adress mark (returned by the "read address" command), try
+; to locate it in the raw track data. For this we use the recorded counter
+; value for that address mark and the earlier calculated ratio.
+
+		ld	a,(nb_sectors)
+		or	a		; if there are no address marks on
+		jp	z,no_sectors	; this track we're done
+
+		ld	a,'A'
+		call	debug_log
+		ld	a,(debug)
+		or	a
+		jr	z,skip_ana_prt
+		call	print_pc
+		db	"Analyze raw track ... ",0
+skip_ana_prt
+
+		ld	a,(nb_sectors)
+		ld	hl,offset_buffer  ; store results in this table
+		ld	(ofst_buf_ptr),hl
+		ld	hl,addr_buffer
+
+addr_mark_loop	ld	(sector_cntr),a
+		ld	(addr_buf_ptr),hl
+
+		ld	a,(debug)
+		or	a
+		jr	z,skip_ana_prt2
+		push	hl
+		ld	a,(sector_cntr)
+		call	print_dec_a
+		call	print_pc
+		db	" ",0
+		pop	hl
+skip_ana_prt2
+		ld	a,'a'
+		call	debug_log
+
+		ld	de,ofst_amark_tick
+		add	hl,de
+		ld	e,(hl)
+		inc	hl
+		ld	d,(hl)
+		ld	bc,(ratio)
+		call	mul_hi		; hl = (de * bc) >> 16
+		ld	bc,trck_buffer
+		add	hl,bc
+		ld	(addr_estimate),hl
+
+
+; We can only use this calculated position as a (fairly good) estimate of the
+; position. The real position can be different for the following reasons:
+;  - we recorded the counter at the end of the "read address" command, while
+;    here we're looking for the start of the address mark
+;  - the counter we've used does not 100% increase with a constant rate (e.g.
+;    at the end of a command we have to do some extra stuff, and we don't
+;    increase the counter during that time)
+;  - the rotation speed (and maybe also the flux density?) is not 100%
+;    constant
+; To compensate for this we only use the calculated position as the starting
+; point for the search. If we don't find the mark at exactly this position, we
+; try the adjacent few bytes (both up and down). Tests on a real machine have
+; shown that usually we find the mark withing 2 or 3 bytes from the calculated
+; position (but here we try up to 5 bytes (up and down) from the calculated
+; position).
+; TODO more tests on Quibus machine indicated that (in rare cases?) 5 bytes is
+; not enough. I've currently increased it up to 20 bytes. But that's most
+; likely too much (searching too far from the initial position has a risk of
+; finding a different mark in the wrong position)
+;
+; We look for the bytes 0xA1 0xA1 0xFE. The real address mark still has a 3rd
+; byte 0xA1 in front of this sequence. But tests on a real WD2793 have shown
+; that this byte is very often read wrong by the "read track" command. (Later
+; we will correct this so that the data in the DMK file has the correct
+; sequence A1 A1 A1 FE).
+;
+; The disk "Demo Kit Deluxe" has at the start of the track the sequence
+; "A1 A1 A1 FC" (instead of the usual sequence C2 C2 C2 FC). When doing tests
+; with this disk on a real machine, we found that the "read address" command
+; also returns the 6 bytes following the "A1 A1 A1 FC" sequence (the expected
+; sequence for an address mark is A1 A1 A1 FE). So it seems the WD2793 accepts
+; both FC and FE in the address mark sequence.
+
+		ld	de,ofst_tab
+ofst_next	ld	hl,(addr_estimate) ; restore initial estimate
+		ld	a,(de)
+		inc	de
+		cp	#80
+		jp	z,ofst_err	; reached the end of the offset table
+		ld	c,a
+		ld	a,(de)
+		inc	de
+		ld	b,a		; 16-bit offset
+
+		add	hl,bc		; add offset
+		ld	a,(hl)
+		cp	#A1
+		jr	nz,ofst_next
+		inc	hl
+		ld	a,(hl)
+		cp	#A1
+		jr	nz,ofst_next
+		inc	hl
+		ld	a,(hl)
+		cp	#FE
+		jr	z,ofst_1
+		cp	#FC		; see comments above
+		jr	nz,ofst_next
+ofst_1
+		dec	hl
+		dec	hl
+		dec	hl		; points to start of A1 A1 A1 FE sequence
+		ex	de,hl
+		ld	hl,(ofst_buf_ptr)
+		ld	(hl),e
+		inc	hl
+		ld	(hl),d		; store location in offset_buffer
+
+		;;push	de
+		;;call	print_pc
+		;;db	" addr_mark=0x",0
+		;;pop	hl
+		;;call	print_hex_hl
+
+; Now verify the CRC of the address mark. We use the data returned by the
+; "read address" command (not the data in the raw track). If there is a CRC
+; error we don't need to look for the data mark.
+;
+; Alternatively we could use the CRC-error-bit in the WD2793 status register
+; to see if there was a CRC error. Though I prefered to not do that to keep
+; the read-all-address-marks loop as fast as possible.
+;
+; The CRC value includes the 4 bytes of the address mark header (A1 A1 A1 FE)
+; and the 4 actual "C H R N" bytes stored in the address.
+
+		ld	hl,#B230	; precalculated CRC for A1 A1 A1 FE
+		ld	de,(addr_buf_ptr)
+		ld	a,(de)		; C
+		call	crc_byte
+		inc	de
+		ld	a,(de)		; H
+		call	crc_byte
+		inc	de
+		ld	a,(de)		; R
+		call	crc_byte
+		inc	de
+		ld	a,(de)		; N
+		call	crc_byte
+		inc	de
+		ld	a,(de)		; CRC (high byte)
+		cp	h
+		jr	nz,addr_crc_err
+		inc	de
+		ld	a,(de)		; CRC (low byte)
+		cp	l
+		jr	nz,addr_crc_err
+
+		;;call	print_pc
+		;;db	" CRC-OK",0
+
+; We found the address mark and it has a valid CRC. Now search for the data
+; mark. According to the WD2793 datasheet, the data mark should occur within
+; 43 bytes from (the end of) the address mark.
+;
+; A data mark starts with the sequence "A1 A1 A1 FB" (normal data mark) or
+; "A1 A1 A1 F8" (deleted data mark). But just as for the address mark, the
+; WD2793 "read track" command cannot reliably read the first A1 byte of this
+; sequence, so we ignore it while searching.
+
+		ld	hl,(ofst_buf_ptr)
+		ld	a,(hl)
+		inc	hl
+		ld	h,(hl)
+		ld	l,a		; hl = start of address mark
+		ld	de,10-1
+		add	hl,de		; end of address mark
+
+		ld	b,43+4		; should find data mark within 43 bytes
+data_mark_1	dec	b
+		jp	z,data_err
+		inc	hl
+		ld	a,(hl)
+		cp	#A1
+		jr	nz,data_mark_1
+data_mark_2	dec	b
+		jp	z,data_err
+		inc	hl
+		ld	a,(hl)
+		cp	#A1
+		jr	nz,data_mark_1
+data_mark_3	dec	b
+		jp	z,data_err
+		inc	hl
+		ld	a,(hl)		; data mark type (deleted or normal)
+		cp	#A1
+		jr	z,data_mark_3
+		cp	#FB
+		jr	z,data_mark_found
+		cp	#F8
+		jr	nz,data_mark_1
+data_mark_found
+		dec	hl
+		dec	hl
+		dec	hl		; points to start of A1 A1 A1 FB sequence
+		ex	de,hl
+		ld	hl,(ofst_buf_ptr)
+		inc	hl
+		inc	hl
+		ld	(hl),e
+		inc	hl
+		ld	(hl),d		; data mark offset
+		inc	hl
+		ld	(hl),a		; data mark type
+
+		;;push	af
+		;;push	de
+		;;call	print_pc
+		;;db	" data_mark=0x",0
+		;;pop	hl
+		;;call	print_hex_hl
+		;;call	print_pc
+		;;db	" type=0x",0
+		;;pop	af
+		;;call	print_hex_a
+
+		jr	next_addr_mark
+
+addr_crc_err	; address mark had a CRC error (not an error for us)
+		;;call	print_pc
+		;;db	" CRC-ERR",0
+		jr	next_addr_mark
+
+data_err	; didn't find data mark in time (not an error for us)
+		;;call	print_pc
+		;;db	" data mark not found",0
+		jr	next_addr_mark
+
+
+; Also locate address and data marks for the other sectors in this track
+
+next_addr_mark
+		;;call	print_pc
+		;;db	13,10,0
+
+		ld	hl,(ofst_buf_ptr)
+		ld	de,sizeof_offinfo
+		add	hl,de
+		ld	(ofst_buf_ptr),hl
+		ld	hl,(addr_buf_ptr)
+		ld	de,sizeof_amark
+		add	hl,de
+		ld	a,(sector_cntr)
+		dec	a
+		jp	nz,addr_mark_loop
+
+		ld	a,(debug)
+		or	a
+		jr	z,skip_ana_prt3
+		call	print_pc
+		db	13,10,0
+skip_ana_prt3
+
+; We've located the address and data mark for each sector in the raw track
+; data. Now start overwriting the sector data in the raw track data with
+; data from an actual "read sector" command. Do this because tests on a real
+; WD2793 have shown that the data returned by "read sector" is more reliable
+; than the same data returned by "read track". This is especially true for a
+; sector that wrap around the end of the track (so past the index point).
+
+		ld	a,'S'
+		call	debug_log
+		call	print_pc
+		db	"Read sectors ... ",0
+
+		ld	hl,sector_buffer
+		ld	(sector_buf_ptr),hl
+
+; The appraoch below reads the correct sector data even if there are multiple
+; sectors with the same ID present in the same track. It works well, but it's
+; very slow (see below for details about the used approach). It can take 45
+; minutes to dump a whole disk using this appraoch!
+; In the majority of the cases the track does not have duplicate sectors IDs,
+; in that case we can use a much faster approach.
+
+		ld	hl,unique_buffer
+		ld	de,unique_buffer+1
+		ld	bc,256-1
+		ld	(hl),#ff
+		ldir				; fill unique_buffer with #ff
+
+		ld	a,(nb_sectors)
+		ld	bc,sizeof_amark
+		ld	hl,addr_buffer+ofst_amark_R
+		ld	d,unique_buffer/256
+count_loop	ld	e,(hl)			; 'R'-value of address-mark
+		ex	de,hl
+		inc	(hl)
+		jr	nz,read_slow		; if we increase #ff more than once
+		ex	de,hl			; it's non-zero, in that case there's
+		add	hl,bc			; a duplicate and we must use the
+		dec	a			; slow approach
+		jr	nz,count_loop
+
+read_fast	ld	a,1
+		jr	set_speed
+read_slow	xor	a
+set_speed	ld	(read_speed),a
+
+		ld	hl,offset_buffer
+		ld	(ofst_buf_ptr),hl
+		ld	a,(nb_sectors)
+		ld	hl,addr_buffer
+
+sector_loop	ld	(sector_cntr),a
+		ld	(addr_buf_ptr),hl
+
+		call	print_dec_a
+		call	print_pc
+		db	" ",0
+
+; Skip sectors for which we didn't find a data mark previously.
+
+		ld	hl,(ofst_buf_ptr)
+		inc	hl
+		inc	hl
+		ld	a,(hl)
+		inc	hl
+		or	(hl)
+		jp	z,next_sector
+
+
+; Reading a specific sector on some copy protected disks is not that simple
+; because it can happen that a sector with the same identification header (so
+; same address mark) appears multiple times on the same track. It's really
+; important that we read the correct version.
+;
+; To solve this, we wait till the index pulse, then execute some delay loop
+; (delay is based on the counter value we recorded during the "read address"
+; phase above) and only then we execute the "read sector" command. For extra
+; safety we measure the time between the start of the command and the moment
+; we receive the first data from the command. If this difference is too big we
+; adjust the delay value and try again.
+
+		ld	a,'s'
+		call	debug_log
+		ld	hl,64
+		ld	(adjust_ofst),hl
+		ld	(adjust_scale),hl
+
+try_read_sector	xor	a
+retry_crc	ld	(crc_retries),a
+
+		ld	hl,(addr_buf_ptr)
+		ld	b,(hl)		; 'C' value from read address command
+		inc	hl		; 'H'
+		inc	hl
+		ld	c,(hl)		; 'R'
+		inc	hl		; 'N'
+		inc	hl		; CRC1
+		inc	hl		; CRC2
+		inc	hl
+		ld	a,(hl)
+		inc	hl
+		ld	h,(hl)
+		ld	l,a		; hl = counter value
+		ld	de,(adjust_ofst)
+		or	a		; counter value was recorded at end of the
+		sbc	hl,de		; "read address" command, we need to wait
+		                        ; till the start of the address mark, so
+		                        ; wait a bit less
+
+		ld	de,(sector_buf_ptr)
+		ld	iy,(driver_rd_sect)
+		jp	(iy)
+sector_end
+		ex	de,hl
+		ld	de,(sector_buf_ptr)
+		or	a		; sector length, should be one of
+		sbc	hl,de		;    128, 256, 512 or 1024
+		ld	(sector_size),hl
+		ex	de,hl
+		ld	hl,(ofst_buf_ptr)
+		ld	bc,ofst_oi_size
+		add	hl,bc
+		ld	(hl),e
+		inc	hl
+		ld	(hl),d		; store sector size
+		inc	hl
+		ld	bc,(sector_buf_ptr)
+		ld	(hl),c
+		inc	hl
+		ld	(hl),b		; store pointer to sector data
+
+		ld	b,a
+		and	8		; crc error?
+		jr	z,read_no_crc_err
+		ld	a,(crc_retries)	; Only when we have 5 crc errors, we
+		inc	a		; believe it's an intentional crc error
+		cp	5		; on the disk (and not some random read
+		jp	c,retry_crc	; error on an (old) disk).
+read_no_crc_err
+		ld	a,(read_speed)
+		or	a
+		jr	nz,sector_ok
+		ld	a,ixh
+		or	a
+		jr	nz,sector_retry
+		ld	a,ixl
+		cp	150
+		jr	c,sector_ok
+
+sector_retry
+		ld	a,'t'
+		call	debug_log
+		ld	a,(debug)
+		or	a
+		jr	z,debug_1
+		push	ix
+		call	print_pc
+		db	13,10,"|",0
+		pop	hl
+		push	hl
+		call	print_hex_hl
+		call	print_pc
+		db	" ",0
+		ld	hl,(adjust_ofst)
+		call	print_hex_hl
+		call	print_pc
+		db	" ",0
+		ld	hl,(adjust_scale)
+		call	print_hex_hl
+		call	print_pc
+		db	"|",0
+		pop	ix
+debug_1
+		ld	hl,(adjust_scale)
+		ld	d,h
+		ld	e,l
+		srl	d
+		rr	e
+		srl	d
+		rr	e
+		srl	d
+		rr	e
+		or	a
+		sbc	hl,de
+		ld	(adjust_scale),hl	; scale = scale - scale/8
+		ex	de,hl
+		ld	hl,(adjust_ofst)
+		ld	a,ixh
+		cp	5
+		jr	c,sector_sub
+		add	hl,de
+		jr	sector_2
+sector_sub	or	a
+		sbc	hl,de
+sector_2:	ld	(adjust_ofst),hl
+		jp	try_read_sector
+
+sector_ok	ld	a,'o'
+		call	debug_log
+		ld	hl,(ofst_buf_ptr)
+		ld	de,ofst_oi_status
+		add	hl,de
+		ld	(hl),b			; b = status register
+
+
+; We've read the sector, now copy it to the correct location in the raw track
+; buffer. We can't immediately read it in the correct place because we have
+; to perform a copy to a circular destination buffer (doing it inside the
+; read-sector loop might be too slow).
+
+		ld	hl,(ofst_buf_ptr)
+		ld	bc,ofst_oi_ptr+1
+		add	hl,bc
+		ld	b,(hl)
+		dec	hl
+		ld	c,(hl)
+		dec	hl		; bc = pointer to sector data
+		push	bc
+		ld	b,(hl)
+		dec	hl
+		ld	c,(hl)		; bc = sector size
+
+		dec	hl
+		dec	hl
+		dec	hl
+		dec	hl
+		ld	a,(hl)
+		inc	hl
+		ld	h,(hl)
+		ld	l,a		; hl = pos of data mark
+		inc	hl
+		inc	hl
+		inc	hl
+		inc	hl		; position of actual sector data
+		ld	de,(track_stop)
+		or	a
+		sbc	hl,de
+		jr	c,circular_1
+		ld	de,trck_buffer
+circular_1	add	hl,de
+		ex	de,hl
+
+		pop	hl		; hl = pointer to sector data
+		call	circular_ldir
+		ld	(sector_stop),de
+
+
+; Did the "read sector" command return a CRC error? If so, we keep the CRC value
+; from the raw track data. But if there was no CRC error, we calculate the
+; correct CRC value and store that in the raw track data. Most of the time this
+; calculated value will be the same as the value that is already present in the
+; raw track data, though not in case the sector wrapped around the end of the
+; track.
+
+		ld	hl,(ofst_buf_ptr)
+		ld	bc,ofst_oi_status
+		add	hl,bc
+		ld	a,(hl)			; sector status
+		and	8
+		jr	nz,sector_crc_err	; skip calculating CRC
+
+		;;push	hl
+		;;call	print_pc
+		;;db	" CRC-OK",0
+		;;pop	hl
+
+		dec	hl
+		ld	a,(hl)		; a = data mark type (is part of CRC)
+		inc	hl
+		inc	hl
+		ld	c,(hl)
+		inc	hl
+		ld	b,(hl)		; bc = sector size
+		inc	hl
+		ld	e,(hl)
+		inc	hl
+		ld	d,(hl)		; de = pointer to sector data
+
+		ld	hl,#CDB4	; precalculated CRC for sequence "A1 A1 A1"
+		push	bc
+		call	crc_byte
+		pop	bc
+sector_crc_loop	ld	a,(de)
+		inc	de
+		push	bc
+		call	crc_byte
+		pop	bc
+		dec	bc
+		ld	a,b
+		or	c
+		jr	nz,sector_crc_loop
+
+		ex	de,hl		; de = CRC value
+		ld	hl,(sector_stop)
+		ld	(hl),d		; CRC is stored big endian
+		inc	hl
+		ld	a,(track_stop)
+		cp	l
+		jr	nz,copy_crc_next
+		ld	a,(track_stop+1)
+		cp	h
+		jr	nz,copy_crc_next
+		ld	hl,trck_buffer
+copy_crc_next	ld	(hl),e
+
+		jr	next_sector
+
+sector_crc_err	;;call	print_pc
+		;;db	" CRC-ERR",0
+
+
+; Sector data (and possibly CRC value) is stored in raw track buffer.
+; Continue with the next sector.
+
+next_sector
+		ld	hl,(sector_buf_ptr)
+		ld	bc,(sector_size)
+		add	hl,bc
+		ld	(sector_buf_ptr),hl
+		ld	a,h
+		cp	unique_buffer/256
+		jp	nc,buffer_overflow
+
+		;;call	print_pc
+		;;db	13,10,0
+
+		ld	hl,(ofst_buf_ptr)
+		ld	de,sizeof_offinfo
+		add	hl,de
+		ld	(ofst_buf_ptr),hl
+		ld	hl,(addr_buf_ptr)
+		ld	de,sizeof_amark
+		add	hl,de
+		ld	a,(sector_cntr)
+		dec	a
+		jp	nz,sector_loop
+
+		call	print_pc
+		db	13,10,0
+
+; At this point we've read the raw track data and overwritten it with data
+; from "read sector" commands. Though we still need to make some more
+; adjustments:
+;  - the read track command doesn't reliably read the first A1 byte in a
+;    address or data mark sequence.
+;  - I found that sometimes the "read sector" command had overwritten the
+;    address mark of another sector with different data (e.g. this happened
+;    while experimenting with the Pixess game disk which intentionally has
+;    overlapping sector)
+; To fix both problems we now restore the address and data marks.
+;
+; We also record the position of the address marks in the DMK track header.
+
+		ld	a,'F'
+		call	debug_log
+		ld	a,(debug)
+		or	a
+		jr	z,skip_fix_prt
+		call	print_pc
+		db	"Fixup markers ...",13,10,0
+skip_fix_prt
+
+		ld	hl,offset_buffer
+		ld	(ofst_buf_ptr),hl
+		ld	hl,dmk_header
+		ld	(dmk_ptr),hl
+		ld	a,(nb_sectors)
+		ld	hl,addr_buffer
+
+fixup_loop	ld	(sector_cntr),a
+		ld	(addr_buf_ptr),hl
+		ld	a,'f'
+		call	debug_log
+
+		ld	hl,(ofst_buf_ptr)
+		ld	e,(hl)
+		inc	hl
+		ld	d,(hl)		; de = pos of addr mark
+		inc	hl
+		push	hl
+		push	de
+
+		ld	hl,addr_mark
+		ld	bc,4
+		call	circular_ldir
+		ld	hl,(addr_buf_ptr)
+		ld	bc,6
+		call	circular_ldir
+
+		pop	hl		; pos of addr mark
+		ld	de,trck_buffer
+		or	a
+		sbc	hl,de
+		ld	de,#8083
+		add	hl,de
+		ex	de,hl
+		ld	hl,(dmk_ptr)
+		ld	(hl),e
+		inc	hl
+		ld	(hl),d
+		inc	hl
+		ld	(dmk_ptr),hl
+
+		pop	hl
+		ld	e,(hl)
+		inc	hl
+		ld	d,(hl)
+		ld	a,e
+		or	d
+		jr	z,fixup_next	; no data mark
+		inc	hl
+		push	hl
+
+		ld	hl,addr_mark
+		ld	bc,3
+		call	circular_ldir
+		pop	hl
+		ld	a,(hl)
+		ld	(de),a		; copy data mark type
+
+fixup_next	ld	hl,(ofst_buf_ptr)
+		ld	de,sizeof_offinfo
+		add	hl,de
+		ld	(ofst_buf_ptr),hl
+		ld	hl,(addr_buf_ptr)
+		ld	de,sizeof_amark
+		add	hl,de
+		ld	a,(sector_cntr)
+		dec	a
+		jr	nz,fixup_loop
+
+
+; Done. ... Well, not quite ...
+; In theory everything should be done at this point. However tests on a real
+; machine have shown that for some disks we *sometimes* still get the wrong
+; data at this point. This happened for disks which have overlapping sectors
+; (e.g. sunrise disks). When I did a "read track" on such a disk, I found that
+; the distance in bytes between the start of the sectors is sometimes N but
+; sometimes N+1! Normally this doesn't matter (and this variation might be the
+; reason why there are gaps between sectors). Though in case of overlapping
+; sectors, if the relative start of the two sectors is shifted by a byte, then
+; the CRC of the sectors will be different (in case of the sunrise protection,
+; the CRC of the first sector is part of the data of the second sector). The
+; only way I found to detect/correct this problem is to verify the CRCs of the
+; sectors and if we find one that is not correct (while it should be) just try
+; again and hope we get the correct relative distance on the next attempt.
+; On a real machine I found that trying 3-4 times is enough to get the correct
+; data. Here we try up to 20 times.
+
+		ld	a,'V'
+		call	debug_log
+		call	print_pc
+		db	"Verifying ... ",0
+
+		ld	hl,offset_buffer
+		ld	a,(nb_sectors)
+
+verify_loop	ld	(sector_cntr),a
+		ld	(ofst_buf_ptr),hl
+
+		ld	a,'v'
+		call	debug_log
+		;;push	hl
+		;;call	print_dec_a	; TODO print_dec
+		;;call	print_pc
+		;;db	": ",0
+		;;pop	hl
+
+		inc	hl
+		inc	hl
+		ld	e,(hl)
+		inc	hl
+		ld	d,(hl)		; de = location of data mark
+		ld	a,e
+		or	d
+		jp	z,verify_next
+
+		inc	hl
+		inc	hl
+		ld	a,(hl)		; a = read sector status
+		ld	(crc_status),a
+		inc	hl
+		ld	c,(hl)
+		inc	hl
+		ld	b,(hl)		; bc = sector length
+		inc	hl
+		push	bc
+		ld	c,(hl)
+		inc	hl
+		ld	b,(hl)		; bc = sector data
+		push	bc
+		pop	ix		; ix = sector data
+
+		ld	b,4		; length of data mark
+		ld	hl,#ffff	; initialize CRC
+circular_crc1	ld	a,(de)
+		inc	de
+		push	bc
+		call	crc_byte
+		pop	bc
+		ld	a,(track_stop)
+		cp	e
+		jr	nz,circ_crc_next1
+		ld	a,(track_stop+1)
+		cp	d
+		jr	nz,circ_crc_next1
+		ld	de,trck_buffer
+circ_crc_next1	djnz	circular_crc1
+
+		ld	a,'w'
+		call	debug_log
+		pop	bc		; bc = sector length
+circular_crc	ld	a,(de)
+		cp	(ix+0)
+		jr	nz,verify_data
+		inc	de
+		inc	ix
+		push	bc
+		call	crc_byte
+		pop	bc
+		ld	a,(track_stop)
+		cp	e
+		jr	nz,circ_crc_next
+		ld	a,(track_stop+1)
+		cp	d
+		jr	nz,circ_crc_next
+		ld	de,trck_buffer
+circ_crc_next	dec	bc
+		ld	a,b
+		or	c
+		jr	nz,circular_crc
+
+		ld	a,'x'
+		call	debug_log
+		ex	de,hl
+		ld	b,(hl)
+		inc	hl
+		ld	c,(hl)		; bc = on-disk CRC  (stored big endian)
+		ex	de,hl		; hl = calculated CRC
+		or	a
+		sbc	hl,bc
+		jr	z,crc_match
+
+		;;call	print_pc
+		;;db	" should have CRC error ... ", 0
+
+crc_mismatch
+		ld	a,'m'
+		call	debug_log
+		ld	a,(crc_status)
+		and	8
+		jr	nz,verify_next	; ok, read sector command also returned CRC err
+		ld	a,'M'
+		jr	verify_retry
+
+verify_data	ld	a,'D'
+verify_retry	call	debug_log
+		call	print_pc
+		db	"FAILED",13,10,0
+
+maybe_retry	ld	a,(retries)
+		inc	a
+		ld	(retries),a
+		cp	20
+		jr	c,do_retry
+		jp	retry_error
+
+do_retry	ld	a,(debug)
+		or	a
+		jr	z,no_debug_write
+		call	write_debug
+		call	select_fdc
+		call	seek
+no_debug_write	jp	retry
+
+
+crc_match
+		ld	a,'n'
+		call	debug_log
+		;;call	print_pc
+		;;db	" should not have CRC error ... ", 0
+		ld	a,(crc_status)
+		and	8
+		ld	a,'N'
+		jr	nz,verify_retry	; CRC did match, but it shouldn't have
+
+verify_next	;;call	print_pc
+		;;db	"OK",13,10,0
+
+		ld	hl,(ofst_buf_ptr)
+		ld	de,sizeof_offinfo
+		add	hl,de
+		ld	a,(sector_cntr)
+		dec	a
+		jp	nz,verify_loop
+verify_done
+
+
+; Really done.
+; Write the data to disk (the second drive).
+; TODO this tool should also be usuable on machines with only one disk drive.
+; So we should ask the user to swap disks. To make it more comfortable, we
+; should try to minimize the number of required swaps. So we should buffer the
+; data in (v)ram.
+
+success		call	enable_irq
+
+		call	print_pc
+		db	"Success!!!",13,10,0
+
+		ld	a,(cylinder)
+		ld	hl,fcb+1+4
+		ld	b,'0'-1
+dec_loop	inc	b
+		sub	10
+		jr	nc,dec_loop
+		ld	(hl),b
+		add	a,'0'+10
+		inc	hl
+		ld	(hl),a
+		ld	a,(side)
+		add	'0'
+		inc	hl
+		inc	hl
+		ld	(hl),a
+
+retry_open	ld	de,fcb
+		ld	c,#16		; create file
+		call	#0005
+		or	a
+		jp	nz,open_error
+
+		ld	hl,1
+		ld	(fcb+14),hl	; set record size (1 byte)
+		ld	hl,0
+		ld	(fcb+33),hl
+		ld	(fcb+35),hl	; record number
+
+		ld	de,dmk_header
+		ld	c,#1a		; set disk transfer address
+		call	#0005
+
+		ld	hl,(track_len)
+		ld	bc,128
+		add	hl,bc		; hl = #bytes to write
+		ld	de,fcb
+		ld	c,#26		; random block write
+		call	#0005
+		or	a
+		jp	nz,write_error
+
+		ld	de,fcb
+		ld	c,#10		; close file
+		call	#0005
+		or	a
+		jp	nz,close_error
+
+
+		ld	a,(side)
+		inc	a
+		cp	2
+		jp	nz,side_loop
+
+		;; TODO use step-in
+
+		ld	a,(stop_track)
+		inc	a
+		ld	b,a
+		ld	a,(cylinder)
+		inc	a
+		cp	b
+		jp	nz,cylinder_loop
+
+
+
+
+exit		call	deselect_fdc
+		call	enable_irq
+		ld	c,#00
+		jp	#0005		; exit program
+
+
+; We didn't find any sectors in this track. If we're already at cylinder 80 or
+; higher this means we're done. Though if the user explicitly set the
+; stop-cylinder, we continue until that cylinder.
+;
+; In case there's a 81th track on side 0, but not on side 1 we don't want to
+; stop dumping because the combine-dmk tool expects to see always track info
+; for both sides.
+
+no_sectors	ld	a,(cylinder)
+		cp	80
+		jp	c,verify_done	; not yet at cylinder 80
+		ld	a,(stop_set)
+		or	a
+		jp	nz,verify_done	; user explicitly set end-cylinder
+		ld	a,(side)
+		or	a
+		jp	nz,verify_done	; if we're not on side 0, then continue
+
+		call	print_pc
+		db	13,10
+		db	"End of disk detected.",13,10,0
+		jp	exit
+
+
+
+
+open_error	call	print_pc
+		db	"Error opening file",0
+err_retry	call	print_pc
+		db	" ... press key to retry ...",0
+		ld	ix,#009f
+		ld	iy,(#fcc0)
+		call	#001c
+		call	print_pc
+		db	13,10,0
+		jp	retry_open
+
+write_error	call	print_pc
+		db	"Error writing file",13,10,0
+delete_file	ld	de,fcb
+		ld	c,#13		; delete file
+		call	#0005		; when the disk is full we get a write error
+					; but it also leaves a zero-sized file behind
+		jr	err_retry	; so here we delete it
+close_error	call	print_pc
+		db	"Error closing file",13,10,0
+		jr	delete_file
+
+
+ofst_err	call	print_pc
+		db	"Failed to find address mark in raw track data 0x",0
+		ld	hl,(addr_estimate)
+		call	print_hex_hl
+		call	print_pc
+		db	13,10,0
+		jp	maybe_retry
+
+sector_err	call	print_pc
+		db	"Read sector command didn't find sector",0
+		jp	maybe_retry
+
+retry_error	call	print_pc
+		db	"Unsuccessful after 20 retries :-(",13,10,0
+		jr	debug_exit
+
+buffer_overflow	call	print_pc
+		db	"Sector buffer overflow",13,10,0
+debug_exit	call	write_debug
+		jp	exit
+
+
+
+write_debug	call	print_pc
+		db	"Writing debug file ...",13,10,0
+
+		ld	de,fcb_debug
+		ld	c,#16		; create file
+		call	#0005
+		or	a
+		jr	nz,debug_error
+
+		ld	hl,1
+		ld	(fcb_debug+14),hl	; set record size (1 byte)
+		ld	hl,0
+		ld	(fcb_debug+33),hl
+		ld	(fcb_debug+35),hl	; record number
+
+		ld	de,#8000
+		ld	c,#1a		; set disk transfer address
+		call	#0005
+
+		ld	hl,#4000
+		ld	de,fcb_debug
+		ld	c,#26		; random block write
+		call	#0005
+		or	a
+		jr	nz,debug_error
+
+		ld	de,fcb_debug
+		ld	c,#10		; close file
+		call	#0005
+		or	a
+		jr	nz,debug_error
+		ret
+
+debug_error	call	print_pc
+		db	"Error while writing debug file",13,10,0
+		ret
+
+unknown_option	call	print_pc
+		db	"Unknown command line option",13,10,0
+		jp	exit
+expected_int	call	print_pc
+		db	"Error parsing command line: expected integer",13,10,0
+		jp	exit
+
+
+; We disable VDP IRQs because the BIOS print routine enables interrupts (EI)
+; and that interferes with the low level drive settings we're doing (e.g. it
+; can turn the motor off) a better solution would be to make sure we only print
+; at non-critical places and/or restore all FDC state after a print. Or write
+; our own printing routine. And of course there could be other IRQ sources in
+; the MSX machine, so this is really only a hack (though would those other
+; sources also trigger the motor timeout mechanism??)
+
+disable_irq	di
+		ld	a,80
+		out	(#99),a
+		ld	a,1+128
+		ld	(#f3e0),a
+		out	(#99),a		; disable VDP IRQs
+		ret
+
+enable_irq	di
+		ld	a,112
+		out	(#99),a
+		ld	(#f3e0),a
+		ld	a,1+128
+		out	(#99),a
+		ei
+		ret
+
+
+select_fdc	call	disable_irq
+		ld	iy,(driver_select)
+		jp	(iy)
+
+deselect_fdc	ld	iy,(driver_deselect)
+		jp	(iy)
+
+seek		ld	iy,(driver_seek)
+		jp	(iy)
+
+
+
+circular_ldir	ld	a,(hl)
+		ld	(de),a
+		inc	de
+		inc	hl
+		ld	a,(track_stop)
+		cp	e
+		jr	nz,ldir_next
+		ld	a,(track_stop+1)
+		cp	d
+		jr	nz,ldir_next
+		ld	de,trck_buffer
+ldir_next	dec	bc
+		ld	a,b
+		or	c
+		jr	nz,circular_ldir
+		ret
+
+
+
+delay:		ld	hl,50000
+delay0		ex	(sp),hl
+		ex	(sp),hl
+		dec	hl
+		ld	a,h
+		or	l
+		jr	nz,delay0
+		ret
+
+
+; Input: [DE] = ptr to start of block
+;        [IX] = ptr to end of block (right after end)
+;        [HL] = previous result (or zero), now search for a longer period
+; Output [HL] = period
+
+get_period:	inc	hl
+p_loop:		push	hl
+		push	de
+		call	test_period
+		pop	de
+		pop	hl
+		ret	z
+		inc	hl
+		jr	p_loop
+
+; In: [de] = start
+;     [ix] = end
+;     [hl] = candidate period
+; Out:  Z -> period found
+;      NZ -> period not found
+test_period:	add	hl,hl
+		add	hl,hl
+		add	hl,hl
+		add	hl,de
+t_loop:		ld	a,l
+		cp	ixl
+		jr	nz,test_1
+		ld	a,h
+		cp	ixh
+		ret	z
+test_1:		ld	b,6
+c_loop		ld	a,(de)
+		cp	(hl)
+		ret	nz
+		inc	hl
+		inc	de
+		djnz	c_loop
+		inc	de
+		inc	de
+		inc	hl
+		inc	hl
+		jr	t_loop
+
+
+; Fractional division.
+; Requires that the divisor is strictly bigger than the dividend (BC > HL).
+; In: [HL] Dividend
+;     [BC] Divisor
+; Out: [DE] = fractional part of [HL]/[BC]
+frac_div:	ld	a,b
+		cpl
+		ld	b,a
+		ld	a,c
+		cpl
+		ld	c,a
+		inc	bc	; bc = -divider
+		ld	de,1	; stop after 16 iterations
+fdiv_loop	add	hl,hl	; hl <<= 1
+		add	hl,bc	; hl -= divider
+		jr	c,fdiv1	; hl.prev >= divider
+		sbc	hl,bc	; restore hl (carry flag remains clear)
+fdiv1		rl	e
+		rl	d	; adc de,de
+		jr	nc,fdiv_loop
+		ret
+
+
+; [HL] = mul-high([DE], [BC])
+mul_hi:		ld	hl,0
+		ld	a,16
+mul_loop	srl	d
+		rr	e
+		jr	nc,mul_skip
+		add	hl,bc
+mul_skip	rr	h
+		rr	l
+		dec	a
+		jr	nz,mul_loop
+		ret
+
+
+
+; In: [HL] = current CRC value
+;     [A]  = input byte
+; Out [HL] = updated CRC Value
+crc_byte:	ld	c,a
+		ld	b,8
+crc_l:		add	hl,hl
+		jr	c,crc_1
+crc_0:		rlc	c
+		jr	c,crc_2
+		jr	crc_3
+crc_1:		rlc	c
+		jr	c,crc_3
+crc_2		ld	a,h
+		xor	#10
+		ld	h,a
+		ld	a,l
+		xor	#21
+		ld	l,a
+crc_3:		djnz	crc_l
+		ret
+
+
+
+
+parse_dec	ld	b,0
+		ld	a,(hl)
+parse_dec_loop	inc	hl
+		sub	'0'
+		jp	c,expected_int
+		cp	'9'+1
+		jp	nc,expected_int
+		ld	c,a
+		ld	a,b
+		add	a,a
+		add	a,a
+		add	a,a
+		add	a,b
+		add	a,b	; b*10
+		add	a,c
+		ld	b,a
+		ld	a,(hl)
+		or	a
+		jr	z,parse_dec_end
+		cp	13
+		jr	z,parse_dec_end
+		cp	' '
+		jr	z,parse_dec_end
+		cp	9
+		jr	nz,parse_dec_loop
+parse_dec_end	ld	a,b
+		ret
+
+
+
+print_pc:	pop	hl
+		call	print_str
+		jp	(hl)
+
+print_str:	ld	a,(hl)
+		or	a
+		ret	z
+		ld	ix,#00A2
+		ld	iy,(#fcc0)
+		call	#001c
+		inc	hl
+		jr	print_str
+
+
+print_hex_hl:	ld	a,h
+		call	print_hex_a
+		ld	a,l
+print_hex_a:	ld	b,a
+		rrca
+		rrca
+		rrca
+		rrca
+		call	print_hdig
+		ld	a,b
+print_hdig:	and	#0f
+		cp	10
+		jr	c,prt_1
+		add	a,'A'-'0'-10
+prt_1		add	a,'0'
+		ld	ix,#00A2
+		ld	iy,(#fcc0)
+		jp	#001c
+
+
+print_dec_hl	ld	e,0			; number of non-zero digits
+		ld	a,h
+		or	l
+		jr	z,print_dec_hl_3	; hl==0 -> print at least one 0-digit
+		ld	bc,-10000
+		call	print_dec_hl_1
+		ld	bc,-1000
+		call	print_dec_hl_1
+		ld	bc,-100
+		call	print_dec_hl_1
+		ld	c,-10
+		call	print_dec_hl_1
+		ld	c,-1
+print_dec_hl_1	ld	a,-1
+print_dec_hl_2	inc	a
+		add	hl,bc
+		jr	c,print_dec_hl_2
+		sbc	hl,bc
+		inc	e
+		or	a
+		jr	nz,print_dec_hl_3
+		dec	e
+		ret	z		; skip leading zeros
+print_dec_hl_3	add	a,'0'
+		ld	ix,#00A2
+		ld	iy,(#fcc0)
+		jp	#001c
+
+print_dec_a	ld	e,0
+		or	a
+		jr	z,print_dec_a_3
+		ld	b,100
+		call	print_dec_a_1
+		ld	b,10
+		call	print_dec_a_1
+		ld	b,1
+print_dec_a_1	ld	c,-1
+print_dec_a_2	inc	c
+		sub	b
+		jr	nc,print_dec_a_2
+		add	a,b
+		ld	b,a
+		inc	e
+		ld	a,c
+		or	a
+		jr	nz,print_dec_a_3
+		dec	e
+		jr	z,print_dec_a_4
+print_dec_a_3	add	'0'
+		ld	ix,#00A2
+		ld	iy,(#fcc0)
+		call	#001c
+print_dec_a_4	ld	a,b
+		ret
+
+
+debug_log	push	hl
+		ld	hl,(debug_ptr)
+		ld	(hl),a
+		inc	l
+		ld	(debug_ptr),hl
+		pop	hl
+		ret
+
+
+
+;---
+; Machine specific routines
+;  All these routine are still very much based on a WD2793 FDC. They only
+;  differ in how the WD2793 is connected to the MSX. Each 'driver' needs
+;  to implement 6 routines:
+
+; 1) select
+;  input:
+;   'side' global variable
+;  output: -
+;  description:
+;    Needs to select the disk rom in page 1 (for memory mapped FDCs).
+;    Needs to select correct side, select drive A, turn motor on.
+
+; 2) deselct
+;  input: -
+;  output: -
+;  description:
+;    Called right before program exit. Should e.g. turn drive motor off.
+
+; 3) seek
+;  input: 'cylinder'
+;  output: -
+;  description:
+;   Should seek to the correct cylinder. E.g. by first seeking to track 0
+;   and then seek to the requested cylinder. It's not allowed to use the data
+;   in the track for this seek (e.g. verify the destination track).
+;   TODO in the future we may add a step-in command as well.
+
+; 4) rd_addr
+;  input: -
+;  output:
+;   'addr_buffer' is filled in
+;   [DE] points to end of addr_buffer
+;  description:
+;   Executes 'read address' commands in a loop and put the result in a buffer.
+;   During this loop it keep a counter running and on each successful read
+;   address command, the value of this counter is also stored in the buffer.
+;  return:
+;   on success this routine jumps to 'addr_done'
+;   on error it jumps to 'addr_error'
+
+; 5) rd_track
+;  input: -
+;  output:
+;   'trck_buffer' is filled in
+;   [DE] points to the end of trck_buffer
+;  description:
+;  return:
+;   on success this routine jumps to 'track_end'
+;   on error it jumps to 'track_err' or 'track_too_much'
+
+; 6) rd_sector
+;  input:
+;   [B] = track number (number found in address mark, not physical track number)
+;   [C] = Sector number (found in address mark)
+;   [DE] = pointer to output buffer
+;   [HL] = delay value
+;   'read_speed' global variable
+;  output:
+;   buffer is filled in
+;   [A] = WD2793 status register after command has ended (e.g. contains CRC status)
+;   [DE] = points to end of buffer
+;   [IX] = time between end-of-delay and first-byte-received
+;  description:
+;   Reads the sector with given number in the given buffer. This routine should
+;   wait for the index pulse and then delay for the given amount of time before
+;   actually starting the read sector command
+;  return:
+;   on success this routine jumps to sector_end
+;   on error it jumps to sector_err
+
+driver_routines
+driver_select	dw	0
+driver_deselect	dw	0
+driver_seek	dw	0
+driver_rd_addr	dw	0
+driver_rd_trck	dw	0
+driver_rd_sect	dw	0
+ticks_min	dw	0
+ticks_max	dw	0
+driver_size	equ	$ - driver_routines
+
+driver		dw	phil_driver
+
+;---
+; Philips
+
+phil_status	equ	#7ff8
+phil_command	equ	#7ff8
+phil_track	equ	#7ff9
+phil_sector	equ	#7ffa
+phil_data	equ	#7ffb
+phil_control1	equ	#7ffc
+phil_control2	equ	#7ffd
+phil_stat2	equ	#7fff
+
+phil_driver	dw	phil_select
+		dw	phil_deselect
+		dw	phil_seek
+		dw	phil_rd_addr
+		dw	phil_rd_trck
+		dw	phil_rd_sector
+		dw	13834
+		dw	15290
+
+
+; 1) select
+phil_select	ld	a,(#f348)
+		ld	h,#40
+		call	#0024		; select FDC slot in page 1
+		ld	a,(side)
+		ld	(phil_control1),a
+		ld	a,#c2		; motor on, led on, drive A
+		ld	(phil_control2),a
+		ret
+
+
+; 2) deselct
+phil_deselect	ld	a,3
+		ld	(phil_control2),a
+		ret
+
+
+; 3) seek
+phil_seek
+wait_busy_3	ld	a,(phil_status)
+		and	1
+		jr	nz,wait_busy_3
+
+		ld	a,#0b		; restore, load head
+		ld	(phil_command),a
+		call	delay
+
+wait_busy_4	ld	a,(phil_status)
+		and	1
+		jr	nz,wait_busy_4
+
+		ld	a,(cylinder)
+		ld	(phil_data),a	; track
+		ld	a,#18		; seek
+		ld	(phil_command),a
+		ret
+
+
+; 4) rd_addr
+phil_rd_addr:
+		ld	de,addr_buffer
+		ld	ix,0		; counter
+		ld	hl,phil_stat2	; irq/dtrq
+		ld	bc,phil_data
+
+wait_busy_1	ld	a,(phil_status)
+		and	1
+		jr	nz,wait_busy_1
+
+		ld	a,#d0		; Forced interrupt command
+		ld	(phil_command),a	; otherwise we don't see the index
+		ex	(sp),hl
+		ex	(sp),hl		; needed?
+
+wait_index_a1	ld	a,(phil_status)
+		and	2		; wait till index pulse = 0
+		jr	nz,wait_index_a1
+wait_index_b1	ld	a,(phil_status)
+		and	2		; wait till index pulse = 1
+		jr	z,wait_index_b1
+
+addr_loop	ld	a,#c0
+		ld	(phil_command),a	; read addr
+
+		; Note: the timinig of this loop is important! Don't change
+		; the instructions (e.g. JP->JR) without also changing the
+		; other timing critical routines below.
+addr_wait	inc	ix		; 12 cycles        <-- this subset
+		ld	a,(hl)		;  8               <-- of the loop
+		add	a,a		;  5               <-- takes
+		jp	p,addr_end      ; 11               <-- 47
+		jp	c,addr_wait	; 11               <-- cycles
+		ld	a,(bc)		;  8
+		ld	(de),a		;  8
+		inc	de              ;  7
+		jp	addr_wait       ; 11
+addr_end
+
+		ld	a,(phil_status)
+		and	16
+		jr	nz,addr_error_	; prefer to keep this a short jump
+		ld	a,ixl
+		ld	(de),a
+		inc	de
+		ld	a,ixh
+		ld	(de),a		; store counter
+		inc	de
+		inc	ix
+		inc	ix
+		cp	#c0
+		jp	c,addr_loop
+		jp	addr_done
+
+addr_error_	jp addr_error
+
+
+; 5) rd_track
+phil_rd_trck	ld	de,trck_buffer
+		ld	hl,phil_stat2	; irq/dtrq
+		ld	bc,phil_data
+		ld	ix,0
+		ld	a,#e0		; read track
+		ld	(phil_command),a
+
+track_wait2	ld	a,(hl)
+		add	a,a
+		jp	p,track_err
+		jp	nc,track_first
+		inc	ix
+		ld	a,ixh
+		inc	a
+		jp	nz,track_wait2
+		jp	track_no_start
+
+track_wait	ld	a,(hl)
+		add	a,a
+		jp	p,track_end
+		jp	c,track_wait
+track_first	ld	a,(bc)
+		ld	(de),a
+		inc	de
+		ld	a,d
+		cp	#be
+		jp	c,track_wait
+		jp	track_too_much
+
+
+; 6) rd_sector
+phil_rd_sector
+		ld	a,#d0		; Forced interrupt command
+		ld	(phil_command),a	; otherwise we don't see the index
+		                        ; pulse status bits
+		ld	a,b
+		ld	(phil_track),a
+		ld	a,c
+		ld	(phil_sector),a
+
+		ld	bc,phil_data
+		ld	ix,0
+		ld	a,(read_speed)
+		or	a
+		jr	nz,fast_read_1
+
+wait_index_a2	ld	a,(phil_status)
+		and	2	; wait till index pulse = 0
+		jr	nz,wait_index_a2
+wait_index_b2	ld	a,(phil_status)
+		and	2	; wait till index pulse = 1
+		jr	z,wait_index_b2
+
+		; This loop is tuned for an exact number of Z80 cycles!
+delay_loop	dec	hl		;              7 cycles
+		ld	a,(0)		; dummy read  14 cycles
+		nop			;              5 cycles
+		ld	a,h		;              5
+		or	l		;              5
+		jp	nz,delay_loop	;             11    together 47 cycles
+
+fast_read_1	ld	hl,phil_stat2	; irq/dtrq
+		ld	a,#80		; read sector
+		ld	(phil_command),a
+
+sector_wait1	inc	ix		; count till first byte is received
+		ld	a,(hl)
+		add	a,a
+		jp	p,sector_err	; command stopped before we got 1st byte
+		jp	c,sector_wait1
+		ld	a,(bc)
+		ld	(de),a
+		inc	de
+sector_wait2	ld	a,(hl)
+		add	a,a
+		jp	p,sector_end_
+		jp	c,sector_wait2
+		ld	a,(bc)
+		ld	(de),a
+		inc	de
+		jp	sector_wait2
+
+sector_end_	ld	a,(phil_status)
+		jp	sector_end
+
+
+;---
+; National
+
+natl_status	equ	#7fb8
+natl_command	equ	#7fb8
+natl_track	equ	#7fb9
+natl_sector	equ	#7fba
+natl_data	equ	#7fbb
+natl_control	equ	#7fbc
+natl_stat2	equ	#7fbc
+
+natl_driver	dw	natl_select
+		dw	natl_deselect
+		dw	natl_seek
+		dw	natl_rd_addr
+		dw	natl_rd_trck
+		dw	natl_rd_sector
+		dw	13834
+		dw	15290
+
+
+; 1) select
+natl_select	ld	a,(#f348)
+		ld	h,#40
+		call	#0024		; select FDC slot in page 1
+		ld	a,(side)
+		rlca
+		rlca			; bit 2 = side
+		or	#09		; motor on, drive A
+		ld	(natl_control),a
+		ret
+
+
+; 2) deselct
+natl_deselect	xor	a
+		ld	(natl_control),a
+		ret
+
+
+; 3) seek
+natl_seek
+natl_wait_3	ld	a,(natl_status)
+		and	1
+		jr	nz,natl_wait_3
+
+		ld	a,#0b		; restore, load head
+		ld	(natl_command),a
+		call	delay
+
+natl_wait_4	ld	a,(natl_status)
+		and	1
+		jr	nz,natl_wait_4
+
+		ld	a,(cylinder)
+		ld	(natl_data),a	; track
+		ld	a,#18		; seek
+		ld	(natl_command),a
+		ret
+
+
+; 4) rd_addr
+natl_rd_addr:
+		ld	de,addr_buffer
+		ld	ix,0		; counter
+		ld	hl,natl_stat2	; irq/dtrq
+		ld	bc,natl_data
+
+natl_busy_1	ld	a,(natl_status)
+		and	1
+		jr	nz,natl_busy_1
+
+		ld	a,#d0		; Forced interrupt command
+		ld	(natl_command),a	; otherwise we don't see the index
+		ex	(sp),hl
+		ex	(sp),hl		; needed?
+
+natl_index_a1	ld	a,(natl_status)
+		and	2		; wait till index pulse = 0
+		jr	nz,natl_index_a1
+natl_index_b1	ld	a,(natl_status)
+		and	2		; wait till index pulse = 1
+		jr	z,natl_index_b1
+
+natl_addr_loop	ld	a,#c0
+		ld	(natl_command),a	; read addr
+
+		; Note: the timinig of this loop is important! Don't change
+		; the instructions (e.g. JP->JR) without also changing the
+		; other timing critical routines below.
+natl_addr_wait	inc	ix		; 12 cycles        <-- this subset
+		ld	a,(hl)		;  8               <-- of the loop
+		add	a,a		;  5               <-- takes
+		jp	c,natl_addr_end	; 11               <-- 47
+		jp	m,natl_addr_wait; 11               <-- cycles
+		ld	a,(bc)		;  8
+		ld	(de),a		;  8
+		inc	de              ;  7
+		jp	natl_addr_wait	; 11
+natl_addr_end
+
+		ld	a,(natl_status)
+		and	16
+		jr	nz,natl_addr_err	; prefer to keep this a short jump
+		ld	a,ixl
+		ld	(de),a
+		inc	de
+		ld	a,ixh
+		ld	(de),a		; store counter
+		inc	de
+		inc	ix
+		inc	ix
+		cp	#c0
+		jp	c,natl_addr_loop
+		jp	addr_done
+
+natl_addr_err	jp addr_error
+
+
+; 5) rd_track
+natl_rd_trck	ld	de,trck_buffer
+		ld	hl,natl_stat2	; irq/dtrq
+		ld	bc,natl_data
+		ld	ix,0
+		ld	a,#e0		; read track
+		ld	(natl_command),a
+
+natl_trk_wt2	ld	a,(hl)
+		add	a,a
+		jp	c,track_err
+		jp	p,natl_trk_first
+		inc	ix
+		ld	a,ixh
+		inc	a
+		jp	nz,natl_trk_wt2
+		jp	track_no_start
+
+natl_trk_wait	ld	a,(hl)
+		add	a,a
+		jp	c,track_end
+		jp	m,natl_trk_wait
+natl_trk_first	ld	a,(bc)
+		ld	(de),a
+		inc	de
+		ld	a,d
+		cp	#be
+		jp	c,natl_trk_wait
+		jp	track_too_much
+
+
+; 6) rd_sector
+natl_rd_sector
+		ld	a,#d0		; Forced interrupt command
+		ld	(natl_command),a	; otherwise we don't see the index
+		                        ; pulse status bits
+		ld	a,b
+		ld	(natl_track),a
+		ld	a,c
+		ld	(natl_sector),a
+
+		ld	bc,natl_data
+		ld	ix,0
+		ld	a,(read_speed)
+		or	a
+		jr	nz,natl_fast_read
+
+natl_index_a2	ld	a,(natl_status)
+		and	2	; wait till index pulse = 0
+		jr	nz,natl_index_a2
+natl_index_b2	ld	a,(natl_status)
+		and	2	; wait till index pulse = 1
+		jr	z,natl_index_b2
+
+		; This loop is tuned for an exact number of Z80 cycles!
+natl_delay	dec	hl		;              7 cycles
+		ld	a,(0)		; dummy read  14 cycles
+		nop			;              5 cycles
+		ld	a,h		;              5
+		or	l		;              5
+		jp	nz,natl_delay	;             11    together 47 cycles
+
+natl_fast_read	ld	hl,natl_stat2	; irq/dtrq
+		ld	a,#80		; read sector
+		ld	(natl_command),a
+
+natl_sect_wt1	inc	ix		; count till first byte is received
+		ld	a,(hl)
+		add	a,a
+		jp	c,sector_err	; command stopped before we got 1st byte
+		jp	m,natl_sect_wt1
+		ld	a,(bc)
+		ld	(de),a
+		inc	de
+natl_sect_wt2	ld	a,(hl)
+		add	a,a
+		jp	c,natl_sect_end
+		jp	m,natl_sect_wt2
+		ld	a,(bc)
+		ld	(de),a
+		inc	de
+		jp	natl_sect_wt2
+
+natl_sect_end	ld	a,(natl_status)
+		jp	sector_end
+
+;---
+; Microsol
+
+mics_status	equ	#d0
+mics_command	equ	#d0
+mics_track	equ	#d1
+mics_sector	equ	#d2
+mics_data	equ	#d3
+mics_control	equ	#d4
+mics_stat2	equ	#d4
+
+mics_driver	dw	mics_select
+		dw	mics_deselect
+		dw	mics_seek
+		dw	mics_rd_addr
+		dw	mics_rd_trck
+		dw	mics_rd_sector
+		dw	14135
+		dw	15622
+
+
+; 1) select
+mics_select	ld	a,(side)
+		rlca
+		rlca
+		rlca
+		rlca			; bit 4 = side
+		or	#21		; bit 5 = motor, bit 0 = drive A
+		out	(mics_control),a
+		ret
+
+
+; 2) deselct
+mics_deselect	xor	a		; no drive selected, motor off
+		out	(mics_control),a
+		ret
+
+
+; 3) seek
+mics_seek
+mics_busy_3	in	a,(mics_status)
+		and	1
+		jr	nz,mics_busy_3
+
+		ld	a,#0b		; restore, load head
+		out	(mics_command),a
+		call	delay
+
+mics_busy_4	in	a,(mics_status)
+		and	1
+		jr	nz,mics_busy_4
+
+		ld	a,(cylinder)
+		out	(mics_data),a	; track
+		ld	a,#18		; seek
+		out	(mics_command),a
+		ret
+
+
+; 4) rd_addr
+mics_rd_addr:
+		ld	de,addr_buffer
+		ld	hl,0		; counter
+
+mics_busy_1	in	a,(mics_status)
+		and	1
+		jr	nz,mics_busy_1
+
+		ld	a,#d0		; Forced interrupt command
+		out	(mics_command),a	; otherwise we don't see the index
+		ex	(sp),hl
+		ex	(sp),hl		; needed?
+
+mics_index_a1	in	a,(mics_status)
+		and	2		; wait till index pulse = 0
+		jr	nz,mics_index_a1
+mics_index_b1	in	a,(mics_status)
+		and	2		; wait till index pulse = 1
+		jr	z,mics_index_b1
+
+mics_addr_loop	ld	a,#c0			; read addr
+		out	(mics_command),a
+
+		; Note: the timinig of this loop is important! Don't change
+		; the instructions (e.g. JP->JR) without also changing the
+		; other timing critical routines below.
+mics_addr_wait	inc	hl			;  7 cycles   <-- this
+		in	a,(mics_stat2)		; 12          <-- takes
+		add	a,a			;  5          <-- 46
+		jp	c,mics_addr_end		; 11          <-- cycles
+		jp	m,mics_addr_wait	; 11          <--
+		in	a,(mics_data)		; 12
+		ld	(de),a			;  8
+		inc	de			;  7
+		jp	mics_addr_wait		; 11
+mics_addr_end
+
+		in	a,(mics_status)
+		and	16			; record not found
+		jr	nz,mics_addr_err	; prefer to keep this a short jump
+		ld	a,l
+		ld	(de),a
+		inc	de
+		ld	a,h
+		ld	(de),a		; store counter
+		inc	de
+		inc	hl
+		inc	hl
+		cp	#c0
+		jp	c,mics_addr_loop
+		jp	addr_done
+
+mics_addr_err	jp addr_error
+
+
+; 5) rd_track
+mics_rd_trck	ld	de,trck_buffer
+		ld	hl,0
+		ld	a,#e0		; read track
+		out	(mics_command),a
+
+mics_trk_wait2	in	a,(mics_stat2)
+		add	a,a
+		jp	c,track_err
+		jp	p,mics_trk_first
+		inc	hl
+		ld	a,h
+		inc	a
+		jp	nz,mics_trk_wait2
+		jp	track_no_start
+
+mics_trk_wait	in	a,(mics_stat2)
+		add	a,a
+		jp	c,track_end
+		jp	m,mics_trk_wait
+mics_trk_first	in	a,(mics_data)
+		ld	(de),a
+		inc	de
+		ld	a,d
+		cp	#be
+		jp	c,mics_trk_wait
+		jp	track_too_much
+
+
+; 6) rd_sector
+mics_rd_sector
+		ld	a,#d0		; Forced interrupt command
+		out	(mics_command),a	; otherwise we don't see the index
+		                        ; pulse status bits
+		ld	a,b
+		out	(mics_track),a
+		ld	a,c
+		out	(mics_sector),a
+
+		ld	ix,0
+		ld	a,(read_speed)
+		or	a
+		jr	nz,mics_fast_1
+
+mics_index_a2	in	a,(mics_status)
+		and	2	; wait till index pulse = 0
+		jr	nz,mics_index_a2
+mics_index_b2	in	a,(mics_status)
+		and	2	; wait till index pulse = 1
+		jr	z,mics_index_b2
+
+		; This loop is tuned for an exact number of Z80 cycles!
+mics_delay	dec	hl		;  7 cycles
+		cp	0		;  8 (dummy compare)
+		nop			;  5
+		nop			;  5
+		ld	a,h		;  5
+		or	l		;  5
+		jp	nz,mics_delay	; 11  together 46 cycles
+
+mics_fast_1	ld	a,#80		; read sector
+		out	(mics_command),a
+
+mics_sctr_wt1	inc	ix		; count till first byte is received
+		in	a,(mics_stat2)
+		add	a,a
+		jp	c,sector_err	; command stopped before we got 1st byte
+		jp	m,mics_sctr_wt1
+		in	a,(mics_data)
+		ld	(de),a
+		inc	de
+mics_sctr_wt2	in	a,(mics_stat2)
+		add	a,a
+		jp	c,mics_sctr_end
+		jp	m,mics_sctr_wt2
+		in	a,(mics_data)
+		ld	(de),a
+		inc	de
+		jp	mics_sctr_wt2
+
+mics_sctr_end	in	a,(mics_status)
+		jp	sector_end
+
+; -----
+
+
+
+
+ofst_tab:	dw	-6,-7,-5,-8,-4,-9,-3,-10,-2,-11,-1,-12,0,
+                dw	-13,1,-14,2,-15,3,-16,4,-17,5,-18,6,-19,7
+		dw	-20,8,-21,9,-22,10,-23,11,-24,12,-25,13,-26
+		dw	14,-27,15,-28,16,-29,17,-30,18,-31,29,-32
+		dw	20,-33,21,-34,22,-35,23,-36,24,-37,25,-38
+		dw	26,-39,27,-40,28,-41,29,-42,30,-43,31,-44
+		dw	#8080
+addr_mark	db	#A1,#A1,#A1,#FE
+
+debug		db	0
+start_track	db	0	; initial value matters
+stop_track	db	81	; by default we try 2 extra cylinders
+stop_set	db	0
+
+
+
+fcb		db	2		; drive B
+		db	"DMK-TT-S"	; filename
+		db	"DAT"		; extension
+		ds	37-12
+fcb_debug	db	2		; drive B
+		db	"DEBUG   "	; filename
+		db	"DAT"		; extension
+		ds	37-12
+
+
+
+
+; struct Addr_Mark
+;   byte C
+;   byte H
+;   byte R
+;   byte N
+;   word CRC
+;   word ticks
+sizeof_amark	equ	8
+ofst_amark_C	equ	0
+ofst_amark_H	equ	1
+ofst_amark_R	equ	2
+ofst_amark_N	equ	3
+ofst_amark_CRC	equ	4
+ofst_amark_tick	equ	6
+
+
+; struct Offset_Info
+;   word address_mark_offset
+;   word data_mark_offset
+;   byte data_mark_type
+;   byte read_sector_status
+;   word sector_size
+sizeof_offinfo	equ	10
+ofst_oi_addr	equ	0
+ofst_oi_data	equ	2
+ofst_oi_type	equ	4
+ofst_oi_status	equ	5
+ofst_oi_size	equ	6
+ofst_oi_ptr	equ	8
+
+
+sizeof_off_buf	equ	64 * sizeof_offinfo
+sizeof_dmk_h	equ	128
+
+
+cylinder	equ	#8000		; db	0     0
+side		equ	cylinder+ 1	; db	0     1
+retries		equ	side+1		; db	0     2
+nb_sectors	equ	retries+1	; dw	0     3
+track_len	equ	nb_sectors+2	; dw	0     5
+track_stop	equ	track_len+2	; dw	0     7
+ticks		equ	track_stop+2	; dw	0     9
+ratio		equ	ticks+2		; dw	0    11
+
+crc_retries	equ	ratio+2		; db	0    13
+adjust_ofst	equ	crc_retries+1	; dw	0    14
+adjust_scale	equ	adjust_ofst+2	; dw	0    16
+sector_cntr	equ	adjust_scale+2	; db	0    18
+sector_stop	equ	sector_cntr+1	; dw	0    19
+addr_buf_ptr	equ	sector_stop+2	; dw	0    21
+ofst_buf_ptr	equ	addr_buf_ptr+2	; dw	0    23
+dmk_ptr		equ	ofst_buf_ptr+2	; dw	0    25
+addr_estimate	equ	dmk_ptr+2	; dw	0    27
+read_speed	equ	addr_estimate+2	; db	0    29
+sector_buf_ptr	equ	read_speed+1	; dw	0    30
+crc_status	equ	sector_buf_ptr+2; db	0    32
+debug_ptr	equ	crc_status+1	; dw	0    33
+sector_size	equ	debug_ptr+2	; dw	0    35
+addr_buf_end	equ	sector_size+2	; dw	0    37
+addr_retries	equ	addr_buf_end+2	; db	0    39
+
+addr_buffer	equ	#8100
+offset_buffer	equ	addr_buffer+64*sizeof_amark	; can overlap part of addr_buffer
+dmk_header	equ	offset_buffer+sizeof_off_buf
+trck_buffer	equ	dmk_header+sizeof_dmk_h
+sector_buffer	equ	trck_buffer+#1A00	; overlaps 2nd copy of track``
+unique_buffer	equ	#BE00		; possibly overlaps sector buffer (that's OK)
+                                        ; must start at a 256-byte boundary
+debug_buffer	equ	#BF00		; must be 256-bytes aligned
+
+
