@@ -80,7 +80,7 @@ void RGBTriplet3xScaler<Pixel>::scaleLine(
 	if (scale.isCopy()) {
 		rgbify(srcLine, dstLine, tmpWidth);
 	} else {
-		VLA_ALIGNED(Pixel, tmp, tmpWidth, 16);
+		VLA_SSE_ALIGNED(Pixel, tmp, tmpWidth);
 		scale(srcLine, tmp, tmpWidth);
 		rgbify(tmp, dstLine, tmpWidth);
 	}
@@ -129,7 +129,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-	VLA_ALIGNED(Pixel, buf, dstWidth, 16);
+	VLA_SSE_ALIGNED(Pixel, buf, dstWidth);
 	scaleLine(srcLine, buf, scale, tmpWidth);
 	Pixel* dstLine2 = dst.acquireLine(y + 2);
 	scanline.draw(dstLine0, buf, dstLine2, scanlineFactor, dstWidth);

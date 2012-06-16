@@ -107,8 +107,8 @@ static void doScaleDV(FrameSource& src,
 {
 	BlendLines<Pixel> blend(ops);
 	unsigned dstWidth = dst.getWidth();
-	VLA_ALIGNED(Pixel, buf0, dstWidth, 16);
-	VLA_ALIGNED(Pixel, buf1, dstWidth, 16);
+	VLA_SSE_ALIGNED(Pixel, buf0, dstWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1, dstWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
 		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
