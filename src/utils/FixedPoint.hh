@@ -59,6 +59,10 @@ public:
 	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {}
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {}
 
+	static FixedPoint roundRatioDown(unsigned n, unsigned d) {
+		return create(static_cast<unsigned long long>(n << FRACTION_BITS) / d);
+	}
+
 	static inline int shiftHelper(int x, int s) {
 		return (s >= 0) ? (x >> s) : (x << -s);
 	}
@@ -216,7 +220,7 @@ public:
 
 	// Should only be used by other instances of this class
 	//  templatized friend declarations are not possible in c++
-	int getRawValue() {
+	int getRawValue() const {
 		return value;
 	}
 

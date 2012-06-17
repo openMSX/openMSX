@@ -35,7 +35,7 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	: input(input_)
 	, hostClock(hostClock_)
 	, emuClock(hostClock.getTime(), emuSampleRate)
-	, step(double(emuSampleRate) / hostClock.getFreq())
+	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
 {
 	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
 		lastInput[j] = 0;

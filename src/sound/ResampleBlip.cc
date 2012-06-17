@@ -18,7 +18,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(
 	: input(input_)
 	, hostClock(hostClock_)
 	, emuClock(hostClock.getTime(), emuSampleRate)
-	, step(double(hostClock.getFreq()) / emuSampleRate)
+	, step(FP::roundRatioDown(hostClock.getFreq(), emuSampleRate))
 {
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 		lastInput[ch] = 0;
