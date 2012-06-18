@@ -60,7 +60,7 @@ public:
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {}
 
 	static FixedPoint roundRatioDown(unsigned n, unsigned d) {
-		return create(static_cast<unsigned long long>(n << FRACTION_BITS) / d);
+		return create((static_cast<unsigned long long>(n) << FRACTION_BITS) / d);
 	}
 
 	static inline int shiftHelper(int x, int s) {
