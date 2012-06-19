@@ -529,7 +529,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DirectXSoundDriver.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyAudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\DummyY8950KeyboardDevice.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\sound\generateYM2413OkazakiTable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\EmuTimer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\KeyClick.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\Mixer.cc" />
