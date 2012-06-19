@@ -7,6 +7,7 @@
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "MemBuffer.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
@@ -68,9 +69,17 @@ const unsigned SRCH_TIMING[4][3][4] = {
 };
 
 
+// Lazily initialized LUT to speed up logical operations:
+//  - 1st index is the mode: 2,4,8 bpp or 'not-transparent'
+//  - 2nd index is the logical operation: one of the 16 possible binary functions
+// * Each entry contains a 256x256 byte array, that array is indexed using
+//   destination and source byte (in that order).
+// * A fully populated logOpLUT would take 4MB, however the vast majority of
+//   this table is (almost) never used. So we save quite some memory (and
+//   startup time) by lazily initializing this table.
+static MemBuffer<byte> logOpLUT[4][16];
+static byte bitLUT[8][16][2][2]; // to speedup calculating logOpLUT
 
-static byte bitLUT[8][16][2][2];
-static byte logOpLUT[4][16][0x100][0x100]; // 4MB !!  optimize if needed
 enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
 enum CommandMode { CMD_P1, CMD_P2, CMD_BPP2, CMD_BPP4, CMD_BPP8, CMD_BPP16 };
 
@@ -206,15 +215,29 @@ static void fillTable8(unsigned op, byte* table)
 	}
 }
 
-static void initTabs()
+static const byte* getLogOpImpl(unsigned mode, unsigned op)
 {
-	initBitTab();
-	for (int op = 0; op < 0x10; ++op) {
-		fillTableNoT(op, &logOpLUT[LOG_NO_T][op][0][0]);
-		fillTable2  (op, &logOpLUT[LOG_BPP2][op][0][0]);
-		fillTable4  (op, &logOpLUT[LOG_BPP4][op][0][0]);
-		fillTable8  (op, &logOpLUT[LOG_BPP8][op][0][0]);
+	op &= 0x0f;
+	if (!logOpLUT[mode][op].data()) {
+		logOpLUT[mode][op].resize(256 * 256);
+		switch (mode) {
+		case LOG_NO_T:
+			fillTableNoT(op, logOpLUT[mode][op].data());
+			break;
+		case LOG_BPP2:
+			fillTable2  (op, logOpLUT[mode][op].data());
+			break;
+		case LOG_BPP4:
+			fillTable4  (op, logOpLUT[mode][op].data());
+			break;
+		case LOG_BPP8:
+			fillTable8  (op, logOpLUT[mode][op].data());
+			break;
+		default:
+			UNREACHABLE;
+		}
 	}
+	return logOpLUT[mode][op].data();
 }
 
 
@@ -258,7 +281,7 @@ inline byte V9990CmdEngine::V9990P1::shiftMask(unsigned x)
 
 inline const byte* V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
 {
-	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990P1::logOp(
@@ -326,7 +349,7 @@ inline byte V9990CmdEngine::V9990P2::shiftMask(unsigned x)
 
 inline const byte* V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
 {
-	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990P2::logOp(
@@ -394,7 +417,7 @@ inline byte V9990CmdEngine::V9990Bpp2::shiftMask(unsigned x)
 
 inline const byte* V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
 {
-	return &logOpLUT[(op & 0x10) ? LOG_BPP2 : LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl((op & 0x10) ? LOG_BPP2 : LOG_NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp2::logOp(
@@ -462,7 +485,7 @@ inline byte V9990CmdEngine::V9990Bpp4::shiftMask(unsigned x)
 
 inline const byte* V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
 {
-	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl((op & 0x10) ? LOG_BPP4 : LOG_NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp4::logOp(
@@ -529,7 +552,7 @@ inline byte V9990CmdEngine::V9990Bpp8::shiftMask(unsigned /*x*/)
 
 inline const byte* V9990CmdEngine::V9990Bpp8::getLogOpLUT(byte op)
 {
-	return &logOpLUT[(op & 0x10) ? LOG_BPP8 : LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl((op & 0x10) ? LOG_BPP8 : LOG_NO_T, op);
 }
 
 inline byte V9990CmdEngine::V9990Bpp8::logOp(
@@ -598,7 +621,7 @@ inline word V9990CmdEngine::V9990Bpp16::shiftMask(unsigned /*x*/)
 
 inline const byte* V9990CmdEngine::V9990Bpp16::getLogOpLUT(byte op)
 {
-	return &logOpLUT[LOG_NO_T][op & 0xF][0][0];
+	return getLogOpImpl(LOG_NO_T, op);
 }
 
 inline word V9990CmdEngine::V9990Bpp16::logOp(
@@ -653,7 +676,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time,
 	++info.counter;
 	cmdTraceSetting = reinterpret_cast<BooleanSetting*>(info.stuff);
 
-	initTabs();
+	initBitTab();
 
 	CmdSTOP* stopCmd = new CmdSTOP(*this, vdp.getVRAM());
 	for (int mode = 0; mode < 6; ++mode) {
