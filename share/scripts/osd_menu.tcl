@@ -992,7 +992,7 @@ proc menu_select_disk {item} {
 }
 
 proc menu_create_tape_list {path} {
-	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas,wav,gz"]] \
+	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas,wav,zip,gz"]] \
 	                          10 \
 	                          { execute menu_select_tape
 	                            font-size 8
