@@ -10,10 +10,13 @@
 namespace openmsx {
 namespace YM2413Okazaki {
 
+// Constants (shared between this class and table generator)
+#include "YM2413OkazakiConfig.hh"
+
 class YM2413;
 
-typedef FixedPoint<8> PhaseModulation;
-typedef FixedPoint<15> EnvPhaseIndex;
+typedef FixedPoint<PM_FP_BITS> PhaseModulation;
+typedef FixedPoint<EP_FP_BITS> EnvPhaseIndex;
 
 enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
@@ -103,7 +106,7 @@ public:
 	// for Envelope Generator (EG)
 	unsigned volume;	// Current volume
 	unsigned tll;		// Total Level + Key scale level
-	EnvPhaseIndex* dphaseDRTableRks;
+	int* dphaseDRTableRks;  // (converted to EnvPhaseIndex)
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount

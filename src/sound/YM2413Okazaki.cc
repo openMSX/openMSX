@@ -10,162 +10,29 @@
 #include "serialize.hh"
 #include "inline.hh"
 #include "unreachable.hh"
-#include <algorithm>
-#include <cmath>
 #include <cstring>
 #include <cassert>
 
 namespace openmsx {
-
 namespace YM2413Okazaki {
 
-// Dynamic range (Accuracy of sin table)
-static const int DB_BITS = 8;
-static const int DB_MUTE = 1 << DB_BITS;
+// This defines the tables:
+//  - int pmtable[PM_PG_WIDTH]
+//  - int dB2LinTab[DBTABLEN * 2]
+//  - unsigned AR_ADJUST_TABLE[1 << EG_BITS]
+//  - unsigned tllTable[16 * 8][4]
+//  - unsigned* waveform[2]
+//  - int dphaseDRTable[16][16]
+//  - byte lfo_am_table[LFO_AM_TAB_ELEMENTS]
+//  - int SL[16]
+#include "YM2413OkazakiTable.ii"
 
-static const double DB_STEP = 48.0 / DB_MUTE;
-static const double EG_STEP = 0.375;
-static const double TL_STEP = 0.75;
 
-// PM speed(Hz) and depth(cent)
-static const double PM_SPEED = 6.4;
-static const double PM_DEPTH = 13.75;
-
-// Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
-static const int PG_BITS = 9;
-static const int PG_WIDTH = 1 << PG_BITS;
-static const int PG_MASK = PG_WIDTH - 1;
-
-// Phase increment counter
-static const int DP_BITS = 18;
-static const int DP_BASE_BITS = DP_BITS - PG_BITS;
-
-// Dynamic range of envelope
-static const int EG_BITS = 7;
-
-// Bits for liner value
-static const int DB2LIN_AMP_BITS = 8;
-static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
-
-// Bits for Pitch and Amp modulator
-static const int PM_PG_BITS = 8;
-static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
-static const int PM_DP_BITS = 16;
-static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
-static const int PM_DP_MASK = PM_DP_WIDTH - 1;
-static const int AM_PG_BITS = 8;
-static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
-static const int AM_DP_BITS = 16;
-static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
-static const int AM_DP_MASK = AM_DP_WIDTH - 1;
-
-// dB to linear table (used by Slot)
-static const int DBTABLEN = 3 * DB_MUTE; // enough to not have to check for overflow
-// indices in range:
-//   [0,        DB_MUTE )    actual values, from max to min
-//   [DB_MUTE,  DBTABLEN)    filled with min val (to allow some overflow in index)
-//   [DBTABLEN, 2*DBTABLEN)  as above but for negative output values
-static int dB2LinTab[DBTABLEN * 2];
-
-// WaveTable for each envelope amp
-//  values are in range [0, DB_MUTE)             (for positive values)
-//                  or  [0, DB_MUTE) + DBTABLEN  (for negative values)
-static unsigned fullsintable[PG_WIDTH];
-static unsigned halfsintable[PG_WIDTH];
-static unsigned* waveform[2] = {fullsintable, halfsintable};
-
-// LFO Table
-static PhaseModulation pmtable[PM_PG_WIDTH];
-
-// LFO Amplitude Modulation table (verified on real YM3812)
-// 27 output levels (triangle waveform);
-// 1 level takes one of: 192, 256 or 448 samples
-//
-// Length: 210 elements.
-//  Each of the elements has to be repeated
-//  exactly 64 times (on 64 consecutive samples).
-//  The whole table takes: 64 * 210 = 13440 samples.
-//
-// Verified on real YM3812 (OPL2), but I believe it's the same for YM2413
-// because it closely matches the YM2413 AM parameters:
-//    speed = 3.7Hz
-//    depth = 4.875dB
-// Also this approch can be easily implemented in HW, the previous one (see SVN
-// history) could not.
-static const unsigned LFO_AM_TAB_ELEMENTS = 210;
-static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
-{
-	0,0,0,0,0,0,0,
-	1,1,1,1,
-	2,2,2,2,
-	3,3,3,3,
-	4,4,4,4,
-	5,5,5,5,
-	6,6,6,6,
-	7,7,7,7,
-	8,8,8,8,
-	9,9,9,9,
-	10,10,10,10,
-	11,11,11,11,
-	12,12,12,12,
-	13,13,13,13,
-	14,14,14,14,
-	15,15,15,15,
-	16,16,16,16,
-	17,17,17,17,
-	18,18,18,18,
-	19,19,19,19,
-	20,20,20,20,
-	21,21,21,21,
-	22,22,22,22,
-	23,23,23,23,
-	24,24,24,24,
-	25,25,25,25,
-	26,26,26,
-	25,25,25,25,
-	24,24,24,24,
-	23,23,23,23,
-	22,22,22,22,
-	21,21,21,21,
-	20,20,20,20,
-	19,19,19,19,
-	18,18,18,18,
-	17,17,17,17,
-	16,16,16,16,
-	15,15,15,15,
-	14,14,14,14,
-	13,13,13,13,
-	12,12,12,12,
-	11,11,11,11,
-	10,10,10,10,
-	9,9,9,9,
-	8,8,8,8,
-	7,7,7,7,
-	6,6,6,6,
-	5,5,5,5,
-	4,4,4,4,
-	3,3,3,3,
-	2,2,2,2,
-	1,1,1,1
-};
-
-// Noise and LFO
+// Extra (derived) constants
 static unsigned PM_DPHASE =
 	unsigned(PM_SPEED * PM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
-
-// Liner to Log curve conversion table (for Attack rate).
-static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
-
-// Phase incr table for attack, decay and release
-//  note: original code had indices swapped. It also had
-//        a separate table for attack.
-static EnvPhaseIndex dphaseDRTable[16][16];
-
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
-
-// KSL + TL Table   values are in range [0, 112)
-static unsigned tllTable[16 * 8][4];
 
 
 //
@@ -175,11 +42,11 @@ static inline int EG2DB(int d)
 {
 	return d * int(EG_STEP / DB_STEP);
 }
-
 static inline int TL2EG(int d)
 {
 	return d * int(TL_STEP / EG_STEP);
 }
+
 static inline unsigned DB_POS(double x)
 {
 	int result = int(x / DB_STEP);
@@ -196,121 +63,6 @@ static inline bool BIT(unsigned s, unsigned b)
 {
 	return (s >> b) & 1;
 }
-
-
-//
-// Create tables
-//
-
-// Table for AR to LogCurve.
-static void makeAdjustTable()
-{
-	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
-	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = unsigned(double(1 << EG_BITS) - 1 -
-		         ((1 << EG_BITS) - 1) * ::log(double(i)) / ::log(127.0));
-	}
-}
-
-// Table for dB(0 .. DB_MUTE-1) to lin(0 .. DB2LIN_AMP_WIDTH)
-static void makeDB2LinTable()
-{
-	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
-		                   pow(10, -double(i) * DB_STEP / 20));
-	}
-	dB2LinTab[DB_MUTE - 1] = 0;
-	for (int i = DB_MUTE; i < DBTABLEN; ++i) {
-		dB2LinTab[i] = 0;
-	}
-	for (int i = 0; i < DBTABLEN; ++i) {
-		dB2LinTab[i + DBTABLEN] = -dB2LinTab[i];
-	}
-}
-
-// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
-static int lin2db(double d)
-{
-	return (d == 0)
-		? DB_MUTE - 1
-		: std::min(-int(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
-}
-
-// Sin Table
-static void makeSinTable()
-{
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		fullsintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
-	}
-	for (int i = 0; i < PG_WIDTH / 4; ++i) {
-		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
-	}
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		fullsintable[PG_WIDTH / 2 + i] = DBTABLEN + fullsintable[i];
-	}
-
-	for (int i = 0; i < PG_WIDTH / 2; ++i) {
-		halfsintable[i] = fullsintable[i];
-	}
-	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
-		halfsintable[i] = fullsintable[0];
-	}
-}
-
-/**
- * Sawtooth function with amplitude 1 and period 1.
- */
-static inline double saw(double phase)
-{
-	if (phase < 0.25) {
-		return phase * 4.0;
-	} else if (phase < 0.75) {
-		return 2.0 - (phase * 4.0);
-	} else {
-		return -4.0 + (phase * 4.0);
-	}
-}
-
-// Table for Pitch Modulator
-static void makePmTable()
-{
-	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		 pmtable[i] = PhaseModulation(pow(
-			2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH))));
-	}
-}
-
-static void makeTllTable()
-{
-	// Processed version of Table III-5 from the Application Manual.
-	static const unsigned kltable[16] = {
-		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
-	};
-
-	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
-		unsigned fnum = freq & 15;
-		unsigned block = freq / 16;
-		int tmp = 2 * kltable[fnum] - 16 * (7 - block);
-		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
-		}
-	}
-}
-
-// Rate Table for Decay
-static void makeDphaseDRTable()
-{
-	for (unsigned Rks = 0; Rks < 16; ++Rks) {
-		dphaseDRTable[Rks][0] = EnvPhaseIndex(0);
-		for (unsigned DR = 1; DR < 16; ++DR) {
-			unsigned RM = std::min(DR + (Rks >> 2), 15u);
-			unsigned RL = Rks & 3;
-			dphaseDRTable[Rks][DR] =
-				EnvPhaseIndex(RL + 4) >> (16 - RM);
-		}
-	}
-}
-
 
 //
 // Patch
@@ -428,19 +180,20 @@ void Slot::updateEG()
 		// table in the ym2413 application manual (table III-7, page
 		// 13). For other chips like OPL1, OPL3 this ratio seems to be
 		// different.
-		eg_dphase = dphaseDRTableRks[patch.AR] * 12;
+		eg_dphase = EnvPhaseIndex::create(
+			dphaseDRTableRks[patch.AR] * 12);
 		break;
 	case DECAY:
-		eg_dphase = dphaseDRTableRks[patch.DR];
+		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[patch.DR]);
 		break;
 	case SUSTAIN:
-		eg_dphase = dphaseDRTableRks[patch.RR];
+		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[patch.RR]);
 		break;
 	case RELEASE: {
 		unsigned idx = sustain ? 5
 		                       : (patch.EG ? patch.RR
 		                                   : 7);
-		eg_dphase = dphaseDRTableRks[idx];
+		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[idx]);
 		break;
 	}
 	case SETTLE:
@@ -457,7 +210,7 @@ void Slot::updateEG()
 		// state). Experiments showed that the with key-scaling the
 		// output matches closer the real HW. Also all other states use
 		// key-scaling.
-		eg_dphase = dphaseDRTableRks[12];
+		eg_dphase = EnvPhaseIndex::create(dphaseDRTableRks[12]);
 		break;
 	case SUSHOLD:
 	case FINISH:
@@ -475,15 +228,6 @@ void Slot::updateAll(unsigned freq, bool actAsCarrier)
 	updateEG(); // EG should be updated last
 }
 
-#define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
-static const EnvPhaseIndex SL[16] = {
-	S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
-	S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
-	S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
-	S2E(36.0), S2E(39.0), S2E(42.0), S2E(48.0)
-};
-#undef S2E
-
 void Slot::setEnvelopeState(EnvelopeState state_)
 {
 	state = state_;
@@ -492,7 +236,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 		eg_phase_max = (patch.AR == 15) ? EnvPhaseIndex(0) : EG_DP_MAX;
 		break;
 	case DECAY:
-		eg_phase_max = SL[patch.SL];
+		eg_phase_max = EnvPhaseIndex::create(SL[patch.SL]);
 		break;
 	case SUSHOLD:
 		eg_phase_max = EG_DP_INF;
@@ -667,12 +411,6 @@ YM2413::YM2413()
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier(inst_data[i]);
 	}
-	makePmTable();
-	makeDB2LinTable();
-	makeAdjustTable();
-	makeTllTable();
-	makeSinTable();
-	makeDphaseDRTable();
 
 	reset();
 }
@@ -1061,7 +799,8 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 		PhaseModulation lfo_pm;
 		if (HAS_CAR_PM || HAS_MOD_PM) {
 			tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
-			lfo_pm = pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+			lfo_pm = PhaseModulation::create(
+				pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)]);
 		}
 		int lfo_am = 0; // avoid warning
 		if (HAS_CAR_AM || HAS_MOD_AM) {

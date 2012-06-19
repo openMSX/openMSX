@@ -32,7 +32,9 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	SoundDriver \
 	ResampleAlgo \
+	BlipConfig \
 	YM2413Core \
+	YM2413OkazakiConfig \
 	DummyAY8910Periphery
 
 SRC_HDR_$(COMPONENT_AO)+= \
@@ -40,8 +42,12 @@ SRC_HDR_$(COMPONENT_AO)+= \
 
 DIST:= \
 	ResampleCoeffs.ii \
+	BlipTable.ii \
+	YM2413OkazakiTable.ii \
 	ResampleHQ-x64.asm \
-	ResampleHQ-x86.asm
+	ResampleHQ-x86.asm \
+	generateBlipTable.cc \
+	generateYM2413OkazakiTable.cc \
 
 #TODO
 #TEST:= YM2413Test
