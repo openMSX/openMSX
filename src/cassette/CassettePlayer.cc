@@ -108,7 +108,7 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, autoRunSetting(new BooleanSetting(
 		motherBoard.getCommandController(),
-		"autoruncassettes", "automatically try to run cassettes", false))
+		"autoruncassettes", "automatically try to run cassettes", true))
 	, sampcnt(0)
 	, state(STOP)
 	, lastOutput(false)
