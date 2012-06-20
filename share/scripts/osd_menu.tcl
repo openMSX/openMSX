@@ -534,7 +534,7 @@ set hardware_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Change Machine..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list] }}}
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list]; catch { osd_menu::select_menu_item [machine_info config_name]} }}}
 	       { text "Extensions..."
 	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
 	       { text "Connectors..."
@@ -691,9 +691,17 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	foreach i $items {
 		lappend presentation [utils::get_machine_display_name_by_config_name ${i}]
 	}
-	lappend menu_def presentation $presentation
 
-	return [prepare_menu_list $items 10 $menu_def]
+	set items_sorted [list]
+	set presentation_sorted [list]
+
+	foreach i [lsort -dictionary -indices $presentation] {
+		lappend presentation_sorted [lindex $presentation $i]
+		lappend items_sorted [lindex $items $i]
+	}
+
+	lappend menu_def presentation $presentation_sorted
+	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
 proc menu_load_machine_exec_replace {item} {
@@ -734,9 +742,18 @@ proc menu_create_extensions_list {} {
 	foreach i $items {
 		lappend presentation [utils::get_extension_display_name_by_config_name $i]
 	}
-	lappend menu_def presentation $presentation
 
-	return [prepare_menu_list $items 10 $menu_def]
+	set items_sorted [list]
+	set presentation_sorted [list]
+
+	foreach i [lsort -dictionary -indices $presentation] {
+		lappend presentation_sorted [lindex $presentation $i]
+		lappend items_sorted [lindex $items $i]
+	}
+
+	lappend menu_def presentation $presentation_sorted
+
+	return [prepare_menu_list $items_sorted 10 $menu_def]
 }
 
 proc menu_add_extension_exec {item} {
