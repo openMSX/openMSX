@@ -432,7 +432,9 @@ template<unsigned w1, unsigned w2>
 inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 {
 	static const unsigned total = w1 + w2;
-	if (w1 > w2) {
+	if (w1 == 0) {
+		return p2;
+	} else if (w1 > w2) {
 		return blend<w2, w1>(p2, p1);
 
 	} else if (w1 == w2) {
