@@ -46,7 +46,7 @@ public:
 	  * a 5-6-5 format (not specified wihich component goes where, but
 	  * usually it will be BGR). This method is currently used to pick
 	  * a faster version for lerp() on dingoo. */
-	inline bool isRGB565() const { return false; }
+	static const bool IS_RGB565 = false;
 
 private:
 	inline Pixel calcBlendMask() const
@@ -93,7 +93,7 @@ public:
 
 	inline unsigned getBlendMask() const { return 0xFEFEFEFE; }
 
-	inline bool isRGB565() const { return false; }
+	static const bool IS_RGB565 = false;
 
 private:
 	const SDL_PixelFormat& format;
@@ -145,7 +145,7 @@ public:
 
 	inline unsigned short getBlendMask() const { return 0xF7DE; }
 
-	inline bool isRGB565() const { return true; }
+	static const bool IS_RGB565 = true;
 };
 #endif
 
@@ -168,7 +168,7 @@ public:
 	using PixelOpBase<Pixel>::getBloss;
 	using PixelOpBase<Pixel>::getAloss;
 	using PixelOpBase<Pixel>::getBlendMask;
-	using PixelOpBase<Pixel>::isRGB565;
+	using PixelOpBase<Pixel>::IS_RGB565;
 
 	explicit PixelOperations(const SDL_PixelFormat& format);
 
@@ -455,73 +455,16 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 		Pixel p13 = avgDown(p11, p2);
 		return avgDown(p11, p13);
 
-	} else if ((2 * w1) == w2) {
-		// <1,2>
-		Pixel a1b1    = avgUp  (p1,     p2);
-		Pixel a1b3    = avgDown(a1b1,   p2);
-		Pixel a5b3    = avgUp  (a1b3,   p2);
-		Pixel a5b11   = avgDown(a5b3,   p2);
-		Pixel a21b11  = avgUp  (a5b11,  p1);
-		Pixel a21b43  = avgDown(a21b11, p2);
-		if (sizeof(Pixel) == 4) {
-			// approx as <85, 171>, enough for 8 bit precision
-			Pixel a85b43  = avgUp  (a21b43, p1);
-			Pixel a85b171 = avgDown(a85b43, p2);
-			return a85b171;
-		} else {
-			// approx as <21, 43>, enough for 6 bit precision
-			return a21b43;
-		}
+	} else if (!IsPow2<total>::result) {
+		// approximate with weights that sum to 256 (or 64)
+		// e.g. approximate <1,2> as <85,171> (or <21,43>)
+		//  ww1 = round(256 * w1 / total)   ww2 = 256 - ww1
+		static const unsigned newTotal = IS_RGB565 ? 64 : 256;
+		static const unsigned ww1 = (2 * w1 * newTotal + total) / (2 * total);
+		static const unsigned ww2 = 256 - ww1;
+		return blend<ww1, ww2>(p1, p2);
 
-	} else if ((1 * w2) == (6 * w1)) {
-		// <1,6>
-		return blend< 37, 219>(p1, p2); // approx
-	} else if ((2 * w2) == (5 * w1)) {
-		// <2,5>
-		return blend< 73, 183>(p1, p2); // approx
-	} else if ((3 * w2) == (4 * w1)) {
-		// <3,4>
-		return blend<110, 146>(p1, p2); // approx
-
-	} else if ((1 * w2) == (8 * w1)) {
-		// <1,8>
-		return blend< 28, 228>(p1, p2); // approx
-	} else if ((2 * w2) == (7 * w1)) {
-		// <2,7>
-		return blend< 57, 199>(p1, p2); // approx
-	} else if ((3 * w2) == (6 * w1)) {
-		// <3,6>
-		return blend< 85, 171>(p1, p2); // approx
-	} else if ((4 * w2) == (5 * w1)) {
-		// <4,5>
-		return blend<114, 142>(p1, p2); // approx
-
-	} else if ((1 * w2) == (16 * w1)) {
-		// <1,16>
-		return blend< 15, 241>(p1, p2); // approx
-	} else if ((2 * w2) == (15 * w1)) {
-		// <2,15>
-		return blend< 30, 226>(p1, p2); // approx
-	} else if ((3 * w2) == (14 * w1)) {
-		// <3,14>
-		return blend< 45, 211>(p1, p2); // approx
-	} else if ((4 * w2) == (13 * w1)) {
-		// <4,13>
-		return blend< 60, 196>(p1, p2); // approx
-	} else if ((5 * w2) == (12 * w1)) {
-		// <5,12>
-		return blend< 75, 181>(p1, p2); // approx
-	} else if ((6 * w2) == (11 * w1)) {
-		// <6,11>
-		return blend< 90, 166>(p1, p2); // approx
-	} else if ((7 * w2) == (10 * w1)) {
-		// <7,10>
-		return blend<105, 151>(p1, p2); // approx
-	} else if ((8 * w2) == ( 9 * w1)) {
-		// <8, 9>
-		return blend<120, 136>(p1, p2); // approx
-
-	} else if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+	} else if (sizeof(Pixel) == 4) {
 		unsigned l2 = IsPow2<total>::log2;
 		unsigned c1 = (((p1 & 0x00FF00FF) * w1 +
 				(p2 & 0x00FF00FF) * w2
@@ -531,7 +474,7 @@ inline Pixel PixelOperations<Pixel>::blend(Pixel p1, Pixel p2) const
 			      ) & 0xFF00FF00;
 		return c1 | c2;
 
-	} else if (isRGB565() && IsPow2<total>::result) {
+	} else if (IS_RGB565) {
 		if (total > 64) {
 			// reduce to maximum 6-bit
 			// note: DIV64 only exists to work around a
@@ -707,7 +650,7 @@ inline Pixel PixelOperations<Pixel>::lerp(Pixel p1, Pixel p2, unsigned x) const
 
 		return rb | ag;
 
-	} else if (isRGB565()) {
+	} else if (IS_RGB565) {
 		unsigned rb1 = p1 & 0xF81F;
 		unsigned rb2 = p2 & 0xF81F;
 		unsigned g1  = p1 & 0x07E0;
