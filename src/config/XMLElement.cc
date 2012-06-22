@@ -25,20 +25,6 @@ XMLElement::XMLElement(string_ref name_, string_ref data_)
 {
 }
 
-XMLElement& XMLElement::addChild(XMLElement&& child)
-{
-	// Mixed-content elements are not supported by this class. In the past
-	// we had a 'assert(data.empty())' here to enforce this, though that
-	// assert triggered when you started openMSX without a user (but with
-	// a system) settings.xml file (the deeper reason is a harmless comment
-	// in the system version of this file).
-	// When you add child nodes to a node with data, that data will be
-	// ignored when this node is later written to disk. In the case of
-	// settings.xml this behaviour is fine.
-	children.push_back(std::move(child));
-	return children.back();
-}
-
 XMLElement& XMLElement::addChild(string_ref name)
 {
 	children.emplace_back(name);

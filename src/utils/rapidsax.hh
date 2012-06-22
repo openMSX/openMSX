@@ -78,6 +78,7 @@ public:
 	// Called when XML declaration (<?xml .. ?>) is parsed.
 	// Inside a XML declaration there can be attributes.
 	void declarationStart() {}
+	void declAttribute(string_ref /*name*/, string_ref /*value*/) {}
 	void declarationStop() {}
 
 	// Called when the <!DOCTYPE ..> is parsed.
@@ -402,7 +403,7 @@ private:
 	{
 		handler.declarationStart();
 		skip<WhitespacePred>(text); // skip ws before attributes or ?>
-		parseAttributes(text);
+		parseAttributes(text, true);
 		handler.declarationStop();
 
 		// skip ?>
@@ -552,7 +553,7 @@ private:
 		handler.start(string_ref(name, nameEnd));
 
 		skip<WhitespacePred>(text); // skip ws before attributes or >
-		parseAttributes(text);
+		parseAttributes(text, false);
 
 		// Determine ending type
 		if (*text == '>') {
@@ -680,7 +681,7 @@ afterText:		// After parseText() jump here instead of continuing
 	}
 
 	// Parse XML attributes of the node
-	void parseAttributes(char*& text)
+	void parseAttributes(char*& text, bool declaration)
 	{
 		// For all attributes
 		while (AttributeNamePred::test(*text)) {
@@ -714,8 +715,13 @@ afterText:		// After parseText() jump here instead of continuing
 			char* valueEnd = (quote == '\'')
 				? skipAndExpand<AttPred1, AttPurePred1, FLAGS2>(text)
 				: skipAndExpand<AttPred2, AttPurePred2, FLAGS2>(text);
-			handler.attribute(string_ref(name, nameEnd),
-			                  string_ref(value, valueEnd));
+			if (!declaration) {
+				handler.attribute(string_ref(name, nameEnd),
+				                  string_ref(value, valueEnd));
+			} else {
+				handler.declAttribute(string_ref(name, nameEnd),
+				                      string_ref(value, valueEnd));
+			}
 
 			// Make sure that end quote is present
 			if (*text != quote) {

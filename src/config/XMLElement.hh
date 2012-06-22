@@ -43,7 +43,6 @@ public:
 	// child
 	typedef std::vector<XMLElement> Children;
 	//  note: returned XMLElement& is validated on the next addChild() call
-	XMLElement& addChild(XMLElement&& child);
 	XMLElement& addChild(string_ref name);
 	XMLElement& addChild(string_ref name, string_ref data);
 	void removeChild(const XMLElement& child);
