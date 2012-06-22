@@ -138,14 +138,14 @@ static inline char digit(unsigned x)
 }
 std::string Sha1Sum::toString() const
 {
-	string result(40, ' ');
-	string::iterator it = result.begin();
+	char buf[40];
+	char* p = buf;
 	for (int i = 0; i < 5; ++i) {
 		for (int j = 28; j >= 0; j -= 4) {
-			*it++ = digit((a[i] >> j) & 0xf);
+			*p++ = digit((a[i] >> j) & 0xf);
 		}
 	}
-	return result;
+	return string(buf, 40);
 }
 
 bool Sha1Sum::empty() const
@@ -281,12 +281,6 @@ void SHA1::finalize()
 		update(reinterpret_cast<const byte*>("\0"), 1);
 	}
 	update(finalcount, 8); // cause a transform()
-
-	char s[41];
-	for (int i = 0; i < 20; ++i) {
-		sprintf(s + i * 2, "%02x",
-		        byte(m_state.a[i >> 2] >> ((3 - (i & 3)) * 8)));
-	}
 	m_finalized = true;
 }
 
