@@ -672,6 +672,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.cc" />
@@ -1440,6 +1441,7 @@
     <None Include="$(OpenMSXSrcDir)\video\VRAMObserver.hh" />
     <None Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />	
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.hh" />
