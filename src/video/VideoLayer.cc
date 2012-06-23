@@ -16,10 +16,9 @@
 namespace openmsx {
 
 VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
-                       VideoSource videoSource_,
-                       Display& display_)
+                       VideoSource videoSource_)
 	: motherBoard(motherBoard_)
-	, display(display_)
+	, display(motherBoard.getReactor().getDisplay())
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(new VideoSourceActivator(

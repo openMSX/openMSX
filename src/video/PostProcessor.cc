@@ -23,7 +23,7 @@ namespace openmsx {
 PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	Display& display_, OutputSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
-	: VideoLayer(motherBoard, videoSource, display_)
+	: VideoLayer(motherBoard, videoSource)
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(0)
@@ -71,17 +71,13 @@ unsigned PostProcessor::getLineWidth(
 	return result;
 }
 
-const std::string& PostProcessor::getName()
+string_ref PostProcessor::getLayerName() const
 {
-	static const std::string V99x8_NAME = "V99x8 PostProcessor";
-	static const std::string V9990_NAME = "V9990 PostProcessor";
-	static const std::string LASERDISC = "Laserdisc PostProcessor";
-	static const std::string DUMMY = "";
 	switch (getVideoSource()) {
-	case VIDEO_MSX: return V99x8_NAME;
-	case VIDEO_GFX9000: return V9990_NAME;
-	case VIDEO_LASERDISC: return LASERDISC;
-	default: UNREACHABLE; return DUMMY;
+	case VIDEO_MSX:       return "V99x8";
+	case VIDEO_GFX9000:   return "V9990";
+	case VIDEO_LASERDISC: return "Laserdisc";
+	default: UNREACHABLE; return "";
 	}
 }
 

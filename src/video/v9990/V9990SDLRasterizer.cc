@@ -63,7 +63,8 @@ template <class Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
 	return (postProcessor->getZ() != Layer::Z_MSX_PASSIVE) &&
-	       vdp.getMotherBoard().isActive();
+	       vdp.getMotherBoard().isActive() &&
+	       !vdp.getMotherBoard().isFastForwarding();
 }
 
 template <class Pixel>

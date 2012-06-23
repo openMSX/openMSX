@@ -377,10 +377,9 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 }
 
-const string& OSDConsoleRenderer::getName()
+string_ref OSDConsoleRenderer::getLayerName() const
 {
-	static const string NAME = "openMSX console";
-	return NAME;
+	return "console";
 }
 
 

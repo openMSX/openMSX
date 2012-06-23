@@ -3,7 +3,7 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
-#include <string>
+#include "string_ref.hh"
 
 namespace openmsx {
 
@@ -50,9 +50,9 @@ public:
 	  */
 	virtual void paint(OutputSurface& output) = 0;
 
-	/** Returns the name of this layer. Used for debugging.
+	/** Returns the name of this layer.
 	  */
-	virtual const std::string& getName() = 0;
+	virtual string_ref getLayerName() const = 0;
 
 	/** Query the Z-index of this layer.
 	  */

@@ -15,7 +15,7 @@ public:
 	OSDGUI& getGUI();
 
 	// Layer
-	virtual const std::string& getName();
+	virtual string_ref getLayerName() const;
 
 protected:
 	explicit OSDGUILayer(OSDGUI& gui);

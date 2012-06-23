@@ -147,7 +147,7 @@ void Display::resetVideoSystem()
 	videoSystem.reset();
 	for (Layers::const_iterator it = layers.begin();
 	     it != layers.end(); ++it) {
-		std::cerr << (*it)->getName() << std::endl;
+		std::cerr << (*it)->getLayerName() << std::endl;
 	}
 	assert(layers.empty());
 }
@@ -186,15 +186,15 @@ void Display::detach(VideoSystemChangeListener& listener)
 	listeners.erase(it);
 }
 
-Layer* Display::findLayer(const string& name) const
+Layer* Display::findLayer(string_ref name) const
 {
 	for (Layers::const_iterator it = layers.begin();
 	     it != layers.end(); ++it) {
-		if ((*it)->getName() == name) {
+		if ((*it)->getLayerName() == name) {
 			return *it;
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 Display::Layers::iterator Display::baseLayer()
@@ -491,8 +491,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 		VideoSourceSetting& videoSource =
 			display.getRenderSettings().getVideoSource();
 		Layer* layer = display.findLayer(
-			(videoSource.getValue() == VIDEO_MSX) ?
-			"V99x8 PostProcessor" : "V9990 PostProcessor");
+			(videoSource.getValue() == VIDEO_MSX) ? "V99x8" : "V9990");
 		PostProcessor* pp = dynamic_cast<PostProcessor*>(layer);
 		if (!pp) {
 			throw CommandException(

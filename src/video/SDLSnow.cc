@@ -57,10 +57,9 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 }
 
 template <class Pixel>
-const std::string& SDLSnow<Pixel>::getName()
+string_ref SDLSnow<Pixel>::getLayerName() const
 {
-	static const std::string NAME = "SDLSnow";
-	return NAME;
+	return "snow";
 }
 
 // Force template instantiation.

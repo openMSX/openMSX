@@ -29,8 +29,7 @@ public:
 
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
-	           VideoSource videoSource,
-	           Display& display);
+	           VideoSource videoSource);
 
 	// Observer<Setting> interface:
 	virtual void update(const Setting& setting);

@@ -84,9 +84,8 @@ void DummyRenderer::updateWindow(bool /*enabled*/, EmuTime::param /*time*/) {
 void DummyRenderer::paint(OutputSurface& /*output*/) {
 }
 
-const std::string& DummyRenderer::getName() {
-	static const std::string NAME = "DummyRenderer";
-	return NAME;
+string_ref DummyRenderer::getLayerName() const {
+	return "DummyRenderer";
 }
 
 } // namespace openmsx

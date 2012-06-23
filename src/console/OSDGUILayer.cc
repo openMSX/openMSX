@@ -24,10 +24,9 @@ OSDGUI& OSDGUILayer::getGUI()
 	return gui;
 }
 
-const std::string& OSDGUILayer::getName()
+string_ref OSDGUILayer::getLayerName() const
 {
-	static const std::string name = "OSDGUI";
-	return name;
+	return "OSDGUI";
 }
 
 

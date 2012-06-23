@@ -5,8 +5,6 @@
 #include "openmsx.hh"
 #include <cstdlib>
 
-using std::string;
-
 namespace openmsx {
 
 GLSnow::GLSnow(Display& display_, unsigned width_, unsigned height_)
@@ -71,10 +69,9 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	display.repaintDelayed(100 * 1000); // 10fps
 }
 
-const string& GLSnow::getName()
+string_ref GLSnow::getLayerName() const
 {
-	static const string NAME = "GLSnow";
-	return NAME;
+	return "snow";
 }
 
 } // namespace openmsx

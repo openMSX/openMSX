@@ -9,8 +9,8 @@
 #include "Observer.hh"
 #include "CircularBuffer.hh"
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace openmsx {
@@ -59,7 +59,7 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	Layer* findLayer(const std::string& name) const;
+	Layer* findLayer(string_ref name) const;
 
 private:
 	void resetVideoSystem();
