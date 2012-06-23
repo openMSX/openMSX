@@ -371,7 +371,7 @@ void DBParser::addEntries()
 		if (ptr) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
-			return;
+			continue;
 		}
 
 		string r = remarks;
