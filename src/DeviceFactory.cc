@@ -51,6 +51,7 @@
 #include "MSXHBI55.hh"
 #include "DebugDevice.hh"
 #include "V9990.hh"
+#include "Video9000.hh"
 #include "ADVram.hh"
 #include "NowindInterface.hh"
 #include "MSXMirrorDevice.hh"
@@ -205,6 +206,8 @@ auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result.reset(new DebugDevice(conf));
 	} else if (type == "V9990") {
 		result.reset(new V9990(conf));
+	} else if (type == "Video9000") {
+		result.reset(new Video9000(conf));
 	} else if (type == "ADVram") {
 		result.reset(new ADVram(conf));
 	} else if (type == "PioneerLDControl") {

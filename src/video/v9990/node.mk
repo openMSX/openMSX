@@ -12,7 +12,8 @@ SRC_HDR:= \
 	V9990SDLRasterizer \
 	V9990BitmapConverter \
 	V9990P1Converter \
-	V9990P2Converter
+	V9990P2Converter \
+	Video9000 \
 
 HDR_ONLY:= \
 	V9990Rasterizer \

@@ -21,6 +21,9 @@ VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
 {
 	if (activeSources.find(value) != activeSources.end()) {
 		return value;
+	} else if (activeSources.find(VIDEO_9000) != activeSources.end()) {
+		// prefer video9000 over v99x8
+		return VIDEO_9000;
 	} else if (activeSources.find(VIDEO_MSX) != activeSources.end()) {
 		return VIDEO_MSX;
 	} else if (activeSources.find(VIDEO_GFX9000) != activeSources.end()) {
@@ -36,8 +39,9 @@ VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
 static VideoSourceSetting::Map getVideoSourceMap()
 {
 	VideoSourceSetting::Map result;
-	result["MSX"]     = VIDEO_MSX;
-	result["GFX9000"] = VIDEO_GFX9000;
+	result["MSX"]       = VIDEO_MSX;
+	result["GFX9000"]   = VIDEO_GFX9000;
+	result["Video9000"] = VIDEO_9000;
 	result["Laserdisc"] = VIDEO_LASERDISC;
 	return result;
 }
@@ -47,7 +51,7 @@ const char* const VIDEOSOURCE = "videosource";
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	: SettingImpl<VideoSourceSettingPolicy>(commandController,
 		VIDEOSOURCE, "selects the video source to display on the screen",
-		VIDEO_MSX, Setting::DONT_SAVE, getVideoSourceMap())
+		VIDEO_9000, Setting::DONT_SAVE, getVideoSourceMap())
 {
 }
 

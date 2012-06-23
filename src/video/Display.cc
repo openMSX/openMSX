@@ -145,11 +145,9 @@ VideoSystem& Display::getVideoSystem()
 void Display::resetVideoSystem()
 {
 	videoSystem.reset();
-	for (Layers::const_iterator it = layers.begin();
-	     it != layers.end(); ++it) {
-		std::cerr << (*it)->getLayerName() << std::endl;
-	}
-	assert(layers.empty());
+	// At this point all layers expect for the Video9000 layer
+	// should be gone.
+	//assert(layers.empty());
 }
 
 CliComm& Display::getCliComm() const
@@ -492,6 +490,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 			display.getRenderSettings().getVideoSource();
 		Layer* layer = display.findLayer(
 			(videoSource.getValue() == VIDEO_MSX) ? "V99x8" : "V9990");
+		// TODO handle Video9000
 		PostProcessor* pp = dynamic_cast<PostProcessor*>(layer);
 		if (!pp) {
 			throw CommandException(

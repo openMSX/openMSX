@@ -25,6 +25,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
               videoSourceSetting, videoSource_))
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
+	, activeVideo9000(false)
 {
 	calcCoverage();
 	calcZ();
@@ -87,6 +88,13 @@ void VideoLayer::signalEvent(const shared_ptr<const Event>& event,
 	    (event->getType() == OPENMSX_MACHINE_DEACTIVATED)) {
 		calcCoverage();
 	}
+}
+
+bool VideoLayer::isActive() const
+{
+	VideoSource current = renderSettings.getVideoSource().getValue();
+	return (current == videoSource) ||
+	      ((current == VIDEO_9000) && activeVideo9000);
 }
 
 } // namespace openmsx

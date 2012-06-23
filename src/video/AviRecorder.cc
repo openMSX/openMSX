@@ -84,6 +84,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 			&display.getRenderSettings().getVideoSource();
 		Layer* layer1 = display.findLayer("V99x8");
 		Layer* layer2 = display.findLayer("V9990");
+		// TODO handle Video9000
 		postProcessor1 = dynamic_cast<PostProcessor*>(layer1);
 		postProcessor2 = dynamic_cast<PostProcessor*>(layer2);
 		PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX

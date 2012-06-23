@@ -27,6 +27,13 @@ public:
 	virtual ~VideoLayer();
 	VideoSource getVideoSource() const;
 
+	// We used to test whether a Layer is active by looking at the
+	// Z-coordinate (Z_MSX_ACTIVE vs Z_MSX_PASSIVE). Though in case of
+	// Video9000 it's possible the Video9000 layer is selected, but we
+	// still need to render this layer (the v99x8 or v9990 layer).
+	void setVideo9000Active(bool active) { activeVideo9000 = active; }
+	bool isActive() const;
+
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
 	           VideoSource videoSource);
@@ -57,6 +64,8 @@ private:
 	BooleanSetting& powerSetting;
 	/** Video source that displays on this layer. */
 	const VideoSource videoSource;
+	/** Active when Video9000 is shown. */
+	bool activeVideo9000;
 };
 
 } // namespace openmsx
