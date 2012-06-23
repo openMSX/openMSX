@@ -7,6 +7,7 @@
 #include "FinishFrameEvent.hh"
 #include "RenderSettings.hh"
 #include "VideoSourceSetting.hh"
+#include "CommandException.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 
@@ -95,6 +96,15 @@ void Video9000::paint(OutputSurface& output)
 string_ref Video9000::getLayerName() const
 {
 	return "Video9000";
+}
+
+void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
+{
+	VideoLayer* layer = dynamic_cast<VideoLayer*>(activeLayer);
+	if (!layer) {
+		throw CommandException("TODO");
+	}
+	layer->takeRawScreenShot(height, filename);
 }
 
 int Video9000::signalEvent(const shared_ptr<const Event>& event)

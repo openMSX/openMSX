@@ -195,6 +195,17 @@ Layer* Display::findLayer(string_ref name) const
 	return NULL;
 }
 
+Layer* Display::findActiveLayer() const
+{
+	for (Layers::const_iterator it = layers.begin();
+	     it != layers.end(); ++it) {
+		if ((*it)->getZ() == Layer::Z_MSX_ACTIVE) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
 Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is
@@ -486,19 +497,15 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 				"Failed to take screenshot: " + e.getMessage());
 		}
 	} else {
-		VideoSourceSetting& videoSource =
-			display.getRenderSettings().getVideoSource();
-		Layer* layer = display.findLayer(
-			(videoSource.getValue() == VIDEO_MSX) ? "V99x8" : "V9990");
-		// TODO handle Video9000
-		PostProcessor* pp = dynamic_cast<PostProcessor*>(layer);
-		if (!pp) {
+		VideoLayer* videoLayer = dynamic_cast<VideoLayer*>(
+			display.findActiveLayer());
+		if (!videoLayer) {
 			throw CommandException(
 				"Current renderer doesn't support taking screenshots.");
 		}
 		unsigned height = doubleSize ? 480 : 240;
 		try {
-			pp->takeScreenShot(height, filename);
+			videoLayer->takeRawScreenShot(height, filename);
 		} catch (MSXException& e) {
 			throw CommandException(
 				"Failed to take screenshot: " + e.getMessage());

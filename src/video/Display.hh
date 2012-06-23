@@ -60,6 +60,7 @@ public:
 	void detach(VideoSystemChangeListener& listener);
 
 	Layer* findLayer(string_ref name) const;
+	Layer* findActiveLayer() const;
 
 private:
 	void resetVideoSystem();

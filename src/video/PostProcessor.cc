@@ -163,7 +163,7 @@ void PostProcessor::getScaledFrame(unsigned height, const void** lines)
 	}
 }
 
-void PostProcessor::takeScreenShot(unsigned height, const std::string& filename)
+void PostProcessor::takeRawScreenShot(unsigned height, const std::string& filename)
 {
 	if (!paintFrame) {
 		throw CommandException("TODO");

@@ -68,8 +68,8 @@ public:
 	  */
 	unsigned getBpp() const;
 
-	/** TODO */
-	void takeScreenShot(unsigned height, const std::string& filename);
+	// VideoLayer
+	virtual void takeRawScreenShot(unsigned height, const std::string& filename);
 
 	CliComm& getCliComm();
 

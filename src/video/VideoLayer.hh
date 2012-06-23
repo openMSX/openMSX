@@ -27,6 +27,12 @@ public:
 	virtual ~VideoLayer();
 	VideoSource getVideoSource() const;
 
+	/** Create a raw (=non-postprocessed) screenshot. The 'height'
+	 * parameter should be either '240' or '480'. The current image will be
+	 * scaled to '320x240' or '640x480' and written to a png file. */
+	virtual void takeRawScreenShot(
+		unsigned height, const std::string& filename) = 0;
+
 	// We used to test whether a Layer is active by looking at the
 	// Z-coordinate (Z_MSX_ACTIVE vs Z_MSX_PASSIVE). Though in case of
 	// Video9000 it's possible the Video9000 layer is selected, but we
