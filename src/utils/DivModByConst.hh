@@ -20,13 +20,16 @@ namespace DivModByConstPrivate {
 
 typedef unsigned long long uint64;
 
+// the cond/endcond stuff is to make sure Doxygen behaves
+
+/** \cond */
 template<bool C, class T, class F> struct if_             : F {};
 template<        class T, class F> struct if_<true, T, F> : T {};
 
 template<int I> struct int_ { static const int value = I; };
 template<unsigned A, unsigned R = 0> struct log2
 	: if_<A == 0, int_<R>, log2<A / 2, R + 1> > {};
-
+/** \endcond */
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
 template<uint64 RH, uint64 RL, uint64 QH, uint64 QL, uint64 DH, uint64 DL, unsigned BITS>
