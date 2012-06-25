@@ -20,6 +20,7 @@ class AmdFlash : private noncopyable
 {
 public:
 	/** Create AmdFlash with given configuration.
+	 * @param rom The initial content for this flash
 	 * @param sectorSizes
 	 *   A vector containing the size of each sector in the flash. This
 	 *   implicitly also communicates the number of sectors (a sector
@@ -33,6 +34,7 @@ public:
 	 *   or not (a 1-bit means write-wrotected).
 	 * @param ID
 	 *   Contains manufacturer and device ID for this flash.
+	 * @param config (or motherBoard) The motherboard this flash belongs to
 	 */
 	AmdFlash(const Rom& rom, const std::vector<unsigned>& sectorSizes,
 	         unsigned writeProtectedFlags, word ID,

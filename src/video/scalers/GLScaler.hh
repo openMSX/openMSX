@@ -54,6 +54,14 @@ protected:
 	  * src{Start,End}Y and physSrcHeight. The second set of tex-coord are
 	  * used for the superimpose texture (texture unit 1) and are calculated
 	  * from src{Start,End}Y and logSrcHeight.
+	  * @param src
+	  * @param srcStartY
+	  * @param srcEndY
+	  * @param physSrcHeight
+	  * @param logSrcHeight
+	  * @param dstStartY
+	  * @param dstEndY
+	  * @param dstWidth
 	  * @param textureFromZero If true, the texture coordinates of subpixels
 	  *   will start from zero: for example in 4x zoom the source coordinates
 	  *   will be 0.0, 0.25, 0.5, 0.75. If false, the texture coordinates of

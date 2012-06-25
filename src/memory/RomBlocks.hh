@@ -25,7 +25,6 @@ public:
 
 protected:
 	/** Constructor
-	 * @param motherBoard
 	 * @param config
 	 * @param rom
 	 * @param debugBankSizeShift Sometimes the mapper is implemented with a
