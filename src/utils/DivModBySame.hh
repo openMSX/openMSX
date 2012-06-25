@@ -7,6 +7,9 @@
 #include "openmsx.hh"
 #include <cassert>
 
+
+namespace openmsx {
+
 /** Helper class to divide multiple times by the same number.
  * Binary division can be performed by:
  *   - multiplication by a magic number
@@ -272,5 +275,7 @@ private:
 	unsigned s;
 	unsigned divisor; // only used by mod() and getDivisor()
 };
+
+} // namespace openmsx
 
 #endif // DIVISIONBYCONST_HH

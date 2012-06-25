@@ -4,6 +4,9 @@
 #include "uint128.hh"
 #include <cassert>
 
+
+namespace openmsx {
+
 static unsigned log2(DivModBySame::uint64 i)
 {
 	unsigned t = 0;
@@ -69,3 +72,5 @@ void DivModBySame::setDivisor(unsigned divisor_)
 	// adjust multiplier for reduction of even divisors
 	s += n;
 }
+
+} // namespace openmsx
