@@ -257,7 +257,7 @@ static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 
 	// initial guess for a good position
 	assert(min < max);
-	string::size_type pos = (min + max) / 2;
+	unsigned pos = (min + max) / 2;
 	if (pos == min) {
 		// can't reduce further
 		return min;

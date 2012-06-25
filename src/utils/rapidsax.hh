@@ -370,7 +370,7 @@ static inline char* skipAndExpand(char*& text)
 
 static inline void skipBOM(char*& text)
 {
-	if (next<0xEF, 0xBB, 0xBF>(text)) {
+	if (next<char(0xEF), char(0xBB), char(0xBF)>(text)) {
 		text += 3; // skip utf-8 bom
 	}
 }

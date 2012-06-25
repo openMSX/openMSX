@@ -25,7 +25,7 @@ static inline RomType removeAlias(RomType type)
 }
 static inline bool isAlias(RomType type)
 {
-	return type & ROM_ALIAS;
+	return (type & ROM_ALIAS) != 0;
 }
 
 static const RomTypeMap& getRomTypeMap()

@@ -33,13 +33,13 @@ public:
 	string_ref(const string_ref& str)
 		: dat(str.dat), siz(str.siz) {}
 	string_ref(const char* str)
-		: dat(str), siz(str ? strlen(str) : 0) {}
+		: dat(str), siz(str ? size_type(strlen(str)) : 0) {}
 	string_ref(const char* str, size_type len)
 		: dat(str), siz(len) { if (dat == NULL) assert(siz == 0); }
 	string_ref(const char* begin, const char* end)
 		: dat(begin), siz(end - begin) { if (dat == NULL) assert(siz == 0); }
 	string_ref(const std::string& str)
-		: dat(str.data()), siz(str.size()) {}
+		: dat(str.data()), siz(size_type(str.size())) {}
 
 	string_ref& operator=(const string_ref& rhs) {
 		dat = rhs.data();

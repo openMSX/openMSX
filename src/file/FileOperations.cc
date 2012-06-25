@@ -585,8 +585,8 @@ time_t getModificationDate(const Stat& st)
 static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
                       unsigned nofdigits)
 {
-	size_t extensionLen = extension.size();
-	size_t prefixLen = prefix.size();
+	string_ref::size_type extensionLen = extension.size();
+	string_ref::size_type prefixLen = prefix.size();
 	string_ref name(d->d_name);
 
 	if ((name.size() != (prefixLen + nofdigits + extensionLen)) ||

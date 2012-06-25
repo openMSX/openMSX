@@ -102,7 +102,7 @@ void CommandConsole::saveHistory()
 		}
 		for (History::const_iterator it = history.begin();
 		     it != history.end(); ++it) {
-			outputfile << string_ref(*it).substr(prompt.size()) << '\n';
+			outputfile << string_ref(*it).substr(string_ref::size_type(prompt.size())) << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -384,7 +384,7 @@ void CommandConsole::commandExecute()
 	putCommandHistory(lines[0]);
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += string_ref(lines[0]).substr(prompt.size()) + '\n';
+	commandBuffer += string_ref(lines[0]).substr(string_ref::size_type(prompt.size())) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy promt is NOT shown (not even very briefly

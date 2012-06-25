@@ -81,7 +81,9 @@ bool Completer::completeString2(string& str, set<string>& st,
 {
 	set<string>::iterator it = st.begin();
 	while (it != st.end()) {
-		if (isEqual(str, string_ref(*it).substr(0, str.size()), caseSensitive)) {
+		if (isEqual(str,
+			    string_ref(*it).substr(0, string_ref::size_type(str.size())),
+			    caseSensitive)) {
 			++it;
 		} else {
 			set<string>::iterator it2 = it;
@@ -106,7 +108,7 @@ bool Completer::completeString2(string& str, set<string>& st,
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		string_ref string2 = string_ref(*it).substr(0, str.size() + 1);
+		string_ref string2 = string_ref(*it).substr(0, string_ref::size_type(str.size()) + 1);
 		for (/**/; it != st.end(); ++it) {
 			if (!isEqual(string2, string_ref(*it).substr(0, string2.size()),
 				   caseSensitive)) {
