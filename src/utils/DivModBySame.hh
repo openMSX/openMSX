@@ -4,6 +4,7 @@
 #define DIVISIONBYCONST_HH
 
 #include "build-info.hh"
+#include "openmsx.hh"
 #include <cassert>
 
 /** Helper class to divide multiple times by the same number.
@@ -23,8 +24,6 @@
 class DivModBySame
 {
 public:
-	typedef unsigned long long uint64;
-
 	void setDivisor(unsigned divisor);
 	inline unsigned getDivisor() const { return divisor; }
 
