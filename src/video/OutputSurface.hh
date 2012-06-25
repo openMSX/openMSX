@@ -20,14 +20,14 @@ class OutputSurface : public OutputRectangle, private noncopyable
 public:
 	virtual ~OutputSurface();
 
-	unsigned getWidth() const  { return displaySurface->w; }
+	unsigned getWidth()  const { return displaySurface->w; }
 	unsigned getHeight() const { return displaySurface->h; }
-	int getX() { return xOffset; }
-	int getY() { return yOffset; }
+	int getX() const { return xOffset; }
+	int getY() const { return yOffset; }
 
-	const SDL_PixelFormat& getSDLFormat() { return format; }
-	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
-	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
+	const SDL_PixelFormat& getSDLFormat() const { return format; }
+	SDL_Surface* getSDLWorkSurface()      const { return workSurface; }
+	SDL_Surface* getSDLDisplaySurface()   const { return displaySurface; }
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
