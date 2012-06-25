@@ -408,7 +408,7 @@ void Counter::setGateStatus(bool newStatus, EmuTime::param time)
 			}
 			break;
 		case CNTR_M5:
-			if (gate & active) {
+			if (gate && active) {
 				// rising edge
 				counter = counterLoad;
 				triggered = true;
