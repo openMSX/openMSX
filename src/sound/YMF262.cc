@@ -952,7 +952,7 @@ inline int YMF262::Impl::genPhaseCymbal()
 		bool bit7 = (op71phase & 0x80) != 0;
 		bool bit3 = (op71phase & 0x08) != 0;
 		bool bit2 = (op71phase & 0x04) != 0;
-		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
+		return ((bit2 != bit7) || bit3) ? 0x300 : 0x100;
 	}
 }
 
