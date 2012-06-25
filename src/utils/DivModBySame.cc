@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-static unsigned log2(DivModBySame::uint64 i)
+static unsigned log2(uint64 i)
 {
 	unsigned t = 0;
 	i >>= 1;
