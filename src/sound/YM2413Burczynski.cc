@@ -601,7 +601,7 @@ static inline int genPhaseCymbal(int phaseM7, int phaseC8)
 		const bool bit7 = (phaseM7 & 0x80) != 0;
 		const bool bit3 = (phaseM7 & 0x08) != 0;
 		const bool bit2 = (phaseM7 & 0x04) != 0;
-		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
+		return ((bit2 != bit7) || bit3) ? 0x300 : 0x100;
 	}
 }
 
