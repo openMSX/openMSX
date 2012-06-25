@@ -94,7 +94,7 @@ void WD2793::setDrqRate()
 bool WD2793::getIRQ(EmuTime::param /*time*/)
 {
 	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
-	return INTRQ | immediateIRQ;
+	return INTRQ || immediateIRQ;
 }
 
 bool WD2793::peekIRQ(EmuTime::param time)
