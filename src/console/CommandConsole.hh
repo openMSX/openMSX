@@ -11,6 +11,7 @@
 #include "string_ref.hh"
 #include <list>
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -20,6 +21,49 @@ class KeyEvent;
 class BooleanSetting;
 class IntegerSetting;
 class Display;
+
+/** This class represents a single text line in the console.
+  * The line can have several chunks with different colors. */
+class ConsoleLine
+{
+public:
+	/** Construct empty line. */
+	ConsoleLine();
+	/** Construct line with a single color (by default white). */
+	explicit ConsoleLine(string_ref line, unsigned rgb = 0xffffff);
+
+	/** Append a chunk with a (different) color. This is currently the
+	  * only way to construct a multi-colored line/ */
+	void addChunk(string_ref text, unsigned rgb);
+
+	/** Get the number of UTF8 characters in this line. So multi-byte
+	  * characters are counted as a single character. */
+	unsigned numChars() const;
+	/** Get the total string, ignoring color differences. */
+	const std::string& str() const;
+
+	/** Get the number of different chunks. Each chunk is a a part of the
+	  * line that has the same color. */
+	unsigned numChunks() const;
+	/** Get the color for the i-th chunk. */
+	unsigned chunkColor(unsigned i) const;
+	/** Get the text for the i-th chunk. */
+	string_ref chunkText(unsigned i) const;
+
+	/** Get a part of total line. The result keeps the same colors as this
+	  * line. E.g. used to get part of (long) line that should be wrapped
+	  * over multiple console lines.
+	  * @param pos First character (multi-byte sequence counted as 1
+	  *            character).
+	  * @param len Length of the substring, also counted in characters
+	  */
+	ConsoleLine substr(unsigned pos, unsigned len) const;
+
+private:
+	std::string line;
+	std::vector<std::pair<unsigned, string_ref::size_type> > chunks;
+};
+
 
 class CommandConsole : private EventListener,
                        private InterpreterOutput, private noncopyable
@@ -33,7 +77,7 @@ public:
 	BooleanSetting& getConsoleSetting();
 
 	unsigned getScrollBack() const;
-	string_ref getLine(unsigned line) const;
+	ConsoleLine getLine(unsigned line) const;
 	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
 	void setColumns(unsigned columns);
@@ -61,6 +105,7 @@ private:
 	void normalKey(word chr);
 	void putCommandHistory(const std::string& command);
 	void newLineConsole(string_ref line);
+	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
 
@@ -79,7 +124,7 @@ private:
 	std::auto_ptr<BooleanSetting> removeDoublesSetting;
 
 	static const int LINESHISTORY = 1000;
-	CircularBuffer<std::string, LINESHISTORY> lines;
+	CircularBuffer<ConsoleLine, LINESHISTORY> lines;
 	std::string commandBuffer;
 	std::string prompt;
 	/** Saves Current Command to enable command recall. */

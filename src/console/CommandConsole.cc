@@ -30,8 +30,90 @@
 using std::min;
 using std::max;
 using std::string;
+using std::make_pair;
 
 namespace openmsx {
+
+// class ConsoleLine
+
+ConsoleLine::ConsoleLine()
+{
+}
+
+ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
+	: line(line_.data(), line_.size())
+	, chunks(1, make_pair(rgb, 0))
+{
+}
+
+void ConsoleLine::addChunk(string_ref text, unsigned rgb)
+{
+	chunks.push_back(make_pair(rgb, line.size()));
+	line.append(text.data(), string_ref::size_type(text.size()));
+}
+
+unsigned ConsoleLine::numChars() const
+{
+	return utf8::unchecked::size(line);
+}
+
+const string& ConsoleLine::str() const
+{
+	return line;
+}
+
+unsigned ConsoleLine::numChunks() const
+{
+	return chunks.size();
+}
+
+unsigned ConsoleLine::chunkColor(unsigned i) const
+{
+	assert(i < chunks.size());
+	return chunks[i].first;
+}
+
+string_ref ConsoleLine::chunkText(unsigned i) const
+{
+	assert(i < chunks.size());
+	string_ref::size_type pos = chunks[i].second;
+	string_ref::size_type len = ((i + 1) == chunks.size())
+	                          ? string_ref::npos
+	                          : chunks[i + 1].second - pos;
+	return string_ref(line).substr(pos, len);
+}
+
+ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
+{
+	ConsoleLine result;
+	if (chunks.empty()) {
+		assert(line.empty());
+		assert(pos == 0);
+		return result;
+	}
+
+	string::const_iterator begin = line.begin();
+	utf8::unchecked::advance(begin, pos);
+	string::const_iterator end = begin;
+	while (len-- && (end != line.end())) {
+		utf8::unchecked::next(end);
+	}
+	result.line.assign(begin, end);
+
+	unsigned bpos = begin - line.begin();
+	unsigned bend = end   - line.begin();
+	unsigned i = 1;
+	while ((i < chunks.size()) && (chunks[i].second <= bpos)) {
+		++i;
+	}
+	result.chunks.push_back(make_pair(chunks[i - 1].first, 0));
+	while ((i < chunks.size()) && (chunks[i].second < bend)) {
+		result.chunks.push_back(make_pair(chunks[i].first,
+		                                  chunks[i].second - bpos));
+		++i;
+	}
+	return result;
+}
 
 // class CommandConsole
 
@@ -140,7 +222,7 @@ BooleanSetting& CommandConsole::getConsoleSetting()
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
-	unsigned num = utf8::unchecked::size(lines[0]) / getColumns();
+	unsigned num = lines[0].numChars() / getColumns();
 	yPosition = num - (cursorPosition / getColumns());
 }
 
@@ -149,19 +231,18 @@ unsigned CommandConsole::getScrollBack() const
 	return consoleScrollBack;
 }
 
-string_ref CommandConsole::getLine(unsigned line) const
+ConsoleLine CommandConsole::getLine(unsigned line) const
 {
 	unsigned count = 0;
 	for (unsigned buf = 0; buf < lines.size(); ++buf) {
-		count += (utf8::unchecked::size(lines[buf]) / getColumns()) + 1;
+		count += (lines[buf].numChars() / getColumns()) + 1;
 		if (count > line) {
-			return utf8::unchecked::substr(
-				lines[buf],
+			return lines[buf].substr(
 				(count - line - 1) * getColumns(),
 				getColumns());
 		}
 	}
-	return "";
+	return ConsoleLine();
 }
 
 int CommandConsole::signalEvent(const shared_ptr<const Event>& event)
@@ -215,7 +296,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_E:
-			cursorPosition = utf8::unchecked::size(lines[0]);
+			cursorPosition = lines[0].numChars();
 			break;
 		case Keys::K_C:
 			clearCommand();
@@ -280,7 +361,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			}
 			break;
 		case Keys::K_RIGHT:
-			if (cursorPosition < utf8::unchecked::size(lines[0])) {
+			if (cursorPosition < lines[0].numChars()) {
 				++cursorPosition;
 			}
 			break;
@@ -288,7 +369,7 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 			cursorPosition = unsigned(prompt.size());
 			break;
 		case Keys::K_END:
-			cursorPosition = utf8::unchecked::size(lines[0]);
+			cursorPosition = lines[0].numChars();
 			break;
 		default:
 			if (chr) {
@@ -351,11 +432,16 @@ void CommandConsole::print(string_ref text)
 
 void CommandConsole::newLineConsole(string_ref line)
 {
+	newLineConsole(ConsoleLine(line));
+}
+
+void CommandConsole::newLineConsole(ConsoleLine line)
+{
 	if (lines.isFull()) {
 		lines.removeBack();
 	}
-	string tmp = lines[0];
-	lines[0].assign(line.data(), line.size());
+	ConsoleLine tmp = lines[0];
+	lines[0] = line;
 	lines.addFront(tmp);
 }
 
@@ -381,10 +467,10 @@ void CommandConsole::putCommandHistory(const string& command)
 void CommandConsole::commandExecute()
 {
 	resetScrollBack();
-	putCommandHistory(lines[0]);
+	putCommandHistory(lines[0].str());
 	saveHistory(); // save at this point already, so that we don't lose history in case of a crash
 
-	commandBuffer += string_ref(lines[0]).substr(string_ref::size_type(prompt.size())) + '\n';
+	commandBuffer += lines[0].str().substr(prompt.size()) + '\n';
 	newLineConsole(lines[0]);
 	if (commandController.isComplete(commandBuffer)) {
 		// Normally the busy promt is NOT shown (not even very briefly
@@ -415,7 +501,8 @@ void CommandConsole::commandExecute()
 void CommandConsole::putPrompt()
 {
 	commandScrollBack = history.end();
-	currentLine = lines[0] = prompt;
+	currentLine = prompt;
+	lines[0] = ConsoleLine(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
 
@@ -423,11 +510,12 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	string::size_type pl = prompt.size();
-	string_ref front = utf8::unchecked::substr(lines[0], pl, cursorPosition - pl);
-	string_ref back  = utf8::unchecked::substr(lines[0], cursorPosition);
+	string_ref front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl);
+	string_ref back  = utf8::unchecked::substr(lines[0].str(), cursorPosition);
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = unsigned(pl + utf8::unchecked::size(newFront));
-	currentLine = lines[0] = prompt + newFront + back;
+	currentLine = prompt + newFront + back;
+	lines[0] = ConsoleLine(currentLine);
 }
 
 void CommandConsole::scroll(int delta)
@@ -450,8 +538,8 @@ void CommandConsole::prevCommand()
 	}
 	if (match) {
 		commandScrollBack = tempScrollBack;
-		lines[0] = *commandScrollBack;
-		cursorPosition = utf8::unchecked::size(lines[0]);
+		lines[0] = ConsoleLine(*commandScrollBack);
+		cursorPosition = lines[0].numChars();
 	}
 }
 
@@ -469,12 +557,12 @@ void CommandConsole::nextCommand()
 	if (match) {
 		--tempScrollBack; // one time to many
 		commandScrollBack = tempScrollBack;
-		lines[0] = *commandScrollBack;
+		lines[0] = ConsoleLine(*commandScrollBack);
 	} else {
 		commandScrollBack = history.end();
-		lines[0] = currentLine;
+		lines[0] = ConsoleLine(currentLine);
 	}
-	cursorPosition = utf8::unchecked::size(lines[0]);
+	cursorPosition = lines[0].numChars();
 }
 
 void CommandConsole::clearCommand()
@@ -482,7 +570,8 @@ void CommandConsole::clearCommand()
 	resetScrollBack();
 	commandBuffer.clear();
 	prompt = PROMPT_NEW;
-	currentLine = lines[0] = prompt;
+	currentLine = prompt;
+	lines[0] = ConsoleLine(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
 
@@ -490,12 +579,13 @@ void CommandConsole::backspace()
 {
 	resetScrollBack();
 	if (cursorPosition > prompt.size()) {
-		string::iterator begin = lines[0].begin();
+		currentLine = lines[0].str();
+		string::iterator begin = currentLine.begin();
 		utf8::unchecked::advance(begin, cursorPosition - 1);
 		string::iterator end = begin;
 		utf8::unchecked::advance(end, 1);
-		lines[0].erase(begin, end);
-		currentLine = lines[0];
+		currentLine.erase(begin, end);
+		lines[0] = ConsoleLine(currentLine);
 		--cursorPosition;
 	}
 }
@@ -503,13 +593,14 @@ void CommandConsole::backspace()
 void CommandConsole::delete_key()
 {
 	resetScrollBack();
-	if (utf8::unchecked::size(lines[0]) > cursorPosition) {
-		string::iterator begin = lines[0].begin();
+	if (lines[0].numChars() > cursorPosition) {
+		currentLine = lines[0].str();
+		string::iterator begin = currentLine.begin();
 		utf8::unchecked::advance(begin, cursorPosition);
 		string::iterator end = begin;
 		utf8::unchecked::advance(end, 1);
-		lines[0].erase(begin, end);
-		currentLine = lines[0];
+		currentLine.erase(begin, end);
+		lines[0] = ConsoleLine(currentLine);
 	}
 }
 
@@ -517,10 +608,11 @@ void CommandConsole::normalKey(word chr)
 {
 	assert(chr);
 	resetScrollBack();
-	string::iterator pos = lines[0].begin();
+	currentLine = lines[0].str();
+	string::iterator pos = currentLine.begin();
 	utf8::unchecked::advance(pos, cursorPosition);
-	utf8::unchecked::append(uint32_t(chr), inserter(lines[0], pos));
-	currentLine = lines[0];
+	utf8::unchecked::append(uint32_t(chr), inserter(currentLine, pos));
+	lines[0] = ConsoleLine(currentLine);
 	++cursorPosition;
 }
 

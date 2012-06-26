@@ -13,6 +13,7 @@ namespace openmsx {
 
 class Reactor;
 class CommandConsole;
+class ConsoleLine;
 class TTFFont;
 class BaseImage;
 class Setting;
@@ -45,8 +46,10 @@ private:
 	void loadFont      (const std::string& value);
 	void loadBackground(const std::string& value);
 	byte getVisibility() const;
-	void drawText(OutputSurface& output, string_ref text,
+	void drawText(OutputSurface& output, const ConsoleLine& text,
 	              int x, int y, byte alpha);
+	void drawText2(OutputSurface& output, string_ref text,
+                       int& x, int y, byte alpha, unsigned rgb);
 
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,

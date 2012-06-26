@@ -282,12 +282,31 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 #endif
 }
 
-void OSDConsoleRenderer::drawText(OutputSurface& output, string_ref text,
+void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line,
                                   int x, int y, byte alpha)
 {
+	unsigned chunks = line.numChunks();
+	for (unsigned i = 0; i < chunks; ++i) {
+		unsigned rgb = line.chunkColor(i);
+		string_ref text = line.chunkText(i);
+		drawText2(output, text, x, y, alpha, rgb);
+	}
+}
+
+void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text_,
+                                   int& x, int y, byte alpha, unsigned rgb)
+{
 	SDLSurfacePtr surf;
+	int x2 = x;
 	try {
-		surf = font->render(text.str(), 255, 255, 255);
+		unsigned width, height;
+		string text = text_.str();
+		font->getSize(text, width, height);
+		x += width; // can't use surf->w because trailing whitespace is not included
+		surf = font->render(text,
+		                    (rgb >> 16) & 0xff,
+		                    (rgb >>  8) & 0xff,
+		                    (rgb >>  0) & 0xff);
 		if (!surf.get()) return; // nothing was rendered, so do nothing
 	} catch (MSXException& e) {
 		static bool alreadyPrinted = false;
@@ -300,12 +319,12 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, string_ref text,
 	}
 	if (!openGL) {
 		SDLImage image(surf);
-		image.draw(output, x, y, alpha);
+		image.draw(output, x2, y, alpha);
 	}
 #if COMPONENT_GL
 	else {
 		GLImage image(surf);
-		image.draw(output, x, y, alpha);
+		image.draw(output, x2, y, alpha);
 	}
 #endif
 }
@@ -370,7 +389,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		lastCursorY = cursorY;
 	}
 	if (blink && (console.getScrollBack() == 0)) {
-		drawText(output, "_",
+		drawText(output, ConsoleLine("_"),
 		         destX + CHAR_BORDER + cursorX * font->getWidth(),
 		         destY + destH - (font->getHeight() * (cursorY + 1)) - 1,
 		         visibility);
