@@ -298,13 +298,13 @@ bool GlobalCommandController::hasCommand(string_ref command) const
 	return commands.find(command) != commands.end();
 }
 
-void GlobalCommandController::split(const string& str, vector<string>& tokens,
+void GlobalCommandController::split(string_ref str, vector<string>& tokens,
                                     const char delimiter)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
 
-	for (unsigned i = 0; i < str.length(); ++i) {
+	for (unsigned i = 0; i < str.size(); ++i) {
 		char chr = str[i];
 		switch (state) {
 			case Alpha:
@@ -465,7 +465,7 @@ void GlobalCommandController::source(const string& script)
 	}
 }
 
-void GlobalCommandController::tabCompletion(string& command)
+string GlobalCommandController::tabCompletion(string_ref command)
 {
 	// split in sub commands
 	vector<string> subcmds;
@@ -504,7 +504,7 @@ void GlobalCommandController::tabCompletion(string& command)
 
 	// rebuild command string
 	subcmds.back() = join(originalTokens, ' ');
-	command = join(subcmds, ';');
+	return join(subcmds, ';');
 }
 
 void GlobalCommandController::tabCompletion(vector<string>& tokens)
@@ -628,9 +628,8 @@ void TabCompletionCmd::execute(const vector<TclObject*>& tokens, TclObject& resu
 	switch (tokens.size()) {
 	case 2: {
 		// TODO this prints list of possible completions in the console
-		string command = tokens[1]->getString().str();
-		controller.tabCompletion(command);
-		result.setString(command);
+		string_ref command = tokens[1]->getString();
+		result.setString(controller.tabCompletion(command));
 		break;
 	}
 	default:

@@ -65,7 +65,7 @@ public:
 	/**
 	 * Complete the given command.
 	 */
-	virtual void tabCompletion(std::string& command);
+	virtual std::string tabCompletion(string_ref command);
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
 	 * balanced).
@@ -83,7 +83,7 @@ public:
 	virtual CliConnection* getConnection() const;
 
 private:
-	void split(const std::string& str,
+	void split(string_ref str,
 	           std::vector<std::string>& tokens, char delimiter);
 	std::string join(const std::vector<std::string>& tokens, char delimiter);
 	std::string removeEscaping(const std::string& str);

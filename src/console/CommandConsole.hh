@@ -33,7 +33,7 @@ public:
 	BooleanSetting& getConsoleSetting();
 
 	unsigned getScrollBack() const;
-	std::string getLine(unsigned line) const;
+	string_ref getLine(unsigned line) const;
 	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
 	void setColumns(unsigned columns);

@@ -149,7 +149,7 @@ unsigned CommandConsole::getScrollBack() const
 	return consoleScrollBack;
 }
 
-string CommandConsole::getLine(unsigned line) const
+string_ref CommandConsole::getLine(unsigned line) const
 {
 	unsigned count = 0;
 	for (unsigned buf = 0; buf < lines.size(); ++buf) {
@@ -423,11 +423,11 @@ void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
 	string::size_type pl = prompt.size();
-	string front = utf8::unchecked::substr(lines[0], pl, cursorPosition - pl);
-	string back  = utf8::unchecked::substr(lines[0], cursorPosition);
-	commandController.tabCompletion(front);
-	cursorPosition = unsigned(pl + utf8::unchecked::size(front));
-	currentLine = lines[0] = prompt + front + back;
+	string_ref front = utf8::unchecked::substr(lines[0], pl, cursorPosition - pl);
+	string_ref back  = utf8::unchecked::substr(lines[0], cursorPosition);
+	string newFront = commandController.tabCompletion(front);
+	cursorPosition = unsigned(pl + utf8::unchecked::size(newFront));
+	currentLine = lines[0] = prompt + newFront + back;
 }
 
 void CommandConsole::scroll(int delta)

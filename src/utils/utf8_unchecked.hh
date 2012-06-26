@@ -33,7 +33,7 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_UNCHECKED_HH
 
 #include "utf8_core.hh"
-#include <string>
+#include "string_ref.hh"
 
 namespace utf8 {
 namespace unchecked {
@@ -228,17 +228,17 @@ public:
 };
 
 // convenience functions
-inline unsigned size(const std::string& utf8)
+inline unsigned size(string_ref utf8)
 {
 	return unsigned(utf8::unchecked::distance(utf8.begin(), utf8.end()));
 }
-inline std::string substr(const std::string& utf8, std::string::size_type first = 0,
-                   std::string::size_type len = std::string::npos)
+inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
+                         string_ref::size_type len = string_ref::npos)
 {
-	std::string::const_iterator begin = utf8.begin();
+	string_ref::const_iterator begin = utf8.begin();
 	utf8::unchecked::advance(begin, first);
-	std::string::const_iterator end;
-	if (len != std::string::npos) {
+	string_ref::const_iterator end;
+	if (len != string_ref::npos) {
 		end = begin;
 		while (len && (end != utf8.end())) {
 			unchecked::next(end); --len;
@@ -246,7 +246,7 @@ inline std::string substr(const std::string& utf8, std::string::size_type first 
 	} else {
 		end = utf8.end();
 	}
-	return std::string(begin, end);
+	return string_ref(begin, end);
 }
 
 } // namespace unchecked
