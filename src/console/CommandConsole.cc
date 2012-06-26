@@ -498,11 +498,45 @@ void CommandConsole::commandExecute()
 	putPrompt();
 }
 
+ConsoleLine CommandConsole::highLight(string_ref line)
+{
+	assert(line.starts_with(prompt));
+	string_ref command = line.substr(prompt.size());
+	ConsoleLine result;
+	result.addChunk(prompt, 0xffffff);
+
+	TclParser parser = commandController.getInterpreter().parse(command);
+	string colors = parser.getColors();
+	assert(colors.size() == command.size());
+
+	unsigned pos = 0;
+	while (pos != colors.size()) {
+		char col = colors[pos];
+		unsigned pos2 = pos++;
+		while ((pos != colors.size()) && (colors[pos] == col)) {
+			++pos;
+		}
+		// TODO make these color configurable?
+		unsigned rgb;
+		switch (col) {
+		case 'E': rgb = 0xff0000; break; // error
+		case 'c': rgb = 0x5c5cff; break; // comment
+		case 'v': rgb = 0x00ffff; break; // variable
+		case 'l': rgb = 0xff00ff; break; // literal
+		case 'p': rgb = 0xcdcd00; break; // proc
+		case 'o': rgb = 0x00cdcd; break; // operator
+		default:  rgb = 0xffffff; break; // other
+		}
+		result.addChunk(command.substr(pos2, pos - pos2), rgb);
+	}
+	return result;
+}
+
 void CommandConsole::putPrompt()
 {
 	commandScrollBack = history.end();
 	currentLine = prompt;
-	lines[0] = ConsoleLine(currentLine);
+	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
 
@@ -515,7 +549,7 @@ void CommandConsole::tabCompletion()
 	string newFront = commandController.tabCompletion(front);
 	cursorPosition = unsigned(pl + utf8::unchecked::size(newFront));
 	currentLine = prompt + newFront + back;
-	lines[0] = ConsoleLine(currentLine);
+	lines[0] = highLight(currentLine);
 }
 
 void CommandConsole::scroll(int delta)
@@ -538,7 +572,7 @@ void CommandConsole::prevCommand()
 	}
 	if (match) {
 		commandScrollBack = tempScrollBack;
-		lines[0] = ConsoleLine(*commandScrollBack);
+		lines[0] = highLight(*commandScrollBack);
 		cursorPosition = lines[0].numChars();
 	}
 }
@@ -557,10 +591,10 @@ void CommandConsole::nextCommand()
 	if (match) {
 		--tempScrollBack; // one time to many
 		commandScrollBack = tempScrollBack;
-		lines[0] = ConsoleLine(*commandScrollBack);
+		lines[0] = highLight(*commandScrollBack);
 	} else {
 		commandScrollBack = history.end();
-		lines[0] = ConsoleLine(currentLine);
+		lines[0] = highLight(currentLine);
 	}
 	cursorPosition = lines[0].numChars();
 }
@@ -571,7 +605,7 @@ void CommandConsole::clearCommand()
 	commandBuffer.clear();
 	prompt = PROMPT_NEW;
 	currentLine = prompt;
-	lines[0] = ConsoleLine(currentLine);
+	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
 }
 
@@ -585,7 +619,7 @@ void CommandConsole::backspace()
 		string::iterator end = begin;
 		utf8::unchecked::advance(end, 1);
 		currentLine.erase(begin, end);
-		lines[0] = ConsoleLine(currentLine);
+		lines[0] = highLight(currentLine);
 		--cursorPosition;
 	}
 }
@@ -600,7 +634,7 @@ void CommandConsole::delete_key()
 		string::iterator end = begin;
 		utf8::unchecked::advance(end, 1);
 		currentLine.erase(begin, end);
-		lines[0] = ConsoleLine(currentLine);
+		lines[0] = highLight(currentLine);
 	}
 }
 
@@ -612,7 +646,7 @@ void CommandConsole::normalKey(word chr)
 	string::iterator pos = currentLine.begin();
 	utf8::unchecked::advance(pos, cursorPosition);
 	utf8::unchecked::append(uint32_t(chr), inserter(currentLine, pos));
-	lines[0] = ConsoleLine(currentLine);
+	lines[0] = highLight(currentLine);
 	++cursorPosition;
 }
 

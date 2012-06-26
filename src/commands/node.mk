@@ -13,6 +13,7 @@ SRC_HDR:= \
 	InfoTopic \
 	Interpreter \
 	TclObject \
+	TclParser \
 
 HDR_ONLY:= \
 	InterpreterOutput \

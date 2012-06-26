@@ -108,6 +108,7 @@ private:
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();
+	ConsoleLine highLight(string_ref command);
 
 	/** Prints a string on the console.
 	  */

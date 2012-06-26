@@ -472,4 +472,9 @@ void Interpreter::poll()
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
 
+TclParser Interpreter::parse(string_ref command)
+{
+	return TclParser(interp, command);
+}
+
 } // namespace openmsx

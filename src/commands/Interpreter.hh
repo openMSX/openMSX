@@ -3,6 +3,7 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
+#include "TclParser.hh"
 #include "EventListener.hh"
 #include "StringMap.hh"
 #include "string_ref.hh"
@@ -71,6 +72,8 @@ public:
 		Tcl_Free(result);
 		return result2;
 	}
+
+	TclParser parse(string_ref command);
 
 private:
 	// EventListener
