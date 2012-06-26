@@ -112,7 +112,7 @@ private:
 
 	/** Prints a string on the console.
 	  */
-	void print(string_ref text);
+	void print(string_ref text, unsigned rgb = 0xffffff);
 
 	void loadHistory();
 	void saveHistory();

@@ -416,15 +416,12 @@ unsigned CommandConsole::getOutputColumns() const
 	return getColumns();
 }
 
-void CommandConsole::print(string_ref text)
+void CommandConsole::print(string_ref text, unsigned rgb)
 {
 	while (true) {
 		string_ref::size_type pos = text.find('\n');
-		if (pos == string_ref::npos) {
-			newLineConsole(text);
-			return;
-		}
-		newLineConsole(text.substr(0, pos));
+		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
+		if (pos == string_ref::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
 	}
@@ -488,7 +485,7 @@ void CommandConsole::commandExecute()
 				print(result);
 			}
 		} catch (CommandException& e) {
-			print(e.getMessage());
+			print(e.getMessage(), 0xff0000);
 		}
 		commandBuffer.clear();
 		prompt = PROMPT_NEW;
