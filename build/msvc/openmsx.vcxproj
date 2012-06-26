@@ -311,6 +311,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\CommandConsole.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\console\TclParser.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\console\OSDGUILayer.cc" />
@@ -809,6 +810,7 @@
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLLoader.hh" />
     <None Include="$(OpenMSXSrcDir)\console\CommandConsole.hh" />
+	<None Include="$(OpenMSXSrcDir)\console\TclParser.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDConsoleRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDGUI.hh" />
     <None Include="$(OpenMSXSrcDir)\console\OSDGUILayer.hh" />
