@@ -211,6 +211,11 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 }
 
 #ifdef DEBUG
+// Note: this function has the same name and the same functionality as the
+// std::is_sorted function in c++11. Once we switch to a c++11 compiler (or
+// enable c++11 mode) this function can be removed. Vc++ has c++11 mode enabled
+// by default, this currently causes an ambiguous function call, as a temporary
+// fix we have to explicitly qualify all calls to this function.
 template<class ForwardIterator, class StrictWeakOrdering>
 bool is_sorted(ForwardIterator first, ForwardIterator last,
                StrictWeakOrdering comp)
@@ -244,7 +249,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(openmsx::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -263,7 +268,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(openmsx::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
 #endif
 }
 
