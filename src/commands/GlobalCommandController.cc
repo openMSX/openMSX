@@ -56,14 +56,12 @@ private:
 class UpdateCmd : public Command
 {
 public:
-	UpdateCmd(CommandController& commandController,
-	          GlobalCliComm& cliComm);
+	explicit UpdateCmd(CommandController& commandController);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	CliConnection& getConnection();
-	GlobalCliComm& cliComm;
 };
 
 class VersionInfo : public InfoTopic
@@ -116,7 +114,7 @@ GlobalCommandController::GlobalCommandController(
 		"        eval \"openmsx_update $args\"\n"
 		"    }\n"
 		"}\n");
-	updateCmd.reset(new UpdateCmd(*this, cliComm));
+	updateCmd.reset(new UpdateCmd(*this));
 }
 
 GlobalCommandController::~GlobalCommandController()
@@ -648,10 +646,8 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 
 // class UpdateCmd
 
-UpdateCmd::UpdateCmd(CommandController& commandController,
-                     GlobalCliComm& cliComm_)
+UpdateCmd::UpdateCmd(CommandController& commandController)
 	: Command(commandController, "openmsx_update")
-	, cliComm(cliComm_)
 {
 }
 

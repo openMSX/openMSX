@@ -223,7 +223,6 @@ private:
 	int block_fnum;	// block+fnum
 	FreqIndex fc;	// Freq. freqement base
 	int ksl_base;	// KeyScaleLevel Base step
-	byte kcode;	// key code (for key scaling)
 	bool sus;	// sus on/off (release speed in percussive mode)
 };
 
