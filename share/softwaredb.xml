@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1336756288">
+<softwaredb xml:lang="en" timestamp="1341035385">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -8133,6 +8133,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2010</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">6e2597e3dd2558043550a4307d01426998136722</hash><remark><text>Demo / Demo Version</text></remark></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">efd0e4d8df8951be7fa1c129beb50e55999ce099</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Penguin Cafe</title>
@@ -12134,6 +12135,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2675
-Parse time 10.839 seconds on Fri May 11 19:11:39 CEST 2012
+Roms in this database:2676
+Parse time 7.746 seconds on Sat Jun 30 7:49:53 CEST 2012
  -->
