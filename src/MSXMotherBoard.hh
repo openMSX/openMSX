@@ -76,7 +76,7 @@ public:
 	void setMachineConfig(HardwareConfig* machineConfig);
 	bool isTurboR() const;
 
-	void loadMachine(const std::string& machine);
+	std::string loadMachine(const std::string& machine);
 
 	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(const std::string& extensionName);

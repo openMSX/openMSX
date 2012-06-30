@@ -88,14 +88,14 @@ public:
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
-	void setMachineConfig(HardwareConfig* machineConfig);
+	void setMachineConfig(MSXMotherBoard& self, HardwareConfig* machineConfig);
 	bool isTurboR() const;
-	void loadMachine(const string& machine);
+	string loadMachine(MSXMotherBoard& self, const string& machine);
 
 	typedef std::vector<HardwareConfig*> Extensions;
 	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(string_ref extensionName);
-	string loadExtension(const string& extensionName);
+	string loadExtension(MSXMotherBoard& self, const string& extensionName);
 	string insertExtension(const std::string& name,
 	                       std::auto_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
@@ -112,7 +112,7 @@ public:
 	PluggingController& getPluggingController();
 	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
-	PanasonicMemory& getPanasonicMemory();
+	PanasonicMemory& getPanasonicMemory(MSXMotherBoard& self);
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
@@ -135,7 +135,7 @@ public:
 	void freeUserName(const string& hwName, const string& userName);
 
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
+	void serialize(MSXMotherBoard& self, Archive& ar, unsigned version);
 
 private:
 	void powerDown();
@@ -143,8 +143,6 @@ private:
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
-
-	MSXMotherBoard& self;
 
 	Reactor& reactor;
 	string machineID;
@@ -234,12 +232,12 @@ private:
 class LoadMachineCmd : public Command
 {
 public:
-	LoadMachineCmd(MSXMotherBoard::Impl& motherBoard);
+	LoadMachineCmd(MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoard::Impl& motherBoard;
+	MSXMotherBoard& motherBoard;
 };
 
 class ListExtCmd : public Command
@@ -256,13 +254,13 @@ private:
 class ExtCmd : public RecordedCommand
 {
 public:
-	ExtCmd(MSXMotherBoard::Impl& motherBoard);
+	ExtCmd(MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoard::Impl& motherBoard;
+	MSXMotherBoard& motherBoard;
 };
 
 class RemoveExtCmd : public RecordedCommand
@@ -313,12 +311,12 @@ private:
 static unsigned machineIDCounter = 0;
 
 MSXMotherBoard::Impl::Impl(
-		MSXMotherBoard& self_, Reactor& reactor_)
-	: self(self_)
-	, reactor(reactor_)
+		MSXMotherBoard& self, Reactor& reactor_)
+	: reactor(reactor_)
 	, machineID(StringOp::Builder() << "machine" << ++machineIDCounter)
 	, mapperIOCounter(0)
 	, machineConfig(NULL)
+	, msxCliComm(new MSXCliComm(self, reactor.getGlobalCliComm()))
 	, msxEventDistributor(new MSXEventDistributor())
 	, stateChangeDistributor(new StateChangeDistributor())
 	, msxCommandController(new MSXCommandController(
@@ -339,9 +337,9 @@ MSXMotherBoard::Impl::Impl(
 	slotManager.reset(new CartridgeSlotManager(self));
 	reverseManager.reset(new ReverseManager(self));
 	resetCommand.reset(new ResetCmd(*this));
-	loadMachineCommand.reset(new LoadMachineCmd(*this));
+	loadMachineCommand.reset(new LoadMachineCmd(self));
 	listExtCommand.reset(new ListExtCmd(*this));
-	extCommand.reset(new ExtCmd(*this));
+	extCommand.reset(new ExtCmd(self));
 	removeExtCommand.reset(new RemoveExtCmd(*this));
 	machineNameInfo.reset(new MachineNameInfo(*this));
 	deviceInfo.reset(new DeviceInfo(*this));
@@ -356,6 +354,8 @@ MSXMotherBoard::Impl::Impl(
 		*reverseManager));
 	realTime.reset(new RealTime(
 		self, reactor.getGlobalSettings(), *eventDelay));
+	debugger.reset(new Debugger(self));
+	pluggingController.reset(new PluggingController(self));
 	powerSetting.attach(*this);
 
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
@@ -405,13 +405,16 @@ const HardwareConfig* MSXMotherBoard::Impl::getMachineConfig() const
 	return machineConfig;
 }
 
-void MSXMotherBoard::Impl::setMachineConfig(HardwareConfig* machineConfig_)
+void MSXMotherBoard::Impl::setMachineConfig(
+	MSXMotherBoard& self, HardwareConfig* machineConfig_)
 {
 	assert(!getMachineConfig());
 	machineConfig = machineConfig_;
 
 	// make sure the CPU gets instantiated from the main thread
-	getCPU();
+	assert(!msxCpu.get());
+	msxCpu.reset(new MSXCPU(self));
+	msxCpuInterface.reset(new MSXCPUInterface(self));
 }
 
 bool MSXMotherBoard::Impl::isTurboR() const
@@ -421,7 +424,7 @@ bool MSXMotherBoard::Impl::isTurboR() const
 	return config->getConfig().getChild("devices").findChild("S1990") != NULL;
 }
 
-void MSXMotherBoard::Impl::loadMachine(const string& machine)
+string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& machine)
 {
 	assert(machineName.empty());
 	assert(extensions.empty());
@@ -430,7 +433,7 @@ void MSXMotherBoard::Impl::loadMachine(const string& machine)
 
 	try {
 		machineConfig2 = HardwareConfig::createMachineConfig(self, machine);
-		setMachineConfig(machineConfig2.get());
+		setMachineConfig(self, machineConfig2.get());
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());
@@ -449,9 +452,10 @@ void MSXMotherBoard::Impl::loadMachine(const string& machine)
 		powerUp();
 	}
 	machineName = machine;
+	return machineName;
 }
 
-string MSXMotherBoard::Impl::loadExtension(const string& name)
+string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& name)
 {
 	auto_ptr<HardwareConfig> extension;
 	try {
@@ -478,7 +482,7 @@ string MSXMotherBoard::Impl::insertExtension(
 	}
 	string result = extension->getName();
 	extensions.push_back(extension.release());
-	self.getMSXCliComm().update(CliComm::EXTENSION, result, "add");
+	getMSXCliComm().update(CliComm::EXTENSION, result, "add");
 	return result;
 }
 
@@ -504,16 +508,13 @@ void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 	Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
-	self.getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
+	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
 	delete &extension;
 	extensions.erase(it);
 }
 
 CliComm& MSXMotherBoard::Impl::getMSXCliComm()
 {
-	if (!msxCliComm.get()) {
-		msxCliComm.reset(new MSXCliComm(self, reactor.getGlobalCliComm()));
-	}
 	return *msxCliComm;
 }
 
@@ -549,9 +550,6 @@ RealTime& MSXMotherBoard::Impl::getRealTime()
 
 Debugger& MSXMotherBoard::Impl::getDebugger()
 {
-	if (!debugger.get()) {
-		debugger.reset(new Debugger(self));
-	}
 	return *debugger;
 }
 
@@ -562,33 +560,23 @@ MSXMixer& MSXMotherBoard::Impl::getMSXMixer()
 
 PluggingController& MSXMotherBoard::Impl::getPluggingController()
 {
-	if (!pluggingController.get()) {
-		pluggingController.reset(new PluggingController(self));
-	}
 	return *pluggingController;
 }
 
 MSXCPU& MSXMotherBoard::Impl::getCPU()
 {
-	// because CPU needs to know if we're emulating turbor or not
-	assert(getMachineConfig());
-
-	if (!msxCpu.get()) {
-		msxCpu.reset(new MSXCPU(self));
-	}
+	assert(getMachineConfig()); // because CPU needs to know if we're
+	                            // emulating turbor or not
 	return *msxCpu;
 }
 
 MSXCPUInterface& MSXMotherBoard::Impl::getCPUInterface()
 {
-	if (!msxCpuInterface.get()) {
-		assert(getMachineConfig());
-		msxCpuInterface.reset(new MSXCPUInterface(self));
-	}
+	assert(getMachineConfig());
 	return *msxCpuInterface;
 }
 
-PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory()
+PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory(MSXMotherBoard& self)
 {
 	if (!panasonicMemory.get()) {
 		panasonicMemory.reset(new PanasonicMemory(self));
@@ -965,7 +953,7 @@ string ResetCmd::help(const vector<string>& /*tokens*/) const
 
 
 // LoadMachineCmd
-LoadMachineCmd::LoadMachineCmd(MSXMotherBoard::Impl& motherBoard_)
+LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "load_machine")
 	, motherBoard(motherBoard_)
 {
@@ -979,8 +967,7 @@ string LoadMachineCmd::execute(const vector<string>& tokens)
 	if (motherBoard.getMachineConfig()) {
 		throw CommandException("Already loaded a config in this machine.");
 	}
-	motherBoard.loadMachine(tokens[1]);
-	return motherBoard.getMachineName();
+	return motherBoard.loadMachine(tokens[1]);
 }
 
 string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
@@ -1020,7 +1007,7 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 
 
 // ExtCmd
-ExtCmd::ExtCmd(MSXMotherBoard::Impl& motherBoard_)
+ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
@@ -1199,7 +1186,7 @@ void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 // version 2: added reRecordCount
 // version 3: removed reRecordCount (moved to ReverseManager)
 template<typename Archive>
-void MSXMotherBoard::Impl::serialize(Archive& ar, unsigned version)
+void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned version)
 {
 	// don't serialize:
 	//    machineID, userNames, availableDevices, addRemoveUpdate,
@@ -1314,15 +1301,15 @@ const HardwareConfig* MSXMotherBoard::getMachineConfig() const
 }
 void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig)
 {
-	pimpl->setMachineConfig(machineConfig);
+	pimpl->setMachineConfig(*this, machineConfig);
 }
 bool MSXMotherBoard::isTurboR() const
 {
 	return pimpl->isTurboR();
 }
-void MSXMotherBoard::loadMachine(const string& machine)
+string MSXMotherBoard::loadMachine(const string& machine)
 {
-	pimpl->loadMachine(machine);
+	return pimpl->loadMachine(*this, machine);
 }
 HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 {
@@ -1330,7 +1317,7 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 }
 string MSXMotherBoard::loadExtension(const string& extensionName)
 {
-	return pimpl->loadExtension(extensionName);
+	return pimpl->loadExtension(*this, extensionName);
 }
 string MSXMotherBoard::insertExtension(
 	const string& name, auto_ptr<HardwareConfig> extension)
@@ -1392,7 +1379,7 @@ MSXCPUInterface& MSXMotherBoard::getCPUInterface()
 }
 PanasonicMemory& MSXMotherBoard::getPanasonicMemory()
 {
-	return pimpl->getPanasonicMemory();
+	return pimpl->getPanasonicMemory(*this);
 }
 MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 {
@@ -1467,7 +1454,7 @@ void MSXMotherBoard::freeUserName(const string& hwName,
 template<typename Archive>
 void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 {
-	pimpl->serialize(ar, version);
+	pimpl->serialize(*this, ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMotherBoard)
 
