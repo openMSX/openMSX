@@ -2,6 +2,7 @@
 #define TCLPARSER_HH
 
 #include "string_ref.hh"
+#include <vector>
 #include <tcl.h>
 
 #define DEBUG_TCLPARSER 0
@@ -25,6 +26,10 @@ public:
 	  */
 	std::string getColors() const { return colors; }
 
+	/** Get Start of the last subcommand. This is the command that should
+	  * be completed by tab-completion. */
+	int getLast() const { return last.back(); }
+
 private:
 	enum ParseType { COMMAND, EXPRESSION, OTHER };
 
@@ -38,6 +43,7 @@ private:
 	Tcl_Interp* interp;
 	std::string colors;
 	std::string parseStr;
+	std::vector<int> last;
 	int offset;
 
 #if DEBUG_TCLPARSER

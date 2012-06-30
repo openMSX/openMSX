@@ -465,16 +465,19 @@ void GlobalCommandController::source(const string& script)
 
 string GlobalCommandController::tabCompletion(string_ref command)
 {
-	// split in sub commands
-	vector<string> subcmds;
-	split(command, subcmds, ';');
-	if (subcmds.empty()) {
-		subcmds.push_back("");
-	}
+	// split on 'active' command (the command that should actually be
+	// completed). Some examples:
+	//    if {[debug rea<tab> <-- should complete the 'debug' command
+	//                              instead of the 'if' command
+	//    bind F6 { cycl<tab> <-- should complete 'cycle' instead of 'bind'
+	TclParser parser = interpreter->parse(command);
+	int last = parser.getLast();
+	string_ref pre  = command.substr(0, last);
+	string_ref post = command.substr(last);
 
 	// split command string in tokens
 	vector<string> originalTokens;
-	split(subcmds.back(), originalTokens, ' ');
+	split(post, originalTokens, ' ');
 	if (originalTokens.empty()) {
 		originalTokens.push_back("");
 	}
@@ -501,8 +504,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	}
 
 	// rebuild command string
-	subcmds.back() = join(originalTokens, ' ');
-	return join(subcmds, ';');
+	return pre + join(originalTokens, ' ');
 }
 
 void GlobalCommandController::tabCompletion(vector<string>& tokens)

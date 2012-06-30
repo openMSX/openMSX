@@ -64,6 +64,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 {
 	ScopedAssign<int>    sa1(offset, offset + (p - parseStr.data()));
 	ScopedAssign<string> sa2(parseStr, string(p, size));
+	last.push_back(offset);
 
 	// The functions Tcl_ParseCommand() and Tcl_ParseExpr() are meant to
 	// operate on a complete command. For interactive syntax highlighting
@@ -71,17 +72,22 @@ void TclParser::parse(const char* p, int size, ParseType type)
 	// not yet a closing brace). This loop tries to parse and depening on
 	// the parse error retries with a completed command.
 	Tcl_Parse parseInfo;
+	int retryCount = 0;
 	while (true) {
 		int parseStatus = (type == EXPRESSION)
 			? Tcl_ParseExpr(interp, parseStr.data(), parseStr.size(), &parseInfo)
 			: Tcl_ParseCommand(interp, parseStr.data(), parseStr.size(), 1, &parseInfo);
 		if (parseStatus == TCL_OK) break;
+		Tcl_FreeParse(&parseInfo);
+		++retryCount;
 
-		bool allowComplete = (offset + parseStr.size()) >= colors.size();
+		bool allowComplete = ((offset + parseStr.size()) >= colors.size()) &&
+		                     (retryCount < 10);
 		Tcl_Obj* resObj = Tcl_GetObjResult(interp);
 		int resLen;
 		const char* resStr = Tcl_GetStringFromObj(resObj, &resLen);
 		string_ref error(resStr, resLen);
+
 		if (allowComplete && error.starts_with("missing close-brace")) {
 			parseStr += '}';
 		} else if (allowComplete && error.starts_with("missing close-bracket")) {
@@ -91,14 +97,18 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		} else if (allowComplete && error.starts_with("unbalanced open paren")) {
 			parseStr += ')';
 		} else if (allowComplete && error.starts_with("missing operand")) {
+			// This also triggers for a (wrong) expression like
+			//    'if { / 3'
+			// and that can't be solved by adding something at the
+			// end. Without the retryCount stuff we would get in an
+			// infinte loop here.
 			parseStr += '0';
 		} else if (allowComplete && error.starts_with("missing )")) {
 			parseStr += ')';
-		} else if (allowComplete && error.starts_with("missing \"")) {
-			parseStr += '"';
 		} else {
 			DEBUG_PRINT("ERROR: " + parseStr + ": " + error);
 			setColors(parseStr.data(), parseStr.size(), 'E');
+			if ((offset + size) < colors.size()) last.pop_back();
 			return;
 		}
 	}
@@ -113,6 +123,11 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		DEBUG_PRINT("COMMAND: " + string_ref(parseInfo.commandStart, parseInfo.commandSize));
 	}
 	printTokens(parseInfo.tokenPtr, parseInfo.numTokens);
+
+	// If the current sub-command stops before the end of the original
+	// full command, then it's not the last sub-command. Note that
+	// sub-commands can be nested.
+	if ((offset + size) < colors.size()) last.pop_back();
 
 	const char* nextStart = parseInfo.commandStart + parseInfo.commandSize;
 	Tcl_FreeParse(&parseInfo);
@@ -188,9 +203,8 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 		}
 	}
 
-	// heuristic: parse text that contains a space as a subcommand
-	string_ref text(tokens[i + 1].start, tokens[i + 1].size);
-	if ((*tokens[i].start != '"') && text.find(' ') != string_ref::npos) {
+	// heuristic: parse text that starts with { as a subcommand
+	if (*tokens[i].start == '{') {
 		return COMMAND;
 	}
 
