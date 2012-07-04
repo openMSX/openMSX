@@ -1,14 +1,14 @@
 # $Id$
 #
 # This flavour enables link-time optimization (LTO).
-# This requires GCC 4.5 or higher.
+# This requires GCC 4.5 or higher; it's known to work on GCC 4.7.1.
 
-# Optimization flags for preprocessing.
-CXXFLAGS+=-DNDEBUG
-# Optimization flags for compilation and linking.
-OPT_FLAGS+=-O3 -ffast-math -funroll-loops
+include build/flavour-opt.mk
 
-# LTO must be enabled for both compiling and linking, on both the 3rdparty
-# libs and openMSX itself.
-# Optimization flags should be passed to both the compile and link step.
-TARGET_FLAGS+=-flto $(OPT_FLAGS)
+# Enable LTO for compiling and linking.
+# Don't bother with native code output in the compile phase, since new code
+# will be generated in the link phase.
+# Ideally LTO would be enabled for the 3rdparty libs as well, but I haven't
+# been able to make that work.
+COMPILE_FLAGS+=-flto -fno-fat-lto-objects
+LINK_FLAGS+=-flto
