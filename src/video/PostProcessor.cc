@@ -5,6 +5,7 @@
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
+#include "SuperImposedFrame.hh"
 #include "PNG.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -29,6 +30,7 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, paintFrame(NULL)
 	, recorder(NULL)
 	, superImposeVideoFrame(NULL)
+	, superImposeVdpFrame(NULL)
 	, display(display_)
 {
 	if (getVideoSource() != VIDEO_LASERDISC) {
@@ -36,6 +38,7 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 		prevFrame.reset(new RawFrame(screen.getSDLFormat(), maxWidth, height));
 		deinterlacedFrame.reset(new DeinterlacedFrame(screen.getSDLFormat()));
 		interlacedFrame  .reset(new DoubledFrame     (screen.getSDLFormat()));
+		superImposedFrame = SuperImposedFrame::create(screen.getSDLFormat());
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need prevFrame, deinterlacedFrame and interlacedFrame. Also
@@ -124,6 +127,11 @@ std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
 		paintFrame = currFrame.get();
 	}
 
+	if (superImposeVdpFrame) {
+		superImposedFrame->init(paintFrame, superImposeVdpFrame);
+		paintFrame = superImposedFrame.get();
+	}
+
 	if (recorder && isActive()) {
 		recorder->addImage(paintFrame, time);
 		paintFrame->freeLineBuffers();
@@ -139,6 +147,11 @@ std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
 void PostProcessor::setSuperimposeVideoFrame(const RawFrame* videoSource)
 {
 	superImposeVideoFrame = videoSource;
+}
+
+void PostProcessor::setSuperimposeVdpFrame(const FrameSource* vdpSource)
+{
+	superImposeVdpFrame = vdpSource;
 }
 
 void PostProcessor::getScaledFrame(unsigned height, const void** lines)
