@@ -64,7 +64,7 @@ const string& ConsoleLine::str() const
 
 unsigned ConsoleLine::numChunks() const
 {
-	return chunks.size();
+	return unsigned(chunks.size());
 }
 
 unsigned ConsoleLine::chunkColor(unsigned i) const
@@ -498,7 +498,7 @@ void CommandConsole::commandExecute()
 ConsoleLine CommandConsole::highLight(string_ref line)
 {
 	assert(line.starts_with(prompt));
-	string_ref command = line.substr(prompt.size());
+	string_ref command = line.substr(string_ref::size_type(prompt.size()));
 	ConsoleLine result;
 	result.addChunk(prompt, 0xffffff);
 
@@ -540,11 +540,11 @@ void CommandConsole::putPrompt()
 void CommandConsole::tabCompletion()
 {
 	resetScrollBack();
-	string::size_type pl = prompt.size();
+	unsigned pl = unsigned(prompt.size());
 	string_ref front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl);
 	string_ref back  = utf8::unchecked::substr(lines[0].str(), cursorPosition);
 	string newFront = commandController.tabCompletion(front);
-	cursorPosition = unsigned(pl + utf8::unchecked::size(newFront));
+	cursorPosition = pl + utf8::unchecked::size(newFront);
 	currentLine = prompt + newFront + back;
 	lines[0] = highLight(currentLine);
 }

@@ -57,7 +57,7 @@ TclParser::TclParser(Tcl_Interp* interp_, string_ref input)
 	, level(0)
 #endif
 {
-	parse(parseStr.data(), parseStr.size(), COMMAND);
+	parse(parseStr.data(), int(parseStr.size()), COMMAND);
 }
 
 void TclParser::parse(const char* p, int size, ParseType type)
@@ -75,8 +75,8 @@ void TclParser::parse(const char* p, int size, ParseType type)
 	int retryCount = 0;
 	while (true) {
 		int parseStatus = (type == EXPRESSION)
-			? Tcl_ParseExpr(interp, parseStr.data(), parseStr.size(), &parseInfo)
-			: Tcl_ParseCommand(interp, parseStr.data(), parseStr.size(), 1, &parseInfo);
+			? Tcl_ParseExpr(interp, parseStr.data(), int(parseStr.size()), &parseInfo)
+			: Tcl_ParseCommand(interp, parseStr.data(), int(parseStr.size()), 1, &parseInfo);
 		if (parseStatus == TCL_OK) break;
 		Tcl_FreeParse(&parseInfo);
 		++retryCount;
@@ -107,7 +107,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 			parseStr += ')';
 		} else {
 			DEBUG_PRINT("ERROR: " + parseStr + ": " + error);
-			setColors(parseStr.data(), parseStr.size(), 'E');
+			setColors(parseStr.data(), int(parseStr.size()), 'E');
 			if ((offset + size) < colors.size()) last.pop_back();
 			return;
 		}
@@ -134,7 +134,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 
 	if (type == COMMAND) {
 		// next command
-		int nextSize = (parseStr.data() + parseStr.size()) - nextStart;
+		int nextSize = int((parseStr.data() + parseStr.size()) - nextStart);
 		if (nextSize > 0) {
 			parse(nextStart, nextSize, type);
 		}
@@ -214,13 +214,13 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 
 bool TclParser::isProc(string_ref str) const
 {
-	return Tcl_FindCommand(interp, str.str().c_str(), NULL, 0);
+	return Tcl_FindCommand(interp, str.str().c_str(), NULL, 0) != NULL;
 }
 
 void TclParser::setColors(const char* p, int size, char c)
 {
 	int start = (p - parseStr.data()) + offset;
-	int stop = std::min<int>(start + size, colors.size());
+	int stop = std::min(start + size, int(colors.size()));
 	for (int i = start; i < stop; ++i) {
 		colors[i] = c;
 	}
