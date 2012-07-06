@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Simple3xScaler.hh"
-#include "SuperImposedFrame.hh"
+#include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
@@ -525,7 +525,7 @@ void Simple3xScaler<Pixel>::scaleImage(
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (superImpose) {
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
+		SuperImposedVideoFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

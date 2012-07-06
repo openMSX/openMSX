@@ -1,6 +1,6 @@
 // $Id$
 
-#include "SuperImposedFrame.hh"
+#include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
 #include "vla.hh"
@@ -9,7 +9,7 @@
 namespace openmsx {
 
 template <typename Pixel>
-SuperImposedFrame<Pixel>::SuperImposedFrame(
+SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 		const FrameSource& src_, const FrameSource& super_,
 		const PixelOperations<Pixel>& pixelOps_)
 	: FrameSource(pixelOps_.getSDLPixelFormat())
@@ -19,7 +19,7 @@ SuperImposedFrame<Pixel>::SuperImposedFrame(
 }
 
 template <typename Pixel>
-const void* SuperImposedFrame<Pixel>::getLineInfo(unsigned line, unsigned& width) const
+const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& width) const
 {
 	// Return minimum line width of 320.
 	//  We could check whether both inputs have width=1 and in that case
@@ -59,10 +59,10 @@ const void* SuperImposedFrame<Pixel>::getLineInfo(unsigned line, unsigned& width
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SuperImposedFrame<word>;
+template class SuperImposedVideoFrame<word>;
 #endif
 #if HAVE_32BPP
-template class SuperImposedFrame<unsigned>;
+template class SuperImposedVideoFrame<unsigned>;
 #endif
 
 } // namespace openmsx

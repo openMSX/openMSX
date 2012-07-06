@@ -26,8 +26,9 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	: VideoLayer(motherBoard, videoSource)
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
-	, paintFrame(0)
-	, recorder(0)
+	, paintFrame(NULL)
+	, recorder(NULL)
+	, superImposeVideoFrame(NULL)
 	, display(display_)
 {
 	if (getVideoSource() != VIDEO_LASERDISC) {
@@ -133,6 +134,11 @@ std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
 	} else {
 		return currFrame;
 	}
+}
+
+void PostProcessor::setSuperimposeVideoFrame(const RawFrame* videoSource)
+{
+	superImposeVideoFrame = videoSource;
 }
 
 void PostProcessor::getScaledFrame(unsigned height, const void** lines)

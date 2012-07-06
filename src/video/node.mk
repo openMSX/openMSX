@@ -18,7 +18,8 @@ SRC_HDR:= \
 	DummyVideoSystem \
 	SDLImage BaseImage \
 	FrameSource RawFrame PostProcessor \
-	DeinterlacedFrame DoubledFrame SuperImposedFrame \
+	DeinterlacedFrame DoubledFrame \
+	SuperImposedVideoFrame \
 	OutputSurface VisibleSurface SDLVisibleSurface \
 	SDLOffScreenSurface \
 	Icon \

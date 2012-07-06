@@ -32,7 +32,6 @@ public:
 	virtual std::auto_ptr<RawFrame> rotateFrames(
 		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
-	virtual void setSuperimposeFrame(const RawFrame* videoSource);
 
 private:
 	void preCalcNoise(double factor);
@@ -46,8 +45,6 @@ private:
 	/** The currently active scaler.
 	  */
 	std::auto_ptr<Scaler<Pixel> > currScaler;
-
-	const RawFrame* superImposeFrame;
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */

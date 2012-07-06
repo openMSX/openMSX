@@ -342,7 +342,6 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
 {
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 	scaleFactor = unsigned(-1);
-	superImposeFrame = NULL;
 
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	noiseSetting.attach(*this);
@@ -411,7 +410,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));
 		currScaler->scaleImage(
-			*paintFrame, superImposeFrame,
+			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
 			*dst, dstStartY, dstEndY); // dest
 		paintFrame->freeLineBuffers();
@@ -436,13 +435,6 @@ std::auto_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	}
 
 	return PostProcessor::rotateFrames(finishedFrame, field, time);
-}
-
-template <class Pixel>
-void FBPostProcessor<Pixel>::setSuperimposeFrame(const RawFrame* videoSource)
-{
-	// TODO this method can be moved to base class
-	superImposeFrame = videoSource;
 }
 
 

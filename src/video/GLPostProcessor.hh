@@ -35,7 +35,6 @@ public:
 	virtual std::auto_ptr<RawFrame> rotateFrames(
 		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
-	virtual void setSuperimposeFrame(const RawFrame* videoSource);
 
 protected:
 	// Observer<Setting> interface:
@@ -74,7 +73,6 @@ private:
 	Textures textures;
 
 	std::auto_ptr<ColorTexture> superImposeTex;
-	const RawFrame* superImposeFrame;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,

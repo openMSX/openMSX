@@ -49,7 +49,13 @@ public:
 		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
-	virtual void setSuperimposeFrame(const RawFrame* videoSource) = 0;
+	/** Set the Video frame on which to superimpose the 'normal' output of
+	  * this PostProcessor. Superimpose is done (preferably) after the
+	  * normal output is scaled. IOW the video frame is (preferably) left
+	  * unchanged, though exceptions are e.g. scalers that render
+	  * scanlines, those are preferably also visible in the video frame.
+	  */
+	void setSuperimposeVideoFrame(const RawFrame* videoSource);
 
 	/** Start/stop recording.
 	  * @param recorder Finished frames should be pushed to this
@@ -109,6 +115,10 @@ protected:
 
 	/** Video recorder, NULL when not recording. */
 	AviRecorder* recorder;
+
+	/** Video frame on which to superimpose the (VDP) output.
+	  * NULL when not superimposing. */
+	const RawFrame* superImposeVideoFrame;
 
 private:
 	void getScaledFrame(unsigned height, const void** lines);

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Simple2xScaler.hh"
-#include "SuperImposedFrame.hh"
+#include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
@@ -512,7 +512,7 @@ void Simple2xScaler<Pixel>::scaleImage(
 		// better, but much more work to implement in software (in
 		// openGL shaders it's very easy). Maybe we can improve this
 		// later (if required at all).
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
+		SuperImposedVideoFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RGBTriplet3xScaler.hh"
-#include "SuperImposedFrame.hh"
+#include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
 #include "DirectScalerOutput.hh"
@@ -402,7 +402,7 @@ void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* sup
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	if (superImpose) {
-		SuperImposedFrame<Pixel> sf(src, *superImpose, pixelOps);
+		SuperImposedVideoFrame<Pixel> sf(src, *superImpose, pixelOps);
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

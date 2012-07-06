@@ -262,7 +262,7 @@ void PixelRenderer::updateSuperimposing(
 	const RawFrame* videoSource, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
-	rasterizer->setSuperimposeFrame(videoSource);
+	rasterizer->setSuperimposeVideoFrame(videoSource);
 }
 
 void PixelRenderer::updateForegroundColor(

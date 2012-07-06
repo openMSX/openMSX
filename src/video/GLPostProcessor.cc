@@ -48,8 +48,6 @@ GLPostProcessor::GLPostProcessor(
 	noiseY = 0.0;
 	preCalcNoise(renderSettings.getNoise().getValue());
 
-	superImposeFrame = NULL;
-
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].reset(new Texture());
@@ -180,7 +178,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	it->srcStartY, it->srcEndY, it->lineWidth);
 		assert(textures.find(it->lineWidth) != textures.end());
-		ColorTexture* superImpose = superImposeFrame
+		ColorTexture* superImpose = superImposeVideoFrame
 		                          ? superImposeTex.get() : NULL;
 		currScaler->scaleImage(
 			*textures[it->lineWidth].tex, superImpose,
@@ -236,11 +234,6 @@ std::auto_ptr<RawFrame> GLPostProcessor::rotateFrames(
 	return reuseFrame;
 }
 
-void GLPostProcessor::setSuperimposeFrame(const RawFrame* videoSource)
-{
-	superImposeFrame = videoSource;
-}
-
 void GLPostProcessor::update(const Setting& setting)
 {
 	VideoLayer::update(setting);
@@ -269,9 +262,9 @@ void GLPostProcessor::uploadFrame()
 		            it->lineWidth);
 	}
 
-	if (superImposeFrame) {
-		int width  = superImposeFrame->getWidth();
-		int height = superImposeFrame->getHeight();
+	if (superImposeVideoFrame) {
+		int width  = superImposeVideoFrame->getWidth();
+		int height = superImposeVideoFrame->getHeight();
 		if (!superImposeTex.get() ||
 		    superImposeTex->getWidth()  != width ||
 		    superImposeTex->getHeight() != height) {
@@ -288,7 +281,7 @@ void GLPostProcessor::uploadFrame()
 			height,            // height
 			GL_BGRA,           // format
 			GL_UNSIGNED_BYTE,  // type
-			const_cast<RawFrame*>(superImposeFrame)->getLinePtrDirect<unsigned>(0)); // data
+			const_cast<RawFrame*>(superImposeVideoFrame)->getLinePtrDirect<unsigned>(0)); // data
 	}
 }
 

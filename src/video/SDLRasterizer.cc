@@ -138,9 +138,9 @@ void SDLRasterizer<Pixel>::resetPalette()
 }
 
 template<class Pixel>
-void SDLRasterizer<Pixel>::setSuperimposeFrame(const RawFrame* videoSource)
+void SDLRasterizer<Pixel>::setSuperimposeVideoFrame(const RawFrame* videoSource)
 {
-	postProcessor->setSuperimposeFrame(videoSource);
+	postProcessor->setSuperimposeVideoFrame(videoSource);
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                   videoSource, vdp.getBackgroundColor());
 }
