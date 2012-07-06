@@ -188,10 +188,18 @@ void Mouse::emulateJoystick()
 void Mouse::write(byte value, EmuTime::param time)
 {
 	if (mouseMode) {
-		// TODO figure out the timeout mechanism
-		//      does it exist at all?
+		// TODO figure out the timeout mechanism.
+		// Initially we used the value 1000 here (1000 milliseconds, or
+		// 1 full second). This caused bug
+		//    [3520394] Mouse behaves badly (unusable) in HiBrid
+		// Slightly lowering the value to around 940 was already enough
+		// to fix the problem (for this particular case). Though this
+		// still seems like a very big value. It should only be large
+		// enough so that reading one 'mouse cyclus' is finished within
+		// the given time. So for now I lowered the value to 100, that
+		// should still be (more than) large enough.
+		const int TIMEOUT = 100; // TODO find a good value
 
-		const int TIMEOUT = 1000; // TODO find a good value
 		int delta = lastTime.getTicksTill(time);
 		lastTime.advance(time);
 		if (delta >= TIMEOUT) {
