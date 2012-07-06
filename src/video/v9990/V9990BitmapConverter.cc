@@ -131,10 +131,25 @@ void V9990BitmapConverter<Pixel>::rasterBD16(
 	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
 {
 	unsigned address = 2 * (x + y * vdp.getImageWidth());
-	for (/**/; nrPixels > 0; --nrPixels) {
-		byte low  = vram.readVRAMBx(address++);
-		byte high = vram.readVRAMBx(address++);
-		*pixelPtr++ = palette32768[(low + 256 * high) & 0x7FFF];
+	if (vdp.isSuperimposing()) {
+		Pixel transparant = palette256[0];
+		for (/**/; nrPixels > 0; --nrPixels) {
+			byte high = vram.readVRAMBx(address + 1);
+			if (high & 0x80) {
+				*pixelPtr = transparant;
+			} else {
+				byte low  = vram.readVRAMBx(address + 0);
+				*pixelPtr = palette32768[low + 256 * high];
+			}
+			address += 2;
+			pixelPtr += 1;
+		}
+	} else {
+		for (/**/; nrPixels > 0; --nrPixels) {
+			byte low  = vram.readVRAMBx(address++);
+			byte high = vram.readVRAMBx(address++);
+			*pixelPtr++ = palette32768[(low + 256 * high) & 0x7FFF];
+		}
 	}
 }
 

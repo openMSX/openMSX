@@ -96,11 +96,16 @@ public:
 
 	/** Get palette entry
 	  * @param index The palette index
-	  * @param r The corresponding r value (output parameter)
-	  * @param g The corresponding g value (output parameter)
-	  * @param b The corresponding b value (output parameter)
+	  * @param r  The corresponding r value (output parameter)
+	  * @param g   "        "       g   "   (  "        "    )
+	  * @param b   "        "       b   "   (  "        "    )
+	  * @param ys  "        "       ys  "   (  "        "    )
+	  * ys is only true iff
+	  *  - bit 5 (YSE) in R#8 is set
+	  *  - there is an external video source set
+	  *  - the YS bit in the palette-entry is set
 	  */
-	void getPalette(int index, byte& r, byte& g, byte& b) const;
+	void getPalette(int index, byte& r, byte& g, byte& b, bool& ys) const;
 
 	/** Get the number of elapsed UC ticks in this frame.
 	  * @param  time Point in emulated time.
@@ -122,6 +127,21 @@ public:
 	  */
 	inline bool isOverScan() const {
 		return (mode == B0) || (mode == B2) || (mode == B4);
+	}
+
+	/** Should this frame be superimposed?
+	  * This is a combination of bit 5 (YSE) in R#8 and the presence of an
+	  * external video source (see setExternalVideoSource()). Though
+	  * because this property only changes once per frame we can't directly
+	  * calculate it like that.
+	  */
+	inline bool isSuperimposing() const {
+		return superimposing;
+	}
+
+	/** Is there an external video source available to superimpose on. */
+	void setExternalVideoSource(bool enable) {
+		externalVideoSource = enable;
 	}
 
 	/** In overscan mode the cursor position is still specified with
@@ -535,6 +555,17 @@ private:
 	  * state, so writes to registers are ignored.
 	  */
 	bool systemReset;
+
+	/** Is there an external video source availble to superimpose on?
+	  * In 32bpp we could just always output an alpha channel. But in
+	  * 16bpp we only want to output the special color-key when later
+	  * it will be replaced by a pixel from the external video source. */
+	bool externalVideoSource;
+
+	/** Combination of 'externalVideoSource' and R#8 bit 5 (YSE). This
+	  * variable only changes once per frame, so we can't directly
+	  * calculate it from the two former states. */
+	bool superimposing;
 
 	// --- methods ----------------------------------------------------
 

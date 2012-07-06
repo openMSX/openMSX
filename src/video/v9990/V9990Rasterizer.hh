@@ -53,8 +53,12 @@ public:
 	  * @param r      Red component intensity (5 bits)
 	  * @param g      Green component intensity (5 bits)
 	  * @param b      Blue component intensity (5 bits)
+	  * @param ys     Is this entry transparent
 	  */
-	virtual void setPalette(int index, byte r, byte g, byte b) = 0;
+	virtual void setPalette(int index, byte r, byte g, byte b, bool ys) = 0;
+
+	/** Is superimpose enabled? */
+	virtual void setSuperimpose(bool enabled) = 0;
 
 	/** Render a rectangle of border pixels on the host screen.
 	  * The units are absolute lines (Y) and V9990 UC ticks (X).

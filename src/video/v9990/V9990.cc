@@ -84,6 +84,7 @@ V9990::V9990(const DeviceConfig& config)
 	, frameStartTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
 	, pendingIRQs(0)
+	, externalVideoSource(false)
 {
 	// clear regs TODO find realistic init values
 	memset(regs, 0, sizeof(regs));
@@ -152,6 +153,7 @@ void V9990::reset(EmuTime::param time)
 
 	isDisplayArea = false;
 	displayEnabled = false;
+	superimposing = false;
 
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
@@ -656,18 +658,20 @@ void V9990::writePaletteRegister(byte reg, byte val, EmuTime::param time)
 	palette[reg] = val;
 	reg &= ~3;
 	byte index = reg / 4;
-	renderer->updatePalette(index, palette[reg + 0], palette[reg + 1],
-	                        palette[reg + 2], time);
+	bool ys = isSuperimposing() && (palette[reg] & 0x80);
+	renderer->updatePalette(index, palette[reg + 0] & 0x1F, palette[reg + 1],
+	                        palette[reg + 2], ys, time);
 	if (index == regs[BACK_DROP_COLOR]) {
 		renderer->updateBackgroundColor(index, time);
 	}
 }
 
-void V9990::getPalette(int index, byte& r, byte& g, byte& b) const
+void V9990::getPalette(int index, byte& r, byte& g, byte& b, bool& ys) const
 {
-	r = palette[4 * index + 0];
+	r = palette[4 * index + 0] & 0x1F;
 	g = palette[4 * index + 1];
 	b = palette[4 * index + 2];
+	ys = isSuperimposing() && (palette[4 * index + 0] & 0x80);
 }
 
 void V9990::createRenderer(EmuTime::param time)
@@ -687,6 +691,12 @@ void V9990::frameStart(EmuTime::param time)
 	scrollBYHigh   = regs[SCROLL_CONTROL_BY1];
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
+
+	bool newSuperimposing = (regs[CONTROL] & 0x20) && externalVideoSource;
+	if (superimposing != newSuperimposing) {
+		superimposing = newSuperimposing;
+		renderer->updateSuperimposing(superimposing, time);
+	}
 
 	frameStartTime.reset(time);
 
@@ -897,6 +907,12 @@ void V9990::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("systemReset", systemReset);
 	}
+	// No need to serialize 'externalVideoSource', it will be restored when
+	// the external peripheral (e.g. Video9000) is de-serialized.
+	// TODO should 'superimposing' be serialized? It can't be recalculated
+	// from register values (it depends on the register values at the start
+	// of this frame). But it will be correct at the start of the next
+	// frame. Good enough?
 
 	if (ar.isLoader()) {
 		// TODO This uses 'mode' to calculate 'horTiming' and

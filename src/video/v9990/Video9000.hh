@@ -11,6 +11,8 @@
 namespace openmsx {
 
 class Display;
+class V9990;
+class PostProcessor;
 
 class Video9000 : public MSXDevice
                 , private VideoSystemChangeListener
@@ -22,6 +24,7 @@ public:
 	virtual ~Video9000();
 
 	// MSXDevice
+	virtual void init();
 	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 
@@ -30,6 +33,7 @@ public:
 
 private:
 	void recalc();
+	void recalcVideoSource();
 
 	// VideoSystemChangeListener
 	virtual void preVideoSystemChange();
@@ -43,8 +47,14 @@ private:
 	// EventListener
 	virtual int signalEvent(const shared_ptr<const Event>& event);
 
+	// Observer<Setting>
+	void update(const Setting& setting);
+
 	Display& display;
+	V9990* v9990;
 	Layer* activeLayer;
+	PostProcessor* v99x8Layer;
+	PostProcessor* v9990Layer;
 	byte value;
 };
 

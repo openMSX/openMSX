@@ -327,11 +327,12 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setPalette(int index,
-                                                 byte r, byte g, byte b)
+                                           byte r, byte g, byte b, bool ys)
 {
-	palette64[index & 63] = palette32768[((g & 31) << 10) +
-	                                     ((r & 31) <<  5) +
-	                                      (b & 31)];
+	palette64[index & 63] = ys ? screen.getKeyColor<Pixel>()
+	                           : palette32768[((g & 31) << 10) +
+	                                          ((r & 31) <<  5) +
+	                                          ((b & 31) <<  0)];
 }
 
 template <class Pixel>
@@ -340,9 +341,18 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 	// get 64 color palette from VDP
 	for (int i = 0; i < 64; ++i) {
 		byte r, g, b;
-		vdp.getPalette(i, r, g, b);
-		setPalette(i, r, g, b);
+		bool ys;
+		vdp.getPalette(i, r, g, b, ys);
+		setPalette(i, r, g, b, ys);
 	}
+	palette256[0] = vdp.isSuperimposing() ? screen.getKeyColor<Pixel>()
+	                                      : palette32768[0];
+}
+
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::setSuperimpose(bool /*enabled*/)
+{
+	resetPalette();
 }
 
 template <class Pixel>

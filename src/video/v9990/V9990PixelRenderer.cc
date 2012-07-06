@@ -251,7 +251,7 @@ void V9990PixelRenderer::setDisplayMode(V9990DisplayMode mode, EmuTime::param ti
 	rasterizer->setDisplayMode(mode);
 }
 
-void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
+void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b, bool ys,
                                        EmuTime::param time)
 {
 	if (displayEnabled) {
@@ -260,7 +260,12 @@ void V9990PixelRenderer::updatePalette(int index, byte r, byte g, byte b,
 		// TODO only sync if border color changed
 		sync(time);
 	}
-	rasterizer->setPalette(index, r, g, b);
+	rasterizer->setPalette(index, r, g, b, ys);
+}
+void V9990PixelRenderer::updateSuperimposing(bool enabled, EmuTime::param time)
+{
+	sync(time);
+	rasterizer->setSuperimpose(enabled);
 }
 void V9990PixelRenderer::setColorMode(V9990ColorMode mode, EmuTime::param time)
 {

@@ -52,27 +52,25 @@ public:
 	 */
 	virtual void updateDisplayEnabled(bool enabled, EmuTime::param time) = 0;
 
-	/** Set screen mode
-	  */
+	/** Set screen mode. */
 	virtual void setDisplayMode(V9990DisplayMode mode,
 	                            EmuTime::param time) = 0;
 
-	/** Set color mode
-	  */
+	/** Set color mode. */
 	virtual void setColorMode(V9990ColorMode mode,
 	                          EmuTime::param time) = 0;
 
-	/** Set a palette entry
-	  */
-	virtual void updatePalette(int index, byte r, byte g, byte b,
+	/** Set a palette entry. */
+	virtual void updatePalette(int index, byte r, byte g, byte b, bool ys,
 	                        EmuTime::param time) = 0;
 
-	/** Set background color
-	  */
+	/** Change superimpose status. */
+	virtual void updateSuperimposing(bool enabled, EmuTime::param time) = 0;
+
+	/** Set background color. */
 	virtual void updateBackgroundColor(int index, EmuTime::param time) = 0;
 
-	/** Set scroll register
-	 */
+	/** Set scroll register. */
 	virtual void updateScrollAX(EmuTime::param time) = 0;
 	virtual void updateScrollBX(EmuTime::param time) = 0;
 	virtual void updateScrollAYLow(EmuTime::param time) = 0;

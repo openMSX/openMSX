@@ -36,8 +36,13 @@ void V9990DummyRenderer::setColorMode(V9990ColorMode /*mode*/,
 }
 
 void V9990DummyRenderer::updatePalette(
-	int /*index*/, byte /*r*/, byte /*g*/, byte /*b*/,
+	int /*index*/, byte /*r*/, byte /*g*/, byte /*b*/, bool /*ys*/,
 	EmuTime::param /*time*/)
+{
+}
+
+void V9990DummyRenderer::updateSuperimposing(
+	bool /*enabled*/, EmuTime::param /*time*/)
 {
 }
 

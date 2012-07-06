@@ -18,7 +18,9 @@ public:
 	void updateDisplayEnabled(bool enabled, EmuTime::param time);
 	void setDisplayMode(V9990DisplayMode mode, EmuTime::param time);
 	void setColorMode(V9990ColorMode mode, EmuTime::param time);
-	void updatePalette(int index, byte r, byte g, byte b, EmuTime::param time);
+	void updatePalette(int index, byte r, byte g, byte b, bool ys,
+	                   EmuTime::param time);
+	void updateSuperimposing(bool enabled, EmuTime::param time);
 	void updateBackgroundColor(int index, EmuTime::param time);
 	void updateScrollAX(EmuTime::param time);
 	void updateScrollBX(EmuTime::param time);
