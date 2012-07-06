@@ -305,9 +305,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\commands\MSXCommandController.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\ProxyCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclObject.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\HardwareConfig.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLElement.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\XMLLoader.cc" />
@@ -389,8 +389,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\RealDrive.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SectorAccessibleDisk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\SectorBasedDisk.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\RawTrack.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\DMKDiskImage.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TC8566AF.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\TurboRFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\WD2793.cc" />
@@ -434,7 +434,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoystickPort.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\JoyTap.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\JoyMega.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Keyboard.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyboardSettings.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\KeyJoystick.cc" />
@@ -507,7 +507,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\SRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomDooly.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\BooleanSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\EnumSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\FilenameSetting.cc" />
@@ -590,8 +590,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\sha1.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringOp.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\StringMap.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc"/>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc"/>
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\string_ref.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\rapidsax.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\uint128.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\utf8_checked.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\win32-arggen.cc" />
@@ -618,10 +618,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaleNxScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\GLSnow.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.cc" />
@@ -672,8 +672,10 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.cc" />
@@ -779,7 +781,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\serialize_meta.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ThrottleManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Version.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh" />
@@ -802,10 +804,10 @@
     <None Include="$(OpenMSXSrcDir)\commands\MSXCommandController.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\ProxyCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclObject.hh" />
-	<None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
+    <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
     <None Include="$(OpenMSXSrcDir)\config\ConfigException.hh" />
     <None Include="$(OpenMSXSrcDir)\config\HardwareConfig.hh" />
-    <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />	
+    <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\SettingsConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLElement.hh" />
     <None Include="$(OpenMSXSrcDir)\config\XMLException.hh" />
@@ -906,7 +908,7 @@
     <None Include="$(OpenMSXSrcDir)\file\FileBase.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileContext.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileException.hh" />
-    <None Include="$(OpenMSXSrcDir)\file\FileNotFoundException.hh" />	
+    <None Include="$(OpenMSXSrcDir)\file\FileNotFoundException.hh" />
     <None Include="$(OpenMSXSrcDir)\file\Filename.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FileOperations.hh" />
     <None Include="$(OpenMSXSrcDir)\file\FilePool.hh" />
@@ -1020,8 +1022,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomZemina90in1.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\SRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\MegaFlashRomSCCPlus.hh" />
-	<None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
-	<None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomDooly.hh" />
+    <None Include="$(OpenMSXSrcDir)\resource\openmsx.ico" />
     <None Include="$(OpenMSXSrcDir)\settings\BooleanSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\EnumSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\FilenameSetting.hh" />
@@ -1042,10 +1044,10 @@
     <None Include="$(OpenMSXSrcDir)\sound\AY8910.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\AY8910Periphery.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\BlipBuffer.hh" />
-	<None Include="$(OpenMSXSrcDir)\sound\BlipConfig.hh" />
-	<None Include="$(OpenMSXSrcDir)\sound\BlipTable.ii" />
-	<None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiConfig.hh" />
-	<None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiTable.ii" />
+    <None Include="$(OpenMSXSrcDir)\sound\BlipConfig.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\BlipTable.ii" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiConfig.hh" />
+    <None Include="$(OpenMSXSrcDir)\sound\YM2413OkazakiTable.ii" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound16S.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DACSound8U.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\DirectXSoundDriver.hh" />
@@ -1129,7 +1131,7 @@
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
-	<None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\checked_cast.hh" />
@@ -1164,8 +1166,8 @@
     <None Include="$(OpenMSXSrcDir)\utils\statp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringOp.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\stringsp.hh" />
-	<None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
-	<None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\string_ref.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\rapidsax.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Subject.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\tuple.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\type_traits.hh" />
@@ -1192,6 +1194,8 @@
     <None Include="$(OpenMSXSrcDir)\video\DoubledFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DummyRenderer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DummyVideoSystem.hh" />
+	<None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
+	<None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\FBPostProcessor-x64.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
@@ -1232,7 +1236,7 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLScalerFactory.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLSimpleScaler.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\MLAAScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLSnow.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\GLTVScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\GLUtil.hh" />
@@ -1246,9 +1250,9 @@
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xLiteScaler.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler-1x1to3x3.nn" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQ3xScaler.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.hh" />
-	<None Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\DirectScalerOutput.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\SuperImposeScalerOutput.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\scalers\StretchScalerOutput.hh" />
     <None Include="$(OpenMSXSrcDir)\video\scalers\HQCommon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Icon.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Layer.hh" />
@@ -1443,7 +1447,7 @@
     <None Include="$(OpenMSXSrcDir)\video\VRAMObserver.hh" />
     <None Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />	
+    <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990CmdEngine.hh" />
     <None Include="$(OpenMSXSrcDir)\video\v9990\V9990DisplayTiming.hh" />
