@@ -48,7 +48,7 @@ ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
 
 void ConsoleLine::addChunk(string_ref text, unsigned rgb)
 {
-	chunks.push_back(make_pair(rgb, line.size()));
+	chunks.push_back(make_pair(rgb, string_ref::size_type(line.size())));
 	line.append(text.data(), string_ref::size_type(text.size()));
 }
 
