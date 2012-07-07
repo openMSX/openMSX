@@ -111,7 +111,7 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 template <class Pixel>
 bool SDLRasterizer<Pixel>::isActive()
 {
-	return postProcessor->isActive() &&
+	return postProcessor->needRender() &&
 	       vdp.getMotherBoard().isActive() &&
 	       !vdp.getMotherBoard().isFastForwarding();
 }

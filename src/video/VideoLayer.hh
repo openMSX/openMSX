@@ -37,8 +37,10 @@ public:
 	// Z-coordinate (Z_MSX_ACTIVE vs Z_MSX_PASSIVE). Though in case of
 	// Video9000 it's possible the Video9000 layer is selected, but we
 	// still need to render this layer (the v99x8 or v9990 layer).
-	void setVideo9000Active(bool active) { activeVideo9000 = active; }
-	bool isActive() const;
+	enum Video9000Active { INACTIVE, ACTIVE_FRONT, ACTIVE_BACK };
+	void setVideo9000Active(Video9000Active active) { activeVideo9000 = active; }
+	bool needRender() const;
+	bool needRecord() const;
 
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
@@ -71,7 +73,7 @@ private:
 	/** Video source that displays on this layer. */
 	const VideoSource videoSource;
 	/** Active when Video9000 is shown. */
-	bool activeVideo9000;
+	Video9000Active activeVideo9000;
 };
 
 } // namespace openmsx

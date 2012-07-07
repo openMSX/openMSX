@@ -132,7 +132,7 @@ std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
 		paintFrame = superImposedFrame.get();
 	}
 
-	if (recorder && isActive()) {
+	if (recorder && needRecord()) {
 		recorder->addImage(paintFrame, time);
 		paintFrame->freeLineBuffers();
 	}

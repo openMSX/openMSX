@@ -62,7 +62,7 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 template <class Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
-	return postProcessor->isActive() &&
+	return postProcessor->needRender() &&
 	       vdp.getMotherBoard().isActive() &&
 	       !vdp.getMotherBoard().isFastForwarding();
 }
