@@ -663,7 +663,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDP.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc" />
