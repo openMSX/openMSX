@@ -56,6 +56,10 @@ Interpreter& CommandCompleter::getInterpreter() const
 	return getGlobalCommandController().getInterpreter();
 }
 
+CliComm& CommandCompleter::getCliComm() const
+{
+	return getCommandController().getCliComm();
+}
 
 // class Command
 

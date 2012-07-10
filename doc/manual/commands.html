@@ -72,6 +72,8 @@
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
 
+        <li><a class="internal" href="#message">message</a></li>
+
         <li><a class="internal" href="#monitor_type">monitor_type</a></li>
 
         <li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
@@ -1431,6 +1433,24 @@
       <td>Shows info on the given topic</td>
     </tr>
   </table>
+
+  <h3><a id="message">message</a></h3>
+  <p>Show a message, with optional level (info, warning, error). By default this message will be shown in a colored box at the top of the screen for a (short) duration and then fade away.</p>
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>message &lt;text&gt; [&lt;level&gt;]</code></td>
+    </tr>
+  </table>
+  <div class="subsectiontitle">
+    examples:
+  </div>
+  <div class="examples">
+    <code>message "Hello world!"</code><br />
+    <code>message "Something bad happened" error</code><br />
+  </div>
 
   <h3><a id="monitor_type">monitor_type</a></h3>
 

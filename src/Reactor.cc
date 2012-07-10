@@ -17,6 +17,7 @@
 #include "StateChangeDistributor.hh"
 #include "Command.hh"
 #include "AfterCommand.hh"
+#include "MessageCommand.hh"
 #include "CommandException.hh"
 #include "GlobalCliComm.hh"
 #include "InfoTopic.hh"
@@ -205,6 +206,7 @@ Reactor::Reactor()
 	, afterCommand(new AfterCommand(*this, *eventDistributor,
 	                                *globalCommandController))
 	, quitCommand(new QuitCommand(*globalCommandController, *eventDistributor))
+	, messageCommand(new MessageCommand(*globalCommandController))
 	, machineCommand(new MachineCommand(*globalCommandController, *this))
 	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
 	, createMachineCommand(new CreateMachineCommand(*globalCommandController, *this))

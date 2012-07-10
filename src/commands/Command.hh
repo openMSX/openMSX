@@ -13,6 +13,7 @@ class CommandController;
 class GlobalCommandController;
 class Interpreter;
 class TclObject;
+class CliComm;
 
 class CommandCompleter : public Completer
 {
@@ -24,6 +25,7 @@ protected:
 	CommandController& getCommandController() const;
 	GlobalCommandController& getGlobalCommandController() const;
 	Interpreter& getInterpreter() const;
+	CliComm& getCliComm() const;
 
 private:
 	CommandController& commandController;

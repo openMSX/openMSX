@@ -38,6 +38,7 @@ class Setting;
 class CommandLineParser;
 class AfterCommand;
 class QuitCommand;
+class MessageCommand;
 class MachineCommand;
 class TestMachineCommand;
 class CreateMachineCommand;
@@ -149,6 +150,7 @@ private:
 
 	const std::auto_ptr<AfterCommand> afterCommand;
 	const std::auto_ptr<QuitCommand> quitCommand;
+	const std::auto_ptr<MessageCommand> messageCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
 	const std::auto_ptr<TestMachineCommand> testMachineCommand;
 	const std::auto_ptr<CreateMachineCommand> createMachineCommand;

@@ -11,7 +11,8 @@ SRC_HDR:= \
 	StdioMessages TclCallbackMessages \
 	CliServer CliConnection Socket \
 	Event InputEvents \
-	InputEventGenerator InputEventFactory
+	InputEventGenerator InputEventFactory \
+	MessageCommand \
 
 HDR_ONLY:= \
 	CliListener \
