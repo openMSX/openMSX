@@ -108,7 +108,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 		} else {
 			DEBUG_PRINT("ERROR: " + parseStr + ": " + error);
 			setColors(parseStr.data(), int(parseStr.size()), 'E');
-			if ((offset + size) < colors.size()) last.pop_back();
+			if ((offset + size) < int(colors.size())) last.pop_back();
 			return;
 		}
 	}
@@ -127,7 +127,7 @@ void TclParser::parse(const char* p, int size, ParseType type)
 	// If the current sub-command stops before the end of the original
 	// full command, then it's not the last sub-command. Note that
 	// sub-commands can be nested.
-	if ((offset + size) < colors.size()) last.pop_back();
+	if ((offset + size) < int(colors.size())) last.pop_back();
 
 	const char* nextStart = parseInfo.commandStart + parseInfo.commandSize;
 	Tcl_FreeParse(&parseInfo);
