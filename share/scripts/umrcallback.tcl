@@ -45,3 +45,9 @@ proc psgdirectioncallback {} {
 Real (older) MSX machines can get damaged by this.} warning
 }
 set invalid_psg_directions_callback psgdirectioncallback
+
+
+proc dihaltcallback {} {
+	message "DI; HALT detected, which means a hang. You can just as well reset the MSX now..." warning
+}
+set di_halt_callback dihaltcallback

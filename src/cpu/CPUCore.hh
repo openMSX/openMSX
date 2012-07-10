@@ -21,6 +21,7 @@ class MSXMotherBoard;
 class BooleanSetting;
 class IntegerSetting;
 class Setting;
+class TclCallback;
 
 template <class CPU_POLICY>
 class CPUCore : private CPU_POLICY, public CPU, private Observer<Setting>
@@ -127,6 +128,8 @@ private:
 
 	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
 	const bool isTurboR;
+
+	const std::auto_ptr<TclCallback> diHaltCallback;
 
 
 	inline void cpuTracePre();

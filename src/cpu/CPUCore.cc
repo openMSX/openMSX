@@ -181,6 +181,7 @@
 #include "CliComm.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
+#include "TclCallback.hh"
 #include "Dasm.hh"
 #include "Z80.hh"
 #include "R800.hh"
@@ -276,6 +277,9 @@ template <class T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, exitLoop(false)
 	, isTurboR(motherboard.isTurboR())
+	, diHaltCallback(new TclCallback(
+		motherboard.getCommandController(), "di_halt_callback",
+		"Tcl proc called when the CPU executed a DI/HALT sequence"))
 {
 	doSetFreq();
 	freqLocked->attach(*this);
@@ -4099,9 +4103,7 @@ template <class T> int CPUCore<T>::halt() {
 	setSlowInstructions();
 
 	if (!(R.getIFF1() || R.getIFF2())) {
-		motherboard.getMSXCliComm().printWarning(
-			"DI; HALT detected, which means a hang. "
-			"You can just as well reset the MSX now...");
+		diHaltCallback->execute();
 	}
 	return T::CC_HALT;
 }
