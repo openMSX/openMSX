@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6799 2007-08-04 22:24:13Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Floppy Disk Drive</name>
+    <manufacturer>Talent</manufacturer>
+    <code>DPF-550</code>
+    <release_year></release_year>
+    <description>External 5.25" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Talent DPF-550 diskROM/FDC">
+          <connectionstyle>National</connectionstyle>
+          <mem base="0x0000" size="0x8000"/>
+          <rom>
+            <sha1>d9c82e091b5fa1b5ee9b7f012f0084611762eb93</sha1> <!-- Confirmed by saccopharynx -->
+            <filename>dpf-550_disk.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
