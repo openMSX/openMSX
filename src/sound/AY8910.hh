@@ -10,11 +10,11 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class CliComm;
 class AY8910Periphery;
 class DeviceConfig;
 class AY8910Debuggable;
 class FloatSetting;
+class TclCallback;
 
 /** This class implements the AY-3-8910 sound chip.
   * Only the AY-3-8910 is emulated, no surrounding hardware,
@@ -170,13 +170,13 @@ private:
 
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 
-	CliComm& cliComm;
 	AY8910Periphery& periphery;
 	const std::auto_ptr<AY8910Debuggable> debuggable;
 	const std::auto_ptr<FloatSetting> vibratoPercent;
 	const std::auto_ptr<FloatSetting> vibratoFrequency;
 	const std::auto_ptr<FloatSetting> detunePercent;
 	const std::auto_ptr<FloatSetting> detuneFrequency;
+	const std::auto_ptr<TclCallback> directionsCallback;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;

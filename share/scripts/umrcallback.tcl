@@ -35,3 +35,13 @@ so that you can easily examine what is going on.
 proc vdpcmdinprogresscallback {reg val} {
 	puts stderr [format "Write to VDP command engine detected while there's still a command in progress: reg = %d, val = %d, PC = 0x%04X" [expr {$reg + 32}] $val [reg PC]]
 }
+
+
+set psg_directions_warning_printed false
+proc psgdirectioncallback {} {
+	if {$::psg_directions_warning_printed} return
+	set ::psg_directions_warning_printed true
+	message {The running MSX software has set unsafe PSG port directions.
+Real (older) MSX machines can get damaged by this.} warning
+}
+set invalid_psg_directions_callback psgdirectioncallback

@@ -13,9 +13,9 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "DeviceConfig.hh"
-#include "CliComm.hh"
 #include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
+#include "TclCallback.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "FloatSetting.hh"
@@ -48,8 +48,6 @@ static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_DOUBLE + 0.5);
 
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
-
-static bool warningPrinted = false;
 
 enum Register {
 	AY_AFINE = 0, AY_ACOARSE = 1, AY_BFINE = 2, AY_BCOARSE = 3,
@@ -480,7 +478,6 @@ inline void AY8910::Envelope::advanceFast(unsigned duration)
 AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "PSG", 3)
-	, cliComm(config.getCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(config.getMotherBoard(), *this))
 	, vibratoPercent(new FloatSetting(config.getCommandController(),
@@ -495,6 +492,9 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	, detuneFrequency(new FloatSetting(config.getCommandController(),
 		getName() + "_detune_frequency", "frequency of detune effect in Hertz",
 		5.0, 1.0, 100.0))
+	, directionsCallback(new TclCallback(config.getCommandController(),
+		"invalid_psg_directions_callback",
+		"Tcl proc called when the MSX program has set invalid PSG port directions"))
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))
@@ -597,13 +597,8 @@ void AY8910::wrtReg(unsigned reg, byte value, EmuTime::param time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
-		if ((value & PORT_A_DIRECTION) && !warningPrinted) {
-			warningPrinted = true;
-			cliComm.printWarning(
-				"The running MSX software has set unsafe PSG "
-				"port directions. "
-				"Real (older) MSX machines can get damaged "
-				"by this.");
+		if (value & PORT_A_DIRECTION) {
+			directionsCallback->execute();
 		}
 		// portA -> input
 		// portB -> output
