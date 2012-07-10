@@ -306,6 +306,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\commands\ProxyCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclObject.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\commands\TclParser.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclCallback.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\HardwareConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\DeviceConfig.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\config\SettingsConfig.cc" />
@@ -358,6 +359,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\events\MessageCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\BootBlocks.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\Disk.cc" />
@@ -804,6 +806,7 @@
     <None Include="$(OpenMSXSrcDir)\commands\ProxyCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclObject.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
+	<None Include="$(OpenMSXSrcDir)\commands\TclCallback.hh" />
     <None Include="$(OpenMSXSrcDir)\config\ConfigException.hh" />
     <None Include="$(OpenMSXSrcDir)\config\HardwareConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />
@@ -862,6 +865,7 @@
     <None Include="$(OpenMSXSrcDir)\events\MSXCliComm.hh" />
     <None Include="$(OpenMSXSrcDir)\events\Socket.hh" />
     <None Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\MessageCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\events\CliListener.hh" />
     <None Include="$(OpenMSXSrcDir)\events\StdioMessages.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\BootBlocks.hh" />
