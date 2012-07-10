@@ -14,6 +14,7 @@ SRC_HDR:= \
 	Interpreter \
 	TclObject \
 	TclParser \
+	TclCallback \
 
 HDR_ONLY:= \
 	InterpreterOutput \

@@ -39,7 +39,7 @@ TODO:
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
-#include "StringSetting.hh"
+#include "TclCallback.hh"
 #include "EnumSetting.hh"
 #include "RenderSettings.hh"
 #include "CommandController.hh"
@@ -1732,11 +1732,10 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	, cmdTraceSetting(new BooleanSetting(
 		commandController, "vdpcmdtrace",
 		"VDP command tracing on/off", false))
-	, cmdInProgressSetting(new StringSetting(
+	, cmdInProgressCallback(new TclCallback(
 		commandController, "vdpcmdinprogress_callback",
 	        "Tcl proc to call when a write to the VDP command engine is "
-		"detected while the previous command is still in progress.",
-		""))
+		"detected while the previous command is still in progress."))
 	, time(EmuTime::zero)
 	, statusChangeTime(EmuTime::infinity)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
@@ -1813,25 +1812,7 @@ void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
 {
 	sync(time);
 	if (currentCommand && (index != 12)) {
-		std::string callback = cmdInProgressSetting->getValue();
-		if (!callback.empty()) {
-			TclObject command(cmdInProgressSetting->getInterpreter());
-			command.addListElement(callback);
-			command.addListElement(int(index));
-			command.addListElement(int(value));
-			try {
-				command.executeCommand();
-			} catch (CommandException& e) {
-				CliComm& cliComm = cmdInProgressSetting->
-					getCommandController().getCliComm();
-				cliComm.printWarning(
-					"Error while executing vdpcmdinprogress "
-					"callback function \"" + callback + "\": "
-					+ e.getMessage() + "\n"
-					"Please fix your script or set a proper "
-					"callback function.");
-			}
-		}
+		cmdInProgressCallback->execute(index, value);
 	}
 	switch (index) {
 	case 0x00: // source X low

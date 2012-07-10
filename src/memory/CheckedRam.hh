@@ -16,9 +16,8 @@ namespace openmsx {
 class MSXMotherBoard;
 class Ram;
 class MSXCPU;
-class CommandController;
 class Setting;
-class StringSetting;
+class TclCallback;
 
 /**
  * This class keeps track of which bytes in the Ram have been written to. It
@@ -60,7 +59,6 @@ public:
 
 private:
 	void init();
-	void callUMRCallBack(unsigned addr);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -69,8 +67,7 @@ private:
 	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;
 	const std::auto_ptr<Ram> ram;
 	MSXCPU& msxcpu;
-	CommandController& commandController;
-	StringSetting& umrCallbackSetting;
+	std::auto_ptr<TclCallback> umrCallback;
 };
 
 } // namespace openmsx

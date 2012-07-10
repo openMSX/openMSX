@@ -10,7 +10,7 @@ namespace openmsx {
 
 class GlobalCliComm;
 class CommandController;
-class StringSetting;
+class TclCallback;
 
 class TclCallbackMessages : public CliListener
 {
@@ -25,7 +25,7 @@ public:
 
 private:
 	GlobalCliComm& cliComm;
-	const std::auto_ptr<StringSetting> messageCallbackSetting;
+	const std::auto_ptr<TclCallback> messageCallback;
 };
 
 } // namespace openmsx

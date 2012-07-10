@@ -5,14 +5,10 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
-#include "CommandController.hh"
-#include "CommandException.hh"
-#include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
-#include "TclObject.hh"
+#include "TclCallback.hh"
 #include "likely.hh"
-#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -30,23 +26,23 @@ CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
 	, ram(new Ram(motherBoard, name, description, size))
 	, msxcpu(motherBoard.getCPU())
-	, commandController(motherBoard.getCommandController())
-	, umrCallbackSetting(motherBoard.getReactor().getGlobalSettings().getUMRCallBackSetting())
+	, umrCallback(new TclCallback(
+		motherBoard.getReactor().getGlobalSettings().getUMRCallBackSetting()))
 {
-	umrCallbackSetting.attach(*this);
+	umrCallback->getSetting().attach(*this);
 	init();
 }
 
 CheckedRam::~CheckedRam()
 {
-	umrCallbackSetting.detach(*this);
+	umrCallback->getSetting().detach(*this);
 }
 
 byte CheckedRam::read(unsigned addr)
 {
 	if (unlikely(uninitialized[addr >> CacheLine::BITS]
 	                          [addr &  CacheLine::LOW])) {
-		callUMRCallBack(addr);
+		umrCallback->execute(addr, ram->getName());
 	}
 	return (*ram)[addr];
 }
@@ -88,7 +84,7 @@ void CheckedRam::clear()
 
 void CheckedRam::init()
 {
-	if (umrCallbackSetting.getValue().empty()) {
+	if (umrCallback->getValue().empty()) {
 		// there is no callback function,
 		// do as if everything is initialized
 		completely_initialized_cacheline.assign(
@@ -115,29 +111,9 @@ Ram& CheckedRam::getUncheckedRam() const
 	return *ram;
 }
 
-void CheckedRam::callUMRCallBack(unsigned addr)
-{
-	const std::string callback = umrCallbackSetting.getValue();
-	if (!callback.empty()) {
-		TclObject command(umrCallbackSetting.getInterpreter());
-		command.addListElement(callback);
-		command.addListElement(int(addr));
-		command.addListElement(ram.get()->getName());
-		try {
-			command.executeCommand();
-		} catch (CommandException& e) {
-			commandController.getCliComm().printWarning(
-				"Error executing UMR callback function \"" +
-				callback + "\": " + e.getMessage() + "\n"
-				"Please fix your script or set a proper "
-				"callback function in the umr_callback setting.");
-		}
-	}
-}
-
 void CheckedRam::update(const Setting& setting)
 {
-	assert(&setting == &umrCallbackSetting);
+	assert(&setting == &umrCallback->getSetting());
 	(void)setting;
 	init();
 }
