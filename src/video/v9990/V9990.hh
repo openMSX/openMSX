@@ -95,11 +95,11 @@ public:
 	}
 
 	/** Get palette entry
-	  * @param index The palette index
-	  * @param r  The corresponding r value (output parameter)
-	  * @param g   "        "       g   "   (  "        "    )
-	  * @param b   "        "       b   "   (  "        "    )
-	  * @param ys  "        "       ys  "   (  "        "    )
+	  * @param[in] index The palette index
+	  * @param[out] r red   component of the color
+	  * @param[out] g green component of the color
+	  * @param[out] b blue  component of the color
+	  * @param[out] ys  ys  value of the color
 	  * ys is only true iff
 	  *  - bit 5 (YSE) in R#8 is set
 	  *  - there is an external video source set
