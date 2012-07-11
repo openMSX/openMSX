@@ -6,6 +6,7 @@
 #include "Scheduler.hh"
 #include "SimpleDebuggable.hh"
 #include "BooleanSetting.hh"
+#include "TclCallback.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
@@ -61,11 +62,14 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, traceSetting(new BooleanSetting(motherboard.getCommandController(),
 	                              "cputrace", "CPU tracing on/off", false,
 	                              Setting::DONT_SAVE))
+	, diHaltCallback(new TclCallback(
+		motherboard.getCommandController(), "di_halt_callback",
+		"Tcl proc called when the CPU executed a DI/HALT sequence"))
 	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
-	                             EmuTime::zero))
+	                             *diHaltCallback, EmuTime::zero))
 	, r800(motherboard.isTurboR()
 	       ? new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
-	                               EmuTime::zero)
+	                               *diHaltCallback, EmuTime::zero)
 	       : NULL)
 	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(

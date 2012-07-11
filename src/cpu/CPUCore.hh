@@ -28,7 +28,8 @@ class CPUCore : private CPU_POLICY, public CPU, private Observer<Setting>
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
-	        const BooleanSetting& traceSetting, EmuTime::param time);
+	        const BooleanSetting& traceSetting,
+	        TclCallback& diHaltCallback, EmuTime::param time);
 	virtual ~CPUCore();
 
 	void setInterface(MSXCPUInterface* interf);
@@ -104,6 +105,7 @@ private:
 	MSXCPUInterface* interface;
 
 	const BooleanSetting& traceSetting;
+	TclCallback& diHaltCallback;
 
 	Probe<int> IRQStatus;
 	Probe<void> IRQAccept;
@@ -128,8 +130,6 @@ private:
 
 	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
 	const bool isTurboR;
-
-	const std::auto_ptr<TclCallback> diHaltCallback;
 
 
 	inline void cpuTracePre();

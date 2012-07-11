@@ -21,6 +21,7 @@ class Setting;
 class TimeInfoTopic;
 class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
+class TclCallback;
 
 class MSXCPU : private Observer<Setting>, private noncopyable
 {
@@ -151,6 +152,7 @@ private:
 
 	MSXMotherBoard& motherboard;
 	const std::auto_ptr<BooleanSetting> traceSetting;
+	const std::auto_ptr<TclCallback> diHaltCallback;
 	const std::auto_ptr<CPUCore<Z80TYPE> > z80;
 	const std::auto_ptr<CPUCore<R800TYPE> > r800;
 

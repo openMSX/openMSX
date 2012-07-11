@@ -251,13 +251,15 @@ static BooleanSetting* createFreqLockedSetting(
 
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
-		const BooleanSetting& traceSetting_, EmuTime::param time)
+		const BooleanSetting& traceSetting_,
+		TclCallback& diHaltCallback_, EmuTime::param time)
 	: T(time, motherboard_.getScheduler())
 	, CPU(T::isR800())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
 	, traceSetting(traceSetting_)
+	, diHaltCallback(diHaltCallback_)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
 	            "Non-zero if there are pending IRQs (thus CPU would enter "
 	            "interrupt routine in EI mode).",
@@ -277,9 +279,6 @@ template <class T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, exitLoop(false)
 	, isTurboR(motherboard.isTurboR())
-	, diHaltCallback(new TclCallback(
-		motherboard.getCommandController(), "di_halt_callback",
-		"Tcl proc called when the CPU executed a DI/HALT sequence"))
 {
 	doSetFreq();
 	freqLocked->attach(*this);
@@ -4103,7 +4102,7 @@ template <class T> int CPUCore<T>::halt() {
 	setSlowInstructions();
 
 	if (!(R.getIFF1() || R.getIFF2())) {
-		diHaltCallback->execute();
+		diHaltCallback.execute();
 	}
 	return T::CC_HALT;
 }
