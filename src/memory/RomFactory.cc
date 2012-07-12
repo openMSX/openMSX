@@ -42,7 +42,6 @@
 #include "MegaFlashRomSCCPlus.hh"
 #include "RomDooly.hh"
 #include "Rom.hh"
-#include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "RomDatabase.hh"
 #include "DeviceConfig.hh"
@@ -154,7 +153,7 @@ auto_ptr<MSXDevice> create(const DeviceConfig& config)
 	string_ref typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
-		const RomInfo* romInfo = config.getMotherBoard().getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
+		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
 		if (romInfo == NULL) {
 			type = guessRomType(*rom);
 		} else {

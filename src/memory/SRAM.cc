@@ -39,7 +39,7 @@ SRAM::SRAM(const string& name, int size,
 	: config(config_)
 	, ram(config.getMotherBoard(), name, "sram", size)
 	, header(header_)
-	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
+	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
@@ -50,7 +50,7 @@ SRAM::SRAM(const string& name, const string& description, int size,
 	: config(config_)
 	, ram(config.getMotherBoard(), name, description, size)
 	, header(header_)
-	, sramSync(new AlarmEvent(config.getMotherBoard().getReactor().getEventDistributor(),
+	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);

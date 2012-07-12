@@ -35,6 +35,7 @@ public:
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getPauseOnLostFocusSetting();
 	StringSetting&  getUMRCallBackSetting();
+	StringSetting&  getInvalidPsgDirectionsSetting();
 	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
@@ -50,6 +51,7 @@ private:
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
 	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
+	std::auto_ptr<StringSetting>  invalidPsgDirectionsSetting;
 	std::auto_ptr<EnumSetting<ResampledSoundDevice::ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };

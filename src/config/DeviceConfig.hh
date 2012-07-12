@@ -15,6 +15,8 @@ class MSXMotherBoard;
 class CliComm;
 class CommandController;
 class Scheduler;
+class Reactor;
+class GlobalSettings;
 
 class DeviceConfig
 {
@@ -71,6 +73,8 @@ public:
 	CliComm& getCliComm() const;
 	CommandController& getCommandController() const;
 	Scheduler& getScheduler() const;
+	Reactor& getReactor() const;
+	GlobalSettings& getGlobalSettings() const;
 
 	const XMLElement& getChild(string_ref name) const;
 	const std::string& getChildData(string_ref name) const;

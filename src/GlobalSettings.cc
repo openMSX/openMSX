@@ -30,6 +30,10 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	       "pause emulation when the openMSX window loses focus", false));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
+	invalidPsgDirectionsSetting.reset(new StringSetting(commandController,
+		"invalid_psg_directions_callback",
+		"Tcl proc called when the MSX program has set invalid PSG port directions",
+		""));
 	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap;
 	resampleMap["hq"]   = ResampledSoundDevice::RESAMPLE_HQ;
 	resampleMap["fast"] = ResampledSoundDevice::RESAMPLE_LQ;
@@ -83,6 +87,11 @@ ThrottleManager& GlobalSettings::getThrottleManager()
 StringSetting& GlobalSettings::getUMRCallBackSetting()
 {
 	return *umrCallBackSetting.get();
+}
+
+StringSetting& GlobalSettings::getInvalidPsgDirectionsSetting()
+{
+	return *invalidPsgDirectionsSetting.get();
 }
 
 BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()

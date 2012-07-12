@@ -14,7 +14,7 @@ namespace openmsx {
 IDEHD::IDEHD(const DeviceConfig& config)
 	: HD(config)
 	, AbstractIDEDevice(config.getMotherBoard())
-	, diskManipulator(config.getMotherBoard().getReactor().getDiskManipulator())
+	, diskManipulator(config.getReactor().getDiskManipulator())
 {
 	diskManipulator.registerDrive(*this, config.getMotherBoard().getMachineID() + "::");
 }

@@ -16,6 +16,7 @@
 #include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
 #include "TclCallback.hh"
+#include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "FloatSetting.hh"
@@ -492,9 +493,8 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	, detuneFrequency(new FloatSetting(config.getCommandController(),
 		getName() + "_detune_frequency", "frequency of detune effect in Hertz",
 		5.0, 1.0, 100.0))
-	, directionsCallback(new TclCallback(config.getCommandController(),
-		"invalid_psg_directions_callback",
-		"Tcl proc called when the MSX program has set invalid PSG port directions"))
+	, directionsCallback(new TclCallback(
+		config.getGlobalSettings().getInvalidPsgDirectionsSetting()))
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())
 	, isAY8910(checkAY8910(config))

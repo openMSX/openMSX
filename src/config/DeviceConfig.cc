@@ -4,6 +4,7 @@
 #include "XMLElement.hh"
 #include "HardwareConfig.hh"
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 
 namespace openmsx {
 
@@ -27,6 +28,14 @@ CommandController& DeviceConfig::getCommandController() const
 Scheduler& DeviceConfig::getScheduler() const
 {
 	return getMotherBoard().getScheduler();
+}
+Reactor& DeviceConfig::getReactor() const
+{
+	return getMotherBoard().getReactor();
+}
+GlobalSettings& DeviceConfig::getGlobalSettings() const
+{
+	return getReactor().getGlobalSettings();
 }
 
 const XMLElement& DeviceConfig::getChild(string_ref name) const
