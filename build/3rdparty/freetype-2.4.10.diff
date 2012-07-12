@@ -1,6 +1,6 @@
-diff -ru freetype-2.4.8.org/include/freetype/config/ftoption.h freetype-2.4.8/include/freetype/config/ftoption.h
---- freetype-2.4.8.org/include/freetype/config/ftoption.h	2011-07-20 06:46:15.000000000 +0200
-+++ freetype-2.4.8/include/freetype/config/ftoption.h	2012-01-29 15:24:38.000000000 +0100
+diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/include/freetype/config/ftoption.h
+--- freetype-2.4.10.org/include/freetype/config/ftoption.h	2012-06-14 07:35:58.000000000 +0200
++++ freetype-2.4.10/include/freetype/config/ftoption.h	2012-07-12 17:36:05.000000000 +0200
 @@ -148,7 +148,7 @@
    /*                                                                       */
    /*   Define this macro if you want to enable this `feature'.             */
@@ -100,9 +100,9 @@ diff -ru freetype-2.4.8.org/include/freetype/config/ftoption.h freetype-2.4.8/in
  
  
    /*
-diff -ru freetype-2.4.8.org/modules.cfg freetype-2.4.8/modules.cfg
---- freetype-2.4.8.org/modules.cfg	2010-12-31 16:46:35.000000000 +0100
-+++ freetype-2.4.8/modules.cfg	2012-01-29 15:20:24.000000000 +0100
+diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
+--- freetype-2.4.10.org/modules.cfg	2011-11-26 13:19:10.000000000 +0100
++++ freetype-2.4.10/modules.cfg	2012-07-12 17:45:38.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -128,7 +128,7 @@ diff -ru freetype-2.4.8.org/modules.cfg freetype-2.4.8/modules.cfg
  
  # PostScript Type 42 font driver.
  #
- # This driver needs the `truetype' module.
+ # This driver needs the `truetype' and `psaux' modules.
 -FONT_MODULES += type42
 +#FONT_MODULES += type42
  
