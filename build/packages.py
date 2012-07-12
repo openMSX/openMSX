@@ -178,7 +178,7 @@ class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
 	sourceName = 'SDL_ttf'
-	version = '2.0.9' # for some reason, I get link errors when using 2.0.10 and 2.0.11
+	version = '2.0.9' # for some reason, I get link errors when using 2.0.10 and 2.0.11 (some freetype symbols not found: _FT_Get_Glyph, _FT_Stroker_New, _FT_Done_Glyph, _FT_Stroker_Set, _FT_Glyph_Stroke, _FT_Stroker_Done, _FT_Glyph_To_Bitmap, _FT_Done_Glyph)
 	fileLength = 3143838
 	checksums = {
 		'sha256':
