@@ -5,6 +5,8 @@
 #include "Command.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
+#include "MSXCommandController.hh"
+#include "MSXMotherBoard.hh"
 #include "Setting.hh"
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
@@ -170,6 +172,16 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		int res = TCL_OK;
 		TclObject result(interp);
 		try {
+			if (!command.isAllowedInEmptyMachine()) {
+				if (MSXCommandController* controller =
+					dynamic_cast<MSXCommandController*>(
+						&command.getCommandController())) {
+					if (!controller->getMSXMotherBoard().getMachineConfig()) {
+						throw CommandException(
+							"Can't execute command in empty machine");
+					}
+				}
+			}
 			command.execute(tokens, result);
 		} catch (MSXException& e) {
 			PRT_DEBUG(

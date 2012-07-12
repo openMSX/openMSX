@@ -29,6 +29,7 @@ public:
 
 	GlobalCommandController& getGlobalCommandController();
 	InfoCommand& getMachineInfoCommand();
+	MSXMotherBoard& getMSXMotherBoard() const;
 
 	Command* findCommand(string_ref name) const;
 

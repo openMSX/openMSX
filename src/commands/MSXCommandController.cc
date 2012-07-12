@@ -33,6 +33,7 @@ MSXCommandController::MSXCommandController(
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
 	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
+	machineInfoCommand->setAllowedInEmptyMachine(true);
 
 	msxEventDistributor.registerEventListener(*this);
 }
@@ -69,6 +70,11 @@ InfoCommand& MSXCommandController::getMachineInfoCommand()
 	return *machineInfoCommand;
 }
 
+MSXMotherBoard& MSXCommandController::getMSXMotherBoard() const
+{
+	return motherboard;
+}
+
 string MSXCommandController::getFullName(string_ref name)
 {
 	return "::" + machineID + "::" + name;
@@ -82,6 +88,8 @@ void MSXCommandController::registerCommand(Command& command, const string& str)
 	string fullname = getFullName(str);
 	globalCommandController.registerCommand(command, fullname);
 	globalCommandController.registerProxyCommand(str);
+
+	command.setAllowedInEmptyMachine(false);
 }
 
 void MSXCommandController::unregisterCommand(Command& command, string_ref str)

@@ -6,6 +6,7 @@
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
+#include "checked_cast.hh"
 
 using std::vector;
 using std::string;
@@ -29,6 +30,15 @@ void ProxyCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
 	string_ref name = tokens[0]->getString();
 	if (Command* command = getMachineCommand(name)) {
+		if (!command->isAllowedInEmptyMachine()) {
+			MSXCommandController* controller =
+				checked_cast<MSXCommandController*>(
+					&command->getCommandController());
+			if (!controller->getMSXMotherBoard().getMachineConfig()) {
+				throw CommandException(
+					"Can't execute command in empty machine");
+			}
+		}
 		command->execute(tokens, result);
 	} else {
 		throw CommandException("Invalid command name \"" + name + '"');

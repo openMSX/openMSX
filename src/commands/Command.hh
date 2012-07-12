@@ -17,12 +17,14 @@ class CliComm;
 
 class CommandCompleter : public Completer
 {
+public:
+	CommandController& getCommandController() const;
+
 protected:
 	CommandCompleter(CommandController& commandController,
 	                 string_ref name);
 	virtual ~CommandCompleter();
 
-	CommandController& getCommandController() const;
 	GlobalCommandController& getGlobalCommandController() const;
 	Interpreter& getInterpreter() const;
 	CliComm& getCliComm() const;
@@ -60,10 +62,17 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
+	// see comments in MSXMotherBoard::loadMachineCommand
+	void setAllowedInEmptyMachine(bool value) { allowInEmptyMachine = value; }
+	bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
+
 protected:
 	Command(CommandController& commandController,
 	        string_ref name);
 	virtual ~Command();
+
+private:
+	bool allowInEmptyMachine;
 };
 
 } // namespace openmsx

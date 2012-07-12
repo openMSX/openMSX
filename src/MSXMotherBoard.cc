@@ -957,6 +957,31 @@ LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 	: Command(motherBoard_.getCommandController(), "load_machine")
 	, motherBoard(motherBoard_)
 {
+	// The load_machine command should always directly follow a
+	// create_machine command:
+	// - It's not allowed to use load_machine on a machine that has
+	//   already a machine configuration loaded earlier.
+	// - We also disallow executing most machine-specifc commands on an
+	//   'empty machine' (an 'empty machine', is a machine returned by
+	//   create_machine before the load_machine command is executed, so a
+	//   machine without a machine configuration). The only exception is
+	//   this load_machine command and machine_info.
+	//
+	// So if the only allowed command on an empty machine is
+	// 'load_machine', (and an empty machine by itself isn't very useful),
+	// then why isn't create_machine and load_machine merged into a single
+	// command? The only reason for this is that load_machine sends out
+	// events (machine specific) and maybe you already want to know the ID
+	// of the new machine (this is returned by create_machine) before those
+	// events will be send.
+	//
+	// Why not allow all commands on an empty machine? In the past we did
+	// allow this, though it often was the source of bugs. We could in each
+	// command (when needed) check for an empty machine and then return
+	// some dummy/empty result or some error. But because I can't think of
+	// any really useful command for an empty machine, it seemed easier to
+	// just disallow most commands.
+	setAllowedInEmptyMachine(true);
 }
 
 string LoadMachineCmd::execute(const vector<string>& tokens)

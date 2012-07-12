@@ -28,8 +28,6 @@ is also slightly faster than going back to an arbitrary point in time\
 (let's say going back a fixed amount of time).
 }
 proc reverse_prev {{minimum 1} {maximum 15}} {
-	if { [llength [list_machines]] == 0 } { return }
-
 	set stats [auto_enable]
 	set snapshots [dict get $stats snapshots]
 	set num_snapshots [llength $snapshots]
@@ -56,8 +54,6 @@ set_help_text reverse_next \
 snapshot in the future (if possible).
 }
 proc reverse_next {{minimum 0} {maximum 15}} {
-	if { [llength [list_machines]] == 0 } { return }
-
 	set stats [auto_enable]
 	set snapshots [dict get $stats snapshots]
 	set num_snapshots [llength $snapshots]
@@ -83,8 +79,6 @@ proc reverse_next {{minimum 0} {maximum 15}} {
 }
 
 proc goto_time_delta {delta} {
-	if { [llength [list_machines]] == 0 } { return }
-
 	set t [expr {[dict get [reverse status] current] + $delta}]
 	if {$t < 0} {set t 0}
 	reverse goto $t
@@ -104,8 +98,10 @@ bind_default PAGEUP   -repeat "reverse::go_back_one_step"
 bind_default PAGEDOWN -repeat "reverse::go_forward_one_step"
 
 proc after_switch {} {
-
-	if { [llength [list_machines]] > 0 } {
+	# enabling reverse could fail if the active machine is an 'empty'
+	# machine (e.g. because the last machine is removed or because
+	# you explictly switch to an empty machine)
+	catch {
 		if {$::auto_enable_reverse eq "on"} {
 			auto_enable
 		} elseif {$::auto_enable_reverse eq "gui"} {
@@ -206,15 +202,13 @@ proc disable_reversebar {} {
 }
 
 proc update_reversebar {} {
+	catch {update_reversebar2}
 	variable reverse_bar_update_interval
+	variable update_after_id
+	set update_after_id [after realtime $reverse_bar_update_interval [namespace code update_reversebar]]
+}
 
-	if { [llength [list_machines]] == 0 } {
-		# this is pasted from below, but doing a large indent here is crazy
-		variable update_after_id
-		set update_after_id [after realtime $reverse_bar_update_interval [namespace code update_reversebar]]
-		return ;# reverse command not available, no machines running
-	}
-
+proc update_reversebar2 {} {
 	set stats [reverse status]
 
 	set x 2; set y 2
@@ -296,12 +290,10 @@ proc update_reversebar {} {
 	osd configure reverse.int.end -relx $fraction
 	osd configure reverse.int.text \
 		-text "[formatTime $playLength] / [formatTime $totLenght]"
-	variable update_after_id
-	set update_after_id [after realtime $reverse_bar_update_interval [namespace code update_reversebar]]
 }
 
 proc check_mouse {} {
-	if { [llength [list_machines]] > 0 } {
+	catch {
 		set x 2; set y 2
 		catch {lassign [osd info "reverse.int" -mousecoord] x y}
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
