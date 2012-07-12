@@ -133,11 +133,11 @@ class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
-	version = '2.7.7' # 2.7.8 doesn't seem to compile with MinGW (at least!)
-	fileLength = 4868502
+	version = '2.8.0'
+	fileLength = 4915203
 	checksums = {
 		'sha256':
-			'af5b781418ba4fff556fa43c50086658ea8a2f31909c2b625c2ce913a1d9eb68',
+			'f2e2d0e322685193d1affec83b21dc05d599e17a7306d7b90de95bb5b9ac622a',
 		}
 
 	@classmethod
