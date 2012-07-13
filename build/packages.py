@@ -253,11 +253,11 @@ class ZLib(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'zlib'
 	sourceName = 'zlib'
-	version = '1.2.3' # it seems that 1.2.4-1.2.7 give link errors (on MinGW at least)
-	fileLength = 496597
+	version = '1.2.7'
+	fileLength = 560351
 	checksums = {
 		'sha256':
-			'1795c7d067a43174113fdf03447532f373e1c6c57c08d61d9e4e9be5e244b05e',
+			'fa9c9c8638efb8cb8ef5e4dd5453e455751e1c530b1595eed466e1be9b7e26c5',
 		}
 
 # Build a dictionary of packages using introspection.
