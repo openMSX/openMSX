@@ -102,7 +102,7 @@ diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/
    /*
 diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
 --- freetype-2.4.10.org/modules.cfg	2011-11-26 13:19:10.000000000 +0100
-+++ freetype-2.4.10/modules.cfg	2012-07-13 15:58:01.000000000 +0200
++++ freetype-2.4.10/modules.cfg	2012-07-13 22:00:12.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
@@ -209,7 +209,7 @@ diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
  
  
  ####
-@@ -150,68 +150,68 @@
+@@ -150,12 +150,12 @@
  # Exact bounding box calculation.
  #
  # See include/freetype/ftbbox.h for the API.
@@ -224,11 +224,7 @@ diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
  
  # Utility functions for converting 1bpp, 2bpp, 4bpp, and 8bpp bitmaps into
  # 8bpp format, and for emboldening of bitmap glyphs.
- #
- # See include/freetype/ftbitmap.h for the API.
--BASE_EXTENSIONS += ftbitmap.c
-+#BASE_EXTENSIONS += ftbitmap.c
- 
+@@ -166,17 +166,17 @@
  # Access CID font information.
  #
  # See include/freetype/ftcid.h for the API.
@@ -249,10 +245,7 @@ diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
  
  # Convenience functions to handle glyphs.  Needs ftbitmap.c.
  #
- # See include/freetype/ftglyph.h for the API.
--BASE_EXTENSIONS += ftglyph.c
-+#BASE_EXTENSIONS += ftglyph.c
- 
+@@ -186,32 +186,32 @@
  # Interface for gxvalid module.
  #
  # See include/freetype/ftgxval.h for the API.
