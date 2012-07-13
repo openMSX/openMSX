@@ -478,7 +478,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\example.c" />
     <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\infback.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -521,12 +520,10 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzio.c">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='LIB ASM Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzlib.c" />
+	<ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzread.c" />
+	<ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzwrite.c" />
+	<ClCompile Include="$(ThirdPartySrcDir)\$(LibNameZlib)\gzclose.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameZlib)\crc32.h" />
