@@ -1,0 +1,14 @@
+diff -ur zlib-1.2.7.org/configure zlib-1.2.7/configure
+--- zlib-1.2.7.org/configure	2012-05-02 06:17:08.000000000 +0200
++++ zlib-1.2.7/configure	2012-07-13 17:45:35.000000000 +0200
+@@ -205,10 +205,6 @@
+   CYGWIN* | Cygwin* | cygwin* | OS/2*)
+         EXE='.exe' ;;
+   MINGW* | mingw*)
+-# temporary bypass
+-        rm -f $test.[co] $test $test$shared_ext
+-        echo "Please use win32/Makefile.gcc instead." | tee -a configure.log
+-        exit 1
+         LDSHARED=${LDSHARED-"$cc -shared"}
+         LDSHAREDLIBC=""
+         EXE='.exe' ;;
