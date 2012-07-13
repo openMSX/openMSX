@@ -209,7 +209,7 @@ diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
  
  
  ####
-@@ -150,95 +150,95 @@
+@@ -150,90 +150,90 @@
  # Exact bounding box calculation.
  #
  # See include/freetype/ftbbox.h for the API.
@@ -288,12 +288,6 @@ diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
  # See include/freetype/ftpfr.h for the API.
 -BASE_EXTENSIONS += ftpfr.c
 +#BASE_EXTENSIONS += ftpfr.c
- 
- # Path stroker.  Needs ftglyph.c.
- #
- # See include/freetype/ftstroke.h for the API.
--BASE_EXTENSIONS += ftstroke.c
-+#BASE_EXTENSIONS += ftstroke.c
  
  # Support for synthetic embolding and slanting of fonts.  Needs ftbitmap.c.
  #

@@ -178,11 +178,11 @@ class SDL_ttf(DownloadablePackage):
 	downloadURL = 'http://www.libsdl.org/projects/SDL_ttf/release'
 	niceName = 'SDL_ttf'
 	sourceName = 'SDL_ttf'
-	version = '2.0.9' # for some reason, I get link errors when using 2.0.10 and 2.0.11 (some freetype symbols not found: _FT_Get_Glyph, _FT_Stroker_New, _FT_Done_Glyph, _FT_Stroker_Set, _FT_Glyph_Stroke, _FT_Stroker_Done, _FT_Glyph_To_Bitmap, _FT_Done_Glyph)
-	fileLength = 3143838
+	version = '2.0.11'
+	fileLength = 4053686
 	checksums = {
 		'sha256':
-			'b4248876798b43d0fae1931cf8ae249f4f67a87736f97183f035f34aab554653',
+			'724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7',
 		}
 
 class SQLite(DownloadablePackage):
