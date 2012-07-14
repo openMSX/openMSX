@@ -361,6 +361,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.cc" />
 	<ClCompile Include="$(OpenMSXSrcDir)\events\MessageCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\BootBlocks.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\fdc\AVTFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\Disk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DiskChanger.cc" />
@@ -870,6 +871,7 @@
     <None Include="$(OpenMSXSrcDir)\events\StdioMessages.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\BootBlocks.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\AVTFDC.hh" />	
     <None Include="$(OpenMSXSrcDir)\fdc\Disk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DiskChanger.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DiskContainer.hh" />
