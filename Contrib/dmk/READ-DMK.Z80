@@ -252,7 +252,7 @@ parse_end
 		ld	a,'S'
 		call	debug_log
 		call	print_pc
-		db	"Read-DMK version 0.37",13,10
+		db	"Read-DMK version 0.38",13,10
 		db	13,10
 		db	"Insert source      disk in drive A",13,10
 		db      "Insert destination disk in drive B",13,10
@@ -1500,7 +1500,7 @@ dec_loop	inc	b
 		inc	hl
 		ld	(hl),a
 		ld	a,(side)
-		add	'0'
+		add	a,'0'
 		inc	hl
 		inc	hl
 		ld	(hl),a
@@ -1687,15 +1687,17 @@ expected_int	call	print_pc
 ; sources also trigger the motor timeout mechanism??)
 
 disable_irq	di
-		ld	a,80
+		ld	a,(#f3e0)
+		and	#df
 		out	(#99),a
-		ld	a,1+128
 		ld	(#f3e0),a
+		ld	a,1+128
 		out	(#99),a		; disable VDP IRQs
 		ret
 
 enable_irq	di
-		ld	a,112
+		ld	a,(#f3e0)
+		or	#20
 		out	(#99),a
 		ld	(#f3e0),a
 		ld	a,1+128
@@ -1963,7 +1965,7 @@ print_dec_a_2	inc	c
 		jr	nz,print_dec_a_3
 		dec	e
 		jr	z,print_dec_a_4
-print_dec_a_3	add	'0'
+print_dec_a_3	add	a,'0'
 		ld	ix,#00A2
 		ld	iy,(#fcc0)
 		call	#001c
