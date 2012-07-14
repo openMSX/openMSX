@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6799 2007-08-04 22:24:13Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>Floppy Disk Drive</name>
+    <manufacturer>AVT</manufacturer>
+    <code>DPF-550</code>
+    <release_year></release_year>
+    <description>External 5.25" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="AVT DPF-550 diskROM/FDC">
+          <connectionstyle>AVT</connectionstyle>
+          <io base="0xD0" num="6"/>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <sha1>633ad62599361bbb8ba6803cdcfaa14c54521c43</sha1> <!-- Confirmed by mohai -->
+            <filename>avt_dpf-550_disk.rom</filename>
+          </rom>
+          <drives>2</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

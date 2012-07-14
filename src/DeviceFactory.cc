@@ -31,6 +31,7 @@
 #include "MSXSCCPlusCart.hh"
 #include "PhilipsFDC.hh"
 #include "MicrosolFDC.hh"
+#include "AVTFDC.hh"
 #include "NationalFDC.hh"
 #include "VictorFDC.hh"
 #include "SanyoFDC.hh"
@@ -89,6 +90,8 @@ static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		result.reset(new PhilipsFDC(conf));
 	} else if (type == "Microsol") {
 		result.reset(new MicrosolFDC(conf));
+	} else if (type == "AVT") {
+		result.reset(new AVTFDC(conf));
 	} else if (type == "National") {
 		result.reset(new NationalFDC(conf));
 	} else if (type == "Sanyo") {

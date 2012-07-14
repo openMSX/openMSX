@@ -10,6 +10,7 @@ SRC_HDR:= \
 	VictorFDC \
 	SanyoFDC \
 	MicrosolFDC \
+	AVTFDC \
 	WD2793 \
 	TurboRFDC \
 	TC8566AF \
