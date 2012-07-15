@@ -21,7 +21,7 @@
             <sha1>633ad62599361bbb8ba6803cdcfaa14c54521c43</sha1> <!-- Confirmed by mohai -->
             <filename>avt_dpf-550_disk.rom</filename>
           </rom>
-          <drives>2</drives>
+          <drives>1</drives>
         </WD2793>
       </secondary>
     </primary>

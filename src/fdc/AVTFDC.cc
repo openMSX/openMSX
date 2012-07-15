@@ -4,7 +4,6 @@
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 #include "serialize.hh"
-#include <iostream>
 
 namespace openmsx {
 
@@ -38,8 +37,6 @@ byte AVTFDC::readIO(word port, EmuTime::param time)
 		value = 255;
 		break;
 	}
-	std::cerr << "AVTFDC: read 0x" << std::hex << (int)(port & 0xFF) << " 0x"
-	          << (int)value << std::dec << std::endl;
 	return value;
 }
 
@@ -73,8 +70,6 @@ byte AVTFDC::peekIO(word port, EmuTime::param time) const
 
 void AVTFDC::writeIO(word port, byte value, EmuTime::param time)
 {
-	std::cerr << "AVTFDC: write 0x" << std::hex << int(port & 0xFF) << " 0x"
-	          << int(value) << std::dec << std::endl;
 	switch (port & 0x07) {
 	case 0:
 		controller->setCommandReg(value, time);
@@ -92,8 +87,10 @@ void AVTFDC::writeIO(word port, byte value, EmuTime::param time)
 		break;
 	case 5:
 		// From mohai
-		// bit 0:  drive select A (and motor on, as this is a WD1770, we use this as workaround)
-		// bit 1:  drive select B (and motor on, as this is a WD1770, we use this as workaround)
+		// bit 0:  drive select A (and motor on, as this is a WD1770,
+		// we use this as workaround)
+		// bit 1:  drive select B (and motor on, as this is a WD1770,
+		// we use this as workaround)
 		// bit 2:  side select
 		// bit 3:  density: 1=single 0=double (not supported by openMSX)
 		//
