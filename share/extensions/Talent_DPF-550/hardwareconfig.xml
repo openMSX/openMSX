@@ -13,7 +13,7 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <WD2793 id="Talent DPF-550 diskROM/FDC">
+        <WD1770 id="Talent DPF-550 diskROM/FDC">
           <connectionstyle>National</connectionstyle>
           <mem base="0x0000" size="0x8000"/>
           <rom>
@@ -21,7 +21,7 @@
             <filename>dpf-550_disk.rom</filename>
           </rom>
           <drives>1</drives>
-        </WD2793>
+        </WD1770>
       </secondary>
     </primary>
   </devices>
