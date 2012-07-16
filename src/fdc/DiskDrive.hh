@@ -65,8 +65,9 @@ public:
 	 * When there is no disk in the drive or when the disk is not spinning,
 	 * this function returns the current time.
 	 * @param time The current time
+	 * @param count Number of required index pulses.
 	 */
-	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time) = 0;
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count = 1) = 0;
 
 	/** Set head loaded status.
 	 * @param status false = not loaded,
@@ -109,7 +110,7 @@ public:
 	virtual void step(bool direction, EmuTime::param time);
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual bool indexPulse(EmuTime::param time);
-	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count);
 	virtual void setHeadLoaded(bool status, EmuTime::param time);
 	virtual bool headLoaded(EmuTime::param time);
 	virtual void writeTrack(const RawTrack& track);

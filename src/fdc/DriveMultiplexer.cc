@@ -74,9 +74,9 @@ bool DriveMultiplexer::indexPulse(EmuTime::param time)
 	return drive[selected]->indexPulse(time);
 }
 
-EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time)
+EmuTime DriveMultiplexer::getTimeTillIndexPulse(EmuTime::param time, int count)
 {
-	return drive[selected]->getTimeTillIndexPulse(time);
+	return drive[selected]->getTimeTillIndexPulse(time, count);
 }
 
 void DriveMultiplexer::setHeadLoaded(bool status, EmuTime::param time)

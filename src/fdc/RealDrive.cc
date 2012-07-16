@@ -273,14 +273,15 @@ bool RealDrive::indexPulse(EmuTime::param time)
 	return getCurrentAngle(time) < INDEX_DURATION;
 }
 
-EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time)
+EmuTime RealDrive::getTimeTillIndexPulse(EmuTime::param time, int count)
 {
 	if (!motorStatus || !isDiskInserted()) { // TODO is this correct?
-		return time;
+		return EmuTime::infinity;
 	}
 	unsigned delta = TICKS_PER_ROTATION - getCurrentAngle(time);
-	EmuDuration dur = MotorClock::duration(delta);
-	return time + dur;
+	EmuDuration dur1 = MotorClock::duration(delta);
+	EmuDuration dur2 = MotorClock::duration(TICKS_PER_ROTATION) * (count - 1);
+	return time + dur1 + dur2;
 }
 
 void RealDrive::setHeadLoaded(bool status, EmuTime::param time)

@@ -40,12 +40,19 @@ static const int IMM_IRQ    = 0x08;
 enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
 
 
+/** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
+ * the only emulated difference between WD1770 and WD{12}793 is that WD1770
+ * has no ready input signal. (E.g. we don't emulate the WD1770 motor out
+ * signal yet).
+ */
 WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
-               EmuTime::param time)
+               EmuTime::param time, bool isWD1770_)
 	: Schedulable(scheduler)
 	, drive(drive_)
 	, cliComm(cliComm_)
 	, drqTime(EmuTime::infinity)
+	, pulse5(EmuTime::infinity)
+	, isWD1770(isWD1770_)
 {
 	// avoid (harmless) UMR in serialize()
 	dataCurrent = 0;
@@ -112,6 +119,13 @@ void WD2793::resetIRQ()
 	INTRQ = false;
 }
 
+bool WD2793::isReady() const
+{
+	// The WD1770 has no ready input signal (instead that pin is replaced
+	// by a motor-on/off output pin).
+	return drive.isDiskInserted() || isWD1770;
+}
+
 void WD2793::setCommandReg(byte value, EmuTime::param time)
 {
 	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
@@ -176,7 +190,7 @@ byte WD2793::getStatusReg(EmuTime::param time)
 		}
 	}
 
-	if (drive.isDiskInserted()) {
+	if (isReady()) {
 		statusReg &= ~NOT_READY;
 	} else {
 		statusReg |=  NOT_READY;
@@ -389,6 +403,12 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 				type2Loaded(time);
 			}
 			break;
+		case FSM_TYPE2_NOT_FOUND:
+			if ((commandReg & 0xC0) == 0x80)  {
+				// Type II command
+				type2NotFound(time);
+			}
+			break;
 		case FSM_TYPE2_ROTATED:
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
@@ -531,7 +551,7 @@ void WD2793::startType2Cmd(EmuTime::param time)
 	               RECORD_TYPE | WRITE_PROTECTED);
 	statusReg |= BUSY;
 
-	if (!drive.isDiskInserted()) {
+	if (!isReady()) {
 		endCmd();
 	} else {
 		// WD2795/WD2797 would now set SSO output
@@ -562,44 +582,48 @@ void WD2793::type2Loaded(EmuTime::param time)
 		return;
 	}
 
-	// Locate sector on disk.
-	RawTrack::Sector sectorInfo;
-	int firstIdx = -1;
-	EmuTime next = time;
-	while (true) {
-		try {
-			next = drive.getNextSector(next, trackData, sectorInfo);
-			setDrqRate();
-		} catch (MSXException& /*e*/) {
-			statusReg |= RECORD_NOT_FOUND;
-			endCmd();
+	pulse5 = drive.getTimeTillIndexPulse(time, 5);
+	type2Search(time);
+}
+
+void WD2793::type2Search(EmuTime::param time)
+{
+	assert(time < pulse5);
+	// Locate (next) sector on disk.
+	try {
+		EmuTime next = drive.getNextSector(time, trackData, sectorInfo);
+		setDrqRate();
+		if (next < pulse5) {
+			// Wait till sector is actually rotated under head
+			schedule(FSM_TYPE2_ROTATED, next);
 			return;
 		}
-		// TODO we should spread this search over time, so that
-		// the CRC status bit toggles correctly.
-		if ((next == EmuTime::infinity) ||      // no sectors on this track
-		    (sectorInfo.addrIdx == firstIdx)) { // already seen this index
-			// TODO real WD2793 searches till 5 index holes
-			//      have passed
-			// TODO actually let EmuTime pass
-			statusReg |= RECORD_NOT_FOUND;
-			endCmd();
-			return;
-		}
-		if (sectorInfo.addrCrcErr) {
-			statusReg |=  CRC_ERROR;
-		} else {
-			statusReg &= ~CRC_ERROR;
-		}
-		if (firstIdx == -1) firstIdx = sectorInfo.addrIdx;
-		if (sectorInfo.addrCrcErr)          continue;
-		if (sectorInfo.track  != trackReg)  continue;
-		if (sectorInfo.sector != sectorReg) continue;
+	} catch (MSXException& /*e*/) {
+		// nothing
+	}
+	// Sector not found in 5 revolutions (or read error),
+	// schedule to give a RECORD_NOT_FOUND error
+	schedule(FSM_TYPE2_NOT_FOUND, pulse5);
+}
+
+void WD2793::type2Rotated(EmuTime::param time)
+{
+	// The CRC status bit should only toggle after the disk has rotated
+	if (sectorInfo.addrCrcErr) {
+		statusReg |=  CRC_ERROR;
+	} else {
+		statusReg &= ~CRC_ERROR;
+	}
+	if ((sectorInfo.addrCrcErr) ||
+	    (sectorInfo.track  != trackReg) ||
+	    (sectorInfo.sector != sectorReg)) {
 		// TODO implement (optional) head compare
-		break;
+		// not the sector we were looking for, continue searching
+		type2Search(time);
+		return;
 	}
 
-	// Found sector.
+	// Ok, found matching sector.
 	// Get sectorsize from disk: 128, 256, 512 or 1024 bytes
 	// Verified on real WD2793:
 	//   sizecode=255 results in a sector size of 1024 bytes,
@@ -617,12 +641,6 @@ void WD2793::type2Loaded(EmuTime::param time)
 	}
 	crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
 
-	// wait till sector is actually rotated under head
-	schedule(FSM_TYPE2_ROTATED, next);
-}
-
-void WD2793::type2Rotated(EmuTime::param time)
-{
 	switch (commandReg & 0xF0) {
 	case 0x80: // read sector
 	case 0x90: // read sector (multi)
@@ -641,6 +659,12 @@ void WD2793::type2Rotated(EmuTime::param time)
 		schedule(FSM_WRITE_SECTOR, drqTime + dataAvailable);
 		break;
 	}
+}
+
+void WD2793::type2NotFound(EmuTime::param /*time*/)
+{
+	statusReg |= RECORD_NOT_FOUND;
+	endCmd();
 }
 
 void WD2793::startReadSector(EmuTime::param time)
@@ -692,7 +716,7 @@ void WD2793::startType3Cmd(EmuTime::param time)
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
 
-	if (!drive.isDiskInserted()) {
+	if (!isReady()) {
 		endCmd();
 	} else {
 		drive.setHeadLoaded(true, time);
@@ -851,7 +875,7 @@ void WD2793::startType4Cmd(EmuTime::param time)
 	if (flags == 0x00) {
 		immediateIRQ = false;
 	}
-	if ((flags & IDX_IRQ) && drive.isDiskInserted()) {
+	if ((flags & IDX_IRQ) && isReady()) {
 		setSyncPoint(drive.getTimeTillIndexPulse(time), SCHED_IDX_IRQ);
 	} else {
 		removeSyncPoint(SCHED_IDX_IRQ);
@@ -877,6 +901,7 @@ static enum_string<WD2793::FSMState> fsmStateInfo[] = {
 	{ "SEEK",            WD2793::FSM_SEEK },
 	{ "TYPE2_WAIT_LOAD", WD2793::FSM_TYPE2_WAIT_LOAD },
 	{ "TYPE2_LOADED",    WD2793::FSM_TYPE2_LOADED },
+	{ "TYPE2_NOT_FOUND", WD2793::FSM_TYPE2_NOT_FOUND },
 	{ "TYPE2_ROTATED",   WD2793::FSM_TYPE2_ROTATED },
 	{ "WRITE_SECTOR",    WD2793::FSM_WRITE_SECTOR },
 	{ "TYPE3_WAIT_LOAD", WD2793::FSM_TYPE3_WAIT_LOAD },
@@ -977,6 +1002,14 @@ void WD2793::serialize(Archive& ar, unsigned version)
 				"This is not fully backwards-compatible and "
 				"could cause wrong emulation behavior.");
 		}
+	}
+
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("pulse5", pulse5);
+		ar.serialize("sectorInfo", sectorInfo);
+	} else {
+		// leave pulse5 at EmuTime::infinity
+		// leave sectorInfo uninitialized
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WD2793);

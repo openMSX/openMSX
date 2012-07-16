@@ -160,7 +160,7 @@ auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result.reset(new MSXPrinterPort(conf));
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
 		result.reset(new MSXSCCPlusCart(conf));
-	} else if (type == "WD2793") {
+	} else if ((type == "WD2793") || (type == "WD1770")) {
 		result = createWD2793BasedFDC(conf);
 	} else if (type == "Microsol") {
 		conf.getCliComm().printWarning(

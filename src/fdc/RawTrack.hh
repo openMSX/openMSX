@@ -80,6 +80,9 @@ public:
 		bool deleted;
 		bool addrCrcErr;
 		bool dataCrcErr;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 	};
 
 	/* Construct a (cleared) track. */

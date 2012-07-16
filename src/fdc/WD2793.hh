@@ -19,7 +19,7 @@ class WD2793 : public Schedulable
 {
 public:
 	WD2793(Scheduler& scheduler, DiskDrive& drive, CliComm& cliComm,
-	       EmuTime::param time);
+	       EmuTime::param time, bool isWD1770);
 
 	void reset(EmuTime::param time);
 
@@ -53,6 +53,7 @@ public:
 		FSM_SEEK,
 		FSM_TYPE2_WAIT_LOAD,
 		FSM_TYPE2_LOADED,
+		FSM_TYPE2_NOT_FOUND,
 		FSM_TYPE2_ROTATED,
 		FSM_WRITE_SECTOR,
 		FSM_TYPE3_WAIT_LOAD,
@@ -75,6 +76,8 @@ private:
 	void startType2Cmd  (EmuTime::param time);
 	void type2WaitLoad  (EmuTime::param time);
 	void type2Loaded    (EmuTime::param time);
+	void type2Search    (EmuTime::param time);
+	void type2NotFound  (EmuTime::param time);
 	void type2Rotated   (EmuTime::param time);
 	void startReadSector(EmuTime::param time);
 	void doneWriteSector();
@@ -95,6 +98,7 @@ private:
 	inline void resetIRQ();
 	inline void setIRQ();
 	void setDrqRate();
+	bool isReady() const;
 
 	void schedule(FSMState state, EmuTime::param time);
 
@@ -107,7 +111,10 @@ private:
 	//  typically '6250 bytes/rotation * 5 rotations/second'.
 	DynamicClock drqTime;
 
+	EmuTime pulse5; // time at which the 5th index pulse will be received
+
 	RawTrack trackData;
+	RawTrack::Sector sectorInfo;
 	int dataCurrent;   // which byte in track is next to be read/write
 	int dataAvailable; // how many bytes left to read/write
 
@@ -124,8 +131,10 @@ private:
 	bool INTRQ;
 	bool immediateIRQ;
 	bool lastWasA1;
+
+	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 4);
+SERIALIZE_CLASS_VERSION(WD2793, 5);
 
 } // namespace openmsx
 

@@ -55,9 +55,9 @@ bool DummyDrive::indexPulse(EmuTime::param /*time*/)
 	return false;
 }
 
-EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param time)
+EmuTime DummyDrive::getTimeTillIndexPulse(EmuTime::param /*time*/, int /*count*/)
 {
-	return time;
+	return EmuTime::infinity;
 }
 
 void DummyDrive::setHeadLoaded(bool /*status*/, EmuTime::param /*time*/)

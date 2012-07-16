@@ -13,7 +13,7 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <WD2793 id="AVT DPF-550 diskROM/FDC">
+        <WD1770 id="AVT DPF-550 diskROM/FDC">
           <connectionstyle>AVT</connectionstyle>
           <io base="0xD0" num="6"/>
           <mem base="0x4000" size="0x4000"/>
@@ -22,7 +22,7 @@
             <filename>avt_dpf-550_disk.rom</filename>
           </rom>
           <drives>1</drives>
-        </WD2793>
+        </WD1770>
       </secondary>
     </primary>
   </devices>

@@ -3,6 +3,7 @@
 #include "WD2793BasedFDC.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+#include "XMLElement.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -11,7 +12,8 @@ WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config)
 	: MSXFDC(config)
 	, multiplexer(new DriveMultiplexer(reinterpret_cast<DiskDrive**>(drives)))
 	, controller(new WD2793(getScheduler(), *multiplexer,
-	                        getCliComm(), getCurrentTime()))
+	                        getCliComm(), getCurrentTime(),
+	                        config.getXML()->getName() == "WD1770"))
 {
 }
 

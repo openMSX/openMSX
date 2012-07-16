@@ -36,7 +36,7 @@ public:
 	virtual void step(bool direction, EmuTime::param time);
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual bool indexPulse(EmuTime::param time);
-	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time);
+	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count);
 	virtual void setHeadLoaded(bool status, EmuTime::param time);
 	virtual bool headLoaded(EmuTime::param time);
 	virtual void writeTrack(const RawTrack& track);
