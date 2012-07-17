@@ -58,8 +58,8 @@ void GLTVScaler::scaleImage(
 		// These are experimentally established functions that look good.
 		// By design, both are 0 for scanline 0.
 		float gap = renderSettings.getScanlineGap();
-		glUniform1f(minScanlineLoc[i], 0.1 * gap + 0.2 * gap * gap);
-		glUniform1f(sizeVarianceLoc[i], 0.7 * gap - 0.3 * gap * gap);
+		glUniform1f(minScanlineLoc[i],  0.1f * gap + 0.2f * gap * gap);
+		glUniform1f(sizeVarianceLoc[i], 0.7f * gap - 0.3f * gap * gap);
 	}
 	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 	             dstStartY, dstEndY, dstWidth, true);

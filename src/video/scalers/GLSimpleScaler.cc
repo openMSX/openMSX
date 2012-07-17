@@ -57,10 +57,10 @@ void GLSimpleScaler::scaleImage(
 		yScale = 1;
 	}
 
-	if ((blur != 0) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
+	if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 		src.enableInterpolation();
 	}
-	if (GLEW_VERSION_2_0 && ((blur != 0.0) || (scanline != 1.0) || superImpose)) {
+	if (GLEW_VERSION_2_0 && ((blur != 0.0f) || (scanline != 1.0f) || superImpose)) {
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();

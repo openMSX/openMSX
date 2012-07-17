@@ -126,7 +126,8 @@ double ResampleCoeffs::getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
 	int indx = index.toInt();
-	return coeffs[indx] + fraction * (coeffs[indx + 1] - coeffs[indx]);
+	return double(coeffs[indx]) +
+	       fraction * (double(coeffs[indx + 1]) - double(coeffs[indx]));
 }
 
 void ResampleCoeffs::calcTable(
