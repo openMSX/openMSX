@@ -109,7 +109,7 @@ public:
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	MSXMixer& getMSXMixer();
-	PluggingController& getPluggingController();
+	PluggingController& getPluggingController(MSXMotherBoard& self);
 	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
 	PanasonicMemory& getPanasonicMemory(MSXMotherBoard& self);
@@ -355,7 +355,6 @@ MSXMotherBoard::Impl::Impl(
 	realTime.reset(new RealTime(
 		self, reactor.getGlobalSettings(), *eventDelay));
 	debugger.reset(new Debugger(self));
-	pluggingController.reset(new PluggingController(self));
 	powerSetting.attach(*this);
 
 	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
@@ -558,8 +557,12 @@ MSXMixer& MSXMotherBoard::Impl::getMSXMixer()
 	return *msxMixer;
 }
 
-PluggingController& MSXMotherBoard::Impl::getPluggingController()
+PluggingController& MSXMotherBoard::Impl::getPluggingController(MSXMotherBoard& self)
 {
+	assert(getMachineConfig()); // needed for PluggableFactory::createAll()
+	if (!pluggingController.get()) {
+		pluggingController.reset(new PluggingController(self));
+	}
 	return *pluggingController;
 }
 
@@ -1392,7 +1395,7 @@ MSXMixer& MSXMotherBoard::getMSXMixer()
 }
 PluggingController& MSXMotherBoard::getPluggingController()
 {
-	return pimpl->getPluggingController();
+	return pimpl->getPluggingController(*this);
 }
 MSXCPU& MSXMotherBoard::getCPU()
 {
