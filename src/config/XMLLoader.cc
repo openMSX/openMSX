@@ -29,12 +29,12 @@ struct XMLLoaderHelper
 };
 
 static void cbStartElement(
-	XMLLoaderHelper* helper,
+	void* helper_,
 	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/,
 	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
-	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs
-	)
+	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
 {
+	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
 	std::auto_ptr<XMLElement> newElem(
 		new XMLElement(reinterpret_cast<const char*>(localname)));
 
@@ -61,9 +61,10 @@ static void cbStartElement(
 }
 
 static void cbEndElement(
-	XMLLoaderHelper* helper,
+	void* helper_,
 	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/)
 {
+	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
 	assert(!helper->current.empty());
 	XMLElement& current = *helper->current.back();
 	assert(reinterpret_cast<const char*>(localname) == current.getName());
@@ -75,17 +76,19 @@ static void cbEndElement(
 	helper->current.pop_back();
 }
 
-static void cbCharacters(XMLLoaderHelper* helper, const xmlChar* chars, int len)
+static void cbCharacters(void* helper_, const xmlChar* chars, int len)
 {
+	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
 	assert(!helper->current.empty());
 	if (!helper->current.back()->hasChildren()) {
 		helper->data.append(reinterpret_cast<const char*>(chars), len);
 	}
 }
 
-static void cbInternalSubset(XMLLoaderHelper* helper, const xmlChar* /*name*/,
+static void cbInternalSubset(void* helper_, const xmlChar* /*name*/,
                              const xmlChar* /*extID*/, const xmlChar* systemID)
 {
+	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 
@@ -105,10 +108,10 @@ auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 
 	xmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));
-	handler.startElementNs = (startElementNsSAX2Func)cbStartElement;
-	handler.endElementNs   = (endElementNsSAX2Func)  cbEndElement;
-	handler.characters     = (charactersSAXFunc)     cbCharacters;
-	handler.internalSubset = (internalSubsetSAXFunc) cbInternalSubset;
+	handler.startElementNs = cbStartElement;
+	handler.endElementNs   = cbEndElement;
+	handler.characters     = cbCharacters;
+	handler.internalSubset = cbInternalSubset;
 	handler.initialized = XML_SAX2_MAGIC;
 
 	XMLLoaderHelper helper;

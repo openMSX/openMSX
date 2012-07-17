@@ -32,7 +32,7 @@ static inline byte decode(unsigned char c)
 	} else if (c == '/') {
 		return 63;
 	} else {
-		return (byte)-1;
+		return byte(-1);
 	}
 }
 
@@ -93,7 +93,7 @@ string decode(const string& input)
 	byte buf4[4];
 	for (unsigned in = 0; in < inSize; ++in) {
 		byte d = decode(input[in]);
-		if (d == (byte)-1) continue;
+		if (d == byte(-1)) continue;
 		buf4[i++] = d;
 		if (i == 4) {
 			i = 0;
