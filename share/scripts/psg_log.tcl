@@ -87,7 +87,7 @@ proc do_psg_frame {} {
 proc psg_log_write {} {
 	variable psg_log_file
 	variable psg_log_reg
-	if {[expr $::wp_last_address & 1] == 0} {
+	if {($::wp_last_address & 1) == 0} {
 		set psg_log_reg $::wp_last_value
 	} else {
 		if {$psg_log_reg < 14} { puts -nonewline $psg_log_file [binary format c2 "$psg_log_reg $::wp_last_value"] }

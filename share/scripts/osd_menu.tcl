@@ -705,7 +705,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 }
 
 proc menu_load_machine_exec_replace {item} {
-	if {[catch "machine $item" errorText]} {
+	if {[catch {machine $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
@@ -757,7 +757,7 @@ proc menu_create_extensions_list {} {
 }
 
 proc menu_add_extension_exec {item} {
-	if {[catch "ext $item" errorText]} {
+	if {[catch {ext $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
@@ -896,7 +896,8 @@ proc menu_plug_exec {connector pluggable} {
 	} else {
 		set command "plug $connector $pluggable"
 	}
-	if {[catch [eval $command] errorText]} {
+	#note: NO braces around $command
+	if {[catch $command errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_top
@@ -1111,7 +1112,7 @@ proc menu_loadstate_deselect {item} {
 }
 
 proc menu_loadstate_exec {item} {
-	if {[catch "loadstate $item" errorText]} {
+	if {[catch {loadstate $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all
@@ -1124,7 +1125,7 @@ proc menu_savestate_exec {item} {
 	} else {
 		#TODO "Overwrite are you sure?" -dialog
 	}
-	if {[catch "savestate $item" errorText]} {
+	if {[catch {savestate $item} errorText]} {
 		osd::display_message $errorText error
 	} else {
 		menu_close_all

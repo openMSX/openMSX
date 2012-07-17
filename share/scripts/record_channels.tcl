@@ -186,9 +186,9 @@ proc record_channels {args} {
 		set prefix [utils::filename_clean [guess_title]]
 		# see if there's a -prefix option to override the default
 		set prefix_index [lsearch -exact $args "-prefix"]
-		if {$prefix_index >= 0 && $prefix_index < [expr [llength $args] - 1]} {
-			set prefix [lindex $args [expr $prefix_index + 1]]
-			set args [lreplace $args $prefix_index [expr $prefix_index + 1]]
+		if {$prefix_index >= 0 && $prefix_index < ([llength $args] - 1)} {
+			set prefix [lindex $args [expr {$prefix_index + 1}]]
+			set args [lreplace $args $prefix_index [expr {$prefix_index + 1}]]
 		}
 	}
 

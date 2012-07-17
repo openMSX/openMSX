@@ -243,7 +243,7 @@ proc update_overlay {} {
 proc print_mog_text {x y text} {
 	set text [string tolower $text]
 	for {set i 0} {$i < [string length $text]} {incr i} {
-		scan [string range $text $i $i]] "%c" ascii
+		scan [string range $text $i $i] "%c" ascii
 		incr ascii -86
 		if {$ascii >= -38 && $ascii <= -29} {incr ascii 39}
 		if {$ascii < 0} {set ascii 0}
@@ -255,7 +255,7 @@ proc toggle_mog_overlay {} {
 	variable mog_overlay_active
 	variable mog_editor_active
 
-	set mog_overlay_active [expr !$mog_overlay_active]
+	set mog_overlay_active [expr {!$mog_overlay_active}]
 
 	if {$mog_overlay_active} {
 		init

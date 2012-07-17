@@ -85,11 +85,11 @@ proc goto_time_delta {delta} {
 }
 
 proc go_back_one_step {} {
-	goto_time_delta [expr -$::speed/100.0]
+	goto_time_delta [expr {-$::speed / 100.0}]
 }
 
 proc go_forward_one_step {} {
-	goto_time_delta [expr $::speed/100.0]
+	goto_time_delta [expr { $::speed / 100.0}]
 }
 
 # note: you can't use bindings with modifiers like SHIFT, because they
@@ -263,7 +263,7 @@ proc update_reversebar2 {} {
 		set mousetext [formatTime [expr {$x * $totLenght}]]
 		osd configure reverse.mousetime.text -text $mousetext -relx 0.05
 		set textsize [lindex [osd info reverse.mousetime.text -query-size] 0]
-		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}] -w [expr 1.1 * $textsize]
+		osd configure reverse.mousetime -rely $overlayOffset -relx [expr {$x - 0.05}] -w [expr {1.1 * $textsize}]
 		incr overlay_counter
 	} else {
 		osd configure reverse.mousetime -rely -100

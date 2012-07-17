@@ -89,7 +89,8 @@ proc search {expression} {
 	set result [list]
 	dict for {addr old} $mem {
 		set new [debug read memory $addr]
-		if {[expr $expression]} {
+		#note: NO braces around $expression
+		if $expression {
 			dict set mem $addr $new
 			lappend result [list $addr $old $new]
 		} else {
