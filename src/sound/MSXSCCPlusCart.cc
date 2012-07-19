@@ -19,7 +19,7 @@ namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ram(new Ram(getMotherBoard(), getName() + " RAM", "SCC+ RAM", 0x20000))
+	, ram(new Ram(config, getName() + " RAM", "SCC+ RAM", 0x20000))
 	, scc(new SCC(getName(), config, getCurrentTime(), SCC::SCC_Compatible))
 	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 13))
 {

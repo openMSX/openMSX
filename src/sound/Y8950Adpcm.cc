@@ -13,6 +13,7 @@
 #include "Y8950Adpcm.hh"
 #include "Clock.hh"
 #include "Ram.hh"
+#include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
 #include "serialize.hh"
@@ -45,12 +46,12 @@ static const int STEP_BITS = 16;
 static const int STEP_MASK = (1 << STEP_BITS) -1;
 
 
-Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
+Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
                        const std::string& name, unsigned sampleRam)
-	: Schedulable(motherBoard.getScheduler())
+	: Schedulable(config.getScheduler())
 	, y8950(y8950_)
-	, ram(new Ram(motherBoard, name + " RAM", "Y8950 sample RAM", sampleRam))
-	, clock(motherBoard.getCurrentTime())
+	, ram(new Ram(config, name + " RAM", "Y8950 sample RAM", sampleRam))
+	, clock(config.getMotherBoard().getCurrentTime())
 	, volume(0)
 {
 	clearRam();

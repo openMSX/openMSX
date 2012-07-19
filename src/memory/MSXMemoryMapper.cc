@@ -19,7 +19,7 @@ static CheckedRam* createRam(const DeviceConfig& config, const std::string& name
 		throw MSXException(StringOp::Builder() <<
 			"Mapper size is not a multiple of 16K: " << kSize);
 	}
-	return new CheckedRam(config.getMotherBoard(), name, "memory mapper",
+	return new CheckedRam(config, name, "memory mapper",
 	                      (kSize / 16) * 0x4000);
 }
 

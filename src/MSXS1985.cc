@@ -11,7 +11,7 @@ static const byte ID = 0xFE;
 MSXS1985::MSXS1985(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
-	, ram(new Ram(getMotherBoard(), getName() + " RAM", "S1985 RAM", 0x10))
+	, ram(new Ram(config, getName() + " RAM", "S1985 RAM", 0x10))
 {
 	reset(EmuTime::dummy());
 	// TODO load ram

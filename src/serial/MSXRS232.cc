@@ -70,7 +70,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
 	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
 	, ram(config.getChildDataAsBool("ram", false)
-	      ? new Ram(getMotherBoard(), MSXDevice::getName() + " RAM",
+	      ? new Ram(config, MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
 	      : NULL)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")

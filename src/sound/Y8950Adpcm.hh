@@ -13,13 +13,13 @@
 namespace openmsx {
 
 class Y8950;
-class MSXMotherBoard;
+class DeviceConfig;
 class Ram;
 
 class Y8950Adpcm : public Schedulable
 {
 public:
-	Y8950Adpcm(Y8950& y8950, MSXMotherBoard& motherBoard,
+	Y8950Adpcm(Y8950& y8950, const DeviceConfig& config,
 	           const std::string& name, unsigned sampleRam);
 	virtual ~Y8950Adpcm();
 

@@ -19,31 +19,13 @@ namespace openmsx {
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
 AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
                    unsigned writeProtectedFlags, word ID_,
-                   const DeviceConfig& config)
+                   const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
 	, sectorSizes(sectorSizes_)
 	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
 	, ID(ID_)
 	, state(ST_IDLE)
-{
-	init(writeProtectedFlags, &config);
-}
-
-AmdFlash::AmdFlash(MSXMotherBoard& motherBoard_, const Rom& rom_,
-                   const vector<unsigned>& sectorSizes_,
-                   unsigned writeProtectedFlags, word ID_)
-	: motherBoard(motherBoard_)
-	, rom(rom_)
-	, sectorSizes(sectorSizes_)
-	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
-	, ID(ID_)
-	, state(ST_IDLE)
-{
-	init(writeProtectedFlags, NULL); // don't load/save
-}
-
-void AmdFlash::init(unsigned writeProtectedFlags, const DeviceConfig* config)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
@@ -62,17 +44,18 @@ void AmdFlash::init(unsigned writeProtectedFlags, const DeviceConfig* config)
 
 	bool loaded = false;
 	if (writableSize) {
-		if (config) {
+		if (load) {
 			ram.reset(new SRAM(rom.getName() + "_flash",
-			                   "flash rom", writableSize, *config,
+			                   "flash rom", writableSize, config,
 			                   0, &loaded));
 		} else {
 			// Hack for 'Matra INK', flash chip is wired-up so that
 			// writes are never visible to the MSX (but the flash
 			// is not made write-protected). In this case it doesn't
 			// make sense to load/save the SRAM file.
-			ram.reset(new SRAM(motherBoard, rom.getName() + "_flash",
-			                   "flash rom", writableSize));
+			ram.reset(new SRAM(rom.getName() + "_flash",
+			                   "flash rom", writableSize, config,
+			                   SRAM::DONT_LOAD));
 		}
 	}
 

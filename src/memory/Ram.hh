@@ -11,18 +11,19 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class XMLElement;
+class DeviceConfig;
 class RamDebuggable;
 
 class Ram : private noncopyable
 {
 public:
 	/** Create Ram object with an associated debuggable. */
-	Ram(MSXMotherBoard& motherBoard, const std::string& name,
+	Ram(const DeviceConfig& config, const std::string& name,
 	    const std::string& description, unsigned size);
 
 	/** Create Ram object without debuggable. */
-	explicit Ram(unsigned size);
+	Ram(const DeviceConfig& config, unsigned size);
 
 	~Ram();
 
@@ -43,6 +44,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	const XMLElement& xml;
 	MemBuffer<byte> ram;
 	const std::auto_ptr<RamDebuggable> debuggable;
 };

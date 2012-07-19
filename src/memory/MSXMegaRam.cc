@@ -36,7 +36,7 @@ namespace openmsx {
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
-	, ram(new Ram(getMotherBoard(), getName() + " RAM", "Mega-RAM",
+	, ram(new Ram(config, getName() + " RAM", "Mega-RAM",
 	              numBlocks * 0x2000))
 	, rom(config.findChild("rom")
 	      ? new Rom(getName() + " ROM", "Mega-RAM DiskROM", config)

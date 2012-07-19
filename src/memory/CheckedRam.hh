@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class DeviceConfig;
 class Ram;
 class MSXCPU;
 class Setting;
@@ -31,7 +31,7 @@ class TclCallback;
 class CheckedRam : private Observer<Setting>, private noncopyable
 {
 public:
-	CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
+	CheckedRam(const DeviceConfig& config, const std::string& name,
 	           const std::string& description, unsigned size);
 	virtual ~CheckedRam();
 

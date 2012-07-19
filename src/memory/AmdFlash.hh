@@ -34,14 +34,12 @@ public:
 	 *   or not (a 1-bit means write-wrotected).
 	 * @param ID
 	 *   Contains manufacturer and device ID for this flash.
-	 * @param config (or motherBoard) The motherboard this flash belongs to
+	 * @param config The motherboard this flash belongs to
+	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, const std::vector<unsigned>& sectorSizes,
 	         unsigned writeProtectedFlags, word ID,
-	         const DeviceConfig& config);
-	AmdFlash(MSXMotherBoard& motherBoard, const Rom& rom,
-	         const std::vector<unsigned>& sectorSizes,
-	         unsigned writeProtectedFlags, word ID);
+	         const DeviceConfig& config, bool load = true);
 	~AmdFlash();
 
 	void reset();
@@ -67,8 +65,6 @@ public:
 	enum State { ST_IDLE, ST_IDENT };
 
 private:
-	void init(unsigned writeProtectedFlags, const DeviceConfig* config);
-
 	void getSectorInfo(unsigned address, unsigned& sector,
                            unsigned& sectorSize, unsigned& offset) const;
 

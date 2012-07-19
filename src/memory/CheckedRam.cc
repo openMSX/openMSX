@@ -4,6 +4,7 @@
 #include "Ram.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "DeviceConfig.hh"
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
@@ -20,14 +21,14 @@ static std::bitset<CacheLine::SIZE> getBitSetAllTrue()
 	return result;
 }
 
-CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
+CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
                        const std::string& description, unsigned size)
 	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
-	, ram(new Ram(motherBoard, name, description, size))
-	, msxcpu(motherBoard.getCPU())
+	, ram(new Ram(config, name, description, size))
+	, msxcpu(config.getMotherBoard().getCPU())
 	, umrCallback(new TclCallback(
-		motherBoard.getReactor().getGlobalSettings().getUMRCallBackSetting()))
+		config.getGlobalSettings().getUMRCallBackSetting()))
 {
 	umrCallback->getSetting().attach(*this);
 	init();

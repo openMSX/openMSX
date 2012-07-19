@@ -30,7 +30,7 @@ void MSXRam::init()
 	assert((base + size) <= 0x10000);
 
 	checkedRam.reset(new CheckedRam(
-		getMotherBoard(), getName(), "ram", size));
+		getDeviceConfig2(), getName(), "ram", size));
 }
 
 void MSXRam::powerUp(EmuTime::param /*time*/)
