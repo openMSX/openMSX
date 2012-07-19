@@ -935,17 +935,18 @@ proc menu_toys_exec {toy} {
 }
 
 proc ls {directory extensions} {
-	set roms [glob -nocomplain -tails -directory $directory -type f *.{$extensions}]
+	set files [glob -nocomplain -tails -directory $directory -type f *]
+	set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
 	foreach dir $dirs {
 		lappend dirs2 "$dir/"
 	}
-	return [concat ".." [lsort $dirs2] [lsort $roms]]
+	return [concat ".." [lsort $dirs2] [lsort $items]]
 }
 
 proc menu_create_ROM_list {path} {
-	return [prepare_menu_list [concat "--eject--" [ls $path "rom,zip,gz"]] \
+	return [prepare_menu_list [concat "--eject--" [ls $path "rom|zip|gz"]] \
 	                          10 \
 	                          { execute menu_select_rom
 	                            font-size 8
@@ -979,7 +980,7 @@ proc menu_select_rom {item} {
 }
 
 proc menu_create_disk_list {path} {
-	return [prepare_menu_list [concat "--eject--" [ls $path "dsk,zip,gz,xsa"]] \
+	return [prepare_menu_list [concat "--eject--" [ls $path "dsk|zip|gz|xsa"]] \
 	                          10 \
 	                          { execute menu_select_disk
 	                            font-size 8
@@ -1010,7 +1011,7 @@ proc menu_select_disk {item} {
 }
 
 proc menu_create_tape_list {path} {
-	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas,wav,zip,gz"]] \
+	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas|wav|zip|gz"]] \
 	                          10 \
 	                          { execute menu_select_tape
 	                            font-size 8
