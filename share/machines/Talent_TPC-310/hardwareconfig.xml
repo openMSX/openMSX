@@ -17,7 +17,9 @@
 
   <devices>
 
-    <S1985 id="S1985"/> <!-- Actually seems to be an YM3814, which is the same? -->
+    <S1985 id="S1985"> <!-- Actually seems to be an YM3814, which is the same? -->
+      <sramname>tpc-310_s1985.sram</sramname>
+    </S1985>
 
     <PPI id="ppi">
       <key_ghosting>true</key_ghosting>

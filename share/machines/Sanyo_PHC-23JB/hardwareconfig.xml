@@ -15,7 +15,9 @@
 
   <devices>
 
-    <S1985 id="S1985"/>
+    <S1985 id="S1985">
+      <sramname>phc-23jb_s1985.sram</sramname>
+    </S1985>
 
     <PPI id="ppi">
       <io base="0xA8" num="4"/>

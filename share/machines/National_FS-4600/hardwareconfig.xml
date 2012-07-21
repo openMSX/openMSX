@@ -33,7 +33,9 @@
       </rom>
     </Kanji12>
 
-    <S1985 id="S1985"/>
+    <S1985 id="S1985">
+      <sramname>fs-4600_s1985.sram</sramname>
+    </S1985>
 
     <PPI id="ppi">
       <key_ghosting>true</key_ghosting>

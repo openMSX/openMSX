@@ -17,7 +17,9 @@
 
   <devices>
 
-    <S1985 id="S1985"/>
+    <S1985 id="S1985">
+      <sramname>yis805-128r2_s1985.sram</sramname>
+    </S1985>
 
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">

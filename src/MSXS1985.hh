@@ -18,7 +18,7 @@
 
 namespace openmsx {
 
-class Ram;
+class SRAM;
 
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
@@ -27,7 +27,6 @@ public:
 	virtual ~MSXS1985();
 
 	// MSXDevice
-	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);
 
 	// MSXSwitchedDevice
@@ -39,12 +38,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Ram> ram;
+	std::auto_ptr<SRAM> sram;
 	nibble address;
 	byte color1;
 	byte color2;
 	byte pattern;
 };
+SERIALIZE_CLASS_VERSION(MSXS1985, 2);
 
 } // namespace openmsx
 
