@@ -1,96 +1,76 @@
-Release Notes for openMSX 0.8.2 (2012-01-25)
+Release Notes for openMSX 0.x.x (2012-0x-xx)
 ============================================
 
-This is mostly a bug fix release with some small improvements.
+This release improves a lot on accuracy of floppy support, especially by the
+introduction of support for the DMK format. This means it should be possible to
+run all MSX disk software without patching it.
+
+Furthermore, our efforts to improve performance has some results: start up time
+has almost halved on a Dingoo A320!
 
 Here's the list with all highlights:
 
 MSX device support:
 - Bug fixes:
-  - (regression) sprite colors in screen 7/8 (visible in Ikari for instance)
-  - VDP emulation bug, which was visible in Psycho World's 3x3 power up matrix
-  - Y8950 (MSX-AUDIO) when using NOP Real Motion
-  - MoonSound FM 4op mode
-  - crash in YM2151 (in Yamaha CX5M)
-  - sample playing in Nettou Yakyuu
+  - fixed cursor order in B-modes of GFX9000
   - several small issues in existing MSX machine configurations
+  - broken border rendering on ARM CPU's
+  - fixed 2nd drive detection on National machines
 - Accuracy improvements:
-  - MSX-MUSIC (YM2413 (Okazaki)): implemented SETTLE (or DUMP) phase
-  - MoonSound (YMF278): fixed x-tal frequency and some other details
-  - GFX9000: added basic support for set adjust registers
-- Added support for several laserdisc features to be able to run the Lascommate
-  Junior High School Mathematics LD's, including a dummy Lascom Kanji cartridge
-  implementation
-- Added emulation of the following mapper types:
-  - Baby Dinosaur Dooly
-  - Manbow 2 2nd release
-  - Best of Hamaraja Night
-- Added emulation of memory based I/O for MSX RS-232C, making emulation of Sony
-  HBI-232 possible
-- Added Sony HB-F9S and Sony HB-G900P machine
-- Added support for JoyMega: Mega Drive joy pad with 6 buttons
+  - much improved accuracy for Floppy Drive Controllers (mostly WD2793 and
+    alike)
+  - added support for delayed motor off for disk drives, as in real machines
+    implemented by the CXD1032 chip
+  - disk drive rotation is now correct
+  - added support for persistency of S1985 back-up RAM
+- Added initial support for Video9000:
+  - new extension, which gives a new Video9000 videosource
+  - the Video9000 can display the GFX9000 output superimposed over the normal
+    VDP. Software which writes to I/O port 0x6F when a Video9000 is connected
+    will make sure the right video signal is displayed. This is now emulated
+  - added video recording for Video9000 videosource
+- Added support for the FDC connection style of the Victor HC-9x
+- Added support for several floppy drive extensions: Sanyo MFD-001, Mitsubishi
+  ML-30DC/ML-30FD, Talent DPF-550, AVT DPF-550, Philips NMS 1200
+- Added Spanish Mitsubishi ML-G1, Spanish Mitsubishi ML-G3, Japanese Sony HB-10
+  and Talent TPC-310 machines
 
 New or improved emulator features:
-- Video output:
-  - Faster laserdisc rendering
-  - Added horizontal stretch for SDL renderer (useful for Dingoo for instance).
-    As horizontal stretching is enabled by default, the CPU usage of openMSX
-    when using the SDL renderer will now be higher than before. Set
-    horizontal_stretch to 320 to disable it and gain some performance (but have
-    a less accurate aspect ratio of the screen).
-- Sound generation:
-  - Sync sound to EmuTime (greatly improves sample playback in e.g. Real Motion
-    and TRAX Player
-  - Added new sound driver based on libao
-  - Fixed sound quality of blip resampler
 - MSX developer features:
-  - Added vdpcmdinprogress_callback setting, which can be used to trigger a
-    script when a write to the VDP command engine registers is detected while
-    there is still a VDP command in progress.
-  - Fixed memory usage issue when using step_back (e.g. via debugger)
-  - Greatly improved performance for step_back
-  - Fixed bug with watchpoints that triggered too late sometimes
-- Command line options/support:
-  - Added recognition of .tcl extension as extra start up scripts
-  - Fixed recognition of OMR/OMS files which were re-gzipped
-  - Added command line option -replay to load and view a replay and also
-    support dropping replays (OMR files) on openMSX to view them
-  - Added command line option -savestate to load a savestate and also support
-    dropping savestates (OMS files) on openMSX to view them
+  - more mappers now have a romblocks debuggable
+  - added break helper procs address_in_slot
+  - added watch_in_slot to add watch point in a slot
+  - breakpoints and Watchpoints can now be conditioned from ROM blocks as well
+  - previously hardcoded warnings for invalid PSG directions and di;halt
+    detection are now a Tcl callback, which means you can e.g. let openMSX go
+    into a break point when they occur, or disable them altogether
+- Console support/scripts:
+  - added type command that can type from file and a special version with
+    offset to type passwords)
+  - added syntax highlighting for Tcl in the console
+  - show errors in the console in red
+  - implemented tab-completion for nested Tcl commands
 - OSD menu improvements (mostly useful for hand held users):
-  - added connector submenu
-  - added support for running tapes
-  - added support for horizontal stretch setting
-- Joystick support:
-  - Allow joystick axis motion events to be bound, as the manual promises
-  - Made real joystick support a bit more flexible: read all axes
-- Channel recorder:
-  - Fixed record_channels command to record to the soundlogs directory
-  - Added option to record all channels of all sound chips with record_channels
-- Platform specific improvements:
-  - Fix Caps lock behaviour on Mac OS X
-  - Add support for MIDI output to a virtual endpoint for Mac OS X
-- Comfortable machine configurations:
-  - Added new fantasy machine: Boosted MSX2+ JP, based on Panasonic FS-A1WSX
-  - Added basic compiler to Boosted MSX2 EN
+  - list of machines and extensions are now sorted alphabetically
+- Performance improvements:
+  - OSD
+  - start-up time
+  - several scripts (a.o. reverse bar)
 - Miscellaneous:
-  - Updated all scripts to make full use of Tcl 8.5 (and clean them up in the
-    process) to improve performance
-  - Support in the hardware config XML format for using a single ROM image (i.e.
-    a physical (EP)ROM dump) which is used by several devices
-  - Make PgUp/PgDn reverse step depend on the speed setting
-  - Reverse bar now indicates recording (red) and replaying state
-  - The 'about' console command can now also be used to find settings
-  - Fixed 64k ROM mapper detection
+  - reverse bar has now even clear colors to reflect recording (red) and
+    replaying state
+  - don't print an error when an initial CMOS/SRAM file isn't found
+  - enable auto run cassettes by default
 
 Build system, packaging, documentation:
-- Upgraded Tcl dependency to Tcl 8.5
 - Upgraded 3rd party libs
-- Optional additional dependency on libao
-- Added support for the Clang compiler
-- Make our ARM inline asm routines compile in Thumb2 mode
-- Moved Dingux port to OpenDingux: openMSX now only compiles for OpenDingux
-- Added lto flavour to enable Link-Time Optimization
+- Removed support for PPC on Mac and added build instructions for clang
+- Added several utilities for DMK support (dumping tool, analyzing tool,
+  creation tool and conversion tools)
+- First step in phasing out the roms/ directories: removed them (including
+  SHA1SUMS file which was redundant with the hardwareconfig.xml files) and new
+  configs do not use the path with roms/ anymore. Use the systemroms pool
+  instead.
 
 And of course the usual various bug fixes.
 
