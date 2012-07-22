@@ -14,7 +14,7 @@ Preparations:
    metal2.dsk, metal3.dsk]
    Of course they may all be compressed with gzip, so you'll end up with
    [metal1.dsk.gz, metal2.dsk.gz, metal3.dsk.gz].
-   The script recognizes 'dsk', 'di1', 'di2' and 'xsa' extensions,
+   The script recognizes 'dsk', 'di1', 'di2', 'xsa' and 'dmk' extensions,
    with an optional '.gz' suffix.
 
 2. bind the vdrive script to a hotkey, for instance type in the console:
@@ -58,7 +58,7 @@ proc vdrive {{diskdrive "diska"}} {
 		error "Vdrive not possible on DirAsDisk"
 	}
 
-	#remove (dsk|di1|di2|xsa)(.gz)? extention
+	#remove (dsk|di1|di2|xsa|dmk)(.gz)? extention
 	set image [lindex $cmd 1]
 	set ext ""
 
@@ -72,7 +72,7 @@ proc vdrive {{diskdrive "diska"}} {
 	}
 
 	set ext2 [file extension $image]
-	foreach i {".dsk" ".di1" ".di2" ".xsa"} {
+	foreach i {".dsk" ".di1" ".di2" ".xsa" ".dmk"} {
 		if {[string equal -nocase $i $ext2]} {
 			set ext ${ext2}${ext}
 			set image [file rootname $image]
