@@ -52,6 +52,7 @@ New or improved emulator features:
   - implemented tab-completion for nested Tcl commands
 - OSD menu improvements (mostly useful for hand held users):
   - list of machines and extensions are now sorted alphabetically
+  - file lists are now filtered on extension case insensitively
 - Performance improvements:
   - OSD
   - start-up time
