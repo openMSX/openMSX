@@ -336,8 +336,17 @@ void Y8950Adpcm::resetStatus()
 	//
 	// Before this code was added, those demos also worked but only
 	// because we had a hack that always kept bit BUF_RDY set.
-	if ((reg7 & R07_MODE & ~R07_REC) == R07_MEMORY_DATA) {
-		// transfer to or from sample ram
+	//
+	// When the ADPCM unit is not performing any function (e.g. after a
+	// reset), the BUF_RDY bit should still be set. The AUDIO detection
+	// routine in 'MSX-Audio BIOS v1.3' depends on this. See
+	//   [3533002] Y8950 not being detected by MSX-Audio v1.3
+	//   https://sourceforge.net/tracker/?func=detail&aid=3533002&group_id=38274&atid=421861
+	// TODO I've implemented this as '(reg7 & R07_MODE) == 0', is this
+	//      correct/complete?
+	if (((reg7 & R07_MODE & ~R07_REC) == R07_MEMORY_DATA) ||
+	    ((reg7 & R07_MODE) == 0)){
+		// transfer to or from sample ram, or no function
 		y8950.setStatus(Y8950::STATUS_BUF_RDY);
 	}
 }
