@@ -1,0 +1,53 @@
+Instructions:
+
+* It only works on MSX systems with 2 disk drives
+* Your disk drive controller needs to be WD2793 compatible
+* The output of the tool is a DAT file for each cylinder/head combination.
+  Typically that means 160 DAT files for a 720kB DS DD disk
+
+How to make a DMK file (happy flow):
+
+* Start the tool from MSX-DOS. Extra command line options below.
+* As the tool instructs you: put the disk to dump in drive A and the
+  destination disk in drive B.
+* Not all DAT files will fit on a single MSX disk. Swap disks when the tool
+  reports a write error when saving the DAT file. You can use 2 different
+  destination disks or first copy the DAT files to another place and erase the
+  destination disk to continue.
+* Get the DAT files to your PC. You'll need a PC program to combine the DAT
+  files into a single DMK disk image. A Windows binary can be found here:
+  http://openmsx.sf.net/temp/combine-dmk.exe (source code is in this
+  directory). Run this tool in a command shell from a directory where you put
+  all the DAT files created by the read-dmk tool. It will output the file
+  out.dmk, which is the DMK disk image which works in openMSX. If the tool
+  gives any error, please let us know.
+* You can test the resulting DMK image on openMSX
+
+Command line options:
+
+* type=[PHILIPS|NATIONAL|MICROSOL]: specify the way the FDC registers are
+  mapped into memory or I/O ports. Philips is mostly for the Philips and Sony
+  machines/drives (e.g. Sony HBK-30/HBD-F1/HBD-50, Sharp HB-3600, Philips
+  VY-0010, Philips NMS 8245/8250/8255/8280, Philips VG 8230/35, Sony
+  HB-F1XD/F900/F1XDJ/F700x/G900/F500, Sanyo MPC-35FD), National for National
+  and some others (e.g. National FS-5500F2/4700/4600/5000/5500F1, National
+  CF-3300, Yamaha AX350II, Daewoo CPC-400S, Gradiente Expert DDPlus,
+  Spectrtavideo SVI-738, Yamaha YIS-805/128R2 and probably Talent TPC-310) and
+  Microsol for the port-based ones often seen in Brazil (like Microsol CDX-2).
+  If you don't specify this option, the program will assume you use the Philips
+  type.
+  Note that only the Philips type has been tested on real hardware so far...
+  (feedback welcome!)
+* debug=1: enable debugging mode. When dumping fails, the tool will write a
+  DEBUG.DAT file. Please provide us with a photo of your MSX screen and the
+  DEBUG.DAT file when dumping fails, so we can improve the tool :)
+* start=NN: specify start cylinder (use if you don't want to start from the
+  beginning of the disk, first cylinder is 0)
+* stop=NN: specify stop cylinder (use if you don't need the whole disk dumped,
+  stop earlier than end-of-disk detection finds)
+
+Example: read-dmk type=national debug=1 start=38 end=38
+This will dump only cylinder 38 (for both sides, so 2 DAT files) with debug
+enabled and for national-type disk drives (see above). Usually you don't
+specify any options, except for the type if you don't have a Philips-like
+drive.
