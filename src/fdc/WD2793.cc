@@ -248,14 +248,20 @@ void WD2793::setDataReg(byte value, EmuTime::param time)
 
 	if (((commandReg & 0xE0) == 0xA0) || // write sector
 	    ((commandReg & 0xF0) == 0xF0)) { // write track
-		// handle lost bytes
-		drqTime += 1; // time when next byte will be accepted
-		while (dataAvailable && unlikely(getDTRQ(time))) {
-			statusReg |= LOST_DATA;
-			drqTime += 1;
-			trackData.write(dataCurrent++, 0);
-			crc.update(0);
-			dataAvailable--;
+		if (fsmState == FSM_CHECK_WRITE) {
+			// 1st byte of a write sector command,
+			// don't automatically re-activate DTRQ
+			drqTime.reset(EmuTime::infinity); // DRQ = false
+		} else {
+			// handle lost bytes
+			drqTime += 1; // time when next byte will be accepted
+			while (dataAvailable && unlikely(getDTRQ(time))) {
+				statusReg |= LOST_DATA;
+				drqTime += 1;
+				trackData.write(dataCurrent++, 0);
+				crc.update(0);
+				dataAvailable--;
+			}
 		}
 
 		byte write = value; // written value not always same as given value
@@ -413,6 +419,12 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 			if ((commandReg & 0xC0) == 0x80)  {
 				// Type II command
 				type2Rotated(time);
+			}
+			break;
+		case FSM_CHECK_WRITE:
+			if ((commandReg & 0xE0) == 0xA0) {
+				// write sector command
+				checkStartWrite(time);
 			}
 			break;
 		case FSM_WRITE_SECTOR:
@@ -631,32 +643,15 @@ void WD2793::type2Rotated(EmuTime::param time)
 	dataAvailable = 128 << (sectorInfo.sizeCode & 3);
 	dataCurrent = sectorInfo.dataIdx;
 
-	if ((commandReg & 0xE0) == 0xA0) {
-		// write sector
-		// TODO actually we should
-		//  - skip 22 bytes (from end of data block)
-		//  - write 12 bytes of zero
-		//  - write A1 A1 A1 FB   (or F8)
-		// But ATM we reuse the previous location of the data block
-	}
-	crc.init<0xA1, 0xA1, 0xA1, 0xFB>();
+	crc.init<0xA1, 0xA1, 0xA1, 0xFB>(); // TODO possibly A1 A1 A1 F8
 
-	switch (commandReg & 0xF0) {
-	case 0x80: // read sector
-	case 0x90: // read sector (multi)
+	switch (commandReg & 0xE0) {
+	case 0x80: // read sector  or  read sector multi
 		startReadSector(time);
 		break;
 
-	case 0xA0: // write sector
-	case 0xB0: // write sector (multi)
-		// TODO By now the CPU should already have written the first
-		// byte, otherwise the write sector command doesn't even start.
-		// This is not yet implemented.
-		drqTime.reset(time); // DRQ = true
-
-		// Moment in time when the sector will be written (whether the
-		// CPU wrote all required data or not)
-		schedule(FSM_WRITE_SECTOR, drqTime + dataAvailable);
+	case 0xA0: // write sector  or  write sector multi
+		startWriteSector(time);
 		break;
 	}
 }
@@ -669,8 +664,64 @@ void WD2793::type2NotFound(EmuTime::param /*time*/)
 
 void WD2793::startReadSector(EmuTime::param time)
 {
+	unsigned gapLength = trackData.wrapIndex(
+		sectorInfo.dataIdx - sectorInfo.addrIdx);
 	drqTime.reset(time);
-	drqTime += 1; // (first) byte can be read in a moment
+	drqTime += gapLength + 1 + 1; // (first) byte can be read in a moment
+}
+
+void WD2793::startWriteSector(EmuTime::param time)
+{
+	// At the current moment in time, the 'FE' byte in the address mark
+	// is located under the drive head (because the DMK format points to
+	// the 'FE' byte in the address header). After this byte there still
+	// follow the C,H,R,N and 2 crc bytes. So the address header ends in
+	// 7 bytes.
+	// - After 2 more bytes the WD2793 will activate DRQ.
+	// - 8 bytes later the WD2793 will check that the CPU has send the
+	//   first byte (if not the command will be aborted without any writes
+	//   to the disk, not even gap or data mark bytes).
+	// - after a pauze of 12 bytes, the WD2793 will write 12 zero bytes,
+	//   followed by the 4 bytes data header (A1 A1 A1 FB).
+	// - Next the WD2793 write the actual data bytes. At this moment it
+	//   will also activate DRQ to receive the 2nd byte from the CPU.
+	//
+	// Note that between the 1st and 2nd activation of DRQ is a longer
+	// durtaion than between all later DRQ activations. The write-sector
+	// routine in Microsol_CDX-2 depends on this.
+	//
+	// TODO after the address header, the WD2793 skips 22 bytes and then
+	// starts writing. The current code instead reuses the location of
+	// the existing data block.
+
+	drqTime.reset(time);
+	drqTime += 7 + 2; // activate DRQ 2 bytes after end of address header
+
+	// 8 bytes later, the WD2793 will check whether the CPU wrote the
+	// first byte.
+	schedule(FSM_CHECK_WRITE, drqTime + 8);
+}
+
+void WD2793::checkStartWrite(EmuTime::param time)
+{
+	// By now the CPU should already have written the first byte, otherwise
+	// the write sector command doesn't even start.
+	if (getDTRQ(time)) {
+		statusReg |= LOST_DATA;
+		endCmd();
+		return;
+	}
+
+	// Moment in time when the first data byte will be written (and when
+	// DRQ will be re-activated for the 2nd byte).
+	drqTime.reset(time);
+	drqTime += 12 + 12 + 4;
+
+	// Moment in time when the sector is fully written. At that time we
+	// will write the collected data to the disk image (whether the
+	// CPU wrote all required data or not).
+	assert((dataAvailable & 0x7F) == 0x7F); // already decreased by one.
+	schedule(FSM_WRITE_SECTOR, drqTime + (dataAvailable + 1));
 }
 
 void WD2793::doneWriteSector()
@@ -903,6 +954,7 @@ static enum_string<WD2793::FSMState> fsmStateInfo[] = {
 	{ "TYPE2_LOADED",    WD2793::FSM_TYPE2_LOADED },
 	{ "TYPE2_NOT_FOUND", WD2793::FSM_TYPE2_NOT_FOUND },
 	{ "TYPE2_ROTATED",   WD2793::FSM_TYPE2_ROTATED },
+	{ "CHECK_WRITE",     WD2793::FSM_CHECK_WRITE },
 	{ "WRITE_SECTOR",    WD2793::FSM_WRITE_SECTOR },
 	{ "TYPE3_WAIT_LOAD", WD2793::FSM_TYPE3_WAIT_LOAD },
 	{ "TYPE3_LOADED",    WD2793::FSM_TYPE3_LOADED },
@@ -926,6 +978,8 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 //            middle of a sector/track read/write command probably won't work
 //            correctly anymore. We do give a warning on this.
 // version 4: changed type of drqTime from Clock to DynamicClock
+// version 5: added 'pulse5' and 'sectorInfo'
+// version 6: no layout changes, only added new enum value 'FSM_CHECK_WRITE'
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {

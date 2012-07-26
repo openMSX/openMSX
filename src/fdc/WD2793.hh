@@ -55,6 +55,7 @@ public:
 		FSM_TYPE2_LOADED,
 		FSM_TYPE2_NOT_FOUND,
 		FSM_TYPE2_ROTATED,
+		FSM_CHECK_WRITE,
 		FSM_WRITE_SECTOR,
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
@@ -73,13 +74,15 @@ private:
 	void seekNext(EmuTime::param time);
 	void endType1Cmd();
 
-	void startType2Cmd  (EmuTime::param time);
-	void type2WaitLoad  (EmuTime::param time);
-	void type2Loaded    (EmuTime::param time);
-	void type2Search    (EmuTime::param time);
-	void type2NotFound  (EmuTime::param time);
-	void type2Rotated   (EmuTime::param time);
-	void startReadSector(EmuTime::param time);
+	void startType2Cmd   (EmuTime::param time);
+	void type2WaitLoad   (EmuTime::param time);
+	void type2Loaded     (EmuTime::param time);
+	void type2Search     (EmuTime::param time);
+	void type2NotFound   (EmuTime::param time);
+	void type2Rotated    (EmuTime::param time);
+	void startReadSector (EmuTime::param time);
+	void startWriteSector(EmuTime::param time);
+	void checkStartWrite (EmuTime::param time);
 	void doneWriteSector();
 
 	void startType3Cmd (EmuTime::param time);
@@ -134,7 +137,7 @@ private:
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 5);
+SERIALIZE_CLASS_VERSION(WD2793, 6);
 
 } // namespace openmsx
 

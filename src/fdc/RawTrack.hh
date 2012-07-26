@@ -99,8 +99,14 @@ public:
 	// In the methods below, 'index' is allowed to be 'out-of-bounds',
 	// it will wrap like in a circular buffer.
 
-	byte read(int idx) const { return data[idx % int(data.size())]; }
-	void write(int idx, byte val) { data[idx % int(data.size())] = val; }
+	byte read(int idx) const { return data[wrapIndex(idx)]; }
+	void write(int idx, byte val) { data[wrapIndex(idx)] = val; }
+	int wrapIndex(int idx) const {
+		// operator% in not a modulo but a remainder operation (makes a
+		// difference for negative inputs). Hence the extra test.
+		int tmp = idx % int(data.size());
+		return (tmp >= 0) ? tmp : (tmp + data.size());
+	}
 
 	      byte* getRawBuffer()       { return data.data(); }
 	const byte* getRawBuffer() const { return data.data(); }
