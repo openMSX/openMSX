@@ -42,9 +42,7 @@ proc tab_loadsave_debuggable {args} {
 		return [debug list]
 	}
 	if {[llength $args] == 3} {
-		set possibilities [utils::file_completion {*}$args]
-		lappend possibilities {-release} {-freq} ;# duplicated from C++
-		return $possibilities
+		return [utils::file_completion {*}$args]
 	}
 }
 
