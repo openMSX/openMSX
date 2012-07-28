@@ -41,6 +41,11 @@ proc tab_loadsave_debuggable {args} {
 	if {[llength $args] == 2} {
 		return [debug list]
 	}
+	if {[llength $args] == 3} {
+		set possibilities [utils::file_completion {*}$args]
+		lappend possibilities {-release} {-freq} ;# duplicated from C++
+		return $possibilities
+	}
 }
 
 # TODO remove these two procs?
