@@ -264,6 +264,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			getSoftwareDatabase().fetchRomInfo(getOriginalSHA1());
 		if ((romInfo != NULL) && !romInfo->getTitle().empty()) {
 			name = romInfo->getTitle();
+		} else {
+			// unknown ROM, use file name
+			name = file->getOriginalName();
 		}
 	}
 
