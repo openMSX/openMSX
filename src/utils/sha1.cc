@@ -252,7 +252,7 @@ void SHA1::update(const byte* data, unsigned len)
 	assert(!m_finalized);
 	uint32 j = (m_count >> 3) & 63;
 
-	m_count += len << 3;
+	m_count += uint64(len) << 3;
 
 	uint32 i;
 	if ((j + len) > 63) {
