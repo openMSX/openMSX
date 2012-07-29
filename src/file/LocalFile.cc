@@ -21,6 +21,10 @@
 #include <cerrno>
 #include <cassert>
 
+#ifndef EOVERFLOW
+#define EOVERFLOW 0
+#endif
+
 using std::string;
 
 namespace openmsx {
@@ -219,7 +223,7 @@ unsigned LocalFile::getSize()
 {
 	struct stat st;
 	int ret = fstat(fileno(file), &st);
-	if ((st.st_size >= 0x80000000u) || (ret && (errno == EOVERFLOW))) {
+	if ((static_cast<unsigned long long>(st.st_size) >= 0x80000000u) || (ret && (errno == EOVERFLOW))) {
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
 		throw FileException("Files bigger than or equal to 2GB are "
