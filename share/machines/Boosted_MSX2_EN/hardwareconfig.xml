@@ -45,6 +45,7 @@
         <MemoryMapper id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
           <size>2048</size>
+          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent>
         </MemoryMapper>
       </secondary>
 

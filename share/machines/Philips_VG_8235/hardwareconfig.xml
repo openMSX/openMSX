@@ -90,6 +90,7 @@
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
           <size>128</size>
+          <initialContent encoding="gz-base64">eNpj+M8wouEI9z4DAJBx/wE=</initialContent>
           <mem base="0x0000" size="0x10000"/>
         </MemoryMapper>
       </secondary>
