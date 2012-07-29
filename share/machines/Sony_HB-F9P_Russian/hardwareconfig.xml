@@ -84,7 +84,7 @@
           </rom>
 	  <mem base="0x0000" size="0x8000"/> <!-- Mirrored to page 1, maybe
 	    because the European version of this machine has one part of the
-	    Memovision ROM there? --> 
+	    Memovision ROM there? -->
 	</ROM>
       </secondary>
 
