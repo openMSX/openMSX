@@ -105,7 +105,7 @@ public:
 		// operator% in not a modulo but a remainder operation (makes a
 		// difference for negative inputs). Hence the extra test.
 		int tmp = idx % int(data.size());
-		return (tmp >= 0) ? tmp : (tmp + data.size());
+		return (tmp >= 0) ? tmp : int(tmp + data.size());
 	}
 
 	      byte* getRawBuffer()       { return data.data(); }
