@@ -41,12 +41,13 @@ MSX device support:
 New or improved emulator features:
 - MSX developer features:
   - more mappers now have a romblocks debuggable
-  - added break helper procs address_in_slot
-  - added watch_in_slot to add watch point in a slot
-  - breakpoints and watchpoints can now be conditioned from ROM blocks as well
+  - added several new procs for break point conditions: address_in_slot,
+    watch_in_slot
+  - you can now have breakpoints and watchpoints anywhere in a MegaROM
   - previously hardcoded warnings for invalid PSG directions and di;halt
     detection are now a Tcl callback, which means you can e.g. let openMSX go
     into a break point when they occur, or disable them altogether
+  - save_debuggable can now also save part of a debuggable
 - Console support/scripts:
   - added type command that can type from file and a special version with
     offset to type passwords)
@@ -65,6 +66,8 @@ New or improved emulator features:
     replaying state
   - don't print an error when an initial CMOS/SRAM file isn't found
   - enable auto run cassettes by default
+  - additional files for ROMs (like samples for Playball) can now also be in
+    the same directory as the ROM file
 
 Build system, packaging, documentation:
 - Upgraded 3rd party libs
