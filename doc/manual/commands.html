@@ -5316,7 +5316,11 @@
 
   <h3><a id="videosource">videosource</a></h3>
 
-  <p>Switch between <code>MSX</code> (V99x8) or <code>GFX9000</code> (V9990) video source.</p>
+  <p>Switch between video sources: <code>MSX</code> (V99x8, default when no
+    Video 9000 is available), <code>GFX9000</code> (V9990),
+    <code>Video9000</code> (V9990 superimposed on top of V99x8, default if
+    available) and <code>Laserdisc</code> (for Palcom machines).
+  </p>
 
   <div class="subsectiontitle">
     usage:
@@ -5343,7 +5347,7 @@
   </table>
 
   <div class="note">
-    Note: This setting is only available if the <code>gfx9000</code> extension is present.
+    Note: This setting is only available if multiple videosources are present.
   </div>
 
   <h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>
@@ -5375,7 +5379,8 @@
   </table>
 
   <div class="note">
-    Note: This setting is only available if the <code>gfx9000</code> extension is present.
+   Note: This setting is only available if the <code>gfx9000</code> or
+   <code>video9000</code> extension is present.
   </div>
 
   <h3><a id="z80_freq">z80_freq / z80_freq_locked</a></h3>
