@@ -2296,8 +2296,18 @@
 
   <h3><a id="type">type</a></h3>
 
-  <p>Type a string in the emulated MSX. This command automatically presses and releases keys in the simulated MSX
-  keyboard matrix. This command is useful for demoing and for automating tasks in MSX-BASIC.</p>
+  <p>Type a string in the emulated MSX. This command automatically presses and
+  releases keys in the simulated MSX keyboard matrix. This command is useful
+  for demoing and for automating tasks in MSX-BASIC.</p>
+
+  <p>The command has a <code>-release</code> option, with which you can specify
+  that keys are always released before new ones are pressed. Some game input
+  routines need this, but it also makes typing twice as slow.</p>
+
+  <p>With the <code>-freq</code> option, you can tweak how fast typing goes and
+  how long the keys will be pressed (and released if the <code>-release</code>
+  option is used). Keys will be typed at the given frequency and will remain
+  pressed/released for 1/freq seconds.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2308,6 +2318,31 @@
       <td><code>type "Hello world!"</code></td>
 
       <td>Yet another manifestation of the most famous program</td>
+    </tr>
+  </table>
+
+  <p>There are also a few scripts extending this command:</p>
+
+  <table>
+    <tr>
+      <td><code>type_from_file</code></td>
+
+      <td>With this command you can automatically type text which is stored in
+      the given (text) file. Mostly useful if you want to type in some
+      BASIC program fragment that you found somewhere and pasted in a
+      text file.
+      </td>
+    </tr>
+    <tr>
+      <td><code>type_password_from_file</code></td>
+
+      <td>A special version of <code>type_from_file</code>, made to type in
+      passwords of games, which you have stored in a file. The text
+      file should have a special format: one password per line, lines
+      starting with # are ignored. After the filename, you can give the
+      index of the password to type (which is the index of the first
+      non-comment and non-blank line in the file).
+      </td>
     </tr>
   </table>
 
