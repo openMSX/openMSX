@@ -152,8 +152,12 @@
     </MoonSound>
 
     <V9990 id="Sunrise GFX9000">
-      <io base="0x60" num="0x10"/>
+      <io base="0x60" num="0x0f"/>
     </V9990>
+    <Video9000 id="Video9000">
+      <io base="0x6f" num="0x01"/>
+      <device idref="Sunrise GFX9000"/>
+    </Video9000>
 
     <primary external="true" slot="1"/>
 
