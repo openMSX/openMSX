@@ -23,6 +23,9 @@ A million repetitions of "a"
 #include "sha1.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
+#include "CliComm.hh"
+#include "EventDistributor.hh"
+#include "StringOp.hh"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -294,6 +297,33 @@ Sha1Sum SHA1::calc(const byte* data, unsigned len)
 {
 	SHA1 sha1;
 	sha1.update(data, len);
+	return sha1.digest();
+}
+
+static void reportProgress(const string& filename, unsigned percentage, CliComm& cliComm, EventDistributor& distributor) {
+	cliComm.printProgress("Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
+	distributor.deliverEvents();
+}
+
+Sha1Sum SHA1::calcWithProgress(const byte* data, unsigned len, const string& filename, CliComm& cliComm, EventDistributor& distributor)
+{
+	if (len < 10*1024*1024) { // for small files, don't show progress
+		return calc(data, len);
+	}
+	SHA1 sha1;
+	const unsigned NUMBER_OF_STEPS = 100;
+	// calculate in NUMBER_OF_STEPS steps and report progress every step
+	const unsigned stepSize = len / NUMBER_OF_STEPS;
+	const unsigned remainder = len % NUMBER_OF_STEPS;
+	unsigned offset = 0;
+	reportProgress(filename, 0, cliComm, distributor);
+	for (unsigned i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
+		sha1.update(&data[offset], stepSize);
+		offset += stepSize;
+		reportProgress(filename, i + 1, cliComm, distributor);
+	}
+	sha1.update(data + offset, stepSize + remainder);
+	reportProgress(filename, 100, cliComm, distributor);
 	return sha1.digest();
 }
 

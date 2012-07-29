@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "string_ref.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -40,6 +41,8 @@ private:
 	friend class SHA1;
 };
 
+class CliComm;
+class EventDistributor;
 
 /** Helper class to perform a sha1 calculation.
   * Basic usage:
@@ -63,6 +66,16 @@ public:
 
 	/** Easier to use interface, if you can pass all data in one go. */
 	static Sha1Sum calc(const byte* data, unsigned len);
+
+	/** Easier to use interface, if you can pass all data in one go. But
+	  * also report progress.
+	  * Note that this only works when the given file is calculated
+	  * completely, in one call. The caller is responsible to make sure
+	  * this is the case.
+	  */
+	static Sha1Sum calcWithProgress(const byte* data, unsigned len, const
+			std::string& filename, CliComm& cliComm,
+			EventDistributor& distributor);
 
 private:
 	void transform(const byte buffer[64]);

@@ -245,11 +245,11 @@ auto_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	return result; // not found
 }
 
-static Sha1Sum calcSha1sum(File& file)
+static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
 {
 	unsigned size;
 	const byte* data = file.mmap(size);
-	return SHA1::calc(data, size);
+	return SHA1::calcWithProgress(data, size, file.getOriginalName(), cliComm, distributor);
 }
 
 auto_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
@@ -268,7 +268,7 @@ auto_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 				// expensive sha1sum calculation.
 				return file;
 			}
-			Sha1Sum newSum = calcSha1sum(*file);
+			Sha1Sum newSum = calcSha1sum(*file, cliComm, distributor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
 				// (recalculated) sha1sum is still the same,
@@ -342,7 +342,7 @@ auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename
 		// not in pool
 		try {
 			auto_ptr<File> file(new File(filename));
-			Sha1Sum sum = calcSha1sum(*file);
+			Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 			time_t time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
 			if (sum == sha1sum) {
@@ -365,7 +365,7 @@ auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename
 			} else {
 				// db outdated
 				auto_ptr<File> file(new File(filename));
-				Sha1Sum sum = calcSha1sum(*file);
+				Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 				remove(it);
 				insert(sum, time, filename);
 				if (sum == sha1sum) {
@@ -407,9 +407,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 		}
 	}
 	// not in db (or timestamp mismatch)
-	unsigned size;
-	const byte* data = file.mmap(size);
-	Sha1Sum sum = SHA1::calc(data, size);
+	Sha1Sum sum = calcSha1sum(file, cliComm, distributor);
 	insert(sum, time, filename);
 	return sum;
 }
