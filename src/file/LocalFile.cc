@@ -75,6 +75,7 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 				strerror(err));
 		}
 	}
+	getSize(); // check filesize
 }
 
 LocalFile::LocalFile(string_ref filename_, const char* mode)
@@ -93,6 +94,7 @@ LocalFile::LocalFile(string_ref filename_, const char* mode)
 	if (!file) {
 		throw FileException("Error opening file \"" + filename + "\"");
 	}
+	getSize(); // check filesize
 }
 
 LocalFile::~LocalFile()
@@ -216,7 +218,14 @@ void LocalFile::munmap()
 unsigned LocalFile::getSize()
 {
 	struct stat st;
-	if (fstat(fileno(file), &st)) {
+	int ret = fstat(fileno(file), &st);
+	if ((st.st_size >= 0x80000000u) || (ret && (errno == EOVERFLOW))) {
+		// on 32-bit systems, the fstat() call returns a EOVERFLOW
+		// error in case the file is bigger than (1<<31)-1 bytes
+		throw FileException("Files bigger than or equal to 2GB are "
+		                    "not yet supported: " + getURL());
+	}
+	if (ret) {
 		throw FileException("Cannot get file size");
 	}
 	return st.st_size;
