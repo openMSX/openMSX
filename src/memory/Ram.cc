@@ -48,7 +48,7 @@ Ram::~Ram()
 {
 }
 
-void Ram::clear()
+void Ram::clear(byte c)
 {
 	if (const XMLElement* init = xml.findChild("initialContent")) {
 		// get pattern (and decode)
@@ -83,7 +83,7 @@ void Ram::clear()
 		}
 	} else {
 		// no init pattern specified
-		memset(ram.data(), 0xFF, ram.size());
+		memset(ram.data(), c, ram.size());
 	}
 
 }

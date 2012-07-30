@@ -38,7 +38,7 @@ public:
 	}
 
 	const std::string& getName() const;
-	void clear();
+	void clear(byte c = 0xff);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

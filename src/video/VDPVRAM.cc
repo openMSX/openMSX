@@ -162,8 +162,7 @@ VDPVRAM::~VDPVRAM()
 void VDPVRAM::clear()
 {
 	// Initialise VRAM data array.
-	// TODO: Fill with checkerboard pattern NMS8250 has.
-	memset(&data[0], 0, data.getSize());
+	data.clear(0); // fill with zeros (unless initialContent is specified)
 	if (data.getSize() != actualSize) {
 		assert(data.getSize() > actualSize);
 		// Read from unconnected VRAM returns random data.
