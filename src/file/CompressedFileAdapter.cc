@@ -54,7 +54,9 @@ void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	decompress();
 	const MemBuffer<byte>& buf = decompressed->buf;
-	assert(buf.size() >= pos + num);
+	if (buf.size() < (pos + num)) {
+		throw FileException("Read beyond end of file");
+	}
 	memcpy(buffer, buf.data() + pos, num);
 	pos += num;
 }
