@@ -269,12 +269,12 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		// Is there a minimum or maximum length for the trailing pulse?
 		if (400 <= usec && usec < 700) {
 			if (remoteBitNr == 32) {
-				byte custom	 = ( remoteBits >> 24) & 0xff;
-				byte customCompl = (~remoteBits >> 16) & 0xff;
-				byte code	 = ( remoteBits >>  8) & 0xff;
-				byte codeCompl	 = (~remoteBits >>  0) & 0xff;
+				byte custom	 = ( remoteBits >>  0) & 0xff;
+				byte customCompl = (~remoteBits >>  8) & 0xff;
+				byte code	 = ( remoteBits >> 16) & 0xff;
+				byte codeCompl	 = (~remoteBits >> 24) & 0xff;
 				if (custom == customCompl && 
-				    custom == 0x15 &&
+				    custom == 0xa8 &&
 				    code == codeCompl) {
 					submitRemote(IR_NEC, code);
 				}
@@ -290,12 +290,11 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	case NEC_BITS_SPACE:
 		if (1400 <= usec && usec < 1600) {
 			// bit 1
-			remoteBits = (remoteBits << 1) | 1;
+			remoteBits |= 1 << remoteBitNr;
 			++remoteBitNr;
 			remoteState = NEC_BITS_PULSE;
 		} else if (400 <= usec && usec < 700) {
 			// bit 0
-			remoteBits = (remoteBits << 1) | 0;
 			++remoteBitNr;
 			remoteState = NEC_BITS_PULSE;
 		} else {
@@ -323,7 +322,7 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
-	    (protocol == IR_NEC && (code == 0x42 || code == 0xe8))) {
+	    (protocol == IR_NEC && (code == 0x42 || code == 0x17))) {
 		remoteProtocol = protocol;
 		remoteCode = code;
 		remoteVblanksBack = 0;
@@ -485,37 +484,37 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 #ifdef DEBUG
 	string f;
 	switch (code) {
-	case 0xe2: f = "C+"; break;	// Increase playing speed
-	case 0x62: f = "C-"; break;	// Decrease playing speed
-	case 0xc2: f = "D+"; break;	// Show Frame# & Chapter# OSD
-	case 0xd2: f = "L+"; break;	// right
-	case 0x92: f = "L-"; break;	// left
-	case 0x52: f = "L@"; break;	// stereo
-	case 0x1a: f = "M+"; break;	// multi speed forwards
-	case 0xaa: f = "M-"; break;	// multi speed backwards
-	case 0xe8: f = "P+"; break;	// play
-	case 0x68: f = "P@"; break;	// stop
+	case 0x47: f = "C+"; break;	// Increase playing speed
+	case 0x46: f = "C-"; break;	// Decrease playing speed
+	case 0x43: f = "D+"; break;	// Show Frame# & Chapter# OSD
+	case 0x4b: f = "L+"; break;	// right
+	case 0x49: f = "L-"; break;	// left
+	case 0x4a: f = "L@"; break;	// stereo
+	case 0x58: f = "M+"; break;	// multi speed forwards
+	case 0x55: f = "M-"; break;	// multi speed backwards
+	case 0x17: f = "P+"; break;	// play
+	case 0x16: f = "P@"; break;	// stop
 	case 0x18: f = "P/"; break;	// pause
-	case 0x2a: f = "S+"; break;	// frame step forward
-	case 0x0a: f = "S-"; break;	// frame step backwards
-	case 0xa2: f = "X+"; break;	// clear
-	case 0x82: f = 'F'; break;	// seek frame
-	case 0x02: f = 'C'; break;	// seek chapter
+	case 0x54: f = "S+"; break;	// frame step forward
+	case 0x50: f = "S-"; break;	// frame step backwards
+	case 0x45: f = "X+"; break;	// clear
+	case 0x41: f = 'F'; break;	// seek frame
+	case 0x40: f = 'C'; break;	// seek chapter
 	case 0x42: f = "END"; break;	// done seek frame/chapter
 	case 0x00: f = '0'; break;
-	case 0x80: f = '1'; break;
-	case 0x40: f = '2'; break;
-	case 0xc0: f = '3'; break;
-	case 0x20: f = '4'; break;
-	case 0xa0: f = '5'; break;
-	case 0x60: f = '6'; break;
-	case 0xe0: f = '7'; break;
-	case 0x10: f = '8'; break;
-	case 0x90: f = '9'; break;
-	case 0xfa: f = "WAIT FRAME"; break;
+	case 0x01: f = '1'; break;
+	case 0x02: f = '2'; break;
+	case 0x03: f = '3'; break;
+	case 0x04: f = '4'; break;
+	case 0x05: f = '5'; break;
+	case 0x06: f = '6'; break;
+	case 0x07: f = '7'; break;
+	case 0x08: f = '8'; break;
+	case 0x09: f = '9'; break;
+	case 0x5f: f = "WAIT FRAME"; break;
 
-	case 0xca: // previous chapter
-	case 0x4a: // next chapter
+	case 0x53: // previous chapter
+	case 0x52: // next chapter
 	default: break;
 	}
 
@@ -527,7 +526,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 #endif
 	// When not playing, only the play button works
 	if (playerState == PLAYER_STOPPED) {
-		if (code == 0xe8) {
+		if (code == 0x17) {
 			// P+
 			play(time);
 		}
@@ -536,43 +535,45 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		bool nonseekack = true;
 
 		switch (code) {
-		case 0xd2: // L+ (both channels play the right channel)
+		case 0x4b: // L+ (both channels play the right channel)
 			updateStream(time);
 			stereoMode = RIGHT;
 			break;
-		case 0x92: // L- (both channels play the left channel)
+		case 0x49: // L- (both channels play the left channel)
 			updateStream(time);
 			stereoMode = LEFT;
 			break;
-		case 0x52: // L@ (normal stereo)
+		case 0x4a: // L@ (normal stereo)
 			updateStream(time);
 			stereoMode = STEREO;
 			break;
-		case 0xfa:
+		case 0x5f:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
 			stillOnWaitFrame = false;
 			nonseekack = false;
 			break;
-		case 0x82:
+		case 0x41:
 			seekState = SEEK_FRAME;
 			seekNum = 0;
 			break;
-		case 0x02:
+		case 0x40:
 			seekState = SEEK_CHAPTER;
 			seekNum = 0;
 			nonseekack = video->chapter(0) != 0;
 			break;
-		case 0x00: seekNum = seekNum * 10 + 0; break;
-		case 0x80: seekNum = seekNum * 10 + 1; break;
-		case 0x40: seekNum = seekNum * 10 + 2; break;
-		case 0xc0: seekNum = seekNum * 10 + 3; break;
-		case 0x20: seekNum = seekNum * 10 + 4; break;
-		case 0xa0: seekNum = seekNum * 10 + 5; break;
-		case 0x60: seekNum = seekNum * 10 + 6; break;
-		case 0xe0: seekNum = seekNum * 10 + 7; break;
-		case 0x10: seekNum = seekNum * 10 + 8; break;
-		case 0x90: seekNum = seekNum * 10 + 9; break;
+		case 0x00:
+		case 0x01:
+		case 0x02:
+		case 0x03:
+		case 0x04:
+		case 0x05:
+		case 0x06:
+		case 0x07:
+		case 0x08:
+		case 0x09:
+			seekNum = seekNum * 10 + code; 
+			break;
 		case 0x42:
 			switch (seekState) {
 			case SEEK_FRAME:
@@ -601,7 +602,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				break;
 			}
 			break;
-		case 0xa2: // Clear "X+"
+		case 0x45: // Clear "X+"
 			if (seekState != SEEK_NONE && seekNum != 0) {
 				seekNum = 0;
 			} else {
@@ -614,11 +615,11 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			pause(time);
 			nonseekack = false;
 			break;
-		case 0xe8: // P+
+		case 0x17: // P+
 			play(time);
 			nonseekack = false;
 			break;
-		case 0x68: // P@ (stop/eject)
+		case 0x16: // P@ (stop/eject)
 			stop(time);
 			nonseekack = false;
 			break;
@@ -626,17 +627,17 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			nonseekack = false;
 			seekState = SEEK_NONE;
 			break;
-		case 0x2a: // S+ (frame step forward)
+		case 0x54: // S+ (frame step forward)
 			if (seekState == SEEK_WAIT) {
 				stillOnWaitFrame = true;
 			} else {
 				stepFrame(true);
 			}
 			break;
-		case 0x0a: // S- (frame step backwards)
+		case 0x50: // S- (frame step backwards)
 			stepFrame(false);
 			break;
-		case 0xaa: // M- (multispeed backwards)
+		case 0x55: // M- (multispeed backwards)
 			// Not supported
 			motherBoard.getMSXCliComm().printWarning(
 				"The Laserdisc player received a command to "
@@ -644,17 +645,17 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				"supported.");
 			nonseekack = false;
 			break;
-		case 0x1a: // M+ (multispeed forwards)
+		case 0x58: // M+ (multispeed forwards)
 			playerState = PLAYER_MULTISPEED;
 			setFrameStep();
 			break;
-		case 0x62: // C- (play slower)
+		case 0x46: // C- (play slower)
 			if (playingSpeed >= SPEED_STEP1) {
 				playingSpeed--;
 				frameStep = 1;	// FIXME: is this correct?
 			}
 			break;
-		case 0xe2: // C+ (play faster)
+		case 0x47: // C+ (play faster)
 			if (playingSpeed <= SPEED_X2) {
 				playingSpeed++;
 				frameStep = 1;	// FIXME: is this correct?
@@ -1263,6 +1264,19 @@ static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 
+// surely there is a better way
+static int revbits(int val, int bits)
+{
+	int i, ret = 0;
+	for (i=0; i<bits; i++) {
+		if (val & (1 << i)) {
+			ret |= 1 << (bits - i - 1);
+		}
+	}
+
+	return ret;
+}
+
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
@@ -1271,12 +1285,18 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	if (remoteState != REMOTE_IDLE) { 
 		ar.serialize("RemoteBitNr", remoteBitNr);
 		ar.serialize("RemoteBits", remoteBits);
+		if (ar.isLoader() && ar.versionBelow(version, 3)) {
+			remoteBits = revbits(remoteBits, remoteBitNr);
+		}
 	}
 	ar.serialize("RemoteLastBit", remoteLastBit);
 	ar.serialize("RemoteLastEdge", remoteLastEdge);
 	ar.serialize("RemoteProtocol", remoteProtocol);
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
+		if (ar.isLoader() && ar.versionBelow(version, 3)) {
+			remoteCode = revbits(remoteCode, 8);
+		}
 		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed);
 		ar.serialize("RemoteVblanksBack", remoteVblanksBack);
 	}
