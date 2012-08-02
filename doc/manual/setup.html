@@ -284,13 +284,23 @@ Whatever you decide, is your own responsibility.
 <h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
 
 <p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
-for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool for system ROMs is the <code>systemroms</code>
-directory. This directory is present in the installation directory of openMSX, typically in <code>C:\Program Files\openMSX\share</code> on Windows or something like <code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code> on UNIX-like operating systems. If you don't have access to these system wide installation directories (or don't want to touch them), you can also use your own user directory: <code>My Documents\openMSX\share</code> (Windows) or <code>~/.openMSX/share</code> (UNIX).
+for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool
+for system ROMs is the <code>systemroms</code> directory. The best way is to
+use one in your own user directory: <code>My Documents\openMSX\share</code>
+(Windows) or <code>~/.openMSX/share</code> (UNIX). That way, you do not need
+special privilages and on Windows, the installer won't touch them for sure.
+This directory is present in the installation directory of openMSX, typically
+in <code>C:\Program Files\openMSX\share</code> on Windows or something like
+<code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code> on UNIX-like
+operating systems.
 </p>
 
 <p>
-So, you can just
-put all your system ROMs in that directory. More info about file pools is in the documentation of the <code><a class="external" href="commands.html#filepool">filepool</a></code> command. If you can't get this working, please read one of the next sections about Checksums.
+So, you can just put all your system ROMs in that directory. More info about
+file pools is in the documentation of the <code><a class="external"
+href="commands.html#filepool">filepool</a></code> command. If
+you can't get this working, please read one of the next sections about
+Checksums.
 </p>
 
 <p>
