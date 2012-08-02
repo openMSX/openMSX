@@ -1,40 +1,88 @@
+namespace eval guess_title {
+
 set_help_text guess_title \
-{Guess the title of the current game.
-This proc uses some heuristics to guess the name of the current game, based on
-the inserted ROM cartridges, disks or cassettes.
+{Guess the title of the currently running software. Remember... it's only a guess! It will be wrong some times. (But it will be right in many cases.)
 }
 
-proc guess_rom_title {} {
-	# try only external slots
+# Here are some cases worth to consider and test.
+
+# * FM-PAC as extension and a ROM game slot 2. You don't want to get the FM-PAC
+#   returned when it's used as FM module, but you do when you did _FMPAC and use
+#   the internal software of it.
+# * Rollerball runs in page 2 (when using the proper ROM type)
+# * Philips Music Module, start up with ESC. You don't want to return the ROM
+#   as 'running software', but when you did not press ESC, you do.
+# * Koei games like Teitoku no Ketsudan. In combination with an FM-PAC in slot
+#   1. This games seems to run from RAM mostly.
+# * Tape converted to cart. Runs in RAM.
+# * SCC extension in combination with a disk game/demo. Runs with an empty ROM
+#   which you don't want to return as title.
+# * Sony HB-75P with internal software (Personal Data Bank). Runs in page 2.
+# * MSX-DOS
+# * MSX-DOS 2 (all pages are RAM)
+
+# this one checks on the checkpage for external or internal software
+proc guess_rom_title_z80space {internal checkpage} {
+	lassign [get_selected_slot $checkpage] ps ss
+	if {$ss eq "X"} {set ss 0}
+	set incorrectslottype [machine_info isexternalslot $ps $ss]
+	if {$internal} {
+		set incorrectslottype [expr !$incorrectslottype]
+	}
+	if {$incorrectslottype} {
+		set rom [machine_info slot $ps $ss $checkpage]
+		if {$rom ne "empty"} {
+			set ok false
+			catch {;# can fail for multimemdevices
+				set type [machine_info device $rom]
+				set ok true
+			}
+			# try to ignore RAM devices
+			if {$ok && $type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {return $rom}
+		}
+	}
+	return ""
+}
+
+proc guess_rom_title_nonextension {} {
+	# Get all systemrom filepool paths
+	set system_rom_paths [list]
+	foreach line [split [filepool list] \n] {
+		regexp {.*: (.*)  (\[.*\])} $line dummy path types
+		if {[lsearch $types "system_rom"] != -1} {
+			lappend system_rom_paths $path
+		}
+	}
+	# Loop over all external slots which contain a ROM, return the first
+	# which is not located in one of the systemrom filepools.
+	for {set ps 0} {$ps < 4} {incr ps} {
+		for {set ss 0} {$ss < 4} {incr ss} {
+			if {![machine_info isexternalslot $ps $ss]} continue
+			set rom [machine_info slot $ps $ss 1]
+			if {$rom eq "empty"} continue
+			set path [lindex [machine_info device $rom] 3]
+			if {$path eq ""} continue
+			set ok 1
+			foreach syspath $system_rom_paths {
+				if {[string first $syspath $path] == 0} {
+					set ok 0; break
+				}
+			}
+			if {$ok} {return $rom}
+		}
+	}
+	return ""
+}
+
+proc guess_rom_title_naive {} {
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {[machine_info isexternalslot $ps $ss]} {
-				set title [guess_rom_title_in $ps $ss]
-				if {$title ne ""} {return $title}
+				set rom [machine_info slot $ps $ss 1]
+				if {$rom ne "empty"} {return $rom}
 			}
 		}
 	}
-}
-
-proc guess_rom_title_in {ps ss} {
-	# check device name at address #4000 in given slot
-	#
-	# Note: this kind of fails for cases where the ROM is in an extension
-	# (so in external slot), but not actually running (e.g. the ROM from
-	# the Philips Music Module, after starting up with ESC, or the FMPAC
-	# ROM). The guesser will find it and report it as title. I thought of
-	# two strategies to overcome this, but both are inadequate:
-	# 1. check whether the found ROM is actually mapped into Z80 space by
-	# checking the value of I/O port 0xA8 (bit 2 and 3 should match $ps).
-	# Pretty neat: you really see what is actually running. But fails for
-	# ROMs that copy themselves to RAM (e.g. Koei games, tape games
-	# converted to ROM, etc.).
-	# 2. check whether the ROM came from an extension. But then you discard
-	# the ROM even when it is actually running (e.g. after _FMPAC)
-	# So, if someone has a good idea for this, which is not too CPU
-	# intensive, please go ahead.
-	set rom [machine_info slot $ps $ss 1]
-	if {$rom ne "empty"} {return $rom}
 	return ""
 }
 
@@ -42,37 +90,57 @@ proc guess_disk_title {drive_name} {
 	# check name of the diskimage (remove directory part and extension)
 	set disk ""
 	catch {set disk [lindex [$drive_name] 1]}
-	if {$disk eq ""} {return ""}
-	set first [string last  "/" $disk]
-	set last  [string first "." $disk $first]
-	return [string range $disk [expr {$first + 1}] [expr {$last - 1}]]
+	return [file rootname [file tail $disk]]
 }
 
 proc guess_cassette_title {} {
-	set cassette ""
 	# check name of the cassette image (remove directory part and extension)
+	set cassette ""
 	catch {set cassette [lindex [cassetteplayer] 1]}
-	if {$cassette eq ""} {return ""}
-	set first [string last  "/" $cassette]
-	set last  [string first "." $cassette $first]
-	return [string range $cassette [expr {$first + 1}] [expr {$last - 1}]]
+	return [file rootname [file tail $cassette]]
 }
 
 proc guess_title {{fallback ""}} {
-	# first try ROMs
-	set title [guess_rom_title]
-	if {$title ne ""} {return $title}
+	# first try to see what is actually mapped in Z80 space
+	# that is often correct, if it gives a result...
+	# but it doesn't give a result for ROMs that copy themselves to RAM
+	# (e.g. Koei games, tape games converted to ROM, etc.).
+	set result [guess_rom_title_z80space false 1]
+	if {$result ne ""} {return $result}
 
 	# then try disks
-	foreach drive [list "diska" "diskb"] {
-		set title [guess_disk_title $drive]
-		if {$title ne ""} {return $title}
-	}
+	# games typically run from drive A, almost never from another drive
+	set title [guess_disk_title "diska"]
+	if {$title ne ""} {return $title}
 
 	# then try cassette
 	set title [guess_cassette_title]
 	if {$title ne ""} {return $title}
 
+	# if that doesn't give a result, try non extension devices
+	set result [guess_rom_title_nonextension]
+	if {$result ne ""} {return $result}
+
+	# if that doesn't give a result, just return the first thing we find in
+	# an external slot
+	# ... this doesn't add much to the nonextension version
+#	set result [guess_rom_title_naive]
+
+	# perhaps we should simply return internal software if nothing found yet
+	# Do page 1 last, because BASIC is in there
+	set result [guess_rom_title_z80space true 3]
+	if {$result ne ""} {return $result}
+	set result [guess_rom_title_z80space true 2]
+	if {$result ne ""} {return $result}
+	set result [guess_rom_title_z80space true 1]
+	if {$result ne ""} {return $result}
+
 	# guess failed, return fallback
 	return $fallback
 }
+
+namespace export guess_title
+
+} ;# namespace guess_title
+
+namespace import guess_title::*
