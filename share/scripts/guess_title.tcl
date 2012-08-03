@@ -139,6 +139,22 @@ proc guess_title {{fallback ""}} {
 	return $fallback
 }
 
+# use this internal proc if you only want to guess ROM titles
+proc guess_rom_title {} {
+	set result [guess_rom_title_z80space false 1]
+	if {$result ne ""} {return $result}
+
+	# if that doesn't give a result, try non extension devices
+	set result [guess_rom_title_nonextension]
+	if {$result ne ""} {return $result}
+
+	# if that doesn't give a result, just return the first thing we find in
+	# an external slot
+	# ... this doesn't add much to the nonextension version
+	set result [guess_rom_title_naive]
+	return $result
+}
+
 namespace export guess_title
 
 } ;# namespace guess_title
