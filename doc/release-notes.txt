@@ -79,15 +79,15 @@ New or improved emulator features:
     the same directory as the ROM file
 
 Build system, packaging, documentation:
-- Upgraded 3rd party libraries.
+- Upgraded 3rd party libraries
 - Removed support for PPC on Mac and added build support for clang, which is
-  also our new default compiler for Mac OS X.
+  also our new default compiler for Mac OS X
 - Added several utilities for DMK support: dumping tool, analyzing tool,
-  creation tool and conversion tools.
+  creation tool and conversion tools
 - First step in phasing out the roms/ directories: removed them (including
   SHA1SUMS file which was redundant with the hardwareconfig.xml files) and new
-  configs do not use the path with roms/ anymore. Use the systemroms pool
-  instead.
+  configs do not use the path with roms/ anymore; use the systemroms pool
+  instead
 
 And of course the usual various bug fixes.
 
