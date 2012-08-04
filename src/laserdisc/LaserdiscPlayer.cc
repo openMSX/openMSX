@@ -177,18 +177,16 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 }
 
 // The protocol used to communicate over the cable for commands to the
-// laserdisc player is the NEC infrared protocol. Note that the repeat
-// functionality in this protocol is not implemented yet.
+// laserdisc player is the NEC infrared protocol with minor deviations:
+// 1) The leader pulse and space is a little shorter.
+// 2) The remote does not send NEC repeats; full NEC codes are repeated 
+//    after 20ms. It is unknown if the main unit can interpret them. FIXME
+// 3) No carrier modulation is done over the ext protocol.
 //
-// My Laserdisc player is an Pioneer LD-92000 which has a remote called
-// the CU-CLD037. This is much like the CU-CLD106 which is described
+// My Laserdisc player is an Pioneer LD-700 which has a remote called
+// the CU-700. This is much like the CU-CLD106 which is described
 // here: http://lirc.sourceforge.net/remotes/pioneer/CU-CLD106
 // The codes and protocol are exactly the same.
-//
-// For example, the header pulse is 8263 microseconds according to
-// lirc. The software in the PBASIC generates a header pulse of
-// 64 periods of 7812.5Hz, which is 0.008190s, which is 8190
-// microseconds.
 void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 {
 	if (remoteLastBit == bit) return;
@@ -212,50 +210,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	case REMOTE_HEADER_PULSE:
 		if (8000 <= usec && usec < 8400) {
 			remoteState = NEC_HEADER_SPACE;
-		} else if (140 <= usec && usec < 280) {
-			remoteState = LD1100_BITS_SPACE;
 		} else {
 			remoteState = REMOTE_IDLE;
 		}
 		break;
-	// LD-1100
-	case LD1100_BITS_SPACE:
-		if (450 <= usec && usec < 550) {
-			remoteBits = (remoteBits << 1) | 0;
-			remoteState = LD1100_BITS_PULSE;
-			++remoteBitNr;
-		} else if (1350 <= usec && usec < 1650) {
-			remoteBits = (remoteBits << 1) | 1;
-			remoteState = LD1100_BITS_PULSE;
-			++remoteBitNr;
-		} else {
-			remoteState = REMOTE_IDLE;
-		}
-		break;
-	case LD1100_SEEN_GAP:
-	case LD1100_BITS_PULSE:
-		if (225 <= usec && usec < 275) {
-			if (remoteBitNr == 30) {
-				submitRemote(IR_LD1100, remoteBits);
-				remoteState = REMOTE_IDLE;
-			} else if ((remoteBitNr == 10 || remoteBitNr == 20) &&
-					remoteState != LD1100_SEEN_GAP) {
-				remoteState = LD1100_GAP;
-			} else {
-				remoteState = LD1100_BITS_SPACE;
-			}
-		} else {
-			remoteState = REMOTE_IDLE;
-		}
-		break;
-	case LD1100_GAP:
-		if (9000 <= usec && usec < 11000) {
-			remoteState = LD1100_SEEN_GAP;
-		} else {
-			remoteState = REMOTE_IDLE;
-		}
-		break;
-	// NEC protocol
 	case NEC_HEADER_SPACE:
 		if (3800 <= usec && usec < 4200) {
 			remoteState = NEC_BITS_PULSE;
@@ -356,127 +314,6 @@ bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
 {
 	PRT_DEBUG("NEC protocol repeat received");
-}
-
-// See:
-// http://www.laserdiscarchive.co.uk/laserdisc_archive/pioneer/pioneer_ld-1100/pioneer_ld-1100.htm
-//
-// Note there are more commands. The LD1100 is compatible with the PR8210. See
-// pr8210_command() in the Daphne source code. This seems to be the subset
-// needed to support Astron Belt. Also note that Daphne is more relaxed on
-// what sort of input it accepts.
-//
-// To test in P-BASIC:
-// CALL SEARCH(1,C,2) -> SEEK CHAPTER 0 0 0 0 2 SEEK
-// CALL SEARCH(1,F,12345) -> SEEK FRAME 1 2 3 4 5 SEEK
-//
-// Astron Belt only searches for frames and omits the FRAME code
-void LaserdiscPlayer::remoteButtonLD1100(unsigned code, EmuTime::param time)
-{
-	if ((code & 0x383) != 0x80 ||
-			(code & 0x3ff) != ((code >> 10) & 0x3ff) ||
-			(code & 0x3ff) != ((code >> 20) & 0x3ff)) {
-		PRT_DEBUG("LD1100 remote: malformed 0x" << std::hex << code);
-		return;
-	}
-
-	unsigned command = (code >> 2) & 0x1f;
-
-	switch (command) {
-	case 0x14: // Play
-		PRT_DEBUG("LD1100 remote: play");
-		seekState = SEEK_NONE;
-		play(time);
-		break;
-	case 0x0a: // Pause
-		PRT_DEBUG("LD1100 remote: pause");
-		seekState = SEEK_NONE;
-		pause(time);
-		break;
-	case 0x1e: // Stop
-		PRT_DEBUG("LD1100 remote: stop");
-		seekState = SEEK_NONE;
-		stop(time);
-		break;
-	case 0x06: // Chapter
-		PRT_DEBUG("LD1100 remote: chapter");
-		if (seekState == SEEK_FRAME) {
-			seekState = SEEK_CHAPTER;
-		} else {
-			PRT_DEBUG("LD1100: remote: chapter unexpected");
-			seekState = SEEK_NONE;
-		}
-		break;
-	case 0x0b: // Frame
-		PRT_DEBUG("LD1100 remote: frame");
-		if (seekState != SEEK_FRAME) {
-			PRT_DEBUG("LD1100 remote: frame unexpected");
-			seekState = SEEK_NONE;
-		}
-		break;
-	case 0x1a: // Seek
-		PRT_DEBUG("LD1100 remote: seek");
-		switch (seekState) {
-		case SEEK_NONE:
-			seekState = SEEK_FRAME;
-			seekNum = 0;
-			break;
-		case SEEK_FRAME:
-			seekState = SEEK_NONE;
-			seekFrame(seekNum % 100000, time);
-			break;
-		case SEEK_CHAPTER:
-			seekState = SEEK_NONE;
-			seekChapter(seekNum % 100, time);
-			break;
-		default:
-			break;
-		}
-		break;
-	case 0x01:
-		PRT_DEBUG("LD1100 remote: 0");
-		seekNum = seekNum * 10 + 0;
-		break;
-	case 0x11:
-		PRT_DEBUG("LD1100 remote: 1");
-		seekNum = seekNum * 10 + 1;
-		break;
-	case 0x09:
-		PRT_DEBUG("LD1100 remote: 2");
-		seekNum = seekNum * 10 + 2;
-		break;
-	case 0x19:
-		PRT_DEBUG("LD1100 remote: 3");
-		seekNum = seekNum * 10 + 3;
-		break;
-	case 0x05:
-		PRT_DEBUG("LD1100 remote: 4");
-		seekNum = seekNum * 10 + 4;
-		break;
-	case 0x15:
-		PRT_DEBUG("LD1100 remote: 5");
-		seekNum = seekNum * 10 + 5;
-		break;
-	case 0x0d:
-		PRT_DEBUG("LD1100 remote: 6");
-		seekNum = seekNum * 10 + 6;
-		break;
-	case 0x1d:
-		PRT_DEBUG("LD1100 remote: 7");
-		seekNum = seekNum * 10 + 7;
-		break;
-	case 0x03:
-		PRT_DEBUG("LD1100 remote: 8");
-		seekNum = seekNum * 10 + 8;
-		break;
-	case 0x13:
-		PRT_DEBUG("LD1100 remote: 9");
-		seekNum = seekNum * 10 + 9;
-		break;
-	default:
-		PRT_DEBUG("LD1100 remote: unknown 0x" << std::hex << command);
-		break;
-	}
 }
 
 void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
@@ -749,11 +586,6 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			if (++remoteVblanksBack > 6) {
 				remoteProtocol = IR_NONE;
 			}
-		} else if (remoteProtocol == IR_LD1100) {
-			if (remoteExecuteDelayed) {
-				remoteButtonLD1100(remoteCode, time);
-			}
-			remoteProtocol = IR_NONE;
 		}
 		remoteExecuteDelayed = false;
 	}
@@ -1227,10 +1059,6 @@ static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
 	{ "NEC_BITS_PULSE",	LaserdiscPlayer::NEC_BITS_PULSE		},
 	{ "NEC_BITS_SPACE",	LaserdiscPlayer::NEC_BITS_SPACE		},
 	{ "NEC_REPEAT_PULSE",	LaserdiscPlayer::NEC_REPEAT_PULSE	},
-	{ "LD1100_GAP",		LaserdiscPlayer::LD1100_GAP		},
-	{ "LD1100_SEEN_GAP",	LaserdiscPlayer::LD1100_SEEN_GAP	},
-	{ "LD1100_BITS_SPACE",	LaserdiscPlayer::LD1100_BITS_SPACE	},
-	{ "LD1100_BITS_PULSE",	LaserdiscPlayer::LD1100_BITS_PULSE	}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
@@ -1260,7 +1088,6 @@ SERIALIZE_ENUM(LaserdiscPlayer::StereoMode, StereoModeInfo);
 static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
 	{ "NONE",		LaserdiscPlayer::IR_NONE		},
 	{ "NEC",		LaserdiscPlayer::IR_NEC			},
-	{ "LD1100",		LaserdiscPlayer::IR_LD1100		}
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 

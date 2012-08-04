@@ -57,10 +57,6 @@ public:
 		NEC_BITS_PULSE,
 		NEC_BITS_SPACE,
 		NEC_REPEAT_PULSE,
-		LD1100_GAP,
-		LD1100_SEEN_GAP,
-		LD1100_BITS_SPACE,
-		LD1100_BITS_PULSE
 	};
 
 	enum PlayerState {
@@ -87,7 +83,6 @@ public:
 	enum RemoteProtocol {
 		IR_NONE,
 		IR_NEC,
-		IR_LD1100
 	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
@@ -109,7 +104,6 @@ private:
 	  */
 	void scheduleDisplayStart(EmuTime::param time);
 	bool isVideoOutputAvailable(EmuTime::param time);
-	void remoteButtonLD1100(unsigned code, EmuTime::param time);
 	void remoteButtonNEC(unsigned code, EmuTime::param time);
 	void submitRemote(RemoteProtocol protocol, unsigned code);
 	void buttonRepeat(EmuTime::param time);
