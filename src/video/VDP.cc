@@ -531,12 +531,9 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 		// sync + top erase:
 		3 + 13 +
 		// top border:
-		( isDisplayArea // overscan?
-		? 0
-		: (palTiming ? 36 : 9) +
-		  (controlRegs[9] & 0x80 ? 0 : 10) +
-		  verticalAdjust
-		);
+		(palTiming ? 36 : 9) +
+		(controlRegs[9] & 0x80 ? 0 : 10) +
+		verticalAdjust;
 	displayStart =
 		lineZero * TICKS_PER_LINE
 		+ 100 + 102; // VR flips at start of left border
