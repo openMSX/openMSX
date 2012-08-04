@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.x.x (2012-0x-xx)
+Release Notes for openMSX 0.9.0 (2012-08-xx)
 ============================================
 
 This release improves a lot on accuracy of floppy support, especially by the
@@ -12,6 +12,7 @@ Here's the list with all highlights:
 
 MSX device support:
 - Bug fixes:
+  - overscan: 512x512 demo by NYYRIKKI and Don't Cock It Up by Matra now work
   - cursor order in B-modes of GFX9000
   - several small issues in existing MSX machine configurations
   - broken border rendering on ARM CPU's
@@ -24,6 +25,9 @@ MSX device support:
     implemented by the CXD1032 chip
   - disk drive rotation is now correct
   - added support for persistency of S1985 back-up RAM
+  - added support for specifying the initial content of RAM and VRAM. Fixing
+    this for the Philips MSX2's shows why Cas Cremers never noticed a bug in
+    Akin, causing white pixels on the screen
 - Added initial support for Video9000:
   - new extension, which gives a new Video9000 videosource
   - the Video9000 can display the GFX9000 output superimposed over the normal
@@ -62,10 +66,15 @@ New or improved emulator features:
   - start-up time
   - several scripts (a.o. reverse bar)
 - Miscellaneous:
-  - reverse bar has now even clear colors to reflect recording (red) and
+  - guess_title script is now a lot better and is used to generate file names
+    if no file name was given (e.g. to screenshots)
+  - reverse bar has now even clearer colors to reflect recording (red) and
     replaying state
   - don't print an error when an initial CMOS/SRAM file isn't found
   - enable auto run cassettes by default
+  - give an error when using harddisk images larger than 2GB, because that is
+    currently not properly supported
+  - show progress on calculating SHA1 sum of large harddisk images
   - additional files for ROMs (like samples for Playball) can now also be in
     the same directory as the ROM file
 
