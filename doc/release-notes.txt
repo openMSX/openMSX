@@ -58,31 +58,32 @@ New or improved emulator features:
   - added syntax highlighting for Tcl in the console
   - show errors in the console in red
   - implemented tab-completion for nested Tcl commands
-- OSD menu improvements (mostly useful for hand held users):
+- OSD menu improvements:
   - list of machines and extensions are now sorted alphabetically
   - file lists are now filtered on extension case insensitively
 - Performance improvements:
   - OSD
   - start-up time
-  - several scripts (a.o. reverse bar)
+  - several scripts (reverse bar a.o.)
 - Miscellaneous:
   - guess_title script is now a lot better and is used to generate file names
     if no file name was given (e.g. to screenshots)
   - reverse bar has now even clearer colors to reflect recording (red) and
     replaying state
   - don't print an error when an initial CMOS/SRAM file isn't found
-  - enable auto run cassettes by default
-  - give an error when using harddisk images larger than 2GB, because that is
-    currently not properly supported
+  - enable auto-run for cassettes by default
+  - show an error message when using harddisk images larger than 2GB, because
+    that is currently not properly supported
   - show progress on calculating SHA1 sum of large harddisk images
   - additional files for ROMs (like samples for Playball) can now also be in
     the same directory as the ROM file
 
 Build system, packaging, documentation:
-- Upgraded 3rd party libs
-- Removed support for PPC on Mac and added build instructions for clang
-- Added several utilities for DMK support (dumping tool, analyzing tool,
-  creation tool and conversion tools)
+- Upgraded 3rd party libraries.
+- Removed support for PPC on Mac and added build support for clang, which is
+  also our new default compiler for Mac OS X.
+- Added several utilities for DMK support: dumping tool, analyzing tool,
+  creation tool and conversion tools.
 - First step in phasing out the roms/ directories: removed them (including
   SHA1SUMS file which was redundant with the hardwareconfig.xml files) and new
   configs do not use the path with roms/ anymore. Use the systemroms pool
@@ -94,24 +95,17 @@ In "doc/manual/index.html" you can find a set of HTML manuals for openMSX.
 Make sure you read this if you haven't used openMSX before, but also to learn
 more about the new and changed features.
 
-Known issues / caveats:
-- Emulation is not perfect yet.
-  See the bug tracker on sourceforge.net for known bugs.
-- Until we reach version 1.0.0, file formats can change in an incompatible way
-  without backwards compatibility. This happened between 0.4.0 and 0.5.0, for
-  example. Keep this in mind if you create machine descriptions, ROM database
-  entries etc. We do try to be backwards compatible for at least one release,
-  though. Keep in mind that openMSX is still evolving at a considerable speed.
-- openMSX is confirmed to run on the following operating systems: Linux,
-  Windows, Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM,
-  MIPS and Sparc CPU's. Running on other operating systems (wherever SDL runs)
-  or CPU's should be possible, but may require some modifications to the build
-  system. If you are compiling on a new platform, please share your experiences
-  (see below for contact info), so we can make openMSX more portable.
-- CPU and graphics performance varies a lot, depending on the openMSX settings
-  and the MSX hardware and software you're emulating. Some things run fine on a
-  200 MHz machine, others are slow on a 2 GHz machine. For performance tuning
-  tips, see the Setup Guide.
+CPU and graphics performance varies a lot, depending on the openMSX settings
+and the MSX hardware and software you're emulating. Some things run fine on a
+200 MHz machine, others are slow on a 2 GHz machine. For performance tuning
+tips, see the Setup Guide.
+
+openMSX is confirmed to run on the following operating systems: Linux, Windows,
+Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM, MIPS and Sparc
+CPU's. Running on other operating systems (wherever SDL runs) or CPU's should
+be possible, but may require some modifications to the build system. If you are
+compiling on a new platform, please share your experiences (see below for
+contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
   http://www.openmsx.org/
