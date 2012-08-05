@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1344144922">
+<softwaredb xml:lang="en" timestamp="1344146612">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1039,7 +1039,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash><remark><text>SCC supported / MSX-DEV07</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash><remark><text>SCC supported / MSX-DEV07</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash><remark><text>Fixed - SCC supported / MSX-DEV07</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark><text>SCC supported / Retail</text></remark></rom></dump>
+		<dump><rom><type>Normal</type><hash algo="sha1">3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark><text>SCC supported / Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bifamu</title>
@@ -1928,7 +1928,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2010</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">50881d29421b9431b31f8b09fe26ee8b298ba76a</hash><remark><text>Demo Version</text></remark></rom></dump>
-		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">8cde922a3c189889096970fb6e8a1670fcc4e8ed</hash><remark><text>Retail</text></remark></rom></dump>
+		<dump><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">8cde922a3c189889096970fb6e8a1670fcc4e8ed</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Color Ball</title>
@@ -4987,6 +4987,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">0293bc55df4f9b7fb97ae9cded8ab2c5c9ed0fd4</hash><remark><text>After MSX-DEV08 version</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">bd46981d1b580ec9a2d1d909f5c1a8dfd9a71ed7</hash><remark><text>MSX-DEV08</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">c6c079b105492f7665a8d6ccb81e337b864582fa</hash><remark><text>Retail Version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">I.N.E.R.T.I.A.</title>
@@ -8139,6 +8140,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">6e2597e3dd2558043550a4307d01426998136722</hash><remark><text>Demo / Demo Version</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">efd0e4d8df8951be7fa1c129beb50e55999ce099</hash><remark><text>Freeware Version</text></remark></megarom></dump>
+		<dump><megarom><type>manbow2</type><hash algo="sha1">0618eb4059edd8282190889e3b0255113df354c3</hash><remark><text>Retail</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Penguin Cafe</title>
@@ -8212,7 +8214,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">7ec25356abf3720806b2b97cbabdc1f19ed698f8</hash></rom></dump>
-		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">691b8adc93ec86a78dbccfafe7da1b33358d4cc1</hash><remark><text>Retail</text></remark></rom></dump>
+		<dump><rom><type>Normal</type><hash algo="sha1">691b8adc93ec86a78dbccfafe7da1b33358d4cc1</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Periodic Table</title>
@@ -12142,6 +12144,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2684
-Parse time 7.357 seconds on Sun Aug 5 7:35:29 CEST 2012
+Roms in this database:2685
+Parse time 7.416 seconds on Sun Aug 5 8:03:40 CEST 2012
  -->
