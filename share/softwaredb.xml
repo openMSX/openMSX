@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1341035385">
+<softwaredb xml:lang="en" timestamp="1344144922">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -1039,6 +1039,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><hash algo="sha1">afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash><remark><text>SCC supported / MSX-DEV07</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash><remark><text>SCC supported / MSX-DEV07</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash><remark><text>Fixed - SCC supported / MSX-DEV07</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">3e219e8205a3a4867c307601683d96bc53ac4c8e</hash><remark><text>SCC supported / Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Bifamu</title>
@@ -1921,12 +1922,13 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">e36e16acfdfa76fa72b218da2bebc668db39d21e</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Cold Bood - DEMO</title>
+	<title xml:lang="en">Cold Bood</title>
 	<system>MSX</system>
 	<company>Paxanga Soft</company>
 	<year>2010</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">50881d29421b9431b31f8b09fe26ee8b298ba76a</hash><remark><text>Demo Version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">8cde922a3c189889096970fb6e8a1670fcc4e8ed</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Color Ball</title>
@@ -5220,6 +5222,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2011</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">cc13bac2f50f58bc466d605839187cf09dbe269c</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">8bda6f24ff3818542ea11428d58eb79282a509e1</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">J.P. Winkle</title>
@@ -5611,6 +5614,8 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">bd9852ea114e8b8ff781115d1d6e6da6f8dfafff</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">65a5bda34d1e1b22cfa697e4e7fdf1829cf2238d</hash><remark><text>[RC-745]</text></remark></megarom></dump>
 		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">ec9136f01292ca230dd10029301fe6f8df68eac6</hash><remark><text>[RC-745] / English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">206a9a6dce2938d149b30cefb661c938419260ed</hash><remark><text>[RC-745] / Espaniol Ultimate Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>Konami</type><hash algo="sha1">78788073af4a1c2921fb18df7175e44c16d513d6</hash><remark><text>[RC-745] / English Ultimate Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">King&#39;s Knight</title>
@@ -8133,7 +8138,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2010</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">6e2597e3dd2558043550a4307d01426998136722</hash><remark><text>Demo / Demo Version</text></remark></megarom></dump>
-		<dump><original value="true">Author</original><megarom><type>manbow2</type><hash algo="sha1">efd0e4d8df8951be7fa1c129beb50e55999ce099</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">efd0e4d8df8951be7fa1c129beb50e55999ce099</hash><remark><text>Freeware Version</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Penguin Cafe</title>
@@ -8207,6 +8212,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">7ec25356abf3720806b2b97cbabdc1f19ed698f8</hash></rom></dump>
+		<dump><original value="true">Author</original><rom><type>Normal</type><hash algo="sha1">691b8adc93ec86a78dbccfafe7da1b33358d4cc1</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Periodic Table</title>
@@ -9184,7 +9190,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">f6e0dff9f8674383a866902fddb72a280d331d9d</hash><remark><text>[a2]</text></remark></megarom></dump>
 		<dump><rom><hash algo="sha1">ff9877666d983759d41398c5e3e29801ad95a589</hash></rom></dump>
 		<dump><rom><hash algo="sha1">3325a55dc5cb88f79d3a25dc21521d6124a6a90b</hash><remark><text>[b]</text></remark></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">44baa180f6c9e0f140ac1f0afae75c412cb06b9e</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><type>Normal</type><hash algo="sha1">44baa180f6c9e0f140ac1f0afae75c412cb06b9e</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Rotating MSX</title>
@@ -10281,6 +10287,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2009</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">c939da3791a6772b48be24553689ba4998244fe4</hash><remark><text>MSXDev09 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">cc39392b47f34dee1358d30fbdc4d613dc412f7c</hash><remark><text>Retail</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Street Master</title>
@@ -12135,6 +12142,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2676
-Parse time 7.746 seconds on Sat Jun 30 7:49:53 CEST 2012
+Roms in this database:2684
+Parse time 7.357 seconds on Sun Aug 5 7:35:29 CEST 2012
  -->
