@@ -1,0 +1,12 @@
+diff -ru SDL_ttf-2.0.11.org/Makefile.in SDL_ttf-2.0.11/Makefile.in
+--- SDL_ttf-2.0.11.org/Makefile.in	2012-01-15 05:44:08.000000000 +0100
++++ SDL_ttf-2.0.11/Makefile.in	2012-08-05 22:55:28.000000000 +0200
+@@ -353,7 +353,7 @@
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+ libSDL_ttf.la: $(libSDL_ttf_la_OBJECTS) $(libSDL_ttf_la_DEPENDENCIES) 
+-	$(libSDL_ttf_la_LINK) -rpath $(libdir) $(libSDL_ttf_la_OBJECTS) $(libSDL_ttf_la_LIBADD) $(LIBS)
++	$(libSDL_ttf_la_LINK) -rpath $(libdir) $(libSDL_ttf_la_OBJECTS) $(libSDL_ttf_la_LIBADD)
+ 
+ clean-noinstPROGRAMS:
+ 	@list='$(noinst_PROGRAMS)'; for p in $$list; do \
