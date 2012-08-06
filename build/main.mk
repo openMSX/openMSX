@@ -309,6 +309,8 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Clang does support -Wunused-macros, but it triggers on SDL's headers,
   # causing way too many false positives that we cannot fix.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef
+  # TODO: Remove the overloading from the code instead.
+  COMPILE_FLAGS+=-Wno-overloaded-virtual
   CC:=$(subst clang++,clang,$(CXX))
   LD:=ld
   DEPEND_FLAGS+=-MP
