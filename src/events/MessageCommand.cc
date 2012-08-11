@@ -11,9 +11,9 @@ MessageCommand::MessageCommand(CommandController& controller)
 {
 }
 
-static CliComm::LogLevel getLevel(CliComm& cliComm, const std::string& level)
+static CliComm::LogLevel getLevel(const std::string& level)
 {
-	const char* const* levels = cliComm.getLevelStrings();
+	const char* const* levels = CliComm::getLevelStrings();
 	for (int i = 0; i < CliComm::NUM_LEVELS; ++i) {
 		if (level == levels[i]) {
 			return static_cast<CliComm::LogLevel>(i);
@@ -28,7 +28,7 @@ std::string MessageCommand::execute(const std::vector<std::string>& tokens)
 	CliComm::LogLevel level = CliComm::INFO;
 	switch (tokens.size()) {
 	case 3:
-		level = getLevel(cliComm, tokens[2]);
+		level = getLevel(tokens[2]);
 		// fall-through
 	case 2:
 		cliComm.log(level, tokens[1]);
@@ -51,7 +51,7 @@ std::string MessageCommand::help(const std::vector<std::string>& /*tokens*/) con
 void MessageCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		const char* const* levels = getCliComm().getLevelStrings();
+		const char* const* levels = CliComm::getLevelStrings();
 		std::set<std::string> levelSet(levels, levels + CliComm::NUM_LEVELS);
 		completeString(tokens, levelSet);
 	}

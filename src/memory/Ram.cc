@@ -67,7 +67,7 @@ void Ram::clear(byte c)
 			string out = (encoding == "hex")
 			           ? HexDump::decode(init->getData())
 				   : Base64 ::decode(init->getData());
-			done = std::min<unsigned>(ram.size(), out.size());
+			done = std::min(ram.size(), unsigned(out.size()));
 			memcpy(ram.data(), out.data(), done);
 		} else {
 			throw MSXException("Unsupported encoding \"" + encoding + "\" for initialContent");
