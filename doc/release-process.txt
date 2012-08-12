@@ -2,7 +2,7 @@ openMSX Release Process
 =======================
 
 This is a kind of recipe for doing releases. Having it written down
-decreases the change of forgetting a small but crucial step during the
+decreases the chance of forgetting a small but crucial step during the
 hectic work of getting a release out.
 
 Preparing for a release
