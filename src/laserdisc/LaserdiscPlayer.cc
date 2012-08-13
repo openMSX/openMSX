@@ -180,7 +180,7 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 // laserdisc player is the NEC infrared protocol with minor deviations:
 // 1) The leader pulse and space is a little shorter.
 // 2) The remote does not send NEC repeats; full NEC codes are repeated 
-//    after 20ms. It is unknown if the main unit can interpret them. FIXME
+//    after 20ms. The main unit does not understand NEC repeats.
 // 3) No carrier modulation is done over the ext protocol.
 //
 // My Laserdisc player is an Pioneer LD-700 which has a remote called
@@ -208,66 +208,54 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 		}
 		break;
 	case REMOTE_HEADER_PULSE:
-		if (8000 <= usec && usec < 8400) {
+		if (5800 <= usec && usec < 11200) {
 			remoteState = NEC_HEADER_SPACE;
 		} else {
 			remoteState = REMOTE_IDLE;
 		}
 		break;
 	case NEC_HEADER_SPACE:
-		if (3800 <= usec && usec < 4200) {
+		if (3400 <= usec && usec < 6200) {
 			remoteState = NEC_BITS_PULSE;
-		} else if (2000 <= usec && usec < 2400) {
-			remoteState = NEC_REPEAT_PULSE;
 		} else {
 			remoteState = REMOTE_IDLE;
 		}
 		break;
 	case NEC_BITS_PULSE:
-		// Is there a minimum or maximum length for the trailing pulse?
-		if (400 <= usec && usec < 700) {
-			if (remoteBitNr == 32) {
-				byte custom	 = ( remoteBits >>  0) & 0xff;
-				byte customCompl = (~remoteBits >>  8) & 0xff;
-				byte code	 = ( remoteBits >> 16) & 0xff;
-				byte codeCompl	 = (~remoteBits >> 24) & 0xff;
-				if (custom == customCompl && 
-				    custom == 0xa8 &&
-				    code == codeCompl) {
-					submitRemote(IR_NEC, code);
-				}
-				remoteState = REMOTE_IDLE;
-			} else {
-				remoteState = NEC_BITS_SPACE;
-			}
+		if (usec >= 380 && usec < 1070) {
+			remoteState = NEC_BITS_SPACE;
 		} else {
 			remoteState = REMOTE_IDLE;
-			break;
 		}
 		break;
 	case NEC_BITS_SPACE:
-		if (1400 <= usec && usec < 1600) {
+		if (1260 <= usec && usec < 4720) {
 			// bit 1
 			remoteBits |= 1 << remoteBitNr;
-			++remoteBitNr;
-			remoteState = NEC_BITS_PULSE;
-		} else if (400 <= usec && usec < 700) {
-			// bit 0
-			++remoteBitNr;
-			remoteState = NEC_BITS_PULSE;
-		} else {
+		} else if (usec < 300 || usec >= 1065) {
 			// error
 			remoteState = REMOTE_IDLE;
+			break;
 		}
-		break;
-	case NEC_REPEAT_PULSE:
-		// We should check that last repeat/button was 110ms ago
-		// and succesful.
-		PRT_DEBUG("Laserdisc::extControl repeat: " << std::dec << usec);
-		if (400 <= usec && usec < 700) {
-			buttonRepeat(time);
+
+		// since it does not matter how long the trailing pulse
+		// is, we process the button here. Note that real hardware
+		// needs the trailing pulse to be at least 200µs
+		if (++remoteBitNr == 32) {
+			byte custom	 = ( remoteBits >>  0) & 0xff;
+			byte customCompl = (~remoteBits >>  8) & 0xff;
+			byte code	 = ( remoteBits >> 16) & 0xff;
+			byte codeCompl	 = (~remoteBits >> 24) & 0xff;
+			if (custom == customCompl && 
+			    custom == 0xa8 &&
+			    code == codeCompl) {
+				submitRemote(IR_NEC, code);
+			}
+			remoteState = REMOTE_IDLE;
+		} else {
+			remoteState = NEC_BITS_PULSE;
 		}
-		remoteState = REMOTE_IDLE;
+
 		break;
 	}
 }
@@ -309,11 +297,6 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
 {
 	return ack;
-}
-
-void LaserdiscPlayer::buttonRepeat(EmuTime::param /*time*/)
-{
-	PRT_DEBUG("NEC protocol repeat received");
 }
 
 void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
@@ -1058,7 +1041,6 @@ static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
 	{ "NEC_HEADER_SPACE",	LaserdiscPlayer::NEC_HEADER_SPACE	},
 	{ "NEC_BITS_PULSE",	LaserdiscPlayer::NEC_BITS_PULSE		},
 	{ "NEC_BITS_SPACE",	LaserdiscPlayer::NEC_BITS_SPACE		},
-	{ "NEC_REPEAT_PULSE",	LaserdiscPlayer::NEC_REPEAT_PULSE	},
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 

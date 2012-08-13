@@ -56,7 +56,6 @@ public:
 		NEC_HEADER_SPACE,
 		NEC_BITS_PULSE,
 		NEC_BITS_SPACE,
-		NEC_REPEAT_PULSE,
 	};
 
 	enum PlayerState {
@@ -106,7 +105,6 @@ private:
 	bool isVideoOutputAvailable(EmuTime::param time);
 	void remoteButtonNEC(unsigned code, EmuTime::param time);
 	void submitRemote(RemoteProtocol protocol, unsigned code);
-	void buttonRepeat(EmuTime::param time);
 	void setAck(EmuTime::param time, int wait);
 	unsigned getCurrentSample(EmuTime::param time);
 	void createRenderer();
