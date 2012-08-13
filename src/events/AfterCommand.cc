@@ -13,6 +13,7 @@
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "Interpreter.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
 #include "unreachable.hh"
@@ -31,17 +32,17 @@ class AfterCmd
 {
 public:
 	virtual ~AfterCmd();
-	const string& getCommand() const;
+	string_ref getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;
 	void execute();
 protected:
 	AfterCmd(AfterCommand& afterCommand,
-		 const string& command);
+		 const TclObject& command);
 	shared_ptr<AfterCmd> removeSelf();
 private:
 	AfterCommand& afterCommand;
-	string command;
+	TclObject command;
 	string id;
 	static unsigned lastAfterId;
 };
@@ -54,7 +55,7 @@ public:
 protected:
 	AfterTimedCmd(Scheduler& scheduler,
 		      AfterCommand& afterCommand,
-		      const string& command, double time);
+		      const TclObject& command, double time);
 private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual void schedulerDeleted();
@@ -67,7 +68,7 @@ class AfterTimeCmd : public AfterTimedCmd
 public:
 	AfterTimeCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
-		     const string& command, double time);
+		     const TclObject& command, double time);
 	virtual string getType() const;
 };
 
@@ -76,7 +77,7 @@ class AfterIdleCmd : public AfterTimedCmd
 public:
 	AfterIdleCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
-		     const string& command, double time);
+		     const TclObject& command, double time);
 	virtual string getType() const;
 };
 
@@ -85,8 +86,8 @@ class AfterEventCmd : public AfterCmd
 {
 public:
 	AfterEventCmd(AfterCommand& afterCommand,
-		      const string& type,
-		      const string& command);
+		      const TclObject& type,
+		      const TclObject& command);
 	virtual string getType() const;
 private:
 	const string type;
@@ -97,7 +98,7 @@ class AfterInputEventCmd : public AfterCmd
 public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
 	                   const AfterCommand::EventPtr& event,
-	                 const string& command);
+	                   const TclObject& command);
 	virtual string getType() const;
 	AfterCommand::EventPtr getEvent() const { return event; }
 private:
@@ -109,7 +110,7 @@ class AfterRealTimeCmd : public AfterCmd, private Alarm
 public:
 	AfterRealTimeCmd(AfterCommand& afterCommand,
 	                 EventDistributor& eventDistributor,
-	                 const string& command, double time);
+	                 const TclObject& command, double time);
 	virtual ~AfterRealTimeCmd();
 	virtual string getType() const;
 	bool hasExpired() const;
@@ -193,72 +194,71 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_UP_EVENT, *this);
 }
 
-string AfterCommand::execute(const vector<string>& tokens)
+void AfterCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
 	int time;
-	if (tokens[1] == "time") {
-		return afterTime(tokens);
-	} else if (tokens[1] == "realtime") {
-		return afterRealTime(tokens);
-	} else if (tokens[1] == "idle") {
-		return afterIdle(tokens);
-	} else if (tokens[1] == "frame") {
-		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
-	} else if (tokens[1] == "break") {
-		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
-	} else if (tokens[1] == "quit") {
-		return afterEvent<OPENMSX_QUIT_EVENT>(tokens);
-	} else if (tokens[1] == "boot") {
-		return afterEvent<OPENMSX_BOOT_EVENT>(tokens);
-	} else if (tokens[1] == "machine_switch") {
-		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens);
-	} else if (tokens[1] == "info") {
-		return afterInfo(tokens);
-	} else if (tokens[1] == "cancel") {
-		return afterCancel(tokens);
-	} else if (StringOp::stringToInt(tokens[1], time)) {
-		return afterTclTime(time, tokens);
+	string_ref subCmd = tokens[1].getString();
+	if (subCmd == "time") {
+		afterTime(tokens, result);
+	} else if (subCmd == "realtime") {
+		afterRealTime(tokens, result);
+	} else if (subCmd == "idle") {
+		afterIdle(tokens, result);
+	} else if (subCmd == "frame") {
+		afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens, result);
+	} else if (subCmd == "break") {
+		afterEvent<OPENMSX_BREAK_EVENT>(tokens, result);
+	} else if (subCmd == "quit") {
+		afterEvent<OPENMSX_QUIT_EVENT>(tokens, result);
+	} else if (subCmd == "boot") {
+		afterEvent<OPENMSX_BOOT_EVENT>(tokens, result);
+	} else if (subCmd == "machine_switch") {
+		afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens, result);
+	} else if (subCmd == "info") {
+		afterInfo(tokens, result);
+	} else if (subCmd == "cancel") {
+		afterCancel(tokens, result);
+	} else if (StringOp::stringToInt(subCmd.str(), time)) { // TODO
+		afterTclTime(time, tokens, result);
 	} else {
 		// try to interpret token as an event name
 		try {
-			return afterInputEvent(
-				InputEventFactory::createInputEvent(tokens[1]),
-				tokens);
+			afterInputEvent(
+				InputEventFactory::createInputEvent(subCmd.str()), // TODO
+				tokens, result);
 		} catch (MSXException&) {
 			throw SyntaxError();
 		}
 	}
 }
 
-static double getTime(const string& str)
+static double getTime(const TclObject& obj)
 {
-	double time = StringOp::stringToDouble(str);
+	double time = obj.getDouble();
 	if (time < 0) {
 		throw CommandException("Not a valid time specification");
 	}
 	return time;
 }
 
-string AfterCommand::afterTime(const vector<string>& tokens)
+void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-	if (!motherBoard) {
-		return "";
-	}
+	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
 	shared_ptr<AfterCmd> cmd(new AfterTimeCmd(
 		motherBoard->getScheduler(), *this, tokens[3], time));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
-string AfterCommand::afterRealTime(const vector<string>& tokens)
+void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -267,63 +267,62 @@ string AfterCommand::afterRealTime(const vector<string>& tokens)
 	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
 		*this, eventDistributor, tokens[3], time));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
-string AfterCommand::afterTclTime(int ms, const vector<string>& tokens)
+void AfterCommand::afterTclTime(
+	int ms, const vector<TclObject>& tokens, TclObject& result)
 {
-	string command = Interpreter::mergeList(tokens.begin() + 2, tokens.end());
+	TclObject command(tokens.front().getInterpreter());
+	command.addListElements(tokens.begin() + 2, tokens.end());
 	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
 		*this, eventDistributor, command, ms / 1000.0));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
 template<EventType T>
-string AfterCommand::afterEvent(const vector<string>& tokens)
+void AfterCommand::afterEvent(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 	shared_ptr<AfterCmd> cmd(new AfterEventCmd<T>(*this, tokens[1], tokens[2]));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
-string AfterCommand::afterInputEvent(const EventPtr& event,
-                                     const vector<string>& tokens)
+void AfterCommand::afterInputEvent(
+	const EventPtr& event, const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
 	shared_ptr<AfterCmd> cmd(new AfterInputEventCmd(*this, event, tokens[2]));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
-string AfterCommand::afterIdle(const vector<string>& tokens)
+void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-	if (!motherBoard) {
-		return "";
-	}
+	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
 	shared_ptr<AfterCmd> cmd(new AfterIdleCmd(
 		motherBoard->getScheduler(), *this, tokens[3], time));
 	afterCmds.push_back(cmd);
-	return cmd->getId();
+	result.setString(cmd->getId());
 }
 
-string AfterCommand::afterInfo(const vector<string>& /*tokens*/)
+void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& result)
 {
-	string result;
+	ostringstream str;
 	for (AfterCmds::const_iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
 		const AfterCmd* cmd = it->get();
-		ostringstream str;
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
 		if (dynamic_cast<const AfterTimedCmd*>(cmd)) {
@@ -331,13 +330,13 @@ string AfterCommand::afterInfo(const vector<string>& /*tokens*/)
 			str.precision(3);
 			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
 		}
-		str << cmd->getCommand();
-		result += str.str() + '\n';
+		str << cmd->getCommand()
+		    << '\n';
 	}
-	return result;
+	result.setString(str.str());
 }
 
-string AfterCommand::afterCancel(const vector<string>& tokens)
+void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -345,26 +344,27 @@ string AfterCommand::afterCancel(const vector<string>& tokens)
 	if (tokens.size() == 3) {
 		for (AfterCmds::iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
-			if ((*it)->getId() == tokens[2]) {
+			if ((*it)->getId() == tokens[2].getString()) {
 				afterCmds.erase(it);
-				return "";
+				return;
 			}
 		}
 	}
-	string command = Interpreter::mergeList(tokens.begin() + 2, tokens.end());
+	TclObject command;
+	command.addListElements(tokens.begin() + 2, tokens.end());
+	string_ref cmdStr = command.getString();
 	for (AfterCmds::iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
-		if ((*it)->getCommand() == command) {
+		if ((*it)->getCommand() == cmdStr) {
 			afterCmds.erase(it);
 			// Tcl manual is not clear about this, but it seems
 			// there's only occurence of this command canceled.
 			// It's also not clear which of the (possibly) several
 			// matches is canceled.
-			return "";
+			return;
 		}
 	}
 	// It's not an error if no match is found
-	return "";
 }
 
 string AfterCommand::help(const vector<string>& /*tokens*/) const
@@ -480,7 +480,7 @@ int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 
 unsigned AfterCmd::lastAfterId = 0;
 
-AfterCmd::AfterCmd(AfterCommand& afterCommand_, const string& command_)
+AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	: afterCommand(afterCommand_), command(command_)
 {
 	ostringstream str;
@@ -492,9 +492,9 @@ AfterCmd::~AfterCmd()
 {
 }
 
-const string& AfterCmd::getCommand() const
+string_ref AfterCmd::getCommand() const
 {
-	return command;
+	return command.getString();
 }
 
 const string& AfterCmd::getId() const
@@ -505,7 +505,7 @@ const string& AfterCmd::getId() const
 void AfterCmd::execute()
 {
 	try {
-		afterCommand.getCommandController().executeCommand(command);
+		command.executeCommand();
 	} catch (CommandException& e) {
 		afterCommand.getCommandController().getCliComm().printWarning(
 			"Error executing delayed command: " + e.getMessage());
@@ -531,7 +531,7 @@ shared_ptr<AfterCmd> AfterCmd::removeSelf()
 AfterTimedCmd::AfterTimedCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
-		const string& command, double time_)
+		const TclObject& command, double time_)
 	: AfterCmd(afterCommand, command)
 	, Schedulable(scheduler)
 	, time(time_)
@@ -569,7 +569,7 @@ void AfterTimedCmd::schedulerDeleted()
 AfterTimeCmd::AfterTimeCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
-		const string& command, double time)
+		const TclObject& command, double time)
 	: AfterTimedCmd(scheduler, afterCommand, command, time)
 {
 }
@@ -585,7 +585,7 @@ string AfterTimeCmd::getType() const
 AfterIdleCmd::AfterIdleCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
-		const string& command, double time)
+		const TclObject& command, double time)
 	: AfterTimedCmd(scheduler, afterCommand, command, time)
 {
 }
@@ -600,9 +600,9 @@ string AfterIdleCmd::getType() const
 
 template<EventType T>
 AfterEventCmd<T>::AfterEventCmd(
-		AfterCommand& afterCommand, const string& type_,
-		const string& command)
-	: AfterCmd(afterCommand, command), type(type_)
+		AfterCommand& afterCommand, const TclObject& type_,
+		const TclObject& command)
+	: AfterCmd(afterCommand, command), type(type_.getString().str())
 {
 }
 
@@ -618,7 +618,7 @@ string AfterEventCmd<T>::getType() const
 AfterInputEventCmd::AfterInputEventCmd(
 		AfterCommand& afterCommand,
 		const AfterCommand::EventPtr& event_,
-		const string& command)
+		const TclObject& command)
 	: AfterCmd(afterCommand, command)
 	, event(event_)
 {
@@ -633,7 +633,7 @@ string AfterInputEventCmd::getType() const
 
 AfterRealTimeCmd::AfterRealTimeCmd(
 		AfterCommand& afterCommand, EventDistributor& eventDistributor_,
-		const string& command, double time)
+		const TclObject& command, double time)
 	: AfterCmd(afterCommand, command)
 	, eventDistributor(eventDistributor_)
 	, expired(false)

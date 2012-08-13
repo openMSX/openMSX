@@ -28,23 +28,25 @@ public:
 	             CommandController& commandController);
 	virtual ~AfterCommand();
 
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(const std::vector<TclObject>& tokens,
+	                     TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
 	template<typename PRED> void executeMatches(PRED pred);
 	template<EventType T> void executeEvents();
-	template<EventType T> std::string afterEvent(
-		const std::vector<std::string>& tokens);
-	std::string afterInputEvent(const EventPtr& event,
-	                            const std::vector<std::string>& tokens);
-	std::string afterTime(const std::vector<std::string>& tokens);
-	std::string afterRealTime(const std::vector<std::string>& tokens);
-	std::string afterTclTime(int ms, const std::vector<std::string>& tokens);
-	std::string afterIdle(const std::vector<std::string>& tokens);
-	std::string afterInfo(const std::vector<std::string>& tokens);
-	std::string afterCancel(const std::vector<std::string>& tokens);
+	template<EventType T> void afterEvent(
+	                   const std::vector<TclObject>& tokens, TclObject& result);
+	void afterInputEvent(const EventPtr& event,
+	                   const std::vector<TclObject>& tokens, TclObject& result);
+	void afterTclTime (int ms,
+	                   const std::vector<TclObject>& tokens, TclObject& result);
+	void afterTime    (const std::vector<TclObject>& tokens, TclObject& result);
+	void afterRealTime(const std::vector<TclObject>& tokens, TclObject& result);
+	void afterIdle    (const std::vector<TclObject>& tokens, TclObject& result);
+	void afterInfo    (const std::vector<TclObject>& tokens, TclObject& result);
+	void afterCancel  (const std::vector<TclObject>& tokens, TclObject& result);
 	void executeRealTime();
 
 	// EventListener
