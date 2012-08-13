@@ -104,16 +104,14 @@ void Scanline<Pixel>::draw(
 {
 #if ASM_X86
 #ifdef _MSC_VER
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
 		// SSE2 routine, 32bpp
 		assert(((4 * width) % 64) == 0);
 		Scanline_draw_4_SSE2(src1, src2, dst, factor, width);
 		return;
 	}
 #else
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
 		// SSE2 routine, 32bpp
 		assert(((4 * width) % 64) == 0);
 		unsigned long dummy;
@@ -182,7 +180,7 @@ void Scanline<Pixel>::draw(
 		);
 		return;
 
-	} else if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	} else if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		// extended-MMX routine, 32bpp
 		assert(((4 * width) % 32) == 0);
 		unsigned long dummy;
@@ -251,7 +249,7 @@ void Scanline<Pixel>::draw(
 		);
 		return;
 
-	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		// MMX routine, 32bpp
 		assert(((4 * width) % 8) == 0);
 		unsigned long dummy;
@@ -306,7 +304,7 @@ void Scanline<Pixel>::draw(
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	// It's unlikely modern Macs will be running in 16bpp anyway.
-	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
 		// extended-MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
 

@@ -741,7 +741,7 @@ bool NoMMXOption::parseOption(const string& /*option*/,
                               deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling MMX" << endl;
-	HostCPU::getInstance().forceDisableMMX();
+	HostCPU::forceDisableMMX();
 	return true;
 }
 
@@ -757,7 +757,7 @@ bool NoSSEOption::parseOption(const string& /*option*/,
                               deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling SSE" << endl;
-	HostCPU::getInstance().forceDisableSSE();
+	HostCPU::forceDisableSSE();
 	return true;
 }
 
@@ -773,7 +773,7 @@ bool NoSSE2Option::parseOption(const string& /*option*/,
                                deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling SSE2" << endl;
-	HostCPU::getInstance().forceDisableSSE2();
+	HostCPU::forceDisableSSE2();
 	return true;
 }
 

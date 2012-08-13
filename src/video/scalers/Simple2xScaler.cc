@@ -114,8 +114,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned c2 = 256 - c1;
 
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
 	#ifdef _MSC_VER
@@ -292,8 +291,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned c2 = 256 - alpha / 2;
 
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) { // Note: not hasMMXEXT()
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) { // Note: not hasMMXEXT()
 		// MMX routine, 32bpp
 		assert(((srcWidth * 4) % 8) == 0);
 	#ifdef _MSC_VER

@@ -129,8 +129,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* in, Pixel* out, signed char* noise, unsigned long width)
 {
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
 		// SSE2 32bpp
 		assert(((4 * width) % 64) == 0);
 	#ifdef _MSC_VER
@@ -180,7 +179,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		// extended-MMX 32bpp
 		assert(((4 * width) % 32) == 0);
 		unsigned long dummy;
@@ -227,7 +226,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		// MMX 32bpp
 		assert((4 * width % 32) == 0);
 		unsigned long dummy;

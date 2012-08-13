@@ -264,12 +264,11 @@ static inline void memset_64(
 	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
 #if ASM_X86 && !defined _WIN64
-	HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasSSE()) {
+	if (HostCPU::hasSSE()) {
 		memset_64_SSE<STREAMING>(dest, num, val);
 		return;
 	}
-	if (cpu.hasMMX()) {
+	if (HostCPU::hasMMX()) {
 		memset_64_MMX(dest, num, val);
 		return;
 	}
@@ -494,8 +493,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
 	#if ASM_X86 && !defined _MSC_VER
-	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasSSE()) {
+	if (HostCPU::hasSSE()) {
 		if (unlikely(num == 0)) return;
 		// align on 8-byte boundary
 		if (unlikely(long(dst) & 4)) {
@@ -688,8 +686,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	// running about 5% faster than with stream_memcpy.
 	// Consequently, we disable this functionality in VC++.
 	#if ASM_X86 && !defined _MSC_VER
-	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasSSE()) {
+	if (HostCPU::hasSSE()) {
 		if (unlikely(!num)) return;
 		// align on 4-byte boundary
 		if (unlikely(long(dst) & 2)) {

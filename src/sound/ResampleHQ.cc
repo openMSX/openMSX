@@ -218,8 +218,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 	#if ASM_X86 && !defined(__APPLE__)
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((CHANNELS == 1) && cpu.hasSSE()) {
+	if ((CHANNELS == 1) && HostCPU::hasSSE()) {
 		// SSE version, mono
 		long filterLen16 = filterLen & ~15;
 		unsigned filterLenRest = filterLen - filterLen16;
@@ -303,7 +302,7 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		return;
 	}
 
-	if ((CHANNELS == 2) && cpu.hasSSE()) {
+	if ((CHANNELS == 2) && HostCPU::hasSSE()) {
 		// SSE version, stereo
 		long filterLen8 = filterLen & ~7;
 		unsigned filterLenRest = filterLen - filterLen8;

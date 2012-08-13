@@ -442,11 +442,9 @@ void Scale_1on2<Pixel, streaming>::operator()(
 	unsigned long width2 = 0;
 
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-
 	#ifdef _MSC_VER
 
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		// MMX routine 32bpp
 		width2 = width & ~15;
 		assert(((2 * width2) % 32) == 0);
@@ -455,7 +453,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 
 	#else
 
-	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 2) && streaming && HostCPU::hasSSE()) {
 		// extended-MMX routine 16bpp
 		width2 = width & ~31;
 		assert((width2 % 32) == 0);
@@ -506,7 +504,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
 		// MMX routine 16bpp
 		width2 = width & ~31;
 		assert((width2 % 32) == 0);
@@ -557,7 +555,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 4) && streaming && cpu.hasSSE()) {
+	} else if ((sizeof(Pixel) == 4) && streaming && HostCPU::hasSSE()) {
 		// extended-MMX routine 32bpp
 		width2 = width & ~15;
 		assert(((2 * width2) % 32) == 0);
@@ -608,7 +606,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		// MMX routine 32bpp
 		width2 = width & ~15;
 		assert(((2 * width2) % 32) == 0);
@@ -680,12 +678,9 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	unsigned long nBytes2 = 0;
 
 	#if ASM_X86
-
-	const HostCPU& cpu = HostCPU::getInstance();
-
 	#ifdef _MSC_VER
 
-	if (streaming && cpu.hasSSE()) {
+	if (streaming && HostCPU::hasSSE()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
 		nBytes2 = nBytes & ~63;
 		assert((nBytes2 % 64) == 0);
@@ -694,7 +689,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 
 	#else
 
-	if (streaming && cpu.hasSSE()) {
+	if (streaming && HostCPU::hasSSE()) {
 		nBytes2 = nBytes & ~63;
 		assert((nBytes2 % 64) == 0);
 		unsigned long dummy;
@@ -735,7 +730,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			#endif
 		);
 
-	} else if (cpu.hasMMX()) {
+	} else if (HostCPU::hasMMX()) {
 		// MMX routine (both 16bpp and 32bpp)
 		nBytes2 = nBytes & ~63;
 		assert((nBytes2 % 64) == 0);
@@ -831,12 +826,9 @@ void Scale_2on1<Pixel>::operator()(
 	unsigned long width2 = 0;
 
 	#if ASM_X86
-
-	const HostCPU& cpu = HostCPU::getInstance();
-
 	#ifdef _MSC_VER
 
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		// extended-MMX routine, 32bpp
 		width2 = width & ~3;
 		assert(((4 * width2) % 16) == 0);
@@ -845,7 +837,7 @@ void Scale_2on1<Pixel>::operator()(
 
 	#else
 
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		// extended-MMX routine, 32bpp
 		width2 = width & ~3;
 		assert(((4 * width2) % 16) == 0);
@@ -881,7 +873,7 @@ void Scale_2on1<Pixel>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		// MMX routine, 32bpp
 		width2 = width & ~3;
 		assert(((4 * width2) % 16) == 0);
@@ -933,7 +925,7 @@ void Scale_2on1<Pixel>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
+	} else if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
 		// extended-MMX routine, 16bpp
 		width2 = width & ~7;
 		assert(((2 * width2) % 16) == 0);
@@ -997,7 +989,7 @@ void Scale_2on1<Pixel>::operator()(
 			#endif
 		);
 
-	} else if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+	} else if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
 		// MMX routine, 16bpp
 		width2 = width & ~7;
 		assert(((2 * width2) % 16) == 0);

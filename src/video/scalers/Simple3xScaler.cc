@@ -328,8 +328,7 @@ void Blur_1on3<Pixel>::operator()(
 	 *  }
 	 */
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		// MMX-EXT routine, 32bpp
 		unsigned long alpha = blur * 256;
 		struct {

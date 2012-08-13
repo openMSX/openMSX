@@ -7,15 +7,27 @@
 #include <intrin.h>
 #endif
 
-namespace openmsx {
+namespace HostCPU {
 
-HostCPU::HostCPU()
+// Initially assume no CPU feature support
+bool mmxFlag  = false;
+bool sseFlag  = false;
+bool sse2Flag = false;
+
+/*static*/ // to avoid 'unsused static function' compiler warning on x86_64
+void setFeatures(unsigned features)
 {
-	// Assume no CPU feature support
-	mmxFlag  = false;
-	sseFlag  = false;
-	sse2Flag = false;
+	const unsigned CPUID_FEATURE_MMX  = 0x00800000;
+	const unsigned CPUID_FEATURE_SSE  = 0x02000000;
+	const unsigned CPUID_FEATURE_SSE2 = 0x04000000;
 
+	mmxFlag  = (features & CPUID_FEATURE_MMX)  != 0;
+	sseFlag  = (features & CPUID_FEATURE_SSE)  != 0;
+	sse2Flag = (features & CPUID_FEATURE_SSE2) != 0;
+}
+
+void init()
+{
 	#ifdef __x86_64
 	// X86_64 machines always have mmx, sse, sse2
 	mmxFlag  = true;
@@ -111,17 +123,6 @@ HostCPU::HostCPU()
 
 	if (hasSSE2()) { assert(hasMMX() && hasSSE()); }
 	if (hasSSE())  { assert(hasMMX()); }
-}
-
-void HostCPU::setFeatures(unsigned features) {
-
-	const unsigned CPUID_FEATURE_MMX	= 0x00800000;
-	const unsigned CPUID_FEATURE_SSE	= 0x02000000;
-	const unsigned CPUID_FEATURE_SSE2	= 0x04000000;
-
-	mmxFlag  = (features & CPUID_FEATURE_MMX)	!= 0;
-	sseFlag  = (features & CPUID_FEATURE_SSE)	!= 0;
-	sse2Flag = (features & CPUID_FEATURE_SSE2)	!= 0;
 }
 
 } // namespace openmsx

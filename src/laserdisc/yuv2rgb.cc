@@ -462,8 +462,7 @@ void convert(const th_ycbcr_buffer& input, RawFrame& output)
 	const SDL_PixelFormat& format = output.getSDLPixelFormat();
 	if (format.BytesPerPixel == 4) {
 #if ASM_X86
-		const HostCPU& cpu = HostCPU::getInstance();
-		if (cpu.hasSSE2()) {
+		if (HostCPU::hasSSE2()) {
 			convertHelperSSE2(input, output);
 		} else
 #endif

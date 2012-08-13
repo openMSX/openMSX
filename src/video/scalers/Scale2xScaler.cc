@@ -50,8 +50,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 	//             d =   .. swap w/e  n/s
 
 	#if ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 	#ifdef _MSC_VER
 		Scale2xScaler_scaleLineHalf_1on2_4_SSE(dst, src0, src1, src2, srcWidth);
 		return;
@@ -160,7 +159,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		unsigned long dummy;
 		asm volatile (
 			"movq	(%[IN1],%[CNT]), %%mm1;" // m1 | e1  or  w2 | m2
@@ -284,7 +283,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
 		//           mm2: abcd
 		//mm0: xxx0  mm1: 1234  mm0: 5xxx
 		//                efgh
@@ -396,7 +395,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
 		//           mm2: abcd
 		//mm0: xxx0  mm1: 1234  mm0: 5xxx
 		//                efgh
@@ -646,8 +645,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	#ifdef _MSC_VER
 	// TODO - VC++ ASM implementation
 	#else
-	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
 		unsigned long dummy;
 		asm volatile (
 			"movq	(%[IN1],%[CNT]), %%mm0;"  // 1 2
@@ -747,7 +745,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
 		unsigned long dummy;
 		asm volatile (
 			"movq	(%[IN1],%[CNT]), %%mm0;"  // 1 2
@@ -855,7 +853,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 	//      aceg ikmo
 	// ...0 1234 5678 9...
 	//      bdfh jlnp
-	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
 		unsigned long dummy;
 		asm volatile (
 			"movq	(%[IN1],%[CNT]), %%mm1;"  // 1234
@@ -971,7 +969,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 2) && cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
 		unsigned long dummy;
 		asm volatile (
 			"movq	(%[IN1],%[CNT]), %%mm1;"  // 1234
