@@ -113,18 +113,78 @@ inline unsigned gcd(unsigned a, unsigned b)
 	return b << k;
 }
 
+/** Reverse the lower N bits of a given value.
+  * The upper 32-N bits from the input are ignored and will be returned as 0.
+  * For example reverseNBits('xxxabcde', 5) returns '000edcba' (binary notation).
+  */
+inline unsigned reverseNBits(unsigned x, unsigned bits)
+{
+	unsigned ret = 0;
+	while (bits--) {
+		ret = (ret << 1) | (x & 1);
+		x >>= 1;
+	}
+	return ret;
+
+	/* Just for fun I tried the asm version below (the carry-flag trick
+	 * cannot be described in plain C). It's correct and generates shorter
+	 * code (both less instructions and less bytes). But it doesn't
+	 * actually run faster on the machine I tested on, or only a tiny bit
+	 * (possibly because of dependency chains and processor stalls???).
+	 * However a big disadvantage of this asm version is that when called
+	 * with compile-time constant arguments, this version performs exactly
+	 * the same, while the version above can be further optimized by the
+	 * compiler (constant-propagation, loop unrolling, ...).
+	unsigned ret = 0;
+	if (bits) {
+		asm (
+		"1:	shr	%[VAL]\n"
+		"	adc	%[RET],%[RET]\n"
+		"	dec	%[BITS]\n"
+		"	jne	1b\n"
+			: [VAL]  "+r" (val)
+			, [BITS] "+r" (bits)
+			, [RET]  "+r" (ret)
+		);
+	}
+	return ret;
+	*/
+
+	/* Maarten suggested the following approach with O(lg(N)) time
+	 * complexity (the version above is O(N)).
+	 *  - reverse full (32-bit) word: O(lg(N))
+	 *  - shift right over 32-N bits: O(1)
+	 * Note: In some lower end CPU the shift-over-N-bits instruction itself
+	 *       is O(N), in that case this whole algorithm is O(N)
+	 * Note2: Instead of '32' it's also possible to use a lower power of 2,
+	 *        as long as it's bigger than or equal to N.
+	 * This algorithm may or may not be faster than the version above, I
+	 * didn't try it yet. Also because this routine is _NOT_ performance
+	 * critical _AT_ALL_ currently.
+	 */
+}
+
+/** Reverse the bits in a byte.
+  * This is equivalent to (but faster than) reverseNBits(x, 8);
+  */
 inline byte reverseByte(byte a)
 {
-	// classical implementation (can be extended to 16 and 32 bits)
+	// Classical implementation (can be extended to 16 and 32 bits)
 	//   a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
 	//   a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
 	//   a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
 	//   return a;
 
-	// This only works for 8 bits (on a 32 bit machine) but it's slightly faster
-	// Found trick on this page:
+	// The versions below are specific to reverse a single byte (can't
+	// easily be extended to wider types). Found these tricks on:
 	//    http://graphics.stanford.edu/~seander/bithacks.html
-	return byte(((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16);
+#ifdef __x86_64
+	// on 64-bit systems this is slightly faster
+	return (((a * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL) >> 32;
+#else
+	// on 32-bit systems this is faster
+	return (((a * 0x0802 & 0x22110) | (a * 0x8020 & 0x88440)) * 0x10101) >> 16;
+#endif
 }
 
 /** Returns the smallest number of the form 2^n-1 that is greater or equal

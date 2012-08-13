@@ -20,6 +20,7 @@
 #include "OggReader.hh"
 #include "LDRenderer.hh"
 #include "ThrottleManager.hh"
+#include "Math.hh"
 #include "likely.hh"
 
 using std::auto_ptr;
@@ -246,7 +247,7 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 			byte customCompl = (~remoteBits >>  8) & 0xff;
 			byte code	 = ( remoteBits >> 16) & 0xff;
 			byte codeCompl	 = (~remoteBits >> 24) & 0xff;
-			if (custom == customCompl && 
+			if (custom == customCompl &&
 			    custom == 0xa8 &&
 			    code == codeCompl) {
 				submitRemote(IR_NEC, code);
@@ -392,7 +393,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		case 0x07:
 		case 0x08:
 		case 0x09:
-			seekNum = seekNum * 10 + code; 
+			seekNum = seekNum * 10 + code;
 			break;
 		case 0x42:
 			switch (seekState) {
@@ -1045,7 +1046,8 @@ static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteState, RemoteStateInfo);
 
 static enum_string<LaserdiscPlayer::PlayerState> PlayerStateInfo[] = {
-	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},		{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
+	{ "STOPPED",		LaserdiscPlayer::PLAYER_STOPPED		},
+	{ "PLAYING",		LaserdiscPlayer::PLAYER_PLAYING		},
 	{ "MULTISPEED",		LaserdiscPlayer::PLAYER_MULTISPEED	},
 	{ "PAUSED",		LaserdiscPlayer::PLAYER_PAUSED		},
 	{ "STILL",		LaserdiscPlayer::PLAYER_STILL		}
@@ -1073,29 +1075,20 @@ static enum_string<LaserdiscPlayer::RemoteProtocol> RemoteProtocolInfo[] = {
 };
 SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 
-// surely there is a better way
-static int revbits(int val, int bits)
-{
-	int i, ret = 0;
-	for (i=0; i<bits; i++) {
-		if (val & (1 << i)) {
-			ret |= 1 << (bits - i - 1);
-		}
-	}
-
-	return ret;
-}
-
+// version 1: initial version
+// version 2: added 'stillOnWaitFrame'
+// version 3: reversed bit order of 'remoteBits' and 'remoteCode'
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
 	// Serialize remote control
 	ar.serialize("RemoteState", remoteState);
-	if (remoteState != REMOTE_IDLE) { 
+	if (remoteState != REMOTE_IDLE) {
 		ar.serialize("RemoteBitNr", remoteBitNr);
 		ar.serialize("RemoteBits", remoteBits);
-		if (ar.isLoader() && ar.versionBelow(version, 3)) {
-			remoteBits = revbits(remoteBits, remoteBitNr);
+		if (ar.versionBelow(version, 3)) {
+			assert(ar.isLoader());
+			remoteBits = Math::reverseNBits(remoteBits, remoteBitNr);
 		}
 	}
 	ar.serialize("RemoteLastBit", remoteLastBit);
@@ -1103,8 +1096,9 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("RemoteProtocol", remoteProtocol);
 	if (remoteProtocol != IR_NONE) {
 		ar.serialize("RemoteCode", remoteCode);
-		if (ar.isLoader() && ar.versionBelow(version, 3)) {
-			remoteCode = revbits(remoteCode, 8);
+		if (ar.versionBelow(version, 3)) {
+			assert(ar.isLoader());
+			remoteCode = Math::reverseByte(remoteCode);
 		}
 		ar.serialize("RemoteExecuteDelayed", remoteExecuteDelayed);
 		ar.serialize("RemoteVblanksBack", remoteVblanksBack);
@@ -1165,7 +1159,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 			}
 
 			unsigned sample = getCurrentSample(getCurrentTime());
-			if (video->getFrameRate() == 60) 
+			if (video->getFrameRate() == 60)
 				video->seek(currentFrame * 2, sample);
 			else
 				video->seek(currentFrame, sample);
