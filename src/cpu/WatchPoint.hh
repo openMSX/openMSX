@@ -19,16 +19,15 @@ public:
 	/** Begin and end address are inclusive (IOW range = [begin, end])
 	 */
 	WatchPoint(GlobalCliComm& CliComm,
-	           std::auto_ptr<TclObject> command,
-	           std::auto_ptr<TclObject> condition,
+	           TclObject command, TclObject condition,
 	           Type type, unsigned beginAddr, unsigned endAddr,
 	           unsigned newId = -1);
 	virtual ~WatchPoint(); // needed for dynamic_cast
 
-	unsigned getId() const;
-	Type getType() const;
-	unsigned getBeginAddress() const;
-	unsigned getEndAddress() const;
+	unsigned getId()           const { return id; }
+	Type     getType()         const { return type; }
+	unsigned getBeginAddress() const { return beginAddr; }
+	unsigned getEndAddress()   const { return endAddr; }
 
 private:
 	const unsigned id;

@@ -202,8 +202,7 @@ void Debugger::getProbes(std::set<std::string>& result) const
 
 
 unsigned Debugger::insertProbeBreakPoint(
-	std::auto_ptr<TclObject> command,
-	std::auto_ptr<TclObject> condition,
+	TclObject command, TclObject condition,
 	ProbeBase& probe, unsigned newId /*= -1*/)
 {
 	ProbeBreakPoint* bp = new ProbeBreakPoint(
@@ -251,8 +250,7 @@ void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 	probeBreakPoints.erase(it);
 }
 
-unsigned Debugger::setWatchPoint(auto_ptr<TclObject> command,
-                                 auto_ptr<TclObject> condition,
+unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
                                  WatchPoint::Type type,
                                  unsigned beginAddr, unsigned endAddr,
                                  unsigned newId /*= -1*/)
@@ -499,19 +497,19 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
                              TclObject& result)
 {
 	shared_ptr<BreakPoint> bp;
+	TclObject command  (result.getInterpreter(), "debug break");
+	TclObject condition(result.getInterpreter());
 	word addr;
-	auto_ptr<TclObject> command(
-		new TclObject(result.getInterpreter(), "debug break"));
-	auto_ptr<TclObject> condition;
+
 	switch (tokens.size()) {
 	case 5: // command
-		command->setString(tokens[4].getString());
-		command->checkCommand();
+		command = tokens[4];
+		command.checkCommand();
 		// fall-through
 	case 4: // condition
-		if (!tokens[3].getString().empty()) {
-			condition.reset(new TclObject(tokens[3]));
-			condition->checkExpression();
+		condition = tokens[3];
+		if (!condition.getString().empty()) {
+			condition.checkExpression();
 		}
 		// fall-through
 	case 3: // address
@@ -593,21 +591,20 @@ void DebugCmd::listBreakPoints(const vector<TclObject>& /*tokens*/,
 void DebugCmd::setWatchPoint(const vector<TclObject>& tokens,
                              TclObject& result)
 {
-	auto_ptr<TclObject> command(
-		new TclObject(result.getInterpreter(), "debug break"));
-	auto_ptr<TclObject> condition;
+	TclObject command  (result.getInterpreter(), "debug break");
+	TclObject condition(result.getInterpreter());
 	unsigned beginAddr, endAddr;
 	WatchPoint::Type type;
 
 	switch (tokens.size()) {
 	case 6: // command
-		command.reset(new TclObject(tokens[5]));
-		command->checkCommand();
+		command = tokens[5];
+		command.checkCommand();
 		// fall-through
 	case 5: // condition
-		if (!tokens[4].getString().empty()) {
-			condition.reset(new TclObject(tokens[4]));
-			condition->checkExpression();
+		condition = tokens[4];
+		if (!condition.getString().empty()) {
+			condition.checkExpression();
 		}
 		// fall-through
 	case 4: { // address + type
@@ -732,19 +729,18 @@ void DebugCmd::setCondition(const vector<TclObject>& tokens,
                             TclObject& result)
 {
 	shared_ptr<DebugCondition> dc;
-	auto_ptr<TclObject> command(
-		new TclObject(result.getInterpreter(), "debug break"));
-	auto_ptr<TclObject> condition;
+	TclObject command  (result.getInterpreter(), "debug break");
+	TclObject condition(result.getInterpreter());
 
 	switch (tokens.size()) {
 	case 4: // command
-		command->setString(tokens[3].getString());
-		command->checkCommand();
+		command = tokens[3];
+		command.checkCommand();
 		// fall-through
 	case 3: // condition
-		if (!tokens[2].getString().empty()) {
-			condition.reset(new TclObject(tokens[2]));
-			condition->checkExpression();
+		condition = tokens[2];
+		if (!condition.getString().empty()) {
+			condition.checkExpression();
 		}
 		dc.reset(new DebugCondition(cliComm, command, condition));
 		break;
@@ -854,20 +850,19 @@ void DebugCmd::probeRead(const vector<TclObject>& tokens,
 void DebugCmd::probeSetBreakPoint(const vector<TclObject>& tokens,
                                   TclObject& result)
 {
-	auto_ptr<TclObject> command(
-		new TclObject(result.getInterpreter(), "debug break"));
-	auto_ptr<TclObject> condition;
+	TclObject command  (result.getInterpreter(), "debug break");
+	TclObject condition(result.getInterpreter());
 	ProbeBase* probe;
 
 	switch (tokens.size()) {
 	case 6: // command
-		command.reset(new TclObject(tokens[5]));
-		command->checkCommand();
+		command = tokens[5];
+		command.checkCommand();
 		// fall-through
 	case 5: // condition
-		if (!tokens[4].getString().empty()) {
-			condition.reset(new TclObject(tokens[4]));
-			condition->checkExpression();
+		condition = tokens[4];
+		if (!condition.getString().empty()) {
+			condition.checkExpression();
 		}
 		// fall-through
 	case 4: { // probe

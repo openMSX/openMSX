@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-class TclObject;
-
 /** Base class for CPU breakpoints.
  *  For performance reasons every bp is associated with exactly one
  *  (immutable) address.
@@ -18,8 +16,7 @@ class BreakPoint : public BreakPointBase
 {
 public:
 	BreakPoint(GlobalCliComm& CliComm, word address,
-	           std::auto_ptr<TclObject> command,
-	           std::auto_ptr<TclObject> condition);
+	           TclObject command, TclObject condition);
 
 	word getAddress() const;
 	unsigned getId() const;

@@ -16,15 +16,15 @@ class ProbeBreakPoint : public BreakPointBase, private Observer<ProbeBase>
 {
 public:
 	ProbeBreakPoint(GlobalCliComm& CliComm,
-	                std::auto_ptr<TclObject> command,
-	                std::auto_ptr<TclObject> condition,
+	                TclObject command,
+	                TclObject condition,
 	                Debugger& debugger,
 	                ProbeBase& probe,
 	                unsigned newId = -1);
 	~ProbeBreakPoint();
 
-	unsigned getId() const;
-	const ProbeBase& getProbe() const;
+	unsigned getId() const { return id; }
+	const ProbeBase& getProbe() const { return probe; }
 
 private:
 	// Observer<ProbeBase>

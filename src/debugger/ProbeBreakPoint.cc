@@ -11,8 +11,8 @@ unsigned ProbeBreakPoint::lastId = 0;
 
 ProbeBreakPoint::ProbeBreakPoint(
 		GlobalCliComm& cliComm,
-		std::auto_ptr<TclObject> command,
-		std::auto_ptr<TclObject> condition,
+		TclObject command,
+		TclObject condition,
 		Debugger& debugger_,
 		ProbeBase& probe_,
 		unsigned newId /*= -1*/)
@@ -27,16 +27,6 @@ ProbeBreakPoint::ProbeBreakPoint(
 ProbeBreakPoint::~ProbeBreakPoint()
 {
 	probe.detach(*this);
-}
-
-unsigned ProbeBreakPoint::getId() const
-{
-	return id;
-}
-
-const ProbeBase& ProbeBreakPoint::getProbe() const
-{
-	return probe;
 }
 
 void ProbeBreakPoint::update(const ProbeBase& /*subject*/)

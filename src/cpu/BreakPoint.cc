@@ -8,8 +8,7 @@ namespace openmsx {
 unsigned BreakPoint::lastId = 0;
 
 BreakPoint::BreakPoint(GlobalCliComm& cliComm, word address_,
-                       std::auto_ptr<TclObject> command,
-                       std::auto_ptr<TclObject> condition)
+                       TclObject command, TclObject condition)
 	: BreakPointBase(cliComm, command, condition)
 	, id(++lastId)
 	, address(address_)

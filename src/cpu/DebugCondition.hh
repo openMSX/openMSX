@@ -14,9 +14,8 @@ class DebugCondition : public BreakPointBase
 {
 public:
 	DebugCondition(GlobalCliComm& CliComm,
-	               std::auto_ptr<TclObject> command,
-	               std::auto_ptr<TclObject> condition);
-	unsigned getId() const;
+	               TclObject command, TclObject condition);
+	unsigned getId() const { return id; }
 
 private:
 	const unsigned id;

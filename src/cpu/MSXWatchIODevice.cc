@@ -16,8 +16,7 @@ namespace openmsx {
 WatchIO::WatchIO(MSXMotherBoard& motherboard,
                  WatchPoint::Type type,
                  unsigned beginAddr, unsigned endAddr,
-                 std::auto_ptr<TclObject> command,
-                 std::auto_ptr<TclObject> condition,
+                 TclObject command, TclObject condition,
                  unsigned newId /*= -1*/)
 	: WatchPoint(motherboard.getReactor().getGlobalCliComm(), command,
 	             condition, type, beginAddr, endAddr, newId)
