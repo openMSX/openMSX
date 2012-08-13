@@ -18,6 +18,7 @@ protected:
 	explicit SectorBasedDisk(const DiskName& name);
 	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
+	virtual void flushCaches();
 
 	void setNbSectors(unsigned num);
 
@@ -28,6 +29,9 @@ private:
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
 
 	unsigned nbSectors;
+
+	RawTrack cachedTrackData;
+	int cachedTrackNum;
 };
 
 } // namespace openmsx

@@ -60,6 +60,8 @@ protected:
 	void setPeekMode(bool peek) { peekMode = peek; }
 	bool isPeekMode() const { return peekMode; }
 
+	virtual void flushCaches();
+
 private:
 	virtual void readSectorImpl(unsigned sector, byte* buf) = 0;
 	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;

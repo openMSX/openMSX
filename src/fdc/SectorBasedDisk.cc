@@ -11,6 +11,7 @@ namespace openmsx {
 SectorBasedDisk::SectorBasedDisk(const DiskName& name)
 	: Disk(name)
 	, nbSectors(unsigned(-1)) // to detect misuse
+	, cachedTrackNum(-1)
 {
 }
 
@@ -40,6 +41,21 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 
 void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 {
+	// Try to cache the last result of this method (the cache will be
+	// flushed on any write to the disk). This very simple cache mechanism
+	// will typically already have a very high hit-rate. For example during
+	// emulation of a WD2793 read sector, we also emulate the search for
+	// the correct sector. So the disk rotates from sector to sector, and
+	// each time we re-read the track data (because emutime has passed).
+	// Typically the software will also read several sectors from the same
+	// track before moving to the next.
+	int num = track | (side << 8);
+	if (num == cachedTrackNum) {
+		output = cachedTrackData;
+		return;
+	}
+	cachedTrackNum = num;
+
 	// This disk image only stores the actual sector data, not all the
 	// extra gap, sync and header information that is in reality stored
 	// in between the sectors. This function transforms the cooked sector
@@ -122,7 +138,15 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 		// real disk, you simply read an 'empty' track. So we do the
 		// same here.
 		output.clear(RawTrack::STANDARD_SIZE);
+		cachedTrackNum = -1; // needed?
 	}
+	cachedTrackData = output;
+}
+
+void SectorBasedDisk::flushCaches()
+{
+	Disk::flushCaches();
+	cachedTrackNum = -1;
 }
 
 unsigned SectorBasedDisk::getNbSectorsImpl() const

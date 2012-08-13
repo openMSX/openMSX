@@ -27,6 +27,7 @@ void Disk::writeTrack(byte track, byte side, const RawTrack& input)
 		throw WriteProtectedException("");
 	}
 	writeTrackImpl(track, side, input);
+	flushCaches();
 }
 
 bool Disk::isDoubleSided()

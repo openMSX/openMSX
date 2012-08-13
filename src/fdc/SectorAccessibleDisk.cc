@@ -50,7 +50,7 @@ void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
 	}
-	sha1cache.clear();
+	flushCaches();
 }
 
 unsigned SectorAccessibleDisk::getNbSectors() const
@@ -135,6 +135,11 @@ void SectorAccessibleDisk::forceWriteProtect()
 bool SectorAccessibleDisk::isDummyDisk() const
 {
 	return false;
+}
+
+void SectorAccessibleDisk::flushCaches()
+{
+	sha1cache.clear();
 }
 
 } // namespace openmsx
