@@ -94,7 +94,7 @@ protected:
 	void setLimit(EmuTime::param time);
 	void enableLimit(bool enable_);
 	inline bool limitReached() const {
-		return remaining <= 0;
+		return remaining < 0;
 	}
 
 	template<typename Archive>
