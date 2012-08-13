@@ -85,16 +85,6 @@ Tcl_Obj* TclObject::getTclObject()
 	return obj;
 }
 
-void TclObject::unshare()
-{
-	if (Tcl_IsShared(obj)) {
-		Tcl_DecrRefCount(obj);
-		obj = Tcl_DuplicateObj(obj);
-		Tcl_IncrRefCount(obj);
-	}
-	assert(!Tcl_IsShared(obj));
-}
-
 void TclObject::throwException() const
 {
 	string_ref message = interp ? Tcl_GetStringResult(interp)
@@ -104,32 +94,57 @@ void TclObject::throwException() const
 
 void TclObject::setString(string_ref value)
 {
-	unshare();
-	Tcl_SetStringObj(obj, value.data(), int(value.size()));
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewStringObj(value.data(), int(value.size()));
+		Tcl_IncrRefCount(obj);
+	} else {
+		Tcl_SetStringObj(obj, value.data(), int(value.size()));
+	}
 }
 
 void TclObject::setInt(int value)
 {
-	unshare();
-	Tcl_SetIntObj(obj, value);
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewIntObj(value);
+		Tcl_IncrRefCount(obj);
+	} else {
+		Tcl_SetIntObj(obj, value);
+	}
 }
 
 void TclObject::setBoolean(bool value)
 {
-	unshare();
-	Tcl_SetBooleanObj(obj, value);
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewBooleanObj(value);
+		Tcl_IncrRefCount(obj);
+	} else {
+		Tcl_SetBooleanObj(obj, value);
+	}
 }
 
 void TclObject::setDouble(double value)
 {
-	unshare();
-	Tcl_SetDoubleObj(obj, value);
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewDoubleObj(value);
+		Tcl_IncrRefCount(obj);
+	} else {
+		Tcl_SetDoubleObj(obj, value);
+	}
 }
 
 void TclObject::setBinary(byte* buf, unsigned length)
 {
-	unshare();
-	Tcl_SetByteArrayObj(obj, buf, length);
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_NewByteArrayObj(buf, length);
+		Tcl_IncrRefCount(obj);
+	} else {
+		Tcl_SetByteArrayObj(obj, buf, length);
+	}
 }
 
 void TclObject::addListElement(string_ref element)
@@ -154,7 +169,11 @@ void TclObject::addListElement(const TclObject& element)
 
 void TclObject::addListElement(Tcl_Obj* element)
 {
-	unshare();
+	if (Tcl_IsShared(obj)) {
+		Tcl_DecrRefCount(obj);
+		obj = Tcl_DuplicateObj(obj);
+		Tcl_IncrRefCount(obj);
+	}
 	if (Tcl_ListObjAppendElement(interp, obj, element) != TCL_OK) {
 		throwException();
 	}

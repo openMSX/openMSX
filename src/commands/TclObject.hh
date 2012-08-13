@@ -78,7 +78,6 @@ public:
 
 private:
 	void init(Tcl_Obj* obj_);
-	void unshare();
 	void throwException() const;
 	void addListElement(Tcl_Obj* element);
 	void parse(const char* str, int len, bool expression) const;
