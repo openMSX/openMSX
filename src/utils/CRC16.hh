@@ -68,6 +68,12 @@ public:
 	{
 		crc = (crc << 8) ^ CRC16Table[(crc >> 8) ^ value];
 	}
+	void update(const byte* data, unsigned size)
+	{
+		for (unsigned i = 0; i < size; ++i) {
+			update(data[i]);
+		}
+	}
 
 	/** Get current CRC value
 	 */

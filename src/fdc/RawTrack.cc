@@ -46,22 +46,17 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	// read (and check) address mark
 	// assume addr mark starts with three A1 bytes (should be
 	// located right before the current 'idx' position)
-	CRC16 addrCrc;
-	addrCrc.init<0xA1, 0xA1, 0xA1>();
+	if (read(idx) != 0xFE) return false;
 
-	if (read(idx++) != 0xFE) return false;
-	addrCrc.update(0xFE);
+	++idx;
 	int addrIdx = idx;
-
+	CRC16 addrCrc;
+	addrCrc.init<0xA1, 0xA1, 0xA1, 0xFE>();
+	updateCrc(addrCrc, addrIdx, 4);
 	byte trackNum = read(idx++);
 	byte headNum = read(idx++);
 	byte secNum = read(idx++);
 	byte sizeCode = read(idx++);
-	addrCrc.update(trackNum);
-	addrCrc.update(headNum);
-	addrCrc.update(secNum);
-	addrCrc.update(sizeCode);
-
 	byte addrCrc1 = read(idx++);
 	byte addrCrc2 = read(idx++);
 	bool addrCrcErr = (256 * addrCrc1 + addrCrc2) != addrCrc.getValue();
@@ -69,28 +64,26 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 	// Locate data mark, should starts within 43 bytes from current
 	// position (that's what the WD2793 does).
 	for (int i = 0; i < 43; ++i) {
-		CRC16 dataCrc;
 		int idx2 = idx + i;
 		int j = 0;
 		for (; j < 3; ++j) {
-			if (read(idx2++) != 0xA1) break;
-			dataCrc.update(0xA1);
+			if (read(idx2 + j) != 0xA1) break;
 		}
 		if (j != 3) continue; // didn't find 3 x 0xA1
 
-		byte type = read(idx2++);
+		byte type = read(idx2 + 3);
 		if (!((type == 0xfb) || (type == 0xf8))) continue;
+
+		CRC16 dataCrc;
+		dataCrc.init<0xA1, 0xA1, 0xA1>();
 		dataCrc.update(type);
-		int dataIdx = idx2;
 
 		// OK, found start of data, calculate CRC.
+		int dataIdx = idx2 + 4;
 		unsigned sectorSize = 128 << (sizeCode & 7);
-		for (unsigned j = 0; j < sectorSize; ++j) {
-			byte d = read(idx2++);
-			dataCrc.update(d);
-		}
-		byte dataCrc1 = read(idx2++);
-		byte dataCrc2 = read(idx2++);
+		updateCrc(dataCrc, dataIdx, sectorSize);
+		byte dataCrc1 = read(dataIdx + sectorSize + 0);
+		byte dataCrc2 = read(dataIdx + sectorSize + 1);
 		bool dataCrcErr = (256 * dataCrc1 + dataCrc2) != dataCrc.getValue();
 
 		// store result
@@ -170,12 +163,23 @@ void RawTrack::writeBlock(int idx, unsigned size, const byte* source)
 	}
 }
 
+void RawTrack::updateCrc(CRC16& crc, int idx, int size) const
+{
+	unsigned start = wrapIndex(idx);
+	unsigned end = start + size;
+	if (end <= data.size()) {
+		crc.update(&data[start], size);
+	} else {
+		unsigned part = data.size() - start;
+		crc.update(&data[start], part);
+		crc.update(&data[    0], size - part);
+	}
+}
+
 word RawTrack::calcCrc(int idx, int size) const
 {
 	CRC16 crc;
-	for (int i = 0; i < size; ++i) {
-		crc.update(read(idx + i));
-	}
+	updateCrc(crc, idx, size);
 	return crc.getValue();
 }
 

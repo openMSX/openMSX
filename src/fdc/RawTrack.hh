@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class CRC16;
+
 // This class represents a raw disk track. It contains the logical sector
 // content, but also address blocks, CRC checksums, sync blocks and the data
 // in the gaps between these blocks.
@@ -131,6 +133,7 @@ public:
 
 	/** Convenience method to calculate CRC for part of this track. */
 	word calcCrc(int idx, int length) const;
+	void updateCrc(CRC16& crc, int idx, int size) const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
