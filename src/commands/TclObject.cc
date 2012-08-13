@@ -13,8 +13,9 @@ namespace openmsx {
 // class TclObject
 
 TclObject::TclObject(Tcl_Interp* interp_, Tcl_Obj* obj_)
-	: interp(interp_), obj(obj_), owned(false)
+	: interp(interp_)
 {
+	init(obj_);
 }
 
 TclObject::TclObject(Tcl_Interp* interp_, string_ref value)
@@ -56,23 +57,18 @@ TclObject::TclObject()
 void TclObject::init(Tcl_Obj* obj_)
 {
 	obj = obj_;
-	owned = true;
 	Tcl_IncrRefCount(obj);
 }
 
 TclObject::~TclObject()
 {
-	if (owned) {
-		Tcl_DecrRefCount(obj);
-	}
+	Tcl_DecrRefCount(obj);
 }
 
 TclObject& TclObject::operator=(const TclObject& other)
 {
 	if (&other != this) {
-		if (owned) {
-			Tcl_DecrRefCount(obj);
-		}
+		Tcl_DecrRefCount(obj);
 		interp = other.interp;
 		init(other.obj);
 	}
@@ -92,7 +88,6 @@ Tcl_Obj* TclObject::getTclObject()
 void TclObject::unshare()
 {
 	if (Tcl_IsShared(obj)) {
-		assert(owned);
 		Tcl_DecrRefCount(obj);
 		obj = Tcl_DuplicateObj(obj);
 		Tcl_IncrRefCount(obj);

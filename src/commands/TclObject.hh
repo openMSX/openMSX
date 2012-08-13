@@ -85,7 +85,6 @@ private:
 
 	Tcl_Interp* interp;
 	Tcl_Obj* obj;
-	bool owned;
 };
 
 template <typename ITER>
