@@ -66,13 +66,45 @@ public:
 	 */
 	void update(byte value)
 	{
-		crc = (crc << 8) ^ CRC16Table[(crc >> 8) ^ value];
+		// Classical byte-at-a-time algorithm by Dilip V. Sarwate
+		crc = (crc << 8) ^ tab[0][(crc >> 8) ^ value];
 	}
+
+	/** For large blocks (e.g. 512 bytes) this routine is approx 5x faster
+	  * than calling the method above in a loop.
+	  */
 	void update(const byte* data, unsigned size)
 	{
-		for (unsigned i = 0; i < size; ++i) {
-			update(data[i]);
+		// Based on:
+		//   Slicing-by-4 and slicing-by-8 algorithms by Michael E.
+		//   Kounavis and Frank L. Berry from Intel Corp.
+		//   http://www.intel.com/technology/comms/perfnet/download/CRC_generators.pdf
+		// and the implementation by Peter Kankowski found on:
+		//   http://www.strchr.com/crc32_popcnt
+		// I transformed the code from CRC32 to CRC16 (this was not
+		// trivial because both CRCs use a different convention about
+		// bit order). I also made the code also work on bigendian
+		// hosts.
+
+		unsigned c = crc; // 32-bit are faster than 16-bit calculations
+		                  // on x86 and many other modern architectures
+		// calculate the bulk of the data 8 bytes at a time
+		for (unsigned n = size / 8; n; --n) {
+			c = tab[7][data[0] ^ (c >>  8)] ^
+			    tab[6][data[1] ^ (c & 255)] ^
+			    tab[5][data[2]] ^
+			    tab[4][data[3]] ^
+			    tab[3][data[4]] ^
+			    tab[2][data[5]] ^
+			    tab[1][data[6]] ^
+			    tab[0][data[7]];
+			data += 8;
 		}
+		// calculate the remaining bytes in the usual way
+		for (size &= 7; size; --size) {
+			c = word(c << 8) ^ tab[0][(c >> 8) ^ *data++];
+		}
+		crc = c; // store back in a 16-bit result
 	}
 
 	/** Get current CRC value
@@ -84,7 +116,7 @@ public:
 
 private:
 	word crc;
-	static const word CRC16Table[256];
+	static const word tab[8][256];
 
 	// The Stuff below is template magic to perform the following
 	// computation at compile-time:
