@@ -53,7 +53,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic, string_ref name)
 
 // Command
 
-void InfoCommand::execute(const vector<TclObject*>& tokens,
+void InfoCommand::execute(const vector<TclObject>& tokens,
                           TclObject& result)
 {
 	switch (tokens.size()) {
@@ -67,7 +67,7 @@ void InfoCommand::execute(const vector<TclObject*>& tokens,
 	default:
 		// show info about topic
 		assert(tokens.size() >= 2);
-		string_ref topic = tokens[1]->getString();
+		string_ref topic = tokens[1].getString();
 		InfoTopics::const_iterator it = infoTopics.find(topic);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + topic);

@@ -50,7 +50,7 @@ public:
 	virtual void invalidateMemCache(unsigned start, unsigned size);
 	virtual bool isM1Cycle(unsigned address) const;
 
-	virtual void disasmCommand(const std::vector<TclObject*>& tokens,
+	virtual void disasmCommand(const std::vector<TclObject>& tokens,
                                    TclObject& result) const;
 
 	/**

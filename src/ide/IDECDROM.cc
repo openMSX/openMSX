@@ -28,7 +28,7 @@ public:
 	CDXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const std::vector<TclObject>& tokens,
 		TclObject& result, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -359,7 +359,7 @@ CDXCommand::CDXCommand(CommandController& commandController,
 {
 }
 
-void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
+void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
 				EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -368,16 +368,16 @@ void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
 	} else if ( (tokens.size() == 2) && (
-		tokens[1]->getString() == "eject" || tokens[1]->getString() == "-eject" )) {
+		tokens[1].getString() == "eject" || tokens[1].getString() == "-eject" )) {
 		cd.eject();
 		// TODO check for locked tray
-		if ( tokens[1]->getString() == "-eject" ) {
+		if ( tokens[1].getString() == "-eject" ) {
 			result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
 		}
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1]->getString() == "insert")) {
+	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1].getString() == "insert")) {
 		int fileToken = 1;
-		if (tokens[1]->getString() == "insert") {
+		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
@@ -387,7 +387,7 @@ void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 		try {
 			UserFileContext context;
 			string filename = context.resolve(
-				tokens[fileToken]->getString().str());
+				tokens[fileToken].getString().str());
 			cd.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {

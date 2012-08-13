@@ -87,7 +87,7 @@ class SlotInfo : public InfoTopic
 public:
 	SlotInfo(InfoCommand& machineInfoCommand,
 	         MSXCPUInterface& interface);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -99,7 +99,7 @@ class SubSlottedInfo : public InfoTopic
 public:
 	SubSlottedInfo(InfoCommand& machineInfoCommand,
 		       MSXCPUInterface& interface);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -111,7 +111,7 @@ class ExternalSlotInfo : public InfoTopic
 public:
 	ExternalSlotInfo(InfoCommand& machineInfoCommand,
 			 CartridgeSlotManager& manager);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -123,7 +123,7 @@ class IOInfo : public InfoTopic
 public:
 	IOInfo(InfoCommand& machineInfoCommand,
 	       MSXCPUInterface& interface, bool input);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -1035,9 +1035,9 @@ void SlottedMemoryDebug::write(unsigned address, byte value,
 
 // class SubSlottedInfo
 
-static unsigned getSlot(TclObject* token, const string& itemName)
+static unsigned getSlot(const TclObject& token, const string& itemName)
 {
-	unsigned slot = token->getInt();
+	unsigned slot = token.getInt();
 	if (slot >= 4) {
 		throw CommandException(itemName + " must be in range 0..3");
 	}
@@ -1051,7 +1051,7 @@ SlotInfo::SlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void SlotInfo::execute(const vector<TclObject*>& tokens,
+void SlotInfo::execute(const vector<TclObject>& tokens,
                        TclObject& result) const
 {
 	if (tokens.size() != 5) {
@@ -1082,7 +1082,7 @@ SubSlottedInfo::SubSlottedInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void SubSlottedInfo::execute(const vector<TclObject*>& tokens,
+void SubSlottedInfo::execute(const vector<TclObject>& tokens,
                              TclObject& result) const
 {
 	if (tokens.size() != 3) {
@@ -1107,7 +1107,7 @@ ExternalSlotInfo::ExternalSlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void ExternalSlotInfo::execute(const vector<TclObject*>& tokens,
+void ExternalSlotInfo::execute(const vector<TclObject>& tokens,
                                TclObject& result) const
 {
 	int ps = 0;
@@ -1161,13 +1161,13 @@ IOInfo::IOInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void IOInfo::execute(const vector<TclObject*>& tokens,
+void IOInfo::execute(const vector<TclObject>& tokens,
                      TclObject& result) const
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	unsigned port = tokens[2]->getInt();
+	unsigned port = tokens[2].getInt();
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");
 	}

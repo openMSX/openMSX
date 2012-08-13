@@ -152,7 +152,7 @@ void TclObject::addListElement(double value)
 	addListElement(Tcl_NewDoubleObj(value));
 }
 
-void TclObject::addListElement(TclObject& element)
+void TclObject::addListElement(const TclObject& element)
 {
 	addListElement(element.obj);
 }

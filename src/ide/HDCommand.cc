@@ -29,7 +29,7 @@ HDCommand::HDCommand(CommandController& commandController,
 {
 }
 
-void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
+void HDCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -44,14 +44,14 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 			result.addListElement(options);
 		}
 	} else if ((tokens.size() == 2) ||
-	           ((tokens.size() == 3) && tokens[1]->getString() == "insert")) {
+	           ((tokens.size() == 3) && tokens[1].getString() == "insert")) {
 		if (powerSetting.getValue()) {
 			throw CommandException(
 				"Can only change hard disk image when MSX "
 				"is powered down.");
 		}
 		int fileToken = 1;
-		if (tokens[1]->getString() == "insert") {
+		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
@@ -61,7 +61,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 		}
 		try {
 			UserFileContext context;
-			Filename filename(tokens[fileToken]->getString().str(), context);
+			Filename filename(tokens[fileToken].getString().str(), context);
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here

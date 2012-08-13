@@ -118,7 +118,7 @@ public:
 
 	void setInterface(MSXCPUInterface* interf);
 
-	void disasmCommand(const std::vector<TclObject*>& tokens,
+	void disasmCommand(const std::vector<TclObject>& tokens,
                            TclObject& result) const;
 
 	// Pause

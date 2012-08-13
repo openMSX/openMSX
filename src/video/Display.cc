@@ -56,7 +56,7 @@ class FpsInfoTopic : public InfoTopic
 {
 public:
 	FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -551,7 +551,7 @@ FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void FpsInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+void FpsInfoTopic::execute(const vector<TclObject>& /*tokens*/,
                            TclObject& result) const
 {
 	double fps = 1000000.0 * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;

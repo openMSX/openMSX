@@ -455,10 +455,10 @@ static void toHex(byte x, char* buf)
 }
 
 template <class T> void CPUCore<T>::disasmCommand(
-	const std::vector<TclObject*>& tokens,
+	const std::vector<TclObject>& tokens,
 	TclObject& result) const
 {
-	word address = (tokens.size() < 3) ? R.getPC() : tokens[2]->getInt();
+	word address = (tokens.size() < 3) ? R.getPC() : tokens[2].getInt();
 	byte outBuf[4];
 	std::string dasmOutput;
 	unsigned len = dasm(*interface, address, outBuf, dasmOutput,

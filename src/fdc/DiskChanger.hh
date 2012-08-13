@@ -60,7 +60,7 @@ public:
 
 private:
 	void init(const std::string& prefix, bool createCmd);
-	void insertDisk(const std::vector<TclObject*>& args);
+	void insertDisk(const std::vector<TclObject>& args);
 	void ejectDisk();
 	void sendChangeDiskEvent(const std::vector<std::string>& args);
 

@@ -164,10 +164,10 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 {
 	try {
 		Command& command = *static_cast<Command*>(clientData);
-		vector<TclObject*> tokens;
+		vector<TclObject> tokens;
 		tokens.reserve(objc);
 		for (int i = 0; i < objc; ++i) {
-			tokens.push_back(new TclObject(interp, objv[i]));
+			tokens.push_back(TclObject(interp, objv[i]));
 		}
 		int res = TCL_OK;
 		TclObject result(interp);
@@ -191,10 +191,6 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 			res = TCL_ERROR;
 		}
 		Tcl_SetObjResult(interp, result.getTclObject());
-		for (vector<TclObject*>::const_iterator it = tokens.begin();
-		     it != tokens.end(); ++it) {
-			delete *it;
-		}
 		return res;
 	} catch (...) {
 		UNREACHABLE; // we cannot let exceptions pass through Tcl

@@ -45,7 +45,7 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const std::vector<TclObject>& tokens,
 	                     TclObject& result);
 
 	/** Alternative for the execute() method above.

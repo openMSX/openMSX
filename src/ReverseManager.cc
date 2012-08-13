@@ -99,7 +99,7 @@ class ReverseCmd : public Command
 {
 public:
 	ReverseCmd(ReverseManager& manager, CommandController& controller);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -303,15 +303,15 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result.setString(string(res));
 }
 
-static void parseGoTo(const vector<TclObject*>& tokens, bool& novideo, double& time)
+static void parseGoTo(const vector<TclObject>& tokens, bool& novideo, double& time)
 {
 	novideo = false;
 	bool hasTime = false;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		if (tokens[i]->getString() == "-novideo") {
+		if (tokens[i].getString() == "-novideo") {
 			novideo = true;
 		} else {
-			time = tokens[i]->getDouble();
+			time = tokens[i].getDouble();
 			hasTime = true;
 		}
 	}
@@ -320,7 +320,7 @@ static void parseGoTo(const vector<TclObject*>& tokens, bool& novideo, double& t
 	}
 }
 
-void ReverseManager::goBack(const vector<TclObject*>& tokens)
+void ReverseManager::goBack(const vector<TclObject>& tokens)
 {
 	bool novideo;
 	double t;
@@ -341,7 +341,7 @@ void ReverseManager::goBack(const vector<TclObject*>& tokens)
 	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(const std::vector<TclObject*>& tokens)
+void ReverseManager::goTo(const std::vector<TclObject>& tokens)
 {
 	bool novideo;
 	double t;
@@ -517,7 +517,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 	newManager.reRecordCount = reRecordCount;
 }
 
-void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& result)
+void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& result)
 {
 	const Chunks& chunks = history.chunks;
 	if (chunks.empty()) {
@@ -530,7 +530,7 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 		// nothing
 		break;
 	case 3:
-		filename = tokens[2]->getString().str();
+		filename = tokens[2].getString().str();
 		break;
 	default:
 		throw SyntaxError();
@@ -614,23 +614,23 @@ void ReverseManager::saveReplay(const vector<TclObject*>& tokens, TclObject& res
 	result.setString("Saved replay to " + filename);
 }
 
-void ReverseManager::loadReplay(const vector<TclObject*>& tokens, TclObject& result)
+void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 3) throw SyntaxError();
 
 	vector<string> arguments;
-	TclObject* whereArg = NULL;
+	const TclObject* whereArg = NULL;
 	bool enableViewOnly = false;
 
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i]->getString();
+		string_ref token = tokens[i].getString();
 		if (token == "-viewonly") {
 			enableViewOnly = true;
 		} else if (token == "-goto") {
 			if (++i == tokens.size()) {
 				throw CommandException("Missing argument");
 			}
-			whereArg = tokens[i];
+			whereArg = &tokens[i];
 		} else {
 			arguments.push_back(token.str());
 		}
@@ -949,12 +949,12 @@ ReverseCmd::ReverseCmd(ReverseManager& manager_, CommandController& controller)
 {
 }
 
-void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
+void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
 	}
-	string_ref subcommand = tokens[1]->getString();
+	string_ref subcommand = tokens[1].getString();
 	if        (subcommand == "start") {
 		manager.start();
 	} else if (subcommand == "stop") {
@@ -978,7 +978,7 @@ void ReverseCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 			result.setString(distributor.isViewOnlyMode() ? "true" : "false");
 			break;
 		case 3:
-			distributor.setViewOnlyMode(tokens[2]->getBoolean());
+			distributor.setViewOnlyMode(tokens[2].getBoolean());
 			break;
 		default:
 			throw SyntaxError();

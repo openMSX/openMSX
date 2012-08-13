@@ -22,7 +22,7 @@ class SettingInfo : public InfoTopic
 {
 public:
 	SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -160,7 +160,7 @@ SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
 }
 
 void SettingInfo::execute(
-	const vector<TclObject*>& tokens, TclObject& result) const
+	const vector<TclObject>& tokens, TclObject& result) const
 {
 	const SettingsManager::SettingsMap& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
@@ -171,7 +171,7 @@ void SettingInfo::execute(
 		}
 		break;
 	case 3: {
-		string_ref name = tokens[2]->getString();
+		string_ref name = tokens[2].getString();
 		SettingsManager::SettingsMap::const_iterator it =
 			settingsMap.find(name);
 		if (it == settingsMap.end()) {

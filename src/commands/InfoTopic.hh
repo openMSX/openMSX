@@ -23,7 +23,7 @@ public:
 	  * @throw CommandException Thrown when there was an error while
 	  *                         executing this InfoTopic.
 	  */
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const std::vector<TclObject>& tokens,
 	                     TclObject& result) const = 0;
 
 	/** Print help for this topic.

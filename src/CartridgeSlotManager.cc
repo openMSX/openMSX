@@ -42,7 +42,7 @@ class CartridgeSlotInfo : public InfoTopic
 public:
 	CartridgeSlotInfo(InfoCommand& machineInfoCommand,
 	                 CartridgeSlotManager& manger);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -433,7 +433,7 @@ CartridgeSlotInfo::CartridgeSlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void CartridgeSlotInfo::execute(const vector<TclObject*>& tokens,
+void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
                                TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -449,7 +449,7 @@ void CartridgeSlotInfo::execute(const vector<TclObject*>& tokens,
 	}
 	case 3: {
 		// return info on a particular slot
-		string_ref name = tokens[2]->getString();
+		string_ref name = tokens[2].getString();
 		if ((name.size() != 5) || (!name.starts_with("slot"))) {
 			throw CommandException("Invalid slot name: " + name);
 		}

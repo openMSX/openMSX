@@ -36,11 +36,11 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
-	void status(const std::vector<TclObject*>& tokens, TclObject& result) const;
+	void status(const std::vector<TclObject>& tokens, TclObject& result) const;
 
-	void processStart(const std::vector<TclObject*>& tokens, TclObject& result);
-	void processStop(const std::vector<TclObject*>& tokens);
-	void processToggle(const std::vector<TclObject*>& tokens, TclObject& result);
+	void processStart(const std::vector<TclObject>& tokens, TclObject& result);
+	void processStop(const std::vector<TclObject>& tokens);
+	void processToggle(const std::vector<TclObject>& tokens, TclObject& result);
 
 	Reactor& reactor;
 	const std::auto_ptr<RecordCommand> recordCommand;

@@ -6,6 +6,7 @@
 #include "Command.hh"
 #include "StateChangeListener.hh"
 #include "StateChange.hh"
+#include "TclObject.hh"
 #include "EmuTime.hh"
 #include <memory>
 
@@ -14,7 +15,6 @@ namespace openmsx {
 class CommandController;
 class StateChangeDistributor;
 class Scheduler;
-class TclObject;
 
 /** This class is used to for Tcl commands that directly influence the MSX
   * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
@@ -25,14 +25,14 @@ class MSXCommandEvent : public StateChange
 public:
 	MSXCommandEvent() {} // for serialize
 	MSXCommandEvent(const std::vector<std::string>& tokens, EmuTime::param time);
-	MSXCommandEvent(const std::vector<TclObject*>& tokens,  EmuTime::param time);
+	MSXCommandEvent(const std::vector<TclObject>& tokens,  EmuTime::param time);
 	virtual ~MSXCommandEvent();
-	const std::vector<TclObject*>& getTokens() const;
+	const std::vector<TclObject>& getTokens() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 private:
-	std::vector<TclObject*> tokens;
+	std::vector<TclObject> tokens;
 };
 
 
@@ -56,7 +56,7 @@ public:
 	  * Subclasses must reimplement exactly one of these two.
 	  */
 	virtual void execute(
-		const std::vector<TclObject*>& tokens, TclObject& result,
+		const std::vector<TclObject>& tokens, TclObject& result,
 		EmuTime::param time);
 	virtual std::string execute(
 		const std::vector<std::string>& tokens, EmuTime::param time);
@@ -74,7 +74,7 @@ public:
 	  * to override the TclObject variant of this method (and just return
 	  * true).
 	  */
-	virtual bool needRecord(const std::vector<TclObject*>& tokens) const;
+	virtual bool needRecord(const std::vector<TclObject>& tokens) const;
 	virtual bool needRecord(const std::vector<std::string>& tokens) const;
 
 protected:
@@ -86,7 +86,7 @@ protected:
 
 private:
 	// Command
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const std::vector<TclObject>& tokens,
 	                     TclObject& result);
 
 	// StateChangeListener

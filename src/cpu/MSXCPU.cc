@@ -27,7 +27,7 @@ class TimeInfoTopic : public InfoTopic
 public:
 	TimeInfoTopic(InfoCommand& machineInfoCommand,
 	              MSXCPU& msxcpu);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help (const vector<string>& tokens) const;
 private:
@@ -39,7 +39,7 @@ class CPUFreqInfoTopic : public InfoTopic
 public:
 	CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
 	                 const string& name, CPUClock& clock);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help (const vector<string>& tokens) const;
 private:
@@ -257,7 +257,7 @@ void MSXCPU::update(const Setting& setting)
 
 // Command
 
-void MSXCPU::disasmCommand(const vector<TclObject*>& tokens,
+void MSXCPU::disasmCommand(const vector<TclObject>& tokens,
                            TclObject& result) const
 {
 	activeCPU->disasmCommand(tokens, result);
@@ -278,7 +278,7 @@ TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand,
 {
 }
 
-void TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+void TimeInfoTopic::execute(const vector<TclObject>& /*tokens*/,
                             TclObject& result) const
 {
 	EmuDuration dur = msxcpu.getCurrentTime() - msxcpu.reference;
@@ -300,7 +300,7 @@ CPUFreqInfoTopic::CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
 {
 }
 
-void CPUFreqInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+void CPUFreqInfoTopic::execute(const vector<TclObject>& /*tokens*/,
                                TclObject& result) const
 {
 	result.setInt(clock.getFreq());

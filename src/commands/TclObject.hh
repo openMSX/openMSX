@@ -42,7 +42,7 @@ public:
 	void addListElement(string_ref element);
 	void addListElement(int value);
 	void addListElement(double value);
-	void addListElement(TclObject& element);
+	void addListElement(const TclObject& element);
 	template <typename ITER> void addListElements(ITER begin, ITER end);
 
 	// value getters

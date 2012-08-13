@@ -36,7 +36,7 @@ RecordedCommand::~RecordedCommand()
 	stateChangeDistributor.unregisterListener(*this);
 }
 
-void RecordedCommand::execute(const vector<TclObject*>& tokens,
+void RecordedCommand::execute(const vector<TclObject>& tokens,
                               TclObject& result)
 {
 	EmuTime::param time = scheduler.getCurrentTime();
@@ -50,13 +50,13 @@ void RecordedCommand::execute(const vector<TclObject*>& tokens,
 	}
 }
 
-bool RecordedCommand::needRecord(const vector<TclObject*>& tokens) const
+bool RecordedCommand::needRecord(const vector<TclObject>& tokens) const
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (vector<TclObject*>::const_iterator it = tokens.begin();
+	for (vector<TclObject>::const_iterator it = tokens.begin();
 	     it != tokens.end(); ++it) {
-		strings.push_back((*it)->getString().str());
+		strings.push_back(it->getString().str());
 	}
 	return needRecord(strings);
 }
@@ -78,8 +78,8 @@ void RecordedCommand::signalStateChange(const shared_ptr<StateChange>& event)
 		dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
-	const vector<TclObject*>& tokens = commandEvent->getTokens();
-	if (getBaseName(tokens[0]->getString()) != getName()) return;
+	const vector<TclObject>& tokens = commandEvent->getTokens();
+	if (getBaseName(tokens[0].getString()) != getName()) return;
 
 	if (needRecord(tokens)) {
 		execute(tokens, *currentResultObject, commandEvent->getTime());
@@ -103,14 +103,14 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-void RecordedCommand::execute(const vector<TclObject*>& tokens,
+void RecordedCommand::execute(const vector<TclObject>& tokens,
                               TclObject& result, EmuTime::param time)
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (vector<TclObject*>::const_iterator it = tokens.begin();
+	for (vector<TclObject>::const_iterator it = tokens.begin();
 	     it != tokens.end(); ++it) {
-		strings.push_back((*it)->getString().str());
+		strings.push_back(it->getString().str());
 	}
 	result.setString(execute(strings, time));
 }
@@ -131,28 +131,21 @@ MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param t
 {
 	for (vector<string>::const_iterator it = tokens_.begin();
 	     it != tokens_.end(); ++it) {
-		tokens.push_back(new TclObject(*it));
+		tokens.push_back(TclObject(*it));
 	}
 }
 
-MSXCommandEvent::MSXCommandEvent(const vector<TclObject*>& tokens_, EmuTime::param time)
+MSXCommandEvent::MSXCommandEvent(const vector<TclObject>& tokens_, EmuTime::param time)
 	: StateChange(time)
+	, tokens(tokens_)
 {
-	for (vector<TclObject*>::const_iterator it = tokens_.begin();
-	     it != tokens_.end(); ++it) {
-		tokens.push_back(new TclObject(**it));
-	}
 }
 
 MSXCommandEvent::~MSXCommandEvent()
 {
-	for (vector<TclObject*>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
-		delete *it;
-	}
 }
 
-const vector<TclObject*>& MSXCommandEvent::getTokens() const
+const vector<TclObject>& MSXCommandEvent::getTokens() const
 {
 	return tokens;
 }
@@ -162,12 +155,12 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<StateChange>(*this);
 
-	// serialize vector<TclObject*> as vector<string>
+	// serialize vector<TclObject> as vector<string>
 	vector<string> str;
 	if (!ar.isLoader()) {
-		for (vector<TclObject*>::const_iterator it = tokens.begin();
+		for (vector<TclObject>::const_iterator it = tokens.begin();
 		     it != tokens.end(); ++it) {
-			str.push_back((*it)->getString().str());
+			str.push_back(it->getString().str());
 		}
 	}
 	ar.serialize("tokens", str);
@@ -175,7 +168,7 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 		assert(tokens.empty());
 		for (vector<string>::const_iterator it = str.begin();
 		     it != str.end(); ++it) {
-			tokens.push_back(new TclObject(*it));
+			tokens.push_back(TclObject(*it));
 		}
 	}
 }

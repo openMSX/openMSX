@@ -30,7 +30,7 @@ class RecordCommand : public Command
 {
 public:
 	RecordCommand(CommandController& commandController, AviRecorder& recorder);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -218,7 +218,7 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& result)
+void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& result)
 {
 	string filename;
 	string prefix = "openmsx";
@@ -231,11 +231,11 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
-		string_ref token = tokens[i]->getString();
+		string_ref token = tokens[i].getString();
 		if (token.starts_with("-")) {
 			if (token == "--") {
-				for (vector<TclObject*>::const_iterator it = tokens.begin() + i + 1; it != tokens.end(); ++it) {
-					arguments.push_back((*it)->getString().str());
+				for (vector<TclObject>::const_iterator it = tokens.begin() + i + 1; it != tokens.end(); ++it) {
+					arguments.push_back(it->getString().str());
 				}
 				break;
 			}
@@ -243,7 +243,7 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 				if (++i == tokens.size()) {
 					throw CommandException("Missing argument");
 				}
-				prefix = tokens[i]->getString().str();
+				prefix = tokens[i].getString().str();
 			} else if (token == "-audioonly") {
 				recordVideo = false;
 			} else if (token == "-mono") {
@@ -296,7 +296,7 @@ void AviRecorder::processStart(const vector<TclObject*>& tokens, TclObject& resu
 	}
 }
 
-void AviRecorder::processStop(const vector<TclObject*>& tokens)
+void AviRecorder::processStop(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -304,18 +304,18 @@ void AviRecorder::processStop(const vector<TclObject*>& tokens)
 	stop();
 }
 
-void AviRecorder::processToggle(const vector<TclObject*>& tokens, TclObject& result)
+void AviRecorder::processToggle(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (aviWriter.get() || wavWriter.get()) {
 		// drop extra tokens
-		vector<TclObject*> tmp(tokens.begin(), tokens.begin() + 2);
+		vector<TclObject> tmp(tokens.begin(), tokens.begin() + 2);
 		processStop(tmp);
 	} else {
 		processStart(tokens, result);
 	}
 }
 
-void AviRecorder::status(const vector<TclObject*>& tokens, TclObject& result) const
+void AviRecorder::status(const vector<TclObject>& tokens, TclObject& result) const
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -338,12 +338,12 @@ RecordCommand::RecordCommand(CommandController& commandController,
 {
 }
 
-void RecordCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
+void RecordCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
 	}
-	const string_ref subcommand = tokens[1]->getString();
+	const string_ref subcommand = tokens[1].getString();
 	if (subcommand == "start") {
 		recorder.processStart(tokens, result);
 	} else if (subcommand == "stop") {

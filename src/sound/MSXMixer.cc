@@ -36,7 +36,7 @@ class SoundDeviceInfoTopic : public InfoTopic
 {
 public:
 	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -710,7 +710,7 @@ SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 {
 }
 
-void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
+void SoundDeviceInfoTopic::execute(const vector<TclObject>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -721,7 +721,7 @@ void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.findDevice(tokens[2]->getString());
+		SoundDevice* device = mixer.findDevice(tokens[2].getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

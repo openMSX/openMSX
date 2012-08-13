@@ -110,7 +110,7 @@ class ListMachinesCommand : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -164,7 +164,7 @@ class ConfigInfo : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -176,7 +176,7 @@ class RealTimeInfo : public InfoTopic
 {
 public:
 	RealTimeInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -819,7 +819,7 @@ ListMachinesCommand::ListMachinesCommand(
 {
 }
 
-void ListMachinesCommand::execute(const vector<TclObject*>& /*tokens*/,
+void ListMachinesCommand::execute(const vector<TclObject>& /*tokens*/,
                                   TclObject& result)
 {
 	set<string> ids;
@@ -1038,7 +1038,7 @@ ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void ConfigInfo::execute(const vector<TclObject*>& tokens,
+void ConfigInfo::execute(const vector<TclObject>& tokens,
                          TclObject& result) const
 {
 	// TODO make meta info available through this info topic
@@ -1053,7 +1053,7 @@ void ConfigInfo::execute(const vector<TclObject*>& tokens,
 		try {
 			string filename = SystemFileContext().resolve(
 				FileOperations::join(
-					configName, tokens[2]->getString(),
+					configName, tokens[2].getString(),
 					"hardwareconfig.xml"));
 			std::auto_ptr<XMLElement> config =
 				HardwareConfig::loadConfig(filename);
@@ -1100,7 +1100,7 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RealTimeInfo::execute(const vector<TclObject*>& /*tokens*/,
+void RealTimeInfo::execute(const vector<TclObject>& /*tokens*/,
                            TclObject& result) const
 {
 	unsigned long long delta = Timer::getTime() - reference;

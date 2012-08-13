@@ -41,7 +41,7 @@ class DiskCommand : public Command
 public:
 	DiskCommand(CommandController& commandController,
 	            DiskChanger& diskChanger);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -164,9 +164,9 @@ void DiskChanger::signalStateChange(const shared_ptr<StateChange>& event)
 		dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
-	const vector<TclObject*>& tokens = commandEvent->getTokens();
-	if (tokens[0]->getString() == getDriveName()) {
-		if (tokens[1]->getString() == "eject") {
+	const vector<TclObject>& tokens = commandEvent->getTokens();
+	if (tokens[0].getString() == getDriveName()) {
+		if (tokens[1].getString() == "eject") {
 			ejectDisk();
 		} else {
 			insertDisk(tokens);
@@ -181,11 +181,9 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 
 int DiskChanger::insertDisk(const string& filename)
 {
-	TclObject arg0("dummy");
-	TclObject arg1(filename);
-	vector<TclObject*> args;
-	args.push_back(&arg0);
-	args.push_back(&arg1);
+	vector<TclObject> args;
+	args.push_back(TclObject("dummy"));
+	args.push_back(TclObject(filename));
 	try {
 		insertDisk(args);
 		return 0;
@@ -194,13 +192,13 @@ int DiskChanger::insertDisk(const string& filename)
 	}
 }
 
-void DiskChanger::insertDisk(const vector<TclObject*>& args)
+void DiskChanger::insertDisk(const vector<TclObject>& args)
 {
 	UserFileContext context;
-	const string& diskImage = FileOperations::getConventionalPath(args[1]->getString());
+	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
 	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
 	for (unsigned i = 2; i < args.size(); ++i) {
-		Filename filename(args[i]->getString().str(), context);
+		Filename filename(args[i].getString().str(), context);
 		newDisk->applyPatch(filename);
 	}
 
@@ -231,7 +229,7 @@ DiskCommand::DiskCommand(CommandController& commandController,
 {
 }
 
-void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
+void DiskCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
 		result.addListElement(diskChanger.getDriveName() + ':');
@@ -252,33 +250,33 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			result.addListElement(options);
 		}
 
-	} else if (tokens[1]->getString() == "ramdsk") {
+	} else if (tokens[1].getString() == "ramdsk") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
-		args.push_back(tokens[1]->getString().str());
+		args.push_back(tokens[1].getString().str());
 		diskChanger.sendChangeDiskEvent(args);
-	} else if (tokens[1]->getString() == "-ramdsk") {
+	} else if (tokens[1].getString() == "-ramdsk") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
 		args.push_back("ramdsk");
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
-	} else if (tokens[1]->getString() == "-eject") {
+	} else if (tokens[1].getString() == "-eject") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
 		args.push_back("eject");
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
-	} else if (tokens[1]->getString() == "eject") {
+	} else if (tokens[1].getString() == "eject") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
 		args.push_back("eject");
 		diskChanger.sendChangeDiskEvent(args);
 	} else {
 		int firstFileToken = 1;
-		if (tokens[1]->getString() == "insert") {
+		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				firstFileToken = 2; // skip this subcommand as filearg
 			} else {
@@ -289,13 +287,13 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
-				string_ref option = tokens[i]->getString();
+				string_ref option = tokens[i].getString();
 				if (option == "-ips") {
 					if (++i == tokens.size()) {
 						throw MSXException(
 							"Missing argument for option \"" + option + '\"');
 					}
-					args.push_back(tokens[i]->getString().str());
+					args.push_back(tokens[i].getString().str());
 				} else {
 					// backwards compatibility
 					args.push_back(option.str());
@@ -390,19 +388,13 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 					name = file->getURL();
 				}
 			}
-			vector<TclObject> objs;
-			objs.push_back(TclObject("dummy"));
-			objs.push_back(TclObject(name));
+			vector<TclObject> args;
+			args.push_back(TclObject("dummy"));
+			args.push_back(TclObject(name));
 			for (vector<Filename>::iterator it = patches.begin();
 			     it != patches.end(); ++it) {
 				it->updateAfterLoadState();
-				objs.push_back(TclObject(it->getResolved())); // TODO
-			}
-
-			vector<TclObject*> args;
-			for (vector<TclObject>::iterator it = objs.begin();
-			     it != objs.end(); ++it) {
-				args.push_back(&(*it));
+				args.push_back(TclObject(it->getResolved())); // TODO
 			}
 
 			try {

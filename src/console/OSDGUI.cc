@@ -25,18 +25,18 @@ class OSDCommand : public Command
 {
 public:
 	OSDCommand(OSDGUI& gui, CommandController& commandController);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
-	void create   (const vector<TclObject*>& tokens, TclObject& result);
-	void destroy  (const vector<TclObject*>& tokens, TclObject& result);
-	void info     (const vector<TclObject*>& tokens, TclObject& result);
-	void exists   (const vector<TclObject*>& tokens, TclObject& result);
-	void configure(const vector<TclObject*>& tokens, TclObject& result);
+	void create   (const vector<TclObject>& tokens, TclObject& result);
+	void destroy  (const vector<TclObject>& tokens, TclObject& result);
+	void info     (const vector<TclObject>& tokens, TclObject& result);
+	void exists   (const vector<TclObject>& tokens, TclObject& result);
+	void configure(const vector<TclObject>& tokens, TclObject& result);
 	shared_ptr<OSDWidget> create(string_ref type, const string& name) const;
-	void configure(OSDWidget& widget, const vector<TclObject*>& tokens,
+	void configure(OSDWidget& widget, const vector<TclObject>& tokens,
 	               unsigned skip);
 
 	OSDWidget& getWidget(string_ref name) const;
@@ -82,12 +82,12 @@ OSDCommand::OSDCommand(OSDGUI& gui_, CommandController& commandController)
 {
 }
 
-void OSDCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
+void OSDCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
-	string_ref subCommand = tokens[1]->getString();
+	string_ref subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
 		gui.refresh();
@@ -108,13 +108,13 @@ void OSDCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
+void OSDCommand::create(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 4) {
 		throw SyntaxError();
 	}
-	string_ref type = tokens[2]->getString();
-	string_ref fullname = tokens[3]->getString();
+	string_ref type = tokens[2].getString();
+	string_ref fullname = tokens[3].getString();
 	string_ref parentname, name;
 	StringOp::splitOnLast(fullname, '.', parentname, name);
 	if (name.empty()) std::swap(parentname, name);
@@ -151,12 +151,12 @@ shared_ptr<OSDWidget> OSDCommand::create(
 	}
 }
 
-void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& result)
+void OSDCommand::destroy(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2]->getString());
+	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	if (!widget) {
 		// widget not found, not an error
 		result.setBoolean(false);
@@ -170,7 +170,7 @@ void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& result)
 	result.setBoolean(true);
 }
 
-void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
+void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -182,7 +182,7 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	}
 	case 3: {
 		// list properties for given widget
-		const OSDWidget& widget = getWidget(tokens[2]->getString());
+		const OSDWidget& widget = getWidget(tokens[2].getString());
 		set<string> properties;
 		widget.getProperties(properties);
 		result.addListElements(properties.begin(), properties.end());
@@ -190,8 +190,8 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	}
 	case 4: {
 		// get current value for given widget/property
-		const OSDWidget& widget = getWidget(tokens[2]->getString());
-		widget.getProperty(tokens[3]->getString(), result);
+		const OSDWidget& widget = getWidget(tokens[2].getString());
+		widget.getProperty(tokens[3].getString(), result);
 		break;
 	}
 	default:
@@ -199,36 +199,36 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::exists(const vector<TclObject*>& tokens, TclObject& result)
+void OSDCommand::exists(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2]->getString());
+	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	result.setBoolean(widget != NULL);
 }
 
-void OSDCommand::configure(const vector<TclObject*>& tokens, TclObject& /*result*/)
+void OSDCommand::configure(const vector<TclObject>& tokens, TclObject& /*result*/)
 {
 	if (tokens.size() < 3) {
 		throw SyntaxError();
 	}
-	configure(getWidget(tokens[2]->getString()), tokens, 3);
+	configure(getWidget(tokens[2].getString()), tokens, 3);
 }
 
-void OSDCommand::configure(OSDWidget& widget, const vector<TclObject*>& tokens,
+void OSDCommand::configure(OSDWidget& widget, const vector<TclObject>& tokens,
                            unsigned skip)
 {
 	assert(tokens.size() >= skip);
 	if ((tokens.size() - skip) & 1) {
 		// odd number of extra arguments
 		throw CommandException(
-			"Missing value for '" + tokens.back()->getString() + "'.");
+			"Missing value for '" + tokens.back().getString() + "'.");
 	}
 
 	for (unsigned i = skip; i < tokens.size(); i += 2) {
-		string_ref name  = tokens[i + 0]->getString();
-		widget.setProperty(name, *tokens[i + 1]);
+		string_ref name  = tokens[i + 0].getString();
+		widget.setProperty(name, tokens[i + 1]);
 	}
 }
 

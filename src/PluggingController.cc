@@ -56,7 +56,7 @@ class PluggableInfo : public InfoTopic
 public:
 	PluggableInfo(InfoCommand& machineInfoCommand,
 		      PluggingController& pluggingController);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -69,7 +69,7 @@ class ConnectorInfo : public InfoTopic
 public:
 	ConnectorInfo(InfoCommand& machineInfoCommand,
 		      PluggingController& pluggingController);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -82,7 +82,7 @@ class ConnectionClassInfo : public InfoTopic
 public:
 	ConnectionClassInfo(InfoCommand& machineInfoCommand,
 			    PluggingController& pluggingController);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 			     TclObject& result) const;
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -347,7 +347,7 @@ PluggableInfo::PluggableInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void PluggableInfo::execute(const vector<TclObject*>& tokens,
+void PluggableInfo::execute(const vector<TclObject>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -360,7 +360,7 @@ void PluggableInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	case 3: {
 		const Pluggable& pluggable = pluggingController.getPluggable(
-				tokens[2]->getString());
+				tokens[2].getString());
 		result.setString(pluggable.getDescription());
 		break;
 	}
@@ -397,7 +397,7 @@ ConnectorInfo::ConnectorInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void ConnectorInfo::execute(const vector<TclObject*>& tokens,
+void ConnectorInfo::execute(const vector<TclObject>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -409,7 +409,7 @@ void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		const Connector& connector = pluggingController.getConnector(tokens[2]->getString());
+		const Connector& connector = pluggingController.getConnector(tokens[2].getString());
 		result.setString(connector.getDescription());
 		break;
 	}
@@ -446,7 +446,7 @@ ConnectionClassInfo::ConnectionClassInfo(
 {
 }
 
-void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
+void ConnectionClassInfo::execute(const vector<TclObject>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -466,7 +466,7 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 		break;
 	}
 	case 3: {
-		string_ref arg = tokens[2]->getString();
+		string_ref arg = tokens[2].getString();
 		if (const Connector* connector =
 		    pluggingController.findConnector(arg)) {
 			result.setString(connector->getClass());

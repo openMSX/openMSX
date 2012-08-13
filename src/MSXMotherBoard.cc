@@ -244,7 +244,7 @@ class ListExtCmd : public Command
 {
 public:
 	ListExtCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -279,7 +279,7 @@ class MachineNameInfo : public InfoTopic
 {
 public:
 	MachineNameInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -290,7 +290,7 @@ class DeviceInfo : public InfoTopic
 {
 public:
 	DeviceInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -1018,7 +1018,7 @@ ListExtCmd::ListExtCmd(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void ListExtCmd::execute(const vector<TclObject*>& /*tokens*/,
+void ListExtCmd::execute(const vector<TclObject>& /*tokens*/,
                          TclObject& result)
 {
 	const MSXMotherBoard::Impl::Extensions& extensions = motherBoard.getExtensions();
@@ -1124,7 +1124,7 @@ MachineNameInfo::MachineNameInfo(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void MachineNameInfo::execute(const vector<TclObject*>& /*tokens*/,
+void MachineNameInfo::execute(const vector<TclObject>& /*tokens*/,
                               TclObject& result) const
 {
 	result.setString(motherBoard.getMachineName());
@@ -1144,7 +1144,7 @@ DeviceInfo::DeviceInfo(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void DeviceInfo::execute(const vector<TclObject*>& tokens,
+void DeviceInfo::execute(const vector<TclObject>& tokens,
                          TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -1156,7 +1156,7 @@ void DeviceInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		string_ref name = tokens[2]->getString();
+		string_ref name = tokens[2].getString();
 		MSXDevice* device = motherBoard.findDevice(name);
 		if (!device) {
 			throw CommandException("No such device: " + name);

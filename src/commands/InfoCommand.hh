@@ -21,7 +21,7 @@ public:
 
 private:
 	// Command
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const std::vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;

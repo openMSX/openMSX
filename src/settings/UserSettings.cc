@@ -24,20 +24,20 @@ class UserSettingCommand : public Command
 public:
 	UserSettingCommand(UserSettings& userSettings,
 	                   CommandController& commandController);
-	virtual void execute(const vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
-	void create (const vector<TclObject*>& tokens, TclObject& result);
-	void destroy(const vector<TclObject*>& tokens, TclObject& result);
-	void info   (const vector<TclObject*>& tokens, TclObject& result);
+	void create (const vector<TclObject>& tokens, TclObject& result);
+	void destroy(const vector<TclObject>& tokens, TclObject& result);
+	void info   (const vector<TclObject>& tokens, TclObject& result);
 
-	auto_ptr<Setting> createString (const vector<TclObject*>& tokens);
-	auto_ptr<Setting> createBoolean(const vector<TclObject*>& tokens);
-	auto_ptr<Setting> createInteger(const vector<TclObject*>& tokens);
-	auto_ptr<Setting> createFloat  (const vector<TclObject*>& tokens);
+	auto_ptr<Setting> createString (const vector<TclObject>& tokens);
+	auto_ptr<Setting> createBoolean(const vector<TclObject>& tokens);
+	auto_ptr<Setting> createInteger(const vector<TclObject>& tokens);
+	auto_ptr<Setting> createFloat  (const vector<TclObject>& tokens);
 
 	void getSettingNames(set<string>& result) const;
 
@@ -105,13 +105,13 @@ UserSettingCommand::UserSettingCommand(UserSettings& userSettings_,
 {
 }
 
-void UserSettingCommand::execute(const vector<TclObject*>& tokens,
+void UserSettingCommand::execute(const vector<TclObject>& tokens,
                                    TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
 	}
-	string_ref subCommand = tokens[1]->getString();
+	string_ref subCommand = tokens[1].getString();
 	if (subCommand == "create") {
 		create(tokens, result);
 	} else if (subCommand == "destroy") {
@@ -125,13 +125,13 @@ void UserSettingCommand::execute(const vector<TclObject*>& tokens,
 	}
 }
 
-void UserSettingCommand::create(const vector<TclObject*>& tokens, TclObject& result)
+void UserSettingCommand::create(const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 5) {
 		throw SyntaxError();
 	}
-	string_ref type = tokens[2]->getString();
-	string_ref name = tokens[3]->getString();
+	string_ref type = tokens[2].getString();
+	string_ref name = tokens[3].getString();
 
 	if (getCommandController().findSetting(name)) {
 		throw CommandException(
@@ -154,68 +154,68 @@ void UserSettingCommand::create(const vector<TclObject*>& tokens, TclObject& res
 	}
 	userSettings.addSetting(setting);
 
-	result.setString(tokens[3]->getString()); // name
+	result.setString(tokens[3].getString()); // name
 }
 
-auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject*>& tokens)
+auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[3]->getString();
-	string_ref desc = tokens[4]->getString();
-	string_ref initVal = tokens[5]->getString();
+	string_ref name = tokens[3].getString();
+	string_ref desc = tokens[4].getString();
+	string_ref initVal = tokens[5].getString();
 	return auto_ptr<Setting>(new StringSetting(getCommandController(),
 	                                           name, desc, initVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject*>& tokens)
+auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[3]->getString();
-	string_ref desc = tokens[4]->getString();
-	bool initVal = tokens[5]->getBoolean();
+	string_ref name = tokens[3].getString();
+	string_ref desc = tokens[4].getString();
+	bool initVal = tokens[5].getBoolean();
 	return auto_ptr<Setting>(new BooleanSetting(getCommandController(),
 	                                            name, desc, initVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject*>& tokens)
+auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[3]->getString();
-	string_ref desc = tokens[4]->getString();
-	int initVal = tokens[5]->getInt();
-	int minVal  = tokens[6]->getInt();
-	int maxVal  = tokens[7]->getInt();
+	string_ref name = tokens[3].getString();
+	string_ref desc = tokens[4].getString();
+	int initVal = tokens[5].getInt();
+	int minVal  = tokens[6].getInt();
+	int maxVal  = tokens[7].getInt();
 	return auto_ptr<Setting>(new IntegerSetting(getCommandController(),
 	                                 name, desc, initVal, minVal, maxVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject*>& tokens)
+auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[3]->getString();
-	string_ref desc = tokens[4]->getString();
-	double initVal = tokens[5]->getInt();
-	double minVal  = tokens[6]->getInt();
-	double maxVal  = tokens[7]->getInt();
+	string_ref name = tokens[3].getString();
+	string_ref desc = tokens[4].getString();
+	double initVal = tokens[5].getInt();
+	double minVal  = tokens[6].getInt();
+	double maxVal  = tokens[7].getInt();
 	return auto_ptr<Setting>(new FloatSetting(getCommandController(),
 	                                 name, desc, initVal, minVal, maxVal));
 }
 
-void UserSettingCommand::destroy(const vector<TclObject*>& tokens,
+void UserSettingCommand::destroy(const vector<TclObject>& tokens,
                                  TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	string_ref name = tokens[2]->getString();
+	string_ref name = tokens[2].getString();
 
 	Setting* setting = userSettings.findSetting(name);
 	if (!setting) {
@@ -225,7 +225,7 @@ void UserSettingCommand::destroy(const vector<TclObject*>& tokens,
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettingCommand::info(const vector<TclObject*>& /*tokens*/,
+void UserSettingCommand::info(const vector<TclObject>& /*tokens*/,
                               TclObject& result)
 {
 	set<string> names;

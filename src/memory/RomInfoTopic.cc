@@ -182,7 +182,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	blocksize[ROM_NETTOU_YAKYUU] = 0x2000;
 }
 
-void RomInfoTopic::execute(const vector<TclObject*>& tokens,
+void RomInfoTopic::execute(const vector<TclObject>& tokens,
                            TclObject& result) const
 {
 	switch (tokens.size()) {
@@ -193,7 +193,7 @@ void RomInfoTopic::execute(const vector<TclObject*>& tokens,
 		break;
 	}
 	case 3: {
-		RomType type = RomInfo::nameToRomType(tokens[2]->getString());
+		RomType type = RomInfo::nameToRomType(tokens[2].getString());
 		if (type == ROM_UNKNOWN) {
 			throw CommandException("Unknown rom type");
 		}
