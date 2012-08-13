@@ -83,6 +83,7 @@ template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
+void enumError(const std::string& str);
 template<typename T> struct serialize_as_enum_impl : is_true {
 	serialize_as_enum_impl(enum_string<T>* info_) : info(info_) {}
 	std::string toString(T t) const {
@@ -99,7 +100,8 @@ template<typename T> struct serialize_as_enum_impl : is_true {
 			if (p->str == str) return p->e;
 			++p;
 		}
-		UNREACHABLE; return T();
+		enumError(str); // does not return
+		UNREACHABLE; return T(); // avoid warning
 	}
 private:
 	enum_string<T>* info;

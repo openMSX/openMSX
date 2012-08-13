@@ -8,6 +8,11 @@
 
 namespace openmsx {
 
+void enumError(const std::string& str)
+{
+	throw MSXException("Invalid enum value: " + str);
+}
+
 void pointerError(unsigned id)
 {
 	throw MSXException(StringOp::Builder() <<
