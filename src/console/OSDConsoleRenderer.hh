@@ -7,6 +7,7 @@
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include <list>
 #include <memory>
 
 namespace openmsx {
@@ -51,11 +52,27 @@ private:
 	void drawText2(OutputSurface& output, string_ref text,
                        int& x, int y, byte alpha, unsigned rgb);
 
+	bool getFromCache(string_ref text, unsigned rgb,
+	                  BaseImage*& image, unsigned& width);
+	void insertInCache(const std::string& text, unsigned rgb,
+	                   BaseImage* image, unsigned width);
+
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
 		CP_LEFT,       CP_CENTER, CP_RIGHT,
 		CP_BOTTOMLEFT, CP_BOTTOM, CP_BOTTOMRIGHT
 	};
+
+	struct TextCacheElement {
+		TextCacheElement(const std::string& text_, unsigned rgb_,
+		                 BaseImage* image_, unsigned width_)
+			: text(text_), image(image_), rgb(rgb_), width(width_) {}
+		std::string text;
+		BaseImage* image; // TODO later convert to unique_ptr
+		unsigned rgb;
+		unsigned width;
+	};
+	typedef std::list<TextCacheElement> TextCache;
 
 	Reactor& reactor;
 	CommandConsole& console;
@@ -69,6 +86,8 @@ private:
 	std::auto_ptr<FilenameSetting> fontSetting;
 	std::auto_ptr<TTFFont> font;
 	std::auto_ptr<BaseImage> backgroundImage;
+	TextCache textCache;
+	TextCache::iterator cacheHint;
 
 	unsigned long long lastBlinkTime;
 	unsigned long long activeTime;

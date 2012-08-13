@@ -65,6 +65,9 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, screenH(screenH_)
 	, openGL(openGL_)
 {
+	// cacheHint must always point to a valid item, so insert a dummy entry
+	textCache.push_back(TextCacheElement("", 0, NULL, 0));
+	cacheHint = textCache.begin();
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
@@ -141,6 +144,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
+	for (TextCache::iterator it = textCache.begin();
+	     it != textCache.end(); ++it) {
+		delete it->image;
+	}
+
 	fontSizeSetting->detach(*this);
 	consoleSetting.detach(*this);
 	setActive(false);
@@ -293,40 +301,92 @@ void OSDConsoleRenderer::drawText(OutputSurface& output, const ConsoleLine& line
 	}
 }
 
-void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text_,
+void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
                                    int& x, int y, byte alpha, unsigned rgb)
 {
-	SDLSurfacePtr surf;
-	int x2 = x;
-	try {
-		unsigned width, height;
-		string text = text_.str();
-		font->getSize(text, width, height);
-		x += width; // can't use surf->w because trailing whitespace is not included
-		surf = font->render(text,
-		                    (rgb >> 16) & 0xff,
-		                    (rgb >>  8) & 0xff,
-		                    (rgb >>  0) & 0xff);
-		if (!surf.get()) return; // nothing was rendered, so do nothing
-	} catch (MSXException& e) {
-		static bool alreadyPrinted = false;
-		if (!alreadyPrinted) {
-			alreadyPrinted = true;
-			reactor.getCliComm().printWarning(
-				"Invalid console text (invalid UTF-8): " + e.getMessage());
+	unsigned width;
+	BaseImage* image;
+	if (!getFromCache(text, rgb, image, width)) {
+		string textStr = text.str();
+		SDLSurfacePtr surf;
+		try {
+			unsigned dummyHeight;
+			font->getSize(textStr, width, dummyHeight);
+			surf = font->render(textStr,
+			                    (rgb >> 16) & 0xff,
+			                    (rgb >>  8) & 0xff,
+			                    (rgb >>  0) & 0xff);
+		} catch (MSXException& e) {
+			static bool alreadyPrinted = false;
+			if (!alreadyPrinted) {
+				alreadyPrinted = true;
+				reactor.getCliComm().printWarning(
+					"Invalid console text (invalid UTF-8): " +
+					e.getMessage());
+			}
+			return; // don't cache negative results
 		}
-		return;
-	}
-	if (!openGL) {
-		SDLImage image(surf);
-		image.draw(output, x2, y, alpha);
-	}
+		if (!surf.get()) {
+			// nothing was rendered, so do nothing
+			image = NULL;
+		} else if (!openGL) {
+			image = new SDLImage(surf);
+		}
 #if COMPONENT_GL
-	else {
-		GLImage image(surf);
-		image.draw(output, x2, y, alpha);
-	}
+		else {
+			image = new GLImage(surf);
+		}
 #endif
+		insertInCache(textStr, rgb, image, width);
+	}
+	if (image) image->draw(output, x, y, alpha);
+	x += width; // in case of trailing whitespace width != image->getWidth()
+}
+
+bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
+                                      BaseImage*& image, unsigned& width)
+{
+	// Items are LRU sorted, so the next requested items will often be
+	// located right in front of the previously found item. (Though
+	// duplicate items (e.g. the command prompt '> ') degrade this
+	// heuristic).
+	TextCache::iterator it = cacheHint;
+	if ((it->text == text) && (it->rgb  == rgb)) {
+		goto found;
+	}
+
+	// Search the whole cache for a match. If the cache is big enough then
+	// all N items used for rendering the previous frame should be located
+	// in the N first positions in the cache (in approx reverse order).
+	for (it = textCache.begin(); it != textCache.end(); ++it) {
+		if (it->text != text) continue;
+		if (it->rgb  != rgb ) continue;
+found:		image = it->image;
+		width = it->width;
+		cacheHint = it;
+		if (it != textCache.begin()) {
+			--cacheHint; // likely candiate for next item
+			// move to front (to keep in LRU order)
+			textCache.splice(textCache.begin(), textCache, it);
+		}
+		return true;
+	}
+	return false;
+}
+
+void OSDConsoleRenderer::insertInCache(const string& text, unsigned rgb,
+                                       BaseImage* image, unsigned width)
+{
+	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
+	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
+		// flush the least recently used entry
+		TextCache::iterator it = textCache.end();
+		--it;
+		assert(it != cacheHint);
+		delete it->image;
+		textCache.pop_back();
+	}
+	textCache.push_front(TextCacheElement(text, rgb, image, width));
 }
 
 void OSDConsoleRenderer::paint(OutputSurface& output)
