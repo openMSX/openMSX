@@ -193,13 +193,10 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 	if (remoteLastBit == bit) return;
 	remoteLastBit = bit;
 
-	// The tolerance here is not based on actual measurements
+	// The tolerance here is based on actual measurements of an LD-700
 	EmuDuration duration = time - remoteLastEdge;
 	remoteLastEdge = time;
 	unsigned usec = duration.getTicksAt(1000000); // microseconds
-
-//	PRT_DEBUG("LaserdiscPlayer::extControl bit:" << std::dec <<
-//		bit << " state:" << remoteState << " usec:" << usec);
 
 	switch (remoteState) {
 	case REMOTE_IDLE:
