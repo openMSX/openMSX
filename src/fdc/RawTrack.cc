@@ -170,7 +170,7 @@ void RawTrack::updateCrc(CRC16& crc, int idx, int size) const
 	if (end <= data.size()) {
 		crc.update(&data[start], size);
 	} else {
-		unsigned part = data.size() - start;
+		unsigned part = unsigned(data.size()) - start;
 		crc.update(&data[start], part);
 		crc.update(&data[    0], size - part);
 	}
