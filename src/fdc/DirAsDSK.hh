@@ -22,7 +22,7 @@ private:
 		byte reserved[10];
 		byte time[2];
 		byte date[2];
-		byte startcluster[2];
+		byte startCluster[2];
 		byte size[4];
 	};
 
@@ -50,10 +50,10 @@ private:
 	virtual bool isWriteProtectedImpl() const;
 
 	struct MappedDirEntry {
-		bool inUse() const { return !shortname.empty(); }
+		bool inUse() const { return !shortName.empty(); }
 
-		MSXDirEntry msxinfo;
-		std::string shortname;
+		MSXDirEntry msxInfo;
+		std::string shortName;
 		int filesize; // used to detect changes that need to be updated in the
 		              // emulated disk, content changes are automatically
 		              // handled :-)
@@ -73,16 +73,16 @@ private:
 	void writeFATSector (unsigned sector, const byte* buf);
 	void writeDIRSector (unsigned sector, const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
-	void writeDIREntry(unsigned dirindex, const MSXDirEntry& entry);
+	void writeDIREntry(unsigned dirIndex, const MSXDirEntry& entry);
 	bool checkFileUsedInDSK(const std::string& filename);
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void addFileToDSK(const std::string& filename, struct stat& fst);
 	void checkAlterFileInDisk(const std::string& filename);
-	void checkAlterFileInDisk(unsigned dirindex);
-	void updateFileInDisk(unsigned dirindex, struct stat& fst);
+	void checkAlterFileInDisk(unsigned dirIndex);
+	void updateFileInDisk(unsigned dirIndex, struct stat& fst);
 	void updateFileInDisk(const std::string& filename);
-	void extractCacheToFile(unsigned dirindex);
-	void truncateCorrespondingFile(unsigned dirindex);
+	void extractCacheToFile(unsigned dirIndex);
+	void truncateCorrespondingFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
@@ -93,14 +93,14 @@ private:
 	bool readCache();
 	void saveCache();
 	std::string condenseName(const char* buf);
-	void updateFileFromAlteredFatOnly(unsigned somecluster);
+	void updateFileFromAlteredFatOnly(unsigned someCluster);
 	void cleandisk();
 	void scanHostDir(bool onlyNewFiles);
 
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 
-	MappedDirEntry mapdir[NUM_DIR_ENTRIES];
-	ReverseSector sectormap[NUM_SECTORS];
+	MappedDirEntry mapDir[NUM_DIR_ENTRIES];
+	ReverseSector sectorMap[NUM_SECTORS];
 	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 
