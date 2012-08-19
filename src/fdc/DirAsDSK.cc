@@ -555,11 +555,12 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 			cliComm.printWarning("Virtual diskimage full: " +
 			                     mapDir[dirIndex].shortName + " truncated.");
 		}
-	} catch (FileException&) {
+	} catch (FileException& e) {
 		// Error opening or reading host file
 		cliComm.printWarning("Error reading host file: " +
-		                     mapDir[dirIndex].shortName +
-		                     ". Truncated file on MSX disk.");
+				mapDir[dirIndex].shortName +
+				": " + e.getMessage() +
+				" Truncated file on MSX disk.");
 	}
 
 	// In all cases (no error / image full / host read error) we need to
@@ -623,9 +624,9 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
 		string fullFilename = hostDir + mapDir[dirIndex].shortName;
 		File file(fullFilename, File::CREATE);
 		file.truncate(curSize);
-	} catch (FileException&) {
+	} catch (FileException& e) {
 		cliComm.printWarning("Error while truncating host file: " +
-		                     mapDir[dirIndex].shortName);
+			mapDir[dirIndex].shortName + ": " + e.getMessage());
 	}
 }
 
@@ -676,9 +677,9 @@ void DirAsDSK::extractCacheToFile(unsigned dirIndex)
 			}
 			curCl = readFAT(curCl);
 		}
-	} catch (FileException&) {
+	} catch (FileException& e) {
 		cliComm.printWarning("Error while syncing host file: " +
-		                     mapDir[dirIndex].shortName);
+			mapDir[dirIndex].shortName + ": " + e.getMessage());
 	}
 }
 
@@ -859,8 +860,8 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& entry)
 				// will update this later when the size is altered
 				try {
 					File file(newFilename, File::TRUNCATE);
-				} catch (FileException&) {
-					cliComm.printWarning("Couldn't create new file.");
+				} catch (FileException& e) {
+					cliComm.printWarning("Couldn't create new file: " + e.getMessage());
 				}
 			} else {
 				// rename file on host OS
@@ -932,10 +933,10 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 
 	if (sectorMap[sector].usage == MIXED) {
 		// save data to host file
+		unsigned offset = sectorMap[sector].fileOffset;
+		unsigned dirent = sectorMap[sector].dirEntryNr;
+		string fullFilename = hostDir + mapDir[dirent].shortName;
 		try {
-			unsigned offset = sectorMap[sector].fileOffset;
-			unsigned dirent = sectorMap[sector].dirEntryNr;
-			string fullFilename = hostDir + mapDir[dirent].shortName;
 			File file(fullFilename);
 			file.seek(offset);
 			unsigned curSize = getLE32(mapDir[dirent].msxInfo.size);
@@ -943,8 +944,8 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 				unsigned writeSize = std::min(curSize - offset, SECTOR_SIZE);
 				file.write(buf, writeSize);
 			}
-		} catch (FileException&) {
-			cliComm.printWarning("Couldn't write to file.");
+		} catch (FileException& e) {
+			cliComm.printWarning("Couldn't write to file " + fullFilename + ": " + e.getMessage());
 		}
 	} else {
 		// indicate data is cached, it might be CACHED already or it was CLEAN
