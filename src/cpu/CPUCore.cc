@@ -186,6 +186,7 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "Thread.hh"
+#include "endian.hh"
 #include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
@@ -517,25 +518,6 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(unsigned port, byte value,
 	// note: no forced page-break after IO
 }
 
-static ALWAYS_INLINE unsigned read16LE(const byte* p)
-{
-	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return p[0] + 256 * p[1];
-	} else {
-		return *reinterpret_cast<const word*>(p);
-	}
-}
-
-static ALWAYS_INLINE void write16LE(byte* p, unsigned value)
-{
-	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		p[0] = value & 0xff;
-		p[1] = value >> 8;
-	} else {
-		*reinterpret_cast<word*>(p) = value;
-	}
-}
-
 template <class T> template <bool PRE_PB, bool POST_PB>
 NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 {
@@ -601,7 +583,7 @@ ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
-		return read16LE(&line[address]);
+		return Endian::read_UA_L16(&line[address]);
 	} else {
 		// slow path, not inline
 		return RD_WORD_slow<PRE_PB, POST_PB>(address, cc);
@@ -679,7 +661,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<true, true>(address);
 		T::template POST_WORD<     true>(address);
-		write16LE(&line[address], value);
+		Endian::write_UA_L16(&line[address], value);
 	} else {
 		// slow path, not inline
 		WR_WORD_slow(address, value, cc);
@@ -704,7 +686,7 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
-		write16LE(&line[address], value);
+		Endian::write_UA_L16(&line[address], value);
 	} else {
 		// slow path, not inline
 		WR_WORD_rev_slow<PRE_PB, POST_PB>(address, value, cc);

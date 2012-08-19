@@ -33,6 +33,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
+#include "endian.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <vector>
@@ -391,14 +392,8 @@ unsigned SCSILS120::readCapacity()
 	PRT_DEBUG("total block: " << block);
 
 	--block;
-	buffer[0] = (block >> 24) & 0xff;
-	buffer[1] = (block >> 16) & 0xff;
-	buffer[2] = (block >>  8) & 0xff;
-	buffer[3] = (block >>  0) & 0xff;
-	buffer[4] = 0;
-	buffer[5] = 0;
-	buffer[6] = (SECTOR_SIZE >> 8) & 0xff;
-	buffer[7] = 0;
+	Endian::write_UA_B32(&buffer[0], block); // TODO use aligned version later
+	Endian::write_UA_B32(&buffer[4], SECTOR_SIZE); // TODO see SCSIHD
 
 	return 8;
 }
@@ -661,9 +656,8 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 		}
 	} else {
-		currentSector = (cdb[2] << 24) | (cdb[3] << 16) |
-		                (cdb[4] <<  8) | (cdb[5] <<  0);
-		currentLength = (cdb[7] <<  8) | (cdb[8] <<  0);
+		currentSector = Endian::read_UA_B32(&cdb[2]);
+		currentLength = Endian::read_UA_B16(&cdb[7]);
 
 		switch (cdb[0]) {
 		case SCSI::OP_READ10:

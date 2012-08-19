@@ -57,28 +57,6 @@ static const unsigned BAD_FAT  = 0xFF7;
 static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
 
 
-// functions to set/get little endian 16/32 bit values
-static void setLE16(byte* p, unsigned value)
-{
-	p[0] = (value >> 0) & 0xFF;
-	p[1] = (value >> 8) & 0xFF;
-}
-static void setLE32(byte* p, unsigned value)
-{
-	p[0] = (value >>  0) & 0xFF;
-	p[1] = (value >>  8) & 0xFF;
-	p[2] = (value >> 16) & 0xFF;
-	p[3] = (value >> 24) & 0xFF;
-}
-static unsigned getLE16(const byte* p)
-{
-	return p[0] + (p[1] << 8);
-}
-static unsigned getLE32(const byte* p)
-{
-	return p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
-}
-
 // transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
 // to a single value: EOF_FAT (0xFFF)
 static unsigned normalizeFAT(unsigned cluster)
@@ -159,7 +137,7 @@ unsigned DirAsDSK::findFirstFreeCluster()
 // also takes care of BAD_FAT and EOF_FAT-range.
 unsigned DirAsDSK::getStartCluster(const MSXDirEntry& entry)
 {
-	return normalizeFAT(getLE16(entry.startCluster));
+	return normalizeFAT(entry.startCluster);
 }
 
 // check if a filename is used in the emulated MSX disk
@@ -284,7 +262,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& filename,
 		  bootSectorType == BOOTSECTOR_DOS1
 		? BootBlocks::dos1BootBlock
 		: BootBlocks::dos2BootBlock;
-	memcpy(bootBlock, bootSector, sizeof(bootBlock));
+	memcpy(&bootBlock, bootSector, sizeof(bootBlock));
 
 	// make a clean initial disk
 	cleandisk();
@@ -358,7 +336,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 
 	if (sector == 0) {
 		// copy our fake bootsector into the buffer
-		memcpy(buf, bootBlock, SECTOR_SIZE);
+		memcpy(buf, &bootBlock, SECTOR_SIZE);
 
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// copy correct sector from FAT
@@ -481,11 +459,11 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
 	              : 0;
-	setLE16(mapDir[dirIndex].msxInfo.time, t1);
+	mapDir[dirIndex].msxInfo.time = t1;
 	int t2 = mtim ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 	                ((mtim->tm_year + 1900 - 1980) << 9)
 	              : 0;
-	setLE16(mapDir[dirIndex].msxInfo.date, t2);
+	mapDir[dirIndex].msxInfo.date = t2;
 
 	unsigned fSize = fst.st_size;
 	mapDir[dirIndex].filesize = fSize;
@@ -528,7 +506,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 			if (prevCl) {
 				writeFAT12(prevCl, curCl);
 			} else {
-				setLE16(mapDir[dirIndex].msxInfo.startCluster, curCl);
+				mapDir[dirIndex].msxInfo.startCluster = curCl;
 			}
 			prevCl = curCl;
 
@@ -570,7 +548,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	} else {
 		// Filesize zero: don't allocate any cluster, write zero
 		// cluster number (checked on a MSXTurboR, DOS2 mode).
-		setLE16(mapDir[dirIndex].msxInfo.startCluster, FREE_FAT);
+		mapDir[dirIndex].msxInfo.startCluster = FREE_FAT;
 	}
 
 	// clear remains of FAT if needed
@@ -600,7 +578,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	}
 
 	// write (possibly truncated) file size
-	setLE32(mapDir[dirIndex].msxInfo.size, fSize - remainingSize);
+	mapDir[dirIndex].msxInfo.size = fSize - remainingSize;
 }
 
 void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
@@ -616,7 +594,7 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
 		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
 	debug("      truncateCorrespondingFile %s\n", mapDir[dirIndex].shortName.c_str());
-	unsigned curSize = getLE32(mapDir[dirIndex].msxInfo.size);
+	unsigned curSize = mapDir[dirIndex].msxInfo.size;
 	mapDir[dirIndex].filesize = curSize;
 
 	// stuff below can fail, so do it as the last thing in this method
@@ -647,7 +625,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirIndex)
 		unsigned curCl = getStartCluster(mapDir[dirIndex].msxInfo);
 		// if we start a new file the current cluster can be set to zero
 
-		unsigned curSize = getLE32(mapDir[dirIndex].msxInfo.size);
+		unsigned curSize = mapDir[dirIndex].msxInfo.size;
 		unsigned offset = 0;
 		// if the size is zero then we truncate to zero and leave
 		if (curCl == 0 || curSize == 0) {
@@ -736,7 +714,7 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 	}
 
 	if (sector == 0) {
-		memcpy(bootBlock, buf, SECTOR_SIZE);
+		memcpy(&bootBlock, buf, SECTOR_SIZE);
 	} else if (sector < FIRST_DIR_SECTOR) {
 		writeFATSector(sector, buf);
 	} else if (sector < FIRST_DATA_SECTOR) {
@@ -804,8 +782,8 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& entry)
 {
 	unsigned oldClus = getStartCluster(mapDir[dirIndex].msxInfo);
 	unsigned newClus = getStartCluster(entry);
-	unsigned oldSize = getLE32(mapDir[dirIndex].msxInfo.size);
-	unsigned newSize = getLE32(entry.size);
+	unsigned oldSize = mapDir[dirIndex].msxInfo.size;
+	unsigned newSize = entry.size;
 
 	// The 3 vital informations needed
 	bool chgName = memcmp(mapDir[dirIndex].msxInfo.filename, entry.filename, 8 + 3) != 0;
@@ -939,7 +917,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 		try {
 			File file(fullFilename);
 			file.seek(offset);
-			unsigned curSize = getLE32(mapDir[dirent].msxInfo.size);
+			unsigned curSize = mapDir[dirent].msxInfo.size;
 			if (curSize > offset) {
 				unsigned writeSize = std::min(curSize - offset, SECTOR_SIZE);
 				file.write(buf, writeSize);

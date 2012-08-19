@@ -22,10 +22,10 @@ A million repetitions of "a"
 
 #include "sha1.hh"
 #include "MSXException.hh"
-#include "build-info.hh"
 #include "CliComm.hh"
 #include "EventDistributor.hh"
 #include "StringOp.hh"
+#include "endian.hh"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
@@ -47,12 +47,7 @@ private:
 
 	uint32 next0(int i)
 	{
-		if (OPENMSX_BIGENDIAN) {
-			return data[i];
-		} else {
-			return data[i] = (rol32(data[i], 24) & 0xFF00FF00)
-			               | (rol32(data[i],  8) & 0x00FF00FF);
-		}
+		return Endian::readB32(&data[i]);
 	}
 	uint32 next(int i)
 	{

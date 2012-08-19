@@ -10,6 +10,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
+#include "endian.hh"
 #include "serialize.hh"
 #include <algorithm>
 #include <bitset>
@@ -291,10 +292,8 @@ void IDECDROM::executePacketCommand(byte* packet)
 		break;
 	}
 	case 0xA8: { // READ Command
-		int sectorNumber = (packet[2] << 24) | (packet[3] << 16)
-		                 | (packet[4] <<  8) |  packet[5];
-		int sectorCount = (packet[6] << 24) | (packet[7] << 16)
-		                | (packet[8] <<  8) |  packet[9];
+		int sectorNumber = Endian::read_UA_B32(&packet[2]);
+		int sectorCount  = Endian::read_UA_B32(&packet[6]);
 		//fprintf(stderr, "  read(12): sector %d, count %d\n",
 		//	sectorNumber, sectorCount);
 		// There are three block sizes:

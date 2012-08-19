@@ -41,30 +41,6 @@ static const byte T_MSX_ARC  = 0x20; // Archive bit
 // For details, read http://home.teleport.com/~brainy/lfn.htm
 static const byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 
-// functions to change DirEntries
-static inline void setsh(byte* x, unsigned y)
-{
-	x[0] = (y >> 0) & 0xFF;
-	x[1] = (y >> 8) & 0xFF;
-}
-static inline void setlg(byte* x, unsigned y)
-{
-	x[0] = (y >>  0) & 0xFF;
-	x[1] = (y >>  8) & 0xFF;
-	x[2] = (y >> 16) & 0xFF;
-	x[3] = (y >> 24) & 0xFF;
-}
-
-// functions to read DirEntries
-static inline unsigned rdsh(const byte* x)
-{
-	return (x[0] << 0) + (x[1] << 8);
-}
-static inline unsigned rdlg(const byte* x)
-{
-	return (x[0] << 0) + (x[1] << 8) + (x[2] << 16) + (x[3] << 24);
-}
-
 /** Transforms a clusternumber towards the first sector of this cluster
   * The calculation uses info read fom the bootsector
   */
@@ -84,43 +60,41 @@ unsigned MSXtar::sectorToCluster(unsigned sector)
 
 /** Initialize object variables by reading info from the bootsector
   */
-void MSXtar::parseBootSector(const byte* buf)
+void MSXtar::parseBootSector(const MSXBootSector& boot)
 {
-	const MSXBootSector* boot = reinterpret_cast<const MSXBootSector*>(buf);
-	unsigned nbSectors = rdsh(boot->nrsectors);
-	if (nbSectors == 0) { // TODO: check limits more accurately
+	unsigned nbRootDirSectors = boot.dirEntries / 16;
+	sectorsPerFat     = boot.sectorsFat;
+	sectorsPerCluster = boot.spCluster;
+
+	if (boot.nrSectors == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sectors: " << nbSectors);
+			"Illegal number of sectors: " << boot.nrSectors);
 	}
-	unsigned nbSides = rdsh(boot->nrsides);
-	if (nbSides == 0) { // TODO: check limits more accurately
+	if (boot.nrSides == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
-			"Illegal number of sides: " << nbSides);
+			"Illegal number of sides: " << boot.nrSides);
 	}
-	unsigned nbFats = boot->nrfats[0];
-	if (nbFats == 0) { // TODO: check limits more accurately
+	if (boot.nrFats == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
-			"Illegal number of FATs: " << nbFats);
+			"Illegal number of FATs: " << boot.nrFats);
 	}
-	sectorsPerFat = rdsh(boot->sectorsfat);
 	if (sectorsPerFat == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
 			"Illegal number sectors per FAT: " << sectorsPerFat);
 	}
-	unsigned nbRootDirSectors = rdsh(boot->direntries) / 16;
 	if (nbRootDirSectors == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
 			"Illegal number of root dir sectors: " << nbRootDirSectors);
 	}
-	sectorsPerCluster = boot->spcluster[0];
 	if (sectorsPerCluster == 0) { // TODO: check limits more accurately
 		throw MSXException(StringOp::Builder() <<
 			"Illegal number of sectors per cluster: " << sectorsPerCluster);
 	}
-	rootDirStart = 1 + nbFats * sectorsPerFat;
+
+	rootDirStart = 1 + boot.nrFats * sectorsPerFat;
 	chrootSector = rootDirStart;
 	rootDirLast = rootDirStart + nbRootDirSectors - 1;
-	maxCluster = sectorToCluster(nbSectors);
+	maxCluster = sectorToCluster(boot.nrSectors);
 
 	// Some (invalid) diskimages have a too small FAT to be able to address
 	// all clusters of the image. OpenMSX SVN revisions pre-11326 even
@@ -161,9 +135,9 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 		throw MSXException("No disk inserted.");
 	}
 	try {
-		byte bootSector[SECTOR_SIZE];
-		disk.readSector(0, bootSector);
-		parseBootSector(bootSector);
+		MSXBootSector boot;
+		disk.readSector(0, reinterpret_cast<byte*>(&boot));
+		parseBootSector(boot);
 	} catch (MSXException& e) {
 		throw MSXException("Bad disk image: " + e.getMessage());
 	}
@@ -258,7 +232,7 @@ unsigned MSXtar::getNextSector(unsigned sector)
 // also takes care of BAD_FAT and EOF_FAT-range.
 unsigned MSXtar::getStartCluster(const MSXDirEntry& entry)
 {
-	return normalizeFAT(rdsh(entry.startcluster));
+	return normalizeFAT(entry.startCluster);
 }
 
 // If there are no more free entries in a subdirectory, the subdir is
@@ -403,13 +377,13 @@ unsigned MSXtar::addSubdir(
 
 	MSXDirEntry& direntry = direntries[result.index];
 	direntry.attrib = T_MSX_DIR;
-	setsh(direntry.time, t);
-	setsh(direntry.date, d);
+	direntry.time = t;
+	direntry.date = d;
 	memcpy(&direntry, makeSimpleMSXFileName(msxName).data(), 11);
 
 	// direntry.filesize = fsize;
 	unsigned curcl = findFirstFreeCluster();
-	setsh(direntry.startcluster, curcl);
+	direntry.startCluster = curcl;
 	writeFAT(curcl, EOF_FAT);
 
 	// save the sector again
@@ -427,17 +401,17 @@ unsigned MSXtar::addSubdir(
 	memset(&direntries[0], ' ', 11);
 	memset(&direntries[0], '.', 1);
 	direntries[0].attrib = T_MSX_DIR;
-	setsh(direntries[0].time, t);
-	setsh(direntries[0].date, d);
-	setsh(direntries[0].startcluster, curcl);
+	direntries[0].time = t;
+	direntries[0].date = d;
+	direntries[0].startCluster = curcl;
 
 	memset(&direntries[1], 0, sizeof(MSXDirEntry));
 	memset(&direntries[1], ' ', 11);
 	memset(&direntries[1], '.', 2);
 	direntries[1].attrib = T_MSX_DIR;
-	setsh(direntries[1].time, t);
-	setsh(direntries[1].date, d);
-	setsh(direntries[1].startcluster, sectorToCluster(sector));
+	direntries[1].time = t;
+	direntries[1].date = d;
+	direntries[1].startCluster = sectorToCluster(sector);
 
 	// and save this in the first sector of the new subdir
 	writeLogicalSector(logicalSector, buf);
@@ -509,7 +483,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 			if ((curcl == 0) || (curcl == EOF_FAT)) {
 				unsigned newcl = findFirstFreeCluster();
 				if (prevcl == 0) {
-					setsh(msxdirentry.startcluster, newcl);
+					msxdirentry.startCluster = newcl;
 				} else {
 					writeFAT(prevcl, newcl);
 				}
@@ -539,7 +513,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 
 	// terminate FAT chain
 	if (prevcl == 0) {
-		setsh(msxdirentry.startcluster, 0);
+		msxdirentry.startCluster = 0;
 	} else {
 		writeFAT(prevcl, EOF_FAT);
 	}
@@ -552,7 +526,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 	}
 
 	// write (possibly truncated) file size
-	setlg(msxdirentry.size, hostSize - remaining);
+	msxdirentry.size = hostSize - remaining;
 
 	if (remaining) {
 		throw MSXException("Disk full, " + hostName + " truncated.");
@@ -612,8 +586,8 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	// compute time/date stamps
 	unsigned time, date;
 	getTimeDate(fullname, time, date);
-	setsh(direntry.time, time);
-	setsh(direntry.date, date);
+	direntry.time = time;
+	direntry.date = date;
 
 	try {
 		alterFileInDSK(direntry, fullname);
@@ -695,8 +669,8 @@ string MSXtar::condensName(MSXDirEntry& direntry)
 // Set the entries from direntry to the timestamp of resultFile
 void MSXtar::changeTime(string resultFile, MSXDirEntry& direntry)
 {
-	unsigned t = rdsh(direntry.time);
-	unsigned d = rdsh(direntry.date);
+	unsigned t = direntry.time;
+	unsigned d = direntry.date;
 	struct tm mtim;
 	struct utimbuf utim;
 	mtim.tm_sec   =  (t & 0x001f) << 1;
@@ -734,7 +708,7 @@ string MSXtar::dir()
 				       << (direntry[i].attrib & T_MSX_ARC  ? 'a' : '-') // TODO check if this is the output of files,l
 				       << "  ";
 				// filesize
-				result << rdlg(direntry[i].size) << '\n';
+				result << direntry[i].size << '\n';
 			}
 		}
 	}
@@ -796,7 +770,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 
 void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 {
-	unsigned size = rdlg(direntry.size);
+	unsigned size = direntry.size;
 	unsigned sector = clusterToSector(getStartCluster(direntry));
 
 	File file(FileOperations::expandTilde(resultFile), "wb");

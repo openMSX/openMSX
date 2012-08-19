@@ -6,6 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "DiskManipulator.hh"
+#include "endian.hh"
 #include "serialize.hh"
 #include <cassert>
 
@@ -41,12 +42,10 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	word heads = 16;
 	word sectors = 32;
 	word cylinders = totalSectors / (heads * sectors);
-	buffer[1 * 2 + 0] = cylinders & 0xFF;
-	buffer[1 * 2 + 1] = cylinders >> 8;
-	buffer[3 * 2 + 0] = heads & 0xFF;
-	buffer[3 * 2 + 1] = heads >> 8;
-	buffer[6 * 2 + 0] = sectors & 0xFF;
-	buffer[6 * 2 + 1] = sectors >> 8;
+	// TODO use aligned version later
+	Endian::write_UA_L16(&buffer[1 * 2], cylinders);
+	Endian::write_UA_L16(&buffer[3 * 2], heads);
+	Endian::write_UA_L16(&buffer[6 * 2], sectors);
 
 	buffer[47 * 2 + 0] = 16; // max sector transfer per interrupt
 	buffer[47 * 2 + 1] = 0x80; // specced value
@@ -55,10 +54,7 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	// .... ..1.: LBA supported
 	buffer[49 * 2 + 1] = 0x0A;
 
-	buffer[60 * 2 + 0] = (totalSectors & 0x000000FF) >>  0;
-	buffer[60 * 2 + 1] = (totalSectors & 0x0000FF00) >>  8;
-	buffer[61 * 2 + 0] = (totalSectors & 0x00FF0000) >> 16;
-	buffer[61 * 2 + 1] = (totalSectors & 0xFF000000) >> 24;
+	Endian::write_UA_L32(&buffer[60 * 2], totalSectors);
 }
 
 unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)

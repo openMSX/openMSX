@@ -6,8 +6,8 @@
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
 #include "unreachable.hh"
+#include "endian.hh"
 #include "openmsx.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -67,28 +67,22 @@ const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 static inline void writePixel(
 	const PixelOperations<unsigned short>& pixelOps,
-	unsigned short pixel, unsigned short& dest
-	)
+	unsigned short pixel, Endian::L16& dest)
 {
 	unsigned r = pixelOps.red256(pixel);
 	unsigned g = pixelOps.green256(pixel);
 	unsigned b = pixelOps.blue256(pixel);
-	unsigned short rgb16 =
-		((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3);
-	dest = OPENMSX_BIGENDIAN ? (rgb16 << 8) | (rgb16 >> 8) : rgb16;
+	dest = ((r & 0xF8) << (11 - 3)) | ((g & 0xFC) << (5 - 2)) | (b >> 3);
 }
 
 static inline void writePixel(
 	const PixelOperations<unsigned>& pixelOps,
-	unsigned pixel, unsigned& dest
-	)
+	unsigned pixel, Endian::L32& dest)
 {
 	unsigned r = pixelOps.red256(pixel);
 	unsigned g = pixelOps.green256(pixel);
 	unsigned b = pixelOps.blue256(pixel);
-	dest = OPENMSX_BIGENDIAN
-		? (r <<  8) | (g << 16) | (b << 24)
-		: (r << 16) | (g <<  8) |  b;
+	dest = (r << 16) | (g <<  8) |  b;
 }
 
 static void createVectorTable()
@@ -258,12 +252,14 @@ template<class P>
 void ZMBVEncoder::addXorBlock(
 	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset)
 {
+	typedef typename Endian::Little<P>::type LE_P;
+
 	P* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
 	P* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			P pxor = pnew[x] ^ pold[x];
-			writePixel(pixelOps, pxor, *reinterpret_cast<P*>(&work[workUsed]));
+			writePixel(pixelOps, pxor, *reinterpret_cast<LE_P*>(&work[workUsed]));
 			workUsed += sizeof(P);
 		}
 		pold += pitch;
@@ -317,12 +313,14 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 template<class P>
 void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 {
+	typedef typename Endian::Little<P>::type LE_P;
+
 	PixelOperations<P> pixelOps(pixelFormat);
 	unsigned char* readFrame =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned y = 0; y < height; ++y) {
-		P* pixelsIn = reinterpret_cast<P*>(readFrame);
-		P* pixelsOut = reinterpret_cast<P*>(&work[workUsed]);
+		P*    pixelsIn  = reinterpret_cast<P*>   (readFrame);
+		LE_P* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
 		for (unsigned x = 0; x < width; ++x) {
 			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}

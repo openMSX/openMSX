@@ -10,6 +10,7 @@
 #define MSXTAR_HH
 
 #include "MemBuffer.hh"
+#include "DiskImageUtils.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
@@ -34,46 +35,17 @@ public:
 	void getDir(const std::string& rootDirName);
 
 private:
-	struct MSXBootSector {
-		byte jumpcode[3];	// 0xE5 to bootprogram
-		byte name[8];
-		byte bpsector[2];	// bytes per sector (always 512)
-		byte spcluster[1];	// sectors per cluster (always 2)
-		byte reservedsectors[2];// amount of non-data sectors (ex bootsector)
-		byte nrfats[1];		// number of fats
-		byte direntries[2];	// max number of files in root directory
-		byte nrsectors[2];	// number of sectors on this disk
-		byte descriptor[1];	// media descriptor
-		byte sectorsfat[2];	// sectors per FAT
-		byte sectorstrack[2];	// sectors per track
-		byte nrsides[2];	// number of sides
-		byte hiddensectors[2];	// not used
-		byte bootprogram[512-30];// actual bootprogram
-	};
-
-	struct MSXDirEntry {
-		char filename[8];
-		char ext[3];
-		byte attrib;
-		byte reserved[10];	// unused
-		byte time[2];
-		byte date[2];
-		byte startcluster[2];
-		byte size[4];
-	};
-
 	struct DirEntry {
 		unsigned sector;
 		unsigned index;
 	};
-
 
 	void writeLogicalSector(unsigned sector, const byte* buf);
 	void readLogicalSector (unsigned sector,       byte* buf);
 
 	unsigned clusterToSector(unsigned cluster);
 	unsigned sectorToCluster(unsigned sector);
-	void parseBootSector(const byte* buf);
+	void parseBootSector(const MSXBootSector& boot);
 	unsigned readFAT(unsigned clnr) const;
 	void writeFAT(unsigned clnr, unsigned val);
 	unsigned findFirstFreeCluster();

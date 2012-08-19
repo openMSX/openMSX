@@ -20,19 +20,6 @@ namespace openmsx {
 
 static const unsigned AVI_HEADER_SIZE = 500;
 
-static inline void writeLE2(unsigned char* p, unsigned x)
-{
-	p[0] = (x >> 0) & 255;
-	p[1] = (x >> 8) & 255;
-}
-static inline void writeLE4(unsigned char* p, unsigned x)
-{
-	p[0] = (x >>  0) & 255;
-	p[1] = (x >>  8) & 255;
-	p[2] = (x >> 16) & 255;
-	p[3] = (x >> 24) & 255;
-}
-
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
 		     unsigned freq_)
@@ -48,7 +35,7 @@ AviWriter::AviWriter(const Filename& filename, unsigned width_,
 	memset(dummy, 0, sizeof(dummy));
 	file->write(dummy, sizeof(dummy));
 
-	index.resize(8);
+	index.resize(2);
 
 	frames = 0;
 	written = 0;
@@ -66,20 +53,22 @@ AviWriter::~AviWriter()
 	}
 	assert(fps != 0.0); // a decent fps should have been set
 
+	// Possible cleanup: use structs for the different headers, that
+	// also allows to use the aligned versions of the Endian routines.
 	unsigned char avi_header[AVI_HEADER_SIZE];
 	memset(&avi_header, 0, sizeof(avi_header));
 	unsigned header_pos = 0;
 
 #define AVIOUT4(_S_) memcpy(&avi_header[header_pos],_S_,4);header_pos+=4;
-#define AVIOUTw(_S_) writeLE2(&avi_header[header_pos], _S_);header_pos+=2;
-#define AVIOUTd(_S_) writeLE4(&avi_header[header_pos], _S_);header_pos+=4;
+#define AVIOUTw(_S_) Endian::write_UA_L16(&avi_header[header_pos], _S_);header_pos+=2;
+#define AVIOUTd(_S_) Endian::write_UA_L32(&avi_header[header_pos], _S_);header_pos+=4;
 #define AVIOUTs(_S_) memcpy(&avi_header[header_pos],_S_,strlen(_S_)+1);header_pos+=(strlen(_S_)+1 + 1) & ~1;
 
 	bool hasAudio = audiorate != 0;
 
 	// write avi header
 	AVIOUT4("RIFF");                    // Riff header
-	AVIOUTd(AVI_HEADER_SIZE + written - 8 + unsigned(index.size()));
+	AVIOUTd(AVI_HEADER_SIZE + written - 8 + unsigned(index.size() * sizeof(Endian::L32)));
 	AVIOUT4("AVI ");
 	AVIOUT4("LIST");                    // List header
 	unsigned main_list = header_pos;
@@ -218,9 +207,10 @@ AviWriter::~AviWriter()
 
 	try {
 		// First add the index table to the end
+		unsigned idxSize = index.size() * sizeof(Endian::L32);
 		memcpy(&index[0], "idx1", 4);
-		writeLE4(&index[4], unsigned(index.size()) - 8);
-		file->write(&index[0], unsigned(index.size()));
+		index[1] = idxSize - 8;
+		file->write(&index[0], idxSize);
 		file->seek(0);
 		file->write(&avi_header, AVI_HEADER_SIZE);
 	} catch (MSXException&) {
@@ -235,34 +225,27 @@ void AviWriter::setFps(double fps_)
 
 void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned flags)
 {
-	unsigned char chunk[8];
-	chunk[0] = tag[0];
-	chunk[1] = tag[1];
-	chunk[2] = tag[2];
-	chunk[3] = tag[3];
-	writeLE4(&chunk[4], size);
-	file->write(chunk, 8);
+	struct {
+		char t[4];
+		Endian::L32 s;
+	} chunk;
+	memcpy(chunk.t, tag, sizeof(chunk.t));
+	chunk.s = size;
+	file->write(&chunk, sizeof(chunk));
 
 	unsigned writesize = (size + 1) & ~1;
 	file->write(data, writesize);
 	unsigned pos = written + 4;
 	written += writesize + 8;
 
-	size_t idxsize = index.size();
-	index.resize(idxsize + 16);
-	index[idxsize + 0] = tag[0];
-	index[idxsize + 1] = tag[1];
-	index[idxsize + 2] = tag[2];
-	index[idxsize + 3] = tag[3];
-	writeLE4(&index[idxsize +  4], flags);
-	writeLE4(&index[idxsize +  8], pos);
-	writeLE4(&index[idxsize + 12], size);
+	size_t idxSize = index.size();
+	index.resize(idxSize + 4);
+	memcpy(&index[idxSize], tag, sizeof(Endian::L32));
+	index[idxSize + 1] = flags;
+	index[idxSize + 2] = pos;
+	index[idxSize + 3] = size;
 }
 
-static inline unsigned short bswap16(unsigned short val)
-{
-	return ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
-}
 void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
@@ -275,11 +258,13 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData
 		assert((samples % channels) == 0);
 		assert(audiorate != 0);
 		if (OPENMSX_BIGENDIAN) {
-			VLA(short, buf, samples);
-			for (unsigned i = 0; i < samples; ++i) {
-				buf[i] = bswap16(sampleData[i]);
-			}
-			addAviChunk("01wb", samples * sizeof(short), buf, 0);
+			// See comment in WavWriter::write()
+			//VLA(Endian::L16, buf, samples); // doesn't work in clang
+			//for (unsigned i = 0; i < samples; ++i) {
+			//	buf[i] = sampleData[i];
+			//}
+			std::vector<Endian::L16> buf(sampleData, sampleData + samples);
+			addAviChunk("01wb", samples * sizeof(short), buf.data(), 0);
 		} else {
 			addAviChunk("01wb", samples * sizeof(short), sampleData, 0);
 		}

@@ -49,6 +49,7 @@
 */
 
 #include "lzo.hh"
+#include "endian.hh"
 #include "inline.hh"
 #include "likely.hh"
 #include "build-info.hh"
@@ -243,17 +244,6 @@ void lzo1x_1_compress(const byte* in,  unsigned  in_len,
 	out_len = op - out;
 }
 
-// TODO: This function was copy-pasted from CPUCore.cc.
-static ALWAYS_INLINE
-unsigned read16LE(const byte* p)
-{
-	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return p[0] + 256 * p[1];
-	} else {
-		return *reinterpret_cast<const word*>(p);
-	}
-}
-
 /**
  * Copies "count" bytes from "src" to "dst".
  * If "dst" is inside the source memory region, the region [src..dst) is
@@ -327,7 +317,7 @@ first_literal_run:
 					}
 					t += 31 + *ip++;
 				}
-				m_pos = op - 1 - (read16LE(ip) >> 2);
+				m_pos = op - 1 - (Endian::read_UA_L16(ip) >> 2);
 				ip += 2;
 			} else if (t >= 16) {
 				m_pos = op;
@@ -340,7 +330,7 @@ first_literal_run:
 					}
 					t += 7 + *ip++;
 				}
-				m_pos -= read16LE(ip) >> 2;
+				m_pos -= Endian::read_UA_L16(ip) >> 2;
 				ip += 2;
 				if (m_pos == op) {
 					assert(t == 1);

@@ -5,6 +5,7 @@
 #ifndef AVIWRITER_HH
 #define AVIWRITER_HH
 
+#include "endian.hh"
 #include <vector>
 #include <memory>
 
@@ -29,7 +30,7 @@ private:
 
 	std::auto_ptr<File> file;
 	const std::auto_ptr<ZMBVEncoder> codec;
-	std::vector<unsigned char> index;
+	std::vector<Endian::L32> index;
 
 	double fps;
 	const unsigned width;

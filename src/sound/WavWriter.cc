@@ -5,28 +5,12 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "vla.hh"
-#include "build-info.hh"
+#include "endian.hh"
 #include <algorithm>
 #include <cstring>
+#include <vector>
 
 namespace openmsx {
-
-static inline unsigned short litEnd_16(unsigned short val)
-{
-	return (OPENMSX_BIGENDIAN)
-	       ? (((val & 0xFF00) >> 8) |
-	          ((val & 0x00FF) << 8))
-	       : val;
-}
-static inline unsigned litEnd_32(unsigned val)
-{
-	return (OPENMSX_BIGENDIAN)
-	       ? (((val & 0xFF000000) >> 24) |
-	          ((val & 0x00FF0000) >>  8) |
-	          ((val & 0x0000FF00) <<  8) |
-	          ((val & 0x000000FF) << 24))
-	       : val;
-}
 
 WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
@@ -34,29 +18,37 @@ WavWriter::WavWriter(const Filename& filename,
 	, bytes(0)
 {
 	// write wav header
-	char header[44] = {
-		'R', 'I', 'F', 'F', //
-		0, 0, 0, 0,         // total size (filled in later)
-		'W', 'A', 'V', 'E', //
-		'f', 'm', 't', ' ', //
-		16, 0, 0, 0,        // size of fmt block
-		1, 0,               // format tag = 1
-		2, 0,               // nb of channels (filled in)
-		0, 0, 0, 0,         // samples per second (filled in)
-		0, 0, 0, 0,         // avg bytes per second (filled in)
-		0, 0,               // block align (filled in)
-		0, 0,               // bits per sample (filled in)
-		'd', 'a', 't', 'a', //
-		0, 0, 0, 0,         // size of data block (filled in later)
-	};
+	struct WavHeader {
+		char        chunkID[4];     // + 0 'RIFF'
+		Endian::L32 chunkSize;      // + 4 total size
+		char        format[4];      // + 8 'WAVE'
+		char        subChunk1ID[4]; // +12 'fmt '
+		Endian::L32 subChunk1Size;  // +16 = 16 (fixed)
+		Endian::L16 audioFormat;    // +20 =  1 (fixed)
+		Endian::L16 numChannels;    // +22
+		Endian::L32 sampleRate;     // +24
+		Endian::L32 byteRate;       // +28
+		Endian::L16 blockAlign;     // +32
+		Endian::L16 bitsPerSample;  // +34
+		char        subChunk2ID[4]; // +36 'data'
+		Endian::L32 subChunk2Size;  // +40
+	} header;
 
-	*reinterpret_cast<short*>   (header + 22) = litEnd_16(channels);
-	*reinterpret_cast<unsigned*>(header + 24) = litEnd_32(frequency);
-	*reinterpret_cast<unsigned*>(header + 28) = litEnd_32((channels * frequency * bits) / 8);
-	*reinterpret_cast<short*>   (header + 32) = litEnd_16((channels * bits) / 8);
-	*reinterpret_cast<short*>   (header + 34) = litEnd_16(bits);
+	memcpy(header.chunkID,     "RIFF", sizeof(header.chunkID));
+	header.chunkSize     = 0; // actual value filled in later
+	memcpy(header.format,      "WAVE", sizeof(header.format));
+	memcpy(header.subChunk1ID, "fmt ", sizeof(header.subChunk1ID));
+	header.subChunk1Size = 16;
+	header.audioFormat   = 1;
+	header.numChannels   = channels;
+	header.sampleRate    = frequency;
+	header.byteRate      = (channels * frequency * bits) / 8;
+	header.blockAlign    = (channels * bits) / 8;
+	header.bitsPerSample = bits;
+	memcpy(header.subChunk2ID, "data", sizeof(header.subChunk2ID));
+	header.subChunk2Size = 0; // actaul value filled in later
 
-	file->write(header, sizeof(header));
+	file->write(&header, sizeof(header));
 }
 
 WavWriter::~WavWriter()
@@ -81,12 +73,14 @@ bool WavWriter::isEmpty() const
 
 void WavWriter::flush()
 {
-	// round totalsize up to next even number
-	unsigned totalsize = litEnd_32((bytes + 44 - 8 + 1) & ~1);
-	unsigned wavSize = litEnd_32(bytes);
+	// TODO For now (before C++11) this needs separate definition and
+	//      initialization. See comments in Endian::EndianT for details.
+	Endian::L32 totalSize, wavSize;
+	totalSize = (bytes + 44 - 8 + 1) & ~1; // round up to even number
+	wavSize   = bytes;
 
 	file->seek(4);
-	file->write(&totalsize, 4);
+	file->write(&totalSize, 4);
 	file->seek(40);
 	file->write(&wavSize, 4);
 	file->seek(file->getSize()); // SEEK_END
@@ -103,11 +97,18 @@ void Wav16Writer::write(const short* buffer, unsigned samples)
 {
 	unsigned size = sizeof(short) * samples;
 	if (OPENMSX_BIGENDIAN) {
-		VLA(short, buf, samples);
-		for (unsigned i = 0; i < samples; ++i) {
-			buf[i] = litEnd_16(buffer[i]);
-		}
-		file->write(buf, size);
+		// Variable length arrays (VLA) are part of c99 but not of c++
+		// (not even c++11). Some compilers (like gcc) do support VLA
+		// in c++ mode, others (like VC++) don't. Still other compilers
+		// (like clang) only support VLA for POD types.
+		// To side-step this issue we simply use a std::vector, this
+		// code is anyway not performance critical.
+		//VLA(Endian::L16, buf, samples); // doesn't work in clang
+		//for (unsigned i = 0; i < samples; ++i) {
+		//	buf[i] = buffer[i];
+		//}
+		std::vector<Endian::L16> buf(buffer, buffer + samples);
+		file->write(buf.data(), size);
 	} else {
 		file->write(buffer, size);
 	}
@@ -116,12 +117,13 @@ void Wav16Writer::write(const short* buffer, unsigned samples)
 
 void Wav16Writer::write(const int* buffer, unsigned samples, int amp)
 {
-	VLA(short, buf, samples);
+	//VLA(Endian::L16, buf, samples); // doesn't work in clang
+	std::vector<Endian::L16> buf(samples);
 	for (unsigned i = 0; i < samples; ++i) {
-		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
+		buf[i] = Math::clipIntToShort(buffer[i] * amp);
 	}
 	unsigned size = sizeof(short) * samples;
-	file->write(buf, size);
+	file->write(buf.data(), size);
 	bytes += size;
 }
 

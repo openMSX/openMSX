@@ -5,16 +5,12 @@
 #include "Filename.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "endian.hh"
 #include <cassert>
 
 namespace openmsx {
 
 using namespace DiskImageUtils;
-
-static inline unsigned read32LE(const byte* x)
-{
-	return (x[0] << 0) + (x[1] << 8) + (x[2] << 16) + (x[3] << 24);
-}
 
 static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
@@ -39,12 +35,11 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 		setNbSectors(disk.getNbSectors());
 	} else {
 		checkValidPartition(disk, partition); // throws
-		byte buf[SECTOR_SIZE];
-		disk.readSector(0, buf);
-		Partition* p = reinterpret_cast<Partition*>(
-			&buf[14 + (31 - partition) * 16]);
-		start = read32LE(p->start4);
-		setNbSectors(read32LE(p->size4));
+		PartitionTable pt;
+		disk.readSector(0, reinterpret_cast<byte*>(&pt));
+		Partition& p = pt.part[31 - partition];
+		start = p.start;
+		setNbSectors(p.size);
 	}
 }
 

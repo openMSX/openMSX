@@ -4,6 +4,7 @@
 #define DIRASDSK_HH
 
 #include "SectorBasedDisk.hh"
+#include "DiskImageUtils.hh"
 #include <map>
 
 struct stat;
@@ -14,18 +15,6 @@ class CliComm;
 
 class DirAsDSK : public SectorBasedDisk
 {
-private:
-	struct MSXDirEntry {
-		char filename[8];
-		byte ext[3];
-		byte attrib[1];
-		byte reserved[10];
-		byte time[2];
-		byte date[2];
-		byte startCluster[2];
-		byte size[4];
-	};
-
 public:
 	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
 	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
@@ -104,7 +93,7 @@ private:
 	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 
-	byte bootBlock[SECTOR_SIZE];
+	MSXBootSector bootBlock;
 	const std::string hostDir;
 	typedef std::map<unsigned, SectorData> CachedSectors;
 	CachedSectors cachedSectors;
