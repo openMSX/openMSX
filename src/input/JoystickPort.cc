@@ -66,5 +66,18 @@ void JoystickPort::serialize(Archive& ar, unsigned /*version*/)
 }
 INSTANTIATE_SERIALIZE_METHODS(JoystickPort);
 
+
+// class DummyJoystickPort
+
+byte DummyJoystickPort::read(EmuTime::param /*time*/)
+{
+	return 0x3F; // do as-if nothing is connected
+}
+
+void DummyJoystickPort::write(byte /*value*/, EmuTime::param /*time*/)
+{
+	// ignore writes
+}
+
 } // namespace openmsx
 

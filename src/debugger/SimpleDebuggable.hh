@@ -26,6 +26,8 @@ public:
 	virtual void write(unsigned address, byte value);
 	virtual void write(unsigned address, byte value, EmuTime::param time);
 
+	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+
 private:
 	MSXMotherBoard& motherBoard;
 	const std::string name;

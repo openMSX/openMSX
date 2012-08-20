@@ -6,36 +6,23 @@
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
-#include "SimpleDebuggable.hh"
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
+#include "checked_cast.hh"
 
 namespace openmsx {
-
-class JoyPortDebuggable : public SimpleDebuggable
-{
-public:
-	JoyPortDebuggable(MSXMotherBoard& motherBoard, MSXPSG& psg);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value);
-private:
-	MSXPSG& psg;
-};
-
 
 // MSXDevice
 MSXPSG::MSXPSG(const DeviceConfig& config)
 	: MSXDevice(config)
-	, joyPortDebuggable(new JoyPortDebuggable(getMotherBoard(), *this))
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, prev(255)
 	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
 {
 	selectedPort = 0;
-	PluggingController& controller = getPluggingController();
-	ports[0].reset(new JoystickPort(controller, "joyporta", "MSX Joystick port A"));
-	ports[1].reset(new JoystickPort(controller, "joyportb", "MSX Joystick port B"));
+	ports[0] = &getMotherBoard().getJoystickPort(0);
+	ports[1] = &getMotherBoard().getJoystickPort(1);
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();
@@ -114,33 +101,19 @@ void MSXPSG::writeB(byte value, EmuTime::param time)
 	prev = value;
 }
 
-
-// class JoyPortDebuggable
-
-JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard, MSXPSG& psg_)
-	: SimpleDebuggable(motherBoard, "joystickports", "MSX Joystick Ports", 2)
-	, psg(psg_)
-{
-}
-
-byte JoyPortDebuggable::read(unsigned address, EmuTime::param time)
-{
-	return psg.ports[address]->read(time);
-}
-
-void JoyPortDebuggable::write(unsigned /*address*/, byte /*value*/)
-{
-	// ignore
-}
-
-
+// version 1: initial version
+// version 2: joystickportA/B moved from here to MSXMotherBoard
 template<typename Archive>
-void MSXPSG::serialize(Archive& ar, unsigned /*version*/)
+void MSXPSG::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ay8910", *ay8910);
-	ar.serialize("joystickportA", *ports[0]);
-	ar.serialize("joystickportB", *ports[1]);
+	if (ar.versionBelow(version, 2)) {
+		assert(ar.isLoader());
+		// in older versions there were always 2 real joytsick ports
+		ar.serialize("joystickportA", *checked_cast<JoystickPort*>(ports[0]));
+		ar.serialize("joystickportB", *checked_cast<JoystickPort*>(ports[1]));
+	}
 	ar.serialize("registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);

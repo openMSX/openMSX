@@ -30,6 +30,7 @@ class MSXCPUInterface;
 class PanasonicMemory;
 class MSXDeviceSwitch;
 class CassettePortInterface;
+class JoystickPortIf;
 class RenShaTurbo;
 class LedStatus;
 class ReverseManager;
@@ -100,6 +101,7 @@ public:
 	PanasonicMemory& getPanasonicMemory();
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
+	JoystickPortIf& getJoystickPort(unsigned port);
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
@@ -167,7 +169,7 @@ private:
 	std::auto_ptr<Impl> pimpl;
 	friend class Impl;
 };
-SERIALIZE_CLASS_VERSION(MSXMotherBoard, 3);
+SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
 
 } // namespace openmsx
 

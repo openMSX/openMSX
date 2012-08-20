@@ -5,6 +5,7 @@
 #include "MSXDevice.hh"
 #include "ReverseManager.hh"
 #include "HardwareConfig.hh"
+#include "ConfigException.hh"
 #include "XMLElement.hh"
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
@@ -14,6 +15,7 @@
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
 #include "Debugger.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMixer.hh"
 #include "PluggingController.hh"
 #include "MSXCPUInterface.hh"
@@ -22,6 +24,7 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
 #include "CassettePort.hh"
+#include "JoystickPort.hh"
 #include "RenShaTurbo.hh"
 #include "LedStatus.hh"
 #include "MSXEventDistributor.hh"
@@ -39,6 +42,7 @@
 #include "TclObject.hh"
 #include "Observer.hh"
 #include "StringOp.hh"
+#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
@@ -64,6 +68,7 @@ class RemoveExtCmd;
 class MachineNameInfo;
 class DeviceInfo;
 class FastForwardHelper;
+class JoyPortDebuggable;
 
 class MSXMotherBoard::Impl : private Observer<Setting>, private noncopyable
 {
@@ -115,6 +120,7 @@ public:
 	PanasonicMemory& getPanasonicMemory(MSXMotherBoard& self);
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
+	JoystickPortIf& getJoystickPort(unsigned port, MSXMotherBoard& self);
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
@@ -185,6 +191,8 @@ private:
 	auto_ptr<PanasonicMemory> panasonicMemory;
 	auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	auto_ptr<CassettePortInterface> cassettePort;
+	auto_ptr<JoystickPortIf> joystickPort[2];
+	auto_ptr<JoyPortDebuggable> joyPortDebuggable;
 	auto_ptr<RenShaTurbo> renShaTurbo;
 	auto_ptr<LedStatus> ledStatus;
 
@@ -307,6 +315,15 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	MSXMotherBoard::Impl& motherBoard;
 };
+
+class JoyPortDebuggable : public SimpleDebuggable
+{
+public:
+	JoyPortDebuggable(MSXMotherBoard& motherBoard);
+	virtual byte read(unsigned address, EmuTime::param time);
+	virtual void write(unsigned address, byte value);
+};
+
 
 static unsigned machineIDCounter = 0;
 
@@ -606,6 +623,39 @@ CassettePortInterface& MSXMotherBoard::Impl::getCassettePort()
 		}
 	}
 	return *cassettePort;
+}
+
+JoystickPortIf& MSXMotherBoard::Impl::getJoystickPort(
+	unsigned port, MSXMotherBoard& self)
+{
+	assert(port < 2);
+	if (!joystickPort[0].get()) {
+		assert(getMachineConfig());
+		// some MSX machines only have 1 instead of 2 joystick ports
+		string_ref ports = getMachineConfig()->getConfig().getChildData(
+			"JoystickPorts", "AB");
+		if ((ports != "AB") && (ports != "") &&
+		    (ports != "A") && (ports != "B")) {
+			throw ConfigException(
+				"Invalid JoystickPorts specification, "
+				"should be one of '', 'A', 'B' or 'AB'.");
+		}
+		PluggingController& ctrl = getPluggingController(self);
+		if ((ports == "AB") || (ports == "A")) {
+			joystickPort[0].reset(new JoystickPort(
+				ctrl, "joyporta", "MSX Joystick port A"));
+		} else {
+			joystickPort[0].reset(new DummyJoystickPort());
+		}
+		if ((ports == "AB") || (ports == "B")) {
+			joystickPort[1].reset(new JoystickPort(
+				ctrl, "joyportb", "MSX Joystick port B"));
+		} else {
+			joystickPort[1].reset(new DummyJoystickPort());
+		}
+		joyPortDebuggable.reset(new JoyPortDebuggable(self));
+	}
+	return *joystickPort[port];
 }
 
 RenShaTurbo& MSXMotherBoard::Impl::getRenShaTurbo()
@@ -1209,10 +1259,28 @@ void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 }
 
 
+// class JoyPortDebuggable
+
+JoyPortDebuggable::JoyPortDebuggable(MSXMotherBoard& motherBoard)
+	: SimpleDebuggable(motherBoard, "joystickports", "MSX Joystick Ports", 2)
+{
+}
+
+byte JoyPortDebuggable::read(unsigned address, EmuTime::param time)
+{
+	return getMotherBoard().getJoystickPort(address).read(time);
+}
+
+void JoyPortDebuggable::write(unsigned /*address*/, byte /*value*/)
+{
+	// ignore
+}
+
 // serialize
 // version 1: initial version
 // version 2: added reRecordCount
 // version 3: removed reRecordCount (moved to ReverseManager)
+// version 4: moved joystickportA/B from MSXPSG to here
 template<typename Archive>
 void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned version)
 {
@@ -1252,6 +1320,16 @@ void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned
 
 	if (CassettePort* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
 		ar.serialize("cassetteport", *port);
+	}
+	if (ar.versionAtLeast(version, 4)) {
+		if (JoystickPort* port = dynamic_cast<JoystickPort*>(
+		                                      joystickPort[0].get())) {
+			ar.serialize("joystickportA", *port);
+		}
+		if (JoystickPort* port = dynamic_cast<JoystickPort*>(
+		                                      joystickPort[1].get())) {
+			ar.serialize("joystickportB", *port);
+		}
 	}
 
 	if (ar.isLoader()) {
@@ -1416,6 +1494,10 @@ MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 CassettePortInterface& MSXMotherBoard::getCassettePort()
 {
 	return pimpl->getCassettePort();
+}
+JoystickPortIf& MSXMotherBoard::getJoystickPort(unsigned port)
+{
+	return pimpl->getJoystickPort(port, *this);
 }
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
