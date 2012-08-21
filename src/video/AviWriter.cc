@@ -207,7 +207,7 @@ AviWriter::~AviWriter()
 
 	try {
 		// First add the index table to the end
-		unsigned idxSize = index.size() * sizeof(Endian::L32);
+		unsigned idxSize = unsigned(index.size()) * sizeof(Endian::L32);
 		memcpy(&index[0], "idx1", 4);
 		index[1] = idxSize - 8;
 		file->write(&index[0], idxSize);
@@ -260,10 +260,11 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, short* sampleData
 		if (OPENMSX_BIGENDIAN) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
-			//for (unsigned i = 0; i < samples; ++i) {
-			//	buf[i] = sampleData[i];
-			//}
-			std::vector<Endian::L16> buf(sampleData, sampleData + samples);
+			//std::vector<Endian::L16> buf(sampleData, sampleData + samples); // needs c++11
+			std::vector<Endian::L16> buf(samples);
+			for (unsigned i = 0; i < samples; ++i) {
+				buf[i] = sampleData[i];
+			}
 			addAviChunk("01wb", samples * sizeof(short), buf.data(), 0);
 		} else {
 			addAviChunk("01wb", samples * sizeof(short), sampleData, 0);

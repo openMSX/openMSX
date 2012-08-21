@@ -104,10 +104,11 @@ void Wav16Writer::write(const short* buffer, unsigned samples)
 		// To side-step this issue we simply use a std::vector, this
 		// code is anyway not performance critical.
 		//VLA(Endian::L16, buf, samples); // doesn't work in clang
-		//for (unsigned i = 0; i < samples; ++i) {
-		//	buf[i] = buffer[i];
-		//}
-		std::vector<Endian::L16> buf(buffer, buffer + samples);
+		//std::vector<Endian::L16> buf(buffer, buffer + samples); // this needs c++11
+		std::vector<Endian::L16> buf(samples);
+		for (unsigned i = 0; i < samples; ++i) {
+			buf[i] = buffer[i];
+		}
 		file->write(buf.data(), size);
 	} else {
 		file->write(buffer, size);

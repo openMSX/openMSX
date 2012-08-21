@@ -70,7 +70,7 @@ struct PartitionTable {
 	char      header[11]; // +  0
 	char      pad[3];     // +  3
 	Partition part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
-	char      end[2];     // +510
+	byte      end[2];     // +510
 };
 STATIC_ASSERT(sizeof(PartitionTable) == 512);
 
