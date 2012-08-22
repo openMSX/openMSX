@@ -116,6 +116,7 @@ private:
 	friend class MsxKeyEventQueue;
 
 	static const int MAX_KEYSYM = 0x150;
+	static const byte keyTab[MAX_KEYSYM];
 
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
@@ -143,8 +144,6 @@ private:
 	bool msxCapsLockOn;
 	bool msxCodeKanaLockOn;
 	bool msxGraphLockOn;
-
-	static const byte keyTab[MAX_KEYSYM][2];
 };
 SERIALIZE_CLASS_VERSION(Keyboard, 2);
 
