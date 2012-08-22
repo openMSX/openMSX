@@ -70,7 +70,8 @@ const byte MAJ = 0x01;
 //                         Sprites:    On      On      Off     Off
 //                         Screen:     Off     On      Off     On
 const EmuDuration SRCH_TIMING[5] = { c( 92), c(125), c( 92), c( 92), c(0) };
-const EmuDuration LINE_TIMING[5] = { c(120), c(147), c(120), c(132), c(0) };
+const EmuDuration LINE_TIMING[5] = { c(109), c(135), c(109), c(120), c(0) };
+const EmuDuration LIN2_TIMING[5] = { c( 29), c( 36), c( 29), c( 30), c(0) };
 const EmuDuration HMMV_TIMING[5] = { c( 49), c( 65), c( 49), c( 62), c(0) };
 const EmuDuration LMMV_TIMING[5] = { c( 98), c(137), c( 98), c(124), c(0) };
 const EmuDuration YMMM_TIMING[5] = { c( 65), c(125), c( 65), c( 68), c(0) };
@@ -838,11 +839,13 @@ void LineBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 template <typename Mode, typename LogOp>
 void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 {
+	// See doc/line-speed.txt for some background info on the timing.
 	VDPVRAM& vram = engine.vram;
 	byte CL = engine.COL & Mode::COLOR_MASK;
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	int TY = (engine.ARG & DIY) ? -1 : 1;
-	EmuDuration delta = LINE_TIMING[engine.getTiming()];
+	EmuDuration delta1 = LINE_TIMING[engine.getTiming()];
+	EmuDuration delta2 = LIN2_TIMING[engine.getTiming()];
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
@@ -855,7 +858,7 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 				Mode::pset(engine.time, vram, engine.ADX, engine.DY,
 				           dstExt, CL, LogOp());
 			}
-			engine.time += delta;
+			engine.time += delta1;
 			engine.ADX += TX;
 			// confirmed on real HW:
 			//  - end-test happens before DY += TY
@@ -868,6 +871,7 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
 				engine.DY += TY;
+				engine.time += delta2;
 			}
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
@@ -879,12 +883,13 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param time, VDPCmdEngine& engine)
 				Mode::pset(engine.time, vram, engine.ADX, engine.DY,
 				           dstExt, CL, LogOp());
 			}
-			engine.time += delta;
+			engine.time += delta1;
 			// confirmed on real HW: DY += TY happens before end-test
 			engine.DY += TY;
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
 				engine.ADX += TX;
+				engine.time += delta2;
 			}
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range

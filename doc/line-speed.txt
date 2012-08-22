@@ -1,0 +1,172 @@
+Speed-test for V99x8 LINE commands
+----------------------------------
+
+This test is inspired by this forum topic:
+   http://www.msx.org/forum/msx-talk/software-and-gaming/line
+and more in particular the post by NYYRIKKI on 09-08-2012, and the pictures he
+posted the next day.
+
+Very briefly his test draws in a loop lines (using the LINE command) from the
+center of the screen to each point along the edge of the screen. _While_ the
+command is executing the command engine COLOR register is changed rapidly. This
+results in color patterns that give an indication for how fast the LINE command
+is executing for different line directions (see the pictures in the forum).
+
+I took this test as a starting point and changed it in the following ways:
+ a) Run in screen 8 instead of screen 5
+ b) Start drawing from pixel (0,0) instead of from the center
+ c) Change the colors faster
+
+a) The color value of a pixel is an indication for how many times the color
+register has been changed (in my test it starts at 0 and increments by 1 each
+time). In screen 8 we see the lower 8 bits of this count, while in screen 5 we
+only have 4 bits. Even in screen 8 this counter will overflow (we actually need
+9 bits) but getting the actual count value is easier in screen 8. (As a
+verification we also did a few tests in screen 5 and those gave the exact same
+timing results as compared to screen 8.)
+
+b) When drawing from the top-left we can draw lines of length 256 pixels
+(longest axis) instead of only 128 pixels. This gives more accurate
+measurements. From NYYRIKKI's original pictures we can see the pattern has 8
+axis of symmetry, so it's OK to only test one octet (only 1 direction in X/Y
+and also only X-major).
+
+c) NYYRIKKI's original test used OTIR to rapidly change the COLOR register,
+this takes 23 Z80 cycles per iteration. I use a long sequence of
+  INC A ; OUT (#9B),A
+instructions, this only takes 17 cycles per change. Multiply this by 6 to get
+VDP ticks.
+
+At the bottom of this text you find the source code of my test program.
+
+
+We run this test program in 3 modes:
+ 1) display enabled, sprites enabled
+ 2) display enabled, sprites disabled
+ 3) display disabled, (sprite status doesn't matter)
+See 'line-speed.xcf.bz2' for the graphical output of these tests
+(enable/disable the different layers to see the different pictures).
+
+
+Next we fit this data on some timing model. This is the model we used:
+
+ time-of-line-cmd = A * pixels-of-major-axis + B * pixels-of-minor-axis.
+
+With A and B (yet unknown) constants. (BTW the old timing model in openMSX
+had B==0).
+
+In the last column of the 3 pictures we can read an indication for the total
+time it took to draw this line. After taking overflow into account we can
+multiply this number by '17 * 6' to get (approximately) the time in VDP cycles
+it took to draw the LINE to that point. Note that we can only (easily) do this
+for the pixels in the last column because the pixels in the other columns are
+possibly overwritten by multiple LINE commands.
+
+So now we have 256 measurements to fit two parameters. When doing a
+least-squares-fit (actually a least-squares-fit with the additional constraint
+that the result must be integer) we get these results:
+
+  display=on, sprites=on   A = 135    B = 36
+  display=on, sprites=off  A = 120    B = 30
+  display=off              A = 109    B = 29
+
+
+Next we change the implementation in openMSX for this timing model, and then we
+run the same tests we first ran on a real machine in openMSX (you can see those
+results also in 'line-speed.xcf.bz2).
+
+
+Compared to openMSX the real measurements show more irregularities. This means
+that the timing model is not yet complete. My current best guess is that these
+irregularities can be explained by fixed VRAM-access-slots for the different
+VDP subsystems. But very little information is known about such access-slots.
+
+
+Wouter
+
+
+
+;-----------------------------------------------------------------------------
+
+		org	#C000-7
+
+		db	#fe
+		dw	start
+		dw	stop
+		dw	start
+
+start		di
+
+		ld	a,2
+		out	(#99),a
+		ld	a,15+128
+		out	(#99),a		; Select S#2
+WaitCE		in	a,(#99)
+		rra
+		jp	c,WaitCE
+
+loop
+wait1		in	a,(#99)
+		and	#40
+		jr	z,wait1		; wait if not inside vertical border
+wait2		in	a,(#99)
+		and	#40
+		jr	nz,wait2	; wait if inside vertical border
+		; at this point we're at the top of the display area
+
+		ld	a,36
+		out	(#99),a
+		ld	a,17+128
+		out	(#99),a		; Indirect access to R#32 and up
+		ld      hl,LineCmd
+		ld	bc,10*256+#9B
+		otir
+
+		ld	a,44+128
+		out	(#99),a
+		ld	a,17+128
+		out	(#99),a		; Indirect access to CMD-CLR
+
+		ld	a,#70
+		out	(#99),a
+		ld	a,46+128
+		out	(#99),a		; start LINE cmd
+
+		; Change command color register as fast as possible
+		;   17 Z80 cycles per change
+		xor	a
+		out	(#9B),a ; 0x000
+		inc	a
+		out	(#9B),a ; 0x001
+		[ repeated so that we have a sequence of 512 OUT instructions ]
+		inc	a
+		out	(#9B),a ; 0x1ff
+
+
+		in	a,(#99)
+		rra
+		jr	nc,ok
+		halt			; ERROR line cmd was not yet finished!
+ok
+		ld	hl,(LineCmd+6)	; ny
+		ld	a,h
+		or	a
+		jr	nz,break
+		inc	hl
+		ld	(LineCmd+6),hl
+		jp	loop
+
+break		xor	a
+		out	(#99),a
+		ld	a,15+128
+		out	(#99),a		; Select S#0
+
+		ei
+		ret
+
+LineCmd		dw	  0, 0		; dx, dy
+		dw	256, 0		; nx, ny
+		db	  0
+		db	  0
+
+stop		equ	$
