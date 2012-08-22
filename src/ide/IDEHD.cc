@@ -74,11 +74,11 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 {
 	try {
-		while (count != 0) {
-			writeSector(transferSectorNumber, buffer);
-			++transferSectorNumber;
-			assert(count >= 512);
-			count -= 512;
+		assert((count % 512) == 0);
+		unsigned num = count / 512;
+		for (unsigned i = 0; i < num; ++i) {
+			writeSector(transferSectorNumber++,
+			            buffer + 512 * i);
 		}
 	} catch (MSXException&) {
 		abortWriteTransfer(UNC);
