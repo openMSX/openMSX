@@ -41,6 +41,7 @@ std::auto_ptr<SuperImposedFrame> SuperImposedFrame::create(
 	}
 #endif
 	UNREACHABLE;
+	return std::auto_ptr<SuperImposedFrame>(); // avoid warning
 }
 
 SuperImposedFrame::SuperImposedFrame(const SDL_PixelFormat& format)
