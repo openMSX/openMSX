@@ -50,6 +50,10 @@ def extractRevision():
 	global _cachedRevision
 	if _cachedRevision is not False:
 		return _cachedRevision
+	if releaseFlag:
+		# Running "svn info" creates a ~/.subversion directory, which is
+		# undesired on automated build machines and pkgsrc complains about it.
+		return None
 	if not isdir('derived'):
 		makedirs('derived')
 	log = open('derived/version.log', 'w')
