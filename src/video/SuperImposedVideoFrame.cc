@@ -19,6 +19,13 @@ SuperImposedVideoFrame<Pixel>::SuperImposedVideoFrame(
 }
 
 template <typename Pixel>
+unsigned SuperImposedVideoFrame<Pixel>::getLineWidth(unsigned line) const
+{
+	unsigned width = src.getLineWidth(line);
+	return (width == 1) ? 320 : width;
+}
+
+template <typename Pixel>
 const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& width) const
 {
 	// Return minimum line width of 320.

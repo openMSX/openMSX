@@ -53,11 +53,7 @@ public:
 	/** Gets the number of display pixels on the given line.
 	  * @return line width, or 0 for a border line.
 	  */
-	unsigned getLineWidth(unsigned line) const {
-		unsigned width;
-		getLineInfo(line, width); // ignore return value
-		return width;
-	}
+	virtual unsigned getLineWidth(unsigned line) const = 0;
 
 	/** Get the width of (all) lines in this frame.
 	 * This only makes sense when all lines have the same width, so this

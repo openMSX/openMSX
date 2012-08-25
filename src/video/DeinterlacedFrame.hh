@@ -18,6 +18,7 @@ public:
 	void init(FrameSource* evenField, FrameSource* oddField);
 
 private:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual const void* getLineInfo(unsigned linei, unsigned& width) const;
 
 	/** The original frames whose data will be deinterlaced.

@@ -17,6 +17,7 @@ public:
 	SuperImposedFrameImpl(const SDL_PixelFormat& format);
 
 private:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 
 	PixelOperations<Pixel> pixelOps;
@@ -66,6 +67,16 @@ SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 	: SuperImposedFrame(format)
 	, pixelOps(format)
 {
+}
+
+template <typename Pixel>
+unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
+{
+	unsigned tShift = (getHeight() == top   ->getHeight()) ? 0 : 1;
+	unsigned bShift = (getHeight() == bottom->getHeight()) ? 0 : 1;
+	unsigned tWidth = top   ->getLineWidth(line >> tShift);
+	unsigned bWidth = bottom->getLineWidth(line >> bShift);
+	return std::max(tWidth, bWidth);
 }
 
 template <typename Pixel>

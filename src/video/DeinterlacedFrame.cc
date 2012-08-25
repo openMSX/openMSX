@@ -23,6 +23,11 @@ void DeinterlacedFrame::init(FrameSource* evenField, FrameSource* oddField)
 	fields[1] = oddField;
 }
 
+unsigned DeinterlacedFrame::getLineWidth(unsigned line) const
+{
+	return fields[line & 1]->getLineWidth(line >> 1);
+}
+
 const void* DeinterlacedFrame::getLineInfo(unsigned line, unsigned& width) const
 {
 	return fields[line & 1]->getLineInfo(line >> 1, width);

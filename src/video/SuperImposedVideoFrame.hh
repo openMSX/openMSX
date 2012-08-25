@@ -25,9 +25,10 @@ public:
 	SuperImposedVideoFrame(const FrameSource& src, const FrameSource& super,
 	                       const PixelOperations<Pixel>& pixelOps);
 
-private:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 
+private:
 	const FrameSource& src;
 	const FrameSource& super;
 	PixelOperations<Pixel> pixelOps;

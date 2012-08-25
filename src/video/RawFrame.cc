@@ -72,6 +72,12 @@ RawFrame::~RawFrame()
 	}
 }
 
+unsigned RawFrame::getLineWidth(unsigned line) const
+{
+	assert(line < getHeight());
+	return lineWidths[line];
+}
+
 const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
 {
 	if (PLATFORM_GP2X) {

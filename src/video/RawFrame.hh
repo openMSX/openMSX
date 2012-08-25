@@ -62,6 +62,7 @@ public:
 	SDL_Surface* getSDLSurface() { return surface.get(); }
 
 protected:
+	virtual unsigned getLineWidth(unsigned line) const;
 	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
 	virtual bool hasContiguousStorage() const;
 
