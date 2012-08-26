@@ -41,9 +41,11 @@ CheckedRam::~CheckedRam()
 
 byte CheckedRam::read(unsigned addr)
 {
-	if (unlikely(uninitialized[addr >> CacheLine::BITS]
-	                          [addr &  CacheLine::LOW])) {
-		umrCallback->execute(addr, ram->getName());
+	unsigned line = addr >> CacheLine::BITS;
+	if (unlikely(!completely_initialized_cacheline[line])) {
+		if (unlikely(uninitialized[line][addr &  CacheLine::LOW])) {
+			umrCallback->execute(addr, ram->getName());
+		}
 	}
 	return (*ram)[addr];
 }
@@ -68,11 +70,13 @@ byte CheckedRam::peek(unsigned addr) const
 void CheckedRam::write(unsigned addr, const byte value)
 {
 	unsigned line = addr >> CacheLine::BITS;
-	uninitialized[line][addr & CacheLine::LOW] = false;
-	if (unlikely(uninitialized[line].none())) {
-		completely_initialized_cacheline[line] = true;
-		msxcpu.invalidateMemCache(addr & CacheLine::HIGH,
-		                          CacheLine::SIZE);
+	if (unlikely(!completely_initialized_cacheline[line])) {
+		uninitialized[line][addr & CacheLine::LOW] = false;
+		if (unlikely(uninitialized[line].none())) {
+			completely_initialized_cacheline[line] = true;
+			msxcpu.invalidateMemCache(addr & CacheLine::HIGH,
+			                          CacheLine::SIZE);
+		}
 	}
 	(*ram)[addr] = value;
 }
