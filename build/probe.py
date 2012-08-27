@@ -396,7 +396,7 @@ def main(compileCommandStr, outDir, platform, linkMode, thirdPartyInstall):
 						break
 				else:
 					distroRoot = '/usr/local'
-			elif platform.endswith('bsd'):
+			elif platform.endswith('bsd') or platform == 'dragonfly':
 				distroRoot = environ.get('LOCALBASE', '/usr/local')
 				print 'Using libraries from ports directory %s.' % distroRoot
 			elif platform == 'pandora':
