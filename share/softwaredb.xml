@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1344146612">
+<softwaredb xml:lang="en" timestamp="1346488027">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
 
-Copyright 2003 Nicolas Beyaert			(Initial Database)
-Copyright 2005-2009 Patrick van Arkel 	(Database Administrator)
+Copyright 2003 Nicolas Beyaert (Initial Database)
 Copyright 2004-2009 BlueMSX Team
+Copyright 2005-2012 openMSX Team
 Generation MSXIDs by www.generation-msx.nl
 
-A special thanks to both the blueMSX and openMSX team for their support
 ]]>
 <!-- MSX Rom Info -->
 <software>
@@ -12144,6 +12143,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2685
-Parse time 7.416 seconds on Sun Aug 5 8:03:40 CEST 2012
+Roms in this XML file:2685
+Created on Sat Sep 1 10:27:39 CEST 2012
  -->
