@@ -47,7 +47,8 @@ private:
 
 	uint32 next0(int i)
 	{
-		return Endian::readB32(&data[i]);
+		data[i] = Endian::readB32(&data[i]);
+		return data[i];
 	}
 	uint32 next(int i)
 	{
