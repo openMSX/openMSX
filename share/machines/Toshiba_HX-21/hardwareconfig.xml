@@ -57,7 +57,7 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
           <filename>HX21-IC2.BIN</filename>
-          <sha1>01600d06d83072d4e757b29728555efde2c79705</sha1> <!-- EPROM dump by Werner Kai -->
+          <sha1>01600d06d83072d4e757b29728555efde2c79705</sha1> <!-- direct ROM dump by Werner Kai -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -78,7 +78,7 @@
       <secondary slot="3">
         <ROM id="Software Utility ROM">
           <rom>
-            <sha1>4e2ec9c0294a18a3ab463f182f9333d2af68cdca</sha1> <!-- EPROM dump by Werner Kai -->
+            <sha1>4e2ec9c0294a18a3ab463f182f9333d2af68cdca</sha1> <!-- direct ROM dump by Werner Kai -->
             <filename>HX21-IC3.BIN</filename>
           </rom>
           <mem base="0x0000" size="0x10000"/>
