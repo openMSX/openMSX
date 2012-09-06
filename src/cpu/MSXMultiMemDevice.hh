@@ -17,7 +17,8 @@ public:
 	MSXMultiMemDevice(const HardwareConfig& hwConf);
 	virtual ~MSXMultiMemDevice();
 
-	bool add(MSXDevice& device, int base, int size);
+	bool canAdd(int base, int size);
+	void add(MSXDevice& device, int base, int size);
 	void remove(MSXDevice& device, int base, int size);
 	bool empty() const;
 	void getDevices(std::set<MSXDevice*>& result) const;

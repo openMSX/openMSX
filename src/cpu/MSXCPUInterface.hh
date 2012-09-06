@@ -248,6 +248,8 @@ private:
 	void register_IO  (int port, bool isIn,
 	                   MSXDevice*& devicePtr, MSXDevice* device);
 	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
+	void testRegisterSlot(MSXDevice& device,
+	                      int ps, int ss, int base, int size);
 	void registerSlot(MSXDevice& device,
 	                  int ps, int ss, int base, int size);
 	void unregisterSlot(MSXDevice& device,

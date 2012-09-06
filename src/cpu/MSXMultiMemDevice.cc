@@ -48,15 +48,20 @@ static bool overlap(unsigned start1, unsigned size1,
 	       (isInside(start1 + size1 - 1, start2, size2));
 }
 
-bool MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
+bool MSXMultiMemDevice::canAdd(int base, int size)
 {
 	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
 		if (overlap(base, size, ranges[i].base, ranges[i].size)) {
 			return false;
 		}
 	}
-	ranges.insert(ranges.begin(), Range(base, size, device));
 	return true;
+}
+
+void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
+{
+	assert(canAdd(base, size));
+	ranges.insert(ranges.begin(), Range(base, size, device));
 }
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
