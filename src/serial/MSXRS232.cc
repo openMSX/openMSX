@@ -68,7 +68,9 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
 	, interf(new I8251Interf(*this))
 	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
-	, rom(new Rom(MSXDevice::getName() + " ROM", "rom", config))
+	, rom(config.findChild("rom")
+		? new Rom(MSXDevice::getName() + " ROM", "rom", config)
+		: NULL) // when the ROM is already mapped, you don't want to specify it again here
 	, ram(config.getChildDataAsBool("ram", false)
 	      ? new Ram(config, MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
@@ -122,7 +124,7 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 	word addr = address & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
-	} else if ((0x4000 <= address) && (address < 0x8000)) {
+	} else if (rom.get() && (0x4000 <= address) && (address < 0x8000)) {
 		return (*rom)[addr];
 	} else {
 		return 0xFF;
@@ -137,7 +139,7 @@ const byte* MSXRS232::getReadCacheLine(word start) const
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
-	} else if ((0x4000 <= start) && (start < 0x8000)) {
+	} else if (rom.get() && (0x4000 <= start) && (start < 0x8000)) {
 		return &(*rom)[addr];
 	} else {
 		return unmappedRead;
