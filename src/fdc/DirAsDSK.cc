@@ -183,46 +183,6 @@ static string msxToHostName(const char* msxName)
 }
 
 
-void DirAsDSK::scanHostDir(bool onlyNewFiles)
-{
-	// read directory and fill the fake disk
-	ReadDir dir(hostDir);
-	while (struct dirent* d = dir.getEntry()) {
-		string name(d->d_name);
-		// check if file is added to diskimage
-		if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
-			updateFileInDisk(name);
-		}
-	}
-}
-
-void DirAsDSK::cleandisk()
-{
-	// assign empty directory entries
-	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		memset(&mapDir[i].msxInfo, 0, sizeof(MSXDirEntry));
-		mapDir[i].hostName.clear();
-		mapDir[i].filesize = 0;
-	}
-
-	// Clear FAT1 + FAT2
-	memset(fat,  0, sizeof(fat ));
-	memset(fat2, 0, sizeof(fat2));
-	// First 3 bytes are initialized specially:
-	//  'cluster 0' contains the media descriptor (0xF9 for us)
-	//  'cluster 1' is marked as EOF_FAT
-	//  So cluster 2 is the first usable cluster number
-	fat [0] = 0xF9; fat [1] = 0xFF; fat [2] = 0xFF;
-	fat2[0] = 0xF9; fat2[1] = 0xFF; fat2[2] = 0xFF;
-
-	// clear the sectorMap so that they all point to 'clean' sectors
-	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
-		sectorMap[i].usage = CLEAN;
-		sectorMap[i].dirIndex = 0;
-		sectorMap[i].fileOffset = 0;
-	}
-}
-
 DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& hostDir_,
 		SyncMode syncMode_, BootSectorType bootSectorType)
 	: SectorBasedDisk(hostDir_)
@@ -250,6 +210,33 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& hostDir_,
 	cleandisk();
 	// Import the host filesystem.
 	scanHostDir(false);
+}
+
+void DirAsDSK::cleandisk()
+{
+	// assign empty directory entries
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
+		memset(&mapDir[i].msxInfo, 0, sizeof(MSXDirEntry));
+		mapDir[i].hostName.clear();
+		mapDir[i].filesize = 0;
+	}
+
+	// Clear FAT1 + FAT2
+	memset(fat,  0, sizeof(fat ));
+	memset(fat2, 0, sizeof(fat2));
+	// First 3 bytes are initialized specially:
+	//  'cluster 0' contains the media descriptor (0xF9 for us)
+	//  'cluster 1' is marked as EOF_FAT
+	//  So cluster 2 is the first usable cluster number
+	fat [0] = 0xF9; fat [1] = 0xFF; fat [2] = 0xFF;
+	fat2[0] = 0xF9; fat2[1] = 0xFF; fat2[2] = 0xFF;
+
+	// clear the sectorMap so that they all point to 'clean' sectors
+	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
+		sectorMap[i].usage = CLEAN;
+		sectorMap[i].dirIndex = 0;
+		sectorMap[i].fileOffset = 0;
+	}
 }
 
 bool DirAsDSK::isWriteProtectedImpl() const
@@ -368,6 +355,19 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 					// couldn't open/read cached sector file
 				}
 			}
+		}
+	}
+}
+
+void DirAsDSK::scanHostDir(bool onlyNewFiles)
+{
+	// read directory and fill the fake disk
+	ReadDir dir(hostDir);
+	while (struct dirent* d = dir.getEntry()) {
+		string name(d->d_name);
+		// check if file is added to diskimage
+		if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
+			updateFileInDisk(name);
 		}
 	}
 }
@@ -540,75 +540,64 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	// DirAsDSK from importing the other (small) files in my directory.
 }
 
-void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
+void DirAsDSK::updateFileInDisk(const string& hostName)
 {
-	if (!mapDir[dirIndex].inUse()) {
-		// Host file does not yet exist, create filename from msx name.
-		const char* msxName = mapDir[dirIndex].msxInfo.filename;
-		// If the msx file is deleted, we don't need to do anything.
-		if (msxName[0] == char(0xE5)) return;
-		string hostName = msxToHostName(msxName);
-		mapDir[dirIndex].hostName = hostName;
+	string fullHostName = hostDir + hostName;
+	struct stat fst;
+	if (stat(fullHostName.c_str(), &fst)) {
+		cliComm.printWarning("Error accessing " + fullHostName);
+		return;
 	}
-	unsigned msxSize = mapDir[dirIndex].msxInfo.size;
-	mapDir[dirIndex].filesize = msxSize;
-
-	// stuff below can fail, so do it as the last thing in this method
-	try {
-		string fullHostName = hostDir + mapDir[dirIndex].hostName;
-		File file(fullHostName, File::CREATE);
-		file.truncate(msxSize);
-	} catch (FileException& e) {
-		cliComm.printWarning("Error while truncating host file: " +
-			mapDir[dirIndex].hostName + ": " + e.getMessage());
+	if (!S_ISREG(fst.st_mode)) {
+		// we only handle regular files for now
+		if (hostName != "." && hostName != "..") {
+			// don't warn for these files, as they occur in any directory
+			cliComm.printWarning("Not a regular file: " + fullHostName);
+		}
+		return;
+	}
+	if (fst.st_size >= std::numeric_limits<int>::max()) {
+		// File sizes are processed using int, so prevent integer
+		// overflow. Files this large won't be not be supported
+		// by an MSX anyway
+		cliComm.printWarning("File too large: " + fullHostName);
+		return;
+	}
+	if (!checkFileUsedInDSK(hostName)) {
+		// add file to fakedisk
+		addFileToDSK(hostName, fst);
+	} else {
+		// really update file
+		checkAlterFileInDisk(hostName);
 	}
 }
 
-void DirAsDSK::extractCacheToFile(unsigned dirIndex)
+void DirAsDSK::addFileToDSK(const string& hostName, struct stat& fst)
 {
-	if (!mapDir[dirIndex].inUse()) {
-		// Host file does not yet exist, create filename from msx name
-		const char* msxName = mapDir[dirIndex].msxInfo.filename;
-		// If the msx file is deleted, we don't need to do anything
-		if (msxName[0] == char(0xE5)) return;
-		string hostName = msxToHostName(msxName);
-		mapDir[dirIndex].hostName = hostName;
-	}
-	// We write a host file with length that is the minimum of:
-	//  - Length indicated in msx directory entry.
-	//  - Length of FAT-chain * cluster-size, this chain can have length=0
-	//    if startCluster is not (yet) filled in.
-	try {
-		unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
-		unsigned msxSize = mapDir[dirIndex].msxInfo.size;
-
-		string fullHostName = hostDir + mapDir[dirIndex].hostName;
-		File file(fullHostName, File::TRUNCATE);
-		unsigned offset = 0;
-		while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-			unsigned logicalSector = clusterToSector(curCl);
-			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
-				unsigned sector = logicalSector + i;
-				assert(sector < NUM_SECTORS);
-				if ((sectorMap[sector].usage == CACHED ||
-				     sectorMap[sector].usage == MIXED) &&
-				    (msxSize > offset)) {
-					byte* buf = cachedSectors[sector].data;
-					unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
-					file.write(buf, writeSize);
-
-					sectorMap[sector].usage = MIXED;
-					sectorMap[sector].dirIndex = dirIndex;
-					sectorMap[sector].fileOffset = offset;
-				}
-				offset += SECTOR_SIZE;
-			}
-			curCl = readFAT(curCl);
+	// Get empty dir entry
+	unsigned dirIndex = 0;
+	while (mapDir[dirIndex].inUse()) {
+		if (++dirIndex == NUM_DIR_ENTRIES) {
+			cliComm.printWarning(
+				"Couldn't add " + hostName + ": root dir full");
+			return;
 		}
-	} catch (FileException& e) {
-		cliComm.printWarning("Error while syncing host file: " +
-			mapDir[dirIndex].hostName + ": " + e.getMessage());
 	}
+
+	// Create correct MSX filename
+	string msxFilename = hostToMsxName(hostName);
+	if (checkMSXFileExists(msxFilename)) {
+		// TODO: actually should increase vfat abrev if possible!!
+		cliComm.printWarning(
+			"Couldn't add " + hostName + ": MSX name " +
+			msxFilename + " existed already");
+		return;
+	}
+
+	// Fill in filenames and import the file content.
+	mapDir[dirIndex].hostName = hostName;
+	memcpy(&(mapDir[dirIndex].msxInfo.filename), msxFilename.data(), 8 + 3);
+	updateFileInDisk(dirIndex, fst);
 }
 
 
@@ -662,6 +651,98 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	}
 
 	memcpy(&fat2[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
+}
+
+void DirAsDSK::updateFileFromAlteredFatOnly(unsigned cluster)
+{
+	// Search for the first cluster in the chain that contains 'cluster'
+	// Note: worst case (this implementation of) the search is O(N^2), but
+	// because usually FAT chains are allocated in ascending order, this
+	// search is fast O(N).
+	unsigned startCluster = cluster;
+	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
+		if (readFAT(i) == startCluster) {
+			// found a predecessor
+			startCluster = i;
+			i = FIRST_CLUSTER - 1; // restart search
+		}
+	}
+
+	// Find the corresponding direntry and (if found) export file based on
+	// new cluster chain.
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
+		if (startCluster == mapDir[i].msxInfo.startCluster) {
+			extractCacheToFile(i);
+			break;
+		}
+	}
+
+	// from 'startCluster' and 'cluster' on, update fat2 so that the check
+	// in writeFATSector() doesn't call this routine again for the same file
+	unsigned curCl = startCluster;
+	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
+		unsigned next = readFAT(curCl);
+		writeFAT2(curCl, next);
+		curCl = next;
+	}
+
+	// since the new FAT chain can be shorter (file size shrunk)
+	// we also start from 'cluster', in such case
+	// the loop above doesn't take care of this, since it will
+	// stop at the new EOF_FAT || curCl == 0 condition
+	curCl = cluster;
+	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
+		unsigned next = readFAT(curCl);
+		writeFAT2(curCl, next);
+		curCl = next;
+	}
+}
+
+void DirAsDSK::extractCacheToFile(unsigned dirIndex)
+{
+	if (!mapDir[dirIndex].inUse()) {
+		// Host file does not yet exist, create filename from msx name
+		const char* msxName = mapDir[dirIndex].msxInfo.filename;
+		// If the msx file is deleted, we don't need to do anything
+		if (msxName[0] == char(0xE5)) return;
+		string hostName = msxToHostName(msxName);
+		mapDir[dirIndex].hostName = hostName;
+	}
+	// We write a host file with length that is the minimum of:
+	//  - Length indicated in msx directory entry.
+	//  - Length of FAT-chain * cluster-size, this chain can have length=0
+	//    if startCluster is not (yet) filled in.
+	try {
+		unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
+		unsigned msxSize = mapDir[dirIndex].msxInfo.size;
+
+		string fullHostName = hostDir + mapDir[dirIndex].hostName;
+		File file(fullHostName, File::TRUNCATE);
+		unsigned offset = 0;
+		while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
+			unsigned logicalSector = clusterToSector(curCl);
+			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+				unsigned sector = logicalSector + i;
+				assert(sector < NUM_SECTORS);
+				if ((sectorMap[sector].usage == CACHED ||
+				     sectorMap[sector].usage == MIXED) &&
+				    (msxSize > offset)) {
+					byte* buf = cachedSectors[sector].data;
+					unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
+					file.write(buf, writeSize);
+
+					sectorMap[sector].usage = MIXED;
+					sectorMap[sector].dirIndex = dirIndex;
+					sectorMap[sector].fileOffset = offset;
+				}
+				offset += SECTOR_SIZE;
+			}
+			curCl = readFAT(curCl);
+		}
+	} catch (FileException& e) {
+		cliComm.printWarning("Error while syncing host file: " +
+			mapDir[dirIndex].hostName + ": " + e.getMessage());
+	}
 }
 
 void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
@@ -789,6 +870,30 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 	memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
 }
 
+void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
+{
+	if (!mapDir[dirIndex].inUse()) {
+		// Host file does not yet exist, create filename from msx name.
+		const char* msxName = mapDir[dirIndex].msxInfo.filename;
+		// If the msx file is deleted, we don't need to do anything.
+		if (msxName[0] == char(0xE5)) return;
+		string hostName = msxToHostName(msxName);
+		mapDir[dirIndex].hostName = hostName;
+	}
+	unsigned msxSize = mapDir[dirIndex].msxInfo.size;
+	mapDir[dirIndex].filesize = msxSize;
+
+	// stuff below can fail, so do it as the last thing in this method
+	try {
+		string fullHostName = hostDir + mapDir[dirIndex].hostName;
+		File file(fullHostName, File::CREATE);
+		file.truncate(msxSize);
+	} catch (FileException& e) {
+		cliComm.printWarning("Error while truncating host file: " +
+			mapDir[dirIndex].hostName + ": " + e.getMessage());
+	}
+}
+
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 {
 	assert(sector >= FIRST_DATA_SECTOR);
@@ -827,112 +932,6 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 		// indicate data is cached, it might be CACHED already or it was CLEAN
 		sectorMap[sector].usage = CACHED;
 	}
-}
-
-void DirAsDSK::updateFileFromAlteredFatOnly(unsigned cluster)
-{
-	// Search for the first cluster in the chain that contains 'cluster'
-	// Note: worst case (this implementation of) the search is O(N^2), but
-	// because usually FAT chains are allocated in ascending order, this
-	// search is fast O(N).
-	unsigned startCluster = cluster;
-	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
-		if (readFAT(i) == startCluster) {
-			// found a predecessor
-			startCluster = i;
-			i = FIRST_CLUSTER - 1; // restart search
-		}
-	}
-
-	// Find the corresponding direntry and (if found) export file based on
-	// new cluster chain.
-	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (startCluster == mapDir[i].msxInfo.startCluster) {
-			extractCacheToFile(i);
-			break;
-		}
-	}
-
-	// from 'startCluster' and 'cluster' on, update fat2 so that the check
-	// in writeFATSector() doesn't call this routine again for the same file
-	unsigned curCl = startCluster;
-	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-		unsigned next = readFAT(curCl);
-		writeFAT2(curCl, next);
-		curCl = next;
-	}
-
-	// since the new FAT chain can be shorter (file size shrunk)
-	// we also start from 'cluster', in such case
-	// the loop above doesn't take care of this, since it will
-	// stop at the new EOF_FAT || curCl == 0 condition
-	curCl = cluster;
-	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-		unsigned next = readFAT(curCl);
-		writeFAT2(curCl, next);
-		curCl = next;
-	}
-}
-
-
-void DirAsDSK::updateFileInDisk(const string& hostName)
-{
-	string fullHostName = hostDir + hostName;
-	struct stat fst;
-	if (stat(fullHostName.c_str(), &fst)) {
-		cliComm.printWarning("Error accessing " + fullHostName);
-		return;
-	}
-	if (!S_ISREG(fst.st_mode)) {
-		// we only handle regular files for now
-		if (hostName != "." && hostName != "..") {
-			// don't warn for these files, as they occur in any directory
-			cliComm.printWarning("Not a regular file: " + fullHostName);
-		}
-		return;
-	}
-	if (fst.st_size >= std::numeric_limits<int>::max()) {
-		// File sizes are processed using int, so prevent integer
-		// overflow. Files this large won't be not be supported
-		// by an MSX anyway
-		cliComm.printWarning("File too large: " + fullHostName);
-		return;
-	}
-	if (!checkFileUsedInDSK(hostName)) {
-		// add file to fakedisk
-		addFileToDSK(hostName, fst);
-	} else {
-		// really update file
-		checkAlterFileInDisk(hostName);
-	}
-}
-
-void DirAsDSK::addFileToDSK(const string& hostName, struct stat& fst)
-{
-	// Get empty dir entry
-	unsigned dirIndex = 0;
-	while (mapDir[dirIndex].inUse()) {
-		if (++dirIndex == NUM_DIR_ENTRIES) {
-			cliComm.printWarning(
-				"Couldn't add " + hostName + ": root dir full");
-			return;
-		}
-	}
-
-	// Create correct MSX filename
-	string msxFilename = hostToMsxName(hostName);
-	if (checkMSXFileExists(msxFilename)) {
-		// TODO: actually should increase vfat abrev if possible!!
-		cliComm.printWarning(
-			"Couldn't add " + hostName + ": MSX name " +
-			msxFilename + " existed already");
-		return;
-	}
-
-	// Fill in filenames and import the file content.
-	mapDir[dirIndex].hostName = hostName;
-	memcpy(&(mapDir[dirIndex].msxInfo.filename), msxFilename.data(), 8 + 3);
-	updateFileInDisk(dirIndex, fst);
 }
 
 } // namespace openmsx
