@@ -329,6 +329,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// copy correct sector from FAT
+		// Even if the MSX reads FAT2, we always return the content of FAT1.
 		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
 		memcpy(buf, &fat[fatSector * SECTOR_SIZE], SECTOR_SIZE);
 
@@ -645,41 +646,51 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 {
-	// During formatting sectors > 1+SECTORS_PER_FAT are empty (all
-	// bytes are 0) so we would erase the 3 bytes indentifier at the
-	// beginning of the FAT !!
-	// Since the two FATs should be identical after "normal" usage,
-	// we use writes to the second FAT (which should be an exact backup
-	// of the first FAT to detect changes (files might have
-	// grown/shrunk/added) so that they can be passed on to the HOST-OS
+	// Observation:
+	//  A real MSX always first seems to write the sectors of the first FAT
+	//  shortly followed by writing an (identical) copy to the second FAT.
+	// Heuristic:
+	//  We prefer to not start updating host files based on a partially
+	//  updated FAT (e.g. only one of the 3 FAT sectors changed yet). So
+	//  what we do is the following:
+	//  - Only buffer writes to FAT1, don't make any host changes yet.
+	//  - On (any) write to FAT2 we will sync the changes made by the
+	//    previous FAT1 writes (the actual sector data that is written to
+	//    FAT2 is ignored).
 	static const unsigned FIRST_SECTOR_2ND_FAT =
 	       FIRST_FAT_SECTOR + SECTORS_PER_FAT;
 	if (sector < FIRST_SECTOR_2ND_FAT) {
+		// write to FAT1, only buffer the data, don't update host files
 		unsigned fatSector = sector - FIRST_FAT_SECTOR;
 		memcpy(&fat[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
-		return;
+	} else {
+		// Write to FAT2 (any FAT2 sector, actual written data is
+		// ignored). Sync host files based on changes written earlier
+		// to FAT1.
+		syncFATChanges();
 	}
-
-	// writes to the second FAT so we check for changes
-	// but we fully ignore the sectors afterwards (see remark
-	// about identifier bytes above)
-	static const unsigned MAX_FAT_ENTRIES_PER_SECTOR =
-		(SECTOR_SIZE * 2 + (3 - 1)) / 3; // rounded up
-	unsigned fatSector = sector - FIRST_SECTOR_2ND_FAT;
-	unsigned startCluster = std::max(FIRST_CLUSTER,
-	                                 ((fatSector * SECTOR_SIZE) * 2) / 3);
-	unsigned endCluster = std::min(startCluster + MAX_FAT_ENTRIES_PER_SECTOR,
-	                               MAX_CLUSTER);
-	for (unsigned i = startCluster; i < endCluster; ++i) {
-		if (readFAT(i) != readFAT2(i)) {
-			updateFileFromAlteredFatOnly(i);
-		}
-	}
-
-	memcpy(&fat2[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
 }
 
-void DirAsDSK::updateFileFromAlteredFatOnly(unsigned cluster)
+void DirAsDSK::syncFATChanges()
+{
+	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
+		if (readFAT(i) != readFAT2(i)) {
+			exportFileFromFATChange(i);
+		}
+	}
+	// After a write to FAT2 (any sector, any data), our (full) fat1 and
+	// fat2 buffers should be identical. Note: we can't use
+	//   assert(memcmp(fat, fat2, sizeof(fat)) == 0);
+	// because exportFileFromFATChange() only updates the part of the FAT
+	// that actually contains FAT info. E.g. not the media ID at the
+	// beginning nor the unsused part at the end. And for example the 'CALL
+	// FORMAT' routine also writes these parts of the FAT.
+	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
+		assert(readFAT(i) == readFAT2(i));
+	}
+}
+
+void DirAsDSK::exportFileFromFATChange(unsigned cluster)
 {
 	// Search for the first cluster in the chain that contains 'cluster'
 	// Note: worst case (this implementation of) the search is O(N^2), but
@@ -694,6 +705,15 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned cluster)
 		}
 	}
 
+	// Copy this whole chain from FAT1 to FAT2 (so that the loop in
+	// syncFATChanges() sees this part is already handled).
+	unsigned tmp = startCluster;
+	while ((FIRST_CLUSTER <= tmp) && (tmp < MAX_CLUSTER)) {
+		unsigned next = readFAT(tmp);
+		writeFAT2(tmp, next);
+		tmp = next;
+	}
+
 	// Find the corresponding direntry and (if found) export file based on
 	// new cluster chain.
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
@@ -701,26 +721,6 @@ void DirAsDSK::updateFileFromAlteredFatOnly(unsigned cluster)
 			extractCacheToFile(i);
 			break;
 		}
-	}
-
-	// from 'startCluster' and 'cluster' on, update fat2 so that the check
-	// in writeFATSector() doesn't call this routine again for the same file
-	unsigned curCl = startCluster;
-	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-		unsigned next = readFAT(curCl);
-		writeFAT2(curCl, next);
-		curCl = next;
-	}
-
-	// since the new FAT chain can be shorter (file size shrunk)
-	// we also start from 'cluster', in such case
-	// the loop above doesn't take care of this, since it will
-	// stop at the new EOF_FAT || curCl == 0 condition
-	curCl = cluster;
-	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-		unsigned next = readFAT(curCl);
-		writeFAT2(curCl, next);
-		curCl = next;
 	}
 }
 
