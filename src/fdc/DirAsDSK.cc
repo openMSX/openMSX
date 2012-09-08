@@ -11,7 +11,6 @@
 #include "statp.hh"
 #include <algorithm>
 #include <cassert>
-#include <cstdio>
 #include <cstring>
 #include <limits>
 #include <sys/types.h>
@@ -40,21 +39,6 @@ const unsigned DirAsDSK::SECTOR_SIZE;
 static const unsigned FREE_FAT = 0x000;
 static const unsigned BAD_FAT  = 0xFF7;
 static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
-
-
-// Wrapper function to easily enable/disable debug prints
-// Don't check-in this code with printing enabled:
-//   printing stuff to stdout breaks stdio CliComm connections!
-static void debug(const char* format, ...)
-{
-	(void)format;
-#if 0
-	va_list args;
-	va_start(args, format);
-	vprintf(format, args);
-	va_end(args);
-#endif
-}
 
 
 // transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
@@ -201,14 +185,12 @@ static string msxToHostName(const char* msxName)
 
 void DirAsDSK::scanHostDir(bool onlyNewFiles)
 {
-	debug("Scanning HostDir for new files\n");
 	// read directory and fill the fake disk
 	ReadDir dir(hostDir);
 	while (struct dirent* d = dir.getEntry()) {
 		string name(d->d_name);
 		// check if file is added to diskimage
 		if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
-			debug("found new file %s\n", d->d_name);
 			updateFileInDisk(name);
 		}
 	}
@@ -309,33 +291,6 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 	//   set to the wrong value).
 	// - Last the MSX writes the FAT sectors, but the earlier host sync
 	//   already screwed up the filesize in the directory entry.
-	debug("DirAsDSK::readSectorImpl: %i ", sector);
-	switch (sector) {
-		case 0: debug("boot sector\n");
-			break;
-		case 1:
-		case 2:
-		case 3:
-			debug("FAT 1 sector %i\n", (sector - 0));
-			break;
-		case 4:
-		case 5:
-		case 6:
-			debug("FAT 2 sector %i\n", (sector - 3));
-			break;
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-			debug("DIR sector %i\n", (sector - 6));
-			break;
-		default:
-			debug("data sector\n");
-			break;
-	}
 
 	if (sector == 0) {
 		// copy our fake bootsector into the buffer
@@ -441,7 +396,6 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirIndex)
 		// file can not be stat'ed => assume it has been deleted
 		// and thus delete it from the MSX DIR sectors by marking
 		// the first filename char as 0xE5
-		debug(" host os file deleted ? %s\n", mapDir[dirIndex].hostName.c_str());
 		mapDir[dirIndex].msxInfo.filename[0] = char(0xE5);
 		mapDir[dirIndex].hostName.clear();
 		// Since we do not clear the FAT (a real MSX doesn't either)
@@ -595,9 +549,7 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
 		if (msxName[0] == char(0xE5)) return;
 		string hostName = msxToHostName(msxName);
 		mapDir[dirIndex].hostName = hostName;
-		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
-	debug("      truncateCorrespondingFile %s\n", mapDir[dirIndex].hostName.c_str());
 	unsigned msxSize = mapDir[dirIndex].msxInfo.size;
 	mapDir[dirIndex].filesize = msxSize;
 
@@ -664,52 +616,6 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	assert(sector < NUM_SECTORS);
 	assert(syncMode != SYNC_READONLY);
-
-	debug("DirAsDSK::writeSectorImpl: %i ", sector);
-	switch (sector) {
-		case 0: debug("boot sector\n");
-			break;
-		case 1:
-		case 2:
-		case 3:
-			debug("FAT 1 sector %i\n", (sector - 0));
-			break;
-		case 4:
-		case 5:
-		case 6:
-			debug("FAT 2 sector %i\n", (sector - 3));
-			break;
-		case 7:
-		case 8:
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-			debug("DIR sector %i\n", (sector - 6));
-			break;
-		default:
-			debug("data sector\n");
-			break;
-	}
-	if (sector >= FIRST_DATA_SECTOR) {
-		assert(sector < NUM_SECTORS);
-		debug("  Mode: ");
-		switch (sectorMap[sector].usage) {
-		case CLEAN:
-			debug("CLEAN\n");
-			break;
-		case CACHED:
-			debug("CACHED\n");
-			break;
-		case MIXED:
-			debug("MIXED ");
-			debug("  direntry : %i \n", sectorMap[sector].dirIndex);
-			debug("    => %s \n", mapDir[sectorMap[sector].dirIndex].hostName.c_str());
-			debug("  fileOffset : %li\n", sectorMap[sector].fileOffset);
-			break;
-		}
-	}
 
 	if (sector == 0) {
 		memcpy(&bootBlock, buf, SECTOR_SIZE);
@@ -804,12 +710,6 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 	//         c) first char of name changed to 0xE5, others remained unchanged
 	//          => file deleted
 	// 1 1 1 : a new file has been created (as done by a Panasonic FS A1GT)
-	debug("  dirIndex %i filename: %s\n",
-	      dirIndex, mapDir[dirIndex].hostName.c_str());
-	debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
-	debug("  Old start %i   New start %i\n",   oldClus, newClus);
-	debug("  Old size  %i   New size  %i\n\n", oldSize, newSize);
-
 	if (chgName && !chgClus && !chgSize) {
 		if (newEntry.filename[0] == char(0xE5) && syncMode == SYNC_FULL) {
 			// dir entry has been deleted
