@@ -310,27 +310,13 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		}
 	}
 
-	if (sector == 0) {
-		// copy our fake bootsector into the buffer
-		memcpy(buf, sectors[sector], SECTOR_SIZE);
-
-	} else if (sector < FIRST_DIR_SECTOR) {
-		// copy correct sector from FAT
-		// Even if the MSX reads FAT2, we always return the content of FAT1.
-		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
-		memcpy(buf, sectors[FIRST_FAT_SECTOR + fatSector], SECTOR_SIZE);
-
-	} else if (sector < FIRST_DATA_SECTOR) {
-		// simply return our internal directory entries
-		memcpy(buf, &sectors[sector], SECTOR_SIZE);
-
-	} else {
-		// Read data sector.
-		// Note that we DONT try to read the most current data from the
-		// host file. Instead we always return the data from the last
-		// host sync.
-		memcpy(buf, sectors[sector], SECTOR_SIZE);
+	// Read from 2nd FAT? Map that to read from 1st FAT.
+	if ((FIRST_SECTOR_2ND_FAT <= sector) && (sector < FIRST_DIR_SECTOR)) {
+		sector -= SECTORS_PER_FAT;
 	}
+
+	// Simply return the sector from our virtual disk image.
+	memcpy(buf, sectors[sector], SECTOR_SIZE);
 }
 
 void DirAsDSK::syncWithHost()
