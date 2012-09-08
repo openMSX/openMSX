@@ -49,13 +49,15 @@ private:
 	void writeDIRSector (unsigned sector, const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
 	void writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry);
+	void syncWithHost();
+	void checkDeletedHostFiles();
+	void deleteMSXFile(unsigned dirIndex);
+	void addNewHostFiles();
+	void foundNewHostFile(const std::string& hostName);
 	bool checkFileUsedInDSK(const std::string& hostName);
 	bool checkMSXFileExists(const std::string& msxfilename);
-	void addFileToDSK(const std::string& hostName, struct stat& fst);
-	void checkAlterFileInDisk(const std::string& hostName);
-	void checkAlterFileInDisk(unsigned dirIndex);
+	void checkModifiedHostFile(unsigned dirIndex);
 	void updateFileInDisk(unsigned dirIndex, struct stat& fst);
-	void updateFileInDisk(const std::string& hostName);
 	void extractCacheToFile(unsigned dirIndex);
 	void truncateCorrespondingFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
@@ -66,7 +68,6 @@ private:
 	void writeFAT2 (unsigned clnr, unsigned val);
 	void updateFileFromAlteredFatOnly(unsigned someCluster);
 	void cleandisk();
-	void scanHostDir(bool onlyNewFiles);
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change

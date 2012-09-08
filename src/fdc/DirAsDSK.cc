@@ -214,7 +214,7 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	// make a clean initial disk
 	cleandisk();
 	// Import the host filesystem.
-	scanHostDir(false);
+	syncWithHost();
 }
 
 void DirAsDSK::cleandisk()
@@ -313,16 +313,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			needSync = true;
 		}
 		if (needSync) {
-			// TODO possible improvement:
-			//  - first check for removed host files (frees up
-			//    space in virtual disk)
-			//  - next update existing files
-			//  - last add new host files
-			for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-				checkAlterFileInDisk(i);
-			}
-			scanHostDir(false);
-
+			syncWithHost();
 			flushCaches(); // e.g. sha1sum
 			// Let the diskdrive report the disk has been ejected.
 			// E.g. a turbor machine uses this to flush its
@@ -381,7 +372,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 						// virtual files.
 					}
 					// and store the newly read data again in the sector cache
-					// since checkAlterFileInDisk => updateFileInDisk only reads
+					// since checkModifiedHostFile => updateFileInDisk only reads
 					// altered data if filesize has been changed and not if only
 					// content in file has changed
 					memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
@@ -393,29 +384,65 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 	}
 }
 
-void DirAsDSK::scanHostDir(bool onlyNewFiles)
+void DirAsDSK::syncWithHost()
 {
-	// read directory and fill the fake disk
-	ReadDir dir(hostDir);
-	while (struct dirent* d = dir.getEntry()) {
-		string name(d->d_name);
-		// check if file is added to diskimage
-		if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
-			updateFileInDisk(name);
-		}
-	}
-}
+	// Check for removed host files. This frees up space in the virtual
+	// disk. Do this first because otherwise later actions may fail (run
+	// out of virtual disk space) for no good reason.
+	checkDeletedHostFiles();
 
-void DirAsDSK::checkAlterFileInDisk(const string& hostName)
-{
+	// Next update existing files. This may enlarge or shrink virtual
+	// files. In case not all host files fit on the virtual disk it's
+	// better to update the existing files than to (partly) add a too big
+	// new file and have no space left to enlarge the existing files.
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (mapDir[i].hostName == hostName) {
-			checkAlterFileInDisk(i);
+		checkModifiedHostFile(i);
+	}
+
+	// Last add new host files (this can only consume virtual disk space).
+	addNewHostFiles();
+}
+
+void DirAsDSK::checkDeletedHostFiles()
+{
+	for (unsigned dirIndex = 0; dirIndex < NUM_DIR_ENTRIES; ++dirIndex) {
+		if (!mapDir[dirIndex].inUse()) continue;
+
+		string fullHostName = hostDir + mapDir[dirIndex].hostName;
+		struct stat fst;
+		if (stat(fullHostName.c_str(), &fst) != 0) {
+			// TODO also check access permission
+			// error stat-ing file, assume it's been deleted
+			deleteMSXFile(dirIndex);
 		}
 	}
 }
 
-void DirAsDSK::checkAlterFileInDisk(unsigned dirIndex)
+void DirAsDSK::deleteMSXFile(unsigned dirIndex)
+{
+	// Delete it from the MSX DIR sectors by marking the first filename
+	// char as 0xE5.
+	mapDir[dirIndex].msxInfo.filename[0] = char(0xE5);
+	mapDir[dirIndex].hostName.clear(); // no longer mapped to host file
+
+	// Clear the FAT chain to free up space in the virtual disk.
+	unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
+	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
+		unsigned nextCl = readFAT(curCl);
+		writeFAT12(curCl, FREE_FAT);
+		unsigned logicalSector = clusterToSector(curCl);
+		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+			unsigned sector = logicalSector + i;
+			assert(sector < NUM_SECTORS);
+			sectorMap[sector].usage = CLEAN;
+			sectorMap[sector].dirIndex = 0;
+			sectorMap[sector].fileOffset = 0;
+		}
+		curCl = nextCl;
+	}
+}
+
+void DirAsDSK::checkModifiedHostFile(unsigned dirIndex)
 {
 	if (!mapDir[dirIndex].inUse()) return;
 
@@ -427,18 +454,9 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirIndex)
 			updateFileInDisk(dirIndex, fst);
 		}
 	} else {
-		// file can not be stat'ed => assume it has been deleted
-		// and thus delete it from the MSX DIR sectors by marking
-		// the first filename char as 0xE5
-		mapDir[dirIndex].msxInfo.filename[0] = char(0xE5);
-		mapDir[dirIndex].hostName.clear();
-		// Since we do not clear the FAT (a real MSX doesn't either)
-		// and all data is cached in memmory you now can use MSX-DOS
-		// undelete tools to restore the file on your host-OS, using
-		// the 8.3 msx name of course :-)
-		//
-		// TODO: It might be a good idea to mark all the sectors as
-		// CACHED instead of MIXED since the original file is gone...
+		// Only very rarely happens (because checkDeletedHostFiles()
+		// checked this just recently).
+		deleteMSXFile(dirIndex);
 	}
 }
 
@@ -574,7 +592,19 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	// DirAsDSK from importing the other (small) files in my directory.
 }
 
-void DirAsDSK::updateFileInDisk(const string& hostName)
+void DirAsDSK::addNewHostFiles()
+{
+	ReadDir dir(hostDir);
+	while (struct dirent* d = dir.getEntry()) {
+		string hostName = d->d_name;
+		if (!checkFileUsedInDSK(hostName)) {
+			// only if the file was not yet in the virtual disk
+			foundNewHostFile(hostName);
+		}
+	}
+}
+
+void DirAsDSK::foundNewHostFile(const string& hostName)
 {
 	string fullHostName = hostDir + hostName;
 	struct stat fst;
@@ -597,17 +627,7 @@ void DirAsDSK::updateFileInDisk(const string& hostName)
 		cliComm.printWarning("File too large: " + fullHostName);
 		return;
 	}
-	if (!checkFileUsedInDSK(hostName)) {
-		// add file to fakedisk
-		addFileToDSK(hostName, fst);
-	} else {
-		// really update file
-		checkAlterFileInDisk(hostName);
-	}
-}
 
-void DirAsDSK::addFileToDSK(const string& hostName, struct stat& fst)
-{
 	// Get empty dir entry
 	unsigned dirIndex = 0;
 	while (mapDir[dirIndex].inUse()) {
