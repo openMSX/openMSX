@@ -855,63 +855,21 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 		}
 	}
 
+	// Copy the new msx directory entry
+	memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
+
 	if (chgSize) {
 		// content changed, extract the file
 		// Cluster might have changed is this is a new file so chgClus
 		// is ignored. Also name might have been changed (on a turbo R
 		// the single shot Dir update when creating new files)
-		if (oldSize < newSize) {
-			// new size is bigger, file has grown
-			memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
-			extractCacheToFile(dirIndex);
-		} else {
-			// New size is smaller, file has been reduced. Luckily
-			// the entire file is in cache, we need this since on
-			// some MSX models during a copy from file to overwrite
-			// an existing file the sequence is that first the
-			// actual data is written and then the size is set to
-			// zero before it is set to the new value. If we didn't
-			// cache this, then all the 'mapped' sectors would lose
-			// their value.
-			memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
-			truncateCorrespondingFile(dirIndex);
-			if (newSize != 0) {
-				extractCacheToFile(dirIndex); // see copy remark above
-			}
-		}
+		extractCacheToFile(dirIndex);
 	}
 
 	if (!chgName && chgClus && !chgSize) {
 		cliComm.printWarning(
 			"This case of writing to DIR is not yet implemented "
 			"since we haven't encountered it in real life yet.");
-	}
-
-	// for now blindly take over info
-	memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
-}
-
-void DirAsDSK::truncateCorrespondingFile(unsigned dirIndex)
-{
-	if (!mapDir[dirIndex].inUse()) {
-		// Host file does not yet exist, create filename from msx name.
-		const char* msxName = mapDir[dirIndex].msxInfo.filename;
-		// If the msx file is deleted, we don't need to do anything.
-		if (msxName[0] == char(0xE5)) return;
-		string hostName = msxToHostName(msxName);
-		mapDir[dirIndex].hostName = hostName;
-	}
-	unsigned msxSize = mapDir[dirIndex].msxInfo.size;
-	mapDir[dirIndex].filesize = msxSize;
-
-	// stuff below can fail, so do it as the last thing in this method
-	try {
-		string fullHostName = hostDir + mapDir[dirIndex].hostName;
-		File file(fullHostName, File::CREATE);
-		file.truncate(msxSize);
-	} catch (FileException& e) {
-		cliComm.printWarning("Error while truncating host file: " +
-			mapDir[dirIndex].hostName + ": " + e.getMessage());
 	}
 }
 

@@ -60,7 +60,6 @@ private:
 	void checkModifiedHostFile(unsigned dirIndex);
 	void importHostFile(unsigned dirIndex, struct stat& fst);
 	void extractCacheToFile(unsigned dirIndex);
-	void truncateCorrespondingFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
