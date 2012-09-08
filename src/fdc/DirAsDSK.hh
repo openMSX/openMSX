@@ -27,49 +27,31 @@ public:
 		SECTORS_PER_DIR * DIR_ENTRIES_PER_SECTOR;
 	static const unsigned NUM_SECTORS = 1440;
 
-public:
-	DirAsDSK(CliComm& cliComm, const Filename& filename,
-	         SyncMode syncMode, BootSectorType bootSectorType);
-	virtual ~DirAsDSK();
+	// REDEFINE (first definition is in SectorAccessibleDisk.hh)
+	//  to solve link error with i686-apple-darwin9-gcc-4.0.1
+	static const unsigned SECTOR_SIZE = 512;
 
-private:
+public:
+	DirAsDSK(CliComm& cliComm, const Filename& hostDir,
+	         SyncMode syncMode, BootSectorType bootSectorType);
+
 	// SectorBasedDisk
 	virtual void readSectorImpl(unsigned sector, byte* buf);
 	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 
-	struct MappedDirEntry {
-		bool inUse() const { return !shortName.empty(); }
-
-		MSXDirEntry msxInfo;
-		std::string shortName;
-		int filesize; // used to detect changes that need to be updated in the
-		              // emulated disk, content changes are automatically
-		              // handled :-)
-	};
-
-	enum Usage { CLEAN, CACHED, MIXED };
-	struct ReverseSector {
-		unsigned long fileOffset;
-		Usage usage;
-		unsigned dirEntryNr;
-	};
-
-	struct SectorData {
-		byte data[SECTOR_SIZE];
-	};
-
+private:
 	void writeFATSector (unsigned sector, const byte* buf);
 	void writeDIRSector (unsigned sector, const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
-	void writeDIREntry(unsigned dirIndex, const MSXDirEntry& entry);
-	bool checkFileUsedInDSK(const std::string& filename);
+	void writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry);
+	bool checkFileUsedInDSK(const std::string& hostName);
 	bool checkMSXFileExists(const std::string& msxfilename);
-	void addFileToDSK(const std::string& filename, struct stat& fst);
-	void checkAlterFileInDisk(const std::string& filename);
+	void addFileToDSK(const std::string& hostName, struct stat& fst);
+	void checkAlterFileInDisk(const std::string& hostName);
 	void checkAlterFileInDisk(unsigned dirIndex);
 	void updateFileInDisk(unsigned dirIndex, struct stat& fst);
-	void updateFileInDisk(const std::string& filename);
+	void updateFileInDisk(const std::string& hostName);
 	void extractCacheToFile(unsigned dirIndex);
 	void truncateCorrespondingFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
@@ -78,31 +60,41 @@ private:
 	unsigned readFAT2(unsigned clnr);
 	void writeFAT12(unsigned clnr, unsigned val);
 	void writeFAT2 (unsigned clnr, unsigned val);
-	unsigned getStartCluster(const MSXDirEntry& entry);
-	bool readCache();
-	void saveCache();
-	std::string condenseName(const char* buf);
 	void updateFileFromAlteredFatOnly(unsigned someCluster);
 	void cleandisk();
 	void scanHostDir(bool onlyNewFiles);
 
+private:
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
+	const std::string hostDir;
+	const SyncMode syncMode;
 
-	MappedDirEntry mapDir[NUM_DIR_ENTRIES];
-	ReverseSector sectorMap[NUM_SECTORS];
-	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
-	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
+	struct {
+		bool inUse() const { return !hostName.empty(); }
+
+		MSXDirEntry msxInfo;
+		std::string hostName; // path relative to 'hostDir'
+		int filesize; // used to detect changes that need to be updated in the
+		              // emulated disk, content changes are automatically
+		              // handled :-)
+	} mapDir[NUM_DIR_ENTRIES];
+
+	enum Usage { CLEAN, CACHED, MIXED };
+	struct {
+		unsigned long fileOffset;
+		Usage usage;
+		unsigned dirIndex;
+	} sectorMap[NUM_SECTORS];
+
+	struct SectorData {
+		byte data[SECTOR_SIZE];
+	};
 
 	MSXBootSector bootBlock;
-	const std::string hostDir;
+	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
+	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 	typedef std::map<unsigned, SectorData> CachedSectors;
 	CachedSectors cachedSectors;
-
-	SyncMode syncMode;
-
-	// REDEFINE (first definition is in SectorAccessibleDisk.hh)
-	//  to solve link error with i686-apple-darwin9-gcc-4.0.1
-	static const unsigned SECTOR_SIZE;
 };
 
 } // namespace openmsx
