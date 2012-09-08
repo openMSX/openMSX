@@ -634,7 +634,11 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 	}
 
 	if (sector == 0) {
-		memcpy(&bootBlock, buf, SECTOR_SIZE);
+		// Ignore. We don't allow writing to the bootsector. It would
+		// be very bad if the MSX tried to format this disk using other
+		// disk parameters than this code assumes. It's also not useful
+		// to write a different bootprogram to this disk because it
+		// will be lost when this virtual disk is ejected.
 	} else if (sector < FIRST_DIR_SECTOR) {
 		writeFATSector(sector, buf);
 	} else if (sector < FIRST_DATA_SECTOR) {
