@@ -18,7 +18,7 @@ class CliComm;
 class DirAsDSK : public SectorBasedDisk
 {
 public:
-	enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL };
+	enum SyncMode { SYNC_READONLY, SYNC_FULL };
 	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
 
 	static const unsigned SECTORS_PER_FAT = 3;
@@ -59,7 +59,7 @@ private:
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void checkModifiedHostFile(unsigned dirIndex);
 	void importHostFile(unsigned dirIndex, struct stat& fst);
-	void extractCacheToFile(unsigned dirIndex);
+	void exportToHostFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);

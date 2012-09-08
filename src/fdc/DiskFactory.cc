@@ -28,8 +28,6 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 
 	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
 	syncDirAsDSKMap["read_only"] = DirAsDSK::SYNC_READONLY;
-	syncDirAsDSKMap["cached_write"] = DirAsDSK::SYNC_CACHEDWRITE;
-	syncDirAsDSKMap["nodelete"] = DirAsDSK::SYNC_NODELETE;
 	syncDirAsDSKMap["full"] = DirAsDSK::SYNC_FULL;
 	syncDirAsDSKSetting.reset(new EnumSetting<DirAsDSK::SyncMode>(
 		controller, "DirAsDSKmode",

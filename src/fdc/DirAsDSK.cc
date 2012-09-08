@@ -718,13 +718,13 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster)
 	// new cluster chain.
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (startCluster == mapDir[i].msxInfo.startCluster) {
-			extractCacheToFile(i);
+			exportToHostFile(i);
 			break;
 		}
 	}
 }
 
-void DirAsDSK::extractCacheToFile(unsigned dirIndex)
+void DirAsDSK::exportToHostFile(unsigned dirIndex)
 {
 	if (!mapDir[dirIndex].inUse()) {
 		// Host file does not yet exist, create filename from msx name
@@ -785,92 +785,28 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 {
-	unsigned oldClus = mapDir[dirIndex].msxInfo.startCluster;
-	unsigned newClus = newEntry.startCluster;
-	unsigned oldSize = mapDir[dirIndex].msxInfo.size;
-	unsigned newSize = newEntry.size;
-
-	// The 3 vital informations needed
-	bool chgName = memcmp(mapDir[dirIndex].msxInfo.filename, newEntry.filename, 8 + 3) != 0;
-	bool chgClus = oldClus != newClus;
-	bool chgSize = oldSize != newSize;
-
-	// Here are the possible combinations encountered in normal usage so far,
-	// the bool order is chgName chgClus chgSize
-	// 0 0 0 : nothing changed for this direntry... :-)
-	// 0 0 1 : File has grown or shrunk
-	// 0 1 1 : name remains but size and cluster changed
-	//         => second step in new file creation (checked on NMS8250)
-	// 1 0 0 : a) Only create a name and size+cluster still zero
-	//          => first step in new file creation (cheked on NMS8250)
-	//             if we start a new file the currentcluster can be set to zero
-	//             FI: on a Philips NMS8250 in Basic try : copy"con"to:"a.txt"
-	//             it will first write the first 7 sectors, then the data, then
-	//             update the 7 first sectors with correct data
-	//         b) name changed, others remained unchanged
-	//          => file renamed
-	//         c) first char of name changed to 0xE5, others remained unchanged
-	//          => file deleted
-	// 1 1 1 : a new file has been created (as done by a Panasonic FS A1GT)
-	if (chgName && !chgClus && !chgSize) {
-		if (newEntry.filename[0] == char(0xE5) && syncMode == SYNC_FULL) {
-			// dir entry has been deleted
-			// delete file from host OS and 'clear' all sector
-			// data pointing to this HOST OS file
+	if (memcmp(mapDir[dirIndex].msxInfo.filename, newEntry.filename, 8 + 3)) {
+		// name in the direntry was changed
+		if (mapDir[dirIndex].inUse()) {
+			// If there is an associated hostfile, then delete it
+			// (in case of a rename, the file will be recreated
+			// below).
 			string fullHostName = hostDir + mapDir[dirIndex].hostName;
-			FileOperations::unlink(fullHostName);
+			FileOperations::unlink(fullHostName); // ignore return value
 			for (unsigned i = FIRST_DATA_SECTOR; i < NUM_SECTORS; ++i) {
 				if (sectorMap[i].dirIndex == dirIndex) {
 					 sectorMap[i].dirIndex = unsigned(-1);
 				}
 			}
 			mapDir[dirIndex].hostName.clear();
-
-		} else if ((newEntry.filename[0] != char(0xE5)) &&
-			   (syncMode == SYNC_FULL || syncMode == SYNC_NODELETE)) {
-			string hostName = msxToHostName(newEntry.filename);
-			string newFilename = hostDir + hostName;
-			if (newClus == 0 && newSize == 0) {
-				// creating a new file
-				mapDir[dirIndex].hostName = hostName;
-				// we do not need to write anything since the MSX
-				// will update this later when the size is altered
-				try {
-					File file(newFilename, File::TRUNCATE);
-				} catch (FileException& e) {
-					cliComm.printWarning("Couldn't create new file: " + e.getMessage());
-				}
-			} else {
-				// rename file on host OS
-				string oldFilename = hostDir + mapDir[dirIndex].hostName;
-				if (rename(oldFilename.c_str(), newFilename.c_str()) == 0) {
-					// renaming on host OS succeeeded
-					mapDir[dirIndex].hostName = hostName;
-				}
-			}
-		} else {
-			cliComm.printWarning(
-				"File has been renamed in emulated disk. Host OS file (" +
-				mapDir[dirIndex].hostName + ") remains untouched!");
 		}
 	}
 
 	// Copy the new msx directory entry
 	memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
 
-	if (chgSize) {
-		// content changed, extract the file
-		// Cluster might have changed is this is a new file so chgClus
-		// is ignored. Also name might have been changed (on a turbo R
-		// the single shot Dir update when creating new files)
-		extractCacheToFile(dirIndex);
-	}
-
-	if (!chgName && chgClus && !chgSize) {
-		cliComm.printWarning(
-			"This case of writing to DIR is not yet implemented "
-			"since we haven't encountered it in real life yet.");
-	}
+	// (Re-)export the full file
+	exportToHostFile(dirIndex);
 }
 
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
@@ -880,13 +816,6 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 
 	// Buffer the write, whether the sector is mapped to a file or not.
 	memcpy(sectors[sector], buf, SECTOR_SIZE);
-
-	// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
-	if (syncMode == SYNC_CACHEDWRITE) {
-		// change to a regular cached sector
-		sectorMap[sector].dirIndex = unsigned(-1);
-		return;
-	}
 
 	unsigned dirIndex = sectorMap[sector].dirIndex;
 	if (dirIndex == unsigned(-1)) {
