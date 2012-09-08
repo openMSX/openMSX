@@ -52,6 +52,7 @@ private:
 	void syncWithHost();
 	void checkDeletedHostFiles();
 	void deleteMSXFile(unsigned dirIndex);
+	void freeFATChain(unsigned curCl);
 	void addNewHostFiles();
 	void foundNewHostFile(const std::string& hostName);
 	bool checkFileUsedInDSK(const std::string& hostName);

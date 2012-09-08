@@ -393,7 +393,13 @@ void DirAsDSK::deleteMSXFile(unsigned dirIndex)
 	mapDir[dirIndex].hostName.clear(); // no longer mapped to host file
 
 	// Clear the FAT chain to free up space in the virtual disk.
-	unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
+	freeFATChain(mapDir[dirIndex].msxInfo.startCluster);
+
+}
+
+void DirAsDSK::freeFATChain(unsigned curCl)
+{
+	// Follow a FAT chain and mark all clusters on this chain as free
 	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
 		unsigned nextCl = readFAT(curCl);
 		writeFAT12(curCl, FREE_FAT);
@@ -541,24 +547,7 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 
 	// clear remains of FAT if needed
 	if (moreClustersInChain) {
-		while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-			writeFAT12(curCl, FREE_FAT);
-			unsigned logicalSector = clusterToSector(curCl);
-			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
-				unsigned sector = logicalSector + i;
-				assert(sector < NUM_SECTORS);
-				sectorMap[sector].dirIndex = unsigned(-1);
-			}
-			prevCl = curCl;
-			curCl = readFAT(curCl);
-		}
-		writeFAT12(prevCl, FREE_FAT);
-		unsigned logicalSector = clusterToSector(prevCl);
-		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
-			unsigned sector = logicalSector + i;
-			assert(sector < NUM_SECTORS);
-			sectorMap[sector].dirIndex = unsigned(-1);
-		}
+		freeFATChain(curCl);
 	}
 
 	// write (possibly truncated) file size
