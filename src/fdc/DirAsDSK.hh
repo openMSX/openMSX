@@ -42,6 +42,7 @@ public:
 	virtual void readSectorImpl(unsigned sector, byte* buf);
 	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
+	virtual void checkCaches();
 
 private:
 	void writeFATSector (unsigned sector, const byte* buf);
@@ -68,7 +69,7 @@ private:
 	void scanHostDir(bool onlyNewFiles);
 
 private:
-	DiskChanger& diskChanger; // used to query time
+	DiskChanger& diskChanger; // used to query time / report disk change
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 	const std::string hostDir;
 	const SyncMode syncMode;

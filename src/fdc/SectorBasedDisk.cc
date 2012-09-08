@@ -49,6 +49,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 	// each time we re-read the track data (because emutime has passed).
 	// Typically the software will also read several sectors from the same
 	// track before moving to the next.
+	checkCaches();
 	int num = track | (side << 8);
 	if (num == cachedTrackNum) {
 		output = cachedTrackData;

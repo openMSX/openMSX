@@ -126,6 +126,11 @@ bool DiskChanger::peekDiskChanged() const
 	return diskChangedFlag;
 }
 
+void DiskChanger::forceDiskChange()
+{
+	diskChangedFlag = true;
+}
+
 Disk& DiskChanger::getDisk()
 {
 	return *disk;

@@ -44,6 +44,7 @@ public:
 	const std::string& getDriveName() const;
 	const DiskName& getDiskName() const;
 	bool peekDiskChanged() const;
+	void forceDiskChange();
 	Disk& getDisk();
 
 	// DiskContainer

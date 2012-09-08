@@ -75,6 +75,7 @@ bool SectorAccessibleDisk::hasPatches() const
 
 Sha1Sum SectorAccessibleDisk::getSha1Sum()
 {
+	checkCaches();
 	if (sha1cache.empty()) {
 		try {
 			setPeekMode(true);
@@ -135,6 +136,11 @@ void SectorAccessibleDisk::forceWriteProtect()
 bool SectorAccessibleDisk::isDummyDisk() const
 {
 	return false;
+}
+
+void SectorAccessibleDisk::checkCaches()
+{
+	// nothing
 }
 
 void SectorAccessibleDisk::flushCaches()

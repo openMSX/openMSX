@@ -249,6 +249,24 @@ bool DirAsDSK::isWriteProtectedImpl() const
 	return syncMode == SYNC_READONLY;
 }
 
+void DirAsDSK::checkCaches()
+{
+	bool needSync;
+	if (Scheduler* scheduler = diskChanger.getScheduler()) {
+		EmuTime now = scheduler->getCurrentTime();
+		EmuDuration delta = now - lastAccess;
+		needSync = delta > EmuDuration::sec(1);
+		// Do not update lastAccess because we don't actually call
+		// syncWithHost().
+	} else {
+		// happens when dirasdisk is used in virtual_drive
+		needSync = true;
+	}
+	if (needSync) {
+		flushCaches();
+	}
+}
+
 void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 {
 	assert(sector < NUM_SECTORS);
@@ -304,6 +322,12 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 				checkAlterFileInDisk(i);
 			}
 			scanHostDir(false);
+
+			flushCaches(); // e.g. sha1sum
+			// Let the diskdrive report the disk has been ejected.
+			// E.g. a turbor machine uses this to flush its
+			// internal disk caches.
+			diskChanger.forceDiskChange();
 		}
 	}
 

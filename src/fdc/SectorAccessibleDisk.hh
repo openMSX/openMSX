@@ -60,6 +60,7 @@ protected:
 	void setPeekMode(bool peek) { peekMode = peek; }
 	bool isPeekMode() const { return peekMode; }
 
+	virtual void checkCaches();
 	virtual void flushCaches();
 
 private:
