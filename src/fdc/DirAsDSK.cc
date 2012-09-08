@@ -137,6 +137,15 @@ static unsigned clusterToSector(unsigned cluster)
 	            (cluster - FIRST_CLUSTER);
 }
 
+static void sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset)
+{
+	assert(sector >= FIRST_DATA_SECTOR);
+	assert(sector < DirAsDSK::NUM_SECTORS);
+	sector -= FIRST_DATA_SECTOR;
+	cluster = (sector / SECTORS_PER_CLUSTER) + FIRST_CLUSTER;
+	offset  = (sector % SECTORS_PER_CLUSTER) * DirAsDSK::SECTOR_SIZE;
+}
+
 MSXDirEntry& DirAsDSK::msxDir(unsigned dirIndex)
 {
 	assert(dirIndex < NUM_DIR_ENTRIES);
@@ -223,12 +232,8 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	setNbSides(2);
 
 	// Initially the whole disk is filled with 0xE5 (at least on Philips
-	// NMS8250). And none of the sectors is mapped to a file.
-	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
-		sectorMap[i].dirIndex = unsigned(-1);
-		sectorMap[i].fileOffset = 0; // dummy value
-		memset(sectors[i], 0xE5, SECTOR_SIZE);
-	}
+	// NMS8250).
+	memset(sectors, 0xE5, sizeof(sectors));
 
 	// Use selected bootsector
 	const byte* bootSector = bootSectorType == BOOTSECTOR_DOS1
@@ -370,12 +375,6 @@ void DirAsDSK::freeFATChain(unsigned curCl)
 	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
 		unsigned nextCl = readFAT(curCl);
 		writeFAT12(curCl, FREE_FAT);
-		unsigned logicalSector = clusterToSector(curCl);
-		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
-			unsigned sector = logicalSector + i;
-			assert(sector < NUM_SECTORS);
-			sectorMap[sector].dirIndex = unsigned(-1);
-		}
 		curCl = nextCl;
 	}
 }
@@ -454,8 +453,6 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				sectorMap[sector].dirIndex = dirIndex;
-				sectorMap[sector].fileOffset = hostSize - remainingSize;
 				byte* buf = sectors[sector];
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				file.read(buf, std::min(remainingSize, SECTOR_SIZE));
@@ -659,18 +656,9 @@ void DirAsDSK::syncFATChanges()
 
 void DirAsDSK::exportFileFromFATChange(unsigned cluster)
 {
-	// Search for the first cluster in the chain that contains 'cluster'
-	// Note: worst case (this implementation of) the search is O(N^2), but
-	// because usually FAT chains are allocated in ascending order, this
-	// search is fast O(N).
-	unsigned startCluster = cluster;
-	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
-		if (readFAT(i) == startCluster) {
-			// found a predecessor
-			startCluster = i;
-			i = FIRST_CLUSTER - 1; // restart search
-		}
-	}
+	// Get first cluster in the FAT chain that contains 'cluster'
+	unsigned chainLength; // not used
+	unsigned startCluster = getChainStart(cluster, chainLength);
 
 	// Copy this whole chain from FAT1 to FAT2 (so that the loop in
 	// syncFATChanges() sees this part is already handled).
@@ -683,12 +671,39 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster)
 
 	// Find the corresponding direntry and (if found) export file based on
 	// new cluster chain.
-	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (startCluster == msxDir(i).startCluster) {
-			exportToHostFile(i);
-			break;
+	unsigned dirIndex = getDirEntryForCluster(startCluster);
+	if (dirIndex != unsigned(-1)) {
+		exportToHostFile(dirIndex);
+	}
+}
+
+unsigned DirAsDSK::getChainStart(unsigned cluster, unsigned& chainLength)
+{
+	// Search for the first cluster in the chain that contains 'cluster'
+	// Note: worst case (this implementation of) the search is O(N^2), but
+	// because usually FAT chains are allocated in ascending order, this
+	// search is fast O(N).
+	chainLength = 0;
+	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
+		if (readFAT(i) == cluster) {
+			// found a predecessor
+			cluster = i;
+			++chainLength;
+			i = FIRST_CLUSTER - 1; // restart search
 		}
 	}
+	return cluster;
+}
+
+unsigned DirAsDSK::getDirEntryForCluster(unsigned cluster)
+{
+	// Find the direntry with given start cluster
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
+		if (msxDir(i).startCluster == cluster) {
+			return i;
+		}
+	}
+	return unsigned(-1); // not found
 }
 
 void DirAsDSK::exportToHostFile(unsigned dirIndex)
@@ -720,8 +735,6 @@ void DirAsDSK::exportToHostFile(unsigned dirIndex)
 				assert(sector < NUM_SECTORS);
 				unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
 				file.write(sectors[sector], writeSize);
-				sectorMap[sector].dirIndex = dirIndex;
-				sectorMap[sector].fileOffset = offset;
 				offset += SECTOR_SIZE;
 			}
 			if (offset >= msxSize) break;
@@ -758,11 +771,6 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 			// below).
 			string fullHostName = hostDir + mapDir[dirIndex].hostName;
 			FileOperations::unlink(fullHostName); // ignore return value
-			for (unsigned i = FIRST_DATA_SECTOR; i < NUM_SECTORS; ++i) {
-				if (sectorMap[i].dirIndex == dirIndex) {
-					 sectorMap[i].dirIndex = unsigned(-1);
-				}
-			}
 			mapDir[dirIndex].hostName.clear();
 		}
 	}
@@ -782,14 +790,20 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	// Buffer the write, whether the sector is mapped to a file or not.
 	memcpy(sectors[sector], buf, SECTOR_SIZE);
 
-	unsigned dirIndex = sectorMap[sector].dirIndex;
+	// Get first cluster in the FAT chain that contains this sector.
+	unsigned cluster, offset, chainLength;
+	sectorToCluster(sector, cluster, offset);
+	unsigned startCluster = getChainStart(cluster, chainLength);
+	offset += (SECTOR_SIZE * SECTORS_PER_CLUSTER) * chainLength;
+
+	// Get corresponding directory entry.
+	unsigned dirIndex = getDirEntryForCluster(startCluster);
 	if (dirIndex == unsigned(-1)) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;
 	}
 
 	// Actually write data to host file.
-	unsigned offset = sectorMap[sector].fileOffset;
 	string fullHostName = hostDir + mapDir[dirIndex].hostName;
 	try {
 		File file(fullHostName);

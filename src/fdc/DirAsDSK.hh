@@ -71,6 +71,8 @@ private:
 	void writeFAT2 (unsigned clnr, unsigned val);
 	void syncFATChanges();
 	void exportFileFromFATChange(unsigned cluster);
+	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
+	unsigned getDirEntryForCluster(unsigned cluster);
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
@@ -98,14 +100,6 @@ private:
 		              // filesize, except when the host file was
 		              // truncated.
 	} mapDir[NUM_DIR_ENTRIES];
-
-	// For each (data-)sector we track which part of which file it
-	// represents. This structure exists only for performance, in theory we
-	// could at any time recalculate this from the FAT and DIR sectors.
-	struct {
-		unsigned long fileOffset;
-		unsigned dirIndex; // -1 iff not part of a file
-	} sectorMap[NUM_SECTORS];
 };
 
 } // namespace openmsx
