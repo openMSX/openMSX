@@ -23,6 +23,8 @@ namespace openmsx {
 static const unsigned NUM_FATS = 2;
 static const unsigned SECTORS_PER_CLUSTER = 2;
 static const unsigned FIRST_FAT_SECTOR = 1;
+static const unsigned FIRST_SECTOR_2ND_FAT =
+	FIRST_FAT_SECTOR + DirAsDSK::SECTORS_PER_FAT;
 static const unsigned FIRST_DIR_SECTOR =
 	FIRST_FAT_SECTOR + NUM_FATS * DirAsDSK::SECTORS_PER_FAT;
 static const unsigned FIRST_DATA_SECTOR =
@@ -74,10 +76,19 @@ static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 	}
 }
 
+byte* DirAsDSK::fat()
+{
+	return sectors[FIRST_FAT_SECTOR];
+}
+byte* DirAsDSK::fat2()
+{
+	return sectors[FIRST_SECTOR_2ND_FAT];
+}
+
 // Read entry from FAT
 unsigned DirAsDSK::readFAT(unsigned cluster)
 {
-	return readFATHelper(fat, cluster);
+	return readFATHelper(fat(), cluster);
 }
 
 // Read entry from 2nd FAT
@@ -87,20 +98,20 @@ unsigned DirAsDSK::readFAT(unsigned cluster)
 // FATs always contain identical values).
 unsigned DirAsDSK::readFAT2(unsigned cluster)
 {
-	return readFATHelper(fat2, cluster);
+	return readFATHelper(fat2(), cluster);
 }
 
 // Write an entry to both FAT1 and FAT2
 void DirAsDSK::writeFAT12(unsigned cluster, unsigned val)
 {
-	writeFATHelper(fat,  cluster, val);
-	writeFATHelper(fat2, cluster, val);
+	writeFATHelper(fat (), cluster, val);
+	writeFATHelper(fat2(), cluster, val);
 }
 
 // Write an entry to FAT2 (see note at readFAT2())
 void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
 {
-	writeFATHelper(fat2, cluster, val);
+	writeFATHelper(fat2(), cluster, val);
 }
 
 // Returns MAX_CLUSTER in case of no more free clusters
@@ -126,11 +137,19 @@ static unsigned clusterToSector(unsigned cluster)
 	            (cluster - FIRST_CLUSTER);
 }
 
+MSXDirEntry& DirAsDSK::msxDir(unsigned dirIndex)
+{
+	assert(dirIndex < NUM_DIR_ENTRIES);
+	MSXDirEntry* dirs = reinterpret_cast<MSXDirEntry*>(
+		sectors[FIRST_DIR_SECTOR]);
+	return dirs[dirIndex];
+}
+
 // Check if a msx filename is used in the emulated MSX disk
 bool DirAsDSK::checkMSXFileExists(const string& msxFilename)
 {
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (memcmp(mapDir[i].msxInfo.filename,
+		if (memcmp(msxDir(i).filename,
 			   msxFilename.data(), 8 + 3) == 0) {
 			return true;
 		}
@@ -203,46 +222,40 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	setSectorsPerTrack(9);
 	setNbSides(2);
 
-	// use selected bootsector
-	const byte* bootSector =
-		  bootSectorType == BOOTSECTOR_DOS1
-		? BootBlocks::dos1BootBlock
-		: BootBlocks::dos2BootBlock;
-	memcpy(&bootBlock, bootSector, sizeof(bootBlock));
+	// Initially the whole disk is filled with 0xE5 (at least on Philips
+	// NMS8250). And none of the sectors is mapped to a file.
+	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
+		sectorMap[i].dirIndex = unsigned(-1);
+		sectorMap[i].fileOffset = 0; // dummy value
+		memset(sectors[i], 0xE5, SECTOR_SIZE);
+	}
 
-	// make a clean initial disk
-	cleandisk();
-	// Import the host filesystem.
-	syncWithHost();
-}
+	// Use selected bootsector
+	const byte* bootSector = bootSectorType == BOOTSECTOR_DOS1
+	                       ? BootBlocks::dos1BootBlock
+	                       : BootBlocks::dos2BootBlock;
+	memcpy(sectors[0], bootSector, SECTOR_SIZE);
 
-void DirAsDSK::cleandisk()
-{
-	// assign empty directory entries
+	// Clear FAT1 + FAT2
+	memset(fat(), 0, SECTOR_SIZE * SECTORS_PER_FAT * NUM_FATS);
+	// First 3 bytes are initialized specially:
+	//  'cluster 0' contains the media descriptor (0xF9 for us)
+	//  'cluster 1' is marked as EOF_FAT
+	//  So cluster 2 is the first usable cluster number
+	fat ()[0] = 0xF9; fat ()[1] = 0xFF; fat ()[2] = 0xFF;
+	fat2()[0] = 0xF9; fat2()[1] = 0xFF; fat2()[2] = 0xFF;
+
+	// Assign empty directory entries, none of these entries is currently
+	// associated with a host file.
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		memset(&mapDir[i].msxInfo, 0, sizeof(MSXDirEntry));
+		memset(&msxDir(i), 0, sizeof(MSXDirEntry));
 		mapDir[i].hostName.clear();
 		mapDir[i].mtime = 0;
 		mapDir[i].filesize = 0;
 	}
 
-	// Clear FAT1 + FAT2
-	memset(fat,  0, sizeof(fat ));
-	memset(fat2, 0, sizeof(fat2));
-	// First 3 bytes are initialized specially:
-	//  'cluster 0' contains the media descriptor (0xF9 for us)
-	//  'cluster 1' is marked as EOF_FAT
-	//  So cluster 2 is the first usable cluster number
-	fat [0] = 0xF9; fat [1] = 0xFF; fat [2] = 0xFF;
-	fat2[0] = 0xF9; fat2[1] = 0xFF; fat2[2] = 0xFF;
-
-	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
-		sectorMap[i].dirIndex = unsigned(-1);
-		sectorMap[i].fileOffset = 0; // dummy value
-
-		// 0xE5 is the value used on the Philips NMS8250
-		memset(sectors[i], 0xE5, SECTOR_SIZE);
-	}
+	// Import the host filesystem.
+	syncWithHost();
 }
 
 bool DirAsDSK::isWriteProtectedImpl() const
@@ -272,36 +285,10 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 {
 	assert(sector < NUM_SECTORS);
 
-	// This method behaves different in 'peek-mode' (see
-	// SectorAccessibleDisk.hh) In peek-mode we don't sync with the host
-	// filesystem. Instead all reads come directly from the in-memory
-	// caches. Peek-mode is (only) used to read the (whole) disk to
-	// calculate a sha1sum for the periodic reverse snapshots. This is far
-	// from ideal: ideally we want each snapshot to have an up-to-date
-	// sha1sum for the dir-as-disk image. But this mode was required to
-	// work around a far worse problem: disk-corruption. It happens for
-	// example in the following scenario:
-	// - Save a file to dir-as-disk using a Philips-NMS-8250 (disk rom
-	//   matters). Also the timing matters, I could easily trigger the
-	//   problem while saving a screen 5 image in Paint4, but not when
-	//   saving a similar file in MSX-BASIC. Now the following sectors are
-	//   read/written:
-	// - First the directory entry is created with the correct filename,
-	//   but filesize and start-cluster are both still set to zero.
-	// - Data sectors are written.
-	// - Every second the writes are interrupted with a read of the whole
-	//   disk (sectors 0-1439) to calculate the sha1sum. At this point this
-	//   doesn't cause problems (yet).
-	// - Now the directory entry is written with the correct filesize and
-	//   cluster number. But at this point the FAT is not yet updated.
-	// - Often at this point the whole disk is read again and this leads
-	//   to disk corruption: Because the host filesize and the filesize
-	//   in the directory entry don't match both files will be synced, but
-	//   because the FAT is not yet in a consistent state, this sync will
-	//   go wrong (in the end the filesize in the directory entry will be
-	//   set to the wrong value).
-	// - Last the MSX writes the FAT sectors, but the earlier host sync
-	//   already screwed up the filesize in the directory entry.
+	// 'Peek-mode' is used to periodically calculate a sha1sum for the
+	// whole disk (used by reverse). We don't want this calculation to
+	// interfer with the access time we use for normal read/writes. So in
+	// peek-mode we skip the whole sync-step.
 	if (!isPeekMode()) {
 		bool needSync;
 		if (Scheduler* scheduler = diskChanger.getScheduler()) {
@@ -325,23 +312,17 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 
 	if (sector == 0) {
 		// copy our fake bootsector into the buffer
-		memcpy(buf, &bootBlock, SECTOR_SIZE);
+		memcpy(buf, sectors[sector], SECTOR_SIZE);
 
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// copy correct sector from FAT
 		// Even if the MSX reads FAT2, we always return the content of FAT1.
 		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
-		memcpy(buf, &fat[fatSector * SECTOR_SIZE], SECTOR_SIZE);
+		memcpy(buf, sectors[FIRST_FAT_SECTOR + fatSector], SECTOR_SIZE);
 
 	} else if (sector < FIRST_DATA_SECTOR) {
-		// create correct DIR sector
-		sector -= FIRST_DIR_SECTOR;
-		unsigned dirCount = sector * DIR_ENTRIES_PER_SECTOR;
-		for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i, ++dirCount) {
-			memcpy(&buf[sizeof(MSXDirEntry) * i],
-			       &(mapDir[dirCount].msxInfo),
-			       sizeof(MSXDirEntry));
-		}
+		// simply return our internal directory entries
+		memcpy(buf, &sectors[sector], SECTOR_SIZE);
 
 	} else {
 		// Read data sector.
@@ -390,12 +371,11 @@ void DirAsDSK::deleteMSXFile(unsigned dirIndex)
 {
 	// Delete it from the MSX DIR sectors by marking the first filename
 	// char as 0xE5.
-	mapDir[dirIndex].msxInfo.filename[0] = char(0xE5);
+	msxDir(dirIndex).filename[0] = char(0xE5);
 	mapDir[dirIndex].hostName.clear(); // no longer mapped to host file
 
 	// Clear the FAT chain to free up space in the virtual disk.
-	freeFATChain(mapDir[dirIndex].msxInfo.startCluster);
-
+	freeFATChain(msxDir(dirIndex).startCluster);
 }
 
 void DirAsDSK::freeFATChain(unsigned curCl)
@@ -444,11 +424,11 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
 	              : 0;
-	mapDir[dirIndex].msxInfo.time = t1;
+	msxDir(dirIndex).time = t1;
 	int t2 = mtim ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 	                ((mtim->tm_year + 1900 - 1980) << 9)
 	              : 0;
-	mapDir[dirIndex].msxInfo.date = t2;
+	msxDir(dirIndex).date = t2;
 
 	// Set host modification time (and filesize)
 	// Note: this is the _only_ place where we update the mapdir.mtime
@@ -468,7 +448,7 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 	mapDir[dirIndex].mtime = fst.st_mtime;
 
 	bool moreClustersInChain = true;
-	unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
+	unsigned curCl = msxDir(dirIndex).startCluster;
 	// If there is no cluster assigned yet to this file (curCl == 0), then
 	// find a free cluster. Treat invalid cases in the same way (curCl == 1
 	// or curCl >= MAX_CLUSTER).
@@ -504,7 +484,7 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 			if (prevCl) {
 				writeFAT12(prevCl, curCl);
 			} else {
-				mapDir[dirIndex].msxInfo.startCluster = curCl;
+				msxDir(dirIndex).startCluster = curCl;
 			}
 			prevCl = curCl;
 
@@ -543,7 +523,7 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 	} else {
 		// Filesize zero: don't allocate any cluster, write zero
 		// cluster number (checked on a MSXTurboR, DOS2 mode).
-		mapDir[dirIndex].msxInfo.startCluster = FREE_FAT;
+		msxDir(dirIndex).startCluster = FREE_FAT;
 	}
 
 	// clear remains of FAT if needed
@@ -552,7 +532,7 @@ void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 	}
 
 	// write (possibly truncated) file size
-	mapDir[dirIndex].msxInfo.size = hostSize - remainingSize;
+	msxDir(dirIndex).size = hostSize - remainingSize;
 
 	// TODO in case of an error (disk image full, or host file read error),
 	// wouldn't it be better to remove the (half imported) msx file again?
@@ -619,7 +599,7 @@ void DirAsDSK::foundNewHostFile(const string& hostName)
 
 	// Fill in filenames and import the file content.
 	mapDir[dirIndex].hostName = hostName;
-	memcpy(&(mapDir[dirIndex].msxInfo.filename), msxFilename.data(), 8 + 3);
+	memcpy(msxDir(dirIndex).filename, msxFilename.data(), 8 + 3);
 	importHostFile(dirIndex, fst);
 }
 
@@ -661,12 +641,9 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	//  - On (any) write to FAT2 we will sync the changes made by the
 	//    previous FAT1 writes (the actual sector data that is written to
 	//    FAT2 is ignored).
-	static const unsigned FIRST_SECTOR_2ND_FAT =
-	       FIRST_FAT_SECTOR + SECTORS_PER_FAT;
 	if (sector < FIRST_SECTOR_2ND_FAT) {
 		// write to FAT1, only buffer the data, don't update host files
-		unsigned fatSector = sector - FIRST_FAT_SECTOR;
-		memcpy(&fat[fatSector * SECTOR_SIZE], buf, SECTOR_SIZE);
+		memcpy(sectors[sector], buf, SECTOR_SIZE);
 	} else {
 		// Write to FAT2 (any FAT2 sector, actual written data is
 		// ignored). Sync host files based on changes written earlier
@@ -684,7 +661,7 @@ void DirAsDSK::syncFATChanges()
 	}
 	// After a write to FAT2 (any sector, any data), our (full) fat1 and
 	// fat2 buffers should be identical. Note: we can't use
-	//   assert(memcmp(fat, fat2, sizeof(fat)) == 0);
+	//   assert(memcmp(fat(), fat2(), SECTOR_SIZE * SECTORS_PER_FAT) == 0);
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unsused part at the end. And for example the 'CALL
@@ -721,7 +698,7 @@ void DirAsDSK::exportFileFromFATChange(unsigned cluster)
 	// Find the corresponding direntry and (if found) export file based on
 	// new cluster chain.
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (startCluster == mapDir[i].msxInfo.startCluster) {
+		if (startCluster == msxDir(i).startCluster) {
 			exportToHostFile(i);
 			break;
 		}
@@ -732,7 +709,7 @@ void DirAsDSK::exportToHostFile(unsigned dirIndex)
 {
 	if (!mapDir[dirIndex].inUse()) {
 		// Host file does not yet exist, create filename from msx name
-		const char* msxName = mapDir[dirIndex].msxInfo.filename;
+		const char* msxName = msxDir(dirIndex).filename;
 		// If the msx file is deleted, we don't need to do anything
 		if (msxName[0] == char(0xE5)) return;
 		string hostName = msxToHostName(msxName);
@@ -743,8 +720,8 @@ void DirAsDSK::exportToHostFile(unsigned dirIndex)
 	//  - Length of FAT-chain * cluster-size, this chain can have length=0
 	//    if startCluster is not (yet) filled in.
 	try {
-		unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
-		unsigned msxSize = mapDir[dirIndex].msxInfo.size;
+		unsigned curCl = msxDir(dirIndex).startCluster;
+		unsigned msxSize = msxDir(dirIndex).size;
 
 		string fullHostName = hostDir + mapDir[dirIndex].hostName;
 		File file(fullHostName, File::TRUNCATE);
@@ -772,24 +749,22 @@ void DirAsDSK::exportToHostFile(unsigned dirIndex)
 
 void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 {
-	// We assume that the dir entry is updated last, so the fat and actual
-	// sector data should already contain the correct data. Most MSX disk
-	// roms honour this behaviour for normal fileactions. Of course some
-	// diskcaching programs and disk optimizers can abandon this behaviour
-	// and in such case the logic used here goes haywire!!
+	// Look for changed directory entries
 	unsigned dirIndex = (sector - FIRST_DIR_SECTOR) * DIR_ENTRIES_PER_SECTOR;
 	for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i, ++dirIndex) {
 		const MSXDirEntry& newEntry = *reinterpret_cast<const MSXDirEntry*>(
 			&buf[sizeof(MSXDirEntry) * i]);
-		if (memcmp(mapDir[dirIndex].msxInfo.filename, &newEntry, sizeof(newEntry)) != 0) {
+		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {
 			writeDIREntry(dirIndex, newEntry);
 		}
 	}
+	// At this point sector should be updated
+	assert(memcmp(sectors[sector], buf, SECTOR_SIZE) == 0);
 }
 
 void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 {
-	if (memcmp(mapDir[dirIndex].msxInfo.filename, newEntry.filename, 8 + 3)) {
+	if (memcmp(msxDir(dirIndex).filename, newEntry.filename, 8 + 3)) {
 		// name in the direntry was changed
 		if (mapDir[dirIndex].inUse()) {
 			// If there is an associated hostfile, then delete it
@@ -807,7 +782,7 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 	}
 
 	// Copy the new msx directory entry
-	memcpy(&(mapDir[dirIndex].msxInfo), &newEntry, sizeof(newEntry));
+	memcpy(&msxDir(dirIndex), &newEntry, sizeof(newEntry));
 
 	// (Re-)export the full file
 	exportToHostFile(dirIndex);
@@ -833,7 +808,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	try {
 		File file(fullHostName);
 		file.seek(offset);
-		unsigned msxSize = mapDir[dirIndex].msxInfo.size;
+		unsigned msxSize = msxDir(dirIndex).size;
 		if (msxSize > offset) {
 			unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
 			file.write(buf, writeSize);

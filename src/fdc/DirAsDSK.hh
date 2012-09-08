@@ -45,6 +45,9 @@ public:
 	virtual void checkCaches();
 
 private:
+	byte* fat();
+	byte* fat2();
+	MSXDirEntry& msxDir(unsigned dirIndex);
 	void writeFATSector (unsigned sector, const byte* buf);
 	void writeDIRSector (unsigned sector, const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
@@ -68,7 +71,6 @@ private:
 	void writeFAT2 (unsigned clnr, unsigned val);
 	void syncFATChanges();
 	void exportFileFromFATChange(unsigned cluster);
-	void cleandisk();
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
@@ -87,7 +89,6 @@ private:
 	struct {
 		bool inUse() const { return !hostName.empty(); }
 
-		MSXDirEntry msxInfo;
 		std::string hostName; // path relative to 'hostDir'
 		// The following two are used to detect changes in the host
 		// file compared to the last host->virtual-disk sync.
@@ -98,14 +99,13 @@ private:
 		              // truncated.
 	} mapDir[NUM_DIR_ENTRIES];
 
+	// For each (data-)sector we track which part of which file it
+	// represents. This structure exists only for performance, in theory we
+	// could at any time recalculate this from the FAT and DIR sectors.
 	struct {
 		unsigned long fileOffset;
 		unsigned dirIndex; // -1 iff not part of a file
 	} sectorMap[NUM_SECTORS];
-
-	MSXBootSector bootBlock;
-	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
-	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 };
 
 } // namespace openmsx
