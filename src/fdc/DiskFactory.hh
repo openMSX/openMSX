@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class Reactor;
+class DiskChanger;
 class Disk;
 template <class T> class EnumSetting;
 
@@ -16,7 +17,7 @@ class DiskFactory
 {
 public:
 	explicit DiskFactory(Reactor& reactor);
-	Disk* createDisk(const std::string& diskImage);
+	Disk* createDisk(const std::string& diskImage, DiskChanger& diskChanger);
 
 private:
 	Reactor& reactor;

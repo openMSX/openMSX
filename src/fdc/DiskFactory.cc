@@ -44,7 +44,7 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap));
 }
 
-Disk* DiskFactory::createDisk(const string& diskImage)
+Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 {
 	if (diskImage == "ramdsk") {
 		return new RamDSKDiskImage();
@@ -55,6 +55,7 @@ Disk* DiskFactory::createDisk(const string& diskImage)
 	try {
 		// First try DirAsDSK
 		return new DirAsDSK(
+			diskChanger,
 			reactor.getCliComm(),
 			filename,
 			syncDirAsDSKSetting->getValue(),

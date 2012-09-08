@@ -196,7 +196,7 @@ void DiskChanger::insertDisk(const vector<TclObject>& args)
 {
 	UserFileContext context;
 	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
-	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage));
+	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i].getString().str(), context);
 		newDisk->applyPatch(filename);

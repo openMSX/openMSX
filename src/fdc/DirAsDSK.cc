@@ -1,6 +1,8 @@
 // $Id$
 
 #include "DirAsDSK.hh"
+#include "DiskChanger.hh"
+#include "Scheduler.hh"
 #include "CliComm.hh"
 #include "BootBlocks.hh"
 #include "File.hh"
@@ -183,12 +185,15 @@ static string msxToHostName(const char* msxName)
 }
 
 
-DirAsDSK::DirAsDSK(CliComm& cliComm_, const Filename& hostDir_,
-		SyncMode syncMode_, BootSectorType bootSectorType)
+DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
+                   const Filename& hostDir_, SyncMode syncMode_,
+                   BootSectorType bootSectorType)
 	: SectorBasedDisk(hostDir_)
+	, diskChanger(diskChanger_)
 	, cliComm(cliComm_)
 	, hostDir(hostDir_.getResolved() + '/')
 	, syncMode(syncMode_)
+	, lastAccess(EmuTime::zero)
 {
 	if (!FileOperations::isDirectory(hostDir)) {
 		throw MSXException("Not a directory");
@@ -278,6 +283,29 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 	//   set to the wrong value).
 	// - Last the MSX writes the FAT sectors, but the earlier host sync
 	//   already screwed up the filesize in the directory entry.
+	if (!isPeekMode()) {
+		bool needSync;
+		if (Scheduler* scheduler = diskChanger.getScheduler()) {
+			EmuTime now = scheduler->getCurrentTime();
+			EmuDuration delta = now - lastAccess;
+			lastAccess = now;
+			needSync = delta > EmuDuration::sec(1);
+		} else {
+			// happens when dirasdisk is used in virtual_drive
+			needSync = true;
+		}
+		if (needSync) {
+			// TODO possible improvement:
+			//  - first check for removed host files (frees up
+			//    space in virtual disk)
+			//  - next update existing files
+			//  - last add new host files
+			for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
+				checkAlterFileInDisk(i);
+			}
+			scanHostDir(false);
+		}
+	}
 
 	if (sector == 0) {
 		// copy our fake bootsector into the buffer
@@ -285,17 +313,6 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// copy correct sector from FAT
-
-		// quick-and-dirty:
-		// we check all files in the faked disk for altered filesize
-		// remapping each fat entry to its direntry and do some bookkeeping
-		// to avoid multiple checks will probably be slower than this
-		if (!isPeekMode()) {
-			for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-				checkAlterFileInDisk(i);
-			}
-		}
-
 		unsigned fatSector = (sector - FIRST_FAT_SECTOR) % SECTORS_PER_FAT;
 		memcpy(buf, &fat[fatSector * SECTOR_SIZE], SECTOR_SIZE);
 
@@ -303,13 +320,7 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		// create correct DIR sector
 		sector -= FIRST_DIR_SECTOR;
 		unsigned dirCount = sector * DIR_ENTRIES_PER_SECTOR;
-		// check if there are new files on the host when we read the
-		// first directory sector
-		if (!isPeekMode() && dirCount == 0) {
-			scanHostDir(true);
-		}
 		for (unsigned i = 0; i < DIR_ENTRIES_PER_SECTOR; ++i, ++dirCount) {
-			if (!isPeekMode()) checkAlterFileInDisk(dirCount);
 			memcpy(&buf[sizeof(MSXDirEntry) * i],
 			       &(mapDir[dirCount].msxInfo),
 			       sizeof(MSXDirEntry));
@@ -332,7 +343,6 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 				// read data from host file
 				unsigned offset = sectorMap[sector].fileOffset;
 				string hostName = mapDir[sectorMap[sector].dirIndex].hostName;
-				checkAlterFileInDisk(hostName);
 				// now try to read from file if possible
 				try {
 					string fullHostName = hostDir + hostName;
@@ -342,9 +352,9 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 					if (offset < size) {
 						file.read(buf, std::min(size - offset, SECTOR_SIZE));
 					} else {
-						// Normally shouldn't happen because
-						// checkAlterFileInDisk() above synced
-						// host file size with MSX file size.
+						// Usually this doesn't happen
+						// because we recently synced host with
+						// virtual files.
 					}
 					// and store the newly read data again in the sector cache
 					// since checkAlterFileInDisk => updateFileInDisk only reads
@@ -600,11 +610,15 @@ void DirAsDSK::addFileToDSK(const string& hostName, struct stat& fst)
 	updateFileInDisk(dirIndex, fst);
 }
 
-
 void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	assert(sector < NUM_SECTORS);
 	assert(syncMode != SYNC_READONLY);
+
+	// Update last access time
+	if (Scheduler* scheduler = diskChanger.getScheduler()) {
+		lastAccess = scheduler->getCurrentTime();
+	}
 
 	if (sector == 0) {
 		memcpy(&bootBlock, buf, SECTOR_SIZE);

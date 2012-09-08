@@ -55,6 +55,9 @@ public:
 	// for NowindCommand
 	void changeDisk(std::auto_ptr<Disk> newDisk);
 
+	// for DirAsDSK
+	Scheduler* getScheduler() const { return scheduler; }
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

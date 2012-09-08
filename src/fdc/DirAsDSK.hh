@@ -5,12 +5,14 @@
 
 #include "SectorBasedDisk.hh"
 #include "DiskImageUtils.hh"
+#include "EmuTime.hh"
 #include <map>
 
 struct stat;
 
 namespace openmsx {
 
+class DiskChanger;
 class CliComm;
 
 class DirAsDSK : public SectorBasedDisk
@@ -32,8 +34,9 @@ public:
 	static const unsigned SECTOR_SIZE = 512;
 
 public:
-	DirAsDSK(CliComm& cliComm, const Filename& hostDir,
-	         SyncMode syncMode, BootSectorType bootSectorType);
+	DirAsDSK(DiskChanger& diskChanger, CliComm& cliComm,
+	         const Filename& hostDir, SyncMode syncMode,
+	         BootSectorType bootSectorType);
 
 	// SectorBasedDisk
 	virtual void readSectorImpl(unsigned sector, byte* buf);
@@ -65,9 +68,12 @@ private:
 	void scanHostDir(bool onlyNewFiles);
 
 private:
+	DiskChanger& diskChanger; // used to query time
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 	const std::string hostDir;
 	const SyncMode syncMode;
+
+	EmuTime lastAccess; // last time there was a sector read/write
 
 	struct {
 		bool inUse() const { return !hostName.empty(); }
