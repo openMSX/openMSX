@@ -91,27 +91,13 @@ unsigned DirAsDSK::readFAT(unsigned cluster)
 	return readFATHelper(fat(), cluster);
 }
 
-// Read entry from 2nd FAT
-// 2nd FAT is _only_ used internally in DirAsDSK to detect updates in the FAT,
-// if the emulated MSX reads a sector from the 2nd FAT, it actually gets a
-// sector from the 1st FAT (in other words, from the MSX point of view, both
-// FATs always contain identical values).
-unsigned DirAsDSK::readFAT2(unsigned cluster)
-{
-	return readFATHelper(fat2(), cluster);
-}
-
 // Write an entry to both FAT1 and FAT2
 void DirAsDSK::writeFAT12(unsigned cluster, unsigned val)
 {
 	writeFATHelper(fat (), cluster, val);
 	writeFATHelper(fat2(), cluster, val);
-}
-
-// Write an entry to FAT2 (see note at readFAT2())
-void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
-{
-	writeFATHelper(fat2(), cluster, val);
+	// An alternative is to copy FAT1 to FAT2 after changes have been made
+	// to FAT1. This is probably more like what the real disk rom does.
 }
 
 // Returns MAX_CLUSTER in case of no more free clusters
@@ -313,11 +299,6 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 			// internal disk caches.
 			diskChanger.forceDiskChange();
 		}
-	}
-
-	// Read from 2nd FAT? Map that to read from 1st FAT.
-	if ((FIRST_SECTOR_2ND_FAT <= sector) && (sector < FIRST_DIR_SECTOR)) {
-		sector -= SECTORS_PER_FAT;
 	}
 
 	// Simply return the sector from our virtual disk image.
@@ -602,8 +583,12 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 		// disk parameters than this code assumes. It's also not useful
 		// to write a different bootprogram to this disk because it
 		// will be lost when this virtual disk is ejected.
-	} else if (sector < FIRST_DIR_SECTOR) {
+	} else if (sector < FIRST_SECTOR_2ND_FAT) {
 		writeFATSector(sector, buf);
+	} else if (sector < FIRST_DIR_SECTOR) {
+		// Write to 2nd FAT, only buffer it. Don't interpret the data
+		// in FAT2 in any way (nor trigger any action on this write).
+		memcpy(sectors[sector], buf, SECTOR_SIZE);
 	} else if (sector < FIRST_DATA_SECTOR) {
 		writeDIRSector(sector, buf);
 	} else {
@@ -613,59 +598,43 @@ void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 {
-	// Observation:
-	//  A real MSX always first seems to write the sectors of the first FAT
-	//  shortly followed by writing an (identical) copy to the second FAT.
-	// Heuristic:
-	//  We prefer to not start updating host files based on a partially
-	//  updated FAT (e.g. only one of the 3 FAT sectors changed yet). So
-	//  what we do is the following:
-	//  - Only buffer writes to FAT1, don't make any host changes yet.
-	//  - On (any) write to FAT2 we will sync the changes made by the
-	//    previous FAT1 writes (the actual sector data that is written to
-	//    FAT2 is ignored).
-	if (sector < FIRST_SECTOR_2ND_FAT) {
-		// write to FAT1, only buffer the data, don't update host files
-		memcpy(sectors[sector], buf, SECTOR_SIZE);
-	} else {
-		// Write to FAT2 (any FAT2 sector, actual written data is
-		// ignored). Sync host files based on changes written earlier
-		// to FAT1.
-		syncFATChanges();
-	}
-}
+	// Create copy of old FAT (to be able to detect changes)
+	byte oldFAT[SECTORS_PER_FAT * SECTOR_SIZE];
+	memcpy(oldFAT, fat(), sizeof(oldFAT));
 
-void DirAsDSK::syncFATChanges()
-{
+	// Update current FAT with new data
+	memcpy(sectors[sector], buf, SECTOR_SIZE);
+
+	// Look for changes
 	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
-		if (readFAT(i) != readFAT2(i)) {
-			exportFileFromFATChange(i);
+		if (readFAT(i) != readFATHelper(oldFAT, i)) {
+			exportFileFromFATChange(i, oldFAT);
 		}
 	}
-	// After a write to FAT2 (any sector, any data), our (full) fat1 and
-	// fat2 buffers should be identical. Note: we can't use
-	//   assert(memcmp(fat(), fat2(), SECTOR_SIZE * SECTORS_PER_FAT) == 0);
+	// At this point there should be no more differences.
+	// Note: we can't use
+	//   assert(memcmp(fat(), oldFAT, sizeof(oldFAT)) == 0);
 	// because exportFileFromFATChange() only updates the part of the FAT
 	// that actually contains FAT info. E.g. not the media ID at the
 	// beginning nor the unsused part at the end. And for example the 'CALL
 	// FORMAT' routine also writes these parts of the FAT.
 	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
-		assert(readFAT(i) == readFAT2(i));
+		assert(readFAT(i) == readFATHelper(oldFAT, i));
 	}
 }
 
-void DirAsDSK::exportFileFromFATChange(unsigned cluster)
+void DirAsDSK::exportFileFromFATChange(unsigned cluster, byte* oldFAT)
 {
 	// Get first cluster in the FAT chain that contains 'cluster'
 	unsigned chainLength; // not used
 	unsigned startCluster = getChainStart(cluster, chainLength);
 
 	// Copy this whole chain from FAT1 to FAT2 (so that the loop in
-	// syncFATChanges() sees this part is already handled).
+	// writeFATSector() sees this part is already handled).
 	unsigned tmp = startCluster;
 	while ((FIRST_CLUSTER <= tmp) && (tmp < MAX_CLUSTER)) {
 		unsigned next = readFAT(tmp);
-		writeFAT2(tmp, next);
+		writeFATHelper(oldFAT, tmp, next);
 		tmp = next;
 	}
 

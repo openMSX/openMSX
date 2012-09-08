@@ -66,11 +66,8 @@ private:
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
-	unsigned readFAT2(unsigned clnr);
 	void writeFAT12(unsigned clnr, unsigned val);
-	void writeFAT2 (unsigned clnr, unsigned val);
-	void syncFATChanges();
-	void exportFileFromFATChange(unsigned cluster);
+	void exportFileFromFATChange(unsigned cluster, byte* oldFAT);
 	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
 	unsigned getDirEntryForCluster(unsigned cluster);
 
