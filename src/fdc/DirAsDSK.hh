@@ -6,7 +6,7 @@
 #include "SectorBasedDisk.hh"
 #include "DiskImageUtils.hh"
 #include "EmuTime.hh"
-#include <map>
+#include <sys/types.h>
 
 struct stat;
 
@@ -57,7 +57,7 @@ private:
 	bool checkFileUsedInDSK(const std::string& hostName);
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void checkModifiedHostFile(unsigned dirIndex);
-	void updateFileInDisk(unsigned dirIndex, struct stat& fst);
+	void importHostFile(unsigned dirIndex, struct stat& fst);
 	void extractCacheToFile(unsigned dirIndex);
 	void truncateCorrespondingFile(unsigned dirIndex);
 	unsigned findNextFreeCluster(unsigned curcl);
@@ -77,32 +77,34 @@ private:
 
 	EmuTime lastAccess; // last time there was a sector read/write
 
+	// Storage for the whole virtual disk.
+	byte sectors[NUM_SECTORS][SECTOR_SIZE];
+
+	// For each directory entry we store the name of the corresponding
+	// host file, and the last modification time (and filesize) of the host
+	// file.
 	struct {
 		bool inUse() const { return !hostName.empty(); }
 
 		MSXDirEntry msxInfo;
 		std::string hostName; // path relative to 'hostDir'
-		int filesize; // used to detect changes that need to be updated in the
-		              // emulated disk, content changes are automatically
-		              // handled :-)
+		// The following two are used to detect changes in the host
+		// file compared to the last host->virtual-disk sync.
+		time_t mtime; // Modification time of host file at the time of
+		              // the last sync.
+		int filesize; // Host file size, normally the same as msx
+		              // filesize, except when the host file was
+		              // truncated.
 	} mapDir[NUM_DIR_ENTRIES];
 
-	enum Usage { CLEAN, CACHED, MIXED };
 	struct {
 		unsigned long fileOffset;
-		Usage usage;
-		unsigned dirIndex;
+		unsigned dirIndex; // -1 iff not part of a file
 	} sectorMap[NUM_SECTORS];
-
-	struct SectorData {
-		byte data[SECTOR_SIZE];
-	};
 
 	MSXBootSector bootBlock;
 	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
-	typedef std::map<unsigned, SectorData> CachedSectors;
-	CachedSectors cachedSectors;
 };
 
 } // namespace openmsx

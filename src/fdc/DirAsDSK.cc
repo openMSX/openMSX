@@ -15,7 +15,6 @@
 #include <cassert>
 #include <cstring>
 #include <limits>
-#include <sys/types.h>
 
 using std::string;
 
@@ -223,6 +222,7 @@ void DirAsDSK::cleandisk()
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		memset(&mapDir[i].msxInfo, 0, sizeof(MSXDirEntry));
 		mapDir[i].hostName.clear();
+		mapDir[i].mtime = 0;
 		mapDir[i].filesize = 0;
 	}
 
@@ -236,11 +236,12 @@ void DirAsDSK::cleandisk()
 	fat [0] = 0xF9; fat [1] = 0xFF; fat [2] = 0xFF;
 	fat2[0] = 0xF9; fat2[1] = 0xFF; fat2[2] = 0xFF;
 
-	// clear the sectorMap so that they all point to 'clean' sectors
 	for (unsigned i = 0; i < NUM_SECTORS; ++i) {
-		sectorMap[i].usage = CLEAN;
-		sectorMap[i].dirIndex = 0;
-		sectorMap[i].fileOffset = 0;
+		sectorMap[i].dirIndex = unsigned(-1);
+		sectorMap[i].fileOffset = 0; // dummy value
+
+		// 0xE5 is the value used on the Philips NMS8250
+		memset(sectors[i], 0xE5, SECTOR_SIZE);
 	}
 }
 
@@ -342,45 +343,11 @@ void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 		}
 
 	} else {
-		// else get map from sector to file and read correct block
-		// folowing same numbering as FAT eg. first data block is cluster 2
-		if (sectorMap[sector].usage == CLEAN) {
-			// return an 'empty' sector
-			// 0xE5 is the value used on the Philips VG8250
-			memset(buf, 0xE5, SECTOR_SIZE);
-		} else if (sectorMap[sector].usage == CACHED) {
-			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
-		} else {
-			// first copy cached data
-			// in case (end of) file only fills partial sector
-			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
-			if (!isPeekMode()) {
-				// read data from host file
-				unsigned offset = sectorMap[sector].fileOffset;
-				string hostName = mapDir[sectorMap[sector].dirIndex].hostName;
-				// now try to read from file if possible
-				try {
-					string fullHostName = hostDir + hostName;
-					File file(fullHostName);
-					unsigned size = file.getSize();
-					file.seek(offset);
-					if (offset < size) {
-						file.read(buf, std::min(size - offset, SECTOR_SIZE));
-					} else {
-						// Usually this doesn't happen
-						// because we recently synced host with
-						// virtual files.
-					}
-					// and store the newly read data again in the sector cache
-					// since checkModifiedHostFile => updateFileInDisk only reads
-					// altered data if filesize has been changed and not if only
-					// content in file has changed
-					memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
-				} catch (FileException&) {
-					// couldn't open/read cached sector file
-				}
-			}
-		}
+		// Read data sector.
+		// Note that we DONT try to read the most current data from the
+		// host file. Instead we always return the data from the last
+		// host sync.
+		memcpy(buf, sectors[sector], SECTOR_SIZE);
 	}
 }
 
@@ -434,9 +401,7 @@ void DirAsDSK::deleteMSXFile(unsigned dirIndex)
 		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 			unsigned sector = logicalSector + i;
 			assert(sector < NUM_SECTORS);
-			sectorMap[sector].usage = CLEAN;
-			sectorMap[sector].dirIndex = 0;
-			sectorMap[sector].fileOffset = 0;
+			sectorMap[sector].dirIndex = unsigned(-1);
 		}
 		curCl = nextCl;
 	}
@@ -449,9 +414,14 @@ void DirAsDSK::checkModifiedHostFile(unsigned dirIndex)
 	string fullHostName = hostDir + mapDir[dirIndex].hostName;
 	struct stat fst;
 	if (stat(fullHostName.c_str(), &fst) == 0) {
-		if (mapDir[dirIndex].filesize != fst.st_size) {
-			// changed filesize
-			updateFileInDisk(dirIndex, fst);
+		// Detect changes in host file.
+		// Heuristic: we use filesize and modification time to detect
+		// changes in file content.
+		//  TODO do we need both filesize and mtime or is mtime alone
+		//       enough?
+		if ((mapDir[dirIndex].mtime    != fst.st_mtime) ||
+		    (mapDir[dirIndex].filesize != fst.st_size)) {
+			importHostFile(dirIndex, fst);
 		}
 	} else {
 		// Only very rarely happens (because checkDeletedHostFiles()
@@ -460,7 +430,7 @@ void DirAsDSK::checkModifiedHostFile(unsigned dirIndex)
 	}
 }
 
-void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
+void DirAsDSK::importHostFile(unsigned dirIndex, struct stat& fst)
 {
 	// compute time/date stamps
 	struct tm* mtim = localtime(&(fst.st_mtime));
@@ -473,8 +443,22 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 	              : 0;
 	mapDir[dirIndex].msxInfo.date = t2;
 
+	// Set host modification time (and filesize)
+	// Note: this is the _only_ place where we update the mapdir.mtime
+	// field. We do _not_ update it when the msx writes to the file. So in
+	// case the msx does write a data sector, it writes to the correct
+	// offset in the host file, but mtime is not updated. On the next
+	// host->emu sync we will resync the full file content and only then
+	// update mtime. This may seem inefficient, but it makes sure that we
+	// never miss any file changes performed by the host. E.g. the host
+	// changed part of the file short before the msx wrote to the same
+	// file. We can never guarantee that such race-scenarios work
+	// correctly, but at least with this mtime-update convention the file
+	// content will be the same on the host and the msx side after every
+	// sync.
 	unsigned hostSize = fst.st_size;
 	mapDir[dirIndex].filesize = hostSize;
+	mapDir[dirIndex].mtime = fst.st_mtime;
 
 	bool moreClustersInChain = true;
 	unsigned curCl = mapDir[dirIndex].msxInfo.startCluster;
@@ -497,10 +481,9 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				sectorMap[sector].usage = MIXED;
 				sectorMap[sector].dirIndex = dirIndex;
 				sectorMap[sector].fileOffset = hostSize - remainingSize;
-				byte* buf = cachedSectors[sector].data;
+				byte* buf = sectors[sector];
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				file.read(buf, std::min(remainingSize, SECTOR_SIZE));
 				remainingSize -= std::min(remainingSize, SECTOR_SIZE);
@@ -564,9 +547,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				sectorMap[sector].usage = CLEAN;
-				sectorMap[sector].dirIndex = 0;
-				sectorMap[sector].fileOffset = 0;
+				sectorMap[sector].dirIndex = unsigned(-1);
 			}
 			prevCl = curCl;
 			curCl = readFAT(curCl);
@@ -576,9 +557,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirIndex, struct stat& fst)
 		for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 			unsigned sector = logicalSector + i;
 			assert(sector < NUM_SECTORS);
-			sectorMap[sector].usage = CLEAN;
-			sectorMap[sector].dirIndex = 0;
-			sectorMap[sector].fileOffset = 0;
+			sectorMap[sector].dirIndex = unsigned(-1);
 		}
 	}
 
@@ -651,7 +630,7 @@ void DirAsDSK::foundNewHostFile(const string& hostName)
 	// Fill in filenames and import the file content.
 	mapDir[dirIndex].hostName = hostName;
 	memcpy(&(mapDir[dirIndex].msxInfo.filename), msxFilename.data(), 8 + 3);
-	updateFileInDisk(dirIndex, fst);
+	importHostFile(dirIndex, fst);
 }
 
 void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
@@ -780,21 +759,16 @@ void DirAsDSK::extractCacheToFile(unsigned dirIndex)
 		while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
 			unsigned logicalSector = clusterToSector(curCl);
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
+				if (offset >= msxSize) break;
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				if ((sectorMap[sector].usage == CACHED ||
-				     sectorMap[sector].usage == MIXED) &&
-				    (msxSize > offset)) {
-					byte* buf = cachedSectors[sector].data;
-					unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
-					file.write(buf, writeSize);
-
-					sectorMap[sector].usage = MIXED;
-					sectorMap[sector].dirIndex = dirIndex;
-					sectorMap[sector].fileOffset = offset;
-				}
+				unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
+				file.write(sectors[sector], writeSize);
+				sectorMap[sector].dirIndex = dirIndex;
+				sectorMap[sector].fileOffset = offset;
 				offset += SECTOR_SIZE;
 			}
+			if (offset >= msxSize) break;
 			curCl = readFAT(curCl);
 		}
 	} catch (FileException& e) {
@@ -858,7 +832,7 @@ void DirAsDSK::writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry)
 			FileOperations::unlink(fullHostName);
 			for (unsigned i = FIRST_DATA_SECTOR; i < NUM_SECTORS; ++i) {
 				if (sectorMap[i].dirIndex == dirIndex) {
-					 sectorMap[i].usage = CACHED;
+					 sectorMap[i].dirIndex = unsigned(-1);
 				}
 			}
 			mapDir[dirIndex].hostName.clear();
@@ -957,38 +931,36 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	assert(sector >= FIRST_DATA_SECTOR);
 	assert(sector < NUM_SECTORS);
 
-	// first and before all else buffer everything !!!!
-	// check if cachedSectors exists, if not assign memory.
-	memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
+	// Buffer the write, whether the sector is mapped to a file or not.
+	memcpy(sectors[sector], buf, SECTOR_SIZE);
 
 	// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
 	if (syncMode == SYNC_CACHEDWRITE) {
 		// change to a regular cached sector
-		sectorMap[sector].usage = CACHED;
-		sectorMap[sector].dirIndex = 0;
-		sectorMap[sector].fileOffset = 0;
+		sectorMap[sector].dirIndex = unsigned(-1);
 		return;
 	}
 
-	if (sectorMap[sector].usage == MIXED) {
-		// save data to host file
-		unsigned offset = sectorMap[sector].fileOffset;
-		unsigned dirent = sectorMap[sector].dirIndex;
-		string fullHostName = hostDir + mapDir[dirent].hostName;
-		try {
-			File file(fullHostName);
-			file.seek(offset);
-			unsigned msxSize = mapDir[dirent].msxInfo.size;
-			if (msxSize > offset) {
-				unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
-				file.write(buf, writeSize);
-			}
-		} catch (FileException& e) {
-			cliComm.printWarning("Couldn't write to file " + fullHostName + ": " + e.getMessage());
+	unsigned dirIndex = sectorMap[sector].dirIndex;
+	if (dirIndex == unsigned(-1)) {
+		// This sector was not mapped to a file, nothing more to do.
+		return;
+	}
+
+	// Actually write data to host file.
+	unsigned offset = sectorMap[sector].fileOffset;
+	string fullHostName = hostDir + mapDir[dirIndex].hostName;
+	try {
+		File file(fullHostName);
+		file.seek(offset);
+		unsigned msxSize = mapDir[dirIndex].msxInfo.size;
+		if (msxSize > offset) {
+			unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
+			file.write(buf, writeSize);
 		}
-	} else {
-		// indicate data is cached, it might be CACHED already or it was CLEAN
-		sectorMap[sector].usage = CACHED;
+	} catch (FileException& e) {
+		cliComm.printWarning("Couldn't write to file " + fullHostName +
+		                     ": " + e.getMessage());
 	}
 }
 
