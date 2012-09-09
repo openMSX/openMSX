@@ -342,29 +342,41 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		PRT_DEBUG("LaserdiscPlayer::remote unknown " << std::hex << code);
 	}
 #endif
-	// When not playing, only the play button works
-	if (playerState == PLAYER_STOPPED) {
+	// When not playing the following buttons work
+	// 0x17: start playing (ack sent)
+	// 0x16: eject (no ack)
+	// 0x49, 0x4a, 0x4b (ack sent)
+	// if 0x49 is a repeat then no ACK is sent
+	// if 0x49 is followed by 0x4a then ACK is sent
+	if (code == 0x49 || code == 0x4a || code == 0x4b) {
+		updateStream(time);
+
+		switch (code) {
+		case 0x4b: // L+ (both channels play the right channel)
+			stereoMode = RIGHT;
+			break;
+		case 0x49: // L- (both channels play the left channel)
+			stereoMode = LEFT;
+			break;
+		case 0x4a: // L@ (normal stereo)
+			stereoMode = STEREO;
+			break;
+		}
+
+		setAck(time, 46);
+	} else if (playerState == PLAYER_STOPPED) {
 		if (code == 0x17) {
 			// P+
 			play(time);
 		}
+
+		// During playing, playing will be acked if not repeated 
+		// within less than 115ms
 	} else {
 		// FIXME: while seeking, only a small subset of buttons work
 		bool nonseekack = true;
 
 		switch (code) {
-		case 0x4b: // L+ (both channels play the right channel)
-			updateStream(time);
-			stereoMode = RIGHT;
-			break;
-		case 0x49: // L- (both channels play the left channel)
-			updateStream(time);
-			stereoMode = LEFT;
-			break;
-		case 0x4a: // L@ (normal stereo)
-			updateStream(time);
-			stereoMode = STEREO;
-			break;
 		case 0x5f:
 			seekState = SEEK_WAIT;
 			seekNum = 0;
