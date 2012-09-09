@@ -3435,31 +3435,15 @@
 
   <p>Determine the behavior of the DirAsDSK when inserting a directory to be used as diskimage.</p>
 
-  <p>The possible values are <code>read_only</code>, <code>cached_write</code>, <code>nodelete</code> and <code>full</code>.</p>
-  <p>Although it is the most risky mode, the default is set to <code>full</code>, since this is what most users expect from using DirAsDSK.</p>
+  <p>The possible values are <code>read_only</code> and <code>full</code>. The default mode is <code>full</code>.</p>
 
   <table>
     <tr>
       <td><code>read_only</code></td>
-
       <td>The MSX can not write to the virtual disk.<br/>Changes on the host-OS are still reflected on the virtual disk, however.</td>
     </tr>
-
-    <tr>
-      <td><code>cached_write</code></td>
-
-      <td>The MSX can write to the virtual disk, however, all changes are only cached in memory, no changes are passed onto the host-OS.<br/>Changes on the host-OS are still reflected on the virtual disk and will override any changes that the MSX has made.</td>
-    </tr>
-
-    <tr>
-      <td><code>nodelete</code></td>
-
-      <td>Changes are two ways, from host-OS to MSX and vice versa.<br/>However, deleting a file on the MSX will not delete the file on the host-OS. This can lead to unexpected behavior when the MSX later recreates a file with the same name, since this will be reflected towards the host-OS.</td>
-    </tr>
-
     <tr>
       <td><code>full</code></td>
-
       <td>All changes are performed both ways, no restrictions apply.</td>
     </tr>
   </table>
@@ -3467,17 +3451,13 @@
   <div class="subsectiontitle">
     usage:
   </div>
-
   <table>
     <tr>
       <td><code>set DirAsDSKmode</code></td>
-
       <td>Shows the current setting</td>
     </tr>
-
     <tr>
       <td><code>set DirAsDSKmode read_only</code></td>
-
       <td>Disk image will be read only</td>
     </tr>
   </table>
@@ -3485,9 +3465,7 @@
   <div class="note">
     Note: this setting is only used when the directory is inserted, it is not possible to change the behaviour of the current virtual disk by altering the setting. The new setting will become effective after the current virtual disk has been ejected.
   </div>
-  <div class="note">
-    Note: On turboR machines, the MSX keeps a cache of the directory sectors in memory. This means that changes made on the host OS are detected by the DirAsDSK routine, but will not show up in those machines. The data sectors will have been changed when reading, however. This can cause unexpected data to be read in the MSX environment. To rectify this situation, perform a disk eject and reinsert the directory again. This will cause the hardware switch that the turboR has to be toggled, and its internal cache to be invalidated. Since the turboR machines do not use a write cache, the changes on the MSX side are correctly written to the host OS.
-  </div>
+
 
   <h3><a id="deinterlace">deinterlace</a></h3>
 
