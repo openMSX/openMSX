@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+const unsigned SectorAccessibleDisk::SECTOR_SIZE;
+
 SectorAccessibleDisk::SectorAccessibleDisk()
 	: patch(new EmptyDiskPatch(*this))
 	, forcedWriteProtect(false)

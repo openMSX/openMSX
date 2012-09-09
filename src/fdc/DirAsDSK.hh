@@ -29,10 +29,6 @@ public:
 		SECTORS_PER_DIR * DIR_ENTRIES_PER_SECTOR;
 	static const unsigned NUM_SECTORS = 1440;
 
-	// REDEFINE (first definition is in SectorAccessibleDisk.hh)
-	//  to solve link error with i686-apple-darwin9-gcc-4.0.1
-	static const unsigned SECTOR_SIZE = 512;
-
 public:
 	DirAsDSK(DiskChanger& diskChanger, CliComm& cliComm,
 	         const Filename& hostDir, SyncMode syncMode,

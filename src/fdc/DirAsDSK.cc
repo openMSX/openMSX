@@ -36,9 +36,6 @@ static const unsigned FIRST_CLUSTER = 2;
 static const unsigned MAX_CLUSTER =
 	(DirAsDSK::NUM_SECTORS - FIRST_DATA_SECTOR) / SECTORS_PER_CLUSTER + FIRST_CLUSTER;
 
-// REDEFINE, see comment in DirAsDSK.hh
-const unsigned DirAsDSK::SECTOR_SIZE;
-
 static const unsigned FREE_FAT = 0x000;
 static const unsigned BAD_FAT  = 0xFF7;
 static const unsigned EOF_FAT  = 0xFFF; // actually 0xFF8-0xFFF
