@@ -352,11 +352,11 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		updateStream(time);
 
 		switch (code) {
-		case 0x4b: // L+ (both channels play the right channel)
-			stereoMode = RIGHT;
-			break;
-		case 0x49: // L- (both channels play the left channel)
+		case 0x4b: // L+ (both channels play the left channel)
 			stereoMode = LEFT;
+			break;
+		case 0x49: // L- (both channels play the right channel)
+			stereoMode = RIGHT;
 			break;
 		case 0x4a: // L@ (normal stereo)
 			stereoMode = STEREO;
@@ -365,9 +365,15 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 
 		setAck(time, 46);
 	} else if (playerState == PLAYER_STOPPED) {
-		if (code == 0x17) {
-			// P+
+		switch (code) {
+		case 0x16: // P@
+			motherBoard.getMSXCliComm().printWarning(
+				"ejecting laserdisc");
+			eject(time);
+			break;
+		case 0x17: // P+
 			play(time);
+			break;
 		}
 
 		// During playing, playing will be acked if not repeated 
