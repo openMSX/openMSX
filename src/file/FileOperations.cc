@@ -568,7 +568,12 @@ bool isDirectory(const Stat& st)
 bool isDirectory(const string& directory)
 {
 	Stat st;
-	return getStat(directory, st) && isDirectory(st);
+	// workaround for VC++: strip trailing slash
+	string strippedDir = directory;
+	if (directory.at(directory.length() - 1) == '/') {
+		strippedDir.erase(directory.length() - 1);
+	}
+	return getStat(strippedDir, st) && isDirectory(st);
 }
 
 bool exists(const string& filename)
