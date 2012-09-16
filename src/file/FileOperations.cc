@@ -565,13 +565,14 @@ bool isDirectory(const Stat& st)
 {
 	return S_ISDIR(st.st_mode);
 }
+
 bool isDirectory(const string& directory)
 {
 	Stat st;
-	// workaround for VC++: strip trailing slash
+	// workaround for VC++: strip trailing slashes
 	string strippedDir = directory;
-	if (directory.at(directory.length() - 1) == '/') {
-		strippedDir.erase(directory.length() - 1);
+	while (strippedDir.length() > 1 && strippedDir.at(strippedDir.length() - 1) == '/') {
+		strippedDir.erase(strippedDir.length() - 1);
 	}
 	return getStat(strippedDir, st) && isDirectory(st);
 }
