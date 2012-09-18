@@ -2,14 +2,17 @@
 
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
-#include "aligned.hh"
+#include "likely.hh"
 #include <cassert>
 #include <cstring>
+#include <vector>
 
 namespace openmsx {
 
-static const unsigned BUFSIZE = 16384;
-ALIGNED(static int bufferInt[BUFSIZE + 4], 16);
+// 16-byte aligned buffer of ints (shared among all instances of this resampler)
+static std::vector<int> bufferStorage; // (possibly) unaligned storage
+static unsigned bufferSize = 0; // usable buffer size (aligned portion)
+static int* bufferInt = NULL; // pointer to aligned sub-buffer
 
 ////
 
@@ -48,7 +51,18 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	unsigned emuNum = emuClock.getTicksTill(time);
 	valid = 2 + emuNum;
 
-	assert(emuNum < BUFSIZE);
+	unsigned required = emuNum + 4;
+	if (unlikely(required > bufferSize)) {
+		// grow buffer (3 extra to be able to align)
+		bufferStorage.resize(required + 3);
+		// align at 16-byte boundary
+		long p = reinterpret_cast<long>(bufferStorage.data());
+		bufferInt = reinterpret_cast<int*>((p + 15) & ~15);
+		// calculate actual usable size (the aligned portion)
+		bufferSize = &*bufferStorage.end() - bufferInt;
+		assert(bufferSize >= required);
+	}
+
 	emuClock += emuNum;
 	assert(emuClock.getTime() <= time);
 	assert(emuClock.getFastAdd(1) > time);
