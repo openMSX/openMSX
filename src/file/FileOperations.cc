@@ -544,6 +544,15 @@ string expandCurrentDirFromDrive(string_ref path)
 bool getStat(const string& filename_, Stat& st)
 {
 	string filename = expandTilde(filename_);
+	// workaround for VC++: strip trailing slashes (but keep it if it's the
+	// only character in the path)
+	string::size_type pos = filename.find_last_not_of('/');
+	if (pos == string::npos) {
+		// string was either empty or a (sequence of) '/' character(s)
+		filename = filename.empty() ? "" : "/";
+	} else {
+		filename.resize(pos + 1);
+	}
 #ifdef _WIN32
 	return _wstat(utf8to16(filename).c_str(), &st) == 0;
 #else
@@ -569,12 +578,7 @@ bool isDirectory(const Stat& st)
 bool isDirectory(const string& directory)
 {
 	Stat st;
-	// workaround for VC++: strip trailing slashes
-	string strippedDir = directory;
-	while (strippedDir.length() > 1 && strippedDir.at(strippedDir.length() - 1) == '/') {
-		strippedDir.erase(strippedDir.length() - 1);
-	}
-	return getStat(strippedDir, st) && isDirectory(st);
+	return getStat(directory, st) && isDirectory(st);
 }
 
 bool exists(const string& filename)
