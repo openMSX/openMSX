@@ -1,93 +1,36 @@
-Release Notes for openMSX 0.9.0 (2012-08-12)
+Release Notes for openMSX 0.9.1 (2012-09-xx)
 ============================================
 
-This release improves a lot on accuracy of floppy support, especially by the
-introduction of support for the DMK format. This means it should be possible to
-run all MSX disk software without patching it.
-
-Furthermore, our efforts to improve performance has some results: start up time
-has almost halved on a Dingoo A320!
+This release mostly fixes a bug in dir-as-disk that was introduced in openMSX
+0.9.0, when adding support for the DMK format and low level disk emulation. We
+not only fixed that bug, we rewrote dir-as-disk almost completely, making it a
+lot more robust.
 
 Here's the list with all highlights:
 
 MSX device support:
-- Bug fixes:
-  - overscan: 512x512 demo by NYYRIKKI and Don't Cock It Up by Matra now work
-  - cursor order in B-modes of GFX9000
-  - several small issues in existing MSX machine configurations
-  - broken border rendering on ARM CPU's
-  - 2nd drive detection on National machines
-  - detail in MSX-AUDIO that prevented proper detection in MSX-AUDIO BIOS 1.3
 - Accuracy improvements:
-  - much improved accuracy for Floppy Drive Controllers (mostly WD2793 and
-    alike)
-  - added support for delayed motor off for disk drives, as in real machines
-    implemented by the CXD1032 chip
-  - disk drive rotation is now correct
-  - added support for persistency of S1985 back-up RAM
-  - added support for specifying the initial content of RAM and VRAM. Fixing
-    this for the Philips MSX2's shows why Cas Cremers never noticed a bug in
-    Akin, causing white pixels on the screen
-- Added initial support for Video9000:
-  - new extension, which gives a new Video9000 videosource
-  - the Video9000 can display the GFX9000 output superimposed over the normal
-    VDP. Software which writes to I/O port 0x6F when a Video9000 is connected
-    will make sure the right video signal is displayed. This is now emulated.
-    So, use the video9000 extension instead of the gfx9000 extension to benefit
-    from Video 9000 aware MSX software!
-  - added video recording for Video9000 videosource
-- Added support for the FDC connection style of the Victor HC-9x
-- Added support for several floppy drive extensions: Sanyo MFD-001, Mitsubishi
-  ML-30DC/ML-30FD, Talent DPF-550, AVT DPF-550, Philips NMS 1200
-- Added Spanish Mitsubishi ML-G1, Spanish Mitsubishi ML-G3, Japanese Sony HB-10
-  and Talent TPC-310 machines
+  - improved some details on the laserdisc emulation
+  - improved timing of the VDP LINE command (thanks to NYYRIKKI for the ideas)
+- added Toshiba HX-21
 
 New or improved emulator features:
-- MSX developer features:
-  - more mappers now have a romblocks debuggable
-  - added several new procs for break point conditions: address_in_slot,
-    watch_in_slot
-  - you can now have breakpoints and watchpoints anywhere in a MegaROM
-  - previously hardcoded warnings for invalid PSG directions and di;halt
-    detection are now a Tcl callback, which means you can e.g. let openMSX go
-    into a break point when they occur, or disable them altogether
-  - save_debuggable can now also save part of a debuggable
-- Console support/scripts:
-  - added type command that can type from file and a special version with
-    offset to type passwords)
-  - added syntax highlighting for Tcl in the console
-  - show errors in the console in red
-  - implemented tab-completion for nested Tcl commands
-- OSD menu improvements:
-  - list of machines and extensions are now sorted alphabetically
-  - file lists are now filtered on extension case insensitively
-- Performance improvements:
-  - OSD
-  - start-up time
-  - several scripts (reverse bar a.o.)
-- Miscellaneous:
-  - guess_title script is now a lot better and is used to generate file names
-    if no file name was given (e.g. to screenshots)
-  - reverse bar has now even clearer colors to reflect recording (red) and
-    replaying state
-  - don't print an error when an initial CMOS/SRAM file isn't found
-  - enable auto-run for cassettes by default
-  - show an error message when using harddisk images larger than 2GB, because
-    that is currently not properly supported
-  - show progress on calculating SHA1 sum of large harddisk images
-  - additional files for ROMs (like samples for Playball) can now also be in
-    the same directory as the ROM file
+- fixed crash with fast resampler and 8192 samples
+- dir-As-Disk:
+  - dir-as-disk works properly again and is now a lot more robust
+  - improve error reporting when something goes wrong
+- console support/scripts:
+  - added script to save current screen to file in MSX loadable format, thanks
+    to NYYRIKKI
+- performance improvements:
+  - improved console rendering speed (uses less CPU)
+  - improved Tcl integration
+  - speed up low level disk emulation
+  - optimized rendering of superimposed modes (Video9000, laserdisc)
+  - several other performance improvements
 
 Build system, packaging, documentation:
-- Upgraded 3rd party libraries
-- Removed support for PPC on Mac and added build support for clang, which is
-  also our new default compiler for Mac OS X
-- Added several utilities for DMK support: dumping tool, analyzing tool,
-  creation tool and conversion tools
-- First step in phasing out the roms/ directories: removed them (including
-  SHA1SUMS file which was redundant with the hardwareconfig.xml files) and new
-  configs do not use the path with roms/ anymore; use the systemroms pool
-  instead
+- Added build support for DragonFly BSD, thanks to John Marino
 
 And of course the usual various bug fixes.
 
