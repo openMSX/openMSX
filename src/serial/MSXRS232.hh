@@ -18,6 +18,7 @@ class I8251Interf;
 class Ram;
 class Rom;
 class ClockPin;
+class BooleanSetting;
 
 class MSXRS232 : public MSXDevice, public RS232Connector
 {
@@ -70,6 +71,8 @@ private:
 
 	const bool hasMemoryBasedIo;
 	bool ioAccessEnabled;
+
+	const std::auto_ptr<BooleanSetting> switchSetting;
 
 	friend class Counter0;
 	friend class Counter1;

@@ -9,6 +9,7 @@
 #include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "BooleanSetting.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -80,6 +81,10 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, rxrdyIRQenabled(false)
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
+	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
+		false) ? new BooleanSetting(getCommandController(),
+		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
+		true) : NULL)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
@@ -269,7 +274,31 @@ void MSXRS232::writeIOImpl(word port, byte value, EmuTime::param time)
 
 byte MSXRS232::readStatus(EmuTime::param time)
 {
+
+	// Info from http://nocash.emubase.de/portar.htm
+	//
+	//  Bit Name  Expl.
+	//  0   CD    Carrier Detect   (0=Active, 1=Not active)
+	//  1   RI    Ring Indicator   (0=Active, 1=Not active) (N/C in MSX)
+	//  6         Timer Output from i8253 Counter 2
+	//  7   CTS   Clear to Send    (0=Active, 1=Not active)
+	//
+	// On Toshiba HX-22, see
+	//   http://www.msx.org/forum/msx-talk/hardware/toshiba-hx-22?page=3
+	//   RetroTechie's post of 20-09-2012, 08:08
+	//   ... The "RS-232 interrupt disable" bit can be read back via bit 3
+	//   on this I/O port, if CN1 is open. If CN1 is closed, it always
+	//   reads back as "0". ...
+
 	byte result = 0; // TODO check unused bits
+
+	// TODO bit 0: carrier detect
+
+	if (!rxrdyIRQenabled && switchSetting.get() &&
+			switchSetting->getValue()) {
+		result |= 0x08;
+	}
+
 	if (!interf->getCTS(time)) {
 		result |= 0x80;
 	}
@@ -461,6 +490,7 @@ void MSXRS232::recvByte(byte value, EmuTime::param time)
 
 // version 1: initial version
 // version 2: added ioAccessEnabled
+// TODO: serialize switch status?
 template<typename Archive>
 void MSXRS232::serialize(Archive& ar, unsigned version)
 {
