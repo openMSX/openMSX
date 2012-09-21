@@ -12,7 +12,8 @@ MSX device support:
 - Accuracy improvements:
   - improved some details on the laserdisc emulation
   - improved timing of the VDP LINE command (thanks to NYYRIKKI for the ideas)
-- added Toshiba HX-21
+- added Toshiba HX-21, Toshiba HX-22 and Toshiba HX-22I. The latter two have a
+  switchable RS-232C interface (use the new toshiba_rs232c_switch setting)
 
 New or improved emulator features:
 - fixed crash with fast resampler and 8192 samples
