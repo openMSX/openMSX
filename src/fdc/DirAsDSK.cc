@@ -764,7 +764,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 
 	// Get corresponding directory entry.
 	unsigned dirIndex = getDirEntryForCluster(startCluster);
-	if (dirIndex == unsigned(-1)) {
+	if ((dirIndex == unsigned(-1)) || !mapDir[dirIndex].inUse()) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;
 	}
