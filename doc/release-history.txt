@@ -3,6 +3,41 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.9.1 (2012-09-xx)
+--------------------------
+
+This release mostly fixes a bug in dir-as-disk that was introduced in openMSX
+0.9.0, when adding support for the DMK format and low level disk emulation. We
+not only fixed that bug, we rewrote dir-as-disk almost completely, making it a
+lot more robust.
+
+Here's the list with all highlights:
+
+MSX device support:
+- Accuracy improvements:
+  - improved some details on the laserdisc emulation
+  - improved timing of the VDP LINE command (thanks to NYYRIKKI for the ideas)
+- added Toshiba HX-21, Toshiba HX-22 and Toshiba HX-22I. The latter two have a
+  switchable RS-232C interface (use the new toshiba_rs232c_switch setting)
+
+New or improved emulator features:
+- fixed crash with fast resampler and 8192 samples
+- dir-As-Disk:
+  - dir-as-disk works properly again and is now a lot more robust
+  - improve error reporting when something goes wrong
+- console support/scripts:
+  - added script to save current screen to file in MSX loadable format, thanks
+    to NYYRIKKI
+- performance improvements:
+  - improved console rendering speed (uses less CPU)
+  - improved Tcl integration
+  - speed up low level disk emulation
+  - optimized rendering of superimposed modes (Video9000, laserdisc)
+  - several other performance improvements
+
+Build system, packaging, documentation:
+- Added build support for DragonFly BSD, thanks to John Marino
+
 openMSX 0.9.0 (2012-08-12)
 --------------------------
 
