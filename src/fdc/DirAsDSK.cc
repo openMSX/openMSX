@@ -772,7 +772,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	// Actually write data to host file.
 	string fullHostName = hostDir + mapDir[dirIndex].hostName;
 	try {
-		File file(fullHostName);
+		File file(fullHostName, "rb+"); // don't uncompress
 		file.seek(offset);
 		unsigned msxSize = msxDir(dirIndex).size;
 		if (msxSize > offset) {
