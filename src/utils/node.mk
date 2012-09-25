@@ -28,6 +28,7 @@ HDR_ONLY:= \
 	Subject Observer \
 	ScopedAssign \
 	checked_cast \
+	endian \
 	likely \
 	inline \
 	ref \
