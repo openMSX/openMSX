@@ -29,6 +29,7 @@ HDR_ONLY:= \
 	ScopedAssign \
 	checked_cast \
 	endian \
+	alignof \
 	likely \
 	inline \
 	ref \
