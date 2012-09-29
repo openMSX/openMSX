@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.9.1 (2012-09-xx)
+Release Notes for openMSX 0.9.1 (2012-09-30)
 ============================================
 
 This release mostly fixes a bug in dir-as-disk that was introduced in openMSX
@@ -52,14 +52,14 @@ compiling on a new platform, please share your experiences (see below for
 contact info), so we can make openMSX more portable.
 
 openMSX Home Page:
-  http://www.openmsx.org/
+  http://openmsx.sourceforge.net/
 Project page on SourceForge:
   http://sourceforge.net/projects/openmsx/
 Contact options:
+- Talk to us on #openmsx on irc.freenode.net.
+- Use the forum on http://www.msx.org/forum/semi-msx-talk/openmsx
 - Send a message to the openmsx-user mailing list.
   Go to the SourceForge project page and look under "Lists".
-- Post on our forum: http://forum.openmsx.org/
-- Talk to us on #openmsx on irc.freenode.net.
 
 Thanks to all contributors for their feedback, support, bug reports, testing,
 coding and other help!

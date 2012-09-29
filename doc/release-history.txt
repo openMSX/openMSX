@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.9.1 (2012-09-xx)
+openMSX 0.9.1 (2012-09-30)
 --------------------------
 
 This release mostly fixes a bug in dir-as-disk that was introduced in openMSX
