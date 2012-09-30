@@ -41,6 +41,7 @@
 #include "RomArc.hh"
 #include "MegaFlashRomSCCPlus.hh"
 #include "RomDooly.hh"
+#include "RomMSXtra.hh"
 #include "Rom.hh"
 #include "Reactor.hh"
 #include "RomDatabase.hh"
@@ -333,6 +334,9 @@ auto_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_DOOLY:
 		result.reset(new RomDooly(config, rom));
+		break;
+	case ROM_MSXTRA:
+		result.reset(new RomMSXtra(config, rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");
