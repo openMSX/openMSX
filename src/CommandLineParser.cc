@@ -3,6 +3,7 @@
 #include "CommandLineParser.hh"
 #include "CLIOption.hh"
 #include "GlobalCommandController.hh"
+#include "Interpreter.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -171,8 +172,6 @@ private:
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
-	, settingsConfig(reactor.getGlobalCommandController().getSettingsConfig())
-	, output(reactor.getCliComm())
 	, helpOption(new HelpOption(*this))
 	, versionOption(new VersionOption(*this))
 	, controlOption(new ControlOption(*this))
@@ -201,26 +200,28 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	haveConfig = false;
 	haveSettings = false;
 
-	registerOption("-machine",    *machineOption, 4);
-	registerOption("-setting",    *settingOption, 2);
-	registerOption("-h",          *helpOption, 1, 1);
-	registerOption("--help",      *helpOption, 1, 1);
-	registerOption("-v",          *versionOption, 1, 1);
-	registerOption("--version",   *versionOption, 1, 1);
-	registerOption("-control",    *controlOption, 1, 1);
-	registerOption("-script",     *scriptOption, 1, 1);
-	registerFileClass("Tcl script", *scriptOption);
+	registerOption("-h",          *helpOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("--help",      *helpOption,    PHASE_BEFORE_INIT, 1);
+	registerOption("-v",          *versionOption, PHASE_BEFORE_INIT, 1);
+	registerOption("--version",   *versionOption, PHASE_BEFORE_INIT, 1);
+	registerOption("-bash",       *bashOption,    PHASE_BEFORE_INIT, 1);
+
+	registerOption("-setting",    *settingOption, PHASE_BEFORE_SETTINGS);
+	registerOption("-control",    *controlOption, PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-script",     *scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
 	#if ASM_X86
-	registerOption("-nommx",      *noMMXOption, 1, 1);
-	registerOption("-nosse",      *noSSEOption, 1, 1);
-	registerOption("-nosse2",     *noSSE2Option, 1, 1);
+	registerOption("-nommx",      *noMMXOption,   PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-nosse",      *noSSEOption,   PHASE_BEFORE_SETTINGS, 1);
+	registerOption("-nosse2",     *noSSE2Option,  PHASE_BEFORE_SETTINGS, 1);
 	#endif
 	#if COMPONENT_GL
-	registerOption("-nopbo",      *noPBOOption, 1, 1);
+	registerOption("-nopbo",      *noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
 	#endif
-	registerOption("-testconfig", *testConfigOption, 1, 1);
-	registerOption("-bash",       *bashOption, 1, 1);
+	registerOption("-testconfig", *testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
+	registerOption("-machine",    *machineOption, PHASE_BEFORE_MACHINE);
+
+	registerFileClass("Tcl script", *scriptOption);
 	registerFileTypes();
 }
 
@@ -229,11 +230,11 @@ CommandLineParser::~CommandLineParser()
 }
 
 void CommandLineParser::registerOption(
-	const char* str, CLIOption& cliOption, unsigned prio, unsigned length)
+	const char* str, CLIOption& cliOption, ParsePhase phase, unsigned length)
 {
 	OptionData temp;
 	temp.option = &cliOption;
-	temp.prio = prio;
+	temp.phase = phase;
 	temp.length = length;
 	optionMap[str] = temp;
 }
@@ -246,49 +247,36 @@ void CommandLineParser::registerFileClass(
 
 void CommandLineParser::registerFileTypes()
 {
-	if (const XMLElement* config =
-			settingsConfig.getXMLElement().findChild("FileTypes")) {
-		for (FileClassMap::const_iterator i = fileClassMap.begin();
-		     i != fileClassMap.end(); ++i) {
-			XMLElement::Children extensions;
-			config->getChildren(i->first, extensions);
-			for (XMLElement::Children::const_iterator j = extensions.begin();
-			     j != extensions.end(); ++j) {
-				fileTypeMap[(*j)->getData()] = i->second;
-			}
-		}
-	} else {
-		map<string, string> fileExtMap;
-		fileExtMap["rom"] = "romimage";
-		fileExtMap["ri"]  = "romimage";
-		fileExtMap["dsk"] = "diskimage";
-		fileExtMap["dmk"] = "diskimage";
-		fileExtMap["di1"] = "diskimage";
-		fileExtMap["di2"] = "diskimage";
-		fileExtMap["xsa"] = "diskimage";
-		fileExtMap["wav"] = "cassetteimage";
-		fileExtMap["cas"] = "cassetteimage";
-		fileExtMap["ogv"] = "laserdiscimage";
-		fileExtMap["omr"] = "openMSX replay";
-		fileExtMap["oms"] = "openMSX savestate";
-		fileExtMap["tcl"] = "Tcl script";
-		for (map<string, string>::const_iterator j = fileExtMap.begin();
-		     j != fileExtMap.end(); ++j) {
-			FileClassMap::const_iterator i = fileClassMap.find(j->second);
-			if (i != fileClassMap.end()) {
-				fileTypeMap[j->first] = i->second;
-			}
+	map<string, string> fileExtMap;
+	fileExtMap["rom"] = "romimage";
+	fileExtMap["ri"]  = "romimage";
+	fileExtMap["dsk"] = "diskimage";
+	fileExtMap["dmk"] = "diskimage";
+	fileExtMap["di1"] = "diskimage";
+	fileExtMap["di2"] = "diskimage";
+	fileExtMap["xsa"] = "diskimage";
+	fileExtMap["wav"] = "cassetteimage";
+	fileExtMap["cas"] = "cassetteimage";
+	fileExtMap["ogv"] = "laserdiscimage";
+	fileExtMap["omr"] = "openMSX replay";
+	fileExtMap["oms"] = "openMSX savestate";
+	fileExtMap["tcl"] = "Tcl script";
+	for (map<string, string>::const_iterator j = fileExtMap.begin();
+	     j != fileExtMap.end(); ++j) {
+		FileClassMap::const_iterator i = fileClassMap.find(j->second);
+		if (i != fileClassMap.end()) {
+			fileTypeMap[j->first] = i->second;
 		}
 	}
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, deque<string>& cmdLine, unsigned priority)
+	const string& arg, deque<string>& cmdLine, ParsePhase phase)
 {
 	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
 		// parse option
-		if (it1->second.prio <= priority) {
+		if (it1->second.phase <= phase) {
 			try {
 				return it1->second.option->parseOption(
 					arg, cmdLine);
@@ -350,17 +338,25 @@ void CommandLineParser::parse(int argc, char** argv)
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
-	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {
-		switch (priority) {
-		case 2: // after ControlOption has been parsed
+	for (ParsePhase phase = PHASE_BEFORE_INIT;
+	     (phase <= PHASE_LAST) && (parseStatus != EXIT);
+	     phase = static_cast<ParsePhase>(phase + 1)) {
+		switch (phase) {
+		case PHASE_INIT:
+			reactor.init();
+			reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
+			break;
+		case PHASE_LOAD_SETTINGS:
+			// after -control and -setting has been parsed
 			if (parseStatus != CONTROL) {
 				// if there already is a XML-StdioConnection, we
 				// can't also show plain messages on stdout
 				GlobalCliComm& cliComm = reactor.getGlobalCliComm();
 				cliComm.addListener(new StdioMessages());
 			}
-		case 3:
 			if (!haveSettings) {
+				SettingsConfig& settingsConfig =
+					reactor.getGlobalCommandController().getSettingsConfig();
 				// Load default settings file in case the user
 				// didn't specify one.
 				SystemFileContext context;
@@ -368,7 +364,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				try {
 					settingsConfig.loadSetting(context, filename);
 				} catch (XMLException& e) {
-					output.printWarning(
+					reactor.getCliComm().printWarning(
 						"Loading of settings failed: " +
 						e.getMessage() + "\n"
 						"Reverting to default settings.");
@@ -385,7 +381,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				settingsConfig.setSaveFilename(context, filename);
 			}
 			break;
-		case 5: {
+		case PHASE_LOAD_MACHINE: {
 			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
 				const string& machine =
@@ -393,13 +389,12 @@ void CommandLineParser::parse(int argc, char** argv)
 				try {
 					reactor.switchMachine(machine);
 				} catch (MSXException& e) {
-					output.printInfo(
-						"Failed to initialize default machine: " + e.getMessage()
-						);
+					reactor.getCliComm().printInfo(
+						"Failed to initialize default machine: " + e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const string& fallbackMachine =
 						reactor.getMachineSetting().getRestoreValueString();
-					output.printInfo("Using fallback machine: " + fallbackMachine);
+					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
 					try {
 						reactor.switchMachine(fallbackMachine);
 					} catch (MSXException& e2) {
@@ -417,9 +412,9 @@ void CommandLineParser::parse(int argc, char** argv)
 				string arg = cmdLine.front();
 				cmdLine.pop_front();
 				// first try options
-				if (!parseOption(arg, cmdLine, priority)) {
+				if (!parseOption(arg, cmdLine, phase)) {
 					// next try the registered filetypes (xml)
-					if ((priority < 7) ||
+					if ((phase != PHASE_LAST) ||
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
@@ -733,8 +728,9 @@ bool SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
+		SettingsConfig& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
 		CurrentDirFileContext context;
-		parser.settingsConfig.loadSetting(
+		settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
 		parser.haveSettings = true;
 	} catch (FileException& e) {

@@ -11,10 +11,10 @@ using std::string;
 
 namespace openmsx {
 
-CDImageCLI::CDImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+CDImageCLI::CDImageCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-cda", *this);
+	parser.registerOption("-cda", *this);
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
@@ -22,10 +22,10 @@ bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string_ref cd = string_ref(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
-	if (!commandController.hasCommand(cd)) { // TODO WIP
+	if (!parser.getGlobalCommandController().hasCommand(cd)) { // TODO WIP
 		throw MSXException("No CDROM named '" + cd + "'.");
 	}
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement(cd);
 	command.addListElement(filename);
 	command.executeCommand();

@@ -6,10 +6,8 @@
  */
 
 #include "Reactor.hh"
-#include "GlobalCommandController.hh"
 #include "CommandLineParser.hh"
 #include "CliServer.hh"
-#include "Interpreter.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
 #include "RenderSettings.hh"
@@ -96,7 +94,6 @@ static int main(int argc, char **argv)
 
 		Thread::setMainThread();
 		Reactor reactor;
-		reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
 #ifdef _WIN32
 		ArgumentGenerator arggen;
 		argv = arggen.GetArguments(argc);

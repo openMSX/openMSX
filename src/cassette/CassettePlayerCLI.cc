@@ -11,11 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-cassetteplayer", *this);
-	commandLineParser.registerFileClass("cassetteimage", *this);
+	parser.registerOption("-cassetteplayer", *this);
+	parser.registerFileClass("cassetteimage", *this);
 }
 
 bool CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
@@ -33,10 +33,10 @@ string_ref CassettePlayerCLI::optionHelp() const
 void CassettePlayerCLI::parseFileType(const string& filename,
                                       deque<string>& /*cmdLine*/)
 {
-	if (!commandController.hasCommand("cassetteplayer")) {
+	if (!parser.getGlobalCommandController().hasCommand("cassetteplayer")) {
 		throw MSXException("No cassetteplayer.");
 	}
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement("cassetteplayer");
 	command.addListElement(filename);
 	command.executeCommand();

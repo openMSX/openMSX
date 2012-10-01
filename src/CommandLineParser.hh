@@ -16,8 +16,6 @@ namespace openmsx {
 
 class CLIOption;
 class CLIFileType;
-class SettingsConfig;
-class CliComm;
 class HelpOption;
 class VersionOption;
 class ControlOption;
@@ -47,11 +45,21 @@ class CommandLineParser : private noncopyable
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
+	enum ParsePhase {
+		PHASE_BEFORE_INIT,       // --help, --version, -bash
+		PHASE_INIT,              // calls Reactor::init()
+		PHASE_BEFORE_SETTINGS,   // -setting, -nommx, ...
+		PHASE_LOAD_SETTINGS,     // loads settings.xml
+		PHASE_BEFORE_MACHINE,    // -machine
+		PHASE_LOAD_MACHINE,      // loads machine hardwareconfig.xml
+		PHASE_EXT,               // -ext
+		PHASE_LAST,              // all the rest
+	};
 
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
 	void registerOption(const char* str, CLIOption& cliOption,
-		unsigned prio = 8, unsigned length = 2);
+		ParsePhase phase = PHASE_LAST, unsigned length = 2);
 	void registerFileClass(const char* str, CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
@@ -67,10 +75,9 @@ public:
 	bool isHiddenStartup() const;
 
 private:
-	struct OptionData
-	{
+	struct OptionData {
 		CLIOption* option;
-		unsigned prio;
+		ParsePhase phase;
 		unsigned length; // length in parameters
 	};
 
@@ -79,7 +86,7 @@ private:
 	bool parseFileNameInner(const std::string& arg, const std::string&
 	                   originalPath, std::deque<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
-	                 std::deque<std::string>& cmdLine, unsigned prio);
+	                 std::deque<std::string>& cmdLine, ParsePhase phase);
 	void registerFileTypes();
 	void createMachineSetting();
 
@@ -90,8 +97,6 @@ private:
 	FileClassMap fileClassMap;
 
 	Reactor& reactor;
-	SettingsConfig& settingsConfig;
-	CliComm& output;
 
 	const std::auto_ptr<HelpOption> helpOption;
 	const std::auto_ptr<VersionOption> versionOption;

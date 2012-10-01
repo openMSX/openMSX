@@ -11,13 +11,13 @@ using std::string;
 
 namespace openmsx {
 
-DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-diska", *this);
-	commandLineParser.registerOption("-diskb", *this);
+	parser.registerOption("-diska", *this);
+	parser.registerOption("-diskb", *this);
 
-	commandLineParser.registerFileClass("diskimage", *this);
+	parser.registerFileClass("diskimage", *this);
 	driveLetter = 'a';
 }
 
@@ -46,10 +46,10 @@ string_ref DiskImageCLI::fileTypeHelp() const
 void DiskImageCLI::parse(string_ref drive, string_ref image,
                          deque<string>& cmdLine)
 {
-	if (!commandController.hasCommand(drive)) { // TODO WIP
+	if (!parser.getGlobalCommandController().hasCommand(drive)) { // TODO WIP
 		throw MSXException("No drive named '" + drive + "'.");
 	}
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement(drive);
 	command.addListElement(image);
 	while (peekArgument(cmdLine) == "-ips") {

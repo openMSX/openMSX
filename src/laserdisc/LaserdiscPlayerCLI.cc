@@ -11,11 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-laserdisc", *this);
-	commandLineParser.registerFileClass("laserdiscimage", *this);
+	parser.registerOption("-laserdisc", *this);
+	parser.registerFileClass("laserdiscimage", *this);
 }
 
 bool LaserdiscPlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
@@ -33,10 +33,10 @@ string_ref LaserdiscPlayerCLI::optionHelp() const
 void LaserdiscPlayerCLI::parseFileType(const string& filename,
                                       deque<string>& /*cmdLine*/)
 {
-	if (!commandController.hasCommand("laserdiscplayer")) {
+	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
 		throw MSXException("No laserdiscplayer.");
 	}
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement("laserdiscplayer");
 	command.addListElement("insert");
 	command.addListElement(filename);

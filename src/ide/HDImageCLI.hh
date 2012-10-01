@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class CommandLineParser;
-class GlobalCommandController;
 
 class HDImageCLI : public CLIOption
 {
@@ -19,7 +18,7 @@ public:
 	virtual string_ref optionHelp() const;
 
 private:
-	GlobalCommandController& commandController;
+	CommandLineParser& parser;
 };
 
 } // namespace openmsx

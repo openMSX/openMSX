@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class CommandLineParser;
-class GlobalCommandController;
 
 class ReplayCLI : public CLIOption, public CLIFileType
 {
@@ -22,7 +21,7 @@ public:
 	virtual string_ref fileTypeHelp() const;
 
 private:
-	GlobalCommandController& commandController;
+	CommandLineParser& parser;
 };
 
 } // namespace openmsx

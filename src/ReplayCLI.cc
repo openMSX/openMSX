@@ -11,11 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-ReplayCLI::ReplayCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+ReplayCLI::ReplayCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-replay", *this);
-	commandLineParser.registerFileClass("openMSX replay", *this);
+	parser.registerOption("-replay", *this);
+	parser.registerFileClass("openMSX replay", *this);
 }
 
 bool ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)
@@ -32,7 +32,7 @@ string_ref ReplayCLI::optionHelp() const
 void ReplayCLI::parseFileType(const string& filename,
                                       deque<string>& /*cmdLine*/)
 {
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement("reverse");
 	command.addListElement("loadreplay");
 	command.addListElement("-viewonly");

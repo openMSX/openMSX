@@ -11,10 +11,10 @@ using std::string;
 
 namespace openmsx {
 
-HDImageCLI::HDImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+HDImageCLI::HDImageCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-hda", *this);
+	parser.registerOption("-hda", *this);
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
@@ -22,10 +22,10 @@ bool HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string_ref hd = string_ref(option).substr(1); // hda
 	string filename = getArgument(option, cmdLine);
-	if (!commandController.hasCommand(hd)) { // TODO WIP
+	if (!parser.getGlobalCommandController().hasCommand(hd)) { // TODO WIP
 		throw MSXException("No hard disk named '" + hd + "'.");
 	}
-	TclObject command(commandController.getInterpreter());
+	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement(hd);
 	command.addListElement(filename);
 	command.executeCommand();

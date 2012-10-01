@@ -66,6 +66,7 @@ class Reactor : private Observer<Setting>, private EventListener,
 {
 public:
 	Reactor();
+	void init();
 	~Reactor();
 
 	/**
@@ -129,41 +130,38 @@ private:
 	                 // the destructors of the auto_ptr below
 
 	// note: order of auto_ptr's is important
-	const std::auto_ptr<EventDistributor> eventDistributor;
-	const std::auto_ptr<GlobalCliComm> globalCliComm;
-	const std::auto_ptr<GlobalCommandController> globalCommandController;
-	const std::auto_ptr<GlobalSettings> globalSettings;
-	const std::auto_ptr<InputEventGenerator> inputEventGenerator;
+	std::auto_ptr<EventDistributor> eventDistributor;
+	std::auto_ptr<GlobalCliComm> globalCliComm;
+	std::auto_ptr<GlobalCommandController> globalCommandController;
+	std::auto_ptr<GlobalSettings> globalSettings;
+	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
-	const std::auto_ptr<Mixer> mixer;
-	const std::auto_ptr<DiskFactory> diskFactory;
-	const std::auto_ptr<DiskManipulator> diskManipulator;
-	const std::auto_ptr<DiskChanger> virtualDrive;
-	const std::auto_ptr<FilePool> filePool;
+	std::auto_ptr<Mixer> mixer;
+	std::auto_ptr<DiskFactory> diskFactory;
+	std::auto_ptr<DiskManipulator> diskManipulator;
+	std::auto_ptr<DiskChanger> virtualDrive;
+	std::auto_ptr<FilePool> filePool;
 
-	BooleanSetting& pauseSetting;
-	BooleanSetting& pauseOnLostFocusSetting;
 	std::auto_ptr<EnumSetting<int> > machineSetting;
+	std::auto_ptr<UserSettings> userSettings;
+	std::auto_ptr<RomDatabase> softwareDatabase;
 
-	const std::auto_ptr<UserSettings> userSettings;
-	const std::auto_ptr<RomDatabase> softwareDatabase;
-
-	const std::auto_ptr<AfterCommand> afterCommand;
-	const std::auto_ptr<QuitCommand> quitCommand;
-	const std::auto_ptr<MessageCommand> messageCommand;
-	const std::auto_ptr<MachineCommand> machineCommand;
-	const std::auto_ptr<TestMachineCommand> testMachineCommand;
-	const std::auto_ptr<CreateMachineCommand> createMachineCommand;
-	const std::auto_ptr<DeleteMachineCommand> deleteMachineCommand;
-	const std::auto_ptr<ListMachinesCommand> listMachinesCommand;
-	const std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
-	const std::auto_ptr<StoreMachineCommand> storeMachineCommand;
-	const std::auto_ptr<RestoreMachineCommand> restoreMachineCommand;
-	const std::auto_ptr<AviRecorder> aviRecordCommand;
-	const std::auto_ptr<ConfigInfo> extensionInfo;
-	const std::auto_ptr<ConfigInfo> machineInfo;
-	const std::auto_ptr<RealTimeInfo> realTimeInfo;
-	const std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
+	std::auto_ptr<AfterCommand> afterCommand;
+	std::auto_ptr<QuitCommand> quitCommand;
+	std::auto_ptr<MessageCommand> messageCommand;
+	std::auto_ptr<MachineCommand> machineCommand;
+	std::auto_ptr<TestMachineCommand> testMachineCommand;
+	std::auto_ptr<CreateMachineCommand> createMachineCommand;
+	std::auto_ptr<DeleteMachineCommand> deleteMachineCommand;
+	std::auto_ptr<ListMachinesCommand> listMachinesCommand;
+	std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
+	std::auto_ptr<StoreMachineCommand> storeMachineCommand;
+	std::auto_ptr<RestoreMachineCommand> restoreMachineCommand;
+	std::auto_ptr<AviRecorder> aviRecordCommand;
+	std::auto_ptr<ConfigInfo> extensionInfo;
+	std::auto_ptr<ConfigInfo> machineInfo;
+	std::auto_ptr<RealTimeInfo> realTimeInfo;
+	std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock
@@ -185,6 +183,8 @@ private:
 	 * finishing the pending request(s).
 	 */
 	bool running;
+
+	bool isInit; // has the init() method been run successfully
 
 	friend class MachineCommand;
 	friend class TestMachineCommand;

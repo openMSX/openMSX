@@ -11,11 +11,11 @@ using std::string;
 
 namespace openmsx {
 
-SaveStateCLI::SaveStateCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getGlobalCommandController())
+SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
+	: parser(parser_)
 {
-	commandLineParser.registerOption("-savestate", *this);
-	commandLineParser.registerFileClass("openMSX savestate", *this);
+	parser.registerOption("-savestate", *this);
+	parser.registerFileClass("openMSX savestate", *this);
 }
 
 bool SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)
@@ -34,20 +34,21 @@ void SaveStateCLI::parseFileType(const string& filename,
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?
-	TclObject command(commandController.getInterpreter());
+	GlobalCommandController& controller = parser.getGlobalCommandController();
+	TclObject command(controller.getInterpreter());
 	command.addListElement("restore_machine");
 	command.addListElement(filename);
 	string newId = command.executeCommand();
-	command = TclObject(commandController.getInterpreter());
+	command = TclObject(controller.getInterpreter());
 	command.addListElement("machine");
 	string currentId = command.executeCommand();
 	if (currentId != "") {
-		command = TclObject(commandController.getInterpreter());
+		command = TclObject(controller.getInterpreter());
 		command.addListElement("delete_machine");
 		command.addListElement(currentId);
 		command.executeCommand();
 	}
-	command = TclObject(commandController.getInterpreter());
+	command = TclObject(controller.getInterpreter());
 	command.addListElement("activate_machine");
 	command.addListElement(newId);
 	command.executeCommand();

@@ -13,7 +13,7 @@ namespace openmsx {
 CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
-	cmdLineParser.registerOption("-ext", *this, 7);
+	cmdLineParser.registerOption("-ext", *this, CommandLineParser::PHASE_EXT);
 }
 
 bool CliExtension::parseOption(const string& option, std::deque<string>& cmdLine)

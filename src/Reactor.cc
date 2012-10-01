@@ -186,63 +186,69 @@ private:
 
 Reactor::Reactor()
 	: mbSem(1)
-	, eventDistributor(new EventDistributor(*this))
-	, globalCliComm(new GlobalCliComm())
-	, globalCommandController(new GlobalCommandController(
-		*eventDistributor, *globalCliComm, *this))
-	, globalSettings(new GlobalSettings(*globalCommandController))
-	, inputEventGenerator(new InputEventGenerator(
-		*globalCommandController, *eventDistributor))
-	, mixer(new Mixer(*this, *globalCommandController))
-	, diskFactory(new DiskFactory(*this))
-	, diskManipulator(new DiskManipulator(*globalCommandController, *this))
-	, virtualDrive(new DiskChanger("virtual_drive", *globalCommandController,
-	                               *diskFactory, *diskManipulator, true))
-	, filePool(new FilePool(*globalCommandController, *eventDistributor))
-	, pauseSetting(getGlobalSettings().getPauseSetting())
-	, pauseOnLostFocusSetting(getGlobalSettings().getPauseOnLostFocusSetting())
-	, userSettings(new UserSettings(*globalCommandController))
-	, softwareDatabase(new RomDatabase(*globalCommandController, *globalCliComm))
-	, afterCommand(new AfterCommand(*this, *eventDistributor,
-	                                *globalCommandController))
-	, quitCommand(new QuitCommand(*globalCommandController, *eventDistributor))
-	, messageCommand(new MessageCommand(*globalCommandController))
-	, machineCommand(new MachineCommand(*globalCommandController, *this))
-	, testMachineCommand(new TestMachineCommand(*globalCommandController, *this))
-	, createMachineCommand(new CreateMachineCommand(*globalCommandController, *this))
-	, deleteMachineCommand(new DeleteMachineCommand(*globalCommandController, *this))
-	, listMachinesCommand(new ListMachinesCommand(*globalCommandController, *this))
-	, activateMachineCommand(new ActivateMachineCommand(*globalCommandController, *this))
-	, storeMachineCommand(new StoreMachineCommand(*globalCommandController, *this))
-	, restoreMachineCommand(new RestoreMachineCommand(*globalCommandController, *this))
-	, aviRecordCommand(new AviRecorder(*this))
-	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
-	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
-	, realTimeInfo(new RealTimeInfo(getOpenMSXInfoCommand()))
-	, tclCallbackMessages(new TclCallbackMessages(*globalCliComm,
-	                                              *globalCommandController))
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
+	, isInit(false)
 {
+}
+
+void Reactor::init()
+{
+	eventDistributor.reset(new EventDistributor(*this));
+	globalCliComm.reset(new GlobalCliComm());
+	globalCommandController.reset(new GlobalCommandController(
+		*eventDistributor, *globalCliComm, *this));
+	globalSettings.reset(new GlobalSettings(*globalCommandController));
+	inputEventGenerator.reset(new InputEventGenerator(
+		*globalCommandController, *eventDistributor));
+	mixer.reset(new Mixer(*this, *globalCommandController));
+	diskFactory.reset(new DiskFactory(*this));
+	diskManipulator.reset(new DiskManipulator(*globalCommandController, *this));
+	virtualDrive.reset(new DiskChanger("virtual_drive", *globalCommandController,
+	                               *diskFactory, *diskManipulator, true));
+	filePool.reset(new FilePool(*globalCommandController, *eventDistributor));
+	userSettings.reset(new UserSettings(*globalCommandController));
+	softwareDatabase.reset(new RomDatabase(*globalCommandController, *globalCliComm));
+	afterCommand.reset(new AfterCommand(*this, *eventDistributor,
+	                                *globalCommandController));
+	quitCommand.reset(new QuitCommand(*globalCommandController, *eventDistributor));
+	messageCommand.reset(new MessageCommand(*globalCommandController));
+	machineCommand.reset(new MachineCommand(*globalCommandController, *this));
+	testMachineCommand.reset(new TestMachineCommand(*globalCommandController, *this));
+	createMachineCommand.reset(new CreateMachineCommand(*globalCommandController, *this));
+	deleteMachineCommand.reset(new DeleteMachineCommand(*globalCommandController, *this));
+	listMachinesCommand.reset(new ListMachinesCommand(*globalCommandController, *this));
+	activateMachineCommand.reset(new ActivateMachineCommand(*globalCommandController, *this));
+	storeMachineCommand.reset(new StoreMachineCommand(*globalCommandController, *this));
+	restoreMachineCommand.reset(new RestoreMachineCommand(*globalCommandController, *this));
+	aviRecordCommand.reset(new AviRecorder(*this));
+	extensionInfo.reset(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"));
+	machineInfo  .reset(new ConfigInfo(getOpenMSXInfoCommand(), "machines"));
+	realTimeInfo.reset(new RealTimeInfo(getOpenMSXInfoCommand()));
+	tclCallbackMessages.reset(new TclCallbackMessages(*globalCliComm,
+	                                              *globalCommandController));
+
 	createMachineSetting();
 
-	pauseSetting.attach(*this);
+	getGlobalSettings().getPauseSetting().attach(*this);
 
 	eventDistributor->registerEventListener(OPENMSX_QUIT_EVENT, *this);
 	eventDistributor->registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor->registerEventListener(OPENMSX_DELETE_BOARDS, *this);
+	isInit = true;
 }
 
 Reactor::~Reactor()
 {
+	if (!isInit) return;
 	deleteBoard(activeBoard);
 
 	eventDistributor->unregisterEventListener(OPENMSX_QUIT_EVENT, *this);
 	eventDistributor->unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
-	pauseSetting.detach(*this);
+	getGlobalSettings().getPauseSetting().detach(*this);
 }
 
 EventDistributor& Reactor::getEventDistributor()
@@ -610,6 +616,7 @@ void Reactor::unblock()
 // Observer<Setting>
 void Reactor::update(const Setting& setting)
 {
+	BooleanSetting& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
 			pause();
@@ -627,11 +634,11 @@ int Reactor::signalEvent(const shared_ptr<const Event>& event)
 		enterMainLoop();
 		running = false;
 	} else if (type == OPENMSX_FOCUS_EVENT) {
-		if (!pauseOnLostFocusSetting.getValue()) return 0;
+		if (!getGlobalSettings().getPauseOnLostFocusSetting().getValue()) return 0;
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
 			// gained focus
-			if (!pauseSetting.getValue()) {
+			if (!getGlobalSettings().getPauseSetting().getValue()) {
 				unpause();
 			}
 		} else {
