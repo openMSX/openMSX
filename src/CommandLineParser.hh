@@ -29,6 +29,7 @@ class NoSSEOption;
 class NoSSE2Option;
 class NoPBOOption;
 class TestConfigOption;
+class BashOption;
 class MSXRomCLI;
 class CliExtension;
 class ReplayCLI;
@@ -103,6 +104,7 @@ private:
 	const std::auto_ptr<NoSSE2Option> noSSE2Option;
 	const std::auto_ptr<NoPBOOption> noPBOOption;
 	const std::auto_ptr<TestConfigOption> testConfigOption;
+	const std::auto_ptr<BashOption> bashOption;
 
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
@@ -126,6 +128,7 @@ private:
 	friend class MachineOption;
 	friend class SettingOption;
 	friend class TestConfigOption;
+	friend class BashOption;
 };
 
 } // namespace openmsx

@@ -30,6 +30,7 @@
 #include "utf8_checked.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
+#include "RomInfo.hh"
 #include "StringMap.hh"
 #include "build-info.hh"
 #include "components.hh"
@@ -155,6 +156,16 @@ private:
 	CommandLineParser& parser;
 };
 
+class BashOption : public CLIOption
+{
+public:
+	explicit BashOption(CommandLineParser& parser);
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual string_ref optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
+
 
 // class CommandLineParser
 
@@ -173,6 +184,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, noSSE2Option(new NoSSE2Option())
 	, noPBOOption(new NoPBOOption())
 	, testConfigOption(new TestConfigOption(*this))
+	, bashOption(new BashOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, replayCLI(new ReplayCLI(*this))
@@ -207,6 +219,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-nopbo",      *noPBOOption, 1, 1);
 	#endif
 	registerOption("-testconfig", *testConfigOption, 1, 1);
+	registerOption("-bash",       *bashOption, 1, 1);
 
 	registerFileTypes();
 }
@@ -629,7 +642,10 @@ bool HelpOption::parseOption(const string& /*option*/,
 	StringMap<set<string> > optionMap;
 	for (map<string, CommandLineParser::OptionData>::const_iterator it =
 	        parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
-		optionMap[it->second.option->optionHelp()].insert(it->first);
+		string_ref helpText = it->second.option->optionHelp();
+		if (!helpText.empty()) {
+			optionMap[helpText].insert(it->first);
+		}
 	}
 	printItemMap(optionMap);
 
@@ -818,6 +834,45 @@ bool TestConfigOption::parseOption(const string& /*option*/,
 string_ref TestConfigOption::optionHelp() const
 {
 	return "Test if the specified config works and exit";
+}
+
+// class BashOption
+
+BashOption::BashOption(CommandLineParser& parser_)
+	: parser(parser_)
+{
+}
+
+bool BashOption::parseOption(const string& /*option*/,
+                             deque<string>& cmdLine)
+{
+	string last = cmdLine.empty() ? "" : cmdLine.front();
+	cmdLine.clear(); // eat all remaining parameters
+
+	set<string> items;
+	if (last == "-machine") {
+		Reactor::getHwConfigs("machines", items);
+	} else if (last == "-ext") {
+		Reactor::getHwConfigs("extensions", items);
+	} else if (last == "-romtype") {
+		RomInfo::getAllRomTypes(items);
+	} else {
+		for (map<string, CommandLineParser::OptionData>::const_iterator it =
+			parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
+			items.insert(it->first);
+		}
+	}
+	for (set<string>::const_iterator it = items.begin();
+	     it != items.end(); ++it) {
+		cout << *it << '\n';
+	}
+	parser.parseStatus = CommandLineParser::EXIT;
+	return true;
+}
+
+string_ref BashOption::optionHelp() const
+{
+	return ""; // don't include this option in --help
 }
 
 } // namespace openmsx
