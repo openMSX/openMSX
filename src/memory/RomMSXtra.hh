@@ -1,4 +1,4 @@
-//
+// $Id$
 
 #ifndef ROMMSXTRA_HH
 #define ROMMSXTRA_HH
@@ -23,10 +23,10 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-protected:
+private:
 	const std::auto_ptr<Ram> ram;
 };
 
-} // namespace
+} // namespace openmsx
 
 #endif

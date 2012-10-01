@@ -1,20 +1,19 @@
-//
+// $Id$
 
 #include "RomMSXtra.hh"
 #include "Rom.hh"
 #include "Ram.hh"
-#include "MSXMotherBoard.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
 RomMSXtra::RomMSXtra(const DeviceConfig& config, std::auto_ptr<Rom> rom)
 	: MSXRom(config, rom)
-	, ram(new Ram(config, getName() + " RAM", "MSXtra RAM",
-	              0x0800))
+	, ram(new Ram(config, getName() + " RAM", "MSXtra RAM", 0x0800))
 {
-	byte j[2]; j[0] = 0xa5; j[1] = 0x5a;
-	for (int i=0;i<0x800;i++) (*ram)[i] = j[i&1];
+	for (int i = 0; i < 0x800; ++i) {
+		(*ram)[i] = (i & 1) ? 0x5a : 0xa5;
+	}
 }
 
 RomMSXtra::~RomMSXtra()
@@ -43,6 +42,8 @@ const byte* RomMSXtra::getReadCacheLine(word address) const
 	}
 }
 
+// default peekMem() implementation is OK
+
 void RomMSXtra::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
@@ -53,7 +54,7 @@ void RomMSXtra::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* RomMSXtra::getWriteCacheLine(word address) const
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return const_cast<byte*>(&(*ram)[address & 0x07ff]);
+		return &(*ram)[address & 0x07ff];
 	} else {
 		return unmappedWrite;
 	}
@@ -62,10 +63,11 @@ byte* RomMSXtra::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomMSXtra::serialize(Archive& ar, unsigned /*version*/)
 {
+	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ram", *ram);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMSXtra);
 REGISTER_MSXDEVICE(RomMSXtra, "RomMSXtra");
 
-} // namespace
+} // namespace openmsx
