@@ -30,7 +30,7 @@ SRC_HDR:= \
 	MSXHBI55 \
 	ESE_RAM ESE_SCC \
 	RomManbow2 RomMatraInk RomArc RomDooly RomMSXtra \
-	MegaFlashRomSCCPlus
+	RomMultiRom MegaFlashRomSCCPlus
 
 HDR_ONLY:= \
 	RomTypes \

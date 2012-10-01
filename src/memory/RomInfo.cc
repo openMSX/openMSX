@@ -78,6 +78,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Dooly"]          = ROM_DOOLY;
 		romTypeMap["MegaFlashRomSccPlus"]= ROM_MEGAFLASHROMSCCPLUS;
 		romTypeMap["MSXtra"]         = ROM_MSXTRA;
+		romTypeMap["MultiRom"]       = ROM_MULTIROM;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;

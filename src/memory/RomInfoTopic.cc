@@ -53,6 +53,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_ARC] = "Parallax' ARC";
 	description[ROM_DOOLY] = "Baby Dinosaur Dooly";
 	description[ROM_MSXTRA] = "PTC MSXtra";
+	description[ROM_MULTIROM] = "MultiRom Collection";
 
 	description[ROM_MIRRORED] = "Plain rom, mirrored (any size)";
 	description[ROM_MIRRORED0000] = "Plain rom, mirrored start at 0x0000";
