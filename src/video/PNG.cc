@@ -285,7 +285,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		png_text text[2];
 		text[0].compression = PNG_TEXT_COMPRESSION_NONE;
 		text[0].key  = const_cast<char*>("Software");
-		text[0].text = const_cast<char*>(Version::FULL_VERSION.c_str());
+		text[0].text = const_cast<char*>(Version::full().c_str());
 		text[1].compression = PNG_TEXT_COMPRESSION_NONE;
 		text[1].key  = const_cast<char*>("Creation Time");
 		time_t now = time(NULL);

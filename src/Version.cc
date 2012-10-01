@@ -6,8 +6,10 @@ namespace openmsx {
 
 #include "Version.ii"
 
-const std::string Version::FULL_VERSION
-	= "openMSX " + Version::VERSION
-	+ (Version::RELEASE ? "" : "-dev" + Version::REVISION);
+std::string Version::full()
+{
+	return std::string("openMSX ") + VERSION +
+	       (RELEASE ? "" : (std::string("-dev") + REVISION));
+}
 
 } // namespace openmsx

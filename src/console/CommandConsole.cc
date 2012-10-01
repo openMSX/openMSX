@@ -144,8 +144,9 @@ CommandConsole::CommandConsole(
 	loadHistory();
 	Completer::setOutput(this);
 
-	print(Version::FULL_VERSION);
-	print(string(Version::FULL_VERSION.size(), '-'));
+	string fullVersion = Version::full();
+	print(fullVersion);
+	print(string(fullVersion.size(), '-'));
 	print("\n"
 	      "General information about openMSX is available at "
 	      "http://www.openmsx.org.\n"

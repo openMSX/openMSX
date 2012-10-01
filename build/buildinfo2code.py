@@ -50,8 +50,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield '#ifndef BUILD_INFO_HH'
 	yield '#define BUILD_INFO_HH'
 	yield ''
-	yield '#include <string>'
-	yield ''
 	# Use a macro i.s.o. a boolean to prevent compilation errors on inline asm.
 	# A compiler will typically only understand the instruction set that it
 	# generates code for.
@@ -78,8 +76,8 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		% str(targetCPU.unalignedMemoryAccess).lower()
 	yield 'static const bool OPENMSX_SET_WINDOW_ICON = %s;' \
 		% str(setWindowIcon).lower()
-	yield 'static const std::string DATADIR = "%s";' % installShareDir
-	yield 'static const std::string BUILD_FLAVOUR = "%s";' % flavour
+	yield 'static const char* const DATADIR = "%s";' % installShareDir
+	yield 'static const char* const BUILD_FLAVOUR = "%s";' % flavour
 	yield ''
 	yield '} // namespace openmsx'
 	yield ''

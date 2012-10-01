@@ -168,7 +168,7 @@ AviWriter::~AviWriter()
 		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
-	const char* versionStr = Version::FULL_VERSION.c_str();
+	const char* versionStr = Version::full().c_str();
 	char dateStr[11];
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);

@@ -20,15 +20,13 @@ def iterComponentsHeader(probeMakePath):
 	yield '#ifndef COMPONENTS_HH'
 	yield '#define COMPONENTS_HH'
 	yield ''
-	yield '#include <string>'
-	yield ''
 	for component in iterComponents():
 		varName = component.makeName
 		yield '#define COMPONENT_%s %d' % (varName, varName in buildComponents)
 	yield ''
 	yield 'namespace openmsx {'
 	yield ''
-	yield 'static const std::string BUILD_COMPONENTS = "%s";' \
+	yield 'static const char* const BUILD_COMPONENTS = "%s";' \
 		% ' '.join(sorted(buildComponents))
 	yield ''
 	yield '} // namespace openmsx'

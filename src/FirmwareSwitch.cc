@@ -12,7 +12,7 @@ using std::string;
 
 namespace openmsx {
 
-static const std::string filename = "firmwareswitch";
+static const char* const filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)

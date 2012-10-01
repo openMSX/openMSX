@@ -723,7 +723,7 @@ VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
 void VersionInfo::execute(const vector<TclObject>& /*tokens*/,
                           TclObject& result) const
 {
-	result.setString(Version::FULL_VERSION);
+	result.setString(Version::full());
 }
 
 string VersionInfo::help(const vector<string>& /*tokens*/) const

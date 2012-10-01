@@ -252,9 +252,11 @@ int Display::signalEvent(const shared_ptr<const Event>& event)
 
 void Display::setWindowTitle()
 {
-	string title = Version::FULL_VERSION;
+	string title = Version::full();
 	if (!Version::RELEASE) {
-		title += " [" + BUILD_FLAVOUR + ']';
+		title += " [";
+		title += BUILD_FLAVOUR;
+		title += ']';
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {

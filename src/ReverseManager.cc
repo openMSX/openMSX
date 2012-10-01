@@ -40,7 +40,7 @@ static const unsigned MAX_NOF_SNAPSHOTS = 10;
 // Min distance between snapshots in replay (in seconds)
 static const EmuDuration MIN_PARTITION_LENGTH = EmuDuration(60.0);
 
-static const string REPLAY_DIR = "replays";
+static const char* const REPLAY_DIR = "replays";
 
 // A replay is a struct that contains a vector of motherboards and an MSX event
 // log. Those combined are a replay, because you can replay the events from an

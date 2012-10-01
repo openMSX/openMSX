@@ -626,8 +626,9 @@ bool HelpOption::parseOption(const string& /*option*/,
 	if (!parser.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
-	cout << Version::FULL_VERSION << endl;
-	cout << string(Version::FULL_VERSION.length(), '=') << endl;
+	string fullVersion = Version::full();
+	cout << fullVersion << endl;
+	cout << string(fullVersion.size(), '=') << endl;
 	cout << endl;
 	cout << "usage: openmsx [arguments]" << endl;
 	cout << "  an argument is either an option or a filename" << endl;
@@ -675,7 +676,7 @@ VersionOption::VersionOption(CommandLineParser& parser_)
 bool VersionOption::parseOption(const string& /*option*/,
                                 deque<string>& /*cmdLine*/)
 {
-	cout << Version::FULL_VERSION << endl;
+	cout << Version::full() << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
 	cout << "components: " << BUILD_COMPONENTS << endl;
 	parser.parseStatus = CommandLineParser::EXIT;
