@@ -5,6 +5,7 @@
 
 #include "build-info.hh"
 #include <stdint.h>
+#include <cstring>
 
 #ifdef _MSC_VER
 #define ALIGNED(EXPRESSION, ALIGNMENT) __declspec (align(ALIGNMENT)) EXPRESSION
