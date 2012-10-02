@@ -188,7 +188,7 @@ void uncompress(const char* input, size_t inLen,
 			if (unlikely(literalLen >= 61)) {
 				// Long literal.
 				size_t literalLenLen = literalLen - 60;
-				literalLen = loadNBytes(ip, literalLenLen) + 1;
+				literalLen = loadNBytes(ip, unsigned(literalLenLen)) + 1;
 				ip += literalLenLen;
 			}
 			memcpy(op, ip, literalLen);
@@ -352,7 +352,7 @@ static inline int findMatchLength(const char* s1,
 	// time until we find a N-bit block that doesn't match, Then (only on
 	// little endian machines) we find the first non-matching bit and use
 	// that to calculate the total length of the match.
-	typedef typename FindMatchUnit<sizeof(void*)>::type T;
+	typedef FindMatchUnit<sizeof(void*)>::type T;
 	while (likely(s2 <= s2Limit - sizeof(T))) {
 		T l2 = unalignedLoad<T>(s2);
 		T l1 = unalignedLoad<T>(s1 + matched);
@@ -426,11 +426,11 @@ static inline char* emitCopyLessThan64(char* op, size_t offset, int len)
 	if ((len < 12) && (offset < 2048)) {
 		size_t lenMinus4 = len - 4;
 		assert(lenMinus4 < 8); // Must fit in 3 bits
-		*op++ = COPY_1_BYTE_OFFSET | ((lenMinus4) << 2) | ((offset >> 8) << 5);
+		*op++ = char(COPY_1_BYTE_OFFSET | ((lenMinus4) << 2) | ((offset >> 8) << 5));
 		*op++ = offset & 0xff;
 	} else {
 		*op++ = COPY_2_BYTE_OFFSET | ((len - 1) << 2);
-		Endian::write_UA_L16(op, offset);
+		Endian::write_UA_L16(op, uint16_t(offset));
 		op += 2;
 	}
 	return op;
