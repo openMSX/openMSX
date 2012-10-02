@@ -12,7 +12,7 @@ class CLIOption
 {
 public:
 	virtual ~CLIOption() {}
-	virtual bool parseOption(const std::string& option,
+	virtual void parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine) = 0;
 	virtual string_ref optionHelp() const = 0;
 

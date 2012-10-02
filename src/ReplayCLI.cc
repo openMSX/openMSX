@@ -18,10 +18,9 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	parser.registerFileClass("openMSX replay", *this);
 }
 
-bool ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)
+void ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
-	return true;
 }
 
 string_ref ReplayCLI::optionHelp() const

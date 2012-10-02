@@ -21,11 +21,10 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 	driveLetter = 'a';
 }
 
-bool DiskImageCLI::parseOption(const string& option, deque<string>& cmdLine)
+void DiskImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
 	parse(string_ref(option).substr(1), filename, cmdLine);
-	return true;
 }
 string_ref DiskImageCLI::optionHelp() const
 {

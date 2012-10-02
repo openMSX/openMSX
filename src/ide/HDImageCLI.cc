@@ -18,7 +18,7 @@ HDImageCLI::HDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-bool HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
+void HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string_ref hd = string_ref(option).substr(1); // hda
 	string filename = getArgument(option, cmdLine);
@@ -29,7 +29,6 @@ bool HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 	command.addListElement(hd);
 	command.addListElement(filename);
 	command.executeCommand();
-	return true;
 }
 string_ref HDImageCLI::optionHelp() const
 {

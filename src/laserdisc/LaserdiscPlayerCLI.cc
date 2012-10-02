@@ -18,10 +18,9 @@ LaserdiscPlayerCLI::LaserdiscPlayerCLI(CommandLineParser& parser_)
 	parser.registerFileClass("laserdiscimage", *this);
 }
 
-bool LaserdiscPlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
+void LaserdiscPlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
-	return true;
 }
 
 string_ref LaserdiscPlayerCLI::optionHelp() const

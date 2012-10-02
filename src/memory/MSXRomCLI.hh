@@ -14,7 +14,7 @@ class MSXRomCLI : public CLIOption, public CLIFileType
 public:
 	explicit MSXRomCLI(CommandLineParser& cmdLineParser);
 
-	virtual bool parseOption(const std::string& option,
+	virtual void parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine);
 	virtual string_ref optionHelp() const;
 
@@ -29,12 +29,12 @@ private:
 	CommandLineParser& cmdLineParser;
 
 	class IpsOption : public CLIOption {
-		virtual bool parseOption(const std::string& option,
+		virtual void parseOption(const std::string& option,
 		                         std::deque<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;
 	} ipsOption;
 	class RomTypeOption : public CLIOption {
-		virtual bool parseOption(const std::string& option,
+		virtual void parseOption(const std::string& option,
 		                         std::deque<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;
 	} romTypeOption;

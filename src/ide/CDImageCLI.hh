@@ -13,7 +13,7 @@ class CDImageCLI : public CLIOption
 {
 public:
 	explicit CDImageCLI(CommandLineParser& cmdLineParser);
-	virtual bool parseOption(const std::string& option,
+	virtual void parseOption(const std::string& option,
 	                         std::deque<std::string>& cmdLine);
 	virtual string_ref optionHelp() const;
 

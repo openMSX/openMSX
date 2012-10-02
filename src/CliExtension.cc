@@ -16,7 +16,7 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-ext", *this, CommandLineParser::PHASE_EXT);
 }
 
-bool CliExtension::parseOption(const string& option, std::deque<string>& cmdLine)
+void CliExtension::parseOption(const string& option, std::deque<string>& cmdLine)
 {
 	try {
 		string extensionName = getArgument(option, cmdLine);
@@ -26,7 +26,6 @@ bool CliExtension::parseOption(const string& option, std::deque<string>& cmdLine
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}
-	return true;
 }
 
 string_ref CliExtension::optionHelp() const

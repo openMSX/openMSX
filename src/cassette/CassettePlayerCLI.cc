@@ -18,10 +18,9 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	parser.registerFileClass("cassetteimage", *this);
 }
 
-bool CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
+void CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
-	return true;
 }
 
 string_ref CassettePlayerCLI::optionHelp() const

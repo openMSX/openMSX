@@ -25,7 +25,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerFileClass("romimage", *this);
 }
 
-bool MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
+void MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
@@ -35,7 +35,6 @@ bool MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
 		slotname = "any";
 	}
 	parse(arg, slotname, cmdLine);
-	return true;
 }
 
 string_ref MSXRomCLI::optionHelp() const
@@ -76,7 +75,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	motherboard->insertExtension("ROM", extension);
 }
 
-bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
+void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
                                        deque<string>& /*cmdLine*/)
 {
 	throw FatalError(
@@ -89,7 +88,7 @@ string_ref MSXRomCLI::IpsOption::optionHelp() const
 	       "in the preceding option";
 }
 
-bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
+void MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
                                            deque<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");

@@ -18,10 +18,9 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	parser.registerFileClass("openMSX savestate", *this);
 }
 
-bool SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)
+void SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
-	return true;
 }
 
 string_ref SaveStateCLI::optionHelp() const

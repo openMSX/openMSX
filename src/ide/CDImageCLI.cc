@@ -18,7 +18,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
+void CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string_ref cd = string_ref(option).substr(1); // cda
 	string filename = getArgument(option, cmdLine);
@@ -29,7 +29,6 @@ bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 	command.addListElement(cd);
 	command.addListElement(filename);
 	command.executeCommand();
-	return true;
 }
 string_ref CDImageCLI::optionHelp() const
 {
