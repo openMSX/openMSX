@@ -18,6 +18,7 @@ SRC_HDR:= \
 	DivModBySame \
 	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent win32-arggen \
 	lzo \
+	snappy \
 	string_ref \
 	rapidsax \
 
