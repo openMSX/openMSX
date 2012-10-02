@@ -7,7 +7,6 @@
 #include "XMLElement.hh"
 #include "ConfigException.hh"
 #include "XMLException.hh"
-#include "lzo.hh"
 #include "snappy.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
@@ -209,32 +208,6 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	//
 	// Later I compared 'lzo' with 'snappy', lzo compresses 6-25% better,
 	// but 'snappy' is about twice as fast. So I switched to 'snappy'.
-#if 0
-	// gzip
-	uLongf dstLen = len + len / 1000 + 12; // upper bound for required size
-	char* buf = buffer.allocate(sizeof(dstLen) + dstLen);
-
-	if (compress2(reinterpret_cast<Bytef*>(&buf[sizeof(dstLen)]), &dstLen,
-	              reinterpret_cast<const Bytef*>(data), len, 1)
-	    != Z_OK) {
-		UNREACHABLE;
-	}
-
-	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
-#elif 0
-	// lzo
-	unsigned dstLen = len + len / 16 + 64 + 3; // upper bound
-	byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
-
-	lzo1x_1_compress(reinterpret_cast<const byte*>(data), len,
-	                 reinterpret_cast<byte*>(&buf[sizeof(dstLen)]),
-	                 dstLen);
-
-	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
-#else
-	// snappy
 	size_t dstLen = snappy::maxCompressedLength(len);
 	byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
 
@@ -243,36 +216,14 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 
 	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
 	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
-#endif
 }
 
 void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 {
-#if 0
-	// gzip
-	uLongf srcLen; load(srcLen);
-	uLongf dstLen = len;
-	if (uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
-		       reinterpret_cast<const Bytef*>(buffer.getCurrentPos()), srcLen)
-	    != Z_OK) {
-		UNREACHABLE;
-	}
-	buffer.skip(srcLen);
-#elif 0
-	// lzo
-	unsigned srcLen; load(srcLen);
-	unsigned dstLen = len;
-	lzo1x_decompress(reinterpret_cast<const byte*>(buffer.getCurrentPos()),
-	                 srcLen, reinterpret_cast<byte*>(data), dstLen);
-	assert(dstLen == len);
-	buffer.skip(srcLen);
-#else
-	// snappy
 	size_t srcLen; load(srcLen);
 	snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
 	                   srcLen, reinterpret_cast<char*>(data), len);
 	buffer.skip(srcLen);
-#endif
 }
 
 ////
