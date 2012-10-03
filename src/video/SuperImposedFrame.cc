@@ -30,7 +30,7 @@ std::auto_ptr<SuperImposedFrame> SuperImposedFrame::create(
 	const SDL_PixelFormat& format)
 {
 #if HAVE_16BPP
-	if (format.BitsPerPixel == 16) {
+	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
 		return std::auto_ptr<SuperImposedFrame>(
 			new SuperImposedFrameImpl<word>(format));
 	}
