@@ -134,6 +134,8 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	blocksize[ROM_MATRAINK] = 0x0000;
 	blocksize[ROM_ARC] = 0x4000;		// officially plain 32K
 	blocksize[ROM_DOOLY] = 0x4000;		// officially 32K blocksize, but spread over 2 pages
+	blocksize[ROM_MSXTRA] = 0x0000;
+	blocksize[ROM_MULTIROM] = 0x0000;
 
 	blocksize[ROM_MIRRORED] = 0x2000;
 	blocksize[ROM_MIRRORED0000] = 0x2000;
