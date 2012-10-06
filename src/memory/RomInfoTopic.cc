@@ -6,6 +6,7 @@
 #include "CommandException.hh"
 #include <map>
 #include <set>
+#include <cassert>
 
 using std::set;
 using std::vector;
@@ -184,6 +185,10 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	blocksize[ROM_SYNTHESIZER] = 0x4000;	// officially plain 32K
 	blocksize[ROM_PLAYBALL] = 0x4000;	// officially plain 32K
 	blocksize[ROM_NETTOU_YAKYUU] = 0x2000;
+
+	// If you add an entry to 'description' you also need to add one to
+	// 'blocksize' and vice versa.
+	assert(description.size() == blocksize.size());
 }
 
 void RomInfoTopic::execute(const vector<TclObject>& tokens,
