@@ -3,85 +3,89 @@
 #ifndef ROMTYPES_HH
 #define ROMTYPES_HH
 
+#include "static_assert.hh"
+
 namespace openmsx {
 
 enum RomType {
-	ROM_GENERIC_8KB  = 0,
-	ROM_GENERIC_16KB = 1,
-	ROM_KONAMI       = 2,
-	ROM_KONAMI_SCC   = 3,
-	ROM_ASCII8       = 4,
-	ROM_ASCII16      = 5,
-	ROM_R_TYPE       = 6,
-	ROM_CROSS_BLAIM  = 7,
-	ROM_HARRY_FOX    = 9,
-	ROM_HALNOTE      = 10,
-	ROM_ZEMINA80IN1  = 11,
-	ROM_ZEMINA90IN1  = 12,
-	ROM_ZEMINA126IN1 = 13,
-	ROM_HOLY_QURAN   = 14,
-	ROM_MIRRORED     = 15,
-	ROM_NORMAL       = 16,
-	ROM_FSA1FM1      = 17,
-	ROM_FSA1FM2      = 18,
-	ROM_DRAM         = 19,
-	ROM_PADIAL8      = 20,
-	ROM_PADIAL16     = 21,
-	ROM_SUPERLODERUNNER = 22,
-	ROM_MSXDOS2      = 23,
-	ROM_MANBOW2      = 24,
-	ROM_MEGAFLASHROMSCC = 25,
-	ROM_MATRAINK     = 26,
-	ROM_HOLY_QURAN2  = 27,
-	ROM_ARC          = 28,
-	ROM_MEGAFLASHROMSCCPLUS = 29,
-	ROM_DOOLY          = 30,
-	ROM_MSXTRA         = 31,
-	ROM_MULTIROM       = 32,
+	// Order doesn't matter (I sorted them alphabetically)
+	ROM_ARC,
+	ROM_ASCII8,
+	ROM_ASCII8_8,
+	ROM_ASCII16,
+	ROM_ASCII16_2,
+	ROM_CROSS_BLAIM,
+	ROM_DOOLY,
+	ROM_DRAM,
+	ROM_FSA1FM1,
+	ROM_FSA1FM2,
+	ROM_GAME_MASTER2,
+	ROM_GENERIC_8KB,
+	ROM_GENERIC_16KB,
+	ROM_HALNOTE,
+	ROM_HAMARAJANIGHT,
+	ROM_HARRY_FOX,
+	ROM_HOLY_QURAN,
+	ROM_HOLY_QURAN2,
+	ROM_KBDMASTER,
+	ROM_KOEI_8,
+	ROM_KOEI_32,
+	ROM_KONAMI,
+	ROM_KONAMI_SCC,
+	ROM_MAJUTSUSHI,
+	ROM_MANBOW2,
+	ROM_MANBOW2_2,
+	ROM_MATRAINK,
+	ROM_MEGAFLASHROMSCC,
+	ROM_MEGAFLASHROMSCCPLUS,
+	ROM_MIRRORED,
+	ROM_MSXDOS2,
+	ROM_MSXTRA,
+	ROM_MULTIROM,
+	ROM_NATIONAL,
+	ROM_NETTOU_YAKYUU,
+	ROM_NORMAL,
+	ROM_PADIAL8,
+	ROM_PADIAL16,
+	ROM_PANASONIC,
+	ROM_PLAYBALL,
+	ROM_R_TYPE,
+	ROM_SUPERLODERUNNER,
+	ROM_SYNTHESIZER,
+	ROM_WIZARDRY,
+	ROM_ZEMINA80IN1,
+	ROM_ZEMINA90IN1,
+	ROM_ZEMINA126IN1,
 
-	ROM_PAGE0        = 32 + 1,
-	ROM_PAGE1        = 32 + 2,
-	ROM_PAGE01       = 32 + 3,
-	ROM_PAGE2        = 32 + 4,
-	ROM_PAGE12       = 32 + 6,
-	ROM_PAGE012      = 32 + 7,
-	ROM_PAGE3        = 32 + 8,
-	ROM_PAGE23       = 32 + 12,
-	ROM_PAGE123      = 32 + 14,
-	ROM_PAGE0123     = 32 + 15,
+	ROM_END_OF_UNORDERED_LIST, // not an actual romtype
 
-	ROM_MIRRORED0000 = 48 + 0,
-	ROM_MIRRORED4000 = 48 + 2,
-	ROM_MIRRORED8000 = 48 + 4,
-	ROM_MIRROREDC000 = 48 + 6,
-
-	ROM_NORMAL0000   = 56 + 0,
-	ROM_NORMAL4000   = 56 + 2,
-	ROM_NORMAL8000   = 56 + 4,
-	ROM_NORMALC000   = 56 + 6,
-
-	ROM_ASCII8_8     = 64 + 0,
-	ROM_ASCII16_2    = 64 + 1,
-	ROM_GAME_MASTER2 = 64 + 2,
-	ROM_PANASONIC    = 64 + 3,
-	ROM_NATIONAL     = 64 + 4,
-	ROM_KOEI_8       = 64 + 5,
-	ROM_KOEI_32      = 64 + 6,
-	ROM_WIZARDRY     = 64 + 7,
-
-	ROM_MAJUTSUSHI   = 128 + 0,
-	ROM_SYNTHESIZER  = 128 + 1,
-	ROM_PLAYBALL     = 128 + 2,
-	ROM_KBDMASTER    = 128 + 3,
-	ROM_NETTOU_YAKYUU= 128 + 4,
-
-	ROM_MANBOW2_2    = 192 + 0,
-	ROM_HAMARAJANIGHT= 192 + 1,
+	// For these the numeric value does matter
+	ROM_PAGE0        = 128 + 1,  // value of lower 4 bits matters
+	ROM_PAGE1        = 128 + 2,
+	ROM_PAGE01       = 128 + 3,
+	ROM_PAGE2        = 128 + 4,
+	ROM_PAGE12       = 128 + 6,
+	ROM_PAGE012      = 128 + 7,
+	ROM_PAGE3        = 128 + 8,
+	ROM_PAGE23       = 128 + 12,
+	ROM_PAGE123      = 128 + 14,
+	ROM_PAGE0123     = 128 + 15,
+	ROM_MIRRORED0000 = 144 + 0, // value of lower 3 bits matters
+	ROM_MIRRORED4000 = 144 + 2,
+	ROM_MIRRORED8000 = 144 + 4,
+	ROM_MIRROREDC000 = 144 + 6,
+	ROM_NORMAL0000   = 152 + 0, // value of lower 3 bits matters
+	ROM_NORMAL4000   = 152 + 2,
+	ROM_NORMAL8000   = 152 + 4,
+	ROM_NORMALC000   = 152 + 6,
 
 	ROM_UNKNOWN      = 256,
-
-	ROM_ALIAS        = 512,
+	ROM_ALIAS        = 512, // no other enum value can have this bit set
 };
+
+// Make sure there is no overlap in numeric enum values between the unordered
+// and ordered part of the enum list.
+STATIC_ASSERT(int(ROM_END_OF_UNORDERED_LIST) < int(ROM_PAGE0));
 
 } // namespace openmsx
 
