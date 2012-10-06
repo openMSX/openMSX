@@ -175,24 +175,16 @@ auto_ptr<MSXDevice> create(const DeviceConfig& config)
 		result.reset(new RomPlain(config, rom, RomPlain::NOT_MIRRORED));
 		break;
 	case ROM_MIRRORED0000:
-	case ROM_MIRRORED2000:
 	case ROM_MIRRORED4000:
-	case ROM_MIRRORED6000:
 	case ROM_MIRRORED8000:
-	case ROM_MIRROREDA000:
 	case ROM_MIRROREDC000:
-	case ROM_MIRROREDE000:
 		result.reset(new RomPlain(config, rom,
 		                     RomPlain::MIRRORED, (type & 7) * 0x2000));
 		break;
 	case ROM_NORMAL0000:
-	case ROM_NORMAL2000:
 	case ROM_NORMAL4000:
-	case ROM_NORMAL6000:
 	case ROM_NORMAL8000:
-	case ROM_NORMALA000:
 	case ROM_NORMALC000:
-	case ROM_NORMALE000:
 		result.reset(new RomPlain(config, rom,
 		                 RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
 		break;
@@ -200,15 +192,10 @@ auto_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_PAGE1:
 	case ROM_PAGE01:
 	case ROM_PAGE2:
-	case ROM_PAGE02:
 	case ROM_PAGE12:
 	case ROM_PAGE012:
 	case ROM_PAGE3:
-	case ROM_PAGE03:
-	case ROM_PAGE13:
-	case ROM_PAGE013:
 	case ROM_PAGE23:
-	case ROM_PAGE023:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
 		result.reset(new RomPageNN(config, rom, type & 0xF));
