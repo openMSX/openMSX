@@ -68,7 +68,7 @@ proc save_msx_screen {basename} {
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
 		lappend sections "VRAM" [expr $name_base + 0x3A0] 0x60      ;# Fill (BG Map)
 		lappend sections "VRAM" $spr_att_base_2 0x400               ;# OBJ Attributes
-		lappend sections "VRAM" $color_base_2                       ;# BG Colors
+		lappend sections "VRAM" $color_base_2 0x1800                ;# BG Colors
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# OBJ Tiles
 	}
 	"5" - "6" {
