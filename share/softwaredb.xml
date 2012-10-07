@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1346488027">
+<softwaredb xml:lang="en" timestamp="1349632944">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4293,6 +4293,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash algo="sha1">04325bfe5bc20a8f6d086933d138fb92ca200111</hash></rom></dump>
 		<dump><rom><hash algo="sha1">cf4c1a4df0a55c4a0cf33436e649f32e5857b5cc</hash><remark><text>[Topia]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">ea151b443c27b77ac43fdae99db3adb0abf43fbb</hash><remark><text>[h Prosoft]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">GrooveSX Live!</title>
+	<system>MSX</system>
+	<company>aorante/303bcn/WYZ</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">f318d55ef854ae27c94d549cce61b49a679f3ce8</hash><remark><text>v0.04</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Guardic</title>
@@ -9154,6 +9162,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">46c98a3143f5a80b2090311a770f9b73000881c0</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Rock&#39;n Roller</title>
+	<system>MSX</system>
+	<company>Kaeru Soft</company>
+	<year>1988</year>
+	<country>JP</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">25cc9638db16587a182534122d1c6b98ac321e2b</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Rockn&#39; Bolt</title>
 	<genmsxid>687</genmsxid>
 	<system>MSX</system>
@@ -12143,6 +12159,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2685
-Created on Sat Sep 1 10:27:39 CEST 2012
+Roms in this XML file:2687
+Created on Sun Oct 7 20:02:53 CEST 2012
  -->
