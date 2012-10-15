@@ -58,20 +58,34 @@ static SDLSurfacePtr convertToDisplayFormat(SDLSurfacePtr input)
 	if (hasConstantAlpha(*input, alpha)) {
 		Uint32 flags = (alpha == SDL_ALPHA_OPAQUE) ? 0 : SDL_SRCALPHA;
 		SDL_SetAlpha(input.get(), flags, alpha);
-		if (inFormat.BitsPerPixel == outFormat.BitsPerPixel) {
-			assert(inFormat.Rmask == outFormat.Rmask);
-			assert(inFormat.Gmask == outFormat.Gmask);
-			assert(inFormat.Bmask == outFormat.Bmask);
+		if ((inFormat.BitsPerPixel == outFormat.BitsPerPixel) &&
+		    (inFormat.Rmask == outFormat.Rmask) &&
+		    (inFormat.Gmask == outFormat.Gmask) &&
+		    (inFormat.Bmask == outFormat.Bmask)) {
+			// Already in the correct format.
 			return input;
 		}
-		// 32bpp should never need this conversion
-		assert(outFormat.BitsPerPixel != 32);
+		// 32bpp should rarely need this conversion (only for exotic
+		// pixel formats, not one of RGBA BGRA ARGB ABGR).
 		return SDLSurfacePtr(SDL_DisplayFormat(input.get()));
 	} else {
 		assert(inFormat.Amask != 0);
 		assert(inFormat.BitsPerPixel == 32);
-		// We need an alpha channel, so leave the image in 32bpp format.
-		return input;
+		if (outFormat.BitsPerPixel != 32) {
+			// We need an alpha channel, so leave the image in 32bpp format.
+			return input;
+		}
+		if ((inFormat.Rmask == outFormat.Rmask) &&
+		    (inFormat.Gmask == outFormat.Gmask) &&
+		    (inFormat.Bmask == outFormat.Bmask)) {
+			// Both input and output are 32bpp and both have already
+			// the same pixel format (should almost always be the
+			// case for 32bpp output)
+			return input;
+		}
+		// An exotic 32bpp pixel format (not one of RGBA, BGRA, ARGB,
+		// ABGR). Convert to display format with alpha channel.
+		return SDLSurfacePtr(SDL_DisplayFormatAlpha(input.get()));
 	}
 }
 
@@ -151,22 +165,13 @@ static void getRGBAmasks32(Uint32& rmask, Uint32& gmask, Uint32& bmask, Uint32& 
 	}
 }
 
-static SDLSurfacePtr create32BppSurface(int width, int height, bool alpha)
-{
-	Uint32 rmask, gmask, bmask, amask;
-	getRGBAmasks32(rmask, gmask, bmask, amask);
-	if (!alpha) amask = 0;
-
-	return SDLSurfacePtr(
-		abs(width), abs(height), 32, rmask, gmask, bmask, amask);
-}
-
 static SDLSurfacePtr scaleImage32(SDLSurfacePtr input, int width, int height)
 {
 	// create a 32 bpp surface that will hold the scaled version
-	assert(input->format->BitsPerPixel == 32);
-	bool alpha = input->format->Amask != 0;
-	SDLSurfacePtr result = create32BppSurface(width, height, alpha);
+	const SDL_PixelFormat& format = *input->format;
+	assert(format.BitsPerPixel == 32);
+	SDLSurfacePtr result(abs(width), abs(height), 32,
+		format.Rmask, format.Gmask, format.Bmask, format.Amask);
 	zoomSurface(input.get(), result.get(), width < 0, height < 0);
 	return result;
 }
@@ -536,7 +541,12 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 		std::swap(rgba[1], rgba[3]);
 	}
 
-	SDLSurfacePtr tmp32 = create32BppSurface(width, height, a == -1);
+	bool needAlphaChannel = a == -1;
+	Uint32 rmask, gmask, bmask, amask;
+	getRGBAmasks32(rmask, gmask, bmask, amask);
+	if (!needAlphaChannel) amask = 0;
+	SDLSurfacePtr tmp32(abs(width), abs(height), 32,
+	                    rmask, gmask, bmask, amask);
 	for (int i = 0; i < 4; ++i) {
 		rgba[i] = convertColor(*tmp32->format, rgba[i]);
 	}
@@ -544,7 +554,7 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	drawBorder(*tmp32, borderSize, borderRGBA);
 
 	SDL_PixelFormat& outFormat = *SDL_GetVideoSurface()->format;
-	if ((outFormat.BitsPerPixel == 32) || (a == -1)) {
+	if ((outFormat.BitsPerPixel == 32) || needAlphaChannel) {
 		if (outFormat.BitsPerPixel == 32) {
 			// for 32bpp the format must match
 			SDL_PixelFormat& inFormat  = *tmp32->format;

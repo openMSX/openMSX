@@ -148,17 +148,39 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 			png_set_filler(png.ptr, 0xff, PNG_FILLER_AFTER);
 		}
 
-		bool bgr = false;
-		// If the output surface has BGR format (24bpp or 32bpp), also
-		// read the PNG in BGR format.
-		// When the output surface is 16bpp, still produce PNG in BGR
+		// Try to read the PNG directly in the same format as the video
+		// surface format. The supported formats are
+		//   RGBA, BGRA, ARGB, ABGR
+		// When the output surface is 16bpp, still produce PNG in BGRA
 		// format because SDL *seems* to be better optimized for this
 		// format (not documented, but I checked SDL-1.2.15 source code).
 		const SDL_PixelFormat& format = *SDL_GetVideoSurface()->format;
-		if ((format.Rshift == 16) || (format.BitsPerPixel < 24)) {
-			png_set_bgr(png.ptr);
-			bgr = true;
+		bool bgr, swapAlpha;
+		if (format.BitsPerPixel < 24) {
+			bgr = true; swapAlpha = false;
+		} else {
+			int r = format.Rshift;
+			int g = format.Gshift;
+			int b = format.Bshift;
+			// Can't trust Ashift in a video surface, but it's safe
+			// to assume Alpha channel is located in the leftover
+			// position.
+			if        (r ==  0 && g ==  8 && b == 16) { // RGBA
+				bgr = false; swapAlpha = false;
+			} else if (r == 16 && g ==  8 && b ==  0) { // BGRA
+				bgr = true;  swapAlpha = false;
+			} else if (r ==  8 && g == 16 && b == 24) { // ARGB
+				bgr = false; swapAlpha = true;
+			} else if (r == 24 && g == 16 && b ==  8) { // ABGR
+				bgr = true;  swapAlpha = true;
+			} else {
+				// Format not directly supported by libpng,
+				// use BGRA and still convert later.
+				bgr = true;  swapAlpha = false;
+			}
 		}
+		if (bgr)       png_set_bgr       (png.ptr);
+		if (swapAlpha) png_set_swap_alpha(png.ptr);
 
 		// always convert grayscale to RGB
 		//  together with all the above conversions, the resulting image will
@@ -186,16 +208,43 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		assert(bpp == 24 || bpp == 32);
 		Uint32 redMask, grnMask, bluMask, alpMask;
 		if (OPENMSX_BIGENDIAN) {
-			int s = bpp == 32 ? 0 : 8;
-			redMask = 0xFF000000 >> s;
-			grnMask = 0x00FF0000 >> s;
-			bluMask = 0x0000FF00 >> s;
-			alpMask = 0x000000FF >> s;
+			if (bpp == 32) {
+				if (swapAlpha) {
+					redMask = 0x00FF0000;
+					grnMask = 0x0000FF00;
+					bluMask = 0x000000FF;
+					alpMask = 0xFF000000;
+				} else {
+					redMask = 0xFF000000;
+					grnMask = 0x00FF0000;
+					bluMask = 0x0000FF00;
+					alpMask = 0x000000FF;
+				}
+			} else {
+				redMask = 0x00FF0000;
+				grnMask = 0x0000FF00;
+				bluMask = 0x000000FF;
+				alpMask = 0x00000000;
+			}
 		} else {
-			redMask = 0x000000FF;
-			grnMask = 0x0000FF00;
-			bluMask = 0x00FF0000;
-			alpMask = bpp == 32 ? 0xFF000000 : 0;
+			if (bpp == 32) {
+				if (swapAlpha) {
+					redMask = 0x0000FF00;
+					grnMask = 0x00FF0000;
+					bluMask = 0xFF000000;
+					alpMask = 0x000000FF;
+				} else {
+					redMask = 0x000000FF;
+					grnMask = 0x0000FF00;
+					bluMask = 0x00FF0000;
+					alpMask = 0xFF000000;
+				}
+			} else {
+				redMask = 0x000000FF;
+				grnMask = 0x0000FF00;
+				bluMask = 0x00FF0000;
+				alpMask = 0x00000000;
+			}
 		}
 		if (bgr) std::swap(redMask, bluMask);
 		SDLSurfacePtr surface(width, height, bpp,
