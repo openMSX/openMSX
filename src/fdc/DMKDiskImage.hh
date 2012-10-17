@@ -12,7 +12,8 @@ namespace openmsx {
 class File;
 
 /** DMK disk image. See here for a description of the file format:
-  *   http://www.trs-80.com/wordpress/emulation-dmk-format/
+  *   http://www.trs-80.com/wordpress/dsk-and-dmk-image-utilities/
+  *   (at the bottom of the page)
   */
 class DMKDiskImage : public Disk
 {

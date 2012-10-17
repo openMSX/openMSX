@@ -16,7 +16,8 @@ class CRC16;
 // in the gaps between these blocks.
 //
 // The internal representation is based on the DMK disk image file format. See:
-//    http://www.trs-80.com/wordpress/emulation-dmk-format/
+//    http://www.trs-80.com/wordpress/dsk-and-dmk-image-utilities/
+//    (at the bottom of the page)
 //
 // Besides the raw track data, this format also stores the positions of the
 // 'address marks' in the track (this roughly corresponds with the start of a
