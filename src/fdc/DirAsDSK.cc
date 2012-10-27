@@ -406,7 +406,7 @@ void DirAsDSK::checkDeletedHostFiles()
 		string fullHostName = hostDir + mapDir.hostName;
 		bool isMSXDirectory = msxDir(dirIndex).attrib &
 		                      MSXDirEntry::ATT_DIRECTORY;
-		struct stat fst;
+		FileOperations::Stat fst;
 		if ((stat(fullHostName.c_str(), &fst) != 0) ||
 		    (FileOperations::isDirectory(fst) != isMSXDirectory)) {
 			// TODO also check access permission
@@ -488,7 +488,7 @@ void DirAsDSK::checkModifiedHostFiles()
 		string fullHostName = hostDir + mapDir.hostName;
 		bool isMSXDirectory = msxDir(dirIndex).attrib &
 		                      MSXDirEntry::ATT_DIRECTORY;
-		struct stat fst;
+		FileOperations::Stat fst;
 		if ((stat(fullHostName.c_str(), &fst) == 0) &&
 		    (FileOperations::isDirectory(fst) == isMSXDirectory)) {
 			// Detect changes in host file.
@@ -513,7 +513,7 @@ void DirAsDSK::checkModifiedHostFiles()
 	}
 }
 
-void DirAsDSK::importHostFile(DirIndex dirIndex, struct stat& fst)
+void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
 
@@ -629,7 +629,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, struct stat& fst)
 	// DirAsDSK from importing the other (small) files in my directory.
 }
 
-void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, struct stat& fst)
+void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	struct tm* mtim = localtime(&(fst.st_mtime));
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
@@ -652,7 +652,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 		try {
 			string hostName = d->d_name;
 			string fullHostName = hostDir + hostSubDir + hostName;
-			struct stat fst;
+			FileOperations::Stat fst;
 			if (stat(fullHostName.c_str(), &fst)) {
 				throw MSXException("Error accessing " + fullHostName);
 			}
@@ -674,7 +674,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 }
 
 void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
-                               unsigned msxDirSector, struct stat& fst)
+                               unsigned msxDirSector, FileOperations::Stat& fst)
 {
 	string hostPath = hostSubDir + hostName;
 	DirIndex dirIndex = findHostFileInDSK(hostPath);
@@ -737,7 +737,7 @@ void DirAsDSK::addNewDirectory(const string& hostSubDir, const string& hostName,
 }
 
 void DirAsDSK::addNewHostFile(const string& hostSubDir, const string& hostName,
-                              unsigned msxDirSector, struct stat& fst)
+                              unsigned msxDirSector, FileOperations::Stat& fst)
 {
 	if (checkFileUsedInDSK(hostSubDir + hostName)) {
 		// File is already present in the virtual disk, do nothing.

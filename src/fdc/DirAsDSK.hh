@@ -5,12 +5,10 @@
 
 #include "SectorBasedDisk.hh"
 #include "DiskImageUtils.hh"
+#include "FileOperations.hh"
 #include "EmuTime.hh"
 #include <map>
 #include <set>
-#include <sys/types.h>
-
-struct stat;
 
 namespace openmsx {
 
@@ -79,9 +77,9 @@ private:
 	void freeFATChain(unsigned curCl);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
-                             unsigned msxDirSector, struct stat& fst);
+                             unsigned msxDirSector, FileOperations::Stat& fst);
 	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
-	                    unsigned msxDirSector, struct stat& fst);
+	                    unsigned msxDirSector, FileOperations::Stat& fst);
 	DirIndex fillMSXDirEntry(
 		const std::string& hostSubDir, const std::string& hostName,
 		unsigned msxDirSector);
@@ -92,8 +90,8 @@ private:
 	bool checkMSXFileExists(const std::string& msxfilename,
 	                        unsigned msxDirSector);
 	void checkModifiedHostFiles();
-	void setMSXTimeStamp(DirIndex dirIndex, struct stat& fst);
-	void importHostFile(DirIndex dirIndex, struct stat& fst);
+	void setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst);
+	void importHostFile(DirIndex dirIndex, FileOperations::Stat& fst);
 	void exportToHost(DirIndex dirIndex, DirIndex dirDirIndex);
 	void exportToHostDir (DirIndex dirIndex, const std::string& hostName);
 	void exportToHostFile(DirIndex dirIndex, const std::string& hostName);
