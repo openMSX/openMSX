@@ -37,6 +37,14 @@ STATIC_ASSERT(ALIGNOF(MSXBootSector) == 1); // TODO don't require this in the fu
 
 // TODO aligned, see above
 struct MSXDirEntry {
+	static const byte ATT_REGULAR   = 0x00; // Normal file
+	static const byte ATT_READONLY  = 0x01; // Read-Only file
+	static const byte ATT_HIDDEN    = 0x02; // Hidden file
+	static const byte ATT_SYSTEM    = 0x04; // System file
+	static const byte ATT_VOLUME    = 0x08; // filename is Volume Label
+	static const byte ATT_DIRECTORY = 0x10; // entry is a subdir
+	static const byte ATT_ARCHIVE   = 0x20; // Archive bit
+
 	char           filename[8];  // + 0
 	char           ext[3];       // + 8
 	byte           attrib;       // +11

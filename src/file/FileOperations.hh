@@ -58,6 +58,11 @@ namespace FileOperations {
 	 */
 	int rmdir(const std::string& path);
 
+	/** Recurively delete a file or directory and (in case of a directory)
+	  * all its sub-components.
+	  */
+	int deleteRecursive(const std::string& path);
+
 	/** Call fopen() in a platform-independent manner
 	  * @param filename the file path
 	  * @param mode the mode parameter, same as fopen

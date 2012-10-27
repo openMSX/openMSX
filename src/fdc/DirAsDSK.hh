@@ -6,6 +6,8 @@
 #include "SectorBasedDisk.hh"
 #include "DiskImageUtils.hh"
 #include "EmuTime.hh"
+#include <map>
+#include <set>
 #include <sys/types.h>
 
 struct stat;
@@ -25,8 +27,6 @@ public:
 	static const unsigned SECTORS_PER_DIR = 7;
 	static const unsigned DIR_ENTRIES_PER_SECTOR =
 	       SECTOR_SIZE / sizeof(MSXDirEntry);
-	static const unsigned NUM_DIR_ENTRIES =
-		SECTORS_PER_DIR * DIR_ENTRIES_PER_SECTOR;
 	static const unsigned NUM_SECTORS = 1440;
 
 public:
@@ -41,31 +41,77 @@ public:
 	virtual void checkCaches();
 
 private:
+	struct DirIndex {
+		DirIndex() {}
+		DirIndex(unsigned sector_, unsigned idx_)
+			: sector(sector_), idx(idx_) {}
+		bool operator<(const DirIndex& rhs) const {
+			if (sector != rhs.sector) return sector < rhs.sector;
+			return idx < rhs.idx;
+		}
+		unsigned sector;
+		unsigned idx;
+	};
+	struct MapDir {
+		std::string hostName; // path relative to 'hostDir'
+		// The following two are used to detect changes in the host
+		// file compared to the last host->virtual-disk sync.
+		time_t mtime; // Modification time of host file at the time of
+		              // the last sync.
+		int filesize; // Host file size, normally the same as msx
+		              // filesize, except when the host file was
+		              // truncated.
+	};
+
 	byte* fat();
 	byte* fat2();
-	MSXDirEntry& msxDir(unsigned dirIndex);
+	MSXDirEntry& msxDir(DirIndex dirIndex);
 	void writeFATSector (unsigned sector, const byte* buf);
-	void writeDIRSector (unsigned sector, const byte* buf);
+	void writeDIRSector (unsigned sector, DirIndex dirDirIndex,
+	                     const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
-	void writeDIREntry(unsigned dirIndex, const MSXDirEntry& newEntry);
+	void writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
+	                   const MSXDirEntry& newEntry);
 	void syncWithHost();
 	void checkDeletedHostFiles();
-	void deleteMSXFile(unsigned dirIndex);
+	void deleteMSXFile(DirIndex dirIndex);
+	void deleteMSXFilesInDir(unsigned msxDirSector);
 	void freeFATChain(unsigned curCl);
-	void addNewHostFiles();
-	void foundNewHostFile(const std::string& hostName);
+	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
+	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
+                             unsigned msxDirSector, struct stat& fst);
+	void addNewHostFile(const std::string& hostSubDir, const std::string& hostName,
+	                    unsigned msxDirSector, struct stat& fst);
+	DirIndex fillMSXDirEntry(
+		const std::string& hostSubDir, const std::string& hostName,
+		unsigned msxDirSector);
+	DirIndex getFreeDirEntry(unsigned msxDirSector);
+	DirIndex findHostFileInDSK(const std::string& hostName);
 	bool checkFileUsedInDSK(const std::string& hostName);
-	bool checkMSXFileExists(const std::string& msxfilename);
-	void checkModifiedHostFile(unsigned dirIndex);
-	void importHostFile(unsigned dirIndex, struct stat& fst);
-	void exportToHostFile(unsigned dirIndex);
+	unsigned nextMsxDirSector(unsigned sector);
+	bool checkMSXFileExists(const std::string& msxfilename,
+	                        unsigned msxDirSector);
+	void checkModifiedHostFiles();
+	void setMSXTimeStamp(DirIndex dirIndex, struct stat& fst);
+	void importHostFile(DirIndex dirIndex, struct stat& fst);
+	void exportToHost(DirIndex dirIndex, DirIndex dirDirIndex);
+	void exportToHostDir (DirIndex dirIndex, const std::string& hostName);
+	void exportToHostFile(DirIndex dirIndex, const std::string& hostName);
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
+	unsigned getFreeCluster();
 	unsigned readFAT(unsigned clnr);
 	void writeFAT12(unsigned clnr, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, byte* oldFAT);
 	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
-	unsigned getDirEntryForCluster(unsigned cluster);
+	bool isDirSector(unsigned sector, DirIndex& dirDirIndex);
+	bool getDirEntryForCluster(unsigned cluster,
+	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
+	DirIndex getDirEntryForCluster(unsigned cluster);
+	template<typename FUNC> bool scanMsxDirs(FUNC func);
+	friend class DirScanner;
+	friend class IsDirSector;
+	friend class DirEntryForCluster;
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
@@ -81,18 +127,8 @@ private:
 	// For each directory entry we store the name of the corresponding
 	// host file, and the last modification time (and filesize) of the host
 	// file.
-	struct {
-		bool inUse() const { return !hostName.empty(); }
-
-		std::string hostName; // path relative to 'hostDir'
-		// The following two are used to detect changes in the host
-		// file compared to the last host->virtual-disk sync.
-		time_t mtime; // Modification time of host file at the time of
-		              // the last sync.
-		int filesize; // Host file size, normally the same as msx
-		              // filesize, except when the host file was
-		              // truncated.
-	} mapDir[NUM_DIR_ENTRIES];
+	typedef std::map<DirIndex, MapDir> MapDirs;
+	MapDirs mapDirs;
 };
 
 } // namespace openmsx

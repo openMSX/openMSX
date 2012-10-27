@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <climits>
+#include <ftw.h>
+#include <unistd.h>
 #endif
 
 #if defined(PATH_MAX)
@@ -254,6 +256,39 @@ int rmdir(const std::string& path)
 	return ::rmdir(path.c_str());
 #endif
 }
+
+#ifdef _WIN32
+int deleteRecursive(const std::string& path)
+{
+	// Actually this implementation is not windows specific, but platform
+	// independent. The version below is posix specific (it needs the
+	// function nftw() which apparently doesn't exist in windows). Still I
+	// prefer to use the nftw() version on linux instead of always using
+	// this generic version because nftw() is likely more optimized.
+	if (isDirectory(path)) {
+		{
+			ReadDir dir(path);
+			while (dirent* d = dir.getEntry()) {
+				int err = deleteRecursive(d->d_name);
+				if (err) return err;
+			}
+		}
+		return rmdir(path);
+	} else {
+		return unlink(path);
+	}
+}
+#else
+int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
+                       int /*typeflag*/, struct FTW* /*ftwbuf*/)
+{
+	return remove(fpath);
+}
+int deleteRecursive(const std::string& path)
+{
+	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+#endif
 
 FILE* openFile(const std::string& filename, const std::string& mode)
 {
