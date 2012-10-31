@@ -260,11 +260,42 @@ int rmdir(const std::string& path)
 #ifdef _WIN32
 int deleteRecursive(const std::string& path)
 {
-	// Actually this implementation is not windows specific, but platform
-	// independent. The version below is posix specific (it needs the
-	// function nftw() which apparently doesn't exist in windows). Still I
-	// prefer to use the nftw() version on linux instead of always using
-	// this generic version because nftw() is likely more optimized.
+	std::wstring pathW = utf8to16(path);
+
+	SHFILEOPSTRUCTW rmdirFileop;
+	rmdirFileop.hwnd = NULL;
+	rmdirFileop.wFunc = FO_DELETE;
+	rmdirFileop.pFrom = pathW.c_str();
+	rmdirFileop.pTo = NULL;
+	rmdirFileop.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
+	rmdirFileop.fAnyOperationsAborted = FALSE;
+	rmdirFileop.hNameMappings = NULL;
+	rmdirFileop.lpszProgressTitle = NULL;
+
+	return SHFileOperationW(&rmdirFileop);
+}
+#else
+int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
+                       int /*typeflag*/, struct FTW* /*ftwbuf*/)
+{
+	return remove(fpath);
+}
+int deleteRecursive(const std::string& path)
+{
+	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+#endif
+#if 0
+// This is a platform independent version of deleteRecursive() (it builds on
+// top of helper routines that _are_ platform specific). Though I still prefer
+// the two platform specific deleteRecursive() routines above because they are
+// likely more optimized and likely contain less bugs than this version (e.g.
+// we're walking over the entries in a directory while simultaneously deleting
+// entries in that same directory. Although this seems to work fine, I'm not
+// 100% sure our ReadDir 'emulation code' for windows covers all corner cases.
+// While the windows version above very likely does handle everything).
+int deleteRecursive(const std::string& path)
+{
 	if (isDirectory(path)) {
 		{
 			ReadDir dir(path);
@@ -277,16 +308,6 @@ int deleteRecursive(const std::string& path)
 	} else {
 		return unlink(path);
 	}
-}
-#else
-int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
-                       int /*typeflag*/, struct FTW* /*ftwbuf*/)
-{
-	return remove(fpath);
-}
-int deleteRecursive(const std::string& path)
-{
-	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
 #endif
 
