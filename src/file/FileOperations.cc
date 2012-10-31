@@ -8,6 +8,7 @@
 #include "vla.hh"
 #include <windows.h>
 #include <shlobj.h>
+#include <Shellapi.h>
 #include <io.h>
 #include <direct.h>
 #include <ctype.h>
