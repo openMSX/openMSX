@@ -217,7 +217,7 @@ DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 			return it->first;
 		}
 	}
-	return DirIndex(-1, -1);
+	return DirIndex(unsigned(-1), unsigned(-1));
 }
 
 // Check if a host file is already mapped in the virtual disk
@@ -404,8 +404,8 @@ void DirAsDSK::checkDeletedHostFiles()
 		const DirIndex& dirIndex = it->first;
 		MapDir& mapDir = it->second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = msxDir(dirIndex).attrib &
-		                      MSXDirEntry::ATT_DIRECTORY;
+		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if ((!FileOperations::getStat(fullHostName, fst) != 0) ||
 		    (FileOperations::isDirectory(fst) != isMSXDirectory)) {
@@ -486,8 +486,8 @@ void DirAsDSK::checkModifiedHostFiles()
 		const DirIndex& dirIndex = it->first;
 		MapDir& mapDir = it->second;
 		string fullHostName = hostDir + mapDir.hostName;
-		bool isMSXDirectory = msxDir(dirIndex).attrib &
-		                      MSXDirEntry::ATT_DIRECTORY;
+		bool isMSXDirectory = (msxDir(dirIndex).attrib &
+		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
 		if ((!FileOperations::getStat(fullHostName, fst) == 0) &&
 		    (FileOperations::isDirectory(fst) == isMSXDirectory)) {
@@ -1059,7 +1059,7 @@ DirAsDSK::DirIndex DirAsDSK::getDirEntryForCluster(unsigned cluster)
 	if (getDirEntryForCluster(cluster, dirIndex, dirDirIndex)) {
 		return dirIndex;
 	} else {
-		return DirIndex(-1, -1); // not found
+		return DirIndex(unsigned(-1), unsigned(-1)); // not found
 	}
 }
 

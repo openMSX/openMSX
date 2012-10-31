@@ -107,9 +107,9 @@ private:
 	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
 	DirIndex getDirEntryForCluster(unsigned cluster);
 	template<typename FUNC> bool scanMsxDirs(FUNC func);
-	friend class DirScanner;
-	friend class IsDirSector;
-	friend class DirEntryForCluster;
+	friend struct DirScanner;
+	friend struct IsDirSector;
+	friend struct DirEntryForCluster;
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
