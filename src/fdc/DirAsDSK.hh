@@ -8,7 +8,6 @@
 #include "FileOperations.hh"
 #include "EmuTime.hh"
 #include <map>
-#include <set>
 
 namespace openmsx {
 
@@ -21,10 +20,6 @@ public:
 	enum SyncMode { SYNC_READONLY, SYNC_FULL };
 	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
 
-	static const unsigned SECTORS_PER_FAT = 3;
-	static const unsigned SECTORS_PER_DIR = 7;
-	static const unsigned DIR_ENTRIES_PER_SECTOR =
-	       SECTOR_SIZE / sizeof(MSXDirEntry);
 	static const unsigned NUM_SECTORS = 1440;
 
 public:
@@ -106,10 +101,14 @@ private:
 	bool getDirEntryForCluster(unsigned cluster,
 	                           DirIndex& dirIndex, DirIndex& dirDirIndex);
 	DirIndex getDirEntryForCluster(unsigned cluster);
-	template<typename FUNC> bool scanMsxDirs(FUNC func);
+	void unmapHostFiles(unsigned msxDirSector);
+	template<typename FUNC> bool scanMsxDirs(
+		FUNC func, unsigned msxDirSector);
+	friend struct NullScanner;
 	friend struct DirScanner;
 	friend struct IsDirSector;
 	friend struct DirEntryForCluster;
+	friend struct UnmapHostFiles;
 
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
@@ -122,9 +121,9 @@ private:
 	// Storage for the whole virtual disk.
 	byte sectors[NUM_SECTORS][SECTOR_SIZE];
 
-	// For each directory entry we store the name of the corresponding
-	// host file, and the last modification time (and filesize) of the host
-	// file.
+	// For each directory entry that has a mapped host file/directory we
+	// store the name, last modification time and size of the corresponding
+	// host file/dir.
 	typedef std::map<DirIndex, MapDir> MapDirs;
 	MapDirs mapDirs;
 };
