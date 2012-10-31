@@ -407,7 +407,7 @@ void DirAsDSK::checkDeletedHostFiles()
 		bool isMSXDirectory = msxDir(dirIndex).attrib &
 		                      MSXDirEntry::ATT_DIRECTORY;
 		FileOperations::Stat fst;
-		if ((FileOperations::getStat(fullHostName, fst) != 0) ||
+		if ((!FileOperations::getStat(fullHostName, fst) != 0) ||
 		    (FileOperations::isDirectory(fst) != isMSXDirectory)) {
 			// TODO also check access permission
 			// Error stat-ing file, or directory/file type is not
@@ -489,7 +489,7 @@ void DirAsDSK::checkModifiedHostFiles()
 		bool isMSXDirectory = msxDir(dirIndex).attrib &
 		                      MSXDirEntry::ATT_DIRECTORY;
 		FileOperations::Stat fst;
-		if ((FileOperations::getStat(fullHostName, fst) == 0) &&
+		if ((!FileOperations::getStat(fullHostName, fst) == 0) &&
 		    (FileOperations::isDirectory(fst) == isMSXDirectory)) {
 			// Detect changes in host file.
 			// Heuristic: we use filesize and modification time to detect
@@ -653,7 +653,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			string hostName = d->d_name;
 			string fullHostName = hostDir + hostSubDir + hostName;
 			FileOperations::Stat fst;
-			if (FileOperations::getStat(fullHostName, fst)) {
+			if (!FileOperations::getStat(fullHostName, fst)) {
 				throw MSXException("Error accessing " + fullHostName);
 			}
 			if (FileOperations::isDirectory(fst)) {
