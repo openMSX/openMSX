@@ -12,8 +12,8 @@ class XMLElement;
 
 namespace XMLLoader
 {
-	std::auto_ptr<XMLElement> load(const std::string& filename,
-	                               const std::string& systemID);
+	std::unique_ptr<XMLElement> load(const std::string& filename,
+	                                 const std::string& systemID);
 };
 
 } // namespace openmsx

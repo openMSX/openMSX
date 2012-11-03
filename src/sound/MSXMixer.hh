@@ -155,7 +155,7 @@ private:
 	DynamicClock prevTime;
 
 	friend class SoundDeviceInfoTopic;
-	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
+	const std::unique_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
 
 	AviRecorder* recorder;
 	unsigned synchronousCounter;

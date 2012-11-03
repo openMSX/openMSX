@@ -10,7 +10,7 @@ namespace openmsx {
 class RomZemina90in1 : public Rom8kBBlocks
 {
 public:
-	RomZemina90in1(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomZemina90in1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomZemina90in1();
 
 	virtual void reset(EmuTime::param time);

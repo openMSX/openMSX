@@ -80,8 +80,8 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	byte* const buffer;
-	std::auto_ptr<File> file;
-	std::auto_ptr<LSXCommand> lsxCommand;
+	std::unique_ptr<File> file;
+	std::unique_ptr<LSXCommand> lsxCommand;
 	std::string name;
 	const int mode;
 	unsigned keycode;      // Sense key, ASC, ASCQ

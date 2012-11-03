@@ -58,7 +58,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	friend class DebugCmd;
-	const std::auto_ptr<DebugCmd> debugCmd;
+	const std::unique_ptr<DebugCmd> debugCmd;
 
 	typedef StringMap<Debuggable*> Debuggables;
 	typedef StringMap<ProbeBase*>  Probes;

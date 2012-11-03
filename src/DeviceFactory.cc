@@ -68,13 +68,13 @@
 #include "PioneerLDControl.hh"
 #endif
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
-static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
+static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
-	auto_ptr<MSXDevice> result;
+	unique_ptr<MSXDevice> result;
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (styleEl == NULL) {
@@ -104,9 +104,9 @@ static auto_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 	return result;
 }
 
-auto_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
+unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 {
-	auto_ptr<MSXDevice> result;
+	unique_ptr<MSXDevice> result;
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
 		result.reset(new MSXPPI(conf));
@@ -240,35 +240,35 @@ static XMLElement createConfig(const std::string& name, const std::string& id)
 	return config;
 }
 
-auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
+unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("Dummy", "empty"));
-	return auto_ptr<DummyDevice>(new DummyDevice(
+	return unique_ptr<DummyDevice>(new DummyDevice(
 		DeviceConfig(hwConf, xml)));
 }
 
-auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
+unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
-	return auto_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
+	return unique_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
 		DeviceConfig(hwConf, xml)));
 }
 
-auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
+unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
-	return auto_ptr<MSXMapperIO>(new MSXMapperIO(
+	return unique_ptr<MSXMapperIO>(new MSXMapperIO(
 		DeviceConfig(hwConf, xml)));
 }
 
-auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
+unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
-	return auto_ptr<VDPIODelay>(new VDPIODelay(
+	return unique_ptr<VDPIODelay>(new VDPIODelay(
 		DeviceConfig(hwConf, xml), cpuInterface));
 }
 

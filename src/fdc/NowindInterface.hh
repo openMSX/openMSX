@@ -36,10 +36,10 @@ public:
 private:
 	void deleteDrives();
 
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<AmdFlash> flash;
-	const std::auto_ptr<NowindHost> host;
-	std::auto_ptr<NowindCommand> command;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<AmdFlash> flash;
+	const std::unique_ptr<NowindHost> host;
+	std::unique_ptr<NowindCommand> command;
 	typedef std::vector<DiskContainer*> Drives;
 	Drives drives;
 	std::string basename;

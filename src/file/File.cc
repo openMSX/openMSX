@@ -15,20 +15,20 @@ using std::string;
 
 namespace openmsx {
 
-static std::auto_ptr<FileBase> init(string_ref url, File::OpenMode mode)
+static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 {
 	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
-	std::auto_ptr<FileBase> file(new LocalFile(url, mode));
+	std::unique_ptr<FileBase> file(new LocalFile(url, mode));
 	byte buf[4];
 	if (file->getSize() >= 4) {
 		file->read(buf, 4);
 		file->seek(0);
 		if (memcmp(buf, GZ_HEADER, 3) == 0) {
-			file.reset(new GZFileAdapter(file));
+			file.reset(new GZFileAdapter(std::move(file)));
 		} else if (memcmp(buf, ZIP_HEADER, 4) == 0) {
-			file.reset(new ZipFileAdapter(file));
+			file.reset(new ZipFileAdapter(std::move(file)));
 		} else {
 			// only pre-cache non-compressed files
 			if (mode == File::PRE_CACHE) {

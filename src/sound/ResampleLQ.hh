@@ -16,7 +16,7 @@ template <unsigned CHANNELS>
 class ResampleLQ : public ResampleAlgo
 {
 public:
-	static std::auto_ptr<ResampleLQ<CHANNELS> > create(
+	static std::unique_ptr<ResampleLQ<CHANNELS> > create(
 		ResampledSoundDevice& input,
 		const DynamicClock& hostClock, unsigned emuSampleRate);
 

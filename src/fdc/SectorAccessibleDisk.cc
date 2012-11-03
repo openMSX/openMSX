@@ -67,7 +67,7 @@ unsigned SectorAccessibleDisk::getNbSectors() const
 
 void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
 {
-	patch.reset(new IPSPatch(patchFile, patch));
+	patch.reset(new IPSPatch(patchFile, std::move(patch)));
 }
 
 void SectorAccessibleDisk::getPatches(std::vector<Filename>& result) const

@@ -10,8 +10,8 @@
 namespace openmsx {
 
 RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
-		const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: Rom16kBBlocks(config, rom_)
+		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 	, vlm5030(new VLM5030("VLM5030", "Konami Keyboard Master's VLM5030",
 	                      rom->getFilename(), config))
 {

@@ -10,7 +10,7 @@
 #include <cassert>
 #include <algorithm>
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 
 namespace openmsx {
@@ -36,7 +36,7 @@ XMLElement::~XMLElement()
 	removeAllChildren();
 }
 
-void XMLElement::addChild(auto_ptr<XMLElement> child)
+void XMLElement::addChild(unique_ptr<XMLElement> child)
 {
 	// Mixed-content elements are not supported by this class. In the past
 	// we had a 'assert(data.empty())' here to enforce this, though that
@@ -51,12 +51,12 @@ void XMLElement::addChild(auto_ptr<XMLElement> child)
 	children.push_back(child2);
 }
 
-auto_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
+unique_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 {
 	assert(std::count(children.begin(), children.end(), &child) == 1);
 	children.erase(std::find(children.begin(), children.end(), &child));
 	XMLElement& child2 = const_cast<XMLElement&>(child);
-	return auto_ptr<XMLElement>(&child2);
+	return unique_ptr<XMLElement>(&child2);
 }
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
@@ -220,7 +220,7 @@ XMLElement& XMLElement::getCreateChild(string_ref name,
 	XMLElement* result = findChild(name);
 	if (!result) {
 		result = new XMLElement(name, defaultValue);
-		addChild(auto_ptr<XMLElement>(result));
+		addChild(unique_ptr<XMLElement>(result));
 	}
 	return *result;
 }
@@ -233,7 +233,7 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	if (!result) {
 		result = new XMLElement(name);
 		result->addAttribute(attName, attValue);
-		addChild(auto_ptr<XMLElement>(result));
+		addChild(unique_ptr<XMLElement>(result));
 	}
 	return *result;
 }
@@ -268,7 +268,7 @@ void XMLElement::setChildData(string_ref name, string_ref value)
 	if (XMLElement* child = findChild(name)) {
 		child->setData(value);
 	} else {
-		addChild(auto_ptr<XMLElement>(new XMLElement(name, value)));
+		addChild(unique_ptr<XMLElement>(new XMLElement(name, value)));
 	}
 }
 
@@ -344,7 +344,7 @@ XMLElement& XMLElement::operator=(const XMLElement& element)
 	removeAllChildren();
 	for (Children::const_iterator it = element.children.begin();
 	     it != element.children.end(); ++it) {
-		addChild(auto_ptr<XMLElement>(new XMLElement(**it)));
+		addChild(unique_ptr<XMLElement>(new XMLElement(**it)));
 	}
 	return *this;
 }
@@ -391,10 +391,10 @@ string XMLElement::XMLEscape(const string& str)
 	return result;
 }
 
-static auto_ptr<FileContext> lastSerializedFileContext;
-auto_ptr<FileContext> XMLElement::getLastSerializedFileContext()
+static unique_ptr<FileContext> lastSerializedFileContext;
+unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 {
-	return lastSerializedFileContext; // this also sets value to NULL;
+	return std::move(lastSerializedFileContext); // this also sets value to NULL;
 }
 // version 1: initial version
 // version 2: removed 'context' tag
@@ -425,16 +425,16 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 		ar.serialize("children", tmp);
 		for (XMLElement::Children::const_iterator it = tmp.begin();
 		     it != tmp.end(); ++it) {
-			addChild(auto_ptr<XMLElement>(*it));
+			addChild(unique_ptr<XMLElement>(*it));
 		}
 	}
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
-		auto_ptr<FileContext> context;
+		unique_ptr<FileContext> context;
 		ar.serialize("context", context);
 		if (context.get()) {
 			assert(!lastSerializedFileContext.get());
-			lastSerializedFileContext = context;
+			lastSerializedFileContext = std::move(context);
 		}
 	}
 }

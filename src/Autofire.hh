@@ -60,7 +60,7 @@ private:
 	const unsigned max_ints;
 
 	/** The currently selected speed. */
-	const std::auto_ptr<IntegerSetting> speedSetting;
+	const std::unique_ptr<IntegerSetting> speedSetting;
 
 	/** Each tick of this clock, the signal changes.
 	  * Frequency is derived from speed, min_ints and max_ints.

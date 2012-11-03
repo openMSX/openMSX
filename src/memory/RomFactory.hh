@@ -12,7 +12,7 @@ class DeviceConfig;
 
 namespace RomFactory
 {
-	std::auto_ptr<MSXDevice> create(const DeviceConfig& config);
+	std::unique_ptr<MSXDevice> create(const DeviceConfig& config);
 }
 
 } // namespace openmsx

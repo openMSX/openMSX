@@ -523,8 +523,7 @@ void SCSILS120::eject()
 
 void SCSILS120::insert(const string& filename)
 {
-	std::auto_ptr<File> newFile(new File(filename));
-	file = newFile;
+	file.reset(new File(filename));
 	file->setFilePool(motherBoard.getReactor().getFilePool());
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {

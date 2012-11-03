@@ -32,7 +32,7 @@ class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable,
 public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor);
+		std::unique_ptr<PostProcessor> postProcessor);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:
@@ -73,7 +73,7 @@ private:
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	std::auto_ptr<RawFrame> workFrame;
+	std::unique_ptr<RawFrame> workFrame;
 
 	/** The current renderer settings (gamma, brightness, contrast)
 	  */
@@ -111,19 +111,19 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	const std::auto_ptr<PostProcessor> postProcessor;
+	const std::unique_ptr<PostProcessor> postProcessor;
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
-	const std::auto_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
+	const std::unique_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
 
 	/** P1 Converter
 	  */
-	const std::auto_ptr<V9990P1Converter<Pixel> > p1Converter;
+	const std::unique_ptr<V9990P1Converter<Pixel> > p1Converter;
 
 	/** P2 Converter
 	  */
-	const std::auto_ptr<V9990P2Converter<Pixel> > p2Converter;
+	const std::unique_ptr<V9990P2Converter<Pixel> > p2Converter;
 
 	/** Fill the palettes.
 	  */

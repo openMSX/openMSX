@@ -24,37 +24,38 @@
 
 using std::string;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
+using std::move;
 
 namespace openmsx {
 
-auto_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
+unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 	MSXMotherBoard& motherBoard, const string& machineName)
 {
-	auto_ptr<HardwareConfig> result(
+	unique_ptr<HardwareConfig> result(
 		new HardwareConfig(motherBoard, machineName));
 	result->load("machines");
 	return result;
 }
 
-auto_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
+unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 	MSXMotherBoard& motherBoard, const string& extensionName)
 {
-	auto_ptr<HardwareConfig> result(
+	unique_ptr<HardwareConfig> result(
 		new HardwareConfig(motherBoard, extensionName));
 	result->load("extensions");
 	result->setName(extensionName);
 	return result;
 }
 
-auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
+unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, const string& romfile,
 	const string& slotname, const vector<string>& options)
 {
-	auto_ptr<HardwareConfig> result(
+	unique_ptr<HardwareConfig> result(
 		new HardwareConfig(motherBoard, "rom"));
 	string_ref sramfile = FileOperations::getFilename(romfile);
-	auto_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
+	unique_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
 
 	vector<string> ipsfiles;
 	string mapper;
@@ -92,51 +93,51 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
 
-	auto_ptr<XMLElement> extension(new XMLElement("extension"));
-	auto_ptr<XMLElement> devices(new XMLElement("devices"));
-	auto_ptr<XMLElement> primary(new XMLElement("primary"));
+	unique_ptr<XMLElement> extension(new XMLElement("extension"));
+	unique_ptr<XMLElement> devices(new XMLElement("devices"));
+	unique_ptr<XMLElement> primary(new XMLElement("primary"));
 	primary->addAttribute("slot", slotname);
-	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
+	unique_ptr<XMLElement> secondary(new XMLElement("secondary"));
 	secondary->addAttribute("slot", slotname);
-	auto_ptr<XMLElement> device(new XMLElement("ROM"));
+	unique_ptr<XMLElement> device(new XMLElement("ROM"));
 	device->addAttribute("id", "MSXRom");
-	auto_ptr<XMLElement> mem(new XMLElement("mem"));
+	unique_ptr<XMLElement> mem(new XMLElement("mem"));
 	mem->addAttribute("base", "0x0000");
 	mem->addAttribute("size", "0x10000");
-	device->addChild(mem);
-	auto_ptr<XMLElement> rom(new XMLElement("rom"));
-	rom->addChild(auto_ptr<XMLElement>(
+	device->addChild(move(mem));
+	unique_ptr<XMLElement> rom(new XMLElement("rom"));
+	rom->addChild(unique_ptr<XMLElement>(
 		new XMLElement("resolvedFilename", resolvedFilename)));
-	rom->addChild(auto_ptr<XMLElement>(
+	rom->addChild(unique_ptr<XMLElement>(
 		new XMLElement("filename", romfile)));
 	if (!ipsfiles.empty()) {
-		auto_ptr<XMLElement> patches(new XMLElement("patches"));
+		unique_ptr<XMLElement> patches(new XMLElement("patches"));
 		for (vector<string>::const_iterator it = ipsfiles.begin();
 		     it != ipsfiles.end(); ++it) {
-			patches->addChild(auto_ptr<XMLElement>(
+			patches->addChild(unique_ptr<XMLElement>(
 				new XMLElement("ips", *it)));
 		}
-		rom->addChild(patches);
+		rom->addChild(move(patches));
 	}
-	device->addChild(rom);
-	auto_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(auto_ptr<XMLElement>(
+	device->addChild(move(rom));
+	unique_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(unique_ptr<XMLElement>(
 		new XMLElement("volume", "9000")));
-	device->addChild(sound);
-	device->addChild(auto_ptr<XMLElement>(
+	device->addChild(move(sound));
+	device->addChild(unique_ptr<XMLElement>(
 		new XMLElement("mappertype",
 		               mapper.empty() ? "auto" : mapper)));
-	device->addChild(auto_ptr<XMLElement>(
+	device->addChild(unique_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 
-	secondary->addChild(device);
-	primary->addChild(secondary);
-	devices->addChild(primary);
-	extension->addChild(devices);
+	secondary->addChild(move(device));
+	primary->addChild(move(secondary));
+	devices->addChild(move(primary));
+	extension->addChild(move(devices));
 
-	result->setConfig(extension);
+	result->setConfig(move(extension));
 	result->setName(romfile);
-	result->setFileContext(context);
+	result->setFileContext(move(context));
 
 	return result;
 }
@@ -220,9 +221,9 @@ const FileContext& HardwareConfig::getFileContext() const
 {
 	return *context;
 }
-void HardwareConfig::setFileContext(std::auto_ptr<FileContext> context_)
+void HardwareConfig::setFileContext(unique_ptr<FileContext> context_)
 {
-	context = context_;
+	context = move(context_);
 }
 
 const XMLElement& HardwareConfig::getConfig() const
@@ -230,10 +231,10 @@ const XMLElement& HardwareConfig::getConfig() const
 	return *config;
 }
 
-void HardwareConfig::setConfig(std::auto_ptr<XMLElement> newConfig)
+void HardwareConfig::setConfig(unique_ptr<XMLElement> newConfig)
 {
 	assert(!config.get());
-	config = newConfig;
+	config = move(newConfig);
 }
 
 const XMLElement& HardwareConfig::getDevices() const
@@ -241,7 +242,7 @@ const XMLElement& HardwareConfig::getDevices() const
 	return getConfig().getChild("devices");
 }
 
-std::auto_ptr<XMLElement> HardwareConfig::loadConfig(const string& filename)
+unique_ptr<XMLElement> HardwareConfig::loadConfig(const string& filename)
 {
 	try {
 		LocalFileReference fileRef(filename);
@@ -261,7 +262,7 @@ void HardwareConfig::load(string_ref path)
 
 	assert(!userName.empty());
 	string_ref baseName = FileOperations::getBaseName(filename);
-	setFileContext(std::auto_ptr<FileContext>(
+	setFileContext(unique_ptr<FileContext>(
 		new ConfigFileContext(baseName, hwName, userName)));
 }
 
@@ -331,7 +332,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 		} else if (name == "secondary") {
 			createDevices(sub, primary, &sub);
 		} else {
-			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
+			unique_ptr<MSXDevice> device(DeviceFactory::create(
 				DeviceConfig(*this, sub, primary, secondary)));
 			if (device.get()) {
 				addDevice(device.release());

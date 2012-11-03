@@ -11,7 +11,7 @@ namespace openmsx {
 RS232Connector::RS232Connector(PluggingController& pluggingController,
                                string_ref name)
 	: Connector(pluggingController, name,
-	            std::auto_ptr<Pluggable>(new DummyRS232Device()))
+	            std::unique_ptr<Pluggable>(new DummyRS232Device()))
 {
 }
 

@@ -15,8 +15,8 @@ typedef StringMap<shared_ptr<CompressedFileAdapter::Decompressed> > DecompressCa
 static DecompressCache decompressCache;
 
 
-CompressedFileAdapter::CompressedFileAdapter(std::auto_ptr<FileBase> file_)
-	: file(file_), pos(0)
+CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_)
+	: file(std::move(file_)), pos(0)
 {
 }
 

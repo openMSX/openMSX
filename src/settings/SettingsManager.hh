@@ -50,10 +50,10 @@ private:
 	friend class SettingInfo;
 	friend class SetCompleter;
 	friend class SettingCompleter;
-	const std::auto_ptr<SettingInfo>      settingInfo;
-	const std::auto_ptr<SetCompleter>     setCompleter;
-	const std::auto_ptr<SettingCompleter> incrCompleter;
-	const std::auto_ptr<SettingCompleter> unsetCompleter;
+	const std::unique_ptr<SettingInfo>      settingInfo;
+	const std::unique_ptr<SetCompleter>     setCompleter;
+	const std::unique_ptr<SettingCompleter> incrCompleter;
+	const std::unique_ptr<SettingCompleter> unsetCompleter;
 };
 
 } // namespace openmsx

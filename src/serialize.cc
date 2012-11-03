@@ -314,7 +314,7 @@ void XmlOutputArchive::beginTag(const char* tag)
 {
 	XMLElement* elem = new XMLElement(tag);
 	assert(!current.empty());
-	current.back()->addChild(std::auto_ptr<XMLElement>(elem));
+	current.back()->addChild(std::unique_ptr<XMLElement>(elem));
 	current.push_back(elem);
 }
 void XmlOutputArchive::endTag(const char* tag)

@@ -21,7 +21,7 @@ public:
 
 private:
 	const DeviceConfig config;
-	const std::auto_ptr<BooleanSetting> setting;
+	const std::unique_ptr<BooleanSetting> setting;
 };
 
 } // namespace openmsx

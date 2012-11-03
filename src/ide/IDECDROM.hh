@@ -55,8 +55,8 @@ private:
 
 	std::string name;
 	MSXMotherBoard& motherBoard;
-	std::auto_ptr<CDXCommand> cdxCommand;
-	std::auto_ptr<File> file;
+	std::unique_ptr<CDXCommand> cdxCommand;
+	std::unique_ptr<File> file;
 	unsigned byteCountLimit;
 	unsigned transferOffset;
 

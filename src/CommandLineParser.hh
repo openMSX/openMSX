@@ -98,30 +98,30 @@ private:
 
 	Reactor& reactor;
 
-	const std::auto_ptr<HelpOption> helpOption;
-	const std::auto_ptr<VersionOption> versionOption;
-	const std::auto_ptr<ControlOption> controlOption;
-	const std::auto_ptr<ScriptOption> scriptOption;
-	const std::auto_ptr<MachineOption> machineOption;
-	const std::auto_ptr<SettingOption> settingOption;
-	const std::auto_ptr<NoMMXOption> noMMXOption;
-	const std::auto_ptr<NoSSEOption> noSSEOption;
-	const std::auto_ptr<NoSSE2Option> noSSE2Option;
-	const std::auto_ptr<NoPBOOption> noPBOOption;
-	const std::auto_ptr<TestConfigOption> testConfigOption;
-	const std::auto_ptr<BashOption> bashOption;
+	const std::unique_ptr<HelpOption> helpOption;
+	const std::unique_ptr<VersionOption> versionOption;
+	const std::unique_ptr<ControlOption> controlOption;
+	const std::unique_ptr<ScriptOption> scriptOption;
+	const std::unique_ptr<MachineOption> machineOption;
+	const std::unique_ptr<SettingOption> settingOption;
+	const std::unique_ptr<NoMMXOption> noMMXOption;
+	const std::unique_ptr<NoSSEOption> noSSEOption;
+	const std::unique_ptr<NoSSE2Option> noSSE2Option;
+	const std::unique_ptr<NoPBOOption> noPBOOption;
+	const std::unique_ptr<TestConfigOption> testConfigOption;
+	const std::unique_ptr<BashOption> bashOption;
 
-	const std::auto_ptr<MSXRomCLI> msxRomCLI;
-	const std::auto_ptr<CliExtension> cliExtension;
-	const std::auto_ptr<ReplayCLI> replayCLI;
-	const std::auto_ptr<SaveStateCLI> saveStateCLI;
-	const std::auto_ptr<CassettePlayerCLI> cassettePlayerCLI;
+	const std::unique_ptr<MSXRomCLI> msxRomCLI;
+	const std::unique_ptr<CliExtension> cliExtension;
+	const std::unique_ptr<ReplayCLI> replayCLI;
+	const std::unique_ptr<SaveStateCLI> saveStateCLI;
+	const std::unique_ptr<CassettePlayerCLI> cassettePlayerCLI;
 #if COMPONENT_LASERDISC
-	const std::auto_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;
+	const std::unique_ptr<LaserdiscPlayerCLI> laserdiscPlayerCLI;
 #endif
-	const std::auto_ptr<DiskImageCLI> diskImageCLI;
-	const std::auto_ptr<HDImageCLI> hdImageCLI;
-	const std::auto_ptr<CDImageCLI> cdImageCLI;
+	const std::unique_ptr<DiskImageCLI> diskImageCLI;
+	const std::unique_ptr<HDImageCLI> hdImageCLI;
+	const std::unique_ptr<CDImageCLI> cdImageCLI;
 	ParseStatus parseStatus;
 	bool haveConfig;
 	bool haveSettings;

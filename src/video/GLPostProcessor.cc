@@ -221,12 +221,12 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	}
 }
 
-std::auto_ptr<RawFrame> GLPostProcessor::rotateFrames(
-	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
+	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	std::auto_ptr<RawFrame> reuseFrame =
-		PostProcessor::rotateFrames(finishedFrame, field, time);
+	std::unique_ptr<RawFrame> reuseFrame =
+		PostProcessor::rotateFrames(std::move(finishedFrame), field, time);
 	uploadFrame();
 	++frameCounter;
 	noiseX = double(rand()) / RAND_MAX;

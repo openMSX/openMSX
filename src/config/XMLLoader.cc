@@ -10,7 +10,8 @@
 #include <libxml/parser.h>
 #include <libxml/xmlversion.h>
 
-using std::auto_ptr;
+using std::unique_ptr;
+using std::vector;
 using std::string;
 
 namespace openmsx {
@@ -22,10 +23,10 @@ struct XMLLoaderHelper
 	{
 	}
 
-	std::auto_ptr<XMLElement> root;
-	std::vector<XMLElement*> current;
-	std::string data;
-	std::string systemID;
+	unique_ptr<XMLElement> root;
+	vector<XMLElement*> current;
+	string data;
+	string systemID;
 };
 
 static void cbStartElement(
@@ -35,7 +36,7 @@ static void cbStartElement(
 	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
 {
 	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
-	std::auto_ptr<XMLElement> newElem(
+	unique_ptr<XMLElement> newElem(
 		new XMLElement(reinterpret_cast<const char*>(localname)));
 
 	for (int i = 0; i < nb_attributes; i++) {
@@ -51,9 +52,9 @@ static void cbStartElement(
 
 	XMLElement* newElem2 = newElem.get();
 	if (!helper->current.empty()) {
-		helper->current.back()->addChild(newElem);
+		helper->current.back()->addChild(std::move(newElem));
 	} else {
-		helper->root = newElem;
+		helper->root = std::move(newElem);
 	}
 	helper->current.push_back(newElem2);
 
@@ -92,7 +93,7 @@ static void cbInternalSubset(void* helper_, const xmlChar* /*name*/,
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 
-auto_ptr<XMLElement> load(const string& filename, const string& systemID)
+unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 {
 	File file(filename);
 	// TODO: Reading blocks to a fixed-size buffer would require less memory
@@ -143,7 +144,7 @@ auto_ptr<XMLElement> load(const string& filename, const string& systemID)
 			"You're probably using an old incompatible file format.");
 	}
 
-	return helper.root;
+	return std::move(helper.root);
 }
 
 } // namespace XMLLoader

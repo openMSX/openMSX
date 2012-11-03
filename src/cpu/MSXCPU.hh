@@ -151,10 +151,10 @@ private:
 	void update(const Setting& setting);
 
 	MSXMotherBoard& motherboard;
-	const std::auto_ptr<BooleanSetting> traceSetting;
-	const std::auto_ptr<TclCallback> diHaltCallback;
-	const std::auto_ptr<CPUCore<Z80TYPE> > z80;
-	const std::auto_ptr<CPUCore<R800TYPE> > r800;
+	const std::unique_ptr<BooleanSetting> traceSetting;
+	const std::unique_ptr<TclCallback> diHaltCallback;
+	const std::unique_ptr<CPUCore<Z80TYPE> > z80;
+	const std::unique_ptr<CPUCore<R800TYPE> > r800;
 
 	CPU* activeCPU;
 	CPU* newCPU;
@@ -162,10 +162,10 @@ private:
 
 	friend class TimeInfoTopic;
 	friend class MSXCPUDebuggable;
-	const std::auto_ptr<TimeInfoTopic>    timeInfo;
-	const std::auto_ptr<CPUFreqInfoTopic> z80FreqInfo;
-	const std::auto_ptr<CPUFreqInfoTopic> r800FreqInfo;
-	const std::auto_ptr<MSXCPUDebuggable> debuggable;
+	const std::unique_ptr<TimeInfoTopic>    timeInfo;
+	const std::unique_ptr<CPUFreqInfoTopic> z80FreqInfo;
+	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo;
+	const std::unique_ptr<MSXCPUDebuggable> debuggable;
 };
 
 } // namespace openmsx

@@ -33,8 +33,8 @@ private:
 	void hardwareMute(bool mute);
 
 	MSXMixer& mixer;
-	const std::auto_ptr<AudioInputConnector> connector;
-	const std::auto_ptr<DACSound8U> dac;
+	const std::unique_ptr<AudioInputConnector> connector;
+	const std::unique_ptr<DACSound8U> dac;
 	Clock<15750> reference;
 	byte DValue;
 	byte status;

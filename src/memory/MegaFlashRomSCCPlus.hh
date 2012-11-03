@@ -15,7 +15,7 @@ class AmdFlash;
 class MegaFlashRomSCCPlus : public MSXRom
 {
 public:
-	MegaFlashRomSCCPlus(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	MegaFlashRomSCCPlus(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~MegaFlashRomSCCPlus();
 
 	virtual void powerUp(EmuTime::param time);
@@ -42,9 +42,9 @@ private:
 	unsigned getSubslot(unsigned address) const;
 	unsigned getFlashAddr(unsigned addr) const;
 
-	const std::auto_ptr<SCC> scc;
-	const std::auto_ptr<AY8910> psg;
-	const std::auto_ptr<AmdFlash> flash;
+	const std::unique_ptr<SCC> scc;
+	const std::unique_ptr<AY8910> psg;
+	const std::unique_ptr<AmdFlash> flash;
 
 	byte configReg;
 	byte offsetReg;

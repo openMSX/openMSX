@@ -1435,7 +1435,7 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<Schedulable>(*this);
 
 	// not serialized
-	//    std::auto_ptr<Renderer> renderer;
+	//    std::unique_ptr<Renderer> renderer;
 	//    VdpVersion version;
 	//    int controlRegMask;
 	//    byte controlValueMasks[32];

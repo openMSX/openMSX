@@ -31,8 +31,8 @@ public:
 private:
 	void checkSramEnable();
 
-	const std::auto_ptr<SRAM> sram;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<SRAM> sram;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	byte enable;
 	byte bank;
 	byte r1ffe, r1fff;

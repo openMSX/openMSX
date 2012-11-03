@@ -30,8 +30,8 @@ private:
 
 static byte decryptLUT[256];
 
-RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: MSXRom(config, rom_)
+RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: MSXRom(config, std::move(rom_))
 	, romBlocks(new Quran2RomBlocks(*this))
 {
 	// protection uses a simple rotation on databus, some lines inverted:

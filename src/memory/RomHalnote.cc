@@ -34,8 +34,8 @@
 
 namespace openmsx {
 
-RomHalnote::RomHalnote(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(config, rom_)
+RomHalnote::RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	if (rom->getSize() != 0x100000) {
 		throw MSXException(

@@ -14,7 +14,7 @@ template<typename Pixel> class ScalerOutput;
 template<typename Pixel>
 struct StretchScalerOutputFactory
 {
-	static std::auto_ptr<ScalerOutput<Pixel> > create(
+	static std::unique_ptr<ScalerOutput<Pixel> > create(
 		OutputSurface& output,
 		const PixelOperations<Pixel>& pixelOps,
 		unsigned inWidth);

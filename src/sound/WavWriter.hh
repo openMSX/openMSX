@@ -31,7 +31,7 @@ protected:
 	          unsigned channels, unsigned bits, unsigned frequency);
 	~WavWriter();
 
-	const std::auto_ptr<File> file;
+	const std::unique_ptr<File> file;
 	unsigned bytes;
 };
 

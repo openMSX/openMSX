@@ -69,7 +69,7 @@ private:
 	virtual unsigned getNbSectorsImpl() const = 0;
 	virtual bool isWriteProtectedImpl() const = 0;
 
-	std::auto_ptr<const PatchInterface> patch;
+	std::unique_ptr<const PatchInterface> patch;
 	Sha1Sum sha1cache;
 	bool forcedWriteProtect;
 	bool peekMode;

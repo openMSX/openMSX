@@ -95,7 +95,7 @@ private:
 
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;
-	const std::auto_ptr<TclObject> dummyResultObject;
+	const std::unique_ptr<TclObject> dummyResultObject;
 	TclObject* currentResultObject;
 };
 

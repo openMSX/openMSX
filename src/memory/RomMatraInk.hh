@@ -15,7 +15,7 @@ class AmdFlash;
 class RomMatraInk : public MSXRom
 {
 public:
-	RomMatraInk(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomMatraInk();
 
 	virtual void reset(EmuTime::param time);
@@ -29,7 +29,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<AmdFlash> flash;
+	const std::unique_ptr<AmdFlash> flash;
 };
 
 } // namespace openmsx

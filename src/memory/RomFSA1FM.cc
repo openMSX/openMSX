@@ -79,8 +79,8 @@ RomFSA1FMSram::~RomFSA1FMSram()
 
 // Mapper for slot 3-1 //
 
-RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: MSXRom(config, rom_)
+RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: MSXRom(config, std::move(rom_))
 	, RomFSA1FMSram(config)
 	, firmwareSwitch(new FirmwareSwitch(config))
 {
@@ -186,8 +186,8 @@ REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 // Mapper for slot 3-3 //
 
-RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, rom)
+RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom8kBBlocks(config, std::move(rom))
 	, RomFSA1FMSram(config)
 {
 	reset(EmuTime::dummy());

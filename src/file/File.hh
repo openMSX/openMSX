@@ -152,7 +152,7 @@ private:
 	 */
 	const std::string getLocalReference() const;
 
-	const std::auto_ptr<FileBase> file;
+	const std::unique_ptr<FileBase> file;
 
 	FilePool* filepool;
 };

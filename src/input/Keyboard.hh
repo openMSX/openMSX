@@ -118,15 +118,15 @@ private:
 	static const int MAX_KEYSYM = 0x150;
 	static const byte keyTab[MAX_KEYSYM];
 
-	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
-	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
-	const std::auto_ptr<KeyInserter>      keyTypeCmd;
-	const std::auto_ptr<CapsLockAligner>  capsLockAligner;
-	const std::auto_ptr<KeyboardSettings> keyboardSettings;
-	const std::auto_ptr<MsxKeyEventQueue> msxKeyEventQueue;
-	const std::auto_ptr<KeybDebuggable>   keybDebuggable;
+	const std::unique_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
+	const std::unique_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
+	const std::unique_ptr<KeyInserter>      keyTypeCmd;
+	const std::unique_ptr<CapsLockAligner>  capsLockAligner;
+	const std::unique_ptr<KeyboardSettings> keyboardSettings;
+	const std::unique_ptr<MsxKeyEventQueue> msxKeyEventQueue;
+	const std::unique_ptr<KeybDebuggable>   keybDebuggable;
 
-	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
+	const std::unique_ptr<UnicodeKeymap> unicodeKeymap;
 	unsigned dynKeymap[MAX_KEYSYM];
 	byte cmdKeyMatrix [NR_KEYROWS]; // for keymatrix/type command
 	byte userKeyMatrix[NR_KEYROWS]; // pressed user keys (live or replay)

@@ -10,7 +10,7 @@ namespace openmsx {
 class RomPadial8kB : public RomAscii8kB
 {
 public:
-	RomPadial8kB(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomPadial8kB(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);
 };

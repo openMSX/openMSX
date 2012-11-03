@@ -31,8 +31,8 @@ public:
 private:
 	void setBank(byte value);
 
-	const std::auto_ptr<TC8566AF> controller;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<TC8566AF> controller;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	const byte* memory;
 	const byte blockMask;
 	byte bank;

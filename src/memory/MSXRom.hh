@@ -21,9 +21,9 @@ public:
 	virtual void getExtraDeviceInfo(TclObject& result) const;
 
 protected:
-	MSXRom(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	MSXRom(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 
-	const std::auto_ptr<Rom> rom;
+	const std::unique_ptr<Rom> rom;
 };
 
 } // namespace openmsx

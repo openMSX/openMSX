@@ -120,8 +120,8 @@ private:
 	IRQHelper irq;
 
 	// Timers (see EmuTimer class for details about timing)
-	const std::auto_ptr<EmuTimer> timer1;
-	const std::auto_ptr<EmuTimer> timer2;
+	const std::unique_ptr<EmuTimer> timer1;
+	const std::unique_ptr<EmuTimer> timer2;
 
 	YM2151Operator oper[32]; // the 32 operators
 

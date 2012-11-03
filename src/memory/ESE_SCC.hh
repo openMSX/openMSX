@@ -35,10 +35,10 @@ private:
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
 
-	const std::auto_ptr<SRAM> sram;
-	const std::auto_ptr<SCC> scc;
-	const std::auto_ptr<MB89352> spc;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<SRAM> sram;
+	const std::unique_ptr<SCC> scc;
+	const std::unique_ptr<MB89352> spc;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 
 	const byte mapperMask;
 	byte mapper[4];

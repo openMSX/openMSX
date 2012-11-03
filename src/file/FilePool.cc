@@ -26,7 +26,7 @@ using std::ofstream;
 using std::pair;
 using std::string;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -213,9 +213,9 @@ void FilePool::getDirectories(Directories& result) const
 	}
 }
 
-auto_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
+unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 {
-	auto_ptr<File> result;
+	unique_ptr<File> result;
 	result = getFromPool(sha1sum);
 	if (result.get()) {
 		return result;
@@ -252,7 +252,7 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 	return SHA1::calcWithProgress(data, size, file.getOriginalName(), cliComm, distributor);
 }
 
-auto_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
+unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
 	pair<Pool::iterator, Pool::iterator> bound = pool.equal_range(sha1sum);
 	Pool::iterator it = bound.first;
@@ -260,7 +260,7 @@ auto_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 		time_t& time = it->second.first;
 		const string& filename = it->second.second;
 		try {
-			auto_ptr<File> file(new File(filename));
+			unique_ptr<File> file(new File(filename));
 			time_t newTime = file->getModificationDate();
 			if (time == newTime) {
 				// When modification time is unchanged, assume
@@ -286,10 +286,10 @@ auto_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 			remove(it++);
 		}
 	}
-	return auto_ptr<File>(); // not found
+	return unique_ptr<File>(); // not found
 }
 
-auto_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& directory, const string& poolPath)
+unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& directory, const string& poolPath)
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
@@ -297,13 +297,13 @@ auto_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& dir
 			// Scanning can take a long time. Allow to exit
 			// openmsx when it takes too long. Stop scanning
 			// by pretending we didn't find the file.
-			return auto_ptr<File>();
+			return unique_ptr<File>();
 		}
 		string file = d->d_name;
 		string path = directory + '/' + file;
 		FileOperations::Stat st;
 		if (FileOperations::getStat(path, st)) {
-			auto_ptr<File> result;
+			unique_ptr<File> result;
 			if (FileOperations::isRegularFile(st)) {
 				result = scanFile(sha1sum, path, st, poolPath);
 			} else if (FileOperations::isDirectory(st)) {
@@ -316,10 +316,10 @@ auto_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& dir
 			}
 		}
 	}
-	return auto_ptr<File>(); // not found
+	return unique_ptr<File>(); // not found
 }
 
-auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
+unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
                                   const FileOperations::Stat& st, const string& poolPath)
 {
 	amountScanned++;
@@ -341,7 +341,7 @@ auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename
 	if (it == pool.end()) {
 		// not in pool
 		try {
-			auto_ptr<File> file(new File(filename));
+			unique_ptr<File> file(new File(filename));
 			Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 			time_t time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
@@ -359,12 +359,12 @@ auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {
-					auto_ptr<File> file(new File(filename));
+					unique_ptr<File> file(new File(filename));
 					return file;
 				}
 			} else {
 				// db outdated
-				auto_ptr<File> file(new File(filename));
+				unique_ptr<File> file(new File(filename));
 				Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 				remove(it);
 				insert(sum, time, filename);
@@ -377,7 +377,7 @@ auto_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename
 			remove(it);
 		}
 	}
-	return auto_ptr<File>(); // not found
+	return unique_ptr<File>(); // not found
 }
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)

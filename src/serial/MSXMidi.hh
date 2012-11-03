@@ -46,9 +46,9 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
-	const std::auto_ptr<MSXMidiCounter0> cntr0; // counter 0 clock pin
-	const std::auto_ptr<MSXMidiCounter2> cntr2; // counter 2 clock pin
-	const std::auto_ptr<MSXMidiI8251Interf> interf;
+	const std::unique_ptr<MSXMidiCounter0> cntr0; // counter 0 clock pin
+	const std::unique_ptr<MSXMidiCounter2> cntr2; // counter 2 clock pin
+	const std::unique_ptr<MSXMidiI8251Interf> interf;
 
 	IRQHelper timerIRQ;
 	IRQHelper rxrdyIRQ;
@@ -58,9 +58,9 @@ private:
 	bool rxrdyIRQenabled;
 
 	// must come last
-	const std::auto_ptr<MidiOutConnector> outConnector;
-	const std::auto_ptr<I8251> i8251;
-	const std::auto_ptr<I8254> i8254;
+	const std::unique_ptr<MidiOutConnector> outConnector;
+	const std::unique_ptr<I8251> i8251;
+	const std::unique_ptr<I8254> i8254;
 
 	friend class MSXMidiCounter0;
 	friend class MSXMidiCounter2;

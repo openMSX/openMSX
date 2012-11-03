@@ -27,8 +27,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Rom> bunsetsuRom;
-	const std::auto_ptr<Rom> jisyoRom;
+	const std::unique_ptr<Rom> bunsetsuRom;
+	const std::unique_ptr<Rom> jisyoRom;
 	unsigned jisyoAddress;
 };
 

@@ -34,7 +34,7 @@ private:
 	void displayByte(byte value, DisplayType type);
 	void openOutput(const std::string& name);
 
-	std::auto_ptr<FilenameSetting> fileNameSetting;
+	std::unique_ptr<FilenameSetting> fileNameSetting;
 	std::ostream* outputstrm;
 	std::ofstream debugOut;
 	std::string fileNameString;

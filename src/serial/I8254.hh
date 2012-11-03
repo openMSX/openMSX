@@ -43,7 +43,7 @@ public:
 private:
 	void readBackHelper(byte value, unsigned cntr, EmuTime::param time);
 
-	std::auto_ptr<Counter> counter[3];
+	std::unique_ptr<Counter> counter[3];
 };
 
 } // namespace openmsx

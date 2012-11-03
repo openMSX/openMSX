@@ -32,9 +32,9 @@ public:
 private:
 	void setSRAM(unsigned region, byte block);
 
-	const std::auto_ptr<MB89352> mb89352;
-	const std::auto_ptr<SRAM> sram;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<MB89352> mb89352;
+	const std::unique_ptr<SRAM> sram;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // SPC block mapped in this region?

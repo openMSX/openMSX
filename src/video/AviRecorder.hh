@@ -43,10 +43,10 @@ private:
 	void processToggle(const std::vector<TclObject>& tokens, TclObject& result);
 
 	Reactor& reactor;
-	const std::auto_ptr<RecordCommand> recordCommand;
+	const std::unique_ptr<RecordCommand> recordCommand;
 	std::vector<short> audioBuf;
-	std::auto_ptr<AviWriter> aviWriter;
-	std::auto_ptr<Wav16Writer> wavWriter;
+	std::unique_ptr<AviWriter> aviWriter;
+	std::unique_ptr<Wav16Writer> wavWriter;
 	PostProcessor* ppV99x8;
 	PostProcessor* ppV9990;
 	PostProcessor* ppLaser;

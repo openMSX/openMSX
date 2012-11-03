@@ -28,11 +28,11 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram[2];
-	std::auto_ptr<Texture> edgeTexture;
-	std::auto_ptr<Texture> offsetTexture[3];
-	std::auto_ptr<Texture> weightTexture[3];
-	std::auto_ptr<PixelBuffer<unsigned short> > edgeBuffer;
+	std::unique_ptr<ShaderProgram> scalerProgram[2];
+	std::unique_ptr<Texture> edgeTexture;
+	std::unique_ptr<Texture> offsetTexture[3];
+	std::unique_ptr<Texture> weightTexture[3];
+	std::unique_ptr<PixelBuffer<unsigned short> > edgeBuffer;
 };
 
 } // namespace openmsx

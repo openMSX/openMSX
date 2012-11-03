@@ -23,7 +23,7 @@ class LDSDLRasterizer : public LDRasterizer, private noncopyable
 public:
 	LDSDLRasterizer(
 		VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor);
+		std::unique_ptr<PostProcessor> postProcessor);
 	virtual ~LDSDLRasterizer();
 
 	// Rasterizer interface:
@@ -35,11 +35,11 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	const std::auto_ptr<PostProcessor> postProcessor;
+	const std::unique_ptr<PostProcessor> postProcessor;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	std::auto_ptr<RawFrame> workFrame;
+	std::unique_ptr<RawFrame> workFrame;
 
 	const SDL_PixelFormat pixelFormat;
 };

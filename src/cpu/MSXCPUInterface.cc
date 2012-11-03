@@ -29,7 +29,7 @@
 #include <tcl.h>
 #include "unreachable.hh"
 #include <cstdio>
-#include <memory> // for auto_ptr
+#include <memory>
 #include <set>
 #include <sstream>
 #include <iomanip>
@@ -38,7 +38,6 @@
 #include <cstring>
 #include <iterator>
 
-using std::auto_ptr;
 using std::ostringstream;
 using std::setfill;
 using std::setw;

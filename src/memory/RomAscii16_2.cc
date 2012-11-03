@@ -22,8 +22,8 @@
 
 namespace openmsx {
 
-RomAscii16_2::RomAscii16_2(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: RomAscii16kB(config, rom)
+RomAscii16_2::RomAscii16_2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: RomAscii16kB(config, std::move(rom))
 {
 	sram.reset(new SRAM(getName() + " SRAM", 0x0800, config));
 	reset(EmuTime::dummy());

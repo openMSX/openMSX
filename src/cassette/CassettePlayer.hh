@@ -137,11 +137,11 @@ private:
 	Filename casImage;
 
 	MSXMotherBoard& motherBoard;
-	const std::auto_ptr<TapeCommand> tapeCommand;
-	const std::auto_ptr<LoadingIndicator> loadingIndicator;
-	const std::auto_ptr<BooleanSetting> autoRunSetting;
-	std::auto_ptr<Wav8Writer> recordImage;
-	std::auto_ptr<CassetteImage> playImage;
+	const std::unique_ptr<TapeCommand> tapeCommand;
+	const std::unique_ptr<LoadingIndicator> loadingIndicator;
+	const std::unique_ptr<BooleanSetting> autoRunSetting;
+	std::unique_ptr<Wav8Writer> recordImage;
+	std::unique_ptr<CassetteImage> playImage;
 
 	size_t sampcnt;
 	State state;

@@ -28,7 +28,7 @@ public:
 private:
 	void checkSramEnable();
 
-	const std::auto_ptr<SRAM> sram;
+	const std::unique_ptr<SRAM> sram;
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };

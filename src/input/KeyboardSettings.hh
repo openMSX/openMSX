@@ -30,13 +30,13 @@ public:
 	BooleanSetting& getAutoToggleCodeKanaLock() const;
 
 private:
-	std::auto_ptr<EnumSetting<Keys::KeyCode> > deadkeyHostKey[3];
-	std::auto_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
-	std::auto_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
-	std::auto_ptr<EnumSetting<MappingMode> > mappingMode;
-	std::auto_ptr<BooleanSetting> alwaysEnableKeypad;
-	std::auto_ptr<BooleanSetting> traceKeyPresses;
-	std::auto_ptr<BooleanSetting> autoToggleCodeKanaLock;
+	std::unique_ptr<EnumSetting<Keys::KeyCode> > deadkeyHostKey[3];
+	std::unique_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
+	std::unique_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
+	std::unique_ptr<EnumSetting<MappingMode> > mappingMode;
+	std::unique_ptr<BooleanSetting> alwaysEnableKeypad;
+	std::unique_ptr<BooleanSetting> traceKeyPresses;
+	std::unique_ptr<BooleanSetting> autoToggleCodeKanaLock;
 };
 
 } // namespace openmsx

@@ -85,18 +85,18 @@ string_ref PostProcessor::getLayerName() const
 	}
 }
 
-std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
-	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
+	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
-	std::auto_ptr<RawFrame> reuseFrame;
+	std::unique_ptr<RawFrame> reuseFrame;
 	if (getVideoSource() != VIDEO_LASERDISC) {
-		reuseFrame = prevFrame;
-		prevFrame = currFrame;
-		currFrame = finishedFrame;
+		reuseFrame = std::move(prevFrame);
+		prevFrame = std::move(currFrame);
+		currFrame = std::move(finishedFrame);
 		reuseFrame->init(field);
 	} else {
-		currFrame = finishedFrame;
+		currFrame = std::move(finishedFrame);
 		assert(field                 == FrameSource::FIELD_NONINTERLACED);
 		assert(currFrame->getField() == FrameSource::FIELD_NONINTERLACED);
 	}
@@ -140,7 +140,7 @@ std::auto_ptr<RawFrame> PostProcessor::rotateFrames(
 	if (getVideoSource() != VIDEO_LASERDISC) {
 		return reuseFrame;
 	} else {
-		return currFrame;
+		return std::move(currFrame);
 	}
 }
 

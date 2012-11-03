@@ -3,47 +3,49 @@
 #include "EmuTimer.hh"
 #include "serialize.hh"
 
+using std::unique_ptr;
+
 namespace openmsx {
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPM_1(
+unique_ptr<EmuTimer> EmuTimer::createOPM_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x40,  3579545, 64 * 2     , 1024));
 }
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPM_2(
+unique_ptr<EmuTimer> EmuTimer::createOPM_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x20,  3579545, 64 * 2 * 16, 256));
 }
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPL3_1(
+unique_ptr<EmuTimer> EmuTimer::createOPL3_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x40,  3579545, 72 *  4    , 256));
 }
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPL3_2(
+unique_ptr<EmuTimer> EmuTimer::createOPL3_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x20,  3579545, 72 *  4 * 4, 256));
 }
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPL4_1(
+unique_ptr<EmuTimer> EmuTimer::createOPL4_1(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x40, 33868800, 72 * 38    , 256));
 }
 
-std::auto_ptr<EmuTimer> EmuTimer::createOPL4_2(
+unique_ptr<EmuTimer> EmuTimer::createOPL4_2(
 	Scheduler& scheduler, EmuTimerCallback& cb)
 {
-	return std::auto_ptr<EmuTimer>(new EmuTimer(
+	return unique_ptr<EmuTimer>(new EmuTimer(
 		scheduler, cb, 0x20, 33868800, 72 * 38 * 4, 256));
 }
 

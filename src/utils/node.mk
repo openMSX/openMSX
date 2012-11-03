@@ -22,7 +22,6 @@ SRC_HDR:= \
 	rapidsax \
 
 HDR_ONLY:= \
-	my_auto_ptr \
 	FixedPoint \
 	MemBuffer \
 	Subject Observer \

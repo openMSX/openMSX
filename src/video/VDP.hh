@@ -657,33 +657,33 @@ private:
 	friend class VDPPaletteDebug;
 	friend class VRAMPointerDebug;
 	friend class FrameCountInfo;
-	const std::auto_ptr<VDPRegDebug>       vdpRegDebug;
-	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
-	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
-	const std::auto_ptr<VRAMPointerDebug>  vramPointerDebug;
-	const std::auto_ptr<FrameCountInfo>    frameCountInfo;
-	const std::auto_ptr<CycleInFrameInfo>  cycleInFrameInfo;
-	const std::auto_ptr<LineInFrameInfo>   lineInFrameInfo;
-	const std::auto_ptr<CycleInLineInfo>   cycleInLineInfo;
-	const std::auto_ptr<MsxYPosInfo>       msxYPosInfo;
-	const std::auto_ptr<MsxX256PosInfo>    msxX256PosInfo;
-	const std::auto_ptr<MsxX512PosInfo>    msxX512PosInfo;
+	const std::unique_ptr<VDPRegDebug>       vdpRegDebug;
+	const std::unique_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
+	const std::unique_ptr<VDPPaletteDebug>   vdpPaletteDebug;
+	const std::unique_ptr<VRAMPointerDebug>  vramPointerDebug;
+	const std::unique_ptr<FrameCountInfo>    frameCountInfo;
+	const std::unique_ptr<CycleInFrameInfo>  cycleInFrameInfo;
+	const std::unique_ptr<LineInFrameInfo>   lineInFrameInfo;
+	const std::unique_ptr<CycleInLineInfo>   cycleInLineInfo;
+	const std::unique_ptr<MsxYPosInfo>       msxYPosInfo;
+	const std::unique_ptr<MsxX256PosInfo>    msxX256PosInfo;
+	const std::unique_ptr<MsxX512PosInfo>    msxX512PosInfo;
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
-	std::auto_ptr<Renderer> renderer;
+	std::unique_ptr<Renderer> renderer;
 
 	/** Command engine: the part of the V9938/58 that executes commands.
 	  */
-	std::auto_ptr<VDPCmdEngine> cmdEngine;
+	std::unique_ptr<VDPCmdEngine> cmdEngine;
 
 	/** Sprite checker: calculates sprite patterns and collisions.
 	  */
-	std::auto_ptr<SpriteChecker> spriteChecker;
+	std::unique_ptr<SpriteChecker> spriteChecker;
 
 	/** VRAM management object.
 	  */
-	std::auto_ptr<VDPVRAM> vram;
+	std::unique_ptr<VDPVRAM> vram;
 
 	/** Is there an external video source which we must superimpose
 	  * upon?

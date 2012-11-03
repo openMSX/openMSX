@@ -12,7 +12,7 @@ class RomBlockDebuggable;
 class RomDooly : public MSXRom
 {
 public:
-	RomDooly(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomDooly();
 
 	virtual void reset(EmuTime::param time);
@@ -25,7 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	byte conversion;
 };
 

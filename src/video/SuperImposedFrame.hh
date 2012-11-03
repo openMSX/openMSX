@@ -16,7 +16,7 @@ namespace openmsx {
 class SuperImposedFrame : public FrameSource
 {
 public:
-	static std::auto_ptr<SuperImposedFrame> create(
+	static std::unique_ptr<SuperImposedFrame> create(
 		const SDL_PixelFormat& format);
 	void init(const FrameSource* top, const FrameSource* bottom);
 

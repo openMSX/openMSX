@@ -22,17 +22,17 @@ protected:
 class EmuTimer : public Schedulable
 {
 public:
-	static std::auto_ptr<EmuTimer> createOPM_1(
+	static std::unique_ptr<EmuTimer> createOPM_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	static std::auto_ptr<EmuTimer> createOPM_2(
+	static std::unique_ptr<EmuTimer> createOPM_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	static std::auto_ptr<EmuTimer> createOPL3_1(
+	static std::unique_ptr<EmuTimer> createOPL3_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	static std::auto_ptr<EmuTimer> createOPL3_2(
+	static std::unique_ptr<EmuTimer> createOPL3_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	static std::auto_ptr<EmuTimer> createOPL4_1(
+	static std::unique_ptr<EmuTimer> createOPL4_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
-	static std::auto_ptr<EmuTimer> createOPL4_2(
+	static std::unique_ptr<EmuTimer> createOPL4_2(
 		Scheduler& scheduler, EmuTimerCallback& cb);
 
 	void setValue(int value);

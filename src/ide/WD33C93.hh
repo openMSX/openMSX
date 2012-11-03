@@ -44,7 +44,7 @@ private:
 	void execCmd(byte value);
 
 	MemBuffer<byte> buffer;
-	std::auto_ptr<SCSIDevice> dev[8];
+	std::unique_ptr<SCSIDevice> dev[8];
 	unsigned bufIdx;
 	int counter;
 	unsigned blockCounter;

@@ -59,8 +59,8 @@ private:
 
 	std::ofstream outFile;
 
-	const std::auto_ptr<FilenameSetting> rs232InputFilenameSetting;
-	const std::auto_ptr<FilenameSetting> rs232OutputFilenameSetting;
+	const std::unique_ptr<FilenameSetting> rs232InputFilenameSetting;
+	const std::unique_ptr<FilenameSetting> rs232OutputFilenameSetting;
 };
 
 } // namespace openmsx

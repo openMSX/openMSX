@@ -38,7 +38,7 @@ public:
 	 * If found it returns the (already opened) file,
 	 * if not found it returns a NULL pointer.
 	 */
-	std::auto_ptr<File> getFile(FileType fileType, const Sha1Sum& sha1sum);
+	std::unique_ptr<File> getFile(FileType fileType, const Sha1Sum& sha1sum);
 
 	/** Calculate sha1sum for the given File object.
 	 * If possible the result is retrieved from cache, avoiding the
@@ -74,13 +74,13 @@ private:
 	void readSha1sums();
 	void writeSha1sums();
 
-	std::auto_ptr<File> getFromPool(const Sha1Sum& sha1sum);
-	std::auto_ptr<File> scanDirectory(const Sha1Sum& sha1sum,
-	                                  const std::string& directory,
-	                                  const std::string& poolPath);
-	std::auto_ptr<File> scanFile(const Sha1Sum& sha1sum,
-	                             const std::string& filename,
-	                             const FileOperations::Stat& st,
+	std::unique_ptr<File> getFromPool(const Sha1Sum& sha1sum);
+	std::unique_ptr<File> scanDirectory(const Sha1Sum& sha1sum,
+	                                    const std::string& directory,
+	                                    const std::string& poolPath);
+	std::unique_ptr<File> scanFile(const Sha1Sum& sha1sum,
+	                               const std::string& filename,
+	                               const FileOperations::Stat& st,
 	                                  const std::string& poolPath);
 	Pool::iterator findInDatabase(const std::string& filename);
 
@@ -94,7 +94,7 @@ private:
 	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 
-	const std::auto_ptr<StringSetting> filePoolSetting;
+	const std::unique_ptr<StringSetting> filePoolSetting;
 	EventDistributor& distributor;
 	CliComm& cliComm;
 

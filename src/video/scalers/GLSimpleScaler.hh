@@ -26,7 +26,7 @@ public:
 private:
 	RenderSettings& renderSettings;
 	struct Data {
-		std::auto_ptr<ShaderProgram> scalerProgram;
+		std::unique_ptr<ShaderProgram> scalerProgram;
 		int texSizeLoc;
 		int texStepXLoc;
 		int cnstLoc;

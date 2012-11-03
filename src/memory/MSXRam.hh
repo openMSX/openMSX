@@ -31,7 +31,7 @@ private:
 
 	/*const*/ unsigned base;
 	/*const*/ unsigned size;
-	/*const*/ std::auto_ptr<CheckedRam> checkedRam;
+	/*const*/ std::unique_ptr<CheckedRam> checkedRam;
 };
 
 } // namespace openmsx

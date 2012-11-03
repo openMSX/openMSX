@@ -36,7 +36,7 @@ public:
 private:
 	void executeCommon(TclObject& command);
 
-	std::auto_ptr<StringSetting> callbackSetting2;
+	std::unique_ptr<StringSetting> callbackSetting2;
 	StringSetting& callbackSetting;
 	const bool useCliComm;
 };

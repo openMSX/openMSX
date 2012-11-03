@@ -35,7 +35,7 @@ private:
 
 	MSXMotherBoard& motherboard;
 	EventDistributor& eventDistributor;
-	const std::auto_ptr<LDRasterizer> rasterizer;
+	const std::unique_ptr<LDRasterizer> rasterizer;
 };
 
 } // namespace openmsx

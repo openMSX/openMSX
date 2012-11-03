@@ -48,8 +48,8 @@
 
 namespace openmsx {
 
-RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(config, rom_)
+RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 	, samplePlayer(new SamplePlayer(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,

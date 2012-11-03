@@ -26,8 +26,8 @@
 
 namespace openmsx {
 
-RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, rom)
+RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom16kBBlocks(config, std::move(rom))
 	, dac(new DACSound8U("Synthesizer-DAC", "Konami Synthesizer's DAC", config))
 {
 	setUnmapped(0);

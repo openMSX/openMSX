@@ -58,13 +58,13 @@ private:
 	static const unsigned INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
 	MSXMotherBoard& motherBoard;
-	const std::auto_ptr<LoadingIndicator> loadingIndicator;
+	const std::unique_ptr<LoadingIndicator> loadingIndicator;
 	const EmuDuration motorTimeout;
 
 	typedef Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> MotorClock;
 	MotorClock motorTimer;
 	Clock<1000> headLoadTimer; // ms
-	std::auto_ptr<DiskChanger> changer;
+	std::unique_ptr<DiskChanger> changer;
 	unsigned headPos;
 	unsigned side;
 	unsigned startAngle;

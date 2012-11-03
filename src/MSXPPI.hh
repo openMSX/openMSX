@@ -71,9 +71,9 @@ private:
 
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;
-	const std::auto_ptr<I8255> i8255;
-	const std::auto_ptr<KeyClick> click;
-	const std::auto_ptr<Keyboard> keyboard;
+	const std::unique_ptr<I8255> i8255;
+	const std::unique_ptr<KeyClick> click;
+	const std::unique_ptr<Keyboard> keyboard;
 	nibble prevBits;
 	nibble selectedRow;
 };

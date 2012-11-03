@@ -106,7 +106,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;
-	const std::auto_ptr<ReverseCmd> reverseCmd;
+	const std::unique_ptr<ReverseCmd> reverseCmd;
 	Keyboard* keyboard;
 	EventDelay* eventDelay;
 	ReverseHistory history;

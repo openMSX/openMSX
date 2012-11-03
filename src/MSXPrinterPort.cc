@@ -13,7 +13,7 @@ namespace openmsx {
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
-	            std::auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
+	            std::unique_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;     // != 0;
 	strobe = false; // != true;

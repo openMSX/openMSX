@@ -46,8 +46,8 @@ public:
 
 	// child
 	typedef std::vector<XMLElement*> Children;
-	void addChild(std::auto_ptr<XMLElement> child);
-	std::auto_ptr<XMLElement> removeChild(const XMLElement& child);
+	void addChild(std::unique_ptr<XMLElement> child);
+	std::unique_ptr<XMLElement> removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
 	bool hasChildren() const { return !children.empty(); }
 
@@ -114,7 +114,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 	// For backwards compatibility with older savestates
-	static std::auto_ptr<FileContext> getLastSerializedFileContext();
+	static std::unique_ptr<FileContext> getLastSerializedFileContext();
 
 private:
 	typedef std::pair<std::string, std::string> Attribute;

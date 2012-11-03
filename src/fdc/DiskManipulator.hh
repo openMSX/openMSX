@@ -49,10 +49,10 @@ private:
 	Drives::iterator findDriveSettings(DiskContainer& drive);
 	Drives::iterator findDriveSettings(string_ref name);
 	DriveSettings& getDriveSettings(string_ref diskname);
-	std::auto_ptr<DiskPartition> getPartition(
+	std::unique_ptr<DiskPartition> getPartition(
 		const DriveSettings& driveData);
-	std::auto_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
-	                                DriveSettings& driveData);
+	std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
+	                                  DriveSettings& driveData);
 
 	void create(const std::vector<std::string>& tokens);
 	void savedsk(const DriveSettings& driveData,

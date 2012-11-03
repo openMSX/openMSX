@@ -21,7 +21,7 @@ public:
 	/** Instantiates a Scaler.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	static std::auto_ptr<Scaler<Pixel> > createScaler(
+	static std::unique_ptr<Scaler<Pixel> > createScaler(
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 };

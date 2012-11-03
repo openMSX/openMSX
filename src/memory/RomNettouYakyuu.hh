@@ -12,7 +12,7 @@ class SamplePlayer;
 class RomNettouYakyuu : public Rom8kBBlocks
 {
 public:
-	RomNettouYakyuu(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);
@@ -22,7 +22,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<SamplePlayer> samplePlayer;
+	const std::unique_ptr<SamplePlayer> samplePlayer;
 
 	// remember per region if writes are for the sample player or not
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]

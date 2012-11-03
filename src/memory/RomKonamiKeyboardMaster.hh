@@ -12,7 +12,7 @@ class VLM5030;
 class RomKonamiKeyboardMaster : public Rom16kBBlocks
 {
 public:
-	RomKonamiKeyboardMaster(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomKonamiKeyboardMaster(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomKonamiKeyboardMaster();
 
 	virtual void reset(EmuTime::param time);
@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<VLM5030> vlm5030;
+	const std::unique_ptr<VLM5030> vlm5030;
 };
 
 } // namespace openmsx

@@ -50,7 +50,7 @@ private:
 
 	void updatePause();
 
-	const std::auto_ptr<BooleanSetting> pauseSetting;
+	const std::unique_ptr<BooleanSetting> pauseSetting;
 	byte status;
 	bool pauseLed;
 	bool turboLed;

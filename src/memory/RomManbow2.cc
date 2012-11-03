@@ -29,9 +29,9 @@ static unsigned getWriteProtected(RomType type)
 }
 
 
-RomManbow2::RomManbow2(const DeviceConfig& config, std::auto_ptr<Rom> rom_,
+RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
                        RomType type)
-	: MSXRom(config, rom_)
+	: MSXRom(config, std::move(rom_))
 	, scc(new SCC(getName() + " SCC", config, getCurrentTime()))
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
 	      new AY8910(getName() + " PSG", DummyAY8910Periphery::instance(), config,

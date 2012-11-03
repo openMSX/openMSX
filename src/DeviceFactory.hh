@@ -19,14 +19,14 @@ class MSXCPUInterface;
 class DeviceFactory
 {
 public:
-	static std::auto_ptr<MSXDevice> create(const DeviceConfig& conf);
-	static std::auto_ptr<DummyDevice> createDummyDevice(
+	static std::unique_ptr<MSXDevice> create(const DeviceConfig& conf);
+	static std::unique_ptr<DummyDevice> createDummyDevice(
 		const HardwareConfig& hcConf);
-	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(
+	static std::unique_ptr<MSXDeviceSwitch> createDeviceSwitch(
 		const HardwareConfig& hcConf);
-	static std::auto_ptr<MSXMapperIO> createMapperIO(
+	static std::unique_ptr<MSXMapperIO> createMapperIO(
 		const HardwareConfig& hcConf);
-	static std::auto_ptr<VDPIODelay> createVDPIODelay(
+	static std::unique_ptr<VDPIODelay> createVDPIODelay(
 		const HardwareConfig& hcConf, MSXCPUInterface& cpuInterface);
 };
 

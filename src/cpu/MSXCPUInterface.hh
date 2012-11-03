@@ -271,14 +271,14 @@ private:
 	friend class SlotInfo;
 	friend class IODebug;
 	friend class IOInfo;
-	const std::auto_ptr<MemoryDebug> memoryDebug;
-	const std::auto_ptr<SlottedMemoryDebug> slottedMemoryDebug;
-	const std::auto_ptr<IODebug> ioDebug;
-	const std::auto_ptr<SlotInfo> slotInfo;
-	const std::auto_ptr<SubSlottedInfo> subSlottedInfo;
-	const std::auto_ptr<ExternalSlotInfo> externalSlotInfo;
-	const std::auto_ptr<IOInfo> inputPortInfo;
-	const std::auto_ptr<IOInfo> outputPortInfo;
+	const std::unique_ptr<MemoryDebug> memoryDebug;
+	const std::unique_ptr<SlottedMemoryDebug> slottedMemoryDebug;
+	const std::unique_ptr<IODebug> ioDebug;
+	const std::unique_ptr<SlotInfo> slotInfo;
+	const std::unique_ptr<SubSlottedInfo> subSlottedInfo;
+	const std::unique_ptr<ExternalSlotInfo> externalSlotInfo;
+	const std::unique_ptr<IOInfo> inputPortInfo;
+	const std::unique_ptr<IOInfo> outputPortInfo;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.
@@ -289,12 +289,12 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	std::auto_ptr<DummyDevice> dummyDevice;
+	std::unique_ptr<DummyDevice> dummyDevice;
 	MSXCPU& msxcpu;
 	CliComm& cliComm;
 	MSXMotherBoard& motherBoard;
 
-	std::auto_ptr<VDPIODelay> delayDevice;
+	std::unique_ptr<VDPIODelay> delayDevice;
 
 	byte disallowReadCache [CacheLine::NUM];
 	byte disallowWriteCache[CacheLine::NUM];

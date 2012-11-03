@@ -824,7 +824,7 @@ public:
 
 private:
 	gzFile file;
-	std::auto_ptr<XMLElement> root;
+	std::unique_ptr<XMLElement> root;
 	std::vector<XMLElement*> current;
 };
 
@@ -891,7 +891,7 @@ public:
 private:
 	void init(const XMLElement* e);
 
-	std::auto_ptr<XMLElement> elem;
+	std::unique_ptr<XMLElement> elem;
 	typedef std::vector<std::pair<const XMLElement*, unsigned> > Elems;
 	Elems elems;
 };

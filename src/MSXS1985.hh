@@ -38,7 +38,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	std::auto_ptr<SRAM> sram;
+	std::unique_ptr<SRAM> sram;
 	nibble address;
 	byte color1;
 	byte color2;

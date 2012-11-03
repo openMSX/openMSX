@@ -20,14 +20,14 @@ class FileContext;
 class HardwareConfig : private noncopyable
 {
 public:
-	static std::auto_ptr<XMLElement> loadConfig(
+	static std::unique_ptr<XMLElement> loadConfig(
 		const std::string& filename);
 
-	static std::auto_ptr<HardwareConfig> createMachineConfig(
+	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
-	static std::auto_ptr<HardwareConfig> createExtensionConfig(
+	static std::unique_ptr<HardwareConfig> createExtensionConfig(
 		MSXMotherBoard& motherBoard, const std::string& extensionName);
-	static std::auto_ptr<HardwareConfig> createRomConfig(
+	static std::unique_ptr<HardwareConfig> createRomConfig(
 		MSXMotherBoard& motherBoard, const std::string& romfile,
 		const std::string& slotname, const std::vector<std::string>& options);
 
@@ -37,7 +37,7 @@ public:
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 	const FileContext& getFileContext() const;
-	void setFileContext(std::auto_ptr<FileContext> context);
+	void setFileContext(std::unique_ptr<FileContext> context);
 
 	const XMLElement& getConfig() const;
 	const std::string& getName() const;
@@ -54,7 +54,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setConfig(std::auto_ptr<XMLElement> config);
+	void setConfig(std::unique_ptr<XMLElement> config);
 	void load(string_ref path);
 
 	const XMLElement& getDevices() const;
@@ -70,8 +70,8 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
 	std::string userName;
-	std::auto_ptr<XMLElement> config;
-	std::auto_ptr<FileContext> context;
+	std::unique_ptr<XMLElement> config;
+	std::unique_ptr<FileContext> context;
 
 	bool externalSlots[4][4];
 	bool externalPrimSlots[4];

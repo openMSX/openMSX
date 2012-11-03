@@ -26,8 +26,8 @@ protected:
 	explicit MSXFDC(const DeviceConfig& config);
 	virtual ~MSXFDC();
 
-	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<DiskDrive> drives[4];
+	const std::unique_ptr<Rom> rom;
+	std::unique_ptr<DiskDrive> drives[4];
 };
 
 REGISTER_BASE_NAME_HELPER(MSXFDC, "FDC");

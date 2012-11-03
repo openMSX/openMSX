@@ -36,7 +36,7 @@ protected:
 	 *      compared to the implementation block size, it's only used to
 	 *      correctly implement the 'romblocks' debuggable.
 	 */
-	RomBlocks(const DeviceConfig& config, std::auto_ptr<Rom> rom,
+	RomBlocks(const DeviceConfig& config, std::unique_ptr<Rom> rom,
 	          unsigned debugBankSizeShift = 0);
 	~RomBlocks();
 
@@ -78,11 +78,11 @@ protected:
 	void setExtraMemory(const byte* mem, unsigned size);
 
 	const byte* bank[NUM_BANKS];
-	std::auto_ptr<SRAM> sram; // can be a NULL ptr
+	std::unique_ptr<SRAM> sram; // can be a NULL ptr
 	byte blockNr[NUM_BANKS];
 
 private:
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	const byte* extraMem;
 	unsigned extraSize;
 	const int nrBlocks;

@@ -15,7 +15,7 @@ namespace GLScalerFactory
 	/** Instantiates a Scaler.
 	  * @return A Scaler object, owned by the caller.
 	  */
-	std::auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings);
+	std::unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings);
 }
 
 } // namespace openmsx

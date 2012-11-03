@@ -27,7 +27,7 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	std::auto_ptr<ShaderProgram> scalerProgram[2];
+	std::unique_ptr<ShaderProgram> scalerProgram[2];
 	GLint texSizeLoc[2];
 	GLint minScanlineLoc[2];
 	GLint sizeVarianceLoc[2];

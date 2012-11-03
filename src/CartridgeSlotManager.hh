@@ -50,7 +50,7 @@ private:
 		bool exists() const;
 		bool used(const HardwareConfig* allowed = NULL) const;
 
-		std::auto_ptr<CartCmd> command;
+		std::unique_ptr<CartCmd> command;
 		const HardwareConfig* config;
 		unsigned useCount;
 		int ps;
@@ -59,8 +59,8 @@ private:
 	static const unsigned MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
 	MSXMotherBoard& motherBoard;
-	const std::auto_ptr<CartCmd> cartCmd;
-	const std::auto_ptr<CartridgeSlotInfo> extSlotInfo;
+	const std::unique_ptr<CartCmd> cartCmd;
+	const std::unique_ptr<CartridgeSlotInfo> extSlotInfo;
 	friend class CartCmd;
 	friend class CartridgeSlotInfo;
 };

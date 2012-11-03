@@ -52,7 +52,7 @@ private:
 	byte* mmem;
 	HANDLE hMmap;
 #endif
-	std::auto_ptr<PreCacheFile> cache;
+	std::unique_ptr<PreCacheFile> cache;
 	bool readOnly;
 };
 

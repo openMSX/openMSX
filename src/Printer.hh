@@ -163,7 +163,7 @@ protected:
 
 private:
 	MSXMotherBoard& motherBoard;
-	std::auto_ptr<Paper> paper;
+	std::unique_ptr<Paper> paper;
 
 	IntegerSetting* dpiSetting;
 

@@ -167,8 +167,8 @@ private:
 
 	/** Only call reportVdpCommand() when this setting is turned on
 	  */
-	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
-	const std::auto_ptr<TclCallback> cmdInProgressCallback;
+	const std::unique_ptr<BooleanSetting> cmdTraceSetting;
+	const std::unique_ptr<TclCallback> cmdInProgressCallback;
 
 	VDPCmd* commands[256][4];
 	VDPCmd* currentCommand;

@@ -25,7 +25,7 @@
 #include <cstring>
 
 using std::string;
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -229,7 +229,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			// calculate before content is altered
 			getOriginalSHA1();
 
-			auto_ptr<const PatchInterface> patch(
+			unique_ptr<const PatchInterface> patch(
 				new EmptyPatch(rom, size));
 
 			XMLElement::Children patches;
@@ -237,7 +237,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			for (XMLElement::Children::const_iterator it
 			       = patches.begin(); it != patches.end(); ++it) {
 				Filename filename((*it)->getData(), context);
-				patch.reset(new IPSPatch(filename, patch));
+				patch.reset(new IPSPatch(filename, std::move(patch)));
 			}
 			unsigned patchSize = patch->getSize();
 			if (patchSize <= size) {

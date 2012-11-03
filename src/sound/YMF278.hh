@@ -34,7 +34,7 @@ public:
 
 private:
 	class Impl;
-	const std::auto_ptr<Impl> pimpl;
+	const std::unique_ptr<Impl> pimpl;
 };
 SERIALIZE_CLASS_VERSION(YMF278, 3);
 

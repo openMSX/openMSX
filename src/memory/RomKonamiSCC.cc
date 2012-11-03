@@ -21,8 +21,8 @@
 
 namespace openmsx {
 
-RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, rom)
+RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom8kBBlocks(config, std::move(rom))
 	, scc(new SCC("SCC", config, getCurrentTime()))
 {
 	powerUp(getCurrentTime());

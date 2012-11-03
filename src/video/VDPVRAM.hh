@@ -579,13 +579,13 @@ private:
 	  *   This debuggable is also at least 128kB in size (it possibly
 	  *   contains unmapped regions).
 	  */
-	const std::auto_ptr<LogicalVRAMDebuggable> logicalVRAMDebug;
+	const std::unique_ptr<LogicalVRAMDebuggable> logicalVRAMDebug;
 
 	/** Physical view on the VRAM.
 	  *   Screen 7/8 are interleaved in this mode. The size of this
 	  *   debuggable is the same as the actual VRAM size.
 	  */
-	const std::auto_ptr<PhysicalVRAMDebuggable> physicalVRAMDebug;
+	const std::unique_ptr<PhysicalVRAMDebuggable> physicalVRAMDebug;
 
 	// TODO: Renderer field can be removed, if updateDisplayMode
 	//       and updateDisplayEnabled are moved back to VDP.

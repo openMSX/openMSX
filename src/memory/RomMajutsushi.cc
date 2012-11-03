@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
-RomMajutsushi::RomMajutsushi(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: RomKonami(config, rom)
+RomMajutsushi::RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: RomKonami(config, std::move(rom))
 	, dac(new DACSound8U("Majutsushi-DAC", "Hai no Majutsushi's DAC", config))
 {
 }

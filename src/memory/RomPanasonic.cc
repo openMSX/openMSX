@@ -15,8 +15,8 @@ const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
 
 
-RomPanasonic::RomPanasonic(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: Rom8kBBlocks(config, rom_)
+RomPanasonic::RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 	, panasonicMem(getMotherBoard().getPanasonicMemory())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);

@@ -117,7 +117,7 @@ private:
 	  */
 	SpriteChecker& spriteChecker;
 
-	const std::auto_ptr<Rasterizer> rasterizer;
+	const std::unique_ptr<Rasterizer> rasterizer;
 
 	double finishFrameDuration;
 	int frameSkipCounter;

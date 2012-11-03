@@ -27,15 +27,14 @@ namespace openmsx {
 template <class Pixel>
 V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		V9990& vdp_, Display& display, VisibleSurface& screen_,
-		std::auto_ptr<PostProcessor> postProcessor_
-		)
+		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, workFrame(new RawFrame(screen.getSDLFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR
-	, postProcessor(postProcessor_)
+	, postProcessor(std::move(postProcessor_))
 	, bitmapConverter(new V9990BitmapConverter<Pixel>(
 	                           vdp, palette64, palette256, palette32768))
 	, p1Converter(new V9990P1Converter<Pixel>(vdp, palette64))
@@ -99,7 +98,7 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 {
 	workFrame = postProcessor->rotateFrames(
-	    workFrame,
+	    std::move(workFrame),
 	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? RawFrame::FIELD_EVEN
 	                                           : RawFrame::FIELD_ODD)
 	                       : RawFrame::FIELD_NONINTERLACED,

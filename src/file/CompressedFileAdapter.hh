@@ -35,14 +35,14 @@ public:
 	virtual time_t getModificationDate();
 
 protected:
-	explicit CompressedFileAdapter(std::auto_ptr<FileBase> file);
+	explicit CompressedFileAdapter(std::unique_ptr<FileBase> file);
 	virtual ~CompressedFileAdapter();
 	virtual void decompress(FileBase& file, Decompressed& decompressed) = 0;
 
 private:
 	void decompress();
 
-	std::auto_ptr<FileBase> file;
+	std::unique_ptr<FileBase> file;
 	shared_ptr<Decompressed> decompressed;
 	unsigned pos;
 };

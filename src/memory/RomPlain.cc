@@ -22,9 +22,9 @@ static std::string toString(unsigned start, unsigned len)
 	        "0x" + StringOp::toHexString(start + len, 4) + ']';
 }
 
-RomPlain::RomPlain(const DeviceConfig& config, std::auto_ptr<Rom> rom_,
+RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
                    MirrorType mirrored, int start)
-	: Rom8kBBlocks(config, rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;

@@ -70,7 +70,7 @@ private:
 	MSXMotherBoard& motherboard;
 	MSXEventDistributor& msxEventDistributor;
 	const std::string& machineID;
-	std::auto_ptr<InfoCommand> machineInfoCommand;
+	std::unique_ptr<InfoCommand> machineInfoCommand;
 
 	typedef StringMap<Command*> CommandMap;
 	CommandMap commandMap;

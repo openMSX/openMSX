@@ -49,9 +49,9 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	std::string name;
-	std::auto_ptr<HDCommand> hdCommand;
+	std::unique_ptr<HDCommand> hdCommand;
 
-	std::auto_ptr<File> file;
+	std::unique_ptr<File> file;
 	Filename filename;
 	unsigned filesize;
 	bool alreadyTried;

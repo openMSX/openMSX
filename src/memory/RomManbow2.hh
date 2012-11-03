@@ -18,7 +18,7 @@ class RomBlockDebuggable;
 class RomManbow2 : public MSXRom
 {
 public:
-	RomManbow2(const DeviceConfig& config, std::auto_ptr<Rom> rom,
+	RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom,
 	           RomType type);
 	virtual ~RomManbow2();
 
@@ -40,10 +40,10 @@ public:
 private:
 	void setRom(unsigned region, unsigned block);
 
-	const std::auto_ptr<SCC> scc;
-	const std::auto_ptr<AY8910> psg;
-	const std::auto_ptr<AmdFlash> flash;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<SCC> scc;
+	const std::unique_ptr<AY8910> psg;
+	const std::unique_ptr<AmdFlash> flash;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	byte psgLatch;
 	byte bank[4];
 	bool sccEnabled;

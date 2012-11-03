@@ -40,9 +40,9 @@ private:
 	void writeData(word value, EmuTime::param time);
 	void writeReg(nibble reg, byte value, EmuTime::param time);
 
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
-	std::auto_ptr<IDEDevice> device[2];
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
+	std::unique_ptr<IDEDevice> device[2];
 	const byte* internalBank;
 	byte readLatch;
 	byte writeLatch;

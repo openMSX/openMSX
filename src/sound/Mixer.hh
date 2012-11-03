@@ -59,16 +59,16 @@ private:
 	typedef std::vector<MSXMixer*> MSXMixers;
 	MSXMixers msxMixers;
 
-	std::auto_ptr<SoundDriver> driver;
+	std::unique_ptr<SoundDriver> driver;
 	Reactor& reactor;
 	CommandController& commandController;
 
-	const std::auto_ptr<BooleanSetting> muteSetting;
-	const std::auto_ptr<IntegerSetting> masterVolume;
-	const std::auto_ptr<IntegerSetting> frequencySetting;
-	const std::auto_ptr<IntegerSetting> samplesSetting;
+	const std::unique_ptr<BooleanSetting> muteSetting;
+	const std::unique_ptr<IntegerSetting> masterVolume;
+	const std::unique_ptr<IntegerSetting> frequencySetting;
+	const std::unique_ptr<IntegerSetting> samplesSetting;
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX, SND_LIBAO };
-	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
+	std::unique_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 
 	int muteCount;
 };

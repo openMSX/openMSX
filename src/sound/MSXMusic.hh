@@ -30,8 +30,8 @@ protected:
 	void writeRegisterPort(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<YM2413> ym2413;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<YM2413> ym2413;
 
 private:
 	int registerLatch;

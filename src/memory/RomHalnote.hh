@@ -10,7 +10,7 @@ namespace openmsx {
 class RomHalnote : public Rom8kBBlocks
 {
 public:
-	RomHalnote(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomHalnote();
 
 	virtual void reset(EmuTime::param time);

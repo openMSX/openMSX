@@ -27,8 +27,8 @@ private:
 	virtual void saveScreenshot(const std::string& filename);
 	virtual void flushFrameBuffer();
 
-	std::auto_ptr<Texture> fboTex;
-	std::auto_ptr<FrameBufferObject> fbo;
+	std::unique_ptr<Texture> fboTex;
+	std::unique_ptr<FrameBufferObject> fbo;
 };
 
 } // namespace openmsx

@@ -19,7 +19,7 @@ void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
 		MIDIEndpointRef endpoint = MIDIGetDestination(i);
 		if (endpoint) {
-			controller.registerPluggable(std::auto_ptr<Pluggable>(
+			controller.registerPluggable(std::unique_ptr<Pluggable>(
 				new MidiOutCoreMIDI(endpoint)));
 		}
 	}

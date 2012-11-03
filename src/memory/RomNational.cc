@@ -8,8 +8,8 @@
 
 namespace openmsx {
 
-RomNational::RomNational(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, rom)
+RomNational::RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom16kBBlocks(config, std::move(rom))
 {
 	sram.reset(new SRAM(getName() + " SRAM", 0x1000, config));
 	reset(EmuTime::dummy());

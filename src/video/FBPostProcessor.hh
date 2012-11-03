@@ -29,8 +29,8 @@ public:
 	// Layer interface:
 	virtual void paint(OutputSurface& output);
 
-	virtual std::auto_ptr<RawFrame> rotateFrames(
-		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+	virtual std::unique_ptr<RawFrame> rotateFrames(
+		std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
 private:
@@ -44,7 +44,7 @@ private:
 
 	/** The currently active scaler.
 	  */
-	std::auto_ptr<Scaler<Pixel> > currScaler;
+	std::unique_ptr<Scaler<Pixel> > currScaler;
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */

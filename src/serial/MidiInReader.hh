@@ -53,7 +53,7 @@ private:
 	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 
-	const std::auto_ptr<FilenameSetting> readFilenameSetting;
+	const std::unique_ptr<FilenameSetting> readFilenameSetting;
 };
 
 } // namespace openmsx

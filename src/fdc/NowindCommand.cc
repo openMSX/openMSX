@@ -14,7 +14,7 @@
 #include <cassert>
 #include <deque>
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::deque;
 using std::set;
 using std::string;
@@ -79,12 +79,12 @@ void NowindCommand::processHdimage(
 	for (set<unsigned>::const_iterator it = partitions.begin();
 	     it != partitions.end(); ++it) {
 		try {
-			auto_ptr<DiskPartition> partition(
+			unique_ptr<DiskPartition> partition(
 				new DiskPartition(*wholeDisk, *it, wholeDisk));
 			DiskChanger* drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
-			drive->changeDisk(auto_ptr<Disk>(partition));
+			drive->changeDisk(unique_ptr<Disk>(std::move(partition)));
 			drives.push_back(drive);
 		} catch (MSXException&) {
 			if (failOnError) throw;

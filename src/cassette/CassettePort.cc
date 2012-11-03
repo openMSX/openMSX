@@ -15,7 +15,7 @@
 #include "serialize.hh"
 #include <memory>
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 
 namespace openmsx {
@@ -57,7 +57,7 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 CassettePort::CassettePort(const HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
-	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
+	            unique_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
 	, laserdiscPlayer(NULL)
@@ -65,7 +65,7 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(auto_ptr<Pluggable>(
+	getPluggingController().registerPluggable(unique_ptr<Pluggable>(
 		new CassettePlayer(hwConf)));
 }
 

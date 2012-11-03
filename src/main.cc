@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include <SDL.h>
 
-using std::auto_ptr;
 using std::cerr;
 using std::endl;
 using std::string;

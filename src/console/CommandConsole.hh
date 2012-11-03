@@ -120,9 +120,9 @@ private:
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;
-	std::auto_ptr<BooleanSetting> consoleSetting;
-	std::auto_ptr<IntegerSetting> historySizeSetting;
-	std::auto_ptr<BooleanSetting> removeDoublesSetting;
+	std::unique_ptr<BooleanSetting> consoleSetting;
+	std::unique_ptr<IntegerSetting> historySizeSetting;
+	std::unique_ptr<BooleanSetting> removeDoublesSetting;
 
 	static const int LINESHISTORY = 1000;
 	CircularBuffer<ConsoleLine, LINESHISTORY> lines;

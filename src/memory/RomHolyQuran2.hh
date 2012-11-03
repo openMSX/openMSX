@@ -12,7 +12,7 @@ class Quran2RomBlocks;
 class RomHolyQuran2 : public MSXRom
 {
 public:
-	RomHolyQuran2(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
@@ -25,7 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Quran2RomBlocks> romBlocks;
+	const std::unique_ptr<Quran2RomBlocks> romBlocks;
 	const byte* bank[4];
 	bool decrypt;
 

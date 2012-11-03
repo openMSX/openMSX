@@ -46,7 +46,7 @@ private:
 	static const unsigned FREQ = 16384;
 
 	SRAM& regs;
-	const std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
+	const std::unique_ptr<EnumSetting<RTCMode> > modeSetting;
 
 	Clock<FREQ> reference;
 	unsigned fraction;

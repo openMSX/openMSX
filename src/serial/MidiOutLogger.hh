@@ -31,7 +31,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<FilenameSetting> logFilenameSetting;
+	const std::unique_ptr<FilenameSetting> logFilenameSetting;
 	std::ofstream file;
 };
 

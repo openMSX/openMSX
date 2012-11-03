@@ -17,9 +17,9 @@ static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
 }
 
 IPSPatch::IPSPatch(const Filename& filename_,
-                   std::auto_ptr<const PatchInterface> parent_)
+                   std::unique_ptr<const PatchInterface> parent_)
 	: filename(filename_)
-	, parent(parent_)
+	, parent(std::move(parent_))
 {
 	File ipsFile(filename);
 

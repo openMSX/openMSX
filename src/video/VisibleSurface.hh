@@ -42,16 +42,16 @@ public:
 	  */
 	virtual void finish() = 0;
 
-	virtual std::auto_ptr<Layer> createSnowLayer(Display& display) = 0;
-	virtual std::auto_ptr<Layer> createConsoleLayer(
+	virtual std::unique_ptr<Layer> createSnowLayer(Display& display) = 0;
+	virtual std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console) = 0;
-	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
+	virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) = 0;
 
 	/** Create an off-screen OutputSurface which has similar properties
 	  * as this VisibleSurface. E.g. used to re-render the current frame
 	  * without OSD elements to take a screenshot.
 	  */
-	virtual std::auto_ptr<OutputSurface> createOffScreenSurface() = 0;
+	virtual std::unique_ptr<OutputSurface> createOffScreenSurface() = 0;
 
 protected:
 	VisibleSurface(RenderSettings& renderSettings,
@@ -70,7 +70,7 @@ private:
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
-	const std::auto_ptr<AlarmEvent> alarm;
+	const std::unique_ptr<AlarmEvent> alarm;
 };
 
 } // namespace openmsx

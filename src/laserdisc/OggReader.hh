@@ -73,7 +73,7 @@ private:
 		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames);
 
 	CliComm& cli;
-	const std::auto_ptr<File> file;
+	const std::unique_ptr<File> file;
 
 	enum State {
 		PLAYING,

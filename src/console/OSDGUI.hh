@@ -28,8 +28,8 @@ public:
 
 private:
 	Display& display;
-	const std::auto_ptr<OSDCommand> osdCommand;
-	const std::auto_ptr<OSDWidget> topWidget;
+	const std::unique_ptr<OSDCommand> osdCommand;
+	const std::unique_ptr<OSDWidget> topWidget;
 	bool openGL;
 };
 

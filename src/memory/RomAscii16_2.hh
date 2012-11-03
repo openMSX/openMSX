@@ -10,7 +10,7 @@ namespace openmsx {
 class RomAscii16_2 : public RomAscii16kB
 {
 public:
-	RomAscii16_2(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomAscii16_2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomAscii16_2();
 
 	virtual void reset(EmuTime::param time);

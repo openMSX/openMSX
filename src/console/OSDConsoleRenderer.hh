@@ -77,15 +77,15 @@ private:
 	Reactor& reactor;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
-	const std::auto_ptr<OSDSettingChecker> settingChecker;
-	std::auto_ptr<EnumSetting<Placement> > consolePlacementSetting;
-	std::auto_ptr<IntegerSetting> fontSizeSetting;
-	std::auto_ptr<IntegerSetting> consoleRowsSetting;
-	std::auto_ptr<IntegerSetting> consoleColumnsSetting;
-	std::auto_ptr<FilenameSetting> backgroundSetting;
-	std::auto_ptr<FilenameSetting> fontSetting;
-	std::auto_ptr<TTFFont> font;
-	std::auto_ptr<BaseImage> backgroundImage;
+	const std::unique_ptr<OSDSettingChecker> settingChecker;
+	std::unique_ptr<EnumSetting<Placement> > consolePlacementSetting;
+	std::unique_ptr<IntegerSetting> fontSizeSetting;
+	std::unique_ptr<IntegerSetting> consoleRowsSetting;
+	std::unique_ptr<IntegerSetting> consoleColumnsSetting;
+	std::unique_ptr<FilenameSetting> backgroundSetting;
+	std::unique_ptr<FilenameSetting> fontSetting;
+	std::unique_ptr<TTFFont> font;
+	std::unique_ptr<BaseImage> backgroundImage;
 	TextCache textCache;
 	TextCache::iterator cacheHint;
 

@@ -12,12 +12,12 @@
 #include "EnumSetting.hh"
 #include "unreachable.hh"
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 namespace GLScalerFactory {
 
-auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
+unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleAlgorithm().getValue()) {
 	case RenderSettings::SCALER_SAI:
@@ -26,24 +26,24 @@ auto_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 		//   - it probably has some bugs because (on nvidia cards)
 		//     it does not give the same result as the SW SaI scaler,
 		//     although it's reasonably close
-		//return auto_ptr<GLScaler>(new GLSaIScaler());
+		//return unique_ptr<GLScaler>(new GLSaIScaler());
 	case RenderSettings::SCALER_SIMPLE:
-		return auto_ptr<GLScaler>(new GLSimpleScaler(renderSettings));
+		return unique_ptr<GLScaler>(new GLSimpleScaler(renderSettings));
 	case RenderSettings::SCALER_RGBTRIPLET:
-		return auto_ptr<GLScaler>(new GLRGBScaler(renderSettings));
+		return unique_ptr<GLScaler>(new GLRGBScaler(renderSettings));
 	case RenderSettings::SCALER_SCALE:
-		return auto_ptr<GLScaler>(new GLScaleNxScaler());
+		return unique_ptr<GLScaler>(new GLScaleNxScaler());
 	case RenderSettings::SCALER_TV:
-		return auto_ptr<GLScaler>(new GLTVScaler(renderSettings));
+		return unique_ptr<GLScaler>(new GLTVScaler(renderSettings));
 	case RenderSettings::SCALER_HQ:
-		return auto_ptr<GLScaler>(new GLHQScaler());
+		return unique_ptr<GLScaler>(new GLHQScaler());
 	case RenderSettings::SCALER_MLAA: // fallback
 	case RenderSettings::SCALER_HQLITE:
-		return auto_ptr<GLScaler>(new GLHQLiteScaler());
+		return unique_ptr<GLScaler>(new GLHQLiteScaler());
 	default:
 		UNREACHABLE;
 	}
-	return auto_ptr<GLScaler>(); // avoid warning
+	return unique_ptr<GLScaler>(); // avoid warning
 }
 
 } // namespace GLScalerFactory

@@ -488,7 +488,7 @@ void ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	CommandController& controller = parser.getGlobalCommandController();
 	EventDistributor& distributor = parser.reactor.getEventDistributor();
 	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
-	std::auto_ptr<CliListener> connection;
+	std::unique_ptr<CliListener> connection;
 	if (type == "stdio") {
 		connection.reset(new StdioConnection(
 			controller, distributor));

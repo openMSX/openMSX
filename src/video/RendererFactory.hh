@@ -62,7 +62,7 @@ namespace RendererFactory
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.
 	  */
-	std::auto_ptr<RendererSetting> createRendererSetting(
+	std::unique_ptr<RendererSetting> createRendererSetting(
 		CommandController& commandController);
 
 } // namespace RendererFactory

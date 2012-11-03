@@ -54,7 +54,7 @@ public:
 	virtual int insertDisk(const std::string& filename);
 
 	// for NowindCommand
-	void changeDisk(std::auto_ptr<Disk> newDisk);
+	void changeDisk(std::unique_ptr<Disk> newDisk);
 
 	// for DirAsDSK
 	Scheduler* getScheduler() const { return scheduler; }
@@ -80,10 +80,10 @@ private:
 	DiskManipulator& manipulator;
 
 	const std::string driveName;
-	std::auto_ptr<Disk> disk;
+	std::unique_ptr<Disk> disk;
 
 	friend class DiskCommand;
-	std::auto_ptr<DiskCommand> diskCommand; // must come after driveName
+	std::unique_ptr<DiskCommand> diskCommand; // must come after driveName
 
 	bool diskChangedFlag;
 };

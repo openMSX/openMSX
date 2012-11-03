@@ -131,8 +131,8 @@ private:
 	void keyOnHelper(YMF278Slot& slot);
 
 	MSXMotherBoard& motherBoard;
-	const std::auto_ptr<DebugRegisters> debugRegisters;
-	const std::auto_ptr<DebugMemory>    debugMemory;
+	const std::unique_ptr<DebugRegisters> debugRegisters;
+	const std::unique_ptr<DebugMemory>    debugMemory;
 
 	YMF278Slot slots[24];
 
@@ -144,7 +144,7 @@ private:
 	int fm_l, fm_r;
 	int pcm_l, pcm_r;
 
-	const std::auto_ptr<Rom> rom;
+	const std::unique_ptr<Rom> rom;
 	MemBuffer<byte> ram;
 
 	/** Precalculated attenuation values with some margin for

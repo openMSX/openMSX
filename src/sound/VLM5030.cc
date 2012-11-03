@@ -116,7 +116,7 @@ private:
 	int getBits(unsigned sbit, unsigned bits);
 	int parseFrame();
 
-	std::auto_ptr<Rom> rom;
+	std::unique_ptr<Rom> rom;
 	int address_mask;
 
 	// state of option paramter
@@ -581,15 +581,15 @@ VLM5030::Impl::Impl(const std::string& name, const std::string& desc,
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
-	std::auto_ptr<XMLElement> romElement(
-		std::auto_ptr<XMLElement>(new XMLElement("rom")));
-	romElement->addChild(std::auto_ptr<XMLElement>( // load by sha1sum
+	std::unique_ptr<XMLElement> romElement(
+		std::unique_ptr<XMLElement>(new XMLElement("rom")));
+	romElement->addChild(std::unique_ptr<XMLElement>( // load by sha1sum
 		new XMLElement("sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40")));
-	romElement->addChild(std::auto_ptr<XMLElement>( // load by predefined filename in software rom's dir
+	romElement->addChild(std::unique_ptr<XMLElement>( // load by predefined filename in software rom's dir
 		new XMLElement("filename", FileOperations::stripExtension(romFilename) + "_voice.rom")));
-	romElement->addChild(std::auto_ptr<XMLElement>( // or hardcoded filename in ditto dir
+	romElement->addChild(std::unique_ptr<XMLElement>( // or hardcoded filename in ditto dir
 		new XMLElement("filename", "keyboardmaster/voice.rom")));
-	voiceROMconfig.addChild(romElement);
+	voiceROMconfig.addChild(std::move(romElement));
 	rom.reset(new Rom(name + " ROM", "rom",
 	                  DeviceConfig(config, voiceROMconfig)));
 

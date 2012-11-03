@@ -45,15 +45,15 @@ private:
 
 	GlobalCommandController& commandController;
 
-	std::auto_ptr<IntegerSetting> speedSetting;
-	std::auto_ptr<BooleanSetting> pauseSetting;
-	std::auto_ptr<BooleanSetting> powerSetting;
-	std::auto_ptr<BooleanSetting> autoSaveSetting;
-	std::auto_ptr<BooleanSetting> pauseOnLostFocusSetting;
-	std::auto_ptr<StringSetting>  umrCallBackSetting;
-	std::auto_ptr<StringSetting>  invalidPsgDirectionsSetting;
-	std::auto_ptr<EnumSetting<ResampledSoundDevice::ResampleType> > resampleSetting;
-	std::auto_ptr<ThrottleManager> throttleManager;
+	std::unique_ptr<IntegerSetting> speedSetting;
+	std::unique_ptr<BooleanSetting> pauseSetting;
+	std::unique_ptr<BooleanSetting> powerSetting;
+	std::unique_ptr<BooleanSetting> autoSaveSetting;
+	std::unique_ptr<BooleanSetting> pauseOnLostFocusSetting;
+	std::unique_ptr<StringSetting>  umrCallBackSetting;
+	std::unique_ptr<StringSetting>  invalidPsgDirectionsSetting;
+	std::unique_ptr<EnumSetting<ResampledSoundDevice::ResampleType> > resampleSetting;
+	std::unique_ptr<ThrottleManager> throttleManager;
 };
 
 } // namespace openmsx

@@ -58,8 +58,8 @@ private:
 	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	EventDistributor& eventDistributor;
-	const std::auto_ptr<BooleanSetting> grabInput;
-	const std::auto_ptr<EscapeGrabCmd> escapeGrabCmd;
+	const std::unique_ptr<BooleanSetting> grabInput;
+	const std::unique_ptr<EscapeGrabCmd> escapeGrabCmd;
 	friend class EscapeGrabCmd;
 
 	enum EscapeGrabState {

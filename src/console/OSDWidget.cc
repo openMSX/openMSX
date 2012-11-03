@@ -391,7 +391,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 {
 	paintSDL(output);
 
-	std::auto_ptr<SDLScopedClip> scopedClip;
+	std::unique_ptr<SDLScopedClip> scopedClip;
 	if (clip) {
 		int x, y, w, h;
 		getBoundingBox(output, x, y, w, h);
@@ -415,7 +415,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 #if COMPONENT_GL
 	paintGL(output);
 
-	std::auto_ptr<GLScopedClip> scopedClip;
+	std::unique_ptr<GLScopedClip> scopedClip;
 	if (clip) {
 		int x, y, w, h;
 		getBoundingBox(output, x, y, w, h);

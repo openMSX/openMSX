@@ -48,7 +48,7 @@ private:
 	const byte* rom;
 	MemBuffer<byte> extendedRom;
 
-	std::auto_ptr<File> file;
+	std::unique_ptr<File> file;
 
 	mutable Sha1Sum originalSha1;
 	Sha1Sum patchedSha1;
@@ -59,7 +59,7 @@ private:
 	// This must come after 'name':
 	//   the destructor of RomDebuggable calls Rom::getName(), which still
 	//   needs the Rom::name member.
-	std::auto_ptr<RomDebuggable> romDebuggable;
+	std::unique_ptr<RomDebuggable> romDebuggable;
 };
 
 } // namespace openmsx

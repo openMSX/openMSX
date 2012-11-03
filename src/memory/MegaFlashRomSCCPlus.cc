@@ -24,8 +24,8 @@ static unsigned sectorSizes[19] = {
 };
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
-		const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: MSXRom(config, rom_)
+		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: MSXRom(config, std::move(rom_))
 	, scc(new SCC("MFR SCC+ SCC-I", config, getCurrentTime(),
 	              SCC::SCC_Compatible))
 	, psg(new AY8910("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,

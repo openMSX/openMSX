@@ -43,7 +43,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
 			if (SDL_JoystickNumButtons(joystick) != 0) {
-				controller.registerPluggable(std::auto_ptr<Pluggable>(
+				controller.registerPluggable(std::unique_ptr<Pluggable>(
 					new Joystick(eventDistributor,
 					             stateChangeDistributor,
 					             joystick)));

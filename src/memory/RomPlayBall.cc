@@ -9,8 +9,8 @@
 
 namespace openmsx {
 
-RomPlayBall::RomPlayBall(const DeviceConfig& config, std::auto_ptr<Rom> rom_)
-	: Rom16kBBlocks(config, rom_)
+RomPlayBall::RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom16kBBlocks(config, std::move(rom_))
 	, samplePlayer(new SamplePlayer(
 		"Playball-DAC", "Sony Playball's DAC", config,
 		FileOperations::stripExtension(rom->getFilename()) + '_',

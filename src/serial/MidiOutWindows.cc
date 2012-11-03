@@ -17,7 +17,7 @@ void MidiOutWindows::registerAll(PluggingController& controller)
 	w32_midiOutInit();
 	unsigned devnum = w32_midiOutGetVFNsNum();
 	for (unsigned i = 0; i < devnum; ++i) {
-		controller.registerPluggable(std::auto_ptr<Pluggable>(
+		controller.registerPluggable(std::unique_ptr<Pluggable>(
 			new MidiOutWindows(i)));
 	}
 }

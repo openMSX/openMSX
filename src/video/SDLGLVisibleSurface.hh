@@ -27,11 +27,11 @@ private:
 
 	// VisibleSurface
 	virtual void finish();
-	virtual std::auto_ptr<Layer> createSnowLayer(Display& display);
-	virtual std::auto_ptr<Layer> createConsoleLayer(
+	virtual std::unique_ptr<Layer> createSnowLayer(Display& display);
+	virtual std::unique_ptr<Layer> createConsoleLayer(
 		Reactor& reactor, CommandConsole& console);
-	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-	virtual std::auto_ptr<OutputSurface> createOffScreenSurface();
+	virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
+	virtual std::unique_ptr<OutputSurface> createOffScreenSurface();
 };
 
 } // namespace openmsx

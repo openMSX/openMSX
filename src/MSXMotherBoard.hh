@@ -82,7 +82,7 @@ public:
 	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(const std::string& extensionName);
 	std::string insertExtension(const std::string& name,
-	                            std::auto_ptr<HardwareConfig> extension);
+	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
@@ -166,7 +166,7 @@ public:
 
 	class Impl;
 private:
-	std::auto_ptr<Impl> pimpl;
+	std::unique_ptr<Impl> pimpl;
 	friend class Impl;
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);

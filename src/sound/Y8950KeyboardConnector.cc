@@ -11,7 +11,7 @@ namespace openmsx {
 Y8950KeyboardConnector::Y8950KeyboardConnector(
 	PluggingController& pluggingController)
 	: Connector(pluggingController, "audiokeyboardport",
-	            std::auto_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
+	            std::unique_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
 	, data(255)
 {
 }

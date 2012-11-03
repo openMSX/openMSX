@@ -466,8 +466,8 @@ private:
 
 	friend class V9990RegDebug;
 	friend class V9990PalDebug;
-	const std::auto_ptr<V9990RegDebug> v9990RegDebug;
-	const std::auto_ptr<V9990PalDebug> v9990PalDebug;
+	const std::unique_ptr<V9990RegDebug> v9990RegDebug;
+	const std::unique_ptr<V9990PalDebug> v9990PalDebug;
 
 	IRQHelper irq;
 
@@ -475,15 +475,15 @@ private:
 
 	/** VRAM
 	  */
-	std::auto_ptr<V9990VRAM> vram;
+	std::unique_ptr<V9990VRAM> vram;
 
 	/** Command Engine
 	  */
-	std::auto_ptr<V9990CmdEngine> cmdEngine;
+	std::unique_ptr<V9990CmdEngine> cmdEngine;
 
 	/** Renderer
 	  */
-	std::auto_ptr<V9990Renderer> renderer;
+	std::unique_ptr<V9990Renderer> renderer;
 
 	/** Emulation time when this frame was started (VSYNC)
 	  */

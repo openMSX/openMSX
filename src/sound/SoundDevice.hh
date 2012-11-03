@@ -151,7 +151,7 @@ private:
 	const std::string name;
 	const std::string description;
 
-	std::auto_ptr<Wav16Writer> writer[MAX_CHANNELS];
+	std::unique_ptr<Wav16Writer> writer[MAX_CHANNELS];
 
 	unsigned inputSampleRate;
 	const unsigned numChannels;

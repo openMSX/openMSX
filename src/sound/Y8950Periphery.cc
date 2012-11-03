@@ -68,8 +68,8 @@ private:
 
 	MSXAudio& audio;
 	BooleanSetting swSwitch;
-	const std::auto_ptr<Ram> ram;
-	const std::auto_ptr<Rom> rom;
+	const std::unique_ptr<Ram> ram;
+	const std::unique_ptr<Rom> rom;
 	byte bankSelect;
 	byte ioPorts;
 };

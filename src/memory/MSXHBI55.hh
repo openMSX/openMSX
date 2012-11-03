@@ -45,8 +45,8 @@ private:
 
 	byte readSRAM(word address) const;
 
-	const std::auto_ptr<I8255> i8255;
-	const std::auto_ptr<SRAM> sram;
+	const std::unique_ptr<I8255> i8255;
+	const std::unique_ptr<SRAM> sram;
 	word readAddress;
 	word writeAddress;
 	byte addressLatch;

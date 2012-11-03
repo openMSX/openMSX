@@ -57,13 +57,13 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
-	const std::auto_ptr<Counter0> cntr0; // counter 0 rx clock pin
-	const std::auto_ptr<Counter1> cntr1; // counter 1 tx clock pin
-	const std::auto_ptr<I8254> i8254;
-	const std::auto_ptr<I8251Interf> interf;
-	const std::auto_ptr<I8251> i8251;
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<Ram> ram;
+	const std::unique_ptr<Counter0> cntr0; // counter 0 rx clock pin
+	const std::unique_ptr<Counter1> cntr1; // counter 1 tx clock pin
+	const std::unique_ptr<I8254> i8254;
+	const std::unique_ptr<I8251Interf> interf;
+	const std::unique_ptr<I8251> i8251;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<Ram> ram;
 
 	IRQHelper rxrdyIRQ;
 	bool rxrdyIRQlatch;
@@ -72,7 +72,7 @@ private:
 	const bool hasMemoryBasedIo;
 	bool ioAccessEnabled;
 
-	const std::auto_ptr<BooleanSetting> switchSetting;
+	const std::unique_ptr<BooleanSetting> switchSetting;
 
 	friend class Counter0;
 	friend class Counter1;

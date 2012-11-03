@@ -70,7 +70,7 @@ private:
 
 	/** The Rasterizer
 	  */
-	const std::auto_ptr<V9990Rasterizer> rasterizer;
+	const std::unique_ptr<V9990Rasterizer> rasterizer;
 
 	/** Frameskip
 	  */

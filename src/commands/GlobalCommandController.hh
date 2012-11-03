@@ -106,18 +106,18 @@ private:
 
 	Reactor& reactor;
 
-	std::auto_ptr<Interpreter> interpreter;
-	std::auto_ptr<InfoCommand> openMSXInfoCommand;
-	std::auto_ptr<HotKey> hotKey;
-	std::auto_ptr<SettingsConfig> settingsConfig;
+	std::unique_ptr<Interpreter> interpreter;
+	std::unique_ptr<InfoCommand> openMSXInfoCommand;
+	std::unique_ptr<HotKey> hotKey;
+	std::unique_ptr<SettingsConfig> settingsConfig;
 
 	friend class HelpCmd;
-	std::auto_ptr<HelpCmd> helpCmd;
-	std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
-	std::auto_ptr<UpdateCmd> updateCmd;
-	std::auto_ptr<ProxyCmd> proxyCmd;
-	std::auto_ptr<VersionInfo> versionInfo;
-	std::auto_ptr<RomInfoTopic> romInfoTopic;
+	std::unique_ptr<HelpCmd> helpCmd;
+	std::unique_ptr<TabCompletionCmd> tabCompletionCmd;
+	std::unique_ptr<UpdateCmd> updateCmd;
+	std::unique_ptr<ProxyCmd> proxyCmd;
+	std::unique_ptr<VersionInfo> versionInfo;
+	std::unique_ptr<RomInfoTopic> romInfoTopic;
 
 	StringMap<unsigned> proxyCommandMap;
 	ProxySettings proxySettings;

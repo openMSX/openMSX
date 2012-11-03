@@ -14,7 +14,7 @@ namespace openmsx {
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
                            string_ref name, const string& description_)
 	: Connector(pluggingController_, name,
-	            std::auto_ptr<Pluggable>(new DummyJoystick()))
+	            std::unique_ptr<Pluggable>(new DummyJoystick()))
 	, lastValue(255) // != 0
 	, description(description_)
 {

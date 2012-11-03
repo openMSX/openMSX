@@ -50,12 +50,12 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	const std::string name;
-	const std::auto_ptr<KeyCodeSetting> up;
-	const std::auto_ptr<KeyCodeSetting> down;
-	const std::auto_ptr<KeyCodeSetting> left;
-	const std::auto_ptr<KeyCodeSetting> right;
-	const std::auto_ptr<KeyCodeSetting> trigA;
-	const std::auto_ptr<KeyCodeSetting> trigB;
+	const std::unique_ptr<KeyCodeSetting> up;
+	const std::unique_ptr<KeyCodeSetting> down;
+	const std::unique_ptr<KeyCodeSetting> left;
+	const std::unique_ptr<KeyCodeSetting> right;
+	const std::unique_ptr<KeyCodeSetting> trigA;
+	const std::unique_ptr<KeyCodeSetting> trigB;
 
 	byte status;
 };

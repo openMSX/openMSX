@@ -41,7 +41,7 @@ public:
 
 	/** Add a Pluggable to the registry.
 	 */
-	void registerPluggable(std::auto_ptr<Pluggable> pluggable);
+	void registerPluggable(std::unique_ptr<Pluggable> pluggable);
 
 	/** Return the Pluggable with given name or
 	  * NULL if there is none with this name.
@@ -67,11 +67,11 @@ private:
 	friend class PluggableInfo;
 	friend class ConnectorInfo;
 	friend class ConnectionClassInfo;
-	const std::auto_ptr<PlugCmd> plugCmd;
-	const std::auto_ptr<UnplugCmd> unplugCmd;
-	const std::auto_ptr<PluggableInfo> pluggableInfo;
-	const std::auto_ptr<ConnectorInfo> connectorInfo;
-	const std::auto_ptr<ConnectionClassInfo> connectionClassInfo;
+	const std::unique_ptr<PlugCmd> plugCmd;
+	const std::unique_ptr<UnplugCmd> unplugCmd;
+	const std::unique_ptr<PluggableInfo> pluggableInfo;
+	const std::unique_ptr<ConnectorInfo> connectorInfo;
+	const std::unique_ptr<ConnectionClassInfo> connectionClassInfo;
 
 	CliComm& cliComm;
 };

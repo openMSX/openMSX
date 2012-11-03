@@ -39,7 +39,7 @@ protected:
 	void setError(const std::string& message);
 	bool hasError() const { return error; }
 
-	std::auto_ptr<BaseImage> image;
+	std::unique_ptr<BaseImage> image;
 
 private:
 	void setRGBA(const unsigned newRGBA[4]);

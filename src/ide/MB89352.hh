@@ -46,7 +46,7 @@ private:
 	void resetACKREQ();
 	byte getSSTS() const;
 
-	std::auto_ptr<SCSIDevice> dev[8];
+	std::unique_ptr<SCSIDevice> dev[8];
 	MemBuffer<byte> buffer;         // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index

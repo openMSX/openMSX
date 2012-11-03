@@ -36,9 +36,9 @@ private:
 	void loadWave();
 	void update(const Setting& setting);
 
-	const std::auto_ptr<FilenameSetting> audioInputFilenameSetting;
+	const std::unique_ptr<FilenameSetting> audioInputFilenameSetting;
 
-	std::auto_ptr<WavData> wav;
+	std::unique_ptr<WavData> wav;
 	EmuTime reference;
 };
 

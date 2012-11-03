@@ -61,11 +61,11 @@ private:
 
 	friend class BindCmd;
 	friend class UnbindCmd;
-	const std::auto_ptr<BindCmd>   bindCmd;
-	const std::auto_ptr<UnbindCmd> unbindCmd;
-	const std::auto_ptr<BindCmd>   bindDefaultCmd;
-	const std::auto_ptr<UnbindCmd> unbindDefaultCmd;
-	const std::auto_ptr<AlarmEvent> repeatAlarm;
+	const std::unique_ptr<BindCmd>   bindCmd;
+	const std::unique_ptr<UnbindCmd> unbindCmd;
+	const std::unique_ptr<BindCmd>   bindDefaultCmd;
+	const std::unique_ptr<UnbindCmd> unbindDefaultCmd;
+	const std::unique_ptr<AlarmEvent> repeatAlarm;
 
 	BindMap cmdMap;
 	BindMap defaultMap;

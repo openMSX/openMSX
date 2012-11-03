@@ -12,8 +12,8 @@ namespace openmsx {
 template <class Pixel>
 LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 		VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor_)
-	: postProcessor(postProcessor_)
+		std::unique_ptr<PostProcessor> postProcessor_)
+	: postProcessor(std::move(postProcessor_))
 	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 480))
 	, pixelFormat(screen.getSDLFormat())
 {
@@ -27,7 +27,7 @@ LDSDLRasterizer<Pixel>::~LDSDLRasterizer()
 template <class Pixel>
 void LDSDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
-	workFrame = postProcessor->rotateFrames(workFrame,
+	workFrame = postProcessor->rotateFrames(std::move(workFrame),
 		FrameSource::FIELD_NONINTERLACED, time);
 }
 

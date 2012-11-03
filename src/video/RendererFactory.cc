@@ -25,7 +25,7 @@
 #include "LDPixelRenderer.hh"
 #endif
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 namespace RendererFactory {
@@ -93,7 +93,7 @@ LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
 }
 #endif
 
-auto_ptr<RendererSetting> createRendererSetting(
+unique_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)
 {
 	typedef EnumSetting<RendererID>::Map RendererMap;
@@ -115,7 +115,7 @@ auto_ptr<RendererSetting> createRendererSetting(
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 	}
 #endif
-	auto_ptr<RendererSetting> setting(new RendererSetting(commandController,
+	unique_ptr<RendererSetting> setting(new RendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDL, rendererMap));
 

@@ -25,7 +25,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<YMF262> ymf262;
+	const std::unique_ptr<YMF262> ymf262;
 	int opl3latch;
 };
 

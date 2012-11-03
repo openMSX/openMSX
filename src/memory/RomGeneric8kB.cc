@@ -6,8 +6,8 @@
 
 namespace openmsx {
 
-RomGeneric8kB::RomGeneric8kB(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, rom)
+RomGeneric8kB::RomGeneric8kB(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom8kBBlocks(config, std::move(rom))
 {
 	reset(EmuTime::dummy());
 }

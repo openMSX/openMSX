@@ -23,7 +23,7 @@
 #include "Math.hh"
 #include "likely.hh"
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 using std::vector;
 using std::set;
@@ -110,9 +110,9 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 static XMLElement createXML()
 {
 	XMLElement xml("laserdiscplayer");
-	auto_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "30000")));
-	xml.addChild(sound);
+	unique_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "30000")));
+	xml.addChild(std::move(sound));
 	return xml;
 }
 

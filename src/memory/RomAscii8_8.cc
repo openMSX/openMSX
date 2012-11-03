@@ -23,8 +23,8 @@
 namespace openmsx {
 
 RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
-                         std::auto_ptr<Rom> rom_, SubType subType)
-	: Rom8kBBlocks(config, rom_)
+                         std::unique_ptr<Rom> rom_, SubType subType)
+	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
 	                                      : rom->getSize() / 0x2000)
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))

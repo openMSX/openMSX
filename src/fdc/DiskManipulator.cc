@@ -23,7 +23,7 @@
 using std::set;
 using std::string;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -133,12 +133,12 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	return *it;
 }
 
-auto_ptr<DiskPartition> DiskManipulator::getPartition(
+unique_ptr<DiskPartition> DiskManipulator::getPartition(
 	const DriveSettings& driveData)
 {
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return auto_ptr<DiskPartition>(
+	return unique_ptr<DiskPartition>(
 		new DiskPartition(*disk, driveData.partition));
 }
 
@@ -342,7 +342,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
 	unsigned nrsectors = partition->getNbSectors();
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
@@ -429,12 +429,12 @@ void DiskManipulator::create(const vector<string>& tokens)
 
 void DiskManipulator::format(DriveSettings& driveData)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
 	DiskImageUtils::format(*partition);
 	driveData.workingDir[driveData.partition] = '/';
 }
 
-auto_ptr<MSXtar> DiskManipulator::getMSXtar(
+unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 	SectorAccessibleDisk& disk, DriveSettings& driveData)
 {
 	if (DiskImageUtils::hasPartitionTable(disk)) {
@@ -442,7 +442,7 @@ auto_ptr<MSXtar> DiskManipulator::getMSXtar(
 			"Please select partition number.");
 	}
 
-	auto_ptr<MSXtar> result(new MSXtar(disk));
+	unique_ptr<MSXtar> result(new MSXtar(disk));
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {
@@ -457,16 +457,16 @@ auto_ptr<MSXtar> DiskManipulator::getMSXtar(
 
 void DiskManipulator::dir(DriveSettings& driveData, string& result)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
-	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	result += workhorse->dir();
 }
 
 void DiskManipulator::chdir(DriveSettings& driveData,
                             const string& filename, string& result)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
-	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->chdir(filename);
 	} catch (MSXException& e) {
@@ -485,8 +485,8 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 
 void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
-	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		workhorse->mkdir(filename);
 	} catch (MSXException& e) {
@@ -497,8 +497,8 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 string DiskManipulator::import(DriveSettings& driveData,
                              const vector<string>& lists)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
-	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
 	for (vector<string>::const_iterator it = lists.begin();
@@ -533,8 +533,8 @@ string DiskManipulator::import(DriveSettings& driveData,
 void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
                             const vector<string>& lists)
 {
-	auto_ptr<DiskPartition> partition = getPartition(driveData);
-	auto_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
+	unique_ptr<DiskPartition> partition = getPartition(driveData);
+	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 	try {
 		if (lists.empty()) {
 			// export all

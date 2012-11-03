@@ -91,27 +91,27 @@ void SDLGLVisibleSurface::finish()
 	SDL_GL_SwapBuffers();
 }
 
-std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
+std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 {
-	return std::auto_ptr<Layer>(new GLSnow(display, getWidth(), getHeight()));
+	return std::unique_ptr<Layer>(new GLSnow(display, getWidth(), getHeight()));
 }
 
-std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
+std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
-	return std::auto_ptr<Layer>(new OSDConsoleRenderer(
+	return std::unique_ptr<Layer>(new OSDConsoleRenderer(
 		reactor, console, getWidth(), getHeight(), openGL));
 }
 
-std::auto_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
+std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return std::auto_ptr<Layer>(new GLOSDGUILayer(gui));
+	return std::unique_ptr<Layer>(new GLOSDGUILayer(gui));
 }
 
-std::auto_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
+std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
-	return std::auto_ptr<OutputSurface>(new SDLGLOffScreenSurface(*this));
+	return std::unique_ptr<OutputSurface>(new SDLGLOffScreenSurface(*this));
 }
 
 } // namespace openmsx

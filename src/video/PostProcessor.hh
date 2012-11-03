@@ -46,8 +46,8 @@ public:
 	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	virtual std::auto_ptr<RawFrame> rotateFrames(
-		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+	virtual std::unique_ptr<RawFrame> rotateFrames(
+		std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
 	/** Set the Video frame on which to superimpose the 'normal' output of
@@ -111,19 +111,19 @@ protected:
 	OutputSurface& screen;
 
 	/** The last finished frame, ready to be displayed. */
-	std::auto_ptr<RawFrame> currFrame;
+	std::unique_ptr<RawFrame> currFrame;
 
 	/** The frame before currFrame, ready to be displayed. */
-	std::auto_ptr<RawFrame> prevFrame;
+	std::unique_ptr<RawFrame> prevFrame;
 
 	/** Combined currFrame and prevFrame. */
-	std::auto_ptr<DeinterlacedFrame> deinterlacedFrame;
+	std::unique_ptr<DeinterlacedFrame> deinterlacedFrame;
 
 	/** Each line of currFrame twice, to get double vertical resolution. */
-	std::auto_ptr<DoubledFrame> interlacedFrame;
+	std::unique_ptr<DoubledFrame> interlacedFrame;
 
 	/** Result of superimposing 2 frames. */
-	std::auto_ptr<SuperImposedFrame> superImposedFrame;
+	std::unique_ptr<SuperImposedFrame> superImposedFrame;
 
 	/** Represents a frame as it should be displayed.
 	  * This can be simply a RawFrame or two RawFrames combined in a

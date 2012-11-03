@@ -71,10 +71,10 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(
 		VDP& vdp_, Display& display, VisibleSurface& screen_,
-		std::auto_ptr<PostProcessor> postProcessor_)
+		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, postProcessor(postProcessor_)
+	, postProcessor(std::move(postProcessor_))
 	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
@@ -148,7 +148,7 @@ void SDLRasterizer<Pixel>::setSuperimposeVideoFrame(const RawFrame* videoSource)
 template <class Pixel>
 void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
-	workFrame = postProcessor->rotateFrames(workFrame,
+	workFrame = postProcessor->rotateFrames(std::move(workFrame),
 	    vdp.isInterlaced()
 	    ? (vdp.getEvenOdd() ? FrameSource::FIELD_ODD : FrameSource::FIELD_EVEN)
 	    : FrameSource::FIELD_NONINTERLACED,

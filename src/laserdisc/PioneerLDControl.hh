@@ -37,8 +37,8 @@ public:
 private:
 	void updateVideoSource();
 
-	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<LaserdiscPlayer> laserdisc;
+	const std::unique_ptr<Rom> rom;
+	std::unique_ptr<LaserdiscPlayer> laserdisc;
 	MSXPPI* ppi;
 	VDP* vdp;
 

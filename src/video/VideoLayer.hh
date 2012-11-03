@@ -67,7 +67,7 @@ private:
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */
-	const std::auto_ptr<VideoSourceActivator> videoSourceActivator;
+	const std::unique_ptr<VideoSourceActivator> videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
 	/** Video source that displays on this layer. */

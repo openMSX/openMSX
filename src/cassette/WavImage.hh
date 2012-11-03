@@ -28,7 +28,7 @@ public:
 private:
 	int getSample(unsigned pos) const;
 
-	std::auto_ptr<WavData> wav;
+	std::unique_ptr<WavData> wav;
 	DynamicClock clock;
 	short average;
 };

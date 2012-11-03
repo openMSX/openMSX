@@ -22,7 +22,7 @@ public:
 	void setClick(bool status, EmuTime::param time);
 
 private:
-	const std::auto_ptr<DACSound8U> dac;
+	const std::unique_ptr<DACSound8U> dac;
 	bool status;
 };
 

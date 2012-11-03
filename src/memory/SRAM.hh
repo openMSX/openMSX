@@ -52,7 +52,7 @@ private:
 	Ram ram;
 	const char* const header;
 
-	const std::auto_ptr<AlarmEvent> sramSync;
+	const std::unique_ptr<AlarmEvent> sramSync;
 };
 
 } // namespace openmsx

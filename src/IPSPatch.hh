@@ -19,7 +19,7 @@ public:
 	typedef std::map<unsigned, std::vector<byte> > PatchMap;
 
 	IPSPatch(const Filename& filename,
-	         std::auto_ptr<const PatchInterface> parent);
+	         std::unique_ptr<const PatchInterface> parent);
 
 	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
 	virtual unsigned getSize() const;
@@ -27,7 +27,7 @@ public:
 
 private:
 	const Filename filename;
-	const std::auto_ptr<const PatchInterface> parent;
+	const std::unique_ptr<const PatchInterface> parent;
 	PatchMap patchMap;
 	unsigned size;
 };

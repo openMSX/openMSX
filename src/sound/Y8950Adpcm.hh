@@ -65,7 +65,7 @@ private:
 	int calcSample(bool doEmu);
 
 	Y8950& y8950;
-	const std::auto_ptr<Ram> ram;
+	const std::unique_ptr<Ram> ram;
 
 	Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> clock;
 

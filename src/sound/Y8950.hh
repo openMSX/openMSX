@@ -67,7 +67,7 @@ public:
 
 private:
 	class Impl;
-	const std::auto_ptr<Impl> pimpl;
+	const std::unique_ptr<Impl> pimpl;
 };
 
 } // namespace openmsx

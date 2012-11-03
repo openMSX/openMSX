@@ -12,7 +12,7 @@ class Ram;
 class RomMSXtra : public MSXRom
 {
 public:
-	RomMSXtra(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomMSXtra();
 
 	virtual byte readMem(word address, EmuTime::param time);
@@ -24,7 +24,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Ram> ram;
+	const std::unique_ptr<Ram> ram;
 };
 
 } // namespace openmsx

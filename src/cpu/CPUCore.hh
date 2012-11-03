@@ -111,8 +111,8 @@ private:
 	Probe<void> IRQAccept;
 
 	// dynamic freq
-	std::auto_ptr<BooleanSetting> freqLocked;
-	std::auto_ptr<IntegerSetting> freqValue;
+	std::unique_ptr<BooleanSetting> freqLocked;
+	std::unique_ptr<IntegerSetting> freqValue;
 	unsigned freq;
 
 	// state machine variables

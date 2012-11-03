@@ -44,8 +44,8 @@ private:
 	virtual int signalEvent(const shared_ptr<const Event>& event);
 
 	MSXCliComm& msxCliComm;
-	const std::auto_ptr<AlarmEvent> alarm;
-	std::auto_ptr<ReadOnlySetting<BooleanSetting> > ledStatus[NUM_LEDS];
+	const std::unique_ptr<AlarmEvent> alarm;
+	std::unique_ptr<ReadOnlySetting<BooleanSetting> > ledStatus[NUM_LEDS];
 	unsigned long long lastTime;
 	bool ledValue[NUM_LEDS];
 };

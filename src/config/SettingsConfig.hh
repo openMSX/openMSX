@@ -36,11 +36,11 @@ public:
 private:
 	CommandController& commandController;
 
-	const std::auto_ptr<SaveSettingsCommand> saveSettingsCommand;
-	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;
+	const std::unique_ptr<SaveSettingsCommand> saveSettingsCommand;
+	const std::unique_ptr<LoadSettingsCommand> loadSettingsCommand;
 
-	const std::auto_ptr<SettingsManager> settingsManager;
-	std::auto_ptr<XMLElement> xmlElement;
+	const std::unique_ptr<SettingsManager> settingsManager;
+	std::unique_ptr<XMLElement> xmlElement;
 	HotKey& hotKey;
 	std::string saveName;
 	bool mustSaveSettings;

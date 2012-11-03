@@ -122,7 +122,7 @@ template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
 // a reference to this first object.
 //
 // By default all pointer types are treated as pointer, but also smart pointer
-// can be traited as such. Though only auto_ptr<T> is implemented ATM.
+// can be traited as such. Though only unique_ptr<T> is implemented ATM.
 //
 // The serialize_as_pointer class has the following members:
 //  - static bool value
@@ -155,12 +155,12 @@ template<typename T> struct serialize_as_pointer<T*>
 		t = p;
 	}
 };
-template<typename T> struct serialize_as_pointer<std::auto_ptr<T> >
+template<typename T> struct serialize_as_pointer<std::unique_ptr<T> >
 	: serialize_as_pointer_impl<T>
 {
-	static inline T* getPointer(const std::auto_ptr<T>& t) { return t.get(); }
+	static inline T* getPointer(const std::unique_ptr<T>& t) { return t.get(); }
 	template<typename Archive>
-	static inline void setPointer(std::auto_ptr<T>& t, T* p, Archive& /*ar*/) {
+	static inline void setPointer(std::unique_ptr<T>& t, T* p, Archive& /*ar*/) {
 		t.reset(p);
 	}
 };
@@ -538,7 +538,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		// TODO make combining global/local constr args configurable
 
 		Creator<T> creator;
-		std::auto_ptr<T> tp(creator(args));
+		std::unique_ptr<T> tp(creator(args));
 		ClassLoader<T> loader;
 		loader(ar, *tp, make_tuple(), id, version);
 		return tp.release();

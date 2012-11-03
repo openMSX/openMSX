@@ -16,8 +16,8 @@ static unsigned calcBaseAddr(const DeviceConfig& config)
 	return first * 0x2000 - base;
 }
 
-RomDRAM::RomDRAM(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: MSXRom(config, rom)
+RomDRAM::RomDRAM(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: MSXRom(config, std::move(rom))
 	, panasonicMemory(getMotherBoard().getPanasonicMemory())
 	, baseAddr(calcBaseAddr(config))
 {

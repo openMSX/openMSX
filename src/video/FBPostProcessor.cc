@@ -405,7 +405,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		output.lock();
 		double horStretch = renderSettings.getHorizontalStretch().getValue();
 		unsigned inWidth = unsigned(horStretch + 0.5);
-		std::auto_ptr<ScalerOutput<Pixel> > dst(
+		std::unique_ptr<ScalerOutput<Pixel> > dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));
 		currScaler->scaleImage(
@@ -425,15 +425,15 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 }
 
 template <class Pixel>
-std::auto_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
-	std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
+	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;
 	}
 
-	return PostProcessor::rotateFrames(finishedFrame, field, time);
+	return PostProcessor::rotateFrames(std::move(finishedFrame), field, time);
 }
 
 

@@ -58,11 +58,11 @@ private:
 	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
-	std::auto_ptr<VisibleSurface> screen;
-	std::auto_ptr<Layer> consoleLayer;
-	std::auto_ptr<Layer> snowLayer;
-	std::auto_ptr<Layer> iconLayer;
-	std::auto_ptr<Layer> osdGuiLayer;
+	std::unique_ptr<VisibleSurface> screen;
+	std::unique_ptr<Layer> consoleLayer;
+	std::unique_ptr<Layer> snowLayer;
+	std::unique_ptr<Layer> iconLayer;
+	std::unique_ptr<Layer> osdGuiLayer;
 };
 
 } // namespace openmsx

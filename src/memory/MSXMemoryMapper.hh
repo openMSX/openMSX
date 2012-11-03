@@ -35,7 +35,7 @@ protected:
 	  */
 	unsigned calcAddress(word address) const;
 
-	const std::auto_ptr<CheckedRam> checkedRam;
+	const std::unique_ptr<CheckedRam> checkedRam;
 
 private:
 	MSXMapperIO& mapperIO;

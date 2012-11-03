@@ -40,8 +40,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	std::auto_ptr<JoystickPort> slaves[4];
-	void createPorts(PluggingController& pluggingController, const std::string &baseDescription);
+	void createPorts(PluggingController& pluggingController,
+	                 const std::string& baseDescription);
+
+	std::unique_ptr<JoystickPort> slaves[4];
 	PluggingController& pluggingController;
 
 private:

@@ -77,7 +77,7 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	const Rom& rom;
-	std::auto_ptr<SRAM> ram;
+	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
 	const std::vector<unsigned> sectorSizes;

@@ -11,7 +11,7 @@ namespace openmsx {
 AudioInputConnector::AudioInputConnector(PluggingController& pluggingController,
                                          string_ref name)
 	: Connector(pluggingController, name,
-	            std::auto_ptr<Pluggable>(new DummyAudioInputDevice()))
+	            std::unique_ptr<Pluggable>(new DummyAudioInputDevice()))
 {
 }
 

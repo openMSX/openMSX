@@ -93,7 +93,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		case 2:
 			return new SDLRasterizer<word>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
+				std::unique_ptr<PostProcessor>(new FBPostProcessor<word>(
 					motherBoard, display, *screen,
 					VIDEO_MSX, 640, 240)));
 #endif
@@ -101,7 +101,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		case 4:
 			return new SDLRasterizer<unsigned>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
+				std::unique_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
 					motherBoard, display, *screen,
 					VIDEO_MSX, 640, 240)));
 #endif
@@ -112,7 +112,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
-			std::auto_ptr<PostProcessor>(new GLPostProcessor(
+			std::unique_ptr<PostProcessor>(new GLPostProcessor(
 				motherBoard, display, *screen,
 				VIDEO_MSX, 640, 240)));
 #endif
@@ -133,7 +133,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		case 2:
 			return new V9990SDLRasterizer<word>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
+				std::unique_ptr<PostProcessor>(new FBPostProcessor<word>(
 					motherBoard, display, *screen,
 					VIDEO_GFX9000, 1280, 240)));
 #endif
@@ -141,7 +141,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		case 4:
 			return new V9990SDLRasterizer<unsigned>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
+				std::unique_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
 					motherBoard, display, *screen,
 					VIDEO_GFX9000, 1280, 240)));
 #endif
@@ -152,7 +152,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 	case RendererFactory::SDLGL_PP:
 		return new V9990SDLRasterizer<unsigned>(
 			vdp, display, *screen,
-			std::auto_ptr<PostProcessor>(new GLPostProcessor(
+			std::unique_ptr<PostProcessor>(new GLPostProcessor(
 				motherBoard, display, *screen,
 				VIDEO_GFX9000, 1280, 240)));
 #endif
@@ -174,7 +174,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 		case 2:
 			return new LDSDLRasterizer<word>(
 				*screen,
-				std::auto_ptr<PostProcessor>(
+				std::unique_ptr<PostProcessor>(
 					new FBPostProcessor<word>(
 					motherBoard, display, *screen,
 					VIDEO_LASERDISC, 640, 480)));
@@ -183,7 +183,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 		case 4:
 			return new LDSDLRasterizer<unsigned>(
 				*screen,
-				std::auto_ptr<PostProcessor>(
+				std::unique_ptr<PostProcessor>(
 					new FBPostProcessor<unsigned>(
 					motherBoard, display, *screen,
 					VIDEO_LASERDISC, 640, 480)));
@@ -195,7 +195,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 	case RendererFactory::SDLGL_PP:
 		return new LDSDLRasterizer<unsigned>(
 			*screen,
-			std::auto_ptr<PostProcessor>(new GLPostProcessor(
+			std::unique_ptr<PostProcessor>(new GLPostProcessor(
 				motherBoard, display, *screen,
 				VIDEO_LASERDISC, 640, 480)));
 #endif
@@ -259,7 +259,7 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename, bool withOsd)
 		// with OSD layers disabled
 		ScopedLayerHider hideConsole(*consoleLayer);
 		ScopedLayerHider hideOsd(*osdGuiLayer);
-		std::auto_ptr<OutputSurface> surf = screen->createOffScreenSurface();
+		std::unique_ptr<OutputSurface> surf = screen->createOffScreenSurface();
 		display.repaint(*surf);
 		surf->saveScreenshot(filename);
 	}

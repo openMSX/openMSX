@@ -13,7 +13,7 @@ namespace openmsx {
 MidiOutConnector::MidiOutConnector(PluggingController& pluggingController,
                                    string_ref name)
 	: Connector(pluggingController, name,
-	            std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
+	            std::unique_ptr<Pluggable>(new DummyMidiOutDevice()))
 {
 }
 

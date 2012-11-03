@@ -43,7 +43,7 @@ protected:
 
 private:
 	EnumSetting<ResampleType>& resampleSetting;
-	std::auto_ptr<ResampleAlgo> algo;
+	std::unique_ptr<ResampleAlgo> algo;
 };
 
 } // namespace openmsx

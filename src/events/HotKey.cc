@@ -205,20 +205,20 @@ void HotKey::saveBindings(XMLElement& config) const
 		BindMap::const_iterator it2 = cmdMap.find(*it);
 		assert(it2 != cmdMap.end());
 		const HotKeyInfo& info = it2->second;
-		std::auto_ptr<XMLElement> elem(
+		std::unique_ptr<XMLElement> elem(
 			new XMLElement("bind", info.command));
 		elem->addAttribute("key", (*it)->toString());
 		if (info.repeat) {
 			elem->addAttribute("repeat", "true");
 		}
-		bindingsElement.addChild(elem);
+		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
 	for (KeySet::const_iterator it = unboundKeys.begin();
 	     it != unboundKeys.end(); ++it) {
-		std::auto_ptr<XMLElement> elem(new XMLElement("unbind"));
+		std::unique_ptr<XMLElement> elem(new XMLElement("unbind"));
 		elem->addAttribute("key", (*it)->toString());
-		bindingsElement.addChild(elem);
+		bindingsElement.addChild(std::move(elem));
 	}
 }
 

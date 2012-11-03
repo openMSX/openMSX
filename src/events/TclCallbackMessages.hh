@@ -25,7 +25,7 @@ public:
 
 private:
 	GlobalCliComm& cliComm;
-	const std::auto_ptr<TclCallback> messageCallback;
+	const std::unique_ptr<TclCallback> messageCallback;
 };
 
 } // namespace openmsx

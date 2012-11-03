@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
-RomMultiRom::RomMultiRom(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, rom)
+RomMultiRom::RomMultiRom(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom16kBBlocks(config, std::move(rom))
 {
 	counter = 0;
 	for (int i=0; i<4; i++) setRom(i, counter * 4 + i);

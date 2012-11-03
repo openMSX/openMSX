@@ -15,8 +15,8 @@
 namespace openmsx {
 
 RomZemina126in1::RomZemina126in1(
-		const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, rom)
+		const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom16kBBlocks(config, std::move(rom))
 {
 	reset(EmuTime::dummy());
 }

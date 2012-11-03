@@ -55,7 +55,7 @@
 using std::set;
 using std::string;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -102,7 +102,7 @@ public:
 	HardwareConfig* findExtension(string_ref extensionName);
 	string loadExtension(MSXMotherBoard& self, const string& extensionName);
 	string insertExtension(const std::string& name,
-	                       std::auto_ptr<HardwareConfig> extension);
+	                       unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
 	CliComm& getMSXCliComm();
@@ -161,7 +161,7 @@ private:
 	SharedStuffMap sharedStuffMap;
 	StringMap<set<string> > userNames;
 
-	auto_ptr<MSXMapperIO> mapperIO;
+	unique_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;
 
 	// These two should normally be the same, only during savestate loading
@@ -169,45 +169,45 @@ private:
 	// This is important when an exception happens during loading of
 	// machineConfig2 (otherwise machineConfig2 gets deleted twice).
 	// See also HardwareConfig::serialize() and setMachineConfig()
-	auto_ptr<HardwareConfig> machineConfig2;
+	unique_ptr<HardwareConfig> machineConfig2;
 	HardwareConfig* machineConfig;
 
 	Extensions extensions;
 
-	// order of auto_ptr's is important!
-	auto_ptr<AddRemoveUpdate> addRemoveUpdate;
-	auto_ptr<MSXCliComm> msxCliComm;
-	auto_ptr<MSXEventDistributor> msxEventDistributor;
-	auto_ptr<StateChangeDistributor> stateChangeDistributor;
-	auto_ptr<MSXCommandController> msxCommandController;
-	auto_ptr<Scheduler> scheduler;
-	auto_ptr<EventDelay> eventDelay;
-	auto_ptr<RealTime> realTime;
-	auto_ptr<Debugger> debugger;
-	auto_ptr<MSXMixer> msxMixer;
-	auto_ptr<PluggingController> pluggingController;
-	auto_ptr<MSXCPU> msxCpu;
-	auto_ptr<MSXCPUInterface> msxCpuInterface;
-	auto_ptr<PanasonicMemory> panasonicMemory;
-	auto_ptr<MSXDeviceSwitch> deviceSwitch;
-	auto_ptr<CassettePortInterface> cassettePort;
-	auto_ptr<JoystickPortIf> joystickPort[2];
-	auto_ptr<JoyPortDebuggable> joyPortDebuggable;
-	auto_ptr<RenShaTurbo> renShaTurbo;
-	auto_ptr<LedStatus> ledStatus;
+	// order of unique_ptr's is important!
+	unique_ptr<AddRemoveUpdate> addRemoveUpdate;
+	unique_ptr<MSXCliComm> msxCliComm;
+	unique_ptr<MSXEventDistributor> msxEventDistributor;
+	unique_ptr<StateChangeDistributor> stateChangeDistributor;
+	unique_ptr<MSXCommandController> msxCommandController;
+	unique_ptr<Scheduler> scheduler;
+	unique_ptr<EventDelay> eventDelay;
+	unique_ptr<RealTime> realTime;
+	unique_ptr<Debugger> debugger;
+	unique_ptr<MSXMixer> msxMixer;
+	unique_ptr<PluggingController> pluggingController;
+	unique_ptr<MSXCPU> msxCpu;
+	unique_ptr<MSXCPUInterface> msxCpuInterface;
+	unique_ptr<PanasonicMemory> panasonicMemory;
+	unique_ptr<MSXDeviceSwitch> deviceSwitch;
+	unique_ptr<CassettePortInterface> cassettePort;
+	unique_ptr<JoystickPortIf> joystickPort[2];
+	unique_ptr<JoyPortDebuggable> joyPortDebuggable;
+	unique_ptr<RenShaTurbo> renShaTurbo;
+	unique_ptr<LedStatus> ledStatus;
 
-	auto_ptr<CartridgeSlotManager> slotManager;
-	auto_ptr<ReverseManager> reverseManager;
-	auto_ptr<ResetCmd>     resetCommand;
-	auto_ptr<LoadMachineCmd> loadMachineCommand;
-	auto_ptr<ListExtCmd>   listExtCommand;
-	auto_ptr<ExtCmd>       extCommand;
-	auto_ptr<RemoveExtCmd> removeExtCommand;
-	auto_ptr<MachineNameInfo> machineNameInfo;
-	auto_ptr<DeviceInfo>   deviceInfo;
+	unique_ptr<CartridgeSlotManager> slotManager;
+	unique_ptr<ReverseManager> reverseManager;
+	unique_ptr<ResetCmd>     resetCommand;
+	unique_ptr<LoadMachineCmd> loadMachineCommand;
+	unique_ptr<ListExtCmd>   listExtCommand;
+	unique_ptr<ExtCmd>       extCommand;
+	unique_ptr<RemoveExtCmd> removeExtCommand;
+	unique_ptr<MachineNameInfo> machineNameInfo;
+	unique_ptr<DeviceInfo>   deviceInfo;
 	friend class DeviceInfo;
 
-	auto_ptr<FastForwardHelper> fastForwardHelper;
+	unique_ptr<FastForwardHelper> fastForwardHelper;
 
 	BooleanSetting& powerSetting;
 
@@ -473,7 +473,7 @@ string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& mac
 
 string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& name)
 {
-	auto_ptr<HardwareConfig> extension;
+	unique_ptr<HardwareConfig> extension;
 	try {
 		extension = HardwareConfig::createExtensionConfig(self, name);
 	} catch (FileException& e) {
@@ -483,11 +483,11 @@ string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& n
 		throw MSXException(
 			"Error in \"" + name + "\" extension: " + e.getMessage());
 	}
-	return insertExtension(name, extension);
+	return insertExtension(name, std::move(extension));
 }
 
 string MSXMotherBoard::Impl::insertExtension(
-	const string& name, auto_ptr<HardwareConfig> extension)
+	const string& name, unique_ptr<HardwareConfig> extension)
 {
 	try {
 		extension->parseSlots();
@@ -1426,9 +1426,9 @@ string MSXMotherBoard::loadExtension(const string& extensionName)
 	return pimpl->loadExtension(*this, extensionName);
 }
 string MSXMotherBoard::insertExtension(
-	const string& name, auto_ptr<HardwareConfig> extension)
+	const string& name, unique_ptr<HardwareConfig> extension)
 {
-	return pimpl->insertExtension(name, extension);
+	return pimpl->insertExtension(name, std::move(extension));
 }
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {

@@ -75,7 +75,7 @@ protected:
 	                  bool textureFromZero = false);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram;
+	std::unique_ptr<ShaderProgram> scalerProgram;
 };
 
 } // namespace openmsx

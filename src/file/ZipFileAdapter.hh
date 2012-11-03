@@ -10,7 +10,7 @@ namespace openmsx {
 class ZipFileAdapter : public CompressedFileAdapter
 {
 public:
-	explicit ZipFileAdapter(std::auto_ptr<FileBase> file);
+	explicit ZipFileAdapter(std::unique_ptr<FileBase> file);
 
 private:
 	virtual void decompress(FileBase& file, Decompressed& decompressed);

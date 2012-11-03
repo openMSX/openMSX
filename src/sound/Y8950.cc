@@ -189,13 +189,13 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	Y8950Periphery& periphery;
-	const std::auto_ptr<Y8950Adpcm> adpcm;
-	const std::auto_ptr<Y8950KeyboardConnector> connector;
-	const std::auto_ptr<DACSound16S> dac13; // 13-bit (exponential) DAC
-	const std::auto_ptr<Y8950Debuggable> debuggable;
+	const std::unique_ptr<Y8950Adpcm> adpcm;
+	const std::unique_ptr<Y8950KeyboardConnector> connector;
+	const std::unique_ptr<DACSound16S> dac13; // 13-bit (exponential) DAC
+	const std::unique_ptr<Y8950Debuggable> debuggable;
 
-	const std::auto_ptr<EmuTimer> timer1; //  80us timer
-	const std::auto_ptr<EmuTimer> timer2; // 320us timer
+	const std::unique_ptr<EmuTimer> timer1; //  80us timer
+	const std::unique_ptr<EmuTimer> timer2; // 320us timer
 	IRQHelper irq;
 
 	byte reg[0x100];

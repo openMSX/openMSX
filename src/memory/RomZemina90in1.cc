@@ -20,8 +20,8 @@
 
 namespace openmsx {
 
-RomZemina90in1::RomZemina90in1(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(config, rom)
+RomZemina90in1::RomZemina90in1(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom8kBBlocks(config, std::move(rom))
 {
 	reset(EmuTime::dummy());
 	getCPUInterface().register_IO_Out(0x77, this);

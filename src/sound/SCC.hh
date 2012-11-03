@@ -49,7 +49,7 @@ private:
 	static const int CLOCK_FREQ = 3579545;
 
 	friend class SCCDebuggable;
-	const std::auto_ptr<SCCDebuggable> debuggable;
+	const std::unique_ptr<SCCDebuggable> debuggable;
 
 	Clock<CLOCK_FREQ> deformTimer;
 	ChipMode currentChipMode;

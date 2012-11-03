@@ -30,7 +30,7 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		controller.registerPluggable(std::auto_ptr<Pluggable>(
+		controller.registerPluggable(std::unique_ptr<Pluggable>(
 			new MidiInWindows(eventDistributor, scheduler, i)));
 	}
 }

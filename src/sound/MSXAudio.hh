@@ -41,9 +41,9 @@ public:
 private:
 	void enableDAC(bool enable, EmuTime::param time);
 
-	std::auto_ptr<Y8950Periphery> periphery;
-	std::auto_ptr<Y8950> y8950;
-	std::auto_ptr<DACSound8U> dac;
+	std::unique_ptr<Y8950Periphery> periphery;
+	std::unique_ptr<Y8950> y8950;
+	std::unique_ptr<DACSound8U> dac;
 	int registerLatch;
 	byte dacValue;
 	bool dacEnabled;

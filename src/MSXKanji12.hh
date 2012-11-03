@@ -29,7 +29,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Rom> rom;
+	const std::unique_ptr<Rom> rom;
 	unsigned address;
 };
 

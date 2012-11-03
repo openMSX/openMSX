@@ -30,9 +30,9 @@ private:
 	void writeRegisterPort(byte value, EmuTime::param time);
 	void writeDataPort(byte value, EmuTime::param time);
 
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<YM2151> ym2151;
-	const std::auto_ptr<YM2148> ym2148;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<YM2151> ym2151;
+	const std::unique_ptr<YM2148> ym2148;
 	int registerLatch;
 	byte irqVector;
 };

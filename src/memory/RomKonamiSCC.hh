@@ -12,7 +12,7 @@ class SCC;
 class RomKonamiSCC : public Rom8kBBlocks
 {
 public:
-	RomKonamiSCC(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomKonamiSCC();
 
 	virtual void powerUp(EmuTime::param time);
@@ -27,7 +27,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<SCC> scc;
+	const std::unique_ptr<SCC> scc;
 	bool sccEnabled;
 };
 

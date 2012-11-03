@@ -54,7 +54,7 @@
 #include <algorithm>
 #include <cassert>
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::string;
 using std::vector;
 using std::set;
@@ -88,9 +88,9 @@ private:
 static XMLElement createXML()
 {
 	XMLElement xml("cassetteplayer");
-	auto_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "5000")));
-	xml.addChild(sound);
+	unique_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "5000")));
+	xml.addChild(std::move(sound));
 	return xml;
 }
 
@@ -880,7 +880,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
-			std::auto_ptr<File> file = filePool.getFile(
+			std::unique_ptr<File> file = filePool.getFile(
 				FilePool::TAPE, oldChecksum);
 			if (file.get()) {
 				casImage.setResolved(file->getURL());
@@ -906,7 +906,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	//double lastY;
 	//double partialOut;
 	//double partialInterval;
-	//std::auto_ptr<WavWriter> recordImage;
+	//std::unique_ptr<WavWriter> recordImage;
 
 	ar.serialize("tapePos", tapePos);
 	ar.serialize("prevSyncTime", prevSyncTime);

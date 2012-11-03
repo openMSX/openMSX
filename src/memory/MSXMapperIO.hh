@@ -46,7 +46,7 @@ private:
 	void updateMask();
 
 	friend class MapperIODebuggable;
-	const std::auto_ptr<MapperIODebuggable> debuggable;
+	const std::unique_ptr<MapperIODebuggable> debuggable;
 	std::multiset<unsigned> mapperSizes;
 	byte registers[4];
 

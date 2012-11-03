@@ -35,8 +35,8 @@ private:
 	void writeRegister(byte reg, byte value);
 	void setCPUStatus(byte value);
 
-	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
-	const std::auto_ptr<S1990Debuggable> debuggable;
+	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
+	const std::unique_ptr<S1990Debuggable> debuggable;
 	byte registerSelect;
 	byte cpuStatus;
 

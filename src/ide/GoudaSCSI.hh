@@ -29,8 +29,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<WD33C93> wd33c93;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<WD33C93> wd33c93;
 };
 
 } // namespace openmsx

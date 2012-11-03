@@ -34,7 +34,7 @@ class SDLRasterizer : public Rasterizer, private noncopyable,
 public:
 	SDLRasterizer(
 		VDP& vdp, Display& display, VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor);
+		std::unique_ptr<PostProcessor> postProcessor);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:
@@ -104,11 +104,11 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	const std::auto_ptr<PostProcessor> postProcessor;
+	const std::unique_ptr<PostProcessor> postProcessor;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */
-	std::auto_ptr<RawFrame> workFrame;
+	std::unique_ptr<RawFrame> workFrame;
 
 	/** The current renderer settings (gamma, brightness, contrast)
 	  */
@@ -116,15 +116,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	const std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
+	const std::unique_ptr<CharacterConverter<Pixel> > characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	const std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
+	const std::unique_ptr<BitmapConverter<Pixel> > bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	const std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
+	const std::unique_ptr<SpriteConverter<Pixel> > spriteConverter;
 
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.

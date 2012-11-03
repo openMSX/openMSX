@@ -32,8 +32,8 @@ public:
 	// Layer interface:
 	virtual void paint(OutputSurface& output);
 
-	virtual std::auto_ptr<RawFrame> rotateFrames(
-		std::auto_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
+	virtual std::unique_ptr<RawFrame> rotateFrames(
+		std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 		EmuTime::param time);
 
 protected:
@@ -54,10 +54,10 @@ private:
 
 	/** The currently active scaler.
 	  */
-	std::auto_ptr<GLScaler> currScaler;
+	std::unique_ptr<GLScaler> currScaler;
 
-	std::auto_ptr<Texture> colorTex[2];
-	std::auto_ptr<FrameBufferObject> fbo[2];
+	std::unique_ptr<Texture> colorTex[2];
+	std::unique_ptr<FrameBufferObject> fbo[2];
 
 	// Noise effect:
 	LuminanceTexture noiseTextureA;
@@ -72,7 +72,7 @@ private:
 	typedef std::map<unsigned, TextureData> Textures;
 	Textures textures;
 
-	std::auto_ptr<ColorTexture> superImposeTex;
+	std::unique_ptr<ColorTexture> superImposeTex;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,

@@ -35,7 +35,7 @@ public:
 
 private:
 	// The Autofire circuit
-	std::auto_ptr<Autofire> autofire;
+	std::unique_ptr<Autofire> autofire;
 };
 
 } // namespace openmsx

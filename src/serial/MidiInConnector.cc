@@ -11,7 +11,7 @@ namespace openmsx {
 MidiInConnector::MidiInConnector(PluggingController& pluggingController,
                                  string_ref name)
 	: Connector(pluggingController, name,
-	            std::auto_ptr<Pluggable>(new DummyMidiInDevice()))
+	            std::unique_ptr<Pluggable>(new DummyMidiInDevice()))
 {
 }
 

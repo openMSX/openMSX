@@ -86,7 +86,7 @@ private:
 	virtual void updateZ(Layer& layer);
 
 	Layers layers;
-	std::auto_ptr<VideoSystem> videoSystem;
+	std::unique_ptr<VideoSystem> videoSystem;
 
 	typedef std::vector<VideoSystemChangeListener*> Listeners;
 	Listeners listeners;
@@ -98,14 +98,14 @@ private:
 	unsigned long long prevTimeStamp;
 
 	friend class FpsInfoTopic;
-	const std::auto_ptr<AlarmEvent> alarm; // delayed repaint
-	const std::auto_ptr<ScreenShotCmd> screenShotCmd;
-	const std::auto_ptr<FpsInfoTopic> fpsInfo;
-	const std::auto_ptr<OSDGUI> osdGui;
+	const std::unique_ptr<AlarmEvent> alarm; // delayed repaint
+	const std::unique_ptr<ScreenShotCmd> screenShotCmd;
+	const std::unique_ptr<FpsInfoTopic> fpsInfo;
+	const std::unique_ptr<OSDGUI> osdGui;
 
 	Reactor& reactor;
-	const std::auto_ptr<RenderSettings> renderSettings;
-	const std::auto_ptr<CommandConsole> commandConsole;
+	const std::unique_ptr<RenderSettings> renderSettings;
+	const std::unique_ptr<CommandConsole> commandConsole;
 
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;

@@ -24,7 +24,7 @@ public:
 		unsigned logSrcHeight);
 
 private:
-	std::auto_ptr<ShaderProgram> scalerProgram[2];
+	std::unique_ptr<ShaderProgram> scalerProgram[2];
 	GLint texSizeLoc[2];
 };
 

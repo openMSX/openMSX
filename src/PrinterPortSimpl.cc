@@ -6,7 +6,7 @@
 #include "XMLElement.hh"
 #include "serialize.hh"
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -33,9 +33,9 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 static XMLElement createXML()
 {
 	XMLElement xml("simpl");
-	auto_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(auto_ptr<XMLElement>(new XMLElement("volume", "12000")));
-	xml.addChild(sound);
+	unique_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "12000")));
+	xml.addChild(std::move(sound));
 	return xml;
 }
 

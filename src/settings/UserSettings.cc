@@ -15,7 +15,7 @@
 using std::set;
 using std::string;
 using std::vector;
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -34,10 +34,10 @@ private:
 	void destroy(const vector<TclObject>& tokens, TclObject& result);
 	void info   (const vector<TclObject>& tokens, TclObject& result);
 
-	auto_ptr<Setting> createString (const vector<TclObject>& tokens);
-	auto_ptr<Setting> createBoolean(const vector<TclObject>& tokens);
-	auto_ptr<Setting> createInteger(const vector<TclObject>& tokens);
-	auto_ptr<Setting> createFloat  (const vector<TclObject>& tokens);
+	unique_ptr<Setting> createString (const vector<TclObject>& tokens);
+	unique_ptr<Setting> createBoolean(const vector<TclObject>& tokens);
+	unique_ptr<Setting> createInteger(const vector<TclObject>& tokens);
+	unique_ptr<Setting> createFloat  (const vector<TclObject>& tokens);
 
 	void getSettingNames(set<string>& result) const;
 
@@ -60,7 +60,7 @@ UserSettings::~UserSettings()
 	}
 }
 
-void UserSettings::addSetting(std::auto_ptr<Setting> setting)
+void UserSettings::addSetting(unique_ptr<Setting> setting)
 {
 	assert(!findSetting(setting->getName()));
 	settings.push_back(setting.release());
@@ -138,7 +138,7 @@ void UserSettingCommand::create(const vector<TclObject>& tokens, TclObject& resu
 			"There already exists a setting with this name: " + name);
 	}
 
-	auto_ptr<Setting> setting;
+	unique_ptr<Setting> setting;
 	if (type == "string") {
 		setting = createString(tokens);
 	} else if (type == "boolean") {
@@ -152,12 +152,12 @@ void UserSettingCommand::create(const vector<TclObject>& tokens, TclObject& resu
 			"Invalid setting type '" + type + "', expected "
 			"'string', 'boolean', 'integer' or 'float'.");
 	}
-	userSettings.addSetting(setting);
+	userSettings.addSetting(std::move(setting));
 
 	result.setString(tokens[3].getString()); // name
 }
 
-auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject>& tokens)
+unique_ptr<Setting> UserSettingCommand::createString(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -165,11 +165,11 @@ auto_ptr<Setting> UserSettingCommand::createString(const vector<TclObject>& toke
 	string_ref name = tokens[3].getString();
 	string_ref desc = tokens[4].getString();
 	string_ref initVal = tokens[5].getString();
-	return auto_ptr<Setting>(new StringSetting(getCommandController(),
-	                                           name, desc, initVal));
+	return unique_ptr<Setting>(new StringSetting(getCommandController(),
+	                                             name, desc, initVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& tokens)
+unique_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 6) {
 		throw SyntaxError();
@@ -177,11 +177,11 @@ auto_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& tok
 	string_ref name = tokens[3].getString();
 	string_ref desc = tokens[4].getString();
 	bool initVal = tokens[5].getBoolean();
-	return auto_ptr<Setting>(new BooleanSetting(getCommandController(),
-	                                            name, desc, initVal));
+	return unique_ptr<Setting>(new BooleanSetting(getCommandController(),
+	                                              name, desc, initVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& tokens)
+unique_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -191,11 +191,11 @@ auto_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& tok
 	int initVal = tokens[5].getInt();
 	int minVal  = tokens[6].getInt();
 	int maxVal  = tokens[7].getInt();
-	return auto_ptr<Setting>(new IntegerSetting(getCommandController(),
+	return unique_ptr<Setting>(new IntegerSetting(getCommandController(),
 	                                 name, desc, initVal, minVal, maxVal));
 }
 
-auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tokens)
+unique_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tokens)
 {
 	if (tokens.size() != 8) {
 		throw SyntaxError();
@@ -205,7 +205,7 @@ auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& token
 	double initVal = tokens[5].getInt();
 	double minVal  = tokens[6].getInt();
 	double maxVal  = tokens[7].getInt();
-	return auto_ptr<Setting>(new FloatSetting(getCommandController(),
+	return unique_ptr<Setting>(new FloatSetting(getCommandController(),
 	                                 name, desc, initVal, minVal, maxVal));
 }
 

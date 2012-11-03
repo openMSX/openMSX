@@ -201,24 +201,24 @@ void DiskChanger::insertDisk(const vector<TclObject>& args)
 {
 	UserFileContext context;
 	const string& diskImage = FileOperations::getConventionalPath(args[1].getString());
-	std::auto_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
+	std::unique_ptr<Disk> newDisk(diskFactory.createDisk(diskImage, *this));
 	for (unsigned i = 2; i < args.size(); ++i) {
 		Filename filename(args[i].getString().str(), context);
 		newDisk->applyPatch(filename);
 	}
 
 	// no errors, only now replace original disk
-	changeDisk(newDisk);
+	changeDisk(std::move(newDisk));
 }
 
 void DiskChanger::ejectDisk()
 {
-	changeDisk(std::auto_ptr<Disk>(new DummyDisk()));
+	changeDisk(std::unique_ptr<Disk>(new DummyDisk()));
 }
 
-void DiskChanger::changeDisk(std::auto_ptr<Disk> newDisk)
+void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)
 {
-	disk = newDisk;
+	disk = std::move(newDisk);
 	diskChangedFlag = true;
 	controller.getCliComm().update(CliComm::MEDIA, getDriveName(),
 	                               getDiskName().getResolved());
@@ -387,7 +387,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			if (!FileOperations::exists(name)) {
 				assert(filePool);
 				assert(!oldChecksum.empty());
-				std::auto_ptr<File> file = filePool->getFile(
+				std::unique_ptr<File> file = filePool->getFile(
 					FilePool::DISK, Sha1Sum(oldChecksum));
 				if (file.get()) {
 					name = file->getURL();

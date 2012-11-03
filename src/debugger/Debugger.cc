@@ -25,7 +25,6 @@ using std::map;
 using std::set;
 using std::string;
 using std::vector;
-using std::auto_ptr;
 
 namespace openmsx {
 

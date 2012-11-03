@@ -31,7 +31,7 @@
 
 namespace openmsx {
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
@@ -48,20 +48,20 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
-	controller.registerPluggable(auto_ptr<Pluggable>(new ArkanoidPad(
+	controller.registerPluggable(unique_ptr<Pluggable>(new ArkanoidPad(
 		msxEventDistributor, stateChangeDistributor)));
-	controller.registerPluggable(auto_ptr<Pluggable>(new Mouse(
+	controller.registerPluggable(unique_ptr<Pluggable>(new Mouse(
 		msxEventDistributor, stateChangeDistributor)));
-	controller.registerPluggable(auto_ptr<Pluggable>(new Trackball(
+	controller.registerPluggable(unique_ptr<Pluggable>(new Trackball(
 		msxEventDistributor, stateChangeDistributor)));
-	controller.registerPluggable(auto_ptr<Pluggable>(new JoyTap(
+	controller.registerPluggable(unique_ptr<Pluggable>(new JoyTap(
 		controller, "joytap")));
-	controller.registerPluggable(auto_ptr<Pluggable>(new NinjaTap(
+	controller.registerPluggable(unique_ptr<Pluggable>(new NinjaTap(
 		controller, "ninjatap")));
-	controller.registerPluggable(auto_ptr<Pluggable>(new KeyJoystick(
+	controller.registerPluggable(unique_ptr<Pluggable>(new KeyJoystick(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick1")));
-	controller.registerPluggable(auto_ptr<Pluggable>(new KeyJoystick(
+	controller.registerPluggable(unique_ptr<Pluggable>(new KeyJoystick(
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick2")));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
@@ -70,41 +70,41 @@ void PluggableFactory::createAll(PluggingController& controller,
 	                      controller);
 
 	// Dongles
-	controller.registerPluggable(auto_ptr<Pluggable>(new SETetrisDongle()));
-	controller.registerPluggable(auto_ptr<Pluggable>(new MagicKey()));
+	controller.registerPluggable(unique_ptr<Pluggable>(new SETetrisDongle()));
+	controller.registerPluggable(unique_ptr<Pluggable>(new MagicKey()));
 
 	// Logging:
-	controller.registerPluggable(auto_ptr<Pluggable>(new PrinterPortLogger(
+	controller.registerPluggable(unique_ptr<Pluggable>(new PrinterPortLogger(
 		commandController)));
-	controller.registerPluggable(auto_ptr<Pluggable>(new MidiOutLogger(
+	controller.registerPluggable(unique_ptr<Pluggable>(new MidiOutLogger(
 		commandController)));
 
 	// Serial communication:
-	controller.registerPluggable(auto_ptr<Pluggable>(new RS232Tester(
+	controller.registerPluggable(unique_ptr<Pluggable>(new RS232Tester(
 		eventDistributor, scheduler, commandController)));
 
 	// Sampled audio:
-	controller.registerPluggable(auto_ptr<Pluggable>(new PrinterPortSimpl(
+	controller.registerPluggable(unique_ptr<Pluggable>(new PrinterPortSimpl(
 		*motherBoard.getMachineConfig())));
-	controller.registerPluggable(auto_ptr<Pluggable>(new WavAudioInput(
+	controller.registerPluggable(unique_ptr<Pluggable>(new WavAudioInput(
 		commandController)));
 
 	// MIDI:
-	controller.registerPluggable(auto_ptr<Pluggable>(new MidiInReader(
+	controller.registerPluggable(unique_ptr<Pluggable>(new MidiInReader(
 		eventDistributor, scheduler, commandController)));
 #if defined(_WIN32)
 	MidiInWindows::registerAll(eventDistributor, scheduler, controller);
 	MidiOutWindows::registerAll(controller);
 #endif
 #if defined(__APPLE__)
-	controller.registerPluggable(auto_ptr<Pluggable>(new MidiOutCoreMIDIVirtual()));
+	controller.registerPluggable(unique_ptr<Pluggable>(new MidiOutCoreMIDIVirtual()));
 	MidiOutCoreMIDI::registerAll(controller);
 #endif
 
 	// Printers
-	controller.registerPluggable(auto_ptr<Pluggable>(new ImagePrinterMSX(
+	controller.registerPluggable(unique_ptr<Pluggable>(new ImagePrinterMSX(
 		motherBoard)));
-	controller.registerPluggable(auto_ptr<Pluggable>(new ImagePrinterEpson(
+	controller.registerPluggable(unique_ptr<Pluggable>(new ImagePrinterEpson(
 		motherBoard)));
 }
 

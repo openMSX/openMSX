@@ -65,9 +65,9 @@ private:
 
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;
-	const std::auto_ptr<Ram> ram;
+	const std::unique_ptr<Ram> ram;
 	MSXCPU& msxcpu;
-	std::auto_ptr<TclCallback> umrCallback;
+	std::unique_ptr<TclCallback> umrCallback;
 };
 
 } // namespace openmsx

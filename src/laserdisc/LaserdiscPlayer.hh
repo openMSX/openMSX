@@ -127,10 +127,10 @@ private:
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;
 
-	const std::auto_ptr<LaserdiscCommand> laserdiscCommand;
-	std::auto_ptr<OggReader> video;
+	const std::unique_ptr<LaserdiscCommand> laserdiscCommand;
+	std::unique_ptr<OggReader> video;
 	Filename oggImage;
-	std::auto_ptr<LDRenderer> renderer;
+	std::unique_ptr<LDRenderer> renderer;
 
 	void nextFrame(EmuTime::param time);
 	void setFrameStep();
@@ -197,8 +197,8 @@ private:
 	int playingSpeed;
 
 	// Loading indicator
-	const std::auto_ptr<BooleanSetting> autoRunSetting;
-	const std::auto_ptr<LoadingIndicator> loadingIndicator;
+	const std::unique_ptr<BooleanSetting> autoRunSetting;
+	const std::unique_ptr<LoadingIndicator> loadingIndicator;
 	int sampleReads;
 
 	friend class LaserdiscCommand;

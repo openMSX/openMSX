@@ -35,7 +35,7 @@ private:
 	virtual byte readA(EmuTime::param time);
 	virtual void writeB(byte value, EmuTime::param time);
 
-	std::auto_ptr<AY8910> ay8910;
+	std::unique_ptr<AY8910> ay8910;
 	JoystickPortIf* ports[2];
 	CassettePortInterface& cassette;
 	RenShaTurbo& renShaTurbo;

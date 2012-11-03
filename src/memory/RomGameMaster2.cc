@@ -45,8 +45,8 @@
 
 namespace openmsx {
 
-RomGameMaster2::RomGameMaster2(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom4kBBlocks(config, rom, 1)
+RomGameMaster2::RomGameMaster2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom4kBBlocks(config, std::move(rom), 1)
 {
 	sram.reset(new SRAM(getName() + " SRAM", 0x2000, config));
 	reset(EmuTime::dummy());

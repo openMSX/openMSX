@@ -12,7 +12,7 @@ class DACSound8U;
 class RomSynthesizer : public Rom16kBBlocks
 {
 public:
-	RomSynthesizer(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomSynthesizer();
 
 	virtual void reset(EmuTime::param time);
@@ -23,7 +23,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<DACSound8U> dac;
+	const std::unique_ptr<DACSound8U> dac;
 };
 
 } // namespace openmsx

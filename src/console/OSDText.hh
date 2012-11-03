@@ -46,7 +46,7 @@ private:
 
 	std::string text;
 	std::string fontfile;
-	std::auto_ptr<TTFFont> font;
+	std::unique_ptr<TTFFont> font;
 	int size;
 	WrapMode wrapMode;
 	double wrapw, wraprelw;

@@ -12,7 +12,7 @@ namespace openmsx {
 WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	: clock(EmuTime::zero)
 {
-	std::auto_ptr<LocalFileReference> localFile;
+	std::unique_ptr<LocalFileReference> localFile;
 	{
 		// File object must be destroyed before localFile is actually
 		// used by an external API (see comments in LocalFileReference

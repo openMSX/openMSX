@@ -46,7 +46,7 @@ public:
 private:
 	const XMLElement& xml;
 	MemBuffer<byte> ram;
-	const std::auto_ptr<RamDebuggable> debuggable;
+	const std::unique_ptr<RamDebuggable> debuggable;
 };
 
 } // namespace openmsx

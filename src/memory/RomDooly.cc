@@ -12,8 +12,8 @@
 
 namespace openmsx {
 
-RomDooly::RomDooly(const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: MSXRom(config, rom)
+RomDooly::RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: MSXRom(config, std::move(rom))
 	, romBlockDebug(new RomBlockDebuggable(*this, &conversion, 0x4000, 0x8000, 15))
 {
 	conversion = 0;

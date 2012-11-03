@@ -84,38 +84,38 @@ void SDLVisibleSurface::finish()
 #endif
 }
 
-std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
+std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
 {
 	switch (getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 	case 2:
-		return std::auto_ptr<Layer>(new SDLSnow<word>(*this, display));
+		return std::unique_ptr<Layer>(new SDLSnow<word>(*this, display));
 #endif
 #if HAVE_32BPP
 	case 4:
-		return std::auto_ptr<Layer>(new SDLSnow<unsigned>(*this, display));
+		return std::unique_ptr<Layer>(new SDLSnow<unsigned>(*this, display));
 #endif
 	default:
-		UNREACHABLE; return std::auto_ptr<Layer>();
+		UNREACHABLE; return std::unique_ptr<Layer>();
 	}
 }
 
-std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
+std::unique_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = false;
-	return std::auto_ptr<Layer>(new OSDConsoleRenderer(
+	return std::unique_ptr<Layer>(new OSDConsoleRenderer(
 		reactor, console, getWidth(), getHeight(), openGL));
 }
 
-std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
+std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return std::auto_ptr<Layer>(new SDLOSDGUILayer(gui));
+	return std::unique_ptr<Layer>(new SDLOSDGUILayer(gui));
 }
 
-std::auto_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
+std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 {
-	return std::auto_ptr<OutputSurface>(
+	return std::unique_ptr<OutputSurface>(
 		new SDLOffScreenSurface(*getSDLWorkSurface()));
 }
 

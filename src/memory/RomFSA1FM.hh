@@ -25,7 +25,7 @@ protected:
 class RomFSA1FM1 : public MSXRom, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM1(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 
 	virtual void reset(EmuTime::param time);
@@ -40,13 +40,13 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
+	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
 };
 
 class RomFSA1FM2 : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
-	RomFSA1FM2(const DeviceConfig& config, std::auto_ptr<Rom> rom);
+	RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 
 	virtual void reset(EmuTime::param time);

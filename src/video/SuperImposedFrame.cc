@@ -26,23 +26,23 @@ private:
 
 // class SuperImposedFrame
 
-std::auto_ptr<SuperImposedFrame> SuperImposedFrame::create(
+std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 	const SDL_PixelFormat& format)
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
-		return std::auto_ptr<SuperImposedFrame>(
+		return std::unique_ptr<SuperImposedFrame>(
 			new SuperImposedFrameImpl<word>(format));
 	}
 #endif
 #if HAVE_32BPP
 	if (format.BitsPerPixel == 32) {
-		return std::auto_ptr<SuperImposedFrame>(
+		return std::unique_ptr<SuperImposedFrame>(
 			new SuperImposedFrameImpl<unsigned>(format));
 	}
 #endif
 	UNREACHABLE;
-	return std::auto_ptr<SuperImposedFrame>(); // avoid warning
+	return std::unique_ptr<SuperImposedFrame>(); // avoid warning
 }
 
 SuperImposedFrame::SuperImposedFrame(const SDL_PixelFormat& format)

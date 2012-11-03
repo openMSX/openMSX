@@ -70,9 +70,8 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 	}
 	MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
 	assert(motherboard);
-	std::auto_ptr<HardwareConfig> extension(
+	motherboard->insertExtension("ROM",
 		HardwareConfig::createRomConfig(*motherboard, arg, slotname, options));
-	motherboard->insertExtension("ROM", extension);
 }
 
 void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,

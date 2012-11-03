@@ -37,9 +37,9 @@ private:
 	void setBank(byte page, byte block);
 
 	const unsigned numBlocks; // must come before ram
-	const std::auto_ptr<Ram> ram;
-	const std::auto_ptr<Rom> rom;
-	const std::auto_ptr<RomBlockDebuggable> romBlockDebug;
+	const std::unique_ptr<Ram> ram;
+	const std::unique_ptr<Rom> rom;
+	const std::unique_ptr<RomBlockDebuggable> romBlockDebug;
 	const byte maskBlocks;
 	byte bank[4];
 	bool writeMode;

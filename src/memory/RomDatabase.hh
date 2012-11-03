@@ -31,7 +31,7 @@ public:
 
 private:
 	DBMap romDBSHA1;
-	std::auto_ptr<SoftwareInfoTopic> softwareInfoTopic;
+	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
 };
 
 } // namespace openmsx

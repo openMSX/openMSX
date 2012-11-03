@@ -9,8 +9,8 @@
 namespace openmsx {
 
 RomSuperLodeRunner::RomSuperLodeRunner(
-		const DeviceConfig& config, std::auto_ptr<Rom> rom)
-	: Rom16kBBlocks(config, rom)
+		const DeviceConfig& config, std::unique_ptr<Rom> rom)
+	: Rom16kBBlocks(config, std::move(rom))
 {
 	getCPUInterface().registerGlobalWrite(*this, 0x0000);
 	reset(EmuTime::dummy());

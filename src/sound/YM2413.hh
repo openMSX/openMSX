@@ -32,8 +32,8 @@ private:
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual int getAmplificationFactor() const;
 
-	const std::auto_ptr<YM2413Core> core;
-	const std::auto_ptr<YM2413Debuggable> debuggable;
+	const std::unique_ptr<YM2413Core> core;
+	const std::unique_ptr<YM2413Debuggable> debuggable;
 	friend class YM2413Debuggable;
 };
 

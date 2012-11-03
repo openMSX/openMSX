@@ -14,8 +14,8 @@ const byte COMMENT      = 0x10; // bit 4 set: file comment present
 const byte RESERVED     = 0xE0; // bits 5..7: reserved
 
 
-GZFileAdapter::GZFileAdapter(std::auto_ptr<FileBase> file_)
-	: CompressedFileAdapter(file_)
+GZFileAdapter::GZFileAdapter(std::unique_ptr<FileBase> file_)
+	: CompressedFileAdapter(std::move(file_))
 {
 }
 

@@ -30,8 +30,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
-	const std::auto_ptr<SRAM> sram;
+	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
+	const std::unique_ptr<SRAM> sram;
 	word address;
 	nibble color1, color2;
 	byte pattern;

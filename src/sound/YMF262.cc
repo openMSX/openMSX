@@ -226,7 +226,7 @@ private:
 	inline YMF262Channel& getFirstOfPair(unsigned ch);
 	inline YMF262Channel& getSecondOfPair(unsigned ch);
 
-	const std::auto_ptr<YMF262Debuggable> debuggable;
+	const std::unique_ptr<YMF262Debuggable> debuggable;
 
 	// Bitmask for register 0x04
 	static const int R04_ST1       = 0x01; // Timer1 Start
@@ -239,8 +239,8 @@ private:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 	// Timers (see EmuTimer class for details about timing)
-	const std::auto_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
-	const std::auto_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)
+	const std::unique_ptr<EmuTimer> timer1; //  80.8us OPL4  ( 80.5us OPL3)
+	const std::unique_ptr<EmuTimer> timer2; // 323.1us OPL4  (321.8us OPL3)
 
 	IRQHelper irq;
 

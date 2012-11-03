@@ -339,8 +339,7 @@ void IDECDROM::eject()
 
 void IDECDROM::insert(const string& filename)
 {
-	std::auto_ptr<File> newFile(new File(filename));
-	file = newFile;
+	file.reset(new File(filename));
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);

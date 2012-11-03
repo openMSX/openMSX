@@ -127,41 +127,41 @@ private:
 	void pause();
 
 	Semaphore mbSem; // this should come first, because it's still used by
-	                 // the destructors of the auto_ptr below
+	                 // the destructors of the unique_ptr below
 
-	// note: order of auto_ptr's is important
-	std::auto_ptr<EventDistributor> eventDistributor;
-	std::auto_ptr<GlobalCliComm> globalCliComm;
-	std::auto_ptr<GlobalCommandController> globalCommandController;
-	std::auto_ptr<GlobalSettings> globalSettings;
-	std::auto_ptr<InputEventGenerator> inputEventGenerator;
-	std::auto_ptr<Display> display;
-	std::auto_ptr<Mixer> mixer;
-	std::auto_ptr<DiskFactory> diskFactory;
-	std::auto_ptr<DiskManipulator> diskManipulator;
-	std::auto_ptr<DiskChanger> virtualDrive;
-	std::auto_ptr<FilePool> filePool;
+	// note: order of unique_ptr's is important
+	std::unique_ptr<EventDistributor> eventDistributor;
+	std::unique_ptr<GlobalCliComm> globalCliComm;
+	std::unique_ptr<GlobalCommandController> globalCommandController;
+	std::unique_ptr<GlobalSettings> globalSettings;
+	std::unique_ptr<InputEventGenerator> inputEventGenerator;
+	std::unique_ptr<Display> display;
+	std::unique_ptr<Mixer> mixer;
+	std::unique_ptr<DiskFactory> diskFactory;
+	std::unique_ptr<DiskManipulator> diskManipulator;
+	std::unique_ptr<DiskChanger> virtualDrive;
+	std::unique_ptr<FilePool> filePool;
 
-	std::auto_ptr<EnumSetting<int> > machineSetting;
-	std::auto_ptr<UserSettings> userSettings;
-	std::auto_ptr<RomDatabase> softwareDatabase;
+	std::unique_ptr<EnumSetting<int> > machineSetting;
+	std::unique_ptr<UserSettings> userSettings;
+	std::unique_ptr<RomDatabase> softwareDatabase;
 
-	std::auto_ptr<AfterCommand> afterCommand;
-	std::auto_ptr<QuitCommand> quitCommand;
-	std::auto_ptr<MessageCommand> messageCommand;
-	std::auto_ptr<MachineCommand> machineCommand;
-	std::auto_ptr<TestMachineCommand> testMachineCommand;
-	std::auto_ptr<CreateMachineCommand> createMachineCommand;
-	std::auto_ptr<DeleteMachineCommand> deleteMachineCommand;
-	std::auto_ptr<ListMachinesCommand> listMachinesCommand;
-	std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
-	std::auto_ptr<StoreMachineCommand> storeMachineCommand;
-	std::auto_ptr<RestoreMachineCommand> restoreMachineCommand;
-	std::auto_ptr<AviRecorder> aviRecordCommand;
-	std::auto_ptr<ConfigInfo> extensionInfo;
-	std::auto_ptr<ConfigInfo> machineInfo;
-	std::auto_ptr<RealTimeInfo> realTimeInfo;
-	std::auto_ptr<TclCallbackMessages> tclCallbackMessages;
+	std::unique_ptr<AfterCommand> afterCommand;
+	std::unique_ptr<QuitCommand> quitCommand;
+	std::unique_ptr<MessageCommand> messageCommand;
+	std::unique_ptr<MachineCommand> machineCommand;
+	std::unique_ptr<TestMachineCommand> testMachineCommand;
+	std::unique_ptr<CreateMachineCommand> createMachineCommand;
+	std::unique_ptr<DeleteMachineCommand> deleteMachineCommand;
+	std::unique_ptr<ListMachinesCommand> listMachinesCommand;
+	std::unique_ptr<ActivateMachineCommand> activateMachineCommand;
+	std::unique_ptr<StoreMachineCommand> storeMachineCommand;
+	std::unique_ptr<RestoreMachineCommand> restoreMachineCommand;
+	std::unique_ptr<AviRecorder> aviRecordCommand;
+	std::unique_ptr<ConfigInfo> extensionInfo;
+	std::unique_ptr<ConfigInfo> machineInfo;
+	std::unique_ptr<RealTimeInfo> realTimeInfo;
+	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock
