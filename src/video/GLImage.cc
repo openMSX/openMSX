@@ -54,7 +54,7 @@ static GLuint loadTexture(const string& filename,
 {
 	SDLSurfacePtr surface(PNG::load(filename, false));
 	try {
-		return loadTexture(surface, width, height, texCoord);
+		return loadTexture(std::move(surface), width, height, texCoord);
 	} catch (MSXException& e) {
 		throw MSXException("Error loading image " + filename +
 		                   ": " + e.getMessage());
@@ -124,7 +124,7 @@ GLImage::GLImage(int width_, int height_, const unsigned* rgba,
 
 GLImage::GLImage(SDLSurfacePtr image)
 {
-	texture = loadTexture(image, width, height, texCoord);
+	texture = loadTexture(std::move(image), width, height, texCoord);
 }
 
 GLImage::~GLImage()

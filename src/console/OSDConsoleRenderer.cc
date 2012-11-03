@@ -330,11 +330,11 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			// nothing was rendered, so do nothing
 			image = NULL;
 		} else if (!openGL) {
-			image = new SDLImage(surf);
+			image = new SDLImage(std::move(surf));
 		}
 #if COMPONENT_GL
 		else {
-			image = new GLImage(surf);
+			image = new GLImage(std::move(surf));
 		}
 #endif
 		insertInCache(textStr, rgb, image, width);

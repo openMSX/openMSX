@@ -214,7 +214,7 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
 		SDLSurfacePtr surface(font->render(wrappedText,
 			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
 		if (surface.get()) {
-			return new IMAGE(surface);
+			return new IMAGE(std::move(surface));
 		} else {
 			return new IMAGE(0, 0, unsigned(0));
 		}

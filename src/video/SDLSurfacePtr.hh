@@ -9,22 +9,11 @@
 #include <cassert>
 #include <cstdlib>
 
-// This is a helper class, you shouldn't use it directly.
-struct SDLSurfaceRef
-{
-	SDLSurfaceRef(SDL_Surface* surface_, void* buffer_)
-		: surface(surface_), buffer(buffer_) {}
-	SDL_Surface* surface;
-	void* buffer;
-};
-
-
 /** Wrapper around a SDL_Surface.
  *
  * Makes sure SDL_FreeSurface() is called when this object goes out of scope.
- * It's modeled after std::auto_ptr, so it has the usual get(), reset() and
- * operator*() methods. It also has the same 'weird' copy and assignment
- * semantics.
+ * It's modeled after std::unique_ptr, so it has the usual get(), reset() and
+ * release() methods. Like unique_ptr it can be moved but not copied.
  *
  * In addition to the SDL_Surface pointer, this wrapper also (optionally)
  * manages an extra memory buffer. Normally SDL_CreateRGBSurface() will
@@ -62,18 +51,21 @@ public:
 		}
 	}
 
-	SDLSurfacePtr(SDL_Surface* surface_ = NULL, void* buffer_ = NULL)
+	// don't allow copy and assign
+	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
+	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
+
+	explicit SDLSurfacePtr(SDL_Surface* surface_ = NULL,
+	                       void* buffer_ = NULL)
 		: surface(surface_)
 		, buffer(buffer_)
 	{
 	}
 
-	SDLSurfacePtr(SDLSurfacePtr& other)
+	SDLSurfacePtr(SDLSurfacePtr&& other)
 		: surface(other.surface)
 		, buffer(other.buffer)
 	{
-		// Like std::auto_ptr, making a copy 'steals' the content
-		// of the original.
 		other.surface = NULL;
 		other.buffer = NULL;
 	}
@@ -107,10 +99,12 @@ public:
 		std::swap(buffer,  other.buffer );
 	}
 
-	SDLSurfacePtr& operator=(SDLSurfacePtr& other)
+	SDLSurfacePtr& operator=(SDLSurfacePtr&& other)
 	{
-		SDLSurfacePtr temp(other); // this 'steals' the content of 'other'
-		temp.swap(*this);
+		SDLSurfacePtr tmp(other.surface, other.buffer);
+		other.surface = NULL;
+		other.buffer = NULL;
+		tmp.swap(*this);
 		return *this;
 	}
 
@@ -140,35 +134,6 @@ public:
 	const void* getLinePtr(unsigned y) const
 	{
 		return const_cast<SDLSurfacePtr*>(this)->getLinePtr(y);
-	}
-
-	// Automatic conversions. This is required to allow constructs like
-	//   SDLSurfacePtr myFunction();
-	//   ..
-	//   SDLSurfacePtr myPtr = myFunction();
-	// Trick copied from gcc's auto_ptr implementation.
-	SDLSurfacePtr(SDLSurfaceRef ref)
-		: surface(ref.surface)
-		, buffer(ref.buffer)
-	{
-	}
-	SDLSurfacePtr& operator=(SDLSurfaceRef ref)
-	{
-		if (ref.surface != surface) {
-			assert(!buffer || (ref.buffer != buffer));
-			SDLSurfacePtr temp(ref.surface, ref.buffer);
-			temp.swap(*this);
-		} else {
-			assert(ref.buffer == buffer);
-		}
-		return *this;
-	}
-	operator SDLSurfaceRef()
-	{
-		SDLSurfaceRef ref(surface, buffer);
-		surface = NULL;
-		buffer = NULL;
-		return ref;
 	}
 
 private:

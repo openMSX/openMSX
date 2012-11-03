@@ -197,7 +197,8 @@ static SDLSurfacePtr loadImage(const string& filename, double scaleFactor)
 	if ((width == 0) || (height == 0)) {
 		return SDLSurfacePtr();
 	}
-	return convertToDisplayFormat(scaleImage32(picture, width, height));
+	return convertToDisplayFormat(
+		scaleImage32(std::move(picture), width, height));
 }
 
 static SDLSurfacePtr loadImage(
@@ -208,8 +209,9 @@ static SDLSurfacePtr loadImage(
 		return SDLSurfacePtr();
 	}
 	bool want32bpp = true; // scaleImage32 needs 32bpp
-	SDLSurfacePtr picture(PNG::load(filename, want32bpp));
-	return convertToDisplayFormat(scaleImage32(picture, width, height));
+	return convertToDisplayFormat(
+		scaleImage32(PNG::load(filename, want32bpp),
+		             width, height));
 }
 
 // Helper functions to draw a gradient
@@ -567,14 +569,14 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 			// For 16bpp with alpha channel, also create a 32bpp
 			// image surface. See also comments in initSolid().
 		}
-		image = tmp32;
+		image = std::move(tmp32);
 	} else {
 		image.reset(SDL_DisplayFormat(tmp32.get()));
 	}
 }
 
 SDLImage::SDLImage(SDLSurfacePtr image_)
-	: image(image_)
+	: image(std::move(image_))
 	, a(-1), flipX(false), flipY(false)
 {
 }
