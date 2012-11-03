@@ -349,7 +349,14 @@ MSXMotherBoard::Impl::Impl(
 	, active(false)
 	, fastForwarding(false)
 {
+#if !defined(__GNUC__) || \
+    ((__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__) >= 472)
 	self.pimpl.reset(this);
+#else
+	// see comment in .hh file
+	self.pimpl2.reset(this);
+	self.pimpl = self.pimpl2.get();
+#endif
 
 	slotManager.reset(new CartridgeSlotManager(self));
 	reverseManager.reset(new ReverseManager(self));
