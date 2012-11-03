@@ -28,7 +28,7 @@ template<        class T, class F> struct if_<true, T, F> : T {};
 
 template<int I> struct int_ { static const int value = I; };
 template<unsigned A, unsigned R = 0> struct log2
-	: if_<A == 0, int_<R>, log2<A / 2, R + 1> > {};
+	: if_<A == 0, int_<R>, log2<A / 2, R + 1>> {};
 /** \endcond */
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
@@ -414,7 +414,7 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 
 template<unsigned DIVISOR, unsigned N, typename RM> struct DBCHelper3
 	: if_<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
-	                  , DBCAlgo3<DIVISOR, N> > {};
+	                  , DBCAlgo3<DIVISOR, N>> {};
 
 template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 {
@@ -437,7 +437,7 @@ template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 template<unsigned DIVISOR, unsigned SHIFT> struct DBCHelper1
 	: if_<DIVISOR == 1, DBCAlgo1<SHIFT>,
 	                    if_<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
-	                                   , DBCHelper1<DIVISOR / 2, SHIFT + 1> > > {};
+	                                   , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
 
 } // namespace DivModByConstPrivate
 

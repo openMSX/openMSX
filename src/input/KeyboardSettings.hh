@@ -30,10 +30,10 @@ public:
 	BooleanSetting& getAutoToggleCodeKanaLock() const;
 
 private:
-	std::unique_ptr<EnumSetting<Keys::KeyCode> > deadkeyHostKey[3];
-	std::unique_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
-	std::unique_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
-	std::unique_ptr<EnumSetting<MappingMode> > mappingMode;
+	std::unique_ptr<EnumSetting<Keys::KeyCode>> deadkeyHostKey[3];
+	std::unique_ptr<EnumSetting<Keys::KeyCode>> codeKanaHostKey;
+	std::unique_ptr<EnumSetting<KpEnterMode>> kpEnterMode;
+	std::unique_ptr<EnumSetting<MappingMode>> mappingMode;
 	std::unique_ptr<BooleanSetting> alwaysEnableKeypad;
 	std::unique_ptr<BooleanSetting> traceKeyPresses;
 	std::unique_ptr<BooleanSetting> autoToggleCodeKanaLock;

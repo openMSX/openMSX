@@ -52,7 +52,7 @@ private:
 	std::unique_ptr<BooleanSetting> pauseOnLostFocusSetting;
 	std::unique_ptr<StringSetting>  umrCallBackSetting;
 	std::unique_ptr<StringSetting>  invalidPsgDirectionsSetting;
-	std::unique_ptr<EnumSetting<ResampledSoundDevice::ResampleType> > resampleSetting;
+	std::unique_ptr<EnumSetting<ResampledSoundDevice::ResampleType>> resampleSetting;
 	std::unique_ptr<ThrottleManager> throttleManager;
 };
 

@@ -32,20 +32,20 @@ template<typename T> struct serialize_as_stl_collection : is_true
 	}
 };
 
-template<typename T> struct serialize_as_collection<std::list<T> >
-	: serialize_as_stl_collection<std::list<T> > {};
+template<typename T> struct serialize_as_collection<std::list<T>>
+	: serialize_as_stl_collection<std::list<T>> {};
 
-template<typename T> struct serialize_as_collection<std::set<T> >
-	: serialize_as_stl_collection<std::set<T> > {};
+template<typename T> struct serialize_as_collection<std::set<T>>
+	: serialize_as_stl_collection<std::set<T>> {};
 
-template<typename T> struct serialize_as_collection<std::deque<T> >
-	: serialize_as_stl_collection<std::deque<T> > {};
+template<typename T> struct serialize_as_collection<std::deque<T>>
+	: serialize_as_stl_collection<std::deque<T>> {};
 
-template<typename T1, typename T2> struct serialize_as_collection<std::map<T1, T2> >
-	: serialize_as_stl_collection<std::map<T1, T2> > {};
+template<typename T1, typename T2> struct serialize_as_collection<std::map<T1, T2>>
+	: serialize_as_stl_collection<std::map<T1, T2>> {};
 
-template<typename T> struct serialize_as_collection<std::vector<T> >
-	: serialize_as_stl_collection<std::vector<T> >
+template<typename T> struct serialize_as_collection<std::vector<T>>
+	: serialize_as_stl_collection<std::vector<T>>
 {
 	// Override load-part from base class.
 	// Don't load vectors in-place, even though it's technically possible
@@ -53,7 +53,7 @@ template<typename T> struct serialize_as_collection<std::vector<T> >
 	// size at all intermediate steps. This may be important in case an
 	// exception occurs during loading.
 	static const bool loadInPlace = false;
-	typedef typename std::back_insert_iterator<std::vector<T> >
+	typedef typename std::back_insert_iterator<std::vector<T>>
 		output_iterator;
 	static void prepare(std::vector<T>& v, int n) {
 		v.clear(); v.reserve(n);

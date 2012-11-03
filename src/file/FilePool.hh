@@ -64,7 +64,7 @@ private:
 	// something like boost::multi_index would be both faster and more
 	// compact in memory.
 	//   <sha1sum, <timestamp, filename>>
-	typedef std::multimap<Sha1Sum, std::pair<time_t, std::string> > Pool;
+	typedef std::multimap<Sha1Sum, std::pair<time_t, std::string>> Pool;
 	//   <filename, Pool::iterator>
 	typedef std::map<std::string, Pool::iterator> ReversePool;
 

@@ -52,7 +52,7 @@ private:
 };
 
 
-template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
+template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T>>
 {
 public:
 	EnumSetting(CommandController& commandController, string_ref name,
@@ -135,7 +135,7 @@ EnumSetting<T>::EnumSetting(
 		string_ref description, T initialValue,
 		const typename EnumSettingPolicy<T>::Map& map_,
 		Setting::SaveSetting save)
-	: SettingImpl<EnumSettingPolicy<T> >(
+	: SettingImpl<EnumSettingPolicy<T>>(
 		commandController, name, description, initialValue, save, map_)
 {
 }

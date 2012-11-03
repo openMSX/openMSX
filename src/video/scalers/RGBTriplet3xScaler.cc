@@ -174,7 +174,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_2on3<Pixel>> op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -184,7 +184,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_2on3<Pixel>> op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -194,7 +194,7 @@ void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel> > op;
+	PolyScale<Pixel, Scale_1on1<Pixel>> op;
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -204,7 +204,7 @@ void RGBTriplet3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel> > op;
+	PolyScale<Pixel, Scale_1on1<Pixel>> op;
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -214,7 +214,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_4on3<Pixel>> op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -224,7 +224,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_4on3<Pixel>> op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -234,7 +234,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_2on1<Pixel>> op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -244,7 +244,7 @@ void RGBTriplet3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on1<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_2on1<Pixel>> op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -254,7 +254,7 @@ void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_8on3<Pixel>> op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -264,7 +264,7 @@ void RGBTriplet3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_8on3<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_8on3<Pixel>> op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -274,7 +274,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_4on1<Pixel>> op(pixelOps);
 	doScale1(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }
@@ -284,7 +284,7 @@ void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on1<Pixel> > op(pixelOps);
+	PolyScale<Pixel, Scale_4on1<Pixel>> op(pixelOps);
 	doScale2(src, srcStartY, srcEndY, srcWidth,
 	         dst, dstStartY, dstEndY, op);
 }

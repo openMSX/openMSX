@@ -32,7 +32,7 @@ private:
 	std::unique_ptr<Texture> edgeTexture;
 	std::unique_ptr<Texture> offsetTexture[3];
 	std::unique_ptr<Texture> weightTexture[3];
-	std::unique_ptr<PixelBuffer<unsigned short> > edgeBuffer;
+	std::unique_ptr<PixelBuffer<unsigned short>> edgeBuffer;
 };
 
 } // namespace openmsx

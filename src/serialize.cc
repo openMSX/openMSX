@@ -172,11 +172,11 @@ void MemOutputArchive::save(const std::string& s)
 	put(s.data(), size);
 }
 
-shared_ptr<MemBuffer<byte> > MemOutputArchive::releaseBuffer()
+shared_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
 {
 	unsigned size;
 	byte* data = buffer.release(size);
-	return shared_ptr<MemBuffer<byte> >(new MemBuffer<byte>(data, size));
+	return shared_ptr<MemBuffer<byte>>(new MemBuffer<byte>(data, size));
 }
 
 ////

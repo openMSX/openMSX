@@ -30,7 +30,7 @@ static inline bool isAlias(RomType type)
 
 static bool isInit = false;
 typedef map<string_ref, RomType, StringOp::caseless> RomTypeMap;
-typedef map<RomType, pair<string_ref, unsigned> > RomTypeInfoMap; // description blocksize
+typedef map<RomType, pair<string_ref, unsigned>> RomTypeInfoMap; // description blocksize
 static RomTypeMap romTypeMap;
 static RomTypeInfoMap romTypeInfoMap;
 

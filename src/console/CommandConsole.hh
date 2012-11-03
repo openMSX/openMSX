@@ -61,7 +61,7 @@ public:
 
 private:
 	std::string line;
-	std::vector<std::pair<unsigned, string_ref::size_type> > chunks;
+	std::vector<std::pair<unsigned, string_ref::size_type>> chunks;
 };
 
 

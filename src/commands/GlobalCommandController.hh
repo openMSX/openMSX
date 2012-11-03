@@ -93,7 +93,7 @@ private:
 
 	void tabCompletion(std::vector<std::string>& tokens);
 
-	typedef std::vector<std::pair<ProxySetting*, unsigned> > ProxySettings;
+	typedef std::vector<std::pair<ProxySetting*, unsigned>> ProxySettings;
 	ProxySettings::iterator findProxySetting(const std::string& name);
 
 	typedef StringMap<Command*> CommandMap;

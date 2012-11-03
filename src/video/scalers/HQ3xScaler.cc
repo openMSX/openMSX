@@ -105,7 +105,7 @@ void HQ3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on3<Pixel> > postScale(pixelOps);
+	PolyScale<Pixel, Scale_2on3<Pixel>> postScale(pixelOps);
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
@@ -117,7 +117,7 @@ void HQ3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel> > postScale;
+	PolyScale<Pixel, Scale_1on1<Pixel>> postScale;
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
@@ -129,7 +129,7 @@ void HQ3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on3<Pixel> > postScale(pixelOps);
+	PolyScale<Pixel, Scale_4on3<Pixel>> postScale(pixelOps);
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
@@ -141,7 +141,7 @@ void HQ3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_2on1<Pixel> > postScale(pixelOps);
+	PolyScale<Pixel, Scale_2on1<Pixel>> postScale(pixelOps);
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
@@ -153,7 +153,7 @@ void HQ3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_8on3<Pixel> > postScale(pixelOps);
+	PolyScale<Pixel, Scale_8on3<Pixel>> postScale(pixelOps);
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,
@@ -165,7 +165,7 @@ void HQ3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_4on1<Pixel> > postScale(pixelOps);
+	PolyScale<Pixel, Scale_4on1<Pixel>> postScale(pixelOps);
 	EdgeHQ edgeOp = createEdgeHQ(pixelOps);
 	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), edgeOp, postScale,
 	                  src, srcStartY, srcEndY, srcWidth,

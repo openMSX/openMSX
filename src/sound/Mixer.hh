@@ -68,7 +68,7 @@ private:
 	const std::unique_ptr<IntegerSetting> frequencySetting;
 	const std::unique_ptr<IntegerSetting> samplesSetting;
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX, SND_LIBAO };
-	std::unique_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
+	std::unique_ptr<EnumSetting<SoundDriverType>> soundDriverSetting;
 
 	int muteCount;
 };

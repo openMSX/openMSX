@@ -405,7 +405,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		output.lock();
 		double horStretch = renderSettings.getHorizontalStretch().getValue();
 		unsigned inWidth = unsigned(horStretch + 0.5);
-		std::unique_ptr<ScalerOutput<Pixel> > dst(
+		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(
 				output, pixelOps, inWidth));
 		currScaler->scaleImage(

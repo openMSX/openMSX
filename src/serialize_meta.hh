@@ -124,7 +124,7 @@ template<typename Base, typename Derived> struct MapConstructorArguments
 	: if_<is_same_type<Tuple<>,
 	                   typename PolymorphicConstructorArgs<Derived>::type>,
 	      MapConstrArgsEmpty<Base>,
-	      MapConstrArgsCopy<Base, Derived> > {};
+	      MapConstrArgsCopy<Base, Derived>> {};
 
 /** Stores the name of a base class.
  * This name is used as tag-name in XML archives.

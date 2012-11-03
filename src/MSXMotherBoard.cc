@@ -159,7 +159,7 @@ private:
 
 	typedef StringMap<MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;
-	StringMap<set<string> > userNames;
+	StringMap<set<string>> userNames;
 
 	unique_ptr<MSXMapperIO> mapperIO;
 	unsigned mapperIOCounter;

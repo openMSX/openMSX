@@ -269,7 +269,7 @@ private:
 	void registerPorts();
 	void unregisterPorts();
 
-	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
+	typedef std::vector<std::pair<unsigned, unsigned>> MemRegions;
 	MemRegions memRegions;
 	std::vector<byte> inPorts;
 	std::vector<byte> outPorts;

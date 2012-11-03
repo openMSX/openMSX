@@ -530,7 +530,7 @@ private:
 	IdMap idMap;
 
 	typedef std::map<void*, void*> SharedPtrMap;
-	//typedef std::map<void*, std::tr1::shared_ptr<void> > SharedPtrMap;
+	//typedef std::map<void*, std::tr1::shared_ptr<void>> SharedPtrMap;
 	SharedPtrMap sharedPtrMap;
 };
 
@@ -708,7 +708,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	shared_ptr<MemBuffer<byte> > releaseBuffer();
+	shared_ptr<MemBuffer<byte>> releaseBuffer();
 
 private:
 	void put(const void* data, unsigned len)
@@ -892,7 +892,7 @@ private:
 	void init(const XMLElement* e);
 
 	std::unique_ptr<XMLElement> elem;
-	typedef std::vector<std::pair<const XMLElement*, unsigned> > Elems;
+	typedef std::vector<std::pair<const XMLElement*, unsigned>> Elems;
 	Elems elems;
 };
 

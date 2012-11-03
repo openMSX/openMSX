@@ -73,7 +73,7 @@ private:
 
 	Reactor& reactor;
 
-	typedef std::multimap<Priority, EventListener*, std::greater<Priority> >
+	typedef std::multimap<Priority, EventListener*, std::greater<Priority>>
 		PriorityMap; // sort from big to small
 	typedef std::map<EventType, PriorityMap> TypeMap;
 	TypeMap listeners;

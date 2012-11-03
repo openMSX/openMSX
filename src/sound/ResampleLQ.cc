@@ -17,11 +17,11 @@ static int* bufferInt = NULL; // pointer to aligned sub-buffer
 ////
 
 template<unsigned CHANNELS>
-std::unique_ptr<ResampleLQ<CHANNELS> > ResampleLQ<CHANNELS>::create(
+std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 		ResampledSoundDevice& input,
 		const DynamicClock& hostClock, unsigned emuSampleRate)
 {
-	std::unique_ptr<ResampleLQ<CHANNELS> > result;
+	std::unique_ptr<ResampleLQ<CHANNELS>> result;
 	unsigned hostSampleRate = hostClock.getFreq();
 	if (emuSampleRate < hostSampleRate) {
 		result.reset(new ResampleLQUp  <CHANNELS>(input, hostClock, emuSampleRate));

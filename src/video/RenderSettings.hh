@@ -169,8 +169,8 @@ private:
 
 	void parseColorMatrix(const std::string& value);
 
-	std::unique_ptr<EnumSetting<Accuracy> > accuracySetting;
-	std::unique_ptr<EnumSetting<bool> > cmdTimingSetting;
+	std::unique_ptr<EnumSetting<Accuracy>> accuracySetting;
+	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;
 	std::unique_ptr<BooleanSetting> deinterlaceSetting;
 	std::unique_ptr<BooleanSetting> fullScreenSetting;
 	std::unique_ptr<FloatSetting> gammaSetting;
@@ -186,11 +186,11 @@ private:
 	std::unique_ptr<IntegerSetting> maxFrameSkipSetting;
 	std::unique_ptr<IntegerSetting> minFrameSkipSetting;
 	std::unique_ptr<RendererFactory::RendererSetting> rendererSetting;
-	std::unique_ptr<EnumSetting<ScaleAlgorithm> > scaleAlgorithmSetting;
+	std::unique_ptr<EnumSetting<ScaleAlgorithm>> scaleAlgorithmSetting;
 	std::unique_ptr<IntegerSetting> scaleFactorSetting;
 	std::unique_ptr<IntegerSetting> scanlineAlphaSetting;
 	std::unique_ptr<VideoSourceSetting> videoSourceSetting;
-	std::unique_ptr<EnumSetting<DisplayDeform> > displayDeformSetting;
+	std::unique_ptr<EnumSetting<DisplayDeform>> displayDeformSetting;
 	std::unique_ptr<FloatSetting> horizontalStretchSetting;
 	std::unique_ptr<FloatSetting> pointerHideDelaySetting;
 

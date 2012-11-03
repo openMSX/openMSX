@@ -21,8 +21,8 @@ public:
 
 private:
 	Reactor& reactor;
-	std::unique_ptr<EnumSetting<DirAsDSK::BootSectorType> > bootSectorSetting;
-	std::unique_ptr<EnumSetting<DirAsDSK::SyncMode> > syncDirAsDSKSetting;
+	std::unique_ptr<EnumSetting<DirAsDSK::BootSectorType>> bootSectorSetting;
+	std::unique_ptr<EnumSetting<DirAsDSK::SyncMode>> syncDirAsDSKSetting;
 };
 
 } // namespace openmsx

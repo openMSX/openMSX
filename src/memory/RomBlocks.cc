@@ -16,7 +16,7 @@ template<bool C, class T, class F> struct if_log2_             : F {};
 template<        class T, class F> struct if_log2_<true, T, F> : T {};
 template<int I> struct int_ { static const int value = I; };
 template<unsigned A, unsigned R = 0> struct log2
-	: if_log2_<A == 1, int_<R>, log2<A / 2, R + 1> > {};
+	: if_log2_<A == 1, int_<R>, log2<A / 2, R + 1>> {};
 
 template <unsigned BANK_SIZE>
 RomBlocks<BANK_SIZE>::RomBlocks(

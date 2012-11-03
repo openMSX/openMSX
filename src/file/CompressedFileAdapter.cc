@@ -11,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-typedef StringMap<shared_ptr<CompressedFileAdapter::Decompressed> > DecompressCache;
+typedef StringMap<shared_ptr<CompressedFileAdapter::Decompressed>> DecompressCache;
 static DecompressCache decompressCache;
 
 

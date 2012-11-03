@@ -153,8 +153,8 @@ private:
 	MSXMotherBoard& motherboard;
 	const std::unique_ptr<BooleanSetting> traceSetting;
 	const std::unique_ptr<TclCallback> diHaltCallback;
-	const std::unique_ptr<CPUCore<Z80TYPE> > z80;
-	const std::unique_ptr<CPUCore<R800TYPE> > r800;
+	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
+	const std::unique_ptr<CPUCore<R800TYPE>> r800;
 
 	CPU* activeCPU;
 	CPU* newCPU;

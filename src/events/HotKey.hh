@@ -45,8 +45,8 @@ private:
 		std::string command;
 		bool repeat;
 	};
-	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr> > BindMap;
-	typedef std::set<EventPtr,             deref_less<EventPtr> > KeySet;
+	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr>> BindMap;
+	typedef std::set<EventPtr,             deref_less<EventPtr>> KeySet;
 
 	void initDefaultBindings();
 	void bind         (const EventPtr& event, const HotKeyInfo& info);

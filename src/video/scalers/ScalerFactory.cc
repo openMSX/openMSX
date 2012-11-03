@@ -25,38 +25,38 @@ using std::unique_ptr;
 namespace openmsx {
 
 template <class Pixel>
-unique_ptr<Scaler<Pixel> > ScalerFactory<Pixel>::createScaler(
+unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
-		return unique_ptr<Scaler<Pixel> >(new Scaler1<Pixel>(pixelOps));
+		return unique_ptr<Scaler<Pixel>>(new Scaler1<Pixel>(pixelOps));
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new SaI2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new Scale2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new HQ2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new HQ2xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new Simple2xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_MLAA:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new MLAAScaler<Pixel>(640, pixelOps));
 		default:
 			UNREACHABLE;
@@ -67,26 +67,26 @@ unique_ptr<Scaler<Pixel> > ScalerFactory<Pixel>::createScaler(
 	case 4: // fallback
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new Simple3xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_SAI:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new SaI3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new Scale3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new HQ3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new HQ3xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
 		case RenderSettings::SCALER_TV: // fallback
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings));
 		case RenderSettings::SCALER_MLAA:
-			return unique_ptr<Scaler<Pixel> >(
+			return unique_ptr<Scaler<Pixel>>(
 				new MLAAScaler<Pixel>(960, pixelOps));
 		default:
 			UNREACHABLE;
@@ -95,7 +95,7 @@ unique_ptr<Scaler<Pixel> > ScalerFactory<Pixel>::createScaler(
 	default:
 		UNREACHABLE;
 	}
-	return unique_ptr<Scaler<Pixel> >(); // avoid warning
+	return unique_ptr<Scaler<Pixel>>(); // avoid warning
 }
 
 // Force template instantiation.

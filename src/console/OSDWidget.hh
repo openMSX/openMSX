@@ -77,7 +77,7 @@ private:
 	friend class OSDCommand;
 
 	// note: must be shared_ptr (not unique_ptr), see OSDWidget::paintSDLRecursive()
-	typedef std::vector<shared_ptr<OSDWidget> > SubWidgets;
+	typedef std::vector<shared_ptr<OSDWidget>> SubWidgets;
 	typedef StringMap<OSDWidget*> SubWidgetsMap;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.

@@ -16,7 +16,7 @@ class Filename;
 class IPSPatch : public PatchInterface, private noncopyable
 {
 public:
-	typedef std::map<unsigned, std::vector<byte> > PatchMap;
+	typedef std::map<unsigned, std::vector<byte>> PatchMap;
 
 	IPSPatch(const Filename& filename,
 	         std::unique_ptr<const PatchInterface> parent);

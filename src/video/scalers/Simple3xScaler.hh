@@ -84,7 +84,7 @@ private:
 	Scanline<Pixel> scanline;
 
 	// in 16bpp calculation of LUTs can be expensive, so keep as member
-	std::unique_ptr<Blur_1on3<Pixel> > blur_1on3;
+	std::unique_ptr<Blur_1on3<Pixel>> blur_1on3;
 
 	const RenderSettings& settings;
 };

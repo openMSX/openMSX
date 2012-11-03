@@ -78,7 +78,7 @@ private:
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
 	const std::unique_ptr<OSDSettingChecker> settingChecker;
-	std::unique_ptr<EnumSetting<Placement> > consolePlacementSetting;
+	std::unique_ptr<EnumSetting<Placement>> consolePlacementSetting;
 	std::unique_ptr<IntegerSetting> fontSizeSetting;
 	std::unique_ptr<IntegerSetting> consoleRowsSetting;
 	std::unique_ptr<IntegerSetting> consoleColumnsSetting;

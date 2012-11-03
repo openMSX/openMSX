@@ -64,7 +64,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	std::vector<bool> completely_initialized_cacheline;
-	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;
+	std::vector<std::bitset<CacheLine::SIZE>> uninitialized;
 	const std::unique_ptr<Ram> ram;
 	MSXCPU& msxcpu;
 	std::unique_ptr<TclCallback> umrCallback;

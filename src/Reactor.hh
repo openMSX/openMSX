@@ -142,7 +142,7 @@ private:
 	std::unique_ptr<DiskChanger> virtualDrive;
 	std::unique_ptr<FilePool> filePool;
 
-	std::unique_ptr<EnumSetting<int> > machineSetting;
+	std::unique_ptr<EnumSetting<int>> machineSetting;
 	std::unique_ptr<UserSettings> userSettings;
 	std::unique_ptr<RomDatabase> softwareDatabase;
 

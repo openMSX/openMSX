@@ -44,7 +44,7 @@ private:
 
 	/** The currently active scaler.
 	  */
-	std::unique_ptr<Scaler<Pixel> > currScaler;
+	std::unique_ptr<Scaler<Pixel>> currScaler;
 
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */

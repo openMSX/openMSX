@@ -81,7 +81,7 @@ public:
 private:
 	// Schedulable
 	virtual void executeUntil(EmuTime::param time, int userData);
-	std::deque<shared_ptr<const Event> > eventQueue;
+	std::deque<shared_ptr<const Event>> eventQueue;
 	Keyboard& keyboard;
 };
 
@@ -1391,7 +1391,7 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 
-	// serialization of deque<shared_ptr<const Event> > is not directly
+	// serialization of deque<shared_ptr<const Event>> is not directly
 	// supported by the serialization framework (main problem is the
 	// constness, collections of shared_ptr to polymorhpic objects are
 	// not a problem). Worked around this by serializing the events in
@@ -1400,7 +1400,7 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	vector<string> eventStrs;
 	if (!ar.isLoader()) {
-		for (std::deque<shared_ptr<const Event> >::const_iterator it =
+		for (std::deque<shared_ptr<const Event>>::const_iterator it =
 		       eventQueue.begin(); it != eventQueue.end(); ++it) {
 			eventStrs.push_back((*it)->toString());
 		}

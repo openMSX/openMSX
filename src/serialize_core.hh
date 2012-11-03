@@ -33,7 +33,7 @@ void serialize(Archive& ar, std::pair<T1, T2>& p, unsigned /*version*/)
 	ar.serialize("first",  p.first);
 	ar.serialize("second", p.second);
 }
-template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2> >
+template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2>>
 {
 	static const unsigned value = 0;
 };
@@ -155,7 +155,7 @@ template<typename T> struct serialize_as_pointer<T*>
 		t = p;
 	}
 };
-template<typename T> struct serialize_as_pointer<std::unique_ptr<T> >
+template<typename T> struct serialize_as_pointer<std::unique_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
 	static inline T* getPointer(const std::unique_ptr<T>& t) { return t.get(); }
@@ -164,7 +164,7 @@ template<typename T> struct serialize_as_pointer<std::unique_ptr<T> >
 		t.reset(p);
 	}
 };
-template<typename T> struct serialize_as_pointer<shared_ptr<T> >
+template<typename T> struct serialize_as_pointer<shared_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
 	static T* getPointer(const shared_ptr<T>& t) { return t.get(); }
@@ -427,7 +427,7 @@ template<typename T> struct Saver
 	      PointerSaver<T>,
 	  if_<serialize_as_collection<T>,
 	      CollectionSaver<T>,
-	      ClassSaver<T> > > > > {};
+	      ClassSaver<T>>>>> {};
 
 ////
 
@@ -560,7 +560,7 @@ template<typename T> struct PointerLoader2
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
 	: if_<is_polymorphic<T>, PolymorphicPointerLoader<T>,
-	                         NonPolymorphicPointerLoader<T> > {};
+	                         NonPolymorphicPointerLoader<T>> {};
 
 template<typename TP> struct PointerLoader
 {
@@ -679,7 +679,7 @@ template<typename T> struct Loader
 	      PointerLoader<T>,
 	  if_<serialize_as_collection<T>,
 	      CollectionLoader<T>,
-	      ClassLoader<T> > > > > {};
+	      ClassLoader<T>>>>> {};
 
 } // namespace openmsx
 

@@ -115,15 +115,15 @@ private:
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
-	const std::unique_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
+	const std::unique_ptr<V9990BitmapConverter<Pixel>> bitmapConverter;
 
 	/** P1 Converter
 	  */
-	const std::unique_ptr<V9990P1Converter<Pixel> > p1Converter;
+	const std::unique_ptr<V9990P1Converter<Pixel>> p1Converter;
 
 	/** P2 Converter
 	  */
-	const std::unique_ptr<V9990P2Converter<Pixel> > p2Converter;
+	const std::unique_ptr<V9990P2Converter<Pixel>> p2Converter;
 
 	/** Fill the palettes.
 	  */

@@ -45,7 +45,7 @@ private:
 
 	MSXCliComm& msxCliComm;
 	const std::unique_ptr<AlarmEvent> alarm;
-	std::unique_ptr<ReadOnlySetting<BooleanSetting> > ledStatus[NUM_LEDS];
+	std::unique_ptr<ReadOnlySetting<BooleanSetting>> ledStatus[NUM_LEDS];
 	unsigned long long lastTime;
 	bool ledValue[NUM_LEDS];
 };

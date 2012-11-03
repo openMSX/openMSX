@@ -599,10 +599,10 @@ static string formatHelptext(string_ref helpText,
 	return outText;
 }
 
-static void printItemMap(const StringMap<set<string> >& itemMap)
+static void printItemMap(const StringMap<set<string>>& itemMap)
 {
 	set<string> printSet;
-	for (StringMap<set<string> >::const_iterator it = itemMap.begin();
+	for (StringMap<set<string>>::const_iterator it = itemMap.begin();
 	     it != itemMap.end(); ++it) {
 		printSet.insert(formatSet(it->second, 15) + ' ' +
 		                formatHelptext(it->first(), 50, 20));
@@ -630,7 +630,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
 
-	StringMap<set<string> > optionMap;
+	StringMap<set<string>> optionMap;
 	for (map<string, CommandLineParser::OptionData>::const_iterator it =
 	        parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
 		string_ref helpText = it->second.option->optionHelp();
@@ -643,7 +643,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
-	StringMap<set<string> > extMap;
+	StringMap<set<string>> extMap;
 	for (CommandLineParser::FileTypeMap::const_iterator it =
 	         parser.fileTypeMap.begin();
 	     it != parser.fileTypeMap.end(); ++it) {

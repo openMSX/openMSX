@@ -51,7 +51,7 @@ private:
 		EmuTime time;
 		// TODO use unique_ptr in the future (c++0x), or hold
 		//      MemBuffer by value and make it moveable
-		shared_ptr<MemBuffer<byte> > savestate;
+		shared_ptr<MemBuffer<byte>> savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should
@@ -59,7 +59,7 @@ private:
 		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;
-	typedef std::vector<shared_ptr<StateChange> > Events;
+	typedef std::vector<shared_ptr<StateChange>> Events;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
