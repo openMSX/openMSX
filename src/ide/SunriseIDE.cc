@@ -21,7 +21,7 @@ SunriseIDE::SunriseIDE(const DeviceConfig& config)
 		DeviceConfig(config, config.findChild("slave")));
 
 	// make valgrind happy
-	internalBank = 0;
+	internalBank = nullptr;
 	ideRegsEnabled = false;
 
 	powerUp(getCurrentTime());

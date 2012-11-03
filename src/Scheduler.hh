@@ -20,7 +20,7 @@ public:
 			     Schedulable* dev, int usrdat)
 		: timeStamp(time), device(dev), userData(usrdat) {}
 	SynchronizationPoint()
-		: timeStamp(EmuTime::zero), device(0), userData(0) {}
+		: timeStamp(EmuTime::zero), device(nullptr), userData(0) {}
 	EmuTime::param getTime() const { return timeStamp; }
 	Schedulable* getDevice() const { return device; }
 	int getUserData() const { return userData; }

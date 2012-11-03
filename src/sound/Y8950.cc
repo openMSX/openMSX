@@ -958,7 +958,7 @@ void Y8950::Impl::generateChannels(int** bufs, unsigned num)
 		// during mute pm_phase, am_phase, noiseA_phase, noiseB_phase
 		// and noise_seed aren't updated, probably ok
 		for (int i = 0; i < 9 + 5 + 1; ++i) {
-			bufs[i] = 0;
+			bufs[i] = nullptr;
 		}
 		return;
 	}

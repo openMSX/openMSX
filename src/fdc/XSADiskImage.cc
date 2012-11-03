@@ -242,8 +242,8 @@ void XSAExtractor::inithufinfo()
 	cpdist[TBLSIZE] = offs;
 
 	for (int i = 0; i != TBLSIZE; ++i) {
-		tblsizes[i] = 0;	// reset the table counters
-		huftbl[i].child1 = 0;	// mark the leave nodes
+		tblsizes[i] = 0;            // reset the table counters
+		huftbl[i].child1 = nullptr; // mark the leave nodes
 	}
 	mkhuftbl();	// make the huffman table
 }

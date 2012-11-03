@@ -71,7 +71,7 @@ bool FindSchedulable::operator()(const SynchronizationPoint& sp) const
 
 Scheduler::Scheduler()
 	: scheduleTime(EmuTime::zero)
-	, cpu(0)
+	, cpu(nullptr)
 	, scheduleInProgress(false)
 {
 }

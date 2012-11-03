@@ -139,7 +139,7 @@ MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 //TODO watchpoints
 MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
-static ReadOnlySetting<BooleanSetting>* breakedSetting = 0;
+static ReadOnlySetting<BooleanSetting>* breakedSetting = nullptr;
 static unsigned breakedSettingCount = 0;
 
 
@@ -222,7 +222,7 @@ MSXCPUInterface::~MSXCPUInterface()
 	if (--breakedSettingCount == 0) {
 		assert(breakedSetting);
 		delete breakedSetting;
-		breakedSetting = 0;
+		breakedSetting = nullptr;
 	}
 
 	removeAllWatchPoints();

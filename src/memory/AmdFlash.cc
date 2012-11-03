@@ -47,7 +47,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 		if (load) {
 			ram.reset(new SRAM(rom.getName() + "_flash",
 			                   "flash rom", writableSize, config,
-			                   0, &loaded));
+			                   nullptr, &loaded));
 		} else {
 			// Hack for 'Matra INK', flash chip is wired-up so that
 			// writes are never visible to the MSX (but the flash

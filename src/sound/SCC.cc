@@ -546,7 +546,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 			pos[i] = pos2;
 #endif
 		} else {
-			bufs[i] = 0; // channel muted
+			bufs[i] = nullptr; // channel muted
 			// Update phase counter.
 			unsigned newCount = count[i] + num * incr[i];
 			count[i] = newCount % (period[i] + 1);

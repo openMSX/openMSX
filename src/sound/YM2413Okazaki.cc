@@ -834,37 +834,37 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
-			bufs[ch] = 0;
+			bufs[ch] = nullptr;
 		}
 	}
 
 	if (isRhythm()) {
-		bufs[6] = 0;
-		bufs[7] = 0;
-		bufs[8] = 0;
+		bufs[6] = nullptr;
+		bufs[7] = nullptr;
+		bufs[8] = nullptr;
 		for (unsigned ch = 6; ch < 9; ++ch) {
 			if (channels[ch].car.isActive()) {
 				channelActiveBits |= 1 << ch;
 			} else {
-				bufs[ch + 3] = 0;
+				bufs[ch + 3] = nullptr;
 			}
 		}
 		if (channels[7].mod.isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
-			bufs[12] = 0;
+			bufs[12] = nullptr;
 		}
 		if (channels[8].mod.isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
-			bufs[13] = 0;
+			bufs[13] = nullptr;
 		}
 	} else {
-		bufs[ 9] = 0;
-		bufs[10] = 0;
-		bufs[11] = 0;
-		bufs[12] = 0;
-		bufs[13] = 0;
+		bufs[ 9] = nullptr;
+		bufs[10] = nullptr;
+		bufs[11] = nullptr;
+		bufs[12] = nullptr;
+		bufs[13] = nullptr;
 	}
 
 	if (channelActiveBits) {

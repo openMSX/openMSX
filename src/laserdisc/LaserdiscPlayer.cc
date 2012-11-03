@@ -717,7 +717,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 {
 	if (playerState != PLAYER_PLAYING || seeking ||
 						(muteLeft && muteRight)) {
-		buffers[0] = 0;
+		buffers[0] = nullptr;
 		return;
 	}
 
@@ -728,7 +728,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 		EmuDuration duration = sampleClock.getTime() - start;
 		len = duration.getTicksAt(video->getSampleRate());
 		if (len >= num) {
-			buffers[0] = 0;
+			buffers[0] = nullptr;
 			return;
 		}
 
@@ -759,7 +759,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 
 		if (!audio) {
 			if (pos == 0) {
-				buffers[0] = 0;
+				buffers[0] = nullptr;
 				break;
 			} else for (/**/; pos < num; ++pos) {
 				buffers[0][pos * 2 + 0] = 0;

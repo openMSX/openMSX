@@ -49,7 +49,7 @@ public:
 	                               string_ref str);
 	virtual bool hasCommand(string_ref command) const;
 	virtual std::string executeCommand(const std::string& command,
-	                                   CliConnection* connection = 0);
+	                                   CliConnection* connection = nullptr);
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);

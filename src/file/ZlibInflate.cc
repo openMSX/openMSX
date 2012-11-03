@@ -11,9 +11,9 @@ namespace openmsx {
 
 ZlibInflate::ZlibInflate(const byte* input, unsigned inputLen)
 {
-	s.zalloc = 0;
-	s.zfree = 0;
-	s.opaque = 0;
+	s.zalloc = nullptr;
+	s.zfree  = nullptr;
+	s.opaque = nullptr;
 	s.next_in  = const_cast<byte*>(input);
 	s.avail_in = inputLen;
 	wasInit = false;

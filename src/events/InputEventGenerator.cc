@@ -294,7 +294,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	default:
-		event = 0;
+		event = nullptr;
 		break;
 	}
 

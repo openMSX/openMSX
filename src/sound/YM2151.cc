@@ -697,7 +697,7 @@ void YM2151::Impl::setConnect(YM2151Operator* om1, int cha, int v)
 		//    +----C1----+
 		// M1-+-MEM---M2-+-OUT
 		//    +----C2----+
-		om1->connect = 0; // special mark
+		om1->connect = nullptr; // special mark
 		oc1->connect = &chanout[cha];
 		om2->connect = &chanout[cha];
 		om1->mem_connect = &m2;
@@ -1646,7 +1646,7 @@ void YM2151::Impl::generateChannels(int** bufs, unsigned num)
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
 		for (int i = 0; i < 8; ++i) {
-			bufs[i] = 0;
+			bufs[i] = nullptr;
 		}
 		return;
 	}

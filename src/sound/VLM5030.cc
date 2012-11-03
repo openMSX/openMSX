@@ -306,7 +306,7 @@ int VLM5030::Impl::parseFrame()
 void VLM5030::Impl::generateChannels(int** bufs, unsigned length)
 {
 	if (phase == PH_IDLE) {
-		bufs[0] = 0;
+		bufs[0] = nullptr;
 		return;
 	}
 

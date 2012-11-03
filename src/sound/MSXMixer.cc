@@ -57,7 +57,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, prevTime(getCurrentTime(), 44100)
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
 	              msxCommandController_.getMachineInfoCommand(), *this))
-	, recorder(0)
+	, recorder(nullptr)
 	, synchronousCounter(0)
 {
 	hostSampleRate = 44100;

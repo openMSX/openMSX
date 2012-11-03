@@ -377,7 +377,7 @@ protected:
 
 private:
 	void advancePastEmptyBuckets() {
-		while ((*ptr == 0) || (*ptr == StringMapImpl::getTombstoneVal())) {
+		while ((*ptr == nullptr) || (*ptr == StringMapImpl::getTombstoneVal())) {
 			++ptr;
 		}
 	}

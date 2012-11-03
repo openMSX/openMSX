@@ -28,7 +28,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 	// child class is responsible for calling this second part.
 
 	SDL_PixelFormat format;
-	format.palette = 0;
+	format.palette = nullptr;
 	format.colorkey = 0;
 	format.alpha = 0;
 	if (frameBuffer == FB_16BPP) {
@@ -77,7 +77,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 	output.setSDLFormat(format);
 
 	if (frameBuffer == FB_NONE) {
-		output.setBufferPtr(0, 0); // direct access not allowed
+		output.setBufferPtr(nullptr, 0); // direct access not allowed
 	} else {
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned width  = output.getWidth();

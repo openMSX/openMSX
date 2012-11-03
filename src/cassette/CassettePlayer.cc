@@ -553,7 +553,7 @@ void CassettePlayer::unplugHelper(EmuTime::param time)
 void CassettePlayer::generateChannels(int** buffers, unsigned num)
 {
 	if ((getState() != PLAY) || !isRolling()) {
-		buffers[0] = 0;
+		buffers[0] = nullptr;
 		return;
 	}
 	// Note: fillBuffer() replaces the values in the buffer. It should add

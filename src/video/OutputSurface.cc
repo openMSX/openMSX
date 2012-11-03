@@ -7,7 +7,8 @@
 namespace openmsx {
 
 OutputSurface::OutputSurface()
-	: displaySurface(0), workSurface(0), xOffset(0), yOffset(0), locked(false)
+	: displaySurface(nullptr), workSurface(nullptr)
+	, xOffset(0), yOffset(0), locked(false)
 {
 }
 

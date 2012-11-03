@@ -104,7 +104,7 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	                        motherBoard.getStateChangeDistributor(),
 	                        motherBoard.getScheduler(),
 	                        motherBoard.getReactor().getGlobalCliComm(), *this))
-	, cpu(0)
+	, cpu(nullptr)
 {
 }
 

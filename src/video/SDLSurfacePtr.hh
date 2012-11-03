@@ -79,7 +79,7 @@ public:
 		free(buffer);
 	}
 
-	void reset(SDL_Surface* surface_ = 0)
+	void reset(SDL_Surface* surface_ = nullptr)
 	{
 		SDLSurfacePtr temp(surface_);
 		temp.swap(*this);

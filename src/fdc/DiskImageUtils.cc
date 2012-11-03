@@ -181,7 +181,7 @@ static void setBootSector(MSXBootSector& boot, unsigned nbSectors,
 	static bool init = false;
 	if (!init) {
 		init = true;
-		srand(unsigned(time(0)));
+		srand(unsigned(time(nullptr)));
 	}
 	byte* raw = reinterpret_cast<byte*>(&boot);
 	for (int i = 0x27; i < 0x2B; ++i) {

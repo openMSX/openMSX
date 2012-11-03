@@ -51,7 +51,7 @@ private:
 template<typename T> class shared_ptr
 {
 public:
-	explicit shared_ptr(T* p = 0)
+	explicit shared_ptr(T* p = nullptr)
 		: ptr(p), impl(new shared_ptr_impl<T>(p)) {}
 
 	shared_ptr(const shared_ptr<T>& other)
@@ -75,7 +75,7 @@ public:
 
 	shared_ptr& operator=(shared_ptr other) // note: pass by value
 		{ swap(other); return *this; }
-	void reset(T* t = 0)
+	void reset(T* t = nullptr)
 		{ shared_ptr<T>(t).swap(*this); }
 
 	T& operator* () const { assert(ptr); return *ptr; }

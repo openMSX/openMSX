@@ -605,7 +605,7 @@ YMF262Slot::YMF262Slot()
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
 	CON = eg_type = vib = false;
-	connect = 0;
+	connect = nullptr;
 	TL = TLL = volume = sl = 0;
 	state = EG_OFF;
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
@@ -1738,7 +1738,7 @@ void YMF262::Impl::generateChannels(int** bufs, unsigned num)
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
 		for (int i = 0; i < 18; ++i) {
-			bufs[i] = 0;
+			bufs[i] = nullptr;
 		}
 		return;
 	}

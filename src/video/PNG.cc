@@ -80,7 +80,7 @@ imported from SDL_image 1.2.10, file "IMG_png.c", function "IMG_LoadPNG_RW".
 
 struct PNGReadHandle {
 	PNGReadHandle()
-		: ptr(0), info(0)
+		: ptr(nullptr), info(nullptr)
 	{
 	}
 
@@ -278,7 +278,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 
 struct PNGWriteHandle {
 	PNGWriteHandle()
-		: ptr(0), info(0)
+		: ptr(nullptr), info(nullptr)
 	{
 	}
 
@@ -371,7 +371,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 void save(SDL_Surface* surface, const std::string& filename)
 {
 	SDL_PixelFormat frmt24;
-	frmt24.palette = 0;
+	frmt24.palette = nullptr;
 	frmt24.BitsPerPixel = 24;
 	frmt24.BytesPerPixel = 3;
 	frmt24.Rmask = OPENMSX_BIGENDIAN ? 0xFF0000 : 0x0000FF;

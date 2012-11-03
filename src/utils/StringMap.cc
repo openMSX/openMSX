@@ -59,7 +59,7 @@ unsigned StringMapImpl::lookupBucketFor(string_ref name)
 	int firstTombstone = -1;
 	while (true) {
 		StringMapEntryBase* bucketItem = theTable[bucketNo];
-		if (bucketItem == 0) {
+		if (bucketItem == nullptr) {
 			// Empty bucket, this means the key isn't in the table
 			// yet. If we found a tombstone earlier, then reuse
 			// that instead of using this empty bucket.
@@ -102,7 +102,7 @@ int StringMapImpl::findKey(string_ref key) const
 	unsigned probeAmt = 1;
 	while (true) {
 		StringMapEntryBase* bucketItem = theTable[bucketNo];
-		if (bucketItem == 0) {
+		if (bucketItem == nullptr) {
 			// Empty bucket, key isn't in the table yet.
 			return -1;
 		} else if (bucketItem == getTombstoneVal()) {
@@ -169,7 +169,7 @@ void StringMapImpl::rehashTable()
 		if (bucket && (bucket != getTombstoneVal())) {
 			unsigned fullHash = hashTable[i];
 			unsigned newBucket = fullHash & (newSize - 1);
-			if (newTableArray[newBucket] == 0) {
+			if (newTableArray[newBucket] == nullptr) {
 				// Fast case, bucket available.
 				newTableArray[newBucket] = bucket;
 				newHashArray [newBucket] = fullHash;

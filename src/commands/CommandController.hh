@@ -45,7 +45,7 @@ public:
 	 * Execute the given command
 	 */
 	virtual std::string executeCommand(const std::string& command,
-	                                   CliConnection* connection = 0) = 0;
+	                                   CliConnection* connection = nullptr) = 0;
 
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result) = 0;

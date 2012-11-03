@@ -50,7 +50,7 @@ public:
 	 * The method getConnector() can also be used, but this is more
 	 * descriptive.
 	 */
-	bool isPluggedIn() const { return getConnector() != 0; }
+	bool isPluggedIn() const { return getConnector() != nullptr; }
 
 protected:
 	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;

@@ -588,7 +588,7 @@ void YMF278::Impl::generateChannels(int** bufs, unsigned num)
 		// TODO update internal state, even if muted
 		// TODO also mute individual channels
 		for (int i = 0; i < 24; ++i) {
-			bufs[i] = 0;
+			bufs[i] = nullptr;
 		}
 		return;
 	}

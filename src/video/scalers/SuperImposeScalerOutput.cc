@@ -81,7 +81,7 @@ const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y)
 	} else if (width == 960) {
 		return superImpose.getLinePtr960_720<Pixel>(y);
 	} else {
-		UNREACHABLE; return 0;
+		UNREACHABLE; return nullptr;
 	}
 }
 

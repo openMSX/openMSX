@@ -721,7 +721,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		    (amplitude.followsEnvelope(chan) &&
 		     !envelope.isChanging() &&
 		     (envelope.getVolume() == 0))) {
-			bufs[chan] = 0;
+			bufs[chan] = nullptr;
 			tone[chan].advance(length);
 			chanEnable |= 0x09 << chan;
 		}

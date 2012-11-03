@@ -25,7 +25,7 @@ TclObject::TclObject(Tcl_Interp* interp_, string_ref value)
 }
 
 TclObject::TclObject(string_ref value)
-	: interp(0)
+	: interp(nullptr)
 {
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
@@ -49,7 +49,7 @@ TclObject::TclObject(const TclObject& object)
 }
 
 TclObject::TclObject()
-	: interp(0)
+	: interp(nullptr)
 {
 	init(Tcl_NewObj());
 }

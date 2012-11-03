@@ -310,7 +310,7 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	unsigned offset = x + width * y;
 #ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
-		return static_cast<T*>(0) + offset;
+		return static_cast<T*>(nullptr) + offset;
 	}
 #endif
 	return &allocated[offset];

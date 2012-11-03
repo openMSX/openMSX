@@ -177,7 +177,7 @@ SectorAccessibleDisk* NowindHost::getDisk() const
 {
 	byte num = cmdData[7]; // reg_a
 	if (num >= drives.size()) {
-		return 0;
+		return nullptr;
 	}
 	return drives[num]->getSectorAccessibleDisk();
 }

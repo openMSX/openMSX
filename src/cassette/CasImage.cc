@@ -78,7 +78,7 @@ void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 			           : 0;
 		}
 	} else {
-		bufs[0] = 0;
+		bufs[0] = nullptr;
 	}
 }
 

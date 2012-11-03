@@ -84,7 +84,7 @@ MSXWatchIODevice::MSXWatchIODevice(
 		const HardwareConfig& hwConf, WatchIO& watchIO_)
 	: MSXMultiDevice(hwConf)
 	, watchIO(watchIO_)
-	, device(0)
+	, device(nullptr)
 {
 }
 

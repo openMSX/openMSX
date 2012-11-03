@@ -522,7 +522,7 @@ shared_ptr<AfterCmd> AfterCmd::removeSelf()
 			return result;
 		}
 	}
-	UNREACHABLE; return shared_ptr<AfterCmd>(0);
+	UNREACHABLE; return shared_ptr<AfterCmd>();
 }
 
 

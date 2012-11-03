@@ -152,7 +152,7 @@ static EventPtr parseQuitEvent(
 EventPtr createInputEvent(const string& str)
 {
 	vector<string> components;
-	Interpreter::splitList(str, components, 0);
+	Interpreter::splitList(str, components, nullptr);
 	if (components.empty()) {
 		throw CommandException("Invalid event: \"" + str + '\"');
 	}

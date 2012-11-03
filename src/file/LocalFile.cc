@@ -198,7 +198,7 @@ const byte* LocalFile::mmap(unsigned& size)
 
 	if (!mmem) {
 		mmem = static_cast<byte*>(
-		          ::mmap(0, size, PROT_READ | PROT_WRITE,
+		          ::mmap(nullptr, size, PROT_READ | PROT_WRITE,
 		                 MAP_PRIVATE, fileno(file), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning

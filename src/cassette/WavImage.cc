@@ -76,7 +76,7 @@ void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 			bufs[0][i] = getSample(pos + i);
 		}
 	} else {
-		bufs[0] = 0;
+		bufs[0] = nullptr;
 	}
 }
 

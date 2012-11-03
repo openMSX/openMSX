@@ -77,11 +77,11 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, z80FreqInfo(new CPUFreqInfoTopic(
 		motherboard.getMachineInfoCommand(), "z80_freq",  *z80))
 	, r800FreqInfo(r800.get() ? new CPUFreqInfoTopic(
-		motherboard.getMachineInfoCommand(), "r800_freq", *r800) : 0)
+		motherboard.getMachineInfoCommand(), "r800_freq", *r800) : nullptr)
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get(); // setActiveCPU(CPU_Z80);
-	newCPU = 0;
+	newCPU = nullptr;
 
 	motherboard.getDebugger().setCPU(this);
 	motherboard.getScheduler().setCPU(this);
@@ -91,8 +91,8 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 MSXCPU::~MSXCPU()
 {
 	traceSetting->detach(*this);
-	motherboard.getScheduler().setCPU(0);
-	motherboard.getDebugger().setCPU(0);
+	motherboard.getScheduler().setCPU(nullptr);
+	motherboard.getDebugger() .setCPU(nullptr);
 }
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
@@ -148,7 +148,7 @@ void MSXCPU::execute(bool fastForward)
 		newCPU->warp(activeCPU->getCurrentTime());
 		newCPU->invalidateMemCache(0x0000, 0x10000);
 		activeCPU = newCPU;
-		newCPU = 0;
+		newCPU = nullptr;
 	}
 	activeCPU->execute(fastForward);
 }

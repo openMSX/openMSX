@@ -8,7 +8,7 @@
 namespace openmsx {
 
 V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
-	: vdp(vdp_), cmdEngine(0)
+	: vdp(vdp_), cmdEngine(nullptr)
 	, data(vdp.getDeviceConfig2(), vdp.getName() + " VRAM",
 	       "V9990 Video RAM", VRAM_SIZE)
 {

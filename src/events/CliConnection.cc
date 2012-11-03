@@ -71,7 +71,8 @@ CliConnection::CliConnection(CommandController& commandController_,
 	sax_handler.characters     = cb_text;
 	sax_handler.initialized    = XML_SAX2_MAGIC;
 
-	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
+	parser_context = xmlCreatePushParserCtxt(
+		&sax_handler, &user_data, nullptr, 0, nullptr);
 
 	for (int i = 0; i < CliComm::NUM_UPDATES; ++i) {
 		updateEnabled[i] = false;

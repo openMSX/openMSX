@@ -304,7 +304,7 @@ void GLPostProcessor::uploadBlock(
 			pbo->setImage(lineWidth, height * 2);
 		} else {
 			delete pbo;
-			pbo = 0;
+			pbo = nullptr;
 		}
 
 		TextureData textureData;
@@ -322,7 +322,7 @@ void GLPostProcessor::uploadBlock(
 		pbo->bind();
 		mapped = pbo->mapWrite();
 	} else {
-		mapped = 0;
+		mapped = nullptr;
 	}
 	if (mapped) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {

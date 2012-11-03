@@ -126,7 +126,7 @@ inline int SamplePlayer::getSample(unsigned index)
 void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
 	if (!isPlaying()) {
-		bufs[0] = 0;
+		bufs[0] = nullptr;
 		return;
 	}
 	for (unsigned i = 0; i < num; ++i) {

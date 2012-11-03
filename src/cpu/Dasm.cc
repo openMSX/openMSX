@@ -22,7 +22,7 @@ unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
 {
 	const char* s;
 	unsigned i = 0;
-	const char* r = 0;
+	const char* r = nullptr;
 
 	buf[0] = interf.peekMem(pc, time);
 	switch (buf[0]) {

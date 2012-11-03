@@ -61,7 +61,7 @@ public:
 	                               string_ref str);
 	virtual bool hasCommand(string_ref command) const;
 	virtual std::string executeCommand(const std::string& command,
-	                                   CliConnection* connection = 0);
+	                                   CliConnection* connection = nullptr);
 	/**
 	 * Complete the given command.
 	 */

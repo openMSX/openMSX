@@ -15,7 +15,7 @@ using std::set;
 
 namespace openmsx {
 
-InterpreterOutput* Completer::output = 0;
+InterpreterOutput* Completer::output = nullptr;
 
 
 Completer::Completer(string_ref name_)
