@@ -306,6 +306,8 @@ CXX?=g++
 WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
+  # Enable C++11
+  COMPILE_FLAGS+=-std=c++0x
   # Clang does support -Wunused-macros, but it triggers on SDL's headers,
   # causing way too many false positives that we cannot fix.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef
@@ -318,6 +320,8 @@ else
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
   # Generic compilation flags.
   COMPILE_FLAGS+=-pipe
+  # Enable C++11
+  COMPILE_FLAGS+=-std=c++0x
   # Stricter warning and error reporting.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef -Wunused-macros
   # -Wdouble-promotion <-- this is useful, but only support from gcc-4.6
@@ -326,15 +330,6 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
     echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
     && echo -Wno-missing-field-initializers \
     )
-  # Allow STL to use C++11 features, if available.
-  # TODO: This feature is disabled by default for now, since there are many
-  #       warnings about auto_ptr being deprecated.
-  ifeq ($(USE_CXX11),true)
-  COMPILE_FLAGS+=$(shell \
-    echo | $(CXX) -E -std=c++0x - >/dev/null 2>&1 \
-    && echo -std=c++0x \
-    )
-  endif
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
