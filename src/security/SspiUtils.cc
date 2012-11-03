@@ -36,7 +36,7 @@ void InitTokenContextBuffer(PSecBufferDesc pSecBufferDesc, PSecBuffer pSecBuffer
 {
 	pSecBuffer->BufferType = SECBUFFER_TOKEN;
 	pSecBuffer->cbBuffer = 0;
-	pSecBuffer->pvBuffer = NULL;
+	pSecBuffer->pvBuffer = nullptr;
 
 	pSecBufferDesc->ulVersion = SECBUFFER_VERSION;
 	pSecBufferDesc->cBuffers = 1;
@@ -49,7 +49,7 @@ void ClearContextBuffers(PSecBufferDesc pSecBufferDesc)
 	{
 		FreeContextBuffer(pSecBufferDesc->pBuffers[i].pvBuffer);
 		pSecBufferDesc->pBuffers[i].cbBuffer = 0;
-		pSecBufferDesc->pBuffers[i].pvBuffer = NULL;
+		pSecBufferDesc->pBuffers[i].pvBuffer = nullptr;
 	}
 }
 
@@ -133,7 +133,7 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
 		DACL_SECURITY_INFORMATION | SACL_SECURITY_INFORMATION | LABEL_SECURITY_INFORMATION,
 		&sddl,
-		NULL);
+		nullptr);
 	if (ret) {
 		PRT_DEBUG("SecurityDescriptor: " << sddl);
 		LocalFree(sddl);
@@ -145,7 +145,7 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 // If unsuccessful, returns null
 PTOKEN_USER GetProcessToken()
 {
-	PTOKEN_USER pToken = NULL;
+	PTOKEN_USER pToken = nullptr;
 
 	HANDLE hProcessToken;
 	BOOL ret = OpenProcessToken(GetCurrentProcess(), TOKEN_READ, &hProcessToken);
@@ -153,7 +153,7 @@ PTOKEN_USER GetProcessToken()
 	if (ret) {
 
 		DWORD cbToken;
-		ret = GetTokenInformation(hProcessToken, TokenUser, NULL, 0, &cbToken);
+		ret = GetTokenInformation(hProcessToken, TokenUser, nullptr, 0, &cbToken);
 		assert(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER && cbToken);
 
 		pToken = (TOKEN_USER*)LocalAlloc(LMEM_ZEROINIT, cbToken);
@@ -162,7 +162,7 @@ PTOKEN_USER GetProcessToken()
 			DebugPrintSecurityBool("GetTokenInformation", ret);
 			if (!ret) {
 				LocalFree(pToken);
-				pToken = NULL;
+				pToken = nullptr;
 			}
 		}
 
@@ -176,7 +176,7 @@ PTOKEN_USER GetProcessToken()
 // If unsuccessful, returns null
 PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 {
-	PSECURITY_DESCRIPTOR psd = NULL;
+	PSECURITY_DESCRIPTOR psd = nullptr;
 	PTOKEN_USER pToken = GetProcessToken();
 	if (pToken) {
 		PSID pUserSid = pToken->User.Sid;
@@ -199,9 +199,9 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 				SetSecurityDescriptorGroup(psd, &pUserAce->SidStart, FALSE) &&
 				SetSecurityDescriptorOwner(psd, &pUserAce->SidStart, FALSE))
 			{
-				buffer = NULL;
+				buffer = nullptr;
 			} else {
-				psd = NULL;
+				psd = nullptr;
 			}
 
 			LocalFree(buffer);

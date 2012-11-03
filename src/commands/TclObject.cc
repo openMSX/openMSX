@@ -293,7 +293,7 @@ void TclObject::parse(const char* str, int len, bool expression) const
 			// simple variable (no array)
 			Tcl_Token& token2 = info.tokenPtr[i + 1];
 			string varname(token2.start, token2.size);
-			if (!Tcl_GetVar2Ex(interp, varname.c_str(), NULL,
+			if (!Tcl_GetVar2Ex(interp, varname.c_str(), nullptr,
 			                   TCL_LEAVE_ERR_MSG)) {
 				throw CommandException(Tcl_GetStringResult(interp));
 			}

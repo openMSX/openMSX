@@ -66,7 +66,7 @@ namespace FileOperations {
 	/** Call fopen() in a platform-independent manner
 	  * @param filename the file path
 	  * @param mode the mode parameter, same as fopen
-	  * @result A pointer to the opened file, or NULL on error
+	  * @result A pointer to the opened file, or nullptr on error
 	  *         On error the global variable 'errno' is filled in (see
 	  *         man fopen for details). */
 	FILE* openFile(const std::string& filename, const std::string& mode);

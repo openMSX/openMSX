@@ -123,7 +123,7 @@ protected:
 	  * should each time be written to the same buffer (needed for record).
 	  *
 	  * If a certain channel is muted it is allowed to set the buffer
-	  * pointer to NULL. This has exactly the same effect as filling the
+	  * pointer to nullptr. This has exactly the same effect as filling the
 	  * buffer completely with zeros, but it can be more efficient.
 	  */
 	virtual void generateChannels(int** buffers, unsigned num) = 0;

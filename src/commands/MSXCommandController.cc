@@ -151,18 +151,18 @@ void MSXCommandController::changeSetting(Setting& setting, const string& value)
 Command* MSXCommandController::findCommand(string_ref name) const
 {
 	CommandMap::const_iterator it = commandMap.find(name);
-	return (it != commandMap.end()) ? it->second : NULL;
+	return (it != commandMap.end()) ? it->second : nullptr;
 }
 
 Setting* MSXCommandController::findSetting(string_ref name)
 {
 	SettingMap::const_iterator it = settingMap.find(name);
-	return (it != settingMap.end()) ? it->second : NULL;
+	return (it != settingMap.end()) ? it->second : nullptr;
 }
 
 bool MSXCommandController::hasCommand(string_ref command) const
 {
-	return findCommand(command) != NULL;
+	return findCommand(command) != nullptr;
 }
 
 string MSXCommandController::executeCommand(const string& command,

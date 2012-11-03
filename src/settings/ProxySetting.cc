@@ -23,7 +23,7 @@ ProxySetting::ProxySetting(CommandController& commandController,
 Setting* ProxySetting::getSetting()
 {
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-	if (!motherBoard) return NULL;
+	if (!motherBoard) return nullptr;
 	return motherBoard->getMSXCommandController().findSetting(getName());
 }
 

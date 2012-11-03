@@ -35,7 +35,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 	, scc(new SCC(getName() + " SCC", config, getCurrentTime()))
 	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
 	      new AY8910(getName() + " PSG", DummyAY8910Periphery::instance(), config,
-			 getCurrentTime()) : NULL)
+			 getCurrentTime()) : nullptr)
 	, flash(new AmdFlash(*rom,
 	                     std::vector<unsigned>(512 / 64, 0x10000),
 	                     getWriteProtected(type), 0x01A4, config))
@@ -119,7 +119,7 @@ byte RomManbow2::readMem(word address, EmuTime::param time)
 const byte* RomManbow2::getReadCacheLine(word address) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
@@ -157,7 +157,7 @@ void RomManbow2::writeMem(word address, byte value, EmuTime::param time)
 byte* RomManbow2::getWriteCacheLine(word address) const
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

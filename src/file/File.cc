@@ -41,25 +41,25 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 
 File::File(const Filename& filename, OpenMode mode)
 	: file(init(filename.getResolved(), mode))
-	, filepool(NULL)
+	, filepool(nullptr)
 {
 }
 
 File::File(string_ref url, OpenMode mode)
 	: file(init(url, mode))
-	, filepool(NULL)
+	, filepool(nullptr)
 {
 }
 
 File::File(string_ref filename, const char* mode)
 	: file(new LocalFile(filename, mode))
-	, filepool(NULL)
+	, filepool(nullptr)
 {
 }
 
 File::File(const Filename& filename, const char* mode)
 	: file(new LocalFile(filename.getResolved(), mode))
-	, filepool(NULL)
+	, filepool(nullptr)
 {
 }
 

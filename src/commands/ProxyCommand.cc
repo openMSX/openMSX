@@ -22,7 +22,7 @@ ProxyCmd::ProxyCmd(CommandController& controller, Reactor& reactor_)
 Command* ProxyCmd::getMachineCommand(string_ref name) const
 {
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
-	if (!motherBoard) return NULL;
+	if (!motherBoard) return nullptr;
 	return motherBoard->getMSXCommandController().findCommand(name);
 }
 

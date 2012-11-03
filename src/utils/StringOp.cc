@@ -187,7 +187,7 @@ string toHexString(unsigned x, unsigned width)
 
 int stringToInt(const string& str)
 {
-	return strtol(str.c_str(), NULL, 0);
+	return strtol(str.c_str(), nullptr, 0);
 }
 bool stringToInt(const string& str, int& result)
 {
@@ -198,7 +198,7 @@ bool stringToInt(const string& str, int& result)
 
 unsigned stringToUint(const string& str)
 {
-	return strtoul(str.c_str(), NULL, 0);
+	return strtoul(str.c_str(), nullptr, 0);
 }
 bool stringToUint(const string& str, unsigned& result)
 {
@@ -209,7 +209,7 @@ bool stringToUint(const string& str, unsigned& result)
 
 unsigned long long stringToUint64(const string& str)
 {
-       return strtoull(str.c_str(), NULL, 0);
+       return strtoull(str.c_str(), nullptr, 0);
 }
 
 bool stringToBool(string_ref str)
@@ -224,7 +224,7 @@ bool stringToBool(string_ref str)
 
 double stringToDouble(const string& str)
 {
-	return strtod(str.c_str(), NULL);
+	return strtod(str.c_str(), nullptr);
 }
 bool stringToDouble(const string& str, double& result)
 {
@@ -443,7 +443,7 @@ std::string fromCFString(CFStringRef str)
 	CFRange range = CFRangeMake(0, len);
 	CFIndex usedBufLen = 0;
 	CFStringGetBytes(
-		str, range, kCFStringEncodingUTF8, '?', false, NULL, len, &usedBufLen);
+		str, range, kCFStringEncodingUTF8, '?', false, nullptr, len, &usedBufLen);
 	UInt8 buffer[usedBufLen];
 	CFStringGetBytes(
 		str, range, kCFStringEncodingUTF8, '?', false, buffer, len, &usedBufLen);

@@ -29,13 +29,13 @@ bool SspiNegotiateServer::Authenticate()
 {
 	TimeStamp tsCredsExpiry;
 	SECURITY_STATUS ss = AcquireCredentialsHandleW(
-		NULL,
+		nullptr,
 		const_cast<SEC_WCHAR*>(NEGOSSP_NAME_W),
 		SECPKG_CRED_INBOUND,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr,
 		&hCreds,
 		&tsCredsExpiry);
 
@@ -50,7 +50,7 @@ bool SspiNegotiateServer::Authenticate()
 	InitTokenContextBuffer(&secServerBufferDesc, &secServerBuffer);
 
 	std::vector<char> buffer;
-	PCtxtHandle phContext = NULL;
+	PCtxtHandle phContext = nullptr;
 	while (true) {
 
 		// Receive another buffer from the client

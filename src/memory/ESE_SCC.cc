@@ -79,7 +79,7 @@ ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)
 	: MSXDevice(config)
 	, sram(createSRAM(config, withSCSI, getName()))
 	, scc(new SCC(getName(), config, getCurrentTime()))
-	, spc(withSCSI ? new MB89352(config) : NULL)
+	, spc(withSCSI ? new MB89352(config) : nullptr)
 	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 13))
 	, mapperMask((sram->getSize() / 0x2000) - 1)
 {
@@ -207,11 +207,11 @@ const byte* ESE_SCC::getReadCacheLine(word address) const
 	unsigned page = address / 0x2000 - 2;
 	// SPC
 	if (spcEnable && (page == 0)) {
-		return NULL;
+		return nullptr;
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return NULL;
+		return nullptr;
 	}
 	// SRAM read
 	return &(*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
@@ -258,7 +258,7 @@ void ESE_SCC::writeMem(word address, byte value, EmuTime::param time)
 
 byte* ESE_SCC::getWriteCacheLine(word /*address*/) const
 {
-	return NULL; // not cacheable
+	return nullptr; // not cacheable
 }
 
 

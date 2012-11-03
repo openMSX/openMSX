@@ -9,20 +9,20 @@ namespace openmsx {
 Rasterizer* DummyVideoSystem::createRasterizer(VDP& /*vdp*/)
 {
 	UNREACHABLE;
-	return NULL;
+	return nullptr;
 }
 
 V9990Rasterizer* DummyVideoSystem::createV9990Rasterizer(V9990& /*vdp*/)
 {
 	UNREACHABLE;
-	return NULL;
+	return nullptr;
 }
 
 #if COMPONENT_LASERDISC
 LDRasterizer* DummyVideoSystem::createLDRasterizer(LaserdiscPlayer& /*ld*/)
 {
 	UNREACHABLE;
-	return NULL;
+	return nullptr;
 }
 #endif
 
@@ -32,7 +32,7 @@ void DummyVideoSystem::flush()
 
 OutputSurface* DummyVideoSystem::getOutputSurface()
 {
-	return NULL;
+	return nullptr;
 }
 
 } // namespace openmsx

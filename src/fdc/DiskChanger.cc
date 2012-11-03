@@ -70,9 +70,9 @@ DiskChanger::DiskChanger(const string& driveName_,
                          DiskManipulator& manipulator_,
                          bool createCmd)
 	: controller(controller_)
-	, stateChangeDistributor(NULL)
-	, scheduler(NULL)
-	, filePool(NULL)
+	, stateChangeDistributor(nullptr)
+	, scheduler(nullptr)
+	, filePool(nullptr)
 	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
@@ -139,7 +139,7 @@ Disk& DiskChanger::getDisk()
 SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 {
 	if (dynamic_cast<DummyDisk*>(disk.get())) {
-		return NULL;
+		return nullptr;
 	}
 	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
 }

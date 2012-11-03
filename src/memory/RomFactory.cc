@@ -157,7 +157,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
 		const RomInfo* romInfo = config.getReactor().getSoftwareDatabase().fetchRomInfo(rom->getOriginalSHA1());
-		if (romInfo == NULL) {
+		if (romInfo == nullptr) {
 			type = guessRomType(*rom);
 		} else {
 			type = romInfo->getRomType();

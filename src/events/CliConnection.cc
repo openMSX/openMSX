@@ -299,8 +299,8 @@ PipeConnection::PipeConnection(CommandController& commandController,
 	: CliConnection(commandController, eventDistributor)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
-	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
-	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, nullptr,
+	                         OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr);
 	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {
 		char msg[256];
 		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
@@ -308,8 +308,8 @@ PipeConnection::PipeConnection(CommandController& commandController,
 		throw FatalError(msg);
 	}
 
-	shutdownEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
-	if (shutdownEvent == NULL) {
+	shutdownEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+	if (shutdownEvent == nullptr) {
 		throw FatalError(StringOp::Builder() <<
 			"Error creating shutdown event: " << GetLastError());
 	}
@@ -328,8 +328,8 @@ PipeConnection::~PipeConnection()
 void InitOverlapped(LPOVERLAPPED overlapped)
 {
 	ZeroMemory(overlapped, sizeof(*overlapped));
-	overlapped->hEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
-	if (overlapped->hEvent == NULL) {
+	overlapped->hEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+	if (overlapped->hEvent == nullptr) {
 		throw FatalError(StringOp::Builder() <<
 			"Error creating overlapped event: " << GetLastError());
 	}
@@ -339,7 +339,7 @@ void ClearOverlapped(LPOVERLAPPED overlapped)
 {
 	if (overlapped->hEvent) {
 		CloseHandle(overlapped->hEvent);
-		overlapped->hEvent = NULL;
+		overlapped->hEvent = nullptr;
 	}
 }
 
@@ -352,7 +352,7 @@ void PipeConnection::run()
 
 	while (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
-		if (!ReadFile(pipeHandle, buf, BUF_SIZE, NULL, &overlapped) &&
+		if (!ReadFile(pipeHandle, buf, BUF_SIZE, nullptr, &overlapped) &&
 			GetLastError() != ERROR_IO_PENDING) {
 			break; // Pipe broke
 		}

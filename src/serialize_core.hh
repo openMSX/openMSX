@@ -67,7 +67,7 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *    enum_string<MyEnum> myEnumInfo[] = {
  *          { "FOO", FOO },
  *          { "BAR", BAR },
- *          { NULL, FOO } // dummy enum value
+ *          { nullptr, FOO } // dummy enum value
  *    };
  *    SERIALIZE_ENUM(MyEnum, myEnumInfo);
  *
@@ -301,7 +301,7 @@ template<typename T> struct ClassSaver
 {
 	template<typename Archive> void operator()(
 		Archive& ar, const T& t, bool saveId,
-		const char* type = NULL, bool saveConstrArgs = false)
+		const char* type = nullptr, bool saveConstrArgs = false)
 	{
 		// Order is important (for non-xml archives). We use this order:
 		//    - id
@@ -309,7 +309,7 @@ template<typename T> struct ClassSaver
 		//    - version
 		//    - constructor args
 		// Rational:
-		//  - 'id' must be first: it could be a null pointer, in that
+		//  - 'id' must be first: it could be a nullptr, in that
 		//    case the other fields are not even present.
 		//  - 'type' must be before version, because for some types we
 		//    might not need to store version (though it's unlikely)
@@ -320,7 +320,7 @@ template<typename T> struct ClassSaver
 			ar.attribute("id", id);
 		}
 
-		if (type != NULL) {
+		if (type != nullptr) {
 			ar.attribute("type", type);
 		}
 
@@ -352,7 +352,7 @@ template<typename TP> struct PointerSaver
 		STATIC_ASSERT(serialize_as_pointer<TP>::value);
 		typedef typename serialize_as_pointer<TP>::type T;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
-		if (tp == NULL) {
+		if (tp == nullptr) {
 			unsigned id = 0;
 			ar.attribute("id_ref", id);
 			return;
@@ -366,7 +366,7 @@ template<typename TP> struct PointerSaver
 				ClassSaver<T> saver;
 				// don't store type
 				// store id, constr-args
-				saver(ar, *tp, true, NULL, true);
+				saver(ar, *tp, true, nullptr, true);
 			}
 		}
 	}
@@ -379,7 +379,7 @@ template<typename TP> struct IDSaver
 		typedef typename serialize_as_pointer<TP>::type T;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
 		unsigned id;
-		if (tp == NULL) {
+		if (tp == nullptr) {
 			id = 0;
 		} else {
 			id = ar.getId(tp);
@@ -581,8 +581,7 @@ template<typename TP> struct PointerLoader
 		typedef typename serialize_as_pointer<TP>::type T;
 		T* tp;
 		if (id == 0) {
-			// null-pointer
-			tp = NULL;
+			tp = nullptr;
 		} else {
 			if (void* p = ar.getPointer(id)) {
 				tp = static_cast<T*>(p);
@@ -607,8 +606,7 @@ template<typename TP> struct IDLoader
 		typedef typename serialize_as_pointer<TP>::type T;
 		T* tp;
 		if (id == 0) {
-			// null-pointer
-			tp = NULL;
+			tp = nullptr;
 		} else {
 			void* p = ar.getPointer(id);
 			if (!p) {

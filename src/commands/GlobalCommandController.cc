@@ -78,7 +78,7 @@ GlobalCommandController::GlobalCommandController(
 	EventDistributor& eventDistributor,
 	GlobalCliComm& cliComm_, Reactor& reactor_)
 	: cliComm(cliComm_)
-	, connection(NULL)
+	, connection(nullptr)
 	, reactor(reactor_)
 	, interpreter(new Interpreter(eventDistributor))
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))

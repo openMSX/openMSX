@@ -124,7 +124,7 @@ public:
 	/** Find a MSXDevice by name
 	  * @param name The name of the device as returned by
 	  *             MSXDevice::getName()
-	  * @return A pointer to the device or NULL if the device could not
+	  * @return A pointer to the device or nullptr if the device could not
 	  *         be found.
 	  */
 	MSXDevice* findDevice(string_ref name);
@@ -138,7 +138,7 @@ public:
 	  *      Maybe this method can be removed when savestates are finished.
 	  */
 	struct SharedStuff {
-		SharedStuff() : stuff(NULL), counter(0) {}
+		SharedStuff() : stuff(nullptr), counter(0) {}
 		void* stuff;
 		unsigned counter;
 	};

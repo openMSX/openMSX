@@ -53,7 +53,7 @@ const byte* MSXPac::getReadCacheLine(word address) const
 		if (address < (0x1FFE & CacheLine::HIGH)) {
 			return &(*sram)[address];
 		} else if (address == (0x1FFE & CacheLine::HIGH)) {
-			return NULL;
+			return nullptr;
 		} else {
 			return unmappedRead;
 		}
@@ -85,10 +85,10 @@ byte* MSXPac::getWriteCacheLine(word address) const
 {
 	address &= 0x3FFF;
 	if (address == (0x1FFE & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

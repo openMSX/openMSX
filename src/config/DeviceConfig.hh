@@ -22,13 +22,13 @@ class DeviceConfig
 {
 public:
 	DeviceConfig()
-		: hwConf(NULL), devConf(NULL)
-		, primary(NULL), secondary(NULL)
+		: hwConf(nullptr), devConf(nullptr)
+		, primary(nullptr), secondary(nullptr)
 	{
 	}
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_)
 		: hwConf(&hwConf_), devConf(&devConf_)
-		, primary(NULL), secondary(NULL)
+		, primary(nullptr), secondary(nullptr)
 	{
 	}
 	DeviceConfig(const HardwareConfig& hwConf_, const XMLElement& devConf_,
@@ -39,12 +39,12 @@ public:
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement& devConf_)
 		: hwConf(other.hwConf), devConf(&devConf_)
-		, primary(NULL), secondary(NULL)
+		, primary(nullptr), secondary(nullptr)
 	{
 	}
 	DeviceConfig(const DeviceConfig& other, const XMLElement* devConf_)
 		: hwConf(other.hwConf), devConf(devConf_)
-		, primary(NULL), secondary(NULL)
+		, primary(nullptr), secondary(nullptr)
 	{
 	}
 

@@ -214,7 +214,7 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 
 bool TclParser::isProc(string_ref str) const
 {
-	return Tcl_FindCommand(interp, str.str().c_str(), NULL, 0) != NULL;
+	return Tcl_FindCommand(interp, str.str().c_str(), nullptr, 0) != nullptr;
 }
 
 void TclParser::setColors(const char* p, int size, char c)

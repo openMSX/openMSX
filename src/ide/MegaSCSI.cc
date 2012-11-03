@@ -132,7 +132,7 @@ const byte* MegaSCSI::getReadCacheLine(word address) const
 		unsigned page = (address / 0x2000) - 2;
 		address &= 0x1FFF;
 		if (mapped[page] == SPC) {
-			return NULL;
+			return nullptr;
 		} else {
 			return &(*sram)[0x2000 * mapped[page] + address];
 		}
@@ -164,13 +164,13 @@ void MegaSCSI::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* MegaSCSI::getWriteCacheLine(word address) const
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 0x2000) - 2;
 		if (mapped[page] == SPC) {
-			return NULL;
+			return nullptr;
 		} else if (isWriteable[page]) {
-			return NULL;
+			return nullptr;
 		}
 	}
 	return unmappedWrite;

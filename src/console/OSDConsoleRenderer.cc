@@ -66,7 +66,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, openGL(openGL_)
 {
 	// cacheHint must always point to a valid item, so insert a dummy entry
-	textCache.push_back(TextCacheElement("", 0, NULL, 0));
+	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
 	cacheHint = textCache.begin();
 #if !COMPONENT_GL
 	assert(!openGL);
@@ -328,7 +328,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		}
 		if (!surf.get()) {
 			// nothing was rendered, so do nothing
-			image = NULL;
+			image = nullptr;
 		} else if (!openGL) {
 			image = new SDLImage(std::move(surf));
 		}

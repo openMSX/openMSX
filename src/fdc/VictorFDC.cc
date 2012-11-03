@@ -117,7 +117,7 @@ const byte* VictorFDC::getReadCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		// ROM at 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
@@ -162,7 +162,7 @@ byte* VictorFDC::getWriteCacheLine(word address) const
 {
 	if ((address & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

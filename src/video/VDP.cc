@@ -363,8 +363,8 @@ void VDP::resetInit()
 	// TODO: Real VDP probably resets timing as well.
 	isDisplayArea = false;
 	displayEnabled = false;
-	superimposing = NULL;
-	externalVideo = NULL;
+	superimposing = nullptr;
+	externalVideo = nullptr;
 
 	// Init status registers.
 	statusReg0 = 0x00;
@@ -665,7 +665,7 @@ void VDP::frameStart(EmuTime::param time)
 	// signal is provided then the VDP stops producing a signal
 	// (at least on an MSX1, VDP(0)=1 produces "signal lost" on my
 	// monitor)
-	const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : NULL;
+	const RawFrame* newSuperimposing = (controlRegs[0] & 1) ? externalVideo : nullptr;
 	if (superimposing != newSuperimposing) {
 		superimposing = newSuperimposing;
 		renderer->updateSuperimposing(superimposing, time);

@@ -30,7 +30,7 @@ HD::HD(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("hdInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new HDInUse();
 	}
 	++info.counter;
@@ -91,7 +91,7 @@ HD::~HD()
 	if (info.counter == 0) {
 		assert(hdInUse.none());
 		delete &hdInUse;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 

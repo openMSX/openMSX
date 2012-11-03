@@ -42,7 +42,7 @@ VideoSystem* createVideoSystem(Reactor& reactor)
 		case SDLGL_FB32:
 			return new SDLVideoSystem(reactor, display.getCommandConsole());
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 	}
 }
 
@@ -57,7 +57,7 @@ Renderer* createRenderer(VDP& vdp, Display& display)
 		case SDLGL_FB32:
 			return new PixelRenderer(vdp, display);
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 	}
 }
 
@@ -72,7 +72,7 @@ V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
 		case SDLGL_FB32:
 			return new V9990PixelRenderer(vdp);
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 	}
 }
 
@@ -88,7 +88,7 @@ LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
 		case SDLGL_FB32:
 			return new LDPixelRenderer(ld, display);
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 	}
 }
 #endif

@@ -21,7 +21,7 @@ public:
 	explicit ReadDir(const std::string& directory);
 	~ReadDir();
 
-	/** Get directory entry for next file. Returns NULL when there
+	/** Get directory entry for next file. Returns nullptr when there
 	  * are no more entries or in case of error (e.g. given directory
 	  * does not exist).
 	  */

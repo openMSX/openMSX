@@ -205,7 +205,7 @@ void OSDCommand::exists(const vector<TclObject>& tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
-	result.setBoolean(widget != NULL);
+	result.setBoolean(widget != nullptr);
 }
 
 void OSDCommand::configure(const vector<TclObject>& tokens, TclObject& /*result*/)

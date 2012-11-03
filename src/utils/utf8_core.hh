@@ -208,7 +208,7 @@ utf_error validate_next(octet_iterator& it, octet_iterator end,
 
 template <typename octet_iterator>
 inline utf_error validate_next(octet_iterator& it, octet_iterator end) {
-	return validate_next(it, end, NULL);
+	return validate_next(it, end, nullptr);
 }
 
 } // namespace internal

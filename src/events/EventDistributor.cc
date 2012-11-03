@@ -49,8 +49,8 @@ void EventDistributor::distributeEvent(Event* event)
 {
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
-	//       For example, assign NULL first and then iterate again after
-	//       delivering events to remove the NULL values.
+	//       For example, assign nullptr first and then iterate again after
+	//       delivering events to remove the nullptr values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
 	assert(event);

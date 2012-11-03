@@ -32,10 +32,10 @@ namespace openmsx {
 LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
-	, mmem(NULL)
+	, mmem(nullptr)
 #endif
 #if defined _WIN32
-	, hMmap(NULL)
+	, hMmap(nullptr)
 #endif
 	, readOnly(false)
 {
@@ -85,10 +85,10 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 LocalFile::LocalFile(string_ref filename_, const char* mode)
 	: filename(FileOperations::expandTilde(filename_))
 #if HAVE_MMAP || defined _WIN32
-	, mmem(NULL)
+	, mmem(nullptr)
 #endif
 #if defined _WIN32
-	, hMmap(NULL)
+	, hMmap(nullptr)
 #endif
 	, readOnly(false)
 {
@@ -138,7 +138,7 @@ void LocalFile::write(const void* buffer, unsigned num)
 const byte* LocalFile::mmap(unsigned& size)
 {
 	size = getSize();
-	if (size == 0) return NULL;
+	if (size == 0) return nullptr;
 
 	if (!mmem) {
 		int fd = _fileno(file);
@@ -150,7 +150,7 @@ const byte* LocalFile::mmap(unsigned& size)
 			throw FileException("_get_osfhandle failed");
 		}
 		assert(!hMmap);
-		hMmap = CreateFileMapping(hFile, NULL, PAGE_WRITECOPY, 0, 0, NULL);
+		hMmap = CreateFileMapping(hFile, nullptr, PAGE_WRITECOPY, 0, 0, nullptr);
 		if (!hMmap) {
 			throw FileException(StringOp::Builder() <<
 				"CreateFileMapping failed: " << GetLastError());
@@ -159,7 +159,7 @@ const byte* LocalFile::mmap(unsigned& size)
 		if (!mmem) {
 			DWORD gle = GetLastError();
 			CloseHandle(hMmap);
-			hMmap = NULL;
+			hMmap = nullptr;
 			throw FileException(StringOp::Builder() <<
 				"MapViewOfFile failed: " << gle);
 		}
@@ -182,11 +182,11 @@ void LocalFile::munmap()
 			          << StringOp::toString(GetLastError())
 			          << std::endl;
 		}
-		mmem = NULL;
+		mmem = nullptr;
 	}
 	if (hMmap) {
 		CloseHandle(hMmap);
-		hMmap = NULL;
+		hMmap = nullptr;
 	}
 }
 
@@ -194,7 +194,7 @@ void LocalFile::munmap()
 const byte* LocalFile::mmap(unsigned& size)
 {
 	size = getSize();
-	if (size == 0) return NULL;
+	if (size == 0) return nullptr;
 
 	if (!mmem) {
 		mmem = static_cast<byte*>(
@@ -214,7 +214,7 @@ void LocalFile::munmap()
 {
 	if (mmem) {
 		::munmap(const_cast<byte*>(mmem), getSize());
-		mmem = NULL;
+		mmem = nullptr;
 	}
 }
 #endif

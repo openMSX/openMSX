@@ -62,7 +62,7 @@ private:
 volatile bool AlarmManager::enabled = false;
 
 AlarmManager::AlarmManager()
-	: id(NULL), sem(1)
+	: id(nullptr), sem(1)
 {
 	if (SDL_Init(SDL_INIT_TIMER) < 0) {
 		throw FatalError(StringOp::Builder() <<
@@ -190,14 +190,14 @@ unsigned AlarmManager::timerCallback2()
 	}
 	if (earliest != std::numeric_limits<long long>::max()) {
 		time = earliest + now;
-		assert(id != NULL);
+		assert(id != nullptr);
 		return convert(int(earliest));
 	} else {
 		for (Alarms::const_iterator it = alarms.begin();
 		     it != alarms.end(); ++it) {
 			assert((*it)->active == false);
 		}
-		id = NULL;
+		id = nullptr;
 		return 0; // don't repeat
 	}
 }

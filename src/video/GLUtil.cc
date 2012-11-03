@@ -115,7 +115,7 @@ ColorTexture::ColorTexture(GLsizei width_, GLsizei height_)
 		0,                // border
 		GL_BGRA,          // format
 		GL_UNSIGNED_BYTE, // type
-		NULL);            // data
+		nullptr);         // data
 }
 
 
@@ -135,7 +135,7 @@ LuminanceTexture::LuminanceTexture(GLsizei width, GLsizei height)
 		0,                // border
 		GL_LUMINANCE,     // format
 		GL_UNSIGNED_BYTE, // type
-		NULL);            // data
+		nullptr);         // data
 }
 
 void LuminanceTexture::updateImage(
@@ -261,7 +261,7 @@ void Shader::init(GLenum type, const string& header, const string& filename)
 
 	// Set shader source.
 	const char* sourcePtr = source.c_str();
-	glShaderSource(handle, 1, &sourcePtr, NULL);
+	glShaderSource(handle, 1, &sourcePtr, nullptr);
 
 	// Compile shader and print any errors and warnings.
 	glCompileShader(handle);
@@ -271,7 +271,7 @@ void Shader::init(GLenum type, const string& header, const string& filename)
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		VLA(GLchar, infoLog, infoLogLength);
-		glGetShaderInfoLog(handle, infoLogLength, NULL, infoLog);
+		glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog);
 		fprintf(stderr, "%s(s) compiling shader \"%s\":\n%s",
 			ok ? "Warning" : "Error", filename.c_str(),
 			infoLogLength > 1 ? infoLog : "(no details available)\n");
@@ -425,7 +425,7 @@ void ShaderProgram::link()
 	// note: the null terminator is included, so empty string has length 1
 	if (!ok || (!Version::RELEASE && infoLogLength > 1)) {
 		VLA(GLchar, infoLog, infoLogLength);
-		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
+		glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
 		fprintf(stderr, "%s(s) linking shader program:\n%s\n",
 			ok ? "Warning" : "Error",
 			infoLogLength > 1 ? infoLog : "(no details available)\n");
@@ -486,7 +486,7 @@ void ShaderProgram::validate()
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
 	VLA(GLchar, infoLog, infoLogLength);
-	glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
+	glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog);
 	std::cout << "Validate "
 	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))
 	          << ": " << infoLog << std::endl;

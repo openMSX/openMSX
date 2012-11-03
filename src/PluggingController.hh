@@ -35,7 +35,7 @@ public:
 	void unregisterConnector(Connector& connector);
 
 	/** Return the Connector with given name or
-	  * NULL if there is none with this name.
+	  * nullptr if there is none with this name.
 	  */
 	Connector* findConnector(string_ref name) const;
 
@@ -44,7 +44,7 @@ public:
 	void registerPluggable(std::unique_ptr<Pluggable> pluggable);
 
 	/** Return the Pluggable with given name or
-	  * NULL if there is none with this name.
+	  * nullptr if there is none with this name.
 	  */
 	Pluggable* findPluggable(string_ref name) const;
 

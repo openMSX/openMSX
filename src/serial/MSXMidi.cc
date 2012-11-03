@@ -67,7 +67,7 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	                                    "msx-midi-out"))
 	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
 	, i8254(new I8254(getScheduler(),
-	                  cntr0.get(), NULL, cntr2.get(), getCurrentTime()))
+	                  cntr0.get(), nullptr, cntr2.get(), getCurrentTime()))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period

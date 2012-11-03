@@ -60,7 +60,7 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	            unique_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
-	, laserdiscPlayer(NULL)
+	, laserdiscPlayer(nullptr)
 #endif
 	, lastOutput(false)
 	, motorControl(false)
@@ -101,7 +101,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	//   we just assume sample has no DC component
 	short sample;
 #if COMPONENT_LASERDISC
-	if (!motorControl && laserdiscPlayer != NULL) {
+	if (!motorControl && laserdiscPlayer != nullptr) {
 		sample = laserdiscPlayer->readSample(time);
 	} else
 #endif

@@ -37,7 +37,7 @@ namespace openmsx {
 
 DIR* opendir(const char* name)
 {
-	if (!name || !*name) return NULL;
+	if (!name || !*name) return nullptr;
 
 	std::wstring nameW = utf8::utf8to16(name);
 	if (!StringOp::endsWith(name, '/') &&
@@ -50,7 +50,7 @@ DIR* opendir(const char* name)
 	HANDLE hnd;
 	WIN32_FIND_DATAW find;
 	if ((hnd = FindFirstFileW(nameW.c_str(), &find)) == INVALID_HANDLE_VALUE) {
-		return NULL;
+		return nullptr;
 	}
 
 	DIR* dir = new DIR;
@@ -71,7 +71,7 @@ dirent* readdir(DIR* dir)
 	WIN32_FIND_DATAW* find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 	if (dir->filepos) {
 		if (!FindNextFileW(reinterpret_cast<HANDLE>(dir->fd), find)) {
-			return NULL;
+			return nullptr;
 		}
 	}
 

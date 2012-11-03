@@ -88,9 +88,9 @@ void sleep(unsigned long long us)
 /*#if defined _WIN32
 	us /= 1000;
 	if (us > 0) {
-		static HANDLE timerEvent = NULL;
-		if (timerEvent == NULL) {
-			timerEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+		static HANDLE timerEvent = nullptr;
+		if (timerEvent == nullptr) {
+			timerEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		}
 		UINT id = timeSetEvent(us, 1, timerCallback, (DWORD)timerEvent,
 		                       TIME_ONESHOT);

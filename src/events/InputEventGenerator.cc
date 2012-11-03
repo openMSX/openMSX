@@ -69,7 +69,7 @@ void InputEventGenerator::wait()
 		SDL_Delay(100);
 	}
 
-	if (SDL_WaitEvent(NULL)) {
+	if (SDL_WaitEvent(nullptr)) {
 		poll();
 	}
 }

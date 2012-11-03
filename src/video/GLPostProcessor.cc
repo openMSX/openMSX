@@ -62,7 +62,7 @@ GLPostProcessor::GLPostProcessor(
 			     0,                 // border
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
-			     NULL);             // data
+			     nullptr);          // data
 		fbo[i].reset(new FrameBufferObject(*colorTex[i]));
 	}
 
@@ -179,7 +179,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//	it->srcStartY, it->srcEndY, it->lineWidth);
 		assert(textures.find(it->lineWidth) != textures.end());
 		ColorTexture* superImpose = superImposeVideoFrame
-		                          ? superImposeTex.get() : NULL;
+		                          ? superImposeTex.get() : nullptr;
 		currScaler->scaleImage(
 			*textures[it->lineWidth].tex, superImpose,
 			it->srcStartY, it->srcEndY, it->lineWidth,     // src

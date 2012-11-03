@@ -33,7 +33,7 @@ class SDLSurfacePtr
 {
 public:
 	/** Create a (software) surface with uninitialized pixel content.
-	  * throws: bad_alloc (no need to check for NULL pointer). */
+	  * throws: bad_alloc (no need to check for nullptr). */
 	SDLSurfacePtr(unsigned width, unsigned height, unsigned depth,
 	              Uint32 rMask, Uint32 gMask, Uint32 bMask, Uint32 aMask)
 	{
@@ -55,8 +55,8 @@ public:
 	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
 	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
 
-	explicit SDLSurfacePtr(SDL_Surface* surface_ = NULL,
-	                       void* buffer_ = NULL)
+	explicit SDLSurfacePtr(SDL_Surface* surface_ = nullptr,
+	                       void* buffer_ = nullptr)
 		: surface(surface_)
 		, buffer(buffer_)
 	{
@@ -66,8 +66,8 @@ public:
 		: surface(other.surface)
 		, buffer(other.buffer)
 	{
-		other.surface = NULL;
-		other.buffer = NULL;
+		other.surface = nullptr;
+		other.buffer = nullptr;
 	}
 
 	~SDLSurfacePtr()
@@ -102,8 +102,8 @@ public:
 	SDLSurfacePtr& operator=(SDLSurfacePtr&& other)
 	{
 		SDLSurfacePtr tmp(other.surface, other.buffer);
-		other.surface = NULL;
-		other.buffer = NULL;
+		other.surface = nullptr;
+		other.buffer = nullptr;
 		tmp.swap(*this);
 		return *this;
 	}

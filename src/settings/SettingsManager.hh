@@ -32,7 +32,7 @@ public:
 
 	/** Get a setting by specifying its name.
 	  * @return The Setting with the given name,
-	  *   or NULL if there is no such Setting.
+	  *   or nullptr if there is no such Setting.
 	  */
 	Setting* getByName(string_ref name) const;
 

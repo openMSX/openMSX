@@ -89,7 +89,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 			if ((offset + sectorSize) <= romSize) {
 				readAddress[i] = &rom[offset];
 			} else {
-				readAddress[i] = NULL;
+				readAddress[i] = nullptr;
 			}
 		}
 		offset += sectorSize;
@@ -179,7 +179,7 @@ const byte* AmdFlash::getReadCacheLine(unsigned address) const
 		const byte* addr = readAddress[sector];
 		return addr ? &addr[offset] : MSXDevice::unmappedRead;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 

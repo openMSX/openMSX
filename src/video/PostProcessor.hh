@@ -67,7 +67,7 @@ public:
 
 	/** Start/stop recording.
 	  * @param recorder Finished frames should be pushed to this
-	  *                 AviRecorder. Can also be a NULL pointer, meaning
+	  *                 AviRecorder. Can also be nullptr, meaning
 	  *                 recording is stopped.
 	  */
 	void setRecorder(AviRecorder* recorder);
@@ -131,11 +131,11 @@ protected:
 	  */
 	FrameSource* paintFrame;
 
-	/** Video recorder, NULL when not recording. */
+	/** Video recorder, nullptr when not recording. */
 	AviRecorder* recorder;
 
 	/** Video frame on which to superimpose the (VDP) output.
-	  * NULL when not superimposing. */
+	  * nullptr when not superimposing. */
 	const RawFrame* superImposeVideoFrame;
 	const FrameSource* superImposeVdpFrame;
 

@@ -272,7 +272,7 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 		// TODO make performance hint configurable?
 		glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB,
 		             width * height * 4,
-		             NULL, // leave data undefined
+		             nullptr, // leave data undefined
 		             GL_STREAM_DRAW); // performance hint
 		unbind();
 	} else

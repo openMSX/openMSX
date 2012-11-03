@@ -41,9 +41,9 @@ private:
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
 	, recordCommand(new RecordCommand(reactor.getCommandController(), *this))
-	, ppV99x8(NULL)
-	, ppV9990(NULL)
-	, ppLaser(NULL)
+	, ppV99x8(nullptr)
+	, ppV9990(nullptr)
+	, ppLaser(nullptr)
 	, mixer(0)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
@@ -122,20 +122,20 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 void AviRecorder::stop()
 {
 	if (ppV99x8) {
-		ppV99x8->setRecorder(NULL);
-		ppV99x8 = NULL;
+		ppV99x8->setRecorder(nullptr);
+		ppV99x8 = nullptr;
 	}
 	if (ppV9990) {
-		ppV9990->setRecorder(NULL);
-		ppV9990 = NULL;
+		ppV9990->setRecorder(nullptr);
+		ppV9990 = nullptr;
 	}
 	if (ppLaser) {
-		ppLaser->setRecorder(NULL);
-		ppLaser = NULL;
+		ppLaser->setRecorder(nullptr);
+		ppLaser = nullptr;
 	}
 	if (mixer) {
-		mixer->setRecorder(NULL);
-		mixer = NULL;
+		mixer->setRecorder(nullptr);
+		mixer = nullptr;
 	}
 	sampleRate = 0;
 	aviWriter.reset();
@@ -207,7 +207,7 @@ void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 		mixer->updateStream(time);
 	}
 	// TODO vector::data() is not yet supported in gcc-3.4
-	short* audioData = audioBuf.empty() ? NULL : &audioBuf[0];
+	short* audioData = audioBuf.empty() ? nullptr : &audioBuf[0];
 	aviWriter->addFrame(frame, unsigned(audioBuf.size()), audioData);
 	audioBuf.clear();
 }

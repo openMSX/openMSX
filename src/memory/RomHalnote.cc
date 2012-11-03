@@ -133,17 +133,17 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 	if (address < 0x4000) {
 		// SRAM region
 		if (sramEnabled) {
-			return NULL;
+			return nullptr;
 		}
 	} else if (address < 0xC000) {
 		if (((address & CacheLine::HIGH) == (0x77FF & CacheLine::HIGH)) ||
 		    ((address & CacheLine::HIGH) == (0x7FFF & CacheLine::HIGH))) {
 			// sub-mapper bank switch region
-			return NULL;
+			return nullptr;
 		} else if ((address & 0x1FFF & CacheLine::HIGH) ==
 		           (0x0FFF & CacheLine::HIGH)) {
 			// normal bank switch region
-			return NULL;
+			return nullptr;
 		}
 	}
 	return unmappedWrite;

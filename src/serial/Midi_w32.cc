@@ -118,17 +118,17 @@ int w32_midiOutInit()
 	if (!num) {
 		return 0;
 	}
-	if ((state_out = static_cast<int*>(malloc((num + 1) * sizeof(int)))) == NULL) {
+	if ((state_out = static_cast<int*>(malloc((num + 1) * sizeof(int)))) == nullptr) {
 		return 1;
 	}
 	memset(state_out, 0, (num + 1) * sizeof(int));
 
-	if ((buf_out = static_cast<outbuf*>(malloc((num + 1) * sizeof(struct outbuf)))) == NULL) {
+	if ((buf_out = static_cast<outbuf*>(malloc((num + 1) * sizeof(struct outbuf)))) == nullptr) {
 		return 1;
 	}
 	memset(buf_out, 0, (num + 1) * sizeof(struct outbuf));
 
-	if ((vfnt_midiout = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == NULL) {
+	if ((vfnt_midiout = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == nullptr) {
 		return 1;
 	}
 
@@ -339,7 +339,7 @@ int w32_midiInInit()
 	if (!num) {
 		return 0;
 	}
-	if ((vfnt_midiin = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == NULL) {
+	if ((vfnt_midiin = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == nullptr) {
 		return	1;
 	}
 	for (unsigned i = 0; i < num; ++i) {

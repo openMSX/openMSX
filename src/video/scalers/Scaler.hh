@@ -21,7 +21,7 @@ public:
 	  * are all equally wide.
 	  * Scaling factor depends on the concrete scaler.
 	  * @param src Source: the frame to be scaled.
-	  * @param superImpose The to-be-superimposed image (can be NULL).
+	  * @param superImpose The to-be-superimposed image (can be nullptr).
 	  * @param srcStartY Y-coordinate of the top source line (inclusive).
 	  * @param srcEndY Y-coordinate of the bottom source line (exclusive).
 	  * @param srcWidth The number of pixels per line for the given area.

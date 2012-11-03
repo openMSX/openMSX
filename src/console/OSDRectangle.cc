@@ -175,7 +175,7 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 			//   as a parent for sub-widgets. For those cases
 			//   creating an IMAGE only wastes memory. So postpone
 			//   creating it till alpha changes.
-			return NULL;
+			return nullptr;
 		}
 		double width, height;
 		getWidthHeight(output, width, height);
@@ -212,7 +212,7 @@ BaseImage* OSDRectangle::createGL(OutputRectangle& output)
 	return create<GLImage>(output);
 #else
 	(void)&output;
-	return NULL;
+	return nullptr;
 #endif
 }
 

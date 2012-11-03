@@ -239,7 +239,7 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 {
 	address &= 0x7FFF;
 	if (address == (0x7FFE & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {

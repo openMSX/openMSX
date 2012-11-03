@@ -70,10 +70,10 @@ byte SunriseIDE::readMem(word address, EmuTime::param time)
 const byte* SunriseIDE::getReadCacheLine(word start) const
 {
 	if (ideRegsEnabled && ((start & 0x3E00) == 0x3C00)) {
-		return NULL;
+		return nullptr;
 	}
 	if (ideRegsEnabled && ((start & 0x3F00) == 0x3E00)) {
-		return NULL;
+		return nullptr;
 	}
 	if ((0x4000 <= start) && (start < 0x8000)) {
 		return &internalBank[start & 0x3FFF];

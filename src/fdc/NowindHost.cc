@@ -332,7 +332,7 @@ void NowindHost::INIENV()
 
 void NowindHost::setDateMSX()
 {
-	time_t td = time(NULL);
+	time_t td = time(nullptr);
 	struct tm* tm = localtime(&td);
 
 	sendHeader();

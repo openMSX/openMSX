@@ -36,7 +36,7 @@ public:
 
 	/** Search file with the given sha1sum.
 	 * If found it returns the (already opened) file,
-	 * if not found it returns a NULL pointer.
+	 * if not found it returns nullptr.
 	 */
 	std::unique_ptr<File> getFile(FileType fileType, const Sha1Sum& sha1sum);
 

@@ -94,7 +94,7 @@ RawPrinter::RawPrinter()
 {
 	Properties* properties = propGetGlobalProperties();
 	hFile = CreateFile(properties->ports.Lpt.portName, GENERIC_WRITE,
-	                   0, NULL, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH, NULL);
+	                   0, nullptr, OPEN_EXISTING, FILE_FLAG_WRITE_THROUGH, nullptr);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		throw MSXException();
 	}
@@ -108,7 +108,7 @@ void RawPrinter::~RawPrinter()
 void RawPrinter::write(byte value)
 {
 	unsigned dwWritten;
-	WriteFile(hFile, &value, 1, &dwWritten, NULL);
+	WriteFile(hFile, &value, 1, &dwWritten, nullptr);
 }
 
 void RawPrinter::forceFormFeed()
@@ -126,7 +126,7 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("print-resolution");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new IntegerSetting(
 		    motherBoard.getCommandController(), "print-resolution",
 		    "resolution of the output image of emulated dot matrix printer in DPI",
@@ -179,7 +179,7 @@ ImagePrinter::~ImagePrinter()
 	--info.counter;
 	if (info.counter == 0) {
 		delete dpiSetting;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 

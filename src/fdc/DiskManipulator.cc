@@ -126,7 +126,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 		string_ref num = diskname.substr(pos2);
 		SectorAccessibleDisk* disk =
 			it->drive->getSectorAccessibleDisk();
-		int partition = stoi(num, NULL, 10);
+		int partition = stoi(num, nullptr, 10);
 		DiskImageUtils::checkFAT12Partition(*disk, partition);
 		it->partition = partition;
 	}

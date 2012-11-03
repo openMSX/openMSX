@@ -114,7 +114,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, EmuTime::param /*time*/
 
 byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 template<typename Archive>

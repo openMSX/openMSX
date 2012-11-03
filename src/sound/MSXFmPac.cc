@@ -69,13 +69,13 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 {
 	address &= 0x3FFF;
 	if (address == (0x3FF6 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	}
 	if (sramEnabled) {
 		if (address < (0x1FFE & CacheLine::HIGH)) {
 			return &(*sram)[address];
 		} else if (address == (0x1FFE & CacheLine::HIGH)) {
-			return NULL;
+			return nullptr;
 		} else {
 			return unmappedRead;
 		}
@@ -134,13 +134,13 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 {
 	address &= 0x3FFF;
 	if (address == (0x1FFE & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	}
 	if (address == (0x3FF4 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

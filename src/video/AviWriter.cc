@@ -170,7 +170,7 @@ AviWriter::~AviWriter()
 
 	const char* versionStr = Version::full().c_str();
 	char dateStr[11];
-	time_t t = time(NULL);
+	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);
 	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
 		 tm->tm_mon + 1, tm->tm_mday);

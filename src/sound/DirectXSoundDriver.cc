@@ -28,7 +28,7 @@ static HWND getWindowHandle()
 
 DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 {
-	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
+	if (DirectSoundCreate(nullptr, &directSound, nullptr) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
 	HWND hwnd = getWindowHandle();
@@ -79,7 +79,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	bufferSize = fragmentCount * fragmentSize;
 
 	if (IDirectSound_CreateSoundBuffer(
-			directSound, &desc, &secondaryBuffer, NULL) != DS_OK) {
+			directSound, &desc, &secondaryBuffer, nullptr) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
 
@@ -92,7 +92,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&pcmwf);
 
 	if (IDirectSound_CreateSoundBuffer(
-			directSound, &desc, &primaryBuffer, NULL) != DS_OK) {
+			directSound, &desc, &primaryBuffer, nullptr) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
 

@@ -162,7 +162,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 		// Get next sync point.
 		const SynchronizationPoint sp =
 			  syncPoints.empty()
-			? SynchronizationPoint(EmuTime::infinity, NULL, 0)
+			? SynchronizationPoint(EmuTime::infinity, nullptr, 0)
 			: syncPoints.front();
 		EmuTime::param time = sp.getTime();
 		if (time > limit) {

@@ -12,7 +12,7 @@ namespace openmsx {
 
 Pluggable::Pluggable()
 {
-	setConnector(NULL);
+	setConnector(nullptr);
 }
 
 Pluggable::~Pluggable()
@@ -44,7 +44,7 @@ void Pluggable::unplug(EmuTime::param time)
 	} catch (MSXException&) {
 		UNREACHABLE;
 	}
-	setConnector(NULL);
+	setConnector(nullptr);
 }
 
 Connector* Pluggable::getConnector() const

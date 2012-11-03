@@ -56,7 +56,7 @@ byte RomNational::readMem(word address, EmuTime::param time)
 const byte* RomNational::getReadCacheLine(word address) const
 {
 	if ((0x3FF0 & CacheLine::HIGH) == (address & 0x3FFF)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return Rom16kBBlocks::getReadCacheLine(address);
 	}
@@ -104,9 +104,9 @@ byte* RomNational::getWriteCacheLine(word address) const
 	    (address == (0x7000 & CacheLine::HIGH)) ||
 	    (address == (0x7400 & CacheLine::HIGH)) ||
 	    (address == (0x7FF9 & CacheLine::HIGH))) {
-		return NULL;
+		return nullptr;
 	} else if ((address & 0x3FFF) == (0x3FFA & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

@@ -50,7 +50,7 @@ byte RomPlayBall::readMem(word address, EmuTime::param time)
 const byte* RomPlayBall::getReadCacheLine(word address) const
 {
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return Rom16kBBlocks::getReadCacheLine(address);
 	}
@@ -68,7 +68,7 @@ void RomPlayBall::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* RomPlayBall::getWriteCacheLine(word address) const
 {
 	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

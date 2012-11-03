@@ -532,7 +532,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		PRT_DEBUG("Laserdisc: ACK cleared");
 		break;
 	case ODD_FRAME:
-		if (video.get() == NULL || video->getFrameRate() != 60)
+		if (video.get() == nullptr || video->getFrameRate() != 60)
 			break;
 
 	case EVEN_FRAME:

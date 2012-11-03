@@ -34,11 +34,11 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 	th_info ti;
 	th_comment tc;
-	th_setup_info* tsi = NULL;
+	th_setup_info* tsi = nullptr;
 
 	th_info_init(&ti);
 	th_comment_init(&tc);
-	theora = NULL;
+	theora = nullptr;
 
 	vorbis_info_init(&vi);
 	vorbis_comment_init(&vc);
@@ -438,7 +438,7 @@ int OggReader::frameNo(ogg_packet* packet)
 
 void OggReader::readMetadata(th_comment& tc)
 {
-	char* metadata = NULL;
+	char* metadata = nullptr;
 	for (int i = 0; i < tc.comments; ++i) {
 		if (!strncasecmp(tc.user_comments[i], "location=",
 				 strlen("location="))) {
@@ -525,7 +525,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	keyFrame = -1;
 	Frame* frame;
 
-	int rc = th_decode_packetin(theora, packet, NULL);
+	int rc = th_decode_packetin(theora, packet, nullptr);
 	switch (rc) {
 	case TH_DUPFRAME:
 		if (frameList.empty()) {
@@ -595,7 +595,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	// At lot of frames have framenumber -1, only some have the correct
 	// frame number. We continue counting from the previous known
 	// postion
-	Frame *last = NULL;
+	Frame *last = nullptr;
 
 	if (!frameList.empty()) {
 		last = frameList.back();
@@ -702,7 +702,7 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 	while (audioList.empty() ||
 	       audioList.front()->position == AudioFragment::UNKNOWN_POS) {
 		if (!nextPacket()) {
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -721,7 +721,7 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 				return audio;
 			} else {
 				// gone too far?
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -730,7 +730,7 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 			size_t size = audioList.size();
 			while (size == audioList.size()) {
 				if (!nextPacket()) {
-					return NULL;
+					return nullptr;
 				}
 			}
 

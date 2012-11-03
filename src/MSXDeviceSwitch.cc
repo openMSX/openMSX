@@ -14,7 +14,7 @@ MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
 	for (int i = 0; i < 256; ++i) {
-		devices[i] = NULL;
+		devices[i] = nullptr;
 	}
 	count = 0;
 	selected = 0;
@@ -24,7 +24,7 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 {
 	for (int i = 0; i < 256; ++i) {
 		// all devices must be unregistered
-		assert(devices[i] == NULL);
+		assert(devices[i] == nullptr);
 	}
 	assert(count == 0);
 }
@@ -55,8 +55,8 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 			getCPUInterface().unregister_IO_In (port, this);
 		}
 	}
-	assert(devices[id] != NULL);
-	devices[id] = NULL;
+	assert(devices[id] != nullptr);
+	devices[id] = nullptr;
 }
 
 bool MSXDeviceSwitch::hasRegisteredDevices() const

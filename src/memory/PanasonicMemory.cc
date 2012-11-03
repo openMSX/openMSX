@@ -16,7 +16,7 @@ static Rom* createRom(MSXMotherBoard& motherBoard)
 {
 	const XMLElement* elem = motherBoard.getMachineConfig()->
 	                      getConfig().findChild("PanasonicRom");
-	if (!elem) return NULL;
+	if (!elem) return nullptr;
 
 	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
 	assert(hwConf);
@@ -27,7 +27,7 @@ static Rom* createRom(MSXMotherBoard& motherBoard)
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
 	, rom(createRom(motherBoard))
-	, ram(NULL), dram(false)
+	, ram(nullptr), dram(false)
 {
 }
 
@@ -87,7 +87,7 @@ const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 
 byte* PanasonicMemory::getRamBlock(unsigned block)
 {
-	if (!ram) return NULL;
+	if (!ram) return nullptr;
 
 	unsigned offset = block * 0x2000;
 	if (offset >= ramSize) {

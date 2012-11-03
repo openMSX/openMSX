@@ -19,8 +19,8 @@
 // It is possible to combine the speed of array accesses with the flexibility
 // of virtual methods. In openMSX it's implemened as follows: the 64kb address
 // space is divided in 256 regions of 256 bytes (called cacheLines in the code
-// below). For each such region we store a pointer, if this pointer is NULL
-// then we have to use the slow way (=virtual method call). If it is not NULL,
+// below). For each such region we store a pointer, if this pointer is nullptr
+// then we have to use the slow way (=virtual method call). If it is not nullptr,
 // the pointer points to a block of memory that can be directly accessed. In
 // some contexts accesses via the pointer are known as backdoor accesses while
 // the accesses directly to the device are known as frontdoor accesses.
@@ -258,7 +258,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, CPU(T::isR800())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
-	, interface(NULL)
+	, interface(nullptr)
 	, traceSetting(traceSetting_)
 	, diHaltCallback(diHaltCallback_)
 	, IRQStatus(motherboard.getDebugger(), name + ".pendingIRQ",
@@ -313,7 +313,7 @@ template <class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned 
 {
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
-	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // NULL
+	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // nullptr
 	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //
 	memset(&readCacheTried [first], 0, num * sizeof(bool));  // FALSE
 	memset(&writeCacheTried[first], 0, num * sizeof(bool));  //
@@ -547,7 +547,7 @@ template <class T> template <bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(line != NULL)) {
+	if (likely(line != nullptr)) {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -579,7 +579,7 @@ ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL))) {
+		   (line != nullptr))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -631,7 +631,7 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
 	unsigned address, byte value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(line != NULL)) {
+	if (likely(line != nullptr)) {
 		// cached, fast path
 		T::template PRE_MEM<PRE_PB, POST_PB>(address);
 		T::template POST_MEM<       POST_PB>(address);
@@ -657,7 +657,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL))) {
+		   (line != nullptr))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<true, true>(address);
 		T::template POST_WORD<     true>(address);
@@ -682,7 +682,7 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL))) {
+		   (line != nullptr))) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -800,7 +800,7 @@ void CPUCore<T>::executeInstructions()
 		R.incR(1); \
 		unsigned address = R.getPC(); \
 		const byte* line = readCacheLine[address >> CacheLine::BITS]; \
-		if (likely(line != NULL)) { \
+		if (likely(line != nullptr)) { \
 			R.setPC(address + 1); \
 			T::template PRE_MEM<false, false>(address); \
 			T::template POST_MEM<      false>(address); \

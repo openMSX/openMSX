@@ -172,7 +172,7 @@ private:
 	//    the mbSem lock
 	Boards boards;
 	Boards garbageBoards;
-	Board activeBoard; // either NULL or a board inside 'boards'
+	Board activeBoard; // either nullptr or a board inside 'boards'
 
 	int blockedCounter;
 	bool paused;

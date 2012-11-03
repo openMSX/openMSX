@@ -456,7 +456,7 @@ byte MSXDevice::readMem(word address, EmuTime::param /*time*/)
 
 const byte* MSXDevice::getReadCacheLine(word /*start*/) const
 {
-	return NULL; // uncacheable
+	return nullptr; // uncacheable
 }
 
 void MSXDevice::writeMem(word address, byte /*value*/,
@@ -488,7 +488,7 @@ void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
 
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
-	return NULL; // uncacheable
+	return nullptr; // uncacheable
 }
 
 void MSXDevice::invalidateMemCache(word start, unsigned size)

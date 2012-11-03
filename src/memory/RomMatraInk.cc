@@ -46,7 +46,7 @@ const byte* RomMatraInk::getReadCacheLine(word address) const
 
 byte* RomMatraInk::getWriteCacheLine(word /*address*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 template<typename Archive>

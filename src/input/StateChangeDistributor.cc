@@ -9,7 +9,7 @@
 namespace openmsx {
 
 StateChangeDistributor::StateChangeDistributor()
-	: recorder(NULL)
+	: recorder(nullptr)
 	, viewOnlyMode(false)
 {
 }
@@ -39,7 +39,7 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 
 void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)
 {
-	assert(recorder == NULL);
+	assert(recorder == nullptr);
 	recorder = &recorder_;
 }
 
@@ -47,7 +47,7 @@ void StateChangeDistributor::unregisterRecorder(StateChangeRecorder& recorder_)
 {
 	(void)recorder_;
 	assert(recorder == &recorder_);
-	recorder = NULL;
+	recorder = nullptr;
 }
 
 void StateChangeDistributor::distributeNew(const EventPtr& event)

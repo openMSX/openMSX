@@ -19,14 +19,14 @@ ReadDir::~ReadDir()
 struct dirent* ReadDir::getEntry()
 {
 	if (!dir) {
-		return NULL;
+		return nullptr;
 	}
 	return readdir(dir);
 }
 
 bool ReadDir::isValid() const
 {
-	return dir != NULL;
+	return dir != nullptr;
 }
 
 } // namespace openmsx

@@ -23,7 +23,7 @@ protected:
 class ClockPin : public Schedulable
 {
 public:
-	explicit ClockPin(Scheduler& scheduler, ClockPinListener* listener = NULL);
+	explicit ClockPin(Scheduler& scheduler, ClockPinListener* listener = nullptr);
 
 	// input side
 	void setState(bool status, EmuTime::param time);

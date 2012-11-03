@@ -57,7 +57,7 @@ void RomSynthesizer::writeMem(word address, byte value, EmuTime::param time)
 byte* RomSynthesizer::getWriteCacheLine(word address) const
 {
 	if ((address & 0xC010 & CacheLine::HIGH) == 0x4000) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

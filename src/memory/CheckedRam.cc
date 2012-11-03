@@ -53,13 +53,13 @@ byte CheckedRam::read(unsigned addr)
 const byte* CheckedRam::getReadCacheLine(unsigned addr) const
 {
 	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
-	     ? &(*ram)[addr] : NULL;
+	     ? &(*ram)[addr] : nullptr;
 }
 
 byte* CheckedRam::getWriteCacheLine(unsigned addr) const
 {
 	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
-	     ? &(*ram)[addr] : NULL;
+	     ? &(*ram)[addr] : nullptr;
 }
 
 byte CheckedRam::peek(unsigned addr) const

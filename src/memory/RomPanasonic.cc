@@ -87,7 +87,7 @@ const byte* RomPanasonic::getReadCacheLine(word address) const
 {
 	if ((0x7FF0 & CacheLine::HIGH) == address) {
 		// TODO check mirrored
-		return NULL;
+		return nullptr;
 	} else {
 		return Rom8kBBlocks::getReadCacheLine(address);
 	}
@@ -132,18 +132,18 @@ void RomPanasonic::writeMem(word address, byte value, EmuTime::param /*time*/)
 
 byte* RomPanasonic::getWriteCacheLine(word address) const
 {
-	//return NULL;
+	//return nullptr;
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
-		return NULL;
+		return nullptr;
 	} else if (address == (0x7FF8 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;
 		int selectedBank = bankSelect[region];
 		if (sram.get() && (SRAM_BASE <= selectedBank) &&
 			     (selectedBank < maxSRAMBank)) {
 			// SRAM
-			return NULL;
+			return nullptr;
 		} else if (RAM_BASE <= selectedBank) {
 			// RAM
 			return const_cast<byte*>(&bank[region][address & 0x1FFF]);

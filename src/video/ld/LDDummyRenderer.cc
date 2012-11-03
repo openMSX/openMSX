@@ -18,7 +18,7 @@ void LDDummyRenderer::drawBlank(int /*r*/, int /*g*/, int /*b*/)
 
 RawFrame* LDDummyRenderer::getRawFrame()
 {
-	return NULL;
+	return nullptr;
 }
 
 } // namespace openmsx

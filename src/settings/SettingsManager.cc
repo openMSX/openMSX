@@ -83,7 +83,7 @@ void SettingsManager::unregisterSetting(Setting& /*setting*/, string_ref name)
 Setting* SettingsManager::findSetting(string_ref name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
-	return (it != settingsMap.end()) ? it->second : NULL;
+	return (it != settingsMap.end()) ? it->second : nullptr;
 }
 
 // Helper functions for setting commands
@@ -109,7 +109,7 @@ Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 Setting* SettingsManager::getByName(string_ref name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
-	return it != settingsMap.end() ? it->second : NULL;
+	return it != settingsMap.end() ? it->second : nullptr;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)

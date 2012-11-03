@@ -21,7 +21,7 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 	setInputRate(44100); // Initialize with dummy value
 
 	bool alreadyWarned = false;
-	samples.resize(numSamples); // initialize with NULL ptrs
+	samples.resize(numSamples); // initialize with nullptr
 	SystemFileContext context;
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {

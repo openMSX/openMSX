@@ -506,7 +506,7 @@ public:
 
 	template<typename T> void resetSharedPtr(shared_ptr<T>& s, T* r)
 	{
-		if (r == NULL) {
+		if (r == nullptr) {
 			s.reset();
 			return;
 		}

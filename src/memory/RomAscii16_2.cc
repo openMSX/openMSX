@@ -83,7 +83,7 @@ byte* RomAscii16_2::getWriteCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled & 0x04) {
 		// write sram
-		return NULL;
+		return nullptr;
 	} else {
 		return RomAscii16kB::getWriteCacheLine(address);
 	}

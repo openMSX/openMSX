@@ -57,7 +57,7 @@ void MSXBunsetsu::writeMem(word address, byte value, EmuTime::param /*time*/)
 const byte* MSXBunsetsu::getReadCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return &(*bunsetsuRom)[start - 0x4000];
 	}
@@ -66,7 +66,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 byte* MSXBunsetsu::getWriteCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

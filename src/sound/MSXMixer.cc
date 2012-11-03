@@ -552,8 +552,8 @@ const DynamicClock& MSXMixer::getHostSampleClock() const
 
 void MSXMixer::setRecorder(AviRecorder* newRecorder)
 {
-	if ((recorder != NULL) != (newRecorder != NULL)) {
-		setSynchronousMode(newRecorder != NULL);
+	if ((recorder != nullptr) != (newRecorder != nullptr)) {
+		setSynchronousMode(newRecorder != nullptr);
 	}
 	recorder = newRecorder;
 }
@@ -700,7 +700,7 @@ SoundDevice* MSXMixer::findDevice(string_ref name) const
 			return it->first;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SoundDeviceInfoTopic::SoundDeviceInfoTopic(

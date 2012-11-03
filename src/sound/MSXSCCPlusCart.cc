@@ -119,7 +119,7 @@ const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
 	    ((enable == EN_SCCPLUS) && (0xB800 <= start) && (start < 0xC000))) {
 		// SCC  visible in 0x9800 - 0x9FFF
 		// SCC+ visible in 0xB800 - 0xBFFF
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= start) && (start < 0xC000)) {
 		// SCC(+) enabled/disabled but not requested so memory stuff
 		return &internalMemoryBank[(start >> 13) - 2][start & 0x1FFF];
@@ -192,13 +192,13 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 {
 	if ((0x4000 <= start) && (start < 0xC000)) {
 		if (start == (0xBFFF & CacheLine::HIGH)) {
-			return NULL;
+			return nullptr;
 		}
 		int regio = (start >> 13) - 2;
 		if (isRamSegment[regio] && isMapped[regio]) {
 			return &internalMemoryBank[regio][start & 0x1FFF];
 		}
-		return NULL;
+		return nullptr;
 	}
 	return unmappedWrite;
 }

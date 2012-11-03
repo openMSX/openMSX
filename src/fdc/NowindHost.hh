@@ -108,7 +108,7 @@ private:
 	std::deque<byte> hostToMsxFifo;
 
 	struct {
-		std::unique_ptr<std::fstream> fs; // not in use when fs == NULL
+		std::unique_ptr<std::fstream> fs; // not in use when fs == nullptr
 		unsigned fcb;
 	} devices[MAX_DEVICES];
 

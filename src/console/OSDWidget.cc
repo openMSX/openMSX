@@ -120,7 +120,7 @@ GLScopedClip::~GLScopedClip()
 ////
 
 OSDWidget::OSDWidget(const string& name_)
-	: parent(NULL)
+	: parent(nullptr)
 	, name(name_)
 	, x(0.0), y(0.0), z(0.0)
 	, relx(0.0), rely(0.0)
@@ -162,7 +162,7 @@ OSDWidget* OSDWidget::findSubWidget(string_ref name)
 	string_ref first, last;
 	StringOp::splitOnFirst(name, '.', first, last);
 	SubWidgetsMap::const_iterator it = subWidgetsMap.find(first);
-	return it == subWidgetsMap.end() ? NULL : it->second->findSubWidget(last);
+	return it == subWidgetsMap.end() ? nullptr : it->second->findSubWidget(last);
 }
 
 const OSDWidget* OSDWidget::findSubWidget(string_ref name) const

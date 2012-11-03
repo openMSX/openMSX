@@ -489,7 +489,7 @@ void Reactor::deleteBoard(Board board)
 
 	if (board == activeBoard) {
 		// delete active board -> there is no active board anymore
-		switchBoard(Reactor::Board(NULL));
+		switchBoard(Reactor::Board(nullptr));
 	}
 	Boards::iterator it = find(boards.begin(), boards.end(), board);
 	assert(it != boards.end());

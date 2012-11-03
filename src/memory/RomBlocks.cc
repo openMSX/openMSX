@@ -34,7 +34,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 			BANK_SIZE / 1024 << " kB (for this mapper type).");
 	}
 	// by default no extra mappable memory block
-	extraMem = NULL;
+	extraMem = nullptr;
 	extraSize = 0;
 
 	// Default mask: wraps at end of ROM image.

@@ -25,7 +25,7 @@ LibAOSoundDriver::LibAOSoundDriver(unsigned sampleRate_, unsigned bufferSize_)
 	format.rate = sampleRate;
 	format.byte_format = AO_FMT_NATIVE;
 
-	device = ao_open_live(driver, &format, NULL /* no options */);
+	device = ao_open_live(driver, &format, nullptr /* no options */);
 	if (!device) {
 		throw MSXException("Couldn't open audio device");
 	}

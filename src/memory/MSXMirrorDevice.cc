@@ -41,12 +41,12 @@ void MSXMirrorDevice::writeMem(word address, byte value, EmuTime::param time)
 
 const byte* MSXMirrorDevice::getReadCacheLine(word /*start*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 byte* MSXMirrorDevice::getWriteCacheLine(word /*start*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 template<typename Archive>

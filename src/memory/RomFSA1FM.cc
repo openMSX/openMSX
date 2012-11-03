@@ -53,7 +53,7 @@ RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("FSA1FM-sram");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new SRAM(config.getAttribute("id") + " SRAM",
 		                      0x2000, config);
 	}
@@ -72,7 +72,7 @@ RomFSA1FMSram::~RomFSA1FMSram()
 	--info.counter;
 	if (info.counter == 0) {
 		delete sram;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 
@@ -134,7 +134,7 @@ const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) {
 		// dont't cache IO area
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
 		return &(*rom)[(0x2000 * ((*fsSram)[0x1FC4] & 0x0F)) +
@@ -164,10 +164,10 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 {
 	if (address == (0x7FC0 & CacheLine::HIGH)) {
 		// dont't cache IO area
-		return NULL;
+		return nullptr;
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
 		// don't cache SRAM writes
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}
@@ -235,7 +235,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 	if (0xC000 <= address) {
 		return unmappedRead;
 	} else if ((0x7FF0 & CacheLine::HIGH) == address) {
-		return NULL;
+		return nullptr;
 	} else if (isRam[address >> 13]) {
 		return &(*fsSram)[address & 0x1FFF];
 	} else if (isEmpty[address >> 13]) {
@@ -287,9 +287,9 @@ void RomFSA1FM2::writeMem(word address, byte value,
 byte* RomFSA1FM2::getWriteCacheLine(word address) const
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return NULL;
+		return nullptr;
 	} else if (isRam[address >> 13]) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

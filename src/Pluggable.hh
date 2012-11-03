@@ -41,8 +41,8 @@ public:
 	  */
 	void unplug(EmuTime::param time);
 
-	/** Get the connector this Pluggable is plugged into. Returns a NULL
-	  * pointer if this Pluggable is not plugged.
+	/** Get the connector this Pluggable is plugged into. Returns nullptr
+	  * if this Pluggable is not plugged.
 	  */
 	Connector* getConnector() const;
 

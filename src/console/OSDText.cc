@@ -448,7 +448,7 @@ BaseImage* OSDText::createGL(OutputRectangle& output)
 	return create<GLImage>(output);
 #else
 	(void)&output;
-	return NULL;
+	return nullptr;
 #endif
 }
 

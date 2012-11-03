@@ -109,7 +109,7 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 const byte* TurboRFDC::getReadCacheLine(word start) const
 {
 	if ((start & 0x3FF0) == (0x3FF0 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		return &memory[start & 0x3FFF];
 	} else {
@@ -170,7 +170,7 @@ byte* TurboRFDC::getWriteCacheLine(word address) const
 	    (address == (0x7FF0 & CacheLine::HIGH)) ||
 	    (address == (0x7FFE & CacheLine::HIGH)) ||
 	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

@@ -175,14 +175,14 @@ const byte* MegaFlashRomSCCPlus::getReadCacheLine(word addr) const
 	if ((configReg & 0x10) &&
 	    ((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
 		// read subslot register
-		return NULL;
+		return nullptr;
 	}
 
 	if ((configReg & 0xE0) == 0x00) {
 		SCCEnable enable = getSCCEnable();
 		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
 		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -332,7 +332,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 
 byte* MegaFlashRomSCCPlus::getWriteCacheLine(word /*addr*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 

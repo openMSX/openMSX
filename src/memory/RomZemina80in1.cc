@@ -42,7 +42,7 @@ void RomZemina80in1::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* RomZemina80in1::getWriteCacheLine(word address) const
 {
 	if (address == (0x4000 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

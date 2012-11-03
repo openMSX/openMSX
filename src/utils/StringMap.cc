@@ -22,7 +22,7 @@ StringMapImpl::StringMapImpl(unsigned itemSize_, unsigned initSize)
 		init(initSize);
 	} else {
 		// Otherwise, initialize it with zero buckets to avoid the allocation.
-		theTable = NULL;
+		theTable = nullptr;
 		numBuckets = 0;
 		numItems = 0;
 		numTombstones = 0;
@@ -75,7 +75,7 @@ unsigned StringMapImpl::lookupBucketFor(string_ref name)
 		} else if (hashTable[bucketNo] == fullHashValue) {
 			// If the full hash value matches, check deeply for a
 			// match.  The common case here is that we are only
-			// looking at the buckets (for item info being non-null
+			// looking at the buckets (for item info being non-nullptr
 			// and for the full hash value) not at the items.  This
 			// is important for cache locality.
 			const char* itemStr = reinterpret_cast<char*>(bucketItem) + itemSize;
@@ -130,7 +130,7 @@ void StringMapImpl::removeKey(StringMapEntryBase* v)
 StringMapEntryBase* StringMapImpl::removeKey(string_ref key)
 {
 	int bucket = findKey(key);
-	if (bucket == -1) return NULL;
+	if (bucket == -1) return nullptr;
 
 	StringMapEntryBase* result = theTable[bucket];
 	theTable[bucket] = getTombstoneVal();

@@ -49,13 +49,13 @@ byte* RomMSXDOS2::getWriteCacheLine(word address) const
 {
 	switch (range) {
 	case 0x00:
-		if (address == (0x7ff0 & CacheLine::HIGH)) return NULL;
+		if (address == (0x7ff0 & CacheLine::HIGH)) return nullptr;
 		break;
 	case 0x60:
-		if ((address & 0xf000) == 0x6000) return NULL;
+		if ((address & 0xf000) == 0x6000) return nullptr;
 		break;
 	case 0x7f:
-		if (address == (0x7ffe & CacheLine::HIGH)) return NULL;
+		if (address == (0x7ffe & CacheLine::HIGH)) return nullptr;
 		break;
 	default:
 		UNREACHABLE;

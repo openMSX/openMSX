@@ -21,7 +21,7 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), file(NULL), lock(1)
+	, thread(this), file(nullptr), lock(1)
 	, readFilenameSetting(new FilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
@@ -60,7 +60,7 @@ void MidiInReader::unplugHelper(EmuTime::param /*time*/)
 	thread.stop();
 	if (file) {
 		fclose(file);
-		file = NULL;
+		file = nullptr;
 	}
 }
 

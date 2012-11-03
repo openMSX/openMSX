@@ -121,7 +121,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 const byte* PioneerLDControl::getReadCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else if (0x4000 <= start && start < 0x6000) {
 		return &(*rom)[start & 0x1fff];
 	} else {
@@ -159,7 +159,7 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 byte* PioneerLDControl::getWriteCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FFE & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}
@@ -180,10 +180,10 @@ void PioneerLDControl::videoIn(bool enabled)
 
 void PioneerLDControl::updateVideoSource()
 {
-	const RawFrame* videoSource = 
+	const RawFrame* videoSource =
 			(videoEnabled && superimposing && laserdisc.get())
                             ? laserdisc->getRawFrame()
-                            : NULL;
+                            : nullptr;
 	vdp->setExternalVideoSource(videoSource);
 }
 

@@ -236,7 +236,7 @@ MSXCPUInterface::~MSXCPUInterface()
 		}
 	}
 
-	msxcpu.setInterface(NULL);
+	msxcpu.setInterface(nullptr);
 
 	#ifndef NDEBUG
 	for (int port = 0; port < 256; ++port) {

@@ -127,7 +127,7 @@ void RP5C01::writePort(nibble port, nibble value, EmuTime::param time)
 
 void RP5C01::initializeTime()
 {
-	time_t t = time(NULL);
+	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);
 	fraction = 0;			// fractions of a second
 	seconds  = tm->tm_sec;		// 0-59

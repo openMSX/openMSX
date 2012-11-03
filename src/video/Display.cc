@@ -192,7 +192,7 @@ Layer* Display::findLayer(string_ref name) const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Layer* Display::findActiveLayer() const
@@ -203,7 +203,7 @@ Layer* Display::findActiveLayer() const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Display::Layers::iterator Display::baseLayer()

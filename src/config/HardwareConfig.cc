@@ -316,7 +316,7 @@ void HardwareConfig::parseSlots()
 
 void HardwareConfig::createDevices()
 {
-	createDevices(getDevices(), NULL, NULL);
+	createDevices(getDevices(), nullptr, nullptr);
 }
 
 void HardwareConfig::createDevices(const XMLElement& elem,

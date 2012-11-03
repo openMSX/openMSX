@@ -106,7 +106,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 					VIDEO_MSX, 640, 240)));
 #endif
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -117,7 +117,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 				VIDEO_MSX, 640, 240)));
 #endif
 	default:
-		UNREACHABLE; return NULL;
+		UNREACHABLE; return nullptr;
 	}
 }
 
@@ -146,7 +146,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 					VIDEO_GFX9000, 1280, 240)));
 #endif
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -157,7 +157,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 				VIDEO_GFX9000, 1280, 240)));
 #endif
 	default:
-		UNREACHABLE; return NULL;
+		UNREACHABLE; return nullptr;
 	}
 }
 
@@ -189,7 +189,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 					VIDEO_LASERDISC, 640, 480)));
 #endif
 		default:
-			UNREACHABLE; return NULL;
+			UNREACHABLE; return nullptr;
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
@@ -200,7 +200,7 @@ LDRasterizer* SDLVideoSystem::createLDRasterizer(LaserdiscPlayer& ld)
 				VIDEO_LASERDISC, 640, 480)));
 #endif
 	default:
-		UNREACHABLE; return NULL;
+		UNREACHABLE; return nullptr;
 	}
 }
 #endif

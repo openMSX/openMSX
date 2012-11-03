@@ -29,15 +29,15 @@ public:
 
 	// construct/copy/assign
 	string_ref()
-		: dat(NULL), siz(0) {}
+		: dat(nullptr), siz(0) {}
 	string_ref(const string_ref& str)
 		: dat(str.dat), siz(str.siz) {}
 	string_ref(const char* str)
 		: dat(str), siz(str ? size_type(strlen(str)) : 0) {}
 	string_ref(const char* str, size_type len)
-		: dat(str), siz(len) { if (dat == NULL) assert(siz == 0); }
+		: dat(str), siz(len) { if (dat == nullptr) assert(siz == 0); }
 	string_ref(const char* begin, const char* end)
-		: dat(begin), siz(end - begin) { if (dat == NULL) assert(siz == 0); }
+		: dat(begin), siz(end - begin) { if (dat == nullptr) assert(siz == 0); }
 	string_ref(const std::string& str)
 		: dat(str.data()), siz(size_type(str.size())) {}
 
@@ -116,14 +116,14 @@ inline bool operator<=(string_ref x, string_ref y) { return !(y <  x); }
 inline bool operator>=(string_ref x, string_ref y) { return !(x <  y); }
 
 // numeric conversions
-int                stoi  (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
-//long               stol  (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
-unsigned long      stoul (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
-long long          stoll (string_ref str, string_ref::size_type* idx = NULL, int base = 0);
-//unsigned long long stoull(string_ref str, string_ref::size_type* idx = NULL, int base = 0);
-//float              stof  (string_ref str, string_ref::size_type* idx = NULL);
-//double             stod  (string_ref str, string_ref::size_type* idx = NULL);
-//long double        stold (string_ref str, string_ref::size_type* idx = NULL);
+int                stoi  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//long               stol  (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+unsigned long      stoul (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+long long          stoll (string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//unsigned long long stoull(string_ref str, string_ref::size_type* idx = nullptr, int base = 0);
+//float              stof  (string_ref str, string_ref::size_type* idx = nullptr);
+//double             stod  (string_ref str, string_ref::size_type* idx = nullptr);
+//long double        stold (string_ref str, string_ref::size_type* idx = nullptr);
 
 // concatenation (this is not part of the std::string_ref proposal)
 std::string operator+(string_ref x, string_ref y);

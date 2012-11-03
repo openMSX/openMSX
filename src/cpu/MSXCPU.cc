@@ -70,7 +70,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, r800(motherboard.isTurboR()
 	       ? new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
 	                               *diHaltCallback, EmuTime::zero)
-	       : NULL)
+	       : nullptr)
 	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(
 		motherboard.getMachineInfoCommand(), *this))
@@ -128,7 +128,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			break;
 		default:
 			UNREACHABLE;
-			tmp = NULL; // prevent warning
+			tmp = nullptr; // prevent warning
 	}
 	if (tmp != activeCPU) {
 		exitCPULoopSync();

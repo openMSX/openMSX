@@ -387,7 +387,7 @@ void DBParser::addEntries()
 static const char* parseStart(string_ref s)
 {
 	// we expect "0x0000", "0x4000", "0x8000", "0xc000" or ""
-	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : NULL;
+	return ((s.size() == 6) && s.starts_with("0x")) ? (s.data() + 2) : nullptr;
 }
 
 void DBParser::stop()
@@ -495,7 +495,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
 		throw rapidsax::ParseError(
 			"Missing or wrong systemID.\n"
 			"You're probably using an old incompatible file format.",
-			NULL);
+			nullptr);
 	}
 }
 
@@ -549,7 +549,7 @@ const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
 	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
 	if (it == romDBSHA1.end()) {
-		return NULL;
+		return nullptr;
 	}
 	return it->second;
 }
@@ -573,7 +573,7 @@ void SoftwareInfoTopic::execute(const vector<TclObject>& tokens,
 
 	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
-	if (romInfo == NULL) {
+	if (romInfo == nullptr) {
 		// no match found
 		throw CommandException(
 			"Software with sha1sum " + sha1sum.toString() + " not found");

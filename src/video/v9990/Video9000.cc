@@ -24,7 +24,7 @@ Video9000::Video9000(const DeviceConfig& config)
 	distributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
 	display.attach(*this);
 
-	activeLayer = NULL; // we can't set activeLayer yet
+	activeLayer = nullptr; // we can't set activeLayer yet
 	value = 0x10;
 }
 
@@ -33,7 +33,7 @@ void Video9000::init()
 	MSXDevice::init();
 	const MSXDevice::Devices& references = getReferences();
 	v9990 = references.empty()
-	      ? NULL
+	      ? nullptr
 	      : dynamic_cast<V9990*>(references[0]);
 	if (!v9990) {
 		throw MSXException("Invalid Video9000 configuration: "
@@ -100,7 +100,7 @@ void Video9000::recalcVideoSource()
 
 void Video9000::preVideoSystemChange()
 {
-	activeLayer = NULL; // will be recalculated on next paint()
+	activeLayer = nullptr; // will be recalculated on next paint()
 }
 
 void Video9000::postVideoSystemChange()

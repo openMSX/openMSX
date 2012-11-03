@@ -45,7 +45,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 
 DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
                              unsigned start_, unsigned length)
-	: SectorBasedDisk(getDiskName(NULL, 0))
+	: SectorBasedDisk(getDiskName(nullptr, 0))
 	, parent(parent_)
 	, start(start_)
 {

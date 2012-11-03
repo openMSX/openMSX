@@ -113,10 +113,10 @@ byte PhilipsFDC::peekMem(word address, EmuTime::param time) const
 
 const byte* PhilipsFDC::getReadCacheLine(word start) const
 {
-	// if address overlap 0x7ff8-0x7ffb then return NULL,
+	// if address overlap 0x7ff8-0x7ffb then return nullptr,
 	// else normal ROM behaviour
 	if ((start & 0x3FF8 & CacheLine::HIGH) == (0x3FF8 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		// ROM visible in 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
@@ -177,7 +177,7 @@ void PhilipsFDC::writeMem(word address, byte value, EmuTime::param time)
 byte* PhilipsFDC::getWriteCacheLine(word address) const
 {
 	if ((address & 0x3FF8) == (0x3FF8 & CacheLine::HIGH)) {
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

@@ -431,7 +431,7 @@ static void drawBorder(SDL_Surface& image, int size, unsigned rgba)
 	bool onlyBorder = ((2 * size) >= image.w) ||
 	                  ((2 * size) >= image.h);
 	if (onlyBorder) {
-		SDL_FillRect(&image, NULL, color);
+		SDL_FillRect(&image, nullptr, color);
 	} else {
 		// +--------------------+
 		// |          1         |
@@ -507,7 +507,7 @@ void SDLImage::initSolid(int width, int height, unsigned rgba,
 	                      rmask, gmask, bmask, amask);
 
 	// draw interior
-	SDL_FillRect(image.get(), NULL, convertColor(*image->format, rgba));
+	SDL_FillRect(image.get(), nullptr, convertColor(*image->format, rgba));
 
 	drawBorder(*image, borderSize, borderRGBA);
 }
@@ -612,21 +612,21 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 	rect.y = y;
 	if (a == -1) {
 		if (alpha == 255) {
-			SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
+			SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
 		} else {
 			if (!workImage.get()) {
 				allocateWorkImage();
 			}
 			rect.w = image->w;
 			rect.h = image->h;
-			SDL_BlitSurface(outputSurface, &rect, workImage.get(), NULL);
-			SDL_BlitSurface(image.get(),   NULL,  workImage.get(), NULL);
+			SDL_BlitSurface(outputSurface, &rect, workImage.get(), nullptr);
+			SDL_BlitSurface(image.get(),   nullptr,  workImage.get(), nullptr);
 			SDL_SetAlpha(workImage.get(), SDL_SRCALPHA, alpha);
-			SDL_BlitSurface(workImage.get(), NULL, outputSurface, &rect);
+			SDL_BlitSurface(workImage.get(), nullptr, outputSurface, &rect);
 		}
 	} else {
 		SDL_SetAlpha(image.get(), SDL_SRCALPHA, (a * alpha) / 256);
-		SDL_BlitSurface(image.get(), NULL, outputSurface, &rect);
+		SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
 	}
 }
 

@@ -118,7 +118,7 @@ unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 	XMLLoaderHelper helper;
 
 	xmlParserCtxtPtr ctxt = xmlCreatePushParserCtxt(
-		&handler, &helper, NULL, 0, filename.c_str()
+		&handler, &helper, nullptr, 0, filename.c_str()
 		);
 	if (!ctxt) {
 		throw XMLException(filename + ": Could not create XML parser context");

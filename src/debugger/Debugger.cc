@@ -141,7 +141,7 @@ void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 Debuggable* Debugger::findDebuggable(string_ref name)
 {
 	Debuggables::iterator it = debuggables.find(name);
-	return (it != debuggables.end()) ? it->second : NULL;
+	return (it != debuggables.end()) ? it->second : nullptr;
 }
 
 Debuggable& Debugger::getDebuggable(string_ref name)
@@ -179,7 +179,7 @@ void Debugger::unregisterProbe(string_ref name, ProbeBase& probe)
 ProbeBase* Debugger::findProbe(string_ref name)
 {
 	Probes::iterator it = probes.find(name);
-	return (it != probes.end()) ? it->second : NULL;
+	return (it != probes.end()) ? it->second : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(string_ref name)

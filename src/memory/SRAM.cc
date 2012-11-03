@@ -28,7 +28,7 @@ namespace openmsx {
 SRAM::SRAM(const std::string& name, const std::string& description,
            int size, const DeviceConfig& config, DontLoad)
 	: ram(config, name, description, size)
-	, header(NULL) // not used
+	, header(nullptr) // not used
 	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
 	                          *this, OPENMSX_SAVE_SRAM)) // used, but not needed
 {

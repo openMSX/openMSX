@@ -38,7 +38,7 @@ void RomMajutsushi::writeMem(word address, byte value, EmuTime::param time)
 byte* RomMajutsushi::getWriteCacheLine(word address) const
 {
 	return (0x5000 <= address && address < 0x6000)
-		? NULL : RomKonami::getWriteCacheLine(address);
+		? nullptr : RomKonami::getWriteCacheLine(address);
 }
 
 template<typename Archive>

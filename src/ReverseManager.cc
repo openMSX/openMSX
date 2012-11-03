@@ -422,7 +422,7 @@ void ReverseManager::goTo(
 		Reactor& reactor = motherBoard.getReactor();
 		EmuTime currentTime = getCurrentTime();
 		MSXMotherBoard* newBoard;
-		Reactor::Board newBoard_; // either NULL or the same as newBoard
+		Reactor::Board newBoard_; // either nullptr or the same as newBoard
 		if (sameTimeLine &&
 		    (currentTime <= preTarget) &&
 		    ((snapshotTime <= currentTime) ||
@@ -619,7 +619,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	if (tokens.size() < 3) throw SyntaxError();
 
 	vector<string> arguments;
-	const TclObject* whereArg = NULL;
+	const TclObject* whereArg = nullptr;
 	bool enableViewOnly = false;
 
 	for (unsigned i = 2; i < tokens.size(); ++i) {
@@ -673,7 +673,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// get destination time index
 	EmuTime destination = EmuTime::zero;
-	string_ref where = (whereArg == NULL) ? "begin" : whereArg->getString();
+	string_ref where = (whereArg == nullptr) ? "begin" : whereArg->getString();
 	if (where == "begin") {
 		destination = EmuTime::zero;
 	} else if (where == "end") {

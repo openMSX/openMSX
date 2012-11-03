@@ -27,10 +27,10 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	: VideoLayer(motherBoard, videoSource)
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
-	, paintFrame(NULL)
-	, recorder(NULL)
-	, superImposeVideoFrame(NULL)
-	, superImposeVdpFrame(NULL)
+	, paintFrame(nullptr)
+	, recorder(nullptr)
+	, superImposeVideoFrame(nullptr)
+	, superImposeVdpFrame(nullptr)
 	, display(display_)
 {
 	if (getVideoSource() != VIDEO_LASERDISC) {
@@ -202,7 +202,7 @@ void PostProcessor::setRecorder(AviRecorder* recorder_)
 
 bool PostProcessor::isRecording() const
 {
-	return recorder != NULL;
+	return recorder != nullptr;
 }
 
 unsigned PostProcessor::getBpp() const

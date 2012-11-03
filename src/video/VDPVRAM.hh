@@ -322,7 +322,7 @@ private:
 
 	/** Observer associated with this VRAM window.
 	  * It will be called when changes occur within the window.
-	  * If there is no observer, this variable contains NULL.
+	  * If there is no observer, this variable is nullptr.
 	  */
 	VRAMObserver* observer;
 

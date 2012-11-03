@@ -87,7 +87,7 @@ Setting* UserSettings::findSetting(string_ref name) const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const UserSettings::Settings& UserSettings::getSettings() const

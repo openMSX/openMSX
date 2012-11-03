@@ -61,7 +61,7 @@ void RomCrossBlaim::writeMem(word /*address*/, byte value, EmuTime::param /*time
 
 byte* RomCrossBlaim::getWriteCacheLine(word /*address*/) const
 {
-	return NULL;
+	return nullptr;
 }
 
 REGISTER_MSXDEVICE(RomCrossBlaim, "RomCrossBlaim");

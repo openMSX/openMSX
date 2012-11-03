@@ -157,7 +157,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 
 	// Optimization: remove trailing empty lines
 	StringOp::trimRight(text, " \n");
-	if (text.empty()) return SDLSurfacePtr(NULL);
+	if (text.empty()) return SDLSurfacePtr(nullptr);
 
 	// Split on newlines
 	std::vector<string> lines;
@@ -218,7 +218,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		rect.x = 0;
 		rect.y = i * lineSkip;
 		SDL_SetAlpha(line.get(), 0, 0); // no blending during copy
-		SDL_BlitSurface(line.get(), NULL, destination.get(), &rect);
+		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
 	}
 	return destination;
 
@@ -234,8 +234,8 @@ unsigned TTFFont::getWidth() const
 {
 	int advance;
 	if (TTF_GlyphMetrics(static_cast<TTF_Font*>(font), Uint16('M'),
-	                     NULL /*minx*/, NULL /*maxx*/,
-	                     NULL /*miny*/, NULL /*maxy*/,
+	                     nullptr /*minx*/, nullptr /*maxx*/,
+	                     nullptr /*miny*/, nullptr /*maxy*/,
 	                     &advance)) {
 		// error?
 		return 10; //fallback-width

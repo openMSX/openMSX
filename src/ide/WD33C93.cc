@@ -142,7 +142,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		if (dev[i].get() == NULL) {
+		if (dev[i].get() == nullptr) {
 			dev[i].reset(new DummySCSIDevice());
 		}
 	}
@@ -525,7 +525,7 @@ static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)
 		mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS;
 		type = SDT_DirectAccess;
 	}
-	return scsiDeviceCreate(id, diskId, buffer, NULL, type, mode,
+	return scsiDeviceCreate(id, diskId, buffer, nullptr, type, mode,
 	                       (CdromXferCompCb)wd33c93XferCb, wd33c93);
 #else
 	SCSIDEVICE* dev;
@@ -540,7 +540,7 @@ static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)
 		type = SDT_CDROM;
 	}
 	dev = scsiDeviceCreate(id, diskGetHdDriveId(hdId, id),
-	        buffer, NULL, type, mode, (CdromXferCompCb)wd33c93XferCb, wd33c93);
+	        buffer, nullptr, type, mode, (CdromXferCompCb)wd33c93XferCb, wd33c93);
 	return dev;
 #endif
 }

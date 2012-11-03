@@ -95,7 +95,7 @@ const byte* SanyoFDC::getReadCacheLine(word start) const
 {
 	if ((start & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown
-		return NULL;
+		return nullptr;
 	} else if (start < 0x8000) {
 		// ROM at 0x0000-0x7FFF (this is a guess, not checked!)
 		return MSXFDC::getReadCacheLine(start);
@@ -150,7 +150,7 @@ byte* SanyoFDC::getWriteCacheLine(word address) const
 {
 	if ((address & CacheLine::HIGH) == (0x7FF8 & CacheLine::HIGH)) {
 		// FDC at 0x7FF8-0x7FFC - mirroring behaviour unknown
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

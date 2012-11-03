@@ -111,7 +111,7 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY()
-	, checker(NULL)
+	, checker(nullptr)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
 {
@@ -126,7 +126,7 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save, T1 extra1)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY(extra1)
-	, checker(NULL)
+	, checker(nullptr)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
 {
@@ -141,7 +141,7 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
 	: SettingImplBase(commandController, name, description, save)
 	, POLICY(extra1, extra2)
-	, checker(NULL)
+	, checker(nullptr)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
 {

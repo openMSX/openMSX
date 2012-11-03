@@ -135,7 +135,7 @@ const byte* MSXMultiMemDevice::getReadCacheLine(word start) const
 	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
 		// The end of this memory device only fills a partial
 		// cacheline. This can't be cached.
-		return NULL;
+		return nullptr;
 	}
 	return searchDevice(start)->getReadCacheLine(start);
 }
@@ -145,7 +145,7 @@ byte* MSXMultiMemDevice::getWriteCacheLine(word start) const
 	assert((start & CacheLine::HIGH) == start);
 	const Range& range = searchRange(start);
 	if (unlikely(((range.base + range.size) & CacheLine::HIGH) == start)) {
-		return NULL;
+		return nullptr;
 	}
 	return searchDevice(start)->getWriteCacheLine(start);
 }

@@ -32,7 +32,7 @@ public:
 	/** Construct an empty MemBuffer, no memory is allocated.
 	 */
 	MemBuffer()
-		: dat(NULL)
+		: dat(nullptr)
 		, sz(0)
 	{
 	}
@@ -50,7 +50,7 @@ public:
 
 	/** Take ownership of the given memory block. This pointer should have
 	 * been allocated earlier with malloc() or realloc() (or it should be
-	 * NULL).
+	 * nullptr).
 	  */
 	MemBuffer(T* data, unsigned size)
 		: dat(data)
@@ -121,7 +121,7 @@ public:
 	void clear()
 	{
 		free(dat);
-		dat = NULL;
+		dat = nullptr;
 		sz = 0;
 	}
 

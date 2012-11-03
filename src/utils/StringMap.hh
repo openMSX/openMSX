@@ -95,7 +95,7 @@ private:
 	}
 
 protected:
-	// Array of numBuckets pointers to entries, NULL-ptrs are holes.
+	// Array of numBuckets pointers to entries, nullptrs are holes.
 	// theTable[numBuckets] contains a sentinel value for easy iteration.
 	// Followed by an array of the actual hash values as unsigned integers.
 	StringMapEntryBase** theTable;
@@ -278,7 +278,7 @@ public:
 			if (bucket && (bucket != getTombstoneVal())) {
 				static_cast<value_type*>(bucket)->destroy();
 			}
-			bucket = NULL;
+			bucket = nullptr;
 		}
 
 		numItems = 0;

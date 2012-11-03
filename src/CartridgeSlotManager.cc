@@ -52,24 +52,24 @@ private:
 
 // CartridgeSlotManager::Slot
 CartridgeSlotManager::Slot::Slot()
-	: config(NULL), useCount(0), ps(0), ss(0)
+	: config(nullptr), useCount(0), ps(0), ss(0)
 {
 }
 
 CartridgeSlotManager::Slot::~Slot()
 {
-	assert(config == NULL);
+	assert(config == nullptr);
 	assert(useCount == 0);
 }
 
 bool CartridgeSlotManager::Slot::exists() const
 {
-	return command.get() != NULL;
+	return command.get() != nullptr;
 }
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 {
-	assert((useCount == 0) == (config == NULL));
+	assert((useCount == 0) == (config == nullptr));
 	return config && (config != allowed);
 }
 
@@ -240,7 +240,7 @@ void CartridgeSlotManager::freePrimarySlot(
 	int slot = getSlot(ps, -1);
 	assert(slots[slot].config == &hwConfig); (void)hwConfig;
 	assert(slots[slot].useCount == 1);
-	slots[slot].config = NULL;
+	slots[slot].config = nullptr;
 	slots[slot].useCount = 0;
 }
 
@@ -276,7 +276,7 @@ void CartridgeSlotManager::freeSlot(
 			assert(slots[slot].useCount > 0);
 			--slots[slot].useCount;
 			if (slots[slot].useCount == 0) {
-				slots[slot].config = NULL;
+				slots[slot].config = nullptr;
 			}
 			return;
 		}

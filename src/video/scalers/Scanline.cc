@@ -75,7 +75,7 @@ inline unsigned Multiply<unsigned>::multiply(unsigned p) const
 
 const unsigned* Multiply<unsigned>::getTable() const
 {
-	UNREACHABLE; return NULL;
+	UNREACHABLE; return nullptr;
 }
 
 

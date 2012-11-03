@@ -25,12 +25,12 @@ class ScopedLock : private noncopyable
 {
 public:
 	ScopedLock()
-		: lock(NULL)
+		: lock(nullptr)
 	{
 	}
 
 	explicit ScopedLock(Semaphore& lock_)
-		: lock(NULL)
+		: lock(nullptr)
 	{
 		take(lock_);
 	}
@@ -51,7 +51,7 @@ public:
 	{
 		if (lock) {
 			lock->up();
-			lock = NULL;
+			lock = nullptr;
 		}
 	}
 

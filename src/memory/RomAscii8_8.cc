@@ -80,10 +80,10 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
-		return NULL;
+		return nullptr;
 	} else if ((1 << (address >> 13)) & sramEnabled) {
 		// write to SRAM
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

@@ -66,16 +66,16 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, cntr0(new Counter0(*this))
 	, cntr1(new Counter1(*this))
 	, i8254(new I8254(getScheduler(),
-	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
+	                  cntr0.get(), cntr1.get(), nullptr, getCurrentTime()))
 	, interf(new I8251Interf(*this))
 	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
 	, rom(config.findChild("rom")
 		? new Rom(MSXDevice::getName() + " ROM", "rom", config)
-		: NULL) // when the ROM is already mapped, you don't want to specify it again here
+		: nullptr) // when the ROM is already mapped, you don't want to specify it again here
 	, ram(config.getChildDataAsBool("ram", false)
 	      ? new Ram(config, MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
-	      : NULL)
+	      : nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
@@ -84,7 +84,7 @@ MSXRS232::MSXRS232(const DeviceConfig& config)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
 		false) ? new BooleanSetting(getCommandController(),
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
-		true) : NULL)
+		true) : nullptr)
 {
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
@@ -139,7 +139,7 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 const byte* MSXRS232::getReadCacheLine(word start) const
 {
         if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return NULL;
+                return nullptr;
         }
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
@@ -174,7 +174,7 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 byte* MSXRS232::getWriteCacheLine(word start) const
 {
         if (hasMemoryBasedIo && (start == (0xBFF8 & CacheLine::HIGH))) {
-                return NULL;
+                return nullptr;
         }
 	word addr = start & 0x3FFF;
 	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {

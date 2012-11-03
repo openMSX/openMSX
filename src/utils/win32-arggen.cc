@@ -22,7 +22,7 @@ char** ArgumentGenerator::GetArguments(int& argc)
 	if (argv.empty()) {
 		int cArgs;
 		LPWSTR* pszArglist = CommandLineToArgvW(GetCommandLineW(), &cArgs);
-		if (pszArglist == NULL) {
+		if (pszArglist == nullptr) {
 			throw MSXException("Failed to obtain command line arguments");
 		}
 

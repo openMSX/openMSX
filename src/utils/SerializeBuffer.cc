@@ -11,7 +11,7 @@ namespace openmsx {
 // class OutputBuffer
 
 OutputBuffer::OutputBuffer()
-	: begin(NULL), end(NULL), finish(NULL)
+	: begin(nullptr), end(nullptr), finish(nullptr)
 {
 }
 
@@ -72,7 +72,7 @@ byte* OutputBuffer::release(unsigned& size)
 {
 	byte* result = begin;
 	size = end - begin;
-	begin = end = finish = NULL;
+	begin = end = finish = nullptr;
 	return result;
 }
 

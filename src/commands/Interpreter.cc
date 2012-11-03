@@ -49,22 +49,22 @@ static int dummyGetHandle(ClientData /*instanceData*/, int /*direction*/,
 }
 Tcl_ChannelType Interpreter::channelType = {
 	const_cast<char*>("openMSX console"),// Type name
-	NULL,			 // Always non-blocking
+	nullptr,		 // Always non-blocking
 	dummyClose,		 // Close proc
 	dummyInput,		 // Input proc
 	Interpreter::outputProc, // Output proc
-	NULL,			 // Seek proc
-	NULL,			 // Set option proc
-	NULL,			 // Get option proc
+	nullptr,		 // Seek proc
+	nullptr,		 // Set option proc
+	nullptr,		 // Get option proc
 	dummyWatch,		 // Watch for events on console
 	dummyGetHandle,		 // Get a handle from the device
-	NULL,			 // Tcl_DriverClose2Proc
-	NULL,			 // Tcl_DriverBlockModeProc
-	NULL,			 // Tcl_DriverFlushProc
-	NULL,			 // Tcl_DriverHandlerProc
-	NULL,			 // Tcl_DriverWideSeekProc
-	NULL,			 // Tcl_DriverThreadActionProc
-	NULL,			 // Tcl_DriverTruncateProc
+	nullptr,		 // Tcl_DriverClose2Proc
+	nullptr,		 // Tcl_DriverBlockModeProc
+	nullptr,		 // Tcl_DriverFlushProc
+	nullptr,		 // Tcl_DriverHandlerProc
+	nullptr,		 // Tcl_DriverWideSeekProc
+	nullptr,		 // Tcl_DriverThreadActionProc
+	nullptr,		 // Tcl_DriverTruncateProc
 };
 
 void Interpreter::init(const char* programName)
@@ -93,7 +93,7 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 
 	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
 		"openMSX console", this, TCL_WRITABLE);
-	if (channel != NULL) {
+	if (channel != nullptr) {
 		Tcl_SetChannelOption(interp, channel, "-translation", "binary");
 		Tcl_SetChannelOption(interp, channel, "-buffering", "line");
 		Tcl_SetChannelOption(interp, channel, "-encoding", "utf-8");
@@ -148,7 +148,7 @@ void Interpreter::registerCommand(const string& name, Command& command)
 	assert(commandTokenMap.find(name) == commandTokenMap.end());
 	commandTokenMap[name] = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
-		static_cast<ClientData>(&command), NULL);
+		static_cast<ClientData>(&command), nullptr);
 }
 
 void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
@@ -346,7 +346,7 @@ void Interpreter::unregisterSetting(Setting& variable, const string& name)
 static Setting* getTraceSetting(unsigned traceID)
 {
 	TraceMap::const_iterator it = traceMap.find(traceID);
-	return (it != traceMap.end()) ? it->second : NULL;
+	return (it != traceMap.end()) ? it->second : nullptr;
 }
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
@@ -385,7 +385,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 
 		long traceID = reinterpret_cast<long>(clientData);
 		Setting* variable = getTraceSetting(traceID);
-		if (!variable) return NULL;
+		if (!variable) return nullptr;
 
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
@@ -433,7 +433,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 	} catch (...) {
 		UNREACHABLE; // we cannot let exceptions pass through Tcl
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Interpreter::createNamespace(const std::string& name)

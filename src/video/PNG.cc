@@ -87,7 +87,7 @@ struct PNGReadHandle {
 	~PNGReadHandle()
 	{
 		if (ptr) {
-			png_destroy_read_struct(&ptr, info ? &info : NULL, NULL);
+			png_destroy_read_struct(&ptr, info ? &info : nullptr, nullptr);
 		}
 	}
 
@@ -129,7 +129,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		png_uint_32 width, height;
 		int bit_depth, color_type, interlace_type;
 		png_get_IHDR(png.ptr, png.info, &width, &height, &bit_depth,
-		             &color_type, &interlace_type, NULL, NULL);
+		             &color_type, &interlace_type, nullptr, nullptr);
 
 		// Tell libpng to strip 16 bit/color files down to 8 bits/color.
 		png_set_strip_16(png.ptr);
@@ -190,7 +190,7 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		png_read_update_info(png.ptr, png.info);
 
 		png_get_IHDR(png.ptr, png.info, &width, &height, &bit_depth,
-		             &color_type, &interlace_type, NULL, NULL);
+		             &color_type, &interlace_type, nullptr, nullptr);
 
 		// Allocate the SDL surface to hold the image.
 		static const unsigned MAX_SIZE = 2048;
@@ -285,7 +285,7 @@ struct PNGWriteHandle {
 	~PNGWriteHandle()
 	{
 		if (ptr) {
-			png_destroy_write_struct(&ptr, info ? &info : NULL);
+			png_destroy_write_struct(&ptr, info ? &info : nullptr);
 		}
 	}
 
@@ -316,13 +316,13 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 			PNG_LIBPNG_VER_STRING,
 			const_cast<char*>("encoding"), handleError, handleWarning
 			);
-		if (png.ptr == NULL) {
+		if (png.ptr == nullptr) {
 			throw MSXException("Failed to allocate main struct");
 		}
 
 		// Allocate/initialize the image information data.  REQUIRED
 		png.info = png_create_info_struct(png.ptr);
-		if (png.info == NULL) {
+		if (png.info == nullptr) {
 			// Couldn't create image information for PNG file
 			throw MSXException("Failed to allocate image info struct");
 		}
@@ -337,7 +337,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		text[0].text = const_cast<char*>(Version::full().c_str());
 		text[1].compression = PNG_TEXT_COMPRESSION_NONE;
 		text[1].key  = const_cast<char*>("Creation Time");
-		time_t now = time(NULL);
+		time_t now = time(nullptr);
 		struct tm* tm = localtime(&now);
 		char timeStr[10 + 1 + 8 + 1];
 		snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",

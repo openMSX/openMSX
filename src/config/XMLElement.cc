@@ -153,7 +153,7 @@ XMLElement* XMLElement::findChild(string_ref name)
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 const XMLElement* XMLElement::findChild(string_ref name) const
 {
@@ -176,7 +176,7 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 			return children[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 XMLElement* XMLElement::findChildWithAttribute(string_ref name,
@@ -190,7 +190,7 @@ XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const XMLElement* XMLElement::findChildWithAttribute(string_ref name,
@@ -385,7 +385,7 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 string XMLElement::XMLEscape(const string& str)
 {
 	xmlChar* buffer = xmlEncodeEntitiesReentrant(
-		NULL, reinterpret_cast<const xmlChar*>(str.c_str()));
+		nullptr, reinterpret_cast<const xmlChar*>(str.c_str()));
 	string result = reinterpret_cast<const char*>(buffer);
 	xmlFree(buffer);
 	return result;
@@ -394,7 +394,7 @@ string XMLElement::XMLEscape(const string& str)
 static unique_ptr<FileContext> lastSerializedFileContext;
 unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 {
-	return std::move(lastSerializedFileContext); // this also sets value to NULL;
+	return std::move(lastSerializedFileContext); // this also sets value to nullptr;
 }
 // version 1: initial version
 // version 2: removed 'context' tag

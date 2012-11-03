@@ -28,7 +28,7 @@ bool Thread::isMainThread()
 Thread::Thread(Runnable* runnable_)
 	: runnable(runnable_)
 {
-	thread = NULL;
+	thread = nullptr;
 }
 
 Thread::~Thread()
@@ -40,7 +40,7 @@ void Thread::start()
 {
 	assert(!thread);
 	thread = SDL_CreateThread(startThread, runnable);
-	if (thread == NULL) {
+	if (thread == nullptr) {
 		throw FatalError(StringOp::Builder() <<
 			"Unable to create thread: " << SDL_GetError());
     }
@@ -50,7 +50,7 @@ void Thread::stop()
 {
 	if (thread) {
 		SDL_KillThread(thread);
-		thread = NULL;
+		thread = nullptr;
 	}
 }
 
@@ -61,8 +61,8 @@ void Thread::stop()
 void Thread::join()
 {
 	if (thread) {
-		SDL_WaitThread(thread, NULL);
-		thread = NULL;
+		SDL_WaitThread(thread, nullptr);
+		thread = nullptr;
 	}
 }
 

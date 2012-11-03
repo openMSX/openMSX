@@ -260,7 +260,7 @@ void CliServer::mainLoop()
 
 	while (!exitLoop) {
 		// wait for incomming connection
-		SOCKET sd = accept(listenSock, NULL, NULL);
+		SOCKET sd = accept(listenSock, nullptr, nullptr);
 		if (sd == OPENMSX_INVALID_SOCKET) {
 			// sock_close(listenSock);  // hangs on win32
 			return;

@@ -85,7 +85,7 @@ public:
 	 * with the same native frequency (like Y8950 or YMF262).
 	 *
 	 * When the core detects that some channel is silent, it will assign
-	 * NULL to the buffer pointer (so the content of the buffer is left
+	 * nullptr to the buffer pointer (so the content of the buffer is left
 	 * unchanged, but the pointer to that buffer is set to zero). When all
 	 * the channels you're interested in are silent you can even skip all
 	 * subsequent audio processing for this channel (e.g. skip resampling to

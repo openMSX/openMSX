@@ -54,7 +54,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 		width, height, format.BitsPerPixel, format.Rmask,
 		format.Gmask, format.Bmask, format.Amask);
 	assert(workSurface); // TODO
-	SDL_FillRect(workSurface, NULL, 0);
+	SDL_FillRect(workSurface, nullptr, 0);
 	GP2XMMUHack::instance().patchPageTables();
 #else
 	// on non-GP2X platforms, work and displaySurfaces are the same,
@@ -72,8 +72,8 @@ void SDLVisibleSurface::finish()
 	void* start = getSDLWorkSurface()->pixels;
 	void* end   = static_cast<char*>(start) + 320 * 240 * 2;
 	GP2XMMUHack::instance().flushCache(start, end, 0);
-	SDL_BlitSurface(getSDLWorkSurface(),    NULL,
-	                getSDLDisplaySurface(), NULL);
+	SDL_BlitSurface(getSDLWorkSurface(),    nullptr,
+	                getSDLDisplaySurface(), nullptr);
 #endif
 	SDL_Flip(getSDLDisplaySurface());
 #if !PLATFORM_GP2X

@@ -48,7 +48,7 @@ private:
 		Slot();
 		~Slot();
 		bool exists() const;
-		bool used(const HardwareConfig* allowed = NULL) const;
+		bool used(const HardwareConfig* allowed = nullptr) const;
 
 		std::unique_ptr<CartCmd> command;
 		const HardwareConfig* config;

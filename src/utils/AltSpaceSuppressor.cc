@@ -53,7 +53,7 @@
 namespace openmsx {
 
 WindowLongPtrStacker::WindowLongPtrStacker(int index, LONG_PTR value)
-	: hWnd(NULL)
+	: hWnd(nullptr)
 	, nIndex(index)
 	, newValue(value)
 {

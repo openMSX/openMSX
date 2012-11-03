@@ -105,7 +105,7 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 			OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
 			OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
 		SDL_SetColorKey(iconSurf.get(), SDL_SRCCOLORKEY, 0);
-		SDL_WM_SetIcon(iconSurf.get(), NULL);
+		SDL_WM_SetIcon(iconSurf.get(), nullptr);
 	}
 
 	inputEventGenerator_.getGrabInput().attach(*this);
@@ -127,16 +127,16 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	SDL_Surface* surface = SDL_SetVideoMode(width, height, 0, flags);
 	int bytepp = (surface ? surface->format->BytesPerPixel : 0);
 	if (bytepp != 2 && bytepp != 4) {
-		surface = NULL;
+		surface = nullptr;
 	}
 #if !HAVE_16BPP
 	if (bytepp == 2) {
-		surface = NULL;
+		surface = nullptr;
 	}
 #endif
 #if !HAVE_32BPP
 	if (bytepp == 4) {
-		surface = NULL;
+		surface = nullptr;
 	}
 #endif
 	// try supported bpp in order of preference

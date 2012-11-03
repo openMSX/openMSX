@@ -51,7 +51,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	             0,                // border
 	             GL_LUMINANCE,     // format
 	             GL_UNSIGNED_SHORT,// type
-	             NULL);            // data
+	             nullptr);         // data
 	edgeBuffer.reset(new PixelBuffer<unsigned short>());
 	edgeBuffer->setImage(320, 240);
 

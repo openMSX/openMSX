@@ -8,7 +8,7 @@ namespace openmsx {
 
 SectorAccessibleDisk* NowindRomDisk::getSectorAccessibleDisk()
 {
-	return NULL;
+	return nullptr;
 }
 
 const std::string& NowindRomDisk::getContainerName() const

@@ -106,11 +106,11 @@ void ESE_RAM::writeMem(word address, byte value, EmuTime::param /*time*/)
 byte* ESE_RAM::getWriteCacheLine(word address) const
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
 		if (isWriteable[page]) {
-			return NULL;
+			return nullptr;
 		}
 	}
 	return unmappedWrite;

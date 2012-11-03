@@ -83,7 +83,7 @@ static std::string findShareDir()
 	FSRef parentRef;
 	if (FSGetCatalogInfo(
 		&location, kFSCatInfoVolume | kFSCatInfoNodeFlags,
-		&catalogInfo, NULL, NULL, &parentRef
+		&catalogInfo, nullptr, nullptr, &parentRef
 		) != noErr) {
 		throw FatalError("Failed to get info about bundle path");
 	}
@@ -91,7 +91,7 @@ static std::string findShareDir()
 	// We will need this later to know when to give up.
 	FSRef root;
 	if (FSGetVolumeInfo(
-		catalogInfo.volume, 0, NULL, kFSVolInfoNone, NULL, NULL, &root
+		catalogInfo.volume, 0, nullptr, kFSVolInfoNone, nullptr, nullptr, &root
 		) != noErr) {
 		throw FatalError("Failed to get reference to root directory");
 	}
@@ -118,11 +118,11 @@ static std::string findShareDir()
 				iterator,
 				MAX_SCANNED_FILES,
 				&actualObjects,
-				NULL /*containerChanged*/,
+				nullptr /*containerChanged*/,
 				kFSCatInfoNodeFlags,
 				catalogInfos,
 				refs,
-				NULL /*specs*/,
+				nullptr /*specs*/,
 				names
 				);
 			if (err == errFSNoMoreItems) {
@@ -168,7 +168,7 @@ static std::string findShareDir()
 		}
 		// Go up one level.
 		if (FSGetCatalogInfo(
-			&location, kFSCatInfoNone, NULL, NULL, NULL, &parentRef
+			&location, kFSCatInfoNone, nullptr, nullptr, nullptr, &parentRef
 			) != noErr
 		) {
 			throw FatalError("Failed to get parent directory");
@@ -264,14 +264,14 @@ int deleteRecursive(const std::string& path)
 	std::wstring pathW = utf8to16(path);
 
 	SHFILEOPSTRUCTW rmdirFileop;
-	rmdirFileop.hwnd = NULL;
+	rmdirFileop.hwnd = nullptr;
 	rmdirFileop.wFunc = FO_DELETE;
 	rmdirFileop.pFrom = pathW.c_str();
-	rmdirFileop.pTo = NULL;
+	rmdirFileop.pTo = nullptr;
 	rmdirFileop.fFlags = FOF_SILENT | FOF_NOCONFIRMATION | FOF_NOERRORUI;
 	rmdirFileop.fAnyOperationsAborted = FALSE;
-	rmdirFileop.hNameMappings = NULL;
-	rmdirFileop.lpszProgressTitle = NULL;
+	rmdirFileop.hNameMappings = nullptr;
+	rmdirFileop.lpszProgressTitle = nullptr;
 
 	return SHFileOperationW(&rmdirFileop);
 }
@@ -479,7 +479,7 @@ string getUserHomeDir(string_ref username)
 	(void)(&username); // ignore parameter, avoid warning
 
 	wchar_t bufW[MAXPATHLEN + 1];
-	if (!SHGetSpecialFolderPathW(NULL, bufW, CSIDL_PERSONAL, TRUE)) {
+	if (!SHGetSpecialFolderPathW(nullptr, bufW, CSIDL_PERSONAL, TRUE)) {
 		throw FatalError(StringOp::Builder() <<
 			"SHGetSpecialFolderPathW failed: " << GetLastError());
 	}
@@ -497,8 +497,8 @@ string getUserHomeDir(string_ref username)
 	}
 	return dir;
 #else
-	const char* dir = NULL;
-	struct passwd* pw = NULL;
+	const char* dir = nullptr;
+	struct passwd* pw = nullptr;
 	if (username.empty()) {
 		dir = getenv("HOME");
 		if (!dir) {
@@ -541,7 +541,7 @@ string getSystemDataDir()
 	string newValue;
 #ifdef _WIN32
 	wchar_t bufW[MAXPATHLEN + 1];
-	int res = GetModuleFileNameW(NULL, bufW, countof(bufW));
+	int res = GetModuleFileNameW(nullptr, bufW, countof(bufW));
 	if (!res) {
 		throw FatalError(StringOp::Builder() <<
 			"Cannot detect openMSX directory. GetModuleFileNameW failed: " <<
@@ -582,7 +582,7 @@ string expandCurrentDirFromDrive(string_ref path)
 		if (('a' <= drive) && (drive <= 'z')) {
 			wchar_t bufW[MAXPATHLEN + 1];
 			if (driveExists(drive) &&
-				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != NULL) {
+				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != nullptr) {
 				result = getConventionalPath(utf16to8(bufW));
 				if (*result.rbegin() != '/') {
 					result += '/';
@@ -727,7 +727,7 @@ string parseCommandFileArgument(
 string getTempDir()
 {
 #ifdef _WIN32
-	DWORD len = GetTempPathW(0, NULL);
+	DWORD len = GetTempPathW(0, nullptr);
 	if (len) {
 		VLA(wchar_t, bufW, (len+1));
 		len = GetTempPathW(len, bufW);
@@ -742,7 +742,7 @@ string getTempDir()
 	throw FatalError(StringOp::Builder() <<
 		"GetTempPathW failed: " << GetLastError());
 #else
-	const char* result = NULL;
+	const char* result = nullptr;
 	if (!result) result = getenv("TMPDIR");
 	if (!result) result = getenv("TMP");
 	if (!result) result = getenv("TEMP");

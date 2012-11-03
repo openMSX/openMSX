@@ -34,7 +34,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		getMotherBoard().getSharedStuff("nowindsInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new NowindsInUse();
 	}
 	++info.counter;
@@ -77,7 +77,7 @@ NowindInterface::~NowindInterface()
 	if (info.counter == 0) {
 		assert(nowindsInUse.none());
 		delete &nowindsInUse;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 
@@ -130,7 +130,7 @@ const byte* NowindInterface::getReadCacheLine(word address) const
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {
 		// nowind region, not cachable
-		return NULL;
+		return nullptr;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
 		// note: range 0x8000-0xA000 is already handled above
 		return flash->getReadCacheLine(bank * 0x4000 + (address & 0x3FFF));
@@ -160,7 +160,7 @@ byte* NowindInterface::getWriteCacheLine(word address) const
 {
 	if (address < 0xC000) {
 		// not cachable
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

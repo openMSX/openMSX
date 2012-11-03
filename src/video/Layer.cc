@@ -6,7 +6,7 @@
 namespace openmsx {
 
 Layer::Layer(Coverage coverage_, ZIndex z_)
-	: display(NULL), coverage(coverage_), z(z_)
+	: display(nullptr), coverage(coverage_), z(z_)
 {
 }
 

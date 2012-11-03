@@ -15,7 +15,7 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), inFile(NULL), lock(1)
+	, thread(this), inFile(nullptr), lock(1)
 	, rs232InputFilenameSetting(new FilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -72,7 +72,7 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	thread.stop();
 	if (inFile) {
 		fclose(inFile);
-		inFile = NULL;
+		inFile = nullptr;
 	}
 }
 

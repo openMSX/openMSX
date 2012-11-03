@@ -668,7 +668,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time,
 	MSXMotherBoard::SharedStuff& info =
 		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new BooleanSetting(
 			vdp.getCommandController(),
 			"v9990cmdtrace", "V9990 command tracing on/off", false);
@@ -745,13 +745,13 @@ V9990CmdEngine::~V9990CmdEngine()
 	--info.counter;
 	if (info.counter == 0) {
 		delete cmdTraceSetting;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 
 void V9990CmdEngine::reset(EmuTime::param /*time*/)
 {
-	currentCommand = NULL;
+	currentCommand = nullptr;
 	CMD = 0;
 	status = 0;
 	borderX = 0;
@@ -833,7 +833,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 		currentCommand->start(time);
 
 		// Finish command now if instantaneous command timing is active.
-		// Some commands are already instantaneous, so check for NULL
+		// Some commands are already instantaneous, so check for nullptr
 		// is needed.
 		if (brokenTiming && currentCommand) {
 			currentCommand->execute(time);
@@ -1792,7 +1792,7 @@ byte V9990CmdEngine::peekCmdData(EmuTime::param time)
 
 void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
 {
-	currentCommand = NULL;
+	currentCommand = nullptr;
 	CMD = 0; // for deserialize
 	status &= ~(CE | TR);
 	vdp.cmdReady();
@@ -1833,7 +1833,7 @@ void V9990CmdEngine::serialize(Archive& ar, unsigned /*version*/)
 		if (CMD >> 4) {
 			setCurrentCommand();
 		} else {
-			currentCommand = NULL;
+			currentCommand = nullptr;
 		}
 	}
 }

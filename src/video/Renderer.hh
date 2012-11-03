@@ -48,7 +48,7 @@ public:
 	virtual void updateTransparency(bool enabled, EmuTime::param time) = 0;
 
 	/** Informs the renderer of a VDP superimposing change.
-	  * @param videoSource Video that should be superimposed, NULL if none.
+	  * @param videoSource Video that should be superimposed, nullptr if none.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateSuperimposing(const RawFrame* videoSource,

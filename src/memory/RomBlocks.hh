@@ -78,7 +78,7 @@ protected:
 	void setExtraMemory(const byte* mem, unsigned size);
 
 	const byte* bank[NUM_BANKS];
-	std::unique_ptr<SRAM> sram; // can be a NULL ptr
+	std::unique_ptr<SRAM> sram; // can be nullptr
 	byte blockNr[NUM_BANKS];
 
 private:

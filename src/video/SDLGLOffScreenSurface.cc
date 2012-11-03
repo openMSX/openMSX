@@ -25,7 +25,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	             0,                // border
 	             GL_RGB,           // format
 	             GL_UNSIGNED_BYTE, // type
-	             NULL);            // data
+	             nullptr);         // data
 	fbo.reset(new FrameBufferObject(*fboTex));
 	fbo->push();
 

@@ -112,7 +112,7 @@ template class OutputArchiveBase<XmlOutputArchive>;
 void* InputArchiveBase2::getPointer(unsigned id)
 {
 	IdMap::const_iterator it = idMap.find(id);
-	return it != idMap.end() ? it->second : NULL;
+	return it != idMap.end() ? it->second : nullptr;
 }
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)

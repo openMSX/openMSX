@@ -300,7 +300,7 @@ Connector* PluggingController::findConnector(string_ref name) const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Connector& PluggingController::getConnector(string_ref name) const
@@ -320,7 +320,7 @@ Pluggable* PluggingController::findPluggable(string_ref name) const
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 Pluggable& PluggingController::getPluggable(string_ref name) const

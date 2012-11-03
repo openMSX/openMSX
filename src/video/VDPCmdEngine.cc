@@ -1770,7 +1770,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	createHEngines<HmmmCmd >(0xD0);
 	createHEngines<YmmmCmd >(0xE0);
 	createHEngines<HmmcCmd >(0xF0);
-	currentCommand = NULL;
+	currentCommand = nullptr;
 
 	brokenTiming = renderSettings.getCmdTiming().getValue();
 
@@ -1969,7 +1969,7 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 	currentCommand->start(time, *this);
 
 	// Finish command now if instantaneous command timing is active.
-	// Abort finishes on start, so currentCommand can be NULL.
+	// Abort finishes on start, so currentCommand can be nullptr.
 	if (brokenTiming && currentCommand) {
 		currentCommand->execute(time, *this);
 	}
@@ -1998,7 +1998,7 @@ void VDPCmdEngine::commandDone(EmuTime::param time)
 	// Note: TR is not reset yet; it is reset when S#2 is read next.
 	status &= 0xFE; // reset CE
 	CMD = 0;
-	currentCommand = NULL;
+	currentCommand = nullptr;
 	statusChangeTime = EmuTime::infinity;
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.disable(time);
@@ -2014,7 +2014,7 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 	// member, though it was combined for the savestate. Only the CMD part
 	// was guaranteed to be zero when no command was executing. So when
 	// loading an older savestate this can still be the case.
-	if (currentCommand == NULL) {
+	if (currentCommand == nullptr) {
 		assert((CMD & 0xF0) == 0); // assert(CMD == 0);
 	}
 
@@ -2049,7 +2049,7 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 			assert(scrMode >= 0);
 			currentCommand = commands[CMD][scrMode];
 		} else {
-			currentCommand = NULL;
+			currentCommand = nullptr;
 		}
 	}
 }

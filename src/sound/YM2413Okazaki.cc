@@ -303,8 +303,8 @@ void Slot::setVolume(unsigned newVolume)
 
 Channel::Channel()
 {
-	car.sibling = &mod; // car needs a pointer to its sibling
-	mod.sibling = NULL; // mod doesn't need this pointer
+	car.sibling = &mod;    // car needs a pointer to its sibling
+	mod.sibling = nullptr; // mod doesn't need this pointer
 }
 
 void Channel::reset(YM2413& ym2413)

@@ -12,7 +12,7 @@ namespace openmsx {
 // 16-byte aligned buffer of ints (shared among all instances of this resampler)
 static std::vector<int> bufferStorage; // (possibly) unaligned storage
 static unsigned bufferSize = 0; // usable buffer size (aligned portion)
-static int* bufferInt = NULL; // pointer to aligned sub-buffer
+static int* bufferInt = nullptr; // pointer to aligned sub-buffer
 
 ////
 

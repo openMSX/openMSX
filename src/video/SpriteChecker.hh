@@ -255,7 +255,7 @@ private:
 	inline void setDisplayMode(DisplayMode mode) {
 		switch (mode.getSpriteMode()) {
 		case 0:
-			updateSpritesMethod = NULL;
+			updateSpritesMethod = nullptr;
 			break;
 		case 1:
 			updateSpritesMethod = &SpriteChecker::updateSprites1;

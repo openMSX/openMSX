@@ -40,7 +40,7 @@ MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	              numBlocks * 0x2000))
 	, rom(config.findChild("rom")
 	      ? new Rom(getName() + " ROM", "Mega-RAM DiskROM", config)
-	      : NULL)
+	      : nullptr)
 	, romBlockDebug(new RomBlockDebuggable(*this, bank, 0x0000, 0x10000, 13, 0, 3))
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
@@ -64,7 +64,7 @@ void MSXMegaRam::powerUp(EmuTime::param time)
 void MSXMegaRam::reset(EmuTime::param /*time*/)
 {
 	// selected banks nor writeMode does change after reset
-	romMode = rom.get() != NULL; // select rom mode if there is a rom
+	romMode = rom.get() != nullptr; // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
@@ -106,7 +106,7 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 		     ? &(*ram)[(block * 0x2000) + (address & 0x1FFF)]
 		     : unmappedWrite;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 

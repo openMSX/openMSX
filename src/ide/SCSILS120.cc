@@ -118,7 +118,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("lsInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == NULL);
+		assert(info.stuff == nullptr);
 		info.stuff = new LSInUse();
 	}
 	++info.counter;
@@ -158,7 +158,7 @@ SCSILS120::~SCSILS120()
 	if (info.counter == 0) {
 		assert(lsInUse.none());
 		delete &lsInUse;
-		info.stuff = NULL;
+		info.stuff = nullptr;
 	}
 }
 
@@ -186,7 +186,7 @@ void SCSILS120::disconnect()
 bool SCSILS120::isSelected()
 {
 	lun = 0;
-	return (file.get() != NULL);
+	return (file.get() != nullptr);
 }
 
 bool SCSILS120::getReady()

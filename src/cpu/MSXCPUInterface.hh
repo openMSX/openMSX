@@ -126,7 +126,7 @@ public:
 	 */
 	inline const byte* getReadCacheLine(word start) const {
 		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
-			return NULL;
+			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getReadCacheLine(start);
 	}
@@ -145,7 +145,7 @@ public:
 	 */
 	inline byte* getWriteCacheLine(word start) const {
 		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
-			return NULL;
+			return nullptr;
 		}
 		return visibleDevices[start >> 14]->getWriteCacheLine(start);
 	}

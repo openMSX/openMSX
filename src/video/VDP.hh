@@ -109,7 +109,7 @@ public:
 
 	/** Are we currently superimposing?
 	 * In case of superimpose, returns a pointer to the to-be-superimposed
-	 * frame. Returns a NULL pointer if superimpose is not active.
+	 * frame. Returns nullptr if superimpose is not active.
 	 */
 	inline const RawFrame* isSuperimposing() const {
 		// Note that bit 0 of r#0 has no effect on an V9938 or higher,

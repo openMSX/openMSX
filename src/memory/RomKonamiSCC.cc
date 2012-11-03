@@ -74,7 +74,7 @@ const byte* RomKonamiSCC::getReadCacheLine(word address) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// don't cache SCC
-		return NULL;
+		return nullptr;
 	} else {
 		return Rom8kBBlocks::getReadCacheLine(address);
 	}
@@ -107,13 +107,13 @@ byte* RomKonamiSCC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	} else if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
-		return NULL;
+		return nullptr;
 	} else if ((address & 0xF800) == (0x9000 & CacheLine::HIGH)) {
 		// SCC enable/disable
-		return NULL;
+		return nullptr;
 	} else if ((address & 0x1800) == (0x1000 & CacheLine::HIGH)) {
 		// page selection
-		return NULL;
+		return nullptr;
 	} else {
 		return unmappedWrite;
 	}

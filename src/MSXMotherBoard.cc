@@ -332,7 +332,7 @@ MSXMotherBoard::Impl::Impl(
 	: reactor(reactor_)
 	, machineID(StringOp::Builder() << "machine" << ++machineIDCounter)
 	, mapperIOCounter(0)
-	, machineConfig(NULL)
+	, machineConfig(nullptr)
 	, msxCliComm(new MSXCliComm(self, reactor.getGlobalCliComm()))
 	, msxEventDistributor(new MSXEventDistributor())
 	, stateChangeDistributor(new StateChangeDistributor())
@@ -410,7 +410,7 @@ void MSXMotherBoard::Impl::deleteMachine()
 	}
 
 	machineConfig2.reset();
-	machineConfig = NULL;
+	machineConfig = nullptr;
 }
 
 const string& MSXMotherBoard::Impl::getMachineID()
@@ -444,7 +444,7 @@ bool MSXMotherBoard::Impl::isTurboR() const
 {
 	const HardwareConfig* config = getMachineConfig();
 	assert(config);
-	return config->getConfig().getChild("devices").findChild("S1990") != NULL;
+	return config->getConfig().getChild("devices").findChild("S1990") != nullptr;
 }
 
 string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& machine)
@@ -517,7 +517,7 @@ HardwareConfig* MSXMotherBoard::Impl::findExtension(string_ref extensionName)
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() const
@@ -905,7 +905,7 @@ MSXDevice* MSXMotherBoard::Impl::findDevice(string_ref name)
 			return *it;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 MSXMotherBoard::SharedStuff& MSXMotherBoard::Impl::getSharedStuff(

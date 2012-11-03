@@ -136,7 +136,7 @@ inline void AY8910::Generator::advanceFast(unsigned duration)
 // ToneGenerator:
 
 AY8910::ToneGenerator::ToneGenerator()
-	: parent(NULL), vibratoCount(0), detuneCount(0)
+	: parent(nullptr), vibratoCount(0), detuneCount(0)
 {
 }
 

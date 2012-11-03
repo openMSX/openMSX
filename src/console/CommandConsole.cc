@@ -168,8 +168,8 @@ CommandConsole::~CommandConsole()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
-	commandController.getInterpreter().setOutput(NULL);
-	Completer::setOutput(NULL);
+	commandController.getInterpreter().setOutput(nullptr);
+	Completer::setOutput(nullptr);
 }
 
 void CommandConsole::saveHistory()
