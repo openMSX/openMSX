@@ -52,8 +52,9 @@ public:
 	}
 
 	// don't allow copy and assign
-	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
-	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
+	// msvc doesn't yet support deleted functions.
+	SDLSurfacePtr(const SDLSurfacePtr&) /*= delete*/;
+	SDLSurfacePtr& operator=(const SDLSurfacePtr&) /*= delete*/;
 
 	explicit SDLSurfacePtr(SDL_Surface* surface_ = nullptr,
 	                       void* buffer_ = nullptr)
