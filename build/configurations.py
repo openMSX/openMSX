@@ -34,6 +34,12 @@ def getConfiguration(name):
 		requiredComponents = set((EmulationCore, GLRenderer))
 		optionalComponents = set(iterComponents()) - requiredComponents
 		linkStatic = True
+	elif name == '3RD_STA_GLES':
+		# TODO: We don't have an OpenGL ES component yet.
+		requiredComponents = set((EmulationCore, ))
+		optionalComponents = \
+			set(iterComponents()) - requiredComponents - set((GLRenderer, ))
+		linkStatic = True
 	elif name == '3RD_STA_MIN':
 		requiredComponents = set((EmulationCore, ))
 		optionalComponents = set((AODriver, ))
