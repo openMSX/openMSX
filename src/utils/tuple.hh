@@ -97,7 +97,7 @@ template<typename TP1, typename TP2> struct MergerImpl<1, 0, TP1, TP2> {
 template<typename TP1, typename TP2> struct MergerImpl<1, 1, TP1, TP2> {
 	typedef Tuple<typename TP1::type1, typename TP2::type1> Result;
 	Result operator()(TP1 tp1, TP2 tp2) const {
-		return make_tuple(tp1.t1, tp2.t1);
+		return ::make_tuple(tp1.t1, tp2.t1);
 	}
 };
 template<typename TP1, typename TP2> struct MergerImpl<1, 2, TP1, TP2> {

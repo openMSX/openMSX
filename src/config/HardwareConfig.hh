@@ -99,7 +99,7 @@ template<> struct SerializeConstructorArgs<HardwareConfig>
 	{
 		std::string name;
 		ar.serialize("hwname", name);
-		return make_tuple(name);
+		return ::make_tuple(name);
 	}
 };
 
