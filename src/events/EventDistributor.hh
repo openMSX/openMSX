@@ -10,6 +10,7 @@
 #include "noncopyable.hh"
 #include <map>
 #include <vector>
+#include <functional>
 
 namespace openmsx {
 
