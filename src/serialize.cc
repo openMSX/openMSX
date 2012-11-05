@@ -176,7 +176,7 @@ std::shared_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
 {
 	unsigned size;
 	byte* data = buffer.release(size);
-	return std::shared_ptr<MemBuffer<byte>>(new MemBuffer<byte>(data, size));
+	return std::make_shared<MemBuffer<byte>>(data, size);
 }
 
 ////

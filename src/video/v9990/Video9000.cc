@@ -150,7 +150,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	if (( showV9990 && (ffe.getSource() == VIDEO_GFX9000)) ||
 	    (!showV9990 && (ffe.getSource() == VIDEO_MSX))) {
 		getReactor().getEventDistributor().distributeEvent(
-			new FinishFrameEvent(VIDEO_9000, false));
+			std::make_shared<FinishFrameEvent>(VIDEO_9000, false));
 	}
 	return 0;
 }

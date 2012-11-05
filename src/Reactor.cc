@@ -50,6 +50,7 @@
 using std::string;
 using std::vector;
 using std::set;
+using std::make_shared;
 
 namespace openmsx {
 
@@ -397,7 +398,7 @@ Reactor::Board Reactor::getMachine(const string& machineID) const
 
 Reactor::Board Reactor::createEmptyMotherBoard()
 {
-	return Board(new MSXMotherBoard(*this));
+	return make_shared<MSXMotherBoard>(*this);
 }
 
 void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
@@ -470,7 +471,7 @@ void Reactor::switchBoard(const Board& newBoard)
 		activeBoard = newBoard;
 	}
 	eventDistributor->distributeEvent(
-		new SimpleEvent(OPENMSX_MACHINE_LOADED_EVENT));
+		make_shared<SimpleEvent>(OPENMSX_MACHINE_LOADED_EVENT));
 	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard.get()) {
 		activeBoard->activate(true);
@@ -500,7 +501,7 @@ void Reactor::deleteBoard(Board board)
 	// in time.
 	garbageBoards.push_back(board);
 	eventDistributor->distributeEvent(
-		new SimpleEvent(OPENMSX_DELETE_BOARDS));
+		make_shared<SimpleEvent>(OPENMSX_DELETE_BOARDS));
 }
 
 void Reactor::enterMainLoop()
@@ -666,7 +667,7 @@ QuitCommand::QuitCommand(CommandController& commandController,
 
 string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
-	distributor.distributeEvent(new QuitEvent());
+	distributor.distributeEvent(make_shared<QuitEvent>());
 	return "";
 }
 
@@ -1031,7 +1032,8 @@ PollEventGenerator::~PollEventGenerator()
 
 bool PollEventGenerator::alarm()
 {
-	eventDistributor.distributeEvent(new SimpleEvent(OPENMSX_POLL_EVENT));
+	eventDistributor.distributeEvent(
+		make_shared<SimpleEvent>(OPENMSX_POLL_EVENT));
 	return true; // reschedule
 }
 

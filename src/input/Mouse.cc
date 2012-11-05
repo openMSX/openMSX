@@ -288,8 +288,8 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 void Mouse::createMouseStateChange(
 	EmuTime::param time, int deltaX, int deltaY, byte press, byte release)
 {
-	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
-		new MouseState(time, deltaX, deltaY, press, release)));
+	stateChangeDistributor.distributeNew(std::make_shared<MouseState>(
+		time, deltaX, deltaY, press, release));
 }
 
 void Mouse::signalStateChange(const shared_ptr<StateChange>& event)

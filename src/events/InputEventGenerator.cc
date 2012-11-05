@@ -13,6 +13,7 @@
 
 using std::string;
 using std::vector;
+using std::make_shared;
 
 namespace openmsx {
 
@@ -117,16 +118,16 @@ static const int GP2X_VOLUP     = 16;
 static const int GP2X_VOLDOWN   = 17;
 static const int GP2X_FIRE      = 18;
 
-static Event* createKeyEvent(Keys::KeyCode key, bool up)
+static EventDistributor::EventPtr createKeyEvent(Keys::KeyCode key, bool up)
 {
 	if (up) {
-		return new KeyUpEvent  (Keys::combine(key, Keys::KD_RELEASE), 0);
+		return make_shared<KeyUpEvent  >(Keys::combine(key, Keys::KD_RELEASE), 0);
 	} else {
-		return new KeyDownEvent(Keys::combine(key, Keys::KD_PRESS),   0);
+		return make_shared<KeyDownEvent<(Keys::combine(key, Keys::KD_PRESS),   0);
 	}
 }
 
-static Event* translateGP2Xbutton(int button, bool up)
+static EventDistributor::EventPtr translateGP2Xbutton(int button, bool up)
 {
 	// TODO mapping is hardcoded ATM, should be configurable at run-time
 	Keys::KeyCode key;
@@ -200,10 +201,10 @@ static int calcStat4(int stat8)
 
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
-	Event* event;
+	EventDistributor::EventPtr event;
 	switch (evt.type) {
 	case SDL_KEYUP:
-		event = new KeyUpEvent(
+		event = make_shared<KeyUpEvent>(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 				      evt.key.keysym.scancode,
@@ -211,7 +212,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		        evt.key.keysym.unicode);
 		break;
 	case SDL_KEYDOWN:
-		event = new KeyDownEvent(
+		event = make_shared<KeyDownEvent>(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 				      evt.key.keysym.scancode,
@@ -220,13 +221,13 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event = new MouseButtonUpEvent(evt.button.button);
+		event = make_shared<MouseButtonUpEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event = new MouseButtonDownEvent(evt.button.button);
+		event = make_shared<MouseButtonDownEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEMOTION:
-		event = new MouseMotionEvent(evt.motion.xrel, evt.motion.yrel);
+		event = make_shared<MouseMotionEvent>(evt.motion.xrel, evt.motion.yrel);
 		break;
 
 #if PLATFORM_GP2X
@@ -255,7 +256,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 					eventDistributor.distributeEvent(event);
 				}
 			}
-			event = 0;
+			event = nullptr;
 		} else {
 			event = translateGP2Xbutton(button, up);
 		}
@@ -263,42 +264,40 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	}
 #else
 	case SDL_JOYBUTTONUP:
-		event = new JoystickButtonUpEvent(evt.jbutton.which,
-		                                  evt.jbutton.button);
+		event = make_shared<JoystickButtonUpEvent>(
+			evt.jbutton.which, evt.jbutton.button);
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event = new JoystickButtonDownEvent(evt.jbutton.which,
-		                                    evt.jbutton.button);
+		event = make_shared<JoystickButtonDownEvent>(
+			evt.jbutton.which, evt.jbutton.button);
 		break;
 #endif
 	case SDL_JOYAXISMOTION:
-		event = new JoystickAxisMotionEvent(evt.jaxis.which,
-		                                    evt.jaxis.axis,
-		                                    evt.jaxis.value);
+		event = make_shared<JoystickAxisMotionEvent>(
+			evt.jaxis.which, evt.jaxis.axis, evt.jaxis.value);
 		break;
 
 	case SDL_ACTIVEEVENT:
-		event = new FocusEvent(evt.active.gain != 0);
+		event = make_shared<FocusEvent>(evt.active.gain != 0);
 		break;
 
 	case SDL_VIDEORESIZE:
-		event = new ResizeEvent(evt.resize.w, evt.resize.h);
+		event = make_shared<ResizeEvent>(evt.resize.w, evt.resize.h);
 		break;
 
 	case SDL_VIDEOEXPOSE:
-		event = new SimpleEvent(OPENMSX_EXPOSE_EVENT);
+		event = make_shared<SimpleEvent>(OPENMSX_EXPOSE_EVENT);
 		break;
 
 	case SDL_QUIT:
-		event = new QuitEvent();
+		event = make_shared<QuitEvent>();
 		break;
 
 	default:
-		event = nullptr;
 		break;
 	}
 
-	if (event) {
+	if (event.get()) {
 		eventDistributor.distributeEvent(event);
 	}
 }

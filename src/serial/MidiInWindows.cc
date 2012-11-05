@@ -100,7 +100,7 @@ void MidiInWindows::procLongMsg(LPMIDIHDR p)
 			queue.push_back(p->lpData[i]);
 		}
 		eventDistributor.distributeEvent(
-			new SimpleEvent(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
 	}
 }
 
@@ -121,7 +121,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 		param >>= 8;
 	}
 	eventDistributor.distributeEvent(
-		new SimpleEvent(OPENMSX_MIDI_IN_WINDOWS_EVENT));
+		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
 }
 
 // Runnable

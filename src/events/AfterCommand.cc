@@ -26,6 +26,7 @@ using std::string;
 using std::vector;
 using std::set;
 using std::shared_ptr;
+using std::make_shared;
 
 namespace openmsx {
 
@@ -253,8 +254,8 @@ void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
-	shared_ptr<AfterCmd> cmd(new AfterTimeCmd(
-		motherBoard->getScheduler(), *this, tokens[3], time));
+	auto cmd = make_shared<AfterTimeCmd>(
+		motherBoard->getScheduler(), *this, tokens[3], time);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -265,8 +266,8 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
-		*this, eventDistributor, tokens[3], time));
+	auto cmd = make_shared<AfterRealTimeCmd>(
+		*this, eventDistributor, tokens[3], time);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -276,8 +277,8 @@ void AfterCommand::afterTclTime(
 {
 	TclObject command(tokens.front().getInterpreter());
 	command.addListElements(tokens.begin() + 2, tokens.end());
-	shared_ptr<AfterCmd> cmd(new AfterRealTimeCmd(
-		*this, eventDistributor, command, ms / 1000.0));
+	auto cmd = make_shared<AfterRealTimeCmd>(
+		*this, eventDistributor, command, ms / 1000.0);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -288,7 +289,8 @@ void AfterCommand::afterEvent(const vector<TclObject>& tokens, TclObject& result
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	shared_ptr<AfterCmd> cmd(new AfterEventCmd<T>(*this, tokens[1], tokens[2]));
+	auto cmd = make_shared<AfterEventCmd<T>>(
+		*this, tokens[1], tokens[2]);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -299,7 +301,8 @@ void AfterCommand::afterInputEvent(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	shared_ptr<AfterCmd> cmd(new AfterInputEventCmd(*this, event, tokens[2]));
+	auto cmd = make_shared<AfterInputEventCmd>(
+		*this, event, tokens[2]);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -312,8 +315,8 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
-	shared_ptr<AfterCmd> cmd(new AfterIdleCmd(
-		motherBoard->getScheduler(), *this, tokens[3], time));
+	auto cmd = make_shared<AfterIdleCmd>(
+		motherBoard->getScheduler(), *this, tokens[3], time);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -523,7 +526,7 @@ shared_ptr<AfterCmd> AfterCmd::removeSelf()
 			return result;
 		}
 	}
-	UNREACHABLE; return shared_ptr<AfterCmd>();
+	UNREACHABLE; return nullptr;
 }
 
 
@@ -658,7 +661,7 @@ bool AfterRealTimeCmd::alarm()
 	// command here
 	expired = true;
 	eventDistributor.distributeEvent(
-			new SimpleEvent(OPENMSX_AFTER_REALTIME_EVENT));
+		std::make_shared<SimpleEvent>(OPENMSX_AFTER_REALTIME_EVENT));
 	return false; // don't repeat alarm
 }
 

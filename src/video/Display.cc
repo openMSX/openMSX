@@ -234,7 +234,8 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
 			reactor.getEventDistributor().distributeEvent(
-				new SimpleEvent(OPENMSX_FRAME_DRAWN_EVENT));
+				std::make_shared<SimpleEvent>(
+					OPENMSX_FRAME_DRAWN_EVENT));
 		}
 	} else if (event->getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
@@ -306,7 +307,8 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
-			new SimpleEvent(OPENMSX_SWITCH_RENDERER_EVENT));
+			std::make_shared<SimpleEvent>(
+				OPENMSX_SWITCH_RENDERER_EVENT));
 	}
 }
 

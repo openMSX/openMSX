@@ -16,7 +16,7 @@
 
 using std::string;
 using std::vector;
-
+using std::make_shared;
 
 namespace openmsx {
 
@@ -104,49 +104,49 @@ void HotKey::initDefaultBindings()
 
 	if (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_D, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_D, Keys::KM_META)),
 		            HotKeyInfo("screenshot -guess-name"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_P, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_P, Keys::KM_META)),
 		            HotKeyInfo("toggle pause"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_T, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_T, Keys::KM_META)),
 		            HotKeyInfo("toggle throttle"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_L, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_L, Keys::KM_META)),
 		            HotKeyInfo("toggle console"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_U, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_U, Keys::KM_META)),
 		            HotKeyInfo("toggle mute"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_F, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_F, Keys::KM_META)),
 		            HotKeyInfo("toggle fullscreen"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_Q, Keys::KM_META))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_Q, Keys::KM_META)),
 		            HotKeyInfo("exit"));
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PRINT)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_PRINT),
 		            HotKeyInfo("screenshot -guess-name"));
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PAUSE)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_PAUSE),
 		            HotKeyInfo("toggle pause"));
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F9)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_F9),
 		            HotKeyInfo("toggle throttle"));
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F10)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_F10),
 		            HotKeyInfo("toggle console"));
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F11)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_F11),
 		            HotKeyInfo("toggle mute"));
-		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F12)),
+		bindDefault(make_shared<KeyDownEvent>(Keys::K_F12),
 		            HotKeyInfo("toggle fullscreen"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_F4, Keys::KM_ALT))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_F4, Keys::KM_ALT)),
 		            HotKeyInfo("exit"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL)),
 		            HotKeyInfo("exit"));
-		bindDefault(EventPtr(new KeyDownEvent(
-		               Keys::combine(Keys::K_RETURN, Keys::KM_ALT))),
+		bindDefault(make_shared<KeyDownEvent>(
+		            Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
 		            HotKeyInfo("toggle fullscreen"));
 	}
 }

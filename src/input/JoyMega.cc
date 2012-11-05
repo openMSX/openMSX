@@ -304,8 +304,8 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 	// make sure we create an event with minimal changes
 	unsigned press   =    status & diff;
 	unsigned release = newStatus & diff;
-	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
-		new JoyMegaState(time, joyNum, press, release)));
+	stateChangeDistributor.distributeNew(std::make_shared<JoyMegaState>(
+		time, joyNum, press, release));
 }
 
 // StateChangeListener

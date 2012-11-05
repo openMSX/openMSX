@@ -27,13 +27,15 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 		try {
 			std::string filename = StringOp::Builder() <<
 				samplesBaseName << i << ".wav";
-			samples[i].reset(new WavData(context.resolve(filename)));
+			samples[i] = std::make_shared<WavData>(
+				context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
 				std::string filename = StringOp::Builder() <<
 					alternativeName << i << ".wav";
-				samples[i].reset(new WavData(context.resolve(filename)));
+				samples[i] = std::make_shared<WavData>(
+					context.resolve(filename));
 			} catch (MSXException& /*e2*/) {
 				if (!alreadyWarned) {
 					alreadyWarned = true;

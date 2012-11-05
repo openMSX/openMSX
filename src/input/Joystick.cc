@@ -277,8 +277,8 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 	// make sure we create an event with minimal changes
 	byte press   =    status & diff;
 	byte release = newStatus & diff;
-	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
-		new JoyState(time, joyNum, press, release)));
+	stateChangeDistributor.distributeNew(std::make_shared<JoyState>(
+		time, joyNum, press, release));
 }
 
 // StateChangeListener

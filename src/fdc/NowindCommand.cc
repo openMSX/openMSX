@@ -65,8 +65,7 @@ void NowindCommand::processHdimage(
 		                     partitions, 1, 31);
 	}
 
-	std::shared_ptr<SectorAccessibleDisk> wholeDisk(
-		new DSKDiskImage(Filename(hdimage)));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions

@@ -39,7 +39,7 @@ void CompressedFileAdapter::decompress()
 	if (it != decompressCache.end()) {
 		decompressed = it->second;
 	} else {
-		decompressed.reset(new Decompressed());
+		decompressed = std::make_shared<Decompressed>();
 		decompress(*file, *decompressed);
 		decompressed->cachedModificationDate = getModificationDate();
 		decompressed->cachedURL = url;

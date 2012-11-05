@@ -37,6 +37,7 @@ using std::string;
 using std::vector;
 using std::set;
 using std::shared_ptr;
+using std::make_shared;
 
 namespace openmsx {
 
@@ -374,8 +375,8 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 	if (diff == 0) return;
 	byte press   = userKeyMatrix[row] & diff;
 	byte release = newValue           & diff;
-	stateChangeDistributor.distributeNew(shared_ptr<StateChange>(
-		new KeyMatrixState(time, row, press, release)));
+	stateChangeDistributor.distributeNew(make_shared<KeyMatrixState>(
+		time, row, press, release));
 }
 
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
@@ -1044,8 +1045,8 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 		// The processor pressed the CODE/KANA key
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
-		eventQueue.push_front(shared_ptr<const Event>(new KeyUpEvent(
-			keyboard.keyboardSettings->getCodeKanaHostKey().getValue())));
+		eventQueue.push_front(make_shared<KeyUpEvent>(
+			keyboard.keyboardSettings->getCodeKanaHostKey().getValue()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {
@@ -1275,7 +1276,7 @@ void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
 			break;
 		case MUST_DISTRIBUTE_KEY_RELEASE: {
 			assert(keyboard.sdlReleasesCapslock);
-			shared_ptr<const Event> event(new KeyUpEvent(Keys::K_CAPSLOCK));
+			auto event = make_shared<KeyUpEvent>(Keys::K_CAPSLOCK);
 			msxEventDistributor.distributeEvent(event, time);
 			state = IDLE;
 			break;
@@ -1302,7 +1303,7 @@ void CapsLockAligner::alignCapsLock(EmuTime::param time)
 		keyboard.debug("Resyncing host and MSX CAPS lock\n");
 		// note: send out another event iso directly calling
 		// processCapslockEvent() because we want this to be recorded
-		shared_ptr<const Event> event(new KeyDownEvent(Keys::K_CAPSLOCK));
+		auto event = make_shared<KeyDownEvent>(Keys::K_CAPSLOCK);
 		msxEventDistributor.distributeEvent(event, time);
 		if (keyboard.sdlReleasesCapslock) {
 			keyboard.debug("Sending fake CAPS release\n");

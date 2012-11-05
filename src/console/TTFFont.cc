@@ -113,7 +113,7 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 	SDLTTF::instance(); // init library
 	FontInfo info;
-	info.file.reset(new LocalFileReference(filename));
+	info.file = std::make_shared<LocalFileReference>(filename);
 	info.font = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
 	if (!info.font) {
 		throw MSXException(TTF_GetError());

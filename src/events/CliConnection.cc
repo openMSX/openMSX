@@ -143,7 +143,8 @@ void CliConnection::end()
 void CliConnection::execute(const string& command)
 {
 	PRT_DEBUG("CliConnection::execute: " << command);
-	eventDistributor.distributeEvent(new CliCommandEvent(command, this));
+	eventDistributor.distributeEvent(
+		std::make_shared<CliCommandEvent>(command, this));
 }
 
 static string reply(const string& message, bool status)

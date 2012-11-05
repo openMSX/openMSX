@@ -20,6 +20,8 @@ class EventListener;
 class EventDistributor : private noncopyable
 {
 public:
+	typedef std::shared_ptr<const Event> EventPtr;
+
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
 	  */
@@ -53,7 +55,7 @@ public:
 	  * when the deliverEvents() method is called. Events are always
 	  * in the main thread.
 	  */
-	void distributeEvent(Event* event);
+	void distributeEvent(const EventPtr& event);
 
 	/** This actually delivers the events. It may only be called from the
 	  * main loop in Reactor (and only from the main thread). Also see
@@ -78,7 +80,6 @@ private:
 		PriorityMap; // sort from big to small
 	typedef std::map<EventType, PriorityMap> TypeMap;
 	TypeMap listeners;
-	typedef std::shared_ptr<const Event> EventPtr;
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

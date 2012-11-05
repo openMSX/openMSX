@@ -35,8 +35,8 @@ bool LDPixelRenderer::isActive() const
 
 void LDPixelRenderer::frameEnd()
 {
-	eventDistributor.distributeEvent(
-		new FinishFrameEvent(VIDEO_LASERDISC, !isActive()));
+	eventDistributor.distributeEvent(std::make_shared<FinishFrameEvent>(
+		VIDEO_LASERDISC, !isActive()));
 }
 
 void LDPixelRenderer::drawBlank(int r, int g, int b )

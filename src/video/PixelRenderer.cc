@@ -224,7 +224,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		}
 	}
 	eventDistributor.distributeEvent(
-		new FinishFrameEvent(VIDEO_MSX, skipEvent));
+		std::make_shared<FinishFrameEvent>(VIDEO_MSX, skipEvent));
 }
 
 void PixelRenderer::updateHorizontalScrollLow(

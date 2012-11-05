@@ -142,9 +142,9 @@ shared_ptr<OSDWidget> OSDCommand::create(
 		string_ref type, const string& name) const
 {
 	if (type == "rectangle") {
-		return shared_ptr<OSDWidget>(new OSDRectangle(gui, name));
+		return std::make_shared<OSDRectangle>(gui, name);
 	} else if (type == "text") {
-		return shared_ptr<OSDWidget>(new OSDText(gui, name));
+		return std::make_shared<OSDText>(gui, name);
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "

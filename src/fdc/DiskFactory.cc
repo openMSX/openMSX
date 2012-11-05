@@ -62,7 +62,7 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 		// DirAsDSK didn't work, no problem
 	}
 	try {
-		std::shared_ptr<File> file(new File(filename, File::PRE_CACHE));
+		auto file = std::make_shared<File>(filename, File::PRE_CACHE);
 		file->setFilePool(reactor.getFilePool());
 
 		try {
@@ -97,7 +97,7 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 		std::shared_ptr<SectorAccessibleDisk> wholeDisk;
 		try {
 			Filename filename2(diskImage.substr(0, pos));
-			wholeDisk.reset(new DSKDiskImage(filename2));
+			wholeDisk = std::make_shared<DSKDiskImage>(filename2);
 		} catch (MSXException&) {
 			// If this fails we still prefer to show the
 			// previous error message, because it's most

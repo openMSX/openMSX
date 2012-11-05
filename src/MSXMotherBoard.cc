@@ -787,7 +787,7 @@ void MSXMotherBoard::Impl::doReset()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	reactor.getEventDistributor().distributeEvent(
-		new SimpleEvent(OPENMSX_BOOT_EVENT));
+		std::make_shared<SimpleEvent>(OPENMSX_BOOT_EVENT));
 }
 
 byte MSXMotherBoard::Impl::readIRQVector()
@@ -827,7 +827,7 @@ void MSXMotherBoard::Impl::powerUp()
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	reactor.getEventDistributor().distributeEvent(
-		new SimpleEvent(OPENMSX_BOOT_EVENT));
+		std::make_shared<SimpleEvent>(OPENMSX_BOOT_EVENT));
 }
 
 void MSXMotherBoard::Impl::powerDown()

@@ -7,7 +7,7 @@ namespace openmsx {
 
 DSKDiskImage::DSKDiskImage(const Filename& fileName)
 	: SectorBasedDisk(fileName)
-	, file(new File(fileName, File::PRE_CACHE))
+	, file(std::make_shared<File>(fileName, File::PRE_CACHE))
 {
 	setNbSectors(file->getSize() / SECTOR_SIZE);
 }

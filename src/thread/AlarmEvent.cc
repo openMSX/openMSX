@@ -25,7 +25,7 @@ bool AlarmEvent::alarm()
 {
 	// Runs in timer thread.
 	// Schedule event so that the main thread can do the real work.
-	distributor.distributeEvent(new SimpleEvent(type));
+	distributor.distributeEvent(std::make_shared<SimpleEvent>(type));
 	return false; // don't repeat
 }
 

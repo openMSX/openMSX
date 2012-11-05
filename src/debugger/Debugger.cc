@@ -23,6 +23,7 @@
 using std::map;
 using std::set;
 using std::shared_ptr;
+using std::make_shared;
 using std::string;
 using std::vector;
 
@@ -256,11 +257,13 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 {
 	shared_ptr<WatchPoint> wp;
 	if ((type == WatchPoint::READ_IO) || (type == WatchPoint::WRITE_IO)) {
-		wp.reset(new WatchIO(motherBoard, type, beginAddr, endAddr,
-		                     command, condition, newId));
+		wp = make_shared<WatchIO>(
+			motherBoard, type, beginAddr, endAddr,
+			command, condition, newId);
 	} else {
-		wp.reset(new WatchPoint(motherBoard.getReactor().getGlobalCliComm(),
-			command, condition, type, beginAddr, endAddr, newId));
+		wp = make_shared<WatchPoint>(
+			motherBoard.getReactor().getGlobalCliComm(),
+			command, condition, type, beginAddr, endAddr, newId);
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
 	return wp->getId();
@@ -513,7 +516,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
 		// fall-through
 	case 3: // address
 		addr = getAddress(tokens);
-		bp.reset(new BreakPoint(cliComm, addr, command, condition));
+		bp = make_shared<BreakPoint>(cliComm, addr, command, condition);
 		break;
 	default:
 		if (tokens.size() < 3) {
@@ -741,7 +744,7 @@ void DebugCmd::setCondition(const vector<TclObject>& tokens,
 		if (!condition.getString().empty()) {
 			condition.checkExpression();
 		}
-		dc.reset(new DebugCondition(cliComm, command, condition));
+		dc = make_shared<DebugCondition>(cliComm, command, condition);
 		break;
 	default:
 		if (tokens.size() < 3) {

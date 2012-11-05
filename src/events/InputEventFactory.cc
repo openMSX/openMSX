@@ -8,6 +8,7 @@
 
 using std::string;
 using std::vector;
+using std::make_shared;
 
 namespace openmsx {
 
@@ -20,9 +21,9 @@ static EventPtr parseKeyEvent(const string& str, const int unicode)
 		throw CommandException("Invalid keycode: " + str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
-		return EventPtr(new KeyUpEvent(keyCode, unicode));
+		return make_shared<KeyUpEvent  >(keyCode, unicode);
 	} else {
-		return EventPtr(new KeyDownEvent(keyCode, unicode));
+		return make_shared<KeyDownEvent>(keyCode, unicode);
 	}
 }
 
@@ -61,18 +62,18 @@ static EventPtr parseMouseEvent(
 		if (components.size() != 4) {
 			throw CommandException("Invalid mouse motion event: " + str);
 		}
-		return EventPtr(new MouseMotionEvent(
+		return make_shared<MouseMotionEvent>(
 			StringOp::stringToInt(components[2]),
-			StringOp::stringToInt(components[3])));
+			StringOp::stringToInt(components[3]));
 	} else if (StringOp::startsWith(components[1], "button")) {
 		if (components.size() != 3) {
 			throw CommandException("Invalid mouse button event: " + str);
 		}
 		unsigned button = stoi(string_ref(components[1]).substr(6));
 		if (upDown(components[2])) {
-			return EventPtr(new MouseButtonUpEvent(button));
+			return make_shared<MouseButtonUpEvent>  (button);
 		} else {
-			return EventPtr(new MouseButtonDownEvent(button));
+			return make_shared<MouseButtonDownEvent>(button);
 		}
 	} else {
 		throw CommandException("Invalid mouse event: " + str);
@@ -99,9 +100,9 @@ static EventPtr parseJoystickEvent(
 			throw CommandException("Invalid joystick button number: " + joyButtonString);
 		}
 		if (upDown(components[2])) {
-			return EventPtr(new JoystickButtonUpEvent(joystick, button));
+			return make_shared<JoystickButtonUpEvent>(joystick, button);
 		} else {
-			return EventPtr(new JoystickButtonDownEvent(joystick, button));
+			return make_shared<JoystickButtonDownEvent>(joystick, button);
 		}
 	} else if (StringOp::startsWith(components[1], "axis")) {
 		int axis;
@@ -113,7 +114,7 @@ static EventPtr parseJoystickEvent(
 		if (!StringOp::stringToInt(components[2], value) || (short(value) != value)) {
 			throw CommandException("Invalid value: " + components[2]);
 		}
-		return EventPtr(new JoystickAxisMotionEvent(joystick, axis, value));
+		return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
 	} else {
 		throw CommandException("Invalid joystick event: " + str);
 	}
@@ -126,7 +127,7 @@ static EventPtr parseFocusEvent(
 		throw CommandException("Invalid focus event: " + str);
 	}
 	bool gain = StringOp::stringToBool(components[1]);
-	return EventPtr(new FocusEvent(gain));
+	return make_shared<FocusEvent>(gain);
 }
 
 static EventPtr parseResizeEvent(
@@ -137,7 +138,7 @@ static EventPtr parseResizeEvent(
 	}
 	int x = StringOp::stringToInt(components[1]);
 	int y = StringOp::stringToInt(components[2]);
-	return EventPtr(new ResizeEvent(x, y));
+	return make_shared<ResizeEvent>(x, y);
 }
 
 static EventPtr parseQuitEvent(
@@ -146,7 +147,7 @@ static EventPtr parseQuitEvent(
 	if (components.size() != 1) {
 		throw CommandException("Invalid quit event: " + str);
 	}
-	return EventPtr(new QuitEvent());
+	return make_shared<QuitEvent>();
 }
 
 EventPtr createInputEvent(const string& str)

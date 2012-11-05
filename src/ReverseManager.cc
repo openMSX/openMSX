@@ -448,8 +448,8 @@ void ReverseManager::goTo(
 			// terminate replay log with EndLogEvent (if not there already)
 			if (history.events.empty() ||
 			    !dynamic_cast<const EndLogEvent*>(history.events.back().get())) {
-				history.events.push_back(shared_ptr<StateChange>(
-					new EndLogEvent(currentTime)));
+				history.events.push_back(
+					std::make_shared<EndLogEvent>(currentTime));
 			}
 
 			// Transfer history to the new ReverseManager.
@@ -590,8 +590,8 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 		!dynamic_cast<EndLogEvent*>(history.events.back().get());
 	if (addSentinel) {
 		/// make sure the replay log ends with a EndLogEvent
-		history.events.push_back(shared_ptr<StateChange>(
-			new EndLogEvent(getCurrentTime())));
+		history.events.push_back(std::make_shared<EndLogEvent>(
+			getCurrentTime()));
 	}
 	try {
 		XmlOutputArchive out(filename);
@@ -790,7 +790,7 @@ void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
 		//     should not be *exactly* equally far apart in time.
 		pendingTakeSnapshot = true;
 		eventDistributor.distributeEvent(
-			new SimpleEvent(OPENMSX_TAKE_REVERSE_SNAPSHOT));
+			std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
 		break;
 	case INPUT_EVENT:
 		shared_ptr<StateChange> event = history.events[replayIndex];

@@ -126,7 +126,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 
 	}
 	eventDistributor.distributeEvent(
-		new FinishFrameEvent(VIDEO_GFX9000, skipEvent));
+		std::make_shared<FinishFrameEvent>(VIDEO_GFX9000, skipEvent));
 }
 
 void V9990PixelRenderer::sync(EmuTime::param time, bool force)
