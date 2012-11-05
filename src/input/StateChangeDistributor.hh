@@ -5,7 +5,7 @@
 
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include "shared_ptr.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -17,7 +17,7 @@ class StateChange;
 class StateChangeDistributor : private noncopyable
 {
 public:
-	typedef shared_ptr<StateChange> EventPtr;
+	typedef std::shared_ptr<StateChange> EventPtr;
 
 	StateChangeDistributor();
 	~StateChangeDistributor();

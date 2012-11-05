@@ -489,7 +489,7 @@ void Reactor::deleteBoard(Board board)
 
 	if (board == activeBoard) {
 		// delete active board -> there is no active board anymore
-		switchBoard(Reactor::Board(nullptr));
+		switchBoard(Reactor::Board());
 	}
 	Boards::iterator it = find(boards.begin(), boards.end(), board);
 	assert(it != boards.end());
@@ -627,7 +627,7 @@ void Reactor::update(const Setting& setting)
 }
 
 // EventListener
-int Reactor::signalEvent(const shared_ptr<const Event>& event)
+int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {

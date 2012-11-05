@@ -5,7 +5,7 @@
 
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include "shared_ptr.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -16,7 +16,7 @@ class Event;
 class MSXEventDistributor : private noncopyable
 {
 public:
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 
 	MSXEventDistributor();
 	~MSXEventDistributor();

@@ -10,13 +10,14 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "shared_ptr.hh"
 #include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::set;
+using std::shared_ptr;
 using std::vector;
 
 namespace openmsx {

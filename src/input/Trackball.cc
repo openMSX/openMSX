@@ -20,6 +20,7 @@
 //   against the real hardware.
 
 using std::string;
+using std::shared_ptr;
 
 namespace openmsx {
 

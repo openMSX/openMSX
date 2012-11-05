@@ -4,7 +4,6 @@
 #define OSDWIDGET_HH
 
 #include "StringMap.hh"
-#include "shared_ptr.hh"
 #include "string_ref.hh"
 #include <vector>
 #include <memory>
@@ -32,7 +31,7 @@ public:
 	const OSDWidget* getParent() const;
 	OSDWidget* findSubWidget(string_ref name);
 	const OSDWidget* findSubWidget(string_ref name) const;
-	void addWidget(const shared_ptr<OSDWidget>& widget);
+	void addWidget(const std::shared_ptr<OSDWidget>& widget);
 	void deleteWidget(OSDWidget& widget);
 
 	virtual void getProperties(std::set<std::string>& result) const;
@@ -77,7 +76,7 @@ private:
 	friend class OSDCommand;
 
 	// note: must be shared_ptr (not unique_ptr), see OSDWidget::paintSDLRecursive()
-	typedef std::vector<shared_ptr<OSDWidget>> SubWidgets;
+	typedef std::vector<std::shared_ptr<OSDWidget>> SubWidgets;
 	typedef StringMap<OSDWidget*> SubWidgetsMap;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.

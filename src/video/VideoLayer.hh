@@ -56,7 +56,7 @@ private:
 	void calcCoverage();
 
 	// MSXEventListener
-	virtual void signalEvent(const shared_ptr<const Event>& event,
+	virtual void signalEvent(const std::shared_ptr<const Event>& event,
 	                         EmuTime::param time);
 
 	/** This layer belongs to a specific machine. */

@@ -5,7 +5,6 @@
 
 #include "FileBase.hh"
 #include "MemBuffer.hh"
-#include "shared_ptr.hh"
 #include <memory>
 
 namespace openmsx {
@@ -43,7 +42,7 @@ private:
 	void decompress();
 
 	std::unique_ptr<FileBase> file;
-	shared_ptr<Decompressed> decompressed;
+	std::shared_ptr<Decompressed> decompressed;
 	unsigned pos;
 };
 

@@ -131,7 +131,7 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 	layer->takeRawScreenShot(height, filename);
 }
 
-int Video9000::signalEvent(const shared_ptr<const Event>& event)
+int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
 	const FinishFrameEvent& ffe =

@@ -4,7 +4,7 @@
 #define MSXEVENTLISTENER_HH
 
 #include "EmuTime.hh"
-#include "shared_ptr.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -17,7 +17,7 @@ public:
 
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
-	virtual void signalEvent(const shared_ptr<const Event>& event,
+	virtual void signalEvent(const std::shared_ptr<const Event>& event,
 	                         EmuTime::param time) = 0;
 
 protected:

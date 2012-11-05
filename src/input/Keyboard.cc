@@ -36,6 +36,7 @@
 using std::string;
 using std::vector;
 using std::set;
+using std::shared_ptr;
 
 namespace openmsx {
 

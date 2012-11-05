@@ -14,6 +14,7 @@
 
 using std::string;
 using std::set;
+using std::shared_ptr;
 
 namespace openmsx {
 

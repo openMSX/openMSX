@@ -41,7 +41,7 @@ private:
 	void handleEvent(Led led);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	MSXCliComm& msxCliComm;
 	const std::unique_ptr<AlarmEvent> alarm;

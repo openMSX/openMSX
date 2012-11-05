@@ -33,7 +33,6 @@ HDR_ONLY:= \
 	inline \
 	ref \
 	noncopyable \
-	shared_ptr \
 	static_assert \
 	unreachable \
 	tuple \

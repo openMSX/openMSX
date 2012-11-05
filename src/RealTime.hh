@@ -60,7 +60,7 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	// Observer<Setting>
 	void update(const Setting& setting);

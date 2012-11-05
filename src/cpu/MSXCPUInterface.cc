@@ -45,6 +45,7 @@ using std::uppercase;
 using std::string;
 using std::vector;
 using std::min;
+using std::shared_ptr;
 
 namespace openmsx {
 

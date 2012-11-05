@@ -324,7 +324,7 @@ void SDLVideoSystem::update(const Setting& subject)
 	}
 }
 
-int SDLVideoSystem::signalEvent(const shared_ptr<const Event>& /*event*/)
+int SDLVideoSystem::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.

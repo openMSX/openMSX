@@ -20,6 +20,7 @@
 // cause the shift register bits to return to 0.
 
 using std::string;
+using std::shared_ptr;
 
 namespace openmsx {
 

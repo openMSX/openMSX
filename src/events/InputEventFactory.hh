@@ -3,7 +3,7 @@
 #ifndef INPUTEVENTFACTORY_HH
 #define INPUTEVENTFACTORY_HH
 
-#include "shared_ptr.hh"
+#include <memory>
 #include <string>
 
 namespace openmsx {
@@ -12,7 +12,7 @@ class Event;
 
 namespace InputEventFactory
 {
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 	EventPtr createInputEvent(const std::string& str);
 }
 

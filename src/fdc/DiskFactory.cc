@@ -15,7 +15,7 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "shared_ptr.hh"
+#include <memory>
 
 using std::string;
 
@@ -62,7 +62,7 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 		// DirAsDSK didn't work, no problem
 	}
 	try {
-		shared_ptr<File> file(new File(filename, File::PRE_CACHE));
+		std::shared_ptr<File> file(new File(filename, File::PRE_CACHE));
 		file->setFilePool(reactor.getFilePool());
 
 		try {
@@ -94,7 +94,7 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 			// does not contain ':', throw previous exception
 			throw;
 		}
-		shared_ptr<SectorAccessibleDisk> wholeDisk;
+		std::shared_ptr<SectorAccessibleDisk> wholeDisk;
 		try {
 			Filename filename2(diskImage.substr(0, pos));
 			wholeDisk.reset(new DSKDiskImage(filename2));

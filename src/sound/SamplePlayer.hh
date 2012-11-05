@@ -4,7 +4,7 @@
 #define SAMPLEPLAYER_HH
 
 #include "ResampledSoundDevice.hh"
-#include "shared_ptr.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -57,7 +57,7 @@ private:
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	std::vector<shared_ptr<WavData>> samples; // TODO use c++11 unique_ptr
+	std::vector<std::shared_ptr<WavData>> samples; // TODO use c++11 unique_ptr
 
 	const void* sampBuf;
 	unsigned index;

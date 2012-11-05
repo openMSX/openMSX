@@ -23,7 +23,7 @@ static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 }
 
 DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-                             const shared_ptr<SectorAccessibleDisk>& owned_)
+                             const std::shared_ptr<SectorAccessibleDisk>& owned_)
 	: SectorBasedDisk(getDiskName(&disk, partition))
 	, parent(disk)
 	, owned(owned_)

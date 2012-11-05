@@ -246,7 +246,7 @@ ConsoleLine CommandConsole::getLine(unsigned line) const
 	return ConsoleLine();
 }
 
-int CommandConsole::signalEvent(const shared_ptr<const Event>& event)
+int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 	if (!consoleSetting->getValue()) {

@@ -7,7 +7,6 @@
 #include "EventListener.hh"
 #include "StateChangeListener.hh"
 #include "EmuTime.hh"
-#include "shared_ptr.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -51,7 +50,7 @@ private:
 		EmuTime time;
 		// TODO use unique_ptr in the future (c++0x), or hold
 		//      MemBuffer by value and make it moveable
-		shared_ptr<MemBuffer<byte>> savestate;
+		std::shared_ptr<MemBuffer<byte>> savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should
@@ -59,7 +58,7 @@ private:
 		unsigned eventCount;
 	};
 	typedef std::map<unsigned, ReverseChunk> Chunks;
-	typedef std::vector<shared_ptr<StateChange>> Events;
+	typedef std::vector<std::shared_ptr<StateChange>> Events;
 
 	struct ReverseHistory {
 		void swap(ReverseHistory& other);
@@ -97,10 +96,10 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	// StateChangeRecorder
-	virtual void signalStateChange(const shared_ptr<StateChange>& event);
+	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 	virtual bool isReplaying() const;
 

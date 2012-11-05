@@ -16,13 +16,13 @@
 #include "CommandException.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
-#include "shared_ptr.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <memory>
 
 using std::map;
 using std::set;
+using std::shared_ptr;
 using std::string;
 using std::vector;
 

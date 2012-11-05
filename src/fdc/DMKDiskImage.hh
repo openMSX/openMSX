@@ -4,7 +4,7 @@
 #define DMKDISKIMAGE_HH
 
 #include "Disk.hh"
-#include "shared_ptr.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -18,7 +18,7 @@ class File;
 class DMKDiskImage : public Disk
 {
 public:
-	DMKDiskImage(Filename& filename, const shared_ptr<File>& file);
+	DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file);
 
 	virtual void readTrack(byte track, byte side, RawTrack& output);
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
@@ -35,7 +35,7 @@ private:
 
 	void seekTrack(byte track, byte side);
 
-	shared_ptr<File> file;
+	std::shared_ptr<File> file;
 	unsigned numTracks;
 	unsigned dmkTrackLen;
 	bool singleSided;

@@ -68,7 +68,7 @@ private:
 	                    string_ref name, string_ref value);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND, END

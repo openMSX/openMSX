@@ -4,7 +4,7 @@
 #define DISKPARTITION_HH
 
 #include "SectorBasedDisk.hh"
-#include "shared_ptr.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -21,8 +21,7 @@ public:
 	 *              will then take (shared) ownership of that Disk.
 	 */
 	DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
-	              const shared_ptr<SectorAccessibleDisk>& owned =
-	                  shared_ptr<SectorAccessibleDisk>());
+	              const std::shared_ptr<SectorAccessibleDisk>& owned = nullptr);
 
 	DiskPartition(SectorAccessibleDisk& parent,
 	              unsigned start, unsigned length);
@@ -33,7 +32,7 @@ private:
 	virtual bool isWriteProtectedImpl() const;
 
 	SectorAccessibleDisk& parent;
-	shared_ptr<SectorAccessibleDisk> owned;
+	std::shared_ptr<SectorAccessibleDisk> owned;
 	unsigned start;
 };
 

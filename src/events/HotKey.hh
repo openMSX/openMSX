@@ -6,7 +6,6 @@
 #include "Event.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
-#include "shared_ptr.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -29,7 +28,7 @@ template<typename T> struct deref_less
 class HotKey : private EventListener, private noncopyable
 {
 public:
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 	HotKey(GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);
 	virtual ~HotKey();

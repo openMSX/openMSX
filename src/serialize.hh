@@ -7,7 +7,6 @@
 #include "SerializeBuffer.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
-#include "shared_ptr.hh"
 #include "type_traits.hh"
 #include "inline.hh"
 #include "unreachable.hh"
@@ -504,7 +503,7 @@ public:
 	void* getPointer(unsigned id);
 	void addPointer(unsigned id, const void* p);
 
-	template<typename T> void resetSharedPtr(shared_ptr<T>& s, T* r)
+	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
 		if (r == nullptr) {
 			s.reset();
@@ -513,12 +512,9 @@ public:
 		SharedPtrMap::const_iterator it = sharedPtrMap.find(r);
 		if (it == sharedPtrMap.end()) {
 			s.reset(r);
-			sharedPtrMap[r] = &s;
-			//sharedPtrMap[r] = s;
+			sharedPtrMap[r] = s;
 		} else {
-			shared_ptr<T>* s2 = static_cast<shared_ptr<T>*>(it->second);
-			s = *s2;
-			//s = std::tr1::static_pointer_cast<T>(it->second);
+			s = std::static_pointer_cast<T>(it->second);
 		}
 	}
 
@@ -529,8 +525,7 @@ private:
 	typedef std::map<unsigned, void*> IdMap;
 	IdMap idMap;
 
-	typedef std::map<void*, void*> SharedPtrMap;
-	//typedef std::map<void*, std::tr1::shared_ptr<void>> SharedPtrMap;
+	typedef std::map<void*, std::shared_ptr<void>> SharedPtrMap;
 	SharedPtrMap sharedPtrMap;
 };
 
@@ -708,7 +703,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	shared_ptr<MemBuffer<byte>> releaseBuffer();
+	std::shared_ptr<MemBuffer<byte>> releaseBuffer();
 
 private:
 	void put(const void* data, unsigned len)

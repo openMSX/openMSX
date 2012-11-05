@@ -13,6 +13,7 @@
 #include "unreachable.hh"
 
 using std::string;
+using std::shared_ptr;
 
 namespace openmsx {
 

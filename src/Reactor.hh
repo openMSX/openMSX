@@ -7,7 +7,6 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "noncopyable.hh"
-#include "shared_ptr.hh"
 #include <string>
 #include <memory>
 #include <set>
@@ -104,7 +103,7 @@ public:
 	CliComm& getCliComm();
 	std::string getMachineID() const;
 
-	typedef shared_ptr<MSXMotherBoard> Board;
+	typedef std::shared_ptr<MSXMotherBoard> Board;
 	Board createEmptyMotherBoard();
 	void replaceBoard(MSXMotherBoard& oldBoard, const Board& newBoard); // for reverse
 
@@ -121,7 +120,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	void unpause();
 	void pause();

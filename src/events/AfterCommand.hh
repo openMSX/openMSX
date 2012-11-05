@@ -6,7 +6,7 @@
 #include "Command.hh"
 #include "EventListener.hh"
 #include "Event.hh"
-#include "shared_ptr.hh"
+#include <memory>
 #include <vector>
 
 namespace openmsx {
@@ -21,7 +21,7 @@ class Event;
 class AfterCommand : public Command, private EventListener
 {
 public:
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
@@ -50,9 +50,9 @@ private:
 	void executeRealTime();
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
-	typedef std::vector<shared_ptr<AfterCmd>> AfterCmds;
+	typedef std::vector<std::shared_ptr<AfterCmd>> AfterCmds;
 	AfterCmds afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;

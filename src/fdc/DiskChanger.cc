@@ -27,7 +27,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
-#include "shared_ptr.hh"
 #include "ref.hh"
 
 using std::set;
@@ -163,7 +162,7 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 	}
 }
 
-void DiskChanger::signalStateChange(const shared_ptr<StateChange>& event)
+void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
 	MSXCommandEvent* commandEvent =
 		dynamic_cast<MSXCommandEvent*>(event.get());

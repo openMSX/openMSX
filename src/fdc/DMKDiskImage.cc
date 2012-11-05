@@ -46,7 +46,7 @@ static bool isValidDmkHeader(const DmkHeader& header)
 	return true;
 }
 
-DMKDiskImage::DMKDiskImage(Filename& filename, const shared_ptr<File>& file_)
+DMKDiskImage::DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file_)
 	: Disk(filename)
 	, file(file_)
 {

@@ -55,7 +55,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	EventDistributor& eventDistributor;
 	const std::unique_ptr<BooleanSetting> grabInput;

@@ -312,7 +312,7 @@ void InputEventGenerator::update(const Setting& setting)
 	setGrabInput(grabInput->getValue());
 }
 
-int InputEventGenerator::signalEvent(const shared_ptr<const Event>& event)
+int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FOCUS_EVENT) {
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);

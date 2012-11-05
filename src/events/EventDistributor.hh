@@ -6,9 +6,9 @@
 #include "Event.hh"
 #include "Semaphore.hh"
 #include "CondVar.hh"
-#include "shared_ptr.hh"
 #include "noncopyable.hh"
 #include <map>
+#include <memory>
 #include <vector>
 #include <functional>
 
@@ -78,7 +78,7 @@ private:
 		PriorityMap; // sort from big to small
 	typedef std::map<EventType, PriorityMap> TypeMap;
 	TypeMap listeners;
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

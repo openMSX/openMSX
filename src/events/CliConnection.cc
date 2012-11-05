@@ -153,7 +153,7 @@ static string reply(const string& message, bool status)
 		XMLElement::XMLEscape(message) << "</reply>\n";
 }
 
-int CliConnection::signalEvent(const shared_ptr<const Event>& event)
+int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	const CliCommandEvent& commandEvent =
 		checked_cast<const CliCommandEvent&>(*event);

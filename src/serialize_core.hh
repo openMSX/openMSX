@@ -5,7 +5,6 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "shared_ptr.hh"
 #include "static_assert.hh"
 #include "type_traits.hh"
 #include "unreachable.hh"
@@ -164,12 +163,12 @@ template<typename T> struct serialize_as_pointer<std::unique_ptr<T>>
 		t.reset(p);
 	}
 };
-template<typename T> struct serialize_as_pointer<shared_ptr<T>>
+template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 	: serialize_as_pointer_impl<T>
 {
-	static T* getPointer(const shared_ptr<T>& t) { return t.get(); }
+	static T* getPointer(const std::shared_ptr<T>& t) { return t.get(); }
 	template<typename Archive>
-	static void setPointer(shared_ptr<T>& t, T* p, Archive& ar) {
+	static void setPointer(std::shared_ptr<T>& t, T* p, Archive& ar) {
 		ar.resetSharedPtr(t, p);
 	}
 };

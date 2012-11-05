@@ -225,7 +225,7 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-int Display::signalEvent(const shared_ptr<const Event>& event)
+int Display::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =

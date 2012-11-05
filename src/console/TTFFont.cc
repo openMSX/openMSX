@@ -4,11 +4,11 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "shared_ptr.hh"
 #include "unreachable.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -54,7 +54,7 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
-		shared_ptr<LocalFileReference> file; // TODO use c++11 unique_ptr
+		std::shared_ptr<LocalFileReference> file; // TODO use c++11 unique_ptr
 		TTF_Font* font;
 		int count;
 	};

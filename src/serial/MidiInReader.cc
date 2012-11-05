@@ -117,7 +117,7 @@ void MidiInReader::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInReader::signalEvent(const shared_ptr<const Event>& /*event*/)
+int MidiInReader::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

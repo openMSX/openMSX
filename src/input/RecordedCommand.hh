@@ -90,7 +90,7 @@ private:
 	                     TclObject& result);
 
 	// StateChangeListener
-	virtual void signalStateChange(const shared_ptr<StateChange>& event);
+	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
 	virtual void stopReplay(EmuTime::param time);
 
 	StateChangeDistributor& stateChangeDistributor;

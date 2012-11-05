@@ -37,7 +37,7 @@ public:
 	void flush();
 
 private:
-	typedef shared_ptr<const Event> EventPtr;
+	typedef std::shared_ptr<const Event> EventPtr;
 
 	// EventListener
 	virtual int signalEvent(const EventPtr& event);
