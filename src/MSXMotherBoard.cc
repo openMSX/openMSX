@@ -47,8 +47,8 @@
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
 #include "unreachable.hh"
-#include "ref.hh"
 #include <cassert>
+#include <functional>
 #include <vector>
 #include <iostream>
 
@@ -1307,9 +1307,9 @@ void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned
 	}
 
 	ar.serialize("name", machineName);
-	ar.serializeWithID("config", machineConfig2, ref(self));
+	ar.serializeWithID("config", machineConfig2, std::ref(self));
 	assert(getMachineConfig() == machineConfig2.get());
-	ar.serializeWithID("extensions", extensions, ref(self));
+	ar.serializeWithID("extensions", extensions, std::ref(self));
 
 	if (mapperIO.get()) {
 		ar.serialize("mapperIO", *mapperIO);

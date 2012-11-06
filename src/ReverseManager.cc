@@ -22,7 +22,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "checked_cast.hh"
-#include "ref.hh"
+#include <functional>
 #include <cassert>
 
 using std::string;
@@ -72,7 +72,7 @@ struct Replay
 	void serialize(Archive& ar, unsigned version)
 	{
 		if (ar.versionAtLeast(version, 2)) {
-			ar.serializeWithID("snapshots", motherBoards, ref(reactor));
+			ar.serializeWithID("snapshots", motherBoards, std::ref(reactor));
 		} else {
 			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 			ar.serialize("snapshot", *newBoard);

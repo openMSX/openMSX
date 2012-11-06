@@ -4,7 +4,7 @@
 #define DISKCONTAINER_HH
 
 #include "serialize_meta.hh"
-#include "ref.hh"
+#include <functional>
 #include <string>
 
 namespace openmsx {
@@ -32,7 +32,7 @@ public:
 };
 
 // Subclass 'DiskChanger' needs (global) 'MSXMotherBoard' constructor parameter
-REGISTER_BASE_CLASS_1(DiskContainer, "DiskContainer", reference_wrapper<MSXMotherBoard>);
+REGISTER_BASE_CLASS_1(DiskContainer, "DiskContainer", std::reference_wrapper<MSXMotherBoard>);
 
 } // namespace openmsx
 

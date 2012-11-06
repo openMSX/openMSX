@@ -11,9 +11,9 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "ref.hh"
 #include <bitset>
 #include <cassert>
+#include <functional>
 
 using std::string;
 
@@ -176,7 +176,7 @@ void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", *flash);
-	ar.serializeWithID("drives", drives, ref(getMotherBoard()));
+	ar.serializeWithID("drives", drives, std::ref(getMotherBoard()));
 	ar.serialize("nowindhost", *host);
 	ar.serialize("bank", bank);
 

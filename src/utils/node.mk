@@ -31,7 +31,6 @@ HDR_ONLY:= \
 	alignof \
 	likely \
 	inline \
-	ref \
 	noncopyable \
 	unreachable \
 	tuple \

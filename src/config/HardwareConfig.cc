@@ -16,7 +16,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "StringOp.hh"
-#include "ref.hh"
 #include "unreachable.hh"
 #include <cassert>
 

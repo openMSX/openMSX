@@ -27,7 +27,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
-#include "ref.hh"
+#include <functional>
 
 using std::set;
 using std::string;
@@ -451,6 +451,6 @@ template<> struct SerializeConstructorArgs<DiskChanger>
 
 INSTANTIATE_SERIALIZE_METHODS(DiskChanger);
 REGISTER_POLYMORPHIC_CLASS_1(DiskContainer, DiskChanger, "DiskChanger",
-                             reference_wrapper<MSXMotherBoard>);
+                             std::reference_wrapper<MSXMotherBoard>);
 
 } // namespace openmsx
