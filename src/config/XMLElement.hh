@@ -132,7 +132,7 @@ SERIALIZE_CLASS_VERSION(XMLElement, 2);
 
 template<> struct SerializeConstructorArgs<XMLElement>
 {
-	typedef Tuple<std::string, std::string> type;
+	typedef std::tuple<std::string, std::string> type;
 	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
 	{
 		ar.serialize("name", xml.getName());
@@ -143,7 +143,7 @@ template<> struct SerializeConstructorArgs<XMLElement>
 		std::string name, data;
 		ar.serialize("name", name);
 		ar.serialize("data", data);
-		return make_tuple(name, data);
+		return std::make_tuple(name, data);
 	}
 };
 

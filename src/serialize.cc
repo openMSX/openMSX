@@ -131,7 +131,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 
 	string tmp;
 	Loader<string> loader;
-	loader(this->self(), tmp, make_tuple(), -1);
+	loader(this->self(), tmp, std::make_tuple(), -1);
 	this->self().endTag(tag);
 
 	if (encoding == "gz-base64") {

@@ -453,7 +453,7 @@ template<typename T> struct PrimitiveLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(TUPLE::NUM == 0,
+		static_assert(std::tuple_size<TUPLE>::value == 0,
 		              "can't have constructor arguments");
 		ar.load(t);
 	}
@@ -463,7 +463,7 @@ template<typename T> struct EnumLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		static_assert(TUPLE::NUM == 0,
+		static_assert(std::tuple_size<TUPLE>::value == 0,
 		              "can't have constructor arguments");
 		if (ar.translateEnumToString()) {
 			std::string str;
@@ -497,7 +497,7 @@ template<typename T> struct ClassLoader
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int id = 0,
 	                int version = -1)
 	{
-		static_assert(TUPLE::NUM == 0,
+		static_assert(std::tuple_size<TUPLE>::value == 0,
 		              "can't have constructor arguments");
 
 		// id == -1: don't load id, don't addPointer
@@ -531,20 +531,17 @@ template<typename T> struct NonPolymorphicPointerLoader
 		// load (local) constructor args (if any)
 		typedef typename remove_const<T>::type TNC;
 		typedef SerializeConstructorArgs<TNC> ConstrArgs;
-		typedef typename ConstrArgs::type LocalTuple;
 		ConstrArgs constrArgs;
-		LocalTuple localArgs = constrArgs.load(ar, version);
+		auto localArgs = constrArgs.load(ar, version);
 
 		// combine global and local constr args
-		typedef TupleMerger<GlobalTuple, LocalTuple> Merger;
-		Merger merger;
-		typename Merger::type args = merger(globalArgs, localArgs);
+		auto args = std::tuple_cat(globalArgs, localArgs);
 		// TODO make combining global/local constr args configurable
 
 		Creator<T> creator;
 		std::unique_ptr<T> tp(creator(args));
 		ClassLoader<T> loader;
-		loader(ar, *tp, make_tuple(), id, version);
+		loader(ar, *tp, std::make_tuple(), id, version);
 		return tp.release();
 	}
 };
@@ -557,7 +554,7 @@ template<typename T> struct PolymorphicPointerLoader
 		static_assert(is_same_type<TUPLE, ArgsType>::value,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
-			PolymorphicLoaderRegistry<Archive>::load(ar, id, args));
+			PolymorphicLoaderRegistry<Archive>::load(ar, id, &args));
 	}
 };
 template<typename T> struct PointerLoader2

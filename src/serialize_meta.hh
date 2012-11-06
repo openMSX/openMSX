@@ -5,11 +5,11 @@
 
 #include "TypeInfo.hh"
 #include "StringMap.hh"
-#include "tuple.hh"
 #include "noncopyable.hh"
 #include "type_traits.hh"
 #include "likely.hh"
 #include <string>
+#include <tuple>
 #include <map>
 #include <cassert>
 
@@ -22,7 +22,7 @@ namespace openmsx {
  *
  * For example:
  *       Creator<Foo> creator;
- *       Tuple<int, float> args = make_tuple(42, 3.14);
+ *       tuple<int, float> args = std::make_tuple(42, 3.14);
  *       Foo* foo = creator(args);
  * This is equivalent to
  *       Foo* foo = new Foo(42, 3.14);
@@ -34,7 +34,7 @@ template<typename T> class Creator
 public:
 	template<typename TUPLE>
 	T* operator()(TUPLE args) {
-		DoInstantiate<TUPLE::NUM, TUPLE> inst;
+		DoInstantiate<std::tuple_size<TUPLE>::value, TUPLE> inst;
 		return inst(args);
 	}
 
@@ -47,17 +47,17 @@ private:
 	};
 	template<typename TUPLE> struct DoInstantiate<1, TUPLE> {
 		T* operator()(TUPLE args) {
-			return new T(args.t1);
+			return new T(std::get<0>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<2, TUPLE> {
 		T* operator()(TUPLE args) {
-			return new T(args.t1, args.t2);
+			return new T(std::get<0>(args), std::get<1>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<3, TUPLE> {
 		T* operator()(TUPLE args) {
-			return new T(args.t1, args.t2, args.t3);
+			return new T(std::get<0>(args), std::get<1>(args), std::get<2>(args));
 		}
 	};
 };
@@ -91,9 +91,9 @@ template<typename T> struct PolymorphicBaseClass;
 template<typename Base> struct MapConstrArgsEmpty
 {
 	typedef typename PolymorphicConstructorArgs<Base>::type TUPLEIn;
-	Tuple<> operator()(const TUPLEIn& /*t*/)
+	std::tuple<> operator()(const TUPLEIn& /*t*/)
 	{
-		return make_tuple();
+		return std::make_tuple();
 	}
 };
 template<typename Base, typename Derived> struct MapConstrArgsCopy
@@ -121,7 +121,7 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
  * cases, the user must define a specialization of this class.
  */
 template<typename Base, typename Derived> struct MapConstructorArguments
-	: if_<is_same_type<Tuple<>,
+	: if_<is_same_type<std::tuple<>,
 	                   typename PolymorphicConstructorArgs<Derived>::type>,
 	      MapConstrArgsEmpty<Base>,
 	      MapConstrArgsCopy<Base, Derived>> {};
@@ -145,7 +145,7 @@ template<typename Archive> class PolymorphicLoaderBase
 {
 public:
 	virtual ~PolymorphicLoaderBase() {}
-	virtual void* load(Archive& ar, unsigned id, const TupleBase& args) const = 0;
+	virtual void* load(Archive& ar, unsigned id, const void* args) const = 0;
 };
 
 template<typename Archive> class PolymorphicInitializerBase
@@ -179,12 +179,12 @@ template<typename Archive, typename T>
 class PolymorphicLoader : public PolymorphicLoaderBase<Archive>
 {
 public:
-	virtual void* load(Archive& ar, unsigned id, const TupleBase& args) const
+	virtual void* load(Archive& ar, unsigned id, const void* args) const
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		typedef typename PolymorphicConstructorArgs<BaseType>::type TUPLEIn;
 		typedef typename PolymorphicConstructorArgs<T>::type TUPLEOut;
-		const TUPLEIn& argsIn = static_cast<const TUPLEIn&>(args);
+		const TUPLEIn& argsIn = *static_cast<const TUPLEIn*>(args);
 		MapConstructorArguments<BaseType, T> mapArgs;
 		TUPLEOut argsOut = mapArgs(argsIn);
 		NonPolymorphicPointerLoader<T> loader;
@@ -206,7 +206,7 @@ public:
 		}
 		T* t = static_cast<T*>(base);
 		ClassLoader<T> loader;
-		loader(ar, *t, make_tuple(), id);
+		loader(ar, *t, std::make_tuple(), id);
 	}
 };
 
@@ -264,7 +264,7 @@ public:
 		registerHelper(name, new PolymorphicLoader<Archive, T>());
 	}
 
-	static void* load(Archive& ar, unsigned id, TupleBase& args);
+	static void* load(Archive& ar, unsigned id, const void* args);
 
 private:
 	PolymorphicLoaderRegistry();
@@ -331,19 +331,19 @@ template<typename Archive, typename T> struct RegisterInitializerHelper
 
 #define REGISTER_CONSTRUCTOR_ARGS_0(C) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef Tuple<> type; };
+{ typedef std::tuple<> type; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_1(C,T1) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef Tuple<T1> type; };
+{ typedef std::tuple<T1> type; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_2(C,T1,T2) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef Tuple<T1,T2> type; };
+{ typedef std::tuple<T1,T2> type; };
 
 #define REGISTER_CONSTRUCTOR_ARGS_3(C,T1,T2,T3) \
 template<> struct PolymorphicConstructorArgs<C> \
-{ typedef Tuple<T1,T2,T3> type; };
+{ typedef std::tuple<T1,T2,T3> type; };
 
 class MemInputArchive;
 class MemOutputArchive;

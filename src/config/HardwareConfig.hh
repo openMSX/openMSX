@@ -89,7 +89,7 @@ SERIALIZE_CLASS_VERSION(HardwareConfig, 2);
 
 template<> struct SerializeConstructorArgs<HardwareConfig>
 {
-	typedef Tuple<std::string> type;
+	typedef std::tuple<std::string> type;
 	template<typename Archive> void save(
 		Archive& ar, const HardwareConfig& config)
 	{
@@ -99,7 +99,7 @@ template<> struct SerializeConstructorArgs<HardwareConfig>
 	{
 		std::string name;
 		ar.serialize("hwname", name);
-		return ::make_tuple(name);
+		return std::make_tuple(name);
 	}
 };
 

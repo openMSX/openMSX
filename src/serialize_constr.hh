@@ -3,7 +3,7 @@
 #ifndef SERIALIZE_CONSTR_HH
 #define SERIALIZE_CONSTR_HH
 
-#include "tuple.hh"
+#include <tuple>
 
 namespace openmsx {
 
@@ -22,7 +22,7 @@ namespace openmsx {
  * be stored in the archive). See below for more details on global constr args.
  *
  * The serialize_as_enum class has the following members:
- *   typedef Tuple<...> type
+ *   typedef tuple<...> type
  *     Tuple that holds the result of load() (see below)
  *   void save(Archive& ar, const T& t)
  *     This method should store the constructor args in the given archive
@@ -32,11 +32,11 @@ namespace openmsx {
  */
 template<typename T> struct SerializeConstructorArgs
 {
-	typedef Tuple<> type;
+	typedef std::tuple<> type;
 	template<typename Archive>
 	void save(Archive& /*ar*/, const T& /*t*/) { }
 	template<typename Archive>
-	type load(Archive& /*ar*/, unsigned /*version*/) { return make_tuple(); }
+	type load(Archive& /*ar*/, unsigned /*version*/) { return std::make_tuple(); }
 };
 
 } // namespace openmsx

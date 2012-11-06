@@ -98,7 +98,7 @@ void PolymorphicLoaderRegistry<Archive>::registerHelper(
 
 template<typename Archive>
 void* PolymorphicLoaderRegistry<Archive>::load(
-	Archive& ar, unsigned id, TupleBase& args)
+	Archive& ar, unsigned id, const void* args)
 {
 	std::string type;
 	ar.attribute("type", type);

@@ -433,7 +433,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 // extra (local) constructor arguments for polymorphic de-serialization
 template<> struct SerializeConstructorArgs<DiskChanger>
 {
-	typedef Tuple<std::string> type;
+	typedef std::tuple<std::string> type;
 
 	template<typename Archive>
 	void save(Archive& ar, const DiskChanger& changer)
