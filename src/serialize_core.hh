@@ -13,6 +13,28 @@
 
 namespace openmsx {
 
+// Type-queries for serialization framework
+// is_primitive<T>
+template<typename T> struct is_primitive           : std::false_type {};
+template<> struct is_primitive<bool>               : std::true_type {};
+template<> struct is_primitive<char>               : std::true_type {};
+template<> struct is_primitive<signed char>        : std::true_type {};
+template<> struct is_primitive<signed short>       : std::true_type {};
+template<> struct is_primitive<signed int>         : std::true_type {};
+template<> struct is_primitive<signed long>        : std::true_type {};
+template<> struct is_primitive<unsigned char>      : std::true_type {};
+template<> struct is_primitive<unsigned short>     : std::true_type {};
+template<> struct is_primitive<unsigned int>       : std::true_type {};
+template<> struct is_primitive<unsigned long>      : std::true_type {};
+template<> struct is_primitive<float>              : std::true_type {};
+template<> struct is_primitive<double>             : std::true_type {};
+template<> struct is_primitive<long double>        : std::true_type {};
+template<> struct is_primitive<long long>          : std::true_type {};
+template<> struct is_primitive<unsigned long long> : std::true_type {};
+template<> struct is_primitive<std::string>        : std::true_type {};
+
+
+
 // Normally to make a class serializable, you have to implement a serialize()
 // method on the class. For some classes we cannot extend the source code. So
 // we need an alternative, non-intrusive, way to make those classes
@@ -75,14 +97,14 @@ template<typename T1, typename T2> struct SerializeClassVersion<std::pair<T1, T2
  *   removing a value or changing the string representation.
  */
 
-template<typename T> struct serialize_as_enum : is_false {};
+template<typename T> struct serialize_as_enum : std::false_type {};
 
 template<typename T> struct enum_string {
 	const char* str;
 	T e;
 };
 void enumError(const std::string& str);
-template<typename T> struct serialize_as_enum_impl : is_true {
+template<typename T> struct serialize_as_enum_impl : std::true_type {
 	serialize_as_enum_impl(enum_string<T>* info_) : info(info_) {}
 	std::string toString(T t) const {
 		enum_string<T>* p = info;
@@ -137,8 +159,8 @@ template<> struct serialize_as_enum< TYPE > : serialize_as_enum_impl< TYPE > { \
 //      The archive can be used to store per-archive data, this is for example
 //      needed for shared_ptr.
 
-template<typename T> struct serialize_as_pointer : is_false {};
-template<typename T> struct serialize_as_pointer_impl : is_true
+template<typename T> struct serialize_as_pointer : std::false_type {};
+template<typename T> struct serialize_as_pointer_impl : std::true_type
 {
 	// pointer to primitive types not supported
 	static_assert(!is_primitive<T>::value,
@@ -216,8 +238,8 @@ template<typename T> struct serialize_as_pointer<std::shared_ptr<T>>
 //      collection to receive 'n' elements. The output() method returns an
 //      output_iterator to the beginning of the collection.
 
-template<typename T> struct serialize_as_collection : is_false {};
-template<typename T, int N> struct serialize_as_collection<T[N]> : is_true
+template<typename T> struct serialize_as_collection : std::false_type {};
+template<typename T, int N> struct serialize_as_collection<T[N]> : std::true_type
 {
 	static const int size = N; // fixed size
 	typedef T value_type;
@@ -337,7 +359,7 @@ template<typename T> struct ClassSaver
 			constrArgs.save(ar, t);
 		}
 
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		TNC& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -360,7 +382,7 @@ template<typename TP> struct PointerSaver
 		if (unsigned id = ar.getId(tp)) {
 			ar.attribute("id_ref", id);
 		} else {
-			if (is_polymorphic<T>::value) {
+			if (std::is_polymorphic<T>::value) {
 				PolymorphicSaverRegistry<Archive>::save(ar, tp);
 			} else {
 				ClassSaver<T> saver;
@@ -516,7 +538,7 @@ template<typename T> struct ClassLoader
 			version = loadVersion<T>(ar);
 		}
 
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		TNC& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
@@ -529,7 +551,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		int version = loadVersion<T>(ar);
 
 		// load (local) constructor args (if any)
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		typedef SerializeConstructorArgs<TNC> ConstrArgs;
 		ConstrArgs constrArgs;
 		auto localArgs = constrArgs.load(ar, version);
@@ -551,7 +573,7 @@ template<typename T> struct PolymorphicPointerLoader
 	T* operator()(Archive& ar, unsigned id, TUPLE args)
 	{
 		typedef typename PolymorphicConstructorArgs<T>::type ArgsType;
-		static_assert(is_same_type<TUPLE, ArgsType>::value,
+		static_assert(std::is_same<TUPLE, ArgsType>::value,
 		              "constructor arguments types must match");
 		return static_cast<T*>(
 			PolymorphicLoaderRegistry<Archive>::load(ar, id, &args));
@@ -561,8 +583,8 @@ template<typename T> struct PointerLoader2
 	// extra indirection needed because inlining the body of
 	// NonPolymorphicPointerLoader in PointerLoader does not compile
 	// for abstract types
-	: if_<is_polymorphic<T>, PolymorphicPointerLoader<T>,
-	                         NonPolymorphicPointerLoader<T>> {};
+	: if_<std::is_polymorphic<T>, PolymorphicPointerLoader<T>,
+	                              NonPolymorphicPointerLoader<T>> {};
 
 template<typename TP> struct PointerLoader
 {

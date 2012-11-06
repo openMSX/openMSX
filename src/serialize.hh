@@ -374,7 +374,7 @@ public:
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
 		// value as key in the map.
-		if (is_polymorphic<T>::value) {
+		if (std::is_polymorphic<T>::value) {
 			return generateID1(p);
 		} else {
 			return generateID2(p, typeid(T));
@@ -383,7 +383,7 @@ public:
 
 	template<typename T> unsigned getId(const T* p)
 	{
-		if (is_polymorphic<T>::value) {
+		if (std::is_polymorphic<T>::value) {
 			return getID1(p);
 		} else {
 			return getID2(p, typeid(T));
@@ -469,7 +469,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, const T& t)
 	{
-		static_assert(is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
@@ -562,7 +562,7 @@ public:
 	void serialize(const char* tag, T& t)
 	{
 		this->self().beginTag(tag);
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		TNC& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
@@ -571,7 +571,7 @@ public:
 	template<typename T> void serializePointerID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		TNC& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
@@ -579,7 +579,7 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, T& t)
 	{
-		static_assert(is_polymorphic<T>::value,
+		static_assert(std::is_polymorphic<T>::value,
 		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
@@ -598,7 +598,7 @@ public:
 	void doSerialize(const char* tag, T& t, TUPLE args, int id = 0)
 	{
 		this->self().beginTag(tag);
-		typedef typename remove_const<T>::type TNC;
+		typedef typename std::remove_const<T>::type TNC;
 		TNC& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, args, id);

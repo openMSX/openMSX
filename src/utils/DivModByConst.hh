@@ -4,6 +4,8 @@
 #define DIVMODBYCONST
 
 #include "build-info.hh"
+#include "type_traits.hh"
+#include <type_traits>
 
 /** Utility class to optimize 64-bit divide/module by a 32-bit constant.
  * For 32-bit by 32-bit gcc already does this optimiztion (on 64-bit
@@ -20,16 +22,8 @@ namespace DivModByConstPrivate {
 
 typedef unsigned long long uint64;
 
-// the cond/endcond stuff is to make sure Doxygen behaves
-
-/** \cond */
-template<bool C, class T, class F> struct if_             : F {};
-template<        class T, class F> struct if_<true, T, F> : T {};
-
-template<int I> struct int_ { static const int value = I; };
 template<unsigned A, unsigned R = 0> struct log2
-	: if_<A == 0, int_<R>, log2<A / 2, R + 1>> {};
-/** \endcond */
+	: if_c<A == 0, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
 template<uint64 RH, uint64 RL, uint64 QH, uint64 QL, uint64 DH, uint64 DL, unsigned BITS>
@@ -413,8 +407,8 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 
 
 template<unsigned DIVISOR, unsigned N, typename RM> struct DBCHelper3
-	: if_<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
-	                  , DBCAlgo3<DIVISOR, N>> {};
+	: if_c<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
+	                   , DBCAlgo3<DIVISOR, N>> {};
 
 template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 {
@@ -435,9 +429,9 @@ template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 };
 
 template<unsigned DIVISOR, unsigned SHIFT> struct DBCHelper1
-	: if_<DIVISOR == 1, DBCAlgo1<SHIFT>,
-	                    if_<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
-	                                   , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
+	: if_c<DIVISOR == 1, DBCAlgo1<SHIFT>,
+	                     if_c<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
+	                                     , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
 
 } // namespace DivModByConstPrivate
 

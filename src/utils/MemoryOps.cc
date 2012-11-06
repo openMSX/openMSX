@@ -8,8 +8,8 @@
 #include "systemfuncs.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
-#include "type_traits.hh"
 #include "unreachable.hh"
+#include <type_traits>
 #include <map>
 #include <cassert>
 #include <cstring>
@@ -468,7 +468,7 @@ template struct MemSet2<unsigned, false>;
 #if COMPONENT_GL
 #if defined _MSC_VER
 // see comment in V9990BitmapConverter
-static_assert(is_same_type<unsigned, GLuint>::value,
+static_assert(std::is_same<unsigned, GLuint>::value,
               "GLuint must be the same type as unsigned");
 #else
 template<> struct MemSet <GLUtil::NoExpansion, true > {};

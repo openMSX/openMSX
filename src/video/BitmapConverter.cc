@@ -5,8 +5,8 @@
 #include "Math.hh"
 #include "likely.hh"
 #include "unreachable.hh"
-#include "type_traits.hh"
 #include "build-info.hh"
+#include <type_traits>
 
 namespace openmsx {
 
@@ -331,7 +331,7 @@ template class BitmapConverter<unsigned>;
 #if COMPONENT_GL
 #if defined(_MSC_VER)
 // see comment in V9990BitmapConverter
-static_assert(is_same_type<unsigned, GLuint>::value,
+static_assert(std::is_same<unsigned, GLuint>::value,
               "GLuint must be the same type as unsigned");
 #elif HAVE_32BPP
 template<> class BitmapConverter<GLUtil::NoExpansion> {};

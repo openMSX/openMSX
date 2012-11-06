@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-template<typename T> struct serialize_as_stl_collection : is_true
+template<typename T> struct serialize_as_stl_collection : std::true_type
 {
 	static const int size = -1; // variable size
 	typedef typename T::value_type value_type;

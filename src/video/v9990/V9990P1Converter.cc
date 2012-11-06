@@ -5,8 +5,8 @@
 #include "V9990VRAM.hh"
 #include "MemoryOps.hh"
 #include "GLUtil.hh"
-#include "type_traits.hh"
 #include "build-info.hh"
+#include <type_traits>
 #include <cassert>
 #include <algorithm>
 
@@ -258,7 +258,7 @@ template class V9990P1Converter<unsigned>;
 #if COMPONENT_GL
 #if defined(_MSC_VER)
 // see comment in V9990BitmapConverter
-static_assert(is_same_type<unsigned, GLuint>::value,
+static_assert(std::is_same<unsigned, GLuint>::value,
               "GLuint must be the same type as unsigned");
 #elif HAVE_32BPP
 template <> class V9990P1Converter<GLUtil::NoExpansion> {};

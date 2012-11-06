@@ -5,9 +5,9 @@
 #include "V9990.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
-#include "type_traits.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <type_traits>
 #include <cassert>
 
 namespace openmsx {
@@ -380,7 +380,7 @@ template class V9990BitmapConverter<unsigned>;
 // But we know that 'GLuint' and 'unsigned' are the same types in windows,
 // so the stuff below is not required (it would only instantiate a dummy class
 // when these types are the same).
-static_assert(is_same_type<unsigned, GLuint>::value,
+static_assert(std::is_same<unsigned, GLuint>::value,
               "GLuint must be the same type as unsigned");
 #elif HAVE_32BPP
 template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
