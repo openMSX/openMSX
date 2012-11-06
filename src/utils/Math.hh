@@ -4,7 +4,6 @@
 #define MATH_HH
 
 #include "openmsx.hh"
-#include "static_assert.hh"
 #include "inline.hh"
 #include "likely.hh"
 #include "build-info.hh"
@@ -58,7 +57,7 @@ inline int clip(int x)
   */
 inline short clipIntToShort(int x)
 {
-	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
+	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	return likely(short(x) == x) ? x : (0x7FFF - (x >> 31));
 }
 
@@ -67,7 +66,7 @@ inline short clipIntToShort(int x)
   */
 inline byte clipIntToByte(int x)
 {
-	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
+	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
 	return likely(byte(x) == x) ? x : ~(x >> 31);
 }
 

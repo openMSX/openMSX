@@ -69,12 +69,15 @@ int main()
 	std::cout << "// This is a generated file. DO NOT EDIT!\n";
 	std::cout << "\n";
 	std::cout << "// The table was generated for the following constants:\n";
-	std::cout << "STATIC_ASSERT(BLIP_PHASE_BITS    == " <<
-	                            BLIP_PHASE_BITS  << ");\n";
-	std::cout << "STATIC_ASSERT(BLIP_SAMPLE_BITS   == " <<
-	                            BLIP_SAMPLE_BITS << ");\n";
-	std::cout << "STATIC_ASSERT(BLIP_IMPULSE_WIDTH == " <<
-	                            BLIP_IMPULSE_WIDTH << ");\n";
+	std::cout << "static_assert(BLIP_PHASE_BITS    == " <<
+	                            BLIP_PHASE_BITS  <<
+	                            ", \"mismatch, regenerate\");\n";
+	std::cout << "static_assert(BLIP_SAMPLE_BITS   == " <<
+	                            BLIP_SAMPLE_BITS <<
+	                            ", \"mismatch, regenerate\");\n";
+	std::cout << "static_assert(BLIP_IMPULSE_WIDTH == " <<
+	                            BLIP_IMPULSE_WIDTH <<
+	                            ", \"mismatch, regenerate\");\n";
 	std::cout << "\n";
 
 	// dump actual table: reshuffle values to a more cache friendly order

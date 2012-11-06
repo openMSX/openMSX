@@ -263,7 +263,7 @@ public:
 	}
 	template<int OFFSET> uint32_t getUint32AtOffset() const
 	{
-		STATIC_ASSERT((OFFSET >= 0) && (OFFSET <= 4));
+		static_assert((OFFSET >= 0) && (OFFSET <= 4), "must be in [0..4]");
 		int shift = OPENMSX_BIGENDIAN ? (32 - 8 * OFFSET)
 		                              : (     8 * OFFSET);
 		return data >> shift;
@@ -281,7 +281,7 @@ public:
 	}
 	template<int OFFSET> uint32_t getUint32AtOffset() const
 	{
-		STATIC_ASSERT((OFFSET >= 0) && (OFFSET <= 4));
+		static_assert((OFFSET >= 0) && (OFFSET <= 4), "must be in [0..4]");
 		return unalignedLoad32(ptr + OFFSET);
 	}
 private:

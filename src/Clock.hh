@@ -7,7 +7,6 @@
 #include "EmuTime.hh"
 #include "DivModByConst.hh"
 #include "serialize.hh"
-#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -23,10 +22,10 @@ class Clock
 private:
 	// stuff below calculates:
 	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NUM / FREQ_DENOM) + 0.5
-	STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
+	static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 	static const unsigned long long P = MAIN_FREQ * FREQ_DENOM + (FREQ_NUM / 2);
 	static const unsigned long long MASTER_TICKS = P / FREQ_NUM;
-	STATIC_ASSERT(MASTER_TICKS < (1ull << 32));
+	static_assert(MASTER_TICKS < (1ull << 32), "must fit in 32 bit");
 	static const unsigned MASTER_TICKS32 = MASTER_TICKS;
 
 public:

@@ -14,7 +14,6 @@ TODO:
 #include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "static_assert.hh"
 #include "unreachable.hh"
 #include "type_traits.hh"
 #include "build-info.hh"
@@ -412,7 +411,8 @@ template class CharacterConverter<unsigned>;
 #if COMPONENT_GL
 #if defined(_MSC_VER)
 // see comment in V9990BitmapConverter
-STATIC_ASSERT((is_same_type<unsigned, GLuint>::value));
+static_assert(is_same_type<unsigned, GLuint>::value,
+              "GLuint must be the same type as unsigned");
 #elif HAVE_32BPP
 template<> class CharacterConverter<GLUtil::NoExpansion> {};
 template class CharacterConverter<GLUtil::ExpandGL>;

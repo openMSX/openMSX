@@ -2,7 +2,6 @@
 
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
-#include "static_assert.hh"
 #include "likely.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -88,7 +87,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned hostNum,
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 		results[ch] = blip[ch].template readSamples<CHANNELS>(dataOut + ch, hostNum);
 	}
-	STATIC_ASSERT((CHANNELS == 1) || (CHANNELS == 2));
+	static_assert((CHANNELS == 1) || (CHANNELS == 2), "either mono or stereo");
 	bool result;
 	if (CHANNELS == 1) {
 		result = results[0];

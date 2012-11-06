@@ -33,7 +33,6 @@ HDR_ONLY:= \
 	inline \
 	ref \
 	noncopyable \
-	static_assert \
 	unreachable \
 	tuple \
 	TypeInfo \

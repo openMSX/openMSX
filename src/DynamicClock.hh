@@ -5,7 +5,6 @@
 
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
-#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -95,7 +94,7 @@ public:
 	  * less rounding errors.
 	  */
 	void setFreq(unsigned freq_num, unsigned freq_denom) {
-		STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
+		static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 		unsigned long long p = MAIN_FREQ * freq_denom + (freq_num / 2);
 		unsigned long long newStep = p / freq_num;
 		assert(newStep < (1ull << 32));

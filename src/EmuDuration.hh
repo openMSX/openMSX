@@ -4,7 +4,6 @@
 #define EMUDUARTION_HH
 
 #include "openmsx.hh"
-#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -12,7 +11,7 @@ namespace openmsx {
 // constants
 static const uint64 MAIN_FREQ = 3579545ULL * 960;
 static const unsigned MAIN_FREQ32 = MAIN_FREQ;
-STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
+static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 
 
 class EmuDuration

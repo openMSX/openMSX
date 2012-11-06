@@ -1,21 +1,21 @@
 // This is a generated file. DO NOT EDIT!
 
 // These tables were generated for the following constants:
-STATIC_ASSERT(PM_FP_BITS == 8);
-STATIC_ASSERT(EP_FP_BITS == 15);
-STATIC_ASSERT(DB_BITS == 8);
-STATIC_ASSERT(DB_MUTE == 256);
-STATIC_ASSERT(DBTABLEN == 768);
-//STATIC_ASSERT(DB_STEP == 0.1875);
-//STATIC_ASSERT(EG_STEP == 0.375);
-//STATIC_ASSERT(PM_DEPTH == 13.75);
-STATIC_ASSERT(PG_BITS == 9);
-STATIC_ASSERT(PG_WIDTH == 512);
-STATIC_ASSERT(EG_BITS == 7);
-STATIC_ASSERT(DB2LIN_AMP_BITS == 8);
-STATIC_ASSERT(PM_PG_BITS == 8);
-STATIC_ASSERT(PM_PG_WIDTH == 256);
-STATIC_ASSERT(LFO_AM_TAB_ELEMENTS == 210);
+static_assert(PM_FP_BITS == 8, "mismatch, regenerate");
+static_assert(EP_FP_BITS == 15, "mismatch, regenerate");
+static_assert(DB_BITS == 8, "mismatch, regenerate");
+static_assert(DB_MUTE == 256, "mismatch, regenerate");
+static_assert(DBTABLEN == 768, "mismatch, regenerate");
+//static_assert(DB_STEP == 0.1875, "mismatch, regenerate");
+//static_assert(EG_STEP == 0.375, "mismatch, regenerate");
+//static_assert(PM_DEPTH == 13.75, "mismatch, regenerate");
+static_assert(PG_BITS == 9, "mismatch, regenerate");
+static_assert(PG_WIDTH == 512, "mismatch, regenerate");
+static_assert(EG_BITS == 7, "mismatch, regenerate");
+static_assert(DB2LIN_AMP_BITS == 8, "mismatch, regenerate");
+static_assert(PM_PG_BITS == 8, "mismatch, regenerate");
+static_assert(PM_PG_WIDTH == 256, "mismatch, regenerate");
+static_assert(LFO_AM_TAB_ELEMENTS == 210, "mismatch, regenerate");
 
 // Table for Pitch Modulator (24.8 fixed point)
 static int pmtable[PM_PG_WIDTH] = {

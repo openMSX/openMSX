@@ -415,8 +415,10 @@ public:
 	void serializeInlinedBase(T& t, unsigned version)
 	{
 		// same implementation as base class, but with extra check
-		STATIC_ASSERT(SerializeClassVersion<Base>::value ==
-		              SerializeClassVersion<T   >::value);
+		static_assert(SerializeClassVersion<Base>::value ==
+		              SerializeClassVersion<T   >::value,
+		              "base and derived must have same version when "
+		              "using serializeInlinedBase()");
 		ArchiveBase<Derived>::template serializeInlinedBase<Base>(t, version);
 	}
 	// Main saver method. Heavy lifting is done in the Saver class.
@@ -467,7 +469,8 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, const T& t)
 	{
-		STATIC_ASSERT(is_polymorphic<T>::value);
+		static_assert(is_polymorphic<T>::value,
+		              "must be a polymorphic type");
 		PolymorphicSaverRegistry<Derived>::save(tag, this->self(), t);
 	}
 
@@ -576,7 +579,8 @@ public:
 	}
 	template<typename T> void serializePolymorphic(const char* tag, T& t)
 	{
-		STATIC_ASSERT(is_polymorphic<T>::value);
+		static_assert(is_polymorphic<T>::value,
+		              "must be a polymorphic type");
 		PolymorphicInitializerRegistry<Derived>::init(tag, this->self(), &t);
 	}
 

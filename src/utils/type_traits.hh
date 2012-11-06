@@ -3,7 +3,6 @@
 #ifndef TYPE_TRAITS_HH
 #define TYPE_TRAITS_HH
 
-#include "static_assert.hh"
 #include "systemfuncs.hh"
 #include <string>
 
@@ -58,8 +57,8 @@ template<typename T> struct is_pointer<T*> : is_true {};
 // is_polymorphic<T>
 template<typename T> struct is_polymorphic
 {
-	STATIC_ASSERT(!is_primitive<T>::value);
-	STATIC_ASSERT(!is_pointer<T>::value);
+	static_assert(!is_primitive<T>::value, "can't be a primitive type");
+	static_assert(!is_pointer<T>::value,   "can't be a pointer type");
 	struct d1 : public T
 	{
 		d1();
@@ -91,7 +90,7 @@ template<typename T> struct is_abstract
 	static const bool value = std::tr1::is_abstract<T>::value;
 #else
 	// T must be a complete type (otherwise result is always false)
-	STATIC_ASSERT(sizeof(T) != 0);
+	static_assert(sizeof(T) != 0, "must be a complete type");
 
 	struct yes { char a[1]; };
 	struct no  { char a[2]; };

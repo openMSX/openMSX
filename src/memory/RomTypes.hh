@@ -3,8 +3,6 @@
 #ifndef ROMTYPES_HH
 #define ROMTYPES_HH
 
-#include "static_assert.hh"
-
 namespace openmsx {
 
 enum RomType {
@@ -85,7 +83,7 @@ enum RomType {
 
 // Make sure there is no overlap in numeric enum values between the unordered
 // and ordered part of the enum list.
-STATIC_ASSERT(int(ROM_END_OF_UNORDERED_LIST) < int(ROM_PAGE0));
+static_assert(int(ROM_END_OF_UNORDERED_LIST) < int(ROM_PAGE0), "renumber romtypes");
 
 } // namespace openmsx
 

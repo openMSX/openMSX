@@ -1,9 +1,9 @@
 // This is a generated file. DO NOT EDIT!
 
 // The table was generated for the following constants:
-STATIC_ASSERT(BLIP_PHASE_BITS    == 10);
-STATIC_ASSERT(BLIP_SAMPLE_BITS   == 29);
-STATIC_ASSERT(BLIP_IMPULSE_WIDTH == 16);
+static_assert(BLIP_PHASE_BITS    == 10, "mismatch, regenerate");
+static_assert(BLIP_SAMPLE_BITS   == 29, "mismatch, regenerate");
+static_assert(BLIP_IMPULSE_WIDTH == 16, "mismatch, regenerate");
 
 static const int impulses[BLIP_RES][BLIP_IMPULSE_WIDTH] = {
 	{ 3, -25, 94, -229, 428, -688, 1310, 6406, 1310, -688, 428, -229, 94, -25, 3, 0 },

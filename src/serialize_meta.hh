@@ -7,7 +7,6 @@
 #include "StringMap.hh"
 #include "tuple.hh"
 #include "noncopyable.hh"
-#include "static_assert.hh"
 #include "type_traits.hh"
 #include "likely.hh"
 #include <string>
@@ -101,7 +100,8 @@ template<typename Base, typename Derived> struct MapConstrArgsCopy
 {
 	typedef typename PolymorphicConstructorArgs<Base>::type TUPLEIn;
 	typedef typename PolymorphicConstructorArgs<Derived>::type TUPLEOut;
-	STATIC_ASSERT((is_same_type<TUPLEIn, TUPLEOut>::value));
+	static_assert(is_same_type<TUPLEIn, TUPLEOut>::value,
+	              "constructor argument types must match");
 	TUPLEOut operator()(const TUPLEIn& t)
 	{
 		return t;
@@ -219,8 +219,10 @@ public:
 
 	template<typename T> void registerClass(const char* name)
 	{
-		STATIC_ASSERT(is_polymorphic<T>::value);
-		STATIC_ASSERT(!is_abstract<T>::value);
+		static_assert(is_polymorphic<T>::value,
+		              "must be a polymorphic type");
+		static_assert(!is_abstract<T>::value,
+		              "can't be an abstract type");
 		registerHelper(typeid(T), new PolymorphicSaver<Archive, T>(name));
 	}
 
@@ -255,8 +257,10 @@ public:
 
 	template<typename T> void registerClass(const char* name)
 	{
-		STATIC_ASSERT(is_polymorphic<T>::value);
-		STATIC_ASSERT(!is_abstract<T>::value);
+		static_assert(is_polymorphic<T>::value,
+		              "must be a polymorphic type");
+		static_assert(!is_abstract<T>::value,
+		              "can't be an abstract type");
 		registerHelper(name, new PolymorphicLoader<Archive, T>());
 	}
 
@@ -280,8 +284,10 @@ public:
 
 	template<typename T> void registerClass(const char* name)
 	{
-		STATIC_ASSERT(is_polymorphic<T>::value);
-		STATIC_ASSERT(!is_abstract<T>::value);
+		static_assert(is_polymorphic<T>::value,
+		              "must be a polymorphic type");
+		static_assert(!is_abstract<T>::value,
+		              "can't be an abstract type");
 		registerHelper(name, new PolymorphicInitializer<Archive, T>());
 	}
 
@@ -345,7 +351,7 @@ class XmlInputArchive;
 class XmlOutputArchive;
 
 /*#define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
-STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
+static_assert(is_base_and_derived<B,C>::value, "must be base and sub class"); \
 static RegisterLoaderHelper<TextInputArchive,  C> registerHelper1##C(N); \
 static RegisterSaverHelper <TextOutputArchive, C> registerHelper2##C(N); \
 static RegisterLoaderHelper<XmlInputArchive,   C> registerHelper3##C(N); \
@@ -353,7 +359,7 @@ static RegisterSaverHelper <XmlOutputArchive,  C> registerHelper4##C(N); \
 static RegisterLoaderHelper<MemInputArchive,   C> registerHelper5##C(N); \
 static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \*/
 #define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
-STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
+static_assert(is_base_and_derived<B,C>::value, "must be base and sub class"); \
 static RegisterLoaderHelper<MemInputArchive,  C> registerHelper3##C(N); \
 static RegisterSaverHelper <MemOutputArchive, C> registerHelper4##C(N); \
 static RegisterLoaderHelper<XmlInputArchive,  C> registerHelper5##C(N); \
@@ -361,7 +367,7 @@ static RegisterSaverHelper <XmlOutputArchive, C> registerHelper6##C(N); \
 template<> struct PolymorphicBaseClass<C> { typedef B type; };
 
 #define REGISTER_POLYMORPHIC_INITIALIZER_HELPER(B,C,N) \
-STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
+static_assert(is_base_and_derived<B,C>::value, "must be base and sub class"); \
 static RegisterInitializerHelper<MemInputArchive,  C> registerHelper3##C(N); \
 static RegisterSaverHelper      <MemOutputArchive, C> registerHelper4##C(N); \
 static RegisterInitializerHelper<XmlInputArchive,  C> registerHelper5##C(N); \

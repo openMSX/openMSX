@@ -1,7 +1,6 @@
 // $Id$
 
 #include "BlipBuffer.hh"
-#include "static_assert.hh"
 #include <algorithm>
 #include <cstring>
 #include <cassert>

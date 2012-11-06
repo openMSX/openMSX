@@ -5,7 +5,6 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "static_assert.hh"
 #include "type_traits.hh"
 #include "unreachable.hh"
 #include <string>
@@ -142,7 +141,8 @@ template<typename T> struct serialize_as_pointer : is_false {};
 template<typename T> struct serialize_as_pointer_impl : is_true
 {
 	// pointer to primitive types not supported
-	STATIC_ASSERT(!is_primitive<T>::value);
+	static_assert(!is_primitive<T>::value,
+	              "can't serialize ptr to primitive type");
 	typedef T type;
 };
 template<typename T> struct serialize_as_pointer<T*>
@@ -278,7 +278,7 @@ template<typename T> struct PrimitiveSaver
 	template<typename Archive> void operator()(Archive& ar, const T& t,
 	                                           bool /*saveId*/)
 	{
-		STATIC_ASSERT(is_primitive<T>::value);
+		static_assert(is_primitive<T>::value, "must be primitive type");
 		ar.save(t);
 	}
 };
@@ -348,7 +348,8 @@ template<typename TP> struct PointerSaver
 	template<typename Archive> void operator()(Archive& ar, const TP& tp2,
 	                                           bool /*saveId*/)
 	{
-		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		static_assert(serialize_as_pointer<TP>::value,
+		              "must be serialized as pointer");
 		typedef typename serialize_as_pointer<TP>::type T;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
 		if (tp == nullptr) {
@@ -374,7 +375,8 @@ template<typename TP> struct IDSaver
 {
 	template<typename Archive> void operator()(Archive& ar, const TP& tp2)
 	{
-		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		static_assert(serialize_as_pointer<TP>::value,
+		              "must be serialized as pointer");
 		typedef typename serialize_as_pointer<TP>::type T;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
 		unsigned id;
@@ -393,7 +395,7 @@ template<typename TC> struct CollectionSaver
 	                                           bool saveId)
 	{
 		typedef serialize_as_collection<TC> sac;
-		STATIC_ASSERT(sac::value);
+		static_assert(sac::value, "must be serialized as collection");
 		typedef typename sac::const_iterator const_iterator;
 		const_iterator begin = sac::begin(tc);
 		const_iterator end   = sac::end  (tc);
@@ -451,7 +453,8 @@ template<typename T> struct PrimitiveLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		STATIC_ASSERT(TUPLE::NUM == 0);
+		static_assert(TUPLE::NUM == 0,
+		              "can't have constructor arguments");
 		ar.load(t);
 	}
 };
@@ -460,7 +463,8 @@ template<typename T> struct EnumLoader
 	template<typename Archive, typename TUPLE>
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int /*id*/)
 	{
-		STATIC_ASSERT(TUPLE::NUM == 0);
+		static_assert(TUPLE::NUM == 0,
+		              "can't have constructor arguments");
 		if (ar.translateEnumToString()) {
 			std::string str;
 			ar.load(str);
@@ -493,7 +497,8 @@ template<typename T> struct ClassLoader
 	void operator()(Archive& ar, T& t, TUPLE /*args*/, int id = 0,
 	                int version = -1)
 	{
-		STATIC_ASSERT(TUPLE::NUM == 0);
+		static_assert(TUPLE::NUM == 0,
+		              "can't have constructor arguments");
 
 		// id == -1: don't load id, don't addPointer
 		// id ==  0: load id from archive, addPointer
@@ -549,7 +554,8 @@ template<typename T> struct PolymorphicPointerLoader
 	T* operator()(Archive& ar, unsigned id, TUPLE args)
 	{
 		typedef typename PolymorphicConstructorArgs<T>::type ArgsType;
-		STATIC_ASSERT((is_same_type<TUPLE, ArgsType>::value));
+		static_assert(is_same_type<TUPLE, ArgsType>::value,
+		              "constructor arguments types must match");
 		return static_cast<T*>(
 			PolymorphicLoaderRegistry<Archive>::load(ar, id, args));
 	}
@@ -566,7 +572,8 @@ template<typename TP> struct PointerLoader
 	template<typename Archive, typename GlobalTuple>
 	void operator()(Archive& ar, TP& tp2, GlobalTuple globalArgs, int /*id*/)
 	{
-		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		static_assert(serialize_as_pointer<TP>::value,
+		              "must be serialized as a pointer");
 		// in XML archives we use 'id_ref' or 'id', in other archives
 		// we don't care about the name
 		unsigned id;
@@ -598,7 +605,8 @@ template<typename TP> struct IDLoader
 	template<typename Archive>
 	void operator()(Archive& ar, TP& tp2)
 	{
-		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		static_assert(serialize_as_pointer<TP>::value,
+		              "must be serialized as a pointer");
 		unsigned id;
 		ar.attribute("id_ref", id);
 
@@ -648,7 +656,7 @@ template<typename TC> struct CollectionLoader
 	{
 		assert((id == 0) || (id == -1));
 		typedef serialize_as_collection<TC> sac;
-		STATIC_ASSERT(sac::value);
+		static_assert(sac::value, "must be serialized as a collection");
 		typedef typename sac::output_iterator output_iterator;
 		int n = sac::size;
 		if (n < 0) {

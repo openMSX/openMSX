@@ -6,7 +6,6 @@
 #include "openmsx.hh"
 #include "endian.hh"
 #include "alignof.hh"
-#include "static_assert.hh"
 #include <vector>
 #include <memory>
 
@@ -32,8 +31,8 @@ struct MSXBootSector {
 	Endian::UA_L16 hiddenSectors; // +28 not use           // TODO aligned
 	byte           bootProg[512-30];// +30 actual bootprogram
 };
-STATIC_ASSERT(sizeof(MSXBootSector) == 512);
-STATIC_ASSERT(ALIGNOF(MSXBootSector) == 1); // TODO don't require this in the future
+static_assert(sizeof(MSXBootSector) == 512, "must be size 512");
+static_assert(ALIGNOF(MSXBootSector) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 // TODO aligned, see above
 struct MSXDirEntry {
@@ -54,8 +53,8 @@ struct MSXDirEntry {
 	Endian::UA_L16 startCluster; // +26 // TODO aligned
 	Endian::UA_L32 size;         // +28 // TODO aligned
 };
-STATIC_ASSERT(sizeof(MSXDirEntry) == 32);
-STATIC_ASSERT(ALIGNOF(MSXDirEntry) == 1); // TODO don't require this in the future
+static_assert(sizeof(MSXDirEntry) == 32, "must be size 32");
+static_assert(ALIGNOF(MSXDirEntry) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 // Note: can't use Endian::L32 for 'start' and 'size' because the Partition
 //       struct itself is not 4-bytes aligned.
@@ -71,8 +70,8 @@ struct Partition {
 	Endian::UA_L32 start;      // + 8 starting sector counting from 0
 	Endian::UA_L32 size;       // +12 nr of sectors in partition
 };
-STATIC_ASSERT(sizeof(Partition) == 16);
-STATIC_ASSERT(ALIGNOF(Partition) == 1);
+static_assert(sizeof(Partition) == 16, "must be size 16");
+static_assert(ALIGNOF(Partition) == 1, "must not have alignment requirements");
 
 struct PartitionTable {
 	char      header[11]; // +  0
@@ -80,7 +79,7 @@ struct PartitionTable {
 	Partition part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
 	byte      end[2];     // +510
 };
-STATIC_ASSERT(sizeof(PartitionTable) == 512);
+static_assert(sizeof(PartitionTable) == 512, "must be size 512");
 
 
 namespace DiskImageUtils {

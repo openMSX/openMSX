@@ -3,7 +3,6 @@
 #include "DMKDiskImage.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
-#include "static_assert.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -20,7 +19,7 @@ struct DmkHeader
 	byte reserved[7];
 	byte format[4];
 };
-STATIC_ASSERT(sizeof(DmkHeader) == 16);
+static_assert(sizeof(DmkHeader) == 16, "must be size 16");
 
 static const byte FLAG_SINGLE_SIDED = 0x10;
 static const unsigned IDAM_FLAGS_MASK = 0xC000;
