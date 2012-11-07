@@ -11,22 +11,6 @@
 
 namespace openmsx {
 
-// TODO move to utils
-template<typename InputIterator, typename OutputIterator, typename Predicate>
-OutputIterator copy_if(InputIterator begin, InputIterator end,
-                       OutputIterator out, Predicate p)
-{
-	while (begin != end) {
-		if (p(*begin)) {
-			*out = *begin;
-			++out;
-		}
-		++begin;
-	}
-	return out;
-}
-
-
 struct LessSyncPoint {
 	bool operator()(EmuTime::param time,
 	                const SynchronizationPoint& sp) const;
@@ -109,8 +93,8 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 
 void Scheduler::getSyncPoints(SyncPoints& result, const Schedulable& device) const
 {
-	openmsx::copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
-	                 FindSchedulable(device));
+	copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
+	        FindSchedulable(device));
 }
 
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
