@@ -51,7 +51,7 @@ void DebugPrint(const char* output);
 		std::ostringstream output;			\
 		output << mes;						\
 		std::cout << output << std::endl;	\
-		DebugPrint(output.str().c_str());	\
+		::openmsx::DebugPrint(output.str().c_str());	\
 	} while (0)
 #else
 #define PRT_DEBUG(mes)				\
