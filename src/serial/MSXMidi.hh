@@ -46,6 +46,10 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
+	void registerIOports(byte value);
+	void registerRange(byte port, unsigned num);
+	void unregisterRange(byte port, unsigned num);
+
 	const std::unique_ptr<MSXMidiCounter0> cntr0; // counter 0 clock pin
 	const std::unique_ptr<MSXMidiCounter2> cntr2; // counter 2 clock pin
 	const std::unique_ptr<MSXMidiI8251Interf> interf;
@@ -57,6 +61,10 @@ private:
 	bool rxrdyIRQlatch;
 	bool rxrdyIRQenabled;
 
+	const bool isExternalMSXMIDI;
+	bool isEnabled; /* EN bit */
+	bool isLimitedTo8251; /* inverse of E8 bit */
+
 	// must come last
 	const std::unique_ptr<MidiOutConnector> outConnector;
 	const std::unique_ptr<I8251> i8251;
@@ -66,6 +74,7 @@ private:
 	friend class MSXMidiCounter2;
 	friend class MSXMidiI8251Interf;
 };
+SERIALIZE_CLASS_VERSION(MSXMidi, 2);
 
 } // namespace openmsx
 

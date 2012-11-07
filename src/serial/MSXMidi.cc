@@ -5,11 +5,17 @@
 #include "I8254.hh"
 #include "I8251.hh"
 #include "MidiOutConnector.hh"
+#include "MSXCPUInterface.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
 #include <cassert>
 
 namespace openmsx {
+
+// Documented in MSX-Datapack Vol. 3, section 4 (MSX-MIDI), from page 634
+static const byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
+static const byte DISABLED_VALUE      = 0x80; // b7 = EN
 
 class MSXMidiCounter0 : public ClockPinListener
 {
@@ -63,6 +69,9 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
+	, isExternalMSXMIDI(config.findChild("external"))
+	, isEnabled(!isExternalMSXMIDI)
+	, isLimitedTo8251(true)
 	, outConnector(new MidiOutConnector(MSXDevice::getPluggingController(),
 	                                    "msx-midi-out"))
 	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
@@ -77,10 +86,25 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	i8254->getClockPin(2).setPeriodicState(total, hi, time);
 	i8254->getOutputPin(2).generateEdgeSignals(true, time);
 	reset(time);
+
+	if (isExternalMSXMIDI) {
+		// Ports are dynamically registered.
+		if (config.findChild("io")) throw MSXException("Bad MSX-MIDI configuration, when using 'external', you cannot specify I/O ports!");
+		// Out-port 0xE2 is always enabled.
+		getCPUInterface().register_IO_Out(0xE2, this);
+		// Not enabled, so no other ports need to be registered yet.
+		assert(!isEnabled);
+	} else {
+		// Ports are statically registered (via the config file).
+	}
 }
 
 MSXMidi::~MSXMidi()
 {
+	if (isExternalMSXMIDI) {
+		registerIOports(DISABLED_VALUE | LIMITED_RANGE_VALUE); // disabled, unregisters ports
+		getCPUInterface().unregister_IO_Out(0xE2, this);
+	}
 }
 
 void MSXMidi::reset(EmuTime::param /*time*/)
@@ -91,65 +115,74 @@ void MSXMidi::reset(EmuTime::param /*time*/)
 	rxrdyIRQlatch = false;
 	rxrdyIRQenabled = false;
 	rxrdyIRQ.reset();
+
+	if (isExternalMSXMIDI) {
+		registerIOports(DISABLED_VALUE | LIMITED_RANGE_VALUE); // also resets state
+	}
 }
 
 byte MSXMidi::readIO(word port, EmuTime::param time)
 {
-	byte result;
-	port &= 0x07;
-	switch (port) {
+	// If not enabled then no ports should have been registered.
+	assert(isEnabled);
+
+	// This handles both ports in range 0xE0-0xE1 and 0xE8-0xEF
+	// Depending on the value written to 0xE2 they are active or not
+	switch (port & 7) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251->readIO(port, time);
-			break;
+			return i8251->readIO(port & 1, time);
 		case 2: // timer interrupt flag off
 		case 3: // no function
-			result = 0xFF;
-			break;
+			return 0xFF;
 		case 4: // counter 0 data port
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254->readIO(port - 4, time);
-			break;
+			return i8254->readIO(port & 3, time);
 		default:
 			UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 byte MSXMidi::peekIO(word port, EmuTime::param time) const
 {
-	byte result;
-	port &= 0x07;
-	switch (port) {
+	// If not enabled then no ports should have been registered.
+	assert(isEnabled);
+
+	// This handles both ports in range 0xE0-0xE1 and 0xE8-0xEF
+	// Depending on the value written to 0xE2 they are active or not
+	switch (port & 7) {
 		case 0: // UART data register
 		case 1: // UART status register
-			result = i8251->peekIO(port, time);
-			break;
+			return i8251->peekIO(port & 1, time);
 		case 2: // timer interrupt flag off
 		case 3: // no function
-			result = 0xFF;
-			break;
+			return 0xFF;
 		case 4: // counter 0 data port
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			result = i8254->peekIO(port - 4, time);
-			break;
+			return i8254->peekIO(port & 3, time);
 		default:
 			UNREACHABLE; return 0;
 	}
-	return result;
 }
 
 void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
 {
-	port &= 0x07;
-	switch (port & 0x07) {
+	if (isExternalMSXMIDI && ((port & 0xFF) == 0xE2)) {
+		// control register
+		registerIOports(value);
+		return;
+	}
+	assert(isEnabled);
+
+	// This handles both ports in range 0xE0-0xE1 and 0xE8-0xEF
+	switch (port & 7) {
 		case 0: // UART data register
 		case 1: // UART command register
-			i8251->writeIO(port, value, time);
+			i8251->writeIO(port & 1, value, time);
 			break;
 		case 2: // timer interrupt flag off
 			setTimerIRQ(false, time);
@@ -160,8 +193,67 @@ void MSXMidi::writeIO(word port, byte value, EmuTime::param time)
 		case 5: // counter 1 data port
 		case 6: // counter 2 data port
 		case 7: // timer command register
-			i8254->writeIO(port - 4, value, time);
+			i8254->writeIO(port & 3, value, time);
 			break;
+	}
+}
+
+void MSXMidi::registerIOports(byte value)
+{
+	assert(isExternalMSXMIDI);
+	bool newIsEnabled = (value & DISABLED_VALUE) == 0;
+	bool newIsLimited = (value & LIMITED_RANGE_VALUE) == 1;
+
+	if (newIsEnabled != isEnabled) {
+		// Enable/disabled status changes, possibly limited status
+		// changes as well but that doesn't matter, we anyway need
+		// to (un)register the full port range.
+		if (newIsEnabled) {
+			// disabled -> enabled
+			if (newIsLimited) {
+				registerRange(0xE0, 2);
+			} else {
+				registerRange(0xE8, 8);
+			}
+		} else {
+			// enabled -> disabled
+			if (isLimitedTo8251) { // note: old isLimited status
+				unregisterRange(0xE0, 2);
+			} else {
+				unregisterRange(0xE8, 8);
+			}
+		}
+
+	} else if (isEnabled && (newIsLimited != isLimitedTo8251)) {
+		// Remains enabled, and only 'isLimited' status changes.
+		// Need to switch between the low/high range.
+		if (newIsLimited) {
+			// Switch high->low range.
+			unregisterRange(0xE8, 8);
+			registerRange  (0xE0, 2);
+		} else {
+			// Switch low->high range.
+			unregisterRange(0xE0, 2);
+			registerRange  (0xE8, 8);
+		}
+	}
+
+	isEnabled       = newIsEnabled;
+	isLimitedTo8251 = newIsLimited;
+}
+
+void MSXMidi::registerRange(byte port, unsigned num)
+{
+	for (unsigned i = 0; i < num; ++i) {
+		getCPUInterface().register_IO_In (port + i, this);
+		getCPUInterface().register_IO_Out(port + i, this);
+	}
+}
+void MSXMidi::unregisterRange(byte port, unsigned num)
+{
+	for (unsigned i = 0; i < num; ++i) {
+		getCPUInterface().unregister_IO_In (port + i, this);
+		getCPUInterface().unregister_IO_Out(port + i, this);
 	}
 }
 
@@ -378,7 +470,7 @@ void MSXMidi::recvByte(byte value, EmuTime::param time)
 
 
 template<typename Archive>
-void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
+void MSXMidi::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
@@ -393,6 +485,15 @@ void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
 	ar.serialize("I8251", *i8251);
 	ar.serialize("I8254", *i8254);
+	if (ar.versionAtLeast(version, 2)) {
+		bool newIsEnabled = isEnabled; // copy for saver
+		bool newIsLimitedTo8251 = isLimitedTo8251; // copy for saver
+		ar.serialize("isEnabled", newIsEnabled);
+		ar.serialize("isLimitedTo8251", newIsLimitedTo8251);
+		if (ar.isLoader() && isExternalMSXMIDI) {
+			registerIOports((newIsEnabled ? 0x00 : DISABLED_VALUE) | (newIsLimitedTo8251 ? LIMITED_RANGE_VALUE : 0x00));
+		}
+	}
 
 	// don't serialize:  cntr0, cntr2, interf
 }
