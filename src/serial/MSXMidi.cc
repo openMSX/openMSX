@@ -202,7 +202,7 @@ void MSXMidi::registerIOports(byte value)
 {
 	assert(isExternalMSXMIDI);
 	bool newIsEnabled = (value & DISABLED_VALUE) == 0;
-	bool newIsLimited = (value & LIMITED_RANGE_VALUE) == 1;
+	bool newIsLimited = (value & LIMITED_RANGE_VALUE) != 0;
 
 	if (newIsEnabled != isEnabled) {
 		// Enable/disabled status changes, possibly limited status
