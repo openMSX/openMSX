@@ -33,6 +33,7 @@ HDR_ONLY:= \
 	inline \
 	noncopyable \
 	unreachable \
+	tuple \
 	TypeInfo \
 	type_traits \
 	DivModByConst \

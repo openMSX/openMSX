@@ -7,6 +7,7 @@
 #include "serialize_meta.hh"
 #include "type_traits.hh"
 #include "unreachable.hh"
+#include "tuple.hh"
 #include <string>
 #include <cassert>
 #include <memory>
@@ -557,7 +558,7 @@ template<typename T> struct NonPolymorphicPointerLoader
 		auto localArgs = constrArgs.load(ar, version);
 
 		// combine global and local constr args
-		auto args = std::tuple_cat(globalArgs, localArgs);
+		auto args = openmsx::tuple_cat(globalArgs, localArgs);
 		// TODO make combining global/local constr args configurable
 
 		Creator<T> creator;
