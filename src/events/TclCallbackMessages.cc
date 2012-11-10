@@ -3,6 +3,7 @@
 #include "TclCallbackMessages.hh"
 #include "GlobalCliComm.hh"
 #include "TclCallback.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -11,8 +12,8 @@ namespace openmsx {
 TclCallbackMessages::TclCallbackMessages(GlobalCliComm& cliComm_,
                                          CommandController& controller)
 	: cliComm(cliComm_)
-	, messageCallback(new TclCallback(controller,
-		"message_callback",
+	, messageCallback(make_unique<TclCallback>(
+		controller, "message_callback",
 		"Tcl proc called when a new message is available",
 		false, // don't print callback err on cliComm (would cause infinite loop)
 		false)) // don't save setting

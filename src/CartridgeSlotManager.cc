@@ -78,8 +78,9 @@ bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
 // CartridgeSlotManager
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, cartCmd(new CartCmd(*this, motherBoard, "cart"))
-	, extSlotInfo(new CartridgeSlotInfo(motherBoard.getMachineInfoCommand(), *this))
+	, cartCmd(make_unique<CartCmd>(*this, motherBoard, "cart"))
+	, extSlotInfo(make_unique<CartridgeSlotInfo>(
+		motherBoard.getMachineInfoCommand(), *this))
 {
 }
 

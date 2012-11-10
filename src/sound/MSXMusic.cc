@@ -4,13 +4,14 @@
 #include "YM2413.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXMusic::MSXMusic(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName() + " ROM", "rom", config))
-	, ym2413(new YM2413(getName(), config))
+	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, ym2413(make_unique<YM2413>(getName(), config))
 {
 	reset(getCurrentTime());
 }

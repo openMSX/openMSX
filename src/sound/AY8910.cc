@@ -22,6 +22,7 @@
 #include "FloatSetting.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -480,20 +481,21 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
                const DeviceConfig& config, EmuTime::param time)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "PSG", 3)
 	, periphery(periphery_)
-	, debuggable(new AY8910Debuggable(config.getMotherBoard(), *this))
-	, vibratoPercent(new FloatSetting(config.getCommandController(),
-		getName() + "_vibrato_percent", "controls strength of vibrato effect",
-		0.0, 0.0, 10.0))
-	, vibratoFrequency(new FloatSetting(config.getCommandController(),
-		getName() + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
-		5, 1.0, 10.0))
-	, detunePercent(new FloatSetting(config.getCommandController(),
-		getName() + "_detune_percent", "controls strength of detune effect",
-		0.0, 0.0, 10.0))
-	, detuneFrequency(new FloatSetting(config.getCommandController(),
-		getName() + "_detune_frequency", "frequency of detune effect in Hertz",
-		5.0, 1.0, 100.0))
-	, directionsCallback(new TclCallback(
+	, debuggable(make_unique<AY8910Debuggable>(
+		config.getMotherBoard(), *this))
+	, vibratoPercent(make_unique<FloatSetting>(
+		config.getCommandController(), getName() + "_vibrato_percent",
+		"controls strength of vibrato effect", 0.0, 0.0, 10.0))
+	, vibratoFrequency(make_unique<FloatSetting>(
+		config.getCommandController(), getName() + "_vibrato_frequency",
+		"frequency of vibrato effect in Hertz", 5, 1.0, 10.0))
+	, detunePercent(make_unique<FloatSetting>(
+		config.getCommandController(), getName() + "_detune_percent",
+		"controls strength of detune effect", 0.0, 0.0, 10.0))
+	, detuneFrequency(make_unique<FloatSetting>(
+		config.getCommandController(), getName() + "_detune_frequency",
+		"frequency of detune effect in Hertz", 5.0, 1.0, 100.0))
+	, directionsCallback(make_unique<TclCallback>(
 		config.getGlobalSettings().getInvalidPsgDirectionsSetting()))
 	, amplitude(config)
 	, envelope(amplitude.getEnvVolTable())

@@ -5,6 +5,7 @@
 #include "FirmwareSwitch.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -13,8 +14,8 @@ static const byte ID = 0x08;
 MSXMatsushita::MSXMatsushita(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MSXSwitchedDevice(getMotherBoard(), ID)
-	, firmwareSwitch(new FirmwareSwitch(config))
-	, sram(new SRAM(getName() + " SRAM", 0x800, config))
+	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
+	, sram(make_unique<SRAM>(getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 

@@ -5,15 +5,16 @@
 #include "YM2148.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXYamahaSFG::MSXYamahaSFG(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName() + " ROM", "rom", config))
-	, ym2151(new YM2151(getName(), "Yamaha SFG-01/05", config,
-	                    getCurrentTime()))
-	, ym2148(new YM2148())
+	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, ym2151(make_unique<YM2151>(
+		getName(), "Yamaha SFG-01/05", config, getCurrentTime()))
+	, ym2148(make_unique<YM2148>())
 {
 	reset(getCurrentTime());
 }

@@ -32,7 +32,7 @@ class OutputSurface;
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
   */
-class Display : private EventListener, private Observer<Setting>,
+class Display : public EventListener, private Observer<Setting>,
                 private LayerListener, private noncopyable
 {
 public:

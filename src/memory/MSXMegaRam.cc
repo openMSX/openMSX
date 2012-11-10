@@ -30,18 +30,20 @@
 #include "RomBlockDebuggable.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(const DeviceConfig& config)
 	: MSXDevice(config)
 	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
-	, ram(new Ram(config, getName() + " RAM", "Mega-RAM",
-	              numBlocks * 0x2000))
+	, ram(make_unique<Ram>(
+		config, getName() + " RAM", "Mega-RAM", numBlocks * 0x2000))
 	, rom(config.findChild("rom")
-	      ? new Rom(getName() + " ROM", "Mega-RAM DiskROM", config)
+	      ? make_unique<Rom>(getName() + " ROM", "Mega-RAM DiskROM", config)
 	      : nullptr)
-	, romBlockDebug(new RomBlockDebuggable(*this, bank, 0x0000, 0x10000, 13, 0, 3))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, bank, 0x0000, 0x10000, 13, 0, 3))
 	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
 	powerUp(EmuTime::dummy());

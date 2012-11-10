@@ -15,6 +15,7 @@
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -30,15 +31,15 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, workFrame(new RawFrame(screen.getSDLFormat(), 1280, 240))
+	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 1280, 240))
 	, renderSettings(display.getRenderSettings())
 	, displayMode(P1) // dummy value
 	, colorMode(PP)   //   avoid UMR
 	, postProcessor(std::move(postProcessor_))
-	, bitmapConverter(new V9990BitmapConverter<Pixel>(
-	                           vdp, palette64, palette256, palette32768))
-	, p1Converter(new V9990P1Converter<Pixel>(vdp, palette64))
-	, p2Converter(new V9990P2Converter<Pixel>(vdp, palette64))
+	, bitmapConverter(make_unique<V9990BitmapConverter<Pixel>>(
+		vdp, palette64, palette256, palette32768))
+	, p1Converter(make_unique<V9990P1Converter<Pixel>>(vdp, palette64))
+	, p2Converter(make_unique<V9990P2Converter<Pixel>>(vdp, palette64))
 {
 	// Fill palettes
 	preCalcPalettes();

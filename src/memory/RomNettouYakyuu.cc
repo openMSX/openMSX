@@ -45,12 +45,13 @@
 #include "FileOperations.hh"
 #include "SamplePlayer.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom8kBBlocks(config, std::move(rom_))
-	, samplePlayer(new SamplePlayer(
+	, samplePlayer(make_unique<SamplePlayer>(
 		"Nettou Yakyuu-DAC",
 		"Jaleco Moero!! Nettou Yakuu '88 DAC", config,
 		FileOperations::stripExtension(rom->getFilename()) + '_',

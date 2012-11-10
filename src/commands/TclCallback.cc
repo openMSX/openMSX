@@ -6,6 +6,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
+#include "memory.hh"
 #include <iostream>
 #include <cassert>
 
@@ -19,7 +20,7 @@ TclCallback::TclCallback(
 		string_ref description,
 		bool useCliComm_,
 		bool save)
-	: callbackSetting2(new StringSetting(
+	: callbackSetting2(make_unique<StringSetting>(
 		controller, name, description, "",
 		save ? Setting::SAVE : Setting::DONT_SAVE))
 	, callbackSetting(*callbackSetting2)

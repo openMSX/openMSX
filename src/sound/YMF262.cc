@@ -48,6 +48,7 @@
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cmath>
 #include <cstring>
 
@@ -1660,7 +1661,8 @@ YMF262::Impl::Impl(YMF262& self, const std::string& name,
                    const DeviceConfig& config, bool isYMF278_)
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound FM-part",
 	                       18, true)
-	, debuggable(new YMF262Debuggable(config.getMotherBoard(), self, getName()))
+	, debuggable(make_unique<YMF262Debuggable>(
+		config.getMotherBoard(), self, getName()))
 	, timer1(isYMF278_
 	         ? EmuTimer::createOPL4_1(config.getScheduler(), *this)
 	         : EmuTimer::createOPL3_1(config.getScheduler(), *this))
@@ -1929,7 +1931,7 @@ void YMF262Debuggable::write(unsigned address, byte value, EmuTime::param time)
 // class YMF262
 
 YMF262::YMF262(const std::string& name, const DeviceConfig& config, bool isYMF278)
-	: pimpl(new Impl(*this, name, config, isYMF278))
+	: pimpl(make_unique<Impl>(*this, name, config, isYMF278))
 {
 }
 

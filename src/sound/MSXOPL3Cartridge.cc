@@ -4,12 +4,13 @@
 #include "YMF262.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXOPL3Cartridge::MSXOPL3Cartridge(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ymf262(new YMF262(getName(), config, false))
+	, ymf262(make_unique<YMF262>(getName(), config, false))
 {
 	reset(getCurrentTime());
 }

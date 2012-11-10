@@ -190,6 +190,7 @@
 #include "likely.hh"
 #include "inline.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <iomanip>
 #include <iostream>
@@ -271,10 +272,10 @@ template <class T> CPUCore<T>::CPUCore(
 		    "right after the CPU accepted an IRQ.")
 	, freqLocked(createFreqLockedSetting(
 		motherboard.getCommandController(), name))
-	, freqValue(new IntegerSetting(motherboard.getCommandController(),
-	        name + "_freq",
-	        "custom " + name + " frequency (only valid when unlocked)",
-	        T::CLOCK_FREQ, 1000000, 1000000000))
+	, freqValue(make_unique<IntegerSetting>(
+		motherboard.getCommandController(), name + "_freq",
+		"custom " + name + " frequency (only valid when unlocked)",
+		T::CLOCK_FREQ, 1000000, 1000000000))
 	, freq(T::CLOCK_FREQ)
 	, NMIStatus(0)
 	, nmiEdge(false)

@@ -13,7 +13,7 @@ namespace openmsx {
 
 class AlarmEvent;
 
-class SRAM : private EventListener, private noncopyable
+class SRAM : public EventListener, private noncopyable
 {
 public:
 	enum DontLoad { DONT_LOAD };

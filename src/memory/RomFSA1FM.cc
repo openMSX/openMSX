@@ -42,6 +42,7 @@
 #include "FirmwareSwitch.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -82,7 +83,7 @@ RomFSA1FMSram::~RomFSA1FMSram()
 RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
 	, RomFSA1FMSram(config)
-	, firmwareSwitch(new FirmwareSwitch(config))
+	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
 {
 	if ((rom->getSize() != 0x100000) &&
 	    (rom->getSize() != 0x200000)) {

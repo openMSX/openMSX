@@ -7,12 +7,14 @@
 #include "DACSound8U.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomMajutsushi::RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: RomKonami(config, std::move(rom))
-	, dac(new DACSound8U("Majutsushi-DAC", "Hai no Majutsushi's DAC", config))
+	, dac(make_unique<DACSound8U>(
+		"Majutsushi-DAC", "Hai no Majutsushi's DAC", config))
 {
 }
 

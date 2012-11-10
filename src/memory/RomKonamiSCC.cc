@@ -18,12 +18,13 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom8kBBlocks(config, std::move(rom))
-	, scc(new SCC("SCC", config, getCurrentTime()))
+	, scc(make_unique<SCC>("SCC", config, getCurrentTime()))
 {
 	powerUp(getCurrentTime());
 }

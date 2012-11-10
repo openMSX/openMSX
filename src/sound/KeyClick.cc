@@ -2,11 +2,13 @@
 
 #include "KeyClick.hh"
 #include "DACSound8U.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 KeyClick::KeyClick(const DeviceConfig& config)
-	: dac(new DACSound8U("keyclick", "1-bit click generator", config))
+	: dac(make_unique<DACSound8U>(
+		"keyclick", "1-bit click generator", config))
 	, status(false)
 {
 }

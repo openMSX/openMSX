@@ -53,13 +53,13 @@ File::File(string_ref url, OpenMode mode)
 }
 
 File::File(string_ref filename, const char* mode)
-	: file(new LocalFile(filename, mode))
+	: file(make_unique<LocalFile>(filename, mode))
 	, filepool(nullptr)
 {
 }
 
 File::File(const Filename& filename, const char* mode)
-	: file(new LocalFile(filename.getResolved(), mode))
+	: file(make_unique<LocalFile>(filename.getResolved(), mode))
 	, filepool(nullptr)
 {
 }

@@ -23,6 +23,7 @@
 #include "utf8_unchecked.hh"
 #include "StringOp.hh"
 #include "ScopedAssign.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -128,13 +129,16 @@ CommandConsole::CommandConsole(
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, display(display_)
-	, consoleSetting(new BooleanSetting(commandController, "console",
+	, consoleSetting(make_unique<BooleanSetting>(
+		commandController, "console",
 		"turns console display on/off", false, Setting::DONT_SAVE))
-	, historySizeSetting(new IntegerSetting(commandController, "console_history_size",
+	, historySizeSetting(make_unique<IntegerSetting>(
+		commandController, "console_history_size",
 		"amount of commands kept in console history", 100, 0, 10000))
-	, removeDoublesSetting(new BooleanSetting(commandController,
-		"console_remove_doubles", "don't add the command to history if "
-		"it's the same as the previous one", true))
+	, removeDoublesSetting(make_unique<BooleanSetting>(
+		commandController, "console_remove_doubles",
+		"don't add the command to history if it's the same as the previous one",
+		true))
 	, executingCommand(false)
 {
 	resetScrollBack();

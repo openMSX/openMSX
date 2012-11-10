@@ -9,6 +9,7 @@
 #include "Timer.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -23,9 +24,9 @@ EventDelay::EventDelay(Scheduler& scheduler,
 	, msxEventDistributor(msxEventDistributor_)
 	, prevEmu(EmuTime::zero)
 	, prevReal(Timer::getTime())
-	, delaySetting(new FloatSetting(commandController, "inputdelay",
-	               "delay input to avoid key-skips",
-	               0.03, 0.0, 10.0))
+	, delaySetting(make_unique<FloatSetting>(
+		commandController, "inputdelay",
+		"delay input to avoid key-skips", 0.03, 0.0, 10.0))
 {
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);

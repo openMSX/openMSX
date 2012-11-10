@@ -7,14 +7,16 @@
 #include "MSXMixer.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXTurboRPCM::MSXTurboRPCM(const DeviceConfig& config)
 	: MSXDevice(config)
 	, mixer(getMotherBoard().getMSXMixer())
-	, connector(new AudioInputConnector(getPluggingController(), "pcminput"))
-	, dac(new DACSound8U("PCM", "Turbo-R PCM", config))
+	, connector(make_unique<AudioInputConnector>(
+		getPluggingController(), "pcminput"))
+	, dac(make_unique<DACSound8U>("PCM", "Turbo-R PCM", config))
 	, reference(getCurrentTime())
 	, hwMute(false)
 {

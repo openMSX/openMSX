@@ -12,8 +12,8 @@
 namespace openmsx {
 
 PrinterPortLogger::PrinterPortLogger(CommandController& commandController)
-	: logFilenameSetting(new FilenameSetting(commandController,
-		"printerlogfilename",
+	: logFilenameSetting(make_unique<FilenameSetting>(
+		commandController, "printerlogfilename",
 		"filename of the file where the printer output is logged to",
 		"printer.log"))
 	, toPrint(0) // Initialize to avoid a static analysis (cppcheck) warning.

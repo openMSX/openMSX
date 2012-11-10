@@ -104,6 +104,7 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -127,8 +128,10 @@ static string calcDescription(SCC::ChipMode mode)
 
 SCC::SCC(const string& name, const DeviceConfig& config,
          EmuTime::param time, ChipMode mode)
-	: ResampledSoundDevice(config.getMotherBoard(), name, calcDescription(mode), 5)
-	, debuggable(new SCCDebuggable(config.getMotherBoard(), *this))
+	: ResampledSoundDevice(
+		config.getMotherBoard(), name, calcDescription(mode), 5)
+	, debuggable(make_unique<SCCDebuggable>(
+		config.getMotherBoard(), *this))
 	, deformTimer(time)
 	, currentChipMode(mode)
 {

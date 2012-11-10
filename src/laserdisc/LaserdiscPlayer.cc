@@ -124,11 +124,11 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, Schedulable(hwConf.getMotherBoard().getScheduler())
 	, motherBoard(hwConf.getMotherBoard())
 	, ldcontrol(ldcontrol_)
-	, laserdiscCommand(new LaserdiscCommand(
-			   motherBoard.getCommandController(),
-			   motherBoard.getStateChangeDistributor(),
-			   motherBoard.getScheduler(),
-			   *this))
+	, laserdiscCommand(make_unique<LaserdiscCommand>(
+		   motherBoard.getCommandController(),
+		   motherBoard.getStateChangeDistributor(),
+		   motherBoard.getScheduler(),
+		   *this))
 	, sampleClock(EmuTime::zero)
 	, start(EmuTime::zero)
 	, muteLeft(false)
@@ -140,9 +140,10 @@ LaserdiscPlayer::LaserdiscPlayer(
 	, ack(false)
 	, seeking(false)
 	, playerState(PLAYER_STOPPED)
-	, autoRunSetting(new BooleanSetting(motherBoard.getCommandController(),
-		"autorunlaserdisc", "automatically try to run Laserdisc", true))
-	, loadingIndicator(new LoadingIndicator(
+	, autoRunSetting(make_unique<BooleanSetting>(
+		motherBoard.getCommandController(), "autorunlaserdisc",
+		"automatically try to run Laserdisc", true))
+	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, sampleReads(0)
 {

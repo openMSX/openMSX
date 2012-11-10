@@ -16,6 +16,7 @@
 #include "StringSetting.hh"
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
@@ -75,12 +76,14 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(std::move(postProcessor_))
-	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 240))
+	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 240))
 	, renderSettings(display.getRenderSettings())
-	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
-	, bitmapConverter(new BitmapConverter<Pixel>(
-	                                    palFg, PALETTE256, V9958_COLORS))
-	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
+	, characterConverter(make_unique<CharacterConverter<Pixel>>(
+		vdp, palFg, palBg))
+	, bitmapConverter(make_unique<BitmapConverter<Pixel>>(
+		palFg, PALETTE256, V9958_COLORS))
+	, spriteConverter(make_unique<SpriteConverter<Pixel>>(
+		vdp.getSpriteChecker()))
 {
 	// Init the palette.
 	precalcPalette();

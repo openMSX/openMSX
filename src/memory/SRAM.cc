@@ -13,6 +13,7 @@
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "vla.hh"
+#include "memory.hh"
 #include <cstring>
 
 using std::string;
@@ -29,8 +30,9 @@ SRAM::SRAM(const std::string& name, const std::string& description,
            int size, const DeviceConfig& config, DontLoad)
 	: ram(config, name, description, size)
 	, header(nullptr) // not used
-	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
-	                          *this, OPENMSX_SAVE_SRAM)) // used, but not needed
+	, sramSync(make_unique<AlarmEvent>(
+		config.getReactor().getEventDistributor(),
+		*this, OPENMSX_SAVE_SRAM)) // used, but not needed
 {
 }
 
@@ -39,8 +41,9 @@ SRAM::SRAM(const string& name, int size,
 	: config(config_)
 	, ram(config, name, "sram", size)
 	, header(header_)
-	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
-	                          *this, OPENMSX_SAVE_SRAM))
+	, sramSync(make_unique<AlarmEvent>(
+		config.getReactor().getEventDistributor(),
+		*this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
@@ -50,8 +53,9 @@ SRAM::SRAM(const string& name, const string& description, int size,
 	: config(config_)
 	, ram(config, name, description, size)
 	, header(header_)
-	, sramSync(new AlarmEvent(config.getReactor().getEventDistributor(),
-	                          *this, OPENMSX_SAVE_SRAM))
+	, sramSync(make_unique<AlarmEvent>(
+		config.getReactor().getEventDistributor(),
+		*this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }

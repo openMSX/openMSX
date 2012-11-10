@@ -12,6 +12,7 @@
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <string>
 
 namespace openmsx {
@@ -44,8 +45,8 @@ MSXPPI::MSXPPI(const DeviceConfig& config)
 	: MSXDevice(config)
 	, cassettePort(getMotherBoard().getCassettePort())
 	, renshaTurbo(getMotherBoard().getRenShaTurbo())
-	, i8255(new I8255(*this, getCurrentTime(), getCliComm()))
-	, click(new KeyClick(config))
+	, i8255(make_unique<I8255>(*this, getCurrentTime(), getCliComm()))
+	, click(make_unique<KeyClick>(config))
 	, keyboard(createKeyboard(config))
 	, prevBits(15)
 	, selectedRow(0)

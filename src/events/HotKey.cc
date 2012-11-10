@@ -57,13 +57,17 @@ private:
 
 HotKey::HotKey(GlobalCommandController& commandController_,
                EventDistributor& eventDistributor_)
-	: bindCmd         (new BindCmd  (commandController_, *this, false))
-	, unbindCmd       (new UnbindCmd(commandController_, *this, false))
-	, bindDefaultCmd  (new BindCmd  (commandController_, *this, true))
-	, unbindDefaultCmd(new UnbindCmd(commandController_, *this, true))
-	, repeatAlarm(new AlarmEvent(eventDistributor_, *this,
-	                             OPENMSX_REPEAT_HOTKEY,
-	                             EventDistributor::HOTKEY))
+	: bindCmd(make_unique<BindCmd>(
+		commandController_, *this, false))
+	, unbindCmd(make_unique<UnbindCmd>(
+		commandController_, *this, false))
+	, bindDefaultCmd(make_unique<BindCmd>(
+		commandController_, *this, true))
+	, unbindDefaultCmd(make_unique<UnbindCmd>(
+		commandController_, *this, true))
+	, repeatAlarm(make_unique<AlarmEvent>(
+		eventDistributor_, *this, OPENMSX_REPEAT_HOTKEY,
+		EventDistributor::HOTKEY))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {

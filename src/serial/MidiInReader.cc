@@ -9,6 +9,7 @@
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
@@ -22,7 +23,7 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), file(nullptr), lock(1)
-	, readFilenameSetting(new FilenameSetting(
+	, readFilenameSetting(make_unique<FilenameSetting>(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi"))

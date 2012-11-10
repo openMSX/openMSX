@@ -4,6 +4,7 @@
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
 #include "VisibleSurface.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 
@@ -14,7 +15,7 @@ LDSDLRasterizer<Pixel>::LDSDLRasterizer(
 		VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor_)
 	: postProcessor(std::move(postProcessor_))
-	, workFrame(new RawFrame(screen.getSDLFormat(), 640, 480))
+	, workFrame(make_unique<RawFrame>(screen.getSDLFormat(), 640, 480))
 	, pixelFormat(screen.getSDLFormat())
 {
 }

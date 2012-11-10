@@ -59,8 +59,8 @@ static string initialFilePoolSettingValue()
 }
 
 FilePool::FilePool(CommandController& controller, EventDistributor& distributor_)
-	: filePoolSetting(new StringSetting(controller,
-		"__filepool",
+	: filePoolSetting(make_unique<StringSetting>(
+		controller, "__filepool",
 		"This is an internal setting. Don't change this directly, "
 		"instead use the 'filepool' command.",
 		initialFilePoolSettingValue()))

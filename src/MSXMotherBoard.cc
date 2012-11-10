@@ -334,17 +334,17 @@ MSXMotherBoard::Impl::Impl(
 	, machineID(StringOp::Builder() << "machine" << ++machineIDCounter)
 	, mapperIOCounter(0)
 	, machineConfig(nullptr)
-	, msxCliComm(new MSXCliComm(self, reactor.getGlobalCliComm()))
-	, msxEventDistributor(new MSXEventDistributor())
-	, stateChangeDistributor(new StateChangeDistributor())
-	, msxCommandController(new MSXCommandController(
+	, msxCliComm(make_unique<MSXCliComm>(self, reactor.getGlobalCliComm()))
+	, msxEventDistributor(make_unique<MSXEventDistributor>())
+	, stateChangeDistributor(make_unique<StateChangeDistributor>())
+	, msxCommandController(make_unique<MSXCommandController>(
 		reactor.getGlobalCommandController(), reactor,
 		self, *msxEventDistributor, machineID))
-	, scheduler(new Scheduler())
-	, msxMixer(new MSXMixer(
+	, scheduler(make_unique<Scheduler>())
+	, msxMixer(make_unique<MSXMixer>(
 		reactor.getMixer(), *scheduler, *msxCommandController,
 		reactor.getGlobalSettings()))
-	, fastForwardHelper(new FastForwardHelper(*this))
+	, fastForwardHelper(make_unique<FastForwardHelper>(*this))
 	, powerSetting(reactor.getGlobalSettings().getPowerSetting())
 	, powered(false)
 	, active(false)

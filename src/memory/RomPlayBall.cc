@@ -6,12 +6,13 @@
 #include "Rom.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomPlayBall::RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom16kBBlocks(config, std::move(rom_))
-	, samplePlayer(new SamplePlayer(
+	, samplePlayer(make_unique<SamplePlayer>(
 		"Playball-DAC", "Sony Playball's DAC", config,
 		FileOperations::stripExtension(rom->getFilename()) + '_',
 		15, "playball/playball_"))

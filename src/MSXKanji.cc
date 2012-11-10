@@ -4,12 +4,13 @@
 #include "Rom.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXKanji::MSXKanji(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName(), "Kanji ROM", config))
+	, rom(make_unique<Rom>(getName(), "Kanji ROM", config))
 	, isLascom(config.getChildData("type", "") == "lascom")
 {
 	int size = rom->getSize();

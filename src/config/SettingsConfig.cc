@@ -14,7 +14,7 @@
 #include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "openmsx.hh"
-#include <memory>
+#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -51,10 +51,13 @@ SettingsConfig::SettingsConfig(
 		GlobalCommandController& globalCommandController,
 		HotKey& hotKey_)
 	: commandController(globalCommandController)
-	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
-	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
-	, settingsManager(new SettingsManager(globalCommandController))
-	, xmlElement(new XMLElement("settings"))
+	, saveSettingsCommand(make_unique<SaveSettingsCommand>(
+		commandController, *this))
+	, loadSettingsCommand(make_unique<LoadSettingsCommand>(
+		commandController, *this))
+	, settingsManager(make_unique<SettingsManager>(
+		globalCommandController))
+	, xmlElement(make_unique<XMLElement>("settings"))
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {

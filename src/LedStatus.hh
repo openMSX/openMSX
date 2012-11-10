@@ -16,7 +16,7 @@ class EventDistributor;
 class MSXCliComm;
 template <typename> class ReadOnlySetting;
 
-class LedStatus : private EventListener, private noncopyable
+class LedStatus : public EventListener, private noncopyable
 {
 public:
 	enum Led {

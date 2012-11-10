@@ -9,11 +9,11 @@
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 #include <vector>
 
 namespace openmsx {
-
 
 static unsigned sectorSizes[19] = {
 	0x4000, 0x2000, 0x2000, 0x8000,      // 16kB + 8kB + 8kB + 32kB
@@ -26,13 +26,15 @@ static unsigned sectorSizes[19] = {
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, scc(new SCC("MFR SCC+ SCC-I", config, getCurrentTime(),
-	              SCC::SCC_Compatible))
-	, psg(new AY8910("MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
-	                 getCurrentTime()))
-	, flash(new AmdFlash(*rom,
-	                     std::vector<unsigned>(sectorSizes, sectorSizes + 19),
-	                     0, 0x205B, config))
+	, scc(make_unique<SCC>(
+		"MFR SCC+ SCC-I", config, getCurrentTime(),
+		SCC::SCC_Compatible))
+	, psg(make_unique<AY8910>(
+		"MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
+		getCurrentTime()))
+	, flash(make_unique<AmdFlash>(
+		*rom, std::vector<unsigned>(sectorSizes, sectorSizes + 19),
+		0, 0x205B, config))
 {
 	powerUp(getCurrentTime());
 

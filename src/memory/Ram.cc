@@ -8,6 +8,7 @@
 #include "HexDump.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cstring>
 #include <zlib.h>
@@ -32,7 +33,8 @@ Ram::Ram(const DeviceConfig& config, const string& name,
          const string& description, unsigned size)
 	: xml(*config.getXML())
 	, ram(size)
-	, debuggable(new RamDebuggable(config.getMotherBoard(), name, description, *this))
+	, debuggable(make_unique<RamDebuggable>(
+		config.getMotherBoard(), name, description, *this))
 {
 	clear();
 }

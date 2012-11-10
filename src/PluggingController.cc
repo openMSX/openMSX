@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include "openmsx.hh"
 #include <cassert>
 #include <iostream>
@@ -92,17 +93,19 @@ private:
 
 
 PluggingController::PluggingController(MSXMotherBoard& motherBoard)
-	: plugCmd  (new PlugCmd  (motherBoard.getCommandController(),
-	                          motherBoard.getStateChangeDistributor(),
-	                          motherBoard.getScheduler(), *this))
-	, unplugCmd(new UnplugCmd(motherBoard.getCommandController(),
-	                          motherBoard.getStateChangeDistributor(),
-	                          motherBoard.getScheduler(), *this))
-	, pluggableInfo(new PluggableInfo(
+	: plugCmd(make_unique<PlugCmd>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this))
+	, unplugCmd(make_unique<UnplugCmd>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this))
+	, pluggableInfo(make_unique<PluggableInfo>(
 		motherBoard.getMachineInfoCommand(), *this))
-	, connectorInfo(new ConnectorInfo(
+	, connectorInfo(make_unique<ConnectorInfo>(
 		motherBoard.getMachineInfoCommand(), *this))
-	, connectionClassInfo(new ConnectionClassInfo(
+	, connectionClassInfo(make_unique<ConnectionClassInfo>(
 		motherBoard.getMachineInfoCommand(), *this))
 	, cliComm(motherBoard.getMSXCliComm())
 {

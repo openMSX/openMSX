@@ -7,6 +7,7 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -16,10 +17,10 @@ static const char* const filename = "firmwareswitch";
 
 FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 	: config(config_)
-	, setting(new BooleanSetting(config.getCommandController(),
-	          "firmwareswitch",
-	          "This setting controls the firmware switch",
-	          false, Setting::DONT_SAVE))
+	, setting(make_unique<BooleanSetting>(
+		config.getCommandController(), "firmwareswitch",
+		"This setting controls the firmware switch",
+		false, Setting::DONT_SAVE))
 {
 	// load firmware switch setting from persistent data
 	try {

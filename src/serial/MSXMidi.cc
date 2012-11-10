@@ -9,6 +9,7 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -62,9 +63,9 @@ private:
 MSXMidi::MSXMidi(const DeviceConfig& config)
 	: MSXDevice(config)
 	, MidiInConnector(MSXDevice::getPluggingController(), "msx-midi-in")
-	, cntr0(new MSXMidiCounter0(*this))
-	, cntr2(new MSXMidiCounter2(*this))
-	, interf(new MSXMidiI8251Interf(*this))
+	, cntr0(make_unique<MSXMidiCounter0>(*this))
+	, cntr2(make_unique<MSXMidiCounter2>(*this))
+	, interf(make_unique<MSXMidiI8251Interf>(*this))
 	, timerIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQtimer")
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
@@ -72,11 +73,12 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, isExternalMSXMIDI(config.findChild("external"))
 	, isEnabled(!isExternalMSXMIDI)
 	, isLimitedTo8251(true)
-	, outConnector(new MidiOutConnector(MSXDevice::getPluggingController(),
-	                                    "msx-midi-out"))
-	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
-	, i8254(new I8254(getScheduler(),
-	                  cntr0.get(), nullptr, cntr2.get(), getCurrentTime()))
+	, outConnector(make_unique<MidiOutConnector>(
+		MSXDevice::getPluggingController(), "msx-midi-out"))
+	, i8251(make_unique<I8251>(getScheduler(), *interf, getCurrentTime()))
+	, i8254(make_unique<I8254>(
+		getScheduler(), cntr0.get(), nullptr, cntr2.get(),
+		getCurrentTime()))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period
@@ -89,7 +91,11 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 
 	if (isExternalMSXMIDI) {
 		// Ports are dynamically registered.
-		if (config.findChild("io")) throw MSXException("Bad MSX-MIDI configuration, when using 'external', you cannot specify I/O ports!");
+		if (config.findChild("io")) {
+			throw MSXException(
+				"Bad MSX-MIDI configuration, when using "
+				"'external', you cannot specify I/O ports!");
+		}
 		// Out-port 0xE2 is always enabled.
 		getCPUInterface().register_IO_Out(0xE2, this);
 		// Not enabled, so no other ports need to be registered yet.

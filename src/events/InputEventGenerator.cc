@@ -8,6 +8,7 @@
 #include "Keys.hh" // GP2X
 #include "openmsx.hh"
 #include "checked_cast.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
 
@@ -32,10 +33,11 @@ private:
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, grabInput(new BooleanSetting(commandController, "grabinput",
+	, grabInput(make_unique<BooleanSetting>(
+		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
 		false, Setting::DONT_SAVE))
-	, escapeGrabCmd(new EscapeGrabCmd(commandController, *this))
+	, escapeGrabCmd(make_unique<EscapeGrabCmd>(commandController, *this))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 #if PLATFORM_GP2X
 	, stat8(0)

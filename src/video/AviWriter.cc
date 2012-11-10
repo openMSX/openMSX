@@ -8,6 +8,7 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "vla.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "cstdiop.hh" // for snprintf
@@ -23,8 +24,8 @@ static const unsigned AVI_HEADER_SIZE = 500;
 AviWriter::AviWriter(const Filename& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned channels_,
 		     unsigned freq_)
-	: file(new File(filename, "wb"))
-	, codec(new ZMBVEncoder(width_, height_, bpp))
+	: file(make_unique<File>(filename, "wb"))
+	, codec(make_unique<ZMBVEncoder>(width_, height_, bpp))
 	, fps(0.0) // will be filled in later
 	, width(width_)
 	, height(height_)

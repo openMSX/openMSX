@@ -19,6 +19,7 @@
 #include "StringOp.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cmath>
@@ -55,8 +56,8 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 	, prevTime(getCurrentTime(), 44100)
-	, soundDeviceInfo(new SoundDeviceInfoTopic(
-	              msxCommandController_.getMachineInfoCommand(), *this))
+	, soundDeviceInfo(make_unique<SoundDeviceInfoTopic>(
+		msxCommandController_.getMachineInfoCommand(), *this))
 	, recorder(nullptr)
 	, synchronousCounter(0)
 {
@@ -94,11 +95,12 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.defaultVolume = volume;
-	info.volumeSetting = new IntegerSetting(commandController,
-		name + "_volume", "the volume of this sound chip", 75, 0, 100);
-	info.balanceSetting = new IntegerSetting(commandController,
-		name + "_balance", "the balance of this sound chip",
-		balance, -100, 100);
+	info.volumeSetting = new IntegerSetting(
+		commandController, name + "_volume",
+		"the volume of this sound chip", 75, 0, 100);
+	info.balanceSetting = new IntegerSetting(
+		commandController, name + "_balance",
+		"the balance of this sound chip", balance, -100, 100);
 
 	info.volumeSetting->attach(*this);
 	info.balanceSetting->attach(*this);

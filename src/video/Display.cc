@@ -30,6 +30,7 @@
 #include "build-info.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
@@ -65,15 +66,19 @@ private:
 
 
 Display::Display(Reactor& reactor_)
-	: alarm(new AlarmEvent(reactor_.getEventDistributor(), *this,
-	                       OPENMSX_DELAYED_REPAINT_EVENT))
-	, screenShotCmd(new ScreenShotCmd(
+	: alarm(make_unique<AlarmEvent>(
+		reactor_.getEventDistributor(), *this,
+		OPENMSX_DELAYED_REPAINT_EVENT))
+	, screenShotCmd(make_unique<ScreenShotCmd>(
 		reactor_.getCommandController(), *this))
-	, fpsInfo(new FpsInfoTopic(reactor_.getOpenMSXInfoCommand(), *this))
-	, osdGui(new OSDGUI(reactor_.getCommandController(), *this))
+	, fpsInfo(make_unique<FpsInfoTopic>(
+		reactor_.getOpenMSXInfoCommand(), *this))
+	, osdGui(make_unique<OSDGUI>(
+		reactor_.getCommandController(), *this))
 	, reactor(reactor_)
-	, renderSettings(new RenderSettings(reactor.getCommandController()))
-	, commandConsole(new CommandConsole(
+	, renderSettings(make_unique<RenderSettings>(
+		reactor.getCommandController()))
+	, commandConsole(make_unique<CommandConsole>(
 		reactor.getGlobalCommandController(),
 		reactor.getEventDistributor(), *this))
 	, currentRenderer(RendererFactory::UNINITIALIZED)

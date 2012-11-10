@@ -9,6 +9,7 @@
 #include "MSXCPUInterface.hh"
 #include "AmdFlash.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 #include <vector>
 
@@ -32,14 +33,17 @@ static unsigned getWriteProtected(RomType type)
 RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
                        RomType type)
 	: MSXRom(config, std::move(rom_))
-	, scc(new SCC(getName() + " SCC", config, getCurrentTime()))
-	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT)) ?
-	      new AY8910(getName() + " PSG", DummyAY8910Periphery::instance(), config,
-			 getCurrentTime()) : nullptr)
-	, flash(new AmdFlash(*rom,
-	                     std::vector<unsigned>(512 / 64, 0x10000),
-	                     getWriteProtected(type), 0x01A4, config))
-	, romBlockDebug(new RomBlockDebuggable(*this, bank, 0x4000, 0x8000, 13))
+	, scc(make_unique<SCC>(getName() + " SCC", config, getCurrentTime()))
+	, psg(((type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT))
+		? make_unique<AY8910>(
+			getName() + " PSG", DummyAY8910Periphery::instance(),
+			config, getCurrentTime())
+		: nullptr)
+	, flash(make_unique<AmdFlash>(
+		*rom, std::vector<unsigned>(512 / 64, 0x10000),
+		getWriteProtected(type), 0x01A4, config))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, bank, 0x4000, 0x8000, 13))
 {
 	powerUp(getCurrentTime());
 

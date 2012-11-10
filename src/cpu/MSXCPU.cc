@@ -15,6 +15,7 @@
 #include "TclObject.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -59,26 +60,30 @@ private:
 
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
-	, traceSetting(new BooleanSetting(motherboard.getCommandController(),
-	                              "cputrace", "CPU tracing on/off", false,
-	                              Setting::DONT_SAVE))
-	, diHaltCallback(new TclCallback(
+	, traceSetting(make_unique<BooleanSetting>(
+		motherboard.getCommandController(), "cputrace",
+		"CPU tracing on/off", false, Setting::DONT_SAVE))
+	, diHaltCallback(make_unique<TclCallback>(
 		motherboard.getCommandController(), "di_halt_callback",
 		"Tcl proc called when the CPU executed a DI/HALT sequence"))
-	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
-	                             *diHaltCallback, EmuTime::zero))
+	, z80(make_unique<CPUCore<Z80TYPE>>(
+		motherboard, "z80", *traceSetting,
+		*diHaltCallback, EmuTime::zero))
 	, r800(motherboard.isTurboR()
-	       ? new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
-	                               *diHaltCallback, EmuTime::zero)
-	       : nullptr)
+		? make_unique<CPUCore<R800TYPE>>(
+			motherboard, "r800", *traceSetting,
+			*diHaltCallback, EmuTime::zero)
+		: nullptr)
 	, reference(EmuTime::zero)
-	, timeInfo(new TimeInfoTopic(
+	, timeInfo(make_unique<TimeInfoTopic>(
 		motherboard.getMachineInfoCommand(), *this))
-	, z80FreqInfo(new CPUFreqInfoTopic(
-		motherboard.getMachineInfoCommand(), "z80_freq",  *z80))
-	, r800FreqInfo(r800.get() ? new CPUFreqInfoTopic(
-		motherboard.getMachineInfoCommand(), "r800_freq", *r800) : nullptr)
-	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
+	, z80FreqInfo(make_unique<CPUFreqInfoTopic>(
+		motherboard.getMachineInfoCommand(), "z80_freq", *z80))
+	, r800FreqInfo(r800.get()
+		? make_unique<CPUFreqInfoTopic>(
+			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
+		: nullptr)
+	, debuggable(make_unique<MSXCPUDebuggable>(motherboard_, *this))
 {
 	activeCPU = z80.get(); // setActiveCPU(CPU_Z80);
 	newCPU = nullptr;

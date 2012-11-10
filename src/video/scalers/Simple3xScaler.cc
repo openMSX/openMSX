@@ -9,6 +9,7 @@
 #include "Multiply32.hh"
 #include "HostCPU.hh"
 #include "vla.hh"
+#include "memory.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -35,7 +36,7 @@ Simple3xScaler<Pixel>::Simple3xScaler(
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, blur_1on3(new Blur_1on3<Pixel>(pixelOps_))
+	, blur_1on3(make_unique<Blur_1on3<Pixel>>(pixelOps_))
 	, settings(settings_)
 {
 }

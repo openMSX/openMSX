@@ -12,6 +12,7 @@
 #include "IRQHelper.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cmath>
 #include <cstring>
 
@@ -1799,7 +1800,7 @@ void YM2151::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 YM2151::YM2151(const std::string& name, const std::string& desc,
                const DeviceConfig& config, EmuTime::param time)
-	: pimpl(new Impl(name, desc, config, time))
+	: pimpl(make_unique<Impl>(name, desc, config, time))
 {
 }
 

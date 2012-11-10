@@ -5,13 +5,14 @@
 #include "Rom.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 GoudaSCSI::GoudaSCSI(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName() + " ROM", "rom", config))
-	, wd33c93(new WD33C93(config))
+	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
+	, wd33c93(make_unique<WD33C93>(config))
 {
 	reset(EmuTime::dummy());
 }

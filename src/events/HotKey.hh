@@ -25,7 +25,7 @@ template<typename T> struct deref_less
 	bool operator()(T t1, T t2) const { return *t1 < *t2; }
 };
 
-class HotKey : private EventListener, private noncopyable
+class HotKey : public EventListener, private noncopyable
 {
 public:
 	typedef std::shared_ptr<const Event> EventPtr;

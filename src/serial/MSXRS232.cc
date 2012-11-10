@@ -7,9 +7,10 @@
 #include "I8251.hh"
 #include "Ram.hh"
 #include "Rom.hh"
+#include "BooleanSetting.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include "BooleanSetting.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -63,26 +64,29 @@ private:
 MSXRS232::MSXRS232(const DeviceConfig& config)
 	: MSXDevice(config)
 	, RS232Connector(MSXDevice::getPluggingController(), "msx-rs232")
-	, cntr0(new Counter0(*this))
-	, cntr1(new Counter1(*this))
-	, i8254(new I8254(getScheduler(),
-	                  cntr0.get(), cntr1.get(), nullptr, getCurrentTime()))
-	, interf(new I8251Interf(*this))
-	, i8251(new I8251(getScheduler(), *interf, getCurrentTime()))
+	, cntr0(make_unique<Counter0>(*this))
+	, cntr1(make_unique<Counter1>(*this))
+	, i8254(make_unique<I8254>(
+		getScheduler(), cntr0.get(), cntr1.get(), nullptr,
+		getCurrentTime()))
+	, interf(make_unique<I8251Interf>(*this))
+	, i8251(make_unique<I8251>(getScheduler(), *interf, getCurrentTime()))
 	, rom(config.findChild("rom")
-		? new Rom(MSXDevice::getName() + " ROM", "rom", config)
+		? make_unique<Rom>(
+			MSXDevice::getName() + " ROM", "rom", config)
 		: nullptr) // when the ROM is already mapped, you don't want to specify it again here
 	, ram(config.getChildDataAsBool("ram", false)
-	      ? new Ram(config, MSXDevice::getName() + " RAM",
+		? make_unique<Ram>(
+			config, MSXDevice::getName() + " RAM",
 	                "RS232 RAM", RAM_SIZE)
-	      : nullptr)
+		: nullptr)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, rxrdyIRQlatch(false)
 	, rxrdyIRQenabled(false)
 	, hasMemoryBasedIo(config.getChildDataAsBool("memorybasedio", false))
 	, ioAccessEnabled(!hasMemoryBasedIo)
 	, switchSetting(config.getChildDataAsBool("toshiba_rs232c_switch",
-		false) ? new BooleanSetting(getCommandController(),
+		false) ? make_unique<BooleanSetting>(getCommandController(),
 		"toshiba_rs232c_switch", "status of the RS-232C enable switch",
 		true) : nullptr)
 {

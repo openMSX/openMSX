@@ -23,12 +23,14 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomSynthesizer::RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom16kBBlocks(config, std::move(rom))
-	, dac(new DACSound8U("Synthesizer-DAC", "Konami Synthesizer's DAC", config))
+	, dac(make_unique<DACSound8U>(
+		"Synthesizer-DAC", "Konami Synthesizer's DAC", config))
 {
 	setUnmapped(0);
 	setRom(1, 0);

@@ -9,15 +9,15 @@
 namespace openmsx {
 
 KeyboardSettings::KeyboardSettings(CommandController& commandController)
-	: alwaysEnableKeypad(new BooleanSetting(commandController,
-		"kbd_numkeypad_always_enabled",
+	: alwaysEnableKeypad(make_unique<BooleanSetting>(
+		commandController, "kbd_numkeypad_always_enabled",
 		"Numeric keypad is always enabled, even on an MSX that does not have one",
 		false))
-	, traceKeyPresses(new BooleanSetting(commandController,
-		"kbd_trace_key_presses",
+	, traceKeyPresses(make_unique<BooleanSetting>(
+		commandController, "kbd_trace_key_presses",
 		"Trace key presses (show SDL key code, SDL modifiers and Unicode code-point value)",
 		false, Setting::DONT_SAVE))
-	, autoToggleCodeKanaLock(new BooleanSetting(commandController,
+	, autoToggleCodeKanaLock(make_unique<BooleanSetting>(commandController,
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true))

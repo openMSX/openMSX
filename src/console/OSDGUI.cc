@@ -11,9 +11,9 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cassert>
-#include <memory>
 
 using std::string;
 using std::set;
@@ -50,8 +50,8 @@ private:
 
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
-	, osdCommand(new OSDCommand(*this, commandController))
-	, topWidget(new OSDTopWidget())
+	, osdCommand(make_unique<OSDCommand>(*this, commandController))
+	, topWidget(make_unique<OSDTopWidget>())
 {
 }
 

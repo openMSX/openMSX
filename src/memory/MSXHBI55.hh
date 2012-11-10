@@ -13,7 +13,7 @@ namespace openmsx {
 class I8255;
 class SRAM;
 
-class MSXHBI55 : public MSXDevice, private I8255Interface
+class MSXHBI55 : public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:

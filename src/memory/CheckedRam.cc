@@ -10,6 +10,7 @@
 #include "StringSetting.hh"
 #include "TclCallback.hh"
 #include "likely.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -25,9 +26,9 @@ CheckedRam::CheckedRam(const DeviceConfig& config, const std::string& name,
                        const std::string& description, unsigned size)
 	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
 	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
-	, ram(new Ram(config, name, description, size))
+	, ram(make_unique<Ram>(config, name, description, size))
 	, msxcpu(config.getMotherBoard().getCPU())
-	, umrCallback(new TclCallback(
+	, umrCallback(make_unique<TclCallback>(
 		config.getGlobalSettings().getUMRCallBackSetting()))
 {
 	umrCallback->getSetting().attach(*this);

@@ -11,6 +11,7 @@
 #include "serialize_stl.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 using std::vector;
 using std::string;
@@ -25,7 +26,7 @@ RecordedCommand::RecordedCommand(CommandController& commandController,
 	: Command(commandController, name)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
-	, dummyResultObject(new TclObject(getInterpreter()))
+	, dummyResultObject(make_unique<TclObject>(getInterpreter()))
 	, currentResultObject(dummyResultObject.get())
 {
 	stateChangeDistributor.registerListener(*this);
@@ -43,8 +44,7 @@ void RecordedCommand::execute(const vector<TclObject>& tokens,
 	if (needRecord(tokens)) {
 		ScopedAssign<TclObject*> sa(currentResultObject, &result);
 		stateChangeDistributor.distributeNew(
-			StateChangeDistributor::EventPtr(
-				new MSXCommandEvent(tokens, time)));
+			std::make_shared<MSXCommandEvent>(tokens, time));
 	} else {
 		execute(tokens, result, time);
 	}

@@ -22,6 +22,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "checked_cast.hh"
+#include "memory.hh"
 #include <functional>
 #include <cassert>
 
@@ -163,7 +164,8 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
-	, reverseCmd(new ReverseCmd(*this, motherBoard.getCommandController()))
+	, reverseCmd(make_unique<ReverseCmd>(
+		*this, motherBoard.getCommandController()))
 	, keyboard(nullptr)
 	, eventDelay(nullptr)
 	, replayIndex(0)

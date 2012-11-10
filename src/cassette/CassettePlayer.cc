@@ -102,12 +102,13 @@ CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
 	, motherBoard(hwConf.getMotherBoard())
-	, tapeCommand(new TapeCommand(motherBoard.getCommandController(),
-	                              motherBoard.getStateChangeDistributor(),
-	                              motherBoard.getScheduler(), *this))
-	, loadingIndicator(new LoadingIndicator(
+	, tapeCommand(make_unique<TapeCommand>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this))
+	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
-	, autoRunSetting(new BooleanSetting(
+	, autoRunSetting(make_unique<BooleanSetting>(
 		motherBoard.getCommandController(),
 		"autoruncassettes", "automatically try to run cassettes", true))
 	, sampcnt(0)

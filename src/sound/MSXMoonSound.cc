@@ -15,6 +15,7 @@
 #include "Clock.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -52,10 +53,11 @@ static const EmuDuration LOAD_DELAY = MasterClock::duration(10000);
 
 MSXMoonSound::MSXMoonSound(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ymf262(new YMF262(getName() + " FM", config, true))
-	, ymf278(new YMF278(getName() + " wave",
-	                    config.getChildDataAsInt("sampleram", 512), // size in kb
-	                    config))
+	, ymf262(make_unique<YMF262>(getName() + " FM", config, true))
+	, ymf278(make_unique<YMF278>(
+		getName() + " wave",
+		config.getChildDataAsInt("sampleram", 512), // size in kb
+		config))
 	, ymf278LoadTime(getCurrentTime())
 	, ymf278BusyTime(getCurrentTime())
 {

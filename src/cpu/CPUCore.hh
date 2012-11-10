@@ -24,7 +24,7 @@ class Setting;
 class TclCallback;
 
 template <class CPU_POLICY>
-class CPUCore : private CPU_POLICY, public CPU, private Observer<Setting>
+class CPUCore : public CPU_POLICY, public CPU, private Observer<Setting>
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,

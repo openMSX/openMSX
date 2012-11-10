@@ -25,6 +25,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
+#include "memory.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -216,18 +217,18 @@ Keyboard::Keyboard(MSXMotherBoard& motherBoard,
 	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
-	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
+	, keyMatrixUpCmd  (make_unique<KeyMatrixUpCmd  >(
 		commandController, stateChangeDistributor, scheduler, *this))
-	, keyMatrixDownCmd(new KeyMatrixDownCmd(
+	, keyMatrixDownCmd(make_unique<KeyMatrixDownCmd>(
 		commandController, stateChangeDistributor, scheduler, *this))
-	, keyTypeCmd(new KeyInserter(
+	, keyTypeCmd(make_unique<KeyInserter>(
 		commandController, stateChangeDistributor, scheduler, *this))
-	, capsLockAligner(new CapsLockAligner(
+	, capsLockAligner(make_unique<CapsLockAligner>(
 		eventDistributor, msxEventDistributor, scheduler, *this))
-	, keyboardSettings(new KeyboardSettings(commandController))
-	, msxKeyEventQueue(new MsxKeyEventQueue(scheduler, *this))
-	, keybDebuggable(new KeybDebuggable(motherBoard, *this))
-	, unicodeKeymap(new UnicodeKeymap(keyboardType))
+	, keyboardSettings(make_unique<KeyboardSettings>(commandController))
+	, msxKeyEventQueue(make_unique<MsxKeyEventQueue>(scheduler, *this))
+	, keybDebuggable(make_unique<KeybDebuggable>(motherBoard, *this))
+	, unicodeKeymap(make_unique<UnicodeKeymap>(keyboardType))
 	, hasKeypad(hasKP)
 	, hasYesNoKeys(hasYNKeys)
 	, keyGhosting(keyGhosting_)

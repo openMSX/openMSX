@@ -41,7 +41,8 @@ private:
 
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
-	, recordCommand(new RecordCommand(reactor.getCommandController(), *this))
+	, recordCommand(make_unique<RecordCommand>(
+		reactor.getCommandController(), *this))
 	, ppV99x8(nullptr)
 	, ppV9990(nullptr)
 	, ppLaser(nullptr)

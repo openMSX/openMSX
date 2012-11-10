@@ -6,6 +6,7 @@
 #include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -13,8 +14,10 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
 	: MSXMusic(config)
-	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
-	, romBlockDebug(new RomBlockDebuggable(*this, &bank, 0x4000, 0x4000, 14))
+	, sram(make_unique<SRAM>(
+		getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, &bank, 0x4000, 0x4000, 14))
 {
 	reset(getCurrentTime());
 }

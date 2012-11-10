@@ -5,13 +5,15 @@
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXTurboRPause::MSXTurboRPause(const DeviceConfig& config)
 	: MSXDevice(config)
-	, pauseSetting(new BooleanSetting(getCommandController(),
-	               "turborpause", "status of the TurboR pause", false))
+	, pauseSetting(make_unique<BooleanSetting>(
+		getCommandController(), "turborpause",
+		"status of the TurboR pause", false))
 	, status(255)
 	, pauseLed(false)
 	, turboLed(false)

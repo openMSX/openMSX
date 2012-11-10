@@ -5,15 +5,17 @@
 #include "WD2793.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 WD2793BasedFDC::WD2793BasedFDC(const DeviceConfig& config)
 	: MSXFDC(config)
-	, multiplexer(new DriveMultiplexer(reinterpret_cast<DiskDrive**>(drives)))
-	, controller(new WD2793(getScheduler(), *multiplexer,
-	                        getCliComm(), getCurrentTime(),
-	                        config.getXML()->getName() == "WD1770"))
+	, multiplexer(make_unique<DriveMultiplexer>(
+		reinterpret_cast<DiskDrive**>(drives)))
+	, controller(make_unique<WD2793>(
+		getScheduler(), *multiplexer, getCliComm(), getCurrentTime(),
+		config.getXML()->getName() == "WD1770"))
 {
 }
 

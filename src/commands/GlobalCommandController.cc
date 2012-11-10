@@ -81,14 +81,14 @@ GlobalCommandController::GlobalCommandController(
 	: cliComm(cliComm_)
 	, connection(nullptr)
 	, reactor(reactor_)
-	, interpreter(new Interpreter(eventDistributor))
-	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
-	, hotKey(new HotKey(*this, eventDistributor))
-	, helpCmd(new HelpCmd(*this))
-	, tabCompletionCmd(new TabCompletionCmd(*this))
-	, proxyCmd(new ProxyCmd(*this, reactor))
-	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
-	, romInfoTopic(new RomInfoTopic(getOpenMSXInfoCommand()))
+	, interpreter(make_unique<Interpreter>(eventDistributor))
+	, openMSXInfoCommand(make_unique<InfoCommand>(*this, "openmsx_info"))
+	, hotKey(make_unique<HotKey>(*this, eventDistributor))
+	, helpCmd(make_unique<HelpCmd>(*this))
+	, tabCompletionCmd(make_unique<TabCompletionCmd>(*this))
+	, proxyCmd(make_unique<ProxyCmd>(*this, reactor))
+	, versionInfo(make_unique<VersionInfo>(getOpenMSXInfoCommand()))
+	, romInfoTopic(make_unique<RomInfoTopic>(getOpenMSXInfoCommand()))
 {
 	// For backwards compatibility:
 	//  In the past we had an openMSX command 'update'. This was a mistake

@@ -653,7 +653,7 @@ void VLM5030::Impl::serialize(Archive& ar, unsigned /*version*/)
 
 VLM5030::VLM5030(const std::string& name, const std::string& desc,
                  const std::string& romFilename, const DeviceConfig& config)
-	: pimpl(new Impl(name, desc, romFilename, config))
+	: pimpl(make_unique<Impl>(name, desc, romFilename, config))
 {
 }
 

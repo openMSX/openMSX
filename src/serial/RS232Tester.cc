@@ -8,6 +8,7 @@
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -16,11 +17,11 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), inFile(nullptr), lock(1)
-	, rs232InputFilenameSetting(new FilenameSetting(
+	, rs232InputFilenameSetting(make_unique<FilenameSetting>(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
 	        "rs232-input"))
-	, rs232OutputFilenameSetting(new FilenameSetting(
+	, rs232OutputFilenameSetting(make_unique<FilenameSetting>(
 	        commandController, "rs232-outputfilename",
 	        "filename of the file where the RS232 output is written to",
 	        "rs232-output"))

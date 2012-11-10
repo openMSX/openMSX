@@ -14,7 +14,7 @@ using std::string;
 namespace openmsx {
 
 WavAudioInput::WavAudioInput(CommandController& commandController)
-	: audioInputFilenameSetting(new FilenameSetting(
+	: audioInputFilenameSetting(make_unique<FilenameSetting>(
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav"))

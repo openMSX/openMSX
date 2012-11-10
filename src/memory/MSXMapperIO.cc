@@ -8,6 +8,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -39,7 +40,7 @@ static byte calcEngineMask(MSXMotherBoard& motherBoard)
 
 MSXMapperIO::MSXMapperIO(const DeviceConfig& config)
 	: MSXDevice(config)
-	, debuggable(new MapperIODebuggable(getMotherBoard(), *this))
+	, debuggable(make_unique<MapperIODebuggable>(getMotherBoard(), *this))
 	, engineMask(calcEngineMask(getMotherBoard()))
 {
 	updateMask();

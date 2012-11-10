@@ -17,8 +17,8 @@
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
-#include <memory>
 
 using std::map;
 using std::set;
@@ -101,10 +101,11 @@ private:
 
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
-	                        motherBoard.getStateChangeDistributor(),
-	                        motherBoard.getScheduler(),
-	                        motherBoard.getReactor().getGlobalCliComm(), *this))
+	, debugCmd(make_unique<DebugCmd>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(),
+		motherBoard.getReactor().getGlobalCliComm(), *this))
 	, cpu(nullptr)
 {
 }

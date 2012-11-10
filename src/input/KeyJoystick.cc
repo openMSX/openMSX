@@ -9,6 +9,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -48,17 +49,17 @@ KeyJoystick::KeyJoystick(CommandController& commandController,
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, name(name_)
-	, up   (new KeyCodeSetting(commandController, name + ".up",
+	, up   (make_unique<KeyCodeSetting>(commandController, name + ".up",
 		"key for direction up",    Keys::K_UP))
-	, down (new KeyCodeSetting(commandController, name + ".down",
+	, down (make_unique<KeyCodeSetting>(commandController, name + ".down",
 		"key for direction down",  Keys::K_DOWN))
-	, left (new KeyCodeSetting(commandController, name + ".left",
+	, left (make_unique<KeyCodeSetting>(commandController, name + ".left",
 		"key for direction left",  Keys::K_LEFT))
-	, right(new KeyCodeSetting(commandController, name + ".right",
+	, right(make_unique<KeyCodeSetting>(commandController, name + ".right",
 		"key for direction right", Keys::K_RIGHT))
-	, trigA(new KeyCodeSetting(commandController, name + ".triga",
+	, trigA(make_unique<KeyCodeSetting>(commandController, name + ".triga",
 		"key for trigger A",       Keys::K_SPACE))
-	, trigB(new KeyCodeSetting(commandController, name + ".trigb",
+	, trigB(make_unique<KeyCodeSetting>(commandController, name + ".trigb",
 		"key for trigger B",       Keys::K_M))
 {
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |

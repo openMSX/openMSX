@@ -19,6 +19,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "likely.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -877,9 +878,11 @@ YMF278::Impl::Impl(YMF278& self, const std::string& name, int ramSize,
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MoonSound wave-part",
 	                       24, true)
 	, motherBoard(config.getMotherBoard())
-	, debugRegisters(new DebugRegisters(self, motherBoard, getName()))
-	, debugMemory   (new DebugMemory   (self, motherBoard, getName()))
-	, rom(new Rom(name + " ROM", "rom", config))
+	, debugRegisters(make_unique<DebugRegisters>(
+		self, motherBoard, getName()))
+	, debugMemory(make_unique<DebugMemory>(
+		self, motherBoard, getName()))
+	, rom(make_unique<Rom>(name + " ROM", "rom", config))
 	, ram(ramSize * 1024) // in kB
 {
 	if (rom->getSize() != 0x200000) { // 2MB
@@ -1223,7 +1226,7 @@ void DebugMemory::write(unsigned address, byte value)
 // class YMF278
 
 YMF278::YMF278(const std::string& name, int ramSize, const DeviceConfig& config)
-	: pimpl(new Impl(*this, name, ramSize, config))
+	: pimpl(make_unique<Impl>(*this, name, ramSize, config))
 {
 }
 

@@ -61,7 +61,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, reactor(reactor_)
 	, console(console_)
 	, consoleSetting(console.getConsoleSetting())
-	, settingChecker(new OSDSettingChecker(*this))
+	, settingChecker(make_unique<OSDSettingChecker>(*this))
 	, screenW(screenW_)
 	, screenH(screenH_)
 	, openGL(openGL_)

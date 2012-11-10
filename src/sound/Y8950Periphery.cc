@@ -15,6 +15,7 @@
 #include "StringOp.hh"
 #include "DeviceConfig.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <string>
 
 using std::string;
@@ -170,9 +171,11 @@ PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 	           "software of this module must be started or not.",
 	           false)
 	// note: name + " RAM"  already taken by sample RAM
-	, ram(new Ram(config, audio.getName() + " mapped RAM",
-	              "MSX-AUDIO mapped RAM", 0x1000))
-	, rom(new Rom(audio.getName() + " ROM", "MSX-AUDIO ROM", config))
+	, ram(make_unique<Ram>(
+		config, audio.getName() + " mapped RAM",
+		"MSX-AUDIO mapped RAM", 0x1000))
+	, rom(make_unique<Rom>(
+		audio.getName() + " ROM", "MSX-AUDIO ROM", config))
 	, ioPorts(0)
 {
 	reset();

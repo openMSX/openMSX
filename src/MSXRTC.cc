@@ -5,13 +5,15 @@
 #include "RP5C01.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXRTC::MSXRTC(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sram(new SRAM(getName() + " SRAM", 4 * 13, config))
-	, rp5c01(new RP5C01(getCommandController(), *sram, getCurrentTime()))
+	, sram(make_unique<SRAM>(getName() + " SRAM", 4 * 13, config))
+	, rp5c01(make_unique<RP5C01>(
+		getCommandController(), *sram, getCurrentTime()))
 {
 	reset(getCurrentTime());
 }

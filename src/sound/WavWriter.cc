@@ -6,6 +6,7 @@
 #include "Math.hh"
 #include "vla.hh"
 #include "endian.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cstring>
 #include <vector>
@@ -14,7 +15,7 @@ namespace openmsx {
 
 WavWriter::WavWriter(const Filename& filename,
                      unsigned channels, unsigned bits, unsigned frequency)
-	: file(new File(filename, "wb"))
+	: file(make_unique<File>(filename, "wb"))
 	, bytes(0)
 {
 	// write wav header

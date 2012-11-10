@@ -17,6 +17,7 @@
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -50,7 +51,8 @@ Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, const DeviceConfig& config,
                        const std::string& name, unsigned sampleRam)
 	: Schedulable(config.getScheduler())
 	, y8950(y8950_)
-	, ram(new Ram(config, name + " RAM", "Y8950 sample RAM", sampleRam))
+	, ram(make_unique<Ram>(
+		config, name + " RAM", "Y8950 sample RAM", sampleRam))
 	, clock(config.getMotherBoard().getCurrentTime())
 	, volume(0)
 {

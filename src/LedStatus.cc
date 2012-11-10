@@ -24,7 +24,8 @@ LedStatus::LedStatus(
 		CommandController& commandController,
 		MSXCliComm& msxCliComm_)
 	: msxCliComm(msxCliComm_)
-	, alarm(new AlarmEvent(eventDistributor, *this, OPENMSX_THROTTLE_LED_EVENT))
+	, alarm(make_unique<AlarmEvent>(
+		eventDistributor, *this, OPENMSX_THROTTLE_LED_EVENT))
 {
 	lastTime = Timer::getTime();
 	for (int i = 0; i < NUM_LEDS; ++i) {

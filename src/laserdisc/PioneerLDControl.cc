@@ -36,7 +36,7 @@ namespace openmsx {
  */
 PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName() + " ROM", "rom", config))
+	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
 	, clock(EmuTime::zero)
 	, irq(getMotherBoard(), "PioneerLDControl.IRQdisplayoff")
 	, videoEnabled(false)

@@ -8,6 +8,7 @@
 #include "SimpleDebuggable.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -24,8 +25,8 @@ private:
 
 MSXS1990::MSXS1990(const DeviceConfig& config)
 	: MSXDevice(config)
-	, firmwareSwitch(new FirmwareSwitch(config))
-	, debuggable(new S1990Debuggable(getMotherBoard(), *this))
+	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
+	, debuggable(make_unique<S1990Debuggable>(getMotherBoard(), *this))
 {
 	reset(EmuTime::dummy());
 }

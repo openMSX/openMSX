@@ -11,16 +11,17 @@
 #include "Rom.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	: MSXFDC(config)
-	, controller(new TC8566AF(getScheduler(),
-	                          reinterpret_cast<DiskDrive**>(drives),
-	                          getCliComm(),
-	                          getCurrentTime()))
-	, romBlockDebug(new RomBlockDebuggable(*this, &bank, 0x4000, 0x4000, 14))
+	, controller(make_unique<TC8566AF>(
+		getScheduler(), reinterpret_cast<DiskDrive**>(drives),
+		getCliComm(), getCurrentTime()))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, &bank, 0x4000, 0x4000, 14))
 	, blockMask((rom->getSize() / 0x4000) - 1)
 {
 	reset(getCurrentTime());

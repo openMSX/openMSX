@@ -11,6 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "Event.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -21,8 +22,8 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	, display(motherBoard.getReactor().getDisplay())
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
-	, videoSourceActivator(new VideoSourceActivator(
-              videoSourceSetting, videoSource_))
+	, videoSourceActivator(make_unique<VideoSourceActivator>(
+		videoSourceSetting, videoSource_))
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
 	, activeVideo9000(INACTIVE)

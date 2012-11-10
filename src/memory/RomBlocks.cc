@@ -9,6 +9,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,7 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 		unsigned debugBankSizeShift)
 	: MSXRom(config, std::move(rom_))
-	, romBlockDebug(new RomBlockDebuggable(
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
 		*this,  blockNr, 0x0000, 0x10000,
 		log2<BANK_SIZE>::value, debugBankSizeShift))
 	, nrBlocks(rom->getSize() / BANK_SIZE)

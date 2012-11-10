@@ -49,6 +49,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -70,9 +71,10 @@ static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
 
 MegaSCSI::MegaSCSI(const DeviceConfig& config)
 	: MSXDevice(config)
-	, mb89352(new MB89352(config))
+	, mb89352(make_unique<MB89352>(config))
 	, sram(createSRAM(config, getName()))
-	, romBlockDebug(new RomBlockDebuggable(*this, mapped, 0x4000, 0x8000, 13))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, mapped, 0x4000, 0x8000, 13))
 	, blockMask((sram->getSize() / 0x2000) - 1)
 {
 }

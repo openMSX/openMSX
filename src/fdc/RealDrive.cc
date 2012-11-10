@@ -35,7 +35,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
                      bool signalsNeedMotorOn_, bool doubleSided)
 	: Schedulable(motherBoard_.getScheduler())
 	, motherBoard(motherBoard_)
-	, loadingIndicator(new LoadingIndicator(
+	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
 	, motorTimeout(motorTimeout_)
 	, motorTimer(getCurrentTime())

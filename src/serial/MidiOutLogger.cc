@@ -5,11 +5,12 @@
 #include "FilenameSetting.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MidiOutLogger::MidiOutLogger(CommandController& commandController)
-	: logFilenameSetting(new FilenameSetting(
+	: logFilenameSetting(make_unique<FilenameSetting>(
 		commandController, "midi-out-logfilename",
 		"filename of the file where the MIDI output is logged to",
 		"/dev/midi"))

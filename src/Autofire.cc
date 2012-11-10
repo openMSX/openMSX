@@ -2,6 +2,7 @@
 
 #include "Autofire.hh"
 #include "IntegerSetting.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -13,8 +14,8 @@ Autofire::Autofire(CommandController& commandController,
                    unsigned newMinInts, unsigned newMaxInts, string_ref name)
 	: min_ints(std::max(newMinInts, 1u))
 	, max_ints(std::max(newMaxInts, min_ints + 1))
-	, speedSetting(new IntegerSetting(commandController, name,
-	               "controls the speed of this autofire circuit", 0, 0, 100))
+	, speedSetting(make_unique<IntegerSetting>(commandController, name,
+		"controls the speed of this autofire circuit", 0, 0, 100))
 	, clock(EmuTime::zero)
 {
 	setClock();

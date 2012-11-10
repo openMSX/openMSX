@@ -26,10 +26,10 @@
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
-#include <tcl.h>
 #include "unreachable.hh"
+#include "memory.hh"
+#include <tcl.h>
 #include <cstdio>
-#include <memory>
 #include <set>
 #include <sstream>
 #include <iomanip>
@@ -151,21 +151,25 @@ static const byte GLOBAL_WRITE_BIT   = 0x04;
 
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
-	: memoryDebug       (new MemoryDebug       (*this, motherBoard_))
-	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard_))
-	, ioDebug           (new IODebug           (*this, motherBoard_))
-	, slotInfo        (new SlotInfo(
+	: memoryDebug(make_unique<MemoryDebug>(
+		*this, motherBoard_))
+	, slottedMemoryDebug(make_unique<SlottedMemoryDebug>(
+		*this, motherBoard_))
+	, ioDebug(make_unique<IODebug>(
+		*this, motherBoard_))
+	, slotInfo(make_unique<SlotInfo>(
 		motherBoard_.getMachineInfoCommand(), *this))
-	, subSlottedInfo  (new SubSlottedInfo(
+	, subSlottedInfo(make_unique<SubSlottedInfo>(
 		motherBoard_.getMachineInfoCommand(), *this))
-	, externalSlotInfo(new ExternalSlotInfo(
+	, externalSlotInfo(make_unique<ExternalSlotInfo>(
 		motherBoard_.getMachineInfoCommand(),
 		motherBoard_.getSlotManager()))
-	, inputPortInfo (new IOInfo(
+	, inputPortInfo(make_unique<IOInfo>(
 	        motherBoard_.getMachineInfoCommand(), *this, true))
-	, outputPortInfo(new IOInfo(
+	, outputPortInfo(make_unique<IOInfo>(
 	        motherBoard_.getMachineInfoCommand(), *this, false))
-	, dummyDevice(DeviceFactory::createDummyDevice(*motherBoard_.getMachineConfig()))
+	, dummyDevice(DeviceFactory::createDummyDevice(
+		*motherBoard_.getMachineConfig()))
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)

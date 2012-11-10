@@ -12,6 +12,7 @@
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "openmsx.hh"
 
@@ -84,8 +85,8 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
-	, alarm(new AlarmEvent(eventDistributor, *this,
-	                       OPENMSX_POINTER_TIMER_EVENT))
+	, alarm(make_unique<AlarmEvent>(
+		eventDistributor, *this, OPENMSX_POINTER_TIMER_EVENT))
 {
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {

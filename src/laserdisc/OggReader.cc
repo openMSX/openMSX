@@ -9,6 +9,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "MemoryOps.hh"
+#include "memory.hh"
 #include "stringsp.hh" // for strncasecmp
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
@@ -21,7 +22,7 @@ namespace openmsx {
 
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	: cli(cli_)
-	, file(new File(filename))
+	, file(make_unique<File>(filename))
 {
 	audioSerial = -1;
 	videoSerial = -1;

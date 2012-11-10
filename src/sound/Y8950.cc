@@ -21,6 +21,7 @@
 #include "FixedPoint.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -667,10 +668,14 @@ Y8950::Impl::Impl(Y8950& self, const std::string& name,
 	: ResampledSoundDevice(config.getMotherBoard(), name, "MSX-AUDIO", 9 + 5 + 1)
 	, motherBoard(config.getMotherBoard())
 	, periphery(audio.createPeriphery(getName()))
-	, adpcm(new Y8950Adpcm(self, config, name, sampleRam))
-	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
-	, dac13(new DACSound16S(name + " DAC", "MSX-AUDIO 13-bit DAC", config))
-	, debuggable(new Y8950Debuggable(motherBoard, self, getName()))
+	, adpcm(make_unique<Y8950Adpcm>(
+		self, config, name, sampleRam))
+	, connector(make_unique<Y8950KeyboardConnector>(
+		motherBoard.getPluggingController()))
+	, dac13(make_unique<DACSound16S>(
+		name + " DAC", "MSX-AUDIO 13-bit DAC", config))
+	, debuggable(make_unique<Y8950Debuggable>(
+		motherBoard, self, getName()))
 	, timer1(EmuTimer::createOPL3_1(motherBoard.getScheduler(), *this))
 	, timer2(EmuTimer::createOPL3_2(motherBoard.getScheduler(), *this))
 	, irq(motherBoard, getName() + ".IRQ")
@@ -1492,7 +1497,7 @@ void Y8950Debuggable::write(unsigned address, byte value, EmuTime::param time)
 Y8950::Y8950(const std::string& name, const DeviceConfig& config,
              unsigned sampleRam, EmuTime::param time,
              MSXAudio& audio)
-	: pimpl(new Impl(*this, name, config, sampleRam, audio))
+	: pimpl(make_unique<Impl>(*this, name, config, sampleRam, audio))
 {
 	pimpl->init(config, time);
 }

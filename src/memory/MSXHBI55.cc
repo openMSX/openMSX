@@ -36,6 +36,7 @@
 #include "I8255.hh"
 #include "SRAM.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -43,8 +44,8 @@ namespace openmsx {
 
 MSXHBI55::MSXHBI55(const DeviceConfig& config)
 	: MSXDevice(config)
-	, i8255(new I8255(*this, getCurrentTime(), getCliComm()))
-	, sram(new SRAM(getName() + " SRAM", 0x1000, config))
+	, i8255(make_unique<I8255>(*this, getCurrentTime(), getCliComm()))
+	, sram(make_unique<SRAM>(getName() + " SRAM", 0x1000, config))
 {
 	reset(getCurrentTime());
 }

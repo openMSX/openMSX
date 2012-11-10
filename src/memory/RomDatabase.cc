@@ -16,6 +16,7 @@
 #include "StringMap.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <set>
 
 using std::set;
@@ -500,7 +501,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
 }
 
 RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cliComm)
-	: softwareInfoTopic(new SoftwareInfoTopic(
+	: softwareInfoTopic(make_unique<SoftwareInfoTopic>(
 		commandController.getOpenMSXInfoCommand(), *this))
 {
 	UnknownTypes unknownTypes;

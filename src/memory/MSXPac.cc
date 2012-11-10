@@ -4,6 +4,7 @@
 #include "SRAM.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -11,7 +12,8 @@ static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXPac::MSXPac(const DeviceConfig& config)
 	: MSXDevice(config)
-	, sram(new SRAM(getName() + " SRAM", 0x1FFE, config, PAC_Header))
+	, sram(make_unique<SRAM>(
+		getName() + " SRAM", 0x1FFE, config, PAC_Header))
 {
 	reset(EmuTime::dummy());
 }

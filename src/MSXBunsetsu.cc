@@ -4,13 +4,16 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXBunsetsu::MSXBunsetsu(const DeviceConfig& config)
 	: MSXDevice(config)
-	, bunsetsuRom(new Rom(getName() + "_1", "rom", config, "bunsetsu"))
-	, jisyoRom   (new Rom(getName() + "_2", "rom", config, "jisyo"))
+	, bunsetsuRom(make_unique<Rom>(
+		getName() + "_1", "rom", config, "bunsetsu"))
+	, jisyoRom(make_unique<Rom>(
+		getName() + "_2", "rom", config, "jisyo"))
 {
 	reset(EmuTime::dummy());
 }

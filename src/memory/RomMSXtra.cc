@@ -4,12 +4,14 @@
 #include "Rom.hh"
 #include "Ram.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomMSXtra::RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: MSXRom(config, std::move(rom))
-	, ram(new Ram(config, getName() + " RAM", "MSXtra RAM", 0x0800))
+	, ram(make_unique<Ram>(
+		config, getName() + " RAM", "MSXtra RAM", 0x0800))
 {
 	for (int i = 0; i < 0x800; ++i) {
 		(*ram)[i] = (i & 1) ? 0x5a : 0xa5;

@@ -230,7 +230,7 @@ void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
 ////
 
 XmlOutputArchive::XmlOutputArchive(const string& filename)
-	: root(new XMLElement("serial"))
+	: root(make_unique<XMLElement>("serial"))
 {
 	FILE* f = FileOperations::openFile(filename, "wb");
 	if (!f) {

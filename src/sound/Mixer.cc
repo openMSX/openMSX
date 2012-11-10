@@ -28,15 +28,18 @@ static const int defaultsamples = 1024;
 Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	: reactor(reactor_)
 	, commandController(commandController_)
-	, muteSetting(new BooleanSetting(commandController,
-		"mute", "(un)mute the emulation sound", false,
-		Setting::DONT_SAVE))
-	, masterVolume(new IntegerSetting(commandController,
-		"master_volume", "master volume", 75, 0, 100))
-	, frequencySetting(new IntegerSetting(commandController,
-		"frequency", "mixer frequency", 44100, 11025, 48000))
-	, samplesSetting(new IntegerSetting(commandController,
-		"samples", "mixer samples", defaultsamples, 64, 8192))
+	, muteSetting(make_unique<BooleanSetting>(
+		commandController, "mute",
+		"(un)mute the emulation sound", false, Setting::DONT_SAVE))
+	, masterVolume(make_unique<IntegerSetting>(
+		commandController, "master_volume",
+		"master volume", 75, 0, 100))
+	, frequencySetting(make_unique<IntegerSetting>(
+		commandController, "frequency",
+		"mixer frequency", 44100, 11025, 48000))
+	, samplesSetting(make_unique<IntegerSetting>(
+		commandController, "samples",
+		"mixer samples", defaultsamples, 64, 8192))
 	, muteCount(0)
 {
 	EnumSetting<SoundDriverType>::Map soundDriverMap;

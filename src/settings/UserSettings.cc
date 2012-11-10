@@ -49,7 +49,8 @@ private:
 // class UserSettings
 
 UserSettings::UserSettings(CommandController& commandController_)
-	: userSettingCommand(new UserSettingCommand(*this, commandController_))
+	: userSettingCommand(make_unique<UserSettingCommand>(
+		*this, commandController_))
 {
 }
 

@@ -2,16 +2,18 @@
 
 #include "ThrottleManager.hh"
 #include "BooleanSetting.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 // class ThrottleManager:
 
 ThrottleManager::ThrottleManager(CommandController& commandController)
-	: throttleSetting(new BooleanSetting(commandController, "throttle",
+	: throttleSetting(make_unique<BooleanSetting>(
+		commandController, "throttle",
 		"controls speed throttling", true, Setting::DONT_SAVE))
-	, fullSpeedLoadingSetting(new BooleanSetting(commandController,
-		"fullspeedwhenloading",
+	, fullSpeedLoadingSetting(make_unique<BooleanSetting>(
+		commandController, "fullspeedwhenloading",
 		"sets openMSX to full speed when the MSX is loading", false))
 	, loading(0), throttle(true)
 {

@@ -8,6 +8,7 @@
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "memory.hh"
 #include <cassert>
 
 using std::set;
@@ -55,11 +56,14 @@ private:
 
 
 SettingsManager::SettingsManager(GlobalCommandController& commandController)
-	: settingInfo   (new SettingInfo(
-	                    commandController.getOpenMSXInfoCommand(), *this))
-	, setCompleter  (new SetCompleter    (commandController, *this))
-	, incrCompleter (new SettingCompleter(commandController, *this, "incr"))
-	, unsetCompleter(new SettingCompleter(commandController, *this, "unset"))
+	: settingInfo(make_unique<SettingInfo>(
+		commandController.getOpenMSXInfoCommand(), *this))
+	, setCompleter(make_unique<SetCompleter>(
+		commandController, *this))
+	, incrCompleter(make_unique<SettingCompleter>(
+		commandController, *this, "incr"))
+	, unsetCompleter(make_unique<SettingCompleter>(
+		commandController, *this, "unset"))
 {
 }
 

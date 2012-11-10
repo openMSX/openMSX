@@ -13,7 +13,7 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(const DeviceConfig& config)
 	: MSXDevice(config)
-	, rom(new Rom(getName() + " ROM", "rom", config))
+	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
 {
 	bool singleSided = config.findChild("singlesided") != nullptr;
 	int numDrives = config.getChildDataAsInt("drives", 1);

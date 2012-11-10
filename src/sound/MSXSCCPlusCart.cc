@@ -14,14 +14,18 @@
 #include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 	: MSXDevice(config)
-	, ram(new Ram(config, getName() + " RAM", "SCC+ RAM", 0x20000))
-	, scc(new SCC(getName(), config, getCurrentTime(), SCC::SCC_Compatible))
-	, romBlockDebug(new RomBlockDebuggable(*this, mapper, 0x4000, 0x8000, 13))
+	, ram(make_unique<Ram>(
+		config, getName() + " RAM", "SCC+ RAM", 0x20000))
+	, scc(make_unique<SCC>(
+		getName(), config, getCurrentTime(), SCC::SCC_Compatible))
+	, romBlockDebug(make_unique<RomBlockDebuggable>(
+		*this, mapper, 0x4000, 0x8000, 13))
 {
 	if (const XMLElement* fileElem = config.findChild("filename")) {
 		// read the rom file
