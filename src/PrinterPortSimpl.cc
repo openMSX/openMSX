@@ -47,8 +47,8 @@ static XMLElement createXML()
 void PrinterPortSimpl::createDAC()
 {
 	static XMLElement xml = createXML();
-	dac.reset(new DACSound8U("simpl", getDescription(),
-	                         DeviceConfig(hwConf, xml)));
+	dac = make_unique<DACSound8U>("simpl", getDescription(),
+	                              DeviceConfig(hwConf, xml));
 }
 
 void PrinterPortSimpl::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)

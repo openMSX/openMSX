@@ -10,6 +10,7 @@
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include "vla.hh"
 #include <algorithm>
 #include <vector>
@@ -288,8 +289,8 @@ void ImagePrinter::ensurePrintPage()
 		pixelSizeX = double(paperSizeX) / dotsX;
 		pixelSizeY = double(paperSizeY) / dotsY;
 
-		paper.reset(new Paper(paperSizeX, paperSizeY,
-		                      pixelSizeX, pixelSizeY));
+		paper = make_unique<Paper>(paperSizeX, paperSizeY,
+		                           pixelSizeX, pixelSizeY);
 	}
 }
 

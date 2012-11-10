@@ -9,6 +9,7 @@
 #include "CommandException.hh"
 #include "Version.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cmath>
@@ -32,57 +33,57 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	accMap["screen"] = ACC_SCREEN;
 	accMap["line"]   = ACC_LINE;
 	accMap["pixel"]  = ACC_PIXEL;
-	accuracySetting.reset(new EnumSetting<Accuracy>(commandController,
-		"accuracy", "rendering accuracy", ACC_PIXEL, accMap));
+	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
+		"accuracy", "rendering accuracy", ACC_PIXEL, accMap);
 
-	deinterlaceSetting.reset(new BooleanSetting(commandController,
-		"deinterlace", "deinterlacing on/off", true));
+	deinterlaceSetting = make_unique<BooleanSetting>(commandController,
+		"deinterlace", "deinterlacing on/off", true);
 
-	maxFrameSkipSetting.reset(new IntegerSetting(commandController,
-		"maxframeskip", "set the max amount of frameskip", 3, 0, 100));
+	maxFrameSkipSetting = make_unique<IntegerSetting>(commandController,
+		"maxframeskip", "set the max amount of frameskip", 3, 0, 100);
 
-	minFrameSkipSetting.reset(new IntegerSetting(commandController,
-		"minframeskip", "set the min amount of frameskip", 0, 0, 100));
+	minFrameSkipSetting = make_unique<IntegerSetting>(commandController,
+		"minframeskip", "set the min amount of frameskip", 0, 0, 100);
 
-	fullScreenSetting.reset(new BooleanSetting(commandController,
-		"fullscreen", "full screen display on/off", false));
+	fullScreenSetting = make_unique<BooleanSetting>(commandController,
+		"fullscreen", "full screen display on/off", false);
 
-	gammaSetting.reset(new FloatSetting(commandController, "gamma",
+	gammaSetting = make_unique<FloatSetting>(commandController, "gamma",
 		"amount of gamma correction: low is dark, high is bright",
-		1.1, 0.1, 5.0));
+		1.1, 0.1, 5.0);
 
-	brightnessSetting.reset(new FloatSetting(commandController, "brightness",
+	brightnessSetting = make_unique<FloatSetting>(commandController, "brightness",
 		"brightness video setting: "
 		"0 is normal, lower is darker, higher is brighter",
-		0.0, -100.0, 100.0));
-	contrastSetting.reset(new FloatSetting(commandController, "contrast",
+		0.0, -100.0, 100.0);
+	contrastSetting = make_unique<FloatSetting>(commandController, "contrast",
 		"contrast video setting: "
 		"0 is normal, lower is less contrast, higher is more contrast",
-		0.0, -100.0, 100.0));
+		0.0, -100.0, 100.0);
 	brightnessSetting->attach(*this);
 	contrastSetting->attach(*this);
 	updateBrightnessAndContrast();
 
-	colorMatrixSetting.reset(new StringSetting(commandController,
+	colorMatrixSetting = make_unique<StringSetting>(commandController,
 		"color_matrix",
 		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
-		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }"));
-	colorMatrixChecker.reset(new ColorMatrixChecker(*this));
+		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }");
+	colorMatrixChecker = make_unique<ColorMatrixChecker>(*this);
 	colorMatrixSetting->setChecker(colorMatrixChecker.get());
 
-	glowSetting.reset(new IntegerSetting(commandController,
+	glowSetting = make_unique<IntegerSetting>(commandController,
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
-		0, 0, 100));
+		0, 0, 100);
 
-	noiseSetting.reset(new FloatSetting(commandController,
+	noiseSetting = make_unique<FloatSetting>(commandController,
 		"noise", "amount of noise to add to the frame",
-		0.0, 0.0, 100.0));
+		0.0, 0.0, 100.0);
 
-	horizontalBlurSetting.reset(new IntegerSetting(commandController,
+	horizontalBlurSetting = make_unique<IntegerSetting>(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
-		50, 0, 100));
+		50, 0, 100);
 
-	videoSourceSetting.reset(new VideoSourceSetting(commandController));
+	videoSourceSetting = make_unique<VideoSourceSetting>(commandController);
 
 	// Get user-preferred renderer from config.
 	rendererSetting = RendererFactory::createRendererSetting(commandController);
@@ -103,41 +104,42 @@ RenderSettings::RenderSettings(CommandController& commandController)
 			scalerMap["MLAA"] = SCALER_MLAA;
 		}
 	}
-	scaleAlgorithmSetting.reset(new EnumSetting<ScaleAlgorithm>(commandController,
-		"scale_algorithm", "scale algorithm",
-		SCALER_SIMPLE, scalerMap));
+	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
+		commandController, "scale_algorithm", "scale algorithm",
+		SCALER_SIMPLE, scalerMap);
 
-	scaleFactorSetting.reset(new IntegerSetting(commandController,
+	scaleFactorSetting = make_unique<IntegerSetting>(commandController,
 		"scale_factor", "scale factor",
-		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR));
+		std::min(2, MAX_SCALE_FACTOR), MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);
 
-	scanlineAlphaSetting.reset(new IntegerSetting(commandController,
+	scanlineAlphaSetting = make_unique<IntegerSetting>(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",
-		20, 0, 100));
+		20, 0, 100);
 
-	limitSpritesSetting.reset(new BooleanSetting(commandController,
+	limitSpritesSetting = make_unique<BooleanSetting>(commandController,
 		"limitsprites", "limit number of sprites per line "
-		"(on for realism, off to reduce sprite flashing)", true));
+		"(on for realism, off to reduce sprite flashing)", true);
 
-	disableSpritesSetting.reset(new BooleanSetting(commandController,
+	disableSpritesSetting = make_unique<BooleanSetting>(commandController,
 		"disablesprites", "disable sprite rendering",
-		false, Setting::DONT_SAVE));
+		false, Setting::DONT_SAVE);
 
 	EnumSetting<bool>::Map cmdMap;
 	cmdMap["real"]   = false;
 	cmdMap["broken"] = true;
-	cmdTimingSetting.reset(new EnumSetting<bool>(commandController,
+	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
 		"cmdtiming", "VDP command timing", false, cmdMap,
-		Setting::DONT_SAVE));
+		Setting::DONT_SAVE);
 
 	EnumSetting<DisplayDeform>::Map deformMap;
 	deformMap["normal"] = DEFORM_NORMAL;
 	deformMap["3d"] = DEFORM_3D;
-	displayDeformSetting.reset(new EnumSetting<DisplayDeform>(commandController,
+	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
+		commandController,
 		"display_deform", "Display deform (for the moment this only "
-		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap));
+		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap);
 
-	horizontalStretchSetting.reset(new FloatSetting(commandController,
+	horizontalStretchSetting = make_unique<FloatSetting>(commandController,
 		"horizontal_stretch",
 		"Amount of horizontal stretch: this many MSX pixels will be "
 		"stretched over the complete width of the output screen.\n"
@@ -145,13 +147,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"  256 = max stretch (no border visible anymore)\n"
 		"  good values are 272 or 280\n"
 		"This setting has only effect when using the SDLGL-PP renderer.",
-		280.0, 256.0, 320.0));
+		280.0, 256.0, 320.0);
 
-	pointerHideDelaySetting.reset(new FloatSetting(commandController,
+	pointerHideDelaySetting = make_unique<FloatSetting>(commandController,
 		"pointer_hide_delay",
 		"number of seconds after which the mouse pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
-		2.0, -1.0, 60.0));
+		2.0, -1.0, 60.0);
 }
 
 RenderSettings::~RenderSettings()

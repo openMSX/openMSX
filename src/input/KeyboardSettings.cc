@@ -3,6 +3,7 @@
 #include "KeyboardSettings.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -36,41 +37,41 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 	allowedKeys["END"]         = Keys::K_END;
 	allowedKeys["PAGEUP"]      = Keys::K_PAGEUP;
 	allowedKeys["PAGEDOWN"]    = Keys::K_PAGEDOWN;
-	codeKanaHostKey.reset(new EnumSetting<Keys::KeyCode>(
+	codeKanaHostKey = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
-		Keys::K_RALT, allowedKeys));
+		Keys::K_RALT, allowedKeys);
 
-	deadkeyHostKey[0].reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[0] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey1_host_key",
 		"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
-		Keys::K_RCTRL, allowedKeys));
+		Keys::K_RCTRL, allowedKeys);
 
-	deadkeyHostKey[1].reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[1] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey2_host_key",
 		"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
-		Keys::K_PAGEUP, allowedKeys));
+		Keys::K_PAGEUP, allowedKeys);
 
-	deadkeyHostKey[2].reset(new EnumSetting<Keys::KeyCode>(
+	deadkeyHostKey[2] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey3_host_key",
 		"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
-		Keys::K_PAGEDOWN, allowedKeys));
+		Keys::K_PAGEDOWN, allowedKeys);
 
 	EnumSetting<KpEnterMode>::Map kpEnterModeMap;
 	kpEnterModeMap["KEYPAD_COMMA"] = MSX_KP_COMMA;
 	kpEnterModeMap["ENTER"] = MSX_ENTER;
-	kpEnterMode.reset(new EnumSetting<KpEnterMode>(
+	kpEnterMode = make_unique<EnumSetting<KpEnterMode>>(
 		commandController, "kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",
-		MSX_KP_COMMA, kpEnterModeMap));
+		MSX_KP_COMMA, kpEnterModeMap);
 
 	EnumSetting<MappingMode>::Map mappingModeMap;
 	mappingModeMap["KEY"] = KEY_MAPPING;
 	mappingModeMap["CHARACTER"] = CHARACTER_MAPPING;
-	mappingMode.reset(new EnumSetting<MappingMode>(
+	mappingMode = make_unique<EnumSetting<MappingMode>>(
 		commandController, "kbd_mapping_mode",
 		"Keyboard mapping mode",
-		CHARACTER_MAPPING, mappingModeMap));
+		CHARACTER_MAPPING, mappingModeMap);
 }
 
 KeyboardSettings::~KeyboardSettings()

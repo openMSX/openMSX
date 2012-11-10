@@ -6,6 +6,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <fstream>
 #include <algorithm>
 #include <cassert>
@@ -645,7 +646,7 @@ void NowindHost::deviceOpen()
 
 	unsigned fcb = getFCB();
 	unsigned dev = getFreeDeviceNum();
-	devices[dev].fs.reset(new fstream()); // takes care of deleting old fs
+	devices[dev].fs = make_unique<fstream>(); // takes care of deleting old fs
 	devices[dev].fcb = fcb;
 
 	sendHeader();

@@ -35,6 +35,7 @@ TODO:
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cstring>
 #include <cassert>
 
@@ -284,17 +285,17 @@ VDP::VDP(const DeviceConfig& config)
 		throw MSXException(StringOp::Builder() <<
 			"VRAM size of " << vramSize << "kB is not supported!");
 	}
-	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
+	vram = make_unique<VDPVRAM>(*this, vramSize * 1024, time);
 
 	RenderSettings& renderSettings = display.getRenderSettings();
 
 	// Create sprite checker.
-	spriteChecker.reset(new SpriteChecker(*this, renderSettings, time));
+	spriteChecker = make_unique<SpriteChecker>(*this, renderSettings, time);
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine.reset(new VDPCmdEngine(*this, renderSettings,
-		getCommandController()));
+	cmdEngine = make_unique<VDPCmdEngine>(
+		*this, renderSettings, getCommandController());
 	vram->setCmdEngine(cmdEngine.get());
 
 	// Initialise renderer.

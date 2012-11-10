@@ -7,6 +7,7 @@
 #include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -20,13 +21,14 @@ MSXAudio::MSXAudio(const DeviceConfig& config)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		dac.reset(new DACSound8U(getName() + " 8-bit DAC",
-		                         "MSX-AUDIO 8-bit DAC",
-		                         config));
+		dac = make_unique<DACSound8U>(
+			getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
+			config);
 	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
 	EmuTime::param time = getCurrentTime();
-	y8950.reset(new Y8950(getName(), config, ramSize * 1024, time, *this));
+	y8950 = make_unique<Y8950>(
+		getName(), config, ramSize * 1024, time, *this);
 	powerUp(time);
 }
 

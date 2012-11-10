@@ -9,6 +9,7 @@
 #include "RenShaTurbo.hh"
 #include "serialize.hh"
 #include "checked_cast.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 
 	// must come after initialisation of ports
 	EmuTime::param time = getCurrentTime();
-	ay8910.reset(new AY8910("PSG", *this, config, time));
+	ay8910 = make_unique<AY8910>("PSG", *this, config, time);
 	reset(time);
 }
 

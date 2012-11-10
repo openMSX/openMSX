@@ -171,24 +171,28 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	unique_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
-		result.reset(new RomPlain(config, move(rom), RomPlain::MIRRORED));
+		result = make_unique<RomPlain>(
+			config, move(rom), RomPlain::MIRRORED);
 		break;
 	case ROM_NORMAL:
-		result.reset(new RomPlain(config, move(rom), RomPlain::NOT_MIRRORED));
+		result = make_unique<RomPlain>(
+			config, move(rom), RomPlain::NOT_MIRRORED);
 		break;
 	case ROM_MIRRORED0000:
 	case ROM_MIRRORED4000:
 	case ROM_MIRRORED8000:
 	case ROM_MIRROREDC000:
-		result.reset(new RomPlain(config, move(rom),
-		                     RomPlain::MIRRORED, (type & 7) * 0x2000));
+		result = make_unique<RomPlain>(
+			config, move(rom), RomPlain::MIRRORED,
+			(type & 7) * 0x2000);
 		break;
 	case ROM_NORMAL0000:
 	case ROM_NORMAL4000:
 	case ROM_NORMAL8000:
 	case ROM_NORMALC000:
-		result.reset(new RomPlain(config, move(rom),
-		                 RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
+		result = make_unique<RomPlain>(
+			config, move(rom), RomPlain::NOT_MIRRORED,
+			(type & 7) * 0x2000);
 		break;
 	case ROM_PAGE0:
 	case ROM_PAGE1:
@@ -200,136 +204,140 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	case ROM_PAGE23:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
-		result.reset(new RomPageNN(config, move(rom), type & 0xF));
+		result = make_unique<RomPageNN>(config, move(rom), type & 0xF);
 		break;
 	case ROM_DRAM:
-		result.reset(new RomDRAM(config, move(rom)));
+		result = make_unique<RomDRAM>(config, move(rom));
 		break;
 	case ROM_GENERIC_8KB:
-		result.reset(new RomGeneric8kB(config, move(rom)));
+		result = make_unique<RomGeneric8kB>(config, move(rom));
 		break;
 	case ROM_GENERIC_16KB:
-		result.reset(new RomGeneric16kB(config, move(rom)));
+		result = make_unique<RomGeneric16kB>(config, move(rom));
 		break;
 	case ROM_KONAMI_SCC:
-		result.reset(new RomKonamiSCC(config, move(rom)));
+		result = make_unique<RomKonamiSCC>(config, move(rom));
 		break;
 	case ROM_KONAMI:
-		result.reset(new RomKonami(config, move(rom)));
+		result = make_unique<RomKonami>(config, move(rom));
 		break;
 	case ROM_KBDMASTER:
-		result.reset(new RomKonamiKeyboardMaster(config, move(rom)));
+		result = make_unique<RomKonamiKeyboardMaster>(config, move(rom));
 		break;
 	case ROM_ASCII8:
-		result.reset(new RomAscii8kB(config, move(rom)));
+		result = make_unique<RomAscii8kB>(config, move(rom));
 		break;
 	case ROM_ASCII16:
-		result.reset(new RomAscii16kB(config, move(rom)));
+		result = make_unique<RomAscii16kB>(config, move(rom));
 		break;
 	case ROM_PADIAL8:
-		result.reset(new RomPadial8kB(config, move(rom)));
+		result = make_unique<RomPadial8kB>(config, move(rom));
 		break;
 	case ROM_PADIAL16:
-		result.reset(new RomPadial16kB(config, move(rom)));
+		result = make_unique<RomPadial16kB>(config, move(rom));
 		break;
 	case ROM_SUPERLODERUNNER:
-		result.reset(new RomSuperLodeRunner(config, move(rom)));
+		result = make_unique<RomSuperLodeRunner>(config, move(rom));
 		break;
 	case ROM_MSXDOS2:
-		result.reset(new RomMSXDOS2(config, move(rom)));
+		result = make_unique<RomMSXDOS2>(config, move(rom));
 		break;
 	case ROM_R_TYPE:
-		result.reset(new RomRType(config, move(rom)));
+		result = make_unique<RomRType>(config, move(rom));
 		break;
 	case ROM_CROSS_BLAIM:
-		result.reset(new RomCrossBlaim(config, move(rom)));
+		result = make_unique<RomCrossBlaim>(config, move(rom));
 		break;
 	case ROM_HARRY_FOX:
-		result.reset(new RomHarryFox(config, move(rom)));
+		result = make_unique<RomHarryFox>(config, move(rom));
 		break;
 	case ROM_ASCII8_8:
-		result.reset(new RomAscii8_8(config, move(rom), RomAscii8_8::ASCII8_8));
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::ASCII8_8);
 		break;
 	case ROM_KOEI_8:
-		result.reset(new RomAscii8_8(config, move(rom), RomAscii8_8::KOEI_8));
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::KOEI_8);
 		break;
 	case ROM_KOEI_32:
-		result.reset(new RomAscii8_8(config, move(rom), RomAscii8_8::KOEI_32));
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::KOEI_32);
 		break;
 	case ROM_WIZARDRY:
-		result.reset(new RomAscii8_8(config, move(rom), RomAscii8_8::WIZARDRY));
+		result = make_unique<RomAscii8_8>(
+			config, move(rom), RomAscii8_8::WIZARDRY);
 		break;
 	case ROM_ASCII16_2:
-		result.reset(new RomAscii16_2(config, move(rom)));
+		result = make_unique<RomAscii16_2>(config, move(rom));
 		break;
 	case ROM_GAME_MASTER2:
-		result.reset(new RomGameMaster2(config, move(rom)));
+		result = make_unique<RomGameMaster2>(config, move(rom));
 		break;
 	case ROM_PANASONIC:
-		result.reset(new RomPanasonic(config, move(rom)));
+		result = make_unique<RomPanasonic>(config, move(rom));
 		break;
 	case ROM_NATIONAL:
-		result.reset(new RomNational(config, move(rom)));
+		result = make_unique<RomNational>(config, move(rom));
 		break;
 	case ROM_MAJUTSUSHI:
-		result.reset(new RomMajutsushi(config, move(rom)));
+		result = make_unique<RomMajutsushi>(config, move(rom));
 		break;
 	case ROM_SYNTHESIZER:
-		result.reset(new RomSynthesizer(config, move(rom)));
+		result = make_unique<RomSynthesizer>(config, move(rom));
 		break;
 	case ROM_PLAYBALL:
-		result.reset(new RomPlayBall(config, move(rom)));
+		result = make_unique<RomPlayBall>(config, move(rom));
 		break;
 	case ROM_NETTOU_YAKYUU:
-		result.reset(new RomNettouYakyuu(config, move(rom)));
+		result = make_unique<RomNettouYakyuu>(config, move(rom));
 		break;
 	case ROM_HALNOTE:
-		result.reset(new RomHalnote(config, move(rom)));
+		result = make_unique<RomHalnote>(config, move(rom));
 		break;
 	case ROM_ZEMINA80IN1:
-		result.reset(new RomZemina80in1(config, move(rom)));
+		result = make_unique<RomZemina80in1>(config, move(rom));
 		break;
 	case ROM_ZEMINA90IN1:
-		result.reset(new RomZemina90in1(config, move(rom)));
+		result = make_unique<RomZemina90in1>(config, move(rom));
 		break;
 	case ROM_ZEMINA126IN1:
-		result.reset(new RomZemina126in1(config, move(rom)));
+		result = make_unique<RomZemina126in1>(config, move(rom));
 		break;
 	case ROM_HOLY_QURAN:
-		result.reset(new RomHolyQuran(config, move(rom)));
+		result = make_unique<RomHolyQuran>(config, move(rom));
 		break;
 	case ROM_HOLY_QURAN2:
-		result.reset(new RomHolyQuran2(config, move(rom)));
+		result = make_unique<RomHolyQuran2>(config, move(rom));
 		break;
 	case ROM_FSA1FM1:
-		result.reset(new RomFSA1FM1(config, move(rom)));
+		result = make_unique<RomFSA1FM1>(config, move(rom));
 		break;
 	case ROM_FSA1FM2:
-		result.reset(new RomFSA1FM2(config, move(rom)));
+		result = make_unique<RomFSA1FM2>(config, move(rom));
 		break;
 	case ROM_MANBOW2:
 	case ROM_MANBOW2_2:
 	case ROM_HAMARAJANIGHT:
 	case ROM_MEGAFLASHROMSCC:
-		result.reset(new RomManbow2(config, move(rom), type));
+		result = make_unique<RomManbow2>(config, move(rom), type);
 		break;
 	case ROM_MATRAINK:
-		result.reset(new RomMatraInk(config, move(rom)));
+		result = make_unique<RomMatraInk>(config, move(rom));
 		break;
 	case ROM_ARC:
-		result.reset(new RomArc(config, move(rom)));
+		result = make_unique<RomArc>(config, move(rom));
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
-		result.reset(new MegaFlashRomSCCPlus(config, move(rom)));
+		result = make_unique<MegaFlashRomSCCPlus>(config, move(rom));
 		break;
 	case ROM_DOOLY:
-		result.reset(new RomDooly(config, move(rom)));
+		result = make_unique<RomDooly>(config, move(rom));
 		break;
 	case ROM_MSXTRA:
-		result.reset(new RomMSXtra(config, move(rom)));
+		result = make_unique<RomMSXtra>(config, move(rom));
 		break;
 	case ROM_MULTIROM:
-		result.reset(new RomMultiRom(config, move(rom)));
+		result = make_unique<RomMultiRom>(config, move(rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");

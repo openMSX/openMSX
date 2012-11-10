@@ -23,6 +23,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstring>
 
@@ -129,13 +130,13 @@ WD33C93::WD33C93(const DeviceConfig& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(conf, buffer.data(),
+			dev[id] = make_unique<SCSIHD>(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
-			        SCSIDevice::MODE_NOVAXIS));
+			        SCSIDevice::MODE_NOVAXIS);
 		} else if (type == "SCSILS120") {
-			dev[id].reset(new SCSILS120(conf, buffer.data(),
+			dev[id] = make_unique<SCSILS120>(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
-			        SCSIDevice::MODE_NOVAXIS));
+			        SCSIDevice::MODE_NOVAXIS);
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);
 		}
@@ -143,7 +144,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
 		if (dev[i].get() == nullptr) {
-			dev[i].reset(new DummySCSIDevice());
+			dev[i] = make_unique<DummySCSIDevice>();
 		}
 	}
 	reset(false);

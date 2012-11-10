@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "FilenameSetting.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -54,8 +55,8 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	try {
-		file.reset(new File(logFilenameSetting->getValue(),
-		                    File::TRUNCATE));
+		file = make_unique<File>(logFilenameSetting->getValue(),
+		                         File::TRUNCATE);
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +
 		                    e.getMessage());

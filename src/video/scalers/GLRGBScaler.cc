@@ -3,6 +3,7 @@
 #include "GLRGBScaler.hh"
 #include "GLUtil.hh"
 #include "RenderSettings.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -18,7 +19,7 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "rgb.vert");
 		FragmentShader fragmentShader(header, "rgb.frag");
-		d.scalerProgram.reset(new ShaderProgram());
+		d.scalerProgram = make_unique<ShaderProgram>();
 		d.scalerProgram->attach(vertexShader);
 		d.scalerProgram->attach(fragmentShader);
 		d.scalerProgram->link();

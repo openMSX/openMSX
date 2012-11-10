@@ -21,6 +21,7 @@
 #include "ScopedAssign.hh"
 #include "checked_cast.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstdlib>
 
@@ -114,7 +115,7 @@ GlobalCommandController::GlobalCommandController(
 		"        eval \"openmsx_update $args\"\n"
 		"    }\n"
 		"}\n");
-	updateCmd.reset(new UpdateCmd(*this));
+	updateCmd = make_unique<UpdateCmd>(*this);
 }
 
 GlobalCommandController::~GlobalCommandController()
@@ -221,7 +222,7 @@ InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 SettingsConfig& GlobalCommandController::getSettingsConfig()
 {
 	if (!settingsConfig.get()) {
-		settingsConfig.reset(new SettingsConfig(*this, *hotKey));
+		settingsConfig = make_unique<SettingsConfig>(*this, *hotKey);
 	}
 	return *settingsConfig;
 }

@@ -8,6 +8,7 @@
 #include "File.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include <cstring>
 
 using std::string;
@@ -21,7 +22,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "hqlite.vert");
 		FragmentShader fragmentShader(header, "hqlite.frag");
-		scalerProgram[i].reset(new ShaderProgram());
+		scalerProgram[i] = make_unique<ShaderProgram>();
 		scalerProgram[i]->attach(vertexShader);
 		scalerProgram[i]->attach(fragmentShader);
 		scalerProgram[i]->link();
@@ -40,7 +41,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 #endif
 	}
 
-	edgeTexture.reset(new Texture());
+	edgeTexture = make_unique<Texture>();
 	edgeTexture->bind();
 	edgeTexture->setWrapMode(false);
 	glTexImage2D(GL_TEXTURE_2D,    // target
@@ -52,7 +53,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	             GL_LUMINANCE,     // format
 	             GL_UNSIGNED_SHORT,// type
 	             nullptr);         // data
-	edgeBuffer.reset(new PixelBuffer<unsigned short>());
+	edgeBuffer = make_unique<PixelBuffer<unsigned short>>();
 	edgeBuffer->setImage(320, 240);
 
 	SystemFileContext context;
@@ -62,7 +63,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		string offsetName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xLiteOffsets.dat";
 		File offsetFile(context.resolve(offsetName));
-		offsetTexture[i].reset(new Texture());
+		offsetTexture[i] = make_unique<Texture>();
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
 		unsigned size; // dummy

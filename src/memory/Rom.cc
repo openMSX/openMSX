@@ -122,7 +122,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
 			try {
-				file.reset(new File(resolvedFilenameElem->getData()));
+				file = make_unique<File>(
+					resolvedFilenameElem->getData());
 			} catch (FileException&) {
 				// ignore
 			}
@@ -143,7 +144,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			string name = filenameElem->getData();
 			try {
 				Filename filename(name, context);
-				file.reset(new File(filename));
+				file = make_unique<File>(filename);
 			} catch (FileException&) {
 				// ignore
 			}
@@ -230,7 +231,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			// calculate before content is altered
 			getOriginalSHA1();
 
-			std::unique_ptr<PatchInterface> patch =
+			unique_ptr<PatchInterface> patch =
 				make_unique<EmptyPatch>(rom, size);
 
 			XMLElement::Children patches;
@@ -238,7 +239,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			for (XMLElement::Children::const_iterator it
 			       = patches.begin(); it != patches.end(); ++it) {
 				Filename filename((*it)->getData(), context);
-				patch.reset(new IPSPatch(filename, std::move(patch)));
+				patch = make_unique<IPSPatch>(
+					filename, std::move(patch));
 			}
 			unsigned patchSize = patch->getSize();
 			if (patchSize <= size) {
@@ -281,7 +283,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			} while (debugger.findDebuggable(tmp));
 			name = tmp;
 		}
-		romDebuggable.reset(new RomDebuggable(debugger, *this));
+		romDebuggable = make_unique<RomDebuggable>(debugger, *this);
 	}
 
 	if (checkResolvedSha1) {

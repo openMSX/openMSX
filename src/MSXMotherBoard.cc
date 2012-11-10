@@ -47,6 +47,7 @@
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 #include <functional>
 #include <vector>
@@ -358,30 +359,30 @@ MSXMotherBoard::Impl::Impl(
 	self.pimpl = self.pimpl2.get();
 #endif
 
-	slotManager.reset(new CartridgeSlotManager(self));
-	reverseManager.reset(new ReverseManager(self));
-	resetCommand.reset(new ResetCmd(*this));
-	loadMachineCommand.reset(new LoadMachineCmd(self));
-	listExtCommand.reset(new ListExtCmd(*this));
-	extCommand.reset(new ExtCmd(self));
-	removeExtCommand.reset(new RemoveExtCmd(*this));
-	machineNameInfo.reset(new MachineNameInfo(*this));
-	deviceInfo.reset(new DeviceInfo(*this));
+	slotManager = make_unique<CartridgeSlotManager>(self);
+	reverseManager = make_unique<ReverseManager>(self);
+	resetCommand = make_unique<ResetCmd>(*this);
+	loadMachineCommand = make_unique<LoadMachineCmd>(self);
+	listExtCommand = make_unique<ListExtCmd>(*this);
+	extCommand = make_unique<ExtCmd>(self);
+	removeExtCommand = make_unique<RemoveExtCmd>(*this);
+	machineNameInfo = make_unique<MachineNameInfo>(*this);
+	deviceInfo = make_unique<DeviceInfo>(*this);
 
 	msxMixer->mute(); // powered down
 	// TODO: Initialization of this field cannot be done much earlier because
 	//       EventDelay creates a setting, calling getMSXCliComm()
 	//       on MSXMotherBoard, so "pimpl" has to be set up already.
-	eventDelay.reset(new EventDelay(
+	eventDelay = make_unique<EventDelay>(
 		*scheduler, *msxCommandController,
 		reactor.getEventDistributor(), *msxEventDistributor,
-		*reverseManager));
-	realTime.reset(new RealTime(
-		self, reactor.getGlobalSettings(), *eventDelay));
-	debugger.reset(new Debugger(self));
+		*reverseManager);
+	realTime = make_unique<RealTime>(
+		self, reactor.getGlobalSettings(), *eventDelay);
+	debugger = make_unique<Debugger>(self);
 	powerSetting.attach(*this);
 
-	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
+	addRemoveUpdate = make_unique<AddRemoveUpdate>(*this);
 }
 
 MSXMotherBoard::Impl::~Impl()
@@ -436,8 +437,8 @@ void MSXMotherBoard::Impl::setMachineConfig(
 
 	// make sure the CPU gets instantiated from the main thread
 	assert(!msxCpu.get());
-	msxCpu.reset(new MSXCPU(self));
-	msxCpuInterface.reset(new MSXCPUInterface(self));
+	msxCpu = make_unique<MSXCPU>(self);
+	msxCpuInterface = make_unique<MSXCPUInterface>(self);
 }
 
 bool MSXMotherBoard::Impl::isTurboR() const
@@ -585,7 +586,7 @@ PluggingController& MSXMotherBoard::Impl::getPluggingController(MSXMotherBoard& 
 {
 	assert(getMachineConfig()); // needed for PluggableFactory::createAll()
 	if (!pluggingController.get()) {
-		pluggingController.reset(new PluggingController(self));
+		pluggingController = make_unique<PluggingController>(self);
 	}
 	return *pluggingController;
 }
@@ -606,7 +607,7 @@ MSXCPUInterface& MSXMotherBoard::Impl::getCPUInterface()
 PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory(MSXMotherBoard& self)
 {
 	if (!panasonicMemory.get()) {
-		panasonicMemory.reset(new PanasonicMemory(self));
+		panasonicMemory = make_unique<PanasonicMemory>(self);
 	}
 	return *panasonicMemory;
 }
@@ -624,9 +625,9 @@ CassettePortInterface& MSXMotherBoard::Impl::getCassettePort()
 	if (!cassettePort.get()) {
 		assert(getMachineConfig());
 		if (getMachineConfig()->getConfig().findChild("CassettePort")) {
-			cassettePort.reset(new CassettePort(*getMachineConfig()));
+			cassettePort = make_unique<CassettePort>(*getMachineConfig());
 		} else {
-			cassettePort.reset(new DummyCassettePort());
+			cassettePort = make_unique<DummyCassettePort>();
 		}
 	}
 	return *cassettePort;
@@ -649,18 +650,18 @@ JoystickPortIf& MSXMotherBoard::Impl::getJoystickPort(
 		}
 		PluggingController& ctrl = getPluggingController(self);
 		if ((ports == "AB") || (ports == "A")) {
-			joystickPort[0].reset(new JoystickPort(
-				ctrl, "joyporta", "MSX Joystick port A"));
+			joystickPort[0] = make_unique<JoystickPort>(
+				ctrl, "joyporta", "MSX Joystick port A");
 		} else {
-			joystickPort[0].reset(new DummyJoystickPort());
+			joystickPort[0] = make_unique<DummyJoystickPort>();
 		}
 		if ((ports == "AB") || (ports == "B")) {
-			joystickPort[1].reset(new JoystickPort(
-				ctrl, "joyportb", "MSX Joystick port B"));
+			joystickPort[1] = make_unique<JoystickPort>(
+				ctrl, "joyportb", "MSX Joystick port B");
 		} else {
-			joystickPort[1].reset(new DummyJoystickPort());
+			joystickPort[1] = make_unique<DummyJoystickPort>();
 		}
-		joyPortDebuggable.reset(new JoyPortDebuggable(self));
+		joyPortDebuggable = make_unique<JoyPortDebuggable>(self);
 	}
 	return *joystickPort[port];
 }
@@ -669,9 +670,9 @@ RenShaTurbo& MSXMotherBoard::Impl::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
 		assert(getMachineConfig());
-		renShaTurbo.reset(new RenShaTurbo(
+		renShaTurbo = make_unique<RenShaTurbo>(
 			*msxCommandController,
-			getMachineConfig()->getConfig()));
+			getMachineConfig()->getConfig());
 	}
 	return *renShaTurbo;
 }
@@ -680,10 +681,10 @@ LedStatus& MSXMotherBoard::Impl::getLedStatus()
 {
 	if (!ledStatus.get()) {
 		getMSXCliComm(); // force init, to be on the safe side
-		ledStatus.reset(new LedStatus(
+		ledStatus = make_unique<LedStatus>(
 			reactor.getEventDistributor(),
 			*msxCommandController,
-			*msxCliComm));
+			*msxCliComm);
 	}
 	return *ledStatus;
 }
@@ -854,9 +855,8 @@ void MSXMotherBoard::Impl::powerDown()
 void MSXMotherBoard::Impl::activate(bool active_)
 {
 	active = active_;
-	MSXEventDistributor::EventPtr event = active
-		? MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_ACTIVATED))
-		: MSXEventDistributor::EventPtr(new SimpleEvent(OPENMSX_MACHINE_DEACTIVATED));
+	auto event = std::make_shared<SimpleEvent>(
+		active ? OPENMSX_MACHINE_ACTIVATED : OPENMSX_MACHINE_DEACTIVATED);
 	msxEventDistributor->distributeEvent(event, scheduler->getCurrentTime());
 	if (active) {
 		realTime->resync();

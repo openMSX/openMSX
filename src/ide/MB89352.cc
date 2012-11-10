@@ -23,6 +23,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 #include <string>
 #include <cstring>
@@ -118,11 +119,11 @@ MB89352::MB89352(const DeviceConfig& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(conf, buffer.data(),
-			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
+			dev[id] = make_unique<SCSIHD>(conf, buffer.data(),
+			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else if (type == "SCSILS120") {
-			dev[id].reset(new SCSILS120(conf, buffer.data(),
-			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
+			dev[id] = make_unique<SCSILS120>(conf, buffer.data(),
+			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);
 		}
@@ -130,7 +131,7 @@ MB89352::MB89352(const DeviceConfig& config)
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
 		if (dev[i].get() == nullptr) {
-			dev[i].reset(new DummySCSIDevice());
+			dev[i] = make_unique<DummySCSIDevice>();
 		}
 	}
 	reset(false);

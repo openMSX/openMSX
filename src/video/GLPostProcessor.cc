@@ -11,6 +11,7 @@
 #include "Math.hh"
 #include "MemoryOps.hh"
 #include "InitException.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -50,7 +51,7 @@ GLPostProcessor::GLPostProcessor(
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
-		colorTex[i].reset(new Texture());
+		colorTex[i] = make_unique<Texture>();
 		colorTex[i]->bind();
 		colorTex[i]->setWrapMode(false);
 		colorTex[i]->enableInterpolation();
@@ -63,7 +64,7 @@ GLPostProcessor::GLPostProcessor(
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
 			     nullptr);          // data
-		fbo[i].reset(new FrameBufferObject(*colorTex[i]));
+		fbo[i] = make_unique<FrameBufferObject>(*colorTex[i]);
 	}
 
 	monitor3DList = glGenLists(1);
@@ -268,7 +269,7 @@ void GLPostProcessor::uploadFrame()
 		if (!superImposeTex.get() ||
 		    superImposeTex->getWidth()  != width ||
 		    superImposeTex->getHeight() != height) {
-			superImposeTex.reset(new ColorTexture(width, height));
+			superImposeTex = make_unique<ColorTexture>(width, height);
 			superImposeTex->enableInterpolation();
 		}
 		superImposeTex->bind();

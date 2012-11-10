@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -133,8 +134,8 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slotName[4] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].command.reset(
-				new CartCmd(*this, motherBoard, slotName));
+			slots[slot].command = make_unique<CartCmd>(
+				*this, motherBoard, slotName);
 			return;
 		}
 	}

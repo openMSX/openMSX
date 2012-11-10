@@ -59,6 +59,10 @@ RomNettouYakyuu::RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom
 	reset(EmuTime::dummy());
 }
 
+RomNettouYakyuu::~RomNettouYakyuu()
+{
+}
+
 void RomNettouYakyuu::reset(EmuTime::param /*time*/)
 {
 	// ASCII8 behaviour

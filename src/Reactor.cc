@@ -43,8 +43,8 @@
 #include "checked_cast.hh"
 #include "statp.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
-#include <memory>
 #include <iostream>
 
 using std::string;
@@ -196,39 +196,60 @@ Reactor::Reactor()
 
 void Reactor::init()
 {
-	eventDistributor.reset(new EventDistributor(*this));
-	globalCliComm.reset(new GlobalCliComm());
-	globalCommandController.reset(new GlobalCommandController(
-		*eventDistributor, *globalCliComm, *this));
-	globalSettings.reset(new GlobalSettings(*globalCommandController));
-	inputEventGenerator.reset(new InputEventGenerator(
-		*globalCommandController, *eventDistributor));
-	mixer.reset(new Mixer(*this, *globalCommandController));
-	diskFactory.reset(new DiskFactory(*this));
-	diskManipulator.reset(new DiskManipulator(*globalCommandController, *this));
-	virtualDrive.reset(new DiskChanger("virtual_drive", *globalCommandController,
-	                               *diskFactory, *diskManipulator, true));
-	filePool.reset(new FilePool(*globalCommandController, *eventDistributor));
-	userSettings.reset(new UserSettings(*globalCommandController));
-	softwareDatabase.reset(new RomDatabase(*globalCommandController, *globalCliComm));
-	afterCommand.reset(new AfterCommand(*this, *eventDistributor,
-	                                *globalCommandController));
-	quitCommand.reset(new QuitCommand(*globalCommandController, *eventDistributor));
-	messageCommand.reset(new MessageCommand(*globalCommandController));
-	machineCommand.reset(new MachineCommand(*globalCommandController, *this));
-	testMachineCommand.reset(new TestMachineCommand(*globalCommandController, *this));
-	createMachineCommand.reset(new CreateMachineCommand(*globalCommandController, *this));
-	deleteMachineCommand.reset(new DeleteMachineCommand(*globalCommandController, *this));
-	listMachinesCommand.reset(new ListMachinesCommand(*globalCommandController, *this));
-	activateMachineCommand.reset(new ActivateMachineCommand(*globalCommandController, *this));
-	storeMachineCommand.reset(new StoreMachineCommand(*globalCommandController, *this));
-	restoreMachineCommand.reset(new RestoreMachineCommand(*globalCommandController, *this));
-	aviRecordCommand.reset(new AviRecorder(*this));
-	extensionInfo.reset(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"));
-	machineInfo  .reset(new ConfigInfo(getOpenMSXInfoCommand(), "machines"));
-	realTimeInfo.reset(new RealTimeInfo(getOpenMSXInfoCommand()));
-	tclCallbackMessages.reset(new TclCallbackMessages(*globalCliComm,
-	                                              *globalCommandController));
+	eventDistributor = make_unique<EventDistributor>(*this);
+	globalCliComm = make_unique<GlobalCliComm>();
+	globalCommandController = make_unique<GlobalCommandController>(
+		*eventDistributor, *globalCliComm, *this);
+	globalSettings = make_unique<GlobalSettings>(
+		*globalCommandController);
+	inputEventGenerator = make_unique<InputEventGenerator>(
+		*globalCommandController, *eventDistributor);
+	mixer = make_unique<Mixer>(
+		*this, *globalCommandController);
+	diskFactory = make_unique<DiskFactory>(
+		*this);
+	diskManipulator = make_unique<DiskManipulator>(
+		*globalCommandController, *this);
+	virtualDrive = make_unique<DiskChanger>(
+		"virtual_drive", *globalCommandController,
+		*diskFactory, *diskManipulator, true);
+	filePool = make_unique<FilePool>(
+		*globalCommandController, *eventDistributor);
+	userSettings = make_unique<UserSettings>(
+		*globalCommandController);
+	softwareDatabase = make_unique<RomDatabase>(
+		*globalCommandController, *globalCliComm);
+	afterCommand = make_unique<AfterCommand>(
+		*this, *eventDistributor, *globalCommandController);
+	quitCommand = make_unique<QuitCommand>(
+		*globalCommandController, *eventDistributor);
+	messageCommand = make_unique<MessageCommand>(
+		*globalCommandController);
+	machineCommand = make_unique<MachineCommand>(
+		*globalCommandController, *this);
+	testMachineCommand = make_unique<TestMachineCommand>(
+		*globalCommandController, *this);
+	createMachineCommand = make_unique<CreateMachineCommand>(
+		*globalCommandController, *this);
+	deleteMachineCommand = make_unique<DeleteMachineCommand>(
+		*globalCommandController, *this);
+	listMachinesCommand = make_unique<ListMachinesCommand>(
+		*globalCommandController, *this);
+	activateMachineCommand = make_unique<ActivateMachineCommand>(
+		*globalCommandController, *this);
+	storeMachineCommand = make_unique<StoreMachineCommand>(
+		*globalCommandController, *this);
+	restoreMachineCommand = make_unique<RestoreMachineCommand>(
+		*globalCommandController, *this);
+	aviRecordCommand = make_unique<AviRecorder>(*this);
+	extensionInfo = make_unique<ConfigInfo>(
+		getOpenMSXInfoCommand(), "extensions");
+	machineInfo   = make_unique<ConfigInfo>(
+		getOpenMSXInfoCommand(), "machines");
+	realTimeInfo = make_unique<RealTimeInfo>(
+		getOpenMSXInfoCommand());
+	tclCallbackMessages = make_unique<TclCallbackMessages>(
+		*globalCliComm, *globalCommandController);
 
 	createMachineSetting();
 
@@ -360,10 +381,10 @@ void Reactor::createMachineSetting()
 	}
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
-	machineSetting.reset(new EnumSetting<int>(
+	machineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
 		"default machine (takes effect next time openMSX is started)",
-		0, machines));
+		0, machines);
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
@@ -430,7 +451,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
 void Reactor::switchMachine(const string& machine)
 {
 	if (!display.get()) {
-		display.reset(new Display(*this));
+		display = make_unique<Display>(*this);
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().

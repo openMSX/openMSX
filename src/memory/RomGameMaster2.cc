@@ -42,13 +42,14 @@
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomGameMaster2::RomGameMaster2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom4kBBlocks(config, std::move(rom), 1)
 {
-	sram.reset(new SRAM(getName() + " SRAM", 0x2000, config));
+	sram = make_unique<SRAM>(getName() + " SRAM", 0x2000, config);
 	reset(EmuTime::dummy());
 }
 

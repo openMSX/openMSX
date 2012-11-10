@@ -19,6 +19,7 @@
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -30,9 +31,9 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
 	            ? 0x34 : 0x30)
 {
-	sram.reset(new SRAM(getName() + " SRAM",
-	                    (subType == KOEI_32) ? 0x8000 : 0x2000, config));
-
+	sram = make_unique<SRAM>(
+		getName() + " SRAM",
+		(subType == KOEI_32) ? 0x8000 : 0x2000, config);
 	reset(EmuTime::dummy());
 }
 

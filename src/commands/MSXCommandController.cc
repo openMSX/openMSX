@@ -11,6 +11,7 @@
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "Event.hh"
+#include "memory.hh"
 #include <iostream>
 
 using std::string;
@@ -32,7 +33,7 @@ MSXCommandController::MSXCommandController(
 {
 	globalCommandController.getInterpreter().createNamespace(machineID);
 
-	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
+	machineInfoCommand = make_unique<InfoCommand>(*this, "machine_info");
 	machineInfoCommand->setAllowedInEmptyMachine(true);
 
 	msxEventDistributor.registerEventListener(*this);

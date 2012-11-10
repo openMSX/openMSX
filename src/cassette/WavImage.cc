@@ -5,6 +5,7 @@
 #include "LocalFileReference.hh"
 #include "File.hh"
 #include "Math.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -20,9 +21,9 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 		File file(filename);
 		file.setFilePool(filePool);
 		setSha1Sum(file.getSha1Sum());
-		localFile.reset(new LocalFileReference(file));
+		localFile = make_unique<LocalFileReference>(file);
 	}
-	wav.reset(new WavData(localFile->getFilename(), 16, 0));
+	wav = make_unique<WavData>(localFile->getFilename(), 16, 0);
 	clock.setFreq(wav->getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)

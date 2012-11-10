@@ -4,6 +4,7 @@
 #include "CheckedRam.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 
 #include "Ram.hh" // because we serialize Ram instead of CheckedRam
@@ -15,6 +16,10 @@ MSXRam::MSXRam(const DeviceConfig& config)
 {
 	// Actual initialization is done in init() because <mem> tags
 	// are not yet processed.
+}
+
+MSXRam::~MSXRam()
+{
 }
 
 void MSXRam::init()
@@ -29,8 +34,8 @@ void MSXRam::init()
 	assert( base         <  0x10000);
 	assert((base + size) <= 0x10000);
 
-	checkedRam.reset(new CheckedRam(
-		getDeviceConfig2(), getName(), "ram", size));
+	checkedRam = make_unique<CheckedRam>(
+		getDeviceConfig2(), getName(), "ram", size);
 }
 
 void MSXRam::powerUp(EmuTime::param /*time*/)

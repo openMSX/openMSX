@@ -17,6 +17,7 @@
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -82,13 +83,13 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	// font size
 	CommandController& commandController = reactor.getCommandController();
-	fontSizeSetting.reset(new IntegerSetting(commandController,
-		"consolefontsize", "Size of the console font", 12, 8, 32));
+	fontSizeSetting = make_unique<IntegerSetting>(commandController,
+		"consolefontsize", "Size of the console font", 12, 8, 32);
 
 	// font
 	const string& defaultFont = "skins/VeraMono.ttf.gz";
-	fontSetting.reset(new FilenameSetting(commandController,
-		"consolefont", "console font file", defaultFont));
+	fontSetting = make_unique<FilenameSetting>(commandController,
+		"consolefont", "console font file", defaultFont);
 	try {
 		fontSetting->setChecker(settingChecker.get());
 	} catch (MSXException&) {
@@ -108,11 +109,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	// rows / columns
 	int columns = (((screenW - CHAR_BORDER) / font->getWidth()) * 30) / 32;
 	int rows = ((screenH / font->getHeight()) * 6) / 15;
-	consoleColumnsSetting.reset(new IntegerSetting(commandController,
+	consoleColumnsSetting = make_unique<IntegerSetting>(commandController,
 		"consolecolumns", "number of columns in the console", columns,
-		32, 999));
-	consoleRowsSetting.reset(new IntegerSetting(commandController,
-		"consolerows", "number of rows in the console", rows, 1, 99));
+		32, 999);
+	consoleRowsSetting = make_unique<IntegerSetting>(commandController,
+		"consolerows", "number of rows in the console", rows, 1, 99);
 	adjustColRow();
 
 	// placement
@@ -127,14 +128,15 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
 	placeMap["bottom"]      = CP_BOTTOM;
 	placeMap["bottomright"] = CP_BOTTOMRIGHT;
-	consolePlacementSetting.reset(new EnumSetting<Placement>(commandController,
-		"consoleplacement", "position of the console within the emulator",
-		CP_BOTTOM, placeMap));
+	consolePlacementSetting = make_unique<EnumSetting<Placement>>(
+		commandController, "consoleplacement",
+		"position of the console within the emulator",
+		CP_BOTTOM, placeMap);
 
 	// background (only load backgound on first paint())
-	backgroundSetting.reset(new FilenameSetting(commandController,
+	backgroundSetting = make_unique<FilenameSetting>(commandController,
 		"consolebackground", "console background file",
-		"skins/ConsoleBackgroundGrey.png"));
+		"skins/ConsoleBackgroundGrey.png");
 	backgroundSetting->setChecker(settingChecker.get(), false); // don't load
 
 	consoleSetting.attach(*this);
@@ -269,7 +271,7 @@ void OSDConsoleRenderer::loadFont(const string& value)
 {
 	SystemFileContext context;
 	string filename = context.resolve(value);
-	font.reset(new TTFFont(filename, fontSizeSetting->getValue()));
+	font = make_unique<TTFFont>(filename, fontSizeSetting->getValue());
 }
 
 void OSDConsoleRenderer::loadBackground(const string& value)
@@ -281,11 +283,11 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 	SystemFileContext context;
 	string filename = context.resolve(value);
 	if (!openGL) {
-		backgroundImage.reset(new SDLImage(filename, destW, destH));
+		backgroundImage = make_unique<SDLImage>(filename, destW, destH);
 	}
 #if COMPONENT_GL
 	else {
-		backgroundImage.reset(new GLImage(filename, destW, destH));
+		backgroundImage = make_unique<GLImage>(filename, destW, destH);
 	}
 #endif
 }
@@ -407,13 +409,13 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
-				backgroundImage.reset(new SDLImage(
-					destW, destH, CONSOLE_ALPHA));
+				backgroundImage = make_unique<SDLImage>(
+					destW, destH, CONSOLE_ALPHA);
 			}
 #if COMPONENT_GL
 			else {
-				backgroundImage.reset(new GLImage(
-					destW, destH, CONSOLE_ALPHA));
+				backgroundImage = make_unique<GLImage>(
+					destW, destH, CONSOLE_ALPHA);
 			}
 #endif
 		} catch (MSXException&) {

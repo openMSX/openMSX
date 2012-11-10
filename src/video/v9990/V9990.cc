@@ -10,6 +10,7 @@
 #include "Reactor.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstring>
 
@@ -100,11 +101,11 @@ V9990::V9990(const DeviceConfig& config)
 
 	// create VRAM
 	EmuTime::param time = Schedulable::getCurrentTime();
-	vram.reset(new V9990VRAM(*this, time));
+	vram = make_unique<V9990VRAM>(*this, time);
 
 	// create Command Engine
-	cmdEngine.reset(new V9990CmdEngine(
-		*this, time, display.getRenderSettings()));
+	cmdEngine = make_unique<V9990CmdEngine>(
+		*this, time, display.getRenderSettings());
 	vram->setCmdEngine(*cmdEngine);
 
 	// Start with NTSC timing

@@ -6,6 +6,7 @@
 #include "build-info.hh"
 #include "Math.hh"
 #include "MemBuffer.hh"
+#include "memory.hh"
 #include "vla.hh"
 #include <SDL.h>
 
@@ -91,7 +92,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
 
-		fbTex.reset(new Texture());
+		fbTex = make_unique<Texture>();
 		fbTex->bind();
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?

@@ -11,6 +11,7 @@
 #include "StringOp.hh"
 #include "utf8_core.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "components.hh"
 #include <cassert>
 #if COMPONENT_GL
@@ -183,7 +184,7 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
 			SystemFileContext context;
 			string file = context.resolve(fontfile);
 			int ptSize = size * scale;
-			font.reset(new TTFFont(file, ptSize));
+			font = make_unique<TTFFont>(file, ptSize);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: " + e.getMessage());
 		}

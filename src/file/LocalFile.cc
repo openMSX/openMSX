@@ -17,6 +17,7 @@
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include <cstring> // for strchr, strerror
 #include <cerrno>
 #include <cassert>
@@ -110,7 +111,7 @@ LocalFile::~LocalFile()
 void LocalFile::preCacheFile()
 {
 	string name = FileOperations::getNativePath(filename);
-	cache.reset(new PreCacheFile(name));
+	cache = make_unique<PreCacheFile>(name);
 }
 
 void LocalFile::read(void* buffer, unsigned num)

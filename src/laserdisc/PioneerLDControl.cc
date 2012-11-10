@@ -8,6 +8,7 @@
 #include "MSXPPI.hh"
 #include "MSXException.hh"
 #include "VDP.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -41,7 +42,8 @@ PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 	, videoEnabled(false)
 {
 	if (config.getChildDataAsBool("laserdisc", true)) {
-		laserdisc.reset(new LaserdiscPlayer(getHardwareConfig(), *this));
+		laserdisc = make_unique<LaserdiscPlayer>(
+			getHardwareConfig(), *this);
 	}
 
 	reset(getCurrentTime());

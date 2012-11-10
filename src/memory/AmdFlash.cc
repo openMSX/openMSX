@@ -8,6 +8,7 @@
 #include "MSXDevice.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <numeric>
 #include <cstring>
 #include <cassert>
@@ -45,17 +46,17 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 	bool loaded = false;
 	if (writableSize) {
 		if (load) {
-			ram.reset(new SRAM(rom.getName() + "_flash",
-			                   "flash rom", writableSize, config,
-			                   nullptr, &loaded));
+			ram = make_unique<SRAM>(
+				rom.getName() + "_flash", "flash rom",
+				writableSize, config, nullptr, &loaded);
 		} else {
 			// Hack for 'Matra INK', flash chip is wired-up so that
 			// writes are never visible to the MSX (but the flash
 			// is not made write-protected). In this case it doesn't
 			// make sense to load/save the SRAM file.
-			ram.reset(new SRAM(rom.getName() + "_flash",
-			                   "flash rom", writableSize, config,
-			                   SRAM::DONT_LOAD));
+			ram = make_unique<SRAM>(
+				rom.getName() + "_flash", "flash rom",
+				writableSize, config, SRAM::DONT_LOAD);
 		}
 	}
 

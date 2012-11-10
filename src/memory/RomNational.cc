@@ -5,13 +5,14 @@
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RomNational::RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom16kBBlocks(config, std::move(rom))
 {
-	sram.reset(new SRAM(getName() + " SRAM", 0x1000, config));
+	sram = make_unique<SRAM>(getName() + " SRAM", 0x1000, config);
 	reset(EmuTime::dummy());
 }
 

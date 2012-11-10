@@ -1,6 +1,7 @@
 // $Id$
 
 #include "GLScaleNxScaler.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -13,7 +14,7 @@ GLScaleNxScaler::GLScaleNxScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "scale2x.vert");
 		FragmentShader fragmentShader(header, "scale2x.frag");
-		scalerProgram[i].reset(new ShaderProgram());
+		scalerProgram[i] = make_unique<ShaderProgram>();
 		scalerProgram[i]->attach(vertexShader);
 		scalerProgram[i]->attach(fragmentShader);
 		scalerProgram[i]->link();

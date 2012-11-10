@@ -9,6 +9,7 @@
 #include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
+#include "memory.hh"
 #include "build-info.hh"
 
 namespace openmsx {
@@ -16,38 +17,39 @@ namespace openmsx {
 GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	: commandController(commandController_)
 {
-	speedSetting.reset(new IntegerSetting(commandController, "speed",
+	speedSetting = make_unique<IntegerSetting>(commandController, "speed",
 	       "controls the emulation speed: higher is faster, 100 is normal",
-	       100, 1, 1000000));
-	pauseSetting.reset(new BooleanSetting(commandController, "pause",
-	       "pauses the emulation", false, Setting::DONT_SAVE));
-	powerSetting.reset(new BooleanSetting(commandController, "power",
-	        "turn power on/off", false, Setting::DONT_SAVE));
-	autoSaveSetting.reset(new BooleanSetting(commandController,
+	       100, 1, 1000000);
+	pauseSetting = make_unique<BooleanSetting>(commandController, "pause",
+	       "pauses the emulation", false, Setting::DONT_SAVE);
+	powerSetting = make_unique<BooleanSetting>(commandController, "power",
+	        "turn power on/off", false, Setting::DONT_SAVE);
+	autoSaveSetting = make_unique<BooleanSetting>(commandController,
 	        "save_settings_on_exit",
-	        "automatically save settings when openMSX exits", true));
-	pauseOnLostFocusSetting.reset(new BooleanSetting(commandController, "pause_on_lost_focus",
-	       "pause emulation when the openMSX window loses focus", false));
-	umrCallBackSetting.reset(new StringSetting(commandController,
-	        "umr_callback", "Tcl proc to call when an UMR is detected", ""));
-	invalidPsgDirectionsSetting.reset(new StringSetting(commandController,
+	        "automatically save settings when openMSX exits", true);
+	pauseOnLostFocusSetting = make_unique<BooleanSetting>(commandController,
+		"pause_on_lost_focus",
+	       "pause emulation when the openMSX window loses focus", false);
+	umrCallBackSetting = make_unique<StringSetting>(commandController,
+	        "umr_callback", "Tcl proc to call when an UMR is detected", "");
+	invalidPsgDirectionsSetting = make_unique<StringSetting>(commandController,
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
-		""));
+		"");
 	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap;
 	resampleMap["hq"]   = ResampledSoundDevice::RESAMPLE_HQ;
 	resampleMap["fast"] = ResampledSoundDevice::RESAMPLE_LQ;
 	resampleMap["blip"] = ResampledSoundDevice::RESAMPLE_BLIP;
-	resampleSetting.reset(new EnumSetting<ResampledSoundDevice::ResampleType>(
+	resampleSetting = make_unique<EnumSetting<ResampledSoundDevice::ResampleType>>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
 		ResampledSoundDevice::RESAMPLE_LQ,
 #else
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #endif
-		resampleMap));
+		resampleMap);
 
-	throttleManager.reset(new ThrottleManager(commandController));
+	throttleManager = make_unique<ThrottleManager>(commandController);
 
 	getPowerSetting().attach(*this);
 }

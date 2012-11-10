@@ -2,6 +2,7 @@
 
 #include "GLTVScaler.hh"
 #include "RenderSettings.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -15,7 +16,7 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  ("tv.vert");
 		FragmentShader fragmentShader(header, "tv.frag");
-		scalerProgram[i].reset(new ShaderProgram());
+		scalerProgram[i] = make_unique<ShaderProgram>();
 		scalerProgram[i]->attach(vertexShader);
 		scalerProgram[i]->attach(fragmentShader);
 		scalerProgram[i]->link();

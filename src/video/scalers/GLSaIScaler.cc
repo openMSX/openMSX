@@ -1,6 +1,7 @@
 // $Id$
 
 #include "GLSaIScaler.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -13,7 +14,7 @@ GLSaIScaler::GLSaIScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "sai.vert");
 		FragmentShader fragmentShader(header, "sai.frag");
-		scalerProgram[i].reset(new ShaderProgram());
+		scalerProgram[i] = make_unique<ShaderProgram>();
 		scalerProgram[i]->attach(vertexShader);
 		scalerProgram[i]->attach(fragmentShader);
 		scalerProgram[i]->link();

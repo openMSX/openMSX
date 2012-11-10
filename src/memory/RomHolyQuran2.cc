@@ -51,6 +51,10 @@ RomHolyQuran2::RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> ro
 	reset(EmuTime::dummy());
 }
 
+RomHolyQuran2::~RomHolyQuran2()
+{
+}
+
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
 {
 	for (int i = 0; i < 4; ++i) {

@@ -33,6 +33,7 @@
 #include "Reactor.hh"
 #include "RomInfo.hh"
 #include "StringMap.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include "components.hh"
 
@@ -490,16 +491,16 @@ void ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 	GlobalCliComm& cliComm        = parser.reactor.getGlobalCliComm();
 	std::unique_ptr<CliListener> connection;
 	if (type == "stdio") {
-		connection.reset(new StdioConnection(
-			controller, distributor));
+		connection = make_unique<StdioConnection>(
+			controller, distributor);
 #ifdef _WIN32
 	} else if (type == "pipe") {
 		OSVERSIONINFO info;
 		info.dwOSVersionInfoSize = sizeof(info);
 		GetVersionEx(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-			connection.reset(new PipeConnection(
-				controller, distributor, arguments));
+			connection = make_unique<PipeConnection>(
+				controller, distributor, arguments);
 		} else {
 			throw FatalError("Pipes are not supported on this "
 			                 "version of Windows");

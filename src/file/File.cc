@@ -27,9 +27,9 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 		file->read(buf, 4);
 		file->seek(0);
 		if (memcmp(buf, GZ_HEADER, 3) == 0) {
-			file.reset(new GZFileAdapter(std::move(file)));
+			file = make_unique<GZFileAdapter>(std::move(file));
 		} else if (memcmp(buf, ZIP_HEADER, 4) == 0) {
-			file.reset(new ZipFileAdapter(std::move(file)));
+			file = make_unique<ZipFileAdapter>(std::move(file));
 		} else {
 			// only pre-cache non-compressed files
 			if (mode == File::PRE_CACHE) {

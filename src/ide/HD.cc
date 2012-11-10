@@ -12,6 +12,7 @@
 #include "MSXException.hh"
 #include "HDCommand.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <bitset>
 #include <cassert>
 
@@ -53,7 +54,7 @@ HD::HD(const DeviceConfig& config)
 	string resolved = config.getFileContext().resolveCreate(original);
 	filename = Filename(resolved);
 	try {
-		file.reset(new File(filename));
+		file = make_unique<File>(filename);
 		filesize = file->getSize();
 		file->setFilePool(motherBoard.getReactor().getFilePool());
 	} catch (FileException&) {
@@ -64,12 +65,12 @@ HD::HD(const DeviceConfig& config)
 	alreadyTried = false;
 
 	hdInUse[id] = true;
-	hdCommand.reset(new HDCommand(motherBoard.getCommandController(),
-	                              motherBoard.getStateChangeDistributor(),
-	                              motherBoard.getScheduler(),
-	                              *this,
-	                              motherBoard.getReactor().getGlobalSettings()
-	                                         .getPowerSetting()));
+	hdCommand = make_unique<HDCommand>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(),
+		*this,
+		motherBoard.getReactor().getGlobalSettings().getPowerSetting());
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
@@ -115,7 +116,7 @@ void HD::openImage()
 	}
 	alreadyTried = true;
 	try {
-		file.reset(new File(filename, File::CREATE));
+		file = make_unique<File>(filename, File::CREATE);
 		file->truncate(filesize);
 		file->setFilePool(motherBoard.getReactor().getFilePool());
 	} catch (FileException& e) {
@@ -127,7 +128,7 @@ void HD::openImage()
 
 void HD::switchImage(const Filename& name)
 {
-	file.reset(new File(name));
+	file = make_unique<File>(name);
 	filename = name;
 	filesize = file->getSize();
 	file->setFilePool(motherBoard.getReactor().getFilePool());

@@ -8,6 +8,7 @@
 #include "GLUtil.hh"
 #include "openmsx.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <limits>
@@ -396,7 +397,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 	if (clip) {
 		int x, y, w, h;
 		getBoundingBox(output, x, y, w, h);
-		scopedClip.reset(new SDLScopedClip(output, x, y, w, h));
+		scopedClip = make_unique<SDLScopedClip>(output, x, y, w, h);
 	}
 
 	// Iterate over a copy because drawing could cause errors (e.g. can't
@@ -420,7 +421,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	if (clip) {
 		int x, y, w, h;
 		getBoundingBox(output, x, y, w, h);
-		scopedClip.reset(new GLScopedClip(output, x, y, w, h));
+		scopedClip = make_unique<GLScopedClip>(output, x, y, w, h);
 	}
 
 	SubWidgets copy(subWidgets);

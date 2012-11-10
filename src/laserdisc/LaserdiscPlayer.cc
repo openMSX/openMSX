@@ -674,7 +674,7 @@ void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 	stop(time);
 	UserFileContext context;
 	oggImage = Filename(newImage, context);
-	video.reset(new OggReader(oggImage, motherBoard.getMSXCliComm()));
+	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();
 	sampleClock.setFreq(inputRate);

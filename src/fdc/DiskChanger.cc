@@ -93,7 +93,7 @@ void DiskChanger::init(const string& prefix, bool createCmd)
 void DiskChanger::createCommand()
 {
 	if (diskCommand.get()) return;
-	diskCommand.reset(new DiskCommand(controller, *this));
+	diskCommand = make_unique<DiskCommand>(controller, *this);
 }
 
 DiskChanger::~DiskChanger()
@@ -157,9 +157,8 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 			std::make_shared<MSXCommandEvent>(
 				args, scheduler->getCurrentTime()));
 	} else {
-		signalStateChange(
-			std::make_shared<MSXCommandEvent>(
-				args, EmuTime::zero));
+		signalStateChange(std::make_shared<MSXCommandEvent>(
+			args, EmuTime::zero));
 	}
 }
 

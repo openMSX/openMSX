@@ -13,6 +13,7 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "components.hh"
 #include <cassert>
 
@@ -51,10 +52,10 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	soundDriverMap["libao"] = SND_LIBAO;
 #endif
 
-	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
+	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
 		commandController, "sound_driver",
 		"select the sound output driver",
-		defaultSoundDriver, soundDriverMap));
+		defaultSoundDriver, soundDriverMap);
 
 	muteSetting->attach(*this);
 	frequencySetting->attach(*this);
@@ -80,31 +81,31 @@ Mixer::~Mixer()
 
 void Mixer::reloadDriver()
 {
-	driver.reset(new NullSoundDriver());
+	driver = make_unique<NullSoundDriver>();
 
 	try {
 		switch (soundDriverSetting->getValue()) {
 		case SND_NULL:
-			driver.reset(new NullSoundDriver());
+			driver = make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
-			driver.reset(new SDLSoundDriver(
+			driver = make_unique<SDLSoundDriver>(
 				reactor,
 				frequencySetting->getValue(),
-				samplesSetting->getValue()));
+				samplesSetting->getValue());
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
-			driver.reset(new DirectXSoundDriver(
+			driver = make_unique<DirectXSoundDriver>(
 				frequencySetting->getValue(),
-				samplesSetting->getValue()));
+				samplesSetting->getValue());
 			break;
 #endif
 #if COMPONENT_AO
 		case SND_LIBAO:
-			driver.reset(new LibAOSoundDriver(
+			driver = make_unique<LibAOSoundDriver>(
 				frequencySetting->getValue(),
-				samplesSetting->getValue()));
+				samplesSetting->getValue());
 			break;
 #endif
 		default:

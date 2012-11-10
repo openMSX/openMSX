@@ -286,23 +286,27 @@ void SDLVideoSystem::resize()
 
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
-		screen.reset(new SDLVisibleSurface(width, height, fullscreen,
-				renderSettings, eventDistributor, inputEventGenerator));
+		screen = make_unique<SDLVisibleSurface>(
+			width, height, fullscreen, renderSettings,
+			eventDistributor, inputEventGenerator);
 		break;
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
-		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-				renderSettings, eventDistributor, inputEventGenerator));
+		screen = make_unique<SDLGLVisibleSurface>(
+			width, height, fullscreen, renderSettings,
+			eventDistributor, inputEventGenerator);
 		break;
 	case RendererFactory::SDLGL_FB16:
-		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-				renderSettings, eventDistributor, inputEventGenerator,
-				SDLGLVisibleSurface::FB_16BPP));
+		screen = make_unique<SDLGLVisibleSurface>(
+			width, height, fullscreen, renderSettings,
+			eventDistributor, inputEventGenerator,
+			SDLGLVisibleSurface::FB_16BPP);
 		break;
 	case RendererFactory::SDLGL_FB32:
-		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
-				renderSettings, eventDistributor, inputEventGenerator,
-				SDLGLVisibleSurface::FB_32BPP));
+		screen = make_unique<SDLGLVisibleSurface>(
+			width, height, fullscreen, renderSettings,
+			eventDistributor, inputEventGenerator,
+			SDLGLVisibleSurface::FB_32BPP);
 		break;
 #endif
 	default:

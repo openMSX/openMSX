@@ -2,6 +2,7 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -9,7 +10,7 @@ GLScaler::GLScaler()
 {
 	VertexShader   vertexShader  ("superImpose.vert");
 	FragmentShader fragmentShader("superImpose.frag");
-	scalerProgram.reset(new ShaderProgram());
+	scalerProgram = make_unique<ShaderProgram>();
 	scalerProgram->attach(vertexShader);
 	scalerProgram->attach(fragmentShader);
 	scalerProgram->link();

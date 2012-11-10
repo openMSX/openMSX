@@ -321,12 +321,13 @@ void CassettePlayer::insertTape(const Filename& filename)
 		FilePool& filePool = motherBoard.getReactor().getFilePool();
 		try {
 			// first try WAV
-			playImage.reset(new WavImage(filename, filePool));
+			playImage = make_unique<WavImage>(filename, filePool);
 		} catch (MSXException& e) {
 			try {
 				// if that fails use CAS
-				playImage.reset(new CasImage(
-					filename, filePool, motherBoard.getMSXCliComm()));
+				playImage = make_unique<CasImage>(
+					filename, filePool,
+					motherBoard.getMSXCliComm());
 			} catch (MSXException& e2) {
 				throw MSXException(
 					"Failed to insert WAV image: \"" +
@@ -386,7 +387,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 {
 	removeTape(time); // flush (possible) previous recording
-	recordImage.reset(new Wav8Writer(filename, 1, RECORD_FREQ));
+	recordImage = make_unique<Wav8Writer>(filename, 1, RECORD_FREQ);
 	tapePos = EmuTime::zero;
 	setState(RECORD, filename, time);
 }

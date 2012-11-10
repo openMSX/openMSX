@@ -4,6 +4,7 @@
 #include "JoystickPort.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -22,10 +23,10 @@ JoyTap::~JoyTap()
 
 void JoyTap::createPorts(PluggingController& pluggingController, const string& baseDescription) {
 	for (int i = 0; i < 4; ++i) {
-		slaves[i].reset(new JoystickPort(
+		slaves[i] = make_unique<JoystickPort>(
 			pluggingController,
 			StringOp::Builder() << name << "_port_" << char('1' + i),
-			StringOp::Builder() << baseDescription << char('1' + i)));
+			StringOp::Builder() << baseDescription << char('1' + i));
 	}
 }
 

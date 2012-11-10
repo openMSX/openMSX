@@ -11,6 +11,7 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "memory.hh"
 #include <bitset>
 #include <cassert>
 #include <functional>
@@ -49,7 +50,8 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	nowindsInUse[i] = true;
 	basename[6] = char('a' + i);
 
-	command.reset(new NowindCommand(basename, getCommandController(), *this));
+	command = make_unique<NowindCommand>(
+		basename, getCommandController(), *this);
 
 	// start with one (empty) drive
 	DiskChanger* drive = command->createDiskChanger(basename, 0, getMotherBoard());

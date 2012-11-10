@@ -3,6 +3,7 @@
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstring>
 #include <vector>
@@ -24,9 +25,11 @@ std::unique_ptr<ResampleLQ<CHANNELS>> ResampleLQ<CHANNELS>::create(
 	std::unique_ptr<ResampleLQ<CHANNELS>> result;
 	unsigned hostSampleRate = hostClock.getFreq();
 	if (emuSampleRate < hostSampleRate) {
-		result.reset(new ResampleLQUp  <CHANNELS>(input, hostClock, emuSampleRate));
+		result = make_unique<ResampleLQUp  <CHANNELS>>(
+			input, hostClock, emuSampleRate);
 	} else {
-		result.reset(new ResampleLQDown<CHANNELS>(input, hostClock, emuSampleRate));
+		result = make_unique<ResampleLQDown<CHANNELS>>(
+			input, hostClock, emuSampleRate);
 	}
 	return result;
 }

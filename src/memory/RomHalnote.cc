@@ -31,6 +31,7 @@
 #include "SRAM.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -41,7 +42,7 @@ RomHalnote::RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 		throw MSXException(
 			"Rom for HALNOTE mapper must be exactly 1MB in size.");
 	}
-	sram.reset(new SRAM(getName() + " SRAM", 0x4000, config));
+	sram = make_unique<SRAM>(getName() + " SRAM", 0x4000, config);
 	reset(EmuTime::dummy());
 }
 

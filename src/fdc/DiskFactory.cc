@@ -15,7 +15,7 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include <memory>
+#include "memory.hh"
 
 using std::string;
 
@@ -29,17 +29,17 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
 	syncDirAsDSKMap["read_only"] = DirAsDSK::SYNC_READONLY;
 	syncDirAsDSKMap["full"] = DirAsDSK::SYNC_FULL;
-	syncDirAsDSKSetting.reset(new EnumSetting<DirAsDSK::SyncMode>(
+	syncDirAsDSKSetting = make_unique<EnumSetting<DirAsDSK::SyncMode>>(
 		controller, "DirAsDSKmode",
 		"type of syncronisation between host directory and dir-as-dsk diskimage",
-		DirAsDSK::SYNC_FULL, syncDirAsDSKMap));
+		DirAsDSK::SYNC_FULL, syncDirAsDSKMap);
 
 	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap;
 	bootsectorMap["DOS1"] = DirAsDSK::BOOTSECTOR_DOS1;
 	bootsectorMap["DOS2"] = DirAsDSK::BOOTSECTOR_DOS2;
-	bootSectorSetting.reset(new EnumSetting<DirAsDSK::BootSectorType>(
+	bootSectorSetting = make_unique<EnumSetting<DirAsDSK::BootSectorType>>(
 		controller, "bootsector", "boot sector type for dir-as-dsk",
-		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap));
+		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap);
 }
 
 Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)

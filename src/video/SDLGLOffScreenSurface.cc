@@ -3,6 +3,7 @@
 #include "SDLGLOffScreenSurface.hh"
 #include "SDLGLVisibleSurface.hh"
 #include "GLUtil.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -13,7 +14,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	setSDLDisplaySurface(
 		const_cast<SDL_Surface*>(output.getSDLDisplaySurface()));
 
-	fboTex.reset(new Texture());
+	fboTex = make_unique<Texture>();
 	fboTex->bind();
 	fboTex->setWrapMode(false);
 	fboTex->enableInterpolation();
@@ -26,7 +27,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	             GL_RGB,           // format
 	             GL_UNSIGNED_BYTE, // type
 	             nullptr);         // data
-	fbo.reset(new FrameBufferObject(*fboTex));
+	fbo = make_unique<FrameBufferObject>(*fboTex);
 	fbo->push();
 
 	SDLGLOutputSurface::init(*this);

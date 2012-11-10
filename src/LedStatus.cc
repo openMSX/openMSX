@@ -7,6 +7,7 @@
 #include "BooleanSetting.hh"
 #include "ReadOnlySetting.hh"
 #include "Timer.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -29,11 +30,11 @@ LedStatus::LedStatus(
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
 		std::string name = getLedName(static_cast<Led>(i));
-		ledStatus[i].reset(new ReadOnlySetting<BooleanSetting>(
+		ledStatus[i] = make_unique<ReadOnlySetting<BooleanSetting>>(
 			commandController,
 			"led_" + name,
 			"Current status for LED: " + name,
-			ledValue[i]));
+			ledValue[i]);
 	}
 }
 

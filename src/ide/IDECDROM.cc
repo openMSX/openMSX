@@ -12,6 +12,7 @@
 #include "CliComm.hh"
 #include "endian.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <bitset>
 #include <cassert>
@@ -64,9 +65,10 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	}
 	name[2] = char('a' + id);
 	cdInUse[id] = true;
-	cdxCommand.reset(new CDXCommand(motherBoard.getCommandController(),
-	                                motherBoard.getStateChangeDistributor(),
-	                                motherBoard.getScheduler(), *this));
+	cdxCommand = make_unique<CDXCommand>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this);
 
 	senseKey = 0;
 
@@ -339,7 +341,7 @@ void IDECDROM::eject()
 
 void IDECDROM::insert(const string& filename)
 {
-	file.reset(new File(filename));
+	file = make_unique<File>(filename);
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);

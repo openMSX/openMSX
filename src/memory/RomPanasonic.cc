@@ -8,6 +8,7 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -21,7 +22,8 @@ RomPanasonic::RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom_
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
-		sram.reset(new SRAM(getName() + " SRAM", sramSize * 1024, config));
+		sram = make_unique<SRAM>(
+			getName() + " SRAM", sramSize * 1024, config);
 	}
 
 	if (config.getChildDataAsBool("sram-mirrored", false)) {

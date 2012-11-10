@@ -590,8 +590,8 @@ VLM5030::Impl::Impl(const std::string& name, const std::string& desc,
 	romElement->addChild(make_unique<XMLElement>( // or hardcoded filename in ditto dir
 		"filename", "keyboardmaster/voice.rom"));
 	voiceROMconfig.addChild(std::move(romElement));
-	rom.reset(new Rom(name + " ROM", "rom",
-	                  DeviceConfig(config, voiceROMconfig)));
+	rom = make_unique<Rom>(
+		name + " ROM", "rom", DeviceConfig(config, voiceROMconfig));
 
 	// reset input pins
 	pin_RST = pin_ST = pin_VCU = false;

@@ -5,6 +5,7 @@
 #include "IPSPatch.hh"
 #include "DiskExceptions.hh"
 #include "sha1.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -67,7 +68,7 @@ unsigned SectorAccessibleDisk::getNbSectors() const
 
 void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
 {
-	patch.reset(new IPSPatch(patchFile, std::move(patch)));
+	patch = make_unique<IPSPatch>(patchFile, std::move(patch));
 }
 
 void SectorAccessibleDisk::getPatches(std::vector<Filename>& result) const

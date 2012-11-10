@@ -7,6 +7,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -26,12 +27,12 @@ MSXFDC::MSXFDC(const DeviceConfig& config)
 	EmuDuration motorTimeout = EmuDuration::msec(timeout);
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i].reset(new RealDrive(
+		drives[i] = make_unique<RealDrive>(
 			getMotherBoard(), motorTimeout, signalsNeedMotorOn,
-			!singleSided));
+			!singleSided);
 	}
 	for ( ; i < 4; ++i) {
-		drives[i].reset(new DummyDrive());
+		drives[i] = make_unique<DummyDrive>();
 	}
 }
 

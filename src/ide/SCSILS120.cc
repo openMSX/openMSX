@@ -35,6 +35,7 @@
 #include "FileContext.hh"
 #include "endian.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <vector>
 #include <bitset>
@@ -133,9 +134,10 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	}
 	name[2] = char('a' + id);
 	lsInUse[id] = true;
-	lsxCommand.reset(new LSXCommand(motherBoard.getCommandController(),
-	                                motherBoard.getStateChangeDistributor(),
-	                                motherBoard.getScheduler(), *this));
+	lsxCommand = make_unique<LSXCommand>(
+		motherBoard.getCommandController(),
+		motherBoard.getStateChangeDistributor(),
+		motherBoard.getScheduler(), *this);
 
 	reset();
 }
@@ -523,7 +525,7 @@ void SCSILS120::eject()
 
 void SCSILS120::insert(const string& filename)
 {
-	file.reset(new File(filename));
+	file = make_unique<File>(filename);
 	file->setFilePool(motherBoard.getReactor().getFilePool());
 	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {

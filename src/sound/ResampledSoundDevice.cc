@@ -10,6 +10,7 @@
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -61,28 +62,34 @@ void ResampledSoundDevice::createResampler()
 	unsigned inputRate  = getInputRate() / getEffectiveSpeed();
 
 	if (outputRate == inputRate) {
-		algo.reset(new ResampleTrivial(*this));
+		algo = make_unique<ResampleTrivial>(*this);
 	} else {
 		switch (resampleSetting.getValue()) {
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
-				algo.reset(new ResampleHQ<1>(*this, hostClock, inputRate));
+				algo = make_unique<ResampleHQ<1>>(
+					*this, hostClock, inputRate);
 			} else {
-				algo.reset(new ResampleHQ<2>(*this, hostClock, inputRate));
+				algo = make_unique<ResampleHQ<2>>(
+					*this, hostClock, inputRate);
 			}
 			break;
 		case RESAMPLE_LQ:
 			if (!isStereo()) {
-				algo = ResampleLQ<1>::create(*this, hostClock, inputRate);
+				algo = ResampleLQ<1>::create(
+					*this, hostClock, inputRate);
 			} else {
-				algo = ResampleLQ<2>::create(*this, hostClock, inputRate);
+				algo = ResampleLQ<2>::create(
+					*this, hostClock, inputRate);
 			}
 			break;
 		case RESAMPLE_BLIP:
 			if (!isStereo()) {
-				algo.reset(new ResampleBlip<1>(*this, hostClock, inputRate));
+				algo = make_unique<ResampleBlip<1>>(
+					*this, hostClock, inputRate);
 			} else {
-				algo.reset(new ResampleBlip<2>(*this, hostClock, inputRate));
+				algo = make_unique<ResampleBlip<2>>(
+					*this, hostClock, inputRate);
 			}
 			break;
 		default:

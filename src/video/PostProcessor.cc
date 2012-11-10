@@ -15,6 +15,7 @@
 #include "CommandException.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
@@ -34,11 +35,16 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, display(display_)
 {
 	if (getVideoSource() != VIDEO_LASERDISC) {
-		currFrame.reset(new RawFrame(screen.getSDLFormat(), maxWidth, height));
-		prevFrame.reset(new RawFrame(screen.getSDLFormat(), maxWidth, height));
-		deinterlacedFrame.reset(new DeinterlacedFrame(screen.getSDLFormat()));
-		interlacedFrame  .reset(new DoubledFrame     (screen.getSDLFormat()));
-		superImposedFrame = SuperImposedFrame::create(screen.getSDLFormat());
+		currFrame = make_unique<RawFrame>(
+			screen.getSDLFormat(), maxWidth, height);
+		prevFrame = make_unique<RawFrame>(
+			screen.getSDLFormat(), maxWidth, height);
+		deinterlacedFrame = make_unique<DeinterlacedFrame>(
+			screen.getSDLFormat());
+		interlacedFrame   = make_unique<DoubledFrame>(
+			screen.getSDLFormat());
+		superImposedFrame = SuperImposedFrame::create(
+			screen.getSDLFormat());
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
 		// need prevFrame, deinterlacedFrame and interlacedFrame. Also

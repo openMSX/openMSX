@@ -5,6 +5,7 @@
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <iostream>
 #include <iomanip>
 
@@ -16,9 +17,9 @@ DebugDevice::DebugDevice(const DeviceConfig& config)
 	: MSXDevice(config)
 {
 	string_ref outputFile = config.getChildData("filename", "stdout");
-	fileNameSetting.reset(new FilenameSetting(
+	fileNameSetting = make_unique<FilenameSetting>(
 		getCommandController(), "debugoutput",
-		"name of the file the debugdevice outputs to", outputFile.str()));
+		"name of the file the debugdevice outputs to", outputFile.str());
 	openOutput(fileNameSetting->getValueString());
 	reset(EmuTime::dummy());
 }

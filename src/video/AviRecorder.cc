@@ -19,6 +19,7 @@
 #include "StringOp.hh"
 #include "TclObject.hh"
 #include "vla.hh"
+#include "memory.hh"
 #include <cassert>
 
 using std::string;
@@ -100,17 +101,17 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		prevTime = EmuTime::infinity;
 
 		try {
-			aviWriter.reset(new AviWriter(filename, frameWidth,
-			        frameHeight, bpp,
-			        (recordAudio && stereo) ? 2 : 1, sampleRate));
+			aviWriter = make_unique<AviWriter>(
+				filename, frameWidth, frameHeight, bpp,
+				(recordAudio && stereo) ? 2 : 1, sampleRate);
 		} catch (MSXException& e) {
 			throw CommandException("Can't start recording: " +
 			                       e.getMessage());
 		}
 	} else {
 		assert(recordAudio);
-		wavWriter.reset(new Wav16Writer(filename, stereo ? 2 : 1,
-		                                sampleRate));
+		wavWriter = make_unique<Wav16Writer>(
+			filename, stereo ? 2 : 1, sampleRate);
 	}
 	// only set recorders when all errors are checked for
 	if (ppV99x8) ppV99x8->setRecorder(this);

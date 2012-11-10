@@ -7,6 +7,7 @@
 #include "CliComm.hh"
 #include "WavData.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -29,7 +30,8 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav.reset(new WavData(audioInputFilenameSetting->getValue(), 16, 0));
+	wav = make_unique<WavData>(
+		audioInputFilenameSetting->getValue(), 16, 0);
 }
 
 const string& WavAudioInput::getName() const

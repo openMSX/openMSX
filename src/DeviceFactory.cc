@@ -75,7 +75,6 @@ namespace openmsx {
 
 static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
-	unique_ptr<MSXDevice> result;
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
 	if (styleEl == nullptr) {
@@ -88,21 +87,19 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 		type = styleEl->getData();
 	}
 	if ((type == "Philips") || (type == "Sony")) {
-		result.reset(new PhilipsFDC(conf));
+		return make_unique<PhilipsFDC>(conf);
 	} else if (type == "Microsol") {
-		result.reset(new MicrosolFDC(conf));
+		return make_unique<MicrosolFDC>(conf);
 	} else if (type == "AVT") {
-		result.reset(new AVTFDC(conf));
+		return make_unique<AVTFDC>(conf);
 	} else if (type == "National") {
-		result.reset(new NationalFDC(conf));
+		return make_unique<NationalFDC>(conf);
 	} else if (type == "Sanyo") {
-		result.reset(new SanyoFDC(conf));
+		return make_unique<SanyoFDC>(conf);
 	} else if (type == "Victor") {
-		result.reset(new VictorFDC(conf));
-	} else {
-		throw MSXException("Unknown WD2793 FDC connection style " + type);
+		return make_unique<VictorFDC>(conf);
 	}
-	return result;
+	throw MSXException("Unknown WD2793 FDC connection style " + type);
 }
 
 unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
@@ -110,57 +107,57 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 	unique_ptr<MSXDevice> result;
 	const std::string& type = conf.getXML()->getName();
 	if (type == "PPI") {
-		result.reset(new MSXPPI(conf));
+		result = make_unique<MSXPPI>(conf);
 	} else if (type == "RAM") {
-		result.reset(new MSXRam(conf));
+		result = make_unique<MSXRam>(conf);
 	} else if (type == "VDP") {
-		result.reset(new VDP(conf));
+		result = make_unique<VDP>(conf);
 	} else if (type == "E6Timer") {
-		result.reset(new MSXE6Timer(conf));
+		result = make_unique<MSXE6Timer>(conf);
 	} else if (type == "ResetStatusRegister" || type == "F4Device") {
-		result.reset(new MSXResetStatusRegister(conf));
+		result = make_unique<MSXResetStatusRegister>(conf);
 	} else if (type == "TurboRPause") {
-		result.reset(new MSXTurboRPause(conf));
+		result = make_unique<MSXTurboRPause>(conf);
 	} else if (type == "TurboRPCM") {
-		result.reset(new MSXTurboRPCM(conf));
+		result = make_unique<MSXTurboRPCM>(conf);
 	} else if (type == "S1985") {
-		result.reset(new MSXS1985(conf));
+		result = make_unique<MSXS1985>(conf);
 	} else if (type == "S1990") {
-		result.reset(new MSXS1990(conf));
+		result = make_unique<MSXS1990>(conf);
 	} else if (type == "PSG") {
-		result.reset(new MSXPSG(conf));
+		result = make_unique<MSXPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
-		result.reset(new MSXMusic(conf));
+		result = make_unique<MSXMusic>(conf);
 	} else if (type == "FMPAC") {
-		result.reset(new MSXFmPac(conf));
+		result = make_unique<MSXFmPac>(conf);
 	} else if (type == "MSX-AUDIO") {
-		result.reset(new MSXAudio(conf));
+		result = make_unique<MSXAudio>(conf);
 	} else if (type == "MusicModuleMIDI") {
-		result.reset(new MC6850(conf));
+		result = make_unique<MC6850>(conf);
 	} else if (type == "YamahaSFG") {
-		result.reset(new MSXYamahaSFG(conf));
+		result = make_unique<MSXYamahaSFG>(conf);
 	} else if (type == "MoonSound") {
-		result.reset(new MSXMoonSound(conf));
+		result = make_unique<MSXMoonSound>(conf);
 	} else if (type == "OPL3Cartridge") {
-		result.reset(new MSXOPL3Cartridge(conf));
+		result = make_unique<MSXOPL3Cartridge>(conf);
 	} else if (type == "Kanji") {
-		result.reset(new MSXKanji(conf));
+		result = make_unique<MSXKanji>(conf);
 	} else if (type == "Bunsetsu") {
-		result.reset(new MSXBunsetsu(conf));
+		result = make_unique<MSXBunsetsu>(conf);
 	} else if (type == "MemoryMapper") {
-		result.reset(new MSXMemoryMapper(conf));
+		result = make_unique<MSXMemoryMapper>(conf);
 	} else if (type == "PanasonicRAM") {
-		result.reset(new PanasonicRam(conf));
+		result = make_unique<PanasonicRam>(conf);
 	} else if (type == "RTC") {
-		result.reset(new MSXRTC(conf));
+		result = make_unique<MSXRTC>(conf);
 	} else if (type == "PasswordCart") {
-		result.reset(new PasswordCart(conf));
+		result = make_unique<PasswordCart>(conf);
 	} else if (type == "ROM") {
 		result = RomFactory::create(conf);
 	} else if (type == "PrinterPort") {
-		result.reset(new MSXPrinterPort(conf));
+		result = make_unique<MSXPrinterPort>(conf);
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I
-		result.reset(new MSXSCCPlusCart(conf));
+		result = make_unique<MSXSCCPlusCart>(conf);
 	} else if ((type == "WD2793") || (type == "WD1770")) {
 		result = createWD2793BasedFDC(conf);
 	} else if (type == "Microsol") {
@@ -168,62 +165,62 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 			"Microsol as FDC type is deprecated, please update "
 			"your config file to use WD2793 with connectionstyle "
 			"Microsol!");
-		result.reset(new MicrosolFDC(conf));
+		result = make_unique<MicrosolFDC>(conf);
 	} else if (type == "MB8877A") {
 		conf.getCliComm().printWarning(
 			"MB8877A as FDC type is deprecated, please update your "
 			"config file to use WD2793 with connectionstyle National!");
-		result.reset(new NationalFDC(conf));
+		result = make_unique<NationalFDC>(conf);
 	} else if (type == "TC8566AF") {
-		result.reset(new TurboRFDC(conf));
+		result = make_unique<TurboRFDC>(conf);
 	} else if (type == "SunriseIDE") {
-		result.reset(new SunriseIDE(conf));
+		result = make_unique<SunriseIDE>(conf);
 	} else if (type == "GoudaSCSI") {
-		result.reset(new GoudaSCSI(conf));
+		result = make_unique<GoudaSCSI>(conf);
 	} else if (type == "MegaSCSI") {
-		result.reset(new MegaSCSI(conf));
+		result = make_unique<MegaSCSI>(conf);
 	} else if (type == "ESERAM") {
-		result.reset(new ESE_RAM(conf));
+		result = make_unique<ESE_RAM>(conf);
 	} else if (type == "WaveSCSI") {
-		result.reset(new ESE_SCC(conf, true));
+		result = make_unique<ESE_SCC>(conf, true);
 	} else if (type == "ESESCC") {
-		result.reset(new ESE_SCC(conf, false));
+		result = make_unique<ESE_SCC>(conf, false);
 	} else if (type == "Matsushita") {
-		result.reset(new MSXMatsushita(conf));
+		result = make_unique<MSXMatsushita>(conf);
 	} else if (type == "VictorHC9xSystemControl") {
-		result.reset(new MSXVictorHC9xSystemControl(conf));
+		result = make_unique<MSXVictorHC9xSystemControl>(conf);
 	} else if (type == "CielTurbo") {
-		result.reset(new MSXCielTurbo(conf));
+		result = make_unique<MSXCielTurbo>(conf);
 	} else if (type == "Kanji12") {
-		result.reset(new MSXKanji12(conf));
+		result = make_unique<MSXKanji12>(conf);
 	} else if (type == "MSX-MIDI") {
-		result.reset(new MSXMidi(conf));
+		result = make_unique<MSXMidi>(conf);
 	} else if (type == "MSX-RS232") {
-		result.reset(new MSXRS232(conf));
+		result = make_unique<MSXRS232>(conf);
 	} else if (type == "MegaRam") {
-		result.reset(new MSXMegaRam(conf));
+		result = make_unique<MSXMegaRam>(conf);
 	} else if (type == "PAC") {
-		result.reset(new MSXPac(conf));
+		result = make_unique<MSXPac>(conf);
 	} else if (type == "HBI55") {
-		result.reset(new MSXHBI55(conf));
+		result = make_unique<MSXHBI55>(conf);
 	} else if (type == "DebugDevice") {
-		result.reset(new DebugDevice(conf));
+		result = make_unique<DebugDevice>(conf);
 	} else if (type == "V9990") {
-		result.reset(new V9990(conf));
+		result = make_unique<V9990>(conf);
 	} else if (type == "Video9000") {
-		result.reset(new Video9000(conf));
+		result = make_unique<Video9000>(conf);
 	} else if (type == "ADVram") {
-		result.reset(new ADVram(conf));
+		result = make_unique<ADVram>(conf);
 	} else if (type == "PioneerLDControl") {
 #if COMPONENT_LASERDISC
-		result.reset(new PioneerLDControl(conf));
+		result = make_unique<PioneerLDControl>(conf);
 #else
 		throw MSXException("Laserdisc component not compiled in");
 #endif
 	} else if (type == "Nowind") {
-		result.reset(new NowindInterface(conf));
+		result = make_unique<NowindInterface>(conf);
 	} else if (type == "Mirror") {
-		result.reset(new MSXMirrorDevice(conf));
+		result = make_unique<MSXMirrorDevice>(conf);
 	} else {
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");

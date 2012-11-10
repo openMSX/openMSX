@@ -15,6 +15,7 @@
 #include "likely.hh"
 #include "vla.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <cstring>
 #include <cassert>
@@ -164,8 +165,8 @@ void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 	assert(channel < numChannels);
 	bool wasRecording = writer[channel].get() != nullptr;
 	if (!filename.empty()) {
-		writer[channel].reset(new Wav16Writer(
-			filename, stereo, inputSampleRate));
+		writer[channel] = make_unique<Wav16Writer>(
+			filename, stereo, inputSampleRate);
 	} else {
 		writer[channel].reset();
 	}
