@@ -16,6 +16,7 @@ class PrinterPortSimpl : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortSimpl(const HardwareConfig& hwConf);
+	~PrinterPortSimpl();
 
 	// PrinterPortDevice
 	virtual bool getStatus(EmuTime::param time);

@@ -8,6 +8,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cstring>
 #include <cerrno>
 #include "Midi_w32.hh"
@@ -30,8 +31,8 @@ void MidiInWindows::registerAll(EventDistributor& eventDistributor,
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		controller.registerPluggable(std::unique_ptr<Pluggable>(
-			new MidiInWindows(eventDistributor, scheduler, i)));
+		controller.registerPluggable(make_unique<MidiInWindows>(
+			eventDistributor, scheduler, i));
 	}
 }
 

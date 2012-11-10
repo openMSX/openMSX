@@ -13,7 +13,7 @@
 #include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
-#include <memory>
+#include "memory.hh"
 
 using std::unique_ptr;
 using std::string;
@@ -57,7 +57,7 @@ void DummyCassettePort::setLaserdiscPlayer(LaserdiscPlayer* /* laserdisc */)
 
 CassettePort::CassettePort(const HardwareConfig& hwConf)
 	: Connector(hwConf.getMotherBoard().getPluggingController(), "cassetteport",
-	            unique_ptr<Pluggable>(new DummyCassetteDevice()))
+	            make_unique<DummyCassetteDevice>())
 	, motherBoard(hwConf.getMotherBoard())
 #if COMPONENT_LASERDISC
 	, laserdiscPlayer(nullptr)
@@ -65,8 +65,8 @@ CassettePort::CassettePort(const HardwareConfig& hwConf)
 	, lastOutput(false)
 	, motorControl(false)
 {
-	getPluggingController().registerPluggable(unique_ptr<Pluggable>(
-		new CassettePlayer(hwConf)));
+	getPluggingController().registerPluggable(
+		make_unique<CassettePlayer>(hwConf));
 }
 
 CassettePort::~CassettePort()

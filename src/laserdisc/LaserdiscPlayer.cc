@@ -22,6 +22,7 @@
 #include "ThrottleManager.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "memory.hh"
 
 using std::unique_ptr;
 using std::string;
@@ -110,8 +111,8 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 static XMLElement createXML()
 {
 	XMLElement xml("laserdiscplayer");
-	unique_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "30000")));
+	auto sound = make_unique<XMLElement>("sound");
+	sound->addChild(make_unique<XMLElement>("volume", "30000"));
 	xml.addChild(std::move(sound));
 	return xml;
 }

@@ -50,6 +50,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::unique_ptr;
 using std::move;
@@ -149,7 +150,7 @@ static RomType guessRomType(const Rom& rom)
 
 unique_ptr<MSXDevice> create(const DeviceConfig& config)
 {
-	unique_ptr<Rom> rom(new Rom(config.getAttribute("id"), "rom", config));
+	auto rom = make_unique<Rom>(config.getAttribute("id"), "rom", config);
 
 	// Get specified mapper type from the config.
 	RomType type;

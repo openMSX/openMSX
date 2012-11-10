@@ -8,6 +8,7 @@
 #include "ZipFileAdapter.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstring>
 
@@ -20,7 +21,7 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 	static const byte GZ_HEADER[3]  = { 0x1F, 0x8B, 0x08 };
 	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
-	std::unique_ptr<FileBase> file(new LocalFile(url, mode));
+	std::unique_ptr<FileBase> file = make_unique<LocalFile>(url, mode);
 	byte buf[4];
 	if (file->getSize() >= 4) {
 		file->read(buf, 4);

@@ -16,6 +16,10 @@ MidiOutLogger::MidiOutLogger(CommandController& commandController)
 {
 }
 
+MidiOutLogger::~MidiOutLogger()
+{
+}
+
 void MidiOutLogger::plugHelper(Connector& /*connector*/,
                                EmuTime::param /*time*/)
 {

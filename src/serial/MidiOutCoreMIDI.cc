@@ -6,6 +6,7 @@
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <mach/mach_time.h>
 
 
@@ -19,8 +20,8 @@ void MidiOutCoreMIDI::registerAll(PluggingController& controller)
 	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
 		MIDIEndpointRef endpoint = MIDIGetDestination(i);
 		if (endpoint) {
-			controller.registerPluggable(std::unique_ptr<Pluggable>(
-				new MidiOutCoreMIDI(endpoint)));
+			controller.registerPluggable(
+				make_unique<MidiOutCoreMIDI>(endpoint));
 		}
 	}
 }

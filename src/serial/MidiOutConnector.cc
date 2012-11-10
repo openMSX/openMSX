@@ -5,6 +5,7 @@
 #include "DummyMidiOutDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::string;
 
@@ -13,7 +14,7 @@ namespace openmsx {
 MidiOutConnector::MidiOutConnector(PluggingController& pluggingController,
                                    string_ref name)
 	: Connector(pluggingController, name,
-	            std::unique_ptr<Pluggable>(new DummyMidiOutDevice()))
+	            make_unique<DummyMidiOutDevice>())
 {
 }
 

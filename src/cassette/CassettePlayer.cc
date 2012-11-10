@@ -51,6 +51,7 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -88,8 +89,8 @@ private:
 static XMLElement createXML()
 {
 	XMLElement xml("cassetteplayer");
-	unique_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "5000")));
+	auto sound = make_unique<XMLElement>("sound");
+	sound->addChild(make_unique<XMLElement>("volume", "5000"));
 	xml.addChild(std::move(sound));
 	return xml;
 }

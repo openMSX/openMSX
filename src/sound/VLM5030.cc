@@ -84,6 +84,7 @@ chirp 12-..: vokume   0   : silent
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cstring>
 #include <cstdlib>
 
@@ -581,14 +582,13 @@ VLM5030::Impl::Impl(const std::string& name, const std::string& desc,
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
-	std::unique_ptr<XMLElement> romElement(
-		std::unique_ptr<XMLElement>(new XMLElement("rom")));
-	romElement->addChild(std::unique_ptr<XMLElement>( // load by sha1sum
-		new XMLElement("sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40")));
-	romElement->addChild(std::unique_ptr<XMLElement>( // load by predefined filename in software rom's dir
-		new XMLElement("filename", FileOperations::stripExtension(romFilename) + "_voice.rom")));
-	romElement->addChild(std::unique_ptr<XMLElement>( // or hardcoded filename in ditto dir
-		new XMLElement("filename", "keyboardmaster/voice.rom")));
+	auto romElement = make_unique<XMLElement>("rom");
+	romElement->addChild(make_unique<XMLElement>( // load by sha1sum
+		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40"));
+	romElement->addChild(make_unique<XMLElement>( // load by predefined filename in software rom's dir
+		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom"));
+	romElement->addChild(make_unique<XMLElement>( // or hardcoded filename in ditto dir
+		"filename", "keyboardmaster/voice.rom"));
 	voiceROMconfig.addChild(std::move(romElement));
 	rom.reset(new Rom(name + " ROM", "rom",
 	                  DeviceConfig(config, voiceROMconfig)));

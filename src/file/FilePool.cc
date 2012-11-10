@@ -15,6 +15,7 @@
 #include "CliComm.hh"
 #include "Timer.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include "sha1.hh"
 #include <fstream>
 #include <cassert>
@@ -260,7 +261,7 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 		time_t& time = it->second.first;
 		const string& filename = it->second.second;
 		try {
-			unique_ptr<File> file(new File(filename));
+			auto file = make_unique<File>(filename);
 			time_t newTime = file->getModificationDate();
 			if (time == newTime) {
 				// When modification time is unchanged, assume
@@ -341,7 +342,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 	if (it == pool.end()) {
 		// not in pool
 		try {
-			unique_ptr<File> file(new File(filename));
+			auto file = make_unique<File>(filename);
 			Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 			time_t time = FileOperations::getModificationDate(st);
 			insert(sum, time, filename);
@@ -359,12 +360,12 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {
-					unique_ptr<File> file(new File(filename));
+					auto file = make_unique<File>(filename);
 					return file;
 				}
 			} else {
 				// db outdated
-				unique_ptr<File> file(new File(filename));
+				auto file = make_unique<File>(filename);
 				Sha1Sum sum = calcSha1sum(*file, cliComm, distributor);
 				remove(it);
 				insert(sum, time, filename);

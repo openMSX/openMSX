@@ -11,6 +11,7 @@
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
+#include "memory.hh"
 #include <cstring>
 #include <limits>
 
@@ -312,10 +313,11 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 
 void XmlOutputArchive::beginTag(const char* tag)
 {
-	XMLElement* elem = new XMLElement(tag);
+	auto elem = make_unique<XMLElement>(tag);
+	auto elemP = elem.get();
 	assert(!current.empty());
-	current.back()->addChild(std::unique_ptr<XMLElement>(elem));
-	current.push_back(elem);
+	current.back()->addChild(std::move(elem));
+	current.push_back(elemP);
 }
 void XmlOutputArchive::endTag(const char* tag)
 {

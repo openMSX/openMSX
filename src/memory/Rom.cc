@@ -21,6 +21,7 @@
 #include "IPSPatch.hh"
 #include "StringOp.hh"
 #include "sha1.hh"
+#include "memory.hh"
 #include <sstream>
 #include <cstring>
 
@@ -229,8 +230,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			// calculate before content is altered
 			getOriginalSHA1();
 
-			unique_ptr<const PatchInterface> patch(
-				new EmptyPatch(rom, size));
+			std::unique_ptr<PatchInterface> patch =
+				make_unique<EmptyPatch>(rom, size);
 
 			XMLElement::Children patches;
 			patchesElem->getChildren("ips", patches);

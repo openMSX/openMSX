@@ -7,6 +7,7 @@
 #include "Display.hh"
 #include "Version.hh"
 #include "GLUtil.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 
 // Video systems:
@@ -115,9 +116,9 @@ unique_ptr<RendererSetting> createRendererSetting(
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 	}
 #endif
-	unique_ptr<RendererSetting> setting(new RendererSetting(commandController,
+	auto setting = make_unique<RendererSetting>(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDL, rendererMap));
+		SDL, rendererMap);
 
 	// A saved value 'none' can be very confusing, so don't save it.
 	// If it did get saved for some reason (old openmsx version?)

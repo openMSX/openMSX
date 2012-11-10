@@ -11,6 +11,7 @@
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
 #include "AlarmEvent.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
 
@@ -205,8 +206,7 @@ void HotKey::saveBindings(XMLElement& config) const
 		BindMap::const_iterator it2 = cmdMap.find(*it);
 		assert(it2 != cmdMap.end());
 		const HotKeyInfo& info = it2->second;
-		std::unique_ptr<XMLElement> elem(
-			new XMLElement("bind", info.command));
+		auto elem = make_unique<XMLElement>("bind", info.command);
 		elem->addAttribute("key", (*it)->toString());
 		if (info.repeat) {
 			elem->addAttribute("repeat", "true");
@@ -216,7 +216,7 @@ void HotKey::saveBindings(XMLElement& config) const
 	// add explicit unbind's
 	for (KeySet::const_iterator it = unboundKeys.begin();
 	     it != unboundKeys.end(); ++it) {
-		std::unique_ptr<XMLElement> elem(new XMLElement("unbind"));
+		auto elem = make_unique<XMLElement>("unbind");
 		elem->addAttribute("key", (*it)->toString());
 		bindingsElement.addChild(std::move(elem));
 	}

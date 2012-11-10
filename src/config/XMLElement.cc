@@ -6,6 +6,7 @@
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "memory.hh"
 #include <libxml/uri.h>
 #include <cassert>
 #include <algorithm>
@@ -219,8 +220,9 @@ XMLElement& XMLElement::getCreateChild(string_ref name,
 {
 	XMLElement* result = findChild(name);
 	if (!result) {
-		result = new XMLElement(name, defaultValue);
-		addChild(unique_ptr<XMLElement>(result));
+		auto p = make_unique<XMLElement>(name, defaultValue);
+		result = p.get();
+		addChild(std::move(p));
 	}
 	return *result;
 }
@@ -231,9 +233,10 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 {
 	XMLElement* result = findChildWithAttribute(name, attName, attValue);
 	if (!result) {
-		result = new XMLElement(name);
-		result->addAttribute(attName, attValue);
-		addChild(unique_ptr<XMLElement>(result));
+		auto p = make_unique<XMLElement>(name);
+		result = p.get();
+		p->addAttribute(attName, attValue);
+		addChild(std::move(p));
 	}
 	return *result;
 }
@@ -268,7 +271,7 @@ void XMLElement::setChildData(string_ref name, string_ref value)
 	if (XMLElement* child = findChild(name)) {
 		child->setData(value);
 	} else {
-		addChild(unique_ptr<XMLElement>(new XMLElement(name, value)));
+		addChild(make_unique<XMLElement>(name, value));
 	}
 }
 
@@ -344,7 +347,7 @@ XMLElement& XMLElement::operator=(const XMLElement& element)
 	removeAllChildren();
 	for (Children::const_iterator it = element.children.begin();
 	     it != element.children.end(); ++it) {
-		addChild(unique_ptr<XMLElement>(new XMLElement(**it)));
+		addChild(make_unique<XMLElement>(**it));
 	}
 	return *this;
 }

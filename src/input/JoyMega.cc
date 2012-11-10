@@ -10,6 +10,7 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 
 using std::string;
@@ -43,10 +44,11 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
 			if (SDL_JoystickNumButtons(joystick) != 0) {
-				controller.registerPluggable(std::unique_ptr<Pluggable>(
-					new JoyMega(eventDistributor,
-					            stateChangeDistributor,
-					            joystick)));
+				controller.registerPluggable(
+					make_unique<JoyMega>(
+						eventDistributor,
+						stateChangeDistributor,
+						joystick));
 			}
 		}
 	}

@@ -4,6 +4,7 @@
 #include "DummyPrinterPortDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 
 using std::string;
@@ -13,7 +14,7 @@ namespace openmsx {
 MSXPrinterPort::MSXPrinterPort(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Connector(MSXDevice::getPluggingController(), "printerport",
-	            std::unique_ptr<Pluggable>(new DummyPrinterPortDevice()))
+	            make_unique<DummyPrinterPortDevice>())
 {
 	data = 255;     // != 0;
 	strobe = false; // != true;

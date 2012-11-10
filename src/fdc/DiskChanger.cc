@@ -27,6 +27,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "serialize_constr.hh"
+#include "memory.hh"
 #include <functional>
 
 using std::set;
@@ -153,12 +154,12 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 	// note: might throw MSXException
 	if (stateChangeDistributor) {
 		stateChangeDistributor->distributeNew(
-			StateChangeDistributor::EventPtr(new MSXCommandEvent(
-				args, scheduler->getCurrentTime())));
+			std::make_shared<MSXCommandEvent>(
+				args, scheduler->getCurrentTime()));
 	} else {
 		signalStateChange(
-			StateChangeDistributor::EventPtr(
-				new MSXCommandEvent(args, EmuTime::zero)));
+			std::make_shared<MSXCommandEvent>(
+				args, EmuTime::zero));
 	}
 }
 
@@ -212,7 +213,7 @@ void DiskChanger::insertDisk(const vector<TclObject>& args)
 
 void DiskChanger::ejectDisk()
 {
-	changeDisk(std::unique_ptr<Disk>(new DummyDisk()));
+	changeDisk(make_unique<DummyDisk>());
 }
 
 void DiskChanger::changeDisk(std::unique_ptr<Disk> newDisk)

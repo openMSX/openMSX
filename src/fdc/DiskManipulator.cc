@@ -442,7 +442,7 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 			"Please select partition number.");
 	}
 
-	unique_ptr<MSXtar> result(new MSXtar(disk));
+	auto result = make_unique<MSXtar>(disk);
 	try {
 		result->chdir(driveData.workingDir[driveData.partition]);
 	} catch (MSXException&) {

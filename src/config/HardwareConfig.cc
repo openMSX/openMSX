@@ -16,6 +16,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
 
@@ -31,8 +32,7 @@ namespace openmsx {
 unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 	MSXMotherBoard& motherBoard, const string& machineName)
 {
-	unique_ptr<HardwareConfig> result(
-		new HardwareConfig(motherBoard, machineName));
+	auto result = make_unique<HardwareConfig>(motherBoard, machineName);
 	result->load("machines");
 	return result;
 }
@@ -40,8 +40,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 	MSXMotherBoard& motherBoard, const string& extensionName)
 {
-	unique_ptr<HardwareConfig> result(
-		new HardwareConfig(motherBoard, extensionName));
+	auto result = make_unique<HardwareConfig>(motherBoard, extensionName);
 	result->load("extensions");
 	result->setName(extensionName);
 	return result;
@@ -51,10 +50,9 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	MSXMotherBoard& motherBoard, const string& romfile,
 	const string& slotname, const vector<string>& options)
 {
-	unique_ptr<HardwareConfig> result(
-		new HardwareConfig(motherBoard, "rom"));
+	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	string_ref sramfile = FileOperations::getFilename(romfile);
-	unique_ptr<FileContext> context(new UserFileContext("roms/" + sramfile));
+	auto context = make_unique<UserFileContext>("roms/" + sramfile);
 
 	vector<string> ipsfiles;
 	string mapper;
@@ -92,42 +90,39 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
 
-	unique_ptr<XMLElement> extension(new XMLElement("extension"));
-	unique_ptr<XMLElement> devices(new XMLElement("devices"));
-	unique_ptr<XMLElement> primary(new XMLElement("primary"));
+	auto extension = make_unique<XMLElement>("extension");
+	auto devices   = make_unique<XMLElement>("devices");
+	auto primary   = make_unique<XMLElement>("primary");
 	primary->addAttribute("slot", slotname);
-	unique_ptr<XMLElement> secondary(new XMLElement("secondary"));
+	auto secondary = make_unique<XMLElement>("secondary");
 	secondary->addAttribute("slot", slotname);
-	unique_ptr<XMLElement> device(new XMLElement("ROM"));
+	auto device = make_unique<XMLElement>("ROM");
 	device->addAttribute("id", "MSXRom");
-	unique_ptr<XMLElement> mem(new XMLElement("mem"));
+	auto mem = make_unique<XMLElement>("mem");
 	mem->addAttribute("base", "0x0000");
 	mem->addAttribute("size", "0x10000");
 	device->addChild(move(mem));
-	unique_ptr<XMLElement> rom(new XMLElement("rom"));
-	rom->addChild(unique_ptr<XMLElement>(
-		new XMLElement("resolvedFilename", resolvedFilename)));
-	rom->addChild(unique_ptr<XMLElement>(
-		new XMLElement("filename", romfile)));
+	auto rom = make_unique<XMLElement>("rom");
+	rom->addChild(make_unique<XMLElement>(
+		"resolvedFilename", resolvedFilename));
+	rom->addChild(make_unique<XMLElement>("filename", romfile));
 	if (!ipsfiles.empty()) {
-		unique_ptr<XMLElement> patches(new XMLElement("patches"));
+		auto patches = make_unique<XMLElement>("patches");
 		for (vector<string>::const_iterator it = ipsfiles.begin();
 		     it != ipsfiles.end(); ++it) {
-			patches->addChild(unique_ptr<XMLElement>(
-				new XMLElement("ips", *it)));
+			patches->addChild(make_unique<XMLElement>(
+				"ips", *it));
 		}
 		rom->addChild(move(patches));
 	}
 	device->addChild(move(rom));
-	unique_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(unique_ptr<XMLElement>(
-		new XMLElement("volume", "9000")));
+	auto sound = make_unique<XMLElement>("sound");
+	sound->addChild(make_unique<XMLElement>("volume", "9000"));
 	device->addChild(move(sound));
-	device->addChild(unique_ptr<XMLElement>(
-		new XMLElement("mappertype",
-		               mapper.empty() ? "auto" : mapper)));
-	device->addChild(unique_ptr<XMLElement>(
-		new XMLElement("sramname", sramfile + ".SRAM")));
+	device->addChild(make_unique<XMLElement>(
+		"mappertype", mapper.empty() ? "auto" : mapper));
+	device->addChild(make_unique<XMLElement>(
+		"sramname", sramfile + ".SRAM"));
 
 	secondary->addChild(move(device));
 	primary->addChild(move(secondary));
@@ -261,8 +256,8 @@ void HardwareConfig::load(string_ref path)
 
 	assert(!userName.empty());
 	string_ref baseName = FileOperations::getBaseName(filename);
-	setFileContext(unique_ptr<FileContext>(
-		new ConfigFileContext(baseName, hwName, userName)));
+	setFileContext(make_unique<ConfigFileContext>(
+		baseName, hwName, userName));
 }
 
 void HardwareConfig::parseSlots()

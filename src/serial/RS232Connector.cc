@@ -5,13 +5,14 @@
 #include "DummyRS232Device.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 RS232Connector::RS232Connector(PluggingController& pluggingController,
                                string_ref name)
 	: Connector(pluggingController, name,
-	            std::unique_ptr<Pluggable>(new DummyRS232Device()))
+	            make_unique<DummyRS232Device>())
 {
 }
 

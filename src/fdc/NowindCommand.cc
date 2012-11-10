@@ -10,6 +10,7 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "CommandException.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
 #include <deque>
@@ -78,8 +79,8 @@ void NowindCommand::processHdimage(
 	for (set<unsigned>::const_iterator it = partitions.begin();
 	     it != partitions.end(); ++it) {
 		try {
-			unique_ptr<DiskPartition> partition(
-				new DiskPartition(*wholeDisk, *it, wholeDisk));
+			auto partition = make_unique<DiskPartition>(
+				*wholeDisk, *it, wholeDisk);
 			DiskChanger* drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);

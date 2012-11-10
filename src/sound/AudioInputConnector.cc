@@ -5,13 +5,14 @@
 #include "AudioInputDevice.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
 AudioInputConnector::AudioInputConnector(PluggingController& pluggingController,
                                          string_ref name)
 	: Connector(pluggingController, name,
-	            std::unique_ptr<Pluggable>(new DummyAudioInputDevice()))
+	            make_unique<DummyAudioInputDevice>())
 {
 }
 

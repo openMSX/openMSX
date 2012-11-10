@@ -17,6 +17,7 @@ class MidiOutLogger : public MidiOutDevice
 {
 public:
 	explicit MidiOutLogger(CommandController& commandController);
+	~MidiOutLogger();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);

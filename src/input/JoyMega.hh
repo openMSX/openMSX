@@ -25,6 +25,11 @@ public:
 	                        StateChangeDistributor& stateChangeDistributor,
 	                        PluggingController& controller);
 
+	JoyMega(MSXEventDistributor& eventDistributor,
+	         StateChangeDistributor& stateChangeDistributor,
+	         SDL_Joystick* joystick);
+	virtual ~JoyMega();
+
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -39,14 +44,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-protected:
-	virtual ~JoyMega();
-
 private:
-	JoyMega(MSXEventDistributor& eventDistributor,
-	         StateChangeDistributor& stateChangeDistributor,
-	         SDL_Joystick* joystick);
-
 	void plugHelper2();
 	unsigned calcInitialState();
 	void checkTime(EmuTime::param time);

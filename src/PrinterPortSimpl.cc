@@ -5,6 +5,7 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "serialize.hh"
+#include "memory.hh"
 
 using std::unique_ptr;
 
@@ -12,6 +13,10 @@ namespace openmsx {
 
 PrinterPortSimpl::PrinterPortSimpl(const HardwareConfig& hwConf_)
 	: hwConf(hwConf_)
+{
+}
+
+PrinterPortSimpl::~PrinterPortSimpl()
 {
 }
 
@@ -33,8 +38,8 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 static XMLElement createXML()
 {
 	XMLElement xml("simpl");
-	unique_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(unique_ptr<XMLElement>(new XMLElement("volume", "12000")));
+	auto sound = make_unique<XMLElement>("sound");
+	sound->addChild(make_unique<XMLElement>("volume", "12000"));
 	xml.addChild(std::move(sound));
 	return xml;
 }

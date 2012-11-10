@@ -275,11 +275,10 @@ unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 	const PixelOperations<Pixel>& pixelOps,
 	unsigned inWidth)
 {
-	unique_ptr<ScalerOutput<Pixel>> direct(
-		new DirectScalerOutput<Pixel>(output));
+	auto direct = make_unique<DirectScalerOutput<Pixel>>(output);
 	switch (inWidth) {
 	case 320:
-		return direct;
+		return std::move(direct);
 	case 288:
 		return make_unique<StretchScalerOutput288<Pixel>>(
 			std::move(direct), pixelOps);

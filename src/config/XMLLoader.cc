@@ -5,6 +5,7 @@
 #include "XMLException.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "memory.hh"
 #include <cassert>
 #include <cstring>
 #include <libxml/parser.h>
@@ -36,8 +37,8 @@ static void cbStartElement(
 	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
 {
 	XMLLoaderHelper* helper = static_cast<XMLLoaderHelper*>(helper_);
-	unique_ptr<XMLElement> newElem(
-		new XMLElement(reinterpret_cast<const char*>(localname)));
+	auto newElem = make_unique<XMLElement>(
+		reinterpret_cast<const char*>(localname));
 
 	for (int i = 0; i < nb_attributes; i++) {
 		const char* valueStart =
@@ -46,8 +47,7 @@ static void cbStartElement(
 			reinterpret_cast<const char*>(attrs[i * 5 + 4]);
 		newElem->addAttribute(
 			reinterpret_cast<const char*>(attrs[i * 5 + 0]),
-			std::string(valueStart, valueEnd - valueStart)
-			);
+			std::string(valueStart, valueEnd - valueStart));
 	}
 
 	XMLElement* newElem2 = newElem.get();
