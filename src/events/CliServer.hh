@@ -37,7 +37,6 @@ private:
 	std::string socketName;
 	SOCKET listenSock;
 	bool exitLoop;
-
 };
 
 } // namespace openmsx

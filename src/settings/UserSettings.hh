@@ -17,7 +17,7 @@ class Setting;
 class UserSettings : private noncopyable
 {
 public:
-	typedef std::vector<Setting*> Settings;
+	typedef std::vector<std::unique_ptr<Setting>> Settings;
 
 	explicit UserSettings(CommandController& commandController);
 	~UserSettings();

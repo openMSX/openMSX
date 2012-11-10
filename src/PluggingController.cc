@@ -114,10 +114,6 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 
 PluggingController::~PluggingController()
 {
-	for (Pluggables::iterator it = pluggables.begin();
-	     it != pluggables.end(); ++it) {
-		delete *it;
-	}
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
 	// but if it does, it helps to catch an error.
@@ -148,7 +144,7 @@ void PluggingController::unregisterConnector(Connector& connector)
 
 void PluggingController::registerPluggable(std::unique_ptr<Pluggable> pluggable)
 {
-	pluggables.push_back(pluggable.release());
+	pluggables.push_back(std::move(pluggable));
 }
 
 
@@ -236,9 +232,9 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 		for (PluggingController::Pluggables::const_iterator it =
 		                        pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
-			Pluggable* pluggable = *it;
-			if (pluggable->getClass() == className) {
-				pluggables.insert(pluggable->getName());
+			auto& pluggable = **it;
+			if (pluggable.getClass() == className) {
+				pluggables.insert(pluggable.getName());
 			}
 		}
 		completeString(tokens, pluggables);
@@ -320,7 +316,7 @@ Pluggable* PluggingController::findPluggable(string_ref name) const
 	for (Pluggables::const_iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
 		if ((*it)->getName() == name) {
-			return *it;
+			return it->get();
 		}
 	}
 	return nullptr;

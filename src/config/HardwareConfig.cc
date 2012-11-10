@@ -162,10 +162,9 @@ HardwareConfig::~HardwareConfig()
 		UNREACHABLE;
 	}
 #endif
-	for (Devices::reverse_iterator it = devices.rbegin();
-	     it != devices.rend(); ++it) {
-		motherBoard.removeDevice(**it);
-		delete *it;
+	while (!devices.empty()) {
+		motherBoard.removeDevice(*devices.back());
+		devices.pop_back();
 	}
 	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
 	for (int ps = 0; ps < 4; ++ps) {
@@ -188,11 +187,11 @@ HardwareConfig::~HardwareConfig()
 
 void HardwareConfig::testRemove() const
 {
-	Devices alreadyRemoved;
+	std::vector<MSXDevice*> alreadyRemoved;
 	for (Devices::const_reverse_iterator it = devices.rbegin();
 	     it != devices.rend(); ++it) {
 		(*it)->testRemove(alreadyRemoved);
-		alreadyRemoved.push_back(*it);
+		alreadyRemoved.push_back(it->get());
 	}
 	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
 	for (int ps = 0; ps < 4; ++ps) {
@@ -266,10 +265,8 @@ void HardwareConfig::parseSlots()
 	//      once machine and extensions are parsed separately move parsing
 	//      of 'expanded' to MSXCPUInterface
 	//
-	XMLElement::Children primarySlots;
-	getDevices().getChildren("primary", primarySlots);
-	for (XMLElement::Children::const_iterator it = primarySlots.begin();
-	     it != primarySlots.end(); ++it) {
+	auto primarySlots = getDevices().getChildren("primary");
+	for (auto it = primarySlots.begin(); it != primarySlots.end(); ++it) {
 		const string& primSlot = (*it)->getAttribute("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
 		if ((*it)->getAttributeAsBool("external", false)) {
@@ -281,9 +278,8 @@ void HardwareConfig::parseSlots()
 			createExternalSlot(ps);
 			continue;
 		}
-		XMLElement::Children secondarySlots;
-		(*it)->getChildren("secondary", secondarySlots);
-		for (XMLElement::Children::const_iterator it2 = secondarySlots.begin();
+		auto secondarySlots = (*it)->getChildren("secondary");
+		for (auto it2 = secondarySlots.begin();
 		     it2 != secondarySlots.end(); ++it2) {
 			const string& secSlot = (*it2)->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
@@ -326,10 +322,10 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 		} else if (name == "secondary") {
 			createDevices(sub, primary, &sub);
 		} else {
-			unique_ptr<MSXDevice> device(DeviceFactory::create(
-				DeviceConfig(*this, sub, primary, secondary)));
+			auto device = DeviceFactory::create(
+				DeviceConfig(*this, sub, primary, secondary));
 			if (device.get()) {
-				addDevice(device.release());
+				addDevice(std::move(device));
 			} else {
 				motherBoard.getMSXCliComm().printWarning(
 					"Deprecated device: \"" +
@@ -371,10 +367,10 @@ int HardwareConfig::getFreePrimarySlot()
 	return ps;
 }
 
-void HardwareConfig::addDevice(MSXDevice* device)
+void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 {
 	motherBoard.addDevice(*device);
-	devices.push_back(device);
+	devices.push_back(std::move(device));
 }
 
 const string& HardwareConfig::getName() const

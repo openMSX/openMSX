@@ -45,12 +45,9 @@ public:
 private:
 	struct ReverseChunk {
 		ReverseChunk();
-		~ReverseChunk();
 
 		EmuTime time;
-		// TODO use unique_ptr in the future (c++0x), or hold
-		//      MemBuffer by value and make it moveable
-		std::shared_ptr<MemBuffer<byte>> savestate;
+		std::unique_ptr<MemBuffer<byte>> savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should

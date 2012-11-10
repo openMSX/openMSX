@@ -132,10 +132,6 @@ ReverseManager::ReverseChunk::ReverseChunk()
 {
 }
 
-ReverseManager::ReverseChunk::~ReverseChunk()
-{
-}
-
 
 class EndLogEvent : public StateChange
 {
@@ -727,7 +723,8 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 		}
 		newChunk.eventCount = replayIndex;
 
-		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] = newChunk;
+		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] =
+			std::move(newChunk);
 	}
 
 	// Note: untill this point we didn't make any changes to the current

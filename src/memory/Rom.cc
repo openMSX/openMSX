@@ -51,10 +51,8 @@ Rom::Rom(const string& name_, const string& description_,
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
-	XMLElement::Children romConfigs;
-	config.getXML()->getChildren("rom", romConfigs);
-	for (XMLElement::Children::const_iterator it = romConfigs.begin();
-	     it != romConfigs.end(); ++it) {
+	auto romConfigs = config.getXML()->getChildren("rom");
+	for (auto it = romConfigs.begin(); it != romConfigs.end(); ++it) {
 		if ((*it)->getAttribute("id", "") == id) {
 			try {
 				init(config.getMotherBoard(), **it, config.getFileContext());
@@ -92,8 +90,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	XMLElement::Children sums;
-	config.getChildren("sha1", sums);
+	auto sums = config.getChildren("sha1");
 	const XMLElement* resolvedFilenameElem = config.findChild("resolvedFilename");
 	const XMLElement* resolvedSha1Elem     = config.findChild("resolvedSha1");
 	const XMLElement* filenameElem         = config.findChild("filename");
@@ -152,8 +149,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. then try all alternative sha1sums ..
 		// (this might retry the actual sha1sum)
 		if (!file.get()) {
-			for (XMLElement::Children::const_iterator it = sums.begin();
-			     it != sums.end(); ++it) {
+			for (auto it = sums.begin(); it != sums.end(); ++it) {
 				Sha1Sum sha1((*it)->getData());
 				file = filepool.getFile(fileType, sha1);
 				if (file.get()) {
@@ -234,10 +230,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			unique_ptr<PatchInterface> patch =
 				make_unique<EmptyPatch>(rom, size);
 
-			XMLElement::Children patches;
-			patchesElem->getChildren("ips", patches);
-			for (XMLElement::Children::const_iterator it
-			       = patches.begin(); it != patches.end(); ++it) {
+			auto patches = patchesElem->getChildren("ips");
+			for (auto it = patches.begin(); it != patches.end(); ++it) {
 				Filename filename((*it)->getData(), context);
 				patch = make_unique<IPSPatch>(
 					filename, std::move(patch));
@@ -321,14 +315,12 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 bool Rom::checkSHA1(const XMLElement& config)
 {
-	XMLElement::Children sums;
-	config.getChildren("sha1", sums);
+	auto sums = config.getChildren("sha1");
 	if (sums.empty()) {
 		return true;
 	}
 	string sha1sum = getOriginalSHA1().toString();
-	for (XMLElement::Children::const_iterator it = sums.begin();
-	     it != sums.end(); ++it) {
+	for (auto it = sums.begin(); it != sums.end(); ++it) {
 		if ((*it)->getData() == sha1sum) {
 			return true;
 		}

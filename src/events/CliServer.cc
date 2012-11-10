@@ -7,9 +7,9 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
+#include "memory.hh"
 #include "statp.hh"
 #include <string>
-#include <memory>
 
 #ifdef _WIN32
 #include <fstream>

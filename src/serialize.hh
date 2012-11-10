@@ -707,7 +707,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	std::shared_ptr<MemBuffer<byte>> releaseBuffer();
+	std::unique_ptr<MemBuffer<byte>> releaseBuffer();
 
 private:
 	void put(const void* data, unsigned len)

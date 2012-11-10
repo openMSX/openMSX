@@ -20,6 +20,30 @@
 // - Clean up this mess!
 namespace openmsx {
 
+Frame::Frame(const th_ycbcr_buffer& yuv)
+{
+	unsigned y_size  = yuv[0].height * yuv[0].stride;
+	unsigned uv_size = yuv[1].height * yuv[1].stride;
+
+	buffer[0] = yuv[0];
+	buffer[0].data = static_cast<unsigned char*>(
+			MemoryOps::mallocAligned(16, y_size));
+	buffer[1] = yuv[1];
+	buffer[1].data = static_cast<unsigned char*>(
+			MemoryOps::mallocAligned(16, uv_size));
+	buffer[2] = yuv[2];
+	buffer[2].data = static_cast<unsigned char*>(
+			MemoryOps::mallocAligned(16, uv_size));
+}
+
+Frame::~Frame()
+{
+	MemoryOps::freeAligned(buffer[0].data);
+	MemoryOps::freeAligned(buffer[1].data);
+	MemoryOps::freeAligned(buffer[2].data);
+}
+
+
 OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	: cli(cli_)
 	, file(make_unique<File>(filename))
@@ -189,30 +213,6 @@ void OggReader::cleanup()
 
 	th_decode_free(theora);
 
-	for (Frames::const_iterator it = frameList.begin();
-	     it != frameList.end(); ++it) {
-		MemoryOps::freeAligned((*it)->buffer[0].data);
-		MemoryOps::freeAligned((*it)->buffer[1].data);
-		MemoryOps::freeAligned((*it)->buffer[2].data);
-		delete *it;
-	}
-	for (Frames::const_iterator it = recycleFrameList.begin();
-	     it != recycleFrameList.end(); ++it) {
-		MemoryOps::freeAligned((*it)->buffer[0].data);
-		MemoryOps::freeAligned((*it)->buffer[1].data);
-		MemoryOps::freeAligned((*it)->buffer[2].data);
-		delete *it;
-	}
-
-	for (AudioFragments::const_iterator it = audioList.begin();
-	     it != audioList.end(); ++it) {
-		delete *it;
-	}
-	for (AudioFragments::const_iterator it = recycleAudioList.begin();
-	     it != recycleAudioList.end(); ++it) {
-		delete *it;
-	}
-
 	vorbis_info_clear(&vi);
 	vorbis_comment_clear(&vc);
 	if (audioSerial != -1) {
@@ -364,11 +364,11 @@ void OggReader::readVorbis(ogg_packet* packet)
 	while (pos < decoded)  {
 		// Find memory to copy PCM into
 		if (recycleAudioList.empty()) {
-			AudioFragment* audio = new AudioFragment;
+			auto audio = make_unique<AudioFragment>();
 			audio->length = 0;
-			recycleAudioList.push_front(audio);
+			recycleAudioList.push_front(std::move(audio));
 		}
-		AudioFragment* audio = recycleAudioList.front();
+		auto& audio = recycleAudioList.front();
 		if (audio->length == 0) {
 			audio->position = vorbisPos;
 		} else {
@@ -398,8 +398,8 @@ void OggReader::readVorbis(ogg_packet* packet)
 		}
 
 		if (audio->length == AudioFragment::MAX_SAMPLES || last) {
+			audioList.push_back(std::move(recycleAudioList.front()));
 			recycleAudioList.pop_front();
-			audioList.push_back(audio);
 		}
 	}
 
@@ -524,7 +524,6 @@ void OggReader::readTheora(ogg_packet* packet)
 	}
 
 	keyFrame = -1;
-	Frame* frame;
 
 	int rc = th_decode_packetin(theora, packet, nullptr);
 	switch (rc) {
@@ -533,8 +532,7 @@ void OggReader::readTheora(ogg_packet* packet)
 			cli.printWarning("Theora error: dup frame encountered "
 					 "without preceding frame");
 		} else {
-			frame = frameList.back();
-			frame->length++;
+			frameList.back()->length++;
 		}
 		break;
 	case TH_EIMPL:
@@ -570,25 +568,16 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	currentFrame = frameno + 1;
 
-	int y_size = yuv[0].height * yuv[0].stride;
-	int uv_size = yuv[1].height * yuv[1].stride;
-
+	std::unique_ptr<Frame> frame;
 	if (recycleFrameList.empty()) {
-		frame = new Frame;
-		frame->buffer[0] = yuv[0];
-		frame->buffer[0].data = static_cast<unsigned char*>(
-					MemoryOps::mallocAligned(16, y_size));
-		frame->buffer[1] = yuv[1];
-		frame->buffer[1].data = static_cast<unsigned char*>(
-					MemoryOps::mallocAligned(16, uv_size));
-		frame->buffer[2] = yuv[2];
-		frame->buffer[2].data = static_cast<unsigned char*>(
-					MemoryOps::mallocAligned(16, uv_size));
+		frame = make_unique<Frame>(yuv);
 	} else {
-		frame = recycleFrameList.back();
+		frame = std::move(recycleFrameList.back());
 		recycleFrameList.pop_back();
 	}
 
+	int y_size  = yuv[0].height * yuv[0].stride;
+	int uv_size = yuv[1].height * yuv[1].stride;
 	memcpy(frame->buffer[0].data, yuv[0].data, y_size);
 	memcpy(frame->buffer[1].data, yuv[1].data, uv_size);
 	memcpy(frame->buffer[2].data, yuv[2].data, uv_size);
@@ -596,12 +585,7 @@ void OggReader::readTheora(ogg_packet* packet)
 	// At lot of frames have framenumber -1, only some have the correct
 	// frame number. We continue counting from the previous known
 	// postion
-	Frame *last = nullptr;
-
-	if (!frameList.empty()) {
-		last = frameList.back();
-	}
-
+	Frame* last = frameList.empty() ? nullptr : frameList.back().get();
 	if (last && last->no != -1) {
 		if (frameno != -1 && frameno != last->no + last->length) {
 			cli.printWarning("Theora frame sequence wrong");
@@ -624,13 +608,12 @@ void OggReader::readTheora(ogg_packet* packet)
 		}
 	}
 
-	frameList.push_back(frame);
+	frameList.push_back(std::move(frame));
 }
 
 void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 {
 	Frame* frame;
-
 	while (true) {
 		// If there are no frames or the frames we have read 
 		// does not include a proper frame number, just read
@@ -646,30 +629,30 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 		// and even frame are displayed during still, so we can 
 		// only throw away the one two frames ago
 		while (frameList.size() >= 3 && frameList[2]->no <= frameno) {
-			recycleFrameList.push_back(frameList[0]);
+			recycleFrameList.push_back(std::move(frameList[0]));
 			frameList.pop_front();
 		}
 
 		if (!frameList.empty() && frameList[0]->no > frameno) {
 			// we're missing frames!	
-			frame = frameList[0];
+			frame = frameList[0].get();
 			cli.printWarning("Cannot find frame " +
 				StringOp::toString(frameno) + " using " +
 				StringOp::toString(frame->no) + " instead");
 			break;
 		}
 
-		if (frameList.size() >= 2 && 
-				(frameno >= frameList[0]->no && 
-				 frameno < frameList[1]->no)) {
-			frame = frameList[0];
+		if ((frameList.size() >= 2) &&
+		    ((frameno >= frameList[0]->no) &&
+		     (frameno <  frameList[1]->no))) {
+			frame = frameList[0].get();
 			break;
 		}
 
-		if (frameList.size() >= 3 && 
-				(frameno >= frameList[1]->no && 
-				 frameno < frameList[2]->no)) {
-			frame = frameList[1];
+		if ((frameList.size() >= 3) &&
+		    ((frameno >= frameList[1]->no) &&
+		     (frameno <  frameList[2]->no))) {
+			frame = frameList[1].get();
 			break;
 		}
 
@@ -691,10 +674,10 @@ void OggReader::getFrameNo(RawFrame& rawFrame, int frameno)
 	yuv2rgb::convert(frame->buffer, rawFrame);
 }
 
-void OggReader::returnAudio(AudioFragment* audio)
+void OggReader::recycleAudio(std::unique_ptr<AudioFragment> audio)
 {
 	audio->length = 0;
-	recycleAudioList.push_back(audio);
+	recycleAudioList.push_back(std::move(audio));
 }
 
 const AudioFragment* OggReader::getAudio(unsigned sample)
@@ -709,17 +692,16 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 
 	AudioFragments::iterator it = audioList.begin();
 	while (true) {
-		AudioFragment* audio = *it;
-
+		auto& audio = *it;
 		if (audio->position + audio->length + getSampleRate() <= sample) {
 			// Dispose if this, more than 1 second old
-			returnAudio(*it);
+			recycleAudio(std::move(*it));
 			it = audioList.erase(it);
 		} else if (audio->position + audio->length <= sample) {
 			++it;
 		} else {
 			if (audio->position <= sample) {
-				return audio;
+				return audio.get();
 			} else {
 				// gone too far?
 				return nullptr;
@@ -961,20 +943,18 @@ unsigned OggReader::findOffset(int frame, unsigned sample)
 bool OggReader::seek(int frame, int samples)
 {
 	// Remove all queued frames
-	recycleFrameList.insert(recycleFrameList.end(),
-				frameList.begin(), frameList.end());
+	std::move(frameList.begin(), frameList.end(),
+	          back_inserter(recycleFrameList));
 	frameList.clear();
 
 	// Remove all queued audio
 	if (!recycleAudioList.empty()) {
 		recycleAudioList.front()->length = 0;
 	}
-	for (AudioFragments::const_iterator it = audioList.begin();
+	for (AudioFragments::iterator it = audioList.begin();
 	     it != audioList.end(); ++it) {
-		(*it)->length = 0;
+		recycleAudio(std::move(*it));
 	}
-	recycleAudioList.insert(recycleAudioList.end(),
-				audioList.begin(), audioList.end());
 	audioList.clear();
 
 	fileOffset = findOffset(frame, samples);

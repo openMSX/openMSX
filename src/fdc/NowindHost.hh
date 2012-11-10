@@ -3,6 +3,7 @@
 #ifndef NOWINDHOST_HH
 #define NOWINDHOST_HH
 
+#include "NowindInterface.hh"
 #include "openmsx.hh"
 #include <deque>
 #include <vector>
@@ -18,7 +19,7 @@ class SectorAccessibleDisk;
 class NowindHost
 {
 public:
-	explicit NowindHost(const std::vector<DiskContainer*>& drives);
+	explicit NowindHost(const NowindInterface::Drives& drives);
 	~NowindHost();
 
 	// public for usb-host implementation
@@ -103,7 +104,7 @@ private:
 
 	static const unsigned MAX_DEVICES = 16;
 
-	const std::vector<DiskContainer*>& drives;
+	const NowindInterface::Drives& drives;
 
 	std::deque<byte> hostToMsxFifo;
 

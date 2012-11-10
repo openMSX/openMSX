@@ -64,7 +64,7 @@ private:
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);
 	int getFreePrimarySlot();
-	void addDevice(MSXDevice* device);
+	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(const std::string& proposedName);
 
 	MSXMotherBoard& motherBoard;
@@ -78,7 +78,7 @@ private:
 	bool expandedSlots[4];
 	bool allocatedPrimarySlots[4];
 
-	typedef std::vector<MSXDevice*> Devices;
+	typedef std::vector<std::unique_ptr<MSXDevice>> Devices;
 	Devices devices;
 
 	std::string name;

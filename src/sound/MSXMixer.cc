@@ -95,10 +95,10 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.defaultVolume = volume;
-	info.volumeSetting = new IntegerSetting(
+	info.volumeSetting = make_unique<IntegerSetting>(
 		commandController, name + "_volume",
 		"the volume of this sound chip", 75, 0, 100);
-	info.balanceSetting = new IntegerSetting(
+	info.balanceSetting = make_unique<IntegerSetting>(
 		commandController, name + "_balance",
 		"the balance of this sound chip", balance, -100, 100);
 
@@ -109,22 +109,22 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 		SoundDeviceInfo::ChannelSettings channelSettings;
 		string ch_name = StringOp::Builder() << name << "_ch" << i + 1;
 
-		channelSettings.recordSetting = new StringSetting(
+		channelSettings.recordSetting = make_unique<StringSetting>(
 			commandController, ch_name + "_record",
 			"filename to record this channel to",
 			"", Setting::DONT_SAVE);
 		channelSettings.recordSetting->attach(*this);
 
-		channelSettings.muteSetting = new BooleanSetting(
+		channelSettings.muteSetting = make_unique<BooleanSetting>(
 			commandController, ch_name + "_mute",
 			"sets mute-status of individual sound channels",
 			false, Setting::DONT_SAVE);
 		channelSettings.muteSetting->attach(*this);
 
-		info.channelSettings.push_back(channelSettings);
+		info.channelSettings.push_back(std::move(channelSettings));
 	}
 
-	infos[&device] = info;
+	infos[&device] = std::move(info);
 	device.setOutputRate(getSampleRate());
 
 	Infos::iterator it = infos.find(&device);
@@ -139,16 +139,12 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	Infos::iterator it = infos.find(&device);
 	assert(it != infos.end());
 	it->second.volumeSetting->detach(*this);
-	delete it->second.volumeSetting;
 	it->second.balanceSetting->detach(*this);
-	delete it->second.balanceSetting;
 	for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
 	            it->second.channelSettings.begin();
 	     it2 != it->second.channelSettings.end(); ++it2) {
 		it2->recordSetting->detach(*this);
-		delete it2->recordSetting;
 		it2->muteSetting->detach(*this);
-		delete it2->muteSetting;
 	}
 	infos.erase(it);
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
@@ -583,8 +579,8 @@ void MSXMixer::update(const Setting& setting)
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() &&
-		       it->second.volumeSetting != &setting &&
-		       it->second.balanceSetting != &setting) {
+		       it->second.volumeSetting.get() != &setting &&
+		       it->second.balanceSetting.get() != &setting) {
 			++it;
 		}
 		assert(it != infos.end());
@@ -606,7 +602,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			    it->second.channelSettings.begin();
 		     it2 != it->second.channelSettings.end();
 		     ++it2, ++channel) {
-			if (it2->recordSetting == &setting) {
+			if (it2->recordSetting.get() == &setting) {
 				it->first->recordChannel(
 					channel,
 					Filename(it2->recordSetting->getValue()));
@@ -625,7 +621,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 			    it->second.channelSettings.begin();
 		     it2 != it->second.channelSettings.end();
 		     ++it2, ++channel) {
-			if (it2->muteSetting == &setting) {
+			if (it2->muteSetting.get() == &setting) {
 				it->first->muteChannel(
 					channel, it2->muteSetting->getValue());
 				return;

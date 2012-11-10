@@ -45,7 +45,7 @@ public:
 	void removeAttribute(string_ref name);
 
 	// child
-	typedef std::vector<XMLElement*> Children;
+	typedef std::vector<std::unique_ptr<XMLElement>> Children;
 	void addChild(std::unique_ptr<XMLElement> child);
 	std::unique_ptr<XMLElement> removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
@@ -87,7 +87,7 @@ public:
 	const XMLElement* findNextChild(string_ref name,
 	                                unsigned& fromIndex) const;
 
-	void getChildren(string_ref name, Children& result) const;
+	std::vector<XMLElement*> getChildren(string_ref name) const;
 
 	XMLElement& getCreateChild(string_ref name,
 	                           string_ref defaultValue = "");

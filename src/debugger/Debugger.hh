@@ -62,7 +62,7 @@ private:
 
 	typedef StringMap<Debuggable*> Debuggables;
 	typedef StringMap<ProbeBase*>  Probes;
-	typedef std::vector<ProbeBreakPoint*> ProbeBreakPoints;
+	typedef std::vector<std::unique_ptr<ProbeBreakPoint>> ProbeBreakPoints;
 	Debuggables debuggables;
 	Probes probes;
 	ProbeBreakPoints probeBreakPoints;

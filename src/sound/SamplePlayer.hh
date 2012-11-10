@@ -57,7 +57,7 @@ private:
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	std::vector<std::shared_ptr<WavData>> samples; // TODO use c++11 unique_ptr
+	std::vector<std::unique_ptr<WavData>> samples;
 
 	const void* sampBuf;
 	unsigned index;

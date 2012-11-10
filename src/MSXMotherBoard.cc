@@ -98,7 +98,7 @@ public:
 	bool isTurboR() const;
 	string loadMachine(MSXMotherBoard& self, const string& machine);
 
-	typedef std::vector<HardwareConfig*> Extensions;
+	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
 	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(string_ref extensionName);
 	string loadExtension(MSXMotherBoard& self, const string& extensionName);
@@ -505,20 +505,17 @@ string MSXMotherBoard::Impl::insertExtension(
 			"Error in \"" + name + "\" extension: " + e.getMessage());
 	}
 	string result = extension->getName();
-	extensions.push_back(extension.release());
+	extensions.push_back(std::move(extension));
 	getMSXCliComm().update(CliComm::EXTENSION, result, "add");
 	return result;
 }
 
 HardwareConfig* MSXMotherBoard::Impl::findExtension(string_ref extensionName)
 {
-	for (Extensions::const_iterator it = extensions.begin();
-	     it != extensions.end(); ++it) {
-		if ((*it)->getName() == extensionName) {
-			return *it;
-		}
-	}
-	return nullptr;
+	auto it = find_if(extensions.begin(), extensions.end(),
+		[&](Extensions::value_type& v) {
+			return v->getName() == extensionName; });
+	return (it != extensions.end()) ? it->get() : nullptr;
 }
 
 const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() const
@@ -529,11 +526,11 @@ const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() co
 void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	Extensions::iterator it =
-		find(extensions.begin(), extensions.end(), &extension);
+	auto it = find_if(extensions.begin(), extensions.end(),
+		[&](Extensions::value_type& v) {
+			return v.get() == &extension; });
 	assert(it != extensions.end());
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
-	delete &extension;
 	extensions.erase(it);
 }
 

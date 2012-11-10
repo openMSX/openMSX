@@ -84,7 +84,7 @@ void NowindCommand::processHdimage(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
 			drive->changeDisk(unique_ptr<Disk>(std::move(partition)));
-			drives.push_back(drive.release()); // TODO
+			drives.push_back(std::move(drive));
 		} catch (MSXException&) {
 			if (failOnError) throw;
 		}
@@ -103,9 +103,9 @@ string NowindCommand::execute(const vector<string>& tokens)
 		StringOp::Builder result;
 		for (unsigned i = 0; i < drives.size(); ++i) {
 			result << "nowind" << i + 1 << ": ";
-			if (dynamic_cast<NowindRomDisk*>(drives[i])) {
+			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
 				result << "romdisk\n";
-			} else if (DiskChanger* changer = dynamic_cast<DiskChanger*>(drives[i])) {
+			} else if (DiskChanger* changer = dynamic_cast<DiskChanger*>(drives[i].get())) {
 				string filename = changer->getDiskName().getOriginal();
 				result << (filename.empty() ? "--empty--" : filename)
 				       << '\n';
@@ -158,7 +158,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 				error = "Can only have one romdisk";
 			} else {
 				romdisk = unsigned(tmpDrives.size());
-				tmpDrives.push_back(new NowindRomDisk());
+				tmpDrives.push_back(make_unique<NowindRomDisk>());
 				changeDrives = true;
 			}
 
@@ -201,7 +201,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 					error = "Invalid disk image: " + image;
 				}
 			}
-			tmpDrives.push_back(drive.release()); // TODO
+			tmpDrives.push_back(std::move(drive));
 		}
 	}
 	if (tmpDrives.size() > 8) {
@@ -235,13 +235,11 @@ string NowindCommand::execute(const vector<string>& tokens)
 	// cleanup tmpDrives, this contains either
 	//   - the old drives (when command was successful)
 	//   - the new drives (when there was an error)
-	for (NowindInterface::Drives::const_iterator it = tmpDrives.begin();
-	     it != tmpDrives.end(); ++it) {
-		delete *it;
-	}
+	auto prevSize = tmpDrives.size();
+	tmpDrives.clear();
 	for (NowindInterface::Drives::const_iterator it = drives.begin();
 	     it != drives.end(); ++it) {
-		if (DiskChanger* disk = dynamic_cast<DiskChanger*>(*it)) {
+		if (DiskChanger* disk = dynamic_cast<DiskChanger*>(it->get())) {
 			disk->createCommand();
 		}
 	}
@@ -252,7 +250,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 
 	// calculate result string
 	string result;
-	if (changeDrives && (tmpDrives.size() != drives.size())) {
+	if (changeDrives && (prevSize != drives.size())) {
 		result += "Number of drives changed. ";
 	}
 	if (changeDrives && (romdisk != oldRomdisk)) {

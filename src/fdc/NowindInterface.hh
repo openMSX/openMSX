@@ -20,6 +20,8 @@ class NowindHost;
 class NowindInterface : public MSXDevice
 {
 public:
+	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;
+
 	explicit NowindInterface(const DeviceConfig& config);
 	virtual ~NowindInterface();
 
@@ -34,13 +36,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void deleteDrives();
-
 	const std::unique_ptr<Rom> rom;
 	const std::unique_ptr<AmdFlash> flash;
 	const std::unique_ptr<NowindHost> host;
 	std::unique_ptr<NowindCommand> command;
-	typedef std::vector<DiskContainer*> Drives;
 	Drives drives;
 	std::string basename;
 	byte bank;

@@ -22,6 +22,8 @@ GlobalCliComm::~GlobalCliComm()
 	assert(!delivering);
 
 	ScopedLock lock(sem);
+	// TODO GlobalCliComm has unusual ownership semantics.
+	//      Try to rework it.
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		delete *it;

@@ -8,6 +8,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -27,14 +28,14 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 		try {
 			std::string filename = StringOp::Builder() <<
 				samplesBaseName << i << ".wav";
-			samples[i] = std::make_shared<WavData>(
+			samples[i] = make_unique<WavData>(
 				context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
 				std::string filename = StringOp::Builder() <<
 					alternativeName << i << ".wav";
-				samples[i] = std::make_shared<WavData>(
+				samples[i] = make_unique<WavData>(
 					context.resolve(filename));
 			} catch (MSXException& /*e2*/) {
 				if (!alreadyWarned) {

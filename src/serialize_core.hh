@@ -666,7 +666,7 @@ template<typename sac> struct CollectionLoaderHelper<sac, false>
 	{
 		typename sac::value_type elem;
 		ar.doSerialize("item", elem, args, id);
-		*it = elem;
+		*it = std::move(elem);
 	}
 };
 template<typename TC> struct CollectionLoader

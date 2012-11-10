@@ -368,8 +368,8 @@ void DBParser::addEntries()
 			continue;
 		}
 
-		RomInfo*& ptr = romDBSHA1[it->hash];
-		if (ptr) {
+		auto& ptr = romDBSHA1[it->hash];
+		if (ptr.get()) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
 			continue;
@@ -378,7 +378,7 @@ void DBParser::addEntries()
 		string r = remarks;
 		joinRemarks(r, it->remarks);
 
-		ptr = new RomInfo(
+		ptr = make_unique<RomInfo>(
 			title, year, company, country,
 			it->origValue, it->origData, r, it->type,
 			genMSXid);
@@ -540,10 +540,6 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 
 RomDatabase::~RomDatabase()
 {
-	for (DBMap::const_iterator it = romDBSHA1.begin();
-	     it != romDBSHA1.end(); ++it) {
-		delete it->second;
-	}
 }
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
@@ -552,7 +548,7 @@ const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 	if (it == romDBSHA1.end()) {
 		return nullptr;
 	}
-	return it->second;
+	return it->second.get();
 }
 
 

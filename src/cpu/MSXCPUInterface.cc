@@ -140,7 +140,7 @@ MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 //TODO watchpoints
 MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
-static ReadOnlySetting<BooleanSetting>* breakedSetting = nullptr;
+static std::unique_ptr<ReadOnlySetting<BooleanSetting>> breakedSetting;
 static unsigned breakedSettingCount = 0;
 
 
@@ -215,8 +215,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	}
 
 	if (breakedSettingCount++ == 0) {
-		assert(!breakedSetting);
-		breakedSetting = new ReadOnlySetting<BooleanSetting>(
+		assert(!breakedSetting.get());
+		breakedSetting = make_unique<ReadOnlySetting<BooleanSetting>>(
 			motherBoard.getReactor().getCommandController(),
 			"breaked", "Similar to 'debug breaked'", false);
 	}
@@ -225,8 +225,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 MSXCPUInterface::~MSXCPUInterface()
 {
 	if (--breakedSettingCount == 0) {
-		assert(breakedSetting);
-		delete breakedSetting;
+		assert(breakedSetting.get());
 		breakedSetting = nullptr;
 	}
 

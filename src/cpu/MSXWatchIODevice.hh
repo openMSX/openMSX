@@ -5,6 +5,7 @@
 
 #include "MSXMultiDevice.hh"
 #include "WatchPoint.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -28,8 +29,7 @@ private:
 	void doWriteCallback(unsigned port, unsigned value);
 
 	MSXCPUInterface& cpuInterface;
-	typedef std::vector<MSXWatchIODevice*> IOs;
-	IOs ios;
+	std::vector<std::unique_ptr<MSXWatchIODevice>> ios;
 
 	friend class MSXWatchIODevice;
 };

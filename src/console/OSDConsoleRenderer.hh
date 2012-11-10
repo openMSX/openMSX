@@ -55,7 +55,7 @@ private:
 	bool getFromCache(string_ref text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
 	void insertInCache(const std::string& text, unsigned rgb,
-	                   BaseImage* image, unsigned width);
+	                   std::unique_ptr<BaseImage> image, unsigned width);
 
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,
@@ -65,10 +65,10 @@ private:
 
 	struct TextCacheElement {
 		TextCacheElement(const std::string& text_, unsigned rgb_,
-		                 BaseImage* image_, unsigned width_)
-			: text(text_), image(image_), rgb(rgb_), width(width_) {}
+		                 std::unique_ptr<BaseImage> image_,
+		                 unsigned width_);
 		std::string text;
-		BaseImage* image; // TODO later convert to unique_ptr
+		std::unique_ptr<BaseImage> image;
 		unsigned rgb;
 		unsigned width;
 	};

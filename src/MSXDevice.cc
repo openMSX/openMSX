@@ -123,10 +123,8 @@ void MSXDevice::lockDevices()
 	// (an extension) uses it to refer to the VDP (inside a machine)). If
 	// needed we can implement something more sophisticated later without
 	// changing the format of the config files.
-	XMLElement::Children refConfigs;
-	getDeviceConfig().getChildren("device", refConfigs);
-	for (XMLElement::Children::const_iterator it = refConfigs.begin();
-	     it != refConfigs.end(); ++it) {
+	auto refConfigs = getDeviceConfig().getChildren("device");
+	for (auto it = refConfigs.begin(); it != refConfigs.end(); ++it) {
 		string name = (*it)->getAttribute("idref");
 		MSXDevice* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
@@ -198,10 +196,8 @@ PluggingController& MSXDevice::getPluggingController() const
 void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
-	XMLElement::Children memConfigs;
-	getDeviceConfig().getChildren("mem", memConfigs);
-	for (XMLElement::Children::const_iterator it = memConfigs.begin();
-	     it != memConfigs.end(); ++it) {
+	auto memConfigs = getDeviceConfig().getChildren("mem");
+	for (auto it = memConfigs.begin(); it != memConfigs.end(); ++it) {
 		unsigned base = (*it)->getAttributeAsInt("base");
 		unsigned size = (*it)->getAttributeAsInt("size");
 		if ((base >= 0x10000) || (size > 0x10000)) {
@@ -348,10 +344,8 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 
 void MSXDevice::registerPorts()
 {
-	XMLElement::Children ios;
-	getDeviceConfig().getChildren("io", ios);
-	for (XMLElement::Children::const_iterator it = ios.begin();
-	     it != ios.end(); ++it) {
+	auto ios = getDeviceConfig().getChildren("io");
+	for (auto it = ios.begin(); it != ios.end(); ++it) {
 		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));
 		unsigned num  = StringOp::stringToInt((*it)->getAttribute("num"));
 		string_ref type = (*it)->getAttribute("type", "IO");

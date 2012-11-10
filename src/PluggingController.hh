@@ -59,7 +59,7 @@ private:
 
 	typedef std::vector<Connector*> Connectors;
 	Connectors connectors;
-	typedef std::vector<Pluggable*> Pluggables;
+	typedef std::vector<std::unique_ptr<Pluggable>> Pluggables;
 	Pluggables pluggables;
 
 	friend class PlugCmd;

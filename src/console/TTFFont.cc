@@ -5,10 +5,10 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
-#include <memory>
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -54,7 +54,7 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
-		std::shared_ptr<LocalFileReference> file; // TODO use c++11 unique_ptr
+		std::unique_ptr<LocalFileReference> file;
 		TTF_Font* font;
 		int count;
 	};
@@ -113,14 +113,15 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 	SDLTTF::instance(); // init library
 	FontInfo info;
-	info.file = std::make_shared<LocalFileReference>(filename);
+	info.file = make_unique<LocalFileReference>(filename);
 	info.font = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
 	if (!info.font) {
 		throw MSXException(TTF_GetError());
 	}
 	info.count = 1;
-	pool.insert(std::make_pair(key, info));
-	return info.font;
+	auto result = info.font;
+	pool.insert(std::make_pair(key, std::move(info)));
+	return result;
 }
 
 void TTFFontPool::release(TTF_Font* font)

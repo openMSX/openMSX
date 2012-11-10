@@ -117,14 +117,14 @@ public:
 
 public:
 	// Create a StringMapEntry for the specified key and value.
-	static StringMapEntry* create(string_ref key, const T& v)
+	static StringMapEntry* create(string_ref key, T v)
 	{
 		// Allocate memory.
 		StringMapEntry* newItem = static_cast<StringMapEntry*>(
 			malloc(sizeof(StringMapEntry) + key.size()));
 
 		// Construct the value (using placement new).
-		new (newItem) StringMapEntry(key.size(), v);
+		new (newItem) StringMapEntry(key.size(), std::move(v));
 
 		// Copy the string data.
 		char* strBuffer = const_cast<char*>(newItem->getKeyData());
@@ -175,8 +175,8 @@ public:
 	}
 
 private:
-	StringMapEntry(unsigned strLen, const T& v)
-		: StringMapEntryBase(strLen), second(v) {}
+	StringMapEntry(unsigned strLen, T v)
+		: StringMapEntryBase(strLen), second(std::move(v)) {}
 
 	~StringMapEntry() {}
 };
@@ -287,7 +287,7 @@ public:
 
 	// Look up the specified key in the table. If a value exists, return
 	// it. Otherwise, default construct a value, insert it, and return.
-	value_type& getOrCreateValue(string_ref key, const T& val = T())
+	value_type& getOrCreateValue(string_ref key, T val = T())
 	{
 		unsigned bucketNo = lookupBucketFor(key);
 		StringMapEntryBase*& bucket = theTable[bucketNo];
@@ -295,7 +295,7 @@ public:
 			return *static_cast<value_type*>(bucket);
 		}
 
-		value_type* newItem = value_type::create(key, val);
+		value_type* newItem = value_type::create(key, std::move(val));
 
 		if (bucket == getTombstoneVal()) --numTombstones;
 		++numItems;

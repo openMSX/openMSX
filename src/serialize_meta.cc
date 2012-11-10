@@ -18,10 +18,6 @@ PolymorphicSaverRegistry<Archive>::PolymorphicSaverRegistry()
 template<typename Archive>
 PolymorphicSaverRegistry<Archive>::~PolymorphicSaverRegistry()
 {
-	for (typename SaverMap::const_iterator it = saverMap.begin();
-	     it != saverMap.end(); ++it) {
-		delete it->second;
-	}
 }
 
 template<typename Archive>
@@ -33,10 +29,11 @@ PolymorphicSaverRegistry<Archive>& PolymorphicSaverRegistry<Archive>::instance()
 
 template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::registerHelper(
-	const std::type_info& type, PolymorphicSaverBase<Archive>* saver)
+	const std::type_info& type,
+	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
 	assert(saverMap.find(type) == saverMap.end());
-	saverMap[type] = saver;
+	saverMap[type] = std::move(saver);
 }
 
 template<typename Archive>
@@ -75,10 +72,6 @@ PolymorphicLoaderRegistry<Archive>::PolymorphicLoaderRegistry()
 template<typename Archive>
 PolymorphicLoaderRegistry<Archive>::~PolymorphicLoaderRegistry()
 {
-	for (typename LoaderMap::const_iterator it = loaderMap.begin();
-	     it != loaderMap.end(); ++it) {
-		delete it->second;
-	}
 }
 
 template<typename Archive>
@@ -90,10 +83,11 @@ PolymorphicLoaderRegistry<Archive>& PolymorphicLoaderRegistry<Archive>::instance
 
 template<typename Archive>
 void PolymorphicLoaderRegistry<Archive>::registerHelper(
-	const char* name, PolymorphicLoaderBase<Archive>* loader)
+	const char* name,
+	std::unique_ptr<PolymorphicLoaderBase<Archive>> loader)
 {
 	assert(loaderMap.find(name) == loaderMap.end());
-	loaderMap[name] = loader;
+	loaderMap[name] = std::move(loader);
 }
 
 template<typename Archive>
@@ -128,10 +122,6 @@ PolymorphicInitializerRegistry<Archive>::PolymorphicInitializerRegistry()
 template<typename Archive>
 PolymorphicInitializerRegistry<Archive>::~PolymorphicInitializerRegistry()
 {
-	for (typename InitializerMap::const_iterator it = initializerMap.begin();
-	     it != initializerMap.end(); ++it) {
-		delete it->second;
-	}
 }
 
 template<typename Archive>
@@ -143,10 +133,11 @@ PolymorphicInitializerRegistry<Archive>& PolymorphicInitializerRegistry<Archive>
 
 template<typename Archive>
 void PolymorphicInitializerRegistry<Archive>::registerHelper(
-	const char* name, PolymorphicInitializerBase<Archive>* initializer)
+	const char* name,
+	std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer)
 {
 	assert(initializerMap.find(name) == initializerMap.end());
-	initializerMap[name] = initializer;
+	initializerMap[name] = std::move(initializer);
 }
 
 template<typename Archive>

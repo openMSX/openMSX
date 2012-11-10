@@ -221,6 +221,19 @@ using std::string;
 
 namespace openmsx {
 
+// This actually belongs in Z80.cc and R800.cc (these files don't exist yet).
+// As a quick hack I put these two lines here because I found it overkill to
+// create two files each containing only a single line.
+// Technically these two lines _are_ required according to the c++ standard.
+// Though usually it works just find without them, but during experiments I did
+// get a link error when these lines were missing (it only happened during a
+// debug build with some specific compiler version and only with some
+// combination of other code changes, but again when strictly following the
+// language rules, these lines should be here).
+const int Z80TYPE ::CLOCK_FREQ;
+const int R800TYPE::CLOCK_FREQ;
+
+
 typedef signed char offset;
 
 // Global variable, because it should be shared between Z80 and R800.

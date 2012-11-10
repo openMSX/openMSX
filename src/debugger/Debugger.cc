@@ -112,11 +112,6 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 
 Debugger::~Debugger()
 {
-	for (ProbeBreakPoints::const_iterator it = probeBreakPoints.begin();
-	     it != probeBreakPoints.end(); ++it) {
-		delete *it;
-	}
-
 	assert(!cpu);
 	assert(debuggables.empty());
 }
@@ -206,11 +201,12 @@ unsigned Debugger::insertProbeBreakPoint(
 	TclObject command, TclObject condition,
 	ProbeBase& probe, unsigned newId /*= -1*/)
 {
-	ProbeBreakPoint* bp = new ProbeBreakPoint(
+	auto bp = make_unique<ProbeBreakPoint>(
 		motherBoard.getReactor().getGlobalCliComm(),
 		command, condition, *this, probe, newId);
-	probeBreakPoints.push_back(bp);
-	return bp->getId();
+	unsigned result = bp->getId();
+	probeBreakPoints.push_back(std::move(bp));
+	return result;
 }
 
 void Debugger::removeProbeBreakPoint(string_ref name)
@@ -221,7 +217,6 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
 		     it != probeBreakPoints.end(); ++it) {
 			if ((*it)->getId() == id) {
-				delete *it;
 				probeBreakPoints.erase(it);
 				return;
 			}
@@ -232,7 +227,6 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
 		     it != probeBreakPoints.end(); ++it) {
 			if ((*it)->getProbe().getName() == name) {
-				delete *it;
 				probeBreakPoints.erase(it);
 				return;
 			}
@@ -244,10 +238,9 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	ProbeBreakPoints::iterator it =
-		find(probeBreakPoints.begin(), probeBreakPoints.end(), &bp);
+	auto it = find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
+		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; });
 	assert(it != probeBreakPoints.end());
-	delete *it;
 	probeBreakPoints.erase(it);
 }
 

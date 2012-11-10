@@ -56,15 +56,13 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	// start with one (empty) drive
 	auto drive = command->createDiskChanger(basename, 0, getMotherBoard());
 	drive->createCommand();
-	drives.push_back(drive.release()); // TODO
+	drives.push_back(std::move(drive));
 
 	reset(EmuTime::dummy());
 }
 
 NowindInterface::~NowindInterface()
 {
-	deleteDrives();
-
 	MSXMotherBoard::SharedStuff& info =
 		getMotherBoard().getSharedStuff("nowindsInUse");
 	assert(info.counter);
@@ -80,14 +78,6 @@ NowindInterface::~NowindInterface()
 		assert(nowindsInUse.none());
 		delete &nowindsInUse;
 		info.stuff = nullptr;
-	}
-}
-
-void NowindInterface::deleteDrives()
-{
-	for (Drives::const_iterator it = drives.begin();
-	     it != drives.end(); ++it) {
-		delete *it;
 	}
 }
 
@@ -172,10 +162,6 @@ byte* NowindInterface::getWriteCacheLine(word address) const
 template<typename Archive>
 void NowindInterface::serialize(Archive& ar, unsigned /*version*/)
 {
-	if (ar.isLoader()) {
-		deleteDrives();
-	}
-
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("flash", *flash);
 	ar.serializeWithID("drives", drives, std::ref(getMotherBoard()));

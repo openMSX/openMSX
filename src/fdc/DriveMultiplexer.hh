@@ -51,6 +51,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	const std::unique_ptr<DummyDrive> dummyDrive;
 	DiskDrive* drive[5];
 	DriveNum selected;
 	bool motor;

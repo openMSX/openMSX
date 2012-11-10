@@ -111,10 +111,8 @@ WD33C93::WD33C93(const DeviceConfig& config)
 {
 	devBusy = false;
 
-	XMLElement::Children targets;
-	config.getXML()->getChildren("target", targets);
-	for (XMLElement::Children::const_iterator it = targets.begin();
-	     it != targets.end(); ++it) {
+	auto targets = config.getXML()->getChildren("target");
+	for (auto it = targets.begin(); it != targets.end(); ++it) {
 		const XMLElement& target = **it;
 		unsigned id = target.getAttributeAsInt("id");
 		if (id >= MAX_DEV) {

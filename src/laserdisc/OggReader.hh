@@ -32,6 +32,9 @@ struct AudioFragment
 
 struct Frame
 {
+	Frame(const th_ycbcr_buffer& yuv);
+	~Frame();
+
 	th_ycbcr_buffer buffer;
 	int no;
 	int length;
@@ -64,7 +67,7 @@ private:
 	void vorbisHeaderPage(ogg_page* page);
 	bool nextPage(ogg_page* page);
 	bool nextPacket();
-	void returnAudio(AudioFragment* audio);
+	void recycleAudio(std::unique_ptr<AudioFragment> audio);
 	void vorbisFoundPosition();
 	int frameNo(ogg_packet* packet);
 
@@ -99,7 +102,7 @@ private:
 	int granuleShift;
 	int totalFrames;
 
-	typedef std::deque<Frame*> Frames;
+	typedef std::deque<std::unique_ptr<Frame>> Frames;
 	Frames frameList;
 	Frames recycleFrameList;
 
@@ -112,7 +115,7 @@ private:
 	unsigned currentSample;
 	unsigned vorbisPos;
 
-	typedef std::list<AudioFragment*> AudioFragments;
+	typedef std::list<std::unique_ptr<AudioFragment>> AudioFragments;
 	AudioFragments audioList;
 	AudioFragments recycleAudioList;
 

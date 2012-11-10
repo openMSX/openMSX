@@ -23,16 +23,13 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard,
 	, cpuInterface(motherboard.getCPUInterface())
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
-		ios.push_back(new MSXWatchIODevice(
+		ios.push_back(make_unique<MSXWatchIODevice>(
 			*motherboard.getMachineConfig(), *this));
 	}
 }
 
 WatchIO::~WatchIO()
 {
-	for (IOs::iterator it = ios.begin(); it != ios.end(); ++it) {
-		delete *it;
-	}
 }
 
 MSXWatchIODevice& WatchIO::getDevice(byte port)

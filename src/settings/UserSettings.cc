@@ -56,24 +56,19 @@ UserSettings::UserSettings(CommandController& commandController_)
 
 UserSettings::~UserSettings()
 {
-	for (Settings::iterator it = settings.begin();
-	     it != settings.end(); ++it) {
-		delete *it;
-	}
 }
 
 void UserSettings::addSetting(unique_ptr<Setting> setting)
 {
 	assert(!findSetting(setting->getName()));
-	settings.push_back(setting.release());
+	settings.push_back(std::move(setting));
 }
 
 void UserSettings::deleteSetting(Setting& setting)
 {
 	for (Settings::iterator it = settings.begin();
 	     it != settings.end(); ++it) {
-		if (*it == &setting) {
-			delete *it;
+		if (it->get() == &setting) {
 			settings.erase(it);
 			return;
 		}
@@ -86,7 +81,7 @@ Setting* UserSettings::findSetting(string_ref name) const
 	for (Settings::const_iterator it = settings.begin();
 	     it != settings.end(); ++it) {
 		if ((*it)->getName() == name) {
-			return *it;
+			return it->get();
 		}
 	}
 	return nullptr;

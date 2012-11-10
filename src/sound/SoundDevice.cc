@@ -113,10 +113,8 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		throw MSXException("balance \"" + mode + "\" illegal");
 	}
 
-	XMLElement::Children balances;
-	soundConfig.getChildren("balance", balances);
-	for (XMLElement::Children::const_iterator it = balances.begin();
-	     it != balances.end(); ++it) {
+	auto balances = soundConfig.getChildren("balance");
+	for (auto it = balances.begin(); it != balances.end(); ++it) {
 		int balance = (*it)->getDataAsInt();
 
 		if (!(*it)->hasAttribute("channel")) {

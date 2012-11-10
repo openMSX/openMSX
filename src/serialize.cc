@@ -173,11 +173,11 @@ void MemOutputArchive::save(const std::string& s)
 	put(s.data(), size);
 }
 
-std::shared_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
+std::unique_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
 {
 	unsigned size;
 	byte* data = buffer.release(size);
-	return std::make_shared<MemBuffer<byte>>(data, size);
+	return make_unique<MemBuffer<byte>>(data, size);
 }
 
 ////
@@ -246,6 +246,7 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 
 XmlOutputArchive::~XmlOutputArchive()
 {
+	assert(current.back() == root.get());
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";

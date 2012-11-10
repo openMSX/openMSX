@@ -111,11 +111,11 @@ public:
 private:
 	struct SoundDeviceInfo {
 		double defaultVolume;
-		IntegerSetting* volumeSetting;
-		IntegerSetting* balanceSetting;
+		std::unique_ptr<IntegerSetting> volumeSetting;
+		std::unique_ptr<IntegerSetting> balanceSetting;
 		struct ChannelSettings {
-			StringSetting* recordSetting;
-			BooleanSetting* muteSetting;
+			std::unique_ptr<StringSetting> recordSetting;
+			std::unique_ptr<BooleanSetting> muteSetting;
 		};
 		std::vector<ChannelSettings> channelSettings;
 		int left1, right1, left2, right2;

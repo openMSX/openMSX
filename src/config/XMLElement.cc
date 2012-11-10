@@ -48,16 +48,19 @@ void XMLElement::addChild(unique_ptr<XMLElement> child)
 	// ignored when this node is later written to disk. In the case of
 	// settings.xml this behaviour is fine.
 	assert(child.get());
-	XMLElement* child2 = child.release();
-	children.push_back(child2);
+	children.push_back(std::move(child));
 }
 
 unique_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 {
-	assert(std::count(children.begin(), children.end(), &child) == 1);
-	children.erase(std::find(children.begin(), children.end(), &child));
-	XMLElement& child2 = const_cast<XMLElement&>(child);
-	return unique_ptr<XMLElement>(&child2);
+	assert(std::count_if(children.begin(), children.end(),
+		[&](Children::value_type& v) { return v.get() == &child; }) == 1);
+	auto it = find_if(children.begin(), children.end(),
+		[&](Children::value_type& v) { return v.get() == &child; });
+	assert(it != children.end());
+	auto result = std::move(*it);
+	children.erase(it);
+	return result;
 }
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
@@ -136,14 +139,16 @@ void XMLElement::setData(string_ref data_)
 	data.assign(data_.data(), data_.size());
 }
 
-void XMLElement::getChildren(string_ref name, Children& result) const
+std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 {
+	std::vector<XMLElement*> result;
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
-			result.push_back(*it);
+			result.push_back(it->get());
 		}
 	}
+	return result;
 }
 
 XMLElement* XMLElement::findChild(string_ref name)
@@ -151,7 +156,7 @@ XMLElement* XMLElement::findChild(string_ref name)
 	for (Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
-			return *it;
+			return it->get();
 		}
 	}
 	return nullptr;
@@ -168,13 +173,13 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 	for (unsigned i = fromIndex; i != numChildren; ++i) {
 		if (children[i]->getName() == name) {
 			fromIndex = i + 1;
-			return children[i];
+			return children[i].get();
 		}
 	}
 	for (unsigned i = 0; i < fromIndex; ++i) {
 		if (children[i]->getName() == name) {
 			fromIndex = i + 1;
-			return children[i];
+			return children[i].get();
 		}
 	}
 	return nullptr;
@@ -183,10 +188,11 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 	string_ref attName, string_ref attValue)
 {
-	Children children;
-	getChildren(name, children);
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
+	// TODO could be optimized: first we search for matching name and in
+	//  that subset we search for matching attribute. We could immediately
+	//  search for both. So iterate only once instead of twice.
+	auto children = getChildren(name);
+	for (auto it = children.begin(); it != children.end(); ++it) {
 		if ((*it)->getAttribute(attName) == attValue) {
 			return *it;
 		}
@@ -277,10 +283,6 @@ void XMLElement::setChildData(string_ref name, string_ref value)
 
 void XMLElement::removeAllChildren()
 {
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		delete *it;
-	}
 	children.clear();
 }
 
@@ -409,11 +411,9 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 	//       vector. To keep backwards compatible with the serialized
 	//       format, we still convert attributes to this format.
 	typedef std::map<string, string> AttributesMap;
-
 	if (!ar.isLoader()) {
 		AttributesMap tmpAtt(attributes.begin(), attributes.end());
 		ar.serialize("attributes", tmpAtt);
-		ar.serialize("children", getChildren());
 	} else {
 		AttributesMap tmpAtt;
 		ar.serialize("attributes", tmpAtt);
@@ -424,13 +424,9 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 			addAttribute(it->first.c_str(), it->second);
 		}
 
-		XMLElement::Children tmp;
-		ar.serialize("children", tmp);
-		for (XMLElement::Children::const_iterator it = tmp.begin();
-		     it != tmp.end(); ++it) {
-			addChild(unique_ptr<XMLElement>(*it));
-		}
 	}
+
+	ar.serialize("children", children);
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
 		unique_ptr<FileContext> context;
@@ -442,6 +438,5 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(XMLElement);
-
 
 } // namespace openmsx

@@ -228,7 +228,8 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
-		registerHelper(typeid(T), new PolymorphicSaver<Archive, T>(name));
+		registerHelper(typeid(T),
+		               make_unique<PolymorphicSaver<Archive, T>>(name));
 	}
 
 	template<typename T> static void save(Archive& ar, T* t)
@@ -244,13 +245,14 @@ private:
 	PolymorphicSaverRegistry();
 	~PolymorphicSaverRegistry();
 	void registerHelper(const std::type_info& type,
-	                    PolymorphicSaverBase<Archive>* saver);
+	                    std::unique_ptr<PolymorphicSaverBase<Archive>> saver);
 	static void save(Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	typedef std::map<TypeInfo, PolymorphicSaverBase<Archive>*> SaverMap;
+	typedef std::map<TypeInfo, std::unique_ptr<PolymorphicSaverBase<Archive>>>
+		SaverMap;
 	SaverMap saverMap;
 };
 
@@ -266,7 +268,8 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
-		registerHelper(name, new PolymorphicLoader<Archive, T>());
+		registerHelper(name,
+		               make_unique<PolymorphicLoader<Archive, T>>());
 	}
 
 	static void* load(Archive& ar, unsigned id, const void* args);
@@ -274,10 +277,12 @@ public:
 private:
 	PolymorphicLoaderRegistry();
 	~PolymorphicLoaderRegistry();
-	void registerHelper(const char* name,
-	                    PolymorphicLoaderBase<Archive>* loader);
+	void registerHelper(
+		const char* name,
+		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	typedef StringMap<PolymorphicLoaderBase<Archive>*> LoaderMap;
+	typedef StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>>
+		LoaderMap;
 	LoaderMap loaderMap;
 };
 
@@ -293,7 +298,8 @@ public:
 		              "must be a polymorphic type");
 		static_assert(!std::is_abstract<T>::value,
 		              "can't be an abstract type");
-		registerHelper(name, new PolymorphicInitializer<Archive, T>());
+		registerHelper(name,
+		               make_unique<PolymorphicInitializer<Archive, T>>());
 	}
 
 	static void init(const char* tag, Archive& ar, void* t);
@@ -301,10 +307,12 @@ public:
 private:
 	PolymorphicInitializerRegistry();
 	~PolymorphicInitializerRegistry();
-	void registerHelper(const char* name,
-	                    PolymorphicInitializerBase<Archive>* initializer);
+	void registerHelper(
+		const char* name,
+		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	typedef StringMap<PolymorphicInitializerBase<Archive>*> InitializerMap;
+	typedef StringMap<std::unique_ptr<PolymorphicInitializerBase<Archive>>>
+		InitializerMap;
 	InitializerMap initializerMap;
 };
 

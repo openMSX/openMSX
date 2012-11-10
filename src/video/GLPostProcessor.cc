@@ -80,12 +80,6 @@ GLPostProcessor::~GLPostProcessor()
 	renderSettings.getNoise().detach(*this);
 
 	glDeleteLists(monitor3DList, 1);
-
-	for (Textures::iterator it = textures.begin();
-	     it != textures.end(); ++it) {
-		delete it->second.tex;
-		delete it->second.pbo;
-	}
 }
 
 void GLPostProcessor::createRegions()
@@ -291,31 +285,28 @@ void GLPostProcessor::uploadBlock(
 {
 	// create texture/pbo if needed
 	Textures::iterator it = textures.find(lineWidth);
-	ColorTexture* tex;
-	PixelBuffer<unsigned>* pbo;
-	if (it != textures.end()) {
-		tex = it->second.tex;
-		pbo = it->second.pbo;
-	} else {
-		tex = new ColorTexture(lineWidth, height * 2); // *2 for interlace
-		tex->setWrapMode(false);
+	if (it == textures.end()) {
+		TextureData textureData;
 
-		pbo = new PixelBuffer<unsigned>();
-		if (pbo->openGLSupported()) {
-			pbo->setImage(lineWidth, height * 2);
+		textureData.tex = make_unique<ColorTexture>(
+			lineWidth, height * 2); // *2 for interlace
+		textureData.tex->setWrapMode(false);
+
+		textureData.pbo = make_unique<PixelBuffer<unsigned>>();
+		if (textureData.pbo->openGLSupported()) {
+			textureData.pbo->setImage(lineWidth, height * 2);
 		} else {
-			delete pbo;
-			pbo = nullptr;
+			textureData.pbo = nullptr;
 		}
 
-		TextureData textureData;
-		textureData.tex = tex;
-		textureData.pbo = pbo;
-		textures[lineWidth] = textureData;
+		it = textures.insert(std::make_pair(
+			lineWidth, std::move(textureData))).first;
 	}
+	ColorTexture& tex = *it->second.tex;
+	PixelBuffer<unsigned>* pbo = it->second.pbo.get();
 
 	// bind texture
-	tex->bind();
+	tex.bind();
 
 	// upload data
 	unsigned* mapped;
