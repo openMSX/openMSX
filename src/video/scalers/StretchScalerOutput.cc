@@ -5,6 +5,7 @@
 #include "LineScalers.hh"
 #include "PixelOperations.hh"
 #include "MemoryOps.hh"
+#include "memory.hh"
 #include "build-info.hh"
 #include <vector>
 
@@ -280,25 +281,20 @@ unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 	case 320:
 		return direct;
 	case 288:
-		return unique_ptr<ScalerOutput<Pixel>>(
-			new StretchScalerOutput288<Pixel>(
-				std::move(direct), pixelOps));
+		return make_unique<StretchScalerOutput288<Pixel>>(
+			std::move(direct), pixelOps);
 	case 280:
-		return unique_ptr<ScalerOutput<Pixel>>(
-			new StretchScalerOutput280<Pixel>(
-				std::move(direct), pixelOps));
+		return make_unique<StretchScalerOutput280<Pixel>>(
+			std::move(direct), pixelOps);
 	case 272:
-		return unique_ptr<ScalerOutput<Pixel>>(
-			new StretchScalerOutput272<Pixel>(
-				std::move(direct), pixelOps));
+		return make_unique<StretchScalerOutput272<Pixel>>(
+			std::move(direct), pixelOps);
 	case 256:
-		return unique_ptr<ScalerOutput<Pixel>>(
-			new StretchScalerOutput256<Pixel>(
-				std::move(direct), pixelOps));
+		return make_unique<StretchScalerOutput256<Pixel>>(
+			std::move(direct), pixelOps);
 	default:
-		return unique_ptr<ScalerOutput<Pixel>>(
-			new StretchScalerOutput<Pixel>(
-				std::move(direct), pixelOps, inWidth));
+		return make_unique<StretchScalerOutput<Pixel>>(
+			std::move(direct), pixelOps, inWidth);
 	}
 }
 

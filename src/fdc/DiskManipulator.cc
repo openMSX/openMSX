@@ -17,6 +17,7 @@
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
+#include "memory.hh"
 #include <cassert>
 #include <ctype.h>
 
@@ -138,8 +139,7 @@ unique_ptr<DiskPartition> DiskManipulator::getPartition(
 {
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	assert(disk);
-	return unique_ptr<DiskPartition>(
-		new DiskPartition(*disk, driveData.partition));
+	return make_unique<DiskPartition>(*disk, driveData.partition);
 }
 
 

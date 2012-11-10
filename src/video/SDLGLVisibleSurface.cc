@@ -6,6 +6,7 @@
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
@@ -93,25 +94,25 @@ void SDLGLVisibleSurface::finish()
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 {
-	return std::unique_ptr<Layer>(new GLSnow(display, getWidth(), getHeight()));
+	return make_unique<GLSnow>(display, getWidth(), getHeight());
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor, CommandConsole& console)
 {
 	const bool openGL = true;
-	return std::unique_ptr<Layer>(new OSDConsoleRenderer(
-		reactor, console, getWidth(), getHeight(), openGL));
+	return make_unique<OSDConsoleRenderer>(
+		reactor, console, getWidth(), getHeight(), openGL);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 {
-	return std::unique_ptr<Layer>(new GLOSDGUILayer(gui));
+	return make_unique<GLOSDGUILayer>(gui);
 }
 
 std::unique_ptr<OutputSurface> SDLGLVisibleSurface::createOffScreenSurface()
 {
-	return std::unique_ptr<OutputSurface>(new SDLGLOffScreenSurface(*this));
+	return make_unique<SDLGLOffScreenSurface>(*this);
 }
 
 } // namespace openmsx

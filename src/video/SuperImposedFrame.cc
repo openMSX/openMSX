@@ -4,6 +4,7 @@
 #include "PixelOperations.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -31,18 +32,15 @@ std::unique_ptr<SuperImposedFrame> SuperImposedFrame::create(
 {
 #if HAVE_16BPP
 	if (format.BitsPerPixel == 15 || format.BitsPerPixel == 16) {
-		return std::unique_ptr<SuperImposedFrame>(
-			new SuperImposedFrameImpl<word>(format));
+		return make_unique<SuperImposedFrameImpl<word>>(format);
 	}
 #endif
 #if HAVE_32BPP
 	if (format.BitsPerPixel == 32) {
-		return std::unique_ptr<SuperImposedFrame>(
-			new SuperImposedFrameImpl<unsigned>(format));
+		return make_unique<SuperImposedFrameImpl<unsigned>>(format);
 	}
 #endif
-	UNREACHABLE;
-	return std::unique_ptr<SuperImposedFrame>(); // avoid warning
+	UNREACHABLE; return nullptr; // avoid warning
 }
 
 SuperImposedFrame::SuperImposedFrame(const SDL_PixelFormat& format)

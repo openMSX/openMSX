@@ -9,6 +9,7 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
 
@@ -165,8 +166,8 @@ unique_ptr<Setting> UserSettingCommand::createString(const vector<TclObject>& to
 	string_ref name = tokens[3].getString();
 	string_ref desc = tokens[4].getString();
 	string_ref initVal = tokens[5].getString();
-	return unique_ptr<Setting>(new StringSetting(getCommandController(),
-	                                             name, desc, initVal));
+	return make_unique<StringSetting>(
+		getCommandController(), name, desc, initVal);
 }
 
 unique_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& tokens)
@@ -177,8 +178,8 @@ unique_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& t
 	string_ref name = tokens[3].getString();
 	string_ref desc = tokens[4].getString();
 	bool initVal = tokens[5].getBoolean();
-	return unique_ptr<Setting>(new BooleanSetting(getCommandController(),
-	                                              name, desc, initVal));
+	return make_unique<BooleanSetting>(
+		getCommandController(), name, desc, initVal);
 }
 
 unique_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& tokens)
@@ -191,8 +192,8 @@ unique_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& t
 	int initVal = tokens[5].getInt();
 	int minVal  = tokens[6].getInt();
 	int maxVal  = tokens[7].getInt();
-	return unique_ptr<Setting>(new IntegerSetting(getCommandController(),
-	                                 name, desc, initVal, minVal, maxVal));
+	return make_unique<IntegerSetting>(
+		getCommandController(), name, desc, initVal, minVal, maxVal);
 }
 
 unique_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tokens)
@@ -205,8 +206,8 @@ unique_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tok
 	double initVal = tokens[5].getInt();
 	double minVal  = tokens[6].getInt();
 	double maxVal  = tokens[7].getInt();
-	return unique_ptr<Setting>(new FloatSetting(getCommandController(),
-	                                 name, desc, initVal, minVal, maxVal));
+	return make_unique<FloatSetting>(
+		getCommandController(), name, desc, initVal, minVal, maxVal);
 }
 
 void UserSettingCommand::destroy(const vector<TclObject>& tokens,

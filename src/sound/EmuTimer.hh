@@ -22,6 +22,10 @@ protected:
 class EmuTimer : public Schedulable
 {
 public:
+	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb,
+	         byte flag, unsigned freq_num, unsigned freq_denom,
+	         unsigned maxval);
+
 	static std::unique_ptr<EmuTimer> createOPM_1(
 		Scheduler& scheduler, EmuTimerCallback& cb);
 	static std::unique_ptr<EmuTimer> createOPM_2(
@@ -42,9 +46,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb,
-	         byte flag, unsigned freq_num, unsigned freq_denom,
-	         unsigned maxval);
 	virtual void executeUntil(EmuTime::param time, int userData);
 	void schedule(EmuTime::param time);
 	void unschedule();

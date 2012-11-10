@@ -286,7 +286,7 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 			remove(it++);
 		}
 	}
-	return unique_ptr<File>(); // not found
+	return nullptr; // not found
 }
 
 unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& directory, const string& poolPath)
@@ -297,7 +297,7 @@ unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& d
 			// Scanning can take a long time. Allow to exit
 			// openmsx when it takes too long. Stop scanning
 			// by pretending we didn't find the file.
-			return unique_ptr<File>();
+			return nullptr;
 		}
 		string file = d->d_name;
 		string path = directory + '/' + file;
@@ -316,7 +316,7 @@ unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& d
 			}
 		}
 	}
-	return unique_ptr<File>(); // not found
+	return nullptr; // not found
 }
 
 unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
@@ -377,7 +377,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			remove(it);
 		}
 	}
-	return unique_ptr<File>(); // not found
+	return nullptr; // not found
 }
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)

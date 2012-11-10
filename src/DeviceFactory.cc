@@ -62,6 +62,7 @@
 #include "VDPIODelay.hh"
 #include "CliComm.hh"
 #include "MSXException.hh"
+#include "memory.hh"
 #include "components.hh"
 
 #if COMPONENT_LASERDISC
@@ -244,32 +245,28 @@ unique_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("Dummy", "empty"));
-	return unique_ptr<DummyDevice>(new DummyDevice(
-		DeviceConfig(hwConf, xml)));
+	return make_unique<DummyDevice>(DeviceConfig(hwConf, xml));
 }
 
 unique_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("DeviceSwitch", "DeviceSwitch"));
-	return unique_ptr<MSXDeviceSwitch>(new MSXDeviceSwitch(
-		DeviceConfig(hwConf, xml)));
+	return make_unique<MSXDeviceSwitch>(DeviceConfig(hwConf, xml));
 }
 
 unique_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 		const HardwareConfig& hwConf)
 {
 	static XMLElement xml(createConfig("MapperIO", "MapperIO"));
-	return unique_ptr<MSXMapperIO>(new MSXMapperIO(
-		DeviceConfig(hwConf, xml)));
+	return make_unique<MSXMapperIO>(DeviceConfig(hwConf, xml));
 }
 
 unique_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 		const HardwareConfig& hwConf, MSXCPUInterface& cpuInterface)
 {
 	static XMLElement xml(createConfig("VDPIODelay", "VDPIODelay"));
-	return unique_ptr<VDPIODelay>(new VDPIODelay(
-		DeviceConfig(hwConf, xml), cpuInterface));
+	return make_unique<VDPIODelay>(DeviceConfig(hwConf, xml), cpuInterface);
 }
 
 } // namespace openmsx

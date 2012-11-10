@@ -10,6 +10,7 @@
 #include "GLHQLiteScaler.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
+#include "memory.hh"
 #include "unreachable.hh"
 
 using std::unique_ptr;
@@ -26,24 +27,24 @@ unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 		//   - it probably has some bugs because (on nvidia cards)
 		//     it does not give the same result as the SW SaI scaler,
 		//     although it's reasonably close
-		//return unique_ptr<GLScaler>(new GLSaIScaler());
+		//return make_unique<GLSaIScaler();
 	case RenderSettings::SCALER_SIMPLE:
-		return unique_ptr<GLScaler>(new GLSimpleScaler(renderSettings));
+		return make_unique<GLSimpleScaler>(renderSettings);
 	case RenderSettings::SCALER_RGBTRIPLET:
-		return unique_ptr<GLScaler>(new GLRGBScaler(renderSettings));
+		return make_unique<GLRGBScaler>(renderSettings);
 	case RenderSettings::SCALER_SCALE:
-		return unique_ptr<GLScaler>(new GLScaleNxScaler());
+		return make_unique<GLScaleNxScaler>();
 	case RenderSettings::SCALER_TV:
-		return unique_ptr<GLScaler>(new GLTVScaler(renderSettings));
+		return make_unique<GLTVScaler>(renderSettings);
 	case RenderSettings::SCALER_HQ:
-		return unique_ptr<GLScaler>(new GLHQScaler());
+		return make_unique<GLHQScaler>();
 	case RenderSettings::SCALER_MLAA: // fallback
 	case RenderSettings::SCALER_HQLITE:
-		return unique_ptr<GLScaler>(new GLHQLiteScaler());
+		return make_unique<GLHQLiteScaler>();
 	default:
 		UNREACHABLE;
 	}
-	return unique_ptr<GLScaler>(); // avoid warning
+	return nullptr; // avoid warning
 }
 
 } // namespace GLScalerFactory
