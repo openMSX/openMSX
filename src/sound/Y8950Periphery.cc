@@ -328,17 +328,18 @@ void ToshibaAudioPeriphery::setSPOFF(bool value, EmuTime::param time)
 
 // Y8950PeripheryFactory implementation:
 
-Y8950Periphery* Y8950PeripheryFactory::create(
+std::unique_ptr<Y8950Periphery> Y8950PeripheryFactory::create(
 	MSXAudio& audio, const DeviceConfig& config,
 	const std::string& soundDeviceName)
 {
 	string type(StringOp::toLower(config.getChildData("type", "philips")));
 	if (type == "philips") {
-		return new MusicModulePeriphery(audio);
+		return make_unique<MusicModulePeriphery>(audio);
 	} else if (type == "panasonic") {
-		return new PanasonicAudioPeriphery(audio, config, soundDeviceName);
+		return make_unique<PanasonicAudioPeriphery>(
+			audio, config, soundDeviceName);
 	} else if (type == "toshiba") {
-		return new ToshibaAudioPeriphery(audio);
+		return make_unique<ToshibaAudioPeriphery>(audio);
 	} else {
 		throw MSXException("Unknown MSX-AUDIO type: " + type);
 	}

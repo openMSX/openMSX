@@ -8,6 +8,7 @@
 #include "TclObject.hh"
 #include "components.hh"
 #include "Math.hh"
+#include "memory.hh"
 #include <cassert>
 #if COMPONENT_GL
 #include "GLImage.hh"
@@ -163,7 +164,7 @@ byte OSDRectangle::getFadedAlpha() const
 	return byte(255 * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> BaseImage* OSDRectangle::create(
+template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 	OutputRectangle& output)
 {
 	if (imageName.empty()) {
@@ -184,29 +185,29 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		double factor = getScaleFactor(output) * scale;
 		int bs = int(round(factor * borderSize + width * relBorderSize));
 		assert(bs >= 0);
-		return new IMAGE(sw, sh, getRGBA4(), bs, borderRGBA);
+		return make_unique<IMAGE>(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
 		SystemFileContext context;
 		string file = context.resolve(imageName);
 		if (takeImageDimensions()) {
 			double factor = getScaleFactor(output) * scale;
-			return new IMAGE(file, factor);
+			return make_unique<IMAGE>(file, factor);
 		} else {
 			double width, height;
 			getWidthHeight(output, width, height);
 			int sw = int(round(width));
 			int sh = int(round(height));
-			return new IMAGE(file, sw, sh);
+			return make_unique<IMAGE>(file, sw, sh);
 		}
 	}
 }
 
-BaseImage* OSDRectangle::createSDL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDRectangle::createSDL(OutputRectangle& output)
 {
 	return create<SDLImage>(output);
 }
 
-BaseImage* OSDRectangle::createGL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDRectangle::createGL(OutputRectangle& output)
 {
 #if COMPONENT_GL
 	return create<GLImage>(output);

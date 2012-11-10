@@ -4,6 +4,7 @@
 #define VIDEOSYSTEM_HH
 
 #include <string>
+#include <memory>
 #include "components.hh"
 
 namespace openmsx {
@@ -28,17 +29,19 @@ public:
 	  * @param vdp The VDP whose display will be rendered.
 	  * @return The rasterizer created.
 	  */
-	virtual Rasterizer* createRasterizer(VDP& vdp) = 0;
+	virtual std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) = 0;
 
 	/** Create the V9990 rasterizer selected by the current renderer setting.
 	  * Video systems that use a rasterizer must override this method.
 	  * @param vdp The V9990 whose display will be rendered.
 	  * @return The rasterizer created.
 	  */
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp) = 0;
+	virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
+		V9990& vdp) = 0;
 
 #if COMPONENT_LASERDISC
-	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer &ld) = 0;
+	virtual std::unique_ptr<LDRasterizer> createLDRasterizer(
+		LaserdiscPlayer &ld) = 0;
 #endif
 
 	/** Requests that this renderer checks its settings against the

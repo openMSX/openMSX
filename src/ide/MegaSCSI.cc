@@ -56,7 +56,8 @@ namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
+static std::unique_ptr<SRAM> createSRAM(
+	const DeviceConfig& config, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -66,7 +67,7 @@ static SRAM* createSRAM(const DeviceConfig& config, const std::string& name)
 			sramSize << "kB!");
 	}
 	sramSize *= 1024; // in bytes
-	return new SRAM(name + " SRAM", sramSize, config);
+	return make_unique<SRAM>(name + " SRAM", sramSize, config);
 }
 
 MegaSCSI::MegaSCSI(const DeviceConfig& config)

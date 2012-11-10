@@ -27,9 +27,10 @@ private:
 	virtual void getWidthHeight(const OutputRectangle& output,
 	                            double& width, double& height) const;
 	virtual byte getFadedAlpha() const;
-	virtual BaseImage* createSDL(OutputRectangle& output);
-	virtual BaseImage* createGL (OutputRectangle& output);
-	template <typename IMAGE> BaseImage* create(OutputRectangle& output);
+	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output);
+	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output);
+	template <typename IMAGE> std::unique_ptr<BaseImage> create(
+		OutputRectangle& output);
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>
 	unsigned split(const std::string& line, unsigned maxWidth,

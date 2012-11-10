@@ -44,12 +44,12 @@ void YM2413Debuggable::write(unsigned address, byte value, EmuTime::param time)
 
 // YM2413
 
-static YM2413Core* createCore(const DeviceConfig& config)
+static std::unique_ptr<YM2413Core> createCore(const DeviceConfig& config)
 {
 	if (config.getChildDataAsBool("alternative", false)) {
-		return new YM2413Burczynski::YM2413();
+		return make_unique<YM2413Burczynski::YM2413>();
 	} else {
-		return new YM2413Okazaki::YM2413();
+		return make_unique<YM2413Okazaki::YM2413>();
 	}
 }
 

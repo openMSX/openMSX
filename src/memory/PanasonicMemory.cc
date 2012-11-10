@@ -9,10 +9,11 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "memory.hh"
 
 namespace openmsx {
 
-static Rom* createRom(MSXMotherBoard& motherBoard)
+static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
 {
 	const XMLElement* elem = motherBoard.getMachineConfig()->
 	                      getConfig().findChild("PanasonicRom");
@@ -20,8 +21,9 @@ static Rom* createRom(MSXMotherBoard& motherBoard)
 
 	const HardwareConfig* hwConf = motherBoard.getMachineConfig();
 	assert(hwConf);
-	return new Rom("PanasonicRom", "Turbor-R main ROM",
-	               DeviceConfig(*hwConf, *elem));
+	return make_unique<Rom>(
+		"PanasonicRom", "Turbor-R main ROM",
+		DeviceConfig(*hwConf, *elem));
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)

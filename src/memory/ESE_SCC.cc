@@ -59,8 +59,8 @@
 
 namespace openmsx {
 
-static SRAM* createSRAM(const DeviceConfig& config,
-                        bool withSCSI, const std::string& name)
+static std::unique_ptr<SRAM> createSRAM(
+	const DeviceConfig& config, bool withSCSI, const std::string& name)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -73,7 +73,7 @@ static SRAM* createSRAM(const DeviceConfig& config,
 		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");
 	}
 	sramSize *= 1024; // in bytes
-	return new SRAM(name + " SRAM", sramSize, config);
+	return make_unique<SRAM>(name + " SRAM", sramSize, config);
 }
 
 ESE_SCC::ESE_SCC(const DeviceConfig& config, bool withSCSI)

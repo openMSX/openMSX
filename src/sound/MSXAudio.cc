@@ -41,8 +41,8 @@ MSXAudio::~MSXAudio()
 
 Y8950Periphery& MSXAudio::createPeriphery(const string& soundDeviceName)
 {
-	periphery.reset(Y8950PeripheryFactory::create(
-		*this, getDeviceConfig2(), soundDeviceName));
+	periphery = Y8950PeripheryFactory::create(
+		*this, getDeviceConfig2(), soundDeviceName);
 	return *periphery;
 }
 

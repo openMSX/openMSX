@@ -31,12 +31,11 @@ NowindCommand::NowindCommand(const string& basename,
 {
 }
 
-DiskChanger* NowindCommand::createDiskChanger(
+unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
 	string name = StringOp::Builder() << basename << n + 1;
-	DiskChanger* drive = new DiskChanger(motherBoard, name, false);
-	return drive;
+	return make_unique<DiskChanger>(motherBoard, name, false);
 }
 
 unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) const
@@ -81,11 +80,11 @@ void NowindCommand::processHdimage(
 		try {
 			auto partition = make_unique<DiskPartition>(
 				*wholeDisk, *it, wholeDisk);
-			DiskChanger* drive = createDiskChanger(
+			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
 			drive->changeDisk(unique_ptr<Disk>(std::move(partition)));
-			drives.push_back(drive);
+			drives.push_back(drive.release()); // TODO
 		} catch (MSXException&) {
 			if (failOnError) throw;
 		}
@@ -193,16 +192,16 @@ string NowindCommand::execute(const vector<string>& tokens)
 		}
 
 		if (createDrive) {
-			DiskChanger* drive = createDiskChanger(
+			auto drive = createDiskChanger(
 				interface.basename, unsigned(tmpDrives.size()),
 				interface.getMotherBoard());
-			tmpDrives.push_back(drive);
 			changeDrives = true;
 			if (!image.empty()) {
 				if (drive->insertDisk(image)) {
 					error = "Invalid disk image: " + image;
 				}
 			}
+			tmpDrives.push_back(drive.release()); // TODO
 		}
 	}
 	if (tmpDrives.size() > 8) {

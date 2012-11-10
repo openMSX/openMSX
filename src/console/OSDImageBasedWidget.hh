@@ -33,8 +33,8 @@ protected:
 	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
-	virtual BaseImage* createSDL(OutputRectangle& output) = 0;
-	virtual BaseImage* createGL (OutputRectangle& output) = 0;
+	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) = 0;
+	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output) = 0;
 
 	void setError(const std::string& message);
 	bool hasError() const { return error; }

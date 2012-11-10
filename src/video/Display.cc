@@ -344,7 +344,7 @@ void Display::doRendererSwitch2()
 	}
 
 	resetVideoSystem();
-	videoSystem.reset(RendererFactory::createVideoSystem(reactor));
+	videoSystem = RendererFactory::createVideoSystem(reactor);
 	setWindowTitle();
 
 	for (Listeners::const_iterator it = listeners.begin();

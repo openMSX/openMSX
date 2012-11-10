@@ -1050,7 +1050,7 @@ void LaserdiscPlayer::postVideoSystemChange()
 void LaserdiscPlayer::createRenderer()
 {
 	Display& display = getMotherBoard().getReactor().getDisplay();
-	renderer.reset(RendererFactory::createLDRenderer(*this, display));
+	renderer = RendererFactory::createLDRenderer(*this, display);
 }
 
 static enum_string<LaserdiscPlayer::RemoteState> RemoteStateInfo[] = {

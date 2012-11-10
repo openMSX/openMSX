@@ -1,25 +1,30 @@
 // $Id$
 
 #include "DummyVideoSystem.hh"
+#include "Rasterizer.hh"
+#include "V9990Rasterizer.hh"
+#include "LDRasterizer.hh"
 #include "components.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
 
-Rasterizer* DummyVideoSystem::createRasterizer(VDP& /*vdp*/)
+std::unique_ptr<Rasterizer> DummyVideoSystem::createRasterizer(VDP& /*vdp*/)
 {
 	UNREACHABLE;
 	return nullptr;
 }
 
-V9990Rasterizer* DummyVideoSystem::createV9990Rasterizer(V9990& /*vdp*/)
+std::unique_ptr<V9990Rasterizer> DummyVideoSystem::createV9990Rasterizer(
+	V9990& /*vdp*/)
 {
 	UNREACHABLE;
 	return nullptr;
 }
 
 #if COMPONENT_LASERDISC
-LDRasterizer* DummyVideoSystem::createLDRasterizer(LaserdiscPlayer& /*ld*/)
+std::unique_ptr<LDRasterizer> DummyVideoSystem::createLDRasterizer(
+	LaserdiscPlayer& /*ld*/)
 {
 	UNREACHABLE;
 	return nullptr;

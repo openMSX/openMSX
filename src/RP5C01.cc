@@ -4,6 +4,7 @@
 #include "EnumSetting.hh"
 #include "SRAM.hh"
 #include "serialize.hh"
+#include "memory.hh"
 #include <cassert>
 #include <ctime>
 
@@ -40,14 +41,15 @@ static const nibble mask[4][13] = {
 	{ 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf}
 };
 
-static EnumSetting<RP5C01::RTCMode>* createModeSetting(
+static std::unique_ptr<EnumSetting<RP5C01::RTCMode>> createModeSetting(
 	CommandController& commandController)
 {
 	EnumSetting<RP5C01::RTCMode>::Map modeMap;
 	modeMap["EmuTime"]  = RP5C01::EMUTIME;
 	modeMap["RealTime"] = RP5C01::REALTIME;
-	return new EnumSetting<RP5C01::RTCMode>(commandController,
-		"rtcmode", "Real Time Clock mode", RP5C01::EMUTIME, modeMap);
+	return make_unique<EnumSetting<RP5C01::RTCMode>>(
+		commandController, "rtcmode",
+		"Real Time Clock mode", RP5C01::EMUTIME, modeMap);
 }
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,

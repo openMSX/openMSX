@@ -8,6 +8,7 @@
 #include "noncopyable.hh"
 #include "type_traits.hh"
 #include "likely.hh"
+#include "memory.hh"
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -24,9 +25,9 @@ namespace openmsx {
  * For example:
  *       Creator<Foo> creator;
  *       tuple<int, float> args = std::make_tuple(42, 3.14);
- *       Foo* foo = creator(args);
+ *       std::unique_ptr<Foo> foo = creator(args);
  * This is equivalent to
- *       Foo* foo = new Foo(42, 3.14);
+ *       auto foo = make_unique<Foo>(42, 3.14);
  * But the former can be used in a generic context (where the number of
  * constructor parameters is unknown).
  */
@@ -34,7 +35,7 @@ template<typename T> class Creator
 {
 public:
 	template<typename TUPLE>
-	T* operator()(TUPLE args) {
+	std::unique_ptr<T> operator()(TUPLE args) {
 		DoInstantiate<std::tuple_size<TUPLE>::value, TUPLE> inst;
 		return inst(args);
 	}
@@ -42,23 +43,26 @@ public:
 private:
 	template<int I, typename TUPLE> struct DoInstantiate;
 	template<typename TUPLE> struct DoInstantiate<0, TUPLE> {
-		T* operator()(TUPLE /*args*/) {
-			return new T();
+		std::unique_ptr<T> operator()(TUPLE /*args*/) {
+			return make_unique<T>();
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<1, TUPLE> {
-		T* operator()(TUPLE args) {
-			return new T(std::get<0>(args));
+		std::unique_ptr<T> operator()(TUPLE args) {
+			return make_unique<T>(std::get<0>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<2, TUPLE> {
-		T* operator()(TUPLE args) {
-			return new T(std::get<0>(args), std::get<1>(args));
+		std::unique_ptr<T> operator()(TUPLE args) {
+			return make_unique<T>(
+				std::get<0>(args), std::get<1>(args));
 		}
 	};
 	template<typename TUPLE> struct DoInstantiate<3, TUPLE> {
-		T* operator()(TUPLE args) {
-			return new T(std::get<0>(args), std::get<1>(args), std::get<2>(args));
+		std::unique_ptr<T> operator()(TUPLE args) {
+			return make_unique<T>(
+				std::get<0>(args), std::get<1>(args),
+				std::get<2>(args));
 		}
 	};
 };

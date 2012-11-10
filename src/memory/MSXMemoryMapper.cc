@@ -7,20 +7,21 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-
+#include "memory.hh"
 #include "Ram.hh" // because we serialize Ram instead of CheckedRam
 
 namespace openmsx {
 
-static CheckedRam* createRam(const DeviceConfig& config, const std::string& name)
+static std::unique_ptr<CheckedRam> createRam(
+	const DeviceConfig& config, const std::string& name)
 {
 	int kSize = config.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		throw MSXException(StringOp::Builder() <<
 			"Mapper size is not a multiple of 16K: " << kSize);
 	}
-	return new CheckedRam(config, name, "memory mapper",
-	                      (kSize / 16) * 0x4000);
+	return make_unique<CheckedRam>(
+		config, name, "memory mapper", (kSize / 16) * 0x4000);
 }
 
 MSXMemoryMapper::MSXMemoryMapper(const DeviceConfig& config)

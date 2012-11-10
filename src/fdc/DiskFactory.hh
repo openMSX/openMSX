@@ -17,7 +17,8 @@ class DiskFactory
 {
 public:
 	explicit DiskFactory(Reactor& reactor);
-	Disk* createDisk(const std::string& diskImage, DiskChanger& diskChanger);
+	std::unique_ptr<Disk> createDisk(
+		const std::string& diskImage, DiskChanger& diskChanger);
 
 private:
 	Reactor& reactor;

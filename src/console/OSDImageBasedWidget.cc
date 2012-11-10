@@ -254,9 +254,9 @@ void OSDImageBasedWidget::createImage(OutputRectangle& output)
 	if (!image.get() && !hasError()) {
 		try {
 			if (gui.isOpenGL()) {
-				image.reset(createGL(output));
+				image = createGL(output);
 			} else {
-				image.reset(createSDL(output));
+				image = createSDL(output);
 			}
 		} catch (MSXException& e) {
 			setError(e.getMessage());

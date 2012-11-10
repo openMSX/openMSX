@@ -19,7 +19,7 @@ namespace openmsx {
 
 // MSXDevice
 
-static Keyboard* createKeyboard(const DeviceConfig& config)
+static std::unique_ptr<Keyboard> createKeyboard(const DeviceConfig& config)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
 	bool keyGhostingSGCprotected =
@@ -30,15 +30,16 @@ static Keyboard* createKeyboard(const DeviceConfig& config)
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
 	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
 	MSXMotherBoard& motherBoard = config.getMotherBoard();
-	return new Keyboard(motherBoard,
-	                    motherBoard.getScheduler(),
-	                    motherBoard.getCommandController(),
-	                    motherBoard.getReactor().getEventDistributor(),
-	                    motherBoard.getMSXEventDistributor(),
-	                    motherBoard.getStateChangeDistributor(),
-	                    keyboardType, hasKeypad, hasYesNoKeys,
-	                    keyGhosting, keyGhostingSGCprotected,
-	                    codeKanaLocks, graphLocks);
+	return make_unique<Keyboard>(
+		motherBoard,
+		motherBoard.getScheduler(),
+		motherBoard.getCommandController(),
+		motherBoard.getReactor().getEventDistributor(),
+		motherBoard.getMSXEventDistributor(),
+		motherBoard.getStateChangeDistributor(),
+		keyboardType, hasKeypad, hasYesNoKeys,
+		keyGhosting, keyGhostingSGCprotected,
+		codeKanaLocks, graphLocks);
 }
 
 MSXPPI::MSXPPI(const DeviceConfig& config)

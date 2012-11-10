@@ -54,9 +54,9 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 		basename, getCommandController(), *this);
 
 	// start with one (empty) drive
-	DiskChanger* drive = command->createDiskChanger(basename, 0, getMotherBoard());
+	auto drive = command->createDiskChanger(basename, 0, getMotherBoard());
 	drive->createCommand();
-	drives.push_back(drive);
+	drives.push_back(drive.release()); // TODO
 
 	reset(EmuTime::dummy());
 }

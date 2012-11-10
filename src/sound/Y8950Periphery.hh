@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "openmsx.hh"
+#include <memory>
 #include <string>
 
 namespace openmsx {
@@ -53,8 +54,9 @@ class DeviceConfig;
 class Y8950PeripheryFactory
 {
 public:
-	static Y8950Periphery* create(MSXAudio& audio, const DeviceConfig& config,
-	                              const std::string& soundDeviceName);
+	static std::unique_ptr<Y8950Periphery> create(
+		MSXAudio& audio, const DeviceConfig& config,
+		const std::string& soundDeviceName);
 };
 
 } // namespace openmsx

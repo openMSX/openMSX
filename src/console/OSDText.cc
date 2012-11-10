@@ -173,10 +173,11 @@ byte OSDText::getFadedAlpha() const
 	return byte((getRGBA(0) & 0xff) * getRecursiveFadeValue());
 }
 
-template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
+template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
+	OutputRectangle& output)
 {
 	if (text.empty()) {
-		return new IMAGE(0, 0, unsigned(0));
+		return make_unique<IMAGE>(0, 0, unsigned(0));
 	}
 	int scale = getScaleFactor(output);
 	if (!font.get()) {
@@ -215,9 +216,9 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputRectangle& output)
 		SDLSurfacePtr surface(font->render(wrappedText,
 			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
 		if (surface.get()) {
-			return new IMAGE(std::move(surface));
+			return make_unique<IMAGE>(std::move(surface));
 		} else {
-			return new IMAGE(0, 0, unsigned(0));
+			return make_unique<IMAGE>(0, 0, unsigned(0));
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());
@@ -438,12 +439,12 @@ void OSDText::getRenderedSize(double& outX, double& outY) const
 	outY = height / scale;
 }
 
-BaseImage* OSDText::createSDL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDText::createSDL(OutputRectangle& output)
 {
 	return create<SDLImage>(output);
 }
 
-BaseImage* OSDText::createGL(OutputRectangle& output)
+std::unique_ptr<BaseImage> OSDText::createGL(OutputRectangle& output)
 {
 #if COMPONENT_GL
 	return create<GLImage>(output);

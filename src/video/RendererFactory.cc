@@ -31,63 +31,64 @@ using std::unique_ptr;
 namespace openmsx {
 namespace RendererFactory {
 
-VideoSystem* createVideoSystem(Reactor& reactor)
+unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
 	Display& display = reactor.getDisplay();
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			return new DummyVideoSystem();
+			return make_unique<DummyVideoSystem>();
 		case SDL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new SDLVideoSystem(reactor, display.getCommandConsole());
+			return make_unique<SDLVideoSystem>(
+				reactor, display.getCommandConsole());
 		default:
 			UNREACHABLE; return nullptr;
 	}
 }
 
-Renderer* createRenderer(VDP& vdp, Display& display)
+unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			return new DummyRenderer();
+			return make_unique<DummyRenderer>();
 		case SDL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new PixelRenderer(vdp, display);
+			return make_unique<PixelRenderer>(vdp, display);
 		default:
 			UNREACHABLE; return nullptr;
 	}
 }
 
-V9990Renderer* createV9990Renderer(V9990& vdp, Display& display)
+unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			return new V9990DummyRenderer();
+			return make_unique<V9990DummyRenderer>();
 		case SDL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new V9990PixelRenderer(vdp);
+			return make_unique<V9990PixelRenderer>(vdp);
 		default:
 			UNREACHABLE; return nullptr;
 	}
 }
 
 #if COMPONENT_LASERDISC
-LDRenderer* createLDRenderer(LaserdiscPlayer& ld, Display& display)
+unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			return new LDDummyRenderer();
+			return make_unique<LDDummyRenderer>();
 		case SDL:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			return new LDPixelRenderer(ld, display);
+			return make_unique<LDPixelRenderer>(ld, display);
 		default:
 			UNREACHABLE; return nullptr;
 	}

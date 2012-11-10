@@ -42,17 +42,18 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap);
 }
 
-Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
+std::unique_ptr<Disk> DiskFactory::createDisk(
+	const string& diskImage, DiskChanger& diskChanger)
 {
 	if (diskImage == "ramdsk") {
-		return new RamDSKDiskImage();
+		return make_unique<RamDSKDiskImage>();
 	}
 
 	UserFileContext context;
 	Filename filename(diskImage, context);
 	try {
 		// First try DirAsDSK
-		return new DirAsDSK(
+		return make_unique<DirAsDSK>(
 			diskChanger,
 			reactor.getCliComm(),
 			filename,
@@ -67,19 +68,19 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 
 		try {
 			// first try XSA
-			return new XSADiskImage(filename, *file);
+			return make_unique<XSADiskImage>(filename, *file);
 		} catch (MSXException&) {
 			// XSA didn't work, still no problem
 		}
 		try {
 			// next try dmk
 			file->seek(0);
-			return new DMKDiskImage(filename, file);
+			return make_unique<DMKDiskImage>(filename, file);
 		} catch (MSXException& /*e*/) {
 			// DMK didn't work, still no problem
 		}
 		// next try normal DSK
-		return new DSKDiskImage(filename, file);
+		return make_unique<DSKDiskImage>(filename, file);
 
 	} catch (MSXException& e) {
 		// File could not be opened or (very rare) something is wrong
@@ -106,7 +107,7 @@ Disk* DiskFactory::createDisk(const string& diskImage, DiskChanger& diskChanger)
 		}
 		unsigned num = StringOp::stringToUint(
 			diskImage.substr(pos + 1));
-		return new DiskPartition(*wholeDisk, num, wholeDisk);
+		return make_unique<DiskPartition>(*wholeDisk, num, wholeDisk);
 	}
 }
 

@@ -5,6 +5,7 @@
 
 #include "NowindInterface.hh"
 #include "Command.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -21,8 +22,9 @@ public:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	DiskChanger* createDiskChanger(const std::string& basename, unsigned n,
-	                               MSXMotherBoard& motherBoard) const;
+	std::unique_ptr<DiskChanger> createDiskChanger(
+		const std::string& basename, unsigned n,
+		MSXMotherBoard& motherBoard) const;
 
 private:
 	unsigned searchRomdisk(const NowindInterface::Drives& drives) const;

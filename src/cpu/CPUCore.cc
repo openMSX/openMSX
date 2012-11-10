@@ -242,11 +242,11 @@ struct CondTrue { bool operator()(byte) const { return true; } };
 
 // This function only exists as a workaround for a bug in g++-4.2.x, see
 //   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34336
-static BooleanSetting* createFreqLockedSetting(
+static std::unique_ptr<BooleanSetting> createFreqLockedSetting(
 	CommandController& commandController, const string& name)
 {
-	return new BooleanSetting(commandController,
-	        name + "_freq_locked",
+	return make_unique<BooleanSetting>(
+		commandController, name + "_freq_locked",
 	        "real (locked) or custom (unlocked) " + name + " frequency",
 	        true);
 }

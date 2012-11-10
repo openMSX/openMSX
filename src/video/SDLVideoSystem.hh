@@ -35,10 +35,12 @@ public:
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
-	virtual Rasterizer* createRasterizer(VDP& vdp);
-	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
+	virtual std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp);
+	virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
+		V9990& vdp);
 #if COMPONENT_LASERDISC
-	virtual LDRasterizer* createLDRasterizer(LaserdiscPlayer& ld);
+	virtual std::unique_ptr<LDRasterizer> createLDRasterizer(
+		LaserdiscPlayer& ld);
 #endif
 	virtual bool checkSettings();
 	virtual void flush();

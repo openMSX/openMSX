@@ -324,7 +324,7 @@ void VDP::postVideoSystemChange()
 
 void VDP::createRenderer()
 {
-	renderer.reset(RendererFactory::createRenderer(*this, display));
+	renderer = RendererFactory::createRenderer(*this, display);
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());
