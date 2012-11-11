@@ -230,8 +230,12 @@ namespace openmsx {
 // debug build with some specific compiler version and only with some
 // combination of other code changes, but again when strictly following the
 // language rules, these lines should be here).
+// ... But visual studio is not fully standard compliant, see also comment
+//     in SectorAccesibleDisk.cc
+#ifndef _MSC_VER
 const int Z80TYPE ::CLOCK_FREQ;
 const int R800TYPE::CLOCK_FREQ;
+#endif
 
 
 typedef signed char offset;
