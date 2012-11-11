@@ -120,6 +120,7 @@ private:
 		struct ChannelSettings {
 			ChannelSettings();
 			ChannelSettings(ChannelSettings&& rhs);
+			ChannelSettings& operator=(ChannelSettings&& rhs);
 
 			std::unique_ptr<StringSetting> recordSetting;
 			std::unique_ptr<BooleanSetting> muteSetting;

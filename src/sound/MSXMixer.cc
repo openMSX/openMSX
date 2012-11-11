@@ -85,6 +85,14 @@ MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings(ChannelSettings&& rh
 {
 }
 
+MSXMixer::SoundDeviceInfo::ChannelSettings&
+MSXMixer::SoundDeviceInfo::ChannelSettings::operator=(ChannelSettings&& rhs)
+{
+	recordSetting = std::move(rhs.recordSetting);
+	muteSetting   = std::move(rhs.muteSetting);
+	return *this;
+}
+
 
 MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
                    MSXCommandController& msxCommandController_,
