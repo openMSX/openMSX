@@ -946,7 +946,7 @@ proc ls {directory extensions} {
 }
 
 proc menu_create_ROM_list {path} {
-	return [prepare_menu_list [concat "--eject--" [ls $path "rom|ri|zip|gz"]] \
+	return [prepare_menu_list [concat "--eject--" [ls $path "rom|ri|mx1|mx2|zip|gz"]] \
 	                          10 \
 	                          { execute menu_select_rom
 	                            font-size 8
