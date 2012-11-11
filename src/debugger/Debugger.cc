@@ -238,7 +238,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	auto it = find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
+	auto it = std::find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
 		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; });
 	assert(it != probeBreakPoints.end());
 	probeBreakPoints.erase(it);

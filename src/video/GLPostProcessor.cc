@@ -17,6 +17,17 @@
 
 namespace openmsx {
 
+GLPostProcessor::TextureData::TextureData()
+{
+}
+
+GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
+	: tex(std::move(rhs.tex))
+	, pbo(std::move(rhs.pbo))
+{
+}
+
+
 GLPostProcessor::GLPostProcessor(
 	MSXMotherBoard& motherBoard, Display& display,
 	OutputSurface& screen, VideoSource videoSource,

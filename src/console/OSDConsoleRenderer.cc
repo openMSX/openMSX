@@ -60,6 +60,12 @@ OSDConsoleRenderer::TextCacheElement::TextCacheElement(
 {
 }
 
+OSDConsoleRenderer::TextCacheElement::TextCacheElement(TextCacheElement&& rhs)
+	: text(std::move(rhs.text)), image(std::move(rhs.image))
+	, rgb(std::move(rhs.rgb)), width(std::move(rhs.width))
+{
+}
+
 
 // class OSDConsoleRenderer
 

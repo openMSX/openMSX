@@ -45,6 +45,8 @@ public:
 private:
 	struct ReverseChunk {
 		ReverseChunk();
+		ReverseChunk(ReverseChunk&& rhs);
+		ReverseChunk& operator=(ReverseChunk&& rhs);
 
 		EmuTime time;
 		std::unique_ptr<MemBuffer<byte>> savestate;

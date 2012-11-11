@@ -55,7 +55,7 @@ unique_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 {
 	assert(std::count_if(children.begin(), children.end(),
 		[&](Children::value_type& v) { return v.get() == &child; }) == 1);
-	auto it = find_if(children.begin(), children.end(),
+	auto it = std::find_if(children.begin(), children.end(),
 		[&](Children::value_type& v) { return v.get() == &child; });
 	assert(it != children.end());
 	auto result = std::move(*it);

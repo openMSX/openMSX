@@ -66,6 +66,9 @@ private:
 	double noiseY;
 
 	struct TextureData {
+		TextureData();
+		TextureData(TextureData&& rhs);
+
 		std::unique_ptr<ColorTexture> tex;
 		std::unique_ptr<PixelBuffer<unsigned>> pbo;
 	};

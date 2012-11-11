@@ -110,10 +110,17 @@ public:
 
 private:
 	struct SoundDeviceInfo {
+		SoundDeviceInfo();
+		SoundDeviceInfo(SoundDeviceInfo&& rhs);
+		SoundDeviceInfo& operator=(SoundDeviceInfo&& rhs);
+
 		double defaultVolume;
 		std::unique_ptr<IntegerSetting> volumeSetting;
 		std::unique_ptr<IntegerSetting> balanceSetting;
 		struct ChannelSettings {
+			ChannelSettings();
+			ChannelSettings(ChannelSettings&& rhs);
+
 			std::unique_ptr<StringSetting> recordSetting;
 			std::unique_ptr<BooleanSetting> muteSetting;
 		};

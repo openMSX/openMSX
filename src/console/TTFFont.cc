@@ -54,6 +54,10 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
+		FontInfo() {}
+		FontInfo(FontInfo&& rhs)
+			: file(std::move(rhs.file)), font(std::move(rhs.font))
+			, count(std::move(rhs.count)) {}
 		std::unique_ptr<LocalFileReference> file;
 		TTF_Font* font;
 		int count;

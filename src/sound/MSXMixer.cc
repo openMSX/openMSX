@@ -46,6 +46,46 @@ private:
 };
 
 
+MSXMixer::SoundDeviceInfo::SoundDeviceInfo()
+{
+}
+
+MSXMixer::SoundDeviceInfo::SoundDeviceInfo(SoundDeviceInfo&& rhs)
+	: defaultVolume  (std::move(rhs.defaultVolume))
+	, volumeSetting  (std::move(rhs.volumeSetting))
+	, balanceSetting (std::move(rhs.balanceSetting))
+	, channelSettings(std::move(rhs.channelSettings))
+	, left1          (std::move(rhs.left1))
+	, right1         (std::move(rhs.right1))
+	, left2          (std::move(rhs.left2))
+	, right2         (std::move(rhs.right2))
+{
+}
+
+MSXMixer::SoundDeviceInfo& MSXMixer::SoundDeviceInfo::operator=(SoundDeviceInfo&& rhs)
+{
+	defaultVolume   = std::move(rhs.defaultVolume);
+	volumeSetting   = std::move(rhs.volumeSetting);
+	balanceSetting  = std::move(rhs.balanceSetting);
+	channelSettings = std::move(rhs.channelSettings);
+	left1           = std::move(rhs.left1);
+	right1          = std::move(rhs.right1);
+	left2           = std::move(rhs.left2);
+	right2          = std::move(rhs.right2);
+	return *this;
+}
+
+MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings()
+{
+}
+
+MSXMixer::SoundDeviceInfo::ChannelSettings::ChannelSettings(ChannelSettings&& rhs)
+	: recordSetting(std::move(rhs.recordSetting))
+	, muteSetting  (std::move(rhs.muteSetting))
+{
+}
+
+
 MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
                    MSXCommandController& msxCommandController_,
                    GlobalSettings& globalSettings)

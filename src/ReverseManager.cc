@@ -132,6 +132,22 @@ ReverseManager::ReverseChunk::ReverseChunk()
 {
 }
 
+ReverseManager::ReverseChunk::ReverseChunk(ReverseChunk&& rhs)
+	: time      (std::move(rhs.time))
+	, savestate (std::move(rhs.savestate))
+	, eventCount(std::move(rhs.eventCount))
+{
+}
+
+ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
+	ReverseChunk&& rhs)
+{
+	time       = std::move(rhs.time);
+	savestate  = std::move(rhs.savestate);
+	eventCount = std::move(rhs.eventCount);
+	return *this;
+}
+
 
 class EndLogEvent : public StateChange
 {

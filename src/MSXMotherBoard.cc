@@ -512,7 +512,7 @@ string MSXMotherBoard::Impl::insertExtension(
 
 HardwareConfig* MSXMotherBoard::Impl::findExtension(string_ref extensionName)
 {
-	auto it = find_if(extensions.begin(), extensions.end(),
+	auto it = std::find_if(extensions.begin(), extensions.end(),
 		[&](Extensions::value_type& v) {
 			return v->getName() == extensionName; });
 	return (it != extensions.end()) ? it->get() : nullptr;
@@ -526,7 +526,7 @@ const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() co
 void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	auto it = find_if(extensions.begin(), extensions.end(),
+	auto it = std::find_if(extensions.begin(), extensions.end(),
 		[&](Extensions::value_type& v) {
 			return v.get() == &extension; });
 	assert(it != extensions.end());
