@@ -170,12 +170,12 @@ static int parseTypes(const TclObject& list)
 void FilePool::update(const Setting& setting)
 {
 	assert(&setting == filePoolSetting.get()); (void)setting;
-	Directories dummy;
-	getDirectories(dummy); // check for syntax errors
+	getDirectories(); // check for syntax errors
 }
 
-void FilePool::getDirectories(Directories& result) const
+FilePool::Directories FilePool::getDirectories() const
 {
+	Directories result;
 	TclObject all(filePoolSetting->getValue());
 	unsigned numLines = all.getListLength();
 	for (unsigned i = 0; i < numLines; ++i) {
@@ -212,6 +212,7 @@ void FilePool::getDirectories(Directories& result) const
 		}
 		result.push_back(entry);
 	}
+	return result;
 }
 
 unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
@@ -227,7 +228,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	amountScanned = 0; // also for progress messages
 	Directories directories;
 	try {
-		getDirectories(directories);
+		directories = getDirectories();
 	} catch (CommandException& e) {
 		cliComm.printWarning("Error while parsing '__filepool' setting" +
 			e.getMessage());

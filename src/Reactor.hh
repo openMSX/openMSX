@@ -7,6 +7,7 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <string>
 #include <memory>
 #include <set>
@@ -90,8 +91,7 @@ public:
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static void getHwConfigs(const std::string& type,
-	                         std::set<std::string>& result);
+	static std::set<std::string> getHwConfigs(string_ref type);
 
 	void block();
 	void unblock();
@@ -114,7 +114,7 @@ private:
 	void switchBoard(const Board& newBoard);
 	void deleteBoard(Board board);
 	Board getMachine(const std::string& machineID) const;
-	void getMachineIDs(std::set<std::string>& result) const;
+	std::set<std::string> getMachineIDs() const;
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

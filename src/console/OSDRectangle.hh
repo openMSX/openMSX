@@ -16,7 +16,7 @@ class OSDRectangle : public OSDImageBasedWidget
 public:
 	OSDRectangle(const OSDGUI& gui, const std::string& name);
 
-	virtual void getProperties(std::set<std::string>& result) const;
+	virtual std::set<std::string> getProperties() const;
 	virtual void setProperty(string_ref name, const TclObject& value);
 	virtual void getProperty(string_ref name, TclObject& result) const;
 	virtual string_ref getType() const;

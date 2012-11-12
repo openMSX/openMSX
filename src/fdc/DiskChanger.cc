@@ -363,7 +363,7 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 
 	vector<Filename> patches;
 	if (!ar.isLoader()) {
-		disk->getPatches(patches);
+		patches = disk->getPatches();
 	}
 	ar.serialize("patches", patches);
 

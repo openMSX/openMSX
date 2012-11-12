@@ -172,10 +172,9 @@ string MSXCommandController::executeCommand(const string& command,
 	return globalCommandController.executeCommand(command, connection);
 }
 
-void MSXCommandController::splitList(const string& list,
-	                             vector<string>& result)
+vector<string> MSXCommandController::splitList(const string& list)
 {
-	globalCommandController.splitList(list, result);
+	return globalCommandController.splitList(list);
 }
 
 CliComm& MSXCommandController::getCliComm()

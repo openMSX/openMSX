@@ -183,7 +183,7 @@ string DiskManipulator::execute(const vector<string>& tokens)
 			result += "Current directory: " +
 			          settings.workingDir[settings.partition];
 		} else {
-			chdir(settings, tokens[3], result);
+			result += chdir(settings, tokens[3]);
 		}
 
 	} else if (tokens[1] == "mkdir") {
@@ -199,7 +199,7 @@ string DiskManipulator::execute(const vector<string>& tokens)
 
 	} else if (tokens[1] == "dir") {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		dir(settings, result);
+		result += dir(settings);
 
 	} else {
 		throw CommandException("Unknown subcommand: " + tokens[1]);
@@ -455,15 +455,14 @@ unique_ptr<MSXtar> DiskManipulator::getMSXtar(
 	return result;
 }
 
-void DiskManipulator::dir(DriveSettings& driveData, string& result)
+string DiskManipulator::dir(DriveSettings& driveData)
 {
 	unique_ptr<DiskPartition> partition = getPartition(driveData);
 	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
-	result += workhorse->dir();
+	return workhorse->dir();
 }
 
-void DiskManipulator::chdir(DriveSettings& driveData,
-                            const string& filename, string& result)
+string DiskManipulator::chdir(DriveSettings& driveData, const string& filename)
 {
 	unique_ptr<DiskPartition> partition = getPartition(driveData);
 	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
@@ -480,7 +479,7 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
 		cwd += filename;
 	}
-	result += "New working directory: " + cwd;
+	return "New working directory: " + cwd;
 }
 
 void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
@@ -503,9 +502,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 	string messages;
 	for (vector<string>::const_iterator it = lists.begin();
 	     it != lists.end(); ++it) {
-		vector<string> list;
-		getCommandController().splitList(*it, list);
-
+		auto list = getCommandController().splitList(*it);
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {
 			try {

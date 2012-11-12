@@ -71,9 +71,9 @@ void SectorAccessibleDisk::applyPatch(const Filename& patchFile)
 	patch = make_unique<IPSPatch>(patchFile, std::move(patch));
 }
 
-void SectorAccessibleDisk::getPatches(std::vector<Filename>& result) const
+std::vector<Filename> SectorAccessibleDisk::getPatches() const
 {
-	patch->getFilenames(result);
+	return patch->getFilenames();
 }
 
 bool SectorAccessibleDisk::hasPatches() const

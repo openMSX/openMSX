@@ -32,7 +32,7 @@ public:
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(string_ref name, Command& command);
-	void getCommandNames(std::set<std::string>& result);
+	std::set<std::string> getCommandNames();
 	bool isComplete(const std::string& command) const;
 	std::string execute(const std::string& command);
 	std::string executeFile(const std::string& filename);
@@ -53,11 +53,9 @@ public:
 	  */
 	void deleteNamespace(const std::string& name);
 
-	void splitList(const std::string& list,
-	               std::vector<std::string>& result);
-	static void splitList(const std::string& list,
-	                      std::vector<std::string>& result,
-	                      Tcl_Interp* interp);
+	std::vector<std::string> splitList(const std::string& list);
+	static std::vector<std::string> splitList(
+		const std::string& list, Tcl_Interp* interp);
 
 	TclParser parse(string_ref command);
 

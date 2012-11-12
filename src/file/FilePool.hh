@@ -84,8 +84,7 @@ private:
 	                                  const std::string& poolPath);
 	Pool::iterator findInDatabase(const std::string& filename);
 
-
-	void getDirectories(Directories& result) const;
+	Directories getDirectories() const;
 
 	// Observer<Setting>
 	void update(const Setting& setting);

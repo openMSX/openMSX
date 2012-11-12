@@ -345,14 +345,16 @@ void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last
 	}
 }
 
-void split(string_ref str, string_ref chars, vector<string>& result)
+vector<string> split(string_ref str, string_ref chars)
 {
+	vector<string> result;
 	while (!str.empty()) {
 		string_ref first, last;
 		splitOnFirst(str, chars, first, last);
 		result.push_back(first.str());
 		str = last;
 	}
+	return result;
 }
 
 string join(const vector<string>& elems, const string& separator)
@@ -413,18 +415,19 @@ static void parseRange2(string_ref str, set<unsigned>& result,
 	}
 }
 
-void parseRange(string_ref str, set<unsigned>& result,
-		unsigned min, unsigned max)
+set<unsigned> parseRange(string_ref str, unsigned min, unsigned max)
 {
+	set<unsigned> result;
 	while (true) {
 		string_ref::size_type next = str.find(',');
 		string_ref sub = (next == string_ref::npos)
 		               ? str
 		               : str.substr(0, next++);
 		parseRange2(sub, result, min, max);
-		if (next == string_ref::npos) return;
+		if (next == string_ref::npos) break;
 		str = str.substr(next);
 	}
+	return result;
 }
 
 #if defined(__APPLE__)

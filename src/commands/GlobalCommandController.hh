@@ -71,8 +71,7 @@ public:
 	 * balanced).
 	 */
 	virtual bool isComplete(const std::string& command);
-	virtual void splitList(const std::string& list,
-	                       std::vector<std::string>& result);
+	virtual std::vector<std::string> splitList(const std::string& list);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
 	virtual Setting* findSetting(string_ref name);
@@ -87,8 +86,8 @@ private:
 	           std::vector<std::string>& tokens, char delimiter);
 	std::string join(const std::vector<std::string>& tokens, char delimiter);
 	std::string removeEscaping(const std::string& str);
-	void removeEscaping(const std::vector<std::string>& input,
-	                    std::vector<std::string>& result, bool keepLastIfEmpty);
+	std::vector<std::string> removeEscaping(
+		const std::vector<std::string>& input, bool keepLastIfEmpty);
 	std::string addEscaping(const std::string& str, bool quote, bool finished);
 
 	void tabCompletion(std::vector<std::string>& tokens);

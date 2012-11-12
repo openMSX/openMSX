@@ -44,7 +44,7 @@ public:
 	Setting* findSetting(string_ref name) const;
 
 private:
-	void getSettingNames(std::set<std::string>& result) const;
+	std::set<std::string> getSettingNames() const;
 	Setting& getByName(string_ref cmd, string_ref name) const;
 
 	friend class SettingInfo;

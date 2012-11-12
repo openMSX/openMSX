@@ -369,10 +369,10 @@ string GlobalCommandController::removeEscaping(const string& str)
 	return result;
 }
 
-void GlobalCommandController::removeEscaping(
-	const vector<string>& input, vector<string>& result,
-	bool keepLastIfEmpty)
+vector<string> GlobalCommandController::removeEscaping(
+	const vector<string>& input, bool keepLastIfEmpty)
 {
+	vector<string> result;
 	for (vector<string>::const_iterator it = input.begin();
 	     it != input.end();
 	     ++it) {
@@ -383,6 +383,7 @@ void GlobalCommandController::removeEscaping(
 	if (keepLastIfEmpty && (input.empty() || input.back().empty())) {
 		result.push_back("");
 	}
+	return result;
 }
 
 static string escapeChars(const string& str, const string& chars)
@@ -446,10 +447,9 @@ string GlobalCommandController::executeCommand(
 	return interpreter->execute(cmd);
 }
 
-void GlobalCommandController::splitList(
-	const string& list, vector<string>& result)
+vector<string> GlobalCommandController::splitList(const string& list)
 {
-	interpreter->splitList(list, result);
+	return interpreter->splitList(list);
 }
 
 void GlobalCommandController::source(const string& script)
@@ -483,8 +483,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	}
 
 	// complete last token
-	vector<string> tokens;
-	removeEscaping(originalTokens, tokens, true);
+	auto tokens = removeEscaping(originalTokens, true);
 	size_t oldNum = tokens.size();
 	tabCompletion(tokens);
 	size_t newNum = tokens.size();
@@ -515,8 +514,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	}
 	if (tokens.size() == 1) {
 		// build a list of all command strings
-		set<string> cmds;
-		interpreter->getCommandNames(cmds);
+		auto cmds = interpreter->getCommandNames();
 		Completer::completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
@@ -525,22 +523,20 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		} else {
 			TclObject command(*interpreter);
 			command.addListElement("openmsx::tabcompletion");
-			command.addListElements(tokens.begin(), tokens.end());
+			command.addListElements(tokens);
 			try {
-				string result = command.executeCommand();
-				vector<string> split;
-				splitList(result, split);
+				auto list = splitList(command.executeCommand());
 				bool sensitive = true;
-				if (!split.empty()) {
-					if (split.back() == "false") {
-						split.pop_back();
+				if (!list.empty()) {
+					if (list.back() == "false") {
+						list.pop_back();
 						sensitive = false;
-					} else if (split.back() == "true") {
-						split.pop_back();
+					} else if (list.back() == "true") {
+						list.pop_back();
 						sensitive = true;
 					}
 				}
-				set<string> completions(split.begin(), split.end());
+				set<string> completions(list.begin(), list.end());
 				Completer::completeString(tokens, completions, sensitive);
 			} catch (CommandException& e) {
 				cliComm.printWarning(

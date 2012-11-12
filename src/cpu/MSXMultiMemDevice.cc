@@ -77,11 +77,13 @@ bool MSXMultiMemDevice::empty() const
 	return ranges.size() == 1;
 }
 
-void MSXMultiMemDevice::getDevices(std::set<MSXDevice*>& result) const
+std::set<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
+	std::set<MSXDevice*> result;
 	for (unsigned i = 0; i < (ranges.size() - 1); ++i) {
 		result.insert(ranges[i].device);
 	}
+	return result;
 }
 
 std::string MSXMultiMemDevice::getName() const

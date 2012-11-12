@@ -50,8 +50,7 @@ public:
 	virtual bool hasCommand(string_ref command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = nullptr);
-	virtual void splitList(const std::string& list,
-	                       std::vector<std::string>& result);
+	virtual std::vector<std::string> splitList(const std::string& list);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
 	virtual Setting* findSetting(string_ref name);

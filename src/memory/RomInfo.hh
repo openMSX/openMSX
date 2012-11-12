@@ -32,7 +32,7 @@ public:
 
 	static RomType nameToRomType(string_ref name);
 	static string_ref romTypeToName(RomType type);
-	static void getAllRomTypes(std::set<std::string>& result);
+	static std::set<std::string> getAllRomTypes();
 	static string_ref getDescription(RomType type);
 	static unsigned   getBlockSize  (RomType type);
 

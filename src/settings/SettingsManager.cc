@@ -92,12 +92,14 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 // Helper functions for setting commands
 
-void SettingsManager::getSettingNames(set<string>& result) const
+set<string> SettingsManager::getSettingNames() const
 {
+	set<string> result;
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
 		result.insert(it->first().str());
 	}
+	return result;
 }
 
 Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
@@ -201,8 +203,7 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 3: { // complete setting name
-		set<string> settings;
-		manager.getSettingNames(settings);
+		auto settings = manager.getSettingNames();
 		completeString(tokens, settings);
 		break;
 	}
@@ -235,8 +236,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		set<string> settings;
-		manager.getSettingNames(settings);
+		auto settings = manager.getSettingNames();
 		completeString(tokens, settings, false); // case insensitive
 		break;
 	}
@@ -273,8 +273,7 @@ void SettingCompleter::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		set<string> settings;
-		manager.getSettingNames(settings);
+		auto settings = manager.getSettingNames();
 		completeString(tokens, settings);
 		break;
 	}

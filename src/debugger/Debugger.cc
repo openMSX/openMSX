@@ -150,12 +150,14 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 	return *result;
 }
 
-void Debugger::getDebuggables(set<string>& result) const
+set<string> Debugger::getDebuggables() const
 {
+	set<string> result;
 	for (Debuggables::const_iterator it = debuggables.begin();
 	     it != debuggables.end(); ++it) {
 		result.insert(it->first().str());
 	}
+	return result;
 }
 
 
@@ -188,12 +190,14 @@ ProbeBase& Debugger::getProbe(string_ref name)
 	return *result;
 }
 
-void Debugger::getProbes(std::set<std::string>& result) const
+set<string> Debugger::getProbes() const
 {
+	set<string> result;
 	for (Probes::const_iterator it = probes.begin();
 	     it != probes.end(); ++it) {
 		result.insert(it->first().str());
 	}
+	return result;
 }
 
 
@@ -402,9 +406,7 @@ void DebugCmd::execute(const vector<TclObject>& tokens,
 
 void DebugCmd::list(TclObject& result)
 {
-	set<string> debuggables;
-	debugger.getDebuggables(debuggables);
-	result.addListElements(debuggables.begin(), debuggables.end());
+	result.addListElements(debugger.getDebuggables());
 }
 
 void DebugCmd::desc(const vector<TclObject>& tokens, TclObject& result)
@@ -835,9 +837,7 @@ void DebugCmd::probe(const vector<TclObject>& tokens,
 void DebugCmd::probeList(const vector<TclObject>& /*tokens*/,
                          TclObject& result)
 {
-	set<string> probes;
-	debugger.getProbes(probes);
-	result.addListElements(probes.begin(), probes.end());
+	result.addListElements(debugger.getProbes());
 }
 void DebugCmd::probeDesc(const vector<TclObject>& tokens,
                          TclObject& result)
@@ -1233,8 +1233,7 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 			if (debuggableArgCmds.find(tokens[1]) !=
 				debuggableArgCmds.end()) {
 				// it takes a debuggable here
-				set<string> debuggables;
-				debugger.getDebuggables(debuggables);
+				auto debuggables = debugger.getDebuggables();
 				completeString(tokens, debuggables);
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
@@ -1271,8 +1270,7 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			set<string> probes;
-			debugger.getProbes(probes);
+			auto probes = debugger.getProbes();
 			completeString(tokens, probes);
 		}
 		break;

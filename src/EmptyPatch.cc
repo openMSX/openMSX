@@ -39,9 +39,10 @@ unsigned EmptyPatch::getSize() const
 	return size;
 }
 
-void EmptyPatch::getFilenames(std::vector<Filename>& /*result*/) const
+std::vector<Filename> EmptyPatch::getFilenames() const
 {
-	// nothing
+	// return {};
+	return std::vector<Filename>();
 }
 
 } // namespace openmsx

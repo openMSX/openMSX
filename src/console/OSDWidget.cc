@@ -274,18 +274,13 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-void OSDWidget::getProperties(set<string>& result) const
+set<string> OSDWidget::getProperties() const
 {
-	result.insert("-type");
-	result.insert("-x");
-	result.insert("-y");
-	result.insert("-z");
-	result.insert("-relx");
-	result.insert("-rely");
-	result.insert("-scaled");
-	result.insert("-clip");
-	result.insert("-mousecoord");
-	result.insert("-suppressErrors");
+	static const char* const vals[] = {
+		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
+		"-clip", "-mousecoord", "-suppressErrors",
+	};
+	return set<string>(std::begin(vals), std::end(vals));
 }
 
 void OSDWidget::setProperty(string_ref name, const TclObject& value)

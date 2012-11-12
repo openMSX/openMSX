@@ -15,7 +15,7 @@ public:
 
 	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
 	virtual unsigned getSize() const;
-	virtual void getFilenames(std::vector<Filename>& result) const;
+	virtual std::vector<Filename> getFilenames() const;
 	virtual bool isEmptyPatch() const { return true; }
 
 private:

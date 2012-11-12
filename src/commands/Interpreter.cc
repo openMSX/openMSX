@@ -202,17 +202,19 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 //   - build-in Tcl commands
 //   - openmsx commands
 //   - user-defined procs
-void Interpreter::getCommandNames(set<string>& result)
+set<string> Interpreter::getCommandNames()
 {
 	string list = execute("info commands");
 
 	int argc;
 	const char** argv;
 	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) != TCL_OK) {
-		return;
+		// return {};
+		return set<string>();
 	}
-	result.insert(&argv[0], &argv[argc]);
+	set<string> result(&argv[0], &argv[argc]);
 	Tcl_Free(reinterpret_cast<char*>(argv));
+	return result;
 }
 
 bool Interpreter::isComplete(const string& command) const
@@ -446,24 +448,23 @@ void Interpreter::deleteNamespace(const std::string& name)
 	execute("namespace delete ::" + name);
 }
 
-void Interpreter::splitList(const std::string& list,
-	                    std::vector<std::string>& result)
+vector<string> Interpreter::splitList(const std::string& list)
 {
-	splitList(list, result, interp);
+	return splitList(list, interp);
 }
 
-void Interpreter::splitList(const string& list, vector<string>& result,
-                            Tcl_Interp* interp)
+vector<string> Interpreter::splitList(const string& list, Tcl_Interp* interp)
 {
 	int argc;
 	const char** argv;
 	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) == TCL_ERROR) {
-		string message = interp ? Tcl_GetStringResult(interp)
-		                        : "splitList error";
-		throw CommandException(message);
+		throw CommandException(
+			interp ? Tcl_GetStringResult(interp)
+			       : "splitList error");
 	}
-	result.assign(argv, argv + argc);
+	vector<string> result(argv, argv + argc);
 	Tcl_Free(reinterpret_cast<char*>(argv));
+	return result;
 }
 
 int Interpreter::signalEvent(const std::shared_ptr<const Event>& event)

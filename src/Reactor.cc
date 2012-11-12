@@ -349,8 +349,9 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
-void Reactor::getHwConfigs(const string& type, set<string>& result)
+set<string> Reactor::getHwConfigs(string_ref type)
 {
+	set<string> result;
 	SystemFileContext context;
 	vector<string> paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
@@ -367,14 +368,14 @@ void Reactor::getHwConfigs(const string& type, set<string>& result)
 			}
 		}
 	}
+	return result;
 }
 
 void Reactor::createMachineSetting()
 {
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
-	set<string> names;
-	getHwConfigs("machines", names);
+	auto names = getHwConfigs("machines");
 	for (set<string>::const_iterator it = names.begin();
 	     it != names.end(); ++it) {
 		machines[*it] = count++;
@@ -398,12 +399,14 @@ string Reactor::getMachineID() const
 	return activeBoard.get() ? activeBoard->getMachineID() : "";
 }
 
-void Reactor::getMachineIDs(set<string>& result) const
+set<string> Reactor::getMachineIDs() const
 {
+	set<string> result;
 	for (Reactor::Boards::const_iterator it = boards.begin();
 	     it != boards.end(); ++it) {
 		result.insert((*it)->getMachineID());
 	}
+	return result;
 }
 
 Reactor::Board Reactor::getMachine(const string& machineID) const
@@ -732,8 +735,7 @@ string MachineCommand::help(const vector<string>& /*tokens*/) const
 
 void MachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> machines;
-	Reactor::getHwConfigs("machines", machines);
+	auto machines = Reactor::getHwConfigs("machines");
 	completeString(tokens, machines);
 }
 
@@ -770,8 +772,7 @@ string TestMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> machines;
-	Reactor::getHwConfigs("machines", machines);
+	auto machines = Reactor::getHwConfigs("machines");
 	completeString(tokens, machines);
 }
 
@@ -833,8 +834,7 @@ string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> ids;
-	reactor.getMachineIDs(ids);
+	auto ids = reactor.getMachineIDs();
 	completeString(tokens, ids);
 }
 
@@ -851,9 +851,7 @@ ListMachinesCommand::ListMachinesCommand(
 void ListMachinesCommand::execute(const vector<TclObject>& /*tokens*/,
                                   TclObject& result)
 {
-	set<string> ids;
-	reactor.getMachineIDs(ids);
-	result.addListElements(ids.begin(), ids.end());
+	result.addListElements(reactor.getMachineIDs());
 }
 
 string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
@@ -894,8 +892,7 @@ string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> ids;
-	reactor.getMachineIDs(ids);
+	auto ids = reactor.getMachineIDs();
 	completeString(tokens, ids);
 }
 
@@ -949,8 +946,7 @@ string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> ids;
-	reactor.getMachineIDs(ids);
+	auto ids = reactor.getMachineIDs();
 	completeString(tokens, ids);
 }
 
@@ -1074,9 +1070,7 @@ void ConfigInfo::execute(const vector<TclObject>& tokens,
 	// TODO make meta info available through this info topic
 	switch (tokens.size()) {
 	case 2: {
-		set<string> configs;
-		Reactor::getHwConfigs(configName, configs);
-		result.addListElements(configs.begin(), configs.end());
+		result.addListElements(Reactor::getHwConfigs(configName));
 		break;
 	}
 	case 3: {
@@ -1116,8 +1110,7 @@ string ConfigInfo::help(const vector<string>& /*tokens*/) const
 
 void ConfigInfo::tabCompletion(vector<string>& tokens) const
 {
-	set<string> configs;
-	Reactor::getHwConfigs(configName, configs);
+	auto configs = Reactor::getHwConfigs(configName);
 	completeString(tokens, configs);
 }
 

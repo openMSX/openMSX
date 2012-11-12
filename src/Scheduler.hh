@@ -95,7 +95,7 @@ private: // -> intended for Schedulable
 	void setSyncPoint(EmuTime::param timestamp, Schedulable& device,
 	                  int userData = 0);
 
-	void getSyncPoints(SyncPoints& result, const Schedulable& device) const;
+	SyncPoints getSyncPoints(const Schedulable& device) const;
 
 	/**
 	 * Removes a syncPoint of a given device that matches the given

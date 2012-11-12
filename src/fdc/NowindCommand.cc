@@ -61,8 +61,9 @@ void NowindCommand::processHdimage(
 	set<unsigned> partitions;
 	string::size_type pos = hdimage.find_last_of(':');
 	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
-		StringOp::parseRange(string_ref(hdimage).substr(string_ref::size_type(pos) + 1),
-		                     partitions, 1, 31);
+		partitions = StringOp::parseRange(
+			string_ref(hdimage).substr(string_ref::size_type(pos) + 1),
+			1, 31);
 	}
 
 	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));

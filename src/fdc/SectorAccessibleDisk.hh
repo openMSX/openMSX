@@ -34,7 +34,7 @@ public:
 
 	// patch stuff
 	void applyPatch(const Filename& patchFile);
-	void getPatches(std::vector<Filename>& result) const;
+	std::vector<Filename> getPatches() const;
 	bool hasPatches() const;
 
 	/** Calculate SHA1 of the content of this disk.

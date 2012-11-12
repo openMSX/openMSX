@@ -35,16 +35,15 @@ OSDText::~OSDText()
 {
 }
 
-void OSDText::getProperties(std::set<string>& result) const
+std::set<string> OSDText::getProperties() const
 {
-	result.insert("-text");
-	result.insert("-font");
-	result.insert("-size");
-	result.insert("-wrap");
-	result.insert("-wrapw");
-	result.insert("-wraprelw");
-	result.insert("-query-size");
-	OSDImageBasedWidget::getProperties(result);
+	auto result = OSDImageBasedWidget::getProperties();
+	static const char* const vals[] = {
+		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
+		"-query-size",
+	};
+	result.insert(std::begin(vals), std::end(vals));
+	return result;
 }
 
 void OSDText::setProperty(string_ref name, const TclObject& value)
@@ -377,8 +376,7 @@ unsigned OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 {
-	vector<string> lines;
-	StringOp::split(text, "\n", lines);
+	auto lines = StringOp::split(text, "\n");
 
 	vector<string> wrappedLines;
 	for (vector<string>::const_iterator it = lines.begin();
@@ -396,8 +394,7 @@ string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 {
-	vector<string> lines;
-	StringOp::split(text, "\n", lines);
+	auto lines = StringOp::split(text, "\n");
 
 	vector<string> wrappedLines;
 	for (vector<string>::const_iterator it = lines.begin();

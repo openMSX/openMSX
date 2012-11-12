@@ -16,7 +16,7 @@ class TclObject;
 class EnumSettingPolicyBase
 {
 public:
-	void getPossibleValues(std::set<std::string>& result) const;
+	std::set<std::string> getPossibleValues() const;
 
 protected:
 	virtual ~EnumSettingPolicyBase() {}

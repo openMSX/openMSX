@@ -22,9 +22,7 @@ void RomInfoTopic::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2: {
-		set<string> romTypes;
-		RomInfo::getAllRomTypes(romTypes);
-		result.addListElements(romTypes.begin(), romTypes.end());
+		result.addListElements(RomInfo::getAllRomTypes());
 		break;
 	}
 	case 3: {
@@ -52,8 +50,7 @@ string RomInfoTopic::help(const vector<string>& /*tokens*/) const
 void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		set<string> romTypes;
-		RomInfo::getAllRomTypes(romTypes);
+		auto romTypes = RomInfo::getAllRomTypes();
 		completeString(tokens, romTypes, false);
 	}
 }

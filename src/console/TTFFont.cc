@@ -165,8 +165,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	if (text.empty()) return SDLSurfacePtr(nullptr);
 
 	// Split on newlines
-	std::vector<string> lines;
-	StringOp::split(text, "\n", lines);
+	auto lines = StringOp::split(text, "\n");
 	assert(!lines.empty());
 
 	if (lines.size() == 1) {

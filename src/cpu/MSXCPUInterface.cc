@@ -345,7 +345,7 @@ void MSXCPUInterface::testUnsetExpanded(
 			MSXDevice* device = slotLayout[ps][ss][page];
 			std::set<MSXDevice*> devices;
 			if (MSXMultiMemDevice* memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
-				memDev->getDevices(devices);
+				devices = memDev->getDevices();
 			} else {
 				devices.insert(device);
 			}

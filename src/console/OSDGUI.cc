@@ -178,15 +178,13 @@ void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
 		// list widget names
 		set<string> names;
 		gui.getTopWidget().listWidgetNames("", names);
-		result.addListElements(names.begin(), names.end());
+		result.addListElements(names);
 		break;
 	}
 	case 3: {
 		// list properties for given widget
 		const OSDWidget& widget = getWidget(tokens[2].getString());
-		set<string> properties;
-		widget.getProperties(properties);
-		result.addListElements(properties.begin(), properties.end());
+		result.addListElements(widget.getProperties());
 		break;
 	}
 	case 4: {
@@ -321,11 +319,11 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 			set<string> properties;
 			if (tokens[1] == "create") {
 				shared_ptr<OSDWidget> widget = create(tokens[2], "");
-				widget->getProperties(properties);
+				properties = widget->getProperties();
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {
 				const OSDWidget& widget = getWidget(tokens[2]);
-				widget.getProperties(properties);
+				properties = widget.getProperties();
 			}
 			completeString(tokens, properties);
 		} catch (MSXException&) {

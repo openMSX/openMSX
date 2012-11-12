@@ -200,8 +200,9 @@ string_ref RomInfo::romTypeToName(RomType type)
 	UNREACHABLE; return "";
 }
 
-void RomInfo::getAllRomTypes(set<string>& result)
+set<string> RomInfo::getAllRomTypes()
 {
+	set<string> result;
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	for (RomTypeMap::const_iterator it = romTypeMap.begin();
 	     it != romTypeMap.end(); ++it) {
@@ -209,6 +210,7 @@ void RomInfo::getAllRomTypes(set<string>& result)
 			result.insert(it->first.str());
 		}
 	}
+	return result;
 }
 
 string_ref RomInfo::getDescription(RomType type)

@@ -127,10 +127,11 @@ unsigned IPSPatch::getSize() const
 	return size;
 }
 
-void IPSPatch::getFilenames(std::vector<Filename>& result) const
+std::vector<Filename> IPSPatch::getFilenames() const
 {
-	parent->getFilenames(result);
+	auto result = parent->getFilenames();
 	result.push_back(filename);
+	return result;
 }
 
 } // namespace openmsx

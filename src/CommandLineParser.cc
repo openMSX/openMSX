@@ -835,11 +835,11 @@ void BashOption::parseOption(const string& /*option*/,
 
 	set<string> items;
 	if (last == "-machine") {
-		Reactor::getHwConfigs("machines", items);
+		items = Reactor::getHwConfigs("machines");
 	} else if (last == "-ext") {
-		Reactor::getHwConfigs("extensions", items);
+		items = Reactor::getHwConfigs("extensions");
 	} else if (last == "-romtype") {
-		RomInfo::getAllRomTypes(items);
+		items = RomInfo::getAllRomTypes();
 	} else {
 		for (map<string, CommandLineParser::OptionData>::const_iterator it =
 			parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {

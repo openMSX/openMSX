@@ -40,7 +40,7 @@ private:
 	unique_ptr<Setting> createInteger(const vector<TclObject>& tokens);
 	unique_ptr<Setting> createFloat  (const vector<TclObject>& tokens);
 
-	void getSettingNames(set<string>& result) const;
+	set<string> getSettingNames() const;
 
 	UserSettings& userSettings;
 };
@@ -225,9 +225,7 @@ void UserSettingCommand::destroy(const vector<TclObject>& tokens,
 void UserSettingCommand::info(const vector<TclObject>& /*tokens*/,
                               TclObject& result)
 {
-	set<string> names;
-	getSettingNames(names);
-	result.addListElements(names.begin(), names.end());
+	result.addListElements(getSettingNames());
 }
 
 string UserSettingCommand::help(const vector<string>& tokens) const
@@ -297,18 +295,20 @@ void UserSettingCommand::tabCompletion(vector<string>& tokens) const
 		s.insert("integer");
 		s.insert("float");
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {
-		getSettingNames(s);
+		s = getSettingNames();
 	}
 	completeString(tokens, s);
 }
 
-void UserSettingCommand::getSettingNames(set<string>& result) const
+set<string> UserSettingCommand::getSettingNames() const
 {
+	set<string> result;
 	const UserSettings::Settings& settings = userSettings.getSettings();
 	for (UserSettings::Settings::const_iterator it = settings.begin();
 	     it != settings.end(); ++it) {
 		result.insert((*it)->getName());
 	}
+	return result;
 }
 
 } // namespace openmsx

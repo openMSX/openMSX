@@ -37,8 +37,9 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 	UNREACHABLE; return "";
 }
 
-void EnumSettingPolicyBase::getPossibleValues(std::set<std::string>& result) const
+std::set<std::string> EnumSettingPolicyBase::getPossibleValues() const
 {
+	std::set<std::string> result;
 	for (BaseMap::const_iterator it = baseMap.begin();
 	     it != baseMap.end(); ++it) {
 		try {
@@ -49,21 +50,19 @@ void EnumSettingPolicyBase::getPossibleValues(std::set<std::string>& result) con
 			// ignore
 		}
 	}
+	return result;
 }
 
 void EnumSettingPolicyBase::tabCompletionBase(std::vector<std::string>& tokens) const
 {
-	std::set<std::string> stringSet;
-	getPossibleValues(stringSet);
+	auto stringSet = getPossibleValues();
 	Completer::completeString(tokens, stringSet, false); // case insensitive
 }
 
 void EnumSettingPolicyBase::additionalInfoBase(TclObject& result) const
 {
 	TclObject valueList(result.getInterpreter());
-	std::set<std::string> values;
-	this->getPossibleValues(values);
-	valueList.addListElements(values.begin(), values.end());
+	valueList.addListElements(this->getPossibleValues());
 	result.addListElement(valueList);
 }
 

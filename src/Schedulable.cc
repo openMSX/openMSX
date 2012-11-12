@@ -59,7 +59,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 {
 	Scheduler::SyncPoints syncPoints;
 	if (!ar.isLoader()) {
-		scheduler.getSyncPoints(syncPoints, *this);
+		syncPoints = scheduler.getSyncPoints(*this);
 	}
 	ar.serialize("syncPoints", syncPoints);
 	if (ar.isLoader()) {

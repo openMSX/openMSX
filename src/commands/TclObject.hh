@@ -5,6 +5,7 @@
 
 #include "string_ref.hh"
 #include "openmsx.hh"
+#include <iterator>
 
 struct Tcl_Interp;
 struct Tcl_Obj;
@@ -44,6 +45,7 @@ public:
 	void addListElement(double value);
 	void addListElement(const TclObject& element);
 	template <typename ITER> void addListElements(ITER begin, ITER end);
+	template <typename CONT> void addListElements(const CONT& container);
 
 	// value getters
 	string_ref getString() const;
@@ -92,6 +94,12 @@ void TclObject::addListElements(ITER begin, ITER end)
 	for (ITER it = begin; it != end; ++it) {
 		addListElement(*it);
 	}
+}
+
+template <typename CONT>
+void TclObject::addListElements(const CONT& container)
+{
+	addListElements(std::begin(container), std::end(container));
 }
 
 } // namespace openmsx

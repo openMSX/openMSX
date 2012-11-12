@@ -91,10 +91,12 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 	}
 }
 
-void Scheduler::getSyncPoints(SyncPoints& result, const Schedulable& device) const
+Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
+	SyncPoints result;
 	copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
 	        FindSchedulable(device));
+	return result;
 }
 
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)

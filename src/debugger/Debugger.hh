@@ -41,10 +41,10 @@ public:
 
 private:
 	Debuggable& getDebuggable(string_ref name);
-	void getDebuggables(std::set<std::string>& result) const;
+	std::set<std::string> getDebuggables() const;
 
 	ProbeBase& getProbe(string_ref name);
-	void getProbes(std::set<std::string>& result) const;
+	std::set<std::string> getProbes() const;
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,

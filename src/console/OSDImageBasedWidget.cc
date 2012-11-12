@@ -34,15 +34,15 @@ OSDImageBasedWidget::~OSDImageBasedWidget()
 {
 }
 
-void OSDImageBasedWidget::getProperties(set<string>& result) const
+set<string> OSDImageBasedWidget::getProperties() const
 {
-	result.insert("-rgba");
-	result.insert("-rgb");
-	result.insert("-alpha");
-	result.insert("-fadePeriod");
-	result.insert("-fadeTarget");
-	result.insert("-fadeCurrent");
-	OSDWidget::getProperties(result);
+	auto result = OSDWidget::getProperties();
+	static const char* const vals[] = {
+		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
+		"-fadeCurrent",
+	};
+	result.insert(std::begin(vals), std::end(vals));
+	return result;
 }
 
 static void get4(const TclObject& value, unsigned* result)

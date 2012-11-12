@@ -26,18 +26,15 @@ OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
 {
 }
 
-void OSDRectangle::getProperties(set<string>& result) const
+set<string> OSDRectangle::getProperties() const
 {
-	result.insert("-w");
-	result.insert("-h");
-	result.insert("-relw");
-	result.insert("-relh");
-	result.insert("-scale");
-	result.insert("-image");
-	result.insert("-bordersize");
-	result.insert("-relbordersize");
-	result.insert("-borderrgba");
-	OSDImageBasedWidget::getProperties(result);
+	auto result = OSDImageBasedWidget::getProperties();
+	static const char* const vals[] = {
+		"-w", "-h", "-relw", "-relh", "-scale", "-image",
+		"-bordersize", "-relbordersize", "-borderrgba",
+	};
+	result.insert(std::begin(vals), std::end(vals));
+	return result;
 }
 
 void OSDRectangle::setProperty(string_ref name, const TclObject& value)

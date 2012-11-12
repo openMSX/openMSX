@@ -58,10 +58,9 @@ private:
 	void savedsk(const DriveSettings& driveData,
 	             const std::string& filename);
 	void format(DriveSettings& driveData);
-	void chdir(DriveSettings& driveData, const std::string& filename,
-	           std::string& result);
+	std::string chdir(DriveSettings& driveData, const std::string& filename);
 	void mkdir(DriveSettings& driveData, const std::string& filename);
-	void dir(DriveSettings& driveData, std::string& result);
+	std::string dir(DriveSettings& driveData);
 	std::string import(DriveSettings& driveData,
 	                   const std::vector<std::string>& lists);
 	void exprt(DriveSettings& driveData, const std::string& dirname,

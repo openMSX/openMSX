@@ -118,12 +118,11 @@ namespace StringOp
 	                  string_ref& first, string_ref& last);
 	void splitOnLast (string_ref str, char chars,
 	                  string_ref& first, string_ref& last);
-	void split(string_ref str, string_ref chars,
-	           std::vector<std::string>& result);
+	std::vector<std::string> split(string_ref str, string_ref chars);
 	std::string join(const std::vector<std::string>& elems,
 	                 const std::string& separator);
-	void parseRange(string_ref str, std::set<unsigned>& result,
-			unsigned min, unsigned max);
+	std::set<unsigned> parseRange(string_ref str,
+	                              unsigned min, unsigned max);
 
 	// case insensitive less then operator
 	struct caseless {
