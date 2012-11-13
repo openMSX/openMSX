@@ -211,24 +211,6 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 }
 
 #ifdef DEBUG
-// Note: this function has the same name and the same functionality as the
-// std::is_sorted function in c++11. Once we switch to a c++11 compiler (or
-// enable c++11 mode) this function can be removed. Vc++ has c++11 mode enabled
-// by default, this currently causes an ambiguous function call, as a temporary
-// fix we have to explicitly qualify all calls to this function.
-template<class ForwardIterator, class StrictWeakOrdering>
-bool is_sorted(ForwardIterator first, ForwardIterator last,
-               StrictWeakOrdering comp)
-{
-	if (first == last) return true;
-	ForwardIterator next = first;
-	++next;
-	while (next != last) {
-		if (comp(*next, *first)) return false;
-		++first; ++next;
-	}
-	return true;
-}
 struct AscendingZ {
 	bool operator()(const shared_ptr<OSDWidget>& lhs,
 	                const shared_ptr<OSDWidget>& rhs) const {
@@ -249,7 +231,7 @@ void OSDWidget::resortUp(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(openmsx::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(std::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
@@ -268,7 +250,7 @@ void OSDWidget::resortDown(OSDWidget* elem)
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(openmsx::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(std::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
 #endif
 }
 
