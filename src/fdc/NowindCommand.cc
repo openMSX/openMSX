@@ -76,8 +76,7 @@ void NowindCommand::processHdimage(
 		}
 	}
 
-	for (set<unsigned>::const_iterator it = partitions.begin();
-	     it != partitions.end(); ++it) {
+	for (auto it = partitions.begin(); it != partitions.end(); ++it) {
 		try {
 			auto partition = make_unique<DiskPartition>(
 				*wholeDisk, *it, wholeDisk);
@@ -238,8 +237,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 	//   - the new drives (when there was an error)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
-	for (NowindInterface::Drives::const_iterator it = drives.begin();
-	     it != drives.end(); ++it) {
+	for (auto it = drives.begin(); it != drives.end(); ++it) {
 		if (DiskChanger* disk = dynamic_cast<DiskChanger*>(it->get())) {
 			disk->createCommand();
 		}

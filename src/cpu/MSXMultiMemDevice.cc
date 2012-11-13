@@ -66,8 +66,8 @@ void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 {
-	Ranges::iterator it = find(ranges.begin(), ranges.end(),
-	                           Range(base, size, device));
+	auto it = find(ranges.begin(), ranges.end(),
+	               Range(base, size, device));
 	assert(it != ranges.end());
 	ranges.erase(it);
 }
@@ -99,7 +99,7 @@ std::string MSXMultiMemDevice::getName() const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	for (Ranges::const_iterator it = ranges.begin(); true; ++it) {
+	for (auto it = ranges.begin(); true; ++it) {
 		if (isInside(address, it->base, it->size)) {
 			return *it;
 		}

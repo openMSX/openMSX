@@ -725,7 +725,7 @@ public:
 	}
 
 	void* remove(void* aligned) {
-		std::map<void*, void*>::iterator it = allocMap.find(aligned);
+		auto it = allocMap.find(aligned);
 		assert(it != allocMap.end());
 		void* unaligned = it->second;
 		allocMap.erase(it);

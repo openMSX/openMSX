@@ -32,11 +32,9 @@ private:
 	void updateHelper(UpdateType type, string_ref machine,
 	                  string_ref name, string_ref value);
 
-	typedef StringMap<std::string> PrevValue;
-	PrevValue prevValues[NUM_UPDATES];
+	StringMap<std::string> prevValues[NUM_UPDATES];
 
-	typedef std::vector<CliListener*> Listeners;
-	Listeners listeners;
+	std::vector<CliListener*> listeners;
 	Semaphore sem; // lock access to listeners member
 	bool delivering;
 

@@ -104,8 +104,7 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	vector<Sector> result;
-	for (vector<unsigned>::const_iterator it = idam.begin();
-	     it != idam.end(); ++it) {
+	for (auto it = idam.begin(); it != idam.end(); ++it) {
 		Sector sector;
 		if (decodeSectorImpl(*it, sector)) {
 			result.push_back(sector);
@@ -117,7 +116,7 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
-	vector<unsigned>::iterator it = lower_bound(idam.begin(), idam.end(), startIdx);
+	auto it = lower_bound(idam.begin(), idam.end(), startIdx);
 	// rotate range so that we start at that element
 	if (it != idam.end()) {
 		rotate(idam.begin(), it, idam.end());
@@ -127,10 +126,9 @@ static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 
 bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 {
-	vector<unsigned> idamCopy = rotateIdam(idam, startIdx);
+	auto idamCopy = rotateIdam(idam, startIdx);
 	// get first valid sector
-	for (vector<unsigned>::const_iterator it = idamCopy.begin();
-	     it != idamCopy.end(); ++it) {
+	for (auto it = idamCopy.begin(); it != idamCopy.end(); ++it) {
 		if (decodeSectorImpl(*it, sector)) {
 			return true;
 		}
@@ -140,8 +138,7 @@ bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 
 bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
 {
-	for (vector<unsigned>::const_iterator it = idam.begin();
-	     it != idam.end(); ++it) {
+	for (auto it = idam.begin(); it != idam.end(); ++it) {
 		if (decodeSectorImpl(*it, sector) &&
 		    (sector.sector == sectorNum)) {
 			return true;

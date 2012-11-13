@@ -155,11 +155,9 @@ private:
 	string machineID;
 	string machineName;
 
-	typedef vector<MSXDevice*> Devices;
-	Devices availableDevices; // no ownership
+	vector<MSXDevice*> availableDevices; // no ownership
 
-	typedef StringMap<MSXMotherBoard::SharedStuff> SharedStuffMap;
-	SharedStuffMap sharedStuffMap;
+	StringMap<MSXMotherBoard::SharedStuff> sharedStuffMap;
 	StringMap<set<string>> userNames;
 
 	unique_ptr<MSXMapperIO> mapperIO;
@@ -764,8 +762,8 @@ void MSXMotherBoard::Impl::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::Impl::removeDevice(MSXDevice& device)
 {
-	Devices::iterator it = find(availableDevices.begin(),
-	                            availableDevices.end(), &device);
+	auto it = find(availableDevices.begin(), availableDevices.end(),
+	               &device);
 	assert(it != availableDevices.end());
 	availableDevices.erase(it);
 }
@@ -777,7 +775,7 @@ void MSXMotherBoard::Impl::doReset()
 
 	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
-	for (Devices::iterator it = availableDevices.begin();
+	for (auto it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->reset(time);
 	}
@@ -791,7 +789,7 @@ void MSXMotherBoard::Impl::doReset()
 byte MSXMotherBoard::Impl::readIRQVector()
 {
 	byte result = 0xff;
-	for (Devices::iterator it = availableDevices.begin();
+	for (auto it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		result &= (*it)->readIRQVector();
 	}
@@ -816,7 +814,7 @@ void MSXMotherBoard::Impl::powerUp()
 
 	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
-	for (Devices::iterator it = availableDevices.begin();
+	for (auto it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerUp(time);
 	}
@@ -843,7 +841,7 @@ void MSXMotherBoard::Impl::powerDown()
 	msxMixer->mute();
 
 	EmuTime::param time = getCurrentTime();
-	for (Devices::iterator it = availableDevices.begin();
+	for (auto it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerDown(time);
 	}
@@ -896,7 +894,7 @@ void MSXMotherBoard::Impl::update(const Setting& setting)
 
 MSXDevice* MSXMotherBoard::Impl::findDevice(string_ref name)
 {
-	for (Devices::iterator it = availableDevices.begin();
+	for (auto it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return *it;
@@ -1075,8 +1073,7 @@ void ListExtCmd::execute(const vector<TclObject>& /*tokens*/,
                          TclObject& result)
 {
 	const MSXMotherBoard::Impl::Extensions& extensions = motherBoard.getExtensions();
-	for (MSXMotherBoard::Impl::Extensions::const_iterator it = extensions.begin();
-	     it != extensions.end(); ++it) {
+	for (auto it = extensions.begin(); it != extensions.end(); ++it) {
 		result.addListElement((*it)->getName());
 	}
 }
@@ -1158,8 +1155,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> names;
-		for (MSXMotherBoard::Impl::Extensions::const_iterator it =
-		         motherBoard.getExtensions().begin();
+		for (auto it = motherBoard.getExtensions().begin();
 		     it != motherBoard.getExtensions().end(); ++it) {
 			names.insert((*it)->getName());
 		}
@@ -1201,8 +1197,7 @@ void DeviceInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (MSXMotherBoard::Impl::Devices::const_iterator it =
-		        motherBoard.availableDevices.begin();
+		for (auto it = motherBoard.availableDevices.begin();
 		     it != motherBoard.availableDevices.end(); ++it) {
 			result.addListElement((*it)->getName());
 		}
@@ -1232,8 +1227,7 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (MSXMotherBoard::Impl::Devices::const_iterator it =
-		         motherBoard.availableDevices.begin();
+		for (auto it = motherBoard.availableDevices.begin();
 		     it != motherBoard.availableDevices.end(); ++it) {
 			names.insert((*it)->getName());
 		}

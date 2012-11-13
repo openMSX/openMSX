@@ -54,7 +54,7 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	IdKey key = std::make_pair(p, TypeInfo(typeInfo));
+	auto key = std::make_pair(p, TypeInfo(typeInfo));
 	assert(idMap.find(key) == idMap.end());
 	idMap[key] = lastId;
 	return lastId;
@@ -62,14 +62,14 @@ unsigned OutputArchiveBase2::generateID2(
 
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
-	PolyIdMap::const_iterator it = polyIdMap.find(p);
+	auto it = polyIdMap.find(p);
 	return it != polyIdMap.end() ? it->second : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	IdKey key = std::make_pair(p, TypeInfo(typeInfo));
-	IdMap::const_iterator it = idMap.find(key);
+	auto key = std::make_pair(p, TypeInfo(typeInfo));
+	auto it = idMap.find(key);
 	return it != idMap.end() ? it->second : 0;
 }
 
@@ -112,7 +112,7 @@ template class OutputArchiveBase<XmlOutputArchive>;
 
 void* InputArchiveBase2::getPointer(unsigned id)
 {
-	IdMap::const_iterator it = idMap.find(id);
+	auto it = idMap.find(id);
 	return it != idMap.end() ? it->second : nullptr;
 }
 
@@ -465,8 +465,7 @@ void XmlInputArchive::beginTag(const char* tag)
 		tag, elems.back().second);
 	if (!child) {
 		string path;
-		for (Elems::const_iterator it = elems.begin();
-		     it != elems.end(); ++it) {
+		for (auto it = elems.begin(); it != elems.end(); ++it) {
 			path += it->first->getName() + '/';
 		}
 		throw XMLException(StringOp::Builder() <<

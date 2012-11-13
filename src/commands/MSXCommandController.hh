@@ -71,10 +71,8 @@ private:
 	const std::string& machineID;
 	std::unique_ptr<InfoCommand> machineInfoCommand;
 
-	typedef StringMap<Command*> CommandMap;
-	CommandMap commandMap;
-	typedef StringMap<Setting*> SettingMap;
-	SettingMap settingMap;
+	StringMap<Command*> commandMap;
+	StringMap<Setting*> settingMap;
 };
 
 } // namespace openmsx

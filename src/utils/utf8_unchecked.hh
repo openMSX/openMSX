@@ -103,7 +103,7 @@ template <typename octet_iterator>
 uint32_t prior(octet_iterator& it)
 {
 	while (internal::is_trail(*(--it))) ;
-	octet_iterator temp = it;
+	auto temp = it;
 	return next(temp);
 }
 
@@ -210,7 +210,7 @@ public:
 	}
 	iterator operator++(int)
 	{
-		iterator temp = *this;
+		auto temp = *this;
 		std::advance(it, internal::sequence_length(*it));
 		return temp;
 	}
@@ -221,7 +221,7 @@ public:
 	}
 	iterator operator--(int)
 	{
-		iterator temp = *this;
+		auto temp = *this;
 		prior(it);
 		return temp;
 	}
@@ -235,7 +235,7 @@ inline unsigned size(string_ref utf8)
 inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
                          string_ref::size_type len = string_ref::npos)
 {
-	string_ref::const_iterator begin = utf8.begin();
+	auto begin = utf8.begin();
 	utf8::unchecked::advance(begin, first);
 	string_ref::const_iterator end;
 	if (len != string_ref::npos) {

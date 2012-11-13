@@ -98,8 +98,7 @@ unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 unique_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)
 {
-	typedef EnumSetting<RendererID>::Map RendererMap;
-	RendererMap rendererMap;
+	EnumSetting<RendererID>::Map rendererMap;
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDL"] = SDL;
 #if COMPONENT_GL

@@ -183,16 +183,14 @@ void Display::attach(VideoSystemChangeListener& listener)
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	Listeners::iterator it =
-		find(listeners.begin(), listeners.end(), &listener);
+	auto it = find(listeners.begin(), listeners.end(), &listener);
 	assert(it != listeners.end());
 	listeners.erase(it);
 }
 
 Layer* Display::findLayer(string_ref name) const
 {
-	for (Layers::const_iterator it = layers.begin();
-	     it != layers.end(); ++it) {
+	for (auto it = layers.begin(); it != layers.end(); ++it) {
 		if ((*it)->getLayerName() == name) {
 			return *it;
 		}
@@ -202,8 +200,7 @@ Layer* Display::findLayer(string_ref name) const
 
 Layer* Display::findActiveLayer() const
 {
-	for (Layers::const_iterator it = layers.begin();
-	     it != layers.end(); ++it) {
+	for (auto it = layers.begin(); it != layers.end(); ++it) {
 		if ((*it)->getZ() == Layer::Z_MSX_ACTIVE) {
 			return *it;
 		}
@@ -215,7 +212,7 @@ Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is
 	//       low at the moment, it's not really worth it.
-	Layers::iterator it = layers.end();
+	auto it = layers.end();
 	while (true) {
 		if (it == layers.begin()) {
 			// There should always be at least one opaque layer.
@@ -338,8 +335,7 @@ void Display::doRendererSwitch()
 
 void Display::doRendererSwitch2()
 {
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
+	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
 		(*it)->preVideoSystemChange();
 	}
 
@@ -347,8 +343,7 @@ void Display::doRendererSwitch2()
 	videoSystem = RendererFactory::createVideoSystem(reactor);
 	setWindowTitle();
 
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
+	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
 		(*it)->postVideoSystemChange();
 	}
 }
@@ -384,7 +379,7 @@ void Display::repaint()
 
 void Display::repaint(OutputSurface& surface)
 {
-	for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
+	for (auto it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);
 		}
@@ -413,7 +408,7 @@ void Display::addLayer(Layer& layer)
 
 void Display::removeLayer(Layer& layer)
 {
-	Layers::iterator it = std::find(layers.begin(), layers.end(), &layer);
+	auto it = std::find(layers.begin(), layers.end(), &layer);
 	assert(it != layers.end());
 	layers.erase(it);
 }

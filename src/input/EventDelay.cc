@@ -90,8 +90,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	EmuDuration extraDelay(delaySetting->getValue());
 
 	EmuTime time = curEmu + extraDelay;
-	for (std::vector<EventPtr>::const_iterator it =
-	        toBeScheduledEvents.begin();
+	for (auto it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		scheduledEvents.push_back(*it);
 		const TimedEvent* timedEvent =
@@ -124,13 +123,13 @@ void EventDelay::flush()
 {
 	EmuTime time = getCurrentTime();
 
-	for (std::deque<EventPtr>::const_iterator it = scheduledEvents.begin();
+	for (auto it = scheduledEvents.begin();
 	     it != scheduledEvents.end(); ++it) {
 		msxEventDistributor.distributeEvent(*it, time);
 	}
 	scheduledEvents.clear();
 
-	for (std::vector<EventPtr>::const_iterator it = toBeScheduledEvents.begin();
+	for (auto it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		msxEventDistributor.distributeEvent(*it, time);
 	}

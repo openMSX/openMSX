@@ -181,8 +181,7 @@ void HotKey::loadBindings(const XMLElement& config)
 	if (!bindingsElement) return;
 	XMLElement copy(*bindingsElement); // dont iterate over changing container
 	const XMLElement::Children& children = copy.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
+	for (auto it = children.begin(); it != children.end(); ++it) {
 		XMLElement& elem = **it;
 		try {
 			if (elem.getName() == "bind") {
@@ -205,9 +204,8 @@ void HotKey::saveBindings(XMLElement& config) const
 	bindingsElement.removeAllChildren();
 
 	// add explicit bind's
-	for (KeySet::const_iterator it = boundKeys.begin();
-	     it != boundKeys.end(); ++it) {
-		BindMap::const_iterator it2 = cmdMap.find(*it);
+	for (auto it = boundKeys.begin(); it != boundKeys.end(); ++it) {
+		auto it2 = cmdMap.find(*it);
 		assert(it2 != cmdMap.end());
 		const HotKeyInfo& info = it2->second;
 		auto elem = make_unique<XMLElement>("bind", info.command);
@@ -218,8 +216,7 @@ void HotKey::saveBindings(XMLElement& config) const
 		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
-	for (KeySet::const_iterator it = unboundKeys.begin();
-	     it != unboundKeys.end(); ++it) {
+	for (auto it = unboundKeys.begin(); it != unboundKeys.end(); ++it) {
 		auto elem = make_unique<XMLElement>("unbind");
 		elem->addAttribute("key", (*it)->toString());
 		bindingsElement.addChild(std::move(elem));
@@ -278,7 +275,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	} else if (lastEvent.get() && (*lastEvent != *event)) {
 		stopRepeat();
 	}
-	BindMap::iterator it = cmdMap.find(event);
+	auto it = cmdMap.find(event);
 	if (it == cmdMap.end()) {
 		return 0;
 	}
@@ -345,15 +342,13 @@ string BindCmd::execute(const vector<string>& tokens)
 		UNREACHABLE;
 	case 1:
 		// show all bounded keys
-		for (HotKey::BindMap::const_iterator it = cmdMap.begin();
-		     it != cmdMap.end(); ++it) {
+		for (auto it = cmdMap.begin(); it != cmdMap.end(); ++it) {
 			result += formatBinding(it);
 		}
 		break;
 	case 2: {
 		// show bindings for this key
-		HotKey::BindMap::const_iterator it =
-			cmdMap.find(createEvent(tokens[1]));
+		auto it = cmdMap.find(createEvent(tokens[1]));
 		if (it == cmdMap.end()) {
 			throw CommandException("Key not bound");
 		}

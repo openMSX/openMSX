@@ -76,8 +76,7 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
-	typedef StringMap<Tcl_Command> CommandTokenMap;
-	CommandTokenMap commandTokenMap;
+	StringMap<Tcl_Command> commandTokenMap;
 	InterpreterOutput* output;
 
 	friend class TclObject;

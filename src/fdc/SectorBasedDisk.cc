@@ -21,9 +21,8 @@ SectorBasedDisk::~SectorBasedDisk()
 
 void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& input)
 {
-	std::vector<RawTrack::Sector> sectors = input.decodeAll();
-	for (std::vector<RawTrack::Sector>::const_iterator it = sectors.begin();
-	     it != sectors.end(); ++it) {
+	auto sectors = input.decodeAll();
+	for (auto it = sectors.begin(); it != sectors.end(); ++it) {
 		// Ignore 'track' and 'head' information
 		// Always assume sectorsize = 512 (so also ignore sizeCode).
 		// Ignore CRC value/errors of both address and data.

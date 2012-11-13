@@ -130,14 +130,14 @@ void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
 void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 {
 	(void)debuggable;
-	Debuggables::iterator it = debuggables.find(name);
+	auto it = debuggables.find(name);
 	assert(it != debuggables.end() && (it->second == &debuggable));
 	debuggables.erase(it);
 }
 
 Debuggable* Debugger::findDebuggable(string_ref name)
 {
-	Debuggables::iterator it = debuggables.find(name);
+	auto it = debuggables.find(name);
 	return (it != debuggables.end()) ? it->second : nullptr;
 }
 
@@ -153,8 +153,7 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 set<string> Debugger::getDebuggables() const
 {
 	set<string> result;
-	for (Debuggables::const_iterator it = debuggables.begin();
-	     it != debuggables.end(); ++it) {
+	for (auto it = debuggables.begin(); it != debuggables.end(); ++it) {
 		result.insert(it->first().str());
 	}
 	return result;
@@ -170,14 +169,14 @@ void Debugger::registerProbe(string_ref name, ProbeBase& probe)
 void Debugger::unregisterProbe(string_ref name, ProbeBase& probe)
 {
 	(void)probe;
-	Probes::iterator it = probes.find(name);
+	auto it = probes.find(name);
 	assert(it != probes.end() && (it->second == &probe));
 	probes.erase(it);
 }
 
 ProbeBase* Debugger::findProbe(string_ref name)
 {
-	Probes::iterator it = probes.find(name);
+	auto it = probes.find(name);
 	return (it != probes.end()) ? it->second : nullptr;
 }
 
@@ -193,8 +192,7 @@ ProbeBase& Debugger::getProbe(string_ref name)
 set<string> Debugger::getProbes() const
 {
 	set<string> result;
-	for (Probes::const_iterator it = probes.begin();
-	     it != probes.end(); ++it) {
+	for (auto it = probes.begin(); it != probes.end(); ++it) {
 		result.insert(it->first().str());
 	}
 	return result;
@@ -218,7 +216,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 	if (name.starts_with("pp#")) {
 		// remove by id
 		unsigned id = stoi(name.substr(3));
-		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
+		for (auto it = probeBreakPoints.begin();
 		     it != probeBreakPoints.end(); ++it) {
 			if ((*it)->getId() == id) {
 				probeBreakPoints.erase(it);
@@ -228,7 +226,7 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 		throw CommandException("No such breakpoint: " + name);
 	} else {
 		// remove by probe, only works for unconditional bp
-		for (ProbeBreakPoints::iterator it = probeBreakPoints.begin();
+		for (auto it = probeBreakPoints.begin();
 		     it != probeBreakPoints.end(); ++it) {
 			if ((*it)->getProbe().getName() == name) {
 				probeBreakPoints.erase(it);
@@ -287,8 +285,7 @@ void Debugger::transfer(Debugger& other)
 	assert(motherBoard.getCPUInterface().getWatchPoints().empty());
 	const MSXCPUInterface::WatchPoints& watchPoints =
 		other.motherBoard.getCPUInterface().getWatchPoints();
-	for (MSXCPUInterface::WatchPoints::const_iterator it =
-	     watchPoints.begin(); it != watchPoints.end(); ++it) {
+	for (auto it = watchPoints.begin(); it != watchPoints.end(); ++it) {
 		const WatchPoint& wp = **it;
 		setWatchPoint(wp.getCommandObj(), wp.getConditionObj(),
 		              wp.getType(), wp.getBeginAddress(),
@@ -297,7 +294,7 @@ void Debugger::transfer(Debugger& other)
 
 	// Copy probes to new machine.
 	assert(probeBreakPoints.empty());
-	for (ProbeBreakPoints::const_iterator it = other.probeBreakPoints.begin();
+	for (auto it = other.probeBreakPoints.begin();
 	     it != other.probeBreakPoints.end(); ++it) {
 		const ProbeBreakPoint& bp = **it;
 		if (ProbeBase* probe = findProbe(bp.getProbe().getName())) {
@@ -552,7 +549,7 @@ void DebugCmd::removeBreakPoint(const vector<TclObject>& tokens,
 	if (tmp.starts_with("bp#")) {
 		// remove by id
 		unsigned id = stoi(tmp.substr(3));
-		for (BreakPoints::const_iterator it = breakPoints.begin();
+		for (auto it = breakPoints.begin();
 		     it != breakPoints.end(); ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getId() == id) {
@@ -564,11 +561,8 @@ void DebugCmd::removeBreakPoint(const vector<TclObject>& tokens,
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(tokens);
-		std::pair<BreakPoints::const_iterator,
-			  BreakPoints::const_iterator> range =
-				breakPoints.equal_range(addr);
-		for (BreakPoints::const_iterator it = range.first;
-		     it != range.second; ++it) {
+		auto range = breakPoints.equal_range(addr);
+		for (auto it = range.first; it != range.second; ++it) {
 			const BreakPoint& bp = *it->second;
 			if (bp.getCondition().empty()) {
 				interface.removeBreakPoint(bp);
@@ -586,8 +580,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject>& /*tokens*/,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const BreakPoints& breakPoints = interface.getBreakPoints();
 	string res;
-	for (BreakPoints::const_iterator it = breakPoints.begin();
-	     it != breakPoints.end(); ++it) {
+	for (auto it = breakPoints.begin(); it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
 		TclObject line(result.getInterpreter());
 		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
@@ -678,8 +671,8 @@ void DebugCmd::removeWatchPoint(const vector<TclObject>& tokens,
 	if (tmp.starts_with("wp#")) {
 		// remove by id
 		unsigned id = stoi(tmp.substr(3));
-		for (MSXCPUInterface::WatchPoints::const_iterator it =
-			watchPoints.begin(); it != watchPoints.end(); ++it) {
+		for (auto it = watchPoints.begin();
+		     it != watchPoints.end(); ++it) {
 			shared_ptr<WatchPoint> wp = *it;
 			if (wp->getId() == id) {
 				interface.removeWatchPoint(wp);
@@ -696,8 +689,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject>& /*tokens*/,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::WatchPoints& watchPoints = interface.getWatchPoints();
 	string res;
-	for (MSXCPUInterface::WatchPoints::const_iterator it = watchPoints.begin();
-	     it != watchPoints.end(); ++it) {
+	for (auto it = watchPoints.begin(); it != watchPoints.end(); ++it) {
 		const WatchPoint& wp = **it;
 		TclObject line(result.getInterpreter());
 		line.addListElement(StringOp::Builder() << "wp#" << wp.getId());
@@ -780,8 +772,8 @@ void DebugCmd::removeCondition(const vector<TclObject>& tokens,
 	if (tmp.starts_with("cond#")) {
 		// remove by id
 		unsigned id = stoi(tmp.substr(5));
-		for (MSXCPUInterface::Conditions::const_iterator it =
-			conditions.begin(); it != conditions.end(); ++it) {
+		for (auto it = conditions.begin();
+		     it != conditions.end(); ++it) {
 			DebugCondition& cond = **it;
 			if (cond.getId() == id) {
 				interface.removeCondition(cond);
@@ -798,8 +790,7 @@ void DebugCmd::listConditions(const vector<TclObject>& /*tokens*/,
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
 	string res;
-	for (MSXCPUInterface::Conditions::const_iterator it = conditions.begin();
-	     it != conditions.end(); ++it) {
+	for (auto it = conditions.begin(); it != conditions.end(); ++it) {
 		const DebugCondition& cond = **it;
 		TclObject line(result.getInterpreter());
 		line.addListElement(StringOp::Builder() << "cond#" << cond.getId());
@@ -902,8 +893,7 @@ void DebugCmd::probeListBreakPoints(const vector<TclObject>& /*tokens*/,
                                     TclObject& result)
 {
 	string res;
-	for (Debugger::ProbeBreakPoints::const_iterator it =
-	         debugger.probeBreakPoints.begin();
+	for (auto it = debugger.probeBreakPoints.begin();
 	     it != debugger.probeBreakPoints.end(); ++it) {
 		const ProbeBreakPoint& bp = **it;
 		TclObject line(result.getInterpreter());
@@ -1161,8 +1151,7 @@ set<string> DebugCmd::getBreakPointIdsAsStringSet() const
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const BreakPoints& breakPoints = interface.getBreakPoints();
 	set<string> bpids;
-	for (BreakPoints::const_iterator it = breakPoints.begin();
-	     it != breakPoints.end(); ++it) {
+	for (auto it = breakPoints.begin(); it != breakPoints.end(); ++it) {
 		bpids.insert(StringOp::Builder() << "bp#" << it->second->getId());
 	}
 	return bpids;
@@ -1172,8 +1161,7 @@ set<string> DebugCmd::getWatchPointIdsAsStringSet() const
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::WatchPoints& watchPoints = interface.getWatchPoints();
 	set<string> wpids;
-	for (MSXCPUInterface::WatchPoints::const_iterator it = watchPoints.begin();
-	     it != watchPoints.end(); ++it) {
+	for (auto it = watchPoints.begin(); it != watchPoints.end(); ++it) {
 		wpids.insert(StringOp::Builder() << "wp#" << (*it)->getId());
 	}
 	return wpids;
@@ -1183,8 +1171,7 @@ set<string> DebugCmd::getConditionIdsAsStringSet() const
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
 	const MSXCPUInterface::Conditions& conditions = interface.getConditions();
 	set<string> condids;
-	for (MSXCPUInterface::Conditions::const_iterator it = conditions.begin();
-	     it != conditions.end(); ++it) {
+	for (auto it = conditions.begin(); it != conditions.end(); ++it) {
 		condids.insert(StringOp::Builder() << "cond#" << (*it)->getId());
 	}
 	return condids;

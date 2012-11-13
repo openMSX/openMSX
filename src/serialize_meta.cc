@@ -40,9 +40,8 @@ template<typename Archive>
 void PolymorphicSaverRegistry<Archive>::save(
 	Archive& ar, const void* t, const std::type_info& typeInfo)
 {
-	PolymorphicSaverRegistry<Archive>& reg =
-		PolymorphicSaverRegistry<Archive>::instance();
-	typename SaverMap::const_iterator it = reg.saverMap.find(typeInfo);
+	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
+	auto it = reg.saverMap.find(typeInfo);
 	if (it == reg.saverMap.end()) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << std::endl;
@@ -96,9 +95,8 @@ void* PolymorphicLoaderRegistry<Archive>::load(
 {
 	std::string type;
 	ar.attribute("type", type);
-	PolymorphicLoaderRegistry<Archive>& reg =
-		PolymorphicLoaderRegistry<Archive>::instance();
-	typename LoaderMap::const_iterator it = reg.loaderMap.find(type);
+	auto& reg = PolymorphicLoaderRegistry<Archive>::instance();
+	auto it = reg.loaderMap.find(type);
 	assert(it != reg.loaderMap.end());
 	return it->second->load(ar, id, args);
 }
@@ -151,9 +149,8 @@ void PolymorphicInitializerRegistry<Archive>::init(
 	std::string type;
 	ar.attribute("type", type);
 
-	PolymorphicInitializerRegistry<Archive>& reg =
-		PolymorphicInitializerRegistry<Archive>::instance();
-	typename InitializerMap::const_iterator it = reg.initializerMap.find(type);
+	auto& reg = PolymorphicInitializerRegistry<Archive>::instance();
+	auto it = reg.initializerMap.find(type);
 	assert(it != reg.initializerMap.end());
 	it->second->init(ar, t, id);
 

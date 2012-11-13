@@ -65,8 +65,7 @@ unique_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
 {
-	for (Attributes::iterator it = attributes.begin();
-	     it != attributes.end(); ++it) {
+	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
 		if (it->first == name) {
 			return it;
 		}
@@ -75,8 +74,7 @@ XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
 }
 XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name) const
 {
-	for (Attributes::const_iterator it = attributes.begin();
-	     it != attributes.end(); ++it) {
+	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
 		if (it->first == name) {
 			return it;
 		}
@@ -92,7 +90,7 @@ void XMLElement::addAttribute(string_ref name, string_ref value)
 
 void XMLElement::setAttribute(string_ref name, string_ref value)
 {
-	Attributes::iterator it = findAttribute(name);
+	auto it = findAttribute(name);
 	if (it != attributes.end()) {
 		it->second.assign(value.data(), value.size());
 	} else {
@@ -102,7 +100,7 @@ void XMLElement::setAttribute(string_ref name, string_ref value)
 
 void XMLElement::removeAttribute(string_ref name)
 {
-	Attributes::iterator it = findAttribute(name);
+	auto it = findAttribute(name);
 	if (it != attributes.end()) {
 		attributes.erase(it);
 	}
@@ -142,8 +140,7 @@ void XMLElement::setData(string_ref data_)
 std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 {
 	std::vector<XMLElement*> result;
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
+	for (auto it = children.begin(); it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
 			result.push_back(it->get());
 		}
@@ -153,8 +150,7 @@ std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 
 XMLElement* XMLElement::findChild(string_ref name)
 {
-	for (Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
+	for (auto it = children.begin(); it != children.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return it->get();
 		}
@@ -293,7 +289,7 @@ bool XMLElement::hasAttribute(string_ref name) const
 
 const string& XMLElement::getAttribute(string_ref attName) const
 {
-	Attributes::const_iterator it = findAttribute(attName);
+	auto it = findAttribute(attName);
 	if (it == attributes.end()) {
 		throw ConfigException("Missing attribute \"" +
 		                      attName + "\".");
@@ -304,14 +300,14 @@ const string& XMLElement::getAttribute(string_ref attName) const
 string_ref XMLElement::getAttribute(string_ref attName,
 	                            string_ref defaultValue) const
 {
-	Attributes::const_iterator it = findAttribute(attName);
+	auto it = findAttribute(attName);
 	return (it == attributes.end()) ? defaultValue : it->second;
 }
 
 bool XMLElement::getAttributeAsBool(string_ref attName,
                                     bool defaultValue) const
 {
-	Attributes::const_iterator it = findAttribute(attName);
+	auto it = findAttribute(attName);
 	return (it == attributes.end()) ? defaultValue
 	                                : StringOp::stringToBool(it->second);
 }
@@ -319,7 +315,7 @@ bool XMLElement::getAttributeAsBool(string_ref attName,
 int XMLElement::getAttributeAsInt(string_ref attName,
                                   int defaultValue) const
 {
-	Attributes::const_iterator it = findAttribute(attName);
+	auto it = findAttribute(attName);
 	return (it == attributes.end()) ? defaultValue
 	                                : StringOp::stringToInt(it->second);
 }
@@ -327,7 +323,7 @@ int XMLElement::getAttributeAsInt(string_ref attName,
 bool XMLElement::findAttributeInt(string_ref attName,
                                   unsigned& result) const
 {
-	Attributes::const_iterator it = findAttribute(attName);
+	auto it = findAttribute(attName);
 	if (it != attributes.end()) {
 		result = StringOp::stringToInt(it->second);
 		return true;
@@ -347,7 +343,7 @@ XMLElement& XMLElement::operator=(const XMLElement& element)
 	attributes = element.attributes;
 
 	removeAllChildren();
-	for (Children::const_iterator it = element.children.begin();
+	for (auto it = element.children.begin();
 	     it != element.children.end(); ++it) {
 		addChild(make_unique<XMLElement>(**it));
 	}
@@ -365,8 +361,7 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 {
 	string indent(indentNum, ' ');
 	result << indent << '<' << getName();
-	for (Attributes::const_iterator it = attributes.begin();
-	     it != attributes.end(); ++it) {
+	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
 		result << ' ' << it->first
 		       << "=\"" << XMLEscape(it->second) << '"';
 	}
@@ -379,8 +374,7 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 		}
 	} else {
 		result << ">\n";
-		for (Children::const_iterator it = children.begin();
-		     it != children.end(); ++it) {
+		for (auto it = children.begin(); it != children.end(); ++it) {
 			(*it)->dump(result, indentNum + 2);
 		}
 		result << indent << "</" << getName() << ">\n";
@@ -417,13 +411,11 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 	} else {
 		AttributesMap tmpAtt;
 		ar.serialize("attributes", tmpAtt);
-		for (AttributesMap::const_iterator it = tmpAtt.begin();
-		     it != tmpAtt.end(); ++it) {
+		for (auto it = tmpAtt.begin(); it != tmpAtt.end(); ++it) {
 			// TODO "string -> char* -> string" conversion can
 			//       be optimized
 			addAttribute(it->first.c_str(), it->second);
 		}
-
 	}
 
 	ar.serialize("children", children);

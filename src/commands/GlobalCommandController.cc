@@ -158,8 +158,7 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(const std::string& name)
 {
-	for (ProxySettings::iterator it = proxySettings.begin();
-	     it != proxySettings.end(); ++it) {
+	for (auto it = proxySettings.begin(); it != proxySettings.end(); ++it) {
 		if (it->first->getName() == name) {
 			return it;
 		}
@@ -170,7 +169,7 @@ GlobalCommandController::findProxySetting(const std::string& name)
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	ProxySettings::iterator it = findProxySetting(name);
+	auto it = findProxySetting(name);
 	if (it == proxySettings.end()) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(*this, reactor, name);
@@ -186,7 +185,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	ProxySettings::iterator it = findProxySetting(name);
+	auto it = findProxySetting(name);
 	assert(it != proxySettings.end());
 	assert(it->second);
 	--(it->second);
@@ -373,9 +372,7 @@ vector<string> GlobalCommandController::removeEscaping(
 	const vector<string>& input, bool keepLastIfEmpty)
 {
 	vector<string> result;
-	for (vector<string>::const_iterator it = input.begin();
-	     it != input.end();
-	     ++it) {
+	for (auto it = input.begin(); it != input.end(); ++it) {
 		if (!it->empty()) {
 			result.push_back(removeEscaping(*it));
 		}
@@ -423,9 +420,7 @@ string GlobalCommandController::join(
 {
 	string result;
 	bool first = true;
-	for (vector<string>::const_iterator it = tokens.begin();
-	     it != tokens.end();
-	     ++it) {
+	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
 		if (!first) {
 			result += delimiter;
 		}
@@ -517,7 +512,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		auto cmds = interpreter->getCommandNames();
 		Completer::completeString(tokens, cmds);
 	} else {
-		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
+		auto it = commandCompleters.find(tokens.front());
 		if (it != commandCompleters.end()) {
 			it->second->tabCompletion(tokens);
 		} else {
@@ -563,8 +558,7 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		for (GlobalCommandController::CompleterMap::const_iterator it =
-		         controller.commandCompleters.begin();
+		for (auto it = controller.commandCompleters.begin();
 		     it != controller.commandCompleters.end(); ++it) {
 			string_ref key = it->first();
 			text.append(key.data(), key.size());
@@ -574,11 +568,10 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 		break;
 	}
 	default: {
-		 GlobalCommandController::CompleterMap::const_iterator it =
-			controller.commandCompleters.find(tokens[1].getString());
+		auto it = controller.commandCompleters.find(tokens[1].getString());
 		if (it != controller.commandCompleters.end()) {
 			vector<string> tokens2;
-			vector<TclObject>::const_iterator it2 = tokens.begin();
+			auto it2 = tokens.begin();
 			for (++it2; it2 != tokens.end(); ++it2) {
 				tokens2.push_back(it2->getString().str());
 			}

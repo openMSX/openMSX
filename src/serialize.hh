@@ -399,11 +399,8 @@ private:
 	unsigned getID1(const void* p);
 	unsigned getID2(const void* p, const std::type_info& typeInfo);
 
-	typedef std::pair<const void*, TypeInfo> IdKey;
-	typedef std::map<IdKey, unsigned> IdMap;
-	typedef std::map<const void*, unsigned> PolyIdMap;
-	IdMap idMap;
-	PolyIdMap polyIdMap;
+	std::map<std::pair<const void*, TypeInfo>, unsigned> idMap;
+	std::map<const void*, unsigned> polyIdMap;
 	unsigned lastId;
 };
 
@@ -512,7 +509,7 @@ public:
 			s.reset();
 			return;
 		}
-		SharedPtrMap::const_iterator it = sharedPtrMap.find(r);
+		auto it = sharedPtrMap.find(r);
 		if (it == sharedPtrMap.end()) {
 			s.reset(r);
 			sharedPtrMap[r] = s;
@@ -525,11 +522,8 @@ protected:
 	InputArchiveBase2() {}
 
 private:
-	typedef std::map<unsigned, void*> IdMap;
-	IdMap idMap;
-
-	typedef std::map<void*, std::shared_ptr<void>> SharedPtrMap;
-	SharedPtrMap sharedPtrMap;
+	std::map<unsigned, void*> idMap;
+	std::map<void*, std::shared_ptr<void>> sharedPtrMap;
 };
 
 template<typename Derived>
@@ -891,8 +885,7 @@ private:
 	void init(const XMLElement* e);
 
 	std::unique_ptr<XMLElement> elem;
-	typedef std::vector<std::pair<const XMLElement*, unsigned>> Elems;
-	Elems elems;
+	std::vector<std::pair<const XMLElement*, unsigned>> elems;
 };
 
 /*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \

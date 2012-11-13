@@ -72,8 +72,7 @@ private:
 		std::unique_ptr<ColorTexture> tex;
 		std::unique_ptr<PixelBuffer<unsigned>> pbo;
 	};
-	typedef std::map<unsigned, TextureData> Textures;
-	Textures textures;
+	std::map<unsigned, TextureData> textures;
 
 	std::unique_ptr<ColorTexture> superImposeTex;
 
@@ -92,8 +91,7 @@ private:
 		unsigned dstEndY;
 		unsigned lineWidth;
 	};
-	typedef std::vector<Region> Regions;
-	Regions regions;
+	std::vector<Region> regions;
 
 	unsigned height;
 	unsigned frameCounter;

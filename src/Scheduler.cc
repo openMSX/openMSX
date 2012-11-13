@@ -63,9 +63,8 @@ Scheduler::Scheduler()
 Scheduler::~Scheduler()
 {
 	assert(!cpu);
-	SyncPoints copy(syncPoints);
-	for (SyncPoints::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = syncPoints;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		it->getDevice()->schedulerDeleted();
 	}
 
@@ -78,9 +77,8 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 	assert(time >= scheduleTime);
 
 	// Push sync point into queue.
-	SyncPoints::iterator it =
-		std::upper_bound(syncPoints.begin(), syncPoints.end(), time,
-		            LessSyncPoint());
+	auto it = std::upper_bound(syncPoints.begin(), syncPoints.end(), time,
+	                           LessSyncPoint());
 	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
 
 	if (!scheduleInProgress && cpu) {
@@ -102,8 +100,7 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	for (SyncPoints::iterator it = syncPoints.begin();
-	     it != syncPoints.end(); ++it) {
+	for (auto it = syncPoints.begin(); it != syncPoints.end(); ++it) {
 		if (((*it).getDevice() == &device) &&
 		    ((*it).getUserData() == userData)) {
 			syncPoints.erase(it);
@@ -124,8 +121,7 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	for (SyncPoints::iterator it = syncPoints.begin();
-	     it != syncPoints.end(); ++it) {
+	for (auto it = syncPoints.begin(); it != syncPoints.end(); ++it) {
 		if ((it->getDevice() == &device) &&
 		    (it->getUserData() == userData)) {
 			return true;

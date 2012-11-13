@@ -156,8 +156,7 @@ void Mixer::unmute()
 void Mixer::muteHelper()
 {
 	bool mute = muteCount || msxMixers.empty();
-	for (MSXMixers::iterator it = msxMixers.begin();
-	     it != msxMixers.end(); ++it) {
+	for (auto it = msxMixers.begin(); it != msxMixers.end(); ++it) {
 		unsigned samples = mute ? 0 : driver->getSamples();
 		unsigned frequency = driver->getFrequency();
 		(*it)->setMixerParams(samples, frequency);

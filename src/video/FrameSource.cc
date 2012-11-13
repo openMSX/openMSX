@@ -19,8 +19,7 @@ FrameSource::FrameSource(const SDL_PixelFormat& format)
 
 FrameSource::~FrameSource()
 {
-	for (std::vector<void*>::const_iterator it = tempBuffers.begin();
-	     it != tempBuffers.end(); ++it) {
+	for (auto it = tempBuffers.begin(); it != tempBuffers.end(); ++it) {
 		MemoryOps::freeAligned(*it);
 	}
 }

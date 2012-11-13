@@ -79,13 +79,11 @@ Command::~Command()
 	}
 }
 
-void Command::execute(const vector<TclObject>& tokens,
-                      TclObject& result)
+void Command::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (vector<TclObject>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
+	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
 		strings.push_back(it->getString().str());
 	}
 	result.setString(execute(strings));

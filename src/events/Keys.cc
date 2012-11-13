@@ -10,8 +10,7 @@ namespace openmsx {
 
 namespace Keys {
 
-typedef std::map<std::string, KeyCode, StringOp::caseless> KeyMap;
-static KeyMap keymap;
+static std::map<std::string, KeyCode, StringOp::caseless> keymap;
 
 static void initialize()
 {
@@ -305,7 +304,7 @@ KeyCode getCode(const string& name)
 		string part = (pos != string::npos)
 		            ? name.substr(lastPos, pos - lastPos)
 			    : name.substr(lastPos);
-		KeyMap::const_iterator it = keymap.find(part);
+		auto it = keymap.find(part);
 		if (it != keymap.end()) {
 			KeyCode partCode = it->second;
 			if ((partCode & K_MASK) && (result & K_MASK)) {
@@ -375,8 +374,7 @@ const string getName(KeyCode keyCode)
 	initialize();
 
 	string result;
-	for (KeyMap::const_iterator it = keymap.begin();
-	     it != keymap.end(); ++it) {
+	for (auto it = keymap.begin(); it != keymap.end(); ++it) {
 		if (it->second == (keyCode & K_MASK)) {
 			result = it->first;
 			break;

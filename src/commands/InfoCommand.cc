@@ -59,7 +59,7 @@ void InfoCommand::execute(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		for (InfoTopics::const_iterator it = infoTopics.begin();
+		for (auto it = infoTopics.begin();
 		     it != infoTopics.end(); ++it) {
 			result.addListElement(it->first());
 		}
@@ -68,7 +68,7 @@ void InfoCommand::execute(const vector<TclObject>& tokens,
 		// show info about topic
 		assert(tokens.size() >= 2);
 		string_ref topic = tokens[1].getString();
-		InfoTopics::const_iterator it = infoTopics.find(topic);
+		auto it = infoTopics.find(topic);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + topic);
 		}
@@ -89,7 +89,7 @@ string InfoCommand::help(const vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 2);
-		InfoTopics::const_iterator it = infoTopics.find(tokens[1]);
+		auto it = infoTopics.find(tokens[1]);
 		if (it == infoTopics.end()) {
 			throw CommandException("No info on: " + tokens[1]);
 		}
@@ -105,7 +105,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	case 2: {
 		// complete topic
 		set<string> topics;
-		for (InfoTopics::const_iterator it = infoTopics.begin();
+		for (auto it = infoTopics.begin();
 		     it != infoTopics.end(); ++it) {
 			topics.insert(it->first().str());
 		}
@@ -115,7 +115,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	default:
 		// show help on a certain topic
 		assert(tokens.size() >= 3);
-		InfoTopics::const_iterator it = infoTopics.find(tokens[1]);
+		auto it = infoTopics.find(tokens[1]);
 		if (it != infoTopics.end()) {
 			it->second->tabCompletion(tokens);
 		}

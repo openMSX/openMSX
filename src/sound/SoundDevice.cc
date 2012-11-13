@@ -133,8 +133,7 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 
 		const string range = (*it)->getAttribute("channel");
 		auto channels = StringOp::parseRange(range, 1, numChannels);
-		for (set<unsigned>::const_iterator it = channels.begin();
-		     it != channels.end(); ++it) {
+		for (auto it = channels.begin(); it != channels.end(); ++it) {
 			channelBalance[(*it) - 1] = balance;
 		}
 	}

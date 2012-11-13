@@ -353,9 +353,8 @@ set<string> Reactor::getHwConfigs(string_ref type)
 {
 	set<string> result;
 	SystemFileContext context;
-	vector<string> paths = context.getPaths();
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
+	auto paths = context.getPaths();
+	for (auto it = paths.begin(); it != paths.end(); ++it) {
 		string path = FileOperations::join(*it, type);
 		ReadDir configsDir(path);
 		while (dirent* d = configsDir.getEntry()) {
@@ -376,8 +375,7 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	auto names = getHwConfigs("machines");
-	for (set<string>::const_iterator it = names.begin();
-	     it != names.end(); ++it) {
+	for (auto it = names.begin(); it != names.end(); ++it) {
 		machines[*it] = count++;
 	}
 	machines["C-BIOS_MSX2+"] = 0; // default machine
@@ -402,8 +400,7 @@ string Reactor::getMachineID() const
 set<string> Reactor::getMachineIDs() const
 {
 	set<string> result;
-	for (Reactor::Boards::const_iterator it = boards.begin();
-	     it != boards.end(); ++it) {
+	for (auto it = boards.begin(); it != boards.end(); ++it) {
 		result.insert((*it)->getMachineID());
 	}
 	return result;
@@ -411,8 +408,7 @@ set<string> Reactor::getMachineIDs() const
 
 Reactor::Board Reactor::getMachine(const string& machineID) const
 {
-	for (Boards::const_iterator it = boards.begin();
-	     it != boards.end(); ++it) {
+	for (auto it = boards.begin(); it != boards.end(); ++it) {
 		if ((*it)->getMachineID() == machineID) {
 			return *it;
 		}
@@ -433,7 +429,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
 	boards.push_back(newBoard);
 
 	// Lookup old board (it must be present).
-	Boards::iterator it = boards.begin();
+	auto it = boards.begin();
 	while (it->get() != &oldBoard_) {
 		++it;
 		assert(it != boards.end());
@@ -516,7 +512,7 @@ void Reactor::deleteBoard(Board board)
 		// delete active board -> there is no active board anymore
 		switchBoard(Reactor::Board());
 	}
-	Boards::iterator it = find(boards.begin(), boards.end(), board);
+	auto it = find(boards.begin(), boards.end(), board);
 	assert(it != boards.end());
 	boards.erase(it);
 	// Don't immediately delete old boards because it's possible this
@@ -558,8 +554,7 @@ void Reactor::run(CommandLineParser& parser)
 	PRT_DEBUG("Reactor::run Executing startup scripts...");
 	// execute startup scripts
 	const CommandLineParser::Scripts& scripts = parser.getStartupScripts();
-	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
-	     it != scripts.end(); ++it) {
+	for (auto it = scripts.begin(); it != scripts.end(); ++it) {
 		PRT_DEBUG("Reactor::run Executing startup script..." << *it);
 		try {
 			UserFileContext context;
@@ -1084,8 +1079,7 @@ void ConfigInfo::execute(const vector<TclObject>& tokens,
 			if (XMLElement* info = config->findChild("info")) {
 				const XMLElement::Children& children =
 					info->getChildren();
-				for (XMLElement::Children::const_iterator it =
-					children.begin();
+				for (auto it = children.begin();
 				     it != children.end(); ++it) {
 					result.addListElement((*it)->getName());
 					result.addListElement((*it)->getData());

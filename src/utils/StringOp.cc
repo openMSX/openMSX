@@ -361,7 +361,7 @@ string join(const vector<string>& elems, const string& separator)
 {
 	if (elems.empty()) return string();
 
-	vector<string>::const_iterator it = elems.begin();
+	auto it = elems.begin();
 	string result = *it;
 	for (++it; it != elems.end(); ++it) {
 		result += separator;

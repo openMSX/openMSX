@@ -1191,7 +1191,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 
 	try {
-		string::iterator it = text_utf8.begin();
+		auto it = text_utf8.begin();
 		unsigned current = utf8::next(it, text_utf8.end());
 		if (releaseLast == true && (releaseBeforePress || keyboard.commonKeys(last, current))) {
 			// There are common keys between previous and current character
@@ -1403,16 +1403,15 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	vector<string> eventStrs;
 	if (!ar.isLoader()) {
-		for (std::deque<shared_ptr<const Event>>::const_iterator it =
-		       eventQueue.begin(); it != eventQueue.end(); ++it) {
+		for (auto it = eventQueue.begin();
+		     it != eventQueue.end(); ++it) {
 			eventStrs.push_back((*it)->toString());
 		}
 	}
 	ar.serialize("eventQueue", eventStrs);
 	if (ar.isLoader()) {
 		assert(eventQueue.empty());
-		for (vector<string>::const_iterator it = eventStrs.begin();
-		     it != eventStrs.end(); ++it) {
+		for (auto it = eventStrs.begin(); it != eventStrs.end(); ++it) {
 			eventQueue.push_back(InputEventFactory::createInputEvent(*it));
 		}
 	}

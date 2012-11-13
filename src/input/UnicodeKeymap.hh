@@ -39,8 +39,7 @@ private:
 
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
-	typedef std::map<int, KeyInfo> Mapdata;
-	Mapdata mapdata;
+	std::map<int, KeyInfo> mapdata;
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
 	const KeyInfo emptyInfo;
 };

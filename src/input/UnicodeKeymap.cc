@@ -117,7 +117,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 {
-	Mapdata::const_iterator it = mapdata.find(unicode);
+	auto it = mapdata.find(unicode);
 	return (it == mapdata.end()) ? emptyInfo : it->second;
 }
 

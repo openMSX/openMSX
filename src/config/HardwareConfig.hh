@@ -78,8 +78,7 @@ private:
 	bool expandedSlots[4];
 	bool allocatedPrimarySlots[4];
 
-	typedef std::vector<std::unique_ptr<MSXDevice>> Devices;
-	Devices devices;
+	std::vector<std::unique_ptr<MSXDevice>> devices;
 
 	std::string name;
 

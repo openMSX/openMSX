@@ -22,10 +22,6 @@ class SettingCompleter;
   */
 class SettingsManager : private noncopyable
 {
-private:
-	typedef StringMap<Setting*> SettingsMap;
-	SettingsMap settingsMap;
-
 public:
 	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
@@ -54,6 +50,8 @@ private:
 	const std::unique_ptr<SetCompleter>     setCompleter;
 	const std::unique_ptr<SettingCompleter> incrCompleter;
 	const std::unique_ptr<SettingCompleter> unsetCompleter;
+
+	StringMap<Setting*> settingsMap;
 };
 
 } // namespace openmsx

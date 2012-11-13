@@ -26,8 +26,7 @@ protected:
 	std::string toStringBase(int value) const;
 	virtual void checkSetValueBase(int& value) const = 0;
 
-	typedef std::map<std::string, int> BaseMap;
-	BaseMap baseMap;
+	std::map<std::string, int> baseMap;
 };
 
 template <typename T> class EnumSettingPolicy

@@ -179,8 +179,8 @@ RomInfo::RomInfo(string_ref ntitle,   string_ref nyear,
 
 RomType RomInfo::nameToRomType(string_ref name)
 {
-	const RomTypeMap& romTypeMap = getRomTypeMap();
-	RomTypeMap::const_iterator it = romTypeMap.find(name);
+	auto& romTypeMap = getRomTypeMap();
+	auto it = romTypeMap.find(name);
 	if (it == romTypeMap.end()) {
 		return ROM_UNKNOWN;
 	}
@@ -190,9 +190,8 @@ RomType RomInfo::nameToRomType(string_ref name)
 string_ref RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
-	const RomTypeMap& romTypeMap = getRomTypeMap();
-	for (RomTypeMap::const_iterator it = romTypeMap.begin();
-	     it != romTypeMap.end(); ++it) {
+	auto& romTypeMap = getRomTypeMap();
+	for (auto it = romTypeMap.begin(); it != romTypeMap.end(); ++it) {
 		if (it->second == type) {
 			return it->first;
 		}
@@ -203,9 +202,8 @@ string_ref RomInfo::romTypeToName(RomType type)
 set<string> RomInfo::getAllRomTypes()
 {
 	set<string> result;
-	const RomTypeMap& romTypeMap = getRomTypeMap();
-	for (RomTypeMap::const_iterator it = romTypeMap.begin();
-	     it != romTypeMap.end(); ++it) {
+	auto& romTypeMap = getRomTypeMap();
+	for (auto it = romTypeMap.begin(); it != romTypeMap.end(); ++it) {
 		if (!isAlias(it->second)) {
 			result.insert(it->first.str());
 		}
@@ -215,16 +213,16 @@ set<string> RomInfo::getAllRomTypes()
 
 string_ref RomInfo::getDescription(RomType type)
 {
-	const RomTypeInfoMap& m = getRomTypeInfoMap();
-	RomTypeInfoMap::const_iterator it = m.find(type);
+	auto& m = getRomTypeInfoMap();
+	auto it = m.find(type);
 	assert(it != m.end());
 	return it->second.first;
 }
 
 unsigned RomInfo::getBlockSize(RomType type)
 {
-	const RomTypeInfoMap& m = getRomTypeInfoMap();
-	RomTypeInfoMap::const_iterator it = m.find(type);
+	auto& m = getRomTypeInfoMap();
+	auto it = m.find(type);
 	assert(it != m.end());
 	return it->second.second;
 }

@@ -51,8 +51,6 @@ static const char* const REPLAY_DIR = "replays";
 // merely in-between snapshots, so it is quicker to jump to a later time in the
 // event log.
 
-typedef std::vector<Reactor::Board> MotherBoards;
-
 struct Replay
 {
 	Replay(Reactor& reactor_)
@@ -61,7 +59,7 @@ struct Replay
 	Reactor& reactor;
 
 	ReverseManager::Events* events;
-	MotherBoards motherBoards;
+	std::vector<Reactor::Board> motherBoards;
 	EmuTime currentTime;
 	// this is the amount of times the reverse goto command was used, which
 	// is interesting for the TAS community (see tasvideos.org). It's an
@@ -290,7 +288,7 @@ void ReverseManager::status(TclObject& result) const
 
 	result.addListElement("snapshots");
 	TclObject snapshots;
-	for (Chunks::const_iterator it = history.chunks.begin();
+	for (auto it = history.chunks.begin();
 	     it != history.chunks.end(); ++it) {
 		EmuTime time = it->second.time;
 		snapshots.addListElement((time - EmuTime::zero).toDouble());
@@ -304,7 +302,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 	// information means nothing. We should remove this later.
 	StringOp::Builder res;
 	unsigned totalSize = 0;
-	for (Chunks::const_iterator it = history.chunks.begin();
+	for (auto it = history.chunks.begin();
 	     it != history.chunks.end(); ++it) {
 		const ReverseChunk& chunk = it->second;
 		res << it->first << ' '
@@ -394,7 +392,7 @@ void ReverseManager::goTo(
 		// -- Locate destination snapshot --
 		// We can't go back further in the past than the first snapshot.
 		assert(!history.chunks.empty());
-		Chunks::iterator it = history.chunks.begin();
+		auto it = history.chunks.begin();
 		EmuTime firstTime = it->second.time;
 		EmuTime targetTime = std::max(target, firstTime);
 		// Also don't go further into the future than 'end time'.
@@ -575,8 +573,8 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
 	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
 	EmuTime nextPartitionEnd = startTime + partitionLength;
-	Chunks::const_iterator it = chunks.begin();
-	Chunks::const_iterator lastAddedIt = chunks.begin(); // already added
+	auto it = chunks.begin();
+	auto lastAddedIt = chunks.begin(); // already added
 	while (it != chunks.end()) {
 		++it;
 		if (it == chunks.end() || (it->second.time > nextPartitionEnd)) {
@@ -722,7 +720,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// Restore snapshots
 	unsigned replayIndex = 0;
-	for (MotherBoards::const_iterator it = replay.motherBoards.begin();
+	for (auto it = replay.motherBoards.begin();
 	     it != replay.motherBoards.end(); ++it) {
 		ReverseChunk newChunk;
 		newChunk.time = (*it)->getCurrentTime();
@@ -912,7 +910,7 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		Events& events = history.events;
 		events.erase(events.begin() + replayIndex, events.end());
 		// search snapshots that are newer than 'time' and erase them
-		Chunks::iterator it = history.chunks.begin();
+		auto it = history.chunks.begin();
 		while ((it != history.chunks.end()) &&
 		       (it->second.time <= time)) {
 			++it;

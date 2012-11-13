@@ -57,10 +57,8 @@ private:
 	Connector& getConnector(string_ref name) const;
 	Pluggable& getPluggable(string_ref name) const;
 
-	typedef std::vector<Connector*> Connectors;
-	Connectors connectors;
-	typedef std::vector<std::unique_ptr<Pluggable>> Pluggables;
-	Pluggables pluggables;
+	std::vector<Connector*> connectors;
+	std::vector<std::unique_ptr<Pluggable>> pluggables;
 
 	friend class PlugCmd;
 	friend class UnplugCmd;

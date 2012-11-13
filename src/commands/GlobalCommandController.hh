@@ -96,10 +96,8 @@ private:
 		ProxySettings;
 	ProxySettings::iterator findProxySetting(const std::string& name);
 
-	typedef StringMap<Command*> CommandMap;
-	typedef StringMap<CommandCompleter*> CompleterMap;
-	CommandMap commands;
-	CompleterMap commandCompleters;
+	StringMap<Command*> commands;
+	StringMap<CommandCompleter*> commandCompleters;
 
 	GlobalCliComm& cliComm;
 	CliConnection* connection;

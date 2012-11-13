@@ -73,7 +73,7 @@ static void loadWav(Samples& data)
 static void createSilence(const Log& log, Samples& result)
 {
 	unsigned size = 0;
-	for (Log::const_iterator it = log.begin(); it != log.end(); ++it) {
+	for (auto it = log.begin(); it != log.end(); ++it) {
 		size += it->samples;
 	}
 	result.resize(size);
@@ -87,11 +87,10 @@ static void test(YM2413Core& core, const Log& log,
 
 	Samples generatedSamples[CHANNELS];
 
-	for (Log::const_iterator it = log.begin(); it != log.end(); ++it) {
+	for (auto it = log.begin(); it != log.end(); ++it) {
 		// write registers
 		const RegWrites& writes = it->regWrites;
-		for (RegWrites::const_iterator it2 = writes.begin();
-		     it2 != writes.end(); ++it2) {
+		for (auto it2 = writes.begin(); it2 != writes.end(); ++it2) {
 			core.writeReg(it2->reg, it2->val);
 		}
 

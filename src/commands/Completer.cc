@@ -46,7 +46,7 @@ static bool formatHelper(const set<string>& input, unsigned columnLimit,
                          vector<string>& result)
 {
 	unsigned column = 0;
-	set<string>::const_iterator it = input.begin();
+	auto it = input.begin();
 	do {
 		unsigned maxcolumn = column;
 		for (unsigned i = 0; (i < result.size()) && (it != input.end());
@@ -79,14 +79,14 @@ static vector<string> format(const set<string>& input, unsigned columnLimit)
 bool Completer::completeString2(string& str, set<string>& st,
                                 bool caseSensitive)
 {
-	set<string>::iterator it = st.begin();
+	auto it = st.begin();
 	while (it != st.end()) {
 		if (isEqual(str,
 			    string_ref(*it).substr(0, string_ref::size_type(str.size())),
 			    caseSensitive)) {
 			++it;
 		} else {
-			set<string>::iterator it2 = it;
+			auto it2 = it;
 			++it;
 			st.erase(it2);
 		}
@@ -123,8 +123,7 @@ bool Completer::completeString2(string& str, set<string>& st,
 	if (!expanded && output) {
 		// print all possibilities
 		vector<string> lines = format(st, output->getOutputColumns() - 1);
-		for (vector<string>::const_iterator it = lines.begin();
-		     it != lines.end(); ++it) {
+		for (auto it = lines.begin(); it != lines.end(); ++it) {
 			output->output(*it);
 		}
 	}
@@ -161,9 +160,7 @@ void Completer::completeFileName(vector<string>& tokens,
 	}
 
 	set<string> filenames(extra);
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end();
-	     ++it) {
+	for (auto it = paths.begin(); it != paths.end(); ++it) {
 		string dirname = FileOperations::join(*it, basename);
 		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {

@@ -210,8 +210,7 @@ bool DirAsDSK::checkMSXFileExists(
 // is not mapped in the virtual disk.
 DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 {
-	for (MapDirs::const_iterator it = mapDirs.begin();
-	     it != mapDirs.end(); ++it) {
+	for (auto it = mapDirs.begin(); it != mapDirs.end(); ++it) {
 		if (it->second.hostName == hostName) {
 			return it->first;
 		}
@@ -385,8 +384,8 @@ void DirAsDSK::syncWithHost()
 void DirAsDSK::checkDeletedHostFiles()
 {
 	// This handles both host files and directories.
-	MapDirs copy = mapDirs;
-	for (MapDirs::iterator it = copy.begin(); it != copy.end(); ++it) {
+	auto copy = mapDirs;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		if (mapDirs.find(it->first) == mapDirs.end()) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
@@ -475,8 +474,8 @@ void DirAsDSK::freeFATChain(unsigned curCl)
 
 void DirAsDSK::checkModifiedHostFiles()
 {
-	MapDirs copy = mapDirs;
-	for (MapDirs::iterator it = copy.begin(); it != copy.end(); ++it) {
+	auto copy = mapDirs;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		if (mapDirs.find(it->first) == mapDirs.end()) {
 			// See comment in checkDeletedHostFiles().
 			continue;
@@ -1093,7 +1092,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 	}
 	const char* msxName = msxDir(dirIndex).filename;
 	string hostName;
-	MapDirs::iterator it = mapDirs.find(dirIndex);
+	auto it = mapDirs.find(dirIndex);
 	if (it == mapDirs.end()) {
 		// Host file/dir does not yet exist, create hostname from
 		// msx name.
@@ -1104,7 +1103,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		string hostSubDir;
 		if (dirDirIndex.sector != 0) {
 			// Not the msx root directory.
-			MapDirs::const_iterator it2 = mapDirs.find(dirDirIndex);
+			auto it2 = mapDirs.find(dirDirIndex);
 			assert(it2 != mapDirs.end());
 			hostSubDir = it2->second.hostName;
 			assert(!StringOp::endsWith(hostSubDir, '/'));
@@ -1216,7 +1215,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	    ((msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY) !=
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
-		MapDirs::iterator it = mapDirs.find(dirIndex);
+		auto it = mapDirs.find(dirIndex);
 		if (it != mapDirs.end()) {
 			// If there is an associated hostfile, then delete it
 			// (in case of a rename, the file will be recreated
@@ -1261,7 +1260,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	// Get corresponding directory entry.
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);
 	// no need to check for 'dirIndex.sector == unsigned(-1)'
-	MapDirs::iterator it = mapDirs.find(dirIndex);
+	auto it = mapDirs.find(dirIndex);
 	if (it == mapDirs.end()) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;

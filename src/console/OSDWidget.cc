@@ -163,7 +163,7 @@ OSDWidget* OSDWidget::findSubWidget(string_ref name)
 	}
 	string_ref first, last;
 	StringOp::splitOnFirst(name, '.', first, last);
-	SubWidgetsMap::const_iterator it = subWidgetsMap.find(first);
+	auto it = subWidgetsMap.find(first);
 	return it == subWidgetsMap.end() ? nullptr : it->second->findSubWidget(last);
 }
 
@@ -189,7 +189,7 @@ void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
 		subWidgets.push_back(widget);
 	} else {
-		SubWidgets::iterator it = subWidgets.begin();
+		auto it = subWidgets.begin();
 		while ((*it)->getZ() <= z) ++it;
 		subWidgets.insert(it, widget);
 
@@ -199,12 +199,10 @@ void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
 	string widgetName = widget.getName();
-	for (SubWidgets::iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
+	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
 		if (it->get() == &widget) {
 			subWidgets.erase(it);
-			SubWidgetsMap::size_type existed =
-				subWidgetsMap.erase(widgetName);
+			auto existed = subWidgetsMap.erase(widgetName);
 			assert(existed); (void)existed;
 			return;
 		}
@@ -241,11 +239,11 @@ struct AscendingZ {
 void OSDWidget::resortUp(OSDWidget* elem)
 {
 	// z-coordinate was increased, first search for elements current position
-	SubWidgets::iterator it1 = subWidgets.begin();
+	auto it1 = subWidgets.begin();
 	while (it1->get() != elem) ++it1;
 	// next search for the position were it belongs
 	double z = elem->getZ();
-	SubWidgets::iterator it2 = it1;
+	auto it2 = it1;
 	++it2;
 	while ((it2 != subWidgets.end()) && ((*it2)->getZ() < z)) ++it2;
 	// now move elements to correct position
@@ -257,14 +255,14 @@ void OSDWidget::resortUp(OSDWidget* elem)
 void OSDWidget::resortDown(OSDWidget* elem)
 {
 	// z-coordinate was decreased, first search for new position
-	SubWidgets::iterator it1 = subWidgets.begin();
+	auto it1 = subWidgets.begin();
 	double z = elem->getZ();
 	while ((*it1)->getZ() <= z) {
 		++it1;
 		if (it1 == subWidgets.end()) return;
 	}
 	// next search for the elements current position
-	SubWidgets::iterator it2 = it1;
+	auto it2 = it1;
 	if ((it2 != subWidgets.begin()) && ((it2 - 1)->get() == elem)) return;
 	while (it2->get() != elem) ++it2;
 	// now move elements to correct position
@@ -369,8 +367,7 @@ void OSDWidget::invalidateRecursive()
 
 void OSDWidget::invalidateChildren()
 {
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
+	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
 		(*it)->invalidateRecursive();
 	}
 }
@@ -399,9 +396,8 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 	// load font or image), those error are (indirectly via CliComm) passed
 	// to a Tcl callback and that callback can destroy or create extra
 	// widgets.
-	SubWidgets copy(subWidgets);
-	for (SubWidgets::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = subWidgets;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		(*it)->paintSDLRecursive(output);
 	}
 }
@@ -419,9 +415,8 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 		scopedClip = make_unique<GLScopedClip>(output, x, y, w, h);
 	}
 
-	SubWidgets copy(subWidgets);
-	for (SubWidgets::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = subWidgets;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		(*it)->paintGLRecursive(output);
 	}
 #endif
@@ -532,8 +527,7 @@ void OSDWidget::listWidgetNames(const string& parentName, set<string>& result) c
 {
 	string pname = parentName;
 	if (!pname.empty()) pname += '.';
-	for (SubWidgets::const_iterator it = subWidgets.begin();
-	     it != subWidgets.end(); ++it) {
+	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
 		string name = pname + (*it)->getName();
 		result.insert(name);
 		(*it)->listWidgetNames(name, result);

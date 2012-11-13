@@ -78,11 +78,11 @@ output_iterator replace_invalid(octet_iterator start, octet_iterator end,
                                 output_iterator out, uint32_t replacement)
 {
 	while (start != end) {
-		octet_iterator sequence_start = start;
+		auto sequence_start = start;
 		internal::utf_error err_code = internal::validate_next(start, end);
 		switch (err_code) {
 		case internal::OK:
-			for (octet_iterator it = sequence_start; it != start; ++it) {
+			for (auto it = sequence_start; it != start; ++it) {
 				*out++ = *it;
 			}
 			break;
@@ -173,14 +173,14 @@ uint32_t peek_next(octet_iterator it, octet_iterator end)
 template <typename octet_iterator>
 uint32_t prior(octet_iterator& it, octet_iterator start)
 {
-	octet_iterator end = it;
+	auto end = it;
 	while (internal::is_trail(*(--it))) {
 		if (it < start) {
 			// error - no lead byte in the sequence
 			throw invalid_utf8(*it);
 		}
 	}
-	octet_iterator temp = it;
+	auto temp = it;
 	return next(temp, end);
 }
 
@@ -286,7 +286,7 @@ public:
 	octet_iterator base() const { return it; }
 	uint32_t operator*() const
 	{
-		octet_iterator temp = it;
+		auto temp = it;
 		return next(temp, range_end);
 	}
 	bool operator==(const iterator& rhs) const
@@ -309,7 +309,7 @@ public:
 	}
 	iterator operator++(int)
 	{
-		iterator temp = *this;
+		auto temp = *this;
 		next(it, range_end);
 		return temp;
 	}
@@ -320,7 +320,7 @@ public:
 	}
 	iterator operator--(int)
 	{
-		iterator temp = *this;
+		auto temp = *this;
 		prior(it, range_start);
 		return temp;
 	}

@@ -93,9 +93,9 @@ ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
 		return result;
 	}
 
-	string::const_iterator begin = line.begin();
+	auto begin = line.begin();
 	utf8::unchecked::advance(begin, pos);
-	string::const_iterator end = begin;
+	auto end = begin;
 	while (len-- && (end != line.end())) {
 		utf8::unchecked::next(end);
 	}
@@ -187,8 +187,7 @@ void CommandConsole::saveHistory()
 			throw FileException(
 				"Error while saving the console history.");
 		}
-		for (History::const_iterator it = history.begin();
-		     it != history.end(); ++it) {
+		for (auto it = history.begin(); it != history.end(); ++it) {
 			outputfile << string_ref(*it).substr(string_ref::size_type(prompt.size())) << '\n';
 		}
 	} catch (FileException& e) {
@@ -567,7 +566,7 @@ void CommandConsole::prevCommand()
 		return; // no elements
 	}
 	bool match = false;
-	History::const_iterator tempScrollBack = commandScrollBack;
+	auto tempScrollBack = commandScrollBack;
 	while ((tempScrollBack != history.begin()) && !match) {
 		--tempScrollBack;
 		match = StringOp::startsWith(*tempScrollBack, currentLine);
@@ -586,7 +585,7 @@ void CommandConsole::nextCommand()
 		return; // don't loop !
 	}
 	bool match = false;
-	History::const_iterator tempScrollBack = commandScrollBack;
+	auto tempScrollBack = commandScrollBack;
 	while ((++tempScrollBack != history.end()) && !match) {
 		match = StringOp::startsWith(*tempScrollBack, currentLine);
 	}
@@ -616,9 +615,9 @@ void CommandConsole::backspace()
 	resetScrollBack();
 	if (cursorPosition > prompt.size()) {
 		currentLine = lines[0].str();
-		string::iterator begin = currentLine.begin();
+		auto begin = currentLine.begin();
 		utf8::unchecked::advance(begin, cursorPosition - 1);
-		string::iterator end = begin;
+		auto end = begin;
 		utf8::unchecked::advance(end, 1);
 		currentLine.erase(begin, end);
 		lines[0] = highLight(currentLine);
@@ -631,9 +630,9 @@ void CommandConsole::delete_key()
 	resetScrollBack();
 	if (lines[0].numChars() > cursorPosition) {
 		currentLine = lines[0].str();
-		string::iterator begin = currentLine.begin();
+		auto begin = currentLine.begin();
 		utf8::unchecked::advance(begin, cursorPosition);
-		string::iterator end = begin;
+		auto end = begin;
 		utf8::unchecked::advance(end, 1);
 		currentLine.erase(begin, end);
 		lines[0] = highLight(currentLine);
@@ -645,7 +644,7 @@ void CommandConsole::normalKey(word chr)
 	assert(chr);
 	resetScrollBack();
 	currentLine = lines[0].str();
-	string::iterator pos = currentLine.begin();
+	auto pos = currentLine.begin();
 	utf8::unchecked::advance(pos, cursorPosition);
 	utf8::unchecked::append(uint32_t(chr), inserter(currentLine, pos));
 	lines[0] = highLight(currentLine);

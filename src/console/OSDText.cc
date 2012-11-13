@@ -379,8 +379,7 @@ string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 	auto lines = StringOp::split(text, "\n");
 
 	vector<string> wrappedLines;
-	for (vector<string>::const_iterator it = lines.begin();
-	     it != lines.end(); ++it) {
+	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		string line = *it;
 		do {
 			unsigned pos = splitAtChar(line, maxWidth);
@@ -397,8 +396,7 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 	auto lines = StringOp::split(text, "\n");
 
 	vector<string> wrappedLines;
-	for (vector<string>::const_iterator it = lines.begin();
-	     it != lines.end(); ++it) {
+	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		string line = *it;
 		do {
 			unsigned pos = splitAtWord(line, maxWidth);

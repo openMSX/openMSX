@@ -251,9 +251,8 @@ private:
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	typedef std::map<TypeInfo, std::unique_ptr<PolymorphicSaverBase<Archive>>>
-		SaverMap;
-	SaverMap saverMap;
+	std::map<TypeInfo, std::unique_ptr<PolymorphicSaverBase<Archive>>>
+		saverMap;
 };
 
 template<typename Archive>
@@ -281,9 +280,8 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	typedef StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>>
-		LoaderMap;
-	LoaderMap loaderMap;
+	StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>>
+		loaderMap;
 };
 
 template<typename Archive>
@@ -311,9 +309,8 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer);
 
-	typedef StringMap<std::unique_ptr<PolymorphicInitializerBase<Archive>>>
-		InitializerMap;
-	InitializerMap initializerMap;
+	StringMap<std::unique_ptr<PolymorphicInitializerBase<Archive>>>
+		initializerMap;
 };
 
 

@@ -86,7 +86,7 @@ void SettingsManager::unregisterSetting(Setting& /*setting*/, string_ref name)
 
 Setting* SettingsManager::findSetting(string_ref name) const
 {
-	SettingsMap::const_iterator it = settingsMap.find(name);
+	auto it = settingsMap.find(name);
 	return (it != settingsMap.end()) ? it->second : nullptr;
 }
 
@@ -95,8 +95,7 @@ Setting* SettingsManager::findSetting(string_ref name) const
 set<string> SettingsManager::getSettingNames() const
 {
 	set<string> result;
-	for (SettingsMap::const_iterator it = settingsMap.begin();
-	     it != settingsMap.end(); ++it) {
+	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
 		result.insert(it->first().str());
 	}
 	return result;
@@ -114,15 +113,14 @@ Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 
 Setting* SettingsManager::getByName(string_ref name) const
 {
-	SettingsMap::const_iterator it = settingsMap.find(name);
+	auto it = settingsMap.find(name);
 	return it != settingsMap.end() ? it->second : nullptr;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
-	for (SettingsMap::const_iterator it = settingsMap.begin();
-	     it != settingsMap.end(); ++it) {
+	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
 		const Setting& setting = *it->second;
 		if (setting.needLoadSave()) {
 			it->second->restoreDefault();
@@ -132,8 +130,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	// load new values
 	const XMLElement* settings = config.findChild("settings");
 	if (!settings) return;
-	for (SettingsMap::const_iterator it = settingsMap.begin();
-	     it != settingsMap.end(); ++it) {
+	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
 		string_ref name = it->first();
 		Setting& setting = *it->second;
 		if (!setting.needLoadSave()) continue;
@@ -150,8 +147,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 
 void SettingsManager::saveSettings(XMLElement& config) const
 {
-	for (SettingsMap::const_iterator it = settingsMap.begin();
-	     it != settingsMap.end(); ++it) {
+	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
 		it->second->sync(config);
 	}
 }
@@ -168,18 +164,17 @@ SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
 void SettingInfo::execute(
 	const vector<TclObject>& tokens, TclObject& result) const
 {
-	const SettingsManager::SettingsMap& settingsMap = manager.settingsMap;
+	auto& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
 	case 2:
-		for (SettingsManager::SettingsMap::const_iterator it =
-		       settingsMap.begin(); it != settingsMap.end(); ++it) {
+		for (auto it = settingsMap.begin();
+		     it != settingsMap.end(); ++it) {
 			result.addListElement(it->first());
 		}
 		break;
 	case 3: {
 		string_ref name = tokens[2].getString();
-		SettingsManager::SettingsMap::const_iterator it =
-			settingsMap.find(name);
+		auto it = settingsMap.find(name);
 		if (it == settingsMap.end()) {
 			throw CommandException("No such setting: " + name);
 		}
@@ -242,8 +237,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 	}
 	case 3: {
 		// complete setting value
-		SettingsManager::SettingsMap::iterator it =
-			manager.settingsMap.find(tokens[1]);
+		auto it = manager.settingsMap.find(tokens[1]);
 		if (it != manager.settingsMap.end()) {
 			it->second->tabCompletion(tokens);
 		}

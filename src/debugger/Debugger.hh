@@ -60,11 +60,9 @@ private:
 	friend class DebugCmd;
 	const std::unique_ptr<DebugCmd> debugCmd;
 
-	typedef StringMap<Debuggable*> Debuggables;
-	typedef StringMap<ProbeBase*>  Probes;
+	StringMap<Debuggable*> debuggables;
+	StringMap<ProbeBase*>  probes;
 	typedef std::vector<std::unique_ptr<ProbeBreakPoint>> ProbeBreakPoints;
-	Debuggables debuggables;
-	Probes probes;
 	ProbeBreakPoints probeBreakPoints;
 	MSXCPU* cpu;
 };

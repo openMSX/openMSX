@@ -41,9 +41,8 @@ void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param 
 	//   e.g. signalEvent() -> .. -> PlugCmd::execute() -> .. ->
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerEventListener()
-	Listeners copy = listeners;
-	for (Listeners::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = listeners;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		if (isRegistered(*it)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)

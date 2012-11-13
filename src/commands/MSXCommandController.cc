@@ -46,12 +46,10 @@ MSXCommandController::~MSXCommandController()
 	machineInfoCommand.reset();
 
 	#ifndef NDEBUG
-	for (CommandMap::const_iterator it = commandMap.begin();
-	     it != commandMap.end(); ++it) {
+	for (auto it = commandMap.begin(); it != commandMap.end(); ++it) {
 		std::cout << "Command not unregistered: " << it->first() << std::endl;
 	}
-	for (SettingMap::const_iterator it = settingMap.begin();
-	     it != settingMap.end(); ++it) {
+	for (auto it = settingMap.begin(); it != settingMap.end(); ++it) {
 		std::cout << "Setting not unregistered: " << it->first() << std::endl;
 	}
 	assert(commandMap.empty());
@@ -151,13 +149,13 @@ void MSXCommandController::changeSetting(Setting& setting, const string& value)
 
 Command* MSXCommandController::findCommand(string_ref name) const
 {
-	CommandMap::const_iterator it = commandMap.find(name);
+	auto it = commandMap.find(name);
 	return (it != commandMap.end()) ? it->second : nullptr;
 }
 
 Setting* MSXCommandController::findSetting(string_ref name)
 {
-	SettingMap::const_iterator it = settingMap.find(name);
+	auto it = settingMap.find(name);
 	return (it != settingMap.end()) ? it->second : nullptr;
 }
 
@@ -188,8 +186,7 @@ void MSXCommandController::signalEvent(
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (SettingMap::const_iterator it = settingMap.begin();
-	     it != settingMap.end(); ++it) {
+	for (auto it = settingMap.begin(); it != settingMap.end(); ++it) {
 		changeSetting(*it->second, it->second->getValueString());
 	}
 }

@@ -25,8 +25,7 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-typedef std::map<long, Setting*> TraceMap;
-static TraceMap traceMap;
+static std::map<long, Setting*> traceMap;
 static long traceCount = 0;
 
 
@@ -153,7 +152,7 @@ void Interpreter::registerCommand(const string& name, Command& command)
 
 void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
 {
-	CommandTokenMap::iterator it = commandTokenMap.find(name);
+	auto it = commandTokenMap.find(name);
 	assert(it != commandTokenMap.end());
 	Tcl_DeleteCommandFromToken(interp, it->second);
 	commandTokenMap.erase(it);
@@ -330,7 +329,7 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 
 void Interpreter::unregisterSetting(Setting& variable, const string& name)
 {
-	TraceMap::iterator it = traceMap.begin();
+	auto it = traceMap.begin();
 	while (true) {
 		assert(it != traceMap.end());
 		if (it->second == &variable) break;
@@ -347,7 +346,7 @@ void Interpreter::unregisterSetting(Setting& variable, const string& name)
 
 static Setting* getTraceSetting(unsigned traceID)
 {
-	TraceMap::const_iterator it = traceMap.find(traceID);
+	auto it = traceMap.find(traceID);
 	return (it != traceMap.end()) ? it->second : nullptr;
 }
 

@@ -11,8 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-typedef StringMap<std::shared_ptr<CompressedFileAdapter::Decompressed>> DecompressCache;
-static DecompressCache decompressCache;
+static StringMap<std::shared_ptr<CompressedFileAdapter::Decompressed>> decompressCache;
 
 
 CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_)
@@ -22,7 +21,7 @@ CompressedFileAdapter::CompressedFileAdapter(std::unique_ptr<FileBase> file_)
 
 CompressedFileAdapter::~CompressedFileAdapter()
 {
-	DecompressCache::iterator it = decompressCache.find(getURL());
+	auto it = decompressCache.find(getURL());
 	decompressed.reset();
 	if (it != decompressCache.end() && it->second.unique()) {
 		// delete last user of Decompressed, remove from cache
@@ -35,7 +34,7 @@ void CompressedFileAdapter::decompress()
 	if (decompressed.get()) return;
 
 	string url = getURL();
-	DecompressCache::iterator it = decompressCache.find(url);
+	auto it = decompressCache.find(url);
 	if (it != decompressCache.end()) {
 		decompressed = it->second;
 	} else {

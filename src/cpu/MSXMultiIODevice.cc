@@ -50,7 +50,7 @@ byte MSXMultiIODevice::readIO(word port, EmuTime::param time)
 	// conflict: return the result from the first device, call readIO()
 	//           also on all other devices, but discard result
 	assert(!devices.empty());
-	Devices::iterator it = devices.begin();
+	auto it = devices.begin();
 	byte result = (*it)->readIO(port, time);
 	for (++it; it != devices.end(); ++it) {
 		(*it)->readIO(port, time);
@@ -67,8 +67,7 @@ byte MSXMultiIODevice::peekIO(word port, EmuTime::param time) const
 
 void MSXMultiIODevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	for (Devices::iterator it = devices.begin();
-	     it != devices.end(); ++it) {
+	for (auto it = devices.begin(); it != devices.end(); ++it) {
 		(*it)->writeIO(port, value, time);
 	}
 }

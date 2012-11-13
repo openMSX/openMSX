@@ -49,8 +49,7 @@ private:
 	static unsigned timerCallback(unsigned interval, void* param);
 	unsigned timerCallback2();
 
-	typedef std::vector<Alarm*> Alarms;
-	Alarms alarms;
+	std::vector<Alarm*> alarms;
 	long long time;
 	SDL_TimerID id;
 	Semaphore sem;
@@ -97,7 +96,7 @@ void AlarmManager::registerAlarm(Alarm& alarm)
 void AlarmManager::unregisterAlarm(Alarm& alarm)
 {
 	ScopedLock lock(sem);
-	Alarms::iterator it = find(alarms.begin(), alarms.end(), &alarm);
+	auto it = find(alarms.begin(), alarms.end(), &alarm);
 	assert(it != alarms.end());
 	alarms.erase(it);
 }
@@ -161,8 +160,7 @@ unsigned AlarmManager::timerCallback2()
 
 	long long now = Timer::getTime();
 	long long earliest = std::numeric_limits<long long>::max();
-	for (Alarms::const_iterator it = alarms.begin();
-	     it != alarms.end(); ++it) {
+	for (auto it = alarms.begin(); it != alarms.end(); ++it) {
 		Alarm& alarm = **it;
 		if (alarm.active) {
 			// timer active
@@ -193,8 +191,7 @@ unsigned AlarmManager::timerCallback2()
 		assert(id != nullptr);
 		return convert(int(earliest));
 	} else {
-		for (Alarms::const_iterator it = alarms.begin();
-		     it != alarms.end(); ++it) {
+		for (auto it = alarms.begin(); it != alarms.end(); ++it) {
 			assert((*it)->active == false);
 		}
 		id = nullptr;

@@ -60,8 +60,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	bool romTypeOptionFound = false;
 
 	// parse options
-	for (vector<string>::const_iterator it = options.begin();
-	     it != options.end(); ++it) {
+	for (auto it = options.begin(); it != options.end(); ++it) {
 		const string& option = *it++;
 		if (it == options.end()) {
 			throw MSXException("Missing argument for option \"" +
@@ -108,10 +107,8 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	rom->addChild(make_unique<XMLElement>("filename", romfile));
 	if (!ipsfiles.empty()) {
 		auto patches = make_unique<XMLElement>("patches");
-		for (vector<string>::const_iterator it = ipsfiles.begin();
-		     it != ipsfiles.end(); ++it) {
-			patches->addChild(make_unique<XMLElement>(
-				"ips", *it));
+		for (auto it = ipsfiles.begin(); it != ipsfiles.end(); ++it) {
+			patches->addChild(make_unique<XMLElement>("ips", *it));
 		}
 		rom->addChild(move(patches));
 	}
@@ -188,8 +185,7 @@ HardwareConfig::~HardwareConfig()
 void HardwareConfig::testRemove() const
 {
 	std::vector<MSXDevice*> alreadyRemoved;
-	for (Devices::const_reverse_iterator it = devices.rbegin();
-	     it != devices.rend(); ++it) {
+	for (auto it = devices.rbegin(); it != devices.rend(); ++it) {
 		(*it)->testRemove(alreadyRemoved);
 		alreadyRemoved.push_back(it->get());
 	}
@@ -313,8 +309,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
 	const XMLElement::Children& children = elem.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
+	for (auto it = children.begin(); it != children.end(); ++it) {
 		const XMLElement& sub = **it;
 		const string& name = sub.getName();
 		if (name == "primary") {
@@ -422,8 +417,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		createDevices();
 	}
 	// only (polymorphically) initialize devices, they are already created
-	for (Devices::const_iterator it = devices.begin();
-	     it != devices.end(); ++it) {
+	for (auto it = devices.begin(); it != devices.end(); ++it) {
 		ar.serializePolymorphic("device", **it);
 	}
 	ar.serialize("name", name);

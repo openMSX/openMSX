@@ -400,8 +400,7 @@ template<typename TP> struct IDSaver
 	{
 		static_assert(serialize_as_pointer<TP>::value,
 		              "must be serialized as pointer");
-		typedef typename serialize_as_pointer<TP>::type T;
-		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
+		auto tp = serialize_as_pointer<TP>::getPointer(tp2);
 		unsigned id;
 		if (tp == nullptr) {
 			id = 0;
@@ -419,9 +418,8 @@ template<typename TC> struct CollectionSaver
 	{
 		typedef serialize_as_collection<TC> sac;
 		static_assert(sac::value, "must be serialized as collection");
-		typedef typename sac::const_iterator const_iterator;
-		const_iterator begin = sac::begin(tc);
-		const_iterator end   = sac::end  (tc);
+		auto begin = sac::begin(tc);
+		auto end   = sac::end  (tc);
 		if ((sac::size < 0) && (!ar.canCountChildren())) {
 			// variable size
 			// e.g. in an XML archive the loader can look-ahead and
@@ -677,7 +675,6 @@ template<typename TC> struct CollectionLoader
 		assert((id == 0) || (id == -1));
 		typedef serialize_as_collection<TC> sac;
 		static_assert(sac::value, "must be serialized as a collection");
-		typedef typename sac::output_iterator output_iterator;
 		int n = sac::size;
 		if (n < 0) {
 			// variable size
@@ -688,7 +685,7 @@ template<typename TC> struct CollectionLoader
 			}
 		}
 		sac::prepare(tc, n);
-		output_iterator it = sac::output(tc);
+		auto it = sac::output(tc);
 		CollectionLoaderHelper<sac> loadOneElement;
 		for (int i = 0; i < n; ++i, ++it) {
 			loadOneElement(ar, args, it, id);

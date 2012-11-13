@@ -66,7 +66,6 @@ private:
 	//   <sha1sum, <timestamp, filename>>
 	typedef std::multimap<Sha1Sum, std::pair<time_t, std::string>> Pool;
 	//   <filename, Pool::iterator>
-	typedef std::map<std::string, Pool::iterator> ReversePool;
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
@@ -98,7 +97,7 @@ private:
 	CliComm& cliComm;
 
 	Pool pool;
-	ReversePool reversePool;
+	std::map<std::string, Pool::iterator> reversePool;
 	unsigned long long lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
 	bool quit;

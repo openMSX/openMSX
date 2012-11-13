@@ -56,8 +56,7 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
-	typedef std::vector<MSXMixer*> MSXMixers;
-	MSXMixers msxMixers;
+	std::vector<MSXMixer*> msxMixers;
 
 	std::unique_ptr<SoundDriver> driver;
 	Reactor& reactor;

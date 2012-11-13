@@ -215,9 +215,7 @@ public:
 	}
 	static bool checkBreakPoints(unsigned pc)
 	{
-		std::pair<BreakPoints::const_iterator,
-		          BreakPoints::const_iterator> range =
-		                  breakPoints.equal_range(pc);
+		auto range = breakPoints.equal_range(pc);
 		if (conditions.empty() && (range.first == range.second)) {
 			return false;
 		}
@@ -308,8 +306,7 @@ private:
 			       (addr   == rhs.addr);
 		}
 	};
-	typedef std::vector<GlobalWriteInfo> GlobalWrites;
-	GlobalWrites globalWrites;
+	std::vector<GlobalWriteInfo> globalWrites;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];

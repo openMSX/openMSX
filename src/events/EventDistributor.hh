@@ -78,8 +78,7 @@ private:
 
 	typedef std::multimap<Priority, EventListener*, std::greater<Priority>>
 		PriorityMap; // sort from big to small
-	typedef std::map<EventType, PriorityMap> TypeMap;
-	TypeMap listeners;
+	std::map<EventType, PriorityMap> listeners;
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

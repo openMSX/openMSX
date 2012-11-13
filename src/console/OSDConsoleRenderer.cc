@@ -133,8 +133,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	adjustColRow();
 
 	// placement
-	typedef EnumSetting<Placement>::Map PlaceMap;
-	PlaceMap placeMap;
+	EnumSetting<Placement>::Map placeMap;
 	placeMap["topleft"]     = CP_TOPLEFT;
 	placeMap["top"]         = CP_TOP;
 	placeMap["topright"]    = CP_TOPRIGHT;
@@ -364,7 +363,7 @@ bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
 	// located right in front of the previously found item. (Though
 	// duplicate items (e.g. the command prompt '> ') degrade this
 	// heuristic).
-	TextCache::iterator it = cacheHint;
+	auto it = cacheHint;
 	if ((it->text == text) && (it->rgb  == rgb)) {
 		goto found;
 	}
@@ -395,7 +394,7 @@ void OSDConsoleRenderer::insertInCache(
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
-		TextCache::iterator it = textCache.end();
+		auto it = textCache.end();
 		--it;
 		assert(it != cacheHint);
 		textCache.pop_back();

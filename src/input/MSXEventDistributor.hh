@@ -45,8 +45,7 @@ public:
 private:
 	bool isRegistered(MSXEventListener* listener) const;
 
-	typedef std::vector<MSXEventListener*> Listeners;
-	Listeners listeners;
+	std::vector<MSXEventListener*> listeners;
 };
 
 } // namespace openmsx

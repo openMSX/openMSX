@@ -324,8 +324,7 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& result)
 {
 	ostringstream str;
-	for (AfterCmds::const_iterator it = afterCmds.begin();
-	     it != afterCmds.end(); ++it) {
+	for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
 		const AfterCmd* cmd = it->get();
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
@@ -346,8 +345,7 @@ void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*res
 		throw SyntaxError();
 	}
 	if (tokens.size() == 3) {
-		for (AfterCmds::iterator it = afterCmds.begin();
-		     it != afterCmds.end(); ++it) {
+		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
 			if ((*it)->getId() == tokens[2].getString()) {
 				afterCmds.erase(it);
 				return;
@@ -357,8 +355,7 @@ void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*res
 	TclObject command;
 	command.addListElements(tokens.begin() + 2, tokens.end());
 	string_ref cmdStr = command.getString();
-	for (AfterCmds::iterator it = afterCmds.begin();
-	     it != afterCmds.end(); ++it) {
+	for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
 		if ((*it)->getCommand() == cmdStr) {
 			afterCmds.erase(it);
 			// Tcl manual is not clear about this, but it seems
@@ -405,10 +402,10 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
 	// predicate should return false on matches
-	AfterCmds::iterator it = partition(afterCmds.begin(), afterCmds.end(), pred);
+	auto it = partition(afterCmds.begin(), afterCmds.end(), pred);
 	AfterCmds tmp(it, afterCmds.end());
 	afterCmds.erase(it, afterCmds.end());
-	for (AfterCmds::iterator it = tmp.begin(); it != tmp.end(); ++it) {
+	for (auto it = tmp.begin(); it != tmp.end(); ++it) {
 		(*it)->execute();
 	}
 }
@@ -468,8 +465,7 @@ int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 		executeRealTime();
 	} else {
 		executeMatches(AfterInputEventPred(event));
-		for (AfterCmds::const_iterator it = afterCmds.begin();
-		     it != afterCmds.end(); ++it) {
+		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
 			if (AfterIdleCmd* idleCmd =
 			              dynamic_cast<AfterIdleCmd*>(it->get())) {
 				idleCmd->reschedule();
@@ -518,7 +514,7 @@ void AfterCmd::execute()
 
 shared_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	for (AfterCommand::AfterCmds::iterator it = afterCommand.afterCmds.begin();
+	for (auto it = afterCommand.afterCmds.begin();
 	     it != afterCommand.afterCmds.end(); ++it) {
 		if (it->get() == this) {
 			shared_ptr<AfterCmd> result = *it;

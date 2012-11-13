@@ -54,8 +54,7 @@ bool RecordedCommand::needRecord(const vector<TclObject>& tokens) const
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (vector<TclObject>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
+	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
 		strings.push_back(it->getString().str());
 	}
 	return needRecord(strings);
@@ -108,8 +107,7 @@ void RecordedCommand::execute(const vector<TclObject>& tokens,
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (vector<TclObject>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
+	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
 		strings.push_back(it->getString().str());
 	}
 	result.setString(execute(strings, time));
@@ -129,8 +127,7 @@ string RecordedCommand::execute(const vector<string>& /*tokens*/,
 MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param time)
 	: StateChange(time)
 {
-	for (vector<string>::const_iterator it = tokens_.begin();
-	     it != tokens_.end(); ++it) {
+	for (auto it = tokens_.begin(); it != tokens_.end(); ++it) {
 		tokens.push_back(TclObject(*it));
 	}
 }
@@ -158,16 +155,14 @@ void MSXCommandEvent::serialize(Archive& ar, unsigned /*version*/)
 	// serialize vector<TclObject> as vector<string>
 	vector<string> str;
 	if (!ar.isLoader()) {
-		for (vector<TclObject>::const_iterator it = tokens.begin();
-		     it != tokens.end(); ++it) {
+		for (auto it = tokens.begin(); it != tokens.end(); ++it) {
 			str.push_back(it->getString().str());
 		}
 	}
 	ar.serialize("tokens", str);
 	if (ar.isLoader()) {
 		assert(tokens.empty());
-		for (vector<string>::const_iterator it = str.begin();
-		     it != str.end(); ++it) {
+		for (auto it = str.begin(); it != str.end(); ++it) {
 			tokens.push_back(TclObject(*it));
 		}
 	}

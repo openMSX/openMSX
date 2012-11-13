@@ -359,8 +359,7 @@ void DBParser::addEntries()
 		return;
 	}
 
-	for (vector<Dump>::const_iterator it = dumps.begin();
-	     it != dumps.end(); ++it) {
+	for (auto it = dumps.begin(); it != dumps.end(); ++it) {
 		if (!sums.insert(it->hash).second) {
 			cliComm.printWarning(
 				"duplicate softwaredb entry SHA1: " +
@@ -507,8 +506,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	UnknownTypes unknownTypes;
 	SystemFileContext context; // first user- then system-directory
 	vector<string> paths = context.getPaths();
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
+	for (auto it = paths.begin(); it != paths.end(); ++it) {
 		string filename = FileOperations::join(*it, "softwaredb.xml");
 		try {
 			parseDB(cliComm, filename, romDBSHA1, unknownTypes);
@@ -530,7 +528,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	if (!unknownTypes.empty()) {
 		StringOp::Builder output;
 		output << "Unknown mapper types in software database: ";
-		for (UnknownTypes::iterator it = unknownTypes.begin();
+		for (auto it = unknownTypes.begin();
 		     it != unknownTypes.end(); ++it) {
 			output << it->first() << " (" << it->second << "x); ";
 		}
@@ -544,7 +542,7 @@ RomDatabase::~RomDatabase()
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	DBMap::const_iterator it = romDBSHA1.find(sha1sum);
+	auto it = romDBSHA1.find(sha1sum);
 	if (it == romDBSHA1.end()) {
 		return nullptr;
 	}

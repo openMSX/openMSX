@@ -74,9 +74,8 @@ void StateChangeDistributor::distribute(const EventPtr& event)
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerListener()
 	if (recorder) recorder->signalStateChange(event);
-	Listeners copy = listeners;
-	for (Listeners::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = listeners;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		if (isRegistered(*it)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
@@ -90,8 +89,7 @@ void StateChangeDistributor::stopReplay(EmuTime::param time)
 	if (!isReplaying()) return;
 
 	if (recorder) recorder->stopReplay(time);
-	for (Listeners::const_iterator it = listeners.begin();
-	     it != listeners.end(); ++it) {
+	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
 		(*it)->stopReplay(time);
 	}
 }

@@ -11,9 +11,8 @@ namespace openmsx {
 std::string sock_error()
 {
 #ifdef _WIN32
-	typedef std::map<int, std::string> ErrMap;
+	static std::map<int, std::string> errMap;
 	static std::string UnknownError = "Unknown error";
-	static ErrMap errMap;
 	static bool alreadyInit = false;
 	if (!alreadyInit) {
 		alreadyInit = true;
@@ -68,7 +67,7 @@ std::string sock_error()
 		errMap[WSAHOST_NOT_FOUND]  = "Host not found";
 		errMap[WSANO_DATA]         = "No host data of that type was found";
 	}
-	ErrMap::const_iterator it = errMap.find(WSAGetLastError());
+	auto it = errMap.find(WSAGetLastError());
 	if (it != errMap.end()) {
 		return it->second;
 	} else {

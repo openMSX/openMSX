@@ -27,8 +27,7 @@ protected:
 	void notify() const;
 
 private:
-	typedef std::vector<Observer<T>*> Observers;
-	Observers observers;
+	std::vector<Observer<T>*> observers;
 #ifndef NDEBUG
 	mutable bool notifyInProgress;
 #endif
@@ -44,9 +43,8 @@ template <typename T> Subject<T>::Subject()
 template <typename T> Subject<T>::~Subject()
 {
 	assert(!notifyInProgress);
-	Observers copy(observers);
-	for (typename Observers::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	auto copy = observers;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
 		(*it)->subjectDeleted(*static_cast<const T*>(this));
 	}
 	assert(observers.empty());
@@ -61,8 +59,7 @@ template <typename T> void Subject<T>::attach(Observer<T>& observer)
 template <typename T> void Subject<T>::detach(Observer<T>& observer)
 {
 	assert(!notifyInProgress);
-	typename Observers::iterator it =
-		find(observers.begin(), observers.end(), &observer);
+	auto it = find(observers.begin(), observers.end(), &observer);
 	assert(it != observers.end());
 	observers.erase(it);
 }
@@ -74,8 +71,7 @@ template <typename T> void Subject<T>::notify() const
 	ScopedAssign<bool> sa(notifyInProgress, true);
 #endif
 
-	for (typename Observers::const_iterator it = observers.begin();
-			it != observers.end(); ++it) {
+	for (auto it = observers.begin(); it != observers.end(); ++it) {
 		(*it)->update(*static_cast<const T*>(this));
 	}
 }

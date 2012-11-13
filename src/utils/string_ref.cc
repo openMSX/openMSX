@@ -80,7 +80,7 @@ string_ref::size_type string_ref::find(string_ref s) const
 
 string_ref::size_type string_ref::find(char c) const
 {
-	const_iterator it = std::find(begin(), end(), c);
+	auto it = std::find(begin(), end(), c);
 	return (it == end()) ? npos : it - begin();
 }
 
@@ -102,13 +102,13 @@ string_ref::size_type string_ref::rfind(string_ref s) const
 
 string_ref::size_type string_ref::rfind(char c) const
 {
-	const_reverse_iterator it = std::find(rbegin(), rend(), c);
+	auto it = std::find(rbegin(), rend(), c);
 	return (it == rend()) ? npos : (it.base() - begin() - 1);
 }
 
 string_ref::size_type string_ref::find_first_of(string_ref s) const
 {
-	const_iterator it = std::find_first_of(begin(), end(), s.begin(), s.end());
+	auto it = std::find_first_of(begin(), end(), s.begin(), s.end());
 	return (it == end()) ? npos : it - begin();
 }
 
@@ -122,8 +122,7 @@ string_ref::size_type string_ref::find_first_of(char c) const
 
 string_ref::size_type string_ref::find_last_of(string_ref s) const
 {
-	const_reverse_iterator it = std::find_first_of(
-		rbegin(), rend(), s.begin(), s.end());
+	auto it = std::find_first_of( rbegin(), rend(), s.begin(), s.end());
 	return (it == rend()) ? npos : (it.base() - begin() - 1);
 }
 

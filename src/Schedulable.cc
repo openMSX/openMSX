@@ -64,7 +64,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("syncPoints", syncPoints);
 	if (ar.isLoader()) {
 		removeSyncPoints();
-		for (Scheduler::SyncPoints::const_iterator it = syncPoints.begin();
+		for (auto it = syncPoints.begin();
 		     it != syncPoints.end(); ++it) {
 			setSyncPoint(it->getTime(), it->getUserData());
 		}

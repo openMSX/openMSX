@@ -45,12 +45,12 @@ IPSPatch::IPSPatch(const Filename& filename_,
 			ipsFile.read(&v.front(), length);
 		}
 		// find overlapping or adjacent patch regions
-		PatchMap::iterator b = patchMap.lower_bound(offset);
+		auto b = patchMap.lower_bound(offset);
 		if (b != patchMap.begin()) {
 			--b;
 			if (getStop(b) < offset) ++b;
 		}
-		PatchMap::iterator e = patchMap.upper_bound(offset + unsigned(v.size()));
+		auto e = patchMap.upper_bound(offset + unsigned(v.size()));
 		if (b != e) {
 			// remove operlapping regions, merge adjacent regions
 			--e;
@@ -59,7 +59,7 @@ IPSPatch::IPSPatch(const Filename& filename_,
 			unsigned length2 = stop - start;
 			++e;
 			vector<byte> tmp(length2);
-			for (PatchMap::iterator it = b; it != e; ++it) {
+			for (auto it = b; it != e; ++it) {
 				memcpy(&tmp[it->first - start], &it->second[0],
 				       it->second.size());
 			}
@@ -76,7 +76,7 @@ IPSPatch::IPSPatch(const Filename& filename_,
 	if (patchMap.empty()) {
 		size = parent->getSize();
 	} else {
-		PatchMap::const_iterator it = --patchMap.end();
+		auto it = --patchMap.end();
 		size = std::max(parent->getSize(), getStop(it));
 	}
 }
@@ -85,10 +85,10 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 {
 	parent->copyBlock(src, dst, num);
 
-	PatchMap::const_iterator b = patchMap.lower_bound(src);
+	auto b = patchMap.lower_bound(src);
 	if (b != patchMap.begin()) --b;
-	PatchMap::const_iterator e = patchMap.upper_bound(src + num - 1);
-	for (PatchMap::const_iterator it = b; it != e; ++it) {
+	auto e = patchMap.upper_bound(src + num - 1);
+	for (auto it = b; it != e; ++it) {
 		unsigned chunkStart = it->first;
 		int chunkSize = int(it->second.size());
 		// calc chunkOffset, chunkStart

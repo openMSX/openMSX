@@ -39,8 +39,7 @@ static string initialFilePoolSettingValue()
 
 	SystemFileContext context;
 	vector<string> paths = context.getPaths();
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
+	for (auto it = paths.begin(); it != paths.end(); ++it) {
 		TclObject entry1;
 		entry1.addListElement("-path");
 		entry1.addListElement(FileOperations::join(*it, "systemroms"));
@@ -85,7 +84,7 @@ FilePool::~FilePool()
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	Pool::iterator it = pool.insert(make_pair(sum, make_pair(time, filename)));
+	auto it = pool.insert(make_pair(sum, make_pair(time, filename)));
 	reversePool.insert(make_pair(it->second.second, it));
 	needWrite = true;
 }
@@ -138,7 +137,7 @@ void FilePool::writeSha1sums()
 	if (!file.is_open()) {
 		return;
 	}
-	for (Pool::const_iterator it = pool.begin(); it != pool.end(); ++it) {
+	for (auto it = pool.begin(); it != pool.end(); ++it) {
 		file << it->first.toString() << "  "             // sum
 		     << Date::toString(it->second.first) << "  " // date
 		     << it->second.second                        // filename
@@ -233,8 +232,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		cliComm.printWarning("Error while parsing '__filepool' setting" +
 			e.getMessage());
 	}
-	for (Directories::const_iterator it = directories.begin();
-	     it != directories.end(); ++it) {
+	for (auto it = directories.begin(); it != directories.end(); ++it) {
 		if (it->types & fileType) {
 			string path = FileOperations::expandTilde(it->path);
 			result = scanDirectory(sha1sum, path, it->path);
@@ -256,8 +254,8 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 
 unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	pair<Pool::iterator, Pool::iterator> bound = pool.equal_range(sha1sum);
-	Pool::iterator it = bound.first;
+	auto bound = pool.equal_range(sha1sum);
+	auto it = bound.first;
 	while (it != bound.second) {
 		time_t& time = it->second.first;
 		const string& filename = it->second.second;
@@ -339,7 +337,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 	// deliver, so it's ok to call on each file.
 	distributor.deliverEvents();
 
-	Pool::iterator it = findInDatabase(filename);
+	auto it = findInDatabase(filename);
 	if (it == pool.end()) {
 		// not in pool
 		try {
@@ -384,7 +382,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 {
-	ReversePool::iterator it = reversePool.find(filename);
+	auto it = reversePool.find(filename);
 	if (it != reversePool.end()) {
 		return it->second;
 	}
@@ -397,7 +395,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	time_t time = file.getModificationDate();
 	string filename = file.getURL();
 
-	Pool::iterator it = findInDatabase(filename);
+	auto it = findInDatabase(filename);
 	if (it != pool.end()) {
 		// in database
 		if (time == it->second.first) {
@@ -416,7 +414,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 
 void FilePool::removeSha1Sum(File& file)
 {
-	Pool::iterator it = findInDatabase(file.getURL());
+	auto it = findInDatabase(file.getURL());
 	if (it != pool.end()) {
 		remove(it);
 	}

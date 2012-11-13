@@ -17,8 +17,7 @@ int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
 	// files, we prefer not to do that.
 	// These maps are usually very small, so there is no disadvantage on
 	// using a O(n) search here (instead of O(log n)).
-	for (BaseMap::const_iterator it = baseMap.begin();
-	     it != baseMap.end() ; ++it) {
+	for (auto it = baseMap.begin(); it != baseMap.end() ; ++it) {
 		if (strcasecmp(str.c_str(), it->first.c_str()) == 0) {
 			return it->second;
 		}
@@ -28,8 +27,7 @@ int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
 
 std::string EnumSettingPolicyBase::toStringBase(int value) const
 {
-	for (BaseMap::const_iterator it = baseMap.begin();
-	     it != baseMap.end() ; ++it) {
+	for (auto it = baseMap.begin(); it != baseMap.end() ; ++it) {
 		if (it->second == value) {
 			return it->first;
 		}
@@ -40,8 +38,7 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 std::set<std::string> EnumSettingPolicyBase::getPossibleValues() const
 {
 	std::set<std::string> result;
-	for (BaseMap::const_iterator it = baseMap.begin();
-	     it != baseMap.end(); ++it) {
+	for (auto it = baseMap.begin(); it != baseMap.end(); ++it) {
 		try {
 			int value = it->second;
 			checkSetValueBase(value);

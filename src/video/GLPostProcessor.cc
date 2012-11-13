@@ -179,8 +179,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	for (Regions::const_iterator it = regions.begin();
-	     it != regions.end(); ++it) {
+	for (auto it = regions.begin(); it != regions.end(); ++it) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	it->srcStartY, it->srcEndY, it->lineWidth);
 		assert(textures.find(it->lineWidth) != textures.end());
@@ -257,8 +256,7 @@ void GLPostProcessor::uploadFrame()
 	createRegions();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	for (Regions::const_iterator it = regions.begin();
-	     it != regions.end(); ++it) {
+	for (auto it = regions.begin(); it != regions.end(); ++it) {
 		// upload data
 		// TODO get before/after data from scaler
 		unsigned before = 1;
@@ -295,7 +293,7 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	Textures::iterator it = textures.find(lineWidth);
+	auto it = textures.find(lineWidth);
 	if (it == textures.end()) {
 		TextureData textureData;
 

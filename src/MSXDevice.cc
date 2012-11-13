@@ -107,8 +107,7 @@ void MSXDevice::testRemove(const Devices& alreadyRemoved) const
 	if (!rest.empty()) {
 		StringOp::Builder msg;
 		msg << "Still in use by ";
-		for (Devices::const_iterator it = rest.begin();
-		     it != rest.end(); ++it) {
+		for (auto it = rest.begin(); it != rest.end(); ++it) {
 			msg << (*it)->getName() << ' ';
 		}
 		throw MSXException(msg);
@@ -140,11 +139,10 @@ void MSXDevice::lockDevices()
 
 void MSXDevice::unlockDevices()
 {
-	for (Devices::const_iterator it = references.begin();
-	     it != references.end(); ++it) {
-		Devices::iterator it2 = find((*it)->referencedBy.begin(),
-		                             (*it)->referencedBy.end(),
-		                             this);
+	for (auto it = references.begin(); it != references.end(); ++it) {
+		auto it2 = find((*it)->referencedBy.begin(),
+		                (*it)->referencedBy.end(),
+		                this);
 		assert(it2 != (*it)->referencedBy.end());
 		(*it)->referencedBy.erase(it2);
 	}
@@ -290,8 +288,7 @@ void MSXDevice::registerSlots()
 	}
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (MemRegions::const_iterator it = tmpMemRegions.begin();
-	     it != tmpMemRegions.end(); ++it) {
+	for (auto it = tmpMemRegions.begin(); it != tmpMemRegions.end(); ++it) {
 		getCPUInterface().registerMemDevice(
 			*this, ps, logicalSS, it->first, it->second);
 		memRegions.push_back(*it);
@@ -310,8 +307,7 @@ void MSXDevice::unregisterSlots()
 	if (memRegions.empty()) return;
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (MemRegions::const_iterator it = memRegions.begin();
-	     it != memRegions.end(); ++it) {
+	for (auto it = memRegions.begin(); it != memRegions.end(); ++it) {
 		getCPUInterface().unregisterMemDevice(
 			*this, ps, logicalSS, it->first, it->second);
 	}
@@ -330,7 +326,7 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 		size = 0;
 		return;
 	}
-	MemRegions::const_iterator it = memRegions.begin();
+	auto it = memRegions.begin();
 	unsigned lowest  = it->first;
 	unsigned highest = it->first + it->second;
 	for (++it; it != memRegions.end(); ++it) {
@@ -368,12 +364,10 @@ void MSXDevice::registerPorts()
 
 void MSXDevice::unregisterPorts()
 {
-	for (vector<byte>::iterator it = inPorts.begin();
-	     it != inPorts.end(); ++it) {
+	for (auto it = inPorts.begin(); it != inPorts.end(); ++it) {
 		getCPUInterface().unregister_IO_In(*it, this);
 	}
-	for (vector<byte>::iterator it = outPorts.begin();
-	     it != outPorts.end(); ++it) {
+	for (auto it = outPorts.begin(); it != outPorts.end(); ++it) {
 		getCPUInterface().unregister_IO_Out(*it, this);
 	}
 }

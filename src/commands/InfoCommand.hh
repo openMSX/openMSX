@@ -26,8 +26,7 @@ private:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	typedef StringMap<const InfoTopic*> InfoTopics;
-	InfoTopics infoTopics;
+	StringMap<const InfoTopic*> infoTopics;
 };
 
 } // namespace openmsx

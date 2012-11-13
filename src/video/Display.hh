@@ -88,8 +88,7 @@ private:
 	Layers layers;
 	std::unique_ptr<VideoSystem> videoSystem;
 
-	typedef std::vector<VideoSystemChangeListener*> Listeners;
-	Listeners listeners;
+	std::vector<VideoSystemChangeListener*> listeners;
 
 	// fps related data
 	static const unsigned NUM_FRAME_DURATIONS = 50;

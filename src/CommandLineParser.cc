@@ -262,9 +262,8 @@ void CommandLineParser::registerFileTypes()
 	fileExtMap["omr"] = "openMSX replay";
 	fileExtMap["oms"] = "openMSX savestate";
 	fileExtMap["tcl"] = "Tcl script";
-	for (map<string, string>::const_iterator j = fileExtMap.begin();
-	     j != fileExtMap.end(); ++j) {
-		FileClassMap::const_iterator i = fileClassMap.find(j->second);
+	for (auto j = fileExtMap.begin(); j != fileExtMap.end(); ++j) {
+		auto i = fileClassMap.find(j->second);
 		if (i != fileClassMap.end()) {
 			fileTypeMap[j->first] = i->second;
 		}
@@ -274,7 +273,7 @@ void CommandLineParser::registerFileTypes()
 bool CommandLineParser::parseOption(
 	const string& arg, deque<string>& cmdLine, ParsePhase phase)
 {
-	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
+	auto it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
 		// parse option
 		if (it1->second.phase <= phase) {
@@ -315,7 +314,7 @@ bool CommandLineParser::parseFileNameInner(const string& name, const string& ori
 	string_ref extension = FileOperations::getExtension(name);
 	if (!extension.empty()) {
 		// there is an extension
-		FileTypeMap::const_iterator it = fileTypeMap.find(extension.str());
+		auto it = fileTypeMap.find(extension.str());
 		if (it != fileTypeMap.end()) {
 			try {
 				// parse filetype
@@ -419,8 +418,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						map<string, OptionData>::const_iterator it1 =
-							optionMap.find(arg);
+						auto it1 = optionMap.find(arg);
 						if (it1 != optionMap.end()) {
 							for (unsigned i = 0; i < it1->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
@@ -554,8 +552,7 @@ static string formatSet(const set<string>& inputSet, string::size_type columns)
 {
 	StringOp::Builder outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
-	for (set<string>::const_iterator it = inputSet.begin();
-	     it != inputSet.end(); ++it) {
+	for (auto it = inputSet.begin(); it != inputSet.end(); ++it) {
 		string temp = *it;
 		if (totalLength == 0) {
 			// first element ?
@@ -603,13 +600,11 @@ static string formatHelptext(string_ref helpText,
 static void printItemMap(const StringMap<set<string>>& itemMap)
 {
 	set<string> printSet;
-	for (StringMap<set<string>>::const_iterator it = itemMap.begin();
-	     it != itemMap.end(); ++it) {
+	for (auto it = itemMap.begin(); it != itemMap.end(); ++it) {
 		printSet.insert(formatSet(it->second, 15) + ' ' +
 		                formatHelptext(it->first(), 50, 20));
 	}
-	for (set<string>::const_iterator it = printSet.begin();
-	     it != printSet.end(); ++it) {
+	for (auto it = printSet.begin(); it != printSet.end(); ++it) {
 		cout << *it << endl;
 	}
 }
@@ -632,8 +627,8 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported options:" << endl;
 
 	StringMap<set<string>> optionMap;
-	for (map<string, CommandLineParser::OptionData>::const_iterator it =
-	        parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
+	for (auto it = parser.optionMap.begin();
+	     it != parser.optionMap.end(); ++it) {
 		string_ref helpText = it->second.option->optionHelp();
 		if (!helpText.empty()) {
 			optionMap[helpText].insert(it->first);
@@ -645,8 +640,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported file types:" << endl;
 
 	StringMap<set<string>> extMap;
-	for (CommandLineParser::FileTypeMap::const_iterator it =
-	         parser.fileTypeMap.begin();
+	for (auto it = parser.fileTypeMap.begin();
 	     it != parser.fileTypeMap.end(); ++it) {
 		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
@@ -841,13 +835,12 @@ void BashOption::parseOption(const string& /*option*/,
 	} else if (last == "-romtype") {
 		items = RomInfo::getAllRomTypes();
 	} else {
-		for (map<string, CommandLineParser::OptionData>::const_iterator it =
-			parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
+		for (auto it = parser.optionMap.begin();
+		     it != parser.optionMap.end(); ++it) {
 			items.insert(it->first);
 		}
 	}
-	for (set<string>::const_iterator it = items.begin();
-	     it != items.end(); ++it) {
+	for (auto it = items.begin(); it != items.end(); ++it) {
 		cout << *it << '\n';
 	}
 	parser.parseStatus = CommandLineParser::EXIT;

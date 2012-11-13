@@ -20,7 +20,7 @@ void MSXCliComm::log(LogLevel level, string_ref message)
 void MSXCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
-	PrevValue::iterator it = prevValues[type].find(name);
+	auto it = prevValues[type].find(name);
 	if (it != prevValues[type].end()) {
 		if (it->second == value) {
 			return;

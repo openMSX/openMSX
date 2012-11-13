@@ -29,8 +29,7 @@ static string subst(string_ref path, string_ref before, string_ref after)
 static vector<string> getPathsHelper(const vector<string>& input)
 {
 	vector<string> result;
-	for (vector<string>::const_iterator it = input.begin();
-	     it != input.end(); ++it) {
+	for (auto it = input.begin(); it != input.end(); ++it) {
 		if (StringOp::startsWith(*it, USER_OPENMSX)) {
 			result.push_back(subst(*it, USER_OPENMSX,
 			                       FileOperations::getUserOpenMSXDir()));
@@ -60,8 +59,7 @@ static string resolveHelper(const vector<string>& pathList,
 		return filepath;
 	}
 
-	for (vector<string>::const_iterator it = pathList.begin();
-	     it != pathList.end(); ++it) {
+	for (auto it = pathList.begin(); it != pathList.end(); ++it) {
 		string name = FileOperations::join(*it, filename);
 		name = FileOperations::expandTilde(name);
 		PRT_DEBUG("Context: try " << name);
@@ -108,8 +106,7 @@ vector<string> FileContext::getPaths() const
 
 bool FileContext::isUserContext() const
 {
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
+	for (auto it = paths.begin(); it != paths.end(); ++it) {
 		if (*it == USER_DIRS) {
 			return true;
 		}

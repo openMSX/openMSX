@@ -221,7 +221,7 @@ const uint8_t bom[] = { 0xef, 0xbb, 0xbf };
 template <typename octet_iterator>
 octet_iterator find_invalid(octet_iterator start, octet_iterator end)
 {
-	octet_iterator result = start;
+	auto result = start;
 	while (result != end) {
 		internal::utf_error err_code = internal::validate_next(result, end);
 		if (err_code != internal::OK) {

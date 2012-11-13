@@ -44,8 +44,7 @@ private:
 	const Range& searchRange(unsigned address) const;
 	MSXDevice* searchDevice(unsigned address) const;
 
-	typedef std::vector<Range> Ranges;
-	Ranges ranges;
+	std::vector<Range> ranges;
 };
 
 } // namespace openmsx

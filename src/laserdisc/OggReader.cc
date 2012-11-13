@@ -239,8 +239,7 @@ OggReader::~OggReader()
 void OggReader::vorbisFoundPosition()
 {
 	unsigned last = vorbisPos;
-	for (AudioFragments::reverse_iterator it = audioList.rbegin();
-	     it != audioList.rend(); ++it) {
+	for (auto it = audioList.rbegin(); it != audioList.rend(); ++it) {
 		last -= (*it)->length;
 		(*it)->position = last;
 	}
@@ -601,8 +600,8 @@ void OggReader::readTheora(ogg_packet* packet)
 	// frame number. When we do, go back and populate the frame 
 	// numbers correctly
 	if (!frameList.empty() && frameno != -1 && frameList[0]->no == -1) {
-		for (Frames::reverse_iterator it = frameList.rbegin();
-					it != frameList.rend(); ++it) {
+		for (auto it = frameList.rbegin();
+		     it != frameList.rend(); ++it) {
 			frameno -= (*it)->length;
 			(*it)->no = frameno;
 		}
@@ -690,7 +689,7 @@ const AudioFragment* OggReader::getAudio(unsigned sample)
 		}
 	}
 
-	AudioFragments::iterator it = audioList.begin();
+	auto it = audioList.begin();
 	while (true) {
 		auto& audio = *it;
 		if (audio->position + audio->length + getSampleRate() <= sample) {
@@ -951,8 +950,7 @@ bool OggReader::seek(int frame, int samples)
 	if (!recycleAudioList.empty()) {
 		recycleAudioList.front()->length = 0;
 	}
-	for (AudioFragments::iterator it = audioList.begin();
-	     it != audioList.end(); ++it) {
+	for (auto it = audioList.begin(); it != audioList.end(); ++it) {
 		recycleAudio(std::move(*it));
 	}
 	audioList.clear();
@@ -978,7 +976,7 @@ bool OggReader::stopFrame(int frame) const
 
 int OggReader::chapter(int chapterNo) const
 {
-	std::map<int, int>::const_iterator it = chapters.find(chapterNo);
+	auto it = chapters.find(chapterNo);
 	return (it != chapters.end()) ? it->second : 0;
 }
 

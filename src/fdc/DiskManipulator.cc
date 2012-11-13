@@ -68,7 +68,7 @@ void DiskManipulator::registerDrive(
 
 void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
-	Drives::iterator it = findDriveSettings(drive);
+	auto it = findDriveSettings(drive);
 	assert(it != drives.end());
 	drives.erase(it);
 }
@@ -76,7 +76,7 @@ void DiskManipulator::unregisterDrive(DiskContainer& drive)
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	for (Drives::iterator it = drives.begin(); it != drives.end(); ++it) {
+	for (auto it = drives.begin(); it != drives.end(); ++it) {
 		if (it->drive == &drive) {
 			return it;
 		}
@@ -87,7 +87,7 @@ DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	string_ref name)
 {
-	for (Drives::iterator it = drives.begin(); it != drives.end(); ++it) {
+	for (auto it = drives.begin(); it != drives.end(); ++it) {
 		if (it->driveName == name) {
 			return it;
 		}
@@ -106,7 +106,7 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	string_ref::size_type pos1b = (pos1 == string_ref::npos) ? 0 : pos1;
 	string_ref tmp2 = diskname.substr(0, pos2 + pos1b);
 
-	Drives::iterator it = findDriveSettings(tmp2);
+	auto it = findDriveSettings(tmp2);
 	if (it == drives.end()) {
 		it = findDriveSettings(getMachinePrefix() + tmp2);
 		if (it == drives.end()) {
@@ -300,8 +300,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
-		for (Drives::const_iterator it = drives.begin();
-		     it != drives.end(); ++it) {
+		for (auto it = drives.begin(); it != drives.end(); ++it) {
 			string name1 = it->driveName; // with prexix
 			string name2 = it->drive->getContainerName(); // without prefix
 			names.insert(name1);
@@ -500,11 +499,9 @@ string DiskManipulator::import(DriveSettings& driveData,
 	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
-	for (vector<string>::const_iterator it = lists.begin();
-	     it != lists.end(); ++it) {
+	for (auto it = lists.begin(); it != lists.end(); ++it) {
 		auto list = getCommandController().splitList(*it);
-		for (vector<string>::const_iterator it = list.begin();
-		     it != list.end(); ++it) {
+		for (auto it = list.begin(); it != list.end(); ++it) {
 			try {
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(*it, st)) {
@@ -537,8 +534,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
 			// export all
 			workhorse->getDir(dirname);
 		} else {
-			for (vector<string>::const_iterator it = lists.begin();
-			     it != lists.end(); ++it) {
+			for (auto it = lists.begin(); it != lists.end(); ++it) {
 				workhorse->getItemFromDir(dirname, *it);
 			}
 		}

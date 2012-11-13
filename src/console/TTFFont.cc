@@ -62,8 +62,7 @@ private:
 		TTF_Font* font;
 		int count;
 	};
-	typedef std::map<std::pair<string, int>, FontInfo> Pool;
-	Pool pool;
+	std::map<std::pair<string, int>, FontInfo> pool;
 };
 
 
@@ -108,8 +107,8 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	Pool::key_type key = make_pair(filename, ptSize);
-	Pool::iterator it = pool.find(key);
+	auto key = make_pair(filename, ptSize);
+	auto it = pool.find(key);
 	if (it != pool.end()) {
 		++(it->second.count);
 		return it->second.font;
@@ -130,7 +129,7 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	for (Pool::iterator it = pool.begin(); it != pool.end(); ++it) {
+	for (auto it = pool.begin(); it != pool.end(); ++it) {
 		if (it->second.font == font) {
 			--(it->second.count);
 			if (it->second.count == 0) {
@@ -184,7 +183,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	// Determine maximum width and lineHeight
 	unsigned width = 0;
 	unsigned lineHeight = 0; // initialize to avoid warning
-	for (vector<string>::const_iterator it = lines.begin(); it != lines.end(); ++it) {
+	for (auto it = lines.begin(); it != lines.end(); ++it) {
 		unsigned w;
 		getSize(*it, w, lineHeight);
 		width = std::max(width, w);

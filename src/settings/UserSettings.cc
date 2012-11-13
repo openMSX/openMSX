@@ -66,8 +66,7 @@ void UserSettings::addSetting(unique_ptr<Setting> setting)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	for (Settings::iterator it = settings.begin();
-	     it != settings.end(); ++it) {
+	for (auto it = settings.begin(); it != settings.end(); ++it) {
 		if (it->get() == &setting) {
 			settings.erase(it);
 			return;
@@ -78,8 +77,7 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(string_ref name) const
 {
-	for (Settings::const_iterator it = settings.begin();
-	     it != settings.end(); ++it) {
+	for (auto it = settings.begin(); it != settings.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return it->get();
 		}
@@ -303,9 +301,8 @@ void UserSettingCommand::tabCompletion(vector<string>& tokens) const
 set<string> UserSettingCommand::getSettingNames() const
 {
 	set<string> result;
-	const UserSettings::Settings& settings = userSettings.getSettings();
-	for (UserSettings::Settings::const_iterator it = settings.begin();
-	     it != settings.end(); ++it) {
+	auto& settings = userSettings.getSettings();
+	for (auto it = settings.begin(); it != settings.end(); ++it) {
 		result.insert((*it)->getName());
 	}
 	return result;

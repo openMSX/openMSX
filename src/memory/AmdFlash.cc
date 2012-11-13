@@ -108,7 +108,7 @@ void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
                              unsigned& sectorSize, unsigned& offset) const
 {
 	address &= getSize() - 1;
-	std::vector<unsigned>::const_iterator it = sectorSizes.begin();
+	auto it = sectorSizes.begin();
 	sector = 0;
 	while (address >= *it) {
 		address -= *it;

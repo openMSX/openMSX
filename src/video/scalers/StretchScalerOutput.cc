@@ -112,8 +112,7 @@ StretchScalerOutputBase<Pixel>::StretchScalerOutputBase(
 template<typename Pixel>
 StretchScalerOutputBase<Pixel>::~StretchScalerOutputBase()
 {
-	for (typename std::vector<Pixel*>::iterator it = pool.begin();
-	     it != pool.end(); ++it) {
+	for (auto it = pool.begin(); it != pool.end(); ++it) {
 		MemoryOps::freeAligned(*it);
 	}
 }

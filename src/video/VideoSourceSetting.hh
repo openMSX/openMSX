@@ -18,8 +18,7 @@ protected:
 
 	// TODO should this be a multiset or should we have this setting
 	//      per machine?
-	typedef std::multiset<VideoSource> ActiveSources;
-	ActiveSources activeSources;
+	std::multiset<VideoSource> activeSources;
 };
 
 

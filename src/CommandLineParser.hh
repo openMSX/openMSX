@@ -91,10 +91,8 @@ private:
 	void createMachineSetting();
 
 	std::map<std::string, OptionData> optionMap;
-	typedef std::map<std::string, CLIFileType*, StringOp::caseless> FileTypeMap;
-	FileTypeMap fileTypeMap;
-	typedef std::map<std::string, CLIFileType*, StringOp::caseless> FileClassMap;
-	FileClassMap fileClassMap;
+	std::map<std::string, CLIFileType*, StringOp::caseless> fileTypeMap;
+	std::map<std::string, CLIFileType*, StringOp::caseless> fileClassMap;
 
 	Reactor& reactor;
 

@@ -24,9 +24,7 @@ public:
 private:
 	MSXMotherBoard& motherBoard;
 	GlobalCliComm& cliComm;
-
-	typedef StringMap<std::string> PrevValue;
-	PrevValue prevValues[NUM_UPDATES];
+	StringMap<std::string> prevValues[NUM_UPDATES];
 };
 
 } // namespace openmsx

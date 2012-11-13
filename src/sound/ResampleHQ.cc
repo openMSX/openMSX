@@ -74,8 +74,7 @@ private:
 		unsigned count;
 		unsigned filterLen;
 	};
-	typedef std::map<double, Element> Cache;
-	Cache cache;
+	std::map<double, Element> cache;
 };
 
 ResampleCoeffs::ResampleCoeffs()
@@ -96,7 +95,7 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, float*& table, unsigned& filterLen)
 {
-	Cache::iterator it = cache.find(ratio);
+	auto it = cache.find(ratio);
 	if (it != cache.end()) {
 		it->second.count++;
 		table     = it->second.table;
@@ -113,7 +112,7 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	Cache::iterator it = cache.find(ratio);
+	auto it = cache.find(ratio);
 	assert(it != cache.end());
 	it->second.count--;
 	if (it->second.count == 0) {

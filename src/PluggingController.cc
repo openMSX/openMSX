@@ -117,8 +117,7 @@ PluggingController::~PluggingController()
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
 	// but if it does, it helps to catch an error.
-	for (Connectors::const_iterator it = connectors.begin();
-	     it != connectors.end(); ++it) {
+	for (auto it = connectors.begin(); it != connectors.end(); ++it) {
 		std::cerr << "ERROR: Connector still registered at shutdown: "
 		          << (*it)->getName() << std::endl;
 	}
@@ -133,8 +132,8 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
-	Connectors::iterator it = find(connectors.begin(), connectors.end(),
-	                               &connector);
+	auto it = find(connectors.begin(), connectors.end(),
+	               &connector);
 	assert(it != connectors.end());
 	connectors.erase(it);
 
@@ -166,8 +165,7 @@ string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 	StringOp::Builder result;
 	switch (tokens.size()) {
 	case 1: {
-		for (PluggingController::Connectors::const_iterator it =
-		                       pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			result << (*it)->getName() << ": "
 			       << (*it)->getPlugged().getName() << '\n';
@@ -218,8 +216,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (PluggingController::Connectors::const_iterator it =
-		                       pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
@@ -229,8 +226,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 		set<string> pluggables;
 		Connector* connector = pluggingController.findConnector(tokens[1]);
 		string_ref className = connector ? connector->getClass() : "";
-		for (PluggingController::Pluggables::const_iterator it =
-		                        pluggingController.pluggables.begin();
+		for (auto it = pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			auto& pluggable = **it;
 			if (pluggable.getClass() == className) {
@@ -281,10 +277,8 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (PluggingController::Connectors::const_iterator it =
-		                       pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end();
-		     ++it) {
+		for (auto it = pluggingController.connectors.begin();
+		     it != pluggingController.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
 		completeString(tokens, connectors);
@@ -293,8 +287,7 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 
 Connector* PluggingController::findConnector(string_ref name) const
 {
-	for (Connectors::const_iterator it = connectors.begin();
-	     it != connectors.end(); ++it) {
+	for (auto it = connectors.begin(); it != connectors.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return *it;
 		}
@@ -313,8 +306,7 @@ Connector& PluggingController::getConnector(string_ref name) const
 
 Pluggable* PluggingController::findPluggable(string_ref name) const
 {
-	for (Pluggables::const_iterator it = pluggables.begin();
-	     it != pluggables.end(); ++it) {
+	for (auto it = pluggables.begin(); it != pluggables.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return it->get();
 		}
@@ -351,8 +343,7 @@ void PluggableInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (PluggingController::Pluggables::const_iterator it =
-			 pluggingController.pluggables.begin();
+		for (auto it = pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			result.addListElement((*it)->getName());
 		}
@@ -378,8 +369,7 @@ void PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> pluggables;
-		for (PluggingController::Pluggables::const_iterator it =
-			 pluggingController.pluggables.begin();
+		for (auto it = pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			pluggables.insert((*it)->getName());
 		}
@@ -401,8 +391,7 @@ void ConnectorInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (PluggingController::Connectors::const_iterator it =
-			 pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			result.addListElement((*it)->getName());
 		}
@@ -426,8 +415,7 @@ void ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> connectors;
-		for (PluggingController::Connectors::const_iterator it =
-		                      pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
@@ -451,13 +439,11 @@ void ConnectionClassInfo::execute(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 2: {
 		set<string_ref> classes;
-		for (PluggingController::Connectors::const_iterator it =
-			 pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			classes.insert((*it)->getClass());
 		}
-		for (PluggingController::Pluggables::const_iterator it =
-			 pluggingController.pluggables.begin();
+		for (auto it = pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			classes.insert((*it)->getClass());
 		}
@@ -493,13 +479,11 @@ void ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (PluggingController::Connectors::const_iterator it =
-			               pluggingController.connectors.begin();
+		for (auto it = pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			names.insert((*it)->getName());
 		}
-		for (PluggingController::Pluggables::const_iterator it =
-			               pluggingController.pluggables.begin();
+		for (auto it = pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			names.insert((*it)->getName());
 		}
