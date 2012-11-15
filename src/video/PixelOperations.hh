@@ -112,7 +112,7 @@ public:
 	const SDL_PixelFormat& getSDLPixelFormat() const
 	{
 		static SDL_PixelFormat format;
-		format.palette = 0;
+		format.palette = nullptr;
 		format.BitsPerPixel = 16;
 		format.BytesPerPixel = 2;
 		format.Rloss = 3;
