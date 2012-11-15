@@ -22,7 +22,7 @@
 #include <unistd.h>
 #endif
 #include "systemfuncs.hh"
-#ifdef HAVE_NFTW
+#if HAVE_NFTW
 #include <ftw.h>
 #endif
 
