@@ -52,6 +52,13 @@ class USleepFunction(SystemFunction):
 	def iterHeaders(cls, targetPlatform):
 		yield '<unistd.h>'
 
+class NftwFunction(SystemFunction):
+	name = 'nftw'
+
+	@classmethod
+	def iterHeaders(cls, targetPlatform):
+		yield '<ftw.h>'
+
 # Build a list of system functions using introspection.
 def _discoverSystemFunctions(localObjects):
 	for obj in localObjects:

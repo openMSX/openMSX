@@ -19,8 +19,11 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <climits>
-#include <ftw.h>
 #include <unistd.h>
+#endif
+#include "systemfuncs.hh"
+#ifdef HAVE_NFTW
+#include <ftw.h>
 #endif
 
 #if defined(PATH_MAX)
@@ -275,7 +278,7 @@ int deleteRecursive(const std::string& path)
 
 	return SHFileOperationW(&rmdirFileop);
 }
-#else
+#elif defined(HAVE_NFTW)
 int deleteRecursive_cb(const char* fpath, const struct stat* /*sb*/,
                        int /*typeflag*/, struct FTW* /*ftwbuf*/)
 {
@@ -285,8 +288,7 @@ int deleteRecursive(const std::string& path)
 {
 	return nftw(path.c_str(), deleteRecursive_cb, 64, FTW_DEPTH | FTW_PHYS);
 }
-#endif
-#if 0
+#else
 // This is a platform independent version of deleteRecursive() (it builds on
 // top of helper routines that _are_ platform specific). Though I still prefer
 // the two platform specific deleteRecursive() routines above because they are
