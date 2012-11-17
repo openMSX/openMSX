@@ -263,11 +263,7 @@ void AviWriter::addFrame(FrameSource* frame, unsigned samples, int16_t* sampleDa
 		if (OPENMSX_BIGENDIAN) {
 			// See comment in WavWriter::write()
 			//VLA(Endian::L16, buf, samples); // doesn't work in clang
-			//std::vector<Endian::L16> buf(sampleData, sampleData + samples); // needs c++11
-			std::vector<Endian::L16> buf(samples);
-			for (unsigned i = 0; i < samples; ++i) {
-				buf[i] = sampleData[i];
-			}
+			std::vector<Endian::L16> buf(sampleData, sampleData + samples);
 			addAviChunk("01wb", samples * sizeof(int16_t), buf.data(), 0);
 		} else {
 			addAviChunk("01wb", samples * sizeof(int16_t), sampleData, 0);

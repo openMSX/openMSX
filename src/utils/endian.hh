@@ -69,10 +69,8 @@ struct BSwap {
 // TODO If needed this can be extended with stuff like operator+= ....
 template<typename T, typename Op> class EndianT {
 public:
-	// TODO These constructors are useful, but they prevent this type from
-	//      being used in a union. This limitation is removed in C++11.
-	//EndianT()                      { /* leave uninitialized */ }
-	//EndianT(T t_)                  { Op op; t = op(t_); }
+	EndianT() = default; // leave uninitialized
+	EndianT(T t_)                  { Op op; t = op(t_); }
 	inline operator T() const      { Op op; return op(t); }
 	inline EndianT& operator=(T a) { Op op; t = op(a); return *this; }
 private:
