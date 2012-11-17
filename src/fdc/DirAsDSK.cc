@@ -153,8 +153,7 @@ MSXDirEntry& DirAsDSK::msxDir(DirIndex dirIndex)
 {
 	assert(dirIndex.sector < NUM_SECTORS);
 	assert(dirIndex.idx    < DIR_ENTRIES_PER_SECTOR);
-	MSXDirEntry* dirs = reinterpret_cast<MSXDirEntry*>(
-		sectors[dirIndex.sector]);
+	auto dirs = reinterpret_cast<MSXDirEntry*>(sectors[dirIndex.sector]);
 	return dirs[dirIndex.idx];
 }
 
@@ -1197,7 +1196,7 @@ void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
 {
 	// Look for changed directory entries.
 	for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
-		const MSXDirEntry& newEntry = *reinterpret_cast<const MSXDirEntry*>(
+		auto& newEntry = *reinterpret_cast<const MSXDirEntry*>(
 			&buf[sizeof(MSXDirEntry) * idx]);
 		DirIndex dirIndex(sector, idx);
 		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {

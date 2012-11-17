@@ -344,7 +344,7 @@ void MSXCPUInterface::testUnsetExpanded(
 		for (int page = 0; page < 4; ++page) {
 			MSXDevice* device = slotLayout[ps][ss][page];
 			std::set<MSXDevice*> devices;
-			if (MSXMultiMemDevice* memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
+			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
 			} else {
 				devices.insert(device);
@@ -383,7 +383,7 @@ void MSXCPUInterface::unsetExpanded(int ps)
 MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
 {
 	MSXDevice** devicePtr = isIn ? &IO_In[port] : &IO_Out[port];
-	while (MSXWatchIODevice* watch = dynamic_cast<MSXWatchIODevice*>(*devicePtr)) {
+	while (auto watch = dynamic_cast<MSXWatchIODevice*>(*devicePtr)) {
 		devicePtr = &watch->getDevicePtr();
 	}
 	if (*devicePtr == delayDevice.get()) {
@@ -427,8 +427,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 		// first, replace DummyDevice
 		devicePtr = device;
 	} else {
-		if (MSXMultiIODevice* multi = dynamic_cast<MSXMultiIODevice*>(
-		                                                   devicePtr)) {
+		if (auto multi = dynamic_cast<MSXMultiIODevice*>(devicePtr)) {
 			// third or more, add to existing MultiIO device
 			multi->addDevice(device);
 		} else {
@@ -449,8 +448,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 
 void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 {
-	if (MSXMultiIODevice* multi = dynamic_cast<MSXMultiIODevice*>(
-	                                                          devicePtr)) {
+	if (auto multi = dynamic_cast<MSXMultiIODevice*>(devicePtr)) {
 		// remove from MultiIO device
 		multi->removeDevice(device);
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
@@ -489,8 +487,7 @@ void MSXCPUInterface::testRegisterSlot(
 		// partial page
 		if (slot == dummyDevice.get()) {
 			// first, ok
-		} else if (MSXMultiMemDevice* multi =
-		                  dynamic_cast<MSXMultiMemDevice*>(slot)) {
+		} else if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 			// second (or more), check for overlap
 			if (!multi->canAdd(base, size)) {
 				reportMemOverlap(ps, ss, *slot, device);
@@ -522,8 +519,7 @@ void MSXCPUInterface::registerSlot(
 				new MSXMultiMemDevice(device.getHardwareConfig());
 			multi->add(device, base, size);
 			slot = multi;
-		} else if (MSXMultiMemDevice* multi =
-		                  dynamic_cast<MSXMultiMemDevice*>(slot)) {
+		} else if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 			// second or more
 			assert(multi->canAdd(base, size));
 			multi->add(device, base, size);
@@ -540,7 +536,7 @@ void MSXCPUInterface::unregisterSlot(
 {
 	int page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
-	if (MSXMultiMemDevice* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+	if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
 		multi->remove(device, base, size);
 		if (multi->empty()) {
@@ -872,7 +868,7 @@ const MSXCPUInterface::Conditions& MSXCPUInterface::getConditions()
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {
 	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	WatchIO& ioWatch = static_cast<WatchIO&>(watchPoint);
+	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
 	unsigned beginPort = ioWatch.getBeginAddress();
 	unsigned endPort   = ioWatch.getEndAddress();
 	assert(beginPort <= endPort);
@@ -886,7 +882,7 @@ void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** device
 void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {
 	assert(dynamic_cast<WatchIO*>(&watchPoint));
-	WatchIO& ioWatch = static_cast<WatchIO&>(watchPoint);
+	auto& ioWatch = static_cast<WatchIO&>(watchPoint);
 	unsigned beginPort = ioWatch.getBeginAddress();
 	unsigned endPort   = ioWatch.getEndAddress();
 	assert(beginPort <= endPort);

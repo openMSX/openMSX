@@ -289,7 +289,7 @@ void HardwareConfig::parseSlots()
 			}
 			if (ps < 0) {
 				ps = getFreePrimarySlot();
-				XMLElement* mutableElem = const_cast<XMLElement*>(*it);
+				auto mutableElem = const_cast<XMLElement*>(*it);
 				mutableElem->setAttribute("slot", StringOp::toString(ps));
 			}
 			createExpandedSlot(ps);

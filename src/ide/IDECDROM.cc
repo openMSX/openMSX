@@ -54,7 +54,7 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 		info.stuff = new CDInUse();
 	}
 	++info.counter;
-	CDInUse& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
+	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
 
 	unsigned id = 0;
 	while (cdInUse[id]) {
@@ -84,7 +84,7 @@ IDECDROM::~IDECDROM()
 		motherBoard.getSharedStuff("cdInUse");
 	assert(info.counter);
 	assert(info.stuff);
-	CDInUse& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
+	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 	unsigned id = name[2] - 'a';

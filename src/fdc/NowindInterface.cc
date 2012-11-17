@@ -39,7 +39,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 		info.stuff = new NowindsInUse();
 	}
 	++info.counter;
-	NowindsInUse& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
+	auto& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
 
 	unsigned i = 0;
 	while (nowindsInUse[i]) {
@@ -67,7 +67,7 @@ NowindInterface::~NowindInterface()
 		getMotherBoard().getSharedStuff("nowindsInUse");
 	assert(info.counter);
 	assert(info.stuff);
-	NowindsInUse& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
+	auto& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
 
 	unsigned i = basename[6] - 'a';
 	assert(nowindsInUse[i]);

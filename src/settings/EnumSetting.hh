@@ -95,7 +95,7 @@ T EnumSettingPolicy<T>::fromString(const std::string& str) const
 template<typename T>
 void EnumSettingPolicy<T>::checkSetValueBase(int& value) const
 {
-	T t = static_cast<T>(value);
+	auto t = static_cast<T>(value);
 	checkSetValue(t);
 	value = static_cast<int>(t);
 }

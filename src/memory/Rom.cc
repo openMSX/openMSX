@@ -281,7 +281,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (checkResolvedSha1) {
-		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
+		auto& mutableConfig = const_cast<XMLElement&>(config);
 		string patchedSha1Str = getPatchedSHA1().toString();
 		const XMLElement& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);

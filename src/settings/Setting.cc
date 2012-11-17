@@ -111,7 +111,7 @@ CommandController& Setting::getCommandController() const
 
 GlobalCommandController& Setting::getGlobalCommandController() const
 {
-	if (GlobalCommandController* globalCommandController =
+	if (auto globalCommandController =
 	    dynamic_cast<GlobalCommandController*>(&commandController)) {
 		return *globalCommandController;
 	} else {

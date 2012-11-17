@@ -21,7 +21,7 @@ static string encode(byte x)
 }
 string encode(const void* input_, int len, bool newlines)
 {
-	const byte* input = static_cast<const byte*>(input_);
+	auto input = static_cast<const byte*>(input_);
 	string ret;
 	for (/**/; len > 0; len -= 16) {
 		if (newlines && !ret.empty()) ret += '\n';

@@ -171,8 +171,8 @@ public:
 	virtual void save(Archive& ar, const void* v) const
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
-		const BaseType* base = static_cast<const BaseType*>(v);
-		const T* tp = static_cast<const T*>(base);
+		auto base = static_cast<const BaseType*>(v);
+		auto tp = static_cast<const T*>(base);
 		ClassSaver<T> saver;
 		saver(ar, *tp, true, name, true); // save id, type, constr-args
 	}
@@ -189,7 +189,7 @@ public:
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		typedef typename PolymorphicConstructorArgs<BaseType>::type TUPLEIn;
 		typedef typename PolymorphicConstructorArgs<T>::type TUPLEOut;
-		const TUPLEIn& argsIn = *static_cast<const TUPLEIn*>(args);
+		auto& argsIn = *static_cast<const TUPLEIn*>(args);
 		MapConstructorArguments<BaseType, T> mapArgs;
 		TUPLEOut argsOut = mapArgs(argsIn);
 		NonPolymorphicPointerLoader<T> loader;
@@ -205,11 +205,11 @@ public:
 	virtual void init(Archive& ar, void* v, unsigned id) const
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
-		BaseType* base = static_cast<BaseType*>(v);
+		auto base = static_cast<BaseType*>(v);
 		if (unlikely(dynamic_cast<T*>(base) != static_cast<T*>(base))) {
 			polyInitError(typeid(T).name(), typeid(*base).name());
 		}
-		T* t = static_cast<T*>(base);
+		auto t = static_cast<T*>(base);
 		ClassLoader<T> loader;
 		loader(ar, *t, std::make_tuple(), id);
 	}

@@ -267,7 +267,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 {
 	byte buf[SECTOR_SIZE];
 	readLogicalSector(sector, buf);
-	MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
+	auto direntry = reinterpret_cast<MSXDirEntry*>(buf);
 
 	// find a not used (0x00) or delete entry (0xE5)
 	for (unsigned i = 0; i < 16; ++i) {
@@ -373,7 +373,7 @@ unsigned MSXtar::addSubdir(
 	// load the sector
 	byte buf[SECTOR_SIZE];
 	readLogicalSector(result.sector, buf);
-	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
+	auto direntries = reinterpret_cast<MSXDirEntry*>(buf);
 
 	MSXDirEntry& direntry = direntries[result.index];
 	direntry.attrib = T_MSX_DIR;
@@ -546,7 +546,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 	while (result.sector) {
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
-		MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
+		auto direntries = reinterpret_cast<MSXDirEntry*>(buf);
 		for (result.index = 0; result.index < 16; ++result.index) {
 			if (string(direntries[result.index].filename, 11) == name) {
 				return result;
@@ -577,7 +577,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	byte buf[SECTOR_SIZE];
 	DirEntry dirEntry = addEntryToDir(rootSector);
 	readLogicalSector(dirEntry.sector, buf);
-	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
+	auto direntries = reinterpret_cast<MSXDirEntry*>(buf);
 	MSXDirEntry& direntry = direntries[dirEntry.index];
 	memset(&direntry, 0, sizeof(direntry));
 	memcpy(&direntry, msxName.data(), 11);
@@ -627,7 +627,7 @@ string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
 			DirEntry direntry = findEntryInDir(msxFileName, sector, buf);
 			if (direntry.sector != 0) {
 				// entry already exists ..
-				MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
+				auto direntries = reinterpret_cast<MSXDirEntry*>(buf);
 				MSXDirEntry& msxdirentry = direntries[direntry.index];
 				if (msxdirentry.attrib & T_MSX_DIR) {
 					// .. and is a directory
@@ -691,7 +691,7 @@ string MSXtar::dir()
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
-		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
+		auto direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
 			if ((direntry[i].filename[0] != char(0xe5)) &&
 			    (direntry[i].filename[0] != char(0x00)) &&
@@ -758,7 +758,7 @@ void MSXtar::chroot(string_ref newRootDir, bool createDir)
 			getTimeDate(now, t, d);
 			chrootSector = addSubdir(simple, t, d, chrootSector);
 		} else {
-			MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
+			auto direntries = reinterpret_cast<MSXDirEntry*>(buf);
 			MSXDirEntry& direntry = direntries[entry.index];
 			if (!(direntry.attrib & T_MSX_DIR)) {
 				throw MSXException(firstPart + " is not a directory.");
@@ -798,7 +798,7 @@ string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
 		return itemName + " not found!\n";
 	}
 
-	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(dummy);
+	auto direntries = reinterpret_cast<MSXDirEntry*>(dummy);
 	MSXDirEntry& msxdirentry = direntries[entry.index];
 	// create full name for loacl filesystem
 	string fullname = dirName + '/' + condensName(msxdirentry);
@@ -824,7 +824,7 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
-		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
+		auto direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
 			if ((direntry[i].filename[0] != char(0xe5)) &&
 			    (direntry[i].filename[0] != char(0x00)) &&

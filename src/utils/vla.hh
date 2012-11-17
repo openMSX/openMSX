@@ -27,14 +27,14 @@
 #else
 
 #define VLA(TYPE, NAME, LENGTH) \
-	TYPE* NAME = static_cast<TYPE*>(_alloca(sizeof(TYPE) * (LENGTH)))
+	auto NAME = static_cast<TYPE*>(_alloca(sizeof(TYPE) * (LENGTH)))
 
 // mfeingol: evil hack alert
 #define VLA_ALIGNED(TYPE, NAME, LENGTH, ALIGNMENT) \
 	size_t cbAlign##NAME = (ALIGNMENT); \
 	void* palloc##NAME = _alloca(sizeof(TYPE) * (LENGTH) + cbAlign##NAME); \
 	palloc##NAME = (void*)((size_t(palloc##NAME) + cbAlign##NAME - 1UL) & ~(cbAlign##NAME - 1UL)); \
-	TYPE* NAME = static_cast<TYPE*>(palloc##NAME); \
+	auto NAME = static_cast<TYPE*>(palloc##NAME); \
 
 #endif
 

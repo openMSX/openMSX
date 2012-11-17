@@ -123,7 +123,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 		info.stuff = new LSInUse();
 	}
 	++info.counter;
-	LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
+	auto& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
 
 	unsigned id = 0;
 	while (lsInUse[id]) {
@@ -149,7 +149,7 @@ SCSILS120::~SCSILS120()
 	        motherBoard.getSharedStuff("lsInUse");
 	assert(info.counter);
 	assert(info.stuff);
-	LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
+	auto& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 	unsigned id = name[2] - 'a';

@@ -328,8 +328,7 @@ void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& res
 		const AfterCmd* cmd = it->get();
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
-		if (dynamic_cast<const AfterTimedCmd*>(cmd)) {
-			const AfterTimedCmd* cmd2 = static_cast<const AfterTimedCmd*>(cmd);
+		if (auto cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd)) {
 			str.precision(3);
 			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
 		}
@@ -422,9 +421,8 @@ template<EventType T> void AfterCommand::executeEvents()
 
 struct AfterTimePred {
 	bool operator()(const shared_ptr<AfterCmd>& x) const {
-		if (AfterRealTimeCmd* realtimeCmd =
-		              dynamic_cast<AfterRealTimeCmd*>(x.get())) {
-			if (realtimeCmd->hasExpired()) {
+		if (auto cmd = dynamic_cast<AfterRealTimeCmd*>(x.get())) {
+			if (cmd->hasExpired()) {
 				return false;
 			}
 		}
@@ -440,8 +438,7 @@ struct AfterInputEventPred {
 	AfterInputEventPred(const AfterCommand::EventPtr& event_)
 		: event(event_) {}
 	bool operator()(const shared_ptr<AfterCmd>& x) const {
-		if (AfterInputEventCmd* cmd =
-		                 dynamic_cast<AfterInputEventCmd*>(x.get())) {
+		if (auto cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
 			if (*cmd->getEvent() == *event) return false;
 		}
 		return true;
@@ -466,9 +463,8 @@ int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 	} else {
 		executeMatches(AfterInputEventPred(event));
 		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-			if (AfterIdleCmd* idleCmd =
-			              dynamic_cast<AfterIdleCmd*>(it->get())) {
-				idleCmd->reschedule();
+			if (auto cmd = dynamic_cast<AfterIdleCmd*>(it->get())) {
+				cmd->reschedule();
 			}
 		}
 	}

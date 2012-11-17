@@ -68,7 +68,7 @@ dirent* readdir(DIR* dir)
 	entry.d_ino = 0;
 	entry.d_type = 0;
 
-	WIN32_FIND_DATAW* find = static_cast<WIN32_FIND_DATAW*>(dir->data);
+	auto find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 	if (dir->filepos) {
 		if (!FindNextFileW(reinterpret_cast<HANDLE>(dir->fd), find)) {
 			return nullptr;
@@ -86,7 +86,7 @@ dirent* readdir(DIR* dir)
 
 int closedir(DIR* dir)
 {
-	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
+	auto hnd = reinterpret_cast<HANDLE>(dir->fd);
 	delete static_cast<WIN32_FIND_DATAW*>(dir->data);
 	delete dir;
 	return FindClose(hnd) ? 0 : -1;
@@ -94,8 +94,8 @@ int closedir(DIR* dir)
 
 void rewinddir(DIR* dir)
 {
-	HANDLE hnd = reinterpret_cast<HANDLE>(dir->fd);
-	WIN32_FIND_DATAW* find = static_cast<WIN32_FIND_DATAW*>(dir->data);
+	auto hnd = reinterpret_cast<HANDLE>(dir->fd);
+	auto find = static_cast<WIN32_FIND_DATAW*>(dir->data);
 
 	FindClose(hnd);
 	hnd = FindFirstFileW(dir->mask.c_str(), find);

@@ -652,8 +652,8 @@ static GlobalCliComm::UpdateType getType(const string& name)
 
 CliConnection& UpdateCmd::getConnection()
 {
-	GlobalCommandController* controller =
-		checked_cast<GlobalCommandController*>(&getCommandController());
+	auto controller = checked_cast<GlobalCommandController*>(
+		&getCommandController());
 	CliConnection* connection = controller->getConnection();
 	if (!connection) {
 		throw CommandException("This command only makes sense when "

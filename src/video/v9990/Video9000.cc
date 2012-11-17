@@ -124,7 +124,7 @@ string_ref Video9000::getLayerName() const
 
 void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 {
-	VideoLayer* layer = dynamic_cast<VideoLayer*>(activeLayer);
+	auto layer = dynamic_cast<VideoLayer*>(activeLayer);
 	if (!layer) {
 		throw CommandException("TODO");
 	}
@@ -134,8 +134,7 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
-	const FinishFrameEvent& ffe =
-			checked_cast<const FinishFrameEvent&>(*event);
+	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 	if (ffe.isSkipped()) return 0;
 	if (display.getRenderSettings().getVideoSource().getValue() != VIDEO_9000) return 0;
 

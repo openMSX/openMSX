@@ -73,8 +73,7 @@ static string_ref getBaseName(string_ref str)
 
 void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
-	MSXCommandEvent* commandEvent =
-		dynamic_cast<MSXCommandEvent*>(event.get());
+	auto commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
 	const vector<TclObject>& tokens = commandEvent->getTokens();

@@ -147,7 +147,7 @@ void NowindHost::write(byte data, unsigned time)
 		extraData[recvCount] = data;
 		if ((data == 0) || (data == ':') ||
 		    (++recvCount == 40)) {
-			char* data = reinterpret_cast<char*>(extraData);
+			auto data = reinterpret_cast<char*>(extraData);
 			callImage(string(data, recvCount));
 			state = STATE_SYNC1;
 		}

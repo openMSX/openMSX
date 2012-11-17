@@ -58,7 +58,7 @@ void KeyEvent::toStringImpl(TclObject& result) const
 bool KeyEvent::lessImpl(const Event& other) const
 {
 	// note: don't compare unicode
-	const KeyEvent* otherKeyEvent = checked_cast<const KeyEvent*>(&other);
+	auto otherKeyEvent = checked_cast<const KeyEvent*>(&other);
 	return getKeyCode() < otherKeyEvent->getKeyCode();
 }
 
@@ -109,8 +109,7 @@ void MouseButtonEvent::toStringHelper(TclObject& result) const
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
 {
-	const MouseButtonEvent* otherMouseEvent =
-		checked_cast<const MouseButtonEvent*>(&other);
+	auto otherMouseEvent = checked_cast<const MouseButtonEvent*>(&other);
 	return getButton() < otherMouseEvent->getButton();
 }
 
@@ -170,8 +169,7 @@ void MouseMotionEvent::toStringImpl(TclObject& result) const
 
 bool MouseMotionEvent::lessImpl(const Event& other) const
 {
-	const MouseMotionEvent* otherMouseEvent =
-		checked_cast<const MouseMotionEvent*>(&other);
+	auto otherMouseEvent = checked_cast<const MouseMotionEvent*>(&other);
 	return (getX() != otherMouseEvent->getX())
 	     ? (getX() <  otherMouseEvent->getX())
 	     : (getY() <  otherMouseEvent->getY());
@@ -197,8 +195,7 @@ void JoystickEvent::toStringHelper(TclObject& result) const
 
 bool JoystickEvent::lessImpl(const Event& other) const
 {
-	const JoystickEvent* otherJoystickEvent =
-		checked_cast<const JoystickEvent*>(&other);
+	auto otherJoystickEvent = checked_cast<const JoystickEvent*>(&other);
 	return (getJoystick() != otherJoystickEvent->getJoystick())
 	     ? (getJoystick() <  otherJoystickEvent->getJoystick())
 	     : lessImpl(*otherJoystickEvent);
@@ -226,9 +223,8 @@ void JoystickButtonEvent::toStringHelper(TclObject& result) const
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
 {
-	const JoystickButtonEvent* otherJoystickButtonEvent =
-		checked_cast<const JoystickButtonEvent*>(&other);
-	return getButton() < otherJoystickButtonEvent->getButton();
+	auto otherEvent = checked_cast<const JoystickButtonEvent*>(&other);
+	return getButton() < otherEvent->getButton();
 }
 
 
@@ -288,11 +284,10 @@ void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 {
-	const JoystickAxisMotionEvent* otherJoystickAxisMotionEvent =
-		checked_cast<const JoystickAxisMotionEvent*>(&other);
-	return (getAxis() != otherJoystickAxisMotionEvent->getAxis())
-	     ? (getAxis() <  otherJoystickAxisMotionEvent->getAxis())
-	     : (getValue() < otherJoystickAxisMotionEvent->getValue());
+	auto otherEvent = checked_cast<const JoystickAxisMotionEvent*>(&other);
+	return (getAxis() != otherEvent->getAxis())
+	     ? (getAxis() <  otherEvent->getAxis())
+	     : (getValue() < otherEvent->getValue());
 }
 
 
@@ -316,8 +311,7 @@ void FocusEvent::toStringImpl(TclObject& result) const
 
 bool FocusEvent::lessImpl(const Event& other) const
 {
-	const FocusEvent* otherFocusEvent =
-		checked_cast<const FocusEvent*>(&other);
+	auto otherFocusEvent = checked_cast<const FocusEvent*>(&other);
 	return getGain() < otherFocusEvent->getGain();
 }
 
@@ -348,8 +342,7 @@ void ResizeEvent::toStringImpl(TclObject& result) const
 
 bool ResizeEvent::lessImpl(const Event& other) const
 {
-	const ResizeEvent* otherResizeEvent =
-		checked_cast<const ResizeEvent*>(&other);
+	auto otherResizeEvent = checked_cast<const ResizeEvent*>(&other);
 	return (getX() != otherResizeEvent->getX())
 	     ? (getX() <  otherResizeEvent->getX())
 	     : (getY() <  otherResizeEvent->getY());

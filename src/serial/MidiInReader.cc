@@ -45,7 +45,7 @@ void MidiInReader::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 			<< "Failed to open input: " << strerror(errno));
 	}
 
-	MidiInConnector& midiConnector = static_cast<MidiInConnector&>(connector_);
+	auto& midiConnector = static_cast<MidiInConnector&>(connector_);
 	midiConnector.setDataBits(SerialDataInterface::DATA_8); // 8 data bits
 	midiConnector.setStopBits(SerialDataInterface::STOP_1); // 1 stop bit
 	midiConnector.setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -101,7 +101,7 @@ void MidiInReader::run()
 // MidiInDevice
 void MidiInReader::signal(EmuTime::param time)
 {
-	MidiInConnector* connector = static_cast<MidiInConnector*>(getConnector());
+	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
 		queue.clear();
 		return;

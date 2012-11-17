@@ -91,7 +91,7 @@ const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	const Pixel* tLine = top   ->getLinePtr<Pixel>(line >> tShift, width);
 	const Pixel* bLine = bottom->getLinePtr<Pixel>(line >> bShift, width);
 
-	Pixel* output = static_cast<Pixel*>(getTempBuffer());
+	auto output = static_cast<Pixel*>(getTempBuffer());
 	AlphaBlendLines<Pixel> blend(pixelOps);
 	blend(tLine, bLine, output, width);
 

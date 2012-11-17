@@ -132,20 +132,18 @@ void Trackball::signalEvent(const shared_ptr<const Event>& event,
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const MouseMotionEvent& motionEvent =
-			checked_cast<const MouseMotionEvent&>(*event);
+		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
 		static const int SCALE = 2;
-		int dx = motionEvent.getX() / SCALE;
-		int dy = motionEvent.getY() / SCALE;
+		int dx = mev.getX() / SCALE;
+		int dy = mev.getY() / SCALE;
 		if ((dx != 0) || (dy != 0)) {
 			createTrackballStateChange(time, dx, dy, 0, 0);
 		}
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const MouseButtonEvent& buttonEvent =
-			checked_cast<const MouseButtonEvent&>(*event);
-		switch (buttonEvent.getButton()) {
+		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createTrackballStateChange(time, 0, 0, JOY_BUTTONA, 0);
 			break;
@@ -159,9 +157,8 @@ void Trackball::signalEvent(const shared_ptr<const Event>& event,
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const MouseButtonEvent& buttonEvent =
-			checked_cast<const MouseButtonEvent&>(*event);
-		switch (buttonEvent.getButton()) {
+		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createTrackballStateChange(time, 0, 0, 0, JOY_BUTTONA);
 			break;
@@ -190,7 +187,7 @@ void Trackball::createTrackballStateChange(
 // StateChangeListener
 void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	TrackballState* ts = dynamic_cast<TrackballState*>(event.get());
+	auto ts = dynamic_cast<TrackballState*>(event.get());
 	if (!ts) return;
 
 	deltaX = std::min(127, std::max(-128, deltaX + ts->getDeltaX()));

@@ -69,8 +69,8 @@ EmuDuration RealTime::getEmuDuration(double realDur)
 
 bool RealTime::timeLeft(unsigned long long us, EmuTime::param time)
 {
-	unsigned long long realDuration =
-	   static_cast<unsigned long long>(getRealDuration(emuTime, time) * 1000000ULL);
+	auto realDuration = static_cast<unsigned long long>(
+		getRealDuration(emuTime, time) * 1000000ULL);
 	unsigned long long currentRealTime = Timer::getTime();
 	return (currentRealTime + us) <
 	           (idealRealTime + realDuration + ALLOWED_LAG);
@@ -90,8 +90,7 @@ void RealTime::sync(EmuTime::param time, bool allowSleep)
 void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 {
 	if (throttleManager.isThrottled()) {
-		unsigned long long realDuration =
-		    static_cast<unsigned long long>(
+		auto realDuration = static_cast<unsigned long long>(
 		        getRealDuration(emuTime, time) * 1000000ULL);
 		idealRealTime += realDuration;
 		unsigned long long currentRealTime = Timer::getTime();
@@ -136,8 +135,7 @@ int RealTime::signalEvent(const std::shared_ptr<const Event>& event)
 		return 0;
 	}
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		const FinishFrameEvent& ffe =
-			checked_cast<const FinishFrameEvent&>(*event);
+		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.isSkipped()) {
 			// sync but don't sleep
 			sync(getCurrentTime(), false);

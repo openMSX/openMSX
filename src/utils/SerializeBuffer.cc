@@ -86,7 +86,7 @@ byte* OutputBuffer::allocateGrow(unsigned len)
 {
 	unsigned oldSize = end - begin;
 	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
-	byte* newBegin = static_cast<byte*>(realloc(begin, newSize));
+	auto newBegin = static_cast<byte*>(realloc(begin, newSize));
 	if (!newBegin) {
 		throw std::bad_alloc();
 	}

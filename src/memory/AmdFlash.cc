@@ -68,8 +68,8 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
-				byte* ramPtr =
-					const_cast<byte*>(&(*ram)[writeAddress[i]]);
+				auto ramPtr = const_cast<byte*>(
+					&(*ram)[writeAddress[i]]);
 				if (offset >= romSize) {
 					// completely past end of rom
 					memset(ramPtr, 0xFF, sectorSize);

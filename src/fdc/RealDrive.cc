@@ -52,7 +52,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		info.stuff = new DrivesInUse();
 	}
 	++info.counter;
-	DrivesInUse& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
+	auto& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
 
 	unsigned i = 0;
 	while (drivesInUse[i]) {
@@ -78,7 +78,7 @@ RealDrive::~RealDrive()
 		motherBoard.getSharedStuff("drivesInUse");
 	assert(info.counter);
 	assert(info.stuff);
-	DrivesInUse& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
+	auto& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
 
 	const string& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");

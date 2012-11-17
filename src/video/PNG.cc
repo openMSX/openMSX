@@ -22,19 +22,16 @@ namespace PNG {
 
 static void handleError(png_structp png_ptr, png_const_charp error_msg)
 {
-	const char* operation = reinterpret_cast<const char*>(
-		png_get_error_ptr(png_ptr)
-		);
+	auto operation = reinterpret_cast<const char*>(
+		png_get_error_ptr(png_ptr));
 	throw MSXException(StringOp::Builder() <<
-		"Error while " << operation << " PNG: " << error_msg
-		);
+		"Error while " << operation << " PNG: " << error_msg);
 }
 
 static void handleWarning(png_structp png_ptr, png_const_charp warning_msg)
 {
-	const char* operation = reinterpret_cast<const char*>(
-		png_get_error_ptr(png_ptr)
-		);
+	auto operation = reinterpret_cast<const char*>(
+		png_get_error_ptr(png_ptr));
 	std::cerr << "Warning while " << operation << " PNG: "
 		<< warning_msg << std::endl;
 }
@@ -97,7 +94,7 @@ struct PNGReadHandle {
 
 static void readData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->read(area, unsigned(size));
 }
 
@@ -295,13 +292,13 @@ struct PNGWriteHandle {
 
 static void writeData(png_structp ctx, png_bytep area, png_size_t size)
 {
-	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->write(area, unsigned(size));
 }
 
 static void flushData(png_structp ctx)
 {
-	File* file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
+	auto file = reinterpret_cast<File*>(png_get_io_ptr(ctx));
 	file->flush();
 }
 
@@ -314,8 +311,7 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		PNGWriteHandle png;
 		png.ptr = png_create_write_struct(
 			PNG_LIBPNG_VER_STRING,
-			const_cast<char*>("encoding"), handleError, handleWarning
-			);
+			const_cast<char*>("encoding"), handleError, handleWarning);
 		if (png.ptr == nullptr) {
 			throw MSXException("Failed to allocate main struct");
 		}
@@ -357,14 +353,12 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		// Write out the entire image data in one call.
 		png_write_image(
 			png.ptr,
-			reinterpret_cast<png_bytep*>(const_cast<void**>(row_pointers))
-			);
+			reinterpret_cast<png_bytep*>(const_cast<void**>(row_pointers)));
 		png_write_end(png.ptr, png.info);
 	} catch (MSXException& e) {
 		throw MSXException(
 			"Error while writing PNG file \"" + filename + "\": " +
-			e.getMessage()
-			);
+			e.getMessage());
 	}
 }
 

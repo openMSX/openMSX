@@ -130,8 +130,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {
 	try {
-		InterpreterOutput* output =
-			static_cast<Interpreter*>(clientData)->output;
+		auto output = static_cast<Interpreter*>(clientData)->output;
 		string_ref text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
@@ -162,7 +161,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
                            int objc, Tcl_Obj* const objv[])
 {
 	try {
-		Command& command = *static_cast<Command*>(clientData);
+		auto& command = *static_cast<Command*>(clientData);
 		vector<TclObject> tokens;
 		tokens.reserve(objc);
 		for (int i = 0; i < objc; ++i) {
@@ -172,7 +171,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		TclObject result(interp);
 		try {
 			if (!command.isAllowedInEmptyMachine()) {
-				if (MSXCommandController* controller =
+				if (auto controller =
 					dynamic_cast<MSXCommandController*>(
 						&command.getCommandController())) {
 					if (!controller->getMSXMotherBoard().getMachineConfig()) {
@@ -384,7 +383,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		// a map. If the Setting was deleted, we won't find it anymore
 		// in the map and return.
 
-		long traceID = reinterpret_cast<long>(clientData);
+		auto traceID = reinterpret_cast<long>(clientData);
 		Setting* variable = getTraceSetting(traceID);
 		if (!variable) return nullptr;
 

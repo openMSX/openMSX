@@ -146,7 +146,7 @@ const byte* LocalFile::mmap(unsigned& size)
 		if (fd == -1) {
 			throw FileException("_fileno failed");
 		}
-		HANDLE hFile = reinterpret_cast<HANDLE>(_get_osfhandle(fd)); // No need to close
+		auto hFile = reinterpret_cast<HANDLE>(_get_osfhandle(fd)); // No need to close
 		if (hFile == INVALID_HANDLE_VALUE) {
 			throw FileException("_get_osfhandle failed");
 		}
@@ -203,7 +203,7 @@ const byte* LocalFile::mmap(unsigned& size)
 		                 MAP_PRIVATE, fileno(file), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
-		void* MY_MAP_FAILED = reinterpret_cast<void*>(-1);
+		auto MY_MAP_FAILED = reinterpret_cast<void*>(-1);
 		if (mmem == MY_MAP_FAILED) {
 			throw FileException("Error mmapping file");
 		}

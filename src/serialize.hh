@@ -557,7 +557,7 @@ public:
 	{
 		this->self().beginTag(tag);
 		typedef typename std::remove_const<T>::type TNC;
-		TNC& tnc = const_cast<TNC&>(t);
+		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, std::make_tuple(), -1); // don't load id
 		this->self().endTag(tag);
@@ -566,7 +566,7 @@ public:
 	{
 		this->self().beginTag(tag);
 		typedef typename std::remove_const<T>::type TNC;
-		TNC& tnc = const_cast<TNC&>(t);
+		auto& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
 		this->self().endTag(tag);
@@ -593,7 +593,7 @@ public:
 	{
 		this->self().beginTag(tag);
 		typedef typename std::remove_const<T>::type TNC;
-		TNC& tnc = const_cast<TNC&>(t);
+		auto& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, args, id);
 		this->self().endTag(tag);

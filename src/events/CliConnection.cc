@@ -156,8 +156,7 @@ static string reply(const string& message, bool status)
 
 int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	const CliCommandEvent& commandEvent =
-		checked_cast<const CliCommandEvent&>(*event);
+	auto& commandEvent = checked_cast<const CliCommandEvent&>(*event);
 	if (commandEvent.getId() == this) {
 		try {
 			string result = commandController.executeCommand(
@@ -179,7 +178,7 @@ void CliConnection::cb_start_element(
 	int /*nb_attributes*/, int /*nb_defaulted*/, const xmlChar** /*attrs*/
 	)
 {
-	ParseState* parseState = static_cast<ParseState*>(user_data);
+	auto parseState = static_cast<ParseState*>(user_data);
 	if (parseState->unknownLevel) {
 		++(parseState->unknownLevel);
 		return;
@@ -214,7 +213,7 @@ void CliConnection::cb_end_element(
 	const xmlChar* /*uri*/
 	)
 {
-	ParseState* parseState = static_cast<ParseState*>(user_data);
+	auto parseState = static_cast<ParseState*>(user_data);
 	if (parseState->unknownLevel) {
 		--(parseState->unknownLevel);
 		return;
@@ -235,7 +234,7 @@ void CliConnection::cb_end_element(
 
 void CliConnection::cb_text(void* user_data, const xmlChar* chars, int len)
 {
-	ParseState* parseState = static_cast<ParseState*>(user_data);
+	auto parseState = static_cast<ParseState*>(user_data);
 	if (parseState->state == TAG_COMMAND) {
 		parseState->content.append(reinterpret_cast<const char*>(chars), len);
 	}

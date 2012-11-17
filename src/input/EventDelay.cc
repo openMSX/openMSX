@@ -93,8 +93,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	for (auto it = toBeScheduledEvents.begin();
 	     it != toBeScheduledEvents.end(); ++it) {
 		scheduledEvents.push_back(*it);
-		const TimedEvent* timedEvent =
-			checked_cast<const TimedEvent*>(it->get());
+		auto timedEvent = checked_cast<const TimedEvent*>(it->get());
 		unsigned long long eventRealTime = timedEvent->getRealTime();
 		assert(eventRealTime <= curRealTime);
 		unsigned long long offset = curRealTime - eventRealTime;

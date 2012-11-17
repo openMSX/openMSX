@@ -316,7 +316,7 @@ void InputEventGenerator::update(const Setting& setting)
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FOCUS_EVENT) {
-		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		switch (escapeGrabState) {
 			case ESCAPE_GRAB_WAIT_CMD:
 				// nothing

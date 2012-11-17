@@ -35,7 +35,7 @@ static void allocateMixBuffer(unsigned size)
 	if (unlikely(mixBufferStorage.size() < size)) {
 		mixBufferStorage.resize(size);
 		// align at 16-byte boundary
-		size_t tmp = reinterpret_cast<size_t>(mixBufferStorage.data());
+		auto tmp = reinterpret_cast<size_t>(mixBufferStorage.data());
 		mixBuffer = reinterpret_cast<int*>((tmp + 15) & ~15);
 	}
 }

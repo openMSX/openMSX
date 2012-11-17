@@ -53,8 +53,8 @@ void SettingImplBase::destroy()
 
 void SettingImplBase::syncProxy()
 {
-	MSXCommandController* controller =
-		dynamic_cast<MSXCommandController*>(&Setting::getCommandController());
+	auto controller = dynamic_cast<MSXCommandController*>(
+		&Setting::getCommandController());
 	if (!controller) {
 		// This is not a machine specific setting.
 		return;

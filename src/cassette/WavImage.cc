@@ -46,7 +46,7 @@ WavImage::~WavImage()
 int WavImage::getSample(unsigned pos) const
 {
 	if (pos < wav->getSize()) {
-		const short* buf = static_cast<const short*>(wav->getData());
+		auto buf = static_cast<const short*>(wav->getData());
 		return buf[pos];
 	}
 	return 0;

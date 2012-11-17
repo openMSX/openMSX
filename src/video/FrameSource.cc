@@ -40,7 +40,7 @@ const Pixel* FrameSource::blendLines(
 {
 	PixelOperations<Pixel> pixelOps(pixelFormat);
 	BlendLines<Pixel> blend(pixelOps);
-	Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
+	auto out = reinterpret_cast<Pixel*>(getTempBuffer());
 	blend(line1, line2, out, width);
 	return out;
 }
@@ -107,7 +107,7 @@ const Pixel* FrameSource::scaleLine(
 		const Pixel* in, unsigned inWidth, unsigned outWidth) const
 {
 	PixelOperations<Pixel> pixelOps(pixelFormat);
-	Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
+	auto out = reinterpret_cast<Pixel*>(getTempBuffer());
 
 	// TODO is there a better way to implement this?
 	switch (inWidth) {

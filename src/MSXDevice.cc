@@ -233,7 +233,7 @@ void MSXDevice::registerSlots()
 	// remove these attributes to convert to the new format.
 	const XMLElement& config = getDeviceConfig();
 	if (config.hasAttribute("primary_slot")) {
-		XMLElement& mutableConfig = const_cast<XMLElement&>(config);
+		auto& mutableConfig = const_cast<XMLElement&>(config);
 		const string& primSlot = config.getAttribute("primary_slot");
 		ps = slotManager.getSlotNum(primSlot);
 		mutableConfig.removeAttribute("primary_slot");

@@ -230,8 +230,7 @@ Display::Layers::iterator Display::baseLayer()
 int Display::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		const FinishFrameEvent& ffe =
-			checked_cast<const FinishFrameEvent&>(*event);
+		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 		if (!ffe.isSkipped() &&
 		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
@@ -501,7 +500,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 				"Failed to take screenshot: " + e.getMessage());
 		}
 	} else {
-		VideoLayer* videoLayer = dynamic_cast<VideoLayer*>(
+		auto videoLayer = dynamic_cast<VideoLayer*>(
 			display.findActiveLayer());
 		if (!videoLayer) {
 			throw CommandException(

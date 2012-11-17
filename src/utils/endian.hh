@@ -171,7 +171,7 @@ static inline void write_UA_B16(void* p_, uint16_t x)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		writeB16(p_, x);
 	} else {
-		uint8_t* p = static_cast<uint8_t*>(p_);
+		auto p = static_cast<uint8_t*>(p_);
 		p[0] = (x >> 8) & 0xff;
 		p[1] = (x >> 0) & 0xff;
 	}
@@ -181,7 +181,7 @@ static inline void write_UA_L16(void* p_, uint16_t x)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		writeL16(p_, x);
 	} else {
-		uint8_t* p = static_cast<uint8_t*>(p_);
+		auto p = static_cast<uint8_t*>(p_);
 		p[0] = (x >> 0) & 0xff;
 		p[1] = (x >> 8) & 0xff;
 	}
@@ -191,7 +191,7 @@ static inline void write_UA_B32(void* p_, uint32_t x)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		writeB32(p_, x);
 	} else {
-		uint8_t* p = static_cast<uint8_t*>(p_);
+		auto p = static_cast<uint8_t*>(p_);
 		p[0] = (x >> 24) & 0xff;
 		p[1] = (x >> 16) & 0xff;
 		p[2] = (x >>  8) & 0xff;
@@ -203,7 +203,7 @@ static inline void write_UA_L32(void* p_, uint32_t x)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		writeL32(p_, x);
 	} else {
-		uint8_t* p = static_cast<uint8_t*>(p_);
+		auto p = static_cast<uint8_t*>(p_);
 		p[0] = (x >>  0) & 0xff;
 		p[1] = (x >>  8) & 0xff;
 		p[2] = (x >> 16) & 0xff;
@@ -216,7 +216,7 @@ static inline uint16_t read_UA_B16(const void* p_)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return readB16(p_);
 	} else {
-		const uint8_t* p = static_cast<const uint8_t*>(p_);
+		auto p = static_cast<const uint8_t*>(p_);
 		return (p[0] << 8) | p[1];
 	}
 }
@@ -225,7 +225,7 @@ static inline uint16_t read_UA_L16(const void* p_)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return readL16(p_);
 	} else {
-		const uint8_t* p = static_cast<const uint8_t*>(p_);
+		auto p = static_cast<const uint8_t*>(p_);
 		return (p[1] << 8) | p[0];
 	}
 }
@@ -234,7 +234,7 @@ static inline uint32_t read_UA_B32(const void* p_)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return readB32(p_);
 	} else {
-		const uint8_t* p = static_cast<const uint8_t*>(p_);
+		auto p = static_cast<const uint8_t*>(p_);
 		return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
 	}
 }
@@ -243,7 +243,7 @@ static inline uint32_t read_UA_L32(const void* p_)
 	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return readL32(p_);
 	} else {
-		const uint8_t* p = static_cast<const uint8_t*>(p_);
+		auto p = static_cast<const uint8_t*>(p_);
 		return (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0];
 	}
 }

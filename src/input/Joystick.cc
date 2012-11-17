@@ -194,8 +194,7 @@ byte Joystick::calcInitialState()
 void Joystick::signalEvent(const shared_ptr<const Event>& event,
                            EmuTime::param time)
 {
-	const JoystickEvent* joyEvent =
-		dynamic_cast<const JoystickEvent*>(event.get());
+	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -204,10 +203,9 @@ void Joystick::signalEvent(const shared_ptr<const Event>& event,
 
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		const JoystickAxisMotionEvent& motionEvent =
-			checked_cast<const JoystickAxisMotionEvent&>(*event);
-		short value = motionEvent.getValue();
-		switch (motionEvent.getAxis() & 1) {
+		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
+		short value = mev.getValue();
+		switch (mev.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
 				// left, not right
@@ -239,9 +237,8 @@ void Joystick::signalEvent(const shared_ptr<const Event>& event,
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		const JoystickButtonEvent& buttonEvent =
-			checked_cast<const JoystickButtonEvent&>(*event);
-		if (buttonEvent.getButton() & 1) {
+		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		if (butEv.getButton() & 1) {
 			createEvent(time, JOY_BUTTONB, 0);
 		} else {
 			createEvent(time, JOY_BUTTONA, 0);
@@ -249,9 +246,8 @@ void Joystick::signalEvent(const shared_ptr<const Event>& event,
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		const JoystickButtonEvent& buttonEvent =
-			checked_cast<const JoystickButtonEvent&>(*event);
-		if (buttonEvent.getButton() & 1) {
+		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		if (butEv.getButton() & 1) {
 			createEvent(time, 0, JOY_BUTTONB);
 		} else {
 			createEvent(time, 0, JOY_BUTTONA);
@@ -286,7 +282,7 @@ void Joystick::createEvent(EmuTime::param time, byte newStatus)
 // StateChangeListener
 void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	const JoyState* js = dynamic_cast<const JoyState*>(event.get());
+	auto js = dynamic_cast<const JoyState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

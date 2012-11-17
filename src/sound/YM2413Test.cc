@@ -58,7 +58,7 @@ static void loadWav(const string& filename, Samples& data)
 	assert(wav.getChannels() == 1);
 
 	unsigned size = wav.getSize();
-	const short* rawData = reinterpret_cast<const short*>(wav.getData());
+	auto rawData = reinterpret_cast<const short*>(wav.getData());
 	for (unsigned i = 0; i < size; ++i) {
 		data.push_back(rawData[i]);
 	}

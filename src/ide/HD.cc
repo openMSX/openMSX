@@ -35,7 +35,7 @@ HD::HD(const DeviceConfig& config)
 		info.stuff = new HDInUse();
 	}
 	++info.counter;
-	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
+	auto& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
 
 	unsigned id = 0;
 	while (hdInUse[id]) {
@@ -81,7 +81,7 @@ HD::~HD()
 		motherBoard.getSharedStuff("hdInUse");
 	assert(info.counter);
 	assert(info.stuff);
-	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
+	auto& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 	unsigned id = name[2] - 'a';

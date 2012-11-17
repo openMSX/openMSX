@@ -149,7 +149,7 @@ unsigned AlarmManager::timerCallback(unsigned /*interval*/, void* param)
 {
 	// note: runs in a different thread!
 	if (!enabled) return 0;
-	AlarmManager* manager = static_cast<AlarmManager*>(param);
+	auto manager = static_cast<AlarmManager*>(param);
 	return manager->timerCallback2();
 }
 

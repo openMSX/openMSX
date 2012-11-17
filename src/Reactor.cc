@@ -655,7 +655,7 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		running = false;
 	} else if (type == OPENMSX_FOCUS_EVENT) {
 		if (!getGlobalSettings().getPauseOnLostFocusSetting().getValue()) return 0;
-		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
 			// gained focus
 			if (!getGlobalSettings().getPauseSetting().getValue()) {

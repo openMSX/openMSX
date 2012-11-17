@@ -361,7 +361,7 @@ template<typename T> struct ClassSaver
 		}
 
 		typedef typename std::remove_const<T>::type TNC;
-		TNC& t2 = const_cast<TNC&>(t);
+		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
 };
@@ -538,7 +538,7 @@ template<typename T> struct ClassLoader
 		}
 
 		typedef typename std::remove_const<T>::type TNC;
-		TNC& t2 = const_cast<TNC&>(t);
+		auto& t2 = const_cast<TNC&>(t);
 		serialize(ar, t2, version);
 	}
 };

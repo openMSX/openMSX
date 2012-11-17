@@ -236,8 +236,7 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const MouseMotionEvent& mev =
-			checked_cast<const MouseMotionEvent&>(*event);
+		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
 		int newX = max(MIN_POS, min(MAX_POS, curxrel - mev.getX()));
 		int newY = max(MIN_POS, min(MAX_POS, curyrel - mev.getY()));
 		int deltaX = newX - curxrel;
@@ -248,9 +247,8 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const MouseButtonEvent& buttonEvent =
-			checked_cast<const MouseButtonEvent&>(*event);
-		switch (buttonEvent.getButton()) {
+		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createMouseStateChange(time, 0, 0, JOY_BUTTONA, 0);
 			break;
@@ -264,9 +262,8 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const MouseButtonEvent& buttonEvent =
-			checked_cast<const MouseButtonEvent&>(*event);
-		switch (buttonEvent.getButton()) {
+		auto& butEv = checked_cast<const MouseButtonEvent&>(*event);
+		switch (butEv.getButton()) {
 		case MouseButtonEvent::LEFT:
 			createMouseStateChange(time, 0, 0, 0, JOY_BUTTONA);
 			break;
@@ -294,7 +291,7 @@ void Mouse::createMouseStateChange(
 
 void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	MouseState* ms = dynamic_cast<MouseState*>(event.get());
+	auto ms = dynamic_cast<MouseState*>(event.get());
 	if (!ms) return;
 
 	// This is almost the same as

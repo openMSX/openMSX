@@ -164,8 +164,7 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 
 void DiskChanger::signalStateChange(const std::shared_ptr<StateChange>& event)
 {
-	MSXCommandEvent* commandEvent =
-		dynamic_cast<MSXCommandEvent*>(event.get());
+	auto commandEvent = dynamic_cast<MSXCommandEvent*>(event.get());
 	if (!commandEvent) return;
 
 	const vector<TclObject>& tokens = commandEvent->getTokens();

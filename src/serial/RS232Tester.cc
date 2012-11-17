@@ -53,7 +53,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 		throw PlugException("Error opening input file: " + inName);
 	}
 
-	RS232Connector& rs232Connector = static_cast<RS232Connector&>(connector_);
+	auto& rs232Connector = static_cast<RS232Connector&>(connector_);
 	rs232Connector.setDataBits(SerialDataInterface::DATA_8);	// 8 data bits
 	rs232Connector.setStopBits(SerialDataInterface::STOP_1);	// 1 stop bit
 	rs232Connector.setParityBit(false, SerialDataInterface::EVEN); // no parity
@@ -112,7 +112,7 @@ void RS232Tester::run()
 // input
 void RS232Tester::signal(EmuTime::param time)
 {
-	RS232Connector* connector = static_cast<RS232Connector*>(getConnector());
+	auto connector = static_cast<RS232Connector*>(getConnector());
 	if (!connector->acceptsData()) {
 		queue.clear();
 		return;

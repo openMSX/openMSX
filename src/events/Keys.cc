@@ -297,7 +297,7 @@ KeyCode getCode(const string& name)
 {
 	initialize();
 
-	KeyCode result = static_cast<KeyCode>(0);
+	auto result = static_cast<KeyCode>(0);
 	string::size_type lastPos = 0;
 	while (lastPos != string::npos) {
 		string::size_type pos = name.find_first_of(",+/", lastPos);
@@ -326,7 +326,7 @@ KeyCode getCode(const string& name)
 
 KeyCode getCode(SDLKey key, SDLMod mod, Uint8 scancode, bool release)
 {
-	KeyCode result = static_cast<KeyCode>(key);
+	auto result = static_cast<KeyCode>(key);
 	if (result == 0) {
 		// Assume it is a japanese keyboard and check
 		// scancode to recognize a few japanese

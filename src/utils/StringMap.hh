@@ -120,14 +120,14 @@ public:
 	static StringMapEntry* create(string_ref key, T v)
 	{
 		// Allocate memory.
-		StringMapEntry* newItem = static_cast<StringMapEntry*>(
+		auto newItem = static_cast<StringMapEntry*>(
 			malloc(sizeof(StringMapEntry) + key.size()));
 
 		// Construct the value (using placement new).
 		new (newItem) StringMapEntry(key.size(), std::move(v));
 
 		// Copy the string data.
-		char* strBuffer = const_cast<char*>(newItem->getKeyData());
+		auto strBuffer = const_cast<char*>(newItem->getKeyData());
 		memcpy(strBuffer, key.data(), key.size());
 
 		return newItem;
@@ -158,7 +158,7 @@ public:
 	// return the StringMapEntry itself.
 	static StringMapEntry& GetStringMapEntryFromValue(T& v) {
 		StringMapEntry* ePtr = 0;
-		char* ptr = reinterpret_cast<char*>(&v) -
+		auto ptr = reinterpret_cast<char*>(&v) -
 			(reinterpret_cast<char*>(&ePtr->second) -
 			 reinterpret_cast<char*>(ePtr));
 		return *reinterpret_cast<StringMapEntry*>(ptr);
@@ -170,7 +170,7 @@ public:
 	// Given key data that is known to be embedded into a StringMapEntry,
 	// return the StringMapEntry itself.
 	static StringMapEntry& GetStringMapEntryFromKeyData(const char* keyData) {
-		char* ptr = const_cast<char*>(keyData) - sizeof(StringMapEntry<T>);
+		auto ptr = const_cast<char*>(keyData) - sizeof(StringMapEntry<T>);
 		return *reinterpret_cast<StringMapEntry*>(ptr);
 	}
 

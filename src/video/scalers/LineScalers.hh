@@ -804,8 +804,8 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	nBytes &= 63; // remaining bytes
 #endif
 
-	      char* out2 = reinterpret_cast<      char*>(out) + nBytes2;
-	const char* in2  = reinterpret_cast<const char*>(in ) + nBytes2;
+	auto out2 = reinterpret_cast<      char*>(out) + nBytes2;
+	auto in2  = reinterpret_cast<const char*>(in ) + nBytes2;
 	nBytes -= nBytes2;
 	if (nBytes) {
 		memcpy(out2, in2, nBytes);

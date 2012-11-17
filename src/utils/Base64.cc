@@ -38,7 +38,7 @@ static inline byte decode(unsigned char c)
 
 string encode(const void* input_, int inSize)
 {
-	const byte* input = static_cast<const byte*>(input_);
+	auto input = static_cast<const byte*>(input_);
 	unsigned outSize = ((inSize + 44) / 45) * 61; // overestimation
 	string ret(outSize, 0); // too big
 

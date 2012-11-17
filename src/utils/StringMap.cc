@@ -78,7 +78,7 @@ unsigned StringMapImpl::lookupBucketFor(string_ref name)
 			// looking at the buckets (for item info being non-nullptr
 			// and for the full hash value) not at the items.  This
 			// is important for cache locality.
-			const char* itemStr = reinterpret_cast<char*>(bucketItem) + itemSize;
+			auto itemStr = reinterpret_cast<char*>(bucketItem) + itemSize;
 			if (name == string_ref(itemStr, bucketItem->getKeyLength())) {
 				return bucketNo;
 			}
@@ -109,7 +109,7 @@ int StringMapImpl::findKey(string_ref key) const
 			// Ignore tombstones.
 		} else if (hashTable[bucketNo] == fullHashValue) {
 			// Hash matches, compare full string.
-			const char* itemStr = reinterpret_cast<char*>(bucketItem) + itemSize;
+			auto itemStr = reinterpret_cast<char*>(bucketItem) + itemSize;
 			if (key == string_ref(itemStr, bucketItem->getKeyLength())) {
 				return bucketNo;
 			}
@@ -122,7 +122,7 @@ int StringMapImpl::findKey(string_ref key) const
 
 void StringMapImpl::removeKey(StringMapEntryBase* v)
 {
-	const char* vStr = reinterpret_cast<char*>(v) + itemSize;
+	auto vStr = reinterpret_cast<char*>(v) + itemSize;
 	StringMapEntryBase* v2 = removeKey(string_ref(vStr, v->getKeyLength()));
 	assert(v == v2 && "Didn't find key?"); (void)v2;
 }
@@ -155,11 +155,11 @@ void StringMapImpl::rehashTable()
 	}
 
 	// Allocate one extra bucket (see init()).
-	StringMapEntryBase** newTableArray = static_cast<StringMapEntryBase**>(
+	auto newTableArray = static_cast<StringMapEntryBase**>(
 		calloc(newSize + 1,
 		       sizeof(StringMapEntryBase*) + sizeof(unsigned)));
 	newTableArray[newSize] = reinterpret_cast<StringMapEntryBase*>(2);
-	unsigned* newHashArray = reinterpret_cast<unsigned*>(newTableArray + newSize + 1);
+	auto newHashArray = reinterpret_cast<unsigned*>(newTableArray + newSize + 1);
 
 	// Rehash all the items into their new buckets. Luckily we already have
 	// the hash values available, so we don't have to rehash any strings.

@@ -347,7 +347,7 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 	// 'auto' value). This way we're sure that on savestate/loadstate we're
 	// using the same mapper type (for example when the user's rom-database
 	// was updated).
-	XMLElement& writableConfig = const_cast<XMLElement&>(*config.getXML());
+	auto& writableConfig = const_cast<XMLElement&>(*config.getXML());
 	writableConfig.setChildData("mappertype", RomInfo::romTypeToName(type));
 
 	return move(result);

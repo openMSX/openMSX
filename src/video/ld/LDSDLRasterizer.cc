@@ -38,7 +38,7 @@ void LDSDLRasterizer<Pixel>::drawBlank(int r, int g, int b)
 	// We should really be presenting the "LASERVISION" text
 	// here, like the real laserdisc player does. Note that this
 	// changes when seeking or starting to play.
-	Pixel background = static_cast<Pixel>(SDL_MapRGB(&pixelFormat, r, g, b));
+	auto background = static_cast<Pixel>(SDL_MapRGB(&pixelFormat, r, g, b));
 	for (int y = 0; y < 480; ++y) {
 		workFrame->setBlank(y, background);
 	}

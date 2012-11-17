@@ -31,9 +31,8 @@ void ProxyCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 	string_ref name = tokens[0].getString();
 	if (Command* command = getMachineCommand(name)) {
 		if (!command->isAllowedInEmptyMachine()) {
-			MSXCommandController* controller =
-				checked_cast<MSXCommandController*>(
-					&command->getCommandController());
+			auto controller = checked_cast<MSXCommandController*>(
+				&command->getCommandController());
 			if (!controller->getMSXMotherBoard().getMachineConfig()) {
 				throw CommandException(
 					"Can't execute command in empty machine");

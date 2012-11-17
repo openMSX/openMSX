@@ -138,8 +138,7 @@ Pixel* StretchScalerOutputBase<Pixel>::acquireLine(unsigned /*y*/)
 		return buf;
 	} else {
 		unsigned size = sizeof(Pixel) * output->getWidth();
-		Pixel* buf = static_cast<Pixel*>(MemoryOps::mallocAligned(64, size));
-		return buf;
+		return static_cast<Pixel*>(MemoryOps::mallocAligned(64, size));
 	}
 }
 

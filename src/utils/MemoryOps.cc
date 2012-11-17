@@ -693,8 +693,8 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 			*dst++ = *src++;
 			--num;
 		}
-		const unsigned* src2 = reinterpret_cast<const unsigned*>(src);
-		unsigned*       dst2 = reinterpret_cast<unsigned*>      (dst);
+		auto src2 = reinterpret_cast<const unsigned*>(src);
+		auto dst2 = reinterpret_cast<unsigned*>      (dst);
 		stream_memcpy(dst2, src2, num / 2);
 		if (unlikely(num & 1)) {
 			dst[num - 1] = src[num - 1];
@@ -762,7 +762,7 @@ void* mallocAligned(unsigned alignment, unsigned size)
 	if (!unaligned) {
 		throw std::bad_alloc();
 	}
-	void* aligned = reinterpret_cast<void*>(
+	auto aligned = reinterpret_cast<void*>(
 		(reinterpret_cast<unsigned long>(unaligned) + t) & ~t);
 	AllocMap::instance().insert(aligned, unaligned);
 	return aligned;

@@ -229,8 +229,7 @@ unsigned JoyMega::calcInitialState()
 // MSXEventListener
 void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param time)
 {
-	const JoystickEvent* joyEvent =
-		dynamic_cast<const JoystickEvent*>(event.get());
+	auto joyEvent = dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of
@@ -239,10 +238,9 @@ void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param t
 
 	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		const JoystickAxisMotionEvent& motionEvent =
-			checked_cast<const JoystickAxisMotionEvent&>(*event);
-		short value = motionEvent.getValue();
-		switch (motionEvent.getAxis() & 1) {
+		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
+		short value = mev.getValue();
+		switch (mev.getAxis() & 1) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
 			if (value < -THRESHOLD) {
 				// left, not right
@@ -274,15 +272,13 @@ void JoyMega::signalEvent(const shared_ptr<const Event>& event, EmuTime::param t
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		const JoystickButtonEvent& buttonEvent =
-			checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, encodeButton(buttonEvent.getButton(), cycleMask), 0);
+		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		createEvent(time, encodeButton(butEv.getButton(), cycleMask), 0);
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		const JoystickButtonEvent& buttonEvent =
-			checked_cast<const JoystickButtonEvent&>(*event);
-		createEvent(time, 0, encodeButton(buttonEvent.getButton(), cycleMask));
+		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
+		createEvent(time, 0, encodeButton(butEv.getButton(), cycleMask));
 		break;
 	}
 	default:
@@ -313,7 +309,7 @@ void JoyMega::createEvent(EmuTime::param time, unsigned newStatus)
 // StateChangeListener
 void JoyMega::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	const JoyMegaState* js = dynamic_cast<const JoyMegaState*>(event.get());
+	auto js = dynamic_cast<const JoyMegaState*>(event.get());
 	if (!js) return;
 
 	// TODO: It would be more efficient to make a dispatcher instead of

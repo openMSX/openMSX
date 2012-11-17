@@ -115,7 +115,7 @@ LRESULT AltSpaceSuppressor::InterceptorWndProc(
 	}
 
 	// Message not processed, use default handling
-	WNDPROC nextWndProc = reinterpret_cast<WNDPROC>(procStacker.GetOldValue());
+	auto nextWndProc = reinterpret_cast<WNDPROC>(procStacker.GetOldValue());
 	if (nextWndProc) {
 		// Forward to the window proc we replaced
 		return CallWindowProc(nextWndProc, hWnd, message, wParam, lParam);

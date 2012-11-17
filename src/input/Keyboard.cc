@@ -324,7 +324,7 @@ void Keyboard::signalEvent(const shared_ptr<const Event>& event,
 
 void Keyboard::signalStateChange(const shared_ptr<StateChange>& event)
 {
-	KeyMatrixState* kms = dynamic_cast<KeyMatrixState*>(event.get());
+	auto kms = dynamic_cast<KeyMatrixState*>(event.get());
 	if (!kms) return;
 
 	userKeyMatrix[kms->getRow()] &= ~kms->getPress();
@@ -383,10 +383,10 @@ void Keyboard::changeKeyMatrixEvent(EmuTime::param time, byte row, byte newValue
 bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 {
 	bool insertCodeKanaRelease = false;
-	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(event);
+	auto& keyEvent = checked_cast<const KeyEvent&>(event);
 	bool down = event.getType() == OPENMSX_KEY_DOWN_EVENT;
-	Keys::KeyCode key = static_cast<Keys::KeyCode>
-		(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
+	auto key = static_cast<Keys::KeyCode>(
+		int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 	if (down) {
 		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getUnicode(),
@@ -583,8 +583,8 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 {
 	bool insertCodeKanaRelease = false;
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
-	Keys::KeyCode key = static_cast<Keys::KeyCode>
-		(int(keyCode) & int(Keys::K_MASK));
+	auto key = static_cast<Keys::KeyCode>(
+		int(keyCode) & int(Keys::K_MASK));
 	unsigned unicode;
 
 	bool isOnKeypad = (

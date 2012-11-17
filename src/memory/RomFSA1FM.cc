@@ -66,7 +66,7 @@ RomFSA1FMSram::~RomFSA1FMSram()
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("FSA1FM-sram");
-	SRAM* sram = reinterpret_cast<SRAM*>(info.stuff);
+	auto sram = reinterpret_cast<SRAM*>(info.stuff);
 	assert(info.counter);
 	assert(sram);
 	assert(sram == fsSram);

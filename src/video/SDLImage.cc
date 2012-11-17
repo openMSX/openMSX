@@ -34,7 +34,7 @@ static bool hasConstantAlpha(const SDL_Surface& surface, byte& alpha)
 	assert(surface.format->Aloss == 0);
 
 	// Compare alpha from each pixel. Are they all the same?
-	const unsigned* data = reinterpret_cast<const unsigned*>(surface.pixels);
+	auto data = reinterpret_cast<const unsigned*>(surface.pixels);
 	unsigned alpha0 = data[0] & amask;
 	for (int y = 0; y < surface.h; ++y) {
 		const unsigned* p = data + y * (surface.pitch / sizeof(unsigned));
@@ -103,8 +103,8 @@ static void zoomSurface(const SDL_Surface* src, SDL_Surface* dst,
 	int sy = int(65536.0 * double(src->h - 1) / double(dst->h));
 
 	// Interpolating Zoom, Scan destination
-	const unsigned* sp = static_cast<const unsigned*>(src->pixels);
-	      unsigned* dp = static_cast<      unsigned*>(dst->pixels);
+	auto sp = static_cast<const unsigned*>(src->pixels);
+	auto dp = static_cast<      unsigned*>(dst->pixels);
 	int srcPitch = src->pitch / sizeof(unsigned);
 	int dstPitch = dst->pitch / sizeof(unsigned);
 	if (flipY) dp += (dst->h - 1) * dstPitch;
@@ -323,7 +323,7 @@ void gradient(const unsigned* rgba, SDL_Surface& surface, unsigned borderSize)
 	setupInterp1(rgba[0], rgba[2], height, r0, g0, b0, a0, dr02, dg02, db02, da02);
 	setupInterp1(rgba[1], rgba[3], height, r1, g1, b1, a1, dr13, dg13, db13, da13);
 
-	unsigned* buffer = static_cast<unsigned*>(surface.pixels);
+	auto buffer = static_cast<unsigned*>(surface.pixels);
 	buffer += borderSize;
 	buffer += borderSize * (surface.pitch / sizeof(unsigned));
 	for (int y = 0; y < height; ++y) {

@@ -105,7 +105,8 @@ string NowindCommand::execute(const vector<string>& tokens)
 			result << "nowind" << i + 1 << ": ";
 			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
 				result << "romdisk\n";
-			} else if (DiskChanger* changer = dynamic_cast<DiskChanger*>(drives[i].get())) {
+			} else if (auto changer = dynamic_cast<DiskChanger*>(
+						drives[i].get())) {
 				string filename = changer->getDiskName().getOriginal();
 				result << (filename.empty() ? "--empty--" : filename)
 				       << '\n';
@@ -238,7 +239,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
 	for (auto it = drives.begin(); it != drives.end(); ++it) {
-		if (DiskChanger* disk = dynamic_cast<DiskChanger*>(it->get())) {
+		if (auto disk = dynamic_cast<DiskChanger*>(it->get())) {
 			disk->createCommand();
 		}
 	}

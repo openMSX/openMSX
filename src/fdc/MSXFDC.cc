@@ -74,7 +74,7 @@ void MSXFDC::serialize(Archive& ar, unsigned /*version*/)
 	// DriveMultiplexer already has pointers to the drives.
 	char tag[7] = { 'd', 'r', 'i', 'v', 'e', 'X', 0 };
 	for (int i = 0; i < 4; ++i) {
-		if (RealDrive* drive = dynamic_cast<RealDrive*>(drives[i].get())) {
+		if (auto drive = dynamic_cast<RealDrive*>(drives[i].get())) {
 			tag[5] = char('a' + i);
 			ar.serialize(tag, *drive);
 		}

@@ -158,8 +158,8 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 #endif
 
-	DPixel* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const unsigned* in = reinterpret_cast<const unsigned*>(vramPtr0);
+	auto out = reinterpret_cast<DPixel*>(pixelPtr);
+	auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
 	for (unsigned i = 0; i < 256 / 8; ++i) {
 		// 8 pixels per iteration
 		unsigned data = in[i];
@@ -208,9 +208,9 @@ void BitmapConverter<Pixel>::renderGraphic6(
 	if (unlikely(!dPaletteValid)) {
 		calcDPalette();
 	}
-	DPixel* out = reinterpret_cast<DPixel*>(pixelPtr);
-	const unsigned* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
-	const unsigned* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
+	auto out = reinterpret_cast<DPixel*>(pixelPtr);
+	auto in0 = reinterpret_cast<const unsigned*>(vramPtr0);
+	auto in1 = reinterpret_cast<const unsigned*>(vramPtr1);
 	for (unsigned i = 0; i < 512 / 16; ++i) {
 		// 16 pixels per iteration
 		unsigned data0 = in0[i];

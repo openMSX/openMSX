@@ -58,7 +58,7 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& 
 	}
 
 	// Actually blend the lines of both frames.
-	Pixel* resLine = static_cast<Pixel*>(src.getTempBuffer());
+	auto resLine = static_cast<Pixel*>(src.getTempBuffer());
 	AlphaBlendLines<Pixel> blend(pixelOps);
 	blend(srcLine, supLine, resLine, width);
 	return resLine;

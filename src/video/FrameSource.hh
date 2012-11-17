@@ -90,7 +90,7 @@ public:
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
-		const Pixel* internalData = reinterpret_cast<const Pixel*>(
+		auto internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth));
 		if (internalWidth == width) {
 			return internalData;
@@ -116,7 +116,7 @@ public:
 			return getLinePtr<Pixel>(line, width);
 		}
 		unsigned internalWidth;
-		const Pixel* internalData = reinterpret_cast<const Pixel*>(
+		auto internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth));
 		if (internalWidth != width) {
 			return scaleLine(internalData, internalWidth, width);

@@ -148,7 +148,7 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	/*if (PLATFORM_GP2X) {
-		if (RawFrame* raw = dynamic_cast<RawFrame*>(&src)) {
+		if (auto raw = dynamic_cast<RawFrame*>(&src)) {
 			raw->unlock();
 			dst.unlock();
 			unsigned height = dstEndY - dstStartY;

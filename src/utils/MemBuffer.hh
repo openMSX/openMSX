@@ -102,7 +102,7 @@ public:
 	void resize(unsigned size)
 	{
 		if (size) {
-			T* newDat = static_cast<T*>(realloc(dat, size * sizeof(T)));
+			auto newDat = static_cast<T*>(realloc(dat, size * sizeof(T)));
 			if (!newDat) {
 				throw std::bad_alloc();
 			}

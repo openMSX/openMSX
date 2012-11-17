@@ -14,7 +14,7 @@ using namespace DiskImageUtils;
 
 static DiskName getDiskName(SectorAccessibleDisk* disk, unsigned partition)
 {
-	if (Disk* dsk = dynamic_cast<Disk*>(disk)) {
+	if (auto dsk = dynamic_cast<Disk*>(disk)) {
 		return DiskName(dsk->getName().getFilename(),
 		                StringOp::Builder() << ':' << partition);
 	} else {

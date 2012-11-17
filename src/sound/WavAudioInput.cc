@@ -84,8 +84,7 @@ short WavAudioInput::readSample(EmuTime::param time)
 	if (wav.get()) {
 		unsigned pos = (time - reference).getTicksAt(wav->getFreq());
 		if (pos < wav->getSize()) {
-			const short* buf =
-				static_cast<const short*>(wav->getData());
+			auto buf = static_cast<const short*>(wav->getData());
 			return buf[pos];
 		}
 	}
