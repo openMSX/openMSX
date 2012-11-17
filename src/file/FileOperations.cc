@@ -199,7 +199,7 @@ string expandTilde(string_ref path)
 	if (pos == string_ref::npos) {
 		return result;
 	}
-	if (*result.rbegin() != '/') {
+	if (result.back() != '/') {
 		result += '/';
 	}
 	string_ref last = path.substr(pos + 1);
@@ -586,7 +586,7 @@ string expandCurrentDirFromDrive(string_ref path)
 			if (driveExists(drive) &&
 				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != nullptr) {
 				result = getConventionalPath(utf16to8(bufW));
-				if (*result.rbegin() != '/') {
+				if (result.back() != '/') {
 					result += '/';
 				}
 				if (path.size() > 2) {

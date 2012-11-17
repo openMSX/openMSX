@@ -59,7 +59,7 @@ Rom::Rom(const string& name_, const string& description_,
 				return;
 			} catch (MSXException& e) {
 				// remember error message, and try next
-				if (!errors.empty() && (*errors.rbegin() != '\n')) {
+				if (!errors.empty() && (errors.back() != '\n')) {
 					errors += '\n';
 				}
 				errors += e.getMessage();

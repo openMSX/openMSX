@@ -175,7 +175,7 @@ void Completer::completeFileName(vector<string>& tokens,
 		}
 	}
 	bool t = completeString2(filename, filenames, true);
-	if (t && !filename.empty() && (*filename.rbegin() != '/')) {
+	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token
 		tokens.push_back("");
 	}

@@ -63,7 +63,7 @@ IPSPatch::IPSPatch(const Filename& filename_,
 				memcpy(&tmp[it->first - start], &it->second[0],
 				       it->second.size());
 			}
-			memcpy(&tmp[offset - start], &v[0], v.size());
+			memcpy(&tmp[offset - start], v.data(), v.size());
 			patchMap.erase(b, e);
 			patchMap[start] = tmp;
 		} else {
