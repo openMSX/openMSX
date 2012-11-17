@@ -11,7 +11,7 @@ include build/flavour-opt.mk
 # Ideally LTO would be enabled for the 3rdparty libs as well, but I haven't
 # been able to make that work.
 COMPILE_FLAGS+=-flto
-LINK_FLAGS+=-flto
+LINK_FLAGS+=-flto=jobserver
 
 # Enable this line to speed up compilation. This is supported from gcc-4.7
 # onward. Quote from the gcc manual:
