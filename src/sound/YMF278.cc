@@ -287,7 +287,7 @@ static const int vib_depth[8] = {
 #undef O
 
 
-#define SC(db) unsigned(db * (2.0 / ENV_STEP))
+#define SC(db) int(db * (2.0 / ENV_STEP))
 static const int am_depth[8] = {
 	SC(0),	   SC(1.781), SC(2.906), SC(3.656),
 	SC(4.406), SC(5.906), SC(7.406), SC(11.91)
