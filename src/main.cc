@@ -18,6 +18,13 @@
 #include "StringOp.hh"
 #include "Thread.hh"
 #include "HostCPU.hh"
+#include <memory>
+#include <iostream>
+#include <exception>
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
+#include <SDL.h>
 #ifdef _WIN32
 #include "win32-arggen.hh"
 #endif
@@ -32,19 +39,6 @@
 #else
 #define LOG_TO_FILE 0
 #endif
-
-#if LOG_TO_FILE
-#include <ctime>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#endif
-
-#include <memory>
-#include <iostream>
-#include <exception>
-#include <cstdlib>
-#include <SDL.h>
 
 using std::cerr;
 using std::cout;
