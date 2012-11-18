@@ -5,6 +5,8 @@
  *
  */
 
+#include "openmsx.hh"
+#include "Date.hh"
 #include "Reactor.hh"
 #include "CommandLineParser.hh"
 #include "CliServer.hh"
@@ -19,6 +21,25 @@
 #ifdef _WIN32
 #include "win32-arggen.hh"
 #endif
+
+// Set LOG_TO_FILE to 1 for any platform on which stdout and stderr must
+// be redirected to a file
+// Also, specify the appropriate file names, depending on the platform conventions
+#ifdef ANDROID
+#define LOG_TO_FILE 1
+#define STDOUT_LOG_FILE_NAME "openmsx_system/openmsx.stdout"
+#define STDERR_LOG_FILE_NAME "openmsx_system/openmsx.stderr"
+#else
+#define LOG_TO_FILE 0
+#endif
+
+#if LOG_TO_FILE
+#include <ctime>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#endif
+
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -26,6 +47,7 @@
 #include <SDL.h>
 
 using std::cerr;
+using std::cout;
 using std::endl;
 using std::string;
 
@@ -60,6 +82,24 @@ static void unexpectedExceptionHandler()
 
 static int main(int argc, char **argv)
 {
+#if LOG_TO_FILE
+	ad_printf("Redirecting stdout to %s and stderr to %s\n", STDOUT_LOG_FILE_NAME, STDERR_LOG_FILE_NAME);
+
+	int stdoutlogfile = open(STDOUT_LOG_FILE_NAME,O_WRONLY|O_APPEND|O_CREAT);
+	close(1);
+	dup2(stdoutlogfile, 1);
+	close(stdoutlogfile);
+
+	int stderrlogfile=open(STDERR_LOG_FILE_NAME,O_WRONLY|O_APPEND|O_CREAT);
+	close(2);
+	dup2(stderrlogfile, 2);
+	close(stderrlogfile);
+
+	char msg[255];
+	snprintf(msg, sizeof(msg), "%s: starting openMSX", Date::toString(time(0)).c_str());
+	cout << msg << endl;
+	cerr << msg << endl;
+#endif
 	std::set_unexpected(unexpectedExceptionHandler);
 
 	int err = 0;
