@@ -83,20 +83,21 @@ static void unexpectedExceptionHandler()
 static int main(int argc, char **argv)
 {
 #if LOG_TO_FILE
-	ad_printf("Redirecting stdout to %s and stderr to %s\n", STDOUT_LOG_FILE_NAME, STDERR_LOG_FILE_NAME);
+	ad_printf("Redirecting stdout to %s and stderr to %s\n",
+	          STDOUT_LOG_FILE_NAME, STDERR_LOG_FILE_NAME);
 
-	int stdoutlogfile = open(STDOUT_LOG_FILE_NAME,O_WRONLY|O_APPEND|O_CREAT);
-	close(1);
-	dup2(stdoutlogfile, 1);
-	close(stdoutlogfile);
+	if (freopen(STDOUT_LOG_FILE_NAME, "w", stdout) == nullptr) {
+		cerr << "Couldn't redirect stdout to "
+		        STDOUT_LOG_FILE_NAME << endl;
+		exit(1);
+	}
+	if (freopen(STDERR_LOG_FILE_NAME, "w", stderr) == nullptr) {
+		cout << "Couldn't redirect stderr to "
+		        STDERR_LOG_FILE_NAME << endl;
+		exit(1);
+	}
 
-	int stderrlogfile=open(STDERR_LOG_FILE_NAME,O_WRONLY|O_APPEND|O_CREAT);
-	close(2);
-	dup2(stderrlogfile, 2);
-	close(stderrlogfile);
-
-	char msg[255];
-	snprintf(msg, sizeof(msg), "%s: starting openMSX", Date::toString(time(0)).c_str());
+	string msg = Date::toString(time(nullptr)) + ": starting openMSX";
 	cout << msg << endl;
 	cerr << msg << endl;
 #endif
