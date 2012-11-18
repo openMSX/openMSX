@@ -7,3 +7,5 @@ USE_SYMLINK:=true
 
 # File name extension of executables.
 EXEEXT:=
+LIBRARYEXT:=.so
+

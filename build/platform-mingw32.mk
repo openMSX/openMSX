@@ -7,6 +7,7 @@ USE_SYMLINK:=false
 
 # File name extension of executables.
 EXEEXT:=.exe
+LIBRARYEXT:=.dll
 
 # Compiler flags.
 COMPILE_FLAGS+= \

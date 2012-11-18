@@ -15,6 +15,7 @@ USE_SYMLINK:=false
 
 # File name extension of executables.
 EXEEXT:=.nexe
+LIBRARYEXT:=.so
 
 # Build a minimal set of components.
 LINK_MODE:=3RD_STA_MIN

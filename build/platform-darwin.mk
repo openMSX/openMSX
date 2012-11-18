@@ -20,6 +20,7 @@ endif
 
 # File name extension of executables.
 EXEEXT:=
+LIBRARYEXT:=.so
 
 # Select the OS X version we want to be compatible with.
 # TODO: When compiling an executable for local use, we could pick the OS X

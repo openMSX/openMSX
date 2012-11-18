@@ -7,6 +7,7 @@ USE_SYMLINK:=true
 
 # File name extension of executables.
 EXEEXT:=
+LIBRARYEXT:=.so
 
 # In glibc the function clock_gettime() is defined in the librt library. In
 # uClibc it's defined in libc itself. We should write a function that actually

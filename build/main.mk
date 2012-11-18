@@ -173,6 +173,8 @@ endif
 $(call DEFCHECK,OPENMSX_TARGET_OS)
 include build/platform-$(OPENMSX_TARGET_OS).mk
 # Check that all expected variables were defined by OS specific Makefile:
+# - library file name extension
+$(call DEFCHECK,LIBRARYEXT)
 # - executable file name extension
 $(call DEFCHECK,EXEEXT)
 # - platform supports symlinks?
@@ -222,6 +224,10 @@ ifeq ($(VERSION_EXEC),true)
 else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 endif
+
+LIBRARY_FILE:=openmsx$(LIBRARYEXT)
+LIBRARY_PATH:=$(BUILD_PATH)/lib
+LIBRARY_FULL:=$(LIBRARY_PATH)/$(LIBRARY_FILE)
 
 BUILDINFO_SCRIPT:=build/buildinfo2code.py
 CONFIG_HEADER:=$(BUILD_PATH)/config/build-info.hh
@@ -483,7 +489,11 @@ $(COMPONENTS_DEFS): $(COMPONENTS_DEFS_SCRIPT) $(PROBE_MAKE) \
 ifeq ($(OPENMSX_TARGET_OS),darwin)
 all: app
 else
+ifeq ($(OPENMSX_TARGET_OS),android)
+all: $(LIBRARY_FULL)
+else
 all: $(BINARY_FULL)
+endif
 endif
 
 # This is a workaround for the lack of order-only dependencies in GNU Make
@@ -604,6 +614,11 @@ else
 	@echo "Not linking $(notdir $@) because only a subset was built."
 endif # subset
 endif # universal binary
+
+$(LIBRARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
+	@echo "Linking $(notdir $@)..."
+	@mkdir -p $(@D)
+	@$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
 
 # Run executable.
 run: all
