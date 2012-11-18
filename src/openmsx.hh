@@ -9,6 +9,13 @@
 #include <sstream>
 #endif
 
+#ifdef ANDROID
+#include <android/log.h>
+#define ad_printf(...) __android_log_print(ANDROID_LOG_INFO, "openMSX", __VA_ARGS__)
+#else
+#define ad_printf(...)
+#endif
+
 /// Namespace of the openMSX emulation core.
 /** openMSX: the MSX emulator that aims for perfection
   *
@@ -52,6 +59,14 @@ void DebugPrint(const char* output);
 		output << mes;						\
 		std::cout << output << std::endl;	\
 		::openmsx::DebugPrint(output.str().c_str());	\
+	} while (0)
+#elif defined(ANDROID)
+#define PRT_DEBUG(mes)				\
+	do {					\
+		std::ostringstream output;			\
+		output << mes;						\
+		std::cout << output << std::endl;	\
+		__android_log_write(ANDROID_LOG_DEBUG, "openMSX", output.str().c_str()); \
 	} while (0)
 #else
 #define PRT_DEBUG(mes)				\
