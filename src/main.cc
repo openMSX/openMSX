@@ -87,11 +87,13 @@ static int main(int argc, char **argv)
 	          STDOUT_LOG_FILE_NAME, STDERR_LOG_FILE_NAME);
 
 	if (freopen(STDOUT_LOG_FILE_NAME, "w", stdout) == nullptr) {
+		ad_printf("Couldn't redirect stdout to logfile, aborting\n");
 		cerr << "Couldn't redirect stdout to "
 		        STDOUT_LOG_FILE_NAME << endl;
 		exit(1);
 	}
 	if (freopen(STDERR_LOG_FILE_NAME, "w", stderr) == nullptr) {
+		ad_printf("Couldn't redirect stderr to logfile, aborting\n");
 		cout << "Couldn't redirect stderr to "
 		        STDERR_LOG_FILE_NAME << endl;
 		exit(1);
