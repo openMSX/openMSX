@@ -100,11 +100,11 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 {
 	// first split-off the end numbers (if present)
 	// these will be used as partition indication
-	string_ref::size_type pos1 = diskname.find("::");
-	string_ref tmp1 = (pos1 == string_ref::npos) ? diskname : diskname.substr(pos1);
-	string_ref::size_type pos2 = tmp1.find_first_of("0123456789");
-	string_ref::size_type pos1b = (pos1 == string_ref::npos) ? 0 : pos1;
-	string_ref tmp2 = diskname.substr(0, pos2 + pos1b);
+	auto pos1 = diskname.find("::");
+	auto tmp1 = (pos1 == string_ref::npos) ? diskname : diskname.substr(pos1);
+	auto pos2 = tmp1.find_first_of("0123456789");
+	auto pos1b = (pos1 == string_ref::npos) ? 0 : pos1;
+	auto tmp2 = diskname.substr(0, pos2 + pos1b);
 
 	auto it = findDriveSettings(tmp2);
 	if (it == drives.end()) {

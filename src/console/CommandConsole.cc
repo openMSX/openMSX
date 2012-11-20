@@ -77,10 +77,10 @@ unsigned ConsoleLine::chunkColor(unsigned i) const
 string_ref ConsoleLine::chunkText(unsigned i) const
 {
 	assert(i < chunks.size());
-	string_ref::size_type pos = chunks[i].second;
-	string_ref::size_type len = ((i + 1) == chunks.size())
-	                          ? string_ref::npos
-	                          : chunks[i + 1].second - pos;
+	auto pos = chunks[i].second;
+	auto len = ((i + 1) == chunks.size())
+	         ? string_ref::npos
+	         : chunks[i + 1].second - pos;
 	return string_ref(line).substr(pos, len);
 }
 
@@ -423,7 +423,7 @@ unsigned CommandConsole::getOutputColumns() const
 void CommandConsole::print(string_ref text, unsigned rgb)
 {
 	while (true) {
-		string_ref::size_type pos = text.find('\n');
+		auto pos = text.find('\n');
 		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
 		if (pos == string_ref::npos) return;
 		text = text.substr(pos + 1); // skip newline

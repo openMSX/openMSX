@@ -581,7 +581,7 @@ static string formatHelptext(string_ref helpText,
 	string outText;
 	string_ref::size_type index = 0;
 	while (helpText.substr(index).size() > maxLength) {
-		string_ref::size_type pos = helpText.substr(index, maxLength).rfind(' ');
+		auto pos = helpText.substr(index, maxLength).rfind(' ');
 		if (pos == string_ref::npos) {
 			pos = helpText.substr(maxLength).find(' ');
 			if (pos == string_ref::npos) {

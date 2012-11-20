@@ -300,7 +300,7 @@ KeyCode getCode(const string& name)
 	auto result = static_cast<KeyCode>(0);
 	string::size_type lastPos = 0;
 	while (lastPos != string::npos) {
-		string::size_type pos = name.find_first_of(",+/", lastPos);
+		auto pos = name.find_first_of(",+/", lastPos);
 		string part = (pos != string::npos)
 		            ? name.substr(lastPos, pos - lastPos)
 			    : name.substr(lastPos);

@@ -90,7 +90,7 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 		// part of the filename itself. So only try this if
 		// the name could not be interpreted as a valid
 		// filename.
-		string::size_type pos = diskImage.find_last_of(':');
+		auto pos = diskImage.find_last_of(':');
 		if (pos == string::npos) {
 			// does not contain ':', throw previous exception
 			throw;

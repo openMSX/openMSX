@@ -765,12 +765,12 @@ void NowindHost::readHelper2(unsigned len, const char* buffer)
 // ie: 'pre("foo")bar' will result in 'foo'
 static string stripquotes(const string& str)
 {
-	string::size_type first = str.find_first_of('\"');
+	auto first = str.find_first_of('\"');
 	if (first == string::npos) {
 		// There are no quotes, return the whole string.
 		return str;
 	}
-	string::size_type last  = str.find_last_of ('\"');
+	auto last  = str.find_last_of ('\"');
 	if (first == last) {
 		// Error, there's only a single double-quote char.
 		return "";

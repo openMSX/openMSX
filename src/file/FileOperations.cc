@@ -187,7 +187,7 @@ string expandTilde(string_ref path)
 	if (path.empty() || path[0] != '~') {
 		return path.str();
 	}
-	string_ref::size_type pos = path.find_first_of('/');
+	auto pos = path.find_first_of('/');
 	string_ref user = ((path.size() == 1) || (pos == 1))
 	                ? ""
 	                : path.substr(1, (pos == string_ref::npos) ? pos : pos - 1);
@@ -354,7 +354,7 @@ void openofstream(std::ofstream& stream, const std::string& filename,
 
 string_ref getFilename(string_ref path)
 {
-	string_ref::size_type pos = path.rfind('/');
+	auto pos = path.rfind('/');
 	if (pos == string_ref::npos) {
 		return path;
 	} else {
@@ -364,7 +364,7 @@ string_ref getFilename(string_ref path)
 
 string_ref getBaseName(string_ref path)
 {
-	string_ref::size_type pos = path.rfind('/');
+	auto pos = path.rfind('/');
 	if (pos == string_ref::npos) {
 		return "";
 	} else {
@@ -375,7 +375,7 @@ string_ref getBaseName(string_ref path)
 string_ref getExtension(string_ref path)
 {
 	string_ref filename = getFilename(path);
-	string_ref::size_type pos = filename.rfind('.');
+	auto pos = filename.rfind('.');
 	if (pos == string_ref::npos) {
 		return "";
 	} else {
@@ -385,7 +385,7 @@ string_ref getExtension(string_ref path)
 
 string_ref stripExtension(string_ref path)
 {
-	string_ref::size_type pos = path.rfind('.');
+	auto pos = path.rfind('.');
 	if (pos == string_ref::npos) {
 		return path;
 	} else {
@@ -551,7 +551,7 @@ string getSystemDataDir()
 	}
 
 	string filename = utf16to8(bufW);
-	string::size_type pos = filename.find_last_of('\\');
+	auto pos = filename.find_last_of('\\');
 	if (pos == string::npos) {
 		throw FatalError("openMSX is not in directory!?");
 	}
@@ -605,7 +605,7 @@ bool getStat(const string& filename_, Stat& st)
 	string filename = expandTilde(filename_);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
 	// only character in the path)
-	string::size_type pos = filename.find_last_not_of('/');
+	auto pos = filename.find_last_not_of('/');
 	if (pos == string::npos) {
 		// string was either empty or a (sequence of) '/' character(s)
 		filename = filename.empty() ? "" : "/";
@@ -654,8 +654,8 @@ time_t getModificationDate(const Stat& st)
 static int getNextNum(dirent* d, string_ref prefix, string_ref extension,
                       unsigned nofdigits)
 {
-	string_ref::size_type extensionLen = extension.size();
-	string_ref::size_type prefixLen = prefix.size();
+	auto extensionLen = extension.size();
+	auto prefixLen = prefix.size();
 	string_ref name(d->d_name);
 
 	if ((name.size() != (prefixLen + nofdigits + extensionLen)) ||

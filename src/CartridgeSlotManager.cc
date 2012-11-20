@@ -329,7 +329,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
 	//       the event recording feature?
-	string_ref::size_type pos = cartname.rfind("::");
+	auto pos = cartname.rfind("::");
 	if (pos != string_ref::npos) {
 		cartname = cartname.substr(pos + 2);
 	}

@@ -266,7 +266,7 @@ static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 
 	// try searching backward (this also checks current position)
 	assert(pos > min);
-	string_ref::size_type pos2 = line.substr(min, pos - min).find_last_of(delimiters);
+	auto pos2 = line.substr(min, pos - min).find_last_of(delimiters);
 	if (pos2 != string_ref::npos) {
 		pos2 += min + 1;
 		assert(min < pos2);
@@ -275,7 +275,7 @@ static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 	}
 
 	// try searching forward
-	string_ref::size_type pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
+	auto pos3 = line.substr(pos, max - pos).find_first_of(delimiters);
 	if (pos3 != string_ref::npos) {
 		pos3 += pos;
 		assert(pos3 < max);

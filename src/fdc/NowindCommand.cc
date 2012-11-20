@@ -59,7 +59,7 @@ void NowindCommand::processHdimage(
 	// disambiguity we will always interpret the string as <filename> if
 	// it is an existing filename.
 	set<unsigned> partitions;
-	string::size_type pos = hdimage.find_last_of(':');
+	auto pos = hdimage.find_last_of(':');
 	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
 		partitions = StringOp::parseRange(
 			string_ref(hdimage).substr(string_ref::size_type(pos) + 1),

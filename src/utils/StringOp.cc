@@ -260,7 +260,7 @@ bool endsWith(string_ref total, char part)
 
 void trimRight(string& str, const char* chars)
 {
-	string::size_type pos = str.find_last_not_of(chars);
+	auto pos = str.find_last_not_of(chars);
 	if (pos != string::npos) {
 		str.erase(pos + 1);
 	} else {
@@ -269,7 +269,7 @@ void trimRight(string& str, const char* chars)
 }
 void trimRight(string& str, char chars)
 {
-	string::size_type pos = str.find_last_not_of(chars);
+	auto pos = str.find_last_not_of(chars);
 	if (pos != string::npos) {
 		str.erase(pos + 1);
 	} else {
@@ -301,7 +301,7 @@ void trimLeft (string_ref& str, string_ref chars)
 
 void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_ref& last)
 {
-	string_ref::size_type pos = str.find_first_of(chars);
+	auto pos = str.find_first_of(chars);
 	if (pos == string_ref::npos) {
 		first = str;
 		last.clear();
@@ -312,7 +312,7 @@ void splitOnFirst(string_ref str, string_ref chars, string_ref& first, string_re
 }
 void splitOnFirst(string_ref str, char chars, string_ref& first, string_ref& last)
 {
-	string_ref::size_type pos = str.find_first_of(chars);
+	auto pos = str.find_first_of(chars);
 	if (pos == string_ref::npos) {
 		first = str;
 		last.clear();
@@ -324,7 +324,7 @@ void splitOnFirst(string_ref str, char chars, string_ref& first, string_ref& las
 
 void splitOnLast(string_ref str, string_ref chars, string_ref& first, string_ref& last)
 {
-	string_ref::size_type pos = str.find_last_of(chars);
+	auto pos = str.find_last_of(chars);
 	if (pos == string_ref::npos) {
 		first.clear();
 		last = str;
@@ -335,7 +335,7 @@ void splitOnLast(string_ref str, string_ref chars, string_ref& first, string_ref
 }
 void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last)
 {
-	string_ref::size_type pos = str.find_last_of(chars);
+	auto pos = str.find_last_of(chars);
 	if (pos == string_ref::npos) {
 		first.clear();
 		last = str;
@@ -400,7 +400,7 @@ static void parseRange2(string_ref str, set<unsigned>& result,
 	trimRight(str, " \t");
 	if (str.empty()) return;
 
-	string_ref::size_type pos = str.find('-');
+	auto pos = str.find('-');
 	if (pos == string_ref::npos) {
 		insert(parseNumber(str), result, min, max);
 	} else {
@@ -419,7 +419,7 @@ set<unsigned> parseRange(string_ref str, unsigned min, unsigned max)
 {
 	set<unsigned> result;
 	while (true) {
-		string_ref::size_type next = str.find(',');
+		auto next = str.find(',');
 		string_ref sub = (next == string_ref::npos)
 		               ? str
 		               : str.substr(0, next++);

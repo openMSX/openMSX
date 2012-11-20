@@ -67,7 +67,7 @@ string_ref::size_type string_ref::find(string_ref s) const
 	// std::string::find() in gcc uses a similar simple algorithm.
 	if (s.empty()) return 0;
 	if (s.size() <= siz) {
-		size_type m = siz - s.size();
+		auto m = siz - s.size();
 		for (size_type pos = 0; pos <= m; ++pos) {
 			if ((dat[pos] == s[0]) &&
 			    std::equal(s.begin() + 1, s.end(), dat + pos + 1)) {
@@ -89,8 +89,8 @@ string_ref::size_type string_ref::rfind(string_ref s) const
 	// see comment in find()
 	if (s.empty()) return siz;
 	if (s.size() <= siz) {
-		size_type m = siz - s.size();
-		for (size_type pos = m; pos != size_type(-1); --pos) {
+		auto m = siz - s.size();
+		for (auto pos = m; pos != size_type(-1); --pos) {
 			if ((dat[pos] == s[0]) &&
 			    std::equal(s.begin() + 1, s.end(), dat + pos + 1)) {
 				return pos;

@@ -67,7 +67,7 @@ bool RecordedCommand::needRecord(const vector<string>& /*tokens*/) const
 
 static string_ref getBaseName(string_ref str)
 {
-	string_ref::size_type pos = str.rfind("::");
+	auto pos = str.rfind("::");
 	return (pos == string_ref::npos) ? str : str.substr(pos + 2);
 }
 
