@@ -241,17 +241,16 @@ proc do_menu_open {top_menu} {
 
 	set ::pause true
 	# TODO make these bindings easier to customize
-	bind_default "keyb UP"     -repeat {osd_menu::menu_action UP   }
-	bind_default "keyb DOWN"   -repeat {osd_menu::menu_action DOWN }
-	bind_default "keyb LEFT"   -repeat {osd_menu::menu_action LEFT }
-	bind_default "keyb RIGHT"  -repeat {osd_menu::menu_action RIGHT}
+	bind_default "OSDcontrol UP PRESS"    -repeat {osd_menu::menu_action UP   }
+	bind_default "OSDcontrol DOWN PRESS"  -repeat {osd_menu::menu_action DOWN }
+	bind_default "OSDcontrol LEFT PRESS"  -repeat {osd_menu::menu_action LEFT }
+	bind_default "OSDcontrol RIGHT PRESS" -repeat {osd_menu::menu_action RIGHT}
 	if {$is_dingoo} {
 		bind_default "keyb LCTRL"  {osd_menu::menu_action A    }
 		bind_default "keyb LALT"   {osd_menu::menu_action B    }
 	} else {
-		bind_default "keyb SPACE"  {osd_menu::menu_action A    }
-		bind_default "keyb RETURN" {osd_menu::menu_action A    }
-		bind_default "keyb ESCAPE" {osd_menu::menu_action B    }
+		bind_default "OSDcontrol A PRESS" {osd_menu::menu_action A }
+		bind_default "OSDcontrol B PRESS" {osd_menu::menu_action B }
 	}
 }
 
@@ -275,17 +274,16 @@ proc menu_last_closed {} {
 
 	set ::pause false
 	# TODO avoid duplication with 'main_menu_open'
-	unbind_default "keyb UP"
-	unbind_default "keyb DOWN"
-	unbind_default "keyb LEFT"
-	unbind_default "keyb RIGHT"
+	unbind_default "OSDcontrol UP PRESS"
+	unbind_default "OSDcontrol DOWN PRESS" 
+	unbind_default "OSDcontrol LEFT PRESS"
+	unbind_default "OSDcontrol RIGHT PRESS" 
 	if {$is_dingoo} {
 		unbind_default "keyb LCTRL"
 		unbind_default "keyb LALT"
 	} else {
-		unbind_default "keyb SPACE"
-		unbind_default "keyb RETURN"
-		unbind_default "keyb ESCAPE"
+		unbind_default "OSDcontrol A PRESS"
+		unbind_default "OSDcontrol B PRESS"
 	}
 
 	namespace eval ::osd_control {unset close}

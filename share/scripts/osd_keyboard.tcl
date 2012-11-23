@@ -48,17 +48,17 @@ proc disable_osd_keyboard {} {
 	unbind_default "mouse button1 down"
 	unbind_default "mouse button1 up"
 	unbind_default "mouse button3 down"
-	unbind_default "keyb UP"
-	unbind_default "keyb DOWN"
-	unbind_default "keyb LEFT"
-	unbind_default "keyb RIGHT"
+	unbind_default "OSDcontrol UP PRESS"
+	unbind_default "OSDcontrol DOWN PRESS" 
+	unbind_default "OSDcontrol LEFT PRESS"
+	unbind_default "OSDcontrol RIGHT PRESS" 
 	if {$is_dingoo} {
 		unbind_default "keyb LCTRL,PRESS"
 		unbind_default "keyb LCTRL,RELEASE"
 		unbind_default "keyb LALT"
 	} else {
-		unbind_default "keyb SPACE,PRESS"
-		unbind_default "keyb SPACE,RELEASE"
+		unbind_default "OSDcontrol A PRESS"
+		unbind_default "OSDcontrol A RELEASE"
 	}
 	#reset keyboard matrix
 	for {set i 0} {$i <= 8} {incr i} {
@@ -90,17 +90,17 @@ proc enable_osd_keyboard {} {
 
 	bind_default "mouse button3 down"  {osd_keyboard::key_hold_toggle}
 
-	bind_default "keyb UP"     -repeat {osd_keyboard::selection_row -1}
-	bind_default "keyb DOWN"   -repeat {osd_keyboard::selection_row +1}
-	bind_default "keyb LEFT"   -repeat {osd_keyboard::selection_col -1}
-	bind_default "keyb RIGHT"  -repeat {osd_keyboard::selection_col +1}
+	bind_default "OSDcontrol UP PRESS"     -repeat {osd_keyboard::selection_row -1}
+	bind_default "OSDcontrol DOWN PRESS"   -repeat {osd_keyboard::selection_row +1}
+	bind_default "OSDcontrol LEFT PRESS"   -repeat {osd_keyboard::selection_col -1}
+	bind_default "OSDcontrol RIGHT PRESS"  -repeat {osd_keyboard::selection_col +1}
 	if {$is_dingoo} {
 		bind_default "keyb LCTRL,PRESS"    {osd_keyboard::selection_press  }
 		bind_default "keyb LCTRL,RELEASE"  {osd_keyboard::selection_release}
 		bind_default "keyb LALT"           {osd_keyboard::key_hold_toggle  }
 	} else {
-		bind_default "keyb SPACE,PRESS"    {osd_keyboard::selection_press  }
-		bind_default "keyb SPACE,RELEASE"  {osd_keyboard::selection_release}
+		bind_default "OSDcontrol A PRESS"    {osd_keyboard::selection_press  }
+		bind_default "OSDcontrol A RELEASE"  {osd_keyboard::selection_release}
 	}
 
 	#Define Keyboard (how do we handle the shift/ctrl/graph command?)
@@ -480,6 +480,10 @@ proc key_matrix {keynum state} {
 if {$is_dingoo} {
 	bind_default "keyb RETURN" toggle_osd_keyboard
 }
+
+# Android maps one of the virtual keys to WORLD_95
+# listen to that one in order to show the keyboard
+bind_default "keyb WORLD_95" toggle_osd_keyboard
 
 namespace export toggle_osd_keyboard
 
