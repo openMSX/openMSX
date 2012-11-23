@@ -213,14 +213,6 @@ public:
 	enum { LEFT_BUTTON, RIGHT_BUTTON, UP_BUTTON, DOWN_BUTTON,
 		A_BUTTON, B_BUTTON };
 
-	/*
-	static const unsigned LEFT_BUTTON   = 1;
-	static const unsigned RIGHT_BUTTON  = 2;
-	static const unsigned UP_BUTTON     = 3;
-	static const unsigned DOWN_BUTTON   = 4;
-	static const unsigned A_BUTTON      = 5;
-	static const unsigned B_BUTTON      = 6;
-*/
 	unsigned getButton() const;
 
 protected:
