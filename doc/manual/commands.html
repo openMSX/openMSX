@@ -486,6 +486,12 @@
 
       <td>The openMSX window got (1) or lost (0) focus</td>
     </tr>
+
+    <tr>
+      <td><code>OSDcontrol &lt;button&gt; PRESS|RELEASE</code></td>
+
+      <td>The virtual OSDcontrol &lt;button&gt; got pressed or released.</td>
+    </tr>
   </table>
 
   <div class="subsectiontitle">
@@ -554,6 +560,11 @@
     <br />
     Toggle fullscreen with ALT and ENTER.<br/>
     <code>bind ALT+RETURN toggle fullscreen</code><br />
+    <br />
+    React to joystick or cursor up movement in a TCL script:<br />
+    <code>bind_default "OSDcontrol UP PRESS" -repeat {osd_menu::menu_action UP }</code><br />
+    React to joystick button 1 or spacebar press in a TCL script:<br />
+    <code>bind_default "OSDcontrol A PRESS" -repeat {osd_menu::menu_action A }</code><br />
   </div>
 
   <h3><a id="cart">cart / cart&lt;x&gt;</a></h3>
