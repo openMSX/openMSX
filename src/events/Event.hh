@@ -23,6 +23,8 @@ enum EventType
 	OPENMSX_FOCUS_EVENT,
 	OPENMSX_RESIZE_EVENT,
 	OPENMSX_QUIT_EVENT,
+	OPENMSX_OSD_CONTROL_RELEASE_EVENT,
+	OPENMSX_OSD_CONTROL_PRESS_EVENT,
 	OPENMSX_BOOT_EVENT, // sent when the MSX resets or power ups
 
 	/** Sent when VDP (V99x8 or V9990) reaches the end of a frame */

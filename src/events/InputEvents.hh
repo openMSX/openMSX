@@ -207,6 +207,47 @@ private:
 	virtual bool lessImpl(const Event& other) const;
 };
 
+class OsdControlEvent : public TimedEvent
+{
+public:
+	enum { LEFT_BUTTON, RIGHT_BUTTON, UP_BUTTON, DOWN_BUTTON,
+		A_BUTTON, B_BUTTON };
+
+	/*
+	static const unsigned LEFT_BUTTON   = 1;
+	static const unsigned RIGHT_BUTTON  = 2;
+	static const unsigned UP_BUTTON     = 3;
+	static const unsigned DOWN_BUTTON   = 4;
+	static const unsigned A_BUTTON      = 5;
+	static const unsigned B_BUTTON      = 6;
+*/
+	unsigned getButton() const;
+
+protected:
+	OsdControlEvent(EventType type, unsigned button_);
+	void toStringHelper(TclObject& result) const;
+
+private:
+	virtual bool lessImpl(const Event& other) const;
+	const unsigned button;
+};
+
+class OsdControlReleaseEvent : public OsdControlEvent
+{
+public:
+	explicit OsdControlReleaseEvent(unsigned button);
+private:
+	virtual void toStringImpl(TclObject& result) const;
+};
+
+class OsdControlPressEvent : public OsdControlEvent
+{
+public:
+	explicit OsdControlPressEvent(unsigned button);
+private:
+	virtual void toStringImpl(TclObject& result) const;
+};
+
 } // namespace openmsx
 
 #endif

@@ -365,4 +365,61 @@ bool QuitEvent::lessImpl(const Event& /*other*/) const
 	return false;
 }
 
+// class OsdControlEvent
+
+OsdControlEvent::OsdControlEvent(EventType type, unsigned button_)
+	: TimedEvent(type), button(button_)
+{
+}
+
+unsigned OsdControlEvent::getButton() const
+{
+	return button;
+}
+
+void OsdControlEvent::toStringHelper(TclObject& result) const
+{
+	result.addListElement("OSDcontrol");
+	static const char* const names[] = {
+		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
+	};
+	result.addListElement(names[getButton()]);
+}
+
+bool OsdControlEvent::lessImpl(const Event& other) const
+{
+	const OsdControlEvent* otherOsdControlEvent =
+		checked_cast<const OsdControlEvent*>(&other);
+	return getButton() < otherOsdControlEvent->getButton();
+}
+
+
+// class OsdControlReleaseEvent
+
+OsdControlReleaseEvent::OsdControlReleaseEvent(unsigned button)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_RELEASE_EVENT, button)
+{
+}
+
+void OsdControlReleaseEvent::toStringImpl(TclObject& result) const
+{
+	toStringHelper(result);
+	result.addListElement("RELEASE");
+}
+
+
+// class OsdControlPressEvent
+
+OsdControlPressEvent::OsdControlPressEvent(unsigned button)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_PRESS_EVENT, button)
+{
+}
+
+void OsdControlPressEvent::toStringImpl(TclObject& result) const
+{
+	toStringHelper(result);
+	result.addListElement("PRESS");
+}
+
+
 } // namespace openmsx

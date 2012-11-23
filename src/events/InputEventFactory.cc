@@ -5,6 +5,7 @@
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include "Interpreter.hh"
+#include "openmsx.hh"
 
 using std::string;
 using std::vector;
@@ -77,6 +78,45 @@ static EventPtr parseMouseEvent(
 		}
 	} else {
 		throw CommandException("Invalid mouse event: " + str);
+	}
+}
+
+static EventPtr parseOsdControlEvent(
+		const string& str, const vector<string>& components)
+{
+#ifdef DEBUG
+	ad_printf("components.size(): %d\n", components.size());
+	for (unsigned cnt=0; cnt != components.size(); cnt++) {
+		ad_printf("component[%d]: %s\n", cnt, components[cnt].c_str());
+	}
+#endif
+	if (components.size() != 3) {
+		throw CommandException("Invalid OSDcontrol event: " + str);
+	}
+	string buttonName = components[1];
+	unsigned button;
+	if (buttonName == "LEFT") {
+		button = OsdControlEvent::LEFT_BUTTON;
+	} else if (buttonName == "RIGHT") {
+		button = OsdControlEvent::RIGHT_BUTTON;
+	} else if (buttonName == "UP") {
+		button = OsdControlEvent::UP_BUTTON;
+	} else if (buttonName == "DOWN") {
+		button = OsdControlEvent::DOWN_BUTTON;
+	} else if (buttonName == "A") {
+		button = OsdControlEvent::A_BUTTON;
+	} else if (buttonName == "B") {
+		button = OsdControlEvent::B_BUTTON;
+	} else {
+		throw CommandException("Invalid OSDcontrol event: " + str);
+	}
+	if (components[2] == "RELEASE") {
+		return make_shared<OsdControlReleaseEvent>(button);
+	} else if (components[2] == "PRESS") {
+		return make_shared<OsdControlPressEvent>(button);
+	}
+	else {
+		throw CommandException("Invalid OSDcontrol event: " + str);
 	}
 }
 
@@ -171,6 +211,8 @@ EventPtr createInputEvent(const string& str)
 	} else if (components[0] == "command") {
 		return EventPtr();
 		//return parseCommandEvent(str, components);
+	} else if (components[0] == "OSDcontrol") {
+		return parseOsdControlEvent(str, components);
 	} else {
 		// fall back
 		return parseKeyEvent(components[0], 0);

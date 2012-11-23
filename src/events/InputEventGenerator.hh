@@ -7,6 +7,7 @@
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "build-info.hh"
+#include "Keys.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -68,10 +69,20 @@ private:
 		ESCAPE_GRAB_WAIT_GAIN
 	} escapeGrabState;
 
+	// OsdControl
+	void setNewOsdControlButtonState(unsigned newState);
+	void triggerOsdControlEventsFromJoystickAxisMotion(unsigned axis, short value);
+	void osdControlChangeButton(bool up, unsigned changedButtonMask);
+	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up);
+	void triggerOsdControlEventsFromKeyEvent(Keys::KeyCode keyCode, bool up);
+
+	
 #if PLATFORM_GP2X
 	int stat8; // last joystick status (8 input switches)
 #endif
 	bool keyRepeat;
+
+	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
 };
 
 } // namespace openmsx
