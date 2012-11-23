@@ -443,7 +443,7 @@ static void getTimeDate(const string& filename, unsigned& time, unsigned& date)
 		date = 0;
 	} else {
 		// some info indicates that st.st_mtime could be useless on win32 with vfat.
-		getTimeDate(st.st_mtime, time, date);
+        getTimeDate((time_t&)st.st_mtime, time, date);
 	}
 }
 
