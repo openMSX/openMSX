@@ -1,0 +1,134 @@
+#set -xv
+echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
+echo "AB:INFO pwd: $(pwd)"
+
+# TODO: find out if flavour can be passed from SDL build environment
+#openmsx_flavour="android-debug"
+openmsx_flavour="android"
+
+if [ ! -f environment.props ]; then
+    echo "AB:ERROR: No file environment.props in $(pwd)"
+    exit 1
+fi
+
+# Read environment.props to get following two params:
+#   sdl_android_port_path
+#   my_home_dir
+. ./environment.props
+
+# Remember location of the current directory, which is the directory
+# with all android specific code for the app
+my_app_android_dir="$(pwd)"
+
+# Use latest version of the setEnvironment script; it is the one that uses GCC 4.6
+set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
+
+# Parsing the CPU architecture information
+CPU_ARCH="$1"
+if [ "${CPU_ARCH}" = "armeabi" ]; then
+    so_file=libapplication.so
+    openmsx_target_cpu=arm
+else
+    echo "AB:ERROR Unsupported architecture: $1"
+    exit 1
+fi
+
+echo "AB:INFO entering openMSX home directory: ${my_home_dir}"
+#echo "AB:INFO current shell: ${SHELL}"
+#echo "AB:INFO BEGIN all environment params:"
+#set
+#echo "AB:INFO END all environment params:"
+#cd ${my_home_dir}
+
+# Unset make related environment parameters that get set by the
+# SDL for Android build system and that conflict with openMSX
+# build system
+unset BUILD_NUM_CPUS
+unset MAKEFLAGS
+unset MAKELEVEL
+unset MAKEOVERRIDES
+unset MFLAGS
+unset V
+
+cpu_count=1
+if [ -f /proc/cpuinfo ]; then
+	cpu_count=$(grep "processor[[:space:]]*:" /proc/cpuinfo | wc -l)
+	if [ ${cpu_count} -eq 0 ]; then
+		cpu_count=1
+	fi
+fi
+echo "AB:INFO Detected ${cpu_count} CPUs for parallel build"
+
+echo "AB:INFO Making this app for CPU architecture ${CPU_ARCH}"
+export SDL_ANDROID_PORT_PATH="${sdl_android_port_path}"
+export CXXFLAGS='-frtti -fexceptions -marm'
+export LDFLAGS='-lpng'
+unset BUILD_EXECUTABLE
+#"${set_sdl_app_environment}" /bin/sh -c "set"
+# TODO: find a good solution to filter ...noexecstack and NDEBUG when compiling debug flavour
+#    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//' -e 's/\\-Wa,\\-\\-noexecstack//' -e 's/\\-DNDEBUG//g');\
+#    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//');\
+"${set_sdl_app_environment}" /bin/sh -c "\
+    cd ${my_home_dir};\
+    echo \"AB:INFO CXX: \${CXX}\";\
+    echo \"AB:INFO CXXFLAGS: \${CXXFLAGS}\";\
+    export _CC=\${CC};\
+    export _LD=\${LD};\
+    export ANDROID_LDFLAGS=\${LDFLAGS};\
+    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//');\
+    echo \"AB:INFO ANDROID_CXXFLAGS: \${ANDROID_CXXFLAGS}\";\
+    unset CXXFLAGS;\
+    make -j ${cpu_count} all\
+         OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
+         OPENMSX_TARGET_OS=android\
+         OPENMSX_FLAVOUR=${openmsx_flavour}\
+"
+if [ $? -ne 0 ]; then
+    echo "AB:ERROR Make failed"
+    exit 1
+fi
+
+# Return to the directory containing this script and all data about this application
+# that the SDL APK build system requires
+cd "${my_app_android_dir}"
+
+# Copy the shared library overhere
+echo "AB:INFO Copying output file into android directory $(pwd)"
+cp "${my_home_dir}/derived/${openmsx_target_cpu}-android-${openmsx_flavour}/lib/openmsx.so" "${so_file}"
+if [ $? -ne 0 ]; then
+    echo "AB:ERROR Copy failed"
+fi
+
+echo "AB:INFO Done with build of app"
+
+echo "AB:INFO Copying icon if required"
+openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-32.png"
+if [ ! -f icon.png -o "${openmsx_icon_file}" -nt icon.png ]; then
+	cp -p "${openmsx_icon_file}" icon.png
+fi
+
+echo "AB:INFO Validating if appdata.zip must be rebuild"
+if [ ! -f AndroidData/appdata.zip ]; then
+	newfiles=1
+else
+	newfiles=$(find ${my_home_dir}/share ${my_home_dir}/Contrib/cbios -newer AndroidData/appdata.zip | wc -l)
+fi
+if [ ${newfiles} -gt 0 ]; then
+	echo "AB:INFO Rebuilding appdata.zip"
+	rm -f AndroidData/appdata.zip
+	rm -rf AndroidData/appdata
+	mkdir -p AndroidData/appdata/openmsx_system
+	cd AndroidData/appdata/openmsx_system
+	cp -r "${my_home_dir}"/share/* .
+	cd machines
+	cp -r "${my_home_dir}"/Contrib/cbios/* .
+	cd "${my_app_android_dir}"/AndroidData/appdata
+	zip -r ../appdata.zip * > /dev/null
+	cd ..
+	rm -rf appdata
+	echo "AB:INFO Done rebuilding appdata.zip"
+else
+	echo "AB/INFO appdata.zip is still fine"
+fi
+
+exit 0

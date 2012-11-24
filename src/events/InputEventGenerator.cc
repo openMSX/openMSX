@@ -5,11 +5,12 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
-#include "Keys.hh" // GP2X
+#include "Keys.hh" // GP2X and OSDcontrol
 #include "openmsx.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 #include <cassert>
 
 using std::string;
@@ -204,7 +205,7 @@ static int calcStat4(int stat8)
 #endif
 
 
-#ifdef ANDROID
+#if PLATFORM_ANDROID
 //TODO: make JOYVALUE_THRESHOLD dynamic, depending on virtual key size
 static const int JOYVALUE_THRESHOLD = 32768 / 4;
 #else
@@ -310,19 +311,17 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	Keys::KeyCode keyCode;
 	switch (evt.type) {
 	case SDL_KEYUP:
-#ifdef ANDROID
 		// Virtual joystick of SDL Android port does not have joystick buttons.
 		// It has however up to 6 virtual buttons that can be mapped to SDL keyboard
 		// events. Two of these virtual buttons will be mapped to keys SDLK_WORLD_93 and 94
 		// and are interpeted here as joystick buttons (respectively button 0 and 1).
-		if (evt.key.keysym.sym == SDLK_WORLD_93) {
+		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 			event = make_shared<JoystickButtonUpEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(0, true);
-		} else if (evt.key.keysym.sym == SDLK_WORLD_94) {
+		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
 			event = make_shared<JoystickButtonUpEvent>(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(1, true);
 		} else {
-#endif
 			keyCode = Keys::getCode(
 					evt.key.keysym.sym,
 					evt.key.keysym.mod,
@@ -330,20 +329,16 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 					true);
 			event = make_shared<KeyUpEvent>(keyCode, evt.key.keysym.unicode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, true);
-#ifdef ANDROID
 		}
-#endif
 		break;
 	case SDL_KEYDOWN:
-#ifdef ANDROID
-		if (evt.key.keysym.sym == SDLK_WORLD_93) {
+		if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_93) {
 			event = make_shared<JoystickButtonDownEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(0, false);
-		} else if (evt.key.keysym.sym == SDLK_WORLD_94) {
+		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
 			event = make_shared<JoystickButtonDownEvent>(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(1, false);
 		} else {
-#endif
 			keyCode = Keys::getCode(
 					evt.key.keysym.sym,
 					evt.key.keysym.mod,
@@ -351,9 +346,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 					false);
 			event = make_shared<KeyDownEvent>(keyCode, evt.key.keysym.unicode);
 			triggerOsdControlEventsFromKeyEvent(keyCode, false);
-#ifdef ANDROID
 		}
-#endif
 		break;
 
 	case SDL_MOUSEBUTTONUP:

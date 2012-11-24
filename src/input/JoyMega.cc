@@ -12,13 +12,18 @@
 #include "serialize_meta.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 
 using std::string;
 using std::shared_ptr;
 
 namespace openmsx {
 
+#if PLATFORM_ANDROID
+static const int THRESHOLD = 32768 / 4;
+#else
 static const int THRESHOLD = 32768 / 10;
+#endif
 
 void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,

@@ -5,6 +5,7 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
+#include "build-info.hh"
 #include <cstdio>
 #include <cstdlib>
 #include <cassert>
@@ -45,7 +46,7 @@ void LocalFileReference::init(File& file)
 	}
 
 	// create temp dir
-#ifdef _WIN32
+#if defined(_WIN32) || PLATFORM_ANDROID
 	tmpDir = FileOperations::getTempDir() + FileOperations::nativePathSeparator + "openmsx";
 #else
 	// TODO - why not just use getTempDir()?

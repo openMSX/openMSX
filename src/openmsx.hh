@@ -3,13 +3,15 @@
 #ifndef OPENMSX_HH
 #define OPENMSX_HH
 
+#include "build-info.hh"
+
 // don't just always include this, saves about 1 minute build time!!
 #ifdef DEBUG
 #include <iostream>
 #include <sstream>
 #endif
 
-#ifdef ANDROID
+#if PLATFORM_ANDROID
 #include <android/log.h>
 #define ad_printf(...) __android_log_print(ANDROID_LOG_INFO, "openMSX", __VA_ARGS__)
 #else
@@ -60,7 +62,7 @@ void DebugPrint(const char* output);
 		std::cout << output << std::endl;	\
 		::openmsx::DebugPrint(output.str().c_str());	\
 	} while (0)
-#elif defined(ANDROID)
+#elif PLATFORM_ANDROID
 #define PRT_DEBUG(mes)				\
 	do {					\
 		std::ostringstream output;			\

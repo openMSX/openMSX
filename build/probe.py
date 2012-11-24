@@ -215,6 +215,8 @@ class TargetSystem(object):
 		sourcePath = self.outDir + '/' + makeName + '.cc'
 		objectPath = self.outDir + '/' + makeName + '.o'
 		binaryPath = self.outDir + '/' + makeName + '.bin'
+		if self.platform == 'android':
+			binaryPath = self.outDir + '/' + makeName + '.so'
 
 		funcName = library.function
 		headers = library.getHeaders(self.platform)

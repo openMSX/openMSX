@@ -11,7 +11,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-			 'COMPILE_ENV', 'LINK_ENV'),
+                'COMPILE_ENV', 'LINK_ENV', 'ANDROID_LDFLAGS', 'ANDROID_CXXFLAGS'),
 			''
 			)
 		)
@@ -24,6 +24,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	platformGP2X = False
 	platformMaemo5 = targetPlatform == 'maemo5'
 	platformPandora = targetPlatform == 'pandora'
+	platformAndroid = targetPlatform == 'android'
 
 	# Defaults.
 	have16BPP = True
@@ -33,6 +34,12 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# Platform overrides.
 	if platformDingux or platformGP2X:
+		have32BPP = False
+		maxScaleFactor = 1
+	elif platformAndroid:
+		# At the moment, libsdl android crashes when trying to dynamically change the scale factor
+		# TODO: debug why it crashes and then change the maxScaleFactor parameter here
+		# so that people with a powerfull enough android device can use a higher scale factor
 		have32BPP = False
 		maxScaleFactor = 1
 	elif platformMaemo5:
@@ -61,6 +68,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	yield '#define PLATFORM_DINGUX %d' % platformDingux
 	yield '#define PLATFORM_GP2X %d' % platformGP2X
 	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
+	yield '#define PLATFORM_ANDROID %d' % platformAndroid
 	yield '#define HAVE_16BPP %d' % have16BPP
 	yield '#define HAVE_32BPP %d' % have32BPP
 	yield '#define MIN_SCALE_FACTOR %d' % minScaleFactor

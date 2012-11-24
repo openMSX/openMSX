@@ -12,13 +12,18 @@
 #include "serialize_meta.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 
 using std::string;
 using std::shared_ptr;
 
 namespace openmsx {
 
+#if PLATFORM_ANDROID
+static const int THRESHOLD = 32768 / 4;
+#else
 static const int THRESHOLD = 32768 / 10;
+#endif
 
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,
@@ -35,6 +40,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 	}
 
 	unsigned numJoysticks = SDL_NumJoysticks();
+	ad_printf("#joysticks: %d\n", numJoysticks);
 	for (unsigned i = 0; i < numJoysticks; i++) {
 		SDL_Joystick* joystick = SDL_JoystickOpen(i);
 		if (joystick) {
@@ -44,7 +50,10 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 			// device from /dev/input/js* if it has no buttons, while
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
-			if (SDL_JoystickNumButtons(joystick) != 0) {
+			// On the other hand, the android SDL port has a virtual onscreen joystick that does
+			// not have buttons, so on android, simply accept any joystick
+			ad_printf("#joystick buttons: %d\n", SDL_JoystickNumButtons(joystick));
+			if (PLATFORM_ANDROID || SDL_JoystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
 					make_unique<Joystick>(
 						eventDistributor,

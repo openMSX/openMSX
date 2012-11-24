@@ -47,7 +47,7 @@ goto start
 :3rd
 cls
 echo -- Downloading and extracting 3rd-party files
-python build\3rdparty_download.py windows
+python build\thirdparty_download.py windows
 pause
 cls
 goto start

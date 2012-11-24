@@ -39,6 +39,7 @@
 #include <Carbon/Carbon.h>
 #endif
 
+#include "openmsx.hh"
 #include "ReadDir.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
@@ -558,6 +559,9 @@ string getSystemDataDir()
 	newValue = getConventionalPath(filename.substr(0, pos)) + "/share";
 #elif defined(__APPLE__)
 	newValue = findShareDir();
+#elif PLATFORM_ANDROID
+	newValue = getAbsolutePath("openmsx_system");
+	ad_printf("System data dir: %s", newValue.c_str());
 #else
 	// defined in build-info.hh (default /opt/openMSX/share)
 	newValue = DATADIR;
@@ -743,6 +747,9 @@ string getTempDir()
 	}
 	throw FatalError(StringOp::Builder() <<
 		"GetTempPathW failed: " << GetLastError());
+#elif PLATFORM_ANDROID
+	string result = getSystemDataDir() + "/tmp";
+	return result;
 #else
 	const char* result = nullptr;
 	if (!result) result = getenv("TMPDIR");

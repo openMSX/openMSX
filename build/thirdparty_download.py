@@ -56,23 +56,30 @@ def extractPackage(package, tarballsDir, sourcesDir, patchesDir):
 			patch(diff, sourcesDir)
 			print 'Patched:', diff.getPath()
 
-def main(platform, tarballsDir, sourcesDir, patchesDir):
-	configuration = getConfiguration('3RD_STA')
-	components = configuration.iterDesiredComponents()
 
-	# Compute the set of all directly and indirectly required libraries,
-	# then filter out system libraries.
-	thirdPartyLibs = set(
-		makeName
-		for makeName in allDependencies(requiredLibrariesFor(components))
-		if not librariesByName[makeName].isSystemLibrary(platform)
-		)
-
-	for makeName in sorted(thirdPartyLibs):
+def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
 		package = getPackage(makeName)
 		downloadPackage(package, tarballsDir)
 		verifyPackage(package, tarballsDir)
 		extractPackage(package, tarballsDir, sourcesDir, patchesDir)
+
+def main(platform, tarballsDir, sourcesDir, patchesDir):
+	if platform == 'android':
+		fetchPackageSource('TCL', tarballsDir, sourcesDir, patchesDir)
+	else:
+		configuration = getConfiguration('3RD_STA')
+		components = configuration.iterDesiredComponents()
+
+		# Compute the set of all directly and indirectly required libraries,
+		# then filter out system libraries.
+		thirdPartyLibs = set(
+			makeName
+			for makeName in allDependencies(requiredLibrariesFor(components))
+			if not librariesByName[makeName].isSystemLibrary(platform)
+			)
+
+	for makeName in sorted(thirdPartyLibs):
+		fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 2:
@@ -84,6 +91,7 @@ if __name__ == '__main__':
 			)
 	else:
 		print >> sys.stderr, (
-			'Usage: python 3rdparty_download.py TARGET_OS'
+			'Usage: python thirdparty_download.py TARGET_OS'
 			)
 		sys.exit(2)
+

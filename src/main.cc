@@ -18,6 +18,7 @@
 #include "StringOp.hh"
 #include "Thread.hh"
 #include "HostCPU.hh"
+#include "build-info.hh"
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -32,7 +33,7 @@
 // Set LOG_TO_FILE to 1 for any platform on which stdout and stderr must
 // be redirected to a file
 // Also, specify the appropriate file names, depending on the platform conventions
-#ifdef ANDROID
+#if PLATFORM_ANDROID
 #define LOG_TO_FILE 1
 #define STDOUT_LOG_FILE_NAME "openmsx_system/openmsx.stdout"
 #define STDERR_LOG_FILE_NAME "openmsx_system/openmsx.stderr"
