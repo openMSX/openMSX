@@ -57,7 +57,7 @@ class Library(object):
 			#       Note that distroRoot is for non-system libs only.
 			#       Trying a path relative to the compiler location would
 			#       probably work well.
-			return '/opt/opendingux-toolchain/usr/bin/%s' % scriptName
+			return '/opt/a320-toolchain/usr/mipsel-a320-linux-uclibc/sysroot/usr/bin/%s' % scriptName
 		elif distroRoot is None:
 			return scriptName
 		else:
