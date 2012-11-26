@@ -718,7 +718,8 @@ void ImagePrinterMSX::resetSettings()
 	fontWidth    = 8;
 	eightBit     = -1;
 
-	memcpy(fontInfo.rom, MSXFont, sizeof(fontInfo.rom));
+	// note: this only overwrites 9/12 of the fontInfo.rom array.
+	memcpy(fontInfo.rom, MSXFont, sizeof(MSXFont));
 	fontInfo.charWidth = 9;
 	fontInfo.pixelDelta = 1.0;
 	fontInfo.useRam = false;
@@ -1263,7 +1264,7 @@ void ImagePrinterEpson::resetSettings()
 	fontWidth    = 6;
 	eightBit     = -1;
 
-	memcpy(fontInfo.rom, EpsonFontRom, sizeof(fontInfo.rom));
+	memcpy(fontInfo.rom, EpsonFontRom, sizeof(EpsonFontRom));
 	fontInfo.charWidth = 12;
 	fontInfo.pixelDelta = 0.5;
 	fontInfo.useRam = false;
