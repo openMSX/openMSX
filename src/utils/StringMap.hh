@@ -31,9 +31,11 @@
 
 
 #include "string_ref.hh"
+#include "likely.hh"
 #include <cassert>
 #include <cstring> // memcpy
 #include <cstdlib> // malloc, free
+#include <new>     // bad_alloc
 
 template<typename T> class StringMapConstIterator;
 template<typename T> class StringMapIterator;
@@ -122,6 +124,9 @@ public:
 		// Allocate memory.
 		auto newItem = static_cast<StringMapEntry*>(
 			malloc(sizeof(StringMapEntry) + key.size()));
+		if (unlikely(newItem == nullptr)) {
+			throw std::bad_alloc();
+		}
 
 		// Construct the value (using placement new).
 		new (newItem) StringMapEntry(key.size(), std::move(v));

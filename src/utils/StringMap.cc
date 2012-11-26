@@ -40,6 +40,9 @@ void StringMapImpl::init(unsigned initSize)
 	theTable = static_cast<StringMapEntryBase**>(calloc(
 		numBuckets + 1,
 		sizeof(StringMapEntryBase**) + sizeof(unsigned)));
+	if (unlikely(theTable == nullptr)) {
+		throw std::bad_alloc();
+	}
 
 	// Allocate one extra bucket, set it to look filled so the iterators
 	// stop at end.
@@ -158,6 +161,9 @@ void StringMapImpl::rehashTable()
 	auto newTableArray = static_cast<StringMapEntryBase**>(
 		calloc(newSize + 1,
 		       sizeof(StringMapEntryBase*) + sizeof(unsigned)));
+	if (unlikely(newTableArray == nullptr)) {
+		throw std::bad_alloc();
+	}
 	newTableArray[newSize] = reinterpret_cast<StringMapEntryBase*>(2);
 	auto newHashArray = reinterpret_cast<unsigned*>(newTableArray + newSize + 1);
 
