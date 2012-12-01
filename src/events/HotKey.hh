@@ -73,7 +73,6 @@ private:
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	EventPtr lastEvent;
-	bool osdControlActive;
 };
 
 } // namespace openmsx

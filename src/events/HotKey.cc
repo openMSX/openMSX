@@ -93,8 +93,6 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 		OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_PRESS_EVENT, *this, EventDistributor::HOTKEY);
-
-	osdControlActive = false;
 }
 
 HotKey::~HotKey()
@@ -260,10 +258,6 @@ void HotKey::bindDefault(const EventPtr& event, const HotKeyInfo& info)
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
-		if (dynamic_cast<const OsdControlEvent*>  (event.get())) {
-			// Binding an OSD Control event, implying that at least one is active
-			osdControlActive = true;
-		}
 		cmdMap[event] = info;
 	}
 	defaultMap[event] = info;
@@ -275,18 +269,6 @@ void HotKey::unbindDefault(const EventPtr& event)
 	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
 		cmdMap.erase(event);
-		// Validate if there is still at least one OsdControlEvent bound
-		bool osdControlStillActive = false;
-		for (auto it = cmdMap.begin();
-		     it != cmdMap.end(); ++it) {
-			EventPtr event = it->first;
-			if (dynamic_cast<const OsdControlEvent*>  (event.get())) {
-				// There is still at least one OsdControlEvent in the cmdMap
-				osdControlStillActive = true;
-				break;
-			}
-		}
-		osdControlActive = osdControlStillActive;
 	}
 	defaultMap.erase(event);
 }
@@ -302,8 +284,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	}
 	auto it = cmdMap.find(event);
 	if (it == cmdMap.end()) {
-		// Do not pass events to MSX when OsdControlEvents are bound
-		return osdControlActive ? EventDistributor::MSX : 0;
+		return 0;
 	}
 	const HotKeyInfo& info = it->second;
 	if (info.repeat) {
