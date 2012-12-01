@@ -241,17 +241,18 @@ proc do_menu_open {top_menu} {
 
 	set ::pause true
 	# TODO make these bindings easier to customize
-	bind_default "OSDcontrol UP PRESS"    -repeat {osd_menu::menu_action UP   }
-	bind_default "OSDcontrol DOWN PRESS"  -repeat {osd_menu::menu_action DOWN }
-	bind_default "OSDcontrol LEFT PRESS"  -repeat {osd_menu::menu_action LEFT }
-	bind_default "OSDcontrol RIGHT PRESS" -repeat {osd_menu::menu_action RIGHT}
+	bind -layer osd_menu "OSDcontrol UP PRESS"    -repeat {osd_menu::menu_action UP   }
+	bind -layer osd_menu "OSDcontrol DOWN PRESS"  -repeat {osd_menu::menu_action DOWN }
+	bind -layer osd_menu "OSDcontrol LEFT PRESS"  -repeat {osd_menu::menu_action LEFT }
+	bind -layer osd_menu "OSDcontrol RIGHT PRESS" -repeat {osd_menu::menu_action RIGHT}
 	if {$is_dingoo} {
-		bind_default "keyb LCTRL"  {osd_menu::menu_action A    }
-		bind_default "keyb LALT"   {osd_menu::menu_action B    }
+		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
+		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
 	} else {
-		bind_default "OSDcontrol A PRESS" {osd_menu::menu_action A }
-		bind_default "OSDcontrol B PRESS" {osd_menu::menu_action B }
+		bind -layer osd_menu "OSDcontrol A PRESS" {osd_menu::menu_action A }
+		bind -layer osd_menu "OSDcontrol B PRESS" {osd_menu::menu_action B }
 	}
+	activate_input_layer osd_menu -blocking
 }
 
 proc main_menu_close {} {
@@ -273,18 +274,7 @@ proc menu_last_closed {} {
 	variable is_dingoo
 
 	set ::pause false
-	# TODO avoid duplication with 'main_menu_open'
-	unbind_default "OSDcontrol UP PRESS"
-	unbind_default "OSDcontrol DOWN PRESS" 
-	unbind_default "OSDcontrol LEFT PRESS"
-	unbind_default "OSDcontrol RIGHT PRESS" 
-	if {$is_dingoo} {
-		unbind_default "keyb LCTRL"
-		unbind_default "keyb LALT"
-	} else {
-		unbind_default "OSDcontrol A PRESS"
-		unbind_default "OSDcontrol B PRESS"
-	}
+	deactivate_input_layer osd_menu
 
 	namespace eval ::osd_control {unset close}
 }

@@ -3,7 +3,7 @@ namespace eval tileviewer {
 proc checkclick {} {
 
 	if {![osd exists tile_viewer]} {
-		unbind_default "mouse button1 down"
+		deactivate_input_layer tileviewer
 		return
 	}
 
@@ -40,7 +40,8 @@ proc checkclick {} {
 
 proc showtile {tile} {
 
-	bind_default "mouse button1 down" {tileviewer::checkclick}
+	bind -layer tileviewer "mouse button1 down" {tileviewer::checkclick}
+	activate_input_layer tileviewer
 
 	set addr [expr {$tile * 8}]
 

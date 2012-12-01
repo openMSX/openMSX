@@ -305,11 +305,12 @@ proc toggle_scc_editor {} {
 		osd destroy selected
 		# Let's assume the user doesn't have the SCC Viewer active
 		toggle_scc_viewer
-		unbind_default "mouse button1 down"
+		deactivate_input_layer scc_editor
 		return ""
 	}
 
-	bind_default "mouse button1 down" {scc_toys::checkclick}
+	bind -layer scc_editor "mouse button1 down" {scc_toys::checkclick}
+	activate_input_layer scc_editor
 
 	osd create rectangle scc \
 		-x 200 -y 100 -h 256 -w 256 \

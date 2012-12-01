@@ -97,14 +97,13 @@ proc open_select_slot_menu {} {
 	osd_menu::do_menu_open [menu_create_slot_menu]
 	osd_menu::select_menu_item $::current_replay_slot
 	for {set i 0} {$i < [llength [tas::list_slots]]} {incr i} {
-		bind_default "$i" "tas::set_slot [lindex [tas::list_slots] $i]; tas::unbind_number_keys"
+		bind -layer slot_menu "$i" "tas::set_slot [lindex [tas::list_slots] $i]; tas::unbind_number_keys"
 	}
+	activate_input_layer slot_menu
 }
 
 proc unbind_number_keys {} {
-	for {set i 0} {$i < [llength [tas::list_slots]]} {incr i} {
-		unbind_default "$i"
-	}
+	deactivate_input_layer slot_menu
 }
 
 proc save_replay_slot {} {

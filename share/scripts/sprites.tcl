@@ -9,10 +9,11 @@ variable title_pos 0
 variable max_sprites 0
 
 proc sprite_viewer {} {
-	bind_default "keyb LEFT"   -repeat {osd_sprite_info::sprite_viewer_action 1}
-	bind_default "keyb RIGHT"  -repeat {osd_sprite_info::sprite_viewer_action 2}
-	bind_default "keyb ESCAPE" -repeat {osd_sprite_info::sprite_viewer_hide}
-	bind_default "keyb SPACE"  -repeat {osd_sprite_info::sprite_viewer_action 0}
+	bind -layer sprite_viewer "keyb LEFT"   -repeat {osd_sprite_info::sprite_viewer_action 1}
+	bind -layer sprite_viewer "keyb RIGHT"  -repeat {osd_sprite_info::sprite_viewer_action 2}
+	bind -layer sprite_viewer "keyb ESCAPE" -repeat {osd_sprite_info::sprite_viewer_hide}
+	bind -layer sprite_viewer "keyb SPACE"  -repeat {osd_sprite_info::sprite_viewer_action 0}
+	activate_input_layer sprite_viewer
 
 	osd create rectangle sprite_viewer -x 5 -y 100 -w 128 -h 190 -rgba 0x00000080
 	osd create rectangle sprite_viewer.title -x 0 -y 15 -w 128 -h 32 -rgba 0x0000ff80 -clip on
@@ -46,10 +47,7 @@ proc sprite_viewer_action {action} {
 
 proc sprite_viewer_hide {} {
 	osd destroy sprite_viewer
-	unbind_default "keyb LEFT"
-	unbind_default "keyb RIGHT"
-	unbind_default "keyb ESCAPE"
-	unbind_default "keyb SPACE"
+	deactivate_input_layer sprite_viewer
 }
 
 proc ease_text {osd_object {frame_render 0} {action 0}} {
