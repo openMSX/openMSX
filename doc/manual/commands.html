@@ -22,7 +22,7 @@
       <ol class="inlinetoc">
         <li><a class="internal" href="#after">after</a></li>
 
-        <li><a class="internal" href="#bind">bind / unbind / bind_default / unbind_default</a></li>
+        <li><a class="internal" href="#bind">bind / unbind / bind_default / unbind_default / activate_input_layer / deactivate_input_layer</a></li>
 
         <li><a class="internal" href="#cart">cart / cart&lt;x&gt;</a></li>
 
@@ -431,59 +431,55 @@
     <code>after "mouse button1 down" foo</code>
   </div>
 
-  <h3><a id="bind">bind / unbind / bind_default / unbind_default</a></h3>
+  <h3><a id="bind">bind / unbind / bind_default / unbind_default / activate_input_layer / deactivate_input_layer</a></h3>
 
-  <p>Associate events (such as key presses) with commands. Whenever the specified event occurs (e.g. you press the
-  specified key), the corresponding command will be executed. Any Tcl command
-  or combination of commands separated with <tt>;</tt> (normal Tcl syntax) can
-  be used. To customize your bindings you should use the (un)bind commands. A
-  script that wants to provide a default binding for its functionality needs to
-  use <tt>bind_default</tt>. Using the <tt>-repeat</tt> option makes sure that
-  if the event is repeated (especially useful for key events, so when keeping a
-  key pressed), the command is repeated as well.</p>
+  <p>Associate events (such as key presses) with commands. Whenever the
+  specified event occurs (e.g. you press the specified key), the corresponding
+  command will be executed. Any Tcl command or combination of commands
+  separated with <tt>;</tt> (normal Tcl syntax) can be used. To customize your
+  bindings you should use the (un)bind commands. A script that wants to provide
+  a default binding for its functionality needs to use <tt>bind_default</tt>.
+  Using the <tt>-repeat</tt> option makes sure that if the event is repeated
+  (especially useful for key events, so when keeping a key pressed), the
+  command is repeated as well.</p>
+
+  <p>Tcl scripts that need a whole set of bindings and only conditionally
+  activate those bindings can use the 'input layer' system. It's possible to
+  associate a binding with a specific layer and later specific layer(s) can be
+  activated or deactivated. Such a layer can also be activated in a blocking
+  mode. Blocking mode means that even if the layer didn't have a binding for a
+  certain event, that event is still not passed to the emulated MSX. This can
+  be useful to implement certain OSD widgets (like a virtual OSD keyboard).</p>
 
   <p>Events can be:</p>
 
   <table>
     <tr>
       <td><code>&lt;key&gt;[,release]</code></td>
-
       <td>Short for <code>keyb &lt;key&gt;[,release]</code></td>
     </tr>
-
     <tr>
       <td><code>keyb &lt;key&gt;[,release]</code></td>
-
       <td>&lt;key&gt; is pressed [or released]</td>
     </tr>
-
     <tr>
       <td><code>mouse button&lt;n&gt; &lt;up/down&gt;</code></td>
-
       <td>Mouse button &lt;n&gt; went up or down</td>
     </tr>
-
     <tr>
       <td><code>mouse motion &lt;x&gt; &lt;y&gt;</code></td>
-
       <td>Mouse motion of &lt;x&gt; and &lt;y&gt;</td>
     </tr>
-
     <tr>
       <td><code>joy&lt;n&gt; button&lt;m&gt; &lt;up/down&gt;</code></td>
-
       <td>Button &lt;m&gt; of joystick &lt;n&gt; went up/down</td>
     </tr>
-
     <tr>
       <td><code>joy&lt;n&gt; axis&lt;m&gt; &lt;value&gt;</code></td>
-
       <td>Axis &lt;m&gt; of joystick &lt;n&gt; got value &lt;value&gt;</td>
     </tr>
-
     <tr>
       <td><code>focus &lt;boolean&gt;</code></td>
-
       <td>The openMSX window got (1) or lost (0) focus</td>
     </tr>
 
@@ -501,39 +497,52 @@
   <table>
     <tr>
       <td><code>bind</code></td>
-
       <td>Show all bindings</td>
     </tr>
-
     <tr>
-      <td><code>bind &lt;key&gt;</code></td>
-
-      <td>Show binding for the given key</td>
+      <td><code>bind -layer &lt;layername&gt;</code></td>
+      <td>Show all is a specific layer</td>
     </tr>
-
     <tr>
-      <td><code>bind &lt;event&gt;</code></td>
-
-      <td>Show binding for this event</td>
+      <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;]</code></td>
+      <td>Show binding for the given event, optionally you can specify a layer</td>
     </tr>
-
     <tr>
-      <td><code>bind &lt;event&gt; [-repeat] &lt;command&gt;</code></td>
-
-      <td>Make a new binding</td>
+      <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;] [-repeat] &lt;command&gt;</code></td>
+      <td>Make a new binding. Optionally make this binding in a specific layer.
+      Also optionally it's possible to retrigger this binding periodically
+      (e.g. when a key is kept pressed).</td>
     </tr>
-
     <tr>
-      <td><code>unbind &lt;key&gt;</code></td>
-
-      <td>Undo binding for this event</td>
+      <td><code>bind -layers</code></td>
+      <td>Show the name of all layers that currently have bindings</td>
+    </tr>
+    <tr>
+      <td><code>unbind [-layer &lt;layername&gt;] &lt;event&gt;</code></td>
+      <td>Undo binding for this event (optionally in a specific layer).</td>
+    </tr>
+    <tr>
+      <td><code>unbind -layer &lt;layername&gt;</code></td>
+      <td>Undo all bindings in the specified layer</td>
+    </tr>
+    <tr>
+      <td><code>activate_input_layer</code></td>
+      <td>Show a list of the currently active layers.</td>
+    </tr>
+    <tr>
+      <td><code>activate_input_layer [-blocking] &lt;layername&gt;</code></td>
+      <td>Activate the specified input layer, optionally this layer can be
+      activate in blocking mode.</td>
+    </tr>
+    <tr>
+      <td><code>deactivate_input_layer &lt;layername&gt;</code></td>
+      <td>Deactivate the specified input layer.</td>
     </tr>
   </table>
 
   <div class="subsectiontitle">
     examples:
   </div>
-
   <div class="examples">
     <code>bind PAGEUP   "set speed 100"</code><br />
     <code>bind PAGEDOWN "set speed  50"</code><br />
