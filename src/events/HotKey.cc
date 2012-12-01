@@ -338,7 +338,7 @@ void HotKey::deactivateLayer(const std::string& layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
-	auto it = find_if(activeLayers.rbegin(), activeLayers.rend(),
+	auto it = std::find_if(activeLayers.rbegin(), activeLayers.rend(),
 		[&](const LayerInfo& info) { return info.layer == layer; });
 	if (it != activeLayers.rend()) {
 		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
