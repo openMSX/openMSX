@@ -166,12 +166,12 @@ void HotKey::initDefaultBindings()
 
 static HotKey::EventPtr createEvent(const string& str)
 {
-	HotKey::EventPtr event = InputEventFactory::createInputEvent(str);
-	if (!dynamic_cast<const KeyEvent*>         (event.get()) &&
-	    !dynamic_cast<const MouseButtonEvent*> (event.get()) &&
-	    !dynamic_cast<const JoystickEvent*>    (event.get()) &&
-	    !dynamic_cast<const OsdControlEvent*>  (event.get()) &&
-	    !dynamic_cast<const FocusEvent*>       (event.get())) {
+	auto event = InputEventFactory::createInputEvent(str);
+	if (!dynamic_cast<const KeyEvent*>        (event.get()) &&
+	    !dynamic_cast<const MouseButtonEvent*>(event.get()) &&
+	    !dynamic_cast<const JoystickEvent*>   (event.get()) &&
+	    !dynamic_cast<const OsdControlEvent*> (event.get()) &&
+	    !dynamic_cast<const FocusEvent*>      (event.get())) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;
@@ -186,12 +186,12 @@ void HotKey::loadBindings(const XMLElement& config)
 	cmdMap.insert(defaultMap.begin(), defaultMap.end());
 
 	// load bindings
-	const XMLElement* bindingsElement = config.findChild("bindings");
+	auto* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
-	XMLElement copy(*bindingsElement); // dont iterate over changing container
-	const XMLElement::Children& children = copy.getChildren();
+	auto copy = *bindingsElement; // dont iterate over changing container
+	auto& children = copy.getChildren();
 	for (auto it = children.begin(); it != children.end(); ++it) {
-		XMLElement& elem = **it;
+		auto& elem = **it;
 		try {
 			if (elem.getName() == "bind") {
 				bind(createEvent(elem.getAttribute("key")),
@@ -209,14 +209,14 @@ void HotKey::loadBindings(const XMLElement& config)
 
 void HotKey::saveBindings(XMLElement& config) const
 {
-	XMLElement& bindingsElement = config.getCreateChild("bindings");
+	auto& bindingsElement = config.getCreateChild("bindings");
 	bindingsElement.removeAllChildren();
 
 	// add explicit bind's
 	for (auto it = boundKeys.begin(); it != boundKeys.end(); ++it) {
 		auto it2 = cmdMap.find(*it);
 		assert(it2 != cmdMap.end());
-		const HotKeyInfo& info = it2->second;
+		auto& info = it2->second;
 		auto elem = make_unique<XMLElement>("bind", info.command);
 		elem->addAttribute("key", (*it)->toString());
 		if (info.repeat) {
