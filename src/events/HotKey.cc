@@ -9,15 +9,24 @@
 #include "CliComm.hh"
 #include "InputEvents.hh"
 #include "XMLElement.hh"
+#include "TclObject.hh"
 #include "SettingsConfig.hh"
 #include "AlarmEvent.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::string;
 using std::vector;
 using std::make_shared;
+
+// This file implements all Tcl key bindings. These are the 'classical' hotkeys
+// (e.g. F11 to (un)mute sound) and the more recent input layers. The idea
+// behind an input layer is something like an OSD widget that (temporarily)
+// takes semi-exclusive access to the input. So while the widget is active
+// keyboard (and joystick) input is no longer passed to the emulated MSX.
+// However the classical hotkeys or the openMSX console still receive input.
 
 namespace openmsx {
 
@@ -54,6 +63,26 @@ private:
 	const bool defaultCmd;
 };
 
+class ActivateCmd : public Command
+{
+public:
+	ActivateCmd(CommandController& commandController, HotKey& hotKey);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
+class DeactivateCmd : public Command
+{
+public:
+	DeactivateCmd(CommandController& commandController, HotKey& hotKey);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
 
 HotKey::HotKey(GlobalCommandController& commandController_,
                EventDistributor& eventDistributor_)
@@ -65,6 +94,10 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 		commandController_, *this, true))
 	, unbindDefaultCmd(make_unique<UnbindCmd>(
 		commandController_, *this, true))
+	, activateCmd(make_unique<ActivateCmd>(
+		commandController_, *this))
+	, deactivateCmd(make_unique<DeactivateCmd>(
+		commandController_, *this))
 	, repeatAlarm(make_unique<AlarmEvent>(
 		eventDistributor_, *this, OPENMSX_REPEAT_HOTKEY,
 		EventDistributor::HOTKEY))
@@ -273,8 +306,49 @@ void HotKey::unbindDefault(const EventPtr& event)
 	defaultMap.erase(event);
 }
 
+void HotKey::bindLayer(const EventPtr& event, const HotKeyInfo& info,
+                       const string& layer)
+{
+	layerMap[layer][event] = info;
+}
+
+void HotKey::unbindLayer(const EventPtr& event, const string& layer)
+{
+	layerMap[layer].erase(event);
+}
+
+void HotKey::unbindFullLayer(const string& layer)
+{
+	layerMap.erase(layer);
+}
+
+void HotKey::activateLayer(const std::string& layer, bool blocking)
+{
+	// Insert new activattion record at the end of the list.
+	// (it's not an error if the same layer was already active, in such
+	// as case it will now appear twice in the list of active layer,
+	// and it must also be deactivated twice).
+	LayerInfo info;
+	info.layer = layer;
+	info.blocking = blocking;
+	activeLayers.push_back(info);
+}
+
+void HotKey::deactivateLayer(const std::string& layer)
+{
+	// remove the first matching activation record from the end
+	// (it's not an error if there is no match at all)
+	auto it = find_if(activeLayers.rbegin(), activeLayers.rend(),
+		[&](const LayerInfo& info) { return info.layer == layer; });
+	if (it != activeLayers.rend()) {
+		// 'reverse_iterator' -> 'iterator' conversion is a bit tricky
+		activeLayers.erase((it + 1).base());
+	}
+}
+
 int HotKey::signalEvent(const EventPtr& event_)
 {
+	// Convert special 'repeat' event into the actual to-be-repeated event.
 	EventPtr event = event_;
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
 		if (!lastEvent.get()) return true;
@@ -282,11 +356,36 @@ int HotKey::signalEvent(const EventPtr& event_)
 	} else if (lastEvent.get() && (*lastEvent != *event)) {
 		stopRepeat();
 	}
-	auto it = cmdMap.find(event);
-	if (it == cmdMap.end()) {
-		return 0;
+
+	// First search in active layers (from back to front)
+	bool blocking = false;
+	for (auto it = activeLayers.rbegin(); it != activeLayers.rend(); ++it) {
+		auto& cmap = layerMap[it->layer]; // ok, if this entry doesn't exist yet
+		auto it2 = cmap.find(event);
+		if (it2 != cmap.end()) {
+			executeBinding(event, it2->second);
+			// Deny event to MSX listeners, also don't pass event
+			// to other layers (including the default layer).
+			return EventDistributor::MSX;
+		}
+		blocking = it->blocking;
+		if (blocking) break; // don't try lower layers
 	}
-	const HotKeyInfo& info = it->second;
+
+	// If the event was not yet handled, try the default layer.
+	auto it = cmdMap.find(event);
+	if (it != cmdMap.end()) {
+		executeBinding(event, it->second);
+		return EventDistributor::MSX; // deny event to MSX listeners
+	}
+
+	// Event is not handled, only let it pass to the MSX if there was no
+	// blocking layer active.
+	return blocking ? EventDistributor::MSX : 0;
+}
+
+void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
+{
 	if (info.repeat) {
 		startRepeat(event);
 	}
@@ -297,7 +396,6 @@ int HotKey::signalEvent(const EventPtr& event_)
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: " + e.getMessage());
 	}
-	return EventDistributor::MSX; // deny event to MSX listeners
 }
 
 void HotKey::startRepeat(const EventPtr& event)
@@ -334,27 +432,74 @@ BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
 
 string BindCmd::formatBinding(HotKey::BindMap::const_iterator it)
 {
-	const HotKey::HotKeyInfo& info = it->second;
+	auto& info = it->second;
 	return it->first->toString() + (info.repeat ? " [repeat]" : "") +
 	       ":  " + info.command + '\n';
 }
 
-string BindCmd::execute(const vector<string>& tokens)
+static vector<string> parse(bool defaultCmd, vector<string> tokens,
+                            string& layer, bool& layers)
 {
-	HotKey::BindMap& cmdMap = defaultCmd ? hotKey.defaultMap
-	                                     : hotKey.cmdMap;
+	layers = false;
+	for (size_t i = 1; i < tokens.size(); /**/) {
+		if (tokens[i] == "-layer") {
+			if (i == (tokens.size() - 1)) {
+				throw CommandException("Missing layer name");
+			}
+			if (defaultCmd) {
+				throw CommandException(
+					"Layers are not supported for default bindings");
+			}
+			layer = tokens[i + 1];
+
+			auto it = tokens.begin() + i;
+			tokens.erase(it, it + 2);
+		} else if (tokens[i] == "-layers") {
+			layers = true;
+			tokens.erase(tokens.begin() + i);
+		} else {
+			++i;
+		}
+	}
+	return tokens;
+}
+
+string BindCmd::execute(const vector<string>& tokens_)
+{
+	string layer;
+	bool layers;
+	auto tokens = parse(defaultCmd, tokens_, layer, layers);
+
+	auto& cmdMap = defaultCmd
+		? hotKey.defaultMap
+		: layer.empty() ? hotKey.cmdMap
+		                : hotKey.layerMap[layer];
+
+	if (layers) {
+		TclObject result;
+		for (auto it = hotKey.layerMap.begin();
+		     it != hotKey.layerMap.end(); ++it) {
+			// An alternative for this test is to always properly
+			// prune layerMap. ATM this approach seems simpler.
+			if (!it->second.empty()) {
+				result.addListElement(it->first);
+			}
+		}
+		return result.getString().str();
+	}
+
 	string result;
 	switch (tokens.size()) {
 	case 0:
 		UNREACHABLE;
 	case 1:
-		// show all bounded keys
+		// show all bounded keys (for this layer)
 		for (auto it = cmdMap.begin(); it != cmdMap.end(); ++it) {
 			result += formatBinding(it);
 		}
 		break;
 	case 2: {
-		// show bindings for this key
+		// show bindings for this key (in this layer)
 		auto it = cmdMap.find(createEvent(tokens[1]));
 		if (it == cmdMap.end()) {
 			throw CommandException("Key not bound");
@@ -376,10 +521,13 @@ string BindCmd::execute(const vector<string>& tokens)
 			command += tokens[i];
 		}
 		HotKey::HotKeyInfo info(command, repeat);
+		auto event = createEvent(tokens[1]);
 		if (defaultCmd) {
-			hotKey.bindDefault(createEvent(tokens[1]), info);
+			hotKey.bindDefault(event, info);
+		} else if (layer.empty()) {
+			hotKey.bind(event, info);
 		} else {
-			hotKey.bind       (createEvent(tokens[1]), info);
+			hotKey.bindLayer(event, info, layer);
 		}
 		break;
 	}
@@ -391,7 +539,11 @@ string BindCmd::help(const vector<string>& /*tokens*/) const
 	string cmd = getBindCmdName(defaultCmd);
 	return cmd + "                       : show all bounded keys\n" +
 	       cmd + " <key>                 : show binding for this key\n" +
-	       cmd + " <key> [-repeat] <cmd> : bind key to command, optionally repeat command while key remains pressed\n";
+	       cmd + " <key> [-repeat] <cmd> : bind key to command, optionally "
+	       "repeat command while key remains pressed\n"
+	       "These 3 take an optional '-layer <layername>' option, "
+	       "see activate_input_layer." +
+	       cmd + " -layers               : show a list of layers with bound keys\n";
 }
 
 
@@ -410,22 +562,116 @@ UnbindCmd::UnbindCmd(CommandController& commandController,
 {
 }
 
-string UnbindCmd::execute(const vector<string>& tokens)
+string UnbindCmd::execute(const vector<string>& tokens_)
 {
-	if (tokens.size() != 2) {
+	string layer;
+	bool layers;
+	auto tokens = parse(defaultCmd, tokens_, layer, layers);
+	if (layers) {
 		throw SyntaxError();
 	}
+	if ((tokens.size() > 2) || (layer.empty() && (tokens.size() != 2))) {
+		throw SyntaxError();
+	}
+
+	HotKey::EventPtr event;
+	if (tokens.size() == 2) {
+		event = createEvent(tokens[1]);
+	}
+
 	if (defaultCmd) {
-		hotKey.unbindDefault(createEvent(tokens[1]));
+		assert(event);
+		hotKey.unbindDefault(event);
+	} else if (layer.empty()) {
+		assert(event);
+		hotKey.unbind(event);
 	} else {
-		hotKey.unbind       (createEvent(tokens[1]));
+		if (event) {
+			hotKey.unbindLayer(event, layer);
+		} else {
+			hotKey.unbindFullLayer(layer);
+		}
 	}
 	return "";
 }
 string UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
 	string cmd = getUnbindCmdName(defaultCmd);
-	return cmd + " <key> : unbind this key\n";
+	return cmd + " <key>                    : unbind this key\n" +
+	       cmd + " -layer <layername> <key> : unbind key in a specific layer\n" +
+	       cmd + " -layer <layername>       : unbind all keys in this layer\n";
 }
+
+
+// class ActivateCmd
+
+ActivateCmd::ActivateCmd(CommandController& commandController, HotKey& hotKey_)
+	: Command(commandController, "activate_input_layer")
+	, hotKey(hotKey_)
+{
+}
+
+string ActivateCmd::execute(const vector<string>& tokens)
+{
+	string layer;
+	bool blocking = false;
+	for (size_t i = 1; i < tokens.size(); ++i) {
+		if (tokens[i] == "-blocking") {
+			blocking = true;
+		} else {
+			if (!layer.empty()) {
+				throw SyntaxError();
+			}
+			layer = tokens[i];
+		}
+	}
+
+	string result;
+	if (layer.empty()) {
+		for (auto it = hotKey.activeLayers.rbegin();
+		     it != hotKey.activeLayers.rend(); ++it) {
+			result += it->layer;
+			if (it->blocking) {
+				result += " -blocking";
+			}
+			result += '\n';
+		}
+	} else {
+		hotKey.activateLayer(layer, blocking);
+	}
+	return result;
+}
+
+string ActivateCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "activate_input_layer                         "
+	       ": show list of active layers (most recent on top)\n"
+	       "activate_input_layer [-blocking] <layername> "
+	       ": activate new layer, optionally in blocking mode\n";
+}
+
+
+// class DeactivateCmd
+
+DeactivateCmd::DeactivateCmd(CommandController& commandController, HotKey& hotKey_)
+	: Command(commandController, "deactivate_input_layer")
+	, hotKey(hotKey_)
+{
+}
+
+string DeactivateCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	hotKey.deactivateLayer(tokens[1]);
+	return "";
+}
+
+string DeactivateCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "deactivate_input_layer <layername> : deactive the given input layer";
+}
+
 
 } // namespace openmsx

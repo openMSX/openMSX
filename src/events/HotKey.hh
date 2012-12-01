@@ -8,6 +8,7 @@
 #include "noncopyable.hh"
 #include <map>
 #include <set>
+#include <vector>
 #include <string>
 #include <memory>
 
@@ -18,6 +19,8 @@ class EventDistributor;
 class XMLElement;
 class BindCmd;
 class UnbindCmd;
+class ActivateCmd;
+class DeactivateCmd;
 class AlarmEvent;
 
 template<typename T> struct deref_less
@@ -44,6 +47,10 @@ private:
 		std::string command;
 		bool repeat;
 	};
+	struct LayerInfo {
+		std::string layer;
+		bool blocking;
+	};
 	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr>> BindMap;
 	typedef std::set<EventPtr,             deref_less<EventPtr>> KeySet;
 
@@ -52,6 +59,14 @@ private:
 	void unbind       (const EventPtr& event);
 	void bindDefault  (const EventPtr& event, const HotKeyInfo& info);
 	void unbindDefault(const EventPtr& event);
+	void bindLayer    (const EventPtr& event, const HotKeyInfo& info,
+	                   const std::string& layer);
+	void unbindLayer  (const EventPtr& event, const std::string& layer);
+	void unbindFullLayer(const std::string& layer);
+	void activateLayer  (const std::string& layer, bool blocking);
+	void deactivateLayer(const std::string& layer);
+
+	void executeBinding(const EventPtr& event, const HotKeyInfo& info);
 	void startRepeat  (const EventPtr& event);
 	void stopRepeat();
 
@@ -60,14 +75,20 @@ private:
 
 	friend class BindCmd;
 	friend class UnbindCmd;
-	const std::unique_ptr<BindCmd>   bindCmd;
-	const std::unique_ptr<UnbindCmd> unbindCmd;
-	const std::unique_ptr<BindCmd>   bindDefaultCmd;
-	const std::unique_ptr<UnbindCmd> unbindDefaultCmd;
-	const std::unique_ptr<AlarmEvent> repeatAlarm;
+	friend class ActivateCmd;
+	friend class DeactivateCmd;
+	const std::unique_ptr<BindCmd>       bindCmd;
+	const std::unique_ptr<UnbindCmd>     unbindCmd;
+	const std::unique_ptr<BindCmd>       bindDefaultCmd;
+	const std::unique_ptr<UnbindCmd>     unbindDefaultCmd;
+	const std::unique_ptr<ActivateCmd>   activateCmd;
+	const std::unique_ptr<DeactivateCmd> deactivateCmd;
+	const std::unique_ptr<AlarmEvent>    repeatAlarm;
 
 	BindMap cmdMap;
 	BindMap defaultMap;
+	std::map<std::string, BindMap> layerMap;
+	std::vector<LayerInfo> activeLayers;
 	KeySet boundKeys;
 	KeySet unboundKeys;
 	GlobalCommandController& commandController;
