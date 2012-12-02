@@ -16,6 +16,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <cstdint>
 #include <type_traits>
 
 namespace openmsx {
@@ -269,6 +270,12 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* __restrict pixelPtr, int line) __restrict
 {
+#ifdef __arm__
+	bool misAligned =
+			sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
+	if (misAligned) pixelPtr--;
+	unsigned partial = *pixelPtr;
+#endif
 	int quarter = ((line / 8) * 32) & ~0xFF;
 	int baseLine = (-1 << 13) | (quarter * 8) | (line & 7);
 
@@ -287,50 +294,96 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
 #ifdef __arm__
-		Pixel* alignedPixelPtr = (Pixel *)((unsigned)pixelPtr & ~3);
-		if (sizeof(Pixel) == 2 && alignedPixelPtr == pixelPtr) {
-			asm volatile (
-				"tst	%[PAT],#128\n\t"
-				"ite eq\n\t"
-				"moveq	r0,%[BG]\n\t"
-				"movne	r0,%[FG]\n\t"
-				"tst	%[PAT],#64\n\t"
-				"ite eq\n\t"
-				"orreq	r0,r0,%[BG], lsl #16\n\t"
-				"orrne	r0,r0,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#32\n\t"
-				"ite eq\n\t"
-				"moveq	r1,%[BG]\n\t"
-				"movne	r1,%[FG]\n\t"
-				"tst	%[PAT],#16\n\t"
-				"ite eq\n\t"
-				"orreq	r1,r1,%[BG], lsl #16\n\t"
-				"orrne	r1,r1,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#8\n\t"
-				"ite eq\n\t"
-				"moveq	r2,%[BG]\n\t"
-				"movne	r2,%[FG]\n\t"
-				"tst	%[PAT],#4\n\t"
-				"ite eq\n\t"
-				"orreq	r2,r2,%[BG], lsl #16\n\t"
-				"orrne	r2,r2,%[FG], lsl #16\n\t"
-				"tst	%[PAT],#2\n\t"
-				"ite eq\n\t"
-				"moveq	r3,%[BG]\n\t"
-				"movne	r3,%[FG]\n\t"
-				"tst	%[PAT],#1\n\t"
-				"ite eq\n\t"
-				"orreq	r3,r3,%[BG], lsl #16\n\t"
-				"orrne	r3,r3,%[FG], lsl #16\n\t"
-				"stmia	%[OUT]!,{r0-r3}\n\t"
+		if (sizeof(Pixel) == 2) {
+			if (misAligned) {
+				asm volatile (
+					"mov	r0,%[PART]\n\t"
+					"tst	%[PAT],#128\n\t"
+					"ite eq\n\t"
+					"orreq	r0,r0,%[BG], lsl #16\n\t"
+					"orrne	r0,r0,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#64\n\t"
+					"ite eq\n\t"
+					"moveq	r1,%[BG]\n\t"
+					"movne	r1,%[FG]\n\t"
+					"tst	%[PAT],#32\n\t"
+					"ite eq\n\t"
+					"orreq	r1,r1,%[BG], lsl #16\n\t"
+					"orrne	r1,r1,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#16\n\t"
+					"ite eq\n\t"
+					"moveq	r2,%[BG]\n\t"
+					"movne	r2,%[FG]\n\t"
+					"tst	%[PAT],#8\n\t"
+					"ite eq\n\t"
+					"orreq	r2,r2,%[BG], lsl #16\n\t"
+					"orrne	r2,r2,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#4\n\t"
+					"ite eq\n\t"
+					"moveq	r3,%[BG]\n\t"
+					"movne	r3,%[FG]\n\t"
+					"tst	%[PAT],#2\n\t"
+					"ite eq\n\t"
+					"orreq	r3,r3,%[BG], lsl #16\n\t"
+					"orrne	r3,r3,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#1\n\t"
+					"ite eq\n\t"
+					"moveq	%[PART],%[BG]\n\t"
+					"movne	%[PART],%[FG]\n\t"
+					"stmia	%[OUT]!,{r0-r3}\n\t"
+					: [OUT]  "=r"     (pixelPtr)
+					, [PART] "=r"     (partial)
+					:        "[OUT]"  (pixelPtr)
+					,        "[PART]" (partial)
+					, [PAT]  "r"      (pattern)
+					, [FG]   "r"      (unsigned(fg))
+					, [BG]   "r"      (unsigned(bg))
+					: "r0","r1","r2","r3","memory"
+				);
+			} else {
+				asm volatile (
+					"tst	%[PAT],#128\n\t"
+					"ite eq\n\t"
+					"moveq	r0,%[BG]\n\t"
+					"movne	r0,%[FG]\n\t"
+					"tst	%[PAT],#64\n\t"
+					"ite eq\n\t"
+					"orreq	r0,r0,%[BG], lsl #16\n\t"
+					"orrne	r0,r0,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#32\n\t"
+					"ite eq\n\t"
+					"moveq	r1,%[BG]\n\t"
+					"movne	r1,%[FG]\n\t"
+					"tst	%[PAT],#16\n\t"
+					"ite eq\n\t"
+					"orreq	r1,r1,%[BG], lsl #16\n\t"
+					"orrne	r1,r1,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#8\n\t"
+					"ite eq\n\t"
+					"moveq	r2,%[BG]\n\t"
+					"movne	r2,%[FG]\n\t"
+					"tst	%[PAT],#4\n\t"
+					"ite eq\n\t"
+					"orreq	r2,r2,%[BG], lsl #16\n\t"
+					"orrne	r2,r2,%[FG], lsl #16\n\t"
+					"tst	%[PAT],#2\n\t"
+					"ite eq\n\t"
+					"moveq	r3,%[BG]\n\t"
+					"movne	r3,%[FG]\n\t"
+					"tst	%[PAT],#1\n\t"
+					"ite eq\n\t"
+					"orreq	r3,r3,%[BG], lsl #16\n\t"
+					"orrne	r3,r3,%[FG], lsl #16\n\t"
+					"stmia	%[OUT]!,{r0-r3}\n\t"
 
-				: [OUT] "=r"    (pixelPtr)
-				:       "[OUT]" (pixelPtr)
-				, [PAT] "r"     (pattern)
-				, [FG]  "r"     (unsigned(fg))
-				, [BG]  "r"     (unsigned(bg))
-				: "r0","r1","r2","r3","memory"
-			);
+					: [OUT] "=r"    (pixelPtr)
+					:       "[OUT]" (pixelPtr)
+					, [PAT] "r"     (pattern)
+					, [FG]  "r"     (unsigned(fg))
+					, [BG]  "r"     (unsigned(bg))
+					: "r0","r1","r2","r3","memory"
+				);
+			}
 		} else {
 #endif
 			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
@@ -347,6 +400,11 @@ void CharacterConverter<Pixel>::renderGraphic2(
 #endif
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
+#ifdef __arm__
+	if (misAligned) {
+		*pixelPtr = static_cast<Pixel>(partial);
+	}
+#endif
 }
 
 template <class Pixel>
