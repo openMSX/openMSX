@@ -111,7 +111,7 @@
 
     <!-- Add text to the final dialog; the custom action is needed to use the OPENMSXINSTALLDIR property -->
     <CustomAction Id="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" Property="WIXUI_EXITDIALOGOPTIONALTEXT" 
-                  Value="To emulate real MSX systems (besides the free C-BIOS machines), put the system ROMs here: [PersonalFolder]\openMSX\share\systemroms Copy MSX software referred to from replays or savestates you get from your friends to [PersonalFolder]\openMSX\share\software. (For all users, use [OPENMSXINSTALLDIR]share as admin instead.)" />
+                  Value="To emulate real MSX systems (besides the free C-BIOS machines), put the system ROMs here: [PersonalFolder]openMSX\share\systemroms Copy MSX software referred to from replays or savestates you get from your friends to [PersonalFolder]openMSX\share\software. (For all users, use [OPENMSXINSTALLDIR]share as admin instead.)" />
     <InstallUISequence>
       <Custom Action="CA_Set_WIXUI_EXITDIALOGOPTIONALTEXT" After="ExecuteAction" />
     </InstallUISequence>
