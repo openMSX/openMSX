@@ -69,7 +69,7 @@ tcl_version=${tcl_build%.*}
 tcl_archive="${my_home_dir}/derived/3rdparty/download/tcl${tcl_build}-src.tar.gz"
 tcl_sdl_dir="${sdl_android_port_path}/project/jni/tcl${tcl_version}"
 if [ -d "${tcl_sdl_dir}" ]; then
-	if [ -f "${tcl_sdl_dir}/${tcl_build}.txt" ]; then
+	if [ ! -f "${tcl_sdl_dir}/${tcl_build}.txt" ]; then
 		echo "ERROR: expecting TCL build ${tcl_build} in ${tcl_sdl_dir}"
 		exit 1
 	fi
