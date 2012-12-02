@@ -287,7 +287,8 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
 #ifdef __arm__
-		if (sizeof(Pixel) == 2) {
+		// On Android, this asm code leads to a crash in Psycho World
+		if (sizeof(Pixel) == 2 && !PLATFORM_ANDROID) {
 			asm volatile (
 				"tst	%[PAT],#128\n\t"
 				"ite eq\n\t"
