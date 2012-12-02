@@ -64,10 +64,17 @@ export SDL_ANDROID_PORT_PATH="${sdl_android_port_path}"
 export CXXFLAGS='-frtti -fexceptions -marm'
 export LDFLAGS='-lpng'
 unset BUILD_EXECUTABLE
+
+if [ $openmsx_flavour = "android" ]; then
+    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//'"
+elif [ $openmsx_flavour = "android-debug" ]; then
+    CXX_FLAGS_FILTER="sed -e 's/\\-mthumb//' -e 's/\\-DNDEBUG//g'"
+else
+	echo "AB:ERROR Unknown openmsx_flavour: $openmsx_flavour"
+fi
+echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
+
 #"${set_sdl_app_environment}" /bin/sh -c "set"
-# TODO: find a good solution to filter ...noexecstack and NDEBUG when compiling debug flavour
-#    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//' -e 's/\\-Wa,\\-\\-noexecstack//' -e 's/\\-DNDEBUG//g');\
-#    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//');\
 "${set_sdl_app_environment}" /bin/sh -c "\
     cd ${my_home_dir};\
     echo \"AB:INFO CXX: \${CXX}\";\
@@ -75,7 +82,7 @@ unset BUILD_EXECUTABLE
     export _CC=\${CC};\
     export _LD=\${LD};\
     export ANDROID_LDFLAGS=\${LDFLAGS};\
-    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | sed -e 's/\\-mthumb//');\
+    export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | $CXX_FLAGS_FILTER);\
     echo \"AB:INFO ANDROID_CXXFLAGS: \${ANDROID_CXXFLAGS}\";\
     unset CXXFLAGS;\
     make -j ${cpu_count} all\
