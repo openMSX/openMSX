@@ -226,7 +226,12 @@ CliServer::CliServer(CommandController& commandController_,
 {
 	exitLoop = false;
 	sock_startup();
-	thread.start();
+	try {
+		createSocket();
+		thread.start();
+	} catch (MSXException& e) {
+		cliComm.printWarning(e.getMessage());
+	}
 }
 
 CliServer::~CliServer()
@@ -247,17 +252,11 @@ CliServer::~CliServer()
 
 void CliServer::run()
 {
-	try {
-		mainLoop();
-	} catch (MSXException& e) {
-		cliComm.printWarning(e.getMessage());
-	}
+	mainLoop();
 }
 
 void CliServer::mainLoop()
 {
-	createSocket();
-
 	while (!exitLoop) {
 		// wait for incomming connection
 		SOCKET sd = accept(listenSock, nullptr, nullptr);
