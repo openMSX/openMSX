@@ -201,27 +201,26 @@ Install Xcode from Apple, which you can find in the Mac App Store. Start Xcode a
 <dl>
 
 <dt>
-<a class="external" href="http://msdn.microsoft.com/en-us/vstudio/default.aspx">Visual C++ 20</a><a href="http://msdn.microsoft.com/en-us/vstudio/default.aspx"><span class="style1">10</span></a></dt>
+<a class="external" href="http://msdn.microsoft.com/en-us/vstudio/default.aspx">Visual Studio 2012 C++</a><a href="http://msdn.microsoft.com/en-us/vstudio/default.aspx"><span class="style1"></span></a></dt>
 <dd>This is the professional IDE and development environment that comes with Visual Studio, as a standalone
 purchase or via an MSDN subscription.</dd>
 
 	<dt>
 	<a class="external" href="http://msdn.microsoft.com/en-us/windows/bb980924.aspx">Windows SDK</a></dt>
 	<dd>This is a free (as in beer) command line environment that provides a full set of compilers, headers and libraries. This is the best option for people who wish to build openMSX with minimal hassle.
-	We recommend using the
+	We recommend using the. It is not recommended to use this version but rather the free visual express since this version has a limited implementation of C++x11.
 	<a href="http://www.microsoft.com/downloads/details.aspx?FamilyID=6b6c21d2-2006-4afa-9702-529fa782d63b&amp;displaylang=en">
 	Microsoft Windows SDK for Windows 7 and .NET Framework 4</a> or newer. (When
 	installing, the Documentation, Samples and .NET Development Tools options
 	are not required to build openMSX. This reduces the download size
 	considerably, from about 1.2GB to about 100MB.)</dd>
-	<dt><a class="external" href="http://www.microsoft.com/express/vc/">Visual C++ 2010 Express</a></dt>
-	<dd>This is a free (as in beer) IDE and development environment. It builds 32-bit binaries out of the box, and can be made to build 64-bit binaries with some
-	<a class="external" href="http://msdn.microsoft.com/en-us/library/9yb4317s.aspx">coaxing</a>.
-	This is the best option for developers looking to browse the source code or
-	use other benefits of an IDE.</dd>
-	<dt>For compilation with Visual C++ using any of these mechanisms, the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>
+	<dt><a class="external" href="http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-products">Visual 2012 Express for windows Desktop</a></dt>
+	<dd>This is a free (as in beer) IDE and development environment. It builds 32/64-bit binaries out of the box. Make sure you download the Update 1 (vsupdate_KB2707250.exe) since 
+	this has quite some improvements which are needed. We recommend this over the Windows SDK and is the best option for developers looking to browse the source code or
+	use other benefits of an IDE. </dd>
+	<dt>For XP compatible compilation with Visual Studio 2012 and Windows SDK the <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a>
 	is required. To generate an MSI installation package,
-	<a class="external" href="http://wix.sourceforge.net/">WiX</a> package must
+	<a class="external" href="http://wixtoolset.org/">WiX</a> package must
 	be installed.</dt>
 
 </dl>
@@ -231,10 +230,10 @@ purchase or via an MSDN subscription.</dd>
 <dt>
 <a class="external" href="http://msdn.microsoft.com/en-us/directx/aa937788.aspx">DirectX SDK</a></dt>
 <dd>This is the SDK that contains DirectX headers, libs, samples, documentation,
-etc. We recommend using the
+etc. We recommend using the.
 <a href="http://services.social.microsoft.com/feeds/FeedItem?feedId=76dc8ff9-e34c-4be6-9414-d47e3dd34317&amp;itemId=04c20751-5ca3-4f5f-96c0-c1af832d860c&amp;title=June+2010+DirectX+SDK&amp;uri=http%3a%2f%2fwww.microsoft.com%2fdownloads%2fdetails.aspx%3fdisplaylang%3den%26FamilyID%3d3021d52b-514e-41d3-ad02-438a3ba730ba&amp;k=fOXm74V6Mlu6pVvMRB1Xq4d5F%2f%2bo8HSqsurfddfLzT8%3d">
 June 2010</a> version or newer. This is a large download, about 580MB. To build
-openMSX, only the headers and libs are truly required.</dd>
+openMSX, only the headers and libs are truly required. Download only when you are using Windows SDK or want to compile WindowsXP compatible versions</dd>
 
 <dt> <a class="external" href="http://wix.sourceforge.net/">WiX</a></dt>
 <dd>This is a tool that generates MSI installer packages. We recommend using
@@ -767,7 +766,7 @@ dynamic library dependencies. Two platforms are supported:</p>
 	<li><strong>Developer</strong>: assertions enabled, debug prints disabled, no optimization</li>
 	<li><strong>Release</strong>: assertions disabled, debug prints disabled, full optimization</li>
 </ul>
-<p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual C++ 2010, it will be in &quot;Microsoft Visual Studio 2010\Visual Studio Tools&quot; as the &quot;Visual Studio Command Prompt&quot;. For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
+<p>When building with Visual C++, you can either use the IDE or build from the command line using <code>msbuild</code>. To do the latter, you need to open a Visual Studio command prompt. A shortcut to a Visual Studio command prompt can usually be found in your start menu. For Visual Studio (Express) 2012, it will be in &quot;Microsoft Visual Studio 2012\Visual Studio Tools&quot; as the &quot;Visual Studio Command Prompt&quot;. For the Windows SDK, it will be in &quot;Microsoft Windows SDK vX.Y&quot; as the &quot;CMD Shell&quot;</p>
 <!-- TODO - Replace this section when we have integration with the broader 3rd party system -->
 <p>In order to build openMSX, the libraries it depends on need to be
 downloaded and unpacked:</p>
