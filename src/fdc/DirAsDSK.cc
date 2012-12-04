@@ -209,9 +209,9 @@ bool DirAsDSK::checkMSXFileExists(
 // is not mapped in the virtual disk.
 DirAsDSK::DirIndex DirAsDSK::findHostFileInDSK(const string& hostName)
 {
-	for (auto it = mapDirs.begin(); it != mapDirs.end(); ++it) {
-		if (it->second.hostName == hostName) {
-			return it->first;
+	for (auto& p : mapDirs) {
+		if (p.second.hostName == hostName) {
+			return p.first;
 		}
 	}
 	return DirIndex(unsigned(-1), unsigned(-1));
@@ -384,8 +384,8 @@ void DirAsDSK::checkDeletedHostFiles()
 {
 	// This handles both host files and directories.
 	auto copy = mapDirs;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		if (mapDirs.find(it->first) == mapDirs.end()) {
+	for (auto& p : copy) {
+		if (mapDirs.find(p.first) == mapDirs.end()) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -396,8 +396,8 @@ void DirAsDSK::checkDeletedHostFiles()
 			// mapDirs. Ignore it.
 			continue;
 		}
-		const DirIndex& dirIndex = it->first;
-		MapDir& mapDir = it->second;
+		const DirIndex& dirIndex = p.first;
+		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
 		bool isMSXDirectory = (msxDir(dirIndex).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
@@ -474,13 +474,13 @@ void DirAsDSK::freeFATChain(unsigned curCl)
 void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		if (mapDirs.find(it->first) == mapDirs.end()) {
+	for (auto& p : copy) {
+		if (mapDirs.find(p.first) == mapDirs.end()) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
-		const DirIndex& dirIndex = it->first;
-		MapDir& mapDir = it->second;
+		const DirIndex& dirIndex = p.first;
+		MapDir& mapDir = p.second;
 		string fullHostName = hostDir + mapDir.hostName;
 		bool isMSXDirectory = (msxDir(dirIndex).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;

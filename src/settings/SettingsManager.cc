@@ -95,8 +95,8 @@ Setting* SettingsManager::findSetting(string_ref name) const
 set<string> SettingsManager::getSettingNames() const
 {
 	set<string> result;
-	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
-		result.insert(it->first().str());
+	for (auto& p : settingsMap) {
+		result.insert(p.first().str());
 	}
 	return result;
 }
@@ -120,21 +120,20 @@ Setting* SettingsManager::getByName(string_ref name) const
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
-	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
-		const Setting& setting = *it->second;
-		if (setting.needLoadSave()) {
-			it->second->restoreDefault();
+	for (auto& p : settingsMap) {
+		if (p.second->needLoadSave()) {
+			p.second->restoreDefault();
 		}
 	}
 
 	// load new values
-	const XMLElement* settings = config.findChild("settings");
+	auto* settings = config.findChild("settings");
 	if (!settings) return;
-	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
-		string_ref name = it->first();
-		Setting& setting = *it->second;
+	for (auto& p : settingsMap) {
+		auto name = p.first();
+		auto& setting = *p.second;
 		if (!setting.needLoadSave()) continue;
-		if (const XMLElement* elem = settings->findChildWithAttribute(
+		if (auto* elem = settings->findChildWithAttribute(
 		                                     "setting", "id", name)) {
 			try {
 				setting.changeValueString(elem->getData());
@@ -147,8 +146,8 @@ void SettingsManager::loadSettings(const XMLElement& config)
 
 void SettingsManager::saveSettings(XMLElement& config) const
 {
-	for (auto it = settingsMap.begin(); it != settingsMap.end(); ++it) {
-		it->second->sync(config);
+	for (auto& p : settingsMap) {
+		p.second->sync(config);
 	}
 }
 
@@ -167,9 +166,8 @@ void SettingInfo::execute(
 	auto& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
 	case 2:
-		for (auto it = settingsMap.begin();
-		     it != settingsMap.end(); ++it) {
-			result.addListElement(it->first());
+		for (auto& p : settingsMap) {
+			result.addListElement(p.first());
 		}
 		break;
 	case 3: {

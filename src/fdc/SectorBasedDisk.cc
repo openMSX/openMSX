@@ -21,17 +21,16 @@ SectorBasedDisk::~SectorBasedDisk()
 
 void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& input)
 {
-	auto sectors = input.decodeAll();
-	for (auto it = sectors.begin(); it != sectors.end(); ++it) {
+	for (auto& s : input.decodeAll()) {
 		// Ignore 'track' and 'head' information
 		// Always assume sectorsize = 512 (so also ignore sizeCode).
 		// Ignore CRC value/errors of both address and data.
 		// Ignore sector type (deleted or not)
 		// Ignore sectors that are outside the range 1..sectorsPerTrack
-		if ((it->sector < 1) || (it->sector > getSectorsPerTrack())) continue;
+		if ((s.sector < 1) || (s.sector > getSectorsPerTrack())) continue;
 		byte buf[512];
-		input.readBlock(it->dataIdx, 512, buf);
-		unsigned logicalSector = physToLog(track, side, it->sector);
+		input.readBlock(s.dataIdx, 512, buf);
+		unsigned logicalSector = physToLog(track, side, s.sector);
 		writeSector(logicalSector, buf);
 		// it's important to use writeSector() and not writeSectorImpl()
 		// because only the former flushes SHA1 cache

@@ -24,8 +24,8 @@ GlobalCliComm::~GlobalCliComm()
 	ScopedLock lock(sem);
 	// TODO GlobalCliComm has unusual ownership semantics.
 	//      Try to rework it.
-	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-		delete *it;
+	for (auto& l : listeners) {
+		delete l;
 	}
 }
 
@@ -64,8 +64,8 @@ void GlobalCliComm::log(LogLevel level, string_ref message)
 
 	ScopedLock lock(sem);
 	if (!listeners.empty()) {
-		for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-			(*it)->log(level, message);
+		for (auto& l : listeners) {
+			l->log(level, message);
 		}
 	} else {
 		// don't let the message get lost
@@ -93,8 +93,8 @@ void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,
 {
 	assert(Thread::isMainThread());
 	ScopedLock lock(sem);
-	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-		(*it)->update(type, machine, name, value);
+	for (auto& l : listeners) {
+		l->update(type, machine, name, value);
 	}
 }
 

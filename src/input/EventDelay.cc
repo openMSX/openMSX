@@ -80,27 +80,26 @@ int EventDelay::signalEvent(const EventPtr& event)
 
 void EventDelay::sync(EmuTime::param curEmu)
 {
-	unsigned long long curRealTime = Timer::getTime();
-	unsigned long long realDuration = curRealTime - prevReal;
+	auto curRealTime = Timer::getTime();
+	auto realDuration = curRealTime - prevReal;
 	prevReal = curRealTime;
-	EmuDuration emuDuration = curEmu - prevEmu;
+	auto emuDuration = curEmu - prevEmu;
 	prevEmu = curEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
 	EmuDuration extraDelay(delaySetting->getValue());
 
 	EmuTime time = curEmu + extraDelay;
-	for (auto it = toBeScheduledEvents.begin();
-	     it != toBeScheduledEvents.end(); ++it) {
-		scheduledEvents.push_back(*it);
-		auto timedEvent = checked_cast<const TimedEvent*>(it->get());
-		unsigned long long eventRealTime = timedEvent->getRealTime();
+	for (auto& e : toBeScheduledEvents) {
+		scheduledEvents.push_back(e);
+		auto timedEvent = checked_cast<const TimedEvent*>(e.get());
+		auto eventRealTime = timedEvent->getRealTime();
 		assert(eventRealTime <= curRealTime);
-		unsigned long long offset = curRealTime - eventRealTime;
+		auto offset = curRealTime - eventRealTime;
 		EmuDuration emuOffset(factor * offset);
-		EmuTime schedTime = (emuOffset < extraDelay)
-		                  ? time - emuOffset
-		                  : curEmu;
+		auto schedTime = (emuOffset < extraDelay)
+		               ? time - emuOffset
+		               : curEmu;
 		assert(curEmu <= schedTime);
 		setSyncPoint(schedTime);
 	}
@@ -122,17 +121,16 @@ void EventDelay::flush()
 {
 	EmuTime time = getCurrentTime();
 
-	for (auto it = scheduledEvents.begin();
-	     it != scheduledEvents.end(); ++it) {
-		msxEventDistributor.distributeEvent(*it, time);
+	for (auto& e : scheduledEvents) {
+		msxEventDistributor.distributeEvent(e, time);
 	}
 	scheduledEvents.clear();
 
-	for (auto it = toBeScheduledEvents.begin();
-	     it != toBeScheduledEvents.end(); ++it) {
-		msxEventDistributor.distributeEvent(*it, time);
+	for (auto& e : toBeScheduledEvents) {
+		msxEventDistributor.distributeEvent(e, time);
 	}
 	toBeScheduledEvents.clear();
+
 	removeSyncPoints();
 }
 

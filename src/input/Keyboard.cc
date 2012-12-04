@@ -1403,16 +1403,15 @@ void MsxKeyEventQueue::serialize(Archive& ar, unsigned /*version*/)
 	//ar.serialize("eventQueue", eventQueue);
 	vector<string> eventStrs;
 	if (!ar.isLoader()) {
-		for (auto it = eventQueue.begin();
-		     it != eventQueue.end(); ++it) {
-			eventStrs.push_back((*it)->toString());
+		for (auto& e : eventQueue) {
+			eventStrs.push_back(e->toString());
 		}
 	}
 	ar.serialize("eventQueue", eventStrs);
 	if (ar.isLoader()) {
 		assert(eventQueue.empty());
-		for (auto it = eventStrs.begin(); it != eventStrs.end(); ++it) {
-			eventQueue.push_back(InputEventFactory::createInputEvent(*it));
+		for (auto& s : eventStrs) {
+			eventQueue.push_back(InputEventFactory::createInputEvent(s));
 		}
 	}
 }

@@ -75,11 +75,11 @@ void StateChangeDistributor::distribute(const EventPtr& event)
 	//        registerListener()
 	if (recorder) recorder->signalStateChange(event);
 	auto copy = listeners;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		if (isRegistered(*it)) {
+	for (auto& l : copy) {
+		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
-			(*it)->signalStateChange(event);
+			l->signalStateChange(event);
 		}
 	}
 }
@@ -89,8 +89,8 @@ void StateChangeDistributor::stopReplay(EmuTime::param time)
 	if (!isReplaying()) return;
 
 	if (recorder) recorder->stopReplay(time);
-	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-		(*it)->stopReplay(time);
+	for (auto& l : listeners) {
+		l->stopReplay(time);
 	}
 }
 

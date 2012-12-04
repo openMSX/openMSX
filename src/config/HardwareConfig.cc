@@ -107,8 +107,8 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	rom->addChild(make_unique<XMLElement>("filename", romfile));
 	if (!ipsfiles.empty()) {
 		auto patches = make_unique<XMLElement>("patches");
-		for (auto it = ipsfiles.begin(); it != ipsfiles.end(); ++it) {
-			patches->addChild(make_unique<XMLElement>("ips", *it));
+		for (auto& s : ipsfiles) {
+			patches->addChild(make_unique<XMLElement>("ips", s));
 		}
 		rom->addChild(move(patches));
 	}
@@ -261,11 +261,10 @@ void HardwareConfig::parseSlots()
 	//      once machine and extensions are parsed separately move parsing
 	//      of 'expanded' to MSXCPUInterface
 	//
-	auto primarySlots = getDevices().getChildren("primary");
-	for (auto it = primarySlots.begin(); it != primarySlots.end(); ++it) {
-		const string& primSlot = (*it)->getAttribute("slot");
+	for (auto& psElem : getDevices().getChildren("primary")) {
+		const string& primSlot = psElem->getAttribute("slot");
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
-		if ((*it)->getAttributeAsBool("external", false)) {
+		if (psElem->getAttributeAsBool("external", false)) {
 			if (ps < 0) {
 				throw MSXException(
 				    "Cannot mark unspecified primary slot '" +
@@ -274,10 +273,8 @@ void HardwareConfig::parseSlots()
 			createExternalSlot(ps);
 			continue;
 		}
-		auto secondarySlots = (*it)->getChildren("secondary");
-		for (auto it2 = secondarySlots.begin();
-		     it2 != secondarySlots.end(); ++it2) {
-			const string& secSlot = (*it2)->getAttribute("slot");
+		for (auto& ssElem : psElem->getChildren("secondary")) {
+			const string& secSlot = ssElem->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if (ss < 0) {
 				if ((ss >= -128) && (0 <= ps) && (ps < 4) &&
@@ -289,11 +286,11 @@ void HardwareConfig::parseSlots()
 			}
 			if (ps < 0) {
 				ps = getFreePrimarySlot();
-				auto mutableElem = const_cast<XMLElement*>(*it);
+				auto mutableElem = const_cast<XMLElement*>(psElem);
 				mutableElem->setAttribute("slot", StringOp::toString(ps));
 			}
 			createExpandedSlot(ps);
-			if ((*it2)->getAttributeAsBool("external", false)) {
+			if (ssElem->getAttributeAsBool("external", false)) {
 				createExternalSlot(ps, ss);
 			}
 		}
@@ -308,17 +305,15 @@ void HardwareConfig::createDevices()
 void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
-	const XMLElement::Children& children = elem.getChildren();
-	for (auto it = children.begin(); it != children.end(); ++it) {
-		const XMLElement& sub = **it;
-		const string& name = sub.getName();
+	for (auto& c : elem.getChildren()) {
+		const string& name = c->getName();
 		if (name == "primary") {
-			createDevices(sub, &sub, secondary);
+			createDevices(*c, c.get(), secondary);
 		} else if (name == "secondary") {
-			createDevices(sub, primary, &sub);
+			createDevices(*c, primary, c.get());
 		} else {
 			auto device = DeviceFactory::create(
-				DeviceConfig(*this, sub, primary, secondary));
+				DeviceConfig(*this, *c, primary, secondary));
 			if (device.get()) {
 				addDevice(std::move(device));
 			} else {
@@ -417,8 +412,8 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		createDevices();
 	}
 	// only (polymorphically) initialize devices, they are already created
-	for (auto it = devices.begin(); it != devices.end(); ++it) {
-		ar.serializePolymorphic("device", **it);
+	for (auto& d : devices) {
+		ar.serializePolymorphic("device", *d);
 	}
 	ar.serialize("name", name);
 }

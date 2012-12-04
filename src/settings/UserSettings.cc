@@ -77,9 +77,9 @@ void UserSettings::deleteSetting(Setting& setting)
 
 Setting* UserSettings::findSetting(string_ref name) const
 {
-	for (auto it = settings.begin(); it != settings.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return it->get();
+	for (auto& s : settings) {
+		if (s->getName() == name) {
+			return s.get();
 		}
 	}
 	return nullptr;
@@ -301,9 +301,8 @@ void UserSettingCommand::tabCompletion(vector<string>& tokens) const
 set<string> UserSettingCommand::getSettingNames() const
 {
 	set<string> result;
-	auto& settings = userSettings.getSettings();
-	for (auto it = settings.begin(); it != settings.end(); ++it) {
-		result.insert((*it)->getName());
+	for (auto& s : userSettings.getSettings()) {
+		result.insert(s->getName());
 	}
 	return result;
 }

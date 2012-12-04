@@ -107,8 +107,8 @@ void MSXDevice::testRemove(const Devices& alreadyRemoved) const
 	if (!rest.empty()) {
 		StringOp::Builder msg;
 		msg << "Still in use by ";
-		for (auto it = rest.begin(); it != rest.end(); ++it) {
-			msg << (*it)->getName() << ' ';
+		for (auto& d : rest) {
+			msg << d->getName() << ' ';
 		}
 		throw MSXException(msg);
 	}
@@ -122,9 +122,8 @@ void MSXDevice::lockDevices()
 	// (an extension) uses it to refer to the VDP (inside a machine)). If
 	// needed we can implement something more sophisticated later without
 	// changing the format of the config files.
-	auto refConfigs = getDeviceConfig().getChildren("device");
-	for (auto it = refConfigs.begin(); it != refConfigs.end(); ++it) {
-		string name = (*it)->getAttribute("idref");
+	for (auto& c : getDeviceConfig().getChildren("device")) {
+		string name = c->getAttribute("idref");
 		MSXDevice* dev = getMotherBoard().findDevice(name);
 		if (!dev) {
 			throw MSXException(
@@ -139,12 +138,12 @@ void MSXDevice::lockDevices()
 
 void MSXDevice::unlockDevices()
 {
-	for (auto it = references.begin(); it != references.end(); ++it) {
-		auto it2 = find((*it)->referencedBy.begin(),
-		                (*it)->referencedBy.end(),
-		                this);
-		assert(it2 != (*it)->referencedBy.end());
-		(*it)->referencedBy.erase(it2);
+	for (auto& r : references) {
+		auto it = find(r->referencedBy.begin(),
+		               r->referencedBy.end(),
+		               this);
+		assert(it != r->referencedBy.end());
+		r->referencedBy.erase(it);
 	}
 }
 
@@ -194,10 +193,9 @@ PluggingController& MSXDevice::getPluggingController() const
 void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
-	auto memConfigs = getDeviceConfig().getChildren("mem");
-	for (auto it = memConfigs.begin(); it != memConfigs.end(); ++it) {
-		unsigned base = (*it)->getAttributeAsInt("base");
-		unsigned size = (*it)->getAttributeAsInt("size");
+	for (auto& m : getDeviceConfig().getChildren("mem")) {
+		unsigned base = m->getAttributeAsInt("base");
+		unsigned size = m->getAttributeAsInt("size");
 		if ((base >= 0x10000) || (size > 0x10000)) {
 			throw MSXException(
 				"Invalid memory specification for device " +
@@ -288,10 +286,10 @@ void MSXDevice::registerSlots()
 	}
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (auto it = tmpMemRegions.begin(); it != tmpMemRegions.end(); ++it) {
+	for (auto& r : tmpMemRegions) {
 		getCPUInterface().registerMemDevice(
-			*this, ps, logicalSS, it->first, it->second);
-		memRegions.push_back(*it);
+			*this, ps, logicalSS, r.first, r.second);
+		memRegions.push_back(r);
 	}
 
 	// Mark the slot as 'in-use' so that future searches for free external
@@ -307,9 +305,9 @@ void MSXDevice::unregisterSlots()
 	if (memRegions.empty()) return;
 
 	int logicalSS = (ss == -1) ? 0 : ss;
-	for (auto it = memRegions.begin(); it != memRegions.end(); ++it) {
+	for (auto& r : memRegions) {
 		getCPUInterface().unregisterMemDevice(
-			*this, ps, logicalSS, it->first, it->second);
+			*this, ps, logicalSS, r.first, r.second);
 	}
 
 	// See comments above about allocateSlot() for more details:
@@ -340,11 +338,10 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 
 void MSXDevice::registerPorts()
 {
-	auto ios = getDeviceConfig().getChildren("io");
-	for (auto it = ios.begin(); it != ios.end(); ++it) {
-		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));
-		unsigned num  = StringOp::stringToInt((*it)->getAttribute("num"));
-		string_ref type = (*it)->getAttribute("type", "IO");
+	for (auto& i : getDeviceConfig().getChildren("io")) {
+		unsigned base = StringOp::stringToInt(i->getAttribute("base"));
+		unsigned num  = StringOp::stringToInt(i->getAttribute("num"));
+		string_ref type = i->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw MSXException("Invalid IO port specification");
@@ -364,11 +361,11 @@ void MSXDevice::registerPorts()
 
 void MSXDevice::unregisterPorts()
 {
-	for (auto it = inPorts.begin(); it != inPorts.end(); ++it) {
-		getCPUInterface().unregister_IO_In(*it, this);
+	for (auto& p : inPorts) {
+		getCPUInterface().unregister_IO_In(p, this);
 	}
-	for (auto it = outPorts.begin(); it != outPorts.end(); ++it) {
-		getCPUInterface().unregister_IO_Out(*it, this);
+	for (auto& p : outPorts) {
+		getCPUInterface().unregister_IO_Out(p, this);
 	}
 }
 

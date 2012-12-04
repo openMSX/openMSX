@@ -179,16 +179,16 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	for (auto it = regions.begin(); it != regions.end(); ++it) {
+	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	it->srcStartY, it->srcEndY, it->lineWidth);
-		assert(textures.find(it->lineWidth) != textures.end());
-		ColorTexture* superImpose = superImposeVideoFrame
-		                          ? superImposeTex.get() : nullptr;
+		//	r.srcStartY, r.srcEndY, r.lineWidth);
+		assert(textures.find(r.lineWidth) != textures.end());
+		auto superImpose = superImposeVideoFrame
+		                 ? superImposeTex.get() : nullptr;
 		currScaler->scaleImage(
-			*textures[it->lineWidth].tex, superImpose,
-			it->srcStartY, it->srcEndY, it->lineWidth,     // src
-			it->dstStartY, it->dstEndY, screen.getWidth(), // dst
+			*textures[r.lineWidth].tex, superImpose,
+			r.srcStartY, r.srcEndY, r.lineWidth,       // src
+			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
 			paintFrame->getHeight()); // dst
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
@@ -256,14 +256,14 @@ void GLPostProcessor::uploadFrame()
 	createRegions();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	for (auto it = regions.begin(); it != regions.end(); ++it) {
+	for (auto& r : regions) {
 		// upload data
 		// TODO get before/after data from scaler
 		unsigned before = 1;
 		unsigned after  = 1;
-		uploadBlock(std::max<int>(0,         it->srcStartY - before),
-		            std::min<int>(srcHeight, it->srcEndY   + after),
-		            it->lineWidth);
+		uploadBlock(std::max<int>(0,         r.srcStartY - before),
+		            std::min<int>(srcHeight, r.srcEndY   + after),
+		            r.lineWidth);
 	}
 
 	if (superImposeVideoFrame) {

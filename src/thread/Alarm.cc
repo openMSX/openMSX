@@ -160,25 +160,24 @@ unsigned AlarmManager::timerCallback2()
 
 	long long now = Timer::getTime();
 	long long earliest = std::numeric_limits<long long>::max();
-	for (auto it = alarms.begin(); it != alarms.end(); ++it) {
-		Alarm& alarm = **it;
-		if (alarm.active) {
+	for (auto& a : alarms) {
+		if (a->active) {
 			// timer active
-			// note: don't compare time directly (alarm.time < now),
+			// note: don't compare time directly (a->time < now),
 			//       because there is a small chance time will wrap
-			long long left = alarm.time - now;
+			long long left = a->time - now;
 			if (left <= 0) {
 				// timer expired
-				if (alarm.alarm()) {
+				if (a->alarm()) {
 					// repeat
-					alarm.time += alarm.period;
-					left = alarm.time - now;
+					a->time += a->period;
+					left = a->time - now;
 					// 'left' can still be negative at this
 					// point, but that's ok .. convert()
 					// will return '1' in that case
 					earliest = std::min(earliest, left);
 				} else {
-					alarm.active = false;
+					a->active = false;
 				}
 			} else {
 				// timer active but not yet expired
@@ -191,8 +190,8 @@ unsigned AlarmManager::timerCallback2()
 		assert(id != nullptr);
 		return convert(int(earliest));
 	} else {
-		for (auto it = alarms.begin(); it != alarms.end(); ++it) {
-			assert((*it)->active == false);
+		for (auto& a : alarms) {
+			assert(a->active == false);
 		}
 		id = nullptr;
 		return 0; // don't repeat

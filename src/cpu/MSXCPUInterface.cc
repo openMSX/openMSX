@@ -301,12 +301,11 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 	// something special in this region?
 	if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 		// slot-select-ignore writes (Super Lode Runner)
-		for (auto it = globalWrites.begin();
-		     it != globalWrites.end(); ++it) {
+		for (auto& g : globalWrites) {
 			// very primitive address selection mechanism,
 			// but more than enough for now
-			if (unlikely(it->addr == address)) {
-				it->device->globalWrite(address, value, time);
+			if (unlikely(g.addr == address)) {
+				g.device->globalWrite(address, value, time);
 			}
 		}
 		// execute write watches after actual write
@@ -360,8 +359,8 @@ void MSXCPUInterface::testUnsetExpanded(
 	StringOp::Builder msg;
 	msg << "Can't remove slot expander from slot " << ps
 	    << " because the following devices are still inserted:";
-	for (auto it = inUse.begin(); it != inUse.end(); ++it) {
-		msg << " " << (*it)->getName();
+	for (auto& d : inUse) {
+		msg << " " << d->getName();
 	}
 	msg << '.';
 	throw MSXException(msg);
@@ -609,8 +608,8 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 	assert(it != globalWrites.end());
 	globalWrites.erase(it);
 
-	for (auto it = globalWrites.begin(); it != globalWrites.end(); ++it) {
-		if ((it->addr >> CacheLine::BITS) ==
+	for (auto& g : globalWrites) {
+		if ((g.addr >> CacheLine::BITS) ==
 		    (address  >> CacheLine::BITS)) {
 			// there is still a global write in this region
 			return;
@@ -779,12 +778,12 @@ void MSXCPUInterface::checkBreakPoints(
 	//  - keeps object alive by holding a shared_ptr to it
 	//  - avoids iterating over a changing collection
 	BreakPoints bpCopy(range.first, range.second);
-	for (auto it = bpCopy.begin(); it != bpCopy.end(); ++it) {
-		it->second->checkAndExecute();
+	for (auto& p : bpCopy) {
+		p.second->checkAndExecute();
 	}
 	auto condCopy = conditions;
-	for (auto it = condCopy.begin(); it != condCopy.end(); ++it) {
-		(*it)->checkAndExecute();
+	for (auto& c : condCopy) {
+		c->checkAndExecute();
 	}
 }
 
@@ -906,10 +905,10 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
 		watchSet[i].reset();
 	}
-	for (auto it = watchPoints.begin(); it != watchPoints.end(); ++it) {
-		if ((*it)->getType() == type) {
-			unsigned beginAddr = (*it)->getBeginAddress();
-			unsigned endAddr   = (*it)->getEndAddress();
+	for (auto& w : watchPoints) {
+		if (w->getType() == type) {
+			unsigned beginAddr = w->getBeginAddress();
+			unsigned endAddr   = w->getEndAddress();
 			assert(beginAddr <= endAddr);
 			assert(endAddr < 0x10000);
 			for (unsigned addr = beginAddr; addr <= endAddr; ++addr) {
@@ -948,11 +947,11 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	}
 
 	auto wpCopy = watchPoints;
-	for (auto it = wpCopy.begin(); it != wpCopy.end(); ++it) {
-		if (((*it)->getBeginAddress() <= address) &&
-		    ((*it)->getEndAddress()   >= address) &&
-		    ((*it)->getType()         == type)) {
-			(*it)->checkAndExecute();
+	for (auto& w : wpCopy) {
+		if ((w->getBeginAddress() <= address) &&
+		    (w->getEndAddress()   >= address) &&
+		    (w->getType()         == type)) {
+			w->checkAndExecute();
 		}
 	}
 

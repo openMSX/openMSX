@@ -376,11 +376,8 @@ unsigned OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 {
-	auto lines = StringOp::split(text, "\n");
-
 	vector<string> wrappedLines;
-	for (auto it = lines.begin(); it != lines.end(); ++it) {
-		string line = *it;
+	for (auto& line : StringOp::split(text, "\n")) {
 		do {
 			unsigned pos = splitAtChar(line, maxWidth);
 			wrappedLines.push_back(line.substr(0, pos));
@@ -393,11 +390,8 @@ string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 
 string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 {
-	auto lines = StringOp::split(text, "\n");
-
 	vector<string> wrappedLines;
-	for (auto it = lines.begin(); it != lines.end(); ++it) {
-		string line = *it;
+	for (auto& line : StringOp::split(text, "\n")) {
 		do {
 			unsigned pos = splitAtWord(line, maxWidth);
 			string_ref first = string_ref(line).substr(0, pos);

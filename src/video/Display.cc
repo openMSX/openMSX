@@ -190,9 +190,9 @@ void Display::detach(VideoSystemChangeListener& listener)
 
 Layer* Display::findLayer(string_ref name) const
 {
-	for (auto it = layers.begin(); it != layers.end(); ++it) {
-		if ((*it)->getLayerName() == name) {
-			return *it;
+	for (auto& l : layers) {
+		if (l->getLayerName() == name) {
+			return l;
 		}
 	}
 	return nullptr;
@@ -200,9 +200,9 @@ Layer* Display::findLayer(string_ref name) const
 
 Layer* Display::findActiveLayer() const
 {
-	for (auto it = layers.begin(); it != layers.end(); ++it) {
-		if ((*it)->getZ() == Layer::Z_MSX_ACTIVE) {
-			return *it;
+	for (auto& l : layers) {
+		if (l->getZ() == Layer::Z_MSX_ACTIVE) {
+			return l;
 		}
 	}
 	return nullptr;
@@ -334,16 +334,16 @@ void Display::doRendererSwitch()
 
 void Display::doRendererSwitch2()
 {
-	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-		(*it)->preVideoSystemChange();
+	for (auto& l : listeners) {
+		l->preVideoSystemChange();
 	}
 
 	resetVideoSystem();
 	videoSystem = RendererFactory::createVideoSystem(reactor);
 	setWindowTitle();
 
-	for (auto it = listeners.begin(); it != listeners.end(); ++it) {
-		(*it)->postVideoSystemChange();
+	for (auto& l : listeners) {
+		l->postVideoSystemChange();
 	}
 }
 
@@ -397,10 +397,11 @@ void Display::repaintDelayed(unsigned long long delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	Layers::iterator it;
-	for (it = layers.begin(); it != layers.end() && (*it)->getZ() < z; ++it) {
-		// nothing
+	auto it = layers.begin();
+	while (it != layers.end() && (*it)->getZ() < z) {
+		++it;
 	}
+
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }

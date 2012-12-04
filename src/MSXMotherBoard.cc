@@ -775,9 +775,8 @@ void MSXMotherBoard::Impl::doReset()
 
 	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
-	for (auto it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		(*it)->reset(time);
+	for (auto& d : availableDevices) {
+		d->reset(time);
 	}
 	getCPU().doReset(time);
 	// let everyone know we're booting, note that the fact that this is
@@ -789,9 +788,8 @@ void MSXMotherBoard::Impl::doReset()
 byte MSXMotherBoard::Impl::readIRQVector()
 {
 	byte result = 0xff;
-	for (auto it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		result &= (*it)->readIRQVector();
+	for (auto& d : availableDevices) {
+		result &= d->readIRQVector();
 	}
 	return result;
 }
@@ -814,9 +812,8 @@ void MSXMotherBoard::Impl::powerUp()
 
 	EmuTime::param time = getCurrentTime();
 	getCPUInterface().reset();
-	for (auto it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		(*it)->powerUp(time);
+	for (auto& d : availableDevices) {
+		d->powerUp(time);
 	}
 	getCPU().doReset(time);
 	msxMixer->unmute();
@@ -841,9 +838,8 @@ void MSXMotherBoard::Impl::powerDown()
 	msxMixer->mute();
 
 	EmuTime::param time = getCurrentTime();
-	for (auto it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		(*it)->powerDown(time);
+	for (auto& d : availableDevices) {
+		d->powerDown(time);
 	}
 }
 
@@ -894,10 +890,9 @@ void MSXMotherBoard::Impl::update(const Setting& setting)
 
 MSXDevice* MSXMotherBoard::Impl::findDevice(string_ref name)
 {
-	for (auto it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return *it;
+	for (auto& d : availableDevices) {
+		if (d->getName() == name) {
+			return d;
 		}
 	}
 	return nullptr;
@@ -1072,9 +1067,8 @@ ListExtCmd::ListExtCmd(MSXMotherBoard::Impl& motherBoard_)
 void ListExtCmd::execute(const vector<TclObject>& /*tokens*/,
                          TclObject& result)
 {
-	const MSXMotherBoard::Impl::Extensions& extensions = motherBoard.getExtensions();
-	for (auto it = extensions.begin(); it != extensions.end(); ++it) {
-		result.addListElement((*it)->getName());
+	for (auto& e : motherBoard.getExtensions()) {
+		result.addListElement(e->getName());
 	}
 }
 
@@ -1155,9 +1149,8 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> names;
-		for (auto it = motherBoard.getExtensions().begin();
-		     it != motherBoard.getExtensions().end(); ++it) {
-			names.insert((*it)->getName());
+		for (auto& e : motherBoard.getExtensions()) {
+			names.insert(e->getName());
 		}
 		completeString(tokens, names);
 	}
@@ -1197,9 +1190,8 @@ void DeviceInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (auto it = motherBoard.availableDevices.begin();
-		     it != motherBoard.availableDevices.end(); ++it) {
-			result.addListElement((*it)->getName());
+		for (auto& d : motherBoard.availableDevices) {
+			result.addListElement(d->getName());
 		}
 		break;
 	case 3: {
@@ -1227,9 +1219,8 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (auto it = motherBoard.availableDevices.begin();
-		     it != motherBoard.availableDevices.end(); ++it) {
-			names.insert((*it)->getName());
+		for (auto& d : motherBoard.availableDevices) {
+			names.insert(d->getName());
 		}
 		completeString(tokens, names);
 	}

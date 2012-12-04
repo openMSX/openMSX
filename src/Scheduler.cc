@@ -64,8 +64,8 @@ Scheduler::~Scheduler()
 {
 	assert(!cpu);
 	auto copy = syncPoints;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		it->getDevice()->schedulerDeleted();
+	for (auto& s : copy) {
+		s.getDevice()->schedulerDeleted();
 	}
 
 	assert(syncPoints.empty());
@@ -101,8 +101,8 @@ bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
 	for (auto it = syncPoints.begin(); it != syncPoints.end(); ++it) {
-		if (((*it).getDevice() == &device) &&
-		    ((*it).getUserData() == userData)) {
+		if ((it->getDevice() == &device) &&
+		    (it->getUserData() == userData)) {
 			syncPoints.erase(it);
 			return true;
 		}
@@ -121,9 +121,9 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	for (auto it = syncPoints.begin(); it != syncPoints.end(); ++it) {
-		if ((it->getDevice() == &device) &&
-		    (it->getUserData() == userData)) {
+	for (auto& s : syncPoints) {
+		if ((s.getDevice() == &device) &&
+		    (s.getUserData() == userData)) {
 			return true;
 		}
 	}

@@ -29,20 +29,20 @@ static string subst(string_ref path, string_ref before, string_ref after)
 static vector<string> getPathsHelper(const vector<string>& input)
 {
 	vector<string> result;
-	for (auto it = input.begin(); it != input.end(); ++it) {
-		if (StringOp::startsWith(*it, USER_OPENMSX)) {
-			result.push_back(subst(*it, USER_OPENMSX,
+	for (auto& s : input) {
+		if (StringOp::startsWith(s, USER_OPENMSX)) {
+			result.push_back(subst(s, USER_OPENMSX,
 			                       FileOperations::getUserOpenMSXDir()));
-		} else if (StringOp::startsWith(*it, USER_DATA)) {
-			result.push_back(subst(*it, USER_DATA,
+		} else if (StringOp::startsWith(s, USER_DATA)) {
+			result.push_back(subst(s, USER_DATA,
 			                       FileOperations::getUserDataDir()));
-		} else if (StringOp::startsWith(*it, SYSTEM_DATA)) {
-			result.push_back(subst(*it, SYSTEM_DATA,
+		} else if (StringOp::startsWith(s, SYSTEM_DATA)) {
+			result.push_back(subst(s, SYSTEM_DATA,
 			                       FileOperations::getSystemDataDir()));
-		} else if (*it == USER_DIRS) {
+		} else if (s == USER_DIRS) {
 			// Nothing. Keep USER_DIRS for isUserContext()
 		} else {
-			result.push_back(*it);
+			result.push_back(s);
 		}
 	}
 	return result;
@@ -59,8 +59,8 @@ static string resolveHelper(const vector<string>& pathList,
 		return filepath;
 	}
 
-	for (auto it = pathList.begin(); it != pathList.end(); ++it) {
-		string name = FileOperations::join(*it, filename);
+	for (auto& p : pathList) {
+		string name = FileOperations::join(p, filename);
 		name = FileOperations::expandTilde(name);
 		PRT_DEBUG("Context: try " << name);
 		if (FileOperations::exists(name)) {
@@ -106,8 +106,8 @@ vector<string> FileContext::getPaths() const
 
 bool FileContext::isUserContext() const
 {
-	for (auto it = paths.begin(); it != paths.end(); ++it) {
-		if (*it == USER_DIRS) {
+	for (auto& p : paths) {
+		if (p == USER_DIRS) {
 			return true;
 		}
 	}

@@ -46,11 +46,11 @@ MSXCommandController::~MSXCommandController()
 	machineInfoCommand.reset();
 
 	#ifndef NDEBUG
-	for (auto it = commandMap.begin(); it != commandMap.end(); ++it) {
-		std::cout << "Command not unregistered: " << it->first() << std::endl;
+	for (auto& p : commandMap) {
+		std::cout << "Command not unregistered: " << p.first() << std::endl;
 	}
-	for (auto it = settingMap.begin(); it != settingMap.end(); ++it) {
-		std::cout << "Setting not unregistered: " << it->first() << std::endl;
+	for (auto& p : settingMap) {
+		std::cout << "Setting not unregistered: " << p.first() << std::endl;
 	}
 	assert(commandMap.empty());
 	assert(settingMap.empty());
@@ -186,8 +186,8 @@ void MSXCommandController::signalEvent(
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (auto it = settingMap.begin(); it != settingMap.end(); ++it) {
-		changeSetting(*it->second, it->second->getValueString());
+	for (auto& p : settingMap) {
+		changeSetting(*p.second, p.second->getValueString());
 	}
 }
 

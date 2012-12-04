@@ -374,9 +374,9 @@ const string getName(KeyCode keyCode)
 	initialize();
 
 	string result;
-	for (auto it = keymap.begin(); it != keymap.end(); ++it) {
-		if (it->second == (keyCode & K_MASK)) {
-			result = it->first;
+	for (auto& p : keymap) {
+		if (p.second == (keyCode & K_MASK)) {
+			result = p.first;
 			break;
 		}
 	}

@@ -76,10 +76,10 @@ void NowindCommand::processHdimage(
 		}
 	}
 
-	for (auto it = partitions.begin(); it != partitions.end(); ++it) {
+	for (auto& p : partitions) {
 		try {
 			auto partition = make_unique<DiskPartition>(
-				*wholeDisk, *it, wholeDisk);
+				*wholeDisk, p, wholeDisk);
 			auto drive = createDiskChanger(
 				interface.basename, unsigned(drives.size()),
 				motherboard);
@@ -238,8 +238,8 @@ string NowindCommand::execute(const vector<string>& tokens)
 	//   - the new drives (when there was an error)
 	auto prevSize = tmpDrives.size();
 	tmpDrives.clear();
-	for (auto it = drives.begin(); it != drives.end(); ++it) {
-		if (auto disk = dynamic_cast<DiskChanger*>(it->get())) {
+	for (auto& d : drives) {
+		if (auto disk = dynamic_cast<DiskChanger*>(d.get())) {
 			disk->createCommand();
 		}
 	}

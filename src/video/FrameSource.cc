@@ -19,8 +19,8 @@ FrameSource::FrameSource(const SDL_PixelFormat& format)
 
 FrameSource::~FrameSource()
 {
-	for (auto it = tempBuffers.begin(); it != tempBuffers.end(); ++it) {
-		MemoryOps::freeAligned(*it);
+	for (auto& t : tempBuffers) {
+		MemoryOps::freeAligned(t);
 	}
 }
 

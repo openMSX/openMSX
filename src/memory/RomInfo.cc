@@ -190,10 +190,9 @@ RomType RomInfo::nameToRomType(string_ref name)
 string_ref RomInfo::romTypeToName(RomType type)
 {
 	assert(!isAlias(type));
-	auto& romTypeMap = getRomTypeMap();
-	for (auto it = romTypeMap.begin(); it != romTypeMap.end(); ++it) {
-		if (it->second == type) {
-			return it->first;
+	for (auto& p : getRomTypeMap()) {
+		if (p.second == type) {
+			return p.first;
 		}
 	}
 	UNREACHABLE; return "";
@@ -202,10 +201,9 @@ string_ref RomInfo::romTypeToName(RomType type)
 set<string> RomInfo::getAllRomTypes()
 {
 	set<string> result;
-	auto& romTypeMap = getRomTypeMap();
-	for (auto it = romTypeMap.begin(); it != romTypeMap.end(); ++it) {
-		if (!isAlias(it->second)) {
-			result.insert(it->first.str());
+	for (auto& p : getRomTypeMap()) {
+		if (!isAlias(p.second)) {
+			result.insert(p.first.str());
 		}
 	}
 	return result;

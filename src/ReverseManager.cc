@@ -288,9 +288,8 @@ void ReverseManager::status(TclObject& result) const
 
 	result.addListElement("snapshots");
 	TclObject snapshots;
-	for (auto it = history.chunks.begin();
-	     it != history.chunks.end(); ++it) {
-		EmuTime time = it->second.time;
+	for (auto& p : history.chunks) {
+		EmuTime time = p.second.time;
 		snapshots.addListElement((time - EmuTime::zero).toDouble());
 	}
 	result.addListElement(snapshots);
@@ -302,10 +301,9 @@ void ReverseManager::debugInfo(TclObject& result) const
 	// information means nothing. We should remove this later.
 	StringOp::Builder res;
 	unsigned totalSize = 0;
-	for (auto it = history.chunks.begin();
-	     it != history.chunks.end(); ++it) {
-		const ReverseChunk& chunk = it->second;
-		res << it->first << ' '
+	for (auto& p : history.chunks) {
+		auto& chunk = p.second;
+		res << p.first << ' '
 		    << (chunk.time - EmuTime::zero).toDouble() << ' '
 		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
 		    << " (" << chunk.savestate->size() << ')'
@@ -720,13 +718,12 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// Restore snapshots
 	unsigned replayIndex = 0;
-	for (auto it = replay.motherBoards.begin();
-	     it != replay.motherBoards.end(); ++it) {
+	for (auto& m : replay.motherBoards) {
 		ReverseChunk newChunk;
-		newChunk.time = (*it)->getCurrentTime();
+		newChunk.time = m->getCurrentTime();
 
 		MemOutputArchive out;
-		out.serialize("machine", **it);
+		out.serialize("machine", *m);
 		newChunk.savestate = out.releaseBuffer();
 
 		// update replayIndex

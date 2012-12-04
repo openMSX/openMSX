@@ -300,15 +300,15 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
-		for (auto it = drives.begin(); it != drives.end(); ++it) {
-			string name1 = it->driveName; // with prexix
-			string name2 = it->drive->getContainerName(); // without prefix
+		for (auto& d : drives) {
+			string name1 = d.driveName; // with prexix
+			string name2 = d.drive->getContainerName(); // without prefix
 			names.insert(name1);
 			names.insert(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (SectorAccessibleDisk* disk =
-			    it->drive->getSectorAccessibleDisk()) {
+			    d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
@@ -493,28 +493,27 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 }
 
 string DiskManipulator::import(DriveSettings& driveData,
-                             const vector<string>& lists)
+                               const vector<string>& lists)
 {
 	unique_ptr<DiskPartition> partition = getPartition(driveData);
 	unique_ptr<MSXtar> workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
-	for (auto it = lists.begin(); it != lists.end(); ++it) {
-		auto list = getCommandController().splitList(*it);
-		for (auto it = list.begin(); it != list.end(); ++it) {
+	for (auto& l : lists) {
+		for (auto& i : getCommandController().splitList(l)) {
 			try {
 				FileOperations::Stat st;
-				if (!FileOperations::getStat(*it, st)) {
+				if (!FileOperations::getStat(i, st)) {
 					throw CommandException(
-						"Non-existing file " + *it);
+						"Non-existing file " + i);
 				}
 				if (FileOperations::isDirectory(st)) {
-					messages += workhorse->addDir(*it);
+					messages += workhorse->addDir(i);
 				} else if (FileOperations::isRegularFile(st)) {
-					messages += workhorse->addFile(*it);
+					messages += workhorse->addFile(i);
 				} else {
 					// ignore other stuff (sockets, device nodes, ..)
-					messages += "Ignoring " + *it + '\n';
+					messages += "Ignoring " + i + '\n';
 				}
 			} catch (MSXException& e) {
 				throw CommandException(e.getMessage());
@@ -534,8 +533,8 @@ void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
 			// export all
 			workhorse->getDir(dirname);
 		} else {
-			for (auto it = lists.begin(); it != lists.end(); ++it) {
-				workhorse->getItemFromDir(dirname, *it);
+			for (auto& l : lists) {
+				workhorse->getItemFromDir(dirname, l);
 			}
 		}
 	} catch (MSXException& e) {

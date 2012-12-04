@@ -349,8 +349,8 @@ void OSDWidget::invalidateRecursive()
 
 void OSDWidget::invalidateChildren()
 {
-	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
-		(*it)->invalidateRecursive();
+	for (auto& s : subWidgets) {
+		s->invalidateRecursive();
 	}
 }
 
@@ -379,8 +379,8 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 	// to a Tcl callback and that callback can destroy or create extra
 	// widgets.
 	auto copy = subWidgets;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		(*it)->paintSDLRecursive(output);
+	for (auto& s : copy) {
+		s->paintSDLRecursive(output);
 	}
 }
 
@@ -398,8 +398,8 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	}
 
 	auto copy = subWidgets;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		(*it)->paintGLRecursive(output);
+	for (auto& s : copy) {
+		s->paintGLRecursive(output);
 	}
 #endif
 }
@@ -509,10 +509,10 @@ void OSDWidget::listWidgetNames(const string& parentName, set<string>& result) c
 {
 	string pname = parentName;
 	if (!pname.empty()) pname += '.';
-	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
-		string name = pname + (*it)->getName();
+	for (auto& s : subWidgets) {
+		string name = pname + s->getName();
 		result.insert(name);
-		(*it)->listWidgetNames(name, result);
+		s->listWidgetNames(name, result);
 	}
 }
 

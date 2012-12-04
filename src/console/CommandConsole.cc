@@ -187,8 +187,8 @@ void CommandConsole::saveHistory()
 			throw FileException(
 				"Error while saving the console history.");
 		}
-		for (auto it = history.begin(); it != history.end(); ++it) {
-			outputfile << string_ref(*it).substr(string_ref::size_type(prompt.size())) << '\n';
+		for (auto& s : history) {
+			outputfile << string_ref(s).substr(string_ref::size_type(prompt.size())) << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());

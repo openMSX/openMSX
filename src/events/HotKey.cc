@@ -45,7 +45,7 @@ public:
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 private:
-	string formatBinding(HotKey::BindMap::const_iterator it);
+	string formatBinding(const HotKey::BindMap::value_type& p);
 
 	HotKey& hotKey;
 	const bool defaultCmd;
@@ -221,15 +221,14 @@ void HotKey::loadBindings(const XMLElement& config)
 	if (!bindingsElement) return;
 	auto copy = *bindingsElement; // dont iterate over changing container
 	auto& children = copy.getChildren();
-	for (auto it = children.begin(); it != children.end(); ++it) {
-		auto& elem = **it;
+	for (auto& elem : children) {
 		try {
-			if (elem.getName() == "bind") {
-				bind(createEvent(elem.getAttribute("key")),
-				     HotKeyInfo(elem.getData(),
-				                elem.getAttributeAsBool("repeat", false)));
-			} else if (elem.getName() == "unbind") {
-				unbind(createEvent(elem.getAttribute("key")));
+			if (elem->getName() == "bind") {
+				bind(createEvent(elem->getAttribute("key")),
+				     HotKeyInfo(elem->getData(),
+				                elem->getAttributeAsBool("repeat", false)));
+			} else if (elem->getName() == "unbind") {
+				unbind(createEvent(elem->getAttribute("key")));
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
@@ -244,21 +243,21 @@ void HotKey::saveBindings(XMLElement& config) const
 	bindingsElement.removeAllChildren();
 
 	// add explicit bind's
-	for (auto it = boundKeys.begin(); it != boundKeys.end(); ++it) {
-		auto it2 = cmdMap.find(*it);
+	for (auto& k : boundKeys) {
+		auto it2 = cmdMap.find(k);
 		assert(it2 != cmdMap.end());
 		auto& info = it2->second;
 		auto elem = make_unique<XMLElement>("bind", info.command);
-		elem->addAttribute("key", (*it)->toString());
+		elem->addAttribute("key", k->toString());
 		if (info.repeat) {
 			elem->addAttribute("repeat", "true");
 		}
 		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
-	for (auto it = unboundKeys.begin(); it != unboundKeys.end(); ++it) {
+	for (auto& k : unboundKeys) {
 		auto elem = make_unique<XMLElement>("unbind");
-		elem->addAttribute("key", (*it)->toString());
+		elem->addAttribute("key", k->toString());
 		bindingsElement.addChild(std::move(elem));
 	}
 }
@@ -430,10 +429,10 @@ BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_,
 {
 }
 
-string BindCmd::formatBinding(HotKey::BindMap::const_iterator it)
+string BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
 {
-	auto& info = it->second;
-	return it->first->toString() + (info.repeat ? " [repeat]" : "") +
+	auto& info = p.second;
+	return p.first->toString() + (info.repeat ? " [repeat]" : "") +
 	       ":  " + info.command + '\n';
 }
 
@@ -477,12 +476,11 @@ string BindCmd::execute(const vector<string>& tokens_)
 
 	if (layers) {
 		TclObject result;
-		for (auto it = hotKey.layerMap.begin();
-		     it != hotKey.layerMap.end(); ++it) {
+		for (auto& p : hotKey.layerMap) {
 			// An alternative for this test is to always properly
 			// prune layerMap. ATM this approach seems simpler.
-			if (!it->second.empty()) {
-				result.addListElement(it->first);
+			if (!p.second.empty()) {
+				result.addListElement(p.first);
 			}
 		}
 		return result.getString().str();
@@ -494,8 +492,8 @@ string BindCmd::execute(const vector<string>& tokens_)
 		UNREACHABLE;
 	case 1:
 		// show all bounded keys (for this layer)
-		for (auto it = cmdMap.begin(); it != cmdMap.end(); ++it) {
-			result += formatBinding(it);
+		for (auto& p : cmdMap) {
+			result += formatBinding(p);
 		}
 		break;
 	case 2: {
@@ -504,7 +502,7 @@ string BindCmd::execute(const vector<string>& tokens_)
 		if (it == cmdMap.end()) {
 			throw CommandException("Key not bound");
 		}
-		result = formatBinding(it);
+		result = formatBinding(*it);
 		break;
 	}
 	default: {

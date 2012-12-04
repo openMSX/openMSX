@@ -42,11 +42,11 @@ void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param 
 	//        Connector::plug() -> .. -> Joystick::plugHelper() ->
 	//        registerEventListener()
 	auto copy = listeners;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		if (isRegistered(*it)) {
+	for (auto& l : copy) {
+		if (isRegistered(l)) {
 			// it's possible the listener unregistered itself
 			// (but is still present in the copy)
-			(*it)->signalEvent(event, time);
+			l->signalEvent(event, time);
 		}
 	}
 }

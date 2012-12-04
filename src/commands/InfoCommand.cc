@@ -59,9 +59,8 @@ void InfoCommand::execute(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		for (auto it = infoTopics.begin();
-		     it != infoTopics.end(); ++it) {
-			result.addListElement(it->first());
+		for (auto& p : infoTopics) {
+			result.addListElement(p.first());
 		}
 		break;
 	default:
@@ -105,9 +104,8 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	case 2: {
 		// complete topic
 		set<string> topics;
-		for (auto it = infoTopics.begin();
-		     it != infoTopics.end(); ++it) {
-			topics.insert(it->first().str());
+		for (auto& p : infoTopics) {
+			topics.insert(p.first().str());
 		}
 		completeString(tokens, topics);
 		break;

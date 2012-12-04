@@ -122,9 +122,8 @@ bool Completer::completeString2(string& str, set<string>& st,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		vector<string> lines = format(st, output->getOutputColumns() - 1);
-		for (auto it = lines.begin(); it != lines.end(); ++it) {
-			output->output(*it);
+		for (auto& line : format(st, output->getOutputColumns() - 1)) {
+			output->output(line);
 		}
 	}
 	return false;
@@ -160,8 +159,8 @@ void Completer::completeFileName(vector<string>& tokens,
 	}
 
 	set<string> filenames(extra);
-	for (auto it = paths.begin(); it != paths.end(); ++it) {
-		string dirname = FileOperations::join(*it, basename);
+	for (auto& p : paths) {
+		string dirname = FileOperations::join(p, basename);
 		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {
 			string name = FileOperations::join(dirname, de->d_name);

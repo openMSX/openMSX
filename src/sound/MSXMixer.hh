@@ -130,7 +130,7 @@ private:
 	};
 	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 
-	void updateVolumeParams(Infos::iterator it);
+	void updateVolumeParams(Infos::value_type& p);
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();

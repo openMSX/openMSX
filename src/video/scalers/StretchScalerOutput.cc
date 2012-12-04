@@ -112,8 +112,8 @@ StretchScalerOutputBase<Pixel>::StretchScalerOutputBase(
 template<typename Pixel>
 StretchScalerOutputBase<Pixel>::~StretchScalerOutputBase()
 {
-	for (auto it = pool.begin(); it != pool.end(); ++it) {
-		MemoryOps::freeAligned(*it);
+	for (auto& p : pool) {
+		MemoryOps::freeAligned(p);
 	}
 }
 

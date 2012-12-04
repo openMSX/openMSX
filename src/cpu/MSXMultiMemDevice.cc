@@ -5,6 +5,7 @@
 #include "MSXCPUInterface.hh"
 #include "StringOp.hh"
 #include "likely.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -99,12 +100,12 @@ std::string MSXMultiMemDevice::getName() const
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const
 {
-	for (auto it = ranges.begin(); true; ++it) {
-		if (isInside(address, it->base, it->size)) {
-			return *it;
+	for (auto& r : ranges) {
+		if (isInside(address, r.base, r.size)) {
+			return r;
 		}
-		assert(it != ranges.end());
 	}
+	UNREACHABLE;
 }
 
 MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const

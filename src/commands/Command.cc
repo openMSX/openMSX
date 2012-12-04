@@ -83,8 +83,8 @@ void Command::execute(const vector<TclObject>& tokens, TclObject& result)
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
-	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
-		strings.push_back(it->getString().str());
+	for (auto& t : tokens) {
+		strings.push_back(t.getString().str());
 	}
 	result.setString(execute(strings));
 }

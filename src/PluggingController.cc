@@ -117,9 +117,9 @@ PluggingController::~PluggingController()
 #ifndef NDEBUG
 	// This is similar to an assert: it should never print anything,
 	// but if it does, it helps to catch an error.
-	for (auto it = connectors.begin(); it != connectors.end(); ++it) {
+	for (auto& c : connectors) {
 		std::cerr << "ERROR: Connector still registered at shutdown: "
-		          << (*it)->getName() << std::endl;
+		          << c->getName() << std::endl;
 	}
 #endif
 }
@@ -165,10 +165,9 @@ string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 	StringOp::Builder result;
 	switch (tokens.size()) {
 	case 1: {
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			result << (*it)->getName() << ": "
-			       << (*it)->getPlugged().getName() << '\n';
+		for (auto& c : pluggingController.connectors) {
+			result << c->getName() << ": "
+			       << c->getPlugged().getName() << '\n';
 		}
 		break;
 	}
@@ -216,9 +215,8 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			connectors.insert((*it)->getName());
+		for (auto& c : pluggingController.connectors) {
+			connectors.insert(c->getName());
 		}
 		completeString(tokens, connectors);
 	} else if (tokens.size() == 3) {
@@ -226,11 +224,9 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 		set<string> pluggables;
 		Connector* connector = pluggingController.findConnector(tokens[1]);
 		string_ref className = connector ? connector->getClass() : "";
-		for (auto it = pluggingController.pluggables.begin();
-		     it != pluggingController.pluggables.end(); ++it) {
-			auto& pluggable = **it;
-			if (pluggable.getClass() == className) {
-				pluggables.insert(pluggable.getName());
+		for (auto& p : pluggingController.pluggables) {
+			if (p->getClass() == className) {
+				pluggables.insert(p->getName());
 			}
 		}
 		completeString(tokens, pluggables);
@@ -277,9 +273,8 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			connectors.insert((*it)->getName());
+		for (auto& c : pluggingController.connectors) {
+			connectors.insert(c->getName());
 		}
 		completeString(tokens, connectors);
 	}
@@ -287,9 +282,9 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 
 Connector* PluggingController::findConnector(string_ref name) const
 {
-	for (auto it = connectors.begin(); it != connectors.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return *it;
+	for (auto& c : connectors) {
+		if (c->getName() == name) {
+			return c;
 		}
 	}
 	return nullptr;
@@ -306,9 +301,9 @@ Connector& PluggingController::getConnector(string_ref name) const
 
 Pluggable* PluggingController::findPluggable(string_ref name) const
 {
-	for (auto it = pluggables.begin(); it != pluggables.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return it->get();
+	for (auto& p : pluggables) {
+		if (p->getName() == name) {
+			return p.get();
 		}
 	}
 	return nullptr;
@@ -343,13 +338,12 @@ void PluggableInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (auto it = pluggingController.pluggables.begin();
-		     it != pluggingController.pluggables.end(); ++it) {
-			result.addListElement((*it)->getName());
+		for (auto& p : pluggingController.pluggables) {
+			result.addListElement(p->getName());
 		}
 		break;
 	case 3: {
-		const Pluggable& pluggable = pluggingController.getPluggable(
+		auto& pluggable = pluggingController.getPluggable(
 				tokens[2].getString());
 		result.setString(pluggable.getDescription());
 		break;
@@ -369,9 +363,8 @@ void PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> pluggables;
-		for (auto it = pluggingController.pluggables.begin();
-		     it != pluggingController.pluggables.end(); ++it) {
-			pluggables.insert((*it)->getName());
+		for (auto& p : pluggingController.pluggables) {
+			pluggables.insert(p->getName());
 		}
 		completeString(tokens, pluggables);
 	}
@@ -391,13 +384,12 @@ void ConnectorInfo::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			result.addListElement((*it)->getName());
+		for (auto& c : pluggingController.connectors) {
+			result.addListElement(c->getName());
 		}
 		break;
 	case 3: {
-		const Connector& connector = pluggingController.getConnector(tokens[2].getString());
+		auto& connector = pluggingController.getConnector(tokens[2].getString());
 		result.setString(connector.getDescription());
 		break;
 	}
@@ -415,9 +407,8 @@ void ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> connectors;
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			connectors.insert((*it)->getName());
+		for (auto& c : pluggingController.connectors) {
+			connectors.insert(c->getName());
 		}
 		completeString(tokens, connectors);
 	}
@@ -439,26 +430,22 @@ void ConnectionClassInfo::execute(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 2: {
 		set<string_ref> classes;
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			classes.insert((*it)->getClass());
+		for (auto& c : pluggingController.connectors) {
+			classes.insert(c->getClass());
 		}
-		for (auto it = pluggingController.pluggables.begin();
-		     it != pluggingController.pluggables.end(); ++it) {
-			classes.insert((*it)->getClass());
+		for (auto& p : pluggingController.pluggables) {
+			classes.insert(p->getClass());
 		}
 		result.addListElements(classes);
 		break;
 	}
 	case 3: {
 		string_ref arg = tokens[2].getString();
-		if (const Connector* connector =
-		    pluggingController.findConnector(arg)) {
+		if (auto* connector = pluggingController.findConnector(arg)) {
 			result.setString(connector->getClass());
 			break;
 		}
-		if (const Pluggable* pluggable =
-		    pluggingController.findPluggable(arg)) {
+		if (auto* pluggable = pluggingController.findPluggable(arg)) {
 			result.setString(pluggable->getClass());
 			break;
 		}
@@ -479,13 +466,11 @@ void ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (auto it = pluggingController.connectors.begin();
-		     it != pluggingController.connectors.end(); ++it) {
-			names.insert((*it)->getName());
+		for (auto& c : pluggingController.connectors) {
+			names.insert(c->getName());
 		}
-		for (auto it = pluggingController.pluggables.begin();
-		     it != pluggingController.pluggables.end(); ++it) {
-			names.insert((*it)->getName());
+		for (auto& p : pluggingController.pluggables) {
+			names.insert(p->getName());
 		}
 		completeString(tokens, names);
 	}

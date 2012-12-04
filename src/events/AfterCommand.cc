@@ -324,11 +324,10 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& result)
 {
 	ostringstream str;
-	for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-		const AfterCmd* cmd = it->get();
+	for (auto& cmd : afterCmds) {
 		str << cmd->getId() << ": ";
 		str << cmd->getType() << ' ';
-		if (auto cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd)) {
+		if (auto cmd2 = dynamic_cast<const AfterTimedCmd*>(cmd.get())) {
 			str.precision(3);
 			str << std::fixed << std::showpoint << cmd2->getTime() << ' ';
 		}
@@ -404,8 +403,8 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 	auto it = partition(afterCmds.begin(), afterCmds.end(), pred);
 	AfterCmds tmp(it, afterCmds.end());
 	afterCmds.erase(it, afterCmds.end());
-	for (auto it = tmp.begin(); it != tmp.end(); ++it) {
-		(*it)->execute();
+	for (auto& c : tmp) {
+		c->execute();
 	}
 }
 
@@ -462,8 +461,8 @@ int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 		executeRealTime();
 	} else {
 		executeMatches(AfterInputEventPred(event));
-		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-			if (auto cmd = dynamic_cast<AfterIdleCmd*>(it->get())) {
+		for (auto& c : afterCmds) {
+			if (auto cmd = dynamic_cast<AfterIdleCmd*>(c.get())) {
 				cmd->reschedule();
 			}
 		}

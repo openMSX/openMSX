@@ -372,9 +372,9 @@ vector<string> GlobalCommandController::removeEscaping(
 	const vector<string>& input, bool keepLastIfEmpty)
 {
 	vector<string> result;
-	for (auto it = input.begin(); it != input.end(); ++it) {
-		if (!it->empty()) {
-			result.push_back(removeEscaping(*it));
+	for (auto& s : input) {
+		if (!s.empty()) {
+			result.push_back(removeEscaping(s));
 		}
 	}
 	if (keepLastIfEmpty && (input.empty() || input.back().empty())) {
@@ -420,12 +420,12 @@ string GlobalCommandController::join(
 {
 	string result;
 	bool first = true;
-	for (auto it = tokens.begin(); it != tokens.end(); ++it) {
+	for (auto& t : tokens) {
 		if (!first) {
 			result += delimiter;
 		}
 		first = false;
-		result += *it;
+		result += t;
 	}
 	return result;
 }
@@ -558,9 +558,8 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		for (auto it = controller.commandCompleters.begin();
-		     it != controller.commandCompleters.end(); ++it) {
-			string_ref key = it->first();
+		for (auto& p : controller.commandCompleters) {
+			string_ref key = p.first();
 			text.append(key.data(), key.size());
 			text += '\n';
 		}

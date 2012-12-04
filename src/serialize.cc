@@ -465,8 +465,8 @@ void XmlInputArchive::beginTag(const char* tag)
 		tag, elems.back().second);
 	if (!child) {
 		string path;
-		for (auto it = elems.begin(); it != elems.end(); ++it) {
-			path += it->first->getName() + '/';
+		for (auto& e : elems) {
+			path += e.first->getName() + '/';
 		}
 		throw XMLException(StringOp::Builder() <<
 			"No child tag \"" << tag <<

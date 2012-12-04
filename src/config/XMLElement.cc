@@ -140,9 +140,9 @@ void XMLElement::setData(string_ref data_)
 std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 {
 	std::vector<XMLElement*> result;
-	for (auto it = children.begin(); it != children.end(); ++it) {
-		if ((*it)->getName() == name) {
-			result.push_back(it->get());
+	for (auto& c : children) {
+		if (c->getName() == name) {
+			result.push_back(c.get());
 		}
 	}
 	return result;
@@ -150,9 +150,9 @@ std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 
 XMLElement* XMLElement::findChild(string_ref name)
 {
-	for (auto it = children.begin(); it != children.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return it->get();
+	for (auto& c : children) {
+		if (c->getName() == name) {
+			return c.get();
 		}
 	}
 	return nullptr;
@@ -184,13 +184,10 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 	string_ref attName, string_ref attValue)
 {
-	// TODO could be optimized: first we search for matching name and in
-	//  that subset we search for matching attribute. We could immediately
-	//  search for both. So iterate only once instead of twice.
-	auto children = getChildren(name);
-	for (auto it = children.begin(); it != children.end(); ++it) {
-		if ((*it)->getAttribute(attName) == attValue) {
-			return *it;
+	for (auto& c : children) {
+		if ((c->getName() == name) &&
+		    (c->getAttribute(attName) == attValue)) {
+			return c.get();
 		}
 	}
 	return nullptr;
@@ -343,9 +340,8 @@ XMLElement& XMLElement::operator=(const XMLElement& element)
 	attributes = element.attributes;
 
 	removeAllChildren();
-	for (auto it = element.children.begin();
-	     it != element.children.end(); ++it) {
-		addChild(make_unique<XMLElement>(**it));
+	for (auto& c : element.children) {
+		addChild(make_unique<XMLElement>(*c));
 	}
 	return *this;
 }
@@ -361,9 +357,9 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 {
 	string indent(indentNum, ' ');
 	result << indent << '<' << getName();
-	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
-		result << ' ' << it->first
-		       << "=\"" << XMLEscape(it->second) << '"';
+	for (auto& p : attributes) {
+		result << ' ' << p.first
+		       << "=\"" << XMLEscape(p.second) << '"';
 	}
 	if (children.empty()) {
 		if (data.empty()) {
@@ -374,8 +370,8 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 		}
 	} else {
 		result << ">\n";
-		for (auto it = children.begin(); it != children.end(); ++it) {
-			(*it)->dump(result, indentNum + 2);
+		for (auto& c : children) {
+			c->dump(result, indentNum + 2);
 		}
 		result << indent << "</" << getName() << ">\n";
 	}
@@ -411,10 +407,10 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 	} else {
 		AttributesMap tmpAtt;
 		ar.serialize("attributes", tmpAtt);
-		for (auto it = tmpAtt.begin(); it != tmpAtt.end(); ++it) {
+		for (auto& p : tmpAtt) {
 			// TODO "string -> char* -> string" conversion can
 			//       be optimized
-			addAttribute(it->first.c_str(), it->second);
+			addAttribute(p.first.c_str(), p.second);
 		}
 	}
 

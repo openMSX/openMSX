@@ -950,8 +950,8 @@ bool OggReader::seek(int frame, int samples)
 	if (!recycleAudioList.empty()) {
 		recycleAudioList.front()->length = 0;
 	}
-	for (auto it = audioList.begin(); it != audioList.end(); ++it) {
-		recycleAudio(std::move(*it));
+	for (auto& a : audioList) {
+		recycleAudio(std::move(a));
 	}
 	audioList.clear();
 

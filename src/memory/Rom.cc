@@ -51,11 +51,10 @@ Rom::Rom(const string& name_, const string& description_,
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
-	auto romConfigs = config.getXML()->getChildren("rom");
-	for (auto it = romConfigs.begin(); it != romConfigs.end(); ++it) {
-		if ((*it)->getAttribute("id", "") == id) {
+	for (auto& c : config.getXML()->getChildren("rom")) {
+		if (c->getAttribute("id", "") == id) {
 			try {
-				init(config.getMotherBoard(), **it, config.getFileContext());
+				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
 			} catch (MSXException& e) {
 				// remember error message, and try next
@@ -149,8 +148,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. then try all alternative sha1sums ..
 		// (this might retry the actual sha1sum)
 		if (!file.get()) {
-			for (auto it = sums.begin(); it != sums.end(); ++it) {
-				Sha1Sum sha1((*it)->getData());
+			for (auto& s : sums) {
+				Sha1Sum sha1(s->getData());
 				file = filepool.getFile(fileType, sha1);
 				if (file.get()) {
 					// avoid recalculating same sha1 later
@@ -223,16 +222,15 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	if (size != 0) {
-		if (const XMLElement* patchesElem = config.findChild("patches")) {
+		if (auto* patchesElem = config.findChild("patches")) {
 			// calculate before content is altered
 			getOriginalSHA1();
 
 			unique_ptr<PatchInterface> patch =
 				make_unique<EmptyPatch>(rom, size);
 
-			auto patches = patchesElem->getChildren("ips");
-			for (auto it = patches.begin(); it != patches.end(); ++it) {
-				Filename filename((*it)->getData(), context);
+			for (auto& p : patchesElem->getChildren("ips")) {
+				Filename filename(p->getData(), context);
 				patch = make_unique<IPSPatch>(
 					filename, std::move(patch));
 			}
@@ -320,8 +318,8 @@ bool Rom::checkSHA1(const XMLElement& config)
 		return true;
 	}
 	string sha1sum = getOriginalSHA1().toString();
-	for (auto it = sums.begin(); it != sums.end(); ++it) {
-		if ((*it)->getData() == sha1sum) {
+	for (auto& s : sums) {
+		if (s->getData() == sha1sum) {
 			return true;
 		}
 	}

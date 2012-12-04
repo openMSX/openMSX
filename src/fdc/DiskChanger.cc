@@ -394,10 +394,9 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			vector<TclObject> args;
 			args.push_back(TclObject("dummy"));
 			args.push_back(TclObject(name));
-			for (auto it = patches.begin();
-			     it != patches.end(); ++it) {
-				it->updateAfterLoadState();
-				args.push_back(TclObject(it->getResolved())); // TODO
+			for (auto& p : patches) {
+				p.updateAfterLoadState();
+				args.push_back(TclObject(p.getResolved())); // TODO
 			}
 
 			try {

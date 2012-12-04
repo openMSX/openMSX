@@ -104,9 +104,9 @@ bool RawTrack::decodeSectorImpl(int idx, Sector& sector) const
 vector<RawTrack::Sector> RawTrack::decodeAll() const
 {
 	vector<Sector> result;
-	for (auto it = idam.begin(); it != idam.end(); ++it) {
+	for (auto& i : idam) {
 		Sector sector;
-		if (decodeSectorImpl(*it, sector)) {
+		if (decodeSectorImpl(i, sector)) {
 			result.push_back(sector);
 		}
 	}
@@ -126,10 +126,9 @@ static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 
 bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 {
-	auto idamCopy = rotateIdam(idam, startIdx);
 	// get first valid sector
-	for (auto it = idamCopy.begin(); it != idamCopy.end(); ++it) {
-		if (decodeSectorImpl(*it, sector)) {
+	for (auto& i : rotateIdam(idam, startIdx)) {
+		if (decodeSectorImpl(i, sector)) {
 			return true;
 		}
 	}
@@ -138,8 +137,8 @@ bool RawTrack::decodeNextSector(unsigned startIdx, Sector& sector) const
 
 bool RawTrack::decodeSector(byte sectorNum, Sector& sector) const
 {
-	for (auto it = idam.begin(); it != idam.end(); ++it) {
-		if (decodeSectorImpl(*it, sector) &&
+	for (auto& i : idam) {
+		if (decodeSectorImpl(i, sector) &&
 		    (sector.sector == sectorNum)) {
 			return true;
 		}

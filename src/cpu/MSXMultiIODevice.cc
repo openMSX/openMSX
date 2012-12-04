@@ -67,8 +67,8 @@ byte MSXMultiIODevice::peekIO(word port, EmuTime::param time) const
 
 void MSXMultiIODevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	for (auto it = devices.begin(); it != devices.end(); ++it) {
-		(*it)->writeIO(port, value, time);
+	for (auto& d : devices) {
+		d->writeIO(port, value, time);
 	}
 }
 

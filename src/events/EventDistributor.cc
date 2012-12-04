@@ -23,9 +23,9 @@ void EventDistributor::registerEventListener(
 {
 	ScopedLock lock(sem);
 	PriorityMap& priorityMap = listeners[type];
-	for (auto it = priorityMap.begin(); it != priorityMap.end(); ++it) {
+	for (auto& p : priorityMap) {
 		// a listener may only be registered once for each type
-		assert(it->second != &listener);
+		assert(p.second != &listener);
 	}
 	priorityMap.insert(PriorityMap::value_type(priority, &listener));
 }
@@ -71,9 +71,8 @@ bool EventDistributor::isRegistered(EventType type, EventListener* listener) con
 	auto it = listeners.find(type);
 	if (it == listeners.end()) return false;
 
-	const PriorityMap& priorityMap = it->second;
-	for (auto it2 = priorityMap.begin(); it2 != priorityMap.end(); ++it2) {
-		if (it2->second == listener) {
+	for (auto& p : it->second) {
+		if (p.second == listener) {
 			return true;
 		}
 	}
@@ -96,23 +95,20 @@ void EventDistributor::deliverEvents()
 		EventQueue eventsCopy;
 		swap(eventsCopy, scheduledEvents);
 
-		for (auto it = eventsCopy.begin();
-		     it != eventsCopy.end(); ++it) {
-			const EventPtr& event = *it;
+		for (auto& event : eventsCopy) {
 			EventType type = event->getType();
 			PriorityMap priorityMapCopy = listeners[type];
 			sem.up();
 			unsigned allowPriorities = unsigned(-1); // all priorities
-			for (auto it = priorityMapCopy.begin();
-			     it != priorityMapCopy.end(); ++it) {
+			for (auto& p : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
-				if (!isRegistered(type, it->second)) continue;
+				if (!isRegistered(type, p.second)) continue;
 
-				unsigned currentPriority = it->first;
+				unsigned currentPriority = p.first;
 				if (!(currentPriority & allowPriorities)) continue;
 
-				unsigned maskPriorities = it->second->signalEvent(event);
+				unsigned maskPriorities = p.second->signalEvent(event);
 
 				assert(maskPriorities < currentPriority);
 				allowPriorities &= ~maskPriorities;

@@ -113,11 +113,10 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 		throw MSXException("balance \"" + mode + "\" illegal");
 	}
 
-	auto balances = soundConfig.getChildren("balance");
-	for (auto it = balances.begin(); it != balances.end(); ++it) {
-		int balance = (*it)->getDataAsInt();
+	for (auto& b : soundConfig.getChildren("balance")) {
+		int balance = b->getDataAsInt();
 
-		if (!(*it)->hasAttribute("channel")) {
+		if (!b->hasAttribute("channel")) {
 			devBalance = balance;
 			continue;
 		}
@@ -131,10 +130,9 @@ void SoundDevice::registerSound(const DeviceConfig& config)
 			balanceCenter = false;
 		}
 
-		const string range = (*it)->getAttribute("channel");
-		auto channels = StringOp::parseRange(range, 1, numChannels);
-		for (auto it = channels.begin(); it != channels.end(); ++it) {
-			channelBalance[(*it) - 1] = balance;
+		const string& range = b->getAttribute("channel");
+		for (unsigned c : StringOp::parseRange(range, 1, numChannels)) {
+			channelBalance[c - 1] = balance;
 		}
 	}
 

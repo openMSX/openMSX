@@ -353,9 +353,8 @@ set<string> Reactor::getHwConfigs(string_ref type)
 {
 	set<string> result;
 	SystemFileContext context;
-	auto paths = context.getPaths();
-	for (auto it = paths.begin(); it != paths.end(); ++it) {
-		string path = FileOperations::join(*it, type);
+	for (auto& p : context.getPaths()) {
+		string path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
 		while (dirent* d = configsDir.getEntry()) {
 			string name = d->d_name;
@@ -374,9 +373,8 @@ void Reactor::createMachineSetting()
 {
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
-	auto names = getHwConfigs("machines");
-	for (auto it = names.begin(); it != names.end(); ++it) {
-		machines[*it] = count++;
+	for (auto& name : getHwConfigs("machines")) {
+		machines[name] = count++;
 	}
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
@@ -400,17 +398,17 @@ string Reactor::getMachineID() const
 set<string> Reactor::getMachineIDs() const
 {
 	set<string> result;
-	for (auto it = boards.begin(); it != boards.end(); ++it) {
-		result.insert((*it)->getMachineID());
+	for (auto& b : boards) {
+		result.insert(b->getMachineID());
 	}
 	return result;
 }
 
 Reactor::Board Reactor::getMachine(const string& machineID) const
 {
-	for (auto it = boards.begin(); it != boards.end(); ++it) {
-		if ((*it)->getMachineID() == machineID) {
-			return *it;
+	for (auto& b : boards) {
+		if (b->getMachineID() == machineID) {
+			return b;
 		}
 	}
 	throw CommandException("No machine with ID: " + machineID);
@@ -541,8 +539,6 @@ void Reactor::run(CommandLineParser& parser)
 {
 	GlobalCommandController& commandController = *globalCommandController;
 
-	PRT_DEBUG("Reactor::run Trying to execute init.tcl...");
-
 	// execute init.tcl
 	try {
 		PreferSystemFileContext context;
@@ -551,21 +547,17 @@ void Reactor::run(CommandLineParser& parser)
 		// no init.tcl, ignore
 	}
 
-	PRT_DEBUG("Reactor::run Executing startup scripts...");
 	// execute startup scripts
-	const CommandLineParser::Scripts& scripts = parser.getStartupScripts();
-	for (auto it = scripts.begin(); it != scripts.end(); ++it) {
-		PRT_DEBUG("Reactor::run Executing startup script..." << *it);
+	for (auto& s : parser.getStartupScripts()) {
 		try {
 			UserFileContext context;
-			commandController.source(context.resolve(*it));
+			commandController.source(context.resolve(s));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
 		}
 	}
 
-	PRT_DEBUG("Reactor::run Powering up active board...");
 	// Run
 	if (parser.getParseStatus() == CommandLineParser::RUN) {
 		// don't use Tcl to power up the machine, we cannot pass
@@ -579,7 +571,6 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
-	PRT_DEBUG("Reactor::run Instantiate poll event generator...");
 	PollEventGenerator pollEventGenerator(*eventDistributor);
 
 	while (running) {
@@ -1074,15 +1065,11 @@ void ConfigInfo::execute(const vector<TclObject>& tokens,
 				FileOperations::join(
 					configName, tokens[2].getString(),
 					"hardwareconfig.xml"));
-			std::unique_ptr<XMLElement> config =
-				HardwareConfig::loadConfig(filename);
-			if (XMLElement* info = config->findChild("info")) {
-				const XMLElement::Children& children =
-					info->getChildren();
-				for (auto it = children.begin();
-				     it != children.end(); ++it) {
-					result.addListElement((*it)->getName());
-					result.addListElement((*it)->getData());
+			auto config = HardwareConfig::loadConfig(filename);
+			if (auto* info = config->findChild("info")) {
+				for (auto& i : info->getChildren()) {
+					result.addListElement(i->getName());
+					result.addListElement(i->getData());
 				}
 			}
 		} catch (MSXException& e) {

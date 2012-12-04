@@ -37,19 +37,17 @@ static string initialFilePoolSettingValue()
 {
 	TclObject result;
 
-	SystemFileContext context;
-	vector<string> paths = context.getPaths();
-	for (auto it = paths.begin(); it != paths.end(); ++it) {
+	for (auto& p : SystemFileContext().getPaths()) {
 		TclObject entry1;
 		entry1.addListElement("-path");
-		entry1.addListElement(FileOperations::join(*it, "systemroms"));
+		entry1.addListElement(FileOperations::join(p, "systemroms"));
 		entry1.addListElement("-types");
 		entry1.addListElement("system_rom");
 		result.addListElement(entry1);
 
 		TclObject entry2;
 		entry2.addListElement("-path");
-		entry2.addListElement(FileOperations::join(*it, "software"));
+		entry2.addListElement(FileOperations::join(p, "software"));
 		entry2.addListElement("-types");
 		entry2.addListElement("rom disk tape");
 		result.addListElement(entry2);
@@ -137,10 +135,10 @@ void FilePool::writeSha1sums()
 	if (!file.is_open()) {
 		return;
 	}
-	for (auto it = pool.begin(); it != pool.end(); ++it) {
-		file << it->first.toString() << "  "             // sum
-		     << Date::toString(it->second.first) << "  " // date
-		     << it->second.second                        // filename
+	for (auto& p : pool) {
+		file << p.first.toString() << "  "             // sum
+		     << Date::toString(p.second.first) << "  " // date
+		     << p.second.second                        // filename
 		     << endl;
 	}
 }
@@ -232,10 +230,10 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		cliComm.printWarning("Error while parsing '__filepool' setting" +
 			e.getMessage());
 	}
-	for (auto it = directories.begin(); it != directories.end(); ++it) {
-		if (it->types & fileType) {
-			string path = FileOperations::expandTilde(it->path);
-			result = scanDirectory(sha1sum, path, it->path);
+	for (auto& d : directories) {
+		if (d.types & fileType) {
+			string path = FileOperations::expandTilde(d.path);
+			result = scanDirectory(sha1sum, path, d.path);
 			if (result.get()) {
 				return result;
 			}

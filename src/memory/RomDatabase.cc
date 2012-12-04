@@ -359,15 +359,15 @@ void DBParser::addEntries()
 		return;
 	}
 
-	for (auto it = dumps.begin(); it != dumps.end(); ++it) {
-		if (!sums.insert(it->hash).second) {
+	for (auto& d : dumps) {
+		if (!sums.insert(d.hash).second) {
 			cliComm.printWarning(
 				"duplicate softwaredb entry SHA1: " +
-				it->hash.toString());
+				d.hash.toString());
 			continue;
 		}
 
-		auto& ptr = romDBSHA1[it->hash];
+		auto& ptr = romDBSHA1[d.hash];
 		if (ptr.get()) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
@@ -375,11 +375,11 @@ void DBParser::addEntries()
 		}
 
 		string r = remarks;
-		joinRemarks(r, it->remarks);
+		joinRemarks(r, d.remarks);
 
 		ptr = make_unique<RomInfo>(
 			title, year, company, country,
-			it->origValue, it->origData, r, it->type,
+			d.origValue, d.origData, r, d.type,
 			genMSXid);
 	}
 }
@@ -506,8 +506,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	UnknownTypes unknownTypes;
 	SystemFileContext context; // first user- then system-directory
 	vector<string> paths = context.getPaths();
-	for (auto it = paths.begin(); it != paths.end(); ++it) {
-		string filename = FileOperations::join(*it, "softwaredb.xml");
+	for (auto& p : paths) {
+		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {
 			parseDB(cliComm, filename, romDBSHA1, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
@@ -528,9 +528,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	if (!unknownTypes.empty()) {
 		StringOp::Builder output;
 		output << "Unknown mapper types in software database: ";
-		for (auto it = unknownTypes.begin();
-		     it != unknownTypes.end(); ++it) {
-			output << it->first() << " (" << it->second << "x); ";
+		for (auto& p : unknownTypes) {
+			output << p.first() << " (" << p.second << "x); ";
 		}
 		cliComm.printWarning(output);
 	}

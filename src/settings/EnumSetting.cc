@@ -17,9 +17,9 @@ int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
 	// files, we prefer not to do that.
 	// These maps are usually very small, so there is no disadvantage on
 	// using a O(n) search here (instead of O(log n)).
-	for (auto it = baseMap.begin(); it != baseMap.end() ; ++it) {
-		if (strcasecmp(str.c_str(), it->first.c_str()) == 0) {
-			return it->second;
+	for (auto& p : baseMap) {
+		if (strcasecmp(str.c_str(), p.first.c_str()) == 0) {
+			return p.second;
 		}
 	}
 	throw CommandException("not a valid value: " + str);
@@ -27,9 +27,9 @@ int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
 
 std::string EnumSettingPolicyBase::toStringBase(int value) const
 {
-	for (auto it = baseMap.begin(); it != baseMap.end() ; ++it) {
-		if (it->second == value) {
-			return it->first;
+	for (auto& p : baseMap) {
+		if (p.second == value) {
+			return p.first;
 		}
 	}
 	UNREACHABLE; return "";
@@ -38,11 +38,11 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 std::set<std::string> EnumSettingPolicyBase::getPossibleValues() const
 {
 	std::set<std::string> result;
-	for (auto it = baseMap.begin(); it != baseMap.end(); ++it) {
+	for (auto& p : baseMap) {
 		try {
-			int value = it->second;
+			int value = p.second;
 			checkSetValueBase(value);
-			result.insert(it->first);
+			result.insert(p.first);
 		} catch (MSXException&) {
 			// ignore
 		}

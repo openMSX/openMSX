@@ -44,8 +44,8 @@ template <typename T> Subject<T>::~Subject()
 {
 	assert(!notifyInProgress);
 	auto copy = observers;
-	for (auto it = copy.begin(); it != copy.end(); ++it) {
-		(*it)->subjectDeleted(*static_cast<const T*>(this));
+	for (auto& o : copy) {
+		o->subjectDeleted(*static_cast<const T*>(this));
 	}
 	assert(observers.empty());
 }
@@ -71,8 +71,8 @@ template <typename T> void Subject<T>::notify() const
 	ScopedAssign<bool> sa(notifyInProgress, true);
 #endif
 
-	for (auto it = observers.begin(); it != observers.end(); ++it) {
-		(*it)->update(*static_cast<const T*>(this));
+	for (auto& o : observers) {
+		o->update(*static_cast<const T*>(this));
 	}
 }
 

@@ -262,10 +262,10 @@ void CommandLineParser::registerFileTypes()
 	fileExtMap["omr"] = "openMSX replay";
 	fileExtMap["oms"] = "openMSX savestate";
 	fileExtMap["tcl"] = "Tcl script";
-	for (auto j = fileExtMap.begin(); j != fileExtMap.end(); ++j) {
-		auto i = fileClassMap.find(j->second);
+	for (auto& p : fileExtMap) {
+		auto i = fileClassMap.find(p.second);
 		if (i != fileClassMap.end()) {
-			fileTypeMap[j->first] = i->second;
+			fileTypeMap[p.first] = i->second;
 		}
 	}
 }
@@ -552,8 +552,7 @@ static string formatSet(const set<string>& inputSet, string::size_type columns)
 {
 	StringOp::Builder outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
-	for (auto it = inputSet.begin(); it != inputSet.end(); ++it) {
-		string temp = *it;
+	for (auto& temp : inputSet) {
 		if (totalLength == 0) {
 			// first element ?
 			outString << "    " << temp;
@@ -600,12 +599,12 @@ static string formatHelptext(string_ref helpText,
 static void printItemMap(const StringMap<set<string>>& itemMap)
 {
 	set<string> printSet;
-	for (auto it = itemMap.begin(); it != itemMap.end(); ++it) {
-		printSet.insert(formatSet(it->second, 15) + ' ' +
-		                formatHelptext(it->first(), 50, 20));
+	for (auto& p : itemMap) {
+		printSet.insert(formatSet(p.second, 15) + ' ' +
+		                formatHelptext(p.first(), 50, 20));
 	}
-	for (auto it = printSet.begin(); it != printSet.end(); ++it) {
-		cout << *it << endl;
+	for (auto& s : printSet) {
+		cout << s << endl;
 	}
 }
 
@@ -627,11 +626,10 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported options:" << endl;
 
 	StringMap<set<string>> optionMap;
-	for (auto it = parser.optionMap.begin();
-	     it != parser.optionMap.end(); ++it) {
-		string_ref helpText = it->second.option->optionHelp();
+	for (auto& p : parser.optionMap) {
+		string_ref helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
-			optionMap[helpText].insert(it->first);
+			optionMap[helpText].insert(p.first);
 		}
 	}
 	printItemMap(optionMap);
@@ -640,9 +638,8 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported file types:" << endl;
 
 	StringMap<set<string>> extMap;
-	for (auto it = parser.fileTypeMap.begin();
-	     it != parser.fileTypeMap.end(); ++it) {
-		extMap[it->second->fileTypeHelp()].insert(it->first);
+	for (auto& p : parser.fileTypeMap) {
+		extMap[p.second->fileTypeHelp()].insert(p.first);
 	}
 	printItemMap(extMap);
 
@@ -835,13 +832,12 @@ void BashOption::parseOption(const string& /*option*/,
 	} else if (last == "-romtype") {
 		items = RomInfo::getAllRomTypes();
 	} else {
-		for (auto it = parser.optionMap.begin();
-		     it != parser.optionMap.end(); ++it) {
-			items.insert(it->first);
+		for (auto& p : parser.optionMap) {
+			items.insert(p.first);
 		}
 	}
-	for (auto it = items.begin(); it != items.end(); ++it) {
-		cout << *it << '\n';
+	for (auto& s : items) {
+		cout << s << '\n';
 	}
 	parser.parseStatus = CommandLineParser::EXIT;
 }
