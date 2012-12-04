@@ -25,7 +25,7 @@ void EventDistributor::registerEventListener(
 	PriorityMap& priorityMap = listeners[type];
 	for (auto& p : priorityMap) {
 		// a listener may only be registered once for each type
-		assert(p.second != &listener);
+		assert(p.second != &listener); (void)p;
 	}
 	priorityMap.insert(PriorityMap::value_type(priority, &listener));
 }

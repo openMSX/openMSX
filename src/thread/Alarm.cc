@@ -191,7 +191,7 @@ unsigned AlarmManager::timerCallback2()
 		return convert(int(earliest));
 	} else {
 		for (auto& a : alarms) {
-			assert(a->active == false);
+			assert(a->active == false); (void)a;
 		}
 		id = nullptr;
 		return 0; // don't repeat
