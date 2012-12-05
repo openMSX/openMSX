@@ -15,13 +15,15 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-#else
+#else // ifdef _WIN32_ ...
 #include <sys/types.h>
 #include <pwd.h>
 #include <climits>
 #include <unistd.h>
-#endif
+#endif // ifdef _WIN32_ ... else ...
+
 #include "systemfuncs.hh"
+
 #if HAVE_NFTW
 #include <ftw.h>
 #endif
@@ -48,6 +50,7 @@
 #include "unistdp.hh"
 #include "countof.hh"
 #include "build-info.hh"
+#include "AndroidApiWrapper.hh"
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
@@ -521,6 +524,8 @@ const string& getUserOpenMSXDir()
 {
 #ifdef _WIN32
 	static const string OPENMSX_DIR = expandTilde("~/openMSX");
+#elif PLATFORM_ANDROID
+	static const string OPENMSX_DIR = AndroidApiWrapper::getStorageDirectory() + "/openMSX";
 #else
 	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
 #endif

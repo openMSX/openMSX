@@ -286,14 +286,27 @@ Whatever you decide, is your own responsibility.
 <p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
 for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool
 for system ROMs is the <code>systemroms</code> directory. The best way is to
-use one in your own user directory: <code>My Documents\openMSX\share</code>
-(Windows) or <code>~/.openMSX/share</code> (UNIX). That way, you do not need
-special privilages and on Windows, the installer won't touch them for sure.
-This directory is present in the installation directory of openMSX, typically
-in <code>C:\Program Files\openMSX\share</code> on Windows or something like
-<code>/opt/openMSX/share</code> or <code>/usr/share/openmsx</code> on UNIX-like
-operating systems.
+use one in your own user directory, which is platform dependent
 </p>
+<table border="1">
+<tr><th>Platform</th><th>User directory</th></tr>
+<tr><td>Windows</td>><td>My Documents\openMSX\share</td></tr>
+<tr><td>Unix and Linux</td>><td>~/.openMSX/share</td></tr>
+<tr><td>Android</td>><td>&lt;external storage&gt;/openMSX/share, whereby &lt;external storage&gt; stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard</td></tr>
+</table>
+<p>
+That way, you do not need
+special privilages. Furtermore, the installer won't touch them for sure on Windows nor on Android.
+</p>
+<p>
+A template for this directory is present in the installation directory of openMSX, which is also platform dependent:
+</p>
+<table border="1">
+<tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
+<tr><td>Windows</td>><td>C:\Program Files\openMSX\share</td></tr>
+<tr><td>Unix and Linux</td>><td>/opt/openMSX/share or /usr/share/openmsx</td></tr>
+<tr><td>Android</td>><td>&lt;internal app install dir&gt;org.openmsx.android.openmsx/files/openmsx_system, whereby &lt;internal app install dir&gt; stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard/Android/data</td></tr>
+</table>
 
 <p>
 So, you can just put all your system ROMs in that directory. More info about

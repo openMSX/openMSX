@@ -44,6 +44,7 @@ SRC_HDR:= \
 	Version \
 	LedStatus \
 	serialize serialize_meta serialize_core openmsx \
+	AndroidApiWrapper \
 	ReverseManager ReplayCLI \
 	MSXException
 
