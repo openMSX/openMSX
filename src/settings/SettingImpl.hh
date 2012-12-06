@@ -30,11 +30,21 @@ public:
 	typedef POLICY Policy;
 	typedef typename POLICY::Type Type;
 
-	template<typename... Args>
+	SettingImpl(CommandController& commandController,
+	            string_ref name, string_ref description,
+	            const Type& initialValue, SaveSetting save);
+
+	template <typename T1>
 	SettingImpl(CommandController& commandController,
 	            string_ref name, string_ref description,
 	            const Type& initialValue, SaveSetting save,
-	            Args... args);
+	            T1 extra1);
+
+	template <typename T1, typename T2>
+	SettingImpl(CommandController& commandController,
+	            string_ref name, string_ref description,
+	            const Type& initialValue, SaveSetting save,
+	            T1 extra1, T2 extra2);
 
 	virtual ~SettingImpl();
 
@@ -95,13 +105,42 @@ protected:
 
 
 template<typename POLICY>
-template<typename... Args>
 SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
 	string_ref name, string_ref description,
-	const Type& initialValue, SaveSetting save, Args... args)
+	const Type& initialValue, SaveSetting save)
 	: SettingImplBase(commandController, name, description, save)
-	, POLICY(args...)
+	, POLICY()
+	, checker(nullptr)
+	, value(initialValue), defaultValue(initialValue)
+	, restoreValue(initialValue)
+{
+	init();
+}
+
+template<typename POLICY>
+template<typename T1>
+SettingImpl<POLICY>::SettingImpl(
+	CommandController& commandController,
+	string_ref name, string_ref description,
+	const Type& initialValue, SaveSetting save, T1 extra1)
+	: SettingImplBase(commandController, name, description, save)
+	, POLICY(extra1)
+	, checker(nullptr)
+	, value(initialValue), defaultValue(initialValue)
+	, restoreValue(initialValue)
+{
+	init();
+}
+
+template<typename POLICY>
+template<typename T1, typename T2>
+SettingImpl<POLICY>::SettingImpl(
+	CommandController& commandController,
+	string_ref name, string_ref description,
+	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
+	: SettingImplBase(commandController, name, description, save)
+	, POLICY(extra1, extra2)
 	, checker(nullptr)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)

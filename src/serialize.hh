@@ -419,17 +419,31 @@ public:
 		ArchiveBase<Derived>::template serializeInlinedBase<Base>(t, version);
 	}
 	// Main saver method. Heavy lifting is done in the Saver class.
-	// The 'global constructor arguments' parameters are ignored because
-	// the saver archives also completely ignore those extra parameters.
-	// But we need to provide them because the same (templatized) code path
-	// is used both for saving and loading.
-	template<typename T, typename... Args>
-	void serializeWithID(const char* tag, const T& t, Args... /*globalConstrArgs*/)
+	template<typename T> void serializeWithID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
 		Saver<T> saver;
 		saver(this->self(), t, true);
 		this->self().endTag(tag);
+	}
+	// 3 methods below implement 'global constructor arguments'. Though
+	// the saver archives completely ignore those extra parameters. We
+	// anyway need to provide them because the same (templatized) code
+	// path is used both for saving and loading.
+	template<typename T, typename T1>
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/)
+	{
+		serializeWithID(tag, t);
+	}
+	template<typename T, typename T1, typename T2>
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/)
+	{
+		serializeWithID(tag, t);
+	}
+	template<typename T, typename T1, typename T2, typename T3>
+	void serializeWithID(const char* tag, const T& t, T1 /*t1*/, T2 /*t2*/, T3 /*t3*/)
+	{
+		serializeWithID(tag, t);
 	}
 
 	// Default implementation is to base64-encode the blob and serialize
@@ -516,10 +530,25 @@ template<typename Derived>
 class InputArchiveBase : public ArchiveBase<Derived>, public InputArchiveBase2
 {
 public:
-	template<typename T, typename... Args>
-	void serializeWithID(const char* tag, T& t, Args... args)
+	template<typename T>
+	void serializeWithID(const char* tag, T& t)
 	{
-		doSerialize(tag, t, std::tuple<Args...>(args...));
+		doSerialize(tag, t, std::tuple<>());
+	}
+	template<typename T, typename T1>
+	void serializeWithID(const char* tag, T& t, T1 t1)
+	{
+		doSerialize(tag, t, std::tuple<T1>(t1));
+	}
+	template<typename T, typename T1, typename T2>
+	void serializeWithID(const char* tag, T& t, T1 t1, T2 t2)
+	{
+		doSerialize(tag, t, std::tuple<T1, T2>(t1, t2));
+	}
+	template<typename T, typename T1, typename T2, typename T3>
+	void serializeWithID(const char* tag, T& t, T1 t1, T2 t2, T3 t3)
+	{
+		doSerialize(tag, t, std::tuple<T1, T2, T3>(t1, t2, t3));
 	}
 	void serialize_blob(const char* tag, void* data, unsigned len);
 
