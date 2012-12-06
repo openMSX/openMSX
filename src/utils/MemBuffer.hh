@@ -3,8 +3,8 @@
 #ifndef MEMBUFFER_HH
 #define MEMBUFFER_HH
 
-#include "noncopyable.hh"
 #include <algorithm>
+#include <memory>
 #include <new>      // for bad_alloc
 #include <cstdlib>
 #include <cassert>
@@ -26,13 +26,13 @@ namespace openmsx {
   * optimized for this case (it doesn't keep track of extra capacity). If you
   * need frequent resizing prefer to use vector instead of this class.
   */
-template<typename T> class MemBuffer : private noncopyable
+template<typename T> class MemBuffer
 {
 public:
 	/** Construct an empty MemBuffer, no memory is allocated.
 	 */
 	MemBuffer()
-		: dat(nullptr)
+		: dat(nullptr, &::free)
 		, sz(0)
 	{
 	}
@@ -40,10 +40,10 @@ public:
 	/** Construct a (uninitialized) memory buffer of given size.
 	 */
 	explicit MemBuffer(unsigned size)
-		: dat(static_cast<T*>(malloc(size * sizeof(T))))
+		: dat(static_cast<T*>(malloc(size * sizeof(T))), &::free)
 		, sz(size)
 	{
-		if (size && !dat) {
+		if (size && dat) {
 			throw std::bad_alloc();
 		}
 	}
@@ -53,23 +53,16 @@ public:
 	 * nullptr).
 	  */
 	MemBuffer(T* data, unsigned size)
-		: dat(data)
+		: dat(data, &::free)
 		, sz(size)
 	{
-	}
-
-	/** Free the memory buffer.
-	 */
-	~MemBuffer()
-	{
-		free(dat);
 	}
 
 	/** Returns pointer to the start of the memory buffer.
 	  * This method can be called even when there's no buffer allocated.
 	  */
-	const T* data() const { return dat; }
-	      T* data()       { return dat; }
+	const T* data() const { return dat.get(); }
+	      T* data()       { return dat.get(); }
 
 	/** Access elements in the memory buffer.
 	 */
@@ -102,11 +95,12 @@ public:
 	void resize(unsigned size)
 	{
 		if (size) {
-			auto newDat = static_cast<T*>(realloc(dat, size * sizeof(T)));
+			auto newDat = static_cast<T*>(realloc(dat.get(), size * sizeof(T)));
 			if (!newDat) {
 				throw std::bad_alloc();
 			}
-			dat = newDat;
+			dat.release();
+			dat.reset(newDat);
 			sz = size;
 		} else {
 			// realloc() can handle zero-size allocactions,
@@ -120,33 +114,15 @@ public:
 	 */
 	void clear()
 	{
-		free(dat);
-		dat = nullptr;
+		dat.reset();
 		sz = 0;
 	}
 
-	/** Swap the managed memory block of two MemBuffers.
-	 */
-	void swap(MemBuffer& other)
-	{
-		std::swap(dat, other.dat);
-		std::swap(sz , other.sz );
-	}
-
 private:
-	T* dat;
+	std::unique_ptr<T[], decltype(&::free)> dat;
 	unsigned sz;
 };
 
 } // namespace openmsx
-
-
-namespace std {
-	template<typename T>
-	void swap(openmsx::MemBuffer<T>& l, openmsx::MemBuffer<T>& r)
-	{
-		l.swap(r);
-	}
-}
 
 #endif
