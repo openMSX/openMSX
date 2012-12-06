@@ -58,6 +58,21 @@ public:
 	{
 	}
 
+	// For some reason vs2012 doesn't auto-generate the move-constructor
+	// and move assignment operator (gcc does, and I believe the standard
+	// says it should).
+	MemBuffer(MemBuffer&& other)
+		: dat(std::move(other.dat))
+		, sz (std::move(other.sz))
+	{
+	}
+	MemBuffer& operator=(MemBuffer&& other)
+	{
+		dat = std::move(other.dat);
+		sz  = std::move(other.sz);
+		return *this;
+	}
+
 	/** Returns pointer to the start of the memory buffer.
 	  * This method can be called even when there's no buffer allocated.
 	  */
