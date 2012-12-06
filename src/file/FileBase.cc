@@ -24,7 +24,7 @@ const byte* FileBase::mmap(unsigned& size)
 		size = getSize();
 		MemBuffer<byte> tmpBuf(size);
 		read(tmpBuf.data(), size);
-		mmapBuf = std::move(tmpBuf);
+		std::swap(mmapBuf, tmpBuf);
 	}
 	return mmapBuf.data();
 }
