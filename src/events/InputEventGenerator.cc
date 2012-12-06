@@ -207,7 +207,7 @@ static int calcStat4(int stat8)
 
 #if PLATFORM_ANDROID
 //TODO: make JOYVALUE_THRESHOLD dynamic, depending on virtual key size
-static const int JOYVALUE_THRESHOLD = 32768 / 4;
+static const int JOYVALUE_THRESHOLD = 4 * 32768 / 10;
 #else
 static const int JOYVALUE_THRESHOLD = 32768 / 10;
 #endif
