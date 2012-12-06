@@ -19,7 +19,7 @@ InterpreterOutput* Completer::output = nullptr;
 
 
 Completer::Completer(string_ref name_)
-	: name(name_.data(), name_.size())
+	: name(name_.str())
 {
 }
 
@@ -116,7 +116,7 @@ bool Completer::completeString2(string& str, set<string>& st,
 			}
 		}
 		// no conflict found
-		str.assign(string2.data(), string2.size());
+		str = string2.str();
 		expanded = true;
 	}
 	out:

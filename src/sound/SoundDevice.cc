@@ -42,7 +42,7 @@ static void allocateMixBuffer(unsigned size)
 
 static string makeUnique(MSXMixer& mixer, string_ref name)
 {
-	string result(name.data(), name.size());
+	string result = name.str();
 	if (mixer.findDevice(result)) {
 		unsigned n = 0;
 		do {
@@ -57,7 +57,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, string_ref name_,
 			 unsigned numChannels_, bool stereo_)
 	: mixer(mixer_)
 	, name(makeUnique(mixer, name_))
-	, description(description_.data(), description_.size())
+	, description(description_.str())
 	, numChannels(numChannels_)
 	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)

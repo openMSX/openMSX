@@ -235,7 +235,7 @@ bool stringToDouble(const string& str, double& result)
 
 string toLower(string_ref str)
 {
-	string result(str.data(), str.size());
+	string result = str.str();
 	transform(result.begin(), result.end(), result.begin(), ::tolower);
 	return result;
 }

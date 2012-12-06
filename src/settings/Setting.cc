@@ -20,8 +20,8 @@ namespace openmsx {
 Setting::Setting(CommandController& commandController_, string_ref name_,
                  string_ref desc_, SaveSetting save_)
 	: commandController(commandController_)
-	, name       (name_.data(), name_.size())
-	, description(desc_.data(), desc_.size())
+	, name       (name_.str())
+	, description(desc_.str())
 	, save(save_ == SAVE)
 {
 }

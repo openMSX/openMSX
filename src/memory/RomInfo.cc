@@ -165,12 +165,12 @@ RomInfo::RomInfo(string_ref ntitle,   string_ref nyear,
                  bool noriginal,      string_ref norigType,
                  string_ref nremark,  const RomType& nromType,
                  int ngenMSXid)
-	: title   (ntitle   .data(), ntitle   .size())
-	, year    (nyear    .data(), nyear    .size())
-	, company (ncompany .data(), ncompany .size())
-	, country (ncountry .data(), ncountry .size())
-	, origType(norigType.data(), norigType.size())
-	, remark  (nremark  .data(), nremark  .size())
+	: title   (ntitle   .str())
+	, year    (nyear    .str())
+	, company (ncompany .str())
+	, country (ncountry .str())
+	, origType(norigType.str())
+	, remark  (nremark  .str())
 	, romType(nromType)
 	, genMSXid(ngenMSXid)
 	, original(noriginal)

@@ -11,7 +11,7 @@ namespace openmsx {
 Connector::Connector(PluggingController& pluggingController_,
                      string_ref name_, std::unique_ptr<Pluggable> dummy_)
 	: pluggingController(pluggingController_)
-	, name(name_.data(), name_.size())
+	, name(name_.str())
 	, dummy(std::move(dummy_))
 {
 	plugged = dummy.get();

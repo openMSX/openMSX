@@ -7,7 +7,7 @@ namespace openmsx {
 // class MSXException
 
 MSXException::MSXException(string_ref message_)
-	: message(message_.data(), message_.size())
+	: message(message_.str())
 {
 }
 
@@ -19,7 +19,7 @@ MSXException::~MSXException()
 // class FatalError
 
 FatalError::FatalError(string_ref message_)
-	: message(message_.data(), message_.size())
+	: message(message_.str())
 {
 }
 

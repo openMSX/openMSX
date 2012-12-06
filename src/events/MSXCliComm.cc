@@ -25,9 +25,9 @@ void MSXCliComm::update(UpdateType type, string_ref name, string_ref value)
 		if (it->second == value) {
 			return;
 		}
-		it->second.assign(value.data(), value.size());
+		it->second = value.str();
 	} else {
-		prevValues[type][name].assign(value.data(), value.size());
+		prevValues[type][name] = value.str();
 	}
 	cliComm.updateHelper(type, motherBoard.getMachineID(), name, value);
 }

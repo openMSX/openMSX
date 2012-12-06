@@ -17,13 +17,13 @@ using std::string;
 namespace openmsx {
 
 XMLElement::XMLElement(string_ref name_)
-	: name(name_.data(), name_.size())
+	: name(name_.str())
 {
 }
 
 XMLElement::XMLElement(string_ref name_, string_ref data_)
-	: name(name_.data(), name_.size())
-	, data(data_.data(), data_.size())
+	: name(name_.str())
+	, data(data_.str())
 {
 }
 
@@ -92,7 +92,7 @@ void XMLElement::setAttribute(string_ref name, string_ref value)
 {
 	auto it = findAttribute(name);
 	if (it != attributes.end()) {
-		it->second.assign(value.data(), value.size());
+		it->second = value.str();
 	} else {
 		attributes.push_back(make_pair(name.str(), value.str()));
 	}
@@ -123,7 +123,7 @@ double XMLElement::getDataAsDouble() const
 
 void XMLElement::setName(string_ref name_)
 {
-	name.assign(name_.data(), name_.size());
+	name = name_.str();
 }
 
 void XMLElement::clearName()
@@ -134,7 +134,7 @@ void XMLElement::clearName()
 void XMLElement::setData(string_ref data_)
 {
 	assert(children.empty()); // no mixed-content elements
-	data.assign(data_.data(), data_.size());
+	data = data_.str();
 }
 
 std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const

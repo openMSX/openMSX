@@ -39,7 +39,7 @@ public:
 	string_ref(const char* begin, const char* end)
 		: dat(begin), siz(end - begin) { if (dat == nullptr) assert(siz == 0); }
 	string_ref(const std::string& str)
-		: dat(str.data()), siz(size_type(str.size())) {}
+		: dat(str.data()), siz(str.size()) {}
 
 	string_ref& operator=(const string_ref& rhs) {
 		dat = rhs.data();
