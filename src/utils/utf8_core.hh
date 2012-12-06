@@ -130,7 +130,6 @@ utf_error validate_next(octet_iterator& it, octet_iterator end,
 	switch (length) {
 	case 0:
 		return INVALID_LEAD;
-		break;
 	case 2:
 		if (is_trail(*(++it))) {
 			cp = ((cp << 6) & 0x7ff) + ((*it) & 0x3f);

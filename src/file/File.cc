@@ -22,8 +22,8 @@ static std::unique_ptr<FileBase> init(string_ref url, File::OpenMode mode)
 	static const byte ZIP_HEADER[4] = { 0x50, 0x4B, 0x03, 0x04 };
 
 	std::unique_ptr<FileBase> file = make_unique<LocalFile>(url, mode);
-	byte buf[4];
 	if (file->getSize() >= 4) {
+		byte buf[4];
 		file->read(buf, 4);
 		file->seek(0);
 		if (memcmp(buf, GZ_HEADER, 3) == 0) {
