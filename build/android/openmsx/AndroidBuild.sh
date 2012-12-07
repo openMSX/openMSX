@@ -138,4 +138,23 @@ else
 	echo "AB/INFO appdata.zip is still fine"
 fi
 
+revision=$(PYTHONPATH="${my_home_dir}/build" python -c \
+	"import version; print version.extractRevisionString()" \
+	)
+version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
+	"import version; print version.getVersionedPackageName()" \
+	)
+APP_SETTINGS_CFG=${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg
+. ${APP_SETTINGS_CFG}
+if [ "$AppVersionCode" != "$revision" ]; then
+	sed -i "s/^AppVersionCode=.*$/AppVersionCode=$revision/" ${APP_SETTINGS_CFG}
+	sed -i "s^android:versionCode=.*^android:versionCode=\"$revision\"^" \
+		"${sdl_android_port_path}/project/AndroidManifest.xml"
+fi
+if [ "$AppVersionName" != "$version_name" ]; then
+	sed -i "s/^AppVersionName=.*$/AppVersionName=$version_name/" ${APP_SETTINGS_CFG}
+	sed -i "s^android:versionName=.*^android:versionName=\"$version_name\"^" \
+		"${sdl_android_port_path}/project/AndroidManifest.xml"
+fi
+
 exit 0
