@@ -144,9 +144,12 @@ revision=$(PYTHONPATH="${my_home_dir}/build" python -c \
 version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
 	"import version; print version.getVersionedPackageName()" \
 	)
-APP_SETTINGS_CFG=${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg
-MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
+APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
+if [ ! -f "${APP_SETTINGS_CFG}" ]; then
+	cp "${APP_SETTINGS_CFG}".template "${APP_SETTINGS_CFG}"
+fi
 . ${APP_SETTINGS_CFG}
+MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 if [ "$AppVersionCode" != "$revision" ]; then
 	sed -i "s/^AppVersionCode=.*$/AppVersionCode=$revision/" ${APP_SETTINGS_CFG}
 	sed -i "s^android:versionCode=.*^android:versionCode=\"$revision\"^" ${MANIFEST}
@@ -161,3 +164,5 @@ fi
 sed -i "s^android:targetSdkVersion=\"[0-9]*\"^android:targetSdkVersion=\"10\"^" ${MANIFEST}
 
 exit 0
+AppVersionCode=VERSION_CODE_PLACEHOLDER
+AppVersionName=VERSION_NAME_PLACEHOLDER
