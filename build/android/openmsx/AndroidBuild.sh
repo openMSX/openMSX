@@ -145,16 +145,19 @@ version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
 	"import version; print version.getVersionedPackageName()" \
 	)
 APP_SETTINGS_CFG=${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg
+MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 . ${APP_SETTINGS_CFG}
 if [ "$AppVersionCode" != "$revision" ]; then
 	sed -i "s/^AppVersionCode=.*$/AppVersionCode=$revision/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionCode=.*^android:versionCode=\"$revision\"^" \
-		"${sdl_android_port_path}/project/AndroidManifest.xml"
+	sed -i "s^android:versionCode=.*^android:versionCode=\"$revision\"^" ${MANIFEST}
 fi
 if [ "$AppVersionName" != "$version_name" ]; then
 	sed -i "s/^AppVersionName=.*$/AppVersionName=$version_name/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionName=.*^android:versionName=\"$version_name\"^" \
-		"${sdl_android_port_path}/project/AndroidManifest.xml"
+	sed -i "s^android:versionName=.*^android:versionName=\"$version_name\"^" ${MANIFEST}
 fi
+
+# Patch manifest file to target android 2.3 and older so that the
+# virtual menu button will be rendered by newer Android versions
+sed -i "s^android:targetSdkVersion=\"[0-9]*\"^android:targetSdkVersion=\"10\"^" ${MANIFEST}
 
 exit 0
