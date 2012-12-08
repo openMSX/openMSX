@@ -8,6 +8,7 @@
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
+#include "InputEvents.hh"
 #include "AlarmEvent.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
@@ -100,11 +101,15 @@ Display::Display(Reactor& reactor_)
 			*this);
 	eventDistributor.registerEventListener(OPENMSX_EXPOSE_EVENT,
 			*this);
-
+#if PLATFORM_ANDROID
+	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT,
+			*this);
+#endif
 	renderSettings->getRenderer().attach(*this);
 	renderSettings->getFullScreen().attach(*this);
 	renderSettings->getScaleFactor().attach(*this);
 	renderSettings->getVideoSource().attach(*this);
+	renderFrozen = false;
 }
 
 Display::~Display()
@@ -115,6 +120,10 @@ Display::~Display()
 	renderSettings->getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
+#if PLATFORM_ANDROID
+	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT,
+			*this);
+#endif
 	eventDistributor.unregisterEventListener(OPENMSX_EXPOSE_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
@@ -248,6 +257,25 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 		// Don't render too often, and certainly not when the screen
 		// will anyway soon be rendered.
 		repaintDelayed(100 * 1000); // 10fps
+	} else if (PLATFORM_ANDROID && event->getType() == OPENMSX_FOCUS_EVENT) {
+		// On Android, the rendering must be frozen when the app is sent to
+		// the background, because Android takes away all graphics resources
+		// from the app. It simply destroys the entire graphics context.
+		// Though, a repaint() must happen within the focus-lost event
+		// so that the SDL Android port realises that the graphix context
+		// is gone and will re-build it again on the first flush to the
+		// surface after the focus has been regained.
+
+		// Perform a repaint before updating the renderFrozen flag:
+		// -When loosing the focus, this repaint will flush a last
+		//  time the SDL surface, making sure that the Android SDL
+		//  port discovers that the graphics context is gone.
+		// -When gaining the focus, this repaint does nothing as
+		//  the renderFrozen flag is still false
+		repaint();
+		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
+		ad_printf("Setting renderFrozen to %d", !focusEvent.getGain());
+		renderFrozen = !focusEvent.getGain();
 	}
 	return 0;
 }
@@ -362,10 +390,12 @@ void Display::repaint()
 
 	alarm->cancel(); // cancel delayed repaint
 
-	assert(videoSystem.get());
-	if (OutputSurface* surface = videoSystem->getOutputSurface()) {
-		repaint(*surface);
-		videoSystem->flush();
+	if (!renderFrozen) {
+		assert(videoSystem.get());
+		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
+			repaint(*surface);
+			videoSystem->flush();
+		}
 	}
 
 	// update fps statistics

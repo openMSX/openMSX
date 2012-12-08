@@ -109,6 +109,7 @@ private:
 	// the current renderer
 	RendererFactory::RendererID currentRenderer;
 
+	bool renderFrozen;
 	bool switchInProgress;
 };
 

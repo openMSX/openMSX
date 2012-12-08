@@ -44,6 +44,7 @@
 #include "statp.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include "build-info.hh"
 #include <cassert>
 #include <iostream>
 
@@ -645,6 +646,25 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 		enterMainLoop();
 		running = false;
 	} else if (type == OPENMSX_FOCUS_EVENT) {
+#if PLATFORM_ANDROID
+		// Android SDL port sends a (un)focus event when an app is put in background
+		// by the OS for whatever reason (like an incoming phone call) and all screen
+		// resources are taken away from the app.
+		// In such case the app is supposed to behave as a good citizen
+		// and minize its resource usage and related battery drain.
+		// The SDL Android port already takes care of halting the Java
+		// part of the sound processing. The Display class makes sure that it wont try
+		// to render anything to the (temporary missing) graphics resources but the
+		// main emulation should also be temporary stopped, in order to minimize CPU usage
+		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
+		if (focusEvent.getGain()) {
+			unblock();
+		} else {
+			block();
+		}
+#else
+		// On other platforms, the user may specify if openMSX should be
+		// halted on loss of focus.
 		if (!getGlobalSettings().getPauseOnLostFocusSetting().getValue()) return 0;
 		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
@@ -656,6 +676,7 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 			// lost focus
 			pause();
 		}
+#endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
 		assert(!garbageBoards.empty());
 		garbageBoards.erase(garbageBoards.begin());
