@@ -926,8 +926,9 @@ proc ls {directory extensions} {
 	set files [glob -nocomplain -tails -directory $directory -type f *]
 	set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
+	set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
 	set dirs2 [list]
-	foreach dir $dirs {
+	foreach dir [concat $dirs $specialdir] {
 		lappend dirs2 "$dir/"
 	}
 	return [concat ".." [lsort $dirs2] [lsort $items]]
