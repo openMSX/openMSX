@@ -120,7 +120,7 @@ proc get_screen_mode {} {
 		return -1
 	}
 	set mode $mode_lookup([val2bin $val])
-	if {($mode == 8) && ([vdpreg 25] & 8)} {
+	if {(($mode == 8) || ($mode == 7)) && ([vdpreg 25] & 8)} {
 		set mode [expr {([vdpreg 25] & 16) ? 11 : 12}]
 	}
 	return $mode
