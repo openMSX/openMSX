@@ -896,6 +896,7 @@ SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 
 // version 1:  initial version
 // version 2:  added systemReset
+// version 3:  added vramReadPtr, vramWritePtr, vramReadBuffer
 template<typename Archive>
 void V9990::serialize(Archive& ar, unsigned version)
 {
@@ -925,6 +926,17 @@ void V9990::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("systemReset", systemReset);
 	}
+
+	if (ar.versionBelow(version, 3)) {
+		vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
+		vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
+		vramReadBuffer = vram->readVRAMDirect(vramReadPtr);
+	} else {
+		ar.serialize("vramReadPtr", vramReadPtr);
+		ar.serialize("vramWritePtr", vramWritePtr);
+		ar.serialize("vramReadBuffer", vramReadBuffer);
+	}
+
 	// No need to serialize 'externalVideoSource', it will be restored when
 	// the external peripheral (e.g. Video9000) is de-serialized.
 	// TODO should 'superimposing' be serialized? It can't be recalculated
