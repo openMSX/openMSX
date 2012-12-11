@@ -638,7 +638,7 @@ private:
 	  */
 	void scheduleHscan(EmuTime::param time);
 };
-SERIALIZE_CLASS_VERSION(V9990, 2);
+SERIALIZE_CLASS_VERSION(V9990, 3);
 
 } // namespace openmsx
 
