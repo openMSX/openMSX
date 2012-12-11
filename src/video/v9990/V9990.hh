@@ -476,6 +476,8 @@ private:
 	/** VRAM
 	  */
 	std::unique_ptr<V9990VRAM> vram;
+	unsigned vramReadPtr, vramWritePtr;
+	byte vramReadBuffer;
 
 	/** Command Engine
 	  */

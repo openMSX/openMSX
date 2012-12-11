@@ -149,6 +149,9 @@ void V9990::reset(EmuTime::param time)
 	memset(regs, 0, sizeof(regs));
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
+	vramWritePtr = 0;
+	vramReadPtr = 0;
+	vramReadBuffer = 0;
 	systemReset = false; // verified on real MSX
 	calcDisplayMode();
 
@@ -201,8 +204,10 @@ byte V9990::readIO(word port, EmuTime::param time)
 	switch (port) {
 	case VRAM_DATA:
 		if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
-			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
+			vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0) + 1;
+			setVRAMAddr(VRAM_READ_ADDRESS_0, vramReadPtr);
+			// Update read buffer. TODO: timing?
+			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
 		}
 		break;
 
@@ -235,8 +240,10 @@ byte V9990::peekIO(word port, EmuTime::param time) const
 	switch (port & 0x0F) {
 	case VRAM_DATA: {
 		// TODO in 'systemReset' mode, this seems to hang the MSX
-		unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-		result = vram->readVRAMCPU(addr, time);
+		// V9990 fetches from read buffer instead of directly from VRAM.
+		// The read buffer is the reason why it is impossible to fill
+		// vram by copying a block from "addr" to "addr+1".
+		result = vramReadBuffer;
 		break;
 	}
 	case PALETTE_DATA:
@@ -633,6 +640,16 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 
 	// Perform additional tasks after new value became active
 	switch (reg) {
+		case VRAM_WRITE_ADDRESS_2:
+			// write pointer is only updated on R#2 write
+			vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
+			break;
+		case VRAM_READ_ADDRESS_2:
+			// write pointer is only updated on R#5 write
+			vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
+			// update read buffer immediately after read pointer changes. TODO: timing?
+			vramReadBuffer = vram->readVRAMCPU(vramReadPtr, time);
+			break;
 		case INTERRUPT_0:
 			if (pendingIRQs & val) {
 				irq.set();
