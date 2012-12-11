@@ -138,16 +138,15 @@ else
 	echo "AB/INFO appdata.zip is still fine"
 fi
 
+APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
 revision=$(PYTHONPATH="${my_home_dir}/build" python -c \
 	"import version; print version.extractRevisionString()" \
 	)
 version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
 	"import version; print version.getVersionedPackageName()" \
 	)
-APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
-if [ ! -f "${APP_SETTINGS_CFG}" ]; then
-	cp "${APP_SETTINGS_CFG}".template "${APP_SETTINGS_CFG}"
-fi
+echo "AB:INFO revision: $revision"
+revision=13045
 . ${APP_SETTINGS_CFG}
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 if [ "$AppVersionCode" != "$revision" ]; then
