@@ -348,8 +348,8 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		else {
 			image2 = make_unique<GLImage>(std::move(surf));
 		}
-		image = image2.get();
 #endif
+		image = image2.get();
 		insertInCache(textStr, rgb, std::move(image2), width);
 	}
 	if (image) image->draw(output, x, y, alpha);
