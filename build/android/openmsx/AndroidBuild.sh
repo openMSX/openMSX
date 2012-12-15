@@ -146,7 +146,6 @@ version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
 	"import version; print version.getVersionedPackageName()" \
 	)
 echo "AB:INFO revision: $revision"
-revision=13045
 . ${APP_SETTINGS_CFG}
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 if [ "$AppVersionCode" != "$revision" ]; then
