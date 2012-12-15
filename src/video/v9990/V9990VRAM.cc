@@ -16,10 +16,9 @@ V9990VRAM::V9990VRAM(V9990& vdp_, EmuTime::param /*time*/)
 
 void V9990VRAM::clear()
 {
-	//	Initialize memory.
-	// TODO: Determine exact initialization pattern
+	//	Initialize memory. Alternate 0x00/0xff every 512 bytes.
 	for(unsigned i=0; i<data.getSize(); ++i)
-		data[i] = ((i & 1) && (i & 0x400) && !(i & 0x40000)) ? 0xff : 0;
+		data[i] = (i & 0x200) ? 0xff : 0;
 }
 
 unsigned V9990VRAM::mapAddress(unsigned address)

@@ -44,7 +44,7 @@ public:
 		return address;
 	}
 	static inline unsigned transformP2(unsigned address) {
-		// TODO check this
+		// Verified on a real Graphics9000
 		if (address < 0x78000) {
 			return transformBx(address);
 		} else if (address < 0x7C000) {

@@ -930,7 +930,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 3)) {
 		vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
 		vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-		vramReadBuffer = vram->readVRAMDirect(vramReadPtr);
+		vramReadBuffer = vram->readVRAMCPU(vramReadPtr, Schedulable::getCurrentTime());
 	} else {
 		ar.serialize("vramReadPtr", vramReadPtr);
 		ar.serialize("vramWritePtr", vramWritePtr);
