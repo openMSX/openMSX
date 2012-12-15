@@ -883,11 +883,7 @@ void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
 		// this is an event we just replayed
 		assert(event == history.events[replayIndex]);
 		if (dynamic_cast<EndLogEvent*>(event.get())) {
-			motherBoard.getStateChangeDistributor().stopReplay(
-				event->getTime());
-			// this is needed to prevent a reRecordCount increase
-			// due to this sentinel ending the replay
-			reRecordCount--;
+			signalStopReplay(event->getTime());
 		} else {
 			// ignore all other events
 		}
@@ -897,6 +893,14 @@ void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
 		++replayIndex;
 		assert(!isReplaying());
 	}
+}
+
+void ReverseManager::signalStopReplay(EmuTime::param time)
+{
+	motherBoard.getStateChangeDistributor().stopReplay(time);
+	// this is needed to prevent a reRecordCount increase
+	// due to this action ending the replay
+	reRecordCount--;
 }
 
 void ReverseManager::stopReplay(EmuTime::param time)
@@ -994,6 +998,10 @@ void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 		default:
 			throw SyntaxError();
 		}
+	} else if (subcommand == "truncatereplay") {
+		if (manager.isReplaying()) {
+			manager.signalStopReplay(manager.getCurrentTime());
+		}
 	} else {
 		throw CommandException("Invalid subcommand: " + subcommand);
 	}
@@ -1007,6 +1015,7 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 	       "goback <n>          go back <n> seconds in time\n"
 	       "goto <time>         go to an absolute moment in time\n"
 	       "viewonlymode <bool> switch viewonly mode on or off\n"
+	       "truncatereplay      stop replaying and remove all 'future' data\n"
 	       "savereplay [<name>] save the first snapshot and all replay data as a 'replay' (with optional name)\n"
 	       "loadreplay [-goto <begin|end|savetime|<n>>] [-viewonly] <name>   load a replay (snapshot and replay data) with given name and start replaying\n";
 }
@@ -1023,6 +1032,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		subCommands.insert("savereplay");
 		subCommands.insert("loadreplay");
 		subCommands.insert("viewonlymode");
+		subCommands.insert("truncatereplay");
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {

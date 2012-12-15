@@ -79,6 +79,7 @@ private:
 	void saveReplay(const std::vector<TclObject>& tokens, TclObject& result);
 	void loadReplay(const std::vector<TclObject>& tokens, TclObject& result);
 	
+	void signalStopReplay(EmuTime::param time);
 	EmuTime::param getEndTime(const ReverseHistory& history) const;
 	void goTo(EmuTime::param targetTime, bool novideo);
 	void goTo(EmuTime::param targetTime, bool novideo,

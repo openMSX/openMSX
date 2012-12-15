@@ -1942,6 +1942,11 @@
       <td>Go to the indicated absolute moment in MSX time (given in seconds). If the time is before the time openMSX started collecting data (with the <code>reverse start</code> command) openMSX will jump to the time when collecting started.</td>
     </tr>
     <tr>
+      <td><code>reverse truncatereplay</code></td>
+
+      <td>Stop replaying and wipe all replay data that is in the future (so after <strong>now</strong>). This is useful if you are hindered by the future events somehow, for instance when you are playing a game and jumped too early and therefore reversed. Be careful with this, as there is no way to recover this future. If you are at time 0, it means your whole replay will be gone after executing this command!</td>
+    </tr>
+    <tr>
       <td><code>reverse savereplay [&lt;filename&gt;]</code></td>
 
       <td>Save the collected data (an initial savestate and all collected input events) to a file.</td>
