@@ -3,11 +3,13 @@
 #include "V9990CmdEngine.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
+#include "V9990DisplayTiming.hh"
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "MemBuffer.hh"
+#include "Clock.hh"
 #include "serialize.hh"
 #include "likely.hh"
 #include "unreachable.hh"
@@ -661,9 +663,9 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
 // ====================================================================
 /** Constructor
   */
-V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time,
+V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
                                RenderSettings& settings_)
-	: settings(settings_), vdp(vdp_), clock(EmuTime::zero)
+	: settings(settings_), vdp(vdp_), time(time_)
 {
 	MSXMotherBoard::SharedStuff& info =
 		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
@@ -907,9 +909,9 @@ void V9990CmdEngine::update(const Setting& setting)
 	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getValue();
 }
 
-unsigned V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
+EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 {
-	if (unlikely(brokenTiming)) return 0;
+	if (unlikely(brokenTiming)) return EmuDuration();
 
 	V9990DisplayMode mode = vdp.getDisplayMode();
 	unsigned idx1 = (mode == P1) ? 2 :
@@ -918,7 +920,9 @@ unsigned V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const
 	unsigned idx2 = vdp.isDisplayEnabled() ? (vdp.spritesEnabled() ? 0 : 1)
 	                                       : 2;
 	unsigned idx3 = vdp.getColorDepth();
-	return table[idx1][idx2][idx3];
+	// TODO possible optimization: directly put EmuDurations in table
+	unsigned x = table[idx1][idx2][idx3];
+	return Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND>::duration(x);
 }
 
 // ====================================================================
@@ -1046,7 +1050,7 @@ V9990CmdEngine::CmdLMMV<Mode>::CmdLMMV(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMV<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.ANX = engine.getWrappedNX();
 	engine.ANY = engine.getWrappedNY();
 }
@@ -1056,13 +1060,13 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = engine.getTiming(LMMV_TIMING);
+	auto delta = engine.getTiming(LMMV_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		Mode::psetColor(vram, engine.DX, engine.DY, pitch,
 		                engine.fgCol, engine.WM, lut, engine.LOG);
 
@@ -1071,7 +1075,7 @@ void V9990CmdEngine::CmdLMMV<Mode>::execute(EmuTime::param time)
 			engine.DX -= (engine.NX * dx);
 			engine.DY += dy;
 			if (!--(engine.ANY)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				return;
 			} else {
 				engine.ANX = engine.getWrappedNX();
@@ -1157,7 +1161,7 @@ V9990CmdEngine::CmdLMMM<Mode>::CmdLMMM(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMMM<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.ANX = engine.getWrappedNX();
 	engine.ANY = engine.getWrappedNY();
 }
@@ -1167,13 +1171,13 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = engine.getTiming(LMMM_TIMING);
+	auto delta = engine.getTiming(LMMM_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, engine.DX);
 		Mode::pset(vram, engine.DX, engine.DY, pitch,
@@ -1187,7 +1191,7 @@ void V9990CmdEngine::CmdLMMM<Mode>::execute(EmuTime::param time)
 			engine.DY += dy;
 			engine.SY += dy;
 			if (!--(engine.ANY)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				return;
 			} else {
 				engine.ANX = engine.getWrappedNX();
@@ -1282,7 +1286,7 @@ V9990CmdEngine::CmdCMMM<Mode>::CmdCMMM(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdCMMM<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 	engine.ANX = engine.getWrappedNX();
 	engine.ANY = engine.getWrappedNY();
@@ -1294,13 +1298,13 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(EmuTime::param time)
 {
 	// TODO can be optimized a lot
 
-	unsigned delta = engine.getTiming(CMMM_TIMING);
+	auto delta = engine.getTiming(CMMM_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		if (!engine.bitsLeft) {
 			engine.data = vram.readVRAMBx(engine.srcAddress++);
 			engine.bitsLeft = 8;
@@ -1318,7 +1322,7 @@ void V9990CmdEngine::CmdCMMM<Mode>::execute(EmuTime::param time)
 			engine.DX -= (engine.NX * dx);
 			engine.DY += dy;
 			if (!--(engine.ANY)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				return;
 			} else {
 				engine.ANX = engine.getWrappedNX();
@@ -1340,7 +1344,7 @@ V9990CmdEngine::CmdBMXL<Mode>::CmdBMXL(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 	engine.ANX = engine.getWrappedNX();
 	engine.ANY = engine.getWrappedNY();
@@ -1351,14 +1355,14 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 	EmuTime::param time)
 {
 	// timing value is times 2, because it does 2 bytes per iteration:
-	unsigned delta = engine.getTiming(BMXL_TIMING) * 2;
+	auto delta = engine.getTiming(BMXL_TIMING) * 2;
 	unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		word src = vram.readVRAMBx(engine.srcAddress + 0) +
 		           vram.readVRAMBx(engine.srcAddress + 1) * 256;
 		engine.srcAddress += 2;
@@ -1369,7 +1373,7 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 			engine.DX -= (engine.NX * dx);
 			engine.DY += dy;
 			if (!--(engine.ANY)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				return;
 			} else {
 				engine.ANX = engine.getWrappedNX();
@@ -1381,14 +1385,14 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdBMXL<Mode>::execute(EmuTime::param time)
 {
-	unsigned delta = engine.getTiming(BMXL_TIMING);
+	auto delta = engine.getTiming(BMXL_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
 
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		byte data = vram.readVRAMBx(engine.srcAddress++);
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			Mode::pset(vram, engine.DX, engine.DY, pitch,
@@ -1398,7 +1402,7 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(EmuTime::param time)
 				engine.DX -= (engine.NX * dx);
 				engine.DY += dy;
 				if (!--(engine.ANY)) {
-					engine.cmdReady(engine.clock.getTime());
+					engine.cmdReady(engine.time);
 					return;
 				} else {
 					engine.ANX = engine.getWrappedNX();
@@ -1421,7 +1425,7 @@ V9990CmdEngine::CmdBMLX<Mode>::CmdBMLX(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLX<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
 	engine.ANX = engine.getWrappedNX();
 	engine.ANY = engine.getWrappedNY();
@@ -1432,15 +1436,15 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 {
 	// TODO lots of corner cases still go wrong
 	//      very dumb implementation, can be made much faster
-	unsigned delta = engine.getTiming(BMLX_TIMING);
+	auto delta = engine.getTiming(BMLX_TIMING);
 	unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 	int dx = (engine.ARG & DIX) ? -1 : 1;
 	int dy = (engine.ARG & DIY) ? -1 : 1;
 
 	word tmp = 0;
 	engine.bitsLeft = 16;
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, 0); // TODO optimize
 		if (Mode::BITS_PER_PIXEL == 16) {
@@ -1465,7 +1469,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(EmuTime::param time)
 			engine.DY += dy;
 			engine.SY += dy;
 			if (!--(engine.ANY)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				// TODO handle last pixels
 				return;
 			} else {
@@ -1488,7 +1492,7 @@ V9990CmdEngine::CmdBMLL<Mode>::CmdBMLL(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
 	engine.nbBytes    = (engine.NX & 0xFF) + ((engine.NY & 0x7FF) << 8);
@@ -1509,11 +1513,11 @@ void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(EmuTime::param
 {
 	// TODO DIX DIY?
 	// timing value is times 2, because it does 2 bytes per iteration:
-	unsigned delta = engine.getTiming(BMLL_TIMING) * 2;
+	auto delta = engine.getTiming(BMLL_TIMING) * 2;
 	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 	bool transp = (engine.LOG & 0x10) != 0;
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		// VRAM always mapped as in Bx modes
 		word srcColor = vram.readVRAMDirect(engine.srcAddress + 0x00000) +
 		                vram.readVRAMDirect(engine.srcAddress + 0x40000) * 256;
@@ -1526,7 +1530,7 @@ void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(EmuTime::param
 		engine.srcAddress = (engine.srcAddress + 1) & 0x3FFFF;
 		engine.dstAddress = (engine.dstAddress + 1) & 0x3FFFF;
 		if (!--engine.nbBytes) {
-			engine.cmdReady(engine.clock.getTime());
+			engine.cmdReady(engine.time);
 			return;
 		}
 	}
@@ -1536,10 +1540,10 @@ template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::execute(EmuTime::param time)
 {
 	// TODO DIX DIY?
-	unsigned delta = engine.getTiming(BMLL_TIMING);
+	auto delta = engine.getTiming(BMLL_TIMING);
 	const byte* lut = Mode::getLogOpLUT(engine.LOG);
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		// VRAM always mapped as in Bx modes
 		byte srcColor = vram.readVRAMBx(engine.srcAddress);
 		unsigned addr = V9990VRAM::transformBx(engine.dstAddress);
@@ -1551,7 +1555,7 @@ void V9990CmdEngine::CmdBMLL<Mode>::execute(EmuTime::param time)
 		engine.srcAddress = (engine.srcAddress + 1) & 0x7FFFF;
 		engine.dstAddress = (engine.dstAddress + 1) & 0x7FFFF;
 		if (!--engine.nbBytes) {
-			engine.cmdReady(engine.clock.getTime());
+			engine.cmdReady(engine.time);
 			return;
 		}
 	}
@@ -1570,7 +1574,7 @@ V9990CmdEngine::CmdLINE<Mode>::CmdLINE(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.ASX = (engine.NX - 1) / 2;
 	engine.ADX = engine.DX;
 	engine.ANX = 0;
@@ -1579,7 +1583,7 @@ void V9990CmdEngine::CmdLINE<Mode>::start(EmuTime::param time)
 template <class Mode>
 void V9990CmdEngine::CmdLINE<Mode>::execute(EmuTime::param time)
 {
-	unsigned delta = engine.getTiming(LINE_TIMING);
+	auto delta = engine.getTiming(LINE_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 
@@ -1589,8 +1593,8 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(EmuTime::param time)
 
 	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
-		while (engine.clock.before(time)) {
-			engine.clock += delta;
+		while (engine.time < time) {
+			engine.time += delta;
 			Mode::psetColor(vram, engine.ADX, engine.DY, pitch,
 			                engine.fgCol, engine.WM, lut, engine.LOG);
 
@@ -1602,14 +1606,14 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(EmuTime::param time)
 			engine.ASX -= engine.NY;
 			//engine.ASX &= 1023; // mask to 10 bits range
 			if (engine.ANX++ == engine.NX || (engine.ADX & width)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				break;
 			}
 		}
 	} else {
 		// Y-Axis is major direction.
-		while (engine.clock.before(time)) {
-			engine.clock += delta;
+		while (engine.time < time) {
+			engine.time += delta;
 			Mode::psetColor(vram, engine.ADX, engine.DY, pitch,
 			                engine.fgCol, engine.WM, lut, engine.LOG);
 			engine.DY += TY;
@@ -1620,7 +1624,7 @@ void V9990CmdEngine::CmdLINE<Mode>::execute(EmuTime::param time)
 			engine.ASX -= engine.NY;
 			//engine.ASX &= 1023; // mask to 10 bits range
 			if (engine.ANX++ == engine.NX || (engine.ADX & width)) {
-				engine.cmdReady(engine.clock.getTime());
+				engine.cmdReady(engine.time);
 				break;
 			}
 		}
@@ -1640,14 +1644,14 @@ V9990CmdEngine::CmdSRCH<Mode>::CmdSRCH(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::start(EmuTime::param time)
 {
-	engine.clock.reset(time);
+	engine.time = time;
 	engine.ASX = engine.SX;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 {
-	unsigned delta = engine.getTiming(SRCH_TIMING);
+	auto delta = engine.getTiming(SRCH_TIMING);
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
 	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
@@ -1655,8 +1659,8 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 	int TX = (engine.ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine.ARG & NEQ) != 0;
 
-	while (engine.clock.before(time)) {
-		engine.clock += delta;
+	while (engine.time < time) {
+		engine.time += delta;
 		typename Mode::Type value;
 		typename Mode::Type col;
 		typename Mode::Type mask2;
@@ -1673,13 +1677,13 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(EmuTime::param time)
 		}
 		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			engine.status |= BD; // border detected
-			engine.cmdReady(engine.clock.getTime());
+			engine.cmdReady(engine.time);
 			engine.borderX = engine.ASX;
 			break;
 		}
 		if ((engine.ASX += TX) & width) {
 			engine.status &= ~BD; // border not detected
-			engine.cmdReady(engine.clock.getTime());
+			engine.cmdReady(engine.time);
 			engine.borderX = engine.ASX;
 			break;
 		}
@@ -1798,11 +1802,20 @@ void V9990CmdEngine::cmdReady(EmuTime::param /*time*/)
 	vdp.cmdReady();
 }
 
-
+// version 1: initial version
+// version 2: we forgot to serialize the time (or clock) member
 template<typename Archive>
-void V9990CmdEngine::serialize(Archive& ar, unsigned /*version*/)
+void V9990CmdEngine::serialize(Archive& ar, unsigned version)
 {
 	// note: V9990Cmd objects are stateless
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("time", time);
+	} else {
+		// In version 1 we forgot to serialize the time member (it was
+		// also still a Clock back then). The best we can do is
+		// initialize it with the current time, that's already done in
+		// the constructor.
+	}
 	ar.serialize("srcAddress", srcAddress);
 	ar.serialize("dstAddress", dstAddress);
 	ar.serialize("nbBytes", nbBytes);

@@ -3,9 +3,10 @@
 #ifndef V9990CMDENGINE_HH
 #define V9990CMDENGINE_HH
 
-#include "V9990DisplayTiming.hh"
 #include "Observer.hh"
-#include "Clock.hh"
+#include "EmuDuration.hh"
+#include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 
@@ -367,7 +368,7 @@ private:
 	/** The current command
 	  */
 	V9990Cmd* currentCommand;
-	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> clock;
+	EmuTime time;
 
 	/** VRAM read/write address for various commands
 	  */
@@ -431,7 +432,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	void setCurrentCommand();
-	unsigned getTiming(const unsigned table[4][3][4]) const;
+	EmuDuration getTiming(const unsigned table[4][3][4]) const;
 
 	inline unsigned getWrappedNX() const {
 		return NX ? NX : 2048;
@@ -440,6 +441,7 @@ private:
 		return NY ? NY : 4096;
 	}
 };
+SERIALIZE_CLASS_VERSION(V9990CmdEngine, 2);
 
 } // namespace openmsx
 
