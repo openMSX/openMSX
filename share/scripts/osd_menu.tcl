@@ -960,10 +960,13 @@ proc menu_select_rom {item} {
 			set ::osd_rom_path [file normalize $fullname]
 			menu_create [menu_create_ROM_list $::osd_rom_path]
 		} else {
-			menu_close_all
-			carta $fullname
-			osd::display_message "Now running ROM:\n[rom_info]"
-			reset
+			if {[catch {carta $fullname} errorText]} {
+				osd::display_message "Can't insert ROM: $errorText" error
+			} else {
+				menu_close_all
+				osd::display_message "Now running ROM:\n[rom_info]"
+				reset
+			}
 		}
 	}
 }
@@ -993,8 +996,11 @@ proc menu_select_disk {item} {
 			set ::osd_disk_path [file normalize $fullname]
 			menu_create [menu_create_disk_list $::osd_disk_path]
 		} else {
-			menu_close_all
-			diska $fullname
+			if {[catch {diska $fullname} errorText]} {
+				osd::display_message "Can't insert disk: $errorText" error
+			} else {
+				menu_close_all
+			}
 		}
 	}
 }
@@ -1027,8 +1033,11 @@ proc menu_select_tape {item} {
 			set ::osd_tape_path [file normalize $fullname]
 			menu_create [menu_create_tape_list $::osd_tape_path]
 		} else {
-			menu_close_all
-			cassetteplayer $fullname
+			if {[catch {cassetteplayer $fullname} errorText]} {
+				osd::display_message "Can't set tape: $errorText" error
+			} else {
+				menu_close_all
+			}
 		}
 	}
 }
