@@ -26,7 +26,6 @@ proc set_optional {dict_name key value} {
 }
 
 variable menulevels 0
-variable main_menu
 
 proc push_menu_info {} {
 	variable menulevels
@@ -220,8 +219,7 @@ if {![file exists $::osd_tape_path]} {
 }
 
 proc main_menu_open {} {
-	variable main_menu
-	do_menu_open $main_menu
+	do_menu_open [create_main_menu]
 }
 
 proc do_menu_open {top_menu} {
@@ -405,43 +403,70 @@ proc select_menu_item {item} {
 # definitions of menus
 #
 
-set main_menu {
-	font-size 10
-	border-size 2
-	width 160
-	items {{ text "[openmsx_info version]"
+proc create_main_menu {} {
+	set menu_def {
+		font-size 10
+		border-size 2
+		width 160
+	}
+	lappend items { text "[openmsx_info version]"
 	         font-size 12
 	         post-spacing 6
 	         selectable false }
-	       { text "Load ROM..."
+	if {[catch carta]} {; # example: Philips NMS 801
+		lappend items { text "(No cartridge slot available...)"
+			selectable false
+			text-color 0x808080ff
+		}
+	} else {
+		lappend items { text "Load ROM..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_ROM_list $::osd_rom_path] }}}
-	       { text "Insert Disk..."
-	         actions { A { if {[catch diska]} { osd::display_message "No disk drive on this machine..." error } else {osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path]} }}}
-	       { text "Set Tape..."
-	         actions { A { if {[catch "machine_info connector cassetteport"]} { osd::display_message "No cassette port on this machine..." error } else { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]} }}
+	}
+	if {[catch diska]} {
+		lappend items { text "(No disk drives available...)"
+			selectable false
+			text-color 0x808080ff
+		}
+	} else {
+		lappend items { text "Insert Disk..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path]} }}
+	}
+	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
+		lappend items { text "(No cassette port present...)"
+			selectable false
+			text-color 0x808080ff
+			post-spacing 3
+		}
+	} else {
+		lappend items { text "Set Tape..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_tape_list $::osd_tape_path]} }
 	         post-spacing 3 }
-	       { text "Save State..."
+	}
+	lappend items { text "Save State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_save_state] }}}
-	       { text "Load State..."
+	lappend items { text "Load State..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_state] }}
 	         post-spacing 3 }
-	       { text "Hardware..."
+	lappend items { text "Hardware..."
 	         actions { A { osd_menu::menu_create $osd_menu::hardware_menu }}
 	         post-spacing 3 }
-	       { text "Misc Settings..."
+	lappend items { text "Misc Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::misc_setting_menu }}}
-	       { text "Sound Settings..."
+	lappend items { text "Sound Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
-	       { text "Video Settings..."
+	lappend items { text "Video Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::video_setting_menu }}
 	         post-spacing 3 }
-	       { text "Advanced..."
+	lappend items { text "Advanced..."
 	         actions { A { osd_menu::menu_create $osd_menu::advanced_menu }}
 	         post-spacing 10 }
-	       { text "Reset MSX"
+	lappend items { text "Reset MSX"
 	         actions { A { reset; osd_menu::menu_close_all }}}
-	       { text "Exit openMSX"
-	         actions { A exit }}}}
+	lappend items { text "Exit openMSX"
+	         actions { A exit }}
+	dict set menu_def items $items
+	return $menu_def
+}
 
 set misc_setting_menu {
 	font-size 8
