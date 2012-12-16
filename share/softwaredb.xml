@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1353178783">
+<softwaredb xml:lang="en" timestamp="1355680166">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -10328,6 +10328,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash algo="sha1">49f9d62f121d3b7e35d38436c920a53b7070ecd4</hash><remark><text>Zemina</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Subacuatic</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">ee2d0c6806e0be5ed82e01fd91eb5711271cb5a4</hash></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Sudoku</title>
 	<system>MSX</system>
 	<company>DVIK &#38; Joyrex productions</company>
@@ -12171,6 +12179,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2692
-Created on Sat Nov 17 20:00:09 CET 2012
+Roms in this XML file:2693
+Created on Sun Dec 16 18:49:50 CET 2012
  -->
