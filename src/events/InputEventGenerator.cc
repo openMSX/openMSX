@@ -84,7 +84,29 @@ void InputEventGenerator::poll()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) == 1) {
-		PRT_DEBUG("SDL event received");
+#ifdef DEBUG
+		string evtType;
+		switch (event.type) {
+			case SDL_ACTIVEEVENT: evtType = "SDL_ACTIVEEVENT"; break;
+			case SDL_KEYDOWN: evtType = "SDL_KEYDOWN"; break;
+			case SDL_KEYUP: evtType = "SDL_KEYUP"; break;
+			case SDL_MOUSEMOTION: evtType = "SDL_MOUSEMOTION"; break;
+			case SDL_MOUSEBUTTONDOWN: evtType = "SDL_MOUSEBUTTONDOWN"; break;
+			case SDL_MOUSEBUTTONUP: evtType = "SDL_MOUSEBUTTONUP"; break;
+			case SDL_JOYAXISMOTION: evtType = "SDL_JOYAXISMOTION"; break;
+			case SDL_JOYBALLMOTION: evtType = "SDL_JOYBALLMOTION"; break;
+			case SDL_JOYHATMOTION: evtType = "SDL_JOYHATMOTION"; break;
+			case SDL_JOYBUTTONDOWN: evtType = "SDL_JOYBUTTONDOWN"; break;
+			case SDL_JOYBUTTONUP: evtType = "SDL_JOYBUTTONUP"; break;
+			case SDL_QUIT: evtType = "SDL_QUIT"; break;
+			case SDL_SYSWMEVENT: evtType = "SDL_SYSWMEVENT"; break;
+			case SDL_VIDEORESIZE: evtType = "SDL_VIDEORESIZE"; break;
+			case SDL_VIDEOEXPOSE: evtType = "SDL_VIDEOEXPOSE"; break;
+			case SDL_USEREVENT: evtType = "SDL_USEREVENT"; break;
+			default: evtType = "UNKNOWN"; break;
+		}
+		PRT_DEBUG("SDL event received, type: " + evtType);
+#endif
 		handle(event);
 	}
 }
@@ -432,6 +454,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	}
 
+#ifdef DEBUG
+	if (!event.get()) {
+		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
+	} else {
+		PRT_DEBUG("SDL event converted to: " + event.get()->toString());
+	}
+
+#endif
 	if (event.get()) {
 		eventDistributor.distributeEvent(event);
 	}
