@@ -108,11 +108,9 @@ fi
 
 echo "AB:INFO Done with build of app"
 
-echo "AB:INFO Copying icon if required"
-openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-32.png"
-if [ ! -f icon.png -o "${openmsx_icon_file}" -nt icon.png ]; then
-	cp -p "${openmsx_icon_file}" icon.png
-fi
+echo "AB:INFO Copying icon file"
+openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-128.png"
+cp -p "${openmsx_icon_file}" icon.png
 
 echo "AB:INFO Validating if appdata.zip must be rebuild"
 if [ ! -f AndroidData/appdata.zip ]; then
