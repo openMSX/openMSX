@@ -53,8 +53,9 @@
 			<li><a class="internal" href="#tuningvarious">6.2 Various Tuning Tips</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#hardwareedit">7. Writing Hardware Descriptions</a></li>
-	<li><a class="internal" href="#contact">8. Contact Info</a></li>
+	<li><a class="internal" href="#androidtips">7. Android tips</a></li>
+	<li><a class="internal" href="#hardwareedit">8. Writing Hardware Descriptions</a></li>
+	<li><a class="internal" href="#contact">9. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -548,7 +549,33 @@ instead of MoonSound (maximum 18+24 channels).
 </li>
 </ul>
 
-<h2><a id="hardwareedit">7. Writing Hardware Descriptions</a></h2>
+<h2><a id="androidtips">7. Android tips</a></h2>
+<p>This section has some tips specific to the Android version</p>
+<ul>
+  <li>If the sound is choppy, you should increase the SDL audio buffer size as follows</li>
+  <ul>
+    <li>Start openMSX</li>
+    <li>Tap the button "Change device configuration" on the SDL Splash screen that is shown for 3 seconds during the startup</li>
+    <li>Tap the button "Size of audio buffer" in the device configuration screen</li>
+    <li>Change the buffer size from "Very small" to "Small"</li>
+    <li>Tap "OK" to close the device configuration screen</li>
+  </ul>
+  <li>It is strongly advisable to disable the <a class="external" href="user.html#reverse">reverse</a> feature to save memory and battery usage. You can permanently disable it by entering following command in the console: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> "off"</code></li>
+  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to following functions</li>
+  <ul>
+    <table border="1">
+    <tr><td>Console</td><td>openMSX virtual keyboard</td></tr>
+    <tr><td>Joystick button 2</td><td>Joystick button 1</td></tr>
+    </table>
+  </ul>
+  <li>It is possible to change these mappings using the "Change device configuration" button on the SDL Splash screen</li>
+  <li>By default, the Android build has a button in the left upper corner of the screen to open the Android virtual keyboard</li>
+  <li>If you use the Android keyboard a lot, then it is advisable to install the "Hackers keyboard" app from Google Play and to use that one
+  instead of the standard Android keyboard. It is much more convenient for openMSX and other old-school applications.</li>
+  <li>The Android virtual keyboard is placed at the bottom of the screen. This makes it overlap with the default position of the openMSX console. You can change the position of the console by entering following command in it: <code>set consoleplacement top</code>
+</ul>  
+
+<h2><a id="hardwareedit">8. Writing Hardware Descriptions</a></h2>
 
 <p>
 There are two ways to use extra devices in your emulated MSX:
@@ -665,7 +692,7 @@ You can use the ready-made configurations in <code>share/machines</code> as
 examples.
 </p>
 
-<h2><a id="contact">8. Contact Info</a></h2>
+<h2><a id="contact">9. Contact Info</a></h2>
 
 <p>
 Because openMSX is still in heavy development, feedback and bug reports are very
