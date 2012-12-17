@@ -6,9 +6,13 @@
 #include "EventListener.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "Keys.hh"
+#include "build-info.hh"
+
 #include <vector>
 #include <deque>
 #include <memory>
+#include <map>
 
 namespace openmsx {
 
@@ -50,6 +54,10 @@ private:
 
 	std::vector<EventPtr> toBeScheduledEvents;
 	std::deque<EventPtr> scheduledEvents;
+
+#if PLATFORM_ANDROID
+	std::map<int,EventPtr> nonMatchedKeyPresses;
+#endif
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;
