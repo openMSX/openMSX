@@ -6,6 +6,7 @@
 #include "StringOp.hh"
 #include "Timer.hh"
 #include "checked_cast.hh"
+#include "openmsx.hh"
 #include <string>
 #include <cassert>
 
@@ -30,10 +31,83 @@ unsigned long long TimedEvent::getRealTime() const
 
 // class KeyEvent
 
+#if PLATFORM_ANDROID
+// The unicode support in the SDL Android port is currently broken.
+// It always sets the unicode value equal to the keycode value, even for non-character
+// keys like the function keys. Furthermore, it has the unicode value set on both
+// press and release, while SDL on other platforms only sets unicode value on press.
+// As a workaround, set unicode to 0 for non-character keys and on release for any key,
+// until SDL Android port has been fixed.
+// Furthermore, try to set unicode value to correct character, taking into consideration
+// the modifier keys. The assumption is that Android has a qwerty keyboard, which is
+// true for the standard virtual keyboard of android 4.0, 4.1 and 4.2 and also true
+// for the more convenient "hackers keyboard" app.
+// However, some Android devices with a physical keyboard might have an Azerty keyboard
+// I don't know what the SDL layer does with the key events received from such Azerty
+// keyboard. Probably it won't work well with this work-around code. Must eventually fix
+// the unicode support in the SDL Android port, together with the main developer of the port.
+static word fixUnicode(Keys::KeyCode keyCode, word brokenUnicode)
+{
+	Keys::KeyCode maskedKeyCode = (Keys::KeyCode)(int(brokenUnicode) & int(Keys::K_MASK));
+	if (brokenUnicode & Keys::KD_RELEASE) {
+		return 0;
+	}
+	if (maskedKeyCode >= Keys::K_UP) {
+		return 0;
+	}
+	if (maskedKeyCode >= Keys::K_WORLD_90 && maskedKeyCode <= Keys::K_WORLD_95) {
+		return 0;
+	}
+
+	if ((keyCode & Keys::KM_SHIFT) == Keys::KM_SHIFT) {
+		if (maskedKeyCode >= Keys::K_A && maskedKeyCode <= Keys::K_Z) {
+			// Convert lowercase character into uppercase
+			return brokenUnicode - 32;
+		}
+		// Convert several characters, assuming user has a qwerty keyboard on the Android or that Android has translated everything
+		// to qwerty keyboard combinations before passing the events to the SDL layer.
+		// Note that the 'rows' mentioned in below mapping table are based on the "hackers keyboard" app. Though
+		// this mapping turns out to work fine with the standard Android 4.x keyboard app as well.
+		switch(int(maskedKeyCode)) {
+			// row 1
+			case int(Keys::K_1): return (word)'!';
+			case int(Keys::K_2): return (word)'@';
+			case int(Keys::K_3): return (word)'#';
+			case int(Keys::K_4): return (word)'$';
+			case int(Keys::K_5): return (word)'%';
+			case int(Keys::K_6): return (word)'^';
+			case int(Keys::K_7): return (word)'&';
+			case int(Keys::K_8): return (word)'*';
+			case int(Keys::K_9): return (word)'(';
+			case int(Keys::K_0): return (word)')';
+			case int(Keys::K_MINUS): return (word)'_';
+			case int(Keys::K_EQUALS): return (word)'+';
+			// row 2
+			case int(Keys::K_LEFTBRACKET): return (word)'{';
+			case int(Keys::K_RIGHTBRACKET): return (word)'}';
+			case int(Keys::K_BACKSLASH): return (word)'|';
+			// row 3
+			case int(Keys::K_SEMICOLON): return (word)':';
+			case int(Keys::K_QUOTE): return (word)'"';
+			// row 4
+			case int(Keys::K_COMMA): return (word)'<';
+			case int(Keys::K_PERIOD): return (word)'>';
+			case int(Keys::K_SLASH): return (word)'?';
+		}
+	}
+	return brokenUnicode;
+}
+
+KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
+	: TimedEvent(type), keyCode(keyCode_), unicode(fixUnicode(keyCode_, unicode_))
+{
+}
+#else
 KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
 	: TimedEvent(type), keyCode(keyCode_), unicode(unicode_)
 {
 }
+#endif
 
 Keys::KeyCode KeyEvent::getKeyCode() const
 {
