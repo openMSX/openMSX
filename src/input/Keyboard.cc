@@ -26,6 +26,7 @@
 #include "serialize_stl.hh"
 #include "serialize_meta.hh"
 #include "memory.hh"
+#include "openmsx.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -388,11 +389,25 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 	auto key = static_cast<Keys::KeyCode>(
 		int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 	if (down) {
+		// TODO: refactor debug(...) method to expect a std::string and then adapt
+		// all invocations of it to provide a properly formatted string, using the C++
+		// features for it.
+		// Once that is done, debug(...) can pass the c_str() version of that string
+		// to ad_printf(...) so that I don't have to make an explicit ad_printf(...)
+		// invocation for each debug(...) invocation
+		ad_printf("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
+		      keyEvent.getKeyCode(),
+		      Keys::getName(keyEvent.getKeyCode()).c_str());
 		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	} else {
+		ad_printf("Key released, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
+		      keyEvent.getKeyCode(),
+		      Keys::getName(keyEvent.getKeyCode()).c_str());
 		debug("Key released, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 		      keyEvent.getUnicode(),
 		      keyEvent.getKeyCode(),
