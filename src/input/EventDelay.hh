@@ -56,7 +56,7 @@ private:
 	std::deque<EventPtr> scheduledEvents;
 
 #if PLATFORM_ANDROID
-	std::map<int,EventPtr> nonMatchedKeyPresses;
+	std::map<int, EventPtr> nonMatchedKeyPresses;
 #endif
 
 	EmuTime prevEmu;
