@@ -27,7 +27,7 @@ proc guess_rom_title_z80space {internal checkpage} {
 	if {$ss eq "X"} {set ss 0}
 	set incorrectslottype [machine_info isexternalslot $ps $ss]
 	if {$internal} {
-		set incorrectslottype [expr !$incorrectslottype]
+		set incorrectslottype [expr {!$incorrectslottype}]
 	}
 	if {$incorrectslottype} {
 		set rom [machine_info slot $ps $ss $checkpage]

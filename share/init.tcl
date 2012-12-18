@@ -11,7 +11,7 @@ variable help_proc
 
 # Only execute this script once. Below we source other Tcl script,
 # so this makes sure we don't get in an infinte loop.
-if $init_tcl_executed return
+if {$init_tcl_executed} return
 set init_tcl_executed true
 
 # internal proc to make help function available to Tcl procs
@@ -20,9 +20,9 @@ proc help { args } {
 	variable help_proc
 
 	set command [lindex $args 0]
-	if [info exists help_proc($command)] {
+	if {[info exists help_proc($command)]} {
 		return [namespace eval :: $help_proc($command) $args]
-	} elseif [info exists help_text($command)] {
+	} elseif {[info exists help_text($command)]} {
 		return $help_text($command)
 	} elseif {[info commands $command] ne ""} {
 		error "No help for command: $command"
@@ -51,10 +51,10 @@ proc tabcompletion { args } {
 
 	set command [lindex $args 0]
 	set result ""
-	if [info exists tabcompletion_proc_sensitive($command)] {
+	if {[info exists tabcompletion_proc_sensitive($command)]} {
 		set result [namespace eval :: $tabcompletion_proc_sensitive($command) $args]
 		lappend result true
-	} elseif [info exists tabcompletion_proc_insensitive($command)] {
+	} elseif {[info exists tabcompletion_proc_insensitive($command)]} {
 		set result [namespace eval :: $tabcompletion_proc_insensitive($command) $args]
 		lappend result false
 	}
@@ -63,7 +63,7 @@ proc tabcompletion { args } {
 proc set_tabcompletion_proc { command proc {case_sensitive true} } {
 	variable tabcompletion_proc_sensitive
 	variable tabcompletion_proc_insensitive
-	if $case_sensitive {
+	if {$case_sensitive} {
 		set tabcompletion_proc_sensitive($command) $proc
 	} else {
 		set tabcompletion_proc_insensitive($command) $proc
@@ -78,7 +78,7 @@ there try the system directory."
 proc data_file { file } {
 	global env
 	set user_file $env(OPENMSX_USER_DATA)/$file
-	if [file exists $user_file] { return $user_file }
+	if {[file exists $user_file]} { return $user_file }
 	return $env(OPENMSX_SYSTEM_DATA)/$file
 }
 
