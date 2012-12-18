@@ -261,7 +261,7 @@ proc toggle_mog_overlay {} {
 		init
 		update_overlay
 		osd::display_message "MoG overlay activated" info
-		return "MoG overlay activated"
+		return "MoG overlay activated!"
 	} else {
 		set retval ""
 		if {$mog_editor_active} {
@@ -302,23 +302,22 @@ proc toggle_mog_editor {} {
 	set mog_editor_active [expr {!$mog_editor_active}]
 
 	if {$mog_editor_active} {
-		bind_default "mouse button1 down" {
+		bind -layer mog_editor "mouse button1 down" {
 			set mog_overlay::mouse1_pressed true
 			mog_overlay::draw_block
 		}
 
-		bind_default "mouse button1 up" {
+		bind -layer mog_editor "mouse button1 up" {
 			set mog_overlay::mouse1_pressed false
 		}
 
-		bind_default "mouse button3 down" {
+		bind -layer mog_editor "mouse button3 down" {
 			mog_overlay::put_popolon
 		}
+		activate_input_layer mog_editor -non-blocking
 		return "MoG editor activated!"
 	} else {
-		unbind_default "mouse button1 down"
-		unbind_default "mouse button1 up"
-		unbind_default "mouse button3 down"
+		deactivate_input_layer mog_editor
 		return "MoG editor deactivated."
 	}
 	return ""
