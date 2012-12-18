@@ -419,8 +419,11 @@ proc create_main_menu {} {
 			text-color 0x808080ff
 		}
 	} else {
-		lappend items { text "Load ROM..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_ROM_list $::osd_rom_path] }}}
+		foreach slot [lrange [info command cart?] 0 1] {
+			set slot_str [string toupper [string index $slot end]]
+			lappend items [list text "Load ROM... (slot $slot_str)" \
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]"]]
+		}
 	}
 	if {[catch diska]} {
 		lappend items { text "(No disk drives available...)"
@@ -959,33 +962,33 @@ proc ls {directory extensions} {
 	return [concat ".." [lsort $dirs2] [lsort $items]]
 }
 
-proc menu_create_ROM_list {path} {
+proc menu_create_ROM_list {path slot} {
 	return [prepare_menu_list [concat "--eject--" [ls $path "rom|ri|mx1|mx2|zip|gz"]] \
 	                          10 \
-	                          { execute menu_select_rom
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
-	                            header { text "ROMS  $::osd_rom_path"
-	                                     font-size 10
-	                                     post-spacing 6 }}]
+	                          [list execute [list menu_select_rom $slot] \
+	                            font-size 8 \
+	                            border-size 2 \
+	                            width 200 \
+	                            xpos 100 \
+	                            ypos 120 \
+	                            header { text "ROMs $::osd_rom_path" \
+	                                     font-size 10 \
+	                                     post-spacing 6 }]]
 }
 
-proc menu_select_rom {item} {
+proc menu_select_rom {slot item} {
 	if {$item eq "--eject--"} {
 		menu_close_all
-		carta eject
+		$slot eject
 		reset
 	} else {
 		set fullname [file join $::osd_rom_path $item]
 		if {[file isdirectory $fullname]} {
 			menu_close_top
 			set ::osd_rom_path [file normalize $fullname]
-			menu_create [menu_create_ROM_list $::osd_rom_path]
+			menu_create [menu_create_ROM_list $::osd_rom_path $slot]
 		} else {
-			if {[catch {carta $fullname} errorText]} {
+			if {[catch {$slot $fullname} errorText]} {
 				osd::display_message "Can't insert ROM: $errorText" error
 			} else {
 				menu_close_all
