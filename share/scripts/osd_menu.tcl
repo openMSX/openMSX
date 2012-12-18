@@ -963,7 +963,11 @@ proc ls {directory extensions} {
 }
 
 proc menu_create_ROM_list {path slot} {
-	return [prepare_menu_list [concat "--eject--" [ls $path "rom|ri|mx1|mx2|zip|gz"]] \
+	set eject_item [list]
+	if {[lindex [$slot] 2] ne "empty"} {
+		lappend eject_item "--eject-- [file tail [lindex [$slot] 1]]"
+	}
+	return [prepare_menu_list [concat $eject_item [ls $path "rom|ri|mx1|mx2|zip|gz"]] \
 	                          10 \
 	                          [list execute [list menu_select_rom $slot] \
 	                            font-size 8 \
@@ -977,7 +981,7 @@ proc menu_create_ROM_list {path slot} {
 }
 
 proc menu_select_rom {slot item} {
-	if {$item eq "--eject--"} {
+	if {[string range $item 0 8] eq "--eject--"} {
 		menu_close_all
 		$slot eject
 		reset
