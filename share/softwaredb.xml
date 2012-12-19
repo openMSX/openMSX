@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1355680166">
+<softwaredb xml:lang="en" timestamp="1355877663">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -2518,6 +2518,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash algo="sha1">03b42b77b1a7412f1d7bd0998cf8f2f003f77d0a</hash><remark><text>[Kanji]</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Dinj Belmonte&#39;s revenge</title>
+	<system>MSX</system>
+	<company>Retroworks</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">3302b30e24374a668c85744849ad9af3657f47ad</hash><remark><text>MSXDev12 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Dip-Dip</title>
 	<genmsxid>2201</genmsxid>
 	<system>MSX</system>
@@ -2859,6 +2867,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2008</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">52a9173b22c8a72376003764d73e07579dc2015d</hash></megarom></dump>
+</software>
+<software>
+	<title xml:lang="en">Drop</title>
+	<system>MSX</system>
+	<company>MSXosaure</company>
+	<year>2010</year>
+	<country>FR</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">b918206abcf3c570f636d3f4b9d70bcbc25ed079</hash><remark><text>MSX Basic Challenge 2010</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Druid</title>
@@ -7031,6 +7047,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash algo="sha1">4c2a8cde9b40c4936f512365a7cd6c8cef92095e</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">b1cf453206beef8ab2ede2b061ed95a3cd91eae3</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">04a135910588ef8753b04a49c66d138c081284d2</hash></megarom></dump>
+		<dump><megarom><type>Konami</type><hash algo="sha1">6f51a7d2988d01c94c673525a421ffa6e5a53136</hash><remark><text>GDX fix</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Monkey Academy</title>
@@ -7615,6 +7632,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">88f3a72513b04459212289797942c4d76f495a05</hash></rom></dump>
 		<dump><rom><hash algo="sha1">5dd2ac08fd05a1e091c7c6ecb6c10b49992bdd46</hash><remark><text>[Kanji]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">5b20c3e0b9f1f29149039d5246be881a6b0dfdb1</hash><remark><text>[Kanji]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Nice Soccer World Cup</title>
+	<system>MSX</system>
+	<company>German Gomez Herrera</company>
+	<year>2010</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">50c8a1f1298b48cd3e325a859ea68d5739d87a01</hash><remark><text>MSX Basic Challenge 2010</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Night City</title>
@@ -10556,6 +10581,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">2a3c7ad70e34989fa5170028bad760e65ebe9d57</hash></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">cac8e2cbbfa583b12b3a0ddd5e7884d2df808287</hash><remark><text>GDX fix and English Translation</text></remark></megarom></dump>
+		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">b528755fee312b833fdc19e75090994a95b960d6</hash><remark><text>GDX fix and Frech Translation</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Super Runner</title>
@@ -10854,6 +10881,23 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1988</year>
 	<country>ES</country>
 		<dump><rom><hash algo="sha1">a0d85c5fc74547f46025369da687569fb5aa3991</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Teodoro no sabe volar</title>
+	<system>MSX</system>
+	<company>Retroworks/Dimension Z</company>
+	<year>2012</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">ae04c82e2ecde28bfcd19dc39b6c4978410aa908</hash><remark><text>English version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">6e44688cd709dc551fc51b6322f49333c4673dfd</hash><remark><text>Spanish version</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Tertis</title>
+	<system>MSX</system>
+	<company>MSXosaure</company>
+	<year>2010</year>
+	<country>FR</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">3d809fe411d44920af15d41edad7dd60e80e65e2</hash><remark><text>MSX Basic Challenge 2010</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Test your Intelligence</title>
@@ -12179,6 +12223,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2693
-Created on Sun Dec 16 18:49:50 CET 2012
+Roms in this XML file:2702
+Created on Wed Dec 19 1:41:25 CET 2012
  -->
