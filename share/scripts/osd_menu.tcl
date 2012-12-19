@@ -203,6 +203,7 @@ proc menu_action {button} {
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_ld_path "OSD LD Load Menu Last Known Path" $env(HOME)
 if {![file exists $::osd_rom_path]} {
 	# revert to default (should always exist)
 	unset ::osd_rom_path
@@ -216,6 +217,11 @@ if {![file exists $::osd_disk_path]} {
 if {![file exists $::osd_tape_path]} {
 	# revert to default (should always exist)
 	unset ::osd_tape_path
+}
+
+if {![file exists $::osd_ld_path]} {
+	# revert to default (should always exist)
+	unset ::osd_ld_path
 }
 
 proc main_menu_open {} {
@@ -435,6 +441,11 @@ proc create_main_menu {} {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Insert Disk... (drive $drive_str)" \
 				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
+		}
+	}
+	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
+		lappend items { text "Load laserdisc..."
+			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]} }
 		}
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
@@ -1088,6 +1099,44 @@ proc menu_select_tape {item} {
 	}
 }
 
+proc menu_create_ld_list {path} {
+	set eject_item [list]
+	set inserted [lindex [laserdiscplayer] 1]
+	if {$inserted ne ""} {
+		lappend eject_item "--eject-- [file tail $inserted]"
+	}
+	return [prepare_menu_list [concat $eject_item [ls $path "ogv"]] \
+	                          10 \
+	                          { execute menu_select_ld
+	                            font-size 8
+	                            border-size 2
+	                            width 200
+	                            xpos 100
+	                            ypos 120
+	                            header { text "Laserdiscs $::osd_ld_path"
+	                                     font-size 10
+	                                     post-spacing 6 }}]
+}
+
+proc menu_select_ld {item} {
+	if {[string range $item 0 8] eq "--eject--"} {
+		menu_close_all
+		laserdiscplayer eject
+	} else {
+		set fullname [file join $::osd_ld_path $item]
+		if {[file isdirectory $fullname]} {
+			menu_close_top
+			set ::osd_ld_path [file normalize $fullname]
+			menu_create [menu_create_ld_list $::osd_ld_path]
+		} else {
+			if {[catch {laserdiscplayer insert $fullname} errorText]} {
+				osd::display_message "Can't load laserdisc: $errorText" error
+			} else {
+				menu_close_all
+			}
+		}
+	}
+}
 proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
 	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {

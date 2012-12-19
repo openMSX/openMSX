@@ -61,7 +61,15 @@ LaserdiscCommand::LaserdiscCommand(
 string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	string result;
-	if (tokens.size() == 2 && tokens[1] == "eject") {
+	if (tokens.size() == 1) {
+		Interpreter& interpreter = getInterpreter();
+		// Returning Tcl lists here, similar to the disk commands in
+		// DiskChanger
+		TclObject tmp(interpreter);
+		tmp.addListElement(getName() + ':');
+		tmp.addListElement(laserdiscPlayer.getImageName().getResolved());
+		result += tmp.getString().str();
+	} else if (tokens.size() == 2 && tokens[1] == "eject") {
 		result += "Ejecting laserdisc.";
 		laserdiscPlayer.eject(time);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
@@ -683,6 +691,11 @@ void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 		setInputRate(inputRate);
 		createResampler();
 	}
+}
+
+const Filename& LaserdiscPlayer::getImageName() const
+{
+	return oggImage;
 }
 
 int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)

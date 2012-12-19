@@ -85,6 +85,7 @@ public:
 	};
 private:
 	void setImageName(const std::string& newImage, EmuTime::param time);
+	const Filename& getImageName() const;
 	void autoRun();
 
 	/** Laserdisc player commands
