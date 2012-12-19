@@ -1045,7 +1045,14 @@ proc menu_select_disk {drive item} {
 }
 
 proc menu_create_tape_list {path} {
-	return [prepare_menu_list [concat "--eject--" "--rewind--" [ls $path "cas|wav|zip|gz"]] \
+	set eject_item [list]
+	set rewind_item [list]
+	set inserted [lindex [cassetteplayer] 1]
+	if {$inserted ne ""} {
+		lappend eject_item "--eject-- [file tail $inserted]"
+		lappend rewind_item "--rewind-- [file tail $inserted]"
+	}
+	return [prepare_menu_list [concat $eject_item $rewind_item [ls $path "cas|wav|zip|gz"]] \
 	                          10 \
 	                          { execute menu_select_tape
 	                            font-size 8
@@ -1053,16 +1060,16 @@ proc menu_create_tape_list {path} {
 	                            width 200
 	                            xpos 100
 	                            ypos 120
-	                            header { text "Tapes  $::osd_tape_path"
+	                            header { text "Tapes $::osd_tape_path"
 	                                     font-size 10
 	                                     post-spacing 6 }}]
 }
 
 proc menu_select_tape {item} {
-	if {$item eq "--eject--"} {
+	if {[string range $item 0 8] eq "--eject--"} {
 		menu_close_all
 		cassetteplayer eject
-	} elseif {$item eq "--rewind--"} {
+	} elseif {[string range $item 0 9] eq "--rewind--"} {
 		menu_close_all
 		cassetteplayer rewind
 	} else {
