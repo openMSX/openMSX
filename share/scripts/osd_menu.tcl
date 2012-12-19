@@ -419,7 +419,7 @@ proc create_main_menu {} {
 			text-color 0x808080ff
 		}
 	} else {
-		foreach slot [lrange [info command cart?] 0 1] {
+		foreach slot [lrange [lsort [info command cart?]] 0 1] {
 			set slot_str [string toupper [string index $slot end]]
 			lappend items [list text "Load ROM... (slot $slot_str)" \
 				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_ROM_list \$::osd_rom_path $slot\]"]]
@@ -431,7 +431,7 @@ proc create_main_menu {} {
 			text-color 0x808080ff
 		}
 	} else {
-		foreach drive [lrange [info command disk?] 0 1] {
+		foreach drive [lrange [lsort [info command disk?]] 0 1] {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Insert Disk... (drive $drive_str)" \
 				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
