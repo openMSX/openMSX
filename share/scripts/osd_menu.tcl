@@ -431,8 +431,11 @@ proc create_main_menu {} {
 			text-color 0x808080ff
 		}
 	} else {
-		lappend items { text "Insert Disk..."
-	         actions { A { osd_menu::menu_create [osd_menu::menu_create_disk_list $::osd_disk_path]} }}
+		foreach drive [lrange [info command disk?] 0 1] {
+			set drive_str [string toupper [string index $drive end]]
+			lappend items [list text "Insert Disk... (drive $drive_str)" \
+				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
+		}
 	}
 	if {[catch "machine_info connector cassetteport"]} {; # example: turboR
 		lappend items { text "(No cassette port present...)"
@@ -1003,32 +1006,36 @@ proc menu_select_rom {slot item} {
 	}
 }
 
-proc menu_create_disk_list {path} {
-	return [prepare_menu_list [concat "--eject--" [ls $path "dsk|zip|gz|xsa|dmk|di1|di2"]] \
+proc menu_create_disk_list {path drive} {
+	set eject_item [list]
+	if {[lindex [$drive] 2] ne "empty readonly"} {
+		lappend eject_item "--eject-- [file tail [lindex [$drive] 1]]"
+	}
+	return [prepare_menu_list [concat $eject_item [ls $path "dsk|zip|gz|xsa|dmk|di1|di2"]] \
 	                          10 \
-	                          { execute menu_select_disk
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
-	                            header { text "Disks  $::osd_disk_path"
-	                                     font-size 10
-	                                     post-spacing 6 }}]
+	                          [list execute [list menu_select_disk $drive] \
+	                            font-size 8 \
+	                            border-size 2 \
+	                            width 200 \
+	                            xpos 100 \
+	                            ypos 120 \
+	                            header { text "Disks $::osd_disk_path" \
+	                                     font-size 10 \
+	                                     post-spacing 6 }]]
 }
 
-proc menu_select_disk {item} {
-	if {$item eq "--eject--"} {
+proc menu_select_disk {drive item} {
+	if {[string range $item 0 8] eq "--eject--"} {
 		menu_close_all
-		diska eject
+		$drive eject
 	} else {
 		set fullname [file join $::osd_disk_path $item]
 		if {[file isdirectory $fullname]} {
 			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
-			menu_create [menu_create_disk_list $::osd_disk_path]
+			menu_create [menu_create_disk_list $::osd_disk_path $drive]
 		} else {
-			if {[catch {diska $fullname} errorText]} {
+			if {[catch {$drive $fullname} errorText]} {
 				osd::display_message "Can't insert disk: $errorText" error
 			} else {
 				menu_close_all
