@@ -18,7 +18,7 @@ proc tab {args} {
 
 set_tabcompletion_proc rom_info [namespace code tab]
 
-proc rom_info {{romdevice ""}} {
+proc getlist_rom_info {{romdevice ""}} {
 	if {$romdevice eq ""} {
 		set romdevice [guess_title::guess_rom_title]
 		if {$romdevice eq ""} {
@@ -36,7 +36,7 @@ proc rom_info {{romdevice ""}} {
 	}
 
 	if {[catch {set rominfo [openmsx_info software [lindex $device_info 2]]}]} {
-		return "No ROM info available on $romdevice"
+		return 
 	}
 
 	dict with rominfo {
@@ -68,16 +68,34 @@ proc rom_info {{romdevice ""}} {
 			}
 		}
 
-		append result "Title:    ${title}\n"
-		append result "Year:     ${year}\n"
-		append result "Company:  ${company}\n"
-		append result "Country:  ${country}\n"
-		append result "Status:   ${status}"
-		if {$remark ne ""} {
-			append result "\nRemark:   ${remark}"
-		}
-		return $result
+		return [list 	"title" 	$title \
+						"year" 		$year \
+						"company" 	$company \
+						"country" 	$country \
+						"status" 	$status \
+						"remark" 	$remark]
 	}
+}
+
+proc rom_info {} {
+
+		set rominfo	[rom_info::getlist_rom_info]
+		
+		if {$rominfo eq ""} {return "No rom information available"}
+		
+		append result "Title:    [dict get $rominfo title]\n"
+		append result "Year:     [dict get $rominfo year]\n"
+		append result "Company:  [dict get $rominfo company]\n"
+		append result "Country:  [dict get $rominfo country]\n"
+		append result "Status:   [dict get $rominfo status]"
+		
+		set remark [dict get $rominfo remark]
+		
+		if {$remark ne ""} {
+			append result "\nRemark:   $remark"
+		}
+		
+		return $result	
 }
 
 namespace export rom_info
