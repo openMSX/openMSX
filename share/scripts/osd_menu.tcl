@@ -1016,7 +1016,8 @@ proc menu_select_rom {slot item} {
 				if {$rominfo eq ""} {osd::display_message "No rom information available"} else {
 					osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
 					
-					append result "[dict get $rominfo title]\n" \
+					append result " \n" \
+								  "[dict get $rominfo title]\n" \
 								  "[dict get $rominfo year]\n" \
 								  "[dict get $rominfo company]\n" \
 								  "[dict get $rominfo country]\n" \
@@ -1027,8 +1028,16 @@ proc menu_select_rom {slot item} {
 					} else {
 						append result "None"
 					}
-					
-					osd create text osd_display_message.rominfo_text -x 35 -y 9 -size 6 -rgba 0xffffffff -text "$result" 
+				
+					set txt_size 6
+					set xpos 35
+						
+					if {($::scale_factor == 1) && ($txt_size < 9)} {
+						set txt_size 9
+						set xpos 53
+					}
+				
+					osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result" 
 				}
 				reset
 			}
@@ -1156,6 +1165,7 @@ proc menu_select_ld {item} {
 		}
 	}
 }
+
 proc get_savestates_list_presentation_sorted {} {
 	set presentation [list]
 	foreach i [lsort -integer -index 1 -decreasing [savestate::list_savestates_raw]] {
