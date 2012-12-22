@@ -36,7 +36,7 @@ proc getlist_rom_info {{romdevice ""}} {
 	}
 
 	if {[catch {set rominfo [openmsx_info software [lindex $device_info 2]]}]} {
-		return 
+		return
 	}
 
 	dict with rominfo {
@@ -68,20 +68,21 @@ proc getlist_rom_info {{romdevice ""}} {
 			}
 		}
 
-		return [list 	"title" 	$title \
-						"year" 		$year \
-						"company" 	$company \
-						"country" 	$country \
-						"status" 	$status \
-						"remark" 	$remark]
+		return [list \
+				"title"		$title \
+				"year"		$year \
+				"company"	$company \
+				"country"	$country \
+				"status"	$status \
+				"remark"	$remark]
 	}
 }
 
 proc rom_info {} {
 
-		set rominfo	[rom_info::getlist_rom_info]
+		set rominfo [rom_info::getlist_rom_info]
 		
-		if {$rominfo eq ""} {return "No rom information available"}
+		if {$rominfo eq ""} {return "No ROM information available..."}
 		
 		append result "Title:    [dict get $rominfo title]\n" \
 					  "Year:     [dict get $rominfo year]\n" \
@@ -97,7 +98,7 @@ proc rom_info {} {
 			append result "\nRemark:   None"
 		}
 		
-		return $result	
+		return $result
 }
 
 namespace export rom_info
