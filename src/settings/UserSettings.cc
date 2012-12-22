@@ -13,7 +13,6 @@
 #include "unreachable.hh"
 #include <cassert>
 
-using std::set;
 using std::string;
 using std::vector;
 using std::unique_ptr;
@@ -40,7 +39,7 @@ private:
 	unique_ptr<Setting> createInteger(const vector<TclObject>& tokens);
 	unique_ptr<Setting> createFloat  (const vector<TclObject>& tokens);
 
-	set<string> getSettingNames() const;
+	vector<string_ref> getSettingNames() const;
 
 	UserSettings& userSettings;
 };
@@ -282,27 +281,26 @@ string UserSettingCommand::help(const vector<string>& tokens) const
 
 void UserSettingCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> s;
 	if (tokens.size() == 2) {
-		s.insert("create");
-		s.insert("destroy");
-		s.insert("info");
+		static const char* const cmds[] = {
+			"create", "destroy", "info"
+		};
+		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		s.insert("string");
-		s.insert("boolean");
-		s.insert("integer");
-		s.insert("float");
+		static const char* const types[] = {
+			"string", "boolean", "integer", "float"
+		};
+		completeString(tokens, types);
 	} else if ((tokens.size() == 3) && (tokens[1] == "destroy")) {
-		s = getSettingNames();
+		completeString(tokens, getSettingNames());
 	}
-	completeString(tokens, s);
 }
 
-set<string> UserSettingCommand::getSettingNames() const
+vector<string_ref> UserSettingCommand::getSettingNames() const
 {
-	set<string> result;
+	vector<string_ref> result;
 	for (auto& s : userSettings.getSettings()) {
-		result.insert(s->getName());
+		result.push_back(s->getName());
 	}
 	return result;
 }

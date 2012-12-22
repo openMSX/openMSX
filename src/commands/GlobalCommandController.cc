@@ -25,7 +25,6 @@
 #include <cassert>
 #include <cstdlib>
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -509,8 +508,8 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 	}
 	if (tokens.size() == 1) {
 		// build a list of all command strings
-		auto cmds = interpreter->getCommandNames();
-		Completer::completeString(tokens, cmds);
+		Completer::completeString(tokens,
+		                          interpreter->getCommandNames());
 	} else {
 		auto it = commandCompleters.find(tokens.front());
 		if (it != commandCompleters.end()) {
@@ -531,8 +530,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 						sensitive = true;
 					}
 				}
-				set<string> completions(list.begin(), list.end());
-				Completer::completeString(tokens, completions, sensitive);
+				Completer::completeString(tokens, list, sensitive);
 			} catch (CommandException& e) {
 				cliComm.printWarning(
 					"Error while executing tab-completion "
@@ -686,15 +684,14 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 2: {
-		set<string> ops;
-		ops.insert("enable");
-		ops.insert("disable");
+		static const char* const ops[] = { "enable", "disable" };
 		completeString(tokens, ops);
 		break;
 	}
 	case 3: {
 		const char* const* updateStr = CliComm::getUpdateStrings();
-		set<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
+		// TODO pass iterators, or pass array-reference
+		vector<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
 		completeString(tokens, types);
 	}
 	}

@@ -21,7 +21,7 @@ public:
 
 	virtual byte getFadedAlpha() const = 0;
 
-	virtual std::set<std::string> getProperties() const;
+	virtual std::vector<string_ref> getProperties() const;
 	virtual void setProperty(string_ref name, const TclObject& value);
 	virtual void getProperty(string_ref name, TclObject& result) const;
 	virtual double getRecursiveFadeValue() const;

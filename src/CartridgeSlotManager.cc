@@ -19,7 +19,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -412,13 +411,12 @@ string CartCmd::help(const vector<string>& tokens) const
 
 void CartCmd::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
+	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.insert("eject");
-		extra.insert("insert");
+		extra.push_back("eject");
+		extra.push_back("insert");
 	}
-	UserFileContext context;
-	completeFileName(tokens, context, extra);
+	completeFileName(tokens, UserFileContext(), extra);
 }
 
 bool CartCmd::needRecord(const vector<string>& tokens) const

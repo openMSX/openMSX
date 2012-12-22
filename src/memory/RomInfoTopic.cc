@@ -4,9 +4,7 @@
 #include "RomInfo.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include <set>
 
-using std::set;
 using std::vector;
 using std::string;
 
@@ -50,8 +48,7 @@ string RomInfoTopic::help(const vector<string>& /*tokens*/) const
 void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		auto romTypes = RomInfo::getAllRomTypes();
-		completeString(tokens, romTypes, false);
+		completeString(tokens, RomInfo::getAllRomTypes(), false);
 	}
 }
 

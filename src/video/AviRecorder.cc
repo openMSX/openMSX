@@ -377,16 +377,16 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 void RecordCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		const char* const str[4] = { "start", "stop", "toggle",
-			"status" };
-		std::set<string> cmds(str, str + 4);
+		static const char* const cmds[] = {
+			"start", "stop", "toggle", "status",
+		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		const char* const str[6] = { "-prefix", "-videoonly",
-			"-audioonly", "-doublesize", "-mono", "-stereo" };
-		std::set<string> cmds(str, str + 6);
-		UserFileContext context;
-		completeFileName(tokens, context, cmds);
+		static const char* const options[] = {
+			"-prefix", "-videoonly", "-audioonly", "-doublesize",
+			"-mono", "-stereo",
+		};
+		completeFileName(tokens, UserFileContext(), options);
 	}
 }
 

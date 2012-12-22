@@ -45,7 +45,7 @@ public:
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
 	  */
-	void testRemove(const Devices& alreadyRemoved) const;
+	void testRemove(Devices alreadyRemoved) const;
 
 	/**
 	 * This method is called on reset.

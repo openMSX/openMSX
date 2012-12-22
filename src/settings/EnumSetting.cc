@@ -35,14 +35,14 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 	UNREACHABLE; return "";
 }
 
-std::set<std::string> EnumSettingPolicyBase::getPossibleValues() const
+std::vector<std::string> EnumSettingPolicyBase::getPossibleValues() const
 {
-	std::set<std::string> result;
+	std::vector<std::string> result;
 	for (auto& p : baseMap) {
 		try {
 			int value = p.second;
 			checkSetValueBase(value);
-			result.insert(p.first);
+			result.push_back(p.first);
 		} catch (MSXException&) {
 			// ignore
 		}
@@ -52,8 +52,8 @@ std::set<std::string> EnumSettingPolicyBase::getPossibleValues() const
 
 void EnumSettingPolicyBase::tabCompletionBase(std::vector<std::string>& tokens) const
 {
-	auto stringSet = getPossibleValues();
-	Completer::completeString(tokens, stringSet, false); // case insensitive
+	Completer::completeString(tokens, getPossibleValues(),
+	                          false); // case insensitive
 }
 
 void EnumSettingPolicyBase::additionalInfoBase(TclObject& result) const

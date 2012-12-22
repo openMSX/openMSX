@@ -27,7 +27,6 @@
 #include <cassert>
 
 using std::remove;
-using std::set;
 using std::string;
 using std::vector;
 
@@ -776,9 +775,9 @@ string SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
 void SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		set<string> devices;
+		vector<string_ref> devices;
 		for (auto& p : mixer.infos) {
-			devices.insert(p.first->getName());
+			devices.push_back(p.first->getName());
 		}
 		completeString(tokens, devices);
 	}

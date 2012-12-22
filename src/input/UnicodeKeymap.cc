@@ -100,8 +100,7 @@ static bool segmentStartsWith(const char* begin, const char* end, const char (&s
 UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 	: emptyInfo(KeyInfo())
 {
-	SystemFileContext context;
-	string filename = context.resolve(
+	string filename = SystemFileContext().resolve(
 		"unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);

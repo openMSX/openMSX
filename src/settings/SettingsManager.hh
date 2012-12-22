@@ -6,7 +6,7 @@
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
-#include <set>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -40,7 +40,7 @@ public:
 	Setting* findSetting(string_ref name) const;
 
 private:
-	std::set<std::string> getSettingNames() const;
+	std::vector<string_ref> getSettingNames() const;
 	Setting& getByName(string_ref cmd, string_ref name) const;
 
 	friend class SettingInfo;

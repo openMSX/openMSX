@@ -78,7 +78,7 @@ SettingsConfig::~SettingsConfig()
 	}
 }
 
-void SettingsConfig::loadSetting(FileContext& context, const string& filename)
+void SettingsConfig::loadSetting(const FileContext& context, const string& filename)
 {
 	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
@@ -89,7 +89,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 	setSaveFilename(context, filename);
 }
 
-void SettingsConfig::setSaveFilename(FileContext& context, const string& filename)
+void SettingsConfig::setSaveFilename(const FileContext& context, const string& filename)
 {
 	saveName = context.resolveCreate(filename);
 }
@@ -162,8 +162,7 @@ string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
 void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		SystemFileContext context;
-		completeFileName(tokens, context);
+		completeFileName(tokens, SystemFileContext());
 	}
 }
 
@@ -183,8 +182,7 @@ string LoadSettingsCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	SystemFileContext context;
-	settingsConfig.loadSetting(context, tokens[1]);
+	settingsConfig.loadSetting(SystemFileContext(), tokens[1]);
 	return "";
 }
 
@@ -196,8 +194,7 @@ string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
 void LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		SystemFileContext context;
-		completeFileName(tokens, context);
+		completeFileName(tokens, SystemFileContext());
 	}
 }
 

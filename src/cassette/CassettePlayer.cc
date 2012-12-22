@@ -58,7 +58,6 @@
 using std::unique_ptr;
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -651,8 +650,7 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result << "Changing tape";
-			UserFileContext context;
-			Filename filename(tokens[2], context);
+			Filename filename(tokens[2], UserFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -721,8 +719,7 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else {
 		try {
 			result << "Changing tape";
-			UserFileContext context;
-			Filename filename(tokens[1], context);
+			Filename filename(tokens[1], UserFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -815,25 +812,16 @@ string TapeCommand::help(const vector<string>& tokens) const
 void TapeCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> extra;
-		extra.insert("eject");
-		extra.insert("rewind");
-		extra.insert("motorcontrol");
-		extra.insert("insert");
-		extra.insert("new");
-		extra.insert("play");
-	//	extra.insert("record");
-		extra.insert("getpos");
-		extra.insert("getlength");
-		UserFileContext context;
-		completeFileName(tokens, context, extra);
+		static const char* const cmds[] = {
+			"eject", "rewind", "motorcontrol", "insert", "new",
+			"play", "getpos", "getlength",
+			//"record",
+		};
+		completeFileName(tokens, UserFileContext(), cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
-		UserFileContext context;
-		completeFileName(tokens, context);
+		completeFileName(tokens, UserFileContext());
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
-		set<string> extra;
-		extra.insert("on");
-		extra.insert("off");
+		static const char* const extra[] = { "on", "off" };
 		completeString(tokens, extra);
 	}
 }

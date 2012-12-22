@@ -28,7 +28,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 using std::shared_ptr;
 
 namespace openmsx {
@@ -1023,30 +1022,23 @@ string ReverseCmd::help(const vector<string>& /*tokens*/) const
 void ReverseCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> subCommands;
-		subCommands.insert("start");
-		subCommands.insert("stop");
-		subCommands.insert("status");
-		subCommands.insert("goback");
-		subCommands.insert("goto");
-		subCommands.insert("savereplay");
-		subCommands.insert("loadreplay");
-		subCommands.insert("viewonlymode");
-		subCommands.insert("truncatereplay");
+		static const char* const subCommands[] = {
+			"start", "stop", "status", "goback", "goto",
+			"savereplay", "loadreplay", "viewonlymode",
+			"truncatereplay",
+		};
 		completeString(tokens, subCommands);
 	} else if ((tokens.size() == 3) || (tokens[1] == "loadreplay")) {
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
-			std::set<string> cmds;
+			std::vector<const char*> cmds;
 			if (tokens[1] == "loadreplay") {
-				const char* const str[2] = { "-goto", "-viewonly" };
-				cmds = std::set<string>(str, str + 2);
+				cmds.push_back("-goto");
+				cmds.push_back("-viewonly");
 			}
 			UserDataFileContext context(REPLAY_DIR);
 			completeFileName(tokens, context, cmds);
 		} else if (tokens[1] == "viewonlymode") {
-			set<string> options;
-			options.insert("true");
-			options.insert("false");
+			static const char* const options[] = { "true", "false" };
 			completeString(tokens, options);
 		}
 	}

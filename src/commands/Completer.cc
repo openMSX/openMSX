@@ -11,7 +11,6 @@
 
 using std::vector;
 using std::string;
-using std::set;
 
 namespace openmsx {
 
@@ -32,17 +31,7 @@ const string& Completer::getName() const
 	return name;
 }
 
-static bool isEqual(string_ref s1, string_ref s2, bool caseSensitive)
-{
-	if (caseSensitive) {
-		return s1 == s2;
-	} else {
-		if (s1.size() != s2.size()) return false;
-		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
-	}
-}
-
-static bool formatHelper(const set<string>& input, unsigned columnLimit,
+static bool formatHelper(const vector<string_ref>& input, unsigned columnLimit,
                          vector<string>& result)
 {
 	unsigned column = 0;
@@ -53,7 +42,7 @@ static bool formatHelper(const set<string>& input, unsigned columnLimit,
 		     ++i, ++it) {
 			unsigned curSize = utf8::unchecked::size(result[i]);
 			result[i] += string(column - curSize, ' ');
-			result[i] += *it;
+			result[i] += it->str();
 			maxcolumn = std::max<unsigned>(maxcolumn,
 			                               utf8::unchecked::size(result[i]));
 			if (maxcolumn > columnLimit) return false;
@@ -63,7 +52,7 @@ static bool formatHelper(const set<string>& input, unsigned columnLimit,
 	return true;
 }
 
-static vector<string> format(const set<string>& input, unsigned columnLimit)
+static vector<string> format(const vector<string_ref>& input, unsigned columnLimit)
 {
 	vector<string> result;
 	for (unsigned lines = 1; lines < input.size(); ++lines) {
@@ -72,46 +61,46 @@ static vector<string> format(const set<string>& input, unsigned columnLimit)
 			return result;
 		}
 	}
-	result.assign(input.begin(), input.end());
+	for (auto& s : input) {
+		result.push_back(s.str());
+	}
 	return result;
 }
 
-bool Completer::completeString2(string& str, set<string>& st,
-                                bool caseSensitive)
+bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
 {
-	auto it = st.begin();
-	while (it != st.end()) {
-		if (isEqual(str,
-			    string_ref(*it).substr(0, string_ref::size_type(str.size())),
-			    caseSensitive)) {
-			++it;
-		} else {
-			auto it2 = it;
-			++it;
-			st.erase(it2);
-		}
+	if (s2.size() < s1.size()) return false;
+	if (caseSensitive) {
+		return memcmp(s1.data(), s2.data(), s1.size()) == 0;
+	} else {
+		return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 	}
-	if (st.empty()) {
-		// no matching commands
+}
+
+bool Completer::completeImpl(string& str, vector<string_ref> matches,
+                             bool caseSensitive)
+{
+	if (matches.empty()) {
+		// no matching values
 		return false;
 	}
-	if (st.size() == 1) {
+	if (matches.size() == 1) {
 		// only one match
-		str = *(st.begin());
+		str = matches.front().str();
 		return true;
 	}
+	sort(matches.begin(), matches.end());
 	bool expanded = false;
 	while (true) {
-		it = st.begin();
-		if (isEqual(str, *it, caseSensitive)) {
+		auto it = matches.begin();
+		if (str.size() == it->size()) {
 			// match is as long as first word
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		string_ref string2 = string_ref(*it).substr(0, string_ref::size_type(str.size()) + 1);
-		for (/**/; it != st.end(); ++it) {
-			if (!isEqual(string2, string_ref(*it).substr(0, string2.size()),
-				   caseSensitive)) {
+		auto string2 = it->substr(0, str.size() + 1);
+		for (/**/; it != matches.end(); ++it) {
+			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
 			}
 		}
@@ -122,31 +111,22 @@ bool Completer::completeString2(string& str, set<string>& st,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		for (auto& line : format(st, output->getOutputColumns() - 1)) {
+		for (auto& line : format(matches, output->getOutputColumns() - 1)) {
 			output->output(line);
 		}
 	}
 	return false;
 }
 
-void Completer::completeString(vector<string>& tokens, set<string>& st,
-                               bool caseSensitive)
-{
-	if (completeString2(tokens.back(), st, caseSensitive)) {
-		tokens.push_back("");
-	}
-}
-
 void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context)
 {
-	set<string> empty;
-	completeFileName(tokens, context, empty);
+	completeFileName(tokens, context, vector<string_ref>());
 }
 
 void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context,
-                                 const set<string>& extra)
+                                 vector<string_ref> matches)
 {
 	vector<string> paths(context.getPaths());
 
@@ -158,7 +138,7 @@ void Completer::completeFileName(vector<string>& tokens,
 		paths.push_back("");
 	}
 
-	set<string> filenames(extra);
+	vector<string> filenames;
 	for (auto& p : paths) {
 		string dirname = FileOperations::join(p, basename);
 		ReadDir dir(FileOperations::getNativePath(dirname));
@@ -169,11 +149,15 @@ void Completer::completeFileName(vector<string>& tokens,
 				if (FileOperations::isDirectory(name)) {
 					nm += '/';
 				}
-				filenames.insert(FileOperations::getConventionalPath(nm));
+				nm = FileOperations::getConventionalPath(nm);
+				if (equalHead(filename, nm, true)) {
+					filenames.push_back(nm);
+					matches.push_back(filenames.back());
+				}
 			}
 		}
 	}
-	bool t = completeString2(filename, filenames, true);
+	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token
 		tokens.push_back("");

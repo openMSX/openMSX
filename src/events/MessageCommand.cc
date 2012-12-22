@@ -52,7 +52,7 @@ void MessageCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		const char* const* levels = CliComm::getLevelStrings();
-		std::set<std::string> levelSet(levels, levels + CliComm::NUM_LEVELS);
+		std::vector<const char*> levelSet(levels, levels + CliComm::NUM_LEVELS);
 		completeString(tokens, levelSet);
 	}
 }

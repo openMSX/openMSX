@@ -15,7 +15,7 @@
 #endif
 
 using std::string;
-using std::set;
+using std::vector;
 
 namespace openmsx {
 
@@ -26,14 +26,14 @@ OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
 {
 }
 
-set<string> OSDRectangle::getProperties() const
+vector<string_ref> OSDRectangle::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
 		"-w", "-h", "-relw", "-relh", "-scale", "-image",
 		"-bordersize", "-relbordersize", "-borderrgba",
 	};
-	result.insert(std::begin(vals), std::end(vals));
+	result.insert(result.end(), std::begin(vals), std::end(vals));
 	return result;
 }
 
@@ -184,8 +184,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDRectangle::create(
 		assert(bs >= 0);
 		return make_unique<IMAGE>(sw, sh, getRGBA4(), bs, borderRGBA);
 	} else {
-		SystemFileContext context;
-		string file = context.resolve(imageName);
+		string file = SystemFileContext().resolve(imageName);
 		if (takeImageDimensions()) {
 			double factor = getScaleFactor(output) * scale;
 			return make_unique<IMAGE>(file, factor);

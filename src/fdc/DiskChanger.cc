@@ -30,7 +30,6 @@
 #include "memory.hh"
 #include <functional>
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -322,12 +321,10 @@ string DiskCommand::help(const vector<string>& /*tokens*/) const
 void DiskCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
-		set<string> extra;
-		extra.insert("eject");
-		extra.insert("ramdsk");
-		extra.insert("insert");
-		UserFileContext context;
-		completeFileName(tokens, context, extra);
+		static const char* const extra[] = {
+			"eject", "ramdsk", "insert",
+		};
+		completeFileName(tokens, UserFileContext(), extra);
 	}
 }
 

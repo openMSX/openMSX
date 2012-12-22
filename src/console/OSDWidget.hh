@@ -7,7 +7,6 @@
 #include "string_ref.hh"
 #include <vector>
 #include <memory>
-#include <set>
 
 namespace openmsx {
 
@@ -34,7 +33,7 @@ public:
 	void addWidget(const std::shared_ptr<OSDWidget>& widget);
 	void deleteWidget(OSDWidget& widget);
 
-	virtual std::set<std::string> getProperties() const;
+	virtual std::vector<string_ref> getProperties() const;
 	virtual void setProperty(string_ref name, const TclObject& value);
 	virtual void getProperty(string_ref name, TclObject& result) const;
 	virtual double getRecursiveFadeValue() const;
@@ -72,7 +71,7 @@ private:
 	void resortDown(OSDWidget* elem);
 
 	void listWidgetNames(const std::string& parentName,
-	                     std::set<std::string>& result) const;
+	                     std::vector<std::string>& result) const;
 	friend class OSDCommand;
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.

@@ -4,11 +4,9 @@
 #include "CommandException.hh"
 #include "Completer.hh"
 #include "StringOp.hh"
-#include <set>
 
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -42,13 +40,10 @@ string_ref BooleanSettingPolicy::getTypeString() const
 
 void BooleanSettingPolicy::tabCompletion(vector<string>& tokens) const
 {
-	set<string> values;
-	values.insert("true");
-	values.insert("on");
-	values.insert("yes");
-	values.insert("false");
-	values.insert("off");
-	values.insert("no");
+	static const char* const values[] = {
+		"true",  "on",  "yes",
+		"false", "off", "no",
+	};
 	Completer::completeString(tokens, values, false); // case insensitive
 }
 

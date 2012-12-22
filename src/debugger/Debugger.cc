@@ -21,11 +21,12 @@
 #include <cassert>
 
 using std::map;
-using std::set;
 using std::shared_ptr;
 using std::make_shared;
 using std::string;
 using std::vector;
+using std::begin;
+using std::end;
 
 namespace openmsx {
 
@@ -64,9 +65,9 @@ private:
 	                      TclObject& result);
 	void listBreakPoints(const vector<TclObject>& tokens,
 	                     TclObject& result);
-	set<string> getBreakPointIdsAsStringSet() const;
-	set<string> getWatchPointIdsAsStringSet() const;
-	set<string> getConditionIdsAsStringSet() const;
+	vector<string> getBreakPointIds() const;
+	vector<string> getWatchPointIds() const;
+	vector<string> getConditionIds() const;
 	void setWatchPoint(const vector<TclObject>& tokens,
 	                   TclObject& result);
 	void removeWatchPoint(const vector<TclObject>& tokens,
@@ -150,11 +151,11 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 	return *result;
 }
 
-set<string> Debugger::getDebuggables() const
+vector<string_ref> Debugger::getDebuggables() const
 {
-	set<string> result;
+	vector<string_ref> result;
 	for (auto& p : debuggables) {
-		result.insert(p.first().str());
+		result.push_back(p.first());
 	}
 	return result;
 }
@@ -189,11 +190,11 @@ ProbeBase& Debugger::getProbe(string_ref name)
 	return *result;
 }
 
-set<string> Debugger::getProbes() const
+vector<string_ref> Debugger::getProbes() const
 {
-	set<string> result;
+	vector<string_ref> result;
 	for (auto& p : probes) {
-		result.insert(p.first().str());
+		result.push_back(p.first());
 	}
 	return result;
 }
@@ -1126,106 +1127,87 @@ string DebugCmd::help(const vector<string>& tokens) const
 	}
 }
 
-set<string> DebugCmd::getBreakPointIdsAsStringSet() const
+vector<string> DebugCmd::getBreakPointIds() const
 {
-	set<string> bpids;
+	vector<string> bpids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& p : interface.getBreakPoints()) {
-		bpids.insert(StringOp::Builder() << "bp#" << p.second->getId());
+		bpids.push_back(StringOp::Builder() << "bp#" << p.second->getId());
 	}
 	return bpids;
 }
-set<string> DebugCmd::getWatchPointIdsAsStringSet() const
+vector<string> DebugCmd::getWatchPointIds() const
 {
-	set<string> wpids;
+	vector<string> wpids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& w : interface.getWatchPoints()) {
-		wpids.insert(StringOp::Builder() << "wp#" << w->getId());
+		wpids.push_back(StringOp::Builder() << "wp#" << w->getId());
 	}
 	return wpids;
 }
-set<string> DebugCmd::getConditionIdsAsStringSet() const
+vector<string> DebugCmd::getConditionIds() const
 {
-	set<string> condids;
+	vector<string> condids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		condids.insert(StringOp::Builder() << "cond#" << c->getId());
+		condids.push_back(StringOp::Builder() << "cond#" << c->getId());
 	}
 	return condids;
 }
 
 void DebugCmd::tabCompletion(vector<string>& tokens) const
 {
-	set<string> singleArgCmds;
-	singleArgCmds.insert("list");
-	singleArgCmds.insert("step");
-	singleArgCmds.insert("cont");
-	singleArgCmds.insert("break");
-	singleArgCmds.insert("breaked");
-	singleArgCmds.insert("list_bp");
-	singleArgCmds.insert("list_watchpoints");
-	singleArgCmds.insert("list_conditions");
-	set<string> debuggableArgCmds;
-	debuggableArgCmds.insert("desc");
-	debuggableArgCmds.insert("size");
-	debuggableArgCmds.insert("read");
-	debuggableArgCmds.insert("read_block");
-	debuggableArgCmds.insert("write");
-	debuggableArgCmds.insert("write_block");
-	set<string> otherCmds;
-	otherCmds.insert("disasm");
-	otherCmds.insert("set_bp");
-	otherCmds.insert("remove_bp");
-	otherCmds.insert("set_watchpoint");
-	otherCmds.insert("remove_watchpoint");
-	otherCmds.insert("set_condition");
-	otherCmds.insert("remove_condition");
-	otherCmds.insert("probe");
+	static const char* const singleArgCmds[] = {
+		"list", "step", "cont", "break", "breaked",
+		"list_bp", "list_watchpoints", "list_conditions",
+	};
+	static const char* const debuggableArgCmds[] = {
+		"desc", "size", "read", "read_block",
+		"write", "write_block",
+	};
+	static const char* const otherCmds[] = {
+		"disasm", "set_bp", "remove_bp", "set_watchpoint",
+		"remove_watchpoint", "set_condition", "remove_condition",
+		"probe",
+	};
 	switch (tokens.size()) {
 	case 2: {
-		set<string> cmds;
-		cmds.insert(singleArgCmds.begin(), singleArgCmds.end());
-		cmds.insert(debuggableArgCmds.begin(), debuggableArgCmds.end());
-		cmds.insert(otherCmds.begin(), otherCmds.end());
+		vector<const char*> cmds;
+		cmds.insert(end(cmds), begin(singleArgCmds),     end(singleArgCmds));
+		cmds.insert(end(cmds), begin(debuggableArgCmds), end(debuggableArgCmds));
+		cmds.insert(end(cmds), begin(otherCmds),         end(otherCmds));
 		completeString(tokens, cmds);
 		break;
 	}
 	case 3:
-		if (singleArgCmds.find(tokens[1]) ==
-				singleArgCmds.end()) {
+		if (find(begin(singleArgCmds), end(singleArgCmds), tokens[1]) ==
+		    end(singleArgCmds)) {
 			// this command takes (an) argument(s)
-			if (debuggableArgCmds.find(tokens[1]) !=
-				debuggableArgCmds.end()) {
+			if (find(begin(debuggableArgCmds), end(debuggableArgCmds),
+			         tokens[1]) !=
+			    end(debuggableArgCmds)) {
 				// it takes a debuggable here
-				auto debuggables = debugger.getDebuggables();
-				completeString(tokens, debuggables);
+				completeString(tokens, debugger.getDebuggables());
 			} else if (tokens[1] == "remove_bp") {
 				// this one takes a bp id
-				set<string> bpids = getBreakPointIdsAsStringSet();
-				completeString(tokens, bpids);
+				completeString(tokens, getBreakPointIds());
 			} else if (tokens[1] == "remove_watchpoint") {
 				// this one takes a wp id
-				set<string> wpids = getWatchPointIdsAsStringSet();
-				completeString(tokens, wpids);
+				completeString(tokens, getWatchPointIds());
 			} else if (tokens[1] == "remove_condition") {
 				// this one takes a cond id
-				set<string> condids = getConditionIdsAsStringSet();
-				completeString(tokens, condids);
+				completeString(tokens, getConditionIds());
 			} else if (tokens[1] == "set_watchpoint") {
-				set<string> types;
-				types.insert("write_io");
-				types.insert("write_mem");
-				types.insert("read_io");
-				types.insert("read_mem");
+				static const char* const types[] = {
+					"write_io", "write_mem",
+					"read_io", "read_mem",
+				};
 				completeString(tokens, types);
 			} else if (tokens[1] == "probe") {
-				set<string> subCmds;
-				subCmds.insert("list");
-				subCmds.insert("desc");
-				subCmds.insert("read");
-				subCmds.insert("set_bp");
-				subCmds.insert("remove_bp");
-				subCmds.insert("list_bp");
+				static const char* const subCmds[] = {
+					"list", "desc", "read", "set_bp",
+					"remove_bp", "list_bp",
+				};
 				completeString(tokens, subCmds);
 			}
 		}
@@ -1234,8 +1216,7 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "probe") &&
 		    ((tokens[2] == "desc") || (tokens[2] == "read") ||
 		     (tokens[2] == "set_bp"))) {
-			auto probes = debugger.getProbes();
-			completeString(tokens, probes);
+			completeString(tokens, debugger.getProbes());
 		}
 		break;
 	}

@@ -11,7 +11,6 @@
 #include "memory.hh"
 #include <cassert>
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -92,11 +91,11 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 // Helper functions for setting commands
 
-set<string> SettingsManager::getSettingNames() const
+vector<string_ref> SettingsManager::getSettingNames() const
 {
-	set<string> result;
+	vector<string_ref> result;
 	for (auto& p : settingsMap) {
-		result.insert(p.first().str());
+		result.push_back(p.first());
 	}
 	return result;
 }
@@ -196,8 +195,7 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 	case 3: { // complete setting name
-		auto settings = manager.getSettingNames();
-		completeString(tokens, settings);
+		completeString(tokens, manager.getSettingNames());
 		break;
 	}
 	}
@@ -229,8 +227,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		auto settings = manager.getSettingNames();
-		completeString(tokens, settings, false); // case insensitive
+		completeString(tokens, manager.getSettingNames(), false); // case insensitive
 		break;
 	}
 	case 3: {
@@ -265,8 +262,7 @@ void SettingCompleter::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete setting name
-		auto settings = manager.getSettingNames();
-		completeString(tokens, settings);
+		completeString(tokens, manager.getSettingNames());
 		break;
 	}
 	}

@@ -30,7 +30,6 @@
 #include "memory.hh"
 #include <tcl.h>
 #include <cstdio>
-#include <set>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -330,23 +329,24 @@ void MSXCPUInterface::setExpanded(int ps)
 }
 
 void MSXCPUInterface::testUnsetExpanded(
-		int ps, vector<MSXDevice*>& alreadyRemoved) const
+		int ps, vector<MSXDevice*> allowed) const
 {
 	// TODO handle multi-devices
-	std::set<MSXDevice*> allowed(alreadyRemoved.begin(), alreadyRemoved.end());
-	allowed.insert(dummyDevice.get());
+	allowed.push_back(dummyDevice.get());
+	sort(allowed.begin(), allowed.end()); // for set_difference()
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
-	std::set<MSXDevice*> inUse;
+	std::vector<MSXDevice*> inUse;
 	for (int ss = 0; ss < 4; ++ss) {
 		for (int page = 0; page < 4; ++page) {
 			MSXDevice* device = slotLayout[ps][ss][page];
-			std::set<MSXDevice*> devices;
+			std::vector<MSXDevice*> devices;
 			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
+				sort(devices.begin(), devices.end()); // for set_difference()
 			} else {
-				devices.insert(device);
+				devices.push_back(device);
 			}
 			std::set_difference(devices.begin(), devices.end(),
 			                    allowed.begin(), allowed.end(),

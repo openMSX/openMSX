@@ -12,8 +12,7 @@ FilenameSettingPolicy::FilenameSettingPolicy()
 
 void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) const
 {
-	SystemFileContext context;
-	Completer::completeFileName(tokens, context);
+	Completer::completeFileName(tokens, SystemFileContext());
 }
 
 string_ref FilenameSettingPolicy::getTypeString() const

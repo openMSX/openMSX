@@ -20,7 +20,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -385,8 +384,7 @@ void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result
 			}
 		}
 		try {
-			UserFileContext context;
-			string filename = context.resolve(
+			string filename = UserFileContext().resolve(
 				tokens[fileToken].getString().str());
 			cd.insert(filename);
 			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
@@ -409,11 +407,8 @@ string CDXCommand::help(const vector<string>& /*tokens*/) const
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
-	extra.insert("eject");
-	extra.insert("insert");
-	UserFileContext context;
-	completeFileName(tokens, context, extra);
+	static const char* const extra[] = { "eject", "insert" };
+	completeFileName(tokens, UserFileContext(), extra);
 }
 
 

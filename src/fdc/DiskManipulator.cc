@@ -21,7 +21,6 @@
 #include <cassert>
 #include <ctype.h>
 
-using std::set;
 using std::string;
 using std::vector;
 using std::unique_ptr;
@@ -283,28 +282,22 @@ string DiskManipulator::help(const vector<string>& tokens) const
 void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> cmds;
-		cmds.insert("import");
-		cmds.insert("export");
-		cmds.insert("savedsk");
-		cmds.insert("dir");
-		cmds.insert("create");
-		cmds.insert("format");
-		cmds.insert("chdir");
-		cmds.insert("mkdir");
+		static const char* const cmds[] = {
+			"import", "export", "savedsk", "dir", "create",
+			"format", "chdir", "mkdir",
+		};
 		completeString(tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		UserFileContext context;
-		completeFileName(tokens, context);
+		completeFileName(tokens, UserFileContext());
 
 	} else if (tokens.size() == 3) {
-		set<string> names;
+		vector<string> names;
 		for (auto& d : drives) {
 			string name1 = d.driveName; // with prexix
 			string name2 = d.drive->getContainerName(); // without prefix
-			names.insert(name1);
-			names.insert(name2);
+			names.push_back(name1);
+			names.push_back(name2);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (SectorAccessibleDisk* disk =
@@ -312,8 +305,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
-						names.insert(name1 + StringOp::toString(i));
-						names.insert(name2 + StringOp::toString(i));
+						names.push_back(name1 + StringOp::toString(i));
+						names.push_back(name2 + StringOp::toString(i));
 					} catch (MSXException&) {
 						// skip invalid partition
 					}
@@ -326,13 +319,11 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "savedsk") ||
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
-			UserFileContext context;
-			completeFileName(tokens, context);
+			completeFileName(tokens, UserFileContext());
 		} else if (tokens[1] == "create") {
-			set<string> cmds;
-			cmds.insert("360");
-			cmds.insert("720");
-			cmds.insert("32M");
+			static const char* const cmds[] = {
+				"360", "720", "32M",
+			};
 			completeString(tokens, cmds);
 		}
 	}

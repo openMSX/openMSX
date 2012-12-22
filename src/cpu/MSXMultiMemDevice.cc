@@ -78,11 +78,11 @@ bool MSXMultiMemDevice::empty() const
 	return ranges.size() == 1;
 }
 
-std::set<MSXDevice*> MSXMultiMemDevice::getDevices() const
+std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
-	std::set<MSXDevice*> result;
+	std::vector<MSXDevice*> result;
 	for (unsigned i = 0; i < (ranges.size() - 1); ++i) {
-		result.insert(ranges[i].device);
+		result.push_back(ranges[i].device);
 	}
 	return result;
 }

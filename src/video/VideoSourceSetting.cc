@@ -10,25 +10,31 @@ VideoSourceSettingPolicy::VideoSourceSettingPolicy(const Map& map)
 {
 }
 
+bool VideoSourceSettingPolicy::has(VideoSource value) const
+{
+	return find(activeSources.begin(), activeSources.end(), value)
+	       != activeSources.end();
+}
+
 void VideoSourceSettingPolicy::checkSetValue(VideoSource& value) const
 {
-	if (activeSources.find(value) == activeSources.end()) {
+	if (!has(value)) {
 		throw CommandException("video source not available");
 	}
 }
 
 VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
 {
-	if (activeSources.find(value) != activeSources.end()) {
+	if (has(value)) {
 		return value;
-	} else if (activeSources.find(VIDEO_9000) != activeSources.end()) {
+	} else if (has(VIDEO_9000)) {
 		// prefer video9000 over v99x8
 		return VIDEO_9000;
-	} else if (activeSources.find(VIDEO_MSX) != activeSources.end()) {
+	} else if (has(VIDEO_MSX)) {
 		return VIDEO_MSX;
-	} else if (activeSources.find(VIDEO_GFX9000) != activeSources.end()) {
+	} else if (has(VIDEO_GFX9000)) {
 		return VIDEO_GFX9000;
-	} else if (activeSources.find(VIDEO_LASERDISC) != activeSources.end()) {
+	} else if (has(VIDEO_LASERDISC)) {
 		return VIDEO_LASERDISC;
 	} else {
 		// happens during loading of setting
@@ -57,14 +63,14 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 
 void VideoSourceSetting::registerVideoSource(VideoSource source)
 {
-	activeSources.insert(source);
+	activeSources.push_back(source);
 	notify();
 	notifyPropertyChange();
 }
 
 void VideoSourceSetting::unregisterVideoSource(VideoSource source)
 {
-	auto it = activeSources.find(source);
+	auto it = find(activeSources.begin(), activeSources.end(), source);
 	assert(it != activeSources.end());
 	activeSources.erase(it);
 	notify();

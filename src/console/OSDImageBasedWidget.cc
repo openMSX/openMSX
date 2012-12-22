@@ -12,7 +12,7 @@
 #include <cassert>
 
 using std::string;
-using std::set;
+using std::vector;
 
 namespace openmsx {
 
@@ -34,14 +34,14 @@ OSDImageBasedWidget::~OSDImageBasedWidget()
 {
 }
 
-set<string> OSDImageBasedWidget::getProperties() const
+vector<string_ref> OSDImageBasedWidget::getProperties() const
 {
 	auto result = OSDWidget::getProperties();
 	static const char* const vals[] = {
 		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
 		"-fadeCurrent",
 	};
-	result.insert(std::begin(vals), std::end(vals));
+	result.insert(result.end(), std::begin(vals), std::end(vals));
 	return result;
 }
 

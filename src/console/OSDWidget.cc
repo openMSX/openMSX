@@ -14,7 +14,7 @@
 #include <limits>
 
 using std::string;
-using std::set;
+using std::vector;
 using std::shared_ptr;
 
 namespace openmsx {
@@ -254,13 +254,13 @@ void OSDWidget::resortDown(OSDWidget* elem)
 #endif
 }
 
-set<string> OSDWidget::getProperties() const
+vector<string_ref> OSDWidget::getProperties() const
 {
 	static const char* const vals[] = {
 		"-type", "-x", "-y", "-z", "-relx", "-rely", "-scaled",
 		"-clip", "-mousecoord", "-suppressErrors",
 	};
-	return set<string>(std::begin(vals), std::end(vals));
+	return vector<string_ref>(std::begin(vals), std::end(vals));
 }
 
 void OSDWidget::setProperty(string_ref name, const TclObject& value)
@@ -505,13 +505,13 @@ void OSDWidget::getBoundingBox(const OutputRectangle& output,
 	h = int(y2 - y1 + 0.5);
 }
 
-void OSDWidget::listWidgetNames(const string& parentName, set<string>& result) const
+void OSDWidget::listWidgetNames(const string& parentName, vector<string>& result) const
 {
 	string pname = parentName;
 	if (!pname.empty()) pname += '.';
 	for (auto& s : subWidgets) {
 		string name = pname + s->getName();
-		result.insert(name);
+		result.push_back(name);
 		s->listWidgetNames(name, result);
 	}
 }

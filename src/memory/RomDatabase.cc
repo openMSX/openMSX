@@ -504,8 +504,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 		commandController.getOpenMSXInfoCommand(), *this))
 {
 	UnknownTypes unknownTypes;
-	SystemFileContext context; // first user- then system-directory
-	vector<string> paths = context.getPaths();
+	// first user- then system-directory
+	vector<string> paths = SystemFileContext().getPaths();
 	for (auto& p : paths) {
 		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {

@@ -5,7 +5,7 @@
 
 #include "MSXDevice.hh"
 #include <memory>
-#include <set>
+#include <vector>
 
 namespace openmsx {
 
@@ -47,7 +47,7 @@ private:
 
 	friend class MapperIODebuggable;
 	const std::unique_ptr<MapperIODebuggable> debuggable;
-	std::multiset<unsigned> mapperSizes;
+	std::vector<unsigned> mapperSizes;
 	byte registers[4];
 
 	/**

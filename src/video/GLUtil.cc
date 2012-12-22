@@ -212,8 +212,7 @@ bool PixelBuffers::enabled = true;
 #ifdef GL_VERSION_2_0
 static string readTextFile(const string& filename)
 {
-	SystemFileContext context;
-	File file(context.resolve(filename));
+	File file(SystemFileContext().resolve(filename));
 	unsigned size;
 	const byte* data = file.mmap(size);
 	return string(reinterpret_cast<const char*>(data), size);

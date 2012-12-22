@@ -35,14 +35,14 @@ OSDText::~OSDText()
 {
 }
 
-std::set<string> OSDText::getProperties() const
+vector<string_ref> OSDText::getProperties() const
 {
 	auto result = OSDImageBasedWidget::getProperties();
 	static const char* const vals[] = {
 		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
 		"-query-size",
 	};
-	result.insert(std::begin(vals), std::end(vals));
+	result.insert(result.end(), std::begin(vals), std::end(vals));
 	return result;
 }
 
@@ -59,8 +59,7 @@ void OSDText::setProperty(string_ref name, const TclObject& value)
 	} else if (name == "-font") {
 		string val = value.getString().str();
 		if (fontfile != val) {
-			SystemFileContext context;
-			string file = context.resolve(val);
+			string file = SystemFileContext().resolve(val);
 			if (!FileOperations::isRegularFile(file)) {
 				throw CommandException("Not a valid font file: " + val);
 			}
@@ -181,8 +180,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	int scale = getScaleFactor(output);
 	if (!font.get()) {
 		try {
-			SystemFileContext context;
-			string file = context.resolve(fontfile);
+			string file = SystemFileContext().resolve(fontfile);
 			int ptSize = size * scale;
 			font = make_unique<TTFFont>(file, ptSize);
 		} catch (MSXException& e) {

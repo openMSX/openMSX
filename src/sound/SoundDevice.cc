@@ -19,10 +19,8 @@
 #include "build-info.hh"
 #include <cstring>
 #include <cassert>
-#include <set>
 
 using std::string;
-using std::set;
 
 namespace openmsx {
 

@@ -27,7 +27,6 @@
 using std::unique_ptr;
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -104,13 +103,10 @@ string LaserdiscCommand::help(const vector<string>& tokens) const
 void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> extra;
-		extra.insert("eject");
-		extra.insert("insert");
+		static const char* const extra[] = { "eject", "insert" };
 		completeString(tokens, extra);
 	} else if (tokens.size() == 3 && tokens[1] == "insert") {
-		UserFileContext context;
-		completeFileName(tokens, context);
+		completeFileName(tokens, UserFileContext());
 	}
 }
 
@@ -681,8 +677,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
 {
 	stop(time);
-	UserFileContext context;
-	oggImage = Filename(newImage, context);
+	oggImage = Filename(newImage, UserFileContext());
 	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();

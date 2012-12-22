@@ -8,7 +8,7 @@
 #include <map>
 
 using std::map;
-using std::set;
+using std::vector;
 using std::string;
 using std::pair;
 
@@ -198,12 +198,12 @@ string_ref RomInfo::romTypeToName(RomType type)
 	UNREACHABLE; return "";
 }
 
-set<string> RomInfo::getAllRomTypes()
+vector<string> RomInfo::getAllRomTypes()
 {
-	set<string> result;
+	vector<string> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
-			result.insert(p.first.str());
+			result.push_back(p.first.str());
 		}
 	}
 	return result;

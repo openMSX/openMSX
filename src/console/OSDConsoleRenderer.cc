@@ -279,8 +279,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 
 void OSDConsoleRenderer::loadFont(const string& value)
 {
-	SystemFileContext context;
-	string filename = context.resolve(value);
+	string filename = SystemFileContext().resolve(value);
 	font = make_unique<TTFFont>(filename, fontSizeSetting->getValue());
 }
 
@@ -290,8 +289,7 @@ void OSDConsoleRenderer::loadBackground(const string& value)
 		backgroundImage.reset();
 		return;
 	}
-	SystemFileContext context;
-	string filename = context.resolve(value);
+	string filename = SystemFileContext().resolve(value);
 	if (!openGL) {
 		backgroundImage = make_unique<SDLImage>(filename, destW, destH);
 	}

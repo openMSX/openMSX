@@ -298,8 +298,7 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	bool processed = parseFileNameInner(arg, arg, cmdLine);
 	if (!processed) {
 		try {
-			UserFileContext context;
-			File file(context.resolve(arg));
+			File file(UserFileContext().resolve(arg));
 			string originalName = file.getOriginalName();
 			processed = parseFileNameInner(originalName, arg, cmdLine);
 		} catch (FileException&) {
@@ -714,9 +713,8 @@ void SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 	}
 	try {
 		SettingsConfig& settingsConfig = parser.reactor.getGlobalCommandController().getSettingsConfig();
-		CurrentDirFileContext context;
 		settingsConfig.loadSetting(
-			context, getArgument(option, cmdLine));
+			CurrentDirFileContext(), getArgument(option, cmdLine));
 		parser.haveSettings = true;
 	} catch (FileException& e) {
 		throw FatalError(e.getMessage());
@@ -824,7 +822,7 @@ void BashOption::parseOption(const string& /*option*/,
 	string last = cmdLine.empty() ? "" : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 
-	set<string> items;
+	vector<string> items;
 	if (last == "-machine") {
 		items = Reactor::getHwConfigs("machines");
 	} else if (last == "-ext") {
@@ -833,7 +831,7 @@ void BashOption::parseOption(const string& /*option*/,
 		items = RomInfo::getAllRomTypes();
 	} else {
 		for (auto& p : parser.optionMap) {
-			items.insert(p.first);
+			items.push_back(p.first);
 		}
 	}
 	for (auto& s : items) {

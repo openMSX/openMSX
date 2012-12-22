@@ -5,7 +5,7 @@
 
 #include "VideoSource.hh"
 #include "EnumSetting.hh"
-#include <set>
+#include <vector>
 
 namespace openmsx {
 
@@ -16,9 +16,12 @@ protected:
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 
-	// TODO should this be a multiset or should we have this setting
-	//      per machine?
-	std::multiset<VideoSource> activeSources;
+	// TODO currently we allow duplicates, should we instead have this
+	//      setting per machine?
+	std::vector<VideoSource> activeSources;
+
+private:
+	bool has(VideoSource value) const;
 };
 
 

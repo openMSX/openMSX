@@ -50,7 +50,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 using std::make_shared;
 
 namespace openmsx {
@@ -350,11 +349,10 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 	return globalCommandController->getOpenMSXInfoCommand();
 }
 
-set<string> Reactor::getHwConfigs(string_ref type)
+vector<string> Reactor::getHwConfigs(string_ref type)
 {
-	set<string> result;
-	SystemFileContext context;
-	for (auto& p : context.getPaths()) {
+	vector<string> result;
+	for (auto& p : SystemFileContext().getPaths()) {
 		string path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
 		while (dirent* d = configsDir.getEntry()) {
@@ -363,10 +361,13 @@ set<string> Reactor::getHwConfigs(string_ref type)
 			string config = FileOperations::join(dir, "hardwareconfig.xml");
 			if (FileOperations::isDirectory(dir) &&
 			    FileOperations::isRegularFile(config)) {
-				result.insert(name);
+				result.push_back(name);
 			}
 		}
 	}
+	// remove duplicates
+	sort(result.begin(), result.end());
+	result.erase(unique(result.begin(), result.end()), result.end());
 	return result;
 }
 
@@ -396,11 +397,11 @@ string Reactor::getMachineID() const
 	return activeBoard.get() ? activeBoard->getMachineID() : "";
 }
 
-set<string> Reactor::getMachineIDs() const
+vector<string_ref> Reactor::getMachineIDs() const
 {
-	set<string> result;
+	vector<string_ref> result;
 	for (auto& b : boards) {
-		result.insert(b->getMachineID());
+		result.push_back(b->getMachineID());
 	}
 	return result;
 }
@@ -542,8 +543,8 @@ void Reactor::run(CommandLineParser& parser)
 
 	// execute init.tcl
 	try {
-		PreferSystemFileContext context;
-		commandController.source(context.resolve("init.tcl"));
+		commandController.source(
+			PreferSystemFileContext().resolve("init.tcl"));
 	} catch (FileException&) {
 		// no init.tcl, ignore
 	}
@@ -551,8 +552,7 @@ void Reactor::run(CommandLineParser& parser)
 	// execute startup scripts
 	for (auto& s : parser.getStartupScripts()) {
 		try {
-			UserFileContext context;
-			commandController.source(context.resolve(s));
+			commandController.source(UserFileContext().resolve(s));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
@@ -742,8 +742,7 @@ string MachineCommand::help(const vector<string>& /*tokens*/) const
 
 void MachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	auto machines = Reactor::getHwConfigs("machines");
-	completeString(tokens, machines);
+	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -779,8 +778,7 @@ string TestMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	auto machines = Reactor::getHwConfigs("machines");
-	completeString(tokens, machines);
+	completeString(tokens, Reactor::getHwConfigs("machines"));
 }
 
 
@@ -841,8 +839,7 @@ string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	auto ids = reactor.getMachineIDs();
-	completeString(tokens, ids);
+	completeString(tokens, reactor.getMachineIDs());
 }
 
 
@@ -899,8 +896,7 @@ string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	auto ids = reactor.getMachineIDs();
-	completeString(tokens, ids);
+	completeString(tokens, reactor.getMachineIDs());
 }
 
 
@@ -953,8 +949,7 @@ string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void StoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	auto ids = reactor.getMachineIDs();
-	completeString(tokens, ids);
+	completeString(tokens, reactor.getMachineIDs());
 }
 
 
@@ -1034,10 +1029,8 @@ string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> defaults;
-	// TODO: put the default files in defaults (state files in user's savestates dir)
-	UserFileContext context;
-	completeFileName(tokens, context, defaults);
+	// TODO: add the default files (state files in user's savestates dir)
+	completeFileName(tokens, UserFileContext());
 }
 
 
@@ -1112,8 +1105,7 @@ string ConfigInfo::help(const vector<string>& /*tokens*/) const
 
 void ConfigInfo::tabCompletion(vector<string>& tokens) const
 {
-	auto configs = Reactor::getHwConfigs(configName);
-	completeString(tokens, configs);
+	completeString(tokens, Reactor::getHwConfigs(configName));
 }
 
 

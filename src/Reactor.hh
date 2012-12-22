@@ -10,7 +10,6 @@
 #include "string_ref.hh"
 #include <string>
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace openmsx {
@@ -91,7 +90,7 @@ public:
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
-	static std::set<std::string> getHwConfigs(string_ref type);
+	static std::vector<std::string> getHwConfigs(string_ref type);
 
 	void block();
 	void unblock();
@@ -114,7 +113,7 @@ private:
 	void switchBoard(const Board& newBoard);
 	void deleteBoard(Board board);
 	Board getMachine(const std::string& machineID) const;
-	std::set<std::string> getMachineIDs() const;
+	std::vector<string_ref> getMachineIDs() const;
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

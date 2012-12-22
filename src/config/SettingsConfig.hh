@@ -25,10 +25,10 @@ public:
 	               HotKey& hotKey);
 	~SettingsConfig();
 
-	void loadSetting(FileContext& context, const std::string& filename);
+	void loadSetting(const FileContext& context, const std::string& filename);
 	void saveSetting(const std::string& filename = "");
 	void setSaveSettings(bool save);
-	void setSaveFilename(FileContext& context, const std::string& filename);
+	void setSaveFilename(const FileContext& context, const std::string& filename);
 
 	SettingsManager& getSettingsManager();
 	XMLElement& getXMLElement();

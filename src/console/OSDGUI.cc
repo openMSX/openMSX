@@ -16,7 +16,6 @@
 #include <cassert>
 
 using std::string;
-using std::set;
 using std::shared_ptr;
 using std::vector;
 
@@ -176,7 +175,7 @@ void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
 	switch (tokens.size()) {
 	case 2: {
 		// list widget names
-		set<string> names;
+		vector<string> names;
 		gui.getTopWidget().listWidgetNames("", names);
 		result.addListElements(names);
 		break;
@@ -297,26 +296,21 @@ string OSDCommand::help(const vector<string>& tokens) const
 void OSDCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> cmds;
-		cmds.insert("create");
-		cmds.insert("destroy");
-		cmds.insert("info");
-		cmds.insert("exists");
-		cmds.insert("configure");
+		static const char* const cmds[] = {
+			"create", "destroy", "info", "exists", "configure"
+		};
 		completeString(tokens, cmds);
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		set<string> types;
-		types.insert("rectangle");
-		types.insert("text");
+		static const char* const types[] = { "rectangle", "text" };
 		completeString(tokens, types);
 	} else if ((tokens.size() == 3) ||
 	           ((tokens.size() == 4) && (tokens[1] == "create"))) {
-		set<string> names;
+		vector<string> names;
 		gui.getTopWidget().listWidgetNames("", names);
 		completeString(tokens, names);
 	} else {
 		try {
-			set<string> properties;
+			vector<string_ref> properties;
 			if (tokens[1] == "create") {
 				shared_ptr<OSDWidget> widget = create(tokens[2], "");
 				properties = widget->getProperties();

@@ -6,7 +6,6 @@
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
 #include <map>
-#include <set>
 
 namespace openmsx {
 
@@ -16,7 +15,7 @@ class TclObject;
 class EnumSettingPolicyBase
 {
 public:
-	std::set<std::string> getPossibleValues() const;
+	std::vector<std::string> getPossibleValues() const;
 
 protected:
 	virtual ~EnumSettingPolicyBase() {}

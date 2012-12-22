@@ -18,7 +18,6 @@
 //#include <tk.h>
 #include "openmsx.hh"
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -200,19 +199,9 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 //   - build-in Tcl commands
 //   - openmsx commands
 //   - user-defined procs
-set<string> Interpreter::getCommandNames()
+vector<string> Interpreter::getCommandNames()
 {
-	string list = execute("info commands");
-
-	int argc;
-	const char** argv;
-	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) != TCL_OK) {
-		// return {};
-		return set<string>();
-	}
-	set<string> result(&argv[0], &argv[argc]);
-	Tcl_Free(reinterpret_cast<char*>(argv));
-	return result;
+	return splitList(execute("info commands"), interp);
 }
 
 bool Interpreter::isComplete(const string& command) const

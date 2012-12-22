@@ -54,19 +54,22 @@ MSXMapperIO::~MSXMapperIO()
 void MSXMapperIO::updateMask()
 {
 	// unused bits always read "1"
-	unsigned largest = (mapperSizes.empty()) ? 1 : *mapperSizes.rbegin();
+	unsigned largest = (mapperSizes.empty()) ? 1 : mapperSizes.back();
 	mask = ((256 - Math::powerOfTwo(largest)) & 255) | engineMask;
 }
 
 void MSXMapperIO::registerMapper(unsigned blocks)
 {
-	mapperSizes.insert(blocks);
+	auto it = upper_bound(mapperSizes.begin(), mapperSizes.end(), blocks);
+	mapperSizes.insert(it, blocks);
 	updateMask();
 }
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
-	mapperSizes.erase(mapperSizes.find(blocks));
+	auto it = find(mapperSizes.begin(), mapperSizes.end(), blocks);
+	assert(it != mapperSizes.end());
+	mapperSizes.erase(it);
 	updateMask();
 }
 

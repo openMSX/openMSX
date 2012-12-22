@@ -945,7 +945,7 @@ void MSXMotherBoard::Impl::destroyMapperIO()
 
 string MSXMotherBoard::Impl::getUserName(const string& hwName)
 {
-	set<string>& s = userNames[hwName];
+	auto& s = userNames[hwName];
 	unsigned n = 0;
 	string userName;
 	do {
@@ -958,7 +958,7 @@ string MSXMotherBoard::Impl::getUserName(const string& hwName)
 void MSXMotherBoard::Impl::freeUserName(const string& hwName,
                                       const string& userName)
 {
-	set<string>& s = userNames[hwName];
+	auto& s = userNames[hwName];
 	assert(s.find(userName) != s.end());
 	s.erase(userName);
 }
@@ -1148,9 +1148,9 @@ string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
 void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		set<string> names;
+		vector<string_ref> names;
 		for (auto& e : motherBoard.getExtensions()) {
-			names.insert(e->getName());
+			names.push_back(e->getName());
 		}
 		completeString(tokens, names);
 	}
@@ -1218,9 +1218,9 @@ string DeviceInfo::help(const vector<string>& /*tokens*/) const
 void DeviceInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		set<string> names;
+		vector<string> names;
 		for (auto& d : motherBoard.availableDevices) {
-			names.insert(d->getName());
+			names.push_back(d->getName());
 		}
 		completeString(tokens, names);
 	}

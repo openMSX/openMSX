@@ -37,7 +37,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 using std::shared_ptr;
 using std::make_shared;
 
@@ -1150,9 +1149,13 @@ string KeyInserter::help(const vector<string>& /*tokens*/) const
 
 void KeyInserter::tabCompletion(vector<string>& tokens) const
 {
-	set<string> options;
-	if (find(tokens.begin(), tokens.end(), "-release") == tokens.end()) options.insert("-release");
-	if (find(tokens.begin(), tokens.end(), "-freq") == tokens.end()) options.insert("-freq");
+	vector<const char*> options;
+	if (find(tokens.begin(), tokens.end(), "-release") == tokens.end()) {
+		options.push_back("-release");
+	}
+	if (find(tokens.begin(), tokens.end(), "-freq") == tokens.end()) {
+		options.push_back("-freq");
+	}
 	completeString(tokens, options);
 }
 

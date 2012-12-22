@@ -8,13 +8,11 @@
 #include "CommandException.hh"
 #include "BooleanSetting.hh"
 #include "TclObject.hh"
-#include <set>
 
 namespace openmsx {
 
 using std::string;
 using std::vector;
-using std::set;
 
 // class HDCommand
 
@@ -60,8 +58,8 @@ void HDCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
 			}
 		}
 		try {
-			UserFileContext context;
-			Filename filename(tokens[fileToken].getString().str(), context);
+			Filename filename(tokens[fileToken].getString().str(),
+			                  UserFileContext());
 			hd.switchImage(filename);
 			// Note: the diskX command doesn't do this either,
 			// so this has not been converted to TclObject style here
@@ -82,12 +80,11 @@ string HDCommand::help(const vector<string>& /*tokens*/) const
 
 void HDCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
+	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.insert("insert");
+		extra.push_back("insert");
 	}
-	UserFileContext context;
-	completeFileName(tokens, context, extra);
+	completeFileName(tokens, UserFileContext(), extra);
 }
 
 bool HDCommand::needRecord(const vector<string>& tokens) const

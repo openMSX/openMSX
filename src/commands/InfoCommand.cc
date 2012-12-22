@@ -11,7 +11,6 @@
 #include <iostream>
 #include <cassert>
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -103,9 +102,9 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		set<string> topics;
+		vector<string_ref> topics; // TODO make view on StringMap
 		for (auto& p : infoTopics) {
-			topics.insert(p.first().str());
+			topics.push_back(p.first());
 		}
 		completeString(tokens, topics);
 		break;

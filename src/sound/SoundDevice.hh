@@ -6,7 +6,6 @@
 #include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
-#include <set>
 #include <memory>
 
 namespace openmsx {

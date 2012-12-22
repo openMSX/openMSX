@@ -5,7 +5,6 @@
 
 #include "MSXMultiDevice.hh"
 #include <vector>
-#include <set>
 
 namespace openmsx {
 
@@ -21,7 +20,7 @@ public:
 	void add(MSXDevice& device, int base, int size);
 	void remove(MSXDevice& device, int base, int size);
 	bool empty() const;
-	std::set<MSXDevice*> getDevices() const;
+	std::vector<MSXDevice*> getDevices() const;
 
 	// MSXDevice
 	virtual std::string getName() const;

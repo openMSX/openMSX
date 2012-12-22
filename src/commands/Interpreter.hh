@@ -9,7 +9,6 @@
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "vla.hh"
-#include <set>
 #include <vector>
 #include <tcl.h>
 
@@ -32,7 +31,7 @@ public:
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(string_ref name, Command& command);
-	std::set<std::string> getCommandNames();
+	std::vector<std::string> getCommandNames();
 	bool isComplete(const std::string& command) const;
 	std::string execute(const std::string& command);
 	std::string executeFile(const std::string& filename);

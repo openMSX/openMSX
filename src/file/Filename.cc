@@ -45,9 +45,8 @@ void Filename::updateAfterLoadState()
 	if (FileOperations::exists(resolvedFilename)) return;
 
 	try {
-		UserFileContext context;
 		resolvedFilename = FileOperations::getAbsolutePath(
-			context.resolve(originalFilename));
+			UserFileContext().resolve(originalFilename));
 	} catch (MSXException&) {
 		// nothing
 	}

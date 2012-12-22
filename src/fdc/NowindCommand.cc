@@ -325,16 +325,16 @@ string NowindCommand::help(const vector<string>& /*tokens*/) const
 
 void NowindCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
-	extra.insert("--ctrl");     extra.insert("-c");
-	extra.insert("--no-ctrl");  extra.insert("-C");
-	extra.insert("--allow");    extra.insert("-a");
-	extra.insert("--no-allow"); extra.insert("-A");
-	extra.insert("--romdisk");  extra.insert("-j");
-	extra.insert("--image");    extra.insert("-i");
-	extra.insert("--hdimage");  extra.insert("-m");
-	UserFileContext context;
-	completeFileName(tokens, context, extra);
+	static const char* const extra[] = {
+		"-c", "--ctrl",
+		"-C", "--no-ctrl",
+		"-a", "--allow",
+		"-A", "--no-allow",
+		"-j", "--romdisk",
+		"-i", "--image",
+		"-m", "--hdimage",
+	};
+	completeFileName(tokens, UserFileContext(), extra);
 }
 
 } // namespace openmsx

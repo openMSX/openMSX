@@ -8,7 +8,6 @@
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include <vector>
-#include <set>
 #include <memory>
 
 namespace openmsx {
@@ -41,10 +40,10 @@ public:
 
 private:
 	Debuggable& getDebuggable(string_ref name);
-	std::set<std::string> getDebuggables() const;
+	std::vector<string_ref> getDebuggables() const;
 
 	ProbeBase& getProbe(string_ref name);
-	std::set<std::string> getProbes() const;
+	std::vector<string_ref> getProbes() const;
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,

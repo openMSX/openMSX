@@ -39,7 +39,6 @@
 
 using std::string;
 using std::vector;
-using std::set;
 
 namespace openmsx {
 
@@ -565,14 +564,10 @@ string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 void ScreenShotCmd::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
-	extra.insert("-prefix");
-	extra.insert("-raw");
-	extra.insert("-doublesize");
-	extra.insert("-with-osd");
-	extra.insert("-no-sprites");
-	UserFileContext context;
-	completeFileName(tokens, context, extra);
+	static const char* const extra[] = {
+		"-prefix", "-raw", "-doublesize", "-with-osd", "-no-sprites",
+	};
+	completeFileName(tokens, UserFileContext(), extra);
 }
 
 

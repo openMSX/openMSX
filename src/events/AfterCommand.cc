@@ -24,7 +24,6 @@
 using std::ostringstream;
 using std::string;
 using std::vector;
-using std::set;
 using std::shared_ptr;
 using std::make_shared;
 
@@ -381,17 +380,11 @@ string AfterCommand::help(const vector<string>& /*tokens*/) const
 
 void AfterCommand::tabCompletion(vector<string>& tokens) const
 {
-	if (tokens.size()==2) {
-		set<string> cmds;
-		cmds.insert("time");
-		cmds.insert("realtime");
-		cmds.insert("idle");
-		cmds.insert("frame");
-		cmds.insert("break");
-		cmds.insert("boot");
-		cmds.insert("machine_switch");
-		cmds.insert("info");
-		cmds.insert("cancel");
+	if (tokens.size() == 2) {
+		static const char* const cmds[] = {
+			"time", "realtime", "idle", "frame", "break", "boot",
+			"machine_switch", "info", "cancel",
+		};
 		completeString(tokens, cmds);
 	}
 	// TODO : make more complete

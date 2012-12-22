@@ -13,7 +13,6 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
-#include <set>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -97,10 +96,11 @@ const DeviceConfig& MSXDevice::getDeviceConfig2() const
 	return deviceConfig;
 }
 
-void MSXDevice::testRemove(const Devices& alreadyRemoved) const
+void MSXDevice::testRemove(Devices removed) const
 {
-	std::set<MSXDevice*> all    (referencedBy  .begin(), referencedBy  .end());
-	std::set<MSXDevice*> removed(alreadyRemoved.begin(), alreadyRemoved.end());
+	auto all = referencedBy;
+	sort(all.begin(), all.end());
+	sort(removed.begin(), removed.end());
 	Devices rest;
 	set_difference(all.begin(), all.end(), removed.begin(), removed.end(),
 	               back_inserter(rest));
