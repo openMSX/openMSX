@@ -1010,7 +1010,26 @@ proc menu_select_rom {slot item} {
 				osd::display_message "Can't insert ROM: $errorText" error
 			} else {
 				menu_close_all
-				osd::display_message "Now running ROM:\n[rom_info]"
+				
+				set rominfo	[rom_info::getlist_rom_info]
+				
+				if {$rominfo eq ""} {osd::display_message "No rom information available"} else {
+					osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
+					
+					append result "[dict get $rominfo title]\n" \
+								  "[dict get $rominfo year]\n" \
+								  "[dict get $rominfo company]\n" \
+								  "[dict get $rominfo country]\n" \
+								  "[dict get $rominfo status]\n" 
+					
+					if {[dict get $rominfo remark] ne ""} {
+						append result [dict get $rominfo remark]
+					} else {
+						append result "None"
+					}
+					
+					osd create text osd_display_message.rominfo_text -x 35 -y 9 -size 6 -rgba 0xffffffff -text "$result" 
+				}
 				reset
 			}
 		}

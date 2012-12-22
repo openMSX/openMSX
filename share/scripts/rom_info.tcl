@@ -83,16 +83,18 @@ proc rom_info {} {
 		
 		if {$rominfo eq ""} {return "No rom information available"}
 		
-		append result "Title:    [dict get $rominfo title]\n"
-		append result "Year:     [dict get $rominfo year]\n"
-		append result "Company:  [dict get $rominfo company]\n"
-		append result "Country:  [dict get $rominfo country]\n"
-		append result "Status:   [dict get $rominfo status]"
+		append result "Title:    [dict get $rominfo title]\n" \
+					  "Year:     [dict get $rominfo year]\n" \
+					  "Company:  [dict get $rominfo company]\n" \
+					  "Country:  [dict get $rominfo country]\n" \
+					  "Status:   [dict get $rominfo status]" \
 		
 		set remark [dict get $rominfo remark]
 		
 		if {$remark ne ""} {
 			append result "\nRemark:   $remark"
+		} else {
+			append result "\nRemark:   None"
 		}
 		
 		return $result	
