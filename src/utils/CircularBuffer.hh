@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-template<class T, unsigned MAXSIZE>
+template<class T, size_t MAXSIZE>
 class CircularBuffer
 {
 public:
@@ -27,7 +27,7 @@ public:
 	}
 	T& removeFront() {
 		assert(!isEmpty());
-		unsigned tmp = first;
+		auto tmp = first;
 		first = next(first);
 		return buffer[tmp];
 	}
@@ -36,15 +36,15 @@ public:
 		last = prev(last);
 		return buffer[last];
 	}
-	T& operator[](unsigned pos) {
+	T& operator[](size_t pos) {
 		assert(pos < MAXSIZE);
-		unsigned tmp = first + pos;
+		auto tmp = first + pos;
 		if (tmp > MAXSIZE) {
 			tmp -= (MAXSIZE + 1);
 		}
 		return buffer[tmp];
 	}
-	const T& operator[](unsigned pos) const {
+	const T& operator[](size_t pos) const {
 		return const_cast<CircularBuffer&>(*this)[pos];
 	}
 	bool isEmpty() const {
@@ -53,7 +53,7 @@ public:
 	bool isFull() const {
 		return (first == next(last));
 	}
-	unsigned size() const {
+	size_t size() const {
 		if (first > last) {
 			return MAXSIZE + 1 - first + last;
 		} else {
@@ -62,14 +62,14 @@ public:
 	}
 
 private:
-	inline unsigned next(unsigned a) const {
+	inline size_t next(size_t a) const {
 		return (a != MAXSIZE) ? a + 1 : 0;
 	}
-	inline unsigned prev(unsigned a) const {
+	inline size_t prev(size_t a) const {
 		return (a != 0) ? a - 1 : MAXSIZE;
 	}
 
-	unsigned first, last;
+	size_t first, last;
 	// one extra to be able to distinguish full and empty
 	T buffer[MAXSIZE + 1];
 };
