@@ -7,6 +7,7 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -41,7 +42,7 @@ public:
 	  * @param us Real time duration is micro seconds.
 	  * @param time Point in emulated time.
 	  */
-	bool timeLeft(unsigned long long us, EmuTime::param time);
+	bool timeLeft(uint64_t us, EmuTime::param time);
 
 	void resync();
 
@@ -77,7 +78,7 @@ private:
 	BooleanSetting& pauseSetting;
 	BooleanSetting& powerSetting;
 
-	unsigned long long idealRealTime;
+	uint64_t idealRealTime;
 	EmuTime emuTime;
 	double sleepAdjust;
 	bool enabled;

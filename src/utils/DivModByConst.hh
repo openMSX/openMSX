@@ -6,6 +6,7 @@
 #include "build-info.hh"
 #include "type_traits.hh"
 #include <type_traits>
+#include <cstdint>
 
 /** Utility class to optimize 64-bit divide/module by a 32-bit constant.
  * For 32-bit by 32-bit gcc already does this optimiztion (on 64-bit
@@ -14,47 +15,45 @@
  *
  * Usage:
  *   DivModByConst<123> dm;
- *   unsigned d = dm.div(x);  // equivalent to  d = x / 123;
- *   unsigned m = dm.mod(x);  // equivalent to  d = x % 123;
+ *   uint32_t d = dm.div(x);  // equivalent to  d = x / 123;
+ *   uint32_t m = dm.mod(x);  // equivalent to  d = x % 123;
  */
 
 namespace DivModByConstPrivate {
 
-typedef unsigned long long uint64;
-
-template<unsigned A, unsigned R = 0> struct log2
+template<uint32_t A, uint32_t R = 0> struct log2
 	: if_c<A == 0, std::integral_constant<int, R>, log2<A / 2, R + 1>> {};
 
 // Utility class to perform 128-bit by 128-bit division at compilation time
-template<uint64 RH, uint64 RL, uint64 QH, uint64 QL, uint64 DH, uint64 DL, unsigned BITS>
+template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL, uint32_t BITS>
 struct Div128_helper
 {
-	static const uint64 QL2 = (QL << 1);
-	static const uint64 QH2 = (QH << 1) + (QL2 < QL);
-	static const uint64 RL2 = (RL << 1) + (QH2 < QH);
-	static const uint64 RH2 = (RH << 1) + (RL2 < RL);
+	static const uint64_t QL2 = (QL << 1);
+	static const uint64_t QH2 = (QH << 1) + (QL2 < QL);
+	static const uint64_t RL2 = (RL << 1) + (QH2 < QH);
+	static const uint64_t RH2 = (RH << 1) + (RL2 < RL);
 
 	static const bool C = (RH2 != DH) ? (RH2 < DH) : (RL2 < DL);
-	static const uint64 RL3 = C ? RL2 : RL2 - DL;
-	static const uint64 RH3 = C ? RH2 : RH2 - DH - (RL3 > RL2);
-	static const uint64 QL3 = C ? QL2 : QL2 + 1;
-	static const uint64 QH3 = C ? QH2 : ((QL3 != 0) ? QH2 : QH2 + 1);
+	static const uint64_t RL3 = C ? RL2 : RL2 - DL;
+	static const uint64_t RH3 = C ? RH2 : RH2 - DH - (RL3 > RL2);
+	static const uint64_t QL3 = C ? QL2 : QL2 + 1;
+	static const uint64_t QH3 = C ? QH2 : ((QL3 != 0) ? QH2 : QH2 + 1);
 
 	typedef Div128_helper<RH3, RL3, QH3, QL3, DH, DL, BITS - 1> Div;
-	static const uint64 quotientLow   = Div::quotientLow;
-	static const uint64 quotientHigh  = Div::quotientHigh;
-	static const uint64 remainderLow  = Div::remainderLow;
-	static const uint64 remainderHigh = Div::remainderHigh;
+	static const uint64_t quotientLow   = Div::quotientLow;
+	static const uint64_t quotientHigh  = Div::quotientHigh;
+	static const uint64_t remainderLow  = Div::remainderLow;
+	static const uint64_t remainderHigh = Div::remainderHigh;
 };
-template<uint64 RH, uint64 RL, uint64 QH, uint64 QL, uint64 DH, uint64 DL>
+template<uint64_t RH, uint64_t RL, uint64_t QH, uint64_t QL, uint64_t DH, uint64_t DL>
 struct Div128_helper<RH, RL, QH, QL, DH, DL, 0>
 {
-	static const uint64 quotientLow   = QL;
-	static const uint64 quotientHigh  = QH;
-	static const uint64 remainderLow  = RL;
-	static const uint64 remainderHigh = RH;
+	static const uint64_t quotientLow   = QL;
+	static const uint64_t quotientHigh  = QH;
+	static const uint64_t remainderLow  = RL;
+	static const uint64_t remainderHigh = RH;
 };
-template<uint64 DividendH, uint64 DividendL, uint64 DividerH, uint64 DividerL>
+template<uint64_t DividendH, uint64_t DividendL, uint64_t DividerH, uint64_t DividerL>
 struct Div128
 	: Div128_helper<0, 0, DividendH, DividendL, DividerH, DividerL, 128> {};
 
@@ -64,16 +63,16 @@ struct Div128
 //       M >>= 1;
 //       --S;
 //   }
-template<uint64 M, unsigned S, bool B = M & 1> struct DBCReduce
+template<uint64_t M, uint32_t S, bool B = M & 1> struct DBCReduce
 {
 	typedef DBCReduce<M / 2, S - 1> R2;
-	static const uint64   M2 = R2::M2;
-	static const unsigned S2 = R2::S2;
+	static const uint64_t   M2 = R2::M2;
+	static const uint32_t S2 = R2::S2;
 };
-template<uint64 M, unsigned S> struct DBCReduce<M, S, true>
+template<uint64_t M, uint32_t S> struct DBCReduce<M, S, true>
 {
-	static const uint64   M2 = M;
-	static const unsigned S2 = S;
+	static const uint64_t   M2 = M;
+	static const uint32_t S2 = S;
 };
 
 // equivalent to the following run-tim loop:
@@ -82,15 +81,15 @@ template<uint64 M, unsigned S> struct DBCReduce<M, S, true>
 //       m_high >>= 1;
 //       --l;
 //   }
-template<uint64 AH, uint64 AL, uint64 BH, uint64 BL>
+template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL>
 struct DBCReduce2Shift
 {
-	static const uint64 AH2 = AH / 2;
-	static const uint64 AL2 = AL / 2 + ((AH2 * 2 != AH) ? (1ull << 63) : 0);
-	static const uint64 BH2 = BH / 2;
-	static const uint64 BL2 = BL / 2 + ((BH2 * 2 != BH) ? (1ull << 63) : 0);
+	static const uint64_t AH2 = AH / 2;
+	static const uint64_t AL2 = AL / 2 + ((AH2 * 2 != AH) ? (1ull << 63) : 0);
+	static const uint64_t BH2 = BH / 2;
+	static const uint64_t BL2 = BL / 2 + ((BH2 * 2 != BH) ? (1ull << 63) : 0);
 };
-template<uint64 AH, uint64 AL, uint64 BH, uint64 BL, unsigned L>
+template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t L>
 struct DBCReduce2Test
 {
 	typedef DBCReduce2Shift<AH, AL, BH, BL> S;
@@ -98,81 +97,81 @@ struct DBCReduce2Test
 	                                         : (S::AL2 < S::BL2);
 	static const bool value = C && (L > 0);
 };
-template<uint64 AH, uint64 AL, uint64 BH, uint64 BL, unsigned LL, bool B>
+template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL, bool B>
 struct DBCReduce2Loop
 {
 	typedef DBCReduce2Shift<AH, AL, BH, BL> S;
 	typedef DBCReduce2Test<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1> T;
 	typedef DBCReduce2Loop<S::AH2, S::AL2, S::BH2, S::BL2, LL - 1, T::value> R;
-	static const uint64 MLH = R::MLH;
-	static const uint64 MLL = R::MLL;
-	static const uint64 MHH = R::MHH;
-	static const uint64 MHL = R::MHL;
-	static const unsigned L = R::L;
+	static const uint64_t MLH = R::MLH;
+	static const uint64_t MLL = R::MLL;
+	static const uint64_t MHH = R::MHH;
+	static const uint64_t MHL = R::MHL;
+	static const uint32_t L = R::L;
 };
-template<uint64 AH, uint64 AL, uint64 BH, uint64 BL, unsigned LL>
+template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL>
 struct DBCReduce2Loop<AH, AL, BH, BL, LL, false>
 {
-	static const uint64 MLH = AH;
-	static const uint64 MLL = AL;
-	static const uint64 MHH = BH;
-	static const uint64 MHL = BL;
-	static const unsigned L = LL;
+	static const uint64_t MLH = AH;
+	static const uint64_t MLL = AL;
+	static const uint64_t MHH = BH;
+	static const uint64_t MHL = BL;
+	static const uint32_t L = LL;
 };
-template<uint64 AH, uint64 AL, uint64 BH, uint64 BL, unsigned LL>
+template<uint64_t AH, uint64_t AL, uint64_t BH, uint64_t BL, uint32_t LL>
 struct DBCReduce2
 {
 	typedef DBCReduce2Test<AH, AL, BH, BL, LL> T;
 	typedef DBCReduce2Loop<AH, AL, BH, BL, LL, T::value> R;
-	static const uint64 MLH = R::MLH;
-	static const uint64 MLL = R::MLL;
-	static const uint64 MHH = R::MHH;
-	static const uint64 MHL = R::MHL;
-	static const unsigned L = R::L;
+	static const uint64_t MLH = R::MLH;
+	static const uint64_t MLL = R::MLL;
+	static const uint64_t MHH = R::MHH;
+	static const uint64_t MHL = R::MHL;
+	static const uint32_t L = R::L;
 };
 
 
-template<unsigned S> struct DBCAlgo1
+template<uint32_t S> struct DBCAlgo1
 {
 	// division possible by only shifting
-	unsigned operator()(uint64 dividend) const
+	uint32_t operator()(uint64_t dividend) const
 	{
 		return dividend >> S;
 	}
 };
 
-static inline uint64 mla64(uint64 a, uint64 b, uint64 c)
+static inline uint64_t mla64(uint64_t a, uint64_t b, uint64_t c)
 {
 	// equivalent to this:
 	//    return (__uint128_t(a) * b + c) >> 64;
-	uint64 t1 = uint64(unsigned(a)) * unsigned(b);
-	uint64 t2 = (a >> 32) * unsigned(b);
-	uint64 t3 = unsigned(a) * (b >> 32);
-	uint64 t4 = (a >> 32) * (b >> 32);
+	uint64_t t1 = uint64_t(uint32_t(a)) * uint32_t(b);
+	uint64_t t2 = (a >> 32) * uint32_t(b);
+	uint64_t t3 = uint32_t(a) * (b >> 32);
+	uint64_t t4 = (a >> 32) * (b >> 32);
 
-	uint64 s1 = uint64(unsigned(c)) + unsigned(t1);
-	uint64 s2 = (s1 >> 32) + (c >> 32) + (t1 >> 32) + t2;
-	uint64 s3 = uint64(unsigned(s2)) + unsigned(t3);
-	uint64 s4 = (s3 >> 32) + (s2 >> 32) + (t3 >> 32) + t4;
+	uint64_t s1 = uint64_t(uint32_t(c)) + uint32_t(t1);
+	uint64_t s2 = (s1 >> 32) + (c >> 32) + (t1 >> 32) + t2;
+	uint64_t s3 = uint64_t(uint32_t(s2)) + uint32_t(t3);
+	uint64_t s4 = (s3 >> 32) + (s2 >> 32) + (t3 >> 32) + t4;
 	return s4;
 }
 
-template<uint64 M, unsigned S> struct DBCAlgo2
+template<uint64_t M, uint32_t S> struct DBCAlgo2
 {
 	// division possible by multiplication and shift
-	unsigned operator()(uint64 dividend) const
+	uint32_t operator()(uint64_t dividend) const
 	{
 		typedef DBCReduce<M, S> R;
 	#if ASM_X86_32 || defined(__arm__)
-		const unsigned _ah_ = R::M2 >> 32;
-		const unsigned _al_ = unsigned((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
-		const unsigned _bh_ = dividend >> 32;
-		const unsigned _bl_ = unsigned(dividend);
+		const uint32_t _ah_ = R::M2 >> 32;
+		const uint32_t _al_ = uint32_t((R::M2 << 32) >> 32); // Suppress VC++ C4310 warning
+		const uint32_t _bh_ = dividend >> 32;
+		const uint32_t _bl_ = uint32_t(dividend);
 	#endif
 	#if ASM_X86_32
 	#ifdef _MSC_VER
-		unsigned _tl_;
-		register unsigned result;
+		uint32_t _tl_;
+		register uint32_t result;
 		__asm {
 			// It's worth noting that simple benchmarks show this to be
 			// no faster than straight division on an Intel E8400
@@ -212,12 +211,12 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			mov		result,edi
 		}
 	#ifdef DEBUG
-		unsigned realResult = unsigned(mla64(dividend, R::M2, 0) >> R::S2);
+		uint32_t realResult = uint32_t(mla64(dividend, R::M2, 0) >> R::S2);
 		assert(realResult == result);
 	#endif
 		return result;
 	#else
-		unsigned th, tl, ch, cl;
+		uint32_t th, tl, ch, cl;
 		asm (
 			"movl	%[AH],%%eax\n\t"
 			"mull	%[BL]\n\t"
@@ -261,8 +260,8 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		return cl;
 	#endif
 	#elif defined(__arm__)
-		unsigned res;
-		unsigned th,tl;
+		uint32_t res;
+		uint32_t th,tl;
 		asm volatile (
 			"umull	%[TH],%[TL],%[AL],%[BL]\n\t"
 			"eors	%[TH],%[TH]\n\t"
@@ -291,35 +290,35 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 		);
 		return res;
 	#else
-		uint64 h = mla64(dividend, R::M2, 0);
-		uint64 result = h >> R::S2;
+		uint64_t h = mla64(dividend, R::M2, 0);
+		uint64_t result = h >> R::S2;
 	#ifdef DEBUG
 		// we don't even want this overhead in devel builds
-		assert(result == unsigned(result));
+		assert(result == uint32_t(result));
 	#endif
-		return unsigned(result);
+		return uint32_t(result);
 	#endif
 	}
 };
 
-template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
+template<uint32_t DIVISOR, uint32_t N> struct DBCAlgo3
 {
 	// division possible by multiplication, addition and shift
-	static const unsigned S = log2<DIVISOR>::value - 1;
+	static const uint32_t S = log2<DIVISOR>::value - 1;
 	typedef Div128<1 << S, 0, 0, DIVISOR> D;
-	static const uint64 M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
+	static const uint64_t M = D::quotientLow + (D::remainderLow > (DIVISOR / 2));
 
-	unsigned operator()(uint64 dividend) const
+	uint32_t operator()(uint64_t dividend) const
 	{
 		typedef DBCReduce<M, S + N> R;
 	#if ASM_X86_32 || defined(__arm__)
-		const unsigned ah = R::M2 >> 32;
-		const unsigned al = unsigned(R::M2);
-		const unsigned bh = dividend >> 32;
-		const unsigned bl = dividend;
+		const uint32_t ah = R::M2 >> 32;
+		const uint32_t al = uint32_t(R::M2);
+		const uint32_t bh = dividend >> 32;
+		const uint32_t bl = dividend;
 	#endif
 	#if ASM_X86_32
-		unsigned th, tl, ch, cl;
+		uint32_t th, tl, ch, cl;
 		asm (
 			"mov	%[AH],%%eax\n\t"
 			"mull	%[BL]\n\t"
@@ -366,8 +365,8 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 		return cl;
 
 	#elif defined(__arm__)
-		unsigned res;
-		unsigned th,tl;
+		uint32_t res;
+		uint32_t th,tl;
 		asm volatile (
 			"umull	%[TH],%[TL],%[AL],%[BL]\n\t"
 			"adds	%[TH],%[TH],%[AL]\n\t"
@@ -399,21 +398,21 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 		);
 		return res;
 	#else
-		uint64 h = mla64(dividend, R::M2, R::M2);
+		uint64_t h = mla64(dividend, R::M2, R::M2);
 		return h >> R::S2;
 	#endif
 	}
 };
 
 
-template<unsigned DIVISOR, unsigned N, typename RM> struct DBCHelper3
+template<uint32_t DIVISOR, uint32_t N, typename RM> struct DBCHelper3
 	: if_c<RM::MHH == 0, DBCAlgo2<RM::MHL, N + RM::L>
 	                   , DBCAlgo3<DIVISOR, N>> {};
 
-template<unsigned DIVISOR, unsigned N> struct DBCHelper2
+template<uint32_t DIVISOR, uint32_t N> struct DBCHelper2
 {
-	static const unsigned L = log2<DIVISOR>::value;
-	static const uint64 J = 0xffffffffffffffffull % DIVISOR;
+	static const uint32_t L = log2<DIVISOR>::value;
+	static const uint64_t J = 0xffffffffffffffffull % DIVISOR;
 	typedef Div128<1 << L, 0, 0, 0xffffffffffffffffull - J> K;
 
 	typedef Div128< 1 << L,                    0,              0, DIVISOR> M_LOW;
@@ -421,14 +420,14 @@ template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 	typedef DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
 	                   M_HIGH::quotientHigh, M_HIGH::quotientLow, L> R;
 
-	unsigned operator()(uint64 dividend) const
+	uint32_t operator()(uint64_t dividend) const
 	{
 		DBCHelper3<DIVISOR, N, R> dbc;
 		return dbc(dividend);
 	}
 };
 
-template<unsigned DIVISOR, unsigned SHIFT> struct DBCHelper1
+template<uint32_t DIVISOR, uint32_t SHIFT> struct DBCHelper1
 	: if_c<DIVISOR == 1, DBCAlgo1<SHIFT>,
 	                     if_c<DIVISOR & 1, DBCHelper2<DIVISOR, SHIFT>
 	                                     , DBCHelper1<DIVISOR / 2, SHIFT + 1>>> {};
@@ -436,23 +435,23 @@ template<unsigned DIVISOR, unsigned SHIFT> struct DBCHelper1
 } // namespace DivModByConstPrivate
 
 
-template<unsigned DIVISOR> struct DivModByConst
+template<uint32_t DIVISOR> struct DivModByConst
 {
-	unsigned div(unsigned long long dividend) const
+	uint32_t div(uint64_t dividend) const
 	{
 	#ifdef __x86_64
 		// on 64-bit CPUs gcc already does this
 		// optimization (and better)
-		return unsigned(dividend / DIVISOR);
+		return uint32_t(dividend / DIVISOR);
 	#else
 		DivModByConstPrivate::DBCHelper1<DIVISOR, 0> dbc;
 		return dbc(dividend);
 	#endif
 	}
 
-	unsigned mod(unsigned long long dividend) const
+	uint32_t mod(uint64_t dividend) const
 	{
-		unsigned long long result;
+		uint64_t result;
 	#ifdef __x86_64
 		result = dividend % DIVISOR;
 	#else
@@ -460,9 +459,9 @@ template<unsigned DIVISOR> struct DivModByConst
 	#endif
 	#ifdef DEBUG
 		// we don't even want this overhead in devel builds
-		assert(result == unsigned(result));
+		assert(result == uint32_t(result));
 	#endif
-		return unsigned(result);
+		return uint32_t(result);
 	}
 };
 

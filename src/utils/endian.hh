@@ -5,7 +5,7 @@
 
 #include "alignof.hh"
 #include "build-info.hh"
-#include <stdint.h>
+#include <cstdint>
 
 namespace Endian {
 
@@ -323,9 +323,9 @@ template<> struct Big<uint32_t> { typedef B32     type; };
 using namespace Endian;
 
 uint16_t testSwap16(uint16_t x) { return bswap16(x); }
-uint16_t testSwap16()         { return bswap16(0x1234); }
+uint16_t testSwap16()           { return bswap16(0x1234); }
 uint32_t testSwap32(uint32_t x) { return bswap32(x); }
-uint32_t testSwap32()         { return bswap32(0x12345678); }
+uint32_t testSwap32()           { return bswap32(0x12345678); }
 
 
 union T16 {

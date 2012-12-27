@@ -3,14 +3,14 @@
 #ifndef UINT128_HH
 #define UINT128_HH
 
-typedef unsigned long long uint64;
+#include <cstdint>
 
 #if defined __x86_64 && !defined _MSC_VER
 // On 64-bit CPUs gcc already provides a 128-bit type,
 // use that type because it's most likely much more efficient.
 // VC++ 2008 does not provide a 128-bit integer type
 typedef __uint128_t uint128;
-inline uint64 toUint64(uint128 a) { return a; }
+inline uint64_t toUint64(uint128 a) { return a; }
 
 #else // __x86_64 && !_MSC_VER
 
@@ -24,7 +24,7 @@ class uint128
 {
 public:
 	uint128(const uint128& a) : lo(a.lo), hi(a.hi) {}
-	uint128(uint64 a)         : lo(a), hi(0) {}
+	uint128(uint64_t a)       : lo(a), hi(0) {}
 
 	bool operator!() const
 	{
@@ -69,7 +69,7 @@ public:
 
 	uint128& operator+=(const uint128& b)
 	{
-		uint64 old_lo = lo;
+		uint64_t old_lo = lo;
 		lo += b.lo;
 		hi += b.hi + (lo < old_lo);
 		return *this;
@@ -139,19 +139,19 @@ public:
 
 private:
 	uint128() {}
-	uint128(uint64 a, uint64 b) : lo(a), hi(b) {}
+	uint128(uint64_t a, uint64_t b) : lo(a), hi(b) {}
 	uint128 div(const uint128& ds, uint128& remainder) const;
 	bool bit(unsigned n) const;
 	void setBit(unsigned n);
 
-	uint64 lo;
-	uint64 hi;
+	uint64_t lo;
+	uint64_t hi;
 
 	friend bool operator< (const uint128&, const uint128&);
 	friend bool operator==(const uint128&, const uint128&);
 	friend bool operator||(const uint128&, const uint128&);
 	friend bool operator&&(const uint128&, const uint128&);
-	friend uint64 toUint64(const uint128&);
+	friend uint64_t toUint64(const uint128&);
 };
 
 
@@ -232,7 +232,7 @@ inline bool operator||(const uint128& a, const uint128& b)
 	return a.hi || a.lo || b.hi || b.lo;
 }
 
-inline uint64 toUint64(const uint128& a)
+inline uint64_t toUint64(const uint128& a)
 {
 	return a.lo;
 }

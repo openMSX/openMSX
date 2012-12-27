@@ -30,7 +30,7 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	// calculate the average to subtract it later (simple DC filter)
 	auto nbSamples = wav->getSize();
 	if (nbSamples > 0) {
-		long long total = 0;
+		int64_t total = 0;
 		for (auto i : xrange(nbSamples)) {
 			total += getSample(i);
 		}

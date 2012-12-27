@@ -6,6 +6,7 @@
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -46,7 +47,7 @@ private:
 	MSXCliComm& msxCliComm;
 	const std::unique_ptr<AlarmEvent> alarm;
 	std::unique_ptr<ReadOnlySetting<BooleanSetting>> ledStatus[NUM_LEDS];
-	unsigned long long lastTime;
+	uint64_t lastTime;
 	bool ledValue[NUM_LEDS];
 };
 

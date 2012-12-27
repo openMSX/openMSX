@@ -15,8 +15,8 @@ class SocketStreamWrapper : public sspiutils::StreamWrapper
 public:
 	explicit SocketStreamWrapper(SOCKET userSock);
 
-	uint32 Read (void* buffer, uint32 cb);
-	uint32 Write(void* buffer, uint32 cb);
+	uint32_t Read (void* buffer, uint32_t cb);
+	uint32_t Write(void* buffer, uint32_t cb);
 
 private:
 	SOCKET sock;

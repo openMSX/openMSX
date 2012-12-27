@@ -23,8 +23,8 @@ private:
 	// stuff below calculates:
 	//   MASTER_TICKS = MAIN_FREQ / (FREQ_NUM / FREQ_DENOM) + 0.5
 	static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
-	static const unsigned long long P = MAIN_FREQ * FREQ_DENOM + (FREQ_NUM / 2);
-	static const unsigned long long MASTER_TICKS = P / FREQ_NUM;
+	static const uint64_t P = MAIN_FREQ * FREQ_DENOM + (FREQ_NUM / 2);
+	static const uint64_t MASTER_TICKS = P / FREQ_NUM;
 	static_assert(MASTER_TICKS < (1ull << 32), "must fit in 32 bit");
 	static const unsigned MASTER_TICKS32 = MASTER_TICKS;
 
@@ -59,7 +59,7 @@ public:
 	  */
 	unsigned getTicksTill(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-		unsigned long long result = (e.time - lastTick.time) / MASTER_TICKS;
+		uint64_t result = (e.time - lastTick.time) / MASTER_TICKS;
 #ifdef DEBUG
 		// we don't even want this overhead in devel builds
 		assert(result == unsigned(result));
@@ -81,7 +81,7 @@ public:
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
 	  */
-	unsigned long long getTicksTillUp(EmuTime::param e) const {
+	uint64_t getTicksTillUp(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
 		return (e.time - lastTick.time + MASTER_TICKS - 1) / MASTER_TICKS;
 	}
@@ -89,7 +89,7 @@ public:
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	const EmuTime operator+(uint64 n) const {
+	const EmuTime operator+(uint64_t n) const {
 		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 

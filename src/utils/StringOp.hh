@@ -91,7 +91,7 @@ namespace StringOp
 	bool stringToInt(const std::string& str, int& result);
 	unsigned stringToUint(const std::string& str);
 	bool stringToUint(const std::string& str, unsigned& result);
-	unsigned long long stringToUint64(const std::string& str);
+	uint64_t stringToUint64(const std::string& str);
 	bool stringToBool(string_ref str);
 	double stringToDouble(const std::string& str);
 	bool stringToDouble(const std::string& str, double& result);

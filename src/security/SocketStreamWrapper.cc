@@ -13,7 +13,7 @@ SocketStreamWrapper::SocketStreamWrapper(SOCKET userSock)
 {
 }
 
-uint32 SocketStreamWrapper::Read(void* buffer, uint32 cb)
+uint32_t SocketStreamWrapper::Read(void* buffer, uint32_t cb)
 {
 	int recvd = recv(sock, static_cast<char*>(buffer), cb, 0);
 	if (recvd == 0 || recvd == SOCKET_ERROR) {
@@ -22,7 +22,7 @@ uint32 SocketStreamWrapper::Read(void* buffer, uint32 cb)
 	return recvd;
 }
 
-uint32 SocketStreamWrapper::Write(void* buffer, uint32 cb)
+uint32_t SocketStreamWrapper::Write(void* buffer, uint32_t cb)
 {
 	int sent = send(sock, static_cast<char*>(buffer), cb, 0);
 	if (sent == 0 || sent == SOCKET_ERROR) {

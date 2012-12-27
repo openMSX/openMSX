@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -49,7 +50,7 @@ private:
 		ReverseChunk& operator=(ReverseChunk&& rhs);
 
 		EmuTime time;
-		std::unique_ptr<MemBuffer<byte>> savestate;
+		std::unique_ptr<MemBuffer<uint8_t>> savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should

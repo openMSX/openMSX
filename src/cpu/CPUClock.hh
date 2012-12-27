@@ -66,7 +66,7 @@ protected:
 	void waitForEvenCycle(int cc)
 	{
 		sync();
-		unsigned long long totalTicks = clock.getTotalTicks() + cc;
+		auto totalTicks = clock.getTotalTicks() + cc;
 		if (totalTicks & 1) {
 			add(1);
 		}

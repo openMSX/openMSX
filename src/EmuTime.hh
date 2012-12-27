@@ -25,7 +25,7 @@ public:
 
 	// Note: default copy constructor and assigment operator are ok.
 
-	static EmuTime makeEmuTime(uint64 u) { return EmuTime(u); }
+	static EmuTime makeEmuTime(uint64_t u) { return EmuTime(u); }
 
 	// comparison operators
 	bool operator==(EmuTime::param e) const
@@ -64,9 +64,9 @@ public:
 
 private:
 	EmuTime() {} // uninitialized
-	explicit EmuTime(uint64 n) : time(n) {}
+	explicit EmuTime(uint64_t n) : time(n) {}
 
-	uint64 time;
+	uint64_t time;
 
 	// friends
 	friend std::ostream& operator<<(std::ostream& os, EmuTime::param time);

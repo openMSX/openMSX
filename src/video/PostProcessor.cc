@@ -16,6 +16,7 @@
 #include "vla.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include "openmsx.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>

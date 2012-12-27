@@ -5,12 +5,13 @@
 
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
 template<int N> struct DoublePixel;
-template<> struct DoublePixel<2> { typedef unsigned           type; };
-template<> struct DoublePixel<4> { typedef unsigned long long type; };
+template<> struct DoublePixel<2> { typedef uint32_t type; };
+template<> struct DoublePixel<4> { typedef uint64_t type; };
 
 /** Utility class for converting VRAM contents to host pixels.
   */

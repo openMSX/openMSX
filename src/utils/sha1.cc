@@ -36,21 +36,21 @@ using std::string;
 namespace openmsx {
 
 // Rotate x bits to the left
-inline static uint32 rol32(uint32 value, int bits)
+inline static uint32_t rol32(uint32_t value, int bits)
 {
 	return (value << bits) | (value >> (32 - bits));
 }
 
 class WorkspaceBlock {
 private:
-	uint32 data[16];
+	uint32_t data[16];
 
-	uint32 next0(int i)
+	uint32_t next0(int i)
 	{
 		data[i] = Endian::readB32(&data[i]);
 		return data[i];
 	}
-	uint32 next(int i)
+	uint32_t next(int i)
 	{
 		return data[i & 15] = rol32(
 			data[(i + 13) & 15] ^ data[(i + 8) & 15] ^
@@ -59,37 +59,37 @@ private:
 	}
 
 public:
-	explicit WorkspaceBlock(const byte buffer[64]);
+	explicit WorkspaceBlock(const uint8_t buffer[64]);
 
 	// SHA-1 rounds
-	void r0(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)
+	void r0(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
 	{
 		z += ((w & (x ^ y)) ^ y) + next0(i) + 0x5A827999 + rol32(v, 5);
 		w = rol32(w, 30);
 	}
-	void r1(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)
+	void r1(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
 	{
 		z += ((w & (x ^ y)) ^ y) + next(i) + 0x5A827999 + rol32(v, 5);
 		w = rol32(w, 30);
 	}
-	void r2(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)
+	void r2(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
 	{
 		z += (w ^ x ^ y) + next(i) + 0x6ED9EBA1 + rol32(v, 5);
 		w = rol32(w, 30);
 	}
-	void r3(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)
+	void r3(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
 	{
 		z += (((w | x) & y) | (w & x)) + next(i) + 0x8F1BBCDC + rol32(v, 5);
 		w = rol32(w, 30);
 	}
-	void r4(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)
+	void r4(uint32_t v, uint32_t& w, uint32_t x, uint32_t y, uint32_t& z, int i)
 	{
 		z += (w ^ x ^ y) + next(i) + 0xCA62C1D6 + rol32(v, 5);
 		w = rol32(w, 30);
 	}
 };
 
-WorkspaceBlock::WorkspaceBlock(const byte buffer[64])
+WorkspaceBlock::WorkspaceBlock(const uint8_t buffer[64])
 {
 	memcpy(data, buffer, sizeof(data));
 }
@@ -197,16 +197,16 @@ SHA1::SHA1()
 	m_finalized = false;
 }
 
-void SHA1::transform(const byte buffer[64])
+void SHA1::transform(const uint8_t buffer[64])
 {
 	WorkspaceBlock block(buffer);
 
 	// Copy m_state[] to working vars
-	uint32 a = m_state.a[0];
-	uint32 b = m_state.a[1];
-	uint32 c = m_state.a[2];
-	uint32 d = m_state.a[3];
-	uint32 e = m_state.a[4];
+	uint32_t a = m_state.a[0];
+	uint32_t b = m_state.a[1];
+	uint32_t c = m_state.a[2];
+	uint32_t d = m_state.a[3];
+	uint32_t e = m_state.a[4];
 
 	// 4 rounds of 20 operations each. Loop unrolled
 	block.r0(a,b,c,d,e, 0); block.r0(e,a,b,c,d, 1); block.r0(d,e,a,b,c, 2);
@@ -246,14 +246,14 @@ void SHA1::transform(const byte buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(const byte* data, size_t len)
+void SHA1::update(const uint8_t* data, size_t len)
 {
 	assert(!m_finalized);
-	uint32 j = (m_count >> 3) & 63;
+	uint32_t j = (m_count >> 3) & 63;
 
-	m_count += uint64(len) << 3;
+	m_count += uint64_t(len) << 3;
 
-	uint32 i;
+	uint32_t i;
 	if ((j + len) > 63) {
 		memcpy(&m_buffer[j], data, (i = 64 - j));
 		transform(m_buffer);
@@ -270,14 +270,14 @@ void SHA1::update(const byte* data, size_t len)
 void SHA1::finalize()
 {
 	assert(!m_finalized);
-	byte finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	uint8_t finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	for (int i = 0; i < 8; i++) {
-		finalcount[i] = byte(m_count >> ((7 - i) * 8));
+		finalcount[i] = uint8_t(m_count >> ((7 - i) * 8));
 	}
 
-	update(reinterpret_cast<const byte*>("\200"), 1);
+	update(reinterpret_cast<const uint8_t*>("\200"), 1);
 	while ((m_count & 504) != 448) {
-		update(reinterpret_cast<const byte*>("\0"), 1);
+		update(reinterpret_cast<const uint8_t*>("\0"), 1);
 	}
 	update(finalcount, 8); // cause a transform()
 	m_finalized = true;
@@ -289,7 +289,7 @@ Sha1Sum SHA1::digest()
 	return m_state;
 }
 
-Sha1Sum SHA1::calc(const byte* data, size_t len)
+Sha1Sum SHA1::calc(const uint8_t* data, size_t len)
 {
 	SHA1 sha1;
 	sha1.update(data, len);
@@ -301,7 +301,7 @@ static void reportProgress(const string& filename, size_t percentage, CliComm& c
 	distributor.deliverEvents();
 }
 
-Sha1Sum SHA1::calcWithProgress(const byte* data, size_t len, const string& filename, CliComm& cliComm, EventDistributor& distributor)
+Sha1Sum SHA1::calcWithProgress(const uint8_t* data, size_t len, const string& filename, CliComm& cliComm, EventDistributor& distributor)
 {
 	if (len < 10*1024*1024) { // for small files, don't show progress
 		return calc(data, len);

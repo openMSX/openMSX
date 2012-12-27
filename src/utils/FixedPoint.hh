@@ -4,6 +4,7 @@
 #define FIXEDPOINT_HH
 
 #include "Math.hh" // VC++ needs the lrint() compatibilty functions
+#include <cstdint>
 
 namespace openmsx {
 
@@ -60,7 +61,7 @@ public:
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {}
 
 	static FixedPoint roundRatioDown(unsigned n, unsigned d) {
-		return create((static_cast<unsigned long long>(n) << FRACTION_BITS) / d);
+		return create((static_cast<uint64_t>(n) << FRACTION_BITS) / d);
 	}
 
 	static inline int shiftHelper(int x, int s) {
@@ -158,7 +159,7 @@ public:
 	}
 	FixedPoint operator*(const FixedPoint other) const {
 		return create(int(
-			(static_cast<long long>(value) * other.value) >> FRACTION_BITS));
+			(static_cast<int64_t>(value) * other.value) >> FRACTION_BITS));
 	}
 	FixedPoint operator*(const int i) const {
 		return create(value * i);
@@ -169,7 +170,7 @@ public:
 	 */
 	FixedPoint operator/(const FixedPoint other) const {
 		return create(int(
-			(static_cast<long long>(value) << FRACTION_BITS) / other.value));
+			(static_cast<int64_t>(value) << FRACTION_BITS) / other.value));
 	}
 	FixedPoint operator/(const int i) const {
 		return create(value / i);

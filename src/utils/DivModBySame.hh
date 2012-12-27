@@ -4,8 +4,8 @@
 #define DIVISIONBYCONST_HH
 
 #include "build-info.hh"
-#include "openmsx.hh"
 #include <cassert>
+#include <cstdint>
 
 
 namespace openmsx {
@@ -27,26 +27,26 @@ namespace openmsx {
 class DivModBySame
 {
 public:
-	void setDivisor(unsigned divisor);
-	inline unsigned getDivisor() const { return divisor; }
+	void setDivisor(uint32_t divisor);
+	inline uint32_t getDivisor() const { return divisor; }
 
-	unsigned div(uint64 dividend) const
+	uint32_t div(uint64_t dividend) const
 	{
 	#if defined __x86_64 && !defined _MSC_VER
-		uint64 t = (__uint128_t(dividend) * m + a) >> 64;
+		uint64_t t = (__uint128_t(dividend) * m + a) >> 64;
 		return t >> s;
 	#elif ASM_X86_32
-		unsigned _ch_ = a >> 32;
-		unsigned _cl_ = unsigned(a);
+		uint32_t _ch_ = a >> 32;
+		uint32_t _cl_ = uint32_t(a);
 		// g++-3.4 gives this warning when the vars below are const.
 		//    use of memory input without lvalue in asm operand n is deprecated
 		// For newer gcc versions it's ok.
-		/*const*/ unsigned _ah_ = dividend >> 32;
-		/*const*/ unsigned _al_ = unsigned(dividend);
-		/*const*/ unsigned _bh_ = m >> 32;
-		/*const*/ unsigned _bl_ = unsigned(m);
+		/*const*/ uint32_t _ah_ = dividend >> 32;
+		/*const*/ uint32_t _al_ = uint32_t(dividend);
+		/*const*/ uint32_t _bh_ = m >> 32;
+		/*const*/ uint32_t _bl_ = uint32_t(m);
 	#ifdef _MSC_VER
-		unsigned _s_ = s, result;
+		uint32_t _s_ = s, result;
 		__asm {
 			// It's worth noting that simple benchmarks show this to be
 			// no faster than straight division on an Intel E8400
@@ -93,7 +93,7 @@ public:
 			mov		result,ebx
 		}
 	#ifdef DEBUG
-		unsigned checkResult = divinC(dividend);
+		uint32_t checkResult = divinC(dividend);
 		assert(checkResult == result);
 	#endif
 		return result;
@@ -102,8 +102,8 @@ public:
 		// constraints: between two sections gcc can reassign operands
 		// to different registers or memory locations. Apparently there
 		// are only 3 free registers available on OSX (devel flavour).
-		unsigned _th_, _tl_;
-		unsigned dummy;
+		uint32_t _th_, _tl_;
+		uint32_t dummy;
 		asm (
 			"mull	%[BL]\n\t"       // eax = [AH]
 			"movl	%%eax,%[TL]\n\t"
@@ -163,8 +163,8 @@ public:
 		return _cl_;
 	#endif
 	#elif defined(__arm__)
-		unsigned res;
-		unsigned dummy;
+		uint32_t res;
+		uint32_t dummy;
 		asm volatile (
 			"ldmia	%[RES],{r3,r4,r5,r6,r8}\n\t"
 
@@ -191,7 +191,7 @@ public:
 			: [RES] "=r"    (res)
 			, [T]   "=&r"   (dummy)
 			:       "[RES]" (this)
-			, [AL]  "r"     (unsigned(dividend))
+			, [AL]  "r"     (uint32_t(dividend))
 			, [AH]  "r"     (dividend >> 32)
 			: "r3","r4","r5","r6","r8"
 		);
@@ -201,31 +201,31 @@ public:
 	#endif
 	}
 
-	inline unsigned divinC(uint64 dividend) const
+	inline uint32_t divinC(uint64_t dividend) const
 	{
-		uint64 t1 = uint64(unsigned(dividend)) * unsigned(m);
-		uint64 t2 = (dividend >> 32) * unsigned(m);
-		uint64 t3 = unsigned(dividend) * (m >> 32);
-		uint64 t4 = (dividend >> 32) * (m >> 32);
+		uint64_t t1 = uint64_t(uint32_t(dividend)) * uint32_t(m);
+		uint64_t t2 = (dividend >> 32) * uint32_t(m);
+		uint64_t t3 = uint32_t(dividend) * (m >> 32);
+		uint64_t t4 = (dividend >> 32) * (m >> 32);
 
-		uint64 s1 = uint64(unsigned(a)) + unsigned(t1);
-		uint64 s2 = (s1 >> 32) + (a >> 32) + (t1 >> 32) + t2;
-		uint64 s3 = uint64(unsigned(s2)) + unsigned(t3);
-		uint64 s4 = (s3 >> 32) + (s2 >> 32) + (t3 >> 32) + t4;
+		uint64_t s1 = uint64_t(uint32_t(a)) + uint32_t(t1);
+		uint64_t s2 = (s1 >> 32) + (a >> 32) + (t1 >> 32) + t2;
+		uint64_t s3 = uint64_t(uint32_t(s2)) + uint32_t(t3);
+		uint64_t s4 = (s3 >> 32) + (s2 >> 32) + (t3 >> 32) + t4;
 
-		uint64 result = s4 >> s;
+		uint64_t result = s4 >> s;
 	#ifdef DEBUG
 		// we don't even want this overhead in devel builds
-		assert(result == unsigned(result));
+		assert(result == uint32_t(result));
 	#endif
-		return unsigned(result);
+		return uint32_t(result);
 	}
 
-	unsigned mod(uint64 dividend) const
+	uint32_t mod(uint64_t dividend) const
 	{
 	#ifdef __arm__
-		unsigned res;
-		unsigned dummy;
+		uint32_t res;
+		uint32_t dummy;
 		asm volatile (
 			"ldmia	%[RES],{r3,r4,r5,r6,r8,r9}\n\t"
 
@@ -254,26 +254,26 @@ public:
 			: [RES] "=r"    (res)
 			, [T]   "=&r"   (dummy)
 			:       "[RES]" (this)
-			, [AL]  "r"     (unsigned(dividend))
+			, [AL]  "r"     (uint32_t(dividend))
 			, [AH]  "r"     (dividend >> 32)
 			: "r3","r4","r5","r6","r8","r9"
 		);
 		return res;
 	#else
-		assert(unsigned(divisor) == divisor); // must fit in 32-bit
-		uint64 q = div(dividend);
-		assert(unsigned(q) == q); // must fit in 32 bit
+		assert(uint32_t(divisor) == divisor); // must fit in 32-bit
+		uint64_t q = div(dividend);
+		assert(uint32_t(q) == q); // must fit in 32 bit
 		// result fits in 32-bit, so no 64-bit calculations required
-		return unsigned(dividend) - unsigned(q) * unsigned(divisor);
+		return uint32_t(dividend) - uint32_t(q) * uint32_t(divisor);
 	#endif
 	}
 
 private:
 	// note: order is important for ARM asm routines
-	uint64 m;
-	uint64 a;
-	unsigned s;
-	unsigned divisor; // only used by mod() and getDivisor()
+	uint64_t m;
+	uint64_t a;
+	uint32_t s;
+	uint32_t divisor; // only used by mod() and getDivisor()
 };
 
 } // namespace openmsx

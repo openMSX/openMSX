@@ -181,7 +181,7 @@ public:
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
-	const unsigned long long reference;
+	const uint64_t reference;
 };
 
 
@@ -1120,7 +1120,7 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 void RealTimeInfo::execute(const vector<TclObject>& /*tokens*/,
                            TclObject& result) const
 {
-	unsigned long long delta = Timer::getTime() - reference;
+	auto delta = Timer::getTime() - reference;
 	result.setDouble(delta / 1000000.0);
 }
 

@@ -50,7 +50,7 @@ private:
 	unsigned timerCallback2();
 
 	std::vector<Alarm*> alarms;
-	long long time;
+	int64_t time;
 	SDL_TimerID id;
 	Semaphore sem;
 	static volatile bool enabled;
@@ -115,7 +115,7 @@ void AlarmManager::start(Alarm& alarm, unsigned period)
 
 	if (id) {
 		// there already is a timer
-		long long diff = time - alarm.time;
+		int64_t diff = time - alarm.time;
 		if (diff <= 0) {
 			// but we already have an earlier timer, do nothing
 		} else {
@@ -158,14 +158,14 @@ unsigned AlarmManager::timerCallback2()
 	// note: runs in a different thread!
 	ScopedLock lock(sem);
 
-	long long now = Timer::getTime();
-	long long earliest = std::numeric_limits<long long>::max();
+	int64_t now = Timer::getTime();
+	int64_t earliest = std::numeric_limits<int64_t>::max();
 	for (auto& a : alarms) {
 		if (a->active) {
 			// timer active
 			// note: don't compare time directly (a->time < now),
 			//       because there is a small chance time will wrap
-			long long left = a->time - now;
+			int64_t left = a->time - now;
 			if (left <= 0) {
 				// timer expired
 				if (a->alarm()) {
@@ -185,7 +185,7 @@ unsigned AlarmManager::timerCallback2()
 			}
 		}
 	}
-	if (earliest != std::numeric_limits<long long>::max()) {
+	if (earliest != std::numeric_limits<int64_t>::max()) {
 		time = earliest + now;
 		assert(id != nullptr);
 		return convert(int(earliest));

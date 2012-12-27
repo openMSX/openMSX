@@ -8,11 +8,11 @@
 #include "EmuTime.hh"
 #include "Keys.hh"
 #include "build-info.hh"
-
 #include <vector>
 #include <deque>
 #include <memory>
 #include <map>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -60,7 +60,7 @@ private:
 #endif
 
 	EmuTime prevEmu;
-	unsigned long long prevReal;
+	uint64_t prevReal;
 	const std::unique_ptr<FloatSetting> delaySetting;
 };
 

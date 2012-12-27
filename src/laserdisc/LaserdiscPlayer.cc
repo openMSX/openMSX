@@ -925,8 +925,8 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	}
 
 	playerState = PLAYER_STILL;
-	long long samplePos = (currentFrame - 1ll) * 1001ll *
-			video->getSampleRate() / 30000ll;
+	int64_t samplePos = (currentFrame - 1ll) * 1001ll *
+	                    video->getSampleRate() / 30000ll;
 	playingFromSample = samplePos;
 
 	if (needseek) {
@@ -973,8 +973,8 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 				seektime = 1800 + dist / 12;
 			}
 
-			long long samplePos = (toframe - 1ll) * 1001ll *
-					video->getSampleRate() / 30000ll;
+			int64_t samplePos = (toframe - 1ll) * 1001ll *
+			                    video->getSampleRate() / 30000ll;
 
 			if (video->getFrameRate() == 60)
 				video->seek(toframe * 2, samplePos);
@@ -1174,7 +1174,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		if (ar.isLoader()) {
 			// If the samplerate differs, adjust accordingly
 			if (video->getSampleRate() != sampleClock.getFreq()) {
-				uint64 pos = playingFromSample;
+				uint64_t pos = playingFromSample;
 
 				pos *= video->getSampleRate();
 				pos /= sampleClock.getFreq();

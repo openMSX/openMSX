@@ -132,8 +132,8 @@ void Y8950Adpcm::schedule()
 		if (reg7 & R07_MEMORY_DATA) {
 			// we already did a sync(time), so clock is up-to-date
 			Clock<Y8950::CLOCK_FREQ, Y8950::CLOCK_FREQ_DIV> stop(clock);
-			uint64 samples = stopAddr - emu.memPntr + 1;
-			uint64 length = (samples << STEP_BITS) +
+			uint64_t samples = stopAddr - emu.memPntr + 1;
+			uint64_t length = (samples << STEP_BITS) +
 					((1 << STEP_BITS) - emu.nowStep) +
 					(delta - 1);
 			stop += unsigned(length / delta);

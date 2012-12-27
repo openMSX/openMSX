@@ -34,15 +34,9 @@ DEALINGS IN THE SOFTWARE.
 #define UTF8_CORE_HH
 
 #include <iterator>
+#include <cstdint>
 
 namespace utf8 {
-
-// The typedefs for 8-bit, 16-bit and 32-bit unsigned integers
-// You may need to change them to match your system.
-// These typedefs have the same names as ones from cstdint, or boost/cstdint
-typedef unsigned char  uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned int   uint32_t;
 
 // Helper code - not intended to be directly called by the library users.
 // May be changed at any time

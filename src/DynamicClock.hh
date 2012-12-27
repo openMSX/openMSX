@@ -58,7 +58,7 @@ public:
 	template<typename FIXED>
 	void getTicksTill(EmuTime::param e, FIXED& result) const {
 		assert(e.time >= lastTick.time);
-		uint64 tmp = (e.time - lastTick.time) << FIXED::FRACTION_BITS;
+		uint64_t tmp = (e.time - lastTick.time) << FIXED::FRACTION_BITS;
 		result = FIXED::create(divmod.div(tmp + (getStep() / 2)));
 	}
 
@@ -76,7 +76,7 @@ public:
 		return double(e.time - lastTick.time) / getStep();
 	}
 
-	unsigned long long getTotalTicks() const {
+	uint64_t getTotalTicks() const {
 		// note: don't use divmod.div() because that one only returns a
 		//       32 bit result. Maybe improve in the future.
 		return lastTick.time / getStep();
@@ -95,8 +95,8 @@ public:
 	  */
 	void setFreq(unsigned freq_num, unsigned freq_denom) {
 		static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
-		unsigned long long p = MAIN_FREQ * freq_denom + (freq_num / 2);
-		unsigned long long newStep = p / freq_num;
+		uint64_t p = MAIN_FREQ * freq_denom + (freq_num / 2);
+		uint64_t newStep = p / freq_num;
 		assert(newStep < (1ull << 32));
 		assert(newStep);
 		divmod.setDivisor(unsigned(newStep));
@@ -126,14 +126,14 @@ public:
 
 	/** Advance this clock by the given number of ticks.
 	  */
-	void operator+=(uint64 n) {
+	void operator+=(uint64_t n) {
 		lastTick.time += n * getStep();
 	}
 
 	/** Calculate the time at which this clock will have ticked the given
 	  * number of times (counted from its last tick).
 	  */
-	const EmuTime operator+(uint64 n) const {
+	const EmuTime operator+(uint64_t n) const {
 		return EmuTime(lastTick.time + n * getStep());
 	}
 
@@ -146,13 +146,13 @@ public:
 	void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
-		assert((uint64(n) * getStep()) < (1ull << 32));
+		assert((uint64_t(n) * getStep()) < (1ull << 32));
 		#endif
 		lastTick.time += n * getStep();
 	}
 	EmuTime getFastAdd(unsigned n) const {
 		#ifdef DEBUG
-		assert((uint64(n) * getStep()) < (1ull << 32));
+		assert((uint64_t(n) * getStep()) < (1ull << 32));
 		#endif
 		return EmuTime(lastTick.time + n * getStep());
 	}
@@ -162,7 +162,7 @@ public:
 
 private:
 	/** Length of a this clock's ticks, expressed in master clock ticks.
-	  *   changed uint64 -> unsigned for performance reasons
+	  *   changed uint64_t -> unsigned for performance reasons
 	  *   this is _heavily_ used in the CPU code
 	  * We used to store this as a member, but DivModBySame also stores
 	  * it, so we can as well get it from there (getter is inlined).

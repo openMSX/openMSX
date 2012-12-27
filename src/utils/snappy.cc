@@ -7,7 +7,7 @@
 #include <cassert>
 #include <cstring>
 #include <cstdlib>
-#include <stdint.h>
+#include <cstdint>
 
 using namespace openmsx;
 

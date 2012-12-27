@@ -207,7 +207,7 @@ bool stringToUint(const string& str, unsigned& result)
 	return *endptr == '\0';
 }
 
-unsigned long long stringToUint64(const string& str)
+uint64_t stringToUint64(const string& str)
 {
        return strtoull(str.c_str(), nullptr, 0);
 }

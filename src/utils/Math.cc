@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Math.hh"
+#include <cstdint>
 
 #if defined _MSC_VER && defined __x86_64
 #include <emmintrin.h>
@@ -114,7 +115,7 @@ long lrintf(float x)
 //LEAF_END truncf, Math
 float truncf(float x)
 {
-	__int64 tempi = _mm_cvttss_si64(_mm_load_ss(&x));
+	int64_t tempi = _mm_cvttss_si64(_mm_load_ss(&x));
 	__m128 xmmx = _mm_cvtsi64_ss(_mm_setzero_ps(), tempi);
 
 	float ret;
@@ -168,7 +169,7 @@ double round(double x)
 	}
 
 	// ... then round towards zero
-	__int64 tempi64 = _mm_cvttsd_si64(xmmx);
+	int64_t tempi64 = _mm_cvttsd_si64(xmmx);
 	xmmx = _mm_cvtsi64_sd(_mm_setzero_pd(), tempi64);
 
 	double ret;

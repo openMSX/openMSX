@@ -207,10 +207,10 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		sync(time, true);
 
 		// Let underlying graphics system finish rendering this frame.
-		unsigned long long time1 = Timer::getTime();
+		auto time1 = Timer::getTime();
 		rasterizer->frameEnd();
-		unsigned long long time2 = Timer::getTime();
-		unsigned long long current = time2 - time1;
+		auto time2 = Timer::getTime();
+		auto current = time2 - time1;
 		const double ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;

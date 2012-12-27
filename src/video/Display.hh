@@ -12,6 +12,7 @@
 #include "string_ref.hh"
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -51,7 +52,7 @@ public:
 	  */
 	void repaint();
 	void repaint(OutputSurface& surface);
-	void repaintDelayed(unsigned long long delta);
+	void repaintDelayed(uint64_t delta);
 
 	void addLayer(Layer& layer);
 	void removeLayer(Layer& layer);
@@ -92,9 +93,9 @@ private:
 
 	// fps related data
 	static const unsigned NUM_FRAME_DURATIONS = 50;
-	CircularBuffer<unsigned long long, NUM_FRAME_DURATIONS> frameDurations;
-	unsigned long long frameDurationSum;
-	unsigned long long prevTimeStamp;
+	CircularBuffer<uint64_t, NUM_FRAME_DURATIONS> frameDurations;
+	uint64_t frameDurationSum;
+	uint64_t prevTimeStamp;
 
 	friend class FpsInfoTopic;
 	const std::unique_ptr<AlarmEvent> alarm; // delayed repaint

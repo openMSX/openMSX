@@ -3,9 +3,9 @@
 #ifndef SHA1_HH
 #define SHA1_HH
 
-#include "openmsx.hh"
 #include "string_ref.hh"
 #include <string>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -37,7 +37,7 @@ public:
 	bool operator< (const Sha1Sum& other) const;
 
 private:
-	uint32 a[5];
+	uint32_t a[5];
 	friend class SHA1;
 };
 
@@ -58,14 +58,14 @@ public:
 	SHA1();
 
 	/** Incrementally calculate the hash value. */
-	void update(const byte* data, size_t len);
+	void update(const uint8_t* data, size_t len);
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
 	Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	static Sha1Sum calc(const byte* data, size_t len);
+	static Sha1Sum calc(const uint8_t* data, size_t len);
 
 	/** Easier to use interface, if you can pass all data in one go. But
 	  * also report progress.
@@ -73,17 +73,17 @@ public:
 	  * completely, in one call. The caller is responsible to make sure
 	  * this is the case.
 	  */
-	static Sha1Sum calcWithProgress(const byte* data, size_t len, const
+	static Sha1Sum calcWithProgress(const uint8_t* data, size_t len, const
 			std::string& filename, CliComm& cliComm,
 			EventDistributor& distributor);
 
 private:
-	void transform(const byte buffer[64]);
+	void transform(const uint8_t buffer[64]);
 	void finalize();
 
-	uint64 m_count;
+	uint64_t m_count;
 	Sha1Sum m_state;
-	byte m_buffer[64];
+	uint8_t m_buffer[64];
 	bool m_finalized;
 };
 

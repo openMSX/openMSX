@@ -221,7 +221,7 @@ unsigned RealDrive::getCurrentAngle(EmuTime::param time) const
 {
 	if (motorStatus) {
 		// rotating, take passed time into account
-		unsigned long long deltaAngle = motorTimer.getTicksTillUp(time);
+		auto deltaAngle = motorTimer.getTicksTillUp(time);
 		return (startAngle + deltaAngle) % TICKS_PER_ROTATION;
 	} else {
 		// not rotating, angle didn't change

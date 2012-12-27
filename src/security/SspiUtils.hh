@@ -20,7 +20,7 @@
 
 #include <security.h>
 #include <vector>
-#include "openmsx.hh"
+#include <cstdint>
 
 //
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
@@ -34,8 +34,8 @@ const unsigned STREAM_ERROR = 0xffffffff;
 class StreamWrapper
 {
 public:
-	virtual uint32 Read (void* buffer, uint32 cb) = 0;
-	virtual uint32 Write(void* buffer, uint32 cb) = 0;
+	virtual uint32_t Read (void* buffer, uint32_t cb) = 0;
+	virtual uint32_t Write(void* buffer, uint32_t cb) = 0;
 };
 
 class SspiPackageBase
@@ -70,8 +70,8 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd);
 PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor();
 unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package);
 
-bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb);
-bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32 cbMaxSize);
+bool SendChunk(StreamWrapper& stream, void* buffer, uint32_t cb);
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32_t cbMaxSize);
 
 } // namespace sspiutils
 } // namespace openmsx

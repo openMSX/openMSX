@@ -36,7 +36,7 @@ namespace openmsx {
   * that image's alpha channel is used instead.
   */
 static const int CONSOLE_ALPHA = 180;
-static const unsigned long long BLINK_RATE = 500000; // us
+static const uint64_t BLINK_RATE = 500000; // us
 static const int CHAR_BORDER = 4;
 
 
@@ -203,11 +203,11 @@ void OSDConsoleRenderer::setActive(bool active_)
 
 byte OSDConsoleRenderer::getVisibility() const
 {
-	const unsigned long long FADE_IN_DURATION  = 100000;
-	const unsigned long long FADE_OUT_DURATION = 150000;
+	const uint64_t FADE_IN_DURATION  = 100000;
+	const uint64_t FADE_OUT_DURATION = 150000;
 
-	unsigned long long now = Timer::getTime();
-	unsigned long long dur = now - activeTime;
+	auto now = Timer::getTime();
+	auto dur = now - activeTime;
 	if (active) {
 		if (dur > FADE_IN_DURATION) {
 			return 255;
@@ -446,7 +446,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 
 	// Check if the blink period is over
-	unsigned long long now = Timer::getTime();
+	auto now = Timer::getTime();
 	if (lastBlinkTime < now) {
 		lastBlinkTime = now + BLINK_RATE;
 		blink = !blink;

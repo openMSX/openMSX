@@ -23,7 +23,7 @@ TimedEvent::TimedEvent(EventType type)
 {
 }
 
-unsigned long long TimedEvent::getRealTime() const
+uint64_t TimedEvent::getRealTime() const
 {
 	return realtime;
 }

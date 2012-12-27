@@ -18,15 +18,15 @@ namespace openmsx {
 
 namespace Timer {
 
-static inline unsigned long long getSDLTicks()
+static inline uint64_t getSDLTicks()
 {
-	return static_cast<unsigned long long>(SDL_GetTicks()) * 1000;
+	return static_cast<uint64_t>(SDL_GetTicks()) * 1000;
 }
 
-unsigned long long getTime()
+uint64_t getTime()
 {
-	static unsigned long long lastTime = 0;
-	unsigned long long now;
+	static uint64_t lastTime = 0;
+	uint64_t now;
 /* QueryPerformanceCounter() has problems on modern CPUs,
  *  - on dual core CPUs time can ge backwards (a bit) when your process
  *    get scheduled on the other core
@@ -47,7 +47,7 @@ unsigned long long getTime()
 
 	// Assumes that the timer never wraps. The mask is just to
 	// ensure that the multiplication doesn't wrap.
-	now = (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
+	now = (li.QuadPart & (int64_t(-1) >> 20)) * 1000000 / hfFrequency;
 */
 #if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK)
 	// Note: in the past we used the more portable gettimeofday() function,
@@ -55,8 +55,8 @@ unsigned long long getTime()
 	timespec ts;
 	int result = clock_gettime(CLOCK_MONOTONIC, &ts);
 	assert(result == 0); (void)result;
-	now = static_cast<unsigned long long>(ts.tv_sec) * 1000000 +
-	      static_cast<unsigned long long>(ts.tv_nsec) / 1000;
+	now = static_cast<uint64_t>(ts.tv_sec) * 1000000 +
+	      static_cast<uint64_t>(ts.tv_nsec) / 1000;
 #else
 	now = getSDLTicks();
 #endif
@@ -83,7 +83,7 @@ static void CALLBACK timerCallback(unsigned int,
 }
 #endif*/
 
-void sleep(unsigned long long us)
+void sleep(uint64_t us)
 {
 /*#if defined _WIN32
 	us /= 1000;

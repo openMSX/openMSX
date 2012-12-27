@@ -232,12 +232,12 @@ unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package)
 	return cbMaxToken;
 }
 
-bool Send(StreamWrapper& stream, void* buffer, uint32 cb)
+bool Send(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
-	uint32 sent = 0;
+	uint32_t sent = 0;
 	while (sent < cb)
 	{
-		uint32 ret = stream.Write((char*)buffer + sent, cb - sent);
+		uint32_t ret = stream.Write((char*)buffer + sent, cb - sent);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -246,20 +246,20 @@ bool Send(StreamWrapper& stream, void* buffer, uint32 cb)
 	return true;
 }
 
-bool SendChunk(StreamWrapper& stream, void* buffer, uint32 cb)
+bool SendChunk(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
-	uint32 nl = htonl(cb);
+	uint32_t nl = htonl(cb);
 	if (!Send(stream, &nl, sizeof(nl))) {
 		return false;
 	}
 	return Send(stream, buffer, cb);
 }
 
-bool Recv(StreamWrapper& stream, void* buffer, uint32 cb)
+bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
-	uint32 recvd = 0;
+	uint32_t recvd = 0;
 	while (recvd < cb) {
-		uint32 ret = stream.Read((char*)buffer + recvd, cb - recvd);
+		uint32_t ret = stream.Read((char*)buffer + recvd, cb - recvd);
 		if (ret == STREAM_ERROR) {
 			return false;
 		}
@@ -269,9 +269,9 @@ bool Recv(StreamWrapper& stream, void* buffer, uint32 cb)
 	return true;
 }
 
-bool RecvChunkSize(StreamWrapper& stream, uint32* pcb)
+bool RecvChunkSize(StreamWrapper& stream, uint32_t* pcb)
 {
-	uint32 cb;
+	uint32_t cb;
 	bool ret = Recv(stream, &cb, sizeof(cb));
 	if (ret) {
 		*pcb = ntohl(cb);
@@ -279,9 +279,9 @@ bool RecvChunkSize(StreamWrapper& stream, uint32* pcb)
 	return ret;
 }
 
-bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32 cbMaxSize)
+bool RecvChunk(StreamWrapper& stream, std::vector<char>& buffer, uint32_t cbMaxSize)
 {
-	uint32 cb;
+	uint32_t cb;
 	if (!RecvChunkSize(stream, &cb) || cb > cbMaxSize) {
 		return false;
 	}

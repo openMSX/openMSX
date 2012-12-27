@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <ctime>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -98,7 +99,7 @@ private:
 
 	Pool pool;
 	std::map<std::string, Pool::iterator> reversePool;
-	unsigned long long lastTime; // to indicate progress
+	uint64_t lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
 	bool quit;
 	bool needWrite;

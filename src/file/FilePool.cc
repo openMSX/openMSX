@@ -322,7 +322,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 {
 	amountScanned++;
 	// Periodically send a progress message with the current filename
-	unsigned long long now = Timer::getTime();
+	auto now = Timer::getTime();
 	if (now > (lastTime + 250000)) { // 4Hz
 		lastTime = now;
 		cliComm.printProgress("Searching for file with sha1sum " +

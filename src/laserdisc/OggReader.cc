@@ -807,24 +807,24 @@ size_t OggReader::bisection(
 {
 	// Defined to be a power-of-two such that the arthmetic can be done faster.
 	// Note that the sample-number is in the range of: 1..(44100*60*60)
-	static const uint64 SHIFT = 0x20000000ull;
+	static const uint64_t SHIFT = 0x20000000ull;
 
-	uint64 offsetA = 0, offsetB = maxOffset;
-	uint64 sampleA = 0, sampleB = maxSamples;
-	uint64 frameA = 1, frameB = maxFrames;
+	uint64_t offsetA = 0, offsetB = maxOffset;
+	uint64_t sampleA = 0, sampleB = maxSamples;
+	uint64_t frameA = 1, frameB = maxFrames;
 
 	while (true) {
-		uint64 ratio = (frame - frameA) * SHIFT / (frameB - frameA);
+		uint64_t ratio = (frame - frameA) * SHIFT / (frameB - frameA);
 		if (ratio < 5) {
 			return offsetA;
 		}
 
-		uint64 frameOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
+		uint64_t frameOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
 		ratio = (sample - sampleA) * SHIFT / (sampleB - sampleA);
 		if (ratio < 5) {
 			return offsetA;
 		}
-		uint64 sampleOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
+		uint64_t sampleOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
 		auto offset = std::min(sampleOffset, frameOffset);
 	
 		file->seek(offset);

@@ -5,6 +5,7 @@
 
 #include "OSDWidget.hh"
 #include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -45,7 +46,7 @@ private:
 	void setRGBA(const unsigned newRGBA[4]);
 	bool isFading() const;
 	double getCurrentFadeValue() const;
-	double getCurrentFadeValue(unsigned long long) const;
+	double getCurrentFadeValue(uint64_t) const;
 	void updateCurrentFadeValue();
 
 	void paint(OutputSurface& output, bool openGL);
@@ -53,7 +54,7 @@ private:
 	                      double& outx, double& outy) const;
 
 	const OSDGUI& gui;
-	unsigned long long startFadeTime;
+	uint64_t startFadeTime;
 	double fadePeriod;
 	double fadeTarget;
 	mutable double startFadeValue;

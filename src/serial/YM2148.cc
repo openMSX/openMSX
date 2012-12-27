@@ -156,7 +156,7 @@ void YM2148::writeCommand(byte value)
 		reset();
 	}
 
-	// TODO: charTime = (unsigned)((uint64)144 * boardFrequency() / 500000);
+	// TODO: charTime = (unsigned)((uint64_t)144 * boardFrequency() / 500000);
 }
 
 void YM2148::writeData(byte value)

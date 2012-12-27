@@ -52,8 +52,8 @@ void LedStatus::setLed(Led led, bool status)
 	// the LEDs as a VU meter while playing samples). Without throttling
 	// all these events overload the host CPU. That's why we limit it to
 	// 100 events per second.
-	unsigned long long now = Timer::getTime();
-	unsigned long long diff = now - lastTime;
+	auto now = Timer::getTime();
+	auto diff = now - lastTime;
 	if (diff > 10000) { // 1/100 s
 		// handle now
 		lastTime = now;

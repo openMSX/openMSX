@@ -15,11 +15,11 @@ class TimedEvent : public Event
 {
 public:
 	/** Query creation time. */
-	unsigned long long getRealTime() const;
+	uint64_t getRealTime() const;
 protected:
 	explicit TimedEvent(EventType type);
 private:
-	const unsigned long long realtime;
+	const uint64_t realtime;
 };
 
 

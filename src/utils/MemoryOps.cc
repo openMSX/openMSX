@@ -30,10 +30,10 @@ namespace MemoryOps {
 // note: xmm0 must already be filled in
 //       bit0 of num is ignored
 static inline void memset_128_SSE_streaming(
-	unsigned long long* dest, size_t num)
+	uint64_t* dest, size_t num)
 {
 	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
-	unsigned long long* e = dest + num - 3;
+	uint64_t* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
 #if defined _MSC_VER
 		__asm {
@@ -67,10 +67,10 @@ static inline void memset_128_SSE_streaming(
 	}
 }
 
-static inline void memset_128_SSE(unsigned long long* dest, size_t num)
+static inline void memset_128_SSE(uint64_t* dest, size_t num)
 {
 	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
-	unsigned long long* e = dest + num - 3;
+	uint64_t* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
 #if defined _MSC_VER
 		__asm {
@@ -107,7 +107,7 @@ static inline void memset_128_SSE(unsigned long long* dest, size_t num)
 
 template<bool STREAMING>
 static inline void memset_64_SSE(
-	unsigned long long* dest, size_t num, unsigned long long val)
+	uint64_t* dest, size_t num, uint64_t val)
 {
 	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
@@ -132,8 +132,8 @@ static inline void memset_64_SSE(
 		#endif
 	);
 #else
-	unsigned _low_  = unsigned(val >>  0);
-	unsigned _high_ = unsigned(val >> 32);
+	uint32_t _low_  = uint32_t(val >>  0);
+	uint32_t _high_ = uint32_t(val >> 32);
 #if defined _MSC_VER
 	__asm {
 		movss		xmm0,dword ptr [_low_]
@@ -169,14 +169,14 @@ static inline void memset_64_SSE(
 }
 
 static inline void memset_64_MMX(
-	unsigned long long* dest, size_t num, unsigned long long val)
+	uint64_t* dest, size_t num, uint64_t val)
 {
     assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
 #if defined _MSC_VER
-	unsigned lo = unsigned(val >> 0);
-	unsigned hi = unsigned(val >> 32);
-	unsigned long long* e = dest + num - 3;
+	uint32_t lo = uint32_t(val >> 0);
+	uint32_t hi = uint32_t(val >> 32);
+	uint64_t* e = dest + num - 3;
 
 	__asm {
 		movd		mm0,dword ptr [lo]
@@ -214,13 +214,13 @@ end:
 		"movd    %[HIGH],%%mm1;"
 		"punpckldq %%mm1,%%mm0;"
 		: // no output
-		: [LOW]  "r" (unsigned(val >>  0))
-		, [HIGH] "r" (unsigned(val >> 32))
+		: [LOW]  "r" (uint32_t(val >>  0))
+		, [HIGH] "r" (uint32_t(val >> 32))
 		#if defined __MMX__
 		: "mm0", "mm1"
 		#endif
 	);
-	unsigned long long* e = dest + num - 3;
+	uint64_t* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
 		asm volatile (
 			"movq %%mm0,   (%[OUT]);"
@@ -257,7 +257,7 @@ end:
 
 template<bool STREAMING>
 static inline void memset_64(
-        unsigned long long* dest, size_t num, unsigned long long val)
+        uint64_t* dest, size_t num, uint64_t val)
 {
 	assert((size_t(dest) & 7) == 0); // must be 8-byte aligned
 
@@ -271,7 +271,7 @@ static inline void memset_64(
 		return;
 	}
 #endif
-	unsigned long long* e = dest + num - 3;
+	uint64_t* e = dest + num - 3;
 	for (/**/; dest < e; dest += 4) {
 		dest[0] = val;
 		dest[1] = val;
@@ -290,7 +290,7 @@ static inline void memset_64(
 
 template<bool STREAMING>
 static inline void memset_32_2(
-	unsigned* dest, size_t num, unsigned val0, unsigned val1)
+	uint32_t* dest, size_t num, uint32_t val0, uint32_t val1)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
@@ -300,11 +300,11 @@ static inline void memset_32_2(
 		++dest; --num;
 	}
 
-	unsigned long long val = OPENMSX_BIGENDIAN
-		? (static_cast<unsigned long long>(val0) << 32) | val1
-		: val0 | (static_cast<unsigned long long>(val1) << 32);
+	uint64_t val = OPENMSX_BIGENDIAN
+		? (static_cast<uint64_t>(val0) << 32) | val1
+		: val0 | (static_cast<uint64_t>(val1) << 32);
 	memset_64<STREAMING>(
-		reinterpret_cast<unsigned long long*>(dest), num / 2, val);
+		reinterpret_cast<uint64_t*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
 		dest[num - 1] = val0;
@@ -312,7 +312,7 @@ static inline void memset_32_2(
 }
 
 template<bool STREAMING>
-static inline void memset_32(unsigned* dest, size_t num, unsigned val)
+static inline void memset_32(uint32_t* dest, size_t num, uint32_t val)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
 
@@ -367,7 +367,7 @@ static inline void memset_32(unsigned* dest, size_t num, unsigned val)
 	);
 	return;
 #else
-	unsigned* e = dest + num - 7;
+	uint32_t* e = dest + num - 7;
 	for (/**/; dest < e; dest += 8) {
 		dest[0] = val;
 		dest[1] = val;
@@ -398,7 +398,7 @@ static inline void memset_32(unsigned* dest, size_t num, unsigned val)
 
 template<bool STREAMING>
 static inline void memset_16_2(
-	word* dest, size_t num, word val0, word val1)
+	uint16_t* dest, size_t num, uint16_t val0, uint16_t val1)
 {
 	assert((size_t(dest) & 1) == 0); // must be 2-byte aligned
 
@@ -408,10 +408,10 @@ static inline void memset_16_2(
 		++dest; --num;
 	}
 
-	unsigned val = OPENMSX_BIGENDIAN
+	uint32_t val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_32<STREAMING>(reinterpret_cast<unsigned*>(dest), num / 2, val);
+	memset_32<STREAMING>(reinterpret_cast<uint32_t*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
 		dest[num - 1] = val0;
@@ -419,7 +419,7 @@ static inline void memset_16_2(
 }
 
 template<bool STREAMING>
-static inline void memset_16(word* dest, size_t num, word val)
+static inline void memset_16(uint16_t* dest, size_t num, uint16_t val)
 {
 	memset_16_2<STREAMING>(dest, num, val, val);
 }
@@ -430,10 +430,10 @@ void MemSet<Pixel, STREAMING>::operator()(
 {
 	if (sizeof(Pixel) == 2) {
 		memset_16<STREAMING>(
-			reinterpret_cast<word*    >(dest), num, val);
+			reinterpret_cast<uint16_t*>(dest), num, val);
 	} else if (sizeof(Pixel) == 4) {
 		memset_32<STREAMING>(
-			reinterpret_cast<unsigned*>(dest), num, val);
+			reinterpret_cast<uint32_t*>(dest), num, val);
 	} else {
 		UNREACHABLE;
 	}
@@ -445,30 +445,30 @@ void MemSet2<Pixel, STREAMING>::operator()(
 {
 	if (sizeof(Pixel) == 2) {
 		memset_16_2<STREAMING>(
-			reinterpret_cast<word*    >(dest), num, val0, val1);
+			reinterpret_cast<uint16_t*>(dest), num, val0, val1);
 	} else if (sizeof(Pixel) == 4) {
 		memset_32_2<STREAMING>(
-			reinterpret_cast<unsigned*>(dest), num, val0, val1);
+			reinterpret_cast<uint32_t*>(dest), num, val0, val1);
 	} else {
 		UNREACHABLE;
 	}
 }
 
 // Force template instantiation
-template struct MemSet <word,     true >;
-template struct MemSet <word,     false>;
-template struct MemSet <unsigned, true >;
-template struct MemSet <unsigned, false>;
-template struct MemSet2<word,     true >;
-template struct MemSet2<word,     false>;
-template struct MemSet2<unsigned, true >;
-template struct MemSet2<unsigned, false>;
+template struct MemSet <uint16_t, true >;
+template struct MemSet <uint16_t, false>;
+template struct MemSet <uint32_t, true >;
+template struct MemSet <uint32_t, false>;
+template struct MemSet2<uint16_t, true >;
+template struct MemSet2<uint16_t, false>;
+template struct MemSet2<uint32_t, true >;
+template struct MemSet2<uint32_t, false>;
 
 #if COMPONENT_GL
 #if defined _MSC_VER
 // see comment in V9990BitmapConverter
-static_assert(std::is_same<unsigned, GLuint>::value,
-              "GLuint must be the same type as unsigned");
+static_assert(std::is_same<uint32_t, GLuint>::value,
+              "GLuint must be the same type as uint32_t");
 #else
 template<> struct MemSet <GLUtil::NoExpansion, true > {};
 template<> struct MemSet <GLUtil::NoExpansion, false> {};
@@ -483,7 +483,7 @@ template struct MemSet2<GLUtil::ExpandGL, false>;
 
 
 
-void stream_memcpy(unsigned* dst, const unsigned* src, size_t num)
+void stream_memcpy(uint32_t* dst, const uint32_t* src, size_t num)
 {
 	// 'dst' must be 4-byte aligned. For best performance 'src' should also
 	// be 4-byte aligned, but it's not strictly needed.
@@ -599,10 +599,10 @@ void stream_memcpy(unsigned* dst, const unsigned* src, size_t num)
 		return;
 	}
 	#endif
-	memcpy(dst, src, num * sizeof(unsigned));
+	memcpy(dst, src, num * sizeof(uint32_t));
 }
 
-void stream_memcpy(word* dst, const word* src, size_t num)
+void stream_memcpy(uint16_t* dst, const uint16_t* src, size_t num)
 {
 	// 'dst' must be 2-byte aligned. For best performance 'src' should also
 	// be 2-byte aligned, but it's not strictly needed.
@@ -618,8 +618,8 @@ void stream_memcpy(word* dst, const word* src, size_t num)
 			*dst++ = *src++;
 			--num;
 		}
-		auto src2 = reinterpret_cast<const unsigned*>(src);
-		auto dst2 = reinterpret_cast<unsigned*>      (dst);
+		auto src2 = reinterpret_cast<const uint32_t*>(src);
+		auto dst2 = reinterpret_cast<uint32_t*>      (dst);
 		stream_memcpy(dst2, src2, num / 2);
 		if (unlikely(num & 1)) {
 			dst[num - 1] = src[num - 1];
@@ -627,7 +627,7 @@ void stream_memcpy(word* dst, const word* src, size_t num)
 		return;
 	}
 	#endif
-	memcpy(dst, src, num * sizeof(word));
+	memcpy(dst, src, num * sizeof(uint16_t));
 }
 
 

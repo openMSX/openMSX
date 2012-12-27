@@ -333,15 +333,15 @@ void Blur_1on3<Pixel>::operator()(
 		// MMX-EXT routine, 32bpp
 		unsigned long alpha = blur * 256;
 		struct {
-			unsigned long long zero; //  0
-			unsigned long long c0;   //  8
-			unsigned long long c1;   // 16
-			unsigned long long c2;   // 24
-			unsigned long long c3;   // 32
-			unsigned c0_;            // 40
-			unsigned c1_;            // 44
-			unsigned c2_;            // 48
-			unsigned c3_;            // 52
+			uint64_t zero; //  0
+			uint64_t c0;   //  8
+			uint64_t c1;   // 16
+			uint64_t c2;   // 24
+			uint64_t c3;   // 32
+			uint32_t c0_;  // 40
+			uint32_t c1_;  // 44
+			uint32_t c2_;  // 48
+			uint32_t c3_;  // 52
 		} c;
 		c.c0_ = alpha / 2;
 		c.c1_ = alpha + c.c0_;

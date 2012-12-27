@@ -7,9 +7,9 @@
 
 namespace openmsx {
 
-static unsigned log2(uint64 i)
+static uint32_t log2(uint64_t i)
 {
-	unsigned t = 0;
+	uint32_t t = 0;
 	i >>= 1;
 	while (i) {
 		i >>= 1;
@@ -18,14 +18,14 @@ static unsigned log2(uint64 i)
 	return t;
 }
 
-void DivModBySame::setDivisor(unsigned divisor_)
+void DivModBySame::setDivisor(uint32_t divisor_)
 {
-	//assert(divisor_ < 0x8000000000000000ull); // when divisor is uint64
+	//assert(divisor_ < 0x8000000000000000ull); // when divisor is uint64_t
 	divisor = divisor_;
 
 	// reduce divisor until it becomes odd
-	unsigned n = 0;
-	uint64 t = divisor;
+	uint32_t n = 0;
+	uint64_t t = divisor;
 	while (!(t & 1)) {
 		t >>= 1;
 		++n;
@@ -38,8 +38,8 @@ void DivModBySame::setDivisor(unsigned divisor_)
 		// Generate m, s for algorithm 0. Based on: Granlund, T.; Montgomery,
 		// P.L.: "Division by Invariant Integers using Multiplication".
 		// SIGPLAN Notices, Vol. 29, June 1994, page 61.
-		unsigned l = log2(t) + 1;
-		uint64 j = 0xffffffffffffffffull % t;
+		uint32_t l = log2(t) + 1;
+		uint64_t j = 0xffffffffffffffffull % t;
 		uint128 k = (uint128(1) << (64 + l)) / (0xffffffffffffffffull - j);
 		uint128 m_low  =  (uint128(1) << (64 + l))      / t;
 		uint128 m_high = ((uint128(1) << (64 + l)) + k) / t;
@@ -58,7 +58,7 @@ void DivModBySame::setDivisor(unsigned divisor_)
 			// IEEE Transactions on Computers, Vol 37, No. 8, August 1988, page 980.
 			s = log2(t);
 			uint128 m_low =     (uint128(1) << (64 + s)) / t;
-			uint64 r = toUint64((uint128(1) << (64 + s)) % t);
+			uint64_t r = toUint64((uint128(1) << (64 + s)) % t);
 			m = toUint64(m_low + ((r <= (t >> 1)) ? 0 : 1));
 			a = m;
 		}

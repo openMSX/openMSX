@@ -3,13 +3,13 @@
 #ifndef EMUDUARTION_HH
 #define EMUDUARTION_HH
 
-#include "openmsx.hh"
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
 // constants
-static const uint64 MAIN_FREQ = 3579545ULL * 960;
+static const uint64_t MAIN_FREQ = 3579545ULL * 960;
 static const unsigned MAIN_FREQ32 = MAIN_FREQ;
 static_assert(MAIN_FREQ < (1ull << 32), "must fit in 32 bit");
 
@@ -31,9 +31,9 @@ public:
 
 	// constructors
 	EmuDuration()                  : time(0) {}
-	explicit EmuDuration(uint64 n) : time(n) {}
+	explicit EmuDuration(uint64_t n) : time(n) {}
 	explicit EmuDuration(double duration)
-		: time(uint64(duration * MAIN_FREQ)) {}
+		: time(uint64_t(duration * MAIN_FREQ)) {}
 
 	static EmuDuration sec(unsigned x)
 		{ return EmuDuration(x * MAIN_FREQ); }
@@ -46,7 +46,7 @@ public:
 
 	// conversions
 	double toDouble() const { return double(time) / MAIN_FREQ32; }
-	uint64 length() const { return time; }
+	uint64_t length() const { return time; }
 
 	// assignment operator
 	EmuDuration& operator=(EmuDuration::param d)
@@ -79,7 +79,7 @@ public:
 		{ return EmuDuration((time + fact - 1) / fact); }
 	unsigned operator/(EmuDuration::param d) const
 	{
-		uint64 result = time / d.time;
+		uint64_t result = time / d.time;
 #ifdef DEBUG
 		// we don't even want this overhead in devel builds
 		assert(result == unsigned(result));
@@ -87,7 +87,7 @@ public:
 		return unsigned(result);
 	}
 	unsigned divUp(EmuDuration::param d) const {
-		uint64 result = (time + d.time - 1) / d.time;
+		uint64_t result = (time + d.time - 1) / d.time;
 #ifdef DEBUG
 		assert(result == unsigned(result));
 #endif
@@ -97,15 +97,15 @@ public:
 		{ return double(time) / d.time; }
 
 	EmuDuration& operator*=(double fact)
-		{ time = uint64(time * fact); return *this; }
+		{ time = uint64_t(time * fact); return *this; }
 	EmuDuration& operator/=(double fact)
-		{ time = uint64(time / fact); return *this; }
+		{ time = uint64_t(time / fact); return *this; }
 
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?
 	unsigned getTicksAt(unsigned freq) const
 	{
-		uint64 result = time / (MAIN_FREQ32 / freq);
+		uint64_t result = time / (MAIN_FREQ32 / freq);
 #ifdef DEBUG
 		// we don't even want this overhead in devel builds
 		assert(result == unsigned(result));
@@ -120,7 +120,7 @@ public:
 	static const EmuDuration infinity;
 
 private:
-	uint64 time;
+	uint64_t time;
 };
 
 } // namespace openmsx

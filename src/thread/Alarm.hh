@@ -4,6 +4,7 @@
 #define ALARM_HH
 
 #include "noncopyable.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -48,7 +49,7 @@ private:
 	virtual bool alarm() = 0;
 
 	AlarmManager& manager;
-	long long time;
+	int64_t time;
 	unsigned period;
 	bool active;
 	bool destructing; // only for debugging

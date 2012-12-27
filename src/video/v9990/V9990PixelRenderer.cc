@@ -108,10 +108,10 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 		// Render last changes in this frame before starting a new frame
 		sync(time, true);
 
-		unsigned long long time1 = Timer::getTime();
+		auto time1 = Timer::getTime();
 		rasterizer->frameEnd(time);
-		unsigned long long time2 = Timer::getTime();
-		unsigned long long current = time2 - time1;
+		auto time2 = Timer::getTime();
+		auto current = time2 - time1;
 		const double ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;

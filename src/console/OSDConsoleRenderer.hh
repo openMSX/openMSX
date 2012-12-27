@@ -91,8 +91,8 @@ private:
 	TextCache textCache;
 	TextCache::iterator cacheHint;
 
-	unsigned long long lastBlinkTime;
-	unsigned long long activeTime;
+	uint64_t lastBlinkTime;
+	uint64_t activeTime;
 	const unsigned screenW;
 	const unsigned screenH;
 	unsigned destX;

@@ -398,8 +398,8 @@ void Display::repaint()
 	}
 
 	// update fps statistics
-	unsigned long long now = Timer::getTime();
-	unsigned long long duration = now - prevTimeStamp;
+	auto now = Timer::getTime();
+	auto duration = now - prevTimeStamp;
 	prevTimeStamp = now;
 	frameDurationSum += duration - frameDurations.removeBack();
 	frameDurations.addFront(duration);
@@ -414,7 +414,7 @@ void Display::repaint(OutputSurface& surface)
 	}
 }
 
-void Display::repaintDelayed(unsigned long long delta)
+void Display::repaintDelayed(uint64_t delta)
 {
 	if (alarm->pending()) {
 		// already a pending repaint

@@ -173,7 +173,7 @@ double OSDImageBasedWidget::getCurrentFadeValue() const
 	return getCurrentFadeValue(Timer::getTime());
 }
 
-double OSDImageBasedWidget::getCurrentFadeValue(unsigned long long now) const
+double OSDImageBasedWidget::getCurrentFadeValue(uint64_t now) const
 {
 	assert(now >= startFadeTime);
 
@@ -199,7 +199,7 @@ double OSDImageBasedWidget::getCurrentFadeValue(unsigned long long now) const
 
 void OSDImageBasedWidget::updateCurrentFadeValue()
 {
-	unsigned long long now = Timer::getTime();
+	auto now = Timer::getTime();
 	if (isFading()) {
 		startFadeValue = getCurrentFadeValue(now);
 	}
