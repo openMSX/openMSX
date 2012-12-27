@@ -471,10 +471,10 @@ void DBParser::stop()
 
 void DBParser::doctype(string_ref text)
 {
-	unsigned pos1 = text.find(" SYSTEM \"");
+	auto pos1 = text.find(" SYSTEM \"");
 	if (pos1 == string_ref::npos) return;
-	string_ref t = text.substr(pos1 + 9);
-	unsigned pos2 = t.find('"');
+	auto t = text.substr(pos1 + 9);
+	auto pos2 = t.find('"');
 	if (pos2 == string_ref::npos) return;
 	systemID = t.substr(0, pos2);
 }

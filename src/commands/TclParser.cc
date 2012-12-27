@@ -42,7 +42,7 @@ static string_ref type2string(int type)
 
 static bool isNumber(string_ref str)
 {
-	unsigned idx;
+	string_ref::size_type idx;
 	stoll(str, &idx);
 	return idx == str.size();
 }

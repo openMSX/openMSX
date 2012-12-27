@@ -49,8 +49,8 @@ ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
 
 void ConsoleLine::addChunk(string_ref text, unsigned rgb)
 {
-	chunks.push_back(make_pair(rgb, string_ref::size_type(line.size())));
-	line.append(text.data(), string_ref::size_type(text.size()));
+	chunks.push_back(make_pair(rgb, line.size()));
+	line.append(text.data(), text.size());
 }
 
 unsigned ConsoleLine::numChars() const
@@ -188,7 +188,7 @@ void CommandConsole::saveHistory()
 				"Error while saving the console history.");
 		}
 		for (auto& s : history) {
-			outputfile << string_ref(s).substr(string_ref::size_type(prompt.size())) << '\n';
+			outputfile << string_ref(s).substr(prompt.size()) << '\n';
 		}
 	} catch (FileException& e) {
 		commandController.getCliComm().printWarning(e.getMessage());
@@ -502,7 +502,7 @@ void CommandConsole::commandExecute()
 ConsoleLine CommandConsole::highLight(string_ref line)
 {
 	assert(line.starts_with(prompt));
-	string_ref command = line.substr(string_ref::size_type(prompt.size()));
+	string_ref command = line.substr(prompt.size());
 	ConsoleLine result;
 	result.addChunk(prompt, 0xffffff);
 

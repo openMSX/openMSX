@@ -130,7 +130,7 @@ namespace StringOp
 			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 		}
 		bool operator()(string_ref s1, string_ref s2) const {
-			unsigned m = std::min(s1.size(), s2.size());
+			auto m = std::min(s1.size(), s2.size());
 			int r = strncasecmp(s1.data(), s2.data(), m);
 			return (r != 0) ? (r < 0) : (s1.size() < s2.size());
 		}

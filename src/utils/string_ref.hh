@@ -20,8 +20,8 @@
 class string_ref
 {
 public:
-	typedef unsigned size_type; // only 32-bit on x86_64
-	typedef int difference_type;
+	typedef size_t size_type;
+	typedef std::ptrdiff_t difference_type;
 	typedef const char* const_iterator;
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 

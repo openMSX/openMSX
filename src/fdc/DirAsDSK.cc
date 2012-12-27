@@ -238,8 +238,8 @@ static string hostToMsxName(string hostName)
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
-	memcpy(&*result.begin() + 0, file.data(), std::min(8u, file.size()));
-	memcpy(&*result.begin() + 8, ext .data(), std::min(3u, ext .size()));
+	memcpy(&*result.begin() + 0, file.data(), std::min<size_t>(8, file.size()));
+	memcpy(&*result.begin() + 8, ext .data(), std::min<size_t>(3, ext .size()));
 	return result;
 }
 

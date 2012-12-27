@@ -348,8 +348,8 @@ static string makeSimpleMSXFileName(string_ref fullfilename)
 	StringOp::trimRight(ext,  ' ');
 
 	// put in major case and create '_' if needed
-	string fileS(file.data(), std::min(8u, file.size()));
-	string extS (ext .data(), std::min(3u, ext .size()));
+	string fileS(file.data(), std::min<size_t>(8, file.size()));
+	string extS (ext .data(), std::min<size_t>(3, ext .size()));
 	std::transform(fileS.begin(), fileS.end(), fileS.begin(), toMSXChr);
 	std::transform(extS .begin(), extS .end(), extS .begin(), toMSXChr);
 

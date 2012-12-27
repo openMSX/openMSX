@@ -228,9 +228,9 @@ public:
 };
 
 // convenience functions
-inline unsigned size(string_ref utf8)
+inline size_t size(string_ref utf8)
 {
-	return unsigned(utf8::unchecked::distance(utf8.begin(), utf8.end()));
+	return utf8::unchecked::distance(utf8.begin(), utf8.end());
 }
 inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
                          string_ref::size_type len = string_ref::npos)

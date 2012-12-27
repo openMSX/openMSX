@@ -524,7 +524,7 @@ private:
 		}
 
 		// Handle text, but only if non-empty.
-		unsigned len = end - value;
+		auto len = end - value;
 		if (len) handler.text(string_ref(value, len));
 	}
 
