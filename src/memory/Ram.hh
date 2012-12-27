@@ -34,7 +34,7 @@ public:
 		return ram[addr];
 	}
 	unsigned getSize() const {
-		return ram.size();
+		return unsigned(ram.size());
 	}
 
 	const std::string& getName() const;

@@ -189,7 +189,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				throw MSXException("Rom file too big: " +
 				                   file->getURL());
 			}
-			size = size2;
+			size = unsigned(size2);
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: " +
 					   file->getURL());
@@ -241,7 +241,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				patch = make_unique<IPSPatch>(
 					filename, std::move(patch));
 			}
-			unsigned patchSize = patch->getSize();
+			auto patchSize = unsigned(patch->getSize());
 			if (patchSize <= size) {
 				patch->copyBlock(0, const_cast<byte*>(rom), size);
 			} else {

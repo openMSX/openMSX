@@ -129,7 +129,7 @@ public:
 		}
 
 		// Construct the value (using placement new).
-		new (newItem) StringMapEntry(key.size(), std::move(v));
+		new (newItem) StringMapEntry(unsigned(key.size()), std::move(v));
 
 		// Copy the string data.
 		auto strBuffer = const_cast<char*>(newItem->getKeyData());

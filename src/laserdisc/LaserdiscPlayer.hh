@@ -107,7 +107,7 @@ private:
 	void remoteButtonNEC(unsigned code, EmuTime::param time);
 	void submitRemote(RemoteProtocol protocol, unsigned code);
 	void setAck(EmuTime::param time, int wait);
-	unsigned getCurrentSample(EmuTime::param time);
+	size_t getCurrentSample(EmuTime::param time);
 	void createRenderer();
 
 	// SoundDevice
@@ -141,8 +141,8 @@ private:
 	// Audio state
 	DynamicClock sampleClock;
 	EmuTime start;
-	unsigned playingFromSample;
-	unsigned lastPlayedSample;
+	size_t playingFromSample;
+	size_t lastPlayedSample;
 	bool muteLeft, muteRight;
 	StereoMode stereoMode;
 

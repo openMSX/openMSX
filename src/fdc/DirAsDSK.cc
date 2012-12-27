@@ -530,7 +530,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	// correctly, but at least with this mtime-update convention the file
 	// content will be the same on the host and the msx side after every
 	// sync.
-	auto hostSize = fst.st_size;
+	size_t hostSize = fst.st_size;
 	MapDir& mapDir = mapDirs[dirIndex];
 	mapDir.filesize = hostSize;
 	mapDir.mtime = fst.st_mtime;
@@ -558,7 +558,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 				assert(sector < NUM_SECTORS);
 				byte* buf = sectors[sector];
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-				auto sz = std::min<size_t>(remainingSize, SECTOR_SIZE);
+				auto sz = std::min(remainingSize, SECTOR_SIZE);
 				file.read(buf, sz);
 				remainingSize -= sz;
 				if (remainingSize == 0) {
@@ -823,10 +823,11 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	return DirIndex(sector, 0);
 }
 
-void DirAsDSK::writeSectorImpl(size_t sector, const byte* buf)
+void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 {
-	assert(sector < NUM_SECTORS);
+	assert(sector_ < NUM_SECTORS);
 	assert(syncMode != SYNC_READONLY);
+	auto sector = unsigned(sector_);
 
 	// Update last access time.
 	if (Scheduler* scheduler = diskChanger.getScheduler()) {

@@ -18,6 +18,7 @@
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <ctype.h>
 
@@ -333,10 +334,9 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
 	unique_ptr<DiskPartition> partition = getPartition(driveData);
-	unsigned nrsectors = partition->getNbSectors();
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
-	for (unsigned i = 0; i < nrsectors; ++i) {
+	for (auto i : xrange(partition->getNbSectors())) {
 		partition->readSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
 	}

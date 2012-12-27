@@ -299,7 +299,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 	// TODO this is useful during development, but for the end user this
 	// information means nothing. We should remove this later.
 	StringOp::Builder res;
-	unsigned totalSize = 0;
+	size_t totalSize = 0;
 	for (auto& p : history.chunks) {
 		auto& chunk = p.second;
 		res << p.first << ' '

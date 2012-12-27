@@ -74,7 +74,7 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 
 
 // Create a correct bootsector depending on the required size of the filesystem
-static void setBootSector(MSXBootSector& boot, unsigned nbSectors,
+static void setBootSector(MSXBootSector& boot, size_t nbSectors,
                           unsigned& firstDataSector, byte& descriptor)
 {
 	// start from the default bootblock ..
@@ -196,7 +196,7 @@ static void setBootSector(MSXBootSector& boot, unsigned nbSectors,
 void format(SectorAccessibleDisk& disk)
 {
 	// first create a bootsector for given partition size
-	unsigned nbSectors = disk.getNbSectors();
+	size_t nbSectors = disk.getNbSectors();
 	MSXBootSector boot;
 	unsigned firstDataSector;
 	byte descriptor;
@@ -219,7 +219,7 @@ void format(SectorAccessibleDisk& disk)
 
 	// write 'empty' data sectors
 	memset(buf, 0xE5, sizeof(buf));
-	for (unsigned i = firstDataSector; i < nbSectors; ++i) {
+	for (size_t i = firstDataSector; i < nbSectors; ++i) {
 		disk.writeSector(i, buf);
 	}
 }

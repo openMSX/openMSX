@@ -101,15 +101,16 @@ unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 	//       when reading (g)zipped XML.
 	// Note: On destruction of "file", munmap() is called automatically.
 	const byte* fileContent;
-	size_t size;
+	size_t size_;
 	try {
-		fileContent = file.mmap(size);
+		fileContent = file.mmap(size_);
 	} catch (FileException& e) {
 		throw XMLException(filename + ": failed to mmap: " + e.getMessage());
 	}
-	if (size > size_t(std::numeric_limits<int>::max())) {
+	if (size_ > size_t(std::numeric_limits<int>::max())) {
 		throw XMLException(filename + ": file too big");
 	}
+	auto size = int(size_);
 
 	xmlSAXHandler handler;
 	memset(&handler, 0, sizeof(handler));

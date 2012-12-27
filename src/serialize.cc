@@ -89,7 +89,8 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		tmp = Base64::encode(data, len);
 	} else {
 		encoding = "gz-base64";
-		uLongf dstLen = len + len / 1000 + 12 + 1; // worst-case
+		// TODO check for overflow?
+		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
 		MemBuffer<byte> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
 		              reinterpret_cast<const Bytef*>(data), len, 9)
@@ -137,7 +138,7 @@ void InputArchiveBase<Derived>::serialize_blob(
 
 	if (encoding == "gz-base64") {
 		tmp = Base64::decode(tmp);
-		uLongf dstLen = len;
+		auto dstLen = uLongf(len); // TODO check for overflow?
 		if ((uncompress(reinterpret_cast<Bytef*>(data), &dstLen,
 		                reinterpret_cast<const Bytef*>(tmp.data()), uLong(tmp.size()))
 		     != Z_OK) ||

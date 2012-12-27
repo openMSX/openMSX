@@ -92,7 +92,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		auto chunkStart = it->first;
 		int chunkSize = int(it->second.size());
 		// calc chunkOffset, chunkStart
-		int chunkOffset = src - chunkStart;
+		int chunkOffset = int(src - chunkStart);
 		if (chunkOffset < 0) {
 			// start after src
 			assert(-chunkOffset < int(num)); // dont start past end
@@ -107,7 +107,7 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 		}
 		// calc chuncksize
 		assert(src <= chunkStart);
-		int overflow = chunkStart - src + chunkSize - num;
+		int overflow = int(chunkStart - src + chunkSize - num);
 		if (overflow > 0) {
 			assert(chunkSize > overflow);
 			chunkSize -= overflow;

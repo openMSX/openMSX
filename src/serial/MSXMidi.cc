@@ -70,7 +70,7 @@ MSXMidi::MSXMidi(const DeviceConfig& config)
 	, rxrdyIRQ(getMotherBoard(), MSXDevice::getName() + ".IRQrxrdy")
 	, timerIRQlatch(false), timerIRQenabled(false)
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
-	, isExternalMSXMIDI(config.findChild("external"))
+	, isExternalMSXMIDI(config.findChild("external") != nullptr)
 	, isEnabled(!isExternalMSXMIDI)
 	, isLimitedTo8251(true)
 	, outConnector(make_unique<MidiOutConnector>(

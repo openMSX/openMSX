@@ -230,7 +230,7 @@ void SCSILS120::startStopUnit()
 
 unsigned SCSILS120::inquiry()
 {
-	unsigned total  = getNbSectors();
+	auto total      = getNbSectors();
 	unsigned length = currentLength;
 
 	bool fdsmode = (total > 0) && (total <= 2880);
@@ -284,7 +284,7 @@ unsigned SCSILS120::modeSense()
 	byte* pBuffer = buffer;
 
 	if ((currentLength > 0) && (cdb[2] == 3)) {
-		unsigned total   = getNbSectors();
+		auto total       = getNbSectors();
 		byte media       = MT_UNKNOWN;
 		byte sectors     = 64;
 		byte blockLength = SECTOR_SIZE >> 8;
@@ -382,7 +382,7 @@ bool SCSILS120::checkReadOnly()
 
 unsigned SCSILS120::readCapacity()
 {
-	unsigned block = getNbSectors();
+	unsigned block = unsigned(getNbSectors());
 
 	if (block == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
@@ -401,7 +401,7 @@ unsigned SCSILS120::readCapacity()
 
 bool SCSILS120::checkAddress()
 {
-	unsigned total = getNbSectors();
+	unsigned total = unsigned(getNbSectors());
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("ls120 " << int(scsiId) << ": drive not ready");

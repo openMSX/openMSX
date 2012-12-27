@@ -433,7 +433,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				seekState = SEEK_NONE;
 				waitFrame = seekNum % 100000;
 				if (waitFrame >= 101 && waitFrame < 200) {
-					int frame = video->chapter(
+					auto frame = video->chapter(
 						waitFrame - 100);
 					if (frame) waitFrame = frame;
 				}
@@ -776,7 +776,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 				buffers[0][pos * 2 + 1] = 0;
 			}
 		} else {
-			unsigned offset = lastPlayedSample - audio->position;
+			auto offset = unsigned(lastPlayedSample - audio->position);
 			len = std::min(audio->length - offset, num - pos);
 
 			// maybe muting should be moved out of the loop?
@@ -855,7 +855,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 	}
 }
 
-unsigned LaserdiscPlayer::getCurrentSample(EmuTime::param time)
+size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 {
 	switch(playerState) {
 	case PLAYER_PAUSED:

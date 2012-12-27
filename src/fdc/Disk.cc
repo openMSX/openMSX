@@ -59,15 +59,15 @@ void Disk::logToPhys(size_t log, byte& track, byte& side, byte& sector)
 	if (log <= 1) {
 		track = 0;
 		side = 0;
-		sector = log + 1;
+		sector = byte(log + 1);
 		return;
 	}
 	if (!nbSides) {
 		detectGeometry();
 	}
-	track = log / (nbSides * sectorsPerTrack);
-	side = (log / sectorsPerTrack) % nbSides;
-	sector = (log % sectorsPerTrack) + 1;
+	track  = byte(log / (nbSides * sectorsPerTrack)); // TODO check for overflow
+	side   = byte((log / sectorsPerTrack) % nbSides);
+	sector = byte((log % sectorsPerTrack) + 1);
 }
 
 void Disk::setSectorsPerTrack(unsigned num)

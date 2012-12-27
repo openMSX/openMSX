@@ -38,7 +38,7 @@ const std::string& IDEHD::getDeviceName()
 
 void IDEHD::fillIdentifyBlock(byte* buffer)
 {
-	unsigned totalSectors = getNbSectors();
+	auto totalSectors = getNbSectors();
 	word heads = 16;
 	word sectors = 32;
 	word cylinders = totalSectors / (heads * sectors);
@@ -54,7 +54,8 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	// .... ..1.: LBA supported
 	buffer[49 * 2 + 1] = 0x0A;
 
-	Endian::write_UA_L32(&buffer[60 * 2], totalSectors);
+	// TODO check for overflow
+	Endian::write_UA_L32(&buffer[60 * 2], unsigned(totalSectors));
 }
 
 unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
@@ -110,7 +111,8 @@ void IDEHD::executeCommand(byte cmd)
 	case 0xF8: // Read Native Max Address
 		// We don't support the Host Protected Area feature set, but SymbOS
 		// uses only this particular command, so we support just this one.
-		setSectorNumber(getNbSectors());
+		// TODO this only supports 28-bit sector numbers
+		setSectorNumber(unsigned(getNbSectors()));
 		break;
 
 	default: // all others

@@ -46,8 +46,8 @@ string encode(const void* input_, size_t inSize)
 	size_t out = 0;
 	while (inSize) {
 		if (!ret.empty()) ret += '\n';
-		unsigned n2 = std::min<size_t>(45, inSize);
-		unsigned n = n2;
+		auto n2 = std::min<size_t>(45, inSize);
+		auto n = unsigned(n2);
 		for (/**/; n >= 3; n -= 3) {
 			ret[out++] = encode( (input[0] & 0xfc) >> 2);
 			ret[out++] = encode(((input[0] & 0x03) << 4) +
@@ -90,7 +90,7 @@ string decode(const string& input)
 	auto outSize = (inSize * 3 + 3) / 4; // overestimation
 	string ret(outSize, 0); // too big
 
-	size_t i = 0;
+	unsigned i = 0;
 	size_t out = 0;
 	byte buf4[4];
 	for (auto in : xrange(inSize)) {

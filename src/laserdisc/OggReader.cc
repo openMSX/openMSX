@@ -52,7 +52,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 	videoSerial = -1;
 	skeletonSerial = -1;
 	audioHeaders = 3;
-	keyFrame = -1;
+	keyFrame = size_t(-1);
 	currentSample = 0;
 	currentFrame = 1;
 	vorbisPos = 0;
@@ -789,11 +789,11 @@ bool OggReader::nextPage(ogg_page* page)
 			return false;
 		}
 	
-		char* buffer = ogg_sync_buffer(&sync, chunk);
+		char* buffer = ogg_sync_buffer(&sync, long(chunk));
 		file->read(buffer, chunk);
 		fileOffset += chunk;
 
-		if (ogg_sync_wrote(&sync, chunk) == -1) {
+		if (ogg_sync_wrote(&sync, long(chunk)) == -1) {
 			cli.printWarning("Internal error: ogg_sync_wrote failed");
 		}
 	}
@@ -830,7 +830,7 @@ size_t OggReader::bisection(
 		file->seek(offset);
 		fileOffset = offset;
 		ogg_sync_reset(&sync);
-		currentFrame = -1;
+		currentFrame = size_t(-1);
 		currentSample = AudioFragment::UNKNOWN_POS;
 		state = FIND_FIRST;
 
@@ -884,7 +884,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 		file->seek(offset);
 		fileOffset = offset;
 		ogg_sync_reset(&sync);
-		currentFrame = -1;
+		currentFrame = size_t(-1);
 		currentSample = AudioFragment::UNKNOWN_POS;
 		state = FIND_LAST;
 
@@ -911,9 +911,9 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 
 	auto maxOffset = offset;
 	auto maxSamples = currentSample;
-	unsigned maxFrames = currentFrame;
+	auto maxFrames = currentFrame;
 
-	if ((sample > maxSamples) || (unsigned(frame) > maxFrames)) {
+	if ((sample > maxSamples) || (frame > maxFrames)) {
 		sample = maxSamples;
 		frame = maxFrames;
 	}
@@ -926,7 +926,7 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 	ogg_sync_reset(&sync);
 	currentFrame = frame;
 	currentSample = 0;
-	keyFrame = -1;
+	keyFrame = size_t(-1);
 	state = FIND_KEYFRAME;
 
 	while (currentSample == 0 && nextPacket()) {

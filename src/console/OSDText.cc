@@ -355,7 +355,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 	}
 }
 
-unsigned OSDText::splitAtChar(const std::string& line, unsigned maxWidth) const
+size_t OSDText::splitAtChar(const std::string& line, unsigned maxWidth) const
 {
 	return split(line, maxWidth, findCharSplitPoint, takeSingleChar, false);
 }
@@ -367,7 +367,7 @@ struct SplitAtChar {
 	}
 	const OSDText& osdText;
 };
-unsigned OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
+size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 {
 	return split(line, maxWidth, findWordSplitPoint, SplitAtChar(*this), true);
 }
@@ -377,7 +377,7 @@ string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 	vector<string> wrappedLines;
 	for (auto& line : StringOp::split(text, "\n")) {
 		do {
-			unsigned pos = splitAtChar(line, maxWidth);
+			auto pos = splitAtChar(line, maxWidth);
 			wrappedLines.push_back(line.substr(0, pos));
 			line = line.substr(pos);
 		} while (!line.empty());
@@ -391,7 +391,7 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 	vector<string> wrappedLines;
 	for (auto& line : StringOp::split(text, "\n")) {
 		do {
-			unsigned pos = splitAtWord(line, maxWidth);
+			auto pos = splitAtWord(line, maxWidth);
 			string_ref first = string_ref(line).substr(0, pos);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first.str());

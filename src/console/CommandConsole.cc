@@ -55,7 +55,7 @@ void ConsoleLine::addChunk(string_ref text, unsigned rgb)
 
 unsigned ConsoleLine::numChars() const
 {
-	return utf8::unchecked::size(line);
+	return unsigned(utf8::unchecked::size(line));
 }
 
 const string& ConsoleLine::str() const
@@ -548,15 +548,15 @@ void CommandConsole::tabCompletion()
 	string_ref front = utf8::unchecked::substr(lines[0].str(), pl, cursorPosition - pl);
 	string_ref back  = utf8::unchecked::substr(lines[0].str(), cursorPosition);
 	string newFront = commandController.tabCompletion(front);
-	cursorPosition = pl + utf8::unchecked::size(newFront);
+	cursorPosition = pl + unsigned(utf8::unchecked::size(newFront));
 	currentLine = prompt + newFront + back;
 	lines[0] = highLight(currentLine);
 }
 
 void CommandConsole::scroll(int delta)
 {
-	consoleScrollBack = min<int>(max(consoleScrollBack + delta, 0),
-	                             lines.size());
+	consoleScrollBack = min(max(consoleScrollBack + delta, 0),
+	                        int(lines.size()));
 }
 
 void CommandConsole::prevCommand()

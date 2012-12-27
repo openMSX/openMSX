@@ -55,10 +55,10 @@ void Ram::clear(byte c)
 	if (const XMLElement* init = xml.findChild("initialContent")) {
 		// get pattern (and decode)
 		const string& encoding = init->getAttribute("encoding");
-		unsigned done = 0;
+		size_t done = 0;
 		if (encoding == "gz-base64") {
 			string tmp = Base64::decode(init->getData());
-			uLongf dstLen = ram.size();
+			uLongf dstLen = getSize();
 			if (uncompress(reinterpret_cast<Bytef*>(ram.data()), &dstLen,
 			               reinterpret_cast<const Bytef*>(tmp.data()), uLong(tmp.size()))
 			     != Z_OK) {
@@ -76,9 +76,9 @@ void Ram::clear(byte c)
 		}
 
 		// repeat pattern over whole ram
-		unsigned left = ram.size() - done;
+		auto left = ram.size() - done;
 		while (left) {
-			unsigned tmp = std::min(done, left);
+			auto tmp = std::min(done, left);
 			memcpy(&ram[done], &ram[0], tmp);
 			done += tmp;
 			left -= tmp;
