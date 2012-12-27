@@ -175,7 +175,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 	OutputRectangle& output)
 {
 	if (text.empty()) {
-		return make_unique<IMAGE>(0, 0, unsigned(0));
+		return make_unique<IMAGE>(0, 0, 0);
 	}
 	int scale = getScaleFactor(output);
 	if (!font.get()) {
@@ -215,7 +215,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		if (surface.get()) {
 			return make_unique<IMAGE>(std::move(surface));
 		} else {
-			return make_unique<IMAGE>(0, 0, unsigned(0));
+			return make_unique<IMAGE>(0, 0, 0);
 		}
 	} catch (MSXException& e) {
 		throw MSXException("Couldn't render text: " + e.getMessage());
@@ -226,21 +226,21 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 // Search for a position strictly between min and max which also points to the
 // start of a (possibly multi-byte) utf8-character. If no such position exits,
 // this function returns 'min'.
-static unsigned findCharSplitPoint(const string& line, unsigned min, unsigned max)
+static size_t findCharSplitPoint(const string& line, size_t min, size_t max)
 {
-	unsigned pos = (min + max) / 2;
-	const char* beginIt = line.data();
-	const char* posIt = beginIt + pos;
+	auto pos = (min + max) / 2;
+	auto beginIt = line.data();
+	auto posIt = beginIt + pos;
 
-	const char* fwdIt = utf8::sync_forward(posIt);
-	const char* maxIt = beginIt + max;
+	auto fwdIt = utf8::sync_forward(posIt);
+	auto maxIt = beginIt + max;
 	assert(fwdIt <= maxIt);
 	if (fwdIt != maxIt) {
 		return fwdIt - beginIt;
 	}
 
-	const char* bwdIt = utf8::sync_backward(posIt);
-	const char* minIt = beginIt + min;
+	auto bwdIt = utf8::sync_backward(posIt);
+	auto minIt = beginIt + min;
 	assert(minIt <= bwdIt); (void)minIt;
 	return bwdIt - beginIt;
 }
@@ -250,13 +250,13 @@ static unsigned findCharSplitPoint(const string& line, unsigned min, unsigned ma
 // exits, this function returns 'min'.
 // This function works correctly with multi-byte utf8-encoding as long as
 // all delimiter characters are single byte chars.
-static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
+static size_t findWordSplitPoint(string_ref line, size_t min, size_t max)
 {
 	static const char* const delimiters = " -/";
 
 	// initial guess for a good position
 	assert(min < max);
-	unsigned pos = (min + max) / 2;
+	size_t pos = (min + max) / 2;
 	if (pos == min) {
 		// can't reduce further
 		return min;
@@ -269,7 +269,7 @@ static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 		pos2 += min + 1;
 		assert(min < pos2);
 		assert(pos2 <= pos);
-		return unsigned(pos2);
+		return pos2;
 	}
 
 	// try searching forward
@@ -279,23 +279,23 @@ static unsigned findWordSplitPoint(string_ref line, unsigned min, unsigned max)
 		assert(pos3 < max);
 		pos3 += 1; // char directly after a delimiter;
 		if (pos3 < max) {
-			return unsigned(pos3);
+			return pos3;
 		}
 	}
 
 	return min;
 }
 
-static unsigned takeSingleChar(const string& /*line*/, unsigned /*maxWidth*/)
+static size_t takeSingleChar(const string& /*line*/, unsigned /*maxWidth*/)
 {
 	return 1;
 }
 
 template<typename FindSplitPointFunc, typename CantSplitFunc>
-unsigned OSDText::split(const string& line, unsigned maxWidth,
-                        FindSplitPointFunc findSplitPoint,
-                        CantSplitFunc cantSplit,
-                        bool removeTrailingSpaces) const
+size_t OSDText::split(const string& line, unsigned maxWidth,
+                      FindSplitPointFunc findSplitPoint,
+                      CantSplitFunc cantSplit,
+                      bool removeTrailingSpaces) const
 {
 	if (line.empty()) {
 		// empty line always fits (explicitly handle this because
@@ -307,16 +307,16 @@ unsigned OSDText::split(const string& line, unsigned maxWidth,
 	font->getSize(line, width, height);
 	if (width <= maxWidth) {
 		// whole line fits
-		return unsigned(line.size());
+		return line.size();
 	}
 
 	// binary search till we found the largest initial substring that is
 	// not wider than maxWidth
-	unsigned min = 0;
-	unsigned max = unsigned(line.size());
+	size_t min = 0;
+	size_t max = line.size();
 	// invariant: line.substr(0, min) DOES     fit
 	//            line.substr(0, max) DOES NOT fit
-	unsigned cur = findSplitPoint(line, min, max);
+	size_t cur = findSplitPoint(line, min, max);
 	if (cur == 0) {
 		// Could not find a valid split point, then split on char
 		// (this also handles the case of a single too wide char)
@@ -332,7 +332,7 @@ unsigned OSDText::split(const string& line, unsigned maxWidth,
 		font->getSize(curStr, width, height);
 		if (width <= maxWidth) {
 			// still fits, try to enlarge
-			unsigned next = findSplitPoint(line, cur, max);
+			size_t next = findSplitPoint(line, cur, max);
 			if (next == cur) {
 				return cur;
 			}
@@ -340,7 +340,7 @@ unsigned OSDText::split(const string& line, unsigned maxWidth,
 			cur = next;
 		} else {
 			// doesn't fit anymore, try to shrink
-			unsigned next = findSplitPoint(line, min, cur);
+			size_t next = findSplitPoint(line, min, cur);
 			if (next == min) {
 				if (min == 0) {
 					// even the first word does not fit,
@@ -362,7 +362,7 @@ unsigned OSDText::splitAtChar(const std::string& line, unsigned maxWidth) const
 
 struct SplitAtChar {
 	SplitAtChar(const OSDText& osdText_) : osdText(osdText_) {}
-	unsigned operator()(const string& line, unsigned maxWidth) {
+	size_t operator()(const string& line, unsigned maxWidth) {
 		return osdText.splitAtChar(line, maxWidth);
 	}
 	const OSDText& osdText;

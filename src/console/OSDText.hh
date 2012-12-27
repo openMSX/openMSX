@@ -33,7 +33,7 @@ private:
 		OutputRectangle& output);
 
 	template<typename FindSplitPointFunc, typename CantSplitFunc>
-	unsigned split(const std::string& line, unsigned maxWidth,
+	size_t split(const std::string& line, unsigned maxWidth,
 		FindSplitPointFunc findSplitPoint, CantSplitFunc cantSplit,
 		bool removeTrailingSpaces) const;
 	unsigned splitAtChar(const std::string& line, unsigned maxWidth) const;
