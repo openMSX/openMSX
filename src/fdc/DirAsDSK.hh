@@ -51,9 +51,9 @@ private:
 		// file compared to the last host->virtual-disk sync.
 		time_t mtime; // Modification time of host file at the time of
 		              // the last sync.
-		ssize_t filesize; // Host file size, normally the same as msx
-		                  // filesize, except when the host file was
-		                  // truncated.
+		size_t filesize; // Host file size, normally the same as msx
+		                 // filesize, except when the host file was
+		                 // truncated.
 	};
 
 	byte* fat();

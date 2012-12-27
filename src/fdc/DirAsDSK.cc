@@ -498,7 +498,7 @@ void DirAsDSK::checkModifiedHostFiles()
 			// changes are handled elsewhere.
 			if (!isMSXDirectory &&
 			    ((mapDir.mtime    != fst.st_mtime) ||
-			     (mapDir.filesize != fst.st_size))) {
+			     (mapDir.filesize != size_t(fst.st_size)))) {
 				importHostFile(dirIndex, fst);
 			}
 		} else {

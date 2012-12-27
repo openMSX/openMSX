@@ -37,18 +37,17 @@ static inline byte decode(unsigned char c)
 	}
 }
 
-string encode(const void* input_, size_t inSize_)
+string encode(const void* input_, size_t inSize)
 {
-	ssize_t inSize = inSize_;
 	auto input = static_cast<const byte*>(input_);
 	auto outSize = ((inSize + 44) / 45) * 61; // overestimation
 	string ret(outSize, 0); // too big
 
-	ssize_t n = 0;
-	ssize_t out = 0;
-	for (/**/; inSize > 0; inSize -= 45) {
+	size_t out = 0;
+	while (inSize) {
 		if (!ret.empty()) ret += '\n';
-		n = std::min<ssize_t>(45, inSize);
+		unsigned n2 = std::min<size_t>(45, inSize);
+		unsigned n = n2;
 		for (/**/; n >= 3; n -= 3) {
 			ret[out++] = encode( (input[0] & 0xfc) >> 2);
 			ret[out++] = encode(((input[0] & 0x03) << 4) +
@@ -60,7 +59,7 @@ string encode(const void* input_, size_t inSize_)
 		}
 		if (n) {
 			byte buf3[3] = { 0, 0, 0 };
-			for (int i = 0; i < n; ++i) {
+			for (unsigned i = 0; i < n; ++i) {
 				buf3[i] = input[i];
 			}
 			byte buf4[4];
@@ -70,13 +69,14 @@ string encode(const void* input_, size_t inSize_)
 			buf4[2] = ((buf3[1] & 0x0f) << 2) +
 				  ((buf3[2] & 0xc0) >> 6);
 			buf4[3] =  (buf3[2] & 0x3f) >> 0;
-			for (int j = 0; (j < n + 1); ++j) {
+			for (unsigned j = 0; (j < n + 1); ++j) {
 				ret[out++] = encode(buf4[j]);
 			}
 			for (/**/; n < 3; ++n) {
 				ret[out++] = '=';
 			}
 		}
+		inSize -= n2;
 	}
 
 	assert(outSize >= out);
