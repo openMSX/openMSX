@@ -4,6 +4,7 @@
 #define CRC16_HH
 
 #include "openmsx.hh"
+#include <cstring> // for size_t
 
 namespace openmsx {
 
@@ -73,7 +74,7 @@ public:
 	/** For large blocks (e.g. 512 bytes) this routine is approx 5x faster
 	  * than calling the method above in a loop.
 	  */
-	void update(const byte* data, unsigned size)
+	void update(const byte* data, size_t size)
 	{
 		// Based on:
 		//   Slicing-by-4 and slicing-by-8 algorithms by Michael E.
@@ -89,7 +90,7 @@ public:
 		unsigned c = crc; // 32-bit are faster than 16-bit calculations
 		                  // on x86 and many other modern architectures
 		// calculate the bulk of the data 8 bytes at a time
-		for (unsigned n = size / 8; n; --n) {
+		for (auto n = size / 8; n; --n) {
 			c = tab[7][data[0] ^ (c >>  8)] ^
 			    tab[6][data[1] ^ (c & 255)] ^
 			    tab[5][data[2]] ^
