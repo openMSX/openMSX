@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Base64.hh"
+#include "xrange.hh"
 #include <cassert>
 
 namespace Base64 {
@@ -36,17 +37,18 @@ static inline byte decode(unsigned char c)
 	}
 }
 
-string encode(const void* input_, int inSize)
+string encode(const void* input_, size_t inSize_)
 {
+	ssize_t inSize = inSize_;
 	auto input = static_cast<const byte*>(input_);
-	unsigned outSize = ((inSize + 44) / 45) * 61; // overestimation
+	auto outSize = ((inSize + 44) / 45) * 61; // overestimation
 	string ret(outSize, 0); // too big
 
-	int n = 0;
-	unsigned out = 0;
+	ssize_t n = 0;
+	ssize_t out = 0;
 	for (/**/; inSize > 0; inSize -= 45) {
 		if (!ret.empty()) ret += '\n';
-		n = std::min(45, inSize);
+		n = std::min<ssize_t>(45, inSize);
 		for (/**/; n >= 3; n -= 3) {
 			ret[out++] = encode( (input[0] & 0xfc) >> 2);
 			ret[out++] = encode(((input[0] & 0x03) << 4) +
@@ -84,14 +86,14 @@ string encode(const void* input_, int inSize)
 
 string decode(const string& input)
 {
-	unsigned inSize = unsigned(input.size());
-	unsigned outSize = (inSize * 3 + 3) / 4; // overestimation
+	auto inSize = input.size();
+	auto outSize = (inSize * 3 + 3) / 4; // overestimation
 	string ret(outSize, 0); // too big
 
-	unsigned i = 0;
-	unsigned out = 0;
+	size_t i = 0;
+	size_t out = 0;
 	byte buf4[4];
-	for (unsigned in = 0; in < inSize; ++in) {
+	for (auto in : xrange(inSize)) {
 		byte d = decode(input[in]);
 		if (d == byte(-1)) continue;
 		buf4[i++] = d;

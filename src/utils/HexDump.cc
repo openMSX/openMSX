@@ -19,16 +19,18 @@ static string encode(byte x)
 	result += encode2(x & 15);
 	return result;
 }
-string encode(const void* input_, int len, bool newlines)
+string encode(const void* input_, size_t len, bool newlines)
 {
 	auto input = static_cast<const byte*>(input_);
 	string ret;
-	for (/**/; len > 0; len -= 16) {
+	while (len) {
 		if (newlines && !ret.empty()) ret += '\n';
-		for (int i = 0; i < std::min(16, len); ++i) {
+		int t = std::min<size_t>(16, len);
+		for (int i = 0; i < t; ++i) {
 			ret += encode(*input++);
 			if (i != 15) ret += ' ';
 		}
+		len -= t;
 	}
 	return ret;
 }

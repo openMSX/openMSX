@@ -6,7 +6,7 @@
 #include <string>
 
 namespace HexDump {
-	std::string encode(const void* input, int len, bool newlines = true);
+	std::string encode(const void* input, size_t len, bool newlines = true);
 	std::string decode(const std::string& input);
 }
 
