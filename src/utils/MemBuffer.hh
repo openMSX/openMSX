@@ -39,7 +39,7 @@ public:
 
 	/** Construct a (uninitialized) memory buffer of given size.
 	 */
-	explicit MemBuffer(unsigned size)
+	explicit MemBuffer(size_t size)
 		: dat(static_cast<T*>(malloc(size * sizeof(T))))
 		, sz(size)
 	{
@@ -52,7 +52,7 @@ public:
 	 * been allocated earlier with malloc() or realloc() (or it should be
 	 * nullptr).
 	  */
-	MemBuffer(T* data, unsigned size)
+	MemBuffer(T* data, size_t size)
 		: dat(data)
 		, sz(size)
 	{
@@ -73,12 +73,12 @@ public:
 
 	/** Access elements in the memory buffer.
 	 */
-	const T& operator[](unsigned i) const
+	const T& operator[](size_t i) const
 	{
 		assert(i < sz);
 		return dat[i];
 	}
-	T& operator[](unsigned i)
+	T& operator[](size_t i)
 	{
 		assert(i < sz);
 		return dat[i];
@@ -87,7 +87,7 @@ public:
 	/** Returns size of the memory buffer.
 	  * The size is in number of elements, not number of allocated bytes.
 	  */
-	unsigned size() const { return sz; }
+	size_t size() const { return sz; }
 
 	/** Same as size() == 0.
 	 */
@@ -99,7 +99,7 @@ public:
 	  * to a new location after this call, so data() will return a
 	  * different pointer value.
 	  */
-	void resize(unsigned size)
+	void resize(size_t size)
 	{
 		if (size) {
 			auto newDat = static_cast<T*>(realloc(dat, size * sizeof(T)));
@@ -135,7 +135,7 @@ public:
 
 private:
 	T* dat;
-	unsigned sz;
+	size_t sz;
 };
 
 } // namespace openmsx
