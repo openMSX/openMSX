@@ -945,8 +945,9 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 bool OggReader::seek(size_t frame, size_t samples)
 {
 	// Remove all queued frames
-	std::move(frameList.begin(), frameList.end(),
-	          back_inserter(recycleFrameList));
+	recycleFrameList.insert(recycleFrameList.end(),
+		make_move_iterator(frameList.begin()),
+		make_move_iterator(frameList.end()));
 	frameList.clear();
 
 	// Remove all queued audio
