@@ -23,9 +23,9 @@ class Filename;
 
 struct AudioFragment
 {
-	static const unsigned UNKNOWN_POS = 0xffffffff;
+	static const size_t UNKNOWN_POS = size_t(-1);
 	static const unsigned MAX_SAMPLES = 2048;
-	unsigned position;
+	size_t position;
 	unsigned length;
 	float pcm[2][MAX_SAMPLES];
 };
@@ -36,7 +36,7 @@ struct Frame
 	~Frame();
 
 	th_ycbcr_buffer buffer;
-	int no;
+	size_t no;
 	int length;
 };
 
@@ -46,16 +46,16 @@ public:
 	OggReader(const Filename& filename, CliComm& cli);
 	~OggReader();
 
-	bool seek(int frame, int sample);
+	bool seek(size_t frame, size_t sample);
 	unsigned getSampleRate() const { return vi.rate; }
-	void getFrameNo(RawFrame& frame, int frameno);
-	const AudioFragment* getAudio(unsigned sample);
-	int getFrames() const;
+	void getFrameNo(RawFrame& frame, size_t frameno);
+	const AudioFragment* getAudio(size_t sample);
+	size_t getFrames() const;
 	int getFrameRate() const { return frameRate; }
 
 	// metadata
-	bool stopFrame(int frame) const;
-	int chapter(int chapterNo) const;
+	bool stopFrame(size_t frame) const;
+	size_t chapter(int chapterNo) const;
 
 private:
 	void cleanup();
@@ -69,11 +69,11 @@ private:
 	bool nextPacket();
 	void recycleAudio(std::unique_ptr<AudioFragment> audio);
 	void vorbisFoundPosition();
-	int frameNo(ogg_packet* packet);
+	size_t frameNo(ogg_packet* packet);
 
-	unsigned findOffset(int frame, unsigned sample);
-	unsigned bisection(int frame, unsigned sample,
-		unsigned maxOffset, unsigned maxSamples, unsigned maxFrames);
+	size_t findOffset(size_t frame, size_t sample);
+	size_t bisection(size_t frame, size_t sample,
+	                 size_t maxOffset, size_t maxSamples, size_t maxFrames);
 
 	CliComm& cli;
 	const std::unique_ptr<File> file;
@@ -91,16 +91,16 @@ private:
 	int audioSerial;
 	int videoSerial;
 	int skeletonSerial;
-	unsigned fileOffset;
-	unsigned fileSize;
+	size_t fileOffset;
+	size_t fileSize;
 
 	// video
 	th_dec_ctx* theora;
 	int frameRate;
-	int keyFrame;
-	int currentFrame;
+	size_t keyFrame;
+	size_t currentFrame;
 	int granuleShift;
-	int totalFrames;
+	size_t totalFrames;
 
 	typedef std::deque<std::unique_ptr<Frame>> Frames;
 	Frames frameList;
@@ -112,16 +112,16 @@ private:
 	vorbis_comment vc;
 	vorbis_dsp_state vd;
 	vorbis_block vb;
-	unsigned currentSample;
-	unsigned vorbisPos;
+	size_t currentSample;
+	size_t vorbisPos;
 
 	typedef std::list<std::unique_ptr<AudioFragment>> AudioFragments;
 	AudioFragments audioList;
 	AudioFragments recycleAudioList;
 
 	// Metadata
-	std::set<int> stopFrames;
-	std::map<int, int> chapters;
+	std::set<size_t> stopFrames;
+	std::map<int, size_t> chapters;
 };
 
 } // namespace openmsx

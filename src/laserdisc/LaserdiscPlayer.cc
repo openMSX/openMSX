@@ -542,8 +542,8 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			break;
 
 	case EVEN_FRAME:
-		if (playerState != PLAYER_STOPPED &&
-		    currentFrame > video->getFrames()) {
+		if ((playerState != PLAYER_STOPPED) &&
+		    (currentFrame > video->getFrames())) {
 			playerState = PLAYER_STOPPED;
 		}
 
@@ -551,8 +551,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 			renderer->frameStart(time);
 
 			if (isVideoOutputAvailable(time)) {
-				int frame = currentFrame;
-
+				auto frame = currentFrame;
 				if (video->getFrameRate() == 60) {
 					frame *= 2;
 					if (userdata == ODD_FRAME) {
@@ -937,7 +936,7 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 	}
 }
 
-void LaserdiscPlayer::seekFrame(int toframe, EmuTime::param time)
+void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
 		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << toframe);
@@ -998,7 +997,7 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
 		if (video.get()) {
-			int frameno = video->chapter(chapter);
+			auto frameno = video->chapter(chapter);
 			if (!frameno) {
 				return;
 			}

@@ -94,7 +94,7 @@ private:
 	void pause(EmuTime::param time);
 	void stop(EmuTime::param time);
 	void eject(EmuTime::param time);
-	void seekFrame(int frame, EmuTime::param time);
+	void seekFrame(size_t frame, EmuTime::param time);
 	void stepFrame(bool);
 	void seekChapter(int chapter, EmuTime::param time);
 
@@ -135,7 +135,7 @@ private:
 
 	void nextFrame(EmuTime::param time);
 	void setFrameStep();
-	int currentFrame;
+	size_t currentFrame;
 	int frameStep;
 
 	// Audio state
@@ -168,7 +168,7 @@ private:
 	SeekState seekState;
 
 	/* frame the MSX has requested to wait for */
-	int waitFrame;
+	size_t waitFrame;
 
 	// pause playing back on reaching wait frame
 	bool stillOnWaitFrame;
