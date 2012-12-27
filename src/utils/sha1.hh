@@ -58,14 +58,14 @@ public:
 	SHA1();
 
 	/** Incrementally calculate the hash value. */
-	void update(const byte* data, unsigned len);
+	void update(const byte* data, size_t len);
 
 	/** Get the final hash. After this method is called, calls to update()
 	  * are invalid. */
 	Sha1Sum digest();
 
 	/** Easier to use interface, if you can pass all data in one go. */
-	static Sha1Sum calc(const byte* data, unsigned len);
+	static Sha1Sum calc(const byte* data, size_t len);
 
 	/** Easier to use interface, if you can pass all data in one go. But
 	  * also report progress.
@@ -73,7 +73,7 @@ public:
 	  * completely, in one call. The caller is responsible to make sure
 	  * this is the case.
 	  */
-	static Sha1Sum calcWithProgress(const byte* data, unsigned len, const
+	static Sha1Sum calcWithProgress(const byte* data, size_t len, const
 			std::string& filename, CliComm& cliComm,
 			EventDistributor& distributor);
 

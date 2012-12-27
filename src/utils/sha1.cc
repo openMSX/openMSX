@@ -246,7 +246,7 @@ void SHA1::transform(const byte buffer[64])
 }
 
 // Use this function to hash in binary data and strings
-void SHA1::update(const byte* data, unsigned len)
+void SHA1::update(const byte* data, size_t len)
 {
 	assert(!m_finalized);
 	uint32 j = (m_count >> 3) & 63;
@@ -289,31 +289,31 @@ Sha1Sum SHA1::digest()
 	return m_state;
 }
 
-Sha1Sum SHA1::calc(const byte* data, unsigned len)
+Sha1Sum SHA1::calc(const byte* data, size_t len)
 {
 	SHA1 sha1;
 	sha1.update(data, len);
 	return sha1.digest();
 }
 
-static void reportProgress(const string& filename, unsigned percentage, CliComm& cliComm, EventDistributor& distributor) {
+static void reportProgress(const string& filename, size_t percentage, CliComm& cliComm, EventDistributor& distributor) {
 	cliComm.printProgress("Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
 	distributor.deliverEvents();
 }
 
-Sha1Sum SHA1::calcWithProgress(const byte* data, unsigned len, const string& filename, CliComm& cliComm, EventDistributor& distributor)
+Sha1Sum SHA1::calcWithProgress(const byte* data, size_t len, const string& filename, CliComm& cliComm, EventDistributor& distributor)
 {
 	if (len < 10*1024*1024) { // for small files, don't show progress
 		return calc(data, len);
 	}
 	SHA1 sha1;
-	const unsigned NUMBER_OF_STEPS = 100;
+	static const size_t NUMBER_OF_STEPS = 100;
 	// calculate in NUMBER_OF_STEPS steps and report progress every step
-	const unsigned stepSize = len / NUMBER_OF_STEPS;
-	const unsigned remainder = len % NUMBER_OF_STEPS;
-	unsigned offset = 0;
+	auto stepSize = len / NUMBER_OF_STEPS;
+	auto remainder = len % NUMBER_OF_STEPS;
+	size_t offset = 0;
 	reportProgress(filename, 0, cliComm, distributor);
-	for (unsigned i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
+	for (size_t i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
 		sha1.update(&data[offset], stepSize);
 		offset += stepSize;
 		reportProgress(filename, i + 1, cliComm, distributor);
