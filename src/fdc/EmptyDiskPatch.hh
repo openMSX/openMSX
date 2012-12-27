@@ -14,8 +14,8 @@ class EmptyDiskPatch : public PatchInterface
 public:
 	explicit EmptyDiskPatch(SectorAccessibleDisk& disk);
 
-	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
-	virtual unsigned getSize() const;
+	virtual void copyBlock(size_t src, byte* dst, size_t num) const;
+	virtual size_t getSize() const;
 	virtual std::vector<Filename> getFilenames() const;
 	virtual bool isEmptyPatch() const { return true; }
 

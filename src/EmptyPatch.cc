@@ -6,12 +6,12 @@
 
 namespace openmsx {
 
-EmptyPatch::EmptyPatch(const byte* block_, unsigned size_)
+EmptyPatch::EmptyPatch(const byte* block_, size_t size_)
 	: block(block_), size(size_)
 {
 }
 
-void EmptyPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
+void EmptyPatch::copyBlock(size_t src, byte* dst, size_t num) const
 {
 	if ((src + num) > size) {
 		// past end
@@ -19,8 +19,8 @@ void EmptyPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 			// start past size, only fill block
 			memset(dst, 0, num);
 		} else {
-			unsigned part1 = size - src;
-			unsigned part2 = num - part1;
+			auto part1 = size - src;
+			auto part2 = num - part1;
 			assert(dst != (block + src));
 			memcpy(dst, &block[src], part1);
 			memset(dst + part1, 0, part2);
@@ -34,7 +34,7 @@ void EmptyPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 	}
 }
 
-unsigned EmptyPatch::getSize() const
+size_t EmptyPatch::getSize() const
 {
 	return size;
 }

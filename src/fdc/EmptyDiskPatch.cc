@@ -11,14 +11,14 @@ EmptyDiskPatch::EmptyDiskPatch(SectorAccessibleDisk& disk_)
 {
 }
 
-void EmptyDiskPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
+void EmptyDiskPatch::copyBlock(size_t src, byte* dst, size_t num) const
 {
 	(void)num;
 	assert(num == SectorAccessibleDisk::SECTOR_SIZE);
 	disk.readSectorImpl(src / SectorAccessibleDisk::SECTOR_SIZE, dst);
 }
 
-unsigned EmptyDiskPatch::getSize() const
+size_t EmptyDiskPatch::getSize() const
 {
 	return disk.getNbSectors() * SectorAccessibleDisk::SECTOR_SIZE;
 }

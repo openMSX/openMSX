@@ -11,16 +11,16 @@ namespace openmsx {
 class EmptyPatch : public PatchInterface, private noncopyable
 {
 public:
-	EmptyPatch(const byte* block, unsigned size);
+	EmptyPatch(const byte* block, size_t size);
 
-	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
-	virtual unsigned getSize() const;
+	virtual void copyBlock(size_t src, byte* dst, size_t num) const;
+	virtual size_t getSize() const;
 	virtual std::vector<Filename> getFilenames() const;
 	virtual bool isEmptyPatch() const { return true; }
 
 private:
 	const byte* block;
-	const unsigned size;
+	const size_t size;
 };
 
 } // namespace openmsx

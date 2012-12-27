@@ -14,8 +14,8 @@ class PatchInterface
 public:
 	virtual ~PatchInterface() {}
 
-	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const = 0;
-	virtual unsigned getSize() const = 0;
+	virtual void copyBlock(size_t src, byte* dst, size_t num) const = 0;
+	virtual size_t getSize() const = 0;
 	virtual std::vector<Filename> getFilenames() const = 0;
 	virtual bool isEmptyPatch() const { return false; }
 };

@@ -11,9 +11,9 @@ using std::vector;
 
 namespace openmsx {
 
-static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
+static size_t getStop(const IPSPatch::PatchMap::const_iterator& it)
 {
-	return unsigned(it->first + it->second.size());
+	return it->first + it->second.size();
 }
 
 IPSPatch::IPSPatch(const Filename& filename_,
@@ -30,9 +30,9 @@ IPSPatch::IPSPatch(const Filename& filename_,
 	}
 	ipsFile.read(buf, 3);
 	while (memcmp(buf, "EOF", 3) != 0) {
-		unsigned offset = 0x10000 * buf[0] + 0x100 * buf[1] + buf[2];
+		size_t offset = 0x10000 * buf[0] + 0x100 * buf[1] + buf[2];
 		ipsFile.read(buf, 2);
-		unsigned length = 0x100 * buf[0] + buf[1];
+		size_t length = 0x100 * buf[0] + buf[1];
 		vector<byte> v;
 		if (length == 0) {
 			// RLE encoded
@@ -50,13 +50,13 @@ IPSPatch::IPSPatch(const Filename& filename_,
 			--b;
 			if (getStop(b) < offset) ++b;
 		}
-		auto e = patchMap.upper_bound(offset + unsigned(v.size()));
+		auto e = patchMap.upper_bound(offset + v.size());
 		if (b != e) {
 			// remove operlapping regions, merge adjacent regions
 			--e;
-			unsigned start = std::min(b->first, offset);
-			unsigned stop  = std::max(offset + length, getStop(e));
-			unsigned length2 = stop - start;
+			auto start = std::min(b->first, offset);
+			auto stop  = std::max(offset + length, getStop(e));
+			auto length2 = stop - start;
 			++e;
 			vector<byte> tmp(length2);
 			for (auto it = b; it != e; ++it) {
@@ -81,7 +81,7 @@ IPSPatch::IPSPatch(const Filename& filename_,
 	}
 }
 
-void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
+void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 {
 	parent->copyBlock(src, dst, num);
 
@@ -89,7 +89,7 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 	if (b != patchMap.begin()) --b;
 	auto e = patchMap.upper_bound(src + num - 1);
 	for (auto it = b; it != e; ++it) {
-		unsigned chunkStart = it->first;
+		auto chunkStart = it->first;
 		int chunkSize = int(it->second.size());
 		// calc chunkOffset, chunkStart
 		int chunkOffset = src - chunkStart;
@@ -122,7 +122,7 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 	}
 }
 
-unsigned IPSPatch::getSize() const
+size_t IPSPatch::getSize() const
 {
 	return size;
 }

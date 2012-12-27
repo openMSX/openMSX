@@ -16,20 +16,20 @@ class Filename;
 class IPSPatch : public PatchInterface, private noncopyable
 {
 public:
-	typedef std::map<unsigned, std::vector<byte>> PatchMap;
+	typedef std::map<size_t, std::vector<byte>> PatchMap;
 
 	IPSPatch(const Filename& filename,
 	         std::unique_ptr<const PatchInterface> parent);
 
-	virtual void copyBlock(unsigned src, byte* dst, unsigned num) const;
-	virtual unsigned getSize() const;
+	virtual void copyBlock(size_t src, byte* dst, size_t num) const;
+	virtual size_t getSize() const;
 	virtual std::vector<Filename> getFilenames() const;
 
 private:
 	const Filename filename;
 	const std::unique_ptr<const PatchInterface> parent;
 	PatchMap patchMap;
-	unsigned size;
+	size_t size;
 };
 
 } // namespace openmsx
