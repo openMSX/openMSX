@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "memory.hh"
 #include <cassert>
+#include <limits>
 #include <cstring>
 #include <libxml/parser.h>
 #include <libxml/xmlversion.h>
@@ -100,11 +101,14 @@ unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 	//       when reading (g)zipped XML.
 	// Note: On destruction of "file", munmap() is called automatically.
 	const byte* fileContent;
-	size_t size; // TODO
+	size_t size;
 	try {
 		fileContent = file.mmap(size);
 	} catch (FileException& e) {
 		throw XMLException(filename + ": failed to mmap: " + e.getMessage());
+	}
+	if (size > size_t(std::numeric_limits<int>::max())) {
+		throw XMLException(filename + ": file too big");
 	}
 
 	xmlSAXHandler handler;

@@ -22,6 +22,7 @@
 #include "StringOp.hh"
 #include "sha1.hh"
 #include "memory.hh"
+#include <limits>
 #include <sstream>
 #include <cstring>
 
@@ -184,7 +185,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		try {
 			size_t size2;
 			rom = file->mmap(size2);
-			size = size2; // TODO
+			if (size2 > std::numeric_limits<decltype(size)>::max()) {
+				throw MSXException("Rom file too big: " +
+				                   file->getURL());
+			}
+			size = size2;
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: " +
 					   file->getURL());

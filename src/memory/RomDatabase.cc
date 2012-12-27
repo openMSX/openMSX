@@ -483,7 +483,7 @@ static void parseDB(CliComm& cliComm, const string& filename,
                     RomDatabase::DBMap& romDBSHA1, UnknownTypes& unknownTypes)
 {
 	File file(filename);
-	unsigned size = file.getSize();
+	auto size = file.getSize();
 	MemBuffer<char> buf(size + 1);
 	file.read(buf.data(), size);
 	buf[size] = 0;

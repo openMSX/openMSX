@@ -32,8 +32,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(const DeviceConfig& config)
 		const std::string& filename = fileElem->getData();
 		try {
 			File file(config.getFileContext().resolve(filename));
-			int romSize = file.getSize();
-			file.read(&(*ram)[0], romSize);
+			auto size = std::min<size_t>(file.getSize(), ram->getSize());
+			file.read(&(*ram)[0], size);
 		} catch (FileException&) {
 			throw MSXException("Error reading file: " + filename);
 		}

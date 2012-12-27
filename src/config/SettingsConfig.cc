@@ -105,7 +105,7 @@ void SettingsConfig::saveSetting(const string& filename)
 	File file(name, File::TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
 	              xmlElement->dump();
-	file.write(data.data(), unsigned(data.size()));
+	file.write(data.data(), data.size());
 }
 
 void SettingsConfig::setSaveSettings(bool save)

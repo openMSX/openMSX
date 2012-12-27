@@ -130,7 +130,7 @@ void CasImage::writeByte(byte b)
 }
 
 // write data until a header is detected
-bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
+bool CasImage::writeData(const byte* buf, size_t size, size_t& pos)
 {
 	bool eof = false;
 	while ((pos + 8) <= size) {
@@ -152,14 +152,14 @@ bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
 void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cliComm)
 {
 	File file(filename);
-	size_t size; // TODO
+	size_t size;
 	const byte* buf = file.mmap(size);
 
 	// search for a header in the .cas file
 	bool issueWarning = false;
 	bool headerFound = false;
 	bool firstFile = true;
-	unsigned pos = 0;
+	size_t pos = 0;
 	while ((pos + 8) <= size) {
 		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			// it probably works fine if a long header is used for every
