@@ -375,10 +375,8 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 				throw CommandException("Missing argument to insert subcommand");
 			}
 		}
-		vector<string> options;
-		for (unsigned i = (extensionNameToken + 1); i < tokens.size(); ++i) {
-			options.push_back(tokens[i]);
-		}
+		vector<string> options(tokens.begin() + extensionNameToken + 1,
+		                       tokens.end());
 		try {
 			const string& romname = tokens[extensionNameToken];
 			std::unique_ptr<HardwareConfig> extension(

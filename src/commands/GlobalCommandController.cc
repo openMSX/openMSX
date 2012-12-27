@@ -478,9 +478,9 @@ string GlobalCommandController::tabCompletion(string_ref command)
 
 	// complete last token
 	auto tokens = removeEscaping(originalTokens, true);
-	size_t oldNum = tokens.size();
+	auto oldNum = tokens.size();
 	tabCompletion(tokens);
-	size_t newNum = tokens.size();
+	auto newNum = tokens.size();
 	bool tokenFinished = oldNum != newNum;
 
 	// replace last token

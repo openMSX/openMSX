@@ -9,6 +9,7 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <numeric>
 #include <cstring>
 #include <cassert>
@@ -30,11 +31,11 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
-	unsigned numSectors = unsigned(sectorSizes.size());
+	auto numSectors = sectorSizes.size();
 
 	unsigned writableSize = 0;
 	writeAddress.resize(numSectors);
-	for (unsigned i = 0; i < numSectors; ++i) {
+	for (auto i : xrange(numSectors)) {
 		if (writeProtectedFlags & (1 << i)) {
 			writeAddress[i] = -1;
 		} else {
@@ -63,7 +64,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 	readAddress.resize(numSectors);
 	unsigned romSize = rom.getSize();
 	unsigned offset = 0;
-	for (unsigned i = 0; i < numSectors; ++i) {
+	for (auto i : xrange(numSectors)) {
 		unsigned sectorSize = sectorSizes[i];
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];

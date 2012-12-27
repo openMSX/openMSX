@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "Math.hh"
 #include "memory.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -27,10 +28,10 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 	clock.setFreq(wav->getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)
-	unsigned nbSamples = wav->getSize();
+	auto nbSamples = wav->getSize();
 	if (nbSamples > 0) {
 		long long total = 0;
-		for (unsigned i = 0; i < nbSamples; ++i) {
+		for (auto i : xrange(nbSamples)) {
 			total += getSample(i);
 		}
 		average = short(total / nbSamples);

@@ -91,7 +91,7 @@ protected:
 	void rehashTable();
 
 private:
-	void init(unsigned Size);
+	void init(unsigned size);
 	unsigned* getHashTable() const {
 		return reinterpret_cast<unsigned*>(theTable + numBuckets + 1);
 	}
