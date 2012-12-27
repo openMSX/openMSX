@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include <cstring> // for size_t
+#include <cstdint>
 
 namespace openmsx {
 namespace MemoryOps {
@@ -21,16 +22,16 @@ namespace MemoryOps {
 	};
 
 	/** Perform memcpy with streaming stores.
-	  * @param dst Destination address, must be aligned on unsigned/word
+	  * @param dst Destination address, must be aligned on uint32_t/uint16_t
 	  *            boundary.
-	  * @param src Source address, must be aligned on unsigned/word
+	  * @param src Source address, must be aligned on uint32_t/uint16_t
 	  *            boundary.
-	  * @param num Number of elements (unsigned/word). Notice this is
+	  * @param num Number of elements (uint32_t/uint16_t). Notice this is
 	  *            different from the normal memcpy function, there this
 	  *            parameter indicates the number of bytes.
 	  */
-	void stream_memcpy(unsigned* dst, const unsigned* src, size_t num);
-	void stream_memcpy(word* dst, const word* src, size_t num);
+	void stream_memcpy(uint32_t* dst, const uint32_t* src, size_t num);
+	void stream_memcpy(uint16_t* dst, const uint16_t* src, size_t num);
 
 	void* mallocAligned(size_t alignment, size_t size);
 	void freeAligned(void* ptr);

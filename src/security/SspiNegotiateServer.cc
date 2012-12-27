@@ -4,6 +4,7 @@
 
 #include "SspiNegotiateServer.hh"
 #include "MSXException.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

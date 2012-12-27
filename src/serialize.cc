@@ -93,7 +93,8 @@ void OutputArchiveBase<Derived>::serialize_blob(
 		auto dstLen = uLongf(len + len / 1000 + 12 + 1); // worst-case
 		MemBuffer<byte> buf(dstLen);
 		if (compress2(buf.data(), &dstLen,
-		              reinterpret_cast<const Bytef*>(data), len, 9)
+		              reinterpret_cast<const Bytef*>(data),
+		              uLong(len), 9)
 		    != Z_OK) {
 			throw MSXException("Error while compressing blob.");
 		}
