@@ -37,7 +37,7 @@ public:
 	/** Insert data at the end of this buffer.
 	  * This will automatically grow this buffer.
 	  */
-	void insert(const void* __restrict data, unsigned len) __restrict
+	void insert(const void* __restrict data, size_t len) __restrict
 	{
 #ifdef __GNUC__
 		if (__builtin_constant_p(len)) {
@@ -55,15 +55,15 @@ public:
 		insertN(data, len);
 	}
 #ifdef __GNUC__
-	template<unsigned N> void insertN(const void* __restrict data);
+	template<size_t N> void insertN(const void* __restrict data);
 #endif
-	void insertN(const void* __restrict data, unsigned len);
+	void insertN(const void* __restrict data, size_t len);
 
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
 	  * must already be big enough to hold the new data).
 	  */
-	void insertAt(unsigned pos, const void* __restrict data, unsigned len) __restrict
+	void insertAt(size_t pos, const void* __restrict data, size_t len) __restrict
 	{
 		assert(begin + pos + len <= finish);
 		memcpy(begin + pos, data, len);
@@ -77,7 +77,7 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	byte* allocate(unsigned len);
+	byte* allocate(size_t len);
 
 	/** Free part of a previously allocated buffer.
 	 *
@@ -94,7 +94,7 @@ public:
 
 	/** Get the current size of the buffer.
 	 */
-	unsigned getPosition() const
+	size_t getPosition() const
 	{
 		return end - begin;
 	}
@@ -102,11 +102,11 @@ public:
 	/** Release ownership of the buffer.
 	 * Returns both a pointer to the raw buffer and its size.
 	 */
-	byte* release(unsigned& size);
+	byte* release(size_t& size);
 
 private:
-	void insertGrow(const void* __restrict data, unsigned len);
-	byte* allocateGrow(unsigned len);
+	void insertGrow(const void* __restrict data, size_t len);
+	byte* allocateGrow(size_t len);
 
 	byte* begin;   // begin of allocated memory
 	byte* end;     // points right after the last used byte
@@ -126,7 +126,7 @@ public:
 	/** Construct new InputBuffer, typically the data and size parameters
 	  * will come from a MemBuffer object.
 	  */
-	InputBuffer(const byte* data, unsigned size);
+	InputBuffer(const byte* data, size_t size);
 
 	/** Read the given number of bytes.
 	  * This 'consumes' the read bytes, so a future read() will continue
@@ -136,8 +136,8 @@ public:
 	//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=48764
 	// This causes 'load savestate' or 'load replay' to sometimes read
 	// the wrong data (so read different data as was previously saved).
-	//void read(void* __restrict result, unsigned len) __restrict
-	void read(void* result, unsigned len)
+	//void read(void* __restrict result, size_t len) __restrict
+	void read(void* result, size_t len)
 	{
 		memcpy(result, buf, len);
 		buf += len;
@@ -148,7 +148,7 @@ public:
 	  * This is similar to a read(), but it will only consume the data, not
 	  * copy it.
 	  */
-	void skip(unsigned len)
+	void skip(size_t len)
 	{
 		buf += len;
 		assert(buf <= finish);

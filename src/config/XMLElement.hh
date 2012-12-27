@@ -85,7 +85,7 @@ public:
 		string_ref name, string_ref attName,
 		string_ref attValue);
 	const XMLElement* findNextChild(string_ref name,
-	                                unsigned& fromIndex) const;
+	                                size_t& fromIndex) const;
 
 	std::vector<XMLElement*> getChildren(string_ref name) const;
 

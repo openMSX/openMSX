@@ -7,6 +7,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <libxml/uri.h>
 #include <cassert>
 #include <algorithm>
@@ -163,16 +164,15 @@ const XMLElement* XMLElement::findChild(string_ref name) const
 }
 
 const XMLElement* XMLElement::findNextChild(string_ref name,
-	                                    unsigned& fromIndex) const
+	                                    size_t& fromIndex) const
 {
-	unsigned numChildren = unsigned(children.size());
-	for (unsigned i = fromIndex; i != numChildren; ++i) {
+	for (auto i : xrange(fromIndex, children.size())) {
 		if (children[i]->getName() == name) {
 			fromIndex = i + 1;
 			return children[i].get();
 		}
 	}
-	for (unsigned i = 0; i < fromIndex; ++i) {
+	for (auto i : xrange(fromIndex)) {
 		if (children[i]->getName() == name) {
 			fromIndex = i + 1;
 			return children[i].get();

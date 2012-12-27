@@ -21,7 +21,7 @@ OutputBuffer::~OutputBuffer()
 }
 
 #ifdef __GNUC__
-template<unsigned LEN> void OutputBuffer::insertN(const void* __restrict data) __restrict
+template<size_t LEN> void OutputBuffer::insertN(const void* __restrict data) __restrict
 {
 	byte* newEnd = end + LEN;
 	if (likely(newEnd <= finish)) {
@@ -38,7 +38,7 @@ template void OutputBuffer::insertN<4>(const void* __restrict data) __restrict;
 template void OutputBuffer::insertN<8>(const void* __restrict data) __restrict;
 #endif
 
-void OutputBuffer::insertN(const void* __restrict data, unsigned len) __restrict
+void OutputBuffer::insertN(const void* __restrict data, size_t len) __restrict
 {
 	byte* newEnd = end + len;
 	if (likely(newEnd <= finish)) {
@@ -49,7 +49,7 @@ void OutputBuffer::insertN(const void* __restrict data, unsigned len) __restrict
 	}
 }
 
-byte* OutputBuffer::allocate(unsigned len)
+byte* OutputBuffer::allocate(size_t len)
 {
 	byte* newEnd = end + len;
 	if (newEnd <= finish) {
@@ -68,7 +68,7 @@ void OutputBuffer::deallocate(byte* pos)
 	end = pos;
 }
 
-byte* OutputBuffer::release(unsigned& size)
+byte* OutputBuffer::release(size_t& size)
 {
 	byte* result = begin;
 	size = end - begin;
@@ -76,16 +76,16 @@ byte* OutputBuffer::release(unsigned& size)
 	return result;
 }
 
-void OutputBuffer::insertGrow(const void* __restrict data, unsigned len) __restrict
+void OutputBuffer::insertGrow(const void* __restrict data, size_t len) __restrict
 {
 	byte* pos = allocateGrow(len);
 	memcpy(pos, data, len);
 }
 
-byte* OutputBuffer::allocateGrow(unsigned len)
+byte* OutputBuffer::allocateGrow(size_t len)
 {
-	unsigned oldSize = end - begin;
-	unsigned newSize = std::max(oldSize + len, oldSize + oldSize / 2);
+	size_t oldSize = end - begin;
+	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);
 	auto newBegin = static_cast<byte*>(realloc(begin, newSize));
 	if (!newBegin) {
 		throw std::bad_alloc();
@@ -99,7 +99,7 @@ byte* OutputBuffer::allocateGrow(unsigned len)
 
 // class InputBuffer
 
-InputBuffer::InputBuffer(const byte* data, unsigned size)
+InputBuffer::InputBuffer(const byte* data, size_t size)
 	: buf(data)
 #ifndef NDEBUG
 	, finish(buf + size)

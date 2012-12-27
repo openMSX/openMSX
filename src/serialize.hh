@@ -126,7 +126,7 @@ public:
 	//        (polymorphic) constructors are also described.
 	//
 	//
-	// void serialize_blob(const char* tag, const void* data, unsigned len)
+	// void serialize_blob(const char* tag, const void* data, size_t len)
 	//
 	//   Serialize the given data as a binary blob.
 	//   This cannot be part of the serialize() method above because we
@@ -448,7 +448,7 @@ public:
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, const void* data, unsigned len);
+	void serialize_blob(const char* tag, const void* data, size_t len);
 
 	template<typename T> void serialize(const char* tag, const T& t)
 	{
@@ -550,7 +550,7 @@ public:
 	{
 		doSerialize(tag, t, std::tuple<T1, T2, T3>(t1, t2, t3));
 	}
-	void serialize_blob(const char* tag, void* data, unsigned len);
+	void serialize_blob(const char* tag, void* data, size_t len);
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
@@ -603,60 +603,6 @@ protected:
 	InputArchiveBase() {}
 };
 
-////
-/*
-class TextOutputArchive : public OutputArchiveBase<TextOutputArchive>
-{
-public:
-	TextOutputArchive(const std::string& filename)
-	{
-		FileOperations::openofstream(os, filename);
-	}
-
-	template<typename T> void save(const T& t)
-	{
-		if (is_floating<T>::value) {
-			os << std::setprecision(std::numeric_limits<T>::digits10 + 2);
-		}
-		os << t << '\n';
-	}
-	void serialize_blob(const char* tag, const void* data, unsigned len)
-	{
-		std::string tmp = Base64::encode(data, len, false); // no newlines
-		serialize(tag, tmp);
-	}
-
-private:
-	std::ofstream os;
-};
-
-class TextInputArchive : public InputArchiveBase<TextInputArchive>
-{
-public:
-	TextInputArchive(const std::string& filename)
-		: is(filename.c_str())
-	{
-	}
-
-	template<typename T> void load(T& t)
-	{
-		std::string s;
-		getline(is, s);
-		std::istringstream ss(s);
-		ss >> t;
-	}
-	void load(std::string& t)
-	{
-		// !!! this doesn't handle strings with !!!
-		// !!! embedded newlines correctly      !!!
-		getline(is, t);
-	}
-
-private:
-	std::ifstream is;
-};
-*/
-////
 
 class MemOutputArchive : public OutputArchiveBase<MemOutputArchive>
 {
@@ -681,22 +627,22 @@ public:
 		save(c);
 	}
 	void save(const std::string& s);
-	void serialize_blob(const char*, const void* data, unsigned len);
+	void serialize_blob(const char*, const void* data, size_t len);
 
 	void beginSection()
 	{
-		unsigned skip = 0; // filled in later
+		size_t skip = 0; // filled in later
 		save(skip);
-		unsigned beginPos = buffer.getPosition();
+		size_t beginPos = buffer.getPosition();
 		openSections.push_back(beginPos);
 	}
 	void endSection()
 	{
 		assert(!openSections.empty());
-		unsigned endPos   = buffer.getPosition();
-		unsigned beginPos = openSections.back();
+		size_t endPos   = buffer.getPosition();
+		size_t beginPos = openSections.back();
 		openSections.pop_back();
-		unsigned skip = endPos - beginPos;
+		size_t skip = endPos - beginPos;
 		buffer.insertAt(beginPos - sizeof(skip),
 		                &skip, sizeof(skip));
 	}
@@ -704,7 +650,7 @@ public:
 	std::unique_ptr<MemBuffer<byte>> releaseBuffer();
 
 private:
-	void put(const void* data, unsigned len)
+	void put(const void* data, size_t len)
 	{
 		if (len) {
 			buffer.insert(data, len);
@@ -712,13 +658,13 @@ private:
 	}
 
 	OutputBuffer buffer;
-	std::vector<unsigned> openSections;
+	std::vector<size_t> openSections;
 };
 
 class MemInputArchive : public InputArchiveBase<MemInputArchive>
 {
 public:
-	MemInputArchive(const byte* data, unsigned size)
+	MemInputArchive(const byte* data, size_t size)
 		: buffer(data, size)
 	{
 	}
@@ -742,11 +688,11 @@ public:
 		load(c);
 	}
 	void load(std::string& s);
-	void serialize_blob(const char*, void* data, unsigned len);
+	void serialize_blob(const char*, void* data, size_t len);
 
 	void skipSection(bool skip)
 	{
-		unsigned num;
+		size_t num;
 		load(num);
 		if (skip) {
 			buffer.skip(num);
@@ -754,7 +700,7 @@ public:
 	}
 
 private:
-	void get(void* data, unsigned len)
+	void get(void* data, size_t len)
 	{
 		if (len) {
 			buffer.read(data, len);
@@ -885,16 +831,9 @@ private:
 	void init(const XMLElement* e);
 
 	std::unique_ptr<XMLElement> elem;
-	std::vector<std::pair<const XMLElement*, unsigned>> elems;
+	std::vector<std::pair<const XMLElement*, size_t>> elems;
 };
 
-/*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
-template void CLASS::serialize(TextInputArchive&,  unsigned); \
-template void CLASS::serialize(TextOutputArchive&, unsigned); \
-template void CLASS::serialize(MemInputArchive&,   unsigned); \
-template void CLASS::serialize(MemOutputArchive&,  unsigned); \
-template void CLASS::serialize(XmlInputArchive&,   unsigned); \
-template void CLASS::serialize(XmlOutputArchive&,  unsigned); */
 #define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
 template void CLASS::serialize(MemInputArchive&,   unsigned); \
 template void CLASS::serialize(MemOutputArchive&,  unsigned); \

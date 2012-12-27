@@ -76,7 +76,7 @@ unsigned OutputArchiveBase2::getID2(
 
 template<typename Derived>
 void OutputArchiveBase<Derived>::serialize_blob(
-	const char* tag, const void* data, unsigned len)
+	const char* tag, const void* data, size_t len)
 {
 	string encoding;
 	string tmp;
@@ -124,7 +124,7 @@ void InputArchiveBase2::addPointer(unsigned id, const void* p)
 
 template<typename Derived>
 void InputArchiveBase<Derived>::serialize_blob(
-	const char* tag, void* data, unsigned len)
+	const char* tag, void* data, size_t len)
 {
 	this->self().beginTag(tag);
 	string encoding;
@@ -168,14 +168,14 @@ template class InputArchiveBase<XmlInputArchive>;
 
 void MemOutputArchive::save(const std::string& s)
 {
-	unsigned size = unsigned(s.size());
+	auto size = s.size();
 	save(size);
 	put(s.data(), size);
 }
 
 std::unique_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
 {
-	unsigned size;
+	size_t size;
 	byte* data = buffer.release(size);
 	return make_unique<MemBuffer<byte>>(data, size);
 }
@@ -184,7 +184,7 @@ std::unique_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
 
 void MemInputArchive::load(std::string& s)
 {
-	unsigned length;
+	size_t length;
 	load(length);
 	s.resize(length);
 	if (length) {
@@ -194,7 +194,7 @@ void MemInputArchive::load(std::string& s)
 
 ////
 
-void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned len)
+void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 {
 	// Compress in-memory blobs:
 	//
@@ -219,7 +219,7 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, unsigned le
 	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
 }
 
-void MemInputArchive::serialize_blob(const char*, void* data, unsigned len)
+void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
 {
 	size_t srcLen; load(srcLen);
 	snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
@@ -415,8 +415,8 @@ template<typename T> static inline void fastAtoi(const string& str, T& t)
 {
 	t = 0;
 	bool neg = false;
-	unsigned i = 0;
-	unsigned l = unsigned(str.size());
+	size_t i = 0;
+	size_t l = str.size();
 
 	static const bool IS_SIGNED = std::numeric_limits<T>::is_signed;
 	if (IS_SIGNED) {
