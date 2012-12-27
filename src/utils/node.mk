@@ -40,6 +40,7 @@ HDR_ONLY:= \
 	utf8_core \
 	utf8_unchecked \
 	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla win32-arggen \
-	countof
+	countof \
+	xrange
 
 include build/node-end.mk
