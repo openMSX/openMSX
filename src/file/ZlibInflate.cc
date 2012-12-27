@@ -10,12 +10,13 @@
 
 namespace openmsx {
 
-ZlibInflate::ZlibInflate(const byte* input, size_t inputLen)
+ZlibInflate::ZlibInflate(const byte* input, size_t inputLen_)
 {
-	if (inputLen > std::numeric_limits<decltype(s.avail_in)>::max()) {
+	if (inputLen_ > std::numeric_limits<decltype(s.avail_in)>::max()) {
 		throw FileException(
 			"Error while decompressing: input file too big");
 	}
+	auto inputLen = static_cast<decltype(s.avail_in)>(inputLen_);
 
 	s.zalloc = nullptr;
 	s.zfree  = nullptr;
@@ -93,7 +94,7 @@ void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 	wasInit = true;
 
 	output.resize(sizeHint);
-	s.avail_out = output.size();
+	s.avail_out = uInt(output.size()); // TODO overflow?
 	while (true) {
 		s.next_out = output.data() + s.total_out;
 		int err = ::inflate(&s, Z_NO_FLUSH);
@@ -106,7 +107,7 @@ void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 		}
 		auto oldSize = output.size();
 		output.resize(oldSize * 2); // double buffer size
-		s.avail_out = output.size() - oldSize;
+		s.avail_out = uInt(output.size() - oldSize); // TODO overflow?
 	}
 
 	// set actual size

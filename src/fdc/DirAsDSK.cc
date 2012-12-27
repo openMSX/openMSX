@@ -618,7 +618,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	}
 
 	// Write (possibly truncated) file size.
-	msxDir(dirIndex).size = hostSize - remainingSize;
+	msxDir(dirIndex).size = uint32_t(hostSize - remainingSize);
 
 	// TODO in case of an error (disk image full, or host file read error),
 	// wouldn't it be better to remove the (half imported) msx file again?

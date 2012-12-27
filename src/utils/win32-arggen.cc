@@ -33,7 +33,7 @@ char** ArgumentGenerator::GetArguments(int& argc)
 		LocalFree(pszArglist);
 	}
 
-	argc = argv.size();
+	argc = int(argv.size());
 	return argv.data();
 }
 

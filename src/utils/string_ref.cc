@@ -47,7 +47,7 @@ int string_ref::compare(string_ref rhs) const
 		return r;
 	}
 	// Prefixes match, check length.
-	return siz - rhs.siz; // Note: this overflows for very large strings.
+	return int(siz - rhs.siz); // Note: this overflows for very large strings.
 }
 
 

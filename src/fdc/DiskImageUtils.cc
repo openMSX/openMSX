@@ -167,7 +167,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 		nbSectors = 720;	// force nbSectors to 720, why?
 	}
 
-	boot.nrSectors = nbSectors;
+	boot.nrSectors = uint16_t(nbSectors); // TODO check for overflow
 	boot.nrSides = nbSides;
 	boot.spCluster = nbSectorsPerCluster;
 	boot.nrFats = nbFats;

@@ -39,9 +39,9 @@ const std::string& IDEHD::getDeviceName()
 void IDEHD::fillIdentifyBlock(byte* buffer)
 {
 	auto totalSectors = getNbSectors();
-	word heads = 16;
-	word sectors = 32;
-	word cylinders = totalSectors / (heads * sectors);
+	uint16_t heads = 16;
+	uint16_t sectors = 32;
+	uint16_t cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
 	// TODO use aligned version later
 	Endian::write_UA_L16(&buffer[1 * 2], cylinders);
 	Endian::write_UA_L16(&buffer[3 * 2], heads);

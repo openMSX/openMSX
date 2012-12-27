@@ -40,11 +40,11 @@ static bool formatHelper(const vector<string_ref>& input, unsigned columnLimit,
 		unsigned maxcolumn = column;
 		for (unsigned i = 0; (i < result.size()) && (it != input.end());
 		     ++i, ++it) {
-			unsigned curSize = utf8::unchecked::size(result[i]);
+			auto curSize = utf8::unchecked::size(result[i]);
 			result[i] += string(column - curSize, ' ');
 			result[i] += it->str();
-			maxcolumn = std::max<unsigned>(maxcolumn,
-			                               utf8::unchecked::size(result[i]));
+			maxcolumn = std::max(maxcolumn,
+			                     unsigned(utf8::unchecked::size(result[i])));
 			if (maxcolumn > columnLimit) return false;
 		}
 		column = maxcolumn + 2;

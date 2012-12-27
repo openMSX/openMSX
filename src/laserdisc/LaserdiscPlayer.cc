@@ -434,7 +434,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 				waitFrame = seekNum % 100000;
 				if (waitFrame >= 101 && waitFrame < 200) {
 					auto frame = video->chapter(
-						waitFrame - 100);
+						int(waitFrame - 100));
 					if (frame) waitFrame = frame;
 				}
 				PRT_DEBUG("Wait frame set to " << std::dec <<
@@ -731,12 +731,13 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 		return;
 	}
 
-	unsigned pos = 0, len, currentSample;
+	unsigned pos = 0;
+	size_t currentSample;
 
 	if (unlikely(!sampleClock.before(start))) {
 		// Before playing of sounds begins
 		EmuDuration duration = sampleClock.getTime() - start;
-		len = duration.getTicksAt(video->getSampleRate());
+		unsigned len = duration.getTicksAt(video->getSampleRate());
 		if (len >= num) {
 			buffers[0] = nullptr;
 			return;
@@ -777,7 +778,7 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 			}
 		} else {
 			auto offset = unsigned(lastPlayedSample - audio->position);
-			len = std::min(audio->length - offset, num - pos);
+			unsigned len = std::min(audio->length - offset, num - pos);
 
 			// maybe muting should be moved out of the loop?
 			for (unsigned i = 0; i < len; ++i, ++pos) {
@@ -1014,7 +1015,7 @@ short LaserdiscPlayer::readSample(EmuTime::param time)
 	// but honouring the stereo mode as this is done in the 
 	// Laserdisc player
 	if (playerState == PLAYER_PLAYING && !seeking) {
-		unsigned sample = getCurrentSample(time);
+		auto sample = getCurrentSample(time);
 		if (const AudioFragment* audio = video->getAudio(sample)) {
 			++sampleReads;
 			int channel = stereoMode == LEFT ? 0 : 1;
@@ -1183,7 +1184,7 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 				sampleClock.setFreq(video->getSampleRate());
 			}
 
-			unsigned sample = getCurrentSample(getCurrentTime());
+			auto sample = getCurrentSample(getCurrentTime());
 			if (video->getFrameRate() == 60)
 				video->seek(currentFrame * 2, sample);
 			else

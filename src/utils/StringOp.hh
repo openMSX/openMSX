@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <cstdint>
 #if defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #endif

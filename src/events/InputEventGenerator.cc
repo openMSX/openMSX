@@ -52,7 +52,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 
 	reinit();
 
-	osdControlButtonsState = ~0; // 0 is pressed, 1 is released
+	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
 }
 
 InputEventGenerator::~InputEventGenerator()
