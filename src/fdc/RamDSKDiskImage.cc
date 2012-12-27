@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-RamDSKDiskImage::RamDSKDiskImage(unsigned size)
+RamDSKDiskImage::RamDSKDiskImage(size_t size)
 	: SectorBasedDisk(DiskName(Filename(), "ramdsk"))
 	, diskdata(size)
 {
@@ -19,12 +19,12 @@ RamDSKDiskImage::~RamDSKDiskImage()
 {
 }
 
-void RamDSKDiskImage::readSectorImpl(unsigned sector, byte* buf)
+void RamDSKDiskImage::readSectorImpl(size_t sector, byte* buf)
 {
 	memcpy(buf, &diskdata[sector * SECTOR_SIZE], SECTOR_SIZE);
 }
 
-void RamDSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
+void RamDSKDiskImage::writeSectorImpl(size_t sector, const byte* buf)
 {
 	memcpy(&diskdata[sector * SECTOR_SIZE], buf, SECTOR_SIZE);
 }

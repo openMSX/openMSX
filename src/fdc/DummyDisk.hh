@@ -14,8 +14,8 @@ public:
 	virtual bool isDummyDisk() const;
 
 private:
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual void readSectorImpl(size_t sector, byte* buf);
+	virtual void writeSectorImpl(size_t sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 };
 

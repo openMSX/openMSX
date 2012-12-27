@@ -5,6 +5,7 @@
 #include "IPSPatch.hh"
 #include "DiskExceptions.hh"
 #include "sha1.hh"
+#include "xrange.hh"
 #include "memory.hh"
 
 namespace openmsx {
@@ -13,7 +14,7 @@ namespace openmsx {
 // This line is required according to the c++ standard, but because of a vc++
 // extension, we get a link error in vc++ when we add this line. See also:
 //   http://blogs.msdn.com/b/xiangfan/archive/2010/03/03/vc-s-evil-extension-implicit-definition-of-static-constant-member.aspx
-const unsigned SectorAccessibleDisk::SECTOR_SIZE;
+const size_t SectorAccessibleDisk::SECTOR_SIZE;
 #endif
 
 SectorAccessibleDisk::SectorAccessibleDisk()
@@ -27,7 +28,7 @@ SectorAccessibleDisk::~SectorAccessibleDisk()
 {
 }
 
-void SectorAccessibleDisk::readSector(unsigned sector, byte* buf)
+void SectorAccessibleDisk::readSector(size_t sector, byte* buf)
 {
 	if (!isDummyDisk() && // in that case we want DriveEmptyException
 	    (sector > 1) && // allow reading sector 0 and 1 without calling
@@ -45,7 +46,7 @@ void SectorAccessibleDisk::readSector(unsigned sector, byte* buf)
 	}
 }
 
-void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
+void SectorAccessibleDisk::writeSector(size_t sector, const byte* buf)
 {
 	if (isWriteProtected()) {
 		throw WriteProtectedException("");
@@ -61,7 +62,7 @@ void SectorAccessibleDisk::writeSector(unsigned sector, const byte* buf)
 	flushCaches();
 }
 
-unsigned SectorAccessibleDisk::getNbSectors() const
+size_t SectorAccessibleDisk::getNbSectors() const
 {
 	return getNbSectorsImpl();
 }
@@ -88,8 +89,7 @@ Sha1Sum SectorAccessibleDisk::getSha1Sum()
 		try {
 			setPeekMode(true);
 			SHA1 sha1;
-			unsigned nbSectors = getNbSectors();
-			for (unsigned i = 0; i < nbSectors; ++i) {
+			for (auto i : xrange(getNbSectors())) {
 				byte buf[SECTOR_SIZE];
 				readSector(i, buf);
 				sha1.update(buf, SECTOR_SIZE);
@@ -105,10 +105,10 @@ Sha1Sum SectorAccessibleDisk::getSha1Sum()
 }
 
 int SectorAccessibleDisk::readSectors (
-	byte* buffer, unsigned startSector, unsigned nbSectors)
+	byte* buffer, size_t startSector, size_t nbSectors)
 {
 	try {
-		for (unsigned i = 0; i < nbSectors; ++i) {
+		for (auto i : xrange(nbSectors)) {
 			readSector(startSector + i, &buffer[i * SECTOR_SIZE]);
 		}
 		return 0;
@@ -118,10 +118,10 @@ int SectorAccessibleDisk::readSectors (
 }
 
 int SectorAccessibleDisk::writeSectors(
-	const byte* buffer, unsigned startSector, unsigned nbSectors)
+	const byte* buffer, size_t startSector, size_t nbSectors)
 {
 	try {
-		for (unsigned i = 0; i < nbSectors; ++i) {
+		for (auto i : xrange(nbSectors)) {
 			writeSector(startSector + i, &buffer[i * SECTOR_SIZE]);
 		}
 		return 0;

@@ -17,14 +17,14 @@ class PatchInterface;
 class SectorAccessibleDisk
 {
 public:
-	static const unsigned SECTOR_SIZE = 512;
+	static const size_t SECTOR_SIZE = 512;
 
 	virtual ~SectorAccessibleDisk();
 
 	// sector stuff
-	void readSector(unsigned sector, byte* buf);
-	void writeSector(unsigned sector, const byte* buf);
-	unsigned getNbSectors() const;
+	void readSector(size_t sector, byte* buf);
+	void writeSector(size_t sector, const byte* buf);
+	size_t getNbSectors() const;
 
 	// write protected stuff
 	bool isWriteProtected() const;
@@ -46,10 +46,10 @@ public:
 	//  - read/write multiple sectors instead of one-per-one
 	//  - use error codes instead of exceptions
 	//  - different order of parameters
-	int readSectors (      byte* buffer, unsigned startSector,
-	                 unsigned nbSectors);
-	int writeSectors(const byte* buffer, unsigned startSector,
-	                 unsigned nbSectors);
+	int readSectors (      byte* buffer, size_t startSector,
+	                 size_t nbSectors);
+	int writeSectors(const byte* buffer, size_t startSector,
+	                 size_t nbSectors);
 
 protected:
 	SectorAccessibleDisk();
@@ -64,9 +64,9 @@ protected:
 	virtual void flushCaches();
 
 private:
-	virtual void readSectorImpl(unsigned sector, byte* buf) = 0;
-	virtual void writeSectorImpl(unsigned sector, const byte* buf) = 0;
-	virtual unsigned getNbSectorsImpl() const = 0;
+	virtual void readSectorImpl(size_t sector, byte* buf) = 0;
+	virtual void writeSectorImpl(size_t sector, const byte* buf) = 0;
+	virtual size_t getNbSectorsImpl() const = 0;
 	virtual bool isWriteProtectedImpl() const = 0;
 
 	std::unique_ptr<const PatchInterface> patch;

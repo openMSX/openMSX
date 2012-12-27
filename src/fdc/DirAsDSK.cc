@@ -330,7 +330,7 @@ void DirAsDSK::checkCaches()
 	}
 }
 
-void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
+void DirAsDSK::readSectorImpl(size_t sector, byte* buf)
 {
 	assert(sector < NUM_SECTORS);
 
@@ -530,7 +530,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	// correctly, but at least with this mtime-update convention the file
 	// content will be the same on the host and the msx side after every
 	// sync.
-	unsigned hostSize = fst.st_size;
+	auto hostSize = fst.st_size;
 	MapDir& mapDir = mapDirs[dirIndex];
 	mapDir.filesize = hostSize;
 	mapDir.mtime = fst.st_mtime;
@@ -545,7 +545,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 		curCl = findFirstFreeCluster(); // MAX_CLUSTER in case of disk-full
 	}
 
-	unsigned remainingSize = hostSize;
+	auto remainingSize = hostSize;
 	unsigned prevCl = 0;
 	try {
 		string fullHostName = hostDir + mapDir.hostName;
@@ -558,8 +558,9 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 				assert(sector < NUM_SECTORS);
 				byte* buf = sectors[sector];
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-				file.read(buf, std::min(remainingSize, SECTOR_SIZE));
-				remainingSize -= std::min(remainingSize, SECTOR_SIZE);
+				auto sz = std::min<size_t>(remainingSize, SECTOR_SIZE);
+				file.read(buf, sz);
+				remainingSize -= sz;
 				if (remainingSize == 0) {
 					// Don't fill next sectors in this cluster
 					// if there is no data left.
@@ -822,7 +823,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	return DirIndex(sector, 0);
 }
 
-void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
+void DirAsDSK::writeSectorImpl(size_t sector, const byte* buf)
 {
 	assert(sector < NUM_SECTORS);
 	assert(syncMode != SYNC_READONLY);
@@ -1180,7 +1181,7 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 				if (offset >= msxSize) break;
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
+				auto writeSize = std::min<size_t>(msxSize - offset, SECTOR_SIZE);
 				file.write(sectors[sector], writeSize);
 				offset += SECTOR_SIZE;
 			}
@@ -1274,7 +1275,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 		file.seek(offset);
 		unsigned msxSize = msxDir(dirIndex).size;
 		if (msxSize > offset) {
-			unsigned writeSize = std::min(msxSize - offset, SECTOR_SIZE);
+			auto writeSize = std::min<size_t>(msxSize - offset, SECTOR_SIZE);
 			file.write(buf, writeSize);
 		}
 	} catch (FileException& e) {

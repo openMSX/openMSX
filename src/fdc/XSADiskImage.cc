@@ -60,15 +60,15 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 {
 	XSAExtractor extractor(file);
 	extractor.getData(data);
-	setNbSectors(unsigned(data.size()) / 512);
+	setNbSectors(data.size() / 512);
 }
 
-void XSADiskImage::readSectorImpl(unsigned sector, byte* buf)
+void XSADiskImage::readSectorImpl(size_t sector, byte* buf)
 {
 	memcpy(buf, &data[sector * SECTOR_SIZE], SECTOR_SIZE);
 }
 
-void XSADiskImage::writeSectorImpl(unsigned /*sector*/, const byte* /*buf*/)
+void XSADiskImage::writeSectorImpl(size_t /*sector*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }

@@ -28,8 +28,8 @@ public:
 	         BootSectorType bootSectorType);
 
 	// SectorBasedDisk
-	virtual void readSectorImpl(unsigned sector, byte* buf);
-	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+	virtual void readSectorImpl(size_t sector, byte* buf);
+	virtual void writeSectorImpl(size_t sector, const byte* buf);
 	virtual bool isWriteProtectedImpl() const;
 	virtual void checkCaches();
 
@@ -51,9 +51,9 @@ private:
 		// file compared to the last host->virtual-disk sync.
 		time_t mtime; // Modification time of host file at the time of
 		              // the last sync.
-		int filesize; // Host file size, normally the same as msx
-		              // filesize, except when the host file was
-		              // truncated.
+		ssize_t filesize; // Host file size, normally the same as msx
+		                  // filesize, except when the host file was
+		                  // truncated.
 	};
 
 	byte* fat();

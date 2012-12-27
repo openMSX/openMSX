@@ -10,7 +10,7 @@ namespace openmsx {
 
 SectorBasedDisk::SectorBasedDisk(const DiskName& name)
 	: Disk(name)
-	, nbSectors(unsigned(-1)) // to detect misuse
+	, nbSectors(size_t(-1)) // to detect misuse
 	, cachedTrackNum(-1)
 {
 }
@@ -30,7 +30,7 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 		if ((s.sector < 1) || (s.sector > getSectorsPerTrack())) continue;
 		byte buf[512];
 		input.readBlock(s.dataIdx, 512, buf);
-		unsigned logicalSector = physToLog(track, side, s.sector);
+		auto logicalSector = physToLog(track, side, s.sector);
 		writeSector(logicalSector, buf);
 		// it's important to use writeSector() and not writeSectorImpl()
 		// because only the former flushes SHA1 cache
@@ -116,7 +116,7 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			for (int i = 0; i <  3; ++i) output.write(idx++, 0xA1); // data mark (1)
 			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFB); //           (2)
 
-			unsigned logicalSector = physToLog(track, side, j + 1);
+			auto logicalSector = physToLog(track, side, j + 1);
 			byte sectorBuf[512];
 			readSector(logicalSector, sectorBuf);
 			for (int i = 0; i < 512; ++i) output.write(idx++, sectorBuf[i]);
@@ -148,14 +148,14 @@ void SectorBasedDisk::flushCaches()
 	cachedTrackNum = -1;
 }
 
-unsigned SectorBasedDisk::getNbSectorsImpl() const
+size_t SectorBasedDisk::getNbSectorsImpl() const
 {
-	assert(nbSectors != unsigned(-1)); // must have been initialized
+	assert(nbSectors != size_t(-1)); // must have been initialized
 	return nbSectors;
 }
-void SectorBasedDisk::setNbSectors(unsigned num)
+void SectorBasedDisk::setNbSectors(size_t num)
 {
-	assert(nbSectors == unsigned(-1)); // can only set this once
+	assert(nbSectors == size_t(-1)); // can only set this once
 	nbSectors = num;
 }
 

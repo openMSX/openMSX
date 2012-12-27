@@ -27,8 +27,8 @@ public:
 
 protected:
 	explicit Disk(const DiskName& name);
-	int physToLog(byte track, byte side, byte sector);
-	void logToPhys(int log, byte& track, byte& side, byte& sector);
+	size_t physToLog(byte track, byte side, byte sector);
+	void logToPhys(size_t log, byte& track, byte& side, byte& sector);
 
 	virtual void detectGeometry();
 	virtual void detectGeometryFallback();

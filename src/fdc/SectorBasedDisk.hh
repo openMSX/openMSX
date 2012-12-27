@@ -20,15 +20,15 @@ protected:
 	virtual void detectGeometry();
 	virtual void flushCaches();
 
-	void setNbSectors(unsigned num);
+	void setNbSectors(size_t num);
 
 private:
 	// Disk
-	virtual unsigned getNbSectorsImpl() const;
+	virtual size_t getNbSectorsImpl() const;
 	virtual void readTrack(byte track, byte side, RawTrack& output);
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
 
-	unsigned nbSectors;
+	size_t nbSectors;
 
 	RawTrack cachedTrackData;
 	int cachedTrackNum;

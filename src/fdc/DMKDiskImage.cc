@@ -153,7 +153,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 }
 
 
-void DMKDiskImage::readSectorImpl(unsigned logicalSector, byte* buf)
+void DMKDiskImage::readSectorImpl(size_t logicalSector, byte* buf)
 {
 	byte track, side, sector;
 	logToPhys(logicalSector, track, side, sector);
@@ -169,7 +169,7 @@ void DMKDiskImage::readSectorImpl(unsigned logicalSector, byte* buf)
 	rawTrack.readBlock(sectorInfo.dataIdx, 512, buf);
 }
 
-void DMKDiskImage::writeSectorImpl(unsigned logicalSector, const byte* buf)
+void DMKDiskImage::writeSectorImpl(size_t logicalSector, const byte* buf)
 {
 	byte track, side, sector;
 	logToPhys(logicalSector, track, side, sector);
@@ -186,7 +186,7 @@ void DMKDiskImage::writeSectorImpl(unsigned logicalSector, const byte* buf)
 	writeTrack(track, side, rawTrack);
 }
 
-unsigned DMKDiskImage::getNbSectorsImpl() const
+size_t DMKDiskImage::getNbSectorsImpl() const
 {
 	unsigned t = singleSided ? numTracks : (2 * numTracks);
 	return t * const_cast<DMKDiskImage*>(this)->getSectorsPerTrack();

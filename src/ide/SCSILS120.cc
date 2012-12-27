@@ -758,7 +758,7 @@ int SCSILS120::msgOut(byte value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-unsigned SCSILS120::getNbSectorsImpl() const
+size_t SCSILS120::getNbSectorsImpl() const
 {
 	if (file.get()) {
 		return file->getSize() / SECTOR_SIZE;
@@ -780,13 +780,13 @@ Sha1Sum SCSILS120::getSha1Sum()
 	return file->getSha1Sum();
 }
 
-void SCSILS120::readSectorImpl(unsigned sector, byte* buf)
+void SCSILS120::readSectorImpl(size_t sector, byte* buf)
 {
 	file->seek(512 * sector);
 	file->read(buf, 512);
 }
 
-void SCSILS120::writeSectorImpl(unsigned sector, const byte* buf)
+void SCSILS120::writeSectorImpl(size_t sector, const byte* buf)
 {
 	file->seek(512 * sector);
 	file->write(buf, 512);

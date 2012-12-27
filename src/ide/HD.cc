@@ -60,7 +60,7 @@ HD::HD(const DeviceConfig& config)
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
-		filesize = config.getChildDataAsInt("size") * 1024 * 1024;
+		filesize = size_t(config.getChildDataAsInt("size")) * 1024 * 1024;
 	}
 	alreadyTried = false;
 
@@ -136,20 +136,20 @@ void HD::switchImage(const Filename& name)
 	                                   filename.getResolved());
 }
 
-unsigned HD::getNbSectorsImpl() const
+size_t HD::getNbSectorsImpl() const
 {
 	const_cast<HD&>(*this).openImage();
 	return filesize / SECTOR_SIZE;
 }
 
-void HD::readSectorImpl(unsigned sector, byte* buf)
+void HD::readSectorImpl(size_t sector, byte* buf)
 {
 	openImage();
 	file->seek(sector * SECTOR_SIZE);
 	file->read(buf, SECTOR_SIZE);
 }
 
-void HD::writeSectorImpl(unsigned sector, const byte* buf)
+void HD::writeSectorImpl(size_t sector, const byte* buf)
 {
 	openImage();
 	file->seek(sector * SECTOR_SIZE);

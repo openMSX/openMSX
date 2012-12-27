@@ -44,7 +44,7 @@ bool Disk::isDoubleSided()
 //       conversion without relying on the detected geometry parameters.
 //       Otherwise the detectGeometry() method (which itself reads these
 //       two sectors) would get in an infinite loop.
-int Disk::physToLog(byte track, byte side, byte sector)
+size_t Disk::physToLog(byte track, byte side, byte sector)
 {
 	if ((track == 0) && (side == 0)) {
 		return sector - 1;
@@ -54,7 +54,7 @@ int Disk::physToLog(byte track, byte side, byte sector)
 	}
 	return sectorsPerTrack * (side + nbSides * track) + (sector - 1);
 }
-void Disk::logToPhys(int log, byte& track, byte& side, byte& sector)
+void Disk::logToPhys(size_t log, byte& track, byte& side, byte& sector)
 {
 	if (log <= 1) {
 		track = 0;

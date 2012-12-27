@@ -44,7 +44,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 }
 
 DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
-                             unsigned start_, unsigned length)
+                             size_t start_, size_t length)
 	: SectorBasedDisk(getDiskName(nullptr, 0))
 	, parent(parent_)
 	, start(start_)
@@ -52,12 +52,12 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
 	setNbSectors(length);
 }
 
-void DiskPartition::readSectorImpl(unsigned sector, byte* buf)
+void DiskPartition::readSectorImpl(size_t sector, byte* buf)
 {
 	parent.readSector(start + sector, buf);
 }
 
-void DiskPartition::writeSectorImpl(unsigned sector, const byte* buf)
+void DiskPartition::writeSectorImpl(size_t sector, const byte* buf)
 {
 	parent.writeSector(start + sector, buf);
 }
