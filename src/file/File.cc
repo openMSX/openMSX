@@ -68,12 +68,12 @@ File::~File()
 {
 }
 
-void File::read(void* buffer, unsigned num)
+void File::read(void* buffer, size_t num)
 {
 	file->read(buffer, num);
 }
 
-void File::write(const void* buffer, unsigned num)
+void File::write(const void* buffer, size_t num)
 {
 	if (filepool) {
 		filepool->removeSha1Sum(*this);
@@ -81,7 +81,7 @@ void File::write(const void* buffer, unsigned num)
 	file->write(buffer, num);
 }
 
-const byte* File::mmap(unsigned& size)
+const byte* File::mmap(size_t& size)
 {
 	return file->mmap(size);
 }
@@ -91,22 +91,22 @@ void File::munmap()
 	file->munmap();
 }
 
-unsigned File::getSize()
+size_t File::getSize()
 {
 	return file->getSize();
 }
 
-void File::seek(unsigned pos)
+void File::seek(size_t pos)
 {
 	file->seek(pos);
 }
 
-unsigned File::getPos()
+size_t File::getPos()
 {
 	return file->getPos();
 }
 
-void File::truncate(unsigned size)
+void File::truncate(size_t size)
 {
 	return file->truncate(size);
 }

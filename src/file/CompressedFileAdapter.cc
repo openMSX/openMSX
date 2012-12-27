@@ -49,7 +49,7 @@ void CompressedFileAdapter::decompress()
 	file.reset();
 }
 
-void CompressedFileAdapter::read(void* buffer, unsigned num)
+void CompressedFileAdapter::read(void* buffer, size_t num)
 {
 	decompress();
 	const MemBuffer<byte>& buf = decompressed->buf;
@@ -60,12 +60,12 @@ void CompressedFileAdapter::read(void* buffer, unsigned num)
 	pos += num;
 }
 
-void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
+void CompressedFileAdapter::write(const void* /*buffer*/, size_t /*num*/)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }
 
-const byte* CompressedFileAdapter::mmap(unsigned& size)
+const byte* CompressedFileAdapter::mmap(size_t& size)
 {
 	decompress();
 	size = decompressed->buf.size();
@@ -77,23 +77,23 @@ void CompressedFileAdapter::munmap()
 	// nothing
 }
 
-unsigned CompressedFileAdapter::getSize()
+size_t CompressedFileAdapter::getSize()
 {
 	decompress();
 	return decompressed->buf.size();
 }
 
-void CompressedFileAdapter::seek(unsigned newpos)
+void CompressedFileAdapter::seek(size_t newpos)
 {
 	pos = newpos;
 }
 
-unsigned CompressedFileAdapter::getPos()
+size_t CompressedFileAdapter::getPos()
 {
 	return pos;
 }
 
-void CompressedFileAdapter::truncate(unsigned /*size*/)
+void CompressedFileAdapter::truncate(size_t /*size*/)
 {
 	throw FileException("Truncating compressed files not yet supported.");
 }

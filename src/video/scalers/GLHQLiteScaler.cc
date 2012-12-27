@@ -66,7 +66,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		offsetTexture[i] = make_unique<Texture>();
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
-		unsigned size; // dummy
+		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
 		             GL_LUMINANCE8_ALPHA8, // internal format

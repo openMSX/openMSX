@@ -100,7 +100,7 @@ unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 	//       when reading (g)zipped XML.
 	// Note: On destruction of "file", munmap() is called automatically.
 	const byte* fileContent;
-	unsigned size;
+	size_t size; // TODO
 	try {
 		fileContent = file.mmap(size);
 	} catch (FileException& e) {

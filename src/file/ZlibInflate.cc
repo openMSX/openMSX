@@ -5,12 +5,18 @@
 #include "Math.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
+#include <limits>
 #include <cassert>
 
 namespace openmsx {
 
-ZlibInflate::ZlibInflate(const byte* input, unsigned inputLen)
+ZlibInflate::ZlibInflate(const byte* input, size_t inputLen)
 {
+	if (inputLen > std::numeric_limits<decltype(s.avail_in)>::max()) {
+		throw FileException(
+			"Error while decompressing: input file too big");
+	}
+
 	s.zalloc = nullptr;
 	s.zfree  = nullptr;
 	s.opaque = nullptr;
@@ -26,9 +32,9 @@ ZlibInflate::~ZlibInflate()
 	}
 }
 
-void ZlibInflate::skip(unsigned num)
+void ZlibInflate::skip(size_t num)
 {
-	for (unsigned i = 0; i < num; ++i) {
+	for (size_t i = 0; i < num; ++i) {
 		getByte();
 	}
 }
@@ -59,10 +65,10 @@ unsigned ZlibInflate::get32LE()
 	return result;
 }
 
-std::string ZlibInflate::getString(unsigned len)
+std::string ZlibInflate::getString(size_t len)
 {
 	std::string result;
-	for (unsigned i = 0; i < len; ++i) {
+	for (size_t i = 0; i < len; ++i) {
 		result.push_back(getByte());
 	}
 	return result;
@@ -77,7 +83,7 @@ std::string ZlibInflate::getCString()
 	return result;
 }
 
-void ZlibInflate::inflate(MemBuffer<byte>& output, unsigned sizeHint)
+void ZlibInflate::inflate(MemBuffer<byte>& output, size_t sizeHint)
 {
 	int initErr = inflateInit2(&s, -MAX_WBITS);
 	if (initErr != Z_OK) {
@@ -98,7 +104,7 @@ void ZlibInflate::inflate(MemBuffer<byte>& output, unsigned sizeHint)
 			throw FileException(StringOp::Builder()
 				<< "Error decompressing gzip: " << zError(err));
 		}
-		unsigned oldSize = output.size();
+		auto oldSize = output.size();
 		output.resize(oldSize * 2); // double buffer size
 		s.avail_out = output.size() - oldSize;
 	}

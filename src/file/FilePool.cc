@@ -245,7 +245,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 
 static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
 {
-	unsigned size;
+	size_t size;
 	const byte* data = file.mmap(size);
 	return SHA1::calcWithProgress(data, size, file.getOriginalName(), cliComm, distributor);
 }

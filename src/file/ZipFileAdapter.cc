@@ -13,7 +13,7 @@ ZipFileAdapter::ZipFileAdapter(std::unique_ptr<FileBase> file_)
 
 void ZipFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
 {
-	unsigned size;
+	size_t size;
 	const byte* data = file.mmap(size);
 	ZlibInflate zlib(data, size);
 

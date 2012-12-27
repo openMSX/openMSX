@@ -14,17 +14,17 @@ template<typename T> class MemBuffer;
 class ZlibInflate
 {
 public:
-	ZlibInflate(const byte* buffer, unsigned len);
+	ZlibInflate(const byte* buffer, size_t len);
 	~ZlibInflate();
 
-	void skip(unsigned num);
+	void skip(size_t num);
 	byte getByte();
 	unsigned get16LE();
 	unsigned get32LE();
-	std::string getString(unsigned len);
+	std::string getString(size_t len);
 	std::string getCString();
 
-	void inflate(MemBuffer<byte>& output, unsigned sizeHint = 65536);
+	void inflate(MemBuffer<byte>& output, size_t sizeHint = 65536);
 
 private:
 	z_stream s;

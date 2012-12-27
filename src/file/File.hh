@@ -54,21 +54,21 @@ public:
 	 * @param num Number of bytes to read
 	 * @throws FileException
 	 */
-	void read(void* buffer, unsigned num);
+	void read(void* buffer, size_t num);
 
 	/** Write to file.
 	 * @param buffer Source address
 	 * @param num Number of bytes to write
 	 * @throws FileException
 	 */
-	void write(const void* buffer, unsigned num);
+	void write(const void* buffer, size_t num);
 
 	/** Map file in memory.
 	 * @param size Filled in with filesize.
 	 * @result Pointer to memory block.
 	 * @throws FileException
 	 */
-	const byte* mmap(unsigned& size);
+	const byte* mmap(size_t& size);
 
 	/** Unmap file from memory.
 	 */
@@ -78,25 +78,25 @@ public:
 	 * @result The size of this file
 	 * @throws FileException
 	 */
-	unsigned getSize();
+	size_t getSize();
 
 	/** Move read/write pointer to the specified position.
 	 * @param pos Position in bytes from the beginning of the file.
 	 * @throws FileException
 	 */
-	void seek(unsigned pos);
+	void seek(size_t pos);
 
 	/** Get the current position of the read/write pointer.
 	 * @result Position in bytes from the beginning of the file.
 	 * @throws FileException
 	 */
-	unsigned getPos();
+	size_t getPos();
 
 	/** Truncate file size. Enlarging file size always works, but
 	 *  making file smaller doesn't work on some platforms (windows)
 	 * @throws FileException
 	 */
-	void truncate(unsigned size);
+	void truncate(size_t size);
 
 	/** Force a write of all buffered data to disk. There is no need to
 	 *  call this function before destroying a File object.

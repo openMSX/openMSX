@@ -57,7 +57,7 @@ static bool skipHeader(ZlibInflate& zlib, std::string& originalName)
 
 void GZFileAdapter::decompress(FileBase& file, Decompressed& decompressed)
 {
-	unsigned size;
+	size_t size;
 	const byte* data = file.mmap(size);
 	ZlibInflate zlib(data, size);
 	if (!skipHeader(zlib, decompressed.originalName)) {

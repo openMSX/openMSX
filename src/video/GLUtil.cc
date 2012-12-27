@@ -213,7 +213,7 @@ bool PixelBuffers::enabled = true;
 static string readTextFile(const string& filename)
 {
 	File file(SystemFileContext().resolve(filename));
-	unsigned size;
+	size_t size;
 	const byte* data = file.mmap(size);
 	return string(reinterpret_cast<const char*>(data), size);
 }

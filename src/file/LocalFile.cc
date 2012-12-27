@@ -114,7 +114,7 @@ void LocalFile::preCacheFile()
 	cache = make_unique<PreCacheFile>(name);
 }
 
-void LocalFile::read(void* buffer, unsigned num)
+void LocalFile::read(void* buffer, size_t num)
 {
 	if (fread(buffer, 1, num, file) != num) {
 		if (ferror(file)) {
@@ -126,7 +126,7 @@ void LocalFile::read(void* buffer, unsigned num)
 	}
 }
 
-void LocalFile::write(const void* buffer, unsigned num)
+void LocalFile::write(const void* buffer, size_t num)
 {
 	if (fwrite(buffer, 1, num, file) != num) {
 		if (ferror(file)) {
@@ -136,7 +136,7 @@ void LocalFile::write(const void* buffer, unsigned num)
 }
 
 #if defined _WIN32
-const byte* LocalFile::mmap(unsigned& size)
+const byte* LocalFile::mmap(size_t& size)
 {
 	size = getSize();
 	if (size == 0) return nullptr;
@@ -192,7 +192,7 @@ void LocalFile::munmap()
 }
 
 #elif HAVE_MMAP
-const byte* LocalFile::mmap(unsigned& size)
+const byte* LocalFile::mmap(size_t& size)
 {
 	size = getSize();
 	if (size == 0) return nullptr;
@@ -220,15 +220,15 @@ void LocalFile::munmap()
 }
 #endif
 
-unsigned LocalFile::getSize()
+size_t LocalFile::getSize()
 {
 	struct stat st;
 	int ret = fstat(fileno(file), &st);
-	if ((static_cast<unsigned long long>(st.st_size) >= 0x80000000u) || (ret && (errno == EOVERFLOW))) {
+	if (ret && (errno == EOVERFLOW)) {
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
-		throw FileException("Files bigger than or equal to 2GB are "
-		                    "not yet supported: " + getURL());
+		throw FileException("Files >= 2GB are not supported on "
+		                    "32-bit platforms: " + getURL());
 	}
 	if (ret) {
 		throw FileException("Cannot get file size");
@@ -236,7 +236,7 @@ unsigned LocalFile::getSize()
 	return st.st_size;
 }
 
-void LocalFile::seek(unsigned pos)
+void LocalFile::seek(size_t pos)
 {
 	fseek(file, pos, SEEK_SET);
 	if (ferror(file)) {
@@ -244,13 +244,13 @@ void LocalFile::seek(unsigned pos)
 	}
 }
 
-unsigned LocalFile::getPos()
+size_t LocalFile::getPos()
 {
-	return unsigned(ftell(file));
+	return ftell(file);
 }
 
 #if HAVE_FTRUNCATE
-void LocalFile::truncate(unsigned size)
+void LocalFile::truncate(size_t size)
 {
 	int fd = fileno(file);
 	if (ftruncate(fd, size)) {

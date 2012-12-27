@@ -104,7 +104,7 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 		"unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
-		unsigned size;
+		size_t size;
 		const byte* buf = file.mmap(size);
 		parseUnicodeKeymapfile(
 			reinterpret_cast<const char*>(buf),

@@ -63,7 +63,7 @@ void LocalFileReference::init(File& file)
 	}
 
 	// write temp file
-	unsigned size;
+	size_t size;
 	const byte* buf = file.mmap(size);
 	if (fwrite(buf, 1, size, fp) != size) {
 		throw FileException("Couldn't write temp file");

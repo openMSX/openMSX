@@ -16,18 +16,18 @@ public:
 	FileBase();
 	virtual ~FileBase();
 
-	virtual void read(void* buffer, unsigned num) = 0;
-	virtual void write(const void* buffer, unsigned num) = 0;
+	virtual void read(void* buffer, size_t num) = 0;
+	virtual void write(const void* buffer, size_t num) = 0;
 
 	// If you override mmap(), make sure to call munmap() in
 	// your destructor.
-	virtual const byte* mmap(unsigned& size);
+	virtual const byte* mmap(size_t& size);
 	virtual void munmap();
 
-	virtual unsigned getSize() = 0;
-	virtual void seek(unsigned pos) = 0;
-	virtual unsigned getPos() = 0;
-	virtual void truncate(unsigned size);
+	virtual size_t getSize() = 0;
+	virtual void seek(size_t pos) = 0;
+	virtual size_t getPos() = 0;
+	virtual void truncate(size_t size);
 	virtual void flush() = 0;
 
 	virtual const std::string getURL() const = 0;

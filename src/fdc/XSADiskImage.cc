@@ -87,7 +87,7 @@ const int XSAExtractor::cpdext[TBLSIZE] = {
 
 XSAExtractor::XSAExtractor(File& file)
 {
-	unsigned size;
+	size_t size;
 	inBufPos = file.mmap(size);
 	inBufEnd = inBufPos + size;
 

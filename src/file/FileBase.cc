@@ -18,7 +18,7 @@ FileBase::~FileBase()
 	munmap();
 }
 
-const byte* FileBase::mmap(unsigned& size)
+const byte* FileBase::mmap(size_t& size)
 {
 	if (mmapBuf.empty()) {
 		size = getSize();
@@ -34,21 +34,21 @@ void FileBase::munmap()
 	mmapBuf.clear();
 }
 
-void FileBase::truncate(unsigned newSize)
+void FileBase::truncate(size_t newSize)
 {
-	unsigned oldSize = getSize();
+	auto oldSize = getSize();
 	if (newSize < oldSize) {
 		PRT_DEBUG("Default truncate() can't shrink file!");
 		return;
 	}
-	unsigned remaining = newSize - oldSize;
+	auto remaining = newSize - oldSize;
 	seek(oldSize);
 
-	const unsigned BUF_SIZE = 4096;
+	static const size_t BUF_SIZE = 4096;
 	byte buf[BUF_SIZE];
 	memset(buf, 0, sizeof(buf));
 	while (remaining) {
-		unsigned chunkSize = std::min(BUF_SIZE, remaining);
+		auto chunkSize = std::min(BUF_SIZE, remaining);
 		write(buf, chunkSize);
 		remaining -= chunkSize;
 	}

@@ -22,17 +22,17 @@ public:
 	LocalFile(string_ref filename, File::OpenMode mode);
 	LocalFile(string_ref filename, const char* mode);
 	virtual ~LocalFile();
-	virtual void read (void* buffer, unsigned num);
-	virtual void write(const void* buffer, unsigned num);
+	virtual void read (void* buffer, size_t num);
+	virtual void write(const void* buffer, size_t num);
 #if HAVE_MMAP || defined _WIN32
-	virtual const byte* mmap(unsigned& size);
+	virtual const byte* mmap(size_t& size);
 	virtual void munmap();
 #endif
-	virtual unsigned getSize();
-	virtual void seek(unsigned pos);
-	virtual unsigned getPos();
+	virtual size_t getSize();
+	virtual void seek(size_t pos);
+	virtual size_t getPos();
 #if HAVE_FTRUNCATE
-	virtual void truncate(unsigned size);
+	virtual void truncate(size_t size);
 #endif
 	virtual void flush();
 	virtual const std::string getURL() const;

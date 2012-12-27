@@ -182,7 +182,9 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 				"supported.");
 		}
 		try {
-			rom = file->mmap(size);
+			size_t size2;
+			rom = file->mmap(size2);
+			size = size2; // TODO
 		} catch (FileException&) {
 			throw MSXException("Error reading ROM image: " +
 					   file->getURL());

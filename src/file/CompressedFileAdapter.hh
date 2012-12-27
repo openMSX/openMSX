@@ -19,14 +19,14 @@ public:
 		time_t cachedModificationDate;
 	};
 
-	virtual void read(void* buffer, unsigned num);
-	virtual void write(const void* buffer, unsigned num);
-	virtual const byte* mmap(unsigned& size);
+	virtual void read(void* buffer, size_t num);
+	virtual void write(const void* buffer, size_t num);
+	virtual const byte* mmap(size_t& size);
 	virtual void munmap();
-	virtual unsigned getSize();
-	virtual void seek(unsigned pos);
-	virtual unsigned getPos();
-	virtual void truncate(unsigned size);
+	virtual size_t getSize();
+	virtual void seek(size_t pos);
+	virtual size_t getPos();
+	virtual void truncate(size_t size);
 	virtual void flush();
 	virtual const std::string getURL() const;
 	virtual const std::string getOriginalName();
@@ -43,7 +43,7 @@ private:
 
 	std::unique_ptr<FileBase> file;
 	std::shared_ptr<Decompressed> decompressed;
-	unsigned pos;
+	size_t pos;
 };
 
 } // namespace openmsx
