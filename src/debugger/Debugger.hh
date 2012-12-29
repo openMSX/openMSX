@@ -40,10 +40,7 @@ public:
 
 private:
 	Debuggable& getDebuggable(string_ref name);
-	std::vector<string_ref> getDebuggables() const;
-
 	ProbeBase& getProbe(string_ref name);
-	std::vector<string_ref> getProbes() const;
 
 	unsigned insertProbeBreakPoint(
 		TclObject command, TclObject condition,

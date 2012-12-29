@@ -8,6 +8,7 @@
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "KeyRange.hh"
 #include "memory.hh"
 #include <cassert>
 
@@ -90,15 +91,6 @@ Setting* SettingsManager::findSetting(string_ref name) const
 }
 
 // Helper functions for setting commands
-
-vector<string_ref> SettingsManager::getSettingNames() const
-{
-	vector<string_ref> result;
-	for (auto& p : settingsMap) {
-		result.push_back(p.first());
-	}
-	return result;
-}
 
 Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
@@ -193,11 +185,9 @@ string SettingInfo::help(const vector<string>& /*tokens*/) const
 
 void SettingInfo::tabCompletion(vector<string>& tokens) const
 {
-	switch (tokens.size()) {
-	case 3: { // complete setting name
-		completeString(tokens, manager.getSettingNames());
-		break;
-	}
+	if (tokens.size() == 3) {
+		// complete setting name
+		completeString(tokens, keys(manager.settingsMap));
 	}
 }
 
@@ -225,11 +215,10 @@ string SetCompleter::help(const vector<string>& tokens) const
 void SetCompleter::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
-	case 2: {
+	case 2:
 		// complete setting name
-		completeString(tokens, manager.getSettingNames(), false); // case insensitive
+		completeString(tokens, keys(manager.settingsMap), false); // case insensitive
 		break;
-	}
 	case 3: {
 		// complete setting value
 		auto it = manager.settingsMap.find(tokens[1]);
@@ -259,12 +248,9 @@ string SettingCompleter::help(const vector<string>& /*tokens*/) const
 
 void SettingCompleter::tabCompletion(vector<string>& tokens) const
 {
-	switch (tokens.size()) {
-	case 2: {
+	if (tokens.size() == 2) {
 		// complete setting name
-		completeString(tokens, manager.getSettingNames());
-		break;
-	}
+		completeString(tokens, keys(manager.settingsMap));
 	}
 }
 

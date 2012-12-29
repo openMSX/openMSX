@@ -7,6 +7,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
+#include "KeyRange.hh"
 #include "unreachable.hh"
 #include <iostream>
 #include <cassert>
@@ -102,11 +103,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 	case 2: {
 		// complete topic
-		vector<string_ref> topics; // TODO make view on StringMap
-		for (auto& p : infoTopics) {
-			topics.push_back(p.first());
-		}
-		completeString(tokens, topics);
+		completeString(tokens, keys(infoTopics));
 		break;
 	}
 	default:
