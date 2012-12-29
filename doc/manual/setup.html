@@ -554,26 +554,27 @@ instead of MoonSound (maximum 18+24 channels).
 <p>This section has some tips specific to the Android version</p>
 <ul>
   <li>If the sound is choppy, you should increase the SDL audio buffer size as follows</li>
-  <ul>
-    <li>Start openMSX</li>
-    <li>Tap the button "Change device configuration" on the SDL Splash screen that is shown for 3 seconds during the startup</li>
-    <li>Tap the button "Size of audio buffer" in the device configuration screen</li>
-    <li>Change the buffer size from "Very small" to "Small"</li>
-    <li>Tap "OK" to close the device configuration screen</li>
-  </ul>
+  <li>
+    <ul>
+      <li>Start openMSX</li>
+      <li>Tap the button "Change device configuration" on the SDL Splash screen that is shown for 3 seconds during the startup</li>
+      <li>Tap the button "Size of audio buffer" in the device configuration screen</li>
+      <li>Change the buffer size from "Very small" to "Small"</li>
+      <li>Tap "OK" to close the device configuration screen</li>
+    </ul>
+  </li>
   <li>It is strongly advisable to disable the <a class="external" href="user.html#reverse">reverse</a> feature to save memory and battery usage. You can permanently disable it by entering following command in the console: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code></li>
-  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to functions as in following table:</li>
-  <ul>
+  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to functions as in following table:
     <table class="border_enabled">
-    <tr><td>Console</td><td>openMSX virtual keyboard</td></tr>
-    <tr><td>Joystick button 2</td><td>Joystick button 1</td></tr>
+      <tr><td>Console</td><td>openMSX virtual keyboard</td></tr>
+      <tr><td>Joystick button 2</td><td>Joystick button 1</td></tr>
     </table>
-  </ul>
+  </li>
   <li>It is possible to change these mappings using the "Change device configuration" button on the SDL Splash screen</li>
   <li>By default, the Android build has a button in the left upper corner of the screen to open the Android virtual keyboard</li>
   <li>If you use the Android keyboard a lot, then it is advisable to install the "Hackers keyboard" app from Google Play and to use that one
   instead of the standard Android keyboard. It is much more convenient for openMSX and other old-school applications.</li>
-  <li>The Android virtual keyboard is placed at the bottom of the screen. This makes it overlap with the default position of the openMSX console. You can change the position of the console by entering following command in it: <code>set consoleplacement top</code>
+  <li>The Android virtual keyboard is placed at the bottom of the screen. This makes it overlap with the default position of the openMSX console. You can change the position of the console by entering following command in it: <code>set consoleplacement top</code></li>
 </ul>  
 
 <h2><a id="hardwareedit">8. Writing Hardware Descriptions</a></h2>
