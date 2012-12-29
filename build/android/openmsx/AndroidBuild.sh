@@ -74,8 +74,8 @@ else
 fi
 echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
 
-#"${set_sdl_app_environment}" /bin/sh -c "set"
-"${set_sdl_app_environment}" /bin/sh -c "\
+#"${set_sdl_app_environment}" /bin/bash -c "set"
+"${set_sdl_app_environment}" /bin/bash -c "\
     cd ${my_home_dir};\
     echo \"AB:INFO CXX: \${CXX}\";\
     echo \"AB:INFO CXXFLAGS: \${CXXFLAGS}\";\
