@@ -90,6 +90,17 @@ a.external:link {
 a.external:active {
 	color: #8080FF;
 }
+table.border_enabled {
+	border-collapse:collapse;
+	border: 1px solid black;
+}
+table.border_enabled tr th {
+	border: 1px solid black;
+}
+table.border_enabled tr td {
+	border: 1px solid black;
+}
+
 table {
 	margin-left: 32pt;
 }

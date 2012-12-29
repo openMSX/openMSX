@@ -286,27 +286,28 @@ Whatever you decide, is your own responsibility.
 
 <p>The easiest way is to use a so-called file pool; a special directory where openMSX will look
 for files (system ROMs, other ROMs, disks, tapes, etc.). The default file pool
-for system ROMs is the <code>systemroms</code> directory. The best way is to
-use one in your own user directory, which is platform dependent
+for system ROMs is the <code>systemroms</code> sub directory. The best way is to
+make a <code>systemroms</code> sub directory in your own user directory, which is platform dependent
 </p>
-<table border="1">
+<table class="border_enabled">
 <tr><th>Platform</th><th>User directory</th></tr>
-<tr><td>Windows</td>><td>My Documents\openMSX\share</td></tr>
-<tr><td>Unix and Linux</td>><td>~/.openMSX/share</td></tr>
-<tr><td>Android</td>><td>&lt;external storage&gt;/openMSX/share, whereby &lt;external storage&gt; stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard</td></tr>
+<tr><td>Old versions of Windows (e.g. Windows XP)</td><td>My Documents\openMSX\share</td></tr>
+<tr><td>Modern versions of Windows (e.g. Windows 7)</td><td>c:\Users\&lt;user name&gt;\openMSX\share whereby &lt;user name&gt; stands for your windows login name</td></tr>
+<tr><td>Unix and Linux</td><td>~/.openMSX/share</td></tr>
+<tr><td>Android</td><td>&lt;external storage&gt;/openMSX/share, whereby &lt;external storage&gt; stands for the default external storage location of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard</td></tr>
 </table>
 <p>
 That way, you do not need
 special privilages. Furtermore, the installer won't touch them for sure on Windows nor on Android.
 </p>
 <p>
-A template for this directory is present in the installation directory of openMSX, which is also platform dependent:
+A template for the <code>systemroms</code> sub directory is present in the installation directory of openMSX, which is also platform dependent:
 </p>
-<table border="1">
+<table class="border_enabled">
 <tr><th>Platform</th><th>Typical openMSX file pool installation directory</th></tr>
-<tr><td>Windows</td>><td>C:\Program Files\openMSX\share</td></tr>
-<tr><td>Unix and Linux</td>><td>/opt/openMSX/share or /usr/share/openmsx</td></tr>
-<tr><td>Android</td>><td>&lt;internal app install dir&gt;org.openmsx.android.openmsx/files/openmsx_system, whereby &lt;internal app install dir&gt; stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard/Android/data</td></tr>
+<tr><td>Windows (any version)</td><td>C:\Program Files\openMSX\share</td></tr>
+<tr><td>Unix and Linux</td><td>/opt/openMSX/share or /usr/share/openmsx</td></tr>
+<tr><td>Android</td><td>&lt;internal app install dir&gt;/org.openmsx.android.openmsx/files/openmsx_system, whereby &lt;internal app install dir&gt; stands for the default internal app installation directory of your Android device. On the Samsung Galaxy Nexus it is for example /sdcard/Android/data</td></tr>
 </table>
 
 <p>
@@ -520,7 +521,7 @@ If openMSX runs slow, you can try the following measures:
 Disable horizontal stretching (mostly useful when using the SDL renderer), which is enabled by default: <code>set <a class="external" href="commands.html#horizontal_stretch">horizontal_stretch</a> 320</code>.
 </li>
 <li>
-Disable the <a class="external" href="user.html#reverse">reverse</a> feature (especially if the platform you're running on has a low amount of RAM), which is enabled by default on most platforms: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> "off"</code>
+Disable the <a class="external" href="user.html#reverse">reverse</a> feature (especially if the platform you're running on has a low amount of RAM), which is enabled by default on most platforms: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code>
 </li>
 <li>
 Make sure there are no CPU or I/O heavy background processes is running.
@@ -560,10 +561,10 @@ instead of MoonSound (maximum 18+24 channels).
     <li>Change the buffer size from "Very small" to "Small"</li>
     <li>Tap "OK" to close the device configuration screen</li>
   </ul>
-  <li>It is strongly advisable to disable the <a class="external" href="user.html#reverse">reverse</a> feature to save memory and battery usage. You can permanently disable it by entering following command in the console: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> "off"</code></li>
-  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to following functions</li>
+  <li>It is strongly advisable to disable the <a class="external" href="user.html#reverse">reverse</a> feature to save memory and battery usage. You can permanently disable it by entering following command in the console: <code>set  <a class="external" href="commands.html#auto_enable_reverse">auto_enable_reverse</a> off</code></li>
+  <li>By default, the Android build has 4 virtual buttons on the right bottom side, mapped to functions as in following table:</li>
   <ul>
-    <table border="1">
+    <table class="border_enabled">
     <tr><td>Console</td><td>openMSX virtual keyboard</td></tr>
     <tr><td>Joystick button 2</td><td>Joystick button 1</td></tr>
     </table>
