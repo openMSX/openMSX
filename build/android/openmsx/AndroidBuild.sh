@@ -1,24 +1,39 @@
+#!/bin/bash
+
 #set -xv
-echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
-echo "AB:INFO pwd: $(pwd)"
 
 # TODO: find out if flavour can be passed from SDL build environment
 #openmsx_flavour="android-debug"
 openmsx_flavour="android"
 
+echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
+echo "AB:INFO pwd: $(pwd)"
+
+# Read environment.props (if it exists) to get following two params:
+#   sdl_android_port_path
+#   my_home_dir
 if [ ! -f environment.props ]; then
     echo "AB:ERROR: No file environment.props in $(pwd)"
     exit 1
 fi
-
-# Read environment.props to get following two params:
-#   sdl_android_port_path
-#   my_home_dir
 . ./environment.props
 
 # Remember location of the current directory, which is the directory
 # with all android specific code for the app
 my_app_android_dir="$(pwd)"
+
+
+# Determine current revision and version name
+PYTHONPATH="${my_home_dir}/build"
+export PYTHONPATH
+cd "${PYTHONPATH}"
+REVISION=$(python -c "import version; print version.extractRevisionString()")
+if [ "${REVISION}" = "unknown" ]; then
+  echo "AB:ERROR Could not determine revision"
+  exit 1
+fi
+VERSION_NAME=$(python -c "import version; print version.getVersionedPackageName()")
+echo "AB:INFO building revision ${REVISION} with version name ${VERSION_NAME}"
 
 # Use latest version of the setEnvironment script; it is the one that uses GCC 4.6
 set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
@@ -33,7 +48,6 @@ else
     exit 1
 fi
 
-echo "AB:INFO entering openMSX home directory: ${my_home_dir}"
 #echo "AB:INFO current shell: ${SHELL}"
 #echo "AB:INFO BEGIN all environment params:"
 #set
@@ -76,6 +90,7 @@ echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
 
 #"${set_sdl_app_environment}" /bin/bash -c "set"
 "${set_sdl_app_environment}" /bin/bash -c "\
+    echo \"AB:INFO entering openMSX home directory: ${my_home_dir}\"; \
     cd ${my_home_dir};\
     echo \"AB:INFO CXX: \${CXX}\";\
     echo \"AB:INFO CXXFLAGS: \${CXXFLAGS}\";\
@@ -137,22 +152,15 @@ else
 fi
 
 APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
-revision=$(PYTHONPATH="${my_home_dir}/build" python -c \
-	"import version; print version.extractRevisionString()" \
-	)
-version_name=$(PYTHONPATH="${my_home_dir}/build" python -c \
-	"import version; print version.getVersionedPackageName()" \
-	)
-echo "AB:INFO revision: $revision"
 . ${APP_SETTINGS_CFG}
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
-if [ "$AppVersionCode" != "$revision" ]; then
-	sed -i "s/^AppVersionCode=.*$/AppVersionCode=$revision/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionCode=.*^android:versionCode=\"$revision\"^" ${MANIFEST}
+if [ "$AppVersionCode" != "${REVISION}" ]; then
+	sed -i "s/^AppVersionCode=.*$/AppVersionCode=${REVISION}/" ${APP_SETTINGS_CFG}
+	sed -i "s^android:versionCode=.*^android:versionCode=\"${REVISION}\"^" ${MANIFEST}
 fi
-if [ "$AppVersionName" != "$version_name" ]; then
-	sed -i "s/^AppVersionName=.*$/AppVersionName=$version_name/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionName=.*^android:versionName=\"$version_name\"^" ${MANIFEST}
+if [ "$AppVersionName" != "${VERSION_NAME}" ]; then
+	sed -i "s/^AppVersionName=.*$/AppVersionName=${VERSION_NAME}/" ${APP_SETTINGS_CFG}
+	sed -i "s^android:versionName=.*^android:versionName=\"${VERSION_NAME}\"^" ${MANIFEST}
 fi
 
 # Patch manifest file to target android 2.3 and older so that the
