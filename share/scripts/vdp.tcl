@@ -106,20 +106,19 @@ proc get_screen_mode_number {} {
 	set mode [get_screen_mode]
 	if {[string range $mode 0 3] eq "TEXT"} {
 		return 0
-	} else {
-		return $mode
+	} else if {$mode eq "invalid"} {
+		return -1
 	}
+	return $mode
 }
 
 set_help_text get_screen_mode "Decodes the current screen mode from the VDP registers (and returns it as a string)."
 proc get_screen_mode {} {
 	variable mode_lookup
 	set val [expr {(([vdpreg 0] & 14) << 1) | (([vdpreg 1] & 8) >> 2) | (([vdpreg 1] & 16) >> 4)}]
-	if {![info exists mode_lookup([val2bin $val])]} {
-		error "Illegal VDP mode!"
-		return -1
+	if {[catch {set mode $mode_lookup([val2bin $val])}]} {
+		return "invalid"
 	}
-	set mode $mode_lookup([val2bin $val])
 	if {(($mode == 8) || ($mode == 7)) && ([vdpreg 25] & 8)} {
 		set mode [expr {([vdpreg 25] & 16) ? 11 : 12}]
 	}
