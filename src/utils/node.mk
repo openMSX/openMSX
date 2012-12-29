@@ -30,6 +30,7 @@ HDR_ONLY:= \
 	checked_cast \
 	endian \
 	alignof \
+	array_ref \
 	likely \
 	inline \
 	memory \

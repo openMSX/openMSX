@@ -28,7 +28,7 @@ TclCallbackMessages::~TclCallbackMessages()
 
 void TclCallbackMessages::log(CliComm::LogLevel level, string_ref message)
 {
-	const char* const* levelStr = CliComm::getLevelStrings();
+	auto levelStr = CliComm::getLevelStrings();
 	messageCallback->execute(message, levelStr[level]);
 }
 

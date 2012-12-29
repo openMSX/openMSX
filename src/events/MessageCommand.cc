@@ -3,6 +3,7 @@
 #include "MessageCommand.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
+#include "xrange.hh"
 
 namespace openmsx {
 
@@ -13,8 +14,8 @@ MessageCommand::MessageCommand(CommandController& controller)
 
 static CliComm::LogLevel getLevel(const std::string& level)
 {
-	const char* const* levels = CliComm::getLevelStrings();
-	for (int i = 0; i < CliComm::NUM_LEVELS; ++i) {
+	auto levels = CliComm::getLevelStrings();
+	for (auto i : xrange(levels.size())) {
 		if (level == levels[i]) {
 			return static_cast<CliComm::LogLevel>(i);
 		}
@@ -51,9 +52,7 @@ std::string MessageCommand::help(const std::vector<std::string>& /*tokens*/) con
 void MessageCommand::tabCompletion(std::vector<std::string>& tokens) const
 {
 	if (tokens.size() == 3) {
-		const char* const* levels = CliComm::getLevelStrings();
-		std::vector<const char*> levelSet(levels, levels + CliComm::NUM_LEVELS);
-		completeString(tokens, levelSet);
+		completeString(tokens, CliComm::getLevelStrings());
 	}
 }
 

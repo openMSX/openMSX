@@ -3,6 +3,7 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
+#include "array_ref.hh"
 #include "string_ref.hh"
 
 namespace openmsx {
@@ -43,8 +44,12 @@ public:
 	void printProgress(string_ref message);
 
 	// string representations of the LogLevel and UpdateType enums
-	static const char* const* getLevelStrings()  { return levelStr;  }
-	static const char* const* getUpdateStrings() { return updateStr; }
+	static array_ref<const char*> getLevelStrings()  {
+		return make_array_ref(levelStr);
+	}
+	static array_ref<const char*> getUpdateStrings() {
+		return make_array_ref(updateStr);
+	}
 
 protected:
 	CliComm();

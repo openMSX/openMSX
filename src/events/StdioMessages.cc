@@ -9,7 +9,7 @@ namespace openmsx {
 
 void StdioMessages::log(CliComm::LogLevel level, string_ref message)
 {
-	const char* const* levelStr = CliComm::getLevelStrings();
+	auto levelStr = CliComm::getLevelStrings();
 	((level == CliComm::INFO) ? std::cout : std::cerr) <<
 		levelStr[level] << ": " << message << std::endl;
 

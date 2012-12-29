@@ -99,7 +99,7 @@ bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
 
 void CliConnection::log(CliComm::LogLevel level, string_ref message)
 {
-	const char* const* levelStr = CliComm::getLevelStrings();
+	auto levelStr = CliComm::getLevelStrings();
 	output(StringOp::Builder() <<
 		"<log level=\"" << levelStr[level] << "\">" <<
 		XMLElement::XMLEscape(message.str()) << "</log>\n");
@@ -110,7 +110,7 @@ void CliConnection::update(CliComm::UpdateType type, string_ref machine,
 {
 	if (!getUpdateEnable(type)) return;
 
-	const char* const* updateStr = CliComm::getUpdateStrings();
+	auto updateStr = CliComm::getUpdateStrings();
 	StringOp::Builder tmp;
 	tmp << "<update type=\"" << updateStr[type] << '\"';
 	if (!machine.empty()) {

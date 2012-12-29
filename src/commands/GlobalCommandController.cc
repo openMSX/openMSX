@@ -22,6 +22,7 @@
 #include "checked_cast.hh"
 #include "openmsx.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <cassert>
 #include <cstdlib>
 
@@ -638,8 +639,8 @@ UpdateCmd::UpdateCmd(CommandController& commandController)
 
 static GlobalCliComm::UpdateType getType(const string& name)
 {
-	const char* const* updateStr = CliComm::getUpdateStrings();
-	for (unsigned i = 0; i < CliComm::NUM_UPDATES; ++i) {
+	auto updateStr = CliComm::getUpdateStrings();
+	for (auto i : xrange(updateStr.size())) {
 		if (updateStr[i] == name) {
 			return static_cast<CliComm::UpdateType>(i);
 		}
@@ -688,12 +689,9 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, ops);
 		break;
 	}
-	case 3: {
-		const char* const* updateStr = CliComm::getUpdateStrings();
-		// TODO pass iterators, or pass array-reference
-		vector<string> types(updateStr, updateStr + CliComm::NUM_UPDATES);
-		completeString(tokens, types);
-	}
+	case 3:
+		completeString(tokens, CliComm::getUpdateStrings());
+		break;
 	}
 }
 
