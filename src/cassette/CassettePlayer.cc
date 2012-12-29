@@ -912,6 +912,11 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 			// TODO we don't support savestates in RECORD mode yet
 			setState(STOP, getImageName(), getCurrentTime());
 		}
+		if (!playImage.get() && (state == PLAY)) {
+			// This should only happen for manually edited
+			// savestates, though we shouldn't crash on it.
+			setState(STOP, getImageName(), getCurrentTime());
+		}
 		updateLoadingState(getCurrentTime());
 	}
 }
