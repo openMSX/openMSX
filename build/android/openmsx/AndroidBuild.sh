@@ -123,10 +123,10 @@ if [ ${newfiles} -gt 0 ]; then
 	rm -f AndroidData/appdata.zip
 	rm -rf AndroidData/appdata
 	mkdir -p AndroidData/appdata/openmsx_system
-	cd AndroidData/appdata/openmsx_system
-	cp -r "${my_home_dir}"/share/* .
-	cd machines
-	cp -r "${my_home_dir}"/Contrib/cbios/* .
+	cd "${my_home_dir}"/share
+	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system ; tar xf - )
+	cd "${my_home_dir}"/Contrib/cbios/* .
+	tar -c --exclude-vcs -f - . | ( cd "${my_app_android_dir}"/AndroidData/appdata/openmsx_system/machines ; tar xf - )
 	cd "${my_app_android_dir}"/AndroidData/appdata
 	zip -r ../appdata.zip * > /dev/null
 	cd ..
