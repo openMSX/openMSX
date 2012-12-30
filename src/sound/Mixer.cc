@@ -15,12 +15,15 @@
 #include "unreachable.hh"
 #include "memory.hh"
 #include "components.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
 
-#ifdef _WIN32
+#if defined(_WIN32)
 static const int defaultsamples = 2048;
+#elif PLATFORM_ANDROID
+static const int defaultsamples = 2560;
 #else
 static const int defaultsamples = 1024;
 #endif
