@@ -168,5 +168,3 @@ fi
 sed -i "s^android:targetSdkVersion=\"[0-9]*\"^android:targetSdkVersion=\"10\"^" ${MANIFEST}
 
 exit 0
-AppVersionCode=VERSION_CODE_PLACEHOLDER
-AppVersionName=VERSION_NAME_PLACEHOLDER
