@@ -1281,6 +1281,24 @@ if {$tcl_platform(os) eq "Darwin"} { ;# Mac
 	bind_default "keyb MENU"   main_menu_toggle
 }
 
+# Keep openmsx console from interfering with the osd menu:
+#  when the console is activated while the osd menu is already open, we want
+#  to prevent the osd menu from receiving the keys that are pressed in the
+#  console.
+variable old_console $::console
+proc console_input_layer {name1 name1 op} {
+	global console
+	variable old_console
+	if {$console == $old_console} return
+	set old_console $console
+	if {$console} {
+		activate_input_layer console -blocking
+	} else {
+		deactivate_input_layer console
+	}
+}
+trace add variable ::console write [namespace code console_input_layer]
+
 namespace export main_menu_open
 namespace export main_menu_close
 namespace export main_menu_toggle
