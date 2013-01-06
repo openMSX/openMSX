@@ -17,9 +17,9 @@ namespace eval quitmenu {
 		activate_input_layer quit_menu
 	}
 
-	proc get_get_choice {item} {
+	proc get_choice {item} {
 		osd_menu::menu_close_all
-		if {$item eq "Yes"} {::quit}
+		if {$item eq "Yes"} {::exit}
 	}
 	
 namespace export quit_menu
