@@ -14,6 +14,7 @@
 #include "AlarmEvent.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -192,6 +193,7 @@ void HotKey::initDefaultBindings()
 		bindDefault(make_shared<KeyDownEvent>(
 		            Keys::combine(Keys::K_RETURN, Keys::KM_ALT)),
 		            HotKeyInfo("toggle fullscreen"));
+#if PLATFORM_ANDROID
 		// The follwing binding is specific for Android, in order
 		// to remap the android back button to an SDL KEY event.
 		// I could have put all Android key bindings in a separate
@@ -200,6 +202,7 @@ void HotKey::initDefaultBindings()
 		// case expect all default PC keybindings to exist as well
 		bindDefault(make_shared<KeyDownEvent>(Keys::K_WORLD_92),
 		            HotKeyInfo("quitmenu::quit_menu"));
+#endif
 	}
 }
 
