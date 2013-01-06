@@ -480,7 +480,7 @@ proc create_main_menu {} {
 	lappend items { text "Reset MSX"
 	         actions { A { reset; osd_menu::menu_close_all }}}
 	lappend items { text "Exit openMSX"
-	         actions { A exit }}
+	         actions { A quitmenu::quit_menu }}
 	dict set menu_def items $items
 	return $menu_def
 }

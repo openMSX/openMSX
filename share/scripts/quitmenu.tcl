@@ -3,13 +3,13 @@ namespace eval quitmenu {
 	proc quit_menu {} {
 		set items [list "No" "Yes"]
 		set menu_def \
-			{ execute quitmenu::get_choice
+			{ execute quitmenu::quit_menu_exec
 				font-size 8
 				border-size 2
-				width 100
+				width 120
 				xpos 100
 				ypos 100
-				header { text "Quit openMSX?"
+				header { text "Really exit openMSX?"
 						font-size 10
 						post-spacing 6 }}
 
@@ -17,12 +17,9 @@ namespace eval quitmenu {
 		activate_input_layer quit_menu
 	}
 
-	proc get_choice {item} {
+	proc quit_menu_exec {item} {
 		osd_menu::menu_close_all
-		if {$item eq "Yes"} {::exit}
+		if {$item eq "Yes"} {exit}
 	}
 	
-namespace export quit_menu
 }
-
-namespace import quitmenu::*
