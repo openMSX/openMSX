@@ -199,7 +199,7 @@ void HotKey::initDefaultBindings()
 		// be using a PC keyboard (through USB or Bluetooth) and in such
 		// case expect all default PC keybindings to exist as well
 		bindDefault(make_shared<KeyDownEvent>(Keys::K_WORLD_92),
-		            HotKeyInfo("exit"));
+		            HotKeyInfo("quit_menu"));
 	}
 }
 
