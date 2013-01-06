@@ -21,5 +21,4 @@ namespace eval quitmenu {
 		osd_menu::menu_close_all
 		if {$item eq "Yes"} {exit}
 	}
-	
 }
