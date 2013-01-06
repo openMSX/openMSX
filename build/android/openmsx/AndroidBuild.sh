@@ -26,7 +26,7 @@ my_app_android_dir="$(pwd)"
 # Determine current revision and version name
 PYTHONPATH="${my_home_dir}/build"
 export PYTHONPATH
-cd "${PYTHONPATH}"
+cd "${my_home_dir}"
 REVISION=$(python -c "import version; print version.extractRevisionString()")
 if [ "${REVISION}" = "unknown" ]; then
   echo "AB:ERROR Could not determine revision"
