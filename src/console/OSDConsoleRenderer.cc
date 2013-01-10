@@ -394,7 +394,9 @@ void OSDConsoleRenderer::insertInCache(
 		// flush the least recently used entry
 		auto it = textCache.end();
 		--it;
-		assert(it != cacheHint);
+		if (it == cacheHint) {
+			cacheHint = textCache.begin();
+		}
 		textCache.pop_back();
 	}
 	textCache.push_front(TextCacheElement(
