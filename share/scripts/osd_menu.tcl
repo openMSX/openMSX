@@ -1010,27 +1010,27 @@ proc menu_select_rom {slot item} {
 				osd::display_message "Can't insert ROM: $errorText" error
 			} else {
 				menu_close_all
-				
+
 				set rominfo [rom_info::getlist_rom_info]
-				
+
 				if {$rominfo eq ""} {
 					osd::display_message "No ROM information available..."
 				} else {
 					osd::display_message "Now running ROM:\nTitle:\nYear:\nCompany:\nCountry:\nStatus:\nRemark:"
-					
+
 					append result " \n" \
 								  "[dict get $rominfo title]\n" \
 								  "[dict get $rominfo year]\n" \
 								  "[dict get $rominfo company]\n" \
 								  "[dict get $rominfo country]\n" \
 								  "[dict get $rominfo status]\n"
-					
+
 					if {[dict get $rominfo remark] ne ""} {
 						append result [dict get $rominfo remark]
 					} else {
 						append result "None"
 					}
-				
+
 					set txt_size 6
 					set xpos 35
 
@@ -1039,9 +1039,9 @@ proc menu_select_rom {slot item} {
 						set txt_size 9
 						set xpos 53
 					}
-				
+
 					# TODO: this code knows the internal name of the widget of osd::display_message proc... it shouldn't need to.
-					osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result" 
+					osd create text osd_display_message.rominfo_text -x $xpos -y 2 -size $txt_size -rgba 0xffffffff -text "$result"
 				}
 				reset
 			}
