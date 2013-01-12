@@ -551,7 +551,12 @@ set video_setting_menu {
 	                   RIGHT { osd_menu::menu_setting [incr blur  1] }}}
 	       { text "Glow: $glow%"
 	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
-	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}}}}
+	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}
+	         post-spacing 6 }
+	       { text "Enforce VDP Sprites-per-line Limit: $limitsprites"
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
+	                   RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
+	       }}
 
 set hardware_menu {
 	font-size 8
