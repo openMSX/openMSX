@@ -3,8 +3,8 @@
 #set -xv
 
 # TODO: find out if flavour can be passed from SDL build environment
-#openmsx_flavour="android-debug"
-openmsx_flavour="android"
+openmsx_flavour="android-debug"
+#openmsx_flavour="android"
 
 echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
 echo "AB:INFO pwd: $(pwd)"
@@ -152,6 +152,7 @@ else
 fi
 
 APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
+cp ${APP_SETTINGS_CFG}.template ${APP_SETTINGS_CFG}
 . ${APP_SETTINGS_CFG}
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
 if [ "$AppVersionCode" != "${REVISION}" ]; then
