@@ -3,8 +3,8 @@
 #set -xv
 
 # TODO: find out if flavour can be passed from SDL build environment
-openmsx_flavour="android-debug"
-#openmsx_flavour="android"
+#openmsx_flavour="android-debug"
+openmsx_flavour="android"
 
 echo "AB:INFO Starting AndroidBuild.sh, #params: $#, params: $*"
 echo "AB:INFO pwd: $(pwd)"
