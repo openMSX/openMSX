@@ -168,4 +168,6 @@ fi
 # virtual menu button will be rendered by newer Android versions
 sed -i "s^android:targetSdkVersion=\"[0-9]*\"^android:targetSdkVersion=\"10\"^" ${MANIFEST}
 
+# Remove network permissions from manifest. OpenMSX does not need it
+sed -i "s/<uses-permission android:name=\"android.permission.INTERNET\"><\/uses-permission>/<\!-- -->/" ${MANIFEST}
 exit 0
