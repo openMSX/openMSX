@@ -118,8 +118,9 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 
 #ifdef __arm__
-	if (sizeof(Pixel) == 2) {
-		// only 16bpp
+	if ((sizeof(Pixel) == 2) && (((int)pixelPtr & 3) == 0)) {
+		// only 16bpp and only when aligned on 64-bit word boundary
+		// otherwise the stmia gives a segfault on ARMv6
 		unsigned dummy;
 		asm volatile (
 		"0:\n\t"
@@ -157,6 +158,62 @@ void BitmapConverter<Pixel>::renderGraphic4(
 		return;
 	}
 #endif
+
+	if ((sizeof(Pixel) == 2) && (((int)pixelPtr & 1) == 1)) {
+		// Its 16 bit destination but currently not aligned on a word boundary
+		// First write one pixel to get aligned
+		// Then write double pixels in a loop with 4 double pixels (is 8 single pixels) per iteration
+		// Finally write the last pixel unaligned
+		auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
+		unsigned data = in[0];
+		if (OPENMSX_BIGENDIAN) {
+			pixelPtr[0] = palette16[(data >> 28) & 0x0F];
+			data <<=4;
+		} else {
+			pixelPtr[0] = palette16[(data >>  0) & 0x0F];
+			data >>=4;
+		}
+
+		pixelPtr += 1; // Move to next pixel, which is on word boundary
+		auto out = reinterpret_cast<DPixel*>(pixelPtr);
+		for (unsigned i = 0; i < 256 / 8; ++i) {
+			// 8 pixels per iteration
+			if (OPENMSX_BIGENDIAN) {
+				out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
+				out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
+				out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
+				if (i == (256-8) / 8) {
+					// Last pixel in last iteration must be written individually
+					pixelPtr[254] = palette16[(data >> 0) & 0x0F];
+				} else {
+					// Last double-pixel must be composed of 
+					// remaing 4 bits in (previous) data
+					// and first 4 bits from (next) data
+					unsigned prevData = data;
+					data = in[i+1];
+					out[4 * i + 3] = dPalette[(prevData & 0xF0) | ((data >> 28) & 0x0F)];
+					data <<= 4;
+				}
+			} else {
+				out[4 * i + 0] = dPalette[(data >>  0) & 0xFF];
+				out[4 * i + 1] = dPalette[(data >>  8) & 0xFF];
+				out[4 * i + 2] = dPalette[(data >> 16) & 0xFF];
+				if (i != (256-8) / 8) {
+					// Last pixel in last iteration must be written individually
+					pixelPtr[254] = palette16[(data >> 24) & 0x0F];
+				} else {
+					// Last double-pixel must be composed of 
+					// remaing 4 bits in (previous) data
+					// and first 4 bits from (next) data
+					unsigned prevData = data;
+					data = in[i+1];
+					out[4 * i + 3] = dPalette[((prevData >> 24) & 0x0F) | ((data & 0x0F)<<4)];
+					data >>=4;
+				}
+			}
+		}
+		return;
+	}
 
 	auto out = reinterpret_cast<DPixel*>(pixelPtr);
 	auto in  = reinterpret_cast<const unsigned*>(vramPtr0);
