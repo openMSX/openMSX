@@ -118,10 +118,10 @@ static_assert(sizeof(B16)  == 2, "must have size 2");
 static_assert(sizeof(L16)  == 2, "must have size 2");
 static_assert(sizeof(B32)  == 4, "must have size 4");
 static_assert(sizeof(L32)  == 4, "must have size 4");
-static_assert(ALIGNOF(B16) == 2, "must have alignment 2");
-static_assert(ALIGNOF(L16) == 2, "must have alignment 2");
-static_assert(ALIGNOF(B32) == 4, "must have alignment 4");
-static_assert(ALIGNOF(L32) == 4, "must have alignment 4");
+static_assert(ALIGNOF(B16) <= 2, "may have alignment 2");
+static_assert(ALIGNOF(L16) <= 2, "may have alignment 2");
+static_assert(ALIGNOF(B32) <= 4, "may have alignment 4");
+static_assert(ALIGNOF(L32) <= 4, "may have alignment 4");
 
 
 // Helper functions to read/write aligned 16/32 bit values.
