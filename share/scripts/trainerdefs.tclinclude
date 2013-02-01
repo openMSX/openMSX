@@ -1,7 +1,7 @@
 # Cheat definitions - Version 3.2
 #
-# Copyright 2005-2011 Albert Beevendorp all rights reserved
-# Copyright 2005-2011 Patrick van Arkel all rights reserved
+# Copyright 2005-2013 Albert Beevendorp all rights reserved
+# Copyright 2005-2013 Patrick van Arkel all rights reserved
 # Copyright 2005-2009 BlueMSX Team
 #
 # The definition of cheating according to google:
@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2011/11/06
+# Updated @ 2013/02/01
 #
 
 
@@ -7122,4 +7122,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Item: Item 1-8" {dpoke 0xe066 9;poke 0xe067 9;dpoke 0xe068 9;dpoke 0xe069 9;dpoke 0xe06a 9;dpoke 0xe06b 9;dpoke 0xe06c 9;dpoke 0xe06d 9}
 }
 
-# File Created in : 2.642 seconds. 751 trainers -  having 5782 pokes
+# File Created in : 1.565 seconds. 751 trainers -  having 5782 pokes
