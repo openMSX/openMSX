@@ -111,9 +111,156 @@ proc after_switch {} {
 	after machine_switch [namespace code after_switch]
 }
 
+# reverse bookmarks
+
+variable bookmarks [dict create]
+
+proc create_bookmark_from_current_time {name} {
+	variable bookmarks
+	dict set bookmarks $name [machine_info time]
+	osd::display_message "Saved current time to bookmark '$name'"
+}
+
+proc remove_bookmark {name} {
+	variable bookmarks
+	dict unset bookmarks $name
+}
+
+proc jump_to_bookmark {name} {
+	variable bookmarks
+	if {[dict exists $bookmarks $name]} {
+		reverse goto [dict get $bookmarks $name]
+		osd::display_message "Jumped to bookmark '$name'"
+	} else {
+		error "Bookmark '$name' not defined..."
+	}
+}
+
+proc clear_bookmarks {} {
+	variable bookmarks
+	set bookmarks [dict create]
+}
+
+proc save_bookmarks {name} {
+	variable bookmarks
+
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../reverse_bookmarks]
+	file mkdir $directory
+	set fullname [file join $directory ${name}.rbm]
+
+	if {[catch {
+		set the_file [open $fullname {WRONLY TRUNC CREAT}]
+		puts $the_file $bookmarks
+		close $the_file
+	} errorText]} {
+		error "Failed to save to $fullname: $errorText"
+	}
+	return "Successfully saved bookmarks to $fullname"
+}
+
+proc load_bookmarks {name} {
+	variable bookmarks
+
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../reverse_bookmarks]
+	set fullname [file join $directory ${name}.rbm]
+
+	if {[catch {
+		set the_file [open $fullname {RDONLY}]
+		set bookmarks [read $the_file]
+		close $the_file
+	} errorText]} {
+		error "Failed to load from $fullname: $errorText"
+	}
+
+	return "Successfully loaded $fullname"
+}
+
+proc list_bookmarks_files {} {
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../reverse_bookmarks]
+	set results [list]
+	foreach f [lsort [glob -tails -directory $directory -type f -nocomplain *.rbm]] {
+		lappend results [file rootname $f]
+	}
+	return $results
+}
+
+proc reverse_bookmarks {subcmd args} {
+	switch -- $subcmd {
+		"create" {create_bookmark_from_current_time {*}$args}
+		"remove" {remove_bookmark  {*}$args}
+		"goto"   {jump_to_bookmark {*}$args}
+		"clear"  {clear_bookmarks}
+		"load"   {load_bookmarks   {*}$args}
+		"save"   {save_bookmarks   {*}$args}
+		default  {error "Invalid subcommand: $subcmd"}
+	}
+}
+
+set_help_proc reverse_bookmarks [namespace code reverse_bookmarks_help]
+
+proc reverse_bookmarks_help {args} {
+	switch -- [lindex $args 1] {
+		"create"    {return {Create a bookmark at the current time with the given name.
+
+Syntax: reverse_bookmarks create <name>
+}}
+		"remove" {return {Remove the bookmark with the given name.
+
+Syntax: reverse_bookmarks remove <name>
+}}
+		"goto"   {return {Go to the bookmark with the given name.
+
+Syntax: reverse_bookmarks goto <name>
+}}
+		"clear"  {return {Removes all bookmarks.
+
+Syntax: reverse_bookmarks clear
+}}
+		"save"   {return {Save the current reverse bookmarks to a file.
+
+Syntax: reverse_bookmarks save <filename>
+}}
+		"load"   {return {Load reverse bookmarks from file.
+
+Syntax: reverse_bookmarks load <filename>
+}}
+		default {return {Control the reverse bookmarks functionality.
+
+Syntax:  reverse_bookmarks <sub-command> [<arguments>]
+Where sub-command is one of:
+    create   Create a bookmark at the current time
+    remove   Remove a previously created bookmark
+    goto     Go to a previously created bookmark
+    clear    Shortcut to remove all bookmarks
+    save     Save current bookmarks to a file
+    load     Load previously saved bookmarks
+
+Use 'help reverse_bookmarks <sub-command>' to get more detailed help on a specific sub-command.
+}}
+	}
+}
+
+set_tabcompletion_proc reverse_bookmarks [namespace code reverse_bookmarks_tabcompletion]
+proc reverse_bookmarks_tabcompletion {args} {
+	variable bookmarks
+
+	if {[llength $args] == 2} {
+		return [list "create" "remove" "goto" "clear" "save" "load"]
+	} elseif {[llength $args] == 3} {
+		switch -- [lindex $args 1] {
+			"remove" -
+			"goto"  {return [dict keys $bookmarks]}
+			"load"  -
+			"save"  {return [list_bookmarks_files]}
+			default {return [list]}
+		}
+	}
+}
+
 namespace export reverse_prev
 namespace export reverse_next
 namespace export goto_time_delta
+namespace export reverse_bookmarks
 
 } ;# namespace reverse
 
@@ -191,9 +338,12 @@ proc enable_reversebar {{visible true}} {
 
 	variable mouse_after_id
 	set mouse_after_id [after "mouse button1 down" [namespace code check_mouse]]
+
+	trace add variable $::reverse::bookmarks "write" [namespace code update_bookmarks]
 }
 
 proc disable_reversebar {} {
+	trace remove variable $::reverse::bookmarks "write" [namespace code update_bookmarks]
 	variable update_after_id
 	variable mouse_after_id
 	after cancel $update_after_id
@@ -269,6 +419,7 @@ proc update_reversebar2 {} {
 		osd configure reverse.mousetime -rely -100
 	}
 
+	# snapshots
 	set count 0
 	foreach snapshot $snapshots {
 		set name reverse.int.tick$count
@@ -279,8 +430,31 @@ proc update_reversebar2 {} {
 		osd configure $name -relx [expr {($snapshot - $begin) * $reciprocalLength}]
 		incr count
 	}
-	# destroy all with higher count number
+	# destroy all snapshots with higher count number
 	while {[osd destroy reverse.int.tick$count]} {
+		incr count
+	}
+
+	# bookmarks
+	set count 0
+	dict for {bookmarkname bookmarkval} $::reverse::bookmarks {
+		set name reverse.bookmark$count
+		if {![osd exists $name]} {
+			# create new if it doesn't exist yet
+			osd create rectangle $name \
+				-relx 0.5 -rely 1 -relh 0.75 -z 4 \
+				-rgba "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
+				-bordersize 0.5 -borderrgba 0xffff4480
+			osd create text $name.text -relx -0.05 \
+				-size 5 -z 4 -rgba 0x000000ff -text $bookmarkname
+			set textsize [lindex [osd info $name.text -query-size] 0]
+			osd configure $name -w [expr {1.1 * $textsize}]
+		}
+		osd configure $name -relx [expr {($bookmarkval - $begin) * $reciprocalLength}]
+		incr count
+	}
+	# destroy all bookmarks with higher count number
+	while {[osd destroy reverse.bookmark$count]} {
 		incr count
 	}
 
@@ -294,6 +468,7 @@ proc update_reversebar2 {} {
 
 proc check_mouse {} {
 	catch {
+		# click on reverse bar
 		set x 2; set y 2
 		catch {lassign [osd info "reverse.int" -mousecoord] x y}
 		if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
@@ -301,6 +476,16 @@ proc check_mouse {} {
 			set begin [dict get $stats begin]
 			set end   [dict get $stats end]
 			reverse goto [expr {$begin + $x * ($end - $begin)}]
+		}
+		# click on bookmark
+		set count 0
+		dict for {bookmarkname bookmarkval} $::reverse::bookmarks {
+			set name reverse.bookmark$count
+			set x 2; set y 2
+			catch {lassign [osd info $name -mousecoord] x y}
+			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
+				reverse::jump_to_bookmark $bookmarkname
+			}
 		}
 	}
 	variable mouse_after_id
@@ -310,6 +495,11 @@ proc check_mouse {} {
 proc formatTime {seconds} {
 	format "%02d:%02d" [expr {int($seconds / 60)}] [expr {int($seconds) % 60}]
 }
+
+proc update_bookmarks {} {
+	update_reversebar
+}
+
 
 namespace export toggle_reversebar
 
