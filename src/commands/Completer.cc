@@ -31,20 +31,20 @@ const string& Completer::getName() const
 	return name;
 }
 
-static bool formatHelper(const vector<string_ref>& input, unsigned columnLimit,
+static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
                          vector<string>& result)
 {
-	unsigned column = 0;
+	size_t column = 0;
 	auto it = input.begin();
 	do {
-		unsigned maxcolumn = column;
-		for (unsigned i = 0; (i < result.size()) && (it != input.end());
+		size_t maxcolumn = column;
+		for (size_t i = 0; (i < result.size()) && (it != input.end());
 		     ++i, ++it) {
 			auto curSize = utf8::unchecked::size(result[i]);
 			result[i] += string(column - curSize, ' ');
 			result[i] += it->str();
 			maxcolumn = std::max(maxcolumn,
-			                     unsigned(utf8::unchecked::size(result[i])));
+			                     utf8::unchecked::size(result[i]));
 			if (maxcolumn > columnLimit) return false;
 		}
 		column = maxcolumn + 2;
@@ -52,10 +52,10 @@ static bool formatHelper(const vector<string_ref>& input, unsigned columnLimit,
 	return true;
 }
 
-static vector<string> format(const vector<string_ref>& input, unsigned columnLimit)
+static vector<string> format(const vector<string_ref>& input, size_t columnLimit)
 {
 	vector<string> result;
-	for (unsigned lines = 1; lines < input.size(); ++lines) {
+	for (size_t lines = 1; lines < input.size(); ++lines) {
 		result.assign(lines, string());
 		if (formatHelper(input, columnLimit, result)) {
 			return result;
@@ -80,6 +80,10 @@ bool Completer::equalHead(string_ref s1, string_ref s2, bool caseSensitive)
 bool Completer::completeImpl(string& str, vector<string_ref> matches,
                              bool caseSensitive)
 {
+	for (auto& m : matches) {
+		assert(equalHead(str, m, caseSensitive));
+	}
+
 	if (matches.empty()) {
 		// no matching values
 		return false;
@@ -98,7 +102,10 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		auto string2 = it->substr(0, str.size() + 1);
+		auto begin = it->begin();
+		auto end = begin + str.size();
+		utf8::unchecked::next(end); // one more utf8 char
+		string_ref string2(begin, end);
 		for (/**/; it != matches.end(); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
@@ -121,14 +128,14 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 void Completer::completeFileName(vector<string>& tokens,
                                  const FileContext& context)
 {
-	completeFileName(tokens, context, vector<string_ref>());
+	completeFileNameImpl(tokens, context, vector<string_ref>());
 }
 
-void Completer::completeFileName(vector<string>& tokens,
-                                 const FileContext& context,
-                                 vector<string_ref> matches)
+void Completer::completeFileNameImpl(vector<string>& tokens,
+                                     const FileContext& context,
+                                     vector<string_ref> matches)
 {
-	vector<string> paths(context.getPaths());
+	auto paths = context.getPaths();
 
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);

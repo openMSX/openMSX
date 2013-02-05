@@ -38,9 +38,6 @@ public:
 	                             const FileContext& context,
 	                             const RANGE& extra);
 	static void completeFileName(std::vector<std::string>& tokens,
-	                             const FileContext& context,
-	                             std::vector<string_ref> matches);
-	static void completeFileName(std::vector<std::string>& tokens,
 	                             const FileContext& context);
 
 	// should only be called by CommandConsole
@@ -60,6 +57,9 @@ private:
 		string_ref str, const RANGE& range, bool caseSensitive);
 	static bool completeImpl(std::string& str, std::vector<string_ref> matches,
 	                         bool caseSensitive);
+	static void completeFileNameImpl(std::vector<std::string>& tokens,
+	                                 const FileContext& context,
+	                                 std::vector<string_ref> matches);
 
 	const std::string name;
 	static InterpreterOutput* output;
@@ -106,7 +106,7 @@ void Completer::completeFileName(
 	const FileContext& context,
 	const RANGE& extra)
 {
-	completeFileName(tokens, context, filter(tokens.back(), extra, true));
+	completeFileNameImpl(tokens, context, filter(tokens.back(), extra, true));
 }
 
 } // namespace openmsx
