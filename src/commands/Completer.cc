@@ -152,10 +152,12 @@ void Completer::completeFileName(vector<string>& tokens,
 				nm = FileOperations::getConventionalPath(nm);
 				if (equalHead(filename, nm, true)) {
 					filenames.push_back(nm);
-					matches.push_back(filenames.back());
 				}
 			}
 		}
+	}
+	for (auto& f : filenames) {
+		matches.push_back(f);
 	}
 	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {
