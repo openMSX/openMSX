@@ -145,9 +145,9 @@ void analyzeTrack()
 
 		// locate data mark, should be within 43 bytes from end
 		// of address mark (according to WD2793 datasheet)
-		int i;
-		for (i = 10; i < 53; ++i) {
-			int dataIdx = addrIdx + i;
+		int j;
+		for (j = 10; j < 53; ++j) {
+			int dataIdx = addrIdx + j;
 			byte a0 = readCircular(dataIdx + 0);
 			byte a1 = readCircular(dataIdx + 1);
 			byte a2 = readCircular(dataIdx + 2);
@@ -183,7 +183,7 @@ void analyzeTrack()
 			       (dataCrcErr ? "ERR" : "ok "));
 			break;
 		}
-		if (i == 53) {
+		if (j == 53) {
 			printf(" data mark not found within 43 bytes from address mark\n");
 		}
 	}
