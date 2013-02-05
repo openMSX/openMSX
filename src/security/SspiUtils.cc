@@ -6,6 +6,7 @@
 #include "MSXException.hh"
 #include <sddl.h>
 #include <cassert>
+#include "openmsx.hh" 
 
 //
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
