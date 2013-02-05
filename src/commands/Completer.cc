@@ -81,7 +81,7 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
                              bool caseSensitive)
 {
 	for (auto& m : matches) {
-		assert(equalHead(str, m, caseSensitive));
+		assert(equalHead(str, m, caseSensitive)); (void)m;
 	}
 
 	if (matches.empty()) {
