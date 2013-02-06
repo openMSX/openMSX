@@ -93,7 +93,15 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 		str = matches.front().str();
 		return true;
 	}
+
+	// Sort and remove duplicates.
+	//  For efficiency it's best if the list doesn't contain duplicates to
+	//  start with. Though sometimes this is hard to avoid. E.g. when doing
+	//  filename completion + some extra allowed strings and one of these
+	//  extra strings is the same as one of the filenames.
 	sort(matches.begin(), matches.end());
+	matches.erase(unique(matches.begin(), matches.end()), matches.end());
+
 	bool expanded = false;
 	while (true) {
 		auto it = matches.begin();
@@ -135,14 +143,16 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
                                      const FileContext& context,
                                      vector<string_ref> matches)
 {
-	auto paths = context.getPaths();
-
 	string& filename = tokens.back();
 	filename = FileOperations::expandTilde(filename);
 	filename = FileOperations::expandCurrentDirFromDrive(filename);
 	string_ref basename = FileOperations::getBaseName(filename);
+
+	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
 		paths.push_back("");
+	} else {
+		paths = context.getPaths();
 	}
 
 	vector<string> filenames;
