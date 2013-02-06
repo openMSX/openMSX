@@ -653,13 +653,13 @@ string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
 string MSXtar::condensName(MSXDirEntry& direntry)
 {
 	string result;
-	for (unsigned i = 0; (i < 8) && (direntry.filename[i] != ' '); ++i) {
-		result += tolower(direntry.filename[i]);
+	for (unsigned i = 0; (i < 8) && (direntry.name.base[i] != ' '); ++i) {
+		result += tolower(direntry.name.base[i]);
 	}
-	if (direntry.ext[0] != ' ') {
+	if (direntry.name.ext[0] != ' ') {
 		result += '.';
-		for (unsigned i = 0; (i < 3) && (direntry.ext[i] != ' '); ++i) {
-			result += tolower(direntry.ext[i]);
+		for (unsigned i = 0; (i < 3) && (direntry.name.ext[i] != ' '); ++i) {
+			result += tolower(direntry.name.ext[i]);
 		}
 	}
 	return result;

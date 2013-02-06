@@ -44,8 +44,13 @@ struct MSXDirEntry {
 	static const byte ATT_DIRECTORY = 0x10; // entry is a subdir
 	static const byte ATT_ARCHIVE   = 0x20; // Archive bit
 
-	char           filename[8];  // + 0
-	char           ext[3];       // + 8
+	union {
+		struct {
+			char base[8];// + 0
+			char ext [3];// + 8
+		} name;
+		char filename[8 + 3];// + 0
+	};
 	byte           attrib;       // +11
 	byte           reserved[10]; // +12 unused
 	Endian::UA_L16 time;         // +22 // TODO aligned

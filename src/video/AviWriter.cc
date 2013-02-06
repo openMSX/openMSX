@@ -170,11 +170,19 @@ AviWriter::~AviWriter()
 	}
 
 	const char* versionStr = Version::full().c_str();
+
+	// The standard snprintf() function does always zero-terminate the
+	// output it writes. Though windows doesn't have a snprintf() function,
+	// instead we #define snprintf to _snprintf and the latter does NOT
+	// properly zero-terminate. See also
+	//   http://stackoverflow.com/questions/7706936/is-snprintf-always-null-terminating
 	char dateStr[11];
 	time_t t = time(nullptr);
 	struct tm *tm = localtime(&t);
 	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
 		 tm->tm_mon + 1, tm->tm_mday);
+	dateStr[10] = 0; // only required on windows
+
 	AVIOUT4("LIST");
 	AVIOUTd(4 // list type
 		+ (4 + 4 + ((strlen(versionStr) + 1 + 1) & ~1)) // 1st chunk

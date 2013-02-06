@@ -250,7 +250,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	unsigned partitionOffset = 1;
 	for (unsigned i = 0; i < sizes.size(); ++i) {
 		unsigned partitionNbSectors = sizes[i];
-		Partition& p = pt.part[31 - i];
+		Partition& p = pt.part[30 - i];
 		unsigned startCylinder, startHead, startSector;
 		logicalToCHS(partitionOffset,
 		             startCylinder, startHead, startSector);
