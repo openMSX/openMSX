@@ -2,7 +2,6 @@
 
 #include "Event.hh"
 #include "TclObject.hh"
-#include "unreachable.hh"
 
 namespace openmsx {
 
@@ -45,14 +44,15 @@ bool Event::operator!=(const Event& other) const
 	return !(*this == other);
 }
 
-void Event::toStringImpl(TclObject& /*result*/) const
+void SimpleEvent::toStringImpl(TclObject& result) const
 {
-	UNREACHABLE;
+	result.addListElement("simple");
+	result.addListElement(int(getType()));
 }
 
-bool Event::lessImpl(const Event& /*other*/) const
+bool SimpleEvent::lessImpl(const Event& /*other*/) const
 {
-	UNREACHABLE; return false;
+	return false;
 }
 
 } // namespace openmsx

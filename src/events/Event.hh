@@ -98,8 +98,8 @@ protected:
 	explicit Event(EventType type);
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	virtual void toStringImpl(TclObject& result) const = 0;
+	virtual bool lessImpl(const Event& other) const = 0;
 
 	const EventType type;
 };
@@ -109,6 +109,8 @@ class SimpleEvent : public Event
 {
 public:
 	SimpleEvent(EventType type) : Event(type) {}
+	virtual void toStringImpl(TclObject& result) const;
+	virtual bool lessImpl(const Event& other) const;
 };
 
 } // namespace openmsx

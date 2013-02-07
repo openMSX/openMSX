@@ -12,6 +12,7 @@
 #include "Event.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
 #include "XMLElement.hh"
 #include "checked_cast.hh"
 #include "cstdiop.hh"
@@ -47,6 +48,16 @@ public:
 	const CliConnection* getId() const
 	{
 		return id;
+	}
+	virtual void toStringImpl(TclObject& result) const
+	{
+		result.addListElement("CliCmd");
+		result.addListElement(getCommand());
+	}
+	virtual bool lessImpl(const Event& other) const
+	{
+		auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
+		return getCommand() < otherCmdEvent.getCommand();
 	}
 private:
 	const string command;
