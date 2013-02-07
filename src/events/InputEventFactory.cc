@@ -111,9 +111,9 @@ static EventPtr parseOsdControlEvent(
 		throw CommandException("Invalid OSDcontrol event: " + str);
 	}
 	if (components[2] == "RELEASE") {
-		return make_shared<OsdControlReleaseEvent>(button);
+		return make_shared<OsdControlReleaseEvent>(button, nullptr);
 	} else if (components[2] == "PRESS") {
-		return make_shared<OsdControlPressEvent>(button);
+		return make_shared<OsdControlPressEvent>(button, nullptr);
 	}
 	else {
 		throw CommandException("Invalid OSDcontrol event: " + str);

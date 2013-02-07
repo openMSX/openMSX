@@ -441,14 +441,21 @@ bool QuitEvent::lessImpl(const Event& /*other*/) const
 
 // class OsdControlEvent
 
-OsdControlEvent::OsdControlEvent(EventType type, unsigned button_)
-	: TimedEvent(type), button(button_)
+OsdControlEvent::OsdControlEvent(
+		EventType type, unsigned button_,
+		const std::shared_ptr<const Event>& origEvent_)
+	: TimedEvent(type), origEvent(origEvent_), button(button_)
 {
 }
 
 unsigned OsdControlEvent::getButton() const
 {
 	return button;
+}
+
+const Event* OsdControlEvent::getOriginalEvent() const
+{
+	return origEvent.get();
 }
 
 void OsdControlEvent::toStringHelper(TclObject& result) const
@@ -470,8 +477,9 @@ bool OsdControlEvent::lessImpl(const Event& other) const
 
 // class OsdControlReleaseEvent
 
-OsdControlReleaseEvent::OsdControlReleaseEvent(unsigned button)
-	: OsdControlEvent(OPENMSX_OSD_CONTROL_RELEASE_EVENT, button)
+OsdControlReleaseEvent::OsdControlReleaseEvent(
+		unsigned button, const std::shared_ptr<const Event>& origEvent)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_RELEASE_EVENT, button, origEvent)
 {
 }
 
@@ -484,8 +492,9 @@ void OsdControlReleaseEvent::toStringImpl(TclObject& result) const
 
 // class OsdControlPressEvent
 
-OsdControlPressEvent::OsdControlPressEvent(unsigned button)
-	: OsdControlEvent(OPENMSX_OSD_CONTROL_PRESS_EVENT, button)
+OsdControlPressEvent::OsdControlPressEvent(
+		unsigned button, const std::shared_ptr<const Event>& origEvent)
+	: OsdControlEvent(OPENMSX_OSD_CONTROL_PRESS_EVENT, button, origEvent)
 {
 }
 

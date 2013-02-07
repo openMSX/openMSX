@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "Event.hh"
 #include "Keys.hh"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -207,6 +208,10 @@ private:
 	virtual bool lessImpl(const Event& other) const;
 };
 
+/** OSD events are triggered by other events. They aggregate keyboard and
+ * joystick events into one set of events that can be used to e.g. control
+ * OSD elements.
+ */
 class OsdControlEvent : public TimedEvent
 {
 public:
@@ -215,19 +220,28 @@ public:
 
 	unsigned getButton() const;
 
+	/** Get the event that actually triggered the creation of this event.
+	 * Typically this will be a keyboard or joystick event. This could
+	 * also return nullptr (after a toString/fromString conversion).
+	 * For the current use (key-repeat) this is ok. */
+	const Event* getOriginalEvent() const;
+
 protected:
-	OsdControlEvent(EventType type, unsigned button_);
+	OsdControlEvent(EventType type, unsigned button_,
+	                const std::shared_ptr<const Event>& origEvent);
 	void toStringHelper(TclObject& result) const;
 
 private:
 	virtual bool lessImpl(const Event& other) const;
+	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };
 
 class OsdControlReleaseEvent : public OsdControlEvent
 {
 public:
-	explicit OsdControlReleaseEvent(unsigned button);
+	OsdControlReleaseEvent(unsigned button,
+	                       const std::shared_ptr<const Event>& origEvent);
 private:
 	virtual void toStringImpl(TclObject& result) const;
 };
@@ -235,7 +249,8 @@ private:
 class OsdControlPressEvent : public OsdControlEvent
 {
 public:
-	explicit OsdControlPressEvent(unsigned button);
+	OsdControlPressEvent(unsigned button,
+	                     const std::shared_ptr<const Event>& origEvent);
 private:
 	virtual void toStringImpl(TclObject& result) const;
 };

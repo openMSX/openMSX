@@ -363,8 +363,23 @@ int HotKey::signalEvent(const EventPtr& event_)
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
 		if (!lastEvent.get()) return true;
 		event = lastEvent;
-	} else if (lastEvent.get() && (*lastEvent != *event)) {
-		stopRepeat();
+	} else if (lastEvent.get() != event.get()) {
+		// If the newly received event is different from the repeating
+		// event, we stop the repeat process.
+		// Except when we're repeating a OsdControlEvent and the
+		// received event was actually the 'generating' event for the
+		// Osd event. E.g. a cursor-keyboard-down event will generate
+		// a corresponding osd event (the osd event is send before the
+		// original event). Without this hack, key-repeat will not work
+		// for osd key bindings.
+		bool stop = true;
+		if (auto osdEv = dynamic_cast<const OsdControlEvent*>(
+				lastEvent.get())) {
+			if (osdEv->getOriginalEvent() == event.get()) {
+				stop = false;
+			}
+		}
+		if (stop) stopRepeat();
 	}
 
 	// First search in active layers (from back to front)

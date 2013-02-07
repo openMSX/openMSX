@@ -48,6 +48,8 @@ public:
 	BooleanSetting& getGrabInput() const { return *grabInput; }
 
 private:
+	typedef std::shared_ptr<const Event> EventPtr;
+
 	void poll();
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);
@@ -70,11 +72,16 @@ private:
 	} escapeGrabState;
 
 	// OsdControl
-	void setNewOsdControlButtonState(unsigned newState);
-	void triggerOsdControlEventsFromJoystickAxisMotion(unsigned axis, short value);
-	void osdControlChangeButton(bool up, unsigned changedButtonMask);
-	void triggerOsdControlEventsFromJoystickButtonEvent(unsigned button, bool up);
-	void triggerOsdControlEventsFromKeyEvent(Keys::KeyCode keyCode, bool up);
+	void setNewOsdControlButtonState(
+		unsigned newState, const EventPtr& origEvent);
+	void triggerOsdControlEventsFromJoystickAxisMotion(
+		unsigned axis, short value, const EventPtr& origEvent);
+	void osdControlChangeButton(
+		bool up, unsigned changedButtonMask, const EventPtr& origEvent);
+	void triggerOsdControlEventsFromJoystickButtonEvent(
+		unsigned button, bool up, const EventPtr& origEvent);
+	void triggerOsdControlEventsFromKeyEvent(
+		Keys::KeyCode keyCode, bool up, const EventPtr& origEvent);
 
 	
 #if PLATFORM_GP2X
