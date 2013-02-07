@@ -118,19 +118,24 @@ variable bookmarks [dict create]
 proc create_bookmark_from_current_time {name} {
 	variable bookmarks
 	dict set bookmarks $name [machine_info time]
-	osd::display_message "Saved current time to bookmark '$name'"
+	# The next message is useful as part of a hotkey command for this
+#	osd::display_message "Saved current time to bookmark '$name'"
+	return "Created bookmark '$name' at [dict get $bookmarks $name]"
 }
 
 proc remove_bookmark {name} {
 	variable bookmarks
 	dict unset bookmarks $name
+	return "Removed bookmark '$name'"
 }
 
 proc jump_to_bookmark {name} {
 	variable bookmarks
 	if {[dict exists $bookmarks $name]} {
 		reverse goto [dict get $bookmarks $name]
-		osd::display_message "Jumped to bookmark '$name'"
+		# The next message is useful as part of a hotkey command for
+		# this
+		#osd::display_message "Jumped to bookmark '$name'"
 	} else {
 		error "Bookmark '$name' not defined..."
 	}
@@ -442,11 +447,11 @@ proc update_reversebar2 {} {
 		if {![osd exists $name]} {
 			# create new if it doesn't exist yet
 			osd create rectangle $name \
-				-relx 0.5 -rely 1 -relh 0.75 -z 4 \
+				-relx 0.5 -rely 1 -relh 0.75 -z 3 \
 				-rgba "0xffdd55e8 0xddbb33e8 0xccaa22e8 0xffdd55e8" \
 				-bordersize 0.5 -borderrgba 0xffff4480
 			osd create text $name.text -relx -0.05 \
-				-size 5 -z 4 -rgba 0x000000ff -text $bookmarkname
+				-size 5 -z 3 -rgba 0x000000ff -text $bookmarkname
 			set textsize [lindex [osd info $name.text -query-size] 0]
 			osd configure $name -w [expr {1.1 * $textsize}]
 		}
@@ -486,6 +491,7 @@ proc check_mouse {} {
 			if {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1} {
 				reverse::jump_to_bookmark $bookmarkname
 			}
+			incr count
 		}
 	}
 	variable mouse_after_id
