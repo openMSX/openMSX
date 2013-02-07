@@ -13,7 +13,7 @@
 #
 # Cheating can enhance or ruin your gaming experience, use it wisely
 #
-# Updated @ 2013/02/01
+# Updated @ 2013/02/04
 #
 
 
@@ -5488,6 +5488,11 @@ create_trainer "Rotors" {time 1} {
 	"Time: Time" {dpoke 0xe804 154;poke 0xe805 4}
 }
 
+create_trainer "RuinMaster2" {time 1} {
+	"Life: Life 999" {dpoke 0xd001 0x99;poke 0xd002 0x09}
+	"Money: Gold 9999" {dpoke 0xd006 0x99;poke 0xd007 0x99}
+}
+
 create_trainer "Rune Master" {time 1} {
 	"Money" {dpoke 0x61e2 15;poke 0x61e3 39}
 	"Power: Player 1 Power" {dpoke 0x61dc 255}
@@ -7122,4 +7127,4 @@ create_trainer "Zukkoke Yajikita Onmitsudoutyuu" {time 1} {
 	"Item: Item 1-8" {dpoke 0xe066 9;poke 0xe067 9;dpoke 0xe068 9;dpoke 0xe069 9;dpoke 0xe06a 9;dpoke 0xe06b 9;dpoke 0xe06c 9;dpoke 0xe06d 9}
 }
 
-# File Created in : 1.565 seconds. 751 trainers -  having 5782 pokes
+# File Created in : 1.495 seconds. 752 trainers -  having 5786 pokes
