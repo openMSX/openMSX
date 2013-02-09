@@ -387,7 +387,7 @@ template <class T> void CPUCore<T>::exitCPULoopSync()
 {
 	assert(Thread::isMainThread());
 	exitLoop = true;
-	T::enableLimit(false);
+	T::disableLimit();
 }
 template <class T> inline bool CPUCore<T>::needExitCPULoop()
 {
@@ -402,7 +402,7 @@ template <class T> inline bool CPUCore<T>::needExitCPULoop()
 template <class T> void CPUCore<T>::setSlowInstructions()
 {
 	slowInstructions = 2;
-	T::enableLimit(false);
+	T::disableLimit();
 }
 
 template <class T> void CPUCore<T>::raiseIRQ()
@@ -2482,7 +2482,7 @@ template <class T> void CPUCore<T>::execute2(bool fastForward)
 				scheduler.schedule(T::getTimeFast());
 			} else {
 				while (slowInstructions == 0) {
-					T::enableLimit(true); // does CPUClock::sync()
+					T::enableLimit(); // does CPUClock::sync()
 					if (likely(!T::limitReached())) {
 						// multiple instructions
 						assert(R.isSameAfter());

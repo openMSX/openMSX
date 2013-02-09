@@ -4,6 +4,7 @@
 #define CPUCLOCK_HH
 
 #include "DynamicClock.hh"
+#include "Scheduler.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <cassert>
@@ -84,15 +85,38 @@ protected:
 	// method, so after every action that might change SP. The Scheduler
 	// class is responsible for this.
 	// In 'slow' mode the limit mechanism can be disabled with the
-	// enableLimit() method. In disabled mode, the limitReached() method
+	// disableLimit() method. In disabled mode, the limitReached() method
 	// always returns true.
 	// When another thread requests to exit the loop, it's not needed to
 	// already exit at the next instruction. If we exit soon that's good
 	// enough. This is implemented by simply regularly exiting the loop
 	// (outside the inner loop, the real exit condition should be tested).
 
-	void setLimit(EmuTime::param time);
-	void enableLimit(bool enable_);
+	void setLimit(EmuTime::param time) {
+		if (limitEnabled) {
+			sync();
+			assert(remaining == limit);
+			int newLimit = std::min(15000u, clock.getTicksTillUp(time) - 1);
+			if (limit < 0) {
+				limit = newLimit;
+			} else {
+				limit = std::min(limit, newLimit);
+			}
+			remaining = limit;
+		} else {
+			assert(limit < 0);
+		}
+	}
+	void enableLimit() {
+		limitEnabled = true;
+		setLimit(scheduler.getNext());
+	}
+	void disableLimit() {
+		limitEnabled = false;
+		int extra = limit - remaining;
+		limit = -1;
+		remaining = limit - extra;
+	}
 	inline bool limitReached() const {
 		return remaining < 0;
 	}
