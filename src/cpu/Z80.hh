@@ -13,6 +13,8 @@ namespace openmsx {
 class Z80TYPE : public CPUClock
 {
 protected:
+	template<bool> struct Normalize { static const bool value = false; };
+
 	static const int CLOCK_FREQ = 3579545;
 	static const int WAIT_CYCLES = 1;
 

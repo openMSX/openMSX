@@ -562,7 +562,7 @@ NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 	return result;
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
-ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
+ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(line != nullptr)) {
@@ -573,6 +573,13 @@ ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
 	} else {
 		return RDMEMslow<PRE_PB, POST_PB>(address, cc); // not inlined
 	}
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
+{
+	static const bool PRE  = T::template Normalize<PRE_PB >::value;
+	static const bool POST = T::template Normalize<POST_PB>::value;
+	return RDMEM_impl2<PRE, POST>(address, cc);
 }
 template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE(unsigned cc)
 {
@@ -593,7 +600,7 @@ NEVER_INLINE unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
 	return res;
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
-ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
+ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
@@ -606,6 +613,13 @@ ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
 		// slow path, not inline
 		return RD_WORD_slow<PRE_PB, POST_PB>(address, cc);
 	}
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
+{
+	static const bool PRE  = T::template Normalize<PRE_PB >::value;
+	static const bool POST = T::template Normalize<POST_PB>::value;
+	return RD_WORD_impl2<PRE, POST>(address, cc);
 }
 template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC(unsigned cc)
 {
@@ -645,7 +659,7 @@ NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned c
 	T::template POST_MEM<POST_PB>(address);
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
-ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
+ALWAYS_INLINE void CPUCore<T>::WRMEM_impl2(
 	unsigned address, byte value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
@@ -657,6 +671,14 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
 	} else {
 		WRMEMslow<PRE_PB, POST_PB>(address, value, cc); // not inlined
 	}
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
+	unsigned address, byte value, unsigned cc)
+{
+	static const bool PRE  = T::template Normalize<PRE_PB >::value;
+	static const bool POST = T::template Normalize<POST_PB>::value;
+	WRMEM_impl2<PRE, POST>(address, value, cc);
 }
 template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(
 	unsigned address, byte value, unsigned cc)
@@ -695,7 +717,7 @@ NEVER_INLINE void CPUCore<T>::WR_WORD_rev_slow(
 	WRMEM_impl<false, POST_PB>( address,               value & 255, cc + T::CC_WRMEM);
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
-ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
+ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev2(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
@@ -709,6 +731,14 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 		// slow path, not inline
 		WR_WORD_rev_slow<PRE_PB, POST_PB>(address, value, cc);
 	}
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
+	unsigned address, unsigned value, unsigned cc)
+{
+	static const bool PRE  = T::template Normalize<PRE_PB >::value;
+	static const bool POST = T::template Normalize<POST_PB>::value;
+	WR_WORD_rev2<PRE, POST>(address, value, cc);
 }
 
 

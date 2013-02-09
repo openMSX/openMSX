@@ -30,6 +30,8 @@ public:
 	}
 
 protected:
+	template<bool B> struct Normalize { static const bool value = B; };
+
 	static const int CLOCK_FREQ = 7159090;
 
 	ALWAYS_INLINE unsigned haltStates() const { return 1; } // TODO check this
