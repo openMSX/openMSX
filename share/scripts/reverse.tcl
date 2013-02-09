@@ -344,11 +344,11 @@ proc enable_reversebar {{visible true}} {
 	variable mouse_after_id
 	set mouse_after_id [after "mouse button1 down" [namespace code check_mouse]]
 
-	trace add variable $::reverse::bookmarks "write" [namespace code update_bookmarks]
+	trace add variable ::reverse::bookmarks "write" [namespace code update_bookmarks]
 }
 
 proc disable_reversebar {} {
-	trace remove variable $::reverse::bookmarks "write" [namespace code update_bookmarks]
+	trace remove variable ::reverse::bookmarks "write" [namespace code update_bookmarks]
 	variable update_after_id
 	variable mouse_after_id
 	after cancel $update_after_id
@@ -458,10 +458,6 @@ proc update_reversebar2 {} {
 		osd configure $name -relx [expr {($bookmarkval - $begin) * $reciprocalLength}]
 		incr count
 	}
-	# destroy all bookmarks with higher count number
-	while {[osd destroy reverse.bookmark$count]} {
-		incr count
-	}
 
 	# Round fraction to avoid excessive redraws caused by rounding errors
 	set fraction [expr {round($fraction * 10000) / 10000.0}]
@@ -502,7 +498,15 @@ proc formatTime {seconds} {
 	format "%02d:%02d" [expr {int($seconds / 60)}] [expr {int($seconds) % 60}]
 }
 
-proc update_bookmarks {} {
+proc update_bookmarks {name1 name2 op} {
+	# remove all bookmarks to make sure the widget names start with 0
+	# and have no 'holes' in their sequence. They will be recreated
+	# when necessary in update_reversebar2
+
+	set count 0
+	while {[osd destroy reverse.bookmark$count]} {
+		incr count
+	}
 	update_reversebar
 }
 
