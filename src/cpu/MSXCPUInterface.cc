@@ -619,22 +619,17 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
-void MSXCPUInterface::updateVisible(int page)
+ALWAYS_INLINE void MSXCPUInterface::updateVisible(int page, int ps, int ss)
 {
-	MSXDevice* newDevice = slotLayout[primarySlotState[page]]
-	                                 [secondarySlotState[page]]
-	                                 [page];
+	MSXDevice* newDevice = slotLayout[ps][ss][page];
 	if (visibleDevices[page] != newDevice) {
 		visibleDevices[page] = newDevice;
-		msxcpu.updateVisiblePage(page, primarySlotState[page],
-		                               secondarySlotState[page]);
+		msxcpu.updateVisiblePage(page, ps, ss);
 	}
-	/*
-	PRT_DEBUG(" page: " << (int)page <<
-	          " ps: " << (int)primarySlotState[page] <<
-	          " ss: " << (int)secondarySlotState[page] <<
-	          " device: " << newDevice->getName());
-	*/
+}
+void MSXCPUInterface::updateVisible(int page)
+{
+	updateVisible(page, primarySlotState[page], secondarySlotState[page]);
 }
 
 void MSXCPUInterface::reset()
@@ -652,22 +647,58 @@ byte MSXCPUInterface::readIRQVector()
 
 void MSXCPUInterface::setPrimarySlots(byte value)
 {
-	for (int page = 0; page < 4; ++page, value >>= 2) {
-		// Change the slot structure
-		primarySlotState[page] = value & 3;
-		secondarySlotState[page] =
-			(subSlotRegister[value & 3] >> (page * 2)) & 3;
-		// Change the visible devices
-		updateVisible(page);
+	// Change the slot structure.
+	// Originally the code below was a loop over the 4 pages, and the check
+	// for (un)expanded-slot was done unconditionally at the end. I've
+	// completely unrolled the loop and only check for (un)expanded slot
+	// when the slot in page 3 has changed. I've also added checks for slot
+	// changes for the other 3 pages. Usually when this register is written
+	// only one of the 4 pages actually changes, so these extra checks do
+	// pay off. This does make the code a bit more complex (and the
+	// generated code slightly bigger), but it does make a measurable speed
+	// difference.  Changing the slots several hundreds of times per
+	// (EmuTime) is not unusual. So this routine ended up quite high
+	// (top-10) in some profile results.
+	int ps0 = (value >> 0) & 3;
+	if (unlikely(primarySlotState[0] != ps0)) {
+		primarySlotState[0] = ps0;
+		int ss0 = (subSlotRegister[ps0] >> 0) & 3;
+		secondarySlotState[0] = ss0;
+		updateVisible(0, ps0, ss0);
 	}
-	if (isExpanded(primarySlotState[3])) {
-		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
-	} else {
-		disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
-		disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+	int ps1 = (value >> 2) & 3;
+	if (unlikely(primarySlotState[1] != ps1)) {
+		primarySlotState[1] = ps1;
+		int ss1 = (subSlotRegister[ps1] >> 2) & 3;
+		secondarySlotState[1] = ss1;
+		updateVisible(1, ps1, ss1);
 	}
-	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
+	int ps2 = (value >> 4) & 3;
+	if (unlikely(primarySlotState[2] != ps2)) {
+		primarySlotState[2] = ps2;
+		int ss2 = (subSlotRegister[ps2] >> 4) & 3;
+		secondarySlotState[2] = ss2;
+		updateVisible(2, ps2, ss2);
+	}
+	int ps3 = (value >> 6) & 3;
+	if (unlikely(primarySlotState[3] != ps3)) {
+		bool oldExpanded = isExpanded(primarySlotState[3]);
+		bool newExpanded = isExpanded(ps3);
+		primarySlotState[3] = ps3;
+		int ss3 = (subSlotRegister[ps3] >> 6) & 3;
+		secondarySlotState[3] = ss3;
+		updateVisible(3, ps3, ss3);
+		if (unlikely(oldExpanded != newExpanded)) {
+			if (newExpanded) {
+				disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
+				disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
+			} else {
+				disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
+				disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+			}
+			msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
+		}
+	}
 }
 
 void MSXCPUInterface::setSubSlot(byte primSlot, byte value)

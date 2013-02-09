@@ -284,6 +284,7 @@ private:
 	  * @param page page [0..3] to update visibleDevices for.
 	  */
 	void updateVisible(int page);
+	inline void updateVisible(int page, int ps, int ss);
 	void setSubSlot(byte primSlot, byte value);
 
 	std::unique_ptr<DummyDevice> dummyDevice;
