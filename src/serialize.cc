@@ -196,6 +196,12 @@ void MemInputArchive::load(std::string& s)
 
 ////
 
+// Too small inputs don't compress very well (often the compressed size is even
+// bigger than the input). It also takes a relatively long time (because snappy
+// has a relatively large setup time). I choose this value semi-arbitrary. I
+// only made it >= 52 so that the (incompressible) RP5C01 registers won't be
+// compressed.
+static const size_t SMALL_SIZE = 100;
 void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 {
 	// Compress in-memory blobs:
@@ -211,22 +217,31 @@ void MemOutputArchive::serialize_blob(const char*, const void* data, size_t len)
 	//
 	// Later I compared 'lzo' with 'snappy', lzo compresses 6-25% better,
 	// but 'snappy' is about twice as fast. So I switched to 'snappy'.
-	size_t dstLen = snappy::maxCompressedLength(len);
-	byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
+	if (len >= SMALL_SIZE) {
+		size_t dstLen = snappy::maxCompressedLength(len);
+		byte* buf = buffer.allocate(sizeof(dstLen) + dstLen);
+		snappy::compress(static_cast<const char*>(data), len,
+		                 reinterpret_cast<char*>(&buf[sizeof(dstLen)]), dstLen);
+		memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
+		buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
+	} else {
+		byte* buf = buffer.allocate(len);
+		memcpy(buf, data, len);
+	}
 
-	snappy::compress(static_cast<const char*>(data), len,
-	                 reinterpret_cast<char*>(&buf[sizeof(dstLen)]), dstLen);
-
-	memcpy(buf, &dstLen, sizeof(dstLen)); // fill-in actual size
-	buffer.deallocate(&buf[sizeof(dstLen) + dstLen]); // dealloc unused portion
 }
 
 void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
 {
-	size_t srcLen; load(srcLen);
-	snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
-	                   srcLen, reinterpret_cast<char*>(data), len);
-	buffer.skip(srcLen);
+	if (len >= SMALL_SIZE) {
+		size_t srcLen; load(srcLen);
+		snappy::uncompress(reinterpret_cast<const char*>(buffer.getCurrentPos()),
+		                   srcLen, reinterpret_cast<char*>(data), len);
+		buffer.skip(srcLen);
+	} else {
+		memcpy(data, buffer.getCurrentPos(), len);
+		buffer.skip(len);
+	}
 }
 
 ////
