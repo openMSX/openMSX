@@ -426,10 +426,10 @@ static inline char* emitCopyLessThan64(char* op, size_t offset, int len)
 	if ((len < 12) && (offset < 2048)) {
 		size_t lenMinus4 = len - 4;
 		assert(lenMinus4 < 8); // Must fit in 3 bits
-		*op++ = char(COPY_1_BYTE_OFFSET | ((lenMinus4) << 2) | ((offset >> 8) << 5));
+		*op++ = char(COPY_1_BYTE_OFFSET + ((lenMinus4) << 2) + ((offset >> 8) << 5));
 		*op++ = offset & 0xff;
 	} else {
-		*op++ = COPY_2_BYTE_OFFSET | ((len - 1) << 2);
+		*op++ = COPY_2_BYTE_OFFSET + ((len - 1) << 2);
 		Endian::write_UA_L16(op, uint16_t(offset));
 		op += 2;
 	}
@@ -455,15 +455,11 @@ static inline char* emitCopy(char* op, size_t offset, int len)
 	return op;
 }
 
-// *** DO NOT CHANGE THE VALUE OF BLOCK_SIZE ***
-//
-// New Compression code chops up the input into blocks of at most
-// the following size.  This ensures that back-references in the
-// output never cross BLOCK_SIZE block boundaries.  This can be
-// helpful in implementing blocked decompression.  However the
-// decompression code should not rely on this guarantee since older
-// compression code may not obey it.
-static const size_t BLOCK_SIZE = 1 << 15;
+// The size of a compression block. Note that many parts of the compression
+// code assumes that kBlockSize <= 65536; in particular, the hash table
+// can only store 16-bit offsets, and EmitCopy() also assumes the offset
+// is 65535 bytes or less.
+static const size_t BLOCK_SIZE = 1 << 16;
 
 // Compresses "input" string to the "*op" buffer.
 //
