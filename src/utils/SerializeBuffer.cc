@@ -10,9 +10,30 @@ namespace openmsx {
 
 // class OutputBuffer
 
+static size_t lastSize = 50000; // initial estimate
+
 OutputBuffer::OutputBuffer()
-	: begin(nullptr), end(nullptr), finish(nullptr)
+	: begin(static_cast<byte*>(malloc(lastSize)))
+	, end(begin)
+	, finish(begin + lastSize)
 {
+	// We've allocated a buffer with an estimated initial size. This
+	// estimate is based on the largest intermediate size of the previously
+	// required buffers.
+	// For correctness this initial size doesn't matter (we could even not
+	// allocate any initial buffer at all). But it can make a difference in
+	// performance. If later we discover the buffer is too small, we have
+	// to reallocate (and thus make a copy). In profiling this reallocation
+	// step was noticable.
+	if (!begin) {
+		throw std::bad_alloc();
+	}
+
+	// Slowly drop the estimated required size. This makes sure that when
+	// we've overestimated the size once, we don't forever keep this too
+	// high value. For performance an overestimation is less bad than an
+	// underestimation.
+	lastSize -= lastSize >> 7;
 }
 
 OutputBuffer::~OutputBuffer()
@@ -52,6 +73,10 @@ void OutputBuffer::insertN(const void* __restrict data, size_t len) __restrict
 byte* OutputBuffer::allocate(size_t len)
 {
 	byte* newEnd = end + len;
+	// Make sure the next OutputBuffer will start with an initial size
+	// that can hold this much space plus some slack.
+	size_t newSize = newEnd - begin;
+	lastSize = std::max(lastSize, newSize + 1000);
 	if (newEnd <= finish) {
 		byte* result = end;
 		end = newEnd;
@@ -70,8 +95,11 @@ void OutputBuffer::deallocate(byte* pos)
 
 byte* OutputBuffer::release(size_t& size)
 {
-	byte* result = begin;
 	size = end - begin;
+
+	// Deallocate unused buffer space.
+	byte* result = static_cast<byte*>(realloc(begin, size));
+
 	begin = end = finish = nullptr;
 	return result;
 }
