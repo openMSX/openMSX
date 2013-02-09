@@ -142,10 +142,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 	scheduleInProgress = true;
 	while (true) {
 		// Get next sync point.
-		const SynchronizationPoint sp =
-			  syncPoints.empty()
-			? SynchronizationPoint(EmuTime::infinity, nullptr, 0)
-			: syncPoints.front();
+		const auto& sp = syncPoints.front();
 		EmuTime::param time = sp.getTime();
 		if (time > limit) {
 			break;
@@ -154,11 +151,12 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 		assert(scheduleTime <= time);
 		scheduleTime = time;
 
-		syncPoints.erase(syncPoints.begin());
-
 		Schedulable* device = sp.getDevice();
 		assert(device);
 		int userData = sp.getUserData();
+
+		syncPoints.erase(syncPoints.begin());
+
 		device->executeUntil(time, userData);
 	}
 	scheduleInProgress = false;
