@@ -326,6 +326,7 @@ void MSXCPUInterface::setExpanded(int ps)
 		}
 	}
 	expanded[ps]++;
+	changeExpanded(isExpanded(primarySlotState[3]));
 }
 
 void MSXCPUInterface::testUnsetExpanded(
@@ -377,6 +378,19 @@ void MSXCPUInterface::unsetExpanded(int ps)
 	}
 #endif
 	expanded[ps]--;
+	changeExpanded(isExpanded(primarySlotState[3]));
+}
+
+void MSXCPUInterface::changeExpanded(bool isExpanded)
+{
+	if (isExpanded) {
+		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
+	} else {
+		disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+	}
+	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
 
 MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
@@ -689,14 +703,7 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 		secondarySlotState[3] = ss3;
 		updateVisible(3, ps3, ss3);
 		if (unlikely(oldExpanded != newExpanded)) {
-			if (newExpanded) {
-				disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
-				disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
-			} else {
-				disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
-				disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
-			}
-			msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
+			changeExpanded(newExpanded);
 		}
 	}
 }
