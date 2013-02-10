@@ -143,7 +143,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 	while (true) {
 		// Get next sync point.
 		const auto& sp = syncPoints.front();
-		EmuTime::param time = sp.getTime();
+		EmuTime time = sp.getTime();
 		if (time > limit) {
 			break;
 		}
