@@ -446,7 +446,7 @@ proc create_main_menu {} {
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
-		lappend items { text "Load laserdisc..."
+		lappend items { text "Load LaserDisc..."
 			actions { A { osd_menu::menu_create [osd_menu::menu_create_ld_list $::osd_ld_path]} }
 		}
 	}
