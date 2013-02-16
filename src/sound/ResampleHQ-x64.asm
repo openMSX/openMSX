@@ -28,14 +28,14 @@ label1:
     mulps       xmm4,xmmword ptr [rdx+r9]
     movups      xmm5,xmmword ptr [rcx+r9+10h]
     mulps       xmm5,xmmword ptr [rdx+r9+10h]
-    movups      xmm6,xmmword ptr [rcx+r9+20h]
-    mulps       xmm6,xmmword ptr [rdx+r9+20h]
-    movups      xmm7,xmmword ptr [rcx+r9+30h]
-    mulps       xmm7,xmmword ptr [rdx+r9+30h]
     addps       xmm0,xmm4
     addps       xmm1,xmm5
-    addps       xmm2,xmm6
-    addps       xmm3,xmm7
+    movups      xmm4,xmmword ptr [rcx+r9+20h]
+    mulps       xmm4,xmmword ptr [rdx+r9+20h]
+    movups      xmm5,xmmword ptr [rcx+r9+30h]
+    mulps       xmm5,xmmword ptr [rdx+r9+30h]
+    addps       xmm2,xmm4
+    addps       xmm3,xmm5
     add         r9,40h
     jne         label1
     test        r10,8
@@ -50,19 +50,19 @@ label1:
 label2:
     test        r10,4
     je          label3
-    movups      xmm6,xmmword ptr [rcx+r9]
-    mulps       xmm6,xmmword ptr [rdx+r9]
-    addps       xmm2,xmm6
+    movups      xmm4,xmmword ptr [rcx+r9]
+    mulps       xmm4,xmmword ptr [rdx+r9]
+    addps       xmm2,xmm4
 label3:
     addps       xmm0,xmm1
     addps       xmm2,xmm3
     addps       xmm0,xmm2
-    movaps      xmm7,xmm0
-    shufps      xmm7,xmm0,4Eh
-    addps       xmm7,xmm0
-    movaps      xmm0,xmm7
-    shufps      xmm0,xmm7,0B1h
-    addss       xmm0,xmm7
+    movaps      xmm4,xmm0
+    shufps      xmm4,xmm0,4Eh
+    addps       xmm4,xmm0
+    movaps      xmm0,xmm4
+    shufps      xmm0,xmm4,0B1h
+    addss       xmm0,xmm4
     cvtss2si    edx,xmm0
     mov         dword ptr [r8],edx
     ret
