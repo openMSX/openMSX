@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #set -xv
 
 # TODO: find out if flavour can be passed from SDL build environment
@@ -22,18 +21,6 @@ fi
 # with all android specific code for the app
 my_app_android_dir="$(pwd)"
 
-
-# Determine current revision and version name
-PYTHONPATH="${my_home_dir}/build"
-export PYTHONPATH
-cd "${my_home_dir}"
-REVISION=$(python -c "import version; print version.extractRevisionString()")
-if [ "${REVISION}" = "unknown" ]; then
-  echo "AB:ERROR Could not determine revision"
-  exit 1
-fi
-VERSION_NAME=$(python -c "import version; print version.getVersionedPackageName()")
-echo "AB:INFO building revision ${REVISION} with version name ${VERSION_NAME}"
 
 # Use latest version of the setEnvironment script; it is the one that uses GCC 4.6
 set_sdl_app_environment="${sdl_android_port_path}/project/jni/application/setEnvironment.sh"
@@ -151,18 +138,7 @@ else
 	echo "AB/INFO appdata.zip is still fine"
 fi
 
-APP_SETTINGS_CFG="${my_home_dir}/build/android/openmsx/AndroidAppSettings.cfg"
-cp ${APP_SETTINGS_CFG}.template ${APP_SETTINGS_CFG}
-. ${APP_SETTINGS_CFG}
 MANIFEST="${sdl_android_port_path}/project/AndroidManifest.xml"
-if [ "$AppVersionCode" != "${REVISION}" ]; then
-	sed -i "s/^AppVersionCode=.*$/AppVersionCode=${REVISION}/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionCode=.*^android:versionCode=\"${REVISION}\"^" ${MANIFEST}
-fi
-if [ "$AppVersionName" != "${VERSION_NAME}" ]; then
-	sed -i "s/^AppVersionName=.*$/AppVersionName=${VERSION_NAME}/" ${APP_SETTINGS_CFG}
-	sed -i "s^android:versionName=.*^android:versionName=\"${VERSION_NAME}\"^" ${MANIFEST}
-fi
 
 # Patch manifest file to target android 2.3 and older so that the
 # virtual menu button will be rendered by newer Android versions
