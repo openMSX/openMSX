@@ -289,6 +289,7 @@ void Slot::slotOff()
 void Slot::setPatch(Patch& patch)
 {
 	this->patch = patch; // copy data
+	setEnvelopeState(state); // recalc eg_phase_max
 }
 
 void Slot::setVolume(unsigned newVolume)
@@ -550,15 +551,9 @@ void YM2413::update_rhythm_mode()
 		}
 	} else if (isRhythm()) {
 		// OFF -> ON
-		ch6.mod.setEnvelopeState(FINISH);
-		ch6.car.setEnvelopeState(FINISH);
 		ch6.setPatch(16, *this);
-		ch7.mod.setEnvelopeState(FINISH);
-		ch7.car.setEnvelopeState(FINISH);
 		ch7.setPatch(17, *this);
 		ch7.mod.setVolume((reg[0x37] >> 4) << 2);
-		ch8.mod.setEnvelopeState(FINISH);
-		ch8.car.setEnvelopeState(FINISH);
 		ch8.setPatch(18, *this);
 		ch8.mod.setVolume((reg[0x38] >> 4) << 2);
 	}
