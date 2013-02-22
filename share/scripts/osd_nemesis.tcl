@@ -43,7 +43,7 @@ proc enable_nemesis_1_shield {} {
 
 	set move_active false
 
-	set after_frame_id [after frame osd_nemesis::after_frame]
+	set after_frame_id [after time 0.1 osd_nemesis::after_frame]
 	set after_mouse_button_id [after "mouse button1 down" osd_nemesis::after_mouse]
 }
 
@@ -69,8 +69,8 @@ proc after_frame {} {
 	}
 
 	# vic viper location
-	set x [peek 0xe206]
-	set y [peek 0xe204]
+	set x [utils::clip 9 255 [peek 0xe206]]
+	set y [utils::clip 0 192 [peek 0xe204]]
 	osd configure "nemesis1.shield" -relx [expr {$x - 9}] -rely [expr {$y - 9}]
 
 	for {set i 0} {$i < 32} {incr i} {
