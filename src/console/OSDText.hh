@@ -4,12 +4,11 @@
 #define OSDTEXT_HH
 
 #include "OSDImageBasedWidget.hh"
+#include "TTFFont.hh"
 #include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
-
-class TTFFont;
 
 class OSDText : public OSDImageBasedWidget
 {
@@ -47,7 +46,7 @@ private:
 
 	std::string text;
 	std::string fontfile;
-	std::unique_ptr<TTFFont> font;
+	TTFFont font;
 	int size;
 	WrapMode wrapMode;
 	double wrapw, wraprelw;

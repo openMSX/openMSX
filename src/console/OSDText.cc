@@ -142,7 +142,7 @@ void OSDText::getProperty(string_ref name, TclObject& result) const
 
 void OSDText::invalidateLocal()
 {
-	font.reset();
+	font = TTFFont(); // clear font
 	OSDImageBasedWidget::invalidateLocal();
 }
 
@@ -178,11 +178,11 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		return make_unique<IMAGE>(0, 0, 0);
 	}
 	int scale = getScaleFactor(output);
-	if (!font.get()) {
+	if (font.empty()) {
 		try {
 			string file = SystemFileContext().resolve(fontfile);
 			int ptSize = size * scale;
-			font = make_unique<TTFFont>(file, ptSize);
+			font = TTFFont(file, ptSize);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: " + e.getMessage());
 		}
@@ -210,7 +210,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		// An alternative is to pass vector<string> to TTFFont::render().
 		// That way we can avoid StringOp::join() (in the wrap functions)
 		// followed by // StringOp::split() (in TTFFont::render()).
-		SDLSurfacePtr surface(font->render(wrappedText,
+		SDLSurfacePtr surface(font.render(wrappedText,
 			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
 		if (surface.get()) {
 			return make_unique<IMAGE>(std::move(surface));
@@ -304,7 +304,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 	}
 
 	unsigned width, height;
-	font->getSize(line, width, height);
+	font.getSize(line, width, height);
 	if (width <= maxWidth) {
 		// whole line fits
 		return line.size();
@@ -329,7 +329,7 @@ size_t OSDText::split(const string& line, unsigned maxWidth,
 		if (removeTrailingSpaces) {
 			StringOp::trimRight(curStr, ' ');
 		}
-		font->getSize(curStr, width, height);
+		font.getSize(curStr, width, height);
 		if (width <= maxWidth) {
 			// still fits, try to enlarge
 			size_t next = findSplitPoint(line, cur, max);

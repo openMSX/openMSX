@@ -152,6 +152,7 @@ TTFFont::TTFFont(const std::string& filename, int ptSize)
 
 TTFFont::~TTFFont()
 {
+	if (!font) return;
 	TTFFontPool::instance().release(static_cast<TTF_Font*>(font));
 }
 

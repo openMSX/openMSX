@@ -4,6 +4,7 @@
 #define OSDCONSOLERENDERER_HH
 
 #include "Layer.hh"
+#include "TTFFont.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -15,7 +16,6 @@ namespace openmsx {
 class Reactor;
 class CommandConsole;
 class ConsoleLine;
-class TTFFont;
 class BaseImage;
 class Setting;
 class BooleanSetting;
@@ -86,8 +86,8 @@ private:
 	std::unique_ptr<IntegerSetting> consoleColumnsSetting;
 	std::unique_ptr<FilenameSetting> backgroundSetting;
 	std::unique_ptr<FilenameSetting> fontSetting;
-	std::unique_ptr<TTFFont> font;
 	std::unique_ptr<BaseImage> backgroundImage;
+	TTFFont font;
 	TextCache textCache;
 	TextCache::iterator cacheHint;
 

@@ -7,7 +7,6 @@
 #include "BooleanSetting.hh"
 #include "FilenameSetting.hh"
 #include "GlobalSettings.hh"
-#include "TTFFont.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
 #include "InputEventGenerator.hh"
@@ -115,7 +114,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 			"Loading selected font (" + fontSetting->getValue() +
 			") failed. Reverting to default font (" + defaultFont + ").");
 		fontSetting->changeValue(defaultFont);
-		if (!font.get()) {
+		if (font.empty()) {
 			// we can't continue without font
 			throw FatalError("Couldn't load default console font.\n"
 			                 "Please check your installation.");
@@ -123,8 +122,8 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	}
 
 	// rows / columns
-	int columns = (((screenW - CHAR_BORDER) / font->getWidth()) * 30) / 32;
-	int rows = ((screenH / font->getHeight()) * 6) / 15;
+	int columns = (((screenW - CHAR_BORDER) / font.getWidth()) * 30) / 32;
+	int rows = ((screenH / font.getHeight()) * 6) / 15;
 	consoleColumnsSetting = make_unique<IntegerSetting>(commandController,
 		"consolecolumns", "number of columns in the console", columns,
 		32, 999);
@@ -170,10 +169,10 @@ void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
 		consoleColumnsSetting->getValue(),
-		(screenW - CHAR_BORDER) / font->getWidth());
+		(screenW - CHAR_BORDER) / font.getWidth());
 	unsigned consoleRows = std::min<unsigned>(
 		consoleRowsSetting->getValue(),
-		screenH / font->getHeight());
+		screenH / font.getHeight());
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
 }
@@ -230,8 +229,8 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	adjustColRow();
 
 	unsigned x, y, w, h;
-	h = font->getHeight() * console.getRows();
-	w = (font->getWidth() * console.getColumns()) + CHAR_BORDER;
+	h = font.getHeight() * console.getRows();
+	w = (font.getWidth() * console.getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
 	switch (consolePlacementSetting->getValue()) {
@@ -280,7 +279,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(const string& value)
 {
 	string filename = SystemFileContext().resolve(value);
-	font = make_unique<TTFFont>(filename, fontSizeSetting->getValue());
+	font = TTFFont(filename, fontSizeSetting->getValue());
 }
 
 void OSDConsoleRenderer::loadBackground(const string& value)
@@ -321,11 +320,11 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 		SDLSurfacePtr surf;
 		try {
 			unsigned dummyHeight;
-			font->getSize(textStr, width, dummyHeight);
-			surf = font->render(textStr,
-			                    (rgb >> 16) & 0xff,
-			                    (rgb >>  8) & 0xff,
-			                    (rgb >>  0) & 0xff);
+			font.getSize(textStr, width, dummyHeight);
+			surf = font.render(textStr,
+			                   (rgb >> 16) & 0xff,
+			                   (rgb >>  8) & 0xff,
+			                   (rgb >>  0) & 0xff);
 		} catch (MSXException& e) {
 			static bool alreadyPrinted = false;
 			if (!alreadyPrinted) {
@@ -438,12 +437,12 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		backgroundImage->draw(output, destX, destY, visibility);
 	}
 
-	int screenlines = destH / font->getHeight();
+	int screenlines = destH / font.getHeight();
 	for (int loop = 0; loop < screenlines; ++loop) {
 		drawText(output,
 		         console.getLine(loop + console.getScrollBack()),
 		         destX + CHAR_BORDER,
-		         destY + destH - (1 + loop) * font->getHeight() - 1,
+		         destY + destH - (1 + loop) * font.getHeight() - 1,
 		         visibility);
 	}
 
@@ -464,8 +463,8 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 	if (blink && (console.getScrollBack() == 0)) {
 		drawText(output, ConsoleLine("_"),
-		         destX + CHAR_BORDER + cursorX * font->getWidth(),
-		         destY + destH - (font->getHeight() * (cursorY + 1)) - 1,
+		         destX + CHAR_BORDER + cursorX * font.getWidth(),
+		         destY + destH - (font.getHeight() * (cursorY + 1)) - 1,
 		         visibility);
 	}
 }
