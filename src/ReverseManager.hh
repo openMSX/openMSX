@@ -7,6 +7,7 @@
 #include "EventListener.hh"
 #include "StateChangeListener.hh"
 #include "EmuTime.hh"
+#include "MemBuffer.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -20,7 +21,6 @@ class EventDelay;
 class EventDistributor;
 class ReverseCmd;
 class TclObject;
-template<typename T> class MemBuffer;
 
 class ReverseManager : private Schedulable, private EventListener
                      , private StateChangeRecorder
@@ -50,7 +50,7 @@ private:
 		ReverseChunk& operator=(ReverseChunk&& rhs);
 
 		EmuTime time;
-		std::unique_ptr<MemBuffer<uint8_t>> savestate;
+		MemBuffer<uint8_t> savestate;
 
 		// Number of recorded events (or replay index) when this
 		// snapshot was created. So when going back replay should

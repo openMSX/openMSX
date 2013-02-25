@@ -176,11 +176,11 @@ void MemOutputArchive::save(const std::string& s)
 	memcpy(buf + sizeof(size), s.data(), size);
 }
 
-std::unique_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()
+MemBuffer<byte> MemOutputArchive::releaseBuffer()
 {
 	size_t size;
 	byte* data = buffer.release(size);
-	return make_unique<MemBuffer<byte>>(data, size);
+	return MemBuffer<byte>(data, size);
 }
 
 ////

@@ -305,9 +305,9 @@ void ReverseManager::debugInfo(TclObject& result) const
 		res << p.first << ' '
 		    << (chunk.time - EmuTime::zero).toDouble() << ' '
 		    << ((chunk.time - EmuTime::zero).toDouble() / (getCurrentTime() - EmuTime::zero).toDouble()) * 100 << '%'
-		    << " (" << chunk.savestate->size() << ')'
+		    << " (" << chunk.savestate.size() << ')'
 		    << " (next event index: " << chunk.eventCount << ")\n";
-		totalSize += chunk.savestate->size();
+		totalSize += chunk.savestate.size();
 	}
 	res << "total size: " << totalSize << '\n';
 	result.setString(string(res));
@@ -443,8 +443,8 @@ void ReverseManager::goTo(
 			// -- restore old snapshot --
 			newBoard_ = reactor.createEmptyMotherBoard();
 			newBoard = newBoard_.get();
-			MemInputArchive in(it->second.savestate->data(),
-					   it->second.savestate->size());
+			MemInputArchive in(it->second.savestate.data(),
+					   it->second.savestate.size());
 			in.serialize("machine", *newBoard);
 
 			if (eventDelay) {
@@ -558,8 +558,8 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// restore first snapshot to be able to serialize it to a file
 	Reactor::Board initialBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(chunks.begin()->second.savestate->data(),
-	                   chunks.begin()->second.savestate->size());
+	MemInputArchive in(chunks.begin()->second.savestate.data(),
+	                   chunks.begin()->second.savestate.size());
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(initialBoard);
 
@@ -580,8 +580,8 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 			if (it != lastAddedIt) {
 				// this is a new one, add it to the list of snapshots
 				Reactor::Board board = reactor.createEmptyMotherBoard();
-				MemInputArchive in(it->second.savestate->data(),
-				                   it->second.savestate->size());
+				MemInputArchive in(it->second.savestate.data(),
+				                   it->second.savestate.size());
 				in.serialize("machine", *board);
 				replay.motherBoards.push_back(board);
 				lastAddedIt = it;

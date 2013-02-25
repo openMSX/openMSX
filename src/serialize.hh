@@ -647,7 +647,7 @@ public:
 		                &skip, sizeof(skip));
 	}
 
-	std::unique_ptr<MemBuffer<byte>> releaseBuffer();
+	MemBuffer<byte> releaseBuffer();
 
 private:
 	void put(const void* data, size_t len)

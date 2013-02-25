@@ -58,6 +58,22 @@ public:
 	{
 	}
 
+	/** Move constructor. */
+	MemBuffer(MemBuffer&& other)
+		: dat(other.dat)
+		, sz(other.sz)
+	{
+		other.dat = nullptr;
+	}
+
+	/** Move assignment. */
+	MemBuffer& operator=(MemBuffer&& other)
+	{
+		std::swap(dat, other.dat);
+		std::swap(sz , other.sz);
+		return *this;
+	}
+
 	/** Free the memory buffer.
 	 */
 	~MemBuffer()
