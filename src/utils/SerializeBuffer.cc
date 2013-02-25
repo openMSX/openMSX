@@ -2,7 +2,6 @@
 
 #include "SerializeBuffer.hh"
 #include "likely.hh"
-#include <algorithm>
 #include <new> // for bad_alloc
 #include <cstdlib>
 
@@ -10,7 +9,7 @@ namespace openmsx {
 
 // class OutputBuffer
 
-static size_t lastSize = 50000; // initial estimate
+size_t OutputBuffer::lastSize = 50000; // initial estimate
 
 OutputBuffer::OutputBuffer()
 	: begin(static_cast<byte*>(malloc(lastSize)))
@@ -68,29 +67,6 @@ void OutputBuffer::insertN(const void* __restrict data, size_t len) __restrict
 	} else {
 		insertGrow(data, len);
 	}
-}
-
-byte* OutputBuffer::allocate(size_t len)
-{
-	byte* newEnd = end + len;
-	// Make sure the next OutputBuffer will start with an initial size
-	// that can hold this much space plus some slack.
-	size_t newSize = newEnd - begin;
-	lastSize = std::max(lastSize, newSize + 1000);
-	if (newEnd <= finish) {
-		byte* result = end;
-		end = newEnd;
-		return result;
-	} else {
-		return allocateGrow(len);
-	}
-}
-
-void OutputBuffer::deallocate(byte* pos)
-{
-	assert(begin <= pos);
-	assert(pos <= end);
-	end = pos;
 }
 
 byte* OutputBuffer::release(size_t& size)

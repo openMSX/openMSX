@@ -171,8 +171,9 @@ template class InputArchiveBase<XmlInputArchive>;
 void MemOutputArchive::save(const std::string& s)
 {
 	auto size = s.size();
-	save(size);
-	put(s.data(), size);
+	byte* buf = buffer.allocate(sizeof(size) + size);
+	memcpy(buf, &size, sizeof(size));
+	memcpy(buf + sizeof(size), s.data(), size);
 }
 
 std::unique_ptr<MemBuffer<byte>> MemOutputArchive::releaseBuffer()

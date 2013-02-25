@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include <algorithm>
 #include <cstring>
 #include <cassert>
 
@@ -77,7 +78,21 @@ public:
 	  * when the buffer will be used for gzip output data), you can request
 	  * the maximum size and deallocate the unused space later.
 	  */
-	byte* allocate(size_t len);
+	byte* allocate(size_t len)
+	{
+		byte* newEnd = end + len;
+		// Make sure the next OutputBuffer will start with an initial size
+		// that can hold this much space plus some slack.
+		size_t newSize = newEnd - begin;
+		lastSize = std::max(lastSize, newSize + 1000);
+		if (newEnd <= finish) {
+			byte* result = end;
+			end = newEnd;
+			return result;
+		} else {
+			return allocateGrow(len);
+		}
+	}
 
 	/** Free part of a previously allocated buffer.
 	 *
@@ -90,7 +105,12 @@ public:
 	  * allocate() call, there cannot be any other (non-const) call to this
 	  * object in between.
 	  */
-	void deallocate(byte* pos);
+	void deallocate(byte* pos)
+	{
+		assert(begin <= pos);
+		assert(pos <= end);
+		end = pos;
+	}
 
 	/** Get the current size of the buffer.
 	 */
@@ -113,6 +133,8 @@ private:
 	               // so   end - begin == size
 	byte* finish;  // points right after the last allocated byte
 	               // so   finish - begin == capacity
+
+	static size_t lastSize;
 };
 
 
