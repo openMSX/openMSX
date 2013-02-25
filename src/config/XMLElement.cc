@@ -360,30 +360,21 @@ unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 //            also removed 'parent', but that was never serialized
 //        2b: (no need to increase version) name and data members are
 //            serialized as normal members instead of constructor parameters
+//        2c: (no need to increase version) attributes were initially stored as
+//            map<string, string>, later this was changed to
+//            vector<pair<string, string>>. To keep bw-compat the serialize()
+//            method converted between these two formats. Though (by luck) in
+//            the XML output both datastructures are serialized to the same
+//            format, so we can drop this conversion step without breaking
+//            bw-compat.
 template<typename Archive>
 void XMLElement::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("name", name);
 	ar.serialize("data", data);
-
-	// note: In the past attributes were stored in a map instead of a
-	//       vector. To keep backwards compatible with the serialized
-	//       format, we still convert attributes to this format.
-	typedef std::map<string, string> AttributesMap;
-	if (!ar.isLoader()) {
-		AttributesMap tmpAtt(attributes.begin(), attributes.end());
-		ar.serialize("attributes", tmpAtt);
-	} else {
-		AttributesMap tmpAtt;
-		ar.serialize("attributes", tmpAtt);
-		for (auto& p : tmpAtt) {
-			// TODO "string -> char* -> string" conversion can
-			//       be optimized
-			addAttribute(p.first.c_str(), p.second);
-		}
-	}
-
+	ar.serialize("attributes", attributes);
 	ar.serialize("children", children);
+
 	if (ar.versionBelow(version, 2)) {
 		assert(ar.isLoader());
 		unique_ptr<FileContext> context;
