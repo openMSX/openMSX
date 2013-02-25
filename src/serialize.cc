@@ -247,7 +247,7 @@ void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
 ////
 
 XmlOutputArchive::XmlOutputArchive(const string& filename)
-	: root(make_unique<XMLElement>("serial"))
+	: root("serial")
 {
 	FILE* f = FileOperations::openFile(filename, "wb");
 	if (!f) {
@@ -258,17 +258,17 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 		fclose(f);
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
-	current.push_back(root.get());
+	current.push_back(&root);
 }
 
 XmlOutputArchive::~XmlOutputArchive()
 {
-	assert(current.back() == root.get());
+	assert(current.back() == &root);
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
 	gzwrite(file, const_cast<char*>(header), unsigned(strlen(header)));
-	string dump = root->dump();
+	string dump = root.dump();
 	gzwrite(file, const_cast<char*>(dump.data()), unsigned(dump.size()));
 	gzclose(file);
 }
@@ -331,11 +331,9 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 
 void XmlOutputArchive::beginTag(const char* tag)
 {
-	auto elem = make_unique<XMLElement>(tag);
-	auto elemP = elem.get();
 	assert(!current.empty());
-	current.back()->addChild(std::move(elem));
-	current.push_back(elemP);
+	auto& elem = current.back()->addChild(XMLElement(tag));
+	current.push_back(&elem);
 }
 void XmlOutputArchive::endTag(const char* tag)
 {
@@ -349,12 +347,7 @@ void XmlOutputArchive::endTag(const char* tag)
 XmlInputArchive::XmlInputArchive(const string& filename)
 	: elem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 {
-	init(elem.get());
-}
-
-void XmlInputArchive::init(const XMLElement* e)
-{
-	elems.push_back(std::make_pair(e, 0));
+	elems.push_back(std::make_pair(&elem, 0));
 }
 
 void XmlInputArchive::loadChar(char& c)

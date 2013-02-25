@@ -78,16 +78,16 @@ void Setting::setDontSaveValue(const std::string& dontSaveValue_)
 
 void Setting::sync(XMLElement& config) const
 {
-	XMLElement& settings = config.getCreateChild("settings");
+	auto& settings = config.getCreateChild("settings");
 	if (!needLoadSave() || hasDefaultValue()) {
 		// remove setting
-		if (const XMLElement* elem = settings.findChildWithAttribute(
+		if (auto* elem = settings.findChildWithAttribute(
 				"setting", "id", getName())) {
 			settings.removeChild(*elem);
 		}
 	} else {
 		// add (or overwrite) setting
-		XMLElement& elem = settings.getCreateChildWithAttribute(
+		auto& elem = settings.getCreateChildWithAttribute(
 				"setting", "id", getName());
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)

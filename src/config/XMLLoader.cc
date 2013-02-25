@@ -25,7 +25,7 @@ struct XMLLoaderHelper
 	{
 	}
 
-	unique_ptr<XMLElement> root;
+	XMLElement root;
 	vector<XMLElement*> current;
 	string data;
 	string systemID;
@@ -38,24 +38,24 @@ static void cbStartElement(
 	int nb_attributes, int /*nb_defaulted*/, const xmlChar** attrs)
 {
 	auto helper = static_cast<XMLLoaderHelper*>(helper_);
-	auto newElem = make_unique<XMLElement>(
-		reinterpret_cast<const char*>(localname));
+	XMLElement newElem(reinterpret_cast<const char*>(localname));
 
 	for (int i = 0; i < nb_attributes; i++) {
 		auto valueStart =
 			reinterpret_cast<const char*>(attrs[i * 5 + 3]);
 		auto valueEnd =
 			reinterpret_cast<const char*>(attrs[i * 5 + 4]);
-		newElem->addAttribute(
+		newElem.addAttribute(
 			reinterpret_cast<const char*>(attrs[i * 5 + 0]),
 			std::string(valueStart, valueEnd - valueStart));
 	}
 
-	XMLElement* newElem2 = newElem.get();
+	XMLElement* newElem2;
 	if (!helper->current.empty()) {
-		helper->current.back()->addChild(std::move(newElem));
+		newElem2 = &helper->current.back()->addChild(std::move(newElem));
 	} else {
 		helper->root = std::move(newElem);
+		newElem2 = &helper->root;
 	}
 	helper->current.push_back(newElem2);
 
@@ -94,7 +94,7 @@ static void cbInternalSubset(void* helper_, const xmlChar* /*name*/,
 	helper->systemID = reinterpret_cast<const char*>(systemID);
 }
 
-unique_ptr<XMLElement> load(const string& filename, const string& systemID)
+XMLElement load(const string& filename, const string& systemID)
 {
 	File file(filename);
 	// TODO: Reading blocks to a fixed-size buffer would require less memory
@@ -135,7 +135,7 @@ unique_ptr<XMLElement> load(const string& filename, const string& systemID)
 		throw XMLException(filename + ": Document parsing failed");
 	}
 
-	if (!helper.root.get()) {
+	if (helper.root.getName().empty()) {
 		throw XMLException(filename +
 			": Document doesn't contain mandatory root Element");
 	}

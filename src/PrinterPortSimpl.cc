@@ -38,9 +38,8 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 static XMLElement createXML()
 {
 	XMLElement xml("simpl");
-	auto sound = make_unique<XMLElement>("sound");
-	sound->addChild(make_unique<XMLElement>("volume", "12000"));
-	xml.addChild(std::move(sound));
+	xml.addChild(XMLElement("sound"))
+	       .addChild(XMLElement("volume", "12000"));
 	return xml;
 }
 

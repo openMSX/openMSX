@@ -2,7 +2,6 @@
 
 #include "SettingsConfig.hh"
 #include "SettingsManager.hh"
-#include "XMLElement.hh"
 #include "XMLLoader.hh"
 #include "LocalFileReference.hh"
 #include "File.hh"
@@ -57,7 +56,6 @@ SettingsConfig::SettingsConfig(
 		commandController, *this))
 	, settingsManager(make_unique<SettingsManager>(
 		globalCommandController))
-	, xmlElement(make_unique<XMLElement>("settings"))
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {
@@ -82,8 +80,8 @@ void SettingsConfig::loadSetting(const FileContext& context, const string& filen
 {
 	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
-	getSettingsManager().loadSettings(*xmlElement);
-	hotKey.loadBindings(*xmlElement);
+	getSettingsManager().loadSettings(xmlElement);
+	hotKey.loadBindings(xmlElement);
 
 	// only set saveName after file was successfully parsed
 	setSaveFilename(context, filename);
@@ -99,12 +97,12 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
-	getSettingsManager().saveSettings(*xmlElement);
-	hotKey.saveBindings(*xmlElement);
+	getSettingsManager().saveSettings(xmlElement);
+	hotKey.saveBindings(xmlElement);
 
 	File file(name, File::TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
-	              xmlElement->dump();
+	              xmlElement.dump();
 	file.write(data.data(), data.size());
 }
 
@@ -116,12 +114,6 @@ void SettingsConfig::setSaveSettings(bool save)
 SettingsManager& SettingsConfig::getSettingsManager()
 {
 	return *settingsManager; // ***
-}
-
-XMLElement& SettingsConfig::getXMLElement()
-{
-	assert(xmlElement.get());
-	return *xmlElement;
 }
 
 

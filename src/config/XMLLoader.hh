@@ -3,17 +3,14 @@
 #ifndef XMLLOADER_HH
 #define XMLLOADER_HH
 
-#include <string>
-#include <memory>
+#include "XMLElement.hh"
 
 namespace openmsx {
 
-class XMLElement;
-
 namespace XMLLoader
 {
-	std::unique_ptr<XMLElement> load(const std::string& filename,
-	                                 const std::string& systemID);
+	XMLElement load(const std::string& filename,
+	                const std::string& systemID);
 };
 
 } // namespace openmsx

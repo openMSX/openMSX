@@ -231,15 +231,14 @@ void HotKey::loadBindings(const XMLElement& config)
 	auto* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
 	auto copy = *bindingsElement; // dont iterate over changing container
-	auto& children = copy.getChildren();
-	for (auto& elem : children) {
+	for (auto& elem : copy.getChildren()) {
 		try {
-			if (elem->getName() == "bind") {
-				bind(createEvent(elem->getAttribute("key")),
-				     HotKeyInfo(elem->getData(),
-				                elem->getAttributeAsBool("repeat", false)));
-			} else if (elem->getName() == "unbind") {
-				unbind(createEvent(elem->getAttribute("key")));
+			if (elem.getName() == "bind") {
+				bind(createEvent(elem.getAttribute("key")),
+				     HotKeyInfo(elem.getData(),
+				                elem.getAttributeAsBool("repeat", false)));
+			} else if (elem.getName() == "unbind") {
+				unbind(createEvent(elem.getAttribute("key")));
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
@@ -258,17 +257,17 @@ void HotKey::saveBindings(XMLElement& config) const
 		auto it2 = cmdMap.find(k);
 		assert(it2 != cmdMap.end());
 		auto& info = it2->second;
-		auto elem = make_unique<XMLElement>("bind", info.command);
-		elem->addAttribute("key", k->toString());
+		XMLElement elem("bind", info.command);
+		elem.addAttribute("key", k->toString());
 		if (info.repeat) {
-			elem->addAttribute("repeat", "true");
+			elem.addAttribute("repeat", "true");
 		}
 		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
 	for (auto& k : unboundKeys) {
-		auto elem = make_unique<XMLElement>("unbind");
-		elem->addAttribute("key", k->toString());
+		XMLElement elem("unbind");
+		elem.addAttribute("key", k->toString());
 		bindingsElement.addChild(std::move(elem));
 	}
 }

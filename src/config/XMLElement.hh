@@ -23,12 +23,11 @@ public:
 	// Basic functions
 	//
 
-	// construction, destruction, copy, assign
+	// Construction.
+	//  (copy, assign, move, destruct are default)
+	XMLElement() {}
 	explicit XMLElement(string_ref name);
 	XMLElement(string_ref name, string_ref data);
-	XMLElement(const XMLElement& element);
-	XMLElement& operator=(const XMLElement& element);
-	~XMLElement();
 
 	// name
 	const std::string& getName() const { return name; }
@@ -45,9 +44,9 @@ public:
 	void removeAttribute(string_ref name);
 
 	// child
-	typedef std::vector<std::unique_ptr<XMLElement>> Children;
-	void addChild(std::unique_ptr<XMLElement> child);
-	std::unique_ptr<XMLElement> removeChild(const XMLElement& child);
+	typedef std::vector<XMLElement> Children;
+	XMLElement& addChild(XMLElement child);
+	void removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
 	bool hasChildren() const { return !children.empty(); }
 
@@ -87,7 +86,7 @@ public:
 	const XMLElement* findNextChild(string_ref name,
 	                                size_t& fromIndex) const;
 
-	std::vector<XMLElement*> getChildren(string_ref name) const;
+	std::vector<const XMLElement*> getChildren(string_ref name) const;
 
 	XMLElement& getCreateChild(string_ref name,
 	                           string_ref defaultValue = "");
@@ -129,23 +128,6 @@ private:
 	Attributes attributes;
 };
 SERIALIZE_CLASS_VERSION(XMLElement, 2);
-
-template<> struct SerializeConstructorArgs<XMLElement>
-{
-	typedef std::tuple<std::string, std::string> type;
-	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
-	{
-		ar.serialize("name", xml.getName());
-		ar.serialize("data", xml.getData());
-	}
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
-	{
-		std::string name, data;
-		ar.serialize("name", name);
-		ar.serialize("data", data);
-		return std::make_tuple(name, data);
-	}
-};
 
 } // namespace openmsx
 

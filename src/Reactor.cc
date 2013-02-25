@@ -1080,10 +1080,10 @@ void ConfigInfo::execute(const vector<TclObject>& tokens,
 					configName, tokens[2].getString(),
 					"hardwareconfig.xml"));
 			auto config = HardwareConfig::loadConfig(filename);
-			if (auto* info = config->findChild("info")) {
+			if (auto* info = config.findChild("info")) {
 				for (auto& i : info->getChildren()) {
-					result.addListElement(i->getName());
-					result.addListElement(i->getData());
+					result.addListElement(i.getName());
+					result.addListElement(i.getData());
 				}
 			}
 		} catch (MSXException& e) {

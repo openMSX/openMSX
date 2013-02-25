@@ -89,42 +89,40 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 		throw MSXException("Invalid ROM file: " + resolvedFilename);
 	}
 
-	auto extension = make_unique<XMLElement>("extension");
-	auto devices   = make_unique<XMLElement>("devices");
-	auto primary   = make_unique<XMLElement>("primary");
-	primary->addAttribute("slot", slotname);
-	auto secondary = make_unique<XMLElement>("secondary");
-	secondary->addAttribute("slot", slotname);
-	auto device = make_unique<XMLElement>("ROM");
-	device->addAttribute("id", "MSXRom");
-	auto mem = make_unique<XMLElement>("mem");
-	mem->addAttribute("base", "0x0000");
-	mem->addAttribute("size", "0x10000");
-	device->addChild(move(mem));
-	auto rom = make_unique<XMLElement>("rom");
-	rom->addChild(make_unique<XMLElement>(
-		"resolvedFilename", resolvedFilename));
-	rom->addChild(make_unique<XMLElement>("filename", romfile));
+	XMLElement extension("extension");
+	XMLElement devices("devices");
+	XMLElement primary("primary");
+	primary.addAttribute("slot", slotname);
+	XMLElement secondary("secondary");
+	secondary.addAttribute("slot", slotname);
+	XMLElement device("ROM");
+	device.addAttribute("id", "MSXRom");
+	XMLElement mem("mem");
+	mem.addAttribute("base", "0x0000");
+	mem.addAttribute("size", "0x10000");
+	device.addChild(move(mem));
+	XMLElement rom("rom");
+	rom.addChild(XMLElement("resolvedFilename", resolvedFilename));
+	rom.addChild(XMLElement("filename", romfile));
 	if (!ipsfiles.empty()) {
-		auto patches = make_unique<XMLElement>("patches");
+		XMLElement patches("patches");
 		for (auto& s : ipsfiles) {
-			patches->addChild(make_unique<XMLElement>("ips", s));
+			patches.addChild(XMLElement("ips", s));
 		}
-		rom->addChild(move(patches));
+		rom.addChild(move(patches));
 	}
-	device->addChild(move(rom));
-	auto sound = make_unique<XMLElement>("sound");
-	sound->addChild(make_unique<XMLElement>("volume", "9000"));
-	device->addChild(move(sound));
-	device->addChild(make_unique<XMLElement>(
+	device.addChild(move(rom));
+	XMLElement sound("sound");
+	sound.addChild(XMLElement("volume", "9000"));
+	device.addChild(move(sound));
+	device.addChild(XMLElement(
 		"mappertype", mapper.empty() ? "auto" : mapper));
-	device->addChild(make_unique<XMLElement>(
-		"sramname", sramfile + ".SRAM"));
+	device.addChild(XMLElement("sramname", sramfile + ".SRAM"));
 
-	secondary->addChild(move(device));
-	primary->addChild(move(secondary));
-	devices->addChild(move(primary));
-	extension->addChild(move(devices));
+	secondary.addChild(move(device));
+	primary.addChild(move(secondary));
+	devices.addChild(move(primary));
+	extension.addChild(move(devices));
 
 	result->setConfig(move(extension));
 	result->setName(romfile);
@@ -215,23 +213,12 @@ void HardwareConfig::setFileContext(unique_ptr<FileContext> context_)
 	context = move(context_);
 }
 
-const XMLElement& HardwareConfig::getConfig() const
-{
-	return *config;
-}
-
-void HardwareConfig::setConfig(unique_ptr<XMLElement> newConfig)
-{
-	assert(!config.get());
-	config = move(newConfig);
-}
-
 const XMLElement& HardwareConfig::getDevices() const
 {
 	return getConfig().getChild("devices");
 }
 
-unique_ptr<XMLElement> HardwareConfig::loadConfig(const string& filename)
+XMLElement HardwareConfig::loadConfig(const string& filename)
 {
 	try {
 		LocalFileReference fileRef(filename);
@@ -306,16 +293,16 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 	const XMLElement* primary, const XMLElement* secondary)
 {
 	for (auto& c : elem.getChildren()) {
-		const string& name = c->getName();
+		const string& name = c.getName();
 		if (name == "primary") {
-			createDevices(*c, c.get(), secondary);
+			createDevices(c, &c, secondary);
 		} else if (name == "secondary") {
-			createDevices(*c, primary, c.get());
+			createDevices(c, primary, &c);
 		} else {
 			auto device = DeviceFactory::create(
-				DeviceConfig(*this, *c, primary, secondary));
+				DeviceConfig(*this, c, primary, secondary));
 			if (device.get()) {
-				addDevice(std::move(device));
+				addDevice(move(device));
 			} else {
 				motherBoard.getMSXCliComm().printWarning(
 					"Deprecated device: \"" +
@@ -360,7 +347,7 @@ int HardwareConfig::getFreePrimarySlot()
 void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 {
 	motherBoard.addDevice(*device);
-	devices.push_back(std::move(device));
+	devices.push_back(move(device));
 }
 
 const string& HardwareConfig::getName() const

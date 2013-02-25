@@ -88,9 +88,8 @@ private:
 static XMLElement createXML()
 {
 	XMLElement xml("cassetteplayer");
-	auto sound = make_unique<XMLElement>("sound");
-	sound->addChild(make_unique<XMLElement>("volume", "5000"));
-	xml.addChild(std::move(sound));
+	xml.addChild(XMLElement("sound"))
+	        .addChild(XMLElement("volume", "5000"));
 	return xml;
 }
 

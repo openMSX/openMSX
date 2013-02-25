@@ -28,17 +28,7 @@ XMLElement::XMLElement(string_ref name_, string_ref data_)
 {
 }
 
-XMLElement::XMLElement(const XMLElement& element)
-{
-	*this = element;
-}
-
-XMLElement::~XMLElement()
-{
-	removeAllChildren();
-}
-
-void XMLElement::addChild(unique_ptr<XMLElement> child)
+XMLElement& XMLElement::addChild(XMLElement child)
 {
 	// Mixed-content elements are not supported by this class. In the past
 	// we had a 'assert(data.empty())' here to enforce this, though that
@@ -48,20 +38,18 @@ void XMLElement::addChild(unique_ptr<XMLElement> child)
 	// When you add child nodes to a node with data, that data will be
 	// ignored when this node is later written to disk. In the case of
 	// settings.xml this behaviour is fine.
-	assert(child.get());
 	children.push_back(std::move(child));
+	return children.back();
 }
 
-unique_ptr<XMLElement> XMLElement::removeChild(const XMLElement& child)
+void XMLElement::removeChild(const XMLElement& child)
 {
 	assert(std::count_if(children.begin(), children.end(),
-		[&](Children::value_type& v) { return v.get() == &child; }) == 1);
+		[&](Children::value_type& v) { return &v == &child; }) == 1);
 	auto it = std::find_if(children.begin(), children.end(),
-		[&](Children::value_type& v) { return v.get() == &child; });
+		[&](Children::value_type& v) { return &v == &child; });
 	assert(it != children.end());
-	auto result = std::move(*it);
 	children.erase(it);
-	return result;
 }
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
@@ -138,12 +126,12 @@ void XMLElement::setData(string_ref data_)
 	data = data_.str();
 }
 
-std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
+std::vector<const XMLElement*> XMLElement::getChildren(string_ref name) const
 {
-	std::vector<XMLElement*> result;
+	std::vector<const XMLElement*> result;
 	for (auto& c : children) {
-		if (c->getName() == name) {
-			result.push_back(c.get());
+		if (c.getName() == name) {
+			result.push_back(&c);
 		}
 	}
 	return result;
@@ -152,8 +140,8 @@ std::vector<XMLElement*> XMLElement::getChildren(string_ref name) const
 XMLElement* XMLElement::findChild(string_ref name)
 {
 	for (auto& c : children) {
-		if (c->getName() == name) {
-			return c.get();
+		if (c.getName() == name) {
+			return &c;
 		}
 	}
 	return nullptr;
@@ -167,15 +155,15 @@ const XMLElement* XMLElement::findNextChild(string_ref name,
 	                                    size_t& fromIndex) const
 {
 	for (auto i : xrange(fromIndex, children.size())) {
-		if (children[i]->getName() == name) {
+		if (children[i].getName() == name) {
 			fromIndex = i + 1;
-			return children[i].get();
+			return &children[i];
 		}
 	}
 	for (auto i : xrange(fromIndex)) {
-		if (children[i]->getName() == name) {
+		if (children[i].getName() == name) {
 			fromIndex = i + 1;
-			return children[i].get();
+			return &children[i];
 		}
 	}
 	return nullptr;
@@ -185,9 +173,9 @@ XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 	string_ref attName, string_ref attValue)
 {
 	for (auto& c : children) {
-		if ((c->getName() == name) &&
-		    (c->getAttribute(attName) == attValue)) {
-			return c.get();
+		if ((c.getName() == name) &&
+		    (c.getAttribute(attName) == attValue)) {
+			return &c;
 		}
 	}
 	return nullptr;
@@ -202,12 +190,11 @@ const XMLElement* XMLElement::findChildWithAttribute(string_ref name,
 
 XMLElement& XMLElement::getChild(string_ref name)
 {
-	XMLElement* elem = findChild(name);
-	if (!elem) {
-		throw ConfigException(StringOp::Builder() <<
-			"Missing tag \"" << name << "\".");
+	if (auto* elem = findChild(name)) {
+		return *elem;
 	}
-	return *elem;
+	throw ConfigException(StringOp::Builder() <<
+		"Missing tag \"" << name << "\".");
 }
 const XMLElement& XMLElement::getChild(string_ref name) const
 {
@@ -217,60 +204,54 @@ const XMLElement& XMLElement::getChild(string_ref name) const
 XMLElement& XMLElement::getCreateChild(string_ref name,
                                        string_ref defaultValue)
 {
-	XMLElement* result = findChild(name);
-	if (!result) {
-		auto p = make_unique<XMLElement>(name, defaultValue);
-		result = p.get();
-		addChild(std::move(p));
+	if (auto* result = findChild(name)) {
+		return *result;
 	}
-	return *result;
+	return addChild(XMLElement(name, defaultValue));
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
 	string_ref name, string_ref attName,
 	string_ref attValue)
 {
-	XMLElement* result = findChildWithAttribute(name, attName, attValue);
-	if (!result) {
-		auto p = make_unique<XMLElement>(name);
-		result = p.get();
-		p->addAttribute(attName, attValue);
-		addChild(std::move(p));
+	if (auto* result = findChildWithAttribute(name, attName, attValue)) {
+		return *result;
 	}
-	return *result;
+	auto& result = addChild(XMLElement(name));
+	result.addAttribute(attName, attValue);
+	return result;
 }
 
 const string& XMLElement::getChildData(string_ref name) const
 {
-	const XMLElement& child = getChild(name);
-	return child.getData();
+	return getChild(name).getData();
 }
 
 string_ref XMLElement::getChildData(string_ref name,
                                     string_ref defaultValue) const
 {
-	const XMLElement* child = findChild(name);
+	auto* child = findChild(name);
 	return child ? child->getData() : defaultValue;
 }
 
 bool XMLElement::getChildDataAsBool(string_ref name, bool defaultValue) const
 {
-	const XMLElement* child = findChild(name);
+	auto* child = findChild(name);
 	return child ? StringOp::stringToBool(child->getData()) : defaultValue;
 }
 
 int XMLElement::getChildDataAsInt(string_ref name, int defaultValue) const
 {
-	const XMLElement* child = findChild(name);
+	auto* child = findChild(name);
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
 void XMLElement::setChildData(string_ref name, string_ref value)
 {
-	if (XMLElement* child = findChild(name)) {
+	if (auto* child = findChild(name)) {
 		child->setData(value);
 	} else {
-		addChild(make_unique<XMLElement>(name, value));
+		addChild(XMLElement(name, value));
 	}
 }
 
@@ -329,23 +310,6 @@ bool XMLElement::findAttributeInt(string_ref attName,
 	}
 }
 
-XMLElement& XMLElement::operator=(const XMLElement& element)
-{
-	if (&element == this) {
-		// assign to itself
-		return *this;
-	}
-	name = element.name;
-	data = element.data;
-	attributes = element.attributes;
-
-	removeAllChildren();
-	for (auto& c : element.children) {
-		addChild(make_unique<XMLElement>(*c));
-	}
-	return *this;
-}
-
 string XMLElement::dump() const
 {
 	StringOp::Builder result;
@@ -371,7 +335,7 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 	} else {
 		result << ">\n";
 		for (auto& c : children) {
-			c->dump(result, indentNum + 2);
+			c.dump(result, indentNum + 2);
 		}
 		result << indent << "</" << getName() << ">\n";
 	}
@@ -394,9 +358,14 @@ unique_ptr<FileContext> XMLElement::getLastSerializedFileContext()
 // version 1: initial version
 // version 2: removed 'context' tag
 //            also removed 'parent', but that was never serialized
+//        2b: (no need to increase version) name and data members are
+//            serialized as normal members instead of constructor parameters
 template<typename Archive>
 void XMLElement::serialize(Archive& ar, unsigned version)
 {
+	ar.serialize("name", name);
+	ar.serialize("data", data);
+
 	// note: In the past attributes were stored in a map instead of a
 	//       vector. To keep backwards compatible with the serialized
 	//       format, we still convert attributes to this format.

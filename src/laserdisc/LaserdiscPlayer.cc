@@ -116,9 +116,8 @@ void LaserdiscCommand::tabCompletion(vector<string>& tokens) const
 static XMLElement createXML()
 {
 	XMLElement xml("laserdiscplayer");
-	auto sound = make_unique<XMLElement>("sound");
-	sound->addChild(make_unique<XMLElement>("volume", "30000"));
-	xml.addChild(std::move(sound));
+	xml.addChild(XMLElement("sound"))
+	        .addChild(XMLElement("volume", "30000"));
 	return xml;
 }
 

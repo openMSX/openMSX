@@ -3,6 +3,7 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
+#include "XMLElement.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "noncopyable.hh"
@@ -14,14 +15,12 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class MSXDevice;
-class XMLElement;
 class FileContext;
 
 class HardwareConfig : private noncopyable
 {
 public:
-	static std::unique_ptr<XMLElement> loadConfig(
-		const std::string& filename);
+	static XMLElement loadConfig(const std::string& filename);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
@@ -39,7 +38,7 @@ public:
 	const FileContext& getFileContext() const;
 	void setFileContext(std::unique_ptr<FileContext> context);
 
-	const XMLElement& getConfig() const;
+	const XMLElement& getConfig() const { return config; }
 	const std::string& getName() const;
 
 	void parseSlots();
@@ -54,7 +53,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void setConfig(std::unique_ptr<XMLElement> config);
+	void setConfig(XMLElement config_) { config = std::move(config_); }
 	void load(string_ref path);
 
 	const XMLElement& getDevices() const;
@@ -70,7 +69,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
 	std::string userName;
-	std::unique_ptr<XMLElement> config;
+	XMLElement config;
 	std::unique_ptr<FileContext> context;
 
 	bool externalSlots[4][4];

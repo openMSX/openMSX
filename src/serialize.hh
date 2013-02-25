@@ -5,6 +5,7 @@
 
 #include "serialize_core.hh"
 #include "SerializeBuffer.hh"
+#include "XMLElement.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
 #include "type_traits.hh"
@@ -22,7 +23,6 @@
 
 namespace openmsx {
 
-class XMLElement;
 template<typename T> class MemBuffer;
 template<typename T> struct SerializeClassVersion;
 
@@ -763,7 +763,7 @@ public:
 
 private:
 	gzFile file;
-	std::unique_ptr<XMLElement> root;
+	XMLElement root;
 	std::vector<XMLElement*> current;
 };
 
@@ -828,9 +828,7 @@ public:
 	int countChildren() const;
 
 private:
-	void init(const XMLElement* e);
-
-	std::unique_ptr<XMLElement> elem;
+	XMLElement elem;
 	std::vector<std::pair<const XMLElement*, size_t>> elems;
 };
 
