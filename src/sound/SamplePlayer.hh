@@ -4,13 +4,13 @@
 #define SAMPLEPLAYER_HH
 
 #include "ResampledSoundDevice.hh"
+#include "WavData.hh"
 #include <memory>
 #include <vector>
 
 namespace openmsx {
 
 class MSXMotherBoard;
-class WavData;
 
 class SamplePlayer : public ResampledSoundDevice
 {
@@ -57,7 +57,7 @@ private:
 	// SoundDevice
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	std::vector<std::unique_ptr<WavData>> samples;
+	std::vector<WavData> samples;
 
 	const void* sampBuf;
 	unsigned index;

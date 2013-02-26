@@ -2,7 +2,6 @@
 
 #include "SamplePlayer.hh"
 #include "DeviceConfig.hh"
-#include "WavData.hh"
 #include "MSXCliComm.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
@@ -22,21 +21,19 @@ SamplePlayer::SamplePlayer(const std::string& name, const std::string& desc,
 	setInputRate(44100); // Initialize with dummy value
 
 	bool alreadyWarned = false;
-	samples.resize(numSamples); // initialize with nullptr
+	samples.resize(numSamples); // initialize with empty wavs
 	SystemFileContext context;
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {
 			std::string filename = StringOp::Builder() <<
 				samplesBaseName << i << ".wav";
-			samples[i] = make_unique<WavData>(
-				context.resolve(filename));
+			samples[i] = WavData(context.resolve(filename));
 		} catch (MSXException& e1) {
 			try {
 				if (alternativeName.empty()) throw;
 				std::string filename = StringOp::Builder() <<
 					alternativeName << i << ".wav";
-				samples[i] = make_unique<WavData>(
-					context.resolve(filename));
+				samples[i] = WavData(context.resolve(filename));
 			} catch (MSXException& /*e2*/) {
 				if (!alreadyWarned) {
 					alreadyWarned = true;
@@ -83,16 +80,17 @@ void SamplePlayer::play(unsigned sampleNum)
 
 void SamplePlayer::setWavParams()
 {
-	if ((currentSampleNum < samples.size()) && samples[currentSampleNum].get()) {
-		WavData* wav = samples[currentSampleNum].get();
-		sampBuf = wav->getData();
-		bufferSize = wav->getSize();
+	if ((currentSampleNum < samples.size()) &&
+	    samples[currentSampleNum].getSize()) {
+		auto& wav = samples[currentSampleNum];
+		sampBuf = wav.getData();
+		bufferSize = wav.getSize();
 
-		unsigned bits = wav->getBits();
+		unsigned bits = wav.getBits();
 		assert((bits == 8) || (bits == 16));
 		bits8 = (bits == 8);
 
-		unsigned freq = wav->getFreq();
+		unsigned freq = wav.getFreq();
 		if (freq != getInputRate()) {
 			// this potentially switches resampler, so there might be
 			// some dropped samples if this is done in the middle of

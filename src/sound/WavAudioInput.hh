@@ -4,6 +4,7 @@
 #define WAVAUDIOINPUT_HH
 
 #include "AudioInputDevice.hh"
+#include "WavData.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
@@ -14,7 +15,6 @@ namespace openmsx {
 class CommandController;
 class FilenameSetting;
 class Setting;
-class WavData;
 
 class WavAudioInput : public AudioInputDevice, private Observer<Setting>
 {
@@ -38,7 +38,7 @@ private:
 
 	const std::unique_ptr<FilenameSetting> audioInputFilenameSetting;
 
-	std::unique_ptr<WavData> wav;
+	WavData wav;
 	EmuTime reference;
 };
 

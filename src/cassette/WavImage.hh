@@ -4,6 +4,7 @@
 #define WAVIMAGE_HH
 
 #include "CassetteImage.hh"
+#include "WavData.hh"
 #include "DynamicClock.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -12,7 +13,6 @@ namespace openmsx {
 
 class Filename;
 class FilePool;
-class WavData;
 
 class WavImage : public CassetteImage, private noncopyable
 {
@@ -28,7 +28,7 @@ public:
 private:
 	int getSample(unsigned pos) const;
 
-	std::unique_ptr<WavData> wav;
+	WavData wav;
 	DynamicClock clock;
 	short average;
 };

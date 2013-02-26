@@ -5,7 +5,6 @@
 #include "PlugException.hh"
 #include "FilenameSetting.hh"
 #include "CliComm.hh"
-#include "WavData.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
@@ -30,8 +29,7 @@ WavAudioInput::~WavAudioInput()
 
 void WavAudioInput::loadWave()
 {
-	wav = make_unique<WavData>(
-		audioInputFilenameSetting->getValue(), 16, 0);
+	wav = WavData(audioInputFilenameSetting->getValue(), 16, 0);
 }
 
 const string& WavAudioInput::getName() const
@@ -48,43 +46,42 @@ string_ref WavAudioInput::getDescription() const
 
 void WavAudioInput::plugHelper(Connector& /*connector*/, EmuTime::param time)
 {
-	if (!wav.get()) {
-		try {
+	try {
+		if (wav.getSize() == 0) {
 			loadWave();
-		} catch (MSXException& e) {
-			throw PlugException("Load of wave file failed: " +
-			                    e.getMessage());
 		}
+	} catch (MSXException& e) {
+		throw PlugException("Load of wave file failed: " +
+		                    e.getMessage());
 	}
 	reference = time;
 }
 
 void WavAudioInput::unplugHelper(EmuTime::param /*time*/)
 {
-	wav.reset();
 }
 
 void WavAudioInput::update(const Setting& setting)
 {
 	(void)setting;
 	assert(&setting == audioInputFilenameSetting.get());
-	if (isPluggedIn()) {
-		try {
+	try {
+		if (isPluggedIn()) {
 			loadWave();
-		} catch (MSXException& e) {
-			// TODO proper error handling, message should go to console
-			setting.getCommandController().getCliComm().printWarning(
-				"Load of wave file failed: " + e.getMessage());
 		}
+	} catch (MSXException& e) {
+		// TODO proper error handling, message should go to console
+		setting.getCommandController().getCliComm().printWarning(
+			"Load of wave file failed: " + e.getMessage());
 	}
 }
 
 short WavAudioInput::readSample(EmuTime::param time)
 {
-	if (wav.get()) {
-		unsigned pos = (time - reference).getTicksAt(wav->getFreq());
-		if (pos < wav->getSize()) {
-			auto buf = static_cast<const short*>(wav->getData());
+	if (wav.getSize()) {
+		unsigned pos = (time - reference).getTicksAt(wav.getFreq());
+		if (pos < wav.getSize()) {
+			auto buf = static_cast<const short*>(wav.getData());
 			return buf[pos];
 		}
 	}

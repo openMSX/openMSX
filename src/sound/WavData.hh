@@ -12,6 +12,11 @@ namespace openmsx {
 class WavData
 {
 public:
+	/** Construct empty wav. */
+	WavData() : length(0) {}
+
+	/** Construct from .wav file, optionally convert to a specific
+	 * bit-depth and sample rate. */
 	WavData(const std::string& filename, unsigned bits = 0, unsigned freq = 0);
 
 	unsigned getFreq() const;

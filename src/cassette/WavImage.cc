@@ -1,7 +1,6 @@
 // $Id$
 
 #include "WavImage.hh"
-#include "WavData.hh"
 #include "LocalFileReference.hh"
 #include "File.hh"
 #include "Math.hh"
@@ -24,11 +23,11 @@ WavImage::WavImage(const Filename& filename, FilePool& filePool)
 		setSha1Sum(file.getSha1Sum());
 		localFile = make_unique<LocalFileReference>(file);
 	}
-	wav = make_unique<WavData>(localFile->getFilename(), 16, 0);
-	clock.setFreq(wav->getFreq());
+	wav = WavData(localFile->getFilename(), 16, 0);
+	clock.setFreq(wav.getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)
-	auto nbSamples = wav->getSize();
+	auto nbSamples = wav.getSize();
 	if (nbSamples > 0) {
 		int64_t total = 0;
 		for (auto i : xrange(nbSamples)) {
@@ -46,8 +45,8 @@ WavImage::~WavImage()
 
 int WavImage::getSample(unsigned pos) const
 {
-	if (pos < wav->getSize()) {
-		auto buf = static_cast<const short*>(wav->getData());
+	if (pos < wav.getSize()) {
+		auto buf = static_cast<const short*>(wav.getData());
 		return buf[pos];
 	}
 	return 0;
@@ -62,7 +61,7 @@ short WavImage::getSampleAt(EmuTime::param time)
 EmuTime WavImage::getEndTime() const
 {
 	DynamicClock clk(clock);
-	clk += wav->getSize();
+	clk += wav.getSize();
 	return clk.getTime();
 }
 
@@ -73,7 +72,7 @@ unsigned WavImage::getFrequency() const
 
 void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
 {
-	if (pos < wav->getSize()) {
+	if (pos < wav.getSize()) {
 		for (unsigned i = 0; i < num; ++i) {
 			bufs[0][i] = getSample(pos + i);
 		}
