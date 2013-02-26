@@ -26,7 +26,7 @@ namespace openmsx {
   * optimized for this case (it doesn't keep track of extra capacity). If you
   * need frequent resizing prefer to use vector instead of this class.
   */
-template<typename T> class MemBuffer : private noncopyable
+template<typename T> class MemBuffer //: private noncopyable
 {
 public:
 	/** Construct an empty MemBuffer, no memory is allocated.

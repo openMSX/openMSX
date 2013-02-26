@@ -65,7 +65,7 @@ typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 /** Most basic/generic texture: only contains a texture ID.
   * Current implementation always assumes 2D textures.
   */
-class Texture : public noncopyable
+class Texture //: public noncopyable
 {
 public:
 	/** Default constructor, allocate a openGL texture name. */
@@ -150,7 +150,7 @@ public:
 	                 GLbyte* data);
 };
 
-class FrameBufferObject : public noncopyable
+class FrameBufferObject //: public noncopyable
 {
 public:
 	FrameBufferObject();
@@ -185,7 +185,7 @@ struct PixelBuffers
   * otherwise.
   * The pixel type is templatized T.
   */
-template <typename T> class PixelBuffer : public noncopyable
+template <typename T> class PixelBuffer //: public noncopyable
 {
 public:
 	PixelBuffer();
