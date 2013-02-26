@@ -3,7 +3,7 @@
 #ifndef GLSCALER_HH
 #define GLSCALER_HH
 
-#include <memory>
+#include "GLUtil.hh"
 
 namespace openmsx {
 
@@ -75,7 +75,7 @@ protected:
 	                  bool textureFromZero = false);
 
 private:
-	std::unique_ptr<ShaderProgram> scalerProgram;
+	ShaderProgram scalerProgram;
 };
 
 } // namespace openmsx

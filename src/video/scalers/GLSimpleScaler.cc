@@ -19,22 +19,21 @@ GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "simple.vert");
 		FragmentShader fragmentShader(header, "simple.frag");
-		d.scalerProgram = make_unique<ShaderProgram>();
-		d.scalerProgram->attach(vertexShader);
-		d.scalerProgram->attach(fragmentShader);
-		d.scalerProgram->link();
+		d.scalerProgram.attach(vertexShader);
+		d.scalerProgram.attach(fragmentShader);
+		d.scalerProgram.link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			data[i].scalerProgram->activate();
-			GLint texLoc = d.scalerProgram->getUniformLocation("tex");
+			data[i].scalerProgram.activate();
+			GLint texLoc = d.scalerProgram.getUniformLocation("tex");
 			glUniform1i(texLoc, 0);
 			if (i == 1) {
-				GLint texLoc2 = d.scalerProgram->getUniformLocation("videoTex");
+				GLint texLoc2 = d.scalerProgram.getUniformLocation("videoTex");
 				glUniform1i(texLoc2, 1);
 			}
-			data[i].texSizeLoc  = d.scalerProgram->getUniformLocation("texSize");
-			data[i].texStepXLoc = d.scalerProgram->getUniformLocation("texStepX");
-			data[i].cnstLoc     = d.scalerProgram->getUniformLocation("cnst");
+			data[i].texSizeLoc  = d.scalerProgram.getUniformLocation("texSize");
+			data[i].texStepXLoc = d.scalerProgram.getUniformLocation("texStepX");
+			data[i].cnstLoc     = d.scalerProgram.getUniformLocation("cnst");
 		}
 #endif
 	}
@@ -67,7 +66,7 @@ void GLSimpleScaler::scaleImage(
 			superImpose->bind();
 			glActiveTexture(GL_TEXTURE0);
 		}
-		d.scalerProgram->activate();
+		d.scalerProgram.activate();
 		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat scan_b = 2.0f - 2.0f * scanline;
 		GLfloat scan_c = scanline;

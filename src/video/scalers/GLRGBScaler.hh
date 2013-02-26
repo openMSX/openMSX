@@ -4,13 +4,13 @@
 #define GLRGBSCALER_HH
 
 #include "GLScaler.hh"
+#include "GLUtil.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
-class ShaderProgram;
 
 class GLRGBScaler : public GLScaler, private noncopyable
 {
@@ -26,7 +26,7 @@ public:
 private:
 	RenderSettings& renderSettings;
 	struct Data {
-		std::unique_ptr<ShaderProgram> scalerProgram;
+		ShaderProgram scalerProgram;
 		int texSizeLoc;
 		int cnstsLoc;
 	} data[2];

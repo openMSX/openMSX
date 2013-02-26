@@ -11,13 +11,11 @@
 namespace openmsx {
 
 class RenderSettings;
-class ShaderProgram;
 
 class GLTVScaler: public GLScaler, private noncopyable
 {
 public:
 	explicit GLTVScaler(RenderSettings& renderSettings);
-	~GLTVScaler();
 
 	virtual void scaleImage(
 		ColorTexture& src, ColorTexture* superImpose,
@@ -27,7 +25,7 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	std::unique_ptr<ShaderProgram> scalerProgram[2];
+	ShaderProgram scalerProgram[2];
 	GLint texSizeLoc[2];
 	GLint minScanlineLoc[2];
 	GLint sizeVarianceLoc[2];

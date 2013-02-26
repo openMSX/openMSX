@@ -14,18 +14,17 @@ GLSaIScaler::GLSaIScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "sai.vert");
 		FragmentShader fragmentShader(header, "sai.frag");
-		scalerProgram[i] = make_unique<ShaderProgram>();
-		scalerProgram[i]->attach(vertexShader);
-		scalerProgram[i]->attach(fragmentShader);
-		scalerProgram[i]->link();
+		scalerProgram[i].attach(vertexShader);
+		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			scalerProgram[i]->activate();
-			glUniform1i(scalerProgram[i]->getUniformLocation("tex"), 0);
+			scalerProgram[i].activate();
+			glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
 			if (i == 1) {
-				glUniform1i(scalerProgram[i]->getUniformLocation("videoTex"), 1);
+				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
 			}
-			texSizeLoc[i] = scalerProgram[i]->getUniformLocation("texSize");
+			texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
 		}
 #endif
 	}
@@ -43,7 +42,7 @@ void GLSaIScaler::scaleImage(
 		superImpose->bind();
 		glActiveTexture(GL_TEXTURE0);
 	}
-	scalerProgram[i]->activate();
+	scalerProgram[i].activate();
 	if (GLEW_VERSION_2_0) {
 		glUniform2f(texSizeLoc[i], srcWidth, src.getHeight());
 	}

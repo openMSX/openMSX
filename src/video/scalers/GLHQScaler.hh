@@ -4,14 +4,11 @@
 #define GLHQSCALER_HH
 
 #include "GLScaler.hh"
+#include "GLUtil.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
-
-class ShaderProgram;
-class Texture;
-template <typename T> class PixelBuffer;
 
 class GLHQScaler : public GLScaler, private noncopyable
 {
@@ -28,11 +25,11 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 private:
-	std::unique_ptr<ShaderProgram> scalerProgram[2];
-	std::unique_ptr<Texture> edgeTexture;
-	std::unique_ptr<Texture> offsetTexture[3];
-	std::unique_ptr<Texture> weightTexture[3];
-	std::unique_ptr<PixelBuffer<unsigned short>> edgeBuffer;
+	ShaderProgram scalerProgram[2];
+	Texture edgeTexture;
+	Texture offsetTexture[3];
+	Texture weightTexture[3];
+	PixelBuffer<unsigned short> edgeBuffer;
 };
 
 } // namespace openmsx

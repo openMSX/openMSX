@@ -10,8 +10,6 @@
 
 namespace openmsx {
 
-class ShaderProgram;
-
 class GLScaleNxScaler : public GLScaler, private noncopyable
 {
 public:
@@ -24,7 +22,7 @@ public:
 		unsigned logSrcHeight);
 
 private:
-	std::unique_ptr<ShaderProgram> scalerProgram[2];
+	ShaderProgram scalerProgram[2];
 	GLint texSizeLoc[2];
 };
 

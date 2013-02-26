@@ -15,8 +15,6 @@ namespace openmsx {
 class GLScaler;
 class MSXMotherBoard;
 class Display;
-class Texture;
-class FrameBufferObject;
 
 /** Rasterizer using SDL.
   */
@@ -56,8 +54,8 @@ private:
 	  */
 	std::unique_ptr<GLScaler> currScaler;
 
-	std::unique_ptr<Texture> colorTex[2];
-	std::unique_ptr<FrameBufferObject> fbo[2];
+	Texture colorTex[2];
+	FrameBufferObject fbo[2];
 
 	// Noise effect:
 	LuminanceTexture noiseTextureA;
@@ -69,12 +67,12 @@ private:
 		TextureData();
 		TextureData(TextureData&& rhs);
 
-		std::unique_ptr<ColorTexture> tex;
-		std::unique_ptr<PixelBuffer<unsigned>> pbo;
+		ColorTexture tex;
+		PixelBuffer<unsigned> pbo;
 	};
 	std::map<unsigned, TextureData> textures;
 
-	std::unique_ptr<ColorTexture> superImposeTex;
+	ColorTexture superImposeTex;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,

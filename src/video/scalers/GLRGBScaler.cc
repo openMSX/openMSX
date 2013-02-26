@@ -19,19 +19,18 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "rgb.vert");
 		FragmentShader fragmentShader(header, "rgb.frag");
-		d.scalerProgram = make_unique<ShaderProgram>();
-		d.scalerProgram->attach(vertexShader);
-		d.scalerProgram->attach(fragmentShader);
-		d.scalerProgram->link();
+		d.scalerProgram.attach(vertexShader);
+		d.scalerProgram.attach(fragmentShader);
+		d.scalerProgram.link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			d.scalerProgram->activate();
-			glUniform1i(d.scalerProgram->getUniformLocation("tex"), 0);
+			d.scalerProgram.activate();
+			glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
 			if (i == 1) {
-				glUniform1i(d.scalerProgram->getUniformLocation("videoTex"), 1);
+				glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
 			}
-			d.texSizeLoc = d.scalerProgram->getUniformLocation("texSize");
-			d.cnstsLoc   = d.scalerProgram->getUniformLocation("cnsts");
+			d.texSizeLoc = d.scalerProgram.getUniformLocation("texSize");
+			d.cnstsLoc   = d.scalerProgram.getUniformLocation("cnsts");
 		}
 #endif
 	}
@@ -67,7 +66,7 @@ void GLRGBScaler::scaleImage(
 			superImpose->bind();
 			glActiveTexture(GL_TEXTURE0);
 		}
-		d.scalerProgram->activate();
+		d.scalerProgram.activate();
 		glUniform2f(d.texSizeLoc, srcWidth, src.getHeight());
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat c1 = blur;

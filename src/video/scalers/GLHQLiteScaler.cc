@@ -22,28 +22,26 @@ GLHQLiteScaler::GLHQLiteScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "hqlite.vert");
 		FragmentShader fragmentShader(header, "hqlite.frag");
-		scalerProgram[i] = make_unique<ShaderProgram>();
-		scalerProgram[i]->attach(vertexShader);
-		scalerProgram[i]->attach(fragmentShader);
-		scalerProgram[i]->link();
+		scalerProgram[i].attach(vertexShader);
+		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			scalerProgram[i]->activate();
-			glUniform1i(scalerProgram[i]->getUniformLocation("colorTex"),  0);
+			scalerProgram[i].activate();
+			glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
 			if (i == 1) {
-				glUniform1i(scalerProgram[i]->getUniformLocation("videoTex"),  1);
+				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),  1);
 			}
-			glUniform1i(scalerProgram[i]->getUniformLocation("edgeTex"),   2);
-			glUniform1i(scalerProgram[i]->getUniformLocation("offsetTex"), 3);
-			glUniform2f(scalerProgram[i]->getUniformLocation("texSize"),
+			glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
+			glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
+			glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
 				    320.0f, 240.0f);
 		}
 #endif
 	}
 
-	edgeTexture = make_unique<Texture>();
-	edgeTexture->bind();
-	edgeTexture->setWrapMode(false);
+	edgeTexture.bind();
+	edgeTexture.setWrapMode(false);
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_LUMINANCE16,   // internal format
@@ -53,8 +51,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	             GL_LUMINANCE,     // format
 	             GL_UNSIGNED_SHORT,// type
 	             nullptr);         // data
-	edgeBuffer = make_unique<PixelBuffer<unsigned short>>();
-	edgeBuffer->setImage(320, 240);
+	edgeBuffer.setImage(320, 240);
 
 	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -63,9 +60,8 @@ GLHQLiteScaler::GLHQLiteScaler()
 		string offsetName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xLiteOffsets.dat";
 		File offsetFile(context.resolve(offsetName));
-		offsetTexture[i] = make_unique<Texture>();
-		offsetTexture[i]->setWrapMode(false);
-		offsetTexture[i]->bind();
+		offsetTexture[i].setWrapMode(false);
+		offsetTexture[i].bind();
 		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,        // target
 		             0,                    // level
@@ -89,13 +85,13 @@ void GLHQLiteScaler::scaleImage(
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	ShaderProgram& prog = *scalerProgram[superImpose ? 1 : 0];
+	auto& prog = scalerProgram[superImpose ? 1 : 0];
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		src.enableInterpolation();
 		glActiveTexture(GL_TEXTURE3);
-		offsetTexture[factorX - 2]->bind();
+		offsetTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
-		edgeTexture->bind();
+		edgeTexture.bind();
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();
@@ -131,17 +127,17 @@ void GLHQLiteScaler::uploadBlock(
 	const Pixel* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
 	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
-	edgeBuffer->bind();
-	if (unsigned short* mapped = edgeBuffer->mapWrite()) {
+	edgeBuffer.bind();
+	if (unsigned short* mapped = edgeBuffer.mapWrite()) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
 			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
 			calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
 		}
-		edgeBuffer->unmap();
+		edgeBuffer.unmap();
 
-		edgeTexture->bind();
+		edgeTexture.bind();
 		glTexSubImage2D(GL_TEXTURE_2D,       // target
 		                0,                   // level
 		                0,                   // offset x
@@ -150,9 +146,9 @@ void GLHQLiteScaler::uploadBlock(
 		                srcEndY - srcStartY, // height
 		                GL_LUMINANCE,        // format
 		                GL_UNSIGNED_SHORT,   // type
-		                edgeBuffer->getOffset(0, srcStartY)); // data
+		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}
-	edgeBuffer->unbind();
+	edgeBuffer.unbind();
 }
 
 } // namespace openmsx

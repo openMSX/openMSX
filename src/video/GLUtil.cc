@@ -44,8 +44,7 @@ void checkGLError(const string& prefix)
 
 // class Texture
 
-Texture::Texture(int type_)
-	: type(type_)
+Texture::Texture()
 {
 	glGenTextures(1, &textureId);
 	disableInterpolation();
@@ -53,36 +52,35 @@ Texture::Texture(int type_)
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &textureId);
+	glDeleteTextures(1, &textureId); // ok to delete 0-texture
 }
 
 void Texture::enableInterpolation()
 {
 	bind();
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void Texture::disableInterpolation()
 {
 	bind();
-	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Texture::setWrapMode(bool wrap)
 {
 	bind();
 	int mode = wrap ? GL_REPEAT : GL_CLAMP;
-	glTexParameteri(type, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(type, GL_TEXTURE_WRAP_T, mode);
-	glTexParameteri(type, GL_TEXTURE_WRAP_R, mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, mode);
 }
 
 void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
                        GLint   x,  GLint   y,  GLint   width,  GLint   height)
 {
-	assert(type == GL_TEXTURE_2D);
 	const GLint x2 = x + width;
 	const GLint y2 = y + height;
 	const GLfloat tx2 = tx + twidth;
@@ -102,10 +100,15 @@ void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
 // class ColorTexture
 
 ColorTexture::ColorTexture(GLsizei width_, GLsizei height_)
-	: Texture(GL_TEXTURE_2D)
+{
+	resize(width_, height_);
+}
+
+void ColorTexture::resize(GLsizei width_, GLsizei height_)
 {
 	width = width_;
 	height = height_;
+	bind();
 	glTexImage2D(
 		GL_TEXTURE_2D,    // target
 		0,                // level
@@ -122,7 +125,6 @@ ColorTexture::ColorTexture(GLsizei width_, GLsizei height_)
 // class LuminanceTexture
 
 LuminanceTexture::LuminanceTexture(GLsizei width, GLsizei height)
-	: Texture(GL_TEXTURE_2D)
 {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -160,9 +162,13 @@ void LuminanceTexture::updateImage(
 static GLuint currentId = 0;
 static std::vector<GLuint> stack;
 
+FrameBufferObject::FrameBufferObject()
+	: bufferId(0) // 0 is not a valid openGL name
+{
+}
+
 FrameBufferObject::FrameBufferObject(Texture& texture)
 {
-	assert(texture.type == GL_TEXTURE_2D);
 	glGenFramebuffersEXT(1, &bufferId);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, bufferId);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
@@ -180,6 +186,10 @@ FrameBufferObject::FrameBufferObject(Texture& texture)
 
 FrameBufferObject::~FrameBufferObject()
 {
+	// It's ok to delete '0' (it's a NOP), but we anyway have to check
+	// for pop().
+	if (!bufferId) return;
+
 	if (currentId == bufferId) {
 		pop();
 	}

@@ -62,10 +62,9 @@ GLPostProcessor::GLPostProcessor(
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
-		colorTex[i] = make_unique<Texture>();
-		colorTex[i]->bind();
-		colorTex[i]->setWrapMode(false);
-		colorTex[i]->enableInterpolation();
+		colorTex[i].bind();
+		colorTex[i].setWrapMode(false);
+		colorTex[i].enableInterpolation();
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB8,           // internal format
@@ -75,7 +74,7 @@ GLPostProcessor::GLPostProcessor(
 			     GL_RGB,            // format
 			     GL_UNSIGNED_BYTE,  // type
 			     nullptr);          // data
-		fbo[i] = make_unique<FrameBufferObject>(*colorTex[i]);
+		fbo[i] = FrameBufferObject(colorTex[i]);
 	}
 
 	monitor3DList = glGenLists(1);
@@ -174,7 +173,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	if (renderToTexture) {
 		glViewport(0, 0, screen.getWidth(), screen.getHeight());
 		glBindTexture(GL_TEXTURE_2D, 0);
-		fbo[frameCounter & 1]->push();
+		fbo[frameCounter & 1].push();
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -184,9 +183,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
 		assert(textures.find(r.lineWidth) != textures.end());
 		auto superImpose = superImposeVideoFrame
-		                 ? superImposeTex.get() : nullptr;
+		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
-			*textures[r.lineWidth].tex, superImpose,
+			textures[r.lineWidth].tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth,       // src
 			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
 			paintFrame->getHeight()); // dst
@@ -199,8 +198,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	drawGlow(glow);
 
 	if (renderToTexture) {
-		fbo[frameCounter & 1]->pop();
-		colorTex[frameCounter & 1]->bind();
+		fbo[frameCounter & 1].pop();
+		colorTex[frameCounter & 1].bind();
 		glViewport(screen.getX(), screen.getY(),
 		           screen.getWidth(), screen.getHeight());
 
@@ -269,13 +268,12 @@ void GLPostProcessor::uploadFrame()
 	if (superImposeVideoFrame) {
 		int width  = superImposeVideoFrame->getWidth();
 		int height = superImposeVideoFrame->getHeight();
-		if (!superImposeTex.get() ||
-		    superImposeTex->getWidth()  != width ||
-		    superImposeTex->getHeight() != height) {
-			superImposeTex = make_unique<ColorTexture>(width, height);
-			superImposeTex->enableInterpolation();
+		if (superImposeTex.getWidth()  != width ||
+		    superImposeTex.getHeight() != height) {
+			superImposeTex.resize(width, height);
+			superImposeTex.enableInterpolation();
 		}
-		superImposeTex->bind();
+		superImposeTex.bind();
 		glTexSubImage2D(
 			GL_TEXTURE_2D,     // target
 			0,                 // level
@@ -297,31 +295,28 @@ void GLPostProcessor::uploadBlock(
 	if (it == textures.end()) {
 		TextureData textureData;
 
-		textureData.tex = make_unique<ColorTexture>(
+		textureData.tex = ColorTexture(
 			lineWidth, height * 2); // *2 for interlace
-		textureData.tex->setWrapMode(false);
+		textureData.tex.setWrapMode(false);
 
-		textureData.pbo = make_unique<PixelBuffer<unsigned>>();
-		if (textureData.pbo->openGLSupported()) {
-			textureData.pbo->setImage(lineWidth, height * 2);
-		} else {
-			textureData.pbo = nullptr;
+		if (textureData.pbo.openGLSupported()) {
+			textureData.pbo.setImage(lineWidth, height * 2);
 		}
 
 		it = textures.insert(std::make_pair(
 			lineWidth, std::move(textureData))).first;
 	}
-	ColorTexture& tex = *it->second.tex;
-	PixelBuffer<unsigned>* pbo = it->second.pbo.get();
+	auto& tex = it->second.tex;
+	auto& pbo = it->second.pbo;
 
 	// bind texture
 	tex.bind();
 
 	// upload data
 	unsigned* mapped;
-	if (pbo) {
-		pbo->bind();
-		mapped = pbo->mapWrite();
+	if (pbo.openGLSupported()) {
+		pbo.bind();
+		mapped = pbo.mapWrite();
 	} else {
 		mapped = nullptr;
 	}
@@ -333,7 +328,7 @@ void GLPostProcessor::uploadBlock(
 				mapped + y * lineWidth, data, lineWidth);
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
-		pbo->unmap();
+		pbo.unmap();
 #if defined(__APPLE__)
 		// The nVidia GL driver for the GeForce 8000/9000 series seems to hang
 		// on texture data replacements that are 1 pixel wide and start on a
@@ -351,10 +346,10 @@ void GLPostProcessor::uploadBlock(
 			srcEndY - srcStartY, // height
 			GL_BGRA,             // format
 			GL_UNSIGNED_BYTE,    // type
-			pbo->getOffset(0, srcStartY)); // data
+			pbo.getOffset(0, srcStartY)); // data
 	}
-	if (pbo) {
-		pbo->unbind();
+	if (pbo.openGLSupported()) {
+		pbo.unbind();
 	}
 	if (!mapped) {
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
@@ -392,7 +387,7 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	colorTex[(frameCounter & 1) ^ 1]->bind();
+	colorTex[(frameCounter & 1) ^ 1].bind();
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

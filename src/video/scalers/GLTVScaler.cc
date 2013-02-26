@@ -16,29 +16,24 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  ("tv.vert");
 		FragmentShader fragmentShader(header, "tv.frag");
-		scalerProgram[i] = make_unique<ShaderProgram>();
-		scalerProgram[i]->attach(vertexShader);
-		scalerProgram[i]->attach(fragmentShader);
-		scalerProgram[i]->link();
+		scalerProgram[i].attach(vertexShader);
+		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			scalerProgram[i]->activate();
-			glUniform1i(scalerProgram[i]->getUniformLocation("tex"), 0);
+			scalerProgram[i].activate();
+			glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
 			if (i == 1) {
-				glUniform1i(scalerProgram[i]->getUniformLocation("videoTex"), 1);
+				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
 			}
-			texSizeLoc[i] = scalerProgram[i]->getUniformLocation("texSize");
+			texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
 			minScanlineLoc[i] =
-				scalerProgram[i]->getUniformLocation("minScanline");
+				scalerProgram[i].getUniformLocation("minScanline");
 			sizeVarianceLoc[i] =
-				scalerProgram[i]->getUniformLocation("sizeVariance");
+				scalerProgram[i].getUniformLocation("sizeVariance");
 		}
 #endif
 	}
-}
-
-GLTVScaler::~GLTVScaler()
-{
 }
 
 void GLTVScaler::scaleImage(
@@ -53,7 +48,7 @@ void GLTVScaler::scaleImage(
 		superImpose->bind();
 		glActiveTexture(GL_TEXTURE0);
 	}
-	scalerProgram[i]->activate();
+	scalerProgram[i].activate();
 	if (GLEW_VERSION_2_0) {
 		glUniform3f(texSizeLoc[i], src.getWidth(), src.getHeight(), logSrcHeight);
 		// These are experimentally established functions that look good.

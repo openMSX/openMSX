@@ -22,29 +22,27 @@ GLHQScaler::GLHQScaler()
 		              + char('0' + i) + '\n';
 		VertexShader   vertexShader  (header, "hq.vert");
 		FragmentShader fragmentShader(header, "hq.frag");
-		scalerProgram[i] = make_unique<ShaderProgram>();
-		scalerProgram[i]->attach(vertexShader);
-		scalerProgram[i]->attach(fragmentShader);
-		scalerProgram[i]->link();
+		scalerProgram[i].attach(vertexShader);
+		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].link();
 #ifdef GL_VERSION_2_0
 		if (GLEW_VERSION_2_0) {
-			scalerProgram[i]->activate();
-			glUniform1i(scalerProgram[i]->getUniformLocation("colorTex"),  0);
+			scalerProgram[i].activate();
+			glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
 			if (i == 1) {
-				glUniform1i(scalerProgram[i]->getUniformLocation("videoTex"),   1);
+				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),   1);
 			}
-			glUniform1i(scalerProgram[i]->getUniformLocation("edgeTex"),   2);
-			glUniform1i(scalerProgram[i]->getUniformLocation("offsetTex"), 3);
-			glUniform1i(scalerProgram[i]->getUniformLocation("weightTex"), 4);
-			glUniform2f(scalerProgram[i]->getUniformLocation("texSize"),
+			glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
+			glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
+			glUniform1i(scalerProgram[i].getUniformLocation("weightTex"), 4);
+			glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
 				    320.0f, 2 * 240.0f);
 		}
 #endif
 	}
 
-	edgeTexture = make_unique<Texture>();
-	edgeTexture->bind();
-	edgeTexture->setWrapMode(false);
+	edgeTexture.bind();
+	edgeTexture.setWrapMode(false);
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_LUMINANCE16,   // internal format
@@ -54,8 +52,7 @@ GLHQScaler::GLHQScaler()
 	             GL_LUMINANCE,     // format
 	             GL_UNSIGNED_SHORT,// type
 	             nullptr);         // data
-	edgeBuffer = make_unique<PixelBuffer<unsigned short>>();
-	edgeBuffer->setImage(320, 240);
+	edgeBuffer.setImage(320, 240);
 
 	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -64,9 +61,8 @@ GLHQScaler::GLHQScaler()
 		string offsetsName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xOffsets.dat";
 		File offsetsFile(context.resolve(offsetsName));
-		offsetTexture[i] = make_unique<Texture>();
-		offsetTexture[i]->setWrapMode(false);
-		offsetTexture[i]->bind();
+		offsetTexture[i].setWrapMode(false);
+		offsetTexture[i].bind();
 		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
@@ -81,9 +77,8 @@ GLHQScaler::GLHQScaler()
 		string weightsName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xWeights.dat";
 		File weightsFile(context.resolve(weightsName));
-		weightTexture[i] = make_unique<Texture>();
-		weightTexture[i]->setWrapMode(false);
-		weightTexture[i]->bind();
+		weightTexture[i].setWrapMode(false);
+		weightTexture[i].bind();
 		glTexImage2D(GL_TEXTURE_2D,       // target
 		             0,                   // level
 		             GL_RGB8,             // internal format
@@ -106,15 +101,15 @@ void GLHQScaler::scaleImage(
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	ShaderProgram& prog = *scalerProgram[superImpose ? 1 : 0];
+	auto& prog = scalerProgram[superImpose ? 1 : 0];
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		assert(src.getHeight() == 2 * 240);
 		glActiveTexture(GL_TEXTURE4);
-		weightTexture[factorX - 2]->bind();
+		weightTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE3);
-		offsetTexture[factorX - 2]->bind();
+		offsetTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
-		edgeTexture->bind();
+		edgeTexture.bind();
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();
@@ -149,17 +144,17 @@ void GLHQScaler::uploadBlock(
 	const Pixel* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
-	edgeBuffer->bind();
-	if (unsigned short* mapped = edgeBuffer->mapWrite()) {
+	edgeBuffer.bind();
+	if (unsigned short* mapped = edgeBuffer.mapWrite()) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
 			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
 			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
 		}
-		edgeBuffer->unmap();
+		edgeBuffer.unmap();
 
-		edgeTexture->bind();
+		edgeTexture.bind();
 		glTexSubImage2D(GL_TEXTURE_2D,       // target
 		                0,                   // level
 		                0,                   // offset x
@@ -168,9 +163,9 @@ void GLHQScaler::uploadBlock(
 		                srcEndY - srcStartY, // height
 		                GL_LUMINANCE,        // format
 		                GL_UNSIGNED_SHORT,   // type
-		                edgeBuffer->getOffset(0, srcStartY)); // data
+		                edgeBuffer.getOffset(0, srcStartY)); // data
 	}
-	edgeBuffer->unbind();
+	edgeBuffer.unbind();
 }
 
 } // namespace openmsx

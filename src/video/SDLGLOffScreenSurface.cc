@@ -14,10 +14,9 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	setSDLDisplaySurface(
 		const_cast<SDL_Surface*>(output.getSDLDisplaySurface()));
 
-	fboTex = make_unique<Texture>();
-	fboTex->bind();
-	fboTex->setWrapMode(false);
-	fboTex->enableInterpolation();
+	fboTex.bind();
+	fboTex.setWrapMode(false);
+	fboTex.enableInterpolation();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_RGB8,          // internal format
@@ -27,8 +26,8 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	             GL_RGB,           // format
 	             GL_UNSIGNED_BYTE, // type
 	             nullptr);         // data
-	fbo = make_unique<FrameBufferObject>(*fboTex);
-	fbo->push();
+	fbo = FrameBufferObject(fboTex);
+	fbo.push();
 
 	SDLGLOutputSurface::init(*this);
 }

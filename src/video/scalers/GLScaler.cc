@@ -10,15 +10,14 @@ GLScaler::GLScaler()
 {
 	VertexShader   vertexShader  ("superImpose.vert");
 	FragmentShader fragmentShader("superImpose.frag");
-	scalerProgram = make_unique<ShaderProgram>();
-	scalerProgram->attach(vertexShader);
-	scalerProgram->attach(fragmentShader);
-	scalerProgram->link();
+	scalerProgram.attach(vertexShader);
+	scalerProgram.attach(fragmentShader);
+	scalerProgram.link();
 #ifdef GL_VERSION_2_0
 	if (GLEW_VERSION_2_0) {
-		scalerProgram->activate();
-		glUniform1i(scalerProgram->getUniformLocation("tex"), 0);
-		glUniform1i(scalerProgram->getUniformLocation("videoTex"), 1);
+		scalerProgram.activate();
+		glUniform1i(scalerProgram.getUniformLocation("tex"), 0);
+		glUniform1i(scalerProgram.getUniformLocation("videoTex"), 1);
 	}
 #endif
 }
@@ -43,9 +42,9 @@ void GLScaler::scaleImage(
 		glActiveTexture(GL_TEXTURE1);
 		superImpose->bind();
 		glActiveTexture(GL_TEXTURE0);
-		scalerProgram->activate();
+		scalerProgram.activate();
 	} else {
-		scalerProgram->deactivate();
+		scalerProgram.deactivate();
 	}
 
 	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,

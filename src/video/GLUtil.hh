@@ -17,6 +17,7 @@
 #endif
 
 #include "MemBuffer.hh"
+#include "noncopyable.hh"
 #include "build-info.hh"
 #include <string>
 #include <cassert>
@@ -62,12 +63,27 @@ typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 
 
 /** Most basic/generic texture: only contains a texture ID.
+  * Current implementation always assumes 2D textures.
   */
-class Texture
+class Texture : public noncopyable
 {
 public:
-	explicit Texture(int type = GL_TEXTURE_2D);
-	virtual ~Texture();
+	/** Default constructor, allocate a openGL texture name. */
+	Texture();
+
+	/** Move constructor and assignment. */
+	Texture(Texture&& other)
+		: textureId(other.textureId)
+	{
+		other.textureId = 0; // 0 is not a valid openGL texture name
+	}
+	Texture& operator=(Texture&& other) {
+		std::swap(textureId, other.textureId);
+		return *this;
+	}
+
+	/** Release openGL texture name. */
+	~Texture();
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly
@@ -75,7 +91,7 @@ public:
 	  * this texture for use in GL function calls outside of this class.
 	  */
 	void bind() {
-		glBindTexture(type, textureId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 
 	/** Enables bilinear interpolation for this texture.
@@ -95,7 +111,6 @@ public:
 	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
 
 protected:
-	const int type;
 	GLuint textureId;
 
 	friend class FrameBufferObject;
@@ -104,10 +119,13 @@ protected:
 class ColorTexture : public Texture
 {
 public:
+	ColorTexture() : width(0), height(0) {}
+
 	/** Create color texture with given size.
 	  * Initial content is undefined.
 	  */
 	ColorTexture(GLsizei width, GLsizei height);
+	void resize(GLsizei width, GLsizei height);
 
 	GLsizei getWidth () const { return width;  }
 	GLsizei getHeight() const { return height; }
@@ -132,10 +150,20 @@ public:
 	                 GLbyte* data);
 };
 
-class FrameBufferObject
+class FrameBufferObject : public noncopyable
 {
 public:
+	FrameBufferObject();
 	explicit FrameBufferObject(Texture& texture);
+	FrameBufferObject(FrameBufferObject&& other)
+		: bufferId(other.bufferId)
+	{
+		other.bufferId = 0;
+	}
+	FrameBufferObject& operator=(FrameBufferObject&& other) {
+		std::swap(bufferId, other.bufferId);
+		return *this;
+	}
 	~FrameBufferObject();
 
 	void push();
@@ -157,10 +185,12 @@ struct PixelBuffers
   * otherwise.
   * The pixel type is templatized T.
   */
-template <typename T> class PixelBuffer
+template <typename T> class PixelBuffer : public noncopyable
 {
 public:
 	PixelBuffer();
+	PixelBuffer(PixelBuffer&& other);
+	PixelBuffer& operator=(PixelBuffer&& other);
 	~PixelBuffer();
 
 	/** Are PBOs supported by this openGL implementation?
@@ -243,6 +273,26 @@ PixelBuffer<T>::PixelBuffer()
 		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
 		bufferId = 0;
 	}
+}
+
+template <typename T>
+PixelBuffer<T>::PixelBuffer(PixelBuffer<T>&& other)
+	: allocated(std::move(other.allocated))
+	, bufferId(other.bufferId)
+	, width(other.width)
+	, height(other.height)
+{
+	other.bufferId = 0;
+}
+
+template <typename T>
+PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other)
+{
+	std::swap(allocated, other.allocated);
+	std::swap(bufferId,  other.bufferId);
+	std::swap(width,     other.width);
+	std::swap(height,    other.height);
+	return *this;
 }
 
 template <typename T>
@@ -346,8 +396,6 @@ void PixelBuffer<T>::unmap() const
 class Shader
 {
 public:
-	virtual ~Shader();
-
 	/** Returns true iff this shader is loaded and compiled without errors.
 	  */
 	bool isOK() const;
@@ -360,6 +408,7 @@ protected:
 	Shader(GLenum type, const std::string& filename);
 	Shader(GLenum type, const std::string& header,
 	                    const std::string& filename);
+	~Shader();
 
 private:
 	void init(GLenum type, const std::string& header,
@@ -399,7 +448,7 @@ public:
 /** Wrapper around an OpenGL program:
   * a collection of vertex and fragment shaders.
   */
-class ShaderProgram
+class ShaderProgram : public noncopyable
 {
 public:
 	ShaderProgram();
