@@ -64,8 +64,10 @@ proc after_frame {} {
 	if {$move_active} {
 		# move vic viper to mouse position
 		lassign [osd info "nemesis1" -mousecoord] x y
-		poke 0xe206 [utils::clip 0 255 [expr {int($x)}]]
-		poke 0xe204 [utils::clip 0 212 [expr {int($y)}]]
+		catch { ;# when the cursor is hidden, -mousecoord won't give sane values
+			poke 0xe206 [utils::clip 0 255 [expr {int($x)}]]
+			poke 0xe204 [utils::clip 0 212 [expr {int($y)}]]
+		}
 	}
 
 	# vic viper location
