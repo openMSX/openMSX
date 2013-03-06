@@ -156,22 +156,26 @@ void CassettePlayer::autoRun()
 			loadingInstruction = "BLOAD\\\"CAS:\\\",R";
 			break;
 		case CassetteImage::BASIC:
-			loadingInstruction = "CLOAD\\\\rRUN";
+			loadingInstruction = "CLOAD\\rRUN";
 			break;
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
-	string var = "::auto_run_cas_counter";
+	string var = "::temp_bp_for_auto_run";
 	string command =
-		"if ![info exists " + var + "] { set " + var + " 0 }\n"
-		"incr " + var + "\n"
-		"after time 2 \"if $" + var + "==\\$" + var + " { "
-		"type " + loadingInstruction + "\\\\r }\"";
+		"proc auto_run_cb {} { debug remove_bp $" + var + "\n"
+		"set l " + loadingInstruction + "\\r;"
+		"debug write_block memory 0xFBF0 $l;"
+		"poke16 0xF3FA 0xFBF0;"
+		"poke16 0xF3F8 [expr {0xFBF0 + [string length $l]}];"
+		"unset " + var + "}\n"
+		"if {![info exists " + var + "]} { set " + var +
+		" [debug set_bp 0xFF07 1 {auto_run_cb}]}\n";
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
 		motherBoard.getMSXCliComm().printWarning(
-			"Error executing loading instruction for AutoRun: " +
+			"Error executing loading instruction using command \"" + command + "\" for AutoRun: " +
 			e.getMessage() + "\n Please report a bug.");
 	}
 }
