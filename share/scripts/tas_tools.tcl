@@ -117,26 +117,19 @@ proc load_replay_slot {} {
 
 ### Show Cursor Keys / 'fire buttons and others' ###
 
+variable keys
+
 proc show_keys {} {
+	variable keys
+
 	if {![osd exists cursors]} return
 
 	# get joysticka values
 	set joy [debug read joystickports 0]
 
-	show_key_press up    [expr {([is_key_pressed 8 5] || !($joy &  1))}]
-	show_key_press down  [expr {([is_key_pressed 8 6] || !($joy &  2))}]
-	show_key_press left  [expr {([is_key_pressed 8 4] || !($joy &  4))}]
-	show_key_press right [expr {([is_key_pressed 8 7] || !($joy &  8))}]
-	show_key_press space [expr {([is_key_pressed 8 0] || !($joy & 16))}]
-
-	show_key_press m     [expr {([is_key_pressed 4 2] || !($joy & 32))}]
-	show_key_press n     [is_key_pressed 4 3]
-	show_key_press z     [is_key_pressed 5 7]
-	show_key_press x     [is_key_pressed 5 5]
-
-	show_key_press graph [is_key_pressed 6 2]
-	show_key_press ctrl  [is_key_pressed 6 1]
-	show_key_press shift [is_key_pressed 6 0]
+	foreach key $keys {
+		show_key_press [dict get $key name] [eval [dict get $key check_expr]]
+	}
 
 	after realtime 0.1 [namespace code show_keys]
 }
@@ -158,29 +151,110 @@ proc create_key {name x y} {
 	osd create text cursors.$name.text -x 2 -y 2 -text $name -size 4 -rgba 0xffffffff
 }
 
+# you can setup your own key definitions by loading a script which defines a proc like this:
+#
+# proc define_custom_keys {} {
+#        variable tas::keys
+#
+#        set tas::keys {{
+#                name up
+#                x    20
+#                y    2
+#                check_expr {expr {([is_key_pressed 8 5] || !($joy &  1))}}
+#        } {
+#                name shift
+#                x    186
+#                y    8
+#                check_expr {is_key_pressed 6 0}
+#        }}
+#}
+#
+
 proc toggle_cursors {} {
+	variable keys
+
 	if {[osd exists cursors]} {
 		osd destroy cursors
 	} else {
 		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
-		#cursor keys
-		create_key up 20 2
-		create_key left 2 8
-		create_key down 20 14
-		create_key right 38 8
-		#fire buttons and others
-		create_key space 60 8
-		create_key m 78 8
-		create_key n 96 8
-		create_key z 114 8
-		create_key x 132 8
-		create_key graph 150 8
-		create_key ctrl 168 8
-		create_key shift 186 8
-
+		if {[info procs ::define_custom_keys] eq "::define_custom_keys"} {
+			define_custom_keys
+		} else {
+			define_default_keys
+		}
+		foreach key $keys {
+			create_key [dict get $key name] [dict get $key x] [dict get $key y]
+		}
 		show_keys
 	}
 }
+
+proc define_default_keys {} {
+	variable keys
+
+	set keys {{
+		name up
+		x    20
+		y    2
+		check_expr {expr {([is_key_pressed 8 5] || !($joy &  1))}}
+	} {
+		name down
+		x    20
+		y    14
+		check_expr {expr {([is_key_pressed 8 6] || !($joy &  2))}}
+	} {
+		name left
+		x    2
+		y    8
+		check_expr {expr {([is_key_pressed 8 4] || !($joy &  4))}}
+	} {
+		name right
+		x    38
+		y    8
+		check_expr {expr {([is_key_pressed 8 7] || !($joy &  8))}}
+	} {
+		name space
+		x    60
+		y    8
+		check_expr {expr {([is_key_pressed 8 0] || !($joy & 16))}}
+	} {
+		name m
+		x    78
+		y    8
+		check_expr {expr {([is_key_pressed 4 2] || !($joy & 32))}}
+	} {
+		name n
+		x    96
+		y    8
+		check_expr {is_key_pressed 4 3}
+	} {
+		name z
+		x    114
+		y    8
+		check_expr {is_key_pressed 5 7}
+	} {
+		name x
+		x    132
+		y    8
+		check_expr {is_key_pressed 5 5}
+	} {
+		name graph
+		x    150
+		y    8
+		check_expr {is_key_pressed 6 2}
+	} {
+		name ctrl
+		x    168
+		y    8
+		check_expr {is_key_pressed 6 1}
+	} {
+		name shift
+		x    186
+		y    8
+		check_expr {is_key_pressed 6 0}
+	}}
+}
+
 
 ### RAM Watch ###
 
