@@ -239,7 +239,6 @@ static const int JOYVALUE_THRESHOLD = 32768 / 10;
 void InputEventGenerator::setNewOsdControlButtonState(
 		unsigned newState, const EventPtr& origEvent)
 {
-	EventPtr event;
 	unsigned deltaState = osdControlButtonsState ^ newState;
 	for (unsigned i = OsdControlEvent::LEFT_BUTTON;
 			i <= OsdControlEvent::B_BUTTON; ++i) {
