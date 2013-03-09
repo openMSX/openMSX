@@ -371,14 +371,9 @@ int HotKey::signalEvent(const EventPtr& event_)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		bool stop = true;
-		if (auto osdEv = dynamic_cast<const OsdControlEvent*>(
-				lastEvent.get())) {
-			if (osdEv->getOriginalEvent() == event.get()) {
-				stop = false;
-			}
+		if (lastEvent.get() && lastEvent->isRepeatStopper(*event)) {
+			stopRepeat();
 		}
-		if (stop) stopRepeat();
 	}
 
 	// First search in active layers (from back to front)
@@ -427,7 +422,15 @@ void HotKey::startRepeat(const EventPtr& event)
 	// I initially thought about using the builtin SDL key-repeat feature,
 	// but that won't work for example on joystick buttons. So we have to
 	// code it ourselves.
-	unsigned delay = (lastEvent.get() ? 30 : 500) * 1000;
+
+	// On android, because of the sensitivity of the touch screen it's
+	// very hard to have touches of short durations. So half a second is
+	// too short for the key-repeat-delay. A full second should be fine.
+	static const unsigned DELAY = PLATFORM_ANDROID ? 1000 : 500;
+	// Repeat period.
+	static const unsigned PERIOD = 30;
+
+	unsigned delay = (lastEvent.get() ? PERIOD : DELAY) * 1000;
 	lastEvent = event;
 	repeatAlarm->schedule(delay);
 }

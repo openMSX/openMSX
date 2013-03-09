@@ -224,7 +224,14 @@ public:
 	 * Typically this will be a keyboard or joystick event. This could
 	 * also return nullptr (after a toString/fromString conversion).
 	 * For the current use (key-repeat) this is ok. */
-	const Event* getOriginalEvent() const;
+	/** Normally all events should stop the repeat process in 'bind -repeat',
+	 * but in case of OsdControlEvent there are two exceptions:
+	 *  - we should not stop because of the original host event that
+	 *    actually generated this 'artificial' OsdControlEvent.
+	 *  - if the original host event is a joystick motion event, we
+	 *    should not stop repeat for 'small' relative new joystick events.
+	 */
+	virtual bool isRepeatStopper(const Event& other) const;
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,

@@ -97,6 +97,13 @@ public:
 	bool operator==(const Event& other) const;
 	bool operator!=(const Event& other) const;
 
+	/** Should 'bind -repeat' be stopped by 'other' event.
+	 * Normally all events should stop auto-repeat of the previous
+	 * event. But see OsdControlEvent for some exceptions. */
+	virtual bool isRepeatStopper(const Event& /*other*/) const {
+		return true;
+	}
+
 protected:
 	explicit Event(EventType type);
 
