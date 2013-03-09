@@ -106,7 +106,7 @@ proc get_screen_mode_number {} {
 	set mode [get_screen_mode]
 	if {[string range $mode 0 3] eq "TEXT"} {
 		return 0
-	} else if {$mode eq "invalid"} {
+	} elseif {$mode eq "invalid"} {
 		return -1
 	}
 	return $mode
