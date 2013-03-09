@@ -51,7 +51,7 @@ private:
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
-	typedef std::vector<std::shared_ptr<AfterCmd>> AfterCmds;
+	typedef std::vector<std::unique_ptr<AfterCmd>> AfterCmds;
 	AfterCmds afterCmds;
 	Reactor& reactor;
 	EventDistributor& eventDistributor;

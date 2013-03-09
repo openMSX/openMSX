@@ -17,15 +17,17 @@
 #include "StringOp.hh"
 #include "openmsx.hh"
 #include "unreachable.hh"
+#include "memory.hh"
 #include <algorithm>
+#include <iterator>
 #include <cstdlib>
 #include <sstream>
 
 using std::ostringstream;
 using std::string;
 using std::vector;
-using std::shared_ptr;
-using std::make_shared;
+using std::unique_ptr;
+using std::move;
 
 namespace openmsx {
 
@@ -40,7 +42,7 @@ public:
 protected:
 	AfterCmd(AfterCommand& afterCommand,
 		 const TclObject& command);
-	shared_ptr<AfterCmd> removeSelf();
+	unique_ptr<AfterCmd> removeSelf();
 
 	AfterCommand& afterCommand;
 	TclObject command;
@@ -256,10 +258,10 @@ void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
-	auto cmd = make_shared<AfterTimeCmd>(
+	auto cmd = make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& result)
@@ -268,10 +270,10 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 		throw SyntaxError();
 	}
 	double time = getTime(tokens[2]);
-	auto cmd = make_shared<AfterRealTimeCmd>(
+	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, tokens[3], time);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterTclTime(
@@ -279,10 +281,10 @@ void AfterCommand::afterTclTime(
 {
 	TclObject command(tokens.front().getInterpreter());
 	command.addListElements(tokens.begin() + 2, tokens.end());
-	auto cmd = make_shared<AfterRealTimeCmd>(
+	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 template<EventType T>
@@ -291,10 +293,10 @@ void AfterCommand::afterEvent(const vector<TclObject>& tokens, TclObject& result
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	auto cmd = make_shared<AfterEventCmd<T>>(
+	auto cmd = make_unique<AfterEventCmd<T>>(
 		*this, tokens[1], tokens[2]);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterInputEvent(
@@ -303,10 +305,10 @@ void AfterCommand::afterInputEvent(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	auto cmd = make_shared<AfterInputEventCmd>(
+	auto cmd = make_unique<AfterInputEventCmd>(
 		*this, event, tokens[2]);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
@@ -317,10 +319,10 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
 	double time = getTime(tokens[2]);
-	auto cmd = make_shared<AfterIdleCmd>(
+	auto cmd = make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
+	afterCmds.push_back(move(cmd));
 }
 
 void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& result)
@@ -397,7 +399,8 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
 	// predicate should return false on matches
 	auto it = partition(afterCmds.begin(), afterCmds.end(), pred);
-	AfterCmds tmp(it, afterCmds.end());
+	AfterCmds tmp(std::make_move_iterator(it),
+	              std::make_move_iterator(afterCmds.end()));
 	afterCmds.erase(it, afterCmds.end());
 	for (auto& c : tmp) {
 		c->execute();
@@ -405,7 +408,7 @@ template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 }
 
 template<EventType T> struct AfterEventPred {
-	bool operator()(const shared_ptr<AfterCmd>& x) const {
+	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		return !dynamic_cast<AfterEventCmd<T>*>(x.get());
 	}
 };
@@ -415,7 +418,7 @@ template<EventType T> void AfterCommand::executeEvents()
 }
 
 struct AfterTimePred {
-	bool operator()(const shared_ptr<AfterCmd>& x) const {
+	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterRealTimeCmd*>(x.get())) {
 			if (cmd->hasExpired()) {
 				return false;
@@ -426,7 +429,7 @@ struct AfterTimePred {
 };
 
 struct AfterEmuTimePred {
-	bool operator()(const shared_ptr<AfterCmd>& x) const {
+	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
 			if (cmd->getTime() == 0.0) {
 				return false;
@@ -439,7 +442,7 @@ struct AfterEmuTimePred {
 struct AfterInputEventPred {
 	AfterInputEventPred(const AfterCommand::EventPtr& event_)
 		: event(event_) {}
-	bool operator()(const shared_ptr<AfterCmd>& x) const {
+	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
 			if (*cmd->getEvent() == *event) return false;
 		}
@@ -448,7 +451,7 @@ struct AfterInputEventPred {
 	AfterCommand::EventPtr event;
 };
 
-int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
+int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
@@ -512,12 +515,12 @@ void AfterCmd::execute()
 	}
 }
 
-shared_ptr<AfterCmd> AfterCmd::removeSelf()
+unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
 	for (auto it = afterCommand.afterCmds.begin();
 	     it != afterCommand.afterCmds.end(); ++it) {
 		if (it->get() == this) {
-			shared_ptr<AfterCmd> result = *it;
+			auto result = move(*it);
 			afterCommand.afterCmds.erase(it);
 			return result;
 		}
