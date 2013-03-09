@@ -47,7 +47,6 @@ private:
 	void afterIdle    (const std::vector<TclObject>& tokens, TclObject& result);
 	void afterInfo    (const std::vector<TclObject>& tokens, TclObject& result);
 	void afterCancel  (const std::vector<TclObject>& tokens, TclObject& result);
-	void executeRealTime();
 
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
@@ -58,6 +57,8 @@ private:
 	EventDistributor& eventDistributor;
 
 	friend class AfterCmd;
+	friend class AfterTimedCmd;
+	friend class AfterRealTimeCmd;
 };
 
 } // namespace openmsx

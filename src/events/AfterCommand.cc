@@ -41,7 +41,7 @@ protected:
 	AfterCmd(AfterCommand& afterCommand,
 		 const TclObject& command);
 	shared_ptr<AfterCmd> removeSelf();
-private:
+
 	AfterCommand& afterCommand;
 	TclObject command;
 	string id;
@@ -61,7 +61,8 @@ private:
 	virtual void executeUntil(EmuTime::param time, int userData);
 	virtual void schedulerDeleted();
 
-	double time;
+	double time; // Zero when expired, otherwise the original duration (to
+	             // be able to reschedule for 'after idle').
 };
 
 class AfterTimeCmd : public AfterTimedCmd
@@ -110,7 +111,6 @@ class AfterRealTimeCmd : public AfterCmd, private Alarm
 {
 public:
 	AfterRealTimeCmd(AfterCommand& afterCommand,
-	                 EventDistributor& eventDistributor,
 	                 const TclObject& command, double time);
 	virtual ~AfterRealTimeCmd();
 	virtual string getType() const;
@@ -119,7 +119,6 @@ public:
 private:
 	virtual bool alarm();
 
-	EventDistributor& eventDistributor;
 	bool expired;
 };
 
@@ -161,10 +160,14 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_AFTER_TIMED_EVENT, *this);
 }
 
 AfterCommand::~AfterCommand()
 {
+	eventDistributor.unregisterEventListener(
+		OPENMSX_AFTER_TIMED_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_REALTIME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -266,7 +269,7 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 	}
 	double time = getTime(tokens[2]);
 	auto cmd = make_shared<AfterRealTimeCmd>(
-		*this, eventDistributor, tokens[3], time);
+		*this, tokens[3], time);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -277,7 +280,7 @@ void AfterCommand::afterTclTime(
 	TclObject command(tokens.front().getInterpreter());
 	command.addListElements(tokens.begin() + 2, tokens.end());
 	auto cmd = make_shared<AfterRealTimeCmd>(
-		*this, eventDistributor, command, ms / 1000.0);
+		*this, command, ms / 1000.0);
 	afterCmds.push_back(cmd);
 	result.setString(cmd->getId());
 }
@@ -413,7 +416,7 @@ template<EventType T> void AfterCommand::executeEvents()
 
 struct AfterTimePred {
 	bool operator()(const shared_ptr<AfterCmd>& x) const {
-		if (auto cmd = dynamic_cast<AfterRealTimeCmd*>(x.get())) {
+		if (auto* cmd = dynamic_cast<AfterRealTimeCmd*>(x.get())) {
 			if (cmd->hasExpired()) {
 				return false;
 			}
@@ -421,16 +424,23 @@ struct AfterTimePred {
 		return true;
 	}
 };
-void AfterCommand::executeRealTime()
-{
-	executeMatches(AfterTimePred());
-}
+
+struct AfterEmuTimePred {
+	bool operator()(const shared_ptr<AfterCmd>& x) const {
+		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
+			if (cmd->getTime() == 0.0) {
+				return false;
+			}
+		}
+		return true;
+	}
+};
 
 struct AfterInputEventPred {
 	AfterInputEventPred(const AfterCommand::EventPtr& event_)
 		: event(event_) {}
 	bool operator()(const shared_ptr<AfterCmd>& x) const {
-		if (auto cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
+		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
 			if (*cmd->getEvent() == *event) return false;
 		}
 		return true;
@@ -451,7 +461,9 @@ int AfterCommand::signalEvent(const shared_ptr<const Event>& event)
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {
-		executeRealTime();
+		executeMatches(AfterTimePred());
+	} else if (event->getType() == OPENMSX_AFTER_TIMED_EVENT) {
+		executeMatches(AfterEmuTimePred());
 	} else {
 		executeMatches(AfterInputEventPred(event));
 		for (auto& c : afterCmds) {
@@ -542,8 +554,9 @@ void AfterTimedCmd::reschedule()
 void AfterTimedCmd::executeUntil(EmuTime::param /*time*/,
                                  int /*userData*/)
 {
-	shared_ptr<AfterCmd> self = removeSelf();
-	execute();
+	time = 0.0; // execute on next event
+	afterCommand.eventDistributor.distributeEvent(
+		std::make_shared<SimpleEvent>(OPENMSX_AFTER_TIMED_EVENT));
 }
 
 void AfterTimedCmd::schedulerDeleted()
@@ -620,10 +633,9 @@ string AfterInputEventCmd::getType() const
 // class AfterRealTimeCmd
 
 AfterRealTimeCmd::AfterRealTimeCmd(
-		AfterCommand& afterCommand, EventDistributor& eventDistributor_,
+		AfterCommand& afterCommand,
 		const TclObject& command, double time)
 	: AfterCmd(afterCommand, command)
-	, eventDistributor(eventDistributor_)
 	, expired(false)
 {
 	schedule(unsigned(time * 1000000)); // micro seconds
@@ -644,7 +656,7 @@ bool AfterRealTimeCmd::alarm()
 	// this runs in a different thread, so we can't directly execute the
 	// command here
 	expired = true;
-	eventDistributor.distributeEvent(
+	afterCommand.eventDistributor.distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_AFTER_REALTIME_EVENT));
 	return false; // don't repeat alarm
 }

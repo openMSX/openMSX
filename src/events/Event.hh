@@ -57,6 +57,9 @@ enum EventType
 	/** Command received on CliComm connection */
 	OPENMSX_CLICOMMAND_EVENT,
 
+	/** Send when an after-emutime command should be executed. */
+	OPENMSX_AFTER_TIMED_EVENT,
+
 	/** This event is periodically send (50 times per second atm).
 	  * Used to implement polling (e.g SDL input events). */
 	OPENMSX_POLL_EVENT,
