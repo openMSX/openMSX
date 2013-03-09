@@ -102,17 +102,17 @@ public:
 	CliComm& getCliComm();
 	std::string getMachineID() const;
 
-	typedef std::shared_ptr<MSXMotherBoard> Board;
+	typedef std::unique_ptr<MSXMotherBoard> Board;
 	Board createEmptyMotherBoard();
-	void replaceBoard(MSXMotherBoard& oldBoard, const Board& newBoard); // for reverse
+	void replaceBoard(MSXMotherBoard& oldBoard, Board newBoard); // for reverse
 
 private:
 	typedef std::vector<Board> Boards;
 
 	void createMachineSetting();
-	void switchBoard(const Board& newBoard);
-	void deleteBoard(Board board);
-	Board getMachine(const std::string& machineID) const;
+	void switchBoard(MSXMotherBoard* newBoard);
+	void deleteBoard(MSXMotherBoard* board);
+	MSXMotherBoard& getMachine(const std::string& machineID) const;
 	std::vector<string_ref> getMachineIDs() const;
 
 	// Observer<Setting>
@@ -170,7 +170,7 @@ private:
 	//    the mbSem lock
 	Boards boards;
 	Boards garbageBoards;
-	Board activeBoard; // either nullptr or a board inside 'boards'
+	MSXMotherBoard* activeBoard; // either nullptr or a board inside 'boards'
 
 	int blockedCounter;
 	bool paused;

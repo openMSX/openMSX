@@ -187,6 +187,7 @@ private:
 
 Reactor::Reactor()
 	: mbSem(1)
+	, activeBoard(nullptr)
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
@@ -389,12 +390,12 @@ void Reactor::createMachineSetting()
 MSXMotherBoard* Reactor::getMotherBoard() const
 {
 	assert(Thread::isMainThread());
-	return activeBoard.get();
+	return activeBoard;
 }
 
 string Reactor::getMachineID() const
 {
-	return activeBoard.get() ? activeBoard->getMachineID() : "";
+	return activeBoard ? activeBoard->getMachineID() : "";
 }
 
 vector<string_ref> Reactor::getMachineIDs() const
@@ -406,11 +407,11 @@ vector<string_ref> Reactor::getMachineIDs() const
 	return result;
 }
 
-Reactor::Board Reactor::getMachine(const string& machineID) const
+MSXMotherBoard& Reactor::getMachine(const string& machineID) const
 {
 	for (auto& b : boards) {
 		if (b->getMachineID() == machineID) {
-			return b;
+			return *b;
 		}
 	}
 	throw CommandException("No machine with ID: " + machineID);
@@ -418,15 +419,16 @@ Reactor::Board Reactor::getMachine(const string& machineID) const
 
 Reactor::Board Reactor::createEmptyMotherBoard()
 {
-	return make_shared<MSXMotherBoard>(*this);
+	return make_unique<MSXMotherBoard>(*this);
 }
 
-void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
+void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 {
 	assert(Thread::isMainThread());
 
 	// Add new board.
-	boards.push_back(newBoard);
+	auto* newBoard = newBoard_.get();
+	boards.push_back(move(newBoard_));
 
 	// Lookup old board (it must be present).
 	auto it = boards.begin();
@@ -436,7 +438,7 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, const Board& newBoard)
 	}
 
 	// If the old board was the active board, then activate the new board
-	if (*it == activeBoard) {
+	if (it->get() == activeBoard) {
 		switchBoard(newBoard);
 	}
 
@@ -464,23 +466,28 @@ void Reactor::switchMachine(const string& machine)
 	assert(Thread::isMainThread());
 	// Note: loadMachine can throw an exception and in that case the
 	//       motherboard must be considered as not created at all.
-	Board newBoard = createEmptyMotherBoard();
+	auto newBoard_ = createEmptyMotherBoard();
+	auto* newBoard = newBoard_.get();
 	newBoard->loadMachine(machine);
-	boards.push_back(newBoard);
+	boards.push_back(move(newBoard_));
 
-	Board oldBoard = activeBoard;
+	auto* oldBoard = activeBoard;
 	switchBoard(newBoard);
 	deleteBoard(oldBoard);
 }
 
-void Reactor::switchBoard(const Board& newBoard)
+void Reactor::switchBoard(MSXMotherBoard* newBoard)
 {
 	assert(Thread::isMainThread());
-	assert(!newBoard.get() ||
-	       (find(boards.begin(), boards.end(), newBoard) != boards.end()));
-	assert(!activeBoard.get() ||
-	       (find(boards.begin(), boards.end(), activeBoard) != boards.end()));
-	if (activeBoard.get()) {
+	assert(!newBoard ||
+	       (find_if(boards.begin(), boards.end(),
+	               [&](Boards::value_type& b) { return b.get() == newBoard; })
+	        != boards.end()));
+	assert(!activeBoard ||
+	       (find_if(boards.begin(), boards.end(),
+	                [&](Boards::value_type& b) { return b.get() == activeBoard; })
+	        != boards.end()));
+	if (activeBoard) {
 		activeBoard->activate(false);
 	}
 	{
@@ -493,12 +500,12 @@ void Reactor::switchBoard(const Board& newBoard)
 	eventDistributor->distributeEvent(
 		make_shared<SimpleEvent>(OPENMSX_MACHINE_LOADED_EVENT));
 	globalCliComm->update(CliComm::HARDWARE, getMachineID(), "select");
-	if (activeBoard.get()) {
+	if (activeBoard) {
 		activeBoard->activate(true);
 	}
 }
 
-void Reactor::deleteBoard(Board board)
+void Reactor::deleteBoard(MSXMotherBoard* board)
 {
 	// Note: pass 'board' by-value to keep the parameter from changing
 	// after the call to switchBoard(). switchBoard() changes the
@@ -506,20 +513,22 @@ void Reactor::deleteBoard(Board board)
 	// if it were passed by reference to this method (AFAICS this only
 	// happens in ~Reactor()).
 	assert(Thread::isMainThread());
-	if (!board.get()) return;
+	if (!board) return;
 
 	if (board == activeBoard) {
 		// delete active board -> there is no active board anymore
-		switchBoard(Reactor::Board());
+		switchBoard(nullptr);
 	}
-	auto it = find(boards.begin(), boards.end(), board);
+	auto it = find_if(boards.begin(), boards.end(),
+	                  [&](Boards::value_type& b) { return b.get() == board; });
 	assert(it != boards.end());
+	auto board_ = move(*it);
 	boards.erase(it);
 	// Don't immediately delete old boards because it's possible this
 	// routine is called via a code path that goes through the old
 	// board. Instead remember this board and delete it at a safe moment
 	// in time.
-	garbageBoards.push_back(board);
+	garbageBoards.push_back(move(board_));
 	eventDistributor->distributeEvent(
 		make_shared<SimpleEvent>(OPENMSX_DELETE_BOARDS));
 }
@@ -532,14 +541,14 @@ void Reactor::enterMainLoop()
 		// Don't take lock in main thread to avoid recursive locking.
 		lock.take(mbSem);
 	}
-	if (activeBoard.get()) {
+	if (activeBoard) {
 		activeBoard->exitCPULoopAsync();
 	}
 }
 
 void Reactor::run(CommandLineParser& parser)
 {
-	GlobalCommandController& commandController = *globalCommandController;
+	auto& commandController = *globalCommandController;
 
 	// execute init.tcl
 	try {
@@ -567,7 +576,7 @@ void Reactor::run(CommandLineParser& parser)
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
 		//commandController.executeCommand("set power on");
-		if (activeBoard.get()) {
+		if (activeBoard) {
 			activeBoard->powerUp();
 		}
 	}
@@ -577,9 +586,8 @@ void Reactor::run(CommandLineParser& parser)
 	while (running) {
 		eventDistributor->deliverEvents();
 		assert(garbageBoards.empty());
-		MSXMotherBoard* motherboard = activeBoard.get();
-		bool blocked = (blockedCounter > 0) || !motherboard;
-		if (!blocked) blocked = !motherboard->execute();
+		bool blocked = (blockedCounter > 0) || !activeBoard;
+		if (!blocked) blocked = !activeBoard->execute();
 		if (blocked) {
 			// At first sight a better alternative is to use the
 			// SDL_WaitEvent() function. Though when inspecting
@@ -628,7 +636,7 @@ void Reactor::unblock()
 // Observer<Setting>
 void Reactor::update(const Setting& setting)
 {
-	BooleanSetting& pauseSetting = getGlobalSettings().getPauseSetting();
+	auto& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {
 		if (pauseSetting.getValue()) {
 			pause();
@@ -641,7 +649,7 @@ void Reactor::update(const Setting& setting)
 // EventListener
 int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	EventType type = event->getType();
+	auto type = event->getType();
 	if (type == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
@@ -796,9 +804,10 @@ string CreateMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 1) {
 		throw SyntaxError();
 	}
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
-	reactor.boards.push_back(newBoard);
-	return newBoard->getMachineID();
+	auto newBoard = reactor.createEmptyMotherBoard();
+	auto result = newBoard->getMachineID();
+	reactor.boards.push_back(move(newBoard));
+	return result;
 }
 
 string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -828,7 +837,7 @@ string DeleteMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	reactor.deleteBoard(reactor.getMachine(tokens[1]));
+	reactor.deleteBoard(&reactor.getMachine(tokens[1]));
 	return "";
 }
 
@@ -879,7 +888,7 @@ string ActivateMachineCommand::execute(const vector<string>& tokens)
 	case 1:
 		return reactor.getMachineID();
 	case 2: {
-		reactor.switchBoard(reactor.getMachine(tokens[1]));
+		reactor.switchBoard(&reactor.getMachine(tokens[1]));
 		return reactor.getMachineID();
 	}
 	default:
@@ -930,10 +939,10 @@ string StoreMachineCommand::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	Reactor::Board board = reactor.getMachine(machineID);
+	auto& board = reactor.getMachine(machineID);
 
 	XmlOutputArchive out(filename);
-	out.serialize("machine", *board);
+	out.serialize("machine", board);
 	return filename;
 }
 
@@ -964,7 +973,7 @@ RestoreMachineCommand::RestoreMachineCommand(
 
 string RestoreMachineCommand::execute(const vector<string>& tokens)
 {
-	Reactor::Board newBoard = reactor.createEmptyMotherBoard();
+	auto newBoard = reactor.createEmptyMotherBoard();
 
 	string filename;
 	string machineID;
@@ -1014,8 +1023,9 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 	// now we want the MSX to see the actual host keyboard state.
 	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
 
-	reactor.boards.push_back(newBoard);
-	return newBoard->getMachineID();
+	auto result = newBoard->getMachineID();
+	reactor.boards.push_back(move(newBoard));
+	return result;
 }
 
 string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const

@@ -29,6 +29,7 @@
 using std::string;
 using std::vector;
 using std::shared_ptr;
+using std::move;
 
 namespace openmsx {
 
@@ -74,7 +75,7 @@ struct Replay
 		} else {
 			Reactor::Board newBoard = reactor.createEmptyMotherBoard();
 			ar.serialize("snapshot", *newBoard);
-			motherBoards.push_back(newBoard);
+			motherBoards.push_back(move(newBoard));
 		}
 
 		ar.serialize("events", *events);
@@ -130,18 +131,18 @@ ReverseManager::ReverseChunk::ReverseChunk()
 }
 
 ReverseManager::ReverseChunk::ReverseChunk(ReverseChunk&& rhs)
-	: time      (std::move(rhs.time))
-	, savestate (std::move(rhs.savestate))
-	, eventCount(std::move(rhs.eventCount))
+	: time      (move(rhs.time))
+	, savestate (move(rhs.savestate))
+	, eventCount(move(rhs.eventCount))
 {
 }
 
 ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
 	ReverseChunk&& rhs)
 {
-	time       = std::move(rhs.time);
-	savestate  = std::move(rhs.savestate);
-	eventCount = std::move(rhs.eventCount);
+	time       = move(rhs.time);
+	savestate  = move(rhs.savestate);
+	eventCount = move(rhs.eventCount);
 	return *this;
 }
 
@@ -482,8 +483,10 @@ void ReverseManager::goTo(
 		// switch to the new MSXMotherBoard
 		//  Note: this deletes the current MSXMotherBoard and
 		//  ReverseManager. So we can't access those objects anymore.
+		bool unmute = true;
 		if (newBoard_.get()) {
-			reactor.replaceBoard(motherBoard, newBoard_);
+			unmute = false;
+			reactor.replaceBoard(motherBoard, move(newBoard_));
 		}
 
 		// Fast forward to actual target time with board activated.
@@ -492,7 +495,7 @@ void ReverseManager::goTo(
 
 		// In case we didn't actually create a new board, don't leave
 		// the (old) board muted.
-		if (!newBoard_.get()) {
+		if (unmute) {
 			mixer.unmute();
 		}
 
@@ -561,7 +564,7 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 	MemInputArchive in(chunks.begin()->second.savestate.data(),
 	                   chunks.begin()->second.savestate.size());
 	in.serialize("machine", *initialBoard);
-	replay.motherBoards.push_back(initialBoard);
+	replay.motherBoards.push_back(move(initialBoard));
 
 	// determine which extra snapshots to put in the replay
 	const EmuTime& startTime = chunks.begin()->second.time;
@@ -583,7 +586,7 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 				MemInputArchive in(it->second.savestate.data(),
 				                   it->second.savestate.size());
 				in.serialize("machine", *board);
-				replay.motherBoards.push_back(board);
+				replay.motherBoards.push_back(move(board));
 				lastAddedIt = it;
 			}
 			++it;
@@ -734,7 +737,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 		newChunk.eventCount = replayIndex;
 
 		newHistory.chunks[newHistory.getNextSeqNum(newChunk.time)] =
-			std::move(newChunk);
+			move(newChunk);
 	}
 
 	// Note: untill this point we didn't make any changes to the current
