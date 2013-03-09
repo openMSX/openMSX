@@ -50,7 +50,16 @@ register "normal" [namespace code enter_normal_mode] \
 
 ## Define tas mode
 
+variable old_inputdelay
+
 proc enter_tas_mode {} {
+
+	variable old_inputdelay
+
+	# in tas mode, set inputdelay to 0
+	set old_inputdelay $::inputdelay
+	set ::inputdelay 0
+
 	if {![osd exists framecount]} {
 		toggle_frame_counter
 	}
@@ -76,6 +85,12 @@ proc enter_tas_mode {} {
 }
 
 proc leave_tas_mode {} {
+
+	variable old_inputdelay
+
+	# restore inputdelay
+	set ::inputdelay $old_inputdelay
+
 	if {[osd exists lag_counter]} {
 		toggle_lag_counter
 	}
