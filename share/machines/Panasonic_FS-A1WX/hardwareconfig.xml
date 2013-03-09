@@ -83,6 +83,7 @@
 
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
+          <io_regs>7FF8</io_regs>
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>bb59c849898d46a23fdbd0cc04ab35088e74a18d</sha1>

@@ -114,6 +114,7 @@
 
       <secondary slot="2">
         <TC8566AF id="Memory Mapped FDC">
+          <io_regs>7FF8</io_regs>
           <drives>2</drives>
           <rom>
             <filename>roms/phc-70fd2_disk.rom</filename>

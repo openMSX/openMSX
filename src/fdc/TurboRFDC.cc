@@ -10,10 +10,28 @@
 #include "MSXCPU.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
+#include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
 namespace openmsx {
+
+static TurboRFDC::Type parseType(const DeviceConfig& config)
+{
+	auto ioregs = config.getChildData("io_regs", "");
+	if (ioregs == "7FF2") {
+		return TurboRFDC::R7FF2;
+	} else if (ioregs == "7FF8") {
+		return TurboRFDC::R7FF8;
+	} else if (ioregs == "") {
+		// for backwards compatibility
+		return TurboRFDC::BOTH;
+	} else {
+		throw MSXException(
+			"Invalid 'io_regs' specification: expected one of "
+			"'7FF2' or '7FF8', but got: " + ioregs);
+	}
+}
 
 TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	: MSXFDC(config)
@@ -23,6 +41,7 @@ TurboRFDC::TurboRFDC(const DeviceConfig& config)
 	, romBlockDebug(make_unique<RomBlockDebuggable>(
 		*this, &bank, 0x4000, 0x4000, 14))
 	, blockMask((rom->getSize() / 0x4000) - 1)
+	, type(parseType(config))
 {
 	reset(getCurrentTime());
 }
@@ -39,72 +58,80 @@ void TurboRFDC::reset(EmuTime::param time)
 
 byte TurboRFDC::readMem(word address, EmuTime::param time)
 {
-	byte result;
 	if (0x3FF0 <= (address & 0x3FFF)) {
 		// Reading or writing to this region takes 1 extra clock
 		// cycle. But only in R800 mode. Verified on a real turboR
 		// machine, it happens for all 16 positions in this region
 		// and both for reading and writing.
 		getCPU().waitCyclesR800(1);
-		switch (address & 0x3FFF) {
-		case 0x3FF1:
-			result = 0x33;
-			if (controller->diskChanged(0)) result &= ~0x10;
-			if (controller->diskChanged(1)) result &= ~0x20;
-			break;
-		case 0x3FF4:
-		case 0x3FFA:
-			result = controller->readReg(4, time);
-			break;
-		case 0x3FF5:
-		case 0x3FFB:
-			result = controller->readReg(5, time);
-			break;
-		default:
-			result = TurboRFDC::peekMem(address, time);
-			break;
+		if (type != R7FF8) { // turboR or BOTH
+			switch (address & 0xF) {
+			case 0x1: {
+				byte result = 0x33;
+				if (controller->diskChanged(0)) result &= ~0x10;
+				if (controller->diskChanged(1)) result &= ~0x20;
+				return result;
+			}
+			case 0x4: return controller->readReg(4, time);
+			case 0x5: return controller->readReg(5, time);
+			}
 		}
-		//std::cout << "TurboRFDC read 0x" << std::hex << (int)address <<
-		//                           " 0x" << (int)result << std::dec << std::endl;
-	} else {
-		result = TurboRFDC::peekMem(address, time);
+		if (type != R7FF2) { // non-turboR or BOTH
+			switch (address & 0xF) {
+			case 0xA: return controller->readReg(4, time);
+			case 0xB: return controller->readReg(5, time);
+			}
+
+		}
 	}
-	return result;
+	// all other stuff is handled by peekMem()
+	return TurboRFDC::peekMem(address, time);
 }
+
 
 byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 {
-	byte result;
 	if (0x3FF0 <= (address & 0x3FFF)) {
-		switch (address & 0x3FFF) {
-		case 0x3FF1:
-			// bit 0  FD2HD1  High Density detect drive 1
-			// bit 1  FD2HD2  High Density detect drive 2
-			// bit 4  FDCHG1  Disk Change detect on drive 1
-			// bit 5  FDCHG2  Disk Change detect on drive 2
-			// active low
-			result = 0x33;
-			if (controller->peekDiskChanged(0)) result &= ~0x10;
-			if (controller->peekDiskChanged(1)) result &= ~0x20;
-			break;
-		case 0x3FF4:
-		case 0x3FFA:
-			result = controller->peekReg(4, time);
-			break;
-		case 0x3FF5:
-		case 0x3FFB:
-			result = controller->peekReg(5, time);
-			break;
-		default:
-			result = 0xFF;
-			break;
+		// note: this implementation requires that the handled
+		//    addresses for the MSX2 and TURBOR variants don't overlap
+		if (type != R7FF8) { // turboR or BOTH
+			switch (address & 0xF) {
+			case 0x0: return bank;
+			case 0x1: {
+				// bit 0  FD2HD1  High Density detect drive 1
+				// bit 1  FD2HD2  High Density detect drive 2
+				// bit 4  FDCHG1  Disk Change detect on drive 1
+				// bit 5  FDCHG2  Disk Change detect on drive 2
+				// active low
+				byte result = 0x33;
+				if (controller->peekDiskChanged(0)) result &= ~0x10;
+				if (controller->peekDiskChanged(1)) result &= ~0x20;
+				return result;
+			}
+			case 0x4: return controller->peekReg(4, time);
+			case 0x5: return controller->peekReg(5, time);
+			// TODO any idea what these 4 are?
+			//  I've confirmed that on a real FS-A1GT I get these
+			//  values, though the ROM dumps contain 0xFF in these
+			//  locations.
+			case 0xC: return 0xFC;
+			case 0xD: return 0xFC;
+			case 0xE: return 0xFF;
+			case 0xF: return 0x3F;
+			}
 		}
+		if (type != R7FF2) { // non-turboR or BOTH
+			switch (address & 0xF) {
+			case 0xA: return controller->peekReg(4, time);
+			case 0xB: return controller->peekReg(5, time);
+			}
+		}
+		return 0xFF; // other regs in this region
 	} else if ((0x4000 <= address) && (address < 0x8000)) {
-		result = memory[address & 0x3FFF];
+		return memory[address & 0x3FFF];
 	} else {
-		result = 0xFF;
+		return 0xFF;
 	}
-	return result;
 }
 
 const byte* TurboRFDC::getReadCacheLine(word start) const
@@ -125,35 +152,29 @@ void TurboRFDC::writeMem(word address, byte value, EmuTime::param time)
 		getCPU().waitCyclesR800(1);
 	}
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
+		// TODO Is this correct? Are these 3 switch addresses used in
+		//      all variants?
 		setBank(value);
 	} else {
-		//std::cout << "TurboRFDC write 0x" << std::hex << (int)address <<
-		//                            " 0x" << (int)value << std::dec << std::endl;
-		switch (address & 0x3FFF) {
-		case 0x3FF2:
-		case 0x3FF8:
-			// bit 0  Drive select bit 0
-			// bit 1  Drive select bit 1
-			// bit 2  0 = Reset FDC, 1 = Enable FDC
-			// bit 3  1 = Enable DMA and interrupt, 0 = always '0' on Turbo R
-			// bit 4  Motor Select Drive A
-			// bit 5  Motor Select Drive B
-			// Bit 6  Motor Select Drive C
-			// Bit 7  Motor Select Drive D
-			controller->writeReg(2, value, time);
-			break;
-		case 0x3FF3:
-		case 0x3FF9:
-			controller->writeReg(3, value, time);
-			break;
-		case 0x3FF4:
-		case 0x3FFA:
-			controller->writeReg(4, value, time);
-			break;
-		case 0x3FF5:
-		case 0x3FFB: // FDC data port
-			controller->writeReg(5, value, time);
-			break;
+		if (type != R7FF8) { // turboR or BOTH
+			switch (address & 0x3FFF) {
+			case 0x3FF2:
+			case 0x3FF3:
+			case 0x3FF4:
+			case 0x3FF5:
+				controller->writeReg(address & 0xF, value, time);
+				break;
+			}
+		}
+		if (type != R7FF2) { // non-turboR or BOTH
+			switch (address & 0x3FFF) {
+			case 0x3FF8:
+			case 0x3FF9:
+			case 0x3FFA:
+			case 0x3FFB:
+				controller->writeReg((address & 0xF) - 6, value, time);
+				break;
+			}
 		}
 	}
 }

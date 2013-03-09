@@ -14,6 +14,8 @@ class RomBlockDebuggable;
 class TurboRFDC : public MSXFDC
 {
 public:
+	enum Type { BOTH, R7FF2, R7FF8 };
+
 	explicit TurboRFDC(const DeviceConfig& config);
 	virtual ~TurboRFDC();
 
@@ -36,6 +38,7 @@ private:
 	const byte* memory;
 	const byte blockMask;
 	byte bank;
+	const Type type;
 };
 
 } // namespace openmsx
