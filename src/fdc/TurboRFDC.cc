@@ -110,14 +110,6 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 			}
 			case 0x4: return controller->peekReg(4, time);
 			case 0x5: return controller->peekReg(5, time);
-			// TODO any idea what these 4 are?
-			//  I've confirmed that on a real FS-A1GT I get these
-			//  values, though the ROM dumps contain 0xFF in these
-			//  locations.
-			case 0xC: return 0xFC;
-			case 0xD: return 0xFC;
-			case 0xE: return 0xFF;
-			case 0xF: return 0x3F;
 			}
 		}
 		if (type != R7FF2) { // non-turboR or BOTH
@@ -126,7 +118,22 @@ byte TurboRFDC::peekMem(word address, EmuTime::param time) const
 			case 0xB: return controller->peekReg(5, time);
 			}
 		}
-		return 0xFF; // other regs in this region
+		switch (address & 0xF) {
+		// TODO Any idea what these 4 are? I've confirmed that on a
+		// real FS-A1GT I get these values, though the ROM dumps
+		// contain 0xFF in these locations. When looking at the ROM
+		// content via the 'RomPanasonic' mapper in slot 3-3, you can
+		// see that the ROM dumps are correct (these 4 values are not
+		// part of the ROM).
+		// This MRC post indicates that also on non-turbor machines
+		// you see these 4 values (bluemsx' post of 10-03-2013, 10:15):
+		//   http://www.msx.org/forum/msx-talk/development/finally-have-feature-request-openmsx?page=3
+		case 0xC: return 0xFC;
+		case 0xD: return 0xFC;
+		case 0xE: return 0xFF;
+		case 0xF: return 0x3F;
+		default:  return 0xFF; // other regs in this region
+		}
 	} else if ((0x4000 <= address) && (address < 0x8000)) {
 		return memory[address & 0x3FFF];
 	} else {
