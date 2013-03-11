@@ -12,9 +12,9 @@ namespace openmsx {
 
 // output settings
 
-// 4.6 times normal speed (5520 baud, higher doesn't work anymore, possibly
+// 6.2 times normal speed (higher doesn't work anymore, possibly
 // because the BIOS code (and Z80) is too slow for that)
-static const unsigned FACTOR = 46;
+static const unsigned FACTOR = 62;
 static const unsigned OUTPUT_FREQUENCY = 2400 * FACTOR / 10;
 // We oversample the audio signal for better sound quality (especially in
 // combination with the hq resampler). Without oversampling the audio output
