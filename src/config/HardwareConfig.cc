@@ -370,6 +370,7 @@ void HardwareConfig::setName(const string& proposedName)
 
 // version 1: initial version
 // version 2: moved FileContext here (was part of config)
+// version 3: hold 'config' by-value instead of by-pointer
 template<typename Archive>
 void HardwareConfig::serialize(Archive& ar, unsigned version)
 {
