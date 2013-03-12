@@ -60,6 +60,9 @@ static EventPtr parseMouseEvent(
 		throw CommandException("Invalid mouse event: " + str);
 	}
 	if (components[1] == "motion") {
+		if (components.size() == 2) {
+			return make_shared<MouseMotionGroupEvent>();
+		}
 		if (components.size() != 4) {
 			throw CommandException("Invalid mouse motion event: " + str);
 		}

@@ -15,6 +15,7 @@ enum EventType
 	OPENMSX_KEY_UP_EVENT,
 	OPENMSX_KEY_DOWN_EVENT,
 	OPENMSX_MOUSE_MOTION_EVENT,
+	OPENMSX_MOUSE_MOTION_GROUP_EVENT,
 	OPENMSX_MOUSE_BUTTON_UP_EVENT,
 	OPENMSX_MOUSE_BUTTON_DOWN_EVENT,
 	OPENMSX_JOY_AXIS_MOTION_EVENT,
@@ -102,6 +103,13 @@ public:
 	 * event. But see OsdControlEvent for some exceptions. */
 	virtual bool isRepeatStopper(const Event& /*other*/) const {
 		return true;
+	}
+
+	/** Does this event 'match' the given event. Normally an event
+	 * only matches itself (as defined by operator==). But e.g.
+	 * MouseMotionGroupEvent matches any MouseMotionEvent. */
+	virtual bool matches(const Event& other) const {
+		return *this == other;
 	}
 
 protected:

@@ -105,6 +105,17 @@ private:
 	const int yrel;
 };
 
+class MouseMotionGroupEvent : public Event
+{
+public:
+	MouseMotionGroupEvent();
+
+private:
+	virtual void toStringImpl(TclObject& result) const;
+	virtual bool lessImpl(const Event& other) const;
+	virtual bool matches(const Event& other) const;
+};
+
 
 class JoystickEvent : public TimedEvent
 {

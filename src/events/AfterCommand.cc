@@ -444,7 +444,7 @@ struct AfterInputEventPred {
 		: event(event_) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
-			if (*cmd->getEvent() == *event) return false;
+			if (cmd->getEvent()->matches(*event)) return false;
 		}
 		return true;
 	}

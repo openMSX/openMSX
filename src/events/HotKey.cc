@@ -112,6 +112,8 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
@@ -139,6 +141,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 }
@@ -209,11 +212,12 @@ void HotKey::initDefaultBindings()
 static HotKey::EventPtr createEvent(const string& str)
 {
 	auto event = InputEventFactory::createInputEvent(str);
-	if (!dynamic_cast<const KeyEvent*>        (event.get()) &&
-	    !dynamic_cast<const MouseButtonEvent*>(event.get()) &&
-	    !dynamic_cast<const JoystickEvent*>   (event.get()) &&
-	    !dynamic_cast<const OsdControlEvent*> (event.get()) &&
-	    !dynamic_cast<const FocusEvent*>      (event.get())) {
+	if (!dynamic_cast<const KeyEvent*>             (event.get()) &&
+	    !dynamic_cast<const MouseButtonEvent*>     (event.get()) &&
+	    !dynamic_cast<const MouseMotionGroupEvent*>(event.get()) &&
+	    !dynamic_cast<const JoystickEvent*>        (event.get()) &&
+	    !dynamic_cast<const OsdControlEvent*>      (event.get()) &&
+	    !dynamic_cast<const FocusEvent*>           (event.get())) {
 		throw CommandException("Unsupported event type");
 	}
 	return event;
@@ -355,6 +359,15 @@ void HotKey::deactivateLayer(const std::string& layer)
 	}
 }
 
+static HotKey::BindMap::const_iterator findMatch(
+	const HotKey::BindMap& map, const Event& event)
+{
+	return find_if(map.begin(), map.end(),
+		[&](const HotKey::BindMap::value_type& p) {
+			return p.first->matches(event);
+		});
+}
+
 int HotKey::signalEvent(const EventPtr& event_)
 {
 	// Convert special 'repeat' event into the actual to-be-repeated event.
@@ -380,7 +393,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	bool blocking = false;
 	for (auto it = activeLayers.rbegin(); it != activeLayers.rend(); ++it) {
 		auto& cmap = layerMap[it->layer]; // ok, if this entry doesn't exist yet
-		auto it2 = cmap.find(event);
+		auto it2 = findMatch(cmap, *event);
 		if (it2 != cmap.end()) {
 			executeBinding(event, it2->second);
 			// Deny event to MSX listeners, also don't pass event
@@ -392,7 +405,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	}
 
 	// If the event was not yet handled, try the default layer.
-	auto it = cmdMap.find(event);
+	auto it = findMatch(cmdMap, *event);
 	if (it != cmdMap.end()) {
 		executeBinding(event, it->second);
 		return EventDistributor::MSX; // deny event to MSX listeners

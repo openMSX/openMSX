@@ -31,7 +31,17 @@ template<typename T> struct deref_less
 class HotKey : public EventListener, private noncopyable
 {
 public:
+	struct HotKeyInfo {
+		HotKeyInfo() {} // for map::operator[]
+		HotKeyInfo(const std::string& command_, bool repeat_ = false)
+			: command(command_), repeat(repeat_) {}
+		std::string command;
+		bool repeat;
+	};
 	typedef std::shared_ptr<const Event> EventPtr;
+	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr>> BindMap;
+	typedef std::set<EventPtr,             deref_less<EventPtr>> KeySet;
+
 	HotKey(GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);
 	virtual ~HotKey();
@@ -40,19 +50,10 @@ public:
 	void saveBindings(XMLElement& config) const;
 
 private:
-	struct HotKeyInfo {
-		HotKeyInfo() {} // for map::operator[]
-		HotKeyInfo(const std::string& command_, bool repeat_ = false)
-			: command(command_), repeat(repeat_) {}
-		std::string command;
-		bool repeat;
-	};
 	struct LayerInfo {
 		std::string layer;
 		bool blocking;
 	};
-	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr>> BindMap;
-	typedef std::set<EventPtr,             deref_less<EventPtr>> KeySet;
 
 	void initDefaultBindings();
 	void bind         (const EventPtr& event, const HotKeyInfo& info);
