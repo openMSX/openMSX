@@ -165,15 +165,18 @@ proc menu_setting {cmd_result} {
 
 proc menu_updown {delta} {
 	peek_menu_info
-	set selectinfo [dict get $menuinfo selectinfo]
-	set num [llength $selectinfo]
+	set num [llength [dict get $menuinfo selectinfo]]
 	if {$num == 0} return
-
-	set selectidx  [dict get $menuinfo selectidx ]
-	menu_on_deselect $selectinfo $selectidx
-	set selectidx [expr {($selectidx + $delta) % $num}]
-	set_selectidx $selectidx
-	menu_on_select $selectinfo $selectidx
+	set old_idx [dict get $menuinfo selectidx]
+	menu_reselect [expr {($old_idx + $delta) % $num}]
+}
+proc menu_reselect {new_idx} {
+	peek_menu_info
+	set selectinfo [dict get $menuinfo selectinfo]
+	set old_idx [dict get $menuinfo selectidx]
+	menu_on_deselect $selectinfo $old_idx
+	set_selectidx $new_idx
+	menu_on_select $selectinfo $new_idx
 	menu_refresh_top
 }
 
@@ -189,15 +192,102 @@ proc menu_on_deselect {selectinfo selectidx} {
 
 proc menu_action {button} {
 	peek_menu_info
+	set selectidx [dict get $menuinfo selectidx ]
+	menu_action_idx $selectidx $button
+}
+proc menu_action_idx {idx button} {
+	peek_menu_info
 	set selectinfo [dict get $menuinfo selectinfo]
-	set selectidx  [dict get $menuinfo selectidx ]
-
-	set actions [lindex $selectinfo $selectidx 2]
+	set actions [lindex $selectinfo $idx 2]
 	set_optional actions UP   {osd_menu::menu_updown -1}
 	set_optional actions DOWN {osd_menu::menu_updown  1}
 	set_optional actions B    {osd_menu::menu_close_top}
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
+}
+
+proc get_mouse_coords {} {
+	peek_menu_info
+	set name [dict get $menuinfo name]
+	set x 2; set y 2
+	catch {lassign [osd info $name -mousecoord] x y}
+	list $x $y
+}
+proc menu_get_mouse_idx {xy} {
+	lassign $xy x y
+	if {$x < 0 || 1 < $x || $y < 0 || 1 < $y} {return -1}
+
+	peek_menu_info
+	set name [dict get $menuinfo name]
+
+	set yy [expr {$y * [osd info $name -h]}]
+	set sel 0
+	foreach i [dict get $menuinfo selectinfo] {
+		lassign $i y h actions
+		if {($y <= $yy) && ($yy < ($y + $h))} {
+			return $sel
+		}
+		incr sel
+	}
+	return -1
+}
+proc menu_mouse_down {} {
+	variable mouse_coord
+	variable mouse_idx
+	set mouse_coord [get_mouse_coords]
+	set mouse_idx [menu_get_mouse_idx $mouse_coord]
+	if {$mouse_idx != -1} {
+		menu_reselect $mouse_idx
+	}
+}
+proc menu_mouse_up {} {
+	variable mouse_coord
+	variable mouse_idx
+	set mouse_coord [get_mouse_coords]
+	set mouse_idx [menu_get_mouse_idx $mouse_coord]
+	if {$mouse_idx != -1} {
+		menu_action_idx $mouse_idx A
+	}
+	unset mouse_coord
+	unset mouse_idx
+}
+proc menu_mouse_motion {} {
+	variable mouse_coord
+	variable mouse_idx
+	if {![info exists mouse_coord]} return
+
+	set new_mouse_coord [get_mouse_coords]
+	set new_idx [menu_get_mouse_idx $new_mouse_coord]
+	if {$new_idx != -1 && $new_idx != $mouse_idx} {
+		menu_reselect $new_idx
+		set mouse_coord $new_mouse_coord
+		set mouse_idx $new_idx
+		return
+	}
+
+	if {$mouse_idx != -1} {
+		lassign $mouse_coord     old_x old_y
+		lassign $new_mouse_coord new_x new_y
+		set delta_x [expr {$new_x - $old_x}]
+		set delta_y [expr {$new_y - $old_y}]
+		if {$delta_y > 0.1} {
+			menu_action_idx $mouse_idx DOWN
+			set mouse_coord $new_mouse_coord
+			return
+		} elseif {$delta_y < -0.1} {
+			menu_action_idx $mouse_idx UP
+			set mouse_coord $new_mouse_coord
+			return
+		} elseif {$delta_x > 0.1} {
+			menu_action_idx $mouse_idx RIGHT
+			set mouse_coord $new_mouse_coord
+			return
+		} elseif {$delta_x < -0.1} {
+			menu_action_idx $mouse_idx LEFT
+			set mouse_coord $new_mouse_coord
+			return
+		}
+	}
 }
 
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
@@ -249,6 +339,9 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "OSDcontrol DOWN PRESS"  -repeat {osd_menu::menu_action DOWN }
 	bind -layer osd_menu "OSDcontrol LEFT PRESS"  -repeat {osd_menu::menu_action LEFT }
 	bind -layer osd_menu "OSDcontrol RIGHT PRESS" -repeat {osd_menu::menu_action RIGHT}
+	bind -layer osd_menu "mouse button1 down" {osd_menu::menu_mouse_down}
+	bind -layer osd_menu "mouse button1 up"   {osd_menu::menu_mouse_up}
+	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
 	if {$is_dingoo} {
 		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
 		bind -layer osd_menu "keyb LALT"   {osd_menu::menu_action B    }
