@@ -471,6 +471,11 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		break;
 	case VSCAN:
 		// VSCAN is the end of display.
+		// This will generate a VBLANK IRQ. Typically MSX software will
+		// poll the keyboard/joystick on this IRQ. So now is a good
+		// time to also poll for host events.
+		getReactor().pollNow();
+
 		if (isDisplayEnabled()) {
 			vram->updateDisplayEnabled(false, time);
 		}

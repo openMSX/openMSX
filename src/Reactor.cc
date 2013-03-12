@@ -156,6 +156,7 @@ class PollEventGenerator : private Alarm
 public:
 	explicit PollEventGenerator(EventDistributor& eventDistributor);
 	virtual ~PollEventGenerator();
+	void pollNow();
 private:
 	virtual bool alarm();
 	EventDistributor& eventDistributor;
@@ -546,6 +547,11 @@ void Reactor::enterMainLoop()
 	}
 }
 
+void Reactor::pollNow()
+{
+	pollEventGenerator->pollNow();
+}
+
 void Reactor::run(CommandLineParser& parser)
 {
 	auto& commandController = *globalCommandController;
@@ -581,7 +587,7 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
-	PollEventGenerator pollEventGenerator(*eventDistributor);
+	pollEventGenerator = make_unique<PollEventGenerator>(*eventDistributor);
 
 	while (running) {
 		eventDistributor->deliverEvents();
@@ -1049,12 +1055,21 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 PollEventGenerator::PollEventGenerator(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
-	schedule(20 * 1000); // 50 times per second
+	pollNow();
 }
 
 PollEventGenerator::~PollEventGenerator()
 {
 	prepareDelete();
+}
+
+void PollEventGenerator::pollNow()
+{
+	PollEventGenerator::alarm();
+	// The MSX (when not paused) will call this method at 50/60Hz rate.
+	// Though in case the MSX is paused (or emulated very slowly), we
+	// still want to be responsive to host events.
+	schedule(25 * 1000); // 40 times per second (preferably less than 50)
 }
 
 bool PollEventGenerator::alarm()

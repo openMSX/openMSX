@@ -50,6 +50,7 @@ class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
 class GlobalSettings;
+class PollEventGenerator;
 template <typename T> class EnumSetting;
 
 /**
@@ -74,6 +75,7 @@ public:
 	void run(CommandLineParser& parser);
 
 	void enterMainLoop();
+	void pollNow();
 
 	EventDistributor& getEventDistributor();
 	GlobalCliComm& getGlobalCliComm();
@@ -160,6 +162,7 @@ private:
 	std::unique_ptr<ConfigInfo> machineInfo;
 	std::unique_ptr<RealTimeInfo> realTimeInfo;
 	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
+	std::unique_ptr<PollEventGenerator> pollEventGenerator;
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock

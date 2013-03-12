@@ -14,6 +14,8 @@ class Alarm : private noncopyable
 {
 public:
 	/** Arrange for the alarm() method to be called after some time.
+	 * It's allowed to call this method when this Alarm was already
+	 * scheduled. In that case the previous request is lost.
 	 * @param period Duration of the time in microseconds (us).
 	 */
 	void schedule(unsigned period);
