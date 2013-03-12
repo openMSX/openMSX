@@ -264,7 +264,8 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 	assert(!((oldState == RECORD) && (newState == PLAY)));
 
 	// stuff for leaving the old state
-	if (oldState == RECORD) {
+	//  'recordImage.get()==nullptr' can happen in case of loadstate.
+	if ((oldState == RECORD) && recordImage.get()) {
 		flushOutput();
 		bool empty = recordImage.get()->isEmpty();
 		recordImage.reset();
@@ -880,7 +881,23 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 				casImage.setResolved(file->getURL());
 			}
 		}
-		insertTape(casImage);
+		try {
+			insertTape(casImage);
+		} catch (MSXException& e) {
+			if (oldChecksum.empty()) {
+				// It's OK if we cannot reinsert an empty
+				// image. One likely scenario for this case is
+				// the following:
+				//  - cassetteplayer new myfile.wav
+				//  - don't actually start saving to tape yet
+				//  - create a savestate and load that state
+				// Because myfile.wav contains no data yet, it
+				// is deleted from the filesystem. So on a
+				// loadstate it won't be found.
+			} else {
+				throw;
+			}
+		}
 
 		if (playImage.get() && !oldChecksum.empty()) {
 			Sha1Sum newChecksum = playImage->getSha1Sum();
@@ -913,6 +930,10 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader()) {
 		if (state == RECORD) {
 			// TODO we don't support savestates in RECORD mode yet
+			motherBoard.getMSXCliComm().printWarning(
+				"Restoring a state where the MSX was saving to "
+				"tape is not yet supported. Emulation will "
+				"continue without actually saving.");
 			setState(STOP, getImageName(), getCurrentTime());
 		}
 		if (!playImage.get() && (state == PLAY)) {
