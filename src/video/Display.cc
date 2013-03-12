@@ -344,16 +344,28 @@ void Display::doRendererSwitch()
 {
 	assert(switchInProgress);
 
-	try {
-		doRendererSwitch2();
-	} catch (MSXException& e) {
-		getCliComm().printWarning(
-			"Couldn't activate renderer " +
-			renderSettings->getRenderer().getValueString() +
-			": " + e.getMessage());
-		renderSettings->getRenderer().changeValue(RendererFactory::SDL);
-		currentRenderer = RendererFactory::SDL;
-		doRendererSwitch2();
+	bool success = false;
+	while (!success) {
+		try {
+			doRendererSwitch2();
+			success = true;
+		} catch (MSXException& e) {
+			string errorMsg = "Couldn't activate renderer " +
+				renderSettings->getRenderer().getValueString() +
+				": " + e.getMessage();
+			// now try some things that might work against this:
+			if (renderSettings->getRenderer().getValue() != RendererFactory::SDL) {
+				errorMsg += "\nTrying to switch to SDL renderer instead...";
+				renderSettings->getRenderer().changeValue(RendererFactory::SDL);
+				currentRenderer = RendererFactory::SDL;
+			} else {
+				unsigned curval = renderSettings->getScaleFactor().getValue();
+				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(
+				errorMsg += "\nTrying to decrease scale_factor setting from " + StringOp::toString(curval) + " to " + StringOp::toString(curval - 1) + "...";
+				renderSettings->getScaleFactor().changeValue(curval - 1);
+			}
+			getCliComm().printWarning(errorMsg);
+		}
 	}
 
 	switchInProgress = false;
