@@ -17,7 +17,9 @@ namespace openmsx {
 // 3765 still works on a Toshiba HX-10 and Philips NMS 8250, but not on a
 // Panasonic FS-A1WSX, on which 3763 is the max. National CF-2000 has 3762 as
 // the max. Let's take 3760 then as a safe value.
-static const unsigned BAUDRATE = 3760;
+// UPDATE: that seems to break RUN"CAS:" type of programs. 3744 seems to work
+// for those as well (we don't understand why yet)
+static const unsigned BAUDRATE = 3744;
 static const unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
 // We oversample the audio signal for better sound quality (especially in
 // combination with the hq resampler). Without oversampling the audio output
