@@ -12,11 +12,13 @@ namespace openmsx {
 
 // output settings
 
-// 3.1 times normal speed (3720 baud, higher doesn't work anymore, but it is
-// unclear why, because 4600 baud should work (known from Speedsave 4000 and
-// Turbo 5000 programs))
-static const unsigned FACTOR = 31;
-static const unsigned OUTPUT_FREQUENCY = 4800 * FACTOR / 10;
+// a higher baudrate doesn't work anymore, but it is unclear why, because 4600
+// baud should work (known from Speedsave 4000 and Turbo 5000 programs).
+// 3765 still works on a Toshiba HX-10 and Philips NMS 8250, but not on a
+// Panasonic FS-A1WSX, on which 3763 is the max. National CF-2000 has 3762 as
+// the max. Let's take 3760 then as a safe value.
+static const unsigned BAUDRATE = 3760;
+static const unsigned OUTPUT_FREQUENCY = 4 * BAUDRATE; // 4 samples per bit
 // We oversample the audio signal for better sound quality (especially in
 // combination with the hq resampler). Without oversampling the audio output
 // could contain portions like this:
