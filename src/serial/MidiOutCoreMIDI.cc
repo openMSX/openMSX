@@ -56,7 +56,7 @@ void MidiOutCoreMIDI::plugHelper(Connector& /*connector*/,
 	// Create output port.
 	if (OSStatus status = MIDIOutputPortCreate(client, CFSTR("Output"), &port)) {
 		MIDIClientDispose(client);
-		client = nullptr;
+		client = 0;
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI port (" << status << ")");
 	}
@@ -68,8 +68,8 @@ void MidiOutCoreMIDI::unplugHelper(EmuTime::param /*time*/)
 	if (OSStatus status = MIDIClientDispose(client)) {
 		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", (int)status);
 	}
-	port = nullptr;
-	client = nullptr;
+	port = 0;
+	client = 0;
 }
 
 const std::string& MidiOutCoreMIDI::getName() const
@@ -110,8 +110,8 @@ REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutCoreMIDI, "MidiOutCoreMIDI");
 // MidiOutCoreMIDIVirtual ====================================================
 
 MidiOutCoreMIDIVirtual:: MidiOutCoreMIDIVirtual()
-	: client(nullptr)
-	, endpoint(nullptr)
+	: client(0)
+	, endpoint(0)
 {
 }
 
@@ -139,11 +139,11 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 	if (OSStatus status = MIDIEndpointDispose(endpoint)) {
 		fprintf(stderr, "Failed to dispose of MIDI port (%d)\n", (int)status);
 	}
-	endpoint = nullptr;
+	endpoint = 0;
 	if (OSStatus status = MIDIClientDispose(client)) {
 		fprintf(stderr, "Failed to dispose of MIDI client (%d)\n", (int)status);
 	}
-	client = nullptr;
+	client = 0;
 }
 
 const std::string& MidiOutCoreMIDIVirtual::getName() const
