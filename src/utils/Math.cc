@@ -2,6 +2,7 @@
 
 #include "Math.hh"
 #include <cstdint>
+#include <cstdlib>
 
 #if defined _MSC_VER && defined __x86_64
 #include <emmintrin.h>
