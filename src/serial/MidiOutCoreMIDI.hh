@@ -19,6 +19,11 @@ class MidiOutCoreMIDI : public MidiOutDevice
 public:
 	static void registerAll(PluggingController& controller);
 
+	/** Public for the sake of make_unique<>() - not intended for actual
+	  * public use.
+	  */
+	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
+
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);
 	virtual void unplugHelper(EmuTime::param time);
@@ -33,8 +38,6 @@ public:
 
 
 private:
-	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
-
 	MIDIClientRef client;
 	MIDIPortRef port;
 	MIDIEndpointRef endpoint;
