@@ -1,0 +1,113 @@
+body {
+	color: black;
+	background-color: white;
+}
+ul, ol {
+	padding-left: 16pt;
+}
+ul.toccat {
+	list-style: none;
+	padding-left: 0pt;
+}
+ul.toccat ul {
+	list-style: disc;
+	padding-left: 0pt;
+}
+ol.toc, ol.inlinetoccat {
+	list-style: none;
+	padding-left: 0pt;
+}
+ol.inlinetoccat li {
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-top: 0.5em;
+}
+ol.inlinetoc li {
+	font-weight: normal;
+	text-transform: none;
+	padding-right: 8pt;
+	display: inline;
+}
+p, dl, ul, ol, h5 {
+	margin-left: 16pt;
+}
+
+ol.alpha {
+	list-style-type: lower-alpha;
+}
+
+p.image {
+	text-align: center;
+}
+p.version {
+	padding-top: 1em;
+	margin-left: 0pt;
+	font-size: 50%;
+	text-align: right;
+}
+dt.toc {
+	font-size: 150%;
+	font-weight: bold;
+}
+dd {
+	margin-left: 16pt;
+	margin-bottom: 0.5em;
+}
+div.commandline, pre, code {
+	font-family: monospace;
+	letter-spacing: 0.1em;
+}
+code {
+	margin-left: 0.1em;
+	margin-right: 0.1em;
+}
+div.commandline, pre {
+	margin-left: 32pt;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+div.note {
+	font-style: italic;
+	padding: 0.5em 4pt 0.5em 16pt;
+	margin-top: 0.5em;
+}
+div.subsectiontitle {
+	font-style: italic;
+	margin-left: 16pt;
+}
+div.examples {
+	margin-left: 32pt;
+}
+p.todo {
+	color: red;
+}
+a.internal, a.external:visited {
+	color: #000080;
+}
+a.external:link {
+	color: #0000FF;
+}
+a.external:active {
+	color: #8080FF;
+}
+table.border_enabled {
+	border-collapse:collapse;
+	border: 1px solid black;
+}
+table.border_enabled tr th {
+	border: 1px solid black;
+}
+table.border_enabled tr td {
+	border: 1px solid black;
+}
+
+table {
+	margin-left: 32pt;
+}
+th {
+	text-align: left;
+}
+td {
+	vertical-align: top;
+	padding-right: 32pt;
+}
