@@ -46,7 +46,7 @@ squares, this indicates that the speed of a LINE command doesn't depend on the
 slope of the line.</li>
 <li>The second picture shows the output of openMSX version 0.9.1. Here the
 command engine was tweaked to take the slope of the line into account, so the
-output generates clean octagonals.</li>
+test now generates clean octagonals.</li>
 <li>The last picture shows the output of a real MSX. The overall shape is also
 an octagonal. But there are also a lot of irregularities. These irregularities
 can be reproduced when running the test multiple times. So it must be a
@@ -121,8 +121,8 @@ that a single read or write access will transfer 1 byte.</p>
 <p>There is also an 8-bit address bus. Obviously 8 bits are not enough to
 address the full 128kB or even 192kB VRAM address space. Instead the address is
 transferred in two steps. First the row-address is transferred followed by the
-column address (usually the row address corresponds to bits 15-8 of the full
-address, while the column address corresponds to bits 7-0).</p>
+column address. (Usually) the row address corresponds to bits 15-8 of the full
+address, while the column address corresponds to bits 7-0.</p>
 
 <p>Though this still only allows to address up-to 64kB. To get to 128kB, there
 are 2 separate column-address-select signals (named CAS0 and CAS1). These two
@@ -143,7 +143,9 @@ VRAM.</p>
 
 <h3>Timing of the VDP-VRAM signals</h3>
 
-<p>When the VDP want to read or write a byte from/to VRAM it has to <i>wiggle</i> the signals that connect the VDP to the VRAM in a certain way. This section describes the timing of those <i>wiggles</i>.</p>
+<p>When the VDP want to read or write a byte from/to VRAM it has to
+<i>wiggle</i> the signals that connect the VDP to the VRAM in a certain way.
+This section describes the timing of those <i>wiggles</i>.</p>
 
 <p>The timing description in this section is different from the description in
 the 'VDP Technical Data Book'. The Data Book has the <i>real</i> timings,
@@ -158,8 +160,10 @@ from a <i>functional</i> point of view.</p>
 <p>To write a single byte to VRAM, follow this schema:</p>
 <img src="dram-write.png">
 <ul>
- <li>Put the row address on the address bus and activate the RAS signal. Most signals are active-low, so activating means make the signal low.</li>
- <li>After one cycle (remember these are <i>functional</i> timings, especially in this step the <i>real</i> timing rules are more complex):</li>
+ <li>Put the row address on the address bus and activate the RAS signal. Most
+ signals are active-low, so activating means make the signal low.</li>
+ <li>After one cycle (remember these are <i>functional</i> timings, especially
+ in this step the <i>real</i> timing rules are more complex):</li>
   <ul>
     <li>Activate (one of) the CAS signals.</li>
     <li>Put the column address on the address bus.</li>
@@ -207,13 +211,14 @@ the data bus is different. And just like a write, a full read cycle also takes
 
 <h4>Page mode reads (burst read)</h4>
 
-<p>Often the VDP needs to read data from successive VRAM addresses. If those addresses
-all have the same row address, then there's a faster way to perform this compared to
-doing two reads like in the schema above.</p>
+<p>Often the VDP needs to read data from successive VRAM addresses. If those
+addresses all have the same row address, then there's a faster way to perform
+this compared to doing multiple reads like in the schema above.</p>
 
 <img src="dram-read-burst.png">
 <ul>
- <li>Put the (common) row address on the address bus and activate the RAS signal.</li>
+ <li>Put the (common) row address on the address bus and activate the RAS
+ signal.</li>
  <li>After one cycle:</li>
    <ul>
      <li>Put the first column address on the address bus.</li>
@@ -237,10 +242,10 @@ section).</p>
 <p>In this example reading two bytes takes 10 VDP cycles. Doing two single
 reads would take 2&times;6=12 cycles. When doing longer bursts, the savings
 become bigger. Doing a burst of N reads takes 2+4&times;N cycles compared to
-6&times;N cycles for single reads.</p>
+6&times;N cycles for a sequence of single reads.</p>
 
 <p>In principle it's also possible to do burst-writes. Though the VDP doesn't
-need them (it never needs to write more than 1 byte in a sequence).</p>
+use them (it never needs to write more than 1 byte in a sequence).</p>
 
 
 <h4>Multi-bank page mode reads</h4>
@@ -290,7 +295,7 @@ But in screen 7 and 8 there's a transformation between the two:</p>
 <p align="center">physical = (logical &gt;&gt; 1) | (logical &lt;&lt; 16)</p>
 <p>So the 17-bit logical address is rotated one bit to the right to get the
 physical address. The effect of this transformation is that all even logical
-addresses end up in physical bank0 while all odd logical address end up in
+addresses end up in physical bank0 while all odd logical addresses end up in
 physical bank1. So now when you read from successive logical addresses you read
 from alternating physical banks and thus it is possible to use banked read
 mode.</p>
@@ -299,8 +304,8 @@ mode.</p>
 because interleaving is only enabled in screen 7 and 8, this effect can become
 visible when switching between screen modes. <i>An alternative design decision
 could have been to always interleave the addresses. I guess the V9938 designers
-didn't make this choice to allow for single chip configuration in case only
-64kB VRAM is used.</i></p>
+didn't make this choice to allow for single chip configurations in case only
+64kB VRAM is connected.</i></p>
 
 <p>In principle it's also possible to write to two banks in parallel, but the
 VDP never needs this ability.</p>
@@ -310,25 +315,25 @@ VDP never needs this ability.</p>
 <p>DRAM chips need to be refreshed regularly. The VDP is responsible for doing
 this (there are DRAM chips that handle refresh internally, but the VDP doesn't
 use such chips). Many DRAM chips allow a refresh by only activating and
-deactivating the RAS signal (so without actually performing a read or write in
-between). When extrapolating from the above timing diagrams, this would only
+deactivating the RAS signal, so without actually performing a read or write in
+between. When extrapolating from the above timing diagrams, this would only
 cost 4 cycles. Though the VDP doesn't actually use this RAS-without-CAS refresh
 mode. Instead it performs a regular read access which takes 6 cycles.</p>
 
-<p>Each time a read (or write) is performed to a certain row of a DRAM chip,
+<p>Each time a read (or write) is performed on a certain row of a DRAM chip,
 that whole row is refreshed. So to refresh the whole RAM, the VDP has to
 periodically read (any column address of) each of the 256 possible rows.</p>
 
 
 
-<h2>Spreading in time of VRAM accesses</h2>
+<h2>Distribution of VRAM accesses</h2>
 
 <p>The previous section described the details of isolated (single or burst)
 VRAM accesses. This section will look at such accesses as indivisible units and
 examine how these units are grouped together and spread in time to perform all
 the VRAM related stuff the VDP has to do.</p>
 
-<p>The VDP can perform VRAM read/writes for the following reasons:</p>
+<p>The VDP can perform VRAM reads/writes for the following reasons:</p>
 <ul>
  <li>Refresh</li>
  <li>Bitmap rendering</li>
@@ -340,16 +345,16 @@ the VRAM related stuff the VDP has to do.</p>
 didn't investigate those modes yet, so this text mostly ignores them.</p>
 
 <p>The rest of this text explains when in time (at which specific VDP
-cycle) accesses of each type are executed.</p>
+cycles) accesses of each type are executed.</p>
 
 <p>We'll first focus on refresh and bitmap/sprite rendering. Later we'll add
 CPU and command engine. The reason for this split is that the first group has a
-fairly simple pattern: refreshes always occur at a fixed time. Enabling bitmap
-rendering only adds additional VRAM reads but has no influence on the timing of
-the refreshes. Similarly enabling sprite rendering adds even more reads without
-influencing the bitmap or refresh reads. CPU and command accesses on the other
-hand cannot simply be added to this schema without influencing each other. So
-those are postponed till a later section.</p>
+fairly simple pattern: refreshes always occur at fixed moments in time.
+Enabling bitmap rendering only adds additional VRAM reads but has no influence
+on the timing of the refreshes. Similarly enabling sprite rendering adds even
+more reads without influencing the bitmap or refresh reads. CPU and command
+accesses on the other hand cannot simply be added to this schema without
+influencing each other. So those are postponed till a later section.</p>
 
 <h3>Horizontal line timing</h3>
 
@@ -407,7 +412,8 @@ fixed?</i></p>
 <p><i>TODO bits S1,S0 in VDP register R#9: The above table is valid for
 S1,S0=0,0. In other cases the length of a display line is only 1365 cycles
 instead of 1368. The rest of this text assumes a line length of 1368 cycles.
-TODO figure out where in the line these 3 cycles are located.</i></p>
+TODO figure out where in the line this difference of 3 cycles is
+located.</i></p>
 
 <!-- numbers for 1365 cycles
 [0   - 100) (len= 100)
@@ -433,17 +439,19 @@ out and scroll the image.</p>
 useful to have this image open while reading those sections). Here we'll just
 give a broad overview of the stuff in the image:</p>
 <ul>
-<li>Horizontally there are 6 regions in the image (with a slightly different
-background color). These regions correspond to the 'synchronize', 'left/right
-erase', 'left/right border' and 'display' regions in the table from the
-previous section.</li>
+<li>Horizontally there are 6 regions in the image (each has a slightly
+different background color). These regions correspond to the 'synchronize',
+'left/right erase', 'left/right border' and 'display' regions in the table from
+the previous section.</li>
 <li>Horizontally you also see a timeline going from 0 to 1368 cycles. This
 corresponds to one full display line.</li>
 <li>Vertically there are 3 big groups: 'screen off', 'no sprites' and
 'sprites', see next section for why these groups are important.</li>
-<li>Within one vertical group there is one color-coded band and a set of RAS/CAS
-signals. Usually there's one RAS and 2 CAS signals, but the 'sprites off' group
-has 2 pairs of CAS signals. For the 'sprites off' and 'sprites on' groups there are subtle differences in the CAS0/1 signals between screen mode 5/6 and 7/8. But to save space this difference is only shown once.</li>
+<li>Within one vertical group there is one color-coded band and a set of
+RAS/CAS signals. Usually there's one RAS and 2 CAS signals, but the 'sprites
+off' group has 2 pairs of CAS signals. For the 'sprites off' and 'sprites on'
+groups there are subtle differences in the CAS0/1 signals between screen modes
+5/6 and 7/8. But to save space these differences are only shown once.</li>
 <li>The colors in the color-coded band have the following meaning:</li>
  <ul>
   <li>red: refresh read</li>
@@ -477,10 +485,10 @@ matter for the VRAM access pattern.</p>
 
 <p><i>TODO sprite fetching happens 1 line earlier than displaying those sprites
 (see below for details). This means that the last line of the vertical border
-before the display area uses likely a 'mixed mode' where we don't yet fetch
-bitmap data but we do already fetch sprite data. We didn't specifically measure
-this condition, so I can't really tell anything about this mixed mode. (One
-possibility is that it's just like a normal display line, but the fetched
+before the display area likely uses a 'mixed mode' where it doesn't yet fetch
+bitmap data but it does already fetch sprite data. We didn't specifically
+measure this condition, so I can't really tell anything about this mixed mode.
+(One possibility is that it's just like a normal display line, but the fetched
 bitmap data is ignored.) Similarly the last line of the display area doesn't
 strictly need to fetch new sprite data.</i></p>
 
@@ -499,8 +507,7 @@ rendering. It only needs to refresh the VRAM. As already mentioned earlier,
 the VDP uses a regular read to refresh the RAM, so this takes 6 cycles.</p>
 
 <p>The VDP executes 8 refresh actions per display line. They start at the
-following moments in time (look at the red blocks in the big timing
-diagram):</p>
+following moments in time (the red blocks in the big timing diagram):</p>
 <table>
 <tr><td>284</td><td>412</td><td>540</td><td>668</td>
     <td>796</td><td>924</td><td>1052</td><td>1180</td></tr>
@@ -511,18 +518,19 @@ diagram):</p>
 doesn't matter for emulation accuracy</i>.</p>
 
 <p>The logical addresses used for refresh reads seems to be of the form:</p>
-<p align="center">N&times;0x10100 + M&times;0x40 + 0x3F</p>
-<p>Where N increases on each refresh action and M increases only every 64
-actions. So each refresh the row address increases by one and every other
-refresh either the CAS0 or the CAS1 signal gets used. Note that this formula is
-for the logical address, in screen 7/8 this still gets transformed to a
-physical address. So in screen 7/8 a refresh action always uses the CAS1
+<p align="center">N&times;0x10101 | 0x3F</p>
+<p>Where N increases on each refresh action. So each refresh the row address
+increases by one and every other refresh either the CAS0 or the CAS1 signal
+gets used (the columns address doesn't amtter for refresh). Note that this
+formula is for the logical address, in screen 7/8 this still gets transformed
+to a physical address. So in screen 7/8 a refresh action always uses the CAS1
 signal. That means that in screen 7/8 the DRAM chip(s) of bank0 actually do get
 refreshed using the RAS-without-CAS refresh mode.</p>
 
 <p>The refresh timings are the same for all non-text screen modes. But in text
 modes there are only 7 refreshes per line and they are also located at
-different relative positions. We didn't investigate this further.</p>
+different relative positions than in the table above. We didn't investigate
+this further.</p>
 
 
 <h5>dummy reads</h5>
@@ -537,7 +545,8 @@ it's not a fluke in (only one of) the measurements.</p>
 
 <p>The refresh actions remain exactly the same in the other two modes. But
 these dummy reads are different in the mode 'sprites off' or disappear
-completely in the mode 'sprites on'.</p>
+completely in the mode 'sprites on'. (This confirms that nothing 'useful' is
+done by these dummy reads).</p>
 
 <p>Anyway for emulation we can mostly ignore these dummy reads. It only matters
 that at these moments in time we cannot execute CPU or command VRAM reads or
@@ -562,13 +571,13 @@ third dummy read have a pattern in their address. For example:</p>
 <tr><td>0x1FFFF</td><td>0x03C80</td><td>0x03C82</td></tr>
 <tr><td>0x1FFFF</td><td>0x03D00</td><td>0x03D02</td></tr>
 </table>
-<p>This table shows the address of the 3 dummy reads for 4 successive display
+<p>This table shows the addresses of the 3 dummy reads for 4 successive display
 lines (this is data from an actual measurement, unfortunately our equipment
 could only buffer up to 4 lines). The lower 7 bits of the address of the 2nd
 read always seem to be zero. The address of the 3rd read is the same as for the
 2nd read except that bit 1 is set to 1. When going from one line to the next,
-the address increases by 0x80. Our measurements captured 10 sets of 4
-successive lines. Each time bits 16-15 were zero (bits 14-7 do take different
+the address increases by 0x80. Our measurements captured 10 independent sets of
+4 successive lines. Each time bits 16-15 were zero (bits 14-7 do take different
 values). This could be a coincidence, or it could be that these bits really
 aren't included in the counter. Note that again these are logical addresses (so
 still transformed for screen 7/8). We didn't investigate these dummy reads in
@@ -587,11 +596,10 @@ you look at the RAS signal: this signal follows the exact same pattern in all
 (bitmap) screen modes, so in screen 5/6 it remains active for two cycles longer
 than strictly necessary.</p>
 
-<p>Actually before these 32 blocks there's one extra dummy block. This
-block has the same timing as the other blocks, except that it always
-reads address 0x1FFFF. From an emulator point of view, these dummy reads
-don't matter, it only matters that at those moments no other VRAM
-accesses can occur.</p>
+<p>Actually before these 32 blocks there's one extra dummy block. This block
+has the same timing as the other blocks, but it always reads address 0x1FFFF.
+From an emulator point of view, these dummy reads don't matter, it only matters
+that at those moments no other VRAM accesses can occur.</p>
 
 <p>The start of these 1+32 blocks are located at these moments in time (these
 are the green blocks in the big timing diagram):</p>
@@ -607,9 +615,9 @@ are the green blocks in the big timing diagram):</p>
 </table>
 
 <p><i>The following is only speculation: I wonder why there is such a dummy
-preamble block. Theoretically this <b>could</b> have been used/reserved to
+preamble block. Theoretically this <b>could</b> have been used (or reserved) to
 implement V9958-like horizontal scrolling without having to mask 8 border
-pixels. Unfortunately horizontal scolling on a V9958 doesn't work like that
+pixels. Unfortunately horizontal scrolling on a V9958 doesn't work like that
 :(</i></p>
 
 <h4>screen enabled, sprites enabled</h4>
@@ -667,7 +675,7 @@ single byte reads.</li>
 <li>Even if there are less than 8 sprites to display, all read accesses do
 still occurs. It <i>seems</i> to be that the useless reads are duplicates of
 sprite 0. (Or is it the first visible sprite? We didn't look in detail because
-it's not important for our purpose. It matters that the VRAM bus remains
+it's not important for our purpose. It only matters that the VRAM bus remains
 occupied).</li>
 <li>The data fetches happens in 4 chunks of each 2 sprites. Each chunk
 reads:</li>
@@ -706,11 +714,11 @@ could have picked the staring point so that these numbers don't wrap). It only
 matters that all sprite data is fetched before the display rendering
 starts.</li>
 <li>Also note that the timing is slightly irregular: in the 1st, 3rd and 4th
-group there's a pause of 6 cycles (there fits exactly one other access). But in
-the 2nd group there's a pause of 10 cycles. There also only fits one other
-access in this pause, and the timing is 2+6+2, so 2 'wasted' cycles before and
-after that other access. <i>I suspect that these 2+2 cycles are related to the
-R#9 S1,S0 bits. TODO measure this</i>.</li>
+group there's a pause of 6 cycles, there fits exactly one other access in this
+gap. But in the 2nd group there's a pause of 10 cycles. There also only fits
+one other access in this gap, and the timing is 2+6+2, so 2 'wasted' cycles
+before and after that other access. <i>I suspect that these 2+2 cycles are
+related to the R#9 S1,S0 bits. TODO measure this</i>.</li>
 </ul>
 
 <p>It's worth repeating that whenever sprites are enabled, the VDP
@@ -738,12 +746,12 @@ bus is idle for 6 cycles, it can be used for CPU or command engine
 accesses.</p>
 
 <p>Instead there are fixed moments in time where there could <i>possibly</i>
-start a cpu or command access (let's call these moments access slots). Each
-slot can be used for either CPU or command accesses (there are no slots that
-are uniquely reserved for either CPU or for commands). The position and the
-amount of access slots <i>only</i> depends on the VDP mode (screen off, sprites
-off, sprites on), not for example on the amount of actually visible
-sprites or on the (bitmap) screen mode.</p>
+start a cpu or command access, let's call these moments access slots. Each slot
+can be used for either CPU or command accesses (there are no slots that are
+uniquely reserved for either CPU or for commands). The position and the amount
+of access slots <i>only</i> depends on the VDP mode (screen off, sprites off,
+sprites on), not for example on the amount of actually visible sprites or on
+the (bitmap) screen mode.</p>
 
 <p>The 3 tables below show the amount and the positions of the possible access
 slots for the 3 different modes (in the timing diagram these are the blue
@@ -826,8 +834,8 @@ access slots as in the mode 'sprites off' and about 5 times as many as in the
 mode 'sprites on'. This does however <b>not</b> mean that in these modes the
 command engine will execute respectively 2&times; and 5&times; as fast. Instead
 in the mode 'sprites on' the speed of command execution is mostly limited by
-the amount of access slots, while in the mode 'screen off', the bottleneck is
-mostly the speed of the command engine itself.</p>
+the amount of available access slots, while in the mode 'screen off', the
+bottleneck is mostly the speed of the command engine itself.</p>
 
 <p>Also note that the access slots are not evenly spread in time. For
 example:</p>
@@ -848,7 +856,7 @@ after this smallest gap (at cycle=170) is rarely used).</li>
 </ul>
 
 <p>These large gaps between the access slots are important. For example if the
-CPU is sending data to the VDP at a too fast rate, and this happens just at a
+CPU is sending data to the VDP at a too fast rate, and this happens right at a
 moment where there are no access slots available, then some of the data send by
 the CPU is lost. We'll see later in this text that this can even happen
 when the time between the incoming CPU requests is (slightly) larger than the
@@ -872,17 +880,16 @@ pending then the old request is lost. More on this below. <i>TODO most logical
 is that the old (not the new) request is lost, but actually check this. Though
 the Z80 might be too slow to be able to test this.</i></li>
 <li>Similarly when the VDP command engine needs to perform a VRAM read or
-write, this request is also in a buffer. This is a different buffer than
+write, this request is also put in a buffer. This is a different buffer than
 the one for CPU requests.</li>
 <li>In contrast to the CPU, the command engine is stalled when the command
 engine buffer holds a request. So command engine requests can never get
 lost.</li>
 <li>16 cycles in advance of an access slot the VDP checks whether there is
-either a pending CPU or command request.</li>
-<li>If there's a pending CPU request, that request will be executed (16 cycles
-later). If there's no cpu request but there is a command request then that one
-will be executed (16 cycles later). So the CPU takes priority over the command
-engine.</li>
+either a pending CPU or command request. If there's a pending CPU request, that
+request will be executed (16 cycles later). If there's no cpu request but there
+is a command request then that one will be executed (16 cycles later). So the
+CPU takes priority over the command engine.</li>
 </ul>
 
 
@@ -898,10 +905,10 @@ available access slots in these modes.</p>
 
 <p>In one of our tests we executed a HMMV VDP command (this is the fastest
 command, see below) while simultaneously executing a long series of <code>OUT
-(#98),A</code> instructions (the fastest way to send CPU access requests). We
+(#98),A</code> instructions (the fastest way to send CPU write requests). We
 found that in the mode 'sprites on' the command execution speed was
 approximately cut in half! But in the other two modes, the execution speed was
-barely influenced (actually the test program wasn't accurate enough to measure
+barely influenced. (Actually the test program wasn't accurate enough to measure
 any significant speed difference, but theoretically also in these two modes the
 execution speed should be reduced by a small amount).</p>
 
@@ -931,7 +938,7 @@ pending CPU request, so we'll execute that at time=316.</li>
 <li>At time=312 we receive a new CPU request. This is 312-240=72 VDP cycles (or
 12 Z80 cycles, the duration of a <code>OUT (#98),A</code> instruction) after
 the previous request. But the buffer still contains the previous unhandled
-request. The new request overwrites the old request.</li>
+request. The new request overwrites the old request!</li>
 <li>At time=316 there's an access slot and we've allocated this slot to the CPU
 (at time=300). So the pending CPU request gets executed. Though this is already
 the new request!</li>
@@ -1004,7 +1011,7 @@ is some extra delay. For the LMMM command this takes 64 extra cycles. So
 line.</li>
 <li>Note that all these values are the <i>optimal</i> timing values. The actual
 delay can be longer because there is no access slot available or the slot is
-already taken for CPU access.</li>
+already allocated for CPU access.</li>
 </ul>
 
 <p>All the commands in the table above are block commands except for 'LINE'.
@@ -1030,10 +1037,10 @@ a YMMV command always starts at the left or right border of the screen.</p>
 
 <p><i>TODO What we didn't measure (also couldn't measure with our test setup)
 was the delay between the start of the command (when the CPU sends the command
-byte to the VDP) and the time the command actually starts executing (e.g. when
-the first read or write command access is send to VRAM). It's logical to assume
-that the 'per line' overhead also occurs at the start of the command. But it's
-possible there is yet some extra 'per command' overhead.</i></p>
+byte to the VDP) and the moment the command actually starts executing (e.g.
+when the first read or write command access is send to VRAM). It's logical to
+assume that the 'per line' overhead also occurs at the start of the command.
+But it's possible there is also some 'per command' overhead.</i></p>
 
 <h5>speculation on the slowness of the command engine</h5>
 <p>When looking at the above table, we see that the command engine is very
