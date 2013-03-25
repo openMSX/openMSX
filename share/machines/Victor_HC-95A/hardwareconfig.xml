@@ -20,7 +20,7 @@
     <Kanji id="Kanji ROM">
       <rom>
         <filename>hc-95a_kanjifont.rom</filename>
-        <sha1>9ed3ab6d893632b9246e91b412cd5db519e7586b</sha1> <!-- this is just a guess, it's not dumped :( -->
+        <sha1>db03211b7db46899df41db2b1dfbec972109a967</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD9" num="1" type="I"/>
