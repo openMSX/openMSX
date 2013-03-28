@@ -1076,5 +1076,47 @@ as:</p>
 <p>When you look at the data in this way, the numbers already look more
 reasonable.</p>
 
+
+
+<h2>Next steps</h2>
+
+<p>All the information above <i>should</i> be enough to significantly improve
+the accuracy of MSX emulators. The following months I plan to work on improving
+openMSX.</p>
+<ul>
+<li>First I'd like to improve the CPU-VRAM access stuff, so that e.g. too fast
+CPU accesses actually result in dropped requests.</li>
+<li>Next step is the timing of the VDP commands. This depends on the previous
+step because e.g. CPU access slows down command execution.</li>
+<li>Still a later step could be to more accurately in time fetch the data
+required for display rendering (bitmap, sprites). This is lower priority
+because:
+ <ul>
+  <li>These effects are limited to the visual output. Errors can't influence
+  the 'state' of the MSX machine. So it's impossible to write a MSX program
+  that checks (= makes a decision based on) the rendering accuracy (it is
+  possible to check for dropped CPU requests or the speed of the
+  commands).</li>
+  <li>I don't know of any <i>existing</i> MSX software where this will make a
+  noticeable difference. Maybe an idea for a <i>new</i> test is to vary the
+  y-coordinates of the sprite(s) within one display line. Thus causing the
+  sprite engine to use two different values in the two phases of sprite
+  rendering.</li>
+  <li>Hmm &hellip; or maybe there is an existing program: the <a
+  href="http://users.skynet.be/bk263586/verti.zip">verti</a> demo. On current
+  emulators the vertical bars are all equally wide. But on a real MSX there
+  are wider and smaller bars, but all are multiples of 8 pixels.</a>
+ </ul>
+</ul>
+<p>I'm afraid this will all still take quite a bit of work.</p>
+
+<p>Anyway, I hope the information in this document is useful. For (other) MSX
+emulator developers or for MSX developers in general.</p>
+
+<hr/>
+<p align="right" style="font-size:smaller;">
+2013/03/28, Wouter Vermaelen
+</p>
+
 </body>
 </html>
