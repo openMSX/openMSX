@@ -9,6 +9,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
+#include "array_ref.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -478,27 +479,22 @@ private:
 	/** Types of VDP sync points that can be scheduled.
 	  */
 	enum SyncType {
-		/** Vertical sync: the transition from one frame to the next.
-		  */
+		/** Vertical sync: the transition from one frame to the next. */
 		VSYNC,
-		/** Start of display.
-		  */
+		/** Start of display. */
 		DISPLAY_START,
-		/** Vertical scanning: end of display.
-		  */
+		/** Vertical scanning: end of display. */
 		VSCAN,
-		/** Horizontal scanning: line interrupt.
-		  */
+		/** Horizontal scanning: line interrupt. */
 		HSCAN,
-		/** Horizontal adjust change
-		  */
+		/** Horizontal adjust change. */
 		HOR_ADJUST,
-		/** Change mode
-		  */
+		/** Change mode. */
 		SET_MODE,
-		/** Enable/disable screen
-		  */
-		SET_BLANK
+		/** Enable/disable screen. */
+		SET_BLANK,
+		/** CPU read/write VRAM access. */
+		CPU_VRAM_ACCESS,
 	};
 
 	/** Time at which the internal VDP display line counter is reset,
@@ -590,9 +586,18 @@ private:
 	  */
 	void scheduleHScan(EmuTime::param time);
 
+	/** Byte is written to VRAM by the CPU.
+	  */
+	void vramWrite(byte value, EmuTime::param time);
+
 	/** Byte is read from VRAM by the CPU.
 	  */
 	byte vramRead(EmuTime::param time);
+
+	/** Helper methods for CPU-VRAM access. */
+	void scheduleCpuVramAccess(bool isRead, EmuTime::param time);
+	void executeCpuVramAccess(EmuTime::param time);
+	array_ref<int> getAccessSlots() const;
 
 	/** Read the contents of a status register
 	  */
@@ -650,6 +655,8 @@ private:
 	void setPalette(int index, word grb, EmuTime::param time);
 
 private:
+	typedef Clock<TICKS_PER_SECOND> VDPClock;
+
 	Display& display;
 
 	friend class VDPRegDebug;
@@ -699,7 +706,7 @@ private:
 
 	/** The emulation time when this frame was started (vsync).
 	  */
-	Clock<TICKS_PER_SECOND> frameStartTime;
+	VDPClock frameStartTime;
 
 	/** Manages vertical scanning interrupt request.
 	  */
@@ -834,8 +841,14 @@ private:
 	  *   On TMS9928 the VRAM interface is the only access method.
 	  *   But on V9938/58 there are other ways to access VRAM;
 	  *   I wonder if they are consistent with this implementation.
+	  * This also holds the soon-to-be-written data for CPU-VRAM writes.
 	  */
-	byte readAhead;
+	byte cpuVramData;
+
+	/** CPU-VRAM requests are not executed immediately (though soon). This
+	  * variable indicates whether the pending request is read or write.
+	  */
+	bool cpuVramReqIsRead;
 
 	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?
 	  * This is determined by MXC (R#45, bit 6).
@@ -860,7 +873,7 @@ private:
 	  * is printed.  */
 	bool warningPrinted;
 };
-SERIALIZE_CLASS_VERSION(VDP, 4);
+SERIALIZE_CLASS_VERSION(VDP, 5);
 
 } // namespace openmsx
 

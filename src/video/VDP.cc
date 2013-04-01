@@ -36,6 +36,7 @@ TODO:
 #include "StringOp.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include <algorithm>
 #include <cstring>
 #include <cassert>
 
@@ -352,7 +353,7 @@ void VDP::resetInit()
 	palTiming = true; // controlRegs[9] & 0x02;
 	displayMode.reset();
 	vramPointer = 0;
-	readAhead = 0;
+	cpuVramData = 0;
 	dataLatch = 0;
 	cpuExtendedVram = false;
 	registerDataStored = false;
@@ -412,6 +413,7 @@ void VDP::reset(EmuTime::param time)
 	removeSyncPoint(HOR_ADJUST);
 	removeSyncPoint(SET_MODE);
 	removeSyncPoint(SET_BLANK);
+	removeSyncPoint(CPU_VRAM_ACCESS);
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
@@ -515,6 +517,9 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		displayEnabled = newDisplayEnabled;
 		break;
 	}
+	case CPU_VRAM_ACCESS:
+		executeCpuVramAccess(time);
+		break;
 	default:
 		UNREACHABLE;
 	}
@@ -704,31 +709,10 @@ void VDP::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
-	case 0: { // VRAM data write
-		int addr = (controlRegs[14] << 14) | vramPointer;
-		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
-		if (displayMode.isPlanar()) {
-			// note: also extended VRAM is interleaved,
-			//       because there is only 64kb it's interleaved
-			//       with itself (every byte repeated twice)
-			addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
-		}
-		if (!cpuExtendedVram) {
-			vram->cpuWrite(addr, value, time);
-		} else if (vram->getSize() == 192 * 1024) {
-			vram->cpuWrite(0x20000 | (addr & 0xFFFF), value, time);
-		} else {
-			// ignore
-		}
-		vramPointer = (vramPointer + 1) & 0x3FFF;
-		if (vramPointer == 0 && displayMode.isV9938Mode()) {
-			// In MSX2 video modes, pointer range is 128K.
-			controlRegs[14] = (controlRegs[14] + 1) & 0x07;
-		}
-		readAhead = value;
+	case 0: // VRAM data write
+		vramWrite(value, time);
 		registerDataStored = false;
 		break;
-	}
 	case 1: // Register or address write
 		if (registerDataStored) {
 			if (value & 0x80) {
@@ -809,27 +793,134 @@ void VDP::setPalette(int index, word grb, EmuTime::param time)
 	}
 }
 
+void VDP::vramWrite(byte value, EmuTime::param time)
+{
+	// Tested on real V9938: 'cpuVramData' is shared between read and write.
+	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
+	cpuVramData = value;
+	scheduleCpuVramAccess(false, time);
+}
+
 byte VDP::vramRead(EmuTime::param time)
 {
-	byte result = readAhead;
+	scheduleCpuVramAccess(true, time); // schedule next read
+	return cpuVramData; // this is the data from the previous read
+}
+
+void VDP::scheduleCpuVramAccess(bool isRead, EmuTime::param time)
+{
+	cpuVramReqIsRead = isRead;
+	if (unlikely(pendingSyncPoint(CPU_VRAM_ACCESS))) {
+		// Already scheduled. Do nothing.
+		// The old request has been overwritten by the new request!
+	} else {
+		int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
+		auto slots = getAccessSlots();
+		// search lowest value that is bigger or equal to ticks+16
+		auto it = std::upper_bound(slots.begin(), slots.end(), ticks + 16-1);
+		assert(it != slots.end());
+		//std::cout << "ticks=" << ticks << " *it=" << *it << std::endl;
+		setSyncPoint(time + VDPClock::duration(*it - ticks),
+		             CPU_VRAM_ACCESS);
+	}
+}
+
+void VDP::executeCpuVramAccess(EmuTime::param time)
+{
 	int addr = (controlRegs[14] << 14) | vramPointer;
 	if (displayMode.isPlanar()) {
+		// note: also extended VRAM is interleaved,
+		//       because there is only 64kB it's interleaved
+		//       with itself (every byte repeated twice)
 		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
 	}
-	if (!cpuExtendedVram) {
-		readAhead = vram->cpuRead(addr, time);
-	} else if (vram->getSize() == 192 * 1024) {
-		readAhead = vram->cpuRead(0x20000 | (addr & 0xFFFF), time);
+
+	bool doAccess;
+	if (likely(!cpuExtendedVram)) {
+		doAccess = true;
+	} else if (likely(vram->getSize() == 192 * 1024)) {
+		addr = 0x20000 | (addr & 0xFFFF);
+		doAccess = true;
 	} else {
-		readAhead = 0xFF;
+		doAccess = false;
 	}
+	if (doAccess) {
+		if (cpuVramReqIsRead) {
+			cpuVramData = vram->cpuRead(addr, time);
+		} else {
+			vram->cpuWrite(addr, cpuVramData, time);
+		}
+	} else {
+		if (cpuVramReqIsRead) {
+			cpuVramData = 0xFF;
+		} else {
+			// nothing
+		}
+	}
+
 	vramPointer = (vramPointer + 1) & 0x3FFF;
 	if (vramPointer == 0 && displayMode.isV9938Mode()) {
-		// In MSX2 video modes , pointer range is 128K.
+		// In MSX2 video modes, pointer range is 128K.
 		controlRegs[14] = (controlRegs[14] + 1) & 0x07;
 	}
-	registerDataStored = false;
-	return result;
+}
+
+array_ref<int> VDP::getAccessSlots() const
+{
+	// TODO the following 3 tables are correct for bitmap screen modes,
+	//      still need to investigate character and text modes.
+	// These tables must contain at least one value that is bigger or equal
+	// to 1368+16. So we extend the data with a few cyclic duplicates.
+	static const int screenOff[154 + 3] = {
+		   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
+		  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
+		 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
+		 276,  292,  300,  308,  316,  324,  332,  340,  348,  356,
+		 364,  372,  380,  388,  396,  404,  420,  428,  436,  444,
+		 452,  460,  468,  476,  484,  492,  500,  508,  516,  524,
+		 532,  548,  556,  564,  572,  580,  588,  596,  604,  612,
+		 620,  628,  636,  644,  652,  660,  676,  684,  692,  700,
+		 708,  716,  724,  732,  740,  748,  756,  764,  772,  780,
+		 788,  804,  812,  820,  828,  836,  844,  852,  860,  868,
+		 876,  884,  892,  900,  908,  916,  932,  940,  948,  956,
+		 964,  972,  980,  988,  996, 1004, 1012, 1020, 1028, 1036,
+		1044, 1060, 1068, 1076, 1084, 1092, 1100, 1108, 1116, 1124,
+		1132, 1140, 1148, 1156, 1164, 1172, 1188, 1196, 1204, 1212,
+		1220, 1228, 1268, 1276, 1284, 1292, 1300, 1308, 1316, 1324,
+		1334, 1344, 1352, 1360,
+		1368+0, 1368+8, 1368+16,
+	};
+
+	static const int spritesOff[88 + 3] = {
+		   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
+		  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
+		 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
+		 406,  438,  444,  470,  476,  502,  508,  534,  566,  572,
+		 598,  604,  630,  636,  662,  694,  700,  726,  732,  758,
+		 764,  790,  822,  828,  854,  860,  886,  892,  918,  950,
+		 956,  982,  988, 1014, 1020, 1046, 1078, 1084, 1110, 1116,
+		1142, 1148, 1174, 1206, 1212, 1266, 1274, 1282, 1290, 1298,
+		1306, 1314, 1322, 1332, 1342, 1350, 1358, 1366,
+		1368+6, 1368+14, 1368+22,
+	};
+
+	static const int screenOn[31 + 1] = {
+		  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
+		 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
+		 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
+		1330,
+		1368+28,
+	};
+
+	if (isDisplayEnabled()) {
+		if (controlRegs[8] & 2) {
+			return array_ref<int>(spritesOff);
+		} else {
+			return array_ref<int>(screenOn);
+		}
+	} else {
+		return array_ref<int>(screenOff);
+	}
 }
 
 byte VDP::peekStatusReg(byte reg, EmuTime::param time) const
@@ -917,14 +1008,13 @@ byte VDP::readStatusReg(byte reg, EmuTime::param time)
 byte VDP::readIO(word port, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
+
+	registerDataStored = false; // Abort any port #1 writes in progress.
+
 	switch (port & 0x03) {
 	case 0: // VRAM data read
 		return vramRead(time);
 	case 1: // Status register read
-
-		// Abort any port #1 writes in progress.
-		registerDataStored = false;
-
 		// Calculate status register contents.
 		return readStatusReg(controlRegs[15], time);
 	default:
@@ -1434,6 +1524,7 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 // version 2: added frameCount
 // version 3: removed verticalAdjust
 // version 4: removed lineZero
+// version 5: replace readAhead->cpuVramData, added cpuVramReqIsRead
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned version)
 {
@@ -1470,7 +1561,12 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("dataLatch", dataLatch);
 	ar.serialize("registerDataStored", registerDataStored);
 	ar.serialize("paletteDataStored", paletteDataStored);
-	ar.serialize("readAhead", readAhead);
+	if (ar.versionAtLeast(version, 5)) {
+		ar.serialize("cpuVramData", cpuVramData);
+		ar.serialize("cpuVramReqIsRead", cpuVramReqIsRead);
+	} else {
+		ar.serialize("readAhead", cpuVramData);
+	}
 	ar.serialize("cpuExtendedVram", cpuExtendedVram);
 	ar.serialize("displayEnabled", displayEnabled);
 	byte mode = displayMode.getByte();
