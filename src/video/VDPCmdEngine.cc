@@ -1732,14 +1732,17 @@ void VDPCmdEngine::deleteLEngines(unsigned cmd)
 
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
-	CommandController& commandController)
+		CommandController& commandController)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, renderSettings(renderSettings_)
 	, cmdTraceSetting(make_unique<BooleanSetting>(
-		commandController, "vdpcmdtrace",
-		"VDP command tracing on/off", false))
+		commandController, vdp_.getName() == "VDP" ? "vdpcmdtrace" :
+		vdp_.getName() + " vdpcmdtrace", "VDP command tracing on/off",
+		false))
 	, cmdInProgressCallback(make_unique<TclCallback>(
-		commandController, "vdpcmdinprogress_callback",
+		commandController, vdp_.getName() == "VDP" ?
+		"vdpcmdinprogress_callback" : vdp_.getName() +
+		" vdpcmdinprogress_callback",
 	        "Tcl proc to call when a write to the VDP command engine is "
 		"detected while the previous command is still in progress."))
 	, time(EmuTime::zero)

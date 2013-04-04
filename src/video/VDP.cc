@@ -1428,7 +1428,7 @@ void VDP::setExternalVideoSource(const RawFrame* externalSource)
 
 VDPRegDebug::VDPRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
-	                   "VDP regs", "VDP registers.", 0x40)
+	                   vdp_.getName() + " regs", "VDP registers.", 0x40)
 	, vdp(vdp_)
 {
 }
@@ -1454,7 +1454,7 @@ void VDPRegDebug::write(unsigned address, byte value, EmuTime::param time)
 
 VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
-	                   "VDP status regs", "VDP status registers.", 0x10)
+	                   vdp_.getName() + " status regs", "VDP status registers.", 0x10)
 	, vdp(vdp_)
 {
 }
@@ -1469,7 +1469,7 @@ byte VDPStatusRegDebug::read(unsigned address, EmuTime::param time)
 
 VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
-	                   "VDP palette", "V99x8 palette (RBG format)", 0x20)
+	                   vdp_.getName() + " palette", "V99x8 palette (RBG format)", 0x20)
 	, vdp(vdp_)
 {
 }
@@ -1494,8 +1494,9 @@ void VDPPaletteDebug::write(unsigned address, byte value, EmuTime::param time)
 // class VRAMPointerDebug
 
 VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
-	: SimpleDebuggable(vdp_.getMotherBoard(), "VRAM pointer",
-	                   "VDP VRAM pointer (14 lower bits)", 2)
+	: SimpleDebuggable(vdp_.getMotherBoard(), vdp_.getName() == "VDP" ?
+			"VRAM pointer" : vdp_.getName() + " VRAM pointer",
+			"VDP VRAM pointer (14 lower bits)", 2)
 	, vdp(vdp_)
 {
 }
