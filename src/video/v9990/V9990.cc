@@ -116,6 +116,7 @@ V9990::V9990(const DeviceConfig& config)
 	// Initialise rendering system
 	isDisplayArea = false;
 	displayEnabled = false; // avoid UMR (used by createRenderer())
+	superimposing  = false; // avoid UMR
 	createRenderer(time);
 
 	powerUp(time);
