@@ -39,7 +39,7 @@ void Schedulable::removeSyncPoints()
 	scheduler.removeSyncPoints(*this);
 }
 
-bool Schedulable::pendingSyncPoint(int userData)
+bool Schedulable::pendingSyncPoint(int userData) const
 {
 	return scheduler.pendingSyncPoint(*this, userData);
 }

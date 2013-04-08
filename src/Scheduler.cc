@@ -118,7 +118,7 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 	                 syncPoints.end());
 }
 
-bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
+bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData) const
 {
 	assert(Thread::isMainThread());
 	for (auto& s : syncPoints) {

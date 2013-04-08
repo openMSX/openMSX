@@ -96,6 +96,8 @@ public:
 	double div(EmuDuration::param d) const
 		{ return double(time) / d.time; }
 
+	EmuDuration& operator*=(unsigned fact)
+		{ time *= fact; return *this; }
 	EmuDuration& operator*=(double fact)
 		{ time = uint64_t(time * fact); return *this; }
 	EmuDuration& operator/=(double fact)
