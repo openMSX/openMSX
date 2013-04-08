@@ -34,7 +34,7 @@ public:
 
 	/** Perform a given V9938 graphical operation.
 	  */
-	virtual void execute(EmuTime::param /*time*/, VDPCmdEngine& /*engine*/) {}
+	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine) = 0;
 };
 
 
@@ -59,7 +59,15 @@ public:
 	  * @param time The moment in emulated time to sync to.
 	  */
 	inline void sync(EmuTime::param time) {
-		if (currentCommand) currentCommand->execute(time, *this);
+		if (!currentCommand) return;
+		currentCommand->execute(time, *this);
+		if (currentCommand && unlikely(vdp.cpuAccessScheduled())) {
+			// If there's a CPU access scheduled, then the next
+			// slot will be used by the CPU. So we take a later
+			// slot.
+			nextAccessSlot(1); // skip one slot
+			assert(this->time > time);
+		}
 	}
 
 	/** Gets the command engine status (part of S#2).
@@ -143,15 +151,13 @@ private:
 
 	void executeCommand(EmuTime::param time);
 
+	inline void nextAccessSlot(int delta) {
+		time = vdp.getAccessSlot(time, delta);
+	}
+
 	/** Finshed executing graphical operation.
 	  */
 	void commandDone(EmuTime::param time);
-
-	/** Get the current command timing, depends on vdp settings (sprites, display).
-	  */
-	inline unsigned getTiming() {
-		return likely(!brokenTiming) ? vdp.getAccessTiming() : 4;
-	}
 
 	/** Report the VDP command specified in the registers.
 	  */
@@ -190,6 +196,11 @@ private:
 	  */
 	EmuTime statusChangeTime;
 
+	/** Some commands execute multiple VRAM accesses per pixel
+	  * (e.g. LMMM does two reads and a write). This variable keeps
+	  * track of where in the (sub)command we are. */
+	int phase;
+
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
 	  * -1 -> other.
@@ -202,6 +213,11 @@ private:
 	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
                                 // Register ASX can be read (via status register 8/9)
 	byte COL, ARG, CMD;
+
+	/** When a command needs multiple VRAM accesses per pixel, the result
+	 * of intermediate reads is stored in these variables. */
+	byte tmpSrc;
+	byte tmpDst;
 
 	/** The command engine status (part of S#2).
 	  * Bit 7 (TR) is set when the command engine is ready for
@@ -222,9 +238,12 @@ private:
 
 	/** Real command timing or instantaneous (broken) timing
 	  */
-	bool brokenTiming;
+	//bool brokenTiming; // not used anymore ATM
+	//                   // TODO remove completely or try to restore?
 
 	friend struct AbortCmd;
+	friend struct PointBaseCmd;
+	friend struct PsetBaseCmd;
 	friend struct SrchBaseCmd;
 	friend struct LineBaseCmd;
 	friend class BlockCmd;
@@ -244,7 +263,7 @@ private:
 	template<typename, typename> friend struct LmmmCmd;
 	template<typename, typename> friend struct LmmcCmd;
 };
-SERIALIZE_CLASS_VERSION(VDPCmdEngine, 2);
+SERIALIZE_CLASS_VERSION(VDPCmdEngine, 3);
 
 } // namespace openmsx
 

@@ -335,16 +335,6 @@ public:
 		return frameStartTime.getTime();
 	}
 
-	/** Get VRAM access timing info.
-	  * This is the internal format used by the command engine.
-	  * TODO: When improving the timing accuracy, think of a clearer
-	  *       way of sharing this information.
-	  */
-	inline int getAccessTiming() const {
-		return (isDisplayEnabled() & 1) // display enable
-		       | (controlRegs[8] & 2);  // sprite enable
-	}
-
 	/** Gets the sprite size in pixels (8/16).
 	  */
 	inline int getSpriteSize() const {
