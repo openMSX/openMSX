@@ -452,6 +452,13 @@ public:
 	  */
 	void setExternalVideoSource(const RawFrame* externalSource);
 
+	/** Get the earliest access slot that is at least 'delta' cycles in
+	  * the future. */
+	EmuTime getAccessSlot(EmuTime::param time, unsigned delta) const;
+
+	/** Is there a CPU-VRAM access scheduled. */
+	bool cpuAccessScheduled() const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 

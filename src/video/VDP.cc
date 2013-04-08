@@ -810,18 +810,11 @@ byte VDP::vramRead(EmuTime::param time)
 void VDP::scheduleCpuVramAccess(bool isRead, EmuTime::param time)
 {
 	cpuVramReqIsRead = isRead;
-	if (unlikely(pendingSyncPoint(CPU_VRAM_ACCESS))) {
+	if (unlikely(cpuAccessScheduled())) {
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 	} else {
-		int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
-		auto slots = getAccessSlots();
-		// search lowest value that is bigger or equal to ticks+16
-		auto it = std::upper_bound(slots.begin(), slots.end(), ticks + 16-1);
-		assert(it != slots.end());
-		//std::cout << "ticks=" << ticks << " *it=" << *it << std::endl;
-		setSyncPoint(time + VDPClock::duration(*it - ticks),
-		             CPU_VRAM_ACCESS);
+		setSyncPoint(getAccessSlot(time, 16), CPU_VRAM_ACCESS);
 	}
 }
 
@@ -865,13 +858,29 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 	}
 }
 
+bool VDP::cpuAccessScheduled() const
+{
+	return pendingSyncPoint(CPU_VRAM_ACCESS);
+}
+
+EmuTime VDP::getAccessSlot(EmuTime::param time, unsigned delta) const
+{
+	assert(delta <= 136); // longest time between command requests
+	int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
+	auto slots = getAccessSlots();
+	// search lowest value that is bigger or equal to ticks+delta
+	auto it = std::upper_bound(slots.begin(), slots.end(), ticks + int(delta) - 1);
+	assert(it != slots.end());
+	return time + VDPClock::duration(*it - ticks);
+}
+
 array_ref<int> VDP::getAccessSlots() const
 {
 	// TODO the following 3 tables are correct for bitmap screen modes,
 	//      still need to investigate character and text modes.
 	// These tables must contain at least one value that is bigger or equal
-	// to 1368+16. So we extend the data with a few cyclic duplicates.
-	static const int screenOff[154 + 3] = {
+	// to 1368+136. So we extend the data with a some cyclic duplicates.
+	static const int screenOff[154 + 17] = {
 		   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
 		  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
 		 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
@@ -888,10 +897,13 @@ array_ref<int> VDP::getAccessSlots() const
 		1132, 1140, 1148, 1156, 1164, 1172, 1188, 1196, 1204, 1212,
 		1220, 1228, 1268, 1276, 1284, 1292, 1300, 1308, 1316, 1324,
 		1334, 1344, 1352, 1360,
-		1368+0, 1368+8, 1368+16,
+		1368+  0, 1368+  8, 1368+16, 1368+ 24, 1368+ 32,
+		1368+ 40, 1368+ 48, 1368+56, 1368+ 64, 1368+ 72,
+		1368+ 80, 1368+ 88, 1368+96, 1368+104, 1368+112,
+		1368+120, 1368+164,
 	};
 
-	static const int spritesOff[88 + 3] = {
+	static const int spritesOff[88 + 16] = {
 		   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
 		  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
 		 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
@@ -901,15 +913,18 @@ array_ref<int> VDP::getAccessSlots() const
 		 956,  982,  988, 1014, 1020, 1046, 1078, 1084, 1110, 1116,
 		1142, 1148, 1174, 1206, 1212, 1266, 1274, 1282, 1290, 1298,
 		1306, 1314, 1322, 1332, 1342, 1350, 1358, 1366,
-		1368+6, 1368+14, 1368+22,
+		1368+  6, 1368+14, 1368+ 22, 1368+ 30, 1368+ 38,
+		1368+ 46, 1368+54, 1368+ 62, 1368+ 70, 1368+ 78,
+		1368+ 86, 1368+94, 1368+102, 1368+110, 1368+118,
+		1368+162,
 	};
 
-	static const int screenOn[31 + 1] = {
+	static const int screenOn[31 + 3] = {
 		  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
 		 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 		 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
 		1330,
-		1368+28,
+		1368+28, 1368+92, 1368+162,
 	};
 
 	if (isDisplayEnabled()) {
