@@ -154,6 +154,21 @@ private:
 	inline void nextAccessSlot(int delta) {
 		time = vdp.getAccessSlot(time, delta);
 	}
+	inline AccessSlotCalculator getSlotCalculator() const {
+		return vdp.getAccessSlotCalculator(time);
+	}
+	inline void nextAccessSlot(AccessSlotCalculator& calculator, int delta) {
+#ifdef DEBUG
+		EmuTime old = time;
+		nextAccessSlot(delta);
+		EmuTime verify = time;
+		time = old;
+#endif
+		time += calculator.getNext(delta);
+#ifdef DEBUG
+		assert(time == verify);
+#endif
+	}
 
 	/** Finshed executing graphical operation.
 	  */

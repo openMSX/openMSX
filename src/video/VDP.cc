@@ -34,6 +34,7 @@ TODO:
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
+#include "array_ref.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <algorithm>
@@ -863,79 +864,89 @@ bool VDP::cpuAccessScheduled() const
 	return pendingSyncPoint(CPU_VRAM_ACCESS);
 }
 
+// TODO the following 3 tables are correct for bitmap screen modes,
+//      still need to investigate character and text modes.
+// These tables must contain at least one value that is bigger or equal
+// to 1368+136. So we extend the data with some cyclic duplicates.
+static const int screenOff[154 + 17] = {
+	   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
+	  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
+	 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
+	 276,  292,  300,  308,  316,  324,  332,  340,  348,  356,
+	 364,  372,  380,  388,  396,  404,  420,  428,  436,  444,
+	 452,  460,  468,  476,  484,  492,  500,  508,  516,  524,
+	 532,  548,  556,  564,  572,  580,  588,  596,  604,  612,
+	 620,  628,  636,  644,  652,  660,  676,  684,  692,  700,
+	 708,  716,  724,  732,  740,  748,  756,  764,  772,  780,
+	 788,  804,  812,  820,  828,  836,  844,  852,  860,  868,
+	 876,  884,  892,  900,  908,  916,  932,  940,  948,  956,
+	 964,  972,  980,  988,  996, 1004, 1012, 1020, 1028, 1036,
+	1044, 1060, 1068, 1076, 1084, 1092, 1100, 1108, 1116, 1124,
+	1132, 1140, 1148, 1156, 1164, 1172, 1188, 1196, 1204, 1212,
+	1220, 1228, 1268, 1276, 1284, 1292, 1300, 1308, 1316, 1324,
+	1334, 1344, 1352, 1360,
+	1368+  0, 1368+  8, 1368+16, 1368+ 24, 1368+ 32,
+	1368+ 40, 1368+ 48, 1368+56, 1368+ 64, 1368+ 72,
+	1368+ 80, 1368+ 88, 1368+96, 1368+104, 1368+112,
+	1368+120, 1368+164
+};
+
+static const int spritesOff[88 + 16] = {
+	   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
+	  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
+	 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
+	 406,  438,  444,  470,  476,  502,  508,  534,  566,  572,
+	 598,  604,  630,  636,  662,  694,  700,  726,  732,  758,
+	 764,  790,  822,  828,  854,  860,  886,  892,  918,  950,
+	 956,  982,  988, 1014, 1020, 1046, 1078, 1084, 1110, 1116,
+	1142, 1148, 1174, 1206, 1212, 1266, 1274, 1282, 1290, 1298,
+	1306, 1314, 1322, 1332, 1342, 1350, 1358, 1366,
+	1368+  6, 1368+14, 1368+ 22, 1368+ 30, 1368+ 38,
+	1368+ 46, 1368+54, 1368+ 62, 1368+ 70, 1368+ 78,
+	1368+ 86, 1368+94, 1368+102, 1368+110, 1368+118,
+	1368+162,
+};
+
+static const int spritesOn[31 + 3] = {
+	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
+	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
+	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
+	1330,
+	1368+28, 1368+92, 1368+162,
+};
+
+static array_ref<int> getAccessSlots(bool display, bool sprites)
+{
+	return display ? (sprites ? array_ref<int>(spritesOn,  31)
+	                          : array_ref<int>(spritesOff, 88))
+	               :            array_ref<int>(screenOff, 154);
+}
+static array_ref<int> getExtendedAccessSlots(bool display, bool sprites)
+{
+	return display ? (sprites ? array_ref<int>(spritesOn)
+	                          : array_ref<int>(spritesOff))
+	               :            array_ref<int>(screenOff);
+}
+
 EmuTime VDP::getAccessSlot(EmuTime::param time, unsigned delta) const
 {
 	assert(delta <= 136); // longest time between command requests
 	int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
-	auto slots = getAccessSlots();
+	auto slots = getExtendedAccessSlots(
+		isDisplayEnabled(), (controlRegs[8] & 2) == 0);
+
 	// search lowest value that is bigger or equal to ticks+delta
-	auto it = std::upper_bound(slots.begin(), slots.end(), ticks + int(delta) - 1);
+	auto it = std::lower_bound(slots.begin(), slots.end(), ticks + delta);
 	assert(it != slots.end());
 	return time + VDPClock::duration(*it - ticks);
 }
 
-array_ref<int> VDP::getAccessSlots() const
+AccessSlotCalculator VDP::getAccessSlotCalculator(EmuTime::param time) const
 {
-	// TODO the following 3 tables are correct for bitmap screen modes,
-	//      still need to investigate character and text modes.
-	// These tables must contain at least one value that is bigger or equal
-	// to 1368+136. So we extend the data with a some cyclic duplicates.
-	static const int screenOff[154 + 17] = {
-		   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
-		  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
-		 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
-		 276,  292,  300,  308,  316,  324,  332,  340,  348,  356,
-		 364,  372,  380,  388,  396,  404,  420,  428,  436,  444,
-		 452,  460,  468,  476,  484,  492,  500,  508,  516,  524,
-		 532,  548,  556,  564,  572,  580,  588,  596,  604,  612,
-		 620,  628,  636,  644,  652,  660,  676,  684,  692,  700,
-		 708,  716,  724,  732,  740,  748,  756,  764,  772,  780,
-		 788,  804,  812,  820,  828,  836,  844,  852,  860,  868,
-		 876,  884,  892,  900,  908,  916,  932,  940,  948,  956,
-		 964,  972,  980,  988,  996, 1004, 1012, 1020, 1028, 1036,
-		1044, 1060, 1068, 1076, 1084, 1092, 1100, 1108, 1116, 1124,
-		1132, 1140, 1148, 1156, 1164, 1172, 1188, 1196, 1204, 1212,
-		1220, 1228, 1268, 1276, 1284, 1292, 1300, 1308, 1316, 1324,
-		1334, 1344, 1352, 1360,
-		1368+  0, 1368+  8, 1368+16, 1368+ 24, 1368+ 32,
-		1368+ 40, 1368+ 48, 1368+56, 1368+ 64, 1368+ 72,
-		1368+ 80, 1368+ 88, 1368+96, 1368+104, 1368+112,
-		1368+120, 1368+164,
-	};
-
-	static const int spritesOff[88 + 16] = {
-		   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
-		  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
-		 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
-		 406,  438,  444,  470,  476,  502,  508,  534,  566,  572,
-		 598,  604,  630,  636,  662,  694,  700,  726,  732,  758,
-		 764,  790,  822,  828,  854,  860,  886,  892,  918,  950,
-		 956,  982,  988, 1014, 1020, 1046, 1078, 1084, 1110, 1116,
-		1142, 1148, 1174, 1206, 1212, 1266, 1274, 1282, 1290, 1298,
-		1306, 1314, 1322, 1332, 1342, 1350, 1358, 1366,
-		1368+  6, 1368+14, 1368+ 22, 1368+ 30, 1368+ 38,
-		1368+ 46, 1368+54, 1368+ 62, 1368+ 70, 1368+ 78,
-		1368+ 86, 1368+94, 1368+102, 1368+110, 1368+118,
-		1368+162,
-	};
-
-	static const int screenOn[31 + 3] = {
-		  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
-		 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
-		 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
-		1330,
-		1368+28, 1368+92, 1368+162,
-	};
-
-	if (isDisplayEnabled()) {
-		if (controlRegs[8] & 2) {
-			return array_ref<int>(spritesOff);
-		} else {
-			return array_ref<int>(screenOn);
-		}
-	} else {
-		return array_ref<int>(screenOff);
-	}
+	int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
+	auto slots = getAccessSlots(
+		isDisplayEnabled(), (controlRegs[8] & 2) == 0);
+	return AccessSlotCalculator(ticks, slots.data(), slots.size());
 }
 
 byte VDP::peekStatusReg(byte reg, EmuTime::param time) const

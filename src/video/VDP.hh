@@ -9,7 +9,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
-#include "array_ref.hh"
+#include "likely.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -32,6 +32,7 @@ class MsxX256PosInfo;
 class MsxX512PosInfo;
 class Display;
 class RawFrame;
+class AccessSlotCalculator;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -65,6 +66,7 @@ public:
 	/** Number of VDP clock ticks per second.
 	  */
 	static const int TICKS_PER_SECOND = 3579545 * 6; // 21.5MHz;
+	typedef Clock<TICKS_PER_SECOND> VDPClock;
 
 	/** Number of VDP clock ticks per line.
 	  */
@@ -446,6 +448,17 @@ public:
 	  * the future. */
 	EmuTime getAccessSlot(EmuTime::param time, unsigned delta) const;
 
+	/** Same as getAccessSlot(), but it can be _much_ faster for repeated
+	  * calls, e.g. in the implementation of VDP commands. However it does
+	  * have some limitations:
+	  * - The returned calculator only remains valid for as long as
+	  *   the VDP access timing remains the same (display/sprite enable).
+	  * - The calculator needs to see _all_ time changes.
+	  * (So this means that in every VDPCmd::execute() method you need
+	  * to construct a new calculator).
+	  */
+	AccessSlotCalculator getAccessSlotCalculator(EmuTime::param time) const;
+
 	/** Is there a CPU-VRAM access scheduled. */
 	bool cpuAccessScheduled() const;
 
@@ -594,7 +607,6 @@ private:
 	/** Helper methods for CPU-VRAM access. */
 	void scheduleCpuVramAccess(bool isRead, EmuTime::param time);
 	void executeCpuVramAccess(EmuTime::param time);
-	array_ref<int> getAccessSlots() const;
 
 	/** Read the contents of a status register
 	  */
@@ -652,8 +664,6 @@ private:
 	void setPalette(int index, word grb, EmuTime::param time);
 
 private:
-	typedef Clock<TICKS_PER_SECOND> VDPClock;
-
 	Display& display;
 
 	friend class VDPRegDebug;
@@ -871,6 +881,39 @@ private:
 	bool warningPrinted;
 };
 SERIALIZE_CLASS_VERSION(VDP, 5);
+
+
+class AccessSlotCalculator
+{
+public:
+	AccessSlotCalculator(int ticks_, const int* tab, int tabLen_)
+		: ticks(ticks_), tabLen(tabLen_)
+	{
+		// Search largest value that is smaller or equal to ticks.
+		// This could be outside the table boundaries (one element
+		// in front), but that's ok because it won't be dereferenced.
+		idx = std::upper_bound(tab, tab + tabLen, ticks) - 1;
+		assert((idx < tab) || (*idx <= ticks));
+	}
+	inline EmuDuration getNext(unsigned delta) {
+		assert(delta != 0);
+		assert(delta <= 136);
+		int stop = ticks + delta;
+		do { ++idx; } while (*idx < stop);
+		auto duration = VDP::VDPClock::duration(*idx - ticks);
+		if (unlikely(*idx >= 1368)) idx -= tabLen;
+		ticks = *idx;
+		return duration;
+	}
+private:
+	// Usually *idx == ticks, but in case the VDP switched mode
+	// in the middle of a command (e.g. enabled/disabled sprites)
+	// this may not be the case. So we need both vars.
+	const int* idx;
+	int ticks;
+	const int tabLen;
+};
+
 
 } // namespace openmsx
 
