@@ -112,6 +112,7 @@ private:
 	EventDistributor& eventDistributor;
 	RealTime& realTime;
 	RenderSettings& renderSettings;
+	VideoSourceSetting& videoSourceSetting;
 
 	/** The sprite checker whose sprites are rendered.
 	  */

@@ -51,6 +51,7 @@ private:
 	void update(const Setting& setting);
 
 	Display& display;
+	VideoSourceSetting& videoSourceSetting;
 	V9990* v9990;
 	Layer* activeLayer;
 	PostProcessor* v99x8Layer;

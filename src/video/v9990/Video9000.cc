@@ -7,7 +7,7 @@
 #include "PostProcessor.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
-#include "RenderSettings.hh"
+#include "MSXMotherBoard.hh"
 #include "VideoSourceSetting.hh"
 #include "CommandException.hh"
 #include "checked_cast.hh"
@@ -19,6 +19,7 @@ Video9000::Video9000(const DeviceConfig& config)
 	: MSXDevice(config)
 	, VideoLayer(getMotherBoard(), VIDEO_9000)
 	, display(getReactor().getDisplay())
+	, videoSourceSetting(getMotherBoard().getVideoSource())
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
 	distributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
@@ -92,10 +93,9 @@ void Video9000::recalcVideoSource()
 	// Disable superimpose when gfx9000 layer is selected. That way you
 	// can look at the gfx9000-only output even when the video9000 software
 	// enabled superimpose mode (mostly useful for debugging).
-	VideoSourceSetting& videoSource = display.getRenderSettings().getVideoSource();
 	bool superimpose = ((value & 0x18) == 0x18);
-	v9990->setExternalVideoSource(superimpose &&
-	                              (videoSource.getValue() == VIDEO_9000));
+	v9990->setExternalVideoSource(
+		superimpose && (videoSourceSetting.getValue() == VIDEO_9000));
 }
 
 void Video9000::preVideoSystemChange()
@@ -136,7 +136,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
 	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 	if (ffe.isSkipped()) return 0;
-	if (display.getRenderSettings().getVideoSource().getValue() != VIDEO_9000) return 0;
+	if (videoSourceSetting.getValue() != VIDEO_9000) return 0;
 
 	bool superimpose = ((value & 0x18) == 0x18);
 	if (superimpose && (ffe.getSource() == VIDEO_MSX) &&
@@ -158,7 +158,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 void Video9000::update(const Setting& setting)
 {
 	VideoLayer::update(setting);
-	if (&setting == &display.getRenderSettings().getVideoSource()) {
+	if (&setting == &videoSourceSetting) {
 		recalcVideoSource();
 	}
 }

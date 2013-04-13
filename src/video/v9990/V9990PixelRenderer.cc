@@ -27,6 +27,7 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(vdp.getReactor().getDisplay().getRenderSettings())
+	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, rasterizer(vdp.getReactor().getDisplay().
 	                getVideoSystem().createV9990Rasterizer(vdp))
 {
@@ -129,7 +130,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	eventDistributor.distributeEvent(
 		std::make_shared<FinishFrameEvent>(
 			VIDEO_GFX9000,
-			renderSettings.getVideoSource().getValue(),
+			videoSourceSetting.getValue(),
 			skipEvent));
 }
 

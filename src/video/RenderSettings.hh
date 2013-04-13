@@ -103,9 +103,6 @@ public:
 	/** The current scaling factor. */
 	IntegerSetting& getScaleFactor() const { return *scaleFactorSetting; }
 
-	/** The video source to display on the screen. */
-	VideoSourceSetting& getVideoSource() const { return *videoSourceSetting; }
-
 	/** Limit number of sprites per line?
 	  * If true, limit number of sprites per line as real VDP does.
 	  * If false, display all sprites.
@@ -189,7 +186,6 @@ private:
 	std::unique_ptr<EnumSetting<ScaleAlgorithm>> scaleAlgorithmSetting;
 	std::unique_ptr<IntegerSetting> scaleFactorSetting;
 	std::unique_ptr<IntegerSetting> scanlineAlphaSetting;
-	std::unique_ptr<VideoSourceSetting> videoSourceSetting;
 	std::unique_ptr<EnumSetting<DisplayDeform>> displayDeformSetting;
 	std::unique_ptr<FloatSetting> horizontalStretchSetting;
 	std::unique_ptr<FloatSetting> pointerHideDelaySetting;

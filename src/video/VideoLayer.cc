@@ -21,7 +21,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
 	, renderSettings(display.getRenderSettings())
-	, videoSourceSetting(renderSettings.getVideoSource())
+	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(make_unique<VideoSourceActivator>(
 		videoSourceSetting, videoSource_))
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
@@ -64,7 +64,7 @@ void VideoLayer::update(const Setting& setting)
 
 void VideoLayer::calcZ()
 {
-	setZ((renderSettings.getVideoSource().getValue() == videoSource)
+	setZ((videoSourceSetting.getValue() == videoSource)
 		? Z_MSX_ACTIVE
 		: Z_MSX_PASSIVE);
 }
@@ -93,14 +93,14 @@ void VideoLayer::signalEvent(const std::shared_ptr<const Event>& event,
 
 bool VideoLayer::needRender() const
 {
-	VideoSource current = renderSettings.getVideoSource().getValue();
+	VideoSource current = videoSourceSetting.getValue();
 	return (current == videoSource) ||
 	      ((current == VIDEO_9000) && (activeVideo9000 != INACTIVE));
 }
 
 bool VideoLayer::needRecord() const
 {
-	VideoSource current = renderSettings.getVideoSource().getValue();
+	VideoSource current = videoSourceSetting.getValue();
 	return (current == videoSource) ||
 	      ((current == VIDEO_9000) && (activeVideo9000 == ACTIVE_FRONT));
 }

@@ -18,6 +18,10 @@ bool VideoSourceSettingPolicy::has(VideoSource value) const
 
 void VideoSourceSettingPolicy::checkSetValue(VideoSource& value) const
 {
+	// activeSources.empty() happens during machine construction
+	// TODO the future 'dynamic' videosource setting should also
+	//      handle this case
+	if (activeSources.empty()) return;
 	if (!has(value)) {
 		throw CommandException("video source not available");
 	}

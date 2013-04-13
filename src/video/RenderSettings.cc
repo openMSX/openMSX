@@ -5,7 +5,7 @@
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
-#include "VideoSourceSetting.hh"
+#include "EnumSetting.hh"
 #include "CommandException.hh"
 #include "Version.hh"
 #include "unreachable.hh"
@@ -82,8 +82,6 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	horizontalBlurSetting = make_unique<IntegerSetting>(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100);
-
-	videoSourceSetting = make_unique<VideoSourceSetting>(commandController);
 
 	// Get user-preferred renderer from config.
 	rendererSetting = RendererFactory::createRendererSetting(commandController);

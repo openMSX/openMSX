@@ -34,6 +34,7 @@
 #include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
+#include "VideoSourceSetting.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "RecordedCommand.hh"
@@ -126,6 +127,7 @@ public:
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
 	Reactor& getReactor();
+	VideoSourceSetting& getVideoSource();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
 	EmuTime::param getCurrentTime();
@@ -194,6 +196,7 @@ private:
 	unique_ptr<JoyPortDebuggable> joyPortDebuggable;
 	unique_ptr<RenShaTurbo> renShaTurbo;
 	unique_ptr<LedStatus> ledStatus;
+	unique_ptr<VideoSourceSetting> videoSourceSetting;
 
 	unique_ptr<CartridgeSlotManager> slotManager;
 	unique_ptr<ReverseManager> reverseManager;
@@ -375,6 +378,8 @@ MSXMotherBoard::Impl::Impl(
 		*scheduler, *msxCommandController,
 		reactor.getEventDistributor(), *msxEventDistributor,
 		*reverseManager);
+	videoSourceSetting = make_unique<VideoSourceSetting>(
+		*msxCommandController);
 	realTime = make_unique<RealTime>(
 		self, reactor.getGlobalSettings(), *eventDelay);
 	debugger = make_unique<Debugger>(self);
@@ -692,6 +697,11 @@ ReverseManager& MSXMotherBoard::Impl::getReverseManager()
 Reactor& MSXMotherBoard::Impl::getReactor()
 {
 	return reactor;
+}
+
+VideoSourceSetting& MSXMotherBoard::Impl::getVideoSource()
+{
+	return *videoSourceSetting;
 }
 
 CommandController& MSXMotherBoard::Impl::getCommandController()
@@ -1501,6 +1511,10 @@ ReverseManager& MSXMotherBoard::getReverseManager()
 Reactor& MSXMotherBoard::getReactor()
 {
 	return pimpl->getReactor();
+}
+VideoSourceSetting& MSXMotherBoard::getVideoSource()
+{
+	return pimpl->getVideoSource();
 }
 CommandController& MSXMotherBoard::getCommandController()
 {

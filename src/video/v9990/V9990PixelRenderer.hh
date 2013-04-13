@@ -17,6 +17,7 @@ class V9990Rasterizer;
 class Setting;
 class EventDistributor;
 class RealTime;
+class VideoSourceSetting;
 
 /** Generic pixel based renderer for the V9990.
   * Uses a rasterizer to plot actual pixels for a specific video system
@@ -67,6 +68,7 @@ private:
 	/** Settings shared between all renderers
 	  */
 	RenderSettings& renderSettings;
+	VideoSourceSetting& videoSourceSetting;
 
 	/** The Rasterizer
 	  */

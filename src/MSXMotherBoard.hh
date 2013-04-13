@@ -37,6 +37,7 @@ class ReverseManager;
 class CommandController;
 class InfoCommand;
 class MSXMapperIO;
+class VideoSourceSetting;
 
 class MSXMotherBoard : private noncopyable
 {
@@ -106,6 +107,7 @@ public:
 	LedStatus& getLedStatus();
 	ReverseManager& getReverseManager();
 	Reactor& getReactor();
+	VideoSourceSetting& getVideoSource();
 
 	// convenience methods
 	CommandController& getCommandController();

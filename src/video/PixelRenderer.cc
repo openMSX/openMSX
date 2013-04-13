@@ -113,6 +113,7 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	, eventDistributor(vdp.getReactor().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(display.getRenderSettings())
+	, videoSourceSetting(vdp.getMotherBoard().getVideoSource())
 	, spriteChecker(vdp.getSpriteChecker())
 	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
 {
@@ -227,7 +228,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 	eventDistributor.distributeEvent(
 		std::make_shared<FinishFrameEvent>(
 			VIDEO_MSX,
-			renderSettings.getVideoSource().getValue(),
+			videoSourceSetting.getValue(),
 			skipEvent));
 }
 

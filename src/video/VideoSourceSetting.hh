@@ -16,8 +16,9 @@ protected:
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 
-	// TODO currently we allow duplicates, should we instead have this
-	//      setting per machine?
+	// There can be duplicates when the same machine contains multiple
+	// V99x8/V9990/... sources. TODO create a more dynamic setting (no
+	// more fixed enum values)
 	std::vector<VideoSource> activeSources;
 
 private:
