@@ -21,7 +21,7 @@ class Setting : public Subject<Setting>, private noncopyable
 public:
 	enum SaveSetting {
 		SAVE,          //    save,    transfer
-		DONT_SAVE,     //    save, no-transfer
+		DONT_SAVE,     // no-save,    transfer
 		DONT_TRANSFER, // no-save, no-transfer
 	};
 
