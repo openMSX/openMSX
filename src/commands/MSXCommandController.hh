@@ -38,6 +38,10 @@ public:
 	  */
 	bool isActive() const;
 
+	/** Transfer setting values from one machine to another,
+	  * used for during 'reverse'. */
+	void transferSettings(const MSXCommandController& from);
+
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 string_ref str);
@@ -56,6 +60,8 @@ public:
 	virtual Setting* findSetting(string_ref name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual CliComm& getCliComm();
+
+	const Setting* findSetting(string_ref setting) const;
 
 private:
 	std::string getFullName(string_ref name);

@@ -159,6 +159,11 @@ Setting* MSXCommandController::findSetting(string_ref name)
 	return (it != settingMap.end()) ? it->second : nullptr;
 }
 
+const Setting* MSXCommandController::findSetting(string_ref setting) const
+{
+	return const_cast<MSXCommandController*>(this)->findSetting(setting);
+}
+
 bool MSXCommandController::hasCommand(string_ref command) const
 {
 	return findCommand(command) != nullptr;
@@ -194,6 +199,16 @@ void MSXCommandController::signalEvent(
 bool MSXCommandController::isActive() const
 {
 	return reactor.getMotherBoard() == &motherboard;
+}
+
+void MSXCommandController::transferSettings(const MSXCommandController& from)
+{
+	for (auto& p : settingMap) {
+		if (auto* fromSetting = from.findSetting(p.first())) {
+			if (!fromSetting->needTransfer()) continue;
+			changeSetting(*p.second, fromSetting->getValueString());
+		}
+	}
 }
 
 } // namespace openmsx

@@ -37,7 +37,7 @@ ReadOnlySetting<Setting>::ReadOnlySetting(
 		Type initialValue)
 	: newValue(initialValue)
 	, setting(commandController, name, description, initialValue,
-	          Setting::DONT_SAVE)
+	          Setting::DONT_TRANSFER)
 {
 	setting.setChecker(this);
 }

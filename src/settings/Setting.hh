@@ -20,8 +20,9 @@ class Setting : public Subject<Setting>, private noncopyable
 {
 public:
 	enum SaveSetting {
-		SAVE,
-		DONT_SAVE
+		SAVE,          //    save,    transfer
+		DONT_SAVE,     //    save, no-transfer
+		DONT_TRANSFER, // no-save, no-transfer
 	};
 
 	virtual ~Setting();
@@ -81,6 +82,10 @@ public:
 	  */
 	virtual bool needLoadSave() const;
 
+	/** Needs this setting to be transfered on reverse.
+	  */
+	virtual bool needTransfer() const;
+
 	/** This value will never end up in the settings.xml file
 	 */
 	virtual void setDontSaveValue(const std::string& dontSaveValue);
@@ -132,7 +137,7 @@ private:
 
 	/** need to be saved flag
 	 */
-	const bool save;
+	const SaveSetting save;
 };
 
 } // namespace openmsx

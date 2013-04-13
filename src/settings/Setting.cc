@@ -22,7 +22,7 @@ Setting::Setting(CommandController& commandController_, string_ref name_,
 	: commandController(commandController_)
 	, name       (name_.str())
 	, description(desc_.str())
-	, save(save_ == SAVE)
+	, save(save_)
 {
 }
 
@@ -68,7 +68,11 @@ void Setting::notifyPropertyChange() const
 
 bool Setting::needLoadSave() const
 {
-	return save;
+	return save == SAVE;
+}
+bool Setting::needTransfer() const
+{
+	return save != DONT_TRANSFER;
 }
 
 void Setting::setDontSaveValue(const std::string& dontSaveValue_)

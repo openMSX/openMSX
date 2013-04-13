@@ -8,6 +8,7 @@
 #include "Debugger.hh"
 #include "EventDelay.hh"
 #include "MSXMixer.hh"
+#include "MSXCommandController.hh"
 #include "XMLException.hh"
 #include "XMLElement.hh"
 #include "TclObject.hh"
@@ -528,6 +529,10 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 
 	// copy rerecord count
 	newManager.reRecordCount = reRecordCount;
+
+	// transfer settings
+	const auto& oldController = motherBoard.getMSXCommandController();
+	newBoard.getMSXCommandController().transferSettings(oldController);
 }
 
 void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& result)
