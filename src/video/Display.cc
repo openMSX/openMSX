@@ -19,7 +19,7 @@
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
-#include "VideoSourceSetting.hh"
+#include "EnumSetting.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
@@ -35,7 +35,6 @@
 #include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 
 using std::string;
 using std::vector;
@@ -107,7 +106,6 @@ Display::Display(Reactor& reactor_)
 	renderSettings->getRenderer().attach(*this);
 	renderSettings->getFullScreen().attach(*this);
 	renderSettings->getScaleFactor().attach(*this);
-	renderSettings->getVideoSource().attach(*this);
 	renderFrozen = false;
 }
 
@@ -116,7 +114,6 @@ Display::~Display()
 	renderSettings->getRenderer().detach(*this);
 	renderSettings->getFullScreen().detach(*this);
 	renderSettings->getScaleFactor().detach(*this);
-	renderSettings->getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 #if PLATFORM_ANDROID
@@ -239,8 +236,7 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
-		if (!ffe.isSkipped() &&
-		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
+		if (ffe.needRender()) {
 			repaint();
 			reactor.getEventDistributor().distributeEvent(
 				std::make_shared<SimpleEvent>(
@@ -306,8 +302,6 @@ void Display::update(const Setting& setting)
 		checkRendererSwitch();
 	} else if (&setting == &renderSettings->getScaleFactor()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings->getVideoSource()) {
-		checkRendererSwitch();
 	} else {
 		UNREACHABLE;
 	}
@@ -316,13 +310,9 @@ void Display::update(const Setting& setting)
 void Display::checkRendererSwitch()
 {
 	if (switchInProgress) {
-		// Part of switching renderer is destroying the current
-		// Renderer. A Renderer inherits (indirectly) from VideoLayer.
-		// A VideoLayer activates a videosource (MSX, GFX9000). When
-		// a videosource is deactiavted we should possibly also switch
-		// renderer (TODO is this still true, maybe it was for SDLGL?)
-		// and thus this method gets called again. To break the cycle
-		// we check for pending switches.
+		// This method only queues a request to switch renderer (see
+		// comments below why). If there already is such a request
+		// queued we don't need to do it again.
 		return;
 	}
 	RendererFactory::RendererID newRenderer =

@@ -7,38 +7,57 @@
 #include "VideoSource.hh"
 #include "TclObject.hh"
 #include "checked_cast.hh"
+#include <tuple>
 
 namespace openmsx {
 
+/**
+ * This event is send when a device (v99x8, v9990, video9000, laserdisc)
+ * reaches the end of a frame. This event has info on:
+ *  - which device generated the event
+ *  - which video layer was active
+ *  - was the frame actually rendered or not (frameskip)
+ * Note that even if a frame was rendered (not skipped) it may not (need to) be
+ * displayed because the corresponding video layer is not active. Or also even
+ * if the corresponding video layer for a device is not active, the rendered
+ * frame may still be displayed as part of a superimposed video layer.
+ */
 class FinishFrameEvent : public Event
 {
 public:
-	FinishFrameEvent(VideoSource source_, bool skipped_)
+	FinishFrameEvent(VideoSource thisSource_, VideoSource selectedSource_,
+	                 bool skipped_)
 		: Event(OPENMSX_FINISH_FRAME_EVENT)
-		, source(source_), skipped(skipped_)
+		, thisSource(thisSource_), selectedSource(selectedSource_)
+		, skipped(skipped_)
 	{
 	}
 
-	VideoSource getSource() const { return source; }
+	VideoSource getSource()         const { return thisSource; }
+	VideoSource getSelectedSource() const { return selectedSource; }
 	bool isSkipped() const { return skipped; }
+	bool needRender() const { return !skipped && (thisSource == selectedSource); }
 
 	virtual void toStringImpl(TclObject& result) const
 	{
 		result.addListElement("finishframe");
-		result.addListElement(int(source));
+		result.addListElement(int(thisSource));
+		result.addListElement(int(selectedSource));
 		result.addListElement(skipped);
 	}
 	virtual bool lessImpl(const Event& other) const
 	{
-		auto& ffEv = checked_cast<const FinishFrameEvent&>(other);
-		return (getSource() != ffEv.getSource())
-		     ? (getSource() <  ffEv.getSource())
-		     : (isSkipped() <  ffEv.isSkipped());
-
+		auto& e = checked_cast<const FinishFrameEvent&>(other);
+		auto t1 = std::make_tuple(
+			getSource(), getSelectedSource(), isSkipped());
+		auto t2 = std::make_tuple(
+			e.getSource(), e.getSelectedSource(), e.isSkipped());
+		return t1 < t2;
 	}
 
 private:
-	const VideoSource source;
+	const VideoSource thisSource;
+	const VideoSource selectedSource;
 	const bool skipped;
 };
 

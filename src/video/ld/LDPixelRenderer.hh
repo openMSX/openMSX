@@ -34,6 +34,7 @@ private:
 	bool isActive() const;
 
 	MSXMotherBoard& motherboard;
+	Display& display;
 	EventDistributor& eventDistributor;
 	const std::unique_ptr<LDRasterizer> rasterizer;
 };

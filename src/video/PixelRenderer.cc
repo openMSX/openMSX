@@ -10,6 +10,7 @@ TODO:
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "RenderSettings.hh"
+#include "VideoSourceSetting.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -224,7 +225,10 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		}
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<FinishFrameEvent>(VIDEO_MSX, skipEvent));
+		std::make_shared<FinishFrameEvent>(
+			VIDEO_MSX,
+			renderSettings.getVideoSource().getValue(),
+			skipEvent));
 }
 
 void PixelRenderer::updateHorizontalScrollLow(

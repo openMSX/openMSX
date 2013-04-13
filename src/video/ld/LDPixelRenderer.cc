@@ -4,6 +4,8 @@
 #include "LDRasterizer.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "RenderSettings.hh"
+#include "VideoSourceSetting.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "MSXMotherBoard.hh"
@@ -12,8 +14,9 @@
 
 namespace openmsx {
 
-LDPixelRenderer::LDPixelRenderer(LaserdiscPlayer& ld, Display& display)
+LDPixelRenderer::LDPixelRenderer(LaserdiscPlayer& ld, Display& display_)
 	: motherboard(ld.getMotherBoard())
+	, display(display_)
 	, eventDistributor(motherboard.getReactor().getEventDistributor())
 	, rasterizer(display.getVideoSystem().createLDRasterizer(ld))
 {
@@ -36,7 +39,9 @@ bool LDPixelRenderer::isActive() const
 void LDPixelRenderer::frameEnd()
 {
 	eventDistributor.distributeEvent(std::make_shared<FinishFrameEvent>(
-		VIDEO_LASERDISC, !isActive()));
+		VIDEO_LASERDISC,
+		display.getRenderSettings().getVideoSource().getValue(),
+		!isActive()));
 }
 
 void LDPixelRenderer::drawBlank(int r, int g, int b )

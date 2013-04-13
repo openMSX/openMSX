@@ -7,6 +7,7 @@
 #include "V9990Rasterizer.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
+#include "VideoSourceSetting.hh"
 #include "FinishFrameEvent.hh"
 #include "RealTime.hh"
 #include "Timer.hh"
@@ -126,7 +127,10 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 
 	}
 	eventDistributor.distributeEvent(
-		std::make_shared<FinishFrameEvent>(VIDEO_GFX9000, skipEvent));
+		std::make_shared<FinishFrameEvent>(
+			VIDEO_GFX9000,
+			renderSettings.getVideoSource().getValue(),
+			skipEvent));
 }
 
 void V9990PixelRenderer::sync(EmuTime::param time, bool force)
