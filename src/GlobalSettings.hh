@@ -29,15 +29,33 @@ public:
 	explicit GlobalSettings(GlobalCommandController& commandController);
 	~GlobalSettings();
 
-	IntegerSetting& getSpeedSetting();
-	BooleanSetting& getPauseSetting();
-	BooleanSetting& getPowerSetting();
-	BooleanSetting& getAutoSaveSetting();
-	BooleanSetting& getPauseOnLostFocusSetting();
-	StringSetting&  getUMRCallBackSetting();
-	StringSetting&  getInvalidPsgDirectionsSetting();
-	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting();
-	ThrottleManager& getThrottleManager();
+	IntegerSetting& getSpeedSetting() const {
+		return *speedSetting;
+	}
+	BooleanSetting& getPauseSetting() const {
+		return *pauseSetting;
+	}
+	BooleanSetting& getPowerSetting() const {
+		return *powerSetting;
+	}
+	BooleanSetting& getAutoSaveSetting() const {
+		return *autoSaveSetting;
+	}
+	BooleanSetting& getPauseOnLostFocusSetting() const {
+		return *pauseOnLostFocusSetting;
+	}
+	StringSetting& getUMRCallBackSetting() const {
+		return *umrCallBackSetting;
+	}
+	StringSetting& getInvalidPsgDirectionsSetting() const {
+		return *invalidPsgDirectionsSetting;
+	}
+	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() const {
+		return * resampleSetting;
+	}
+	ThrottleManager& getThrottleManager() const {
+		return *throttleManager;
+	}
 
 private:
 	// Observer<Setting>

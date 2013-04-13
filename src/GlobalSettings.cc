@@ -61,51 +61,6 @@ GlobalSettings::~GlobalSettings()
 		autoSaveSetting->getValue());
 }
 
-IntegerSetting& GlobalSettings::getSpeedSetting()
-{
-	return *speedSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getPauseSetting()
-{
-	return *pauseSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getPowerSetting()
-{
-	return *powerSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getAutoSaveSetting()
-{
-	return *autoSaveSetting.get();
-}
-
-ThrottleManager& GlobalSettings::getThrottleManager()
-{
-	return *throttleManager.get();
-}
-
-StringSetting& GlobalSettings::getUMRCallBackSetting()
-{
-	return *umrCallBackSetting.get();
-}
-
-StringSetting& GlobalSettings::getInvalidPsgDirectionsSetting()
-{
-	return *invalidPsgDirectionsSetting.get();
-}
-
-BooleanSetting& GlobalSettings::getPauseOnLostFocusSetting()
-{
-	return *pauseOnLostFocusSetting.get();
-}
-
-EnumSetting<ResampledSoundDevice::ResampleType>& GlobalSettings::getResampleSetting()
-{
-	return *resampleSetting.get();
-}
-
 // Observer<Setting>
 void GlobalSettings::update(const Setting& setting)
 {
