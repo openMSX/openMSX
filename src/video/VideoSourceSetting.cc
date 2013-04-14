@@ -68,8 +68,8 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 void VideoSourceSetting::registerVideoSource(VideoSource source)
 {
 	activeSources.push_back(source);
-	notify();
-	notifyPropertyChange();
+	notifyPropertyChange(); // first announce extended set of allowed values
+	notify();               // before announcing a (possibly) different value
 }
 
 void VideoSourceSetting::unregisterVideoSource(VideoSource source)
@@ -77,8 +77,8 @@ void VideoSourceSetting::unregisterVideoSource(VideoSource source)
 	auto it = find(activeSources.begin(), activeSources.end(), source);
 	assert(it != activeSources.end());
 	activeSources.erase(it);
-	notify();
-	notifyPropertyChange();
+	notify();               // first notify the (possibly) changed value
+	notifyPropertyChange(); // before announcing the shrinked set of values
 }
 
 

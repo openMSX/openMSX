@@ -369,8 +369,15 @@ MSXMotherBoard::Impl::Impl(
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	deviceInfo = make_unique<DeviceInfo>(*this);
+	debugger = make_unique<Debugger>(self);
 
 	msxMixer->mute(); // powered down
+
+	// Do this before machine-specific settings are created, otherwise
+	// a setting-info clicomm message is send with a machine id that hasn't
+	// been announced yet over clicomm.
+	addRemoveUpdate = make_unique<AddRemoveUpdate>(*this);
+
 	// TODO: Initialization of this field cannot be done much earlier because
 	//       EventDelay creates a setting, calling getMSXCliComm()
 	//       on MSXMotherBoard, so "pimpl" has to be set up already.
@@ -382,10 +389,8 @@ MSXMotherBoard::Impl::Impl(
 		*msxCommandController);
 	realTime = make_unique<RealTime>(
 		self, reactor.getGlobalSettings(), *eventDelay);
-	debugger = make_unique<Debugger>(self);
-	powerSetting.attach(*this);
 
-	addRemoveUpdate = make_unique<AddRemoveUpdate>(*this);
+	powerSetting.attach(*this);
 }
 
 MSXMotherBoard::Impl::~Impl()
