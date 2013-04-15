@@ -168,6 +168,9 @@ void Video9000::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("value", value);
+	if (ar.isLoader()) {
+		recalc();
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(Video9000);
 REGISTER_MSXDEVICE(Video9000, "Video9000");
