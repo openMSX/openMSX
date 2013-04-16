@@ -33,6 +33,7 @@ public:
 	virtual ~PixelRenderer();
 
 	// Renderer interface:
+	virtual PostProcessor* getPostProcessor() const;
 	virtual void reInit();
 	virtual void frameStart(EmuTime::param time);
 	virtual void frameEnd(EmuTime::param time);

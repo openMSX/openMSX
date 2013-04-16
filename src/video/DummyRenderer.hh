@@ -14,6 +14,7 @@ class DummyRenderer : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
+	PostProcessor* getPostProcessor() const;
 	void reInit();
 	void frameStart(EmuTime::param time);
 	void frameEnd(EmuTime::param time);

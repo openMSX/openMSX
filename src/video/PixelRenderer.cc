@@ -137,6 +137,11 @@ PixelRenderer::~PixelRenderer()
 	renderSettings.getMaxFrameSkip().detach(*this);
 }
 
+PostProcessor* PixelRenderer::getPostProcessor() const
+{
+	return rasterizer->getPostProcessor();
+}
+
 void PixelRenderer::reInit()
 {
 	// Don't draw before frameStart() is called.

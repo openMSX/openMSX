@@ -4,6 +4,11 @@
 
 namespace openmsx {
 
+PostProcessor* V9990DummyRenderer::getPostProcessor() const
+{
+	return nullptr;
+}
+
 void V9990DummyRenderer::reset(EmuTime::param /*time*/)
 {
 }

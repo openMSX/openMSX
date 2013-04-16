@@ -9,12 +9,16 @@
 
 namespace openmsx {
 
+class PostProcessor;
 class RawFrame;
 
 class Rasterizer
 {
 public:
 	virtual ~Rasterizer() {}
+
+	/** See VDP::getPostProcessor(). */
+	virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Will the output of this Rasterizer be displayed?
 	  * There is no point in producing a frame that will not be displayed.

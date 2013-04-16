@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class PostProcessor;
 class DisplayMode;
 class RawFrame;
 
@@ -23,6 +24,9 @@ class Renderer : public VRAMObserver
 {
 public:
 	virtual ~Renderer();
+
+	/** See VDP::getPostProcessor. */
+	virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Reinitialise Renderer state.
 	  */

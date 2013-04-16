@@ -15,6 +15,7 @@
 
 namespace openmsx {
 
+class PostProcessor;
 class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
@@ -81,6 +82,12 @@ public:
 	virtual byte peekIO(word port, EmuTime::param time) const;
 	virtual void writeIO(word port, byte value, EmuTime::param time);
 	virtual void executeUntil(EmuTime::param time, int userData);
+
+	/** Used by Video9000 to be able to couple the VDP and V9990 output.
+	 * Can return nullptr in case of renderer=none. This value can change
+	 * over the lifetime of the VDP object (on renderer switch).
+	 */
+	PostProcessor* getPostProcessor() const;
 
 	/** Is this an MSX1 VDP?
 	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),

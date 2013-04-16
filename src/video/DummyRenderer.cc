@@ -5,6 +5,10 @@
 
 namespace openmsx {
 
+PostProcessor* DummyRenderer::getPostProcessor() const {
+	return nullptr;
+}
+
 void DummyRenderer::reInit() {
 }
 

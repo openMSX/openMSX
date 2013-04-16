@@ -48,6 +48,11 @@ V9990PixelRenderer::~V9990PixelRenderer()
 	renderSettings.getMinFrameSkip().detach(*this);
 }
 
+PostProcessor* V9990PixelRenderer::getPostProcessor() const
+{
+	return rasterizer->getPostProcessor();
+}
+
 void V9990PixelRenderer::reset(EmuTime::param time)
 {
 	displayEnabled = vdp.isDisplayEnabled();

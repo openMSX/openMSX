@@ -112,6 +112,12 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 }
 
 template <class Pixel>
+PostProcessor* SDLRasterizer<Pixel>::getPostProcessor() const
+{
+	return postProcessor.get();
+}
+
+template <class Pixel>
 bool SDLRasterizer<Pixel>::isActive()
 {
 	return postProcessor->needRender() &&

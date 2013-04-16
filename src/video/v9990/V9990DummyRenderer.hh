@@ -11,6 +11,7 @@ class V9990DummyRenderer : public V9990Renderer
 {
 public:
 	// V9990Renderer interface:
+	PostProcessor* getPostProcessor() const;
 	void reset(EmuTime::param time);
 	void frameStart(EmuTime::param time);
 	void frameEnd(EmuTime::param time);

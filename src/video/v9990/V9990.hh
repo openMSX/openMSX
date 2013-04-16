@@ -17,6 +17,7 @@
 
 namespace openmsx {
 
+class PostProcessor;
 class Display;
 class V9990VRAM;
 class V9990CmdEngine;
@@ -41,6 +42,12 @@ public:
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;
 	virtual void writeIO(word port, byte value, EmuTime::param time);
+
+	/** Used by Video9000 to be able to couple the VDP and V9990 output.
+	 * Can return nullptr in case of renderer=none. This value can change
+	 * over the lifetime of the V9990 object (on renderer switch).
+	 */
+	PostProcessor* getPostProcessor() const;
 
 	/** Obtain a reference to the V9990's VRAM
 	  */

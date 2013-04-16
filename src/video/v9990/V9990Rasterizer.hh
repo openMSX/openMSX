@@ -9,6 +9,8 @@
 
 namespace openmsx {
 
+class PostProcessor;
+
 /** If this seems awfully familiar, take a look at Rasterizer.hh
   * It's virtually the same class, but for a different video processor.
   */
@@ -16,6 +18,9 @@ class V9990Rasterizer
 {
 public:
 	virtual ~V9990Rasterizer() {}
+
+	/** See V9990::getPostProcessor(). */
+	virtual PostProcessor* getPostProcessor() const = 0;
 
 	/** Will the output of this Rasterizer be displayed?
 	  * There is no point in producing a frame that will not be displayed.

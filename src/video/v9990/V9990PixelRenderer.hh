@@ -32,6 +32,7 @@ public:
 	virtual ~V9990PixelRenderer();
 
 	// V9990Renderer interface:
+	PostProcessor* getPostProcessor() const;
 	void reset(EmuTime::param time);
 	void frameStart(EmuTime::param time);
 	void frameEnd(EmuTime::param time);

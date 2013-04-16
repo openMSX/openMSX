@@ -16,6 +16,7 @@
     </V9990>
     <Video9000 id="Video9000">
       <io base="0x6f" num="0x01"/>
+      <device idref="VDP"/>
       <device idref="Sunrise GFX9000"/>
     </Video9000>
   </devices>

@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class Display;
+class VDP;
 class V9990;
 class PostProcessor;
 
@@ -50,8 +50,8 @@ private:
 	// Observer<Setting>
 	void update(const Setting& setting);
 
-	Display& display;
 	VideoSourceSetting& videoSourceSetting;
+	VDP* vdp;
 	V9990* v9990;
 	Layer* activeLayer;
 	PostProcessor* v99x8Layer;

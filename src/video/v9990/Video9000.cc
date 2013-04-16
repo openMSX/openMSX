@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Video9000.hh"
+#include "VDP.hh"
 #include "V9990.hh"
 #include "Reactor.hh"
 #include "Display.hh"
@@ -18,12 +19,11 @@ namespace openmsx {
 Video9000::Video9000(const DeviceConfig& config)
 	: MSXDevice(config)
 	, VideoLayer(getMotherBoard(), VIDEO_9000)
-	, display(getReactor().getDisplay())
 	, videoSourceSetting(getMotherBoard().getVideoSource())
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
 	distributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
-	display.attach(*this);
+	getReactor().getDisplay().attach(*this);
 
 	activeLayer = nullptr; // we can't set activeLayer yet
 	value = 0x10;
@@ -32,13 +32,18 @@ Video9000::Video9000(const DeviceConfig& config)
 void Video9000::init()
 {
 	MSXDevice::init();
-	const MSXDevice::Devices& references = getReferences();
-	v9990 = references.empty()
-	      ? nullptr
-	      : dynamic_cast<V9990*>(references[0]);
-	if (!v9990) {
-		throw MSXException("Invalid Video9000 configuration: "
-		                   "need reference to V9990 device.");
+	auto references = getReferences(); // make copy
+	bool error = false;
+	if (references.size() != 2) error = true;
+	if (!error && !dynamic_cast<VDP*>(references[0])) {
+		std::swap(references[0], references[1]); // try reverse order
+	}
+	if (!error) vdp   = dynamic_cast<VDP*  >(references[0]);
+	if (!error) v9990 = dynamic_cast<V9990*>(references[1]);
+	if (error || !vdp || !v9990) {
+		throw MSXException(
+			"Invalid Video9000 configuration: "
+			"need reference to VDP and V9990 device.");
 	}
 }
 
@@ -46,7 +51,7 @@ Video9000::~Video9000()
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
 	distributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
-	display.detach(*this);
+	getReactor().getDisplay().detach(*this);
 }
 
 void Video9000::reset(EmuTime::param time)
@@ -63,9 +68,9 @@ void Video9000::writeIO(word /*port*/, byte newValue, EmuTime::param /*time*/)
 
 void Video9000::recalc()
 {
-	// TODO can we do better than name based lookup?
-	v99x8Layer = dynamic_cast<PostProcessor*>(display.findLayer("V99x8"));
-	v9990Layer = dynamic_cast<PostProcessor*>(display.findLayer("V9990"));
+	v99x8Layer = vdp  ->getPostProcessor();
+	v9990Layer = v9990->getPostProcessor();
+	assert(!!v99x8Layer == !!v9990Layer); // either both or neither
 
 	// ...0.... -> only V9990
 	// ...10... -> only V99x8
@@ -80,11 +85,7 @@ void Video9000::recalc()
 	if (v9990Layer) v9990Layer->setVideo9000Active(
 		showV9990 ? VideoLayer::ACTIVE_FRONT : VideoLayer::INACTIVE);
 	activeLayer = showV9990 ? v9990Layer : v99x8Layer;
-	if (!activeLayer) {
-		// only happens on a MSX system with Video9000 but with
-		// missing V99x8 or V9990
-		activeLayer = display.findLayer("snow");
-	}
+	// activeLayer==nullptr is possible for renderer=none
 	recalcVideoSource();
 }
 
@@ -114,6 +115,8 @@ void Video9000::paint(OutputSurface& output)
 	if (!activeLayer) {
 		recalc();
 	}
+	// activeLayer==nullptr is possible for renderer=none, but in that case
+	// the paint() method will never be called.
 	activeLayer->paint(output);
 }
 
@@ -124,7 +127,7 @@ string_ref Video9000::getLayerName() const
 
 void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 {
-	auto layer = dynamic_cast<VideoLayer*>(activeLayer);
+	auto* layer = dynamic_cast<VideoLayer*>(activeLayer);
 	if (!layer) {
 		throw CommandException("TODO");
 	}

@@ -60,6 +60,12 @@ V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 }
 
 template <class Pixel>
+PostProcessor* V9990SDLRasterizer<Pixel>::getPostProcessor() const
+{
+	return postProcessor.get();
+}
+
+template <class Pixel>
 bool V9990SDLRasterizer<Pixel>::isActive()
 {
 	return postProcessor->needRender() &&

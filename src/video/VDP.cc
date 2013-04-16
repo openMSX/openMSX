@@ -333,6 +333,11 @@ void VDP::createRenderer()
 	vram->setRenderer(renderer.get(), frameStartTime.getTime());
 }
 
+PostProcessor* VDP::getPostProcessor() const
+{
+	return renderer->getPostProcessor();
+}
+
 void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be

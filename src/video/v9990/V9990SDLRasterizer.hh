@@ -36,6 +36,7 @@ public:
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:
+	virtual PostProcessor* getPostProcessor() const;
 	virtual bool isActive();
 	virtual void reset();
 	virtual void frameStart();

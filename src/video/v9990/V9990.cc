@@ -128,6 +128,11 @@ V9990::~V9990()
 	display.detach(*this);
 }
 
+PostProcessor* V9990::getPostProcessor() const
+{
+	return renderer->getPostProcessor();
+}
+
 // -------------------------------------------------------------------------
 // MSXDevice
 // -------------------------------------------------------------------------
