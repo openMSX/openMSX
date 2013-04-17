@@ -37,6 +37,8 @@ class Display : public EventListener, private Observer<Setting>,
                 private LayerListener, private noncopyable
 {
 public:
+	typedef std::vector<Layer*> Layers;
+
 	explicit Display(Reactor& reactor);
 	virtual ~Display();
 
@@ -62,6 +64,7 @@ public:
 
 	Layer* findLayer(string_ref name) const;
 	Layer* findActiveLayer() const;
+	const Layers& getAllLayers() const { return layers; }
 
 private:
 	void resetVideoSystem();
@@ -76,8 +79,6 @@ private:
 	void checkRendererSwitch();
 	void doRendererSwitch();
 	void doRendererSwitch2();
-
-	typedef std::vector<Layer*> Layers;
 
 	/** Find frontmost opaque layer.
 	  */

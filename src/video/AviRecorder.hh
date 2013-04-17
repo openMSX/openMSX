@@ -47,9 +47,7 @@ private:
 	std::vector<short> audioBuf;
 	std::unique_ptr<AviWriter> aviWriter;
 	std::unique_ptr<Wav16Writer> wavWriter;
-	PostProcessor* ppV99x8;
-	PostProcessor* ppV9990;
-	PostProcessor* ppLaser;
+	std::vector<PostProcessor*> postProcessors;
 	MSXMixer* mixer;
 	EmuDuration duration;
 	EmuTime prevTime;

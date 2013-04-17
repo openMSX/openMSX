@@ -43,9 +43,6 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 	: reactor(reactor_)
 	, recordCommand(make_unique<RecordCommand>(
 		reactor.getCommandController(), *this))
-	, ppV99x8(nullptr)
-	, ppV9990(nullptr)
-	, ppLaser(nullptr)
 	, mixer(nullptr)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
@@ -82,21 +79,21 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 		warnedSampleRate = false;
 	}
 	if (recordVideo) {
-		// Set V99x8, V9990 and Laserdisc in record mode (when
+		// Set V99x8, V9990, Laserdisc, ... in record mode (when
 		// present). Only the active one will actually send frames to
 		// the video. This also works for Video9000.
-		Display& display = reactor.getDisplay();
-		ppV99x8 = dynamic_cast<PostProcessor*>(display.findLayer("V99x8"));
-		ppV9990 = dynamic_cast<PostProcessor*>(display.findLayer("V9990"));
-		ppLaser = dynamic_cast<PostProcessor*>(display.findLayer("Laserdisc"));
-		PostProcessor* pp = ppV99x8 ? ppV99x8 : (
-		                    ppV9990 ? ppV9990 : ppLaser);
-		if (!pp) {
+		postProcessors.clear();
+		for (auto* l : reactor.getDisplay().getAllLayers()) {
+			if (auto* pp = dynamic_cast<PostProcessor*>(l)) {
+				postProcessors.push_back(pp);
+			}
+		}
+		if (postProcessors.empty()) {
 			throw CommandException(
 				"Current renderer doesn't support video recording.");
 		}
-		unsigned bpp = pp->getBpp(); // any source is fine because they
-		                             // all have the same bpp
+		// any source is fine because they all have the same bpp
+		unsigned bpp = postProcessors.front()->getBpp();
 		warnedFps = false;
 		duration = EmuDuration::infinity;
 		prevTime = EmuTime::infinity;
@@ -115,26 +112,18 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 			filename, stereo ? 2 : 1, sampleRate);
 	}
 	// only set recorders when all errors are checked for
-	if (ppV99x8) ppV99x8->setRecorder(this);
-	if (ppV9990) ppV9990->setRecorder(this);
-	if (ppLaser) ppLaser->setRecorder(this);
-	if (mixer)   mixer  ->setRecorder(this);
+	for (auto* pp : postProcessors) {
+		pp->setRecorder(this);
+	}
+	if (mixer) mixer->setRecorder(this);
 }
 
 void AviRecorder::stop()
 {
-	if (ppV99x8) {
-		ppV99x8->setRecorder(nullptr);
-		ppV99x8 = nullptr;
+	for (auto* pp : postProcessors) {
+		pp->setRecorder(nullptr);
 	}
-	if (ppV9990) {
-		ppV9990->setRecorder(nullptr);
-		ppV9990 = nullptr;
-	}
-	if (ppLaser) {
-		ppLaser->setRecorder(nullptr);
-		ppLaser = nullptr;
-	}
+	postProcessors.clear();
 	if (mixer) {
 		mixer->setRecorder(nullptr);
 		mixer = nullptr;
