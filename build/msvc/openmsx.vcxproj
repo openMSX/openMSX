@@ -1449,7 +1449,6 @@
     <None Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDPVRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoLayer.hh" />
-    <None Include="$(OpenMSXSrcDir)\video\VideoSource.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoSystemChangeListener.hh" />
