@@ -11,6 +11,7 @@
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "Event.hh"
+#include "MSXException.hh"
 #include "memory.hh"
 #include <iostream>
 
@@ -192,7 +193,11 @@ void MSXCommandController::signalEvent(
 
 	// simple way to synchronize proxy settings
 	for (auto& p : settingMap) {
-		changeSetting(*p.second, p.second->getValueString());
+		try {
+			changeSetting(*p.second, p.second->getValueString());
+		} catch (MSXException& e) {
+			// ignore
+		}
 	}
 }
 
@@ -206,7 +211,11 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 	for (auto& p : settingMap) {
 		if (auto* fromSetting = from.findSetting(p.first())) {
 			if (!fromSetting->needTransfer()) continue;
-			changeSetting(*p.second, fromSetting->getValueString());
+			try {
+				changeSetting(*p.second, fromSetting->getValueString());
+			} catch (MSXException& e) {
+				// ignore
+			}
 		}
 	}
 }

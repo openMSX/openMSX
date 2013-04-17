@@ -243,7 +243,10 @@ static const char* getVar(Tcl_Interp* interp, const char* name)
 
 void Interpreter::setVariable(const string& name, const string& value)
 {
-	setVar(interp, name.c_str(), value.c_str());
+	if (!Tcl_SetVar(interp, name.c_str(), value.c_str(),
+		        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG)) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
 }
 
 void Interpreter::unsetVariable(const string& name)

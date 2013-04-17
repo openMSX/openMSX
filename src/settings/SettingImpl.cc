@@ -67,7 +67,11 @@ void SettingImplBase::syncProxy()
 	GlobalCommandController& globalController =
 		controller->getGlobalCommandController();
 	// Tcl already makes sure this doesn't result in an endless loop.
-	globalController.changeSetting(getName(), getValueString());
+	try {
+		globalController.changeSetting(getName(), getValueString());
+	} catch (MSXException& e) {
+		// ignore
+	}
 }
 
 
