@@ -63,7 +63,7 @@ public:
 
 	/** Get the default value of this setting
 	  */
-	const Type& getDefaultValue() const;
+	Type getDefaultValue() const;
 
 	/** Set a new default value
 	  */
@@ -183,9 +183,9 @@ void SettingImpl<POLICY>::setValue2(Type newValue, bool check)
 }
 
 template<typename POLICY>
-const typename SettingImpl<POLICY>::Type& SettingImpl<POLICY>::getDefaultValue() const
+typename SettingImpl<POLICY>::Type SettingImpl<POLICY>::getDefaultValue() const
 {
-	return defaultValue;
+	return POLICY::checkGetValue(defaultValue);
 }
 
 template<typename POLICY>
@@ -224,7 +224,7 @@ std::string SettingImpl<POLICY>::getDefaultValueString() const
 template<typename POLICY>
 std::string SettingImpl<POLICY>::getRestoreValueString() const
 {
-	return POLICY::toString(restoreValue);
+	return POLICY::toString(POLICY::checkGetValue(restoreValue));
 }
 
 template<typename POLICY>

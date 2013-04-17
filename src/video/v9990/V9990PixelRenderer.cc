@@ -5,6 +5,7 @@
 #include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990Rasterizer.hh"
+#include "PostProcessor.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "VideoSourceSetting.hh"
@@ -134,7 +135,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<FinishFrameEvent>(
-			VIDEO_GFX9000,
+			rasterizer->getPostProcessor()->getVideoSource(),
 			videoSourceSetting.getValue(),
 			skipEvent));
 }

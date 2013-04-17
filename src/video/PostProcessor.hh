@@ -101,8 +101,8 @@ protected:
 
 	PostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		OutputSurface& screen, VideoSource videoSource,
-		unsigned maxWidth, unsigned height);
+		OutputSurface& screen, const std::string& videoSource,
+		unsigned maxWidth, unsigned height, bool canDoInterlace);
 
 	/** Render settings */
 	RenderSettings& renderSettings;
@@ -143,6 +143,12 @@ private:
 	void getScaledFrame(unsigned height, const void** lines);
 
 	Display& display;
+
+	/** Laserdisc cannot do interlace (better: the current implementation
+	  * is not interlaced). In that case some internal stuff can be done
+	  * with less buffers.
+	  */
+	const bool canDoInterlace;
 };
 
 } // namespace openmsx

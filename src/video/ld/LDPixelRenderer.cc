@@ -2,6 +2,7 @@
 
 #include "LDPixelRenderer.hh"
 #include "LDRasterizer.hh"
+#include "PostProcessor.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "VideoSourceSetting.hh"
@@ -37,7 +38,7 @@ bool LDPixelRenderer::isActive() const
 void LDPixelRenderer::frameEnd()
 {
 	eventDistributor.distributeEvent(std::make_shared<FinishFrameEvent>(
-		VIDEO_LASERDISC,
+		rasterizer->getPostProcessor()->getVideoSource(),
 		motherboard.getVideoSource().getValue(),
 		!isActive()));
 }

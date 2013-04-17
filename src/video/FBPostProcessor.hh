@@ -22,8 +22,8 @@ class FBPostProcessor : public PostProcessor
 public:
 	FBPostProcessor(
 		MSXMotherBoard& motherBoard, Display& display,
-		OutputSurface& screen, VideoSource videoSource,
-		unsigned maxWidth, unsigned height);
+		OutputSurface& screen, const std::string& videoSource,
+		unsigned maxWidth, unsigned height, bool canDoInterlace);
 	virtual ~FBPostProcessor();
 
 	// Layer interface:

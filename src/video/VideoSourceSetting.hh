@@ -3,26 +3,18 @@
 #ifndef VIDEOSOURCESETTING_HH
 #define VIDEOSOURCESETTING_HH
 
-#include "VideoSource.hh"
 #include "EnumSetting.hh"
-#include <vector>
 
 namespace openmsx {
 
-class VideoSourceSettingPolicy : public EnumSettingPolicy<VideoSource>
+class VideoSourceSettingPolicy : public EnumSettingPolicy<int>
 {
 protected:
 	VideoSourceSettingPolicy(const Map& map);
-	virtual void checkSetValue(VideoSource& value) const;
-	VideoSource checkGetValue(VideoSource value) const;
-
-	// There can be duplicates when the same machine contains multiple
-	// V99x8/V9990/... sources. TODO create a more dynamic setting (no
-	// more fixed enum values)
-	std::vector<VideoSource> activeSources;
-
-private:
-	bool has(VideoSource value) const;
+	virtual void checkSetValue(int& value) const;
+	int checkGetValue(int value) const;
+	bool has(int value) const;
+	int has(const std::string& value) const;
 };
 
 
@@ -30,18 +22,20 @@ class VideoSourceSetting : public SettingImpl<VideoSourceSettingPolicy>
 {
 public:
 	explicit VideoSourceSetting(CommandController& commandController);
-	void registerVideoSource(VideoSource source);
-	void unregisterVideoSource(VideoSource source);
+	int registerVideoSource(const std::string& source);
+	void unregisterVideoSource(int source);
 };
 
 class VideoSourceActivator
 {
 public:
-	VideoSourceActivator(VideoSourceSetting& setting, VideoSource source);
+	VideoSourceActivator(
+		VideoSourceSetting& setting, const std::string& name);
 	~VideoSourceActivator();
+	int getID() const { return id; }
 private:
 	VideoSourceSetting& setting;
-	VideoSource source;
+	int id;
 };
 
 } // namespace openmsx

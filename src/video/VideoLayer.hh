@@ -4,7 +4,6 @@
 #define VIDEOLAYER_HH
 
 #include "Layer.hh"
-#include "VideoSource.hh"
 #include "Observer.hh"
 #include "MSXEventListener.hh"
 #include "noncopyable.hh"
@@ -25,7 +24,12 @@ class VideoLayer: public Layer, protected Observer<Setting>,
 {
 public:
 	virtual ~VideoLayer();
-	VideoSource getVideoSource() const;
+
+	/** Returns the ID for this videolayer.
+	  * These IDs are globally unique. The 'videosource' setting uses
+	  * these IDs as possible values.
+	  */
+	int getVideoSource() const;
 
 	/** Create a raw (=non-postprocessed) screenshot. The 'height'
 	 * parameter should be either '240' or '480'. The current image will be
@@ -38,13 +42,16 @@ public:
 	// Video9000 it's possible the Video9000 layer is selected, but we
 	// still need to render this layer (the v99x8 or v9990 layer).
 	enum Video9000Active { INACTIVE, ACTIVE_FRONT, ACTIVE_BACK };
-	void setVideo9000Active(Video9000Active active) { activeVideo9000 = active; }
+	void setVideo9000Active(int video9000Source_, Video9000Active active) {
+		video9000Source = video9000Source_;
+		activeVideo9000 = active;
+	}
 	bool needRender() const;
 	bool needRecord() const;
 
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
-	           VideoSource videoSource);
+	           const std::string& videoSource);
 
 	// Observer<Setting> interface:
 	virtual void update(const Setting& setting);
@@ -70,8 +77,9 @@ private:
 	const std::unique_ptr<VideoSourceActivator> videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
-	/** Video source that displays on this layer. */
-	const VideoSource videoSource;
+
+	/** Video source ID of the Video9000 layer. */
+	int video9000Source;
 	/** Active when Video9000 is shown. */
 	Video9000Active activeVideo9000;
 };

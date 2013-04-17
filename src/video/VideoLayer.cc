@@ -17,7 +17,7 @@
 namespace openmsx {
 
 VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
-                       VideoSource videoSource_)
+                       const std::string& videoSource_)
 	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
 	, renderSettings(display.getRenderSettings())
@@ -25,7 +25,7 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 	, videoSourceActivator(make_unique<VideoSourceActivator>(
 		videoSourceSetting, videoSource_))
 	, powerSetting(motherBoard.getReactor().getGlobalSettings().getPowerSetting())
-	, videoSource(videoSource_)
+	, video9000Source(0)
 	, activeVideo9000(INACTIVE)
 {
 	calcCoverage();
@@ -48,9 +48,9 @@ VideoLayer::~VideoLayer()
 	PRT_DEBUG("Destructing VideoLayer... DONE!");
 }
 
-VideoSource VideoLayer::getVideoSource() const
+int VideoLayer::getVideoSource() const
 {
-	return videoSource;
+	return videoSourceActivator->getID();
 }
 
 void VideoLayer::update(const Setting& setting)
@@ -64,7 +64,7 @@ void VideoLayer::update(const Setting& setting)
 
 void VideoLayer::calcZ()
 {
-	setZ((videoSourceSetting.getValue() == videoSource)
+	setZ((videoSourceSetting.getValue() == getVideoSource())
 		? Z_MSX_ACTIVE
 		: Z_MSX_PASSIVE);
 }
@@ -93,16 +93,22 @@ void VideoLayer::signalEvent(const std::shared_ptr<const Event>& event,
 
 bool VideoLayer::needRender() const
 {
-	VideoSource current = videoSourceSetting.getValue();
-	return (current == videoSource) ||
-	      ((current == VIDEO_9000) && (activeVideo9000 != INACTIVE));
+	// Either when this layer itself is selected or when the video9000
+	// layer is selected and this layer is needed to render a
+	// (superimposed) image.
+	int current = videoSourceSetting.getValue();
+	return (current == getVideoSource()) ||
+	      ((current == video9000Source) && (activeVideo9000 != INACTIVE));
 }
 
 bool VideoLayer::needRecord() const
 {
-	VideoSource current = videoSourceSetting.getValue();
-	return (current == videoSource) ||
-	      ((current == VIDEO_9000) && (activeVideo9000 == ACTIVE_FRONT));
+	// Either when this layer itself is selected or when the video9000
+	// layer is selected and this layer is the front layer of a
+	// (superimposed) image
+	int current = videoSourceSetting.getValue();
+	return (current == getVideoSource()) ||
+	      ((current == video9000Source) && (activeVideo9000 == ACTIVE_FRONT));
 }
 
 } // namespace openmsx

@@ -18,7 +18,7 @@ namespace openmsx {
 
 Video9000::Video9000(const DeviceConfig& config)
 	: MSXDevice(config)
-	, VideoLayer(getMotherBoard(), VIDEO_9000)
+	, VideoLayer(getMotherBoard(), "Video9000")
 	, videoSourceSetting(getMotherBoard().getVideoSource())
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();
@@ -68,6 +68,7 @@ void Video9000::writeIO(word /*port*/, byte newValue, EmuTime::param /*time*/)
 
 void Video9000::recalc()
 {
+	int video9000id = getVideoSource();
 	v99x8Layer = vdp  ->getPostProcessor();
 	v9990Layer = v9990->getPostProcessor();
 	assert(!!v99x8Layer == !!v9990Layer); // either both or neither
@@ -79,10 +80,12 @@ void Video9000::recalc()
 	bool showV9990   = ((value & 0x18) != 0x10);
 	assert(showV99x8 || showV9990);
 	if (v99x8Layer) v99x8Layer->setVideo9000Active(
+		video9000id,
 		showV99x8 ? (showV9990 ? VideoLayer::ACTIVE_BACK
 		                       : VideoLayer::ACTIVE_FRONT)
 		          : VideoLayer::INACTIVE);
 	if (v9990Layer) v9990Layer->setVideo9000Active(
+		video9000id,
 		showV9990 ? VideoLayer::ACTIVE_FRONT : VideoLayer::INACTIVE);
 	activeLayer = showV9990 ? v9990Layer : v99x8Layer;
 	// activeLayer==nullptr is possible for renderer=none
@@ -96,7 +99,7 @@ void Video9000::recalcVideoSource()
 	// enabled superimpose mode (mostly useful for debugging).
 	bool superimpose = ((value & 0x18) == 0x18);
 	v9990->setExternalVideoSource(
-		superimpose && (videoSourceSetting.getValue() == VIDEO_9000));
+		superimpose && (videoSourceSetting.getValue() == getVideoSource()));
 }
 
 void Video9000::preVideoSystemChange()
@@ -136,24 +139,26 @@ void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 
 int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 {
+	int video9000id = getVideoSource();
+
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
 	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 	if (ffe.isSkipped()) return 0;
-	if (videoSourceSetting.getValue() != VIDEO_9000) return 0;
+	if (videoSourceSetting.getValue() != video9000id) return 0;
 
 	bool superimpose = ((value & 0x18) == 0x18);
-	if (superimpose && (ffe.getSource() == VIDEO_MSX) &&
-	    v99x8Layer && v9990Layer) {
+	if (superimpose && v99x8Layer && v9990Layer &&
+	    (ffe.getSource() == v99x8Layer->getVideoSource())) {
 		// inform V9990 about the new V99x8 frame
 		v9990Layer->setSuperimposeVdpFrame(v99x8Layer->getPaintFrame());
 	}
 
 	bool showV9990   = ((value & 0x18) != 0x10); // v9990 or superimpose
-	if (( showV9990 && (ffe.getSource() == VIDEO_GFX9000)) ||
-	    (!showV9990 && (ffe.getSource() == VIDEO_MSX))) {
+	if (( showV9990 && v9990Layer && (ffe.getSource() == v9990Layer->getVideoSource())) ||
+	    (!showV9990 && v99x8Layer && (ffe.getSource() == v99x8Layer->getVideoSource()))) {
 		getReactor().getEventDistributor().distributeEvent(
 			std::make_shared<FinishFrameEvent>(
-				VIDEO_9000, VIDEO_9000, false));
+				video9000id, video9000id, false));
 	}
 	return 0;
 }

@@ -6,92 +6,119 @@
 namespace openmsx {
 
 VideoSourceSettingPolicy::VideoSourceSettingPolicy(const Map& map)
-	: EnumSettingPolicy<VideoSource>(map)
+	: EnumSettingPolicy<int>(map)
 {
 }
 
-bool VideoSourceSettingPolicy::has(VideoSource value) const
+bool VideoSourceSettingPolicy::has(int value) const
 {
-	return find(activeSources.begin(), activeSources.end(), value)
-	       != activeSources.end();
+	for (auto& p : baseMap) {
+		if (p.second == value) return true;
+	}
+	return false;
 }
 
-void VideoSourceSettingPolicy::checkSetValue(VideoSource& value) const
+int VideoSourceSettingPolicy::has(const std::string& value) const
 {
-	// activeSources.empty() happens during machine construction
-	// TODO the future 'dynamic' videosource setting should also
-	//      handle this case
-	if (activeSources.empty()) return;
-	if (!has(value)) {
+	auto it = baseMap.find(value);
+	return (it != baseMap.end()) ? it->second : 0;
+}
+
+void VideoSourceSettingPolicy::checkSetValue(int& value) const
+{
+	// Special case: in case there are no videosources registered (yet),
+	// the only allowed value is "none". In case there is at least one
+	// registered source, this special value "none" should be hidden.
+	if (((value == 0) && (baseMap.size() >  1)) ||
+	    ((value != 0) && (baseMap.size() == 1)) ||
+	    (!has(value))) {
 		throw CommandException("video source not available");
 	}
 }
 
-VideoSource VideoSourceSettingPolicy::checkGetValue(VideoSource value) const
+int VideoSourceSettingPolicy::checkGetValue(int value) const
 {
-	if (has(value)) {
+	// For the prefered value (initial value or new value in case the
+	// old value became invalid) the order of values is based on fixed
+	// names. Good enough for now.
+	if ((value != 0) && has(value)) {
+		// already a valid value
 		return value;
-	} else if (has(VIDEO_9000)) {
+	} else if (int id = has("Video9000")) {
 		// prefer video9000 over v99x8
-		return VIDEO_9000;
-	} else if (has(VIDEO_MSX)) {
-		return VIDEO_MSX;
-	} else if (has(VIDEO_GFX9000)) {
-		return VIDEO_GFX9000;
-	} else if (has(VIDEO_LASERDISC)) {
-		return VIDEO_LASERDISC;
+		return id;
+	} else if (int id = has("MSX")) {
+		// V99x9 over V9990
+		return id;
+	} else if (int id = has("GFX9000")) {
+		// and V9990 over laserdisc
+		return id;
+	} else if (int id = has("Laserdisc")) {
+		return id;
 	} else {
-		// happens during loading of setting
-		return value;
+		// this handles the "none" case, but also stuff like
+		// multiple V99x8/V9990 chips
+		int newest = 0;
+		for (auto& p : baseMap) {
+			newest = std::max(newest, p.second);
+		}
+		return newest;
 	}
 }
 
 static VideoSourceSetting::Map getVideoSourceMap()
 {
 	VideoSourceSetting::Map result;
-	result["MSX"]       = VIDEO_MSX;
-	result["GFX9000"]   = VIDEO_GFX9000;
-	result["Video9000"] = VIDEO_9000;
-	result["Laserdisc"] = VIDEO_LASERDISC;
+	result["none"] = 0;
 	return result;
 }
 
-const char* const VIDEOSOURCE = "videosource";
-
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	: SettingImpl<VideoSourceSettingPolicy>(commandController,
-		VIDEOSOURCE, "selects the video source to display on the screen",
-		VIDEO_9000, Setting::DONT_SAVE, getVideoSourceMap())
+		"videosource", "selects the video source to display on the screen",
+		0, Setting::DONT_SAVE, getVideoSourceMap())
 {
 }
 
-void VideoSourceSetting::registerVideoSource(VideoSource source)
+int VideoSourceSetting::registerVideoSource(const std::string& source)
 {
-	activeSources.push_back(source);
-	notifyPropertyChange(); // first announce extended set of allowed values
-	notify();               // before announcing a (possibly) different value
+	static int counter = 0; // id's are globally unique
+
+	assert(!has(source)); // TODO make unique value
+	baseMap[source] = ++counter;
+
+	// First announce extended set of allowed values before announcing a
+	// (possibly) different value.
+	notifyPropertyChange();
+	changeValue(getValue());
+
+	return counter;
 }
 
-void VideoSourceSetting::unregisterVideoSource(VideoSource source)
+void VideoSourceSetting::unregisterVideoSource(int source)
 {
-	auto it = find(activeSources.begin(), activeSources.end(), source);
-	assert(it != activeSources.end());
-	activeSources.erase(it);
-	notify();               // first notify the (possibly) changed value
-	notifyPropertyChange(); // before announcing the shrinked set of values
+	auto it = find_if(baseMap.begin(), baseMap.end(),
+		[&](Map::value_type& p) { return p.second == source; });
+	assert(it != baseMap.end());
+	baseMap.erase(it);
+
+	// First notify the (possibly) changed value before announcing the
+	// shrinked set of values.
+	changeValue(getValue());
+	notifyPropertyChange();
 }
 
 
 VideoSourceActivator::VideoSourceActivator(
-	VideoSourceSetting& setting_, VideoSource source_)
-	: setting(setting_), source(source_)
+	VideoSourceSetting& setting_, const std::string& name)
+	: setting(setting_)
 {
-	setting.registerVideoSource(source);
+	id = setting.registerVideoSource(name);
 }
 
 VideoSourceActivator::~VideoSourceActivator()
 {
-	setting.unregisterVideoSource(source);
+	setting.unregisterVideoSource(id);
 }
 
 } // namespace openmsx

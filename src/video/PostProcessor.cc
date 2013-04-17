@@ -24,8 +24,8 @@
 namespace openmsx {
 
 PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
-	Display& display_, OutputSurface& screen_, VideoSource videoSource,
-	unsigned maxWidth, unsigned height)
+	Display& display_, OutputSurface& screen_, const std::string& videoSource,
+	unsigned maxWidth, unsigned height, bool canDoInterlace_)
 	: VideoLayer(motherBoard, videoSource)
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
@@ -34,8 +34,9 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, superImposeVideoFrame(nullptr)
 	, superImposeVdpFrame(nullptr)
 	, display(display_)
+	, canDoInterlace(canDoInterlace_)
 {
-	if (getVideoSource() != VIDEO_LASERDISC) {
+	if (canDoInterlace) {
 		currFrame = make_unique<RawFrame>(
 			screen.getSDLFormat(), maxWidth, height);
 		prevFrame = make_unique<RawFrame>(
@@ -84,12 +85,7 @@ unsigned PostProcessor::getLineWidth(
 
 string_ref PostProcessor::getLayerName() const
 {
-	switch (getVideoSource()) {
-	case VIDEO_MSX:       return "V99x8";
-	case VIDEO_GFX9000:   return "V9990";
-	case VIDEO_LASERDISC: return "Laserdisc";
-	default: UNREACHABLE; return "";
-	}
+	return "TODO"; // This breaks video recording!!
 }
 
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
@@ -97,7 +93,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	EmuTime::param time)
 {
 	std::unique_ptr<RawFrame> reuseFrame;
-	if (getVideoSource() != VIDEO_LASERDISC) {
+	if (canDoInterlace) {
 		reuseFrame = std::move(prevFrame);
 		prevFrame = std::move(currFrame);
 		currFrame = std::move(finishedFrame);
@@ -144,7 +140,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 		paintFrame->freeLineBuffers();
 	}
 
-	if (getVideoSource() != VIDEO_LASERDISC) {
+	if (canDoInterlace) {
 		return reuseFrame;
 	} else {
 		return std::move(currFrame);

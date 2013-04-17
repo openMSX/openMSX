@@ -4,7 +4,6 @@
 #define FINISHFRAMEEVENT_HH
 
 #include "Event.hh"
-#include "VideoSource.hh"
 #include "TclObject.hh"
 #include "checked_cast.hh"
 #include <tuple>
@@ -25,7 +24,7 @@ namespace openmsx {
 class FinishFrameEvent : public Event
 {
 public:
-	FinishFrameEvent(VideoSource thisSource_, VideoSource selectedSource_,
+	FinishFrameEvent(int thisSource_, int selectedSource_,
 	                 bool skipped_)
 		: Event(OPENMSX_FINISH_FRAME_EVENT)
 		, thisSource(thisSource_), selectedSource(selectedSource_)
@@ -33,8 +32,8 @@ public:
 	{
 	}
 
-	VideoSource getSource()         const { return thisSource; }
-	VideoSource getSelectedSource() const { return selectedSource; }
+	int getSource()         const { return thisSource; }
+	int getSelectedSource() const { return selectedSource; }
 	bool isSkipped() const { return skipped; }
 	bool needRender() const { return !skipped && (thisSource == selectedSource); }
 
@@ -56,8 +55,8 @@ public:
 	}
 
 private:
-	const VideoSource thisSource;
-	const VideoSource selectedSource;
+	const int thisSource;
+	const int selectedSource;
 	const bool skipped;
 };
 

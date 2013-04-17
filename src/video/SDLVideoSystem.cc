@@ -95,7 +95,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					VIDEO_MSX, 640, 240));
+					"MSX", 640, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -103,7 +103,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					VIDEO_MSX, 640, 240));
+					"MSX", 640, 240, true));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -114,7 +114,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				VIDEO_MSX, 640, 240));
+				"MSX", 640, 240, true));
 #endif
 	default:
 		UNREACHABLE; return nullptr;
@@ -136,7 +136,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					VIDEO_GFX9000, 1280, 240));
+					"GFX9000", 1280, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -144,7 +144,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					VIDEO_GFX9000, 1280, 240));
+					"GFX9000", 1280, 240, true));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -155,7 +155,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				VIDEO_GFX9000, 1280, 240));
+				"GFX9000", 1280, 240, true));
 #endif
 	default:
 		UNREACHABLE; return nullptr;
@@ -178,7 +178,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 				*screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					VIDEO_LASERDISC, 640, 480));
+					"Laserdisc", 640, 480, false));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -186,7 +186,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 				*screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					VIDEO_LASERDISC, 640, 480));
+					"Laserdisc", 640, 480, false));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -197,7 +197,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 			*screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				VIDEO_LASERDISC, 640, 480));
+				"Laserdisc", 640, 480, false));
 #endif
 	default:
 		UNREACHABLE; return nullptr;

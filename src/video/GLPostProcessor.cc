@@ -30,10 +30,10 @@ GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
 
 GLPostProcessor::GLPostProcessor(
 	MSXMotherBoard& motherBoard, Display& display,
-	OutputSurface& screen, VideoSource videoSource,
-	unsigned maxWidth, unsigned height_)
+	OutputSurface& screen, const std::string& videoSource,
+	unsigned maxWidth, unsigned height_, bool canDoInterlace)
 	: PostProcessor(motherBoard, display, screen,
-	                videoSource, maxWidth, height_)
+	                videoSource, maxWidth, height_, canDoInterlace)
 	, noiseTextureA(256, 256)
 	, noiseTextureB(256, 256)
 	, height(height_)

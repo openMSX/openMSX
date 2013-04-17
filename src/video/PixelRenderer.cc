@@ -7,6 +7,7 @@ TODO:
 
 #include "PixelRenderer.hh"
 #include "Rasterizer.hh"
+#include "PostProcessor.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "RenderSettings.hh"
@@ -232,7 +233,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<FinishFrameEvent>(
-			VIDEO_MSX,
+			rasterizer->getPostProcessor()->getVideoSource(),
 			videoSourceSetting.getValue(),
 			skipEvent));
 }

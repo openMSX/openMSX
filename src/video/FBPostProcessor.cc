@@ -332,10 +332,11 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 
 template <class Pixel>
 FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
-	Display& display, OutputSurface& screen_, VideoSource videoSource,
-	unsigned maxWidth, unsigned height)
+	Display& display, OutputSurface& screen_, const std::string& videoSource,
+	unsigned maxWidth, unsigned height, bool canDoInterlace)
 	: PostProcessor(
-		motherBoard, display, screen_, videoSource, maxWidth, height)
+		motherBoard, display, screen_, videoSource, maxWidth, height,
+		canDoInterlace)
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getSDLFormat())
 {
