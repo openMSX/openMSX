@@ -38,7 +38,6 @@ HDR_ONLY:= \
 	Rasterizer \
 	VideoSystemChangeListener \
 	LayerListener \
-	VideoSource \
 	SDLSurfacePtr \
 	OutputRectangle
 
