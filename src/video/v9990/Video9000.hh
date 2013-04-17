@@ -41,7 +41,6 @@ private:
 
 	// VideoLayer
 	virtual void paint(OutputSurface& output);
-	virtual string_ref getLayerName() const;
 	virtual void takeRawScreenShot(unsigned height, const std::string& filename);
 
 	// EventListener

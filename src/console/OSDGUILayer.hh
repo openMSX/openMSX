@@ -14,9 +14,6 @@ class OSDGUILayer : public Layer
 public:
 	OSDGUI& getGUI();
 
-	// Layer
-	virtual string_ref getLayerName() const;
-
 protected:
 	explicit OSDGUILayer(OSDGUI& gui);
 	~OSDGUILayer();

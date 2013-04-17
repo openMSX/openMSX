@@ -32,7 +32,6 @@ public:
 
 	// Layer interface:
 	virtual void paint(OutputSurface& output) = 0;
-	virtual string_ref getLayerName() const;
 
 	/** Sets up the "abcdFrame" variables for a new frame.
 	  * TODO: The point of passing the finished frame in and the new workFrame

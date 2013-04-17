@@ -56,12 +56,6 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 	display.repaintDelayed(100 * 1000); // 10fps
 }
 
-template <class Pixel>
-string_ref SDLSnow<Pixel>::getLayerName() const
-{
-	return "snow";
-}
-
 // Force template instantiation.
 #if HAVE_16BPP
 template class SDLSnow<word>;

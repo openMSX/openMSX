@@ -469,11 +469,6 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 }
 
-string_ref OSDConsoleRenderer::getLayerName() const
-{
-	return "console";
-}
-
 
 // class OSDSettingChecker
 

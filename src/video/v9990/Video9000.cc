@@ -123,11 +123,6 @@ void Video9000::paint(OutputSurface& output)
 	activeLayer->paint(output);
 }
 
-string_ref Video9000::getLayerName() const
-{
-	return "Video9000";
-}
-
 void Video9000::takeRawScreenShot(unsigned height, const std::string& filename)
 {
 	auto* layer = dynamic_cast<VideoLayer*>(activeLayer);

@@ -83,11 +83,6 @@ unsigned PostProcessor::getLineWidth(
 	return result;
 }
 
-string_ref PostProcessor::getLayerName() const
-{
-	return "TODO"; // This breaks video recording!!
-}
-
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)

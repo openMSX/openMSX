@@ -35,7 +35,6 @@ public:
 private:
 	// Layer
 	virtual void paint(OutputSurface& output);
-	virtual string_ref getLayerName() const;
 
 	// Observer
 	void update(const Setting& setting);

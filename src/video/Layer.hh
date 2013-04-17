@@ -49,10 +49,6 @@ public:
 	  */
 	virtual void paint(OutputSurface& output) = 0;
 
-	/** Returns the name of this layer.
-	  */
-	virtual string_ref getLayerName() const = 0;
-
 	/** Query the Z-index of this layer.
 	  */
 	ZIndex getZ() const { return z; }

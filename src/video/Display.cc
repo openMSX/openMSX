@@ -193,16 +193,6 @@ void Display::detach(VideoSystemChangeListener& listener)
 	listeners.erase(it);
 }
 
-Layer* Display::findLayer(string_ref name) const
-{
-	for (auto& l : layers) {
-		if (l->getLayerName() == name) {
-			return l;
-		}
-	}
-	return nullptr;
-}
-
 Layer* Display::findActiveLayer() const
 {
 	for (auto& l : layers) {

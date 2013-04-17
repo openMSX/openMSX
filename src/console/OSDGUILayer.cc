@@ -24,11 +24,6 @@ OSDGUI& OSDGUILayer::getGUI()
 	return gui;
 }
 
-string_ref OSDGUILayer::getLayerName() const
-{
-	return "OSDGUI";
-}
-
 
 // class SDLOSDGUILayer
 

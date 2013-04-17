@@ -62,7 +62,6 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
-	Layer* findLayer(string_ref name) const;
 	Layer* findActiveLayer() const;
 	const Layers& getAllLayers() const { return layers; }
 

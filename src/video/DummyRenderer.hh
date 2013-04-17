@@ -43,7 +43,6 @@ public:
 
 	// Layer interface:
 	virtual void paint(OutputSurface& output);
-	virtual string_ref getLayerName() const;
 };
 
 } // namespace openmsx

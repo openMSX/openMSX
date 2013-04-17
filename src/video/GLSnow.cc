@@ -69,9 +69,4 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	display.repaintDelayed(100 * 1000); // 10fps
 }
 
-string_ref GLSnow::getLayerName() const
-{
-	return "snow";
-}
-
 } // namespace openmsx
