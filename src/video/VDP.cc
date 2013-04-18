@@ -873,7 +873,7 @@ bool VDP::cpuAccessScheduled() const
 //      still need to investigate character and text modes.
 // These tables must contain at least one value that is bigger or equal
 // to 1368+136. So we extend the data with some cyclic duplicates.
-static const int screenOff[154 + 17] = {
+static const unsigned screenOff[154 + 17] = {
 	   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
 	  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
 	 196,  204,  212,  220,  228,  236,  244,  252,  260,  268,
@@ -896,7 +896,7 @@ static const int screenOff[154 + 17] = {
 	1368+120, 1368+164
 };
 
-static const int spritesOff[88 + 16] = {
+static const unsigned spritesOff[88 + 16] = {
 	   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
 	  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
 	 220,  246,  252,  278,  310,  316,  342,  348,  374,  380,
@@ -912,7 +912,7 @@ static const int spritesOff[88 + 16] = {
 	1368+162,
 };
 
-static const int spritesOn[31 + 3] = {
+static const unsigned spritesOn[31 + 3] = {
 	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
 	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1264,
@@ -920,23 +920,23 @@ static const int spritesOn[31 + 3] = {
 	1368+28, 1368+92, 1368+162,
 };
 
-static array_ref<int> getAccessSlots(bool display, bool sprites)
+static array_ref<unsigned> getAccessSlots(bool display, bool sprites)
 {
-	return display ? (sprites ? array_ref<int>(spritesOn,  31)
-	                          : array_ref<int>(spritesOff, 88))
-	               :            array_ref<int>(screenOff, 154);
+	return display ? (sprites ? array_ref<unsigned>(spritesOn,  31)
+	                          : array_ref<unsigned>(spritesOff, 88))
+	               :            array_ref<unsigned>(screenOff, 154);
 }
-static array_ref<int> getExtendedAccessSlots(bool display, bool sprites)
+static array_ref<unsigned> getExtendedAccessSlots(bool display, bool sprites)
 {
-	return display ? (sprites ? array_ref<int>(spritesOn)
-	                          : array_ref<int>(spritesOff))
-	               :            array_ref<int>(screenOff);
+	return display ? (sprites ? array_ref<unsigned>(spritesOn)
+	                          : array_ref<unsigned>(spritesOff))
+	               :            array_ref<unsigned>(screenOff);
 }
 
 EmuTime VDP::getAccessSlot(EmuTime::param time, unsigned delta) const
 {
 	assert(delta <= 136); // longest time between command requests
-	int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
+	unsigned ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
 	auto slots = getExtendedAccessSlots(
 		isDisplayEnabled(), (controlRegs[8] & 2) == 0);
 
@@ -948,10 +948,10 @@ EmuTime VDP::getAccessSlot(EmuTime::param time, unsigned delta) const
 
 AccessSlotCalculator VDP::getAccessSlotCalculator(EmuTime::param time) const
 {
-	int ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
+	unsigned ticks = getTicksThisFrame(time) % TICKS_PER_LINE;
 	auto slots = getAccessSlots(
 		isDisplayEnabled(), (controlRegs[8] & 2) == 0);
-	return AccessSlotCalculator(ticks, slots.data(), slots.size());
+	return AccessSlotCalculator(ticks, slots.data(), unsigned(slots.size()));
 }
 
 byte VDP::peekStatusReg(byte reg, EmuTime::param time) const

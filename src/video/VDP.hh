@@ -893,7 +893,7 @@ SERIALIZE_CLASS_VERSION(VDP, 5);
 class AccessSlotCalculator
 {
 public:
-	AccessSlotCalculator(int ticks_, const int* tab, int tabLen_)
+	AccessSlotCalculator(unsigned ticks_, const unsigned* tab, unsigned tabLen_)
 		: ticks(ticks_), tabLen(tabLen_)
 	{
 		// Search largest value that is smaller or equal to ticks.
@@ -905,7 +905,7 @@ public:
 	inline EmuDuration getNext(unsigned delta) {
 		assert(delta != 0);
 		assert(delta <= 136);
-		int stop = ticks + delta;
+		auto stop = ticks + delta;
 		do { ++idx; } while (*idx < stop);
 		auto duration = VDP::VDPClock::duration(*idx - ticks);
 		if (unlikely(*idx >= 1368)) idx -= tabLen;
@@ -916,9 +916,9 @@ private:
 	// Usually *idx == ticks, but in case the VDP switched mode
 	// in the middle of a command (e.g. enabled/disabled sprites)
 	// this may not be the case. So we need both vars.
-	const int* idx;
-	int ticks;
-	const int tabLen;
+	const unsigned* idx;
+	unsigned ticks;
+	const unsigned tabLen;
 };
 
 

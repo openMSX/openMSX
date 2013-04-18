@@ -883,7 +883,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		}
 		try {
 			insertTape(casImage);
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			if (oldChecksum.empty()) {
 				// It's OK if we cannot reinsert an empty
 				// image. One likely scenario for this case is
