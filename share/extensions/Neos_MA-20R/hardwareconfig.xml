@@ -17,7 +17,7 @@
     </RTC>
     <primary slot="any">
       <secondary slot="any">
-        <ROM id="MA-20 MSX2 Sub">
+        <ROM id="MA-20 MSX2 BIOS and BASIC">
           <mem base="0x0000" size="0x8000"/>
           <rom>
             <sha1>2a3d953a423fa513f0d26a8bf0bd50664688868c</sha1>
