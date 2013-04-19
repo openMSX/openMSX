@@ -83,7 +83,10 @@ SDLVideoSystem::~SDLVideoSystem()
 
 std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 {
-	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
+	std::string videoSource = (vdp.getName() == "VDP")
+	                        ? "MSX" // for backwards compatibility
+	                        : vdp.getName();
+	auto& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
@@ -95,7 +98,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					"MSX", 640, 240, true));
+					videoSource, 640, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -103,7 +106,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					"MSX", 640, 240, true));
+					videoSource, 640, 240, true));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -114,7 +117,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				"MSX", 640, 240, true));
+				videoSource, 640, 240, true));
 #endif
 	default:
 		UNREACHABLE; return nullptr;
@@ -124,6 +127,9 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	V9990& vdp)
 {
+	std::string videoSource = (vdp.getName() == "Sunrise GFX9000")
+	                        ? "GFX9000" // for backwards compatibility
+	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
@@ -136,7 +142,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					"GFX9000", 1280, 240, true));
+					videoSource, 1280, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -144,7 +150,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 				vdp, display, *screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					"GFX9000", 1280, 240, true));
+					videoSource, 1280, 240, true));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -155,7 +161,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				"GFX9000", 1280, 240, true));
+				videoSource, 1280, 240, true));
 #endif
 	default:
 		UNREACHABLE; return nullptr;
@@ -166,6 +172,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 	LaserdiscPlayer& ld)
 {
+	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
@@ -178,7 +185,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 				*screen,
 				make_unique<FBPostProcessor<word>>(
 					motherBoard, display, *screen,
-					"Laserdisc", 640, 480, false));
+					videoSource, 640, 480, false));
 #endif
 #if HAVE_32BPP
 		case 4:
@@ -186,7 +193,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 				*screen,
 				make_unique<FBPostProcessor<unsigned>>(
 					motherBoard, display, *screen,
-					"Laserdisc", 640, 480, false));
+					videoSource, 640, 480, false));
 #endif
 		default:
 			UNREACHABLE; return nullptr;
@@ -197,7 +204,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 			*screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
-				"Laserdisc", 640, 480, false));
+				videoSource, 640, 480, false));
 #endif
 	default:
 		UNREACHABLE; return nullptr;

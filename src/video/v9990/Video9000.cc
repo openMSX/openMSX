@@ -18,7 +18,7 @@ namespace openmsx {
 
 Video9000::Video9000(const DeviceConfig& config)
 	: MSXDevice(config)
-	, VideoLayer(getMotherBoard(), "Video9000")
+	, VideoLayer(getMotherBoard(), getName())
 	, videoSourceSetting(getMotherBoard().getVideoSource())
 {
 	EventDistributor& distributor = getReactor().getEventDistributor();

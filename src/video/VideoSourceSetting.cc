@@ -84,7 +84,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 {
 	static int counter = 0; // id's are globally unique
 
-	assert(!has(source)); // TODO make unique value
+	assert(!has(source));
 	baseMap[source] = ++counter;
 
 	// First announce extended set of allowed values before announcing a
