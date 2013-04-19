@@ -13,7 +13,7 @@ MSXRTC::MSXRTC(const DeviceConfig& config)
 	: MSXDevice(config)
 	, sram(make_unique<SRAM>(getName() + " SRAM", 4 * 13, config))
 	, rp5c01(make_unique<RP5C01>(
-		getCommandController(), *sram, getCurrentTime()))
+		getCommandController(), *sram, getCurrentTime(), getName()))
 {
 	reset(getCurrentTime());
 }

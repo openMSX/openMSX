@@ -13,6 +13,7 @@
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ public:
 	enum RTCMode { EMUTIME, REALTIME };
 
 	RP5C01(CommandController& commandController, SRAM& regs,
-	       EmuTime::param time);
+	       EmuTime::param time, const std::string& name);
 	~RP5C01();
 
 	void reset(EmuTime::param time);

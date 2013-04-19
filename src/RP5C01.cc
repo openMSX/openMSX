@@ -42,20 +42,22 @@ static const nibble mask[4][13] = {
 };
 
 static std::unique_ptr<EnumSetting<RP5C01::RTCMode>> createModeSetting(
-	CommandController& commandController)
+	CommandController& commandController, const std::string& name)
 {
 	EnumSetting<RP5C01::RTCMode>::Map modeMap;
 	modeMap["EmuTime"]  = RP5C01::EMUTIME;
 	modeMap["RealTime"] = RP5C01::REALTIME;
 	return make_unique<EnumSetting<RP5C01::RTCMode>>(
-		commandController, "rtcmode",
+		commandController,
+		((name == "Real time clock") ? "rtcmode" // bw-compat
+		                             : (name + " mode")),
 		"Real Time Clock mode", RP5C01::EMUTIME, modeMap);
 }
 
 RP5C01::RP5C01(CommandController& commandController, SRAM& regs_,
-               EmuTime::param time)
+               EmuTime::param time, const std::string& name)
 	: regs(regs_)
-	, modeSetting(createModeSetting(commandController))
+	, modeSetting(createModeSetting(commandController, name))
 	, reference(time)
 {
 	initializeTime();
