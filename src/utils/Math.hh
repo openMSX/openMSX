@@ -192,14 +192,15 @@ inline byte reverseByte(byte a)
   * but starting from the first 1-bit in the input all bits more to the right
   * are also 1.
   */
-inline unsigned floodRight(unsigned x)
+template<typename T> inline T floodRight(T x)
 {
 	x |= x >> 1;
 	x |= x >> 2;
 	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	return x;
+	x |= x >> ((sizeof(x) >= 2) ?  8 : 0); // Written in a weird way to
+	x |= x >> ((sizeof(x) >= 4) ? 16 : 0); // suppress compiler warnings.
+	x |= x >> ((sizeof(x) >= 8) ? 32 : 0); // Generates equally efficient
+	return x;                              // code.
 }
 
 /** Count the number of leading zero-bits in the given word.

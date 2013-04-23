@@ -6,6 +6,7 @@
 #include "alignof.hh"
 #include "build-info.hh"
 #include <cstdint>
+#include <cstring>
 
 namespace Endian {
 
@@ -50,9 +51,23 @@ static inline uint32_t bswap32(uint32_t x)
 #endif
 }
 
+// Revese bytes in a 64-bit value: 0x1122334455667788 becomes 0x8877665544332211
+static inline uint32_t bswap64(uint64_t x)
+{
+#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3))
+	// Starting from gcc-4.3 there's a builtin function for this.
+	// E.g. on x86 this is translated to a single 'bswap' instruction.
+	return __builtin_bswap64(x);
+#else
+	return (bswap32(x >>  0) << 32) |
+	       (bswap32(x >> 32) <<  0);
+#endif
+}
+
 // Use overloading to get a (statically) polymorphic bswap() function.
 static inline uint16_t bswap(uint16_t x) { return bswap16(x); }
 static inline uint32_t bswap(uint32_t x) { return bswap32(x); }
+static inline uint64_t bswap(uint64_t x) { return bswap64(x); }
 
 
 // Identity operator, simply returns the given value.
@@ -159,95 +174,74 @@ static inline uint32_t readL32(const void* p)
 	return *reinterpret_cast<const L32*>(p);
 }
 
-// Read/write big/little 16/32-bit values to/from a (possibly) unaligned memory
-// location. If the host architecture supports unaligned load/stores (e.g.
-// x86), these functions perform a single load/store (with possibly an adjust
-// operation on the value if the endianess is different from the host
+// Read/write big/little 16/32/64-bit values to/from a (possibly) unaligned
+// memory location. If the host architecture supports unaligned load/stores
+// (e.g. x86), these functions perform a single load/store (with possibly an
+// adjust operation on the value if the endianess is different from the host
 // endianess). If the architecture does not support unaligned memory operations
 // (e.g. early ARM architectures), the operation is split into byte accesses.
 
-static inline void write_UA_B16(void* p_, uint16_t x)
+template<bool SWAP, typename T> static inline void write_UA(void* p, T x)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		writeB16(p_, x);
-	} else {
-		auto p = static_cast<uint8_t*>(p_);
-		p[0] = (x >> 8) & 0xff;
-		p[1] = (x >> 0) & 0xff;
-	}
+	if (SWAP) x = bswap(x);
+	memcpy(p, &x, sizeof(x));
 }
-static inline void write_UA_L16(void* p_, uint16_t x)
+static inline void write_UA_B16(void* p, uint16_t x)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		writeL16(p_, x);
-	} else {
-		auto p = static_cast<uint8_t*>(p_);
-		p[0] = (x >> 0) & 0xff;
-		p[1] = (x >> 8) & 0xff;
-	}
+	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static inline void write_UA_B32(void* p_, uint32_t x)
+static inline void write_UA_L16(void* p, uint16_t x)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		writeB32(p_, x);
-	} else {
-		auto p = static_cast<uint8_t*>(p_);
-		p[0] = (x >> 24) & 0xff;
-		p[1] = (x >> 16) & 0xff;
-		p[2] = (x >>  8) & 0xff;
-		p[3] = (x >>  0) & 0xff;
-	}
+	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
-static inline void write_UA_L32(void* p_, uint32_t x)
+static inline void write_UA_B32(void* p, uint32_t x)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		writeL32(p_, x);
-	} else {
-		auto p = static_cast<uint8_t*>(p_);
-		p[0] = (x >>  0) & 0xff;
-		p[1] = (x >>  8) & 0xff;
-		p[2] = (x >> 16) & 0xff;
-		p[3] = (x >> 24) & 0xff;
-	}
+	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+static inline void write_UA_L32(void* p, uint32_t x)
+{
+	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+static inline void write_UA_B64(void* p, uint64_t x)
+{
+	write_UA<!openmsx::OPENMSX_BIGENDIAN>(p, x);
+}
+static inline void write_UA_L64(void* p, uint64_t x)
+{
+	write_UA< openmsx::OPENMSX_BIGENDIAN>(p, x);
 }
 
-static inline uint16_t read_UA_B16(const void* p_)
+template<bool SWAP, typename T> static inline T read_UA(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return readB16(p_);
-	} else {
-		auto p = static_cast<const uint8_t*>(p_);
-		return (p[0] << 8) | p[1];
-	}
+	T x;
+	memcpy(&x, p, sizeof(x));
+	if (SWAP) x = bswap(x);
+	return x;
 }
-static inline uint16_t read_UA_L16(const void* p_)
+static inline uint16_t read_UA_B16(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return readL16(p_);
-	} else {
-		auto p = static_cast<const uint8_t*>(p_);
-		return (p[1] << 8) | p[0];
-	}
+	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-static inline uint32_t read_UA_B32(const void* p_)
+static inline uint16_t read_UA_L16(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return readB32(p_);
-	} else {
-		auto p = static_cast<const uint8_t*>(p_);
-		return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
-	}
+	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint16_t>(p);
 }
-static inline uint32_t read_UA_L32(const void* p_)
+static inline uint32_t read_UA_B32(const void* p)
 {
-	if (openmsx::OPENMSX_UNALIGNED_MEMORY_ACCESS) {
-		return readL32(p_);
-	} else {
-		auto p = static_cast<const uint8_t*>(p_);
-		return (p[3] << 24) | (p[2] << 16) | (p[1] << 8) | p[0];
-	}
+	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
 }
-
+static inline uint32_t read_UA_L32(const void* p)
+{
+	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint32_t>(p);
+}
+static inline uint64_t read_UA_B64(const void* p)
+{
+	return read_UA<!openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
+}
+static inline uint64_t read_UA_L64(const void* p)
+{
+	return read_UA< openmsx::OPENMSX_BIGENDIAN, uint64_t>(p);
+}
 
 
 // Like the types above, but these don't need to be aligned.

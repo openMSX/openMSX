@@ -141,6 +141,13 @@ public:
 		sz = 0;
 	}
 
+	/** STL-style iterators.
+	 */
+	const T* begin() const { return dat; }
+	      T* begin()       { return dat; }
+	const T* end()   const { return dat + sz; }
+	      T* end()         { return dat + sz; }
+
 	/** Swap the managed memory block of two MemBuffers.
 	 */
 	void swap(MemBuffer& other)
@@ -155,7 +162,6 @@ private:
 };
 
 } // namespace openmsx
-
 
 namespace std {
 	template<typename T>
