@@ -57,6 +57,7 @@ HD::HD(const DeviceConfig& config)
 		file = make_unique<File>(filename);
 		filesize = file->getSize();
 		file->setFilePool(motherBoard.getReactor().getFilePool());
+		tigerTree = make_unique<TigerTree>(*this, filesize);
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
@@ -119,6 +120,7 @@ void HD::openImage()
 		file = make_unique<File>(filename, File::CREATE);
 		file->truncate(filesize);
 		file->setFilePool(motherBoard.getReactor().getFilePool());
+		tigerTree = make_unique<TigerTree>(*this, filesize);
 	} catch (FileException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Couldn't create HD image: " + e.getMessage());
@@ -132,6 +134,7 @@ void HD::switchImage(const Filename& name)
 	filename = name;
 	filesize = file->getSize();
 	file->setFilePool(motherBoard.getReactor().getFilePool());
+	tigerTree = make_unique<TigerTree>(*this, filesize);
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -154,6 +157,7 @@ void HD::writeSectorImpl(size_t sector, const byte* buf)
 	openImage();
 	file->seek(sector * SECTOR_SIZE);
 	file->write(buf, SECTOR_SIZE);
+	tigerTree->notifyChange(sector * SECTOR_SIZE, SECTOR_SIZE);
 }
 
 bool HD::isWriteProtectedImpl() const
@@ -164,10 +168,35 @@ bool HD::isWriteProtectedImpl() const
 
 Sha1Sum HD::getSha1Sum()
 {
+	openImage();
 	if (hasPatches()) {
 		return SectorAccessibleDisk::getSha1Sum();
 	}
 	return file->getSha1Sum();
+}
+
+std::string HD::getTigerTreeHash()
+{
+	openImage();
+	return tigerTree->calcHash().toString(); // calls HD::getData()
+}
+
+uint8_t* HD::getData(size_t offset, size_t size)
+{
+	static uint8_t buffer[1024 + 1];
+
+	assert(size <= 1024);
+	assert((offset % SECTOR_SIZE) == 0);
+
+	uint8_t* p = buffer + 1;
+	int s = int(size);
+	while (s > 0) {
+		readSector(offset / SECTOR_SIZE, p); // possibly applies patches
+		p += SECTOR_SIZE;
+		offset += SECTOR_SIZE;
+		s -= SECTOR_SIZE;
+	}
+	return buffer + 1;
 }
 
 SectorAccessibleDisk* HD::getSectorAccessibleDisk()
@@ -195,9 +224,10 @@ int HD::insertDisk(const std::string& filename)
 	}
 }
 
-
+// version 1: initial version
+// version 2: replaced 'checksum'(=sha1) with 'tthsum`
 template<typename Archive>
-void HD::serialize(Archive& ar, unsigned /*version*/)
+void HD::serialize(Archive& ar, unsigned version)
 {
 	Filename tmp = file.get() ? filename : Filename();
 	ar.serialize("filename", tmp);
@@ -211,30 +241,47 @@ void HD::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
+	// store/check checksum
 	if (file.get()) {
-		Sha1Sum oldChecksum;
-		if (!ar.isLoader()) {
-			oldChecksum = getSha1Sum();
-		}
-		string oldChecksumStr = oldChecksum.empty()
-		                      ? ""
-		                      : oldChecksum.toString();
-		ar.serialize("checksum", oldChecksumStr);
-		oldChecksum = oldChecksumStr.empty()
-		            ? Sha1Sum()
-		            : Sha1Sum(oldChecksumStr);
-		if (ar.isLoader()) {
-			Sha1Sum newChecksum = getSha1Sum();
-			if (oldChecksum != newChecksum) {
-				motherBoard.getMSXCliComm().printWarning(
-				    "The content of the harddisk " +
-				    tmp.getResolved() +
-				    " has changed since the time this savestate was "
-				    "created. This might result in emulation problems "
-				    "or even diskcorruption. To prevent the latter, "
-				    "the harddisk is now write-protected.");
-				forceWriteProtect();
+		bool mismatch = false;
+
+		if (ar.versionAtLeast(version, 2)) {
+			// use tiger-tree-hash
+			string oldTiger = ar.isLoader() ? "" : getTigerTreeHash();
+			ar.serialize("tthsum", oldTiger);
+			if (ar.isLoader()) {
+				string newTiger = getTigerTreeHash();
+				mismatch = oldTiger != newTiger;
 			}
+		} else {
+			// use sha1
+			Sha1Sum oldChecksum;
+			if (!ar.isLoader()) {
+				oldChecksum = getSha1Sum();
+			}
+			string oldChecksumStr = oldChecksum.empty()
+					      ? ""
+					      : oldChecksum.toString();
+			ar.serialize("checksum", oldChecksumStr);
+			oldChecksum = oldChecksumStr.empty()
+				    ? Sha1Sum()
+				    : Sha1Sum(oldChecksumStr);
+
+			if (ar.isLoader()) {
+				Sha1Sum newChecksum = getSha1Sum();
+				mismatch = oldChecksum != newChecksum;
+			}
+		}
+
+		if (ar.isLoader() && mismatch) {
+			motherBoard.getMSXCliComm().printWarning(
+			    "The content of the harddisk " +
+			    tmp.getResolved() +
+			    " has changed since the time this savestate was "
+			    "created. This might result in emulation problems "
+			    "or even diskcorruption. To prevent the latter, "
+			    "the harddisk is now write-protected.");
+			forceWriteProtect();
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include "Filename.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "TigerTree.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include <string>
@@ -19,6 +20,7 @@ class File;
 class DeviceConfig;
 
 class HD : public SectorAccessibleDisk, public DiskContainer
+         , public TTData
 {
 public:
 	explicit HD(const DeviceConfig& config);
@@ -27,6 +29,8 @@ public:
 	const std::string& getName() const;
 	const Filename& getImageName() const;
 	void switchImage(const Filename& filename);
+
+	std::string getTigerTreeHash();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -45,11 +49,15 @@ private:
 	virtual bool diskChanged();
 	virtual int insertDisk(const std::string& filename);
 
+	// TTData
+	virtual uint8_t* getData(size_t offset, size_t size);
+
 	void openImage();
 
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::unique_ptr<HDCommand> hdCommand;
+	std::unique_ptr<TigerTree> tigerTree;
 
 	std::unique_ptr<File> file;
 	Filename filename;
@@ -58,6 +66,7 @@ private:
 };
 
 REGISTER_BASE_CLASS(HD, "HD");
+SERIALIZE_CLASS_VERSION(HD, 2);
 
 } // namespace openmsx
 
