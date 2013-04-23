@@ -14,6 +14,8 @@ SRC_HDR:= \
 	StringMap \
 	StringOp \
 	sha1 \
+	tiger \
+	TigerTree \
 	uint128 \
 	DivModBySame \
 	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent win32-arggen \

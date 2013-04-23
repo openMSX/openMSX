@@ -1,0 +1,99 @@
+/** Incremental Tiger-tree-hash (tth) calculation.
+ *
+ * This code is based on code from the tigertree project
+ *    https://sourceforge.net/projects/tigertree/
+ *
+ * The main difference is that the original code can only perform a one-shot
+ * tth calculation while this code (also) allows incremental tth calculations.
+ * When the input data changes, incremental calculation allows to only redo
+ * part of the full calculation, so it can be much faster.
+ *
+ * Here's the copyright notice of the original code (even though the code is
+ * almost completely rewritten):
+ *
+ *     Copyright (C) 2001 Bitzi (aka Bitcollider) Inc. and Gordon Mohr
+ *     Released into the public domain by same; permission is explicitly
+ *     granted to copy, modify, and use freely.
+ *
+ *     THE WORK IS PROVIDED "AS IS," AND COMES WITH ABSOLUTELY NO WARRANTY,
+ *     EXPRESS OR IMPLIED, TO THE EXTENT PERMITTED BY APPLICABLE LAW,
+ *     INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ *     OR FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ *     (PD) 2001 The Bitzi Corporation
+ *     Please see file COPYING or http://bitzi.com/publicdomain
+ *     for more info.
+ */
+
+#ifndef TIGERTREE_HH
+#define TIGERTREE_HH
+
+#include "tiger.hh"
+#include "MemBuffer.hh"
+#include <cstdint>
+
+namespace openmsx {
+
+/** The TigerTree class will query the to-be-hashed data via this abstract
+  * interface. This allows to e.g. fetch the data from a file.
+  */
+class TTData
+{
+public:
+	/** Return the requested portion of the to-be-hashed data block.
+	 * Special requirement: it should be allowed to temporarily overwrite
+	 * the byte one position before the returned pointer.
+	 */
+	virtual uint8_t* getData(size_t offset, size_t size) = 0;
+protected:
+	~TTData() {}
+};
+
+
+/** Calculate a tiger-tree-hash.
+ * Calculation can be done incrementally, so recalculating the hash after a
+ * (small) modification of the input is efficient.
+ */
+class TigerTree
+{
+public:
+	/** Create TigerTree calculator for the given (abstract) data block
+	 * of given size.
+	 */
+	TigerTree(TTData& data, size_t dataSize);
+
+	/** Calculate the hash value.
+	 */
+	const TigerHash& calcHash();
+
+	/** Inform this calculator about changes in the input data. This is
+	 * used to (not) skip re-calculations on future calcHash() calls. So
+	 * it's crucial this calculator is informed about  _all_ changes in
+	 * the input.
+	 */
+	void notifyChange(size_t offset, size_t len);
+
+private:
+	// functions to navigate in binary tree
+	struct Node {
+		Node(size_t n_, size_t l_) : n(n_), l(l_) {}
+		size_t n; // node number
+		size_t l; // level number
+	};
+	Node getTop() const;
+	Node getLeaf(size_t block) const;
+	Node getParent(Node node) const;
+	Node getLeftChild(Node node) const;
+	Node getRightChild(Node node) const;
+
+	const TigerHash& calcHash(Node node);
+
+	TTData& data;
+	const size_t dataSize;
+	MemBuffer<TigerHash> hash;
+	MemBuffer<bool> valid;
+};
+
+} // namespace openmsx
+
+#endif
