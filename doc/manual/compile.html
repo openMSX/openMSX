@@ -503,7 +503,7 @@ cloned to (we chose <em>openMSX</em> in this example).
 
 <p>
 When compiling openMSX on Windows with GCC, it's often convenient to use <code>C:\MinGW\msys\1.0\home\&lt;username&gt;\openMSX</code>
-as the checkout directory, as this is easy to reach from your MinGW Shell - it's
+as the target directory, as this is easy to reach from your MinGW Shell - it's
 your MinGW home directory.
 </p>
 
@@ -521,7 +521,7 @@ This directory is what we will call in this manual <em>the top
 of the source tree</em>.
 In addition to the openMSX code, you will see a hidden
 Git administration directory called <code>.git</code>.
-Do not mess with it (nor move contents of this checkout directory around), otherwise Git will get confused.
+Do not mess with it (nor move contents of this directory around), otherwise Git will get confused.
 </p>
 
 <p>
@@ -734,7 +734,7 @@ with GCC:
 </p>
 <ul>
 <li>Open a MinGW Shell</li>
-<li>Go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MinGW home directory as checkout directory)</li>
+<li>Go to the <em>top of the source tree</em> (e.g.: <code>cd openMSX</code> if you chose the MinGW home directory as target directory)</li>
 <li>Type: <code>make staticbindist</code></li>
 </ul>
 <p>A complete package will be created in <code>derived\x86-mingw32-i686-3rd\bindist\install</code>.
