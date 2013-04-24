@@ -33,7 +33,7 @@
 	<li><a class="internal" href="#getsource">3. Getting the Source Code</a>
 		<ol class="toc">
 			<li><a class="internal" href="#getrelease">3.1 Released Version</a></li>
-			<li><a class="internal" href="#getsvn">3.2 SVN Checkout</a></li>
+			<li><a class="internal" href="#getscm">3.2 Git Clone</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#local">4. Binary for Local System</a>
@@ -116,7 +116,7 @@ Thanks to all of them!
 
 <p>
 For the revision history, please refer to the <a class="external"
-href="http://openmsx.svn.sourceforge.net/viewvc/openmsx/openmsx/trunk/doc/manual/compile.html?view=log">SVN log</a>.
+href="https://sourceforge.net/p/openmsx/openmsx/ci/HEAD/log/?path=doc/manual/compile.html">commit log</a>.
 </p>
 
 <h2><a id="preparation">2. Preparation</a></h2>
@@ -402,7 +402,7 @@ Stand-alone Binary</a> chapter.
 openMSX is developed using the tools
 <a class="external" href="http://www.sourceforge.net/">SourceForge.net</a>
 freely offers to open source projects.
-The code is stored in Subversion (SVN), an open source version management system.
+The code is stored in Git, an open source version management system.
 Once in a while an openMSX release is made.
 </p>
 
@@ -421,13 +421,13 @@ the latest features.
 Also there could be bugs that have been fixed since the last release.
 </dd>
 
-<dt><a class="internal" href="#getsvn">SVN Checkout</a></dt>
+<dt><a class="internal" href="#getscm">Git Clone</a></dt>
 <dd>
-Through SVN you can get the same development version the
+Through Git you can get the same development version the
 openMSX developers are using.
 This is the bleeding edge:
 the latest stuff, which may be great or may be horribly broken.
-Usually openMSX SVN compiles and runs fine, but we're only human,
+Usually the latest openMSX code compiles and runs fine, but we're only human,
 so once in a while it breaks.
 Also there may be changes that are not documented yet.
 </dd>
@@ -435,11 +435,11 @@ Also there may be changes that are not documented yet.
 </dl>
 
 <p>
-Releases are intended for general users, SVN is intended for
+Releases are intended for general users, Git Clone is intended for
 (would be) developers, heavy testers and people who want to follow new
 developments closely. It might be a good idea to play with a release first. If
-you like what you see and want to get in deeper, you can switch to SVN later.
-An SVN checkout is very comfortable, because then you can do efficient
+you like what you see and want to get in deeper, you can switch to a Git Clone later.
+A Git Clone is very comfortable, because then you can do efficient
 incremental updates, saving network bandwidth and compile time.
 </p>
 
@@ -471,59 +471,57 @@ file name you saved the tar.gz file with. The directory that is created by uncom
 is called <em>the top of the source tree</em>.
 </p>
 
-<h3><a id="getsvn">3.2 SVN Checkout</a></h3>
+<h3><a id="getscm">3.2 Git Clone</a></h3>
 
 <p>
-Getting a SVN checkout means you use SVN to retrieve the latest version
+Getting a Git clone means you use Git to retrieve the latest version
 of the source code of openMSX.
-This means you will need to install an SVN client.
-This package is usually named <code>subversion</code>.
-There are graphical front-ends for SVN,
-but this guide will tell you how to use SVN from the command line. More information about SVN can be found on the <a class="external"
-href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site.</p>
+This means you will need to install a Git client.
+This package is usually named <code>git</code>.
+There are graphical front-ends for Git,
+but this guide will tell you how to use Git from the command line. More information about Git can be found on the <a class="external"
+href="http://git-scm.com/documentation">Git Documentation</a> site.</p>
 <p>
 Windows
-users might want to look at <a class="external" href="http://www.sliksvn.com/en/download">SlikSVN</a> for a command line tool, <a class="external" href="http://tortoisesvn.tigris.org/">TortoiseSVN</a> for Windows Explorer integration, or <a class="external" href="http://ankhsvn.open.collab.net/">ankhSVN</a> for Visual Studio integration.
+users might want to look at <a class="external" href="http://code.google.com/p/msysgit/downloads/list?q=full+installer+official+git">msysGit</a> for a command line tool, <a class="external" href="http://code.google.com/p/tortoisegit/">TortoiseGit</a> for Windows Explorer integration, or <a class="external" href="http://code.google.com/p/gitextensions/">Git Extensions</a>, which also includes Visual Studio integration.
 </p>
 
 <p>
-With the following line you can retrieve the latest sources (also works on Windows when using SlikSVN):
+With the following line (which is also displayed when you <a class="external" href="https://sourceforge.net/p/openmsx/_list/git">browse an openMSX git repository</a>) you can retrieve the latest sources (also works on Windows when using msysGit):
 </p>
 <div class="commandline">
-svn co svn://svn.code.sf.net/p/openmsx/code/openmsx/trunk openMSX
+git clone git://git.code.sf.net/p/openmsx/openmsx openMSX
 </div>
 <p>
 In this line you specified where you want to retrieve the files from
-(host name of the SVN server),
+(host name of the Git server),
 what project you want to retrieve (<em>openmsx</em> in this case), what
 module you want to get (<em>openmsx</em> in this case, which is the module that contains
-the sources of the main openMSX program), which branch you want
-to retrieve (<em>trunk</em> in this case, which is the main development branch) and what directory it should be
-checked out to (we chose <em>openMSX</em> in this example).
+the sources of the main openMSX program) and what directory it should be
+cloned to (we chose <em>openMSX</em> in this example).
 </p>
 
-<p>In TortoiseSVN, use <code>svn://svn.code.sf.net/p/openmsx/code/openmsx/trunk</code> as
-the "URL of repository&quot; and the directory of your choice as the "Checkout directory". Use the <code>HEAD</code> revision and click OK.
+<p>
 When compiling openMSX on Windows with GCC, it's often convenient to use <code>C:\MinGW\msys\1.0\home\&lt;username&gt;\openMSX</code>
 as the checkout directory, as this is easy to reach from your MinGW Shell - it's
 your MinGW home directory.
 </p>
 
 <p>
-If you're a developer, it makes sense to use this svn commandline:
+If you're a developer, it makes sense to use this git commandline:
 </p>
 <div class="commandline">
-svn co --username=&lt;name-of-your-sourceforge-account&gt; svn+ssh://&lt;name-of-your-sourceforge-account&gt;@svn.code.sf.net/p/openmsx/code/openmsx/trunk openMSX
+git clone ssh://&lt;name-of-your-sourceforge-account&gt;@git.code.sf.net/p/openmsx/openmsx openMSX
 </div>
 
 <p>
-The SVN command created a directory called <code>openMSX</code> for you
-in the current directory (or in the "Checkout directory" you specified in TortoiseSVN). In addition to the openMSX code, you will see hidden
-SVN administration directories which are all called <code>svn</code> or
-<code>.svn</code>.
-Do not mess with these (nor move contents of this checkout directory around), otherwise SVN will get confused.
-This directory created by SVN is what we will call in this manual <em>the top
+The Git command created a directory called <code>openMSX</code> for you
+in the current directory (or in the directory you specified in TortoiseGit).
+This directory is what we will call in this manual <em>the top
 of the source tree</em>.
+In addition to the openMSX code, you will see a hidden
+Git administration directory called <code>.git</code>.
+Do not mess with it (nor move contents of this checkout directory around), otherwise Git will get confused.
 </p>
 
 <p>
@@ -531,10 +529,10 @@ If you want to update your source tree later,
 go to the top of the source tree and type:
 </p>
 <div class="commandline">
-svn up
+git pull
 </div>
 <p>
-or right click on the openMSX directory in Windows Explorer and select "SVN Update".
+or right click on the openMSX directory in Windows Explorer and select "TortoiseGit -&gt; Pull...".
 </p>
 
 <h2><a id="local">4. Binary for Local System</a></h2>
