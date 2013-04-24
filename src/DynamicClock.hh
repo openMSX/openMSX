@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DYNAMICCLOCK_HH
 #define DYNAMICCLOCK_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CONNECTOR_HH
 #define CONNECTOR_HH
 

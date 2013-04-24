@@ -1,4 +1,3 @@
-// $Id$
 // Scale2x scaler.
 
 uniform sampler2D tex;
@@ -13,7 +12,7 @@ vec4 scaleNx()
 	vec4 delta;
 	delta.xw = sin(coord2pi) * texStep;
 	delta.yz = vec2(0.0);
-	
+
 	vec4 posLeftTop  = gl_TexCoord[0].stst - delta;
 	vec4 posRightBot = gl_TexCoord[0].stst + delta;
 

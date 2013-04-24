@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXCPUInterface.hh"
 #include "BreakPoint.hh"
 #include "DebugCondition.hh"

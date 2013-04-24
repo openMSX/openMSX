@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXRTC_HH
 #define MSXRTC_HH
 

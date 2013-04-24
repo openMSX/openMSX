@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef XMLEXCEPTION_HH
 #define XMLEXCEPTION_HH
 

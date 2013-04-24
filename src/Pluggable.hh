@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PLUGGABLE_HH
 #define PLUGGABLE_HH
 

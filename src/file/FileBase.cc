@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FileBase.hh"
 #include "FileOperations.hh"
 #include <algorithm>

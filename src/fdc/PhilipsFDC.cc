@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PhilipsFDC.hh"
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"

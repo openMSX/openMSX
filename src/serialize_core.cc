@@ -1,5 +1,3 @@
-// $Id$
-
 #include "serialize_core.hh"
 #include "serialize.hh"
 #include "MSXException.hh"

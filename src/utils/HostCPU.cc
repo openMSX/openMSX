@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HostCPU.hh"
 #include "openmsx.hh"
 #include <cassert>

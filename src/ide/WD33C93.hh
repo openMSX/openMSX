@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/wd33c93.h,v
 ** Revision: 1.6

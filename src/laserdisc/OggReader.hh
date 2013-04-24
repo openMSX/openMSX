@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OGGREADER_HH
 #define OGGREADER_HH
 

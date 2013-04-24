@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LedStatus.hh"
 #include "Reactor.hh"
 #include "AlarmEvent.hh"

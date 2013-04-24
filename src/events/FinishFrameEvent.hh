@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FINISHFRAMEEVENT_HH
 #define FINISHFRAMEEVENT_HH
 

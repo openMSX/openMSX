@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VDP_HH
 #define VDP_HH
 

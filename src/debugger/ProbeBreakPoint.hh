@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PROBEBREAKPOINT_HH
 #define PROBEBREAKPOINT_HH
 

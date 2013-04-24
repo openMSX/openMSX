@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXCIELTURBO_HH
 #define MSXCIELTURBO_HH
 

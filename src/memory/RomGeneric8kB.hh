@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMGENERIC8KB_HH
 #define ROMGENERIC8KB_HH
 

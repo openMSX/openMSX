@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXRom.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"

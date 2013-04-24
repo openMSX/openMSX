@@ -1,5 +1,3 @@
-// $Id$
-//
 #ifndef ENDIAN_HH
 #define ENDIAN_HH
 

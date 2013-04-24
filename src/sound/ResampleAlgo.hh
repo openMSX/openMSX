@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RESAMPLEALGO_HH
 #define RESAMPLEALGO_HH
 

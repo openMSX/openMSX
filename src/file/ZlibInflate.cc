@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ZlibInflate.hh"
 #include "FileException.hh"
 #include "Math.hh"

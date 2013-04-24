@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FRONTSWITCH_HH
 #define FRONTSWITCH_HH
 

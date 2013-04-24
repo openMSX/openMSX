@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef COMMANDEXCEPTION_HH
 #define COMMANDEXCEPTION_HH
 

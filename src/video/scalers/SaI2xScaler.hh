@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SAI2XSCALER_HH
 #define SAI2XSCALER_HH
 

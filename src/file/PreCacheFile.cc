@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PreCacheFile.hh"
 #include "FileOperations.hh"
 #include "statp.hh"

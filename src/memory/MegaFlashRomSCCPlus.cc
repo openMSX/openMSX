@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MegaFlashRomSCCPlus.hh"
 #include "Rom.hh"
 #include "SCC.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FIXEDPOINT_HH
 #define FIXEDPOINT_HH
 

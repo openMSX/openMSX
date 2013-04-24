@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EnumSetting.hh"
 #include "TclObject.hh"
 #include "Completer.hh"

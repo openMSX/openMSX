@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXKANJI_HH
 #define MSXKANJI_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXOPL3Cartridge.hh"
 #include "YMF262.hh"
 #include "serialize.hh"

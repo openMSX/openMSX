@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLIEXTENSION_HH
 #define CLIEXTENSION_HH
 

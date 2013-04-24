@@ -1,5 +1,3 @@
-// $Id$
-
 // ASCII 16kB based cartridges with SRAM
 //
 // Examples: A-Train, Daisenryaku, Harry Fox MSX Special, Hydlide 2, Jyansei

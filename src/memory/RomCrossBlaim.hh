@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMCROSSBLAIM_HH
 #define ROMCROSSBLAIM_HH
 

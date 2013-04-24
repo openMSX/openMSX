@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -18,4 +16,3 @@ HDR_ONLY:= \
 	SCSI SCSIDevice
 
 include build/node-end.mk
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLTVSCALER_HH
 #define GLTVSCALER_HH
 

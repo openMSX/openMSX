@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CasImage.hh"
 #include "File.hh"
 #include "Filename.hh"

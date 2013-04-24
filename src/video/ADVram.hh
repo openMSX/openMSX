@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ADVRAM_HH
 #define ADVRAM_HH
 

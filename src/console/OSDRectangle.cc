@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDRectangle.hh"
 #include "SDLImage.hh"
 #include "CommandException.hh"

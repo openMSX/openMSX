@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Video9000.hh"
 #include "VDP.hh"
 #include "V9990.hh"

@@ -1,4 +1,3 @@
-# $Id$
 # Creates a source distribution package.
 
 from fileutils import installDirs, installTree, scanTree

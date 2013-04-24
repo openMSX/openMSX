@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FLOATSETTING_HH
 #define FLOATSETTING_HH
 

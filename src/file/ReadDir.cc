@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ReadDir.hh"
 
 namespace openmsx {

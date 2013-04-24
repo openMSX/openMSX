@@ -28,7 +28,7 @@ fi
 # Set up working directories
 if [ ! -d $TMP ]
 then
-	mkdir -p $TMP 
+	mkdir -p $TMP
 fi
 
 # Some useful variables about the package
@@ -93,7 +93,7 @@ then
 	else
 		# Warn the user and stop
 		echo "Previous package build directory found, please remove it and"
-        	echo "restart the SlackBuild script: $PKG"
+		echo "restart the SlackBuild script: $PKG"
 		exit 1
 	fi
 fi

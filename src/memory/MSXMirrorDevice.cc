@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMirrorDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXException.hh"

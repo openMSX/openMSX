@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDText.hh"
 #include "TTFFont.hh"
 #include "SDLImage.hh"

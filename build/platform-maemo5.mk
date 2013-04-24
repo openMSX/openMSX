@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for Maemo 5 devices.
 
 # Maemo is based on Linux.

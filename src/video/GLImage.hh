@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLTEXTURE_HH
 #define GLTEXTURE_HH
 

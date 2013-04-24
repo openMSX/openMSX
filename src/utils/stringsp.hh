@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STRINGSP_HH
 #define STRINGSP_HH
 

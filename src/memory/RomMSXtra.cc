@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomMSXtra.hh"
 #include "Rom.hh"
 #include "Ram.hh"

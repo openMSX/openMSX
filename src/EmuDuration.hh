@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EMUDUARTION_HH
 #define EMUDUARTION_HH
 

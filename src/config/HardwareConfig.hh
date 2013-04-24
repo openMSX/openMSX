@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AY8910Periphery.hh"
 
 namespace openmsx {

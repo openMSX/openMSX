@@ -1,5 +1,3 @@
-// $Id$
-
 // This code implements the functionality of my older msxtar program
 // that could manipulate files and directories on dsk and ide-hd images
 // Integrating it is seen as temporary bypassing of the need for a

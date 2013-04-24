@@ -1,5 +1,3 @@
-# $Id$
-
 from os import remove, stat
 from os.path import basename, isdir, isfile, join as joinpath
 from urllib import FancyURLopener

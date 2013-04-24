@@ -1,5 +1,3 @@
-# $Id$
-
 from checksum import verifyFile
 from components import requiredLibrariesFor
 from configurations import getConfiguration
@@ -94,4 +92,3 @@ if __name__ == '__main__':
 			'Usage: python thirdparty_download.py TARGET_OS'
 			)
 		sys.exit(2)
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WAVIMAGE_HH
 #define WAVIMAGE_HH
 

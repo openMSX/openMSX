@@ -1,5 +1,3 @@
-// $Id:$
-
 #ifndef SCALEROUTPUT_HH
 #define SCALEROUTPUT_HH
 

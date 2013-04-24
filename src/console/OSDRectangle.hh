@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDRECTANGLE_HH
 #define OSDRECTANGLE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "Reactor.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 uniform vec2 texSize;
 
 varying vec2 texStep; // could be uniform

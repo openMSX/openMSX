@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BreakPoint.hh"
 #include "TclObject.hh"
 
@@ -26,4 +24,3 @@ unsigned BreakPoint::getId() const
 }
 
 } // namespace openmsx
-

@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -16,4 +14,3 @@ HDR_ONLY:= \
 	CacheLine
 
 include build/node-end.mk
-

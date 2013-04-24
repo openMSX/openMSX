@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AUTOFIRE_HH
 #define AUTOFIRE_HH
 

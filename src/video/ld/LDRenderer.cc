@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LDRenderer.hh"
 
 namespace openmsx {

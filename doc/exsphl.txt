@@ -107,7 +107,7 @@ Both register H and L contain the content of the initial ROM page
 (page 0), this means both reads are executed before either of the writes.
 
 This leaves two possibilities:
-  
+
   c) F R0 R1 W1 W0     [FRrww] [FRRwW]
   e) F R1 R0 W1 W0     [FRrww] [FRRWW]
 

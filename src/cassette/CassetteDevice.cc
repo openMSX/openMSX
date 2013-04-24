@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CassetteDevice.hh"
 
 namespace openmsx {

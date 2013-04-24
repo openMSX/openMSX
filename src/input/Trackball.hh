@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TRACKBALL_HH
 #define TRACKBALL_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FBPostProcessor.hh"
 #include "RawFrame.hh"
 #include "StretchScalerOutput.hh"

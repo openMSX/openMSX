@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LDPixelRenderer.hh"
 #include "LDRasterizer.hh"
 #include "PostProcessor.hh"

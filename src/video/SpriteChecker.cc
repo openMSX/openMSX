@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - Verify model for 5th sprite number calculation.

@@ -1,5 +1,3 @@
-# $Id$
-
 from harvest import generateWixFragment
 from packagewindows import (
 	PackageInfo, emptyOrCreateDirectory, generateInstallFiles

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FirmwareSwitch.hh"
 #include "BooleanSetting.hh"
 #include "CliComm.hh"

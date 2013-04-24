@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMNATIONAL_HH
 #define ROMNATIONAL_HH
 

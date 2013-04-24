@@ -1,5 +1,3 @@
-// $Id$
-
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"

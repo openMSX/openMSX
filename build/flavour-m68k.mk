@@ -1,5 +1,3 @@
-# $Id$
-#
 # ARM specific optimization flags
 
 # Optimisation flags:

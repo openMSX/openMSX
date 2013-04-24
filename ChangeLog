@@ -1,5 +1,3 @@
-$Id$
-
 2010-06-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Released openMSX 0.8.0.
 	* NOTE: this is probably the last entry in this ChangeLog. From now
@@ -11078,4 +11076,3 @@ $Id$
 2001-05-04  David Heremans  <david.heremans@gnu-linux.net>
 
 	* openmsx: initial version.
-

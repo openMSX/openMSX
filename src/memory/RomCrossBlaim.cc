@@ -1,5 +1,3 @@
-// $Id$
-
 // Thanks to hap (enen) for buying the real cartridge and
 // investigating it in detail. See his results on:
 //

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLScaleNxScaler.hh"
 #include "memory.hh"
 

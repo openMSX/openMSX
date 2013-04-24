@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMPANASONIC_HH
 #define ROMPANASONIC_HH
 

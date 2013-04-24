@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILEOPERATIONS_HH
 #define FILEOPERATIONS_HH
 
@@ -10,7 +8,6 @@
 #include <fstream>
 
 namespace openmsx {
-
 namespace FileOperations {
 
 	const char nativePathSeparator =
@@ -277,7 +274,6 @@ namespace FileOperations {
 	FILE* openUniqueFile(const std::string& directory, std::string& filename);
 
 } // namespace FileOperations
-
 } // namespace openmsx
 
 #endif

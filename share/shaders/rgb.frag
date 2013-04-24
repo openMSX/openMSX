@@ -1,5 +1,3 @@
-// $Id$
-
 uniform sampler2D tex;
 uniform sampler2D videoTex;
 uniform vec4 cnsts;
@@ -16,7 +14,7 @@ vec3 saturate(vec3 x)
 
 void main()
 {
-	float scan_a    = cnsts.x; 
+	float scan_a    = cnsts.x;
 	float scan_b_c2 = cnsts.y; // scan_b * c2
 	float scan_c_c2 = cnsts.z; // scan_c * c2
 	float c1_2_2    = cnsts.w; // (c1 - c2) / c2

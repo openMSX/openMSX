@@ -1268,4 +1268,3 @@ openMSX 0.3.1 (2003-05-18)
   As a bonus, the single thread model is simpler and more efficient.
 - Improved "make install".
 - Cleanups of the directory structure.
-

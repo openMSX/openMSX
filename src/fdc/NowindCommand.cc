@@ -1,5 +1,3 @@
-// $Id$
-
 #include "NowindCommand.hh"
 #include "NowindRomDisk.hh"
 #include "NowindHost.hh"

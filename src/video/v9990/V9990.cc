@@ -1,5 +1,3 @@
-// $Id$
-
 #include "V9990.hh"
 #include "Display.hh"
 #include "RendererFactory.hh"

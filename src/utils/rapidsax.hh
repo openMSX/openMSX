@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RAPIDSAX_HH
 #define RAPIDSAX_HH
 

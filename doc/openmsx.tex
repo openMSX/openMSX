@@ -49,7 +49,7 @@ So we need some sort of synchronization mechanism.
 
 In a MSX communication happens only between the CPU and another device, never
 between two non-CPUs. All communication is initiated by the CPU, except for
-interupts. Communication happens at a specific moment in time but is not 
+interupts. Communication happens at a specific moment in time but is not
 instantaneous.
 
 \subsection{(Un)predictable communication}
@@ -108,7 +108,7 @@ values (byte read), we also need to pass and return a timestamp.
 
 All interupts must be planned beforehand (by synchronization points, see next
 section). This is easy for predictable interupts, but impossible for
-unpredictable interupts. 
+unpredictable interupts.
 
 When a device raises an interupt it must pass control to the emulated CPU before
 it can further advance in time.
@@ -121,9 +121,9 @@ There are two possible solutions:
 \item Polling.
 %%
 Bij deze oplossing zetten we zelf de SP om de bv 50 HZ T-states.
-Blijven we bij het voorbeeld van de RS232 dan betekend dat er om de 0.02 seconden 
-gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de 
-ge-emuleerde RS232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd 
+Blijven we bij het voorbeeld van de RS232 dan betekend dat er om de 0.02 seconden
+gevraagd gaat worden of er een byte klaar staat. Als dit het geval is dan kan de
+ge-emuleerde RS232 zijn volgende SP plaatsten binnen bv 100 T-States en deze tijd
 langzaam laten toenemen als blijkt dat er geen byte meer ontvangen is.
 
 Methode heeft het voordeel dat je zelf een vorm van snelheid begrenzing kunt
@@ -137,8 +137,8 @@ zeggen, er kunnen bv drie SP geregistreerd worden die elk een setInterrupt()
 uitvoeren maar dat slechts na de derde setInterrupt de CPU deze pas afhandeld!.
 
 \item Converting van Guest OS interrupts naar MSX interrupts
-Het zou ook mogelijk zijn om als het guest OS een interrupt krijgt dat deze kan 
-ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om 
+Het zou ook mogelijk zijn om als het guest OS een interrupt krijgt dat deze kan
+ingelast worden in de datastructuur met de SP, aangezien deze al in staat is om
 SP's tussen te lassen in de bestaande structuur zou dit geen probleem zijn.
 \end{enumerate}
 
@@ -151,23 +151,23 @@ Most important example: memory mappers (IO 0xfc \ldots 0xff)
 For this kind of behaviour the most usefull principle would be a master-slave approach
 In het geval van memmorymappers heb ik dit als volgt reeds geprogrammeert:
 \begin{itemize}
-\item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de 
+\item De classe MSXMemMapDriver(=master) registreerd zich bij het MSXMotherboard voor de
 poorten OxFC .. 0xFF.
 \item De Driver houd per slot/sublsot bij wat de mappergrootte is. Tijdens de initfase
-vervangt de MapperDriver alle verwijzingen naar hem in de slotstructuur door verwijzingen 
+vervangt de MapperDriver alle verwijzingen naar hem in de slotstructuur door verwijzingen
 naar verschillende MemMapSlaves.
-\item Bij OUT activiteit zal de driver de gepaste slaves vertellen dat ze nu data moeten 
+\item Bij OUT activiteit zal de driver de gepaste slaves vertellen dat ze nu data moeten
 lezen/schrijven op andere plaatsen in mapper van hun main-/sub-slot combinatie.
 \item Bij IN activiteit is het de mapper die de waarden kent en de juiste value aan de
 CPU terug geeft. Op deze manier is het simpel om de pull-up van de Turbo-R te
-emuleren, of de conflicten van het lezen van meerdere mappers in de driver te 
+emuleren, of de conflicten van het lezen van meerdere mappers in de driver te
 implementeren.
 \end{itemize}
 
 %%
-Dit idee ga ik waarschijnlijk ook gebruiken bij de CPU, op die manier heb je een 
-CPU-master en twee CPU-slaves bij de turbo R. De master zal zich dan ook registreren 
-bij het MotherBoard om zo op de CPU-switch poort- van de Turbo-R te kunnen luisteren 
+Dit idee ga ik waarschijnlijk ook gebruiken bij de CPU, op die manier heb je een
+CPU-master en twee CPU-slaves bij de turbo R. De master zal zich dan ook registreren
+bij het MotherBoard om zo op de CPU-switch poort- van de Turbo-R te kunnen luisteren
 en de juiste taakdelegatie te kunnen doen.
 
 
@@ -184,7 +184,7 @@ are:
 \item Some devices need to be emulated regularly, e.g.:
 	\begin{itemize}
 	%%
-	\item VDP moet regelmatig zorgen voor beeldopbouw 
+	\item VDP moet regelmatig zorgen voor beeldopbouw
 	\item soundchips moeten regelmatig nieuwe samples klaarzetten
 	\end{itemize}
 \item Some devices can raise an IRQ, these IRQ must be announced beforehand
@@ -194,7 +194,7 @@ estimated for unpreditable IRQ's (see section \ref{unpredic-irq}).
 
 \subsubsection{Time-passive devices}
 These devices can be emulated at the moment the CPU tries to communicate with
-it. Example: 
+it. Example:
 \begin{itemize}
 \item Keyboard
 \item RAM/ROM
@@ -205,15 +205,15 @@ it. Example:
 
 A few rules:
 \begin{enumerate}
-\item %% 
+\item %%
 geen enkel device mag in uitvoering 'voorliggen' op de CPU.
 Dit omdat praktisch alle onvoorspelbare communicate (IO en memory) uitgaat
-van de CPU. Als een device op een bepaald moment voorligt op de CPU en als 
+van de CPU. Als een device op een bepaald moment voorligt op de CPU en als
 nadien de CPU tijdens zijn 'inhaalbeweging' communiceerd met dat device, ...
 ja dan klopt er iets niet.
 
 \item %%
-elk device moet zijn eerstvolgende synchronisatie punt 
+elk device moet zijn eerstvolgende synchronisatie punt
 aan de scheduler melden.
 \end{enumerate}
 
@@ -225,16 +225,16 @@ de CPU tot op dat punt te brengen.
 \item Als dit lukt
 	\begin{enumerate}
 	%%
-	\item \label{alg:ok} 
+	\item \label{alg:ok}
 	dan wordt ook het device dat dit synchronisatie punt had gezet tot
 	hier gebracht (dit lukt altijd)
 	\item \label{alg:nok}
 	als het niet lukt (CPU heeft een IO of een memory instructie
 	uitgevoerd). Dan wordt eerst het device waarmee gecommuniceerd
 	werd bijgebracht (nu niet volledig tot aan synchronisatie punt, maar tot
-	waar de CPU gekomen was) en dan wordt pas de IO of memory opdracht 
-	uitgevoerd. Het zou kunnen dat het device een (nieuw, vroeger) 
-	synchronisatie punt heeft gezet, dus het algoritme begint weer van 
+	waar de CPU gekomen was) en dan wordt pas de IO of memory opdracht
+	uitgevoerd. Het zou kunnen dat het device een (nieuw, vroeger)
+	synchronisatie punt heeft gezet, dus het algoritme begint weer van
 	vanvoor.
 	\end{enumerate}
 \end{enumerate}
@@ -316,11 +316,11 @@ needs to run at 3.5 MHz and not at 7 MHz. To overcomme this problem the
 scheduler has a method called getTimeMultiplier(nativeFreq). You can pass
 your native frequency and it will tell you by how much you need to
 multiply the devices native T-states to get to the frequency of the
-scheduler. 
+scheduler.
 
 In the first case this would result in the value 6, in the 42MHz case this
 would return 12. If you ask the scheduler for the current T-state you will
-need to divide them by this value to get to the native T-state value 
+need to divide them by this value to get to the native T-state value
 
 The most used SP setting is from "now" until x T-states later. This can be
 achieved using the method setLaterSP(getTimeMultiplier(nativeFreq) *
@@ -381,7 +381,7 @@ During this constructor fase the MSXDevice can set some of its internal paramete
 If we need to bail out this will result in the termination of the entire emulator. If for instance the total system memory isn't enough to even create an object.
 
 \subsection{Initialization}
-Alsmost imediately after the device is instantiated, the first method that will be called is the setConfigDevice(MSXConfig::Device*). This will allow the MSXDevice to read its own configuration during the following initialization. Remember that the instantiation should be simple and fail-safe. Now it is time to begin the more dangerous internal set up. At this point all needed devices are instantiated, only there configuration isn't complete yet. Now the motherboard start calling the init() method of all of it's known devices. 
+Alsmost imediately after the device is instantiated, the first method that will be called is the setConfigDevice(MSXConfig::Device*). This will allow the MSXDevice to read its own configuration during the following initialization. Remember that the instantiation should be simple and fail-safe. Now it is time to begin the more dangerous internal set up. At this point all needed devices are instantiated, only there configuration isn't complete yet. Now the motherboard start calling the init() method of all of it's known devices.
 Know you can try to read files, allocated memory and (since all devices are existing) trying some initial communication with other MSXDevices. Be aware howver that this device itself may not have yet been initialized.
 
 During the initialisation the device should register its place in the slot structure with the MSXMotherBoard. Also registering I/O ports is done at this point.

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ResampleTrivial.hh"
 #include "ResampledSoundDevice.hh"
 #include "build-info.hh"

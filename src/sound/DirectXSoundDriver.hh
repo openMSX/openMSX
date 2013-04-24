@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DIRECTXSOUNDDRIVER_HH
 #define DIRECTXSOUNDDRIVER_HH
 #ifdef _WIN32

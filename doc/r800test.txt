@@ -90,7 +90,7 @@ I used the following notation:
   F  opcode fetch,    page-break, takes 2 cycles
   R  data read,       page-break, takes 2 cycles
   W  data write,      page-break, takes 2 cycles
-  x  extra cycle (for various stuff) 
+  x  extra cycle (for various stuff)
   i  IO
 
 
@@ -190,7 +190,7 @@ ld a,(#0100) [x 80(!)]
   openmsx-rev11643: 20
   cycles: 6  [FffR]
   note: opcode fetch and read are in the same 256-byte page,
-        but still there is a page-break when switching from 
+        but still there is a page-break when switching from
         opcode reading to data reading
 
 [ ld hl,#d000 ]
@@ -250,7 +250,7 @@ bit 0,a  [x 20000]
   result:           1637
   openmsx-old:      1636
   openmsx-rev11643: 1643-1645
-  cycles: 2  [ff] 
+  cycles: 2  [ff]
 
 bit 0,(hl)  [x 20000]
   result:           4055
@@ -433,20 +433,20 @@ jr $+3 ; nop  [x 10000]    <- nop is skipped
         - slightly slower than test above, because code is less dense
           and thus overall there are more opcode-fetch page-breaks
 
-jr $+2 ; nop  [x 10000] 
+jr $+2 ; nop  [x 10000]
   result:           1636
   openmsx-rev11643: 1637-1638
   cycles: 3 + 1  [ffx f]
 
 [ ld a,0 ; or a ]
-jr z,$+2  [x 20000] 
+jr z,$+2  [x 20000]
   result:           2454
   openmsx-rev11643: 2459-2460
   cycles: 3  [ffx]
   note: condition is true, jump is taken
 
 [ ld a,1 ; or a ]
-jr z,$+2  [x 20000] 
+jr z,$+2  [x 20000]
   result:           1637
   openmsx-old:      1636
   openmsx-rev11643: 1641-1642
@@ -493,7 +493,7 @@ jp $+3  [x 10000]
         two 'x' cycles or as one 'x' cycles plus a forced page-break.
         See also tests below.
 
-[ ld a,0 ; or a ] 
+[ ld a,0 ; or a ]
 jp z,$+3  [x 10000]
   result:           2029
   openmsx:          2041
@@ -501,14 +501,14 @@ jp z,$+3  [x 10000]
   cycles: 5  [Fffx]
   note: condition is true, jump is taken
 
-[ ld a,1 ; or a ] 
+[ ld a,1 ; or a ]
 jp z,$+3  [x 10000]
   result:           1229
   openmsx:          1227
   openmsx-rev11643: not yet retested
   cycles: 3  [fff]
   note: condition is false, jump not taken
-        extra 2 cycles are gone 
+        extra 2 cycles are gone
 
 [ ld hl,start+XX ; ld bc,2 ]
 add hl,bc ; jp (hl)  [x 20000]
@@ -602,7 +602,7 @@ in a,(#98)  [x 20000]
   result:           44286
   openmsx-rev11643: 40713
   cycles: +/- 54
-  note: - Can be explained by the 'intelligent' VDP-delay added by the S1990 
+  note: - Can be explained by the 'intelligent' VDP-delay added by the S1990
           Need additional tests to accurately measure this.
         - Only IO ports 0x98-0x9B show this behaviour
         - TODO this still differs a lot between emulation and real HW
@@ -697,14 +697,14 @@ ld hl,(#xxyy)  [x 10000]
     with xx in ROM
       result: 4080
       cycles: 10  [FffRmRm]
-  note: - RAM or ROM in DRAM mode seems to have the same speed, including 
+  note: - RAM or ROM in DRAM mode seems to have the same speed, including
           page break optimization
         - reads from ROM take 3 cycles, they don't become slower in case
           of a page break. So it seem there are always 2 cycles to set the
           address plus one wait cycle.
         - I did the same test with the 'ld (#xxyy),hl' instruction (even
           though writing to ROM doesn't make sense). I got the same results.
-       
+
 [ ld a,128 ; or a ]
 [ BIOS ROM contains    nop (x 11) ; ret m    at address #1EB2 ]
 call #1EB2  [x 10000]

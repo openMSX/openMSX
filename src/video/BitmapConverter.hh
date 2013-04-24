@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef BITMAPCONVERTER_HH
 #define BITMAPCONVERTER_HH
 

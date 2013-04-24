@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EMPTYDISKPATCH_HH
 #define EMPTYDISKPATCH_HH
 

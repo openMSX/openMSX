@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef READDIR_HH
 #define READDIR_HH
 

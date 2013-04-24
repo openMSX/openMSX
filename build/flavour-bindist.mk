@@ -1,5 +1,3 @@
-# $Id$
-#
 # Generic flavour for binary distributions.
 # It disables debugging and aims for a small binary.
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DummyJoystick.hh"
 
 namespace openmsx {

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLScaler.hh"
 #include "GLUtil.hh"
 #include "memory.hh"

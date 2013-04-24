@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Connector.hh"
 #include "Pluggable.hh"
 #include "PluggingController.hh"

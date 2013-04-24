@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * Adriano Camargo Rodrigues da Cunha wrote:
  *

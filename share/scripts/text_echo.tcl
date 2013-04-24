@@ -1,5 +1,3 @@
-# $Id$
-
 # TODO: add a way to turn this off...
 
 namespace eval text_echo {

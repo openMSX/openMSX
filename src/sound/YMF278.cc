@@ -1,5 +1,3 @@
-// $Id$
-
 // Based on ymf278b.c written by R. Belmont and O. Galibert
 
 // This class doesn't model a full YMF278b chip. Instead it only models the

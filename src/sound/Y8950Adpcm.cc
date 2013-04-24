@@ -1,5 +1,3 @@
-// $Id$
-
 // The actual sample playing part is duplicated for the 'emu' domain and the
 // 'audio' domain. The emu part is responsible for cycle accurate sample
 // readback (see peekReg() register 0x13 and 0x14) and for cycle accurate

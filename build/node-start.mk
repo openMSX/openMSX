@@ -1,4 +1,3 @@
-# $Id$
 # Should be included at the start of each node.mk file.
 
 # Get name of current directory.
@@ -23,4 +22,3 @@ HDR_ONLY_true:=
 SRC_HDR_false:=
 SRC_ONLY_false:=
 HDR_ONLY_false:=
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LDPIXELRENDERER_HH
 #define LDPIXELRENDERER_HH
 

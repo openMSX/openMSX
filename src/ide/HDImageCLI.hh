@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HDIMAGECLI_HH
 #define HDIMAGECLI_HH
 

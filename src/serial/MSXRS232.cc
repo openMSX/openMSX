@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXRS232.hh"
 #include "RS232Device.hh"
 #include "CacheLine.hh"
@@ -524,4 +522,3 @@ INSTANTIATE_SERIALIZE_METHODS(MSXRS232);
 REGISTER_MSXDEVICE(MSXRS232, "RS232");
 
 } // namespace openmsx
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PrinterPortDevice.hh"
 
 namespace openmsx {

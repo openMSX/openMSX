@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef BOOTBLOCKS_HH
 #define BOOTBLOCKS_HH
 

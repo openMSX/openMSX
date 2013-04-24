@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IntegerSetting.hh"
 #include "CommandException.hh"
 #include <sstream>

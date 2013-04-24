@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DUMMYMIDIOUTDEVICE_HH
 #define DUMMYMIDIOUTDEVICE_HH
 

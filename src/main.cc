@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  *  openmsx - the MSX emulator that aims for perfection
  *

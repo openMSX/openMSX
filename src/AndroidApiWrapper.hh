@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class AndroidApiWrapper 
+class AndroidApiWrapper
 {
 public:
 	static std::string getStorageDirectory();
@@ -23,4 +23,3 @@ public:
 #endif // #if PLATFORM_ANDROID
 
 #endif
-

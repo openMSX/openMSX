@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WD2793BASEDFDC_HH
 #define WD2793BASEDFDC_HH
 

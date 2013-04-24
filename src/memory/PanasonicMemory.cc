@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"

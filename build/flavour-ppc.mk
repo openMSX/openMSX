@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for "ppc" flavour:
 # Optimised for G3 PPC.
 

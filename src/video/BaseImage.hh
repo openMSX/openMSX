@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef BASEIMAGE_HH
 #define BASEIMAGE_HH
 

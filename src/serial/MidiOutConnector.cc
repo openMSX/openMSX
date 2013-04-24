@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MidiOutConnector.hh"
 #include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"

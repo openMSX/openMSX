@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskImageCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

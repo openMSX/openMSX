@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for Dingux: Linux for Dingoo A320.
 
 # Set CXX before including platform-linux.mk (see comments in platform-linux.mk)
@@ -22,4 +20,3 @@ LIBRARYEXT:=.so
 
 # Build a minimal set of components.
 LINK_MODE:=3RD_STA_MIN
-

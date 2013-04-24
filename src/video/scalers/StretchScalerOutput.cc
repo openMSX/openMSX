@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "StretchScalerOutput.hh"
 #include "DirectScalerOutput.hh"
 #include "LineScalers.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
@@ -315,4 +313,3 @@ string TclObject::executeCommand(bool compile)
 
 
 } // namespace openmsx
-

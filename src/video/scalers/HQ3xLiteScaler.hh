@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HQ3XLITESCALER_HH
 #define HQ3XLITESCALER_HH
 

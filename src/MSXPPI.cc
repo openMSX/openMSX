@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXPPI.hh"
 #include "I8255.hh"
 #include "Keyboard.hh"

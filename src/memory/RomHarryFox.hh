@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMHARRYFOX_HH
 #define ROMHARRYFOX_HH
 

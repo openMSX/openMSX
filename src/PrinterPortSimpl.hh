@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PRINTERPORTSIMPLE_HH
 #define PRINTERPORTSIMPLE_HH
 

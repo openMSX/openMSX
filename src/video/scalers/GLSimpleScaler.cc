@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLSimpleScaler.hh"
 #include "GLUtil.hh"
 #include "RenderSettings.hh"

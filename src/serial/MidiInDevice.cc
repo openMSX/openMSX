@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MidiInDevice.hh"
 
 namespace openmsx {

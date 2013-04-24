@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef REACTOR_HH
 #define REACTOR_HH
 

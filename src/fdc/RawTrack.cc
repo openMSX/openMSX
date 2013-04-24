@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RawTrack.hh"
 #include "CRC16.hh"
 #include "serialize.hh"

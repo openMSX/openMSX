@@ -1,5 +1,3 @@
-// $Id:$
-
 #ifndef STRETCHSCALEROUTPUT_HH
 #define STRETCHSCALEROUTPUT_HH
 

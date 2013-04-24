@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CLIOption.hh"
 #include "MSXException.hh"
 

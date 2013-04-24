@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HardwareConfig.hh"
 #include "XMLLoader.hh"
 #include "XMLException.hh"

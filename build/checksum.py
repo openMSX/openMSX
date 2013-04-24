@@ -1,5 +1,3 @@
-# $Id$
-
 from hashlib import new as newhash
 from os import stat
 from os.path import isfile

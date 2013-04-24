@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INFOCOMMAND_HH
 #define INFOCOMMAND_HH
 

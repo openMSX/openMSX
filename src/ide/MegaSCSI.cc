@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * MEGA-SCSI and ESE-RAM cartridge:
  *  The mapping does SRAM and MB89352A(MEGA-SCSI) to ASCII8 or

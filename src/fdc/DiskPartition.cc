@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskPartition.hh"
 #include "DiskImageUtils.hh"
 #include "Filename.hh"

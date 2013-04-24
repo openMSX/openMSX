@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MC6850_HH
 #define MC6850_HH
 

@@ -1,4 +1,3 @@
-# $Id$
 # Should be included at the end of each node.mk file.
 
 # Process this node.

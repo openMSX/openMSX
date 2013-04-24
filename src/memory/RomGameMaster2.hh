@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMGAMEMASTER2_HH
 #define ROMGAMEMASTER2_HH
 

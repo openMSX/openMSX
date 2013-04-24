@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PLUGGABLEFACTORY_HH
 #define PLUGGABLEFACTORY_HH
 

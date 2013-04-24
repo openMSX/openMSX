@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -13,4 +11,3 @@ HDR_ONLY:= \
 	XMLException \
 
 include build/node-end.mk
-

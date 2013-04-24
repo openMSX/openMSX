@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ArkanoidPad.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"

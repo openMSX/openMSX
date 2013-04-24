@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDWidget.hh"
 #include "OutputSurface.hh"
 #include "CommandException.hh"

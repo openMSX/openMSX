@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SOCKET_STREAM_WRAPPER_HH
 #define SOCKET_STREAM_WRAPPER_HH
 

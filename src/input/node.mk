@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -29,4 +27,3 @@ HDR_ONLY:= \
 	StateChange
 
 include build/node-end.mk
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SamplePlayer.hh"
 #include "DeviceConfig.hh"
 #include "MSXCliComm.hh"

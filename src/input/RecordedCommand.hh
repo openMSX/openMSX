@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RECORDEDCOMMAND_HH
 #define RECORDEDCOMMAND_HH
 

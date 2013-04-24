@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DRIVEMULTIPLEXER_HH
 #define DRIVEMULTIPLEXER_HH
 

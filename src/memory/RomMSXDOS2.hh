@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMMSXDOS2_HH
 #define ROMMSXDOS2_HH
 

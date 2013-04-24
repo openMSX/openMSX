@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomInfo.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
@@ -226,4 +224,3 @@ unsigned RomInfo::getBlockSize(RomType type)
 }
 
 } // namespace openmsx
-

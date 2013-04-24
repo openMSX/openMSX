@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SETTINGSCONFIG_HH
 #define SETTINGSCONFIG_HH
 

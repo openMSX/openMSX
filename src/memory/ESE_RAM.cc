@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * MEGA-SCSI and ESE-RAM cartridge:
  *  The mapping does SRAM and MB89352A(MEGA-SCSI) to ASCII8 or
@@ -19,7 +17,6 @@
  * ESE-RAM Bank Map:
  *  BANK 00H-7FH (read only)
  *  BANK 80H-FFH (write and read. mirror of 00H-7FH)
- *
  */
 
 #include "ESE_RAM.hh"

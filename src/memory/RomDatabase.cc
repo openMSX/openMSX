@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomDatabase.hh"
 #include "RomInfo.hh"
 #include "InfoTopic.hh"

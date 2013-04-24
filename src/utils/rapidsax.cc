@@ -1,5 +1,3 @@
-// $Id$
-
 #include "rapidsax.hh"
 
 namespace rapidsax {

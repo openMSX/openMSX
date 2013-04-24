@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RENDERERFACTORY_HH
 #define RENDERERFACTORY_HH
 

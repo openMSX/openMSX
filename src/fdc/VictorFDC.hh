@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VICTORFDC_HH
 #define VICTORFDC_HH
 

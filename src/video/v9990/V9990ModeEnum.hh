@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990MODEENUM_HH
 #define V9990MODEENUM_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 // KONAMI 8kB cartridges (without SCC)
 //
 // this type is used by Konami cartridges without SCC and some others

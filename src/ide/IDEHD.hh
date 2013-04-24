@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef IDEHD_HH
 #define IDEHD_HH
 

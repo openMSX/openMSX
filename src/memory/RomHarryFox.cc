@@ -1,5 +1,3 @@
-// $Id$
-
 // This mapper is used for the game "Harry Fox Yki no Maoh"
 
 /** Thanks to enen for testing this on a real cartridge:

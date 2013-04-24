@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MESSAGECOMMAND_HH
 #define MESSAGECOMMAND_HH
 

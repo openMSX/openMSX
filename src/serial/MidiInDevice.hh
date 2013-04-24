@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIINDEVICE_HH
 #define MIDIINDEVICE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 

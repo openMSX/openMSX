@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SECTORBASEDDISK_HH
 #define SECTORBASEDDISK_HH
 

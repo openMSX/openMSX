@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLVideoSystem.hh"
 #include "SDLVisibleSurface.hh"
 #include "SDLRasterizer.hh"

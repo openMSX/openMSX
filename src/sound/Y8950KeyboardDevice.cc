@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Y8950KeyboardDevice.hh"
 
 namespace openmsx {

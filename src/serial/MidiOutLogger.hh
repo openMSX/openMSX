@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIOUTLOGGER_HH
 #define MIDIOUTLOGGER_HH
 

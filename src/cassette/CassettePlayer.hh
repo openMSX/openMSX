@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CASSETTEPLAYER_HH
 #define CASSETTEPLAYER_HH
 

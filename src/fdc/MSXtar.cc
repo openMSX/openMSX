@@ -1,5 +1,3 @@
-// $Id$
-
 // Note: For Mac OS X 10.3 <ctime> must be included before <utime.h>.
 #include <ctime>
 #ifndef _MSC_VER

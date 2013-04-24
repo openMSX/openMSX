@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SANYOFDC_HH
 #define SANYOFDC_HH
 

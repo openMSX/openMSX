@@ -4,4 +4,3 @@ SRC_HDR:= \
 	SocketStreamWrapper SspiNegotiateServer SspiUtils
 
 include build/node-end.mk
-

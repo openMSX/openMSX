@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef READONLYSETTING_HH
 #define READONLYSETTING_HH
 

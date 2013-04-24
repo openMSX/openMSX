@@ -1,5 +1,3 @@
-// $Id$
-
 // Zemina 90-in-1 cartridge
 //
 //  90 in 1 uses Port &H77 for mapping:

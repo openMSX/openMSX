@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for Pandora.
 
 ifeq ($(OPENMSX_TARGET_CPU),arm)

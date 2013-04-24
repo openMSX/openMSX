@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ScalerFactory.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"

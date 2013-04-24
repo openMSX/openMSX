@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKFACTORY_HH
 #define DISKFACTORY_HH
 

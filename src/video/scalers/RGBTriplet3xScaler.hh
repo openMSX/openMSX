@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RGBTRIPLET3XSCALER_HH
 #define RGBTRIPLET3XSCALER_HH
 

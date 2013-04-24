@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CDImageCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

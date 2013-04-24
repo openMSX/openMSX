@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXS1990_HH
 #define MSXS1990_HH
 

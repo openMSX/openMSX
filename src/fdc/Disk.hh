@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISK_HH
 #define DISK_HH
 

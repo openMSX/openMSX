@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Disk.hh"
 #include "DiskExceptions.hh"
 
@@ -160,4 +158,3 @@ void Disk::detectGeometry()
 }
 
 } // namespace openmsx
-

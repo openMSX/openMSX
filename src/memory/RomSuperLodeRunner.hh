@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMSUPERLODERUNNER_HH
 #define ROMSUPERLODERUNNER_HH
 

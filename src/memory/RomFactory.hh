@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMFACTORY_HH
 #define ROMFACTORY_HH
 

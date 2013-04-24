@@ -1,4 +1,3 @@
-// $Id$
 /*
  * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartrige.
  *

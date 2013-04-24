@@ -1,14 +1,10 @@
-// $Id$
-
 #ifndef LIBAOSOUNDDRIVER_HH
 #define LIBAOSOUNDDRIVER_HH
 
 #include "SoundDriver.hh"
 #include "noncopyable.hh"
 
-
 struct ao_device;
-
 
 namespace openmsx {
 

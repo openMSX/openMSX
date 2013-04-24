@@ -1,5 +1,3 @@
-// $Id$
-
 #include "KeyJoystick.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"

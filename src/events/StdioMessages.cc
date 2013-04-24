@@ -1,5 +1,3 @@
-// $Id$
-
 #include "StdioMessages.hh"
 #include <iostream>
 

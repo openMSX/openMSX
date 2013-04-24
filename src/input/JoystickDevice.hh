@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef JOYSTICKDEVICE_HH
 #define JOYSTICKDEVICE_HH
 

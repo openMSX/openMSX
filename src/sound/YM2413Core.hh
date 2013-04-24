@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef YM2413CORE_HH
 #define YM2413CORE_HH
 

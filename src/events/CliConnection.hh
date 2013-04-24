@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLICONNECTION_HH
 #define CLICONNECTION_HH
 

@@ -54,7 +54,7 @@ Example: sound/Y8950Timer.cc
 
 Q: How can a device generate IRQs?
 A: The class MSXCPU offers two methods raiseIRQ() and lowerIRQ(). However direct
-   use of these methods is not recommended. Instead use the methods offered by 
+   use of these methods is not recommended. Instead use the methods offered by
    the class IRQHelper.
 Example: VDP.cc
 
@@ -83,4 +83,3 @@ Q: How do I write my own sound device?
 Q: How do I read data from a config file?
 Q: How do I make a config part that is not device related?
 Q: How do I make a custom XML config part?
-

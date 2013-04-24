@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BaseImage.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"

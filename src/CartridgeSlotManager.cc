@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"

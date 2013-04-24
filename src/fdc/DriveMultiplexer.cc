@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DriveMultiplexer.hh"
 #include "serialize.hh"
 #include "memory.hh"

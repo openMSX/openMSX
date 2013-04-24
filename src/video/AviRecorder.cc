@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
 #include "WavWriter.hh"
@@ -74,7 +72,7 @@ void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
 			warnedStereo = true; // no warning if data is actually stereo
 		} else {
 			stereo = mixer->needStereoRecording();
-		}		
+		}
 		sampleRate = mixer->getSampleRate();
 		warnedSampleRate = false;
 	}

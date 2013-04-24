@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCOPEDASSIGN_HH
 #define SCOPEDASSIGN_HH
 

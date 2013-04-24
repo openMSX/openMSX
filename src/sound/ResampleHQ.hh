@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RESAMPLEHQ_HH
 #define RESAMPLEHQ_HH
 

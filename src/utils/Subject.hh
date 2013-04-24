@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SUBJECT_HH
 #define SUBJECT_HH
 

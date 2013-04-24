@@ -1,5 +1,3 @@
-// $Id$
-
 // This class implements the PPI (8255)
 //
 //   PPI    MSX-I/O  Direction  MSX-Function

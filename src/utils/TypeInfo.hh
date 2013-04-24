@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TYPEINFO_HH
 #define TYPEINFO_HH
 

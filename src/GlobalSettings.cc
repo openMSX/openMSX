@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"

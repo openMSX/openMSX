@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLSCALENXSCALER_HH
 #define GLSCALENXSCALER_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ReverseManager.hh"
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"

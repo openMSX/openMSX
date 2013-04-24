@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WIN32_ARG_GEN_HH
 #define WIN32_ARG_GEN_HH
 

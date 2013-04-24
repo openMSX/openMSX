@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIOUTWINDOWS_HH
 #define MIDIOUTWINDOWS_HH
 

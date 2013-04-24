@@ -2777,5 +2777,3 @@ sector_buffer	equ	trck_buffer+#1A00	; overlaps 2nd copy of track``
 unique_buffer	equ	#BE00		; possibly overlaps sector buffer (that's OK)
                                         ; must start at a 256-byte boundary
 debug_buffer	equ	#BF00		; must be 256-bytes aligned
-
-

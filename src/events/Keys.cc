@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Keys.hh"
 #include "StringOp.hh"
 #include <map>

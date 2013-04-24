@@ -1,5 +1,3 @@
-// $Id$
-
 #include "NullSoundDriver.hh"
 
 namespace openmsx {

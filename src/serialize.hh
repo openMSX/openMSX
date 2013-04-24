@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SERIALIZE_HH
 #define SERIALIZE_HH
 
@@ -19,7 +17,6 @@
 #include <sstream>
 #include <cassert>
 #include <memory>
-
 
 namespace openmsx {
 

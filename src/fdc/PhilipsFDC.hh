@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PHILIPSFDC_HH
 #define PHILIPSFDC_HH
 

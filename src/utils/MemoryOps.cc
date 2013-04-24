@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "likely.hh"
@@ -20,7 +18,6 @@
 #endif
 
 namespace openmsx {
-
 namespace MemoryOps {
 
 // This provides no noticeable performance improvement in
@@ -710,5 +707,4 @@ void freeAligned(void* aligned)
 }
 
 } // namespace MemoryOps
-
 } // namespace openmsx

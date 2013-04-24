@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef UNREACHABLE_HH
 #define UNREACHABLE_HH
 

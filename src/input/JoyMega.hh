@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef JOYMEGA_HH
 #define JOYMEGA_HH
 

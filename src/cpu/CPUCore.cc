@@ -1,5 +1,3 @@
-// $Id$
-
 // MEMORY EMULATION
 // ----------------
 //
@@ -4253,4 +4251,3 @@ INSTANTIATE_SERIALIZE_METHODS(CPUCore<Z80TYPE>);
 INSTANTIATE_SERIALIZE_METHODS(CPUCore<R800TYPE>);
 
 } // namespace openmsx
-

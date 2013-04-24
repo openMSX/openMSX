@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskName.hh"
 #include "serialize.hh"
 
@@ -47,4 +45,3 @@ void DiskName::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(DiskName);
 
 } // namespace openmsx
-

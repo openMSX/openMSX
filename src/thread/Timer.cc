@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Timer.hh"
 #include "systemfuncs.hh"
 #if HAVE_CLOCK_GETTIME
@@ -15,7 +13,6 @@
 #include <cassert>
 
 namespace openmsx {
-
 namespace Timer {
 
 static inline uint64_t getSDLTicks()
@@ -106,5 +103,4 @@ void sleep(uint64_t us)
 }
 
 } // namespace Timer
-
 } // namespace openmsx

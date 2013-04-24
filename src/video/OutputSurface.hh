@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OUTPUTSURFACE_HH
 #define OUTPUTSURFACE_HH
 

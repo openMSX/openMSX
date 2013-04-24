@@ -1,5 +1,3 @@
-// $Id$
-
 // Parallax' Arc
 
 #include "RomArc.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CHECKEDRAM_HH
 #define CHECKEDRAM_HH
 

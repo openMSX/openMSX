@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NOWINDINTERFACE_HH
 #define NOWINDINTERFACE_HH
 

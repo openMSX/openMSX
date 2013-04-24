@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"

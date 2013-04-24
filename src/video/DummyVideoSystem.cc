@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DummyVideoSystem.hh"
 #include "Rasterizer.hh"
 #include "V9990Rasterizer.hh"

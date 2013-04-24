@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 

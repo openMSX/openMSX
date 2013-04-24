@@ -1,5 +1,3 @@
-// $Id$
-
 // This class implements the Intel 8251 chip (UART)
 
 #ifndef I8251_HH

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SettingsManager.hh"
 #include "GlobalCommandController.hh"
 #include "Command.hh"

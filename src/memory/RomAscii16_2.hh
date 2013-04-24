@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMASCII16_2_HH
 #define ROMASCII16_2_HH
 

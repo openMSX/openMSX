@@ -1,5 +1,3 @@
-// $Id$
-
 #if defined(_WIN32)
 
 #include "Midi_w32.hh"

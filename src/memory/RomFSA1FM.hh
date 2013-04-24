@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMFSA1FM1_HH
 #define ROMFSA1FM1_HH
 

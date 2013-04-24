@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CONFIGEXCEPTION_HH
 #define CONFIGEXCEPTION_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990VRAM_HH
 #define V9990VRAM_HH
 

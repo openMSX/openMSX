@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RS232Tester.hh"
 #include "RS232Connector.hh"
 #include "PlugException.hh"

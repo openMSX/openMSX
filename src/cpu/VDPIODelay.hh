@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VDPIODELAY_HH
 #define VDPIODELAY_HH
 

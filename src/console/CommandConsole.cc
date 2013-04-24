@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CommandConsole.hh"
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"

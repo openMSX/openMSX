@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef I8255INTERFACE_HH
 #define I8255INTERFACE_HH
 

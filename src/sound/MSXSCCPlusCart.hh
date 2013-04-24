@@ -1,5 +1,3 @@
-// $Id$
-
 // Note: this device is actually called SCC-I. But this would take a lot of
 // renaming, which isn't worth it right now. TODO rename this :)
 

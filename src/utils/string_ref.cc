@@ -1,5 +1,3 @@
-// $Id$
-
 #include "string_ref.hh"
 #include "cstdlibp.hh"
 #include <algorithm>

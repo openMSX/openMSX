@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMAPPERIO_HH
 #define MSXMAPPERIO_HH
 

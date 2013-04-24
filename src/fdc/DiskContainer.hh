@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKCONTAINER_HH
 #define DISKCONTAINER_HH
 

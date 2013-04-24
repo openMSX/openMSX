@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SIMPLEDEBUGGABLE_HH
 #define SIMPLEDEBUGGABLE_HH
 

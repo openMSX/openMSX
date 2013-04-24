@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PioneerLDControl.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
@@ -14,19 +12,19 @@ namespace openmsx {
 
 /*
  * Laserdisc Control: there are three bits involved here. There are three
- * bits/connections involved. 
- * - EXTACK (from Laserdisc -> MSX) will remain low for a while to acknowledge 
+ * bits/connections involved.
+ * - EXTACK (from Laserdisc -> MSX) will remain low for a while to acknowledge
  *   it has received a command and is executing
  * - EXTCONTROL (from MSX -> Laserdisc) one bit information which is used for
  *   sending commands
- * - PULSE (internal to MSX) 8175.5hz signal which used by software to 
+ * - PULSE (internal to MSX) 8175.5hz signal which used by software to
  *   create the right pulses for communicating with the Laserdisc over
  *   EXTCONTROL.
  *
  * Sound Muting: left and right audio channels from Laserdisc input can
- * be muted independently. After reset or startup both channels are muted. 
+ * be muted independently. After reset or startup both channels are muted.
  * The left muting is controlled by bit 7 of 0x7fff; set is not muted,
- * cleared is muted. If this bit changed from 0->1 (rising edge triggered 
+ * cleared is muted. If this bit changed from 0->1 (rising edge triggered
  * and inverted) then bit 4 of register C of PPI switches L muting; set
  * for muting disabled, clear for muting enabled.
  *

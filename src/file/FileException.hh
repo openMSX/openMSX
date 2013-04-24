@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILEEXCEPTION_HH
 #define FILEEXCEPTION_HH
 

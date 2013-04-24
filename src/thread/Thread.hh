@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef THREAD_HH
 #define THREAD_HH
 

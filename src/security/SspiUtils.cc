@@ -1,12 +1,10 @@
-// $Id$
-
 #ifdef _WIN32
 
 #include "SspiUtils.hh"
 #include "MSXException.hh"
 #include <sddl.h>
 #include <cassert>
-#include "openmsx.hh" 
+#include "openmsx.hh"
 
 //
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects

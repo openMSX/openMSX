@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * Based on code from NLMSX written by Frits Hilderink
  *        and       blueMSX written by Daniel Vik

@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for "i686" flavour:
 # Optimised for Pentium 3, but compatible with Pentium 2 and higher.
 

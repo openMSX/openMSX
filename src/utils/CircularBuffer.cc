@@ -1,5 +1,3 @@
-// $Id$
-
 #if 0
 
 #include "CircularBuffer.hh"

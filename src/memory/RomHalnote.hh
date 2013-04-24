@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMHALNOTE_HH
 #define ROMHALNOTE_HH
 

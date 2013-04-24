@@ -1,4 +1,3 @@
-# $Id$
 # Applies a unified diff to a directory tree.
 
 from os.path import abspath, isdir, join as joinpath, sep

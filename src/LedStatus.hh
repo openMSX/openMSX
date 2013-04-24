@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LEDSTATUS_HH
 #define LEDSTATUS_HH
 

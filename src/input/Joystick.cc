@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Joystick.hh"
 #include "PluggingController.hh"
 #include "PlugException.hh"

@@ -1,5 +1,3 @@
-# $Id$
-#
 # openMSX Build System
 # ====================
 #

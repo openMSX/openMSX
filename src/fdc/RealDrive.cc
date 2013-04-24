@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RealDrive.hh"
 #include "Disk.hh"
 #include "DiskChanger.hh"

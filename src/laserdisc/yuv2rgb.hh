@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef YUV2RGB_HH
 #define YUV2RGB_HH
 

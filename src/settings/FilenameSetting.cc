@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FilenameSetting.hh"
 #include "Completer.hh"
 #include "FileContext.hh"

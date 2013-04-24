@@ -104,7 +104,7 @@ LEAF_ENTRY Scale_2on1_SSE, Video
     shr         r8,1
     lea         rdx,[rdx+r8]
     neg         r8
-    
+
 mainloop:
     movq        mm0,mmword ptr [rcx+r8*2]
     movq        mm1,mmword ptr [rcx+r8*2+8]

@@ -1,4 +1,3 @@
-// $Id$
 #ifndef DUMMYSCSIDEVICE_HH
 #define DUMMYSCSIDEVICE_HH
 

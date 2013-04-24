@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLILISTENER_HH
 #define CLILISTENER_HH
 

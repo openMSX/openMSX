@@ -1,5 +1,3 @@
-// $Id$
-
 // This class implements a 16 bit signed DAC
 
 #ifndef DACSOUND16S_HH

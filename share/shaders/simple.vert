@@ -1,5 +1,3 @@
-// $Id$
-
 uniform vec2 texSize;
 uniform vec3 texStepX; // = vec3(vec2(1.0 / texSize.x), 0.0);
 uniform vec4 cnst;     // = vec4(scan_a, scan_b, scan_c, alpha);

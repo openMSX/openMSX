@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLImage.hh"
 #include "SDLSurfacePtr.hh"
 #include "MSXException.hh"

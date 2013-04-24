@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IPSPatch.hh"
 #include "File.hh"
 #include "Filename.hh"

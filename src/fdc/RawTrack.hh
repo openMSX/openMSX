@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RAWTRACK_HH
 #define RAWTRACK_HH
 

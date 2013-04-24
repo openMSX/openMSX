@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -53,4 +51,3 @@ DIST:= \
 #TEST:= YM2413Test
 
 include build/node-end.mk
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Simple2xScaler.hh"
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"

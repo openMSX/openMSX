@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef YM2413_HH
 #define YM2413_HH
 
@@ -40,4 +38,3 @@ private:
 } // namespace openmsx
 
 #endif
-

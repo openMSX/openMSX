@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CPUClock.hh"
 #include "serialize.hh"
 

@@ -1,5 +1,3 @@
-// $Id$
-
 // Code based on DOSBox-0.65
 
 #ifndef ZMBVENCODER_HH

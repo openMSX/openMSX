@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"

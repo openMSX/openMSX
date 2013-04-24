@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BlipBuffer.hh"
 #include <algorithm>
 #include <cstring>

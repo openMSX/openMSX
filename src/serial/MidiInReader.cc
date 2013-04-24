@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MidiInReader.hh"
 #include "MidiInConnector.hh"
 #include "PlugException.hh"

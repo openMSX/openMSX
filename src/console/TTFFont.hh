@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TTFFONT_HH
 #define TTFFONT_HH
 

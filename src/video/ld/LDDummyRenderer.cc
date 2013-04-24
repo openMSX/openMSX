@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LDDummyRenderer.hh"
 
 namespace openmsx {

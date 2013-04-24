@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SimpleDebuggable.hh"
 #include "MSXDevice.hh"
 #include <string>

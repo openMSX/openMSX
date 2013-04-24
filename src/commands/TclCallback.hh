@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TCLCALLBACK_HH
 #define TCLCALLBACK_HH
 

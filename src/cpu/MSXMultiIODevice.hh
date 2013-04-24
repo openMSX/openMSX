@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMULTIIODEVICE_HH
 #define MSXMULTIIODEVICE_HH
 

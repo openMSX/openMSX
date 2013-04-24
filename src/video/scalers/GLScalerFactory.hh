@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLSCALERFACTORY_HH
 #define GLSCALERFACTORY_HH
 

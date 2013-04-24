@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Dasm.hh"
 #include "DasmTables.hh"
 #include "MSXCPUInterface.hh"

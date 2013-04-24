@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXHBI55_HH
 #define MSXHBI55_HH
 

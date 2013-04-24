@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskChanger.hh"
 #include "DiskFactory.hh"
 #include "DummyDisk.hh"

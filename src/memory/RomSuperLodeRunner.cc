@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomSuperLodeRunner.hh"
 #include "MSXCPUInterface.hh"
 #include "Rom.hh"

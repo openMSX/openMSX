@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SETTINGRANGEPOLICY_HH
 #define SETTINGRANGEPOLICY_HH
 
@@ -41,4 +39,3 @@ private:
 } // namespace openmsx
 
 #endif
-

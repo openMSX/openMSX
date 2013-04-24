@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDTOPWIDGET_HH
 #define OSDTOPWIDGET_HH
 

@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/MB89352.c,v
 ** Revision: 1.9
@@ -809,4 +808,3 @@ void MB89352::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(MB89352);
 
 } // namespace openmsx
-

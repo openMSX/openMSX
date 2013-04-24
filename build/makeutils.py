@@ -1,5 +1,3 @@
-# $Id$
-
 from os.path import isdir
 import re
 

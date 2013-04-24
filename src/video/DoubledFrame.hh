@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DOUBLEDFRAME_HH
 #define DOUBLEDFRAME_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PrinterPortLogger.hh"
 #include "PlugException.hh"
 #include "FileException.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "StringSetting.hh"
 
 using std::string;

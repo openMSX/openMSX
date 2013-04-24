@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXCielTurbo.hh"
 #include "MSXCPU.hh"
 #include "LedStatus.hh"

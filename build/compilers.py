@@ -1,5 +1,3 @@
-# $Id$
-
 from msysutils import msysActive, msysPathToNative
 
 from os import environ

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MAGICKEY_HH
 #define MAGICKEY_HH
 

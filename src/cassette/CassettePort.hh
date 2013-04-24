@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CASSETTEPORT_HH
 #define CASSETTEPORT_HH
 

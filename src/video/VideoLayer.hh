@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VIDEOLAYER_HH
 #define VIDEOLAYER_HH
 

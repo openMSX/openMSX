@@ -115,7 +115,7 @@ Scale_2on1_SSE PROC C _in:NEAR PTR, _out:NEAR PTR, _width:DWORD
     mov         ecx,_out
     lea         ecx,[ecx+edx]
     neg         edx
-    
+
 mainloop:
     movq        mm0,mmword ptr [eax+edx*2]
     movq        mm1,mmword ptr [eax+edx*2+8]

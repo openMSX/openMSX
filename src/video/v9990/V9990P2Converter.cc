@@ -1,5 +1,3 @@
-// $Id$
-
 #include "V9990P2Converter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"

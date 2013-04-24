@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990DISPLAYTIMING_HH
 #define V9990DISPLAYTIMING_HH
 

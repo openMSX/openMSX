@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BitmapConverter.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
@@ -186,7 +184,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					// Last pixel in last iteration must be written individually
 					pixelPtr[254] = palette16[(data >> 0) & 0x0F];
 				} else {
-					// Last double-pixel must be composed of 
+					// Last double-pixel must be composed of
 					// remaing 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;
@@ -202,7 +200,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 					// Last pixel in last iteration must be written individually
 					pixelPtr[254] = palette16[(data >> 24) & 0x0F];
 				} else {
-					// Last double-pixel must be composed of 
+					// Last double-pixel must be composed of
 					// remaing 4 bits in (previous) data
 					// and first 4 bits from (next) data
 					unsigned prevData = data;

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DIRASDSK_HH
 #define DIRASDSK_HH
 

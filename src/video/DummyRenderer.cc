@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DummyRenderer.hh"
 #include "DisplayMode.hh"
 

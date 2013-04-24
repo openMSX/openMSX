@@ -1,5 +1,3 @@
-// $Id$
-
 varying vec2 texCoord;
 varying vec2 videoCoord;
 

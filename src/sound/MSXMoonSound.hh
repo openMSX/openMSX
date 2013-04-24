@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMOONSOUND_HH
 #define MSXMOONSOUND_HH
 

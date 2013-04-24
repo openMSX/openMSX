@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CassettePort.hh"
 #include "CassetteDevice.hh"
 #include "CassettePlayer.hh"

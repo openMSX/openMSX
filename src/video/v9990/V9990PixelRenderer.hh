@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990PIXELRENDERER_HH
 #define V9990PIXELRENDERER_HH
 

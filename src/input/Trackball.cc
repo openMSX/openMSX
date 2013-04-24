@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Trackball.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"

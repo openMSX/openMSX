@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SectorBasedDisk.hh"
 #include "DiskExceptions.hh"
 #include "EmptyDiskPatch.hh"

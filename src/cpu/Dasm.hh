@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DASM_HH
 #define DASM_HH
 

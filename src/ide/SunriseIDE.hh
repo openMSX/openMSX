@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SUNRISEIDE_HH
 #define SUNRISEIDE_HH
 

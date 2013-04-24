@@ -1,5 +1,3 @@
-// $Id$
-
 #include "yuv2rgb.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
@@ -20,7 +18,7 @@ namespace yuv2rgb {
 /*
  * This implementation of yuv420 to rgb has copied from Mono. See this
  * blog entry:
- * 	http://blog.sublimeintervention.com/archive/2008/Mar-21.html
+ *	http://blog.sublimeintervention.com/archive/2008/Mar-21.html
  * Source code:
  *	http://anonsvn.mono-project.com/viewvc/trunk/moon/src/yuv-converter.cpp?revision=136072
  * This code is GPL2 (only)

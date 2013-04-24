@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DynamicClock.hh"
 #include "serialize.hh"
 

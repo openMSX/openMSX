@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 

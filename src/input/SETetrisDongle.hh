@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SETETRISDONGLE_HH
 #define SETETRISDONGLE_HH
 

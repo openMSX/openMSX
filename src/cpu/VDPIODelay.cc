@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"

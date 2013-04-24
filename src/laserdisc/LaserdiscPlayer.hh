@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LASERDISCPLAYER_HH
 #define LASERDISCPLAYER_HH
 

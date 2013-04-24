@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Completer.hh"
 #include "InterpreterOutput.hh"
 #include "FileContext.hh"

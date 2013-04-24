@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RS232Connector.hh"
 #include "RS232Device.hh"
 #include "DummyRS232Device.hh"

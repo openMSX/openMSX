@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STRINGSETTING_HH
 #define STRINGSETTING_HH
 

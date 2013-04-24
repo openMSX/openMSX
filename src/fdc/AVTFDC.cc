@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AVTFDC.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"

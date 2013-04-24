@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomManbow2.hh"
 #include "RomBlockDebuggable.hh"
 #include "Rom.hh"

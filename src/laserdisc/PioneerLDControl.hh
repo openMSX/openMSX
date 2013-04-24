@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PIONEERLDCONTROL_HH
 #define PIONEERLDCONTROL_HH
 

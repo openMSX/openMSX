@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILEMANIPULATOR_HH
 #define FILEMANIPULATOR_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SUPERIMPOSEDFRAME_HH
 #define SUPERIMPOSEDFRAME_HH
 

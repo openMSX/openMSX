@@ -1,5 +1,3 @@
-// $Id$
-
 #include "JoystickPort.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
@@ -80,4 +78,3 @@ void DummyJoystickPort::write(byte /*value*/, EmuTime::param /*time*/)
 }
 
 } // namespace openmsx
-

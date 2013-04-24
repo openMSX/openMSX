@@ -1,5 +1,3 @@
-// $Id$
-
 #include "openmsx.hh"
 
 #ifdef _WIN32

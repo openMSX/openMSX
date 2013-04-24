@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FilePool.hh"
 #include "File.hh"
 #include "FileException.hh"

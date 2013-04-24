@@ -1,5 +1,3 @@
-# $Id$
-#
 # To run:
 #   python hq.py
 #

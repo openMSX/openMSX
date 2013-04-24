@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DebugCondition.hh"
 
 namespace openmsx {
@@ -14,4 +12,3 @@ DebugCondition::DebugCondition(GlobalCliComm& cliComm,
 }
 
 } // namespace openmsx
-

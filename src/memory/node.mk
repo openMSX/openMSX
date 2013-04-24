@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -37,4 +35,3 @@ HDR_ONLY:= \
 	RomBlockDebuggable \
 
 include build/node-end.mk
-

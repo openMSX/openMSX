@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomInfoTopic.hh"
 #include "RomInfo.hh"
 #include "TclObject.hh"
@@ -53,4 +51,3 @@ void RomInfoTopic::tabCompletion(vector<string>& tokens) const
 }
 
 } // namespace openmsx
-

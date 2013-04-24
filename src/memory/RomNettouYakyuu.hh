@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMNETTOUYAKYUU_HH
 #define ROMNETTOUYAKYUU_HH
 

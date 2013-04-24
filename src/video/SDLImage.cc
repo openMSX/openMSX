@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLImage.hh"
 #include "PNG.hh"
 #include "OutputSurface.hh"

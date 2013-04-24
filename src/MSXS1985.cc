@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXS1985.hh"
 #include "SRAM.hh"
 #include "serialize.hh"

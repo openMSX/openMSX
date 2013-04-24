@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TC8566AF_HH
 #define TC8566AF_HH
 

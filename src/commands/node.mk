@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -21,4 +19,3 @@ HDR_ONLY:= \
 	CommandController
 
 include build/node-end.mk
-

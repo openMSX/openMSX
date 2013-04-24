@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMMATRAINK_HH
 #define ROMMATRAINK_HH
 

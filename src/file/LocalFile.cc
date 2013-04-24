@@ -1,5 +1,3 @@
-// $Id$
-
 #include "systemfuncs.hh"
 #include "unistdp.hh"
 #include <sys/types.h>

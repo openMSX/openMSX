@@ -1,5 +1,3 @@
-// $Id$
-
 #include "V9990DisplayTiming.hh"
 
 namespace openmsx {

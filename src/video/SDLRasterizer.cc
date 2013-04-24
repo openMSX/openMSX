@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLRasterizer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"

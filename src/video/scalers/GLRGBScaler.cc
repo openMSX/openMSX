@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLRGBScaler.hh"
 #include "GLUtil.hh"
 #include "RenderSettings.hh"

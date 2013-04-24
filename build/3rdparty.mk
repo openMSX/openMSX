@@ -1,5 +1,3 @@
-# $Id$
-#
 # Compiles 3rd party libraries needed by openMSX.
 # It enables only the features needed by openMSX.
 

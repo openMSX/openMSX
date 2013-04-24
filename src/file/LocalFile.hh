@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LOCALFILE_HH
 #define LOCALFILE_HH
 

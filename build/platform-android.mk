@@ -1,5 +1,3 @@
-# $Id: platform-dingux.mk 12274 2011-09-17 22:45:28Z mthuurne $
-#
 # Configuration for Android, for ARM.
 # It *must* be called from Android SDL port build system. Toolchain params
 # like CXX and CXXFLAGS have been properly set-up by the SDL port build system
@@ -23,4 +21,3 @@ TARGET_FLAGS:=$(ANDROID_LDFLAGS)
 # Build a maximum set of components.
 # See configure.py for LINK_MODE definition and usage
 LINK_MODE:=3RD_STA_GLES
-

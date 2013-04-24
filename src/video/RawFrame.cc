@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RawFrame.hh"
 #include "MemoryOps.hh"
 #include "MSXException.hh"

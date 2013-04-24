@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomMatraInk.hh"
 #include "AmdFlash.hh"
 #include "Rom.hh"

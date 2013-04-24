@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Scaler1.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"

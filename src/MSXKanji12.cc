@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXKanji12.hh"
 #include "Rom.hh"
 #include "MSXException.hh"

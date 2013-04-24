@@ -1,5 +1,3 @@
-// $Id$
-
 #include "serialize.hh"
 #include "Base64.hh"
 #include "HexDump.hh"

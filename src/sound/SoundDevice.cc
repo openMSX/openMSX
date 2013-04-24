@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SoundDevice.hh"
 #include "MSXMixer.hh"
 #include "DeviceConfig.hh"

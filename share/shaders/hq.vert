@@ -1,5 +1,3 @@
-// $Id$
-
 uniform vec2 texSize;
 
 varying vec2 mid;
@@ -12,7 +10,7 @@ varying vec2 videoCoord;
 void main()
 {
 	gl_Position = ftransform();
-	
+
 	vec2 texStep = 1.0 / texSize;
 	mid     = gl_MultiTexCoord0.st;
 	leftTop = gl_MultiTexCoord0.st - texStep;

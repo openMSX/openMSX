@@ -1,5 +1,3 @@
-# $Id$
-
 # Edges in the same order as the edge bits in "case".
 edges = (
 	(1, 5), (5, 7), (3, 7), (1, 3),

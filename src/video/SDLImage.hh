@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLIMAGE_HH
 #define SDLIMAGE_HH
 

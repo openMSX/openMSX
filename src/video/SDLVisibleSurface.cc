@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLVisibleSurface.hh"
 #include "SDLOffScreenSurface.hh"
 #include "PNG.hh"

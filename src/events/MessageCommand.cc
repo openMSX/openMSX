@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MessageCommand.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomMSXDOS2.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"

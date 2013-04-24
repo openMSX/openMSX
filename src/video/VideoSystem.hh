@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VIDEOSYSTEM_HH
 #define VIDEOSYSTEM_HH
 

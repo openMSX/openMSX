@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXRAM_HH
 #define MSXRAM_HH
 

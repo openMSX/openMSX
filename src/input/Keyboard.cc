@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Keyboard.hh"
 #include "KeyboardSettings.hh"
 #include "Keys.hh"
@@ -1484,4 +1482,3 @@ const byte Keyboard::keyTab[MAX_KEYSYM] = {
 };
 
 } // namespace openmsx
-

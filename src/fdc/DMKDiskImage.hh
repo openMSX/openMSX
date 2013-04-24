@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DMKDISKIMAGE_HH
 #define DMKDISKIMAGE_HH
 

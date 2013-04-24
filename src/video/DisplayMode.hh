@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISPLAYMODE_HH
 #define DISPLAYMODE_HH
 

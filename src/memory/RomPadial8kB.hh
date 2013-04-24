@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMPADIAL8KB_HH
 #define ROMPADIAL8KB_HH
 

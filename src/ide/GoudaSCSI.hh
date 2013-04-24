@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GOUDASCSI_HH
 #define GOUDASCSI_HH
 

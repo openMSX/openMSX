@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Display.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
@@ -585,4 +583,3 @@ string FpsInfoTopic::help(const vector<string>& /*tokens*/) const
 }
 
 } // namespace openmsx
-

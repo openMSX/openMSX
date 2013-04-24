@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SSPI_NEGOTIATE_SERVER_HH
 #define SSPI_NEGOTIATE_SERVER_HH
 

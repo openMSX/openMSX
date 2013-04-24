@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ALARM_HH
 #define ALARM_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-#
 # Create a zip file for Dingoo.
 
 LOCAL_DIR:=$(BINDIST_DIR)/local

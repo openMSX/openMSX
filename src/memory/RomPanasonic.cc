@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomPanasonic.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
@@ -14,7 +12,6 @@ namespace openmsx {
 
 const int SRAM_BASE = 0x80;
 const int RAM_BASE  = 0x180;
-
 
 RomPanasonic::RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: Rom8kBBlocks(config, std::move(rom_))

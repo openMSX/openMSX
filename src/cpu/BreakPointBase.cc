@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BreakPointBase.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -51,4 +49,3 @@ Tcl_Interp* BreakPointBase::getInterpreter() const
 }
 
 } // namespace openmsx
-

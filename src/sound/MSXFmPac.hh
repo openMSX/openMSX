@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXFMPAC_HH
 #define MSXFMPAC_HH
 

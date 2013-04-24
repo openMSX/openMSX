@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKPARTITION_HH
 #define DISKPARTITION_HH
 

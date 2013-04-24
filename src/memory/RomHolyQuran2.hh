@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMHOLYQURAN2_HH
 #define ROMHOLYQURAN2_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DummyDevice.hh"
 #include "unreachable.hh"
 

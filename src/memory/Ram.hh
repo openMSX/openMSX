@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RAM_HH
 #define RAM_HH
 

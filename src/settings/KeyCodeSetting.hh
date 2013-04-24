@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef KEYCODESETTING_HH
 #define KEYCODESETTING_HH
 

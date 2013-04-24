@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STRING_REF_HH
 #define STRING_REF_HH
 

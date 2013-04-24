@@ -1,5 +1,3 @@
-// $Id$
-
 // ASCII 8kB based cartridges with SRAM
 //   - ASCII8-8  /  KOEI-8  /  KOEI-32  /  WIZARDRY
 //

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TURBORFDC_HH
 #define TURBORFDC_HH
 

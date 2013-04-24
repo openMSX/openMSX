@@ -1,4 +1,3 @@
-# $Id$
 # Generates Windows resource header.
 
 from outpututils import rewriteIfChanged

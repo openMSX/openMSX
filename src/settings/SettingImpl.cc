@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SettingImpl.hh"
 #include "SettingsConfig.hh"
 #include "XMLElement.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FrameSource.hh"
 #include "PixelOperations.hh"
 #include "MemoryOps.hh"

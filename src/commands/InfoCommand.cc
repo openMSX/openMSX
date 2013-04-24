@@ -1,5 +1,3 @@
-// $Id$
-
 #include "InfoCommand.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"

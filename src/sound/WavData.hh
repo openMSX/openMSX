@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WAVDATA_HH
 #define WAVDATA_HH
 

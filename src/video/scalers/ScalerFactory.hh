@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCALERFACTORY_HH
 #define SCALERFACTORY_HH
 

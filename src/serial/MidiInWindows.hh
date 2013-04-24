@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIINWINDOWS_HH
 #define MIDIINWINDOWS_HH
 
@@ -76,4 +74,3 @@ private:
 
 #endif // defined(_WIN32)
 #endif // MIDIINWINDOWS_HH
-

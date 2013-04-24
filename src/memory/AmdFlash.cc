@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AmdFlash.hh"
 #include "Rom.hh"
 #include "SRAM.hh"

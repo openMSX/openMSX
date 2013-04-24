@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMultiMemDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"

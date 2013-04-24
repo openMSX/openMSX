@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXS1990.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"

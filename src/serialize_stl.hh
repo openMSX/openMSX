@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SERIALIZE_STL_HH
 #define SERIALIZE_STL_HH
 

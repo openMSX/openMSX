@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMGENERIC16KB_HH
 #define ROMGENERIC16KB_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
 #include "Reactor.hh"
@@ -137,4 +135,3 @@ unique_ptr<RendererSetting> createRendererSetting(
 
 } // namespace RendererFactory
 } // namespace openmsx
-

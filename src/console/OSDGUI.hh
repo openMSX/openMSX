@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDGUI_HH
 #define OSDGUI_HH
 

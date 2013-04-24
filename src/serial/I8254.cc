@@ -1,5 +1,3 @@
-// $Id$
-
 #include "I8254.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"

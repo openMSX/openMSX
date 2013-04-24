@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990DUMMYRENDERER_HH
 #define V9990DUMMYRENDERER_HH
 

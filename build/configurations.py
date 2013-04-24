@@ -1,5 +1,3 @@
-# $Id$
-
 from components import (
 	AODriver, EmulationCore, GLRenderer, Laserdisc, iterComponents
 	)

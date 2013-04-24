@@ -1,5 +1,3 @@
-// $Id$
-
 uniform sampler2D edgeTex;
 uniform sampler2D colorTex;
 uniform sampler2D offsetTex;
@@ -17,7 +15,7 @@ void main()
 {
 	float edgeBits = texture2D(edgeTex, edgePos).z;
 	//gl_FragColor = vec4(edgeBits, fract(edgeBits * 16.0), fract(edgeBits * 256.0), 1.0);
-	
+
 	// transform (N x N x 4096) to (64N x 64N) texture coords
 	float t = 64.0 * edgeBits;
 	vec2 xy = vec2(fract(t), floor(t)/64.0);

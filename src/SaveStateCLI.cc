@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SaveStateCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

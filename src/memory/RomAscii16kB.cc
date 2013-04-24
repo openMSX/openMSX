@@ -1,5 +1,3 @@
-// $Id$
-
 // ASCII 16kB cartridges
 //
 // this type is used in a few cartridges.

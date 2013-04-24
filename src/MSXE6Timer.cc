@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXE6Timer.hh"
 #include "serialize.hh"
 
@@ -57,4 +55,3 @@ INSTANTIATE_SERIALIZE_METHODS(MSXE6Timer);
 REGISTER_MSXDEVICE(MSXE6Timer, "E6Timer");
 
 } // namespace openmsx
-

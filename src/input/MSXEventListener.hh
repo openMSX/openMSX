@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXEVENTLISTENER_HH
 #define MSXEVENTLISTENER_HH
 

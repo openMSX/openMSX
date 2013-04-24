@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef KEYJOYSTICK_HH
 #define KEYJOYSTICK_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PIXELOPERATIONS_HH
 #define PIXELOPERATIONS_HH
 

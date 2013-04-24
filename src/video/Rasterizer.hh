@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RASTERIZER_HH
 #define RASTERIZER_HH
 

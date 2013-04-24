@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXREALTIME_HH
 #define MSXREALTIME_HH
 

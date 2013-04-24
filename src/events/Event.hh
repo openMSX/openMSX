@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EVENT_HH
 #define EVENT_HH
 

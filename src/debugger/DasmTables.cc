@@ -1,7 +1,4 @@
-// $Id$
-
 #include "DasmTables.hh"
-
 
 namespace openmsx {
 

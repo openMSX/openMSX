@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef KEYS_HH
 #define KEYS_HH
 
@@ -12,7 +10,6 @@
 #include <string>
 
 namespace openmsx {
-
 namespace Keys {
 
 /**
@@ -323,7 +320,6 @@ const std::string getName(KeyCode keyCode);
 KeyCode combine(KeyCode key, KeyCode modifier);
 
 } // namespace Keys
-
 } // namespace openmsx
 
 #endif

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EMUTIME_HH
 #define EMUTIME_HH
 

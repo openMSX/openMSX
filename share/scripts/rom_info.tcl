@@ -79,26 +79,25 @@ proc getlist_rom_info {{romdevice ""}} {
 }
 
 proc rom_info {} {
+	set rominfo [rom_info::getlist_rom_info]
 
-		set rominfo [rom_info::getlist_rom_info]
-		
-		if {$rominfo eq ""} {return "No ROM information available..."}
-		
-		append result "Title:    [dict get $rominfo title]\n" \
-					  "Year:     [dict get $rominfo year]\n" \
-					  "Company:  [dict get $rominfo company]\n" \
-					  "Country:  [dict get $rominfo country]\n" \
-					  "Status:   [dict get $rominfo status]" \
-		
-		set remark [dict get $rominfo remark]
-		
-		if {$remark ne ""} {
-			append result "\nRemark:   $remark"
-		} else {
-			append result "\nRemark:   None"
-		}
-		
-		return $result
+	if {$rominfo eq ""} {return "No ROM information available..."}
+
+	append result "Title:    [dict get $rominfo title]\n" \
+				  "Year:     [dict get $rominfo year]\n" \
+				  "Company:  [dict get $rominfo company]\n" \
+				  "Country:  [dict get $rominfo country]\n" \
+				  "Status:   [dict get $rominfo status]" \
+
+	set remark [dict get $rominfo remark]
+
+	if {$remark ne ""} {
+		append result "\nRemark:   $remark"
+	} else {
+		append result "\nRemark:   None"
+	}
+
+	return $result
 }
 
 namespace export rom_info

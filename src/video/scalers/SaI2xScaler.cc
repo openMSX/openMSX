@@ -1,5 +1,3 @@
-// $Id$
-
 // 2xSaI is Copyright (c) 1999-2001 by Derek Liauw Kie Fa.
 //   http://elektron.its.tudelft.nl/~dalikifa/
 // 2xSaI is free under GPL.

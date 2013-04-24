@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMPLAIN_HH
 #define ROMPLAIN_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AfterCommand.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"

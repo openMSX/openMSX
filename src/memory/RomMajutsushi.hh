@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMMAJUTSUSHI_HH
 #define ROMMAJUTSUSHI_HH
 

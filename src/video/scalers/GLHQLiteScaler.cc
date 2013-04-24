@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLHQLiteScaler.hh"
 #include "GLUtil.hh"
 #include "HQCommon.hh"

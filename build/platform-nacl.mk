@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for Chrome Native Client (NaCl).
 
 # Pick the right compiler.

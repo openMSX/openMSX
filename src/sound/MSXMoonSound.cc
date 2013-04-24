@@ -1,5 +1,3 @@
-// $Id$
-
 // ATM this class does several things:
 // - It connects the YMF278b chip to specific I/O ports in the MSX machine
 // - It glues the YMF262 (FM-part) and YMF278 (Wave-part) classes together in a

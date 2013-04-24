@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GoudaSCSI.hh"
 #include "WD33C93.hh"
 #include "Rom.hh"

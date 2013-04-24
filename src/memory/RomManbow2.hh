@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMMANBOW2_HH
 #define ROMMANBOW2_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXKanji.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
@@ -117,4 +115,3 @@ This really works!
 */
 
 } // namespace openmsx
-

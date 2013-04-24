@@ -1,5 +1,3 @@
-# $Id$
-
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
 from os.path import dirname, isdir, isfile, islink, join as joinpath
 from shutil import copyfile

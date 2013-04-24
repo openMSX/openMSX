@@ -1,5 +1,3 @@
-// $Id$
-
 #if defined __x86_64 && !defined _MSC_VER
 
 // nothing

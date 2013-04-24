@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMultiIODevice.hh"
 #include "StringOp.hh"
 #include <algorithm>

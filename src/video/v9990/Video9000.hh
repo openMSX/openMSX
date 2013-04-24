@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VIDEO9000_HH
 #define VIDEO9000_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CassettePlayerCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

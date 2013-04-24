@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CliComm.hh"
 
 namespace openmsx {

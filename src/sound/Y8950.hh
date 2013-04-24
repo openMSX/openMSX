@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef Y8950_HH
 #define Y8950_HH
 

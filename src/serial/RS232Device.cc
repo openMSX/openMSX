@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RS232Device.hh"
 
 namespace openmsx {

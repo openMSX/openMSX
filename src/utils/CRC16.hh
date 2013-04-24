@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CRC16_HH
 #define CRC16_HH
 

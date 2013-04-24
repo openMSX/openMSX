@@ -1,5 +1,3 @@
-// $Id$
-
 #include "KeyCodeSetting.hh"
 #include "CommandException.hh"
 

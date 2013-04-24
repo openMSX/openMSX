@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -44,4 +42,3 @@ HDR_ONLY:= \
 	DiskExceptions \
 
 include build/node-end.mk
-

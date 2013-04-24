@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MEMORYOPS_HH
 #define MEMORYOPS_HH
 

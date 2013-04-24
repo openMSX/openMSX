@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXYamahaSFG.hh"
 #include "YM2151.hh"
 #include "YM2148.hh"

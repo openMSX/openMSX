@@ -1,4 +1,3 @@
-// $Id$
 #ifndef SCSIDEVICE_HH
 #define SCSIDEVICE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskFactory.hh"
 #include "CommandController.hh"
 #include "Reactor.hh"

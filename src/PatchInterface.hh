@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PATCHINTERFACE_HH
 #define PATCHINTERFACE_HH
 

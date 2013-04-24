@@ -1,12 +1,9 @@
-// $Id$
-
 #ifndef TIMER_HH
 #define TIMER_HH
 
 #include <cstdint>
 
 namespace openmsx {
-
 namespace Timer {
 
 	/** Get current (real) time in us. Absolute value has no meaning.
@@ -19,7 +16,6 @@ namespace Timer {
 	void sleep(uint64_t us);
 
 } // namespace Timer
-
 } // namespace openmsx
 
 #endif

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LocalFileReference.hh"
 #include "File.hh"
 #include "FileOperations.hh"

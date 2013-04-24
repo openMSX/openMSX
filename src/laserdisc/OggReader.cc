@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OggReader.hh"
 #include "Filename.hh"
 #include "File.hh"
@@ -185,7 +183,7 @@ OggReader::OggReader(const Filename& filename, CliComm& cli_)
 
 		// FIXME: Support YUV444 before release
 		// It would be much better to use YUV444, however the existing
-		// captures are in YUV420 format. yuv2rgb will have to be 
+		// captures are in YUV420 format. yuv2rgb will have to be
 		// updated too.
 		if (ti.pixel_fmt != TH_PF_420) {
 			throw MSXException("Video must be YUV420");
@@ -481,7 +479,7 @@ void OggReader::readTheora(ogg_packet* packet)
 
 	size_t frameno = frameNo(packet);
 
-	// If we're seeking, we're only interested in packets with 
+	// If we're seeking, we're only interested in packets with
 	// frame numbers
 	if ((state != PLAYING) && (frameno == size_t(-1))) {
 		return;
@@ -598,8 +596,8 @@ void OggReader::readTheora(ogg_packet* packet)
 	frame->no = frameno;
 	frame->length = 1;
 
-	// We may read some frames before we encounter one with a proper 
-	// frame number. When we do, go back and populate the frame 
+	// We may read some frames before we encounter one with a proper
+	// frame number. When we do, go back and populate the frame
 	// numbers correctly
 	if (!frameList.empty() && (frameno != size_t(-1)) &&
 	    (frameList[0]->no == size_t(-1))) {
@@ -617,7 +615,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 {
 	Frame* frame;
 	while (true) {
-		// If there are no frames or the frames we have read 
+		// If there are no frames or the frames we have read
 		// does not include a proper frame number, just read
 		// more data
 		if (frameList.empty() || (frameList[0]->no == size_t(-1))) {
@@ -628,7 +626,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		}
 
 		// Remove unneeded frames. Note that at 60Hz the odd and
-		// and even frame are displayed during still, so we can 
+		// and even frame are displayed during still, so we can
 		// only throw away the one two frames ago
 		while (frameList.size() >= 3 && frameList[2]->no <= frameno) {
 			recycleFrameList.push_back(std::move(frameList[0]));
@@ -636,7 +634,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		}
 
 		if (!frameList.empty() && frameList[0]->no > frameno) {
-			// we're missing frames!	
+			// we're missing frames!
 			frame = frameList[0].get();
 			cli.printWarning("Cannot find frame " +
 				StringOp::toString(frameno) + " using " +
@@ -664,7 +662,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 			// as the maximum distance between key frames.
 			cli.printWarning("Cannot find frame " +
 				StringOp::toString(frameno));
-			return;	
+			return;
 		}
 
 		// ..add read some new ones
@@ -788,7 +786,7 @@ bool OggReader::nextPage(ogg_page* page)
 		} else {
 			return false;
 		}
-	
+
 		char* buffer = ogg_sync_buffer(&sync, long(chunk));
 		file->read(buffer, chunk);
 		fileOffset += chunk;
@@ -826,7 +824,7 @@ size_t OggReader::bisection(
 		}
 		uint64_t sampleOffset = ratio * (offsetB - offsetA) / SHIFT + offsetA;
 		auto offset = std::min(sampleOffset, frameOffset);
-	
+
 		file->seek(offset);
 		fileOffset = offset;
 		ogg_sync_reset(&sync);

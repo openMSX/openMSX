@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - Implement sprite pixels in Graphic 5.

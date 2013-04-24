@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXTURBORPCM_HH
 #define MSXTURBORPCM_HH
 

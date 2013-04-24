@@ -1,4 +1,3 @@
-# $Id$
 # Prints which 3rd party libraries are desired for the given configuration.
 
 from components import requiredLibrariesFor

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIOUTDEVICE_HH
 #define MIDIOUTDEVICE_HH
 

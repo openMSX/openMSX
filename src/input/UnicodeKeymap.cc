@@ -1,5 +1,3 @@
-// $Id$
-
 #include "UnicodeKeymap.hh"
 #include "MSXException.hh"
 #include "File.hh"

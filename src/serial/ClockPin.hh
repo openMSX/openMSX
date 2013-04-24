@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLOCKPIN_HH
 #define CLOCKPIN_HH
 

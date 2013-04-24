@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef IDECDROM_HH
 #define IDECDROM_HH
 

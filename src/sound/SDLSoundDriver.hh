@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLSOUNDDRIVER_HH
 #define SDLSOUNDDRIVER_HH
 

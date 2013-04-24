@@ -1,5 +1,3 @@
-# $Id$
-#
 # Declares a dependency chain of sequence-<N> on sequence<N-1>, sequence-<N-1>
 # on sequence<N-2> etc, where N is the number of words in ACTION_COUNTER.
 

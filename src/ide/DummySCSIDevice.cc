@@ -1,5 +1,3 @@
-// $Id DummySCSIDevice.cc 4839 2005-11-11 22:00:07Z m9710797 $
-
 #include "DummySCSIDevice.hh"
 #include "serialize.hh"
 

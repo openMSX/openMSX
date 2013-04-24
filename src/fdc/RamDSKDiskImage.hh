@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RAMDSKDISKIMAGE_HH
 #define RAMDSKDISKIMAGE_HH
 

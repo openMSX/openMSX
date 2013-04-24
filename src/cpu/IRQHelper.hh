@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 

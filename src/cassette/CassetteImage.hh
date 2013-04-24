@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CASSETTEIMAGE_HH
 #define CASSETTEIMAGE_HH
 

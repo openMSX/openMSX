@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VERSION_HH
 #define VERSION_HH
 

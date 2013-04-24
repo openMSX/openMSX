@@ -1,5 +1,3 @@
-// $Id$
-
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 

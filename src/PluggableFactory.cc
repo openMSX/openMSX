@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"

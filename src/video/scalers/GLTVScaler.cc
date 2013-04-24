@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLTVScaler.hh"
 #include "RenderSettings.hh"
 #include "memory.hh"

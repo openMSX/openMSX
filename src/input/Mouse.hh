@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MOUSE_HH
 #define MOUSE_HH
 

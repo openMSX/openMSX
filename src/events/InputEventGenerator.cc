@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Command.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
@@ -299,7 +297,7 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 			origEvent);
 		break;
 	}
-}	
+}
 
 void InputEventGenerator::osdControlChangeButton(
 	bool up, unsigned changedButtonMask, const EventPtr& origEvent)

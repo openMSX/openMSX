@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AlarmEvent.hh"
 
 namespace openmsx {

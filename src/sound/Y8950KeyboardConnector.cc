@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Y8950KeyboardConnector.hh"
 #include "Y8950KeyboardDevice.hh"
 #include "DummyY8950KeyboardDevice.hh"

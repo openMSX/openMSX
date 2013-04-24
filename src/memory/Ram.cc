@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Ram.hh"
 #include "DeviceConfig.hh"
 #include "SimpleDebuggable.hh"

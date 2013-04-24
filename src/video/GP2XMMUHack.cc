@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GP2XMMUHack.hh"
 #include <cstdlib>
 #include <fcntl.h>

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifdef _WIN32
 
 #include "sdlwin32.hh"

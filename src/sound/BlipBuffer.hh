@@ -1,5 +1,3 @@
-// $Id$
-
 // Heavily based on:
 //
 // Band-limited sound synthesis and buffering

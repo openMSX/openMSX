@@ -1,5 +1,3 @@
-// $Id$
-
 // countof(<array>) returns the number of elements in a statically
 // allocated array. For example:
 //

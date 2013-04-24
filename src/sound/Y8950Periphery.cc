@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Y8950Periphery.hh"
 #include "Y8950.hh"
 #include "MSXAudio.hh"

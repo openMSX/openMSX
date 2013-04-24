@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DeviceFactory.hh"
 #include "XMLElement.hh"
 #include "DeviceConfig.hh"

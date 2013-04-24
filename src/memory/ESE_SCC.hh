@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ESE_SCC_HH
 #define ESE_SCC_HH
 

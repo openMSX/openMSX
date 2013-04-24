@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLVISIBLESURFACE_HH
 #define SDLVISIBLESURFACE_HH
 

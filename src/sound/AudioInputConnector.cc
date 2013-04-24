@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AudioInputConnector.hh"
 #include "DummyAudioInputDevice.hh"
 #include "AudioInputDevice.hh"

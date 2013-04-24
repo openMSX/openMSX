@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -13,4 +11,3 @@ SRC_HDR:= \
 	WavImage
 
 include build/node-end.mk
-

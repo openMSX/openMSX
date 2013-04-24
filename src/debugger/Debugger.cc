@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Debugger.hh"
 #include "Debuggable.hh"
 #include "Probe.hh"

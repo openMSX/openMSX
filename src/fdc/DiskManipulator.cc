@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskManipulator.hh"
 #include "DiskContainer.hh"
 #include "MSXtar.hh"

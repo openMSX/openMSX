@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PostProcessor.hh"
 #include "Display.hh"
 #include "OutputSurface.hh"

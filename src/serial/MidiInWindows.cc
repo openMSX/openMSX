@@ -1,5 +1,3 @@
-// $Id$
-
 #if defined(_WIN32)
 #include "MidiInWindows.hh"
 #include "MidiInConnector.hh"

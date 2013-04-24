@@ -1,4 +1,3 @@
-# $Id$
 # Creates the components header file.
 
 from components import iterComponents

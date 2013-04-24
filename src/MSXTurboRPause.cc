@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXTurboRPause.hh"
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"

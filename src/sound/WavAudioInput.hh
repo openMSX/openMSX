@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WAVAUDIOINPUT_HH
 #define WAVAUDIOINPUT_HH
 

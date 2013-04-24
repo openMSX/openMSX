@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for "debug" flavour:
 # Build with all debugging info, no optimisations.
 

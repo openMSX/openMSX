@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EmuTimer.hh"
 #include "serialize.hh"
 #include "memory.hh"

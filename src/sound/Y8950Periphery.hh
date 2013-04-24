@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef Y8950PERIPHERY_HH
 #define Y8950PERIPHERY_HH
 

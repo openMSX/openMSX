@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCHEDULER_HH
 #define SCHEDULER_HH
 

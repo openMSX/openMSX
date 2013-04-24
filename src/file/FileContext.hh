@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILECONTEXT_HH
 #define FILECONTEXT_HH
 

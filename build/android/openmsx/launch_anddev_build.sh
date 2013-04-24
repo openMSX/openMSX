@@ -48,4 +48,3 @@ echo "LAB:INFO launching commandergenius build file"
 cd "${sdl_android_port_path}"
 ./build.sh $*
 exit $?
-

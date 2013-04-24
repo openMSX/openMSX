@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CPUCLOCK_HH
 #define CPUCLOCK_HH
 

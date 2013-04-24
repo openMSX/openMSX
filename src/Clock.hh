@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLOCK_HH
 #define CLOCK_HH
 

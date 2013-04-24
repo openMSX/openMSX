@@ -1,5 +1,3 @@
-// $Id$
-
 uniform sampler2D edgeTex;
 uniform sampler2D colorTex;
 uniform sampler2D offsetTex;

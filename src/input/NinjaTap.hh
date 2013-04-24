@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NINJATAP_HH
 #define NINJATAP_HH
 

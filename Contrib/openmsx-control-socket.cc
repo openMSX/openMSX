@@ -1,6 +1,6 @@
 /**
  * Example implementation for bidirectional communication with openMSX.
- * 
+ *
  *  requires: libxml2
  *  compile:
  *    *nix:  g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control-socket.cc
@@ -112,7 +112,7 @@ private:
 
 	// commands being executed
 	deque<string> commandStack;
-	
+
 	// XML parsing
 	enum State {
 		START,
@@ -125,13 +125,13 @@ private:
 	string content;
 	xmlSAXHandler sax_handler;
 	xmlParserCtxt* parser_context;
-	
+
 	enum ReplyStatus {
 		REPLY_UNKNOWN,
 		REPLY_OK,
 		REPLY_NOK
 	} replyStatus;
-	
+
 	enum LogLevel {
 		LOG_UNKNOWN,
 		LOG_INFO,
@@ -365,7 +365,7 @@ void OpenMSXComm::start(int sd_)
 			}
 		}
 	}
-	
+
 	// cleanup
 	xmlFreeParserCtxt(parser_context);
 }
@@ -425,7 +425,7 @@ static bool checkSocket(const string& socket)
 #ifndef _WIN32
 	// only do permission and owner checks on *nix
 	if ((st.st_mode & 0777) != 0600) {
-		// check will be different on win32 (!= 777) thus actually useless 
+		// check will be different on win32 (!= 777) thus actually useless
 		// wrong permissions
 		return false;
 	}

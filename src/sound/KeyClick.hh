@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef KEYCLICK_HH
 #define KEYCLICK_HH
 

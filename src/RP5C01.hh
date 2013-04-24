@@ -1,10 +1,7 @@
-// $Id$
-//
 // This class implements the RP5C01 chip (RTC)
 //
 // * For techncal details on RP5C01 see
 //     http://w3.qahwah.net/joost/openMSX/RP5C01.pdf
-//
 
 #ifndef RP5C01_HH
 #define RP5C01_HH

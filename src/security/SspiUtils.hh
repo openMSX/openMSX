@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SSPI_UTILS_HH
 #define SSPI_UTILS_HH
 

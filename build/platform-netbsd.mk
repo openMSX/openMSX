@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for NetBSD.
 
 # Does platform support symlinks?

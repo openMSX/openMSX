@@ -1,5 +1,3 @@
-# $Id$
-
 # evaluate in internal openmsx namespace
 namespace eval openmsx {
 

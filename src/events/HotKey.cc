@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HotKey.hh"
 #include "InputEventFactory.hh"
 #include "GlobalCommandController.hh"

@@ -25,7 +25,7 @@ FBPostProcessor_drawNoiseLine_4_SSE2 PROC C uses ebx _in:NEAR PTR, _out:NEAR PTR
     mov         edx,noise
     lea         edx,[edx+eax]
     neg         eax
-    
+
     pcmpeqb     xmm7,xmm7
     psllw       xmm7,0Fh
     packsswb    xmm7,xmm7
@@ -53,7 +53,7 @@ mainloop:
     movdqa      xmmword ptr [ecx+eax+30h],xmm3
     add         eax,40h
     jne         mainloop
-    ret    
+    ret
 FBPostProcessor_drawNoiseLine_4_SSE2 ENDP
 
 end

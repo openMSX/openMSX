@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKEXCEPTIONS_HH
 #define DISKEXCEPTIONS_HH
 

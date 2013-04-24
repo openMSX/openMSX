@@ -1,5 +1,3 @@
-# $Id$
-#
 # This flavour enables some extra optimizations, though these options may
 # not work everywhere or may not be benefical in all cases.
 

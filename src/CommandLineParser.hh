@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 

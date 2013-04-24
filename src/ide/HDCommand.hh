@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HDCOMMAND_HH
 #define HDCOMMAND_HH
 

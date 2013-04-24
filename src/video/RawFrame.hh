@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RAWFRAME_HH
 #define RAWFRAME_HH
 

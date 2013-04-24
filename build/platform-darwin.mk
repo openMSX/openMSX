@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for creating a Darwin app folder.
 # In practice, this is used for Mac OS X; I'm not sure all of it applies to
 # other Darwin-based systems.

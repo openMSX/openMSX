@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLSnow.hh"
 #include "OutputSurface.hh"
 #include "Display.hh"

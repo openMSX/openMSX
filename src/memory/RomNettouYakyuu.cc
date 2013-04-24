@@ -1,5 +1,3 @@
-// $Id$
-
 // Based on information from hap/enen, published here:
 // http://www.msx.org/forumtopicl8552.html
 // and his implementation in blueMSX

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LAYER_HH
 #define LAYER_HH
 

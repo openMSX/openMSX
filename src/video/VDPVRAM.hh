@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VDPVRAM_HH
 #define VDPVRAM_HH
 

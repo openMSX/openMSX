@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SRAM.hh"
 #include "DeviceConfig.hh"
 #include "File.hh"

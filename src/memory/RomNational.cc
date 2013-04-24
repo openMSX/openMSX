@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomNational.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"

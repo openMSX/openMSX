@@ -1,5 +1,3 @@
-# $Id$
-#
 # Some notes about static linking:
 # There are two ways of linking to static library: using the -l command line
 # option or specifying the full path to the library file as one of the inputs.
@@ -424,7 +422,7 @@ class TCL(Library):
 		def iterLocations():
 			if platform == 'android':
 				# Under Android, the tcl set-up apparently differs from
-				# other cross-platform setups. the search algorithm to find the 
+				# other cross-platform setups. the search algorithm to find the
 				# directory that will contain the tclConfig.sh script and the shared libs
 				# is not applicable to Android. Instead, immediately return the correct
 				# subdirectories to the routine that invokes iterLocations()

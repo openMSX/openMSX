@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GP2XMMUHACK_HH
 #define GP2XMMUHACK_HH
 

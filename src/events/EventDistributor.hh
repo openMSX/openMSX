@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EVENTDISTRIBUTOR_HH
 #define EVENTDISTRIBUTOR_HH
 

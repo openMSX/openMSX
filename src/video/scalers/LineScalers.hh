@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LINESCALERS_HH
 #define LINESCALERS_HH
 

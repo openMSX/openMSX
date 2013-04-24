@@ -1,4 +1,3 @@
-# $Id$
 # Detect the native CPU and OS.
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.

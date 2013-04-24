@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SETTINGIMPL_HH
 #define SETTINGIMPL_HH
 

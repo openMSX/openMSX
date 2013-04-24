@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CRC16.hh"
 
 namespace openmsx {

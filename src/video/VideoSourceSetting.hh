@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VIDEOSOURCESETTING_HH
 #define VIDEOSOURCESETTING_HH
 

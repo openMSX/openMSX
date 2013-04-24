@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Rom.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXRomCLI.hh"
 #include "CommandLineParser.hh"
 #include "HardwareConfig.hh"

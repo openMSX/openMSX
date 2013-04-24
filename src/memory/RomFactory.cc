@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomFactory.hh"
 #include "RomTypes.hh"
 #include "RomInfo.hh"

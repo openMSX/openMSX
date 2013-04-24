@@ -1,5 +1,3 @@
-// $Id$
-
 /*
   * Based on:
   *    emu8950.c -- Y8950 emulator written by Mitsutaka Okazaki 2001

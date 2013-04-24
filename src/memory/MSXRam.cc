@@ -1,13 +1,10 @@
-// $Id$
-
 #include "MSXRam.hh"
 #include "CheckedRam.hh"
+#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 #include "XMLElement.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <cassert>
-
-#include "Ram.hh" // because we serialize Ram instead of CheckedRam
 
 namespace openmsx {
 

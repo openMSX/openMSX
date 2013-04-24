@@ -1,5 +1,3 @@
-// $Id$
-
 #include "TclCallbackMessages.hh"
 #include "GlobalCliComm.hh"
 #include "TclCallback.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef IPSPATCH_HH
 #define IPSPATCH_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LDRENDERER_HH
 #define LDRENDERER_HH
 

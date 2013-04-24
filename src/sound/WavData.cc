@@ -1,5 +1,3 @@
-// $Id$
-
 #include "WavData.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"

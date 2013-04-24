@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SPRITECHECKER_HH
 #define SPRITECHECKER_HH
 

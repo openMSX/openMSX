@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MULTIPLY32_HH
 #define MULTIPLY32_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-
 class CPU(object):
 	'''Abstract base class for CPU families.
 	'''

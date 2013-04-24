@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EmptyPatch.hh"
 #include <cstring>
 #include <cassert>
@@ -46,4 +44,3 @@ std::vector<Filename> EmptyPatch::getFilenames() const
 }
 
 } // namespace openmsx
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXFmPac.hh"
 #include "RomBlockDebuggable.hh"
 #include "SRAM.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXRTC.hh"
 #include "SRAM.hh"
 #include "RP5C01.hh"
@@ -67,4 +65,3 @@ INSTANTIATE_SERIALIZE_METHODS(MSXRTC);
 REGISTER_MSXDEVICE(MSXRTC, "RTC");
 
 } // namespace openmsx
-

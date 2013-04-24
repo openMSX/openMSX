@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Semaphore.hh"
 #include "openmsx.hh"
 

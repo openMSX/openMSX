@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 

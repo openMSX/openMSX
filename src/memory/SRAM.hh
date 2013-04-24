@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SRAM_HH
 #define SRAM_HH
 

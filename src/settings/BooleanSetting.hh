@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef BOOLEANSETTING_HH
 #define BOOLEANSETTING_HH
 

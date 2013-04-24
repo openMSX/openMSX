@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HexDump.hh"
 
 namespace HexDump {

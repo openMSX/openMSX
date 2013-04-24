@@ -22,7 +22,7 @@ function explain_usage()
   echo "> cd /opt"
   echo "> git clone https://github.com/pelya/commandergenius.git"
   echo ""
-  echo "Once that is done, you can launch this script." 
+  echo "Once that is done, you can launch this script."
   echo "You must specify the path to the \"commandergenius\" SDL Android port"
   echo "on the command line or in environment parameter SDL_ANDROID_PORT_PATH."
   echo ""
@@ -164,5 +164,3 @@ echo ""
 echo "Note: the first time that you run the launch_anddev_build.sh script, you may get some error"
 echo "      message. It is due to a subtle bug in the SDL android port."
 echo "      Simply re-run the build.sh script a second time and it will work fine."
-
-

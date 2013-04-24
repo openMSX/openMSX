@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIOUTCOREMIDI_HH
 #define MIDIOUTCOREMIDI_HH
 

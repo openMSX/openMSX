@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/wd33c93.c,v
 ** Revision: 1.12
@@ -9,7 +8,6 @@
 ** More info: http://www.bluemsx.com
 **
 ** Copyright (C) 2003-2006 Daniel Vik, Tomas Karlsson, white cat
-**
 */
 
 #include "WD33C93.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OutputSurface.hh"
 #include "unreachable.hh"
 #include "build-info.hh"

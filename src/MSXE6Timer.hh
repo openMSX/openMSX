@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * This class implements a simple timer, used in a TurboR.
  * This is a 16-bit (up) counter running at 255681Hz (3.58MHz / 14).

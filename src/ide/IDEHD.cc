@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IDEHD.hh"
 #include "MSXException.hh"
 #include "DeviceConfig.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLUtil.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -502,4 +500,3 @@ void ShaderProgram::validate()
 }
 
 } // namespace openmsx
-

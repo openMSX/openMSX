@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMIRRORDEVICE_HH
 #define MSXMIRRORDEVICE_HH
 

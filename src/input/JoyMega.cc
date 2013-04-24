@@ -1,5 +1,3 @@
-// $Id$
-
 #include "JoyMega.hh"
 #include "PluggingController.hh"
 #include "PlugException.hh"

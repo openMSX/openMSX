@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SETTINGPOLICY_HH
 #define SETTINGPOLICY_HH
 
@@ -49,4 +47,3 @@ void SettingPolicy<T>::additionalInfo(TclObject& /*result*/) const
 } // namespace openmsx
 
 #endif
-

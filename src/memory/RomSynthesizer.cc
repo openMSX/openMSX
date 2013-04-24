@@ -1,5 +1,3 @@
-// $Id$
-
 /* On Sat, 3 Apr 2004, Manuel Pazos wrote:
  *
  * As you know, the cartridge has an 8bit D/A, accessed through

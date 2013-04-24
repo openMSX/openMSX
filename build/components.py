@@ -1,4 +1,3 @@
-# $Id$
 # Defines the building blocks of openMSX and their dependencies.
 
 class Component(object):

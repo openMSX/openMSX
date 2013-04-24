@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SERIALIZEBUFFER_HH
 #define SERIALIZEBUFFER_HH
 

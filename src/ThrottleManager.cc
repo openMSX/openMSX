@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ThrottleManager.hh"
 #include "BooleanSetting.hh"
 #include "memory.hh"

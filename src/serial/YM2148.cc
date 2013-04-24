@@ -1,5 +1,3 @@
-// $Id$
-
 // TODO: actually port it, see all the TODO's! :)
 
 #include "YM2148.hh"
@@ -197,4 +195,3 @@ void YM2148::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(YM2148);
 
 } // namespace openmsx
-

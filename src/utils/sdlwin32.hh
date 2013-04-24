@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLWIN32_HH
 #define SDLWIN32_HH
 

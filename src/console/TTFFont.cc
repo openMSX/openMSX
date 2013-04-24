@@ -1,5 +1,3 @@
-// $Id$
-
 #include "TTFFont.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"

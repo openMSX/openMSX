@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Event.hh"
 #include "TclObject.hh"
 

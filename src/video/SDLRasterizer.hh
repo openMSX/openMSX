@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLRASTERIZER_HH
 #define SDLRASTERIZER_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "StateChangeDistributor.hh"
 #include "StateChangeListener.hh"
 #include "StateChange.hh"

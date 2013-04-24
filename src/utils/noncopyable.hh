@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NONCOPYABLE_HH
 #define NONCOPYABLE_HH
 

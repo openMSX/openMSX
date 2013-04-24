@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCALE3XSCALER_HH
 #define SCALE3XSCALER_HH
 

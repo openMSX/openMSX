@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCHEDULABLE_HH
 #define SCHEDULABLE_HH
 

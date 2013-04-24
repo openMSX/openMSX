@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLSNOW_HH
 #define SDLSNOW_HH
 

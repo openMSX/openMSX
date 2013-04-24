@@ -1,5 +1,3 @@
-// $Id$
-
 #include "WavImage.hh"
 #include "LocalFileReference.hh"
 #include "File.hh"

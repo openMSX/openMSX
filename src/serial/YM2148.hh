@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/Memory/romMapperSfg05.c,v
 ** Revision: 1.12

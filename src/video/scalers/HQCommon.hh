@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HQCOMMON_HH
 #define HQCOMMON_HH
 

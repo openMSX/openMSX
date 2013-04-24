@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"

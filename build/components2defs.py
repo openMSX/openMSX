@@ -1,4 +1,3 @@
-# $Id$
 # Generates the contents of "components_defs.mk".
 
 from components import EmulationCore, iterComponents

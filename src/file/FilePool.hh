@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILEPOOL_HH
 #define FILEPOOL_HH
 

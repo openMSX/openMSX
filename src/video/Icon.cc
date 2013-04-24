@@ -1,4 +1,3 @@
-// $Id$
 /* GIMP RGBA C-Source image dump (openMSX_32.c) */
 // ...but a little bit modified to fit into openMSX nicely :)
 

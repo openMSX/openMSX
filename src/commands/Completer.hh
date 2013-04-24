@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef COMPLETER_HH
 #define COMPLETER_HH
 

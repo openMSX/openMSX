@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RGBTriplet3xScaler.hh"
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"

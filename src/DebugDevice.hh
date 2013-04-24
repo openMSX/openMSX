@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DEBUGDEVICE_HH
 #define DEBUGDEVICE_HH
 

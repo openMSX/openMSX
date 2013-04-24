@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLSnow.hh"
 #include "Display.hh"
 #include "openmsx.hh"

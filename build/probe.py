@@ -1,4 +1,3 @@
-# $Id$
 # Replacement for autoconf.
 # Performs some test compiles, to check for headers and functions.
 # It does not execute anything it builds, making it friendly for cross compiles.

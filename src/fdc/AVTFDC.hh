@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AVTFDC_HH
 #define AVTFDC_HH
 

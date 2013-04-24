@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CompressedFileAdapter.hh"
 #include "FileException.hh"
 #include "StringMap.hh"

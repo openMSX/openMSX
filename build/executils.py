@@ -1,5 +1,3 @@
-# $Id$
-
 from msysutils import msysActive, msysShell
 
 from os import environ

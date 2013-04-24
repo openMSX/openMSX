@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RenShaTurbo.hh"
 #include "XMLElement.hh"
 #include "Autofire.hh"

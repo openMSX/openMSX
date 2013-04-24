@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - How is 64K VRAM handled?
@@ -1347,7 +1345,7 @@ void LmmcCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 		//  in the same access slot. Instead we should
 		//    - wait for a byte
 		//    - in next access slot read
-		//    - in next access slot write 
+		//    - in next access slot write
 		if (likely(doPset)) {
 			unsigned addr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
 			engine.tmpDst = vram.cmdWriteWindow.readNP(addr);

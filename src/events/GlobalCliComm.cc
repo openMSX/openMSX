@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GlobalCliComm.hh"
 #include "CliListener.hh"
 #include "Thread.hh"

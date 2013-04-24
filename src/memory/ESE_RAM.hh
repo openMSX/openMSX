@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ESE_RAM_HH
 #define ESE_RAM_HH
 

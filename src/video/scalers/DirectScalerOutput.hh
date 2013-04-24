@@ -1,5 +1,3 @@
-// $Id:$
-
 #ifndef DIRECTSCALEROUTPUT_HH
 #define DIRECTSCALEROUTPUT_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomPlayBall.hh"
 #include "SamplePlayer.hh"
 #include "CacheLine.hh"

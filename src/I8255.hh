@@ -1,5 +1,3 @@
-// $Id$
-
 // This class implements the Intel 8255 chip
 //
 // * Only the 8255 is emulated, no surrounding hardware.

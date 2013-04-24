@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RamDSKDiskImage.hh"
 #include "DiskImageUtils.hh"
 #include <cstring>

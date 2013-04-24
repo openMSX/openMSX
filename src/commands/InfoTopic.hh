@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INFOTOPIC_HH
 #define INFOTOPIC_HH
 

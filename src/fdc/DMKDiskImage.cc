@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DMKDiskImage.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"

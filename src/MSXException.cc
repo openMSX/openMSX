@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXException.hh"
 
 namespace openmsx {

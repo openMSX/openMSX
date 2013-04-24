@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLUTIL_HH
 #define GLUTIL_HH
 

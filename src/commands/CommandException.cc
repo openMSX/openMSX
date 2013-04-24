@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CommandException.hh"
 
 namespace openmsx {
@@ -15,4 +13,3 @@ SyntaxError::SyntaxError()
 }
 
 } // namespace openmsx
-

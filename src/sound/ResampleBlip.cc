@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ResampleBlip.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"

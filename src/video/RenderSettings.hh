@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RENDERSETTINGS_HH
 #define RENDERSETTINGS_HH
 

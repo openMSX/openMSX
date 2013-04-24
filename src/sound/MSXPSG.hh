@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXPSG_HH
 #define MSXPSG_HH
 

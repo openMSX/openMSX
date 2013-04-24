@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -11,4 +9,3 @@ SRC_HDR:= \
 	TTFFont
 
 include build/node-end.mk
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMZEMINA126IN1_HH
 #define ROMZEMINA126IN1_HH
 

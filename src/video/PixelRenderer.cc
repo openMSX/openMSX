@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - Implement blinking (of page mask) in bitmap modes.

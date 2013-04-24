@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VideoLayer.hh"
 #include "RenderSettings.hh"
 #include "Display.hh"

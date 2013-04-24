@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CPU.hh"
 #include "serialize.hh"
 
@@ -96,4 +94,3 @@ void CPU::CPURegs::serialize(Archive& ar, unsigned version)
 INSTANTIATE_SERIALIZE_METHODS(CPU::CPURegs);
 
 } // namespace openmsx
-

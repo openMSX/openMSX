@@ -1,5 +1,3 @@
-// $Id$
-
 #include "NowindRomDisk.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"

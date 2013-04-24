@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LIKELY_HH
 #define LIKELY_HH
 

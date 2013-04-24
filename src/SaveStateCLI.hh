@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SAVESTATECLI_HH
 #define SAVESTATECLI_HH
 

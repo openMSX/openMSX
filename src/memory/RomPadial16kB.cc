@@ -1,5 +1,3 @@
-// $Id$
-
 // Padial 16kB
 //
 // The address to change banks:

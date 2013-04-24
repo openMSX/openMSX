@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PANASONICMEMORY_HH
 #define PANASONICMEMORY_HH
 

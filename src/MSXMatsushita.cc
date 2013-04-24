@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMatsushita.hh"
 #include "MSXCPU.hh"
 #include "FirmwareSwitch.hh"

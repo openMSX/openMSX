@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLVIDEOSYSTEM_HH
 #define SDLVIDEOSYSTEM_HH
 

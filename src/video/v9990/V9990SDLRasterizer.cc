@@ -1,5 +1,3 @@
-// $Id$
-
 #include "V9990SDLRasterizer.hh"
 #include "V9990.hh"
 #include "RawFrame.hh"

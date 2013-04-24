@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef POSTPROCESSOR_HH
 #define POSTPROCESSOR_HH
 

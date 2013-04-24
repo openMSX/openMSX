@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
 #include "MSXMotherBoard.hh"

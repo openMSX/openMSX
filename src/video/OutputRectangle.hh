@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OUTPUTRECTANGLE_HH
 #define OUTPUTRECTANGLE_HH
 

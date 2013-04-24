@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMINFO_HH
 #define ROMINFO_HH
 

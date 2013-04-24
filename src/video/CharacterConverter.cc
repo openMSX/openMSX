@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - Clean up renderGraphics2, it is currently very hard to understand
@@ -481,4 +479,3 @@ template class CharacterConverter<GLuint>;
 #endif // COMPONENT_GL
 
 } // namespace openmsx
-

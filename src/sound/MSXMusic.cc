@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMusic.hh"
 #include "YM2413.hh"
 #include "Rom.hh"

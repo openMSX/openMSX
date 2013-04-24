@@ -1,5 +1,3 @@
-// $Id$
-
 #include "WD2793.hh"
 #include "DiskDrive.hh"
 #include "CliComm.hh"
@@ -1069,4 +1067,3 @@ void WD2793::serialize(Archive& ar, unsigned version)
 INSTANTIATE_SERIALIZE_METHODS(WD2793);
 
 } // namespace openmsx
-

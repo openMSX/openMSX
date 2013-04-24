@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for FreeBSD.
 
 # Does platform support symlinks?

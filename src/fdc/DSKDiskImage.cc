@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DSKDiskImage.hh"
 #include "File.hh"
 

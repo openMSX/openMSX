@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HDImageCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

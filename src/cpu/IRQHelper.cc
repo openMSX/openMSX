@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"

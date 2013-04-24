@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LaserdiscPlayerCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"

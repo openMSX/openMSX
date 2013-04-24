@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMMSXTRA_HH
 #define ROMMSXTRA_HH
 

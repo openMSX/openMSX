@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INTEGERSETTING_HH
 #define INTEGERSETTING_HH
 
@@ -30,4 +28,3 @@ public:
 } // namespace openmsx
 
 #endif
-

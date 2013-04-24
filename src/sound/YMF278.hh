@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef YMF278_HH
 #define YMF278_HH
 

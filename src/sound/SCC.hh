@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCC_HH
 #define SCC_HH
 

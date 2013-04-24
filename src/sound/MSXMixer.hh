@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMIXER_HH
 #define MSXMIXER_HH
 

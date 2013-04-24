@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef R800_HH
 #define R800_HH
 

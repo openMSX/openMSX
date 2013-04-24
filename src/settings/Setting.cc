@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Setting.hh"
 #include "Observer.hh"
 #include "CommandController.hh"

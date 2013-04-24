@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RealTime.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"

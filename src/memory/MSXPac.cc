@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXPac.hh"
 #include "SRAM.hh"
 #include "CacheLine.hh"

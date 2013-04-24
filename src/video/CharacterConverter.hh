@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CHARACTERCONVERTER_HH
 #define CHARACTERCONVERTER_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMRTYPE_HH
 #define ROMRTYPE_HH
 

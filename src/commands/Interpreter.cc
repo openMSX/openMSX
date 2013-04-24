@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Interpreter.hh"
 #include "EventDistributor.hh"
 #include "Command.hh"

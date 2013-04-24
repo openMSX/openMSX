@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef JOYTAP_HH
 #define JOYTAP_HH
 

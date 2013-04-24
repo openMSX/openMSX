@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LaserdiscPlayer.hh"
 #include "BooleanSetting.hh"
 #include "RecordedCommand.hh"
@@ -186,7 +184,7 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 // The protocol used to communicate over the cable for commands to the
 // laserdisc player is the NEC infrared protocol with minor deviations:
 // 1) The leader pulse and space is a little shorter.
-// 2) The remote does not send NEC repeats; full NEC codes are repeated 
+// 2) The remote does not send NEC repeats; full NEC codes are repeated
 //    after 20ms. The main unit does not understand NEC repeats.
 // 3) No carrier modulation is done over the ext protocol.
 //
@@ -382,7 +380,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 			break;
 		}
 
-		// During playing, playing will be acked if not repeated 
+		// During playing, playing will be acked if not repeated
 		// within less than 115ms
 	} else {
 		// FIXME: while seeking, only a small subset of buttons work
@@ -512,7 +510,7 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 		}
 
 		if (nonseekack) {
-			// All ACKs for operations which do not 
+			// All ACKs for operations which do not
 			// require seeking
 			setAck(time, 46);
 		}
@@ -630,7 +628,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 		PRT_DEBUG("LaserdiscPlayer: wait frame " << std::dec <<
 						waitFrame << " reached");
 
-		// Leave ACK raised until the next command 
+		// Leave ACK raised until the next command
 		ack = true;
 		waitFrame = 0;
 
@@ -1010,8 +1008,8 @@ void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 short LaserdiscPlayer::readSample(EmuTime::param time)
 {
 	// Here we should return the value of the sample on the
-	// right audio channel, ignoring muting (this is done in the MSX) 
-	// but honouring the stereo mode as this is done in the 
+	// right audio channel, ignoring muting (this is done in the MSX)
+	// but honouring the stereo mode as this is done in the
 	// Laserdisc player
 	if (playerState == PLAYER_PLAYING && !seeking) {
 		auto sample = getCurrentSample(time);

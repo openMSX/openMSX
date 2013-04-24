@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXWatchIODevice.hh"
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FBPOSTPROCESSOR_HH
 #define FBPOSTPROCESSOR_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DUMMYRS232DEVICE_HH
 #define DUMMYRS232DEVICE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VRAMOBSERVER_HH
 #define VRAMOBSERVER_HH
 

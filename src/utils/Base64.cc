@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Base64.hh"
 #include "xrange.hh"
 #include <cassert>

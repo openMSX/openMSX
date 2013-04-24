@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDCONSOLERENDERER_HH
 #define OSDCONSOLERENDERER_HH
 

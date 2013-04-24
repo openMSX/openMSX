@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RP5C01.hh"
 #include "EnumSetting.hh"
 #include "SRAM.hh"

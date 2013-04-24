@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SEMAPHORE_HH
 #define SEMAPHORE_HH
 

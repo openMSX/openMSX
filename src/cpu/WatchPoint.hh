@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WATCHPOINT_HH
 #define WATCHPOINT_HH
 

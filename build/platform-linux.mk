@@ -1,5 +1,3 @@
-# $Id$
-#
 # Configuration for Linux machines.
 
 # Does platform support symlinks?

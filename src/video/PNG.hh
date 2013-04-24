@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PNG_HH
 #define PNG_HH
 

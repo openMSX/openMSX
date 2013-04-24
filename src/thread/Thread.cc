@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Thread.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"

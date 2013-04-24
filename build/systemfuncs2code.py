@@ -1,5 +1,3 @@
-# $Id$
-
 from systemfuncs import systemFunctions
 from outpututils import rewriteIfChanged
 

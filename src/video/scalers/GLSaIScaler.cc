@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLSaIScaler.hh"
 #include "memory.hh"
 

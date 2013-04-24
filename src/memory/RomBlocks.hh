@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMBLOCKS_HH
 #define ROMBLOCKS_HH
 

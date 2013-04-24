@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Printer.hh"
 #include "PNG.hh"
 #include "FileOperations.hh"

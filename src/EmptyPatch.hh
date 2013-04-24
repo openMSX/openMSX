@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EMPTYPATCH_HH
 #define EMPTYPATCH_HH
 

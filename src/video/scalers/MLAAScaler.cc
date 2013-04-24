@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MLAAScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"

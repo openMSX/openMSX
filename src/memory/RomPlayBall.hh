@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMPLAYBALL_HH
 #define ROMPLAYBALL_HH
 

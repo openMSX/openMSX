@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FRAMESOURCE_HH
 #define FRAMESOURCE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Date.hh"
 #include <sstream>
 #include <iomanip>

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "YM2413Okazaki.hh"
 #include "YM2413Burczynski.hh"
 #include "WavWriter.hh"

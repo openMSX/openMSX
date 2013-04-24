@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXYAMAHASFG_HH
 #define MSXYAMAHASFG_HH
 

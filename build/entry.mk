@@ -1,5 +1,3 @@
-# $Id$
-#
 # Entry point of build system.
 #
 # Do a sanity check on the given action(s) and processes them sequentially.

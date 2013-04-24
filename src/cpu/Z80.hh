@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef Z80_HH
 #define Z80_HH
 

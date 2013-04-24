@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AMDFLASH_HH
 #define AMDFLASH_HH
 
@@ -93,4 +91,3 @@ private:
 } // namespace openmsx
 
 #endif
-

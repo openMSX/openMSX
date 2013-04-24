@@ -1,5 +1,3 @@
-// $Id$
-
 uniform vec3 texSize; // xy = texSize1,  xz = texSize2
 
 varying vec4 intCoord;

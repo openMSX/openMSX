@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * This class implements the
  *   backup RAM

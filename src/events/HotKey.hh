@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 

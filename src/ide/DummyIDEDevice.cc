@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DummyIDEDevice.hh"
 #include "serialize.hh"
 

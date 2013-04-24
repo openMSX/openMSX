@@ -1,6 +1,6 @@
 /**
  * Example implementation for bidirectional communication with openMSX.
- * 
+ *
  *   requires: libxml2
  *   compile: g++ `xml2-config --cflags` `xml2-config --libs` openmsx-control.cc
  */
@@ -51,10 +51,10 @@ private:
 	void doUpdate();
 
 	void deprecated();
-	
+
 	// commands being executed
 	list<string> commandStack;
-	
+
 	// XML parsing
 	enum State {
 		START,
@@ -71,13 +71,13 @@ private:
 	string content;
 	xmlSAXHandler sax_handler;
 	xmlParserCtxt* parser_context;
-	
+
 	enum ReplyStatus {
 		REPLY_UNKNOWN,
 		REPLY_OK,
 		REPLY_NOK
 	} replyStatus;
-	
+
 	enum LogLevel {
 		LOG_UNKNOWN,
 		LOG_INFO,
@@ -117,17 +117,17 @@ void OpenMSXComm::openmsx_cmd_nok(const string& msg)
 
 void OpenMSXComm::openmsx_cmd_info(const string& msg)
 {
-	cout << "INFO: " << msg << endl; 
+	cout << "INFO: " << msg << endl;
 }
 
 void OpenMSXComm::openmsx_cmd_warning(const string& msg)
 {
-	cout << "WARNING: " << msg << endl; 
+	cout << "WARNING: " << msg << endl;
 }
 
 void OpenMSXComm::openmsx_cmd_update(const string& name, const string& value)
 {
-	cout << "UPDATE: " << name << " " << value << endl; 
+	cout << "UPDATE: " << name << " " << value << endl;
 }
 
 void OpenMSXComm::deprecated()
@@ -204,7 +204,7 @@ void OpenMSXComm::parseReply(const char** attrs)
 					replyStatus = REPLY_OK;
 				} else if (strcmp(attrs[1], "nok") == 0) {
 					replyStatus = REPLY_NOK;
-				} 
+				}
 			}
 		}
 	}
@@ -422,7 +422,7 @@ void OpenMSXComm::start()
 			}
 		}
 	}
-	
+
 	// cleanup
 	xmlFreeParserCtxt(parser_context);
 }
@@ -435,4 +435,3 @@ int main()
 	comm.start();
 	return 0;
 }
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDGUILAYER_HH
 #define OSDGUILAYER_HH
 

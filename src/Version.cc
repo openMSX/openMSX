@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Version.hh"
 
 namespace openmsx {

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 

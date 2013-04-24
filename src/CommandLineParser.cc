@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CommandLineParser.hh"
 #include "CLIOption.hh"
 #include "GlobalCommandController.hh"

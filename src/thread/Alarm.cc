@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Alarm.hh"
 #include "Timer.hh"
 #include "Semaphore.hh"

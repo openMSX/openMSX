@@ -19,4 +19,3 @@ $(abspath $(LOCAL_PATH)/../../obj/local/armeabi-v7a/lib$(LOCAL_MODULE).so): $(LO
 .PHONY: OVERRIDE_CUSTOM_LIB
 OVERRIDE_CUSTOM_LIB:
 endif
-

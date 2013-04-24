@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DEBUGCONDITION_HH
 #define DEBUGCONDITION_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-#
 # This flavour enables link-time optimization (LTO).
 # This requires GCC 4.5 or higher; it's known to work on GCC 4.6.3.
 

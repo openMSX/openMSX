@@ -1,5 +1,3 @@
-// $Id$
-
 #include "V9990DummyRenderer.hh"
 
 namespace openmsx {

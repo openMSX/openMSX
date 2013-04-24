@@ -1,5 +1,3 @@
-// $Id$
-
 #include "InputEvents.hh"
 #include "Keys.hh"
 #include "TclObject.hh"

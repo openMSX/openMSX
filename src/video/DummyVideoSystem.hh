@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DUMMYVIDEOSYSTEM_HH
 #define DUMMYVIDEOSYSTEM_HH
 

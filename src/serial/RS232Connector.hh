@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef RS232CONNECTOR_HH
 #define RS232CONNECTOR_HH
 

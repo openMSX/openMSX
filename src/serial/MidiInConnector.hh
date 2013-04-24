@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIINCONNECTOR_HH
 #define MIDIINCONNECTOR_HH
 

@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "SuperImposeScalerOutput.hh"
 #include "RawFrame.hh"
 #include "LineScalers.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MidiInConnector.hh"
 #include "MidiInDevice.hh"
 #include "DummyMidiInDevice.hh"
@@ -43,4 +41,3 @@ void MidiInConnector::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(MidiInConnector);
 
 } // namespace openmsx
-

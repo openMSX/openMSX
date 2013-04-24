@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 Based on:
 100% free public domain implementation of the SHA-1 algorithm

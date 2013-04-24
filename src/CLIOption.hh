@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLIOPTION_HH
 #define CLIOPTION_HH
 

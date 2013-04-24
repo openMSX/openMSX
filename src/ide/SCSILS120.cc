@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/ScsiDevice.c,v
 ** Revision: 1.10

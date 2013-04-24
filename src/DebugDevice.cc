@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DebugDevice.hh"
 #include "Clock.hh"
 #include "FileOperations.hh"

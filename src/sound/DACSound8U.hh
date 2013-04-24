@@ -1,5 +1,3 @@
-// $Id$
-
 // This class implements a 8 bit unsigned DAC
 
 #ifndef DACSOUND8U_HH

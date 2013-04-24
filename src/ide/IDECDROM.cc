@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IDECDROM.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"

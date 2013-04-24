@@ -1,5 +1,3 @@
-// $Id$
-
 #include "WatchPoint.hh"
 #include <cassert>
 
@@ -23,4 +21,3 @@ WatchPoint::~WatchPoint()
 }
 
 } // namespace openmsx
-

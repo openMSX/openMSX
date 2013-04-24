@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomPageNN.hh"
 #include "Rom.hh"
 #include "serialize.hh"
@@ -24,4 +22,3 @@ RomPageNN::RomPageNN(const DeviceConfig& config, std::unique_ptr<Rom> rom, byte 
 REGISTER_MSXDEVICE(RomPageNN, "RomPageNN");
 
 } // namespace openmsx
-

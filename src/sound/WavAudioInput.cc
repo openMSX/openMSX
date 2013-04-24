@@ -1,5 +1,3 @@
-// $Id$
-
 #include "WavAudioInput.hh"
 #include "CommandController.hh"
 #include "PlugException.hh"

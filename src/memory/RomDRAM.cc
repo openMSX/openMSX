@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomDRAM.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"

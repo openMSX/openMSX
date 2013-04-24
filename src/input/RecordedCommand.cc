@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RecordedCommand.hh"
 #include "CommandController.hh"
 #include "StateChangeDistributor.hh"
@@ -17,7 +15,6 @@ using std::vector;
 using std::string;
 
 namespace openmsx {
-
 
 RecordedCommand::RecordedCommand(CommandController& commandController,
                                  StateChangeDistributor& stateChangeDistributor_,

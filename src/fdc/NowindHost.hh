@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NOWINDHOST_HH
 #define NOWINDHOST_HH
 

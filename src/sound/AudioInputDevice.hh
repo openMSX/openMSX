@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AUDIOINPUTDEVICE_HH
 #define AUDIOINPUTDEVICE_HH
 

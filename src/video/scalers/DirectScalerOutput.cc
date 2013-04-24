@@ -1,5 +1,3 @@
-// $Id:$
-
 #include "DirectScalerOutput.hh"
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"

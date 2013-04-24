@@ -1,4 +1,3 @@
-// $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/MB89352.h,v
 ** Revision: 1.4

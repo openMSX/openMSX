@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CondVar.hh"
 #include <SDL.h>
 

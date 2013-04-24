@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EventDelay.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"

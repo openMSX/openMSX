@@ -1,5 +1,3 @@
-// $Id$
-
 // R-Type cartridges
 //
 // The address to change banks:

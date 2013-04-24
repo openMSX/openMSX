@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXAUDIO_HH
 #define MSXAUDIO_HH
 

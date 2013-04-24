@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 Original code: Copyright (C) 2003 MaxSt ( maxst@hiend3d.com )
 openMSX adaptation by Maarten ter Huurne

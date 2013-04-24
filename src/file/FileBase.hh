@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILEBASE_HH
 #define FILEBASE_HH
 

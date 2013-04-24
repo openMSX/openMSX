@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXPRINTERPORT_HH
 #define MSXPRINTERPORT_HH
 

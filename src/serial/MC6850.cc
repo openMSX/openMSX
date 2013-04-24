@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MC6850.hh"
 #include "serialize.hh"
 #include "unreachable.hh"

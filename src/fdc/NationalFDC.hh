@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NATIONALFDC_HH
 #define NATIONALFDC_HH
 

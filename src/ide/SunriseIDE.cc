@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SunriseIDE.hh"
 #include "RomBlockDebuggable.hh"
 #include "IDEDeviceFactory.hh"

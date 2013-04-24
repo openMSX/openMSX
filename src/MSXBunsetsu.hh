@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXBUNSETSU_HH
 #define MSXBUNSETSU_HH
 

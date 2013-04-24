@@ -1,4 +1,3 @@
-# $Id$
 This file is a small and simple list of programs(mostly games and demo's) and why they make interesting test case for an MSX emulator:
 
 Time Curb:
@@ -33,4 +32,3 @@ Unknown Reality:
 
 Good example needed for
 overscan trick
-

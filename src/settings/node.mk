@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -22,4 +20,3 @@ HDR_ONLY:= \
 	ReadOnlySetting
 
 include build/node-end.mk
-

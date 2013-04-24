@@ -1,5 +1,3 @@
-// $Id$
-
 /* Submitted By: Albert Beevendorp (bifimsx)
  *
  * Some Sony MSX machines have built-in firmware

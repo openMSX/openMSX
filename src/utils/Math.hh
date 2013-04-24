@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MATH_HH
 #define MATH_HH
 

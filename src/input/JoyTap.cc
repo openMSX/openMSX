@@ -1,5 +1,3 @@
-// $Id$
-
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
 #include "StringOp.hh"

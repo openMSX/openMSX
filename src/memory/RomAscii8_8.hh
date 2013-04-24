@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMASCII8_8_HH
 #define ROMASCII8_8_HH
 

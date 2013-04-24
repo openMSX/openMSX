@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLGLOutputSurface.hh"
 #include "OutputSurface.hh"
 #include "PNG.hh"

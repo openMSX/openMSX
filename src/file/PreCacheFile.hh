@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PRECACHEFILE_HH
 #define PRECACHEFILE_HH
 

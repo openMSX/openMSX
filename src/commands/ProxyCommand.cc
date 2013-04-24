@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ProxyCommand.hh"
 #include "MSXCommandController.hh"
 #include "TclObject.hh"

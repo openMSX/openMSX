@@ -1,5 +1,3 @@
-// $Id$
-
 #include "I8255.hh"
 #include "I8255Interface.hh"
 #include "serialize.hh"
@@ -321,4 +319,3 @@ void I8255::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(I8255);
 
 } // namespace openmsx
-

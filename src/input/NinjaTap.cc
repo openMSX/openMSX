@@ -1,5 +1,3 @@
-// $Id$
-
 #include "NinjaTap.hh"
 #include "JoystickPort.hh"
 #include "serialize.hh"

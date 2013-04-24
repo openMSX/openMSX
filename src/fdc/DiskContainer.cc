@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskContainer.hh"
 #include "NowindRomDisk.hh"
 

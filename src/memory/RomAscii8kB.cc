@@ -1,5 +1,3 @@
-// $Id$
-
 // ASCII 8kB cartridges
 //
 // this type is used in many japanese-only cartridges.

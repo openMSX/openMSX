@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DirAsDSK.hh"
 #include "DiskChanger.hh"
 #include "Scheduler.hh"

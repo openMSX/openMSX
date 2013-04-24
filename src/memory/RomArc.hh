@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMARC_HH
 #define ROMARC_HH
 

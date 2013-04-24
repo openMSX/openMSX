@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CheckedRam.hh"
 #include "Ram.hh"
 #include "MSXCPU.hh"

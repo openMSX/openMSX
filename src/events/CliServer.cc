@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CliServer.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"

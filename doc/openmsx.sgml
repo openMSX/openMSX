@@ -8,7 +8,7 @@
 manpage.1: manpage.sgml
 	docbook-to-man $< > $@
 
-    
+
 	The docbook-to-man binary is found in the docbook-to-man package.
 	Please remember that if you create the nroff version in one of the
 	debian/rules file targets (such as build), you will need to include
@@ -71,7 +71,7 @@ manpage.1: manpage.sgml
       <command>&dhpackage;</command> command.</para>
 
     <para>This manual page is mainly meant to point to
-      the available documentation in the 
+      the available documentation in the
       <application>HTML</application> format; see below.</para>
 
     <para><command>&dhpackage;</command> is the MSX emulator that aims for perfection.</para>
@@ -79,19 +79,19 @@ manpage.1: manpage.sgml
 	<para>Supported file types of MSX media:
 	<itemizedlist mark='opencircle'>
 		<listitem>
-        	<para>cas: tape image in fMSX CAS format</para>
+		<para>cas: tape image in fMSX CAS format</para>
 		</listitem>
 		<listitem>
-        	<para>di1, di2, dsk, xsa: disk image</para>
+		<para>di1, di2, dsk, xsa: disk image</para>
 		</listitem>
 		<listitem>
-        	<para>rom: ROM image of a cartridge</para>
+		<para>rom: ROM image of a cartridge</para>
 		</listitem>
 		<listitem>
-        	<para>wav: Raw tape image, as recorded from real tape</para>
+		<para>wav: Raw tape image, as recorded from real tape</para>
 		</listitem>
 		<listitem>
-        	<para>ogv: Video recording, as recorded from real Laserdisc Player</para>
+		<para>ogv: Video recording, as recorded from real Laserdisc Player</para>
 		</listitem>
 	</itemizedlist>
 	  </para>
@@ -120,7 +120,7 @@ manpage.1: manpage.sgml
       <varlistentry>
         <term>
 		<option>-v</option>
-        	<option>--version</option>
+		<option>--version</option>
         </term>
         <listitem>
           <para>Show version of program.</para>
@@ -129,8 +129,8 @@ manpage.1: manpage.sgml
       <varlistentry>
         <term>
 		<option>-cart</option>
-        	<option>-carta</option>
-        	<option>-cartb</option>
+		<option>-carta</option>
+		<option>-cartb</option>
         </term>
         <listitem>
           <para>Insert the ROM file (cartridge) specified in argument</para>
@@ -209,7 +209,7 @@ manpage.1: manpage.sgml
     <para>This manual page was originally written by &dhusername; &dhemail; for
       the &debian; system, but is now maintained by the openMSX team.  Permission is
       granted to copy, distribute and/or modify this document under
-      the terms of the &gnu; General Public License, Version 2 any 
+      the terms of the &gnu; General Public License, Version 2 any
 	  later version published by the Free Software Foundation.
     </para>
 	<para>
@@ -236,5 +236,3 @@ sgml-local-catalogs:nil
 sgml-local-ecat-files:nil
 End:
 -->
-
-

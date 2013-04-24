@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXEventDistributor.hh"
 #include "MSXEventListener.hh"
 #include <algorithm>

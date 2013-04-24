@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INPUTEVENTGENERATOR_HH
 #define INPUTEVENTGENERATOR_HH
 
@@ -83,7 +81,7 @@ private:
 	void triggerOsdControlEventsFromKeyEvent(
 		Keys::KeyCode keyCode, bool up, const EventPtr& origEvent);
 
-	
+
 #if PLATFORM_GP2X
 	int stat8; // last joystick status (8 input switches)
 #endif

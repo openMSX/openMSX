@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SanyoFDC.hh"
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"

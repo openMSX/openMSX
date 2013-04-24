@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CSTDIOP_HH
 #define CSTDIOP_HH
 

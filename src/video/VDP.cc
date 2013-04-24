@@ -1,5 +1,3 @@
-// $Id$
-
 /*
 TODO:
 - Run more measurements on real MSX to find out how horizontal

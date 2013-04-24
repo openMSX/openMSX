@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NOWINDROMDISK_HH
 #define NOWINDROMDISK_HH
 

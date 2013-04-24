@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DSKDISKIMAGE_HH
 #define DSKDISKIMAGE_HH
 

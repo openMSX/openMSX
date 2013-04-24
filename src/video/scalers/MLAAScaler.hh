@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MLAASCALER_HH
 #define MLAASCALER_HH
 

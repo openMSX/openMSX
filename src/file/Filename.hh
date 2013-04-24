@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FILENAME_HH
 #define FILENAME_HH
 

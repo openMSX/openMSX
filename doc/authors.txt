@@ -1,5 +1,3 @@
-$Id$
-
 Prime Developers:
 David Heremans       <david.heremans@gnu-linux.net>
 Wouter Vermaelen     <wouter.vermaelen@scarlet.be>

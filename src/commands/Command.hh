@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef COMMAND_HH
 #define COMMAND_HH
 

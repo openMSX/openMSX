@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef BREAKPOINT_HH
 #define BREAKPOINT_HH
 

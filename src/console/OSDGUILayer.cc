@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDGUILayer.hh"
 #include "OSDGUI.hh"
 #include "OSDWidget.hh"

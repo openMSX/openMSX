@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STATECHANGE_HH
 #define STATECHANGE_HH
 

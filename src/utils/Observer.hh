@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OBSERVER_HH
 #define OBSERVER_HH
 

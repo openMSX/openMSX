@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Mouse.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ARKANOIDPAD_HH
 #define ARKANOIDPAD_HH
 

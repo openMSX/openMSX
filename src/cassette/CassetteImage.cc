@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CassetteImage.hh"
 #include <cassert>
 

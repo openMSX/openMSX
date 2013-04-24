@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ZIPFILEADAPTER_HH
 #define ZIPFILEADAPTER_HH
 

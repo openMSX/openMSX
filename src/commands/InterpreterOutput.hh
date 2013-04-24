@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INTERPRETEROUTPUT_HH
 #define INTERPRETEROUTPUT_HH
 

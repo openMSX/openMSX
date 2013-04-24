@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990P1CONVERTER_HH
 #define V9990P1CONVERTER_HH
 

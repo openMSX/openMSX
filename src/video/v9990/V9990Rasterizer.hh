@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef V9990RASTERIZER_HH
 #define V9990RASTERIZER_HH
 

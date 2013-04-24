@@ -19,7 +19,7 @@ LEAF_ENTRY FBPostProcessor_drawNoiseLine_4_SSE2, Video
     lea         rdx,[rdx+r9]
     lea         r8,[r8+r9]
     neg         r9
-    
+
     pcmpeqb     xmm7,xmm7
     psllw       xmm7,0Fh
     packsswb    xmm7,xmm7
@@ -47,7 +47,7 @@ mainloop:
     movdqa      xmmword ptr [rdx+r9+30h],xmm3
     add         r9,40h
     jne         mainloop
-    ret    
+    ret
 LEAF_END FBPostProcessor_drawNoiseLine_4_SSE2, Video
 
 end

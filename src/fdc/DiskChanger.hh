@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKCHANGER_HH
 #define DISKCHANGER_HH
 

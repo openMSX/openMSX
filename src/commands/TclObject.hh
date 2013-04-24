@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef TCLOBJECT_HH
 #define TCLOBJECT_HH
 

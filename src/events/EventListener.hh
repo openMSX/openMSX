@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EVENTLISTENER_HH
 #define EVENTLISTENER_HH
 

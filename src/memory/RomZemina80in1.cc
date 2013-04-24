@@ -1,5 +1,3 @@
-// $Id$
-
 // Zemina 80-in-1 cartridge
 //
 // Information obtained by studying MESS sources:

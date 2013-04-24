@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PASSWORDCART_HH
 #define PASSWORDCART_HH
 

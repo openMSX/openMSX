@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PluggingController.hh"
 #include "PlugException.hh"
 #include "RecordedCommand.hh"

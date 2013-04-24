@@ -1,5 +1,3 @@
-// $Id$
-
 #include "KeyboardSettings.hh"
 #include "EnumSetting.hh"
 #include "BooleanSetting.hh"

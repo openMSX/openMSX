@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LOCALFILEREFERENCE_HH
 #define LOCALFILEREFERENCE_HH
 

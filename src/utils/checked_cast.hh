@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CHECKED_CAST_HH
 #define CHECKED_CAST_HH
 

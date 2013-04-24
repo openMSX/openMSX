@@ -1,5 +1,3 @@
-# $Id$
-
 class SystemFunction(object):
 	name = None
 

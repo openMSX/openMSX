@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLOBALSETTINGS_HH
 #define GLOBALSETTINGS_HH
 

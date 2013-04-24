@@ -1,5 +1,3 @@
-# $Id$
-
 from os import environ
 from os.path import isfile
 from subprocess import PIPE, Popen

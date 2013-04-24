@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLSoundDriver.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"

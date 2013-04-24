@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLISERVER_HH
 #define CLISERVER_HH
 

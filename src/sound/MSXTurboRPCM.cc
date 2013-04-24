@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
 #include "AudioInputConnector.hh"

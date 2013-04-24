@@ -1,5 +1,3 @@
-# $Id$
-
 from packages import getPackage, iterDownloadablePackages
 
 import sys

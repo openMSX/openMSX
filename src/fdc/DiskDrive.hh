@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKDRIVE_HH
 #define DISKDRIVE_HH
 

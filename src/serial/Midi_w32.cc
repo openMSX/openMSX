@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * Win32 MIDI utility routines for openMSX.
  *
@@ -26,7 +24,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
 
 #ifdef _WIN32
 

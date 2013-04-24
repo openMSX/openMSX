@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXROMCLI_HH
 #define MSXROMCLI_HH
 

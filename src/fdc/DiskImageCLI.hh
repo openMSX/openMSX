@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISKIMAGEMANAGER_HH
 #define DISKIMAGEMANAGER_HH
 

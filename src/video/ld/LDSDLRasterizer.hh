@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LDSDLRASTERIZER_HH
 #define LDSDLRASTERIZER_HH
 

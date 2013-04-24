@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * This class implements the 2 Turbo-R specific LEDS:
  *

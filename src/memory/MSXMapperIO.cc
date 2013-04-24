@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMapperIO.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"

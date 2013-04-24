@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskImageUtils.hh"
 #include "DiskPartition.hh"
 #include "CommandException.hh"

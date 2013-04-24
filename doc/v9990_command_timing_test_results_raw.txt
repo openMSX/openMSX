@@ -1,6 +1,6 @@
 V9990 command timing tests:
 
-LMMV:   line (0, 1024)-(256, 1024 + <N>),, bf 
+LMMV:   line (0, 1024)-(256, 1024 + <N>),, bf
 LMMM:   copy (0, 0)-(256, <N>) to (0, 256)
 BMXL:   copy #00000 to (0, 512)-(256, 512 + <N>)
 BMLX:   copy (0, 0)-(256, <N>) to #40000

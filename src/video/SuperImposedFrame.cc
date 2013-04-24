@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SuperImposedFrame.hh"
 #include "PixelOperations.hh"
 #include "LineScalers.hh"

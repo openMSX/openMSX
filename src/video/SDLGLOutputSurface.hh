@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SDLGLOUTPUTSURFACE_HH
 #define SDLGLOUTPUTSURFACE_HH
 

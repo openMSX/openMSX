@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GZFILEADAPTER_HH
 #define GZFILEADAPTER_HH
 

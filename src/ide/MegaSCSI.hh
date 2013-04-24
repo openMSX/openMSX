@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MEGASCSI_HH
 #define MEGASCSI_HH
 

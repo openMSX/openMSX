@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXWATCHIODEVICE_HH
 #define MSXWATCHIODEVICE_HH
 

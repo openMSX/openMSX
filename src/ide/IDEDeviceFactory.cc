@@ -1,5 +1,3 @@
-// $Id$
-
 #include "IDEDeviceFactory.hh"
 #include "DummyIDEDevice.hh"
 #include "IDEHD.hh"

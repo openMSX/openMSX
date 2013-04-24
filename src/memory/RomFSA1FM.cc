@@ -1,5 +1,3 @@
-// $Id$
-
 // FS-A1FM mappers
 //   based on info from:
 //   http://sourceforge.net/tracker/index.php?func=detail&aid=672508&group_id=38274&atid=421864

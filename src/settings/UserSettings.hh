@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef USERSETTINGS_HH
 #define USERSETTINGS_HH
 

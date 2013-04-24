@@ -1,5 +1,3 @@
-// $Id$
-
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "FileContext.hh" // for bwcompat

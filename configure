@@ -1,5 +1,4 @@
 #!/bin/sh
-# $Id$
 # Probes the build environment (libs, headers).
 
 if [ -z "$MAKE" ]

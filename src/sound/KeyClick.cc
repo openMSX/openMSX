@@ -1,5 +1,3 @@
-// $Id$
-
 #include "KeyClick.hh"
 #include "DACSound8U.hh"
 #include "memory.hh"

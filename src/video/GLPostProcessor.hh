@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLPOSTPROCESSOR_HH
 #define GLPOSTPROCESSOR_HH
 

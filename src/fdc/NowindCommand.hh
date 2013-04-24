@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef NOWINDCOMMAND_HH
 #define NOWINDCOMMAND_HH
 

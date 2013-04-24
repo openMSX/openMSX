@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PIXELRENDERER_HH
 #define PIXELRENDERER_HH
 

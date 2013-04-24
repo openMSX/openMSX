@@ -1,5 +1,3 @@
-# $Id$
-
 from urlparse import urljoin
 
 class Package(object):

@@ -1,5 +1,3 @@
-// $Id$
-
 // UTF8-CPP   http://utfcpp.sourceforge.net/
 //   Slightly simplified (and reformatted) to fit openMSX coding style.
 

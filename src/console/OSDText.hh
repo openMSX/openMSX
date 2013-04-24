@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef OSDTEXT_HH
 #define OSDTEXT_HH
 

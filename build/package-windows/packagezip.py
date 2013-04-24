@@ -1,5 +1,3 @@
-# $Id$
-
 from packagewindows import PackageInfo, generateInstallFiles
 
 from os.path import abspath, basename, exists, join as joinpath, relpath

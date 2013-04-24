@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXRS232_HH
 #define MSXRS232_HH
 

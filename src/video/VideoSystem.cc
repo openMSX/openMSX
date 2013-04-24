@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VideoSystem.hh"
 #include "MSXException.hh"
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DEVICEFACTORY_HH
 #define DEVICEFACTORY_HH
 

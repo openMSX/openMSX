@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 

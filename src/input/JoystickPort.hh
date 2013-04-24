@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef JOYSTICKPORT_HH
 #define JOYSTICKPORT_HH
 

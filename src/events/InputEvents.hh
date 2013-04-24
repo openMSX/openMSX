@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INPUTEVENTS_HH
 #define INPUTEVENTS_HH
 

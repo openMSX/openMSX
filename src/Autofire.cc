@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Autofire.hh"
 #include "IntegerSetting.hh"
 #include "memory.hh"

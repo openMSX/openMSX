@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AVIRECORDER_HH
 #define AVIRECORDER_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * Lightweight version of the hq2x scaler (http://www.hiend3d.com/hq2x.html)
  *

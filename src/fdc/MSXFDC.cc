@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXFDC.hh"
 #include "Rom.hh"
 #include "RealDrive.hh"

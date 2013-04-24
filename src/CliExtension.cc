@@ -1,5 +1,3 @@
-// $Id$
-
 #include "CliExtension.hh"
 #include "CommandLineParser.hh"
 #include "MSXMotherBoard.hh"

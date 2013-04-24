@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CDIMAGECLI_HH
 #define CDIMAGECLI_HH
 

@@ -1,4 +1,3 @@
-# $Id$
 # Various utility functions for generating output files and directories.
 
 from os import makedirs

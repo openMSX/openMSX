@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ResampleLQ.hh"
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"

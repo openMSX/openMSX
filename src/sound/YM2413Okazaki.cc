@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * Based on:
  *    emu2413.c -- YM2413 emulator written by Mitsutaka Okazaki 2001

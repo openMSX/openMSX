@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DIVMODBYCONST
 #define DIVMODBYCONST
 

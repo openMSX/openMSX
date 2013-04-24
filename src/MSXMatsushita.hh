@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMATSUSHITA_HH
 #define MSXMATSUSHITA_HH
 

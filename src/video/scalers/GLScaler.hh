@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLSCALER_HH
 #define GLSCALER_HH
 

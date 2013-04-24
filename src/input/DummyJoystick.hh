@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DUMMYJOYSTICK_HH
 #define DUMMYJOYSTICK_HH
 

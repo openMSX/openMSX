@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LibAOSoundDriver.hh"
 #include "MSXException.hh"
 #include <ao/ao.h>

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ENUMSETTING_HH
 #define ENUMSETTING_HH
 

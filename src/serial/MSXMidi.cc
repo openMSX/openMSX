@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMidi.hh"
 #include "MidiInDevice.hh"
 #include "I8254.hh"
@@ -507,4 +505,3 @@ INSTANTIATE_SERIALIZE_METHODS(MSXMidi);
 REGISTER_MSXDEVICE(MSXMidi, "MSX-Midi");
 
 } // namespace openmsx
-

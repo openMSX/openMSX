@@ -1,5 +1,3 @@
-// $Id$
-
 #include "LDSDLRasterizer.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"

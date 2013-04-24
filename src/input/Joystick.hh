@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef JOYSTICK_HH
 #define JOYSTICK_HH
 

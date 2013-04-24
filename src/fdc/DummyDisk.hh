@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef FDCDUMMYBACKEND_HH
 #define FDCDUMMYBACKEND_HH
 

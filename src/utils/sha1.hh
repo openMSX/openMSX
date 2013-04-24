@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SHA1_HH
 #define SHA1_HH
 

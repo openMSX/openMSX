@@ -1,5 +1,3 @@
-// $Id$
-
 // Mapper for "Hai no Majutsushi" from Konami.
 // It's a Konami mapper with a DAC.
 

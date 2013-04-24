@@ -9,7 +9,7 @@ ENABLE  equ	#82	; #82 -> display enabled  / sprites(cursor) enabled
 			; #C2 ->         enabled                    disabled
 			; #02 ->         disabled                   enabled
 			; #42 ->         disabled                   disabled
-	
+
 	di
 	call   init
 	;call set_p2
@@ -316,7 +316,7 @@ set_b1_16bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b2_2bpp	
+set_b2_2bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -329,7 +329,7 @@ set_b2_2bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b2_4bpp	
+set_b2_4bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -342,7 +342,7 @@ set_b2_4bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b2_8bpp	
+set_b2_8bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -355,7 +355,7 @@ set_b2_8bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b2_16bpp	
+set_b2_16bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -368,7 +368,7 @@ set_b2_16bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b3_2bpp	
+set_b3_2bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -381,7 +381,7 @@ set_b3_2bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b3_4bpp	
+set_b3_4bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -394,7 +394,7 @@ set_b3_4bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b3_8bpp	
+set_b3_8bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -407,7 +407,7 @@ set_b3_8bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b3_16bpp	
+set_b3_16bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -420,7 +420,7 @@ set_b3_16bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b4_2bpp	
+set_b4_2bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -433,7 +433,7 @@ set_b4_2bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b4_4bpp	
+set_b4_4bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -446,7 +446,7 @@ set_b4_4bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b4_8bpp	
+set_b4_8bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -459,7 +459,7 @@ set_b4_8bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b4_16bpp	
+set_b4_16bpp
 	ld     a,#01
 	out    (#67),a		; MCLK = 1
 	ld     a,#06
@@ -472,7 +472,7 @@ set_b4_16bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b7_2bpp	
+set_b7_2bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -485,7 +485,7 @@ set_b7_2bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b7_4bpp	
+set_b7_4bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -498,7 +498,7 @@ set_b7_4bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b7_8bpp	
+set_b7_8bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06
@@ -511,7 +511,7 @@ set_b7_8bpp
 	out    (#63),a		; display enabled / cursor enabled
 	ret
 
-set_b7_16bpp	
+set_b7_16bpp
 	ld     a,#00
 	out    (#67),a		; MCLK = 0
 	ld     a,#06

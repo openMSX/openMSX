@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VideoSourceSetting.hh"
 #include "CommandException.hh"
 

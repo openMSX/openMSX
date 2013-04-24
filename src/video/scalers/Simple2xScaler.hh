@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SIMPLESCALER_HH
 #define SIMPLESCALER_HH
 

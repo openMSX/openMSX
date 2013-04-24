@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VictorFDC.hh"
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"

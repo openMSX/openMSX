@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VDPCMDENGINE_HH
 #define VDPCMDENGINE_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMIDI_HH
 #define MSXMIDI_HH
 

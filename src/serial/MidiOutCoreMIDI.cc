@@ -1,5 +1,3 @@
-// $Id$
-
 #if defined(__APPLE__)
 
 #include "MidiOutCoreMIDI.hh"
@@ -8,7 +6,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include <mach/mach_time.h>
-
 
 namespace openmsx {
 

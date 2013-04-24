@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DACSound16S.hh"
 #include "DeviceConfig.hh"
 #include "MSXMotherBoard.hh"
@@ -74,4 +72,3 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(DACSound16S);
 
 } // namespace openmsx
-

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef UNICODEKEYMAP_HH
 #define UNICODEKEYMAP_HH
 

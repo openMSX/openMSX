@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMPAGENN_HH
 #define ROMPAGENN_HH
 

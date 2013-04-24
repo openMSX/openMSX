@@ -1,5 +1,3 @@
-// $Id$
-
 #include "FloatSetting.hh"
 #include "CommandException.hh"
 #include <sstream>

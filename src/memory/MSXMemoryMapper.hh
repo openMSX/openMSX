@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXMEMORYMAPPER_HH
 #define MSXMEMORYMAPPER_HH
 

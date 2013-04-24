@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 

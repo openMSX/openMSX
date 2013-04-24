@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CPUCORE_HH
 #define CPUCORE_HH
 

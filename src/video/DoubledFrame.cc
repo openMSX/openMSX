@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DoubledFrame.hh"
 
 namespace openmsx {

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
 #include "DeviceConfig.hh"

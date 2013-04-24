@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  * This class implements the device found on IO-port 0xF4 on a MSX Turbo-R.
  *

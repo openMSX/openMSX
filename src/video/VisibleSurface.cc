@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VisibleSurface.hh"
 #include "InitException.hh"
 #include "Icon.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DeinterlacedFrame.hh"
 #include <cassert>
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef KEYBOARD_HH
 #define KEYBOARD_HH
 

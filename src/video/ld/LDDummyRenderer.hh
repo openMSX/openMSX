@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef LDDUMMYRENDERER_HH
 #define LDDUMMYRENDERER_HH
 

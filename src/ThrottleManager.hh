@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef THROTTLEMANAGER_HH
 #define THROTTLEMANAGER_HH
 

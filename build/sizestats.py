@@ -1,5 +1,3 @@
-# $Id$
-
 from executils import captureStdout
 
 from collections import defaultdict

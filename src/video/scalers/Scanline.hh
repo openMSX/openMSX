@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SCANLINE_HH
 #define SCANLINE_HH
 

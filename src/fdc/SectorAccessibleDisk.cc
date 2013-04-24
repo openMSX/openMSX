@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SectorAccessibleDisk.hh"
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"

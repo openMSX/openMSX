@@ -1,5 +1,3 @@
-# $Id: thirdparty_download.py 11350 2010-03-23 01:18:06Z mthuurne $
-
 from thirdparty_download import fetchPackageSource
 import sys
 

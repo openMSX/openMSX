@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 

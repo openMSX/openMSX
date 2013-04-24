@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MIDIINREADER_HH
 #define MIDIINREADER_HH
 

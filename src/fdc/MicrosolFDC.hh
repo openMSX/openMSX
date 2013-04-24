@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MICROSOLFDC_HH
 #define MICROSOLFDC_HH
 

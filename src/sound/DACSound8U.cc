@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DACSound8U.hh"
 
 namespace openmsx {

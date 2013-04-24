@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DISK_IMAGE_UTILS_HH
 #define DISK_IMAGE_UTILS_HH
 

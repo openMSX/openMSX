@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef VLA_HH
 #define VLA_HH
 

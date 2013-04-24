@@ -1,5 +1,3 @@
-// $Id$
-
 #include "HD.hh"
 #include "File.hh"
 #include "FileContext.hh"

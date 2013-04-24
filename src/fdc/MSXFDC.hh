@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXFDC_HH
 #define MSXFDC_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXCommandController.hh"
 #include "GlobalCommandController.hh"
 #include "Reactor.hh"

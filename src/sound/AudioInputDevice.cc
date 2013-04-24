@@ -1,5 +1,3 @@
-// $Id$
-
 #include "AudioInputDevice.hh"
 
 using std::string;

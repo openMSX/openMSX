@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WAVWRITER_HH
 #define WAVWRITER_HH
 

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ADVram.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"

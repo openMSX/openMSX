@@ -1,5 +1,3 @@
-// $Id$
-
 #include "TclCallback.hh"
 #include "TclObject.hh"
 #include "GlobalCommandController.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CIRCULARBUFFER_HH
 #define CIRCULARBUFFER_HH
 

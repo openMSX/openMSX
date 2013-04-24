@@ -1,5 +1,3 @@
-// $Id$
-
 #include "BooleanSetting.hh"
 #include "CommandException.hh"
 #include "Completer.hh"

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXOPL3CARTRIDGE_HH
 #define MSXOPL3CARTRIDGE_HH
 

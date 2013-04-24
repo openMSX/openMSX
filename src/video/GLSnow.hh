@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLSNOW_HH
 #define GLSNOW_HH
 

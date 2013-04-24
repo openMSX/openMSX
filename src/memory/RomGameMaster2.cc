@@ -1,5 +1,3 @@
-// $Id$
-
 // GAME MASTER 2
 //
 // This is a 1 megabit ROM cartridge with 8 Kb SRAM. Because of the SRAM,

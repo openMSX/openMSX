@@ -1,5 +1,3 @@
-// $Id$
-
 uniform sampler2D tex;
 uniform sampler2D videoTex;
 
@@ -27,13 +25,13 @@ vec4 sai()
 	if (b2.x || b2.y) {
 		vec4 pos1 = posEL.xyzw;
 		vec4 pos2 = posGJ.xyzw;
-		vec2 p = pp.xz;  
+		vec2 p = pp.xz;
 		if (b2.y) {
 			swap(A, B);
 			swap(C, D);
 			pos1 = posEL.zyxw;
 			pos2 = posGJ.zyxw;
-			p = pp.yz;  
+			p = pp.yz;
 		}
 		vec4 E = texture2D(tex, pos1.xy);
 		vec4 L = texture2D(tex, pos1.zw);

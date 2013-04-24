@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CASIMAGE_HH
 #define CASIMAGE_HH
 

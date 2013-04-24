@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 DIST:= \
@@ -10,4 +8,3 @@ DIST:= \
 	basictorom.tcl
 
 include build/node-end.mk
-

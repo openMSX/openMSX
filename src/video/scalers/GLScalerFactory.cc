@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GLScalerFactory.hh"
 #include "GLSimpleScaler.hh"
 #include "GLRGBScaler.hh"

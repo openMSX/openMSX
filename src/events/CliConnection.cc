@@ -1,5 +1,3 @@
-// $Id$
-
 // TODO:
 // - To avoid any possible conflicts, anything called from "run" should be
 //   locked.

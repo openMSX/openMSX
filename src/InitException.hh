@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INITEXCEPTION_HH
 #define INITEXCEPTION_HH
 

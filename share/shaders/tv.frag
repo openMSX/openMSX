@@ -1,4 +1,3 @@
-// $Id$
 // TV-like effect where bright pixels are larger than dark pixels.
 
 uniform sampler2D tex;

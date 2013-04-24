@@ -1,5 +1,3 @@
-// $Id$
-
 #include "SDLGLVisibleSurface.hh"
 #include "SDLGLOffScreenSurface.hh"
 #include "GLSnow.hh"

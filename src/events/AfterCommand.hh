@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef AFTERCOMMAND_HH
 #define AFTERCOMMAND_HH
 

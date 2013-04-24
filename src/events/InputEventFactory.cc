@@ -1,5 +1,3 @@
-// $Id$
-
 #include "InputEventFactory.hh"
 #include "InputEvents.hh"
 #include "CommandException.hh"

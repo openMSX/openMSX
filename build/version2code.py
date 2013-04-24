@@ -1,4 +1,3 @@
-# $Id$
 # Generates version include file.
 
 from outpututils import rewriteIfChanged

@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef CONDVAR_HH
 #define CONDVAR_HH
 

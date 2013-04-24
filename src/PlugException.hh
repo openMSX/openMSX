@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PLUGEXCEPTION_HH
 #define PLUGEXCEPTION_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-
 include build/node-start.mk
 
 SRC_HDR:= \
@@ -12,4 +10,3 @@ HDR_ONLY:= \
 	Debuggable
 
 include build/node-end.mk
-

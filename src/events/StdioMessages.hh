@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef STDIOMESSAGES_HH
 #define STDIOMESSAGES_HH
 

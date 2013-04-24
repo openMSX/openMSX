@@ -1,5 +1,3 @@
-# $Id$
-
 from hq import getZoom, scaleWeights
 from hq_gen import (
 	edges, expandQuadrant, genExpr2, genExpr3, genExpr4, simplifyWeights

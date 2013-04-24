@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ZLIBINFLATE_HH
 #define ZLIBINFLATE_HH
 

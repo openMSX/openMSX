@@ -1,5 +1,3 @@
-# $Id$
-
 from install import installAll
 from version import (
 	extractRevisionNumber, getVersionedPackageName, packageVersionNumber,

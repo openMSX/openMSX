@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXDevice.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"

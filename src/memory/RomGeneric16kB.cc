@@ -1,5 +1,3 @@
-// $Id$
-
 #include "RomGeneric16kB.hh"
 #include "Rom.hh"
 #include "serialize.hh"

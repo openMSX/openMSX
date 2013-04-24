@@ -1,4 +1,3 @@
-# $Id$
 # Prints the Make names of those libraries that are present in the base OS.
 
 from libraries import librariesByName

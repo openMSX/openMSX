@@ -1,5 +1,3 @@
-# $Id$
-
 from cpu import getCPU
 
 import sys

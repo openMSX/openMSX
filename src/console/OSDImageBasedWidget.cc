@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDImageBasedWidget.hh"
 #include "OSDGUI.hh"
 #include "BaseImage.hh"

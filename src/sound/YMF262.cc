@@ -1,5 +1,3 @@
-// $Id$
-
 /*
  *
  * File: ymf262.c - software implementation of YMF262

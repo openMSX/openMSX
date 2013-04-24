@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXMultiDevice.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"

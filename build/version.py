@@ -1,4 +1,3 @@
-# $Id$
 # Contains the openMSX version number and versioning related functions.
 
 from executils import captureStdout

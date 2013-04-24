@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef WIN32_DIRENT_HH
 #define WIN32_DIRENT_HH
 

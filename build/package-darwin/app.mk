@@ -1,5 +1,3 @@
-# $Id$
-#
 # Create an application directory for Darwin.
 
 APP_SUPPORT_DIR:=build/package-darwin

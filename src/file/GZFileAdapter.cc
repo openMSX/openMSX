@@ -1,5 +1,3 @@
-// $Id$
-
 #include "GZFileAdapter.hh"
 #include "ZlibInflate.hh"
 #include "FileException.hh"

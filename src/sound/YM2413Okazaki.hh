@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef YM2413OKAZAKI_HH
 #define YM2413OKAZAKI_HH
 

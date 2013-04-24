@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 

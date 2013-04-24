@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef INPUTEVENTFACTORY_HH
 #define INPUTEVENTFACTORY_HH
 

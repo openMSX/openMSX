@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Scanline.hh"
 #include "PixelOperations.hh"
 #include "HostCPU.hh"

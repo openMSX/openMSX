@@ -1,5 +1,3 @@
-// $Id$
-
 #include "ClockPin.hh"
 #include "serialize.hh"
 #include <cassert>

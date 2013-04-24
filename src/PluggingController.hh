@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 

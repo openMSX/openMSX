@@ -1,5 +1,3 @@
-// $Id$
-
 #include "OSDTopWidget.hh"
 #include "OutputRectangle.hh"
 

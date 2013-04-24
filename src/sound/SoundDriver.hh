@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef SOUNDDRIVER_HH
 #define SOUNDDRIVER_HH
 

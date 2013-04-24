@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef GLOBALCLICOMM_HH
 #define GLOBALCLICOMM_HH
 

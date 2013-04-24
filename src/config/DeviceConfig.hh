@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef DEVICECONFIG_HH
 #define DEVICECONFIG_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-#
 # Customize openMSX to your system/preferences.
 
 # Directory to install to.

@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Math.hh"
 #include <cstdint>
 #include <cstdlib>
@@ -11,19 +9,19 @@
 namespace openmsx {
 
 #ifdef _MSC_VER
-	
+
 // Poor man's implementations to get openmsx building with VC++
 
 #ifdef __x86_64
 
-// What follows below are C++ implementations of several C99 math functions missing 
+// What follows below are C++ implementations of several C99 math functions missing
 // from VC++'s CRT as of 2008. These implementations using SSE/SSE2 intrinsics
-// for floating point operations. The (generally safe) assumption is that those 
+// for floating point operations. The (generally safe) assumption is that those
 // instructions are always available on CPUs capable of running 64-bit Windows.
 //
 // The assembler in Visual Studio (ml64.exe) no longer allows inline assembly,
 // so for ease of reading we've opted to use these intrinsic-based functions instead
-// of using the hand-written versions in a separate .asm file. The resulting 
+// of using the hand-written versions in a separate .asm file. The resulting
 // optimized code is pretty close to the hand-written code.
 
 // gcc-generated data section

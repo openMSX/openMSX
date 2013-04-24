@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef HOSTCPU_HH
 #define HOSTCPU_HH
 

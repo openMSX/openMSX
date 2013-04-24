@@ -1,5 +1,3 @@
-// $Id$
-
 #include "MSXDeviceSwitch.hh"
 #include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"

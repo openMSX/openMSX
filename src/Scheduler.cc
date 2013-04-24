@@ -1,5 +1,3 @@
-// $Id$
-
 #include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "Thread.hh"

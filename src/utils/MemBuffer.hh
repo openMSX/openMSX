@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef MEMBUFFER_HH
 #define MEMBUFFER_HH
 

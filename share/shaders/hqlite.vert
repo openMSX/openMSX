@@ -1,5 +1,3 @@
-// $Id$
-
 uniform vec2 texSize;
 
 varying vec2 leftTop;
@@ -12,7 +10,7 @@ void main()
 	gl_Position = ftransform();
 
 	edgePos = gl_MultiTexCoord0.st * vec2(1.0, 2.0);
-	
+
 	vec2 texStep = vec2(1.0 / texSize.x, 0.5 / texSize.y);
 	leftTop  = gl_MultiTexCoord0.st - texStep;
 

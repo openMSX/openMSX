@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef ROMSYNTHESIZER_HH
 #define ROMSYNTHESIZER_HH
 

@@ -1,5 +1,3 @@
-# $Id$
-
 from fileutils import (
 	installDirs, installFile, installSymlink, installTree, scanTree
 	)

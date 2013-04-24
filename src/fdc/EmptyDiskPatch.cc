@@ -1,5 +1,3 @@
-// $Id$
-
 #include "EmptyDiskPatch.hh"
 #include "SectorAccessibleDisk.hh"
 #include <cassert>
@@ -30,4 +28,3 @@ std::vector<Filename> EmptyDiskPatch::getFilenames() const
 }
 
 } // namespace openmsx
-

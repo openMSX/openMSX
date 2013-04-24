@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef REPLAYCLI_HH
 #define REPLAYCLI_HH
 

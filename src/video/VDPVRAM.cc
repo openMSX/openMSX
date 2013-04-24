@@ -1,5 +1,3 @@
-// $Id$
-
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "Renderer.hh"

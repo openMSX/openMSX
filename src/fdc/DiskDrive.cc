@@ -1,5 +1,3 @@
-// $Id$
-
 #include "DiskDrive.hh"
 #include "DiskExceptions.hh"
 #include "unreachable.hh"

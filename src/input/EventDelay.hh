@@ -1,5 +1,3 @@
-// $Id$
-
 #ifndef EVENTDELAY_HH
 #define EVENTDELAY_HH
 
