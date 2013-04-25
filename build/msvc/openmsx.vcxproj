@@ -582,6 +582,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Semaphore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Timer.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Base64.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\CircularBuffer.cc" />
@@ -1144,6 +1146,8 @@
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />	
+    <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />	
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\checked_cast.hh" />
