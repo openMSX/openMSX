@@ -6,7 +6,7 @@
 # or /usr/games/openMSX if you like.
 INSTALL_BASE:=/opt/openMSX
 
-# Add ChangeLog version number to executable file name? This applies only to
+# Add revision number to executable file name? This applies only to
 # development versions, not to release versions (see version.py).
 VERSION_EXEC:=false
 

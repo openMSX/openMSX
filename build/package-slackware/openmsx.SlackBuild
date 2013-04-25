@@ -153,7 +153,7 @@ fi
 # Doc
 echo "----------------- Copying documentation and other files ----------------"
 mkdir -p $DOCSDIR
-for i in AUTHORS ChangeLog GPL README TODO
+for i in AUTHORS GPL README TODO
 do
 #        cat $i | gzip > $DOCSDIR/$i.gz
         cp -a $i $DOCSDIR
@@ -217,7 +217,7 @@ fi
 
 # Doc
 echo "----------------- Copying documentation and other files ----------------"
-for i in AUTHORS ChangeLog GPL README
+for i in AUTHORS GPL README
 do
 #        cat $i | gzip > $DOCSDIR/$i.gz
         cp -a $i $DOCSDIR
