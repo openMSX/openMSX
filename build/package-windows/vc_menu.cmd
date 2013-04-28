@@ -34,12 +34,12 @@ if errorlevel 5 goto win32inst
 if errorlevel 4 goto win32pkg                                      
 if errorlevel 3 goto win32                                           
 if errorlevel 2 goto 3rd                                        
-if errorlevel 1 goto svn 
+if errorlevel 1 goto git
 
-:svn
+:git
 cls
-echo -- Updating SVN Repository 
-svn up
+echo -- Updating GIT Repository 
+git pull
 pause
 cls
 goto start
