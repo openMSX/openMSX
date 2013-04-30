@@ -6,6 +6,8 @@ from makeutils import filterLines
 from os import makedirs
 from os.path import isdir
 
+import re
+
 # Name used for packaging.
 packageName = 'openmsx'
 
@@ -33,15 +35,15 @@ def _extractRevisionFromStdout(log, command, regex):
 		print >> log, text
 		return None
 
-def extractSVNRevision(log):
+def extractGitRevision(log):
 	return _extractRevisionFromStdout(
-		log, 'svn info', r'Last Changed Rev:\s*(\d+)'
+		log, 'git describe', r'\S+?-(\S+)$'
 		)
 
-def extractSVNGitRevision(log):
-	return _extractRevisionFromStdout(
-		log, 'git log -n 100', r'\s*git-svn-id:.*@(\d+)'
-		)
+def extractNumberFromGitRevision(revisionStr):
+	if revisionStr is None:
+		return None
+	return re.match(r'(\d+)+', revisionStr).group(0)
 
 _cachedRevision = False # because None is a valid result
 
@@ -50,26 +52,23 @@ def extractRevision():
 	if _cachedRevision is not False:
 		return _cachedRevision
 	if releaseFlag:
-		# Running "svn info" creates a ~/.subversion directory, which is
-		# undesired on automated build machines and pkgsrc complains about it.
+		# Not necessary, we do not append revision for a release build.
 		return None
 	if not isdir('derived'):
 		makedirs('derived')
 	log = open('derived/version.log', 'w')
-	print >> log, 'Extracting revision number...'
+	print >> log, 'Extracting revision info...'
 	try:
-		revision = (
-			extractSVNRevision(log) or
-			extractSVNGitRevision(log)
-			)
-		print >> log, 'Revision number: %s' % revision
+		revision = extractGitRevision(log)
+		print >> log, 'Revision string: %s' % revision
+		print >> log, 'Revision number: %s' % extractNumberFromGitRevision(revision)
 	finally:
 		log.close()
 	_cachedRevision = revision
 	return revision
 
 def extractRevisionNumber():
-	return int(extractRevision() or 1)
+	return int(extractNumberFromGitRevision(extractRevision()) or 1)
 
 def extractRevisionString():
 	return extractRevision() or 'unknown'

@@ -215,10 +215,10 @@ BINDIST_DIR:=$(BUILD_PATH)/bindist
 BINDIST_PACKAGE:=
 
 ifeq ($(VERSION_EXEC),true)
-  CHANGELOG_REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
+  REVISION:=$(shell PYTHONPATH=build $(PYTHON) -c \
     "import version; print version.extractRevisionString()" \
     )
-  BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(CHANGELOG_REVISION)$(EXEEXT)
+  BINARY_FULL:=$(BINARY_PATH)/openmsx-dev$(REVISION)$(EXEEXT)
 else
   BINARY_FULL:=$(BINARY_PATH)/$(BINARY_FILE)
 endif
