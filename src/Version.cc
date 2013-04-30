@@ -7,7 +7,7 @@ namespace openmsx {
 std::string Version::full()
 {
 	return std::string("openMSX ") + VERSION +
-	       (RELEASE ? "" : (std::string("-dev") + REVISION));
+	       (RELEASE ? "" : (std::string("-") + REVISION));
 }
 
 } // namespace openmsx
