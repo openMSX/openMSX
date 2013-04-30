@@ -156,12 +156,8 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(const std::string& name)
 {
-	for (auto it = proxySettings.begin(); it != proxySettings.end(); ++it) {
-		if (it->first->getName() == name) {
-			return it;
-		}
-	}
-	return proxySettings.end();
+	return find_if(proxySettings.begin(), proxySettings.end(),
+		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
 }
 
 void GlobalCommandController::registerProxySetting(Setting& setting)

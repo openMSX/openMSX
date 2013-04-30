@@ -8,7 +8,6 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "memory.hh"
-#include "unreachable.hh"
 #include <cassert>
 
 using std::string;
@@ -63,13 +62,10 @@ void UserSettings::addSetting(unique_ptr<Setting> setting)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	for (auto it = settings.begin(); it != settings.end(); ++it) {
-		if (it->get() == &setting) {
-			settings.erase(it);
-			return;
-		}
-	}
-	UNREACHABLE;
+	auto it = find_if(settings.begin(), settings.end(),
+		[&](unique_ptr<Setting>& p) { return p.get() == &setting; });
+	assert(it != settings.end());
+	settings.erase(it);
 }
 
 Setting* UserSettings::findSetting(string_ref name) const

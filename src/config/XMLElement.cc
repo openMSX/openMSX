@@ -52,21 +52,13 @@ void XMLElement::removeChild(const XMLElement& child)
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
 {
-	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
-		if (it->first == name) {
-			return it;
-		}
-	}
-	return attributes.end();
+	return find_if(attributes.begin(), attributes.end(),
+	               [&](Attribute& a) { return a.first == name; });
 }
 XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name) const
 {
-	for (auto it = attributes.begin(); it != attributes.end(); ++it) {
-		if (it->first == name) {
-			return it;
-		}
-	}
-	return attributes.end();
+	return find_if(attributes.begin(), attributes.end(),
+	               [&](const Attribute& a) { return a.first == name; });
 }
 
 void XMLElement::addAttribute(string_ref name, string_ref value)

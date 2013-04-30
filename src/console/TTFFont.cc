@@ -2,13 +2,11 @@
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
 #include "memory.hh"
 #include <SDL_ttf.h>
 #include <map>
 #include <algorithm>
 #include <vector>
-#include <iostream>
 #include <cassert>
 
 using std::string;
@@ -60,7 +58,8 @@ private:
 		TTF_Font* font;
 		int count;
 	};
-	std::map<std::pair<string, int>, FontInfo> pool;
+	typedef std::map<std::pair<string, int>, FontInfo> Pool;
+	Pool pool;
 };
 
 
@@ -127,17 +126,14 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	for (auto it = pool.begin(); it != pool.end(); ++it) {
-		if (it->second.font == font) {
-			--(it->second.count);
-			if (it->second.count == 0) {
-				TTF_CloseFont(it->second.font);
-				pool.erase(it);
-			}
-			return;
-		}
+	auto it = find_if(pool.begin(), pool.end(),
+		[&](Pool::value_type& v) { return v.second.font == font; });
+	assert(it != pool.end());
+	--(it->second.count);
+	if (it->second.count == 0) {
+		TTF_CloseFont(it->second.font);
+		pool.erase(it);
 	}
-	UNREACHABLE;
 }
 
 

@@ -36,19 +36,24 @@ bool LessSyncPoint::operator()(
 
 
 struct FindSchedulable {
-	explicit FindSchedulable(const Schedulable& schedulable);
-	bool operator()(const SynchronizationPoint& sp) const;
+	explicit FindSchedulable(const Schedulable& schedulable_)
+		: schedulable(schedulable_) {}
+	bool operator()(const SynchronizationPoint& sp) const {
+		return sp.getDevice() == &schedulable;
+	}
 	const Schedulable& schedulable;
 };
-FindSchedulable::FindSchedulable(const Schedulable& schedulable_)
-	: schedulable(schedulable_)
-{
-}
 
-bool FindSchedulable::operator()(const SynchronizationPoint& sp) const
-{
-	return sp.getDevice() == &schedulable;
-}
+struct EqualSchedulable {
+	EqualSchedulable(const Schedulable& schedulable_, int userdata_)
+		: schedulable(schedulable_), userdata(userdata_) {}
+	bool operator()(const SynchronizationPoint& sp) const {
+		return (sp.getDevice() == &schedulable) &&
+		       (sp.getUserData() == userdata);
+	}
+	const Schedulable& schedulable;
+	int userdata;
+};
 
 
 Scheduler::Scheduler()
@@ -98,14 +103,14 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	for (auto it = syncPoints.begin(); it != syncPoints.end(); ++it) {
-		if ((it->getDevice() == &device) &&
-		    (it->getUserData() == userData)) {
-			syncPoints.erase(it);
-			return true;
-		}
+	auto it = find_if(syncPoints.begin(), syncPoints.end(),
+	                  EqualSchedulable(device, userData));
+	if (it != syncPoints.end()) {
+		syncPoints.erase(it);
+		return true;
+	} else {
+		return false;
 	}
-	return false; // nothing removed
 }
 
 void Scheduler::removeSyncPoints(Schedulable& device)
@@ -119,13 +124,8 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData) const
 {
 	assert(Thread::isMainThread());
-	for (auto& s : syncPoints) {
-		if ((s.getDevice() == &device) &&
-		    (s.getUserData() == userData)) {
-			return true;
-		}
-	}
-	return false;
+	return find_if(syncPoints.begin(), syncPoints.end(),
+	               EqualSchedulable(device, userData)) != syncPoints.end();
 }
 
 EmuTime::param Scheduler::getCurrentTime() const

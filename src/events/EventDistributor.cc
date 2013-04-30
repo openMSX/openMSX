@@ -3,6 +3,7 @@
 #include "Reactor.hh"
 #include "Thread.hh"
 #include "openmsx.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::pair;
@@ -33,12 +34,10 @@ void EventDistributor::unregisterEventListener(
 {
 	ScopedLock lock(sem);
 	PriorityMap& priorityMap = listeners[type];
-	for (auto it = priorityMap.begin(); it != priorityMap.end(); ++it) {
-		if (it->second == &listener) {
-			priorityMap.erase(it);
-			break;
-		}
-	}
+	auto it = find_if(priorityMap.begin(), priorityMap.end(),
+		[&](PriorityMap::value_type v) { return v.second == &listener; });
+	assert(it != priorityMap.end());
+	priorityMap.erase(it);
 }
 
 void EventDistributor::distributeEvent(const EventPtr& event)
