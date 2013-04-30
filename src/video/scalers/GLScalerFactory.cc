@@ -25,7 +25,7 @@ unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 		//   - it probably has some bugs because (on nvidia cards)
 		//     it does not give the same result as the SW SaI scaler,
 		//     although it's reasonably close
-		//return make_unique<GLSaIScaler();
+		//return make_unique<GLSaIScaler>();
 	case RenderSettings::SCALER_SIMPLE:
 		return make_unique<GLSimpleScaler>(renderSettings);
 	case RenderSettings::SCALER_RGBTRIPLET:

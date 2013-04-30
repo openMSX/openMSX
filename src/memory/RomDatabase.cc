@@ -540,10 +540,7 @@ RomDatabase::~RomDatabase()
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
 	auto it = romDBSHA1.find(sha1sum);
-	if (it == romDBSHA1.end()) {
-		return nullptr;
-	}
-	return it->second.get();
+	return (it == romDBSHA1.end()) ? nullptr : it->second.get();
 }
 
 

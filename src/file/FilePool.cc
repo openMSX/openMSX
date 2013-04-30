@@ -355,8 +355,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 			if (time == it->second.first) {
 				// db is still up to date
 				if (it->first == sha1sum) {
-					auto file = make_unique<File>(filename);
-					return file;
+					return make_unique<File>(filename);
 				}
 			} else {
 				// db outdated

@@ -278,8 +278,7 @@ private:
 		const char* name,
 		std::unique_ptr<PolymorphicLoaderBase<Archive>> loader);
 
-	StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>>
-		loaderMap;
+	StringMap<std::unique_ptr<PolymorphicLoaderBase<Archive>>> loaderMap;
 };
 
 template<typename Archive>

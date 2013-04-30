@@ -25,8 +25,8 @@ bool Thread::isMainThread()
 
 Thread::Thread(Runnable* runnable_)
 	: runnable(runnable_)
+	, thread(nullptr)
 {
-	thread = nullptr;
 }
 
 Thread::~Thread()

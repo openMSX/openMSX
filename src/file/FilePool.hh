@@ -79,7 +79,7 @@ private:
 	std::unique_ptr<File> scanFile(const Sha1Sum& sha1sum,
 	                               const std::string& filename,
 	                               const FileOperations::Stat& st,
-	                                  const std::string& poolPath);
+	                               const std::string& poolPath);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Directories getDirectories() const;

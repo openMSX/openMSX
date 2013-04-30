@@ -106,7 +106,7 @@ void seekdir(DIR* dir, off_t offset)
 	rewinddir(dir);
 	for (off_t n = 0; n < offset; ++n) {
 		if (FindNextFileW(reinterpret_cast<HANDLE>(dir->fd),
-					  static_cast<WIN32_FIND_DATAW*>(dir->data))) {
+		                  static_cast<WIN32_FIND_DATAW*>(dir->data))) {
 			dir->filepos++;
 		}
 	}

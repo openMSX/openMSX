@@ -768,7 +768,7 @@ static string stripquotes(const string& str)
 		// There are no quotes, return the whole string.
 		return str;
 	}
-	auto last  = str.find_last_of ('\"');
+	auto last = str.find_last_of ('\"');
 	if (first == last) {
 		// Error, there's only a single double-quote char.
 		return "";

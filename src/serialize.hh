@@ -6,11 +6,11 @@
 #include "XMLElement.hh"
 #include "TypeInfo.hh"
 #include "StringOp.hh"
-#include "type_traits.hh"
 #include "inline.hh"
 #include "unreachable.hh"
 #include <zlib.h>
 #include <string>
+#include <type_traits>
 #include <cstring>
 #include <vector>
 #include <map>

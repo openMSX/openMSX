@@ -3,9 +3,9 @@
 
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
-#include "type_traits.hh"
 #include "unreachable.hh"
 #include <string>
+#include <type_traits>
 #include <cassert>
 #include <memory>
 
@@ -328,7 +328,7 @@ template<typename T> struct ClassSaver
 		//    - version
 		//    - constructor args
 		// Rational:
-		//  - 'id' must be first: it could be a nullptr, in that
+		//  - 'id' must be first: it could be nullptr, in that
 		//    case the other fields are not even present.
 		//  - 'type' must be before version, because for some types we
 		//    might not need to store version (though it's unlikely)

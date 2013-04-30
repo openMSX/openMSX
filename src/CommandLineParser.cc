@@ -683,9 +683,8 @@ void MachineOption::parseOption(const string& option, deque<string>& cmdLine)
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
 	}
-	string machine(getArgument(option, cmdLine));
 	try {
-		parser.reactor.switchMachine(machine);
+		parser.reactor.switchMachine(getArgument(option, cmdLine));
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}

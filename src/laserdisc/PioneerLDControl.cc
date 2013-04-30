@@ -43,7 +43,6 @@ PioneerLDControl::PioneerLDControl(const DeviceConfig& config)
 		laserdisc = make_unique<LaserdiscPlayer>(
 			getHardwareConfig(), *this);
 	}
-
 	reset(getCurrentTime());
 }
 

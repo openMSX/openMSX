@@ -606,8 +606,7 @@ void TabCompletionCmd::execute(const vector<TclObject>& tokens, TclObject& resul
 	switch (tokens.size()) {
 	case 2: {
 		// TODO this prints list of possible completions in the console
-		string_ref command = tokens[1].getString();
-		result.setString(controller.tabCompletion(command));
+		result.setString(controller.tabCompletion(tokens[1].getString()));
 		break;
 	}
 	default:

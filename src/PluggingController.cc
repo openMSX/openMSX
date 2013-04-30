@@ -129,8 +129,7 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
-	auto it = find(connectors.begin(), connectors.end(),
-	               &connector);
+	auto it = find(connectors.begin(), connectors.end(), &connector);
 	assert(it != connectors.end());
 	connectors.erase(it);
 

@@ -38,7 +38,7 @@ static void cbStartElement(
 	auto helper = static_cast<XMLLoaderHelper*>(helper_);
 	XMLElement newElem(reinterpret_cast<const char*>(localname));
 
-	for (int i = 0; i < nb_attributes; i++) {
+	for (int i = 0; i < nb_attributes; ++i) {
 		auto valueStart =
 			reinterpret_cast<const char*>(attrs[i * 5 + 3]);
 		auto valueEnd =

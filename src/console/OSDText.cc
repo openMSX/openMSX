@@ -380,7 +380,6 @@ string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 			line = line.substr(pos);
 		} while (!line.empty());
 	}
-
 	return StringOp::join(wrappedLines, "\n");
 }
 
@@ -397,7 +396,6 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 			StringOp::trimLeft(line, " "); // remove leading spaces
 		} while (!line.empty());
 	}
-
 	return StringOp::join(wrappedLines, "\n");
 }
 

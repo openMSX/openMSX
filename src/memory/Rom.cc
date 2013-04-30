@@ -112,7 +112,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		checkResolvedSha1 = false;
 
 	} else if (resolvedFilenameElem || resolvedSha1Elem ||
-	    !sums.empty() || filenameElem) {
+	           !sums.empty() || filenameElem) {
 		FilePool& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {

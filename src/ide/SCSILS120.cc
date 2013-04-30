@@ -186,13 +186,13 @@ void SCSILS120::disconnect()
 bool SCSILS120::isSelected()
 {
 	lun = 0;
-	return (file.get() != nullptr);
+	return file.get() != nullptr;
 }
 
 bool SCSILS120::getReady()
 {
 	if (file.get()) {
-	   return true;
+		return true;
 	}
 	keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 	return false;

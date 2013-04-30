@@ -88,7 +88,7 @@ static void test(YM2413Core& core, const Log& log,
 			core.writeReg(w.reg, w.val);
 		}
 
-		unsigned samples = it->samples;
+		unsigned samples = l.samples;
 
 		// setup buffers
 		int* bufs[CHANNELS];
