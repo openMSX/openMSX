@@ -334,7 +334,7 @@ string GlobalCommandController::removeEscaping(const string& str)
 	ParseState state = Alpha;
 
 	string result;
-	for (unsigned i = 0; i < str.length(); ++i) {
+	for (unsigned i = 0; i < str.size(); ++i) {
 		char chr = str[i];
 		switch (state) {
 			case Alpha:
@@ -380,7 +380,7 @@ vector<string> GlobalCommandController::removeEscaping(
 static string escapeChars(const string& str, const string& chars)
 {
 	string result;
-	for (unsigned i = 0; i < str.length(); ++i) {
+	for (unsigned i = 0; i < str.size(); ++i) {
 		char chr = str[i];
 		if (chars.find(chr) != string::npos) {
 			result += '\\';

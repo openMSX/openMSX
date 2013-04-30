@@ -553,15 +553,15 @@ static string formatSet(const set<string>& inputSet, string::size_type columns)
 		if (totalLength == 0) {
 			// first element ?
 			outString << "    " << temp;
-			totalLength = temp.length();
+			totalLength = temp.size();
 		} else {
 			outString << ", ";
-			if ((totalLength + temp.length()) > columns) {
+			if ((totalLength + temp.size()) > columns) {
 				outString << "\n    " << temp;
-				totalLength = temp.length();
+				totalLength = temp.size();
 			} else {
 				outString << temp;
-				totalLength += 2 + temp.length();
+				totalLength += 2 + temp.size();
 			}
 		}
 	}

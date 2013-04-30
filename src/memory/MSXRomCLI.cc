@@ -27,7 +27,7 @@ void MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
-	if (option.length() == 6) {
+	if (option.size() == 6) {
 		slotname = option[5];
 	} else {
 		slotname = "any";
