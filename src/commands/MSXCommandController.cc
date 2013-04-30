@@ -193,7 +193,7 @@ void MSXCommandController::signalEvent(
 	for (auto& p : settingMap) {
 		try {
 			changeSetting(*p.second, p.second->getValueString());
-		} catch (MSXException& e) {
+		} catch (MSXException&) {
 			// ignore
 		}
 	}
@@ -211,7 +211,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 			if (!fromSetting->needTransfer()) continue;
 			try {
 				changeSetting(*p.second, fromSetting->getValueString());
-			} catch (MSXException& e) {
+			} catch (MSXException&) {
 				// ignore
 			}
 		}

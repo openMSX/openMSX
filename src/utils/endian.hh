@@ -57,8 +57,8 @@ static inline uint32_t bswap64(uint64_t x)
 	// E.g. on x86 this is translated to a single 'bswap' instruction.
 	return __builtin_bswap64(x);
 #else
-	return (bswap32(x >>  0) << 32) |
-	       (bswap32(x >> 32) <<  0);
+	return (uint64_t(bswap32(x >>  0)) << 32) |
+	       (uint64_t(bswap32(x >> 32)) <<  0);
 #endif
 }
 
