@@ -462,7 +462,7 @@ void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
 	if (auto multi = dynamic_cast<MSXMultiIODevice*>(devicePtr)) {
 		// remove from MultiIO device
 		multi->removeDevice(device);
-		MSXMultiIODevice::Devices& devices = multi->getDevices();
+		auto& devices = multi->getDevices();
 		if (devices.size() == 1) {
 			// only one remaining, remove MultiIO device
 			devicePtr = devices.front();

@@ -407,7 +407,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		default:
 			// iterate over all arguments
 			while (!cmdLine.empty()) {
-				string arg = cmdLine.front();
+				string arg = std::move(cmdLine.front());
 				cmdLine.pop_front();
 				// first try options
 				if (!parseOption(arg, cmdLine, phase)) {
@@ -420,7 +420,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						if (it1 != optionMap.end()) {
 							for (unsigned i = 0; i < it1->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
-									backupCmdLine.push_back(cmdLine.front());
+									backupCmdLine.push_back(std::move(cmdLine.front()));
 									cmdLine.pop_front();
 								}
 							}

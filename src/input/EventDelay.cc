@@ -166,9 +166,9 @@ void EventDelay::sync(EmuTime::param curEmu)
 void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
 {
 	try {
-		EventPtr event = scheduledEvents.front(); // TODO move out
+		auto event = std::move(scheduledEvents.front());
 		scheduledEvents.pop_front();
-		msxEventDistributor.distributeEvent(event, time);
+		msxEventDistributor.distributeEvent(std::move(event), time);
 	} catch (MSXException&) {
 		// ignore
 	}

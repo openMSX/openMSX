@@ -136,7 +136,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 		bool createDrive = false;
 		string image;
 
-		string arg = args.front();
+		string arg = std::move(args.front());
 		args.pop_front();
 		if        ((arg == "--ctrl")    || (arg == "-c")) {
 			enablePhantom  = false;
@@ -164,7 +164,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 			if (args.empty()) {
 				error = "Missing argument for option: " + arg;
 			} else {
-				image = args.front();
+				image = std::move(args.front());
 				args.pop_front();
 				createDrive = true;
 			}
@@ -174,7 +174,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 				error = "Missing argument for option: " + arg;
 			} else {
 				try {
-					string hdimage = args.front();
+					string hdimage = std::move(args.front());
 					args.pop_front();
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;

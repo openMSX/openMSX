@@ -13,7 +13,7 @@ string CLIOption::getArgument(const string& option, deque<string>& cmdLine) cons
 	if (cmdLine.empty()) {
 		throw FatalError("Missing argument for option \"" + option + '\"');
 	}
-	string argument = cmdLine.front();
+	string argument = std::move(cmdLine.front());
 	cmdLine.pop_front();
 	return argument;
 }
