@@ -17,6 +17,7 @@
 #include "TclObject.hh"
 #include "Version.hh"
 #include "ScopedAssign.hh"
+#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "openmsx.hh"
 #include "memory.hh"
@@ -412,14 +413,14 @@ string GlobalCommandController::addEscaping(const string& str, bool quote,
 string GlobalCommandController::join(
 	const vector<string>& tokens, char delimiter)
 {
-	string result;
+	StringOp::Builder result;
 	bool first = true;
 	for (auto& t : tokens) {
 		if (!first) {
-			result += delimiter;
+			result << delimiter;
 		}
 		first = false;
-		result += t;
+		result << t;
 	}
 	return result;
 }

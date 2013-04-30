@@ -365,7 +365,7 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		string slotname = (cartname.size() == 5)
 			? string(1, cartname[4])
 			: "any";
-		int extensionNameToken = 1;
+		size_t extensionNameToken = 1;
 		if (tokens[1] == "insert") {
 			if (tokens.size() > 2) {
 				extensionNameToken = 2;

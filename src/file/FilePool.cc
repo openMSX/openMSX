@@ -137,7 +137,7 @@ void FilePool::writeSha1sums()
 		file << p.first.toString() << "  "             // sum
 		     << Date::toString(p.second.first) << "  " // date
 		     << p.second.second                        // filename
-		     << endl;
+		     << '\n';
 	}
 }
 

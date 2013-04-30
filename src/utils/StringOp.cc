@@ -360,10 +360,11 @@ string join(const vector<string>& elems, const string& separator)
 	if (elems.empty()) return string();
 
 	auto it = elems.begin();
-	string result = *it;
+	Builder result;
+	result << *it;
 	for (++it; it != elems.end(); ++it) {
-		result += separator;
-		result += *it;
+		result << separator;
+		result << *it;
 	}
 	return result;
 }
