@@ -89,7 +89,7 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 
 	Tcl_Channel channel = Tcl_CreateChannel(&channelType,
 		"openMSX console", this, TCL_WRITABLE);
-	if (channel != nullptr) {
+	if (channel) {
 		Tcl_SetChannelOption(interp, channel, "-translation", "binary");
 		Tcl_SetChannelOption(interp, channel, "-buffering", "line");
 		Tcl_SetChannelOption(interp, channel, "-encoding", "utf-8");

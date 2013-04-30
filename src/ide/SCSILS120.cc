@@ -117,7 +117,7 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("lsInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new LSInUse();
 	}
 	++info.counter;

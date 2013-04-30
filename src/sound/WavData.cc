@@ -18,7 +18,7 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;
 	Uint32 wavLen;
-	if (SDL_LoadWAV(filename.c_str(), &wavSpec, &wavBuf, &wavLen) == nullptr) {
+	if (!SDL_LoadWAV(filename.c_str(), &wavSpec, &wavBuf, &wavLen)) {
 		throw MSXException(StringOp::Builder() <<
 			"WavData error: " << SDL_GetError());
 	}

@@ -99,7 +99,7 @@ bool CassettePort::cassetteIn(EmuTime::param time)
 	//   we just assume sample has no DC component
 	short sample;
 #if COMPONENT_LASERDISC
-	if (!motorControl && laserdiscPlayer != nullptr) {
+	if (!motorControl && laserdiscPlayer) {
 		sample = laserdiscPlayer->readSample(time);
 	} else
 #endif

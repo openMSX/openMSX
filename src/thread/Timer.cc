@@ -86,7 +86,7 @@ void sleep(uint64_t us)
 	us /= 1000;
 	if (us > 0) {
 		static HANDLE timerEvent = nullptr;
-		if (timerEvent == nullptr) {
+		if (!timerEvent) {
 			timerEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		}
 		UINT id = timeSetEvent(us, 1, timerCallback, (DWORD)timerEvent,

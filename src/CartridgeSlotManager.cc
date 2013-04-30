@@ -56,7 +56,7 @@ CartridgeSlotManager::Slot::Slot()
 
 CartridgeSlotManager::Slot::~Slot()
 {
-	assert(config == nullptr);
+	assert(!config);
 	assert(useCount == 0);
 }
 

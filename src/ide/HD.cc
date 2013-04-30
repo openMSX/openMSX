@@ -29,7 +29,7 @@ HD::HD(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("hdInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new HDInUse();
 	}
 	++info.counter;

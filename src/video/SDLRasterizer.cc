@@ -338,7 +338,7 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		Pixel c = ((superimposing != nullptr) && bgcolorIndex == 0)
+		Pixel c = (superimposing && (bgcolorIndex == 0))
 		        ? screen.getKeyColor<Pixel>()
 		        : palBg[tpIndex];
 

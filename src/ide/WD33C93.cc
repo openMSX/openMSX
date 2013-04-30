@@ -137,7 +137,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		if (dev[i].get() == nullptr) {
+		if (!dev[i].get()) {
 			dev[i] = make_unique<DummySCSIDevice>();
 		}
 	}

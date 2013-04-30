@@ -52,7 +52,7 @@ RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("FSA1FM-sram");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new SRAM(config.getAttribute("id") + " SRAM",
 		                      0x2000, config);
 	}

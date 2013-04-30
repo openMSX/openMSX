@@ -75,7 +75,7 @@ static unique_ptr<MSXDevice> createWD2793BasedFDC(const DeviceConfig& conf)
 {
 	const XMLElement* styleEl = conf.findChild("connectionstyle");
 	std::string type;
-	if (styleEl == nullptr) {
+	if (!styleEl) {
 		conf.getCliComm().printWarning(
 			"WD2793 as FDC type without a connectionstyle is "
 			"deprecated, please update your config file to use "

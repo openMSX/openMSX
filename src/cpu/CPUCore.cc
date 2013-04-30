@@ -601,8 +601,7 @@ template <class T> template <bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl2(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != nullptr))) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);
@@ -694,8 +693,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != nullptr))) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<true, true>(address);
 		T::template POST_WORD<     true>(address);
@@ -719,8 +717,7 @@ ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev2(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != nullptr))) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) && line)) {
 		// fast path: cached and two bytes in same cache line
 		T::template PRE_WORD<PRE_PB, POST_PB>(address);
 		T::template POST_WORD<       POST_PB>(address);

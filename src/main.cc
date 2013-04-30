@@ -79,13 +79,13 @@ static int main(int argc, char **argv)
 	ad_printf("Redirecting stdout to %s and stderr to %s\n",
 	          STDOUT_LOG_FILE_NAME, STDERR_LOG_FILE_NAME);
 
-	if (freopen(STDOUT_LOG_FILE_NAME, "a", stdout) == nullptr) {
+	if (!freopen(STDOUT_LOG_FILE_NAME, "a", stdout)) {
 		ad_printf("Couldn't redirect stdout to logfile, aborting\n");
 		cerr << "Couldn't redirect stdout to "
 		        STDOUT_LOG_FILE_NAME << endl;
 		exit(1);
 	}
-	if (freopen(STDERR_LOG_FILE_NAME, "a", stderr) == nullptr) {
+	if (!freopen(STDERR_LOG_FILE_NAME, "a", stderr)) {
 		ad_printf("Couldn't redirect stderr to logfile, aborting\n");
 		cout << "Couldn't redirect stderr to "
 		        STDERR_LOG_FILE_NAME << endl;

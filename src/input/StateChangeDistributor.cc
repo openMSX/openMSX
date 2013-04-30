@@ -37,7 +37,7 @@ void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 
 void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)
 {
-	assert(recorder == nullptr);
+	assert(!recorder);
 	recorder = &recorder_;
 }
 

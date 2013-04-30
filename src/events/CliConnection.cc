@@ -319,7 +319,7 @@ PipeConnection::PipeConnection(CommandController& commandController,
 	}
 
 	shutdownEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-	if (shutdownEvent == nullptr) {
+	if (!shutdownEvent) {
 		throw FatalError(StringOp::Builder() <<
 			"Error creating shutdown event: " << GetLastError());
 	}
@@ -339,7 +339,7 @@ void InitOverlapped(LPOVERLAPPED overlapped)
 {
 	ZeroMemory(overlapped, sizeof(*overlapped));
 	overlapped->hEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
-	if (overlapped->hEvent == nullptr) {
+	if (!overlapped->hEvent) {
 		throw FatalError(StringOp::Builder() <<
 			"Error creating overlapped event: " << GetLastError());
 	}

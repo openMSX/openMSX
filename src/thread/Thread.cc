@@ -38,7 +38,7 @@ void Thread::start()
 {
 	assert(!thread);
 	thread = SDL_CreateThread(startThread, runnable);
-	if (thread == nullptr) {
+	if (!thread) {
 		throw FatalError(StringOp::Builder() <<
 			"Unable to create thread: " << SDL_GetError());
     }

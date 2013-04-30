@@ -46,7 +46,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("drivesInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new DrivesInUse();
 	}
 	++info.counter;

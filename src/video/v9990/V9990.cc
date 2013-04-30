@@ -341,7 +341,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 		case COMMAND_DATA:
 			// systemReset state doesn't matter:
 			//   command below has no effect in systemReset mode
-			//assert(cmdEngine != nullptr);
+			//assert(cmdEngine);
 			cmdEngine->setCmdData(val, time);
 			break;
 

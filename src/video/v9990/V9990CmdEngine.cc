@@ -668,7 +668,7 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 	MSXMotherBoard::SharedStuff& info =
 		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new BooleanSetting(
 			vdp.getCommandController(),
 			"v9990cmdtrace", "V9990 command tracing on/off", false);

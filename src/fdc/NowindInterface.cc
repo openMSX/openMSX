@@ -33,7 +33,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	MSXMotherBoard::SharedStuff& info =
 		getMotherBoard().getSharedStuff("nowindsInUse");
 	if (info.counter == 0) {
-		assert(info.stuff == nullptr);
+		assert(!info.stuff);
 		info.stuff = new NowindsInUse();
 	}
 	++info.counter;

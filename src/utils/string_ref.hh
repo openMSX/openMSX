@@ -33,9 +33,9 @@ public:
 	string_ref(const char* str)
 		: dat(str), siz(str ? size_type(strlen(str)) : 0) {}
 	string_ref(const char* str, size_type len)
-		: dat(str), siz(len) { if (dat == nullptr) assert(siz == 0); }
+		: dat(str), siz(len) { if (!dat) assert(siz == 0); }
 	string_ref(const char* begin, const char* end)
-		: dat(begin), siz(end - begin) { if (dat == nullptr) assert(siz == 0); }
+		: dat(begin), siz(end - begin) { if (!dat) assert(siz == 0); }
 	string_ref(const std::string& str)
 		: dat(str.data()), siz(str.size()) {}
 

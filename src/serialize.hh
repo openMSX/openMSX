@@ -502,7 +502,7 @@ public:
 
 	template<typename T> void resetSharedPtr(std::shared_ptr<T>& s, T* r)
 	{
-		if (r == nullptr) {
+		if (!r) {
 			s.reset();
 			return;
 		}

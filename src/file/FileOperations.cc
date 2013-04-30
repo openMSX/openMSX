@@ -591,7 +591,7 @@ string expandCurrentDirFromDrive(string_ref path)
 		if (('a' <= drive) && (drive <= 'z')) {
 			wchar_t bufW[MAXPATHLEN + 1];
 			if (driveExists(drive) &&
-				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN) != nullptr) {
+				_wgetdcwd(drive - 'a' + 1, bufW, MAXPATHLEN)) {
 				result = getConventionalPath(utf16to8(bufW));
 				if (result.back() != '/') {
 					result += '/';

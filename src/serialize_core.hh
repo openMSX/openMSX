@@ -339,7 +339,7 @@ template<typename T> struct ClassSaver
 			ar.attribute("id", id);
 		}
 
-		if (type != nullptr) {
+		if (type) {
 			ar.attribute("type", type);
 		}
 
@@ -372,7 +372,7 @@ template<typename TP> struct PointerSaver
 		              "must be serialized as pointer");
 		typedef typename serialize_as_pointer<TP>::type T;
 		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
-		if (tp == nullptr) {
+		if (!tp) {
 			unsigned id = 0;
 			ar.attribute("id_ref", id);
 			return;
@@ -399,7 +399,7 @@ template<typename TP> struct IDSaver
 		              "must be serialized as pointer");
 		auto tp = serialize_as_pointer<TP>::getPointer(tp2);
 		unsigned id;
-		if (tp == nullptr) {
+		if (!tp) {
 			id = 0;
 		} else {
 			id = ar.getId(tp);

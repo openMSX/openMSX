@@ -22,7 +22,7 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 {
 	for (int i = 0; i < 256; ++i) {
 		// all devices must be unregistered
-		assert(devices[i] == nullptr);
+		assert(!devices[i]);
 	}
 	assert(count == 0);
 }
@@ -53,7 +53,7 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 			getCPUInterface().unregister_IO_In (port, this);
 		}
 	}
-	assert(devices[id] != nullptr);
+	assert(devices[id]);
 	devices[id] = nullptr;
 }
 

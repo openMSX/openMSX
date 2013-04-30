@@ -124,7 +124,7 @@ public:
 		// Allocate memory.
 		auto newItem = static_cast<StringMapEntry*>(
 			malloc(sizeof(StringMapEntry) + key.size()));
-		if (unlikely(newItem == nullptr)) {
+		if (unlikely(!newItem)) {
 			throw std::bad_alloc();
 		}
 

@@ -185,7 +185,7 @@ unsigned AlarmManager::timerCallback2()
 	}
 	if (earliest != std::numeric_limits<int64_t>::max()) {
 		time = earliest + now;
-		assert(id != nullptr);
+		assert(id);
 		return convert(int(earliest));
 	} else {
 		for (auto& a : alarms) {

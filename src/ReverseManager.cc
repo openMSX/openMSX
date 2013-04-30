@@ -689,7 +689,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// get destination time index
 	EmuTime destination = EmuTime::zero;
-	string_ref where = (whereArg == nullptr) ? "begin" : whereArg->getString();
+	string_ref where = whereArg ? whereArg->getString() : "begin";
 	if (where == "begin") {
 		destination = EmuTime::zero;
 	} else if (where == "end") {

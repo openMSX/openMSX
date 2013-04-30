@@ -565,7 +565,7 @@ void SoftwareInfoTopic::execute(const vector<TclObject>& tokens,
 
 	Sha1Sum sha1sum = Sha1Sum(tokens[2].getString());
 	const RomInfo* romInfo = romDatabase.fetchRomInfo(sha1sum);
-	if (romInfo == nullptr) {
+	if (!romInfo) {
 		// no match found
 		throw CommandException(
 			"Software with sha1sum " + sha1sum.toString() + " not found");

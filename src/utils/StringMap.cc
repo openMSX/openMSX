@@ -40,7 +40,7 @@ void StringMapImpl::init(unsigned initSize)
 	theTable = static_cast<StringMapEntryBase**>(calloc(
 		numBuckets + 1,
 		sizeof(StringMapEntryBase**) + sizeof(unsigned)));
-	if (unlikely(theTable == nullptr)) {
+	if (unlikely(!theTable)) {
 		throw std::bad_alloc();
 	}
 
@@ -62,7 +62,7 @@ unsigned StringMapImpl::lookupBucketFor(string_ref name)
 	int firstTombstone = -1;
 	while (true) {
 		StringMapEntryBase* bucketItem = theTable[bucketNo];
-		if (bucketItem == nullptr) {
+		if (!bucketItem) {
 			// Empty bucket, this means the key isn't in the table
 			// yet. If we found a tombstone earlier, then reuse
 			// that instead of using this empty bucket.
@@ -105,7 +105,7 @@ int StringMapImpl::findKey(string_ref key) const
 	unsigned probeAmt = 1;
 	while (true) {
 		StringMapEntryBase* bucketItem = theTable[bucketNo];
-		if (bucketItem == nullptr) {
+		if (!bucketItem) {
 			// Empty bucket, key isn't in the table yet.
 			return -1;
 		} else if (bucketItem == getTombstoneVal()) {
@@ -161,7 +161,7 @@ void StringMapImpl::rehashTable()
 	auto newTableArray = static_cast<StringMapEntryBase**>(
 		calloc(newSize + 1,
 		       sizeof(StringMapEntryBase*) + sizeof(unsigned)));
-	if (unlikely(newTableArray == nullptr)) {
+	if (unlikely(!newTableArray)) {
 		throw std::bad_alloc();
 	}
 	newTableArray[newSize] = reinterpret_cast<StringMapEntryBase*>(2);
@@ -175,7 +175,7 @@ void StringMapImpl::rehashTable()
 		if (bucket && (bucket != getTombstoneVal())) {
 			unsigned fullHash = hashTable[i];
 			unsigned newBucket = fullHash & (newSize - 1);
-			if (newTableArray[newBucket] == nullptr) {
+			if (!newTableArray[newBucket]) {
 				// Fast case, bucket available.
 				newTableArray[newBucket] = bucket;
 				newHashArray [newBucket] = fullHash;

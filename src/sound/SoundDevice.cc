@@ -257,7 +257,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	unsigned numMix = 0;
 	VLA(int, mixBalance, numChannels);
 	for (unsigned i = 0; i < numChannels; ++i) {
-		if ((bufs[i] != nullptr) && !channelMuted[i]) {
+		if (bufs[i] && !channelMuted[i]) {
 			anyUnmuted = true;
 			if (bufs[i] != dataOut) {
 				bufs[numMix] = bufs[i];

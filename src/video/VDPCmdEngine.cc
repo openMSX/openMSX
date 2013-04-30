@@ -2224,7 +2224,7 @@ void VDPCmdEngine::serialize(Archive& ar, unsigned version)
 	// member, though it was combined for the savestate. Only the CMD part
 	// was guaranteed to be zero when no command was executing. So when
 	// loading an older savestate this can still be the case.
-	if (currentCommand == nullptr) {
+	if (!currentCommand) {
 		assert((CMD & 0xF0) == 0); // assert(CMD == 0);
 	}
 

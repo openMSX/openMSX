@@ -310,13 +310,13 @@ static void IMG_SavePNG_RW(int width, int height, const void** row_pointers,
 		png.ptr = png_create_write_struct(
 			PNG_LIBPNG_VER_STRING,
 			const_cast<char*>("encoding"), handleError, handleWarning);
-		if (png.ptr == nullptr) {
+		if (!png.ptr) {
 			throw MSXException("Failed to allocate main struct");
 		}
 
 		// Allocate/initialize the image information data.  REQUIRED
 		png.info = png_create_info_struct(png.ptr);
-		if (png.info == nullptr) {
+		if (!png.info) {
 			// Couldn't create image information for PNG file
 			throw MSXException("Failed to allocate image info struct");
 		}
