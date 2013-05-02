@@ -4,7 +4,6 @@
 #include "openmsx.hh"
 #include "build-info.hh"
 #include "systemfuncs.hh"
-#include "GLUtil.hh"
 #include "Math.hh"
 #include "unreachable.hh"
 #include <type_traits>
@@ -460,24 +459,6 @@ template struct MemSet2<uint16_t, true >;
 template struct MemSet2<uint16_t, false>;
 template struct MemSet2<uint32_t, true >;
 template struct MemSet2<uint32_t, false>;
-
-#if COMPONENT_GL
-#if defined _MSC_VER
-// see comment in V9990BitmapConverter
-static_assert(std::is_same<uint32_t, GLuint>::value,
-              "GLuint must be the same type as uint32_t");
-#else
-template<> struct MemSet <GLUtil::NoExpansion, true > {};
-template<> struct MemSet <GLUtil::NoExpansion, false> {};
-template<> struct MemSet2<GLUtil::NoExpansion, true > {};
-template<> struct MemSet2<GLUtil::NoExpansion, false> {};
-template struct MemSet <GLUtil::ExpandGL, true >;
-template struct MemSet <GLUtil::ExpandGL, false>;
-template struct MemSet2<GLUtil::ExpandGL, true >;
-template struct MemSet2<GLUtil::ExpandGL, false>;
-#endif
-#endif // COMPONENT_GL
-
 
 
 void stream_memcpy(uint32_t* dst, const uint32_t* src, size_t num)

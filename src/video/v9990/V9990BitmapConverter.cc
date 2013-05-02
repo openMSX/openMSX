@@ -365,27 +365,8 @@ void V9990BitmapConverter<Pixel>::convertLine(
 #if HAVE_16BPP
 template class V9990BitmapConverter<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class V9990BitmapConverter<unsigned>;
 #endif
-
-#if COMPONENT_GL
-#if defined(_MSC_VER)
-// The template stuff below fails to compile on VC++, it triggers this error
-//   http://msdn.microsoft.com/en-us/library/9045w50z.aspx
-// It's not clear whether this is a limitation in VC++ or a C++ extension
-// supported by gcc.
-// But we know that 'GLuint' and 'unsigned' are the same types in windows,
-// so the stuff below is not required (it would only instantiate a dummy class
-// when these types are the same).
-static_assert(std::is_same<unsigned, GLuint>::value,
-              "GLuint must be the same type as unsigned");
-#elif HAVE_32BPP
-template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
-template class V9990BitmapConverter<GLUtil::ExpandGL>;
-#else
-template class V9990BitmapConverter<GLuint>;
-#endif
-#endif // COMPONENT_GL
 
 } // namespace openmsx

@@ -379,21 +379,8 @@ void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 #if HAVE_16BPP
 template class BitmapConverter<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class BitmapConverter<unsigned>;
 #endif
-
-#if COMPONENT_GL
-#if defined(_MSC_VER)
-// see comment in V9990BitmapConverter
-static_assert(std::is_same<unsigned, GLuint>::value,
-              "GLuint must be the same type as unsigned");
-#elif HAVE_32BPP
-template<> class BitmapConverter<GLUtil::NoExpansion> {};
-template class BitmapConverter<GLUtil::ExpandGL>;
-#else
-template class BitmapConverter<GLuint>;
-#endif
-#endif // COMPONENT_GL
 
 } // namespace openmsx

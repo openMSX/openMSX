@@ -217,21 +217,8 @@ void V9990P2Converter<Pixel>::renderSprites(
 #if HAVE_16BPP
 template class V9990P2Converter<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class V9990P2Converter<unsigned>;
 #endif
-
-#if COMPONENT_GL
-#if defined(_MSC_VER)
-// see comment in V9990BitmapConverter
-static_assert(std::is_same<unsigned, GLuint>::value,
-              "GLuint must be the same type as unsigned");
-#elif HAVE_32BPP
-template <> class V9990P2Converter<GLUtil::NoExpansion> {};
-template class V9990P2Converter<GLUtil::ExpandGL>;
-#else
-template class V9990P2Converter<GLuint>;
-#endif
-#endif // COMPONENT_GL
 
 } // namespace openmsx

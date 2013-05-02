@@ -461,21 +461,8 @@ void CharacterConverter<Pixel>::renderBogus(
 #if HAVE_16BPP
 template class CharacterConverter<word>;
 #endif
-#if HAVE_32BPP
+#if HAVE_32BPP || COMPONENT_GL
 template class CharacterConverter<unsigned>;
 #endif
-
-#if COMPONENT_GL
-#if defined(_MSC_VER)
-// see comment in V9990BitmapConverter
-static_assert(std::is_same<unsigned, GLuint>::value,
-              "GLuint must be the same type as unsigned");
-#elif HAVE_32BPP
-template<> class CharacterConverter<GLUtil::NoExpansion> {};
-template class CharacterConverter<GLUtil::ExpandGL>;
-#else
-template class CharacterConverter<GLuint>;
-#endif
-#endif // COMPONENT_GL
 
 } // namespace openmsx
