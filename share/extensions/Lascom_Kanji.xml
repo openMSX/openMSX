@@ -9,7 +9,7 @@
     <Kanji id="Lascom Kanji ROM">
       <type>lascom</type>
       <rom>
-        <filename>roms/lascom_kanji.rom.gz</filename>
+        <filename>Lascom_Kanji-dummy.rom.gz</filename>
       </rom>
       <io base="0xD8" num="2" type="O"/>
       <io base="0xD8" num="1" type="I"/>

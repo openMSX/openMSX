@@ -353,15 +353,21 @@ vector<string> Reactor::getHwConfigs(string_ref type)
 {
 	vector<string> result;
 	for (auto& p : SystemFileContext().getPaths()) {
-		string path = FileOperations::join(p, type);
+		const auto& path = FileOperations::join(p, type);
 		ReadDir configsDir(path);
-		while (dirent* d = configsDir.getEntry()) {
-			string name = d->d_name;
-			string dir = FileOperations::join(path, name);
-			string config = FileOperations::join(dir, "hardwareconfig.xml");
-			if (FileOperations::isDirectory(dir) &&
-			    FileOperations::isRegularFile(config)) {
-				result.push_back(name);
+		while (auto* entry = configsDir.getEntry()) {
+			string_ref name = entry->d_name;
+			const auto& fullname = FileOperations::join(path, name);
+			if (name.ends_with(".xml") &&
+			    FileOperations::isRegularFile(fullname)) {
+				name.remove_suffix(4);
+				result.push_back(name.str());
+			} else if (FileOperations::isDirectory(fullname)) {
+				const auto& config = FileOperations::join(
+					fullname, "hardwareconfig.xml");
+				if (FileOperations::isRegularFile(config)) {
+					result.push_back(name.str());
+				}
 			}
 		}
 	}

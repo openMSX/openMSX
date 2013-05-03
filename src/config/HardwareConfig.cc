@@ -230,8 +230,23 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 
 void HardwareConfig::load(string_ref path)
 {
-	const auto& filename = SystemFileContext().resolve(
-		FileOperations::join(path, hwName, "hardwareconfig.xml"));
+	string filename;
+	SystemFileContext context;
+	try {
+		// try <name>.xml
+		filename = context.resolve(
+			FileOperations::join(path, hwName + ".xml"));
+	} catch (MSXException& e) {
+		// backwards-compatibility:
+		//  also try <name>/hardwareconfig.xml
+		try {
+			filename = context.resolve(FileOperations::join(
+				path, hwName, "hardwareconfig.xml"));
+		} catch (MSXException&) {
+			throw e; // signal first error
+		}
+	}
+
 	setConfig(loadConfig(filename));
 
 	assert(!userName.empty());
