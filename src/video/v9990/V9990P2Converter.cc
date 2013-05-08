@@ -155,17 +155,21 @@ void V9990P2Converter<Pixel>::determineVisibleSprites(
 	static const unsigned spriteTable = 0x3FE00;
 
 	int index = 0;
+	int index_max = 16;
 	for (int sprite = 0; sprite < 125; ++sprite) {
 		int spriteInfo = spriteTable + 4 * sprite;
-		byte attr = vram.readVRAMDirect(spriteInfo + 3);
-
-		if (!(attr & 0x10)) {
-			byte spriteY = vram.readVRAMDirect(spriteInfo) + 1;
-			byte posY = displayY - spriteY;
-			if (posY < 16) {
+		byte spriteY = vram.readVRAMDirect(spriteInfo) + 1;
+		byte posY = displayY - spriteY;
+		if (posY < 16) {
+			byte attr = vram.readVRAMDirect(spriteInfo + 3);
+			if (attr & 0x10) {
+				// Invisible sprites do contribute towards the
+				// 16-sprites-per-line limit.
+				index_max--;
+			} else {
 				visibleSprites[index++] = sprite;
-				if (index == 16) break;
 			}
+			if (index == index_max) break;
 		}
 	}
 	// draw sprites in reverse order
