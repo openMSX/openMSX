@@ -75,6 +75,9 @@ EventDelay::~EventDelay()
 int EventDelay::signalEvent(const EventPtr& event)
 {
 	toBeScheduledEvents.push_back(event);
+	if (delaySetting->getValue() == 0.0) {
+		sync(getCurrentTime());
+	}
 	return 0;
 }
 

@@ -541,13 +541,16 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 void Reactor::enterMainLoop()
 {
 	// Note: this method can get called from different threads
-	ScopedLock lock;
-	if (!Thread::isMainThread()) {
+	if (Thread::isMainThread()) {
 		// Don't take lock in main thread to avoid recursive locking.
-		lock.take(mbSem);
-	}
-	if (activeBoard) {
-		activeBoard->exitCPULoopAsync();
+		if (activeBoard) {
+			activeBoard->exitCPULoopSync();
+		}
+	} else {
+		ScopedLock lock(mbSem);
+		if (activeBoard) {
+			activeBoard->exitCPULoopAsync();
+		}
 	}
 }
 

@@ -57,6 +57,7 @@ public:
 
 	/** See CPU::exitCPULoopAsync(). */
 	void exitCPULoopAsync();
+	void exitCPULoopSync();
 
 	/** Pause MSX machine. Only CPU is paused, other devices continue
 	  * running. Used by turbor hardware pause.

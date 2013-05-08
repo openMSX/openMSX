@@ -1373,6 +1373,10 @@ void MSXMotherBoard::exitCPULoopAsync()
 {
 	pimpl->exitCPULoopAsync();
 }
+void MSXMotherBoard::exitCPULoopSync()
+{
+	pimpl->exitCPULoopSync();
+}
 void MSXMotherBoard::pause()
 {
 	pimpl->pause();
