@@ -6,7 +6,7 @@
     <manufacturer>Luciano Sturaro</manufacturer>
     <code/>
     <release_year>2004</release_year>
-    <description>Yamaha OPL3 based sound expansion.</description>
+    <description>Yamaha OPL3 based sound expansion, version 1. This is the older version without MSX-Audio BIOS.</description>
     <type>sound expansion</type>
   </info>
   <devices>
