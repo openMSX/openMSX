@@ -2869,8 +2869,6 @@
     <CustomBuild Include="$(OpenMSXSrcDir)\openmsx.hh" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\LineScalers-x64.asm" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\LineScalers-x86.asm" />
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler-x64.asm" />
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Scale2xScaler-x86.asm" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Scanline-x64.asm" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Scanline-x86.asm" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler-x64.asm" />
