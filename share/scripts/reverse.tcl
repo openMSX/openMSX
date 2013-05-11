@@ -565,7 +565,7 @@ proc check_mouse {} {
 }
 
 proc formatTime {seconds} {
-	format "%02d:%02d" [expr {int($seconds / 60)}] [expr {int($seconds) % 60}]
+	format "%02d:%02d.%02d" [expr {int($seconds / 60)}] [expr {int($seconds) % 60}] [expr {int(fmod($seconds,1) * 100)}]
 }
 
 proc update_bookmarks {name1 name2 op} {
