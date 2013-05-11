@@ -1332,34 +1332,6 @@
     <None Include="$(OpenMSXSrcDir)\video\SDLSurfacePtr.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVideoSystem.hh" />
     <None Include="$(OpenMSXSrcDir)\video\SDLVisibleSurface.hh" />
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler-x64.asm">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">ml64 -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ml64 -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler-x86.asm">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">ml -c -Cp -Cx -W3 -Zi "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">true</ExcludedFromBuild>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Assembling...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ml -c -Cp -Cx -W3 "-Fl$(IntDir)%(Filename).lst" "-Fo$(IntDir)%(Filename).obj" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj;%(Outputs)</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </CustomBuild>
     <None Include="$(OpenMSXSrcDir)\video\scalers\Simple2xScaler.hh" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler-x64.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -4,11 +4,14 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "HostCPU.hh"
 #include "openmsx.hh"
+#include "unreachable.hh"
 #include "vla.hh"
-#include "build-info.hh"
 #include <cassert>
+
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
 
 namespace openmsx {
 
@@ -54,17 +57,97 @@ void Simple2xScaler<Pixel>::scaleBlank1to2(
 	}
 }
 
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
+#ifdef __SSE2__
+
+// Combines upper-half of 'x' with lower half of 'y'.
+__m128i shuffle(__m128i x, __m128i y)
 {
-	void __cdecl Simple2xScaler_blur1on2_4_MMX(
-		const void* pIn, void* pOut, unsigned long srcWidth,
-		unsigned c1, unsigned c2);
-	void __cdecl Simple2xScaler_blur1on1_4_MMX(
-		const void* pIn, void* pOut, unsigned long srcWidth,
-		unsigned c1, unsigned c2);
+	// mm_shuffle_pd() actually shuffles 64-bit floating point values, we
+	// need to shuffle integers. Though floats and ints are stored in the
+	// same xmmN registers. So this instruction does the right thing.
+	// However (some?) x86 CPUs keep the float and integer interpretations
+	// of these registers in different physical locations in the chip and
+	// there is some overhead on switching between these interpretations.
+	// So the casts in the statement below don't generate any instructions,
+	// but they still can cause overhead on (some?) CPUs.
+	return _mm_castpd_si128(_mm_shuffle_pd(
+		_mm_castsi128_pd(x), _mm_castsi128_pd(y), 1));
 }
+
+// 32bpp
+void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
+                   unsigned c1_, unsigned c2_, long width)
+{
+	width *= sizeof(uint32_t); // in bytes
+	assert(width >= (2 * sizeof(__m128i)));
+	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+
+	long x = -(width - sizeof(__m128i));
+	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
+	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
+
+	// Setup first iteration
+	__m128i c1 = _mm_set1_epi16(c1_);
+	__m128i c2 = _mm_set1_epi16(c2_);
+	__m128i zero = _mm_setzero_si128();
+
+	__m128i abcd = *reinterpret_cast<const __m128i*>(in);
+	__m128i a0b0 = _mm_unpacklo_epi8(abcd, zero);
+	__m128i d0a0 = _mm_shuffle_epi32(a0b0, 0x44);
+	__m128i d1a1 = _mm_mullo_epi16(c1, d0a0);
+
+	// Each iteration reads 4 pixels and generates 8 pixels
+	do {
+		// At the start of each iteration these variables are live:
+		//   abcd, a0b0, d1a1
+		__m128i c0d0 = _mm_unpackhi_epi8(abcd, zero);
+		__m128i b0c0 = shuffle(a0b0, c0d0);
+		__m128i a2b2 = _mm_mullo_epi16(c2, a0b0);
+		__m128i b1c1 = _mm_mullo_epi16(c1, b0c0);
+		__m128i daab = _mm_srli_epi16(_mm_add_epi16(d1a1, a2b2), 8);
+		__m128i abbc = _mm_srli_epi16(_mm_add_epi16(a2b2, b1c1), 8);
+		__m128i abab = _mm_packus_epi16(daab, abbc);
+		*reinterpret_cast<__m128i*>(out + 2 * x) =
+			_mm_shuffle_epi32(abab, 0xd8);
+		abcd         = *reinterpret_cast<const __m128i*>(in + x + 16);
+		a0b0         = _mm_unpacklo_epi8(abcd, zero);
+		__m128i d0a0 = shuffle(c0d0, a0b0);
+		__m128i c2d2 = _mm_mullo_epi16(c2, c0d0);
+		d1a1         = _mm_mullo_epi16(c1, d0a0);
+		__m128i bccd = _mm_srli_epi16(_mm_add_epi16(b1c1, c2d2), 8);
+		__m128i cdda = _mm_srli_epi16(_mm_add_epi16(c2d2, d1a1), 8);
+		__m128i cdcd = _mm_packus_epi16(bccd, cdda);
+		*reinterpret_cast<__m128i*>(out + 2 * x + 16) =
+			_mm_shuffle_epi32(cdcd, 0xd8);
+		x += 16;
+	} while (x < 0);
+
+	// Last iteration (because this doesn't need to read new input)
+	__m128i c0d0 = _mm_unpackhi_epi8(abcd, zero);
+	__m128i b0c0 = shuffle(a0b0, c0d0);
+	__m128i a2b2 = _mm_mullo_epi16(c2, a0b0);
+	__m128i b1c1 = _mm_mullo_epi16(c1, b0c0);
+	__m128i daab = _mm_srli_epi16(_mm_add_epi16(d1a1, a2b2), 8);
+	__m128i abbc = _mm_srli_epi16(_mm_add_epi16(a2b2, b1c1), 8);
+	__m128i abab = _mm_packus_epi16(daab, abbc);
+	*reinterpret_cast<__m128i*>(out) = _mm_shuffle_epi32(abab, 0xd8);
+	__m128i d0d0 = _mm_shuffle_epi32(c0d0, 0xee);
+	__m128i c2d2 = _mm_mullo_epi16(c2, c0d0);
+	__m128i d1d1 = _mm_mullo_epi16(c1, d0d0);
+	__m128i bccd = _mm_srli_epi16(_mm_add_epi16(b1c1, c2d2), 8);
+	__m128i cddd = _mm_srli_epi16(_mm_add_epi16(c2d2, d1d1), 8);
+	__m128i cdcd = _mm_packus_epi16(bccd, cddd);
+	*reinterpret_cast<__m128i*>(out + 16) = _mm_shuffle_epi32(cdcd, 0xd8);
+}
+
+// no SSE2 16bpp routine yet (probably not worth the effort)
+void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
+                   unsigned /*c1*/, unsigned /*c2*/, long /*width*/)
+{
+	UNREACHABLE;
+}
+
 #endif
 
 template <class Pixel>
@@ -76,7 +159,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 	 *
 	 * void blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 * {
-	 *         unsigned c1 = alpha;
+	 *         unsigned c1 = alpha / 4;
 	 *         unsigned c2 = 256 - c1;
 	 *
 	 *         Pixel prev, curr, next;
@@ -95,10 +178,6 @@ void Simple2xScaler<Pixel>::blur1on2(
 	 *         next = curr;
 	 *         pOut[2 * x + 1] = (c1 * next + c2 * curr) >> 8;
 	 * }
-	 *
-	 * The loop is 2x unrolled and all common subexpressions and redundant
-	 * assignments have been eliminated. 1 loop iteration processes 4
-	 * (output) pixels.
 	 */
 
 	if (alpha == 0) {
@@ -111,103 +190,16 @@ void Simple2xScaler<Pixel>::blur1on2(
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - c1;
 
-	#if ASM_X86
-	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) { // Note: not hasMMXEXT()
-		// MMX routine, 32bpp
-		assert(((srcWidth * 4) % 8) == 0);
-	#ifdef _MSC_VER
-		Simple2xScaler_blur1on2_4_MMX(pIn, pOut, srcWidth, c1, c2);
-	#else
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[C1], %%mm5;"
-			"punpcklwd %%mm5, %%mm5;"
-			"punpckldq %%mm5, %%mm5;"	// mm5 = c1
-			"movd	%[C2], %%mm6;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
-			"pxor	%%mm7, %%mm7;"
-
-			"movd	(%[IN],%[CNT]), %%mm0;"
-			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
-			"movq	%%mm0, %%mm2;"
-			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
-			"movq	%%mm2, %%mm3;"		// f1 = f0
-
-			".p2align 4,,15;"
-		"1:"
-			"pmullw	%%mm6, %%mm0;"
-			"movq	%%mm0, %%mm4;"		// tmp = multiply(p0, c2)
-			"paddw	%%mm3, %%mm0;"
-			"psrlw	$8, %%mm0;"		// f1 + tmp
-
-			"movd	4(%[IN],%[CNT]), %%mm1;"
-			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
-			"movq	%%mm1, %%mm3;"
-			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
-			"paddw	%%mm3, %%mm4;"
-			"psrlw	$8, %%mm4;"		// f1 + tmp
-			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%[OUT],%[CNT],2);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
-
-			"pmullw	%%mm6, %%mm1;"
-			"movq	%%mm1, %%mm4;"		// tmp = multiply(p1, c2)
-			"paddw	%%mm2, %%mm1;"
-			"psrlw	$8, %%mm1;"		// f0 + tmp
-
-			"movd	8(%[IN],%[CNT]), %%mm0;"
-			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[x + 2]
-			"movq	%%mm0, %%mm2;"
-			"pmullw %%mm5, %%mm2;"		// f0 = multiply(p0, c1)
-			"paddw	%%mm2, %%mm4;"
-			"psrlw	$8, %%mm4;"		// f0 + tmp
-			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%[OUT],%[CNT],2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
-
-			"add	$8, %[CNT];"
-			"jnz	1b;"
-
-			"pmullw	%%mm6, %%mm0;"
-			"movq	%%mm0, %%mm4;"		// tmp = multiply(p0, c2)
-			"paddw	%%mm3, %%mm0;"
-			"psrlw	$8, %%mm0;"		// f1 + tmp
-
-			"movd	4(%[IN]), %%mm1;"
-			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
-			"movq	%%mm1, %%mm3;"
-			"pmullw	%%mm5, %%mm3;"		// f1 = multiply(p1, c1)
-			"paddw	%%mm3, %%mm4;"
-			"psrlw	$8, %%mm4;"		// f1 + tmp
-			"packuswb %%mm4, %%mm0;"
-			"movq	%%mm0, (%[OUT]);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
-
-			"movq	%%mm1, %%mm4;"
-			"pmullw	%%mm6, %%mm1;"		// tmp = multiply(p1, c2)
-			"paddw	%%mm2, %%mm1;"
-			"psrlw	$8, %%mm1;"		// f0 + tmp
-
-			"packuswb %%mm4, %%mm1;"
-			"movq	%%mm1, 8(%[OUT]);"	// pOut[2*x+0] = ..  pOut[2*x+1] = ..
-
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (pIn  +     (srcWidth - 2))
-			, [OUT] "r"     (pOut + 2 * (srcWidth - 2))
-			, [C1]  "r"     (c1)
-			, [C2]  "r"     (c2)
-			,       "[CNT]" (-4 * (srcWidth - 2))
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-	#endif
+#ifdef __SSE2__
+	if (sizeof(Pixel) == 4) {
+		// SSE2, only 32bpp
+		blur1on2_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;
 	}
-	#endif
-
-	// non-MMX routine, both 16bpp and 32bpp
+#endif
+	// C++ routine, both 16bpp and 32bpp.
+	// The loop is 2x unrolled and all common subexpressions and redundant
+	// assignments have been eliminated. 1 iteration generates 4 pixels.
 	mult1.setFactor32(c1);
 	mult2.setFactor32(c2);
 
@@ -247,6 +239,71 @@ void Simple2xScaler<Pixel>::blur1on2(
 	pOut[2 * x + 3] = p1;
 }
 
+#ifdef __SSE2__
+
+// 32bpp
+void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
+                   unsigned c1_, unsigned c2_, long width)
+{
+	width *= sizeof(uint32_t); // in bytes
+	assert(width >= (2 * sizeof(__m128i)));
+	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+
+	long x = -(width - sizeof(__m128i));
+	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
+	auto* out = reinterpret_cast<      char*>(out_) - x;
+
+	// Setup first iteration
+	__m128i c1 = _mm_set1_epi16(c1_);
+	__m128i c2 = _mm_set1_epi16(c2_);
+	__m128i zero = _mm_setzero_si128();
+
+	__m128i abcd = *reinterpret_cast<const __m128i*>(in);
+	__m128i a0b0 = _mm_unpacklo_epi8(abcd, zero);
+	__m128i d0a0 = _mm_shuffle_epi32(a0b0, 0x44);
+
+	// Each iteration reads 4 pixels and generates 4 pixels
+	do {
+		// At the start of each iteration these variables are live:
+		//   abcd, a0b0, d0a0
+		__m128i c0d0 = _mm_unpackhi_epi8(abcd, zero);
+		__m128i b0c0 = shuffle(a0b0, c0d0);
+		__m128i a2b2 = _mm_mullo_epi16(c2, a0b0);
+		__m128i dbac = _mm_mullo_epi16(c1, _mm_add_epi16(d0a0, b0c0));
+		__m128i aabb = _mm_srli_epi16(_mm_add_epi16(dbac, a2b2), 8);
+		abcd         = *reinterpret_cast<const __m128i*>(in + x + 16);
+		a0b0         = _mm_unpacklo_epi8(abcd, zero);
+		d0a0         = shuffle(c0d0, a0b0);
+		__m128i c2d2 = _mm_mullo_epi16(c2, c0d0);
+		__m128i bdca = _mm_mullo_epi16(c1, _mm_add_epi16(b0c0, d0a0));
+		__m128i ccdd = _mm_srli_epi16(_mm_add_epi16(bdca, c2d2), 8);
+		*reinterpret_cast<__m128i*>(out + x) =
+			_mm_packus_epi16(aabb, ccdd);
+		x += 16;
+	} while (x < 0);
+
+	// Last iteration (because this doesn't need to read new input)
+	__m128i c0d0 = _mm_unpackhi_epi8(abcd, zero);
+	__m128i b0c0 = shuffle(a0b0, c0d0);
+	__m128i a2b2 = _mm_mullo_epi16(c2, a0b0);
+	__m128i dbac = _mm_mullo_epi16(c1, _mm_add_epi16(d0a0, b0c0));
+	__m128i aabb = _mm_srli_epi16(_mm_add_epi16(dbac, a2b2), 8);
+	__m128i d0d0 = _mm_shuffle_epi32(c0d0, 0xee);
+	__m128i c2d2 = _mm_mullo_epi16(c2, c0d0);
+	__m128i bdcd = _mm_mullo_epi16(c1, _mm_add_epi16(b0c0, d0d0));
+	__m128i ccdd = _mm_srli_epi16(_mm_add_epi16(bdcd, c2d2), 8);
+	*reinterpret_cast<__m128i*>(out) = _mm_packus_epi16(aabb, ccdd);
+}
+
+// no SSE2 16bpp routine yet (probably not worth the effort)
+void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
+                   unsigned /*c1*/, unsigned /*c2*/, long /*width*/)
+{
+	UNREACHABLE;
+}
+
+#endif
 template <class Pixel>
 void Simple2xScaler<Pixel>::blur1on1(
 	const Pixel* __restrict pIn, Pixel* __restrict pOut,
@@ -256,8 +313,8 @@ void Simple2xScaler<Pixel>::blur1on1(
 	 *
 	 * void blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha)
 	 * {
-	 *         unsigned c1 = alpha / 2;
-	 *         unsigned c2 = 256 - alpha;
+	 *         unsigned c1 = alpha / 4;
+	 *         unsigned c2 = 256 - alpha / 2;
 	 *
 	 *         Pixel prev, curr, next;
 	 *         prev = curr = pIn[0];
@@ -273,10 +330,6 @@ void Simple2xScaler<Pixel>::blur1on1(
 	 *         next = curr;
 	 *         pOut[x] = c1 * prev + c2 * curr + c1 * next;
 	 * }
-	 *
-	 * The loop is 2x unrolled and all common subexpressions and redundant
-	 * assignments have been eliminated. 1 loop iteration processes 2
-	 * pixels.
 	 */
 
 	if (alpha == 0) {
@@ -288,95 +341,16 @@ void Simple2xScaler<Pixel>::blur1on1(
 	unsigned c1 = alpha / 4;
 	unsigned c2 = 256 - alpha / 2;
 
-	#if ASM_X86
-	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) { // Note: not hasMMXEXT()
-		// MMX routine, 32bpp
-		assert(((srcWidth * 4) % 8) == 0);
-	#ifdef _MSC_VER
-		Simple2xScaler_blur1on1_4_MMX(pIn, pOut, srcWidth, c1, c2);
-	#else
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[C1], %%mm5;"
-			"punpcklwd %%mm5, %%mm5;"
-			"punpckldq %%mm5, %%mm5;"	// mm5 = c1
-			"movd	%[C2], %%mm6;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckldq %%mm6, %%mm6;"	// mm6 = c2
-			"pxor	%%mm7, %%mm7;"
-
-			"movd	(%[IN],%[CNT]), %%mm0;"
-			"punpcklbw %%mm7, %%mm0;"	// p0 = pIn[0]
-			"movq	%%mm0, %%mm2;"
-			"pmullw	%%mm5, %%mm2;"		// f0 = multiply(p0, c1)
-			"movq	%%mm2, %%mm3;"		// f1 = f0
-
-			".p2align 4,,15;"
-		"1:"
-			"movd	4(%[IN],%[CNT]), %%mm1;"
-			"pxor	%%mm7, %%mm7;"
-			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
-			"movq	%%mm0, %%mm4;"
-			"pmullw	%%mm6, %%mm4;"		// t = multiply(p0, c2)
-			"movq	%%mm1, %%mm0;"
-			"pmullw	%%mm5, %%mm0;"		// t0 = multiply(p1, c1)
-			"paddw	%%mm2, %%mm4;"
-			"paddw  %%mm0, %%mm4;"
-			"psrlw	$8, %%mm4;"		// f0 + t + t0
-			"movq	%%mm0, %%mm2;"		// f0 = t0
-
-			"movd	8(%[IN],%[CNT]), %%mm0;"
-			"punpcklbw %%mm7, %%mm0;"
-			"movq	%%mm1, %%mm7;"
-			"pmullw	%%mm6, %%mm7;"		// t = multiply(p1, c2)
-			"movq	%%mm0, %%mm1;"
-			"pmullw %%mm5, %%mm1;"		// t1 = multiply(p0, c1)
-			"paddw	%%mm3, %%mm7;"
-			"paddw	%%mm1, %%mm7;"
-			"psrlw	$8, %%mm7;"		// f1 + t + t1
-			"movq	%%mm1, %%mm3;"		// f1 = t1
-			"packuswb %%mm7, %%mm4;"
-			"movq	%%mm4, (%[OUT],%[CNT]);"	// pOut[x] = ..  pOut[x+1] = ..
-
-			"add	$8, %[CNT];"
-			"jnz	1b;"
-
-			"movd	4(%[IN]), %%mm1;"
-			"pxor	%%mm7, %%mm7;"
-			"punpcklbw %%mm7, %%mm1;"	// p1 = pIn[x + 1]
-			"movq	%%mm0, %%mm4;"
-			"pmullw	%%mm6, %%mm4;"		// t = multiply(p0, c2)
-			"movq	%%mm1, %%mm0;"
-			"pmullw	%%mm5, %%mm0;"		// t0 = multiply(p1, c1)
-			"paddw	%%mm2, %%mm4;"
-			"paddw  %%mm0, %%mm4;"
-			"psrlw	$8, %%mm4;"		// f0 + t + t0
-
-			"pmullw	%%mm6, %%mm1;"		// t = multiply(p1, c2)
-			"paddw	%%mm3, %%mm1;"
-			"paddw	%%mm0, %%mm1;"
-			"psrlw	$8, %%mm1;"		// f1 + t + t1
-			"packuswb %%mm1, %%mm4;"
-			"movq	%%mm4, (%[OUT]);"	// pOut[x] = ..  pOut[x+1] = ..
-
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (pIn  + srcWidth - 2)
-			, [OUT] "r"     (pOut + srcWidth - 2)
-			, [C1]  "r"     (c1)
-			, [C2]  "r"     (c2)
-			,       "[CNT]" (-4 * (srcWidth - 2))
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-	#endif
+#ifdef __SSE2__
+	if (sizeof(Pixel) == 4) {
+		// SSE2, only 32bpp
+		blur1on1_SSE2(pIn, pOut, c1, c2, srcWidth);
 		return;
 	}
-	#endif
-
+#endif
+	// C++ routine, both 16bpp and 32bpp.
+	// The loop is 2x unrolled and all common subexpressions and redundant
+	// assignments have been eliminated. 1 iteration generates 2 pixels.
 	mult1.setFactor32(c1);
 	mult3.setFactor32(c2);
 
