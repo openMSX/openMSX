@@ -36,7 +36,7 @@ protected:
 
 private:
 	double texCoordX, texCoordY;
-	Texture fbTex;
+	std::unique_ptr<Texture> fbTex;
 	MemBuffer<char> fbBuf;
 	const FrameBuffer frameBuffer;
 };
