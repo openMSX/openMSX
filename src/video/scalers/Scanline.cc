@@ -1,10 +1,12 @@
 #include "Scanline.hh"
 #include "PixelOperations.hh"
-#include "HostCPU.hh"
 #include "unreachable.hh"
-#include "build-info.hh"
 #include <cassert>
 #include <cstring>
+
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
 
 namespace openmsx {
 
@@ -77,16 +79,115 @@ const unsigned* Multiply<unsigned>::getTable() const
 }
 
 
-// class Scanline
+#ifdef __SSE2__
 
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
+// 32bpp
+static inline void drawSSE2_1(
+	const char* __restrict in1, const char* __restrict in2,
+	      char* __restrict out, __m128i f)
 {
-	void __cdecl Scanline_draw_4_SSE2(const void* src1, const void* src2,
-		void* dst, unsigned factor, unsigned long width);
+	__m128i zero = _mm_setzero_si128();
+	__m128i a = *reinterpret_cast<const __m128i*>(in1);
+	__m128i b = *reinterpret_cast<const __m128i*>(in2);
+	__m128i c = _mm_avg_epu8(a, b);
+	__m128i l = _mm_unpacklo_epi8(c, zero);
+	__m128i h = _mm_unpackhi_epi8(c, zero);
+	__m128i m = _mm_mulhi_epu16(l, f);
+	__m128i n = _mm_mulhi_epu16(h, f);
+	__m128i r = _mm_packus_epi16(m, n);
+	*reinterpret_cast<__m128i*>(out) = r;
 }
+static inline void drawSSE2(
+	const uint32_t* __restrict in1_,
+	const uint32_t* __restrict in2_,
+	      uint32_t* __restrict out_,
+	unsigned factor,
+	unsigned long width,
+	PixelOperations<uint32_t>& /*dummy*/,
+	Multiply<uint32_t>& /*dummy*/)
+{
+	width *= sizeof(uint32_t); // in bytes
+	assert(width >= 64);
+	assert((reinterpret_cast<long>(in1_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<long>(in2_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	auto* out = reinterpret_cast<      char*>(out_) + width;
+
+	__m128i f = _mm_set1_epi16(factor << 8);
+	long x = -width;
+	do {
+		drawSSE2_1(in1 + x +   0, in2 + x +  0, out + x +  0, f);
+		drawSSE2_1(in1 + x +  16, in2 + x + 16, out + x + 16, f);
+		drawSSE2_1(in1 + x +  32, in2 + x + 32, out + x + 32, f);
+		drawSSE2_1(in1 + x +  48, in2 + x + 48, out + x + 48, f);
+		x += 64;
+	} while (x < 0);
+}
+
+// 16bpp
+static inline void drawSSE2(
+	const uint16_t* __restrict in1_,
+	const uint16_t* __restrict in2_,
+	      uint16_t* __restrict out_,
+	unsigned factor,
+	unsigned long width,
+	PixelOperations<uint16_t>& pixelOps,
+	Multiply<uint16_t>& darkener)
+{
+	width *= sizeof(uint32_t); // in bytes
+	assert(width >= 16);
+	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
+	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
+	auto* out = reinterpret_cast<      char*>(out_) + width;
+
+	darkener.setFactor(factor);
+	const uint16_t* table = darkener.getTable();
+	__m128i mask = _mm_set1_epi16(pixelOps.getBlendMask());
+
+	long x = -width;
+	do {
+		__m128i a = *reinterpret_cast<const __m128i*>(in1 + x);
+		__m128i b = *reinterpret_cast<const __m128i*>(in2 + x);
+		__m128i c = _mm_add_epi16(
+			_mm_and_si128(a, b),
+			_mm_srli_epi16(
+				_mm_and_si128(mask, _mm_xor_si128(a, b)),
+				1));
+		*reinterpret_cast<__m128i*>(out + x) = _mm_set_epi16(
+			table[_mm_extract_epi16(c, 7)],
+			table[_mm_extract_epi16(c, 6)],
+			table[_mm_extract_epi16(c, 5)],
+			table[_mm_extract_epi16(c, 4)],
+			table[_mm_extract_epi16(c, 3)],
+			table[_mm_extract_epi16(c, 2)],
+			table[_mm_extract_epi16(c, 1)],
+			table[_mm_extract_epi16(c, 0)]);
+		// An alternative for the above statement is this block (this
+		// is close to what we has in our old MMX routine). On gcc this
+		// generates significantly shorter (25%) but also significantly
+		// slower (30%) code. On clang both alternatives generate
+		// identical code, comparable in size to the fast gcc version
+		// (but still a bit faster).
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 0)], 0);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 1)], 1);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 2)], 2);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 3)], 3);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 4)], 4);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 5)], 5);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 6)], 6);
+		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 7)], 7);
+		//*reinterpret_cast<__m128i*>(out + x) = c;
+		
+		x += 16;
+	} while (x < 0);
+}
+
 #endif
+
+
+// class Scanline
 
 template <class Pixel>
 Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps_)
@@ -100,301 +201,16 @@ void Scanline<Pixel>::draw(
 	const Pixel* __restrict src1, const Pixel* __restrict src2,
 	Pixel* __restrict dst, unsigned factor, unsigned long width)
 {
-#if ASM_X86
-#ifdef _MSC_VER
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
-		// SSE2 routine, 32bpp
-		assert(((4 * width) % 64) == 0);
-		Scanline_draw_4_SSE2(src1, src2, dst, factor, width);
-		return;
-	}
+#ifdef __SSE2__
+	drawSSE2(src1, src2, dst, factor, width, pixelOps, darkener);
 #else
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
-		// SSE2 routine, 32bpp
-		assert(((4 * width) % 64) == 0);
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[F], %%xmm6;"
-			"pshuflw $0, %%xmm6, %%xmm6;"
-			"pxor	%%xmm7, %%xmm7;"
-			"pshufd  $0, %%xmm6, %%xmm6;"
-			".p2align 4,,15;"
-		"1:"
-			"movdqa	(%[IN1],%[CNT]), %%xmm0;"
-			"pavgb	(%[IN2],%[CNT]), %%xmm0;"
-			"movdqa	%%xmm0, %%xmm4;"
-			"punpcklbw %%xmm7, %%xmm0;"
-			"punpckhbw %%xmm7, %%xmm4;"
-			"pmulhuw %%xmm6, %%xmm0;"
-			"pmulhuw %%xmm6, %%xmm4;"
-			"packuswb %%xmm4, %%xmm0;"
-
-			"movdqa	16(%[IN1],%[CNT]), %%xmm1;"
-			"pavgb	16(%[IN2],%[CNT]), %%xmm1;"
-			"movdqa	%%xmm1, %%xmm5;"
-			"punpcklbw %%xmm7, %%xmm1;"
-			"punpckhbw %%xmm7, %%xmm5;"
-			"pmulhuw %%xmm6, %%xmm1;"
-			"pmulhuw %%xmm6, %%xmm5;"
-			"packuswb %%xmm5, %%xmm1;"
-
-			"movdqa	32(%[IN1],%[CNT]), %%xmm2;"
-			"pavgb	32(%[IN2],%[CNT]), %%xmm2;"
-			"movdqa	%%xmm2, %%xmm4;"
-			"punpcklbw %%xmm7, %%xmm2;"
-			"punpckhbw %%xmm7, %%xmm4;"
-			"pmulhuw %%xmm6, %%xmm2;"
-			"pmulhuw %%xmm6, %%xmm4;"
-			"packuswb %%xmm4, %%xmm2;"
-
-			"movdqa	48(%[IN1],%[CNT]), %%xmm3;"
-			"pavgb	48(%[IN2],%[CNT]), %%xmm3;"
-			"movdqa	%%xmm3, %%xmm5;"
-			"punpcklbw %%xmm7, %%xmm3;"
-			"punpckhbw %%xmm7, %%xmm5;"
-			"pmulhuw %%xmm6, %%xmm3;"
-			"pmulhuw %%xmm6, %%xmm5;"
-			"packuswb %%xmm5, %%xmm3;"
-
-			"movntps %%xmm0,   (%[OUT],%[CNT]);"
-			"movntps %%xmm1, 16(%[OUT],%[CNT]);"
-			"movntps %%xmm2, 32(%[OUT],%[CNT]);"
-			"movntps %%xmm3, 48(%[OUT],%[CNT]);"
-
-			"add	$64, %[CNT];"
-			"jnz	1b;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN1] "r"     (src1 + width)
-			, [IN2] "r"     (src2 + width)
-			, [OUT] "r"     (dst  + width)
-			, [F]   "r"     (factor << 8)
-			,       "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __SSE__
-			, "xmm0", "xmm1", "xmm2", "xmm3"
-			, "xmm4", "xmm5", "xmm6", "xmm7"
-			#endif
-		);
-		return;
-
-	} else if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
-		// extended-MMX routine, 32bpp
-		assert(((4 * width) % 32) == 0);
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[F], %%mm6;"
-			"pxor	%%mm7, %%mm7;"
-			"pshufw $0, %%mm6, %%mm6;"
-			".p2align 4,,15;"
-		"1:"
-			"movq	(%[IN1],%[CNT]), %%mm0;"
-			"pavgb	(%[IN2],%[CNT]), %%mm0;"
-			"movq	%%mm0, %%mm4;"
-			"punpcklbw %%mm7, %%mm0;"
-			"punpckhbw %%mm7, %%mm4;"
-			"pmulhuw %%mm6, %%mm0;"
-			"pmulhuw %%mm6, %%mm4;"
-			"packuswb %%mm4, %%mm0;"
-
-			"movq	8(%[IN1],%[CNT]), %%mm1;"
-			"pavgb	8(%[IN2],%[CNT]), %%mm1;"
-			"movq	%%mm1, %%mm5;"
-			"punpcklbw %%mm7, %%mm1;"
-			"punpckhbw %%mm7, %%mm5;"
-			"pmulhuw %%mm6, %%mm1;"
-			"pmulhuw %%mm6, %%mm5;"
-			"packuswb %%mm5, %%mm1;"
-
-			"movq	16(%[IN1],%[CNT]), %%mm2;"
-			"pavgb	16(%[IN2],%[CNT]), %%mm2;"
-			"movq	%%mm2, %%mm4;"
-			"punpcklbw %%mm7, %%mm2;"
-			"punpckhbw %%mm7, %%mm4;"
-			"pmulhuw %%mm6, %%mm2;"
-			"pmulhuw %%mm6, %%mm4;"
-			"packuswb %%mm4, %%mm2;"
-
-			"movq	24(%[IN1],%[CNT]), %%mm3;"
-			"pavgb	24(%[IN2],%[CNT]), %%mm3;"
-			"movq	%%mm3, %%mm5;"
-			"punpcklbw %%mm7, %%mm3;"
-			"punpckhbw %%mm7, %%mm5;"
-			"pmulhuw %%mm6, %%mm3;"
-			"pmulhuw %%mm6, %%mm5;"
-			"packuswb %%mm5, %%mm3;"
-
-			"movntq %%mm0,   (%[OUT],%[CNT]);"
-			"movntq %%mm1,  8(%[OUT],%[CNT]);"
-			"movntq %%mm2, 16(%[OUT],%[CNT]);"
-			"movntq %%mm3, 24(%[OUT],%[CNT]);"
-
-			"add	$32, %[CNT];"
-			"jnz	1b;"
-
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN1] "r"     (src1 + width)
-			, [IN2] "r"     (src2 + width)
-			, [OUT] "r"     (dst  + width)
-			, [F]   "r"     (factor << 8)
-			,       "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-
-	} else if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
-		// MMX routine, 32bpp
-		assert(((4 * width) % 8) == 0);
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[F], %%mm6;"
-			"pxor	%%mm7, %%mm7;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckldq %%mm6, %%mm6;"
-			".p2align 4,,15;"
-		"1:"
-			// load
-			"movq	(%[IN1],%[CNT]), %%mm0;"
-			"movq	%%mm0, %%mm1;"
-			"movq	(%[IN2],%[CNT]), %%mm2;"
-			"movq	%%mm2, %%mm3;"
-			// unpack
-			"punpcklbw %%mm7, %%mm0;"
-			"punpckhbw %%mm7, %%mm1;"
-			"punpcklbw %%mm7, %%mm2;"
-			"punpckhbw %%mm7, %%mm3;"
-			// average
-			"paddw	%%mm2, %%mm0;"
-			"paddw	%%mm3, %%mm1;"
-			// darken
-			"pmulhw	%%mm6, %%mm0;"
-			"pmulhw	%%mm6, %%mm1;"
-			// pack
-			"packuswb %%mm1, %%mm0;"
-			// store
-			"movq %%mm0, (%[OUT],%[CNT]);"
-
-			"add	$8, %[CNT];"
-			"jnz	1b;"
-
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN1] "r"     (src1 + width)
-			, [IN2] "r"     (src2 + width)
-			, [OUT] "r"     (dst + width)
-			, [F]   "r"     (factor << 7)
-			,       "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
-			#endif
-		);
-		return;
-	}
-
-	#if !defined(__APPLE__) && !ASM_X86_64
-	// On Mac OS X, we are one register short, because EBX is not available.
-	// We disable this piece of assembly and fall back to the C++ code.
-	// It's unlikely modern Macs will be running in 16bpp anyway.
-	if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
-		// extended-MMX routine, 16bpp
-		assert(((2 * width) % 16) == 0);
-
-		darkener.setFactor(factor);
-		const Pixel* table = darkener.getTable();
-		Pixel mask = pixelOps.getBlendMask();
-
-		unsigned long dummy;
-		asm volatile (
-			"movd	%[MASK], %%mm7;"
-			"pshufw	$0, %%mm7, %%mm7;"
-
-			".p2align 4,,15;"
-		"1:"	"movq	 (%[IN1],%[CNT]), %%mm0;"
-			"movq	8(%[IN1],%[CNT]), %%mm1;"
-			"movq	 (%[IN2],%[CNT]), %%mm2;"
-			"movq	8(%[IN2],%[CNT]), %%mm3;"
-
-			"movq	%%mm7, %%mm4;"
-			"movq	%%mm7, %%mm5;"
-			"pand	%%mm7, %%mm0;"
-			"pand	%%mm7, %%mm1;"
-			"pandn  %%mm2, %%mm4;"
-			"pandn  %%mm3, %%mm5;"
-			"pand	%%mm7, %%mm2;"
-			"pand	%%mm7, %%mm3;"
-			"pavgw	%%mm2, %%mm0;"
-			"pavgw	%%mm3, %%mm1;"
-			"paddw	%%mm4, %%mm0;"
-			"paddw	%%mm5, %%mm1;"
-
-			"pextrw	$0, %%mm0, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$0, %%eax, %%mm0;"
-			"pextrw	$0, %%mm1, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$0, %%eax, %%mm1;"
-
-			"pextrw	$1, %%mm0, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$1, %%eax, %%mm0;"
-			"pextrw	$1, %%mm1, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$1, %%eax, %%mm1;"
-
-			"pextrw	$2, %%mm0, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$2, %%eax, %%mm0;"
-			"pextrw	$2, %%mm1, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$2, %%eax, %%mm1;"
-
-			"pextrw	$3, %%mm0, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$3, %%eax, %%mm0;"
-			"pextrw	$3, %%mm1, %%eax;"
-			"movw	(%[TAB],%%eax,2), %%ax;"
-			"pinsrw	$3, %%eax, %%mm1;"
-
-			"movntq	%%mm0,  (%[OUT],%[CNT]);"
-			"movntq	%%mm1, 8(%[OUT],%[CNT]);"
-
-			"add	$16, %[CNT];"
-			"jnz	1b;"
-			"emms;"
-			: [CNT]  "=r"    (dummy)
-			: [IN1]  "r"     (src1 + width)
-			, [IN2]  "r"     (src2 + width)
-			, [TAB]  "r"     (table)
-			, [OUT]  "r"     (dst + width)
-			, [MASK] "m"     (mask)
-			,        "[CNT]" (-2 * width)
-			: "eax"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
-			#endif
-		);
-		return;
-	}
-	#endif // !__APPLE__
-	// MMX routine 16bpp is missing, but it's difficult to write because
-	// of the missing "pextrw" and "pinsrw" instructions
-
-	#endif
-	#endif
-
-	// non-MMX routine, both 16bpp and 32bpp
+	// non-SSE2 routine, both 16bpp and 32bpp
 	darkener.setFactor(factor);
 	for (unsigned x = 0; x < width; ++x) {
 		dst[x] = darkener.multiply(
 			pixelOps.template blend<1, 1>(src1[x], src2[x]));
 	}
+#endif
 }
 
 template <class Pixel>
