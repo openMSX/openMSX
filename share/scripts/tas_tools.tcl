@@ -573,7 +573,7 @@ proc ram_watch_tabcompletion {args} {
 
 ### Lag counter ###
 
-variable lag_counter 0
+variable lag_counter
 variable lag_counter_wp
 variable previous_frame_count 0
 variable input_read_in_frame false
@@ -592,7 +592,11 @@ proc toggle_lag_counter {} {
 		debug remove_watchpoint $lag_counter_wp
 		return ""
 	}
-	set lag_counter 0
+	# we set it to -1, because the updater is always called at the start
+	# and there the incr is present, so it will always incr. We compensate
+	# for that by setting it to -1. See also on other places where we
+	# force a call to the updater.
+	set lag_counter -1
 
 	set lag_counter_wp [debug set_watchpoint read_io 0xa9 {[expr [debug read ioports 0xaa] & 0x0f] == 0x08} {tas::space_read}]
 
@@ -605,6 +609,11 @@ proc toggle_lag_counter {} {
 }
 
 proc update_lag_counter {} {
+	update_lag_counter2
+	after frame [namespace code update_lag_counter]
+}
+
+proc update_lag_counter2 {} {
 	variable lag_counter
 	variable previous_frame_count
 	variable input_read_in_frame
@@ -614,11 +623,12 @@ proc update_lag_counter {} {
 	set new_frame_count [machine_info VDP_frame_count]
 	if {$new_frame_count == 1} {
 		# reset lag counter if frame counter is reset (e.g. after reset, or loading replay)
-		set lag_counter 0
+		set lag_counter -1
 	}
 	# GFX9000 also triggers frame ends, so we should check if we
 	# actually advanced a V99x8 frame here
-	if { $previous_frame_count != $new_frame_count } {
+	# Also, we check whether it was reset to force updating the display
+	if { $previous_frame_count != $new_frame_count || $lag_counter == -1} {
 		set previous_frame_count $new_frame_count
 
 		set col [expr {!$input_read_in_frame ? 0xff000080 : "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"}]
@@ -631,7 +641,12 @@ proc update_lag_counter {} {
 			set input_read_in_frame false
 		}
 	}
-	after frame [namespace code update_lag_counter]
+}
+
+proc reset_lag_counter {} {
+	variable lag_counter
+	set lag_counter -1
+	update_lag_counter2
 }
 
 namespace export toggle_frame_counter
@@ -641,6 +656,7 @@ namespace export enable_tas_mode
 namespace export toggle_cursors
 namespace export ram_watch
 namespace export toggle_lag_counter
+namespace export reset_lag_counter
 }
 
 namespace import tas::*
