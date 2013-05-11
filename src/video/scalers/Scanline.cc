@@ -136,7 +136,7 @@ static inline void drawSSE2(
 	PixelOperations<uint16_t>& pixelOps,
 	Multiply<uint16_t>& darkener)
 {
-	width *= sizeof(uint32_t); // in bytes
+	width *= sizeof(uint16_t); // in bytes
 	assert(width >= 16);
 	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
 	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
@@ -179,7 +179,7 @@ static inline void drawSSE2(
 		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 6)], 6);
 		//c = _mm_insert_epi16(c, table[_mm_extract_epi16(c, 7)], 7);
 		//*reinterpret_cast<__m128i*>(out + x) = c;
-		
+
 		x += 16;
 	} while (x < 0);
 }
