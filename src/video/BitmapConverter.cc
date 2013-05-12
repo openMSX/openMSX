@@ -157,7 +157,7 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	}
 #endif
 
-	if ((sizeof(Pixel) == 2) && ((long(pixelPtr) & 1) == 1)) {
+	if ((sizeof(Pixel) == 2) && ((uintptr_t(pixelPtr) & 1) == 1)) {
 		// Its 16 bit destination but currently not aligned on a word boundary
 		// First write one pixel to get aligned
 		// Then write double pixels in a loop with 4 double pixels (is 8 single pixels) per iteration

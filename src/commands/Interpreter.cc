@@ -374,7 +374,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		// a map. If the Setting was deleted, we won't find it anymore
 		// in the map and return.
 
-		auto traceID = reinterpret_cast<long>(clientData);
+		auto traceID = reinterpret_cast<uintptr_t>(clientData);
 		auto* variable = getTraceSetting(traceID);
 		if (!variable) return nullptr;
 
