@@ -1,5 +1,81 @@
 namespace eval tas {
 
+### periodic refresh stuff
+
+variable callback_list ""
+variable callback_frame_id
+variable callback_realtime_id
+
+# TODO move to utils?
+# Register the given callback to be executed
+#  - (Once) when it is registered
+#  - Every MSX frame
+#  - Or at least 10 times per second (e.g. when MSX emulation is paused)
+proc enable_periodic {callback} {
+	variable callback_list
+	variable callback_frame_id
+	variable callback_realtime_id
+
+	# on 1st callback activate the after-stuff
+	if {[llength $callback_list] == 0} {
+		set callback_frame_id    [after frame        [namespace code periodic_frame]]
+		set callback_realtime_id [after realtime 0.1 [namespace code periodic_realtime]]
+	}
+
+	# add to list of registered callbacks
+	lappend callback_list $callback
+
+	# execute callback for the first time
+	$callback
+}
+
+# Remove a previously registered callback. After this proc returns, the
+# callback is guaranteed to not be called anymore. So it's (no longer)
+# required to add a check in the callback proc.
+proc disable_periodic {callback} {
+	variable callback_list
+	variable callback_frame_id
+	variable callback_realtime_id
+
+	# remove from registered callbacks
+	set idx [lsearch -exact $callback_list $callback]
+	if {$idx == -1} return
+	set callback_list [lreplace $callback_list $idx $idx]
+
+	# if the last callback was removed then deactivate after stuff
+	if {[llength $callback_list] == 0} {
+		after cancel $callback_frame_id
+		after cancel $callback_realtime_id
+	}
+}
+
+proc periodic_execute {} {
+	variable callback_list
+	foreach callback $callback_list {
+		$callback
+	}
+}
+proc periodic_frame {} {
+	variable callback_frame_id
+	variable callback_realtime_id
+
+	periodic_execute
+
+	# postpone 'after realtime' / reschedule 'after frame'
+	after cancel $callback_realtime_id
+	set callback_frame_id    [after frame        [namespace code periodic_frame]]
+	set callback_realtime_id [after realtime 0.1 [namespace code periodic_realtime]]
+}
+proc periodic_realtime {} {
+	variable callback_realtime_id
+
+	periodic_execute
+
+	# reschedule 'after realtime', no need to handle 'after frame'
+	set callback_realtime_id [after realtime 0.1 [namespace code periodic_realtime]]
+}
+
+
 ### frame counter ###
 
 set_help_text toggle_frame_counter\
@@ -7,6 +83,7 @@ set_help_text toggle_frame_counter\
 
 proc toggle_frame_counter {} {
 	if {[osd exists framecount]} {
+		disable_periodic framecount_update
 		osd destroy framecount
 		return ""
 	}
@@ -16,14 +93,17 @@ proc toggle_frame_counter {} {
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 		-borderrgba 0x00000040 -bordersize 0.5
 	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
-	framecount_update
+	enable_periodic framecount_update
 	return ""
 }
 
 proc framecount_update {} {
-	if {![osd exists framecount]} return
-	osd configure framecount.text -text "Frame: [machine_info VDP_frame_count]"
-	after frame [namespace code framecount_update]
+	# Heuristic: A 'ex (sp),ix' Z80 instruction takes 25 cycles. If we're
+	# not more than 25 Z80 cycles past the start of a frame, then indicate
+	# we're at the start of the frame. (But it could as well be the 2nd or
+	# 3rd (short) instruction in the frame.)
+	set inside [expr {([machine_info VDP_cycle_in_frame] < (6 * 25)) ? "" : "+"}]
+	osd configure framecount.text -text "Frame: [machine_info VDP_frame_count]$inside"
 }
 
 
@@ -148,16 +228,12 @@ variable keys
 proc show_keys {} {
 	variable keys
 
-	if {![osd exists cursors]} return
-
 	# get joysticka values
 	set joy [debug read joystickports 0]
 
 	foreach key $keys {
 		show_key_press [dict get $key name] [eval [dict get $key check_expr]]
 	}
-
-	after realtime 0.1 [namespace code show_keys]
 }
 
 #move to other TCL script?
@@ -200,6 +276,7 @@ proc toggle_cursors {} {
 	variable keys
 
 	if {[osd exists cursors]} {
+		disable_periodic show_keys
 		osd destroy cursors
 	} else {
 		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
@@ -211,7 +288,7 @@ proc toggle_cursors {} {
 		foreach key $keys {
 			create_key [dict get $key name] [dict get $key x] [dict get $key y]
 		}
-		show_keys
+		enable_periodic show_keys
 	}
 }
 
@@ -385,7 +462,7 @@ proc ram_watch_add {addr_str args} {
 
 	ram_watch_update_addresses
 	if {$old_nof_watches == 0} {
-		ram_watch_update_values
+		enable_periodic ram_watch_update_values
 	}
 	return ""
 }
@@ -439,6 +516,7 @@ proc ram_watch_remove {addr_str} {
 
 	#if all elements are gone don't display anything anymore.
 	if {$i == 0} {
+		disable_periodic ram_watch_update_values
 		osd destroy ram_watch
 	} else {
 		ram_watch_update_addresses
@@ -449,6 +527,7 @@ proc ram_watch_remove {addr_str} {
 proc ram_watch_clear {} {
 	variable addr_watches
 	set addr_watches [dict create]
+	disable_periodic ram_watch_update_values
 	osd destroy ram_watch
 	return ""
 }
@@ -472,9 +551,6 @@ proc ram_watch_update_values {} {
 		set exprStr [dict get $v exprStr]
 		osd configure ram_watch.addr.val$i.text -text [eval $exprStr]
 		incr i
-	}
-	if {$i != 0} {
-		after frame [namespace code ram_watch_update_values]
 	}
 }
 
@@ -630,7 +706,7 @@ proc toggle_lag_counter {} {
 		-x 269 -y 213 -h 10 -w 50 -scaled true \
 		-borderrgba 0x00000040 -bordersize 0.5
 	osd create text lag_counter.text -x 3 -y 2 -size 4 -rgba 0xffffffff
-	update_lag_counter
+	update_lag_counter ;# can't use enable_periodic
 	return ""
 }
 
