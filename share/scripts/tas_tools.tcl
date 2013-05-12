@@ -29,27 +29,53 @@ proc framecount_update {} {
 
 ### frame advance/reverse and helper procs for TAS mode key bindings ###
 
-proc get_frame_time {} {
+proc get_frame_duration {} {
 	expr {(1368.0 * (([vdpreg 9] & 2) ? 313 : 262)) / (6 * 3579545)}
+}
+proc get_start_of_frame_time {} {
+	expr {[machine_info time] - [machine_info VDP_cycle_in_frame] / (6.0 * 3579545)}
+}
+
+set_help_text prev_frame \
+{Rewind to the (start of) the previous frame. Useful
+to bind to a key in combination with next_frame.}
+proc prev_frame {{count 1}} {
+	set t [expr {[get_start_of_frame_time] - $count * [get_frame_duration]}]
+	if {$t < 0} {set t 0}
+	reverse goto $t
+}
+
+set_help_text next_frame \
+{Emulates until the (start of) the next frame, then pause emulation.
+Useful to bind to a key and emulate frame by frame.}
+proc next_frame {{count 1}} {
+	set t [expr {[get_start_of_frame_time] + $count * [get_frame_duration]}]
+	after time [expr {$t - [machine_info time]}] "set ::pause on"
+	set ::pause off
+	return ""
+}
+
+set_help_text start_of_frame \
+{Rewind to the start of the current frame.
+See also prev_frame and next_frame.}
+proc start_of_frame {} {
+	prev_frame 0
 }
 
 set_help_text advance_frame \
-{Emulates until the next frame is generated and then pauses openMSX. Useful to
-bind to a key and emulate frame by frame.}
-
-proc advance_frame {} {
-	after time [get_frame_time] "set ::pause on"
+{Emulate forward for the duration of one frame. The relative
+timing position within the frame remains unchanged.}
+proc advance_frame {{count 1}} {
+	after time [expr {$count * [get_frame_duration]}] "set ::pause on"
 	set ::pause off
 	return ""
 }
 
 set_help_text reverse_frame \
-{Rewind one frame back in time. Useful to
-bind to a key in combination with advance_frame.}
-
-proc reverse_frame {} {
-	array set stat [reverse status]
-	set t [expr {$stat(current) - [get_frame_time]}]
+{Emulate backward for the duration of one frame. The relative
+timing position within the frame remains unchanged.}
+proc reverse_frame {{count 1}} {
+	set t [expr {[machine_info time] - $count * [get_frame_duration]}]
 	if {$t < 0} {set t 0}
 	reverse goto $t
 }
@@ -650,6 +676,9 @@ proc reset_lag_counter {} {
 }
 
 namespace export toggle_frame_counter
+namespace export prev_frame
+namespace export next_frame
+namespace export start_of_frame
 namespace export advance_frame
 namespace export reverse_frame
 namespace export enable_tas_mode
