@@ -76,14 +76,14 @@ __m128i shuffle(__m128i x, __m128i y)
 
 // 32bpp
 void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
-                   unsigned c1_, unsigned c2_, long width)
+                   unsigned c1_, unsigned c2_, unsigned long width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
 	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
 
-	long x = -(width - sizeof(__m128i));
+	long x = -long(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
 	auto* out = reinterpret_cast<      char*>(out_) - 2 * x;
 
@@ -143,7 +143,7 @@ void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
 void blur1on2_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                   unsigned /*c1*/, unsigned /*c2*/, long /*width*/)
+                   unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
 {
 	UNREACHABLE;
 }
@@ -243,14 +243,14 @@ void Simple2xScaler<Pixel>::blur1on2(
 
 // 32bpp
 void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
-                   unsigned c1_, unsigned c2_, long width)
+                   unsigned c1_, unsigned c2_, unsigned long width)
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
 	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
 	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
 
-	long x = -(width - sizeof(__m128i));
+	long x = -long(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) - x;
 	auto* out = reinterpret_cast<      char*>(out_) - x;
 
@@ -298,7 +298,7 @@ void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 
 // no SSE2 16bpp routine yet (probably not worth the effort)
 void blur1on1_SSE2(const uint16_t* /*in*/, uint16_t* /*out*/,
-                   unsigned /*c1*/, unsigned /*c2*/, long /*width*/)
+                   unsigned /*c1*/, unsigned /*c2*/, unsigned long /*width*/)
 {
 	UNREACHABLE;
 }
