@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1368385119">
+<softwaredb xml:lang="en" timestamp="1368385838">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -12228,5 +12228,5 @@ Generation MSXIDs by www.generation-msx.nl
 </softwaredb>
 <!--
 Roms in this XML file:2706
-Created on Sun May 12 20:59:01 CEST 2013
+Created on Sun May 12 21:10:59 CEST 2013
  -->
