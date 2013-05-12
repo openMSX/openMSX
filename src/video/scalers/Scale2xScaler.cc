@@ -160,7 +160,7 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	auto* in2  = reinterpret_cast<const char*>(in2_ ) +         width;
 	auto* out0 = reinterpret_cast<      char*>(out0_) + SCALE * width;
 	auto* out1 = reinterpret_cast<      char*>(out1_) + SCALE * width;
-	long x = -width;
+	long x = -long(width);
 
 	// Setup for first unit
 	__m128i next = *reinterpret_cast<const __m128i*>(in1 + x);
