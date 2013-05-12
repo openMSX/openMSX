@@ -473,7 +473,7 @@ void stream_memcpy(uint32_t* dst, const uint32_t* src, size_t num)
 	if (HostCPU::hasSSE()) {
 		if (unlikely(num == 0)) return;
 		// align on 8-byte boundary
-		if (unlikely(long(dst) & 4)) {
+		if (unlikely(uintptr_t(dst) & 4)) {
 			*dst++ = *src++;
 			--num;
 		}
@@ -592,7 +592,7 @@ void stream_memcpy(uint16_t* dst, const uint16_t* src, size_t num)
 	if (HostCPU::hasSSE()) {
 		if (unlikely(!num)) return;
 		// align on 4-byte boundary
-		if (unlikely(long(dst) & 2)) {
+		if (unlikely(uintptr_t(dst) & 2)) {
 			*dst++ = *src++;
 			--num;
 		}
