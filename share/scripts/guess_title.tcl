@@ -60,7 +60,12 @@ proc guess_rom_title_nonextension {} {
 			if {![machine_info isexternalslot $ps $ss]} continue
 			set rom [machine_info slot $ps $ss 1]
 			if {$rom eq "empty"} continue
-			set path [lindex [machine_info device $rom] 3]
+			# HACK: The following fails when there are multiple
+			#   memory devices registered in the same 16kB page.
+			#   This happens for example with the
+			#   OPL3Cartridge2_mono extension.
+			set path ""
+			catch {set path [lindex [machine_info device $rom] 3]}
 			if {$path eq ""} continue
 			set ok 1
 			foreach syspath $system_rom_paths {

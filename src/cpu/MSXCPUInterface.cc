@@ -1124,6 +1124,8 @@ void SlotInfo::execute(const vector<TclObject>& tokens,
 	if (!interface.isExpanded(ps)) {
 		ss = 0;
 	}
+	// TODO we should return a proper Tcl list here (for the case there
+	//  are multiple devices registered in the same 16kB page)
 	result.setString(interface.slotLayout[ps][ss][page]->getName());
 }
 
