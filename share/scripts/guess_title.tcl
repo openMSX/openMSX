@@ -30,15 +30,12 @@ proc guess_rom_title_z80space {internal checkpage} {
 		set incorrectslottype [expr {!$incorrectslottype}]
 	}
 	if {$incorrectslottype} {
-		set rom [machine_info slot $ps $ss $checkpage]
-		if {$rom ne "empty"} {
-			set ok false
-			catch {;# can fail for multimemdevices
-				set type [machine_info device $rom]
-				set ok true
-			}
+		foreach device [machine_info slot $ps $ss $checkpage] {
+			set type [lindex [machine_info device $device] 0]
 			# try to ignore RAM devices
-			if {$ok && $type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {return $rom}
+			if {$type ne "RAM" && $type ne "MemoryMapper" && $type ne "PanasonicRAM"} {
+				return $device
+			}
 		}
 	}
 	return ""
@@ -58,22 +55,17 @@ proc guess_rom_title_nonextension {} {
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {![machine_info isexternalslot $ps $ss]} continue
-			set rom [machine_info slot $ps $ss 1]
-			if {$rom eq "empty"} continue
-			# HACK: The following fails when there are multiple
-			#   memory devices registered in the same 16kB page.
-			#   This happens for example with the
-			#   OPL3Cartridge2_mono extension.
-			set path ""
-			catch {set path [lindex [machine_info device $rom] 3]}
-			if {$path eq ""} continue
-			set ok 1
-			foreach syspath $system_rom_paths {
-				if {[string first $syspath $path] == 0} {
-					set ok 0; break
+			foreach device [machine_info slot $ps $ss 1] {
+				set path [lindex [machine_info device $device] 3]
+				if {$path eq ""} continue
+				set ok 1
+				foreach syspath $system_rom_paths {
+					if {[string first $syspath $path] == 0} {
+						set ok 0; break
+					}
 				}
+				if {$ok} {return $device}
 			}
-			if {$ok} {return $rom}
 		}
 	}
 	return ""
@@ -83,8 +75,10 @@ proc guess_rom_title_naive {} {
 	for {set ps 0} {$ps < 4} {incr ps} {
 		for {set ss 0} {$ss < 4} {incr ss} {
 			if {[machine_info isexternalslot $ps $ss]} {
-				set rom [machine_info slot $ps $ss 1]
-				if {$rom ne "empty"} {return $rom}
+				set device_list [machine_info slot $ps $ss 1]
+				if {[llength $device_list] != 0} {
+					return $device_list
+				}
 			}
 		}
 	}

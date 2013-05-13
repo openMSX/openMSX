@@ -1,4 +1,5 @@
 #include "MSXMultiIODevice.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -35,13 +36,18 @@ MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
 
 std::string MSXMultiIODevice::getName() const
 {
-	assert(!devices.empty());
-	StringOp::Builder result;
-	result << devices[0]->getName();
-	for (auto i : xrange(size_t(1), devices.size())) {
-		result << "  " << devices[i]->getName();
+	TclObject list;
+	getNameList(list);
+	return list.getString().str();
+}
+void MSXMultiIODevice::getNameList(TclObject& result) const
+{
+	for (auto* dev : devices) {
+		const auto& name = dev->getName();
+		if (!name.empty()) {
+			result.addListElement(name);
+		}
 	}
-	return result;
 }
 
 byte MSXMultiIODevice::readIO(word port, EmuTime::param time)

@@ -22,6 +22,7 @@ public:
 
 	// MSXDevice
 	virtual std::string getName() const;
+	virtual void getNameList(TclObject& result) const;
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);

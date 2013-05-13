@@ -393,6 +393,11 @@ string MSXDevice::getName() const
 	return deviceName;
 }
 
+void MSXDevice::getNameList(TclObject& result) const
+{
+	result.addListElement(getName());
+}
+
 void MSXDevice::getDeviceInfo(TclObject& result) const
 {
 	result.addListElement(getDeviceConfig().getName());

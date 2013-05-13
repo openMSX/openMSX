@@ -81,6 +81,12 @@ public:
 	 */
 	virtual std::string getName() const;
 
+	/** Returns list of name(s) of this device.
+	 * This is normally the same as getName() (but formatted as a Tcl list)
+	 * except for multi-{mem,io}-devices.
+	 */
+	virtual void getNameList(TclObject& result) const;
+
 	/** Get device info.
 	  * Used by the 'machine_info device' command.
 	  */

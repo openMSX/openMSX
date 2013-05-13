@@ -49,7 +49,7 @@ set_help_text get_mapper_size \
 Result is 0 when there is no memory mapper in the slot.}
 proc get_mapper_size {ps ss} {
 	set result 0
-	catch {
+	catch { ;# for multi-mem devices, but those aren't memory mappers
 		set device [machine_info slot $ps $ss 0]
 		if {[debug desc $device] eq "memory mapper"} {
 			set result [expr {[debug size $device] / 0x4000}]
@@ -68,8 +68,9 @@ proc get_mapper_size {ps ss} {
 proc get_block_size {ps ss page} {
 	set block_size 0
 	catch {
-		set device_name [machine_info slot $ps $ss $page]  ;# can return "empty"
-		set device_info [machine_info device $device_name] ;# fails if name == "empty"
+		set device_list [machine_info slot $ps $ss $page]
+		if {[llength $device_list] != 1} {return 0}
+		set device_info [machine_info device [lindex $device_name 0]]
 		set romtype [lindex $device_info 1]                ;# can return ""
 		set romtype_info [openmsx_info romtype $romtype]   ;# fails if romtype == ""
 		set block_size [dict get $romtype_info blocksize]  ;# could fail??
@@ -146,7 +147,17 @@ set_help_text slotmap \
 proc slotmap_helper {ps ss} {
 	set result ""
 	for {set page 0} {$page < 4} {incr page} {
-		set name [machine_info slot $ps $ss $page]
+		set device_list [machine_info slot $ps $ss $page]
+		# This 'if' introduces a parsing ambiguity (list of elements
+		# without embedded spaces versus single element with embedded
+		# spaces) though usually this looks nicer.
+		# Though this means the output of this script should not be
+		# further parsed in scripts.
+		if {[llength $device_list] == 1} {
+			set name [lindex $device_list 0]
+		} else {
+			set name $device_list
+		}
 		append result [format "%04X: %s\n" [expr {$page * 0x4000}] $name]
 	}
 	return $result

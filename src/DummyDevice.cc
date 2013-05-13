@@ -13,4 +13,9 @@ void DummyDevice::reset(EmuTime::param /*time*/)
 	UNREACHABLE;
 }
 
+void DummyDevice::getNameList(TclObject& /*result*/) const
+{
+	// keep empty list
+}
+
 } // namespace openmsx

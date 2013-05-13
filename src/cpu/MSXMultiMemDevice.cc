@@ -1,6 +1,7 @@
 #include "MSXMultiMemDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "likely.hh"
 #include "unreachable.hh"
@@ -88,13 +89,18 @@ std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 
 std::string MSXMultiMemDevice::getName() const
 {
-	assert(!empty());
-	StringOp::Builder result;
-	result << ranges[0].device->getName();
-	for (auto i : xrange(size_t(1), ranges.size() - 1)) {
-		result << "  " << ranges[i].device->getName();
+	TclObject list;
+	getNameList(list);
+	return list.getString().str();
+}
+void MSXMultiMemDevice::getNameList(TclObject& result) const
+{
+	for (auto& r : ranges) {
+		const auto& name = r.device->getName();
+		if (!name.empty()) {
+			result.addListElement(name);
+		}
 	}
-	return result;
 }
 
 const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address) const

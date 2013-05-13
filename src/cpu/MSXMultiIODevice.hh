@@ -20,6 +20,7 @@ public:
 
 	// MSXDevice
 	virtual std::string getName() const;
+	virtual void getNameList(TclObject& result) const;
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;
 	virtual void writeIO(word port, byte value, EmuTime::param time);
