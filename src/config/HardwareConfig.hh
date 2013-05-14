@@ -18,7 +18,7 @@ class FileContext;
 class HardwareConfig : private noncopyable
 {
 public:
-	static XMLElement loadConfig(const std::string& filename);
+	static XMLElement loadConfig(string_ref type, string_ref name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
@@ -51,8 +51,10 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	static std::string getFilename(string_ref type, string_ref name);
+	static XMLElement loadConfig(const std::string& filename);
 	void setConfig(XMLElement config_) { config = std::move(config_); }
-	void load(string_ref path);
+	void load(string_ref type);
 
 	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem,

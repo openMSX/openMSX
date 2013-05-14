@@ -1107,11 +1107,8 @@ void ConfigInfo::execute(const vector<TclObject>& tokens,
 	}
 	case 3: {
 		try {
-			string filename = SystemFileContext().resolve(
-				FileOperations::join(
-					configName, tokens[2].getString(),
-					"hardwareconfig.xml"));
-			auto config = HardwareConfig::loadConfig(filename);
+			auto config = HardwareConfig::loadConfig(
+				configName, tokens[2].getString());
 			if (auto* info = config.findChild("info")) {
 				for (auto& i : info->getChildren()) {
 					result.addListElement(i.getName());

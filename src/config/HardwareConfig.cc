@@ -216,6 +216,11 @@ const XMLElement& HardwareConfig::getDevices() const
 	return getConfig().getChild("devices");
 }
 
+XMLElement HardwareConfig::loadConfig(string_ref type, string_ref name)
+{
+	return loadConfig(getFilename(type, name));
+}
+
 XMLElement HardwareConfig::loadConfig(const string& filename)
 {
 	try {
@@ -228,25 +233,28 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 	}
 }
 
-void HardwareConfig::load(string_ref path)
+string HardwareConfig::getFilename(string_ref type, string_ref name)
 {
-	string filename;
 	SystemFileContext context;
 	try {
 		// try <name>.xml
-		filename = context.resolve(
-			FileOperations::join(path, hwName + ".xml"));
+		return context.resolve(FileOperations::join(
+			type, name + ".xml"));
 	} catch (MSXException& e) {
 		// backwards-compatibility:
 		//  also try <name>/hardwareconfig.xml
 		try {
-			filename = context.resolve(FileOperations::join(
-				path, hwName, "hardwareconfig.xml"));
+			return context.resolve(FileOperations::join(
+				type, name, "hardwareconfig.xml"));
 		} catch (MSXException&) {
 			throw e; // signal first error
 		}
 	}
+}
 
+void HardwareConfig::load(string_ref type)
+{
+	string filename = getFilename(type, hwName);
 	setConfig(loadConfig(filename));
 
 	assert(!userName.empty());
