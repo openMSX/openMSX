@@ -1,7 +1,7 @@
-diff -ru glew-1.7.0.org/include/GL/glew.h glew-1.7.0/include/GL/glew.h
---- glew-1.7.0.org/include/GL/glew.h	2011-08-25 16:17:55.000000000 +0200
-+++ glew-1.7.0/include/GL/glew.h	2012-01-29 15:37:10.000000000 +0100
-@@ -109,7 +109,7 @@
+diff -ru glew-1.9.0.orig/include/GL/glew.h glew-1.9.0/include/GL/glew.h
+--- glew-1.9.0.orig/include/GL/glew.h	2012-08-06 10:59:08.000000000 +0200
++++ glew-1.9.0/include/GL/glew.h	2013-05-18 12:29:18.000000000 +0200
+@@ -113,7 +113,7 @@
  #define GLEW_APIENTRY_DEFINED
  #  if defined(__MINGW32__) || defined(__CYGWIN__)
  #    define APIENTRY __stdcall
@@ -10,22 +10,10 @@ diff -ru glew-1.7.0.org/include/GL/glew.h glew-1.7.0/include/GL/glew.h
  #    define APIENTRY __stdcall
  #  else
  #    define APIENTRY
-diff -ru glew-1.7.0.org/Makefile glew-1.7.0/Makefile
---- glew-1.7.0.org/Makefile	2011-08-25 16:17:55.000000000 +0200
-+++ glew-1.7.0/Makefile	2012-01-29 15:36:23.000000000 +0100
-@@ -54,9 +54,9 @@
- DIST_SRC_ZIP = glew-$(GLEW_VERSION).zip
- DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
- 
--AR = ar
-+AR?=ar
- INSTALL = install
--STRIP = strip
-+STRIP?=strip
- RM = rm -f
- LN = ln -sf
- ifeq ($(MAKECMDGOALS), debug)
-@@ -65,7 +65,9 @@
+diff -ru glew-1.9.0.orig/Makefile glew-1.9.0/Makefile
+--- glew-1.9.0.orig/Makefile	2012-08-06 10:59:08.000000000 +0200
++++ glew-1.9.0/Makefile	2013-05-18 12:28:30.000000000 +0200
+@@ -72,7 +72,9 @@
  OPT = $(POPT)
  endif
  INCLUDE = -Iinclude
@@ -34,9 +22,9 @@ diff -ru glew-1.7.0.org/Makefile glew-1.7.0/Makefile
 +#CFLAGS = $(OPT) $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
 +CFLAGS += $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
  
- LIB.SRCS = src/glew.c
- LIB.OBJS = $(LIB.SRCS:.c=.o)
-@@ -221,7 +223,7 @@
+ all debug: glew.lib glew.lib.mx glew.bin
+ 
+@@ -262,7 +264,7 @@
  
  install.bin: glew.bin
  	$(INSTALL) -d -m 0755 $(BINDIR)
