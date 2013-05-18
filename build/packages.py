@@ -131,7 +131,7 @@ class LibXML2(DownloadablePackage):
 	downloadURL = 'http://xmlsoft.org/sources'
 	niceName = 'libxml2'
 	sourceName = 'libxml2'
-	version = '2.8.0'
+	version = '2.8.0' # 2.9.0 and 2.9.1 do not seem to compile...
 	fileLength = 4915203
 	checksums = {
 		'sha256':
