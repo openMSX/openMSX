@@ -1,0 +1,24 @@
+diff -ru tcl8.5.14.orig/generic/tcl.h tcl8.5.14/generic/tcl.h
+--- tcl8.5.14.orig/generic/tcl.h	2013-03-22 12:39:05.000000000 +0100
++++ tcl8.5.14/generic/tcl.h	2013-05-18 14:27:30.000000000 +0200
+@@ -168,7 +168,7 @@
+  *       MSVCRT.
+  */
+ 
+-#if (defined(__WIN32__) && (defined(_MSC_VER) || (__BORLANDC__ >= 0x0550) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
++#if (defined(__WIN32__) && (defined(_MSC_VER) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0550)) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
+ #   define HAVE_DECLSPEC 1
+ #   ifdef STATIC_BUILD
+ #       define DLLIMPORT
+diff -ru tcl8.5.14.orig/unix/configure tcl8.5.14/unix/configure
+--- tcl8.5.14.orig/unix/configure	2013-04-01 20:36:35.000000000 +0200
++++ tcl8.5.14/unix/configure	2013-05-18 14:15:24.000000000 +0200
+@@ -15068,7 +15068,7 @@
+ else
+ 
+ 	    if test "$cross_compiling" = yes; then
+-  tcl_cv_strtod_buggy=buggy
++  tcl_cv_strtod_buggy=ok
+ else
+   cat >conftest.$ac_ext <<_ACEOF
+ /* confdefs.h.  */
