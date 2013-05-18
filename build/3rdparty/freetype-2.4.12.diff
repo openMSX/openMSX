@@ -1,6 +1,6 @@
-diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/include/freetype/config/ftoption.h
---- freetype-2.4.10.org/include/freetype/config/ftoption.h	2012-06-14 07:35:58.000000000 +0200
-+++ freetype-2.4.10/include/freetype/config/ftoption.h	2012-07-13 15:50:38.000000000 +0200
+diff -ru freetype-2.4.12.orig/include/freetype/config/ftoption.h freetype-2.4.12/include/freetype/config/ftoption.h
+--- freetype-2.4.12.orig/include/freetype/config/ftoption.h	2013-01-22 14:31:11.000000000 +0100
++++ freetype-2.4.12/include/freetype/config/ftoption.h	2013-05-18 12:01:54.000000000 +0200
 @@ -148,7 +148,7 @@
    /*                                                                       */
    /*   Define this macro if you want to enable this `feature'.             */
@@ -64,7 +64,7 @@ diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/
  
  
    /*************************************************************************/
-@@ -647,7 +647,7 @@
+@@ -669,7 +669,7 @@
    /* and avar tables).  This has many similarities to Type 1 Multiple      */
    /* Masters support.                                                      */
    /*                                                                       */
@@ -73,7 +73,7 @@ diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/
  
  
    /*************************************************************************/
-@@ -655,7 +655,7 @@
+@@ -677,7 +677,7 @@
    /* Define TT_CONFIG_OPTION_BDF if you want to include support for        */
    /* an embedded `BDF ' table within SFNT-based bitmap formats.            */
    /*                                                                       */
@@ -82,7 +82,7 @@ diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/
  
  
    /*************************************************************************/
-@@ -701,7 +701,7 @@
+@@ -723,7 +723,7 @@
    /* files into an existing face.  Note that if set, the T1 driver will be */
    /* unable to produce kerning distances.                                  */
    /*                                                                       */
@@ -91,18 +91,9 @@ diff -ru freetype-2.4.10.org/include/freetype/config/ftoption.h freetype-2.4.10/
  
  
    /*************************************************************************/
-@@ -761,7 +761,7 @@
-    * is recommended to disable the macro since it reduces the library's code
-    * size and activates a few memory-saving optimizations as well.
-    */
--#define FT_CONFIG_OPTION_OLD_INTERNALS
-+/* #define FT_CONFIG_OPTION_OLD_INTERNALS */
- 
- 
-   /*
-diff -ru freetype-2.4.10.org/modules.cfg freetype-2.4.10/modules.cfg
---- freetype-2.4.10.org/modules.cfg	2011-11-26 13:19:10.000000000 +0100
-+++ freetype-2.4.10/modules.cfg	2012-07-13 22:00:12.000000000 +0200
+diff -ru freetype-2.4.12.orig/modules.cfg freetype-2.4.12/modules.cfg
+--- freetype-2.4.12.orig/modules.cfg	2011-11-26 13:19:10.000000000 +0100
++++ freetype-2.4.12/modules.cfg	2013-05-18 12:06:58.000000000 +0200
 @@ -37,35 +37,35 @@
  # PostScript Type 1 font driver.
  #
