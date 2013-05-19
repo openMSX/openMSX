@@ -164,7 +164,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	value.addListElement("DOWN" ); value.addListElement("+axis1");
 	TclObject listA, listB;
 	for (auto i : xrange(SDL_JoystickNumButtons(joystick))) {
-		string button = "button" + std::to_string(i);
+		string button = "button" + StringOp::toString(i);
 		if (i & 1) {
 			listB.addListElement(button);
 		} else {
