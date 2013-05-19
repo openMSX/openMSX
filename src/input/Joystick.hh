@@ -27,9 +27,6 @@ class Joystick
 {
 public:
 	/** Register all available SDL joysticks.
-	  * @param eventDistributor ref to the MSXEventDistributor.
-	  * @param stateChangeDistributor ref to the StateChangeDistributor.
-	  * @param controller Register here.
 	  */
 	static void registerAll(MSXEventDistributor& eventDistributor,
 	                        StateChangeDistributor& stateChangeDistributor,
