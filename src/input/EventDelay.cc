@@ -26,7 +26,7 @@ EventDelay::EventDelay(Scheduler& scheduler,
 	, prevReal(Timer::getTime())
 	, delaySetting(make_unique<FloatSetting>(
 		commandController, "inputdelay",
-		"delay input to avoid key-skips", 0.03, 0.0, 10.0))
+		"delay input to avoid key-skips", 0.0, 0.0, 10.0))
 {
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);
