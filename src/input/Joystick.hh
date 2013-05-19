@@ -5,13 +5,18 @@
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
+#include <memory>
 #include <SDL.h>
 
 namespace openmsx {
 
 class MSXEventDistributor;
 class StateChangeDistributor;
+class CommandController;
 class PluggingController;
+class StringSetting;
+class JoystickConfigChecker;
+class TclObject;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
@@ -28,10 +33,12 @@ public:
 	  */
 	static void registerAll(MSXEventDistributor& eventDistributor,
 	                        StateChangeDistributor& stateChangeDistributor,
+	                        CommandController& commandController,
 	                        PluggingController& controller);
 
 	Joystick(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
+	         CommandController& commandController,
 	         SDL_Joystick* joystick);
 	virtual ~Joystick();
 
@@ -51,8 +58,8 @@ public:
 
 private:
 	void plugHelper2();
-	byte calcInitialState();
-	void createEvent(EmuTime::param time, byte press, byte release);
+	byte calcState();
+	bool getState(const TclObject& dict, string_ref key);
 	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener
@@ -65,6 +72,8 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 
+	std::unique_ptr<StringSetting> configSetting;
+	std::unique_ptr<JoystickConfigChecker> checker;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
 	const std::string name;

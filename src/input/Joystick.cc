@@ -5,11 +5,15 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "TclObject.hh"
+#include "StringSetting.hh"
+#include "CommandException.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "memory.hh"
 #include "unreachable.hh"
+#include "xrange.hh"
 #include "build-info.hh"
 
 using std::string;
@@ -25,6 +29,7 @@ static const int THRESHOLD = 32768 / 10;
 
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,
+                           CommandController& commandController,
                            PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
@@ -56,6 +61,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 					make_unique<Joystick>(
 						eventDistributor,
 						stateChangeDistributor,
+						commandController,
 						joystick));
 			}
 		}
@@ -92,6 +98,46 @@ private:
 };
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
+
+class JoystickConfigChecker : public SettingChecker<StringSettingPolicy>
+{
+public:
+	virtual void check(SettingImpl<StringSettingPolicy>& setting,
+	                   string& newValue);
+};
+
+void JoystickConfigChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
+                                  string& newValue)
+{
+	TclObject dict(newValue);
+	unsigned n = dict.getListLength();
+	if (n & 1) {
+		throw CommandException("Need an even number of elements");
+	}
+	for (unsigned i = 0; i < n; i += 2) {
+		string_ref key  = dict.getListIndex(i + 0).getString();
+		TclObject value = dict.getListIndex(i + 1);
+		if ((key != "A"   ) && (key != "B"    ) &&
+		    (key != "LEFT") && (key != "RIGHT") &&
+		    (key != "UP"  ) && (key != "DOWN" )) {
+			throw CommandException(
+				"Invalid MSX joystick action: must be one of "
+				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");
+		}
+		for (auto j : xrange(value.getListLength())) {
+			string_ref host = value.getListIndex(j).getString();
+			if (!host.starts_with("button") &&
+			    !host.starts_with("+axis") &&
+			    !host.starts_with("-axis")) {
+				throw CommandException(
+					"Invalid host joystick action: must be "
+					"one of 'button<N>', '+axis<N>', '-axis<N>'");
+			}
+		}
+	}
+}
+
+
 #ifndef SDL_JOYSTICK_DISABLED
 // Note: It's OK to open/close the same SDL_Joystick multiple times (we open it
 // once per MSX machine). The SDL documentation doesn't state this, but I
@@ -99,6 +145,7 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 // the open/close calls.
 Joystick::Joystick(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
+                   CommandController& commandController,
                    SDL_Joystick* joystick_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
@@ -108,6 +155,29 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	, desc(string(SDL_JoystickName(joyNum)))
 {
 	const_cast<string&>(name)[8] = char('1' + joyNum);
+
+	// create config setting
+	TclObject value;
+	value.addListElement("LEFT" ); value.addListElement("-axis0");
+	value.addListElement("RIGHT"); value.addListElement("+axis0");
+	value.addListElement("UP"   ); value.addListElement("-axis1");
+	value.addListElement("DOWN" ); value.addListElement("+axis1");
+	TclObject listA, listB;
+	for (auto i : xrange(SDL_JoystickNumButtons(joystick))) {
+		string button = "button" + std::to_string(i);
+		if (i & 1) {
+			listB.addListElement(button);
+		} else {
+			listA.addListElement(button);
+		}
+	}
+	value.addListElement("A"); value.addListElement(listA);
+	value.addListElement("B"); value.addListElement(listB);
+	configSetting = make_unique<StringSetting>(
+		commandController, name + "_config", "joystick configuration",
+		value.getString());
+	checker = make_unique<JoystickConfigChecker>();
+	configSetting->setChecker(checker.get());
 }
 
 Joystick::~Joystick()
@@ -137,7 +207,7 @@ void Joystick::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 		throw PlugException("Failed to open joystick device");
 	}
 	plugHelper2();
-	status = calcInitialState();
+	status = calcState();
 }
 
 void Joystick::plugHelper2()
@@ -164,37 +234,45 @@ void Joystick::write(byte /*value*/, EmuTime::param /*time*/)
 	// nothing
 }
 
-byte Joystick::calcInitialState()
+byte Joystick::calcState()
 {
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
-		int xAxis = SDL_JoystickGetAxis(joystick, 0);
-		if (xAxis < -THRESHOLD) {
-			result &= ~JOY_LEFT;
-		} else if (xAxis > THRESHOLD) {
-			result &= ~JOY_RIGHT;
-		}
+		TclObject dict(configSetting->getValue());
+		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
+		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
+		if (getState(dict, "UP"   )) result &= ~JOY_UP;
+		if (getState(dict, "DOWN" )) result &= ~JOY_DOWN;
+		if (getState(dict, "LEFT" )) result &= ~JOY_LEFT;
+		if (getState(dict, "RIGHT")) result &= ~JOY_RIGHT;
+	}
+	return result;
+}
 
-		int yAxis = SDL_JoystickGetAxis(joystick, 1);
-		if (yAxis < -THRESHOLD) {
-			result &= ~JOY_UP;
-		} else if (yAxis > THRESHOLD) {
-			result &= ~JOY_DOWN;
-		}
-
-		int numButtons = SDL_JoystickNumButtons(joystick);
-		for (int button = 0; button < numButtons; ++button) {
-			if (SDL_JoystickGetButton(joystick, button)) {
-				if (button & 1) {
-					result &= ~JOY_BUTTONB;
-				} else {
-					result &= ~JOY_BUTTONA;
-				}
+bool Joystick::getState(const TclObject& dict, string_ref key)
+{
+	const auto& list = dict.getDictValue(TclObject(key));
+	for (auto i : xrange(list.getListLength())) {
+		const auto& elem = list.getListIndex(i).getString();
+		if (elem.starts_with("button")) {
+			int n = stoi(elem.substr(6));
+			if (SDL_JoystickGetButton(joystick, n)) {
+				return true;
+			}
+		} else if (elem.starts_with("+axis")) {
+			int n = stoi(elem.substr(5));
+			if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
+				return true;
+			}
+		} else if (elem.starts_with("-axis")) {
+			int n = stoi(elem.substr(5));
+			if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
+				return true;
 			}
 		}
 	}
-	return result;
+	return false;
 }
 
 // MSXEventListener
@@ -208,68 +286,14 @@ void Joystick::signalEvent(const shared_ptr<const Event>& event,
 	//       sending the event to all joysticks.
 	if (joyEvent->getJoystick() != joyNum) return;
 
-	switch (event->getType()) {
-	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		auto& mev = checked_cast<const JoystickAxisMotionEvent&>(*event);
-		short value = mev.getValue();
-		switch (mev.getAxis() & 1) {
-		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
-			if (value < -THRESHOLD) {
-				// left, not right
-				createEvent(time, JOY_LEFT, JOY_RIGHT);
-			} else if (value > THRESHOLD) {
-				// not left, right
-				createEvent(time, JOY_RIGHT, JOY_LEFT);
-			} else {
-				// not left, not right
-				createEvent(time, 0, JOY_LEFT | JOY_RIGHT);
-			}
-			break;
-		case JoystickAxisMotionEvent::Y_AXIS: // Vertical
-			if (value < -THRESHOLD) {
-				// up, not down
-				createEvent(time, JOY_UP, JOY_DOWN);
-			} else if (value > THRESHOLD) {
-				// not up, down
-				createEvent(time, JOY_DOWN, JOY_UP);
-			} else {
-				// not up, not down
-				createEvent(time, 0, JOY_UP | JOY_DOWN);
-			}
-			break;
-		default:
-			// ignore other axis
-			break;
-		}
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		if (butEv.getButton() & 1) {
-			createEvent(time, JOY_BUTTONB, 0);
-		} else {
-			createEvent(time, JOY_BUTTONA, 0);
-		}
-		break;
-	}
-	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		auto& butEv = checked_cast<const JoystickButtonEvent&>(*event);
-		if (butEv.getButton() & 1) {
-			createEvent(time, 0, JOY_BUTTONB);
-		} else {
-			createEvent(time, 0, JOY_BUTTONA);
-		}
-		break;
-	}
-	default:
-		UNREACHABLE;
-	}
-}
-
-void Joystick::createEvent(EmuTime::param time, byte press, byte release)
-{
-	byte newStatus = (status & ~press) | release;
-	createEvent(time, newStatus);
+	// TODO: Currently this recalculates the whole joystick state. It might
+	// be possible to implement this more efficiently by using the specific
+	// event information. Though that's not trivial because e.g. multiple
+	// host buttons can map to the same MSX button. Also calcState()
+	// involves some string processing. It might be possible to only parse
+	// the config once (per setting change). Though this solution is likely
+	// good enough.
+	createEvent(time, calcState());
 }
 
 void Joystick::createEvent(EmuTime::param time, byte newStatus)
@@ -304,7 +328,7 @@ void Joystick::signalStateChange(const shared_ptr<StateChange>& event)
 
 void Joystick::stopReplay(EmuTime::param time)
 {
-	createEvent(time, calcInitialState());
+	createEvent(time, calcState());
 }
 
 // version 1: Initial version, the variable status was not serialized.

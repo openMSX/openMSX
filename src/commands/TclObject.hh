@@ -53,6 +53,7 @@ public:
 	const byte* getBinary(unsigned& length) const;
 	unsigned getListLength() const;
 	TclObject getListIndex(unsigned index) const;
+	TclObject getDictValue(const TclObject& key) const;
 
 	// expressions
 	bool evalBool() const;

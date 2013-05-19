@@ -64,7 +64,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick2"));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
-	                      controller);
+	                      commandController, controller);
 	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 

@@ -237,6 +237,16 @@ TclObject TclObject::getListIndex(unsigned index) const
 	               : TclObject(interp);
 }
 
+TclObject TclObject::getDictValue(const TclObject& key) const
+{
+	Tcl_Obj* value;
+	if (Tcl_DictObjGet(interp, obj, key.obj, &value) != TCL_OK) {
+		throwException();
+	}
+	return value ? TclObject(interp, value)
+	             : TclObject(interp);
+}
+
 bool TclObject::evalBool() const
 {
 	int result;
