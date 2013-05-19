@@ -27,7 +27,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\vc6\glew.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\glew.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

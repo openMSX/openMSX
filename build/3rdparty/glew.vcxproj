@@ -308,7 +308,7 @@
     <ClInclude Include="$(ThirdPartySrcDir)\$(LibNameGlew)\include\GL\wglew.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\vc6\glew.rc">
+    <ResourceCompile Include="$(ThirdPartySrcDir)\$(LibNameGlew)\build\glew.rc">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>

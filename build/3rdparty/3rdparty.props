@@ -12,18 +12,18 @@
     <OpenMSXIntDir>$(BuildDir)\build</OpenMSXIntDir>
     <OpenMSXOutDir>$(BuildDir)\install</OpenMSXOutDir>
     <OpenMSXConfigDir>$(BuildDir)\config</OpenMSXConfigDir>
-    <LibNameFreeType>freetype-2.4.10</LibNameFreeType>
-    <LibNameGlew>glew-1.7.0</LibNameGlew>
+    <LibNameFreeType>freetype-2.4.12</LibNameFreeType>
+    <LibNameGlew>glew-1.9.0</LibNameGlew>
     <LibNameLibPng>libpng-1.2.50</LibNameLibPng>
     <LibNameLibXml>libxml2-2.8.0</LibNameLibXml>
     <LibNameOgg>libogg-1.3.0</LibNameOgg>
     <LibNameSDL>SDL-1.2.15</LibNameSDL>
     <LibNameSDL_ttf>SDL_ttf-2.0.11</LibNameSDL_ttf>
     <LibNameSDLmain>SDLmain</LibNameSDLmain>
-    <LibNameTcl>tcl8.5.11</LibNameTcl>
+    <LibNameTcl>tcl8.5.14</LibNameTcl>
     <LibNameTheora>libtheora-1.1.1</LibNameTheora>
     <LibNameVorbis>libvorbis-1.3.3</LibNameVorbis>
-    <LibNameZlib>zlib-1.2.7</LibNameZlib>
+    <LibNameZlib>zlib-1.2.8</LibNameZlib>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
