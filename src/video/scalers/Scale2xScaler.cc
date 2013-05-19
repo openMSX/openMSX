@@ -92,9 +92,9 @@ template<typename Pixel> static inline __m128i unpackhi(__m128i x, __m128i y)
 
 // Scale one 'unit'. A unit is 8x16bpp or 4x32bpp pixels.
 template<typename Pixel, bool DOUBLE_X> static inline void scale1(
-	__m128i top, __m128i bottom,
-	__m128i prev, __m128i mid, __m128i next,
-	__m128i* out0, __m128i* out1)
+	__m128i& top,	__m128i& bottom,
+	__m128i& prev,	__m128i& mid,	__m128i& next,
+	__m128i* out0,	__m128i* out1)
 {
 	__m128i left  = align<sizeof(__m128i) - sizeof(Pixel)>(mid, prev);
 	__m128i right = align<                  sizeof(Pixel)>(next, mid);
