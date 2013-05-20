@@ -50,7 +50,7 @@ Result is 0 when there is no memory mapper in the slot.}
 proc get_mapper_size {ps ss} {
 	set result 0
 	catch { ;# for multi-mem devices, but those aren't memory mappers
-		set device [machine_info slot $ps $ss 0]
+		set device [lindex [machine_info slot $ps $ss 0] 0]
 		if {[debug desc $device] eq "memory mapper"} {
 			set result [expr {[debug size $device] / 0x4000}]
 		}
@@ -70,7 +70,7 @@ proc get_block_size {ps ss page} {
 	catch {
 		set device_list [machine_info slot $ps $ss $page]
 		if {[llength $device_list] != 1} {return 0}
-		set device_info [machine_info device [lindex $device_name 0]]
+		set device_info [machine_info device [lindex $device_list 0]]
 		set romtype [lindex $device_info 1]                ;# can return ""
 		set romtype_info [openmsx_info romtype $romtype]   ;# fails if romtype == ""
 		set block_size [dict get $romtype_info blocksize]  ;# could fail??
@@ -127,7 +127,7 @@ proc address_in_slot {addr ps {ss "X"} {block "X"}} {
 	# next (try to) check rom mapper
 	set block_size [get_block_size $pc_ps $pc_ss $page]
 	if {$block_size != 0} {
-		set device_name [machine_info slot $pc_ps $pc_ss $page]
+		set device_name [lindex [machine_info slot $pc_ps $pc_ss $page] 0]
 		# note: I'm assuming that if get_block_size returns a non-zero
 		#       value, then the "romblocks" debuggable always exixts.
 		#       Is that correct?
