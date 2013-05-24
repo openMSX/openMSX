@@ -2854,12 +2854,6 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="$(OpenMSXSrcDir)\sound\ResampleHQ-x64.asm">
-      <Filter>sound</Filter>
-    </CustomBuild>
-    <CustomBuild Include="$(OpenMSXSrcDir)\sound\ResampleHQ-x86.asm">
-      <Filter>sound</Filter>
-    </CustomBuild>
     <CustomBuild Include="$(OpenMSXSrcDir)\video\FBPostProcessor-x64.asm">
       <Filter>video</Filter>
     </CustomBuild>

@@ -42,8 +42,6 @@ DIST:= \
 	ResampleCoeffs.ii \
 	BlipTable.ii \
 	YM2413OkazakiTable.ii \
-	ResampleHQ-x64.asm \
-	ResampleHQ-x86.asm \
 	generateBlipTable.cc \
 	generateYM2413OkazakiTable.cc \
 

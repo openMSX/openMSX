@@ -3,7 +3,6 @@
 //  simplified code in several ways:
 //   - resample algorithm is no longer switchable, we took this variant:
 //        Band limited sinc interpolation, fastest, 97dB SNR, 80% BW
-//   - only handle a single channel (mono)
 //   - don't allow to change sample rate on-the-fly
 //   - assume input (and thus also output) signals have infinte length, so
 //     there is no special code to handle the ending of the signal
@@ -14,18 +13,19 @@
 #include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
 #include "MemoryOps.hh"
-#include "HostCPU.hh"
 #include "noncopyable.hh"
 #include "vla.hh"
 #include "countof.hh"
 #include "likely.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <map>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
 
 namespace openmsx {
 
@@ -40,16 +40,6 @@ static const int INDEX_INC = 128;
 static const int COEFF_LEN = countof(coeffs);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
-
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
-{
-	void __cdecl ResampleHQ_calcOutput_1_SSE(
-		const void* bufferOffset, const void* tableOffset,
-		void* output, long filterLen16Product, unsigned filterLenRest);
-}
-#endif
 
 class ResampleCoeffs : private noncopyable
 {
@@ -173,7 +163,6 @@ void ResampleCoeffs::calcTable(
 }
 
 
-
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(
 		ResampledSoundDevice& input_,
@@ -200,181 +189,130 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 	ResampleCoeffs::instance().releaseCoeffs(ratio);
 }
 
+#ifdef __SSE2__
+static inline void calcSseMono(const float* buf_, const float* tab_, long len, int* out)
+{
+	assert((len % 4) == 0);
+	assert((long(tab_) % 16) == 0);
+
+	long x = (len & ~7) * sizeof(float);
+	assert((x % 32) == 0);
+	const char* buf = reinterpret_cast<const char*>(buf_) + x;
+	const char* tab = reinterpret_cast<const char*>(tab_) + x;
+	x = -x;
+
+	__m128 a0 = _mm_setzero_ps();
+	__m128 a1 = _mm_setzero_ps();
+	do {
+		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x +  0));
+		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + x + 16));
+		__m128 t0 = _mm_load_ps (reinterpret_cast<const float*>(tab + x +  0));
+		__m128 t1 = _mm_load_ps (reinterpret_cast<const float*>(tab + x + 16));
+		__m128 m0 = _mm_mul_ps(b0, t0);
+		__m128 m1 = _mm_mul_ps(b1, t1);
+		a0 = _mm_add_ps(a0, m0);
+		a1 = _mm_add_ps(a1, m1);
+		x += 2 * sizeof(__m128);
+	} while (x < 0);
+	if (len & 4) {
+		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf));
+		__m128 t0 = _mm_load_ps (reinterpret_cast<const float*>(tab));
+		__m128 m0 = _mm_mul_ps(b0, t0);
+		a0 = _mm_add_ps(a0, m0);
+	}
+
+	__m128 a = _mm_add_ps(a0, a1);
+	// The follwoing can _slighly_ faster by using the SSE3 _mm_hadd_ps()
+	// intrinsic, but not worth the trouble.
+	__m128 t = _mm_add_ps(a, _mm_movehl_ps(a, a));
+	__m128 s = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
+
+	*out = _mm_cvtss_si32(s);
+}
+
+template<int N> static inline __m128 shuffle(__m128 x)
+{
+	return _mm_castsi128_ps(_mm_shuffle_epi32(_mm_castps_si128(x), N));
+}
+static inline void calcSseStereo(const float* buf_, const float* tab_, long len, int* out)
+{
+	assert((len % 4) == 0);
+	assert((long(tab_) % 16) == 0);
+
+	long x = (len & ~7) * sizeof(float);
+	const char* buf = reinterpret_cast<const char*>(buf_) + 2*x;
+	const char* tab = reinterpret_cast<const char*>(tab_) +   x;
+	x = -x;
+
+	__m128 a0 = _mm_setzero_ps();
+	__m128 a1 = _mm_setzero_ps();
+	__m128 a2 = _mm_setzero_ps();
+	__m128 a3 = _mm_setzero_ps();
+	do {
+		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x +  0));
+		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 16));
+		__m128 b2 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 32));
+		__m128 b3 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 2*x + 48));
+		__m128 ta = _mm_load_ps (reinterpret_cast<const float*>(tab +   x +  0));
+		__m128 tb = _mm_load_ps (reinterpret_cast<const float*>(tab +   x + 16));
+		__m128 t0 = shuffle<0x50>(ta);
+		__m128 t1 = shuffle<0xFA>(ta);
+		__m128 t2 = shuffle<0x50>(tb);
+		__m128 t3 = shuffle<0xFA>(tb);
+		__m128 m0 = _mm_mul_ps(b0, t0);
+		__m128 m1 = _mm_mul_ps(b1, t1);
+		__m128 m2 = _mm_mul_ps(b2, t2);
+		__m128 m3 = _mm_mul_ps(b3, t3);
+		a0 = _mm_add_ps(a0, m0);
+		a1 = _mm_add_ps(a1, m1);
+		a2 = _mm_add_ps(a2, m2);
+		a3 = _mm_add_ps(a3, m3);
+		x += 2 * sizeof(__m128);
+	} while (x < 0);
+	if (len & 4) {
+		__m128 b0 = _mm_loadu_ps(reinterpret_cast<const float*>(buf +  0));
+		__m128 b1 = _mm_loadu_ps(reinterpret_cast<const float*>(buf + 16));
+		__m128 ta = _mm_load_ps (reinterpret_cast<const float*>(tab));
+		__m128 t0 = shuffle<0x50>(ta);
+		__m128 t1 = shuffle<0xFA>(ta);
+		__m128 m0 = _mm_mul_ps(b0, t0);
+		__m128 m1 = _mm_mul_ps(b1, t1);
+		a0 = _mm_add_ps(a0, m0);
+		a1 = _mm_add_ps(a1, m1);
+	}
+
+	__m128 a01 = _mm_add_ps(a0, a1);
+	__m128 a23 = _mm_add_ps(a2, a3);
+	__m128 a   = _mm_add_ps(a01, a23);
+	// Can faster with SSE3, but (like above) not worth the trouble.
+	__m128 s = _mm_add_ps(a, _mm_movehl_ps(a, a));
+	__m128i si = _mm_cvtps_epi32(s);
+	*reinterpret_cast<int64_t*>(out) = _mm_cvtsi128_si64(si);
+}
+#endif
+
 template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
 	float pos, int* __restrict output) __restrict
 {
 	assert((filterLen & 3) == 0);
-	int t = int(pos * TAB_LEN + 0.5f) % TAB_LEN;
 
-	int tabIdx = t * filterLen;
+	int t = int(pos * TAB_LEN + 0.5f) % TAB_LEN;
+	const float* tab = &table[t * filterLen];
+
 	int bufIdx = int(pos) + bufStart;
 	assert((bufIdx + filterLen) <= bufEnd);
 	bufIdx *= CHANNELS;
+	const float* buf = &buffer[bufIdx];
 
-	#if ASM_X86 && !defined(__APPLE__)
-	// On Mac OS X, we are one register short, because EBX is not available.
-	// We disable this piece of assembly and fall back to the C++ code.
-	if ((CHANNELS == 1) && HostCPU::hasSSE()) {
-		// SSE version, mono
-		long filterLen16 = filterLen & ~15;
-		unsigned filterLenRest = filterLen - filterLen16;
-	#ifdef _MSC_VER
-		// It's quite inelegant to execute these computations outside
-		// the ASM function, but it does reduce the number of parameters
-		// passed to the function from 8 to 5
-		ResampleHQ_calcOutput_1_SSE(
-			&buffer[bufIdx + filterLen16],
-			&table[tabIdx + filterLen16],
-			output,
-			-4 * filterLen16,
-			filterLenRest);
-		return;
+#ifdef __SSE2__
+	if (CHANNELS == 1) {
+		calcSseMono  (buf, tab, filterLen, output);
+	} else {
+		calcSseStereo(buf, tab, filterLen, output);
 	}
-	#else
-		long dummy1;
-		unsigned dummy2;
-		asm volatile (
-			"xorps	%%xmm0,%%xmm0;"
-			"xorps	%%xmm1,%%xmm1;"
-			"xorps	%%xmm2,%%xmm2;"
-			"xorps	%%xmm3,%%xmm3;"
-		"1:"
-			"movups	  (%[BUF],%[FL16]),%%xmm4;"
-			"mulps	  (%[TAB],%[FL16]),%%xmm4;"
-			"movups	16(%[BUF],%[FL16]),%%xmm5;"
-			"mulps	16(%[TAB],%[FL16]),%%xmm5;"
-			"movups	32(%[BUF],%[FL16]),%%xmm6;"
-			"mulps	32(%[TAB],%[FL16]),%%xmm6;"
-			"movups	48(%[BUF],%[FL16]),%%xmm7;"
-			"mulps	48(%[TAB],%[FL16]),%%xmm7;"
-			"addps	%%xmm4,%%xmm0;"
-			"addps	%%xmm5,%%xmm1;"
-			"addps	%%xmm6,%%xmm2;"
-			"addps	%%xmm7,%%xmm3;"
-			"add	$64,%[FL16];"
-			"jnz	1b;"
-
-			"test	$8,%[FLR];"
-			"jz	2f;"
-			"movups	  (%[BUF],%[FL16]), %%xmm4;"
-			"mulps	  (%[TAB],%[FL16]), %%xmm4;"
-			"movups	16(%[BUF],%[FL16]), %%xmm5;"
-			"mulps	16(%[TAB],%[FL16]), %%xmm5;"
-			"addps	%%xmm4,%%xmm0;"
-			"addps	%%xmm5,%%xmm1;"
-			"add	$32,%[FL16];"
-		"2:"
-			"test	$4,%[FLR];"
-			"jz	3f;"
-			"movups	  (%[BUF],%[FL16]), %%xmm6;"
-			"mulps	  (%[TAB],%[FL16]), %%xmm6;"
-			"addps	%%xmm6,%%xmm2;"
-		"3:"
-			"addps	%%xmm1,%%xmm0;"
-			"addps	%%xmm3,%%xmm2;"
-			"addps	%%xmm2,%%xmm0;"
-			"movaps	%%xmm0,%%xmm7;"
-			"shufps	$78,%%xmm0,%%xmm7;"
-			"addps	%%xmm0,%%xmm7;"
-			"movaps	%%xmm7,%%xmm0;"
-			"shufps	$177,%%xmm7,%%xmm0;"
-			"addss	%%xmm7,%%xmm0;"
-			"cvtss2si %%xmm0,%[TMP];"
-			"mov	%[TMP],(%[OUT]);"
-
-			: [FL16] "=r"     (dummy1)
-			, [TMP]  "=&r"    (dummy2)
-			: [BUF]  "r"      (&buffer[bufIdx + filterLen16])
-			, [TAB]  "r"      (&table[tabIdx + filterLen16])
-			, [OUT]  "r"      (output)
-			,        "[FL16]" (-4 * filterLen16)
-			, [FLR]  "r"      (filterLenRest)
-			: "memory"
-			#ifdef __SSE__
-			, "xmm0", "xmm1", "xmm2", "xmm3"
-			, "xmm4", "xmm5", "xmm6", "xmm7"
-			#endif
-		);
-		return;
-	}
-
-	if ((CHANNELS == 2) && HostCPU::hasSSE()) {
-		// SSE version, stereo
-		long filterLen8 = filterLen & ~7;
-		unsigned filterLenRest = filterLen - filterLen8;
-		long dummy;
-		asm volatile (
-			"xorps	%%xmm0,%%xmm0;"
-			"xorps	%%xmm1,%%xmm1;"
-			"xorps	%%xmm2,%%xmm2;"
-			"xorps	%%xmm3,%%xmm3;"
-		"1:"
-			"movups	  (%[BUF],%[FL8],2),%%xmm4;"
-			"movups	16(%[BUF],%[FL8],2),%%xmm5;"
-			"movaps	  (%[TAB],%[FL8]),%%xmm6;"
-			"movaps	%%xmm6,%%xmm7;"
-			"shufps	 $80,%%xmm6,%%xmm6;"
-			"shufps	$250,%%xmm7,%%xmm7;"
-			"mulps	%%xmm4,%%xmm6;"
-			"mulps	%%xmm5,%%xmm7;"
-			"addps	%%xmm6,%%xmm0;"
-			"addps	%%xmm7,%%xmm1;"
-
-			"movups	32(%[BUF],%[FL8],2),%%xmm4;"
-			"movups	48(%[BUF],%[FL8],2),%%xmm5;"
-			"movaps	16(%[TAB],%[FL8]),%%xmm6;"
-			"movaps	%%xmm6,%%xmm7;"
-			"shufps	 $80,%%xmm6,%%xmm6;"
-			"shufps	$250,%%xmm7,%%xmm7;"
-			"mulps	%%xmm4,%%xmm6;"
-			"mulps	%%xmm5,%%xmm7;"
-			"addps	%%xmm6,%%xmm2;"
-			"addps	%%xmm7,%%xmm3;"
-
-			"add	$32,%[FL8];"
-			"jnz	1b;"
-
-			"test	$4,%[FLR];"
-			"jz	2f;"
-			"movups	  (%[BUF],%[FL8],2),%%xmm4;"
-			"movups	16(%[BUF],%[FL8],2),%%xmm5;"
-			"movaps	  (%[TAB],%[FL8]),%%xmm6;"
-			"movaps	%%xmm6,%%xmm7;"
-			"shufps	 $80,%%xmm6,%%xmm6;"
-			"shufps	$250,%%xmm7,%%xmm7;"
-			"mulps	%%xmm4,%%xmm6;"
-			"mulps	%%xmm5,%%xmm7;"
-			"addps	%%xmm6,%%xmm0;"
-			"addps	%%xmm7,%%xmm1;"
-		"2:"
-			"addps	%%xmm3,%%xmm2;"
-			"addps	%%xmm1,%%xmm0;"
-			"addps	%%xmm2,%%xmm0;"
-			"movaps	%%xmm0,%%xmm4;"
-			"shufps	$78,%%xmm0,%%xmm0;"
-			"addps	%%xmm4,%%xmm0;"
-			"cvtps2pi %%xmm0,%%mm0;"
-			"movq	%%mm0,(%[OUT]);"
-			"emms;"
-
-			: [FL8] "=r"    (dummy)
-			: [BUF] "r"     (&buffer[bufIdx + 2 * filterLen8])
-			, [TAB] "r"     (&table[tabIdx + filterLen8])
-			, [OUT] "r"     (output)
-			,       "[FL8]" (-4 * filterLen8)
-			, [FLR] "r"     (filterLenRest) // 4
-			: "memory"
-			#ifdef __SSE__
-			, "mm0"
-			, "xmm0", "xmm1", "xmm2", "xmm3"
-			, "xmm4", "xmm5", "xmm6", "xmm7"
-			#endif
-		);
-		return;
-	}
-	#endif
-	#endif
+	return;
+#endif
 
 	// c++ version, both mono and stereo
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
@@ -383,17 +321,13 @@ void ResampleHQ<CHANNELS>::calcOutput(
 		float r2 = 0.0f;
 		float r3 = 0.0f;
 		for (unsigned i = 0; i < filterLen; i += 4) {
-			r0 += table[tabIdx + i + 0] *
-			      buffer[bufIdx + CHANNELS * (i + 0)];
-			r1 += table[tabIdx + i + 1] *
-			      buffer[bufIdx + CHANNELS * (i + 1)];
-			r2 += table[tabIdx + i + 2] *
-			      buffer[bufIdx + CHANNELS * (i + 2)];
-			r3 += table[tabIdx + i + 3] *
-			      buffer[bufIdx + CHANNELS * (i + 3)];
+			r0 += tab[i + 0] * buf[CHANNELS * (i + 0)];
+			r1 += tab[i + 1] * buf[CHANNELS * (i + 1)];
+			r2 += tab[i + 2] * buf[CHANNELS * (i + 2)];
+			r3 += tab[i + 3] * buf[CHANNELS * (i + 3)];
 		}
 		output[ch] = lrint(r0 + r1 + r2 + r3);
-		++bufIdx;
+		++buf;
 	}
 }
 
