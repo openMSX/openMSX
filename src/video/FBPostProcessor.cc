@@ -167,7 +167,7 @@ template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
 		Pixel* buf, signed char* noise, unsigned long width)
 {
-#if __SSE2__
+#ifdef __SSE2__
 	if (sizeof(Pixel) == 4) {
 		// cast to avoid compilation error in case of 16bpp (even
 		// though this code is dead in that case).
