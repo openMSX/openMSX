@@ -17,6 +17,7 @@
 #include "vla.hh"
 #include "countof.hh"
 #include "likely.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <map>
 #include <cmath>
@@ -287,7 +288,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, long len,
 	// Can faster with SSE3, but (like above) not worth the trouble.
 	__m128 s = _mm_add_ps(a, _mm_movehl_ps(a, a));
 	__m128i si = _mm_cvtps_epi32(s);
-#if defined(__x86_64__) || defined(_WIN64)
+#if ASM_X86_64
 	*reinterpret_cast<int64_t*>(out) = _mm_cvtsi128_si64(si);
 #else
 	out[0] = _mm_cvtsi128_si32(si);
