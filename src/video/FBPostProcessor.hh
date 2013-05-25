@@ -34,7 +34,7 @@ public:
 private:
 	void preCalcNoise(double factor);
 	void drawNoise(OutputSurface& output);
-	void drawNoiseLine(Pixel* in, Pixel* out, signed char* noise,
+	void drawNoiseLine(Pixel* buf, signed char* noise,
 	                   unsigned long width);
 
 	// Observer<Setting>

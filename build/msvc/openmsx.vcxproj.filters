@@ -2854,12 +2854,6 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\FBPostProcessor-x64.asm">
-      <Filter>video</Filter>
-    </CustomBuild>
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\FBPostProcessor-x86.asm">
-      <Filter>video</Filter>
-    </CustomBuild>
     <CustomBuild Include="$(OpenMSXSrcDir)\openmsx.hh" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\LineScalers-x64.asm" />
     <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\LineScalers-x86.asm" />

@@ -39,10 +39,6 @@ HDR_ONLY:= \
 	SDLSurfacePtr \
 	OutputRectangle
 
-DIST:= \
-	FBPostProcessor-x64.asm \
-	FBPostProcessor-x86.asm
-
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLOutputSurface SDLGLVisibleSurface SDLGLOffScreenSurface \
 	GLSnow GLUtil GLImage GLPostProcessor

@@ -9,28 +9,21 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "EnumSetting.hh"
-#include "HostCPU.hh"
 #include "Math.hh"
 #include "aligned.hh"
 #include "xrange.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
 
 namespace openmsx {
 
 static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
 ALIGNED(static signed char noiseBuf[NOISE_BUF_SIZE], 16);
-
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
-{
-	void __cdecl FBPostProcessor_drawNoiseLine_4_SSE2(
-		void* in, void* out, void* noise, unsigned long width);
-}
-#endif
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)
@@ -81,21 +74,68 @@ void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 	}
 }
 
+#ifdef __SSE2__
+static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long width)
+{
+	// To each of the RGBA color components (a value in range [0..255]) we
+	// want to add a signed noise value (in range [-128..127]) and also clip
+	// the result to the range [0..255]. There is no SSE instruction that
+	// directly performs this operation. But we can:
+	//   - subtract 128 from the RGBA component to get a signed byte
+	//   - perform the addition with signed saturation
+	//   - add 128 to the result to get back to the unsigned byte range
+	// For 8-bit values the following 3 expressions are equivalent:
+	//   x + 128 == x - 128 == x ^ 128
+	// So the expression becomes:
+	//   signed_add_sat(value ^ 128, noise) ^ 128
+	// The follwoing loop does just that, though it processes 64 bytes per
+	// iteration.
+	long x = width * sizeof(uint32_t);
+	assert((x & 63) == 0);
+	assert((long(buf_) & 15) == 0);
+
+	char* buf = reinterpret_cast<char*>(buf_)  + x;
+	char* nse = reinterpret_cast<char*>(noise) + x;
+	x = -x;
+
+	__m128i b7 = _mm_set1_epi8(0x80);
+	do {
+		__m128i i0 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x +  0));
+		__m128i i1 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x + 16));
+		__m128i i2 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x + 32));
+		__m128i i3 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x + 48));
+		__m128i n0 = _mm_load_si128(reinterpret_cast<__m128i*>(nse + x +  0));
+		__m128i n1 = _mm_load_si128(reinterpret_cast<__m128i*>(nse + x + 16));
+		__m128i n2 = _mm_load_si128(reinterpret_cast<__m128i*>(nse + x + 32));
+		__m128i n3 = _mm_load_si128(reinterpret_cast<__m128i*>(nse + x + 48));
+		__m128i o0 = _mm_xor_si128(_mm_adds_epi8(_mm_xor_si128(i0, b7), n0), b7);
+		__m128i o1 = _mm_xor_si128(_mm_adds_epi8(_mm_xor_si128(i1, b7), n1), b7);
+		__m128i o2 = _mm_xor_si128(_mm_adds_epi8(_mm_xor_si128(i2, b7), n2), b7);
+		__m128i o3 = _mm_xor_si128(_mm_adds_epi8(_mm_xor_si128(i3, b7), n3), b7);
+		_mm_store_si128(reinterpret_cast<__m128i*>(buf + x +  0), o0);
+		_mm_store_si128(reinterpret_cast<__m128i*>(buf + x + 16), o1);
+		_mm_store_si128(reinterpret_cast<__m128i*>(buf + x + 32), o2);
+		_mm_store_si128(reinterpret_cast<__m128i*>(buf + x + 48), o3);
+		x += 4 * sizeof(__m128i);
+	} while (x < 0);
+}
+#endif
+
 /** Add noise to the given pixel.
  * @param p contains 4 8-bit unsigned components, so components have range [0, 255]
  * @param n contains 4 8-bit   signed components, so components have range [-128, 127]
  * @result per component result of clip<0, 255>(p + n)
  */
-static inline unsigned addNoise4(unsigned p, unsigned n)
+static inline uint32_t addNoise4(uint32_t p, uint32_t n)
 {
 	// unclipped result (lower 8 bits of each component)
 	// alternative:
-	//   unsigned s20 = ((p & 0x00FF00FF) + (n & 0x00FF00FF)) & 0x00FF00FF;
-	//   unsigned s31 = ((p & 0xFF00FF00) + (n & 0xFF00FF00)) & 0xFF00FF00;
-	//   unsigned s = s20 | s31;
-	unsigned s0 = p + n;                     // carry spills to neighbors
-	unsigned ci = (p ^ n ^ s0) & 0x01010100; // carry-in bits of prev sum
-	unsigned s  = s0 - ci;                   // subtract carry bits again
+	//   uint32_t s20 = ((p & 0x00FF00FF) + (n & 0x00FF00FF)) & 0x00FF00FF;
+	//   uint32_t s31 = ((p & 0xFF00FF00) + (n & 0xFF00FF00)) & 0xFF00FF00;
+	//   uint32_t s = s20 | s31;
+	uint32_t s0 = p + n;                     // carry spills to neighbors
+	uint32_t ci = (p ^ n ^ s0) & 0x01010100; // carry-in bits of prev sum
+	uint32_t s  = s0 - ci;                   // subtract carry bits again
 
 	// Underflow of a component happens ONLY
 	//   WHEN input  component is in range [0, 127]
@@ -108,16 +148,16 @@ static inline unsigned addNoise4(unsigned p, unsigned n)
 	// Create a mask per component containing 00 for no under/overflow,
 	//                                        FF for    under/overflow
 	// ((~p & n & s) | (p & ~n & ~s)) == ((p ^ n) & (p ^ s))
-	unsigned t = (p ^ n) & (p ^ s) & 0x80808080;
-	unsigned u1 = t & s; // underflow   (alternative: u1 = t & n)
-	// alternative1: unsigned u2 = u1 | (u1 >> 1);
-	//               unsigned u4 = u2 | (u2 >> 2);
-	//               unsigned u8 = u4 | (u4 >> 4);
-	// alternative2: unsigned u8 = (u1 >> 7) * 0xFF;
-	unsigned u8 = (u1 << 1) - (u1 >> 7);
+	uint32_t t = (p ^ n) & (p ^ s) & 0x80808080;
+	uint32_t u1 = t & s; // underflow   (alternative: u1 = t & n)
+	// alternative1: uint32_t u2 = u1 | (u1 >> 1);
+	//               uint32_t u4 = u2 | (u2 >> 2);
+	//               uint32_t u8 = u4 | (u4 >> 4);
+	// alternative2: uint32_t u8 = (u1 >> 7) * 0xFF;
+	uint32_t u8 = (u1 << 1) - (u1 >> 7);
 
-	unsigned o1 = t & p; // overflow
-	unsigned o8 = (o1 << 1) - (o1 >> 7);
+	uint32_t o1 = t & p; // overflow
+	uint32_t o8 = (o1 << 1) - (o1 >> 7);
 
 	// clip result
 	return (s & (~u8)) | o8;
@@ -125,168 +165,30 @@ static inline unsigned addNoise4(unsigned p, unsigned n)
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
-		Pixel* in, Pixel* out, signed char* noise, unsigned long width)
+		Pixel* buf, signed char* noise, unsigned long width)
 {
-	#if ASM_X86
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE2()) {
-		// SSE2 32bpp
-		assert(((4 * width) % 64) == 0);
-	#ifdef _MSC_VER
-		FBPostProcessor_drawNoiseLine_4_SSE2(in, out, noise, width);
+#if __SSE2__
+	if (sizeof(Pixel) == 4) {
+		// cast to avoid compilation error in case of 16bpp (even
+		// though this code is dead in that case).
+		auto* buf32 = reinterpret_cast<uint32_t*>(buf);
+		drawNoiseLineSse2(buf32, noise, width);
 		return;
 	}
-	#else
-		unsigned long dummy;
-		asm volatile (
-			"pcmpeqb  %%xmm7, %%xmm7;"
-			"psllw    $15, %%xmm7;"
-			"packsswb %%xmm7, %%xmm7;"
-			".p2align 4,,15;"
-		"0:"
-			"movdqa     (%[IN], %[CNT]), %%xmm0;"
-			"movdqa   16(%[IN], %[CNT]), %%xmm1;"
-			"movdqa   32(%[IN], %[CNT]), %%xmm2;"
-			"pxor     %%xmm7, %%xmm0;"
-			"movdqa   48(%[IN], %[CNT]), %%xmm3;"
-			"pxor     %%xmm7, %%xmm1;"
-			"pxor     %%xmm7, %%xmm2;"
-			"paddsb     (%[NOISE], %[CNT]), %%xmm0;"
-			"pxor     %%xmm7, %%xmm3;"
-			"paddsb   16(%[NOISE], %[CNT]), %%xmm1;"
-			"paddsb   32(%[NOISE], %[CNT]), %%xmm2;"
-			"pxor     %%xmm7, %%xmm0;"
-			"paddsb   48(%[NOISE], %[CNT]), %%xmm3;"
-			"pxor     %%xmm7, %%xmm1;"
-			"pxor     %%xmm7, %%xmm2;"
-			"movdqa   %%xmm0,   (%[OUT], %[CNT]);"
-			"pxor     %%xmm7, %%xmm3;"
-			"movdqa   %%xmm1, 16(%[OUT], %[CNT]);"
-			"movdqa   %%xmm2, 32(%[OUT], %[CNT]);"
-			"movdqa   %%xmm3, 48(%[OUT], %[CNT]);"
-			"add      $64, %[CNT];"
-			"jnz      0b;"
-
-			: [CNT]   "=r"    (dummy)
-			: [IN]    "r"     (in    + width)
-			, [OUT]   "r"     (out   + width)
-			, [NOISE] "r"     (noise + 4 * width)
-			,         "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __SSE__
-			, "xmm0", "xmm1", "xmm2", "xmm3", "xmm7"
-			#endif
-		);
-		return;
-	}
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
-		// extended-MMX 32bpp
-		assert(((4 * width) % 32) == 0);
-		unsigned long dummy;
-		asm volatile (
-			"pcmpeqb  %%mm7, %%mm7;"
-			"psllw    $15, %%mm7;"
-			"packsswb %%mm7, %%mm7;"
-			".p2align 4,,15;"
-		"0:"
-			"prefetchnta 320(%[IN], %[CNT]);"
-			"movq       (%[IN], %[CNT]), %%mm0;"
-			"movq      8(%[IN], %[CNT]), %%mm1;"
-			"movq     16(%[IN], %[CNT]), %%mm2;"
-			"pxor     %%mm7, %%mm0;"
-			"movq     24(%[IN], %[CNT]), %%mm3;"
-			"pxor     %%mm7, %%mm1;"
-			"pxor     %%mm7, %%mm2;"
-			"paddsb     (%[NOISE], %[CNT]), %%mm0;"
-			"pxor     %%mm7, %%mm3;"
-			"paddsb    8(%[NOISE], %[CNT]), %%mm1;"
-			"paddsb   16(%[NOISE], %[CNT]), %%mm2;"
-			"pxor     %%mm7, %%mm0;"
-			"paddsb   24(%[NOISE], %[CNT]), %%mm3;"
-			"pxor     %%mm7, %%mm1;"
-			"pxor     %%mm7, %%mm2;"
-			"movq     %%mm0,   (%[OUT], %[CNT]);"
-			"pxor     %%mm7, %%mm3;"
-			"movq     %%mm1,  8(%[OUT], %[CNT]);"
-			"movq     %%mm2, 16(%[OUT], %[CNT]);"
-			"movq     %%mm3, 24(%[OUT], %[CNT]);"
-			"add      $32, %[CNT];"
-			"jnz      0b;"
-			"emms;"
-
-			: [CNT]   "=r"    (dummy)
-			: [IN]    "r"     (in    + width)
-			, [OUT]   "r"     (out   + width)
-			, [NOISE] "r"     (noise + 4 * width)
-			,         "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm7"
-			#endif
-		);
-		return;
-	}
-	if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
-		// MMX 32bpp
-		assert((4 * width % 32) == 0);
-		unsigned long dummy;
-		asm volatile (
-			"pcmpeqb  %%mm7, %%mm7;"
-			"psllw    $15, %%mm7;"
-			"packsswb %%mm7, %%mm7;"
-			".p2align 4,,15;"
-		"0:"
-			"movq       (%[IN], %[CNT]), %%mm0;"
-			"movq      8(%[IN], %[CNT]), %%mm1;"
-			"movq     16(%[IN], %[CNT]), %%mm2;"
-			"pxor     %%mm7, %%mm0;"
-			"movq     24(%[IN], %[CNT]), %%mm3;"
-			"pxor     %%mm7, %%mm1;"
-			"pxor     %%mm7, %%mm2;"
-			"paddsb     (%[NOISE], %[CNT]), %%mm0;"
-			"pxor     %%mm7, %%mm3;"
-			"paddsb    8(%[NOISE], %[CNT]), %%mm1;"
-			"paddsb   16(%[NOISE], %[CNT]), %%mm2;"
-			"pxor     %%mm7, %%mm0;"
-			"paddsb   24(%[NOISE], %[CNT]), %%mm3;"
-			"pxor     %%mm7, %%mm1;"
-			"pxor     %%mm7, %%mm2;"
-			"movq     %%mm0,   (%[OUT], %[CNT]);"
-			"pxor     %%mm7, %%mm3;"
-			"movq     %%mm1,  8(%[OUT], %[CNT]);"
-			"movq     %%mm2, 16(%[OUT], %[CNT]);"
-			"movq     %%mm3, 24(%[OUT], %[CNT]);"
-			"add      $32, %[CNT];"
-			"jnz      0b;"
-			"emms;"
-
-			: [CNT]   "=r"    (dummy)
-			: [IN]    "r"     (in    + width)
-			, [OUT]   "r"     (out   + width)
-			, [NOISE] "r"     (noise + 4 * width)
-			,         "[CNT]" (-4 * width)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm7"
-			#endif
-		);
-		return;
-	}
-	#endif
-	#endif
-
+#endif
 	// c++ version
 	if (sizeof(Pixel) == 4) {
 		// optimized version for 32bpp
-		auto noise4 = reinterpret_cast<unsigned*>(noise);
+		auto noise4 = reinterpret_cast<uint32_t*>(noise);
 		for (unsigned i = 0; i < width; ++i) {
-			out[i] = addNoise4(in[i], noise4[i]);
+			buf[i] = addNoise4(buf[i], noise4[i]);
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
 		int mg = pixelOps.getMaxGreen();
 		int mb = pixelOps.getMaxBlue();
 		for (unsigned i = 0; i < width; ++i) {
-			Pixel p = in[i];
+			Pixel p = buf[i];
 			int r = pixelOps.red(p);
 			int g = pixelOps.green(p);
 			int b = pixelOps.blue(p);
@@ -299,7 +201,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			g = std::min(std::max(g, 0), mg);
 			b = std::min(std::max(b, 0), mb);
 
-			out[i] = pixelOps.combine(r, g, b);
+			buf[i] = pixelOps.combine(r, g, b);
 		}
 	}
 }
@@ -314,7 +216,7 @@ void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 	output.lock();
 	for (unsigned y = 0; y < height; ++y) {
 		Pixel* buf = output.getLinePtrDirect<Pixel>(y);
-		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
+		drawNoiseLine(buf, &noiseBuf[noiseShift[y]], width);
 	}
 }
 
@@ -439,10 +341,10 @@ std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class FBPostProcessor<word>;
+template class FBPostProcessor<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class FBPostProcessor<unsigned>;
+template class FBPostProcessor<uint32_t>;
 #endif
 
 } // namespace openmsx
