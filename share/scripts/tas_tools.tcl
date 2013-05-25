@@ -749,6 +749,7 @@ proc reset_lag_counter {} {
 	variable lag_counter
 	set lag_counter -1
 	update_lag_counter2
+	return ""
 }
 
 namespace export toggle_frame_counter
