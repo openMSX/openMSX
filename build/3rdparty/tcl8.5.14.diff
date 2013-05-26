@@ -1,6 +1,6 @@
 diff -ru tcl8.5.14.orig/generic/tcl.h tcl8.5.14/generic/tcl.h
 --- tcl8.5.14.orig/generic/tcl.h	2013-03-22 12:39:05.000000000 +0100
-+++ tcl8.5.14/generic/tcl.h	2013-05-18 14:27:30.000000000 +0200
++++ tcl8.5.14/generic/tcl.h	2013-05-26 09:28:57.000000000 +0200
 @@ -168,7 +168,7 @@
   *       MSVCRT.
   */
@@ -12,7 +12,7 @@ diff -ru tcl8.5.14.orig/generic/tcl.h tcl8.5.14/generic/tcl.h
  #       define DLLIMPORT
 diff -ru tcl8.5.14.orig/unix/configure tcl8.5.14/unix/configure
 --- tcl8.5.14.orig/unix/configure	2013-04-01 20:36:35.000000000 +0200
-+++ tcl8.5.14/unix/configure	2013-05-18 14:15:24.000000000 +0200
++++ tcl8.5.14/unix/configure	2013-05-26 09:28:57.000000000 +0200
 @@ -15068,7 +15068,7 @@
  else
  
@@ -22,3 +22,15 @@ diff -ru tcl8.5.14.orig/unix/configure tcl8.5.14/unix/configure
  else
    cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
+diff -ru tcl8.5.14.orig/win/Makefile.in tcl8.5.14/win/Makefile.in
+--- tcl8.5.14.orig/win/Makefile.in	2013-04-01 20:36:36.000000000 +0200
++++ tcl8.5.14/win/Makefile.in	2013-05-26 09:34:41.000000000 +0200
+@@ -606,7 +606,7 @@
+ 	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg$(REGDOTVER); \
+ 	    fi
+ 
+-install-libraries: libraries install-tzdata install-msgs
++install-libraries: libraries
+ 	@for i in $(prefix)/lib $(INCLUDE_INSTALL_DIR) \
+ 		$(SCRIPT_INSTALL_DIR); \
+ 	    do \
