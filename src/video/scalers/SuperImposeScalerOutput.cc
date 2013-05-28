@@ -52,7 +52,7 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 	Pixel* dstLine = output.acquireLine(y);
 	unsigned width = this->getWidth();
 	if (pixelOps.isFullyOpaque(color)) {
-		MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
+		MemoryOps::MemSet<Pixel> memset;
 		memset(dstLine, width, color);
 	} else {
 		const Pixel* srcLine = getSrcLine(y);

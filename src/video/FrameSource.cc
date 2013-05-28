@@ -110,7 +110,7 @@ const Pixel* FrameSource::scaleLine(
 	// TODO is there a better way to implement this?
 	switch (inWidth) {
 	case 1:  // blank
-		MemoryOps::MemSet<Pixel, MemoryOps::NO_STREAMING> memset;
+		MemoryOps::MemSet<Pixel> memset;
 		memset(out, outWidth, in[0]);
 		break;
 	case 213:

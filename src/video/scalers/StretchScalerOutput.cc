@@ -157,7 +157,7 @@ template<typename Pixel>
 void StretchScalerOutputBase<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	Pixel* dstLine = output->acquireLine(y);
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
+	MemoryOps::MemSet<Pixel> memset;
 	memset(dstLine, output->getWidth(), color);
 	output->releaseLine(y, dstLine);
 }

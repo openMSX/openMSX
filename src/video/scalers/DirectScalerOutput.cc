@@ -39,7 +39,7 @@ template<typename Pixel>
 void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
 	Pixel* dstLine = output.getLinePtrDirect<Pixel>(y);
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
+	MemoryOps::MemSet<Pixel> memset;
 	memset(dstLine, output.getWidth(), color);
 }
 

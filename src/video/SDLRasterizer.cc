@@ -393,7 +393,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned x = translateX(fromX, (lineWidth == 512));
 		unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 		unsigned width = (lineWidth == 512) ? 640 : 320;
-		MemoryOps::MemSet2<Pixel, MemoryOps::NO_STREAMING> memset;
+		MemoryOps::MemSet2<Pixel> memset;
 		for (int y = startY; y < endY; ++y) {
 			memset(workFrame->getLinePtrDirect<Pixel>(y) + x,
 			       num, border0, border1);

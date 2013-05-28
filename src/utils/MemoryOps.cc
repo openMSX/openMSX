@@ -25,43 +25,6 @@ namespace MemoryOps {
 #if ASM_X86 && !defined _WIN64
 // note: xmm0 must already be filled in
 //       bit0 of num is ignored
-static inline void memset_128_SSE_streaming(
-	uint64_t* dest, size_t num)
-{
-	assert((size_t(dest) & 15) == 0); // must be 16-byte aligned
-	uint64_t* e = dest + num - 3;
-	for (/**/; dest < e; dest += 4) {
-#if defined _MSC_VER
-		__asm {
-			mov				eax,dest
-			movntps			xmmword ptr [eax],xmm0
-			movntps			xmmword ptr [eax+10h],xmm0
-		}
-#else
-		asm volatile (
-			"movntps %%xmm0,   (%[OUT]);"
-			"movntps %%xmm0, 16(%[OUT]);"
-			: // no output
-			: [OUT] "r" (dest)
-			: "memory"
-		);
-#endif
-	}
-	if (unlikely(num & 2)) {
-#if defined _MSC_VER
-		__asm {
-			movntps			qword ptr [dest],xmm0
-		}
-#else
-		asm volatile (
-			"movntps %%xmm0, (%[OUT]);"
-			: // no output
-			: [OUT] "r" (dest)
-			: "memory"
-		);
-#endif
-	}
-}
 
 static inline void memset_128_SSE(uint64_t* dest, size_t num)
 {
@@ -101,7 +64,6 @@ static inline void memset_128_SSE(uint64_t* dest, size_t num)
 	}
 }
 
-template<bool STREAMING>
 static inline void memset_64_SSE(
 	uint64_t* dest, size_t num, uint64_t val)
 {
@@ -154,11 +116,7 @@ static inline void memset_64_SSE(
 	);
 #endif
 #endif
-	if (STREAMING) {
-		memset_128_SSE_streaming(dest, num);
-	} else {
-		memset_128_SSE(dest, num);
-	}
+	memset_128_SSE(dest, num);
 	if (unlikely(num & 1)) {
 		dest[num - 1] = val;
 	}
@@ -251,7 +209,6 @@ end:
 }
 #endif
 
-template<bool STREAMING>
 static inline void memset_64(
         uint64_t* dest, size_t num, uint64_t val)
 {
@@ -259,7 +216,7 @@ static inline void memset_64(
 
 #if ASM_X86 && !defined _WIN64
 	if (HostCPU::hasSSE()) {
-		memset_64_SSE<STREAMING>(dest, num, val);
+		memset_64_SSE(dest, num, val);
 		return;
 	}
 	if (HostCPU::hasMMX()) {
@@ -284,7 +241,6 @@ static inline void memset_64(
 	}
 }
 
-template<bool STREAMING>
 static inline void memset_32_2(
 	uint32_t* dest, size_t num, uint32_t val0, uint32_t val1)
 {
@@ -299,15 +255,13 @@ static inline void memset_32_2(
 	uint64_t val = OPENMSX_BIGENDIAN
 		? (static_cast<uint64_t>(val0) << 32) | val1
 		: val0 | (static_cast<uint64_t>(val1) << 32);
-	memset_64<STREAMING>(
-		reinterpret_cast<uint64_t*>(dest), num / 2, val);
+	memset_64(reinterpret_cast<uint64_t*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
 		dest[num - 1] = val0;
 	}
 }
 
-template<bool STREAMING>
 static inline void memset_32(uint32_t* dest, size_t num, uint32_t val)
 {
 	assert((size_t(dest) & 3) == 0); // must be 4-byte aligned
@@ -319,7 +273,7 @@ static inline void memset_32(uint32_t* dest, size_t num, uint32_t val)
 	// and about 3% faster than the C code below.
 	__stosd(reinterpret_cast<unsigned long*>(dest), val, num);
 #else
-	memset_32_2<STREAMING>(dest, num, val, val);
+	memset_32_2(dest, num, val, val);
 #endif
 #elif defined __arm__
 	// Ideally the first mov(*) instruction could be omitted (and then
@@ -392,7 +346,6 @@ static inline void memset_32(uint32_t* dest, size_t num, uint32_t val)
 #endif
 }
 
-template<bool STREAMING>
 static inline void memset_16_2(
 	uint16_t* dest, size_t num, uint16_t val0, uint16_t val1)
 {
@@ -407,58 +360,47 @@ static inline void memset_16_2(
 	uint32_t val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_32<STREAMING>(reinterpret_cast<uint32_t*>(dest), num / 2, val);
+	memset_32(reinterpret_cast<uint32_t*>(dest), num / 2, val);
 
 	if (unlikely(num & 1)) {
 		dest[num - 1] = val0;
 	}
 }
 
-template<bool STREAMING>
 static inline void memset_16(uint16_t* dest, size_t num, uint16_t val)
 {
-	memset_16_2<STREAMING>(dest, num, val, val);
+	memset_16_2(dest, num, val, val);
 }
 
-template <typename Pixel, bool STREAMING>
-void MemSet<Pixel, STREAMING>::operator()(
+template<typename Pixel> void MemSet<Pixel>::operator()(
 	Pixel* dest, size_t num, Pixel val) const
 {
 	if (sizeof(Pixel) == 2) {
-		memset_16<STREAMING>(
-			reinterpret_cast<uint16_t*>(dest), num, val);
+		memset_16(reinterpret_cast<uint16_t*>(dest), num, val);
 	} else if (sizeof(Pixel) == 4) {
-		memset_32<STREAMING>(
-			reinterpret_cast<uint32_t*>(dest), num, val);
+		memset_32(reinterpret_cast<uint32_t*>(dest), num, val);
 	} else {
 		UNREACHABLE;
 	}
 }
 
-template <typename Pixel, bool STREAMING>
-void MemSet2<Pixel, STREAMING>::operator()(
+template<typename Pixel> void MemSet2<Pixel>::operator()(
 	Pixel* dest, size_t num, Pixel val0, Pixel val1) const
 {
 	if (sizeof(Pixel) == 2) {
-		memset_16_2<STREAMING>(
-			reinterpret_cast<uint16_t*>(dest), num, val0, val1);
+		memset_16_2(reinterpret_cast<uint16_t*>(dest), num, val0, val1);
 	} else if (sizeof(Pixel) == 4) {
-		memset_32_2<STREAMING>(
-			reinterpret_cast<uint32_t*>(dest), num, val0, val1);
+		memset_32_2(reinterpret_cast<uint32_t*>(dest), num, val0, val1);
 	} else {
 		UNREACHABLE;
 	}
 }
 
 // Force template instantiation
-template struct MemSet <uint16_t, true >;
-template struct MemSet <uint16_t, false>;
-template struct MemSet <uint32_t, true >;
-template struct MemSet <uint32_t, false>;
-template struct MemSet2<uint16_t, true >;
-template struct MemSet2<uint16_t, false>;
-template struct MemSet2<uint32_t, true >;
-template struct MemSet2<uint32_t, false>;
+template struct MemSet <uint16_t>;
+template struct MemSet <uint32_t>;
+template struct MemSet2<uint16_t>;
+template struct MemSet2<uint32_t>;
 
 
 void stream_memcpy(uint32_t* dst, const uint32_t* src, size_t num)

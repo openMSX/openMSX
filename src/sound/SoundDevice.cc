@@ -192,7 +192,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	if (samples == 0) return true;
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
-	MemoryOps::MemSet<unsigned, false> mset;
+	MemoryOps::MemSet<unsigned> mset;
 	mset(reinterpret_cast<unsigned*>(dataOut), outputStereo * samples, 0);
 
 	VLA(int*, bufs, numChannels);

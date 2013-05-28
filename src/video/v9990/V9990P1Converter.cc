@@ -44,7 +44,7 @@ void V9990P1Converter<Pixel>::convertLine(
 
 	// back drop color
 	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	MemoryOps::MemSet<Pixel, MemoryOps::NO_STREAMING> memset;
+	MemoryOps::MemSet<Pixel> memset;
 	memset(linePtr, displayWidth, bgcol);
 
 	// background
