@@ -7,7 +7,6 @@
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
-#include "MemoryOps.hh"
 #include "InitException.hh"
 #include "memory.hh"
 #include <algorithm>
@@ -24,7 +23,6 @@ GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
 	, pbo(std::move(rhs.pbo))
 {
 }
-
 
 GLPostProcessor::GLPostProcessor(
 	MSXMotherBoard& motherBoard, Display& display,
@@ -129,7 +127,6 @@ void GLPostProcessor::createRegions()
 		dstStartY = dstEndY;
 	}
 }
-
 
 void GLPostProcessor::paint(OutputSurface& /*output*/)
 {

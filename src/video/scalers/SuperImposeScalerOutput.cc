@@ -4,6 +4,7 @@
 #include "MemoryOps.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -86,10 +87,10 @@ const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SuperImposeScalerOutput<word>;
+template class SuperImposeScalerOutput<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class SuperImposeScalerOutput<unsigned>;
+template class SuperImposeScalerOutput<uint32_t>;
 #endif
 
 } // namespace openmsx

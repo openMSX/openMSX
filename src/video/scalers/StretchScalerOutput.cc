@@ -6,11 +6,11 @@
 #include "memory.hh"
 #include "build-info.hh"
 #include <vector>
+#include <cstdint>
 
 using std::unique_ptr;
 
 namespace openmsx {
-
 
 template<typename Pixel>
 class StretchScalerOutputBase : public ScalerOutput<Pixel>
@@ -295,10 +295,10 @@ unique_ptr<ScalerOutput<Pixel>> StretchScalerOutputFactory<Pixel>::create(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template struct StretchScalerOutputFactory<word>;
+template struct StretchScalerOutputFactory<uint16_t>;
 #endif
 #if HAVE_32BPP
-template struct StretchScalerOutputFactory<unsigned>;
+template struct StretchScalerOutputFactory<uint32_t>;
 #endif
 
 } // namespace openmsx

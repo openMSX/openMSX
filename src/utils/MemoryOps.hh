@@ -1,8 +1,7 @@
 #ifndef MEMORYOPS_HH
 #define MEMORYOPS_HH
 
-#include "openmsx.hh"
-#include <cstring> // for size_t
+#include <cstddef>
 #include <cstdint>
 
 namespace openmsx {

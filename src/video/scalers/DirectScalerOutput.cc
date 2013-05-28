@@ -2,6 +2,7 @@
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -46,10 +47,10 @@ void DirectScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class DirectScalerOutput<word>;
+template class DirectScalerOutput<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class DirectScalerOutput<unsigned>;
+template class DirectScalerOutput<uint32_t>;
 #endif
 
 } // namespace openmsx
