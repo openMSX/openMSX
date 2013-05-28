@@ -4,7 +4,7 @@ namespace openmsx {
 
 // Accelerator table to compute the CRC (upto) 64 bits at a time
 // (total table size is 4kB)
-const word CRC16::tab[8][256] = {
+const uint16_t CRC16::tab[8][256] = {
 	{
 		0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
 		0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -300,24 +300,24 @@ int main()
 using namespace openmsx;
 int main()
 {
-	word tab[8][256];
+	uint16_t tab[8][256];
 
 	for (unsigned i = 0; i < 0x100; ++i) {
-		word x = i << 8;
+		uint16_t x = i << 8;
 		for (int j = 0; j < 8; ++j) {
 			x = (x << 1) ^ ((x & 0x8000) ? 0x1021 : 0);
 		}
 		tab[0][i] = x;
 	}
 	for (unsigned i = 0; i < 0x100; ++i) {
-		word c = tab[0][i];
+		uint16_t c = tab[0][i];
 		for (unsigned j = 1; j < 8; ++j) {
 			c = tab[0][c >> 8] ^ (c << 8);
 			tab[j][i] = c;
 		}
 	}
 
-	printf("const word CRC16::tab[8][256] = {\n");
+	printf("const uint16_t CRC16::tab[8][256] = {\n");
 	for (int i = 0; i < 8; ++i) {
 		printf("\t{\n");
 		for (int j = 0; j < 0x100; ++j) {

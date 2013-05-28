@@ -44,7 +44,7 @@ uint64_t TimedEvent::getRealTime() const
 // I don't know what the SDL layer does with the key events received from such Azerty
 // keyboard. Probably it won't work well with this work-around code. Must eventually fix
 // the unicode support in the SDL Android port, together with the main developer of the port.
-static word fixUnicode(Keys::KeyCode keyCode, word brokenUnicode)
+static uint16_t fixUnicode(Keys::KeyCode keyCode, uint16_t brokenUnicode)
 {
 	Keys::KeyCode maskedKeyCode = (Keys::KeyCode)(int(brokenUnicode) & int(Keys::K_MASK));
 	if (brokenUnicode & Keys::KD_RELEASE) {
@@ -66,42 +66,42 @@ static word fixUnicode(Keys::KeyCode keyCode, word brokenUnicode)
 		// to qwerty keyboard combinations before passing the events to the SDL layer.
 		// Note that the 'rows' mentioned in below mapping table are based on the "hackers keyboard" app. Though
 		// this mapping turns out to work fine with the standard Android 4.x keyboard app as well.
-		switch(int(maskedKeyCode)) {
+		switch (maskedKeyCode) {
 			// row 1
-			case int(Keys::K_1): return (word)'!';
-			case int(Keys::K_2): return (word)'@';
-			case int(Keys::K_3): return (word)'#';
-			case int(Keys::K_4): return (word)'$';
-			case int(Keys::K_5): return (word)'%';
-			case int(Keys::K_6): return (word)'^';
-			case int(Keys::K_7): return (word)'&';
-			case int(Keys::K_8): return (word)'*';
-			case int(Keys::K_9): return (word)'(';
-			case int(Keys::K_0): return (word)')';
-			case int(Keys::K_MINUS): return (word)'_';
-			case int(Keys::K_EQUALS): return (word)'+';
+			case Keys::K_1:            return uint16_t('!');
+			case Keys::K_2:            return uint16_t('@');
+			case Keys::K_3:            return uint16_t('#');
+			case Keys::K_4:            return uint16_t('$');
+			case Keys::K_5:            return uint16_t('%');
+			case Keys::K_6:            return uint16_t('^');
+			case Keys::K_7:            return uint16_t('&');
+			case Keys::K_8:            return uint16_t('*');
+			case Keys::K_9:            return uint16_t('(');
+			case Keys::K_0:            return uint16_t(')');
+			case Keys::K_MINUS:        return uint16_t('_');
+			case Keys::K_EQUALS:       return uint16_t('+');
 			// row 2
-			case int(Keys::K_LEFTBRACKET): return (word)'{';
-			case int(Keys::K_RIGHTBRACKET): return (word)'}';
-			case int(Keys::K_BACKSLASH): return (word)'|';
+			case Keys::K_LEFTBRACKET:  return uint16_t('{');
+			case Keys::K_RIGHTBRACKET: return uint16_t('}');
+			case Keys::K_BACKSLASH:    return uint16_t('|');
 			// row 3
-			case int(Keys::K_SEMICOLON): return (word)':';
-			case int(Keys::K_QUOTE): return (word)'"';
+			case Keys::K_SEMICOLON:    return uint16_t(':');
+			case Keys::K_QUOTE:        return uint16_t('"');
 			// row 4
-			case int(Keys::K_COMMA): return (word)'<';
-			case int(Keys::K_PERIOD): return (word)'>';
-			case int(Keys::K_SLASH): return (word)'?';
+			case Keys::K_COMMA:        return uint16_t('<');
+			case Keys::K_PERIOD:       return uint16_t('>');
+			case Keys::K_SLASH:        return uint16_t('?');
 		}
 	}
 	return brokenUnicode;
 }
 
-KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
+KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
 	: TimedEvent(type), keyCode(keyCode_), unicode(fixUnicode(keyCode_, unicode_))
 {
 }
 #else
-KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
+KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
 	: TimedEvent(type), keyCode(keyCode_), unicode(unicode_)
 {
 }
@@ -112,7 +112,7 @@ Keys::KeyCode KeyEvent::getKeyCode() const
 	return keyCode;
 }
 
-word KeyEvent::getUnicode() const
+uint16_t KeyEvent::getUnicode() const
 {
 	return unicode;
 }
@@ -138,11 +138,11 @@ bool KeyEvent::lessImpl(const Event& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, word(0))
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, uint16_t(0))
 {
 }
 
-KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, word unicode)
+KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, uint16_t unicode)
 	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, unicode)
 {
 }
@@ -151,11 +151,11 @@ KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, word unicode)
 // class KeyDownEvent
 
 KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, word(0))
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, uint16_t(0))
 {
 }
 
-KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode, word unicode)
+KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode, uint16_t unicode)
 	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, unicode)
 {
 }
