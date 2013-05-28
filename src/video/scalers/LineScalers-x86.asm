@@ -4,59 +4,6 @@
 
 .code
 
-; Scale_1on2_4_MMX
-;   const Pixel* in
-;   Pixel* out
-;   unsigned long width
-; Preserved registers: edi, esi, ebp, ebx
-Scale_1on2_4_MMX PROC C _in:NEAR PTR, _out:NEAR PTR, _width:DWORD
-
-; eax = in + width / 2
-; ecx = out + width
-; edx = -2 * width
-    mov         edx,_width
-    shl         edx,2
-    mov         ecx,_out
-    lea         ecx,[ecx+edx]
-    shr         edx,1
-    mov         eax,_in
-    lea         eax,[eax+edx]
-    neg         edx
-mainloop:
-; Load
-    movq	    mm0,mmword ptr [eax+edx]
-	movq	    mm2,mmword ptr [eax+edx+8]
-	movq	    mm4,mmword ptr [eax+edx+10h]
-	movq	    mm6,mmword ptr [eax+edx+18h]
-	movq	    mm1,mm0
-	movq	    mm3,mm2
-	movq	    mm5,mm4
-	movq	    mm7,mm6
-; Scale
-    punpckldq   mm0,mm0
-    punpckhdq   mm1,mm1
-    punpckldq   mm2,mm2
-    punpckhdq   mm3,mm3
-    punpckldq   mm4,mm4
-    punpckhdq   mm5,mm5
-    punpckldq   mm6,mm6
-    punpckhdq   mm7,mm7
-; Store
-    movq        mmword ptr [ecx+edx*2],mm0
-    movq        mmword ptr [ecx+edx*2+8],mm1
-    movq        mmword ptr [ecx+edx*2+10h],mm2
-    movq        mmword ptr [ecx+edx*2+18h],mm3
-    movq        mmword ptr [ecx+edx*2+20h],mm4
-    movq        mmword ptr [ecx+edx*2+28h],mm5
-    movq        mmword ptr [ecx+edx*2+30h],mm6
-    movq        mmword ptr [ecx+edx*2+38h],mm7
-; Increment
-	add	        edx,20h
-	jne	        mainloop
-	emms
-	ret
-Scale_1on2_4_MMX ENDP
-
 ; Scale_2on1_SSE
 ;   const Pixel* in
 ;   Pixel* out
