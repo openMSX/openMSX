@@ -485,7 +485,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 					lineInBuf = vramLine[scrollPage1];
 					renderBitmapLine(buf, vramLine[scrollPage1]);
 					const Pixel* src = buf + displayX + hScroll;
-					MemoryOps::stream_memcpy(dst, src, firstPageWidth);
+					memcpy(dst, src, firstPageWidth * sizeof(Pixel));
 				}
 			} else {
 				firstPageWidth = 0;
@@ -496,10 +496,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				}
 				unsigned x = displayX < pageBorder
 					   ? 0 : displayX + hScroll - lineWidth;
-				MemoryOps::stream_memcpy(
-					dst + firstPageWidth,
-					buf + x,
-					displayWidth - firstPageWidth);
+				memcpy(dst + firstPageWidth,
+				       buf + x,
+				       (displayWidth - firstPageWidth) * sizeof(Pixel));
 			}
 			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 
@@ -518,7 +517,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				Pixel buf[512];
 				characterConverter->convertLine(buf, displayY);
 				const Pixel* src = buf + displayX;
-				MemoryOps::stream_memcpy(dst, src, displayWidth);
+				memcpy(dst, src, displayWidth * sizeof(Pixel));
 			}
 
 			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);

@@ -322,8 +322,7 @@ void GLPostProcessor::uploadBlock(
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			const unsigned* data =
 				paintFrame->getLinePtr<unsigned>(y, lineWidth);
-			MemoryOps::stream_memcpy(
-				mapped + y * lineWidth, data, lineWidth);
+			memcpy(mapped + y * lineWidth, data, lineWidth * sizeof(unsigned));
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
 		pbo.unmap();
