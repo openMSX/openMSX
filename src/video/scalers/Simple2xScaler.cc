@@ -181,7 +181,7 @@ void Simple2xScaler<Pixel>::blur1on2(
 	 */
 
 	if (alpha == 0) {
-		Scale_1on2<Pixel, false> scale; // no streaming stores
+		Scale_1on2<Pixel> scale;
 		scale(pIn, pOut, 2 * srcWidth);
 		return;
 	}
@@ -333,7 +333,7 @@ void Simple2xScaler<Pixel>::blur1on1(
 	 */
 
 	if (alpha == 0) {
-		Scale_1on1<Pixel, false> copy; // no streaming stores
+		Scale_1on1<Pixel> copy;
 		copy(pIn, pOut, srcWidth);
 		return;
 	}

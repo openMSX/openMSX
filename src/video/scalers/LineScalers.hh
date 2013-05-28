@@ -4,36 +4,17 @@
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
 #include "build-info.hh"
+#include <type_traits>
 #include <cstring>
 #include <cassert>
 
 namespace openmsx {
 
-// Meta programming infrastructure for tagging
-
-template <typename T> struct Tag : public T {};
-template <typename T> struct NoTag          {};
-
-template <bool, typename T> struct TagIf           { typedef Tag  <T> type; };
-template <      typename T> struct TagIf<false, T> { typedef NoTag<T> type; };
-
-template <typename T> struct IsTaggedHelper {
-	static char test(T*);
-	static int  test(...);
-};
-template <typename S, typename T> struct IsTagged {
-	enum { result = sizeof(IsTaggedHelper<T>::test(static_cast<S*>(0))) == 1 };
-};
-
 // Tag classes
+struct TagCopy {};
+template <typename CLASS, typename TAG> struct IsTagged
+	: std::is_base_of<TAG, CLASS> {};
 
-struct Streaming {};
-struct X86Streaming
-#if ASM_X86
-: public Streaming
-#endif
-{};
-struct Copy {};
 
 // Scalers
 
@@ -62,21 +43,19 @@ public:
 	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
-template <typename Pixel, bool streaming = true> class Scale_1on2
-	: public TagIf<streaming, X86Streaming>::type
+template <typename Pixel> class Scale_1on2
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
-template <typename Pixel, bool streaming = true> class Scale_1on1
-	: public TagIf<streaming, X86Streaming>::type, public Tag<Copy>
+template <typename Pixel> class Scale_1on1 : public TagCopy
 {
 public:
 	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
-template <typename Pixel> class Scale_2on1 : public Tag<X86Streaming>
+template <typename Pixel> class Scale_2on1
 {
 public:
 	explicit Scale_2on1(PixelOperations<Pixel> pixelOps);
@@ -315,14 +294,6 @@ public:
 	 */
 	virtual bool isCopy() const = 0;
 
-	/** Does this scaler use streaming stores?
-	 * This means that if you need the output of this scaler more than once
-	 * (e.g. in two consecutive output lines) it's most likely cheaper to
-	 * run this scaler multiple times compared to copying the output of one
-	 * run to multiple locations.
-	 */
-	virtual bool isStreaming() const = 0;
-
 protected:
 	virtual ~PolyLineScaler() {}
 };
@@ -348,11 +319,7 @@ public:
 	}
 	virtual bool isCopy() const
 	{
-		return IsTagged<Scaler, Copy>::result;
-	}
-	virtual bool isStreaming() const
-	{
-		return IsTagged<Scaler, Streaming>::result;
+		return IsTagged<Scaler, TagCopy>::value;
 	}
 private:
 	Scaler scaler;
@@ -375,11 +342,7 @@ public:
 	}
 	virtual bool isCopy() const
 	{
-		return IsTagged<Scaler, Copy>::result;
-	}
-	virtual bool isStreaming() const
-	{
-		return IsTagged<Scaler, Streaming>::result;
+		return IsTagged<Scaler, TagCopy>::value;
 	}
 private:
 	Scaler& scaler;
@@ -393,7 +356,6 @@ private:
 extern "C"
 {
 	void __cdecl Scale_1on2_4_MMX(const void* in, void* out, unsigned long width);
-	void __cdecl Scale_1on1_SSE(const void* in, void* out, unsigned long nBytes);
 	void __cdecl Scale_2on1_SSE(const void* in, void* out, unsigned long width);
 }
 #endif
@@ -433,8 +395,8 @@ void Scale_1on6<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 }
 
 
-template <typename Pixel, bool streaming>
-void Scale_1on2<Pixel, streaming>::operator()(
+template <typename Pixel>
+void Scale_1on2<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
 {
 	unsigned long width2 = 0;
@@ -451,58 +413,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 
 	#else
 
-	if ((sizeof(Pixel) == 2) && streaming && HostCPU::hasSSE()) {
-		// extended-MMX routine 16bpp
-		width2 = width & ~31;
-		assert((width2 % 32) == 0);
-		unsigned long dummy;
-		asm volatile (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%[IN],%[CNT]), %%mm0;"
-			"movq	 8(%[IN],%[CNT]), %%mm2;"
-			"movq	16(%[IN],%[CNT]), %%mm4;"
-			"movq	24(%[IN],%[CNT]), %%mm6;"
-			"movq	%%mm0, %%mm1;"
-			"movq	%%mm2, %%mm3;"
-			"movq	%%mm4, %%mm5;"
-			"movq	%%mm6, %%mm7;"
-			// Scale.
-			"punpcklwd %%mm0, %%mm0;"
-			"punpckhwd %%mm1, %%mm1;"
-			"punpcklwd %%mm2, %%mm2;"
-			"punpckhwd %%mm3, %%mm3;"
-			"punpcklwd %%mm4, %%mm4;"
-			"punpckhwd %%mm5, %%mm5;"
-			"punpcklwd %%mm6, %%mm6;"
-			"punpckhwd %%mm7, %%mm7;"
-			// Store.
-			"movntq	%%mm0,   (%[OUT],%[CNT],2);"
-			"movntq	%%mm1,  8(%[OUT],%[CNT],2);"
-			"movntq	%%mm2, 16(%[OUT],%[CNT],2);"
-			"movntq	%%mm3, 24(%[OUT],%[CNT],2);"
-			"movntq	%%mm4, 32(%[OUT],%[CNT],2);"
-			"movntq	%%mm5, 40(%[OUT],%[CNT],2);"
-			"movntq	%%mm6, 48(%[OUT],%[CNT],2);"
-			"movntq	%%mm7, 56(%[OUT],%[CNT],2);"
-			// Increment.
-			"add	$32, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (in  + width2 / 2)
-			, [OUT] "r"     (out + width2)
-			,       "[CNT]" (-width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-
-	} else if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
+	if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
 		// MMX routine 16bpp
 		width2 = width & ~31;
 		assert((width2 % 32) == 0);
@@ -546,57 +457,6 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			: [IN]  "r"     (in  + width2 / 2)
 			, [OUT] "r"     (out + width2)
 			,       "[CNT]" (-width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-
-	} else if ((sizeof(Pixel) == 4) && streaming && HostCPU::hasSSE()) {
-		// extended-MMX routine 32bpp
-		width2 = width & ~15;
-		assert(((2 * width2) % 32) == 0);
-		unsigned long dummy;
-		asm volatile (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%[IN],%[CNT]), %%mm0;"
-			"movq	 8(%[IN],%[CNT]), %%mm2;"
-			"movq	16(%[IN],%[CNT]), %%mm4;"
-			"movq	24(%[IN],%[CNT]), %%mm6;"
-			"movq	%%mm0, %%mm1;"
-			"movq	%%mm2, %%mm3;"
-			"movq	%%mm4, %%mm5;"
-			"movq	%%mm6, %%mm7;"
-			// Scale.
-			"punpckldq %%mm0, %%mm0;"
-			"punpckhdq %%mm1, %%mm1;"
-			"punpckldq %%mm2, %%mm2;"
-			"punpckhdq %%mm3, %%mm3;"
-			"punpckldq %%mm4, %%mm4;"
-			"punpckhdq %%mm5, %%mm5;"
-			"punpckldq %%mm6, %%mm6;"
-			"punpckhdq %%mm7, %%mm7;"
-			// Store.
-			"movntq	%%mm0,   (%[OUT],%[CNT],2);"
-			"movntq	%%mm1,  8(%[OUT],%[CNT],2);"
-			"movntq	%%mm2, 16(%[OUT],%[CNT],2);"
-			"movntq	%%mm3, 24(%[OUT],%[CNT],2);"
-			"movntq	%%mm4, 32(%[OUT],%[CNT],2);"
-			"movntq	%%mm5, 40(%[OUT],%[CNT],2);"
-			"movntq	%%mm6, 48(%[OUT],%[CNT],2);"
-			"movntq	%%mm7, 56(%[OUT],%[CNT],2);"
-			// Increment.
-			"add	$32, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (in  + width2 / 2)
-			, [OUT] "r"     (out + width2)
-			,       "[CNT]" (-2 * width2)
 			: "memory"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3"
@@ -668,67 +528,17 @@ void Scale_1on2<Pixel, streaming>::operator()(
 	}
 }
 
-template <typename Pixel, bool streaming>
-void Scale_1on1<Pixel, streaming>::operator()(
+template <typename Pixel>
+void Scale_1on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, unsigned long width) __restrict
 {
 	unsigned long nBytes = width * sizeof(Pixel);
 	unsigned long nBytes2 = 0;
 
 	#if ASM_X86
-	#ifdef _MSC_VER
+	#ifndef _MSC_VER
 
-	if (streaming && HostCPU::hasSSE()) {
-		// extended-MMX routine (both 16bpp and 32bpp)
-		nBytes2 = nBytes & ~63;
-		assert((nBytes2 % 64) == 0);
-		Scale_1on1_SSE(in, out, nBytes2);
-	}
-
-	#else
-
-	if (streaming && HostCPU::hasSSE()) {
-		nBytes2 = nBytes & ~63;
-		assert((nBytes2 % 64) == 0);
-		unsigned long dummy;
-		asm volatile (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%[IN],%[CNT]), %%mm0;"
-			"movq	 8(%[IN],%[CNT]), %%mm1;"
-			"movq	16(%[IN],%[CNT]), %%mm2;"
-			"movq	24(%[IN],%[CNT]), %%mm3;"
-			"movq	32(%[IN],%[CNT]), %%mm4;"
-			"movq	40(%[IN],%[CNT]), %%mm5;"
-			"movq	48(%[IN],%[CNT]), %%mm6;"
-			"movq	56(%[IN],%[CNT]), %%mm7;"
-			// Store.
-			"movntq	%%mm0,   (%[OUT],%[CNT]);"
-			"movntq	%%mm1,  8(%[OUT],%[CNT]);"
-			"movntq	%%mm2, 16(%[OUT],%[CNT]);"
-			"movntq	%%mm3, 24(%[OUT],%[CNT]);"
-			"movntq	%%mm4, 32(%[OUT],%[CNT]);"
-			"movntq	%%mm5, 40(%[OUT],%[CNT]);"
-			"movntq	%%mm6, 48(%[OUT],%[CNT]);"
-			"movntq	%%mm7, 56(%[OUT],%[CNT]);"
-			// Increment.
-			"add	$64, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (reinterpret_cast<const char*>(in)  + nBytes2)
-			, [OUT] "r"     (reinterpret_cast<char*      >(out) + nBytes2)
-			,       "[CNT]" (-nBytes2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-
-	} else if (HostCPU::hasMMX()) {
+	if (HostCPU::hasMMX()) {
 		// MMX routine (both 16bpp and 32bpp)
 		nBytes2 = nBytes & ~63;
 		assert((nBytes2 % 64) == 0);

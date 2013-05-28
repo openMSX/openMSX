@@ -126,7 +126,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 426: {
-			Scale_1on2<Pixel, false> scale; // no streaming
+			Scale_1on2<Pixel> scale;
 			scale(in, out, outWidth);
 			break;
 		}
@@ -172,7 +172,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 640: {
-			Scale_1on2<Pixel, false> scale; // no streaming
+			Scale_1on2<Pixel> scale;
 			scale(in, out, outWidth);
 			break;
 		}
@@ -218,7 +218,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 853: {
-			Scale_1on2<Pixel, false> scale; // no streaming
+			Scale_1on2<Pixel> scale;
 			scale(in, out, outWidth);
 			break;
 		}
@@ -269,7 +269,7 @@ const Pixel* FrameSource::scaleLine(
 			break;
 		}
 		case 1280: {
-			Scale_1on2<Pixel, false> scale; // no streaming
+			Scale_1on2<Pixel> scale;
 			scale(in, out, outWidth);
 			break;
 		}

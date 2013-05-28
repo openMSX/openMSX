@@ -52,7 +52,6 @@ static void doScale1(FrameSource& src,
 	PolyLineScaler<Pixel>& scale)
 {
 	Scale_1on1<Pixel> copy;
-	bool isStreaming = scale.isStreaming();
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
@@ -60,18 +59,10 @@ static void doScale1(FrameSource& src,
 		scale(srcLine, dstLine0, dstWidth);
 
 		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
-		if (isStreaming) {
-			scale(srcLine, dstLine1, dstWidth);
-		} else {
-			copy(dstLine0, dstLine1, dstWidth);
-		}
+		copy(dstLine0, dstLine1, dstWidth);
 
 		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
-		if (isStreaming) {
-			scale(srcLine, dstLine2, dstWidth);
-		} else {
-			copy(dstLine0, dstLine2, dstWidth);
-		}
+		copy(dstLine0, dstLine2, dstWidth);
 
 		dst.releaseLine(dstY + 0, dstLine0);
 		dst.releaseLine(dstY + 1, dstLine1);
