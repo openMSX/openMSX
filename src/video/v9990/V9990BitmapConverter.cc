@@ -7,6 +7,7 @@
 #include "build-info.hh"
 #include <type_traits>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -363,10 +364,10 @@ void V9990BitmapConverter<Pixel>::convertLine(
 
 // Force template instantiation
 #if HAVE_16BPP
-template class V9990BitmapConverter<word>;
+template class V9990BitmapConverter<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class V9990BitmapConverter<unsigned>;
+template class V9990BitmapConverter<uint32_t>;
 #endif
 
 } // namespace openmsx

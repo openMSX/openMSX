@@ -6,6 +6,7 @@
 #include "RenderSettings.hh"
 #include "vla.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -414,10 +415,10 @@ void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* sup
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class RGBTriplet3xScaler<word>;
+template class RGBTriplet3xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class RGBTriplet3xScaler<unsigned>;
+template class RGBTriplet3xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

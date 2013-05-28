@@ -52,7 +52,7 @@ And finally in the code below these RGB values are scaled to the range [0..255].
 TODO NTSC(TMS99X8A) and PAL(TMS9929A) seem to have slightly different colors.
      Figure out where this difference comes from and how to emulate that best.
 */
-const byte Renderer::TMS99X8A_PALETTE[16][3] = {
+const uint8_t Renderer::TMS99X8A_PALETTE[16][3] = {
 	{   0,   0,   0 },
 	{   0,   0,   0 },
 	{  62, 184,  73 },
@@ -75,7 +75,7 @@ const byte Renderer::TMS99X8A_PALETTE[16][3] = {
 Sprite palette in Graphic 7 mode.
 See page 98 of the V9938 data book.
 */
-const word Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
+const uint16_t Renderer::GRAPHIC7_SPRITE_PALETTE[16] = {
 	0x000, 0x002, 0x030, 0x032, 0x300, 0x302, 0x330, 0x332,
 	0x472, 0x007, 0x070, 0x077, 0x700, 0x707, 0x770, 0x777
 };

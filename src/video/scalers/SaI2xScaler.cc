@@ -7,9 +7,9 @@
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -319,10 +319,10 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SaI2xScaler<word>;
+template class SaI2xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class SaI2xScaler<unsigned>;
+template class SaI2xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

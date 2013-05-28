@@ -19,6 +19,7 @@
 #include "components.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -320,7 +321,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 		}
 		// Precalculate Graphic 7 sprite palette.
 		for (int i = 0; i < 16; i++) {
-			word grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
+			uint16_t grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
 			palGraphic7Sprites[i] =
 				V9938_COLORS[(grb >> 4) & 7][grb >> 8][grb & 7];
 		}
@@ -605,10 +606,10 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SDLRasterizer<word>;
+template class SDLRasterizer<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class SDLRasterizer<unsigned>;
+template class SDLRasterizer<uint32_t>;
 #endif
 
 } // namespace openmsx

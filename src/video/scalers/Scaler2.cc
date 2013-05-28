@@ -3,10 +3,10 @@
 #include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "SuperImposeScalerOutput.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -296,10 +296,10 @@ void Scaler2<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Scaler2<word>;
+template class Scaler2<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Scaler2<unsigned>;
+template class Scaler2<uint32_t>;
 #endif
 
 } // namespace openmsx

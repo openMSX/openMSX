@@ -2,10 +2,10 @@
 #include "PixelOperations.hh"
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -369,16 +369,16 @@ const Pixel* FrameSource::scaleLine(
 
 // Force template method instantiation
 #if HAVE_16BPP
-template const word* FrameSource::getLinePtr320_240<word>(unsigned) const;
-template const word* FrameSource::getLinePtr640_480<word>(unsigned) const;
-template const word* FrameSource::getLinePtr960_720<word>(unsigned) const;
-template const word* FrameSource::scaleLine<word>(const word*, unsigned, unsigned) const;
+template const uint16_t* FrameSource::getLinePtr320_240<uint16_t>(unsigned) const;
+template const uint16_t* FrameSource::getLinePtr640_480<uint16_t>(unsigned) const;
+template const uint16_t* FrameSource::getLinePtr960_720<uint16_t>(unsigned) const;
+template const uint16_t* FrameSource::scaleLine<uint16_t>(const uint16_t*, unsigned, unsigned) const;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned) const;
-template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned) const;
-template const unsigned* FrameSource::getLinePtr960_720<unsigned>(unsigned) const;
-template const unsigned* FrameSource::scaleLine<unsigned>(const unsigned*, unsigned, unsigned) const;
+template const uint32_t* FrameSource::getLinePtr320_240<uint32_t>(unsigned) const;
+template const uint32_t* FrameSource::getLinePtr640_480<uint32_t>(unsigned) const;
+template const uint32_t* FrameSource::getLinePtr960_720<uint32_t>(unsigned) const;
+template const uint32_t* FrameSource::scaleLine<uint32_t>(const uint32_t*, unsigned, unsigned) const;
 #endif
 
 } // namespace openmsx

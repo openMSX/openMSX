@@ -1,7 +1,7 @@
 #ifndef MULTIPLY32_HH
 #define MULTIPLY32_HH
 
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -13,23 +13,23 @@ template<typename Pixel> class PixelOperations;
  */
 template<typename Pixel> class Multiply32;
 
-template<> class Multiply32<unsigned>
+template<> class Multiply32<uint32_t>
 {
 public:
-	explicit Multiply32(const PixelOperations<unsigned>& format);
+	explicit Multiply32(const PixelOperations<uint32_t>& format);
 
 	inline void setFactor32(unsigned f)
 	{
 		factor = f;
 	}
 
-	inline unsigned mul32(unsigned p) const
+	inline uint32_t mul32(uint32_t p) const
 	{
 		return ((((p       & 0x00FF00FF) * factor) & 0xFF00FF00) >> 8)
 		     | ((((p >> 8) & 0x00FF00FF) * factor) & 0xFF00FF00);
 	}
 
-	inline unsigned conv32(unsigned p) const
+	inline uint32_t conv32(uint32_t p) const
 	{
 		return p;
 	}
@@ -38,25 +38,25 @@ private:
 	unsigned factor;
 };
 
-template<> class Multiply32<word>
+template<> class Multiply32<uint16_t>
 {
 	// Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
-	inline unsigned rotRight(unsigned a, unsigned n) const
+	inline uint32_t rotRight(uint32_t a, unsigned n) const
 	{
 		return (a >> n) | (a << (32 - n));
 	}
 
 public:
-	explicit Multiply32(const PixelOperations<word>& format);
+	explicit Multiply32(const PixelOperations<uint16_t>& format);
 
 	void setFactor32(unsigned factor);
 
-	inline unsigned mul32(word p) const
+	inline uint32_t mul32(uint16_t p) const
 	{
 		return tab[p];
 	}
 
-	inline word conv32(unsigned p) const
+	inline uint16_t conv32(uint32_t p) const
 	{
 		return (rotRight(p, Rshift3) & Rmask1) |
 		       (rotRight(p, Gshift3) & Gmask1) |
@@ -64,13 +64,13 @@ public:
 	}
 
 private:
-	unsigned tab[0x10000];
+	uint32_t tab[0x10000];
 	unsigned factor;
 	unsigned Rshift1, Gshift1, Bshift1;
 	unsigned Rshift2, Gshift2, Bshift2;
 	unsigned Rshift3, Gshift3, Bshift3;
-	word     Rmask1,  Gmask1,  Bmask1;
-	word     Rmask2,  Gmask2,  Bmask2;
+	uint16_t Rmask1,  Gmask1,  Bmask1;
+	uint16_t Rmask2,  Gmask2,  Bmask2;
 };
 
 } // namespace openmsx

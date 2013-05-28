@@ -2,7 +2,6 @@
 #define LDRASTERIZER_HH
 
 #include "EmuTime.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
 

@@ -2,11 +2,11 @@
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "Math.hh"
-#include "openmsx.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -46,13 +46,13 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
-	VLA(byte, edges, srcNumLines * srcWidth);
-	byte* edgeGenPtr = edges;
+	VLA(uint8_t, edges, srcNumLines * srcWidth);
+	uint8_t* edgeGenPtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		const Pixel* srcLinePtr = srcLinePtrs[y];
 		for (unsigned x = 0; x < srcWidth; x++) {
 			Pixel colMid = srcLinePtr[x];
-			byte pixEdges = 0;
+			uint8_t pixEdges = 0;
 			if (x > 0 && srcLinePtr[x - 1] != colMid) {
 				pixEdges |= LEFT;
 			}
@@ -96,7 +96,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	// Find horizontal edges.
 	VLA(unsigned, horizontals, srcNumLines * srcWidth);
 	unsigned* horizontalGenPtr = horizontals;
-	const byte* edgePtr = edges;
+	const uint8_t* edgePtr = edges;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
 		while (x < srcWidth) {
@@ -663,10 +663,10 @@ void MLAAScaler<Pixel>::scaleImage(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class MLAAScaler<word>;
+template class MLAAScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class MLAAScaler<unsigned>;
+template class MLAAScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

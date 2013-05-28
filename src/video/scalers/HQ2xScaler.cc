@@ -11,9 +11,9 @@ Visit the HiEnd3D site for info:
 #include "HQ2xScaler.hh"
 #include "HQCommon.hh"
 #include "LineScalers.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -236,10 +236,10 @@ void HQ2xScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class HQ2xScaler<word>;
+template class HQ2xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class HQ2xScaler<unsigned>;
+template class HQ2xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

@@ -5,18 +5,18 @@
 #include "PixelOperations.hh"
 #include "unreachable.hh"
 #include "endian.hh"
-#include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
+#include <cstdint>
 #include <cstring>
 #include <cmath>
 
 namespace openmsx {
 
-static const unsigned char DBZV_VERSION_HIGH = 0;
-static const unsigned char DBZV_VERSION_LOW = 1;
-static const unsigned char COMPRESSION_ZLIB = 1;
+static const uint8_t DBZV_VERSION_HIGH = 0;
+static const uint8_t DBZV_VERSION_LOW = 1;
+static const uint8_t COMPRESSION_ZLIB = 1;
 static const unsigned MAX_VECTOR = 16;
 static const unsigned BLOCK_WIDTH  = MAX_VECTOR;
 static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
@@ -52,20 +52,20 @@ static const unsigned VECTOR_TAB_SIZE =
 CodecVector vectorTable[VECTOR_TAB_SIZE];
 
 struct KeyframeHeader {
-	unsigned char high_version;
-	unsigned char low_version;
-	unsigned char compression;
-	unsigned char format;
-	unsigned char blockwidth;
-	unsigned char blockheight;
+	uint8_t high_version;
+	uint8_t low_version;
+	uint8_t compression;
+	uint8_t format;
+	uint8_t blockwidth;
+	uint8_t blockheight;
 };
 
 const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
 
 
 static inline void writePixel(
-	const PixelOperations<unsigned short>& pixelOps,
-	unsigned short pixel, Endian::L16& dest)
+	const PixelOperations<uint16_t>& pixelOps,
+	uint16_t pixel, Endian::L16& dest)
 {
 	unsigned r = pixelOps.red256(pixel);
 	unsigned g = pixelOps.green256(pixel);
@@ -314,7 +314,7 @@ void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 	typedef typename Endian::Little<P>::type LE_P;
 
 	PixelOperations<P> pixelOps(pixelFormat);
-	unsigned char* readFrame =
+	uint8_t* readFrame =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned y = 0; y < height; ++y) {
 		auto pixelsIn  = reinterpret_cast<P*>   (readFrame);
@@ -333,9 +333,9 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 	if (pixelSize == 4) { // 32bpp
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<unsigned int>(y);
+			return frame->getLinePtr320_240<uint32_t>(y);
 		case 480:
-			return frame->getLinePtr640_480<unsigned int>(y);
+			return frame->getLinePtr640_480<uint32_t>(y);
 		default:
 			UNREACHABLE;
 		}
@@ -345,9 +345,9 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 	if (pixelSize == 2) { // 15bpp or 16bpp
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<unsigned short>(y);
+			return frame->getLinePtr320_240<uint16_t>(y);
 		case 480:
-			return frame->getLinePtr640_480<unsigned short>(y);
+			return frame->getLinePtr640_480<uint16_t>(y);
 		default:
 			UNREACHABLE;
 		}
@@ -365,7 +365,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	// Reset the work buffer
 	workUsed = 0;
 	unsigned writeDone = 1;
-	unsigned char* writeBuf = output.data();
+	uint8_t* writeBuf = output.data();
 
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
@@ -385,7 +385,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	// copy lines (to add black border)
 	unsigned linePitch = pitch * pixelSize;
 	unsigned lineWidth = width * pixelSize;
-	unsigned char* dest =
+	uint8_t* dest =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned i = 0; i < height; ++i) {
 		memcpy(dest, getScaledLine(frame, i), lineWidth);
@@ -398,12 +398,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addFullFrame<unsigned short>(frame->getSDLPixelFormat());
+			addFullFrame<uint16_t>(frame->getSDLPixelFormat());
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addFullFrame<unsigned int>(frame->getSDLPixelFormat());
+			addFullFrame<uint32_t>(frame->getSDLPixelFormat());
 			break;
 #endif
 		default:
@@ -414,12 +414,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addXorFrame<unsigned short>(frame->getSDLPixelFormat());
+			addXorFrame<uint16_t>(frame->getSDLPixelFormat());
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addXorFrame<unsigned int>(frame->getSDLPixelFormat());
+			addXorFrame<uint32_t>(frame->getSDLPixelFormat());
 			break;
 #endif
 		default:

@@ -7,9 +7,9 @@
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -56,8 +56,7 @@ static const unsigned greenMask = 0x7E0;
 template <typename Pixel>
 static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
-template <>
-word bilinear<word>(unsigned a, unsigned b, unsigned x)
+template<> uint16_t bilinear<uint16_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -70,8 +69,7 @@ word bilinear<word>(unsigned a, unsigned b, unsigned x)
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template <>
-unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
+template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -85,14 +83,12 @@ unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
-template <typename Pixel>
-static Pixel bilinear4(
-	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y );
+template<typename Pixel> static Pixel bilinear4(
+	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y);
 
-template <>
-word bilinear4<word>(
-	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
-) {
+template<> uint16_t bilinear4<uint16_t>(
+	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y)
+{
 	x >>= 11;
 	y >>= 11;
 	const unsigned xy = (x * y) >> 5;
@@ -112,10 +108,9 @@ word bilinear4<word>(
 	return (result & redblueMask) | ((result >> 16) & greenMask);
 }
 
-template <>
-unsigned bilinear4<unsigned>(
-	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
-) {
+template<> uint32_t bilinear4<uint32_t>(
+	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y)
+{
 	x >>= 8;
 	y >>= 8;
 	const unsigned xy = (x * y) >> 8;
@@ -534,10 +529,10 @@ void SaI3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SaI3xScaler<word>;
+template class SaI3xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class SaI3xScaler<unsigned>;
+template class SaI3xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

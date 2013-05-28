@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <cassert>
 #include <algorithm>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -251,10 +252,10 @@ void V9990P1Converter<Pixel>::renderSprites(
 
 // Force template instantiation
 #if HAVE_16BPP
-template class V9990P1Converter<word>;
+template class V9990P1Converter<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class V9990P1Converter<unsigned>;
+template class V9990P1Converter<uint32_t>;
 #endif
 
 } // namespace openmsx

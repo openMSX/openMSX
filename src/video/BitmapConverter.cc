@@ -5,6 +5,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <type_traits>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -377,10 +378,10 @@ void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class BitmapConverter<word>;
+template class BitmapConverter<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class BitmapConverter<unsigned>;
+template class BitmapConverter<uint32_t>;
 #endif
 
 } // namespace openmsx

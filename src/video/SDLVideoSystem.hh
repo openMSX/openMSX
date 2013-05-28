@@ -5,9 +5,8 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include <memory>
-
 #include "components.hh"
+#include <memory>
 
 namespace openmsx {
 

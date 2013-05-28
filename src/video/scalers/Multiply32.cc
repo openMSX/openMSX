@@ -5,26 +5,26 @@
 
 namespace openmsx {
 
-// class Multiply32<unsigned>
+// class Multiply32<uint32_t>
 
-Multiply32<unsigned>::Multiply32(const PixelOperations<unsigned>& /*pixelOps*/)
+Multiply32<uint32_t>::Multiply32(const PixelOperations<uint32_t>& /*pixelOps*/)
 {
 	// nothing
 }
 
 
-// class Multiply32<word>
+// class Multiply32<uint16_t>
 
 // gcc can optimize these rotate functions to just one instruction.
 // We don't really need a rotate, but we do need a shift over a positive or
 // negative (not known at compile time) distance, rotate handles this just fine.
 // Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
-static inline unsigned rotLeft(unsigned a, unsigned n)
+static inline uint32_t rotLeft(uint32_t a, unsigned n)
 {
 	return (a << n) | (a >> (32 - n));
 }
 
-Multiply32<word>::Multiply32(const PixelOperations<word>& pixelOps)
+Multiply32<uint16_t>::Multiply32(const PixelOperations<uint16_t>& pixelOps)
 {
 	Rmask1 = pixelOps.getRmask();
 	Gmask1 = pixelOps.getGmask();
@@ -53,7 +53,7 @@ Multiply32<word>::Multiply32(const PixelOperations<word>& pixelOps)
 	memset(tab, 0, sizeof(tab));
 }
 
-void Multiply32<word>::setFactor32(unsigned f)
+void Multiply32<uint16_t>::setFactor32(unsigned f)
 {
 	if (factor == f) {
 		return;
@@ -61,11 +61,11 @@ void Multiply32<word>::setFactor32(unsigned f)
 	factor = f;
 
 	for (unsigned p = 0; p < 0x10000; ++p) {
-		unsigned r = rotLeft((p & Rmask1), Rshift1) |
+		uint32_t r = rotLeft((p & Rmask1), Rshift1) |
 			     rotLeft((p & Rmask2), Rshift2);
-		unsigned g = rotLeft((p & Gmask1), Gshift1) |
+		uint32_t g = rotLeft((p & Gmask1), Gshift1) |
 			     rotLeft((p & Gmask2), Gshift2);
-		unsigned b = rotLeft((p & Bmask1), Bshift1) |
+		uint32_t b = rotLeft((p & Bmask1), Bshift1) |
 			     rotLeft((p & Bmask2), Bshift2);
 		tab[p] = (((r * factor) >> 8) <<  0) |
 		         (((g * factor) >> 8) << 10) |
@@ -77,10 +77,10 @@ void Multiply32<word>::setFactor32(unsigned f)
 // Force template instantiation
 #ifndef _MSC_VER
 #if HAVE_16BPP
-template class Multiply32<word>;
+template class Multiply32<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Multiply32<unsigned>;
+template class Multiply32<uint32_t>;
 #endif
 #else
 // In VC++ we hit this problem again (see also V9990BitmapConverter)

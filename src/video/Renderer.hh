@@ -3,6 +3,7 @@
 
 #include "VRAMObserver.hh"
 #include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -180,13 +181,13 @@ public:
 	  * An array of 16 RGB triples.
 	  * Each component ranges from 0 (off) to 255 (full intensity).
 	  */
-	static const byte TMS99X8A_PALETTE[16][3];
+	static const uint8_t TMS99X8A_PALETTE[16][3];
 
 	/** Sprite palette in Graphic 7 mode.
 	  * Each palette entry is a word in GRB format:
 	  * bit 10..8 is green, bit 6..4 is red and bit 2..0 is blue.
 	  */
-	static const word GRAPHIC7_SPRITE_PALETTE[16];
+	static const uint16_t GRAPHIC7_SPRITE_PALETTE[16];
 
 protected:
 	Renderer();

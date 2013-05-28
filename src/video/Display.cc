@@ -30,7 +30,6 @@
 #include "checked_cast.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include "openmsx.hh"
 #include <algorithm>
 #include <cassert>
 

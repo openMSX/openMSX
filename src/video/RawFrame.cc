@@ -1,7 +1,7 @@
 #include "RawFrame.hh"
 #include "MemoryOps.hh"
 #include "MSXException.hh"
-#include "openmsx.hh"
+#include <cstdint>
 #include <SDL.h>
 
 #if PLATFORM_GP2X
@@ -50,9 +50,9 @@ RawFrame::RawFrame(
 	init(FIELD_NONINTERLACED);
 	for (unsigned line = 0; line < height; line++) {
 		if (bytesPerPixel == 2) {
-			setBlank(line, static_cast<word>(0));
+			setBlank(line, static_cast<uint16_t>(0));
 		} else {
-			setBlank(line, static_cast<unsigned>(0));
+			setBlank(line, static_cast<uint32_t>(0));
 		}
 	}
 

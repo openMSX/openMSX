@@ -3,11 +3,11 @@
 #include "FrameSource.hh"
 #include "RawFrame.hh"
 #include "SuperImposeScalerOutput.hh"
-#include "openmsx.hh"
 #include "vla.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -20,7 +20,7 @@ Scaler1<Pixel>::Scaler1(const PixelOperations<Pixel>& pixelOps_)
 /*template <typename Pixel>
 void Scaler1<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel* pOut, unsigned dstWidth)
 {
-	// TODO MMX/SSE optimizations
+	// TODO SSE optimizations
 	// pure C++ version
 	for (int i = 0; i < dstWidth; ++i) {
 		Pixel tmp0 = blend(pIn0[2 * i + 0], pIn0[2 * i + 1]);
@@ -356,10 +356,10 @@ void Scaler1<Pixel>::scaleImage(FrameSource& src, const RawFrame* superImpose,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Scaler1<word>;
+template class Scaler1<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Scaler1<unsigned>;
+template class Scaler1<uint32_t>;
 #endif
 
 } // namespace openmsx

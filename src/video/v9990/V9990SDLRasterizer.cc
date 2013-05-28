@@ -17,6 +17,7 @@
 #include "build-info.hh"
 #include "components.hh"
 #include <algorithm>
+#include <cstdint>
 
 using std::min;
 using std::max;
@@ -378,10 +379,10 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class V9990SDLRasterizer<word>;
+template class V9990SDLRasterizer<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class V9990SDLRasterizer<unsigned>;
+template class V9990SDLRasterizer<uint32_t>;
 #endif
 
 } // namespace openmsx

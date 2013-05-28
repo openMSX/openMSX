@@ -8,6 +8,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <cstdint>
 #if PLATFORM_GP2X
 #include "GP2XMMUHack.hh"
 #endif
@@ -93,11 +94,11 @@ std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
 	switch (getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 	case 2:
-		return make_unique<SDLSnow<word>>(*this, display);
+		return make_unique<SDLSnow<uint16_t>>(*this, display);
 #endif
 #if HAVE_32BPP
 	case 4:
-		return make_unique<SDLSnow<unsigned>>(*this, display);
+		return make_unique<SDLSnow<uint32_t>>(*this, display);
 #endif
 	default:
 		UNREACHABLE; return nullptr;

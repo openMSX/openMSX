@@ -13,9 +13,9 @@
 #include "HQ2xLiteScaler.hh"
 #include "HQCommon.hh"
 #include "LineScalers.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -233,10 +233,10 @@ void HQ2xLiteScaler<Pixel>::scale2x1to1x2(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class HQ2xLiteScaler<word>;
+template class HQ2xLiteScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class HQ2xLiteScaler<unsigned>;
+template class HQ2xLiteScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

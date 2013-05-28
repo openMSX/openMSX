@@ -1,8 +1,8 @@
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
-#include "openmsx.hh"
 #include "vla.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -64,10 +64,10 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& 
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SuperImposedVideoFrame<word>;
+template class SuperImposedVideoFrame<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class SuperImposedVideoFrame<unsigned>;
+template class SuperImposedVideoFrame<uint32_t>;
 #endif
 
 } // namespace openmsx

@@ -13,10 +13,9 @@ Visit the Scale2x site for info:
 #include "Scale2xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include <cassert>
-
+#include <cstdint>
 #ifdef __SSE2__
 #include "emmintrin.h" // SSE2
 #ifdef __SSSE3__
@@ -354,10 +353,10 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Scale2xScaler<word>;
+template class Scale2xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Scale2xScaler<unsigned>;
+template class Scale2xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

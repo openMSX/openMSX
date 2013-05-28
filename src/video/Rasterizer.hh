@@ -3,7 +3,6 @@
 
 #include "EmuTime.hh"
 #include "DisplayMode.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
 

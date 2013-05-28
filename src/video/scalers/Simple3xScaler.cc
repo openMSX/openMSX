@@ -9,6 +9,7 @@
 #include "vla.hh"
 #include "memory.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -537,10 +538,10 @@ void Simple3xScaler<Pixel>::scaleImage(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Simple3xScaler<word>;
+template class Simple3xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Simple3xScaler<unsigned>;
+template class Simple3xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

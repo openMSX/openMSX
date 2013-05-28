@@ -12,7 +12,6 @@
 #include "StringOp.hh"
 #include "memory.hh"
 #include "build-info.hh"
-#include "openmsx.hh"
 
 #if PLATFORM_MAEMO5
 #include <SDL_syswm.h>

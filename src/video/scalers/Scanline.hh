@@ -2,7 +2,7 @@
 #define SCANLINE_HH
 
 #include "PixelOperations.hh"
-#include "openmsx.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -11,28 +11,28 @@ namespace openmsx {
  */
 template<typename Pixel> class Multiply;
 
-template<> class Multiply<word>
+template<> class Multiply<uint16_t>
 {
 public:
-	explicit Multiply(const PixelOperations<word>& pixelOps);
+	explicit Multiply(const PixelOperations<uint16_t>& pixelOps);
 	void setFactor(unsigned f);
-	inline word multiply(word p, unsigned factor) const;
-	inline word multiply(word p) const;
-	inline const word* getTable() const;
+	inline uint16_t multiply(uint16_t p, unsigned factor) const;
+	inline uint16_t multiply(uint16_t p) const;
+	inline const uint16_t* getTable() const;
 private:
-	const PixelOperations<word>& pixelOps;
+	const PixelOperations<uint16_t>& pixelOps;
 	unsigned factor;
-	word tab[0x10000];
+	uint16_t tab[0x10000];
 };
 
-template<> class Multiply<unsigned>
+template<> class Multiply<uint32_t>
 {
 public:
-	explicit Multiply(const PixelOperations<unsigned>& pixelOps);
+	explicit Multiply(const PixelOperations<uint32_t>& pixelOps);
 	void setFactor(unsigned f);
-	inline unsigned multiply(unsigned p, unsigned factor) const;
-	inline unsigned multiply(unsigned p) const;
-	const unsigned* getTable() const;
+	inline uint32_t multiply(uint32_t p, unsigned factor) const;
+	inline uint32_t multiply(uint32_t p) const;
+	const uint32_t* getTable() const;
 private:
 	unsigned factor;
 };

@@ -13,8 +13,8 @@ Visit the Scale2x site for info:
 #include "Scale3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -178,10 +178,10 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Scale3xScaler<word>;
+template class Scale3xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Scale3xScaler<unsigned>;
+template class Scale3xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx

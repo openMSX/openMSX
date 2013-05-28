@@ -3,23 +3,22 @@
 #include "unreachable.hh"
 #include <cassert>
 #include <cstring>
-
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
 
 namespace openmsx {
 
-// class Multiply<word>
+// class Multiply<uint16_t>
 
-Multiply<word>::Multiply(const PixelOperations<word>& pixelOps_)
+Multiply<uint16_t>::Multiply(const PixelOperations<uint16_t>& pixelOps_)
 	: pixelOps(pixelOps_)
 {
 	factor = 0;
 	memset(tab, 0, sizeof(tab));
 }
 
-void Multiply<word>::setFactor(unsigned f)
+void Multiply<uint16_t>::setFactor(unsigned f)
 {
 	if (f == factor) {
 		return;
@@ -33,7 +32,7 @@ void Multiply<word>::setFactor(unsigned f)
 	}
 }
 
-inline word Multiply<word>::multiply(word p, unsigned f) const
+inline uint16_t Multiply<uint16_t>::multiply(uint16_t p, unsigned f) const
 {
 	unsigned r = (((p & pixelOps.getRmask()) * f) >> 8) & pixelOps.getRmask();
 	unsigned g = (((p & pixelOps.getGmask()) * f) >> 8) & pixelOps.getGmask();
@@ -41,39 +40,39 @@ inline word Multiply<word>::multiply(word p, unsigned f) const
 	return r | g | b;
 }
 
-inline word Multiply<word>::multiply(word p) const
+inline uint16_t Multiply<uint16_t>::multiply(uint16_t p) const
 {
 	return tab[p];
 }
 
-inline const word* Multiply<word>::getTable() const
+inline const uint16_t* Multiply<uint16_t>::getTable() const
 {
 	return tab;
 }
 
 
-// class Multiply<unsigned>
+// class Multiply<uint32_t>
 
-Multiply<unsigned>::Multiply(const PixelOperations<unsigned>& /*pixelOps*/)
+Multiply<uint32_t>::Multiply(const PixelOperations<uint32_t>& /*pixelOps*/)
 {
 }
 
-void Multiply<unsigned>::setFactor(unsigned f)
+void Multiply<uint32_t>::setFactor(unsigned f)
 {
 	factor = f;
 }
 
-inline unsigned Multiply<unsigned>::multiply(unsigned p, unsigned f) const
+inline uint32_t Multiply<uint32_t>::multiply(uint32_t p, unsigned f) const
 {
-	return PixelOperations<unsigned>::multiply(p, f);
+	return PixelOperations<uint32_t>::multiply(p, f);
 }
 
-inline unsigned Multiply<unsigned>::multiply(unsigned p) const
+inline uint32_t Multiply<uint32_t>::multiply(uint32_t p) const
 {
 	return multiply(p, factor);
 }
 
-const unsigned* Multiply<unsigned>::getTable() const
+const uint32_t* Multiply<uint32_t>::getTable() const
 {
 	UNREACHABLE; return nullptr;
 }
@@ -227,10 +226,10 @@ Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Scanline<word>;
+template class Scanline<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Scanline<unsigned>;
+template class Scanline<uint32_t>;
 #endif
 
 } // namespace openmsx

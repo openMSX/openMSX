@@ -8,7 +8,6 @@
 #include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "Event.hh"
-#include "openmsx.hh"
 #include "memory.hh"
 #include <cassert>
 

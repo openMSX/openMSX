@@ -14,10 +14,10 @@
 #include "vla.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -157,10 +157,10 @@ void PostProcessor::getScaledFrame(unsigned height, const void** lines)
 		if (getBpp() == 32) {
 			// 32bpp
 			if (height == 240) {
-				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
+				lines[i] = paintFrame->getLinePtr320_240<uint32_t>(i);
 			} else {
 				assert (height == 480);
-				lines[i] = paintFrame->getLinePtr640_480<unsigned>(i);
+				lines[i] = paintFrame->getLinePtr640_480<uint32_t>(i);
 			}
 		} else
 #endif
@@ -168,10 +168,10 @@ void PostProcessor::getScaledFrame(unsigned height, const void** lines)
 #if HAVE_16BPP
 			// 15bpp or 16bpp
 			if (height == 240) {
-				lines[i] = paintFrame->getLinePtr320_240<word>(i);
+				lines[i] = paintFrame->getLinePtr320_240<uint16_t>(i);
 			} else {
 				assert (height == 480);
-				lines[i] = paintFrame->getLinePtr640_480<word>(i);
+				lines[i] = paintFrame->getLinePtr640_480<uint16_t>(i);
 			}
 #endif
 		}

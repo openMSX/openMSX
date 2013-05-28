@@ -1,9 +1,9 @@
 #include "SDLSnow.hh"
 #include "OutputSurface.hh"
 #include "Display.hh"
-#include "openmsx.hh"
 #include "build-info.hh"
 #include <cstring>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -45,7 +45,7 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 		Pixel* p0 = output.getLinePtrDirect<Pixel>(y + 0);
 		Pixel* p1 = output.getLinePtrDirect<Pixel>(y + 1);
 		for (unsigned x = 0; x < width; x += 2) {
-			byte a = byte(random());
+			unsigned a = random() & 255;
 			p0[x + 0] = p0[x + 1] = gray[a];
 		}
 		memcpy(p1, p0, width * sizeof(Pixel));
@@ -56,10 +56,10 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class SDLSnow<word>;
+template class SDLSnow<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class SDLSnow<unsigned>;
+template class SDLSnow<uint32_t>;
 #endif
 
 } // namespace openmsx

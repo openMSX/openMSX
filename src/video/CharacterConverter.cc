@@ -459,10 +459,10 @@ void CharacterConverter<Pixel>::renderBogus(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class CharacterConverter<word>;
+template class CharacterConverter<uint16_t>;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template class CharacterConverter<unsigned>;
+template class CharacterConverter<uint32_t>;
 #endif
 
 } // namespace openmsx

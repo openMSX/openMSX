@@ -14,7 +14,6 @@
 #include "VDP.hh"
 #include "V9990.hh"
 #include "build-info.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <cassert>
@@ -92,17 +91,17 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
-			return make_unique<SDLRasterizer<word>>(
+			return make_unique<SDLRasterizer<uint16_t>>(
 				vdp, display, *screen,
-				make_unique<FBPostProcessor<word>>(
+				make_unique<FBPostProcessor<uint16_t>>(
 					motherBoard, display, *screen,
 					videoSource, 640, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
-			return make_unique<SDLRasterizer<unsigned>>(
+			return make_unique<SDLRasterizer<uint32_t>>(
 				vdp, display, *screen,
-				make_unique<FBPostProcessor<unsigned>>(
+				make_unique<FBPostProcessor<uint32_t>>(
 					motherBoard, display, *screen,
 					videoSource, 640, 240, true));
 #endif
@@ -111,7 +110,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
-		return make_unique<SDLRasterizer<unsigned>>(
+		return make_unique<SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
@@ -136,17 +135,17 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
-			return make_unique<V9990SDLRasterizer<word>>(
+			return make_unique<V9990SDLRasterizer<uint16_t>>(
 				vdp, display, *screen,
-				make_unique<FBPostProcessor<word>>(
+				make_unique<FBPostProcessor<uint16_t>>(
 					motherBoard, display, *screen,
 					videoSource, 1280, 240, true));
 #endif
 #if HAVE_32BPP
 		case 4:
-			return make_unique<V9990SDLRasterizer<unsigned>>(
+			return make_unique<V9990SDLRasterizer<uint32_t>>(
 				vdp, display, *screen,
-				make_unique<FBPostProcessor<unsigned>>(
+				make_unique<FBPostProcessor<uint32_t>>(
 					motherBoard, display, *screen,
 					videoSource, 1280, 240, true));
 #endif
@@ -155,7 +154,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
-		return make_unique<V9990SDLRasterizer<unsigned>>(
+		return make_unique<V9990SDLRasterizer<uint32_t>>(
 			vdp, display, *screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,
@@ -179,17 +178,17 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 		switch (screen->getSDLFormat().BytesPerPixel) {
 #if HAVE_16BPP
 		case 2:
-			return make_unique<LDSDLRasterizer<word>>(
+			return make_unique<LDSDLRasterizer<uint16_t>>(
 				*screen,
-				make_unique<FBPostProcessor<word>>(
+				make_unique<FBPostProcessor<uint16_t>>(
 					motherBoard, display, *screen,
 					videoSource, 640, 480, false));
 #endif
 #if HAVE_32BPP
 		case 4:
-			return make_unique<LDSDLRasterizer<unsigned>>(
+			return make_unique<LDSDLRasterizer<uint32_t>>(
 				*screen,
-				make_unique<FBPostProcessor<unsigned>>(
+				make_unique<FBPostProcessor<uint32_t>>(
 					motherBoard, display, *screen,
 					videoSource, 640, 480, false));
 #endif
@@ -198,7 +197,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 		}
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
-		return make_unique<LDSDLRasterizer<unsigned>>(
+		return make_unique<LDSDLRasterizer<uint32_t>>(
 			*screen,
 			make_unique<GLPostProcessor>(
 				motherBoard, display, *screen,

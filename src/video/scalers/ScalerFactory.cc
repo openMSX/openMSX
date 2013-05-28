@@ -18,6 +18,7 @@
 #include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <cstdint>
 
 using std::unique_ptr;
 
@@ -89,10 +90,10 @@ unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class ScalerFactory<word>;
+template class ScalerFactory<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class ScalerFactory<unsigned>;
+template class ScalerFactory<uint32_t>;
 #endif
 
 } // namespace openmsx

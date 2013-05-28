@@ -4,11 +4,10 @@
 #include "RawFrame.hh"
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include <cassert>
-
+#include <cstdint>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -496,10 +495,10 @@ void Simple2xScaler<Pixel>::scaleImage(
 
 // Force template instantiation.
 #if HAVE_16BPP
-template class Simple2xScaler<word>;
+template class Simple2xScaler<uint16_t>;
 #endif
 #if HAVE_32BPP
-template class Simple2xScaler<unsigned>;
+template class Simple2xScaler<uint32_t>;
 #endif
 
 } // namespace openmsx
