@@ -3,6 +3,7 @@
 
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
+#include "likely.hh"
 #include "build-info.hh"
 #include <type_traits>
 #include <cstring>
@@ -492,68 +493,59 @@ void Scale_1on2<Pixel>::operator()(
 	}
 }
 
+#ifdef __SSE2__
+// Memcpy-like routine, it can be faster than a generic memcpy because:
+// - It requires that both input and output are 16-bytes aligned.
+// - It can only copy (non-zero) integer multiples of 128 bytes.
+static inline void memcpy_SSE_128(
+	const void* __restrict in_, void* __restrict out_, size_t size)
+{
+	assert((reinterpret_cast<size_t>(in_ ) % 16) == 0);
+	assert((reinterpret_cast<size_t>(out_) % 16) == 0);
+	assert((size % 128) == 0);
+	assert(size != 0);
+
+	auto* in  = reinterpret_cast<const __m128i*>(in_);
+	auto* out = reinterpret_cast<      __m128i*>(out_);
+	auto* end = in + (size / sizeof(__m128i));
+	do {
+		out[0] = in[0];
+		out[1] = in[1];
+		out[2] = in[2];
+		out[3] = in[3];
+		out[4] = in[4];
+		out[5] = in[5];
+		out[6] = in[6];
+		out[7] = in[7];
+		in += 8;
+		out += 8;
+	} while (in != end);
+}
+#endif
+
 template <typename Pixel>
 void Scale_1on1<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
 {
 	size_t nBytes = width * sizeof(Pixel);
-	size_t nBytes2 = 0;
 
-	#if ASM_X86
-	#ifndef _MSC_VER
-
-	if (HostCPU::hasMMX()) {
-		// MMX routine (both 16bpp and 32bpp)
-		nBytes2 = nBytes & ~63;
-		assert((nBytes2 % 64) == 0);
-		size_t dummy;
-		asm volatile (
-			".p2align 4,,15;"
-		"0:"
-			// Load.
-			"movq	  (%[IN],%[CNT]), %%mm0;"
-			"movq	 8(%[IN],%[CNT]), %%mm1;"
-			"movq	16(%[IN],%[CNT]), %%mm2;"
-			"movq	24(%[IN],%[CNT]), %%mm3;"
-			"movq	32(%[IN],%[CNT]), %%mm4;"
-			"movq	40(%[IN],%[CNT]), %%mm5;"
-			"movq	48(%[IN],%[CNT]), %%mm6;"
-			"movq	56(%[IN],%[CNT]), %%mm7;"
-			// Store.
-			"movq	%%mm0,   (%[OUT],%[CNT]);"
-			"movq	%%mm1,  8(%[OUT],%[CNT]);"
-			"movq	%%mm2, 16(%[OUT],%[CNT]);"
-			"movq	%%mm3, 24(%[OUT],%[CNT]);"
-			"movq	%%mm4, 32(%[OUT],%[CNT]);"
-			"movq	%%mm5, 40(%[OUT],%[CNT]);"
-			"movq	%%mm6, 48(%[OUT],%[CNT]);"
-			"movq	%%mm7, 56(%[OUT],%[CNT]);"
-			// Increment.
-			"add	$64, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (reinterpret_cast<const char*>(in)  + nBytes2)
-			, [OUT] "r"     (reinterpret_cast<char*      >(out) + nBytes2)
-			,       "[CNT]" (-nBytes2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-	}
-
-	#endif
-	#endif
-
+#ifdef __SSE2__
+	// When using a very recent gcc/clang, this routine is only about
+	// 10% faster than a simple memcpy(). When using gcc-4.6 (still the
+	// default on many systems), it's still about 66% faster.
+	size_t n128 = nBytes & ~127;
+	memcpy_SSE_128(in, out, n128); // copy 128 byte chunks
+	nBytes &= 127; // remaning bytes (if any)
+	if (likely(nBytes == 0)) return;
+	in  += n128 / sizeof(Pixel);
+	out += n128 / sizeof(Pixel);
+#endif
 #ifdef __arm__
-	nBytes2 = nBytes & ~63;
-	assert(nBytes2 > 0);
-	assert((nBytes2 % 64) == 0);
+	size_t n64 = nBytes & ~63;
 	assert((size_t(in)  & 3) == 0);
 	assert((size_t(out) & 3) == 0);
+	assert((n64 % 64) == 0);
+	assert(n64 > 0);
 
 	asm volatile (
 	"0:\n\t"
@@ -564,24 +556,21 @@ void Scale_1on1<Pixel>::operator()(
 		"subs	%[NUM],%[NUM],#64;\n\t"
 		"bne	0b;\n\t"
 
-		: [NUM] "=r"    (nBytes2)
+		: [NUM] "=r"    (n64)
 		, [IN]  "=r"    (in)
 		, [OUT] "=r"    (out)
-		:       "[NUM]" (nBytes2)
+		:       "[NUM]" (n64)
 		,       "[IN]"  (in)
 		,       "[OUT]" (out)
 		: "r3","r4","r5","r6","r8","r9","r10","r12"
 	);
-	nBytes2 = 0;  // in,out-pointers are already updated
+
+	// in,out-pointers are already updated
 	nBytes &= 63; // remaining bytes
+	if (likely(nBytes == 0)) return;
 #endif
 
-	auto out2 = reinterpret_cast<      char*>(out) + nBytes2;
-	auto in2  = reinterpret_cast<const char*>(in ) + nBytes2;
-	nBytes -= nBytes2;
-	if (nBytes) {
-		memcpy(out2, in2, nBytes);
-	}
+	memcpy(out, in, nBytes);
 }
 
 
