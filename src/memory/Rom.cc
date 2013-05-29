@@ -88,10 +88,10 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// savestate. External state can be a .rom file or a patch file.
 	bool checkResolvedSha1 = false;
 
-	auto sums = config.getChildren("sha1");
+	auto sums      = config.getChildren("sha1");
+	auto filenames = config.getChildren("filename");
 	auto* resolvedFilenameElem = config.findChild("resolvedFilename");
 	auto* resolvedSha1Elem     = config.findChild("resolvedSha1");
-	auto* filenameElem         = config.findChild("filename");
 	if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
 		//  If there is a firstblock/lastblock tag, (only) use these to
@@ -112,7 +112,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		checkResolvedSha1 = false;
 
 	} else if (resolvedFilenameElem || resolvedSha1Elem ||
-	           !sums.empty() || filenameElem) {
+	           !sums.empty() || !filenames.empty()) {
 		auto& filepool = motherBoard.getReactor().getFilePool();
 		// first try already resolved filename ..
 		if (resolvedFilenameElem) {
@@ -135,13 +135,14 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 		}
 		// .. and then try filename as originally given by user ..
-		if (!file.get() && filenameElem) {
-			const auto& name = filenameElem->getData();
-			try {
-				Filename filename(name, context);
-				file = make_unique<File>(filename);
-			} catch (FileException&) {
-				// ignore
+		if (!file.get()) {
+			for (auto& f : filenames) {
+				try {
+					Filename filename(f->getData(), context);
+					file = make_unique<File>(filename);
+				} catch (FileException&) {
+					// ignore
+				}
 			}
 		}
 		// .. then try all alternative sha1sums ..
@@ -162,8 +163,8 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			StringOp::Builder error;
 			error << "Couldn't find ROM file for \""
 			      << name << '"';
-			if (filenameElem) {
-				error << ' ' << filenameElem->getData();
+			if (!filenames.empty()) {
+				error << ' ' << filenames.front()->getData();
 			}
 			if (resolvedSha1Elem) {
 				error << " (" << resolvedSha1Elem->getData() << ')';
