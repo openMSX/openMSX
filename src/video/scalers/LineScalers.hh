@@ -2,14 +2,15 @@
 #define LINESCALERS_HH
 
 #include "PixelOperations.hh"
-#include "HostCPU.hh"
 #include "likely.hh"
-#include "build-info.hh"
 #include <type_traits>
 #include <cstring>
 #include <cassert>
 #ifdef __SSE2__
 #include "emmintrin.h"
+#endif
+#ifdef __SSSE3__
+#include "tmmintrin.h"
 #endif
 
 namespace openmsx {
@@ -355,14 +356,6 @@ private:
 
 // implementation
 
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
-{
-	void __cdecl Scale_2on1_SSE(const void* in, void* out, size_t width);
-}
-#endif
-
 template <typename Pixel, unsigned N>
 static inline void scale_1onN(
 	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
@@ -580,249 +573,115 @@ Scale_2on1<Pixel>::Scale_2on1(PixelOperations<Pixel> pixelOps_)
 {
 }
 
+#ifdef __SSE2__
+template<int IMM8> static inline __m128i shuffle(__m128i x, __m128i y)
+{
+	return _mm_castps_si128(_mm_shuffle_ps(
+		_mm_castsi128_ps(x), _mm_castsi128_ps(y), IMM8));
+}
+
+template<typename Pixel>
+static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
+{
+	if (sizeof(Pixel) == 4) {
+		// 32bpp
+		__m128i p = shuffle<0x88>(x, y);
+		__m128i q = shuffle<0xDD>(x, y);
+		return _mm_avg_epu8(p, q);
+	} else {
+		// 16bpp, first shuffle odd/even pixels in the right position
+#ifdef __SSSE3__
+		// This can be done faster using SSSE3
+		const __m128i LL = _mm_set_epi8(
+			0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+			0x0D, 0x0C, 0x09, 0x08, 0x05, 0x04, 0x01, 0x00);
+		const __m128i HL = _mm_set_epi8(
+			0x0D, 0x0C, 0x09, 0x08, 0x05, 0x04, 0x01, 0x00,
+			0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80);
+		const __m128i LH = _mm_set_epi8(
+			0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
+			0x0F, 0x0E, 0x0B, 0x0A, 0x07, 0x06, 0x03, 0x02);
+		const __m128i HH = _mm_set_epi8(
+			0x0F, 0x0E, 0x0B, 0x0A, 0x07, 0x06, 0x03, 0x02,
+			0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80);
+		__m128i ll = _mm_shuffle_epi8(x, LL);
+		__m128i hl = _mm_shuffle_epi8(y, HL);
+		__m128i lh = _mm_shuffle_epi8(x, LH);
+		__m128i hh = _mm_shuffle_epi8(y, HH);
+		__m128i p = _mm_or_si128(ll, hl);
+		__m128i q = _mm_or_si128(lh, hh);
+#else
+		// For SSE2 this only generates 1 instruction more, but with
+		// longer dependency chains
+		__m128i s = _mm_unpacklo_epi16(x, y);
+		__m128i t = _mm_unpackhi_epi16(x, y);
+		__m128i u = _mm_unpacklo_epi16(s, t);
+		__m128i v = _mm_unpackhi_epi16(s, t);
+		__m128i p = _mm_unpacklo_epi16(u, v);
+		__m128i q = _mm_unpackhi_epi16(u, v);
+#endif
+		// Actually blend: (p & q) + (((p ^ q) & mask) >> 1)
+		__m128i m = _mm_set1_epi16(mask);
+		__m128i a = _mm_and_si128(p, q);
+		__m128i b = _mm_xor_si128(p, q);
+		__m128i c = _mm_and_si128(b, m);
+		__m128i d = _mm_srli_epi16(c, 1);
+		return _mm_add_epi16(a, d);
+	}
+}
+
+template<typename Pixel>
+static inline void scale_2on1_SSE(
+	const Pixel* __restrict in_, Pixel* __restrict out_, size_t dstBytes,
+	Pixel mask)
+{
+	assert((reinterpret_cast<size_t>(in_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<size_t>(out_) % sizeof(__m128i)) == 0);
+	assert((dstBytes % (4 * sizeof(__m128i))) == 0);
+	assert(dstBytes != 0);
+
+	auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
+	auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
+
+	ptrdiff_t x = -dstBytes;
+	do {
+		__m128i a0 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +   0));
+		__m128i a1 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  16));
+		__m128i a2 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  32));
+		__m128i a3 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  48));
+		__m128i a4 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  64));
+		__m128i a5 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  80));
+		__m128i a6 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  96));
+		__m128i a7 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x + 112));
+		__m128i b0 = blend(a0, a1, mask);
+		__m128i b1 = blend(a2, a3, mask);
+		__m128i b2 = blend(a4, a5, mask);
+		__m128i b3 = blend(a6, a7, mask);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + x +  0), b0);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 16), b1);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 32), b2);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + x + 48), b3);
+		x += 4 * sizeof(__m128i);
+	} while (x < 0);
+}
+#endif
+
 template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth) __restrict
 {
-	size_t width2 = 0;
-
-	#if ASM_X86
-	#ifdef _MSC_VER
-
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
-		// extended-MMX routine, 32bpp
-		width2 = width & ~3;
-		assert(((4 * width2) % 16) == 0);
-		Scale_2on1_SSE(in, out, width2);
-	}
-
-	#else
-
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
-		// extended-MMX routine, 32bpp
-		width2 = width & ~3;
-		assert(((4 * width2) % 16) == 0);
-		size_t dummy;
-		asm volatile (
-			".p2align 4,,15;"
-		"0:"
-			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = AB
-			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = CD
-			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = EF
-			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = GH
-			"movq	%%mm0, %%mm4;"              // 4 = AB
-			"punpckhdq	%%mm1, %%mm0;"      // 0 = BD
-			"punpckldq	%%mm1, %%mm4;"      // 4 = AC
-			"movq	%%mm2, %%mm5;"              // 5 = EF
-			"punpckhdq	%%mm3, %%mm2;"      // 2 = FH
-			"punpckldq	%%mm3, %%mm5;"      // 5 = EG
-			"pavgb	%%mm0, %%mm4;"              // 4 = ab cd
-			"movntq	%%mm4,  (%[OUT],%[CNT]);"
-			"pavgb	%%mm2, %%mm5;"              // 5 = ef gh
-			"movntq	%%mm5, 8(%[OUT],%[CNT]);"
-			"add	$16, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (in  + 2 * width2)
-			, [OUT] "r"     (out +     width2)
-			,       "[CNT]" (-4 * width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5"
-			#endif
-		);
-
-	} else if ((sizeof(Pixel) == 4) && HostCPU::hasMMX()) {
-		// MMX routine, 32bpp
-		width2 = width & ~3;
-		assert(((4 * width2) % 16) == 0);
-		size_t dummy;
-		asm volatile (
-			"pxor	%%mm7, %%mm7;"
-			".p2align 4,,15;"
-		"0:"
-			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = AB
-			"movq	%%mm0, %%mm4;"              // 4 = AB
-			"punpckhbw	%%mm7, %%mm0;"      // 0 = 0B
-			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = CD
-			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = EF
-			"punpcklbw	%%mm7, %%mm4;"      // 4 = 0A
-			"movq	%%mm1, %%mm5;"              // 5 = CD
-			"paddw	%%mm4, %%mm0;"              // 0 = A + B
-			"punpckhbw	%%mm7, %%mm1;"      // 1 = 0D
-			"punpcklbw	%%mm7, %%mm5;"      // 5 = 0C
-			"psrlw	$1, %%mm0;"                 // 0 = (A + B) / 2
-			"paddw	%%mm5, %%mm1;"              // 1 = C + D
-			"movq	%%mm2, %%mm4;"              // 4 = EF
-			"punpckhbw	%%mm7, %%mm2;"      // 2 = 0F
-			"punpcklbw	%%mm7, %%mm4;"      // 4 = 0E
-			"psrlw	$1, %%mm1;"                 // 1 = (C + D) / 2
-			"paddw	%%mm4, %%mm2;"              // 2 = E + F
-			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = GH
-			"movq	%%mm3, %%mm5;"              // 5 = GH
-			"punpckhbw	%%mm7, %%mm3;"      // 3 = 0H
-			"packuswb	%%mm1, %%mm0;"      // 0 = ab cd
-			"punpcklbw	%%mm7, %%mm5;"      // 5 = 0G
-			"psrlw	$1, %%mm2;"                 // 2 = (E + F) / 2
-			"paddw	%%mm5, %%mm3;"              // 3 = G + H
-			"psrlw	$1, %%mm3;"                 // 3 = (G + H) / 2
-			"packuswb	%%mm3, %%mm2;"      // 2 = ef gh
-			"movq	%%mm0,  (%[OUT],%[CNT]);"
-			"movq	%%mm2, 8(%[OUT],%[CNT]);"
-			"add	$16, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT] "=r"    (dummy)
-			: [IN]  "r"     (in  + 2 * width2)
-			, [OUT] "r"     (out +     width2)
-			,       "[CNT]" (-4 * width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-
-	} else if ((sizeof(Pixel) == 2) && HostCPU::hasSSE()) {
-		// extended-MMX routine, 16bpp
-		width2 = width & ~7;
-		assert(((2 * width2) % 16) == 0);
-		unsigned mask = ~pixelOps.getBlendMask();
-		mask = ~(mask | (mask << 16));
-		size_t dummy;
-		asm volatile (
-			"movd	%[MASK], %%mm7;"
-			"punpckldq	%%mm7, %%mm7;"
-			".p2align 4,,15;"
-		"0:"
-			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = ABCD
-			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = EFGH
-			"movq	%%mm0, %%mm4;"              // 4 = ABCD
-			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = IJKL
-			"punpcklwd	%%mm1, %%mm0;"      // 0 = AEBF
-			"punpckhwd	%%mm1, %%mm4;"      // 4 = CGDH
-			"movq	%%mm0, %%mm6;"              // 6 = AEBF
-			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = MNOP
-			"movq	%%mm2, %%mm5;"              // 5 = IJKL
-			"punpckhwd	%%mm4, %%mm0;"      // 0 = BDFH
-			"punpcklwd	%%mm4, %%mm6;"      // 6 = ACEG
-			"punpcklwd	%%mm3, %%mm2;"      // 2 = IMJN
-			"punpckhwd	%%mm3, %%mm5;"      // 5 = KOLP
-			"movq	%%mm2, %%mm1;"              // 1 = IMJN
-			"movq	%%mm6, %%mm3;"              // 3 = ACEG
-			"movq	%%mm7, %%mm4;"              // 4 = M
-			"punpckhwd	%%mm5, %%mm2;"      // 2 = JLNP
-			"punpcklwd	%%mm5, %%mm1;"      // 1 = IKMO
-			"pandn	%%mm6, %%mm4;"              // 4 = ACEG & ~M
-			"pand	%%mm7, %%mm3;"              // 3 = ACEG & M
-			"pand	%%mm7, %%mm2;"              // 2 = JLNP & M
-			"pand	%%mm7, %%mm0;"              // 0 = BDFH & M
-			"movq	%%mm1, %%mm6;"              // 6 = IKMO
-			"movq	%%mm7, %%mm5;"              // 5 = M
-			"psrlw	$1, %%mm3;"                 // 3 = (ACEG & M) >> 1
-			"psrlw	$1, %%mm2;"                 // 2 = (JLNP & M) >> 1
-			"pand	%%mm7, %%mm6;"              // 6 = IKMO & M
-			"psrlw	$1, %%mm0;"                 // 0 = (BDFH & M) >> 1
-			"pandn	%%mm1, %%mm5;"              // 5 = IKMO & ~M
-			"psrlw	$1, %%mm6;"                 // 6 = (IKMO & M) >> 1
-			"paddw	%%mm4, %%mm3;"              // 3 = ACEG & M  +  ACEG & ~M
-			"paddw	%%mm2, %%mm6;"              // 6 = IKMO & M  +  JLNP & M
-			"paddw	%%mm0, %%mm3;"              // 3 = ab cd ef gh
-			"paddw	%%mm5, %%mm6;"              // 6 = ij kl mn op
-			"movntq	%%mm3,  (%[OUT],%[CNT]);"
-			"movntq	%%mm6, 8(%[OUT],%[CNT]);"
-			"add	$16, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT]  "=r"    (dummy)
-			: [IN]   "r"     (in  + 2 * width2)
-			, [OUT]  "r"     (out +     width2)
-			, [MASK] "r"     (mask)
-			,        "[CNT]" (-2 * width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-
-	} else if ((sizeof(Pixel) == 2) && HostCPU::hasMMX()) {
-		// MMX routine, 16bpp
-		width2 = width & ~7;
-		assert(((2 * width2) % 16) == 0);
-		unsigned mask = ~pixelOps.getBlendMask();
-		mask = ~(mask | (mask << 16));
-		size_t dummy;
-		asm volatile (
-			"movd	%[MASK], %%mm7;"
-			"punpckldq	%%mm7, %%mm7;"
-			".p2align 4,,15;"
-		"0:"
-			"movq	  (%[IN],%[CNT],2), %%mm0;" // 0 = ABCD
-			"movq	 8(%[IN],%[CNT],2), %%mm1;" // 1 = EFGH
-			"movq	%%mm0, %%mm4;"              // 4 = ABCD
-			"movq	16(%[IN],%[CNT],2), %%mm2;" // 2 = IJKL
-			"punpcklwd	%%mm1, %%mm0;"      // 0 = AEBF
-			"punpckhwd	%%mm1, %%mm4;"      // 4 = CGDH
-			"movq	%%mm0, %%mm6;"              // 6 = AEBF
-			"movq	24(%[IN],%[CNT],2), %%mm3;" // 3 = MNOP
-			"movq	%%mm2, %%mm5;"              // 5 = IJKL
-			"punpckhwd	%%mm4, %%mm0;"      // 0 = BDFH
-			"punpcklwd	%%mm4, %%mm6;"      // 6 = ACEG
-			"punpcklwd	%%mm3, %%mm2;"      // 2 = IMJN
-			"punpckhwd	%%mm3, %%mm5;"      // 5 = KOLP
-			"movq	%%mm2, %%mm1;"              // 1 = IMJN
-			"movq	%%mm6, %%mm3;"              // 3 = ACEG
-			"movq	%%mm7, %%mm4;"              // 4 = M
-			"punpckhwd	%%mm5, %%mm2;"      // 2 = JLNP
-			"punpcklwd	%%mm5, %%mm1;"      // 1 = IKMO
-			"pandn	%%mm6, %%mm4;"              // 4 = ACEG & ~M
-			"pand	%%mm7, %%mm3;"              // 3 = ACEG & M
-			"pand	%%mm7, %%mm2;"              // 2 = JLNP & M
-			"pand	%%mm7, %%mm0;"              // 0 = BDFH & M
-			"movq	%%mm1, %%mm6;"              // 6 = IKMO
-			"movq	%%mm7, %%mm5;"              // 5 = M
-			"psrlw	$1, %%mm3;"                 // 3 = (ACEG & M) >> 1
-			"psrlw	$1, %%mm2;"                 // 2 = (JLNP & M) >> 1
-			"pand	%%mm7, %%mm6;"              // 6 = IKMO & M
-			"psrlw	$1, %%mm0;"                 // 0 = (BDFH & M) >> 1
-			"pandn	%%mm1, %%mm5;"              // 5 = IKMO & ~M
-			"psrlw	$1, %%mm6;"                 // 6 = (IKMO & M) >> 1
-			"paddw	%%mm4, %%mm3;"              // 3 = ACEG & M  +  ACEG & ~M
-			"paddw	%%mm2, %%mm6;"              // 6 = IKMO & M  +  JLNP & M
-			"paddw	%%mm0, %%mm3;"              // 3 = ab cd ef gh
-			"paddw	%%mm5, %%mm6;"              // 6 = ij kl mn op
-			"movq	%%mm3,  (%[OUT],%[CNT]);"
-			"movq	%%mm6, 8(%[OUT],%[CNT]);"
-			"add	$16, %[CNT];"
-			"jnz	0b;"
-			"emms;"
-
-			: [CNT]  "=r"    (dummy)
-			: [IN]   "r"     (in  + 2 * width2)
-			, [OUT]  "r"     (out +     width2)
-			, [MASK] "r"     (mask)
-			,        "[CNT]" (-2 * width2)
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3"
-			, "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-	}
-	#endif
-	#endif
-
-	in += width2;
-	out += width2;
-	width -= width2;
+#ifdef __SSE2__
+	size_t n64 = (dstWidth * sizeof(Pixel)) & ~63;
+	Pixel mask = pixelOps.getBlendMask();
+	scale_2on1_SSE(in, out, n64, mask); // process 64 byte chunks
+	dstWidth &= ((64 / sizeof(Pixel)) - 1); // remaning pixels (if any)
+	if (likely(dstWidth == 0)) return;
+	in  += (2 * n64) / sizeof(Pixel);
+	out +=      n64  / sizeof(Pixel);
+#endif
 
 	// pure C++ version
-	for (unsigned i = 0; i < width; ++i) {
+	for (size_t i = 0; i < dstWidth; ++i) {
 		out[i] = pixelOps.template blend<1, 1>(
 			in[2 * i + 0], in[2 * i + 1]);
 	}
@@ -1226,7 +1085,7 @@ void BlendLines<Pixel, w1, w2>::operator()(
 	const Pixel* __restrict in1, const Pixel* __restrict in2,
 	Pixel* __restrict out, unsigned width) __restrict
 {
-	// TODO MMX/SSE optimizations
+	// TODO SSE optimizations
 	// pure C++ version
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend<w1, w2>(in1[i], in2[i]);
