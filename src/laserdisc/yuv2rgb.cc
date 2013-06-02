@@ -225,7 +225,7 @@ static inline void convertHelperSSE2(
 	const int uv_stride2 = buffer[1].stride / 2;
 
 	assert((width % 32) == 0);
-	assert((height % 2) == 0);
+	assert((buffer[0].height % 2) == 0);
 
 	for (int y = 0; y < buffer[0].height; y += 2) {
 		const uint8_t* pY1 = buffer[0].data + y * y_stride;
