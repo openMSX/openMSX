@@ -11,27 +11,13 @@ namespace Endian {
 // Revese bytes in a 16-bit number: 0x1234 becomes 0x3412
 static inline uint16_t bswap16(uint16_t x)
 {
-#if (__GNUC__ >= 2) && ASM_X86
-	// Swapping the upper and lower byte in a 16-bit value can be done
-	// by rotating the value (left or right) over 8 positions.
-	//
-	// TODO Why doesn't gcc translate the C code below to a single rotate
-	// instruction? Is it because gcc isn't smart enough or because of some
-	// other reason? I checked the x86 instruction timings and on modern
-	// x86 CPUs ROR is a very fast instruction (though not on P4). It also
-	// results in shorter code (and for openMSX speed of this operation is
-	// not critical).
-	if (!__builtin_constant_p(x)) {
-		// Only if the expression cannot be evaluated at compile-time
-		// we want to emit a rotate asm instruction.
-		asm ("rorw $8, %0"
-		     : "=r" (x)
-		     : "0"  (x)
-		     : "cc");
-		return x;
-	}
-#endif
-	return (x << 8) | (x >> 8);
+	// This sequence generates 'optimal' code on a wide range of gcc/clang
+	// versions (a single rotate instruction on x86). The newer compiler
+	// versions also do 'the right thing' for the simpler expression below.
+	// Those newer compilers also support __builtin_bswap16() but that
+	// doesn't generate better code (and is less portable).
+	return ((x & 0x00FF) << 8) | ((x & 0xFF00) >> 8);
+	//return (x << 8) | (x >> 8);
 }
 
 // Revese bytes in a 32-bit number: 0x12345678 becomes 0x78563412
