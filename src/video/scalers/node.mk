@@ -30,8 +30,6 @@ DIST:= \
 	HQ2xLiteScaler-1x1to2x2.nn \
 	HQ2xLiteScaler-1x1to1x2.nn \
 	HQ3xLiteScaler-1x1to3x3.nn \
-	Simple3xScaler-x64.asm \
-	Simple3xScaler-x86.asm
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	GLScalerFactory GLScaler \

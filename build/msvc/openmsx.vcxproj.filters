@@ -2855,7 +2855,5 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="$(OpenMSXSrcDir)\openmsx.hh" />
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler-x64.asm" />
-    <CustomBuild Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler-x86.asm" />
   </ItemGroup>
 </Project>

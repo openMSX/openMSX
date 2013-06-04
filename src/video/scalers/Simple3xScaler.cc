@@ -5,11 +5,12 @@
 #include "ScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "Multiply32.hh"
-#include "HostCPU.hh"
 #include "vla.hh"
 #include "memory.hh"
-#include "build-info.hh"
 #include <cstdint>
+#ifdef __SSE2__
+#include <emmintrin.h>
+#endif
 
 namespace openmsx {
 
@@ -17,14 +18,18 @@ template <class Pixel> class Blur_1on3
 {
 public:
 	Blur_1on3(const PixelOperations<Pixel>& pixelOps);
-	void setBlur(unsigned blur_) { blur = blur_; }
-	void operator()(const Pixel* in, Pixel* out, unsigned long dstWidth);
+	void setBlur(unsigned blur_);
+	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
 private:
 	Multiply32<Pixel> mult0;
 	Multiply32<Pixel> mult1;
 	Multiply32<Pixel> mult2;
 	Multiply32<Pixel> mult3;
 	unsigned blur;
+#ifdef __SSE2__
+	void blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth);
+	__m128i C0C1, C1C0, C2C3, C3C2;
+#endif
 };
 
 
@@ -285,14 +290,6 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 
 // class Blur_1on3
 
-// Assembly functions
-#ifdef _MSC_VER
-extern "C"
-{
-	void __cdecl Blur_1on3_4_SSE(const void* in, void* out, unsigned dstWidth, void* c);
-}
-#endif
-
 template <class Pixel>
 Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 	: mult0(pixelOps)
@@ -302,10 +299,161 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 {
 }
 
+template<class Pixel>
+void Blur_1on3<Pixel>::setBlur(unsigned blur_)
+{
+	blur = blur_;
+#ifdef __SSE2__
+	if (sizeof(Pixel) == 4) {
+		unsigned alpha = blur * 256;
+		unsigned c0 = alpha / 2;
+		unsigned c1 = alpha + c0;
+		unsigned c2 = 0x10000 - c1;
+		unsigned c3 = 0x10000 - alpha;
+		C0C1 = _mm_set_epi16(c1, c1, c1, c1, c0, c0, c0, c0);
+		C1C0 = _mm_shuffle_epi32(C0C1, 0x4E);
+		C2C3 = _mm_set_epi16(c3, c3, c3, c3, c2, c2, c2, c2);
+		C3C2 = _mm_shuffle_epi32(C2C3, 0x4E);
+	}
+#endif
+}
+
+#ifdef __SSE2__
+template<class Pixel>
+void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
+{
+	if (sizeof(Pixel) != 4) {
+		assert(false); return; // only 32-bpp
+	}
+
+	assert((srcWidth % 4) == 0);
+	assert(srcWidth >= 8);
+	assert((size_t(in_ ) % 16) == 0);
+	assert((size_t(out_) % 16) == 0);
+
+	size_t tmp = srcWidth - 4;
+	auto* in  = reinterpret_cast<const char*>(in_  +     tmp);
+	auto* out = reinterpret_cast<      char*>(out_ + 3 * tmp);
+	ptrdiff_t x = -(tmp * sizeof(Pixel));
+
+	__m128i ZERO = _mm_setzero_si128();
+
+	// Prepare first iteration (duplicate left border pixel)
+	__m128i abcd = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x));
+	__m128i a_b_ = _mm_unpacklo_epi8(abcd, ZERO);
+	__m128i a_a_ = _mm_unpacklo_epi64(a_b_, a_b_);
+	__m128i a0a1 = _mm_mulhi_epu16(a_a_, C0C1);
+	__m128i d1d0 = _mm_shuffle_epi32(a0a1, 0x4E); // left border
+
+	// At the start of each iteration the follwoing vars are live:
+	//   abcd, a_b_, a_a_, a0a1, d1d0
+	// Each iteration reads 4 and produces 12 pixels.
+	do {
+		// p01
+		__m128i a2a3  = _mm_mulhi_epu16(a_a_, C2C3);
+		__m128i b_b_  = _mm_unpackhi_epi64(a_b_, a_b_);
+		__m128i b1b0  = _mm_mulhi_epu16(b_b_, C1C0);
+		__m128i xxb0  = _mm_unpackhi_epi64(ZERO, b1b0);
+		__m128i p01   = _mm_add_epi16(_mm_add_epi16(d1d0, a2a3), xxb0);
+		// p23
+		__m128i xxa1  = _mm_unpackhi_epi64(ZERO, a0a1);
+		__m128i b3b2  = _mm_mulhi_epu16(b_b_, C3C2);
+		__m128i a2b2  = shuffle<0xE4>(a2a3, b3b2);
+		__m128i b1xx  = _mm_unpacklo_epi64(b1b0, ZERO);
+		__m128i p23   = _mm_add_epi16(_mm_add_epi16(xxa1, a2b2), b1xx);
+		__m128i p0123 = _mm_packus_epi16(p01, p23);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + 3 * x + 0),
+		                p0123);
+
+		// p45
+		__m128i a0xx  = _mm_unpacklo_epi64(a0a1, ZERO);
+		__m128i c_d_  = _mm_unpackhi_epi8(abcd, ZERO);
+		__m128i c_c_  = _mm_unpacklo_epi64(c_d_, c_d_);
+		__m128i c0c1  = _mm_mulhi_epu16(c_c_, C0C1);
+		__m128i p45   = _mm_add_epi16(_mm_add_epi16(a0xx, b3b2), c0c1);
+		// p67
+		__m128i c2c3  = _mm_mulhi_epu16(c_c_, C2C3);
+		__m128i d_d_  = _mm_unpackhi_epi64(c_d_, c_d_);
+		        d1d0  = _mm_mulhi_epu16(d_d_, C1C0);
+		__m128i xxd0  = _mm_unpackhi_epi64(ZERO, d1d0);
+		__m128i p67   = _mm_add_epi16(_mm_add_epi16(b1b0, c2c3), xxd0);
+		__m128i p4567 = _mm_packus_epi16(p45, p67);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + 3 * x + 16),
+		                p4567);
+
+		// p89
+		__m128i xxc1  = _mm_unpackhi_epi64(ZERO, c0c1);
+		__m128i d3d2  = _mm_mulhi_epu16(d_d_, C3C2);
+		__m128i c2d2  = shuffle<0xE4>(c2c3, d3d2);
+		__m128i d1xx  = _mm_unpacklo_epi64(d1d0, ZERO);
+		__m128i p89   = _mm_add_epi16(_mm_add_epi16(xxc1, c2d2), d1xx);
+		// pab
+		__m128i c0xx  = _mm_unpacklo_epi64(c0c1, ZERO);
+		        abcd  = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x + 16));
+		        a_b_  = _mm_unpacklo_epi8(abcd, ZERO);
+		        a_a_  = _mm_unpacklo_epi64(a_b_, a_b_);
+		        a0a1  = _mm_mulhi_epu16(a_a_, C0C1);
+		__m128i pab   = _mm_add_epi16(_mm_add_epi16(c0xx, d3d2), a0a1);
+		__m128i p89ab = _mm_packus_epi16(p89, pab);
+		_mm_store_si128(reinterpret_cast<__m128i*>(out + 3 * x + 32),
+		                p89ab);
+
+		x += 16;
+	} while (x < 0);
+
+	// Last iteration (duplicate right border pixel)
+	// p01
+	__m128i a2a3  = _mm_mulhi_epu16(a_a_, C2C3);
+	__m128i b_b_  = _mm_unpackhi_epi64(a_b_, a_b_);
+	__m128i b1b0  = _mm_mulhi_epu16(b_b_, C1C0);
+	__m128i xxb0  = _mm_unpackhi_epi64(ZERO, b1b0);
+	__m128i p01   = _mm_add_epi16(_mm_add_epi16(d1d0, a2a3), xxb0);
+	// p23
+	__m128i xxa1  = _mm_unpackhi_epi64(ZERO, a0a1);
+	__m128i b3b2  = _mm_mulhi_epu16(b_b_, C3C2);
+	__m128i a2b2  = shuffle<0xE4>(a2a3, b3b2);
+	__m128i b1xx  = _mm_unpacklo_epi64(b1b0, ZERO);
+	__m128i p23   = _mm_add_epi16(_mm_add_epi16(xxa1, a2b2), b1xx);
+	__m128i p0123 = _mm_packus_epi16(p01, p23);
+	_mm_store_si128(reinterpret_cast<__m128i*>(out + 0),
+	                p0123);
+
+	// p45
+	__m128i a0xx  = _mm_unpacklo_epi64(a0a1, ZERO);
+	__m128i c_d_  = _mm_unpackhi_epi8(abcd, ZERO);
+	__m128i c_c_  = _mm_unpacklo_epi64(c_d_, c_d_);
+	__m128i c0c1  = _mm_mulhi_epu16(c_c_, C0C1);
+	__m128i p45   = _mm_add_epi16(_mm_add_epi16(a0xx, b3b2), c0c1);
+	// p67
+	__m128i c2c3  = _mm_mulhi_epu16(c_c_, C2C3);
+	__m128i d_d_  = _mm_unpackhi_epi64(c_d_, c_d_);
+		d1d0  = _mm_mulhi_epu16(d_d_, C1C0);
+	__m128i xxd0  = _mm_unpackhi_epi64(ZERO, d1d0);
+	__m128i p67   = _mm_add_epi16(_mm_add_epi16(b1b0, c2c3), xxd0);
+	__m128i p4567 = _mm_packus_epi16(p45, p67);
+	_mm_store_si128(reinterpret_cast<__m128i*>(out + 16),
+	                p4567);
+
+	// p89
+	__m128i xxc1  = _mm_unpackhi_epi64(ZERO, c0c1);
+	__m128i d3d2  = _mm_mulhi_epu16(d_d_, C3C2);
+	__m128i c2d2  = shuffle<0xE4>(c2c3, d3d2);
+	__m128i d1xx  = _mm_unpacklo_epi64(d1d0, ZERO);
+	__m128i p89   = _mm_add_epi16(_mm_add_epi16(xxc1, c2d2), d1xx);
+	// pab
+	__m128i c0xx  = _mm_unpacklo_epi64(c0c1, ZERO);
+	        a0a1  = _mm_shuffle_epi32(d1d0, 0x4E); // right border
+	__m128i pab   = _mm_add_epi16(_mm_add_epi16(c0xx, d3d2), a0a1);
+	__m128i p89ab = _mm_packus_epi16(p89, pab);
+	_mm_store_si128(reinterpret_cast<__m128i*>(out + 32),
+	                p89ab);
+}
+#endif
+
 template <class Pixel>
 void Blur_1on3<Pixel>::operator()(
 	const Pixel* __restrict in, Pixel* __restrict out,
-	unsigned long dstWidth)
+	size_t dstWidth)
 {
 	/* The following code is equivalent to this loop. It is 2x unrolled
 	 * and common subexpressions have been eliminated. The last iteration
@@ -317,7 +465,7 @@ void Blur_1on3<Pixel>::operator()(
 	 *  unsigned c3 = 256 - 2 * c0;
 	 *  Pixel prev, curr, next;
 	 *  prev = curr = next = in[0];
-	 *  unsigned srcWidth = dstWidth / 3;
+	 *  size_t srcWidth = dstWidth / 3;
 	 *  for (unsigned x = 0; x < srcWidth; ++x) {
 	 *      if (x != (srcWidth - 1)) next = in[x + 1];
 	 *      out[3 * x + 0] = mul(c1, prev) + mul(c2, curr);
@@ -327,144 +475,15 @@ void Blur_1on3<Pixel>::operator()(
 	 *      curr = next;
 	 *  }
 	 */
-	#if ASM_X86
-	if ((sizeof(Pixel) == 4) && HostCPU::hasSSE()) {
-		// MMX-EXT routine, 32bpp
-		unsigned long alpha = blur * 256;
-		struct {
-			uint64_t zero; //  0
-			uint64_t c0;   //  8
-			uint64_t c1;   // 16
-			uint64_t c2;   // 24
-			uint64_t c3;   // 32
-			uint32_t c0_;  // 40
-			uint32_t c1_;  // 44
-			uint32_t c2_;  // 48
-			uint32_t c3_;  // 52
-		} c;
-		c.c0_ = alpha / 2;
-		c.c1_ = alpha + c.c0_;
-		c.c2_ = 0x10000 - c.c1_;
-		c.c3_ = 0x10000 - 2 * c.c0_;
-	#ifdef _MSC_VER
-		Blur_1on3_4_SSE(in, out, dstWidth, &c);
+	size_t srcWidth = dstWidth / 3;
+#ifdef __SSE2__
+	if (sizeof(Pixel) == 4) {
+		blur_SSE(in, out, srcWidth);
 		return;
-	#else
-		void *t0, *t1, *t3;
-		long t2;
-		asm volatile (
-			"pxor      %%mm0, %%mm0;"
-			"pshufw    $0,40(%[CNST]),%%mm1;"
-			"pshufw    $0,44(%[CNST]),%%mm2;"
-			"pshufw    $0,48(%[CNST]),%%mm3;"
-			"pshufw    $0,52(%[CNST]),%%mm4;"
-			"movq      %%mm0,   (%[CNST]);"    // zero    store constants
-			"movq      %%mm1,  8(%[CNST]);"    // c0
-			"movq      %%mm2, 16(%[CNST]);"    // c1
-			"movq      %%mm3, 24(%[CNST]);"    // c2
-			"movq      %%mm4, 32(%[CNST]);"    // c3
-
-			"movq      (%[IN]), %%mm0;"        // in[0] | in[1]
-			"movq      %%mm0, %%mm5;"          // in[0] | in[1]
-			"punpcklbw (%[CNST]), %%mm0;"      // p0 = unpack(in[0])
-			"movq      %%mm0, %%mm2;"          // p0
-			"pmulhuw    8(%[CNST]), %%mm2;"    // f0 = c0 * p0
-			"movq      %%mm0, %%mm3;"          // p0
-			"pmulhuw   16(%[CNST]), %%mm3;"    // f1 = c1 * p0
-			"movq      %%mm2, %%mm4;"          // g0 = f0;
-			"movq      %%mm3, %%mm6;"          // g1 = f1;
-
-		"0:"
-			// Note:  no streaming stores
-			"prefetchnta 192( %[IN]);"         //
-			"prefetcht0  320(%[OUT],%[Y]);"    //
-			"movq      %%mm5, %%mm1;"          // in[x + 1]
-			"movq      %%mm0, %%mm7;"          // p0
-			"punpckhbw   (%[CNST]), %%mm1;"    // p1 = unpack(in[x + 1])
-			"pmulhuw   32(%[CNST]), %%mm7;"    // s0 = c3 * p0
-			"paddw     %%mm2, %%mm7;"          // s0 + f0
-			"movq      %%mm1, %%mm2;"          // p1
-			"pmulhuw   24(%[CNST]), %%mm0;"    // g2 = c2 * p0
-			"pmulhuw    8(%[CNST]), %%mm2;"    // t0 = c0 * p1 (= f0)
-			"movq      8(%[IN]), %%mm5;"       // in[x + 2] | in[x + 3]
-			"paddw     %%mm0, %%mm3;"          // a0 = g2 + f1
-			"paddw     %%mm2, %%mm7;"          // a1 = t0 + s0 + f0
-			"packuswb  %%mm7, %%mm3;"          // a0 | a1
-			"movq      %%mm3, (%[OUT],%[Y]);"  // out[y + 0] = ...
-			"movq      %%mm1, %%mm3;"          // p1
-			"movq      %%mm1, %%mm7;"          // p1
-			"pmulhuw   16(%[CNST]), %%mm3;"    // f1 = c1 * p1
-			"pmulhuw   24(%[CNST]), %%mm7;"    // f2 = c2 * p1
-			"paddw     %%mm3, %%mm0;"          // a2 = g2 + f1
-			"paddw     %%mm7, %%mm6;"          // b0 = f2 + g1
-			"packuswb  %%mm6, %%mm0;"          // a2 | b0
-			"movq      %%mm0, 8(%[OUT],%[Y]);" // out[y + 2] = ...
-			"movq      %%mm5, %%mm0;"          // in[x + 2]
-			"pmulhuw   32(%[CNST]), %%mm1;"    // s1 = c3 * p1
-			"punpcklbw   (%[CNST]), %%mm0;"    // p0 = unpack(in[x + 2])
-			"paddw     %%mm4, %%mm1;"          // s1 + g0
-			"movq      %%mm0, %%mm6;"          // p0
-			"movq      %%mm0, %%mm4;"          // p0
-			"pmulhuw   16(%[CNST]), %%mm6;"    // g1 = c1 * p0
-			"pmulhuw    8(%[CNST]), %%mm4;"    // t1 = c0 * p0 (= g0)
-			"paddw     %%mm6, %%mm7;"          // b2 = g1 + f2
-			"paddw     %%mm4, %%mm1;"          // b1 = t1 + s1 + g0
-			"packuswb  %%mm7, %%mm1;"          // b1 | b2
-			"add       $8, %[IN];"             // x += 2
-			"movq      %%mm1, 16(%[OUT],%[Y]);"// out[y + 4] =
-			"add       $24, %[Y];"             // y += 6
-			"jnz       0b;"                    //
-
-			"movq      %%mm5, %%mm1;"          // in[x + 1]
-			"movq      %%mm0, %%mm7;"          // p0
-			"punpckhbw   (%[CNST]), %%mm1;"    // p1 = unpack(in[x + 1])
-			"pmulhuw   32(%[CNST]), %%mm7;"    // s0 = c3 * p0
-			"paddw     %%mm2, %%mm7;"          // s0 + f0
-			"movq      %%mm1, %%mm2;"          // p1
-			"pmulhuw   24(%[CNST]), %%mm0;"    // g2 = c2 * p0
-			"pmulhuw    8(%[CNST]), %%mm2;"    // t0 = c0 * p1 (= f0)
-			"paddw     %%mm0, %%mm3;"          // a0 = g2 + f1
-			"paddw     %%mm2, %%mm7;"          // a1 = t0 + s0 + f0
-			"packuswb  %%mm7, %%mm3;"          // a0 | a1
-			"movq      %%mm3, (%[OUT]);"       // out[y + 0] = ...
-			"movq      %%mm1, %%mm3;"          // p1
-			"movq      %%mm1, %%mm7;"          // p1
-			"pmulhuw   16(%[CNST]), %%mm3;"    // f1 = c1 * p1
-			"pmulhuw   24(%[CNST]), %%mm7;"    // f2 = c2 * p1
-			"paddw     %%mm3, %%mm0;"          // a2 = g2 + f1
-			"paddw     %%mm7, %%mm6;"          // b0 = f2 + g1
-			"packuswb  %%mm6, %%mm0;"          // a2 | b0
-			"movq      %%mm0, 8(%[OUT]);"      // out[y + 2] = ...
-			"movq      %%mm1, %%mm7;"          // p1
-			"pmulhuw   32(%[CNST]), %%mm1;"    // s1 = c3 * p1
-			"paddw     %%mm4, %%mm1;"          // s1 + g0
-			"paddw     %%mm2, %%mm1;"          // b1 = t1 + s1 + g0
-			"packuswb  %%mm7, %%mm1;"          // b1 | b2
-			"movq      %%mm1, 16(%[OUT]);"     // out[y + 4] =
-
-			"emms;"
-
-			: [IN]   "=r" (t0)
-			, [OUT]  "=r" (t1)
-			, [Y]    "=r" (t2)
-			, [CNST] "=r" (t3)
-			// The typecasts are required to avoid a Clang bug.
-			//   http://llvm.org/bugs/show_bug.cgi?id=9671
-			:        "[IN]"   (in)
-			,        "[OUT]"  (static_cast<void *>(out + (dstWidth - 6)))
-			,        "[Y]"    (-4 * (dstWidth - 6))
-			,        "[CNST]" (static_cast<void *>(&c))
-			: "memory"
-			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
-			#endif
-		);
-		return;
-	#endif
 	}
-	#endif
+#endif
 
-	// non-MMX routine, both 16bpp and 32bpp
+	// C++ routine, both 16bpp and 32bpp
 	unsigned c0 = blur / 2;
 	unsigned c1 = blur + c0;
 	unsigned c2 = 256 - c1;
@@ -476,42 +495,41 @@ void Blur_1on3<Pixel>::operator()(
 
 	Pixel p0 = in[0];
 	Pixel p1;
-	unsigned f0 = mult0.mul32(p0);
-	unsigned f1 = mult1.mul32(p0);
-	unsigned g0 = f0;
-	unsigned g1 = f1;
+	uint32_t f0 = mult0.mul32(p0);
+	uint32_t f1 = mult1.mul32(p0);
+	uint32_t g0 = f0;
+	uint32_t g1 = f1;
 
-	unsigned x;
-	unsigned srcWidth = dstWidth / 3;
+	size_t x;
 	for (x = 0; x < (srcWidth - 2); x += 2) {
-		unsigned g2 = mult2.mul32(p0);
+		uint32_t g2 = mult2.mul32(p0);
 		out[3 * x + 0] = mult0.conv32(g2 + f1);
 		p1 = in[x + 1];
-		unsigned t0 = mult0.mul32(p1);
+		uint32_t t0 = mult0.mul32(p1);
 		out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
 		f0 = t0;
 		f1 = mult1.mul32(p1);
 		out[3 * x + 2] = mult0.conv32(g2 + f1);
 
-		unsigned f2 = mult2.mul32(p1);
+		uint32_t f2 = mult2.mul32(p1);
 		out[3 * x + 3] = mult0.conv32(f2 + g1);
 		p0 = in[x + 2];
-		unsigned t1 = mult0.mul32(p0);
+		uint32_t t1 = mult0.mul32(p0);
 		out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + t1);
 		g0 = t1;
 		g1 = mult1.mul32(p0);
 		out[3 * x + 5] = mult0.conv32(g1 + f2);
 	}
-	unsigned g2 = mult2.mul32(p0);
+	uint32_t g2 = mult2.mul32(p0);
 	out[3 * x + 0] = mult0.conv32(g2 + f1);
 	p1 = in[x + 1];
-	unsigned t0 = mult0.mul32(p1);
+	uint32_t t0 = mult0.mul32(p1);
 	out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
 	f0 = t0;
 	f1 = mult1.mul32(p1);
 	out[3 * x + 2] = mult0.conv32(g2 + f1);
 
-	unsigned f2 = mult2.mul32(p1);
+	uint32_t f2 = mult2.mul32(p1);
 	out[3 * x + 3] = mult0.conv32(f2 + g1);
 	out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + f0);
 	out[3 * x + 5] = p1;
