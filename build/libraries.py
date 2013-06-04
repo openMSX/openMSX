@@ -523,7 +523,7 @@ class TCL(Library):
 		return cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'${TCL_DEFS} ${TCL_INCLUDE_SPEC}',
+			'${TCL_INCLUDE_SPEC}',
 			'compile flags'
 			)
 
