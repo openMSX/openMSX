@@ -15,7 +15,6 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "Thread.hh"
-#include "HostCPU.hh"
 #include "build-info.hh"
 #include <memory>
 #include <iostream>
@@ -100,8 +99,6 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
-		HostCPU::init(); // as early as possible
-
 		// Constructing Reactor already causes parts of SDL to be used
 		// and initialized. If we want to set environment variables
 		// before this, we have to do it here...

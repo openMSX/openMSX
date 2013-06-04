@@ -24,7 +24,6 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "XMLException.hh"
-#include "HostCPU.hh"
 #include "StringOp.hh"
 #include "utf8_checked.hh"
 #include "xrange.hh"
@@ -122,25 +121,6 @@ private:
 	CommandLineParser& parser;
 };
 
-class NoMMXOption : public CLIOption
-{
-public:
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
-	virtual string_ref optionHelp() const;
-};
-
-class NoSSEOption : public CLIOption {
-public:
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
-	virtual string_ref optionHelp() const;
-};
-
-class NoSSE2Option : public CLIOption {
-public:
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
-	virtual string_ref optionHelp() const;
-};
-
 class NoPBOOption : public CLIOption {
 public:
 	virtual void parseOption(const string& option, deque<string>& cmdLine);
@@ -178,9 +158,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, scriptOption(make_unique<ScriptOption>())
 	, machineOption(make_unique<MachineOption>(*this))
 	, settingOption(make_unique<SettingOption>(*this))
-	, noMMXOption(make_unique<NoMMXOption>())
-	, noSSEOption(make_unique<NoSSEOption>())
-	, noSSE2Option(make_unique<NoSSE2Option>())
 	, noPBOOption(make_unique<NoPBOOption>())
 	, testConfigOption(make_unique<TestConfigOption>(*this))
 	, bashOption(make_unique<BashOption>(*this))
@@ -209,11 +186,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-setting",    *settingOption, PHASE_BEFORE_SETTINGS);
 	registerOption("-control",    *controlOption, PHASE_BEFORE_SETTINGS, 1);
 	registerOption("-script",     *scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
-	#if ASM_X86
-	registerOption("-nommx",      *noMMXOption,   PHASE_BEFORE_SETTINGS, 1);
-	registerOption("-nosse",      *noSSEOption,   PHASE_BEFORE_SETTINGS, 1);
-	registerOption("-nosse2",     *noSSE2Option,  PHASE_BEFORE_SETTINGS, 1);
-	#endif
 	#if COMPONENT_GL
 	registerOption("-nopbo",      *noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
 	#endif
@@ -724,51 +696,6 @@ void SettingOption::parseOption(const string& option, deque<string>& cmdLine)
 string_ref SettingOption::optionHelp() const
 {
 	return "Load an alternative settings file";
-}
-
-
-// class NoMMXOption
-
-void NoMMXOption::parseOption(const string& /*option*/,
-                              deque<string>& /*cmdLine*/)
-{
-	cout << "Disabling MMX" << endl;
-	HostCPU::forceDisableMMX();
-}
-
-string_ref NoMMXOption::optionHelp() const
-{
-	return "Disables usage of MMX, SSE and SSE2 (for debugging)";
-}
-
-
-// class NoSSEOption
-
-void NoSSEOption::parseOption(const string& /*option*/,
-                              deque<string>& /*cmdLine*/)
-{
-	cout << "Disabling SSE" << endl;
-	HostCPU::forceDisableSSE();
-}
-
-string_ref NoSSEOption::optionHelp() const
-{
-	return "Disables usage of SSE and SSE2 (for debugging)";
-}
-
-
-// class NoSSE2Option
-
-void NoSSE2Option::parseOption(const string& /*option*/,
-                               deque<string>& /*cmdLine*/)
-{
-	cout << "Disabling SSE2" << endl;
-	HostCPU::forceDisableSSE2();
-}
-
-string_ref NoSSE2Option::optionHelp() const
-{
-	return "Disables usage of SSE2 (for debugging)";
 }
 
 

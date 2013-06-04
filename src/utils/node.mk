@@ -6,7 +6,6 @@ SRC_HDR:= \
 	CircularBuffer \
 	SerializeBuffer \
 	Date \
-	HostCPU \
 	Math \
 	MemoryOps \
 	StringMap \

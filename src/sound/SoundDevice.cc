@@ -5,7 +5,6 @@
 #include "WavWriter.hh"
 #include "Filename.hh"
 #include "StringOp.hh"
-#include "HostCPU.hh"
 #include "MemoryOps.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
