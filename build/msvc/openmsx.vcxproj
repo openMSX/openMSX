@@ -591,7 +591,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Date.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\DivModBySame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\HostCPU.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\utils\SerializeBuffer.cc" />
@@ -1133,7 +1132,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\DivModBySame.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\FixedPoint.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\HexDump.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\HostCPU.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
