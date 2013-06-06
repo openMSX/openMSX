@@ -1,5 +1,6 @@
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
+#include "MemoryOps.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
@@ -24,38 +25,45 @@ unsigned SuperImposedVideoFrame<Pixel>::getLineWidth(unsigned line) const
 }
 
 template <typename Pixel>
-const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& width) const
+const void* SuperImposedVideoFrame<Pixel>::getLineInfo(
+	unsigned line, unsigned& width, void* buf1_, unsigned bufWidth) const
 {
+	auto* buf1 = static_cast<Pixel*>(buf1_);
 	// Return minimum line width of 320.
 	//  We could check whether both inputs have width=1 and in that case
 	//  also return a line of width=1. But for now (laserdisc) this will
 	//  never happen.
-	auto* srcLine = static_cast<const Pixel*>(src.getLineInfo(line, width));
+	auto* srcLine = static_cast<const Pixel*>(
+		src.getLineInfo(line, width, buf1, bufWidth));
 	if (width == 1) {
 		width = 320;
-		srcLine = src.getLinePtr<Pixel>(line, 320);
+		MemoryOps::MemSet<Pixel> memset;
+		memset(buf1, 320, srcLine[0]);
+		srcLine = buf1;
 	}
+	// (possibly) srcLine == buf1
 
 	// Adjust the two inputs to the same height.
 	const Pixel* supLine;
-	VLA_SSE_ALIGNED(Pixel, tmpBuf, width);
+	VLA_SSE_ALIGNED(Pixel, buf2, width);
 	assert(super.getHeight() == 480); // TODO possibly extend in the future
 	if (src.getHeight() == 240) {
-		auto* sup0 = super.getLinePtr<Pixel>(2 * line + 0, width);
-		auto* sup1 = super.getLinePtr<Pixel>(2 * line + 1, width);
-		BlendLines<Pixel, 1, 1> blend(pixelOps);
-		blend(sup0, sup1, tmpBuf, width);
-		supLine = tmpBuf;
+		VLA_SSE_ALIGNED(Pixel, buf3, width);
+		auto* sup0 = super.getLinePtr(2 * line + 0, width, buf2);
+		auto* sup1 = super.getLinePtr(2 * line + 1, width, buf3);
+		BlendLines<Pixel> blend(pixelOps);
+		blend(sup0, sup1, buf2, width); // possibly sup0 == buf2
+		supLine = buf2;
 	} else {
 		assert(src.getHeight() == super.getHeight());
-		supLine = super.getLinePtr<Pixel>(line, width); // scale line
+		supLine = super.getLinePtr(line, width, buf2); // scale line
 	}
+	// (possibly) supLine == buf2
 
 	// Actually blend the lines of both frames.
-	auto* resLine = static_cast<Pixel*>(src.getTempBuffer());
 	AlphaBlendLines<Pixel> blend(pixelOps);
-	blend(srcLine, supLine, resLine, width);
-	return resLine;
+	blend(srcLine, supLine, buf1, width); // possibly srcLine == buf1
+	return buf1;
 }
 
 // Force template instantiation.

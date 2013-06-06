@@ -7,7 +7,9 @@
 #include "PixelOperations.hh"
 #include "vla.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <cassert>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -216,18 +218,21 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	VLA(unsigned, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
+	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
 	VLA_SSE_ALIGNED(Pixel, bufA, 2 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1);
+	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2);
 
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3);
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
@@ -243,6 +248,8 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 		dst.releaseLine(dstY + 1, dst1);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
+		std::swap(buf1, buf2);
+		std::swap(buf2, buf3);
 	}
 }
 
@@ -252,19 +259,22 @@ static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	VLA(unsigned, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
+	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
 	VLA_SSE_ALIGNED(Pixel, bufA, 3 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufB, 3 * srcWidth);
 	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
 
 	int srcY = srcStartY;
-	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcPrev = src.getLinePtr(srcY - 1, srcWidth, buf1);
+	auto* srcCurr = src.getLinePtr(srcY + 0, srcWidth, buf2);
 
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcNext = src.getLinePtr(srcY + 1, srcWidth, buf3);
 		auto* dst0 = dst.acquireLine(dstY + 0);
 		auto* dst1 = dst.acquireLine(dstY + 1);
 		auto* dst2 = dst.acquireLine(dstY + 2);
@@ -283,6 +293,8 @@ static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 		dst.releaseLine(dstY + 2, dst2);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
+		std::swap(buf1, buf2);
+		std::swap(buf2, buf3);
 	}
 }
 

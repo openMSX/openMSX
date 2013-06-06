@@ -5,6 +5,7 @@
 #include "VideoLayer.hh"
 #include "EmuTime.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -137,7 +138,8 @@ protected:
 	const FrameSource* superImposeVdpFrame;
 
 private:
-	void getScaledFrame(unsigned height, const void** lines);
+	void getScaledFrame(unsigned height, const void** lines,
+	                    std::vector<void*>& workBuffer);
 
 	Display& display;
 

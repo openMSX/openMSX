@@ -396,16 +396,17 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	auto* dstLine0 = dst.acquireLine(dstY + 0);
 	blur1on2(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on2(srcLine, dstLine2, blur, srcWidth);
 
@@ -418,7 +419,7 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		dstLine0 = dstLine2;
 	}
 
-	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, 2 * srcWidth);
 	blur1on2(srcLine, buf2, blur, srcWidth);
 
@@ -433,16 +434,17 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	auto* dstLine0 = dst.acquireLine(dstY);
 	blur1on1(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on1(srcLine, dstLine2, blur, srcWidth);
 
@@ -455,7 +457,7 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		dstLine0 = dstLine2;
 	}
 
-	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
 	blur1on1(srcLine, buf2, blur, srcWidth);
 
@@ -485,8 +487,6 @@ void Simple2xScaler<Pixel>::scaleImage(
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);
-		src.freeLineBuffers();
-		superImpose->freeLineBuffers();
 	} else {
 		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

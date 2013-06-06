@@ -4,6 +4,7 @@
 #include "OutputSurface.hh"
 #include "SuperImposeScalerOutput.hh"
 #include "unreachable.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -51,10 +52,11 @@ static void doScale1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	Scale_1on1<Pixel> copy;
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
-		auto* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		auto* srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine, dstLine0, dstWidth);
 
@@ -76,15 +78,16 @@ static void doScaleDV(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PixelOperations<Pixel> ops, PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	BlendLines<Pixel> blend(ops);
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine0, dstLine0, dstWidth);
 
-		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scale(srcLine1, dstLine2, dstWidth);
 

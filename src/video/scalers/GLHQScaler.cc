@@ -6,7 +6,9 @@
 #include "File.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "vla.hh"
 #include <cstring>
+#include <algorithm>
 
 using std::string;
 
@@ -136,16 +138,19 @@ void GLHQScaler::uploadBlock(
 	memset(tmpBuf2, 0, sizeof(tmpBuf2));
 	#endif
 
+	VLA_SSE_ALIGNED(Pixel, buf1_, lineWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, lineWidth); auto* buf2 = buf2_;
+	auto* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, buf1);
+	auto* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, buf2);
 	EdgeHQ edgeOp(0, 8, 16);
-	auto* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);
-	auto* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer.bind();
 	if (auto* mapped = edgeBuffer.mapWrite()) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
-			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
+			std::swap(buf1, buf2);
+			next = paintFrame.getLinePtr(y + 1, lineWidth, buf2);
 			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(uint16_t));
 		}

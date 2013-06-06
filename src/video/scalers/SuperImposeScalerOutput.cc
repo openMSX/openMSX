@@ -3,6 +3,7 @@
 #include "LineScalers.hh"
 #include "MemoryOps.hh"
 #include "unreachable.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cstdint>
 
@@ -40,10 +41,11 @@ Pixel* SuperImposeScalerOutput<Pixel>::acquireLine(unsigned y)
 template<typename Pixel>
 void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
-	auto* srcLine = getSrcLine(y);
+	unsigned width = output.getWidth();
+	VLA_SSE_ALIGNED(Pixel, buf2, width);
+	auto* srcLine = getSrcLine(y, buf2);
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-	alphaBlend(buf, srcLine, buf, output.getWidth());
-	superImpose.freeLineBuffers();
+	alphaBlend(buf, srcLine, buf, width);
 	output.releaseLine(y, buf);
 }
 
@@ -56,29 +58,33 @@ void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 		MemoryOps::MemSet<Pixel> memset;
 		memset(dstLine, width, color);
 	} else {
-		auto* srcLine = getSrcLine(y);
+		auto* srcLine = getSrcLine(y, dstLine);
 		if (pixelOps.isFullyTransparent(color)) {
-			Scale_1on1<Pixel> copy;
-			copy(srcLine, dstLine, width);
+			// optimization: use destination as work buffer, in case
+			// that buffer got used, we don't need to make a copy
+			// anymore
+			if (srcLine != dstLine) {
+				Scale_1on1<Pixel> copy;
+				copy(srcLine, dstLine, width);
+			}
 		} else {
 			AlphaBlendLines<Pixel> alphaBlend(pixelOps);
-			alphaBlend(color, srcLine, dstLine, width);
+			alphaBlend(color, srcLine, dstLine, width); // possibly srcLine == dstLine
 		}
-		superImpose.freeLineBuffers();
 	}
 	output.releaseLine(y, dstLine);
 }
 
 template<typename Pixel>
-const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y)
+const Pixel* SuperImposeScalerOutput<Pixel>::getSrcLine(unsigned y, Pixel* buf)
 {
 	unsigned width = output.getWidth();
 	if (width == 320) {
-		return superImpose.getLinePtr320_240<Pixel>(y);
+		return superImpose.getLinePtr320_240(y, buf);
 	} else if (width == 640) {
-		return superImpose.getLinePtr640_480<Pixel>(y);
+		return superImpose.getLinePtr640_480(y, buf);
 	} else if (width == 960) {
-		return superImpose.getLinePtr960_720<Pixel>(y);
+		return superImpose.getLinePtr960_720(y, buf);
 	} else {
 		UNREACHABLE; return nullptr;
 	}

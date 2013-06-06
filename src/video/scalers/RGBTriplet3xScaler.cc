@@ -94,13 +94,15 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
+
 	recalcBlur();
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
-	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	auto* dstLine0 = dst.acquireLine(y + 0);
 	scaleLine(srcLine, dstLine0, scale, tmpWidth);
 
@@ -109,7 +111,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 		auto* dstLine3 = dst.acquireLine(y + 3);
 		scaleLine(srcLine, dstLine3, scale, tmpWidth);
 
@@ -127,7 +129,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 		dstLine1 = dstLine4;
 	}
 
-	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+	srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
 	scaleLine(srcLine, buf2, scale, tmpWidth);
 	auto* dstLine2 = dst.acquireLine(y + 2);
@@ -143,6 +145,7 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	recalcBlur();
 
 	unsigned dstWidth = dst.getWidth();
@@ -150,11 +153,11 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scaleLine(srcLine0, dstLine0, scale, tmpWidth);
 
-		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scaleLine(srcLine1, dstLine2, scale, tmpWidth);
 
@@ -405,8 +408,6 @@ void RGBTriplet3xScaler<Pixel>::scaleImage(FrameSource& src, const RawFrame* sup
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);
-		src.freeLineBuffers();
-		superImpose->freeLineBuffers();
 	} else {
 		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

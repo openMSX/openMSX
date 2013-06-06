@@ -9,6 +9,7 @@
 #include "Math.hh"
 #include "InitException.hh"
 #include "memory.hh"
+#include "vla.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -318,9 +319,10 @@ void GLPostProcessor::uploadBlock(
 	if (mapped) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			auto* dest = mapped + y * lineWidth;
-			auto* data = paintFrame->getLinePtr<uint32_t>(y, lineWidth);
-			memcpy(dest, data, lineWidth * sizeof(uint32_t));
-			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
+			auto* data = paintFrame->getLinePtr(y, lineWidth, dest);
+			if (data != dest) {
+				memcpy(dest, data, lineWidth * sizeof(uint32_t));
+			}
 		}
 		pbo.unmap();
 #if defined(__APPLE__)
@@ -349,10 +351,11 @@ void GLPostProcessor::uploadBlock(
 		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
 		unsigned y = srcStartY;
 		unsigned remainingLines = srcEndY - srcStartY;
+		VLA_SSE_ALIGNED(uint32_t, buf, lineWidth);
 		while (remainingLines) {
 			unsigned lines;
-			auto* data = paintFrame->getMultiLinePtr<uint32_t>(
-				y, remainingLines, lines, lineWidth);
+			auto* data = paintFrame->getMultiLinePtr(
+				y, remainingLines, lines, lineWidth, buf);
 			glTexSubImage2D(
 				GL_TEXTURE_2D,     // target
 				0,                 // level
@@ -363,7 +366,6 @@ void GLPostProcessor::uploadBlock(
 				GL_BGRA,           // format
 				GL_UNSIGNED_BYTE,  // type
 				data);             // data
-			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 
 			y += lines;
 			remainingLines -= lines;

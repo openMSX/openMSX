@@ -7,6 +7,7 @@
 #include "SaI2xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdint>
@@ -93,7 +94,6 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 		//Pixel colorP = srcLine3[xrr];
 
 		Pixel product, product1, product2;
-
 		if (colorA == colorD && colorB != colorC) {
 			product  = ((colorA == colorE && colorB == colorL) ||
 			            (colorA == colorC && colorA == colorF &&
@@ -246,12 +246,18 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth * 2);
 
+	VLA_SSE_ALIGNED(Pixel, buf0_, srcWidth); auto* buf0 = buf0_;
+	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
+	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+
 	int srcY = srcStartY;
-	auto* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	auto* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, buf0);
+	auto* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
+	auto* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
+
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on2(srcLine0, srcLine1, srcLine2, srcLine3,
@@ -261,6 +267,9 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		srcLine0 = srcLine1;
 		srcLine1 = srcLine2;
 		srcLine2 = srcLine3;
+		std::swap(buf0, buf1);
+		std::swap(buf1, buf2);
+		std::swap(buf2, buf3);
 	}
 }
 
@@ -271,12 +280,18 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth);
 
+	VLA_SSE_ALIGNED(Pixel, buf0_, srcWidth); auto* buf0 = buf0_;
+	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
+	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+
 	int srcY = srcStartY;
-	auto* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	auto* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, buf0);
+	auto* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
+	auto* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
+
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		auto* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
 		auto* dstUpper = dst.acquireLine(dstY + 0);
 		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on1(srcLine0, srcLine1, srcLine2, srcLine3,
@@ -286,6 +301,9 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		srcLine0 = srcLine1;
 		srcLine1 = srcLine2;
 		srcLine2 = srcLine3;
+		std::swap(buf0, buf1);
+		std::swap(buf1, buf2);
+		std::swap(buf2, buf3);
 	}
 }
 

@@ -314,7 +314,6 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 			*paintFrame, superImposeVideoFrame,
 			srcStartY, srcEndY, lineWidth, // source
 			*dst, dstStartY, dstEndY); // dest
-		paintFrame->freeLineBuffers();
 
 		// next region
 		srcStartY = srcEndY;

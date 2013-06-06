@@ -7,6 +7,8 @@
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
+#include "aligned.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
 #include <cstdint>
@@ -389,17 +391,26 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
+	VLA_SSE_ALIGNED(Pixel, buf0_, srcWidth); auto* buf0 = buf0_;
+	VLA_SSE_ALIGNED(Pixel, buf1_, srcWidth); auto* buf1 = buf1_;
+	VLA_SSE_ALIGNED(Pixel, buf2_, srcWidth); auto* buf2 = buf2_;
+	VLA_SSE_ALIGNED(Pixel, buf3_, srcWidth); auto* buf3 = buf3_;
+
 	int srcY = srcStartY;
-	auto* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	auto* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	auto* src2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* src0 = src.getLinePtr(srcY - 1, srcWidth, buf0);
+	auto* src1 = src.getLinePtr(srcY + 0, srcWidth, buf1);
+	auto* src2 = src.getLinePtr(srcY + 1, srcWidth, buf2);
+
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
-		auto* src3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* src3 = src.getLinePtr(srcY + 2, srcWidth, buf3);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 		src0 = src1;
 		src1 = src2;
 		src2 = src3;
+		std::swap(buf0, buf1);
+		std::swap(buf1, buf2);
+		std::swap(buf2, buf3);
 	}
 }
 
@@ -414,15 +425,20 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	const unsigned hfinish = (src.getHeight() - 1) << 16;
 	const unsigned dh = hfinish / (dst.getHeight() - 1);
 
+	VLA_SSE_ALIGNED(Pixel, buf0, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf3, srcWidth);
+
 	unsigned h = 0;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY++) {
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
-		auto* src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
-		auto* src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
-		auto* src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
-		auto* src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
+		auto* src0 = src.getLinePtr(line - 1, srcWidth, buf0);
+		auto* src1 = src.getLinePtr(line + 0, srcWidth, buf1);
+		auto* src2 = src.getLinePtr(line + 1, srcWidth, buf2);
+		auto* src3 = src.getLinePtr(line + 2, srcWidth, buf3);
 
 		// Get destination line pointer.
 		auto* dstLine = dst.acquireLine(dstY);

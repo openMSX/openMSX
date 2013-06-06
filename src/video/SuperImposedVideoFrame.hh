@@ -25,7 +25,9 @@ public:
 
 	// FrameSource
 	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
+	virtual const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const;
 
 private:
 	const FrameSource& src;

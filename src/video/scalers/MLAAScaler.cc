@@ -2,9 +2,11 @@
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
 #include "Math.hh"
+#include "MemoryOps.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <vector>
 #include <cassert>
 #include <cstdint>
 
@@ -40,8 +42,19 @@ void MLAAScaler<Pixel>::scaleImage(
 	const int srcNumLines = srcEndY - srcStartY;
 	VLA(const Pixel*, srcLinePtrsArray, srcNumLines + 2);
 	auto** srcLinePtrs = &srcLinePtrsArray[1];
+	std::vector<Pixel*> workBuffer;
+	const Pixel* line = nullptr;
+	Pixel* work = nullptr;
 	for (int y = -1; y < srcNumLines + 1; y++) {
-		srcLinePtrs[y] = src.getLinePtr<Pixel>(srcStartY + y, srcWidth);
+		if (line == work) {
+			// Allocate new workBuffer when needed
+			// e.g. when used in previous iteration
+			work = static_cast<Pixel*>(
+				MemoryOps::mallocAligned(16, srcWidth * sizeof(Pixel)));
+			workBuffer.push_back(work);
+		}
+		line = src.getLinePtr(srcStartY + y, srcWidth, work);
+		srcLinePtrs[y] = line;
 	}
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
@@ -652,8 +665,9 @@ void MLAAScaler<Pixel>::scaleImage(
 		}
 	}
 
-	src.freeLineBuffers();
-
+	for (auto* p : workBuffer) {
+		MemoryOps::freeAligned(p);
+	}
 	for (unsigned i = dstStartY; i < dstEndY; ++i) {
 		dst.releaseLine(i, dstLines[i]);
 	}

@@ -56,10 +56,11 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	unsigned y = dstStartY;
-	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	auto* dstLine0 = dst.acquireLine(y + 0);
 	scale(srcLine, dstLine0, dstWidth);
 
@@ -68,7 +69,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 		auto* dstLine3 = dst.acquireLine(y + 3);
 		scale(srcLine, dstLine3, dstWidth);
 
@@ -85,7 +86,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 		dstLine0 = dstLine3;
 		dstLine1 = dstLine4;
 	}
-	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+	srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
 	scale(srcLine, buf2, dstWidth);
 
@@ -102,15 +103,16 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine0, dstLine0, dstWidth);
 
-		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scale(srcLine1, dstLine2, dstWidth);
 
@@ -546,8 +548,6 @@ void Simple3xScaler<Pixel>::scaleImage(
 		srcWidth = sf.getLineWidth(srcStartY);
 		this->dispatchScale(sf,  srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);
-		src.freeLineBuffers();
-		superImpose->freeLineBuffers();
 	} else {
 		this->dispatchScale(src, srcStartY, srcEndY, srcWidth,
 		                    dst, dstStartY, dstEndY);

@@ -11,6 +11,7 @@
 #include "AviRecorder.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
+#include "MemoryOps.hh"
 #include "vla.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -129,7 +130,6 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 	if (recorder && needRecord()) {
 		recorder->addImage(paintFrame, time);
-		paintFrame->freeLineBuffers();
 	}
 
 	if (canDoInterlace) {
@@ -149,31 +149,45 @@ void PostProcessor::setSuperimposeVdpFrame(const FrameSource* vdpSource)
 	superImposeVdpFrame = vdpSource;
 }
 
-void PostProcessor::getScaledFrame(unsigned height, const void** lines)
+void PostProcessor::getScaledFrame(unsigned height, const void** lines,
+                                   std::vector<void*>& workBuffer)
 {
+	unsigned width = (height == 240) ? 320 : 640;
+	unsigned pitch = width * ((getBpp() == 32) ? 4 : 2);
+	const void* line = nullptr;
+	void* work = nullptr;
 	for (unsigned i = 0; i < height; ++i) {
+		if (line == work) {
+			// If work buffer was used in previous iteration,
+			// then allocate a new one.
+			work = MemoryOps::mallocAligned(16, pitch);
+			workBuffer.push_back(work);
+		}
 #if HAVE_32BPP
 		if (getBpp() == 32) {
 			// 32bpp
+			auto* work2 = static_cast<uint32_t*>(work);
 			if (height == 240) {
-				lines[i] = paintFrame->getLinePtr320_240<uint32_t>(i);
+				line = paintFrame->getLinePtr320_240(i, work2);
 			} else {
 				assert (height == 480);
-				lines[i] = paintFrame->getLinePtr640_480<uint32_t>(i);
+				line = paintFrame->getLinePtr640_480(i, work2);
 			}
 		} else
 #endif
 		{
 #if HAVE_16BPP
 			// 15bpp or 16bpp
+			auto* work2 = static_cast<uint16_t*>(work);
 			if (height == 240) {
-				lines[i] = paintFrame->getLinePtr320_240<uint16_t>(i);
+				line = paintFrame->getLinePtr320_240(i, work2);
 			} else {
 				assert (height == 480);
-				lines[i] = paintFrame->getLinePtr640_480<uint16_t>(i);
+				line = paintFrame->getLinePtr640_480(i, work2);
 			}
 #endif
 		}
+		lines[i] = line;
 	}
 }
 
@@ -182,12 +196,17 @@ void PostProcessor::takeRawScreenShot(unsigned height, const std::string& filena
 	if (!paintFrame) {
 		throw CommandException("TODO");
 	}
+
 	VLA(const void*, lines, height);
-	getScaledFrame(height, lines);
+	std::vector<void*> workBuffer;
+	getScaledFrame(height, lines, workBuffer);
 
 	unsigned width = (height == 240) ? 320 : 640;
 	PNG::save(width, height, lines, paintFrame->getSDLPixelFormat(), filename);
-	paintFrame->freeLineBuffers();
+
+	for (void* p : workBuffer) {
+		MemoryOps::freeAligned(p);
+	}
 }
 
 void PostProcessor::setRecorder(AviRecorder* recorder_)

@@ -23,7 +23,7 @@ public:
 	virtual void   fillLine   (unsigned y, Pixel color);
 
 private:
-	const Pixel* getSrcLine(unsigned y);
+	const Pixel* getSrcLine(unsigned y, Pixel* buf);
 
 	ScalerOutput<Pixel>& output;
 	const RawFrame& superImpose;

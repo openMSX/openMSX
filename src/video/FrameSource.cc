@@ -3,6 +3,9 @@
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
 #include "unreachable.hh"
+#include "aligned.hh"
+#include "likely.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cstdint>
@@ -11,15 +14,7 @@ namespace openmsx {
 
 FrameSource::FrameSource(const SDL_PixelFormat& format)
 	: pixelFormat(format)
-	, tempCounter(0)
 {
-}
-
-FrameSource::~FrameSource()
-{
-	for (auto& t : tempBuffers) {
-		MemoryOps::freeAligned(t);
-	}
 }
 
 void FrameSource::init(FieldType fieldType_)
@@ -33,79 +28,71 @@ void FrameSource::setHeight(unsigned height_)
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::blendLines(
-	const Pixel* line1, const Pixel* line2, unsigned width) const
-{
-	PixelOperations<Pixel> pixelOps(pixelFormat);
-	BlendLines<Pixel> blend(pixelOps);
-	auto out = reinterpret_cast<Pixel*>(getTempBuffer());
-	blend(line1, line2, out, width);
-	return out;
-}
-
-template <typename Pixel>
-const Pixel* FrameSource::getLinePtr320_240(unsigned line) const
+const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 240) {
-		return getLinePtr<Pixel>(line, 320);
+		return getLinePtr(line, 320, buf0);
 	} else {
 		assert(getHeight() == 480);
-		auto* line1 = getLinePtr<Pixel>(2 * line + 0, 320);
-		auto* line2 = getLinePtr<Pixel>(2 * line + 1, 320);
-		return blendLines(line1, line2, 320);
+		SSE_ALIGNED(Pixel buf1[320]);
+		auto* line0 = getLinePtr(2 * line + 0, 320, buf0);
+		auto* line1 = getLinePtr(2 * line + 1, 320, buf1);
+		PixelOperations<Pixel> pixelOps(pixelFormat);
+		BlendLines<Pixel> blend(pixelOps);
+		blend(line0, line1, buf0, 320); // possibly line0 == buf0
+		return buf0;
 	}
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::getLinePtr640_480(unsigned line) const
+const Pixel* FrameSource::getLinePtr640_480(unsigned line, Pixel* buf) const
 {
 	if (getHeight() == 480) {
-		return getLinePtr<Pixel>(line, 640);
+		return getLinePtr(line, 640, buf);
 	} else {
 		assert(getHeight() == 240);
-		return getLinePtr<Pixel>(line / 2, 640);
+		return getLinePtr(line / 2, 640, buf);
 	}
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::getLinePtr960_720(unsigned line) const
+const Pixel* FrameSource::getLinePtr960_720(unsigned line, Pixel* buf0) const
 {
 	if (getHeight() == 480) {
 		unsigned l2 = (2 * line) / 3;
-		auto* line0 = getLinePtr<Pixel>(l2 + 0, 960);
-		if ((line % 3) == 1) {
-			auto* line1 = getLinePtr<Pixel>(l2 + 1, 960);
-			return blendLines(line0, line1, 960);
-		} else {
+		auto* line0 = getLinePtr(l2 + 0, 960, buf0);
+		if ((line % 3) != 1) {
 			return line0;
 		}
+		SSE_ALIGNED(Pixel buf1[960]);
+		auto* line1 = getLinePtr(l2 + 1, 960, buf1);
+		PixelOperations<Pixel> pixelOps(pixelFormat);
+		BlendLines<Pixel> blend(pixelOps);
+		blend(line0, line1, buf0, 960); // possibly line0 == buf0
+		return buf0;
 	} else {
 		assert(getHeight() == 240);
-		return getLinePtr<Pixel>(line / 3, 960);
+		return getLinePtr(line / 3, 960, buf0);
 	}
-}
-
-void* FrameSource::getTempBuffer() const
-{
-	if (tempCounter == tempBuffers.size()) {
-		unsigned size = 1280 * pixelFormat.BytesPerPixel;
-		void* buf = MemoryOps::mallocAligned(64, size);
-		tempBuffers.push_back(buf);
-	}
-	return tempBuffers[tempCounter++];
-}
-
-void FrameSource::freeLineBuffers() const
-{
-	tempCounter = 0; // reuse tempBuffers
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::scaleLine(
-		const Pixel* in, unsigned inWidth, unsigned outWidth) const
+void FrameSource::scaleLine(
+	const Pixel* in, Pixel* out,
+	unsigned inWidth, unsigned outWidth) const
 {
 	PixelOperations<Pixel> pixelOps(pixelFormat);
-	auto out = reinterpret_cast<Pixel*>(getTempBuffer());
+
+	VLA_SSE_ALIGNED(Pixel, tmpBuf, inWidth);
+	if (unlikely(in == out)) {
+		// Only happens in case getLineInfo() already used buf.
+		// E.g. when a line of a SuperImposedFrame also needs to be
+		// scaled.
+		// TODO If the LineScaler routines can work in-place then this
+		//      copy can be avoided.
+		memcpy(tmpBuf, in, inWidth * sizeof(Pixel));
+		in = tmpBuf;
+	}
 
 	// TODO is there a better way to implement this?
 	switch (inWidth) {
@@ -362,23 +349,21 @@ const Pixel* FrameSource::scaleLine(
 	default:
 		UNREACHABLE;
 	}
-
-	return out;
 }
 
 
 // Force template method instantiation
 #if HAVE_16BPP
-template const uint16_t* FrameSource::getLinePtr320_240<uint16_t>(unsigned) const;
-template const uint16_t* FrameSource::getLinePtr640_480<uint16_t>(unsigned) const;
-template const uint16_t* FrameSource::getLinePtr960_720<uint16_t>(unsigned) const;
-template const uint16_t* FrameSource::scaleLine<uint16_t>(const uint16_t*, unsigned, unsigned) const;
+template const uint16_t* FrameSource::getLinePtr320_240<uint16_t>(unsigned, uint16_t*) const;
+template const uint16_t* FrameSource::getLinePtr640_480<uint16_t>(unsigned, uint16_t*) const;
+template const uint16_t* FrameSource::getLinePtr960_720<uint16_t>(unsigned, uint16_t*) const;
+template void FrameSource::scaleLine<uint16_t>(const uint16_t*, uint16_t*, unsigned, unsigned) const;
 #endif
 #if HAVE_32BPP || COMPONENT_GL
-template const uint32_t* FrameSource::getLinePtr320_240<uint32_t>(unsigned) const;
-template const uint32_t* FrameSource::getLinePtr640_480<uint32_t>(unsigned) const;
-template const uint32_t* FrameSource::getLinePtr960_720<uint32_t>(unsigned) const;
-template const uint32_t* FrameSource::scaleLine<uint32_t>(const uint32_t*, unsigned, unsigned) const;
+template const uint32_t* FrameSource::getLinePtr320_240<uint32_t>(unsigned, uint32_t*) const;
+template const uint32_t* FrameSource::getLinePtr640_480<uint32_t>(unsigned, uint32_t*) const;
+template const uint32_t* FrameSource::getLinePtr960_720<uint32_t>(unsigned, uint32_t*) const;
+template void FrameSource::scaleLine<uint32_t>(const uint32_t*, uint32_t*, unsigned, unsigned) const;
 #endif
 
 } // namespace openmsx

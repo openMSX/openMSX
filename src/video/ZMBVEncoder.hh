@@ -39,7 +39,7 @@ private:
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(
 		const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset);
-	const void* getScaledLine(FrameSource* frame, unsigned y);
+	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf);
 
 	MemBuffer<uint8_t> oldframe;
 	MemBuffer<uint8_t> newframe;

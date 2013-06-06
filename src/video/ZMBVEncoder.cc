@@ -326,15 +326,16 @@ void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 	}
 }
 
-const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
+const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y, void* buf_)
 {
 #if HAVE_32BPP
 	if (pixelSize == 4) { // 32bpp
+		auto* buf = static_cast<uint32_t*>(buf_);
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<uint32_t>(y);
+			return frame->getLinePtr320_240(y, buf);
 		case 480:
-			return frame->getLinePtr640_480<uint32_t>(y);
+			return frame->getLinePtr640_480(y, buf);
 		default:
 			UNREACHABLE;
 		}
@@ -342,11 +343,12 @@ const void* ZMBVEncoder::getScaledLine(FrameSource* frame, unsigned y)
 #endif
 #if HAVE_16BPP
 	if (pixelSize == 2) { // 15bpp or 16bpp
+		auto* buf = static_cast<uint16_t*>(buf_);
 		switch (height) {
 		case 240:
-			return frame->getLinePtr320_240<uint16_t>(y);
+			return frame->getLinePtr320_240(y, buf);
 		case 480:
-			return frame->getLinePtr640_480<uint16_t>(y);
+			return frame->getLinePtr640_480(y, buf);
 		default:
 			UNREACHABLE;
 		}
@@ -387,7 +389,8 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	uint8_t* dest =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned i = 0; i < height; ++i) {
-		memcpy(dest, getScaledLine(frame, i), lineWidth);
+		auto* scaled = getScaledLine(frame, i, dest);
+		if (scaled != dest) memcpy(dest, scaled, lineWidth);
 		dest += linePitch;
 	}
 

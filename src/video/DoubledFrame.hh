@@ -17,7 +17,9 @@ public:
 
 private:
 	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(unsigned line, unsigned& width) const;
+	virtual const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const;
 
 	/** The original frame whose data will be doubled.
 	  */

@@ -17,7 +17,9 @@ public:
 
 private:
 	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(unsigned linei, unsigned& width) const;
+	virtual const void* getLineInfo(
+		unsigned line, unsigned& width,
+		void* buf, unsigned bufWidth) const;
 
 	/** The original frames whose data will be deinterlaced.
 	  * The even frame is at index 0, the odd frame at index 1.

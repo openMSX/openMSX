@@ -6,6 +6,7 @@
 #include "vla.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 
@@ -61,10 +62,11 @@ static void doScale1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 	PolyLineScaler<Pixel>& scale)
 {
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		auto* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		auto* srcLine = src.getLinePtr(srcY, srcWidth, buf);
 		auto* dstLine = dst.acquireLine(dstY);
 		scale(srcLine, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
@@ -79,16 +81,16 @@ static void doScaleDV(FrameSource& src,
 {
 	BlendLines<Pixel> blend(ops);
 	unsigned dstWidth = dst.getWidth();
-	VLA_SSE_ALIGNED(Pixel, buf0, dstWidth);
-	VLA_SSE_ALIGNED(Pixel, buf1, dstWidth);
+	VLA_SSE_ALIGNED(Pixel, buf0, std::max(srcWidth, dstWidth));
+	VLA_SSE_ALIGNED(Pixel, buf1, srcWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		scale(srcLine0, buf0, dstWidth);
-		scale(srcLine1, buf1, dstWidth);
+		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf0);
+		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf1);
 		auto* dstLine = dst.acquireLine(dstY);
-		blend(buf0, buf1, dstLine, dstWidth);
+		scale(srcLine0, dstLine,  dstWidth); // dstLine  iso buf0
+		scale(srcLine1, buf0,     dstWidth); // buf0 iso buf1
+		blend(dstLine, buf0, dstLine, dstWidth); // use input as output
 		dst.releaseLine(dstY, dstLine);
 	}
 }
@@ -130,13 +132,14 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// No need to scale to local buffer first, like doScaleDV does.
+	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 	unsigned dstWidth = dst.getWidth();
 	BlendLines<Pixel> blend(pixelOps);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; ++dstY) {
-		auto* srcLine0 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		auto* srcLine1 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
 		auto* dstLine = dst.acquireLine(dstY);
-		blend(srcLine0, srcLine1, dstLine, dstWidth);
+		auto* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dstLine);
+		auto* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, buf);
+		blend(srcLine0, srcLine1, dstLine, dstWidth); // possibly srcLine0 == dstLine
 		dst.releaseLine(dstY, dstLine);
 	}
 }

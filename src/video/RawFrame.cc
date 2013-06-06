@@ -46,7 +46,9 @@ unsigned RawFrame::getLineWidth(unsigned line) const
 	return lineWidths[line];
 }
 
-const void* RawFrame::getLineInfo(unsigned line, unsigned& width) const
+const void* RawFrame::getLineInfo(
+	unsigned line, unsigned& width,
+	void* /*buf*/, unsigned /*bufWidth*/) const
 {
 	assert(line < getHeight());
 	width = lineWidths[line];

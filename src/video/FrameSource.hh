@@ -2,8 +2,8 @@
 #define FRAMESOURCE_HH
 
 #include "noncopyable.hh"
+#include "aligned.hh"
 #include <algorithm>
-#include <vector>
 #include <cassert>
 
 struct SDL_PixelFormat;
@@ -29,7 +29,7 @@ public:
 		FIELD_ODD
 	};
 
-	virtual ~FrameSource();
+	virtual ~FrameSource() {}
 
 	/** (Re)initialize an existing FrameSource. This method sets the
 	  * Fieldtype and flushes the 'getLinePtr' buffers.
@@ -76,29 +76,35 @@ public:
 	  */
 	template <typename Pixel>
 	inline const Pixel getLineColor(unsigned line) const {
+		SSE_ALIGNED(Pixel buf[1280]); // large enough for widest line
 		unsigned width; // not used
 		return reinterpret_cast<const Pixel*>(
-			getLineInfo(line, width))[0];
+			getLineInfo(line, width, buf, 1280))[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
-	  * The line returned is guaranteed to have the given width; if the
-	  * original line had a different width it will be scaled in a temporary
-	  * buffer. You should call freeLineBuffers regularly so the allocated
-	  * buffers can be recycled.
+	  * The line returned is guaranteed to have the given width. If the
+	  * original line had a different width the result will be computed in
+	  * the provided work buffer. So that buffer should be big enough to
+	  * hold the scaled line. This also means the lifetime of the result
+	  * is tied to the lifetime of that work buffer. In any case the return
+	  * value of this function will point to the line data (some internal
+	  * buffer or the work buffer).
 	  */
 	template <typename Pixel>
-	inline const Pixel* getLinePtr(int line, unsigned width) const
+	inline const Pixel* getLinePtr(int line, unsigned width, Pixel* buf) const
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
-			getLineInfo(line, internalWidth));
+			getLineInfo(line, internalWidth, buf, width));
 		if (internalWidth == width) {
 			return internalData;
 		} else {
 			// slow path, non-inlined
-			return scaleLine(internalData, internalWidth, width);
+			// internalData might be equal to buf
+			scaleLine(internalData, buf, internalWidth, width);
+			return buf;
 		}
 	}
 
@@ -110,18 +116,19 @@ public:
 	template <typename Pixel>
 	inline const Pixel* getMultiLinePtr(
 		int line, unsigned numLines, unsigned& actualLines,
-		unsigned width) const
+		unsigned width, Pixel* buf) const
 	{
 		actualLines = 1;
 		int height = getHeight();
 		if ((line < 0) || (height <= line)) {
-			return getLinePtr<Pixel>(line, width);
+			return getLinePtr(line, width, buf);
 		}
 		unsigned internalWidth;
 		auto* internalData = reinterpret_cast<const Pixel*>(
-			getLineInfo(line, internalWidth));
+			getLineInfo(line, internalWidth, buf, width));
 		if (internalWidth != width) {
-			return scaleLine(internalData, internalWidth, width);
+			scaleLine(internalData, buf, internalWidth, width);
+			return buf;
 		}
 		if (!hasContiguousStorage()) {
 			return internalData;
@@ -137,33 +144,43 @@ public:
 	}
 
 	/** Abstract implementation of getLinePtr().
-	  * Pixel type is unspecified.
+	  * Pixel type is unspecified (implementations that care about the
+	  * exact type should get it via some other mechanism).
+	  * @param line The line number for the requisted line.
+	  * @param lineWidth Output parameter, the width of the returned line
+	  *                  in pixel units.
+	  * @param buf Buffer space that can _optionally_ be used by the
+	  *            implementation.
+	  * @param bufWidth The size of the above buffer, in pixel units.
+	  * @return Pointer to the first pixel of the requested line. This might
+	  *         be the same as the given 'buf' parameter or it might be some
+	  *         internal buffer.
 	  */
-	virtual const void* getLineInfo(unsigned line, unsigned& width) const = 0;
+	virtual const void* getLineInfo(
+		unsigned line, unsigned& lineWidth,
+		void* buf, unsigned bufWidth) const = 0;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 320x240 pixels. The difference between this method and
 	  * getLinePtr() is that this method also does vertical scaling.
-	  * You should also call freeLineBuffers() to release possible internal
-	  * allocated buffers.
 	  * This is used for video recording.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr320_240(unsigned line) const;
+	const Pixel* getLinePtr320_240(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr640_480(unsigned line) const;
+	const Pixel* getLinePtr640_480(unsigned line, Pixel* buf) const;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 960x720 pixels. Same as getLinePtr320_240, but then for a
 	  * higher resolution output.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr960_720(unsigned line) const;
+	const Pixel* getLinePtr960_720(unsigned line, Pixel* buf) const;
 
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The
@@ -175,17 +192,9 @@ public:
 		return 0;
 	}
 
-	/** Recycles the buffers allocated for scaling lines, see getLinePtr.
-	  */
-	void freeLineBuffers() const;
-
 	const SDL_PixelFormat& getSDLPixelFormat() const {
 		return pixelFormat;
 	}
-
-	// Used by SuperImposedFrame.
-	// TODO refactor
-	void* getTempBuffer() const;
 
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);
@@ -200,10 +209,9 @@ protected:
 	}
 
 private:
-	template <typename Pixel> const Pixel* scaleLine(
-		const Pixel* in, unsigned inWidth, unsigned outWidth) const;
-	template <typename Pixel> const Pixel* blendLines(
-		const Pixel* line1, const Pixel* line2, unsigned width) const;
+	template <typename Pixel> void scaleLine(
+		const Pixel* in, Pixel* out,
+		unsigned inWidth, unsigned outWidth) const;
 
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
@@ -214,8 +222,6 @@ private:
 	unsigned height;
 
 	FieldType fieldType;
-	mutable std::vector<void*> tempBuffers;
-	mutable unsigned tempCounter;
 };
 
 } // namespace openmsx
