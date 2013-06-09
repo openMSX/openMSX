@@ -637,7 +637,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	const TclObject* whereArg = nullptr;
 	bool enableViewOnly = false;
 
-	for (auto i : xrange(size_t(2), tokens.size())) {
+	for (size_t i = 2; i < tokens.size(); ++i) {
 		string_ref token = tokens[i].getString();
 		if (token == "-viewonly") {
 			enableViewOnly = true;
