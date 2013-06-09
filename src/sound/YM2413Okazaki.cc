@@ -492,7 +492,7 @@ void YM2413::keyOff_HH()
 	Channel& ch7 = channels[7];
 	if (ch7.mod.slot_on_flag) {
 		ch7.mod.slot_on_flag &= ~2;
-		if (ch7.mod.slot_on_flag) {
+		if (!ch7.mod.slot_on_flag) {
 			ch7.mod.slotOff();
 		}
 	}
