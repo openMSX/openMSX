@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1368385838">
+<softwaredb xml:lang="en" timestamp="1370815306">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -4142,6 +4142,15 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="false">translated</original><megarom><type>ASCII16</type><hash algo="sha1">05767fec34beaaee390a86be496d98d2b27de641</hash><remark><text>English Translation</text></remark></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">Gommy - Medieval Defender</title>
+	<system>MSX</system>
+	<company>Retroworks/Dimension Z</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">da3555f2f6fd6341ef4c5bc878b45581101a1126</hash><remark><text>MSXDev13 Entry - English Version</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">ed73332e7053aab6471f9eb3fea00be25923641f</hash><remark><text>MSXDev13 Entry - Spanish Version</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Gomok Narabe - Omo Go</title>
 	<genmsxid>156</genmsxid>
 	<system>MSX</system>
@@ -4165,6 +4174,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash algo="sha1">b7b4d5c83d8c336dbfe32833bba974cea7f0cb8d</hash><remark><text>[RC-734]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">4624af3dea3996f70d860dfdbd1a8844b8cf43ec</hash><remark><text>[RC-734]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">3ceb18ccdd8153aa260f287f5de4460601040ab6</hash><remark><text>[RC-734] / Ulver crack</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Gorf</title>
+	<system>MSX</system>
+	<company>Coleco</company>
+	<year>1983</year>
+	<country>US</country>
+		<dump><megarom><type>GenericKonami</type><hash algo="sha1">afb235979ed7d91596b7adddffe7c295080e4669</hash><remark><text>GDX Conversion</text></remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gozilla Kun</title>
@@ -9278,7 +9295,8 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Infinite</company>
 	<year>2006</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">cb325fafed4b6604a7146bca14109a29443b0c7f</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">cb325fafed4b6604a7146bca14109a29443b0c7f</hash><remark><text>MSX-DEV06 v1</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">90acaacc7c64d6148d723f0f46c40ca06e87ca4a</hash><remark><text>MSX-Dev06 v2</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">RX Editor YRM-302</title>
@@ -12185,8 +12203,9 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Nenefranz</company>
 	<year>2012</year>
 	<country>NL</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">daf6574ea74d44a98a02e3ee25994f9779a9e65c</hash><remark><text>Version 1.1 / MSXDev 11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">daf6574ea74d44a98a02e3ee25994f9779a9e65c</hash><remark><text>Version 1.1 / MSXDev11 Entry</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">bfc22015dcedf9100647869dbaf36f0d6165bf3a</hash><remark><text>Version 1,0 / MSXDev11 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">612995a27340c4d3adbd7e402a2c3b0cf2b42e34</hash><remark><text>Version 1.2 / MSXDev11 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Zombie Near</title>
@@ -12227,6 +12246,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2706
-Created on Sun May 12 21:10:59 CEST 2013
+Roms in this XML file:2711
+Created on Mon Jun 10 0:01:51 CEST 2013
  -->
