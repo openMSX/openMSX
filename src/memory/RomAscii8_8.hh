@@ -8,13 +8,15 @@ namespace openmsx {
 class RomAscii8_8 : public Rom8kBBlocks
 {
 public:
-	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY };
+	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2 };
 	RomAscii8_8(const DeviceConfig& config,
 	            std::unique_ptr<Rom> rom, SubType subType);
 	virtual ~RomAscii8_8();
 
 	virtual void reset(EmuTime::param time);
+	virtual byte readMem(word address, EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);
+	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
 	template<typename Archive>
@@ -24,7 +26,7 @@ private:
 	const byte sramEnableBit;
 	const byte sramPages;
 	byte sramEnabled;
-	byte sramBlock[8];
+	byte sramBlock[NUM_BANKS];
 };
 
 } // namespace openmsx

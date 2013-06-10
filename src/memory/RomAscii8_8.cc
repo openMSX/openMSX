@@ -1,5 +1,5 @@
 // ASCII 8kB based cartridges with SRAM
-//   - ASCII8-8  /  KOEI-8  /  KOEI-32  /  WIZARDRY
+//   - ASCII8-8  /  KOEI-8  /  KOEI-32  /  WIZARDRY / ASCII8-2
 //
 // The address to change banks:
 //  bank 1: 0x6000 - 0x67ff (0x6000 used)
@@ -25,13 +25,14 @@ RomAscii8_8::RomAscii8_8(const DeviceConfig& config,
                          std::unique_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(config, std::move(rom_))
 	, sramEnableBit((subType == WIZARDRY) ? 0x80
-	                                      : rom->getSize() / 0x2000)
+	                                      : rom->getSize() / BANK_SIZE)
 	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
 	            ? 0x34 : 0x30)
 {
-	sram = make_unique<SRAM>(
-		getName() + " SRAM",
-		(subType == KOEI_32) ? 0x8000 : 0x2000, config);
+	unsigned size = (subType == KOEI_32 ) ? 0x8000  // 32kB
+	              : (subType == ASCII8_2) ? 0x0800  //  2kB
+	                                      : 0x2000; //  8kB
+	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }
 
@@ -52,24 +53,52 @@ void RomAscii8_8::reset(EmuTime::param /*time*/)
 	sramEnabled = 0;
 }
 
+byte RomAscii8_8::readMem(word address, EmuTime::param time)
+{
+	byte bank = address / BANK_SIZE;
+	if ((1 << bank) & sramEnabled) {
+		// read from SRAM (possibly mirror)
+		word addr = (sramBlock[bank] * BANK_SIZE)
+		          + (address & (sram->getSize() - 1) & BANK_MASK);
+		return (*sram)[addr];
+	} else {
+		return Rom8kBBlocks::readMem(address, time);
+	}
+}
+
+const byte* RomAscii8_8::getReadCacheLine(word address) const
+{
+	byte bank = address / BANK_SIZE;
+	if ((1 << bank) & sramEnabled) {
+		// read from SRAM (possibly mirror)
+		word addr = (sramBlock[bank] * BANK_SIZE)
+		          + (address & (sram->getSize() - 1) & BANK_MASK);
+		return &(*sram)[addr];
+	} else {
+		return Rom8kBBlocks::getReadCacheLine(address);
+	}
+}
+
 void RomAscii8_8::writeMem(word address, byte value, EmuTime::param /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		byte region = ((address >> 11) & 3) + 2;
 		if (value & sramEnableBit) {
+			unsigned numBlocks = (sram->getSize() + BANK_MASK) / BANK_SIZE; // round up;
 			sramEnabled |= (1 << region) & sramPages;
-			sramBlock[region] = value & ((sram->getSize() / 0x2000) - 1);
-			setBank(region, &(*sram)[sramBlock[region] * 0x2000], value);
+			sramBlock[region] = value & (numBlocks - 1);
+			setBank(region, &(*sram)[sramBlock[region] * BANK_SIZE], value);
 		} else {
 			sramEnabled &= ~(1 << region);
 			setRom(region, value);
 		}
 	} else {
-		byte bank = address >> 13;
+		byte bank = address / BANK_SIZE;
 		if ((1 << bank) & sramEnabled) {
-			// write to SRAM
-			word addr = (sramBlock[bank] * 0x2000) + (address & 0x1FFF);
+			// write to SRAM (possibly mirror)
+			word addr = (sramBlock[bank] * BANK_SIZE)
+			          + (address & (sram->getSize() - 1) & BANK_MASK);
 			sram->write(addr, value);
 		}
 	}
@@ -80,7 +109,7 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// bank switching
 		return nullptr;
-	} else if ((1 << (address >> 13)) & sramEnabled) {
+	} else if ((1 << (address / BANK_SIZE)) & sramEnabled) {
 		// write to SRAM
 		return nullptr;
 	} else {

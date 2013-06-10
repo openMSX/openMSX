@@ -9,12 +9,14 @@ namespace openmsx {
 class SRAM;
 class RomBlockDebuggable;
 
-template <unsigned BANK_SIZE>
+template <unsigned BANK_SIZE_>
 class RomBlocks : public MSXRom
 {
+public:
+	static const unsigned BANK_SIZE = BANK_SIZE_;
 	static const unsigned NUM_BANKS = 0x10000 / BANK_SIZE;
 	static const unsigned BANK_MASK = BANK_SIZE - 1;
-public:
+
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word start) const;
 

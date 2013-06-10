@@ -2417,7 +2417,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Scaptrust</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">e6419519c2d3247ea395e4feaa494a2e23e469ce</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM2</type><hash algo="sha1">e6419519c2d3247ea395e4feaa494a2e23e469ce</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Deep Dungeon 2</title>
@@ -2426,7 +2426,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Scaptrust</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">d82135a5e28b750c44995af116db890a15f6428a</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM2</type><hash algo="sha1">d82135a5e28b750c44995af116db890a15f6428a</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Deep Forest</title>
@@ -2530,7 +2530,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Bothtec</company>
 	<year>1987</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">1ba6b699b4e34c23ee60db4e58e1265dc03f0b50</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM2</type><hash algo="sha1">1ba6b699b4e34c23ee60db4e58e1265dc03f0b50</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Discover the Computer</title>
@@ -3100,7 +3100,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>NCS</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">caeca37113c56e696d7053d90f5f9f3e02de8ad1</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM2</type><hash algo="sha1">caeca37113c56e696d7053d90f5f9f3e02de8ad1</hash></megarom></dump>
 		<dump><megarom><type>Konami</type><hash algo="sha1">98f6769741a1c9df4fd203ed19d70b283c94e41a</hash></megarom></dump>
 </software>
 <software>
@@ -5735,7 +5735,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Sony</company>
 	<year>1987</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM8</type><hash algo="sha1">2e2543ac99193f76b4f35463142294c016f0cf3d</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8SRAM2</type><hash algo="sha1">2e2543ac99193f76b4f35463142294c016f0cf3d</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Knight Lore</title>

@@ -7,6 +7,7 @@ enum RomType {
 	// Order doesn't matter (I sorted them alphabetically)
 	ROM_ARC,
 	ROM_ASCII8,
+	ROM_ASCII8_2,
 	ROM_ASCII8_8,
 	ROM_ASCII16,
 	ROM_ASCII16_2,
