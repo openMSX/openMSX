@@ -4,7 +4,6 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
-#include "build-info.hh"
 #include "Keys.hh"
 #include <SDL.h>
 #include <memory>
@@ -82,11 +81,7 @@ private:
 		Keys::KeyCode keyCode, bool up, const EventPtr& origEvent);
 
 
-#if PLATFORM_GP2X
-	int stat8; // last joystick status (8 input switches)
-#endif
 	bool keyRepeat;
-
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
 };
 

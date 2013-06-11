@@ -19,7 +19,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# TODO: Add support for device-specific configuration.
 	platformDingux = targetPlatform == 'dingux'
-	platformGP2X = False
 	platformMaemo5 = targetPlatform == 'maemo5'
 	platformPandora = targetPlatform == 'pandora'
 	platformAndroid = targetPlatform == 'android'
@@ -31,7 +30,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	maxScaleFactor = 4
 
 	# Platform overrides.
-	if platformDingux or platformGP2X:
+	if platformDingux:
 		have32BPP = False
 		maxScaleFactor = 1
 	elif platformAndroid:
@@ -72,7 +71,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 	# Use a macro iso integer because we really need to exclude code sections
 	# based on this.
 	yield '#define PLATFORM_DINGUX %d' % platformDingux
-	yield '#define PLATFORM_GP2X %d' % platformGP2X
 	yield '#define PLATFORM_MAEMO5 %d' % platformMaemo5
 	yield '#define PLATFORM_ANDROID %d' % platformAndroid
 	yield '#define HAVE_16BPP %d' % have16BPP

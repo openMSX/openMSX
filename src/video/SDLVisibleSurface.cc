@@ -9,9 +9,6 @@
 #include "build-info.hh"
 #include <cassert>
 #include <cstdint>
-#if PLATFORM_GP2X
-#include "GP2XMMUHack.hh"
-#endif
 
 namespace openmsx {
 
@@ -22,16 +19,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 		InputEventGenerator& inputEventGenerator)
 	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator)
 {
-#if PLATFORM_GP2X
-	// We don't use HW double buffering, because that implies a vsync and
-	// that cause a too big performance drop (with vsync, if you're
-	// slightly too slow to run at 60fps, framerate immediately drops to
-	// 30fps). Instead we simulate double buffering by rendering to an
-	// extra work surface and when rendering a frame is finished, we copy
-	// the work surface to the display surface (the HW blitter on GP2X is
-	// fast enough).
-	int flags = SDL_HWSURFACE; // | SDL_DOUBLEBUF;
-#elif PLATFORM_DINGUX
+#if PLATFORM_DINGUX
 	// The OpenDingux kernel supports double buffering, while the legacy
 	// kernel will hang apps that try to use double buffering.
 	// The Dingoo seems to have a hardware problem that makes it hard or
@@ -51,42 +39,19 @@ SDLVisibleSurface::SDLVisibleSurface(
 	if (fullscreen) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
-	setSDLFormat(*getSDLDisplaySurface()->format);
-
-#if PLATFORM_GP2X
-	const SDL_PixelFormat& format = getSDLFormat();
-	SDL_Surface* workSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,
-		width, height, format.BitsPerPixel, format.Rmask,
-		format.Gmask, format.Bmask, format.Amask);
-	assert(workSurface); // TODO
-	SDL_FillRect(workSurface, nullptr, 0);
-	GP2XMMUHack::instance().patchPageTables();
-#else
-	// on non-GP2X platforms, work and displaySurfaces are the same,
-	// see remark above
-	SDL_Surface* workSurface = getSDLDisplaySurface();
-#endif
-	setSDLWorkSurface(workSurface);
-	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);
+	SDL_Surface* surface = getSDLSurface();
+	setSDLFormat(*surface->format);
+	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 }
 
 void SDLVisibleSurface::finish()
 {
 	unlock();
-#if PLATFORM_GP2X
-	void* start = getSDLWorkSurface()->pixels;
-	void* end   = static_cast<char*>(start) + 320 * 240 * 2;
-	GP2XMMUHack::instance().flushCache(start, end, 0);
-	SDL_BlitSurface(getSDLWorkSurface(),    nullptr,
-	                getSDLDisplaySurface(), nullptr);
-#endif
-	SDL_Flip(getSDLDisplaySurface());
-#if !PLATFORM_GP2X
+	SDL_Surface* surface = getSDLSurface();
+	SDL_Flip(surface);
 	// The pixel pointer might be invalidated by the flip.
 	// This is certainly the case when double buffering.
-	SDL_Surface* workSurface = getSDLDisplaySurface();
-	setBufferPtr(static_cast<char*>(workSurface->pixels), workSurface->pitch);
-#endif
+	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 }
 
 std::unique_ptr<Layer> SDLVisibleSurface::createSnowLayer(Display& display)
@@ -120,13 +85,13 @@ std::unique_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
 
 std::unique_ptr<OutputSurface> SDLVisibleSurface::createOffScreenSurface()
 {
-	return make_unique<SDLOffScreenSurface>(*getSDLWorkSurface());
+	return make_unique<SDLOffScreenSurface>(*getSDLSurface());
 }
 
 void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 {
 	lock();
-	PNG::save(getSDLWorkSurface(), filename);
+	PNG::save(getSDLSurface(), filename);
 }
 
 } // namespace openmsx

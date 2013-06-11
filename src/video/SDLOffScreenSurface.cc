@@ -27,8 +27,7 @@ SDLOffScreenSurface::SDLOffScreenSurface(const SDL_Surface& proto)
 		buffer, proto.w, proto.h, format.BitsPerPixel, pitch,
 		format.Rmask, format.Gmask, format.Bmask, format.Amask));
 
-	setSDLDisplaySurface(surface.get());
-	setSDLWorkSurface(surface.get());
+	setSDLSurface(surface.get());
 	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 }
 
@@ -41,7 +40,7 @@ SDLOffScreenSurface::~SDLOffScreenSurface()
 void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
 	lock();
-	PNG::save(getSDLWorkSurface(), filename);
+	PNG::save(getSDLSurface(), filename);
 }
 
 } // namespace openmsx

@@ -5,8 +5,7 @@
 namespace openmsx {
 
 OutputSurface::OutputSurface()
-	: displaySurface(nullptr), workSurface(nullptr)
-	, xOffset(0), yOffset(0), locked(false)
+	: surface(nullptr), xOffset(0), yOffset(0), locked(false)
 {
 }
 
@@ -18,9 +17,9 @@ void OutputSurface::lock()
 {
 	if (isLocked()) return;
 	locked = true;
-	if (workSurface && SDL_MUSTLOCK(workSurface)) {
+	if (surface && SDL_MUSTLOCK(surface)) {
 		// Note: we ignore the return value from SDL_LockSurface()
-		SDL_LockSurface(workSurface);
+		SDL_LockSurface(surface);
 	}
 }
 
@@ -28,8 +27,8 @@ void OutputSurface::unlock()
 {
 	if (!isLocked()) return;
 	locked = false;
-	if (workSurface && SDL_MUSTLOCK(workSurface)) {
-		SDL_UnlockSurface(workSurface);
+	if (surface && SDL_MUSTLOCK(surface)) {
+		SDL_UnlockSurface(surface);
 	}
 }
 
@@ -45,16 +44,6 @@ unsigned OutputSurface::mapRGB(double dr, double dg, double db)
 	int g = int(dg * 255.0);
 	int b = int(db * 255.0);
 	return SDL_MapRGB(&format, r, g, b); // alpha is fully opaque
-}
-
-void OutputSurface::setSDLDisplaySurface(SDL_Surface* surface)
-{
-	displaySurface = surface;
-}
-
-void OutputSurface::setSDLWorkSurface(SDL_Surface* surface)
-{
-	workSurface = surface;
 }
 
 void OutputSurface::setSDLFormat(const SDL_PixelFormat& format_)

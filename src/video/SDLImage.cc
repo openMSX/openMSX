@@ -5,10 +5,6 @@
 #include "MSXException.hh"
 #include "vla.hh"
 #include "unreachable.hh"
-#include "build-info.hh"
-#if PLATFORM_GP2X
-#include "GP2XMMUHack.hh"
-#endif
 #include <cassert>
 #include <cstdlib>
 #include <SDL.h>
@@ -582,9 +578,6 @@ SDLImage::SDLImage(SDLSurfacePtr image_)
 void SDLImage::allocateWorkImage()
 {
 	int flags = SDL_SWSURFACE;
-	if (PLATFORM_GP2X) {
-		flags = SDL_HWSURFACE;
-	}
 	auto& format = *image->format;
 	workImage.reset(SDL_CreateRGBSurface(flags,
 		image->w, image->h, format.BitsPerPixel,
@@ -592,9 +585,6 @@ void SDLImage::allocateWorkImage()
 	if (!workImage.get()) {
 		throw FatalError("Couldn't allocate SDLImage workimage");
 	}
-#if PLATFORM_GP2X
-	GP2XMMUHack::instance().patchPageTables();
-#endif
 }
 
 void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
@@ -604,7 +594,7 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 	if (flipY) y -= image->h;
 
 	output.unlock();
-	SDL_Surface* outputSurface = output.getSDLWorkSurface();
+	SDL_Surface* outputSurface = output.getSDLSurface();
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;

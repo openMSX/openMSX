@@ -18,14 +18,13 @@ class OutputSurface : public OutputRectangle, private noncopyable
 public:
 	virtual ~OutputSurface();
 
-	unsigned getWidth()  const { return displaySurface->w; }
-	unsigned getHeight() const { return displaySurface->h; }
+	unsigned getWidth()  const { return surface->w; }
+	unsigned getHeight() const { return surface->h; }
 	int getX() const { return xOffset; }
 	int getY() const { return yOffset; }
 
 	const SDL_PixelFormat& getSDLFormat() const { return format; }
-	SDL_Surface* getSDLWorkSurface()      const { return workSurface; }
-	SDL_Surface* getSDLDisplaySurface()   const { return displaySurface; }
+	SDL_Surface* getSDLSurface()          const { return surface; }
 
 	/** Returns the pixel value for the given RGB color.
 	  * No effort is made to ensure that the returned pixel value is not the
@@ -120,8 +119,7 @@ public:
 protected:
 	OutputSurface();
 	void setPosition(int x, int y);
-	void setSDLDisplaySurface(SDL_Surface* surface);
-	void setSDLWorkSurface   (SDL_Surface* surface);
+	void setSDLSurface(SDL_Surface* surface_) { surface = surface_; }
 	void setSDLFormat(const SDL_PixelFormat& format);
 	void setBufferPtr(char* data, unsigned pitch);
 
@@ -129,8 +127,7 @@ private:
 	virtual unsigned getOutputWidth()  const { return getWidth(); }
 	virtual unsigned getOutputHeight() const { return getHeight(); }
 
-	SDL_Surface* displaySurface;
-	SDL_Surface* workSurface;
+	SDL_Surface* surface;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;

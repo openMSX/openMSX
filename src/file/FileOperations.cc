@@ -489,17 +489,6 @@ string getUserHomeDir(string_ref username)
 	}
 
 	return getConventionalPath(utf16to8(bufW));
-
-#elif PLATFORM_GP2X
-	return ""; // TODO figure out why stuff below doesn't work
-	// We cannot use generic implementation below, because for some
-	// reason getpwuid() and getpwnam() cannot be used in statically
-	// linked applications.
-	const char* dir = getenv("HOME");
-	if (!dir) {
-		dir = "/root";
-	}
-	return dir;
 #else
 	const char* dir = nullptr;
 	struct passwd* pw = nullptr;

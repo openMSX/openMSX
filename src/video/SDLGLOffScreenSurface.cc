@@ -9,8 +9,7 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	: SDLGLOutputSurface(output.getFrameBufferType())
 {
 	// only used for width and height
-	setSDLDisplaySurface(
-		const_cast<SDL_Surface*>(output.getSDLDisplaySurface()));
+	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
 
 	fboTex.bind();
 	fboTex.setWrapMode(false);

@@ -27,7 +27,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 	// The created surface may be larger than requested.
 	// If that happens, center the area that we actually use.
-	SDL_Surface* surface = getSDLDisplaySurface();
+	SDL_Surface* surface = getSDLSurface();
 	unsigned actualWidth  = surface->w;
 	unsigned actualHeight = surface->h;
 	surface->w = width;

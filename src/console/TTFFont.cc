@@ -220,8 +220,6 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
 	}
 	return destination;
-
-	// TODO for GP2X copy to a HW_Surface?
 }
 
 unsigned TTFFont::getHeight() const

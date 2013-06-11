@@ -23,11 +23,6 @@ SRC_HDR:= \
 	Icon \
 	AviRecorder AviWriter ZMBVEncoder
 
-ifeq ($(PLATFORM_GP2X), 1)
-SRC_HDR += \
-	GP2XMMUHack
-endif
-
 HDR_ONLY:= \
 	DisplayMode \
 	VRAMObserver \

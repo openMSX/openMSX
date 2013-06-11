@@ -34,32 +34,6 @@ void Scaler1<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	/*if (PLATFORM_GP2X) {
-		// note: src.getLinePtr() internally does a src.lock(). In a
-		//       profile the Lock function is relatively high. Though
-		//       if we put the blank line color info in some other
-		//       data structure (no need to lock()), the FillRect
-		//       function takes the place of Lock. So it seems we are
-		//       simply waiting for the previous blit command to
-		//       finish.
-		dst.unlock();
-		SDL_Rect dstRect;
-		dstRect.x = 0;
-		dstRect.w = dst.getWidth();
-		for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY; ) {
-			dstRect.y = dstY;
-			Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-			unsigned start = srcY;
-			do {
-				srcY += 1;
-			} while ((src.getLinePtr<Pixel>(srcY)[0] == color) &&
-				 (srcY < srcEndY));
-			unsigned height = srcY - start;
-			dstY += height;
-			dstRect.h = height;
-			SDL_FillRect(dst.getSDLWorkSurface(), &dstRect, color);
-		}
-	} else {*/
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
 		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
@@ -145,20 +119,6 @@ void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	/*if (PLATFORM_GP2X) {
-		if (auto raw = dynamic_cast<RawFrame*>(&src)) {
-			raw->unlock();
-			dst.unlock();
-			unsigned height = dstEndY - dstStartY;
-			SDL_Rect srcRect, dstRect;
-			srcRect.x = 0;        srcRect.y = srcStartY;
-			srcRect.w = srcWidth; srcRect.h = height;
-			dstRect.x = 0;        dstRect.y = dstStartY;
-			SDL_BlitSurface(raw->getSDLSurface(), &srcRect,
-			                dst.getSDLWorkSurface(),  &dstRect);
-			return;
-		}
-	}*/
 	PolyScale<Pixel, Scale_1on1<Pixel>> op;
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
 	                dst, dstStartY, dstEndY, op);

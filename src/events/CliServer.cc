@@ -4,7 +4,6 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
-#include "build-info.hh"
 #include "memory.hh"
 #include "statp.hh"
 #include <string>
@@ -24,9 +23,7 @@ namespace openmsx {
 
 static string getUserName()
 {
-#if defined(_WIN32) || PLATFORM_GP2X
-	// GP2X: For some reason getpwuid() cannot be used in statically
-	//       linked applications.
+#if defined(_WIN32)
 	return "default";
 #else
 	struct passwd* pw = getpwuid(getuid());
