@@ -42,7 +42,7 @@ void Simple2xScaler<Pixel>::scaleBlank1to2(
 	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
-		Pixel color0 = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel color0 = src.getLineColor<Pixel>(srcY);
 		dst.fillLine(dstY + 0, color0);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
 		dst.fillLine(dstY + 1, color1);

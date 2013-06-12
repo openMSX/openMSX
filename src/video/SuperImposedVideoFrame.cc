@@ -30,13 +30,10 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& 
 	//  We could check whether both inputs have width=1 and in that case
 	//  also return a line of width=1. But for now (laserdisc) this will
 	//  never happen.
-	width = src.getLineWidth(line);
-	const Pixel* srcLine;
+	auto* srcLine = static_cast<const Pixel*>(src.getLineInfo(line, width));
 	if (width == 1) {
 		width = 320;
 		srcLine = src.getLinePtr<Pixel>(line, 320);
-	} else {
-		srcLine = src.getLinePtr<Pixel>(line);
 	}
 
 	// Adjust the two inputs to the same height.

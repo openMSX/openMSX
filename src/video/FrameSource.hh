@@ -69,12 +69,16 @@ public:
 		return result;
 	}
 
-	/** Gets a pointer to the pixels of the given line number.
+	/** Get the (single) color of the given line.
+	  * Typically this will be used to get the color of a vertical border
+	  * line. But it's fine to call this on non-border lines as well, in
+	  * that case the color of the first pixel of the line is returned.
 	  */
 	template <typename Pixel>
-	inline const Pixel* getLinePtr(unsigned line) const {
-		unsigned dummy;
-		return reinterpret_cast<const Pixel*>(getLineInfo(line, dummy));
+	inline const Pixel getLineColor(unsigned line) const {
+		unsigned width; // not used
+		return reinterpret_cast<const Pixel*>(
+			getLineInfo(line, width))[0];
 	}
 
 	/** Gets a pointer to the pixels of the given line number.
