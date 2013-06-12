@@ -37,8 +37,8 @@
 #endif
 
 // Macro to align a buffer that might be used by SSE instructions.
-// On platforms without SSE, no alignment is performed.
-#if defined __i386 || defined __x86_64
+// On platforms without SSE no (extra) alignment is performed.
+#ifdef __SSE2__
 #define VLA_SSE_ALIGNED(TYPE, NAME, LENGTH) VLA_ALIGNED(TYPE, NAME, LENGTH, 16)
 #else
 #define VLA_SSE_ALIGNED(TYPE, NAME, LENGTH) VLA(TYPE, NAME, LENGTH)

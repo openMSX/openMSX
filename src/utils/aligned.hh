@@ -11,6 +11,14 @@
 #define ALIGNED(EXPRESSION, ALIGNMENT) EXPRESSION __attribute__((__aligned__((ALIGNMENT))));
 #endif
 
+// Only need to (more strictly) align when SSE is actually enabled.
+#ifdef __SSE2__
+#define SSE_ALIGNED(EXPRESSION) ALIGNED(EXPRESSION, 16)
+#else
+#define SSE_ALIGNED(EXPRESSION) EXPRESSION
+#endif
+
+
 // Unaligned loads and stores.
 template<typename T> static inline T unalignedLoad(const void* p)
 {
