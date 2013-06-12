@@ -1,4 +1,5 @@
 #include "DoubledFrame.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -23,7 +24,7 @@ unsigned DoubledFrame::getLineWidth(unsigned line) const
 
 const void* DoubledFrame::getLineInfo(unsigned line, unsigned& width) const
 {
-	static const unsigned blackPixel = 0; // both 16bppp and 32bpp
+	static const uint32_t blackPixel = 0; // both 16bppp and 32bpp
 	int t = line - skip;
 	if (t >= 0) {
 		return field->getLineInfo(t / 2, width);

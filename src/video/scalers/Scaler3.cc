@@ -54,14 +54,14 @@ static void doScale1(FrameSource& src,
 	Scale_1on1<Pixel> copy;
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
-		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine, dstLine0, dstWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		copy(dstLine0, dstLine1, dstWidth);
 
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		copy(dstLine0, dstLine2, dstWidth);
 
 		dst.releaseLine(dstY + 0, dstLine0);
@@ -80,15 +80,15 @@ static void doScaleDV(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine0, dstLine0, dstWidth);
 
-		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scale(srcLine1, dstLine2, dstWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		blend(dstLine0, dstLine2, dstLine1, dstWidth);
 
 		dst.releaseLine(dstY + 0, dstLine0);

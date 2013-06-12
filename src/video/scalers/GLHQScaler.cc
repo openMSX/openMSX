@@ -130,24 +130,24 @@ void GLHQScaler::uploadBlock(
 {
 	if (lineWidth != 320) return;
 
-	unsigned tmpBuf2[320 / 2];
+	uint32_t tmpBuf2[320 / 2]; // 2 x uint16_t
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
 	memset(tmpBuf2, 0, sizeof(tmpBuf2));
 	#endif
 
 	EdgeHQ edgeOp(0, 8, 16);
-	const Pixel* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);
-	const Pixel* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
+	auto* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);
+	auto* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
 	calcEdgesGL(curr, next, tmpBuf2, edgeOp);
 
 	edgeBuffer.bind();
-	if (unsigned short* mapped = edgeBuffer.mapWrite()) {
+	if (auto* mapped = edgeBuffer.mapWrite()) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
 			curr = next;
 			next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
 			calcEdgesGL(curr, next, tmpBuf2, edgeOp);
-			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
+			memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(uint16_t));
 		}
 		edgeBuffer.unmap();
 

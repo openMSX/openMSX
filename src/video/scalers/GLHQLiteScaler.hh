@@ -5,6 +5,7 @@
 #include "GLUtil.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <cstdint>
 
 namespace openmsx {
 
@@ -26,7 +27,7 @@ private:
 	ShaderProgram scalerProgram[2];
 	Texture edgeTexture;
 	Texture offsetTexture[3];
-	PixelBuffer<unsigned short> edgeBuffer;
+	PixelBuffer<uint16_t> edgeBuffer;
 };
 
 } // namespace openmsx

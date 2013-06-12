@@ -100,23 +100,23 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned tmpWidth = dstWidth / 3;
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* dstLine0 = dst.acquireLine(y + 0);
+	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* dstLine0 = dst.acquireLine(y + 0);
 	scaleLine(srcLine, dstLine0, scale, tmpWidth);
 
 	Scale_1on1<Pixel> copy;
-	Pixel* dstLine1 = dst.acquireLine(y + 1);
+	auto* dstLine1 = dst.acquireLine(y + 1);
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-		Pixel* dstLine3 = dst.acquireLine(y + 3);
+		auto* dstLine3 = dst.acquireLine(y + 3);
 		scaleLine(srcLine, dstLine3, scale, tmpWidth);
 
-		Pixel* dstLine4 = dst.acquireLine(y + 4);
+		auto* dstLine4 = dst.acquireLine(y + 4);
 		copy(dstLine3, dstLine4, dstWidth);
 
-		Pixel* dstLine2 = dst.acquireLine(y + 2);
+		auto* dstLine2 = dst.acquireLine(y + 2);
 		scanline.draw(dstLine0, dstLine3, dstLine2,
 		              scanlineFactor, dstWidth);
 
@@ -128,10 +128,10 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf, dstWidth);
-	scaleLine(srcLine, buf, scale, tmpWidth);
-	Pixel* dstLine2 = dst.acquireLine(y + 2);
-	scanline.draw(dstLine0, buf, dstLine2, scanlineFactor, dstWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
+	scaleLine(srcLine, buf2, scale, tmpWidth);
+	auto* dstLine2 = dst.acquireLine(y + 2);
+	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor, dstWidth);
 	dst.releaseLine(y + 0, dstLine0);
 	dst.releaseLine(y + 1, dstLine1);
 	dst.releaseLine(y + 2, dstLine2);
@@ -150,15 +150,15 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scaleLine(srcLine0, dstLine0, scale, tmpWidth);
 
-		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scaleLine(srcLine1, dstLine2, scale, tmpWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
 		              scanlineFactor, dstWidth);
 
@@ -331,15 +331,15 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 					outNormal[i], scanlineFactor);
 		}
 
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		fillLoop(outNormal, dstLine0, dstWidth);
 		dst.releaseLine(dstY + 0, dstLine0);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		fillLoop(outNormal, dstLine1, dstWidth);
 		dst.releaseLine(dstY + 1, dstLine1);
 
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		fillLoop(outScanline, dstLine2, dstWidth);
 		dst.releaseLine(dstY + 2, dstLine2);
 	}
@@ -381,15 +381,15 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 				scanlineFactor);
 		}
 
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		fillLoop(out0Normal,  dstLine0, dstWidth);
 		dst.releaseLine(dstY + 0, dstLine0);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		fillLoop(outScanline, dstLine1, dstWidth);
 		dst.releaseLine(dstY + 1, dstLine1);
 
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		fillLoop(out1Normal,  dstLine2, dstWidth);
 		dst.releaseLine(dstY + 2, dstLine2);
 	}

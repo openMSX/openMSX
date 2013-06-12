@@ -49,7 +49,7 @@ public:
 	}
 
 	/** Gets the number of display pixels on the given line.
-	  * @return line width, or 0 for a border line.
+	  * @return line width (=1 for a vertical border line)
 	  */
 	virtual unsigned getLineWidth(unsigned line) const = 0;
 
@@ -88,7 +88,7 @@ public:
 	{
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
 		unsigned internalWidth;
-		auto internalData = reinterpret_cast<const Pixel*>(
+		auto* internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth));
 		if (internalWidth == width) {
 			return internalData;
@@ -114,7 +114,7 @@ public:
 			return getLinePtr<Pixel>(line, width);
 		}
 		unsigned internalWidth;
-		auto internalData = reinterpret_cast<const Pixel*>(
+		auto* internalData = reinterpret_cast<const Pixel*>(
 			getLineInfo(line, internalWidth));
 		if (internalWidth != width) {
 			return scaleLine(internalData, internalWidth, width);
@@ -131,6 +131,11 @@ public:
 		}
 		return internalData;
 	}
+
+	/** Abstract implementation of getLinePtr().
+	  * Pixel type is unspecified.
+	  */
+	virtual const void* getLineInfo(unsigned line, unsigned& width) const = 0;
 
 	/** Get a pointer to a given line in this frame, the frame is scaled
 	  * to 320x240 pixels. The difference between this method and
@@ -183,24 +188,12 @@ protected:
 
 	void setHeight(unsigned height);
 
-	/** Actual implementation of getLinePtr(unsigned, Pixel) but without
-	  * a typed return value.
-	  * TODO
-	  */
-	virtual const void* getLineInfo(unsigned line, unsigned& width) const = 0;
-
 	/** Returns true when two consecutive rows are also consecutive in
 	  * memory.
 	  */
 	virtual bool hasContiguousStorage() const {
 		return false;
 	}
-
-	// TODO: I don't understand why I need to declare a subclass as friend
-	//       to give it access to a protected method, but without this
-	//       GCC 3.3.5-pre will not compile it.
-	friend class DeinterlacedFrame;
-	friend class DoubledFrame;
 
 private:
 	template <typename Pixel> const Pixel* scaleLine(

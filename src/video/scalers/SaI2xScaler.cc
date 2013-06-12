@@ -95,40 +95,28 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 		Pixel product, product1, product2;
 
 		if (colorA == colorD && colorB != colorC) {
-			product =
-				( ( (colorA == colorE && colorB == colorL)
-				  || ( colorA == colorC && colorA == colorF
-				       && colorB != colorE && colorB == colorJ )
-				  )
-				? colorA
-				: blend(colorA, colorB)
-				);
-			product1 =
-				( ( (colorA == colorG && colorC == colorO)
-				  || ( colorA == colorB && colorA == colorH
-				       && colorG != colorC && colorC == colorM )
-				  )
-				? colorA
-				: blend(colorA, colorC)
-				);
+			product  = ((colorA == colorE && colorB == colorL) ||
+			            (colorA == colorC && colorA == colorF &&
+			             colorB != colorE && colorB == colorJ))
+			         ? colorA
+			         : blend(colorA, colorB);
+			product1 = ((colorA == colorG && colorC == colorO) ||
+			            (colorA == colorB && colorA == colorH &&
+			             colorG != colorC && colorC == colorM))
+			         ? colorA
+			         : blend(colorA, colorC);
 			product2 = colorA;
 		} else if (colorB == colorC && colorA != colorD) {
-			product =
-				( ( (colorB == colorF && colorA == colorH)
-				  || ( colorB == colorE && colorB == colorD
-				       && colorA != colorF && colorA == colorI )
-				  )
-				? colorB
-				: blend(colorA, colorB)
-				);
-			product1 =
-				( ( (colorC == colorH && colorA == colorF)
-				  || ( colorC == colorG && colorC == colorD
-				       && colorA != colorH && colorA == colorI )
-				  )
-				? colorC
-				: blend(colorA, colorC)
-				);
+			product  = ((colorB == colorF && colorA == colorH) ||
+			            (colorB == colorE && colorB == colorD &&
+			             colorA != colorF && colorA == colorI))
+			         ? colorB
+			         : blend(colorA, colorB);
+			product1 = ((colorC == colorH && colorA == colorF) ||
+			            (colorC == colorG && colorC == colorD &&
+			             colorA != colorH && colorA == colorI))
+			         ? colorC
+			         : blend(colorA, colorC);
 			product2 = colorB;
 		} else if (colorA == colorD && colorB == colorC) {
 			if (colorA == colorB) {
@@ -136,50 +124,47 @@ void SaI2xScaler<Pixel>::scaleLine1on2(
 			} else {
 				int r = 0;
 				if (colorE == colorG) {
-					if (colorA == colorE) r--; else if (colorB == colorE) r++;
+					if      (colorA == colorE) r--;
+					else if (colorB == colorE) r++;
 				}
 				if (colorF == colorK) {
-					if (colorA == colorF) r--; else if (colorB == colorF) r++;
+					if      (colorA == colorF) r--;
+					else if (colorB == colorF) r++;
 				}
 				if (colorH == colorN) {
-					if (colorA == colorH) r--; else if (colorB == colorH) r++;
+					if      (colorA == colorH) r--;
+					else if (colorB == colorH) r++;
 				}
 				if (colorL == colorO) {
-					if (colorA == colorL) r--; else if (colorB == colorL) r++;
+					if      (colorA == colorL) r--;
+					else if (colorB == colorL) r++;
 				}
 				product = product1 = blend(colorA, colorB);
 				product2 = r > 0 ? colorA : (r < 0 ? colorB : product);
 			}
 		} else {
-			product =
-				( colorA == colorC && colorA == colorF
-				  && colorB != colorE && colorB == colorJ
-				? colorA
-				: ( colorB == colorE && colorB == colorD
-				    && colorA != colorF && colorA == colorI
-				  ? colorB
-				  : blend(colorA, colorB)
-				  )
-				);
-			product1 =
-				( colorA == colorB && colorA == colorH
-				  && colorG != colorC && colorC == colorM
-				? colorA
-				: ( colorC == colorG && colorC == colorD
-				    && colorA != colorH && colorA == colorI
-				  ? colorC
-				  : blend(colorA, colorC)
-				  )
-				);
+			product  = (colorA == colorC && colorA == colorF &&
+			            colorB != colorE && colorB == colorJ)
+			         ? colorA
+			         : ((colorB == colorE && colorB == colorD &&
+			             colorA != colorF && colorA == colorI)
+			           ? colorB
+			           : blend(colorA, colorB));
+			product1 = (colorA == colorB && colorA == colorH &&
+			            colorG != colorC && colorC == colorM)
+			         ? colorA
+			         : ((colorC == colorG && colorC == colorD &&
+			             colorA != colorH && colorA == colorI)
+			           ? colorC
+			           : blend(colorA, colorC));
 			product2 = blend( // TODO: Quad-blend may be better?
 				blend(colorA, colorB),
-				blend(colorC, colorD)
-				);
+				blend(colorC, colorD));
 		}
 
-		dstUpper[x * 2] = colorA;
+		dstUpper[x * 2 + 0] = colorA;
 		dstUpper[x * 2 + 1] = product;
-		dstLower[x * 2] = product1;
+		dstLower[x * 2 + 0] = product1;
 		dstLower[x * 2 + 1] = product2;
 	}
 }
@@ -220,42 +205,30 @@ void SaI2xScaler<Pixel>::scaleLine1on1(
 		Pixel colorO = srcLine3[x + 1];
 
 		Pixel product1;
-
 		if (colorA == colorD && colorB != colorC) {
-			product1 =
-				( ( (colorA == colorG && colorC == colorO)
-				  || ( colorA == colorB && colorA == colorH
-				       && colorG != colorC && colorC == colorM )
-				  )
-				? colorA
-				: blend(colorA, colorC)
-				);
+			product1 = ((colorA == colorG && colorC == colorO) ||
+			            (colorA == colorB && colorA == colorH &&
+			             colorG != colorC && colorC == colorM))
+			         ? colorA
+			         : blend(colorA, colorC);
 		} else if (colorB == colorC && colorA != colorD) {
-			product1 =
-				( ( (colorC == colorH && colorA == colorF)
-				  || ( colorC == colorG && colorC == colorD
-				       && colorA != colorH && colorA == colorI )
-				  )
-				? colorC
-				: blend(colorA, colorC)
-				);
+			product1 = ((colorC == colorH && colorA == colorF) ||
+			            (colorC == colorG && colorC == colorD &&
+			             colorA != colorH && colorA == colorI))
+			         ? colorC
+			         : blend(colorA, colorC);
 		} else if (colorA == colorD && colorB == colorC) {
-			if (colorA == colorC) {
-				product1 = colorA;
-			} else {
-				product1 = blend(colorA, colorC);
-			}
+			product1 = (colorA == colorC)
+			         ? colorA
+			         : blend(colorA, colorC);
 		} else {
-			product1 =
-				( colorA == colorB && colorA == colorH
-				  && colorG != colorC && colorC == colorM
-				? colorA
-				: ( colorC == colorG && colorC == colorD
-				    && colorA != colorH && colorA == colorI
-				  ? colorC
-				  : blend(colorA, colorC)
-				  )
-				);
+			product1 = (colorA == colorB && colorA == colorH &&
+			            colorG != colorC && colorC == colorM)
+			         ? colorA
+			         : ((colorC == colorG && colorC == colorD &&
+			             colorA != colorH && colorA == colorI)
+			           ? colorC
+			           : blend(colorA, colorC));
 		}
 
 		dstUpper[x] = colorA;
@@ -274,13 +247,13 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	assert(dst.getWidth() == srcWidth * 2);
 
 	int srcY = srcStartY;
-	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
-		Pixel* dstUpper = dst.acquireLine(dstY + 0);
-		Pixel* dstLower = dst.acquireLine(dstY + 1);
+		auto* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* dstUpper = dst.acquireLine(dstY + 0);
+		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on2(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);
@@ -299,13 +272,13 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	assert(dst.getWidth() == srcWidth);
 
 	int srcY = srcStartY;
-	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
-		Pixel* dstUpper = dst.acquireLine(dstY + 0);
-		Pixel* dstLower = dst.acquireLine(dstY + 1);
+		auto* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* dstUpper = dst.acquireLine(dstY + 0);
+		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine1on1(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
 		dst.releaseLine(dstY + 0, dstUpper);

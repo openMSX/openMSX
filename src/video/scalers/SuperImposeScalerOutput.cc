@@ -40,7 +40,7 @@ Pixel* SuperImposeScalerOutput<Pixel>::acquireLine(unsigned y)
 template<typename Pixel>
 void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 {
-	const Pixel* srcLine = getSrcLine(y);
+	auto* srcLine = getSrcLine(y);
 	AlphaBlendLines<Pixel> alphaBlend(pixelOps);
 	alphaBlend(buf, srcLine, buf, output.getWidth());
 	superImpose.freeLineBuffers();
@@ -50,13 +50,13 @@ void SuperImposeScalerOutput<Pixel>::releaseLine(unsigned y, Pixel* buf)
 template<typename Pixel>
 void SuperImposeScalerOutput<Pixel>::fillLine(unsigned y, Pixel color)
 {
-	Pixel* dstLine = output.acquireLine(y);
-	unsigned width = this->getWidth();
+	auto* dstLine = output.acquireLine(y);
+	unsigned width = output.getWidth();
 	if (pixelOps.isFullyOpaque(color)) {
 		MemoryOps::MemSet<Pixel> memset;
 		memset(dstLine, width, color);
 	} else {
-		const Pixel* srcLine = getSrcLine(y);
+		auto* srcLine = getSrcLine(y);
 		if (pixelOps.isFullyTransparent(color)) {
 			Scale_1on1<Pixel> copy;
 			copy(srcLine, dstLine, width);

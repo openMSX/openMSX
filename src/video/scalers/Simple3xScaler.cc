@@ -59,23 +59,23 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	unsigned y = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* dstLine0 = dst.acquireLine(y + 0);
+	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* dstLine0 = dst.acquireLine(y + 0);
 	scale(srcLine, dstLine0, dstWidth);
 
 	Scale_1on1<Pixel> copy;
-	Pixel* dstLine1 = dst.acquireLine(y + 1);
+	auto* dstLine1 = dst.acquireLine(y + 1);
 	copy(dstLine0, dstLine1, dstWidth);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-		Pixel* dstLine3 = dst.acquireLine(y + 3);
+		auto* dstLine3 = dst.acquireLine(y + 3);
 		scale(srcLine, dstLine3, dstWidth);
 
-		Pixel* dstLine4 = dst.acquireLine(y + 4);
+		auto* dstLine4 = dst.acquireLine(y + 4);
 		copy(dstLine3, dstLine4, dstWidth);
 
-		Pixel* dstLine2 = dst.acquireLine(y + 2);
+		auto* dstLine2 = dst.acquireLine(y + 2);
 		scanline.draw(dstLine0, dstLine3, dstLine2,
 		              scanlineFactor, dstWidth);
 
@@ -86,11 +86,11 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 		dstLine1 = dstLine4;
 	}
 	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf, dstWidth);
-	scale(srcLine, buf, dstWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
+	scale(srcLine, buf2, dstWidth);
 
-	Pixel* dstLine2 = dst.acquireLine(y + 2);
-	scanline.draw(dstLine0, buf, dstLine2, scanlineFactor, dstWidth);
+	auto* dstLine2 = dst.acquireLine(y + 2);
+	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor, dstWidth);
 	dst.releaseLine(y + 0, dstLine0);
 	dst.releaseLine(y + 1, dstLine1);
 	dst.releaseLine(y + 2, dstLine2);
@@ -106,15 +106,15 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-		Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* dstLine0 = dst.acquireLine(dstY + 0);
 		scale(srcLine0, dstLine0, dstWidth);
 
-		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		scale(srcLine1, dstLine2, dstWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
 		              scanlineFactor, dstWidth);
 

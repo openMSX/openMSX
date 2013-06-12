@@ -308,7 +308,7 @@ void GLPostProcessor::uploadBlock(
 	tex.bind();
 
 	// upload data
-	unsigned* mapped;
+	uint32_t* mapped;
 	if (pbo.openGLSupported()) {
 		pbo.bind();
 		mapped = pbo.mapWrite();
@@ -317,9 +317,9 @@ void GLPostProcessor::uploadBlock(
 	}
 	if (mapped) {
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
-			const unsigned* data =
-				paintFrame->getLinePtr<unsigned>(y, lineWidth);
-			memcpy(mapped + y * lineWidth, data, lineWidth * sizeof(unsigned));
+			auto* dest = mapped + y * lineWidth;
+			auto* data = paintFrame->getLinePtr<uint32_t>(y, lineWidth);
+			memcpy(dest, data, lineWidth * sizeof(uint32_t));
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
 		pbo.unmap();
@@ -351,7 +351,7 @@ void GLPostProcessor::uploadBlock(
 		unsigned remainingLines = srcEndY - srcStartY;
 		while (remainingLines) {
 			unsigned lines;
-			const unsigned* data = paintFrame->getMultiLinePtr<unsigned>(
+			auto* data = paintFrame->getMultiLinePtr<uint32_t>(
 				y, remainingLines, lines, lineWidth);
 			glTexSubImage2D(
 				GL_TEXTURE_2D,     // target

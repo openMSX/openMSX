@@ -41,12 +41,11 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& 
 
 	// Adjust the two inputs to the same height.
 	const Pixel* supLine;
-	unsigned width2 = width; // workaround gcc-3.4 bug in VLA on next line
-	VLA(Pixel, tmpBuf, width2);
+	VLA_SSE_ALIGNED(Pixel, tmpBuf, width);
 	assert(super.getHeight() == 480); // TODO possibly extend in the future
 	if (src.getHeight() == 240) {
-		const Pixel* sup0 = super.getLinePtr<Pixel>(2 * line + 0, width);
-		const Pixel* sup1 = super.getLinePtr<Pixel>(2 * line + 1, width);
+		auto* sup0 = super.getLinePtr<Pixel>(2 * line + 0, width);
+		auto* sup1 = super.getLinePtr<Pixel>(2 * line + 1, width);
 		BlendLines<Pixel, 1, 1> blend(pixelOps);
 		blend(sup0, sup1, tmpBuf, width);
 		supLine = tmpBuf;
@@ -56,7 +55,7 @@ const void* SuperImposedVideoFrame<Pixel>::getLineInfo(unsigned line, unsigned& 
 	}
 
 	// Actually blend the lines of both frames.
-	auto resLine = static_cast<Pixel*>(src.getTempBuffer());
+	auto* resLine = static_cast<Pixel*>(src.getTempBuffer());
 	AlphaBlendLines<Pixel> blend(pixelOps);
 	blend(srcLine, supLine, resLine, width);
 	return resLine;

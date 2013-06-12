@@ -71,8 +71,7 @@ CliComm& PostProcessor::getCliComm()
 }
 
 unsigned PostProcessor::getLineWidth(
-	FrameSource* frame, unsigned y, unsigned step
-	)
+	FrameSource* frame, unsigned y, unsigned step)
 {
 	unsigned result = frame->getLineWidth(y);
 	for (unsigned i = 1; i < step; ++i) {

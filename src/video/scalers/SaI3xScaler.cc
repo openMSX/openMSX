@@ -53,6 +53,7 @@ inline Pixel SaI3xScaler<Pixel>::blend(Pixel p1, Pixel p2)
 static const unsigned redblueMask = 0xF81F;
 static const unsigned greenMask = 0x7E0;
 
+// TODO use PixelOperations::lerp()
 template <typename Pixel>
 static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
@@ -83,6 +84,7 @@ template<> uint32_t bilinear<uint32_t>(unsigned a, unsigned b, unsigned x)
 	return (result0 & 0x00FF00FF) | (result1 & 0xFF00FF00);
 }
 
+// TODO move to PixelOperations
 template<typename Pixel> static Pixel bilinear4(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y);
 
@@ -140,9 +142,9 @@ public:
 	inline static Pixel blend(unsigned a, unsigned b, unsigned c, unsigned d);
 };
 
-// require: OLD > NEW
 template <unsigned X, unsigned OLD, unsigned NEW>
 struct Round {
+	static_assert(OLD > NEW, "!");
 	static const unsigned result =
 		(X >> (OLD - NEW)) + ((X >> (OLD - NEW - 1)) & 1);
 };
@@ -320,8 +322,8 @@ public:
 		const Pixel* __restrict src2, const Pixel* __restrict src3,
 		unsigned srcWidth, ScalerOutput<Pixel>& dst, unsigned& dstY)
 	{
-		Pixel* dstLine = dst.acquireLine(dstY);
-		Pixel* dp = dstLine;
+		auto* dstLine = dst.acquireLine(dstY);
+		auto* dp = dstLine;
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 
@@ -348,18 +350,15 @@ public:
 			} else if (sa == sd && sb != sc) {
 				// Pattern in the form of a backslash.
 				PixelStripRepeater<NX>::template blendBackslash<NX, y1, Pixel>(
-					dp, sa, sb, sc, sd, src0[pos1], src1[pos0], src2[pos3], src3[pos2]
-					);
+					dp, sa, sb, sc, sd, src0[pos1], src1[pos0], src2[pos3], src3[pos2]);
 			} else if (sb == sc && sa != sd) {
 				// Pattern in the form of a slash.
 				PixelStripRepeater<NX>::template blendSlash<NX, y1, Pixel>(
-					dp, sa, sb, sc, sd, src0[pos2], src2[pos0], src1[pos3], src3[pos1]
-					);
+					dp, sa, sb, sc, sd, src0[pos2], src2[pos0], src1[pos3], src3[pos1]);
 			} else {
 				// No pattern; use bilinear interpolatation.
 				PixelStripRepeater<NX>::template blend4<NX, y1, Pixel>(
-					dp, sa, sb, sc, sd
-					);
+					dp, sa, sb, sc, sd);
 			}
 		}
 		dst.releaseLine(dstY, dstLine);
@@ -391,11 +390,11 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	assert(dst.getHeight() == src.getHeight() * NY);
 
 	int srcY = srcStartY;
-	const Pixel* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-	const Pixel* src2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+	auto* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* src2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
-		const Pixel* src3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		auto* src3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 		src0 = src1;
@@ -420,14 +419,14 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
 		// TODO possible optimization: reuse srcN from previous step
-		const Pixel* __restrict src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
-		const Pixel* __restrict src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
-		const Pixel* __restrict src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
-		const Pixel* __restrict src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
+		auto* src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
+		auto* src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
+		auto* src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
+		auto* src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
 
 		// Get destination line pointer.
-		Pixel* dstLine = dst.acquireLine(dstY);
-		Pixel* __restrict dp = dstLine;
+		auto* dstLine = dst.acquireLine(dstY);
+		auto* dp = dstLine;
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;

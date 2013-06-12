@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
-#include <cstdint>
 #include <cstring>
 #include <cmath>
 
@@ -218,8 +217,8 @@ template<class P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	auto pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -234,8 +233,8 @@ template<class P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	auto pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -252,8 +251,8 @@ void ZMBVEncoder::addXorBlock(
 {
 	typedef typename Endian::Little<P>::type LE_P;
 
-	auto pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
-	auto pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
+	auto* pold = &(reinterpret_cast<P*>(oldframe.data()))[offset + (vy * pitch) + vx];
+	auto* pnew = &(reinterpret_cast<P*>(newframe.data()))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			P pxor = pnew[x] ^ pold[x];
@@ -269,7 +268,7 @@ template<class P>
 void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
-	auto vectors = reinterpret_cast<signed char*>(&work[workUsed]);
+	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
 
 	// Align the following xor data on 4 byte boundary
 	auto blockcount = unsigned(blockOffsets.size());
@@ -314,11 +313,11 @@ void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
 	typedef typename Endian::Little<P>::type LE_P;
 
 	PixelOperations<P> pixelOps(pixelFormat);
-	uint8_t* readFrame =
+	auto* readFrame =
 		&newframe[pixelSize * (MAX_VECTOR + MAX_VECTOR * pitch)];
 	for (unsigned y = 0; y < height; ++y) {
-		auto pixelsIn  = reinterpret_cast<P*>   (readFrame);
-		auto pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
+		auto* pixelsIn  = reinterpret_cast<P*>   (readFrame);
+		auto* pixelsOut = reinterpret_cast<LE_P*>(&work[workUsed]);
 		for (unsigned x = 0; x < width; ++x) {
 			writePixel(pixelOps, pixelsIn[x], pixelsOut[x]);
 		}
@@ -370,7 +369,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
 		output[0] |= FLAG_KEYFRAME;
-		auto header = reinterpret_cast<KeyframeHeader*>(
+		auto* header = reinterpret_cast<KeyframeHeader*>(
 			writeBuf + writeDone);
 		header->high_version = DBZV_VERSION_HIGH;
 		header->low_version = DBZV_VERSION_LOW;

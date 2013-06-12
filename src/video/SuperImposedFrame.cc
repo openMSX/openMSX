@@ -68,10 +68,10 @@ SuperImposedFrameImpl<Pixel>::SuperImposedFrameImpl(
 template <typename Pixel>
 unsigned SuperImposedFrameImpl<Pixel>::getLineWidth(unsigned line) const
 {
-	unsigned tShift = (getHeight() == top   ->getHeight()) ? 0 : 1;
-	unsigned bShift = (getHeight() == bottom->getHeight()) ? 0 : 1;
-	unsigned tWidth = top   ->getLineWidth(line >> tShift);
-	unsigned bWidth = bottom->getLineWidth(line >> bShift);
+	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
+	unsigned bNum = (getHeight() == bottom->getHeight()) ? line : line / 2;
+	unsigned tWidth = top   ->getLineWidth(tNum);
+	unsigned bWidth = bottom->getLineWidth(bNum);
 	return std::max(tWidth, bWidth);
 }
 
@@ -79,17 +79,16 @@ template <typename Pixel>
 const void* SuperImposedFrameImpl<Pixel>::getLineInfo(
 	unsigned line, unsigned& width) const
 {
-	unsigned tShift = (getHeight() == top   ->getHeight()) ? 0 : 1;
-	unsigned bShift = (getHeight() == bottom->getHeight()) ? 0 : 1;
-
-	unsigned tWidth = top   ->getLineWidth(line >> tShift);
-	unsigned bWidth = bottom->getLineWidth(line >> bShift);
+	unsigned tNum = (getHeight() == top   ->getHeight()) ? line : line / 2;
+	unsigned bNum = (getHeight() == bottom->getHeight()) ? line : line / 2;
+	unsigned tWidth = top   ->getLineWidth(tNum);
+	unsigned bWidth = bottom->getLineWidth(bNum);
 	width = std::max(tWidth, bWidth);
 
-	const Pixel* tLine = top   ->getLinePtr<Pixel>(line >> tShift, width);
-	const Pixel* bLine = bottom->getLinePtr<Pixel>(line >> bShift, width);
+	auto* tLine = top   ->getLinePtr<Pixel>(tNum, width);
+	auto* bLine = bottom->getLinePtr<Pixel>(bNum, width);
 
-	auto output = static_cast<Pixel*>(getTempBuffer());
+	auto* output = static_cast<Pixel*>(getTempBuffer());
 	AlphaBlendLines<Pixel> blend(pixelOps);
 	blend(tLine, bLine, output, width);
 

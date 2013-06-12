@@ -1082,9 +1082,9 @@ BlendLines<Pixel, w1, w2>::BlendLines(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel, unsigned w1, unsigned w2>
 void BlendLines<Pixel, w1, w2>::operator()(
-	const Pixel* __restrict in1, const Pixel* __restrict in2,
-	Pixel* __restrict out, unsigned width) __restrict
+	const Pixel* in1, const Pixel* in2, Pixel* out, unsigned width)
 {
+	// It _IS_ allowed that the output is the same as one of the inputs.
 	// TODO SSE optimizations
 	// pure C++ version
 	for (unsigned i = 0; i < width; ++i) {
@@ -1125,9 +1125,9 @@ AlphaBlendLines<Pixel>::AlphaBlendLines(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	const Pixel* __restrict in1, const Pixel* __restrict in2,
-	Pixel* __restrict out, unsigned width) __restrict
+	const Pixel* in1, const Pixel* in2, Pixel* out, unsigned width)
 {
+	// It _IS_ allowed that the output is the same as one of the inputs.
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.alphaBlend(in1[i], in2[i]);
 	}
@@ -1135,9 +1135,10 @@ void AlphaBlendLines<Pixel>::operator()(
 
 template <typename Pixel>
 void AlphaBlendLines<Pixel>::operator()(
-	Pixel in1, const Pixel* __restrict in2,
-	Pixel* __restrict out, unsigned width) __restrict
+	Pixel in1, const Pixel* in2, Pixel* out, unsigned width)
 {
+	// It _IS_ allowed that the output is the same as the input.
+
 	// ATM this routine is only called when 'in1' is not fully opaque nor
 	// fully transparent. This cannot happen in 16bpp modes.
 	assert(sizeof(Pixel) == 4);

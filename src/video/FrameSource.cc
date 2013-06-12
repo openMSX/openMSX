@@ -50,8 +50,8 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line) const
 		return getLinePtr<Pixel>(line, 320);
 	} else {
 		assert(getHeight() == 480);
-		const Pixel* line1 = getLinePtr<Pixel>(2 * line + 0, 320);
-		const Pixel* line2 = getLinePtr<Pixel>(2 * line + 1, 320);
+		auto* line1 = getLinePtr<Pixel>(2 * line + 0, 320);
+		auto* line2 = getLinePtr<Pixel>(2 * line + 1, 320);
 		return blendLines(line1, line2, 320);
 	}
 }
@@ -72,9 +72,9 @@ const Pixel* FrameSource::getLinePtr960_720(unsigned line) const
 {
 	if (getHeight() == 480) {
 		unsigned l2 = (2 * line) / 3;
-		const Pixel* line0 = getLinePtr<Pixel>(l2 + 0, 960);
+		auto* line0 = getLinePtr<Pixel>(l2 + 0, 960);
 		if ((line % 3) == 1) {
-			const Pixel* line1 = getLinePtr<Pixel>(l2 + 1, 960);
+			auto* line1 = getLinePtr<Pixel>(l2 + 1, 960);
 			return blendLines(line0, line1, 960);
 		} else {
 			return line0;

@@ -5,13 +5,14 @@
 #include "ScalerOutput.hh"
 #include "LineScalers.hh"
 #include "PixelOperations.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
 
 template <typename Pixel>
-static inline unsigned readPixel(Pixel p)
+static inline uint32_t readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
@@ -24,7 +25,7 @@ static inline unsigned readPixel(Pixel p)
 }
 
 template <typename Pixel>
-static inline Pixel writePixel(unsigned p)
+static inline Pixel writePixel(uint32_t p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
@@ -44,7 +45,7 @@ public:
 	{
 	}
 
-	inline bool operator()(unsigned c1, unsigned c2) const
+	inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		if (c1 == c2) return false;
 
@@ -91,17 +92,17 @@ EdgeHQ createEdgeHQ(const PixelOperations<Pixel>& pixelOps)
 
 struct EdgeHQLite
 {
-	inline bool operator()(unsigned c1, unsigned c2) const
+	inline bool operator()(uint32_t c1, uint32_t c2) const
 	{
 		return c1 != c2;
 	}
 };
 
 template <typename EdgeOp>
-void calcEdgesGL(const unsigned* __restrict curr, const unsigned* __restrict next,
-                 unsigned* __restrict edges2, EdgeOp edgeOp)
+void calcEdgesGL(const uint32_t* __restrict curr, const uint32_t* __restrict next,
+                 uint32_t* __restrict edges2, EdgeOp edgeOp)
 {
-	typedef unsigned Pixel;
+	typedef uint32_t Pixel;
 	if (OPENMSX_BIGENDIAN) {
 		unsigned pattern = 0;
 		Pixel c5 = curr[0];
@@ -191,13 +192,13 @@ static void calcInitialEdges(
 	unsigned srcWidth, unsigned* __restrict edgeBuf, EdgeOp edgeOp)
 {
 	unsigned x = 0;
-	unsigned c1 = readPixel(srcPrev[x]);
-	unsigned c2 = readPixel(srcCurr[x]);
+	uint32_t c1 = readPixel(srcPrev[x]);
+	uint32_t c2 = readPixel(srcCurr[x]);
 	unsigned pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
 	for (/* */; x < (srcWidth - 1); ++x) {
 		pattern >>= 6;
-		unsigned n1 = readPixel(srcPrev[x + 1]);
-		unsigned n2 = readPixel(srcCurr[x + 1]);
+		uint32_t n1 = readPixel(srcPrev[x + 1]);
+		uint32_t n2 = readPixel(srcCurr[x + 1]);
 		if (edgeOp(c1, c2)) pattern |= (1 << 5);
 		if (edgeOp(c1, n2)) pattern |= (1 << 6);
 		if (edgeOp(c2, n1)) pattern |= (1 << 7);
@@ -214,28 +215,29 @@ static void doHQScale2(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	VLA(unsigned, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, bufA, 2 * srcWidth);
+	VLA_SSE_ALIGNED(Pixel, bufB, 2 * srcWidth);
 
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
+	int srcY = srcStartY;
+	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		Pixel buf0[2 * 1024], buf1[2 * 1024];
-		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dst0 = dst.acquireLine(dstY + 0);
-		Pixel* dst1 = dst.acquireLine(dstY + 1);
+		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dst0 = dst.acquireLine(dstY + 0);
+		auto* dst1 = dst.acquireLine(dstY + 1);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
 			      srcWidth, edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1,
+			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB,
 			        srcWidth, edgeBuf, edgeOp);
-			postScale(buf0, dst0, dstWidth);
-			postScale(buf1, dst1, dstWidth);
+			postScale(bufA, dst0, dstWidth);
+			postScale(bufB, dst1, dstWidth);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);
@@ -249,30 +251,32 @@ static void doHQScale3(HQScale hqScale, EdgeOp edgeOp, PolyLineScaler<Pixel>& po
 	FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	VLA(unsigned, edgeBuf, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, bufA, 3 * srcWidth);
+	VLA_SSE_ALIGNED(Pixel, bufB, 3 * srcWidth);
+	VLA_SSE_ALIGNED(Pixel, bufC, 3 * srcWidth);
 
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
+	int srcY = srcStartY;
+	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	bool isCopy = postScale.isCopy();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
-		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dst0 = dst.acquireLine(dstY + 0);
-		Pixel* dst1 = dst.acquireLine(dstY + 1);
-		Pixel* dst2 = dst.acquireLine(dstY + 2);
+		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dst0 = dst.acquireLine(dstY + 0);
+		auto* dst1 = dst.acquireLine(dstY + 1);
+		auto* dst2 = dst.acquireLine(dstY + 2);
 		if (isCopy) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
 			        srcWidth, edgeBuf, edgeOp);
 		} else {
-			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1, buf2,
+			hqScale(srcPrev, srcCurr, srcNext, bufA, bufB, bufC,
 			        srcWidth, edgeBuf, edgeOp);
-			postScale(buf0, dst0, dstWidth);
-			postScale(buf1, dst1, dstWidth);
-			postScale(buf2, dst2, dstWidth);
+			postScale(bufA, dst0, dstWidth);
+			postScale(bufB, dst1, dstWidth);
+			postScale(bufC, dst2, dstWidth);
 		}
 		dst.releaseLine(dstY + 0, dst0);
 		dst.releaseLine(dstY + 1, dst1);

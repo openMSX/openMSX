@@ -64,8 +64,8 @@ static void doScale1(FrameSource& src,
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
-		Pixel* dstLine = dst.acquireLine(dstY);
+		auto* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		auto* dstLine = dst.acquireLine(dstY);
 		scale(srcLine, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
 	}
@@ -83,11 +83,11 @@ static void doScaleDV(FrameSource& src,
 	VLA_SSE_ALIGNED(Pixel, buf1, dstWidth);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
-		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		auto* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 		scale(srcLine0, buf0, dstWidth);
 		scale(srcLine1, buf1, dstWidth);
-		Pixel* dstLine = dst.acquireLine(dstY);
+		auto* dstLine = dst.acquireLine(dstY);
 		blend(buf0, buf1, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
 	}
@@ -130,14 +130,12 @@ void Scaler1<Pixel>::scale1x2to1x1(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	// No need to scale to local buffer first, like doScaleDV does.
-	// TODO: Even so, this scale mode is so rare, is it really worth having
-	//       optimized code for?
 	unsigned dstWidth = dst.getWidth();
 	BlendLines<Pixel> blend(pixelOps);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; ++dstY) {
-		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine = dst.acquireLine(dstY);
+		auto* srcLine0 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		auto* srcLine1 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		auto* dstLine = dst.acquireLine(dstY);
 		blend(srcLine0, srcLine1, dstLine, dstWidth);
 		dst.releaseLine(dstY, dstLine);
 	}

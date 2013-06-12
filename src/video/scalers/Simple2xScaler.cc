@@ -400,16 +400,16 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* dstLine0 = dst.acquireLine(dstY + 0);
+	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* dstLine0 = dst.acquireLine(dstY + 0);
 	blur1on2(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on2(srcLine, dstLine2, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
 		             2 * srcWidth);
 
@@ -419,11 +419,11 @@ void Simple2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf, 2 * srcWidth);
-	blur1on2(srcLine, buf, blur, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, 2 * srcWidth);
+	blur1on2(srcLine, buf2, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf, dstLine1, scanlineFactor, 2 * srcWidth);
+	auto* dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor, 2 * srcWidth);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }
@@ -437,16 +437,16 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstY = dstStartY;
-	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	Pixel* dstLine0 = dst.acquireLine(dstY);
+	auto* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	auto* dstLine0 = dst.acquireLine(dstY);
 	blur1on1(srcLine, dstLine0, blur, srcWidth);
 
 	for (/**/; dstY < dstEndY - 2; dstY += 2) {
 		srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-		Pixel* dstLine2 = dst.acquireLine(dstY + 2);
+		auto* dstLine2 = dst.acquireLine(dstY + 2);
 		blur1on1(srcLine, dstLine2, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.acquireLine(dstY + 1);
+		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		drawScanline(dstLine0, dstLine2, dstLine1, scanlineFactor,
 		             srcWidth);
 
@@ -456,11 +456,11 @@ void Simple2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	}
 
 	srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
-	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	blur1on1(srcLine, buf, blur, srcWidth);
+	VLA_SSE_ALIGNED(Pixel, buf2, srcWidth);
+	blur1on1(srcLine, buf2, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.acquireLine(dstY + 1);
-	drawScanline(dstLine0, buf, dstLine1, scanlineFactor, srcWidth);
+	auto* dstLine1 = dst.acquireLine(dstY + 1);
+	drawScanline(dstLine0, buf2, dstLine1, scanlineFactor, srcWidth);
 	dst.releaseLine(dstY + 0, dstLine0);
 	dst.releaseLine(dstY + 1, dstLine1);
 }

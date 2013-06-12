@@ -313,12 +313,12 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstUpper = dst.acquireLine(dstY + 0);
-		Pixel* dstLower = dst.acquireLine(dstY + 1);
+		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dstUpper = dst.acquireLine(dstY + 0);
+		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on2(dstUpper, dstLower,
 		               srcPrev, srcCurr, srcNext,
 		               srcWidth);
@@ -335,12 +335,12 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
-	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	auto* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	auto* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
-		Pixel* dstUpper = dst.acquireLine(dstY + 0);
-		Pixel* dstLower = dst.acquireLine(dstY + 1);
+		auto* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		auto* dstUpper = dst.acquireLine(dstY + 0);
+		auto* dstLower = dst.acquireLine(dstY + 1);
 		scaleLine_1on1(dstUpper, dstLower,
 		               srcPrev, srcCurr, srcNext,
 		               srcWidth);

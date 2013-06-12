@@ -50,10 +50,10 @@ static void doScale1(FrameSource& src,
 	Scale_1on1<Pixel> copy;
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
-		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
-		Pixel* dstLine0 = dst.acquireLine(y + 0);
+		auto* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		auto* dstLine0 = dst.acquireLine(y + 0);
 		scale(srcLine, dstLine0, dstWidth);
-		Pixel* dstLine1 = dst.acquireLine(y + 1);
+		auto* dstLine1 = dst.acquireLine(y + 1);
 		copy(dstLine0, dstLine1, dstWidth);
 		dst.releaseLine(y + 0, dstLine0);
 		dst.releaseLine(y + 1, dstLine1);
