@@ -186,7 +186,7 @@ VisibleSurface::~VisibleSurface()
 
 #ifdef _WIN32
 	// Find our current location.
-	SDL_Surface* surface = getSDLDisplaySurface();
+	SDL_Surface* surface = getSDLSurface();
 	if (surface && ((surface->flags & SDL_FULLSCREEN) == 0)) {
 		HWND handle = GetActiveWindow();
 		RECT windowRect;
