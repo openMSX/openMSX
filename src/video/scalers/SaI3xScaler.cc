@@ -320,7 +320,8 @@ public:
 		const Pixel* __restrict src2, const Pixel* __restrict src3,
 		unsigned srcWidth, ScalerOutput<Pixel>& dst, unsigned& dstY)
 	{
-		Pixel* dp = dst.acquireLine(dstY);
+		Pixel* dstLine = dst.acquireLine(dstY);
+		Pixel* dp = dstLine;
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 
@@ -361,7 +362,7 @@ public:
 					);
 			}
 		}
-		dst.releaseLine(dstY, dp);
+		dst.releaseLine(dstY, dstLine);
 		++dstY;
 
 		LineRepeater<i - 1>::template scaleFixedLine<NX, NY, Pixel>(
