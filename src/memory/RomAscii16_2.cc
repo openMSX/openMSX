@@ -1,13 +1,14 @@
 // ASCII 16kB based cartridges with SRAM
 //
-// Examples: A-Train, Daisenryaku, Harry Fox MSX Special, Hydlide 2, Jyansei
+// Examples 2kB SRAM: Daisenryaku, Harry Fox MSX Special, Hydlide 2, Jyansei
+// Examples 8kB SRAM: A-Train
 //
 // this type is is almost completely a ASCII16 cartrdige
-// However, it has 2kB of SRAM (and 128 kB ROM)
+// However, it has 2 or 8kB of SRAM (and 128 kB ROM)
 // Use value 0x10 to select the SRAM.
 // SRAM in page 1 => read-only
 // SRAM in page 2 => read-write
-// The 2Kb SRAM (0x800 bytes) are mirrored in the 16 kB block
+// The SRAM is mirrored in the 16 kB block
 //
 // The address to change banks (from ASCII16):
 //  first  16kb: 0x6000 - 0x67FF (0x6000 used)
@@ -21,10 +22,13 @@
 
 namespace openmsx {
 
-RomAscii16_2::RomAscii16_2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
+RomAscii16_2::RomAscii16_2(const DeviceConfig& config,
+		std::unique_ptr<Rom> rom, SubType subType)
 	: RomAscii16kB(config, std::move(rom))
 {
-	sram = make_unique<SRAM>(getName() + " SRAM", 0x0800, config);
+	unsigned size = (subType == ASCII16_8) ? 0x2000 // 8kB
+					       : 0x0800; // 2kB
+	sram = make_unique<SRAM>(getName() + " SRAM", size, config);
 	reset(EmuTime::dummy());
 }
 
@@ -41,7 +45,7 @@ void RomAscii16_2::reset(EmuTime::param dummy)
 byte RomAscii16_2::readMem(word address, EmuTime::param time)
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return (*sram)[address & 0x07FF];
+		return (*sram)[address & (sram->getSize() - 1)];
 	} else {
 		return RomAscii16kB::readMem(address, time);
 	}
@@ -50,7 +54,7 @@ byte RomAscii16_2::readMem(word address, EmuTime::param time)
 const byte* RomAscii16_2::getReadCacheLine(word address) const
 {
 	if ((1 << (address >> 14)) & sramEnabled) {
-		return &(*sram)[address & 0x07FF];
+		return &(*sram)[address & (sram->getSize() - 1)];
 	} else {
 		return RomAscii16kB::getReadCacheLine(address);
 	}
@@ -73,7 +77,7 @@ void RomAscii16_2::writeMem(word address, byte value, EmuTime::param /*time*/)
 	} else {
 		// write sram
 		if ((1 << (address >> 14)) & sramEnabled & 0x04) {
-			sram->write(address & 0x07FF, value);
+			sram->write(address & (sram->getSize() - 1), value);
 		}
 	}
 }

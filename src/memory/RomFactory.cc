@@ -270,7 +270,10 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 			config, move(rom), RomAscii8_8::WIZARDRY);
 		break;
 	case ROM_ASCII16_2:
-		result = make_unique<RomAscii16_2>(config, move(rom));
+		result = make_unique<RomAscii16_2>(config, move(rom), RomAscii16_2::ASCII16_2);
+		break;
+	case ROM_ASCII16_8:
+		result = make_unique<RomAscii16_2>(config, move(rom), RomAscii16_2::ASCII16_8);
 		break;
 	case ROM_GAME_MASTER2:
 		result = make_unique<RomGameMaster2>(config, move(rom));

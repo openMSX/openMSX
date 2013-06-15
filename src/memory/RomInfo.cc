@@ -66,6 +66,7 @@ static void init()
 	init(ROM_ZEMINA90IN1,    "Zemina90in1",    0x2000, "Zemina 90 in 1");
 	init(ROM_ZEMINA126IN1,   "Zemina126in1",   0x2000, "Zemina 126 in 1");
 	init(ROM_ASCII16_2,      "ASCII16SRAM2",   0x4000, "ASCII 16kB with 2kB SRAM");
+	init(ROM_ASCII16_8,      "ASCII16SRAM8",   0x4000, "ASCII 16kB with 8kB SRAM");
 	init(ROM_ASCII8_8,       "ASCII8SRAM8",    0x2000, "ASCII 8kB with 8kB SRAM");
 	init(ROM_ASCII8_2,       "ASCII8SRAM2",    0x2000, "ASCII 8kB with 2kB SRAM");
 	init(ROM_KOEI_8,         "KoeiSRAM8",      0x2000, "Koei with 8kB SRAM");

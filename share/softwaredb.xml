@@ -117,7 +117,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<company>Pony Canyon</company>
 	<year>1989</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM2</type><hash algo="sha1">5fd07ed5b7c0492d42ed91a54a0fe80ce6e4e40d</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16SRAM8</type><hash algo="sha1">5fd07ed5b7c0492d42ed91a54a0fe80ce6e4e40d</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">A.E.</title>
