@@ -118,12 +118,20 @@ void Scaler1<Pixel>::scale2x2to3x1(FrameSource& src,
 
 template <typename Pixel>
 void Scaler1<Pixel>::scale1x1to1x1(FrameSource& src,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel>> op;
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
-	                dst, dstStartY, dstEndY, op);
+	// Optimized variant: pass dstLine to getLinePtr(), so we can
+	// potentionally avoid the copy operation.
+	assert(dst.getWidth() == srcWidth);
+	Scale_1on1<Pixel> copy;
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; ++srcY, ++dstY) {
+		auto* dstLine = dst.acquireLine(dstY);
+		auto* srcLine = src.getLinePtr(srcY, srcWidth, dstLine);
+		if (srcLine != dstLine) copy(srcLine, dstLine, srcWidth);
+		dst.releaseLine(dstY, dstLine);
+	}
 }
 
 template <typename Pixel>

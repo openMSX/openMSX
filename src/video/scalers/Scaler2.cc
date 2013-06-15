@@ -148,22 +148,38 @@ void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel>> op;
-	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth,
-	                dst, dstStartY, dstEndY, op);
+	// Optimized variant: possibly avoid copy.
+	assert(dst.getWidth() == srcWidth);
+	Scale_1on1<Pixel> copy;
+	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
+		auto* dstLine0 = dst.acquireLine(y + 0);
+		auto* srcLine = src.getLinePtr(srcStartY, srcWidth, dstLine0);
+		if (srcLine != dstLine0) copy(srcLine, dstLine0, srcWidth);
+		auto* dstLine1 = dst.acquireLine(y + 1);
+		copy(dstLine0, dstLine1, srcWidth);
+		dst.releaseLine(y + 0, dstLine0);
+		dst.releaseLine(y + 1, dstLine1);
+	}
 }
 
 template <class Pixel>
 void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	PolyScale<Pixel, Scale_1on1<Pixel>> op;
-	doScale2<Pixel>(src, srcStartY, srcEndY, srcWidth,
-	                dst, dstStartY, dstEndY, op);
+	// Optimized variant: possibly avoid copy.
+	assert(dst.getWidth() == srcWidth);
+	Scale_1on1<Pixel> copy;
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; ++dstY, ++srcY) {
+		auto* dstLine = dst.acquireLine(dstY);
+		auto* srcLine = src.getLinePtr(srcY, srcWidth, dstLine);
+		if (srcLine != dstLine) copy(srcLine, dstLine, srcWidth);
+		dst.releaseLine(dstY, dstLine);
+	}
 }
 
 template <class Pixel>
