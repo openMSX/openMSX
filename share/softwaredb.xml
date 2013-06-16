@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1371360025">
+<softwaredb xml:lang="en" timestamp="1371417572">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6534,6 +6534,14 @@ Generation MSXIDs by www.generation-msx.nl
 <software>
 	<title xml:lang="en">Malaika</title>
 	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark><text>RLV914 / MSXDev13 Entry</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Malaika - Prehistoric Quest</title>
+	<system>MSX</system>
 	<company>Karoshi Corporation</company>
 	<year>2006</year>
 	<country>ES</country>
@@ -6541,14 +6549,6 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash algo="sha1">e94d34d164f5379ea85464b51743461e3f6c92ab</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">e6a0d6c40419647e6b17d30a000331a904c8f5df</hash><remark><text>updated version / MSX-DEV06</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d7bd6e84edcaf6d99abaf6597813501926bda398</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Malaika MSXDev13</title>
-	<system>MSX</system>
-	<company>RELEVO Videogames</company>
-	<year>2013</year>
-	<country>ES</country>
-		<dump><original value="true">Author</original><rom><hash algo="sha1">5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark><text>RLV914 / MSXDev13 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Malaya no Hihou</title>
@@ -10664,6 +10664,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">996a1c0d92400287c15545116b952f84c7dc03b1</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Super Swangi</title>
+	<system>MSX</system>
+	<company>Clover</company>
+	<year>1990</year>
+	<country>KR</country>
+		<dump><megarom><type>SuperSwangi</type><hash algo="sha1">3d330e3c97ee3e2e362c8a0fc2cfac69af5ace81</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">Super Synth</title>
 	<genmsxid>518</genmsxid>
 	<system>MSX</system>
@@ -12286,6 +12294,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2716
-Created on Sun Jun 16 7:20:30 CEST 2013
+Roms in this XML file:2717
+Created on Sun Jun 16 23:19:38 CEST 2013
  -->
