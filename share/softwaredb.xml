@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1370815306">
+<softwaredb xml:lang="en" timestamp="1371360025">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6543,6 +6543,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d7bd6e84edcaf6d99abaf6597813501926bda398</hash><remark><text>MSX-DEV06</text></remark></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Malaika MSXDev13</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark><text>RLV914 / MSXDev13 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Malaya no Hihou</title>
 	<genmsxid>1261</genmsxid>
 	<system>MSX</system>
@@ -9700,6 +9708,22 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>GenericKonami</type><hash algo="sha1">c74325fbeaa7293b46766c99a2dd8bd57db3a7e9</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">SHMUP!</title>
+	<system>MSX</system>
+	<company>Imanok</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">87694fc3e9be68a46c7e32ae643634e8c7b1000b</hash><remark><text>MSXDev13 Entry</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Shouganai</title>
+	<system>MSX</system>
+	<company>Paxanga Soft</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">1d798b8bba3beca92949170741ea34f4b166d067</hash><remark><text>MSXDev13 Entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Shougi Meijin</title>
 	<genmsxid>510</genmsxid>
 	<system>MSX</system>
@@ -9885,6 +9909,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<country>ES</country>
 		<dump><rom><hash algo="sha1">e3a52d448e69d6d14f67d35f24d9924158b1cce1</hash></rom></dump>
 		<dump><rom><hash algo="sha1">e8dd2edf5b0db48eee729988731d11b167fe1dd3</hash><remark><text>[h Piratage]</text></remark></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Slender - The Camping</title>
+	<system>MSX</system>
+	<company>Pentacour</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">1e5f04e72c092140d69c29a9e2826d7326f8ea54</hash><remark><text>MSXDev13 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Snail Maze</title>
@@ -10193,6 +10225,14 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">18b90aaa2284eb46233e9203af1e8cf1922c417c</hash></rom></dump>
+</software>
+<software>
+	<title xml:lang="en">Stan, the dreamer</title>
+	<system>MSX</system>
+	<company>The Pets Mode</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">933bc34f20d5740cac949cd7257b44974199d9eb</hash><remark><text>MSXDev13 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Star Battle</title>
@@ -12246,6 +12286,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2711
-Created on Mon Jun 10 0:01:51 CEST 2013
+Roms in this XML file:2716
+Created on Sun Jun 16 7:20:30 CEST 2013
  -->
