@@ -82,6 +82,7 @@ static void init()
 	init(ROM_PADIAL8,        "Padial8",        0x2000, "Padial 8kB");
 	init(ROM_PADIAL16,       "Padial16",       0x4000, "Padial 16kB");
 	init(ROM_SUPERLODERUNNER,"SuperLodeRunner",0x4000, "Super Lode Runner");
+	init(ROM_SUPERSWANGI,    "SuperSwangi"    ,0x4000, "Super Swangi");
 	init(ROM_MSXDOS2,        "MSXDOS2",        0x4000, "MSX-DOS2");
 	init(ROM_MANBOW2,        "Manbow2",        0x2000, "Manbow2");
 	init(ROM_MANBOW2_2,      "Manbow2_2",      0x2000, "Manbow2 - Second Release");
