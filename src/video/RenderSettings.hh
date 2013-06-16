@@ -136,6 +136,11 @@ public:
 		return *pointerHideDelaySetting;
 	}
 
+	/** Is black frame interleaving enabled? */
+	BooleanSetting& getInterleaveBlackFrame() const {
+		return *interleaveBlackFrameSetting;
+	}
+
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color component. The component is expected to be in the range
 	  * [0.0 .. 1.0] but it's not an error if it lays outside of this range.
@@ -186,6 +191,7 @@ private:
 	std::unique_ptr<EnumSetting<DisplayDeform>> displayDeformSetting;
 	std::unique_ptr<FloatSetting> horizontalStretchSetting;
 	std::unique_ptr<FloatSetting> pointerHideDelaySetting;
+	std::unique_ptr<BooleanSetting> interleaveBlackFrameSetting;
 
 	double brightness;
 	double contrast;

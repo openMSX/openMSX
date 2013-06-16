@@ -38,6 +38,11 @@ void SDLGLOffScreenSurface::flushFrameBuffer()
 	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
 }
 
+void SDLGLOffScreenSurface::clearScreen()
+{
+	SDLGLOutputSurface::clearScreen();
+}
+
 void SDLGLOffScreenSurface::saveScreenshot(const std::string& filename)
 {
 	SDLGLOutputSurface::saveScreenshot(filename, getWidth(), getHeight());

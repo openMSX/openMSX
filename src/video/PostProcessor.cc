@@ -10,6 +10,10 @@
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "EventDistributor.hh"
+#include "FinishFrameEvent.hh"
 #include "CommandException.hh"
 #include "MemoryOps.hh"
 #include "vla.hh"
@@ -26,14 +30,18 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	Display& display_, OutputSurface& screen_, const std::string& videoSource,
 	unsigned maxWidth, unsigned height, bool canDoInterlace_)
 	: VideoLayer(motherBoard, videoSource)
+	, Schedulable(motherBoard.getScheduler())
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(nullptr)
 	, recorder(nullptr)
 	, superImposeVideoFrame(nullptr)
 	, superImposeVdpFrame(nullptr)
+	, interleaveCount(0)
 	, display(display_)
 	, canDoInterlace(canDoInterlace_)
+	, lastRotate(motherBoard.getCurrentTime())
+	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
 		currFrame = make_unique<RawFrame>(
@@ -85,6 +93,14 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
 	EmuTime::param time)
 {
+	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+		auto delta = time - lastRotate; // time between last two calls
+		auto middle = time + delta / 2; // estimate for middle between now
+		                                // and next call
+		setSyncPoint(middle);
+	}
+	lastRotate = time;
+
 	std::unique_ptr<RawFrame> reuseFrame;
 	if (canDoInterlace) {
 		reuseFrame = std::move(prevFrame);
@@ -137,6 +153,14 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	} else {
 		return std::move(currFrame);
 	}
+}
+
+void PostProcessor::executeUntil(EmuTime::param /*time*/, int /*userData*/)
+{
+	// insert fake end of frame event
+	eventDistributor.distributeEvent(
+		std::make_shared<FinishFrameEvent>(
+			getVideoSource(), getVideoSourceSetting(), false));
 }
 
 void PostProcessor::setSuperimposeVideoFrame(const RawFrame* videoSource)

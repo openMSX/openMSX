@@ -83,6 +83,11 @@ void SDLGLVisibleSurface::flushFrameBuffer()
 	SDLGLOutputSurface::flushFrameBuffer(getWidth(), getHeight());
 }
 
+void SDLGLVisibleSurface::clearScreen()
+{
+	SDLGLOutputSurface::clearScreen();
+}
+
 void SDLGLVisibleSurface::saveScreenshot(const std::string& filename)
 {
 	SDLGLOutputSurface::saveScreenshot(filename, getWidth(), getHeight());

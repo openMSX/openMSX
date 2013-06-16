@@ -8,6 +8,7 @@
 #include "OutputSurface.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "Math.hh"
 #include "aligned.hh"
@@ -260,6 +261,14 @@ FBPostProcessor<Pixel>::~FBPostProcessor()
 template <class Pixel>
 void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 {
+	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+		interleaveCount ^= 1;
+		if (interleaveCount) {
+			output.clearScreen();
+			return;
+		}
+	}
+
 	if (!paintFrame) return;
 
 	// New scaler algorithm selected?

@@ -131,6 +131,7 @@
         <li><a class="internal" href="#grabinput">grabinput</a></li>
         <li><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></li>
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
+        <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
@@ -3719,6 +3720,33 @@
   <div class="note">
     Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
   </div>
+
+
+  <h3><a id="interleave_black_frame">interleave_black_frame</a></h3>
+
+  <p>Insert a black frame in between each normal MSX frame. Useful on (100Hz+)
+  lightboost enabled monitors to reduce motion blur and double frame
+  artifacts.</p>
+
+  <p>Make sure you configure your monitor to use a refresh rate of 100Hz (for a
+  PAL MSX machine) or to 120Hz (for a NTSC machine). The brightness will
+  decrease, so adjust the <a class="internal" href="#gamma">gamma</a>,
+  <a class="internal" href="#brightness">brightness</a> and
+  <a class="internal" href="#contrast">contrast</a> settings to compensate.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set interleave_black_frame</code></td>
+      <td>Shows the current value</td>
+    </tr>
+    <tr>
+      <td><code>set interleave_black_frame true</code></td>
+      <td>Enable this feature.</td>
+    </tr>
+  </table>
 
 
   <h3><a id="invalid_psg_directions_callback">invalid_psg_directions_callback</a></h3>

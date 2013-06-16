@@ -3,6 +3,7 @@
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
@@ -125,6 +126,15 @@ void GLPostProcessor::createRegions()
 
 void GLPostProcessor::paint(OutputSurface& /*output*/)
 {
+	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+		interleaveCount ^= 1;
+		if (interleaveCount) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			return;
+		}
+	}
+
 	RenderSettings::DisplayDeform deform =
 		renderSettings.getDisplayDeform().getEnum();
 	double horStretch = renderSettings.getHorizontalStretch().getDouble();

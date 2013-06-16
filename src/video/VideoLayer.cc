@@ -49,6 +49,10 @@ int VideoLayer::getVideoSource() const
 {
 	return videoSourceActivator->getID();
 }
+int VideoLayer::getVideoSourceSetting() const
+{
+	return videoSourceSetting.getSource();
+}
 
 void VideoLayer::update(const Setting& setting)
 {

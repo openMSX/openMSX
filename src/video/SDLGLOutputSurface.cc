@@ -127,6 +127,12 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 	glDisable(GL_TEXTURE_2D);
 }
 
+void SDLGLOutputSurface::clearScreen()
+{
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void SDLGLOutputSurface::saveScreenshot(
 	const std::string& filename, unsigned width, unsigned height)
 {

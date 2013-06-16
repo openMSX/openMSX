@@ -28,6 +28,7 @@ public:
 	  * these IDs as possible values.
 	  */
 	int getVideoSource() const;
+	int getVideoSourceSetting() const;
 
 	/** Create a raw (=non-postprocessed) screenshot. The 'height'
 	 * parameter should be either '240' or '480'. The current image will be

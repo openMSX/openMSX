@@ -43,4 +43,9 @@ void SDLOffScreenSurface::saveScreenshot(const std::string& filename)
 	PNG::save(getSDLSurface(), filename);
 }
 
+void SDLOffScreenSurface::clearScreen()
+{
+	memset(surface->pixels, 0, surface->pitch * surface->h);
+}
+
 } // namespace openmsx
