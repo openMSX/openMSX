@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1371417572">
+<softwaredb xml:lang="en" timestamp="1371492980">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -6538,6 +6538,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2013</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">5d379dd826d0a8870d72ce5bef0afe2b04ba212a</hash><remark><text>RLV914 / MSXDev13 Entry</text></remark></rom></dump>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">526ae4d65717df1ec2440f1d38149d325cbb6bcc</hash><remark><text>RLV914 R1 / MSXDev13 Entry</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Malaika - Prehistoric Quest</title>
@@ -12294,6 +12295,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:2717
-Created on Sun Jun 16 23:19:38 CEST 2013
+Roms in this XML file:2718
+Created on Mon Jun 17 20:16:27 CEST 2013
  -->
