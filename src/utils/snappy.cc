@@ -50,7 +50,7 @@ static inline void unalignedCopy128(const char* src, char* dst)
 //    ababababababababababab
 // Note that this does not match the semantics of either memcpy()
 // or memmove().
-static inline void incrementalCopy(const char* src, char* op, int len)
+static inline void incrementalCopy(const char* src, char* op, ssize_t len)
 {
 	assert(len > 0);
 	do {
@@ -91,7 +91,7 @@ static inline void incrementalCopy(const char* src, char* op, int len)
 
 static const int MAX_INCR_COPY_OVERFLOW = 10;
 
-static inline void incrementalCopyFast(const char* src, char* op, int len)
+static inline void incrementalCopyFast(const char* src, char* op, ssize_t len)
 {
 	while (op - src < 8) {
 		unalignedCopy64(src, op);
