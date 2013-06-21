@@ -76,7 +76,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
                           unsigned& firstDataSector, byte& descriptor)
 {
 	// start from the default bootblock ..
-	const byte* defaultBootBlock = BootBlocks::dos2BootBlock;
+	auto* defaultBootBlock = BootBlocks::dos2BootBlock;
 	memcpy(&boot, defaultBootBlock, SECTOR_SIZE);
 
 	// .. and fill-in image-size dependent parameters ..
@@ -181,10 +181,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 		init = true;
 		srand(unsigned(time(nullptr)));
 	}
-	auto raw = reinterpret_cast<byte*>(&boot);
-	for (int i = 0x27; i < 0x2B; ++i) {
-		raw[i] = rand() & 0x7F;
-	}
+	boot.vol_id = rand() & 0x7F7F7F7F; // why are bits masked?
 
 	unsigned nbRootDirSectors = nbDirEntry / 16;
 	unsigned rootDirStart = 1 + nbFats * nbSectorsPerFat;
@@ -203,7 +200,7 @@ void format(SectorAccessibleDisk& disk)
 
 	// write empty FAT and directory sectors
 	byte buf[SECTOR_SIZE];
-	memset(buf, 0x00, sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 	for (unsigned i = 2; i < firstDataSector; ++i) {
 		disk.writeSector(i, buf);
 	}
@@ -242,8 +239,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	PartitionTable pt;
 	memset(&pt, 0, sizeof(pt));
 	memcpy(pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
-	pt.end[0] = 0x55;
-	pt.end[1] = 0xAA;
+	pt.end = 0x55AA;
 
 	unsigned partitionOffset = 1;
 	for (unsigned i = 0; i < sizes.size(); ++i) {

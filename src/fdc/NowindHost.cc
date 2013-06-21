@@ -212,7 +212,7 @@ void NowindHost::executeCommand()
 	//case 0x30: BDOS_30H_WriteLogicalSector();
 
 	case 0x80: { // DSKIO
-		SectorAccessibleDisk* disk = getDisk();
+		auto* disk = getDisk();
 		if (!disk) {
 			// no such drive or no disk inserted
 			// (causes a timeout on the MSX side)
@@ -278,7 +278,7 @@ void NowindHost::sendHeader()
 
 void NowindHost::DSKCHG()
 {
-	SectorAccessibleDisk* disk = getDisk();
+	auto* disk = getDisk();
 	if (!disk) {
 		// no such drive or no disk inserted
 		return;
@@ -331,8 +331,8 @@ void NowindHost::INIENV()
 
 void NowindHost::setDateMSX()
 {
-	time_t td = time(nullptr);
-	struct tm* tm = localtime(&td);
+	auto td = time(nullptr);
+	auto* tm = localtime(&td);
 
 	sendHeader();
 	send(tm->tm_mday);          // day
@@ -516,7 +516,7 @@ void NowindHost::doDiskWrite1()
 		// All data transferred!
 		unsigned sectorAmount = unsigned(buffer.size()) / 512;
 		unsigned startSector = getStartSector();
-		if (SectorAccessibleDisk* disk = getDisk()) {
+		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
 				// TODO write error
 			}

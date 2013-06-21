@@ -26,7 +26,7 @@ public:
 	void chdir(const std::string& newRootDir);
 	void mkdir(const std::string& newRootDir);
 	std::string dir();
-	std::string addFile(const std::string& Filename);
+	std::string addFile(const std::string& filename);
 	std::string addDir(const std::string& rootDirName);
 	std::string getItemFromDir(const std::string& rootDirName,
 	                           const std::string& itemName);
@@ -54,16 +54,16 @@ private:
 	DirEntry addEntryToDir(unsigned sector);
 	unsigned addSubdir(const std::string& msxName,
 	                   unsigned t, unsigned d, unsigned sector);
-	void alterFileInDSK(MSXDirEntry& msxdirentry, const std::string& hostName);
+	void alterFileInDSK(MSXDirEntry& msxDirEntry, const std::string& hostName);
 	unsigned addSubdirToDSK(const std::string& hostName,
 	                   const std::string& msxName, unsigned sector);
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        byte* sectorbuf);
 	std::string addFileToDSK(const std::string& hostName, unsigned sector);
 	std::string recurseDirFill(const std::string& dirName, unsigned sector);
-	std::string condensName(MSXDirEntry& direntry);
-	void changeTime(std::string resultFile, MSXDirEntry& direntry);
-	void fileExtract(std::string resultFile, MSXDirEntry& direntry);
+	std::string condensName(const MSXDirEntry& dirEntry);
+	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);
+	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void recurseDirExtract(const std::string& dirName, unsigned sector);
 	std::string singleItemExtract(const std::string& dirName,
 	                              const std::string& itemName, unsigned sector);

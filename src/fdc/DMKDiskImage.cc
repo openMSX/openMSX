@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <cassert>
 
-using std::vector;
-
 namespace openmsx {
 
 struct DmkHeader
@@ -137,8 +135,8 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 
 	// Write idam table.
 	byte idamOut[2 * 64] = {}; // zero-initialize
-	const vector<unsigned>& idamIn = input.getIdamBuffer();
-	for (int i = 0; i < std::min<int>(64, int(idamIn.size())); ++i) {
+	auto& idamIn = input.getIdamBuffer();
+	for (int i = 0; i < std::min(64, int(idamIn.size())); ++i) {
 		int t = (idamIn[i] + 128) | FLAG_MFM_SECTOR;
 		idamOut[2 * i + 0] = t & 0xff;
 		idamOut[2 * i + 1] = t >> 8;

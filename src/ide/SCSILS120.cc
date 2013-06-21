@@ -834,21 +834,26 @@ void LSXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result
 		result.addListElement(ls.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
-	} else if ( (tokens.size() == 2) && (
-		tokens[1].getString() == "eject" || tokens[1].getString() == "-eject" )) {
+	} else if ((tokens.size() == 2) &&
+	           ((tokens[1].getString() == "eject") ||
+		    (tokens[1].getString() == "-eject"))) {
 		ls.eject();
 		// TODO check for locked tray
-		if ( tokens[1].getString() == "-eject" ) {
+		if (tokens[1].getString() == "-eject") {
 			result.setString(
-			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
+				"Warning: use of '-eject' is deprecated, "
+				"instead use the 'eject' subcommand");
 		}
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1].getString() == "insert")) {
+	} else if ((tokens.size() == 2) ||
+	           ((tokens.size() == 3) &&
+		    (tokens[1].getString() == "insert"))) {
 		int fileToken = 1;
 		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
-				throw CommandException("Missing argument to insert subcommand");
+				throw CommandException(
+					"Missing argument to insert subcommand");
 			}
 		}
 		try {

@@ -27,7 +27,9 @@ struct MSXBootSector {
 	Endian::UA_L16 sectorsTrack;  // +24 sectors per track // TODO aligned
 	Endian::UA_L16 nrSides;       // +26 number of side    // TODO aligned
 	Endian::UA_L16 hiddenSectors; // +28 not use           // TODO aligned
-	byte           bootProg[512-30];// +30 actual bootprogram
+	byte           pad1[9];       // +30
+	Endian::UA_L32 vol_id;        // +39
+	byte           pad2[512-43];  // +43
 };
 static_assert(sizeof(MSXBootSector) == 512, "must be size 512");
 static_assert(ALIGNOF(MSXBootSector) == 1, "must not have alignment requirements"); // TODO don't require this in the future
@@ -76,11 +78,12 @@ struct Partition {
 static_assert(sizeof(Partition) == 16, "must be size 16");
 static_assert(ALIGNOF(Partition) == 1, "must not have alignment requirements");
 
+// TODO aligned, see above
 struct PartitionTable {
-	char      header[11]; // +  0
-	char      pad[3];     // +  3
-	Partition part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
-	byte      end[2];     // +510
+	char           header[11]; // +  0
+	char           pad[3];     // +  3
+	Partition      part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
+	Endian::UA_L16 end;        // +510 // TODO aligned
 };
 static_assert(sizeof(PartitionTable) == 512, "must be size 512");
 

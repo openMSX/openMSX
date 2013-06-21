@@ -67,7 +67,7 @@ private:
 	void checkDeletedHostFiles();
 	void deleteMSXFile(DirIndex dirIndex);
 	void deleteMSXFilesInDir(unsigned msxDirSector);
-	void freeFATChain(unsigned curCl);
+	void freeFATChain(unsigned cluster);
 	void addNewHostFiles(const std::string& hostSubDir, unsigned msxDirSector);
 	void addNewDirectory(const std::string& hostSubDir, const std::string& hostName,
                              unsigned msxDirSector, FileOperations::Stat& fst);
@@ -88,11 +88,11 @@ private:
 	void exportToHost(DirIndex dirIndex, DirIndex dirDirIndex);
 	void exportToHostDir (DirIndex dirIndex, const std::string& hostName);
 	void exportToHostFile(DirIndex dirIndex, const std::string& hostName);
-	unsigned findNextFreeCluster(unsigned curcl);
+	unsigned findNextFreeCluster(unsigned cluster);
 	unsigned findFirstFreeCluster();
 	unsigned getFreeCluster();
-	unsigned readFAT(unsigned clnr);
-	void writeFAT12(unsigned clnr, unsigned val);
+	unsigned readFAT(unsigned cluster);
+	void writeFAT12(unsigned cluster, unsigned val);
 	void exportFileFromFATChange(unsigned cluster, byte* oldFAT);
 	unsigned getChainStart(unsigned cluster, unsigned& chainLength);
 	bool isDirSector(unsigned sector, DirIndex& dirDirIndex);

@@ -19,14 +19,14 @@ private:
 	static const int TBLSIZE = 16;
 	static const int MAXHUFCNT = 127;
 
-	inline byte charin();
-	void chkheader();
-	void unlz77();
-	int rdstrlen();
-	int rdstrpos();
-	bool bitin();
-	void inithufinfo();
-	void mkhuftbl();
+	inline byte charIn();
+	void chkHeader();
+	void unLz77();
+	unsigned rdStrLen();
+	int rdStrPos();
+	bool bitIn();
+	void initHufInfo();
+	void mkHufTbl();
 
 	struct HufNode {
 		HufNode* child1;
@@ -38,16 +38,16 @@ private:
 	const byte* inBufPos;	// pos in input buffer
 	const byte* inBufEnd;
 
-	int updhufcnt;
-	int cpdist[TBLSIZE + 1];
-	int cpdbmask[TBLSIZE];
-	int tblsizes[TBLSIZE];
-	HufNode huftbl[2 * TBLSIZE - 1];
+	int updHufCnt;
+	int cpDist[TBLSIZE + 1];
+	int cpdBmask[TBLSIZE];
+	int tblSizes[TBLSIZE];
+	HufNode hufTbl[2 * TBLSIZE - 1];
 
-	byte bitflg;		// flag with the bits
-	byte bitcnt;		// nb bits left
+	byte bitFlg;		// flag with the bits
+	byte bitCnt;		// nb bits left
 
-	static const int cpdext[TBLSIZE];	// Extra bits for distance codes
+	static const int cpdExt[TBLSIZE];	// Extra bits for distance codes
 };
 
 
@@ -79,7 +79,7 @@ bool XSADiskImage::isWriteProtectedImpl() const
 
 // XSAExtractor
 
-const int XSAExtractor::cpdext[TBLSIZE] = {
+const int XSAExtractor::cpdExt[TBLSIZE] = {
 	  0,  0,  0,  0,  1,  2,  3,  4, 5,  6,  7,  8,  9, 10, 11, 12
 };
 
@@ -89,14 +89,14 @@ XSAExtractor::XSAExtractor(File& file)
 	inBufPos = file.mmap(size);
 	inBufEnd = inBufPos + size;
 
-	if ((charin() != 'P') || (charin() != 'C') ||
-	    (charin() != 'K') || (charin() != '\010')) {
+	if ((charIn() != 'P') || (charIn() != 'C') ||
+	    (charIn() != 'K') || (charIn() != '\010')) {
 		throw MSXException("Not an XSA image");
 	}
 
-	chkheader();
-	inithufinfo();	// initialize the cpdist tables
-	unlz77();
+	chkHeader();
+	initHufInfo();	// initialize the cpDist tables
+	unLz77();
 }
 
 void XSAExtractor::getData(vector<byte>& data)
@@ -106,7 +106,7 @@ void XSAExtractor::getData(vector<byte>& data)
 }
 
 // Get the next character from the input buffer
-byte XSAExtractor::charin()
+byte XSAExtractor::charIn()
 {
 	if (inBufPos >= inBufEnd) {
 		throw MSXException("Corrupt XSA image: unexpected end of file");
@@ -115,12 +115,12 @@ byte XSAExtractor::charin()
 }
 
 // check fileheader
-void XSAExtractor::chkheader()
+void XSAExtractor::chkHeader()
 {
 	// read original length (little endian)
 	unsigned outBufLen = 0;
 	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
-		outBufLen += base * charin();
+		outBufLen += base * charIn();
 	}
 	// is only used as an optimization, it will work correctly
 	// even if this field was corrupt (intentionally or not)
@@ -130,167 +130,169 @@ void XSAExtractor::chkheader()
 	inBufPos += 4;
 
 	// skip original filename
-	while (charin()) /*empty*/;
+	while (charIn()) /*empty*/;
 }
 
 // the actual decompression algorithm itself
-void XSAExtractor::unlz77()
+void XSAExtractor::unLz77()
 {
-	bitcnt = 0; // no bits read yet
+	bitCnt = 0; // no bits read yet
 
 	while (true) {
-		if (bitin()) {
+		if (bitIn()) {
 			// 1-bit
-			int strlen = rdstrlen();
-			if (strlen == (MAXSTRLEN + 1)) {
+			unsigned strLen = rdStrLen();
+			if (strLen == (MAXSTRLEN + 1)) {
 				 return;
 			}
-			unsigned strpos = rdstrpos();
-			if ((strpos == 0) || (strpos > outBuf.size())) {
+			unsigned strPos = rdStrPos();
+			if ((strPos == 0) || (strPos > outBuf.size())) {
 				throw MSXException(
 					"Corrupt XSA image: invalid offset");
 			}
-			while (strlen--) {
-				outBuf.push_back(*(outBuf.end() - strpos));
+			while (strLen--) {
+				outBuf.push_back(*(outBuf.end() - strPos));
 			}
 		} else {
 			// 0-bit
-			outBuf.push_back(charin());
+			outBuf.push_back(charIn());
 		}
 	}
 }
 
 // read string length
-int XSAExtractor::rdstrlen()
+unsigned XSAExtractor::rdStrLen()
 {
-	if (!bitin()) return 2;
-	if (!bitin()) return 3;
-	if (!bitin()) return 4;
+	if (!bitIn()) return 2;
+	if (!bitIn()) return 3;
+	if (!bitIn()) return 4;
 
-	byte nrbits;
-	for (nrbits = 2; (nrbits != 7) && bitin(); ++nrbits) {
+	byte nrBits;
+	for (nrBits = 2; (nrBits != 7) && bitIn(); ++nrBits) {
 		// nothing
 	}
 
-	int len = 1;
-	while (nrbits--) {
-		len = (len << 1) | (bitin() ? 1:0);
+	unsigned len = 1;
+	while (nrBits--) {
+		len = (len << 1) | (bitIn() ? 1 : 0);
 	}
 	return (len + 1);
 }
 
 // read string pos
-int XSAExtractor::rdstrpos()
+int XSAExtractor::rdStrPos()
 {
-	HufNode* hufpos = &huftbl[2 * TBLSIZE - 2];
+	HufNode* hufPos = &hufTbl[2 * TBLSIZE - 2];
 
-	while (hufpos->child1) {
-		if (bitin()) {
-			hufpos = hufpos->child2;
+	while (hufPos->child1) {
+		if (bitIn()) {
+			hufPos = hufPos->child2;
 		} else {
-			hufpos = hufpos->child1;
+			hufPos = hufPos->child1;
 		}
 	}
-	byte cpdindex = byte(hufpos-huftbl);
-	++tblsizes[cpdindex];
+	byte cpdIndex = byte(hufPos - hufTbl);
+	++tblSizes[cpdIndex];
 
-	int strpos;
-	if (cpdbmask[cpdindex] >= 256) {
-		byte strposlsb = charin();
-		byte strposmsb = 0;
-		for (byte nrbits = cpdext[cpdindex]-8; nrbits--; strposmsb |= (bitin() ? 1:0)) {
-			strposmsb <<= 1;
+	int strPos;
+	if (cpdBmask[cpdIndex] >= 256) {
+		byte strPosLsb = charIn();
+		byte strPosMsb = 0;
+		for (byte nrBits = cpdExt[cpdIndex] - 8; nrBits--;
+		     strPosMsb |= (bitIn() ? 1 : 0)) {
+			strPosMsb <<= 1;
 		}
-		strpos = strposlsb + 256 * strposmsb;
+		strPos = strPosLsb + 256 * strPosMsb;
 	} else {
-		strpos = 0;
-		for (byte nrbits = cpdext[cpdindex]; nrbits--; strpos |= (bitin() ? 1:0)) {
-			strpos <<= 1;
+		strPos = 0;
+		for (byte nrBits = cpdExt[cpdIndex]; nrBits--;
+		     strPos |= (bitIn() ? 1 : 0)) {
+			strPos <<= 1;
 		}
 	}
-	if ((updhufcnt--) == 0) {
-		mkhuftbl();	// make the huffman table
+	if ((updHufCnt--) == 0) {
+		mkHufTbl();	// make the huffman table
 	}
-	return strpos + cpdist[cpdindex];
+	return strPos + cpDist[cpdIndex];
 }
 
 // read a bit from the input file
-bool XSAExtractor::bitin()
+bool XSAExtractor::bitIn()
 {
-	if (bitcnt == 0) {
-		bitflg = charin();	// read bitflg
-		bitcnt = 8;		// 8 bits left
+	if (bitCnt == 0) {
+		bitFlg = charIn();	// read bitFlg
+		bitCnt = 8;		// 8 bits left
 	}
-	bool temp = bitflg & 1;
-	--bitcnt;			// 1 bit less
-	bitflg >>= 1;
+	bool temp = bitFlg & 1;
+	--bitCnt;			// 1 bit less
+	bitFlg >>= 1;
 
 	return temp;
 }
 
 // initialize the huffman info tables
-void XSAExtractor::inithufinfo()
+void XSAExtractor::initHufInfo()
 {
 	int offs = 1;
 	for (int i = 0; i != TBLSIZE; ++i) {
-		cpdist[i] = offs;
-		cpdbmask[i] = 1<<cpdext[i];
-		offs += cpdbmask[i];
+		cpDist[i] = offs;
+		cpdBmask[i] = 1 << cpdExt[i];
+		offs += cpdBmask[i];
 	}
-	cpdist[TBLSIZE] = offs;
+	cpDist[TBLSIZE] = offs;
 
 	for (int i = 0; i != TBLSIZE; ++i) {
-		tblsizes[i] = 0;            // reset the table counters
-		huftbl[i].child1 = nullptr; // mark the leave nodes
+		tblSizes[i] = 0;            // reset the table counters
+		hufTbl[i].child1 = nullptr; // mark the leave nodes
 	}
-	mkhuftbl();	// make the huffman table
+	mkHufTbl();	// make the huffman table
 }
 
 // Make huffman coding info
-void XSAExtractor::mkhuftbl()
+void XSAExtractor::mkHufTbl()
 {
 	// Initialize the huffman tree
-	HufNode* hufpos = huftbl;
+	HufNode* hufPos = hufTbl;
 	for (int i = 0; i != TBLSIZE; ++i) {
-		(hufpos++)->weight = 1+(tblsizes[i] >>= 1);
+		(hufPos++)->weight = 1 + (tblSizes[i] >>= 1);
 	}
-	for (int i = TBLSIZE; i != 2*TBLSIZE-1; ++i) {
-		(hufpos++)->weight = -1;
+	for (int i = TBLSIZE; i != 2 * TBLSIZE - 1; ++i) {
+		(hufPos++)->weight = -1;
 	}
 	// Place the nodes in the correct manner in the tree
-	while (huftbl[2*TBLSIZE-2].weight == -1) {
-		HufNode* l1pos;
-		HufNode* l2pos;
-		for (hufpos=huftbl; !(hufpos->weight); ++hufpos) {
+	while (hufTbl[2 * TBLSIZE - 2].weight == -1) {
+		HufNode* l1Pos;
+		HufNode* l2Pos;
+		for (hufPos = hufTbl; !(hufPos->weight); ++hufPos) {
 			// nothing
 		}
-		l1pos = hufpos++;
-		while (!(hufpos->weight)) {
-			++hufpos;
+		l1Pos = hufPos++;
+		while (!(hufPos->weight)) {
+			++hufPos;
 		}
-		if (hufpos->weight < l1pos->weight) {
-			l2pos = l1pos;
-			l1pos = hufpos++;
+		if (hufPos->weight < l1Pos->weight) {
+			l2Pos = l1Pos;
+			l1Pos = hufPos++;
 		} else {
-			l2pos = hufpos++;
+			l2Pos = hufPos++;
 		}
-		int tempw;
-		while ((tempw = (hufpos)->weight) != -1) {
-			if (tempw) {
-				if (tempw < l1pos->weight) {
-					l2pos = l1pos;
-					l1pos = hufpos;
-				} else if (tempw < l2pos->weight) {
-					l2pos = hufpos;
+		int tempW;
+		while ((tempW = (hufPos)->weight) != -1) {
+			if (tempW) {
+				if (tempW < l1Pos->weight) {
+					l2Pos = l1Pos;
+					l1Pos = hufPos;
+				} else if (tempW < l2Pos->weight) {
+					l2Pos = hufPos;
 				}
 			}
-			++hufpos;
+			++hufPos;
 		}
-		hufpos->weight = l1pos->weight+l2pos->weight;
-		(hufpos->child1 = l1pos)->weight = 0;
-		(hufpos->child2 = l2pos)->weight = 0;
+		hufPos->weight = l1Pos->weight + l2Pos->weight;
+		(hufPos->child1 = l1Pos)->weight = 0;
+		(hufPos->child2 = l2Pos)->weight = 0;
 	}
-	updhufcnt = MAXHUFCNT;
+	updHufCnt = MAXHUFCNT;
 }
 
 } // namespace openmsx

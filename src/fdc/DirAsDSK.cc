@@ -54,7 +54,7 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < MAX_CLUSTER);
-	const byte* p = buf + (cluster * 3) / 2;
+	auto* p = &buf[(cluster * 3) / 2];
 	unsigned result = (cluster & 1)
 	                ? (p[0] >> 4) + (p[1] << 4)
 	                : p[0] + ((p[1] & 0x0F) << 8);
@@ -65,7 +65,7 @@ static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 {
 	assert(FIRST_CLUSTER <= cluster);
 	assert(cluster < MAX_CLUSTER);
-	byte* p = buf + (cluster * 3) / 2;
+	auto* p = &buf[(cluster * 3) / 2];
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
 		p[1] = val >> 4;
@@ -100,14 +100,14 @@ void DirAsDSK::writeFAT12(unsigned cluster, unsigned val)
 }
 
 // Returns MAX_CLUSTER in case of no more free clusters
-unsigned DirAsDSK::findNextFreeCluster(unsigned curCl)
+unsigned DirAsDSK::findNextFreeCluster(unsigned cluster)
 {
-	assert(curCl < MAX_CLUSTER);
+	assert(cluster < MAX_CLUSTER);
 	do {
-		++curCl;
-		assert(curCl >= FIRST_CLUSTER);
-	} while ((curCl < MAX_CLUSTER) && (readFAT(curCl) != FREE_FAT));
-	return curCl;
+		++cluster;
+		assert(cluster >= FIRST_CLUSTER);
+	} while ((cluster < MAX_CLUSTER) && (readFAT(cluster) != FREE_FAT));
+	return cluster;
 }
 unsigned DirAsDSK::findFirstFreeCluster()
 {
@@ -169,13 +169,13 @@ unsigned DirAsDSK::nextMsxDirSector(unsigned sector)
 		return sector;
 	} else {
 		// Subdirectory.
-		unsigned curCl, offset;
-		sectorToCluster(sector, curCl, offset);
+		unsigned cluster, offset;
+		sectorToCluster(sector, cluster, offset);
 		if (offset < ((SECTORS_PER_CLUSTER - 1) * DirAsDSK::SECTOR_SIZE)) {
 			// Next sector still in same cluster.
 			return sector + 1;
 		}
-		unsigned nextCl = readFAT(curCl);
+		unsigned nextCl = readFAT(cluster);
 		if ((nextCl < FIRST_CLUSTER) || (MAX_CLUSTER <= nextCl)) {
 			// No next cluster, end of directory reached.
 			return unsigned(-1);
@@ -281,9 +281,9 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	memset(sectors, 0xE5, sizeof(sectors));
 
 	// Use selected bootsector.
-	const byte* bootSector = bootSectorType == BOOTSECTOR_DOS1
-	                       ? BootBlocks::dos1BootBlock
-	                       : BootBlocks::dos2BootBlock;
+	auto* bootSector = bootSectorType == BOOTSECTOR_DOS1
+	                 ? BootBlocks::dos1BootBlock
+	                 : BootBlocks::dos2BootBlock;
 	memcpy(sectors[0], bootSector, SECTOR_SIZE);
 
 	// Clear FAT1 + FAT2.
@@ -313,9 +313,9 @@ bool DirAsDSK::isWriteProtectedImpl() const
 void DirAsDSK::checkCaches()
 {
 	bool needSync;
-	if (Scheduler* scheduler = diskChanger.getScheduler()) {
-		EmuTime now = scheduler->getCurrentTime();
-		EmuDuration delta = now - lastAccess;
+	if (auto* scheduler = diskChanger.getScheduler()) {
+		auto now = scheduler->getCurrentTime();
+		auto delta = now - lastAccess;
 		needSync = delta > EmuDuration::sec(1);
 		// Do not update lastAccess because we don't actually call
 		// syncWithHost().
@@ -338,9 +338,9 @@ void DirAsDSK::readSectorImpl(size_t sector, byte* buf)
 	// peek-mode we skip the whole sync-step.
 	if (!isPeekMode()) {
 		bool needSync;
-		if (Scheduler* scheduler = diskChanger.getScheduler()) {
-			EmuTime now = scheduler->getCurrentTime();
-			EmuDuration delta = now - lastAccess;
+		if (auto* scheduler = diskChanger.getScheduler()) {
+			auto now = scheduler->getCurrentTime();
+			auto delta = now - lastAccess;
 			lastAccess = now;
 			needSync = delta > EmuDuration::sec(1);
 		} else {
@@ -459,13 +459,13 @@ void DirAsDSK::deleteMSXFilesInDir(unsigned msxDirSector)
 	} while (msxDirSector != unsigned(-1));
 }
 
-void DirAsDSK::freeFATChain(unsigned curCl)
+void DirAsDSK::freeFATChain(unsigned cluster)
 {
 	// Follow a FAT chain and mark all clusters on this chain as free.
-	while ((FIRST_CLUSTER <= curCl) && (curCl < MAX_CLUSTER)) {
-		unsigned nextCl = readFAT(curCl);
-		writeFAT12(curCl, FREE_FAT);
-		curCl = nextCl;
+	while ((FIRST_CLUSTER <= cluster) && (cluster < MAX_CLUSTER)) {
+		unsigned nextCl = readFAT(cluster);
+		writeFAT12(cluster, FREE_FAT);
+		cluster = nextCl;
 	}
 }
 
@@ -529,7 +529,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 	// content will be the same on the host and the msx side after every
 	// sync.
 	size_t hostSize = fst.st_size;
-	MapDir& mapDir = mapDirs[dirIndex];
+	auto& mapDir = mapDirs[dirIndex];
 	mapDir.filesize = hostSize;
 	mapDir.mtime = fst.st_mtime;
 
@@ -627,9 +627,9 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 
 void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 {
-    // Use intermediate param to prevent compilation error for Android
-    time_t mtime = fst.st_mtime;
-	struct tm* mtim = localtime(&mtime);
+	// Use intermediate param to prevent compilation error for Android
+	auto mtime = fst.st_mtime;
+	auto* mtim = localtime(&mtime);
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
 	              : 0;
@@ -646,7 +646,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 	assert(hostSubDir.empty() || StringOp::endsWith(hostSubDir, '/'));
 
 	ReadDir dir(hostDir + hostSubDir);
-	while (struct dirent* d = dir.getEntry()) {
+	while (auto* d = dir.getEntry()) {
 		try {
 			string hostName = d->d_name;
 			string fullHostName = hostDir + hostSubDir + hostName;
@@ -828,7 +828,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 	auto sector = unsigned(sector_);
 
 	// Update last access time.
-	if (Scheduler* scheduler = diskChanger.getScheduler()) {
+	if (auto* scheduler = diskChanger.getScheduler()) {
 		lastAccess = scheduler->getCurrentTime();
 	}
 

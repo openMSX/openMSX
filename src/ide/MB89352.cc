@@ -99,7 +99,7 @@ MB89352::MB89352(const DeviceConfig& config)
 
 	// ALMOST COPY PASTED FROM WD33C93:
 
-	for (auto& t : config.getXML()->getChildren("target")) {
+	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
 			throw MSXException(StringOp::Builder() <<
@@ -111,8 +111,7 @@ MB89352::MB89352(const DeviceConfig& config)
 				"Duplicate SCSI id: " << id);
 		}
 		DeviceConfig conf(config, *t);
-		const XMLElement& typeElem = t->getChild("type");
-		const string& type = typeElem.getData();
+		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
 			dev[id] = make_unique<SCSIHD>(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);

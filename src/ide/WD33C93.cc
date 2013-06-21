@@ -109,7 +109,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 {
 	devBusy = false;
 
-	for (auto& t : config.getXML()->getChildren("target")) {
+	for (auto* t : config.getXML()->getChildren("target")) {
 		unsigned id = t->getAttributeAsInt("id");
 		if (id >= MAX_DEV) {
 			throw MSXException(StringOp::Builder() <<
@@ -121,8 +121,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 				"Duplicate SCSI id: " << id);
 		}
 		DeviceConfig conf(config, *t);
-		const XMLElement& typeElem = t->getChild("type");
-		const std::string& type = typeElem.getData();
+		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
 			dev[id] = make_unique<SCSIHD>(conf, buffer.data(),
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |

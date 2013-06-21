@@ -251,15 +251,15 @@ void IDECDROM::executePacketCommand(byte* packet)
 
 		const int byteCount = 18;
 		startPacketReadTransfer(byteCount);
-		byte* buffer = startShortReadTransfer(byteCount);
+		auto* buffer = startShortReadTransfer(byteCount);
 		for (int i = 0; i < byteCount; i++) {
 			buffer[i] = 0x00;
 		}
-		buffer[0] = 0xF0;
-		buffer[2] = senseKey >> 16; // sense key
+		buffer[ 0] = 0xF0;
+		buffer[ 2] = senseKey >> 16; // sense key
 		buffer[12] = (senseKey >> 8) & 0xFF; // ASC
 		buffer[13] = senseKey & 0xFF; // ASQ
-		buffer[7] = byteCount - 7;
+		buffer[ 7] = byteCount - 7;
 		senseKey = 0;
 		break;
 	}
@@ -355,28 +355,33 @@ CDXCommand::CDXCommand(CommandController& commandController,
 }
 
 void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
-				EmuTime::param /*time*/)
+                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
 		File* file = cd.file.get();
 		result.addListElement(cd.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
-	} else if ( (tokens.size() == 2) && (
-		tokens[1].getString() == "eject" || tokens[1].getString() == "-eject" )) {
+	} else if ((tokens.size() == 2) &&
+	           ((tokens[1].getString() == "eject") ||
+		    (tokens[1].getString() == "-eject"))) {
 		cd.eject();
 		// TODO check for locked tray
-		if ( tokens[1].getString() == "-eject" ) {
+		if (tokens[1].getString() == "-eject") {
 			result.setString(
-			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
+				"Warning: use of '-eject' is deprecated, "
+				"instead use the 'eject' subcommand");
 		}
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1].getString() == "insert")) {
+	} else if ((tokens.size() == 2) ||
+	           ((tokens.size() == 3) &&
+		    (tokens[1].getString() == "insert"))) {
 		int fileToken = 1;
 		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
-				throw CommandException("Missing argument to insert subcommand");
+				throw CommandException(
+					"Missing argument to insert subcommand");
 			}
 		}
 		try {
