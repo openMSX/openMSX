@@ -105,7 +105,7 @@ const std::string& IDECDROM::getDeviceName()
 	return NAME;
 }
 
-void IDECDROM::fillIdentifyBlock(byte* buffer)
+void IDECDROM::fillIdentifyBlock(AlignedBuffer& buffer)
 {
 	// 1... ....: removable media
 	// .10. ....: fast handling of packet command (immediate, in fact)
@@ -125,7 +125,7 @@ void IDECDROM::fillIdentifyBlock(byte* buffer)
 	buffer[127 * 2 + 0] = 0x01;
 }
 
-unsigned IDECDROM::readBlockStart(byte* buffer, unsigned count)
+unsigned IDECDROM::readBlockStart(AlignedBuffer& buffer, unsigned count)
 {
 	assert(readSectorData);
 	if (file.get()) {
@@ -147,7 +147,7 @@ void IDECDROM::readEnd()
 	setInterruptReason(I_O | C_D);
 }
 
-void IDECDROM::writeBlockComplete(byte* buffer, unsigned count)
+void IDECDROM::writeBlockComplete(AlignedBuffer& buffer, unsigned count)
 {
 	// Currently, packet writes are the only kind of write transfer.
 	assert(count == 12);
@@ -229,7 +229,7 @@ void IDECDROM::startPacketReadTransfer(unsigned count)
 	setInterruptReason(I_O);
 }
 
-void IDECDROM::executePacketCommand(byte* packet)
+void IDECDROM::executePacketCommand(AlignedBuffer& packet)
 {
 	// It seems that unlike ATA which uses words at the basic data unit,
 	// ATAPI uses bytes.
@@ -251,7 +251,7 @@ void IDECDROM::executePacketCommand(byte* packet)
 
 		const int byteCount = 18;
 		startPacketReadTransfer(byteCount);
-		auto* buffer = startShortReadTransfer(byteCount);
+		auto& buffer = startShortReadTransfer(byteCount);
 		for (int i = 0; i < byteCount; i++) {
 			buffer[i] = 0x00;
 		}

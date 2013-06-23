@@ -29,10 +29,10 @@ protected:
 	// AbstractIDEDevice:
 	virtual bool isPacketDevice();
 	virtual const std::string& getDeviceName();
-	virtual void fillIdentifyBlock(byte* buffer);
-	virtual unsigned readBlockStart(byte* buffer, unsigned count);
+	virtual void fillIdentifyBlock (AlignedBuffer& buffer);
+	virtual unsigned readBlockStart(AlignedBuffer& buffer, unsigned count);
 	virtual void readEnd();
-	virtual void writeBlockComplete(byte* buffer, unsigned count);
+	virtual void writeBlockComplete(AlignedBuffer& buffer, unsigned count);
 	virtual void executeCommand(byte cmd);
 
 private:
@@ -49,7 +49,7 @@ private:
 	  */
 	void startPacketReadTransfer(unsigned count);
 
-	void executePacketCommand(byte* packet);
+	void executePacketCommand(AlignedBuffer& packet);
 
 	std::string name;
 	MSXMotherBoard& motherBoard;

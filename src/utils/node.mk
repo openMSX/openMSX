@@ -23,6 +23,7 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	FixedPoint \
 	KeyRange \
+	AlignedBuffer \
 	MemBuffer \
 	Subject Observer \
 	ScopedAssign \

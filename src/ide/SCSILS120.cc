@@ -107,7 +107,7 @@ static const unsigned MAX_LS = 26;
 typedef std::bitset<MAX_LS> LSInUse;
 
 SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
-                     byte* const buf, unsigned mode_)
+                     AlignedBuffer& buf, unsigned mode_)
 	: motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
 	, name("lsX")
@@ -390,8 +390,8 @@ unsigned SCSILS120::readCapacity()
 	PRT_DEBUG("total block: " << block);
 
 	--block;
-	Endian::write_UA_B32(&buffer[0], block); // TODO use aligned version later
-	Endian::write_UA_B32(&buffer[4], SECTOR_SIZE); // TODO see SCSIHD
+	Endian::writeB32(&buffer[0], block);
+	Endian::writeB32(&buffer[4], SECTOR_SIZE); // TODO see SCSIHD
 
 	return 8;
 }

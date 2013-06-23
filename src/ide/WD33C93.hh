@@ -12,12 +12,12 @@
 #define WD33C93_HH
 
 #include "SCSI.hh"
-#include "MemBuffer.hh"
+#include "SCSIDevice.hh"
+#include "AlignedBuffer.hh"
 #include <memory>
 
 namespace openmsx {
 
-class SCSIDevice;
 class DeviceConfig;
 
 class WD33C93
@@ -42,7 +42,7 @@ private:
 	void disconnect();
 	void execCmd(byte value);
 
-	MemBuffer<byte> buffer;
+	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer;
 	std::unique_ptr<SCSIDevice> dev[8];
 	unsigned bufIdx;
 	int counter;

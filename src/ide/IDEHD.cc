@@ -34,16 +34,15 @@ const std::string& IDEHD::getDeviceName()
 	return NAME;
 }
 
-void IDEHD::fillIdentifyBlock(byte* buffer)
+void IDEHD::fillIdentifyBlock(AlignedBuffer& buffer)
 {
 	auto totalSectors = getNbSectors();
 	uint16_t heads = 16;
 	uint16_t sectors = 32;
 	uint16_t cylinders = uint16_t(totalSectors / (heads * sectors)); // TODO overflow?
-	// TODO use aligned version later
-	Endian::write_UA_L16(&buffer[1 * 2], cylinders);
-	Endian::write_UA_L16(&buffer[3 * 2], heads);
-	Endian::write_UA_L16(&buffer[6 * 2], sectors);
+	Endian::writeL16(&buffer[1 * 2], cylinders);
+	Endian::writeL16(&buffer[3 * 2], heads);
+	Endian::writeL16(&buffer[6 * 2], sectors);
 
 	buffer[47 * 2 + 0] = 16; // max sector transfer per interrupt
 	buffer[47 * 2 + 1] = 0x80; // specced value
@@ -53,16 +52,16 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	buffer[49 * 2 + 1] = 0x0A;
 
 	// TODO check for overflow
-	Endian::write_UA_L32(&buffer[60 * 2], unsigned(totalSectors));
+	Endian::writeL32(&buffer[60 * 2], unsigned(totalSectors));
 }
 
-unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
+unsigned IDEHD::readBlockStart(AlignedBuffer& buffer, unsigned count)
 {
 	try {
 		assert(count >= 512);
 		(void)count; // avoid warning
 		readSector(transferSectorNumber,
-		           *reinterpret_cast<SectorBuffer*>(buffer));
+		           *aligned_cast<SectorBuffer*>(buffer));
 		++transferSectorNumber;
 		return 512;
 	} catch (MSXException&) {
@@ -71,14 +70,14 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 	}
 }
 
-void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
+void IDEHD::writeBlockComplete(AlignedBuffer& buffer, unsigned count)
 {
 	try {
 		assert((count % 512) == 0);
 		unsigned num = count / 512;
 		for (unsigned i = 0; i < num; ++i) {
 			writeSector(transferSectorNumber++,
-			            *reinterpret_cast<SectorBuffer*>(buffer + 512 * i));
+			            *aligned_cast<SectorBuffer*>(buffer + 512 * i));
 		}
 	} catch (MSXException&) {
 		abortWriteTransfer(UNC);

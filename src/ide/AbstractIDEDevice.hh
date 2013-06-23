@@ -2,6 +2,7 @@
 #define ABSTRACTIDEDEVICE_HH
 
 #include "IDEDevice.hh"
+#include "AlignedBuffer.hh"
 #include "serialize_meta.hh"
 #include <string>
 
@@ -54,7 +55,7 @@ protected:
 	  * The generic part is already written there.
 	  * @param buffer Array of 512 bytes.
 	  */
-	virtual void fillIdentifyBlock(byte* buffer) = 0;
+	virtual void fillIdentifyBlock(AlignedBuffer& buffer) = 0;
 
 	/** Called when a block of read data should be buffered by the controller:
 	  * when the buffer is empty or at the start of the transfer.
@@ -65,7 +66,7 @@ protected:
 	  *   or 0 if the transfer was aborted (the implementation of this method
 	  *   must set the relevant error flags as well).
 	  */
-	virtual unsigned readBlockStart(byte* buffer, unsigned count) = 0;
+	virtual unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) = 0;
 
 	/** Called when a read transfer completes.
 	  * The default implementation does nothing.
@@ -77,7 +78,7 @@ protected:
 	  * @param buffer Pointer to the start of a byte array.
 	  * @param count Number of data bytes in the array.
 	  */
-	virtual void writeBlockComplete(byte* buffer, unsigned count) = 0;
+	virtual void writeBlockComplete(AlignedBuffer& buffer, unsigned count) = 0;
 
 	/** Starts execution of an IDE command.
 	  * Override this to implement additional commands and make sure you call
@@ -135,7 +136,7 @@ protected:
 	  *   The caller should write the data there.
 	  *   The relevant part of the buffer contains zeroes.
 	  */
-	byte* startShortReadTransfer(unsigned count);
+	AlignedBuffer& startShortReadTransfer(unsigned count);
 
 	/** Aborts the read transfer in progress.
 	  */
@@ -172,7 +173,7 @@ private:
 	  * @param buffer Pointer to the start of the buffer.
 	  *   The buffer must be at least 512 bytes in size.
 	  */
-	void createIdentifyBlock(byte* buffer);
+	void createIdentifyBlock(AlignedBuffer& buffer);
 
 	/** Initialises registers for a data transfer.
 	  */
@@ -203,7 +204,7 @@ private:
 	  * Right now I don't see any reason to make it larger than the minimum
 	  * size of 1 * 512.
 	  */
-	byte buffer[512];
+	AlignedByteArray<512> buffer;
 
 	/** Index of current read/write position in the buffer.
 	  */

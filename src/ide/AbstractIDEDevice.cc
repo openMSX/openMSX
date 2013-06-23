@@ -342,7 +342,7 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 	}
 }
 
-byte* AbstractIDEDevice::startShortReadTransfer(unsigned count)
+AlignedBuffer& AbstractIDEDevice::startShortReadTransfer(unsigned count)
 {
 	assert(count <= sizeof(buffer));
 	assert((count & 1) == 0);
@@ -429,7 +429,7 @@ static void writeIdentifyString(byte* p, unsigned len, std::string s)
 	}
 }
 
-void AbstractIDEDevice::createIdentifyBlock(byte* buffer)
+void AbstractIDEDevice::createIdentifyBlock(AlignedBuffer& buffer)
 {
 	// According to the spec, the combination of model and serial should be
 	// unique. But I don't know any MSX software that cares about this.

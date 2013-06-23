@@ -92,7 +92,6 @@ static const byte CMD_MASK          = 0xE0;
 static const unsigned MAX_DEV = 8;
 
 MB89352::MB89352(const DeviceConfig& config)
-	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	PRT_DEBUG("spc create");
 	// TODO: devBusy = false;
@@ -113,10 +112,10 @@ MB89352::MB89352(const DeviceConfig& config)
 		DeviceConfig conf(config, *t);
 		auto& type = t->getChild("type").getData();
 		if (type == "SCSIHD") {
-			dev[id] = make_unique<SCSIHD>(conf, buffer.data(),
+			dev[id] = make_unique<SCSIHD>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else if (type == "SCSILS120") {
-			dev[id] = make_unique<SCSILS120>(conf, buffer.data(),
+			dev[id] = make_unique<SCSILS120>(conf, buffer,
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI);
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);

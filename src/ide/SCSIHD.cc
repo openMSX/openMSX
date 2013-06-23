@@ -68,7 +68,7 @@ static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
                                           SectorAccessibleDisk::SECTOR_SIZE;
 
 SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
-               byte* const buf, unsigned mode_)
+               AlignedBuffer& buf, unsigned mode_)
 	: HD(targetconfig)
 	, motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
@@ -254,8 +254,8 @@ unsigned SCSIHD::readCapacity()
 	PRT_DEBUG("total block: " << block);
 
 	--block;
-	Endian::write_UA_B32(&buffer[0], block); // TODO use aligned version later
-	Endian::write_UA_B32(&buffer[4], SECTOR_SIZE); // TODO is this a 32 bit field or 2x16-bit fields where the first field happens to have the value 0?
+	Endian::writeB32(&buffer[0], block);
+	Endian::writeB32(&buffer[4], SECTOR_SIZE); // TODO is this a 32 bit field or 2x16-bit fields where the first field happens to have the value 0?
 	return 8;
 }
 
@@ -287,7 +287,7 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
-			auto* sbuf = reinterpret_cast<SectorBuffer*>(buffer);
+			auto* sbuf = aligned_cast<SectorBuffer*>(buffer);
 			readSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;
@@ -324,7 +324,7 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
-			auto* sbuf = reinterpret_cast<const SectorBuffer*>(buffer);
+			auto* sbuf = aligned_cast<const SectorBuffer*>(buffer);
 			writeSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;
@@ -355,7 +355,7 @@ unsigned SCSIHD::dataOut(unsigned& blocks)
 void SCSIHD::formatUnit()
 {
 	if (!checkReadOnly()) {
-		auto& sbuf = *reinterpret_cast<SectorBuffer*>(buffer);
+		auto& sbuf = *aligned_cast<SectorBuffer*>(buffer);
 		memset(&sbuf, 0, sizeof(sbuf));
 		try {
 			writeSector(0, sbuf);

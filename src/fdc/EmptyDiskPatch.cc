@@ -14,7 +14,7 @@ void EmptyDiskPatch::copyBlock(size_t src, byte* dst, size_t num) const
 	(void)num;
 	assert(num == SectorAccessibleDisk::SECTOR_SIZE);
 	assert((src % SectorAccessibleDisk::SECTOR_SIZE) == 0);
-	auto& buf = *reinterpret_cast<SectorBuffer*>(dst);
+	auto& buf = *aligned_cast<SectorBuffer*>(dst);
 	disk.readSectorImpl(src / SectorAccessibleDisk::SECTOR_SIZE, buf);
 }
 

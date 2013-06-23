@@ -12,12 +12,12 @@
 #define MB89352_HH
 
 #include "SCSI.hh"
-#include "MemBuffer.hh"
+#include "SCSIDevice.hh"
+#include "AlignedBuffer.hh"
 #include <memory>
 
 namespace openmsx {
 
-class SCSIDevice;
 class DeviceConfig;
 class MSXMotherBoard;
 
@@ -46,7 +46,7 @@ private:
 	byte getSSTS() const;
 
 	std::unique_ptr<SCSIDevice> dev[8];
-	MemBuffer<byte> buffer;         // buffer for transfer
+	AlignedByteArray<SCSIDevice::BUFFER_SIZE> buffer; // buffer for transfer
 	unsigned cdbIdx;                // cdb index
 	unsigned bufIdx;                // buffer index
 	int msgin;                      // Message In flag

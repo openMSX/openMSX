@@ -28,7 +28,8 @@ class SCSILS120 : public SCSIDevice, public SectorAccessibleDisk,
                   public DiskContainer, private noncopyable
 {
 public:
-	SCSILS120(const DeviceConfig& targetconfig, byte* const buf, unsigned mode);
+	SCSILS120(const DeviceConfig& targetconfig,
+	          AlignedBuffer& buf, unsigned mode);
 	virtual ~SCSILS120();
 
 	template<typename Archive>
@@ -78,7 +79,7 @@ private:
 	void formatUnit();
 
 	MSXMotherBoard& motherBoard;
-	byte* const buffer;
+	AlignedBuffer& buffer;
 	std::unique_ptr<File> file;
 	std::unique_ptr<LSXCommand> lsxCommand;
 	std::string name;

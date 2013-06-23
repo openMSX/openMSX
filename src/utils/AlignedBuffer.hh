@@ -1,0 +1,91 @@
+#ifndef ALIGNEDBUFFER_HH
+#define ALIGNEDBUFFER_HH
+
+#include "alignof.hh"
+#include <type_traits>
+#include <cassert>
+#include <cstdint>
+#include <cstddef>
+
+namespace openmsx {
+
+// Interface for an aligned buffer.
+// This type doesn't itself provide any storage, it only 'refers' to some
+// storage. In that sense it is very similar in usage to a 'uint8_t*'.
+//
+// For example:
+//   void f1(uint8_t* buf) {
+//     ... uint8_t x = buf[7];
+//     ... buf[4] = 10;
+//     ... uint8_t* begin = buf;
+//     ... uint8_t* end   = buf + 12;
+//   }
+//   void f2(AlignedBuffer& buf) {
+//     // The exact same syntax as above, the only difference is that here
+//     // the compiler knows at compile-time the alignment of 'buf', while
+//     // above the compiler must assume worst case alignment.
+//   }
+#ifdef _MSC_VER
+// TODO in the future use the c++11 'alignas' feature
+__declspec (align(16))
+#endif
+class AlignedBuffer
+{
+public:
+	static const size_t ALIGNMENT = 16;
+
+	operator       uint8_t*()       { return p(); }
+	operator const uint8_t*() const { return p(); }
+
+	      uint8_t* operator+(ptrdiff_t i)       { return p() + i; };
+	const uint8_t* operator+(ptrdiff_t i) const { return p() + i; };
+
+	uint8_t& operator[](size_t i)       { return *(p() + i); }
+	uint8_t  operator[](size_t i) const { return *(p() + i); }
+
+private:
+	      uint8_t* p()       { return reinterpret_cast<      uint8_t*>(this); }
+	const uint8_t* p() const { return reinterpret_cast<const uint8_t*>(this); }
+}
+#ifndef _MSC_VER
+__attribute__((__aligned__((16))))
+#endif
+;
+static_assert(ALIGNOF(AlignedBuffer) == AlignedBuffer::ALIGNMENT, "must be aligned");
+
+
+// Provide actual storage for the AlignedBuffer
+// A possible alternative is to use a union.
+template<size_t N> class AlignedByteArray : public AlignedBuffer
+{
+public:
+	size_t size() const { return N; }
+	      uint8_t* data()       { return dat; }
+	const uint8_t* data() const { return dat; }
+
+private:
+	uint8_t dat[N];
+
+};
+static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
+              "must be aligned");
+static_assert(sizeof(AlignedByteArray<32>) == 32,
+              "we rely on the empty-base optimization");
+
+
+/** Cast one pointer type to another pointer type.
+  * When asserts are enabled this checks whether the original pointer is
+  * properly aligned to point to the destination type.
+  */
+template<typename T> static inline T aligned_cast(void* p)
+{
+	static_assert(std::is_pointer<T>::value,
+	              "can only perform aligned_cast on pointers");
+	typedef typename std::remove_pointer<T>::type DEREF;
+	assert((reinterpret_cast<uintptr_t>(p) % ALIGNOF(DEREF)) == 0);
+	return reinterpret_cast<T>(p);
+}
+
+} //namespace openmsx
+
+#endif

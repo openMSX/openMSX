@@ -2,6 +2,7 @@
 #define DISK_IMAGE_UTILS_HH
 
 #include "openmsx.hh"
+#include "AlignedBuffer.hh"
 #include "endian.hh"
 #include "alignof.hh"
 #include <vector>
@@ -11,30 +12,26 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
-// TODO if we can guarantee this whole struct will be aligned, then we can use
-//      the more efficient Endian:::L16 type
 struct MSXBootSector {
 	byte           jumpCode[3];   // + 0 0xE5 to bootprogram
 	byte           name[8];       // + 3
 	Endian::UA_L16 bpSector;      // +11 bytes per sector (always 512)
 	byte           spCluster;     // +13 sectors per cluster (always 2)
-	Endian::UA_L16 resvSectors;   // +14 nb of non-data sectors (ex bootsector) // TODO aligned
+	Endian::L16    resvSectors;   // +14 nb of non-data sectors (ex bootsector)
 	byte           nrFats;        // +16 nb of fats
 	Endian::UA_L16 dirEntries;    // +17 max nb of files in root directory
 	Endian::UA_L16 nrSectors;     // +19 nb of sectors on this disk
 	byte           descriptor;    // +21 media descriptor
-	Endian::UA_L16 sectorsFat;    // +22 sectors per FAT   // TODO aligned
-	Endian::UA_L16 sectorsTrack;  // +24 sectors per track // TODO aligned
-	Endian::UA_L16 nrSides;       // +26 number of side    // TODO aligned
-	Endian::UA_L16 hiddenSectors; // +28 not use           // TODO aligned
+	Endian::L16    sectorsFat;    // +22 sectors per FAT
+	Endian::L16    sectorsTrack;  // +24 sectors per track
+	Endian::L16    nrSides;       // +26 number of side
+	Endian::L16    hiddenSectors; // +28 not used
 	byte           pad1[9];       // +30
 	Endian::UA_L32 vol_id;        // +39
 	byte           pad2[512-43];  // +43
 };
 static_assert(sizeof(MSXBootSector) == 512, "must be size 512");
-static_assert(ALIGNOF(MSXBootSector) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
-// TODO aligned, see above
 struct MSXDirEntry {
 	static const byte ATT_REGULAR   = 0x00; // Normal file
 	static const byte ATT_READONLY  = 0x01; // Read-Only file
@@ -51,15 +48,14 @@ struct MSXDirEntry {
 		} name;
 		char filename[8 + 3];// + 0
 	};
-	byte           attrib;       // +11
-	byte           reserved[10]; // +12 unused
-	Endian::UA_L16 time;         // +22 // TODO aligned
-	Endian::UA_L16 date;         // +24 // TODO aligned
-	Endian::UA_L16 startCluster; // +26 // TODO aligned
-	Endian::UA_L32 size;         // +28 // TODO aligned
+	byte        attrib;          // +11
+	byte        reserved[10];    // +12 unused
+	Endian::L16 time;            // +22
+	Endian::L16 date;            // +24
+	Endian::L16 startCluster;    // +26
+	Endian::L32 size;            // +28
 };
 static_assert(sizeof(MSXDirEntry) == 32, "must be size 32");
-static_assert(ALIGNOF(MSXDirEntry) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 // Note: can't use Endian::L32 for 'start' and 'size' because the Partition
 //       struct itself is not 4-bytes aligned.
@@ -78,31 +74,29 @@ struct Partition {
 static_assert(sizeof(Partition) == 16, "must be size 16");
 static_assert(ALIGNOF(Partition) == 1, "must not have alignment requirements");
 
-// TODO aligned, see above
 struct PartitionTable {
-	char           header[11]; // +  0
-	char           pad[3];     // +  3
-	Partition      part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
-	Endian::UA_L16 end;        // +510 // TODO aligned
+	char        header[11]; // +  0
+	char        pad[3];     // +  3
+	Partition   part[31];   // + 14,+30,..,+494    Not 4-byte aligned!!
+	Endian::L16 end;        // +510
 };
 static_assert(sizeof(PartitionTable) == 512, "must be size 512");
-static_assert(ALIGNOF(PartitionTable) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 
 // Buffer that can hold a (512-byte) disk sector.
 // The main advantages of this type over something like 'byte buf[512]' are:
 //  - No need for reinterpret_cast<> when interpreting the data in a
 //    specific way (this could in theory cause alignment problems).
-//  - TODO in the future give this a stricter alignment, so that memcpy() and
-//    memset() can work faster compared to a raw byte array.
+//  - This type has a stricter alignment, so memcpy() and memset() can work
+//    faster compared to using a raw byte array.
 union SectorBuffer {
        byte raw[512];            // raw byte data
        MSXBootSector bootSector; // interpreted as bootSector
        MSXDirEntry dirEntry[16]; // interpreted as 16 dir entries
        PartitionTable pt;        // interpreted as Sunrise-IDE partition table
+       AlignedBuffer aligned;    // force big alignment (for faster memcpy)
 };
 static_assert(sizeof(SectorBuffer) == 512, "must be size 512");
-static_assert(ALIGNOF(SectorBuffer) == 1, "must not have alignment requirements"); // TODO don't require this in the future
 
 
 namespace DiskImageUtils {
