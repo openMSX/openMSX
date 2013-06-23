@@ -20,6 +20,8 @@ using std::ios;
 
 namespace openmsx {
 
+static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
+
 static void DBERR(const char* message, ...)
 {
 	(void)message;
@@ -290,12 +292,12 @@ void NowindHost::DSKCHG()
 	if (drives[num]->diskChanged()) {
 		send(255); // changed
 		// read first FAT sector (contains media descriptor)
-		byte sectorBuffer[512];
-		if (disk->readSectors(sectorBuffer, 1, 1)) {
+		SectorBuffer sectorBuffer;
+		if (disk->readSectors(&sectorBuffer, 1, 1)) {
 			// TODO read error
-			sectorBuffer[0] = 0;
+			sectorBuffer.raw[0] = 0;
 		}
-		send(sectorBuffer[0]); // new mediadescriptor
+		send(sectorBuffer.raw[0]); // new mediadescriptor
 	} else {
 		send(0); // not changed
 		// TODO shouldn't we send some (dummy) byte here?
@@ -374,9 +376,9 @@ unsigned NowindHost::getCurrentAddress() const
 void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 {
 	unsigned sectorAmount = getSectorAmount();
-	buffer.resize(sectorAmount * 512);
+	buffer.resize(sectorAmount);
 	unsigned startSector = getStartSector();
-	if (disk.readSectors(&buffer[0], startSector, sectorAmount)) {
+	if (disk.readSectors(buffer.data(), startSector, sectorAmount)) {
 		// read error
 		state = STATE_SYNC1;
 		return;
@@ -389,7 +391,7 @@ void NowindHost::diskReadInit(SectorAccessibleDisk& disk)
 
 void NowindHost::doDiskRead1()
 {
-	unsigned bytesLeft = unsigned(buffer.size()) - transfered;
+	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		sendHeader();
 		send(0x01); // end of receive-loop
@@ -436,7 +438,7 @@ void NowindHost::doDiskRead2()
 		retryCount = 0;
 
 		unsigned address = getCurrentAddress();
-		size_t bytesLeft = buffer.size() - transfered;
+		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transfered;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(0x01); // end of receive-loop
@@ -468,7 +470,7 @@ void NowindHost::transferSectors(unsigned transferAddress, unsigned amount)
 	send16(transferAddress);
 	send16(amount);
 
-	const byte* bufferPointer = &buffer[transfered];
+	auto* bufferPointer = buffer[0].raw + transfered;
 	for (unsigned i = 0; i < amount; ++i) {
 		send(bufferPointer[i]);
 	}
@@ -484,7 +486,7 @@ void NowindHost::transferSectorsBackwards(unsigned transferAddress, unsigned amo
 	send16(transferAddress + amount);
 	send(amount / 64);
 
-	const byte* bufferPointer = &buffer[transfered];
+	auto* bufferPointer = buffer[0].raw + transfered;
 	for (int i = amount - 1; i >= 0; --i) {
 		send(bufferPointer[i]);
 	}
@@ -504,17 +506,17 @@ void NowindHost::diskWriteInit(SectorAccessibleDisk& disk)
 	}
 
 	unsigned sectorAmount = std::min(128u, getSectorAmount());
-	buffer.resize(sectorAmount * 512);
+	buffer.resize(sectorAmount);
 	transfered = 0;
 	doDiskWrite1();
 }
 
 void NowindHost::doDiskWrite1()
 {
-	unsigned bytesLeft = unsigned(buffer.size()) - transfered;
+	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = unsigned(buffer.size()) / 512;
+		unsigned sectorAmount = buffer.size();
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
@@ -551,8 +553,9 @@ void NowindHost::doDiskWrite1()
 void NowindHost::doDiskWrite2()
 {
 	assert(recvCount == (transferSize + 2));
+	auto* buf = buffer[0].raw + transfered;
 	for (unsigned i = 0; i < transferSize; ++i) {
-		buffer[i + transfered] = extraData[i + 1];
+		buf[i] = extraData[i + 1];
 	}
 
 	byte seq1 = extraData[0];
@@ -562,7 +565,7 @@ void NowindHost::doDiskWrite2()
 		transfered += transferSize;
 
 		unsigned address = getCurrentAddress();
-		size_t bytesLeft = buffer.size() - transfered;
+		size_t bytesLeft = (buffer.size() * SECTOR_SIZE) - transfered;
 		if ((address == 0x8000) && (bytesLeft > 0)) {
 			sendHeader();
 			send(254); // more data for page 2/3
@@ -812,7 +815,14 @@ void NowindHost::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("recvCount", recvCount);
 	ar.serialize("cmdData", cmdData);
 	ar.serialize("extraData", extraData);
-	ar.serialize("buffer", buffer);
+
+	// for backwards compatibility, serialize buffer as a vector<byte>
+	size_t bufSize = buffer.size() * sizeof(SectorBuffer);
+	byte* bufRaw = buffer.data()->raw;
+	vector<byte> tmp(bufRaw, bufRaw + bufSize);
+	ar.serialize("buffer", tmp);
+	memcpy(bufRaw, tmp.data(), bufSize);
+
 	ar.serialize("transfered", transfered);
 	ar.serialize("retryCount", retryCount);
 	ar.serialize("transferSize", transferSize);

@@ -33,7 +33,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 	} else {
 		checkValidPartition(disk, partition); // throws
 		SectorBuffer buf;
-		disk.readSector(0, buf.raw);
+		disk.readSector(0, buf);
 		auto& p = buf.pt.part[31 - partition];
 		start = p.start;
 		setNbSectors(p.size);
@@ -49,12 +49,12 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& parent_,
 	setNbSectors(length);
 }
 
-void DiskPartition::readSectorImpl(size_t sector, byte* buf)
+void DiskPartition::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	parent.readSector(start + sector, buf);
 }
 
-void DiskPartition::writeSectorImpl(size_t sector, const byte* buf)
+void DiskPartition::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	parent.writeSector(start + sector, buf);
 }

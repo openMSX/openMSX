@@ -19,12 +19,12 @@ bool DummyDisk::isWriteProtectedImpl() const
 	return true; // TODO check
 }
 
-void DummyDisk::readSectorImpl(size_t /*sector*/, byte* /*buf*/)
+void DummyDisk::readSectorImpl(size_t /*sector*/, SectorBuffer& /*buf*/)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void DummyDisk::writeSectorImpl(size_t /*sector*/, const byte* /*buf*/)
+void DummyDisk::writeSectorImpl(size_t /*sector*/, const SectorBuffer& /*buf*/)
 {
 	throw DriveEmptyException("No disk in drive");
 }

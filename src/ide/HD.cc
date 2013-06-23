@@ -11,6 +11,7 @@
 #include "HDCommand.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include <bitset>
 #include <cassert>
 
@@ -138,22 +139,22 @@ void HD::switchImage(const Filename& name)
 size_t HD::getNbSectorsImpl() const
 {
 	const_cast<HD&>(*this).openImage();
-	return filesize / SECTOR_SIZE;
+	return filesize / sizeof(SectorBuffer);
 }
 
-void HD::readSectorImpl(size_t sector, byte* buf)
+void HD::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	openImage();
-	file->seek(sector * SECTOR_SIZE);
-	file->read(buf, SECTOR_SIZE);
+	file->seek(sector * sizeof(buf));
+	file->read(&buf, sizeof(buf));
 }
 
-void HD::writeSectorImpl(size_t sector, const byte* buf)
+void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
 	openImage();
-	file->seek(sector * SECTOR_SIZE);
-	file->write(buf, SECTOR_SIZE);
-	tigerTree->notifyChange(sector * SECTOR_SIZE, SECTOR_SIZE);
+	file->seek(sector * sizeof(buf));
+	file->write(&buf, sizeof(buf));
+	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf));
 }
 
 bool HD::isWriteProtectedImpl() const
@@ -179,20 +180,23 @@ std::string HD::getTigerTreeHash()
 
 uint8_t* HD::getData(size_t offset, size_t size)
 {
-	static uint8_t buffer[1024 + 1];
-
 	assert(size <= 1024);
-	assert((offset % SECTOR_SIZE) == 0);
+	assert((offset % sizeof(SectorBuffer)) == 0);
+	assert((size   % sizeof(SectorBuffer)) == 0);
 
-	uint8_t* p = buffer + 1;
-	int s = int(size);
-	while (s > 0) {
-		readSector(offset / SECTOR_SIZE, p); // possibly applies patches
-		p += SECTOR_SIZE;
-		offset += SECTOR_SIZE;
-		s -= SECTOR_SIZE;
+	struct Work {
+		char extra; // at least one byte before 'bufs'
+		// likely here are padding bytes inbetween
+		SectorBuffer bufs[1024 / sizeof(SectorBuffer)];
+	};
+	static Work work; // not reentrant
+
+	size_t sector = offset / sizeof(SectorBuffer);
+	for (auto i : xrange(size / sizeof(SectorBuffer))) {
+		// This possibly applies IPS patches.
+		readSector(sector++, work.bufs[i]);
 	}
-	return buffer + 1;
+	return work.bufs[0].raw;
 }
 
 SectorAccessibleDisk* HD::getSectorAccessibleDisk()

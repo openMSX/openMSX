@@ -26,7 +26,7 @@ SectorAccessibleDisk::~SectorAccessibleDisk()
 {
 }
 
-void SectorAccessibleDisk::readSector(size_t sector, byte* buf)
+void SectorAccessibleDisk::readSector(size_t sector, SectorBuffer& buf)
 {
 	if (!isDummyDisk() && // in that case we want DriveEmptyException
 	    (sector > 1) && // allow reading sector 0 and 1 without calling
@@ -38,13 +38,13 @@ void SectorAccessibleDisk::readSector(size_t sector, byte* buf)
 	}
 	try {
 		// in the end this calls readSectorImpl()
-		patch->copyBlock(sector * SECTOR_SIZE, buf, SECTOR_SIZE);
+		patch->copyBlock(sector * sizeof(buf), buf.raw, sizeof(buf));
 	} catch (MSXException& e) {
 		throw DiskIOErrorException("Disk I/O error: " + e.getMessage());
 	}
 }
 
-void SectorAccessibleDisk::writeSector(size_t sector, const byte* buf)
+void SectorAccessibleDisk::writeSector(size_t sector, const SectorBuffer& buf)
 {
 	if (isWriteProtected()) {
 		throw WriteProtectedException("");
@@ -88,9 +88,9 @@ Sha1Sum SectorAccessibleDisk::getSha1Sum()
 			setPeekMode(true);
 			SHA1 sha1;
 			for (auto i : xrange(getNbSectors())) {
-				byte buf[SECTOR_SIZE];
+				SectorBuffer buf;
 				readSector(i, buf);
-				sha1.update(buf, SECTOR_SIZE);
+				sha1.update(buf.raw, sizeof(buf));
 			}
 			sha1cache = sha1.digest();
 			setPeekMode(false);
@@ -103,11 +103,11 @@ Sha1Sum SectorAccessibleDisk::getSha1Sum()
 }
 
 int SectorAccessibleDisk::readSectors (
-	byte* buffer, size_t startSector, size_t nbSectors)
+	SectorBuffer* buffers, size_t startSector, size_t nbSectors)
 {
 	try {
 		for (auto i : xrange(nbSectors)) {
-			readSector(startSector + i, &buffer[i * SECTOR_SIZE]);
+			readSector(startSector + i, buffers[i]);
 		}
 		return 0;
 	} catch (MSXException&) {
@@ -116,11 +116,11 @@ int SectorAccessibleDisk::readSectors (
 }
 
 int SectorAccessibleDisk::writeSectors(
-	const byte* buffer, size_t startSector, size_t nbSectors)
+	const SectorBuffer* buffers, size_t startSector, size_t nbSectors)
 {
 	try {
 		for (auto i : xrange(nbSectors)) {
-			writeSector(startSector + i, &buffer[i * SECTOR_SIZE]);
+			writeSector(startSector + i, buffers[i]);
 		}
 		return 0;
 	} catch (MSXException&) {

@@ -287,7 +287,8 @@ unsigned SCSIHD::readSectors(unsigned& blocks)
 	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
-			readSector(currentSector, &buffer[i * SECTOR_SIZE]);
+			auto* sbuf = reinterpret_cast<SectorBuffer*>(buffer);
+			readSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;
 		}
@@ -323,7 +324,8 @@ unsigned SCSIHD::writeSectors(unsigned& blocks)
 	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << ' ' << numSectors);
 	try {
 		for (unsigned i = 0; i < numSectors; ++i) {
-			writeSector(currentSector, &buffer[i * SECTOR_SIZE]);
+			auto* sbuf = reinterpret_cast<const SectorBuffer*>(buffer);
+			writeSector(currentSector, sbuf[i]);
 			++currentSector;
 			--currentLength;
 		}
@@ -353,9 +355,10 @@ unsigned SCSIHD::dataOut(unsigned& blocks)
 void SCSIHD::formatUnit()
 {
 	if (!checkReadOnly()) {
-		memset(buffer, 0, SECTOR_SIZE);
+		auto& sbuf = *reinterpret_cast<SectorBuffer*>(buffer);
+		memset(&sbuf, 0, sizeof(sbuf));
 		try {
-			writeSector(0, buffer);
+			writeSector(0, sbuf);
 			unitAttention = true;
 		} catch (MSXException&) {
 			keycode = SCSI::SENSE_WRITE_FAULT;

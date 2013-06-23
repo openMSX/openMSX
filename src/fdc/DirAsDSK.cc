@@ -330,7 +330,7 @@ void DirAsDSK::checkCaches()
 	}
 }
 
-void DirAsDSK::readSectorImpl(size_t sector, byte* buf)
+void DirAsDSK::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
 	assert(sector < NUM_SECTORS);
 
@@ -360,7 +360,7 @@ void DirAsDSK::readSectorImpl(size_t sector, byte* buf)
 	}
 
 	// Simply return the sector from our virtual disk image.
-	memcpy(buf, &sectors[sector], SECTOR_SIZE);
+	memcpy(&buf, &sectors[sector], sizeof(buf));
 }
 
 void DirAsDSK::syncWithHost()
@@ -556,7 +556,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 			for (unsigned i = 0; i < SECTORS_PER_CLUSTER; ++i) {
 				unsigned sector = logicalSector + i;
 				assert(sector < NUM_SECTORS);
-				byte* buf = sectors[sector].raw;
+				auto* buf = &sectors[sector];
 				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 				auto sz = std::min(remainingSize, SECTOR_SIZE);
 				file.read(buf, sz);
@@ -823,7 +823,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 	return DirIndex(sector, 0);
 }
 
-void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
+void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 {
 	assert(sector_ < NUM_SECTORS);
 	assert(syncMode != SYNC_READONLY);
@@ -846,7 +846,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 	} else if (sector < FIRST_DIR_SECTOR) {
 		// Write to 2nd FAT, only buffer it. Don't interpret the data
 		// in FAT2 in any way (nor trigger any action on this write).
-		memcpy(&sectors[sector], buf, SECTOR_SIZE);
+		memcpy(&sectors[sector], &buf, sizeof(buf));
 	} else if (isDirSector(sector, dirDirIndex)) {
 		// Either root- or sub-directory.
 		writeDIRSector(sector, dirDirIndex, buf);
@@ -855,14 +855,14 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const byte* buf)
 	}
 }
 
-void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
+void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
 	SectorBuffer oldFAT[SECTORS_PER_FAT];
 	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
 
 	// Update current FAT with new data.
-	memcpy(&sectors[sector], buf, SECTOR_SIZE);
+	memcpy(&sectors[sector], &buf, sizeof(buf));
 
 	// Look for changes.
 	for (unsigned i = FIRST_CLUSTER; i < MAX_CLUSTER; ++i) {
@@ -1196,19 +1196,18 @@ void DirAsDSK::exportToHostFile(DirIndex dirIndex, const string& hostName)
 }
 
 void DirAsDSK::writeDIRSector(unsigned sector, DirIndex dirDirIndex,
-                              const byte* buf)
+                              const SectorBuffer& buf)
 {
 	// Look for changed directory entries.
 	for (unsigned idx = 0; idx < DIR_ENTRIES_PER_SECTOR; ++idx) {
-		auto& newEntry = *reinterpret_cast<const MSXDirEntry*>(
-			&buf[sizeof(MSXDirEntry) * idx]);
+		auto& newEntry = buf.dirEntry[idx];
 		DirIndex dirIndex(sector, idx);
 		if (memcmp(&msxDir(dirIndex), &newEntry, sizeof(newEntry)) != 0) {
 			writeDIREntry(dirIndex, dirDirIndex, newEntry);
 		}
 	}
 	// At this point sector should be updated.
-	assert(memcmp(&sectors[sector], buf, SECTOR_SIZE) == 0);
+	assert(memcmp(&sectors[sector], &buf, sizeof(buf)) == 0);
 }
 
 void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
@@ -1246,19 +1245,19 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	exportToHost(dirIndex, dirDirIndex);
 }
 
-void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
+void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 {
 	assert(sector >= FIRST_DATA_SECTOR);
 	assert(sector < NUM_SECTORS);
 
 	// Buffer the write, whether the sector is mapped to a file or not.
-	memcpy(&sectors[sector], buf, SECTOR_SIZE);
+	memcpy(&sectors[sector], &buf, sizeof(buf));
 
 	// Get first cluster in the FAT chain that contains this sector.
 	unsigned cluster, offset, chainLength;
 	sectorToCluster(sector, cluster, offset);
 	unsigned startCluster = getChainStart(cluster, chainLength);
-	offset += (SECTOR_SIZE * SECTORS_PER_CLUSTER) * chainLength;
+	offset += (sizeof(buf) * SECTORS_PER_CLUSTER) * chainLength;
 
 	// Get corresponding directory entry.
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);
@@ -1276,8 +1275,8 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 		file.seek(offset);
 		unsigned msxSize = msxDir(dirIndex).size;
 		if (msxSize > offset) {
-			auto writeSize = std::min<size_t>(msxSize - offset, SECTOR_SIZE);
-			file.write(buf, writeSize);
+			auto writeSize = std::min<size_t>(msxSize - offset, sizeof(buf));
+			file.write(&buf, writeSize);
 		}
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't write to file " + fullHostName +

@@ -12,7 +12,7 @@ class XSAExtractor
 {
 public:
 	explicit XSAExtractor(File& file);
-	void getData(vector<byte>& data);
+	void getData(MemBuffer<SectorBuffer>& data);
 
 private:
 	static const int MAXSTRLEN = 254;
@@ -34,7 +34,7 @@ private:
 		int weight;
 	};
 
-	vector<byte> outBuf;	// the output buffer
+	MemBuffer<SectorBuffer> outBuf;	// the output buffer
 	const byte* inBufPos;	// pos in input buffer
 	const byte* inBufEnd;
 
@@ -58,15 +58,15 @@ XSADiskImage::XSADiskImage(Filename& filename, File& file)
 {
 	XSAExtractor extractor(file);
 	extractor.getData(data);
-	setNbSectors(data.size() / 512);
+	setNbSectors(data.size());
 }
 
-void XSADiskImage::readSectorImpl(size_t sector, byte* buf)
+void XSADiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	memcpy(buf, &data[sector * SECTOR_SIZE], SECTOR_SIZE);
+	memcpy(&buf, &data[sector], sizeof(buf));
 }
 
-void XSADiskImage::writeSectorImpl(size_t /*sector*/, const byte* /*buf*/)
+void XSADiskImage::writeSectorImpl(size_t /*sector*/, const SectorBuffer& /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }
@@ -99,10 +99,10 @@ XSAExtractor::XSAExtractor(File& file)
 	unLz77();
 }
 
-void XSAExtractor::getData(vector<byte>& data)
+void XSAExtractor::getData(MemBuffer<SectorBuffer>& data)
 {
 	// destroys internal outBuf, but that's ok
-	swap(data, outBuf);
+	data.swap(outBuf);
 }
 
 // Get the next character from the input buffer
@@ -122,9 +122,7 @@ void XSAExtractor::chkHeader()
 	for (int i = 0, base = 1; i < 4; ++i, base <<= 8) {
 		outBufLen += base * charIn();
 	}
-	// is only used as an optimization, it will work correctly
-	// even if this field was corrupt (intentionally or not)
-	outBuf.reserve(outBufLen);
+	outBuf.resize((outBufLen + 511) / 512);
 
 	// skip compressed length
 	inBufPos += 4;
@@ -138,6 +136,9 @@ void XSAExtractor::unLz77()
 {
 	bitCnt = 0; // no bits read yet
 
+	size_t remaining = outBuf.size() * sizeof(SectorBuffer);
+	byte* out = outBuf.data()->raw;
+	size_t outIdx = 0;
 	while (true) {
 		if (bitIn()) {
 			// 1-bit
@@ -146,16 +147,25 @@ void XSAExtractor::unLz77()
 				 return;
 			}
 			unsigned strPos = rdStrPos();
-			if ((strPos == 0) || (strPos > outBuf.size())) {
+			if ((strPos == 0) || (strPos > outIdx)) {
 				throw MSXException(
 					"Corrupt XSA image: invalid offset");
 			}
-			while (strLen--) {
-				outBuf.push_back(*(outBuf.end() - strPos));
+			if (remaining < strLen) {
+				throw MSXException(
+					"Invalid XSA image: too small output buffer");
 			}
+			remaining -= strLen;
+			memmove(&out[outIdx], &out[outIdx - strPos], strLen);
+			outIdx += strLen;
 		} else {
 			// 0-bit
-			outBuf.push_back(charIn());
+			if (remaining == 0) {
+				throw MSXException(
+					"Invalid XSA image: too small output buffer");
+			}
+			--remaining;
+			out[outIdx++] = charIn();
 		}
 	}
 }

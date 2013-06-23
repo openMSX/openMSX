@@ -1,6 +1,7 @@
 #ifndef SECTORACCESSIBLEDISK_HH
 #define SECTORACCESSIBLEDISK_HH
 
+#include "DiskImageUtils.hh"
 #include "Filename.hh"
 #include "sha1.hh"
 #include "openmsx.hh"
@@ -15,13 +16,13 @@ class PatchInterface;
 class SectorAccessibleDisk
 {
 public:
-	static const size_t SECTOR_SIZE = 512;
+	static const size_t SECTOR_SIZE = sizeof(SectorBuffer);
 
 	virtual ~SectorAccessibleDisk();
 
 	// sector stuff
-	void readSector(size_t sector, byte* buf);
-	void writeSector(size_t sector, const byte* buf);
+	void readSector (size_t sector,       SectorBuffer& buf);
+	void writeSector(size_t sector, const SectorBuffer& buf);
 	size_t getNbSectors() const;
 
 	// write protected stuff
@@ -44,9 +45,9 @@ public:
 	//  - read/write multiple sectors instead of one-per-one
 	//  - use error codes instead of exceptions
 	//  - different order of parameters
-	int readSectors (      byte* buffer, size_t startSector,
+	int readSectors (      SectorBuffer* buffers, size_t startSector,
 	                 size_t nbSectors);
-	int writeSectors(const byte* buffer, size_t startSector,
+	int writeSectors(const SectorBuffer* buffers, size_t startSector,
 	                 size_t nbSectors);
 
 protected:
@@ -62,8 +63,8 @@ protected:
 	virtual void flushCaches();
 
 private:
-	virtual void readSectorImpl(size_t sector, byte* buf) = 0;
-	virtual void writeSectorImpl(size_t sector, const byte* buf) = 0;
+	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf) = 0;
+	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf) = 0;
 	virtual size_t getNbSectorsImpl() const = 0;
 	virtual bool isWriteProtectedImpl() const = 0;
 

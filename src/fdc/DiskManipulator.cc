@@ -321,11 +321,11 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
 	auto partition = getPartition(driveData);
-	byte buf[SectorBasedDisk::SECTOR_SIZE];
+	SectorBuffer buf;
 	File file(filename, File::CREATE);
 	for (auto i : xrange(partition->getNbSectors())) {
 		partition->readSector(i, buf);
-		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
+		file.write(&buf, sizeof(buf));
 	}
 }
 

@@ -26,8 +26,8 @@ void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& inpu
 		// Ignore sector type (deleted or not)
 		// Ignore sectors that are outside the range 1..sectorsPerTrack
 		if ((s.sector < 1) || (s.sector > getSectorsPerTrack())) continue;
-		byte buf[512];
-		input.readBlock(s.dataIdx, 512, buf);
+		SectorBuffer buf;
+		input.readBlock(s.dataIdx, 512, buf.raw);
 		auto logicalSector = physToLog(track, side, s.sector);
 		writeSector(logicalSector, buf);
 		// it's important to use writeSector() and not writeSectorImpl()
@@ -115,9 +115,9 @@ void SectorBasedDisk::readTrack(byte track, byte side, RawTrack& output)
 			for (int i = 0; i <  1; ++i) output.write(idx++, 0xFB); //           (2)
 
 			auto logicalSector = physToLog(track, side, j + 1);
-			byte sectorBuf[512];
-			readSector(logicalSector, sectorBuf);
-			for (int i = 0; i < 512; ++i) output.write(idx++, sectorBuf[i]);
+			SectorBuffer buf;
+			readSector(logicalSector, buf);
+			for (int i = 0; i < 512; ++i) output.write(idx++, buf.raw[i]);
 
 			word dataCrc = output.calcCrc(idx - (512 + 4), 512 + 4);
 			output.write(idx++, dataCrc >> 8);   // CRC (high byte)

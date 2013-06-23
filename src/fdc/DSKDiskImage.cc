@@ -7,7 +7,7 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName)
 	: SectorBasedDisk(fileName)
 	, file(std::make_shared<File>(fileName, File::PRE_CACHE))
 {
-	setNbSectors(file->getSize() / SECTOR_SIZE);
+	setNbSectors(file->getSize() / sizeof(SectorBuffer));
 }
 
 DSKDiskImage::DSKDiskImage(const Filename& fileName,
@@ -15,23 +15,23 @@ DSKDiskImage::DSKDiskImage(const Filename& fileName,
 	: SectorBasedDisk(fileName)
 	, file(file_)
 {
-	setNbSectors(file->getSize() / SECTOR_SIZE);
+	setNbSectors(file->getSize() / sizeof(SectorBuffer));
 }
 
 DSKDiskImage::~DSKDiskImage()
 {
 }
 
-void DSKDiskImage::readSectorImpl(size_t sector, byte* buf)
+void DSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	file->seek(sector * SECTOR_SIZE);
-	file->read(buf, SECTOR_SIZE);
+	file->seek(sector * sizeof(buf));
+	file->read(&buf, sizeof(buf));
 }
 
-void DSKDiskImage::writeSectorImpl(size_t sector, const byte* buf)
+void DSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	file->seek(sector * SECTOR_SIZE);
-	file->write(buf, SECTOR_SIZE);
+	file->seek(sector * sizeof(buf));
+	file->write(&buf, sizeof(buf));
 }
 
 bool DSKDiskImage::isWriteProtectedImpl() const

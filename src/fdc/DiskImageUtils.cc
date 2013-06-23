@@ -23,7 +23,7 @@ static bool isPartitionTableSector(const PartitionTable& pt)
 bool hasPartitionTable(SectorAccessibleDisk& disk)
 {
 	SectorBuffer buf;
-	disk.readSector(0, buf.raw);
+	disk.readSector(0, buf);
 	return isPartitionTableSector(buf.pt);
 }
 
@@ -37,7 +37,7 @@ static Partition& checkImpl(SectorAccessibleDisk& disk, unsigned partition,
 			"Invalid partition number specified (must be 1-31).");
 	}
 	// check drive has a partition table
-	disk.readSector(0, buf.raw);
+	disk.readSector(0, buf);
 	if (!isPartitionTableSector(buf.pt)) {
 		throw CommandException(
 			"No (or invalid) partition table.");
@@ -194,12 +194,12 @@ void format(SectorAccessibleDisk& disk)
 	unsigned firstDataSector;
 	byte descriptor;
 	setBootSector(buf.bootSector, nbSectors, firstDataSector, descriptor);
-	disk.writeSector(0, buf.raw);
+	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors
 	memset(&buf, 0, sizeof(buf));
 	for (unsigned i = 2; i < firstDataSector; ++i) {
-		disk.writeSector(i, buf.raw);
+		disk.writeSector(i, buf);
 	}
 	// first FAT sector is special:
 	//  - first byte contains the media descriptor
@@ -207,12 +207,12 @@ void format(SectorAccessibleDisk& disk)
 	buf.raw[0] = descriptor;
 	buf.raw[1] = 0xFF;
 	buf.raw[2] = 0xFF;
-	disk.writeSector(1, buf.raw);
+	disk.writeSector(1, buf);
 
 	// write 'empty' data sectors
 	memset(&buf, 0xE5, sizeof(buf));
 	for (size_t i = firstDataSector; i < nbSectors; ++i) {
-		disk.writeSector(i, buf.raw);
+		disk.writeSector(i, buf);
 	}
 }
 
@@ -262,7 +262,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 		format(diskPartition);
 		partitionOffset += partitionNbSectors;
 	}
-	disk.writeSector(0, buf.raw);
+	disk.writeSector(0, buf);
 }
 
 } // namespace DiskImageUtils

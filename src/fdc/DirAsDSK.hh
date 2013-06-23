@@ -26,8 +26,8 @@ public:
 	         BootSectorType bootSectorType);
 
 	// SectorBasedDisk
-	virtual void readSectorImpl(size_t sector, byte* buf);
-	virtual void writeSectorImpl(size_t sector, const byte* buf);
+	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
+	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
 	virtual bool isWriteProtectedImpl() const;
 	virtual void checkCaches();
 
@@ -57,10 +57,10 @@ private:
 	SectorBuffer* fat();
 	SectorBuffer* fat2();
 	MSXDirEntry& msxDir(DirIndex dirIndex);
-	void writeFATSector (unsigned sector, const byte* buf);
+	void writeFATSector (unsigned sector, const SectorBuffer& buf);
 	void writeDIRSector (unsigned sector, DirIndex dirDirIndex,
-	                     const byte* buf);
-	void writeDataSector(unsigned sector, const byte* buf);
+	                     const SectorBuffer& buf);
+	void writeDataSector(unsigned sector, const SectorBuffer& buf);
 	void writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	                   const MSXDirEntry& newEntry);
 	void syncWithHost();

@@ -16,8 +16,8 @@ public:
 	virtual ~DSKDiskImage();
 
 private:
-	virtual void readSectorImpl(size_t sector, byte* buf);
-	virtual void writeSectorImpl(size_t sector, const byte* buf);
+	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
+	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
 	virtual bool isWriteProtectedImpl() const;
 	virtual Sha1Sum getSha1Sum();
 

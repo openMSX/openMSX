@@ -61,7 +61,8 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 	try {
 		assert(count >= 512);
 		(void)count; // avoid warning
-		readSector(transferSectorNumber, buffer);
+		readSector(transferSectorNumber,
+		           *reinterpret_cast<SectorBuffer*>(buffer));
 		++transferSectorNumber;
 		return 512;
 	} catch (MSXException&) {
@@ -77,7 +78,7 @@ void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 		unsigned num = count / 512;
 		for (unsigned i = 0; i < num; ++i) {
 			writeSector(transferSectorNumber++,
-			            buffer + 512 * i);
+			            *reinterpret_cast<SectorBuffer*>(buffer + 512 * i));
 		}
 	} catch (MSXException&) {
 		abortWriteTransfer(UNC);

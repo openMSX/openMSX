@@ -38,8 +38,8 @@ private:
 		unsigned index;
 	};
 
-	void writeLogicalSector(unsigned sector, const byte* buf);
-	void readLogicalSector (unsigned sector,       byte* buf);
+	void writeLogicalSector(unsigned sector, const SectorBuffer& buf);
+	void readLogicalSector (unsigned sector,       SectorBuffer& buf);
 
 	unsigned clusterToSector(unsigned cluster);
 	unsigned sectorToCluster(unsigned sector);

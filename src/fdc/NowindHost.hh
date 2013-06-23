@@ -2,6 +2,7 @@
 #define NOWINDHOST_HH
 
 #include "NowindInterface.hh"
+#include "DiskImageUtils.hh"
 #include "openmsx.hh"
 #include <deque>
 #include <vector>
@@ -112,7 +113,7 @@ private:
 	} devices[MAX_DEVICES];
 
 	// state-machine
-	std::vector<byte> buffer;// work buffer for diskread/write
+	std::vector<SectorBuffer> buffer;// work buffer for diskread/write
 	unsigned lastTime;       // last time a byte was received from MSX
 	State state;
 	unsigned recvCount;      // how many bytes recv in this state

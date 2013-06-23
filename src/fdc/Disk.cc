@@ -128,12 +128,12 @@ void Disk::detectGeometry()
 	//     ...
 
 	try {
-		byte buf[SECTOR_SIZE];
+		SectorBuffer buf;
 		readSector(0, buf); // bootsector
-		if ((buf[0] == 0xE9) || (buf[0] ==0xEB)) {
+		if ((buf.raw[0] == 0xE9) || (buf.raw[0] == 0xEB)) {
 			// use values from bootsector
-			sectorsPerTrack = buf[0x18] + 256 * buf[0x19];
-			nbSides         = buf[0x1A] + 256 * buf[0x1B];
+			sectorsPerTrack = buf.bootSector.sectorsTrack;
+			nbSides         = buf.bootSector.nrSides;
 			if ((sectorsPerTrack == 0) || (sectorsPerTrack > 255) ||
 			    (nbSides         == 0) || (nbSides         > 255)) {
 				// seems like bogus values, use defaults
@@ -141,7 +141,7 @@ void Disk::detectGeometry()
 			}
 		} else {
 			readSector(1, buf); // 1st fat sector
-			byte mediaDescriptor = buf[0];
+			byte mediaDescriptor = buf.raw[0];
 			if (mediaDescriptor >= 0xF8) {
 				sectorsPerTrack = (mediaDescriptor & 2) ? 8 : 9;
 				nbSides         = (mediaDescriptor & 1) ? 2 : 1;

@@ -23,8 +23,8 @@ public:
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
 
 	// logical sector emulation for SectorAccessibleDisk
-	virtual void readSectorImpl(size_t sector, byte* buf);
-	virtual void writeSectorImpl(size_t sector, const byte* buf);
+	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
+	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
 	virtual size_t getNbSectorsImpl() const;
 	virtual bool isWriteProtectedImpl() const;
 	virtual Sha1Sum getSha1Sum();

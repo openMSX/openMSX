@@ -6,9 +6,9 @@ namespace openmsx {
 
 RamDSKDiskImage::RamDSKDiskImage(size_t size)
 	: SectorBasedDisk(DiskName(Filename(), "ramdsk"))
-	, diskdata(size)
+	, data(size / sizeof(SectorBuffer))
 {
-	setNbSectors(size / SECTOR_SIZE);
+	setNbSectors(data.size());
 
 	DiskImageUtils::format(*this);
 }
@@ -17,14 +17,14 @@ RamDSKDiskImage::~RamDSKDiskImage()
 {
 }
 
-void RamDSKDiskImage::readSectorImpl(size_t sector, byte* buf)
+void RamDSKDiskImage::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	memcpy(buf, &diskdata[sector * SECTOR_SIZE], SECTOR_SIZE);
+	memcpy(&buf, &data[sector], sizeof(buf));
 }
 
-void RamDSKDiskImage::writeSectorImpl(size_t sector, const byte* buf)
+void RamDSKDiskImage::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	memcpy(&diskdata[sector * SECTOR_SIZE], buf, SECTOR_SIZE);
+	memcpy(&data[sector], &buf, sizeof(buf));
 }
 
 bool RamDSKDiskImage::isWriteProtectedImpl() const

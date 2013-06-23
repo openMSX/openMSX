@@ -777,16 +777,16 @@ Sha1Sum SCSILS120::getSha1Sum()
 	return file->getSha1Sum();
 }
 
-void SCSILS120::readSectorImpl(size_t sector, byte* buf)
+void SCSILS120::readSectorImpl(size_t sector, SectorBuffer& buf)
 {
-	file->seek(512 * sector);
-	file->read(buf, 512);
+	file->seek(sizeof(buf) * sector);
+	file->read(&buf, sizeof(buf));
 }
 
-void SCSILS120::writeSectorImpl(size_t sector, const byte* buf)
+void SCSILS120::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 {
-	file->seek(512 * sector);
-	file->write(buf, 512);
+	file->seek(sizeof(buf) * sector);
+	file->write(&buf, sizeof(buf));
 }
 
 SectorAccessibleDisk* SCSILS120::getSectorAccessibleDisk()

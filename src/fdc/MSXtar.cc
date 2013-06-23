@@ -101,26 +101,26 @@ void MSXtar::parseBootSector(const MSXBootSector& boot)
 	maxCluster = std::min(maxCluster, maxFatCluster);
 }
 
-void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
+void MSXtar::writeLogicalSector(unsigned sector, const SectorBuffer& buf)
 {
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
-		memcpy(&fatBuffer[fatSector], buf, SECTOR_SIZE);
+		memcpy(&fatBuffer[fatSector], &buf, sizeof(buf));
 		fatCacheDirty = true;
 	} else {
 		disk.writeSector(sector, buf);
 	}
 }
 
-void MSXtar::readLogicalSector(unsigned sector, byte* buf)
+void MSXtar::readLogicalSector(unsigned sector, SectorBuffer& buf)
 {
 	unsigned fatSector = sector - 1;
 	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
-		memcpy(buf, &fatBuffer[fatSector], SECTOR_SIZE);
+		memcpy(&buf, &fatBuffer[fatSector], sizeof(buf));
 	} else {
 		disk.readSector(sector, buf);
 	}
@@ -134,7 +134,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	}
 	try {
 		SectorBuffer buf;
-		disk.readSector(0, buf.raw);
+		disk.readSector(0, buf);
 		parseBootSector(buf.bootSector);
 	} catch (MSXException& e) {
 		throw MSXException("Bad disk image: " + e.getMessage());
@@ -144,7 +144,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	fatCacheDirty = false;
 	fatBuffer.resize(sectorsPerFat);
 	for (unsigned i = 0; i < sectorsPerFat; ++i) {
-		disk.readSector(i + 1, fatBuffer[i].raw);
+		disk.readSector(i + 1, fatBuffer[i]);
 	}
 }
 
@@ -154,7 +154,7 @@ MSXtar::~MSXtar()
 
 	for (unsigned i = 0; i < fatBuffer.size(); ++i) {
 		try {
-			disk.writeSector(i + 1, fatBuffer[i].raw);
+			disk.writeSector(i + 1, fatBuffer[i]);
 		} catch (MSXException&) {
 			// nothing
 		}
@@ -249,7 +249,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 	SectorBuffer buf;
 	memset(&buf, 0, sizeof(buf));
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
-		writeLogicalSector(i + nextSector, buf.raw);
+		writeLogicalSector(i + nextSector, buf);
 	}
 
 	unsigned curCl = sectorToCluster(sector);
@@ -266,7 +266,7 @@ unsigned MSXtar::appendClusterToSubdir(unsigned sector)
 unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 {
 	SectorBuffer buf;
-	readLogicalSector(sector, buf.raw);
+	readLogicalSector(sector, buf);
 
 	// find a not used (0x00) or delete entry (0xE5)
 	for (unsigned i = 0; i < 16; ++i) {
@@ -371,7 +371,7 @@ unsigned MSXtar::addSubdir(
 
 	// load the sector
 	SectorBuffer buf;
-	readLogicalSector(result.sector, buf.raw);
+	readLogicalSector(result.sector, buf);
 
 	auto& dirEntry = buf.dirEntry[result.index];
 	dirEntry.attrib = T_MSX_DIR;
@@ -385,13 +385,13 @@ unsigned MSXtar::addSubdir(
 	writeFAT(curCl, EOF_FAT);
 
 	// save the sector again
-	writeLogicalSector(result.sector, buf.raw);
+	writeLogicalSector(result.sector, buf);
 
 	// clear this cluster
 	unsigned logicalSector = clusterToSector(curCl);
 	memset(&buf, 0, sizeof(buf));
 	for (unsigned i = 0; i < sectorsPerCluster; ++i) {
-		writeLogicalSector(i + logicalSector, buf.raw);
+		writeLogicalSector(i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
@@ -412,7 +412,7 @@ unsigned MSXtar::addSubdir(
 	buf.dirEntry[1].startCluster = sectorToCluster(sector);
 
 	// and save this in the first sector of the new subdir
-	writeLogicalSector(logicalSector, buf.raw);
+	writeLogicalSector(logicalSector, buf);
 
 	return logicalSector;
 }
@@ -500,7 +500,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxDirEntry, const string& hostName)
 			memset(&buf, 0, sizeof(buf));
 			unsigned chunkSize = std::min(SECTOR_SIZE, remaining);
 			file.read(&buf, chunkSize);
-			writeLogicalSector(logicalSector + j, buf.raw);
+			writeLogicalSector(logicalSector + j, buf);
 			remaining -= chunkSize;
 		}
 
@@ -543,7 +543,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 	result.index = 0; // avoid warning (only some gcc versions complain)
 	while (result.sector) {
 		// read sector and scan 16 entries
-		readLogicalSector(result.sector, buf.raw);
+		readLogicalSector(result.sector, buf);
 		for (result.index = 0; result.index < 16; ++result.index) {
 			if (string(buf.dirEntry[result.index].filename, 11) == name) {
 				return result;
@@ -573,7 +573,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 	SectorBuffer buf;
 	DirEntry entry = addEntryToDir(rootSector);
-	readLogicalSector(entry.sector, buf.raw);
+	readLogicalSector(entry.sector, buf);
 	auto& dirEntry = buf.dirEntry[entry.index];
 	memset(&dirEntry, 0, sizeof(dirEntry));
 	memcpy(&dirEntry, msxName.data(), 11);
@@ -589,10 +589,10 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 		alterFileInDSK(dirEntry, fullname);
 	} catch (MSXException&) {
 		// still write directory entry
-		writeLogicalSector(entry.sector, buf.raw);
+		writeLogicalSector(entry.sector, buf);
 		throw;
 	}
-	writeLogicalSector(entry.sector, buf.raw);
+	writeLogicalSector(entry.sector, buf);
 	return "";
 }
 
@@ -685,7 +685,7 @@ string MSXtar::dir()
 	StringOp::Builder result;
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
-		readLogicalSector(sector, buf.raw);
+		readLogicalSector(sector, buf);
 		for (unsigned i = 0; i < 16; ++i) {
 			auto& dirEntry = buf.dirEntry[i];
 			if ((dirEntry.filename[0] == char(0xe5)) ||
@@ -770,7 +770,7 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 	File file(FileOperations::expandTilde(resultFile), "wb");
 	while (size && sector) {
 		SectorBuffer buf;
-		readLogicalSector(sector, buf.raw);
+		readLogicalSector(sector, buf);
 		unsigned savesize = std::min(size, SECTOR_SIZE);
 		file.write(&buf, savesize);
 		size -= savesize;
@@ -816,7 +816,7 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
-		readLogicalSector(sector, buf.raw);
+		readLogicalSector(sector, buf);
 		for (unsigned i = 0; i < 16; ++i) {
 			auto& dirEntry = buf.dirEntry[i];
 			if ((dirEntry.filename[0] == char(0xe5)) ||

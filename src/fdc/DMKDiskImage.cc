@@ -149,7 +149,7 @@ void DMKDiskImage::writeTrackImpl(byte track, byte side, const RawTrack& input)
 }
 
 
-void DMKDiskImage::readSectorImpl(size_t logicalSector, byte* buf)
+void DMKDiskImage::readSectorImpl(size_t logicalSector, SectorBuffer& buf)
 {
 	byte track, side, sector;
 	logToPhys(logicalSector, track, side, sector);
@@ -162,10 +162,10 @@ void DMKDiskImage::readSectorImpl(size_t logicalSector, byte* buf)
 	}
 	// TODO should we check sector size == 512?
 	//      crc errors? correct track/head?
-	rawTrack.readBlock(sectorInfo.dataIdx, 512, buf);
+	rawTrack.readBlock(sectorInfo.dataIdx, sizeof(buf), buf.raw);
 }
 
-void DMKDiskImage::writeSectorImpl(size_t logicalSector, const byte* buf)
+void DMKDiskImage::writeSectorImpl(size_t logicalSector, const SectorBuffer& buf)
 {
 	byte track, side, sector;
 	logToPhys(logicalSector, track, side, sector);
@@ -177,7 +177,7 @@ void DMKDiskImage::writeSectorImpl(size_t logicalSector, const byte* buf)
 		throw NoSuchSectorException("Sector not found");
 	}
 	// TODO do checks? see readSectorImpl()
-	rawTrack.writeBlock(sectorInfo.dataIdx, 512, buf);
+	rawTrack.writeBlock(sectorInfo.dataIdx, sizeof(buf), buf.raw);
 
 	writeTrack(track, side, rawTrack);
 }
