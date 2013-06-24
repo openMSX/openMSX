@@ -630,7 +630,7 @@ void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	// Use intermediate param to prevent compilation error for Android
-	auto mtime = fst.st_mtime;
+	time_t mtime = fst.st_mtime;
 	auto* mtim = localtime(&mtime);
 	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	                (mtim->tm_hour << 11)
