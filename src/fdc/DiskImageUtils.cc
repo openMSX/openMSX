@@ -236,7 +236,7 @@ void partition(SectorAccessibleDisk& disk, const std::vector<unsigned>& sizes)
 	SectorBuffer buf;
 	memset(&buf, 0, sizeof(buf));
 	memcpy(buf.pt.header, PARTAB_HEADER, sizeof(PARTAB_HEADER));
-	buf.pt.end = 0x55AA;
+	buf.pt.end = 0xAA55;
 
 	unsigned partitionOffset = 1;
 	for (unsigned i = 0; i < sizes.size(); ++i) {
