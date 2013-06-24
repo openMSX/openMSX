@@ -4,6 +4,7 @@
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
+#include "InputEventGenerator.hh"
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"
@@ -53,10 +54,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 			// device from /dev/input/js* if it has no buttons, while
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
-			// On the other hand, the android SDL port has a virtual onscreen joystick that does
-			// not have buttons, so on android, simply accept any joystick
-			ad_printf("#joystick buttons: %d\n", SDL_JoystickNumButtons(joystick));
-			if (PLATFORM_ANDROID || SDL_JoystickNumButtons(joystick) != 0) {
+			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
 					make_unique<Joystick>(
 						eventDistributor,
@@ -163,7 +161,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	value.addListElement("UP"   ); value.addListElement("-axis1");
 	value.addListElement("DOWN" ); value.addListElement("+axis1");
 	TclObject listA, listB;
-	for (auto i : xrange(SDL_JoystickNumButtons(joystick))) {
+	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		string button = "button" + StringOp::toString(i);
 		if (i & 1) {
 			listB.addListElement(button);
@@ -257,7 +255,7 @@ bool Joystick::getState(const TclObject& dict, string_ref key)
 		const auto& elem = list.getListIndex(i).getString();
 		if (elem.starts_with("button")) {
 			int n = stoi(elem.substr(6));
-			if (SDL_JoystickGetButton(joystick, n)) {
+			if (InputEventGenerator::joystickGetButton(joystick, n)) {
 				return true;
 			}
 		} else if (elem.starts_with("+axis")) {

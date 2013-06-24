@@ -44,6 +44,13 @@ public:
 	/** Input Grab on or off */
 	BooleanSetting& getGrabInput() const { return *grabInput; }
 
+	/** Normally the following two functions simply delegate to
+	 * SDL_JoystickNumButtons() and SDL_JoystickGetButton(). Except on
+	 * Android, see comments in .cc for more details.
+	 */
+	static int joystickNumButtons(SDL_Joystick* joystick);
+	static bool joystickGetButton(SDL_Joystick* joystick, int button);
+
 private:
 	typedef std::shared_ptr<const Event> EventPtr;
 
@@ -83,6 +90,10 @@ private:
 
 	bool keyRepeat;
 	unsigned osdControlButtonsState; // 0 is pressed, 1 is released
+
+	// only for Android
+	static bool androidButtonA;
+	static bool androidButtonB;
 };
 
 } // namespace openmsx

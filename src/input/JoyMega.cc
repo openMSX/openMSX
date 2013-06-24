@@ -4,6 +4,7 @@
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
+#include "InputEventGenerator.hh"
 #include "StateChange.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
@@ -46,7 +47,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 			// device from /dev/input/js* if it has no buttons, while
 			// accelerometers do end up being symlinked as a joystick in
 			// practice.
-			if (SDL_JoystickNumButtons(joystick) != 0) {
+			if (InputEventGenerator::joystickNumButtons(joystick) != 0) {
 				controller.registerPluggable(
 					make_unique<JoyMega>(
 						eventDistributor,
@@ -220,9 +221,9 @@ unsigned JoyMega::calcInitialState()
 		result &= ~JOY_DOWN;
 	}
 
-	int numButtons = SDL_JoystickNumButtons(joystick);
+	int numButtons = InputEventGenerator::joystickNumButtons(joystick);
 	for (int button = 0; button < numButtons; ++button) {
-		if (SDL_JoystickGetButton(joystick, button)) {
+		if (InputEventGenerator::joystickGetButton(joystick, button)) {
 			result &= ~encodeButton(button, 7);
 		}
 	}
