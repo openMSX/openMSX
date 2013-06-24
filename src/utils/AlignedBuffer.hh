@@ -40,8 +40,14 @@ public:
 	      uint8_t* operator+(ptrdiff_t i)       { return p() + i; };
 	const uint8_t* operator+(ptrdiff_t i) const { return p() + i; };
 
-	uint8_t& operator[](size_t i)       { return *(p() + i); }
-	uint8_t  operator[](size_t i) const { return *(p() + i); }
+	      uint8_t& operator[](int           i)       { return *(p() + i); }
+	const uint8_t& operator[](int           i) const { return *(p() + i); }
+	      uint8_t& operator[](unsigned int  i)       { return *(p() + i); }
+	const uint8_t& operator[](unsigned int  i) const { return *(p() + i); }
+	      uint8_t& operator[](long          i)       { return *(p() + i); }
+	const uint8_t& operator[](long          i) const { return *(p() + i); }
+	      uint8_t& operator[](unsigned long i)       { return *(p() + i); }
+	const uint8_t& operator[](unsigned long i) const { return *(p() + i); }
 
 private:
 	      uint8_t* p()       { return reinterpret_cast<      uint8_t*>(this); }
