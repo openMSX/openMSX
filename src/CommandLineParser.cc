@@ -363,7 +363,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						"Failed to initialize default machine: " + e.getMessage());
 					// Default machine is broken; fall back to C-BIOS config.
 					const auto& fallbackMachine =
-						reactor.getMachineSetting().getRestoreValueString();
+						reactor.getMachineSetting().getRestoreValue();
 					reactor.getCliComm().printInfo("Using fallback machine: " + fallbackMachine);
 					try {
 						reactor.switchMachine(fallbackMachine);

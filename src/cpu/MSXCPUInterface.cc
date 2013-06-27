@@ -137,7 +137,7 @@ MSXCPUInterface::BreakPoints MSXCPUInterface::breakPoints;
 //TODO watchpoints
 MSXCPUInterface::Conditions  MSXCPUInterface::conditions;
 
-static std::unique_ptr<ReadOnlySetting<BooleanSetting>> breakedSetting;
+static std::unique_ptr<ReadOnlySetting> breakedSetting;
 static unsigned breakedSettingCount = 0;
 
 
@@ -213,9 +213,9 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 
 	if (breakedSettingCount++ == 0) {
 		assert(!breakedSetting);
-		breakedSetting = make_unique<ReadOnlySetting<BooleanSetting>>(
+		breakedSetting = make_unique<ReadOnlySetting>(
 			motherBoard.getReactor().getCommandController(),
-			"breaked", "Similar to 'debug breaked'", false);
+			"breaked", "Similar to 'debug breaked'", "false");
 	}
 }
 
@@ -1005,7 +1005,7 @@ void MSXCPUInterface::doBreak()
 
 	Reactor& reactor = motherBoard.getReactor();
 	reactor.block();
-	breakedSetting->setReadOnlyValue(true);
+	breakedSetting->setReadOnlyValue("true");
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	reactor.getEventDistributor().distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_BREAK_EVENT));
@@ -1033,7 +1033,7 @@ void MSXCPUInterface::doContinue2()
 {
 	breaked = false;
 	Reactor& reactor = motherBoard.getReactor();
-	breakedSetting->setReadOnlyValue(false);
+	breakedSetting->setReadOnlyValue("false");
 	reactor.getCliComm().update(CliComm::STATUS, "cpu", "running");
 	reactor.unblock();
 }

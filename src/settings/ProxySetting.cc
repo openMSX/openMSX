@@ -10,123 +10,114 @@ using std::vector;
 
 namespace openmsx {
 
-ProxySetting::ProxySetting(CommandController& commandController,
-                           Reactor& reactor_,
-                           string_ref name)
-	: Setting(commandController, name, "proxy", DONT_SAVE)
+ProxySetting::ProxySetting(Reactor& reactor_, string_ref name)
+	: BaseSetting(name)
 	, reactor(reactor_)
 {
 }
 
-Setting* ProxySetting::getSetting()
+BaseSetting* ProxySetting::getSetting()
 {
-	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+	auto* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
 	return motherBoard->getMSXCommandController().findSetting(getName());
 }
 
-const Setting* ProxySetting::getSetting() const
+const BaseSetting* ProxySetting::getSetting() const
 {
 	return const_cast<ProxySetting*>(this)->getSetting();
 }
 
+void ProxySetting::setString(const std::string& value)
+{
+	if (auto* setting = getSetting()) {
+		setting->setString(value);
+	}
+}
+
 string_ref ProxySetting::getTypeString() const
 {
-	if (const Setting* setting = getSetting()) {
+	if (auto* setting = getSetting()) {
 		return setting->getTypeString();
 	} else {
 		return "proxy";
 	}
 }
 
-string ProxySetting::getDescription() const
+std::string ProxySetting::getDescription() const
 {
-	if (const Setting* setting = getSetting()) {
+	if (auto* setting = getSetting()) {
 		return setting->getDescription();
 	} else {
 		return "proxy";
 	}
 }
 
-string ProxySetting::getValueString() const
+std::string ProxySetting::getString() const
 {
-	if (const Setting* setting = getSetting()) {
-		return setting->getValueString();
+	if (auto* setting = getSetting()) {
+		return setting->getString();
 	} else {
 		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}
 }
 
-string ProxySetting::getDefaultValueString() const
+std::string ProxySetting::getDefaultValue() const
 {
-	if (const Setting* setting = getSetting()) {
-		return setting->getDefaultValueString();
+	if (auto* setting = getSetting()) {
+		return setting->getDefaultValue();
 	} else {
 		return "proxy";
 	}
 }
 
-string ProxySetting::getRestoreValueString() const
+std::string ProxySetting::getRestoreValue() const
 {
-	if (const Setting* setting = getSetting()) {
-		return setting->getRestoreValueString();
+	if (auto* setting = getSetting()) {
+		return setting->getRestoreValue();
 	} else {
 		return "proxy";
 	}
 }
 
-void ProxySetting::setValueStringDirect(const string& valueString)
+void ProxySetting::setStringDirect(const string& value)
 {
-	if (Setting* setting = getSetting()) {
-		// note: not setValueStringDirect()
-		setting->setString(valueString);
+	if (auto* setting = getSetting()) {
+		// note: not setStringDirect()
+		setting->setString(value);
 	} else {
 		throw MSXException("No setting '" + getName() + "' on current machine.");
-	}
-}
-
-void ProxySetting::restoreDefault()
-{
-	if (Setting* setting = getSetting()) {
-		setting->restoreDefault();
-	}
-}
-
-bool ProxySetting::hasDefaultValue() const
-{
-	if (const Setting* setting = getSetting()) {
-		return setting->hasDefaultValue();
-	} else {
-		return true;
 	}
 }
 
 void ProxySetting::tabCompletion(vector<string>& tokens) const
 {
-	if (const Setting* setting = getSetting()) {
+	if (auto* setting = getSetting()) {
 		setting->tabCompletion(tokens);
 	}
 }
 
 bool ProxySetting::needLoadSave() const
 {
-	if (const Setting* setting = getSetting()) {
+	if (auto* setting = getSetting()) {
 		return setting->needLoadSave();
 	} else {
 		return false;
 	}
 }
 
-void ProxySetting::setDontSaveValue(const string& dontSaveValue)
+bool ProxySetting::needTransfer() const
 {
-	if (Setting* setting = getSetting()) {
-		setting->setDontSaveValue(dontSaveValue);
+	if (auto* setting = getSetting()) {
+		return setting->needTransfer();
+	} else {
+		return false;
 	}
 }
 
 void ProxySetting::additionalInfo(TclObject& result) const
 {
-	if (const Setting* setting = getSetting()) {
+	if (auto* setting = getSetting()) {
 		setting->additionalInfo(result);
 	}
 }

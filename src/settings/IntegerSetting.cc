@@ -1,51 +1,39 @@
 #include "IntegerSetting.hh"
-#include "CommandException.hh"
-#include <sstream>
-#include <cstdio>
-
-using std::string;
+#include "StringOp.hh"
 
 namespace openmsx {
 
-// class IntegerSettingPolicy
-
-IntegerSettingPolicy::IntegerSettingPolicy(int minValue, int maxValue)
-	: SettingRangePolicy<int>(minValue, maxValue)
+IntegerSetting::IntegerSetting(CommandController& commandController,
+                               string_ref name, string_ref description,
+                               int initialValue, int minValue_, int maxValue_)
+	: Setting(commandController, name, description,
+	          StringOp::toString(initialValue), SAVE)
+	, minValue(minValue_)
+	, maxValue(maxValue_)
 {
+	setChecker([this](TclObject& newValue) {
+		int value = newValue.getInt(); // may throw
+		int clipped = std::min(std::max(value, minValue), maxValue);
+		newValue.setInt(clipped);
+	});
 }
 
-string IntegerSettingPolicy::toString(int value) const
-{
-	std::ostringstream out;
-	out << value;
-	return out.str();
-}
-
-int IntegerSettingPolicy::fromString(const string& str) const
-{
-	char* endPtr;
-	int result = strtol(str.c_str(), &endPtr, 0);
-	if (*endPtr != '\0') {
-		throw CommandException("not a valid integer: " + str);
-	}
-	return result;
-}
-
-string_ref IntegerSettingPolicy::getTypeString() const
+string_ref IntegerSetting::getTypeString() const
 {
 	return "integer";
 }
 
-
-// class IntegerSetting
-
-IntegerSetting::IntegerSetting(CommandController& commandController,
-                               string_ref name, string_ref description,
-                               int initialValue, int minValue, int maxValue)
-	: SettingImpl<IntegerSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE, minValue, maxValue)
+void IntegerSetting::additionalInfo(TclObject& result) const
 {
+	TclObject range(result.getInterpreter());
+	range.addListElement(minValue);
+	range.addListElement(maxValue);
+	result.addListElement(range);
+}
+
+void IntegerSetting::setInt(int i)
+{
+	setString(StringOp::toString(i));
 }
 
 } // namespace openmsx

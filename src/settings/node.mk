@@ -3,7 +3,6 @@ include build/node-start.mk
 SRC_HDR:= \
 	SettingsManager \
 	Setting \
-	SettingImpl \
 	ProxySetting \
 	IntegerSetting \
 	FloatSetting \
@@ -12,11 +11,8 @@ SRC_HDR:= \
 	EnumSetting \
 	FilenameSetting \
 	KeyCodeSetting \
+	VideoSourceSetting \
+	ReadOnlySetting \
 	UserSettings
-
-HDR_ONLY:= \
-	SettingPolicy \
-	SettingRangePolicy \
-	ReadOnlySetting
 
 include build/node-end.mk

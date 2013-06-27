@@ -4,29 +4,23 @@
 
 namespace openmsx {
 
-FilenameSettingPolicy::FilenameSettingPolicy()
-{
-}
-
-void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) const
-{
-	Completer::completeFileName(tokens, SystemFileContext());
-}
-
-string_ref FilenameSettingPolicy::getTypeString() const
-{
-	return "filename";
-}
-
-
 FilenameSetting::FilenameSetting(
 		CommandController& commandController,
 		string_ref name, string_ref description,
 		string_ref initialValue)
-	: SettingImpl<FilenameSettingPolicy>(
-		commandController, name, description, initialValue.str(),
-		Setting::SAVE)
+	: Setting(commandController, name, description,
+	          initialValue.str(), Setting::SAVE)
 {
+}
+
+string_ref FilenameSetting::getTypeString() const
+{
+	return "filename";
+}
+
+void FilenameSetting::tabCompletion(std::vector<std::string>& tokens) const
+{
+	Completer::completeFileName(tokens, SystemFileContext());
 }
 
 } // namespace openmsx

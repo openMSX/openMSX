@@ -97,24 +97,15 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 
-class JoystickConfigChecker : public SettingChecker<StringSettingPolicy>
+void checkJoystickConfig(TclObject& newValue)
 {
-public:
-	virtual void check(SettingImpl<StringSettingPolicy>& setting,
-	                   string& newValue);
-};
-
-void JoystickConfigChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
-                                  string& newValue)
-{
-	TclObject dict(newValue);
-	unsigned n = dict.getListLength();
+	unsigned n = newValue.getListLength();
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_ref key  = dict.getListIndex(i + 0).getString();
-		TclObject value = dict.getListIndex(i + 1);
+		string_ref key  = newValue.getListIndex(i + 0).getString();
+		TclObject value = newValue.getListIndex(i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
 		    (key != "UP"  ) && (key != "DOWN" )) {
@@ -174,8 +165,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	configSetting = make_unique<StringSetting>(
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
-	checker = make_unique<JoystickConfigChecker>();
-	configSetting->setChecker(checker.get());
+	configSetting->setChecker(checkJoystickConfig);
 }
 
 Joystick::~Joystick()
@@ -237,7 +227,7 @@ byte Joystick::calcState()
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
-		TclObject dict(configSetting->getValue());
+		const TclObject& dict = configSetting->getValue();
 		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
 		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
 		if (getState(dict, "UP"   )) result &= ~JOY_UP;

@@ -16,7 +16,7 @@ class FloatSetting;
 class BooleanSetting;
 class StringSetting;
 class VideoSourceSetting;
-class ColorMatrixChecker;
+class TclObject;
 
 /** Class containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
@@ -162,7 +162,7 @@ private:
 	  */
 	void updateBrightnessAndContrast();
 
-	void parseColorMatrix(const std::string& value);
+	void parseColorMatrix(const TclObject& value);
 
 	std::unique_ptr<EnumSetting<Accuracy>> accuracySetting;
 	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;
@@ -171,7 +171,6 @@ private:
 	std::unique_ptr<FloatSetting> gammaSetting;
 	std::unique_ptr<FloatSetting> brightnessSetting;
 	std::unique_ptr<FloatSetting> contrastSetting;
-	std::unique_ptr<ColorMatrixChecker> colorMatrixChecker;
 	std::unique_ptr<StringSetting> colorMatrixSetting;
 	std::unique_ptr<IntegerSetting> glowSetting;
 	std::unique_ptr<FloatSetting> noiseSetting;
@@ -195,8 +194,6 @@ private:
 	double cm[3][3];
 	/** True iff color matrix is identity matrix. */
 	bool cmIdentity;
-
-	friend class ColorMatrixChecker;
 };
 
 } // namespace openmsx

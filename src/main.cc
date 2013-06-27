@@ -138,7 +138,7 @@ static int main(int argc, char **argv)
 			initializeSDL();
 			if (!parser.isHiddenStartup()) {
 				auto& render = reactor.getDisplay().getRenderSettings(). getRenderer();
-				render.setString(render.getRestoreValueString());
+				render.setString(render.getRestoreValue());
 				// Switching renderer requires events, handle
 				// these events before continuing with the rest
 				// of initialization. This fixes a bug where

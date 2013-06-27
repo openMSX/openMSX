@@ -10,20 +10,10 @@
 #include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <iostream>
 #include <cmath>
 
 namespace openmsx {
-
-class ColorMatrixChecker : public SettingChecker<StringSettingPolicy>
-{
-public:
-	explicit ColorMatrixChecker(RenderSettings& renderSettings);
-	virtual void check(SettingImpl<StringSettingPolicy>& setting,
-	                   std::string& newValue);
-private:
-	RenderSettings& renderSettings;
-};
-
 
 RenderSettings::RenderSettings(CommandController& commandController)
 {
@@ -66,8 +56,20 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"color_matrix",
 		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
 		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }");
-	colorMatrixChecker = make_unique<ColorMatrixChecker>(*this);
-	colorMatrixSetting->setChecker(colorMatrixChecker.get());
+	colorMatrixSetting->setChecker([this](TclObject& newValue) {
+		try {
+			parseColorMatrix(newValue);
+		} catch (CommandException& e) {
+			throw CommandException(
+				"Invalid color matrix: " + e.getMessage());
+		}
+	});
+	try {
+		parseColorMatrix(colorMatrixSetting->getValue());
+	} catch (MSXException& e) {
+		std::cerr << e.getMessage() << std::endl;
+		cmIdentity = true;
+	}
 
 	glowSetting = make_unique<IntegerSetting>(commandController,
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
@@ -221,16 +223,14 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	b = conv2(b2, gamma);
 }
 
-void RenderSettings::parseColorMatrix(const std::string& value)
+void RenderSettings::parseColorMatrix(const TclObject& value)
 {
-	TclObject matrix(colorMatrixSetting->getInterpreter());
-	matrix.setString(value);
-	if (matrix.getListLength() != 3) {
+	if (value.getListLength() != 3) {
 		throw CommandException("must have 3 rows");
 	}
 	bool identity = true;
 	for (int i = 0; i < 3; ++i) {
-		TclObject row = matrix.getListIndex(i);
+		TclObject row = value.getListIndex(i);
 		if (row.getListLength() != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
@@ -242,22 +242,6 @@ void RenderSettings::parseColorMatrix(const std::string& value)
 		}
 	}
 	cmIdentity = identity;
-}
-
-
-ColorMatrixChecker::ColorMatrixChecker(RenderSettings& renderSettings_)
-	: renderSettings(renderSettings_)
-{
-}
-
-void ColorMatrixChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
-                               std::string& newValue)
-{
-	try {
-		renderSettings.parseColorMatrix(newValue);
-	} catch (CommandException& e) {
-		throw CommandException("Invalid color matrix: " + e.getMessage());
-	}
 }
 
 } // namespace openmsx

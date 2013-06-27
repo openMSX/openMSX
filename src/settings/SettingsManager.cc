@@ -70,19 +70,19 @@ SettingsManager::~SettingsManager()
 	assert(settingsMap.empty());
 }
 
-void SettingsManager::registerSetting(Setting& setting, string_ref name)
+void SettingsManager::registerSetting(BaseSetting& setting, string_ref name)
 {
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 }
 
-void SettingsManager::unregisterSetting(Setting& /*setting*/, string_ref name)
+void SettingsManager::unregisterSetting(BaseSetting& /*setting*/, string_ref name)
 {
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
 }
 
-Setting* SettingsManager::findSetting(string_ref name) const
+BaseSetting* SettingsManager::findSetting(string_ref name) const
 {
 	auto it = settingsMap.find(name);
 	return (it != settingsMap.end()) ? it->second : nullptr;
@@ -90,7 +90,7 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 // Helper functions for setting commands
 
-Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
+BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
 	if (auto* setting = findSetting(name)) {
 		return *setting;
@@ -104,7 +104,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	for (auto& p : settingsMap) {
 		auto& setting = *p.second;
 		if (setting.needLoadSave()) {
-			setting.setString(setting.getRestoreValueString());
+			setting.setString(setting.getRestoreValue());
 		}
 	}
 
@@ -126,12 +126,6 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	}
 }
 
-void SettingsManager::saveSettings(XMLElement& config) const
-{
-	for (auto& p : settingsMap) {
-		p.second->sync(config);
-	}
-}
 
 // class SettingInfo
 

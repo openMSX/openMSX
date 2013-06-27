@@ -152,13 +152,13 @@ Command* MSXCommandController::findCommand(string_ref name) const
 	return (it != commandMap.end()) ? it->second : nullptr;
 }
 
-Setting* MSXCommandController::findSetting(string_ref name)
+BaseSetting* MSXCommandController::findSetting(string_ref name)
 {
 	auto it = settingMap.find(name);
 	return (it != settingMap.end()) ? it->second : nullptr;
 }
 
-const Setting* MSXCommandController::findSetting(string_ref setting) const
+const BaseSetting* MSXCommandController::findSetting(string_ref setting) const
 {
 	return const_cast<MSXCommandController*>(this)->findSetting(setting);
 }
@@ -182,6 +182,11 @@ vector<string> MSXCommandController::splitList(const string& list)
 CliComm& MSXCommandController::getCliComm()
 {
 	return motherboard.getMSXCliComm();
+}
+
+Interpreter& MSXCommandController::getInterpreter()
+{
+	return globalCommandController.getInterpreter();
 }
 
 void MSXCommandController::signalEvent(

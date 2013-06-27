@@ -38,17 +38,6 @@ static const uint64_t BLINK_RATE = 500000; // us
 static const int CHAR_BORDER = 4;
 
 
-class OSDSettingChecker : public SettingChecker<FilenameSetting::Policy>
-{
-public:
-	OSDSettingChecker(OSDConsoleRenderer& renderer);
-	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
-	                   std::string& value);
-private:
-	OSDConsoleRenderer& renderer;
-};
-
-
 // class OSDConsoleRenderer::TextCacheElement
 
 OSDConsoleRenderer::TextCacheElement::TextCacheElement(
@@ -75,7 +64,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, reactor(reactor_)
 	, console(console_)
 	, consoleSetting(console.getConsoleSetting())
-	, settingChecker(make_unique<OSDSettingChecker>(*this))
 	, screenW(screenW_)
 	, screenH(screenH_)
 	, openGL(openGL_)
@@ -104,8 +92,11 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	const string& defaultFont = "skins/VeraMono.ttf.gz";
 	fontSetting = make_unique<FilenameSetting>(commandController,
 		"consolefont", "console font file", defaultFont);
+	fontSetting->setChecker([this](TclObject& value) {
+		loadFont(value.getString().str());
+	});
 	try {
-		fontSetting->setChecker(settingChecker.get());
+		loadFont(fontSetting->getString());
 	} catch (MSXException&) {
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
@@ -150,7 +141,10 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	backgroundSetting = make_unique<FilenameSetting>(commandController,
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png");
-	backgroundSetting->setChecker(settingChecker.get(), false); // don't load
+	backgroundSetting->setChecker([this](TclObject& value) {
+		loadBackground(value.getString().str());
+	});
+	// don't yet load background
 
 	consoleSetting.attach(*this);
 	fontSizeSetting->attach(*this);
@@ -464,26 +458,6 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		         destX + CHAR_BORDER + cursorX * font.getWidth(),
 		         destY + destH - (font.getHeight() * (cursorY + 1)) - 1,
 		         visibility);
-	}
-}
-
-
-// class OSDSettingChecker
-
-OSDSettingChecker::OSDSettingChecker(OSDConsoleRenderer& renderer_)
-	: renderer(renderer_)
-{
-}
-
-void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
-	                      string& value)
-{
-	if (&setting == renderer.backgroundSetting.get()) {
-		renderer.loadBackground(value);
-	} else if (&setting == renderer.fontSetting.get()) {
-		renderer.loadFont(value);
-	} else {
-		UNREACHABLE;
 	}
 }
 

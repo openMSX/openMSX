@@ -1,30 +1,28 @@
 #ifndef FLOATSETTING_HH
 #define FLOATSETTING_HH
 
-#include "SettingRangePolicy.hh"
-#include "SettingImpl.hh"
+#include "Setting.hh"
 
 namespace openmsx {
 
-class FloatSettingPolicy : public SettingRangePolicy<double>
-{
-protected:
-	FloatSettingPolicy(double minValue, double maxValue);
-	std::string toString(double value) const;
-	double fromString(const std::string& str) const;
-	string_ref getTypeString() const;
-};
-
 /** A Setting with a floating point value.
   */
-class FloatSetting : public SettingImpl<FloatSettingPolicy>
+class FloatSetting : public Setting
 {
 public:
 	FloatSetting(CommandController& commandController,
 	             string_ref name, string_ref description,
 	             double initialValue, double minValue, double maxValue);
 
-	double getDouble() const { return getValue(); }
+	virtual string_ref getTypeString() const;
+	virtual void additionalInfo(TclObject& result) const;
+
+	double getDouble() const { return getValue().getDouble(); }
+	void setDouble (double d);
+
+private:
+	const double minValue;
+	const double maxValue;
 };
 
 } // namespace openmsx

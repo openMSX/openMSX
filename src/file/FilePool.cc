@@ -171,7 +171,7 @@ void FilePool::update(const Setting& setting)
 FilePool::Directories FilePool::getDirectories() const
 {
 	Directories result;
-	TclObject all(filePoolSetting->getValue());
+	const TclObject& all = filePoolSetting->getValue();
 	unsigned numLines = all.getListLength();
 	for (unsigned i = 0; i < numLines; ++i) {
 		Entry entry;

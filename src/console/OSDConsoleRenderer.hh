@@ -19,7 +19,6 @@ class Setting;
 class BooleanSetting;
 class IntegerSetting;
 class FilenameSetting;
-class OSDSettingChecker;
 template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer : public Layer, private Observer<Setting>,
@@ -76,7 +75,6 @@ private:
 	Reactor& reactor;
 	CommandConsole& console;
 	BooleanSetting& consoleSetting;
-	const std::unique_ptr<OSDSettingChecker> settingChecker;
 	std::unique_ptr<EnumSetting<Placement>> consolePlacementSetting;
 	std::unique_ptr<IntegerSetting> fontSizeSetting;
 	std::unique_ptr<IntegerSetting> consoleRowsSetting;
@@ -101,8 +99,6 @@ private:
 	bool blink;
 	bool active;
 	const bool openGL;
-
-	friend class OSDSettingChecker;
 };
 
 } // namespace openmsx

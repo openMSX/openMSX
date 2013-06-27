@@ -123,7 +123,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 		setting->setEnum(SDL);
 	}
 	// set saved value as default
-	setting->setRestoreValue(setting->getEnum());
+	setting->setRestoreValue(setting->getString());
 
 	setting->setEnum(DUMMY); // always start hidden
 

@@ -5,7 +5,6 @@ SUBDIRS:= \
 
 SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
-	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \

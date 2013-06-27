@@ -92,7 +92,7 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
-	getSettingsManager().saveSettings(xmlElement);
+	// settings are kept up-to-date
 	hotKey.saveBindings(xmlElement);
 
 	File file(name, File::TRUNCATE);

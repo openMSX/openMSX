@@ -72,7 +72,7 @@ public:
 	virtual std::vector<std::string> splitList(const std::string& list);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
-	virtual Setting* findSetting(string_ref name);
+	virtual BaseSetting* findSetting(string_ref name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual CliComm& getCliComm();
 	virtual Interpreter& getInterpreter();
