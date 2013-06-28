@@ -516,7 +516,7 @@ void NowindHost::doDiskWrite1()
 	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = buffer.size();
+		unsigned sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {

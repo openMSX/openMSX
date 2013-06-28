@@ -55,15 +55,15 @@ static inline void yuv2rgb_sse2(
 
 	// constants
 	const __m128i ZERO    = _mm_setzero_si128();
-	const __m128i ALPHA   = _mm_set1_epi16(0xFFFF);
-	const __m128i RED_V   = _mm_set1_epi16(0x0066); // 102/64 =  1.59
-	const __m128i GREEN_U = _mm_set1_epi16(0xFFE7); // -25/64 = -0.39
-	const __m128i GREEN_V = _mm_set1_epi16(0xFFCC); // -52/64 = -0.81
-	const __m128i BLUE_U  = _mm_set1_epi16(0x0081); // 129/64 =  2.02
-	const __m128i COEF_Y  = _mm_set1_epi16(0x004A); //  74/64 =  1.16
-	const __m128i CNST_R  = _mm_set1_epi16(0xFF21); // -222.921
-	const __m128i CNST_G  = _mm_set1_epi16(0x0088); //  135.576
-	const __m128i CNST_B  = _mm_set1_epi16(0xFEEB); // -276.836
+	const __m128i ALPHA   = _mm_set1_epi16(    -1); // 0xFFFF
+	const __m128i RED_V   = _mm_set1_epi16(   102); // 102/64 =  1.59
+	const __m128i GREEN_U = _mm_set1_epi16(   -25); // -25/64 = -0.39
+	const __m128i GREEN_V = _mm_set1_epi16(   -52); // -52/64 = -0.81
+	const __m128i BLUE_U  = _mm_set1_epi16(   129); // 129/64 =  2.02
+	const __m128i COEF_Y  = _mm_set1_epi16(    74); //  74/64 =  1.16
+	const __m128i CNST_R  = _mm_set1_epi16(  -223); // -222.921
+	const __m128i CNST_G  = _mm_set1_epi16(   136); //  135.576
+	const __m128i CNST_B  = _mm_set1_epi16(  -277); // -276.836
 	const __m128i Y_MASK  = _mm_set1_epi16(0x00FF);
 
 	// left

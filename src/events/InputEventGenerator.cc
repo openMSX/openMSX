@@ -412,7 +412,7 @@ bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 		default: UNREACHABLE; return false;
 		}
 	} else {
-		return SDL_JoystickGetButton(joystick, button);
+		return SDL_JoystickGetButton(joystick, button) != 0;
 	}
 }
 

@@ -425,7 +425,7 @@ static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth
 	auto* in  = reinterpret_cast<const char*>(in_)  +     bytes;
 	auto* out = reinterpret_cast<      char*>(out_) + 2 * bytes;
 
-	ptrdiff_t x = -bytes;
+	auto x = -ptrdiff_t(bytes);
 	do {
 		__m128i a0 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x +  0));
 		__m128i a1 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + x + 16));
@@ -643,7 +643,7 @@ static inline void scale_2on1_SSE(
 	auto* in  = reinterpret_cast<const char*>(in_)  + 2 * dstBytes;
 	auto* out = reinterpret_cast<      char*>(out_) +     dstBytes;
 
-	ptrdiff_t x = -dstBytes;
+	auto x = -ptrdiff_t(dstBytes);
 	do {
 		__m128i a0 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +   0));
 		__m128i a1 = _mm_load_si128(reinterpret_cast<const __m128i*>(in + 2*x +  16));
