@@ -215,7 +215,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		// Copy line to destination surface
 		SDL_Rect rect;
 		rect.x = 0;
-		rect.y = i * lineSkip;
+		rect.y = Sint16(i * lineSkip);
 		SDL_SetAlpha(line.get(), 0, 0); // no blending during copy
 		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
 	}

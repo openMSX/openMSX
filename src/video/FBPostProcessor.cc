@@ -98,7 +98,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long wi
 	char* nse = reinterpret_cast<char*>(noise) + x;
 	x = -x;
 
-	__m128i b7 = _mm_set1_epi8(0x80);
+	__m128i b7 = _mm_set1_epi8(-128); // 0x80
 	do {
 		__m128i i0 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x +  0));
 		__m128i i1 = _mm_load_si128(reinterpret_cast<__m128i*>(buf + x + 16));
