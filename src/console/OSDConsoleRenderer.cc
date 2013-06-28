@@ -335,7 +335,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			return; // don't cache negative results
 		}
 		std::unique_ptr<BaseImage> image2;
-		if (!surf.get()) {
+		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else if (!openGL) {
 			image2 = make_unique<SDLImage>(std::move(surf));
@@ -415,7 +415,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 	}
 
 	// draw the background image if there is one
-	if (!backgroundImage.get()) {
+	if (!backgroundImage) {
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
@@ -432,7 +432,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 			// nothing
 		}
 	}
-	if (backgroundImage.get()) {
+	if (backgroundImage) {
 		backgroundImage->draw(output, destX, destY, visibility);
 	}
 

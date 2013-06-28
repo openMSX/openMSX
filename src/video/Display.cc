@@ -135,7 +135,7 @@ Display::~Display()
 
 void Display::createVideoSystem()
 {
-	assert(!videoSystem.get());
+	assert(!videoSystem);
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
 	assert(!switchInProgress);
 	currentRenderer = renderSettings->getRenderer().getValue();
@@ -145,7 +145,7 @@ void Display::createVideoSystem()
 
 VideoSystem& Display::getVideoSystem()
 {
-	assert(videoSystem.get());
+	assert(videoSystem);
 	return *videoSystem;
 }
 
@@ -379,7 +379,7 @@ void Display::repaint()
 	alarm->cancel(); // cancel delayed repaint
 
 	if (!renderFrozen) {
-		assert(videoSystem.get());
+		assert(videoSystem);
 		if (OutputSurface* surface = videoSystem->getOutputSurface()) {
 			repaint(*surface);
 			videoSystem->flush();

@@ -192,6 +192,9 @@ Reactor::Reactor()
 	, running(true)
 	, isInit(false)
 {
+#if UNIQUE_PTR_BUG
+	display = nullptr;
+#endif
 }
 
 void Reactor::init()
@@ -300,7 +303,7 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 
 Display& Reactor::getDisplay()
 {
-	assert(display.get());
+	assert(display);
 	return *display;
 }
 
@@ -456,8 +459,13 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 
 void Reactor::switchMachine(const string& machine)
 {
-	if (!display.get()) {
+	if (!display) {
+#if UNIQUE_PTR_BUG
+		display2 = make_unique<Display>(*this);
+		display = display2.get();
+#else
 		display = make_unique<Display>(*this);
+#endif
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().

@@ -322,7 +322,7 @@ void HardwareConfig::createDevices(const XMLElement& elem,
 		} else {
 			auto device = DeviceFactory::create(
 				DeviceConfig(*this, c, primary, secondary));
-			if (device.get()) {
+			if (device) {
 				addDevice(move(device));
 			} else {
 				motherBoard.getMSXCliComm().printWarning(
@@ -408,7 +408,7 @@ void HardwareConfig::serialize(Archive& ar, unsigned version)
 		ar.serialize("context", context);
 	} else {
 		context = XMLElement::getLastSerializedFileContext();
-		assert(context.get());
+		assert(context);
 	}
 	if (ar.isLoader()) {
 		if (!motherBoard.getMachineConfig()) {

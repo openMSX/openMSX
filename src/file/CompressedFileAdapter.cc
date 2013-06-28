@@ -29,7 +29,7 @@ CompressedFileAdapter::~CompressedFileAdapter()
 
 void CompressedFileAdapter::decompress()
 {
-	if (decompressed.get()) return;
+	if (decompressed) return;
 
 	string url = getURL();
 	auto it = decompressCache.find(url);
@@ -103,8 +103,7 @@ void CompressedFileAdapter::flush()
 
 const string CompressedFileAdapter::getURL() const
 {
-	return file.get() ? file->getURL()
-	                  : decompressed->cachedURL;
+	return file ? file->getURL() : decompressed->cachedURL;
 }
 
 const string CompressedFileAdapter::getOriginalName()
@@ -120,8 +119,8 @@ bool CompressedFileAdapter::isReadOnly() const
 
 time_t CompressedFileAdapter::getModificationDate()
 {
-	return file.get() ? file->getModificationDate()
-	                  : decompressed->cachedModificationDate;
+	return file ? file->getModificationDate()
+	            : decompressed->cachedModificationDate;
 }
 
 } // namespace openmsx

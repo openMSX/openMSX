@@ -128,7 +128,7 @@ void IDECDROM::fillIdentifyBlock(AlignedBuffer& buffer)
 unsigned IDECDROM::readBlockStart(AlignedBuffer& buffer, unsigned count)
 {
 	assert(readSectorData);
-	if (file.get()) {
+	if (file) {
 		//fprintf(stderr, "read sector data at %08X\n", transferOffset);
 		file->seek(transferOffset);
 		file->read(buffer, count);
@@ -175,7 +175,7 @@ void IDECDROM::executeCommand(byte cmd)
 		} else {
 			// na WP MC na MCR ABRT NM obs
 			byte err = 0;
-			if (file.get()) {
+			if (file) {
 				err |= 0x40; // WP (write protected)
 			} else {
 				err |= 0x02; // NM (no media inserted)
@@ -358,7 +358,7 @@ void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		File* file = cd.file.get();
+		auto* file = cd.file.get();
 		result.addListElement(cd.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
@@ -418,7 +418,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	string filename = file.get() ? file->getURL() : "";
+	string filename = file ? file->getURL() : "";
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'

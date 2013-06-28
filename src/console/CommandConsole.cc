@@ -219,7 +219,7 @@ void CommandConsole::loadHistory()
 
 BooleanSetting& CommandConsole::getConsoleSetting()
 {
-	return *consoleSetting.get();
+	return *consoleSetting;
 }
 
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
@@ -286,107 +286,105 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 	auto keyCode = keyEvent.getKeyCode();
 	int key = keyCode &  Keys::K_MASK;
 	int mod = keyCode & ~Keys::K_MASK;
-	word chr = keyEvent.getUnicode();
 
-	bool used = true;
 	switch (mod) {
 	case Keys::KM_CTRL:
 		switch (key) {
 		case Keys::K_H:
 			backspace();
-			break;
+			return true;
 		case Keys::K_A:
 			cursorPosition = unsigned(prompt.size());
-			break;
+			return true;
 		case Keys::K_E:
 			cursorPosition = lines[0].numChars();
-			break;
+			return true;
 		case Keys::K_C:
 			clearCommand();
-			break;
-		default:
-			used = false;
-			break;
+			return true;
 		}
 		break;
 	case Keys::KM_SHIFT:
 		switch (key) {
 		case Keys::K_PAGEUP:
 			scroll(max<int>(getRows() - 1, 1));
-			break;
+			return true;
 		case Keys::K_PAGEDOWN:
 			scroll(-max<int>(getRows() - 1, 1));
-			break;
-		default:
-			if (chr) {
-				normalKey(chr);
-			} else {
-				used = false;
-			}
-			break;
+			return true;
 		}
 		break;
-	case Keys::KM_MODE: // e.g. to type '1-9' on a N900
-	case Keys::KM_ALT:  // e.g. to type | [ ] on a azerty keyboard layout
-	// Don't add the META modifier here because that will break the Cmd+L
-	// hotkey on MacOSX to toggle the console.
-	case 0:
+	case 0: // no modifier
 		switch (key) {
 		case Keys::K_PAGEUP:
 			scroll(1);
-			break;
+			return true;
 		case Keys::K_PAGEDOWN:
 			scroll(-1);
-			break;
+			return true;
 		case Keys::K_UP:
 			prevCommand();
-			break;
+			return true;
 		case Keys::K_DOWN:
 			nextCommand();
-			break;
+			return true;
 		case Keys::K_BACKSPACE:
 			backspace();
-			break;
+			return true;
 		case Keys::K_DELETE:
 			delete_key();
-			break;
+			return true;
 		case Keys::K_TAB:
 			tabCompletion();
-			break;
+			return true;
 		case Keys::K_RETURN:
 		case Keys::K_KP_ENTER:
 			commandExecute();
 			cursorPosition = unsigned(prompt.size());
-			break;
+			return true;
 		case Keys::K_LEFT:
 			if (cursorPosition > prompt.size()) {
 				--cursorPosition;
 			}
-			break;
+			return true;
 		case Keys::K_RIGHT:
 			if (cursorPosition < lines[0].numChars()) {
 				++cursorPosition;
 			}
-			break;
+			return true;
 		case Keys::K_HOME:
 			cursorPosition = unsigned(prompt.size());
-			break;
+			return true;
 		case Keys::K_END:
 			cursorPosition = lines[0].numChars();
-			break;
-		default:
-			if (chr) {
-				normalKey(chr);
-			} else {
-				used = false;
-			}
-			break;
+			return true;
 		}
 		break;
-	default:
-		used = false;
 	}
-	return used;
+
+	uint16_t unicode = keyEvent.getUnicode();
+	if (!unicode || (mod & Keys::KM_META)) {
+		// Disallow META modifer for 'normal' key presses because on
+		// MacOSX Cmd+L is used as a hotkey to toggle the console.
+		// Hopefully there are no systems that require META to type
+		// normal keys. However there _are_ systems that require the
+		// following modifiers, some examples:
+		//  MODE:     to type '1-9' on a N900
+		//  ALT:      to type | [ ] on a azerty keyboard layout
+		//  CTRL+ALT: to type '#' on a spanish keyboard layout (windows)
+		//
+		// Event was not used by the console, allow the other
+		// subsystems to process it. E.g. F10, or Cmd+L to close the
+		// console.
+		return false;
+	}
+
+	if (unicode >= 0x20) {
+		normalKey(unicode);
+	} else {
+		// Skip CTRL-<X> combinations, but still return true.
+	}
+	return true;
 }
 
 void CommandConsole::setColumns(unsigned columns_)
@@ -638,7 +636,7 @@ void CommandConsole::delete_key()
 	}
 }
 
-void CommandConsole::normalKey(word chr)
+void CommandConsole::normalKey(uint16_t chr)
 {
 	assert(chr);
 	resetScrollBack();

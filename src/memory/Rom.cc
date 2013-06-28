@@ -126,16 +126,16 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		// .. then try the actual sha1sum ..
 		auto fileType = context.isUserContext()
 			? FilePool::ROM : FilePool::SYSTEM_ROM;
-		if (!file.get() && resolvedSha1Elem) {
+		if (!file && resolvedSha1Elem) {
 			Sha1Sum sha1(resolvedSha1Elem->getData());
 			file = filepool.getFile(fileType, sha1);
-			if (file.get()) {
+			if (file) {
 				// avoid recalculating same sha1 later
 				originalSha1 = sha1;
 			}
 		}
 		// .. and then try filename as originally given by user ..
-		if (!file.get()) {
+		if (!file) {
 			for (auto& f : filenames) {
 				try {
 					Filename filename(f->getData(), context);
@@ -147,11 +147,11 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 		// .. then try all alternative sha1sums ..
 		// (this might retry the actual sha1sum)
-		if (!file.get()) {
+		if (!file) {
 			for (auto& s : sums) {
 				Sha1Sum sha1(s->getData());
 				file = filepool.getFile(fileType, sha1);
-				if (file.get()) {
+				if (file) {
 					// avoid recalculating same sha1 later
 					originalSha1 = sha1;
 					break;
@@ -159,7 +159,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 			}
 		}
 		// .. still no file, then error
-		if (!file.get()) {
+		if (!file) {
 			StringOp::Builder error;
 			error << "Couldn't find ROM file for \""
 			      << name << '"';
@@ -290,7 +290,7 @@ void Rom::init(MSXMotherBoard& motherBoard, const XMLElement& config,
 		const auto& actualSha1Elem = mutableConfig.getCreateChild(
 			"resolvedSha1", patchedSha1Str);
 		if (actualSha1Elem.getData() != patchedSha1Str) {
-			string tmp = file.get() ? file->getURL() : name;
+			string tmp = file ? file->getURL() : name;
 			// can only happen in case of loadstate
 			motherBoard.getMSXCliComm().printWarning(
 				"The content of the rom " + tmp + " has "
@@ -338,7 +338,7 @@ Rom::~Rom()
 
 string Rom::getFilename() const
 {
-	return file.get() ? file->getURL() : "";
+	return file ? file->getURL() : "";
 }
 
 const string& Rom::getName() const

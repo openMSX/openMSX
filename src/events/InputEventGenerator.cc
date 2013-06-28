@@ -338,16 +338,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	}
 
 #ifdef DEBUG
-	if (!event.get()) {
-		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
+	if (event) {
+		PRT_DEBUG("SDL event converted to: " + event->toString());
 	} else {
-		PRT_DEBUG("SDL event converted to: " + event.get()->toString());
+		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
 	}
-
 #endif
-	if (event.get()) {
-		eventDistributor.distributeEvent(event);
-	}
+
+	if (event) eventDistributor.distributeEvent(event);
 }
 
 

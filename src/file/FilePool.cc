@@ -214,9 +214,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 {
 	unique_ptr<File> result;
 	result = getFromPool(sha1sum);
-	if (result.get()) {
-		return result;
-	}
+	if (result) return result;
 
 	// not found in cache, need to scan directories
 	lastTime = Timer::getTime(); // for progress messages
@@ -232,9 +230,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 		if (d.types & fileType) {
 			string path = FileOperations::expandTilde(d.path);
 			result = scanDirectory(sha1sum, path, d.path);
-			if (result.get()) {
-				return result;
-			}
+			if (result) return result;
 		}
 	}
 
@@ -307,9 +303,7 @@ unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& d
 					result = scanDirectory(sha1sum, path, poolPath);
 				}
 			}
-			if (result.get()) {
-				return result;
-			}
+			if (result) return result;
 		}
 	}
 	return nullptr; // not found

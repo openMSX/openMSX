@@ -273,7 +273,7 @@ void ImagePrinter::seekPrinterHeadRelative(double offset)
 
 void ImagePrinter::ensurePrintPage()
 {
-	if (!paper.get()) {
+	if (!paper) {
 		// A4 paper format (210mm x 297mm) at 300dpi
 		// TODO make this configurable
 		double dpi = dpiSetting->getValue();
@@ -292,7 +292,7 @@ void ImagePrinter::ensurePrintPage()
 
 void ImagePrinter::flushEmulatedPrinter()
 {
-	if (paper.get()) {
+	if (paper) {
 		if (printAreaBottom > printAreaTop) {
 			try {
 				string filename = paper->save();

@@ -582,14 +582,14 @@ void SDLImage::allocateWorkImage()
 	workImage.reset(SDL_CreateRGBSurface(flags,
 		image->w, image->h, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0));
-	if (!workImage.get()) {
+	if (!workImage) {
 		throw FatalError("Couldn't allocate SDLImage workimage");
 	}
 }
 
 void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 {
-	if (!image.get()) return;
+	if (!image) return;
 	if (flipX) x -= image->w;
 	if (flipY) y -= image->h;
 
@@ -602,9 +602,7 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 		if (alpha == 255) {
 			SDL_BlitSurface(image.get(), nullptr, outputSurface, &rect);
 		} else {
-			if (!workImage.get()) {
-				allocateWorkImage();
-			}
+			if (!workImage) allocateWorkImage();
 			rect.w = image->w;
 			rect.h = image->h;
 			SDL_BlitSurface(outputSurface, &rect, workImage.get(), nullptr);
@@ -620,12 +618,12 @@ void SDLImage::draw(OutputSurface& output, int x, int y, byte alpha)
 
 int SDLImage::getWidth() const
 {
-	return image.get() ? image->w : 0;
+	return image ? image->w : 0;
 }
 
 int SDLImage::getHeight() const
 {
-	return image.get() ? image->h : 0;
+	return image ? image->h : 0;
 }
 
 } // namespace openmsx

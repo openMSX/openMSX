@@ -100,7 +100,7 @@ private:
 	void clearCommand();
 	void backspace();
 	void delete_key();
-	void normalKey(word chr);
+	void normalKey(uint16_t chr);
 	void putCommandHistory(const std::string& command);
 	void newLineConsole(string_ref line);
 	void newLineConsole(ConsoleLine line);

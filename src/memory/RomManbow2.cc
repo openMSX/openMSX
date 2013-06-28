@@ -45,7 +45,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 {
 	powerUp(getCurrentTime());
 
-	if (psg.get()) {
+	if (psg) {
 		getCPUInterface().register_IO_Out(0x10, this);
 		getCPUInterface().register_IO_Out(0x11, this);
 		getCPUInterface().register_IO_In (0x12, this);
@@ -54,7 +54,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 
 RomManbow2::~RomManbow2()
 {
-	if (psg.get()) {
+	if (psg) {
 		getCPUInterface().unregister_IO_Out(0x10, this);
 		getCPUInterface().unregister_IO_Out(0x11, this);
 		getCPUInterface().unregister_IO_In (0x12, this);
@@ -76,7 +76,7 @@ void RomManbow2::reset(EmuTime::param time)
 	sccEnabled = false;
 	scc->reset(time);
 
-	if (psg.get()) {
+	if (psg) {
 		psgLatch = 0;
 		psg->reset(time);
 	}
@@ -197,7 +197,7 @@ void RomManbow2::serialize(Archive& ar, unsigned version)
 	ar.template serializeBase<MSXDevice>(*this);
 
 	ar.serialize("scc", *scc);
-	if ((ar.versionAtLeast(version, 2)) && (psg.get())) {
+	if ((ar.versionAtLeast(version, 2)) && psg) {
 		ar.serialize("psg", *psg);
 		ar.serialize("psgLatch", psgLatch);
 	}

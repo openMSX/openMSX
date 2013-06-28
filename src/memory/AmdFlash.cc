@@ -230,9 +230,7 @@ bool AmdFlash::checkCommandEraseChip()
 	if (partialMatch(5, cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x10) {
-			if (ram.get()) {
-				ram->memset(0, 0xff, ram->getSize());
-			}
+			if (ram) ram->memset(0, 0xff, ram->getSize());
 		}
 	}
 	return false;

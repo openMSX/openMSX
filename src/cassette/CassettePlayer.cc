@@ -138,7 +138,7 @@ CassettePlayer::~CassettePlayer()
 
 void CassettePlayer::autoRun()
 {
-	if (!playImage.get()) return;
+	if (!playImage) return;
 
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = playImage->getFirstFileType();
@@ -211,7 +211,7 @@ double CassettePlayer::getTapePos(EmuTime::param time)
 
 double CassettePlayer::getTapeLength(EmuTime::param time)
 {
-	if (playImage.get()) {
+	if (playImage) {
 		return (playImage->getEndTime() - EmuTime::zero).toDouble();
 	} else if (getState() == RECORD) {
 		return getTapePos(time);
@@ -224,8 +224,8 @@ void CassettePlayer::checkInvariants() const
 {
 	switch (getState()) {
 	case STOP:
-		assert(!recordImage.get());
-		if (playImage.get()) {
+		assert(!recordImage);
+		if (playImage) {
 			// we're at end-of tape
 			assert(!getImageName().empty());
 		} else {
@@ -234,13 +234,13 @@ void CassettePlayer::checkInvariants() const
 		break;
 	case PLAY:
 		assert(!getImageName().empty());
-		assert(!recordImage.get());
-		assert(playImage.get());
+		assert(!recordImage);
+		assert(playImage);
 		break;
 	case RECORD:
 		assert(!getImageName().empty());
-		assert(recordImage.get());
-		assert(!playImage.get());
+		assert(recordImage);
+		assert(!playImage);
 		break;
 	default:
 		UNREACHABLE;
@@ -262,10 +262,10 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 	assert(!((oldState == RECORD) && (newState == PLAY)));
 
 	// stuff for leaving the old state
-	//  'recordImage.get()==nullptr' can happen in case of loadstate.
-	if ((oldState == RECORD) && recordImage.get()) {
+	//  'recordImage==nullptr' can happen in case of loadstate.
+	if ((oldState == RECORD) && recordImage) {
 		flushOutput();
-		bool empty = recordImage.get()->isEmpty();
+		bool empty = recordImage->isEmpty();
 		recordImage.reset();
 		if (empty) {
 			// delete the created WAV file, as it is useless
@@ -349,8 +349,7 @@ void CassettePlayer::insertTape(const Filename& filename)
 	}
 
 	// possibly recreate resampler
-	unsigned inputRate = playImage.get() ? playImage->getFrequency()
-	                                     : 44100;
+	unsigned inputRate = playImage ? playImage->getFrequency() : 44100;
 	if (inputRate != getInputRate()) {
 		setInputRate(inputRate);
 		createResampler();
@@ -463,7 +462,7 @@ void CassettePlayer::updateTapePosition(
 
 void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 {
-	if (!recordImage.get() || !isRolling()) return;
+	if (!recordImage || !isRolling()) return;
 
 	double out = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 	double samples = duration.toDouble() * RECORD_FREQ;
@@ -492,7 +491,7 @@ void CassettePlayer::generateRecordOutput(EmuDuration::param duration)
 
 void CassettePlayer::fillBuf(size_t length, double x)
 {
-	assert(recordImage.get());
+	assert(recordImage);
 	static const double A = 252.0 / 256.0;
 
 	double y = lastY + (x - lastX);
@@ -846,7 +845,7 @@ SERIALIZE_ENUM(CassettePlayer::State, stateInfo);
 template<typename Archive>
 void CassettePlayer::serialize(Archive& ar, unsigned version)
 {
-	if (recordImage.get()) {
+	if (recordImage) {
 		// buf, sampcnt
 		flushOutput();
 	}
@@ -854,7 +853,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("casImage", casImage);
 
 	Sha1Sum oldChecksum;
-	if (!ar.isLoader() && playImage.get()) {
+	if (!ar.isLoader() && playImage) {
 		oldChecksum = playImage->getSha1Sum();
 	}
 	if (ar.versionAtLeast(version, 2)) {
@@ -873,9 +872,8 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		casImage.updateAfterLoadState();
 		if (!oldChecksum.empty() &&
 		    !FileOperations::exists(casImage.getResolved())) {
-			std::unique_ptr<File> file = filePool.getFile(
-				FilePool::TAPE, oldChecksum);
-			if (file.get()) {
+			if (auto file = filePool.getFile(
+			                     FilePool::TAPE, oldChecksum)) {
 				casImage.setResolved(file->getURL());
 			}
 		}
@@ -897,7 +895,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 			}
 		}
 
-		if (playImage.get() && !oldChecksum.empty()) {
+		if (playImage && !oldChecksum.empty()) {
 			Sha1Sum newChecksum = playImage->getSha1Sum();
 			if (oldChecksum != newChecksum) {
 				motherBoard.getMSXCliComm().printWarning(
@@ -934,7 +932,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 				"continue without actually saving.");
 			setState(STOP, getImageName(), getCurrentTime());
 		}
-		if (!playImage.get() && (state == PLAY)) {
+		if (!playImage && (state == PLAY)) {
 			// This should only happen for manually edited
 			// savestates, though we shouldn't crash on it.
 			setState(STOP, getImageName(), getCurrentTime());

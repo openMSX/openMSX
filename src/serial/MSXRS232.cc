@@ -104,9 +104,7 @@ MSXRS232::~MSXRS232()
 
 void MSXRS232::powerUp(EmuTime::param time)
 {
-	if(ram.get()) {
-		ram->clear();
-	}
+	if (ram) ram->clear();
 	reset(time);
 }
 
@@ -118,9 +116,7 @@ void MSXRS232::reset(EmuTime::param /*time*/)
 
 	ioAccessEnabled = !hasMemoryBasedIo;
 
-	if (ram.get()) {
-		ram->clear();
-	}
+	if (ram) ram->clear();
 }
 
 byte MSXRS232::readMem(word address, EmuTime::param time)
@@ -129,9 +125,9 @@ byte MSXRS232::readMem(word address, EmuTime::param time)
 		return readIOImpl(address & 0x07, time);
 	}
 	word addr = address & 0x3FFF;
-	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return (*ram)[addr - RAM_OFFSET];
-	} else if (rom.get() && (0x4000 <= address) && (address < 0x8000)) {
+	} else if (rom && (0x4000 <= address) && (address < 0x8000)) {
 		return (*rom)[addr];
 	} else {
 		return 0xFF;
@@ -144,9 +140,9 @@ const byte* MSXRS232::getReadCacheLine(word start) const
                 return nullptr;
         }
 	word addr = start & 0x3FFF;
-	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
-	} else if (rom.get() && (0x4000 <= start) && (start < 0x8000)) {
+	} else if (rom && (0x4000 <= start) && (start < 0x8000)) {
 		return &(*rom)[addr];
 	} else {
 		return unmappedRead;
@@ -168,7 +164,7 @@ void MSXRS232::writeMem(word address, byte value, EmuTime::param time)
 		return writeIOImpl(address & 0x07, value, time);
 	}
 	word addr = address & 0x3FFF;
-	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		(*ram)[addr - RAM_OFFSET] = value;
 	}
 }
@@ -179,7 +175,7 @@ byte* MSXRS232::getWriteCacheLine(word start) const
                 return nullptr;
         }
 	word addr = start & 0x3FFF;
-	if (ram.get() && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
+	if (ram && ((RAM_OFFSET <= addr) && (addr < (RAM_OFFSET + RAM_SIZE)))) {
 		return &(*ram)[addr - RAM_OFFSET];
 	} else {
 		return unmappedWrite;
@@ -296,8 +292,7 @@ byte MSXRS232::readStatus(EmuTime::param time)
 
 	// TODO bit 0: carrier detect
 
-	if (!rxrdyIRQenabled && switchSetting.get() &&
-			switchSetting->getValue()) {
+	if (!rxrdyIRQenabled && switchSetting && switchSetting->getValue()) {
 		result |= 0x08;
 	}
 
@@ -501,9 +496,7 @@ void MSXRS232::serialize(Archive& ar, unsigned version)
 
 	ar.serialize("I8254", *i8254);
 	ar.serialize("I8251", *i8251);
-	if (ram.get()) {
-		ar.serialize("ram", *ram);
-	}
+	if (ram) ar.serialize("ram", *ram);
 	ar.serialize("rxrdyIRQ", rxrdyIRQ);
 	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
 	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);

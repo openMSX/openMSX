@@ -86,7 +86,7 @@ void MSXAudio::writeIO(word port, byte value, EmuTime::param time)
 	if ((port & 0xFF) == 0x0A) {
 		dacValue = value;
 		if (dacEnabled) {
-			assert(dac.get());
+			assert(dac);
 			dac->writeDAC(dacValue, time);
 		}
 	} else if ((port & 0x01) == 0) {
@@ -121,7 +121,7 @@ byte* MSXAudio::getWriteCacheLine(word start) const
 
 void MSXAudio::enableDAC(bool enable, EmuTime::param time)
 {
-	if ((dacEnabled != enable) && dac.get()) {
+	if ((dacEnabled != enable) && dac) {
 		dacEnabled = enable;
 		byte value = dacEnabled ? dacValue : 0x80;
 		dac->writeDAC(value, time);
@@ -141,7 +141,7 @@ void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		// restore dac status
 		if (dacEnabled) {
-			assert(dac.get());
+			assert(dac);
 			dac->writeDAC(dacValue, getCurrentTime());
 		}
 	}

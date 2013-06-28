@@ -110,9 +110,7 @@ void ESE_SCC::reset(EmuTime::param time)
 		setMapperLow(i, i);
 	}
 	scc->reset(time);
-	if (spc.get()) {
-		spc->reset(true);
-	}
+	if (spc) spc->reset(true);
 }
 
 void ESE_SCC::setMapperLow(unsigned page, byte value)
@@ -141,9 +139,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 void ESE_SCC::setMapperHigh(byte value)
 {
 	writeEnable = (value & 0x10) != 0; // no need to flush cache
-	if (!spc.get()) {
-		return; // only WAVE-SCSI supports 1024kB
-	}
+	if (!spc) return; // only WAVE-SCSI supports 1024kB
 
 	bool flush = false;
 	byte mapperHigh = value & 0x40;
@@ -269,9 +265,7 @@ void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("sram", *sram);
 	ar.serialize("scc", *scc);
-	if (spc.get()) {
-		ar.serialize("MB89352", *spc);
-	}
+	if (spc) ar.serialize("MB89352", *spc);
 	ar.serialize("mapper", mapper);
 	ar.serialize("spcEnable", spcEnable);
 	ar.serialize("sccEnable", sccEnable);
