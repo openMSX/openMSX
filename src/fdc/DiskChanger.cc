@@ -89,7 +89,7 @@ void DiskChanger::init(const string& prefix, bool createCmd)
 
 void DiskChanger::createCommand()
 {
-	if (diskCommand.get()) return;
+	if (diskCommand) return;
 	diskCommand = make_unique<DiskCommand>(controller, *this);
 }
 
@@ -380,9 +380,8 @@ void DiskChanger::serialize(Archive& ar, unsigned version)
 			if (!FileOperations::exists(name)) {
 				assert(filePool);
 				assert(!oldChecksum.empty());
-				std::unique_ptr<File> file = filePool->getFile(
-					FilePool::DISK, Sha1Sum(oldChecksum));
-				if (file.get()) {
+				if (auto file = filePool->getFile(
+				          FilePool::DISK, Sha1Sum(oldChecksum))) {
 					name = file->getURL();
 				}
 			}

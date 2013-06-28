@@ -397,7 +397,7 @@ MSXMotherBoard::Impl::~Impl()
 	assert(mapperIOCounter == 0);
 	assert(availableDevices.empty());
 	assert(extensions.empty());
-	assert(!machineConfig2.get());
+	assert(!machineConfig2);
 	assert(!getMachineConfig());
 }
 
@@ -440,7 +440,7 @@ void MSXMotherBoard::Impl::setMachineConfig(
 	machineConfig = machineConfig_;
 
 	// make sure the CPU gets instantiated from the main thread
-	assert(!msxCpu.get());
+	assert(!msxCpu);
 	msxCpu = make_unique<MSXCPU>(self);
 	msxCpuInterface = make_unique<MSXCPUInterface>(self);
 }
@@ -456,7 +456,7 @@ string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& mac
 {
 	assert(machineName.empty());
 	assert(extensions.empty());
-	assert(!machineConfig2.get());
+	assert(!machineConfig2);
 	assert(!getMachineConfig());
 
 	try {
@@ -586,7 +586,7 @@ MSXMixer& MSXMotherBoard::Impl::getMSXMixer()
 PluggingController& MSXMotherBoard::Impl::getPluggingController(MSXMotherBoard& self)
 {
 	assert(getMachineConfig()); // needed for PluggableFactory::createAll()
-	if (!pluggingController.get()) {
+	if (!pluggingController) {
 		pluggingController = make_unique<PluggingController>(self);
 	}
 	return *pluggingController;
@@ -607,7 +607,7 @@ MSXCPUInterface& MSXMotherBoard::Impl::getCPUInterface()
 
 PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory(MSXMotherBoard& self)
 {
-	if (!panasonicMemory.get()) {
+	if (!panasonicMemory) {
 		panasonicMemory = make_unique<PanasonicMemory>(self);
 	}
 	return *panasonicMemory;
@@ -615,7 +615,7 @@ PanasonicMemory& MSXMotherBoard::Impl::getPanasonicMemory(MSXMotherBoard& self)
 
 MSXDeviceSwitch& MSXMotherBoard::Impl::getDeviceSwitch()
 {
-	if (!deviceSwitch.get()) {
+	if (!deviceSwitch) {
 		deviceSwitch = DeviceFactory::createDeviceSwitch(*getMachineConfig());
 	}
 	return *deviceSwitch;
@@ -623,7 +623,7 @@ MSXDeviceSwitch& MSXMotherBoard::Impl::getDeviceSwitch()
 
 CassettePortInterface& MSXMotherBoard::Impl::getCassettePort()
 {
-	if (!cassettePort.get()) {
+	if (!cassettePort) {
 		assert(getMachineConfig());
 		if (getMachineConfig()->getConfig().findChild("CassettePort")) {
 			cassettePort = make_unique<CassettePort>(*getMachineConfig());
@@ -638,7 +638,7 @@ JoystickPortIf& MSXMotherBoard::Impl::getJoystickPort(
 	unsigned port, MSXMotherBoard& self)
 {
 	assert(port < 2);
-	if (!joystickPort[0].get()) {
+	if (!joystickPort[0]) {
 		assert(getMachineConfig());
 		// some MSX machines only have 1 instead of 2 joystick ports
 		string_ref ports = getMachineConfig()->getConfig().getChildData(
@@ -669,7 +669,7 @@ JoystickPortIf& MSXMotherBoard::Impl::getJoystickPort(
 
 RenShaTurbo& MSXMotherBoard::Impl::getRenShaTurbo()
 {
-	if (!renShaTurbo.get()) {
+	if (!renShaTurbo) {
 		assert(getMachineConfig());
 		renShaTurbo = make_unique<RenShaTurbo>(
 			*msxCommandController,
@@ -680,7 +680,7 @@ RenShaTurbo& MSXMotherBoard::Impl::getRenShaTurbo()
 
 LedStatus& MSXMotherBoard::Impl::getLedStatus()
 {
-	if (!ledStatus.get()) {
+	if (!ledStatus) {
 		getMSXCliComm(); // force init, to be on the safe side
 		ledStatus = make_unique<LedStatus>(
 			reactor.getEventDistributor(),
@@ -936,7 +936,7 @@ MSXMapperIO* MSXMotherBoard::Impl::createMapperIO()
 
 void MSXMotherBoard::Impl::destroyMapperIO()
 {
-	assert(mapperIO.get());
+	assert(mapperIO);
 	assert(mapperIOCounter);
 	--mapperIOCounter;
 	if (mapperIOCounter == 0) {
@@ -1302,9 +1302,7 @@ void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned
 	assert(getMachineConfig() == machineConfig2.get());
 	ar.serializeWithID("extensions", extensions, std::ref(self));
 
-	if (mapperIO.get()) {
-		ar.serialize("mapperIO", *mapperIO);
-	}
+	if (mapperIO) ar.serialize("mapperIO", *mapperIO);
 
 	MSXDeviceSwitch& devSwitch = getDeviceSwitch();
 	if (devSwitch.hasRegisteredDevices()) {

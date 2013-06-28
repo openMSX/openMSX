@@ -250,7 +250,7 @@ void OSDImageBasedWidget::paintGL(OutputSurface& output)
 
 void OSDImageBasedWidget::createImage(OutputRectangle& output)
 {
-	if (!image.get() && !hasError()) {
+	if (!image && !hasError()) {
 		try {
 			if (gui.isOpenGL()) {
 				image = createGL(output);
@@ -272,7 +272,7 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 	createImage(output);
 
 	byte fadedAlpha = getFadedAlpha();
-	if ((fadedAlpha != 0) && image.get()) {
+	if ((fadedAlpha != 0) && image) {
 		double x, y;
 		getTransformedXY(output, x, y);
 		image->draw(output, int(x + 0.5), int(y + 0.5), fadedAlpha);

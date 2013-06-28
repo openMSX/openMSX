@@ -153,7 +153,7 @@ string_ref OSDText::getType() const
 void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
                              double& width, double& height) const
 {
-	if (image.get()) {
+	if (image) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	} else {
@@ -210,7 +210,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		// followed by // StringOp::split() (in TTFFont::render()).
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
-		if (surface.get()) {
+		if (surface) {
 			return make_unique<IMAGE>(std::move(surface));
 		} else {
 			return make_unique<IMAGE>(0, 0, 0);
@@ -412,7 +412,7 @@ void OSDText::getRenderedSize(double& outX, double& outY) const
 
 	unsigned width = 0;
 	unsigned height = 0;
-	if (image.get()) {
+	if (image) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	}

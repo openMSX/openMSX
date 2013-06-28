@@ -170,7 +170,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		SDLSurfacePtr surface(
 			TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
 			                       text.c_str(), color));
-		if (!surface.get()) {
+		if (!surface) {
 			throw MSXException(TTF_GetError());
 		}
 		return surface;
@@ -194,7 +194,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
-	if (!destination.get()) {
+	if (!destination) {
 		throw MSXException("Couldn't allocate surface for multiline text.");
 	}
 
@@ -208,7 +208,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		}
 		SDLSurfacePtr line(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
 		                                          lines[i].c_str(), color));
-		if (!line.get()) {
+		if (!line) {
 			throw MSXException(TTF_GetError());
 		}
 

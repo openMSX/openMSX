@@ -106,7 +106,7 @@ const Filename& HD::getImageName() const
 
 void HD::openImage()
 {
-	if (file.get()) return;
+	if (file) return;
 
 	// image didn't exist yet, create new
 	if (alreadyTried) {
@@ -229,7 +229,7 @@ int HD::insertDisk(const std::string& filename)
 template<typename Archive>
 void HD::serialize(Archive& ar, unsigned version)
 {
-	Filename tmp = file.get() ? filename : Filename();
+	Filename tmp = file ? filename : Filename();
 	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
 		if (tmp.empty()) {
@@ -237,12 +237,12 @@ void HD::serialize(Archive& ar, unsigned version)
 		} else {
 			tmp.updateAfterLoadState();
 			switchImage(tmp);
-			assert(file.get());
+			assert(file);
 		}
 	}
 
 	// store/check checksum
-	if (file.get()) {
+	if (file) {
 		bool mismatch = false;
 
 		if (ar.versionAtLeast(version, 2)) {

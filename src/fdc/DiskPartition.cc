@@ -25,7 +25,7 @@ DiskPartition::DiskPartition(SectorAccessibleDisk& disk, unsigned partition,
 	, parent(disk)
 	, owned(owned_)
 {
-	assert(!owned.get() || (owned.get() == &disk));
+	assert(!owned || (owned.get() == &disk));
 
 	if (partition == 0) {
 		start = 0;

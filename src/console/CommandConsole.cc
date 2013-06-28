@@ -219,7 +219,7 @@ void CommandConsole::loadHistory()
 
 BooleanSetting& CommandConsole::getConsoleSetting()
 {
-	return *consoleSetting.get();
+	return *consoleSetting;
 }
 
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const

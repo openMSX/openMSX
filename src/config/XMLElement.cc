@@ -369,8 +369,8 @@ void XMLElement::serialize(Archive& ar, unsigned version)
 		assert(ar.isLoader());
 		unique_ptr<FileContext> context;
 		ar.serialize("context", context);
-		if (context.get()) {
-			assert(!lastSerializedFileContext.get());
+		if (context) {
+			assert(!lastSerializedFileContext);
 			lastSerializedFileContext = std::move(context);
 		}
 	}

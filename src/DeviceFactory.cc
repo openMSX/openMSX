@@ -223,9 +223,7 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		throw MSXException("Unknown device \"" + type +
 		                   "\" specified in configuration");
 	}
-	if (result.get()) {
-		result->init();
-	}
+	if (result) result->init();
 	return result;
 }
 

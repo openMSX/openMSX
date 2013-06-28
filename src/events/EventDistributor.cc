@@ -48,7 +48,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 	//       delivering events to remove the nullptr values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
-	assert(event.get());
+	assert(event);
 	ScopedLock lock(sem);
 	if (!listeners[event->getType()].empty()) {
 		scheduledEvents.push_back(event);

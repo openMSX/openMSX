@@ -214,7 +214,7 @@ InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 
 SettingsConfig& GlobalCommandController::getSettingsConfig()
 {
-	if (!settingsConfig.get()) {
+	if (!settingsConfig) {
 		settingsConfig = make_unique<SettingsConfig>(*this, *hotKey);
 	}
 	return *settingsConfig;

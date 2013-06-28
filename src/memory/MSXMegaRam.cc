@@ -64,7 +64,7 @@ void MSXMegaRam::powerUp(EmuTime::param time)
 void MSXMegaRam::reset(EmuTime::param /*time*/)
 {
 	// selected banks nor writeMode does change after reset
-	romMode = rom.get() != nullptr; // select rom mode if there is a rom
+	romMode = rom != nullptr; // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
@@ -119,7 +119,7 @@ byte MSXMegaRam::readIO(word port, EmuTime::param /*time*/)
 			romMode = false;
 			break;
 		case 1:
-			if (rom.get()) romMode = true;
+			if (rom) romMode = true;
 			break;
 	}
 	invalidateMemCache(0x0000, 0x10000);
@@ -140,7 +140,7 @@ void MSXMegaRam::writeIO(word port, byte /*value*/, EmuTime::param /*time*/)
 			romMode = false;
 			break;
 		case 1:
-			if (rom.get()) romMode = true;
+			if (rom) romMode = true;
 			break;
 	}
 	invalidateMemCache(0x0000, 0x10000);

@@ -63,7 +63,7 @@ CartridgeSlotManager::Slot::~Slot()
 
 bool CartridgeSlotManager::Slot::exists() const
 {
-	return command.get() != nullptr;
+	return command != nullptr;
 }
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const

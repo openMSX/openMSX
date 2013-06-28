@@ -374,7 +374,7 @@ void GLPostProcessor::uploadBlock(
 	}
 
 	// possibly upload scaler specific data
-	if (currScaler.get()) {
+	if (currScaler) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
 	}
 }

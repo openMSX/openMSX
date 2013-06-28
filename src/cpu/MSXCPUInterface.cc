@@ -212,7 +212,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	}
 
 	if (breakedSettingCount++ == 0) {
-		assert(!breakedSetting.get());
+		assert(!breakedSetting);
 		breakedSetting = make_unique<ReadOnlySetting<BooleanSetting>>(
 			motherBoard.getReactor().getCommandController(),
 			"breaked", "Similar to 'debug breaked'", false);
@@ -222,13 +222,13 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 MSXCPUInterface::~MSXCPUInterface()
 {
 	if (--breakedSettingCount == 0) {
-		assert(breakedSetting.get());
+		assert(breakedSetting);
 		breakedSetting = nullptr;
 	}
 
 	removeAllWatchPoints();
 
-	if (delayDevice.get()) {
+	if (delayDevice) {
 		for (int port = 0x98; port <= 0x9B; ++port) {
 			assert(IO_In [port] == delayDevice.get());
 			assert(IO_Out[port] == delayDevice.get());
@@ -1262,7 +1262,7 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 
-	if (delayDevice.get()) {
+	if (delayDevice) {
 		ar.serialize("vdpDelay", *delayDevice);
 	}
 }

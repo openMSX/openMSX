@@ -50,8 +50,8 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 
 AviRecorder::~AviRecorder()
 {
-	assert(!aviWriter.get());
-	assert(!wavWriter.get());
+	assert(!aviWriter);
+	assert(!wavWriter);
 }
 
 void AviRecorder::start(bool recordAudio, bool recordVideo, bool recordMono,
@@ -141,10 +141,10 @@ void AviRecorder::addWave(unsigned num, short* data)
 			"because of this.");
 	}
 	if (stereo) {
-		if (wavWriter.get()) {
+		if (wavWriter) {
 			wavWriter->write(data, 2, num);
 		} else {
-			assert(aviWriter.get());
+			assert(aviWriter);
 			audioBuf.insert(audioBuf.end(), data, data + 2 * num);
 		}
 	} else {
@@ -166,10 +166,10 @@ void AviRecorder::addWave(unsigned num, short* data)
 			buf[i] = (int(data[2 * i + 0]) + int(data[2 * i + 1])) / 2;
 		}
 
-		if (wavWriter.get()) {
+		if (wavWriter) {
 			wavWriter->write(buf, 1, num);
 		} else {
-			assert(aviWriter.get());
+			assert(aviWriter);
 			audioBuf.insert(audioBuf.end(), buf, buf + num);
 		}
 	}
@@ -177,7 +177,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 
 void AviRecorder::addImage(FrameSource* frame, EmuTime::param time)
 {
-	assert(!wavWriter.get());
+	assert(!wavWriter);
 	if (duration != EmuDuration::infinity) {
 		if (!warnedFps && ((time - prevTime) != duration)) {
 			warnedFps = true;
@@ -275,7 +275,7 @@ void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& resul
 	filename = FileOperations::parseCommandFileArgument(
 		filename, directory, prefix, extension);
 
-	if (aviWriter.get() || wavWriter.get()) {
+	if (aviWriter || wavWriter) {
 		result.setString("Already recording.");
 	} else {
 		start(recordAudio, recordVideo, recordMono, recordStereo,
@@ -294,7 +294,7 @@ void AviRecorder::processStop(const vector<TclObject>& tokens)
 
 void AviRecorder::processToggle(const vector<TclObject>& tokens, TclObject& result)
 {
-	if (aviWriter.get() || wavWriter.get()) {
+	if (aviWriter || wavWriter) {
 		// drop extra tokens
 		vector<TclObject> tmp(tokens.begin(), tokens.begin() + 2);
 		processStop(tmp);
@@ -309,7 +309,7 @@ void AviRecorder::status(const vector<TclObject>& tokens, TclObject& result) con
 		throw SyntaxError();
 	}
 	result.addListElement("status");
-	if (aviWriter.get() || wavWriter.get()) {
+	if (aviWriter || wavWriter) {
 		result.addListElement("recording");
 	} else {
 		result.addListElement("idle");

@@ -35,7 +35,7 @@ bool PrinterPortLogger::getStatus(EmuTime::param /*time*/)
 
 void PrinterPortLogger::setStrobe(bool strobe, EmuTime::param /*time*/)
 {
-	if (file.get() && !strobe && prevStrobe) {
+	if (file && !strobe && prevStrobe) {
 		// falling edge
 		file->write(&toPrint, 1);
 		file->flush(); // optimize when it turns out flushing

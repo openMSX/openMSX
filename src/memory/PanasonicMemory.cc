@@ -43,7 +43,7 @@ void PanasonicMemory::registerRam(Ram& ram_)
 
 const byte* PanasonicMemory::getRomBlock(unsigned block)
 {
-	if (!rom.get()) {
+	if (!rom) {
 		throw MSXException("Missing PanasonicRom.");
 	}
 	if (dram &&
@@ -65,7 +65,7 @@ const byte* PanasonicMemory::getRomBlock(unsigned block)
 
 const byte* PanasonicMemory::getRomRange(unsigned first, unsigned last)
 {
-	if (!rom.get()) {
+	if (!rom) {
 		throw MSXException("Missing PanasonicRom.");
 	}
 	if (last < first) {

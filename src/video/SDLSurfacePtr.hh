@@ -125,6 +125,11 @@ public:
 		return surface;
 	}
 
+	explicit operator bool() const
+	{
+		return get() != nullptr;
+	}
+
 	void* getLinePtr(unsigned y)
 	{
 		assert(y < unsigned(surface->h));
