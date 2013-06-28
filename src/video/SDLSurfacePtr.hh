@@ -125,7 +125,13 @@ public:
 		return surface;
 	}
 
-	explicit operator bool() const
+#ifndef _MSC_VER
+	// Explicit conversion operators are not yet supported in the version
+	// of visual c++ that we're using. TODO Remove this workaround once we
+	// upgrade.
+	explicit
+#endif
+	operator bool() const
 	{
 		return get() != nullptr;
 	}
