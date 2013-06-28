@@ -349,13 +349,11 @@ MSXMotherBoard::Impl::Impl(
 	, active(false)
 	, fastForwarding(false)
 {
-#if !defined(__GNUC__) || \
-    ((__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__) >= 472)
-	self.pimpl.reset(this);
-#else
-	// see comment in .hh file
+#if UNIQUE_PTR_BUG
 	self.pimpl2.reset(this);
 	self.pimpl = self.pimpl2.get();
+#else
+	self.pimpl.reset(this);
 #endif
 
 	slotManager = make_unique<CartridgeSlotManager>(self);

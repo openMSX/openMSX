@@ -167,14 +167,11 @@ public:
 
 	class Impl;
 private:
-#if !defined(__GNUC__) || \
-    ((__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__) >= 472)
-	std::unique_ptr<Impl> pimpl;
-#else
-	// gcc versions before 4.7.2 had a bug in ~unique_ptr(),
-	// see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54351
+#if UNIQUE_PTR_BUG // see openmsx.hh
 	std::unique_ptr<Impl> pimpl2;
 	Impl* pimpl;
+#else
+	std::unique_ptr<Impl> pimpl;
 #endif
 	friend class Impl;
 };

@@ -6,6 +6,7 @@
 #include "Semaphore.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
+#include "openmsx.hh"
 #include <string>
 #include <memory>
 #include <vector>
@@ -62,6 +63,7 @@ template <typename T> class EnumSetting;
 class Reactor : private Observer<Setting>, private EventListener,
                 private noncopyable
 {
+
 public:
 	Reactor();
 	void init();
@@ -133,7 +135,12 @@ private:
 	std::unique_ptr<GlobalCommandController> globalCommandController;
 	std::unique_ptr<GlobalSettings> globalSettings;
 	std::unique_ptr<InputEventGenerator> inputEventGenerator;
+#if UNIQUE_PTR_BUG // see openmsx.hh
+	std::unique_ptr<Display> display2;
+	Display* display;
+#else
 	std::unique_ptr<Display> display;
+#endif
 	std::unique_ptr<Mixer> mixer;
 	std::unique_ptr<DiskFactory> diskFactory;
 	std::unique_ptr<DiskManipulator> diskManipulator;
