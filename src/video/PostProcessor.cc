@@ -104,7 +104,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	//       but from several frames ago.
 	FrameSource::FieldType currType = currFrame->getField();
 	if (currType != FrameSource::FIELD_NONINTERLACED) {
-		if (renderSettings.getDeinterlace().getValue()) {
+		if (renderSettings.getDeinterlace().getBoolean()) {
 			// deinterlaced
 			if (currType == FrameSource::FIELD_ODD) {
 				deinterlacedFrame->init(prevFrame.get(), currFrame.get());

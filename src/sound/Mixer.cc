@@ -67,7 +67,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	soundDriverSetting->attach(*this);
 
 	// Set correct initial mute state.
-	if (muteSetting->getValue()) ++muteCount;
+	if (muteSetting->getBoolean()) ++muteCount;
 
 	reloadDriver();
 }
@@ -88,28 +88,28 @@ void Mixer::reloadDriver()
 	driver = make_unique<NullSoundDriver>();
 
 	try {
-		switch (soundDriverSetting->getValue()) {
+		switch (soundDriverSetting->getEnum()) {
 		case SND_NULL:
 			driver = make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
 			driver = make_unique<SDLSoundDriver>(
 				reactor,
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #endif
 #if COMPONENT_AO
 		case SND_LIBAO:
 			driver = make_unique<LibAOSoundDriver>(
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #endif
 		default:
@@ -186,7 +186,7 @@ void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 void Mixer::update(const Setting& setting)
 {
 	if (&setting == muteSetting.get()) {
-		if (muteSetting->getValue()) {
+		if (muteSetting->getBoolean()) {
 			mute();
 		} else {
 			unmute();

@@ -55,6 +55,9 @@ public:
 	            string_ref description, T initialValue,
 	            const typename EnumSettingPolicy<T>::Map& map_,
 	            Setting::SaveSetting save = Setting::SAVE);
+
+	T getEnum() const { return this->getValue(); }
+	void setEnum(T t) { this->changeValue(t); }
 };
 
 

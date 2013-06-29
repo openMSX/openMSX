@@ -22,6 +22,9 @@ public:
 	BooleanSetting(CommandController& commandController,
 	               string_ref name, string_ref description,
 	               bool initialValue, SaveSetting save = SAVE);
+
+	bool getBoolean() const { return getValue(); }
+	void setBoolean(bool b) { changeValue(b); }
 };
 
 } // namespace openmsx

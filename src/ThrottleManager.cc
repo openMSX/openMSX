@@ -27,8 +27,8 @@ ThrottleManager::~ThrottleManager()
 
 void ThrottleManager::updateStatus()
 {
-	bool newThrottle = throttleSetting->getValue() &&
-	                   (!loading || !fullSpeedLoadingSetting->getValue());
+	bool newThrottle = throttleSetting->getBoolean() &&
+	                   (!loading || !fullSpeedLoadingSetting->getBoolean());
 	if (throttle != newThrottle) {
 		throttle = newThrottle;
 		notify();

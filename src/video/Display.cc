@@ -138,7 +138,7 @@ void Display::createVideoSystem()
 	assert(!videoSystem);
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
 	assert(!switchInProgress);
-	currentRenderer = renderSettings->getRenderer().getValue();
+	currentRenderer = renderSettings->getRenderer().getEnum();
 	switchInProgress = true;
 	doRendererSwitch();
 }
@@ -303,7 +303,7 @@ void Display::checkRendererSwitch()
 		return;
 	}
 	RendererFactory::RendererID newRenderer =
-		renderSettings->getRenderer().getValue();
+		renderSettings->getRenderer().getEnum();
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
@@ -328,18 +328,18 @@ void Display::doRendererSwitch()
 			success = true;
 		} catch (MSXException& e) {
 			string errorMsg = "Couldn't activate renderer " +
-				renderSettings->getRenderer().getValueString() +
+				renderSettings->getRenderer().getString() +
 				": " + e.getMessage();
 			// now try some things that might work against this:
-			if (renderSettings->getRenderer().getValue() != RendererFactory::SDL) {
+			if (renderSettings->getRenderer().getEnum() != RendererFactory::SDL) {
 				errorMsg += "\nTrying to switch to SDL renderer instead...";
-				renderSettings->getRenderer().changeValue(RendererFactory::SDL);
+				renderSettings->getRenderer().setEnum(RendererFactory::SDL);
 				currentRenderer = RendererFactory::SDL;
 			} else {
-				unsigned curval = renderSettings->getScaleFactor().getValue();
+				unsigned curval = renderSettings->getScaleFactor().getInt();
 				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(
 				errorMsg += "\nTrying to decrease scale_factor setting from " + StringOp::toString(curval) + " to " + StringOp::toString(curval - 1) + "...";
-				renderSettings->getScaleFactor().changeValue(curval - 1);
+				renderSettings->getScaleFactor().setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
 		}

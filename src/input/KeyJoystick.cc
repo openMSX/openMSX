@@ -122,19 +122,19 @@ void KeyJoystick::signalEvent(const shared_ptr<const Event>& event,
 		auto key = static_cast<Keys::KeyCode>(
 			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
-			if      (key == up->getValue())    press   = JOY_UP;
-			else if (key == down->getValue())  press   = JOY_DOWN;
-			else if (key == left->getValue())  press   = JOY_LEFT;
-			else if (key == right->getValue()) press   = JOY_RIGHT;
-			else if (key == trigA->getValue()) press   = JOY_BUTTONA;
-			else if (key == trigB->getValue()) press   = JOY_BUTTONB;
+			if      (key == up   ->getKey()) press   = JOY_UP;
+			else if (key == down ->getKey()) press   = JOY_DOWN;
+			else if (key == left ->getKey()) press   = JOY_LEFT;
+			else if (key == right->getKey()) press   = JOY_RIGHT;
+			else if (key == trigA->getKey()) press   = JOY_BUTTONA;
+			else if (key == trigB->getKey()) press   = JOY_BUTTONB;
 		} else {
-			if      (key == up->getValue())    release = JOY_UP;
-			else if (key == down->getValue())  release = JOY_DOWN;
-			else if (key == left->getValue())  release = JOY_LEFT;
-			else if (key == right->getValue()) release = JOY_RIGHT;
-			else if (key == trigA->getValue()) release = JOY_BUTTONA;
-			else if (key == trigB->getValue()) release = JOY_BUTTONB;
+			if      (key == up   ->getKey()) release = JOY_UP;
+			else if (key == down ->getKey()) release = JOY_DOWN;
+			else if (key == left ->getKey()) release = JOY_LEFT;
+			else if (key == right->getKey()) release = JOY_RIGHT;
+			else if (key == trigA->getKey()) release = JOY_BUTTONA;
+			else if (key == trigB->getKey()) release = JOY_BUTTONB;
 		}
 		break;
 	}

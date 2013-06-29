@@ -23,6 +23,8 @@ public:
 	FloatSetting(CommandController& commandController,
 	             string_ref name, string_ref description,
 	             double initialValue, double minValue, double maxValue);
+
+	double getDouble() const { return getValue(); }
 };
 
 } // namespace openmsx

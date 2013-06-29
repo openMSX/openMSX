@@ -102,8 +102,9 @@ void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
 	for (auto& p : settingsMap) {
-		if (p.second->needLoadSave()) {
-			p.second->restoreDefault();
+		auto& setting = *p.second;
+		if (setting.needLoadSave()) {
+			setting.setString(setting.getRestoreValueString());
 		}
 	}
 
@@ -117,7 +118,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 		if (auto* elem = settings->findChildWithAttribute(
 		                                     "setting", "id", name)) {
 			try {
-				setting.changeValueString(elem->getData());
+				setting.setString(elem->getData());
 			} catch (MSXException&) {
 				// ignore, keep default value
 			}

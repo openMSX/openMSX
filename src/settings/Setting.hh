@@ -41,7 +41,7 @@ public:
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
 	  */
-	void changeValueString(const std::string& valueString);
+	void setString(const std::string& valueString);
 
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
@@ -56,7 +56,7 @@ public:
 	  */
 	virtual std::string getRestoreValueString() const = 0;
 
-	/** Similar to changeValueString(), but doesn't trigger Tcl traces.
+	/** Similar to setString(), but doesn't trigger Tcl traces.
 	  * Should only be used by Interpreter class.
 	  */
 	virtual void setValueStringDirect(const std::string& valueString) = 0;
@@ -104,6 +104,8 @@ public:
 
 	// helper method for info()
 	virtual void additionalInfo(TclObject& result) const = 0;
+
+	std::string getString() const { return getValueString(); }
 
 protected:
 	Setting(CommandController& commandController, string_ref name,

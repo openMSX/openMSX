@@ -659,7 +659,7 @@ void Reactor::update(const Setting& setting)
 {
 	auto& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {
-		if (pauseSetting.getValue()) {
+		if (pauseSetting.getBoolean()) {
 			pause();
 		} else {
 			unpause();
@@ -694,11 +694,13 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 #else
 		// On other platforms, the user may specify if openMSX should be
 		// halted on loss of focus.
-		if (!getGlobalSettings().getPauseOnLostFocusSetting().getValue()) return 0;
+		if (!getGlobalSettings().getPauseOnLostFocusSetting().getBoolean()) {
+			return 0;
+		}
 		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
 			// gained focus
-			if (!getGlobalSettings().getPauseSetting().getValue()) {
+			if (!getGlobalSettings().getPauseSetting().getBoolean()) {
 				unpause();
 			}
 		} else {

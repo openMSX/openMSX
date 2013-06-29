@@ -209,7 +209,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoise(OutputSurface& output)
 {
-	if (renderSettings.getNoise().getValue() == 0) return;
+	if (renderSettings.getNoise().getDouble() == 0) return;
 
 	unsigned height = output.getHeight();
 	unsigned width = output.getWidth();
@@ -226,7 +226,7 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 	VideoLayer::update(setting);
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	if (&setting == &noiseSetting) {
-		preCalcNoise(noiseSetting.getValue());
+		preCalcNoise(noiseSetting.getDouble());
 	}
 }
 
@@ -246,7 +246,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
 
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	noiseSetting.attach(*this);
-	preCalcNoise(noiseSetting.getValue());
+	preCalcNoise(noiseSetting.getDouble());
 	assert((screen.getWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
@@ -264,8 +264,8 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 	// New scaler algorithm selected?
 	RenderSettings::ScaleAlgorithm algo =
-		renderSettings.getScaleAlgorithm().getValue();
-	unsigned factor = renderSettings.getScaleFactor().getValue();
+		renderSettings.getScaleAlgorithm().getEnum();
+	unsigned factor = renderSettings.getScaleFactor().getInt();
 	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
@@ -305,7 +305,7 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
 		output.lock();
-		double horStretch = renderSettings.getHorizontalStretch().getValue();
+		double horStretch = renderSettings.getHorizontalStretch().getDouble();
 		unsigned inWidth = unsigned(horStretch + 0.5);
 		std::unique_ptr<ScalerOutput<Pixel>> dst(
 			StretchScalerOutputFactory<Pixel>::create(

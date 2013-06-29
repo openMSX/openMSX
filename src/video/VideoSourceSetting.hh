@@ -22,6 +22,9 @@ public:
 	explicit VideoSourceSetting(CommandController& commandController);
 	int registerVideoSource(const std::string& source);
 	void unregisterVideoSource(int source);
+
+	int getSource() const { return this->getValue(); }
+	void setSource(int s) { this->changeValue(s); }
 };
 
 class VideoSourceActivator

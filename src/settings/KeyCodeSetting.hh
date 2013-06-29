@@ -22,6 +22,8 @@ public:
 	KeyCodeSetting(CommandController& commandController,
 	               string_ref name, string_ref description,
 	               Keys::KeyCode initialValue);
+
+	Keys::KeyCode getKey() const { return getValue(); }
 };
 
 } // namespace openmsx

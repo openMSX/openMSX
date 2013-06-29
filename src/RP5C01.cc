@@ -196,7 +196,7 @@ static int daysInMonth(int month, unsigned leapYear)
 
 void RP5C01::updateTimeRegs(EmuTime::param time)
 {
-	if (modeSetting->getValue() == EMUTIME) {
+	if (modeSetting->getEnum() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
 		unsigned elapsed = unsigned(reference.getTicksTill(time));
 		reference.advance(time);

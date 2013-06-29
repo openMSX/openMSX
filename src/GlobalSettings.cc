@@ -56,7 +56,7 @@ GlobalSettings::~GlobalSettings()
 {
 	getPowerSetting().detach(*this);
 	commandController.getSettingsConfig().setSaveSettings(
-		autoSaveSetting->getValue());
+		autoSaveSetting->getBoolean());
 }
 
 // Observer<Setting>
@@ -66,7 +66,7 @@ void GlobalSettings::update(const Setting& setting)
 		// automatically unpause after a power off/on cycle
 		// this solved a bug, but apart from that this behaviour also
 		// makes more sense
-		getPauseSetting().changeValue(false);
+		getPauseSetting().setBoolean(false);
 	}
 }
 

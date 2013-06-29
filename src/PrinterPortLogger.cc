@@ -53,7 +53,7 @@ void PrinterPortLogger::plugHelper(
 		Connector& /*connector*/, EmuTime::param /*time*/)
 {
 	try {
-		file = make_unique<File>(logFilenameSetting->getValue(),
+		file = make_unique<File>(logFilenameSetting->getString(),
 		                         File::TRUNCATE);
 	} catch (FileException& e) {
 		throw PlugException("Couldn't plug printer logger: " +

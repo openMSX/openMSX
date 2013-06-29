@@ -476,7 +476,7 @@ string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& mac
 		throw MSXException("Error in \"" + machine + "\" machine: " +
 		                   e.getMessage());
 	}
-	if (powerSetting.getValue()) {
+	if (powerSetting.getBoolean()) {
 		powerUp();
 	}
 	machineName = machine;
@@ -815,8 +815,8 @@ void MSXMotherBoard::Impl::powerUp()
 	//       there is not really a point in keeping it.
 	// TODO: assert disabled see note in Reactor::run() where this method
 	//       is called
-	//assert(powerSetting.getValue() == powered);
-	powerSetting.changeValue(true);
+	//assert(powerSetting.getBoolean() == powered);
+	powerSetting.setBoolean(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
 	getLedStatus().setLed(LedStatus::POWER, true);
@@ -842,8 +842,8 @@ void MSXMotherBoard::Impl::powerDown()
 	// TODO: This assertion fails in 1 case: when quitting with a running MSX.
 	//       How do we want the Reactor to shutdown: immediately or after
 	//       handling all pending commands/events/updates?
-	//assert(powerSetting.getValue() == powered);
-	powerSetting.changeValue(false);
+	//assert(powerSetting.getBoolean() == powered);
+	powerSetting.setBoolean(false);
 	getLedStatus().setLed(LedStatus::POWER, false);
 
 	msxMixer->mute();
@@ -889,7 +889,7 @@ void MSXMotherBoard::Impl::exitCPULoopSync()
 void MSXMotherBoard::Impl::update(const Setting& setting)
 {
 	if (&setting == &powerSetting) {
-		if (powerSetting.getValue()) {
+		if (powerSetting.getBoolean()) {
 			powerUp();
 		} else {
 			powerDown();
@@ -1330,7 +1330,7 @@ void MSXMotherBoard::Impl::serialize(MSXMotherBoard& self, Archive& ar, unsigned
 
 	if (ar.isLoader()) {
 		powered = true; // must come before changing power setting
-		powerSetting.changeValue(true);
+		powerSetting.setBoolean(true);
 		getLedStatus().setLed(LedStatus::POWER, true);
 		msxMixer->unmute();
 	}

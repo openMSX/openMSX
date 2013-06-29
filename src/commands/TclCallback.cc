@@ -43,7 +43,7 @@ StringSetting& TclCallback::getSetting() const
 
 string TclCallback::getValue() const
 {
-	return getSetting().getValue();
+	return getSetting().getString();
 }
 
 void TclCallback::execute()

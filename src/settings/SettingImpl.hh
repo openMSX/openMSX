@@ -161,7 +161,7 @@ typename SettingImpl<POLICY>::Type SettingImpl<POLICY>::getValue() const
 template<typename POLICY>
 void SettingImpl<POLICY>::changeValue(Type newValue)
 {
-	changeValueString(POLICY::toString(newValue));
+	setString(POLICY::toString(newValue));
 }
 
 template<typename POLICY>

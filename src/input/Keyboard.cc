@@ -411,20 +411,20 @@ bool Keyboard::processQueuedEvent(const Event& event, EmuTime::param time)
 		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
 	if (key == keyboardSettings->getDeadkeyHostKey(0) &&
-	    keyboardSettings->getMappingMode().getValue() ==
+	    keyboardSettings->getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(0, time, down);
 	} else if (key == keyboardSettings->getDeadkeyHostKey(1) &&
-	    keyboardSettings->getMappingMode().getValue() ==
+	    keyboardSettings->getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(1, time, down);
 	} else if (key == keyboardSettings->getDeadkeyHostKey(2) &&
-	    keyboardSettings->getMappingMode().getValue() ==
+	    keyboardSettings->getMappingMode().getEnum() ==
 	            KeyboardSettings::CHARACTER_MAPPING) {
 		processDeadKeyEvent(2, time, down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time, down);
-	} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
+	} else if (key == keyboardSettings->getCodeKanaHostKey().getEnum()) {
 		processCodeKanaChange(time, down);
 	} else if (key == Keys::K_LALT) {
 		processGraphChange(time, down);
@@ -518,14 +518,14 @@ void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
 
 void Keyboard::processKeypadEnterKey(EmuTime::param time, bool down)
 {
-	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
+	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getBoolean()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return;
 	}
 	int row;
 	byte mask;
-	if (keyboardSettings->getKpEnterMode().getValue() ==
+	if (keyboardSettings->getKpEnterMode().getEnum() ==
 	    KeyboardSettings::MSX_KP_COMMA) {
 		row = 10;
 		mask = 0x40;
@@ -608,7 +608,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		(key == Keys::K_KP_PLUS));
 
 	if (isOnKeypad && !hasKeypad &&
-	    !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
+	    !keyboardSettings->getAlwaysEnableKeypad().getBoolean()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return false;
@@ -617,7 +617,7 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 	if (down) {
 		if (/*___(userKeyMatrix[6] & 2) == 0 || */
 		    isOnKeypad ||
-		    keyboardSettings->getMappingMode().getValue() == KeyboardSettings::KEY_MAPPING) {
+		    keyboardSettings->getMappingMode().getEnum() == KeyboardSettings::KEY_MAPPING) {
 			// /*CTRL-key is active,*/ user entered a key on numeric
 			// keypad or the driver is in KEY mapping mode.
 			// First /*two*/ option/*s*/ (/*CTRL key active,*/ keypad keypress) maps
@@ -816,7 +816,7 @@ bool Keyboard::pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool do
 	}
 	if (down) {
 		if (codeKanaLocks &&
-		    keyboardSettings->getAutoToggleCodeKanaLock().getValue() &&
+		    keyboardSettings->getAutoToggleCodeKanaLock().getBoolean() &&
 		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
 		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
 			// Code Kana locks, is in wrong state and must be auto-toggled:
@@ -967,7 +967,7 @@ bool Keyboard::commonKeys(unsigned unicode1, unsigned unicode2)
 
 void Keyboard::debug(const char* format, ...)
 {
-	if (keyboardSettings->getTraceKeyPresses().getValue()) {
+	if (keyboardSettings->getTraceKeyPresses().getBoolean()) {
 		va_list args;
 		va_start(args, format);
 		vfprintf(stderr, format, args);
@@ -1059,7 +1059,7 @@ void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
 		// Schedule a CODE/KANA release event, to be processed
 		// before any of the other events in the queue
 		eventQueue.push_front(make_shared<KeyUpEvent>(
-			keyboard.keyboardSettings->getCodeKanaHostKey().getValue()));
+			keyboard.keyboardSettings->getCodeKanaHostKey().getEnum()));
 	} else {
 		// The event has been completely processed. Delete it from the queue
 		if (!eventQueue.empty()) {

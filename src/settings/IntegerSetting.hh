@@ -23,6 +23,9 @@ public:
 	IntegerSetting(CommandController& commandController,
 	               string_ref name, string_ref description,
 	               int initialValue, int minValue, int maxValue);
+
+	int getInt() const { return getValue(); }
+	void setInt(int i) { changeValue(i); }
 };
 
 } // namespace openmsx

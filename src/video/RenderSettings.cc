@@ -160,17 +160,17 @@ RenderSettings::~RenderSettings()
 
 int RenderSettings::getBlurFactor() const
 {
-	return (horizontalBlurSetting->getValue()) * 256 / 100;
+	return (horizontalBlurSetting->getInt()) * 256 / 100;
 }
 
 int RenderSettings::getScanlineFactor() const
 {
-	return 255 - ((scanlineAlphaSetting->getValue() * 255) / 100);
+	return 255 - ((scanlineAlphaSetting->getInt() * 255) / 100);
 }
 
 float RenderSettings::getScanlineGap() const
 {
-	return scanlineAlphaSetting->getValue() * 0.01f;
+	return scanlineAlphaSetting->getInt() * 0.01f;
 }
 
 void RenderSettings::update(const Setting& setting)
@@ -186,10 +186,10 @@ void RenderSettings::update(const Setting& setting)
 
 void RenderSettings::updateBrightnessAndContrast()
 {
-	double contrastValue = getContrast().getValue();
+	double contrastValue = getContrast().getDouble();
 	contrast = (contrastValue >= 0.0) ? (1.0 + contrastValue / 25.0)
 	                                  : (1.0 + contrastValue / 125.0);
-	double brightnessValue = getBrightness().getValue();
+	double brightnessValue = getBrightness().getDouble();
 	brightness = (brightnessValue / 100.0 - 0.5) * contrast + 0.5;
 }
 
@@ -201,7 +201,7 @@ static double conv2(double x, double gamma)
 double RenderSettings::transformComponent(double c) const
 {
 	double c2 = c * contrast + brightness;
-	double gamma = 1.0 / getGamma().getValue();
+	double gamma = 1.0 / getGamma().getDouble();
 	return conv2(c2, gamma);
 }
 
@@ -215,7 +215,7 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
 	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
-	double gamma = 1.0 / getGamma().getValue();
+	double gamma = 1.0 / getGamma().getDouble();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);

@@ -379,7 +379,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
-				setVar(interp, part1, variable->getValueString().c_str());
+				setVar(interp, part1, variable->getString().c_str());
 			} catch (MSXException& e) {
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
@@ -390,7 +390,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				const char* v = getVar(interp, part1);
 				string newValue = v ? v : "";
 				variable->setValueStringDirect(newValue);
-				string newValue2 = variable->getValueString();
+				string newValue2 = variable->getString();
 				if (newValue != newValue2) {
 					setVar(interp, part1, newValue2.c_str());
 				}

@@ -43,7 +43,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, keyRepeat(false)
 {
-	setGrabInput(grabInput->getValue());
+	setGrabInput(grabInput->getBoolean());
 	grabInput->attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT,  *this);
@@ -354,7 +354,7 @@ void InputEventGenerator::update(const Setting& setting)
 	(void)setting;
 	assert(&setting == grabInput.get());
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-	setGrabInput(grabInput->getValue());
+	setGrabInput(grabInput->getBoolean());
 }
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
@@ -427,7 +427,7 @@ EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
 
 string EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 {
-	if (inputEventGenerator.grabInput->getValue()) {
+	if (inputEventGenerator.grabInput->getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);

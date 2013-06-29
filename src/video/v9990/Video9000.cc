@@ -97,7 +97,7 @@ void Video9000::recalcVideoSource()
 	// enabled superimpose mode (mostly useful for debugging).
 	bool superimpose = ((value & 0x18) == 0x18);
 	v9990->setExternalVideoSource(
-		superimpose && (videoSourceSetting.getValue() == getVideoSource()));
+		superimpose && (videoSourceSetting.getSource() == getVideoSource()));
 }
 
 void Video9000::preVideoSystemChange()
@@ -137,7 +137,7 @@ int Video9000::signalEvent(const std::shared_ptr<const Event>& event)
 	assert(event->getType() == OPENMSX_FINISH_FRAME_EVENT);
 	auto& ffe = checked_cast<const FinishFrameEvent&>(*event);
 	if (ffe.isSkipped()) return 0;
-	if (videoSourceSetting.getValue() != video9000id) return 0;
+	if (videoSourceSetting.getSource() != video9000id) return 0;
 
 	bool superimpose = ((value & 0x18) == 0x18);
 	if (superimpose && v99x8Layer && v9990Layer &&

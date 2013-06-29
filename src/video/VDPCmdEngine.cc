@@ -1981,7 +1981,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	createHEngines<HmmcCmd >(0xF0);
 	currentCommand = nullptr;
 
-	//brokenTiming = renderSettings.getCmdTiming().getValue();
+	//brokenTiming = renderSettings.getCmdTiming().getBoolean();
 
 	renderSettings.getCmdTiming().attach(*this);
 }
@@ -2168,7 +2168,7 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 		return;
 	}
 
-	if (cmdTraceSetting->getValue()) {
+	if (cmdTraceSetting->getBoolean()) {
 		reportVdpCommand();
 	}
 

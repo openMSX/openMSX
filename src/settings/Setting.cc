@@ -38,7 +38,7 @@ string Setting::getDescription() const
 	return description;
 }
 
-void Setting::changeValueString(const std::string& valueString)
+void Setting::setString(const std::string& valueString)
 {
 	getCommandController().changeSetting(*this, valueString);
 }

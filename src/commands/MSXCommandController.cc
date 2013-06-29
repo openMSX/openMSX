@@ -192,7 +192,7 @@ void MSXCommandController::signalEvent(
 	// simple way to synchronize proxy settings
 	for (auto& p : settingMap) {
 		try {
-			changeSetting(*p.second, p.second->getValueString());
+			changeSetting(*p.second, p.second->getString());
 		} catch (MSXException&) {
 			// ignore
 		}
@@ -210,7 +210,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 		if (auto* fromSetting = from.findSetting(p.first())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
-				changeSetting(*p.second, fromSetting->getValueString());
+				changeSetting(*p.second, fromSetting->getString());
 			} catch (MSXException&) {
 				// ignore
 			}

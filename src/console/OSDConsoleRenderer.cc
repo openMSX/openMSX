@@ -110,9 +110,9 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
-			"Loading selected font (" + fontSetting->getValue() +
+			"Loading selected font (" + fontSetting->getString() +
 			") failed. Reverting to default font (" + defaultFont + ").");
-		fontSetting->changeValue(defaultFont);
+		fontSetting->setString(defaultFont);
 		if (font.empty()) {
 			// we can't continue without font
 			throw FatalError("Couldn't load default console font.\n"
@@ -154,7 +154,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	consoleSetting.attach(*this);
 	fontSizeSetting->attach(*this);
-	setActive(consoleSetting.getValue());
+	setActive(consoleSetting.getBoolean());
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
@@ -167,10 +167,10 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
-		consoleColumnsSetting->getValue(),
+		consoleColumnsSetting->getInt(),
 		(screenW - CHAR_BORDER) / font.getWidth());
 	unsigned consoleRows = std::min<unsigned>(
-		consoleRowsSetting->getValue(),
+		consoleRowsSetting->getInt(),
 		screenH / font.getHeight());
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
@@ -179,9 +179,9 @@ void OSDConsoleRenderer::adjustColRow()
 void OSDConsoleRenderer::update(const Setting& setting)
 {
 	if (&setting == &consoleSetting) {
-		setActive(consoleSetting.getValue());
+		setActive(consoleSetting.getBoolean());
 	} else if (&setting == fontSizeSetting.get()) {
-		loadFont(fontSetting->getValue());
+		loadFont(fontSetting->getString());
 	} else {
 		UNREACHABLE;
 	}
@@ -232,7 +232,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	w = (font.getWidth() * console.getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
-	switch (consolePlacementSetting->getValue()) {
+	switch (consolePlacementSetting->getEnum()) {
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
@@ -250,7 +250,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 			x = (screenW - w) / 2;
 			break;
 	}
-	switch (consolePlacementSetting->getValue()) {
+	switch (consolePlacementSetting->getEnum()) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
@@ -278,7 +278,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(const string& value)
 {
 	string filename = SystemFileContext().resolve(value);
-	font = TTFFont(filename, fontSizeSetting->getValue());
+	font = TTFFont(filename, fontSizeSetting->getInt());
 }
 
 void OSDConsoleRenderer::loadBackground(const string& value)
@@ -408,7 +408,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 
 	if (updateConsoleRect()) {
 		try {
-			loadBackground(backgroundSetting->getValue());
+			loadBackground(backgroundSetting->getString());
 		} catch (MSXException& e) {
 			reactor.getCliComm().printWarning(e.getMessage());
 		}

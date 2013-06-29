@@ -142,7 +142,7 @@ void CassettePlayer::autoRun()
 
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = playImage->getFirstFileType();
-	if (!autoRunSetting->getValue() || type == CassetteImage::UNKNOWN) {
+	if (!autoRunSetting->getBoolean() || type == CassetteImage::UNKNOWN) {
 		return;
 	}
 	string loadingInstruction;

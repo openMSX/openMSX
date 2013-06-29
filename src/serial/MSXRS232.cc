@@ -292,7 +292,7 @@ byte MSXRS232::readStatus(EmuTime::param time)
 
 	// TODO bit 0: carrier detect
 
-	if (!rxrdyIRQenabled && switchSetting && switchSetting->getValue()) {
+	if (!rxrdyIRQenabled && switchSetting && switchSetting->getBoolean()) {
 		result |= 0x08;
 	}
 

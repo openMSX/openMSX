@@ -700,7 +700,7 @@ int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 
 void LaserdiscPlayer::autoRun()
 {
-	if (!autoRunSetting->getValue()) {
+	if (!autoRunSetting->getBoolean()) {
 		return;
 	}
 

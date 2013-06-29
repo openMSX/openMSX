@@ -103,7 +103,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	int displayDelta = vdp.getVerticalScroll() - vdp.getLineZero();
 
 	// Get sprites for this line and detect 5th sprite if any.
-	bool limitSprites = limitSpritesSetting.getValue();
+	bool limitSprites = limitSpritesSetting.getBoolean();
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
@@ -241,7 +241,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	int displayDelta = vdp.getVerticalScroll() - vdp.getLineZero();
 
 	// Get sprites for this line and detect 5th sprite if any.
-	bool limitSprites = limitSpritesSetting.getValue();
+	bool limitSprites = limitSpritesSetting.getBoolean();
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;

@@ -54,8 +54,8 @@ std::unique_ptr<Disk> DiskFactory::createDisk(
 			diskChanger,
 			reactor.getCliComm(),
 			filename,
-			syncDirAsDSKSetting->getValue(),
-			bootSectorSetting->getValue());
+			syncDirAsDSKSetting->getEnum(),
+			bootSectorSetting->getEnum());
 	} catch (MSXException&) {
 		// DirAsDSK didn't work, no problem
 	}

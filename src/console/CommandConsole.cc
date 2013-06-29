@@ -251,7 +251,7 @@ ConsoleLine CommandConsole::getLine(unsigned line) const
 int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	auto& keyEvent = checked_cast<const KeyEvent&>(*event);
-	if (!consoleSetting->getValue()) {
+	if (!consoleSetting->getBoolean()) {
 		return 0;
 	}
 
@@ -449,7 +449,7 @@ void CommandConsole::putCommandHistory(const string& command)
 	if (command == prompt) {
 		return;
 	}
-	if (removeDoublesSetting->getValue() && !history.empty()
+	if (removeDoublesSetting->getBoolean() && !history.empty()
 		&& (history.back() == command)) {
 		return;
 	}
@@ -457,7 +457,7 @@ void CommandConsole::putCommandHistory(const string& command)
 	history.push_back(command);
 
 	// if necessary, shrink history to the desired (smaller) size
-	while (history.size() > unsigned(historySizeSetting->getValue())) {
+	while (history.size() > unsigned(historySizeSetting->getInt())) {
 		history.pop_front();
 	}
 }

@@ -507,12 +507,12 @@ template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 
 template <class T> void CPUCore<T>::doSetFreq()
 {
-	if (freqLocked->getValue()) {
+	if (freqLocked->getBoolean()) {
 		// locked, use value set via setFreq()
 		T::setFreq(freq);
 	} else {
 		// unlocked, use value set by user
-		T::setFreq(freqValue->getValue());
+		T::setFreq(freqValue->getInt());
 	}
 }
 
@@ -2383,7 +2383,7 @@ template <class T> inline void CPUCore<T>::cpuTracePre()
 }
 template <class T> inline void CPUCore<T>::cpuTracePost()
 {
-	if (unlikely(traceSetting.getValue())) {
+	if (unlikely(traceSetting.getBoolean())) {
 		cpuTracePost_slow();
 	}
 }
@@ -2498,7 +2498,7 @@ template <class T> void CPUCore<T>::execute2(bool fastForward)
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
 	if (fastForward ||
-	    (!interface->anyBreakPoints() && !traceSetting.getValue())) {
+	    (!interface->anyBreakPoints() && !traceSetting.getBoolean())) {
 		// fast path, no breakpoints, no tracing
 		while (!needExitCPULoop()) {
 			if (slowInstructions) {

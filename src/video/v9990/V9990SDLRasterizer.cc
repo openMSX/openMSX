@@ -197,7 +197,7 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 
 	if ((toX > fromX) && (toY > fromY)) {
 		bool drawSprites = vdp.spritesEnabled() &&
-			!renderSettings.getDisableSprites().getValue();
+			!renderSettings.getDisableSprites().getBoolean();
 
 		displayX = V9990::UCtoX(displayX, displayMode);
 		int displayWidth  = toX - fromX;

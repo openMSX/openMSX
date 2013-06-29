@@ -214,7 +214,7 @@ double MSXMixer::getEffectiveSpeed() const
 {
 	return synchronousCounter
 	     ? 1.0
-	     : speedSetting.getValue() / 100.0;
+	     : speedSetting.getInt() / 100.0;
 }
 
 void MSXMixer::updateStream(EmuTime::param time)
@@ -527,7 +527,7 @@ bool MSXMixer::needStereoRecording() const
 	for (auto& p : infos) {
 		auto& device = *p.first;
 		auto& balance = *p.second.balanceSetting;
-		if (device.isStereo() || balance.getValue() != 0) {
+		if (device.isStereo() || balance.getInt() != 0) {
 			return true;
 		}
 	}
@@ -642,7 +642,7 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 			if (s.recordSetting.get() == &setting) {
 				p.first->recordChannel(
 					channel,
-					Filename(s.recordSetting->getValue()));
+					Filename(s.recordSetting->getString()));
 				return;
 			}
 			++channel;
@@ -658,7 +658,7 @@ void MSXMixer::changeMuteSetting(const Setting& setting)
 		for (auto& s : p.second.channelSettings) {
 			if (s.muteSetting.get() == &setting) {
 				p.first->muteChannel(
-					channel, s.muteSetting->getValue());
+					channel, s.muteSetting->getBoolean());
 				return;
 			}
 			++channel;
@@ -676,10 +676,10 @@ void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
 void MSXMixer::updateVolumeParams(Infos::value_type& p)
 {
 	auto& info = p.second;
-	int mVolume = masterVolume.getValue();
-	int dVolume = info.volumeSetting->getValue();
+	int mVolume = masterVolume.getInt();
+	int dVolume = info.volumeSetting->getInt();
 	double volume = info.defaultVolume * mVolume * dVolume / (100.0 * 100.0);
-	int balance = info.balanceSetting->getValue();
+	int balance = info.balanceSetting->getInt();
 	double l1, r1, l2, r2;
 	if (p.first->isStereo()) {
 		if (balance < 0) {

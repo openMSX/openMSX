@@ -55,7 +55,7 @@ GLPostProcessor::GLPostProcessor(
 	frameCounter = 0;
 	noiseX = 0.0;
 	noiseY = 0.0;
-	preCalcNoise(renderSettings.getNoise().getValue());
+	preCalcNoise(renderSettings.getNoise().getDouble());
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
@@ -75,7 +75,7 @@ GLPostProcessor::GLPostProcessor(
 	}
 
 	monitor3DList = glGenLists(1);
-	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getValue());
+	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getDouble());
 
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
@@ -132,9 +132,9 @@ void GLPostProcessor::createRegions()
 void GLPostProcessor::paint(OutputSurface& /*output*/)
 {
 	RenderSettings::DisplayDeform deform =
-		renderSettings.getDisplayDeform().getValue();
-	double horStretch = renderSettings.getHorizontalStretch().getValue();
-	int glow = renderSettings.getGlow().getValue();
+		renderSettings.getDisplayDeform().getEnum();
+	double horStretch = renderSettings.getHorizontalStretch().getDouble();
+	int glow = renderSettings.getGlow().getInt();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0) ||
 	                       (glow != 0);
@@ -149,7 +149,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 
 	// New scaler algorithm selected?
 	RenderSettings::ScaleAlgorithm algo =
-		renderSettings.getScaleAlgorithm().getValue();
+		renderSettings.getScaleAlgorithm().getEnum();
 	if (scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings);
@@ -240,9 +240,9 @@ void GLPostProcessor::update(const Setting& setting)
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	FloatSetting& horizontalStretch = renderSettings.getHorizontalStretch();
 	if (&setting == &noiseSetting) {
-		preCalcNoise(noiseSetting.getValue());
+		preCalcNoise(noiseSetting.getDouble());
 	} else if (&setting == &horizontalStretch) {
-		preCalc3DDisplayList(horizontalStretch.getValue());
+		preCalc3DDisplayList(horizontalStretch.getDouble());
 	}
 }
 
@@ -421,7 +421,7 @@ void GLPostProcessor::preCalcNoise(double factor)
 
 void GLPostProcessor::drawNoise()
 {
-	if (renderSettings.getNoise().getValue() == 0) return;
+	if (renderSettings.getNoise().getDouble() == 0) return;
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
@@ -435,7 +435,7 @@ void GLPostProcessor::drawNoise()
 		{ { 320,   0 }, { 320, 240 }, {   0, 240 }, {   0,   0 } },
 		{ {   0,   0 }, {   0, 240 }, { 320, 240 }, { 320,   0 } }
 	};
-	int zoom = renderSettings.getScaleFactor().getValue();
+	int zoom = renderSettings.getScaleFactor().getInt();
 
 	unsigned seq = frameCounter & 7;
 	glPushAttrib(GL_ALL_ATTRIB_BITS);

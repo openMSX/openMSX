@@ -18,7 +18,7 @@ namespace GLScalerFactory {
 
 unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
-	switch (renderSettings.getScaleAlgorithm().getValue()) {
+	switch (renderSettings.getScaleAlgorithm().getEnum()) {
 	case RenderSettings::SCALER_SAI:
 		// disabled for now:
 		//   - it doesn't work (yet) on ATI cards

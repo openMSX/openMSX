@@ -822,7 +822,7 @@ void V9990CmdEngine::setCmdReg(byte reg, byte value, EmuTime::param time)
 		break;
 	case 20: { // CMD
 		CMD = value;
-		if (cmdTraceSetting->getValue()) {
+		if (cmdTraceSetting->getBoolean()) {
 			reportV9990Command();
 		}
 		status |= CE;
@@ -902,7 +902,7 @@ void V9990CmdEngine::reportV9990Command()
 
 void V9990CmdEngine::update(const Setting& setting)
 {
-	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getValue();
+	brokenTiming = static_cast<const EnumSetting<bool>&>(setting).getEnum();
 }
 
 EmuDuration V9990CmdEngine::getTiming(const unsigned table[4][3][4]) const

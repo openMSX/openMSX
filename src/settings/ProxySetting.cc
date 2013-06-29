@@ -79,7 +79,7 @@ void ProxySetting::setValueStringDirect(const string& valueString)
 {
 	if (Setting* setting = getSetting()) {
 		// note: not setValueStringDirect()
-		setting->changeValueString(valueString);
+		setting->setString(valueString);
 	} else {
 		throw MSXException("No setting '" + getName() + "' on current machine.");
 	}

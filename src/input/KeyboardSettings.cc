@@ -84,7 +84,7 @@ EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey() const
 Keys::KeyCode KeyboardSettings::getDeadkeyHostKey(unsigned n) const
 {
 	assert(n < 3);
-	return deadkeyHostKey[n]->getValue();
+	return deadkeyHostKey[n]->getEnum();
 }
 
 EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode() const

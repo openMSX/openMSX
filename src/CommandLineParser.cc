@@ -355,7 +355,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
 				const auto& machine =
-					reactor.getMachineSetting().getValueString();
+					reactor.getMachineSetting().getString();
 				try {
 					reactor.switchMachine(machine);
 				} catch (MSXException& e) {
