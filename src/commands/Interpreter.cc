@@ -8,9 +8,7 @@
 #include "Setting.hh"
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
-#include "openmsx.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <iostream>

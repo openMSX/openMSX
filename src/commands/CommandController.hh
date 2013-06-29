@@ -12,8 +12,6 @@ class CliConnection;
 class Setting;
 class CliComm;
 class Interpreter;
-class SettingsConfig;
-class Reactor;
 
 class CommandController
 {

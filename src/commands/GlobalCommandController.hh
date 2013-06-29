@@ -16,7 +16,6 @@ class GlobalCliComm;
 class HotKey;
 class InfoCommand;
 class Interpreter;
-class FileContext;
 class HelpCmd;
 class TabCompletionCmd;
 class UpdateCmd;
@@ -24,6 +23,7 @@ class ProxyCmd;
 class VersionInfo;
 class RomInfoTopic;
 class ProxySetting;
+class SettingsConfig;
 
 class GlobalCommandController : public CommandController, private noncopyable
 {

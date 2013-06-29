@@ -6,7 +6,6 @@
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
-#include "vla.hh"
 #include <vector>
 #include <tcl.h>
 

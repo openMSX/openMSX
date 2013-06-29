@@ -61,12 +61,9 @@ SettingsConfig::SettingsConfig(
 
 SettingsConfig::~SettingsConfig()
 {
-	PRT_DEBUG("~SettingsConfig...");
 	if (mustSaveSettings) {
 		try {
-			PRT_DEBUG("Saving Settings...");
 			saveSetting();
-			PRT_DEBUG("Saving Settings... DONE");
 		} catch (FileException& e) {
 			commandController.getCliComm().printWarning(
 				"Auto-saving of settings failed: " + e.getMessage() );

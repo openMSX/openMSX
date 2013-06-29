@@ -92,16 +92,10 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
-	if (auto* setting = getByName(name)) {
+	if (auto* setting = findSetting(name)) {
 		return *setting;
 	}
 	throw CommandException(cmd + ": " + name + ": no such setting");
-}
-
-Setting* SettingsManager::getByName(string_ref name) const
-{
-	auto it = settingsMap.find(name);
-	return it != settingsMap.end() ? it->second : nullptr;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)
@@ -138,7 +132,7 @@ void SettingsManager::saveSettings(XMLElement& config) const
 	}
 }
 
-// SettingInfo implementation
+// class SettingInfo
 
 SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
                          SettingsManager& manager_)
@@ -188,7 +182,7 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 }
 
 
-// SetCompleter implementation:
+// class SetCompleter
 
 SetCompleter::SetCompleter(CommandController& commandController,
                            SettingsManager& manager_)
@@ -227,7 +221,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 }
 
 
-// SettingCompleter implementation
+// class SettingCompleter
 
 SettingCompleter::SettingCompleter(
 		CommandController& commandController, SettingsManager& manager_,

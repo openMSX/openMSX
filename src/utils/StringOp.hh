@@ -125,13 +125,16 @@ namespace StringOp
 
 	// case insensitive less then operator
 	struct caseless {
-		bool operator()(const std::string& s1, const std::string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
 		bool operator()(string_ref s1, string_ref s2) const {
 			auto m = std::min(s1.size(), s2.size());
 			int r = strncasecmp(s1.data(), s2.data(), m);
 			return (r != 0) ? (r < 0) : (s1.size() < s2.size());
+		}
+	};
+	struct casecmp {
+		bool operator()(string_ref s1, string_ref s2) const {
+			if (s1.size() != s2.size()) return false;
+			return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 		}
 	};
 

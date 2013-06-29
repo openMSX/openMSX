@@ -17,6 +17,7 @@ class TclObject
 public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
 	TclObject(Tcl_Interp* interp, string_ref value);
+	TclObject(Interpreter& interp, string_ref value);
 	explicit TclObject(string_ref value);
 	explicit TclObject(Tcl_Interp* interp);
 	explicit TclObject(Interpreter& interp);
@@ -76,6 +77,14 @@ public:
 	  * TODO return TclObject instead of string?
 	  */
 	std::string executeCommand(bool compile = false);
+
+	/** Comparison. Only compares the 'value', not the interpreter. */
+	bool operator==(const TclObject& other) const {
+		return getString() == other.getString();
+	}
+	bool operator!=(const TclObject& other) const {
+		return !(*this == other);
+	}
 
 private:
 	void init(Tcl_Obj* obj_);

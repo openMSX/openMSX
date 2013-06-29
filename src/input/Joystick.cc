@@ -250,25 +250,29 @@ byte Joystick::calcState()
 
 bool Joystick::getState(const TclObject& dict, string_ref key)
 {
-	const auto& list = dict.getDictValue(TclObject(key));
-	for (auto i : xrange(list.getListLength())) {
-		const auto& elem = list.getListIndex(i).getString();
-		if (elem.starts_with("button")) {
-			int n = stoi(elem.substr(6));
-			if (InputEventGenerator::joystickGetButton(joystick, n)) {
-				return true;
-			}
-		} else if (elem.starts_with("+axis")) {
-			int n = stoi(elem.substr(5));
-			if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
-				return true;
-			}
-		} else if (elem.starts_with("-axis")) {
-			int n = stoi(elem.substr(5));
-			if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
-				return true;
+	try {
+		const auto& list = dict.getDictValue(TclObject(key));
+		for (auto i : xrange(list.getListLength())) {
+			const auto& elem = list.getListIndex(i).getString();
+			if (elem.starts_with("button")) {
+				int n = stoi(elem.substr(6));
+				if (InputEventGenerator::joystickGetButton(joystick, n)) {
+					return true;
+				}
+			} else if (elem.starts_with("+axis")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
+					return true;
+				}
+			} else if (elem.starts_with("-axis")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
+					return true;
+				}
 			}
 		}
+	} catch (MSXException&) {
+		// ignore
 	}
 	return false;
 }

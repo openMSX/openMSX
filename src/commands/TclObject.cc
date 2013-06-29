@@ -23,6 +23,12 @@ TclObject::TclObject(Tcl_Interp* interp_, string_ref value)
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
 }
 
+TclObject::TclObject(Interpreter& interp_, string_ref value)
+	: interp(interp_.interp)
+{
+	init(Tcl_NewStringObj(value.data(), int(value.size())));
+}
+
 TclObject::TclObject(string_ref value)
 	: interp(nullptr)
 {

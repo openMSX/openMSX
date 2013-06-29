@@ -8,7 +8,7 @@ namespace openmsx {
 
 namespace Keys {
 
-static std::map<std::string, KeyCode, StringOp::caseless> keymap;
+static std::map<string_ref, KeyCode, StringOp::caseless> keymap;
 
 static void initialize()
 {
@@ -291,17 +291,17 @@ static void initialize()
 	}
 }
 
-KeyCode getCode(const string& name)
+KeyCode getCode(string_ref name)
 {
 	initialize();
 
 	auto result = static_cast<KeyCode>(0);
 	string::size_type lastPos = 0;
 	while (lastPos != string::npos) {
-		auto pos = name.find_first_of(",+/", lastPos);
-		string part = (pos != string::npos)
-		            ? name.substr(lastPos, pos - lastPos)
-			    : name.substr(lastPos);
+		auto pos = name.substr(lastPos).find_first_of(",+/");
+		auto part = (pos != string::npos)
+		          ? name.substr(lastPos, pos - lastPos)
+		          : name.substr(lastPos);
 		auto it = keymap.find(part);
 		if (it != keymap.end()) {
 			KeyCode partCode = it->second;
@@ -374,7 +374,7 @@ const string getName(KeyCode keyCode)
 	string result;
 	for (auto& p : keymap) {
 		if (p.second == (keyCode & K_MASK)) {
-			result = p.first;
+			result = p.first.str();
 			break;
 		}
 	}

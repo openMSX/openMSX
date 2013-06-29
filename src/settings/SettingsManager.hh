@@ -24,18 +24,16 @@ public:
 	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
 
-	/** Get a setting by specifying its name.
-	  * @return The Setting with the given name,
-	  *   or nullptr if there is no such Setting.
+	/** Find the setting with given name.
+	  * @return The requested setting or nullptr.
 	  */
-	Setting* getByName(string_ref name) const;
+	Setting* findSetting(string_ref name) const;
 
 	void loadSettings(const XMLElement& config);
 	void saveSettings(XMLElement& config) const;
 
 	void registerSetting  (Setting& setting, string_ref name);
 	void unregisterSetting(Setting& setting, string_ref name);
-	Setting* findSetting(string_ref name) const;
 
 private:
 	Setting& getByName(string_ref cmd, string_ref name) const;
