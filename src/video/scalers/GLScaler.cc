@@ -11,13 +11,10 @@ GLScaler::GLScaler()
 	scalerProgram.attach(vertexShader);
 	scalerProgram.attach(fragmentShader);
 	scalerProgram.link();
-#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		scalerProgram.activate();
-		glUniform1i(scalerProgram.getUniformLocation("tex"), 0);
-		glUniform1i(scalerProgram.getUniformLocation("videoTex"), 1);
-	}
-#endif
+
+	scalerProgram.activate();
+	glUniform1i(scalerProgram.getUniformLocation("tex"), 0);
+	glUniform1i(scalerProgram.getUniformLocation("videoTex"), 1);
 }
 
 GLScaler::~GLScaler()

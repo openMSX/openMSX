@@ -100,11 +100,9 @@ unique_ptr<RendererSetting> createRendererSetting(
 	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
 	rendererMap["SDL"] = SDL;
 #if COMPONENT_GL
-	#ifdef GL_VERSION_2_0
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
 	rendererMap["SDLGL-PP"] = SDLGL_PP;
-	#endif
 	if (!Version::RELEASE) {
 		// disabled for the release:
 		//  these renderers don't offer anything more than the existing

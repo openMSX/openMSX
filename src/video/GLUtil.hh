@@ -270,13 +270,9 @@ private:
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
 {
-#ifdef GL_VERSION_1_5
-	if (PixelBuffers::enabled &&
-	    GLEW_ARB_pixel_buffer_object) {
+	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
-	} else
-#endif
-	{
+	} else {
 		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
 		bufferId = 0;
 	}
@@ -305,11 +301,7 @@ PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other)
 template <typename T>
 PixelBuffer<T>::~PixelBuffer()
 {
-#ifdef GL_VERSION_1_5
-	if (bufferId != 0) {
-		glDeleteBuffers(1, &bufferId);
-	}
-#endif
+	glDeleteBuffers(1, &bufferId); // ok to delete '0'
 }
 
 template <typename T>
@@ -323,7 +315,6 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 {
 	this->width = width;
 	this->height = height;
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		bind();
 		// TODO make performance hint configurable?
@@ -332,9 +323,7 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 		             nullptr, // leave data undefined
 		             GL_STREAM_DRAW); // performance hint
 		unbind();
-	} else
-#endif
-	{
+	} else {
 		allocated.resize(width * height);
 	}
 }
@@ -342,21 +331,17 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 template <typename T>
 void PixelBuffer<T>::bind() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
 	}
-#endif
 }
 
 template <typename T>
 void PixelBuffer<T>::unbind() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
 	}
-#endif
 }
 
 template <typename T>
@@ -365,34 +350,30 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	assert(x < width);
 	assert(y < height);
 	unsigned offset = x + width * y;
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		return static_cast<T*>(nullptr) + offset;
+	} else {
+		return &allocated[offset];
 	}
-#endif
-	return &allocated[offset];
 }
 
 template <typename T>
 T* PixelBuffer<T>::mapWrite()
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		return reinterpret_cast<T*>(glMapBuffer(
 			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
+	} else {
+		return allocated.data();
 	}
-#endif
-	return allocated.data();
 }
 
 template <typename T>
 void PixelBuffer<T>::unmap() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
 	}
-#endif
 }
 
 

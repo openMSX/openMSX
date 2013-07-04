@@ -57,6 +57,9 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 				reinterpret_cast<const char*>(
 					glewGetErrorString(glew_error))));
 	}
+	if (!GLEW_VERSION_2_0) {
+		throw InitException("Need at least openGL version 2.0.");
+	}
 
 	glViewport(getX(), getY(), width, height);
 	glMatrixMode(GL_PROJECTION);

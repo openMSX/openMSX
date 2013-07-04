@@ -24,20 +24,17 @@ GLHQScaler::GLHQScaler()
 		scalerProgram[i].attach(vertexShader);
 		scalerProgram[i].attach(fragmentShader);
 		scalerProgram[i].link();
-#ifdef GL_VERSION_2_0
-		if (GLEW_VERSION_2_0) {
-			scalerProgram[i].activate();
-			glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
-			if (i == 1) {
-				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),   1);
-			}
-			glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
-			glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
-			glUniform1i(scalerProgram[i].getUniformLocation("weightTex"), 4);
-			glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
-				    320.0f, 2 * 240.0f);
+
+		scalerProgram[i].activate();
+		glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
+		if (i == 1) {
+			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),   1);
 		}
-#endif
+		glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
+		glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
+		glUniform1i(scalerProgram[i].getUniformLocation("weightTex"), 4);
+		glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
+		            320.0f, 2 * 240.0f);
 	}
 
 	edgeTexture.bind();
