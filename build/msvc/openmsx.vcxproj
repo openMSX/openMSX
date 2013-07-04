@@ -525,10 +525,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\settings\KeyCodeSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\ProxySetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\Setting.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingImpl.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingsManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\StringSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\UserSettings.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputConnector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AY8910.cc" />
@@ -677,7 +678,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoLayer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
@@ -1048,9 +1048,8 @@
     <None Include="$(OpenMSXSrcDir)\settings\ProxySetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\Setting.hh" />
-    <None Include="$(OpenMSXSrcDir)\settings\SettingImpl.hh" />
+    <None Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\SettingPolicy.hh" />
-    <None Include="$(OpenMSXSrcDir)\settings\SettingRangePolicy.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\SettingsManager.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\StringSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\UserSettings.hh" />
