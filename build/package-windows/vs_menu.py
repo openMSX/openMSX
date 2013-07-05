@@ -1,11 +1,5 @@
 import msvcrt 
-import datetime
-import time
 import os
-import sys
-import subprocess
-import string
-import re
 
 #set standard settings
 
@@ -52,14 +46,11 @@ def menu():
 	print('----------------------------------------------------')
 	print
 	print('The DirectX June 2010 SDK is needed for XP support')
-	
-def kbFunc(): 
-	return ord(msvcrt.getch()) if msvcrt.kbhit() else 0
-	
+
 def updateSourceCode():
 	os.system('cls')
 	os.system('git pull')
-	time.sleep(5)
+	os.system('pause')
 	menu()
 	
 def update3rdparty():
@@ -71,6 +62,7 @@ def update3rdparty():
 	print os.getcwd()
 	#get back to the current dir
 	os.chdir('build\\package-windows')
+	os.system('pause')
 	menu()
 	
 def compile(whattocompile):
@@ -94,20 +86,16 @@ def compile(whattocompile):
 		
 	fo.write ('set PlatformToolset='+str(support)+chr(10))
 	
-	if version==64:
-		compilefor='x64'
-	if version==32:
-		compilefor='Win32'
+	if version==64:	compilefor='x64'
+	if version==32:	compilefor='Win32'
 	
-	if whattocompile=='OpenMSX':
-		fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\msvc\\openmsx.sln /m'+chr(10))
-	if whattocompile=='3rdParty':
-		fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\3rdparty\\3rdparty.sln /m'+chr(10))
+	if whattocompile=='OpenMSX': fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\msvc\\openmsx.sln /m'+chr(10))
+	if whattocompile=='3rdParty': fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\3rdparty\\3rdparty.sln /m'+chr(10))
 
-		fo.close()
+	fo.close()
 	os.system('foo.bat')
 	os.chdir('build\\package-windows')
-	time.sleep(2)
+	os.system('pause')
 	menu()
 	
 def package():
@@ -117,45 +105,41 @@ def package():
 	else:
 		os.system('build\\package-windows\\package.cmd win32 release ..\\wxcatapult')
 	os.chdir('build\\package-windows')
-	time.sleep(2)
+	os.system('pause')
 	menu()
-	
-menu()
-while quit==0:
-	x = kbFunc()
-	if x != 0:
-		print "Got key: %d" % x
-		if x==49:
-			updateSourceCode()
-			
-		if x==50:
-			update3rdparty()
-	
-		if x==51:
-			compile('3rdParty')
-						
-		if x==52:
-			compile('OpenMSX')
-			
-		if x==53: package()
-			
-		if x==54:
-			print version
-			if version==64: 
-				version=32 
-			else:
-				version=64
-			menu()
 
-		if x==55:
-			print version
-			if compileXP==1: 
-				compileXP=0 
-			else:
-				compileXP=1
-			menu()
-		
-		if x==113:
-			os.system('cls')
-			quit=1
+# Main Loop	
+menu()
+
+while quit==0:
+	x = ord(msvcrt.getch())
+	
+	#print "Got key: %d" % x
+	if x==49:updateSourceCode()
+	
+	if x==50:update3rdparty()
+	
+	if x==51:compile('3rdParty')
+	
+	if x==52:compile('OpenMSX')
+	
+	if x==53:package()
+	
+	if x==54:
+		if version==64: 
+			version=32 
+		else:
+			version=64
+		menu()
+
+	if x==55:
+		if compileXP==1: 
+			compileXP=0 
+		else:
+			compileXP=1
+		menu()
+	
+	if x==113:
+		os.system('cls')
+		quit=1
 		
