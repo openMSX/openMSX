@@ -1,7 +1,8 @@
 import msvcrt 
 import os
+import subprocess
 
-#set standard settings
+#set standard settings (No XP support/64Bit version)
 
 #XP support 0=off/1=on
 compileXP=0 
@@ -15,7 +16,7 @@ quit=0
 def menu():
 	os.system('color 9f')
 	os.system('mode 80,24')
-	os.system('TITLE openMSX Auto Compiler')
+	os.system('TITLE openMSX build menu for Visual Studio 2012')
 	os.system('cls')
 
 	print('------------------------------------------------------')
@@ -34,22 +35,21 @@ def menu():
 	print
 	print(' [Q] Quit')
 	print
-	print('----------------------------------------------------')	
-	if version==32:
-		print " Resulting Binary: Windows 32bit Version"
-	else:
-		print " Resulting Binary: Windows 64bit Version"	
-	if compileXP==1:
-		print ' Resulting Binary: XP Support ON'
-	else:
-		print ' Resulting Binary: XP Support Off'
-	print('----------------------------------------------------')
+	print('------------------------------------------------------')	
+	print('  Resulting Binary settings:')
+	if version==32:	print '     - Windows 32bit Version'
+	else: print '     - Windows 64bit Version'	
+	if compileXP==1:print '     - XP Support ON'
+	else: print '     - XP Support Off'
+	print('------------------------------------------------------')
 	print
-	print('The DirectX June 2010 SDK is needed for XP support')
-
+	if compileXP==1: print('The DirectX June 2010 SDK is needed for XP support')
+	
 def updateSourceCode():
 	os.system('cls')
+	os.chdir('..\\..\\')
 	os.system('git pull')
+	os.chdir('build\\package-windows')
 	os.system('pause')
 	menu()
 	
@@ -66,34 +66,26 @@ def update3rdparty():
 	menu()
 	
 def compile(whattocompile):
+	
 	os.chdir('..\\..\\')
-	fo = open("foo.bat", "w")
-	fo.write('cls'+chr(10))
-	fo.write('Echo Compiling openMSX'+chr(10))
 	
+	if version==64:	compiler='x86_amd64'
+	else: compiler='x86'
 	
-	if version==64:
-		compiler='x86_amd64'
-	else:
-		compiler='x86'
-	
-	fo.write ('call "C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat" '+str(compiler)+chr(10))
+	cmd = 'call "C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat" '+str(compiler)+'&&'
 		
-	if compileXP==1:
-		support='v110_xp'
-	else:
-		support='v110'
+	if compileXP==1: support='v110_xp' 
+	else: support='v110'
 		
-	fo.write ('set PlatformToolset='+str(support)+chr(10))
+	cmd=cmd+'set PlatformToolset='+str(support)+'&&'
 	
-	if version==64:	compilefor='x64'
-	if version==32:	compilefor='Win32'
+	if version==64:	compilefor='x64' 
+	else: compilefor='Win32'
 	
-	if whattocompile=='OpenMSX': fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\msvc\\openmsx.sln /m'+chr(10))
-	if whattocompile=='3rdParty': fo.write ('msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\3rdparty\\3rdparty.sln /m'+chr(10))
+	if whattocompile=='OpenMSX': cmd=cmd+'msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\msvc\\openmsx.sln /m'+chr(10)
+	if whattocompile=='3rdParty': cmd=cmd+'msbuild -p:Configuration=Release;Platform='+str(compilefor)+' build\\3rdparty\\3rdparty.sln /m'+chr(10)
 
-	fo.close()
-	os.system('foo.bat')
+	os.system(cmd)
 	os.chdir('build\\package-windows')
 	os.system('pause')
 	menu()
@@ -114,7 +106,6 @@ menu()
 while quit==0:
 	x = ord(msvcrt.getch())
 	
-	#print "Got key: %d" % x
 	if x==49:updateSourceCode()
 	
 	if x==50:update3rdparty()
