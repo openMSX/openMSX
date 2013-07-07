@@ -507,6 +507,8 @@ class TCL(Library):
 						'. %s && eval "echo \\"%s\\""' % (tclConfig, expr)
 					])
 				)
+			if text is not None:
+				print >> log, 'Result: %s' % text.strip()
 		finally:
 			log.close()
 		return None if text is None else text.strip()
@@ -523,7 +525,7 @@ class TCL(Library):
 		return cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'${TCL_INCLUDE_SPEC}',
+			'${TCL_INCLUDE_SPEC}', # looks like some MinGW envs need ${TCL_DEFS} here as well
 			'compile flags'
 			)
 
