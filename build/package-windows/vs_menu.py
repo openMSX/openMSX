@@ -11,6 +11,16 @@ quit = 0 		#Loop variable keep at 0
 location='C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\' #location of Visual Studio 2012 (express) VC files
 title=' openMSX build menu for Visual Studio 2012'
 
+menuval = {
+	 '[1] Update from Repository'
+	,'[2] Get 3rd Party Files\n'
+	,'[3] Compile 3rd-party files'
+	,'[4] Compile openMSX Release'
+	,'[5] Generate Installer and Packages\n'
+	,'[6] Toggle Win32/Win64 Version'
+	,'[7] Toggle Toggle XP Support\n'
+	,'[8] Quit\n'
+}
 
 def menu():
 
@@ -22,14 +32,9 @@ def menu():
 	print '-'*50
 	print title
 	print '-'*50+'\n'
-	print ' [1] Update from Repository'
-	print ' [2] Get 3rd Party Files\n'
-	print ' [3] Compile 3rd-party files'
-	print ' [4] Compile Release'
-	print ' [5] Generate Installer and Packages\n'
-	print ' [6] Toggle Win32/Win64 Version'
-	print ' [7] Toggle XP Support\n'
-	print ' [Q] Quit\n'
+	
+	for item in sorted(menuval): print item
+	
 	print '-'*50
 	print '  Resulting Binary settings:'
 
@@ -94,6 +99,6 @@ while quit == 0:
 	if x == 53: package()
 	if x == 54:	version = 32 if version == 64 else 64
 	if x == 55: compileXP = 0 if compileXP == 1 else 1
-	if x == 113: quit = 1
+	if x == 56: quit = 1
 
 	menu()
