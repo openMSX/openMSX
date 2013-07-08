@@ -33,7 +33,7 @@ namespace GLUtil {
 /** Most basic/generic texture: only contains a texture ID.
   * Current implementation always assumes 2D textures.
   */
-class Texture //: public noncopyable
+class Texture
 {
 public:
 	/** Default constructor, allocate a openGL texture name. */
@@ -81,13 +81,33 @@ public:
 protected:
 	GLuint textureId;
 
+private:
+	// Disable copy, assign.
+	Texture(const Texture&);
+	Texture& operator=(const Texture&);
+
 	friend class FrameBufferObject;
 };
 
 class ColorTexture : public Texture
 {
 public:
+	/** Default constructor, zero-sized texture. */
 	ColorTexture() : width(0), height(0) {}
+
+	/** Move constructor and assignment. */
+	ColorTexture(ColorTexture&& other)
+		: Texture(std::move(other))
+	{
+		width  = other.width;
+		height = other.height;
+	}
+	ColorTexture& operator=(ColorTexture&& other) {
+		*this = std::move(other);
+		width  = other.width;
+		height = other.height;
+		return *this;
+	}
 
 	/** Create color texture with given size.
 	  * Initial content is undefined.
@@ -99,6 +119,10 @@ public:
 	GLsizei getHeight() const { return height; }
 
 private:
+	// Disable copy, assign.
+	ColorTexture(const ColorTexture&);
+	ColorTexture& operator=(const ColorTexture&);
+
 	GLsizei width;
 	GLsizei height;
 };
@@ -106,6 +130,16 @@ private:
 class LuminanceTexture : public Texture
 {
 public:
+	/** Move constructor and assignment. */
+	LuminanceTexture(LuminanceTexture&& other)
+		: Texture(std::move(other))
+	{
+	}
+	LuminanceTexture& operator=(LuminanceTexture&& other) {
+		*this = std::move(other);
+		return *this;
+	}
+
 	/** Create grayscale texture with given size.
 	  * Initial content is undefined.
 	  */
@@ -116,6 +150,11 @@ public:
 	void updateImage(GLint x, GLint y,
 	                 GLsizei width, GLsizei height,
 	                 GLbyte* data);
+
+private:
+	// Disable copy, assign.
+	LuminanceTexture(const LuminanceTexture&);
+	LuminanceTexture& operator=(const LuminanceTexture&);
 };
 
 class FrameBufferObject //: public noncopyable

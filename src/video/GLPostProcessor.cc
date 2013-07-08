@@ -291,8 +291,7 @@ void GLPostProcessor::uploadBlock(
 	if (it == textures.end()) {
 		TextureData textureData;
 
-		textureData.tex = ColorTexture(
-			lineWidth, height * 2); // *2 for interlace
+		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
 		textureData.tex.setWrapMode(false);
 
 		if (textureData.pbo.openGLSupported()) {
