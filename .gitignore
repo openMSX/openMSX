@@ -1,3 +1,5 @@
 /derived
 /*.diff
 /*.log
+*.swp
+*~
