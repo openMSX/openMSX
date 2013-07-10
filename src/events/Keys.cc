@@ -296,11 +296,11 @@ KeyCode getCode(string_ref name)
 	initialize();
 
 	auto result = static_cast<KeyCode>(0);
-	string::size_type lastPos = 0;
-	while (lastPos != string::npos) {
+	string_ref::size_type lastPos = 0;
+	while (lastPos != string_ref::npos) {
 		auto pos = name.substr(lastPos).find_first_of(",+/");
-		auto part = (pos != string::npos)
-		          ? name.substr(lastPos, pos - lastPos)
+		auto part = (pos != string_ref::npos)
+		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
 		auto it = keymap.find(part);
 		if (it != keymap.end()) {
@@ -314,10 +314,9 @@ KeyCode getCode(string_ref name)
 		} else {
 			return K_NONE;
 		}
-		lastPos = pos;
-		if (lastPos != string::npos) {
-			++lastPos;
-		}
+		lastPos = (pos != string_ref::npos)
+		        ? lastPos + pos + 1
+		        : string_ref::npos;
 	}
 	return result;
 }
