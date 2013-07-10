@@ -7,10 +7,12 @@ BooleanSetting::BooleanSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, bool initialValue, SaveSetting save)
 	: Setting(commandController, name, description,
-	          (initialValue ? "true" : "false"), save)
+	          toString(initialValue), save)
 {
 	setChecker([this](TclObject& newValue) {
-		newValue.getBoolean(); // may throw
+		// May throw.
+		// Re-set the queried value to get a normalized value.
+		newValue.setString(toString(newValue.getBoolean()));
 	});
 }
 

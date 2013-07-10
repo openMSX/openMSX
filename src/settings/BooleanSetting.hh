@@ -15,7 +15,10 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 	bool getBoolean() const { return getValue().getBoolean(); }
-	void setBoolean(bool b) { setString(b ? "true" : "false"); }
+	void setBoolean(bool b) { setString(toString(b)); }
+
+private:
+	static std::string toString(bool b) { return b ? "true" : "false"; }
 };
 
 } // namespace openmsx
