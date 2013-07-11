@@ -20,13 +20,6 @@ class FTruncateFunction(SystemFunction):
 	def iterHeaders(cls, targetPlatform):
 		yield '<unistd.h>'
 
-class ClockGetTimeFunction(SystemFunction):
-	name = 'clock_gettime'
-
-	@classmethod
-	def iterHeaders(cls, targetPlatform):
-		yield '<time.h>'
-
 class MMapFunction(SystemFunction):
 	name = 'mmap'
 

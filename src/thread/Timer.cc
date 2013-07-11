@@ -1,16 +1,10 @@
 #include "Timer.hh"
 #include "systemfuncs.hh"
-#if HAVE_CLOCK_GETTIME
-#include <ctime>
-#endif
 #if HAVE_USLEEP
 #include <unistdp.hh>
 #endif
-#if defined _WIN32
-#include <windows.h>
-#endif
+#include <chrono>
 #include <SDL.h>
-#include <cassert>
 
 namespace openmsx {
 namespace Timer {
@@ -25,48 +19,28 @@ uint64_t getTime()
 {
 	static uint64_t lastTime = 0;
 	uint64_t now;
-/* QueryPerformanceCounter() has problems on modern CPUs,
- *  - on dual core CPUs time can ge backwards (a bit) when your process
- *    get scheduled on the other core
- *  - the resolution of the timer can vary on CPUs that can change its
- *    clock frequency (for power managment)
-##if defined _WIN32
-	static LONGLONG hfFrequency = 0;
 
-	LARGE_INTEGER li;
-	if (!hfFrequency) {
-		if (QueryPerformanceFrequency(&li)) {
-			hfFrequency = li.QuadPart;
-		} else {
-			return getSDLTicks();
-		}
-	}
-	QueryPerformanceCounter(&li);
-
-	// Assumes that the timer never wraps. The mask is just to
-	// ensure that the multiplication doesn't wrap.
-	now = (li.QuadPart & (int64_t(-1) >> 20)) * 1000000 / hfFrequency;
-*/
-	// clock_gettime doesn't seem to work properly on MinGW/Win32 cross compilation
-#if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK) && !(defined(_WIN32) && defined(__GNUC__))
-	// Note: in the past we used the more portable gettimeofday() function,
-	//       but the result of that function is not always monotonic.
-	timespec ts;
-	int result = clock_gettime(CLOCK_MONOTONIC, &ts);
-	assert(result == 0); (void)result;
-	now = static_cast<uint64_t>(ts.tv_sec) * 1000000 +
-	      static_cast<uint64_t>(ts.tv_nsec) / 1000;
+#ifndef _MSC_VER
+	using namespace std::chrono;
+	now = duration_cast<microseconds>(
+		steady_clock::now().time_since_epoch()).count();
 #else
-	now = getSDLTicks();
+	// Visual studio 2012 does offer std::chrono, but unfortunately it's
+	// buggy and low resolution. So for now we still use SDL. See also:
+	//   http://stackoverflow.com/questions/11488075/vs11-is-steady-clock-steady
+	//   https://connect.microsoft.com/VisualStudio/feedback/details/753115/
+	now = static_cast<uint64_t>(SDL_GetTicks()) * 1000;
 #endif
-	if (now < lastTime) {
-		// This shouldn't happen, time should never go backwards.
-		// Though there appears to be a bug in some Linux kernels
-		// so that occasionally clock_gettime(CLOCK_MONOTONIC) _does_
-		// go back in time slightly. When that happens we return the
-		// last time again.
-		return lastTime;
-	}
+
+	// Other parts of openMSX may crash if this function ever returns a
+	// value that is less than a previously returned value. Hence this
+	// extra check.
+	// SDL_GetTicks() is not guaranteed to return monotonic values.
+	// steady_clock OTOH should be monotonic. It's implemented in terms of
+	// clock_gettime(CLOCK_MONOTONIC). Unfortunately in older linux
+	// versions we've seen buggy implementation that once in a while did
+	// return time points slightly in the past.
+	if (now < lastTime) return lastTime;
 	lastTime = now;
 	return now;
 }
