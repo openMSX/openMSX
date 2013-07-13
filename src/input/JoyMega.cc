@@ -192,7 +192,7 @@ void JoyMega::write(byte value, EmuTime::param time)
 
 void JoyMega::checkTime(EmuTime::param time)
 {
-	if ((time - lastTime) > EmuDuration(0.0015)) {
+	if ((time - lastTime) > EmuDuration::usec(1500)) {
 		// longer than 1.5ms since last write -> reset cycle
 		cycle = 0;
 	}

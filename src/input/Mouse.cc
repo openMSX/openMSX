@@ -3,6 +3,7 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "Clock.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -92,7 +93,7 @@ void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
 		mouseMode = true;
-		lastTime.advance(time);
+		lastTime = time;
 	} else {
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
@@ -187,23 +188,24 @@ void Mouse::emulateJoystick()
 void Mouse::write(byte value, EmuTime::param time)
 {
 	if (mouseMode) {
-		// TODO figure out the timeout mechanism.
-		// Initially we used the value 1000 here (1000 milliseconds, or
-		// 1 full second). This caused bug
+		// TODO figure out the exact timeout value. Is there even such
+		//   an exact value or can it vary between different mouse
+		//   models?
+		//
+		// Initially we used a timeout of 1 full second. This caused bug
 		//    [3520394] Mouse behaves badly (unusable) in HiBrid
-		// Slightly lowering the value to around 940 was already enough
-		// to fix the problem (for this particular case). Though this
-		// still seems like a very big value. It should only be large
-		// enough so that reading one 'mouse cyclus' is finished within
-		// the given time. So for now I lowered the value to 100, that
-		// should still be (more than) large enough.
-		const int TIMEOUT = 100; // TODO find a good value
-
-		int delta = lastTime.getTicksTill(time);
-		lastTime.advance(time);
-		if (delta >= TIMEOUT) {
+		// Slightly lowering the value to around 0.94s was already
+		// enough to fix that bug. Later we found that to make FRS's
+		// joytest program work we need a value that is less than the
+		// duration of one (NTSC) frame. See bug
+		//    #474 Mouse doesn't work properly on Joytest v2.2
+		// We still don't know the exact value that an actual MSX mouse
+		// uses, but 1.5ms is also the timeout value that is used for
+		// JoyMega, so it seems like a reasonable value.
+		if ((time - lastTime) > EmuDuration::usec(1500)) {
 			faze = FAZE_YLOW;
 		}
+		lastTime = time;
 
 		switch (faze) {
 		case FAZE_XHIGH:
@@ -325,10 +327,25 @@ void Mouse::stopReplay(EmuTime::param time)
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
 // version 3: variables '(cur){x,y}rel' are scaled to MSX coordinates
+// version 4: simplified type of 'lastTime' from Clock<> to EmuTime
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("lastTime", lastTime);
+	if (ar.isLoader() && isPluggedIn()) {
+		// Do this early, because if something goes wrong while loading
+		// some state below, then unplugHelper() gets called and that
+		// will assert when plugHelper2() wasn't called yet.
+		plugHelper2();
+	}
+
+	if (ar.versionBelow(version, 4)) {
+		assert(ar.isLoader());
+		Clock<1000> tmp(EmuTime::zero);
+		ar.serialize("lastTime", tmp);
+		lastTime = tmp.getTime();
+	} else {
+		ar.serialize("lastTime", lastTime);
+	}
 	ar.serialize("faze", faze);
 	ar.serialize("xrel", xrel);
 	ar.serialize("yrel", yrel);
@@ -344,9 +361,6 @@ void Mouse::serialize(Archive& ar, unsigned version)
 		curxrel /= SCALE;
 		curyrel /= SCALE;
 
-	}
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper2();
 	}
 	// no need to serialize absHostX,Y
 }
