@@ -219,7 +219,7 @@ byte Joystick::read(EmuTime::param /*time*/)
 
 void Joystick::write(byte value, EmuTime::param /*time*/)
 {
-	pin8 = value & 0x04;
+	pin8 = (value & 0x04) != 0;
 }
 
 byte Joystick::calcState()
