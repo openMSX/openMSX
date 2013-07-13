@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1373699553">
+<softwaredb xml:lang="en" timestamp="1373702433">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -20,6 +20,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1986</year>
 	<country>KW</country>
 		<dump><rom><hash algo="sha1">150b249b6402ed89ed03cc7125f9472c931dcb2a</hash></rom></dump>
+		<dump><rom><hash algo="sha1">a7c116e987f561aaa6199c3018433c431268ca86</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">10 Yard Fight</title>
@@ -4134,6 +4135,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>2012</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">ff79f5f9c29041083c2359f85dd75b02fe07bfc6</hash></megarom></dump>
+		<dump><original value="true">Author</original><megarom><type>Konami</type><hash algo="sha1">025ba6d1021eadf0c4ff1e189389b31adb08f6fe</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Genghis Khan - MSX1 Version</title>
@@ -5339,6 +5341,7 @@ Generation MSXIDs by www.generation-msx.nl
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f629b8f7133c3442d0371a4d84275fb2e0974854</hash></rom></dump>
+		<dump><rom><hash algo="sha1">9f0bba20e594b58b620eaf656daabbe2ddb365e2</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Iga Ninpouten 2 - The Mooncastle</title>
@@ -5350,6 +5353,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f52113b45062adc75cf7a0ed0538b3a07696cc24</hash></rom></dump>
 		<dump><rom><hash algo="sha1">3bb48bedf53a781f0470e0bb5ad2e7bba785310e</hash></rom></dump>
 		<dump><rom><hash algo="sha1">1f8b9ac28dbadaf5316770cd6a421c998e33a8cb</hash><remark><text>Ulver crack</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">3b24504189722babdcef68b82a5ff6bb7d3ec608</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Ikari</title>
@@ -5935,6 +5939,9 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">07448ffb20f260df159a19df2cae1ee5545a0aef</hash><remark><text>[RC-727]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">de4e210e6f757efc45e66be66b14cd6ec21b2ba7</hash><remark><text>[RC-727]</text></remark></rom></dump>
 		<dump><rom><hash algo="sha1">0f74234adda250d72d4147872cb421a3b6f26efa</hash><remark><text>[RC-727] / Ulver crack</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">3c27d2873203c6b634543737c1b5f27d0e0334a1</hash></rom></dump>
+		<dump><rom><hash algo="sha1">ef93082ea458824b8b2c7b967aedc529c3eb3d39</hash></rom></dump>
+		<dump><rom><hash algo="sha1">f063027d9e85c4b324d36c7716a72e4a7f68e7cc</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">King&#39;s Valley 2 - The Seal Of El Giza - MSX1 Version</title>
@@ -6392,6 +6399,7 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><original value="true">Author</original><rom><hash algo="sha1">d76a904dd88f7360fe79000c374f40a69b801325</hash><remark><text>English Version / MSX-DEV08 (v2)</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">03ae0eebbbf80f8e51c5892a74aa2b4f287a9319</hash><remark><text>Spanish Version / MSX-DEV08 (v2)</text></remark></rom></dump>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">761071622b60384ec38e964fa2b2ee12d3d0b2c9</hash><remark><text>Spanish Version / MSX-DEV08</text></remark></rom></dump>
+		<dump><rom><hash algo="sha1">75a59677275602e9a2b314fc077411b23754308f</hash><remark><text>Extended Version</text></remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Labyrinth</title>
@@ -11511,6 +11519,11 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">d54c4820cf311d9f456bf61873e76a201ef0ff68</hash><remark><text>Muffie Hack</text></remark></megarom></dump>
 		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">f2592e91c9682570401a0bbcac63464e4221c81b</hash><remark><text>Unhacked (needs mapper implementation)</text></remark></megarom></dump>
 		<dump><original value="true">Author</original><megarom><type>KonamiSCC</type><hash algo="sha1">440030109b3a0af8fa0c86dd216b5089761bd4f1</hash><remark><text>Kralizec farewall gift</text></remark></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">74bb8727365a78e3d63b7f0fd159f759a7a5e219</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">8e017cb41612a1a6cee87aac48cb55e78d3971b3</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">00d7e55053f990110086bb9481d19a5576e1169b</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">a73f674ef23c86d8a6ad11c56a3935856b6c5c0d</hash></megarom></dump>
+		<dump><megarom><type>KonamiSCC</type><hash algo="sha1">7f912a38001fd880dc58c7d3da5e603c1de59c08</hash></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">The Karuizawa Kidnapping Guidance</title>
@@ -12755,6 +12768,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3178
-Created on Sat Jul 13 9:12:43 CEST 2013
+Roms in this XML file:3191
+Created on Sat Jul 13 10:00:42 CEST 2013
  -->
