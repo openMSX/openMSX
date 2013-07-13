@@ -217,16 +217,16 @@ byte Joystick::read(EmuTime::param /*time*/)
 	return status;
 }
 
-void Joystick::write(byte /*value*/, EmuTime::param /*time*/)
+void Joystick::write(byte value, EmuTime::param /*time*/)
 {
-	// nothing
+	pin8 = value & 0x04;
 }
 
 byte Joystick::calcState()
 {
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
-	if (joystick) {
+	if (joystick && !pin8) {
 		const TclObject& dict = configSetting->getValue();
 		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
 		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
@@ -337,6 +337,7 @@ void Joystick::serialize(Archive& ar, unsigned version)
 			plugHelper2();
 		}
 	}
+	// no need to serialize 'pin8' it's automatically restored via write()
 }
 INSTANTIATE_SERIALIZE_METHODS(Joystick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");

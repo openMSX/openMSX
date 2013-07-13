@@ -100,12 +100,12 @@ void KeyJoystick::unplugHelper(EmuTime::param /*time*/)
 // KeyJoystickDevice
 byte KeyJoystick::read(EmuTime::param /*time*/)
 {
-	return status;
+	return pin8 ? 0x3F : status;
 }
 
-void KeyJoystick::write(byte /*value*/, EmuTime::param /*time*/)
+void KeyJoystick::write(byte value, EmuTime::param /*time*/)
 {
-	// nothing
+	pin8 = value & 0x04;
 }
 
 
@@ -184,6 +184,7 @@ void KeyJoystick::serialize(Archive& ar, unsigned version)
 	if (ar.isLoader() && isPluggedIn()) {
 		plugHelper(*getConnector(), EmuTime::dummy());
 	}
+	// no need to serialize 'pin8'
 }
 INSTANTIATE_SERIALIZE_METHODS(KeyJoystick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, KeyJoystick, "KeyJoystick");

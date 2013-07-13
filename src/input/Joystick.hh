@@ -75,6 +75,7 @@ private:
 	const std::string desc;
 
 	byte status;
+	bool pin8;
 #endif // SDL_JOYSTICK_DISABLED
 };
 SERIALIZE_CLASS_VERSION(Joystick, 2);
