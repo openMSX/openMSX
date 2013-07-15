@@ -1,5 +1,4 @@
 #include "RomDatabase.hh"
-#include "RomInfo.hh"
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -10,7 +9,6 @@
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "MemBuffer.hh"
 #include "StringMap.hh"
 #include "rapidsax.hh"
 #include "unreachable.hh"
@@ -38,15 +36,14 @@ private:
 };
 
 
-
 typedef StringMap<unsigned> UnknownTypes;
 
 class DBParser : public rapidsax::NullHandler
 {
 public:
-	DBParser(RomDatabase::DBMap& romDBSHA1_, UnknownTypes& unknownTypes_,
+	DBParser(RomDatabase::DBMap& db_, UnknownTypes& unknownTypes_,
 	         CliComm& cliComm_)
-		: romDBSHA1(romDBSHA1_)
+		: db(db_)
 		, unknownTypes(unknownTypes_)
 		, cliComm(cliComm_)
 		, state(BEGIN)
@@ -97,7 +94,7 @@ private:
 		bool origValue;
 	};
 
-	RomDatabase::DBMap& romDBSHA1;
+	RomDatabase::DBMap& db;
 	UnknownTypes& unknownTypes;
 	CliComm& cliComm;
 	set<Sha1Sum> sums;
@@ -365,8 +362,8 @@ void DBParser::addEntries()
 			continue;
 		}
 
-		auto it = romDBSHA1.find(d.hash);
-		if (it != romDBSHA1.end()) {
+		auto it = db.find(d.hash);
+		if (it != db.end()) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
 			continue;
@@ -375,7 +372,7 @@ void DBParser::addEntries()
 		string r = remarks;
 		joinRemarks(r, d.remarks);
 
-		romDBSHA1.insert(std::make_pair(d.hash, RomInfo(
+		db.insert(std::make_pair(d.hash, RomInfo(
 			title, year, company, country,
 			d.origValue, d.origData, r, d.type,
 			genMSXid)));
@@ -478,15 +475,16 @@ void DBParser::doctype(string_ref text)
 }
 
 static void parseDB(CliComm& cliComm, const string& filename,
-                    RomDatabase::DBMap& romDBSHA1, UnknownTypes& unknownTypes)
+                    MemBuffer<char>& buf, RomDatabase::DBMap& db,
+                    UnknownTypes& unknownTypes)
 {
 	File file(filename);
 	auto size = file.getSize();
-	MemBuffer<char> buf(size + 1);
+	buf.resize(size + 1);
 	file.read(buf.data(), size);
 	buf[size] = 0;
 
-	DBParser handler(romDBSHA1, unknownTypes, cliComm);
+	DBParser handler(db, unknownTypes, cliComm);
 	rapidsax::parse<rapidsax::trimWhitespace>(handler, buf.data());
 
 	if (handler.getSystemID() != "softwaredb1.dtd") {
@@ -507,7 +505,8 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	for (auto& p : paths) {
 		string filename = FileOperations::join(p, "softwaredb.xml");
 		try {
-			parseDB(cliComm, filename, romDBSHA1, unknownTypes);
+			buffers.push_back(MemBuffer<char>());
+			parseDB(cliComm, filename, buffers.back(), db, unknownTypes);
 		} catch (rapidsax::ParseError& e) {
 			cliComm.printWarning(StringOp::Builder() <<
 				"Rom database parsing failed: " << e.what());
@@ -518,7 +517,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 			// warning, but that's done below.
 		}
 	}
-	if (romDBSHA1.empty()) {
+	if (db.empty()) {
 		cliComm.printWarning(
 			"Couldn't load software database.\n"
 			"This may cause incorrect ROM mapper types to be used.");
@@ -539,8 +538,8 @@ RomDatabase::~RomDatabase()
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = romDBSHA1.find(sha1sum);
-	return (it == romDBSHA1.end()) ? nullptr : &it->second;
+	auto it = db.find(sha1sum);
+	return (it == db.end()) ? nullptr : &it->second;
 }
 
 

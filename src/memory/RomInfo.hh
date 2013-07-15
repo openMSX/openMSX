@@ -12,11 +12,22 @@ class CliComm;
 class RomInfo
 {
 public:
-	RomInfo(string_ref id,      string_ref year,
-	        string_ref company, string_ref country,
-	        bool original,      string_ref origType,
-	        string_ref remark,  const RomType& romType,
-	        int genMSXid);
+	RomInfo(string_ref title_,    string_ref year_,
+                string_ref company_,  string_ref country_,
+                bool original_,       string_ref origType_,
+                std::string remark_,  RomType romType_,
+                int genMSXid_)
+		: title   (title_)
+		, year    (year_)
+		, company (company_)
+		, country (country_)
+		, origType(origType_)
+		, remark  (remark_)
+		, romType(romType_)
+		, genMSXid(genMSXid_)
+		, original(original_)
+	{
+	}
 
 	RomInfo(RomInfo&& other)
 		: title   (std::move(other.title))
@@ -45,13 +56,13 @@ public:
 		return *this;
 	}
 
-	const std::string& getTitle()     const { return title; }
-	const std::string& getYear()      const { return year; }
-	const std::string& getCompany()   const { return company; }
-	const std::string& getCountry()   const { return country; }
-	const std::string& getOrigType()  const { return origType; }
+	const string_ref   getTitle()     const { return title; }
+	const string_ref   getYear()      const { return year; }
+	const string_ref   getCompany()   const { return company; }
+	const string_ref   getCountry()   const { return country; }
+	const string_ref   getOrigType()  const { return origType; }
 	const std::string& getRemark()    const { return remark; }
-	const RomType&     getRomType()   const { return romType; }
+	RomType            getRomType()   const { return romType; }
 	bool               getOriginal()  const { return original; }
 	int                getGenMSXid()  const { return genMSXid; }
 
@@ -62,11 +73,11 @@ public:
 	static unsigned   getBlockSize  (RomType type);
 
 private:
-	std::string title;
-	std::string year;
-	std::string company;
-	std::string country;
-	std::string origType;
+	string_ref title;
+	string_ref year;
+	string_ref company;
+	string_ref country;
+	string_ref origType;
 	std::string remark;
 	RomType romType;
 	int genMSXid;

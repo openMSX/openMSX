@@ -161,23 +161,6 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 	return romTypeInfoMap;
 }
 
-RomInfo::RomInfo(string_ref ntitle,   string_ref nyear,
-                 string_ref ncompany, string_ref ncountry,
-                 bool noriginal,      string_ref norigType,
-                 string_ref nremark,  const RomType& nromType,
-                 int ngenMSXid)
-	: title   (ntitle   .str())
-	, year    (nyear    .str())
-	, company (ncompany .str())
-	, country (ncountry .str())
-	, origType(norigType.str())
-	, remark  (nremark  .str())
-	, romType(nromType)
-	, genMSXid(ngenMSXid)
-	, original(noriginal)
-{
-}
-
 RomType RomInfo::nameToRomType(string_ref name)
 {
 	auto& romTypeMap = getRomTypeMap();
