@@ -365,8 +365,8 @@ void DBParser::addEntries()
 			continue;
 		}
 
-		auto& ptr = romDBSHA1[d.hash];
-		if (ptr) {
+		auto it = romDBSHA1.find(d.hash);
+		if (it != romDBSHA1.end()) {
 			// User database already had this entry, don't overwrite
 			// with the value from the system database.
 			continue;
@@ -375,10 +375,10 @@ void DBParser::addEntries()
 		string r = remarks;
 		joinRemarks(r, d.remarks);
 
-		ptr = make_unique<RomInfo>(
+		romDBSHA1.insert(std::make_pair(d.hash, RomInfo(
 			title, year, company, country,
 			d.origValue, d.origData, r, d.type,
-			genMSXid);
+			genMSXid)));
 	}
 }
 
@@ -540,7 +540,7 @@ RomDatabase::~RomDatabase()
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
 	auto it = romDBSHA1.find(sha1sum);
-	return (it == romDBSHA1.end()) ? nullptr : it->second.get();
+	return (it == romDBSHA1.end()) ? nullptr : &it->second;
 }
 
 

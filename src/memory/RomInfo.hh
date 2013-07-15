@@ -18,6 +18,33 @@ public:
 	        string_ref remark,  const RomType& romType,
 	        int genMSXid);
 
+	RomInfo(RomInfo&& other)
+		: title   (std::move(other.title))
+		, year    (std::move(other.year))
+		, company (std::move(other.company))
+		, country (std::move(other.country))
+		, origType(std::move(other.origType))
+		, remark  (std::move(other.remark))
+		, romType (std::move(other.romType))
+		, genMSXid(std::move(other.genMSXid))
+		, original(std::move(other.original))
+	{
+	}
+
+	RomInfo& operator=(RomInfo&& other)
+	{
+		title    = std::move(other.title);
+		year     = std::move(other.year);
+		company  = std::move(other.company);
+		country  = std::move(other.country);
+		origType = std::move(other.origType);
+		remark   = std::move(other.remark);
+		romType  = std::move(other.romType);
+		genMSXid = std::move(other.genMSXid);
+		original = std::move(other.original);
+		return *this;
+	}
+
 	const std::string& getTitle()     const { return title; }
 	const std::string& getYear()      const { return year; }
 	const std::string& getCompany()   const { return company; }
@@ -35,15 +62,15 @@ public:
 	static unsigned   getBlockSize  (RomType type);
 
 private:
-	const std::string title;
-	const std::string year;
-	const std::string company;
-	const std::string country;
-	const std::string origType;
-	const std::string remark;
-	const RomType romType;
-	const int genMSXid;
-	const bool original;
+	std::string title;
+	std::string year;
+	std::string company;
+	std::string country;
+	std::string origType;
+	std::string remark;
+	RomType romType;
+	int genMSXid;
+	bool original;
 };
 
 } // namespace openmsx

@@ -17,7 +17,7 @@ class GlobalCommandController;
 class RomDatabase : private noncopyable
 {
 public:
-	typedef std::map<Sha1Sum, std::unique_ptr<RomInfo>> DBMap;
+	typedef std::map<Sha1Sum, RomInfo> DBMap;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
