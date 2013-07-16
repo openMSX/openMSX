@@ -8,7 +8,9 @@
 #include "StringOp.hh"
 #include "MemoryOps.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include "stringsp.hh" // for strncasecmp
+#include <algorithm>
 #include <cstring> // for memcpy, memcmp
 #include <cstdlib> // for atoi
 
@@ -458,17 +460,19 @@ void OggReader::readMetadata(th_comment& tc)
 			++p;
 			size_t frame = atol(p);
 			if (frame) {
-				chapters[chapter] = frame;
+				chapters.push_back(std::make_pair(chapter, frame));
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			size_t stopframe = atol(p + 6);
 			if (stopframe) {
-				stopFrames.insert(stopframe);
+				stopFrames.push_back(stopframe);
 			}
 		}
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
+	sort(stopFrames.begin(), stopFrames.end());
+	sort(chapters  .begin(), chapters  .end(), LessTupleElement<0>());
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -973,13 +977,15 @@ bool OggReader::seek(size_t frame, size_t samples)
 
 bool OggReader::stopFrame(size_t frame) const
 {
-	return stopFrames.find(frame) != stopFrames.end();
+	return std::binary_search(stopFrames.begin(), stopFrames.end(), frame);
 }
 
 size_t OggReader::chapter(int chapterNo) const
 {
-	auto it = chapters.find(chapterNo);
-	return (it != chapters.end()) ? it->second : 0;
+	auto it = std::lower_bound(chapters.begin(), chapters.end(),
+	                           chapterNo, LessTupleElement<0>());
+	return ((it != chapters.end()) && (it->first == chapterNo))
+		? it->second : 0;
 }
 
 } // namespace openmsx
