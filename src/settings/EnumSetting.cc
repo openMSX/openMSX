@@ -4,29 +4,28 @@
 #include "CommandException.hh"
 #include "stringsp.hh"
 #include "unreachable.hh"
+#include "StringOp.hh"
+#include "stl.hh"
+#include <algorithm>
 
 namespace openmsx {
+
+typedef CmpTupleElement<0, StringOp::caseless> Comp;
 
 EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	: baseMap(std::move(map))
 {
+	sort(baseMap.begin(), baseMap.end(), Comp());
 }
 
-int EnumSettingBase::fromStringBase(string_ref str_) const
+int EnumSettingBase::fromStringBase(string_ref str) const
 {
-	// An alternative we used in the past is to use StringOp::caseless
-	// as the map comparator functor. This requires to #include StringOp.hh
-	// in the header file. Because this header is included in many other
-	// files, we prefer not to do that.
-	// These maps are usually very small, so there is no disadvantage on
-	// using a O(n) search here (instead of O(log n)).
-	std::string str = str_.str();
-	for (auto& p : baseMap) {
-		if (strcasecmp(str.c_str(), p.first.c_str()) == 0) {
-			return p.second;
-		}
+	auto it = lower_bound(baseMap.begin(), baseMap.end(), str, Comp());
+	StringOp::casecmp cmp;
+	if ((it == baseMap.end()) || !cmp(it->first, str)) {
+		throw CommandException("not a valid value: " + str);
 	}
-	throw CommandException("not a valid value: " + str);
+	return it->second;
 }
 
 string_ref EnumSettingBase::toStringBase(int value) const

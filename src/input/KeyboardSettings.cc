@@ -21,20 +21,20 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		true))
 {
 	EnumSetting<Keys::KeyCode>::Map allowedKeys;
-	allowedKeys["RALT"]        = Keys::K_RALT;
-	allowedKeys["MENU"]        = Keys::K_MENU;
-	allowedKeys["RCTRL"]       = Keys::K_RCTRL;
-	allowedKeys["HENKAN_MODE"] = Keys::K_HENKAN_MODE;
-	allowedKeys["RSHIFT"]      = Keys::K_RSHIFT;
-	allowedKeys["RMETA"]       = Keys::K_RMETA;
-	allowedKeys["LMETA"]       = Keys::K_LMETA;
-	allowedKeys["LSUPER"]      = Keys::K_LSUPER;
-	allowedKeys["RSUPER"]      = Keys::K_RSUPER;
-	allowedKeys["HELP"]        = Keys::K_HELP;
-	allowedKeys["UNDO"]        = Keys::K_UNDO;
-	allowedKeys["END"]         = Keys::K_END;
-	allowedKeys["PAGEUP"]      = Keys::K_PAGEUP;
-	allowedKeys["PAGEDOWN"]    = Keys::K_PAGEDOWN;
+	allowedKeys.push_back(std::make_pair("RALT",        Keys::K_RALT));
+	allowedKeys.push_back(std::make_pair("MENU",        Keys::K_MENU));
+	allowedKeys.push_back(std::make_pair("RCTRL",       Keys::K_RCTRL));
+	allowedKeys.push_back(std::make_pair("HENKAN_MODE", Keys::K_HENKAN_MODE));
+	allowedKeys.push_back(std::make_pair("RSHIFT",      Keys::K_RSHIFT));
+	allowedKeys.push_back(std::make_pair("RMETA",       Keys::K_RMETA));
+	allowedKeys.push_back(std::make_pair("LMETA",       Keys::K_LMETA));
+	allowedKeys.push_back(std::make_pair("LSUPER",      Keys::K_LSUPER));
+	allowedKeys.push_back(std::make_pair("RSUPER",      Keys::K_RSUPER));
+	allowedKeys.push_back(std::make_pair("HELP",        Keys::K_HELP));
+	allowedKeys.push_back(std::make_pair("UNDO",        Keys::K_UNDO));
+	allowedKeys.push_back(std::make_pair("END",         Keys::K_END));
+	allowedKeys.push_back(std::make_pair("PAGEUP",      Keys::K_PAGEUP));
+	allowedKeys.push_back(std::make_pair("PAGEDOWN",    Keys::K_PAGEDOWN));
 	codeKanaHostKey = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
@@ -56,16 +56,16 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		Keys::K_PAGEDOWN, allowedKeys);
 
 	EnumSetting<KpEnterMode>::Map kpEnterModeMap;
-	kpEnterModeMap["KEYPAD_COMMA"] = MSX_KP_COMMA;
-	kpEnterModeMap["ENTER"] = MSX_ENTER;
+	kpEnterModeMap.push_back(std::make_pair("KEYPAD_COMMA", MSX_KP_COMMA));
+	kpEnterModeMap.push_back(std::make_pair("ENTER",        MSX_ENTER));
 	kpEnterMode = make_unique<EnumSetting<KpEnterMode>>(
 		commandController, "kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",
 		MSX_KP_COMMA, kpEnterModeMap);
 
 	EnumSetting<MappingMode>::Map mappingModeMap;
-	mappingModeMap["KEY"] = KEY_MAPPING;
-	mappingModeMap["CHARACTER"] = CHARACTER_MAPPING;
+	mappingModeMap.push_back(std::make_pair("KEY",       KEY_MAPPING));
+	mappingModeMap.push_back(std::make_pair("CHARACTER", CHARACTER_MAPPING));
 	mappingMode = make_unique<EnumSetting<MappingMode>>(
 		commandController, "kbd_mapping_mode",
 		"Keyboard mapping mode",

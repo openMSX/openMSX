@@ -123,15 +123,15 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	// placement
 	EnumSetting<Placement>::Map placeMap;
-	placeMap["topleft"]     = CP_TOPLEFT;
-	placeMap["top"]         = CP_TOP;
-	placeMap["topright"]    = CP_TOPRIGHT;
-	placeMap["left"]        = CP_LEFT;
-	placeMap["center"]      = CP_CENTER;
-	placeMap["right"]       = CP_RIGHT;
-	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
-	placeMap["bottom"]      = CP_BOTTOM;
-	placeMap["bottomright"] = CP_BOTTOMRIGHT;
+	placeMap.push_back(std::make_pair("topleft",     CP_TOPLEFT));
+	placeMap.push_back(std::make_pair("top",         CP_TOP));
+	placeMap.push_back(std::make_pair("topright",    CP_TOPRIGHT));
+	placeMap.push_back(std::make_pair("left",        CP_LEFT));
+	placeMap.push_back(std::make_pair("center",      CP_CENTER));
+	placeMap.push_back(std::make_pair("right",       CP_RIGHT));
+	placeMap.push_back(std::make_pair("bottomleft",  CP_BOTTOMLEFT));
+	placeMap.push_back(std::make_pair("bottom",      CP_BOTTOM));
+	placeMap.push_back(std::make_pair("bottomright", CP_BOTTOMRIGHT));
 	consolePlacementSetting = make_unique<EnumSetting<Placement>>(
 		commandController, "consoleplacement",
 		"position of the console within the emulator",

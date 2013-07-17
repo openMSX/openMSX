@@ -35,9 +35,9 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
 		"");
 	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap;
-	resampleMap["hq"]   = ResampledSoundDevice::RESAMPLE_HQ;
-	resampleMap["fast"] = ResampledSoundDevice::RESAMPLE_LQ;
-	resampleMap["blip"] = ResampledSoundDevice::RESAMPLE_BLIP;
+	resampleMap.push_back(std::make_pair("hq",   ResampledSoundDevice::RESAMPLE_HQ));
+	resampleMap.push_back(std::make_pair("fast", ResampledSoundDevice::RESAMPLE_LQ));
+	resampleMap.push_back(std::make_pair("blip", ResampledSoundDevice::RESAMPLE_BLIP));
 	resampleSetting = make_unique<EnumSetting<ResampledSoundDevice::ResampleType>>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX

@@ -97,19 +97,19 @@ unique_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)
 {
 	EnumSetting<RendererID>::Map rendererMap;
-	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
-	rendererMap["SDL"] = SDL;
+	rendererMap.push_back(std::make_pair("none", DUMMY)); // TODO: only register when in CliComm mode
+	rendererMap.push_back(std::make_pair("SDL", SDL));
 #if COMPONENT_GL
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
-	rendererMap["SDLGL-PP"] = SDLGL_PP;
+	rendererMap.push_back(std::make_pair("SDLGL-PP", SDLGL_PP));
 	if (!Version::RELEASE) {
 		// disabled for the release:
 		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		// TODO is this still true now that SDLGL is removed?
-		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
-		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+		rendererMap.push_back(std::make_pair("SDLGL-FB16", SDLGL_FB16));
+		rendererMap.push_back(std::make_pair("SDLGL-FB32", SDLGL_FB32));
 	}
 #endif
 	auto setting = make_unique<RendererSetting>(commandController,

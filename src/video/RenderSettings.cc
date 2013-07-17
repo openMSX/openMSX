@@ -18,9 +18,9 @@ namespace openmsx {
 RenderSettings::RenderSettings(CommandController& commandController)
 {
 	EnumSetting<Accuracy>::Map accMap;
-	accMap["screen"] = ACC_SCREEN;
-	accMap["line"]   = ACC_LINE;
-	accMap["pixel"]  = ACC_PIXEL;
+	accMap.push_back(std::make_pair("screen", ACC_SCREEN));
+	accMap.push_back(std::make_pair("line",   ACC_LINE));
+	accMap.push_back(std::make_pair("pixel",  ACC_PIXEL));
 	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
 		"accuracy", "rendering accuracy", ACC_PIXEL, accMap);
 
@@ -87,19 +87,19 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	rendererSetting = RendererFactory::createRendererSetting(commandController);
 
 	EnumSetting<ScaleAlgorithm>::Map scalerMap;
-	scalerMap["simple"] = SCALER_SIMPLE;
+	scalerMap.push_back(std::make_pair("simple", SCALER_SIMPLE));
 	if (MAX_SCALE_FACTOR > 1) {
-		scalerMap["SaI"] = SCALER_SAI;
-		scalerMap["ScaleNx"] = SCALER_SCALE;
-		scalerMap["hq"] = SCALER_HQ;
-		scalerMap["hqlite"] = SCALER_HQLITE;
-		scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
-		scalerMap["TV"] = SCALER_TV;
+		scalerMap.push_back(std::make_pair("SaI",        SCALER_SAI));
+		scalerMap.push_back(std::make_pair("ScaleNx",    SCALER_SCALE));
+		scalerMap.push_back(std::make_pair("hq",         SCALER_HQ));
+		scalerMap.push_back(std::make_pair("hqlite",     SCALER_HQLITE));
+		scalerMap.push_back(std::make_pair("RGBtriplet", SCALER_RGBTRIPLET));
+		scalerMap.push_back(std::make_pair("TV",         SCALER_TV));
 		if (!Version::RELEASE) {
 			// This scaler is not ready yet for the upcoming 0.8.1
 			// release, so disable it. As soon as it is ready we
 			// can remove this test.
-			scalerMap["MLAA"] = SCALER_MLAA;
+			scalerMap.push_back(std::make_pair("MLAA", SCALER_MLAA));
 		}
 	}
 	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
@@ -123,15 +123,15 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		false, Setting::DONT_SAVE);
 
 	EnumSetting<bool>::Map cmdMap;
-	cmdMap["real"]   = false;
-	cmdMap["broken"] = true;
+	cmdMap.push_back(std::make_pair("real",   false));
+	cmdMap.push_back(std::make_pair("broken", true));
 	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE);
 
 	EnumSetting<DisplayDeform>::Map deformMap;
-	deformMap["normal"] = DEFORM_NORMAL;
-	deformMap["3d"] = DEFORM_3D;
+	deformMap.push_back(std::make_pair("normal", DEFORM_NORMAL));
+	deformMap.push_back(std::make_pair("3d",     DEFORM_3D));
 	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "

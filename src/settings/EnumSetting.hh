@@ -2,7 +2,9 @@
 #define ENUMSETTING_HH
 
 #include "Setting.hh"
-#include <map>
+#include <iterator>
+#include <utility>
+#include <vector>
 
 namespace openmsx {
 
@@ -12,7 +14,8 @@ class TclObject;
 class EnumSettingBase
 {
 protected:
-	typedef std::map<std::string, int> BaseMap;
+	// cannot be string_ref because of the 'default_machine' setting
+	typedef std::vector<std::pair<std::string, int>> BaseMap;
 	EnumSettingBase(BaseMap&& m);
 
 	int fromStringBase(string_ref str) const;
@@ -29,7 +32,7 @@ private:
 template<typename T> class EnumSetting : private EnumSettingBase, public Setting
 {
 public:
-	typedef std::map<std::string, T> Map;
+	typedef std::vector<std::pair<std::string, T>> Map;
 
 	EnumSetting(CommandController& commandController, string_ref name,
 	            string_ref description, T initialValue,
@@ -55,7 +58,8 @@ EnumSetting<T>::EnumSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, T initialValue,
 		Map& map, SaveSetting save)
-	: EnumSettingBase(BaseMap(map.begin(), map.end()))
+	: EnumSettingBase(BaseMap(std::make_move_iterator(map.begin()),
+	                          std::make_move_iterator(map.end())))
 	, Setting(commandController, name, description,
 	          toString(initialValue).str(), save)
 {
