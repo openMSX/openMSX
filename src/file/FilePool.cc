@@ -15,12 +15,15 @@
 #include "StringOp.hh"
 #include "memory.hh"
 #include "sha1.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include <fstream>
 #include <cassert>
 
-using std::endl;
 using std::ifstream;
+using std::get;
 using std::make_pair;
+using std::make_tuple;
 using std::ofstream;
 using std::pair;
 using std::string;
@@ -80,14 +83,25 @@ FilePool::~FilePool()
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	auto it = pool.insert(make_pair(sum, make_pair(time, filename)));
-	reversePool.insert(make_pair(it->second.second, it));
+	auto it1 = upper_bound(pool.begin(), pool.end(), sum,
+	                       LessTupleElement<0>());
+	auto it = pool.insert(it1, make_tuple(sum, time, filename));
+	string_ref filenameRef = get<2>(*it);
+	auto it2 = lower_bound(reversePool.begin(), reversePool.end(), filenameRef,
+	                       LessTupleElement<0>());
+	// filename cannot be present already
+	assert((it2 == reversePool.end()) || (it2->first != filenameRef));
+	reversePool.insert(it2, make_pair(filenameRef, sum));
 	needWrite = true;
 }
 
 void FilePool::remove(Pool::iterator it)
 {
-	reversePool.erase(it->second.second);
+	string_ref filenameRef = get<2>(*it);
+	auto it2 = lower_bound(reversePool.begin(), reversePool.end(), filenameRef,
+	                       LessTupleElement<0>());
+	assert((it2 != reversePool.end()) && (it2->first == filenameRef));
+	reversePool.erase(it2);
 	pool.erase(it);
 	needWrite = true;
 }
@@ -111,6 +125,9 @@ static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filen
 
 void FilePool::readSha1sums()
 {
+	assert(pool.empty());
+	assert(reversePool.empty());
+
 	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
 	ifstream file(cacheFile.c_str());
 	string line;
@@ -120,9 +137,20 @@ void FilePool::readSha1sums()
 	while (file.good()) {
 		getline(file, line);
 		if (parse(line, sum, time, filename)) {
-			insert(sum, time, filename);
+			pool.push_back(make_tuple(sum, time, filename));
+			string_ref filenameRef = get<2>(pool.back());
+			reversePool.push_back(make_pair(filenameRef, sum)); // not sorted
 		}
 	}
+
+	if (!std::is_sorted(pool.begin(), pool.end(), LessTupleElement<0>())) {
+		// This should _rarely_ happen. In fact it should only happen
+		// when .filecache was manually edited. Though because it's
+		// very important that pool is indeed sorted I've added this
+		// safety mechanism.
+		sort(pool.begin(), pool.end(), LessTupleElement<0>());
+	}
+	sort(reversePool.begin(), reversePool.end(), LessTupleElement<0>());
 }
 
 void FilePool::writeSha1sums()
@@ -134,9 +162,9 @@ void FilePool::writeSha1sums()
 		return;
 	}
 	for (auto& p : pool) {
-		file << p.first.toString() << "  "             // sum
-		     << Date::toString(p.second.first) << "  " // date
-		     << p.second.second                        // filename
+		file << get<0>(p).toString()      << "  " // sum
+		     << Date::toString(get<1>(p)) << "  " // date
+		     << get<2>(p)                         // filename
 		     << '\n';
 	}
 }
@@ -246,11 +274,12 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 
 unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = pool.equal_range(sha1sum);
+	auto bound = equal_range(pool.begin(), pool.end(), sha1sum,
+	                         LessTupleElement<0>());
 	auto it = bound.first;
 	while (it != bound.second) {
-		auto& time = it->second.first;
-		const auto& filename = it->second.second;
+		auto& time = get<1>(*it);
+		const auto& filename = get<2>(*it);
 		try {
 			auto file = make_unique<File>(filename);
 			auto newTime = file->getModificationDate();
@@ -343,12 +372,12 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 		}
 	} else {
 		// already in pool
-		assert(filename == it->second.second);
+		assert(filename == get<2>(*it));
 		try {
 			auto time = FileOperations::getModificationDate(st);
-			if (time == it->second.first) {
+			if (time == get<1>(*it)) {
 				// db is still up to date
-				if (it->first == sha1sum) {
+				if (get<0>(*it) == sha1sum) {
 					return make_unique<File>(filename);
 				}
 			} else {
@@ -371,11 +400,17 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 {
-	auto it = reversePool.find(filename);
-	if (it != reversePool.end()) {
-		return it->second;
+	auto it = lower_bound(reversePool.begin(), reversePool.end(), filename,
+	                      LessTupleElement<0>());
+	if ((it == reversePool.end()) || (it->first != filename)) return pool.end();
+
+	auto p = equal_range(pool.begin(), pool.end(), it->second,
+	                     LessTupleElement<0>());
+	assert(p.first != p.second);
+	for (auto i = p.first; i != p.second; ++i) {
+		if (get<2>(*i) == filename) return i;
 	}
-	return pool.end();
+	UNREACHABLE;
 }
 
 
@@ -387,9 +422,9 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	auto it = findInDatabase(filename);
 	if (it != pool.end()) {
 		// in database
-		if (time == it->second.first) {
+		if (time == get<1>(*it)) {
 			// modification time matches, assume sha1sum also matches
-			return it->first;
+			return get<0>(*it);
 		} else {
 			// mismatch, remove from db and re-calculate
 			remove(it);
