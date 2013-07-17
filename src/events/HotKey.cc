@@ -371,7 +371,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	// Convert special 'repeat' event into the actual to-be-repeated event.
 	EventPtr event = event_;
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
-		if (!lastEvent) return true;
+		if (!lastEvent) return 0;
 		event = lastEvent;
 	} else if (lastEvent != event) {
 		// If the newly received event is different from the repeating

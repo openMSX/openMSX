@@ -265,8 +265,7 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 			if (handleEvent(keyEvent)) {
 				// event was used
 				display.repaintDelayed(40000); // 25fps
-				return EventDistributor::HOTKEY |
-				       EventDistributor::MSX;
+				return EventDistributor::HOTKEY; // block HOTKEY and MSX
 			}
 		} else {
 			// For commands that take a long time to execute (e.g.
@@ -278,7 +277,7 @@ int CommandConsole::signalEvent(const std::shared_ptr<const Event>& event)
 	} else {
 		assert(event->getType() == OPENMSX_KEY_UP_EVENT);
 	}
-	return EventDistributor::MSX;
+	return EventDistributor::MSX; // block MSX
 }
 
 bool CommandConsole::handleEvent(const KeyEvent& keyEvent)

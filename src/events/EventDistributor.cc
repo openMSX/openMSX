@@ -2,7 +2,7 @@
 #include "EventListener.hh"
 #include "Reactor.hh"
 #include "Thread.hh"
-#include "openmsx.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -13,6 +13,7 @@ namespace openmsx {
 
 EventDistributor::EventDistributor(Reactor& reactor_)
 	: reactor(reactor_)
+	, listeners(NUM_EVENT_TYPES)
 	, sem(1)
 {
 }
@@ -26,7 +27,10 @@ void EventDistributor::registerEventListener(
 		// a listener may only be registered once for each type
 		assert(p.second != &listener); (void)p;
 	}
-	priorityMap.insert(PriorityMap::value_type(priority, &listener));
+	// insert at highest position that keeps listeners sorted on priority
+	auto it = upper_bound(priorityMap.begin(), priorityMap.end(), priority,
+	                      LessTupleElement<0>());
+	priorityMap.insert(it, std::make_pair(priority, &listener));
 }
 
 void EventDistributor::unregisterEventListener(
@@ -65,10 +69,7 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 
 bool EventDistributor::isRegistered(EventType type, EventListener* listener) const
 {
-	auto it = listeners.find(type);
-	if (it == listeners.end()) return false;
-
-	for (auto& p : it->second) {
+	for (auto& p : listeners[type]) {
 		if (p.second == listener) {
 			return true;
 		}
@@ -96,19 +97,19 @@ void EventDistributor::deliverEvents()
 			auto type = event->getType();
 			auto priorityMapCopy = listeners[type];
 			sem.up();
-			unsigned allowPriorities = unsigned(-1); // all priorities
+			unsigned blockPriority = unsigned(-1); // allow all
 			for (auto& p : priorityMapCopy) {
 				// It's possible delivery to one of the previous
 				// Listeners unregistered the current Listener.
 				if (!isRegistered(type, p.second)) continue;
 
 				unsigned currentPriority = p.first;
-				if (!(currentPriority & allowPriorities)) continue;
+				if (currentPriority >= blockPriority) break;
 
-				unsigned maskPriorities = p.second->signalEvent(event);
-
-				assert(maskPriorities < currentPriority);
-				allowPriorities &= ~maskPriorities;
+				if (unsigned block = p.second->signalEvent(event)) {
+					assert(block > currentPriority);
+					blockPriority = block;
+				}
 			}
 			sem.down();
 		}

@@ -83,6 +83,8 @@ enum EventType
 	OPENMSX_RS232_TESTER_EVENT,
 	OPENMSX_AFTER_REALTIME_EVENT,
 	OPENMSX_POINTER_TIMER_EVENT,
+
+	NUM_EVENT_TYPES // must be last
 };
 
 class Event : private noncopyable
