@@ -4,11 +4,11 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
+#include "stl.hh"
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-
-using std::string;
 
 namespace openmsx {
 
@@ -98,7 +98,7 @@ static bool segmentStartsWith(const char* begin, const char* end, const char (&s
 UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 	: emptyInfo(KeyInfo())
 {
-	string filename = SystemFileContext().resolve(
+	auto filename = SystemFileContext().resolve(
 		"unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
@@ -114,8 +114,10 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 {
-	auto it = mapdata.find(unicode);
-	return (it == mapdata.end()) ? emptyInfo : it->second;
+	auto it = lower_bound(mapdata.begin(), mapdata.end(), unicode,
+	                      LessTupleElement<0>());
+	return ((it != mapdata.end()) && (it->first == unicode))
+		? it->second : emptyInfo;
 }
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
@@ -201,7 +203,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 			} else {
 				throw MSXException(StringOp::Builder()
 					<< "Invalid modifier \""
-					<< string(begin, tokenEnd)
+					<< string_ref(begin, tokenEnd)
 					<< "\" in keymap file");
 			}
 			begin = skipSep(tokenEnd, end);
@@ -215,9 +217,10 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 			KeyInfo info((rowcol >> 4) & 0x0f, // row
 							1 << (rowcol & 7),    // keymask
 							modmask);             // modmask
-			mapdata.insert(std::make_pair(unicode, info));
+			mapdata.push_back(std::make_pair(unicode, info));
 		}
 	}
+	sort(mapdata.begin(), mapdata.end(), LessTupleElement<0>());
 }
 
 } // namespace openmsx
