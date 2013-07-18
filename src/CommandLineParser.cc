@@ -193,8 +193,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 
 	registerOption("-machine",    *machineOption, PHASE_BEFORE_MACHINE);
 
-	registerFileClass("Tcl script", *scriptOption);
-	registerFileTypes();
+	registerFileType("tcl", *scriptOption);
 }
 
 CommandLineParser::~CommandLineParser()
@@ -211,33 +210,11 @@ void CommandLineParser::registerOption(
 	optionMap[str] = temp;
 }
 
-void CommandLineParser::registerFileClass(
-	const char* str, CLIFileType& cliFileType)
+void CommandLineParser::registerFileType(
+	string_ref extensions, CLIFileType& cliFileType)
 {
-	fileClassMap[str] = &cliFileType;
-}
-
-void CommandLineParser::registerFileTypes()
-{
-	map<string, string> fileExtMap;
-	fileExtMap["rom"] = "romimage";
-	fileExtMap["ri"]  = "romimage";
-	fileExtMap["dsk"] = "diskimage";
-	fileExtMap["dmk"] = "diskimage";
-	fileExtMap["di1"] = "diskimage";
-	fileExtMap["di2"] = "diskimage";
-	fileExtMap["xsa"] = "diskimage";
-	fileExtMap["wav"] = "cassetteimage";
-	fileExtMap["cas"] = "cassetteimage";
-	fileExtMap["ogv"] = "laserdiscimage";
-	fileExtMap["omr"] = "openMSX replay";
-	fileExtMap["oms"] = "openMSX savestate";
-	fileExtMap["tcl"] = "Tcl script";
-	for (auto& p : fileExtMap) {
-		auto i = fileClassMap.find(p.second);
-		if (i != fileClassMap.end()) {
-			fileTypeMap[p.first] = i->second;
-		}
+	for (auto& ext: StringOp::split(extensions, ',')) {
+		fileTypeMap[ext] = &cliFileType;
 	}
 }
 
@@ -599,7 +576,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	for (auto& p : parser.optionMap) {
 		const auto& helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
-			optionMap[helpText].insert(p.first);
+			optionMap[helpText].insert(p.first.str());
 		}
 	}
 	printItemMap(optionMap);
@@ -609,7 +586,7 @@ void HelpOption::parseOption(const string& /*option*/,
 
 	StringMap<set<string>> extMap;
 	for (auto& p : parser.fileTypeMap) {
-		extMap[p.second->fileTypeHelp()].insert(p.first);
+		extMap[p.second->fileTypeHelp()].insert(p.first.str());
 	}
 	printItemMap(extMap);
 
@@ -756,7 +733,7 @@ void BashOption::parseOption(const string& /*option*/,
 		items = RomInfo::getAllRomTypes();
 	} else {
 		for (auto& p : parser.optionMap) {
-			items.push_back(p.first);
+			items.push_back(p.first.str());
 		}
 	}
 	for (auto& s : items) {

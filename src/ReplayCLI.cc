@@ -13,7 +13,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-replay", *this);
-	parser.registerFileClass("openMSX replay", *this);
+	parser.registerFileType("omr", *this);
 }
 
 void ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)

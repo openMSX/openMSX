@@ -13,7 +13,7 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-cassetteplayer", *this);
-	parser.registerFileClass("cassetteimage", *this);
+	parser.registerFileType("cas,wav", *this);
 }
 
 void CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
