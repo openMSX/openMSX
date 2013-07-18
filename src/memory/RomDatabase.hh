@@ -5,9 +5,9 @@
 #include "MemBuffer.hh"
 #include "sha1.hh"
 #include "noncopyable.hh"
+#include <utility>
 #include <vector>
 #include <memory>
-#include <map>
 
 namespace openmsx {
 
@@ -18,7 +18,7 @@ class GlobalCommandController;
 class RomDatabase : private noncopyable
 {
 public:
-	typedef std::map<Sha1Sum, RomInfo> DBMap;
+	typedef std::vector<std::pair<Sha1Sum, RomInfo>> RomDB;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
@@ -29,7 +29,7 @@ public:
 	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
 private:
-	DBMap db;
+	RomDB db;
 	std::vector<MemBuffer<char>> buffers;
 	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
 };

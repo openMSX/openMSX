@@ -13,9 +13,8 @@
 #include "rapidsax.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include <set>
+#include "stl.hh"
 
-using std::set;
 using std::string;
 using std::vector;
 
@@ -41,13 +40,14 @@ typedef StringMap<unsigned> UnknownTypes;
 class DBParser : public rapidsax::NullHandler
 {
 public:
-	DBParser(RomDatabase::DBMap& db_, UnknownTypes& unknownTypes_,
+	DBParser(RomDatabase::RomDB& db_, UnknownTypes& unknownTypes_,
 	         CliComm& cliComm_)
 		: db(db_)
 		, unknownTypes(unknownTypes_)
 		, cliComm(cliComm_)
 		, state(BEGIN)
 		, unknownLevel(0)
+		, initialSize(db.size())
 	{
 	}
 
@@ -62,6 +62,7 @@ public:
 
 private:
 	void addEntries();
+	void addAllEntries();
 
 	enum State {
 		BEGIN,
@@ -94,10 +95,9 @@ private:
 		bool origValue;
 	};
 
-	RomDatabase::DBMap& db;
+	RomDatabase::RomDB& db;
 	UnknownTypes& unknownTypes;
 	CliComm& cliComm;
-	set<Sha1Sum> sums;
 
 	string_ref systemID;
 	string_ref type;
@@ -115,6 +115,7 @@ private:
 
 	State state;
 	unsigned unknownLevel;
+	size_t initialSize;
 };
 
 void DBParser::start(string_ref tag)
@@ -355,28 +356,85 @@ void DBParser::addEntries()
 	}
 
 	for (auto& d : dumps) {
-		if (!sums.insert(d.hash).second) {
-			cliComm.printWarning(
-				"duplicate softwaredb entry SHA1: " +
-				d.hash.toString());
-			continue;
-		}
-
-		auto it = db.find(d.hash);
-		if (it != db.end()) {
-			// User database already had this entry, don't overwrite
-			// with the value from the system database.
-			continue;
-		}
-
 		string r = remarks;
 		joinRemarks(r, d.remarks);
-
-		db.insert(std::make_pair(d.hash, RomInfo(
+		db.push_back(std::make_pair(d.hash, RomInfo(
 			title, year, company, country,
 			d.origValue, d.origData, r, d.type,
 			genMSXid)));
 	}
+}
+
+// called on </softwaredb>
+void DBParser::addAllEntries()
+{
+	// Calculate boundary between old and new entries.
+	//  old: [first, mid)   already sorted, no duplicates
+	//  new: [mid, last)    not yet sorted, may have duplicates
+	//    there may also be duplicates between old and new
+	const auto first = db.begin();
+	const auto last  = db.end();
+	const auto mid = first + initialSize;
+	if (mid == last) return; // no new entries
+
+	// Sort new entries, old entries are already sorted.
+	sort(mid, last, LessTupleElement<0>());
+
+	// Filter duplicates from new entries. This is similar to the
+	// unique() algorithm, except that it also warns about duplicates.
+	auto it1 = mid;
+	auto it2 = mid + 1;
+	// skip initial non-duplicates
+	while (it2 != last) {
+		if (it1->first == it2->first) break;
+		++it1; ++it2;
+	}
+	// move non-duplicates up
+	while (it2 != last) {
+		if (it1->first == it2->first) {
+			cliComm.printWarning(
+				"duplicate softwaredb entry SHA1: " +
+				it2->first.toString());
+		} else {
+			++it1;
+			*it1 = std::move(*it2);
+		}
+		++it2;
+	}
+	// actually erase the duplicates (typically none)
+	db.erase(it1 + 1, last);
+	// At this point both old and new entries are sorted and unique. But
+	// there may still be duplicates between old and new.
+
+	// Merge new and old entries. This is similar to the inplace_merge()
+	// algorithm, except that duplicates (between old and new) are removed.
+	if (first == mid) return; // no old entries (common case)
+	RomDatabase::RomDB result;
+	result.reserve(db.size());
+	it1 = first;
+	it2 = mid;
+	// while both new and old still have elements
+	while (it1 != mid && it2 != last) {
+		if (it1->first < it2->first) {
+			result.push_back(std::move(*it1));
+			++it1;
+		} else {
+			if (it1->first != it2->first) { // *it2 < *it1
+				result.push_back(std::move(*it2));
+				++it2;
+			} else {
+				// pick old entry, silently ignore new
+				result.push_back(std::move(*it1));
+				++it1; ++it2;
+			}
+		}
+	}
+	// move remaining old or new entries (one of these is empty)
+	move(it1, mid,  back_inserter(result));
+	move(it2, last, back_inserter(result));
+
+	// make result the new current database
+	swap(result, db);
 }
 
 static const char* parseStart(string_ref s)
@@ -394,6 +452,7 @@ void DBParser::stop()
 
 	switch (state) {
 	case SOFTWAREDB:
+		addAllEntries();
 		state = END;
 		break;
 	case SOFTWARE:
@@ -475,7 +534,7 @@ void DBParser::doctype(string_ref text)
 }
 
 static void parseDB(CliComm& cliComm, const string& filename,
-                    MemBuffer<char>& buf, RomDatabase::DBMap& db,
+                    MemBuffer<char>& buf, RomDatabase::RomDB& db,
                     UnknownTypes& unknownTypes)
 {
 	File file(filename);
@@ -499,6 +558,7 @@ RomDatabase::RomDatabase(GlobalCommandController& commandController, CliComm& cl
 	: softwareInfoTopic(make_unique<SoftwareInfoTopic>(
 		commandController.getOpenMSXInfoCommand(), *this))
 {
+	db.reserve(3500);
 	UnknownTypes unknownTypes;
 	// first user- then system-directory
 	vector<string> paths = SystemFileContext().getPaths();
@@ -538,8 +598,10 @@ RomDatabase::~RomDatabase()
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = db.find(sha1sum);
-	return (it == db.end()) ? nullptr : &it->second;
+	auto it = lower_bound(db.begin(), db.end(), sha1sum,
+	                      LessTupleElement<0>());
+	return ((it != db.end()) && (it->first == sha1sum))
+		? &it->second : nullptr;
 }
 
 
