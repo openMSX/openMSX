@@ -14,6 +14,7 @@
 #include "openmsx.hh"
 #include <cassert>
 #include <iostream>
+#include <set>
 
 using std::string;
 using std::vector;

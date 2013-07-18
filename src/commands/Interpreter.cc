@@ -12,6 +12,7 @@
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <iostream>
+#include <map>
 //#include <tk.h>
 #include "openmsx.hh"
 

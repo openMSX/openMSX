@@ -50,6 +50,7 @@
 #include <cassert>
 #include <functional>
 #include <vector>
+#include <set>
 #include <iostream>
 
 using std::set;
