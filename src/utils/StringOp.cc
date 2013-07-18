@@ -343,19 +343,19 @@ void splitOnLast(string_ref str, char chars, string_ref& first, string_ref& last
 	}
 }
 
-vector<string> split(string_ref str, string_ref chars)
+vector<string_ref> split(string_ref str, char chars)
 {
-	vector<string> result;
+	vector<string_ref> result;
 	while (!str.empty()) {
 		string_ref first, last;
 		splitOnFirst(str, chars, first, last);
-		result.push_back(first.str());
+		result.push_back(first);
 		str = last;
 	}
 	return result;
 }
 
-string join(const vector<string>& elems, const string& separator)
+string join(const vector<string_ref>& elems, char separator)
 {
 	if (elems.empty()) return string();
 

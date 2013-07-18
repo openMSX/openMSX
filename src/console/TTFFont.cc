@@ -160,7 +160,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	if (text.empty()) return SDLSurfacePtr(nullptr);
 
 	// Split on newlines
-	auto lines = StringOp::split(text, "\n");
+	auto lines = StringOp::split(text, '\n');
 	assert(!lines.empty());
 
 	if (lines.size() == 1) {
@@ -181,7 +181,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (auto& s : lines) {
 		unsigned w;
-		getSize(s, w, lineHeight);
+		getSize(s.str(), w, lineHeight);
 		width = std::max(width, w);
 	}
 	// There might be extra space between two successive lines
@@ -206,8 +206,9 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 			// simply skip such lines
 			continue;
 		}
-		SDLSurfacePtr line(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
-		                                          lines[i].c_str(), color));
+		SDLSurfacePtr line(TTF_RenderUTF8_Blended(
+			static_cast<TTF_Font*>(font),
+			lines[i].str().c_str(), color));
 		if (!line) {
 			throw MSXException(TTF_GetError());
 		}
