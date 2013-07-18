@@ -1,6 +1,9 @@
 #include "Keys.hh"
 #include "StringOp.hh"
-#include <map>
+#include "stl.hh"
+#include <algorithm>
+#include <vector>
+#include <utility>
 
 using std::string;
 
@@ -8,7 +11,8 @@ namespace openmsx {
 
 namespace Keys {
 
-static std::map<string_ref, KeyCode, StringOp::caseless> keymap;
+static std::vector<std::pair<string_ref, KeyCode>> keys;
+typedef CmpTupleElement<0, StringOp::caseless> CmpKeys;
 
 static void initialize()
 {
@@ -286,9 +290,10 @@ static void initialize()
 	};
 	const Entry* e = entries;
 	while (e->name) {
-		keymap[e->name] = e->code;
+		keys.push_back(std::make_pair(e->name, e->code));
 		++e;
 	}
+	sort(keys.begin(), keys.end(), CmpKeys());
 }
 
 KeyCode getCode(string_ref name)
@@ -302,18 +307,18 @@ KeyCode getCode(string_ref name)
 		auto part = (pos != string_ref::npos)
 		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
-		auto it = keymap.find(part);
-		if (it != keymap.end()) {
-			KeyCode partCode = it->second;
-			if ((partCode & K_MASK) && (result & K_MASK)) {
-				// more than one non-modifier component
-				// is not allowed
-				return K_NONE;
-			}
-			result = static_cast<KeyCode>(result | partCode);
-		} else {
+		auto it = lower_bound(keys.begin(), keys.end(), part, CmpKeys());
+		StringOp::casecmp cmp;
+		if ((it == keys.end()) || !cmp(it->first, part)) {
 			return K_NONE;
 		}
+		KeyCode partCode = it->second;
+		if ((partCode & K_MASK) && (result & K_MASK)) {
+			// more than one non-modifier component
+			// is not allowed
+			return K_NONE;
+		}
+		result = static_cast<KeyCode>(result | partCode);
 		lastPos = (pos != string_ref::npos)
 		        ? lastPos + pos + 1
 		        : string_ref::npos;
@@ -371,7 +376,7 @@ const string getName(KeyCode keyCode)
 	initialize();
 
 	string result;
-	for (auto& p : keymap) {
+	for (auto& p : keys) {
 		if (p.second == (keyCode & K_MASK)) {
 			result = p.first.str();
 			break;
