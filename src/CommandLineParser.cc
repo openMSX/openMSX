@@ -47,7 +47,6 @@
 using std::cout;
 using std::endl;
 using std::deque;
-using std::set;
 using std::string;
 using std::vector;
 
@@ -507,7 +506,7 @@ string_ref ScriptOption::fileTypeHelp() const
 
 // Help option
 
-static string formatSet(const set<string>& inputSet, string::size_type columns)
+static string formatSet(const vector<string_ref>& inputSet, string::size_type columns)
 {
 	StringOp::Builder outString;
 	string::size_type totalLength = 0; // ignore the starting spaces for now
@@ -555,13 +554,14 @@ static string formatHelptext(string_ref helpText,
 	return outText;
 }
 
-static void printItemMap(const StringMap<set<string>>& itemMap)
+static void printItemMap(const StringMap<vector<string_ref>>& itemMap)
 {
-	set<string> printSet;
+	vector<string> printSet;
 	for (auto& p : itemMap) {
-		printSet.insert(formatSet(p.second, 15) + ' ' +
-		                formatHelptext(p.first(), 50, 20));
+		printSet.push_back(formatSet(p.second, 15) + ' ' +
+		                   formatHelptext(p.first(), 50, 20));
 	}
+	sort(printSet.begin(), printSet.end());
 	for (auto& s : printSet) {
 		cout << s << endl;
 	}
@@ -584,11 +584,11 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported options:" << endl;
 
-	StringMap<set<string>> optionMap;
+	StringMap<vector<string_ref>> optionMap;
 	for (auto& p : parser.options) {
 		const auto& helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
-			optionMap[helpText].insert(p.first.str());
+			optionMap[helpText].push_back(p.first);
 		}
 	}
 	printItemMap(optionMap);
@@ -596,9 +596,9 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << endl;
 	cout << "  this is the list of supported file types:" << endl;
 
-	StringMap<set<string>> extMap;
+	StringMap<vector<string_ref>> extMap;
 	for (auto& p : parser.fileTypes) {
-		extMap[p.second->fileTypeHelp()].insert(p.first.str());
+		extMap[p.second->fileTypeHelp()].push_back(p.first);
 	}
 	printItemMap(extMap);
 
@@ -736,20 +736,22 @@ void BashOption::parseOption(const string& /*option*/,
 	string last = cmdLine.empty() ? "" : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters
 
-	vector<string> items;
 	if (last == "-machine") {
-		items = Reactor::getHwConfigs("machines");
+		for (auto& s : Reactor::getHwConfigs("machines")) {
+			cout << s << '\n';
+		}
 	} else if (last == "-ext") {
-		items = Reactor::getHwConfigs("extensions");
+		for (auto& s : Reactor::getHwConfigs("extensions")) {
+			cout << s << '\n';
+		}
 	} else if (last == "-romtype") {
-		items = RomInfo::getAllRomTypes();
+		for (auto& s : RomInfo::getAllRomTypes()) {
+			cout << s << '\n';
+		}
 	} else {
 		for (auto& p : parser.options) {
-			items.push_back(p.first.str());
+			cout << p.first << '\n';
 		}
-	}
-	for (auto& s : items) {
-		cout << s << '\n';
 	}
 	parser.parseStatus = CommandLineParser::EXIT;
 }

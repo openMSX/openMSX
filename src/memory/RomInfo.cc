@@ -193,12 +193,12 @@ string_ref RomInfo::romTypeToName(RomType type)
 	UNREACHABLE; return "";
 }
 
-vector<string> RomInfo::getAllRomTypes()
+vector<string_ref> RomInfo::getAllRomTypes()
 {
-	vector<string> result;
+	vector<string_ref> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
-			result.push_back(p.first.str());
+			result.push_back(p.first);
 		}
 	}
 	return result;

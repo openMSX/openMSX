@@ -68,7 +68,7 @@ public:
 
 	static RomType nameToRomType(string_ref name);
 	static string_ref romTypeToName(RomType type);
-	static std::vector<std::string> getAllRomTypes();
+	static std::vector<string_ref> getAllRomTypes();
 	static string_ref getDescription(RomType type);
 	static unsigned   getBlockSize  (RomType type);
 
