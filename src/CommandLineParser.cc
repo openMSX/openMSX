@@ -32,6 +32,7 @@
 #include "RomInfo.hh"
 #include "StringMap.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include "build-info.hh"
 #include "components.hh"
 
@@ -46,7 +47,6 @@
 using std::cout;
 using std::endl;
 using std::deque;
-using std::map;
 using std::set;
 using std::string;
 using std::vector;
@@ -150,6 +150,9 @@ private:
 
 // class CommandLineParser
 
+typedef LessTupleElement<0> CmpOptions;
+typedef CmpTupleElement<0, StringOp::caseless> CmpFileTypes;
+
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
 	, helpOption(make_unique<HelpOption>(*this))
@@ -194,6 +197,10 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-machine",    *machineOption, PHASE_BEFORE_MACHINE);
 
 	registerFileType("tcl", *scriptOption);
+
+	// At this point all options and file-types must be registered
+	sort(options.begin(), options.end(), CmpOptions());
+	sort(fileTypes.begin(), fileTypes.end(), CmpFileTypes());
 }
 
 CommandLineParser::~CommandLineParser()
@@ -207,26 +214,27 @@ void CommandLineParser::registerOption(
 	temp.option = &cliOption;
 	temp.phase = phase;
 	temp.length = length;
-	optionMap[str] = temp;
+	options.push_back(std::make_pair(str, temp));
 }
 
 void CommandLineParser::registerFileType(
 	string_ref extensions, CLIFileType& cliFileType)
 {
 	for (auto& ext: StringOp::split(extensions, ',')) {
-		fileTypeMap[ext] = &cliFileType;
+		fileTypes.push_back(std::make_pair(ext, &cliFileType));
 	}
 }
 
 bool CommandLineParser::parseOption(
 	const string& arg, deque<string>& cmdLine, ParsePhase phase)
 {
-	auto it1 = optionMap.find(arg);
-	if (it1 != optionMap.end()) {
+	auto it = lower_bound(options.begin(), options.end(), arg,
+	                      CmpOptions());
+	if ((it != options.end()) && (it->first == arg)) {
 		// parse option
-		if (it1->second.phase <= phase) {
+		if (it->second.phase <= phase) {
 			try {
-				it1->second.option->parseOption(arg, cmdLine);
+				it->second.option->parseOption(arg, cmdLine);
 				return true;
 			} catch (MSXException& e) {
 				throw FatalError(e.getMessage());
@@ -259,20 +267,24 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, deque<string>& cmdLine)
 {
 	string_ref extension = FileOperations::getExtension(name);
-	if (!extension.empty()) {
-		// there is an extension
-		auto it = fileTypeMap.find(extension.str());
-		if (it != fileTypeMap.end()) {
-			try {
-				// parse filetype
-				it->second->parseFileType(originalPath, cmdLine);
-				return true; // file processed
-			} catch (MSXException& e) {
-				throw FatalError(e.getMessage());
-			}
-		}
+	if (extension.empty()) {
+		return false; // no extension
 	}
-	return false; // unknown
+
+	auto it = lower_bound(fileTypes.begin(), fileTypes.end(), extension,
+	                      CmpFileTypes());
+	StringOp::casecmp cmp;
+	if ((it == fileTypes.end()) || !cmp(it->first, extension)) {
+		return false; // unknown extension
+	}
+
+	try {
+		// parse filetype
+		it->second->parseFileType(originalPath, cmdLine);
+		return true; // file processed
+	} catch (MSXException& e) {
+		throw FatalError(e.getMessage());
+	}
 }
 
 void CommandLineParser::parse(int argc, char** argv)
@@ -365,9 +377,9 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						auto it1 = optionMap.find(arg);
-						if (it1 != optionMap.end()) {
-							for (unsigned i = 0; i < it1->second.length - 1; ++i) {
+						auto it = lower_bound(options.begin(), options.end(), arg, CmpOptions());
+						if ((it != options.end()) && (it->first == arg)) {
+							for (unsigned i = 0; i < it->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
 									backupCmdLine.push_back(std::move(cmdLine.front()));
 									cmdLine.pop_front();
@@ -573,7 +585,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported options:" << endl;
 
 	StringMap<set<string>> optionMap;
-	for (auto& p : parser.optionMap) {
+	for (auto& p : parser.options) {
 		const auto& helpText = p.second.option->optionHelp();
 		if (!helpText.empty()) {
 			optionMap[helpText].insert(p.first.str());
@@ -585,7 +597,7 @@ void HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported file types:" << endl;
 
 	StringMap<set<string>> extMap;
-	for (auto& p : parser.fileTypeMap) {
+	for (auto& p : parser.fileTypes) {
 		extMap[p.second->fileTypeHelp()].insert(p.first.str());
 	}
 	printItemMap(extMap);
@@ -732,7 +744,7 @@ void BashOption::parseOption(const string& /*option*/,
 	} else if (last == "-romtype") {
 		items = RomInfo::getAllRomTypes();
 	} else {
-		for (auto& p : parser.optionMap) {
+		for (auto& p : parser.options) {
 			items.push_back(p.first.str());
 		}
 	}

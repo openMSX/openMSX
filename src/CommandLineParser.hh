@@ -1,14 +1,14 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
-#include "StringOp.hh"
+#include "string_ref.hh"
 #include "noncopyable.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
 #include <deque>
-#include <map>
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -84,8 +84,8 @@ private:
 	                 std::deque<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
 
-	std::map<string_ref, OptionData> optionMap;
-	std::map<string_ref, CLIFileType*, StringOp::caseless> fileTypeMap;
+	std::vector<std::pair<string_ref, OptionData>> options;
+	std::vector<std::pair<string_ref, CLIFileType*>> fileTypes;
 
 	Reactor& reactor;
 
