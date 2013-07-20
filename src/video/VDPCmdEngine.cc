@@ -1367,6 +1367,7 @@ void LmmcCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 			}
 		}
 	}
+	engine.time = limit; engine.nextAccessSlot(0); // inaccurate, but avoid assert
 }
 
 /** High-speed move VDP -> VRAM.
@@ -1816,6 +1817,7 @@ void HmmcCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 			}
 		}
 	}
+	engine.time = limit; engine.nextAccessSlot(0); // inaccurate, but avoid assert
 }
 
 
