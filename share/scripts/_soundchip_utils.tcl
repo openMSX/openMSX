@@ -178,4 +178,10 @@ proc get_frequency_expr {soundchip channel} {
 	}
 }
 
+namespace export get_num_channels
+namespace export get_volume_expr
+namespace export get_frequency_expr
+
 } ;# namespace soundchip_utils
+
+# Don't import in global namespace, these are only useful in other scripts.

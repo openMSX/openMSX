@@ -114,4 +114,18 @@ proc filename_clean {path} {
 	return [regsub -all $_filename_clean_disallowed $path _]
 }
 
+namespace export get_machine_display_name
+namespace export get_machine_display_name_by_config_name
+namespace export get_extension_display_name_by_config_name
+namespace export get_display_name_by_config_name
+namespace export get_machine_time
+namespace export format_time
+namespace export get_ordered_machine_list
+namespace export get_random_number
+namespace export clip
+namespace export file_completion
+namespace export filename_clean
+
 } ;# namespace utils
+
+# Don't import in global namespace, these are only useful in other scripts.

@@ -25,8 +25,8 @@ proc load_trainers {} {
 	variable trainers
 	if {[dict size $trainers] == 0} {
 		# source the trainer definitions (user may override system defaults) and ignore errors
-		catch {source $::env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}
-		catch {source $::env(OPENMSX_USER_DATA)/scripts/trainerdefs.tclinclude}
+		catch {source $::env(OPENMSX_SYSTEM_DATA)/scripts/_trainerdefs.tcl}
+		catch {source $::env(OPENMSX_USER_DATA)/scripts/_trainerdefs.tcl}
 	}
 	return $trainers
 }
