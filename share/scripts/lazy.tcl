@@ -36,6 +36,11 @@ register_lazy "_record_channels.tcl" {
 	record_channels mute_channels unmute_channels solo}
 register_lazy "_record_chunks.tcl" record_chunks
 register_lazy "_reg_log.tcl" reg_log
+register_lazy "_reverse.tcl" {
+	reverse_prev reverse_next goto_time_delta go_back_one_step
+	go_forward_one_step reverse_bookmarks auto_save_replay_enable
+	auto_save_replay_disable auto_save_replay_set_filename
+	toggle_reversebar enable_reversebar disable_reversebar}
 register_lazy "_rom_info.tcl" rom_info
 register_lazy "_save_debuggable.tcl" {
 	save_debuggable load_debuggable save_all load_all vramdump vram2bmp
