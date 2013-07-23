@@ -92,11 +92,6 @@ proc go_forward_one_step {} {
 	goto_time_delta [expr { $::speed / 100.0}]
 }
 
-# note: you can't use bindings with modifiers like SHIFT, because they
-# will already stop the replay, as they are MSX keys as well
-bind_default PAGEUP   -repeat "reverse::go_back_one_step"
-bind_default PAGEDOWN -repeat "reverse::go_forward_one_step"
-
 proc after_switch {} {
 	# enabling reverse could fail if the active machine is an 'empty'
 	# machine (e.g. because the last machine is removed or because

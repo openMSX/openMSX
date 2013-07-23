@@ -1371,16 +1371,6 @@ proc menu_free_savestate_name {} {
 	}
 }
 
-# keybindings
-if {$tcl_platform(os) eq "Darwin"} { ;# Mac
-	bind_default "keyb META+O" main_menu_toggle
-} elseif {$is_dingoo} { ;# Dingoo
-	bind_default "keyb ESCAPE" main_menu_toggle ;# select button
-	bind_default "keyb MENU"   main_menu_toggle ;# default: power+select
-} else { ;# any other
-	bind_default "keyb MENU"   main_menu_toggle
-}
-
 # Keep openmsx console from interfering with the osd menu:
 #  when the console is activated while the osd menu is already open, we want
 #  to prevent the osd menu from receiving the keys that are pressed in the

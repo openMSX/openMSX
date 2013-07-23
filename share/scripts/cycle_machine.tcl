@@ -22,10 +22,6 @@ proc cycle_back_machine {} {
 	cycle_machine -1
 }
 
-# keybindings
-bind_default CTRL+PAGEUP cycle_machine
-bind_default CTRL+PAGEDOWN cycle_back_machine
-
 namespace export cycle_machine
 namespace export cycle_back_machine
 

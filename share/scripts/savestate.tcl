@@ -171,16 +171,6 @@ See also 'savestate', 'loadstate', 'list_savestates'.
 }
 set_tabcompletion_proc delete_savestate [namespace code savestate_tab]
 
-
-# keybindings
-if {$tcl_platform(os) eq "Darwin"} {
-	bind_default META+S savestate
-	bind_default META+R loadstate
-} else {
-	bind_default ALT+F8 savestate
-	bind_default ALT+F7 loadstate
-}
-
 namespace export savestate
 namespace export loadstate
 namespace export delete_savestate

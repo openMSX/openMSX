@@ -41,11 +41,6 @@ credits:
   copyright 2005 David Heremans
 }
 
-bind_default       ALT+F9  "vdrive diska"
-bind_default SHIFT+ALT+F9  "vdrive diska -1"
-bind_default       ALT+F10 "vdrive diskb"
-bind_default SHIFT+ALT+F10 "vdrive diskb -1"
-
 proc vdrive {{diskdrive "diska"} {step 1}} {
 	# get current disk
 	if {[catch {set cmd [$diskdrive]}]} {error "No such drive: $diskdrive"}

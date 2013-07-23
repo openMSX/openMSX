@@ -41,8 +41,6 @@ proc toggle_osd_keyboard {} {
 }
 
 proc disable_osd_keyboard {} {
-	variable is_dingoo
-
 	osd destroy kb
 	deactivate_input_layer osd_keyboard
 
@@ -462,15 +460,6 @@ proc key_matrix {keynum state} {
 	#cursor keys etc (not implemented... should we?)
 	#numeric keyboard?
 }
-
-# for Dingoo assign the start button to show the keyboard
-if {$is_dingoo} {
-	bind_default "keyb RETURN" toggle_osd_keyboard
-}
-
-# Android maps one of the virtual keys to WORLD_95
-# listen to that one in order to show the keyboard
-bind_default "keyb WORLD_95" toggle_osd_keyboard
 
 namespace export toggle_osd_keyboard
 
