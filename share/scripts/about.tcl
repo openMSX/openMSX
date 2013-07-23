@@ -6,6 +6,7 @@ If there is only one such command or setting the helptext for that command or
 setting is also shown."
 
 proc about {keyword} {
+	openmsx::lazy_execute_all
 	set command_matches [get_matching_commands $keyword]
 	set setting_matches [get_matching_settings $keyword]
 	set result ""

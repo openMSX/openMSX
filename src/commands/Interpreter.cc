@@ -199,7 +199,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 //   - user-defined procs
 vector<string> Interpreter::getCommandNames()
 {
-	return splitList(execute("info commands"), interp);
+	return splitList(execute("openmsx::all_command_names"), interp);
 }
 
 bool Interpreter::isComplete(const string& command) const
