@@ -1212,8 +1212,11 @@ void YMF262::Impl::set_ksl_tl(unsigned sl, byte v)
 	YMF262Channel& ch = channel[chan_no];
 	YMF262Slot& slot = ch.slot[sl & 1];
 
-	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
-	slot.ksl = ksl ? 3 - ksl : 31;
+	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real YMF262.
+	// Note the illogical order of 2nd and 3rd element.
+	static const unsigned ksl_shift[4] = { 31, 1, 2, 0 };
+	slot.ksl = ksl_shift[v >> 6];
+
 	slot.TL  = (v & 0x3F) << (ENV_BITS - 1 - 7); // 7 bits TL (bit 6 = always 0)
 
 	if (isExtended(chan_no)) {

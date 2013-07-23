@@ -136,6 +136,9 @@ static void makeTllTable()
 	static const unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
+	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
+	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
+	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
 	unsigned tllTable[16 * 8][4];
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
