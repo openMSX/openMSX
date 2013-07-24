@@ -52,6 +52,7 @@ private:
 	                  BaseImage*& image, unsigned& width);
 	void insertInCache(const std::string& text, unsigned rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
+	void clearCache();
 
 	enum Placement {
 		CP_TOPLEFT,    CP_TOP,    CP_TOPRIGHT,

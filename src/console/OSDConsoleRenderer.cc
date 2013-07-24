@@ -68,9 +68,6 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, screenH(screenH_)
 	, openGL(openGL_)
 {
-	// cacheHint must always point to a valid item, so insert a dummy entry
-	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
-	cacheHint = textCache.begin();
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
@@ -147,6 +144,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	// don't yet load background
 
 	consoleSetting.attach(*this);
+	fontSetting->attach(*this);
 	fontSizeSetting->attach(*this);
 	setActive(consoleSetting.getBoolean());
 }
@@ -154,6 +152,7 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
 	fontSizeSetting->detach(*this);
+	fontSetting->detach(*this);
 	consoleSetting.detach(*this);
 	setActive(false);
 }
@@ -174,7 +173,8 @@ void OSDConsoleRenderer::update(const Setting& setting)
 {
 	if (&setting == &consoleSetting) {
 		setActive(consoleSetting.getBoolean());
-	} else if (&setting == fontSizeSetting.get()) {
+	} else if ((&setting == fontSetting.get()) ||
+	           (&setting == fontSizeSetting.get())) {
 		loadFont(fontSetting->getString());
 	} else {
 		UNREACHABLE;
@@ -273,6 +273,7 @@ void OSDConsoleRenderer::loadFont(const string& value)
 {
 	string filename = SystemFileContext().resolve(value);
 	font = TTFFont(filename, fontSizeSetting->getInt());
+	clearCache();
 }
 
 void OSDConsoleRenderer::loadBackground(const string& value)
@@ -393,6 +394,14 @@ void OSDConsoleRenderer::insertInCache(
 	}
 	textCache.push_front(TextCacheElement(
 		text, rgb, std::move(image), width));
+}
+
+void OSDConsoleRenderer::clearCache()
+{
+	// cacheHint must always point to a valid item, so insert a dummy entry
+	textCache.clear();
+	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
+	cacheHint = textCache.begin();
 }
 
 void OSDConsoleRenderer::paint(OutputSurface& output)
