@@ -812,7 +812,6 @@ void Slot::updateGenerators(Channel& channel)
 Channel::Channel()
 	: fc(0)
 {
-	instvol_r = 0;
 	block_fnum = ksl_base = 0;
 	sus = false;
 }
@@ -947,7 +946,7 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		Channel& channel = channels[ch];
-		if ((channel.instvol_r & 0xF0) == 0) {
+		if ((reg[0x30 + ch] & 0xF0) == 0) {
 			channel.updateInstrumentPart(part, value);
 		}
 	}
@@ -967,14 +966,14 @@ void YM2413::setRhythmFlags(byte old)
 			ch6.updateInstrument(inst_tab[16]);
 			// High hat and snare drum.
 			ch7.updateInstrument(inst_tab[17]);
-			ch7.mod.setTotalLevel(ch7, (ch7.instvol_r >> 4) << 2); // High hat
+			ch7.mod.setTotalLevel(ch7, (reg[0x37] >> 4) << 2); // High hat
 			// Tom-tom and top cymbal.
 			ch8.updateInstrument(inst_tab[18]);
-			ch8.mod.setTotalLevel(ch8, (ch8.instvol_r >> 4) << 2); // Tom-tom
+			ch8.mod.setTotalLevel(ch8, (reg[0x38] >> 4) << 2); // Tom-tom
 		} else { // ON -> OFF
-			ch6.updateInstrument(inst_tab[ch6.instvol_r >> 4]);
-			ch7.updateInstrument(inst_tab[ch7.instvol_r >> 4]);
-			ch8.updateInstrument(inst_tab[ch8.instvol_r >> 4]);
+			ch6.updateInstrument(inst_tab[reg[0x36] >> 4]);
+			ch7.updateInstrument(inst_tab[reg[0x37] >> 4]);
+			ch8.updateInstrument(inst_tab[reg[0x38] >> 4]);
 			// BD key off
 			ch6.mod.setKeyOff(Slot::KEY_RHYTHM);
 			ch6.car.setKeyOff(Slot::KEY_RHYTHM);
@@ -1259,10 +1258,6 @@ void YM2413::writeReg(byte r, byte v)
 	}
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		Channel& ch = getChannelForReg(r);
-
-		byte old_instvol = ch.instvol_r;
-		ch.instvol_r = v;  // store for later use
-
 		ch.car.setTotalLevel(ch, (v & 0x0F) << 2);
 
 		// Check wether we are in rhythm mode and handle instrument/volume
@@ -1274,10 +1269,10 @@ void YM2413::writeReg(byte r, byte v)
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.mod.setTotalLevel(ch, (ch.instvol_r >> 4) << 2);
+				ch.mod.setTotalLevel(ch, (v >> 4) << 2);
 			}
 		} else {
-			if ((old_instvol & 0xF0) != (v & 0xF0)) {
+			if ((old & 0xF0) != (v & 0xF0)) {
 				ch.updateInstrument(inst_tab[v >> 4]);
 			}
 		}
@@ -1349,6 +1344,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 
 // version 1: original version
 // version 2: removed kcode
+// version 3: removed instvol_r
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1360,7 +1356,6 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 		car = slots[1];
 	}
 
-	ar.serialize("instvol_r", instvol_r);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);

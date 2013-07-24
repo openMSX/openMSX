@@ -213,9 +213,6 @@ public:
 	Slot mod;
 	Slot car;
 
-	/** Instrument/volume (or volume/volume in rhythm mode). */
-	byte instvol_r;
-
 private:
 	// phase generator state
 	int block_fnum;	// block+fnum
@@ -292,7 +289,7 @@ private:
 } // namespace YM2413Burczynski
 
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 3);
-SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 2);
+SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 3);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Slot, 2);
 
 } // namespace openmsx
