@@ -244,6 +244,7 @@ private:
 	 */
 	void resetOperators();
 
+	inline bool isRhythm() const;
 	int getNumMelodicChannels() const;
 
 	Channel& getChannelForReg(byte reg);
@@ -254,8 +255,7 @@ private:
 	 */
 	void updateCustomInstrument(int part, byte value);
 
-	void setRhythmMode(bool newMode);
-	void setRhythmFlags(byte flags);
+	void setRhythmFlags(byte old);
 
 	/** OPLL chips have 9 channels. */
 	Channel channels[9];
@@ -291,7 +291,7 @@ private:
 
 } // namespace YM2413Burczynski
 
-SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 2);
+SERIALIZE_CLASS_VERSION(YM2413Burczynski::YM2413, 3);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Channel, 2);
 SERIALIZE_CLASS_VERSION(YM2413Burczynski::Slot, 2);
 

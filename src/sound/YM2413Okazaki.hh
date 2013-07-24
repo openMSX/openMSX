@@ -152,7 +152,7 @@ public:
 	inline void keyOff_TOM();
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
-	inline void update_rhythm_mode();
+	inline void setRhythmFlags(byte old);
 	inline void update_key_status();
 	bool isRhythm() const;
 	Patch& getPatch(unsigned instrument, bool carrier);

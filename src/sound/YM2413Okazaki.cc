@@ -528,15 +528,23 @@ void YM2413::keyOff_CYM()
 	}
 }
 
-void YM2413::update_rhythm_mode()
+void YM2413::setRhythmFlags(byte old)
 {
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
-	assert((ch6.patch_number & 0x10) == (ch7.patch_number & 0x10));
-	assert((ch6.patch_number & 0x10) == (ch8.patch_number & 0x10));
-	if (ch6.patch_number & 0x10) {
-		if (!isRhythm()) {
+
+	// flags = X | X | mode | BD | SD | TOM | TC | HH
+	byte flags = reg[0x0E];
+	if ((flags ^ old) & 0x20) {
+		if (flags & 0x20) {
+			// OFF -> ON
+			ch6.setPatch(16, *this);
+			ch7.setPatch(17, *this);
+			ch7.mod.setVolume((reg[0x37] >> 4) << 2);
+			ch8.setPatch(18, *this);
+			ch8.mod.setVolume((reg[0x38] >> 4) << 2);
+		} else {
 			// ON -> OFF
 			ch6.setPatch(reg[0x36] >> 4, *this);
 			keyOff_BD();
@@ -547,14 +555,21 @@ void YM2413::update_rhythm_mode()
 			keyOff_TOM();
 			keyOff_CYM();
 		}
-	} else if (isRhythm()) {
-		// OFF -> ON
-		ch6.setPatch(16, *this);
-		ch7.setPatch(17, *this);
-		ch7.mod.setVolume((reg[0x37] >> 4) << 2);
-		ch8.setPatch(18, *this);
-		ch8.mod.setVolume((reg[0x38] >> 4) << 2);
 	}
+	if (flags & 0x20) {
+		if (flags & 0x10) keyOn_BD();  else keyOff_BD();
+		if (flags & 0x08) keyOn_SD();  else keyOff_SD();
+		if (flags & 0x04) keyOn_TOM(); else keyOff_TOM();
+		if (flags & 0x02) keyOn_CYM(); else keyOff_CYM();
+		if (flags & 0x01) keyOn_HH();  else keyOff_HH();
+	}
+
+	ch6.mod.updateAll(ch6.freq, false);
+	ch6.car.updateAll(ch6.freq, true);
+	ch7.mod.updateAll(ch7.freq, isRhythm());
+	ch7.car.updateAll(ch7.freq, true);
+	ch8.mod.updateAll(ch8.freq, isRhythm());
+	ch8.car.updateAll(ch8.freq, true);
 }
 
 void YM2413::update_key_status()
@@ -1086,6 +1101,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 void YM2413::writeReg(byte regis, byte data)
 {
 	assert(regis < 0x40);
+	byte old = reg[regis];
 	reg[regis] = data;
 
 	switch (regis) {
@@ -1212,27 +1228,9 @@ void YM2413::writeReg(byte regis, byte data)
 		}
 		break;
 	case 0x0e:
-	{
-		update_rhythm_mode();
-		if (data & 0x20) {
-			if (data & 0x10) keyOn_BD();  else keyOff_BD();
-			if (data & 0x08) keyOn_SD();  else keyOff_SD();
-			if (data & 0x04) keyOn_TOM(); else keyOff_TOM();
-			if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
-			if (data & 0x01) keyOn_HH();  else keyOff_HH();
-		}
-
-		Channel& ch6 = channels[6];
-		ch6.mod.updateAll(ch6.freq, false);
-		ch6.car.updateAll(ch6.freq, true);
-		Channel& ch7 = channels[7];
-		ch7.mod.updateAll(ch7.freq, isRhythm());
-		ch7.car.updateAll(ch7.freq, true);
-		Channel& ch8 = channels[8];
-		ch8.mod.updateAll(ch8.freq, isRhythm());
-		ch8.car.updateAll(ch8.freq, true);
+		setRhythmFlags(old);
 		break;
-	}
+
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
 	case 0x14:  case 0x15:  case 0x16:  case 0x17:
 	case 0x18:
