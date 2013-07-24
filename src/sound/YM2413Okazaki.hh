@@ -124,7 +124,6 @@ public:
 	inline void keyOff();
 
 	Slot mod, car;
-	unsigned patchFlags;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

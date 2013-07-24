@@ -318,11 +318,6 @@ void Channel::setPatch(unsigned num, YM2413& ym2413)
 {
 	mod.setPatch(ym2413.getPatch(num, false));
 	car.setPatch(ym2413.getPatch(num, true));
-	patchFlags = ( car.patch.AM       << 0) |
-	             ( car.patch.PM       << 1) |
-	             ( mod.patch.AM       << 2) |
-	             ( mod.patch.PM       << 3) |
-	             ((mod.patch.FB != 0) << 4);
 }
 
 // Set sustain parameter
@@ -905,9 +900,13 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			if (ch.car.state == SETTLE) {
 				modFixedEnv = false;
 			}
-			unsigned flags = ch.patchFlags |
-			                 (carFixedEnv ? 32 : 0) |
-			                 (modFixedEnv ? 64 : 0);
+			unsigned flags = ( ch.car.patch.AM       << 0) |
+			                 ( ch.car.patch.PM       << 1) |
+			                 ( ch.mod.patch.AM       << 2) |
+			                 ( ch.mod.patch.PM       << 3) |
+			                 ((ch.mod.patch.FB != 0) << 4) |
+			                 ( carFixedEnv           << 5) |
+			                 ( modFixedEnv           << 6);
 			switch (flags) {
 			case   0: calcChannel<  0>(ch, bufs[i], num); break;
 			case   1: calcChannel<  1>(ch, bufs[i], num); break;
@@ -1282,17 +1281,15 @@ void YM2413::writeReg(byte regis, byte data)
 	case 0x35: case 0x36: case 0x37: case 0x38: {
 		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
-		unsigned j = (data >> 4) & 15;
-		unsigned v = data & 15;
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
 				// channel 7 or 8 in ryhthm mode
-				channels[cha].mod.setVolume(j << 2);
+				channels[cha].mod.setVolume((data >> 4) << 2);
 			}
 		} else {
-			ch.setPatch(j, *this);
+			ch.setPatch(data >> 4, *this);
 		}
-		ch.setVol(v << 2);
+		ch.setVol((data & 15) << 2);
 		bool actAsCarrier = (cha >= 7) && isRhythm();
 		unsigned freq = getFreq(cha);
 		ch.mod.updateAll(freq, actAsCarrier);
@@ -1356,9 +1353,6 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mod", mod);
 	ar.serialize("car", car);
-
-	// These are restored by call to setPatch() in YM2413::serialize()
-	//   patchFlags
 }
 
 
