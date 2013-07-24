@@ -57,6 +57,9 @@ public:
 	  */
 	unsigned getHeight() const;
 
+	/** Returns true iff this is a fixed-with (=mono-spaced) font. */
+	bool isFixedWidth() const;
+
 	/** Return the width of the font.
 	  * This is the recommended number of pixels between two characters.
 	  * This number only makes sense for fixed-width fonts.

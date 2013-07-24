@@ -228,6 +228,11 @@ unsigned TTFFont::getHeight() const
 	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
 }
 
+bool TTFFont::isFixedWidth() const
+{
+	return TTF_FontFaceIsFixedWidth(static_cast<TTF_Font*>(font)) != 0;
+}
+
 unsigned TTFFont::getWidth() const
 {
 	int advance;

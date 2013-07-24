@@ -272,7 +272,11 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(const string& value)
 {
 	string filename = SystemFileContext().resolve(value);
-	font = TTFFont(filename, fontSizeSetting->getInt());
+	auto newFont = TTFFont(filename, fontSizeSetting->getInt());
+	if (!newFont.isFixedWidth()) {
+		throw MSXException(value + " is not a monospaced font");
+	}
+	font = std::move(newFont);
 	clearCache();
 }
 
