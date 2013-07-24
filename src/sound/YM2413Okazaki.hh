@@ -28,7 +28,7 @@ public:
 	Patch();
 
 	void initModulator(const byte* data);
-	void initCarrier(const byte* data);
+	void initCarrier  (const byte* data);
 
 	/** Sets the amount of feedback [0..7].
 	 */
@@ -128,7 +128,6 @@ public:
 	inline void keyOff();
 
 	Slot mod, car;
-	unsigned patch_number;
 	unsigned patchFlags;
 
 	unsigned freq; // combined fnum and block
@@ -196,6 +195,7 @@ private:
 } // namespace YM2413Okazaki
 
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 3);
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::Channel, 2);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 2);
 
 } // namespace openmsx
