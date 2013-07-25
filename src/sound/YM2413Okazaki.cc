@@ -41,8 +41,9 @@ static inline int EG2DB(int d)
 {
 	return d * int(EG_STEP / DB_STEP);
 }
-static inline int TL2EG(int d)
+static inline unsigned TL2EG(unsigned d)
 {
+	assert(d < 64); // input is in range [0..63]
 	return d * int(TL_STEP / EG_STEP);
 }
 
@@ -67,11 +68,11 @@ static inline bool BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AMPM(0), EG(false)
-	, KL(0), TL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
+	: AMPM(0), EG(false), KL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
 {
 	setKR(0);
 	setML(0);
+	setTL(0);
 	setFB(0);
 }
 
@@ -82,7 +83,7 @@ void Patch::initModulator(const byte* data)
 	setKR ((data[0] >> 4) &  1);
 	setML ((data[0] >> 0) & 15);
 	KL   = (data[2] >> 6) &  3;
-	TL   = (data[2] >> 0) & 63;
+	setTL ((data[2] >> 0) & 63);
 	WF   = (data[3] >> 3) &  1;
 	setFB ((data[3] >> 0) &  7);
 	AR   = (data[4] >> 4) & 15;
@@ -98,7 +99,7 @@ void Patch::initCarrier(const byte* data)
 	setKR ((data[1] >> 4) &  1);
 	setML ((data[1] >> 0) & 15);
 	KL   = (data[3] >> 6) &  3;
-	TL   = 0;
+	setTL (0);
 	WF   = (data[3] >> 4) &  1;
 	setFB (0);
 	AR   = (data[5] >> 4) & 15;
@@ -114,6 +115,12 @@ void Patch::setKR(byte value)
 void Patch::setML(byte value)
 {
 	ML = mlTable[value];
+}
+void Patch::setTL(byte value)
+{
+	assert(value < 64);
+	assert(TL2EG(value) < 256);
+	TL = TL2EG(value);
 }
 void Patch::setFB(byte value)
 {
@@ -135,7 +142,7 @@ void Slot::reset()
 	dphaseDRTableRks = dphaseDRTable[0];
 	tll = 0;
 	sustain = false;
-	volume = 0;
+	volume = TL2EG(0);
 	slot_on_flag = 0;
 }
 
@@ -148,7 +155,7 @@ void Slot::updatePG(unsigned freq)
 
 void Slot::updateTLL(unsigned freq, bool actAsCarrier)
 {
-	tll = tllTable[freq >> 5][patch.KL] + TL2EG(actAsCarrier ? volume : patch.TL);
+	tll = tllTable[freq >> 5][patch.KL] + (actAsCarrier ? volume : patch.TL);
 }
 
 void Slot::updateRKS(unsigned freq)
@@ -288,9 +295,11 @@ void Slot::setPatch(Patch& patch)
 	setEnvelopeState(state); // recalc eg_phase_max
 }
 
-void Slot::setVolume(unsigned newVolume)
+// Set new volume based on 4-bit register value (0-15).
+void Slot::setVolume(unsigned value)
 {
-	volume = newVolume;
+	// '<< 2' to transform 4 bits to the same range as the 6 bits TL field
+	volume = TL2EG(value << 2);
 }
 
 
@@ -520,9 +529,9 @@ void YM2413::setRhythmFlags(byte old)
 			// OFF -> ON
 			ch6.setPatch(16, *this);
 			ch7.setPatch(17, *this);
-			ch7.mod.setVolume((reg[0x37] >> 4) << 2);
+			ch7.mod.setVolume(reg[0x37] >> 4);
 			ch8.setPatch(18, *this);
-			ch8.mod.setVolume((reg[0x38] >> 4) << 2);
+			ch8.mod.setVolume(reg[0x38] >> 4);
 		} else {
 			// ON -> OFF
 			ch6.setPatch(reg[0x36] >> 4, *this);
@@ -1141,8 +1150,8 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x02: {
-		patches[0][0].KL = (data >> 6) & 3;
-		patches[0][0].TL = (data >> 0) & 63;
+		patches[0][0].KL  = (data >> 6) & 3;
+		patches[0][0].setTL((data >> 0) & 63);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
@@ -1272,12 +1281,12 @@ void YM2413::writeReg(byte regis, byte data)
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
 				// channel 7 or 8 in ryhthm mode
-				ch.mod.setVolume((data >> 4) << 2);
+				ch.mod.setVolume(data >> 4);
 			}
 		} else {
 			ch.setPatch(data >> 4, *this);
 		}
-		ch.car.setVolume((data & 15) << 2);
+		ch.car.setVolume(data & 15);
 		bool actAsCarrier = (cha >= 7) && isRhythm();
 		unsigned freq = getFreq(cha);
 		ch.mod.updateAll(freq, actAsCarrier);
@@ -1371,9 +1380,9 @@ void YM2413::serialize(Archive& ar, unsigned version)
 			           : (reg[0x30 + i] >> 4);
 			ch.setPatch(p, *this); // before updateAll()
 			// restore volume
-			ch.car.setVolume((reg[0x30 + i] & 15) << 2);
+			ch.car.setVolume(reg[0x30 + i] & 15);
 			if (isRhythm() && (i >= 7)) { // ch 7/8 ryhthm
-				ch.mod.setVolume((reg[0x30 + i] >> 4) << 2);
+				ch.mod.setVolume(reg[0x30 + i] >> 4);
 			}
 			// sync various variables
 			bool actAsCarrier = (i >= 7) && isRhythm();
