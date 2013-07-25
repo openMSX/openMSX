@@ -140,19 +140,20 @@ static void makeTllTable()
 	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
 	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	unsigned tllTable[16 * 8][4];
+	unsigned tllTable[4][16 * 8];
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
 		int tmp = 2 * kltable[fnum] - 16 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
+			tllTable[KL][freq] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
+			assert(tllTable[KL][freq] <= 112);
 		}
 	}
 
-	cout << "// KSL + TL Table   values are in range [0, 112)\n"
-	     << "static unsigned tllTable[16 * 8][4] = {\n";
-	formatTable2(tllTable, 4, 16, 4);
+	cout << "// KSL + TL Table   values are in range [0, 112]\n"
+	     << "static byte tllTable[4][16 * 8] = {\n";
+	formatTable2(tllTable, 3, 99, 16);
 }
 
 // lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)

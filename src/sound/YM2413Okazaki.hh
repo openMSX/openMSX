@@ -34,16 +34,18 @@ public:
 	inline void setKR(byte value);
 	/** Sets the frequency multiplier factor [0..15]. */
 	inline void setML(byte value);
+	/** Sets Key scale level [0..3]. */
+	inline void setKL(byte value);
 	/** Set volume (total level) [0..63]. */
 	inline void setTL(byte value);
 	/** Sets the amount of feedback [0..7]. */
 	inline void setFB(byte value);
 
+	byte* KL;     // 0-3    transformed to tllTable[0-3]
 	byte AMPM;    // 0-3    2 packed booleans
 	bool EG;      // 0-1
 	byte KR;      // 0-1    transformed to 10,8
 	byte ML;      // 0-15   transformed to mlTable[0-15]
-	byte KL;      // 0-3
 	byte TL;      // 0-63   transformed to TL2EG(0..63) == [0..252]
 	byte FB;      // 0,1-7  transformed to 0,7-1
 	byte WF;      // 0-1

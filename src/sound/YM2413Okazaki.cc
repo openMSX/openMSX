@@ -18,7 +18,7 @@ namespace YM2413Okazaki {
 //  - int pmtable[PM_PG_WIDTH]
 //  - int dB2LinTab[DBTABLEN * 2]
 //  - unsigned AR_ADJUST_TABLE[1 << EG_BITS]
-//  - unsigned tllTable[16 * 8][4]
+//  - byte tllTable[4][16 * 8]
 //  - unsigned* waveform[2]
 //  - int dphaseDRTable[16][16]
 //  - byte lfo_am_table[LFO_AM_TAB_ELEMENTS]
@@ -68,10 +68,11 @@ static inline bool BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AMPM(0), EG(false), KL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
+	: AMPM(0), EG(false), WF(0), AR(0), DR(0), SL(0), RR(0)
 {
 	setKR(0);
 	setML(0);
+	setKL(0);
 	setTL(0);
 	setFB(0);
 }
@@ -82,7 +83,7 @@ void Patch::initModulator(const byte* data)
 	EG   = (data[0] >> 5) &  1;
 	setKR ((data[0] >> 4) &  1);
 	setML ((data[0] >> 0) & 15);
-	KL   = (data[2] >> 6) &  3;
+	setKL ((data[2] >> 6) &  3);
 	setTL ((data[2] >> 0) & 63);
 	WF   = (data[3] >> 3) &  1;
 	setFB ((data[3] >> 0) &  7);
@@ -98,7 +99,7 @@ void Patch::initCarrier(const byte* data)
 	EG   = (data[1] >> 5) &  1;
 	setKR ((data[1] >> 4) &  1);
 	setML ((data[1] >> 0) & 15);
-	KL   = (data[3] >> 6) &  3;
+	setKL ((data[3] >> 6) &  3);
 	setTL (0);
 	WF   = (data[3] >> 4) &  1;
 	setFB (0);
@@ -115,6 +116,10 @@ void Patch::setKR(byte value)
 void Patch::setML(byte value)
 {
 	ML = mlTable[value];
+}
+void Patch::setKL(byte value)
+{
+	KL = tllTable[value];
 }
 void Patch::setTL(byte value)
 {
@@ -155,7 +160,7 @@ void Slot::updatePG(unsigned freq)
 
 void Slot::updateTLL(unsigned freq, bool actAsCarrier)
 {
-	tll = tllTable[freq >> 5][patch.KL] + (actAsCarrier ? volume : patch.TL);
+	tll = patch.KL[freq >> 5] + (actAsCarrier ? volume : patch.TL);
 }
 
 void Slot::updateRKS(unsigned freq)
@@ -1150,7 +1155,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x02: {
-		patches[0][0].KL  = (data >> 6) & 3;
+		patches[0][0].setKL((data >> 6) &  3);
 		patches[0][0].setTL((data >> 0) & 63);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
@@ -1165,7 +1170,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x03: {
-		patches[0][1].KL  = (data >> 6) & 3;
+		patches[0][1].setKL((data >> 6) & 3);
 		patches[0][1].WF  = (data >> 4) & 1;
 		patches[0][0].WF  = (data >> 3) & 1;
 		patches[0][0].setFB((data >> 0) & 7);
