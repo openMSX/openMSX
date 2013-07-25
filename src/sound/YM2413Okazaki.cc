@@ -23,6 +23,7 @@ namespace YM2413Okazaki {
 //  - int dphaseDRTable[16][16]
 //  - byte lfo_am_table[LFO_AM_TAB_ELEMENTS]
 //  - int SL[16]
+//  - byte mlTable[16]
 #include "YM2413OkazakiTable.ii"
 
 
@@ -67,52 +68,56 @@ static inline bool BIT(unsigned s, unsigned b)
 //
 Patch::Patch()
 	: AMPM(0), EG(false)
-	, ML(0), KL(0), TL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
+	, KL(0), TL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
 {
-	setFeedbackShift(0);
-	setKeyScaleRate(0);
+	setKR(0);
+	setML(0);
+	setFB(0);
 }
 
 void Patch::initModulator(const byte* data)
 {
 	AMPM = (data[0] >> 6) &  3;
 	EG   = (data[0] >> 5) &  1;
-	ML   = (data[0] >> 0) & 15;
+	setKR ((data[0] >> 4) &  1);
+	setML ((data[0] >> 0) & 15);
 	KL   = (data[2] >> 6) &  3;
 	TL   = (data[2] >> 0) & 63;
 	WF   = (data[3] >> 3) &  1;
+	setFB ((data[3] >> 0) &  7);
 	AR   = (data[4] >> 4) & 15;
 	DR   = (data[4] >> 0) & 15;
 	SL   = (data[6] >> 4) & 15;
 	RR   = (data[6] >> 0) & 15;
-	setFeedbackShift((data[3] >> 0) & 7);
-	setKeyScaleRate((data[0] >> 4) & 1);
 }
 
 void Patch::initCarrier(const byte* data)
 {
 	AMPM = (data[1] >> 6) &  3;
 	EG   = (data[1] >> 5) &  1;
-	ML   = (data[1] >> 0) & 15;
+	setKR ((data[1] >> 4) &  1);
+	setML ((data[1] >> 0) & 15);
 	KL   = (data[3] >> 6) &  3;
 	TL   = 0;
 	WF   = (data[3] >> 4) &  1;
+	setFB (0);
 	AR   = (data[5] >> 4) & 15;
 	DR   = (data[5] >> 0) & 15;
 	SL   = (data[7] >> 4) & 15;
 	RR   = (data[7] >> 0) & 15;
-	setFeedbackShift(0);
-	setKeyScaleRate((data[1] >> 4) & 1);
 }
 
-void Patch::setFeedbackShift(byte value)
-{
-	FB = value ? 8 - value : 0;
-}
-
-void Patch::setKeyScaleRate(bool value)
+void Patch::setKR(byte value)
 {
 	KR = value ? 8 : 10;
+}
+void Patch::setML(byte value)
+{
+	ML = mlTable[value];
+}
+void Patch::setFB(byte value)
+{
+	FB = value ? 8 - value : 0;
 }
 
 
@@ -136,14 +141,9 @@ void Slot::reset()
 
 void Slot::updatePG(unsigned freq)
 {
-	static const unsigned mltable[16] = {
-		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
-		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
-	};
-
 	unsigned fnum = freq & 511;
 	unsigned block = freq / 512;
-	dphase = ((fnum * mltable[patch.ML]) << block) >> (20 - DP_BITS);
+	dphase = ((fnum * patch.ML) << block) >> (20 - DP_BITS);
 }
 
 void Slot::updateTLL(unsigned freq, bool actAsCarrier)
@@ -1099,8 +1099,8 @@ void YM2413::writeReg(byte regis, byte data)
 	case 0x00: {
 		patches[0][0].AMPM = (data >> 6) & 3;
 		patches[0][0].EG   = (data >> 5) & 1;
-		patches[0][0].setKeyScaleRate((data >> 4) & 1);
-		patches[0][0].ML = (data >> 0) & 15;
+		patches[0][0].setKR ((data >> 4) & 1);
+		patches[0][0].setML ((data >> 0) & 15);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
@@ -1121,8 +1121,8 @@ void YM2413::writeReg(byte regis, byte data)
 	case 0x01: {
 		patches[0][1].AMPM = (data >> 6) & 3;
 		patches[0][1].EG   = (data >> 5) & 1;
-		patches[0][1].setKeyScaleRate((data >> 4) & 1);
-		patches[0][1].ML = (data >> 0) & 15;
+		patches[0][1].setKR ((data >> 4) & 1);
+		patches[0][1].setML ((data >> 0) & 15);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
@@ -1156,10 +1156,10 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x03: {
-		patches[0][1].KL = (data >> 6) & 3;
-		patches[0][1].WF = (data >> 4) & 1;
-		patches[0][0].WF = (data >> 3) & 1;
-		patches[0][0].setFeedbackShift((data >> 0) & 7);
+		patches[0][1].KL  = (data >> 6) & 3;
+		patches[0][1].WF  = (data >> 4) & 1;
+		patches[0][0].WF  = (data >> 3) & 1;
+		patches[0][0].setFB((data >> 0) & 7);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {

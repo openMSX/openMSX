@@ -290,6 +290,16 @@ static void makeSusLevTable()
 	formatTable(SL, 4, 8);
 }
 
+static void makeMLTable()
+{
+	cout << "// ML-table\n"
+	        "static const byte mlTable[16] = {\n"
+	        "	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,\n"
+	        "	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2\n"
+	        "};\n"
+	        "\n";
+}
+
 int main()
 {
 	makeChecks();
@@ -301,4 +311,5 @@ int main()
 	makeDphaseDRTable();
 	makeLfoAmTable();
 	makeSusLevTable();
+	makeMLTable();
 }
