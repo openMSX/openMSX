@@ -38,9 +38,12 @@ public:
 	inline void setKL(byte value);
 	/** Set volume (total level) [0..63]. */
 	inline void setTL(byte value);
+	/** Set waveform [0..1]. */
+	inline void setWF(byte value);
 	/** Sets the amount of feedback [0..7]. */
 	inline void setFB(byte value);
 
+	unsigned* WF; // 0-1    transformed to waveform[0-1]
 	byte* KL;     // 0-3    transformed to tllTable[0-3]
 	byte AMPM;    // 0-3    2 packed booleans
 	bool EG;      // 0-1
@@ -48,7 +51,6 @@ public:
 	byte ML;      // 0-15   transformed to mlTable[0-15]
 	byte TL;      // 0-63   transformed to TL2EG(0..63) == [0..252]
 	byte FB;      // 0,1-7  transformed to 0,7-1
-	byte WF;      // 0-1
 	byte AR;      // 0-15
 	byte DR;      // 0-15
 	byte SL;      // 0-15
@@ -85,14 +87,11 @@ public:
 	inline void updatePG(unsigned freq);
 	inline void updateTLL(unsigned freq, bool actAsCarrier);
 	inline void updateRKS(unsigned freq);
-	inline void updateWF();
 	inline void updateEG();
 	inline void updateAll(unsigned freq, bool actAsCarrier);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
-
-	unsigned* sintbl;	// Wavetable (for PG)
 
 	// OUTPUT
 	int feedback;

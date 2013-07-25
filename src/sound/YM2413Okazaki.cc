@@ -68,12 +68,13 @@ static inline bool BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AMPM(0), EG(false), WF(0), AR(0), DR(0), SL(0), RR(0)
+	: AMPM(0), EG(false), AR(0), DR(0), SL(0), RR(0)
 {
 	setKR(0);
 	setML(0);
 	setKL(0);
 	setTL(0);
+	setWF(0);
 	setFB(0);
 }
 
@@ -85,7 +86,7 @@ void Patch::initModulator(const byte* data)
 	setML ((data[0] >> 0) & 15);
 	setKL ((data[2] >> 6) &  3);
 	setTL ((data[2] >> 0) & 63);
-	WF   = (data[3] >> 3) &  1;
+	setWF ((data[3] >> 3) &  1);
 	setFB ((data[3] >> 0) &  7);
 	AR   = (data[4] >> 4) & 15;
 	DR   = (data[4] >> 0) & 15;
@@ -101,7 +102,7 @@ void Patch::initCarrier(const byte* data)
 	setML ((data[1] >> 0) & 15);
 	setKL ((data[3] >> 6) &  3);
 	setTL (0);
-	WF   = (data[3] >> 4) &  1;
+	setWF ((data[3] >> 4) &  1);
 	setFB (0);
 	AR   = (data[5] >> 4) & 15;
 	DR   = (data[5] >> 0) & 15;
@@ -127,6 +128,10 @@ void Patch::setTL(byte value)
 	assert(TL2EG(value) < 256);
 	TL = TL2EG(value);
 }
+void Patch::setWF(byte value)
+{
+	WF = waveform[value];
+}
 void Patch::setFB(byte value)
 {
 	FB = value ? 8 - value : 0;
@@ -138,7 +143,6 @@ void Patch::setFB(byte value)
 //
 void Slot::reset()
 {
-	sintbl = waveform[0];
 	cphase = 0;
 	dphase = 0;
 	output = 0;
@@ -168,11 +172,6 @@ void Slot::updateRKS(unsigned freq)
 	unsigned rks = freq >> patch.KR;
 	assert(rks < 16);
 	dphaseDRTableRks = dphaseDRTable[rks];
-}
-
-void Slot::updateWF()
-{
-	sintbl = waveform[patch.WF];
 }
 
 void Slot::updateEG()
@@ -232,7 +231,6 @@ void Slot::updateAll(unsigned freq, bool actAsCarrier)
 	updatePG(freq);
 	updateTLL(freq, actAsCarrier);
 	updateRKS(freq);
-	updateWF();
 	updateEG(); // EG should be updated last
 }
 
@@ -693,7 +691,7 @@ ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm
 {
 	int phase = calc_phase<HAS_PM>(lfo_pm) + wave2_8pi(fm);
 	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
-	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
 	return output;
 }
@@ -708,7 +706,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am, unsign
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
-	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
 	output = newOutput;
 	return feedback;
@@ -719,7 +717,7 @@ ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	unsigned phase = calc_phase<false>(PhaseModulation());
 	unsigned egout = calc_envelope<false, false>(0, 0);
-	return dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	return dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 }
 
 // SNARE (ch7 car)
@@ -1171,16 +1169,14 @@ void YM2413::writeReg(byte regis, byte data)
 	}
 	case 0x03: {
 		patches[0][1].setKL((data >> 6) & 3);
-		patches[0][1].WF  = (data >> 4) & 1;
-		patches[0][0].WF  = (data >> 3) & 1;
+		patches[0][1].setWF((data >> 4) & 1);
+		patches[0][0].setWF((data >> 3) & 1);
 		patches[0][0].setFB((data >> 0) & 7);
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updateWF();
-				ch.car.updateWF();
 			}
 		}
 		break;
@@ -1339,7 +1335,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("sustain", sustain);
 
 	// These are restored by calls to
-	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase, sintbl
+	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase
 	//  setEnvelopeState():  eg_phase_max
 	//  setPatch():          patch
 	//  setVolume():         volume
