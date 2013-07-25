@@ -280,15 +280,15 @@ static void makeLfoAmTable()
 
 static void makeSusLevTable()
 {
-	int SL[16];
+	unsigned slTable[16];
 	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		SL[i] = int(x / EG_STEP) << EP_FP_BITS;
+		slTable[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
 
 	cout << "// Sustain level (17.15 fixed point)\n"
-	        "static const int SL[16] = {\n";
-	formatTable(SL, 4, 8);
+	        "static const unsigned slTable[16] = {\n";
+	formatTable(slTable, 4, 8);
 }
 
 static void makeMLTable()

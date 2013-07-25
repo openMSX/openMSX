@@ -42,9 +42,12 @@ public:
 	inline void setWF(byte value);
 	/** Sets the amount of feedback [0..7]. */
 	inline void setFB(byte value);
+	/** Sets sustain level [0..15]. */
+	inline void setSL(byte value);
 
 	unsigned* WF; // 0-1    transformed to waveform[0-1]
 	byte* KL;     // 0-3    transformed to tllTable[0-3]
+	unsigned SL;  // 0-15   transformed to slTable[0-15]
 	byte AMPM;    // 0-3    2 packed booleans
 	bool EG;      // 0-1
 	byte KR;      // 0-1    transformed to 10,8
@@ -53,7 +56,6 @@ public:
 	byte FB;      // 0,1-7  transformed to 0,7-1
 	byte AR;      // 0-15
 	byte DR;      // 0-15
-	byte SL;      // 0-15
 	byte RR;      // 0-15
 };
 

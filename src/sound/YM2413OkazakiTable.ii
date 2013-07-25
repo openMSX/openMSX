@@ -545,7 +545,7 @@ static const unsigned char lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // Sustain level (17.15 fixed point)
-static const int SL[16] = {
+static const unsigned slTable[16] = {
 	       0,  262144,  524288,  786432,
 	 1048576, 1310720, 1572864, 1835008,
 	 2097152, 2359296, 2621440, 2883584,

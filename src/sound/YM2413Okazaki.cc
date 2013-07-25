@@ -22,7 +22,7 @@ namespace YM2413Okazaki {
 //  - unsigned* waveform[2]
 //  - int dphaseDRTable[16][16]
 //  - byte lfo_am_table[LFO_AM_TAB_ELEMENTS]
-//  - int SL[16]
+//  - unsigned slTable[16]
 //  - byte mlTable[16]
 #include "YM2413OkazakiTable.ii"
 
@@ -68,7 +68,7 @@ static inline bool BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AMPM(0), EG(false), AR(0), DR(0), SL(0), RR(0)
+	: AMPM(0), EG(false), AR(0), DR(0), RR(0)
 {
 	setKR(0);
 	setML(0);
@@ -76,6 +76,7 @@ Patch::Patch()
 	setTL(0);
 	setWF(0);
 	setFB(0);
+	setSL(0);
 }
 
 void Patch::initModulator(const byte* data)
@@ -90,7 +91,7 @@ void Patch::initModulator(const byte* data)
 	setFB ((data[3] >> 0) &  7);
 	AR   = (data[4] >> 4) & 15;
 	DR   = (data[4] >> 0) & 15;
-	SL   = (data[6] >> 4) & 15;
+	setSL ((data[6] >> 4) & 15);
 	RR   = (data[6] >> 0) & 15;
 }
 
@@ -106,7 +107,7 @@ void Patch::initCarrier(const byte* data)
 	setFB (0);
 	AR   = (data[5] >> 4) & 15;
 	DR   = (data[5] >> 0) & 15;
-	SL   = (data[7] >> 4) & 15;
+	setSL ((data[7] >> 4) & 15);
 	RR   = (data[7] >> 0) & 15;
 }
 
@@ -135,6 +136,10 @@ void Patch::setWF(byte value)
 void Patch::setFB(byte value)
 {
 	FB = value ? 8 - value : 0;
+}
+void Patch::setSL(byte value)
+{
+	SL = slTable[value];
 }
 
 
@@ -242,7 +247,7 @@ void Slot::setEnvelopeState(EnvelopeState state_)
 		eg_phase_max = (patch.AR == 15) ? EnvPhaseIndex(0) : EG_DP_MAX;
 		break;
 	case DECAY:
-		eg_phase_max = EnvPhaseIndex::create(SL[patch.SL]);
+		eg_phase_max = EnvPhaseIndex::create(patch.SL);
 		break;
 	case SUSHOLD:
 		eg_phase_max = EG_DP_INF;
@@ -1214,8 +1219,8 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x06: {
-		patches[0][0].SL = (data >> 4) & 15;
-		patches[0][0].RR = (data >> 0) & 15;
+		patches[0][0].setSL((data >> 4) & 15);
+		patches[0][0].RR  = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; ++i) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
@@ -1230,8 +1235,8 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x07: {
-		patches[0][1].SL = (data >> 4) & 15;
-		patches[0][1].RR = (data >> 0) & 15;
+		patches[0][1].setSL((data >> 4) & 15);
+		patches[0][1].RR  = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
 		for (unsigned i = 0; i < m; i++) {
 			if ((reg[0x30 + i] & 0xF0) == 0) {
