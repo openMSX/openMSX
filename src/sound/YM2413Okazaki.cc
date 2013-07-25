@@ -1309,29 +1309,27 @@ SERIALIZE_ENUM(YM2413Okazaki::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Okazaki {
 
-// version 1:  initial version
-// version 2:  don't serialize "type / actAsCarrier" anymore, it's now
-//             a calculated value
+// version 1: initial version
+// version 2: don't serialize "type / actAsCarrier" anymore, it's now
+//            a calculated value
 // version 3: don't serialize slot_on_flag anymore
+// version 4: don't serialize volume anymore
 template<typename Archive>
 void Slot::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
 	ar.serialize("cphase", cphase);
-	ar.serialize("volume", volume);
 	ar.serialize("state", state);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("sustain", sustain);
 
-	// These are restored by call to updateAll() in YM2413::serialize()
-	//   eg_dphase, dphaseDRTableRks, tll, dphase, sintbl
-	// and by setEnvelopeState()
-	//   eg_phase_max
-	// and by setPatch()
-	//   patch
-	// and by update_key_status()
-	//   slot_on_flag
+	// These are restored by calls to
+	//  updateAll():         eg_dphase, dphaseDRTableRks, tll, dphase, sintbl
+	//  setEnvelopeState():  eg_phase_max
+	//  setPatch():          patch
+	//  setVolume():         volume
+	//  update_key_status(): slot_on_flag
 }
 
 // version 1: initial version
@@ -1367,10 +1365,17 @@ void YM2413::serialize(Archive& ar, unsigned version)
 		patches[0][1].initCarrier  (&reg[0]);
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
+			// restore patch
 			unsigned p = ((i >= 6) && isRhythm())
 			           ? (16 + (i - 6))
 			           : (reg[0x30 + i] >> 4);
 			ch.setPatch(p, *this); // before updateAll()
+			// restore volume
+			ch.car.setVolume((reg[0x30 + i] & 15) << 2);
+			if (isRhythm() && (i >= 7)) { // ch 7/8 ryhthm
+				ch.mod.setVolume((reg[0x30 + i] >> 4) << 2);
+			}
+			// sync various variables
 			bool actAsCarrier = (i >= 7) && isRhythm();
 			unsigned freq = getFreq(i);
 			ch.mod.updateAll(freq, actAsCarrier);
