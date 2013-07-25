@@ -38,17 +38,18 @@ public:
 	 */
 	void setKeyScaleRate(bool value);
 
-	bool AM, PM, EG;
-	byte KR; // 0,1  transformed to  10,8
-	byte ML; // 0-15
-	byte KL; // 0-3
-	byte TL; // 0-63
-	byte FB; // 0,1-7  transformed to  0,7-1
-	byte WF; // 0-1
-	byte AR; // 0-15
-	byte DR; // 0-15
-	byte SL; // 0-15
-	byte RR; // 0-15
+	byte AMPM;    // 0-3    2 packed booleans
+	bool EG;      // 0-1
+	byte KR;      // 0-1    transformed to 10,8
+	byte ML;      // 0-15
+	byte KL;      // 0-3
+	byte TL;      // 0-63
+	byte FB;      // 0,1-7  transformed to 0,7-1
+	byte WF;      // 0-1
+	byte AR;      // 0-15
+	byte DR;      // 0-15
+	byte SL;      // 0-15
+	byte RR;      // 0-15
 };
 
 class Slot {

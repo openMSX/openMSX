@@ -66,7 +66,7 @@ static inline bool BIT(unsigned s, unsigned b)
 // Patch
 //
 Patch::Patch()
-	: AM(false), PM(false), EG(false)
+	: AMPM(0), EG(false)
 	, ML(0), KL(0), TL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
 {
 	setFeedbackShift(0);
@@ -75,34 +75,32 @@ Patch::Patch()
 
 void Patch::initModulator(const byte* data)
 {
-	AM = (data[0] >> 7) & 1;
-	PM = (data[0] >> 6) & 1;
-	EG = (data[0] >> 5) & 1;
-	ML = (data[0] >> 0) & 15;
-	KL = (data[2] >> 6) & 3;
-	TL = (data[2] >> 0) & 63;
-	WF = (data[3] >> 3) & 1;
-	AR = (data[4] >> 4) & 15;
-	DR = (data[4] >> 0) & 15;
-	SL = (data[6] >> 4) & 15;
-	RR = (data[6] >> 0) & 15;
+	AMPM = (data[0] >> 6) &  3;
+	EG   = (data[0] >> 5) &  1;
+	ML   = (data[0] >> 0) & 15;
+	KL   = (data[2] >> 6) &  3;
+	TL   = (data[2] >> 0) & 63;
+	WF   = (data[3] >> 3) &  1;
+	AR   = (data[4] >> 4) & 15;
+	DR   = (data[4] >> 0) & 15;
+	SL   = (data[6] >> 4) & 15;
+	RR   = (data[6] >> 0) & 15;
 	setFeedbackShift((data[3] >> 0) & 7);
 	setKeyScaleRate((data[0] >> 4) & 1);
 }
 
 void Patch::initCarrier(const byte* data)
 {
-	AM = (data[1] >> 7) & 1;
-	PM = (data[1] >> 6) & 1;
-	EG = (data[1] >> 5) & 1;
-	ML = (data[1] >> 0) & 15;
-	KL = (data[3] >> 6) & 3;
-	TL = 0;
-	WF = (data[3] >> 4) & 1;
-	AR = (data[5] >> 4) & 15;
-	DR = (data[5] >> 0) & 15;
-	SL = (data[7] >> 4) & 15;
-	RR = (data[7] >> 0) & 15;
+	AMPM = (data[1] >> 6) &  3;
+	EG   = (data[1] >> 5) &  1;
+	ML   = (data[1] >> 0) & 15;
+	KL   = (data[3] >> 6) &  3;
+	TL   = 0;
+	WF   = (data[3] >> 4) &  1;
+	AR   = (data[5] >> 4) & 15;
+	DR   = (data[5] >> 0) & 15;
+	SL   = (data[7] >> 4) & 15;
+	RR   = (data[7] >> 0) & 15;
 	setFeedbackShift(0);
 	setKeyScaleRate((data[1] >> 4) & 1);
 }
@@ -592,7 +590,7 @@ static inline int wave2_8pi(int e)
 template <bool HAS_PM>
 ALWAYS_INLINE unsigned Slot::calc_phase(PhaseModulation lfo_pm)
 {
-	assert(patch.PM == HAS_PM);
+	assert(((patch.AMPM & 1) != 0) == HAS_PM);
 	if (HAS_PM) {
 		cphase += (lfo_pm * dphase).toInt();
 	} else {
@@ -635,7 +633,7 @@ void Slot::calc_envelope_outline(unsigned& out)
 template <bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
-	assert(patch.AM == HAS_AM);
+	assert(((patch.AMPM & 2) != 0) == HAS_AM);
 	assert(!FIXED_ENV || (state == SUSHOLD) || (state == FINISH));
 
 	if (FIXED_ENV) {
@@ -774,10 +772,10 @@ template <unsigned FLAGS>
 ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 {
 	// VC++ requires explicit conversion to bool. Compiler bug??
-	const bool HAS_CAR_AM = (FLAGS &  1) != 0;
-	const bool HAS_CAR_PM = (FLAGS &  2) != 0;
-	const bool HAS_MOD_AM = (FLAGS &  4) != 0;
-	const bool HAS_MOD_PM = (FLAGS &  8) != 0;
+	const bool HAS_CAR_PM = (FLAGS &  1) != 0;
+	const bool HAS_CAR_AM = (FLAGS &  2) != 0;
+	const bool HAS_MOD_PM = (FLAGS &  4) != 0;
+	const bool HAS_MOD_AM = (FLAGS &  8) != 0;
 	const bool HAS_MOD_FB = (FLAGS & 16) != 0;
 	const bool HAS_CAR_FIXED_ENV = (FLAGS & 32) != 0;
 	const bool HAS_MOD_FIXED_ENV = (FLAGS & 64) != 0;
@@ -894,10 +892,8 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			if (ch.car.state == SETTLE) {
 				modFixedEnv = false;
 			}
-			unsigned flags = ( ch.car.patch.AM       << 0) |
-			                 ( ch.car.patch.PM       << 1) |
-			                 ( ch.mod.patch.AM       << 2) |
-			                 ( ch.mod.patch.PM       << 3) |
+			unsigned flags = ( ch.car.patch.AMPM     << 0) |
+			                 ( ch.mod.patch.AMPM     << 2) |
 			                 ((ch.mod.patch.FB != 0) << 4) |
 			                 ( carFixedEnv           << 5) |
 			                 ( modFixedEnv           << 6);
@@ -1101,9 +1097,8 @@ void YM2413::writeReg(byte regis, byte data)
 
 	switch (regis) {
 	case 0x00: {
-		patches[0][0].AM = (data >> 7) & 1;
-		patches[0][0].PM = (data >> 6) & 1;
-		patches[0][0].EG = (data >> 5) & 1;
+		patches[0][0].AMPM = (data >> 6) & 3;
+		patches[0][0].EG   = (data >> 5) & 1;
 		patches[0][0].setKeyScaleRate((data >> 4) & 1);
 		patches[0][0].ML = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1124,9 +1119,8 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x01: {
-		patches[0][1].AM = (data >> 7) & 1;
-		patches[0][1].PM = (data >> 6) & 1;
-		patches[0][1].EG = (data >> 5) & 1;
+		patches[0][1].AMPM = (data >> 6) & 3;
+		patches[0][1].EG   = (data >> 5) & 1;
 		patches[0][1].setKeyScaleRate((data >> 4) & 1);
 		patches[0][1].ML = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
