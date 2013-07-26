@@ -123,14 +123,11 @@ public:
 	inline void setPatch(unsigned num, YM2413& global);
 	inline void setSustain(bool sustain, bool modActAsCarrier);
 	inline void setVol(unsigned volume);
-	inline void setFreq(unsigned freq);
 	inline void keyOn();
 	inline void keyOff();
 
 	Slot mod, car;
 	unsigned patchFlags;
-
-	unsigned freq; // combined fnum and block
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -153,7 +150,8 @@ public:
 	inline void keyOff_CYM();
 	inline void setRhythmFlags(byte old);
 	inline void update_key_status();
-	bool isRhythm() const;
+	inline bool isRhythm() const;
+	inline unsigned getFreq(unsigned channel) const;
 	Patch& getPatch(unsigned instrument, bool carrier);
 
 	template <unsigned FLAGS>
