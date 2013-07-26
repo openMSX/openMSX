@@ -38,9 +38,6 @@ public:
 	 */
 	void setKeyScaleRate(bool value);
 
-	template<typename Archive>
-	void serialize(Archive& ar, unsigned version);
-
 	bool AM, PM, EG;
 	byte KR; // 0,1  transformed to  10,8
 	byte ML; // 0-15
@@ -194,7 +191,7 @@ private:
 
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Slot, 3);
 SERIALIZE_CLASS_VERSION(YM2413Okazaki::Channel, 2);
-SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 2);
+SERIALIZE_CLASS_VERSION(YM2413Okazaki::YM2413, 3);
 
 } // namespace openmsx
 

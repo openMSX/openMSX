@@ -1324,24 +1324,6 @@ SERIALIZE_ENUM(YM2413Okazaki::EnvelopeState, envelopeStateInfo);
 
 namespace YM2413Okazaki {
 
-template<typename Archive>
-void Patch::serialize(Archive& ar, unsigned /*version*/)
-{
-	ar.serialize("AM", AM);
-	ar.serialize("PM", PM);
-	ar.serialize("EG", EG);
-	ar.serialize("KR", KR);
-	ar.serialize("ML", ML);
-	ar.serialize("KL", KL);
-	ar.serialize("TL", TL);
-	ar.serialize("FB", FB);
-	ar.serialize("WF", WF);
-	ar.serialize("AR", AR);
-	ar.serialize("DR", DR);
-	ar.serialize("SL", SL);
-	ar.serialize("RR", RR);
-}
-
 // version 1:  initial version
 // version 2:  don't serialize "type / actAsCarrier" anymore, it's now
 //             a calculated value
@@ -1380,8 +1362,9 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 }
 
 
-// version 1:  initial version
-// version 2:  'registers' are moved here (no longer serialized in base class)
+// version 1: initial version
+// version 2: 'registers' are moved here (no longer serialized in base class)
+// version 3: no longer serialize 'user_patch_mod' and 'user_patch_car'
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
@@ -1389,9 +1372,8 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	ar.serialize("registers", reg);
 	if (ar.versionBelow(version, 2)) ar.endTag("YM2413Core");
 
-	// no need to serialize patches[1-19]
-	ar.serialize("user_patch_mod", patches[0][0]);
-	ar.serialize("user_patch_car", patches[0][1]);
+	// no need to serialize patches[]
+	//   patches[0] is restored from registers, the others are read-only
 	ar.serialize("channels", channels);
 	ar.serialize("pm_phase", pm_phase);
 	ar.serialize("am_phase", am_phase);
@@ -1399,6 +1381,8 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	// don't serialize idleSamples, is only an optimization
 
 	if (ar.isLoader()) {
+		patches[0][0].initModulator(&reg[0]);
+		patches[0][1].initCarrier  (&reg[0]);
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			unsigned p = ((i >= 6) && isRhythm())
