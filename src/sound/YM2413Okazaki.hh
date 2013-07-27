@@ -119,7 +119,6 @@ public:
 	void reset(YM2413& global);
 	inline void setPatch(unsigned num, YM2413& global);
 	inline void setSustain(bool sustain, bool modActAsCarrier);
-	inline void setVol(unsigned volume);
 	inline void keyOn();
 	inline void keyOff();
 

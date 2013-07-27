@@ -329,12 +329,6 @@ void Channel::setSustain(bool sustain, bool modActAsCarrier)
 	}
 }
 
-// Volume : 6bit ( Volume register << 2 )
-void Channel::setVol(unsigned volume)
-{
-	car.setVolume(volume);
-}
-
 // Channel key on
 void Channel::keyOn()
 {
@@ -1284,12 +1278,12 @@ void YM2413::writeReg(byte regis, byte data)
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
 				// channel 7 or 8 in ryhthm mode
-				channels[cha].mod.setVolume((data >> 4) << 2);
+				ch.mod.setVolume((data >> 4) << 2);
 			}
 		} else {
 			ch.setPatch(data >> 4, *this);
 		}
-		ch.setVol((data & 15) << 2);
+		ch.car.setVolume((data & 15) << 2);
 		bool actAsCarrier = (cha >= 7) && isRhythm();
 		unsigned freq = getFreq(cha);
 		ch.mod.updateAll(freq, actAsCarrier);
