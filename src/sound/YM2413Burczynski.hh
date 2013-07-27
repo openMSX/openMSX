@@ -242,7 +242,6 @@ private:
 	void resetOperators();
 
 	inline bool isRhythm() const;
-	int getNumMelodicChannels() const;
 
 	Channel& getChannelForReg(byte reg);
 

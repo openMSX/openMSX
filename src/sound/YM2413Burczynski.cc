@@ -943,7 +943,7 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	inst_tab[0][part] = value;
 
 	// Update every channel that has instrument 0 selected.
-	const int numMelodicChannels = getNumMelodicChannels();
+	const int numMelodicChannels = isRhythm() ? 6 : 9;
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		Channel& channel = channels[ch];
 		if ((reg[0x30 + ch] & 0xF0) == 0) {
@@ -1037,11 +1037,6 @@ bool YM2413::isRhythm() const
 	return (reg[0x0E] & 0x20) != 0;
 }
 
-int YM2413::getNumMelodicChannels() const
-{
-	return isRhythm() ? 6 : 9;
-}
-
 Channel& YM2413::getChannelForReg(byte reg)
 {
 	byte chan = (reg & 0x0F) % 9; // verified on real YM2413
@@ -1062,7 +1057,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
-	const int numMelodicChannels = getNumMelodicChannels();
+	const int numMelodicChannels = isRhythm() ? 6 : 9;
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
@@ -1264,10 +1259,9 @@ void YM2413::writeReg(byte r, byte v)
 		// register accordingly.
 
 		byte chan = (r & 0x0F) % 9; // verified on real YM2413
-		if (chan >= getNumMelodicChannels()) {
-			// We're in rhythm mode.
-			if (chan >= 7) {
-				// Only for channel 7 and 8 (channel 6 is handled in usual way)
+		if (isRhythm() && (chan >= 6)) {
+			if (chan > 6) {
+				// channel 7 or 8 in ryhthm mode
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
 				ch.mod.setTotalLevel(ch, (v >> 4) << 2);
 			}
