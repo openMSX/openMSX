@@ -22,13 +22,10 @@ static void makeChecks()
 	        "static_assert(DBTABLEN == " << DBTABLEN << ", \"mismatch, regenerate\");\n"
 	        "//static_assert(DB_STEP == " << DB_STEP << ", \"mismatch, regenerate\");\n"
 	        "//static_assert(EG_STEP == " << EG_STEP << ", \"mismatch, regenerate\");\n"
-	        "//static_assert(PM_DEPTH == " << PM_DEPTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(PG_BITS == " << PG_BITS << ", \"mismatch, regenerate\");\n"
 	        "static_assert(PG_WIDTH == " << PG_WIDTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(EG_BITS == " << EG_BITS << ", \"mismatch, regenerate\");\n"
 	        "static_assert(DB2LIN_AMP_BITS == " << DB2LIN_AMP_BITS << ", \"mismatch, regenerate\");\n"
-	        "static_assert(PM_PG_BITS == " << PM_PG_BITS << ", \"mismatch, regenerate\");\n"
-	        "static_assert(PM_PG_WIDTH == " << PM_PG_WIDTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(LFO_AM_TAB_ELEMENTS == " << LFO_AM_TAB_ELEMENTS << ", \"mismatch, regenerate\");\n"
 	        "\n";
 }
@@ -78,16 +75,19 @@ static inline double saw(double phase)
 
 static void makePmTable()
 {
-	int pmtable[PM_PG_WIDTH];
-
-	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		double t = pow(2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH)));
-		pmtable[i] = lrint(t * (1 << PM_FP_BITS));
-	}
-
-	cout << "// Table for Pitch Modulator (24.8 fixed point)\n"
-	        "static int pmtable[PM_PG_WIDTH] = {\n";
-	formatTable(pmtable, 8, 4);
+	cout << "// LFO Phase Modulation table (copied from Burczynski core)\n"
+	        "static const signed char pmTable[8][8] =\n"
+	        "{\n"
+	        "	{ 0, 0, 0, 0, 0, 0, 0, 0, }, // FNUM = 000xxxxxx\n"
+	        "	{ 0, 0, 1, 0, 0, 0,-1, 0, }, // FNUM = 001xxxxxx\n"
+	        "	{ 0, 1, 2, 1, 0,-1,-2,-1, }, // FNUM = 010xxxxxx\n"
+	        "	{ 0, 1, 3, 1, 0,-1,-3,-1, }, // FNUM = 011xxxxxx\n"
+	        "	{ 0, 2, 4, 2, 0,-2,-4,-2, }, // FNUM = 100xxxxxx\n"
+	        "	{ 0, 2, 5, 2, 0,-2,-5,-2, }, // FNUM = 101xxxxxx\n"
+	        "	{ 0, 3, 6, 3, 0,-3,-6,-3, }, // FNUM = 110xxxxxx\n"
+	        "	{ 0, 3, 7, 3, 0,-3,-7,-3, }, // FNUM = 111xxxxxx\n"
+	        "};\n"
+	        "\n";
 }
 
 static void makeDB2LinTable()

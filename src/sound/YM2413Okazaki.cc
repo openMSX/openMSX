@@ -15,7 +15,7 @@ namespace openmsx {
 namespace YM2413Okazaki {
 
 // This defines the tables:
-//  - int pmtable[PM_PG_WIDTH]
+//  - signed char pmTable[8][8]
 //  - int dB2LinTab[DBTABLEN * 2]
 //  - unsigned AR_ADJUST_TABLE[1 << EG_BITS]
 //  - byte tllTable[4][16 * 8]
@@ -28,8 +28,6 @@ namespace YM2413Okazaki {
 
 
 // Extra (derived) constants
-static unsigned PM_DPHASE =
-	unsigned(PM_SPEED * PM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
@@ -149,7 +147,7 @@ void Patch::setSL(byte value)
 void Slot::reset()
 {
 	cphase = 0;
-	dphase = 0;
+	for (int i = 0; i < 8; ++i) dphase[i] = 0;
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
@@ -162,9 +160,18 @@ void Slot::reset()
 
 void Slot::updatePG(unsigned freq)
 {
-	unsigned fnum = freq & 511;
+	// Pre-calculate all phase-increments. The 8 different values are for
+	// the 8 steps of the PM stuff (for mod and car phase calculation).
+	// When PM isn't used then dphase[0] is used (pmTable[.][0] == 0).
+	// The original Okazaki core calculated the PM stuff in a different
+	// way. This algorithm was copied from the Burczynski core because it
+	// is much more suited for a (cheap) hardware calculation.
+	unsigned fnum  = freq & 511;
 	unsigned block = freq / 512;
-	dphase = ((fnum * patch.ML) << block) >> (20 - DP_BITS);
+	for (int pm = 0; pm < 8; ++pm) {
+		unsigned tmp = ((2 * fnum + pmTable[fnum >> 6][pm]) * patch.ML) << block;
+		dphase[pm] = tmp >> (21 - DP_BITS);
+	}
 }
 
 void Slot::updateTLL(unsigned freq, bool actAsCarrier)
@@ -604,15 +611,9 @@ static inline int wave2_8pi(int e)
 }
 
 // PG
-template <bool HAS_PM>
-ALWAYS_INLINE unsigned Slot::calc_phase(PhaseModulation lfo_pm)
+ALWAYS_INLINE unsigned Slot::calc_phase(unsigned lfo_pm)
 {
-	assert(((patch.AMPM & 1) != 0) == HAS_PM);
-	if (HAS_PM) {
-		cphase += (lfo_pm * dphase).toInt();
-	} else {
-		cphase += dphase;
-	}
+	cphase += dphase[lfo_pm];
 	return cphase >> DP_BASE_BITS;
 }
 
@@ -650,7 +651,6 @@ void Slot::calc_envelope_outline(unsigned& out)
 template <bool HAS_AM, bool FIXED_ENV>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am, unsigned fixed_env)
 {
-	assert(((patch.AMPM & 2) != 0) == HAS_AM);
 	assert(!FIXED_ENV || (state == SUSHOLD) || (state == FINISH));
 
 	if (FIXED_ENV) {
@@ -691,10 +691,10 @@ template <bool HAS_AM> unsigned Slot::calc_fixed_env() const
 }
 
 // CARRIER
-template <bool HAS_PM, bool HAS_AM, bool FIXED_ENV>
-ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm, unsigned fixed_env)
+template<bool HAS_AM, bool FIXED_ENV>
+ALWAYS_INLINE int Slot::calc_slot_car(unsigned lfo_pm, int lfo_am, int fm, unsigned fixed_env)
 {
-	int phase = calc_phase<HAS_PM>(lfo_pm) + wave2_8pi(fm);
+	int phase = calc_phase(lfo_pm) + wave2_8pi(fm);
 	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
 	int newOutput = dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
@@ -702,11 +702,11 @@ ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm
 }
 
 // MODULATOR
-template <bool HAS_PM, bool HAS_AM, bool HAS_FB, bool FIXED_ENV>
-ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am, unsigned fixed_env)
+template<bool HAS_AM, bool HAS_FB, bool FIXED_ENV>
+ALWAYS_INLINE int Slot::calc_slot_mod(unsigned lfo_pm, int lfo_am, unsigned fixed_env)
 {
 	assert((patch.FB != 0) == HAS_FB);
-	unsigned phase = calc_phase<HAS_PM>(lfo_pm);
+	unsigned phase = calc_phase(lfo_pm);
 	unsigned egout = calc_envelope<HAS_AM, FIXED_ENV>(lfo_am, fixed_env);
 	if (HAS_FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
@@ -720,7 +720,7 @@ ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am, unsign
 // TOM (ch8 mod)
 ALWAYS_INLINE int Slot::calc_slot_tom()
 {
-	unsigned phase = calc_phase<false>(PhaseModulation());
+	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
 	return dB2LinTab[patch.WF[phase & PG_MASK] + egout];
 }
@@ -728,7 +728,7 @@ ALWAYS_INLINE int Slot::calc_slot_tom()
 // SNARE (ch7 car)
 ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 {
-	unsigned phase = calc_phase<false>(PhaseModulation());
+	unsigned phase = calc_phase(0);
 	unsigned egout = calc_envelope<false, false>(0, 0);
 	return BIT(phase, 7)
 		? dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout]
@@ -797,6 +797,11 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 	const bool HAS_CAR_FIXED_ENV = (FLAGS & 32) != 0;
 	const bool HAS_MOD_FIXED_ENV = (FLAGS & 64) != 0;
 
+	assert(((ch.car.patch.AMPM & 1) != 0) == HAS_CAR_PM);
+	assert(((ch.car.patch.AMPM & 2) != 0) == HAS_CAR_AM);
+	assert(((ch.mod.patch.AMPM & 1) != 0) == HAS_MOD_PM);
+	assert(((ch.mod.patch.AMPM & 2) != 0) == HAS_MOD_AM);
+
 	unsigned tmp_pm_phase = pm_phase;
 	unsigned tmp_am_phase = am_phase;
 	unsigned car_fixed_env = 0; // dummy
@@ -810,11 +815,14 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 
 	unsigned sample = 0;
 	do {
-		PhaseModulation lfo_pm;
+		unsigned lfo_pm = 0;
 		if (HAS_CAR_PM || HAS_MOD_PM) {
-			tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
-			lfo_pm = PhaseModulation::create(
-				pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)]);
+			// Copied from Burczynski:
+			//  There are only 8 different steps for PM, and each
+			//  step lasts for 1024 samples. This results in a PM
+			//  freq of 6.1Hz (but datasheet says it's 6.4Hz).
+			++tmp_pm_phase;
+			lfo_pm = (tmp_pm_phase >> 10) & 7;
 		}
 		int lfo_am = 0; // avoid warning
 		if (HAS_CAR_AM || HAS_MOD_AM) {
@@ -824,9 +832,9 @@ ALWAYS_INLINE void YM2413::calcChannel(Channel& ch, int* buf, unsigned num)
 			}
 			lfo_am = lfo_am_table[tmp_am_phase / 64];
 		}
-		int fm = ch.mod.calc_slot_mod<HAS_MOD_PM, HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
+		int fm = ch.mod.calc_slot_mod<HAS_MOD_AM, HAS_MOD_FB, HAS_MOD_FIXED_ENV>(
 		                      lfo_pm, lfo_am, mod_fixed_env);
-		buf[sample] += ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
+		buf[sample] += ch.car.calc_slot_car<HAS_CAR_AM, HAS_CAR_FIXED_ENV>(
 		                      lfo_pm, lfo_am, fm, car_fixed_env);
 		++sample;
 	} while (sample < num);
@@ -1048,7 +1056,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 		}
 	}
 	// update AM, PM unit
-	pm_phase += num * PM_DPHASE;
+	pm_phase += num;
 	am_phase = (am_phase + num) % (LFO_AM_TAB_ELEMENTS * 64);
 
 	if (isRhythm()) {
@@ -1056,9 +1064,9 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			Channel& ch6 = channels[6];
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[ 9][sample] += 2 *
-				    ch6.car.calc_slot_car<false, false, false>(
-				        PhaseModulation(), 0, ch6.mod.calc_slot_mod<
-				                false, false, false, false>(PhaseModulation(), 0, 0), 0);
+				    ch6.car.calc_slot_car<false, false>(
+				        0, 0, ch6.mod.calc_slot_mod<
+				                false, false, false>(0, 0, 0), 0);
 			}
 		}
 		Channel& ch7 = channels[7];
@@ -1077,8 +1085,8 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 		unsigned old_cphase8 = ch8.car.cphase;
 		if (channelActiveBits & (1 << 8)) {
 			for (unsigned sample = 0; sample < num; ++sample) {
-				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
-				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
+				unsigned phase7 = ch7.mod.calc_phase(0);
+				unsigned phase8 = ch8.car.calc_phase(0);
 				bufs[11][sample] +=
 					-2 * ch8.car.calc_slot_cym(phase7, phase8);
 			}
@@ -1092,8 +1100,8 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
-				unsigned phase7 = ch7.mod.calc_phase<false>(PhaseModulation());
-				unsigned phase8 = ch8.car.calc_phase<false>(PhaseModulation());
+				unsigned phase7 = ch7.mod.calc_phase(0);
+				unsigned phase8 = ch8.car.calc_phase(0);
 				bufs[12][sample] +=
 					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit);
 			}
