@@ -16,7 +16,7 @@
       <sound>
         <volume>12000</volume>
       </sound>
-      <!-- <sampleram>32</sampleram> -->
+      <sampleram>0</sampleram>
     </MSX-AUDIO>
 
     <primary slot="any">
