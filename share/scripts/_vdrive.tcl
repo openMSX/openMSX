@@ -15,7 +15,7 @@ Preparations:
    Of course they may all be compressed with gzip, so you'll end up with
    [metal1.dsk.gz, metal2.dsk.gz, metal3.dsk.gz].
    The script recognizes 'dsk', 'di1', 'di2', 'xsa' and 'dmk' extensions,
-   with an optional '.gz' suffix.
+   with an optional '.gz' or '.zip' suffix.
 
 2. bind the vdrive script to a hotkey, for instance type in the console:
      bind ALT+F9 "vdrive diska"
@@ -42,10 +42,10 @@ credits:
 }
 
 proc vdrive {{diskdrive "diska"} {step 1}} {
-	# get current disk
+	# Get current disk
 	if {[catch {set cmd [$diskdrive]}]} {error "No such drive: $diskdrive"}
 
-	# skip for empty drive or 'special' disk
+	# Skip for empty drive or 'special' disk
 	set options [lindex $cmd 2]
 	if       {"empty" in $options} {
 		error "No disk in drive: $diskdrive"
@@ -55,48 +55,56 @@ proc vdrive {{diskdrive "diska"} {step 1}} {
 		error "Vdrive not possible on DirAsDisk"
 	}
 
-	#remove (dsk|di1|di2|xsa|dmk)(.gz)? extention
-	set image [lindex $cmd 1]
+	# Remove (dsk|di1|di2|xsa|dmk)(.gz)? extention
+	set base [lindex $cmd 1]
 	set ext ""
-
-	set ext2 [file extension $image]
-	foreach i [list ".gz" ".zip"] {
-		if {[string equal -nocase $i $ext2]} {
-			set ext $ext2
-			set image [file rootname $image]
+	set tmp [file extension $base]
+	foreach i {".gz" ".zip"} {
+		if {[string equal -nocase $i $tmp]} {
+			set ext $tmp
+			set base [file rootname $base]
 			break
 		}
 	}
-
-	set ext2 [file extension $image]
+	set tmp [file extension $base]
 	foreach i {".dsk" ".di1" ".di2" ".xsa" ".dmk"} {
-		if {[string equal -nocase $i $ext2]} {
-			set ext ${ext2}${ext}
-			set image [file rootname $image]
+		if {[string equal -nocase $i $tmp]} {
+			set ext ${tmp}${ext}
+			set base [file rootname $base]
 			break
 		}
 	}
 
-	set digit [string index $image end]
-	set image [string range $image 0 end-1]
-
-	if {![string is digit $digit]} {
-		error "No digit as last char in name"
+	# Split on trailing digits
+	if {![regexp -indices {[0-9]+$} $base match]} {
+		error "Name doesn't end in a number"
 	}
+	set i [lindex $match 0]
+	set num  [string range $base $i end]
+	set base [string range $base 0 $i-1]
 
-	# increase the number by 1 until file exists
-	# file could be erased while testing so we can not assume that the
-	# original filename will be found again!!
-	set origdigit $digit
-	while {true} {
-		incr digit $step
-		if {$digit > 9} {set digit 0}
-		if {$digit < 0} {set digit 9}
-		set test ${image}${digit}${ext}
-		if {[file exists $test]} {
-			diska $test
-			return "New diskimage: $test"
+	# Calculate range (number of digits)
+	# Trim leading zeros (avoid interpreting the value as octal)
+	set digits [string length $num]
+	set range [expr {int(pow(10, $digits))}]
+	set num [string trimleft $num 0]
+	set fmt "%s%0${digits}d%s"
+
+	# Increase (decrease) number until new file is found.
+	set orig $num
+	while 1 {
+		set num [expr {($num + $step) % $range}]
+		if {$num == $orig} {
+			# We're back at the original. Explicitly test for this
+			# because the original file might not exist anymore.
+			return
 		}
-		if {$digit == $origdigit} {return ""}
+		# Construct new filename (including leading zeros)
+		set newfile [format $fmt $base $num $ext]
+		if {[file exists $newfile]} {
+			# New file exists, insert in the disk drive
+			diska $newfile
+			return "New diskimage: $newfile"
+		}
 	}
 }
