@@ -155,6 +155,7 @@ proc guess_rom_title {} {
 }
 
 namespace export guess_title
+namespace export guess_rom_title
 
 } ;# namespace guess_title
 

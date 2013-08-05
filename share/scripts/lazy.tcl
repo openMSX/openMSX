@@ -14,7 +14,7 @@ register_lazy "_disasm.tcl" {
 	step_back step_out step_in step skip_instruction}
 register_lazy "_example_tools.tcl" {get_screen listing get_color_count}
 register_lazy "_filepool.tcl" filepool
-register_lazy "_guess_title.tcl" guess_title
+register_lazy "_guess_title.tcl" {guess_title guess_rom_title}
 register_lazy "_info_panel.tcl" toggle_info_panel
 register_lazy "_mog-overlay.tcl" {toggle_mog_overlay toggle_mog_editor}
 register_lazy "_monitor.tcl" monitor_type

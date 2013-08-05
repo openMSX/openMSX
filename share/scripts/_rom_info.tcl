@@ -20,7 +20,7 @@ set_tabcompletion_proc rom_info [namespace code tab]
 
 proc getlist_rom_info {{romdevice ""}} {
 	if {$romdevice eq ""} {
-		set romdevice [guess_title::guess_rom_title]
+		set romdevice [guess_rom_title]
 		if {$romdevice eq ""} {
 			error "No (external) ROM device found"
 		}
