@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1373840650">
+<softwaredb xml:lang="en" timestamp="1375684111">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -11622,6 +11622,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><megarom><type>Konami</type><hash algo="sha1">bb100a4bf1dbcae82ddecaeb7ca519fc2dd8a5e7</hash></megarom></dump>
 </software>
 <software>
+	<title xml:lang="en">The Painter</title>
+	<system>MSX</system>
+	<company>YAMAHA</company>
+	<year>1986</year>
+	<country>JP</country>
+		<dump><megarom><type>Normal</type><hash algo="sha1">7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</hash></megarom></dump>
+</software>
+<software>
 	<title xml:lang="en">The Three Dragon Story</title>
 	<genmsxid>3241</genmsxid>
 	<system>MSX</system>
@@ -12837,6 +12845,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3211
-Created on Mon Jul 15 0:24:20 CEST 2013
+Roms in this XML file:3212
+Created on Mon Aug 5 8:28:41 CEST 2013
  -->
