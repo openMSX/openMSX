@@ -40,6 +40,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void writeDirect(byte value, EmuTime::param time);
+
 	byte lastValue;
 	const std::string description;
 };

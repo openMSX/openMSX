@@ -90,22 +90,22 @@ private:
 };
 
 
-PluggingController::PluggingController(MSXMotherBoard& motherBoard)
+PluggingController::PluggingController(MSXMotherBoard& motherBoard_)
 	: plugCmd(make_unique<PlugCmd>(
-		motherBoard.getCommandController(),
-		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this))
+		motherBoard_.getCommandController(),
+		motherBoard_.getStateChangeDistributor(),
+		motherBoard_.getScheduler(), *this))
 	, unplugCmd(make_unique<UnplugCmd>(
-		motherBoard.getCommandController(),
-		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this))
+		motherBoard_.getCommandController(),
+		motherBoard_.getStateChangeDistributor(),
+		motherBoard_.getScheduler(), *this))
 	, pluggableInfo(make_unique<PluggableInfo>(
-		motherBoard.getMachineInfoCommand(), *this))
+		motherBoard_.getMachineInfoCommand(), *this))
 	, connectorInfo(make_unique<ConnectorInfo>(
-		motherBoard.getMachineInfoCommand(), *this))
+		motherBoard_.getMachineInfoCommand(), *this))
 	, connectionClassInfo(make_unique<ConnectionClassInfo>(
-		motherBoard.getMachineInfoCommand(), *this))
-	, cliComm(motherBoard.getMSXCliComm())
+		motherBoard_.getMachineInfoCommand(), *this))
+	, motherBoard(motherBoard_)
 {
 	PluggableFactory::createAll(*this, motherBoard);
 }
@@ -125,7 +125,7 @@ PluggingController::~PluggingController()
 void PluggingController::registerConnector(Connector& connector)
 {
 	connectors.push_back(&connector);
-	cliComm.update(CliComm::CONNECTOR, connector.getName(), "add");
+	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "add");
 }
 
 void PluggingController::unregisterConnector(Connector& connector)
@@ -134,7 +134,7 @@ void PluggingController::unregisterConnector(Connector& connector)
 	assert(it != connectors.end());
 	connectors.erase(it);
 
-	cliComm.update(CliComm::CONNECTOR, connector.getName(), "remove");
+	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");
 }
 
 
@@ -188,7 +188,7 @@ string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 		connector.unplug(time);
 		try {
 			connector.plug(pluggable, time);
-			pluggingController.cliComm.update(
+			pluggingController.getCliComm().update(
 				CliComm::PLUG, tokens[1], tokens[2]);
 		} catch (PlugException& e) {
 			throw CommandException("plug: plug failed: " + e.getMessage());
@@ -255,7 +255,7 @@ string UnplugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 	}
 	auto& connector = pluggingController.getConnector(tokens[1]);
 	connector.unplug(time);
-	pluggingController.cliComm.update(CliComm::UNPLUG, tokens[1], "");
+	pluggingController.getCliComm().update(CliComm::UNPLUG, tokens[1], "");
 	return "";
 }
 
@@ -315,7 +315,12 @@ Pluggable& PluggingController::getPluggable(string_ref name) const
 
 CliComm& PluggingController::getCliComm()
 {
-	return cliComm;
+	return motherBoard.getMSXCliComm();
+}
+
+EmuTime::param PluggingController::getCurrentTime() const
+{
+	return motherBoard.getCurrentTime();
 }
 
 

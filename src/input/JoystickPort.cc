@@ -1,6 +1,7 @@
 #include "JoystickPort.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
+#include "PluggingController.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -50,17 +51,24 @@ byte JoystickPort::read(EmuTime::param time)
 
 void JoystickPort::write(byte value, EmuTime::param time)
 {
-	if (lastValue != value) {
-		lastValue = value;
-		getPluggedJoyDev().write(value, time);
-	}
+	if (lastValue != value) writeDirect(value, time);
+}
+void JoystickPort::writeDirect(byte value, EmuTime::param time)
+{
+	lastValue = value;
+	getPluggedJoyDev().write(value, time);
 }
 
 template<typename Archive>
 void JoystickPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Connector>(*this);
-	// don't serialize 'lastValue', done in MSXPSG
+	if (ar.isLoader()) {
+		// The value of 'lastValue', is already restored via MSXPSG,
+		// but we still need to re-write this value to the plugged
+		// devices (do this after those devices have been re-plugged).
+		writeDirect(lastValue, getPluggingController().getCurrentTime());
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoystickPort);
 

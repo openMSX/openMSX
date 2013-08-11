@@ -1,6 +1,7 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
+#include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include <vector>
@@ -46,10 +47,13 @@ public:
 	  */
 	Pluggable* findPluggable(string_ref name) const;
 
-	/**
-	 * Access to the MSX specific CliComm, so that Connectors can get it.
+	/** Access to the MSX specific CliComm, so that Connectors can get it.
 	 */
 	CliComm& getCliComm();
+
+	/** Convenience method: get current time.
+	 */
+	EmuTime::param getCurrentTime() const;
 
 private:
 	Connector& getConnector(string_ref name) const;
@@ -69,7 +73,7 @@ private:
 	const std::unique_ptr<ConnectorInfo> connectorInfo;
 	const std::unique_ptr<ConnectionClassInfo> connectionClassInfo;
 
-	CliComm& cliComm;
+	MSXMotherBoard& motherBoard;
 };
 
 } // namespace openmsx
