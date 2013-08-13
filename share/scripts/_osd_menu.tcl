@@ -1049,11 +1049,14 @@ proc menu_create_toys_list {} {
 	                  font-size 10
 	                  post-spacing 6 }}
 
-	set items [info commands toggle_*]
-
+	set items [list]
 	set presentation [list]
-	foreach i $items {
-		lappend presentation [string range $i 7 end]
+	# This also picks up 'lazy' command names
+	foreach cmd [openmsx::all_command_names] {
+		if {[string match toggle_* $cmd]} {
+			lappend items $cmd
+			lappend presentation [string range $cmd 7 end]
+		}
 	}
 	lappend menu_def presentation $presentation
 
