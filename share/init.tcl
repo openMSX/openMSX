@@ -79,7 +79,7 @@ proc ::unknown {args} {
 	#puts stderr "unknown: $args"
 	set name [lindex $args 0]
 	if {[openmsx::lazy_handler $name]} {
-		return [uplevel 1 {*}$args]
+		return [uplevel 1 $args]
 	}
 	return -code error "invalid command name \"$name\""
 }
