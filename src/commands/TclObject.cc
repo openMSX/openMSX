@@ -1,4 +1,5 @@
 #include "TclObject.hh"
+#include "TclParser.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
 #include "xrange.hh"
@@ -291,12 +292,11 @@ void TclObject::parse(const char* str, int len, bool expression) const
 
 	if (!expression && (info.tokenPtr[0].type == TCL_TOKEN_SIMPLE_WORD)) {
 		// simple command name
-		Tcl_CmdInfo cmdinfo;
 		Tcl_Token& token2 = info.tokenPtr[1];
-		string procname(token2.start, token2.size);
-		if (!Tcl_GetCommandInfo(interp, procname.c_str(), &cmdinfo)) {
+		string_ref procname(token2.start, token2.size);
+		if (!TclParser::isProc(interp, procname)) {
 			throw CommandException("invalid command name: \"" +
-			                       procname + '\"');
+			                       procname.str() + '\"');
 		}
 	}
 	for (auto i : xrange(info.numTokens)) {
