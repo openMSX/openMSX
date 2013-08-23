@@ -251,10 +251,13 @@ void MSXCPU::waitCyclesR800(unsigned cycles)
 	}
 }
 
-CPU::CPURegs& MSXCPU::getRegisters()
+CPURegs& MSXCPU::getRegisters()
 {
-	return z80Active ? z80 ->getRegisters()
-	                 : r800->getRegisters();
+	if (z80Active) {
+		return *z80;
+	} else {
+		return *r800;
+	}
 }
 
 void MSXCPU::update(const Setting& setting)
@@ -276,10 +279,10 @@ void MSXCPU::disasmCommand(const vector<TclObject>& tokens,
 void MSXCPU::setPaused(bool paused)
 {
 	if (z80Active) {
-		z80 ->getRegisters().setExtHALT(paused);
+		z80 ->setExtHALT(paused);
 		z80 ->exitCPULoopSync();
 	} else {
-		r800->getRegisters().setExtHALT(paused);
+		r800->setExtHALT(paused);
 		r800->exitCPULoopSync();
 	}
 }
@@ -357,7 +360,7 @@ MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
 
 byte MSXCPUDebuggable::read(unsigned address)
 {
-	const CPU::CPURegs& regs = cpu.getRegisters();
+	const CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: return regs.getA();
 	case  1: return regs.getF();
@@ -395,7 +398,7 @@ byte MSXCPUDebuggable::read(unsigned address)
 
 void MSXCPUDebuggable::write(unsigned address, byte value)
 {
-	CPU::CPURegs& regs = cpu.getRegisters();
+	CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: regs.setA(value); break;
 	case  1: regs.setF(value); break;
@@ -452,7 +455,7 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 
 		          ar.serializeWithID("z80",  *z80);
 		if (r800) ar.serializeWithID("r800", *r800);
-		CPU* activeCPU, *newCPU;
+		CPUBase* activeCPU, *newCPU;
 		ar.serializePointerID("activeCPU", activeCPU);
 		ar.serializePointerID("newCPU",    newCPU);
 		z80Active = activeCPU == z80.get();

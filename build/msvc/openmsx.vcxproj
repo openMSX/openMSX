@@ -327,7 +327,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPU.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUCore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\Dasm.cc" />
@@ -836,7 +836,7 @@
     <None Include="$(OpenMSXSrcDir)\cpu\BreakPoint.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CacheLine.hh" />
-    <None Include="$(OpenMSXSrcDir)\cpu\CPU.hh" />
+    <None Include="$(OpenMSXSrcDir)\cpu\CPURegs.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CPUClock.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CPUCore.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\Dasm.hh" />

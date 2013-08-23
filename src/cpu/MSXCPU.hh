@@ -1,7 +1,7 @@
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 
-#include "CPU.hh"
+#include "CPURegs.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
@@ -86,9 +86,9 @@ public:
 	  */
 	bool isM1Cycle(unsigned address) const;
 
-	/** See CPU::exitCPULoopsync() */
+	/** See CPUCore::exitCPULoopsync() */
 	void exitCPULoopSync();
-	/** See CPU::exitCPULoopAsync() */
+	/** See CPUCore::exitCPULoopAsync() */
 	void exitCPULoopAsync();
 
 	/** Is the R800 currently active? */
@@ -112,7 +112,7 @@ public:
 	void waitCycles(unsigned cycles);
 	void waitCyclesR800(unsigned cycles);
 
-	CPU::CPURegs& getRegisters();
+	CPURegs& getRegisters();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

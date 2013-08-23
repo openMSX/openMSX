@@ -2,7 +2,7 @@
 #define R800_HH
 
 #include "CPUClock.hh"
-#include "CPU.hh"	// for CPURegs, split header?
+#include "CPURegs.hh"
 #include "Clock.hh"
 #include "likely.hh"
 #include "inline.hh"
@@ -125,7 +125,7 @@ protected:
 		}
 	}
 
-	ALWAYS_INLINE void R800Refresh(CPU::CPURegs& R)
+	ALWAYS_INLINE void R800Refresh(CPURegs& R)
 	{
 		// atoc documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
@@ -137,7 +137,7 @@ protected:
 			R800RefreshSlow(time, R); // slow-path not inline
 		}
 	}
-	NEVER_INLINE void R800RefreshSlow(EmuTime::param time, CPU::CPURegs& R)
+	NEVER_INLINE void R800RefreshSlow(EmuTime::param time, CPURegs& R)
 	{
 		do {
 			lastRefreshTime += 210;

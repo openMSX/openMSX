@@ -174,7 +174,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc">
       <Filter>cpu</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPU.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc">
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc">
@@ -1461,7 +1461,7 @@
     <None Include="$(OpenMSXSrcDir)\cpu\CacheLine.hh">
       <Filter>cpu</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\cpu\CPU.hh">
+    <None Include="$(OpenMSXSrcDir)\cpu\CPURegs.hh">
       <Filter>cpu</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cpu\CPUClock.hh">
