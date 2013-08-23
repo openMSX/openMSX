@@ -41,16 +41,6 @@ CPU::CPU(bool r800)
 	assert(ZSXYTable [255] == ZSXY255);
 }
 
-CPU::~CPU()
-{
-}
-
-void CPU::setPaused(bool paused)
-{
-	getRegisters().setExtHALT(paused);
-	exitCPULoopSync();
-}
-
 
 // version 1: Initial version.
 // version 2: Replaced 'afterEI' boolean with 'after' byte

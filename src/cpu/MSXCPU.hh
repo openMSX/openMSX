@@ -5,7 +5,9 @@
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
+#include "serialize_meta.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -20,6 +22,7 @@ class TimeInfoTopic;
 class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
 class TclCallback;
+class TclObject;
 
 class MSXCPU : private Observer<Setting>, private noncopyable
 {
@@ -35,61 +38,45 @@ public:
 	 */
 	void doReset(EmuTime::param time);
 
-	/**
-	 * Switch between Z80 / R800
-	 */
+	/** Switch between Z80/R800. */
 	void setActiveCPU(CPUType cpu);
 
-	/**
-	 * Sets DRAM or ROM mode (influences memory access speed for R800)
-	 */
+	/** Sets DRAM or ROM mode (influences memory access speed for R800). */
 	void setDRAMmode(bool dram);
 
-	/**
-	 * Inform CPU of bank switch. This will invalidate memory cache and
-	 * update memory timings on R800.
-	 */
+	/** Inform CPU of bank switch. This will invalidate memory cache and
+	  * update memory timings on R800. */
 	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot);
 
-	/**
-	 * Invalidate the CPU its cache for the interval [start, start + size)
-	 * For example MSXMemoryMapper and MSXGameCartrigde need to call this
-	 * method when a 'memory switch' occurs.
-	 */
+	/** Invalidate the CPU its cache for the interval [start, start + size)
+	  * For example MSXMemoryMapper and MSXGameCartrigde need to call this
+	  * method when a 'memory switch' occurs. */
 	void invalidateMemCache(word start, unsigned size);
 
-	/**
-	 * This method raises a maskable interrupt. A device may call this
-	 * method more than once. If the device wants to lower the
-	 * interrupt again it must call the lowerIRQ() method exactly as
-	 * many times.
-	 * Before using this method take a look at IRQHelper.
-	 */
+	/** This method raises a maskable interrupt. A device may call this
+	  * method more than once. If the device wants to lower the
+	  * interrupt again it must call the lowerIRQ() method exactly as
+	  * many times.
+	  * Before using this method take a look at IRQHelper. */
 	void raiseIRQ();
 
-	/**
-	 * This methods lowers the maskable interrupt again. A device may never
-	 * call this method more often than it called the method
-	 * raiseIRQ().
-	 * Before using this method take a look at IRQHelper.
-	 */
+	/** This methods lowers the maskable interrupt again. A device may never
+	  * call this method more often than it called the method
+	  * raiseIRQ().
+	  * Before using this method take a look at IRQHelper. */
 	void lowerIRQ();
 
-	/**
-	 * This method raises a non-maskable interrupt. A device may call this
-	 * method more than once. If the device wants to lower the
-	 * interrupt again it must call the lowerNMI() method exactly as
-	 * many times.
-	 * Before using this method take a look at IRQHelper.
-	 */
+	/** This method raises a non-maskable interrupt. A device may call this
+	  * method more than once. If the device wants to lower the
+	  * interrupt again it must call the lowerNMI() method exactly as
+	  * many times.
+	  * Before using this method take a look at IRQHelper. */
 	void raiseNMI();
 
-	/**
-	 * This methods lowers the non-maskable interrupt again. A device may never
-	 * call this method more often than it called the method
-	 * raiseNMI().
-	 * Before using this method take a look at IRQHelper.
-	 */
+	/** This methods lowers the non-maskable interrupt again. A device may never
+	  * call this method more often than it called the method
+	  * raiseNMI().
+	  * Before using this method take a look at IRQHelper. */
 	void lowerNMI();
 
 	/** Should only be used from within a MSXDevice::readMem() method.
@@ -104,14 +91,10 @@ public:
 	/** See CPU::exitCPULoopAsync() */
 	void exitCPULoopAsync();
 
-	/**
-	 * Is the R800 currently active
-	 */
-	bool isR800Active();
+	/** Is the R800 currently active? */
+	bool isR800Active() const { return !z80Active; }
 
-	/**
-	 * Switch the Z80 clock freq
-	 */
+	/** Switch the Z80 clock freq. */
 	void setZ80Freq(unsigned freq);
 
 	void setInterface(MSXCPUInterface* interf);
@@ -119,7 +102,8 @@ public:
 	void disasmCommand(const std::vector<TclObject>& tokens,
                            TclObject& result) const;
 
-	// Pause
+	/** (un)pause CPU. During pause the CPU executes NOP instructions
+	  * continuously (just like during HALT). Used by turbor hw pause. */
 	void setPaused(bool paused);
 
 	void setNextSyncPoint(EmuTime::param time);
@@ -127,6 +111,8 @@ public:
 	void wait(EmuTime::param time);
 	void waitCycles(unsigned cycles);
 	void waitCyclesR800(unsigned cycles);
+
+	CPU::CPURegs& getRegisters();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -136,17 +122,15 @@ private:
 	void execute(bool fastForward);
 	friend class MSXMotherBoard;
 
-	/**
-	 * The time returned by this method is not safe to use for Scheduler
-	 * or IO related stuff (because it can sometimes already be higher then
-	 * still to be scheduled sync points). Use Scheduler::getCurrentTime()
-	 * instead.
-	 * TODO is this comment still true?
-	 */
+	/** The time returned by this method is not safe to use for Scheduler
+	  * or IO related stuff (because it can sometimes already be higher then
+	  * still to be scheduled sync points). Use Scheduler::getCurrentTime()
+	  * instead.
+	  * TODO is this comment still true? */
 	EmuTime::param getCurrentTime() const;
 
 	// Observer<Setting>
-	void update(const Setting& setting);
+	virtual void update(const Setting& setting);
 
 	MSXMotherBoard& motherboard;
 	const std::unique_ptr<BooleanSetting> traceSetting;
@@ -154,17 +138,18 @@ private:
 	const std::unique_ptr<CPUCore<Z80TYPE>> z80;
 	const std::unique_ptr<CPUCore<R800TYPE>> r800;
 
-	CPU* activeCPU;
-	CPU* newCPU;
-	EmuTime reference;
-
 	friend class TimeInfoTopic;
 	friend class MSXCPUDebuggable;
 	const std::unique_ptr<TimeInfoTopic>    timeInfo;
 	const std::unique_ptr<CPUFreqInfoTopic> z80FreqInfo;
 	const std::unique_ptr<CPUFreqInfoTopic> r800FreqInfo;
 	const std::unique_ptr<MSXCPUDebuggable> debuggable;
+
+	EmuTime reference;
+	bool z80Active;
+	bool newZ80Active;
 };
+SERIALIZE_CLASS_VERSION(MSXCPU, 2);
 
 } // namespace openmsx
 

@@ -1,7 +1,6 @@
 #ifndef CPUCORE_HH
 #define CPUCORE_HH
 
-#include "Observer.hh"
 #include "CPU.hh"
 #include "CacheLine.hh"
 #include "Probe.hh"
@@ -20,15 +19,15 @@ class BooleanSetting;
 class IntegerSetting;
 class Setting;
 class TclCallback;
+class TclObject;
 
 template <class CPU_POLICY>
-class CPUCore : public CPU_POLICY, public CPU, private Observer<Setting>
+class CPUCore : public CPU, public CPU_POLICY
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,
 	        const BooleanSetting& traceSetting,
 	        TclCallback& diHaltCallback, EmuTime::param time);
-	virtual ~CPUCore();
 
 	void setInterface(MSXCPUInterface* interf);
 
@@ -37,19 +36,30 @@ public:
 	 */
 	void doReset(EmuTime::param time);
 
-	virtual void execute(bool fastForward);
-	virtual void exitCPULoopSync();
-	virtual void exitCPULoopAsync();
-	virtual void warp(EmuTime::param time);
-	virtual EmuTime::param getCurrentTime() const;
-	virtual void wait(EmuTime::param time);
-	virtual void waitCycles(unsigned cycles);
-	virtual void setNextSyncPoint(EmuTime::param time);
-	virtual void invalidateMemCache(unsigned start, unsigned size);
-	virtual bool isM1Cycle(unsigned address) const;
+	void execute(bool fastForward);
 
-	virtual void disasmCommand(const std::vector<TclObject>& tokens,
-                                   TclObject& result) const;
+	/** Request to exit the main CPU emulation loop.
+	  * This method may only be called from the main thread. The CPU loop
+	  * will immediately be exited (current instruction will be finished,
+	  * but no new instruction will be executed).
+	  */
+	void exitCPULoopSync();
+
+	/** Similar to exitCPULoopSync(), but this method may be called from
+	  * any thread. Although now the loop will only be exited 'soon'.
+	  */
+	void exitCPULoopAsync();
+
+	void warp(EmuTime::param time);
+	EmuTime::param getCurrentTime() const;
+	void wait(EmuTime::param time);
+	void waitCycles(unsigned cycles);
+	void setNextSyncPoint(EmuTime::param time);
+	void invalidateMemCache(unsigned start, unsigned size);
+	bool isM1Cycle(unsigned address) const;
+
+	void disasmCommand(const std::vector<TclObject>& tokens,
+                           TclObject& result) const;
 
 	/**
 	 * Raises the maskable interrupt count.
@@ -89,8 +99,8 @@ private:
 	void setSlowInstructions();
 	void doSetFreq();
 
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	// Observer<Setting>  !! non-virtual !!
+	void update(const Setting& setting);
 
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];

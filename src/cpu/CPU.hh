@@ -1,19 +1,14 @@
 #ifndef CPU_HH
 #define CPU_HH
 
-#include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <vector>
-#include <memory>
 #include <cassert>
 
 namespace openmsx {
-
-class TclObject;
 
 template <bool bigEndian> struct z80regpair_8bit;
 template <> struct z80regpair_8bit<false> { byte l, h; };
@@ -366,9 +361,10 @@ public:
 		void serialize(Archive& ar, unsigned version);
 
 	private:
+		z80regpair PC_;
 		z80regpair AF_, BC_, DE_, HL_;
 		z80regpair AF2_, BC2_, DE2_, HL2_;
-		z80regpair IX_, IY_, PC_, SP_;
+		z80regpair IX_, IY_, SP_;
 		bool IFF1_, IFF2_;
 		byte after_, afterNext_;
 		byte HALT_;
@@ -377,78 +373,10 @@ public:
 		const byte Rmask; // 0x7F for Z80, 0xFF for R800
 	};
 #endif
-
-	/**
-	 * TODO
-	 */
-	virtual void execute(bool fastForward) = 0;
-
-	/** Request to exit the main CPU emulation loop.
-	  * This method may only be called from the main thread. The CPU loop
-	  * will immediately be exited (current instruction will be finished,
-	  * but no new instruction will be executed).
-	  */
-	virtual void exitCPULoopSync() = 0;
-
-	/** Similar to exitCPULoopSync(), but this method may be called from
-	  * any thread. Although now the loop will only be exited 'soon'.
-	  */
-	virtual void exitCPULoopAsync() = 0;
-
-	/**
-	 * Sets the CPU its current time.
-	 * This is used to 'warp' a CPU when you switch between Z80/R800.
-	 */
-	virtual void warp(EmuTime::param time) = 0;
-
-	/**
-	 * Returns the CPU its current time.
-	 */
-	virtual EmuTime::param getCurrentTime() const = 0;
-
-	/** Wait till an absolute moment in time (fast forward).
-	  * Synchronsization points between the current time and the specified
-	  * time do get executed.
-	  */
-	virtual void wait(EmuTime::param time) = 0;
-
-	/** Wait for a number of cycles.
-	  * Can be used to insert an extra delay when accessing specific
-	  * IO devices.
-	  */
-	virtual void waitCycles(unsigned cycles) = 0;
-
-	/** Inform CPU of new (possibly earlier) sync point.
-	 */
-	virtual void setNextSyncPoint(EmuTime::param time) = 0;
-
-	/**
-	 * Invalidate the CPU its cache for the interval
-	 * [start, start + num * CacheLine::SIZE).
-	 */
-	virtual void invalidateMemCache(unsigned start, unsigned num) = 0;
-
-	/** See MSXCPU::isM1Cycle(). */
-	virtual bool isM1Cycle(unsigned address) const = 0;
-
-	/**
-	 */
-	virtual void disasmCommand(const std::vector<TclObject>& tokens,
-	                           TclObject& result) const = 0;
-
-	/**
-	 */
 	CPURegs& getRegisters() { return R; }
-
-	/**
-	 * (un)pause CPU. During pause the CPU executes NOP instructions
-	 * continuously (just like during HALT). Used by turbor hw pause.
-	 */
-	void setPaused(bool paused);
 
 protected:
 	CPU(bool r800);
-	virtual ~CPU();
 
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];

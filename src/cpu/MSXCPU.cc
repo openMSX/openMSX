@@ -4,6 +4,7 @@
 #include "Scheduler.hh"
 #include "SimpleDebuggable.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "TclCallback.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
@@ -72,7 +73,6 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard, "r800", *traceSetting,
 			*diHaltCallback, EmuTime::zero)
 		: nullptr)
-	, reference(EmuTime::zero)
 	, timeInfo(make_unique<TimeInfoTopic>(
 		motherboard.getMachineInfoCommand(), *this))
 	, z80FreqInfo(make_unique<CPUFreqInfoTopic>(
@@ -82,31 +82,45 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 			motherboard.getMachineInfoCommand(), "r800_freq", *r800)
 		: nullptr)
 	, debuggable(make_unique<MSXCPUDebuggable>(motherboard_, *this))
+	, reference(EmuTime::zero)
 {
-	activeCPU = z80.get(); // setActiveCPU(CPU_Z80);
-	newCPU = nullptr;
+	z80Active = true; // setActiveCPU(CPU_Z80);
+	newZ80Active = z80Active;
 
 	motherboard.getDebugger().setCPU(this);
 	motherboard.getScheduler().setCPU(this);
 	traceSetting->attach(*this);
+
+	z80->freqLocked->attach(*this);
+	z80->freqValue->attach(*this);
+	if (r800) {
+		r800->freqLocked->attach(*this);
+		r800->freqValue->attach(*this);
+	}
 }
 
 MSXCPU::~MSXCPU()
 {
 	traceSetting->detach(*this);
+	z80->freqLocked->detach(*this);
+	z80->freqValue->detach(*this);
+	if (r800) {
+		r800->freqLocked->detach(*this);
+		r800->freqValue->detach(*this);
+	}
 	motherboard.getScheduler().setCPU(nullptr);
 	motherboard.getDebugger() .setCPU(nullptr);
 }
 
 void MSXCPU::setInterface(MSXCPUInterface* interface)
 {
-	z80 ->setInterface(interface);
+	          z80 ->setInterface(interface);
 	if (r800) r800->setInterface(interface);
 }
 
 void MSXCPU::doReset(EmuTime::param time)
 {
-	z80 ->doReset(time);
+	          z80 ->doReset(time);
 	if (r800) r800->doReset(time);
 
 	reference = time;
@@ -114,24 +128,21 @@ void MSXCPU::doReset(EmuTime::param time)
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
-	CPU* tmp;
+	bool tmp = cpu == CPU_Z80;
 	switch (cpu) {
 		case CPU_Z80:
 			PRT_DEBUG("Active CPU: Z80");
-			tmp = z80.get();
 			break;
 		case CPU_R800:
 			PRT_DEBUG("Active CPU: R800");
 			assert(r800);
-			tmp = r800.get();
 			break;
 		default:
 			UNREACHABLE;
-			tmp = nullptr; // prevent warning
 	}
-	if (tmp != activeCPU) {
+	if (tmp != z80Active) {
 		exitCPULoopSync();
-		newCPU = tmp;
+		newZ80Active = tmp;
 	}
 }
 
@@ -143,35 +154,39 @@ void MSXCPU::setDRAMmode(bool dram)
 
 void MSXCPU::execute(bool fastForward)
 {
-	if (newCPU) {
-		newCPU->warp(activeCPU->getCurrentTime());
-		newCPU->invalidateMemCache(0x0000, 0x10000);
-		activeCPU = newCPU;
-		newCPU = nullptr;
+	if (z80Active != newZ80Active) {
+		EmuTime time = getCurrentTime();
+		z80Active = newZ80Active;
+		z80Active ? z80 ->warp(time)
+		          : r800->warp(time);
+		invalidateMemCache(0x0000, 0x10000);
 	}
-	activeCPU->execute(fastForward);
+	z80Active ? z80 ->execute(fastForward)
+	          : r800->execute(fastForward);
 }
 
 void MSXCPU::exitCPULoopSync()
 {
-	activeCPU->exitCPULoopSync();
+	z80Active ? z80 ->exitCPULoopSync()
+	          : r800->exitCPULoopSync();
 }
 void MSXCPU::exitCPULoopAsync()
 {
-	activeCPU->exitCPULoopAsync();
+	z80Active ? z80 ->exitCPULoopAsync()
+	          : r800->exitCPULoopAsync();
 }
-
 
 EmuTime::param MSXCPU::getCurrentTime() const
 {
-	return activeCPU->getCurrentTime();
+	return z80Active ? z80 ->getCurrentTime()
+	                 : r800->getCurrentTime();
 }
 
 void MSXCPU::setNextSyncPoint(EmuTime::param time)
 {
-	activeCPU->setNextSyncPoint(time);
+	z80Active ? z80 ->setNextSyncPoint(time)
+	          : r800->setNextSyncPoint(time);
 }
-
 
 void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 {
@@ -181,38 +196,35 @@ void MSXCPU::updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
 
 void MSXCPU::invalidateMemCache(word start, unsigned size)
 {
-	activeCPU->invalidateMemCache(start, size);
+	z80Active ? z80 ->invalidateMemCache(start, size)
+	          : r800->invalidateMemCache(start, size);
 }
 
 void MSXCPU::raiseIRQ()
 {
-	z80 ->raiseIRQ();
+	          z80 ->raiseIRQ();
 	if (r800) r800->raiseIRQ();
 }
 void MSXCPU::lowerIRQ()
 {
-	z80 ->lowerIRQ();
+	          z80 ->lowerIRQ();
 	if (r800) r800->lowerIRQ();
 }
 void MSXCPU::raiseNMI()
 {
-	z80 ->raiseNMI();
+	          z80 ->raiseNMI();
 	if (r800) r800->raiseNMI();
 }
 void MSXCPU::lowerNMI()
 {
-	z80 ->lowerNMI();
+	          z80 ->lowerNMI();
 	if (r800) r800->lowerNMI();
 }
 
 bool MSXCPU::isM1Cycle(unsigned address) const
 {
-	return activeCPU->isM1Cycle(address);
-}
-
-bool MSXCPU::isR800Active()
-{
-	return activeCPU == r800.get();
+	return z80Active ? z80 ->isM1Cycle(address)
+	                 : r800->isM1Cycle(address);
 }
 
 void MSXCPU::setZ80Freq(unsigned freq)
@@ -222,12 +234,14 @@ void MSXCPU::setZ80Freq(unsigned freq)
 
 void MSXCPU::wait(EmuTime::param time)
 {
-	activeCPU->wait(time);
+	z80Active ? z80 ->wait(time)
+	          : r800->wait(time);
 }
 
 void MSXCPU::waitCycles(unsigned cycles)
 {
-	activeCPU->waitCycles(cycles);
+	z80Active ? z80 ->waitCycles(cycles)
+	          : r800->waitCycles(cycles);
 }
 
 void MSXCPU::waitCyclesR800(unsigned cycles)
@@ -237,10 +251,16 @@ void MSXCPU::waitCyclesR800(unsigned cycles)
 	}
 }
 
+CPU::CPURegs& MSXCPU::getRegisters()
+{
+	return z80Active ? z80 ->getRegisters()
+	                 : r800->getRegisters();
+}
+
 void MSXCPU::update(const Setting& setting)
 {
-	(void)setting;
-	assert(&setting == traceSetting.get());
+	          z80 ->update(setting);
+	if (r800) r800->update(setting);
 	exitCPULoopSync();
 }
 
@@ -249,12 +269,19 @@ void MSXCPU::update(const Setting& setting)
 void MSXCPU::disasmCommand(const vector<TclObject>& tokens,
                            TclObject& result) const
 {
-	activeCPU->disasmCommand(tokens, result);
+	z80Active ? z80 ->disasmCommand(tokens, result)
+	          : r800->disasmCommand(tokens, result);
 }
 
 void MSXCPU::setPaused(bool paused)
 {
-	activeCPU->setPaused(paused);
+	if (z80Active) {
+		z80 ->getRegisters().setExtHALT(paused);
+		z80 ->exitCPULoopSync();
+	} else {
+		r800->getRegisters().setExtHALT(paused);
+		r800->exitCPULoopSync();
+	}
 }
 
 
@@ -330,7 +357,7 @@ MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
 
 byte MSXCPUDebuggable::read(unsigned address)
 {
-	const CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
+	const CPU::CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: return regs.getA();
 	case  1: return regs.getF();
@@ -368,7 +395,7 @@ byte MSXCPUDebuggable::read(unsigned address)
 
 void MSXCPUDebuggable::write(unsigned address, byte value)
 {
-	CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
+	CPU::CPURegs& regs = cpu.getRegisters();
 	switch (address) {
 	case  0: regs.setA(value); break;
 	case  1: regs.setF(value); break;
@@ -409,14 +436,32 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 	}
 }
 
-
+// version 1: initial version
+// version 2: activeCPU,newCPU -> z80Active,newZ80Active
 template<typename Archive>
-void MSXCPU::serialize(Archive& ar, unsigned /*version*/)
+void MSXCPU::serialize(Archive& ar, unsigned version)
 {
-	ar.serializeWithID("z80", *z80);
-	if (r800) ar.serializeWithID("r800", *r800);
-	ar.serializePointerID("activeCPU", activeCPU);
-	ar.serializePointerID("newCPU",    newCPU);
+	if (ar.versionAtLeast(version, 2)) {
+		          ar.serialize("z80",  *z80);
+		if (r800) ar.serialize("r800", *r800);
+		ar.serialize("z80Active", z80Active);
+		ar.serialize("newZ80Active", newZ80Active);
+	} else {
+		// backwards-compatibility
+		assert(ar.isLoader());
+
+		          ar.serializeWithID("z80",  *z80);
+		if (r800) ar.serializeWithID("r800", *r800);
+		CPU* activeCPU, *newCPU;
+		ar.serializePointerID("activeCPU", activeCPU);
+		ar.serializePointerID("newCPU",    newCPU);
+		z80Active = activeCPU == z80.get();
+		if (newCPU) {
+			newZ80Active = newCPU == z80.get();
+		} else {
+			newZ80Active = z80Active;
+		}
+	}
 	ar.serialize("resetTime", reference);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXCPU);

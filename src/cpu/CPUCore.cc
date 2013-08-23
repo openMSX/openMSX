@@ -178,6 +178,7 @@
 #include "build-info.hh"
 #include <iomanip>
 #include <iostream>
+#include <type_traits>
 #include <cassert>
 #include <cstring>
 
@@ -245,8 +246,8 @@ template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_,
 		TclCallback& diHaltCallback_, EmuTime::param time)
-	: T(time, motherboard_.getScheduler())
-	, CPU(T::isR800())
+	: CPU(T::isR800())
+	, T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
 	, interface(nullptr)
@@ -274,16 +275,10 @@ template <class T> CPUCore<T>::CPUCore(
 	, exitLoop(false)
 	, isTurboR(motherboard.isTurboR())
 {
+	static_assert(!std::is_polymorphic<CPUCore<T>>::value,
+		"keep CPUCore non-virtual to keep PC at offset 0");
 	doSetFreq();
-	freqLocked->attach(*this);
-	freqValue->attach(*this);
 	doReset(time);
-}
-
-template <class T> CPUCore<T>::~CPUCore()
-{
-	freqValue->detach(*this);
-	freqLocked->detach(*this);
 }
 
 template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
