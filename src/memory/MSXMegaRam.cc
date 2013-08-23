@@ -75,7 +75,6 @@ byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
 const byte* MSXMegaRam::getReadCacheLine(word address) const
 {
 	if (romMode) {
-		// Note that gcc-3.3 produced wrong code for this line...
 		if (address >= 0x4000 && address <= 0xBFFF) {
 			return &(*rom)[address - 0x4000];
 		}

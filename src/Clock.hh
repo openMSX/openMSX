@@ -69,9 +69,6 @@ public:
 	  */
 	unsigned getTicksTill_fast(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-#ifdef WORK_AROUND_GCC40_SEGFAULT
-		if (unlikely(e.time < lastTick.time)) abort();
-#endif
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
 	}

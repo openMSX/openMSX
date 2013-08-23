@@ -190,11 +190,7 @@ public:
 			else if (R8 == REG_I) { return getI(); }
 			else if (R8 == REG_R) { return getR(); }
 			else if (R8 == DUMMY) { return 0; }
-#ifdef WORK_AROUND_GCC40_SEGFAULT
-			else { abort(); return 0; }
-#else
 			else { UNREACHABLE; return 0; }
-#endif
 		}
 
 		inline unsigned getAF()  const { return AF_.w; }

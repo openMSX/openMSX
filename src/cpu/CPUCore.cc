@@ -158,20 +158,6 @@
 // instruction, otherwise we would enter the IRQ routine a couple of
 // instructions too late.
 
-#if (__GNUC__ == 4) && (__GNUC_MINOR__ == 0) \
- && defined(__i386__) && defined(NDEBUG)
-#warning Applying workaround for GCC 4.0 internal compiler error.
-// When compiling on Mac OS X for x86 in "opt" flavour, GCC crashes.
-// The crash does not occur when compiling for PPC.
-// The crash can be avoided by enabling asserts ("devel" flavour) or disabling
-// optimization completely (-O0). However, with some strategically placed calls
-// to abort() we can get the same effect with less impact on the generated
-// code. The define below enables those calls.
-#define WORK_AROUND_GCC40_SEGFAULT
-#include <cstdlib> // for abort()
-#include "likely.hh" // for unlikely()
-#endif
-
 #include "CPUCore.hh"
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
@@ -255,17 +241,6 @@ struct CondPE { bool operator()(byte f) const { return  (f & CPU::V_FLAG) != 0; 
 struct CondPO { bool operator()(byte f) const { return !(f & CPU::V_FLAG); } };
 struct CondTrue { bool operator()(byte) const { return true; } };
 
-// This function only exists as a workaround for a bug in g++-4.2.x, see
-//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34336
-static std::unique_ptr<BooleanSetting> createFreqLockedSetting(
-	CommandController& commandController, const string& name)
-{
-	return make_unique<BooleanSetting>(
-		commandController, name + "_freq_locked",
-	        "real (locked) or custom (unlocked) " + name + " frequency",
-	        true);
-}
-
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_,
@@ -285,8 +260,10 @@ template <class T> CPUCore<T>::CPUCore(
 	            "This probe is only useful to set a breakpoint on (the value "
 		    "return by read is meaningless). The breakpoint gets triggered "
 		    "right after the CPU accepted an IRQ.")
-	, freqLocked(createFreqLockedSetting(
-		motherboard.getCommandController(), name))
+	, freqLocked(make_unique<BooleanSetting>(
+		motherboard.getCommandController(), name + "_freq_locked",
+	        "real (locked) or custom (unlocked) " + name + " frequency",
+	        true))
 	, freqValue(make_unique<IntegerSetting>(
 		motherboard.getCommandController(), name + "_freq",
 		"custom " + name + " frequency (only valid when unlocked)",
