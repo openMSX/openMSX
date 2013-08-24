@@ -676,6 +676,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDP.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoLayer.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc" />
@@ -1254,6 +1255,7 @@
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDP.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDPVRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoLayer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.hh" />

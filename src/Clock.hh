@@ -91,6 +91,15 @@ public:
 		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 
+	/** Like operator+() but faster, though the step can't be too big (max
+	  * a little over 1 second). */
+	EmuTime getFastAdd(unsigned n) const {
+		#ifdef DEBUG
+		assert((uint64_t(n) * MASTER_TICKS) < (1ull << 32));
+		#endif
+		return EmuTime(lastTick.time + n * MASTER_TICKS);
+	}
+
 	/** Reset the clock to start ticking at the given time.
 	  */
 	void reset(EmuTime::param e) {

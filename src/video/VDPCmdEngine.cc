@@ -56,6 +56,8 @@ using std::max;
 
 namespace openmsx {
 
+using namespace VDPAccessSlots;
+
 // Constants:
 const byte MXD = 0x20;
 const byte MXS = 0x10;
@@ -711,7 +713,7 @@ void PointBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, time);
 	vram.cmdWriteWindow.disable(time);
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // will finish soon
 }
 
@@ -745,7 +747,7 @@ void PsetBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
 	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, time);
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // will finish soon
 	engine.phase = 0;
 }
@@ -764,7 +766,7 @@ void PsetCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 		if (likely(doPset)) {
 			engine.tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		engine.nextAccessSlot(24); // TODO
+		engine.nextAccessSlot(DELTA_24); // TODO
 		// fall-through
 	case 1:
 		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
@@ -797,7 +799,7 @@ void SrchBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	engine.ASX = engine.SX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // we can find it any moment
 }
 
@@ -813,24 +815,25 @@ void SrchCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	//  datasheet says MXD but MXS seems more logical
 	bool srcExt  = (engine.ARG & MXS) != 0;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
-	while (engine.time < limit) {
+	while (!calculator.limitReached()) {
 		byte p = likely(doPoint)
 		       ? Mode::point(vram, engine.ASX, engine.SY, srcExt)
 		       : 0xFF;
 		if ((p == CL) ^ AEQ) {
 			engine.status |= 0x10; // border detected
-			engine.commandDone(engine.time);
+			engine.commandDone(calculator.getTime());
 			break;
 		}
 		if ((engine.ASX += TX) & Mode::PIXELS_PER_LINE) {
 			engine.status &= 0xEF; // border not detected
-			engine.commandDone(engine.time);
+			engine.commandDone(calculator.getTime());
 			break;
 		}
-		engine.nextAccessSlot(calculator, 88); // TODO
+		calculator.next(DELTA_88); // TODO
 	}
+	engine.time = calculator.getTime();
 }
 
 /** Draw a line.
@@ -853,7 +856,7 @@ void LineBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ASX = ((engine.NX - 1) >> 1);
 	engine.ADX = engine.DX;
 	engine.ANX = 0;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // TODO can still be optimized
 	engine.phase = 0;
 }
@@ -869,24 +872,24 @@ void LineCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 	unsigned addr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
 	switch (engine.phase) {
 	case 0:
-loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
+loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
 		if (likely(doPset)) {
 			engine.tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		engine.nextAccessSlot(calculator, 24);
+		calculator.next(DELTA_24);
 		// fall-through
 	case 1: {
-		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 1; break; }
 		if (likely(doPset)) {
-			Mode::pset(engine.time, vram, engine.ADX, addr,
+			Mode::pset(calculator.getTime(), vram, engine.ADX, addr,
 			           engine.tmpDst, CL, LogOp());
 		}
 
-		int ticks = 88;
+		Delta delta = DELTA_88;
 		if ((engine.ARG & MAJ) == 0) {
 			// X-Axis is major direction.
 			engine.ADX += TX;
@@ -895,13 +898,13 @@ loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
 			//  - (ADX & PPL) test only happens after first pixel
 			//    is drawn. And it does test with 'AND' (not with ==)
 			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
 				engine.DY += TY;
-				ticks += 32;
+				delta = DELTA_120; // 88 + 32
 			}
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
@@ -912,22 +915,23 @@ loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
 				engine.ADX += TX;
-				ticks += 32;
+				delta = DELTA_120; // 88 + 32
 			}
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
 			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
 		addr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-		engine.nextAccessSlot(calculator, ticks);
+		calculator.next(delta);
 		goto loop;
 	}
 	default:
 		UNREACHABLE;
 	}
+	engine.time = calculator.getTime();
 }
 
 /** Abstract base class for block commands.
@@ -974,7 +978,7 @@ void LmmvBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	calcFinishTime(engine, NX, NY, 72 + 24);
 	engine.phase = 0;
 }
@@ -993,40 +997,41 @@ void LmmvCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 	unsigned addr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
 	switch (engine.phase) {
 	case 0:
-loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
+loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
 		if (likely(doPset)) {
 			engine.tmpDst = vram.cmdWriteWindow.readNP(addr);
 		}
-		engine.nextAccessSlot(calculator, 24);
+		calculator.next(DELTA_24);
 		// fall-through
 	case 1: {
-		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 1; break; }
 		if (likely(doPset)) {
-			Mode::pset(engine.time, vram, engine.ADX, addr,
+			Mode::pset(calculator.getTime(), vram, engine.ADX, addr,
 			           engine.tmpDst, CL, LogOp());
 		}
 		engine.ADX += TX;
-		int ticks = 72;
+		Delta delta = DELTA_72;
 		if (--engine.ANX == 0) {
-			ticks += 64;
+			delta = DELTA_136; // 72 + 64;
 			engine.DY += TY; --(engine.NY);
 			engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
 		addr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-		engine.nextAccessSlot(calculator, ticks);
+		calculator.next(delta);
 		goto loop;
 	}
 	default:
 		UNREACHABLE;
 	}
+	engine.time = calculator.getTime();
 	this->calcFinishTime(engine, NX, NY, 72 + 24);
 
 	/*
@@ -1110,7 +1115,7 @@ void LmmmBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ASX = engine.SX;
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	calcFinishTime(engine, NX, NY, 64 + 32 + 24);
 	engine.phase = 0;
 }
@@ -1131,47 +1136,48 @@ void LmmmCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 	unsigned dstAddr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
 	switch (engine.phase) {
 	case 0:
-loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
+loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
 		engine.tmpSrc = likely(doPoint)
 			? Mode::point(vram, engine.ASX, engine.SY, srcExt)
 			: 0xFF;
-		engine.nextAccessSlot(calculator, 32);
+		calculator.next(DELTA_32);
 		// fall-through
 	case 1:
-		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 1; break; }
 		if (likely(doPset)) {
 			engine.tmpDst = vram.cmdWriteWindow.readNP(dstAddr);
 		}
-		engine.nextAccessSlot(calculator, 24);
+		calculator.next(DELTA_24);
 		// fall-through
 	case 2: {
-		if (unlikely(engine.time >= limit)) { engine.phase = 2; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 2; break; }
 		if (likely(doPset)) {
-			Mode::pset(engine.time, vram, engine.ADX, dstAddr,
+			Mode::pset(calculator.getTime(), vram, engine.ADX, dstAddr,
 			           engine.tmpDst, engine.tmpSrc, LogOp());
 		}
 		engine.ASX += TX; engine.ADX += TX;
-		int ticks = 64;
+		Delta delta = DELTA_64;
 		if (--engine.ANX == 0) {
-			ticks += 64;
+			delta = DELTA_128; // 64 + 64
 			engine.SY += TY; engine.DY += TY; --(engine.NY);
 			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
 		dstAddr = Mode::addressOf(engine.ADX, engine.DY, dstExt);
-		engine.nextAccessSlot(calculator, ticks);
+		calculator.next(delta);
 		goto loop;
 	}
 	default:
 		UNREACHABLE;
 	}
+	engine.time = calculator.getTime();
 	this->calcFinishTime(engine, NX, NY, 64 + 32 + 24);
 
 	/*if (unlikely(srcExt) || unlikely(dstExt)) {
@@ -1261,7 +1267,7 @@ void LmcmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ANX = NX;
 	engine.transfer = true;
 	engine.status |= 0x80;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero;
 }
 
@@ -1296,7 +1302,7 @@ void LmcmCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 			engine.commandDone(engine.time);
 		}
 	}
-	engine.time = limit; engine.nextAccessSlot(0); // TODO
+	engine.time = limit; engine.nextAccessSlot(); // TODO
 }
 
 /** Logical move CPU -> VRAM.
@@ -1323,7 +1329,7 @@ void LmmcBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.statusChangeTime = EmuTime::zero;
 	engine.transfer = true;
 	engine.status |= 0x80;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 }
 
 template <typename Mode, typename LogOp>
@@ -1367,7 +1373,7 @@ void LmmcCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 			}
 		}
 	}
-	engine.time = limit; engine.nextAccessSlot(0); // inaccurate, but avoid assert
+	engine.time = limit; engine.nextAccessSlot(); // inaccurate, but avoid assert
 }
 
 /** High-speed move VDP -> VRAM.
@@ -1389,7 +1395,7 @@ void HmmvCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	calcFinishTime(engine, NX, NY, 48);
 }
 
@@ -1407,26 +1413,27 @@ void HmmvCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
-	while (engine.time < limit) {
+	while (!calculator.limitReached()) {
 		if (likely(doPset)) {
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              engine.COL, engine.time);
+			              engine.COL, calculator.getTime());
 		}
 		engine.ADX += TX;
-		int ticks = 48;
+		Delta delta = DELTA_48;
 		if (--engine.ANX == 0) {
-			ticks += 56;
+			delta = DELTA_104; // 48 + 56;
 			engine.DY += TY; --(engine.NY);
 			engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
-		engine.nextAccessSlot(calculator, ticks);
+		calculator.next(delta);
 	}
+	engine.time = calculator.getTime();
 	calcFinishTime(engine, NX, NY, 48);
 
 	/*if (unlikely(dstExt)) {
@@ -1502,7 +1509,7 @@ void HmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.ASX = engine.SX;
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	calcFinishTime(engine, NX, NY, 24 + 64);
 	engine.phase = 0;
 }
@@ -1524,41 +1531,41 @@ void HmmmCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	bool dstExt  = (engine.ARG & MXD) != 0;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
 	switch (engine.phase) {
 	case 0:
-loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
+loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
 		engine.tmpSrc = likely(doPoint)
 			? vram.cmdReadWindow.readNP(
 			       Mode::addressOf(engine.ASX, engine.SY, srcExt))
 			: 0xFF;
-		engine.nextAccessSlot(calculator, 24);
+		calculator.next(DELTA_24);
 		// fall-through
 	case 1: {
-		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 1; break; }
 		if (likely(doPset)) {
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              engine.tmpSrc, engine.time);
+			              engine.tmpSrc, calculator.getTime());
 		}
 		engine.ASX += TX; engine.ADX += TX;
-		int ticks = 64;
+		Delta delta = DELTA_64;
 		if (--engine.ANX == 0) {
-			ticks += 64;
+			delta = DELTA_128; // 64 + 64
 			engine.SY += TY; engine.DY += TY; --(engine.NY);
 			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
-		engine.nextAccessSlot(calculator, ticks);
+		calculator.next(delta);
 		goto loop;
 	}
 	default:
 		UNREACHABLE;
 	}
-
+	engine.time = calculator.getTime();
 	calcFinishTime(engine, NX, NY, 24 + 64);
 
 	/*if (unlikely(srcExt || dstExt)) {
@@ -1643,7 +1650,7 @@ void YmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 	calcFinishTime(engine, NX, NY, 24 + 40);
 	engine.phase = 0;
 }
@@ -1666,22 +1673,22 @@ void YmmmCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 	//  OTOH YMMM also uses DX for both read and write
 	bool dstExt = (engine.ARG & MXD) != 0;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
-	auto calculator = engine.getSlotCalculator();
+	auto calculator = engine.getSlotCalculator(limit);
 
 	switch (engine.phase) {
 	case 0:
-loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
+loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
 		if (likely(doPset)) {
 			engine.tmpSrc = vram.cmdReadWindow.readNP(
 			       Mode::addressOf(engine.ADX, engine.SY, dstExt));
 		}
-		engine.nextAccessSlot(calculator, 24);
+		calculator.next(DELTA_24);
 		// fall-through
 	case 1:
-		if (unlikely(engine.time >= limit)) { engine.phase = 1; break; }
+		if (unlikely(calculator.limitReached())) { engine.phase = 1; break; }
 		if (likely(doPset)) {
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              engine.tmpSrc, engine.time);
+			              engine.tmpSrc, calculator.getTime());
 		}
 		engine.ADX += TX;
 		if (--engine.ANX == 0) {
@@ -1689,16 +1696,16 @@ loop:		if (unlikely(engine.time >= limit)) { engine.phase = 0; break; }
 			engine.SY += TY; engine.DY += TY; --(engine.NY);
 			engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(engine.time);
+				engine.commandDone(calculator.getTime());
 				break;
 			}
 		}
-		engine.nextAccessSlot(calculator, 40);
+		calculator.next(DELTA_40);
 		goto loop;
 	default:
 		UNREACHABLE;
 	}
-
+	engine.time = calculator.getTime();
 	calcFinishTime(engine, NX, NY, 24 + 40);
 
 	/*
@@ -1780,7 +1787,7 @@ void HmmcCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 	engine.statusChangeTime = EmuTime::zero;
 	engine.transfer = true;
 	engine.status |= 0x80;
-	engine.time = time; engine.nextAccessSlot(0);
+	engine.time = time; engine.nextAccessSlot();
 }
 
 template <typename Mode>
@@ -1817,7 +1824,7 @@ void HmmcCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
 			}
 		}
 	}
-	engine.time = limit; engine.nextAccessSlot(0); // inaccurate, but avoid assert
+	engine.time = limit; engine.nextAccessSlot(); // inaccurate, but avoid assert
 }
 
 
@@ -1982,16 +1989,10 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	createHEngines<YmmmCmd >(0xE0);
 	createHEngines<HmmcCmd >(0xF0);
 	currentCommand = nullptr;
-
-	//brokenTiming = renderSettings.getCmdTiming().getBoolean();
-
-	renderSettings.getCmdTiming().attach(*this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	renderSettings.getCmdTiming().detach(*this);
-
 	delete commands[0x00][0]; // abort command
 	delete commands[0x55][0]; // dummy command
 	deleteHEngines(0x40);
@@ -2017,11 +2018,6 @@ void VDPCmdEngine::reset(EmuTime::param time)
 	}
 
 	updateDisplayMode(vdp.getDisplayMode(), time);
-}
-
-void VDPCmdEngine::update(const Setting& /*setting*/)
-{
-	//brokenTiming = static_cast<const EnumSetting<bool>*>(&setting)->getValue();
 }
 
 void VDPCmdEngine::setCmdReg(byte index, byte value, EmuTime::param time)
@@ -2178,12 +2174,6 @@ void VDPCmdEngine::executeCommand(EmuTime::param time)
 	status |= 0x01;
 	currentCommand = commands[CMD][scrMode];
 	currentCommand->start(time, *this);
-
-	// Finish command now if instantaneous command timing is active.
-	// Abort finishes on start, so currentCommand can be nullptr.
-	//if (brokenTiming && currentCommand) {
-	//	currentCommand->execute(time, *this);
-	//}
 }
 
 void VDPCmdEngine::reportVdpCommand()

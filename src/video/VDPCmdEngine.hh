@@ -2,8 +2,8 @@
 #define VDPCMDENGINE_HH
 
 #include "VDP.hh"
+#include "VDPAccessSlots.hh"
 #include "DisplayMode.hh"
-#include "Observer.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -39,7 +39,7 @@ public:
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
-class VDPCmdEngine : private Observer<Setting>, private noncopyable
+class VDPCmdEngine : private noncopyable
 {
 public:
 	VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
@@ -63,7 +63,7 @@ public:
 			// If there's a CPU access scheduled, then the next
 			// slot will be used by the CPU. So we take a later
 			// slot.
-			nextAccessSlot(1); // skip one slot
+			nextAccessSlot(VDPAccessSlots::DELTA_1); // skip one slot
 			assert(this->time > time);
 		}
 	}
@@ -145,27 +145,17 @@ private:
 	void createLEngines(unsigned cmd, VDPCmd* dummy);
 	void deleteLEngines(unsigned cmd);
 
-	virtual void update(const Setting& setting);
-
 	void executeCommand(EmuTime::param time);
 
-	inline void nextAccessSlot(int delta) {
+	inline void nextAccessSlot() {
+		time = vdp.getAccessSlot(time, VDPAccessSlots::DELTA_0);
+	}
+	inline void nextAccessSlot(VDPAccessSlots::Delta delta) {
 		time = vdp.getAccessSlot(time, delta);
 	}
-	inline AccessSlotCalculator getSlotCalculator() const {
-		return vdp.getAccessSlotCalculator(time);
-	}
-	inline void nextAccessSlot(AccessSlotCalculator& calculator, int delta) {
-#ifdef DEBUG
-		EmuTime old = time;
-		nextAccessSlot(delta);
-		EmuTime verify = time;
-		time = old;
-#endif
-		time += calculator.getNext(delta);
-#ifdef DEBUG
-		assert(time == verify);
-#endif
+	inline VDPAccessSlots::Calculator getSlotCalculator(
+			EmuTime::param limit) const {
+		return vdp.getAccessSlotCalculator(time, limit);
 	}
 
 	/** Finshed executing graphical operation.
@@ -248,11 +238,6 @@ private:
 	/** Flag that indicated whether extended VRAM is available
 	 */
 	const bool hasExtendedVRAM;
-
-	/** Real command timing or instantaneous (broken) timing
-	  */
-	//bool brokenTiming; // not used anymore ATM
-	//                   // TODO remove completely or try to restore?
 
 	friend struct AbortCmd;
 	friend struct PointBaseCmd;

@@ -1077,6 +1077,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2539,6 +2542,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VDPVRAM.hh">
