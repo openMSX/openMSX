@@ -81,6 +81,7 @@ register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
 	v9990regs vpeek vpoke palette}
 register_lazy "_vdp_access_test.tcl" toggle_vdp_access_test
+register_lazy "_vdp_busy.tcl" toggle_vdp_busy
 register_lazy "_vdrive.tcl" vdrive
 register_lazy "_vu-meters.tcl" toggle_vu_meters
 register_lazy "_widgets.tcl" {toggle_show_palette toggle_vdp_reg_viewer}
