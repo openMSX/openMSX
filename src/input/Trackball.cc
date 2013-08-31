@@ -98,16 +98,26 @@ void Trackball::unplugHelper(EmuTime::param /*time*/)
 byte Trackball::read(EmuTime::param /*time*/)
 {
 	// From the Sony GB-7 Service manual:
+	//  http://cdn.preterhuman.net/texts/computing/msx/sonygb7sm.pdf
 	// * The counter seems to be 8-bit wide, though only 4 bits (bit 7 and
-	//   2-0) are connected to the MSX.
+	//   2-0) are connected to the MSX. Looking at the M60226 block diagram
+	//   in more detail shows that the (up/down-)counters have a 'HP'
+	//   input, in the GB7 this input is hardwired to GND. My *guess* is
+	//   that HP stands for either 'Half-' or 'High-precision' and that it
+	//   selects between either 4 or 8 bits saturation.
+	//   The bug report '#477 Trackball emulation overflow values too
+	//   easily' contains a small movie. Some very rough calculations
+	//   indicate that when you move a cursor 50 times per second, 8 pixels
+	//   per step, you get about the same speed as in that move.
+	//   So even though both 4 and 8 bit clipping *seem* to be possible,
+	//   this code only implements 4 bit clipping.
 	// * It also contains a test program to read the trackball position.
 	//   This program first reads the (X or Y) value and only then toggles
 	//   pin 8. This seems to suggest the actual (X or Y) value is always
 	//   present on reads and toggling pin 8 resets this value and switches
 	//   to the other axis.
-	signed char& delta = (lastValue & 4) ? deltaY : deltaX;
-	unsigned t = delta + 128;
-	return (status & ~0x0F) | ((t & 0x80) >> 4) | (t & 0x07);
+	auto delta = (lastValue & 4) ? deltaY : deltaX;
+	return (status & ~0x0F) | ((delta + 8) & 0x0F);
 }
 
 void Trackball::write(byte value, EmuTime::param /*time*/)
@@ -188,8 +198,8 @@ void Trackball::signalStateChange(const shared_ptr<StateChange>& event)
 	auto ts = dynamic_cast<TrackballState*>(event.get());
 	if (!ts) return;
 
-	deltaX = std::min(127, std::max(-128, deltaX + ts->getDeltaX()));
-	deltaY = std::min(127, std::max(-128, deltaY + ts->getDeltaY()));
+	deltaX = std::min(7, std::max(-8, deltaX + ts->getDeltaX()));
+	deltaY = std::min(7, std::max(-8, deltaY + ts->getDeltaY()));
 	status = (status & ~ts->getPress()) | ts->getRelease();
 }
 
