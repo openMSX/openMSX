@@ -1114,14 +1114,13 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 	}
 }
 
-void YM2413::writeReg(byte regis, byte data)
+void YM2413::writeReg(byte r, byte data)
 {
-	assert(regis < 0x40);
-	byte old = reg[regis];
-	reg[regis] = data;
+	assert(r < 0x40);
 
-	switch (regis) {
+	switch (r) {
 	case 0x00: {
+		reg[r] = data;
 		patches[0][0].AMPM = (data >> 6) & 3;
 		patches[0][0].EG   = (data >> 5) & 1;
 		patches[0][0].setKR ((data >> 4) & 1);
@@ -1144,6 +1143,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x01: {
+		reg[r] = data;
 		patches[0][1].AMPM = (data >> 6) & 3;
 		patches[0][1].EG   = (data >> 5) & 1;
 		patches[0][1].setKR ((data >> 4) & 1);
@@ -1166,6 +1166,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x02: {
+		reg[r] = data;
 		patches[0][0].setKL((data >> 6) &  3);
 		patches[0][0].setTL((data >> 0) & 63);
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1181,6 +1182,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x03: {
+		reg[r] = data;
 		patches[0][1].setKL((data >> 6) & 3);
 		patches[0][1].setWF((data >> 4) & 1);
 		patches[0][0].setWF((data >> 3) & 1);
@@ -1195,6 +1197,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x04: {
+		reg[r] = data;
 		patches[0][0].AR = (data >> 4) & 15;
 		patches[0][0].DR = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1211,6 +1214,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x05: {
+		reg[r] = data;
 		patches[0][1].AR = (data >> 4) & 15;
 		patches[0][1].DR = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1227,6 +1231,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x06: {
+		reg[r] = data;
 		patches[0][0].setSL((data >> 4) & 15);
 		patches[0][0].RR  = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1243,6 +1248,7 @@ void YM2413::writeReg(byte regis, byte data)
 		break;
 	}
 	case 0x07: {
+		reg[r] = data;
 		patches[0][1].setSL((data >> 4) & 15);
 		patches[0][1].RR  = (data >> 0) & 15;
 		unsigned m = isRhythm() ? 6 : 9;
@@ -1258,13 +1264,20 @@ void YM2413::writeReg(byte regis, byte data)
 		}
 		break;
 	}
-	case 0x0e:
+	case 0x0E: {
+		byte old = reg[r];
+		reg[r] = data;
 		setRhythmFlags(old);
 		break;
-
+	}
+	case 0x19: case 0x1A: case 0x1B: case 0x1C:
+	case 0x1D: case 0x1E: case 0x1F:
+		r -= 9; // verified on real YM2413
+		// fall-through
 	case 0x10: case 0x11: case 0x12: case 0x13: case 0x14:
 	case 0x15: case 0x16: case 0x17: case 0x18: {
-		unsigned cha = regis & 0x0F;
+		reg[r] = data;
+		unsigned cha = r & 0x0F; assert(cha < 9);
 		Channel& ch = channels[cha];
 		bool actAsCarrier = (cha >= 7) && isRhythm();
 		unsigned freq = getFreq(cha);
@@ -1272,9 +1285,14 @@ void YM2413::writeReg(byte regis, byte data)
 		ch.car.updateAll(freq, true);
 		break;
 	}
+	case 0x29: case 0x2A: case 0x2B: case 0x2C:
+	case 0x2D: case 0x2E: case 0x2F:
+		r -= 9; // verified on real YM2413
+		// fall-through
 	case 0x20: case 0x21: case 0x22: case 0x23: case 0x24:
 	case 0x25: case 0x26: case 0x27: case 0x28: {
-		unsigned cha = regis & 0x0F;
+		reg[r] = data;
+		unsigned cha = r & 0x0F; assert(cha < 9);
 		Channel& ch = channels[cha];
 		bool modActAsCarrier = (cha >= 7) && isRhythm();
 		ch.setSustain((data >> 5) & 1, modActAsCarrier);
@@ -1288,9 +1306,14 @@ void YM2413::writeReg(byte regis, byte data)
 		ch.car.updateAll(freq, true);
 		break;
 	}
+	case 0x39: case 0x3A: case 0x3B: case 0x3C:
+	case 0x3D: case 0x3E: case 0x3F:
+		r -= 9; // verified on real YM2413
+		// fall-through
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38: {
-		unsigned cha = regis & 0x0F;
+		reg[r] = data;
+		unsigned cha = r & 0x0F; assert(cha < 9);
 		Channel& ch = channels[cha];
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
