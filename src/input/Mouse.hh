@@ -48,10 +48,10 @@ private:
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
 	EmuTime lastTime;
-	int faze;
-	int xrel, yrel;
-	int curxrel, curyrel;
-	int absHostX, absHostY;
+	int phase;
+	int xrel, yrel;         // latched X/Y values, these are returned to the MSX
+	int curxrel, curyrel;   // running X/Y values, already scaled down
+	int absHostX, absHostY; // running X/Y values, not yet scaled down
 	byte status;
 	bool mouseMode;
 };

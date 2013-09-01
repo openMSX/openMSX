@@ -18,12 +18,10 @@ namespace openmsx {
 
 static const int TRESHOLD = 2;
 static const int SCALE = 2;
-static const int MAX_POS =  127 * SCALE;
-static const int MIN_POS = -128 * SCALE;
-static const int FAZE_XHIGH = 0;
-static const int FAZE_XLOW  = 1;
-static const int FAZE_YHIGH = 2;
-static const int FAZE_YLOW  = 3;
+static const int PHASE_XHIGH = 0;
+static const int PHASE_XLOW  = 1;
+static const int PHASE_YHIGH = 2;
+static const int PHASE_YLOW  = 3;
 static const int STROBE = 0x04;
 
 
@@ -62,7 +60,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
 	, lastTime(EmuTime::zero)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
-	faze = FAZE_YLOW;
+	phase = PHASE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
 	absHostX = absHostY = 0;
 	mouseMode = true;
@@ -118,14 +116,14 @@ void Mouse::unplugHelper(EmuTime::param /*time*/)
 byte Mouse::read(EmuTime::param /*time*/)
 {
 	if (mouseMode) {
-		switch (faze) {
-		case FAZE_XHIGH:
+		switch (phase) {
+		case PHASE_XHIGH:
 			return ((xrel >> 4) & 0x0F) | status;
-		case FAZE_XLOW:
+		case PHASE_XLOW:
 			return  (xrel       & 0x0F) | status;
-		case FAZE_YHIGH:
+		case PHASE_YHIGH:
 			return ((yrel >> 4) & 0x0F) | status;
-		case FAZE_YLOW:
+		case PHASE_YLOW:
 			return  (yrel       & 0x0F) | status;
 		default:
 			UNREACHABLE; return 0;
@@ -203,23 +201,23 @@ void Mouse::write(byte value, EmuTime::param time)
 		// uses, but 1.5ms is also the timeout value that is used for
 		// JoyMega, so it seems like a reasonable value.
 		if ((time - lastTime) > EmuDuration::usec(1500)) {
-			faze = FAZE_YLOW;
+			phase = PHASE_YLOW;
 		}
 		lastTime = time;
 
-		switch (faze) {
-		case FAZE_XHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_XLOW;
+		switch (phase) {
+		case PHASE_XHIGH:
+			if ((value & STROBE) == 0) phase = PHASE_XLOW;
 			break;
-		case FAZE_XLOW:
-			if ((value & STROBE) != 0) faze = FAZE_YHIGH;
+		case PHASE_XLOW:
+			if ((value & STROBE) != 0) phase = PHASE_YHIGH;
 			break;
-		case FAZE_YHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_YLOW;
+		case PHASE_YHIGH:
+			if ((value & STROBE) == 0) phase = PHASE_YLOW;
 			break;
-		case FAZE_YLOW:
+		case PHASE_YLOW:
 			if ((value & STROBE) != 0) {
-				faze = FAZE_XHIGH;
+				phase = PHASE_XHIGH;
 				xrel = curxrel; yrel = curyrel;
 				curxrel = 0; curyrel = 0;
 			}
@@ -237,12 +235,12 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		int newX = max(MIN_POS, min(MAX_POS, curxrel - mev.getX()));
-		int newY = max(MIN_POS, min(MAX_POS, curyrel - mev.getY()));
-		int deltaX = newX - curxrel;
-		int deltaY = newY - curyrel;
-		if (deltaX || deltaY) {
-			createMouseStateChange(time, deltaX, deltaY, 0, 0);
+		if (mev.getX() || mev.getY()) {
+			// note: X/Y are negated, do this already in this
+			//  routine to keep replays bw-compat. In a new
+			//  savestate version it may (or may not) be cleaner
+			//  to perform this operation closer to the MSX code.
+			createMouseStateChange(time, -mev.getX(), -mev.getY(), 0, 0);
 		}
 		break;
 	}
@@ -306,6 +304,8 @@ void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 	int relMsxX = newMsxX - oldMsxX;
 	int relMsxY = newMsxY - oldMsxY;
 
+	// Verified with a real MSX-mouse (Philips SBC3810):
+	//   this value is not clipped to -128 .. 127.
 	curxrel += relMsxX;
 	curyrel += relMsxY;
 	status = (status & ~ms->getPress()) | ms->getRelease();
@@ -346,7 +346,8 @@ void Mouse::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("lastTime", lastTime);
 	}
-	ar.serialize("faze", faze);
+	ar.serialize("faze", phase); // TODO fix spelling if there's ever a need
+	                             // to bump the serialization verion
 	ar.serialize("xrel", xrel);
 	ar.serialize("yrel", yrel);
 	ar.serialize("mouseMode", mouseMode);
