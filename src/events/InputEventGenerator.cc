@@ -295,7 +295,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = make_shared<MouseButtonDownEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEMOTION:
-		event = make_shared<MouseMotionEvent>(evt.motion.xrel, evt.motion.yrel);
+		event = make_shared<MouseMotionEvent>(
+			evt.motion.xrel, evt.motion.yrel,
+			evt.motion.x,    evt.motion.y);
 		break;
 
 	case SDL_JOYBUTTONUP:
