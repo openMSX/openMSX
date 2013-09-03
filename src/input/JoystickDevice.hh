@@ -36,12 +36,24 @@ public:
 	 */
 
 protected:
+	// use in the read() method
 	static const int JOY_UP      = 0x01;
 	static const int JOY_DOWN    = 0x02;
 	static const int JOY_LEFT    = 0x04;
 	static const int JOY_RIGHT   = 0x08;
 	static const int JOY_BUTTONA = 0x10;
 	static const int JOY_BUTTONB = 0x20;
+	static const int RD_PIN1 = 0x01;
+	static const int RD_PIN2 = 0x02;
+	static const int RD_PIN3 = 0x04;
+	static const int RD_PIN4 = 0x08;
+	static const int RD_PIN6 = 0x10;
+	static const int RD_PIN7 = 0x20;
+
+	// use in the write() method
+	static const int WR_PIN6 = 0x01;
+	static const int WR_PIN7 = 0x02;
+	static const int WR_PIN8 = 0x04;
 };
 
 } // namespace openmsx

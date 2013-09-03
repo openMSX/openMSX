@@ -14,6 +14,7 @@
 #include "MidiOutLogger.hh"
 #include "Mouse.hh"
 #include "Trackball.hh"
+#include "Touchpad.hh"
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
 #include "Printer.hh"
@@ -52,6 +53,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(make_unique<Mouse>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(make_unique<Trackball>(
+		msxEventDistributor, stateChangeDistributor));
+	controller.registerPluggable(make_unique<Touchpad>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(make_unique<JoyTap>(
 		controller, "joytap"));
