@@ -453,6 +453,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
@@ -974,6 +975,7 @@
     <None Include="$(OpenMSXSrcDir)\input\StateChangeListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Trackball.hh" />
     <None Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />	
 	<None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
