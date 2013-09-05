@@ -180,6 +180,7 @@
         <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
+        <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
@@ -5202,6 +5203,47 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
+
+
+  <h3><a id="touchpad_transform_matrix">touchpad_transform_matrix</a></h3>
+
+  <p>Specify a 2&times;3 transformation matrix that maps host mouse coordinates
+  to MSX touchpad coordinates.
+  <p>To get the following coordinate transformation:</p>
+  <pre>
+        | a b c |   | host-X |   | touchpad-X |
+        | d e f | &times; | host-Y | = | touchpad-Y |
+                    |    1   |
+  </pre>
+  <p>Use this command:</p>
+  <pre>
+        set touchpad_transform_matrix {{a b c} {d e f}}
+  </pre>
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set touchpad_transform_matrix</code></td>
+      <td>Shows the current value</td>
+    </tr>
+    <tr>
+      <td><code>set touchpad_transform_matrix {{256 0 0} {0 256 0}}</code></td>
+      <td>This is the default, map the full host window to 256&times;256 touchpad input</td>
+    </tr>
+    <tr>
+      <td><code>set touchpad_transform_matrix {{320 0 -64} {0 240 -14}}</code></td>
+      <td>Attempt to map touch coordinates to corresponding MSX pixel coordinates.</td>
+    </tr>
+  </table>
+
+<!-- TODO write Tcl scripts to setup this matrix
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#monitor_type">monitor_type</a></code> command.
+  </div>
+-->
 
 
   <h3><a id="turborpause">turborpause</a></h3>

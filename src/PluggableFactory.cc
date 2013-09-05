@@ -55,7 +55,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(make_unique<Trackball>(
 		msxEventDistributor, stateChangeDistributor));
 	controller.registerPluggable(make_unique<Touchpad>(
-		msxEventDistributor, stateChangeDistributor));
+		msxEventDistributor, stateChangeDistributor,
+		commandController));
 	controller.registerPluggable(make_unique<JoyTap>(
 		controller, "joytap"));
 	controller.registerPluggable(make_unique<NinjaTap>(

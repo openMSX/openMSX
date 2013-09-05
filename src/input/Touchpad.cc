@@ -10,12 +10,15 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "StringSetting.hh"
+#include "CommandException.hh"
 #include "Clock.hh"
 #include "Math.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include <iostream>
+#include <SDL.h>
 
 using std::shared_ptr;
 
@@ -50,7 +53,8 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, TouchpadState, "TouchpadState");
 
 
 Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
-                   StateChangeDistributor& stateChangeDistributor_)
+                   StateChangeDistributor& stateChangeDistributor_,
+                   CommandController& commandController)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, start(EmuTime::zero)
@@ -58,6 +62,28 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), last(0)
 {
+	transformSetting = make_unique<StringSetting>(commandController,
+		"touchpad_transform_matrix",
+		"2x3 matrix to transform host mouse coordinates to "
+		"MSX touchpad coordinates, see manual for details",
+		"{ 256 0 0 } { 0 256 0 }");
+	transformSetting->setChecker([this](TclObject& newValue) {
+		try {
+			parseTransformMatrix(newValue);
+		} catch (CommandException& e) {
+			throw CommandException(
+				"Invalid transformation matrix: " + e.getMessage());
+		}
+	});
+	try {
+		parseTransformMatrix(transformSetting->getValue());
+	} catch (CommandException& e) {
+		// should only happen when settings.xml was manually edited
+		std::cerr << e.getMessage() << std::endl;
+		// fill in safe default values
+		m[0][0] = 256.0; m[0][1] =   0.0; m[0][2] = 0.0;
+		m[1][0] =   0.0; m[1][1] = 256.0; m[1][2] = 0.0;
+	}
 }
 
 Touchpad::~Touchpad()
@@ -67,6 +93,21 @@ Touchpad::~Touchpad()
 	}
 }
 
+void Touchpad::parseTransformMatrix(const TclObject& value)
+{
+	if (value.getListLength() != 2) {
+		throw CommandException("must have 2 rows");
+	}
+	for (int i = 0; i < 2; ++i) {
+		TclObject row = value.getListIndex(i);
+		if (row.getListLength() != 3) {
+			throw CommandException("each row must have 3 elements");
+		}
+		for (int j = 0; j < 3; ++j) {
+			m[i][j] = row.getListIndex(j).getDouble();
+		}
+	}
+}
 
 // Pluggable
 const std::string& Touchpad::getName() const
@@ -146,13 +187,16 @@ void Touchpad::write(byte value, EmuTime::param time)
 	}
 }
 
-static void convertCoord(int& x, int& y)
+void Touchpad::transformCoords(int& x, int& y)
 {
-	// TODO use scale_factor
-	// TODO transform to actual MSX pixel coordinates
-	//       -> use set-adjust, horizontal_stretch
-	x = Math::clipIntToByte(x / 2);
-	y = Math::clipIntToByte(y / 2);
+	if (SDL_Surface* surf = SDL_GetVideoSurface()) {
+		double u = double(x) / surf->w;
+		double v = double(y) / surf->h;
+		x = m[0][0] * u + m[0][1] * v + m[0][2];
+		y = m[1][0] * u + m[1][1] * v + m[1][2];
+	}
+	x = Math::clipIntToByte(x);
+	y = Math::clipIntToByte(y);
 }
 
 // MSXEventListener
@@ -167,7 +211,7 @@ void Touchpad::signalEvent(const shared_ptr<const Event>& event,
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
 		x = mev.getAbsX();
 		y = mev.getAbsY();
-		convertCoord(x, y);
+		transformCoords(x, y);
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
@@ -246,7 +290,8 @@ void Touchpad::stopReplay(EmuTime::param time)
 template<typename Archive>
 void Touchpad::serialize(Archive& ar, unsigned /*version*/)
 {
-	// no need to serialize hostX, hostY, hostButtons
+	// no need to serialize hostX, hostY, hostButtons,
+	//                      transformSetting, m[][]
 	ar.serialize("start", start);
 	ar.serialize("x", x);
 	ar.serialize("y", y);

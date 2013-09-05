@@ -4,18 +4,23 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
+#include <memory>
 
 namespace openmsx {
 
 class MSXEventDistributor;
 class StateChangeDistributor;
+class CommandController;
+class StringSetting;
+class TclObject;
 
 class Touchpad : public JoystickDevice, private MSXEventListener
                , private StateChangeListener
 {
 public:
 	Touchpad(MSXEventDistributor& eventDistributor,
-	         StateChangeDistributor& stateChangeDistributor);
+	         StateChangeDistributor& stateChangeDistributor,
+	         CommandController& commandController);
 	virtual ~Touchpad();
 
 	template<typename Archive>
@@ -24,6 +29,8 @@ public:
 private:
 	void createTouchpadStateChange(EmuTime::param time,
 		byte x, byte y, bool touch, bool button);
+	void parseTransformMatrix(const TclObject& value);
+	void transformCoords(int& x, int& y);
 
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -44,6 +51,9 @@ private:
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
+
+	std::unique_ptr<StringSetting> transformSetting;
+	double m[2][3]; // transformation matrix
 
 	EmuTime start; // last time when CS switched 0->1
 	int hostX, hostY; // host state
