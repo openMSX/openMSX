@@ -6,7 +6,7 @@
   <info>
     <manufacturer>Yamaha</manufacturer>
     <code>CX5MII/128</code>
-    <release_year>?</release_year>
+    <release_year>1985</release_year>
     <description/>
     <type>MSX</type>
   </info>
@@ -81,7 +81,7 @@
       <secondary slot="1">
         <ROM id="FM Voicing Program II">
           <rom>
-	    <sha1>30747a56f45389be76362f7fc55d673f1bff8312</sha1>
+            <sha1>30747a56f45389be76362f7fc55d673f1bff8312</sha1>
             <filename>roms/cx5mii-128_fmvoicingprogramii.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
