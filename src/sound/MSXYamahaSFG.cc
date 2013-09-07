@@ -36,27 +36,27 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 	}
 
 	switch (address & 0x3FFF) {
-	case 0x3FF0:
+	case 0x3FF0: // OPM ADDRESS REGISTER
 		writeRegisterPort(value, time);
 		break;
-	case 0x3FF1:
+	case 0x3FF1: // OPM DATA REGISTER
 		writeDataPort(value, time);
 		break;
-	case 0x3FF2:
+	case 0x3FF2: // Register for data latched to ST0 to ST7 output ports
 		// TODO: keyboardLatch = value;
 		//std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
 		break;
-	case 0x3FF3:
+	case 0x3FF3: // MIDI IRQ VECTOR ADDRESS REGISTER
 		ym2148->setVector(value);
 		break;
-	case 0x3FF4:
+	case 0x3FF4: // EXTERNAL IRQ VECTOR ADDRESS REGISTER
 		// IRQ vector for YM2151 (+ default vector ???)
 		irqVector = value;
 		break;
-	case 0x3FF5:
+	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		ym2148->writeData(value);
 		break;
-	case 0x3FF6:
+	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		ym2148->writeCommand(value);
 		break;
 	}
@@ -86,18 +86,18 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param /*time*/)
 	}
 
 	switch (address & 0x3FFF) {
-	case 0x3FF0:
+	case 0x3FF0: // OPM STATUS REGISTER
 		return ym2151->readStatus();
-	case 0x3FF1:
+	case 0x3FF1: // OPM DATA REGISTER
 		return ym2151->readStatus();
-	case 0x3FF2:
+	case 0x3FF2: // Data buffer for SD0 to SD7 input ports
 		// TODO: return getKbdStatus();
 		break;
-	case 0x3FF5:
+	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
 		// For now disabled, as it breaks working functionality (YRM-104)
 		// return ym2148->readData();
 		break;
-	case 0x3FF6:
+	case 0x3FF6: // MIDI standard UART STATUS REGISTER
 		// For now disabled, as it breaks working functionality (YRM-104)
 		//return ym2148->readStatus();
 		break;
