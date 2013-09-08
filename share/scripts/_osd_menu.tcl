@@ -1,8 +1,8 @@
 namespace eval osd_menu {
 
-set_help_text main_menu_open   "(experimental) Show the OSD menu."
-set_help_text main_menu_close  "(experimental) Remove the OSD menu."
-set_help_text main_menu_toggle "(experimental) Toggle the OSD menu."
+set_help_text main_menu_open   "Show the OSD menu."
+set_help_text main_menu_close  "Remove the OSD menu."
+set_help_text main_menu_toggle "Toggle the OSD menu."
 
 # default colors defined here, for easy global tweaking
 variable default_bg_color "0x7090aae8 0xa0c0dde8 0x90b0cce8 0xc0e0ffe8"

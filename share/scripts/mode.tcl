@@ -80,8 +80,6 @@ proc enter_tas_mode {} {
 	# Set up frame advance/reverse
 	bind_default END -repeat advance_frame
 	bind_default SCROLLOCK -repeat reverse_frame
-
-	puts "WARNING: TAS mode is still very experimental and will almost certainly change next release!"
 }
 
 proc leave_tas_mode {} {
