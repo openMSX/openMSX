@@ -70,7 +70,8 @@ proc all_command_names {} {
 # loaded script. This helper proc is used for syntax-highlighting in the
 # openMSX console.
 proc is_command_name {name} {
-	expr {[lsearch -exact [all_command_names] $name] != -1}
+	if {[info commands ::$name] ne ""} {return 1}
+	expr {[lsearch -exact [all_command_names] [namespace tail $name]] != -1}
 }
 
 # Override the builtin Tcl proc 'unknown'. This is called when the Tcl
