@@ -2,6 +2,7 @@
 #include "YM2151.hh"
 #include "YM2148.hh"
 #include "Rom.hh"
+#include "CacheLine.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
@@ -62,6 +63,14 @@ void MSXYamahaSFG::writeMem(word address, byte value, EmuTime::param time)
 	}
 }
 
+byte* MSXYamahaSFG::getWriteCacheLine(word start) const
+{
+	if ((start & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
+		return nullptr;
+	}
+	return unmappedWrite;
+}
+
 byte MSXYamahaSFG::readIRQVector()
 {
 	return irqVector;
@@ -78,13 +87,17 @@ void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
 	ym2151->writeReg(registerLatch, value, time);
 }
 
-byte MSXYamahaSFG::readMem(word address, EmuTime::param /*time*/)
+byte MSXYamahaSFG::readMem(word address, EmuTime::param time)
+{
+	return peekMem(address, time);
+}
+
+byte MSXYamahaSFG::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if (address < 0x3FF0 || address >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05
 		return (*rom)[address & (rom->getSize() - 1)];
 	}
-
 	switch (address & 0x3FFF) {
 	case 0x3FF0: // OPM STATUS REGISTER
 		return ym2151->readStatus();
@@ -105,6 +118,13 @@ byte MSXYamahaSFG::readMem(word address, EmuTime::param /*time*/)
 	return 0xFF;
 }
 
+const byte* MSXYamahaSFG::getReadCacheLine(word start) const
+{
+	if ((start & CacheLine::HIGH) == (0x3FF0 & CacheLine::HIGH)) {
+		return nullptr;
+	}
+	return &(*rom)[start & (rom->getSize() - 1)];
+}
 
 template<typename Archive>
 void MSXYamahaSFG::serialize(Archive& ar, unsigned /*version*/)

@@ -24,7 +24,7 @@ public:
 	~Impl();
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
-	byte readStatus();
+	byte readStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -1685,7 +1685,7 @@ void YM2151::Impl::callback(byte flag)
 	}
 }
 
-byte YM2151::Impl::readStatus()
+byte YM2151::Impl::readStatus() const
 {
 	return status;
 }
@@ -1816,7 +1816,7 @@ void YM2151::writeReg(byte r, byte v, EmuTime::param time)
 	pimpl->writeReg(r, v, time);
 }
 
-byte YM2151::readStatus()
+byte YM2151::readStatus() const
 {
 	return pimpl->readStatus();
 }

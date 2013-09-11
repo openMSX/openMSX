@@ -18,7 +18,10 @@ public:
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);
+	virtual byte peekMem(word address, EmuTime::param time) const;
+	virtual const byte* getReadCacheLine(word start) const;
 	virtual void writeMem(word address, byte value, EmuTime::param time);
+	virtual byte* getWriteCacheLine(word start) const;
 	virtual byte readIRQVector();
 
 	template<typename Archive>
