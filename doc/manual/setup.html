@@ -175,6 +175,8 @@ in the <code>share/extensions</code> directory.
 Some extensions need ROM images in order to run, similar to system ROMs.
 </p>
 
+<p>In general, the XML files that describe the hardware configuration are called "hardware configuration XML files".</p>
+
 <h2><a id="systemroms">3. System ROMs</a></h2>
 
 <p>
@@ -319,18 +321,16 @@ Checksums.
 </p>
 
 <p>
-If you want to be sure that openMSX loads a specific set of ROM images for a
-machine, independent of any file pool or the checksums of the ROM images, you
-can also copy those to the appropriate subdirectory called <code>roms</code> in
-the directory of that machine, after having dumped or downloaded the ROM
-images.
+For advanced users, it is also possible to let openMSX load a specific set of ROM images for a machine,
+independent of any file pool or the checksums of the ROM images. For that you
+copy the ROM file with the name and path as mentioned in the hardware
+configuration XML file that describes the machine, relative to the path of that
+machine description file.
 For example, if you dumped the ROMs of a Philips NMS 8250 machine,
-copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
-Look in the file hardwareconfig.xml for the file names (and path; newer
-configuration files will not have the 'roms' part in the path, so there you can
-just put them next to the hardwareconfig.xml file) openMSX expects the ROM
-images to have. However, usually, you can just use the file pool as explained
-in the previous paragraph.
+copy them to <code>share/machines/roms</code>, because in the machine
+description file (in <code>share/machines/Philips_NMS_8250.xml</code>) the name
+of the ROMs is like this: <code>roms/nms8250_msx2sub.rom</code>. We recommend
+to not use this feature, but use the file pools as mentioned above.
 </p>
 
 <h4><a id="romchecksums">3.4.2 Checksums</a></h4>
@@ -345,9 +345,9 @@ ROM is explicitly specified in the configuration file (which is also supported) 
 
 <p>
 You can also manually check whether you have the correct ROM images. The value
-in the &lt;sha1&gt; tag(s) in the hardwareconfig.xml files contain checksums of
+in the &lt;sha1&gt; tag(s) in the hardware configuration XML files contain checksums of
 ROM images that are known to work. You can compare the checksums of your ROM
-images to the ones in the hardwareconfig.xml files with the
+images to the ones in the hardware configuration XML files with the
 <code>sha1sum</code> tool.
 It is installed by default on most UNIX systems,
 on Windows you would have to download it separately.
@@ -589,27 +589,25 @@ but modifying the machine gives you more possibilities.
 Normal usage of machines and extensions is covered in the
 <a class="external" href="user.html">User's Manual</a>;
 this chapter tells you how you can create or modify these hardware descriptions, which is a topic for advanced users and definitely something very few people will (want to) do.
-By editing the XML files, you can for example increase the amount of RAM,
-add a built-in MSX-MUSIC, add a disk drive, create extra cartridge slots etc.
+By editing the hardware configuration XML files, you can for example increase
+the amount of RAM, add a built-in MSX-MUSIC, add a disk drive, create extra
+cartridge slots etc.
 </p>
 
 <p>
-You can modify an MSX machine (e.g. to add devices) by editing the XML config
-file. So, let's make a copy of <code>machines/Philips_NMS_8250/hardwareconfig.xml</code> and
-put it in <code>machines/mymsx/</code> under the name of <code>hardwareconfig.xml</code>.
+You can modify an MSX machine (e.g. to add devices) by editing its hardware configration XML file. So, let's make a copy of <code>share/machines/Philips_NMS_8250.xml</code> and
+put it in <code>share/machines/mymsx.xml</code>.
 It's the config we are going to play with; our custom MSX.
-Note: it is convenient to use the directory
-<code>~/.openMSX/share/machines</code> (UNIX) or <code>My
-Documents\openMSX\share\machines</code> (Windows) to store your home-made machines,
-instead of the openMSX installation directory.
+Note: it is convenient to use the user directory (see <a href="#romlocation">above</a>)
+to store your home-made machines, instead of the openMSX installation directory.
 </p>
 
 <p>
 The easiest thing to do is to copy and modify
 fragments from other existing configurations that can be found in
 <code>share/machines</code> or <code>share/extensions</code>. For example,
-to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac/hardwareconfig.xml</code> to
-some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;devices&gt;</code> and
+to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac.xml</code> to
+some place in your <code>mymsx.xml</code> file (between the <code>&lt;devices&gt;</code> and
 <code>&lt;/devices&gt;</code> tags!):
 </p>
 
