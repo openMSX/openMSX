@@ -82,15 +82,13 @@ You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is in alpha state, which means that some things work but not all
+openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
 it is rather bare bones.
 However, because the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
-It explains how you can get the emulator running on your system,
-i.e. how to get the sources and compile them.
 </p>
 
 <p>
@@ -159,7 +157,7 @@ you also need the system ROMs for that machine.
 See the <a class="internal" href="#systemroms">next chapter</a> for more
 information on system ROMs.
 You can also create your own machine descriptions,
-to expand existing MSX models or to create your own fantasy MSX. There is currently one such a fantasy MSX configuration that is based on a real MSX shipped with openMSX. It is called "Boosted_MSX2_EN", because it is a European MSX2 with loads of hardware built in. You can find some more information about it in the README file which is in its directory <code>share/machines/Boosted_MSX2_EN</code>.
+to expand existing MSX models or to create your own fantasy MSX. There are currently some of such fantasy MSX machines, based on real MSX machines, shipped with openMSX. Examples are a machine called "Boosted_MSX2_EN" (a European MSX2 with loads of hardware built in) and one called "Boosted_MSX2+_JP" (a Japanese MSX2+ with loads of hardware built in). You can find some more information about them in their accompanying txt file in <code>share/machines/</code>.
 More about creating fantasy MSX machines in a
 <a class="internal" href="#hardwareedit">later chapter</a>.
 </p>
@@ -479,29 +477,18 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
-If your OpenGL driver is not hardware accelerated,
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0. Practically all modern PC hardware has this, but if your hardware doesn't,
 use the SDL renderer instead.
-If you have hardware accelerated OpenGL, but an older graphics card,
-try disabling scanlines, blur and glow (set them to 0). Running SDLGL-PP needs a graphics card and drivers that support OpenGL 2.0. For nVidia cards we know that the GeForce 4 and lower cards won't work with SDLGL-PP, GeForce 5 should work, but might be slow at some times and GeForce 6 should be just fine. For ATI we only know that all works fine on a Radeon 9700Pro. Newer cards than mentioned probably work as well.
 </p>
 <p>
-For OpenGL under Linux, you might have to take some additional steps to get it hardware accelerated.
-If you have an nVidia card, go to the
-<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
-For other cards, try Mesa, which can be found in packages like
-<code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
-or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
+Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.
 However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
 </p>
 <p>
-You need to have the GLX module loaded in your X server and
-also accelerated graphics (DRI).
-You can verify this by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
+You can verify hardware acceleration on your Linux system by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
 </p>
 <p>
-In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
+In any case: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
 </p>
 
 <h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
@@ -531,10 +518,6 @@ Even if they only do so only once in a while, it may be enough to cause
 emulation to stutter.
 </li>
 <li>
-Use 16-bit color mode ("High Colors", "65536 colors") instead of 32-bit ("True Colors", "millions of colors").
-openMSX uses your platform's default setting.
-</li>
-<li>
 Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
 </li>
 <li>
@@ -545,8 +528,8 @@ games (and any MSX1 software) it works perfectly, especially when using full scr
 Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
 </li>
 <li>
-Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
-instead of MoonSound (maximum 18+24 channels).
+Emulate MSX software that uses less sound channels, for example MSX-MUSIC (maximum 9 channels)
+instead of MoonSound (maximum 18+24 channels). Or run simpler software altogether (e.g. MSX1 software instead of turboR software).
 </li>
 </ul>
 
@@ -704,33 +687,27 @@ If you encounter problems, you have several options:
 
 <ol>
 <li>
-If you're a regular user and want to discuss openMSX and possible problems,
-join our <code>openmsx-user</code> mailing list.
-More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
-including an archive of old messages, can be found at SourceForge.
-</li>
-<li>
 Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
-and ask your question there. Also reachable via <a href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
-
+and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
+join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
 post a message to the <code>openmsx-devel</code> mailing list.
 More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
+<a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
 Use one of the
-<a class="external" href="http://sourceforge.net/tracker/?group_id=38274">openMSX trackers</a>
+<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
 at SourceForge.
-At the moment of writing, there are four trackers:
-Bugs, Support Requests, Patches and Feature Requests.
+At the moment of writing, there are four ticket trackers:
+Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
 </li>
 <li>
-Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
 </li>
 </ol>
 
