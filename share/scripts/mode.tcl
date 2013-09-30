@@ -78,8 +78,8 @@ proc enter_tas_mode {} {
 	bind_default F8 tas::save_replay_slot
 
 	# Set up frame advance/reverse
-	bind_default END -repeat advance_frame
-	bind_default SCROLLOCK -repeat reverse_frame
+	bind_default END -repeat next_frame
+	bind_default SCROLLOCK -repeat prev_frame
 }
 
 proc leave_tas_mode {} {
