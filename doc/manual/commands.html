@@ -355,7 +355,7 @@
     </tr>
     <tr>
       <td><code>bind -layer &lt;layername&gt;</code></td>
-      <td>Show all is a specific layer</td>
+      <td>Show all in a specific layer</td>
     </tr>
     <tr>
       <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;]</code></td>
@@ -369,7 +369,7 @@
     </tr>
     <tr>
       <td><code>bind -layers</code></td>
-      <td>Show the name of all layers that currently have bindings</td>
+      <td>Show the names of all layers that currently have bindings</td>
     </tr>
     <tr>
       <td><code>unbind [-layer &lt;layername&gt;] &lt;event&gt;</code></td>
@@ -878,7 +878,7 @@
 
   <h3><a id="exit">exit</a></h3>
 
-  <p>This command exits the Tcl interpreter, which leads to openMSX exiting as well.</p>
+  <p>Terminate the openMSX application.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -887,7 +887,6 @@
   <table>
     <tr>
       <td><code>exit</code></td>
-
       <td>Exits the emulator</td>
     </tr>
   </table>
@@ -1245,7 +1244,7 @@
 
   <h4><code>load_machine</code>:</h4>
   <p>This command loads a machine configuration (= MSX model) into the given machine-ID.
-  In the web browser analogy, this command would load a page in a previously created empty tab. And unlike a web browser, where you can load a different page in the same tab, you cannot load a different machine configuration in the same machine-ID.</p>
+  In the web browser analogy, this command would load a page in a previously created empty tab. And unlike a web browser, where you can reload a different page in the same tab, you can only load a machine configuration once in the same machine-ID.</p>
 
   <h4><code>activate_machine</code>:</h4>
   <p>This command activates the given machine-ID. At any time there can only be one active machine-ID. This is analogue to switching tabs in a web browser.</p>
@@ -3693,7 +3692,7 @@
   </div>
 
   <div class="note">
-    Note: when using the SDL renderer, this setting may cause a lot more CPU usage (e.g. on a Dingoo) when not using 320.
+    Note: when using the SDL renderer, this setting may cause a lot more CPU usage (e.g. on a Dingoo) when not using the value 320.
   </div>
 
   <h3><a id="inputdelay">inputdelay</a></h3>
@@ -3707,19 +3706,19 @@
   <table>
     <tr>
       <td><code>set inputdelay</code></td>
-
       <td>Shows the current value</td>
     </tr>
-
     <tr>
       <td><code>set inputdelay &lt;time&gt;</code></td>
-
       <td>Sets the input delay to the specified number of seconds</td>
     </tr>
   </table>
 
   <div class="note">
-    Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
+    Note: The default value of 0.0 seconds (no extra delay) should almost
+    always be OK. It only makes sense to increase this setting if you have
+    a slow host machine and you're typing text very fast and the emulated
+    MSX machine misses (some of) the keys you typed.
   </div>
 
 
@@ -3801,7 +3800,7 @@
   both button 1 and 3 will activate MSX button B. (This example shows a host
   joystick with 4 buttons, but in general (by default) all even host buttons
   will active MSX button A and all odd host buttons will active MSX button
-  B.).</p>
+  B).</p>
 
   <p>There are no restrictions on the possible mappings. For example it is
   allowed to map host axis/buttons to MSX buttons/axis or vice-versa. This
