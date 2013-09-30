@@ -1,9 +1,13 @@
 Release Notes for openMSX 0.10.0 (2013-10-??)
 =============================================
 
-This release adds many larger and smaller features: Android support,
-cycle accurate VDP command engine timing, subdirectory support for dir-as-disk, Neos
-MA-20 support, MORE TODO
+This release adds many larger and smaller features, but most outstanding are:
+cycle accurate VDP command engine timing, an Android port, subdirectory support
+for dir-as-disk and Neos MA-20 support. These features meant a lot of work was
+done in practically all parts of the code (of which you can read the results in
+the complete list below), but at the same time we also freshened up much of the
+code using many of the new C++11 language features. All in all, it was time to
+release this stuff officially...
 
 Here's the list with all highlights:
 
@@ -31,7 +35,7 @@ MSX device support:
 - added support for large hard disk images and LaserDisc images (>4GB)
 - added initial RAM patterns for Sony HB-F1XDJ and Sanyo PHC-23J
 - added support for Neos MA-20 Version Up Adapter (MSX1 to MSX2 converter),
-  insert both Neos_MA-20R and Neos MA-20V extensions for this
+  insert both Neos_MA-20R and Neos_MA-20V extensions for this
 - fixed Toshiba MSX-AUDIO with no sample RAM
 - fixes in joystick, mouse and track ball emulation
 - minor fixes in Y8950 (MSX-AUDIO) and YMF262 (MoonSound)
