@@ -2,7 +2,7 @@ Release Notes for openMSX 0.10.0 (2013-10-??)
 =============================================
 
 This release adds many larger and smaller features: Android support,
-accurate VDP command engine timing, subdirectory support for dir-as-disk, Neos
+cycle accurate VDP command engine timing, subdirectory support for dir-as-disk, Neos
 MA-20 support, MORE TODO
 
 Here's the list with all highlights:
@@ -18,7 +18,8 @@ MSX device support:
     - fixed roll behaviour of layer B in P1 mode
   - turboR TC8566AF has other register memory mapping than other machines
   - use correct Kanji font ROM for Victor HC-95A and removed S1985
-  - added accurate VDP command engine timing
+  - added cycle accurate VDP command engine timing
+  - fixes in YM2413 emulation (FMPAC)
 - added mapper support:
   - MSXtra cartridge (a debugging tool released by PTC which has its own RAM)
   - MultiROM Collection, designed by Manuel Pazos in 2006
@@ -32,7 +33,8 @@ MSX device support:
 - added support for Neos MA-20 Version Up Adapter (MSX1 to MSX2 converter),
   insert both Neos_MA-20R and Neos MA-20V extensions for this
 - fixed Toshiba MSX-AUDIO with no sample RAM
-- fixed mouse and track ball emulation
+- fixes in joystick, mouse and track ball emulation
+- minor fixes in Y8950 (MSX-AUDIO) and YMF262 (MoonSound)
 - added OPL3Cartridge2_mono and OPL3Cartridge2_stereo extensions
 - added Yamaha SFG-01 extension and replaced the SFG-05 with the SFG-01 in the
   CX5M machine
@@ -45,11 +47,12 @@ New or improved emulator features:
 - added support for bash completion (useful for using openMSX on the bash
   command line)
 - performance improvements:
-  - improved start-up performance
+  - improved start-up performance (on Dingoo openMSX starts over 20% faster)
   - recuded CPU overhead when enabling reverse
   - further optimized CPU emulation
   - sped up CAS loading (use 3744 baud instead of 2760 baud)
-  - reduce input lag (poll host events more often and remove delays)
+  - reduce input latency (poll host events more often and remove delays)
+  - speed up reverse in combination with harddisk by using incremental hashing
 - reverse/TAS:
   - added reverse subcommand to truncate the current replay
   - show 2 decimals in the reverse bar time
