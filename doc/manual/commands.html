@@ -80,16 +80,6 @@
       </ol>
     </li>
 
-    <li>Old Commands
-
-      <ol class="inlinetoc">
-        <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
-        <li><a class="internal" href="#decr">decr</a></li>
-        <li><a class="internal" href="#quit">quit</a></li>
-        <li><a class="internal" href="#restoredefault">restoredefault</a></li>
-      </ol>
-    </li>
-
     <li>Settings
 
       <ol class="inlinetoc">
@@ -2081,7 +2071,7 @@
   </div>
 
 
-  <h3><a id="test_machine">test_machine</a></h3>
+  <h3><a id="test_machine">test_machine / test_all_machines / test_all_extensions</a></h3>
 
   <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
 
@@ -2095,6 +2085,7 @@
     </tr>
   </table>
 
+  <p>Use the convenience commands <code>test_all_machines</code> and <code>test_all_extensions</code> to get a full overview on which system ROMs you are still missing.</p>
 
   <h3><a id="toggle">toggle</a></h3>
 
@@ -2511,6 +2502,10 @@
       <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
     </tr>
     <tr>
+      <td><code>toggle_vdp_busy</code></td>
+      <td>Enable (or disable) display on the OSD how busy the VDP is</td>
+    </tr>
+    <tr>
       <td><code>toggle_vdp_reg_viewer</code></td>
       <td>Enable (or disable) a widget that shows an overview of all VDP registers and highlights changes in the values</td>
     </tr>
@@ -2549,120 +2544,6 @@
   </table>
 
   <p>The source code of all these scripts is located in <code>share/scripts</code> directory. Feel free to inspect these scripts and modify them to suit your needs.</p>
-
-
-  <h2><a id="old_commands">Old Commands</a></h2>
-
-  <p>The following commands existed in older openMSX versions. For backwards compatibility they are still supported for
-  a while. In later versions they will be removed.</p>
-
-  <h3><a id="aliasunalias">alias / unalias</a></h3>
-
-  <p>Create a new command that is an alias for another (group of) command(s).</p>
-
-  <p>It is better to use the more powerful Tcl <code>proc</code> command.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
-
-      <td>Defines an alias</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>alias gl "set renderer SDLGL-PP"</code><br />
-    <code>alias restart "set power off ; set power on"</code>
-  </div>
-
-  <div class="note">
-    Note: The backwards compatibility implementation of the <code>alias</code> command is not 100% compatible with the old <code>alias</code> command. It is recommended that you update your scripts to use the Tcl <code>proc</code> command.
-  </div>
-
-  <h3><a id="decr">decr</a></h3>
-
-  <p>Decrement an integer setting.</p>
-
-  <p>This command is deprecated, please use the <code><a class="internal" href="#incr">incr</a></code> command with a negative offset instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>decr &lt;setting&gt;</code></td>
-
-      <td>Decrement the specified setting by one</td>
-    </tr>
-
-    <tr>
-      <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
-
-      <td>Decrement the specified setting by the given amount</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>decr speed</code><br />
-    <code>decr renshaturbo 10</code>
-  </div>
-
-  <h3><a id="quit">quit</a></h3>
-
-  <p>Quits the emulator.</p>
-
-  <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>quit</code></td>
-
-      <td>Exits openMSX</td>
-    </tr>
-  </table>
-
-  <h3><a id="restoredefault">restoredefault</a></h3>
-
-  <p>Restore the default value for a setting.</p>
-
-  <p>This command is deprecated, please use <code><a class="internal" href="#unset">unset</a> &lt;setting&gt;</code> instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>restoredefault &lt;setting&gt;</code></td>
-
-      <td>Restores the default value for the given setting</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>restoredefault PSG_volume</code>
-  </div>
 
   <h2><a id="settings">Settings</a></h2>
 
@@ -3452,7 +3333,7 @@
     </tr>
     <tr>
       <td><code>set di_halt_callback my_callback_proc</code></td>
-      <td>Sets a new callback proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 
@@ -3765,7 +3646,7 @@
     </tr>
     <tr>
       <td><code>set invalid_psg_directions_callback my_callback_proc</code></td>
-      <td>Sets a new callback proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 
@@ -4285,7 +4166,7 @@
     <tr> <td>ScrollLock</td><td>(ScrollLock)</td><td>Reverse one frame (<code>reverse_frame</code>)</td></tr>
   </table>
 
-  <p>Note that this mode is still experimental and may change in future releases!</p>
+  <p>Note that this mode may change in future releases!</p>
 
   <h3><a id="mute">mute</a></h3>
 
@@ -5208,7 +5089,7 @@
 
   <p>Specify a 2&times;3 transformation matrix that maps host mouse coordinates
   to MSX touchpad coordinates.
-  <p>To get the following coordinate transformation:</p>
+  To get the following coordinate transformation:</p>
   <pre>
         | a b c |   | host-X |   | touchpad-X |
         | d e f | &times; | host-Y | = | touchpad-Y |
@@ -5218,7 +5099,6 @@
   <pre>
         set touchpad_transform_matrix {{a b c} {d e f}}
   </pre>
-  </p>
 
   <div class="subsectiontitle">
     usage:

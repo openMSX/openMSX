@@ -82,6 +82,7 @@
 			<li><a class="internal" href="#mouse">5.3 Mouse</a></li>
 			<li><a class="internal" href="#arkanoidpad">5.4 Arkanoid Pad</a></li>
 			<li><a class="internal" href="#trackball">5.5 Trackball</a></li>
+			<li><a class="internal" href="#touchpad">5.6 Touchpad</a></li>
 		</ol>
 	</li>
 
@@ -659,7 +660,7 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>Initialisation for the ESE SCSI devices needs tools like <code>MGINST</code>, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the <code>MGINST</code> program (you might want to use <code>KSAVER</code> first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the <code>SFORM-1</code> (for MSX-DOS) or the <code>SFORM-2</code> (for MSX-DOS 2) to format the drive (use a physical format, for now). Use <code>ESET</code> to assign drive letters to partitions.
 </p>
 
-<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
@@ -857,6 +858,23 @@ Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to be the same and
 Quite some HAL programs have support for it, e.g. Hole in One, Eddy II, Music Studio G7, Space Trouble and Super Billiards. The test program provided in the Sony HB-G7B service manual also works fine, of course.
 </p>
 
+<h3><a id="touchpad">5.6 Touchpad</a></h3>
+
+<p>
+Some MSX touch pads like the Philips NMS 1150 Graphic Tablet are also emulated by openMSX, again using the mouse to control it (where mouse button 1 corresponds to touch or no touch and mouse button 2 to the button on the pen of the touch pad). Also the touch pad is mostly supported in port B only:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyportb touchpad
+</div>
+
+<p>
+This device is mostly supported by the Philips drawing programs Designer, Designer Plus and Video Graphics (all in port B) and by Pioneer MSX Video Art (port A).
+</p>
+
+<p>
+Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window...
+</p>
+
 <h2><a id="video">6. Video</a></h2>
 
 <h3><a id="renderers">6.1 Renderers</a></h3>
@@ -869,7 +887,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX and using no special graphical effects (see below). The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
+This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
 </dd>
 
 <dt>SDLGL-PP</dt>
@@ -1217,7 +1235,7 @@ done by default. To play with this setting, use <code>set
 pluggables.
 </p>
 
-<p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forumtopic7290.html">a forum thread</a> which describes how to do this.</p>
+<p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to do this.</p>
 
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
@@ -1251,7 +1269,7 @@ The easiest way to use it is by using the keyboard shortcuts for quickly saving 
 <h3><a id="reverse">8.2 Reverse</a></h3>
 
 <p>
-Inspired by the <a class="external" href="http://tsk-tsk.net/">meisei</a> MSX emulator, openMSX now also has a reverse feature. This enables you to go back in MSX time, so you can correct mistakes in your game play or you can watch what you did (and also record a video of it).
+Inspired by the meisei MSX emulator, openMSX now also has a reverse feature. This enables you to go back in MSX time, so you can correct mistakes in your game play or you can watch what you did (and also record a video of it).
 </p>
 
 <p>You can go back in time a second (upto the moment in MSX time you started the reverse feature, but it is auto started by default) using the <a class="internal" href="#keymapping">key binding</a> for this: PageUp. Once you went back, openMSX will replay whatever you did when you were at this time for the first time, until it got at the point where you went back. From then on, everything will continue as normal. If you touched any control of your MSX during replay, you have indicated to take over from the replay. If you do that, the rest of the replay is erased (openMSX forgets that that future ever happened). This is the typical way to correct mistakes using this feature.
