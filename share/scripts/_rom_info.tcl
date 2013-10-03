@@ -101,6 +101,7 @@ proc rom_info {} {
 }
 
 namespace export rom_info
+namespace export getlist_rom_info
 
 } ;# namespace rom_info
 

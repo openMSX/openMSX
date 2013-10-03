@@ -1114,7 +1114,7 @@ proc menu_select_rom {slot item} {
 			} else {
 				menu_close_all
 
-				set rominfo [rom_info::getlist_rom_info]
+				set rominfo [getlist_rom_info]
 
 				if {$rominfo eq ""} {
 					osd::display_message "No ROM information available..."
