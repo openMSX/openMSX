@@ -71,10 +71,10 @@ void checkFAT12Partition(SectorAccessibleDisk& disk, unsigned partition)
 
 // Create a correct bootsector depending on the required size of the filesystem
 static void setBootSector(MSXBootSector& boot, size_t nbSectors,
-                          unsigned& firstDataSector, byte& descriptor)
+                          unsigned& firstDataSector, byte& descriptor, bool dos1)
 {
 	// start from the default bootblock ..
-	auto& defaultBootBlock = BootBlocks::dos2BootBlock;
+	auto& defaultBootBlock = dos1 ? BootBlocks::dos1BootBlock : BootBlocks::dos2BootBlock;
 	memcpy(&boot, &defaultBootBlock, sizeof(boot));
 
 	// .. and fill-in image-size dependent parameters ..
@@ -173,27 +173,28 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 	boot.resvSectors = nbReservedSectors;
 	boot.hiddenSectors = nbHiddenSectors;
 
-	// set random volume id
-	static bool init = false;
-	if (!init) {
-		init = true;
-		srand(unsigned(time(nullptr)));
+	if (!dos1) {
+		// set random volume id
+		static bool init = false;
+		if (!init) {
+			init = true;
+			srand(unsigned(time(nullptr)));
+		}
+		boot.vol_id = rand() & 0x7F7F7F7F; // why are bits masked?
 	}
-	boot.vol_id = rand() & 0x7F7F7F7F; // why are bits masked?
-
 	unsigned nbRootDirSectors = nbDirEntry / 16;
 	unsigned rootDirStart = 1 + nbFats * nbSectorsPerFat;
 	firstDataSector = rootDirStart + nbRootDirSectors;
 }
 
-void format(SectorAccessibleDisk& disk)
+void format(SectorAccessibleDisk& disk, bool dos1)
 {
 	// first create a bootsector for given partition size
 	size_t nbSectors = disk.getNbSectors();
 	SectorBuffer buf;
 	unsigned firstDataSector;
 	byte descriptor;
-	setBootSector(buf.bootSector, nbSectors, firstDataSector, descriptor);
+	setBootSector(buf.bootSector, nbSectors, firstDataSector, descriptor, dos1);
 	disk.writeSector(0, buf);
 
 	// write empty FAT and directory sectors

@@ -139,8 +139,9 @@ string DiskManipulator::execute(const vector<string>& tokens)
 
 	} else if ((tokens.size() != 4 && ( tokens[1] == "savedsk"
 	                                || tokens[1] == "mkdir"))
-	        || (tokens.size() != 3 && (tokens[1] == "dir"
-	                                || tokens[1] == "format"))
+	        || (tokens.size() != 3 && tokens[1] == "dir")
+	        || ((tokens.size() < 3 || tokens.size() > 4) &&
+	                                tokens[1] == "format")
 	        || ((tokens.size() < 3 || tokens.size() > 4) &&
 	                                  (tokens[1] == "chdir"))
 	        || (tokens.size() < 4 && ( tokens[1] == "export"
@@ -148,7 +149,7 @@ string DiskManipulator::execute(const vector<string>& tokens)
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
 
-	} else if ( tokens[1] == "export" ) {
+	} else if (tokens[1] == "export") {
 		if (!FileOperations::isDirectory(tokens[3])) {
 			throw CommandException(tokens[3] + " is not a directory");
 		}
@@ -156,7 +157,7 @@ string DiskManipulator::execute(const vector<string>& tokens)
 		vector<string> lists(tokens.begin() + 4, tokens.end());
 		exprt(settings, tokens[3], lists);
 
-	} else if (tokens[1] == "import" ) {
+	} else if (tokens[1] == "import") {
 		auto& settings = getDriveSettings(tokens[2]);
 		vector<string> lists(tokens.begin() + 3, tokens.end());
 		result = import(settings, lists);
@@ -182,8 +183,15 @@ string DiskManipulator::execute(const vector<string>& tokens)
 		create(tokens);
 
 	} else if (tokens[1] == "format") {
-		auto& settings = getDriveSettings(tokens[2]);
-		format(settings);
+		bool dos1 = false;
+		vector<string> myTokens(tokens);
+		const auto it = find(myTokens.begin(), myTokens.end(), "-dos1");
+		if (it != myTokens.end()) {
+			myTokens.erase(it);
+			dos1 = true;
+		}
+		auto& settings = getDriveSettings(myTokens[2]);
+		format(settings, dos1);
 
 	} else if (tokens[1] == "dir") {
 		auto& settings = getDriveSettings(tokens[2]);
@@ -282,6 +290,9 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 
 	} else if (tokens.size() == 3) {
 		vector<string> names;
+		if ((tokens[1] == "format") || (tokens[1] == "create")) {
+			names.push_back("-dos1");
+		}
 		for (auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
@@ -310,7 +321,12 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 			completeFileName(tokens, UserFileContext());
 		} else if (tokens[1] == "create") {
 			static const char* const cmds[] = {
-				"360", "720", "32M",
+				"360", "720", "32M", "-dos1"
+			};
+			completeString(tokens, cmds);
+		} else if (tokens[1] == "format") {
+			static const char* const cmds[] = {
+				"-dos1"
 			};
 			completeString(tokens, cmds);
 		}
@@ -333,18 +349,25 @@ void DiskManipulator::create(const vector<string>& tokens)
 {
 	vector<unsigned> sizes;
 	unsigned totalSectors = 0;
-	for (unsigned i = 3; i < tokens.size(); ++i) {
+	bool dos1 = false;
+	vector<string> myTokens(tokens);
+	const auto it = find(myTokens.begin(), myTokens.end(), "-dos1");
+	if (it != myTokens.end()) {
+		myTokens.erase(it);
+		dos1 = true;
+	}
+	for (unsigned i = 3; i < myTokens.size(); ++i) {
 		if (sizes.size() >= MAX_PARTITIONS) {
 			throw CommandException(StringOp::Builder() <<
 				"Maximum number of partitions is " << MAX_PARTITIONS);
 		}
 		char* q;
-		int sectors = strtol(tokens[i].c_str(), &q, 0);
+		int sectors = strtol(myTokens[i].c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
 		if (*q) {
-			if ((q == tokens[i].c_str()) || *(q + 1)) {
+			if ((q == myTokens[i].c_str()) || *(q + 1)) {
 				throw CommandException(
-					"Invalid size: " + tokens[i]);
+					"Invalid size: " + myTokens[i]);
 			}
 			switch (tolower(*q)) {
 				case 'b':
@@ -380,13 +403,16 @@ void DiskManipulator::create(const vector<string>& tokens)
 		sizes.push_back(sectors);
 		totalSectors += sectors;
 	}
+	if (sizes.empty()) {
+		throw CommandException("No size(s) given.");
+	}
 	if (sizes.size() > 1) {
 		// extra sector for partition table
 		++totalSectors;
 	}
 
 	// create file with correct size
-	Filename filename(tokens[2]);
+	Filename filename(myTokens[2]);
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
@@ -400,14 +426,14 @@ void DiskManipulator::create(const vector<string>& tokens)
 		DiskImageUtils::partition(image, sizes);
 	} else {
 		// only one partition specified, don't create partition table
-		DiskImageUtils::format(image);
+		DiskImageUtils::format(image, dos1);
 	}
 }
 
-void DiskManipulator::format(DriveSettings& driveData)
+void DiskManipulator::format(DriveSettings& driveData, bool dos1)
 {
 	auto partition = getPartition(driveData);
-	DiskImageUtils::format(*partition);
+	DiskImageUtils::format(*partition, dos1);
 	driveData.workingDir[driveData.partition] = '/';
 }
 

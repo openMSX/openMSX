@@ -110,8 +110,8 @@
 
   <p>You can create new disk images using this command.</p>
 
-  <p>This new disk will be formated using an MSX-DOS2 boot
-  sector.</p>
+  <p>This new disk will be formatted using an MSX-DOS2 boot
+  sector, unless you specify the option <code>-dos1</code>.</p>
 
   <p>You can specify multiple sizes in which case an MSX IDE
   compatible partitioned image will be created, each partition will
@@ -179,14 +179,10 @@
   </div>
 
   <p>The currently selected partition from <code>&lt;disk name&gt;</code> will
-  be cleanly formated with a MSX-DOS2 boot sector.
+  be cleanly formatted with a MSX-DOS2 boot sector, unless the option
+  <code>-dos1</code> is specified.
   FAT and directory sectors will be correctly initialised.
   Any data on the disk image / partition is lost!</p>
-
-  <div class="note">
-  Note: Currently <code>diskmanipulator</code> cannot format a disk with a MSX-DOS1 bootsector.
-  A few old non-standard programs require an MSX-DOS1 boot sector; to format a disk for these programs, format the disk from within the emulated MSX in an MSX-DOS1 environment. Most MSX2 machines without the <code>msxdos2</code> extension will do this for you if in MSX-BASIC you use the command <code>CALL FORMAT</code>.
-  </div>
 
   <h3><a id="import">import</a></h3>
 
