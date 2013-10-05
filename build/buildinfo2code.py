@@ -32,7 +32,6 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 
 	# Platform overrides.
 	if platformDingux:
-		have32BPP = False
 		maxScaleFactor = 1
 	elif platformAndroid:
 		# At the moment, libsdl android crashes when trying to dynamically change the scale factor
