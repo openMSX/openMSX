@@ -120,6 +120,7 @@ namespace DiskImageUtils {
 
 	/** Format the given disk (= a single partition).
 	 * The formatting depends on the size of the image.
+	 * @param disk the disk/partition image to be formatted
 	 * @param dos1 set to true if you want to force dos1 formatting (boot sector)
 	 */
 	void format(SectorAccessibleDisk& disk, bool dos1 = false);
