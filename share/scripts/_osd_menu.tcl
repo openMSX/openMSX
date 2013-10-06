@@ -617,7 +617,7 @@ set sound_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}}}
 
-set horizontal_stretch_desc [dict create 320.00 "none (large borders)" 288.00 "a bit more than all border pixels" 284.00 "all border pixels" 280.00 "a bit less than all border pixels" 272.00 "realistic" 256.00 "no borders at all"]
+set horizontal_stretch_desc [dict create 320.0 "none (large borders)" 288.0 "a bit more than all border pixels" 284.0 "all border pixels" 280.0 "a bit less than all border pixels" 272.0 "realistic" 256.0 "no borders at all"]
 
 set video_setting_menu {
 	font-size 8
@@ -635,7 +635,7 @@ set video_setting_menu {
 	       { text "Scale Factor: ${scale_factor}x"
 	         actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
 	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
-	       { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
+	       { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $::horizontal_stretch]"
 	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $::horizontal_stretch }}
 	         post-spacing 6 }
 	       { text "Scanline: $scanline%"
