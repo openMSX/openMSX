@@ -173,10 +173,11 @@ void Touchpad::write(byte value, EmuTime::param time)
 			start = time; // to keep EOC=0 for 56 cycles
 		} else {
 			// CS 1->0
-			// TODO what value do the X/Y-channels return when
-			//   the panel is not touched?
-			shift = (channel == 0) ? x
-			      : (channel == 3) ? y
+			// Tested by SD-Snatcher (see RFE #252):
+			//  When not touched X is always 0, and Y floats
+			//  between 147 and 149 (mostly 148).
+			shift = (channel == 0) ? (touch ? x :   0)
+			      : (channel == 3) ? (touch ? y : 148)
 			      : 0; // channel 1 and 2 return 0
 		}
 	}
