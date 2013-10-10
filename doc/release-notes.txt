@@ -42,7 +42,8 @@ MSX device support:
 - added OPL3Cartridge2_mono and OPL3Cartridge2_stereo extensions
 - added Yamaha SFG-01 extension and replaced the SFG-05 with the SFG-01 in the
   CX5M machine
-- added Casio PV-16, Casio P-7, Casio MX-10, Goldstar FC-80U and Sony HB-F1XV machines
+- added Casio PV-16, Casio P-7, Casio MX-10, Goldstar FC-80U and Sony HB-F1XV
+  machines and an experimental Zemmix Super V (Daewoo CPC-61) machine config
 
 New or improved emulator features:
 - added subdirectory support for dir-as-disk
