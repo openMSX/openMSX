@@ -72,7 +72,13 @@ public:
 private:
 	uint8_t dat[N];
 
-};
+}
+// Repeat alignment because Clang 3.2svn does not inherit it from an empty
+// base class.
+#ifndef _MSC_VER
+__attribute__((__aligned__((16))))
+#endif
+;
 static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
               "must be aligned");
 static_assert(sizeof(AlignedByteArray<32>) == 32,
