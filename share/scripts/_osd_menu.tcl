@@ -12,6 +12,7 @@ variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 variable default_header_text_color 0xff9020ff
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
+variable scaling_available [expr [lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1]
 
 proc get_optional {dict_name key default} {
 	upvar $dict_name d
@@ -567,7 +568,7 @@ proc create_main_menu {} {
 	lappend items { text "Sound Settings..."
 	         actions { A { osd_menu::menu_create $osd_menu::sound_setting_menu }}}
 	lappend items { text "Video Settings..."
-	         actions { A { osd_menu::menu_create $osd_menu::video_setting_menu }}
+	         actions { A { osd_menu::menu_create [osd_menu::create_video_setting_menu] }}
 	         post-spacing 3 }
 	lappend items { text "Advanced..."
 	         actions { A { osd_menu::menu_create $osd_menu::advanced_menu }}
@@ -619,39 +620,57 @@ set sound_setting_menu {
 
 set horizontal_stretch_desc [dict create 320.0 "none (large borders)" 288.0 "a bit more than all border pixels" 284.0 "all border pixels" 280.0 "a bit less than all border pixels" 272.0 "realistic" 256.0 "no borders at all"]
 
-set video_setting_menu {
-	font-size 8
-	border-size 2
-	width 210
-	xpos 100
-	ypos 120
-	items {{ text "Video Settings"
+proc create_video_setting_menu {} {
+	variable scaling_available
+
+	set menu_def {
+		font-size 8
+		border-size 2
+		width 210
+		xpos 100
+		ypos 120
+	}
+	lappend items { text "Video Settings"
 	         font-size 10
 	         post-spacing 6
 	         selectable false }
-	       { text "Scaler: $scale_algorithm"
-	         actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
-	                   RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
-	       { text "Scale Factor: ${scale_factor}x"
-	         actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
-	                   RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
-	       { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $::horizontal_stretch]"
-	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $::horizontal_stretch }}
+	if {$scaling_available} {
+		lappend items { text "Scaler: $scale_algorithm"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back scale_algorithm] }
+			          RIGHT { osd_menu::menu_setting [cycle      scale_algorithm] }}}
+		lappend items { text "Scale Factor: ${scale_factor}x"
+			actions { LEFT  { osd_menu::menu_setting [incr scale_factor -1] }
+			          RIGHT { osd_menu::menu_setting [incr scale_factor  1] }}}
+	}
+	lappend items { text "Horizontal Stretch: [osd_menu::get_horizontal_stretch_presentation $horizontal_stretch]"
+	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_stretch_list]; osd_menu::select_menu_item $horizontal_stretch }}
 	         post-spacing 6 }
-	       { text "Scanline: $scanline%"
-	         actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
-	                   RIGHT { osd_menu::menu_setting [incr scanline  1] }}}
-	       { text "Blur: $blur%"
-	         actions { LEFT  { osd_menu::menu_setting [incr blur -1] }
-	                   RIGHT { osd_menu::menu_setting [incr blur  1] }}}
-	       { text "Glow: $glow%"
-	         actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
-	                   RIGHT { osd_menu::menu_setting [incr glow  1] }}
-	         post-spacing 6 }
-	       { text "Enforce VDP Sprites-per-line Limit: $limitsprites"
-	         actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
-	                   RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
-	       }}
+	if {$scaling_available} {
+		lappend items { text "Scanline: $scanline%"
+			actions { LEFT  { osd_menu::menu_setting [incr scanline -1] }
+			          RIGHT { osd_menu::menu_setting [incr scanline  1] }}}
+		lappend items { text "Blur: $blur%"
+			actions { LEFT  { osd_menu::menu_setting [incr blur -1] }
+			          RIGHT { osd_menu::menu_setting [incr blur  1] }}}
+	}
+	if {$::renderer eq "SDLGL-PP"} {
+		lappend items { text "Glow: $glow%"
+			actions { LEFT  { osd_menu::menu_setting [incr glow -1] }
+			          RIGHT { osd_menu::menu_setting [incr glow  1] }}}
+		lappend items { text "Display Deform: $display_deform"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back display_deform] }
+			          RIGHT { osd_menu::menu_setting [cycle      display_deform] }}}
+	}
+	lappend items { text "Noise: $noise%"
+		actions { LEFT  { osd_menu::menu_setting [set noise [expr $noise - 1]] }
+		          RIGHT { osd_menu::menu_setting [set noise [expr $noise + 1]] }}
+			  post-spacing 6}
+	lappend items { text "Enforce VDP Sprites-per-line Limit: $limitsprites"
+			actions { LEFT  { osd_menu::menu_setting [cycle_back limitsprites] }
+			          RIGHT { osd_menu::menu_setting [cycle      limitsprites] }}}
+	dict set menu_def items $items
+	return $menu_def
+}
 
 set hardware_menu {
 	font-size 8
