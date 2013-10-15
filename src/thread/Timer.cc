@@ -15,7 +15,8 @@
 namespace openmsx {
 namespace Timer {
 
-static inline uint64_t getSDLTicks()
+// non-static to avoid unused function warning
+inline uint64_t getSDLTicks()
 {
 	return static_cast<uint64_t>(SDL_GetTicks()) * 1000;
 }

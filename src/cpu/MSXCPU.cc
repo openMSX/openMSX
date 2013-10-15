@@ -455,7 +455,8 @@ void MSXCPU::serialize(Archive& ar, unsigned version)
 
 		          ar.serializeWithID("z80",  *z80);
 		if (r800) ar.serializeWithID("r800", *r800);
-		CPUBase* activeCPU, *newCPU;
+		CPUBase* activeCPU = nullptr;
+		CPUBase* newCPU = nullptr;
 		ar.serializePointerID("activeCPU", activeCPU);
 		ar.serializePointerID("newCPU",    newCPU);
 		z80Active = activeCPU == z80.get();

@@ -280,9 +280,6 @@ private:
 
 	/** Registers */
 	byte reg[0x40];
-
-	/** Rhythm mode. */
-	bool rhythm;
 };
 
 } // namespace YM2413Burczynski
