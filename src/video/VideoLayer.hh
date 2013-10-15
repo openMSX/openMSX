@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class RenderSettings;
 class Display;
 class Setting;
 class BooleanSetting;
@@ -69,7 +68,6 @@ private:
 	MSXMotherBoard& motherBoard;
 	/** Settings shared between all renderers. */
 	Display& display;
-	RenderSettings& renderSettings;
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */

@@ -42,9 +42,8 @@ typedef std::bitset<MAX_CD> CDInUse;
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
-	, motherBoard(config.getMotherBoard())
 {
-	auto& info = motherBoard.getSharedStuff("cdInUse");
+	auto& info = getMotherBoard().getSharedStuff("cdInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new CDInUse();
@@ -62,26 +61,26 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	name[2] = char('a' + id);
 	cdInUse[id] = true;
 	cdxCommand = make_unique<CDXCommand>(
-		motherBoard.getCommandController(),
-		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this);
+		getMotherBoard().getCommandController(),
+		getMotherBoard().getStateChangeDistributor(),
+		getMotherBoard().getScheduler(), *this);
 
 	senseKey = 0;
 
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
 
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
+	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
 {
-	auto& info = motherBoard.getSharedStuff("cdInUse");
+	auto& info = getMotherBoard().getSharedStuff("cdInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
 
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 	unsigned id = name[2] - 'a';
 	assert(cdInUse[id]);
 	cdInUse[id] = false;
@@ -331,7 +330,7 @@ void IDECDROM::eject()
 	file.reset();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
+	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, "");
 }
 
 void IDECDROM::insert(const string& filename)
@@ -339,7 +338,7 @@ void IDECDROM::insert(const string& filename)
 	file = make_unique<File>(filename);
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
+	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, filename);
 }
 
 

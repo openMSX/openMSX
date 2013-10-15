@@ -156,6 +156,8 @@ protected:
 	void setLBAMid (byte value) { cylinderLowReg  = value; }
 	void setLBAHigh(byte value) { cylinderHighReg = value; }
 
+	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+
 private:
 	/** Perform diagnostic and return result.
 	  * Actually, just return success, because we don't emulate faulty hardware.

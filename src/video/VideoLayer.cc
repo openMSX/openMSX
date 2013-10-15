@@ -1,5 +1,4 @@
 #include "VideoLayer.hh"
-#include "RenderSettings.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
@@ -17,7 +16,6 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
                        const std::string& videoSource_)
 	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
-	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(make_unique<VideoSourceActivator>(
 		videoSourceSetting, videoSource_))

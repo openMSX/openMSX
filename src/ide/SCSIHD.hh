@@ -57,7 +57,6 @@ private:
 	unsigned writeSectors(unsigned& blocks);
 	void formatUnit();
 
-	MSXMotherBoard& motherBoard;
 	AlignedBuffer& buffer;
 
 	const unsigned mode;
