@@ -1,5 +1,6 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include <algorithm>
 #include <iostream>
 #include <cassert>
 #include <cstdlib>

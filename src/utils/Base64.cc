@@ -1,5 +1,6 @@
 #include "Base64.hh"
 #include "xrange.hh"
+#include <algorithm>
 #include <cassert>
 
 namespace Base64 {

@@ -255,7 +255,8 @@ void Touchpad::signalEvent(const shared_ptr<const Event>& event,
 		hostButtons = b;
 		createTouchpadStateChange(
 			time, hostX, hostY,
-			hostButtons & 1, hostButtons & 2);
+			(hostButtons & 1) != 0,
+			(hostButtons & 2) != 0);
 	}
 }
 
