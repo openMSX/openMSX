@@ -29,33 +29,6 @@ public:
 	{
 	}
 
-	RomInfo(RomInfo&& other)
-		: title   (std::move(other.title))
-		, year    (std::move(other.year))
-		, company (std::move(other.company))
-		, country (std::move(other.country))
-		, origType(std::move(other.origType))
-		, remark  (std::move(other.remark))
-		, romType (std::move(other.romType))
-		, genMSXid(std::move(other.genMSXid))
-		, original(std::move(other.original))
-	{
-	}
-
-	RomInfo& operator=(RomInfo&& other)
-	{
-		title    = std::move(other.title);
-		year     = std::move(other.year);
-		company  = std::move(other.company);
-		country  = std::move(other.country);
-		origType = std::move(other.origType);
-		remark   = std::move(other.remark);
-		romType  = std::move(other.romType);
-		genMSXid = std::move(other.genMSXid);
-		original = std::move(other.original);
-		return *this;
-	}
-
 	const string_ref   getTitle()     const { return title; }
 	const string_ref   getYear()      const { return year; }
 	const string_ref   getCompany()   const { return company; }
