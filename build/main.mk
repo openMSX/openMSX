@@ -311,7 +311,7 @@ WINDRES?=windres
 DEPEND_FLAGS:=
 ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   # Enable C++11
-  COMPILE_FLAGS+=-std=c++0x
+  COMPILE_FLAGS+=-std=c++11
   # Clang does support -Wunused-macros, but it triggers on SDL's headers,
   # causing way too many false positives that we cannot fix.
   COMPILE_FLAGS+=-Wall -Wextra -Wundef
