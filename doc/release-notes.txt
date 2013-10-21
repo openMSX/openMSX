@@ -53,7 +53,7 @@ New or improved emulator features:
   command line)
 - performance improvements:
   - improved start-up performance (on Dingoo openMSX starts over 20% faster)
-  - recuded CPU overhead when enabling reverse
+  - reduced CPU overhead when enabling reverse
   - further optimized CPU emulation
   - sped up CAS loading (use 3744 baud instead of 2760 baud)
   - reduce input latency (poll host events more often and remove delays)
@@ -76,7 +76,8 @@ New or improved emulator features:
   - added support for LaserDisc
   - added a quit menu with confirmation
   - added limitsprites setting
-  - added basic mouse support
+  - added basic mouse/touch support
+  - only show video options if they actually make sense
 - remove SSE and MMX assembly routines, only keep rewritten SSE2 routines
 - added interleaving with black frame for monitors with LightBoost support
 - added OSD widget that displays how busy the VDP is
