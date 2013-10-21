@@ -887,7 +887,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU.
+This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU. This renderer is always available and in case of trouble, you are advised to switch back to this one.
 </dd>
 
 <dt>SDLGL-PP</dt>
@@ -899,7 +899,7 @@ The SDLGL-PP renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
+If your card supports it, we recommend to use this renderer, so we made it the default renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
 </dd>
 
 
