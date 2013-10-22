@@ -92,6 +92,12 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
+	// Normally the following isn't needed. Only when there was no
+	// settings.xml in either the user or the system directory (so an
+	// incomplete openMSX installation!!) the top level element will have
+	// an empty name. And we shouldn't write an invalid xml file.
+	xmlElement.setName("settings");
+
 	// settings are kept up-to-date
 	hotKey.saveBindings(xmlElement);
 
