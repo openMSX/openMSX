@@ -59,16 +59,6 @@ public:
 	// expressions
 	bool evalBool() const;
 
-	/** Interpret the content of this TclObject as an expression and
-	  * check for syntax errors. Throws CommandException in case of
-	  * an error.
-	  * Note: this method does not catch all errors (some are only
-	  * found while evaluating the expression) but it's nice as a
-	  * quick check for typos.
-	  */
-	void checkExpression() const;
-	void checkCommand() const;
-
 	/** Interpret this TclObject as a command and execute it.
 	  * @param compile Should the command be compiled to bytecode? The
 	  *           bytecode is stored inside the TclObject can speed up
@@ -90,7 +80,6 @@ private:
 	void init(Tcl_Obj* obj_);
 	void throwException() const;
 	void addListElement(Tcl_Obj* element);
-	void parse(const char* str, int len, bool expression) const;
 
 	Tcl_Interp* interp;
 	Tcl_Obj* obj;

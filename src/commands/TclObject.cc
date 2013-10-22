@@ -1,8 +1,6 @@
 #include "TclObject.hh"
-#include "TclParser.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
-#include "xrange.hh"
 #include <cassert>
 #include <tcl.h>
 
@@ -263,59 +261,6 @@ bool TclObject::evalBool() const
 	return result != 0;
 }
 
-void TclObject::checkExpression() const
-{
-	string_ref tmp = getString();
-	parse(tmp.data(), int(tmp.size()), true);
-}
-
-void TclObject::checkCommand() const
-{
-	string_ref tmp = getString();
-	parse(tmp.data(), int(tmp.size()), false);
-}
-
-void TclObject::parse(const char* str, int len, bool expression) const
-{
-	assert(interp);
-	Tcl_Parse info;
-	if (expression ?
-	    Tcl_ParseExpr(interp, str, len, &info) :
-	    Tcl_ParseCommand(interp, str, len, 1, &info) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
-	}
-	struct Cleanup {
-		~Cleanup() { Tcl_FreeParse(p); }
-		Tcl_Parse* p;
-	} cleanup = { &info };
-	(void)cleanup;
-
-	if (!expression && (info.tokenPtr[0].type == TCL_TOKEN_SIMPLE_WORD)) {
-		// simple command name
-		Tcl_Token& token2 = info.tokenPtr[1];
-		string_ref procname(token2.start, token2.size);
-		if (!TclParser::isProc(interp, procname)) {
-			throw CommandException("invalid command name: \"" +
-			                       procname.str() + '\"');
-		}
-	}
-	for (auto i : xrange(info.numTokens)) {
-		Tcl_Token& token = info.tokenPtr[i];
-		if (token.type == TCL_TOKEN_COMMAND) {
-			parse(token.start + 1, token.size - 2, false);
-		} else if ((token.type == TCL_TOKEN_VARIABLE) &&
-				(token.numComponents == 1)) {
-			// simple variable (no array)
-			Tcl_Token& token2 = info.tokenPtr[i + 1];
-			string varname(token2.start, token2.size);
-			if (!Tcl_GetVar2Ex(interp, varname.c_str(), nullptr,
-			                   TCL_LEAVE_ERR_MSG)) {
-				throw CommandException(Tcl_GetStringResult(interp));
-			}
-		}
-	}
-}
-
 string TclObject::executeCommand(bool compile)
 {
 	assert(interp);
@@ -327,6 +272,5 @@ string TclObject::executeCommand(bool compile)
 	}
 	return result;
 }
-
 
 } // namespace openmsx
