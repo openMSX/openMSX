@@ -140,6 +140,9 @@ private:
 
 	volatile bool exitLoop;
 
+	/** In sync with traceSetting.getBoolean(). */
+	bool tracingEnabled;
+
 	/** 'normal' Z80 and Z80 in a turboR behave slightly different */
 	const bool isTurboR;
 

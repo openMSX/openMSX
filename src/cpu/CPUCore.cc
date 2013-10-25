@@ -329,6 +329,7 @@ template<class T> CPUCore<T>::CPUCore(
 	, NMIStatus(0)
 	, nmiEdge(false)
 	, exitLoop(false)
+	, tracingEnabled(traceSetting.getBoolean())
 	, isTurboR(motherboard.isTurboR())
 {
 	static_assert(!std::is_polymorphic<CPUCore<T>>::value,
@@ -524,8 +525,8 @@ template<class T> void CPUCore<T>::update(const Setting& setting)
 		doSetFreq();
 	} else if (&setting == freqValue.get()) {
 		doSetFreq();
-	} else {
-		UNREACHABLE;
+	} else if (&setting == &traceSetting) {
+		tracingEnabled = traceSetting.getBoolean();
 	}
 }
 
@@ -2413,7 +2414,7 @@ template<class T> inline void CPUCore<T>::cpuTracePre()
 }
 template<class T> inline void CPUCore<T>::cpuTracePost()
 {
-	if (unlikely(traceSetting.getBoolean())) {
+	if (unlikely(tracingEnabled)) {
 		cpuTracePost_slow();
 	}
 }
@@ -2528,7 +2529,7 @@ template<class T> void CPUCore<T>::execute2(bool fastForward)
 	// deciding between executeFast() and executeSlow() (because a
 	// SyncPoint could set an IRQ and then we must choose executeSlow())
 	if (fastForward ||
-	    (!interface->anyBreakPoints() && !traceSetting.getBoolean())) {
+	    (!interface->anyBreakPoints() && !tracingEnabled)) {
 		// fast path, no breakpoints, no tracing
 		while (!needExitCPULoop()) {
 			if (slowInstructions) {
