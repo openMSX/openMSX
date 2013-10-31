@@ -21,14 +21,14 @@ template <typename Pixel> struct HQ_1x1on2x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf, EdgeHQ edgeOp);
+	                unsigned* edgeBuf, EdgeHQ edgeOp) __restrict;
 };
 
 template <typename Pixel> struct HQ_1x1on1x2
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, unsigned srcWidth,
-	                unsigned* edgeBuf, EdgeHQ edgeOp);
+	                unsigned* edgeBuf, EdgeHQ edgeOp) __restrict;
 };
 
 template <typename Pixel>

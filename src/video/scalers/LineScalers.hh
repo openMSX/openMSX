@@ -454,7 +454,7 @@ static inline void scale_1on2_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth
 
 template <typename Pixel>
 void Scale_1on2<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth)
 {
 	// This is a fairly simple algorithm (output each input pixel twice).
 	// An ideal compiler should generate optimal (vector) code for it.
@@ -518,7 +518,7 @@ static inline void memcpy_SSE_128(
 
 template <typename Pixel>
 void Scale_1on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	size_t nBytes = width * sizeof(Pixel);
 
@@ -668,7 +668,7 @@ static inline void scale_2on1_SSE(
 
 template <typename Pixel>
 void Scale_2on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t dstWidth)
 {
 #ifdef __SSE2__
 	size_t n64 = (dstWidth * sizeof(Pixel)) & ~63;
@@ -696,7 +696,7 @@ Scale_6on1<Pixel>::Scale_6on1(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_6on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
@@ -712,7 +712,7 @@ Scale_4on1<Pixel>::Scale_4on1(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_4on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
@@ -728,7 +728,7 @@ Scale_3on1<Pixel>::Scale_3on1(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_3on1<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
@@ -744,7 +744,7 @@ Scale_3on2<Pixel>::Scale_3on2(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_3on2<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 1); i += 2, j += 3) {
@@ -763,7 +763,7 @@ Scale_3on4<Pixel>::Scale_3on4(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_3on4<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 3); i += 4, j += 3) {
@@ -786,7 +786,7 @@ Scale_3on8<Pixel>::Scale_3on8(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_3on8<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 7); i += 8, j += 3) {
@@ -813,7 +813,7 @@ Scale_2on3<Pixel>::Scale_2on3(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_2on3<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 2) {
@@ -834,7 +834,7 @@ Scale_4on3<Pixel>::Scale_4on3(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_4on3<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 4) {
@@ -855,7 +855,7 @@ Scale_8on3<Pixel>::Scale_8on3(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_8on3<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 8) {
@@ -876,7 +876,7 @@ Scale_2on9<Pixel>::Scale_2on9(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_2on9<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 2) {
@@ -909,7 +909,7 @@ Scale_4on9<Pixel>::Scale_4on9(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_4on9<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 4) {
@@ -942,7 +942,7 @@ Scale_8on9<Pixel>::Scale_8on9(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_8on9<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < width; i += 9, j += 8) {
@@ -975,7 +975,7 @@ Scale_4on5<Pixel>::Scale_4on5(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_4on5<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 5) == 0);
 	for (unsigned i = 0, j = 0; i < width; i += 5, j += 4) {
@@ -996,7 +996,7 @@ Scale_7on8<Pixel>::Scale_7on8(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_7on8<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 8) == 0);
 	for (unsigned i = 0, j = 0; i < width; i += 8, j += 7) {
@@ -1020,7 +1020,7 @@ Scale_17on20<Pixel>::Scale_17on20(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_17on20<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 20) == 0);
 	for (unsigned i = 0, j = 0; i < width; i += 20, j += 17) {
@@ -1056,7 +1056,7 @@ Scale_9on10<Pixel>::Scale_9on10(PixelOperations<Pixel> pixelOps_)
 
 template <typename Pixel>
 void Scale_9on10<Pixel>::operator()(
-	const Pixel* __restrict in, Pixel* __restrict out, size_t width) __restrict
+	const Pixel* __restrict in, Pixel* __restrict out, size_t width)
 {
 	assert((width % 10) == 0);
 	for (unsigned i = 0, j = 0; i < width; i += 10, j += 9) {

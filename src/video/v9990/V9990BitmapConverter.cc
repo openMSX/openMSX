@@ -271,6 +271,7 @@ void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterP(
 	Pixel* /*pixelPtr*/, unsigned /*x*/, unsigned /*y*/, int /*nrPixels*/)
+	__restrict
 {
 	UNREACHABLE;
 }

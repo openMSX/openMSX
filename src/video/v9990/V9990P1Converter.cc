@@ -82,7 +82,7 @@ void V9990P1Converter<Pixel>::renderPattern(
 	unsigned displayAX, unsigned displayAY, unsigned nameA,
 	unsigned patternA, byte palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB,
-	unsigned patternB, byte palB)
+	unsigned patternB, byte palB) __restrict
 {
 	renderPattern2(&buffer[0],      width1, displayAX, displayAY,
 	               nameA, patternA, palA);

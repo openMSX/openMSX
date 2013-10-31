@@ -54,9 +54,9 @@ public:
 		insertN(data, len);
 	}
 #ifdef __GNUC__
-	template<size_t N> void insertN(const void* __restrict data);
+	template<size_t N> void insertN(const void* __restrict data) __restrict;
 #endif
-	void insertN(const void* __restrict data, size_t len);
+	void insertN(const void* __restrict data, size_t len) __restrict;
 
 	/** Insert data at a given position. This will overwrite the old data.
 	  * It's not possible to grow the buffer via this method (so the buffer
@@ -123,8 +123,8 @@ public:
 	byte* release(size_t& size);
 
 private:
-	void insertGrow(const void* __restrict data, size_t len);
-	byte* allocateGrow(size_t len);
+	void insertGrow(const void* __restrict data, size_t len) __restrict;
+	byte* allocateGrow(size_t len) __restrict;
 
 	byte* begin;   // begin of allocated memory
 	byte* end;     // points right after the last used byte

@@ -104,7 +104,7 @@ ResampleLQUp<CHANNELS>::ResampleLQUp(
 
 template <unsigned CHANNELS>
 bool ResampleLQUp<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time) __restrict
+	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());
@@ -144,7 +144,7 @@ ResampleLQDown<CHANNELS>::ResampleLQDown(
 
 template <unsigned CHANNELS>
 bool ResampleLQDown<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time) __restrict
+	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	EmuTime host1 = this->hostClock.getFastAdd(1);
 	assert(host1 > this->emuClock.getTime());

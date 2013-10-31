@@ -20,10 +20,10 @@ public:
 
 private:
 	void renderPattern(Pixel* buffer, unsigned width,
-	                   unsigned x, unsigned y, byte pal);
-	void determineVisibleSprites(int* visibleSprites, int displayY);
+	                   unsigned x, unsigned y, byte pal) __restrict;
+	void determineVisibleSprites(int* visibleSprites, int displayY) __restrict;
 	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
-	                   unsigned displayY, int* visibleSprites, bool front);
+	                   unsigned displayY, int* visibleSprites, bool front) __restrict;
 
 	V9990& vdp;
 	V9990VRAM& vram;

@@ -227,7 +227,7 @@ void CharacterConverter<Pixel>::renderText2(
 }
 
 template <class Pixel>
-const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
+const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll) __restrict
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it

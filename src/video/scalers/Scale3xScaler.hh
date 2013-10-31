@@ -20,10 +20,10 @@ public:
 private:
 	void scaleLine1on3Half(Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth);
+		unsigned srcWidth) __restrict;
 	void scaleLine1on3Mid (Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth);
+		unsigned srcWidth) __restrict;
 };
 
 } // namespace openmsx
