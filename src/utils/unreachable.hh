@@ -20,18 +20,24 @@
 // to only enable this optimization starting from gcc-4.7 or from gcc-4.5 for a
 // few white-listed architectures that we know don't use delay slots.
 
+// Clang has a very convenient way of testing features, unfortunately (for now)
+// it's clang-only so add a fallback for non-clang compilers.
+#ifndef __has_builtin
+  #define __has_builtin(x) 0
+#endif
+
 #if defined(NDEBUG)
+  // clang
+  #if __has_builtin(__builtin_unreachable)
+    #define UNREACHABLE __builtin_unreachable()
+
   // __builtin_unreachable() was introduced in gcc-4.5
-  #if ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+  #elif ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
     // gcc-4.7 or above
     #define UNREACHABLE __builtin_unreachable()
 
   #elif ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5) && (defined(__i386__) || defined(__x86_64__) || defined(__arm__)))
     // gcc-4.5 or gcc-4.6 on x86, x86_64 or arm (all without delay slots)
-    #define UNREACHABLE __builtin_unreachable()
-
-  #elif defined(__clang__) && __has_builtin(__builtin_unreachable)
-    // clang
     #define UNREACHABLE __builtin_unreachable()
 
   #elif defined(_MSC_VER)
