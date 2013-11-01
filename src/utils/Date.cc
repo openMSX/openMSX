@@ -9,7 +9,7 @@ namespace openmsx {
 namespace Date {
 
 const char* const days[7] = {
-	"Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ,"Sun"
+	"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
 
 const char* const months[12] = {
