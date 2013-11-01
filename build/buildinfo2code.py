@@ -90,6 +90,7 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		% str(setWindowIcon).lower()
 	yield 'static const char* const DATADIR = "%s";' % installShareDir
 	yield 'static const char* const BUILD_FLAVOUR = "%s";' % flavour
+	yield 'static const char* const TARGET_PLATFORM = "%s";' % targetPlatform
 	yield ''
 	yield '} // namespace openmsx'
 	yield ''
