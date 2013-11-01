@@ -30,6 +30,10 @@
     // gcc-4.5 or gcc-4.6 on x86, x86_64 or arm (all without delay slots)
     #define UNREACHABLE __builtin_unreachable()
 
+  #elif defined(__clang__) && __has_builtin(__builtin_unreachable)
+    // clang
+    #define UNREACHABLE __builtin_unreachable()
+
   #elif defined(_MSC_VER)
     // visual studio
     #define UNREACHABLE __assume(0)
