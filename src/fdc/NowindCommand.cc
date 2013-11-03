@@ -8,13 +8,12 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "CommandException.hh"
+#include "array_ref.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 #include <cassert>
-#include <deque>
 
 using std::unique_ptr;
-using std::deque;
 using std::set;
 using std::string;
 using std::vector;
@@ -135,7 +134,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 	string error;
 
 	// actually parse the commandline
-	deque<string> args(tokens.begin() + 1, tokens.end());
+	array_ref<string> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
 		string image;
