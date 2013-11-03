@@ -29,6 +29,9 @@ private:
 };
 
 
+bool InputEventGenerator::androidButtonA = false;
+bool InputEventGenerator::androidButtonB = false;
+
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -249,10 +252,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			event = make_shared<JoystickButtonUpEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, true, event);
+			androidButtonA = false;
 		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
 			event = make_shared<JoystickButtonUpEvent>(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, true, event);
+			androidButtonB = false;
 		} else {
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
@@ -267,10 +272,12 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			event = make_shared<JoystickButtonDownEvent>(0, 0);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				0, false, event);
+			androidButtonA = true;
 		} else if (PLATFORM_ANDROID && evt.key.keysym.sym == SDLK_WORLD_94) {
 			event = make_shared<JoystickButtonDownEvent>(0, 1);
 			triggerOsdControlEventsFromJoystickButtonEvent(
 				1, false, event);
+			androidButtonB = true;
 		} else {
 			auto keyCode = Keys::getCode(
 				evt.key.keysym.sym, evt.key.keysym.mod,
@@ -383,6 +390,32 @@ int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 void InputEventGenerator::setGrabInput(bool grab)
 {
 	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
+
+// Wrap SDL joystick button functions to handle the 'fake' android joystick
+// buttons. The method InputEventGenerator::handle() already takes care of fake
+// events for the andoid joystick buttons, these two wrappers handle the direct
+// joystick button state queries.
+int InputEventGenerator::joystickNumButtons(SDL_Joystick* joystick)
+{
+	if (PLATFORM_ANDROID) {
+		return 2;
+	} else {
+		return SDL_JoystickNumButtons(joystick);
+	}
+}
+bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
+{
+	if (PLATFORM_ANDROID) {
+		switch (button) {
+		case 0: return androidButtonA;
+		case 1: return androidButtonB;
+		default: UNREACHABLE; return false;
+		}
+	} else {
+		return SDL_JoystickGetButton(joystick, button);
+	}
 }
 
 
