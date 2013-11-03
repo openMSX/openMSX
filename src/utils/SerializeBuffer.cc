@@ -84,7 +84,7 @@ void OutputBuffer::insertGrow(const void* __restrict data, size_t len) __restric
 	memcpy(pos, data, len);
 }
 
-byte* OutputBuffer::allocateGrow(size_t len)
+byte* OutputBuffer::allocateGrow(size_t len) __restrict
 {
 	size_t oldSize = end - begin;
 	size_t newSize = std::max(oldSize + len, oldSize + oldSize / 2);

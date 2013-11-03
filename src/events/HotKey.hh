@@ -4,6 +4,7 @@
 #include "Event.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
+#include "stl.hh"
 #include <map>
 #include <set>
 #include <vector>
@@ -21,11 +22,6 @@ class ActivateCmd;
 class DeactivateCmd;
 class AlarmEvent;
 
-template<typename T> struct deref_less
-{
-	bool operator()(T t1, T t2) const { return *t1 < *t2; }
-};
-
 class HotKey : public EventListener, private noncopyable
 {
 public:
@@ -37,8 +33,8 @@ public:
 		bool repeat;
 	};
 	typedef std::shared_ptr<const Event> EventPtr;
-	typedef std::map<EventPtr, HotKeyInfo, deref_less<EventPtr>> BindMap;
-	typedef std::set<EventPtr,             deref_less<EventPtr>> KeySet;
+	typedef std::map<EventPtr, HotKeyInfo, LessDeref> BindMap;
+	typedef std::set<EventPtr,             LessDeref> KeySet;
 
 	HotKey(GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);

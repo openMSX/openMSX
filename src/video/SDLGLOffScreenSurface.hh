@@ -22,6 +22,7 @@ private:
 	// OutputSurface
 	virtual void saveScreenshot(const std::string& filename);
 	virtual void flushFrameBuffer();
+	virtual void clearScreen();
 
 	Texture fboTex;
 	FrameBufferObject fbo;

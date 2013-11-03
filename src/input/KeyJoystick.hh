@@ -56,6 +56,7 @@ private:
 	const std::unique_ptr<KeyCodeSetting> trigB;
 
 	byte status;
+	bool pin8;
 };
 SERIALIZE_CLASS_VERSION(KeyJoystick, 2);
 

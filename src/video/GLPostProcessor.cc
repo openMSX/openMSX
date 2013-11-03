@@ -3,6 +3,7 @@
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "OutputSurface.hh"
 #include "RawFrame.hh"
@@ -35,12 +36,6 @@ GLPostProcessor::GLPostProcessor(
 	, noiseTextureB(256, 256)
 	, height(height_)
 {
-	if (!GLEW_VERSION_2_0) {
-		throw InitException(
-			"Your video card (or less likely video card driver) "
-			"doesn't support OpenGL 2.0. It's required for the "
-			"SDLGL-PP renderer.");
-	}
 	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
 		throw InitException(
 			"The OpenGL framebuffer object is not supported by "
@@ -55,7 +50,7 @@ GLPostProcessor::GLPostProcessor(
 	frameCounter = 0;
 	noiseX = 0.0;
 	noiseY = 0.0;
-	preCalcNoise(renderSettings.getNoise().getValue());
+	preCalcNoise(renderSettings.getNoise().getDouble());
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
@@ -75,7 +70,7 @@ GLPostProcessor::GLPostProcessor(
 	}
 
 	monitor3DList = glGenLists(1);
-	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getValue());
+	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getDouble());
 
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
@@ -131,10 +126,19 @@ void GLPostProcessor::createRegions()
 
 void GLPostProcessor::paint(OutputSurface& /*output*/)
 {
+	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+		interleaveCount ^= 1;
+		if (interleaveCount) {
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+			return;
+		}
+	}
+
 	RenderSettings::DisplayDeform deform =
-		renderSettings.getDisplayDeform().getValue();
-	double horStretch = renderSettings.getHorizontalStretch().getValue();
-	int glow = renderSettings.getGlow().getValue();
+		renderSettings.getDisplayDeform().getEnum();
+	double horStretch = renderSettings.getHorizontalStretch().getDouble();
+	int glow = renderSettings.getGlow().getInt();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0) ||
 	                       (glow != 0);
@@ -149,7 +153,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 
 	// New scaler algorithm selected?
 	RenderSettings::ScaleAlgorithm algo =
-		renderSettings.getScaleAlgorithm().getValue();
+		renderSettings.getScaleAlgorithm().getEnum();
 	if (scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings);
@@ -240,9 +244,9 @@ void GLPostProcessor::update(const Setting& setting)
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	FloatSetting& horizontalStretch = renderSettings.getHorizontalStretch();
 	if (&setting == &noiseSetting) {
-		preCalcNoise(noiseSetting.getValue());
+		preCalcNoise(noiseSetting.getDouble());
 	} else if (&setting == &horizontalStretch) {
-		preCalc3DDisplayList(horizontalStretch.getValue());
+		preCalc3DDisplayList(horizontalStretch.getDouble());
 	}
 }
 
@@ -291,8 +295,7 @@ void GLPostProcessor::uploadBlock(
 	if (it == textures.end()) {
 		TextureData textureData;
 
-		textureData.tex = ColorTexture(
-			lineWidth, height * 2); // *2 for interlace
+		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
 		textureData.tex.setWrapMode(false);
 
 		if (textureData.pbo.openGLSupported()) {
@@ -374,7 +377,7 @@ void GLPostProcessor::uploadBlock(
 	}
 
 	// possibly upload scaler specific data
-	if (currScaler.get()) {
+	if (currScaler) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
 	}
 }
@@ -421,7 +424,7 @@ void GLPostProcessor::preCalcNoise(double factor)
 
 void GLPostProcessor::drawNoise()
 {
-	if (renderSettings.getNoise().getValue() == 0) return;
+	if (renderSettings.getNoise().getDouble() == 0) return;
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
@@ -435,7 +438,7 @@ void GLPostProcessor::drawNoise()
 		{ { 320,   0 }, { 320, 240 }, {   0, 240 }, {   0,   0 } },
 		{ {   0,   0 }, {   0, 240 }, { 320, 240 }, { 320,   0 } }
 	};
-	int zoom = renderSettings.getScaleFactor().getValue();
+	int zoom = renderSettings.getScaleFactor().getInt();
 
 	unsigned seq = frameCounter & 7;
 	glPushAttrib(GL_ALL_ATTRIB_BITS);

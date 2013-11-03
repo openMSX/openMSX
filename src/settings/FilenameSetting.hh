@@ -1,26 +1,19 @@
 #ifndef FILENAMESETTING_HH
 #define FILENAMESETTING_HH
 
-#include "StringSetting.hh"
+#include "Setting.hh"
 
 namespace openmsx {
 
-class FileContext;
-
-class FilenameSettingPolicy : public StringSettingPolicy
-{
-protected:
-	explicit FilenameSettingPolicy();
-	void tabCompletion(std::vector<std::string>& tokens) const;
-	string_ref getTypeString() const;
-};
-
-class FilenameSetting : public SettingImpl<FilenameSettingPolicy>
+class FilenameSetting : public Setting
 {
 public:
 	FilenameSetting(CommandController& commandController,
 	                string_ref name, string_ref description,
 	                string_ref initialValue);
+
+	virtual string_ref getTypeString() const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 };
 
 } // namespace openmsx

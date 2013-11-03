@@ -31,14 +31,14 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 511;
 	unsigned displayBX = (displayX + vdp.getScrollBX()) & 511;
 
-	// TODO check roll behaviour
+	// Configurable 'roll' only applies to layer A.
+	// Layer B always rolls at 512 lines.
 	unsigned rollMask = vdp.getRollMask(0x1FF);
 	unsigned scrollAY = vdp.getScrollAY();
 	unsigned scrollBY = vdp.getScrollBY();
 	unsigned scrollAYBase = scrollAY & ~rollMask & 0x1FF;
-	unsigned scrollBYBase = scrollBY & ~rollMask & 0x1FF;
 	unsigned displayAY = scrollAYBase + ((displayYA + scrollAY) & rollMask);
-	unsigned displayBY = scrollBYBase + ((displayYB + scrollBY) & rollMask);
+	unsigned displayBY =                 (displayYB + scrollBY) & 0x1FF;
 
 	unsigned displayEnd = displayX + displayWidth;
 	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);
@@ -82,7 +82,7 @@ void V9990P1Converter<Pixel>::renderPattern(
 	unsigned displayAX, unsigned displayAY, unsigned nameA,
 	unsigned patternA, byte palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB,
-	unsigned patternB, byte palB)
+	unsigned patternB, byte palB) __restrict
 {
 	renderPattern2(&buffer[0],      width1, displayAX, displayAY,
 	               nameA, patternA, palA);

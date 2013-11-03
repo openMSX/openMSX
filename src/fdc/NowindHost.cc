@@ -516,7 +516,7 @@ void NowindHost::doDiskWrite1()
 	unsigned bytesLeft = unsigned(buffer.size() * SECTOR_SIZE) - transfered;
 	if (bytesLeft == 0) {
 		// All data transferred!
-		unsigned sectorAmount = buffer.size();
+		unsigned sectorAmount = unsigned(buffer.size());
 		unsigned startSector = getStartSector();
 		if (auto* disk = getDisk()) {
 			if (disk->writeSectors(&buffer[0], startSector, sectorAmount)) {
@@ -604,8 +604,7 @@ int NowindHost::getDeviceNum() const
 {
 	unsigned fcb = getFCB();
 	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (devices[i].fs.get() &&
-		    devices[i].fcb == fcb) {
+		if (devices[i].fs && devices[i].fcb == fcb) {
 			return i;
 		}
 	}
@@ -622,7 +621,7 @@ int NowindHost::getFreeDeviceNum()
 	}
 	// Search for free device.
 	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		if (!devices[i].fs.get()) {
+		if (!devices[i].fs) {
 			return i;
 		}
 	}

@@ -69,9 +69,6 @@ public:
 	  */
 	unsigned getTicksTill_fast(EmuTime::param e) const {
 		assert(e.time >= lastTick.time);
-#ifdef WORK_AROUND_GCC40_SEGFAULT
-		if (unlikely(e.time < lastTick.time)) abort();
-#endif
 		DivModByConst<MASTER_TICKS32> dm;
 		return dm.div(e.time - lastTick.time);
 	}
@@ -88,6 +85,15 @@ public:
 	  * number of times (counted from its last tick).
 	  */
 	const EmuTime operator+(uint64_t n) const {
+		return EmuTime(lastTick.time + n * MASTER_TICKS);
+	}
+
+	/** Like operator+() but faster, though the step can't be too big (max
+	  * a little over 1 second). */
+	EmuTime getFastAdd(unsigned n) const {
+		#ifdef DEBUG
+		assert((uint64_t(n) * MASTER_TICKS) < (1ull << 32));
+		#endif
 		return EmuTime(lastTick.time + n * MASTER_TICKS);
 	}
 

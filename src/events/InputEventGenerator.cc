@@ -43,7 +43,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, keyRepeat(false)
 {
-	setGrabInput(grabInput->getValue());
+	setGrabInput(grabInput->getBoolean());
 	grabInput->attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT,  *this);
@@ -295,7 +295,9 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = make_shared<MouseButtonDownEvent>(evt.button.button);
 		break;
 	case SDL_MOUSEMOTION:
-		event = make_shared<MouseMotionEvent>(evt.motion.xrel, evt.motion.yrel);
+		event = make_shared<MouseMotionEvent>(
+			evt.motion.xrel, evt.motion.yrel,
+			evt.motion.x,    evt.motion.y);
 		break;
 
 	case SDL_JOYBUTTONUP:
@@ -338,16 +340,14 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 	}
 
 #ifdef DEBUG
-	if (!event.get()) {
-		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
+	if (event) {
+		PRT_DEBUG("SDL event converted to: " + event->toString());
 	} else {
-		PRT_DEBUG("SDL event converted to: " + event.get()->toString());
+		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
 	}
-
 #endif
-	if (event.get()) {
-		eventDistributor.distributeEvent(event);
-	}
+
+	if (event) eventDistributor.distributeEvent(event);
 }
 
 
@@ -356,7 +356,7 @@ void InputEventGenerator::update(const Setting& setting)
 	(void)setting;
 	assert(&setting == grabInput.get());
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-	setGrabInput(grabInput->getValue());
+	setGrabInput(grabInput->getBoolean());
 }
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
@@ -414,7 +414,7 @@ bool InputEventGenerator::joystickGetButton(SDL_Joystick* joystick, int button)
 		default: UNREACHABLE; return false;
 		}
 	} else {
-		return SDL_JoystickGetButton(joystick, button);
+		return SDL_JoystickGetButton(joystick, button) != 0;
 	}
 }
 
@@ -429,7 +429,7 @@ EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
 
 string EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 {
-	if (inputEventGenerator.grabInput->getValue()) {
+	if (inputEventGenerator.grabInput->getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);

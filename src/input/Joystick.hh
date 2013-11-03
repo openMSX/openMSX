@@ -15,7 +15,6 @@ class StateChangeDistributor;
 class CommandController;
 class PluggingController;
 class StringSetting;
-class JoystickConfigChecker;
 class TclObject;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
@@ -70,13 +69,13 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	std::unique_ptr<StringSetting> configSetting;
-	std::unique_ptr<JoystickConfigChecker> checker;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
 	const std::string name;
 	const std::string desc;
 
 	byte status;
+	bool pin8;
 #endif // SDL_JOYSTICK_DISABLED
 };
 SERIALIZE_CLASS_VERSION(Joystick, 2);

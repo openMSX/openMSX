@@ -507,6 +507,8 @@ class TCL(Library):
 						'. %s && eval "echo \\"%s\\""' % (tclConfig, expr)
 					])
 				)
+			if text is not None:
+				print >> log, 'Result: %s' % text.strip()
 		finally:
 			log.close()
 		return None if text is None else text.strip()
@@ -520,10 +522,14 @@ class TCL(Library):
 			# been configured with the minimal libstdc++ on the include path in the C(XX) flags and
 			# not with the more complete GNU version
 			return environ['ANDROID_CXXFLAGS']
+		wantShared = not linkStatic or cls.isSystemLibrary(platform)
+		# The -DSTATIC_BUILD is a hack to avoid including the complete
+		# TCL_DEFS (see 9f1dbddda2) but still being able to link on
+		# MinGW (tcl.h depends on this being defined properly).
 		return cls.evalTclConfigExpr(
 			platform,
 			distroRoot,
-			'${TCL_INCLUDE_SPEC}',
+			'${TCL_INCLUDE_SPEC}' + ('' if wantShared else ' -DSTATIC_BUILD'),
 			'compile flags'
 			)
 

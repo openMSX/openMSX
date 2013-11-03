@@ -14,8 +14,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& parser_)
 {
 	parser.registerOption("-diska", *this);
 	parser.registerOption("-diskb", *this);
-
-	parser.registerFileClass("diskimage", *this);
+	parser.registerFileType("di1,di2,dmk,dsk,xsa", *this);
 	driveLetter = 'a';
 }
 

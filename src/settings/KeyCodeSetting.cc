@@ -1,44 +1,30 @@
 #include "KeyCodeSetting.hh"
 #include "CommandException.hh"
 
-using std::string;
-
 namespace openmsx {
-
-// class KeyCodeSettingPolicy
-
-KeyCodeSettingPolicy::KeyCodeSettingPolicy()
-{
-}
-
-string KeyCodeSettingPolicy::toString(Keys::KeyCode key) const
-{
-	return Keys::getName(key);
-}
-
-Keys::KeyCode KeyCodeSettingPolicy::fromString(const string& str) const
-{
-	Keys::KeyCode code = Keys::getCode(str);
-	if (code == Keys::K_NONE) {
-		throw CommandException("Not a valid key: " + str);
-	}
-	return code;
-}
-
-string_ref KeyCodeSettingPolicy::getTypeString() const
-{
-	return "key";
-}
-
-// class KeyCodeSetting
 
 KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
                                string_ref name, string_ref description,
                                Keys::KeyCode initialValue)
-	: SettingImpl<KeyCodeSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE)
+	: Setting(commandController, name, description,
+	          Keys::getName(initialValue), SAVE)
 {
+	setChecker([this](TclObject& newValue) {
+		const auto& str = newValue.getString();
+		if (Keys::getCode(str) == Keys::K_NONE) {
+			throw CommandException("Not a valid key: " + str);
+		}
+	});
+}
+
+string_ref KeyCodeSetting::getTypeString() const
+{
+	return "key";
+}
+
+Keys::KeyCode KeyCodeSetting::getKey() const
+{
+	return Keys::getCode(getValue().getString());
 }
 
 } // namespace openmsx

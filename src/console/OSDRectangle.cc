@@ -138,7 +138,7 @@ bool OSDRectangle::takeImageDimensions() const
 void OSDRectangle::getWidthHeight(const OutputRectangle& output,
                                   double& width, double& height) const
 {
-	if (!imageName.empty() && image.get() && takeImageDimensions()) {
+	if (!imageName.empty() && image && takeImageDimensions()) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	} else {

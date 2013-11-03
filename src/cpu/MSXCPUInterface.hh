@@ -9,7 +9,6 @@
 #include "likely.hh"
 #include <bitset>
 #include <vector>
-#include <map>
 #include <memory>
 
 namespace openmsx {

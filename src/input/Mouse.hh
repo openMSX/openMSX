@@ -4,7 +4,6 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include "Clock.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
@@ -48,15 +47,15 @@ private:
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;
-	Clock<1000> lastTime; // ms
-	int faze;
-	int xrel, yrel;
-	int curxrel, curyrel;
-	int absHostX, absHostY;
+	EmuTime lastTime;
+	int phase;
+	int xrel, yrel;         // latched X/Y values, these are returned to the MSX
+	int curxrel, curyrel;   // running X/Y values, already scaled down
+	int absHostX, absHostY; // running X/Y values, not yet scaled down
 	byte status;
 	bool mouseMode;
 };
-SERIALIZE_CLASS_VERSION(Mouse, 3);
+SERIALIZE_CLASS_VERSION(Mouse, 4);
 
 } // namespace openmsx
 

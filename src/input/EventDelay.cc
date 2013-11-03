@@ -75,7 +75,7 @@ EventDelay::~EventDelay()
 int EventDelay::signalEvent(const EventPtr& event)
 {
 	toBeScheduledEvents.push_back(event);
-	if (delaySetting->getValue() == 0.0) {
+	if (delaySetting->getDouble() == 0.0) {
 		sync(getCurrentTime());
 	}
 	return 0;
@@ -90,7 +90,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 	prevEmu = curEmu;
 
 	double factor = emuDuration.toDouble() / realDuration;
-	EmuDuration extraDelay(delaySetting->getValue());
+	EmuDuration extraDelay(delaySetting->getDouble());
 
 #if PLATFORM_ANDROID
 	// The virtual keyboard on Android sends a key press and the

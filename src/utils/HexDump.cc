@@ -1,4 +1,5 @@
 #include "HexDump.hh"
+#include <algorithm>
 
 namespace HexDump {
 

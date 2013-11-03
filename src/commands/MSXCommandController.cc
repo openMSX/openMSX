@@ -152,13 +152,13 @@ Command* MSXCommandController::findCommand(string_ref name) const
 	return (it != commandMap.end()) ? it->second : nullptr;
 }
 
-Setting* MSXCommandController::findSetting(string_ref name)
+BaseSetting* MSXCommandController::findSetting(string_ref name)
 {
 	auto it = settingMap.find(name);
 	return (it != settingMap.end()) ? it->second : nullptr;
 }
 
-const Setting* MSXCommandController::findSetting(string_ref setting) const
+const BaseSetting* MSXCommandController::findSetting(string_ref setting) const
 {
 	return const_cast<MSXCommandController*>(this)->findSetting(setting);
 }
@@ -184,6 +184,11 @@ CliComm& MSXCommandController::getCliComm()
 	return motherboard.getMSXCliComm();
 }
 
+Interpreter& MSXCommandController::getInterpreter()
+{
+	return globalCommandController.getInterpreter();
+}
+
 void MSXCommandController::signalEvent(
 	const std::shared_ptr<const Event>& event, EmuTime::param /*time*/)
 {
@@ -192,7 +197,7 @@ void MSXCommandController::signalEvent(
 	// simple way to synchronize proxy settings
 	for (auto& p : settingMap) {
 		try {
-			changeSetting(*p.second, p.second->getValueString());
+			changeSetting(*p.second, p.second->getString());
 		} catch (MSXException&) {
 			// ignore
 		}
@@ -210,7 +215,7 @@ void MSXCommandController::transferSettings(const MSXCommandController& from)
 		if (auto* fromSetting = from.findSetting(p.first())) {
 			if (!fromSetting->needTransfer()) continue;
 			try {
-				changeSetting(*p.second, fromSetting->getValueString());
+				changeSetting(*p.second, fromSetting->getString());
 			} catch (MSXException&) {
 				// ignore
 			}

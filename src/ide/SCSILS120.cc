@@ -184,14 +184,12 @@ void SCSILS120::disconnect()
 bool SCSILS120::isSelected()
 {
 	lun = 0;
-	return file.get() != nullptr;
+	return file != nullptr;
 }
 
 bool SCSILS120::getReady()
 {
-	if (file.get()) {
-		return true;
-	}
+	if (file) return true;
 	keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 	return false;
 }
@@ -757,11 +755,7 @@ int SCSILS120::msgOut(byte value)
 
 size_t SCSILS120::getNbSectorsImpl() const
 {
-	if (file.get()) {
-		return file->getSize() / SECTOR_SIZE;
-	} else {
-		return 0;
-	}
+	return file ? (file->getSize() / SECTOR_SIZE) : 0;
 }
 
 bool SCSILS120::isWriteProtectedImpl() const
@@ -830,7 +824,7 @@ void LSXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result
 				EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		File* file = ls.file.get();
+		auto* file = ls.file.get();
 		result.addListElement(ls.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
@@ -888,7 +882,7 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
 {
-	string filename = file.get() ? file->getURL() : "";
+	string filename = file ? file->getURL() : "";
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert disk before restoring 'mediaChanged'

@@ -1,139 +1,107 @@
 #ifndef ENUMSETTING_HH
 #define ENUMSETTING_HH
 
-#include "SettingPolicy.hh"
-#include "SettingImpl.hh"
-#include <map>
+#include "Setting.hh"
+#include <iterator>
+#include <utility>
+#include <vector>
 
 namespace openmsx {
 
 class TclObject;
 
-// non-templatized base class for EnumSettingPolicy<T>
-class EnumSettingPolicyBase
+// non-templatized base class
+class EnumSettingBase
 {
-public:
-	std::vector<std::string> getPossibleValues() const;
-
 protected:
-	virtual ~EnumSettingPolicyBase() {}
+	// cannot be string_ref because of the 'default_machine' setting
+	typedef std::vector<std::pair<std::string, int>> BaseMap;
+	EnumSettingBase(BaseMap&& m);
+
+	int fromStringBase(string_ref str) const;
+	string_ref toStringBase(int value) const;
+
+	std::vector<string_ref> getPossibleValues() const;
 	void additionalInfoBase(TclObject& result) const;
 	void tabCompletionBase(std::vector<std::string>& tokens) const;
-	int fromStringBase(const std::string& str) const;
-	std::string toStringBase(int value) const;
-	virtual void checkSetValueBase(int& value) const = 0;
-
-	std::map<std::string, int> baseMap;
-};
-
-template <typename T> class EnumSettingPolicy
-	: public EnumSettingPolicyBase, public SettingPolicy<T>
-{
-public:
-	typedef std::map<std::string, T> Map;
-
-protected:
-	EnumSettingPolicy(const Map& map_);
-	virtual ~EnumSettingPolicy();
-
-	std::string toString(T value) const;
-	T fromString(const std::string& str) const;
-	virtual void checkSetValue(T& value) const;
-	void tabCompletion(std::vector<std::string>& tokens) const;
-	string_ref getTypeString() const;
-	void additionalInfo(TclObject& result) const;
 
 private:
-	virtual void checkSetValueBase(int& value) const;
+	BaseMap baseMap;
 };
 
-
-template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T>>
+template<typename T> class EnumSetting : private EnumSettingBase, public Setting
 {
 public:
+	typedef std::vector<std::pair<std::string, T>> Map;
+
 	EnumSetting(CommandController& commandController, string_ref name,
 	            string_ref description, T initialValue,
-	            const typename EnumSettingPolicy<T>::Map& map_,
-	            Setting::SaveSetting save = Setting::SAVE);
+	            Map& map_, SaveSetting save = SAVE);
+
+	virtual string_ref getTypeString() const;
+	virtual void additionalInfo(TclObject& result) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+
+	T getEnum() const;
+	void setEnum(T value);
+
+private:
+	string_ref toString(T value) const;
 };
 
 
 //-------------
-
-template <typename T>
-EnumSettingPolicy<T>::EnumSettingPolicy(const Map& map)
-	: SettingPolicy<T>()
-{
-	baseMap.insert(map.begin(), map.end());
-}
-
-template <typename T>
-EnumSettingPolicy<T>::~EnumSettingPolicy()
-{
-}
-
-template<typename T>
-std::string EnumSettingPolicy<T>::toString(T value) const
-{
-	return toStringBase(static_cast<int>(value));
-}
-
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4800)
-// C4800: 'int' : forcing value to bool 'true' or 'false' (performance warning)
-#endif
-template<typename T>
-T EnumSettingPolicy<T>::fromString(const std::string& str) const
-{
-	return static_cast<T>(fromStringBase(str));
-}
-
-template<typename T>
-void EnumSettingPolicy<T>::checkSetValueBase(int& value) const
-{
-	auto t = static_cast<T>(value);
-	checkSetValue(t);
-	value = static_cast<int>(t);
-}
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-template<typename T>
-void EnumSettingPolicy<T>::checkSetValue(T& /*value*/) const
-{
-}
-
-template<typename T>
-void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
-{
-	tabCompletionBase(tokens);
-}
-
-template<typename T>
-string_ref EnumSettingPolicy<T>::getTypeString() const
-{
-	return "enumeration";
-}
-
-template<typename T>
-void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
-{
-	additionalInfoBase(result);
-}
 
 
 template <typename T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, T initialValue,
-		const typename EnumSettingPolicy<T>::Map& map_,
-		Setting::SaveSetting save)
-	: SettingImpl<EnumSettingPolicy<T>>(
-		commandController, name, description, initialValue, save, map_)
+		Map& map, SaveSetting save)
+	: EnumSettingBase(BaseMap(std::make_move_iterator(map.begin()),
+	                          std::make_move_iterator(map.end())))
+	, Setting(commandController, name, description,
+	          toString(initialValue).str(), save)
 {
+	setChecker([this](TclObject& newValue) {
+		fromStringBase(newValue.getString()); // may throw
+	});
+}
+
+template<typename T>
+string_ref EnumSetting<T>::getTypeString() const
+{
+	return "enumeration";
+}
+
+template<typename T>
+void EnumSetting<T>::additionalInfo(TclObject& result) const
+{
+	additionalInfoBase(result);
+}
+
+template<typename T>
+void EnumSetting<T>::tabCompletion(std::vector<std::string>& tokens) const
+{
+	tabCompletionBase(tokens);
+}
+
+template<typename T>
+T EnumSetting<T>::getEnum() const
+{
+	return static_cast<T>(fromStringBase(getValue().getString()));
+}
+
+template<typename T>
+void EnumSetting<T>::setEnum(T value)
+{
+	setString(toString(value).str());
+}
+
+template<typename T>
+string_ref EnumSetting<T>::toString(T value) const
+{
+	return toStringBase(static_cast<int>(value));
 }
 
 } // namespace openmsx

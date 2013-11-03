@@ -63,7 +63,7 @@ Y8950Adpcm::~Y8950Adpcm()
 
 void Y8950Adpcm::clearRam()
 {
-	memset(&(*ram)[0], 0xFF, ram->getSize());
+	ram->clear(0xFF);
 }
 
 void Y8950Adpcm::reset(EmuTime::param time)

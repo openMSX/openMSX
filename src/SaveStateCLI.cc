@@ -13,7 +13,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	: parser(parser_)
 {
 	parser.registerOption("-savestate", *this);
-	parser.registerFileClass("openMSX savestate", *this);
+	parser.registerFileType("oms", *this);
 }
 
 void SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)

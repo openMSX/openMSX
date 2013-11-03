@@ -72,7 +72,13 @@ public:
 private:
 	uint8_t dat[N];
 
-};
+}
+// Repeat alignment because Clang 3.2svn does not inherit it from an empty
+// base class.
+#ifndef _MSC_VER
+__attribute__((__aligned__((16))))
+#endif
+;
 static_assert(ALIGNOF(AlignedByteArray<13>) == AlignedBuffer::ALIGNMENT,
               "must be aligned");
 static_assert(sizeof(AlignedByteArray<32>) == 32,
@@ -87,8 +93,8 @@ template<typename T> static inline T aligned_cast(void* p)
 {
 	static_assert(std::is_pointer<T>::value,
 	              "can only perform aligned_cast on pointers");
-	typedef typename std::remove_pointer<T>::type DEREF;
-	assert((reinterpret_cast<uintptr_t>(p) % ALIGNOF(DEREF)) == 0);
+	assert((reinterpret_cast<uintptr_t>(p) %
+	        ALIGNOF(typename std::remove_pointer<T>::type)) == 0);
 	return reinterpret_cast<T>(p);
 }
 

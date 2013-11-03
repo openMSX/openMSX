@@ -36,7 +36,7 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 {
 	// output
-	std::string outName = rs232OutputFilenameSetting->getValue();
+	std::string outName = rs232OutputFilenameSetting->getString();
 	FileOperations::openofstream(outFile, outName);
 	if (outFile.fail()) {
 		outFile.clear();
@@ -44,7 +44,7 @@ void RS232Tester::plugHelper(Connector& connector_, EmuTime::param /*time*/)
 	}
 
 	// input
-	std::string inName = rs232InputFilenameSetting->getValue();
+	std::string inName = rs232InputFilenameSetting->getString();
 	inFile = FileOperations::openFile(inName, "rb");
 	if (!inFile) {
 		outFile.close();

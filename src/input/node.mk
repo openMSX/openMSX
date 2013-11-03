@@ -13,6 +13,7 @@ SRC_HDR:= \
 	MagicKey \
 	Mouse \
 	Trackball \
+	Touchpad \
 	JoyTap \
 	NinjaTap \
 	ArkanoidPad \

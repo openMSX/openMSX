@@ -31,6 +31,7 @@ protected:
 
 	void init(OutputSurface& output);
 	void flushFrameBuffer(unsigned width, unsigned height);
+	void clearScreen();
 	void saveScreenshot(const std::string& filename,
 	                    unsigned width, unsigned height);
 

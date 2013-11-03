@@ -15,7 +15,8 @@
 namespace openmsx {
 namespace Timer {
 
-static inline uint64_t getSDLTicks()
+// non-static to avoid unused function warning
+inline uint64_t getSDLTicks()
 {
 	return static_cast<uint64_t>(SDL_GetTicks()) * 1000;
 }
@@ -46,7 +47,8 @@ uint64_t getTime()
 	// ensure that the multiplication doesn't wrap.
 	now = (li.QuadPart & (int64_t(-1) >> 20)) * 1000000 / hfFrequency;
 */
-#if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK)
+	// clock_gettime doesn't seem to work properly on MinGW/Win32 cross compilation
+#if HAVE_CLOCK_GETTIME && defined(_POSIX_MONOTONIC_CLOCK) && !(defined(_WIN32) && defined(__GNUC__))
 	// Note: in the past we used the more portable gettimeofday() function,
 	//       but the result of that function is not always monotonic.
 	timespec ts;

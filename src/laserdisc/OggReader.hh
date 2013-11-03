@@ -9,8 +9,8 @@
 #include <memory>
 #include <list>
 #include <deque>
-#include <map>
-#include <set>
+#include <utility>
+#include <vector>
 
 namespace openmsx {
 
@@ -118,8 +118,8 @@ private:
 	AudioFragments recycleAudioList;
 
 	// Metadata
-	std::set<size_t> stopFrames;
-	std::map<int, size_t> chapters;
+	std::vector<size_t> stopFrames;
+	std::vector<std::pair<int, size_t>> chapters;
 };
 
 } // namespace openmsx

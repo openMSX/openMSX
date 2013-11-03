@@ -1,37 +1,98 @@
-Release Notes for openMSX 0.9.1 (2012-09-30)
-============================================
+Release Notes for openMSX 0.10.0 (2013-10-??)
+=============================================
 
-This release mostly fixes a bug in dir-as-disk that was introduced in openMSX
-0.9.0, when adding support for the DMK format and low level disk emulation. We
-not only fixed that bug, we rewrote dir-as-disk almost completely, making it a
-lot more robust.
+This release adds many larger and smaller features, but most outstanding are:
+cycle accurate VDP command engine timing, an Android port, subdirectory support
+for dir-as-disk and Neos MA-20 support. These features meant a lot of work was
+done in practically all parts of the code (of which you can read the results in
+the complete list below), but at the same time we also freshened up much of the
+code using many of the new C++11 language features. All in all, it was time to
+release this stuff officially...
 
 Here's the list with all highlights:
 
 MSX device support:
-- Accuracy improvements:
-  - improved some details on the laserdisc emulation
-  - improved timing of the VDP LINE command (thanks to NYYRIKKI for the ideas)
-- added Toshiba HX-21, Toshiba HX-22 and Toshiba HX-22I. The latter two have a
-  switchable RS-232C interface (use the new toshiba_rs232c_switch setting)
+- accuracy improvements:
+  - improved TMS99X8/TMS9929 color palette
+  - improved V9990/GFX9000:
+    - VRAM reads go via 1-byte buffer
+    - VRAM read/write pointers only get updated when R#2 and R#5 get written
+    - fixed initial content of VRAM of GFX9000
+    - V9990 P1/P2 sprites that are disabled still count for the 16 sprite limit
+    - fixed roll behaviour of layer B in P1 mode
+  - turboR TC8566AF has other register memory mapping than other machines
+  - use correct Kanji font ROM for Victor HC-95A and removed S1985
+  - added cycle accurate VDP command engine timing
+  - fixes in YM2413 emulation (FMPAC)
+- added mapper support:
+  - MSXtra cartridge (a debugging tool released by PTC which has its own RAM)
+  - MultiROM Collection, designed by Manuel Pazos in 2006
+  - ASCII8 mapper with 2kB SRAM
+  - ASCII16 mapper with 8kB SRAM
+  - Super Swangi (a.k.a. Super Altered Beast)
+- added support for MSX touch pad
+- added mu-PACK extension, a MIDI module to upgrade a turboR ST to GT
+- added support for large hard disk images and LaserDisc images (>4GB)
+- added initial RAM patterns for Sony HB-F1XDJ and Sanyo PHC-23J
+- added support for Neos MA-20 Version Up Adapter (MSX1 to MSX2 converter),
+  insert both Neos_MA-20R and Neos_MA-20V extensions for this
+- fixed Toshiba MSX-AUDIO with no sample RAM
+- fixes in joystick, mouse and track ball emulation
+- minor fixes in Y8950 (MSX-AUDIO) and YMF262 (MoonSound)
+- added OPL3Cartridge2_mono and OPL3Cartridge2_stereo extensions
+- added Yamaha SFG-01 extension and replaced the SFG-05 with the SFG-01 in the
+  CX5M machine
+- added Casio PV-16, Casio P-7, Casio MX-10, Goldstar FC-80U and Sony HB-F1XV
+  machines and an experimental Zemmix Super V (Daewoo CPC-61) machine config
 
 New or improved emulator features:
-- fixed crash with fast resampler and 8192 samples
-- dir-As-Disk:
-  - dir-as-disk works properly again and is now a lot more robust
-  - improve error reporting when something goes wrong
-- console support/scripts:
-  - added script to save current screen to file in MSX loadable format, thanks
-    to NYYRIKKI
+- added subdirectory support for dir-as-disk
+- added configurable host to MSX joystick mapping, e.g. useful to bind the
+  crawl command (button A+B) in Metal Gear 2 to a single PC joystick button
+- added support for bash completion (useful for using openMSX on the bash
+  command line)
 - performance improvements:
-  - improved console rendering speed (uses less CPU)
-  - improved Tcl integration
-  - speed up low level disk emulation
-  - optimized rendering of superimposed modes (Video9000, laserdisc)
-  - several other performance improvements
+  - improved start-up performance (on Dingoo openMSX starts over 20% faster)
+  - reduced CPU overhead when enabling reverse
+  - further optimized CPU emulation
+  - sped up CAS loading (use 3744 baud instead of 2760 baud)
+  - reduce input latency (poll host events more often and remove delays)
+  - speed up reverse in combination with harddisk by using incremental hashing
+- reverse/TAS:
+  - added reverse subcommand to truncate the current replay
+  - show 2 decimals in the reverse bar time
+  - added bookmarks feature to reverse bar
+  - added possibility to customize TAS key bindings in an external script
+  - added setting to auto save replays at intervals
+  - added command to reset the lag counter
+  - added commands to go to frame boundaries and advance/reverse to frame
+    boundaries
+  - show values of TAS widgets also in the middle of a frame
+- several improvements on the OSD menu:
+  - several improvements on the file browser
+  - better error handling
+  - only show media menu options that are relevant for the current machine
+    (e.g. do not show disk drives when the machine has none)
+  - added support for LaserDisc
+  - added a quit menu with confirmation
+  - added limitsprites setting
+  - added basic mouse/touch support
+  - only show video options if they actually make sense
+- remove SSE and MMX assembly routines, only keep rewritten SSE2 routines
+- added interleaving with black frame for monitors with LightBoost support
+- added OSD widget that displays how busy the VDP is
 
 Build system, packaging, documentation:
-- Added build support for DragonFly BSD, thanks to John Marino
+- created Android port (available via Google Play)
+- migrated to git
+- updated Windows build to Visual Studio 2012 update 3
+- now a compiler which supports C++11 is required to compile openMSX, like g++
+  4.6, clang 3.0 or Microsoft Visual Studio 2012
+- integrated Dingoo packaging in the build system
+- better support for 64 bit systems (sizes, memory, etc.)
+- added document about details on VDP command engine timing
+- changed machine configurations from specific directories to just an XML file
+- removed the GP2X port
 
 And of course the usual various bug fixes.
 

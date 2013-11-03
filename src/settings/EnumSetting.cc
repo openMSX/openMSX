@@ -4,26 +4,31 @@
 #include "CommandException.hh"
 #include "stringsp.hh"
 #include "unreachable.hh"
+#include "StringOp.hh"
+#include "stl.hh"
+#include <algorithm>
 
 namespace openmsx {
 
-int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
+typedef CmpTupleElement<0, StringOp::caseless> Comp;
+
+EnumSettingBase::EnumSettingBase(BaseMap&& map)
+	: baseMap(std::move(map))
 {
-	// An alternative we used in the past is to use StringOp::caseless
-	// as the map comparator functor. This requires to #include StringOp.hh
-	// in the header file. Because this header is included in many other
-	// files, we prefer not to do that.
-	// These maps are usually very small, so there is no disadvantage on
-	// using a O(n) search here (instead of O(log n)).
-	for (auto& p : baseMap) {
-		if (strcasecmp(str.c_str(), p.first.c_str()) == 0) {
-			return p.second;
-		}
-	}
-	throw CommandException("not a valid value: " + str);
+	sort(baseMap.begin(), baseMap.end(), Comp());
 }
 
-std::string EnumSettingPolicyBase::toStringBase(int value) const
+int EnumSettingBase::fromStringBase(string_ref str) const
+{
+	auto it = lower_bound(baseMap.begin(), baseMap.end(), str, Comp());
+	StringOp::casecmp cmp;
+	if ((it == baseMap.end()) || !cmp(it->first, str)) {
+		throw CommandException("not a valid value: " + str);
+	}
+	return it->second;
+}
+
+string_ref EnumSettingBase::toStringBase(int value) const
 {
 	for (auto& p : baseMap) {
 		if (p.second == value) {
@@ -33,32 +38,26 @@ std::string EnumSettingPolicyBase::toStringBase(int value) const
 	UNREACHABLE; return "";
 }
 
-std::vector<std::string> EnumSettingPolicyBase::getPossibleValues() const
+std::vector<string_ref> EnumSettingBase::getPossibleValues() const
 {
-	std::vector<std::string> result;
+	std::vector<string_ref> result;
 	for (auto& p : baseMap) {
-		try {
-			int value = p.second;
-			checkSetValueBase(value);
-			result.push_back(p.first);
-		} catch (MSXException&) {
-			// ignore
-		}
+		result.push_back(p.first);
 	}
 	return result;
 }
 
-void EnumSettingPolicyBase::tabCompletionBase(std::vector<std::string>& tokens) const
+void EnumSettingBase::additionalInfoBase(TclObject& result) const
+{
+	TclObject valueList(result.getInterpreter());
+	valueList.addListElements(getPossibleValues());
+	result.addListElement(valueList);
+}
+
+void EnumSettingBase::tabCompletionBase(std::vector<std::string>& tokens) const
 {
 	Completer::completeString(tokens, getPossibleValues(),
 	                          false); // case insensitive
-}
-
-void EnumSettingPolicyBase::additionalInfoBase(TclObject& result) const
-{
-	TclObject valueList(result.getInterpreter());
-	valueList.addListElements(this->getPossibleValues());
-	result.addListElement(valueList);
 }
 
 } // namespace openmsx

@@ -299,7 +299,7 @@ static inline void calcSseStereo(const float* buf_, const float* tab_, long len,
 
 template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(
-	float pos, int* __restrict output) __restrict
+	float pos, int* __restrict output)
 {
 	assert((filterLen & 3) == 0);
 
@@ -383,7 +383,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned emuNum)
 
 template <unsigned CHANNELS>
 bool ResampleHQ<CHANNELS>::generateOutput(
-	int* __restrict dataOut, unsigned hostNum, EmuTime::param time) __restrict
+	int* __restrict dataOut, unsigned hostNum, EmuTime::param time)
 {
 	unsigned emuNum = emuClock.getTicksTill(time);
 	if (emuNum > 0) {

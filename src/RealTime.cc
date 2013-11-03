@@ -57,12 +57,12 @@ RealTime::~RealTime()
 
 double RealTime::getRealDuration(EmuTime::param time1, EmuTime::param time2)
 {
-	return (time2 - time1).toDouble() * 100.0 / speedSetting.getValue();
+	return (time2 - time1).toDouble() * 100.0 / speedSetting.getInt();
 }
 
 EmuDuration RealTime::getEmuDuration(double realDur)
 {
-	return EmuDuration(realDur * speedSetting.getValue() / 100.0);
+	return EmuDuration(realDur * speedSetting.getInt() / 100.0);
 }
 
 bool RealTime::timeLeft(uint64_t us, EmuTime::param time)

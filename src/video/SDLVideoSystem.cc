@@ -84,7 +84,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        ? "MSX" // for backwards compatibility
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
@@ -128,7 +128,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        ? "GFX9000" // for backwards compatibility
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
@@ -171,7 +171,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 {
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
@@ -211,8 +211,8 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
-	unsigned factor = renderSettings.getScaleFactor().getValue();
-	switch (renderSettings.getRenderer().getValue()) {
+	unsigned factor = renderSettings.getScaleFactor().getInt();
+	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
@@ -244,7 +244,7 @@ bool SDLVideoSystem::checkSettings()
 	}
 
 	// Check fullscreen.
-	const bool fullScreenTarget = renderSettings.getFullScreen().getValue();
+	const bool fullScreenTarget = renderSettings.getFullScreen().getBoolean();
 	return screen->setFullScreen(fullScreenTarget);
 }
 
@@ -286,11 +286,11 @@ void SDLVideoSystem::resize()
 
 	unsigned width, height;
 	getWindowSize(width, height);
-	const bool fullscreen = renderSettings.getFullScreen().getValue();
+	const bool fullscreen = renderSettings.getFullScreen().getBoolean();
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
 
-	switch (renderSettings.getRenderer().getValue()) {
+	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 		screen = make_unique<SDLVisibleSurface>(
 			width, height, fullscreen, renderSettings,

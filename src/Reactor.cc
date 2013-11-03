@@ -192,6 +192,9 @@ Reactor::Reactor()
 	, running(true)
 	, isInit(false)
 {
+#if UNIQUE_PTR_BUG
+	display = nullptr;
+#endif
 }
 
 void Reactor::init()
@@ -300,7 +303,7 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 
 Display& Reactor::getDisplay()
 {
-	assert(display.get());
+	assert(display);
 	return *display;
 }
 
@@ -382,9 +385,9 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	for (auto& name : getHwConfigs("machines")) {
-		machines[name] = count++;
+		machines.push_back(std::make_pair(name, count++));
 	}
-	machines["C-BIOS_MSX2+"] = 0; // default machine
+	machines.push_back(std::make_pair("C-BIOS_MSX2+", 0)); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
@@ -456,8 +459,13 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 
 void Reactor::switchMachine(const string& machine)
 {
-	if (!display.get()) {
+	if (!display) {
+#if UNIQUE_PTR_BUG
+		display2 = make_unique<Display>(*this);
+		display = display2.get();
+#else
 		display = make_unique<Display>(*this);
+#endif
 		// TODO: Currently it is not possible to move this call into the
 		//       constructor of Display because the call to createVideoSystem()
 		//       indirectly calls Reactor.getDisplay().
@@ -651,7 +659,7 @@ void Reactor::update(const Setting& setting)
 {
 	auto& pauseSetting = getGlobalSettings().getPauseSetting();
 	if (&setting == &pauseSetting) {
-		if (pauseSetting.getValue()) {
+		if (pauseSetting.getBoolean()) {
 			pause();
 		} else {
 			unpause();
@@ -686,11 +694,13 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 #else
 		// On other platforms, the user may specify if openMSX should be
 		// halted on loss of focus.
-		if (!getGlobalSettings().getPauseOnLostFocusSetting().getValue()) return 0;
+		if (!getGlobalSettings().getPauseOnLostFocusSetting().getBoolean()) {
+			return 0;
+		}
 		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain()) {
 			// gained focus
-			if (!getGlobalSettings().getPauseSetting().getValue()) {
+			if (!getGlobalSettings().getPauseSetting().getBoolean()) {
 				unpause();
 			}
 		} else {

@@ -70,16 +70,16 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 		return;
 	}
 	prevDrawFrame = drawFrame;
-	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getValue() &&
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getBoolean() &&
 	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// deinterlaced odd frame, do same as even frame
 	} else {
 		if (frameSkipCounter <
-		              renderSettings.getMinFrameSkip().getValue()) {
+		              renderSettings.getMinFrameSkip().getInt()) {
 			++frameSkipCounter;
 			drawFrame = false;
 		} else if (frameSkipCounter >=
-		              renderSettings.getMaxFrameSkip().getValue()) {
+		              renderSettings.getMaxFrameSkip().getInt()) {
 			frameSkipCounter = 0;
 			drawFrame = true;
 		} else {
@@ -97,7 +97,7 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 	}
 	if (!drawFrame) return;
 
-	accuracy = renderSettings.getAccuracy().getValue();
+	accuracy = renderSettings.getAccuracy().getEnum();
 	lastX = 0;
 	lastY = 0;
 	verticalOffsetA = verticalOffsetB = vdp.getTopBorder();
@@ -123,7 +123,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 		                      current * ALPHA;
 
 		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
-		    renderSettings.getDeinterlace().getValue() &&
+		    renderSettings.getDeinterlace().getBoolean() &&
 		    !prevDrawFrame) {
 			// dont send event in deinterlace mode when
 			// previous frame was not rendered
@@ -134,7 +134,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 	eventDistributor.distributeEvent(
 		std::make_shared<FinishFrameEvent>(
 			rasterizer->getPostProcessor()->getVideoSource(),
-			videoSourceSetting.getValue(),
+			videoSourceSetting.getSource(),
 			skipEvent));
 }
 

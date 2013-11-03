@@ -70,19 +70,19 @@ SettingsManager::~SettingsManager()
 	assert(settingsMap.empty());
 }
 
-void SettingsManager::registerSetting(Setting& setting, string_ref name)
+void SettingsManager::registerSetting(BaseSetting& setting, string_ref name)
 {
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
 }
 
-void SettingsManager::unregisterSetting(Setting& /*setting*/, string_ref name)
+void SettingsManager::unregisterSetting(BaseSetting& /*setting*/, string_ref name)
 {
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
 }
 
-Setting* SettingsManager::findSetting(string_ref name) const
+BaseSetting* SettingsManager::findSetting(string_ref name) const
 {
 	auto it = settingsMap.find(name);
 	return (it != settingsMap.end()) ? it->second : nullptr;
@@ -90,26 +90,21 @@ Setting* SettingsManager::findSetting(string_ref name) const
 
 // Helper functions for setting commands
 
-Setting& SettingsManager::getByName(string_ref cmd, string_ref name) const
+BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 {
-	if (auto* setting = getByName(name)) {
+	if (auto* setting = findSetting(name)) {
 		return *setting;
 	}
 	throw CommandException(cmd + ": " + name + ": no such setting");
-}
-
-Setting* SettingsManager::getByName(string_ref name) const
-{
-	auto it = settingsMap.find(name);
-	return it != settingsMap.end() ? it->second : nullptr;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
 	for (auto& p : settingsMap) {
-		if (p.second->needLoadSave()) {
-			p.second->restoreDefault();
+		auto& setting = *p.second;
+		if (setting.needLoadSave()) {
+			setting.setString(setting.getRestoreValue());
 		}
 	}
 
@@ -123,7 +118,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 		if (auto* elem = settings->findChildWithAttribute(
 		                                     "setting", "id", name)) {
 			try {
-				setting.changeValueString(elem->getData());
+				setting.setString(elem->getData());
 			} catch (MSXException&) {
 				// ignore, keep default value
 			}
@@ -131,14 +126,8 @@ void SettingsManager::loadSettings(const XMLElement& config)
 	}
 }
 
-void SettingsManager::saveSettings(XMLElement& config) const
-{
-	for (auto& p : settingsMap) {
-		p.second->sync(config);
-	}
-}
 
-// SettingInfo implementation
+// class SettingInfo
 
 SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
                          SettingsManager& manager_)
@@ -188,7 +177,7 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 }
 
 
-// SetCompleter implementation:
+// class SetCompleter
 
 SetCompleter::SetCompleter(CommandController& commandController,
                            SettingsManager& manager_)
@@ -227,7 +216,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 }
 
 
-// SettingCompleter implementation
+// class SettingCompleter
 
 SettingCompleter::SettingCompleter(
 		CommandController& commandController, SettingsManager& manager_,

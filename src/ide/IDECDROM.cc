@@ -42,9 +42,8 @@ typedef std::bitset<MAX_CD> CDInUse;
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
-	, motherBoard(config.getMotherBoard())
 {
-	auto& info = motherBoard.getSharedStuff("cdInUse");
+	auto& info = getMotherBoard().getSharedStuff("cdInUse");
 	if (info.counter == 0) {
 		assert(!info.stuff);
 		info.stuff = new CDInUse();
@@ -62,26 +61,26 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 	name[2] = char('a' + id);
 	cdInUse[id] = true;
 	cdxCommand = make_unique<CDXCommand>(
-		motherBoard.getCommandController(),
-		motherBoard.getStateChangeDistributor(),
-		motherBoard.getScheduler(), *this);
+		getMotherBoard().getCommandController(),
+		getMotherBoard().getStateChangeDistributor(),
+		getMotherBoard().getScheduler(), *this);
 
 	senseKey = 0;
 
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
 
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
+	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
 {
-	auto& info = motherBoard.getSharedStuff("cdInUse");
+	auto& info = getMotherBoard().getSharedStuff("cdInUse");
 	assert(info.counter);
 	assert(info.stuff);
 	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
 
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
 	unsigned id = name[2] - 'a';
 	assert(cdInUse[id]);
 	cdInUse[id] = false;
@@ -128,7 +127,7 @@ void IDECDROM::fillIdentifyBlock(AlignedBuffer& buffer)
 unsigned IDECDROM::readBlockStart(AlignedBuffer& buffer, unsigned count)
 {
 	assert(readSectorData);
-	if (file.get()) {
+	if (file) {
 		//fprintf(stderr, "read sector data at %08X\n", transferOffset);
 		file->seek(transferOffset);
 		file->read(buffer, count);
@@ -175,7 +174,7 @@ void IDECDROM::executeCommand(byte cmd)
 		} else {
 			// na WP MC na MCR ABRT NM obs
 			byte err = 0;
-			if (file.get()) {
+			if (file) {
 				err |= 0x40; // WP (write protected)
 			} else {
 				err |= 0x02; // NM (no media inserted)
@@ -331,7 +330,7 @@ void IDECDROM::eject()
 	file.reset();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
+	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, "");
 }
 
 void IDECDROM::insert(const string& filename)
@@ -339,7 +338,7 @@ void IDECDROM::insert(const string& filename)
 	file = make_unique<File>(filename);
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
+	getMotherBoard().getMSXCliComm().update(CliComm::MEDIA, name, filename);
 }
 
 
@@ -358,7 +357,7 @@ void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		File* file = cd.file.get();
+		auto* file = cd.file.get();
 		result.addListElement(cd.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
@@ -418,7 +417,7 @@ void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 
-	string filename = file.get() ? file->getURL() : "";
+	string filename = file ? file->getURL() : "";
 	ar.serialize("filename", filename);
 	if (ar.isLoader()) {
 		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'

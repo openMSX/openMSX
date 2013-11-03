@@ -371,9 +371,9 @@ int HotKey::signalEvent(const EventPtr& event_)
 	// Convert special 'repeat' event into the actual to-be-repeated event.
 	EventPtr event = event_;
 	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
-		if (!lastEvent.get()) return true;
+		if (!lastEvent) return 0;
 		event = lastEvent;
-	} else if (lastEvent.get() != event.get()) {
+	} else if (lastEvent != event) {
 		// If the newly received event is different from the repeating
 		// event, we stop the repeat process.
 		// Except when we're repeating a OsdControlEvent and the
@@ -382,7 +382,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 		// a corresponding osd event (the osd event is send before the
 		// original event). Without this hack, key-repeat will not work
 		// for osd key bindings.
-		if (lastEvent.get() && lastEvent->isRepeatStopper(*event)) {
+		if (lastEvent && lastEvent->isRepeatStopper(*event)) {
 			stopRepeat();
 		}
 	}
@@ -441,7 +441,7 @@ void HotKey::startRepeat(const EventPtr& event)
 	// Repeat period.
 	static const unsigned PERIOD = 30;
 
-	unsigned delay = (lastEvent.get() ? PERIOD : DELAY) * 1000;
+	unsigned delay = (lastEvent ? PERIOD : DELAY) * 1000;
 	lastEvent = event;
 	repeatAlarm->schedule(delay);
 }

@@ -37,7 +37,7 @@ void LDPixelRenderer::frameEnd()
 {
 	eventDistributor.distributeEvent(std::make_shared<FinishFrameEvent>(
 		rasterizer->getPostProcessor()->getVideoSource(),
-		motherboard.getVideoSource().getValue(),
+		motherboard.getVideoSource().getSource(),
 		!isActive()));
 }
 

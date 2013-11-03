@@ -33,6 +33,8 @@ public:
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+
 private:
 	// SectorAccessibleDisk:
 	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);

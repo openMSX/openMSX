@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class RenderSettings;
 class Display;
 class Setting;
 class BooleanSetting;
@@ -28,6 +27,7 @@ public:
 	  * these IDs as possible values.
 	  */
 	int getVideoSource() const;
+	int getVideoSourceSetting() const;
 
 	/** Create a raw (=non-postprocessed) screenshot. The 'height'
 	 * parameter should be either '240' or '480'. The current image will be
@@ -68,7 +68,6 @@ private:
 	MSXMotherBoard& motherBoard;
 	/** Settings shared between all renderers. */
 	Display& display;
-	RenderSettings& renderSettings;
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */

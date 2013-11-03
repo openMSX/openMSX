@@ -3,6 +3,7 @@
 
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
+#include "Schedulable.hh"
 #include "EmuTime.hh"
 #include <memory>
 #include <vector>
@@ -17,6 +18,7 @@ class DoubledFrame;
 class SuperImposedFrame;
 class AviRecorder;
 class CliComm;
+class EventDistributor;
 
 /** Abstract base class for post processors.
   * A post processor builds the frame that is displayed from the MSX frame,
@@ -24,7 +26,7 @@ class CliComm;
   * TODO: With some refactoring, it would be possible to move much or even all
   *       of the post processing code here instead of in the subclasses.
   */
-class PostProcessor : public VideoLayer
+class PostProcessor : public VideoLayer, private Schedulable
 {
 public:
 	virtual ~PostProcessor();
@@ -137,9 +139,14 @@ protected:
 	const RawFrame* superImposeVideoFrame;
 	const FrameSource* superImposeVdpFrame;
 
+	int interleaveCount; // for interleave-black-frame
+
 private:
 	void getScaledFrame(unsigned height, const void** lines,
 	                    std::vector<void*>& workBuffer);
+
+	// Schedulable
+	virtual void executeUntil(EmuTime::param time, int userData);
 
 	Display& display;
 
@@ -148,6 +155,9 @@ private:
 	  * with less buffers.
 	  */
 	const bool canDoInterlace;
+
+	EmuTime lastRotate;
+	EventDistributor& eventDistributor;
 };
 
 } // namespace openmsx

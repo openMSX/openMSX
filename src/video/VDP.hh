@@ -31,7 +31,11 @@ class MsxX256PosInfo;
 class MsxX512PosInfo;
 class Display;
 class RawFrame;
-class AccessSlotCalculator;
+template<typename> class EnumSetting;
+namespace VDPAccessSlots {
+	enum Delta : int;
+	class Calculator;
+}
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -451,7 +455,7 @@ public:
 
 	/** Get the earliest access slot that is at least 'delta' cycles in
 	  * the future. */
-	EmuTime getAccessSlot(EmuTime::param time, unsigned delta) const;
+	EmuTime getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const;
 
 	/** Same as getAccessSlot(), but it can be _much_ faster for repeated
 	  * calls, e.g. in the implementation of VDP commands. However it does
@@ -462,7 +466,8 @@ public:
 	  * (So this means that in every VDPCmd::execute() method you need
 	  * to construct a new calculator).
 	  */
-	AccessSlotCalculator getAccessSlotCalculator(EmuTime::param time) const;
+	VDPAccessSlots::Calculator getAccessSlotCalculator(
+		EmuTime::param time, EmuTime::param limit) const;
 
 	/** Is there a CPU-VRAM access scheduled. */
 	bool cpuAccessScheduled() const;
@@ -471,6 +476,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
+	void initTables();
+
 	/** VDP version: the VDP model being emulated.
 	  */
 	enum VdpVersion {
@@ -670,6 +677,7 @@ private:
 
 private:
 	Display& display;
+	EnumSetting<bool>& cmdTiming;
 
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;
@@ -886,39 +894,6 @@ private:
 	bool warningPrinted;
 };
 SERIALIZE_CLASS_VERSION(VDP, 5);
-
-
-class AccessSlotCalculator
-{
-public:
-	AccessSlotCalculator(unsigned ticks_, const unsigned* tab, unsigned tabLen_)
-		: ticks(ticks_), tabLen(tabLen_)
-	{
-		// Search largest value that is smaller or equal to ticks.
-		// This could be outside the table boundaries (one element
-		// in front), but that's ok because it won't be dereferenced.
-		idx = std::upper_bound(tab, tab + tabLen, ticks) - 1;
-		assert((idx < tab) || (*idx <= ticks));
-	}
-	inline EmuDuration getNext(unsigned delta) {
-		assert(delta != 0);
-		assert(delta <= 136);
-		auto stop = ticks + delta;
-		do { ++idx; } while (*idx < stop);
-		auto duration = VDP::VDPClock::duration(*idx - ticks);
-		if (unlikely(*idx >= 1368)) idx -= tabLen;
-		ticks = *idx;
-		return duration;
-	}
-private:
-	// Usually *idx == ticks, but in case the VDP switched mode
-	// in the middle of a command (e.g. enabled/disabled sprites)
-	// this may not be the case. So we need both vars.
-	const unsigned* idx;
-	unsigned ticks;
-	const unsigned tabLen;
-};
-
 
 } // namespace openmsx
 

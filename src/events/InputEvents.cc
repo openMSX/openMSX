@@ -6,8 +6,10 @@
 #include "checked_cast.hh"
 #include "openmsx.hh"
 #include <string>
+#include <tuple>
 #include <cassert>
 
+using std::make_tuple;
 using std::string;
 using std::vector;
 
@@ -19,11 +21,6 @@ TimedEvent::TimedEvent(EventType type)
 	: Event(type)
 	, realtime(Timer::getTime())
 {
-}
-
-uint64_t TimedEvent::getRealTime() const
-{
-	return realtime;
 }
 
 
@@ -107,16 +104,6 @@ KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
 }
 #endif
 
-Keys::KeyCode KeyEvent::getKeyCode() const
-{
-	return keyCode;
-}
-
-uint16_t KeyEvent::getUnicode() const
-{
-	return unicode;
-}
-
 void KeyEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("keyb");
@@ -130,8 +117,8 @@ void KeyEvent::toStringImpl(TclObject& result) const
 bool KeyEvent::lessImpl(const Event& other) const
 {
 	// note: don't compare unicode
-	auto otherKeyEvent = checked_cast<const KeyEvent*>(&other);
-	return getKeyCode() < otherKeyEvent->getKeyCode();
+	auto& o = checked_cast<const KeyEvent&>(other);
+	return getKeyCode() < o.getKeyCode();
 }
 
 
@@ -168,11 +155,6 @@ MouseButtonEvent::MouseButtonEvent(EventType type, unsigned button_)
 {
 }
 
-unsigned MouseButtonEvent::getButton() const
-{
-	return button;
-}
-
 void MouseButtonEvent::toStringHelper(TclObject& result) const
 {
 	result.addListElement("mouse");
@@ -181,8 +163,8 @@ void MouseButtonEvent::toStringHelper(TclObject& result) const
 
 bool MouseButtonEvent::lessImpl(const Event& other) const
 {
-	auto otherMouseEvent = checked_cast<const MouseButtonEvent*>(&other);
-	return getButton() < otherMouseEvent->getButton();
+	auto& o = checked_cast<const MouseButtonEvent&>(other);
+	return getButton() < o.getButton();
 }
 
 
@@ -216,19 +198,11 @@ void MouseButtonDownEvent::toStringImpl(TclObject& result) const
 
 // class MouseMotionEvent
 
-MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_)
-	: TimedEvent(OPENMSX_MOUSE_MOTION_EVENT), xrel(xrel_), yrel(yrel_)
+MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)
+	: TimedEvent(OPENMSX_MOUSE_MOTION_EVENT)
+	, xrel(xrel_), yrel(yrel_)
+	, xabs(xabs_), yabs(yabs_)
 {
-}
-
-int MouseMotionEvent::getX() const
-{
-	return xrel;
-}
-
-int MouseMotionEvent::getY() const
-{
-	return yrel;
 }
 
 void MouseMotionEvent::toStringImpl(TclObject& result) const
@@ -237,18 +211,19 @@ void MouseMotionEvent::toStringImpl(TclObject& result) const
 	result.addListElement("motion");
 	result.addListElement(getX());
 	result.addListElement(getY());
+	result.addListElement(getAbsX());
+	result.addListElement(getAbsY());
 }
 
 bool MouseMotionEvent::lessImpl(const Event& other) const
 {
-	auto otherMouseEvent = checked_cast<const MouseMotionEvent*>(&other);
-	return (getX() != otherMouseEvent->getX())
-	     ? (getX() <  otherMouseEvent->getX())
-	     : (getY() <  otherMouseEvent->getY());
+	auto& o = checked_cast<const MouseMotionEvent&>(other);
+	return make_tuple(  getX(),   getY(),   getAbsX(),   getAbsY()) <
+	       make_tuple(o.getX(), o.getY(), o.getAbsX(), o.getAbsY());
 }
 
 
-// class MouseMotionGroupEvent : public Event
+// class MouseMotionGroupEvent
 
 MouseMotionGroupEvent::MouseMotionGroupEvent()
 	: Event(OPENMSX_MOUSE_MOTION_GROUP_EVENT)
@@ -280,11 +255,6 @@ JoystickEvent::JoystickEvent(EventType type, unsigned joystick_)
 {
 }
 
-unsigned JoystickEvent::getJoystick() const
-{
-	return joystick;
-}
-
 void JoystickEvent::toStringHelper(TclObject& result) const
 {
 	result.addListElement(StringOp::Builder() << "joy" << getJoystick() + 1);
@@ -292,10 +262,10 @@ void JoystickEvent::toStringHelper(TclObject& result) const
 
 bool JoystickEvent::lessImpl(const Event& other) const
 {
-	auto otherJoystickEvent = checked_cast<const JoystickEvent*>(&other);
-	return (getJoystick() != otherJoystickEvent->getJoystick())
-	     ? (getJoystick() <  otherJoystickEvent->getJoystick())
-	     : lessImpl(*otherJoystickEvent);
+	auto& o = checked_cast<const JoystickEvent&>(other);
+	return (getJoystick() != o.getJoystick())
+	     ? (getJoystick() <  o.getJoystick())
+	     : lessImpl(o);
 }
 
 
@@ -307,11 +277,6 @@ JoystickButtonEvent::JoystickButtonEvent(
 {
 }
 
-unsigned JoystickButtonEvent::getButton() const
-{
-	return button;
-}
-
 void JoystickButtonEvent::toStringHelper(TclObject& result) const
 {
 	JoystickEvent::toStringHelper(result);
@@ -320,8 +285,8 @@ void JoystickButtonEvent::toStringHelper(TclObject& result) const
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
 {
-	auto otherEvent = checked_cast<const JoystickButtonEvent*>(&other);
-	return getButton() < otherEvent->getButton();
+	auto& o = checked_cast<const JoystickButtonEvent&>(other);
+	return getButton() < o.getButton();
 }
 
 
@@ -362,16 +327,6 @@ JoystickAxisMotionEvent::JoystickAxisMotionEvent(
 {
 }
 
-unsigned JoystickAxisMotionEvent::getAxis() const
-{
-	return axis;
-}
-
-short JoystickAxisMotionEvent::getValue() const
-{
-	return value;
-}
-
 void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 {
 	toStringHelper(result);
@@ -381,10 +336,9 @@ void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 {
-	auto otherEvent = checked_cast<const JoystickAxisMotionEvent*>(&other);
-	return (getAxis() != otherEvent->getAxis())
-	     ? (getAxis() <  otherEvent->getAxis())
-	     : (getValue() < otherEvent->getValue());
+	auto& o = checked_cast<const JoystickAxisMotionEvent&>(other);
+	return make_tuple(  getAxis(),   getValue()) <
+	       make_tuple(o.getAxis(), o.getValue());
 }
 
 
@@ -395,11 +349,6 @@ FocusEvent::FocusEvent(bool gain_)
 {
 }
 
-bool FocusEvent::getGain() const
-{
-	return gain;
-}
-
 void FocusEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("focus");
@@ -408,8 +357,8 @@ void FocusEvent::toStringImpl(TclObject& result) const
 
 bool FocusEvent::lessImpl(const Event& other) const
 {
-	auto otherFocusEvent = checked_cast<const FocusEvent*>(&other);
-	return getGain() < otherFocusEvent->getGain();
+	auto& o = checked_cast<const FocusEvent&>(other);
+	return getGain() < o.getGain();
 }
 
 
@@ -418,16 +367,6 @@ bool FocusEvent::lessImpl(const Event& other) const
 ResizeEvent::ResizeEvent(unsigned x_, unsigned y_)
 	: Event(OPENMSX_RESIZE_EVENT), x(x_), y(y_)
 {
-}
-
-unsigned ResizeEvent::getX() const
-{
-	return x;
-}
-
-unsigned ResizeEvent::getY() const
-{
-	return y;
 }
 
 void ResizeEvent::toStringImpl(TclObject& result) const
@@ -439,10 +378,9 @@ void ResizeEvent::toStringImpl(TclObject& result) const
 
 bool ResizeEvent::lessImpl(const Event& other) const
 {
-	auto otherResizeEvent = checked_cast<const ResizeEvent*>(&other);
-	return (getX() != otherResizeEvent->getX())
-	     ? (getX() <  otherResizeEvent->getX())
-	     : (getY() <  otherResizeEvent->getY());
+	auto& o = checked_cast<const ResizeEvent&>(other);
+	return make_tuple(  getX(),   getY()) <
+	       make_tuple(o.getX(), o.getY());
 }
 
 
@@ -469,11 +407,6 @@ OsdControlEvent::OsdControlEvent(
 		const std::shared_ptr<const Event>& origEvent_)
 	: TimedEvent(type), origEvent(origEvent_), button(button_)
 {
-}
-
-unsigned OsdControlEvent::getButton() const
-{
-	return button;
 }
 
 bool OsdControlEvent::isRepeatStopper(const Event& other) const
@@ -503,9 +436,8 @@ void OsdControlEvent::toStringHelper(TclObject& result) const
 
 bool OsdControlEvent::lessImpl(const Event& other) const
 {
-	const OsdControlEvent* otherOsdControlEvent =
-		checked_cast<const OsdControlEvent*>(&other);
-	return getButton() < otherOsdControlEvent->getButton();
+	auto& o = checked_cast<const OsdControlEvent&>(other);
+	return getButton() < o.getButton();
 }
 
 

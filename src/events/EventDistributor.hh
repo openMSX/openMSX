@@ -5,10 +5,9 @@
 #include "Semaphore.hh"
 #include "CondVar.hh"
 #include "noncopyable.hh"
-#include <map>
 #include <memory>
+#include <utility>
 #include <vector>
-#include <functional>
 
 namespace openmsx {
 
@@ -24,10 +23,10 @@ public:
 	  * events for lower priority listeners.
 	  */
 	enum Priority {
-		OTHER   = 0x08,
-		CONSOLE = 0x04,
-		HOTKEY  = 0x02,
-		MSX     = 0x01,
+		OTHER,
+		CONSOLE,
+		HOTKEY,
+		MSX,
 	};
 
 	explicit EventDistributor(Reactor& reactor);
@@ -74,9 +73,8 @@ private:
 
 	Reactor& reactor;
 
-	typedef std::multimap<Priority, EventListener*, std::greater<Priority>>
-		PriorityMap; // sort from big to small
-	std::map<EventType, PriorityMap> listeners;
+	typedef std::vector<std::pair<Priority, EventListener*>> PriorityMap;
+	std::vector<PriorityMap> listeners; // indexed by EventType
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

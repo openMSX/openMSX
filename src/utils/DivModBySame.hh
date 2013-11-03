@@ -35,13 +35,10 @@ public:
 	#elif ASM_X86_32
 		uint32_t _ch_ = a >> 32;
 		uint32_t _cl_ = uint32_t(a);
-		// g++-3.4 gives this warning when the vars below are const.
-		//    use of memory input without lvalue in asm operand n is deprecated
-		// For newer gcc versions it's ok.
-		/*const*/ uint32_t _ah_ = dividend >> 32;
-		/*const*/ uint32_t _al_ = uint32_t(dividend);
-		/*const*/ uint32_t _bh_ = m >> 32;
-		/*const*/ uint32_t _bl_ = uint32_t(m);
+		const uint32_t _ah_ = dividend >> 32;
+		const uint32_t _al_ = uint32_t(dividend);
+		const uint32_t _bh_ = m >> 32;
+		const uint32_t _bl_ = uint32_t(m);
 	#ifdef _MSC_VER
 		uint32_t _s_ = s, result;
 		__asm {

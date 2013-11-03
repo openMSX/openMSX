@@ -64,7 +64,7 @@ void MSXMegaRam::powerUp(EmuTime::param time)
 void MSXMegaRam::reset(EmuTime::param /*time*/)
 {
 	// selected banks nor writeMode does change after reset
-	romMode = rom.get() != nullptr; // select rom mode if there is a rom
+	romMode = rom != nullptr; // select rom mode if there is a rom
 }
 
 byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
@@ -75,7 +75,6 @@ byte MSXMegaRam::readMem(word address, EmuTime::param /*time*/)
 const byte* MSXMegaRam::getReadCacheLine(word address) const
 {
 	if (romMode) {
-		// Note that gcc-3.3 produced wrong code for this line...
 		if (address >= 0x4000 && address <= 0xBFFF) {
 			return &(*rom)[address - 0x4000];
 		}
@@ -119,7 +118,7 @@ byte MSXMegaRam::readIO(word port, EmuTime::param /*time*/)
 			romMode = false;
 			break;
 		case 1:
-			if (rom.get()) romMode = true;
+			if (rom) romMode = true;
 			break;
 	}
 	invalidateMemCache(0x0000, 0x10000);
@@ -140,7 +139,7 @@ void MSXMegaRam::writeIO(word port, byte /*value*/, EmuTime::param /*time*/)
 			romMode = false;
 			break;
 		case 1:
-			if (rom.get()) romMode = true;
+			if (rom) romMode = true;
 			break;
 	}
 	invalidateMemCache(0x0000, 0x10000);

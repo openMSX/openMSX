@@ -115,7 +115,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 				"Invalid SCSI id: " << id <<
 				" (should be 0.." << MAX_DEV - 1 << ')');
 		}
-		if (dev[id].get()) {
+		if (dev[id]) {
 			throw MSXException(StringOp::Builder() <<
 				"Duplicate SCSI id: " << id);
 		}
@@ -135,7 +135,7 @@ WD33C93::WD33C93(const DeviceConfig& config)
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		if (!dev[i].get()) {
+		if (!dev[i]) {
 			dev[i] = make_unique<DummySCSIDevice>();
 		}
 	}

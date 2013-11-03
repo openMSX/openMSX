@@ -97,24 +97,15 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 
-class JoystickConfigChecker : public SettingChecker<StringSettingPolicy>
+void checkJoystickConfig(TclObject& newValue)
 {
-public:
-	virtual void check(SettingImpl<StringSettingPolicy>& setting,
-	                   string& newValue);
-};
-
-void JoystickConfigChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
-                                  string& newValue)
-{
-	TclObject dict(newValue);
-	unsigned n = dict.getListLength();
+	unsigned n = newValue.getListLength();
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_ref key  = dict.getListIndex(i + 0).getString();
-		TclObject value = dict.getListIndex(i + 1);
+		string_ref key  = newValue.getListIndex(i + 0).getString();
+		TclObject value = newValue.getListIndex(i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
 		    (key != "UP"  ) && (key != "DOWN" )) {
@@ -174,8 +165,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	configSetting = make_unique<StringSetting>(
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
-	checker = make_unique<JoystickConfigChecker>();
-	configSetting->setChecker(checker.get());
+	configSetting->setChecker(checkJoystickConfig);
 }
 
 Joystick::~Joystick()
@@ -227,17 +217,17 @@ byte Joystick::read(EmuTime::param /*time*/)
 	return status;
 }
 
-void Joystick::write(byte /*value*/, EmuTime::param /*time*/)
+void Joystick::write(byte value, EmuTime::param /*time*/)
 {
-	// nothing
+	pin8 = (value & 0x04) != 0;
 }
 
 byte Joystick::calcState()
 {
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
-	if (joystick) {
-		TclObject dict(configSetting->getValue());
+	if (joystick && !pin8) {
+		const TclObject& dict = configSetting->getValue();
 		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
 		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
 		if (getState(dict, "UP"   )) result &= ~JOY_UP;
@@ -250,25 +240,29 @@ byte Joystick::calcState()
 
 bool Joystick::getState(const TclObject& dict, string_ref key)
 {
-	const auto& list = dict.getDictValue(TclObject(key));
-	for (auto i : xrange(list.getListLength())) {
-		const auto& elem = list.getListIndex(i).getString();
-		if (elem.starts_with("button")) {
-			int n = stoi(elem.substr(6));
-			if (InputEventGenerator::joystickGetButton(joystick, n)) {
-				return true;
-			}
-		} else if (elem.starts_with("+axis")) {
-			int n = stoi(elem.substr(5));
-			if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
-				return true;
-			}
-		} else if (elem.starts_with("-axis")) {
-			int n = stoi(elem.substr(5));
-			if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
-				return true;
+	try {
+		const auto& list = dict.getDictValue(TclObject(key));
+		for (auto i : xrange(list.getListLength())) {
+			const auto& elem = list.getListIndex(i).getString();
+			if (elem.starts_with("button")) {
+				int n = stoi(elem.substr(6));
+				if (InputEventGenerator::joystickGetButton(joystick, n)) {
+					return true;
+				}
+			} else if (elem.starts_with("+axis")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
+					return true;
+				}
+			} else if (elem.starts_with("-axis")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
+					return true;
+				}
 			}
 		}
+	} catch (MSXException&) {
+		// ignore
 	}
 	return false;
 }
@@ -343,6 +337,7 @@ void Joystick::serialize(Archive& ar, unsigned version)
 			plugHelper2();
 		}
 	}
+	// no need to serialize 'pin8' it's automatically restored via write()
 }
 INSTANTIATE_SERIALIZE_METHODS(Joystick);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");

@@ -20,17 +20,14 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 		d.scalerProgram.attach(vertexShader);
 		d.scalerProgram.attach(fragmentShader);
 		d.scalerProgram.link();
-#ifdef GL_VERSION_2_0
-		if (GLEW_VERSION_2_0) {
-			d.scalerProgram.activate();
-			glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
-			if (i == 1) {
-				glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
-			}
-			d.texSizeLoc = d.scalerProgram.getUniformLocation("texSize");
-			d.cnstsLoc   = d.scalerProgram.getUniformLocation("cnsts");
+
+		d.scalerProgram.activate();
+		glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
+		if (i == 1) {
+			glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
 		}
-#endif
+		d.texSizeLoc = d.scalerProgram.getUniformLocation("texSize");
+		d.cnstsLoc   = d.scalerProgram.getUniformLocation("cnsts");
 	}
 }
 
@@ -58,7 +55,7 @@ void GLRGBScaler::scaleImage(
 		// treat border as 256-pixel wide display area
 		srcWidth = 320;
 	}
-	if (GLEW_VERSION_2_0 && ((blur != 0.0f) || (scanline != 1.0f) || superImpose)) {
+	if (((blur != 0.0f) || (scanline != 1.0f) || superImpose)) {
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();

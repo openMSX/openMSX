@@ -30,7 +30,7 @@ public:
 
 private:
 	template <unsigned PITCH>
-	void readSamplesHelper(int* out, unsigned samples);
+	void readSamplesHelper(int* out, unsigned samples) __restrict;
 
 	static const unsigned BUFFER_SIZE = 1 << 14;
 	static const unsigned BUFFER_MASK = BUFFER_SIZE - 1;

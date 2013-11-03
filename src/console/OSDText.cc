@@ -153,7 +153,7 @@ string_ref OSDText::getType() const
 void OSDText::getWidthHeight(const OutputRectangle& /*output*/,
                              double& width, double& height) const
 {
-	if (image.get()) {
+	if (image) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	} else {
@@ -210,7 +210,7 @@ template <typename IMAGE> std::unique_ptr<BaseImage> OSDText::create(
 		// followed by // StringOp::split() (in TTFFont::render()).
 		SDLSurfacePtr surface(font.render(wrappedText,
 			(rgba >> 24) & 0xff, (rgba >> 16) & 0xff, (rgba >> 8) & 0xff));
-		if (surface.get()) {
+		if (surface) {
 			return make_unique<IMAGE>(std::move(surface));
 		} else {
 			return make_unique<IMAGE>(0, 0, 0);
@@ -372,31 +372,31 @@ size_t OSDText::splitAtWord(const std::string& line, unsigned maxWidth) const
 
 string OSDText::getCharWrappedText(const string& text, unsigned maxWidth) const
 {
-	vector<string> wrappedLines;
-	for (auto& line : StringOp::split(text, "\n")) {
+	vector<string_ref> wrappedLines;
+	for (auto& line : StringOp::split(text, '\n')) {
 		do {
-			auto pos = splitAtChar(line, maxWidth);
+			auto pos = splitAtChar(line.str(), maxWidth);
 			wrappedLines.push_back(line.substr(0, pos));
 			line = line.substr(pos);
 		} while (!line.empty());
 	}
-	return StringOp::join(wrappedLines, "\n");
+	return StringOp::join(wrappedLines, '\n');
 }
 
 string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 {
-	vector<string> wrappedLines;
-	for (auto& line : StringOp::split(text, "\n")) {
+	vector<string_ref> wrappedLines;
+	for (auto& line : StringOp::split(text, '\n')) {
 		do {
-			auto pos = splitAtWord(line, maxWidth);
-			string_ref first = string_ref(line).substr(0, pos);
+			auto pos = splitAtWord(line.str(), maxWidth);
+			string_ref first = line.substr(0, pos);
 			StringOp::trimRight(first, ' '); // remove trailing spaces
-			wrappedLines.push_back(first.str());
+			wrappedLines.push_back(first);
 			line = line.substr(pos);
 			StringOp::trimLeft(line, " "); // remove leading spaces
 		} while (!line.empty());
 	}
-	return StringOp::join(wrappedLines, "\n");
+	return StringOp::join(wrappedLines, '\n');
 }
 
 void OSDText::getRenderedSize(double& outX, double& outY) const
@@ -412,7 +412,7 @@ void OSDText::getRenderedSize(double& outX, double& outY) const
 
 	unsigned width = 0;
 	unsigned height = 0;
-	if (image.get()) {
+	if (image) {
 		width  = image->getWidth();
 		height = image->getHeight();
 	}

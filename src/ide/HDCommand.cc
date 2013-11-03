@@ -41,7 +41,7 @@ void HDCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
 		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1].getString() == "insert")) {
-		if (powerSetting.getValue()) {
+		if (powerSetting.getBoolean()) {
 			throw CommandException(
 				"Can only change hard disk image when MSX "
 				"is powered down.");

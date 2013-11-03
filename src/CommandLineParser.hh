@@ -1,14 +1,14 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
-#include "StringOp.hh"
+#include "string_ref.hh"
 #include "noncopyable.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
 #include <deque>
-#include <map>
 #include <memory>
+#include <utility>
 
 namespace openmsx {
 
@@ -55,7 +55,7 @@ public:
 	~CommandLineParser();
 	void registerOption(const char* str, CLIOption& cliOption,
 		ParsePhase phase = PHASE_LAST, unsigned length = 2);
-	void registerFileClass(const char* str, CLIFileType& cliFileType);
+	void registerFileType(string_ref extensions, CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
@@ -82,12 +82,10 @@ private:
 	                   originalPath, std::deque<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
 	                 std::deque<std::string>& cmdLine, ParsePhase phase);
-	void registerFileTypes();
 	void createMachineSetting();
 
-	std::map<std::string, OptionData> optionMap;
-	std::map<std::string, CLIFileType*, StringOp::caseless> fileTypeMap;
-	std::map<std::string, CLIFileType*, StringOp::caseless> fileClassMap;
+	std::vector<std::pair<string_ref, OptionData>> options;
+	std::vector<std::pair<string_ref, CLIFileType*>> fileTypes;
 
 	Reactor& reactor;
 

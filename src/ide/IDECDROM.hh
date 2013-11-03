@@ -52,7 +52,6 @@ private:
 	void executePacketCommand(AlignedBuffer& packet);
 
 	std::string name;
-	MSXMotherBoard& motherBoard;
 	std::unique_ptr<CDXCommand> cdxCommand;
 	std::unique_ptr<File> file;
 	unsigned byteCountLimit;

@@ -6,7 +6,6 @@
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
-#include "vla.hh"
 #include <vector>
 #include <tcl.h>
 
@@ -14,7 +13,7 @@ namespace openmsx {
 
 class EventDistributor;
 class Command;
-class Setting;
+class BaseSetting;
 class InterpreterOutput;
 class TclObject;
 
@@ -37,8 +36,8 @@ public:
 	void setVariable(const std::string& name, const std::string& value);
 	void unsetVariable(const std::string& name);
 	const char* getVariable(const std::string& name) const;
-	void registerSetting(Setting& variable, const std::string& name);
-	void unregisterSetting(Setting& variable, const std::string& name);
+	void registerSetting(BaseSetting& variable, const std::string& name);
+	void unregisterSetting(BaseSetting& variable, const std::string& name);
 
 	/** Create the global namespace with given name.
 	  * @param name Name of the namespace, should not include '::' prefix.

@@ -16,7 +16,6 @@ class GlobalCliComm;
 class HotKey;
 class InfoCommand;
 class Interpreter;
-class FileContext;
 class HelpCmd;
 class TabCompletionCmd;
 class UpdateCmd;
@@ -24,6 +23,7 @@ class ProxyCmd;
 class VersionInfo;
 class RomInfoTopic;
 class ProxySetting;
+class SettingsConfig;
 
 class GlobalCommandController : public CommandController, private noncopyable
 {
@@ -72,7 +72,7 @@ public:
 	virtual std::vector<std::string> splitList(const std::string& list);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
-	virtual Setting* findSetting(string_ref name);
+	virtual BaseSetting* findSetting(string_ref name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual CliComm& getCliComm();
 	virtual Interpreter& getInterpreter();

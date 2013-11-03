@@ -33,7 +33,7 @@ namespace GLUtil {
 /** Most basic/generic texture: only contains a texture ID.
   * Current implementation always assumes 2D textures.
   */
-class Texture //: public noncopyable
+class Texture
 {
 public:
 	/** Default constructor, allocate a openGL texture name. */
@@ -81,13 +81,33 @@ public:
 protected:
 	GLuint textureId;
 
+private:
+	// Disable copy, assign.
+	Texture(const Texture&);
+	Texture& operator=(const Texture&);
+
 	friend class FrameBufferObject;
 };
 
 class ColorTexture : public Texture
 {
 public:
+	/** Default constructor, zero-sized texture. */
 	ColorTexture() : width(0), height(0) {}
+
+	/** Move constructor and assignment. */
+	ColorTexture(ColorTexture&& other)
+		: Texture(std::move(other))
+	{
+		width  = other.width;
+		height = other.height;
+	}
+	ColorTexture& operator=(ColorTexture&& other) {
+		*this = std::move(other);
+		width  = other.width;
+		height = other.height;
+		return *this;
+	}
 
 	/** Create color texture with given size.
 	  * Initial content is undefined.
@@ -99,6 +119,10 @@ public:
 	GLsizei getHeight() const { return height; }
 
 private:
+	// Disable copy, assign.
+	ColorTexture(const ColorTexture&);
+	ColorTexture& operator=(const ColorTexture&);
+
 	GLsizei width;
 	GLsizei height;
 };
@@ -106,6 +130,16 @@ private:
 class LuminanceTexture : public Texture
 {
 public:
+	/** Move constructor and assignment. */
+	LuminanceTexture(LuminanceTexture&& other)
+		: Texture(std::move(other))
+	{
+	}
+	LuminanceTexture& operator=(LuminanceTexture&& other) {
+		*this = std::move(other);
+		return *this;
+	}
+
 	/** Create grayscale texture with given size.
 	  * Initial content is undefined.
 	  */
@@ -116,6 +150,11 @@ public:
 	void updateImage(GLint x, GLint y,
 	                 GLsizei width, GLsizei height,
 	                 GLbyte* data);
+
+private:
+	// Disable copy, assign.
+	LuminanceTexture(const LuminanceTexture&);
+	LuminanceTexture& operator=(const LuminanceTexture&);
 };
 
 class FrameBufferObject //: public noncopyable
@@ -231,13 +270,9 @@ private:
 template <typename T>
 PixelBuffer<T>::PixelBuffer()
 {
-#ifdef GL_VERSION_1_5
-	if (PixelBuffers::enabled &&
-	    GLEW_ARB_pixel_buffer_object) {
+	if (PixelBuffers::enabled && GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
-	} else
-#endif
-	{
+	} else {
 		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
 		bufferId = 0;
 	}
@@ -266,11 +301,7 @@ PixelBuffer<T>& PixelBuffer<T>::operator=(PixelBuffer<T>&& other)
 template <typename T>
 PixelBuffer<T>::~PixelBuffer()
 {
-#ifdef GL_VERSION_1_5
-	if (bufferId != 0) {
-		glDeleteBuffers(1, &bufferId);
-	}
-#endif
+	glDeleteBuffers(1, &bufferId); // ok to delete '0'
 }
 
 template <typename T>
@@ -284,7 +315,6 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 {
 	this->width = width;
 	this->height = height;
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		bind();
 		// TODO make performance hint configurable?
@@ -293,9 +323,7 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 		             nullptr, // leave data undefined
 		             GL_STREAM_DRAW); // performance hint
 		unbind();
-	} else
-#endif
-	{
+	} else {
 		allocated.resize(width * height);
 	}
 }
@@ -303,21 +331,17 @@ void PixelBuffer<T>::setImage(GLuint width, GLuint height)
 template <typename T>
 void PixelBuffer<T>::bind() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
 	}
-#endif
 }
 
 template <typename T>
 void PixelBuffer<T>::unbind() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
 	}
-#endif
 }
 
 template <typename T>
@@ -326,34 +350,30 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y)
 	assert(x < width);
 	assert(y < height);
 	unsigned offset = x + width * y;
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		return static_cast<T*>(nullptr) + offset;
+	} else {
+		return &allocated[offset];
 	}
-#endif
-	return &allocated[offset];
 }
 
 template <typename T>
 T* PixelBuffer<T>::mapWrite()
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		return reinterpret_cast<T*>(glMapBuffer(
 			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
+	} else {
+		return allocated.data();
 	}
-#endif
-	return allocated.data();
 }
 
 template <typename T>
 void PixelBuffer<T>::unmap() const
 {
-#ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
 	}
-#endif
 }
 
 

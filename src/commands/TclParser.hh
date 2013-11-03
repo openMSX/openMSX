@@ -30,13 +30,16 @@ public:
 	  * be completed by tab-completion. */
 	int getLast() const { return last.back(); }
 
+	/** Is the given string a valid Tcl command. This also takes the
+	  * 'lazy' Tcl scripts into account. */
+	static bool isProc(Tcl_Interp* interp, string_ref str);
+
 private:
 	enum ParseType { COMMAND, EXPRESSION, OTHER };
 
 	void parse(const char* p, int size, ParseType type);
 	void printTokens(Tcl_Token* tokens, int numTokens);
 	static ParseType guessSubType(Tcl_Token* tokens, int i);
-	bool isProc(string_ref str) const;
 	void setColors(const char* p, int size, char c);
 
 private:

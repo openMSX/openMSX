@@ -12,14 +12,9 @@
 #include <cstring>
 #include <cstdio>
 
-#ifdef GL_VERSION_2_0
 #ifndef glGetShaderiv
-#warning The version of GLEW you have installed is missing \
-	some OpenGL 2.0 entry points.
-#warning Please upgrade to GLEW 1.3.2 or higher.
-#warning Until then, shaders are disabled.
-#undef GL_VERSION_2_0
-#endif
+#error The version of GLEW you have installed is missing some OpenGL 2.0 entry points. \
+       Please upgrade to GLEW 1.3.2 or higher.
 #endif
 
 using std::string;
@@ -214,10 +209,6 @@ void FrameBufferObject::pop()
 bool PixelBuffers::enabled = true;
 
 // Utility function used by Shader.
-// Although this is not GL 2.0 dependent in itself, it is only used by GL 2.0
-// specific routines.
-
-#ifdef GL_VERSION_2_0
 static string readTextFile(const string& filename)
 {
 	File file(SystemFileContext().resolve(filename));
@@ -225,12 +216,10 @@ static string readTextFile(const string& filename)
 	const byte* data = file.mmap(size);
 	return string(reinterpret_cast<const char*>(data), size);
 }
-#endif
 
 
 // class Shader
 
-#ifdef GL_VERSION_2_0
 Shader::Shader(GLenum type, const string& filename)
 {
 	init(type, "", filename);
@@ -243,12 +232,6 @@ Shader::Shader(GLenum type, const string& header, const string& filename)
 
 void Shader::init(GLenum type, const string& header, const string& filename)
 {
-	// Check if GL 2.0 is present on this machine.
-	if (!GLEW_VERSION_2_0) {
-		handle = 0;
-		return;
-	}
-
 	// Load shader source.
 	string source = header;
 	try {
@@ -284,44 +267,23 @@ void Shader::init(GLenum type, const string& header, const string& filename)
 			infoLogLength > 1 ? infoLog : "(no details available)\n");
 	}
 }
-#else
-Shader::Shader(GLenum /*type*/, const string& /*filename*/)
-{
-	handle = 0;
-}
-#endif
 
 Shader::~Shader()
 {
-#ifdef GL_VERSION_2_0
-	if (handle != 0) {
-		glDeleteShader(handle);
-	}
-#endif
+	glDeleteShader(handle); // ok to delete '0'
 }
 
 bool Shader::isOK() const
 {
-#ifdef GL_VERSION_2_0
-	if (handle == 0) {
-		return false;
-	}
+	if (handle == 0) return false;
 	GLint compileStatus = GL_FALSE;
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
 	return compileStatus == GL_TRUE;
-#else
-	return false;
-#endif
 }
 
 
 // class VertexShader
 
-#ifndef GL_VERSION_2_0
-#ifndef GL_VERTEX_SHADER
-#define GL_VERTEX_SHADER 0
-#endif
-#endif
 VertexShader::VertexShader(const string& filename)
 	: Shader(GL_VERTEX_SHADER, filename)
 {
@@ -335,11 +297,6 @@ VertexShader::VertexShader(const string& header, const string& filename)
 
 // class FragmentShader
 
-#ifndef GL_VERSION_2_0
-#ifndef GL_FRAGMENT_SHADER
-#define GL_FRAGMENT_SHADER 0
-#endif
-#endif
 FragmentShader::FragmentShader(const string& filename)
 	: Shader(GL_FRAGMENT_SHADER, filename)
 {
@@ -355,75 +312,44 @@ FragmentShader::FragmentShader(const string& header, const string& filename)
 
 ShaderProgram::ShaderProgram()
 {
-#ifdef GL_VERSION_2_0
-	// Check if GL 2.0 is present on this machine.
-	if (!GLEW_VERSION_2_0) {
-		//std::cerr << "Shaders not supported by installed OpenGL" << std::endl;
-		handle = 0;
-		return;
-	}
-
 	// Allocate program handle.
 	handle = glCreateProgram();
 	if (handle == 0) {
 		std::cerr << "Failed to allocate program" << std::endl;
 		return;
 	}
-#else
-	handle = 0;
-#endif
 }
 
 ShaderProgram::~ShaderProgram()
 {
-#ifdef GL_VERSION_2_0
-	if (handle != 0) {
-		glDeleteProgram(handle);
-	}
-#endif
+	glDeleteProgram(handle); // ok to delete '0'
 }
 
 bool ShaderProgram::isOK() const
 {
-#ifdef GL_VERSION_2_0
-	if (handle == 0) {
-		return false;
-	}
+	if (handle == 0) return false;
 	GLint linkStatus = GL_FALSE;
 	glGetProgramiv(handle, GL_LINK_STATUS, &linkStatus);
 	return linkStatus == GL_TRUE;
-#else
-	return false;
-#endif
 }
 
-#ifdef GL_VERSION_2_0
 void ShaderProgram::attach(const Shader& shader)
 {
 	// Sanity check on this program.
-	if (handle == 0) {
-		return;
-	}
+	if (handle == 0) return;
+
 	// Sanity check on the shader.
-	if (!shader.isOK()) {
-		return;
-	}
+	if (!shader.isOK()) return;
+
 	// Attach it.
 	glAttachShader(handle, shader.handle);
 }
-#else
-void ShaderProgram::attach(const Shader& /*shader*/)
-{
-}
-#endif
 
 void ShaderProgram::link()
 {
-#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
-	if (handle == 0) {
-		return;
-	}
+	if (handle == 0) return;
+
 	// Link the program and print any errors and warnings.
 	glLinkProgram(handle);
 	const bool ok = isOK();
@@ -437,16 +363,13 @@ void ShaderProgram::link()
 			ok ? "Warning" : "Error",
 			infoLogLength > 1 ? infoLog : "(no details available)\n");
 	}
-#endif
 }
 
-#ifdef GL_VERSION_2_0
 GLint ShaderProgram::getUniformLocation(const char* name) const
 {
 	// Sanity check on this program.
-	if (!isOK()) {
-		return -1;
-	}
+	if (!isOK()) return -1;
+
 	// Get location and verify returned value.
 	GLint location = glGetUniformLocation(handle, name);
 	if (location == -1) {
@@ -458,29 +381,15 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 	}
 	return location;
 }
-#else
-GLint ShaderProgram::getUniformLocation(const char* /*name*/) const
-{
-	return -1;
-}
-#endif
 
 void ShaderProgram::activate() const
 {
-#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		glUseProgram(handle);
-	}
-#endif
+	glUseProgram(handle);
 }
 
 void ShaderProgram::deactivate()
 {
-#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		glUseProgram(0);
-	}
-#endif
+	glUseProgram(0);
 }
 
 // only useful for debugging

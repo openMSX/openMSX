@@ -1,5 +1,6 @@
 #include "TclParser.hh"
 #include "ScopedAssign.hh"
+#include <algorithm>
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
@@ -160,7 +161,7 @@ void TclParser::printTokens(Tcl_Token* tokens, int numTokens)
 			if (*token.start == '"') {
 				setColors(token.start, token.size, 'l');
 			}
-			if ((i == 0) && isProc(tokenStr)) {
+			if ((i == 0) && isProc(interp, tokenStr)) {
 				setColors(token.start, token.size, 'p');
 			}
 			break;
@@ -212,9 +213,14 @@ TclParser::ParseType TclParser::guessSubType(Tcl_Token* tokens, int i)
 	return OTHER;
 }
 
-bool TclParser::isProc(string_ref str) const
+bool TclParser::isProc(Tcl_Interp* interp, string_ref str)
 {
-	return Tcl_FindCommand(interp, str.str().c_str(), nullptr, 0) != nullptr;
+	string command = "openmsx::is_command_name {" + str + '}';
+	if (Tcl_Eval(interp, command.c_str()) != TCL_OK) return false;
+	int result;
+	if (Tcl_GetBooleanFromObj(interp, Tcl_GetObjResult(interp), &result)
+		!= TCL_OK) return false;
+	return result != 0;
 }
 
 void TclParser::setColors(const char* p, int size, char c)

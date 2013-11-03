@@ -16,7 +16,7 @@ class FloatSetting;
 class BooleanSetting;
 class StringSetting;
 class VideoSourceSetting;
-class ColorMatrixChecker;
+class TclObject;
 
 /** Class containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
@@ -136,6 +136,11 @@ public:
 		return *pointerHideDelaySetting;
 	}
 
+	/** Is black frame interleaving enabled? */
+	BooleanSetting& getInterleaveBlackFrame() const {
+		return *interleaveBlackFrameSetting;
+	}
+
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color component. The component is expected to be in the range
 	  * [0.0 .. 1.0] but it's not an error if it lays outside of this range.
@@ -162,7 +167,7 @@ private:
 	  */
 	void updateBrightnessAndContrast();
 
-	void parseColorMatrix(const std::string& value);
+	void parseColorMatrix(const TclObject& value);
 
 	std::unique_ptr<EnumSetting<Accuracy>> accuracySetting;
 	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;
@@ -171,7 +176,6 @@ private:
 	std::unique_ptr<FloatSetting> gammaSetting;
 	std::unique_ptr<FloatSetting> brightnessSetting;
 	std::unique_ptr<FloatSetting> contrastSetting;
-	std::unique_ptr<ColorMatrixChecker> colorMatrixChecker;
 	std::unique_ptr<StringSetting> colorMatrixSetting;
 	std::unique_ptr<IntegerSetting> glowSetting;
 	std::unique_ptr<FloatSetting> noiseSetting;
@@ -187,6 +191,7 @@ private:
 	std::unique_ptr<EnumSetting<DisplayDeform>> displayDeformSetting;
 	std::unique_ptr<FloatSetting> horizontalStretchSetting;
 	std::unique_ptr<FloatSetting> pointerHideDelaySetting;
+	std::unique_ptr<BooleanSetting> interleaveBlackFrameSetting;
 
 	double brightness;
 	double contrast;
@@ -195,8 +200,6 @@ private:
 	double cm[3][3];
 	/** True iff color matrix is identity matrix. */
 	bool cmIdentity;
-
-	friend class ColorMatrixChecker;
 };
 
 } // namespace openmsx

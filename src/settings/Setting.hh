@@ -2,8 +2,10 @@
 #define SETTING_HH
 
 #include "Subject.hh"
+#include "TclObject.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
+#include <functional>
 #include <vector>
 
 namespace openmsx {
@@ -12,9 +14,90 @@ class CommandController;
 class GlobalCommandController;
 class Interpreter;
 class XMLElement;
-class TclObject;
 
-class Setting : public Subject<Setting>, private noncopyable
+class BaseSetting : private noncopyable
+{
+protected:
+	BaseSetting(string_ref name);
+	~BaseSetting() {}
+
+public:
+	/** Get the name of this setting.
+	  */
+	const std::string& getName() const;
+
+	/** For SettingInfo
+	  */
+	void info(TclObject& result) const;
+
+	/// pure virtual methods ///
+
+	/** Get a description of this setting that can be presented to the user.
+	  */
+	virtual std::string getDescription() const = 0;
+
+	/** Returns a string describing the setting type (integer, string, ..)
+	  * Could be used in a GUI to pick an appropriate setting widget.
+	  */
+	virtual string_ref getTypeString() const = 0;
+
+	/** Helper method for info().
+	 */
+	virtual void additionalInfo(TclObject& result) const = 0;
+
+	/** Complete a partly typed value.
+	  * Default implementation does not complete anything,
+	  * subclasses can override this to complete according to their
+	  * specific value type.
+	  */
+	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
+
+	/** Get the current value of this setting in a string format that can be
+	  * presented to the user.
+	  */
+	virtual std::string getString() const = 0;
+
+	/** Get the default value of this setting.
+	  * This is the initial value of the setting. Default values don't
+	  * get saved in 'settings.xml'.
+	  */
+	virtual std::string getDefaultValue() const = 0;
+
+	/** Get the value that will be set after a Tcl 'unset' command.
+	  * Usually this is the same as the default value. Though one
+	  * exception is 'renderer', see comments in RendererFactory.cc.
+	  */
+	virtual std::string getRestoreValue() const = 0;
+
+	/** Change the value of this setting to the given value.
+	  * This method will trigger Tcl traces.
+	  * This value still passes via the 'checker-callback' (see below),
+	  * so the value may be adjusted. Or in case of an invalid value
+	  * this method may throw.
+	  */
+	virtual void setString(const std::string& value) = 0;
+
+	/** Similar to setString(), but doesn't trigger Tcl traces.
+	  * Like setString(), the given value may be adjusted or rejected.
+	  * Should only be used by the Interpreter class.
+	  */
+	virtual void setStringDirect(const std::string& value) = 0;
+
+	/** Does this setting need to be loaded or saved (settings.xml).
+	  */
+	virtual bool needLoadSave() const = 0;
+
+	/** Does this setting need to be transfered on reverse.
+	  */
+	virtual bool needTransfer() const = 0;
+
+private:
+	/** The name of this setting. */
+	const std::string name;
+};
+
+
+class Setting : public BaseSetting, public Subject<Setting>
 {
 public:
 	enum SaveSetting {
@@ -25,116 +108,58 @@ public:
 
 	virtual ~Setting();
 
-	/** Returns a string describing the setting type (integer, string, ..)
+	/** Gets the current value of this setting as a TclObject.
 	  */
-	virtual string_ref getTypeString() const = 0;
+	const TclObject& getValue() const { return value; }
 
-	/** Get the name of this setting.
+	/** Set restore value. See getDefaultValue() and getRestoreValue().
 	  */
-	const std::string& getName() const;
+	void setRestoreValue(const std::string& value);
 
-	/** Get a description of this setting that can be presented to the user.
-	  */
+	/** Set value-check-callback.
+	 * The callback is called on each change of this settings value.
+	 * The callback has to posibility to
+	 *  - change the value (modify the parameter)
+	 *  - disallow the change (throw an exception)
+	 * The callback is only executed on each value change, even if the
+	 * new value is the same as the current value. However the callback
+	 * is not immediately executed once it's set (via this method).
+	 */
+	void setChecker(std::function<void(TclObject&)> checkFunc);
+
+	// BaseSetting
+	virtual void setString(const std::string& value);
 	virtual std::string getDescription() const;
-
-	/** Change the value of this setting by parsing the given string.
-	  * @param valueString The new value for this setting, in string format.
-	  * @throw CommandException If the valueString is invalid.
-	  */
-	void changeValueString(const std::string& valueString);
-
-	/** Get the current value of this setting in a string format that can be
-	  * presented to the user.
-	  */
-	virtual std::string getValueString() const = 0;
-
-	/** Get the default value of this setting.
-	  */
-	virtual std::string getDefaultValueString() const = 0;
-
-	/** Get the value that will be set after a Tcl 'unset' command.
-	  */
-	virtual std::string getRestoreValueString() const = 0;
-
-	/** Similar to changeValueString(), but doesn't trigger Tcl traces.
-	  * Should only be used by Interpreter class.
-	  */
-	virtual void setValueStringDirect(const std::string& valueString) = 0;
-
-	/** Restore the default value.
-	 */
-	virtual void restoreDefault() = 0;
-
-	/** Checks whether the current value is the default value.
-	 */
-	virtual bool hasDefaultValue() const = 0;
-
-	/** Complete a partly typed value.
-	  * Default implementation does not complete anything,
-	  * subclasses can override this to complete according to their
-	  * specific value type.
-	  */
-	virtual void tabCompletion(std::vector<std::string>& tokens) const = 0;
-
-	/** Needs this setting to be loaded or saved
-	  */
+	virtual std::string getString() const;
+	virtual std::string getDefaultValue() const;
+	virtual std::string getRestoreValue() const;
+	virtual void setStringDirect(const std::string& value);
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	virtual bool needLoadSave() const;
-
-	/** Needs this setting to be transfered on reverse.
-	  */
+	virtual void additionalInfo(TclObject& result) const;
 	virtual bool needTransfer() const;
 
-	/** This value will never end up in the settings.xml file
-	 */
-	virtual void setDontSaveValue(const std::string& dontSaveValue);
-
-	/** Synchronize the setting with the SettingsConfig. Should be called
-	  * just before saving the setting or just before the setting is
-	  * deleted.
-	  */
-	void sync(XMLElement& config) const;
-
-	/** For SettingInfo
-	  */
-	void info(TclObject& result) const;
-
+	// convenience functions
 	CommandController& getCommandController() const;
-	GlobalCommandController& getGlobalCommandController() const;
 	Interpreter& getInterpreter() const;
 
-	// helper method for info()
-	virtual void additionalInfo(TclObject& result) const = 0;
-
 protected:
-	Setting(CommandController& commandController, string_ref name,
-	        string_ref description, SaveSetting save);
-
-	/** Notify all listeners of a change to this setting's value.
-	  * Still needed, because it also informs the CliComm stuff that there
-	  * was an update, next to calling the normal notify implementation of
-	  * the Subject class.
-	  */
-	void notify() const;
-
+	Setting(CommandController& commandController,
+	        string_ref name, string_ref description,
+	        const std::string& initialValue, SaveSetting save = SAVE);
 	void notifyPropertyChange() const;
 
 private:
+	GlobalCommandController& getGlobalCommandController() const;
+	void notify() const;
+
+private:
 	CommandController& commandController;
-
-	/** The name of this setting.
-	  */
-	const std::string name;
-
-	/** A description of this setting that can be presented to the user.
-	  */
 	const std::string description;
-
-	/** see setDontSaveValue()
-	 */
-	std::string dontSaveValue;
-
-	/** need to be saved flag
-	 */
+	std::function<void(TclObject&)> checkFunc;
+	TclObject value; // TODO can we share the underlying Tcl var storage?
+	const std::string defaultValue;
+	std::string restoreValue;
 	const SaveSetting save;
 };
 

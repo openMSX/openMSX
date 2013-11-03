@@ -26,7 +26,7 @@ FirmwareSwitch::FirmwareSwitch(const DeviceConfig& config_)
 		          File::LOAD_PERSISTENT);
 		byte bytebuf;
 		file.read(&bytebuf, 1);
-		setting->changeValue(bytebuf != 0);
+		setting->setBoolean(bytebuf != 0);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
 			"Couldn't load firmwareswitch status: " + e.getMessage());
@@ -39,7 +39,7 @@ FirmwareSwitch::~FirmwareSwitch()
 	try {
 		File file(config.getFileContext().resolveCreate(filename),
 		          File::SAVE_PERSISTENT);
-		byte bytebuf = setting->getValue() ? 0xFF : 0x00;
+		byte bytebuf = setting->getBoolean() ? 0xFF : 0x00;
 		file.write(&bytebuf, 1);
 	} catch (FileException& e) {
 		config.getCliComm().printWarning(
@@ -49,7 +49,7 @@ FirmwareSwitch::~FirmwareSwitch()
 
 bool FirmwareSwitch::getStatus() const
 {
-	return setting->getValue();
+	return setting->getBoolean();
 }
 
 } // namespace openmsx

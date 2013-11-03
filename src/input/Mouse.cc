@@ -3,6 +3,7 @@
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"
 #include "StateChange.hh"
+#include "Clock.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -17,12 +18,10 @@ namespace openmsx {
 
 static const int TRESHOLD = 2;
 static const int SCALE = 2;
-static const int MAX_POS =  127 * SCALE;
-static const int MIN_POS = -128 * SCALE;
-static const int FAZE_XHIGH = 0;
-static const int FAZE_XLOW  = 1;
-static const int FAZE_YHIGH = 2;
-static const int FAZE_YLOW  = 3;
+static const int PHASE_XHIGH = 0;
+static const int PHASE_XLOW  = 1;
+static const int PHASE_YHIGH = 2;
+static const int PHASE_YLOW  = 3;
 static const int STROBE = 0x04;
 
 
@@ -61,7 +60,7 @@ Mouse::Mouse(MSXEventDistributor& eventDistributor_,
 	, lastTime(EmuTime::zero)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
-	faze = FAZE_YLOW;
+	phase = PHASE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
 	absHostX = absHostY = 0;
 	mouseMode = true;
@@ -92,7 +91,7 @@ void Mouse::plugHelper(Connector& /*connector*/, EmuTime::param time)
 	if (status & JOY_BUTTONA) {
 		// not pressed, mouse mode
 		mouseMode = true;
-		lastTime.advance(time);
+		lastTime = time;
 	} else {
 		// left mouse button pressed, joystick emulation mode
 		mouseMode = false;
@@ -117,14 +116,14 @@ void Mouse::unplugHelper(EmuTime::param /*time*/)
 byte Mouse::read(EmuTime::param /*time*/)
 {
 	if (mouseMode) {
-		switch (faze) {
-		case FAZE_XHIGH:
+		switch (phase) {
+		case PHASE_XHIGH:
 			return ((xrel >> 4) & 0x0F) | status;
-		case FAZE_XLOW:
+		case PHASE_XLOW:
 			return  (xrel       & 0x0F) | status;
-		case FAZE_YHIGH:
+		case PHASE_YHIGH:
 			return ((yrel >> 4) & 0x0F) | status;
-		case FAZE_YLOW:
+		case PHASE_YLOW:
 			return  (yrel       & 0x0F) | status;
 		default:
 			UNREACHABLE; return 0;
@@ -187,37 +186,38 @@ void Mouse::emulateJoystick()
 void Mouse::write(byte value, EmuTime::param time)
 {
 	if (mouseMode) {
-		// TODO figure out the timeout mechanism.
-		// Initially we used the value 1000 here (1000 milliseconds, or
-		// 1 full second). This caused bug
+		// TODO figure out the exact timeout value. Is there even such
+		//   an exact value or can it vary between different mouse
+		//   models?
+		//
+		// Initially we used a timeout of 1 full second. This caused bug
 		//    [3520394] Mouse behaves badly (unusable) in HiBrid
-		// Slightly lowering the value to around 940 was already enough
-		// to fix the problem (for this particular case). Though this
-		// still seems like a very big value. It should only be large
-		// enough so that reading one 'mouse cyclus' is finished within
-		// the given time. So for now I lowered the value to 100, that
-		// should still be (more than) large enough.
-		const int TIMEOUT = 100; // TODO find a good value
-
-		int delta = lastTime.getTicksTill(time);
-		lastTime.advance(time);
-		if (delta >= TIMEOUT) {
-			faze = FAZE_YLOW;
+		// Slightly lowering the value to around 0.94s was already
+		// enough to fix that bug. Later we found that to make FRS's
+		// joytest program work we need a value that is less than the
+		// duration of one (NTSC) frame. See bug
+		//    #474 Mouse doesn't work properly on Joytest v2.2
+		// We still don't know the exact value that an actual MSX mouse
+		// uses, but 1.5ms is also the timeout value that is used for
+		// JoyMega, so it seems like a reasonable value.
+		if ((time - lastTime) > EmuDuration::usec(1500)) {
+			phase = PHASE_YLOW;
 		}
+		lastTime = time;
 
-		switch (faze) {
-		case FAZE_XHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_XLOW;
+		switch (phase) {
+		case PHASE_XHIGH:
+			if ((value & STROBE) == 0) phase = PHASE_XLOW;
 			break;
-		case FAZE_XLOW:
-			if ((value & STROBE) != 0) faze = FAZE_YHIGH;
+		case PHASE_XLOW:
+			if ((value & STROBE) != 0) phase = PHASE_YHIGH;
 			break;
-		case FAZE_YHIGH:
-			if ((value & STROBE) == 0) faze = FAZE_YLOW;
+		case PHASE_YHIGH:
+			if ((value & STROBE) == 0) phase = PHASE_YLOW;
 			break;
-		case FAZE_YLOW:
+		case PHASE_YLOW:
 			if ((value & STROBE) != 0) {
-				faze = FAZE_XHIGH;
+				phase = PHASE_XHIGH;
 				xrel = curxrel; yrel = curyrel;
 				curxrel = 0; curyrel = 0;
 			}
@@ -235,12 +235,12 @@ void Mouse::signalEvent(const shared_ptr<const Event>& event, EmuTime::param tim
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
 		auto& mev = checked_cast<const MouseMotionEvent&>(*event);
-		int newX = max(MIN_POS, min(MAX_POS, curxrel - mev.getX()));
-		int newY = max(MIN_POS, min(MAX_POS, curyrel - mev.getY()));
-		int deltaX = newX - curxrel;
-		int deltaY = newY - curyrel;
-		if (deltaX || deltaY) {
-			createMouseStateChange(time, deltaX, deltaY, 0, 0);
+		if (mev.getX() || mev.getY()) {
+			// note: X/Y are negated, do this already in this
+			//  routine to keep replays bw-compat. In a new
+			//  savestate version it may (or may not) be cleaner
+			//  to perform this operation closer to the MSX code.
+			createMouseStateChange(time, -mev.getX(), -mev.getY(), 0, 0);
 		}
 		break;
 	}
@@ -304,6 +304,8 @@ void Mouse::signalStateChange(const shared_ptr<StateChange>& event)
 	int relMsxX = newMsxX - oldMsxX;
 	int relMsxY = newMsxY - oldMsxY;
 
+	// Verified with a real MSX-mouse (Philips SBC3810):
+	//   this value is not clipped to -128 .. 127.
 	curxrel += relMsxX;
 	curyrel += relMsxY;
 	status = (status & ~ms->getPress()) | ms->getRelease();
@@ -325,11 +327,27 @@ void Mouse::stopReplay(EmuTime::param time)
 // version 2: Also serialize the above variables, this is required for
 //            record/replay, see comment in Keyboard.cc for more details.
 // version 3: variables '(cur){x,y}rel' are scaled to MSX coordinates
+// version 4: simplified type of 'lastTime' from Clock<> to EmuTime
 template<typename Archive>
 void Mouse::serialize(Archive& ar, unsigned version)
 {
-	ar.serialize("lastTime", lastTime);
-	ar.serialize("faze", faze);
+	if (ar.isLoader() && isPluggedIn()) {
+		// Do this early, because if something goes wrong while loading
+		// some state below, then unplugHelper() gets called and that
+		// will assert when plugHelper2() wasn't called yet.
+		plugHelper2();
+	}
+
+	if (ar.versionBelow(version, 4)) {
+		assert(ar.isLoader());
+		Clock<1000> tmp(EmuTime::zero);
+		ar.serialize("lastTime", tmp);
+		lastTime = tmp.getTime();
+	} else {
+		ar.serialize("lastTime", lastTime);
+	}
+	ar.serialize("faze", phase); // TODO fix spelling if there's ever a need
+	                             // to bump the serialization verion
 	ar.serialize("xrel", xrel);
 	ar.serialize("yrel", yrel);
 	ar.serialize("mouseMode", mouseMode);
@@ -344,9 +362,6 @@ void Mouse::serialize(Archive& ar, unsigned version)
 		curxrel /= SCALE;
 		curyrel /= SCALE;
 
-	}
-	if (ar.isLoader() && isPluggedIn()) {
-		plugHelper2();
 	}
 	// no need to serialize absHostX,Y
 }

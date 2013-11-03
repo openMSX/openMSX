@@ -54,7 +54,7 @@ static inline void draw_YJK_YUV_PAL(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUV(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = (x & ~3) + y * vdp.getImageWidth();
 	if (x & 3) {
@@ -71,7 +71,7 @@ void V9990BitmapConverter<Pixel>::rasterBYUV(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYUVP(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
@@ -90,7 +90,7 @@ void V9990BitmapConverter<Pixel>::rasterBYUVP(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJK(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = (x & ~3)+ y * vdp.getImageWidth();
 	if (x & 3) {
@@ -107,7 +107,7 @@ void V9990BitmapConverter<Pixel>::rasterBYJK(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBYJKP(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	// TODO this mode cannot be shown in B4 and higher resolution modes
 	//      (So the dual palette for B4 modes is not an issue here.)
@@ -126,7 +126,7 @@ void V9990BitmapConverter<Pixel>::rasterBYJKP(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD16(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = 2 * (x + y * vdp.getImageWidth());
 	if (vdp.isSuperimposing()) {
@@ -153,7 +153,7 @@ void V9990BitmapConverter<Pixel>::rasterBD16(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBD8(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
@@ -163,7 +163,7 @@ void V9990BitmapConverter<Pixel>::rasterBD8(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP6(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	unsigned address = x + y * vdp.getImageWidth();
 	for (/**/; nrPixels > 0; --nrPixels) {
@@ -173,7 +173,7 @@ void V9990BitmapConverter<Pixel>::rasterBP6(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 2;
@@ -193,7 +193,7 @@ void V9990BitmapConverter<Pixel>::rasterBP4(
 }
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP4HiRes(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels
@@ -217,7 +217,7 @@ void V9990BitmapConverter<Pixel>::rasterBP4HiRes(
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	assert(nrPixels > 0);
 	unsigned address = (x + y * vdp.getImageWidth()) / 4;
@@ -241,7 +241,7 @@ void V9990BitmapConverter<Pixel>::rasterBP2(
 }
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::rasterBP2HiRes(
-	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels) __restrict
+	Pixel* __restrict pixelPtr, unsigned x, unsigned y, int nrPixels)
 {
 	// Verified on real HW:
 	//   Bit PLT05 in palette offset is ignored, instead for even pixels

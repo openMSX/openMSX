@@ -812,7 +812,6 @@ void Slot::updateGenerators(Channel& channel)
 Channel::Channel()
 	: fc(0)
 {
-	instvol_r = 0;
 	block_fnum = ksl_base = 0;
 	sus = false;
 }
@@ -933,7 +932,6 @@ YM2413::YM2413()
 
 	memset(reg, 0, sizeof(reg)); // avoid UMR
 	eg_cnt = 0;
-	rhythm = 0;
 	noise_rng = 0;
 
 	reset();
@@ -945,66 +943,62 @@ void YM2413::updateCustomInstrument(int part, byte value)
 	inst_tab[0][part] = value;
 
 	// Update every channel that has instrument 0 selected.
-	const int numMelodicChannels = getNumMelodicChannels();
+	const int numMelodicChannels = isRhythm() ? 6 : 9;
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		Channel& channel = channels[ch];
-		if ((channel.instvol_r & 0xF0) == 0) {
+		if ((reg[0x30 + ch] & 0xF0) == 0) {
 			channel.updateInstrumentPart(part, value);
 		}
 	}
 }
 
-void YM2413::setRhythmMode(bool rhythm_)
+void YM2413::setRhythmFlags(byte old)
 {
-	if (rhythm == rhythm_) return;
-	rhythm = rhythm_;
-
 	Channel& ch6 = channels[6];
 	Channel& ch7 = channels[7];
 	Channel& ch8 = channels[8];
-	if (rhythm) { // OFF -> ON
-		// Bass drum.
-		ch6.updateInstrument(inst_tab[16]);
-		// High hat and snare drum.
-		ch7.updateInstrument(inst_tab[17]);
-		ch7.mod.setTotalLevel(ch7, (ch7.instvol_r >> 4) << 2); // High hat
-		// Tom-tom and top cymbal.
-		ch8.updateInstrument(inst_tab[18]);
-		ch8.mod.setTotalLevel(ch8, (ch8.instvol_r >> 4) << 2); // Tom-tom
-	} else { // ON -> OFF
-		ch6.updateInstrument(inst_tab[ch6.instvol_r >> 4]);
-		ch7.updateInstrument(inst_tab[ch7.instvol_r >> 4]);
-		ch8.updateInstrument(inst_tab[ch8.instvol_r >> 4]);
-		// BD key off
-		ch6.mod.setKeyOff(Slot::KEY_RHYTHM);
-		ch6.car.setKeyOff(Slot::KEY_RHYTHM);
-		// HH key off
-		ch7.mod.setKeyOff(Slot::KEY_RHYTHM);
-		// SD key off
-		ch7.car.setKeyOff(Slot::KEY_RHYTHM);
-		// TOM key off
-		ch8.mod.setKeyOff(Slot::KEY_RHYTHM);
-		// TOP-CY off
-		ch8.car.setKeyOff(Slot::KEY_RHYTHM);
-	}
-}
 
-void YM2413::setRhythmFlags(byte flags)
-{
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
-	setRhythmMode((flags & 0x20) != 0);
-	if (rhythm) {
+	byte flags = reg[0x0E];
+	if ((flags ^ old) & 0x20) {
+		if (flags & 0x20) { // OFF -> ON
+			// Bass drum.
+			ch6.updateInstrument(inst_tab[16]);
+			// High hat and snare drum.
+			ch7.updateInstrument(inst_tab[17]);
+			ch7.mod.setTotalLevel(ch7, (reg[0x37] >> 4) << 2); // High hat
+			// Tom-tom and top cymbal.
+			ch8.updateInstrument(inst_tab[18]);
+			ch8.mod.setTotalLevel(ch8, (reg[0x38] >> 4) << 2); // Tom-tom
+		} else { // ON -> OFF
+			ch6.updateInstrument(inst_tab[reg[0x36] >> 4]);
+			ch7.updateInstrument(inst_tab[reg[0x37] >> 4]);
+			ch8.updateInstrument(inst_tab[reg[0x38] >> 4]);
+			// BD key off
+			ch6.mod.setKeyOff(Slot::KEY_RHYTHM);
+			ch6.car.setKeyOff(Slot::KEY_RHYTHM);
+			// HH key off
+			ch7.mod.setKeyOff(Slot::KEY_RHYTHM);
+			// SD key off
+			ch7.car.setKeyOff(Slot::KEY_RHYTHM);
+			// TOM key off
+			ch8.mod.setKeyOff(Slot::KEY_RHYTHM);
+			// TOP-CY off
+			ch8.car.setKeyOff(Slot::KEY_RHYTHM);
+		}
+	}
+	if (flags & 0x20) {
 		// BD key on/off
-		channels[6].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
-		channels[6].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		ch6.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
+		ch6.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x10) != 0);
 		// HH key on/off
-		channels[7].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
+		ch7.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x01) != 0);
 		// SD key on/off
-		channels[7].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
+		ch7.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x08) != 0);
 		// TOM key on/off
-		channels[8].mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
+		ch8.mod.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x04) != 0);
 		// TOP-CY key on/off
-		channels[8].car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
+		ch8.car.setKeyOnOff(Slot::KEY_RHYTHM, (flags & 0x02) != 0);
 	}
 }
 
@@ -1038,9 +1032,9 @@ void YM2413::resetOperators()
 	}
 }
 
-int YM2413::getNumMelodicChannels() const
+bool YM2413::isRhythm() const
 {
-	return rhythm ? 6 : 9;
+	return (reg[0x0E] & 0x20) != 0;
 }
 
 Channel& YM2413::getChannelForReg(byte reg)
@@ -1063,7 +1057,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
-	const int numMelodicChannels = getNumMelodicChannels();
+	const int numMelodicChannels = isRhythm() ? 6 : 9;
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
@@ -1071,7 +1065,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			bufs[ch] = nullptr;
 		}
 	}
-	if (rhythm) {
+	if (isRhythm()) {
 		bufs[6] = nullptr;
 		bufs[7] = nullptr;
 		bufs[8] = nullptr;
@@ -1134,7 +1128,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 				bufs[ch][i] += channel.calcOutput(eg_cnt, lfo_pm, lfo_am, fm);
 			}
 		}
-		if (rhythm) {
+		if (isRhythm()) {
 			// Bass Drum (verified on real YM3812):
 			//  - depends on the channel 6 'connect' register:
 			//    when connect = 0 it works the same as in normal (non-rhythm) mode
@@ -1216,6 +1210,7 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 
 void YM2413::writeReg(byte r, byte v)
 {
+	byte old = reg[r];
 	reg[r] = v;
 
 	switch (r & 0xF0) {
@@ -1233,7 +1228,7 @@ void YM2413::writeReg(byte r, byte v)
 			updateCustomInstrument(r, v);
 			break;
 		case 0x0E:
-			setRhythmFlags(v);
+			setRhythmFlags(old);
 			break;
 		}
 		break;
@@ -1258,25 +1253,20 @@ void YM2413::writeReg(byte r, byte v)
 	}
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		Channel& ch = getChannelForReg(r);
-
-		byte old_instvol = ch.instvol_r;
-		ch.instvol_r = v;  // store for later use
-
 		ch.car.setTotalLevel(ch, (v & 0x0F) << 2);
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
 
 		byte chan = (r & 0x0F) % 9; // verified on real YM2413
-		if (chan >= getNumMelodicChannels()) {
-			// We're in rhythm mode.
-			if (chan >= 7) {
-				// Only for channel 7 and 8 (channel 6 is handled in usual way)
+		if (isRhythm() && (chan >= 6)) {
+			if (chan > 6) {
+				// channel 7 or 8 in ryhthm mode
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.mod.setTotalLevel(ch, (ch.instvol_r >> 4) << 2);
+				ch.mod.setTotalLevel(ch, (v >> 4) << 2);
 			}
 		} else {
-			if ((old_instvol & 0xF0) != (v & 0xF0)) {
+			if ((old & 0xF0) != (v & 0xF0)) {
 				ch.updateInstrument(inst_tab[v >> 4]);
 			}
 		}
@@ -1348,6 +1338,7 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 
 // version 1: original version
 // version 2: removed kcode
+// version 3: removed instvol_r
 template<typename Archive>
 void Channel::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1359,7 +1350,6 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 		car = slots[1];
 	}
 
-	ar.serialize("instvol_r", instvol_r);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);
@@ -1371,8 +1361,9 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	}
 }
 
-// version 1:  initial version
-// version 2:  'registers' are moved here (no longer serialized in base class)
+// version 1: initial version
+// version 2: 'registers' are moved here (no longer serialized in base class)
+// version 3: removed 'rhythm' variable
 template<typename Archive>
 void YM2413::serialize(Archive& ar, unsigned version)
 {
@@ -1387,7 +1378,6 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	ar.serialize("noise_rng", noise_rng);
 	ar.serialize("lfo_am_cnt", lfo_am_cnt);
 	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
-	ar.serialize("rhythm", rhythm);
 	// don't serialize idleSamples, it's only an optimization
 }
 

@@ -10,6 +10,8 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "memory.hh"
+#include "Version.hh"
+#include "Date.hh"
 #include <cstring>
 #include <limits>
 
@@ -248,6 +250,9 @@ void MemInputArchive::serialize_blob(const char*, void* data, size_t len)
 XmlOutputArchive::XmlOutputArchive(const string& filename)
 	: root("serial")
 {
+	root.addAttribute("openmsx_version", Version::full());
+	root.addAttribute("date_time", Date::toString(time(nullptr)));
+	root.addAttribute("platform", TARGET_PLATFORM);
 	FILE* f = FileOperations::openFile(filename, "wb");
 	if (!f) {
 		throw XMLException("Could not open compressed file \"" + filename + "\"");

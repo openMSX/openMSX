@@ -55,7 +55,7 @@ private:
 	void create(const std::vector<std::string>& tokens);
 	void savedsk(const DriveSettings& driveData,
 	             const std::string& filename);
-	void format(DriveSettings& driveData);
+	void format(DriveSettings& driveData, bool dos1);
 	std::string chdir(DriveSettings& driveData, const std::string& filename);
 	void mkdir(DriveSettings& driveData, const std::string& filename);
 	std::string dir(DriveSettings& driveData);

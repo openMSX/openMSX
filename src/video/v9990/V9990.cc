@@ -698,7 +698,7 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b, bool& ys) const
 
 void V9990::createRenderer(EmuTime::param time)
 {
-	assert(!renderer.get());
+	assert(!renderer);
 	renderer = RendererFactory::createV9990Renderer(*this, display);
 	renderer->reset(time);
 }

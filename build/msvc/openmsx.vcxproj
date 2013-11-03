@@ -110,7 +110,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -141,7 +141,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -176,7 +176,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -215,7 +215,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -242,7 +242,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -274,7 +274,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4324;4063;4121;4125;4127;4189;4201;4244;4310;4355;4505;4512;4611;4702;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(OpenMSXConfigDir);$(ThirdPartySrcDir)\$(LibNameTcl)\generic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -327,7 +327,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\console\TTFFont.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPoint.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPU.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUCore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\Dasm.cc" />
@@ -453,6 +453,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
+	<ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
@@ -525,10 +526,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\settings\KeyCodeSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\ProxySetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\Setting.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingImpl.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingsManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\StringSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\UserSettings.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />	
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputConnector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AY8910.cc" />
@@ -675,9 +677,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\SpriteChecker.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDP.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoLayer.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
@@ -835,7 +837,7 @@
     <None Include="$(OpenMSXSrcDir)\cpu\BreakPoint.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CacheLine.hh" />
-    <None Include="$(OpenMSXSrcDir)\cpu\CPU.hh" />
+    <None Include="$(OpenMSXSrcDir)\cpu\CPURegs.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CPUClock.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\CPUCore.hh" />
     <None Include="$(OpenMSXSrcDir)\cpu\Dasm.hh" />
@@ -973,6 +975,7 @@
     <None Include="$(OpenMSXSrcDir)\input\StateChangeListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Trackball.hh" />
     <None Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />	
 	<None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
@@ -1048,9 +1051,8 @@
     <None Include="$(OpenMSXSrcDir)\settings\ProxySetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\Setting.hh" />
-    <None Include="$(OpenMSXSrcDir)\settings\SettingImpl.hh" />
+    <None Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\SettingPolicy.hh" />
-    <None Include="$(OpenMSXSrcDir)\settings\SettingRangePolicy.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\SettingsManager.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\StringSetting.hh" />
     <None Include="$(OpenMSXSrcDir)\settings\UserSettings.hh" />
@@ -1255,6 +1257,7 @@
     <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDP.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VDPVRAM.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoLayer.hh" />
     <None Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.hh" />

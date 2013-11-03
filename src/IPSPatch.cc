@@ -2,6 +2,7 @@
 #include "File.hh"
 #include "Filename.hh"
 #include "MSXException.hh"
+#include <algorithm>
 #include <cstring>
 #include <cassert>
 

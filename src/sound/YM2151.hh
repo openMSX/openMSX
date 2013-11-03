@@ -51,7 +51,7 @@ public:
 
 	void reset(EmuTime::param time);
 	void writeReg(byte r, byte v, EmuTime::param time);
-	byte readStatus();
+	byte readStatus() const;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -14,10 +14,6 @@ static const double DB_STEP = 48.0 / DB_MUTE;
 static const double EG_STEP = 0.375;
 static const double TL_STEP = 0.75;
 
-// PM speed(Hz) and depth(cent)
-static const double PM_SPEED = 6.4;
-static const double PM_DEPTH = 13.75;
-
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
 static const int PG_BITS = 9;
 static const int PG_WIDTH = 1 << PG_BITS;
@@ -34,12 +30,7 @@ static const int EG_BITS = 7;
 static const int DB2LIN_AMP_BITS = 8;
 static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
-// Bits for Pitch and Amp modulator
-static const int PM_PG_BITS = 8;
-static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
-static const int PM_DP_BITS = 16;
-static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
-static const int PM_DP_MASK = PM_DP_WIDTH - 1;
+// Bits for Amp modulator
 static const int AM_PG_BITS = 8;
 static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
 static const int AM_DP_BITS = 16;

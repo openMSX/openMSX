@@ -82,6 +82,7 @@
 			<li><a class="internal" href="#mouse">5.3 Mouse</a></li>
 			<li><a class="internal" href="#arkanoidpad">5.4 Arkanoid Pad</a></li>
 			<li><a class="internal" href="#trackball">5.5 Trackball</a></li>
+			<li><a class="internal" href="#touchpad">5.6 Touchpad</a></li>
 		</ol>
 	</li>
 
@@ -148,14 +149,13 @@ You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is in alpha state, which means that some things work but not all
+openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
 it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult, which has separate <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">manuals</a> for now.
 However, because the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
-It explains how you can make use of the features of the emulator, once you have got it running.
 </p>
 
 <p>
@@ -253,7 +253,7 @@ openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
 (with default key mapping; Cmd+L on Mac) when the focus is on the emulator window.  This will
-give you a command line in the openMSX window. Note that due to a <a class="external" href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1157373&amp;group_id=38274&amp;atid=421861">known problem</a>
+give you a command line in the openMSX window. Note that due to a <a class="external" href="https://sourceforge.net/p/openmsx/bugs/184/">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also <a class="internal" href="#settings">Settings</a> and <a class="internal" href="#keymapping">Keymapping</a>.)
 </p>
@@ -282,7 +282,7 @@ You can reset your MSX with the Console command <code><a class="external" href="
 
 <p>
 An interesting console command is <code><a class="external" href="commands.html#set">set</a></code>. You can use it to change the various
-settings. E.g., you can use it to set the current <a class="internal" href="#renderer">renderers</a>. If you issue set with only the setting (like <code>set <a class="external" href="commands.html#renderer">renderer</a></code>), you will get the current value of that setting.
+settings. E.g., you can use it to set the current <a class="internal" href="#renderer">renderer</a>. If you issue set with only the setting (like <code>set <a class="external" href="commands.html#renderer">renderer</a></code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code><a class="external" href="commands.html#toggle">toggle</a></code>
 command (an example is the default key binding of F12 to <code>toggle
 fullscreen</code>, see also below). A complete list of settings can also be found in the <a class="external" href="commands.html">Console Command Reference</a>. Note that using the "tab completion" feature can help you a lot in getting an idea of what settings are possible, as it will only complete possible options. Just try that.
@@ -453,9 +453,9 @@ Using the default value of the setting <a class="external" href="commands.html#D
 <em>Be careful when writing to files from your emulated MSX.</em> In the default 'full' mode, you can change/overwrite/delete/corrupt files on your host system, if you made them accessible for the emulated MSX! Still, this is the behaviour what most people want/expect and it's very useful if you know what you are doing.
 </p>
 <p>
-Note that this feature is willfully kept very bare bones: it
-doesn't support sub directories and it skips all remaining files if the virtual
-disk is full. Its main purpose is to facilitate cross platform development.
+Note that MSX disks only have a limited capacity, typically 720kB. If the
+host directory contains more data, then some host files will be ignored:
+they will not appear in the virtual disk image.
 </p>
 
 <h4><a id="realdisks">4.2.3 Using Real Disks</a></h4>
@@ -660,7 +660,7 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 <p>Initialisation for the ESE SCSI devices needs tools like <code>MGINST</code>, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the <code>MGINST</code> program (you might want to use <code>KSAVER</code> first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the <code>SFORM-1</code> (for MSX-DOS) or the <code>SFORM-2</code> (for MSX-DOS 2) to format the drive (use a physical format, for now). Use <code>ESET</code> to assign drive letters to partitions.
 </p>
 
-<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
@@ -794,7 +794,7 @@ This section is about how keyboard layouts from host computers are mapped to key
 </div>
 
 <p>
-To connect a fake joystick (emulated with the arrow keys), you can use this <code>plug</code> command:
+To connect a fake joystick (emulated with the keyboard arrow keys), you can use this <code>plug</code> command:
 </p>
 <div class="commandline">
     <a class="external" href="commands.html#plugunplug">plug</a> joyporta keyjoystick1
@@ -803,7 +803,7 @@ To connect a fake joystick (emulated with the arrow keys), you can use this <cod
 will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. There are two keyjoysticks, 1 and 2. If you like, you can change the bindings in the console and save the settings as usual. Examples: <code>set <a class="external" href="commands.html#keyjoystick_n_button">keyjoystick2.triga</a> LCTRL</code> or <code>set <a class="external" href="commands.html#keyjoystick_n_button">keyjoystick1.up</a> KP8</code>.
 </p>
 <p>
-Most modern joysticks have more buttons then the 2 buttons that are allowed by the MSX standard. Therefore a lot of games uses extra keys on the keyboard for extra functionality. for instance, all most all Konami games use F1 to pause the game. You can assign these extra functionality to your joystick by using the <code><a class="external" href="commands.html#bind">bind</a></code> command. As an example here is how to map button 4 of the first joystick to the F1-key, button 5 to F2,...
+Most modern joysticks have more buttons than the 2 buttons that are allowed by the MSX standard. Therefore a lot of games use extra keys on the keyboard for extra functionality. For instance, all most all Konami games use F1 to pause the game. You can assign this extra functionality to your joystick by using the <code><a class="external" href="commands.html#bind">bind</a></code> command. As an example here is how to map button 4 of the first joystick to the F1-key, button 5 to F2,...
 </p>
 <div class="commandline">
   bind "joy1 button4 down" "keymatrixdown 6 0x20"<br/>
@@ -858,6 +858,23 @@ Some MSX trackballs like the HAL CAT and the Sony HB-G7B seem to be the same and
 Quite some HAL programs have support for it, e.g. Hole in One, Eddy II, Music Studio G7, Space Trouble and Super Billiards. The test program provided in the Sony HB-G7B service manual also works fine, of course.
 </p>
 
+<h3><a id="touchpad">5.6 Touchpad</a></h3>
+
+<p>
+Some MSX touch pads like the Philips NMS 1150 Graphic Tablet are also emulated by openMSX, again using the mouse to control it (where mouse button 1 corresponds to touch or no touch and mouse button 2 to the button on the pen of the touch pad). Also the touch pad is mostly supported in port B only:</p>
+
+<div class="commandline">
+    <a class="external" href="commands.html#plugunplug">plug</a> joyportb touchpad
+</div>
+
+<p>
+This device is mostly supported by the Philips drawing programs Designer, Designer Plus and Video Graphics (all in port B) and by Pioneer MSX Video Art (port A).
+</p>
+
+<p>
+Note that the whole openMSX window will function as the surface of the touch pad. This will not align with the actual pixels of the screen in that window...
+</p>
+
 <h2><a id="video">6. Video</a></h2>
 
 <h3><a id="renderers">6.1 Renderers</a></h3>
@@ -870,7 +887,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX and using no special graphical effects (see below). The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
+This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be relatively high though, as all graphics are calculated on the CPU. This renderer is always available and in case of trouble, you are advised to switch back to this one.
 </dd>
 
 <dt>SDLGL-PP</dt>
@@ -882,7 +899,7 @@ The SDLGL-PP renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
-If your card supports it, we recommend to use this renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
+If your card supports it, we recommend to use this renderer, so we made it the default renderer. Note that this renderer requires both your video card and video driver to support OpenGL 2.0. Sometimes you need to upgrade your driver to make it work. If your videocard or driver don't support OpenGL 2.0, openMSX will switch back to the SDL renderer if you try to select SDLGL-PP.
 </dd>
 
 
@@ -1218,7 +1235,7 @@ done by default. To play with this setting, use <code>set
 pluggables.
 </p>
 
-<p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forumtopic7290.html">a forum thread</a> which describes how to do this.</p>
+<p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to do this.</p>
 
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
@@ -1252,7 +1269,7 @@ The easiest way to use it is by using the keyboard shortcuts for quickly saving 
 <h3><a id="reverse">8.2 Reverse</a></h3>
 
 <p>
-Inspired by the <a class="external" href="http://tsk-tsk.net/">meisei</a> MSX emulator, openMSX now also has a reverse feature. This enables you to go back in MSX time, so you can correct mistakes in your game play or you can watch what you did (and also record a video of it).
+Inspired by the meisei MSX emulator, openMSX now also has a reverse feature. This enables you to go back in MSX time, so you can correct mistakes in your game play or you can watch what you did (and also record a video of it).
 </p>
 
 <p>You can go back in time a second (upto the moment in MSX time you started the reverse feature, but it is auto started by default) using the <a class="internal" href="#keymapping">key binding</a> for this: PageUp. Once you went back, openMSX will replay whatever you did when you were at this time for the first time, until it got at the point where you went back. From then on, everything will continue as normal. If you touched any control of your MSX during replay, you have indicated to take over from the replay. If you do that, the rest of the replay is erased (openMSX forgets that that future ever happened). This is the typical way to correct mistakes using this feature.
@@ -1447,32 +1464,27 @@ If you encounter problems, you have several options:
 
 <ol>
 <li>
-If you're a regular user and want to discuss openMSX and possible problems,
-join our <code>openmsx-user</code> mailing list.
-More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
-including an archive of old messages, can be found at SourceForge.
-</li>
-<li>
 Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
-and ask your question there.  Also reachable via <a href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
+and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
+join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
 post a message to the <code>openmsx-devel</code> mailing list.
 More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
+<a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
 Use one of the
-<a class="external" href="http://sourceforge.net/tracker/?group_id=38274">openMSX trackers</a>
+<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
 at SourceForge.
-At the moment of writing, there are four trackers:
-Bugs, Support Requests, Patches and Feature Requests.
+At the moment of writing, there are four ticket trackers:
+Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
 </li>
 <li>
-Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
 </li>
 </ol>
 

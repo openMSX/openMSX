@@ -6,10 +6,10 @@
 #include "EventListener.hh"
 #include "sha1.hh"
 #include "noncopyable.hh"
-#include <string>
-#include <map>
-#include <vector>
 #include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 #include <ctime>
 #include <cstdint>
 
@@ -59,12 +59,11 @@ private:
 	typedef std::vector<Entry> Directories;
 
 	// Manually implement a collection of <sha1sum, timestamp, filename>
-	// tuples, that is indexed on both sha1sum and filename. Using
-	// something like boost::multi_index would be both faster and more
-	// compact in memory.
-	//   <sha1sum, <timestamp, filename>>
-	typedef std::multimap<Sha1Sum, std::pair<time_t, std::string>> Pool;
-	//   <filename, Pool::iterator>
+	// tuples, that is indexed on both sha1sum and filename.
+	//   <sha1sum, timestamp, filename>
+	typedef std::vector<std::tuple<Sha1Sum, time_t, std::string>> Pool;
+	//   <filename, sha1sum>
+	typedef std::vector<std::pair<string_ref, Sha1Sum>> ReversePool;
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
@@ -96,7 +95,7 @@ private:
 	CliComm& cliComm;
 
 	Pool pool;
-	std::map<std::string, Pool::iterator> reversePool;
+	ReversePool reversePool;
 	uint64_t lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
 	bool quit;

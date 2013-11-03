@@ -34,7 +34,7 @@ void MSXTurboRPause::powerDown(EmuTime::param dummy)
 
 void MSXTurboRPause::reset(EmuTime::param dummy)
 {
-	pauseSetting->changeValue(false);
+	pauseSetting->setBoolean(false);
 	writeIO(0, 0, dummy);
 }
 
@@ -45,7 +45,7 @@ byte MSXTurboRPause::readIO(word port, EmuTime::param time)
 
 byte MSXTurboRPause::peekIO(word /*port*/, EmuTime::param /*time*/) const
 {
-	return pauseSetting->getValue() ? 1 : 0;
+	return pauseSetting->getBoolean() ? 1 : 0;
 }
 
 void MSXTurboRPause::writeIO(word /*port*/, byte value, EmuTime::param /*time*/)
@@ -66,7 +66,7 @@ void MSXTurboRPause::update(const Setting& /*setting*/)
 
 void MSXTurboRPause::updatePause()
 {
-	bool newHwPause = (status & 0x02) && pauseSetting->getValue();
+	bool newHwPause = (status & 0x02) && pauseSetting->getBoolean();
 	if (newHwPause != hwPause) {
 		hwPause = newHwPause;
 		if (hwPause) {

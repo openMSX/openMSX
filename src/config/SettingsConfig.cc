@@ -61,12 +61,9 @@ SettingsConfig::SettingsConfig(
 
 SettingsConfig::~SettingsConfig()
 {
-	PRT_DEBUG("~SettingsConfig...");
 	if (mustSaveSettings) {
 		try {
-			PRT_DEBUG("Saving Settings...");
 			saveSetting();
-			PRT_DEBUG("Saving Settings... DONE");
 		} catch (FileException& e) {
 			commandController.getCliComm().printWarning(
 				"Auto-saving of settings failed: " + e.getMessage() );
@@ -95,7 +92,13 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
-	getSettingsManager().saveSettings(xmlElement);
+	// Normally the following isn't needed. Only when there was no
+	// settings.xml in either the user or the system directory (so an
+	// incomplete openMSX installation!!) the top level element will have
+	// an empty name. And we shouldn't write an invalid xml file.
+	xmlElement.setName("settings");
+
+	// settings are kept up-to-date
 	hotKey.saveBindings(xmlElement);
 
 	File file(name, File::TRUNCATE);

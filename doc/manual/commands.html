@@ -80,16 +80,6 @@
       </ol>
     </li>
 
-    <li>Old Commands
-
-      <ol class="inlinetoc">
-        <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
-        <li><a class="internal" href="#decr">decr</a></li>
-        <li><a class="internal" href="#quit">quit</a></li>
-        <li><a class="internal" href="#restoredefault">restoredefault</a></li>
-      </ol>
-    </li>
-
     <li>Settings
 
       <ol class="inlinetoc">
@@ -131,6 +121,7 @@
         <li><a class="internal" href="#grabinput">grabinput</a></li>
         <li><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></li>
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
+        <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
@@ -179,6 +170,7 @@
         <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
+        <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
         <li><a class="internal" href="#vdpcmdinprogress_callback">vdpcmdinprogress_callback</a></li>
@@ -353,7 +345,7 @@
     </tr>
     <tr>
       <td><code>bind -layer &lt;layername&gt;</code></td>
-      <td>Show all is a specific layer</td>
+      <td>Show all in a specific layer</td>
     </tr>
     <tr>
       <td><code>bind &lt;event&gt; [-layer &lt;layername&gt;]</code></td>
@@ -367,7 +359,7 @@
     </tr>
     <tr>
       <td><code>bind -layers</code></td>
-      <td>Show the name of all layers that currently have bindings</td>
+      <td>Show the names of all layers that currently have bindings</td>
     </tr>
     <tr>
       <td><code>unbind [-layer &lt;layername&gt;] &lt;event&gt;</code></td>
@@ -876,7 +868,7 @@
 
   <h3><a id="exit">exit</a></h3>
 
-  <p>This command exits the Tcl interpreter, which leads to openMSX exiting as well.</p>
+  <p>Terminate the openMSX application.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -885,7 +877,6 @@
   <table>
     <tr>
       <td><code>exit</code></td>
-
       <td>Exits the emulator</td>
     </tr>
   </table>
@@ -1243,7 +1234,7 @@
 
   <h4><code>load_machine</code>:</h4>
   <p>This command loads a machine configuration (= MSX model) into the given machine-ID.
-  In the web browser analogy, this command would load a page in a previously created empty tab. And unlike a web browser, where you can load a different page in the same tab, you cannot load a different machine configuration in the same machine-ID.</p>
+  In the web browser analogy, this command would load a page in a previously created empty tab. And unlike a web browser, where you can reload a different page in the same tab, you can only load a machine configuration once in the same machine-ID.</p>
 
   <h4><code>activate_machine</code>:</h4>
   <p>This command activates the given machine-ID. At any time there can only be one active machine-ID. This is analogue to switching tabs in a web browser.</p>
@@ -2080,7 +2071,7 @@
   </div>
 
 
-  <h3><a id="test_machine">test_machine</a></h3>
+  <h3><a id="test_machine">test_machine / test_all_machines / test_all_extensions</a></h3>
 
   <p>Test whether the given MSX machine configuration works. For example whether you have all required system ROMs for this machine. See also <code><a class="internal" href="#machines">load_machine</a></code>.</p>
 
@@ -2094,6 +2085,7 @@
     </tr>
   </table>
 
+  <p>Use the convenience commands <code>test_all_machines</code> and <code>test_all_extensions</code> to get a full overview on which system ROMs you are still missing.</p>
 
   <h3><a id="toggle">toggle</a></h3>
 
@@ -2510,6 +2502,10 @@
       <td>Enable (or disable) reporting in the console when VDP I/O is done which could possibly cause data corruption on the slowest VDP (TMS9xxx), which is not emulated</td>
     </tr>
     <tr>
+      <td><code>toggle_vdp_busy</code></td>
+      <td>Enable (or disable) display on the OSD how busy the VDP is</td>
+    </tr>
+    <tr>
       <td><code>toggle_vdp_reg_viewer</code></td>
       <td>Enable (or disable) a widget that shows an overview of all VDP registers and highlights changes in the values</td>
     </tr>
@@ -2548,120 +2544,6 @@
   </table>
 
   <p>The source code of all these scripts is located in <code>share/scripts</code> directory. Feel free to inspect these scripts and modify them to suit your needs.</p>
-
-
-  <h2><a id="old_commands">Old Commands</a></h2>
-
-  <p>The following commands existed in older openMSX versions. For backwards compatibility they are still supported for
-  a while. In later versions they will be removed.</p>
-
-  <h3><a id="aliasunalias">alias / unalias</a></h3>
-
-  <p>Create a new command that is an alias for another (group of) command(s).</p>
-
-  <p>It is better to use the more powerful Tcl <code>proc</code> command.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
-
-      <td>Defines an alias</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>alias gl "set renderer SDLGL-PP"</code><br />
-    <code>alias restart "set power off ; set power on"</code>
-  </div>
-
-  <div class="note">
-    Note: The backwards compatibility implementation of the <code>alias</code> command is not 100% compatible with the old <code>alias</code> command. It is recommended that you update your scripts to use the Tcl <code>proc</code> command.
-  </div>
-
-  <h3><a id="decr">decr</a></h3>
-
-  <p>Decrement an integer setting.</p>
-
-  <p>This command is deprecated, please use the <code><a class="internal" href="#incr">incr</a></code> command with a negative offset instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>decr &lt;setting&gt;</code></td>
-
-      <td>Decrement the specified setting by one</td>
-    </tr>
-
-    <tr>
-      <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
-
-      <td>Decrement the specified setting by the given amount</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>decr speed</code><br />
-    <code>decr renshaturbo 10</code>
-  </div>
-
-  <h3><a id="quit">quit</a></h3>
-
-  <p>Quits the emulator.</p>
-
-  <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>quit</code></td>
-
-      <td>Exits openMSX</td>
-    </tr>
-  </table>
-
-  <h3><a id="restoredefault">restoredefault</a></h3>
-
-  <p>Restore the default value for a setting.</p>
-
-  <p>This command is deprecated, please use <code><a class="internal" href="#unset">unset</a> &lt;setting&gt;</code> instead.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>restoredefault &lt;setting&gt;</code></td>
-
-      <td>Restores the default value for the given setting</td>
-    </tr>
-  </table>
-
-  <div class="subsectiontitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>restoredefault PSG_volume</code>
-  </div>
 
   <h2><a id="settings">Settings</a></h2>
 
@@ -3058,7 +2940,7 @@
   <h3><a id="consolefont">consolefont</a></h3>
 
   <p>Change the console font. This should be the filename of a True Type Font. The default value is <code>skins/VeraMono.ttf.gz</code>.</p>
-  <p>In older openMSX releases (pre-0.7.1). You had to specify a PNG image here that contained a 16&times;16 matrix with the characters in ASCII order. This is no longer supported.</p>
+  <p>Font files of other types than True Type Fonts (TTF) are not supported.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3451,7 +3333,7 @@
     </tr>
     <tr>
       <td><code>set di_halt_callback my_callback_proc</code></td>
-      <td>Sets a new callback proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 
@@ -3691,7 +3573,7 @@
   </div>
 
   <div class="note">
-    Note: when using the SDL renderer, this setting may cause a lot more CPU usage (e.g. on a Dingoo) when not using 320.
+    Note: when using the SDL renderer, this setting may cause a lot more CPU usage (e.g. on a Dingoo) when not using the value 320.
   </div>
 
   <h3><a id="inputdelay">inputdelay</a></h3>
@@ -3705,20 +3587,47 @@
   <table>
     <tr>
       <td><code>set inputdelay</code></td>
-
       <td>Shows the current value</td>
     </tr>
-
     <tr>
       <td><code>set inputdelay &lt;time&gt;</code></td>
-
       <td>Sets the input delay to the specified number of seconds</td>
     </tr>
   </table>
 
   <div class="note">
-    Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
+    Note: The default value of 0.0 seconds (no extra delay) should almost
+    always be OK. It only makes sense to increase this setting if you have
+    a slow host machine and you're typing text very fast and the emulated
+    MSX machine misses (some of) the keys you typed.
   </div>
+
+
+  <h3><a id="interleave_black_frame">interleave_black_frame</a></h3>
+
+  <p>Insert a black frame in between each normal MSX frame. Useful on (100Hz+)
+  lightboost enabled monitors to reduce motion blur and double frame
+  artifacts.</p>
+
+  <p>Make sure you configure your monitor to use a refresh rate of 100Hz (for a
+  PAL MSX machine) or to 120Hz (for a NTSC machine). The brightness will
+  decrease, so adjust the <a class="internal" href="#gamma">gamma</a>,
+  <a class="internal" href="#brightness">brightness</a> and
+  <a class="internal" href="#contrast">contrast</a> settings to compensate.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set interleave_black_frame</code></td>
+      <td>Shows the current value</td>
+    </tr>
+    <tr>
+      <td><code>set interleave_black_frame true</code></td>
+      <td>Enable this feature.</td>
+    </tr>
+  </table>
 
 
   <h3><a id="invalid_psg_directions_callback">invalid_psg_directions_callback</a></h3>
@@ -3737,7 +3646,7 @@
     </tr>
     <tr>
       <td><code>set invalid_psg_directions_callback my_callback_proc</code></td>
-      <td>Sets a new callback proc</code></td>
+      <td>Sets a new callback proc</td>
     </tr>
   </table>
 
@@ -3772,7 +3681,7 @@
   both button 1 and 3 will activate MSX button B. (This example shows a host
   joystick with 4 buttons, but in general (by default) all even host buttons
   will active MSX button A and all odd host buttons will active MSX button
-  B.).</p>
+  B).</p>
 
   <p>There are no restrictions on the possible mappings. For example it is
   allowed to map host axis/buttons to MSX buttons/axis or vice-versa. This
@@ -4257,7 +4166,7 @@
     <tr> <td>ScrollLock</td><td>(ScrollLock)</td><td>Reverse one frame (<code>reverse_frame</code>)</td></tr>
   </table>
 
-  <p>Note that this mode is still experimental and may change in future releases!</p>
+  <p>Note that this mode may change in future releases!</p>
 
   <h3><a id="mute">mute</a></h3>
 
@@ -5174,6 +5083,46 @@
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
   </table>
+
+
+  <h3><a id="touchpad_transform_matrix">touchpad_transform_matrix</a></h3>
+
+  <p>Specify a 2&times;3 transformation matrix that maps host mouse coordinates
+  to MSX touchpad coordinates.
+  To get the following coordinate transformation:</p>
+  <pre>
+        | a b c |   | host-X |   | touchpad-X |
+        | d e f | &times; | host-Y | = | touchpad-Y |
+                    |    1   |
+  </pre>
+  <p>Use this command:</p>
+  <pre>
+        set touchpad_transform_matrix {{a b c} {d e f}}
+  </pre>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set touchpad_transform_matrix</code></td>
+      <td>Shows the current value</td>
+    </tr>
+    <tr>
+      <td><code>set touchpad_transform_matrix {{256 0 0} {0 256 0}}</code></td>
+      <td>This is the default, map the full host window to 256&times;256 touchpad input</td>
+    </tr>
+    <tr>
+      <td><code>set touchpad_transform_matrix {{320 0 -64} {0 240 -14}}</code></td>
+      <td>Attempt to map touch coordinates to corresponding MSX pixel coordinates.</td>
+    </tr>
+  </table>
+
+<!-- TODO write Tcl scripts to setup this matrix
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#monitor_type">monitor_type</a></code> command.
+  </div>
+-->
 
 
   <h3><a id="turborpause">turborpause</a></h3>

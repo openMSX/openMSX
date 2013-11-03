@@ -21,7 +21,7 @@ BitmapConverter<Pixel>::BitmapConverter(
 }
 
 template <class Pixel>
-void BitmapConverter<Pixel>::calcDPalette()
+void BitmapConverter<Pixel>::calcDPalette() __restrict
 {
 	dPaletteValid = true;
 	unsigned bits = sizeof(Pixel) * 8;
@@ -368,7 +368,7 @@ void BitmapConverter<Pixel>::renderYAE(
 
 // TODO: Check what happens on real V9938.
 template <class Pixel>
-void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
+void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr) __restrict
 {
 	Pixel color = palette16[0];
 	for (unsigned i = 0; i < 256; ++i) {

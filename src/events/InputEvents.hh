@@ -14,7 +14,7 @@ class TimedEvent : public Event
 {
 public:
 	/** Query creation time. */
-	uint64_t getRealTime() const;
+	uint64_t getRealTime() const { return realtime; }
 protected:
 	explicit TimedEvent(EventType type);
 private:
@@ -25,8 +25,8 @@ private:
 class KeyEvent : public TimedEvent
 {
 public:
-	Keys::KeyCode getKeyCode() const;
-	uint16_t getUnicode() const;
+	Keys::KeyCode getKeyCode() const { return keyCode; }
+	uint16_t getUnicode() const { return unicode; }
 
 protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode, uint16_t unicode);
@@ -62,7 +62,7 @@ public:
 	static const unsigned WHEELUP   = 4;
 	static const unsigned WHEELDOWN = 5;
 
-	unsigned getButton() const;
+	unsigned getButton() const { return button; }
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
@@ -92,15 +92,18 @@ private:
 class MouseMotionEvent : public TimedEvent
 {
 public:
-	MouseMotionEvent(int xrel, int yrel);
-	int getX() const;
-	int getY() const;
-
+	MouseMotionEvent(int xrel, int yrel, int xabs, int yabs);
+	int getX() const    { return xrel; }
+	int getY() const    { return yrel; }
+	int getAbsX() const { return xabs; }
+	int getAbsY() const { return yabs; }
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const Event& other) const;
 	const int xrel;
 	const int yrel;
+	const int xabs;
+	const int yabs;
 };
 
 class MouseMotionGroupEvent : public Event
@@ -118,7 +121,7 @@ private:
 class JoystickEvent : public TimedEvent
 {
 public:
-	unsigned getJoystick() const;
+	unsigned getJoystick() const { return joystick; }
 
 protected:
 	JoystickEvent(EventType type, unsigned joystick);
@@ -133,7 +136,7 @@ private:
 class JoystickButtonEvent : public JoystickEvent
 {
 public:
-	unsigned getButton() const;
+	unsigned getButton() const { return button; }
 
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
@@ -167,8 +170,8 @@ public:
 	static const unsigned Y_AXIS = 1;
 
 	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, short value);
-	unsigned getAxis() const;
-	short getValue() const;
+	unsigned getAxis() const { return axis; }
+	short getValue() const { return value; }
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
@@ -183,7 +186,7 @@ class FocusEvent : public Event
 public:
 	explicit FocusEvent(bool gain);
 
-	bool getGain() const;
+	bool getGain() const { return gain; }
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
@@ -197,8 +200,8 @@ class ResizeEvent : public Event
 public:
 	ResizeEvent(unsigned x, unsigned y);
 
-	unsigned getX() const;
-	unsigned getY() const;
+	unsigned getX() const { return x; }
+	unsigned getY() const { return y; }
 
 private:
 	virtual void toStringImpl(TclObject& result) const;
@@ -227,7 +230,7 @@ public:
 	enum { LEFT_BUTTON, RIGHT_BUTTON, UP_BUTTON, DOWN_BUTTON,
 		A_BUTTON, B_BUTTON };
 
-	unsigned getButton() const;
+	unsigned getButton() const { return button; }
 
 	/** Get the event that actually triggered the creation of this event.
 	 * Typically this will be a keyboard or joystick event. This could

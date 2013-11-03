@@ -9,11 +9,10 @@
 namespace openmsx {
 
 class AlarmEvent;
-class BooleanSetting;
 class CommandController;
 class EventDistributor;
 class MSXCliComm;
-template <typename> class ReadOnlySetting;
+class ReadOnlySetting;
 
 class LedStatus : public EventListener, private noncopyable
 {
@@ -44,7 +43,7 @@ private:
 
 	MSXCliComm& msxCliComm;
 	const std::unique_ptr<AlarmEvent> alarm;
-	std::unique_ptr<ReadOnlySetting<BooleanSetting>> ledStatus[NUM_LEDS];
+	std::unique_ptr<ReadOnlySetting> ledStatus[NUM_LEDS];
 	uint64_t lastTime;
 	bool ledValue[NUM_LEDS];
 };

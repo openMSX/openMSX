@@ -18,7 +18,7 @@ DebugDevice::DebugDevice(const DeviceConfig& config)
 	fileNameSetting = make_unique<FilenameSetting>(
 		getCommandController(), "debugoutput",
 		"name of the file the debugdevice outputs to", outputFile);
-	openOutput(fileNameSetting->getValueString());
+	openOutput(fileNameSetting->getString());
 	reset(EmuTime::dummy());
 }
 
@@ -34,7 +34,7 @@ void DebugDevice::reset(EmuTime::param /*time*/)
 
 void DebugDevice::writeIO(word port, byte value, EmuTime::param time)
 {
-	const auto& newName = fileNameSetting->getValueString();
+	const auto& newName = fileNameSetting->getString();
 	if (newName != fileNameString) {
 		openOutput(newName);
 	}

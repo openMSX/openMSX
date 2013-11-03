@@ -117,21 +117,24 @@ namespace StringOp
 	                  string_ref& first, string_ref& last);
 	void splitOnLast (string_ref str, char chars,
 	                  string_ref& first, string_ref& last);
-	std::vector<std::string> split(string_ref str, string_ref chars);
-	std::string join(const std::vector<std::string>& elems,
-	                 const std::string& separator);
+	std::vector<string_ref> split(string_ref str, char chars);
+	std::string join(const std::vector<string_ref>& elems,
+	                 char separator);
 	std::set<unsigned> parseRange(string_ref str,
 	                              unsigned min, unsigned max);
 
-	// case insensitive less then operator
+	// case insensitive less-than operator
 	struct caseless {
-		bool operator()(const std::string& s1, const std::string& s2) const {
-			return strcasecmp(s1.c_str(), s2.c_str()) < 0;
-		}
 		bool operator()(string_ref s1, string_ref s2) const {
 			auto m = std::min(s1.size(), s2.size());
 			int r = strncasecmp(s1.data(), s2.data(), m);
 			return (r != 0) ? (r < 0) : (s1.size() < s2.size());
+		}
+	};
+	struct casecmp {
+		bool operator()(string_ref s1, string_ref s2) const {
+			if (s1.size() != s2.size()) return false;
+			return strncasecmp(s1.data(), s2.data(), s1.size()) == 0;
 		}
 	};
 

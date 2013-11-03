@@ -36,6 +36,7 @@ HDR_ONLY:= \
 	memory \
 	noncopyable \
 	unreachable \
+	stl \
 	TypeInfo \
 	type_traits \
 	DivModByConst \

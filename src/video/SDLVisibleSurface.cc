@@ -94,4 +94,10 @@ void SDLVisibleSurface::saveScreenshot(const std::string& filename)
 	PNG::save(getSDLSurface(), filename);
 }
 
+void SDLVisibleSurface::clearScreen()
+{
+	unlock();
+	SDL_FillRect(getSDLSurface(), nullptr, 0);
+}
+
 } // namespace openmsx

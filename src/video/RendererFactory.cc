@@ -32,7 +32,7 @@ namespace RendererFactory {
 unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 {
 	Display& display = reactor.getDisplay();
-	switch (display.getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getEnum()) {
 		case DUMMY:
 			return make_unique<DummyVideoSystem>();
 		case SDL:
@@ -48,7 +48,7 @@ unique_ptr<VideoSystem> createVideoSystem(Reactor& reactor)
 
 unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getEnum()) {
 		case DUMMY:
 			return make_unique<DummyRenderer>();
 		case SDL:
@@ -63,7 +63,7 @@ unique_ptr<Renderer> createRenderer(VDP& vdp, Display& display)
 
 unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getEnum()) {
 		case DUMMY:
 			return make_unique<V9990DummyRenderer>();
 		case SDL:
@@ -79,7 +79,7 @@ unique_ptr<V9990Renderer> createV9990Renderer(V9990& vdp, Display& display)
 #if COMPONENT_LASERDISC
 unique_ptr<LDRenderer> createLDRenderer(LaserdiscPlayer& ld, Display& display)
 {
-	switch (display.getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getEnum()) {
 		case DUMMY:
 			return make_unique<LDDummyRenderer>();
 		case SDL:
@@ -97,38 +97,33 @@ unique_ptr<RendererSetting> createRendererSetting(
 	CommandController& commandController)
 {
 	EnumSetting<RendererID>::Map rendererMap;
-	rendererMap["none"] = DUMMY; // TODO: only register when in CliComm mode
-	rendererMap["SDL"] = SDL;
+	rendererMap.push_back(std::make_pair("none", DUMMY)); // TODO: only register when in CliComm mode
+	rendererMap.push_back(std::make_pair("SDL", SDL));
 #if COMPONENT_GL
-	#ifdef GL_VERSION_2_0
 	// compiled with OpenGL-2.0, still need to test whether
 	// it's available at run time, but cannot be done here
-	rendererMap["SDLGL-PP"] = SDLGL_PP;
-	#endif
+	rendererMap.push_back(std::make_pair("SDLGL-PP", SDLGL_PP));
 	if (!Version::RELEASE) {
 		// disabled for the release:
 		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		// TODO is this still true now that SDLGL is removed?
-		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
-		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+		rendererMap.push_back(std::make_pair("SDLGL-FB16", SDLGL_FB16));
+		rendererMap.push_back(std::make_pair("SDLGL-FB32", SDLGL_FB32));
 	}
 #endif
 	auto setting = make_unique<RendererSetting>(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDL, rendererMap);
+		COMPONENT_GL ? SDLGL_PP : SDL, rendererMap);
 
-	// A saved value 'none' can be very confusing, so don't save it.
-	// If it did get saved for some reason (old openmsx version?)
-	// then change it to 'SDL'
-	setting->setDontSaveValue("none");
-	if (setting->getValue() == DUMMY) {
-		setting->changeValue(SDL);
+	// A saved value 'none' can be very confusing. If so change it to default.
+	if (setting->getEnum() == DUMMY) {
+		setting->setString(setting->getDefaultValue());
 	}
 	// set saved value as default
-	setting->setRestoreValue(setting->getValue());
+	setting->setRestoreValue(setting->getString());
 
-	setting->changeValue(DUMMY); // always start hidden
+	setting->setEnum(DUMMY); // always start hidden
 
 	return setting;
 }

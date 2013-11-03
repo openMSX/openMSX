@@ -8,12 +8,11 @@
 #include "Setting.hh"
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
-#include "openmsx.hh"
 #include "FileOperations.hh"
-#include "StringOp.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <iostream>
+#include <map>
 //#include <tk.h>
 #include "openmsx.hh"
 
@@ -23,7 +22,7 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-static std::map<long, Setting*> traceMap;
+static std::map<long, BaseSetting*> traceMap;
 static long traceCount = 0;
 
 
@@ -200,7 +199,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 //   - user-defined procs
 vector<string> Interpreter::getCommandNames()
 {
-	return splitList(execute("info commands"), interp);
+	return splitList(execute("openmsx::all_command_names"), interp);
 }
 
 bool Interpreter::isComplete(const string& command) const
@@ -258,20 +257,20 @@ const char* Interpreter::getVariable(const string& name) const
 	return getVar(interp, name.c_str());
 }
 
-static string getSafeValueString(Setting& setting)
+static string getSafeValueString(BaseSetting& setting)
 {
 	try {
-		return setting.getValueString();
+		return setting.getString();
 	} catch (MSXException&) {
 		return "0"; // 'safe' value, see comment in registerSetting()
 	}
 }
-void Interpreter::registerSetting(Setting& variable, const string& name)
+void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 {
 	if (const char* tclVarValue = getVariable(name)) {
 		// Tcl var already existed, use this value
 		try {
-			variable.setValueStringDirect(tclVarValue);
+			variable.setStringDirect(tclVarValue);
 		} catch (MSXException&) {
 			// Ignore: can happen in case of proxy settings when
 			// the current machine doesn't have this setting.
@@ -317,7 +316,7 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 	             traceProc, reinterpret_cast<ClientData>(traceID));
 }
 
-void Interpreter::unregisterSetting(Setting& variable, const string& name)
+void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
 {
 	auto it = traceMap.begin();
 	while (true) {
@@ -334,7 +333,7 @@ void Interpreter::unregisterSetting(Setting& variable, const string& name)
 	unsetVariable(name);
 }
 
-static Setting* getTraceSetting(unsigned traceID)
+static BaseSetting* getTraceSetting(unsigned traceID)
 {
 	auto it = traceMap.find(traceID);
 	return (it != traceMap.end()) ? it->second : nullptr;
@@ -381,7 +380,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		static string static_string;
 		if (flags & TCL_TRACE_READS) {
 			try {
-				setVar(interp, part1, variable->getValueString().c_str());
+				setVar(interp, part1, variable->getString().c_str());
 			} catch (MSXException& e) {
 				static_string = e.getMessage();
 				return const_cast<char*>(static_string.c_str());
@@ -391,8 +390,8 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			try {
 				const char* v = getVar(interp, part1);
 				string newValue = v ? v : "";
-				variable->setValueStringDirect(newValue);
-				string newValue2 = variable->getValueString();
+				variable->setStringDirect(newValue);
+				string newValue2 = variable->getString();
 				if (newValue != newValue2) {
 					setVar(interp, part1, newValue2.c_str());
 				}
@@ -407,8 +406,8 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 				// note we cannot use restoreDefault(), because
 				// that goes via Tcl and the Tcl variable
 				// doesn't exist at this point
-				variable->setValueStringDirect(
-					variable->getRestoreValueString());
+				variable->setStringDirect(
+					variable->getRestoreValue());
 			} catch (MSXException&) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource

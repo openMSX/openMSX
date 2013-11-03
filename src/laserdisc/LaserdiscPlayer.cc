@@ -536,7 +536,7 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		PRT_DEBUG("Laserdisc: ACK cleared");
 		break;
 	case ODD_FRAME:
-		if (!video.get() || video->getFrameRate() != 60)
+		if (!video || video->getFrameRate() != 60)
 			break;
 
 	case EVEN_FRAME:
@@ -692,7 +692,7 @@ const Filename& LaserdiscPlayer::getImageName() const
 
 int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	if (event->getType() == OPENMSX_BOOT_EVENT && video.get()) {
+	if (event->getType() == OPENMSX_BOOT_EVENT && video) {
 		autoRun();
 	}
 	return 0;
@@ -700,7 +700,7 @@ int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)
 
 void LaserdiscPlayer::autoRun()
 {
-	if (!autoRunSetting->getValue()) {
+	if (!autoRunSetting->getBoolean()) {
 		return;
 	}
 
@@ -811,7 +811,7 @@ void LaserdiscPlayer::play(EmuTime::param time)
 {
 	PRT_DEBUG("Laserdisc::Play");
 
-	if (video.get()) {
+	if (video) {
 		updateStream(time);
 
 		if (seeking) {
@@ -944,7 +944,7 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 			PRT_DEBUG("FIXME: seek command while still seeking");
 		}
 
-		if (video.get()) {
+		if (video) {
 			updateStream(time);
 
 			if (toframe <= 0)  {
@@ -995,7 +995,7 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
-		if (video.get()) {
+		if (video) {
 			auto frameno = video->chapter(chapter);
 			if (!frameno) {
 				return;

@@ -174,7 +174,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\BreakPointBase.cc">
       <Filter>cpu</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPU.cc">
+    <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPURegs.cc">
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\cpu\CPUClock.cc">
@@ -1077,6 +1077,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\VDPVRAM.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -1458,7 +1461,7 @@
     <None Include="$(OpenMSXSrcDir)\cpu\CacheLine.hh">
       <Filter>cpu</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\cpu\CPU.hh">
+    <None Include="$(OpenMSXSrcDir)\cpu\CPURegs.hh">
       <Filter>cpu</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\cpu\CPUClock.hh">
@@ -2539,6 +2542,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VDPCmdEngine.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\VDPAccessSlots.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VDPVRAM.hh">

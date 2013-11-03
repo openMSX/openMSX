@@ -3,7 +3,8 @@
 
 #include "openmsx.hh"
 #include "string_ref.hh"
-#include <map>
+#include <vector>
+#include <utility>
 #include <cassert>
 
 namespace openmsx {
@@ -37,7 +38,7 @@ private:
 
 	void parseUnicodeKeymapfile(const char* begin, const char* end);
 
-	std::map<int, KeyInfo> mapdata;
+	std::vector<std::pair<int, KeyInfo>> mapdata;
 	KeyInfo deadKeys[NUM_DEAD_KEYS];
 	const KeyInfo emptyInfo;
 };

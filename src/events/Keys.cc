@@ -1,6 +1,9 @@
 #include "Keys.hh"
 #include "StringOp.hh"
-#include <map>
+#include "stl.hh"
+#include <algorithm>
+#include <vector>
+#include <utility>
 
 using std::string;
 
@@ -8,7 +11,8 @@ namespace openmsx {
 
 namespace Keys {
 
-static std::map<std::string, KeyCode, StringOp::caseless> keymap;
+static std::vector<std::pair<string_ref, KeyCode>> keys;
+typedef CmpTupleElement<0, StringOp::caseless> CmpKeys;
 
 static void initialize()
 {
@@ -286,38 +290,38 @@ static void initialize()
 	};
 	const Entry* e = entries;
 	while (e->name) {
-		keymap[e->name] = e->code;
+		keys.push_back(std::make_pair(e->name, e->code));
 		++e;
 	}
+	sort(keys.begin(), keys.end(), CmpKeys());
 }
 
-KeyCode getCode(const string& name)
+KeyCode getCode(string_ref name)
 {
 	initialize();
 
 	auto result = static_cast<KeyCode>(0);
-	string::size_type lastPos = 0;
-	while (lastPos != string::npos) {
-		auto pos = name.find_first_of(",+/", lastPos);
-		string part = (pos != string::npos)
-		            ? name.substr(lastPos, pos - lastPos)
-			    : name.substr(lastPos);
-		auto it = keymap.find(part);
-		if (it != keymap.end()) {
-			KeyCode partCode = it->second;
-			if ((partCode & K_MASK) && (result & K_MASK)) {
-				// more than one non-modifier component
-				// is not allowed
-				return K_NONE;
-			}
-			result = static_cast<KeyCode>(result | partCode);
-		} else {
+	string_ref::size_type lastPos = 0;
+	while (lastPos != string_ref::npos) {
+		auto pos = name.substr(lastPos).find_first_of(",+/");
+		auto part = (pos != string_ref::npos)
+		          ? name.substr(lastPos, pos)
+		          : name.substr(lastPos);
+		auto it = lower_bound(keys.begin(), keys.end(), part, CmpKeys());
+		StringOp::casecmp cmp;
+		if ((it == keys.end()) || !cmp(it->first, part)) {
 			return K_NONE;
 		}
-		lastPos = pos;
-		if (lastPos != string::npos) {
-			++lastPos;
+		KeyCode partCode = it->second;
+		if ((partCode & K_MASK) && (result & K_MASK)) {
+			// more than one non-modifier component
+			// is not allowed
+			return K_NONE;
 		}
+		result = static_cast<KeyCode>(result | partCode);
+		lastPos = (pos != string_ref::npos)
+		        ? lastPos + pos + 1
+		        : string_ref::npos;
 	}
 	return result;
 }
@@ -372,9 +376,9 @@ const string getName(KeyCode keyCode)
 	initialize();
 
 	string result;
-	for (auto& p : keymap) {
+	for (auto& p : keys) {
 		if (p.second == (keyCode & K_MASK)) {
-			result = p.first;
+			result = p.first.str();
 			break;
 		}
 	}

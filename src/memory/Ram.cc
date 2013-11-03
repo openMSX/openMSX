@@ -90,7 +90,7 @@ void Ram::clear(byte c)
 
 const string& Ram::getName() const
 {
-	return debuggable.get()->getName();
+	return debuggable->getName();
 }
 
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard,

@@ -4,8 +4,7 @@ SUBDIRS:= \
 	v9990 ld scalers
 
 SRC_HDR:= \
-	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
-	VideoSourceSetting \
+	VDP VDPAccessSlots VDPCmdEngine VDPVRAM SpriteChecker ADVram \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \

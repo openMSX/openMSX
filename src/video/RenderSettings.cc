@@ -10,27 +10,17 @@
 #include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <iostream>
 #include <cmath>
 
 namespace openmsx {
 
-class ColorMatrixChecker : public SettingChecker<StringSettingPolicy>
-{
-public:
-	explicit ColorMatrixChecker(RenderSettings& renderSettings);
-	virtual void check(SettingImpl<StringSettingPolicy>& setting,
-	                   std::string& newValue);
-private:
-	RenderSettings& renderSettings;
-};
-
-
 RenderSettings::RenderSettings(CommandController& commandController)
 {
 	EnumSetting<Accuracy>::Map accMap;
-	accMap["screen"] = ACC_SCREEN;
-	accMap["line"]   = ACC_LINE;
-	accMap["pixel"]  = ACC_PIXEL;
+	accMap.push_back(std::make_pair("screen", ACC_SCREEN));
+	accMap.push_back(std::make_pair("line",   ACC_LINE));
+	accMap.push_back(std::make_pair("pixel",  ACC_PIXEL));
 	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
 		"accuracy", "rendering accuracy", ACC_PIXEL, accMap);
 
@@ -66,8 +56,20 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"color_matrix",
 		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
 		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }");
-	colorMatrixChecker = make_unique<ColorMatrixChecker>(*this);
-	colorMatrixSetting->setChecker(colorMatrixChecker.get());
+	colorMatrixSetting->setChecker([this](TclObject& newValue) {
+		try {
+			parseColorMatrix(newValue);
+		} catch (CommandException& e) {
+			throw CommandException(
+				"Invalid color matrix: " + e.getMessage());
+		}
+	});
+	try {
+		parseColorMatrix(colorMatrixSetting->getValue());
+	} catch (MSXException& e) {
+		std::cerr << e.getMessage() << std::endl;
+		cmIdentity = true;
+	}
 
 	glowSetting = make_unique<IntegerSetting>(commandController,
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
@@ -85,19 +87,19 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	rendererSetting = RendererFactory::createRendererSetting(commandController);
 
 	EnumSetting<ScaleAlgorithm>::Map scalerMap;
-	scalerMap["simple"] = SCALER_SIMPLE;
+	scalerMap.push_back(std::make_pair("simple", SCALER_SIMPLE));
 	if (MAX_SCALE_FACTOR > 1) {
-		scalerMap["SaI"] = SCALER_SAI;
-		scalerMap["ScaleNx"] = SCALER_SCALE;
-		scalerMap["hq"] = SCALER_HQ;
-		scalerMap["hqlite"] = SCALER_HQLITE;
-		scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
-		scalerMap["TV"] = SCALER_TV;
+		scalerMap.push_back(std::make_pair("SaI",        SCALER_SAI));
+		scalerMap.push_back(std::make_pair("ScaleNx",    SCALER_SCALE));
+		scalerMap.push_back(std::make_pair("hq",         SCALER_HQ));
+		scalerMap.push_back(std::make_pair("hqlite",     SCALER_HQLITE));
+		scalerMap.push_back(std::make_pair("RGBtriplet", SCALER_RGBTRIPLET));
+		scalerMap.push_back(std::make_pair("TV",         SCALER_TV));
 		if (!Version::RELEASE) {
 			// This scaler is not ready yet for the upcoming 0.8.1
 			// release, so disable it. As soon as it is ready we
 			// can remove this test.
-			scalerMap["MLAA"] = SCALER_MLAA;
+			scalerMap.push_back(std::make_pair("MLAA", SCALER_MLAA));
 		}
 	}
 	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
@@ -121,15 +123,15 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		false, Setting::DONT_SAVE);
 
 	EnumSetting<bool>::Map cmdMap;
-	cmdMap["real"]   = false;
-	cmdMap["broken"] = true;
+	cmdMap.push_back(std::make_pair("real",   false));
+	cmdMap.push_back(std::make_pair("broken", true));
 	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE);
 
 	EnumSetting<DisplayDeform>::Map deformMap;
-	deformMap["normal"] = DEFORM_NORMAL;
-	deformMap["3d"] = DEFORM_3D;
+	deformMap.push_back(std::make_pair("normal", DEFORM_NORMAL));
+	deformMap.push_back(std::make_pair("3d",     DEFORM_3D));
 	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "
@@ -150,6 +152,13 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"number of seconds after which the mouse pointer is hidden in the openMSX "
 		"window; negative = no hiding, 0 = immediately",
 		2.0, -1.0, 60.0);
+
+	interleaveBlackFrameSetting = make_unique<BooleanSetting>(commandController,
+		"interleave_black_frame",
+		"Insert a black frame in between each normal MSX frame. "
+		"Useful on (100Hz+) lightboost enabled monitors to reduce "
+		"motion blur and double frame artifacts.",
+		false);
 }
 
 RenderSettings::~RenderSettings()
@@ -160,17 +169,17 @@ RenderSettings::~RenderSettings()
 
 int RenderSettings::getBlurFactor() const
 {
-	return (horizontalBlurSetting->getValue()) * 256 / 100;
+	return (horizontalBlurSetting->getInt()) * 256 / 100;
 }
 
 int RenderSettings::getScanlineFactor() const
 {
-	return 255 - ((scanlineAlphaSetting->getValue() * 255) / 100);
+	return 255 - ((scanlineAlphaSetting->getInt() * 255) / 100);
 }
 
 float RenderSettings::getScanlineGap() const
 {
-	return scanlineAlphaSetting->getValue() * 0.01f;
+	return scanlineAlphaSetting->getInt() * 0.01f;
 }
 
 void RenderSettings::update(const Setting& setting)
@@ -186,10 +195,10 @@ void RenderSettings::update(const Setting& setting)
 
 void RenderSettings::updateBrightnessAndContrast()
 {
-	double contrastValue = getContrast().getValue();
+	double contrastValue = getContrast().getDouble();
 	contrast = (contrastValue >= 0.0) ? (1.0 + contrastValue / 25.0)
 	                                  : (1.0 + contrastValue / 125.0);
-	double brightnessValue = getBrightness().getValue();
+	double brightnessValue = getBrightness().getDouble();
 	brightness = (brightnessValue / 100.0 - 0.5) * contrast + 0.5;
 }
 
@@ -201,7 +210,7 @@ static double conv2(double x, double gamma)
 double RenderSettings::transformComponent(double c) const
 {
 	double c2 = c * contrast + brightness;
-	double gamma = 1.0 / getGamma().getValue();
+	double gamma = 1.0 / getGamma().getDouble();
 	return conv2(c2, gamma);
 }
 
@@ -215,22 +224,20 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
 	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
-	double gamma = 1.0 / getGamma().getValue();
+	double gamma = 1.0 / getGamma().getDouble();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);
 }
 
-void RenderSettings::parseColorMatrix(const std::string& value)
+void RenderSettings::parseColorMatrix(const TclObject& value)
 {
-	TclObject matrix(colorMatrixSetting->getInterpreter());
-	matrix.setString(value);
-	if (matrix.getListLength() != 3) {
+	if (value.getListLength() != 3) {
 		throw CommandException("must have 3 rows");
 	}
 	bool identity = true;
 	for (int i = 0; i < 3; ++i) {
-		TclObject row = matrix.getListIndex(i);
+		TclObject row = value.getListIndex(i);
 		if (row.getListLength() != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
@@ -242,22 +249,6 @@ void RenderSettings::parseColorMatrix(const std::string& value)
 		}
 	}
 	cmIdentity = identity;
-}
-
-
-ColorMatrixChecker::ColorMatrixChecker(RenderSettings& renderSettings_)
-	: renderSettings(renderSettings_)
-{
-}
-
-void ColorMatrixChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
-                               std::string& newValue)
-{
-	try {
-		renderSettings.parseColorMatrix(newValue);
-	} catch (CommandException& e) {
-		throw CommandException("Invalid color matrix: " + e.getMessage());
-	}
 }
 
 } // namespace openmsx

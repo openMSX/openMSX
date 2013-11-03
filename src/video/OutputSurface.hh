@@ -116,6 +116,10 @@ public:
 	  */
 	virtual void saveScreenshot(const std::string& filename) = 0;
 
+	/** Clear screen (paint it black).
+	 */
+	virtual void clearScreen() = 0;
+
 protected:
 	OutputSurface();
 	void setPosition(int x, int y);

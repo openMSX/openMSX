@@ -488,13 +488,9 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 5: // command
 		command = tokens[4];
-		command.checkCommand();
 		// fall-through
 	case 4: // condition
 		condition = tokens[3];
-		if (!condition.getString().empty()) {
-			condition.checkExpression();
-		}
 		// fall-through
 	case 3: // address
 		addr = getAddress(tokens);
@@ -577,13 +573,9 @@ void DebugCmd::setWatchPoint(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 6: // command
 		command = tokens[5];
-		command.checkCommand();
 		// fall-through
 	case 5: // condition
 		condition = tokens[4];
-		if (!condition.getString().empty()) {
-			condition.checkExpression();
-		}
 		// fall-through
 	case 4: { // address + type
 		string_ref typeStr = tokens[2].getString();
@@ -706,13 +698,9 @@ void DebugCmd::setCondition(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 4: // command
 		command = tokens[3];
-		command.checkCommand();
 		// fall-through
 	case 3: // condition
 		condition = tokens[2];
-		if (!condition.getString().empty()) {
-			condition.checkExpression();
-		}
 		dc = make_shared<DebugCondition>(cliComm, command, condition);
 		break;
 	default:
@@ -820,13 +808,9 @@ void DebugCmd::probeSetBreakPoint(const vector<TclObject>& tokens,
 	switch (tokens.size()) {
 	case 6: // command
 		command = tokens[5];
-		command.checkCommand();
 		// fall-through
 	case 5: // condition
 		condition = tokens[4];
-		if (!condition.getString().empty()) {
-			condition.checkExpression();
-		}
 		// fall-through
 	case 4: { // probe
 		probe = &debugger.getProbe(tokens[3].getString());

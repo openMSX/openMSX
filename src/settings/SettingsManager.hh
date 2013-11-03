@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class Setting;
+class BaseSetting;
 class GlobalCommandController;
 class XMLElement;
 class SettingInfo;
@@ -24,21 +24,18 @@ public:
 	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
 
-	/** Get a setting by specifying its name.
-	  * @return The Setting with the given name,
-	  *   or nullptr if there is no such Setting.
+	/** Find the setting with given name.
+	  * @return The requested setting or nullptr.
 	  */
-	Setting* getByName(string_ref name) const;
+	BaseSetting* findSetting(string_ref name) const;
 
 	void loadSettings(const XMLElement& config);
-	void saveSettings(XMLElement& config) const;
 
-	void registerSetting  (Setting& setting, string_ref name);
-	void unregisterSetting(Setting& setting, string_ref name);
-	Setting* findSetting(string_ref name) const;
+	void registerSetting  (BaseSetting& setting, string_ref name);
+	void unregisterSetting(BaseSetting& setting, string_ref name);
 
 private:
-	Setting& getByName(string_ref cmd, string_ref name) const;
+	BaseSetting& getByName(string_ref cmd, string_ref name) const;
 
 	friend class SettingInfo;
 	friend class SetCompleter;
@@ -48,7 +45,7 @@ private:
 	const std::unique_ptr<SettingCompleter> incrCompleter;
 	const std::unique_ptr<SettingCompleter> unsetCompleter;
 
-	StringMap<Setting*> settingsMap;
+	StringMap<BaseSetting*> settingsMap;
 };
 
 } // namespace openmsx

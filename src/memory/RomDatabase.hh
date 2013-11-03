@@ -1,23 +1,24 @@
 #ifndef ROMDATABASE_HH
 #define ROMDATABASE_HH
 
+#include "RomInfo.hh"
+#include "MemBuffer.hh"
 #include "sha1.hh"
 #include "noncopyable.hh"
-#include <string>
+#include <utility>
+#include <vector>
 #include <memory>
-#include <map>
 
 namespace openmsx {
 
 class CliComm;
-class RomInfo;
 class SoftwareInfoTopic;
 class GlobalCommandController;
 
 class RomDatabase : private noncopyable
 {
 public:
-	typedef std::map<Sha1Sum, std::unique_ptr<RomInfo>> DBMap;
+	typedef std::vector<std::pair<Sha1Sum, RomInfo>> RomDB;
 
 	RomDatabase(GlobalCommandController& commandController, CliComm& cliComm);
 	~RomDatabase();
@@ -28,7 +29,8 @@ public:
 	const RomInfo* fetchRomInfo(const Sha1Sum& sha1sum) const;
 
 private:
-	DBMap romDBSHA1;
+	RomDB db;
+	std::vector<MemBuffer<char>> buffers;
 	std::unique_ptr<SoftwareInfoTopic> softwareInfoTopic;
 };
 

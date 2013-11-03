@@ -82,15 +82,13 @@ You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is in alpha state, which means that some things work but not all
+openMSX is not completed yet, which means that most things work but not all
 features are implemented yet.
 Many emulation features are implemented, but in terms of user interface
 it is rather bare bones.
 However, because the emulation is already pretty good,
 it would be nice if non-insiders would be able to play with it, too.
 For those people, we have written this guide.
-It explains how you can get the emulator running on your system,
-i.e. how to get the sources and compile them.
 </p>
 
 <p>
@@ -159,7 +157,7 @@ you also need the system ROMs for that machine.
 See the <a class="internal" href="#systemroms">next chapter</a> for more
 information on system ROMs.
 You can also create your own machine descriptions,
-to expand existing MSX models or to create your own fantasy MSX. There is currently one such a fantasy MSX configuration that is based on a real MSX shipped with openMSX. It is called "Boosted_MSX2_EN", because it is a European MSX2 with loads of hardware built in. You can find some more information about it in the README file which is in its directory <code>share/machines/Boosted_MSX2_EN</code>.
+to expand existing MSX models or to create your own fantasy MSX. There are currently some of such fantasy MSX machines, based on real MSX machines, shipped with openMSX. Examples are a machine called "Boosted_MSX2_EN" (a European MSX2 with loads of hardware built in) and one called "Boosted_MSX2+_JP" (a Japanese MSX2+ with loads of hardware built in). You can find some more information about them in their accompanying txt file in <code>share/machines/</code>.
 More about creating fantasy MSX machines in a
 <a class="internal" href="#hardwareedit">later chapter</a>.
 </p>
@@ -174,6 +172,8 @@ You can find a lot of predefined extensions
 in the <code>share/extensions</code> directory.
 Some extensions need ROM images in order to run, similar to system ROMs.
 </p>
+
+<p>In general, the XML files that describe the hardware configuration are called "hardware configuration XML files".</p>
 
 <h2><a id="systemroms">3. System ROMs</a></h2>
 
@@ -319,18 +319,16 @@ Checksums.
 </p>
 
 <p>
-If you want to be sure that openMSX loads a specific set of ROM images for a
-machine, independent of any file pool or the checksums of the ROM images, you
-can also copy those to the appropriate subdirectory called <code>roms</code> in
-the directory of that machine, after having dumped or downloaded the ROM
-images.
+For advanced users, it is also possible to let openMSX load a specific set of ROM images for a machine,
+independent of any file pool or the checksums of the ROM images. For that you
+copy the ROM file with the name and path as mentioned in the hardware
+configuration XML file that describes the machine, relative to the path of that
+machine description file.
 For example, if you dumped the ROMs of a Philips NMS 8250 machine,
-copy them to <code>share/machines/Philips_NMS_8250/roms</code>.
-Look in the file hardwareconfig.xml for the file names (and path; newer
-configuration files will not have the 'roms' part in the path, so there you can
-just put them next to the hardwareconfig.xml file) openMSX expects the ROM
-images to have. However, usually, you can just use the file pool as explained
-in the previous paragraph.
+copy them to <code>share/machines/roms</code>, because in the machine
+description file (in <code>share/machines/Philips_NMS_8250.xml</code>) the name
+of the ROMs is like this: <code>roms/nms8250_msx2sub.rom</code>. We recommend
+to not use this feature, but use the file pools as mentioned above.
 </p>
 
 <h4><a id="romchecksums">3.4.2 Checksums</a></h4>
@@ -345,9 +343,9 @@ ROM is explicitly specified in the configuration file (which is also supported) 
 
 <p>
 You can also manually check whether you have the correct ROM images. The value
-in the &lt;sha1&gt; tag(s) in the hardwareconfig.xml files contain checksums of
+in the &lt;sha1&gt; tag(s) in the hardware configuration XML files contain checksums of
 ROM images that are known to work. You can compare the checksums of your ROM
-images to the ones in the hardwareconfig.xml files with the
+images to the ones in the hardware configuration XML files with the
 <code>sha1sum</code> tool.
 It is installed by default on most UNIX systems,
 on Windows you would have to download it separately.
@@ -479,29 +477,18 @@ on your system.
 <h3><a id="opengl">6.1 OpenGL</a></h3>
 
 <p>
-The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed.
-If your OpenGL driver is not hardware accelerated,
+The SDLGL-PP <a class="external" href="user.html#renderers">renderer</a> needs hardware acceleration to run at a decent speed, with support for OpenGL 2.0. Practically all modern PC hardware has this, but if your hardware doesn't,
 use the SDL renderer instead.
-If you have hardware accelerated OpenGL, but an older graphics card,
-try disabling scanlines, blur and glow (set them to 0). Running SDLGL-PP needs a graphics card and drivers that support OpenGL 2.0. For nVidia cards we know that the GeForce 4 and lower cards won't work with SDLGL-PP, GeForce 5 should work, but might be slow at some times and GeForce 6 should be just fine. For ATI we only know that all works fine on a Radeon 9700Pro. Newer cards than mentioned probably work as well.
 </p>
 <p>
-For OpenGL under Linux, you might have to take some additional steps to get it hardware accelerated.
-If you have an nVidia card, go to the
-<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
-For other cards, try Mesa, which can be found in packages like
-<code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
-or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
+Getting OpenGL running hardware accelerated used to be a little cumbersome in some situations.
 However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
 </p>
 <p>
-You need to have the GLX module loaded in your X server and
-also accelerated graphics (DRI).
-You can verify this by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
+You can verify hardware acceleration on your Linux system by typing <code>glxinfo</code> on the command line. If you have everything working, this command should output a line like this: <code>direct rendering: Yes</code>.
 </p>
 <p>
-In conclusion: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
+In any case: if you have a decent video card and you have hardware acceleration working, you can get a lot better performance of openMSX by using the SDLGL-PP renderer.
 </p>
 
 <h3><a id="tuningvarious">6.2 Various Tuning Tips</a></h3>
@@ -531,10 +518,6 @@ Even if they only do so only once in a while, it may be enough to cause
 emulation to stutter.
 </li>
 <li>
-Use 16-bit color mode ("High Colors", "65536 colors") instead of 32-bit ("True Colors", "millions of colors").
-openMSX uses your platform's default setting.
-</li>
-<li>
 Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
 </li>
 <li>
@@ -545,8 +528,8 @@ games (and any MSX1 software) it works perfectly, especially when using full scr
 Use the <a class="external" href="commands.html#resampler">fast resampler</a> instead of the hq or blip one.
 </li>
 <li>
-Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
-instead of MoonSound (maximum 18+24 channels).
+Emulate MSX software that uses less sound channels, for example MSX-MUSIC (maximum 9 channels)
+instead of MoonSound (maximum 18+24 channels). Or run simpler software altogether (e.g. MSX1 software instead of turboR software).
 </li>
 </ul>
 
@@ -589,27 +572,25 @@ but modifying the machine gives you more possibilities.
 Normal usage of machines and extensions is covered in the
 <a class="external" href="user.html">User's Manual</a>;
 this chapter tells you how you can create or modify these hardware descriptions, which is a topic for advanced users and definitely something very few people will (want to) do.
-By editing the XML files, you can for example increase the amount of RAM,
-add a built-in MSX-MUSIC, add a disk drive, create extra cartridge slots etc.
+By editing the hardware configuration XML files, you can for example increase
+the amount of RAM, add a built-in MSX-MUSIC, add a disk drive, create extra
+cartridge slots etc.
 </p>
 
 <p>
-You can modify an MSX machine (e.g. to add devices) by editing the XML config
-file. So, let's make a copy of <code>machines/Philips_NMS_8250/hardwareconfig.xml</code> and
-put it in <code>machines/mymsx/</code> under the name of <code>hardwareconfig.xml</code>.
+You can modify an MSX machine (e.g. to add devices) by editing its hardware configration XML file. So, let's make a copy of <code>share/machines/Philips_NMS_8250.xml</code> and
+put it in <code>share/machines/mymsx.xml</code>.
 It's the config we are going to play with; our custom MSX.
-Note: it is convenient to use the directory
-<code>~/.openMSX/share/machines</code> (UNIX) or <code>My
-Documents\openMSX\share\machines</code> (Windows) to store your home-made machines,
-instead of the openMSX installation directory.
+Note: it is convenient to use the user directory (see <a href="#romlocation">above</a>)
+to store your home-made machines, instead of the openMSX installation directory.
 </p>
 
 <p>
 The easiest thing to do is to copy and modify
 fragments from other existing configurations that can be found in
 <code>share/machines</code> or <code>share/extensions</code>. For example,
-to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac/hardwareconfig.xml</code> to
-some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code>&lt;devices&gt;</code> and
+to add an FMPAC to the 8250, just copy it from the <code>share/extensions/fmpac.xml</code> to
+some place in your <code>mymsx.xml</code> file (between the <code>&lt;devices&gt;</code> and
 <code>&lt;/devices&gt;</code> tags!):
 </p>
 
@@ -706,33 +687,27 @@ If you encounter problems, you have several options:
 
 <ol>
 <li>
-If you're a regular user and want to discuss openMSX and possible problems,
-join our <code>openmsx-user</code> mailing list.
-More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
-including an archive of old messages, can be found at SourceForge.
-</li>
-<li>
 Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
-and ask your question there. Also reachable via <a href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
-
+and ask your question there. Also reachable via <a class="external" href="http://webchat.freenode.net/?channels=openMSX">webchat</a>! If you don't get a reply immediately, please stick around for a while, or use one of the other contact options. The majority of the developers lives in time zone GMT+1. You may get no response if you contact them in the middle of the night...
 </li>
 <li>
+Contact us and other users via one of the mailing lists. If you're a regular user and want to discuss openMSX and possible problems,
+join our <code>openmsx-user</code> mailing list.
 If you want to address the openMSX developers directly,
 post a message to the <code>openmsx-devel</code> mailing list.
 More info on the
-<a class="external" href="http://sourceforge.net/mail/?group_id=38274">openMSX mailing lists</a>,
+<a class="external" href="https://sourceforge.net/p/openmsx/mailman">openMSX mailing lists</a>,
 including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
 Use one of the
-<a class="external" href="http://sourceforge.net/tracker/?group_id=38274">openMSX trackers</a>
+<a class="external" href="https://sourceforge.net/p/openmsx/_list/tickets">openMSX ticket trackers</a>
 at SourceForge.
-At the moment of writing, there are four trackers:
-Bugs, Support Requests, Patches and Feature Requests.
+At the moment of writing, there are four ticket trackers:
+Bugs, Support Requests, Patches and Feature Requests. You need a (free) log-in on SourceForge to get access.
 </li>
 <li>
-Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Post a message on <a class="external" href="http://www.msx.org/forum/semi-msx-talk/openmsx">the openMSX forum on MRC</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
 </li>
 </ol>
 

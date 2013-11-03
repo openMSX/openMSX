@@ -70,7 +70,6 @@ static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE /
 SCSIHD::SCSIHD(const DeviceConfig& targetconfig,
                AlignedBuffer& buf, unsigned mode_)
 	: HD(targetconfig)
-	, motherBoard(targetconfig.getMotherBoard())
 	, buffer(buf)
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))
@@ -99,7 +98,7 @@ void SCSIHD::busReset()
 
 void SCSIHD::disconnect()
 {
-	motherBoard.getLedStatus().setLed(LedStatus::FDD, false);
+	getMotherBoard().getLedStatus().setLed(LedStatus::FDD, false);
 }
 
 // Check the initiator in the call origin.
@@ -279,7 +278,7 @@ bool SCSIHD::checkAddress()
 // Execute scsiDeviceCheckAddress previously.
 unsigned SCSIHD::readSectors(unsigned& blocks)
 {
-	motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
+	getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
@@ -317,7 +316,7 @@ unsigned SCSIHD::dataIn(unsigned& blocks)
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
 unsigned SCSIHD::writeSectors(unsigned& blocks)
 {
-	motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
+	getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
@@ -451,7 +450,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 				currentLength = SECTOR_SIZE / 2;
 			}
 			if (checkAddress() && !checkReadOnly()) {
-				motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
+				getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
@@ -463,7 +462,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 
 		case SCSI::OP_SEEK6:
 			PRT_DEBUG("Seek6: " << currentSector);
-			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
+			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
 			checkAddress();
 			return 0;
@@ -532,7 +531,7 @@ unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& bloc
 		}
 		case SCSI::OP_SEEK10:
 			PRT_DEBUG("Seek10: " << currentSector);
-			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
+			getMotherBoard().getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
 			checkAddress();
 			return 0;

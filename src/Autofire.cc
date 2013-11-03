@@ -27,7 +27,7 @@ Autofire::~Autofire()
 
 void Autofire::setClock()
 {
-	int speed = speedSetting->getValue();
+	int speed = speedSetting->getInt();
 	clock.setFreq(
 	    (2 * 50 * 60) / (max_ints - (speed * (max_ints - min_ints)) / 100));
 }
@@ -41,7 +41,7 @@ void Autofire::update(const Setting& setting)
 
 bool Autofire::getSignal(EmuTime::param time)
 {
-	return speedSetting->getValue() == 0 ?
+	return speedSetting->getInt() == 0 ?
 		false : clock.getTicksTill(time) & 1;
 }
 

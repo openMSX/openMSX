@@ -152,14 +152,14 @@ void SoundDevice::setInputRate(unsigned sampleRate)
 void SoundDevice::recordChannel(unsigned channel, const Filename& filename)
 {
 	assert(channel < numChannels);
-	bool wasRecording = writer[channel].get() != nullptr;
+	bool wasRecording = writer[channel] != nullptr;
 	if (!filename.empty()) {
 		writer[channel] = make_unique<Wav16Writer>(
 			filename, stereo, inputSampleRate);
 	} else {
 		writer[channel].reset();
 	}
-	bool recording = writer[channel].get() != nullptr;
+	bool recording = writer[channel] != nullptr;
 	if (recording != wasRecording) {
 		if (recording) {
 			if (numRecordChannels == 0) {
@@ -201,7 +201,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	// channelBalance[]) could use the same buffer when balanceCenter is
 	// false
 	for (unsigned i = 0; i < numChannels; ++i) {
-		if (!channelMuted[i] && !writer[i].get() && balanceCenter) {
+		if (!channelMuted[i] && !writer[i] && balanceCenter) {
 			// no need to keep this channel separate
 			bufs[i] = dataOut;
 		} else {
@@ -217,7 +217,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		// still need to fill in (some) bufs[i] pointers
 		unsigned count = 0;
 		for (unsigned i = 0; i < numChannels; ++i) {
-			if (!(!channelMuted[i] && !writer[i].get() && balanceCenter)) {
+			if (!(!channelMuted[i] && !writer[i] && balanceCenter)) {
 				bufs[i] = &mixBuffer[pitch * count++];
 			}
 		}
@@ -240,7 +240,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 
 	// record channels
 	for (unsigned i = 0; i < numChannels; ++i) {
-		if (writer[i].get()) {
+		if (writer[i]) {
 			assert(bufs[i] != dataOut);
 			if (bufs[i]) {
 				writer[i]->write(

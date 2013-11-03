@@ -6,18 +6,93 @@ variable tabcompletion_proc_sensitive
 variable tabcompletion_proc_insensitive
 variable help_text
 variable help_proc
+variable lazy [dict create]
 
 # Only execute this script once. Below we source other Tcl script,
 # so this makes sure we don't get in an infinte loop.
 if {$init_tcl_executed} return
 set init_tcl_executed true
 
+
+# Helpers to handle on-demand (lazy) loading of Tcl scripts
+
+# Register 'script' to be loaded on-demand when one of the proc names in
+# 'procs' is about to be executed. See also 'lazy.tcl'.
+proc register_lazy {script procs} {
+	variable lazy
+	dict set lazy $script $procs
+}
+
+# Lookup the script associated with the given proc name. If found that script
+# is executed (and the script+proc-names are removed from the list of
+# yet-to-be-executed lazy scripts).
+proc lazy_handler {name} {
+	variable lazy
+	set name [namespace tail $name]
+	dict for {script procs} $lazy {
+		if {[lsearch -exact $procs $name] == -1} continue
+		dict unset lazy $script
+		namespace eval :: [list source [data_file scripts/$script]]
+		return true
+	}
+	return false
+}
+
+# Execute all not yet executed lazy-scripts. ATM this is (only) required for
+# the 'about' command which has to search through the help text of all the
+# scripts.
+proc lazy_execute_all {} {
+	variable lazy
+	# cannot simply iterate because the 'source' command below might
+	# trigger a load of a script later in the collection
+	while {[dict size $lazy] != 0} {
+		set script [lindex [dict keys $lazy] 0]
+		dict unset lazy $script
+		namespace eval :: [list source [data_file scripts/$script]]
+	}
+}
+
+# Return a list of all command names. This includes:
+#   builtin Tcl commands,
+#   procs defined in Tcl scripts,
+#   procs from not yet loaded lazy-scripts (see register_lazy).
+# This helper proc is used for tab-completion in the openMSX console.
+proc all_command_names {} {
+	variable lazy
+	set result [info commands]
+	foreach procs [dict values $lazy] {
+		lappend result {*}$procs
+	}
+	return $result
+}
+
+# Is the given name a name of a proc, possibly a name defined in a not-yet
+# loaded script. This helper proc is used for syntax-highlighting in the
+# openMSX console.
+proc is_command_name {name} {
+	if {[info commands ::$name] ne ""} {return 1}
+	expr {[lsearch -exact [all_command_names] [namespace tail $name]] != -1}
+}
+
+# Override the builtin Tcl proc 'unknown'. This is called when the Tcl
+# interpreter is about to execute an undefined command.
+proc ::unknown {args} {
+	#puts stderr "unknown: $args"
+	set name [lindex $args 0]
+	if {[openmsx::lazy_handler $name]} {
+		return [uplevel 1 $args]
+	}
+	return -code error "invalid command name \"$name\""
+}
+
+
 # internal proc to make help function available to Tcl procs
-proc help { args } {
+proc help {args} {
 	variable help_text
 	variable help_proc
 
 	set command [lindex $args 0]
+	lazy_handler $command
 	if {[info exists help_proc($command)]} {
 		return [namespace eval :: $help_proc($command) $args]
 	} elseif {[info exists help_text($command)]} {
@@ -28,14 +103,14 @@ proc help { args } {
 		error "Unknown command: $command"
 	}
 }
-proc set_help_text { command help } {
+proc set_help_text {command help} {
 	variable help_text
 	set help_text($command) $help
 }
 set_help_text set_help_text \
 {Associate a help-text with a Tcl proc. This is normally only used in Tcl scripts.}
 
-proc set_help_proc { command procname } {
+proc set_help_proc {command procname} {
 	variable help_proc
 	set help_proc($command) $procname
 }
@@ -43,11 +118,12 @@ set_help_text set_help_proc \
 {Associate a help-proc with a Tcl proc. This is normally only used in Tcl scripts.}
 
 # internal proc to make tabcompletion available to Tcl procs
-proc tabcompletion { args } {
+proc tabcompletion {args} {
 	variable tabcompletion_proc_sensitive
 	variable tabcompletion_proc_insensitive
 
 	set command [lindex $args 0]
+	lazy_handler $command
 	set result ""
 	if {[info exists tabcompletion_proc_sensitive($command)]} {
 		set result [namespace eval :: $tabcompletion_proc_sensitive($command) $args]
@@ -58,7 +134,7 @@ proc tabcompletion { args } {
 	}
 	return $result
 }
-proc set_tabcompletion_proc { command proc {case_sensitive true} } {
+proc set_tabcompletion_proc {command proc {case_sensitive true}} {
 	variable tabcompletion_proc_sensitive
 	variable tabcompletion_proc_insensitive
 	if {$case_sensitive} {
@@ -80,6 +156,7 @@ proc data_file { file } {
 	return $env(OPENMSX_SYSTEM_DATA)/$file
 }
 
+namespace export register_lazy
 namespace export set_help_text
 namespace export set_help_proc
 namespace export set_tabcompletion_proc
@@ -97,6 +174,9 @@ set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *
 set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
 set profile_list [list]
 foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
+	# Skip scripts that start with a '_' character. (By convention) those
+	# are loaded on-demand (see 'lazy.tcl').
+	if {[string index $script 0] eq "_"} continue
 	set script [data_file scripts/$script]
 	set t1 [openmsx_info realtime]
 	if {[catch {namespace eval :: [list source $script]}]} {

@@ -15,16 +15,13 @@ GLScaleNxScaler::GLScaleNxScaler()
 		scalerProgram[i].attach(vertexShader);
 		scalerProgram[i].attach(fragmentShader);
 		scalerProgram[i].link();
-#ifdef GL_VERSION_2_0
-		if (GLEW_VERSION_2_0) {
-			scalerProgram[i].activate();
-			glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
-			if (i == 1) {
-				glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
-			}
-			texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
+
+		scalerProgram[i].activate();
+		glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
+		if (i == 1) {
+			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
 		}
-#endif
+		texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
 	}
 }
 
@@ -42,9 +39,7 @@ void GLScaleNxScaler::scaleImage(
 			glActiveTexture(GL_TEXTURE0);
 		}
 		scalerProgram[i].activate();
-		if (GLEW_VERSION_2_0) {
-			glUniform2f(texSizeLoc[i], 320.0f, src.getHeight());
-		}
+		glUniform2f(texSizeLoc[i], 320.0f, src.getHeight());
 		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 		             dstStartY, dstEndY, dstWidth);
 	} else {

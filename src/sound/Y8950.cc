@@ -460,13 +460,16 @@ static void makeTllTable()
 	static const unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
+	// This is indeed {0.0, 3.0, 1.5, 6.0} dB/oct, verified on real Y8950.
+	// Note the illogical order of 2nd and 3rd element.
+	static const unsigned shift[4] = { 31, 1, 2, 0 };
 
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum  = freq % 16;
 		unsigned block = freq / 16;
 		int tmp = 4 * kltable[fnum] - 32 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
+			tllTable[freq][KL] = (tmp <= 0) ? 0 : (tmp >> shift[KL]);
 		}
 	}
 }

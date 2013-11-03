@@ -21,7 +21,8 @@ template <typename Pixel> struct HQ_1x1on3x3
 {
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
-	                unsigned srcWidth, unsigned* edgeBuf, EdgeHQ edgeOp);
+	                unsigned srcWidth, unsigned* edgeBuf, EdgeHQ edgeOp)
+	               __restrict;
 };
 
 template <typename Pixel>

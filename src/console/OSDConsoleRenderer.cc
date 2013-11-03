@@ -38,17 +38,6 @@ static const uint64_t BLINK_RATE = 500000; // us
 static const int CHAR_BORDER = 4;
 
 
-class OSDSettingChecker : public SettingChecker<FilenameSetting::Policy>
-{
-public:
-	OSDSettingChecker(OSDConsoleRenderer& renderer);
-	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
-	                   std::string& value);
-private:
-	OSDConsoleRenderer& renderer;
-};
-
-
 // class OSDConsoleRenderer::TextCacheElement
 
 OSDConsoleRenderer::TextCacheElement::TextCacheElement(
@@ -75,14 +64,10 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	, reactor(reactor_)
 	, console(console_)
 	, consoleSetting(console.getConsoleSetting())
-	, settingChecker(make_unique<OSDSettingChecker>(*this))
 	, screenW(screenW_)
 	, screenH(screenH_)
 	, openGL(openGL_)
 {
-	// cacheHint must always point to a valid item, so insert a dummy entry
-	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
-	cacheHint = textCache.begin();
 #if !COMPONENT_GL
 	assert(!openGL);
 #endif
@@ -104,15 +89,18 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	const string& defaultFont = "skins/VeraMono.ttf.gz";
 	fontSetting = make_unique<FilenameSetting>(commandController,
 		"consolefont", "console font file", defaultFont);
+	fontSetting->setChecker([this](TclObject& value) {
+		loadFont(value.getString().str());
+	});
 	try {
-		fontSetting->setChecker(settingChecker.get());
+		loadFont(fontSetting->getString());
 	} catch (MSXException&) {
 		// This will happen when you upgrade from the old .png based
 		// fonts to the new .ttf fonts. So provide a smooth upgrade path.
 		reactor.getCliComm().printWarning(
-			"Loading selected font (" + fontSetting->getValue() +
+			"Loading selected font (" + fontSetting->getString() +
 			") failed. Reverting to default font (" + defaultFont + ").");
-		fontSetting->changeValue(defaultFont);
+		fontSetting->setString(defaultFont);
 		if (font.empty()) {
 			// we can't continue without font
 			throw FatalError("Couldn't load default console font.\n"
@@ -132,15 +120,15 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 
 	// placement
 	EnumSetting<Placement>::Map placeMap;
-	placeMap["topleft"]     = CP_TOPLEFT;
-	placeMap["top"]         = CP_TOP;
-	placeMap["topright"]    = CP_TOPRIGHT;
-	placeMap["left"]        = CP_LEFT;
-	placeMap["center"]      = CP_CENTER;
-	placeMap["right"]       = CP_RIGHT;
-	placeMap["bottomleft"]  = CP_BOTTOMLEFT;
-	placeMap["bottom"]      = CP_BOTTOM;
-	placeMap["bottomright"] = CP_BOTTOMRIGHT;
+	placeMap.push_back(std::make_pair("topleft",     CP_TOPLEFT));
+	placeMap.push_back(std::make_pair("top",         CP_TOP));
+	placeMap.push_back(std::make_pair("topright",    CP_TOPRIGHT));
+	placeMap.push_back(std::make_pair("left",        CP_LEFT));
+	placeMap.push_back(std::make_pair("center",      CP_CENTER));
+	placeMap.push_back(std::make_pair("right",       CP_RIGHT));
+	placeMap.push_back(std::make_pair("bottomleft",  CP_BOTTOMLEFT));
+	placeMap.push_back(std::make_pair("bottom",      CP_BOTTOM));
+	placeMap.push_back(std::make_pair("bottomright", CP_BOTTOMRIGHT));
 	consolePlacementSetting = make_unique<EnumSetting<Placement>>(
 		commandController, "consoleplacement",
 		"position of the console within the emulator",
@@ -150,16 +138,21 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	backgroundSetting = make_unique<FilenameSetting>(commandController,
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png");
-	backgroundSetting->setChecker(settingChecker.get(), false); // don't load
+	backgroundSetting->setChecker([this](TclObject& value) {
+		loadBackground(value.getString().str());
+	});
+	// don't yet load background
 
 	consoleSetting.attach(*this);
+	fontSetting->attach(*this);
 	fontSizeSetting->attach(*this);
-	setActive(consoleSetting.getValue());
+	setActive(consoleSetting.getBoolean());
 }
 
 OSDConsoleRenderer::~OSDConsoleRenderer()
 {
 	fontSizeSetting->detach(*this);
+	fontSetting->detach(*this);
 	consoleSetting.detach(*this);
 	setActive(false);
 }
@@ -167,10 +160,10 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 void OSDConsoleRenderer::adjustColRow()
 {
 	unsigned consoleColumns = std::min<unsigned>(
-		consoleColumnsSetting->getValue(),
+		consoleColumnsSetting->getInt(),
 		(screenW - CHAR_BORDER) / font.getWidth());
 	unsigned consoleRows = std::min<unsigned>(
-		consoleRowsSetting->getValue(),
+		consoleRowsSetting->getInt(),
 		screenH / font.getHeight());
 	console.setColumns(consoleColumns);
 	console.setRows(consoleRows);
@@ -179,9 +172,10 @@ void OSDConsoleRenderer::adjustColRow()
 void OSDConsoleRenderer::update(const Setting& setting)
 {
 	if (&setting == &consoleSetting) {
-		setActive(consoleSetting.getValue());
-	} else if (&setting == fontSizeSetting.get()) {
-		loadFont(fontSetting->getValue());
+		setActive(consoleSetting.getBoolean());
+	} else if ((&setting == fontSetting.get()) ||
+	           (&setting == fontSizeSetting.get())) {
+		loadFont(fontSetting->getString());
 	} else {
 		UNREACHABLE;
 	}
@@ -232,7 +226,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	w = (font.getWidth() * console.getColumns()) + CHAR_BORDER;
 
 	// TODO use setting listener in the future
-	switch (consolePlacementSetting->getValue()) {
+	switch (consolePlacementSetting->getEnum()) {
 		case CP_TOPLEFT:
 		case CP_LEFT:
 		case CP_BOTTOMLEFT:
@@ -250,7 +244,7 @@ bool OSDConsoleRenderer::updateConsoleRect()
 			x = (screenW - w) / 2;
 			break;
 	}
-	switch (consolePlacementSetting->getValue()) {
+	switch (consolePlacementSetting->getEnum()) {
 		case CP_TOPLEFT:
 		case CP_TOP:
 		case CP_TOPRIGHT:
@@ -278,7 +272,12 @@ bool OSDConsoleRenderer::updateConsoleRect()
 void OSDConsoleRenderer::loadFont(const string& value)
 {
 	string filename = SystemFileContext().resolve(value);
-	font = TTFFont(filename, fontSizeSetting->getValue());
+	auto newFont = TTFFont(filename, fontSizeSetting->getInt());
+	if (!newFont.isFixedWidth()) {
+		throw MSXException(value + " is not a monospaced font");
+	}
+	font = std::move(newFont);
+	clearCache();
 }
 
 void OSDConsoleRenderer::loadBackground(const string& value)
@@ -335,7 +334,7 @@ void OSDConsoleRenderer::drawText2(OutputSurface& output, string_ref text,
 			return; // don't cache negative results
 		}
 		std::unique_ptr<BaseImage> image2;
-		if (!surf.get()) {
+		if (!surf) {
 			// nothing was rendered, so do nothing
 		} else if (!openGL) {
 			image2 = make_unique<SDLImage>(std::move(surf));
@@ -401,6 +400,14 @@ void OSDConsoleRenderer::insertInCache(
 		text, rgb, std::move(image), width));
 }
 
+void OSDConsoleRenderer::clearCache()
+{
+	// cacheHint must always point to a valid item, so insert a dummy entry
+	textCache.clear();
+	textCache.push_back(TextCacheElement("", 0, nullptr, 0));
+	cacheHint = textCache.begin();
+}
+
 void OSDConsoleRenderer::paint(OutputSurface& output)
 {
 	byte visibility = getVisibility();
@@ -408,14 +415,14 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 
 	if (updateConsoleRect()) {
 		try {
-			loadBackground(backgroundSetting->getValue());
+			loadBackground(backgroundSetting->getString());
 		} catch (MSXException& e) {
 			reactor.getCliComm().printWarning(e.getMessage());
 		}
 	}
 
 	// draw the background image if there is one
-	if (!backgroundImage.get()) {
+	if (!backgroundImage) {
 		// no background image, try to create an empty one
 		try {
 			if (!openGL) {
@@ -432,7 +439,7 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 			// nothing
 		}
 	}
-	if (backgroundImage.get()) {
+	if (backgroundImage) {
 		backgroundImage->draw(output, destX, destY, visibility);
 	}
 
@@ -464,26 +471,6 @@ void OSDConsoleRenderer::paint(OutputSurface& output)
 		         destX + CHAR_BORDER + cursorX * font.getWidth(),
 		         destY + destH - (font.getHeight() * (cursorY + 1)) - 1,
 		         visibility);
-	}
-}
-
-
-// class OSDSettingChecker
-
-OSDSettingChecker::OSDSettingChecker(OSDConsoleRenderer& renderer_)
-	: renderer(renderer_)
-{
-}
-
-void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
-	                      string& value)
-{
-	if (&setting == renderer.backgroundSetting.get()) {
-		renderer.loadBackground(value);
-	} else if (&setting == renderer.fontSetting.get()) {
-		renderer.loadFont(value);
-	} else {
-		UNREACHABLE;
 	}
 }
 

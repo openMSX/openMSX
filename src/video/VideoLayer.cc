@@ -1,5 +1,4 @@
 #include "VideoLayer.hh"
-#include "RenderSettings.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "GlobalSettings.hh"
@@ -17,7 +16,6 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
                        const std::string& videoSource_)
 	: motherBoard(motherBoard_)
 	, display(motherBoard.getReactor().getDisplay())
-	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(motherBoard.getVideoSource())
 	, videoSourceActivator(make_unique<VideoSourceActivator>(
 		videoSourceSetting, videoSource_))
@@ -49,6 +47,10 @@ int VideoLayer::getVideoSource() const
 {
 	return videoSourceActivator->getID();
 }
+int VideoLayer::getVideoSourceSetting() const
+{
+	return videoSourceSetting.getSource();
+}
 
 void VideoLayer::update(const Setting& setting)
 {
@@ -61,7 +63,7 @@ void VideoLayer::update(const Setting& setting)
 
 void VideoLayer::calcZ()
 {
-	setZ((videoSourceSetting.getValue() == getVideoSource())
+	setZ((videoSourceSetting.getSource() == getVideoSource())
 		? Z_MSX_ACTIVE
 		: Z_MSX_PASSIVE);
 }
@@ -70,7 +72,7 @@ void VideoLayer::calcCoverage()
 {
 	Coverage coverage;
 
-	if (!powerSetting.getValue() || !motherBoard.isActive()) {
+	if (!powerSetting.getBoolean() || !motherBoard.isActive()) {
 		coverage = COVER_NONE;
 	} else {
 		coverage = COVER_FULL;
@@ -93,7 +95,7 @@ bool VideoLayer::needRender() const
 	// Either when this layer itself is selected or when the video9000
 	// layer is selected and this layer is needed to render a
 	// (superimposed) image.
-	int current = videoSourceSetting.getValue();
+	int current = videoSourceSetting.getSource();
 	return (current == getVideoSource()) ||
 	      ((current == video9000Source) && (activeVideo9000 != INACTIVE));
 }
@@ -103,7 +105,7 @@ bool VideoLayer::needRecord() const
 	// Either when this layer itself is selected or when the video9000
 	// layer is selected and this layer is the front layer of a
 	// (superimposed) image
-	int current = videoSourceSetting.getValue();
+	int current = videoSourceSetting.getSource();
 	return (current == getVideoSource()) ||
 	      ((current == video9000Source) && (activeVideo9000 == ACTIVE_FRONT));
 }

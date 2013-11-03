@@ -62,7 +62,7 @@ void ResampledSoundDevice::createResampler()
 	if (outputRate == inputRate) {
 		algo = make_unique<ResampleTrivial>(*this);
 	} else {
-		switch (resampleSetting.getValue()) {
+		switch (resampleSetting.getEnum()) {
 		case RESAMPLE_HQ:
 			if (!isStereo()) {
 				algo = make_unique<ResampleHQ<1>>(

@@ -43,7 +43,7 @@ StringSetting& TclCallback::getSetting() const
 
 string TclCallback::getValue() const
 {
-	return getSetting().getValue();
+	return getSetting().getString();
 }
 
 void TclCallback::execute()
@@ -82,7 +82,7 @@ void TclCallback::execute(int arg1, string_ref arg2)
 
 void TclCallback::execute(string_ref arg1, string_ref arg2)
 {
-	const std::string callback = getValue();
+	const string callback = getValue();
 	if (callback.empty()) return;
 
 	TclObject command(callbackSetting.getInterpreter());

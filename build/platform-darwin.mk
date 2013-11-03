@@ -21,57 +21,32 @@ EXEEXT:=
 LIBRARYEXT:=.so
 
 # Select the OS X version we want to be compatible with.
-# TODO: When compiling an executable for local use, we could pick the OS X
-#       version we are running on instead of the oldest version we support.
-#       But at the moment I don't want to make this more complex than it
-#       already is.
-ifeq ($(OPENMSX_TARGET_CPU),x86_64)
-OSX_MIN_VER:=10.6
-else
-OSX_MIN_VER:=10.4
-endif
-TARGET_FLAGS+=-mmacosx-version-min=$(OSX_MIN_VER)
+# In theory it is possible to compile against an OS X version number lower
+# than the SDK version number, but in practice this doesn't seem to work
+# since libraries such as libxml2 can change soname between OS X versions.
+# Clang as shipped with Xcode requires OS X 10.7 or higher for compiling with
+# libc++, when compiling Clang and libc++ from source 10.6 works as well.
+OSX_VER:=10.7
+TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
 
-# Select the SDK to use. This can be higher than the OS X minimum version.
-# The SDK path for Xcode from the Mac App Store:
-SDK_PATH:=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk/
-ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists)$(filter $(OPENMSX_TARGET_CPU),ppc),exists)
+# Select the SDK to use.
+XCODE_PATH:=$(shell xcode-select -print-path)
+ifneq ($(XCODE_PATH),)
+SDK_PATH:=$(XCODE_PATH)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VER).sdk
+else
 # The SDK path for the older stand-alone Xcode:
-SDK_PATH:=/Developer/SDKs/MacOSX10.6.sdk
-endif
+SDK_PATH:=/Developer/SDKs/MacOSX$(OSX_VER).sdk
 ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists),exists)
 $(error No Mac OS X SDK found)
 endif
+endif
+$(info Using SDK: $(SDK_PATH))
 TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
-ifeq ($(OPENMSX_TARGET_CPU),ppc)
-# Select an appropriate GCC version. Only PPC doesn't use clang yet.
-CXX:=$(SDK_PATH)/../../usr/bin/g++-4.2
-else
-# Select clang as the compiler.
+# Select Clang as the compiler and libc++ as the standard library.
 CXX:=clang++
-endif
-
-ifeq ($(filter 3RD_%,$(LINK_MODE)),)
-# Compile against local libs. We assume the binary is intended to be run on
-# this Mac only.
-# Note that even though we compile for local use, we still have to compile
-# against the SDK since OS X 10.3 will have link problems otherwise (the
-# QuickTime framework in particular is notorious for this).
-
-# TODO: Verify whether this is how to do it.
-COMPILE_FLAGS+=-I/usr/local/include
-
-# When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
-# default, but users might have installed some dependencies there.
-LINK_FLAGS+=-L/usr/lib
-else
-# Compile against 3rdparty libs. We assume the binary is intended to be run
-# on different Mac OS X versions, so we compile against the SDKs for the
-# system-wide libraries.
-
-# Nothing to define.
-endif
+COMPILE_FLAGS+=-stdlib=libc++
+LINK_FLAGS+=-lc++
 
 # Link against CoreMIDI.
 LINK_FLAGS+=-framework CoreMIDI

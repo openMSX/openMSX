@@ -22,6 +22,7 @@ private:
 	// OutputSurface
 	virtual void flushFrameBuffer();
 	virtual void saveScreenshot(const std::string& filename);
+	virtual void clearScreen();
 
 	// VisibleSurface
 	virtual void finish();

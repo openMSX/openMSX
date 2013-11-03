@@ -1,14 +1,11 @@
 #include "RomInfo.hh"
-#include "CliComm.hh"
 #include "StringOp.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include <cassert>
-#include <map>
 
-using std::map;
 using std::vector;
 using std::string;
-using std::pair;
 
 namespace openmsx {
 
@@ -27,20 +24,32 @@ static inline bool isAlias(RomType type)
 
 
 static bool isInit = false;
-typedef map<string_ref, RomType, StringOp::caseless> RomTypeMap;
-typedef map<RomType, pair<string_ref, unsigned>> RomTypeInfoMap; // description blocksize
+
+// This maps a name to a RomType. There can be multiple names (aliases) for the
+// same type.
+typedef vector<std::pair<string_ref, RomType>> RomTypeMap;
+typedef CmpTupleElement<0, StringOp::caseless> RomTypeMapLess;
 static RomTypeMap romTypeMap;
+
+// This contains extra information for each RomType. This structure only
+// contains the primary (non-alias) romtypes.
+typedef std::tuple<RomType,    // rom type
+                   string_ref, // description
+                   unsigned    // blockSize
+	> RomTypeInfo;
+typedef vector<RomTypeInfo> RomTypeInfoMap;
+typedef LessTupleElement<0> RomTypeInfoMapLess;
 static RomTypeInfoMap romTypeInfoMap;
 
 static void init(RomType type, string_ref name,
-                 unsigned blocksize, string_ref description)
+                 unsigned blockSize, string_ref description)
 {
-	romTypeMap[name] = type;
-	romTypeInfoMap[type] = std::make_pair(description, blocksize);
+	romTypeMap.push_back(std::make_pair(name, type));
+	romTypeInfoMap.push_back(std::make_tuple(type, description, blockSize));
 }
 static void initAlias(RomType type, string_ref name)
 {
-	romTypeMap[name] = makeAlias(type);
+	romTypeMap.push_back(std::make_pair(name, makeAlias(type)));
 }
 static void init()
 {
@@ -149,6 +158,9 @@ static void init()
 	initAlias(ROM_ZEMINA90IN1, "KOREAN90IN1");
 	initAlias(ROM_ZEMINA126IN1,"KOREAN126IN1");
 	initAlias(ROM_HOLY_QURAN,  "HolyQuran");
+
+	sort(romTypeMap.begin(),     romTypeMap.end(),     RomTypeMapLess());
+	sort(romTypeInfoMap.begin(), romTypeInfoMap.end(), RomTypeInfoMapLess());
 }
 static const RomTypeMap& getRomTypeMap()
 {
@@ -161,31 +173,13 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 	return romTypeInfoMap;
 }
 
-RomInfo::RomInfo(string_ref ntitle,   string_ref nyear,
-                 string_ref ncompany, string_ref ncountry,
-                 bool noriginal,      string_ref norigType,
-                 string_ref nremark,  const RomType& nromType,
-                 int ngenMSXid)
-	: title   (ntitle   .str())
-	, year    (nyear    .str())
-	, company (ncompany .str())
-	, country (ncountry .str())
-	, origType(norigType.str())
-	, remark  (nremark  .str())
-	, romType(nromType)
-	, genMSXid(ngenMSXid)
-	, original(noriginal)
-{
-}
-
 RomType RomInfo::nameToRomType(string_ref name)
 {
-	auto& romTypeMap = getRomTypeMap();
-	auto it = romTypeMap.find(name);
-	if (it == romTypeMap.end()) {
-		return ROM_UNKNOWN;
-	}
-	return removeAlias(it->second);
+	auto& m = getRomTypeMap();
+	auto it = lower_bound(m.begin(), m.end(), name, RomTypeMapLess());
+	StringOp::casecmp cmp;
+	return (it != m.end()) && cmp(it->first, name)
+		? removeAlias(it->second) : ROM_UNKNOWN;
 }
 
 string_ref RomInfo::romTypeToName(RomType type)
@@ -199,12 +193,12 @@ string_ref RomInfo::romTypeToName(RomType type)
 	UNREACHABLE; return "";
 }
 
-vector<string> RomInfo::getAllRomTypes()
+vector<string_ref> RomInfo::getAllRomTypes()
 {
-	vector<string> result;
+	vector<string_ref> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
-			result.push_back(p.first.str());
+			result.push_back(p.first);
 		}
 	}
 	return result;
@@ -213,17 +207,19 @@ vector<string> RomInfo::getAllRomTypes()
 string_ref RomInfo::getDescription(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = m.find(type);
+	auto it = lower_bound(m.begin(), m.end(), type, RomTypeInfoMapLess());
 	assert(it != m.end());
-	return it->second.first;
+	assert(std::get<0>(*it) == type);
+	return std::get<1>(*it);
 }
 
 unsigned RomInfo::getBlockSize(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = m.find(type);
+	auto it = lower_bound(m.begin(), m.end(), type, RomTypeInfoMapLess());
 	assert(it != m.end());
-	return it->second.second;
+	assert(std::get<0>(*it) == type);
+	return std::get<2>(*it);
 }
 
 } // namespace openmsx

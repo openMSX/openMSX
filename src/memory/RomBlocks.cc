@@ -65,7 +65,7 @@ void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr, int block)
 	assert("address passed to setBank() is not serializable" &&
 	       ((adr == unmappedRead) ||
 	        ((&(*rom)[0] <= adr) && (adr <= &(*rom)[rom->getSize() - 1])) ||
-	        (sram.get() && (&(*sram)[0] <= adr) &&
+	        (sram && (&(*sram)[0] <= adr) &&
 	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
 	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bank[region] = adr;
@@ -114,13 +114,11 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	if (sram.get()) {
-		ar.serialize("sram", *sram);
-	}
+	if (sram) ar.serialize("sram", *sram);
 
 	unsigned offsets[NUM_BANKS];
 	unsigned romSize = rom->getSize();
-	unsigned sramSize = sram.get() ? sram->getSize() : 0;
+	unsigned sramSize = sram ? sram->getSize() : 0;
 	if (ar.isLoader()) {
 		ar.serialize("banks", offsets);
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
@@ -129,7 +127,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if (offsets[i] < romSize) {
 				bank[i] = &(*rom)[offsets[i]];
 			} else if (offsets[i] < (romSize + sramSize)) {
-				assert(sram.get());
+				assert(sram);
 				bank[i] = &(*sram)[offsets[i] - romSize];
 			} else if (offsets[i] < (romSize + sramSize + extraSize)) {
 				bank[i] = &extraMem[offsets[i] - romSize - sramSize];
@@ -145,8 +143,7 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if ((&(*rom)[0] <= bank[i]) &&
 			           (bank[i] <= &(*rom)[romSize - 1])) {
 				offsets[i] = unsigned(bank[i] - &(*rom)[0]);
-			} else if (sram.get() &&
-			           (&(*sram)[0] <= bank[i]) &&
+			} else if (sram && (&(*sram)[0] <= bank[i]) &&
 			           (bank[i] <= &(*sram)[sramSize - 1])) {
 				offsets[i] = unsigned(bank[i] - &(*sram)[0] + romSize);
 			} else if ((extraMem <= bank[i]) &&

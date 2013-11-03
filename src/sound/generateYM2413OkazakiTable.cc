@@ -22,13 +22,10 @@ static void makeChecks()
 	        "static_assert(DBTABLEN == " << DBTABLEN << ", \"mismatch, regenerate\");\n"
 	        "//static_assert(DB_STEP == " << DB_STEP << ", \"mismatch, regenerate\");\n"
 	        "//static_assert(EG_STEP == " << EG_STEP << ", \"mismatch, regenerate\");\n"
-	        "//static_assert(PM_DEPTH == " << PM_DEPTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(PG_BITS == " << PG_BITS << ", \"mismatch, regenerate\");\n"
 	        "static_assert(PG_WIDTH == " << PG_WIDTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(EG_BITS == " << EG_BITS << ", \"mismatch, regenerate\");\n"
 	        "static_assert(DB2LIN_AMP_BITS == " << DB2LIN_AMP_BITS << ", \"mismatch, regenerate\");\n"
-	        "static_assert(PM_PG_BITS == " << PM_PG_BITS << ", \"mismatch, regenerate\");\n"
-	        "static_assert(PM_PG_WIDTH == " << PM_PG_WIDTH << ", \"mismatch, regenerate\");\n"
 	        "static_assert(LFO_AM_TAB_ELEMENTS == " << LFO_AM_TAB_ELEMENTS << ", \"mismatch, regenerate\");\n"
 	        "\n";
 }
@@ -78,16 +75,19 @@ static inline double saw(double phase)
 
 static void makePmTable()
 {
-	int pmtable[PM_PG_WIDTH];
-
-	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		double t = pow(2, PM_DEPTH / 1200.0 * saw(i / double(PM_PG_WIDTH)));
-		pmtable[i] = lrint(t * (1 << PM_FP_BITS));
-	}
-
-	cout << "// Table for Pitch Modulator (24.8 fixed point)\n"
-	        "static int pmtable[PM_PG_WIDTH] = {\n";
-	formatTable(pmtable, 8, 4);
+	cout << "// LFO Phase Modulation table (copied from Burczynski core)\n"
+	        "static const signed char pmTable[8][8] =\n"
+	        "{\n"
+	        "	{ 0, 0, 0, 0, 0, 0, 0, 0, }, // FNUM = 000xxxxxx\n"
+	        "	{ 0, 0, 1, 0, 0, 0,-1, 0, }, // FNUM = 001xxxxxx\n"
+	        "	{ 0, 1, 2, 1, 0,-1,-2,-1, }, // FNUM = 010xxxxxx\n"
+	        "	{ 0, 1, 3, 1, 0,-1,-3,-1, }, // FNUM = 011xxxxxx\n"
+	        "	{ 0, 2, 4, 2, 0,-2,-4,-2, }, // FNUM = 100xxxxxx\n"
+	        "	{ 0, 2, 5, 2, 0,-2,-5,-2, }, // FNUM = 101xxxxxx\n"
+	        "	{ 0, 3, 6, 3, 0,-3,-6,-3, }, // FNUM = 110xxxxxx\n"
+	        "	{ 0, 3, 7, 3, 0,-3,-7,-3, }, // FNUM = 111xxxxxx\n"
+	        "};\n"
+	        "\n";
 }
 
 static void makeDB2LinTable()
@@ -136,20 +136,24 @@ static void makeTllTable()
 	static const unsigned kltable[16] = {
 		0, 24, 32, 37, 40, 43, 45, 47, 48, 50, 51, 52, 53, 54, 55, 56
 	};
+	// Note: KL [0..3] results in {0.0, 1.5, 3.0, 6.0} dB/oct.
+	// This is different from Y8950 and YMF262 which have {0, 3, 1.5, 6}.
+	// (2nd and 3rd elements are swapped). Verified on real YM2413.
 
-	unsigned tllTable[16 * 8][4];
+	unsigned tllTable[4][16 * 8];
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
 		int tmp = 2 * kltable[fnum] - 16 * (7 - block);
 		for (unsigned KL = 0; KL < 4; ++KL) {
-			tllTable[freq][KL] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
+			tllTable[KL][freq] = (tmp <= 0 || KL == 0) ? 0 : (tmp >> (3 - KL));
+			assert(tllTable[KL][freq] <= 112);
 		}
 	}
 
-	cout << "// KSL + TL Table   values are in range [0, 112)\n"
-	     << "static unsigned tllTable[16 * 8][4] = {\n";
-	formatTable2(tllTable, 4, 16, 4);
+	cout << "// KSL + TL Table   values are in range [0, 112]\n"
+	     << "static byte tllTable[4][16 * 8] = {\n";
+	formatTable2(tllTable, 3, 99, 16);
 }
 
 // lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
@@ -276,15 +280,25 @@ static void makeLfoAmTable()
 
 static void makeSusLevTable()
 {
-	int SL[16];
+	unsigned slTable[16];
 	for (int i = 0; i < 16; ++i) {
 		double x = (i == 15) ? 48.0 : (3.0 * i);
-		SL[i] = int(x / EG_STEP) << EP_FP_BITS;
+		slTable[i] = int(x / EG_STEP) << EP_FP_BITS;
 	}
 
 	cout << "// Sustain level (17.15 fixed point)\n"
-	        "static const int SL[16] = {\n";
-	formatTable(SL, 4, 8);
+	        "static const unsigned slTable[16] = {\n";
+	formatTable(slTable, 4, 8);
+}
+
+static void makeMLTable()
+{
+	cout << "// ML-table\n"
+	        "static const byte mlTable[16] = {\n"
+	        "	1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,\n"
+	        "	8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2\n"
+	        "};\n"
+	        "\n";
 }
 
 int main()
@@ -298,4 +312,5 @@ int main()
 	makeDphaseDRTable();
 	makeLfoAmTable();
 	makeSusLevTable();
+	makeMLTable();
 }

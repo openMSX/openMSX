@@ -2,7 +2,6 @@
 #include "Reactor.hh"
 #include "AlarmEvent.hh"
 #include "MSXCliComm.hh"
-#include "BooleanSetting.hh"
 #include "ReadOnlySetting.hh"
 #include "Timer.hh"
 #include "memory.hh"
@@ -29,11 +28,9 @@ LedStatus::LedStatus(
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		ledValue[i] = false;
 		std::string name = getLedName(static_cast<Led>(i));
-		ledStatus[i] = make_unique<ReadOnlySetting<BooleanSetting>>(
-			commandController,
-			"led_" + name,
-			"Current status for LED: " + name,
-			ledValue[i]);
+		ledStatus[i] = make_unique<ReadOnlySetting>(
+			commandController, "led_" + name,
+			"Current status for LED: " + name, "off");
 	}
 }
 
@@ -66,20 +63,19 @@ void LedStatus::setLed(Led led, bool status)
 
 void LedStatus::handleEvent(Led led)
 {
-	ledStatus[led]->setReadOnlyValue(ledValue[led]);
-
 	static const std::string ON  = "on";
 	static const std::string OFF = "off";
-	msxCliComm.update(
-		CliComm::LED, getLedName(led),
-		ledValue[led] ? ON : OFF);
+	const std::string& str = ledValue[led] ? ON : OFF;
+
+	ledStatus[led]->setReadOnlyValue(str);
+	msxCliComm.update(CliComm::LED, getLedName(led), str);
 }
 
 int LedStatus::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 {
 	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {
-		if (ledValue[i] != ledStatus[i]->getValue()) {
+		if (ledValue[i] != ledStatus[i]->getValue().getBoolean()) {
 			handleEvent(static_cast<Led>(i));
 		}
 	}

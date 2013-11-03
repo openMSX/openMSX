@@ -250,13 +250,13 @@ int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 void VisibleSurface::updateCursor()
 {
 	alarm->cancel();
-	if (renderSettings.getFullScreen().getValue() ||
-	    inputEventGenerator.getGrabInput().getValue()) {
+	if (renderSettings.getFullScreen().getBoolean() ||
+	    inputEventGenerator.getGrabInput().getBoolean()) {
 		// always hide cursor in fullscreen or grabinput mode
 		SDL_ShowCursor(SDL_DISABLE);
 		return;
 	}
-	double delay = renderSettings.getPointerHideDelay().getValue();
+	double delay = renderSettings.getPointerHideDelay().getDouble();
 	if (delay == 0.0) {
 		SDL_ShowCursor(SDL_DISABLE);
 	} else {

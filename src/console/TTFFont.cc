@@ -160,7 +160,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	if (text.empty()) return SDLSurfacePtr(nullptr);
 
 	// Split on newlines
-	auto lines = StringOp::split(text, "\n");
+	auto lines = StringOp::split(text, '\n');
 	assert(!lines.empty());
 
 	if (lines.size() == 1) {
@@ -170,7 +170,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 		SDLSurfacePtr surface(
 			TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
 			                       text.c_str(), color));
-		if (!surface.get()) {
+		if (!surface) {
 			throw MSXException(TTF_GetError());
 		}
 		return surface;
@@ -181,7 +181,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	unsigned lineHeight = 0; // initialize to avoid warning
 	for (auto& s : lines) {
 		unsigned w;
-		getSize(s, w, lineHeight);
+		getSize(s.str(), w, lineHeight);
 		width = std::max(width, w);
 	}
 	// There might be extra space between two successive lines
@@ -194,7 +194,7 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 	// Create destination surface (initial surface is fully transparent)
 	SDLSurfacePtr destination(SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000));
-	if (!destination.get()) {
+	if (!destination) {
 		throw MSXException("Couldn't allocate surface for multiline text.");
 	}
 
@@ -206,16 +206,17 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 			// simply skip such lines
 			continue;
 		}
-		SDLSurfacePtr line(TTF_RenderUTF8_Blended(static_cast<TTF_Font*>(font),
-		                                          lines[i].c_str(), color));
-		if (!line.get()) {
+		SDLSurfacePtr line(TTF_RenderUTF8_Blended(
+			static_cast<TTF_Font*>(font),
+			lines[i].str().c_str(), color));
+		if (!line) {
 			throw MSXException(TTF_GetError());
 		}
 
 		// Copy line to destination surface
 		SDL_Rect rect;
 		rect.x = 0;
-		rect.y = i * lineSkip;
+		rect.y = Sint16(i * lineSkip);
 		SDL_SetAlpha(line.get(), 0, 0); // no blending during copy
 		SDL_BlitSurface(line.get(), nullptr, destination.get(), &rect);
 	}
@@ -225,6 +226,11 @@ SDLSurfacePtr TTFFont::render(std::string text, byte r, byte g, byte b) const
 unsigned TTFFont::getHeight() const
 {
 	return TTF_FontLineSkip(static_cast<TTF_Font*>(font));
+}
+
+bool TTFFont::isFixedWidth() const
+{
+	return TTF_FontFaceIsFixedWidth(static_cast<TTF_Font*>(font)) != 0;
 }
 
 unsigned TTFFont::getWidth() const

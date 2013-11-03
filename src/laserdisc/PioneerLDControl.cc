@@ -77,7 +77,7 @@ void PioneerLDControl::reset(EmuTime::param time)
 	extint = false;
 
 	irq.reset();
-	if (laserdisc.get()) laserdisc->setMuting(mutel, muter, time);
+	if (laserdisc) laserdisc->setMuting(mutel, muter, time);
 }
 
 byte PioneerLDControl::readMem(word address, EmuTime::param time)
@@ -107,7 +107,7 @@ byte PioneerLDControl::peekMem(word address, EmuTime::param time) const
 		if (clock.getTicksTill(time) & 1) {
 			val &= 0xfe;
 		}
-		if (laserdisc.get() && laserdisc->extAck(time)) {
+		if (laserdisc && laserdisc->extAck(time)) {
 			val &= 0x7f;
 		}
 	} else if (0x4000 <= address && address < 0x6000) {
@@ -147,10 +147,10 @@ void PioneerLDControl::writeMem(word address, byte value, EmuTime::param time)
 			muter = !(ppi->peekIO(2, time) & 0x10);
 		}
 		mutel = !(value & 0x80);
-		if (laserdisc.get()) laserdisc->setMuting(mutel, muter, time);
+		if (laserdisc) laserdisc->setMuting(mutel, muter, time);
 
 	} else if (address == 0x7ffe) {
-		if (laserdisc.get()) laserdisc->extControl(value & 1, time);
+		if (laserdisc) laserdisc->extControl(value & 1, time);
 	}
 }
 
@@ -178,7 +178,7 @@ void PioneerLDControl::videoIn(bool enabled)
 
 void PioneerLDControl::updateVideoSource()
 {
-	auto* videoSource = (videoEnabled && superimposing && laserdisc.get())
+	auto* videoSource = (videoEnabled && superimposing && laserdisc)
 	                  ? laserdisc->getRawFrame()
 	                  : nullptr;
 	vdp->setExternalVideoSource(videoSource);
@@ -198,13 +198,11 @@ void PioneerLDControl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("superimposing", superimposing);
 	ar.serialize("extint", extint);
 	ar.serialize("irq", irq);
-	if (laserdisc.get()) {
-		ar.serialize("laserdisc", *laserdisc);
-	}
+	if (laserdisc) ar.serialize("laserdisc", *laserdisc);
 
 	if (ar.isLoader()) {
 		updateVideoSource();
-		if (laserdisc.get()) {
+		if (laserdisc) {
 			laserdisc->setMuting(mutel, muter, getCurrentTime());
 		}
 	}

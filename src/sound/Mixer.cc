@@ -44,18 +44,16 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	, muteCount(0)
 {
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
-	soundDriverMap["null"]    = SND_NULL;
-	soundDriverMap["sdl"]     = SND_SDL;
+	soundDriverMap.push_back(std::make_pair("null", SND_NULL));
+	soundDriverMap.push_back(std::make_pair("sdl",  SND_SDL));
 	SoundDriverType defaultSoundDriver = SND_SDL;
-
 #ifdef _WIN32
-	soundDriverMap["directx"] = SND_DIRECTX;
+	soundDriverMap.push_back(std::make_pair("directx", SND_DIRECTX));
 	defaultSoundDriver = SND_DIRECTX;
 #endif
 #if COMPONENT_AO
-	soundDriverMap["libao"] = SND_LIBAO;
+	soundDriverMap.push_back(std::make_pair("libao", SND_LIBAO));
 #endif
-
 	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
 		commandController, "sound_driver",
 		"select the sound output driver",
@@ -67,7 +65,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	soundDriverSetting->attach(*this);
 
 	// Set correct initial mute state.
-	if (muteSetting->getValue()) ++muteCount;
+	if (muteSetting->getBoolean()) ++muteCount;
 
 	reloadDriver();
 }
@@ -88,28 +86,28 @@ void Mixer::reloadDriver()
 	driver = make_unique<NullSoundDriver>();
 
 	try {
-		switch (soundDriverSetting->getValue()) {
+		switch (soundDriverSetting->getEnum()) {
 		case SND_NULL:
 			driver = make_unique<NullSoundDriver>();
 			break;
 		case SND_SDL:
 			driver = make_unique<SDLSoundDriver>(
 				reactor,
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #endif
 #if COMPONENT_AO
 		case SND_LIBAO:
 			driver = make_unique<LibAOSoundDriver>(
-				frequencySetting->getValue(),
-				samplesSetting->getValue());
+				frequencySetting->getInt(),
+				samplesSetting->getInt());
 			break;
 #endif
 		default:
@@ -186,7 +184,7 @@ void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 void Mixer::update(const Setting& setting)
 {
 	if (&setting == muteSetting.get()) {
-		if (muteSetting->getValue()) {
+		if (muteSetting->getBoolean()) {
 			mute();
 		} else {
 			unmute();

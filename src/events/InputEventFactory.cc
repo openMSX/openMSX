@@ -61,12 +61,21 @@ static EventPtr parseMouseEvent(
 		if (components.size() == 2) {
 			return make_shared<MouseMotionGroupEvent>();
 		}
-		if (components.size() != 4) {
+		if ((components.size() != 4) && (components.size() != 6)) {
 			throw CommandException("Invalid mouse motion event: " + str);
+		}
+		int absX, absY;
+		if (components.size() == 6) {
+			absX = StringOp::stringToInt(components[4]),
+			absY = StringOp::stringToInt(components[5]);
+		} else {
+			// for bw-compat also allow events without absX,absY
+			absX = absY = 0;
 		}
 		return make_shared<MouseMotionEvent>(
 			StringOp::stringToInt(components[2]),
-			StringOp::stringToInt(components[3]));
+			StringOp::stringToInt(components[3]),
+			absX, absY);
 	} else if (StringOp::startsWith(components[1], "button")) {
 		if (components.size() != 3) {
 			throw CommandException("Invalid mouse button event: " + str);
