@@ -4,7 +4,6 @@
 #include "TclObject.hh"
 #include "MSXException.hh"
 
-using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -16,7 +15,7 @@ HDImageCLI::HDImageCLI(CommandLineParser& parser_)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-void HDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
+void HDImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	string_ref hd = string_ref(option).substr(1); // hda
 	string filename = getArgument(option, cmdLine);

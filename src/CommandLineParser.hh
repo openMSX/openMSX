@@ -1,12 +1,12 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
+#include "array_ref.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
-#include <deque>
 #include <memory>
 #include <utility>
 
@@ -77,11 +77,11 @@ private:
 	};
 
 	bool parseFileName(const std::string& arg,
-	                   std::deque<std::string>& cmdLine);
+	                   array_ref<std::string>& cmdLine);
 	bool parseFileNameInner(const std::string& arg, const std::string&
-	                   originalPath, std::deque<std::string>& cmdLine);
+	                   originalPath, array_ref<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
-	                 std::deque<std::string>& cmdLine, ParsePhase phase);
+	                 array_ref<std::string>& cmdLine, ParsePhase phase);
 	void createMachineSetting();
 
 	std::vector<std::pair<string_ref, OptionData>> options;

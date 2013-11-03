@@ -42,7 +42,6 @@
 
 using std::cout;
 using std::endl;
-using std::deque;
 using std::string;
 using std::vector;
 
@@ -52,7 +51,7 @@ class HelpOption : public CLIOption
 {
 public:
 	explicit HelpOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -62,7 +61,7 @@ class VersionOption : public CLIOption
 {
 public:
 	explicit VersionOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -72,7 +71,7 @@ class ControlOption : public CLIOption
 {
 public:
 	explicit ControlOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -82,10 +81,10 @@ class ScriptOption : public CLIOption, public CLIFileType
 {
 public:
 	const CommandLineParser::Scripts& getScripts() const;
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
-                                   std::deque<std::string>& cmdLine);
+                                   array_ref<std::string>& cmdLine);
 	virtual string_ref fileTypeHelp() const;
 
 private:
@@ -96,7 +95,7 @@ class MachineOption : public CLIOption
 {
 public:
 	explicit MachineOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -106,7 +105,7 @@ class SettingOption : public CLIOption
 {
 public:
 	explicit SettingOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -114,7 +113,7 @@ private:
 
 class NoPBOOption : public CLIOption {
 public:
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 };
 
@@ -122,7 +121,7 @@ class TestConfigOption : public CLIOption
 {
 public:
 	explicit TestConfigOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -132,7 +131,7 @@ class BashOption : public CLIOption
 {
 public:
 	explicit BashOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, deque<string>& cmdLine);
+	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -217,7 +216,7 @@ void CommandLineParser::registerFileType(
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, deque<string>& cmdLine, ParsePhase phase)
+	const string& arg, array_ref<string>& cmdLine, ParsePhase phase)
 {
 	auto it = lower_bound(options.begin(), options.end(), arg,
 	                      CmpOptions());
@@ -235,7 +234,7 @@ bool CommandLineParser::parseOption(
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, array_ref<string>& cmdLine)
 {
 	// First try the fileName as we get it from the commandline. This may
 	// be more interesting than the original fileName of a (g)zipped file:
@@ -255,7 +254,7 @@ bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 	return processed;
 }
 
-bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, deque<string>& cmdLine)
+bool CommandLineParser::parseFileNameInner(const string& name, const string& originalPath, array_ref<string>& cmdLine)
 {
 	string_ref extension = FileOperations::getExtension(name);
 	if (extension.empty()) {
@@ -282,11 +281,12 @@ void CommandLineParser::parse(int argc, char** argv)
 {
 	parseStatus = RUN;
 
-	deque<string> cmdLine;
-	deque<string> backupCmdLine;
+	vector<string> cmdLineBuf;
 	for (auto i : xrange(1, argc)) {
-		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
+		cmdLineBuf.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
+	array_ref<string> cmdLine(cmdLineBuf);
+	vector<string> backupCmdLine;
 
 	for (ParsePhase phase = PHASE_BEFORE_INIT;
 	     (phase <= PHASE_LAST) && (parseStatus != EXIT);
@@ -380,8 +380,9 @@ void CommandLineParser::parse(int argc, char** argv)
 					}
 				}
 			}
-			cmdLine = backupCmdLine;
+			std::swap(backupCmdLine, cmdLineBuf);
 			backupCmdLine.clear();
+			cmdLine = cmdLineBuf;
 			break;
 		}
 	}
@@ -428,7 +429,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 {
 }
 
-void ControlOption::parseOption(const string& option, deque<string>& cmdLine)
+void ControlOption::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	const auto& fullType = getArgument(option, cmdLine);
 	string_ref type, arguments;
@@ -475,7 +476,7 @@ const CommandLineParser::Scripts& ScriptOption::getScripts() const
 	return scripts;
 }
 
-void ScriptOption::parseOption(const string& option, deque<string>& cmdLine)
+void ScriptOption::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -486,7 +487,7 @@ string_ref ScriptOption::optionHelp() const
 }
 
 void ScriptOption::parseFileType(const string& filename,
-                                   deque<std::string>& /*cmdLine*/)
+                                 array_ref<std::string>& /*cmdLine*/)
 {
 	scripts.push_back(filename);
 }
@@ -565,7 +566,7 @@ HelpOption::HelpOption(CommandLineParser& parser_)
 }
 
 void HelpOption::parseOption(const string& /*option*/,
-                             deque<string>& /*cmdLine*/)
+                             array_ref<string>& /*cmdLine*/)
 {
 	const auto& fullVersion = Version::full();
 	cout << fullVersion << endl;
@@ -611,7 +612,7 @@ VersionOption::VersionOption(CommandLineParser& parser_)
 }
 
 void VersionOption::parseOption(const string& /*option*/,
-                                deque<string>& /*cmdLine*/)
+                                array_ref<string>& /*cmdLine*/)
 {
 	cout << Version::full() << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
@@ -632,7 +633,7 @@ MachineOption::MachineOption(CommandLineParser& parser_)
 {
 }
 
-void MachineOption::parseOption(const string& option, deque<string>& cmdLine)
+void MachineOption::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
@@ -657,7 +658,7 @@ SettingOption::SettingOption(CommandLineParser& parser_)
 {
 }
 
-void SettingOption::parseOption(const string& option, deque<string>& cmdLine)
+void SettingOption::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
@@ -683,7 +684,7 @@ string_ref SettingOption::optionHelp() const
 // class NoPBOOption
 
 void NoPBOOption::parseOption(const string& /*option*/,
-                              deque<string>& /*cmdLine*/)
+                              array_ref<string>& /*cmdLine*/)
 {
 	#if COMPONENT_GL
 	cout << "Disabling PBO" << endl;
@@ -705,7 +706,7 @@ TestConfigOption::TestConfigOption(CommandLineParser& parser_)
 }
 
 void TestConfigOption::parseOption(const string& /*option*/,
-                                   deque<string>& /*cmdLine*/)
+                                   array_ref<string>& /*cmdLine*/)
 {
 	parser.parseStatus = CommandLineParser::TEST;
 }
@@ -723,7 +724,7 @@ BashOption::BashOption(CommandLineParser& parser_)
 }
 
 void BashOption::parseOption(const string& /*option*/,
-                             deque<string>& cmdLine)
+                             array_ref<string>& cmdLine)
 {
 	string last = cmdLine.empty() ? "" : cmdLine.front();
 	cmdLine.clear(); // eat all remaining parameters

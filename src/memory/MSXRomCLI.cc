@@ -5,7 +5,6 @@
 #include "MSXException.hh"
 #include <cassert>
 
-using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -23,7 +22,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerFileType("ri,rom", *this);
 }
 
-void MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
+void MSXRomCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
@@ -40,7 +39,7 @@ string_ref MSXRomCLI::optionHelp() const
 	return "Insert the ROM file (cartridge) specified in argument";
 }
 
-void MSXRomCLI::parseFileType(const string& arg, deque<string>& cmdLine)
+void MSXRomCLI::parseFileType(const string& arg, array_ref<string>& cmdLine)
 {
 	parse(arg, "any", cmdLine);
 }
@@ -52,7 +51,7 @@ string_ref MSXRomCLI::fileTypeHelp() const
 }
 
 void MSXRomCLI::parse(const string& arg, const string& slotname,
-                      deque<string>& cmdLine)
+                      array_ref<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
 	std::vector<string> options;
@@ -73,7 +72,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 }
 
 void MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
-                                       deque<string>& /*cmdLine*/)
+                                       array_ref<string>& /*cmdLine*/)
 {
 	throw FatalError(
 		"-ips options should immediately follow a ROM or disk image.");
@@ -86,7 +85,7 @@ string_ref MSXRomCLI::IpsOption::optionHelp() const
 }
 
 void MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
-                                           deque<string>& /*cmdLine*/)
+                                           array_ref<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

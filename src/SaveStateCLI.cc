@@ -3,7 +3,6 @@
 #include "GlobalCommandController.hh"
 #include "TclObject.hh"
 
-using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -15,7 +14,7 @@ SaveStateCLI::SaveStateCLI(CommandLineParser& parser_)
 	parser.registerFileType("oms", *this);
 }
 
-void SaveStateCLI::parseOption(const string& option, deque<string>& cmdLine)
+void SaveStateCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -26,7 +25,7 @@ string_ref SaveStateCLI::optionHelp() const
 }
 
 void SaveStateCLI::parseFileType(const string& filename,
-                                      deque<string>& /*cmdLine*/)
+                                 array_ref<string>& /*cmdLine*/)
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?

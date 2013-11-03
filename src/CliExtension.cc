@@ -14,7 +14,7 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-ext", *this, CommandLineParser::PHASE_EXT);
 }
 
-void CliExtension::parseOption(const string& option, std::deque<string>& cmdLine)
+void CliExtension::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	try {
 		string extensionName = getArgument(option, cmdLine);
