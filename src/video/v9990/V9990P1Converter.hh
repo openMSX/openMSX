@@ -28,13 +28,13 @@ private:
 	                   unsigned displayAX, unsigned displayAY,
 	                   unsigned nameA, unsigned patternA, byte palA,
 	                   unsigned displayBX, unsigned displayBY,
-	                   unsigned nameB, unsigned patternB, byte palB) __restrict;
+	                   unsigned nameB, unsigned patternB, byte palB);
 	void renderPattern2(Pixel* buffer, unsigned width,
 	                    unsigned AX, unsigned AY, unsigned name,
-	                    unsigned pattern, byte pal) __restrict;
-	void determineVisibleSprites(int* visibleSprites, unsigned displayY) __restrict;
+	                    unsigned pattern, byte pal);
+	void determineVisibleSprites(int* visibleSprites, unsigned displayY);
 	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
-	                   unsigned displayY, int* visibleSprites, bool front) __restrict;
+	                   unsigned displayY, int* visibleSprites, bool front);
 };
 
 } // namespace openmsx

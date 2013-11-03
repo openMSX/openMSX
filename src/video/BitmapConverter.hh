@@ -74,19 +74,19 @@ public:
 	}
 
 private:
-	void calcDPalette() __restrict;
+	void calcDPalette();
 
-	inline void renderGraphic4(Pixel* pixelPtr, const byte* vramPtr0) __restrict;
-	inline void renderGraphic5(Pixel* pixelPtr, const byte* vramPtr0) __restrict;
+	inline void renderGraphic4(Pixel* pixelPtr, const byte* vramPtr0);
+	inline void renderGraphic5(Pixel* pixelPtr, const byte* vramPtr0);
 	inline void renderGraphic6(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1) __restrict;
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	inline void renderGraphic7(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1) __restrict;
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	inline void renderYJK(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1) __restrict;
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 	inline void renderYAE(
-		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1) __restrict;
-	inline void renderBogus(Pixel* pixelPtr) __restrict;
+		Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
+	inline void renderBogus(Pixel* pixelPtr);
 
 	const Pixel* const __restrict palette16;
 	const Pixel* const __restrict palette256;

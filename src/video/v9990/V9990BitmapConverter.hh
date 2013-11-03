@@ -73,7 +73,7 @@ private:
 
 	/* Cursor drawing methods */
 	void drawCursor(Pixel* buffer, int displayY,
-	                unsigned attrAddr, unsigned patAddr) __restrict;
+	                unsigned attrAddr, unsigned patAddr);
 	void drawCursors(Pixel* buffer, int displayY);
 };
 

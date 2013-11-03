@@ -57,7 +57,7 @@ void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderText1(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -86,7 +86,7 @@ void CharacterConverter<Pixel>::renderText1(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
@@ -116,7 +116,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderText2(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	Pixel plainFg = palFg[vdp.getForegroundColor()];
 	Pixel plainBg = palFg[vdp.getBackgroundColor()];
@@ -227,7 +227,7 @@ void CharacterConverter<Pixel>::renderText2(
 }
 
 template <class Pixel>
-const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll) __restrict
+const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it
@@ -236,7 +236,7 @@ const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll) __restri
 }
 template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += line & 7;
@@ -266,7 +266,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 #ifdef __arm__
 	bool misAligned =
@@ -408,7 +408,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* __restrict pixelPtr, int line,
-	int mask, int patternQuarter) __restrict
+	int mask, int patternQuarter)
 {
 	unsigned baseLine = mask | ((line / 4) & 7);
 	unsigned scroll = vdp.getHorizontalScrollHigh();
@@ -428,7 +428,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 }
 template <class Pixel>
 void CharacterConverter<Pixel>::renderMulti(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	int mask = (-1 << 11);
 	renderMultiHelper(pixelPtr, line, mask, 0);
@@ -436,7 +436,7 @@ void CharacterConverter<Pixel>::renderMulti(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
-	Pixel* __restrict pixelPtr, int line) __restrict
+	Pixel* __restrict pixelPtr, int line)
 {
 	int mask = (-1 << 13);
 	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
@@ -445,7 +445,7 @@ void CharacterConverter<Pixel>::renderMultiQ(
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
-	Pixel* __restrict pixelPtr) __restrict
+	Pixel* __restrict pixelPtr)
 {
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];

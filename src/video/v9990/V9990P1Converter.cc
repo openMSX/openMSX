@@ -82,7 +82,7 @@ void V9990P1Converter<Pixel>::renderPattern(
 	unsigned displayAX, unsigned displayAY, unsigned nameA,
 	unsigned patternA, byte palA,
 	unsigned displayBX, unsigned displayBY, unsigned nameB,
-	unsigned patternB, byte palB) __restrict
+	unsigned patternB, byte palB)
 {
 	renderPattern2(&buffer[0],      width1, displayAX, displayAY,
 	               nameA, patternA, palA);
@@ -93,7 +93,7 @@ void V9990P1Converter<Pixel>::renderPattern(
 template <class Pixel>
 void V9990P1Converter<Pixel>::renderPattern2(
 	Pixel* __restrict buffer, unsigned width, unsigned x, unsigned y,
-	unsigned nameTable, unsigned patternTable, byte pal) __restrict
+	unsigned nameTable, unsigned patternTable, byte pal)
 {
 	x &= 511;
 	const Pixel* palette = palette64 + pal;
@@ -184,7 +184,7 @@ void V9990P1Converter<Pixel>::renderPattern2(
 
 template <class Pixel>
 void V9990P1Converter<Pixel>::determineVisibleSprites(
-	int* __restrict visibleSprites, unsigned displayY) __restrict
+	int* __restrict visibleSprites, unsigned displayY)
 {
 	static const unsigned spriteTable = 0x3FE00;
 
@@ -214,7 +214,7 @@ void V9990P1Converter<Pixel>::determineVisibleSprites(
 template <class Pixel>
 void V9990P1Converter<Pixel>::renderSprites(
 	Pixel* __restrict buffer, int displayX, int displayEnd, unsigned displayY,
-	int* __restrict visibleSprites, bool front) __restrict
+	int* __restrict visibleSprites, bool front)
 {
 	static const unsigned spriteTable = 0x3FE00;
 	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
