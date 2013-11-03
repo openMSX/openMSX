@@ -91,6 +91,10 @@ public:
 	  */
 	virtual bool needTransfer() const = 0;
 
+	/** This value will never end up in the settings.xml file
+	 */
+	virtual void setDontSaveValue(const std::string& dontSaveValue) = 0;
+
 private:
 	/** The name of this setting. */
 	const std::string name;
@@ -138,6 +142,7 @@ public:
 	virtual bool needLoadSave() const;
 	virtual void additionalInfo(TclObject& result) const;
 	virtual bool needTransfer() const;
+	virtual void setDontSaveValue(const std::string& dontSaveValue);
 
 	// convenience functions
 	CommandController& getCommandController() const;
@@ -160,6 +165,7 @@ private:
 	TclObject value; // TODO can we share the underlying Tcl var storage?
 	const std::string defaultValue;
 	std::string restoreValue;
+	std::string dontSaveValue;
 	const SaveSetting save;
 };
 

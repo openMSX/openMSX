@@ -115,6 +115,13 @@ bool ProxySetting::needTransfer() const
 	}
 }
 
+void ProxySetting::setDontSaveValue(const std::string& dontSaveValue)
+{
+	if (auto* setting = getSetting()) {
+		setting->setDontSaveValue(dontSaveValue);
+	}
+}
+
 void ProxySetting::additionalInfo(TclObject& result) const
 {
 	if (auto* setting = getSetting()) {

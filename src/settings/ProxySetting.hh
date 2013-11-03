@@ -22,6 +22,7 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 	virtual bool needLoadSave() const;
 	virtual bool needTransfer() const;
+	virtual void setDontSaveValue(const std::string& dontSaveValue);
 	virtual void additionalInfo(TclObject& result) const;
 
 private:

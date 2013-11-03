@@ -117,6 +117,9 @@ void Setting::notify() const
 		// add (or overwrite) setting
 		auto& elem = settings.getCreateChildWithAttribute(
 				"setting", "id", getName());
+		// check for non-saveable value
+		// (mechanism can be generalize later when needed)
+		if (value == dontSaveValue) value = getRestoreValue();
 		elem.setData(value);
 	}
 }
@@ -136,6 +139,11 @@ bool Setting::needLoadSave() const
 bool Setting::needTransfer() const
 {
 	return save != DONT_TRANSFER;
+}
+
+void Setting::setDontSaveValue(const std::string& dontSaveValue_)
+{
+	dontSaveValue = dontSaveValue_;
 }
 
 CommandController& Setting::getCommandController() const
