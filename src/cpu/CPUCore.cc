@@ -395,7 +395,31 @@ template<class T> void CPUCore<T>::doReset(EmuTime::param time)
 	T::setMemPtr(0xFFFF);
 	invalidateMemCache(0x0000, 0x10000);
 
-	assert(T::getTimeFast() <= time);
+	// We expect this assert to be valid
+	//   assert(T::getTimeFast() <= time); // time shouldn't go backwards
+	// But it's disabled for the following reason:
+	//   'motion' (IRC nickname) managed to create a replay file that
+	//   contains a reset command that falls in the middle of a Z80
+	//   instruction. Replayed commands go via the Scheduler, and are
+	//   (typically) executed right after a complete CPU instruction. So
+	//   the CPU is (slightly) ahead in time of the about to be executed
+	//   reset command.
+	//   Normally this situation should never occur: console commands,
+	//   hotkeys, commands over clicomm, ... are all handled via the global
+	//   event mechanism. Such global events are scheduled between CPU
+	//   instructions, so also in a replay they should fall between CPU
+	//   instructions.
+	//   However if for some reason the timing of the emulation changed
+	//   (improved emulation accuracy or a bug so that emulation isn't
+	//   deterministic or the replay file was edited, ...), then the above
+	//   reasoning no longer holds and the assert can trigger.
+	// We need to be robust against loading older replays (when emulation
+	// timing has changed). So in that respect disabling the assert is
+	// good. Though in the example above (motion's replay) it's not clear
+	// whether the assert is really triggered by mixing an old replay
+	// with a newer openMSX version. In any case so far we haven't been
+	// able to reproduce this assert by recording and replaying using a
+	// single openMSX version.
 	T::setTime(time);
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
