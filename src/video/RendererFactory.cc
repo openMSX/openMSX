@@ -114,7 +114,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 #endif
 	auto setting = make_unique<RendererSetting>(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		COMPONENT_GL ? SDLGL_PP : SDL, rendererMap);
+		SDL, rendererMap);
 
 	// Make sure the value 'none' never gets saved in settings.xml.
 	// This happened in the following scenario:
@@ -129,7 +129,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 
 	// A saved value 'none' can be very confusing. If so change it to default.
 	if (setting->getEnum() == DUMMY) {
-		setting->setString(setting->getDefaultValue());
+		setting->setEnum(SDL);
 	}
 	// set saved value as default
 	setting->setRestoreValue(setting->getString());
