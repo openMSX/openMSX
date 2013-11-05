@@ -129,7 +129,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 
 	// A saved value 'none' can be very confusing. If so change it to default.
 	if (setting->getEnum() == DUMMY) {
-		setting->setEnum(SDL);
+		setting->setString(setting->getDefaultValue());
 	}
 	// set saved value as default
 	setting->setRestoreValue(setting->getString());
