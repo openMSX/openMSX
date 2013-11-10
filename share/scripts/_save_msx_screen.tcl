@@ -7,9 +7,10 @@ This script was originally developed by NYYRIKKI, see also this forum thread:
 }
 
 proc save_msx_screen {basename} {
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../screenshots]
 	# Create filename with correct extension (also gives an error in
 	# case of an invalid screen mode).
-	set fname [format "%s.SC%X" $basename [get_screen_mode_number]]
+	set fname [file join $directory [format "%s.SC%X" $basename [get_screen_mode_number]]]
 
 	set name_base        [expr { [vdpreg 2]        * 0x400}]
 	set name_base_80     [expr {([vdpreg 2] & 252) * 0x400}]
@@ -102,5 +103,5 @@ proc save_msx_screen {basename} {
 		puts -nonewline $out [debug read_block $type $addr $size]
 	}
 	close $out
-	puts "Screen written to $fname"
+	return "Screen written to $fname"
 }

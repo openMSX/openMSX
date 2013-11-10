@@ -42,18 +42,18 @@ public:
 	void setDisplayMode(DisplayMode mode);
 
 private:
-	inline void renderText1   (Pixel* pixelPtr, int line) __restrict;
-	inline void renderText1Q  (Pixel* pixelPtr, int line) __restrict;
-	inline void renderText2   (Pixel* pixelPtr, int line) __restrict;
-	inline void renderGraphic1(Pixel* pixelPtr, int line) __restrict;
-	inline void renderGraphic2(Pixel* pixelPtr, int line) __restrict;
-	inline void renderMulti   (Pixel* pixelPtr, int line) __restrict;
-	inline void renderMultiQ  (Pixel* pixelPtr, int line) __restrict;
-	inline void renderBogus   (Pixel* pixelPtr) __restrict;
+	inline void renderText1   (Pixel* pixelPtr, int line);
+	inline void renderText1Q  (Pixel* pixelPtr, int line);
+	inline void renderText2   (Pixel* pixelPtr, int line);
+	inline void renderGraphic1(Pixel* pixelPtr, int line);
+	inline void renderGraphic2(Pixel* pixelPtr, int line);
+	inline void renderMulti   (Pixel* pixelPtr, int line);
+	inline void renderMultiQ  (Pixel* pixelPtr, int line);
+	inline void renderBogus   (Pixel* pixelPtr);
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
-	                       int mask, int patternQuarter) __restrict;
+	                       int mask, int patternQuarter);
 
-	const byte* getNamePtr(int line, int scroll) __restrict;
+	const byte* getNamePtr(int line, int scroll);
 
 	VDP& vdp;
 	VDPVRAM& vram;

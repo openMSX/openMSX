@@ -114,7 +114,18 @@ unique_ptr<RendererSetting> createRendererSetting(
 #endif
 	auto setting = make_unique<RendererSetting>(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		COMPONENT_GL ? SDLGL_PP : SDL, rendererMap);
+		SDL, rendererMap);
+
+	// Make sure the value 'none' never gets saved in settings.xml.
+	// This happened in the following scenario:
+	// - During startup, the renderer is forced to the value 'none'.
+	// - If there's an error in the parsing of the command line (e.g.
+	//   because an invalid option is passed) then openmsx will never
+	//   get to the point where the actual renderer setting is restored
+	// - After the error, the classes are destructed, part of that is
+	//   saving the current settings. But without extra care, this would
+	//   save renderer=none
+	setting->setDontSaveValue("none");
 
 	// A saved value 'none' can be very confusing. If so change it to default.
 	if (setting->getEnum() == DUMMY) {

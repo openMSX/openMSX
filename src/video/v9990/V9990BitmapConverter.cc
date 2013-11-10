@@ -306,7 +306,7 @@ void V9990BitmapConverter<Pixel>::setColorMode(V9990ColorMode color,
 
 template <class Pixel>
 void V9990BitmapConverter<Pixel>::drawCursor(
-	Pixel* __restrict buffer, int displayY, unsigned attrAddr, unsigned patAddr) __restrict
+	Pixel* __restrict buffer, int displayY, unsigned attrAddr, unsigned patAddr)
 {
 	int cursorY = vram.readVRAMBx(attrAddr + 0) +
 	             (vram.readVRAMBx(attrAddr + 2) & 1) * 256;
