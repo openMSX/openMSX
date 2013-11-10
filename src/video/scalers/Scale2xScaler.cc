@@ -37,9 +37,13 @@ template<int BYTES> static inline __m128i align(__m128i high, __m128i low)
 #ifdef __SSSE3__
 	return _mm_alignr_epi8(high, low, BYTES);
 #else
+	// Workaround gcc-4.8 bug: calculate 'sizeof(__m128i) - BYTES' in a
+	// separate expression. See
+	//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=59071
+	static const int TMP = sizeof(__m128i) - BYTES;
 	return _mm_or_si128(
-		_mm_slli_si128(high, sizeof(__m128i) - BYTES),
-		_mm_srli_si128(low,                    BYTES));
+		_mm_slli_si128(high, TMP),
+		_mm_srli_si128(low, BYTES));
 #endif
 }
 
