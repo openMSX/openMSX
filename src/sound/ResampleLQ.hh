@@ -26,7 +26,7 @@ protected:
 	ResampledSoundDevice& input;
 	const DynamicClock& hostClock;
 	DynamicClock emuClock;
-	typedef FixedPoint<16> FP;
+	typedef FixedPoint<14> FP;
 	const FP step;
 	int lastInput[2 * CHANNELS];
 };

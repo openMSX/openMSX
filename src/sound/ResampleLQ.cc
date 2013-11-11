@@ -165,43 +165,43 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 		// speakers.
 		/*asm volatile (
 		"0:\n\t"
-			"mov	r7,%[p],LSR #16\n\t"
+			"mov	r7,%[p],LSR #14\n\t"
 			"add	r7,%[buf],r7,LSL #2\n\t"
 			"ldmia	r7,{r7,r8}\n\t"
 			"sub	r8,r8,r7\n\t"
 			"and	%[t],%[p],%[m]\n\t"
 			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #16\n\t"
+			"add	%[t],r7,%[t],ASR #14\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	r7,%[p],LSR #16\n\t"
+			"mov	r7,%[p],LSR #14\n\t"
 			"add	r7,%[buf],r7,LSL #2\n\t"
 			"ldmia	r7,{r7,r8}\n\t"
 			"sub	r8,r8,r7\n\t"
 			"and	%[t],%[p],%[m]\n\t"
 			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #16\n\t"
+			"add	%[t],r7,%[t],ASR #14\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	r7,%[p],LSR #16\n\t"
+			"mov	r7,%[p],LSR #14\n\t"
 			"add	r7,%[buf],r7,LSL #2\n\t"
 			"ldmia	r7,{r7,r8}\n\t"
 			"sub	r8,r8,r7\n\t"
 			"and	%[t],%[p],%[m]\n\t"
 			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #16\n\t"
+			"add	%[t],r7,%[t],ASR #14\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"mov	r7,%[p],LSR #16\n\t"
+			"mov	r7,%[p],LSR #14\n\t"
 			"add	r7,%[buf],r7,LSL #2\n\t"
 			"ldmia	r7,{r7,r8}\n\t"
 			"sub	r8,r8,r7\n\t"
 			"and	%[t],%[p],%[m]\n\t"
 			"mul	%[t],r8,%[t]\n\t"
-			"add	%[t],r7,%[t],ASR #16\n\t"
+			"add	%[t],r7,%[t],ASR #14\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
@@ -214,29 +214,29 @@ bool ResampleLQDown<CHANNELS>::generateOutput(
 			, [out] "r"   (dataOut)
 			, [s]   "r"   (step)
 			, [n]   "r"   (hostNum)
-			, [m]   "r"   (0xFFFF)
+			, [m]   "r"   (0x3FFF) // mask 14 bits
 			: "r7","r8"
 		);*/
 
 		// 0th order interpolation
 		asm volatile (
 		"0:\n\t"
-			"lsrs	%[t],%[p],#16\n\t"
+			"lsrs	%[t],%[p],#14\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"lsrs	%[t],%[p],#16\n\t"
+			"lsrs	%[t],%[p],#14\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"lsrs	%[t],%[p],#16\n\t"
+			"lsrs	%[t],%[p],#14\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
 
-			"lsrs	%[t],%[p],#16\n\t"
+			"lsrs	%[t],%[p],#14\n\t"
 			"ldr	%[t],[%[buf],%[t],LSL #2]\n\t"
 			"str	%[t],[%[out]],#4\n\t"
 			"add	%[p],%[p],%[s]\n\t"
