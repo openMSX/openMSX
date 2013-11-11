@@ -13,40 +13,41 @@ proc plug_if_empty {connector pluggable} {
 }
 
 proc do_autoplug {} {
-	set connectors [list]
-	catch {
-		#can fail when you activate an 'empty' machine
-		set connectors [machine_info connector]
-	}
-	set pluggables [list]
-	catch {
-		#can fail when you activate an 'empty' machine
-		set pluggables [machine_info pluggable]
-	}
-
-	# cassette port
-	if {"cassetteport" in $connectors} {
-		plug_if_empty cassetteport cassetteplayer
-	}
-
-	# joystick ports
-	if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
-		if {"joyporta" in $connectors} {
-			set ::keyjoystick1.triga LCTRL
-			set ::keyjoystick1.trigb LALT
-			plug_if_empty joyporta keyjoystick1
+	if {[dict get [reverse status] status] ne "replaying"} {
+		set connectors [list]
+		catch {
+			#can fail when you activate an 'empty' machine
+			set connectors [machine_info connector]
 		}
-	} else {
-		if {("joyporta" in $connectors) &&
-		    ("joystick1" in $pluggables)} {
-			plug_if_empty joyporta joystick1
+		set pluggables [list]
+		catch {
+			#can fail when you activate an 'empty' machine
+			set pluggables [machine_info pluggable]
 		}
-		if {("joyportb" in $connectors) &&
-		    ("joystick2" in $pluggables)} {
-			plug_if_empty joyportb joystick2
+
+		# cassette port
+		if {"cassetteport" in $connectors} {
+			plug_if_empty cassetteport cassetteplayer
+		}
+
+		# joystick ports
+		if {[string match *-dingux* $::tcl_platform(osVersion)]} { ;# Dingoo
+			if {"joyporta" in $connectors} {
+				set ::keyjoystick1.triga LCTRL
+				set ::keyjoystick1.trigb LALT
+				plug_if_empty joyporta keyjoystick1
+			}
+		} else {
+			if {("joyporta" in $connectors) &&
+			    ("joystick1" in $pluggables)} {
+				plug_if_empty joyporta joystick1
+			}
+			if {("joyportb" in $connectors) &&
+			    ("joystick2" in $pluggables)} {
+				plug_if_empty joyportb joystick2
+			}
 		}
 	}
-
 	after boot [namespace code do_autoplug]
 }
 
