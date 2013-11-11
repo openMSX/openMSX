@@ -924,6 +924,15 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("motorControl", motorControl);
 
 	if (ar.isLoader()) {
+		if (tapePos > playImage->getEndTime()) {
+			tapePos = playImage->getEndTime();
+			motherBoard.getMSXCliComm().printWarning("Tape position  "
+				"beyond tape end! Setting tape position to end. "
+				"This can happen if you load a replay from an "
+				"older openMSX version with a different CAS-to-WAV "
+				"baud rate or when the tape image has been changed "
+				"compared to when the replay was created.");
+		}
 		if (state == RECORD) {
 			// TODO we don't support savestates in RECORD mode yet
 			motherBoard.getMSXCliComm().printWarning(
