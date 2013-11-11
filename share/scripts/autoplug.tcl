@@ -13,6 +13,9 @@ proc plug_if_empty {connector pluggable} {
 }
 
 proc do_autoplug {} {
+	# do not do any auto plug stuff when replaying, because a reset
+	# command in the replay will trigger autoplug and will cause the
+	# replay to get interrupted with the plug event.
 	if {[dict get [reverse status] status] ne "replaying"} {
 		set connectors [list]
 		catch {
