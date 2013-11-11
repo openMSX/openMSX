@@ -924,7 +924,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("motorControl", motorControl);
 
 	if (ar.isLoader()) {
-		if (tapePos > playImage->getEndTime()) {
+		if (playImage && (tapePos > playImage->getEndTime())) {
 			tapePos = playImage->getEndTime();
 			motherBoard.getMSXCliComm().printWarning("Tape position  "
 				"beyond tape end! Setting tape position to end. "
