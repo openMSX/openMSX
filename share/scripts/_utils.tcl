@@ -42,9 +42,11 @@ proc get_display_name_by_config_name {config_name type} {
 		}
 		set arglist [list]
 		foreach key $keylist {
-			set arg [dict get $names $key]
-			if {$arg ne ""} {
-				lappend arglist $arg
+			if [dict exists $names $key] {
+				set arg [dict get $names $key]
+				if {$arg ne ""} {
+					lappend arglist $arg
+				}
 			}
 		}
 		set result [join $arglist]
@@ -54,6 +56,7 @@ proc get_display_name_by_config_name {config_name type} {
 		}
 	}]} {
 		# hmm, XML file probably broken. Fallback:
+		set $errorInfo
 		set result "$config_name (CORRUPT)"
 	}
 	return $result
