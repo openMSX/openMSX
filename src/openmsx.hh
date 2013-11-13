@@ -47,7 +47,7 @@ void DebugPrint(const char* output);
 	do {					\
 		std::ostringstream output;			\
 		output << mes;						\
-		std::cout << output << std::endl;	\
+		std::cout << output.str() << std::endl;	\
 		::openmsx::DebugPrint(output.str().c_str());	\
 	} while (0)
 #elif PLATFORM_ANDROID
