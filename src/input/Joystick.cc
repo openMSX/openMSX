@@ -166,6 +166,8 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
 	configSetting->setChecker(checkJoystickConfig);
+
+	pin8 = false; // avoid UMR
 }
 
 Joystick::~Joystick()
