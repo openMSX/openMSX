@@ -63,6 +63,7 @@ private:
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
+	bool adjust(Pool::iterator it, const Sha1Sum& newSum);
 
 	void readSha1sums();
 	void writeSha1sums();

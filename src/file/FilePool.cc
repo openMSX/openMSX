@@ -94,6 +94,34 @@ void FilePool::remove(Pool::iterator it)
 	needWrite = true;
 }
 
+// Change the sha1sum of the element pointed to by 'it' into 'newSum'.
+// Also re-arrange the items so that pool remains sorted on sha1sum. Internally
+// this method doesn't actually sort, it merely rotates the elements.
+// Returns false if the new position is before (or at) the old position.
+// Returns true  if the new position is after          the old position.
+bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
+{
+	needWrite = true;
+	auto newIt = upper_bound(pool.begin(), pool.end(), newSum,
+	                         LessTupleElement<0>());
+	get<0>(*it) = newSum; // update sum
+	if (newIt > it) {
+		// move to back
+		rotate(it, it + 1, newIt);
+		return true;
+	} else {
+		if (newIt < it) {
+			// move to front
+			rotate(newIt, it, it + 1);
+		} else {
+			// (unlikely) sha1sum has changed, but after
+			// resorting item would remain in the same
+			// position
+		}
+		return false;
+	}
+}
+
 static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filename)
 {
 	if (line.size() <= 68) return false;
@@ -260,9 +288,12 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
 	auto bound = equal_range(pool.begin(), pool.end(), sha1sum,
 	                         LessTupleElement<0>());
-	auto it = bound.first;
-	while (it != bound.second) {
-		auto& time = get<1>(*it);
+	// use indices instead of iterators
+	auto i    = distance(pool.begin(), bound.first);
+	auto last = distance(pool.begin(), bound.second);
+	while (i != last) {
+		auto it = pool.begin() + i;
+		auto& time           = get<1>(*it);
 		const auto& filename = get<2>(*it);
 		try {
 			auto file = make_unique<File>(filename);
@@ -273,22 +304,28 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 				// expensive sha1sum calculation.
 				return file;
 			}
+			time = newTime; // update timestamp
+			needWrite = true;
 			auto newSum = calcSha1sum(*file, cliComm, distributor);
 			if (newSum == sha1sum) {
 				// Modification time was changed, but
-				// (recalculated) sha1sum is still the same,
-				// only update timestamp.
-				time = newTime;
+				// (recalculated) sha1sum is still the same.
 				return file;
 			}
-			// Did not match: update db with new sum and continue
-			// searching.
-			remove(it++);
-			insert(newSum, newTime, filename);
+			// Sha1sum has changed: update sha1sum, move entry to
+			// new position new sum and continue searching.
+			if (adjust(it, newSum)) {
+				// after
+				--last; // no ++i
+			} else {
+				// before (or at)
+				++i;
+			}
 		} catch (FileException&) {
 			// Error reading file: remove from db and continue
 			// searching.
-			remove(it++);
+			remove(it);
+			--last;
 		}
 	}
 	return nullptr; // not found
@@ -368,8 +405,8 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 				// db outdated
 				auto file = make_unique<File>(filename);
 				auto sum = calcSha1sum(*file, cliComm, distributor);
-				remove(it);
-				insert(sum, time, filename);
+				get<1>(*it) = time;
+				adjust(it, sum);
 				if (sum == sha1sum) {
 					return file;
 				}
@@ -404,19 +441,22 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
-	if (it != pool.end()) {
-		// in database
-		if (time == get<1>(*it)) {
-			// modification time matches, assume sha1sum also matches
-			return get<0>(*it);
-		} else {
-			// mismatch, remove from db and re-calculate
-			remove(it);
-		}
+	if ((it != pool.end()) && (get<1>(*it) == time)) {
+		// in database and modification time matches,
+		// assume sha1sum also matches
+		return get<0>(*it);
 	}
-	// not in db (or timestamp mismatch)
+
+	// not in database or timestamp mismatch
 	auto sum = calcSha1sum(file, cliComm, distributor);
-	insert(sum, time, filename);
+	if (it == pool.end()) {
+		// was not yet in database, insert new entry
+		insert(sum, time, filename);
+	} else {
+		// was already in database, but with wrong timestamp (and sha1sum)
+		get<1>(*it) = time;
+		adjust(it, sum);
+	}
 	return sum;
 }
 
