@@ -389,6 +389,11 @@ int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 
 void InputEventGenerator::setGrabInput(bool grab)
 {
+	// Note that this setting is also changed in VisibleSurface constructor
+	// because for Mac we want to enable it in fullscreen.
+	// It's not worth it to get that exactly right here, because here
+	// we don't have easy access to renderer settings and it may only
+	// go wrong if you explicitly change grab input at full screen (on Mac)
 	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
 
