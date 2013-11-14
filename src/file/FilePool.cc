@@ -16,7 +16,6 @@
 #include "memory.hh"
 #include "sha1.hh"
 #include "stl.hh"
-#include "unreachable.hh"
 #include <fstream>
 #include <cassert>
 
@@ -83,25 +82,14 @@ FilePool::~FilePool()
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	auto it1 = upper_bound(pool.begin(), pool.end(), sum,
-	                       LessTupleElement<0>());
-	auto it = pool.insert(it1, make_tuple(sum, time, filename));
-	string_ref filenameRef = get<2>(*it);
-	auto it2 = lower_bound(reversePool.begin(), reversePool.end(), filenameRef,
-	                       LessTupleElement<0>());
-	// filename cannot be present already
-	assert((it2 == reversePool.end()) || (it2->first != filenameRef));
-	reversePool.insert(it2, make_pair(filenameRef, sum));
+	auto it = upper_bound(pool.begin(), pool.end(), sum,
+	                      LessTupleElement<0>());
+	pool.insert(it, make_tuple(sum, time, filename));
 	needWrite = true;
 }
 
 void FilePool::remove(Pool::iterator it)
 {
-	string_ref filenameRef = get<2>(*it);
-	auto it2 = lower_bound(reversePool.begin(), reversePool.end(), filenameRef,
-	                       LessTupleElement<0>());
-	assert((it2 != reversePool.end()) && (it2->first == filenameRef));
-	reversePool.erase(it2);
 	pool.erase(it);
 	needWrite = true;
 }
@@ -126,7 +114,6 @@ static bool parse(const string& line, Sha1Sum& sha1, time_t& time, string& filen
 void FilePool::readSha1sums()
 {
 	assert(pool.empty());
-	assert(reversePool.empty());
 
 	string cacheFile = FileOperations::getUserDataDir() + FILE_CACHE;
 	ifstream file(cacheFile.c_str());
@@ -138,8 +125,6 @@ void FilePool::readSha1sums()
 		getline(file, line);
 		if (parse(line, sum, time, filename)) {
 			pool.push_back(make_tuple(sum, time, filename));
-			string_ref filenameRef = get<2>(pool.back());
-			reversePool.push_back(make_pair(filenameRef, sum)); // not sorted
 		}
 	}
 
@@ -150,7 +135,6 @@ void FilePool::readSha1sums()
 		// safety mechanism.
 		sort(pool.begin(), pool.end(), LessTupleElement<0>());
 	}
-	sort(reversePool.begin(), reversePool.end(), LessTupleElement<0>());
 }
 
 void FilePool::writeSha1sums()
@@ -400,19 +384,19 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 
 FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 {
-	auto it = lower_bound(reversePool.begin(), reversePool.end(), filename,
-	                      LessTupleElement<0>());
-	if ((it == reversePool.end()) || (it->first != filename)) return pool.end();
-
-	auto p = equal_range(pool.begin(), pool.end(), it->second,
-	                     LessTupleElement<0>());
-	assert(p.first != p.second);
-	for (auto i = p.first; i != p.second; ++i) {
-		if (get<2>(*i) == filename) return i;
+	// Linear search in pool for filename.
+	// Search from back to front because often, soon after this search, we
+	// will insert/remove an element from the vector. This requires
+	// shifting all elements in the vector starting from a certain
+	// position. Starting the search from the back increases the likelihood
+	// that the to-be-shifted elements are already in the memory cache.
+	for (auto it = pool.rbegin(); it != pool.rend(); ++it) {
+		if (get<2>(*it) == filename) {
+			return it.base() - 1;
+		}
 	}
-	UNREACHABLE;
+	return pool.end(); // not found
 }
-
 
 Sha1Sum FilePool::getSha1Sum(File& file)
 {

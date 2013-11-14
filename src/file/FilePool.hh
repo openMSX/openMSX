@@ -58,12 +58,8 @@ private:
 	};
 	typedef std::vector<Entry> Directories;
 
-	// Manually implement a collection of <sha1sum, timestamp, filename>
-	// tuples, that is indexed on both sha1sum and filename.
-	//   <sha1sum, timestamp, filename>
+	// <sha1sum, timestamp, filename>, sorted on sha1sum
 	typedef std::vector<std::tuple<Sha1Sum, time_t, std::string>> Pool;
-	//   <filename, sha1sum>
-	typedef std::vector<std::pair<string_ref, Sha1Sum>> ReversePool;
 
 	void insert(const Sha1Sum& sum, time_t time, const std::string& filename);
 	void remove(Pool::iterator it);
@@ -95,7 +91,6 @@ private:
 	CliComm& cliComm;
 
 	Pool pool;
-	ReversePool reversePool;
 	uint64_t lastTime; // to indicate progress
 	unsigned amountScanned; // to indicate progress
 	bool quit;
