@@ -13,7 +13,6 @@
 #include "vla.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include "build-info.hh"
 #include <cstring>
 #include <cassert>
 
@@ -185,7 +184,7 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
-#if ASM_X86
+#ifdef __SSE2__
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
 	if (samples == 0) return true;

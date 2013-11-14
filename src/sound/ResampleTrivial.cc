@@ -1,6 +1,5 @@
 #include "ResampleTrivial.hh"
 #include "ResampledSoundDevice.hh"
-#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -13,7 +12,7 @@ ResampleTrivial::ResampleTrivial(ResampledSoundDevice& input_)
 bool ResampleTrivial::generateOutput(int* dataOut, unsigned num,
                                      EmuTime::param /*time*/)
 {
-#if ASM_X86
+#ifdef __SSE2__
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
 	return input.generateInput(dataOut, num);
