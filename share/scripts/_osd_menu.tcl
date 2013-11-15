@@ -342,6 +342,7 @@ proc do_menu_open {top_menu} {
 	bind -layer osd_menu "OSDcontrol RIGHT PRESS" -repeat {osd_menu::menu_action RIGHT}
 	bind -layer osd_menu "mouse button1 down" {osd_menu::menu_mouse_down}
 	bind -layer osd_menu "mouse button1 up"   {osd_menu::menu_mouse_up}
+	bind -layer osd_menu "mouse button3 up"   {osd_menu::menu_close_top}
 	bind -layer osd_menu "mouse motion"       {osd_menu::menu_mouse_motion}
 	if {$is_dingoo} {
 		bind -layer osd_menu "keyb LCTRL"  {osd_menu::menu_action A    }
