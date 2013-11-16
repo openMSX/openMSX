@@ -61,8 +61,6 @@ the MoG overlay to work, see toggle_mog_overlay."
 
 #Init Overlays
 proc init {} {
-	namespace import ::osd_widgets::*
-
 	variable num_enemies
 	variable num_rocks
 	variable label_color
@@ -74,13 +72,13 @@ proc init {} {
 	variable demon_cache
 	variable max_ep
 
-	msx_init mog
+	osd_widgets::msx_init mog
 
 	for {set i 0} {$i < $num_enemies} {incr i} {
-		create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
+		osd_widgets::create_power_bar mog.powerbar$i 14 2 0xff0000ff 0x00000080 0xffffffff
 	}
 
-	create_power_bar mog.item 16 16 0x00000000 0xff770020 0xffffffff
+	osd_widgets::create_power_bar mog.item 16 16 0x00000000 0xff770020 0xffffffff
 	set item_cache 0
 
 	osd create rectangle mog.tomb -rely 999 -w 16 -h 16 -rgba 0x00000080
@@ -101,7 +99,7 @@ proc init {} {
 		osd create text mog.rock$i.text -x 0 -y 0 -size 4 -rgb 0xffffff
 	}
 
-	create_power_bar mog.demon 48 4 0x2bdd2bff 0x00000080 0xffffffff
+	osd_widgets::create_power_bar mog.demon 48 4 0x2bdd2bff 0x00000080 0xffffffff
 	set demon_cache 0
 
 	# Enemy Power
@@ -129,7 +127,7 @@ proc update_overlay {} {
 	if {!$mog_overlay_active} return
 
 	#see if not in demo
-	if {[peek 0xe002] != 64} {osd configure mog -y 999} else {msx_update mog}
+	if {[peek 0xe002] != 64} {osd configure mog -y 999} else {osd_widgets::msx_update mog}
 
 	for {set i 0; set addr 0xe800} {$i < $num_enemies} {incr i; incr addr 0x20} {
 		set enemy_type [peek $addr]
@@ -146,9 +144,9 @@ proc update_overlay {} {
 			set pos_y [expr {-6 + [peek [expr {$addr + 5}]]}]
 			set power [expr {1.00 * $enemy_hp / $max_ep($i)}]
 			set text [format "%s (%d): %d/%d" [lindex $enemy_names $enemy_type] $i $enemy_hp $max_ep($i)]
-			update_power_bar mog.powerbar$i $pos_x $pos_y $power $text
+			osd_widgets::update_power_bar mog.powerbar$i $pos_x $pos_y $power $text
 		} else {
-			hide_power_bar mog.powerbar$i
+			osd_widgets::hide_power_bar mog.powerbar$i
 		}
 	}
 
@@ -314,7 +312,7 @@ proc toggle_mog_editor {} {
 		bind -layer mog_editor "mouse button3 down" {
 			mog_overlay::put_popolon
 		}
-		activate_input_layer mog_editor -non-blocking
+		activate_input_layer mog_editor
 		return "MoG editor activated!"
 	} else {
 		deactivate_input_layer mog_editor
