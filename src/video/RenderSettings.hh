@@ -116,6 +116,12 @@ public:
 	  * This setting is intended for debugging only, not for users. */
 	EnumSetting<bool>& getCmdTiming() const { return *cmdTimingSetting; }
 
+	/** TooFastAccess [real, ignored].
+	  * Indicates whether too fast VDP VRAM access should be correctly
+	  * emulated (= some accesses are dropped) or ignored (= all accesses
+	  * are correctly executed). */
+	EnumSetting<bool>& getTooFastAccess() const { return *tooFastAccessSetting; }
+
 	/** Display deformation (normal, 3d)
 	  * ATM this only works when using the SDLGL-PP renderer. */
 	EnumSetting<DisplayDeform>& getDisplayDeform() const {
@@ -171,6 +177,7 @@ private:
 
 	std::unique_ptr<EnumSetting<Accuracy>> accuracySetting;
 	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;
+	std::unique_ptr<EnumSetting<bool>> tooFastAccessSetting;
 	std::unique_ptr<BooleanSetting> deinterlaceSetting;
 	std::unique_ptr<BooleanSetting> fullScreenSetting;
 	std::unique_ptr<FloatSetting> gammaSetting;

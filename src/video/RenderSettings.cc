@@ -129,6 +129,17 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE);
 
+	EnumSetting<bool>::Map accessMap;
+	accessMap.push_back(std::make_pair("real",   false));
+	accessMap.push_back(std::make_pair("ignore", true));
+	tooFastAccessSetting = make_unique<EnumSetting<bool>>(commandController,
+		"too_fast_vram_access",
+		"Should too fast VDP VRAM access be correctly emulated.\n"
+		"Possible values are:\n"
+		" real -> too fast accesses are dropped\n"
+		" ignore -> access speed is ignored, all accesses are executed",
+		false, accessMap, Setting::DONT_SAVE);
+
 	EnumSetting<DisplayDeform>::Map deformMap;
 	deformMap.push_back(std::make_pair("normal", DEFORM_NORMAL));
 	deformMap.push_back(std::make_pair("3d",     DEFORM_3D));
