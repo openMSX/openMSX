@@ -685,6 +685,8 @@ set hardware_menu {
 	         selectable false }
 	       { text "Change Machine..."
 	         actions { A { osd_menu::menu_create [osd_menu::menu_create_load_machine_list]; catch { osd_menu::select_menu_item [machine_info config_name]} }}}
+	       { text "Set Current Machine as Default"
+	         actions { A { set ::default_machine [machine_info config_name]; osd_menu::menu_close_top }}}
 	       { text "Extensions..."
 	         actions { A { osd_menu::menu_create $osd_menu::extensions_menu }}}
 	       { text "Connectors..."
@@ -839,7 +841,11 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	set items [openmsx_info machines]
 
 	foreach i $items {
-		lappend presentation [utils::get_machine_display_name_by_config_name ${i}]
+		set extra_info ""
+		if {$i eq $::default_machine} {
+			set extra_info " (default)"
+		}
+		lappend presentation "[utils::get_machine_display_name_by_config_name $i]$extra_info"
 	}
 
 	set items_sorted [list]
