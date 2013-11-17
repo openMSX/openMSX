@@ -41,8 +41,13 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 	resampleSetting = make_unique<EnumSetting<ResampledSoundDevice::ResampleType>>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
+		// For Dingux, LQ is good compromise between quality and performance
 		ResampledSoundDevice::RESAMPLE_LQ,
+#elif PLATFORM_ANDROID
+		// For Android, BLIP is good compromise between quality and performance
+		ResampledSoundDevice::RESAMPLE_BLIP,
 #else
+		// For other platforms, default setting may be changed in future
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #endif
 		resampleMap);
