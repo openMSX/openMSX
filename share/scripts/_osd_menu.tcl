@@ -601,12 +601,12 @@ set misc_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}
 
-set resampler_desc [dict create fast "Fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but slow on Android)"]
+set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but slow on Android)"]
 
 set sound_setting_menu {
 	font-size 8
 	border-size 2
-	width 210
+	width 180 
 	xpos 100
 	ypos 120
 	items {{ text "Sound Settings"
@@ -781,7 +781,7 @@ proc get_resampler_presentation { value } {
 	if {[dict exists $osd_menu::resampler_desc $value]} {
 		return [dict get $osd_menu::resampler_desc $value]
 	} else {
-		return "custom: $::resampler"
+		return $value
 	}
 }
 
