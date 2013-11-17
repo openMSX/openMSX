@@ -64,6 +64,15 @@ private:
 	CliConnection& getConnection();
 };
 
+class PlatformInfo : public InfoTopic
+{
+public:
+	explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
+	virtual void execute(const vector<TclObject>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+};
+
 class VersionInfo : public InfoTopic
 {
 public:
@@ -86,6 +95,7 @@ GlobalCommandController::GlobalCommandController(
 	, helpCmd(make_unique<HelpCmd>(*this))
 	, tabCompletionCmd(make_unique<TabCompletionCmd>(*this))
 	, proxyCmd(make_unique<ProxyCmd>(*this, reactor))
+	, platformInfo(make_unique<PlatformInfo>(getOpenMSXInfoCommand()))
 	, versionInfo(make_unique<VersionInfo>(getOpenMSXInfoCommand()))
 	, romInfoTopic(make_unique<RomInfoTopic>(getOpenMSXInfoCommand()))
 {
@@ -685,6 +695,24 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
+
+// Platform info
+
+PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
+	: InfoTopic(openMSXInfoCommand, "platform")
+{
+}
+
+void PlatformInfo::execute(const vector<TclObject>& /*tokens*/,
+                          TclObject& result) const
+{
+	result.setString(TARGET_PLATFORM);
+}
+
+string PlatformInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Prints openMSX platform.";
+}
 
 // Version info
 

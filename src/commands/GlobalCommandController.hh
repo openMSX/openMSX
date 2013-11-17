@@ -20,6 +20,7 @@ class HelpCmd;
 class TabCompletionCmd;
 class UpdateCmd;
 class ProxyCmd;
+class PlatformInfo;
 class VersionInfo;
 class RomInfoTopic;
 class ProxySetting;
@@ -112,6 +113,7 @@ private:
 	std::unique_ptr<TabCompletionCmd> tabCompletionCmd;
 	std::unique_ptr<UpdateCmd> updateCmd;
 	std::unique_ptr<ProxyCmd> proxyCmd;
+	std::unique_ptr<PlatformInfo> platformInfo;
 	std::unique_ptr<VersionInfo> versionInfo;
 	std::unique_ptr<RomInfoTopic> romInfoTopic;
 
