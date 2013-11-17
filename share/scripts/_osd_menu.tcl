@@ -620,8 +620,8 @@ set sound_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}
 	       { text "Resampler: [osd_menu::get_resampler_presentation $resampler]"
-	         actions { A  { osd_menu::menu_create [osd_menu::menu_create_resampler_list]; osd_menu::select_menu_item $resampler }}
-	         post-spacing 3 }}}
+	         actions { LEFT  { osd_menu::menu_setting [cycle_back resampler] }
+	                   RIGHT { osd_menu::menu_setting [cycle      resampler] }}}}}
 
 set horizontal_stretch_desc [dict create 320.0 "none (large borders)" 288.0 "a bit more than all border pixels" 284.0 "all border pixels" 280.0 "a bit less than all border pixels" 272.0 "realistic" 256.0 "no borders at all"]
 
@@ -791,43 +791,6 @@ proc get_horizontal_stretch_presentation { value } {
 	} else {
 		return "custom: $::horizontal_stretch"
 	}
-}
-
-proc menu_create_resampler_list {} {
-
-	set menu_def [list \
-	         execute menu_resampler_exec \
-	         font-size 8 \
-	         border-size 2 \
-	         width 170 \
-	         xpos 110 \
-	         ypos 130 \
-	         header { text "Select Resampler:"
-	                  font-size 10
-	                  post-spacing 6 }]
-
-	set items [list]
-	set presentation [list]
-
-	set values [dict keys $osd_menu::resampler_desc]
-	if {$::resampler ni $values} {
-		lappend values $::resampler
-	}
-	foreach value $values {
-		lappend items $value
-		lappend presentation [osd_menu::get_resampler_presentation $value]
-	}
-	lappend menu_def presentation $presentation
-
-	return [prepare_menu_list $items 3 $menu_def]
-}
-
-proc menu_resampler_exec {value} {
-	set ::resampler $value
-	menu_close_top
-	# refresh the sound settings menu
-	menu_close_top
-	menu_create $osd_menu::sound_setting_menu
 }
 
 proc menu_create_stretch_list {} {
