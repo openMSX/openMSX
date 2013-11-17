@@ -7,6 +7,7 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
+#include "Observer.hh"
 #include "likely.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -31,6 +32,7 @@ class MsxX256PosInfo;
 class MsxX512PosInfo;
 class Display;
 class RawFrame;
+class Setting;
 template<typename> class EnumSetting;
 namespace VDPAccessSlots {
 	enum Delta : int;
@@ -63,7 +65,7 @@ namespace VDPAccessSlots {
   * the starting time of the corresponding sync (vsync, hsync).
   */
 class VDP : public MSXDevice, public Schedulable,
-            private VideoSystemChangeListener
+            private VideoSystemChangeListener, Observer<Setting>
 {
 public:
 	/** Number of VDP clock ticks per second.
@@ -617,7 +619,7 @@ private:
 	byte vramRead(EmuTime::param time);
 
 	/** Helper methods for CPU-VRAM access. */
-	void scheduleCpuVramAccess(bool isRead, EmuTime::param time);
+	void scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time);
 	void executeCpuVramAccess(EmuTime::param time);
 
 	/** Read the contents of a status register
@@ -675,9 +677,13 @@ private:
 	  */
 	void setPalette(int index, word grb, EmuTime::param time);
 
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 private:
 	Display& display;
 	EnumSetting<bool>& cmdTiming;
+	EnumSetting<bool>& tooFastAccess;
 
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;
@@ -892,6 +898,9 @@ private:
 	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
 	bool warningPrinted;
+
+	/** Cached version of tooFastAccess setting. */
+	bool allowTooFastAccess;
 };
 SERIALIZE_CLASS_VERSION(VDP, 5);
 

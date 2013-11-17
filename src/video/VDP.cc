@@ -227,7 +227,8 @@ VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
 	, Schedulable(MSXDevice::getScheduler())
 	, display(getReactor().getDisplay())
-	, cmdTiming(display.getRenderSettings().getCmdTiming())
+	, cmdTiming    (display.getRenderSettings().getCmdTiming())
+	, tooFastAccess(display.getRenderSettings().getTooFastAccess())
 	, vdpRegDebug      (make_unique<VDPRegDebug>      (*this))
 	, vdpStatusRegDebug(make_unique<VDPStatusRegDebug>(*this))
 	, vdpPaletteDebug  (make_unique<VDPPaletteDebug>  (*this))
@@ -310,10 +311,13 @@ VDP::VDP(const DeviceConfig& config)
 	powerUp(time);
 
 	display.attach(*this);
+	tooFastAccess.attach(*this);
+	update(tooFastAccess);
 }
 
 VDP::~VDP()
 {
+	tooFastAccess.detach(*this);
 	display.detach(*this);
 }
 
@@ -804,20 +808,31 @@ void VDP::setPalette(int index, word grb, EmuTime::param time)
 
 void VDP::vramWrite(byte value, EmuTime::param time)
 {
-	// Tested on real V9938: 'cpuVramData' is shared between read and write.
-	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
-	cpuVramData = value;
-	scheduleCpuVramAccess(false, time);
+	scheduleCpuVramAccess(false, value, time);
 }
 
 byte VDP::vramRead(EmuTime::param time)
 {
-	scheduleCpuVramAccess(true, time); // schedule next read
+	byte dummy = 0;
+	scheduleCpuVramAccess(true, dummy, time); // schedule next read
 	return cpuVramData; // this is the data from the previous read
 }
 
-void VDP::scheduleCpuVramAccess(bool isRead, EmuTime::param time)
+void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 {
+	if (unlikely(allowTooFastAccess)) {
+		// If VRAM is accessed too fast, meaning a new request arrives
+		// before the previous one is handled. Then (in this mode)
+		// execute the previous one right now.
+		if (unlikely(cpuAccessScheduled())) {
+			removeSyncPoint(CPU_VRAM_ACCESS);
+			executeCpuVramAccess(time);
+		}
+	}
+
+	// Tested on real V9938: 'cpuVramData' is shared between read and write.
+	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
+	if (!isRead) cpuVramData = write;
 	cpuVramReqIsRead = isRead;
 	if (unlikely(cpuAccessScheduled())) {
 		// Already scheduled. Do nothing.
@@ -1391,6 +1406,12 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 void VDP::setExternalVideoSource(const RawFrame* externalSource)
 {
 	externalVideo = externalSource;
+}
+
+void VDP::update(const Setting& setting)
+{
+	assert(&setting == &tooFastAccess); (void)setting;
+	allowTooFastAccess = tooFastAccess.getEnum();
 }
 
 // VDPRegDebug
