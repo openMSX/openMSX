@@ -133,6 +133,7 @@ GlobalCommandController::~GlobalCommandController()
 	// but we need it slightly earlier to test the assertions.
 	// TODO find a cleaner way to do this
 	romInfoTopic.reset();
+	platformInfo.reset();
 	versionInfo.reset();
 	updateCmd.reset();
 	tabCompletionCmd.reset();
