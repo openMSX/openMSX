@@ -129,10 +129,13 @@ OSDConsoleRenderer::OSDConsoleRenderer(
 	placeMap.push_back(std::make_pair("bottomleft",  CP_BOTTOMLEFT));
 	placeMap.push_back(std::make_pair("bottom",      CP_BOTTOM));
 	placeMap.push_back(std::make_pair("bottomright", CP_BOTTOMRIGHT));
+	// On Android, console must by default be placed on top, in order to prevent
+	// that it overlaps with the virtual Android keyboard, which is always placed
+	// at the bottom of the screen
 	consolePlacementSetting = make_unique<EnumSetting<Placement>>(
 		commandController, "consoleplacement",
 		"position of the console within the emulator",
-		CP_BOTTOM, placeMap);
+		PLATFORM_ANDROID ? CP_TOP : CP_BOTTOM, placeMap);
 
 	// background (only load backgound on first paint())
 	backgroundSetting = make_unique<FilenameSetting>(commandController,
