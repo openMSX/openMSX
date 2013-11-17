@@ -601,7 +601,7 @@ set misc_setting_menu {
 	         actions { LEFT  { osd_menu::menu_setting [incr maxframeskip -1] }
 	                   RIGHT { osd_menu::menu_setting [incr maxframeskip  1] }}}}}
 
-set resampler_desc [dict create fast "Fast, but low quality" blip "A bit slower but much better quality" hq "Highest quality but very slow on ARM"]
+set resampler_desc [dict create fast "Fast (but low quality)" blip "blip (good speed/quality)" hq "hq (best but slow on Android)"]
 
 set sound_setting_menu {
 	font-size 8
