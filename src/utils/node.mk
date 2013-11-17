@@ -37,7 +37,6 @@ HDR_ONLY:= \
 	noncopyable \
 	unreachable \
 	stl \
-	TypeInfo \
 	type_traits \
 	DivModByConst \
 	utf8_core \

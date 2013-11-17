@@ -53,7 +53,7 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	auto key = std::make_pair(p, TypeInfo(typeInfo));
+	auto key = std::make_pair(p, std::type_index(typeInfo));
 	assert(idMap.find(key) == idMap.end());
 	idMap[key] = lastId;
 	return lastId;
@@ -67,7 +67,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto key = std::make_pair(p, TypeInfo(typeInfo));
+	auto key = std::make_pair(p, std::type_index(typeInfo));
 	auto it = idMap.find(key);
 	return it != idMap.end() ? it->second : 0;
 }

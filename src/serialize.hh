@@ -4,12 +4,12 @@
 #include "serialize_core.hh"
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
-#include "TypeInfo.hh"
 #include "StringOp.hh"
 #include "inline.hh"
 #include "unreachable.hh"
 #include <zlib.h>
 #include <string>
+#include <typeindex>
 #include <type_traits>
 #include <vector>
 #include <map>
@@ -365,7 +365,7 @@ public:
 		//   struct B { A a; ... };
 		// The pointer to the outer and inner structure can be the
 		// same while we still want a different ID to refer to these
-		// two. That's why we use a std::pair<void*, TypeInfo> as key
+		// two. That's why we use a std::pair<void*, type_index> as key
 		// in the map.
 		// For polymorphic types you do sometimes use a base pointer
 		// to refer to a subtype. So there we only use the pointer
@@ -395,7 +395,7 @@ private:
 	unsigned getID1(const void* p);
 	unsigned getID2(const void* p, const std::type_info& typeInfo);
 
-	std::map<std::pair<const void*, TypeInfo>, unsigned> idMap;
+	std::map<std::pair<const void*, std::type_index>, unsigned> idMap;
 	std::map<const void*, unsigned> polyIdMap;
 	unsigned lastId;
 };
