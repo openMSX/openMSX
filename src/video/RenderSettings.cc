@@ -9,6 +9,7 @@
 #include "unreachable.hh"
 #include "memory.hh"
 #include "build-info.hh"
+#include "openmsx.hh"
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -137,6 +138,9 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"display_deform", "Display deform (for the moment this only "
 		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap);
 
+	// Many android devices are relatively low powered. Therefore use
+	// no stretch (value 320) as default for Android because it gives
+	// better performance
 	horizontalStretchSetting = make_unique<FloatSetting>(commandController,
 		"horizontal_stretch",
 		"Amount of horizontal stretch: this many MSX pixels will be "
@@ -145,7 +149,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"  256 = max stretch (no border visible anymore)\n"
 		"  good values are 272 or 280\n"
 		"This setting has only effect when using the SDLGL-PP renderer.",
-		280.0, 256.0, 320.0);
+		PLATFORM_ANDROID ? 320.0 : 280.0, 256.0, 320.0);
 
 	pointerHideDelaySetting = make_unique<FloatSetting>(commandController,
 		"pointer_hide_delay",
