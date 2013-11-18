@@ -69,8 +69,8 @@ def installAll(
 			('Panasonic_FS-A1GT', 'turbor'),
 			):
 			installSymlink(
-				machine,
-				installPrefix + shareDestDir + '/machines/' + alias
+				machine + ".xml",
+				installPrefix + shareDestDir + '/machines/' + alias + ".xml"
 				)
 		if symlinkForBinary and installPrefix == '':
 			def createSymlinkToBinary(linkDir):
