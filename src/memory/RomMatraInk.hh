@@ -2,7 +2,6 @@
 #define ROMMATRAINK_HH
 
 #include "MSXRom.hh"
-#include "serialize.hh"
 #include <memory>
 
 namespace openmsx {

@@ -4,7 +4,6 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "StateChangeListener.hh"
-#include "serialize_meta.hh"
 #include <SDL.h>
 
 namespace openmsx {

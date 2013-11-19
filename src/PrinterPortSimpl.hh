@@ -2,7 +2,6 @@
 #define PRINTERPORTSIMPLE_HH
 
 #include "PrinterPortDevice.hh"
-#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {

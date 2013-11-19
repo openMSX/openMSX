@@ -1,5 +1,4 @@
 #include "DiskFactory.hh"
-#include "CommandController.hh"
 #include "Reactor.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -9,7 +8,6 @@
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
-#include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"

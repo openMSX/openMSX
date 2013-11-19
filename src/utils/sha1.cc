@@ -25,9 +25,7 @@ A million repetitions of "a"
 #include "StringOp.hh"
 #include "endian.hh"
 #include <cassert>
-#include <cstdio>
 #include <cstring>
-#include <memory.h>
 
 using std::string;
 

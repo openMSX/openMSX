@@ -2,7 +2,6 @@
 #include "ResampledSoundDevice.hh"
 #include "likely.hh"
 #include "vla.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 

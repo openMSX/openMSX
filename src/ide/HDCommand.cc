@@ -1,6 +1,5 @@
 #include "HDCommand.hh"
 #include "HD.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"

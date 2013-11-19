@@ -20,25 +20,18 @@
 #include "Event.hh"
 #include "DeviceFactory.hh"
 #include "ReadOnlySetting.hh"
-#include "BooleanSetting.hh"
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <tcl.h>
-#include <cstdio>
-#include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <iterator>
 
-using std::ostringstream;
-using std::setfill;
-using std::setw;
-using std::uppercase;
 using std::string;
 using std::vector;
 using std::min;

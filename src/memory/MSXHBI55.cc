@@ -35,6 +35,7 @@
 #include "SRAM.hh"
 #include "unreachable.hh"
 #include "memory.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

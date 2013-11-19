@@ -41,7 +41,6 @@
 #include "TclObject.hh"
 #include "Observer.hh"
 #include "StringOp.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"

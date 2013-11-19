@@ -4,7 +4,6 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "FilenameSetting.hh"
-#include "GlobalSettings.hh"
 #include "SDLImage.hh"
 #include "Display.hh"
 #include "InputEventGenerator.hh"

@@ -6,7 +6,6 @@
 #include "StringMap.hh"
 #include "noncopyable.hh"
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 

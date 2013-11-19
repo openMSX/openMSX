@@ -11,7 +11,6 @@
 #include <zlib.h>
 #include <string>
 #include <type_traits>
-#include <cstring>
 #include <vector>
 #include <map>
 #include <sstream>

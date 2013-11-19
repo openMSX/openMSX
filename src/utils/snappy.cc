@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <cstdlib>
 #include <cstdint>
 
 using namespace openmsx;

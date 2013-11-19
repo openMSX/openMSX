@@ -2,6 +2,7 @@
 #define SECTORBASEDDISK_HH
 
 #include "Disk.hh"
+#include "RawTrack.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {

@@ -2,7 +2,6 @@
 #define MSXCIELTURBO_HH
 
 #include "MSXDevice.hh"
-#include <memory>
 
 namespace openmsx {
 

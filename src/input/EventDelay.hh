@@ -4,7 +4,6 @@
 #include "EventListener.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
-#include "Keys.hh"
 #include "build-info.hh"
 #include <vector>
 #include <deque>

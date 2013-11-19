@@ -4,7 +4,6 @@
 #include "EventListener.hh"
 #include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 #include <list>

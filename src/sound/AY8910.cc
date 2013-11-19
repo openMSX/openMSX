@@ -10,7 +10,6 @@
 
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
-#include "DeviceConfig.hh"
 #include "SimpleDebuggable.hh"
 #include "DeviceConfig.hh"
 #include "TclCallback.hh"

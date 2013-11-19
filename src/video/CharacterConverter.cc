@@ -9,13 +9,11 @@ TODO:
 */
 
 #include "CharacterConverter.hh"
-#include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cstdint>
-#include <type_traits>
 
 namespace openmsx {
 

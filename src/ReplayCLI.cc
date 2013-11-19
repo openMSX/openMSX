@@ -1,7 +1,6 @@
 #include "ReplayCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"
-#include "MSXException.hh"
 #include "TclObject.hh"
 
 using std::deque;

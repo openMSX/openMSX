@@ -1,5 +1,4 @@
 #include "RecordedCommand.hh"
-#include "CommandController.hh"
 #include "StateChangeDistributor.hh"
 #include "TclObject.hh"
 #include "Scheduler.hh"
@@ -7,7 +6,6 @@
 #include "ScopedAssign.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "checked_cast.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 

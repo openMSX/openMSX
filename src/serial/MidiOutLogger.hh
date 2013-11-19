@@ -2,7 +2,6 @@
 #define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
-#include "serialize_meta.hh"
 #include <fstream>
 #include <memory>
 

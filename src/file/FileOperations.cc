@@ -39,7 +39,6 @@
 #include <Carbon/Carbon.h>
 #endif
 
-#include "openmsx.hh"
 #include "ReadDir.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"

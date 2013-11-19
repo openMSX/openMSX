@@ -13,7 +13,6 @@ namespace openmsx {
 class CommandController;
 class GlobalCommandController;
 class Interpreter;
-class XMLElement;
 
 class BaseSetting : private noncopyable
 {

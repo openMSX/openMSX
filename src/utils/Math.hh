@@ -2,9 +2,7 @@
 #define MATH_HH
 
 #include "openmsx.hh"
-#include "inline.hh"
 #include "likely.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cmath>
 

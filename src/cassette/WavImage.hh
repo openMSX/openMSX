@@ -5,7 +5,6 @@
 #include "WavData.hh"
 #include "DynamicClock.hh"
 #include "noncopyable.hh"
-#include <memory>
 
 namespace openmsx {
 

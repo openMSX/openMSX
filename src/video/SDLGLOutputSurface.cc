@@ -1,5 +1,6 @@
 #include "SDLGLOutputSurface.hh"
 #include "OutputSurface.hh"
+#include "GLUtil.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "Math.hh"

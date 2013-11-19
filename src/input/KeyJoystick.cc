@@ -8,7 +8,6 @@
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "memory.hh"
-#include <cassert>
 
 using std::string;
 using std::shared_ptr;

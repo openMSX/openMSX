@@ -5,7 +5,6 @@
 #include "WavData.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
-#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {

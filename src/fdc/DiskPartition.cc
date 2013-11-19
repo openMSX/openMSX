@@ -1,7 +1,6 @@
 #include "DiskPartition.hh"
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
-#include "MSXException.hh"
 #include "StringOp.hh"
 #include <cassert>
 

@@ -6,8 +6,6 @@
 #include "StringOp.hh"
 #include "stl.hh"
 #include <algorithm>
-#include <cstdlib>
-#include <cstdio>
 #include <cstring>
 
 namespace openmsx {

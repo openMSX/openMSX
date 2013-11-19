@@ -4,7 +4,6 @@
 #include "EnumSetting.hh"
 #include "Display.hh"
 #include "Version.hh"
-#include "GLUtil.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 

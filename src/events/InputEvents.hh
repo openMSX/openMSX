@@ -1,12 +1,10 @@
 #ifndef INPUTEVENTS_HH
 #define INPUTEVENTS_HH
 
-#include "openmsx.hh"
 #include "Event.hh"
 #include "Keys.hh"
+#include <cstdint>
 #include <memory>
-#include <string>
-#include <vector>
 
 namespace openmsx {
 

@@ -5,7 +5,6 @@
 #include "ReadDir.hh"
 #include "utf8_unchecked.hh"
 #include "stringsp.hh"
-#include "xrange.hh"
 #include <algorithm>
 
 using std::vector;

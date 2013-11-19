@@ -3,7 +3,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include <algorithm>
-#include <cstring>
 #include <cassert>
 
 using std::vector;

@@ -21,7 +21,6 @@
 #include "sha1.hh"
 #include "memory.hh"
 #include <limits>
-#include <sstream>
 #include <cstring>
 
 using std::string;

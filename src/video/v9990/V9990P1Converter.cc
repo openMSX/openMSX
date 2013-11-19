@@ -2,9 +2,7 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "MemoryOps.hh"
-#include "GLUtil.hh"
 #include "build-info.hh"
-#include <type_traits>
 #include <cassert>
 #include <algorithm>
 #include <cstdint>

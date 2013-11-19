@@ -1,11 +1,9 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"
-#include "GLUtil.hh"
 #include "Math.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <type_traits>
 #include <cassert>
 #include <cstdint>
 

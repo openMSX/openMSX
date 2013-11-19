@@ -4,7 +4,6 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
-#include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "CliComm.hh"
 #include "AlarmEvent.hh"

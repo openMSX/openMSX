@@ -12,7 +12,6 @@ namespace openmsx {
 class Layer;
 class Reactor;
 class CommandConsole;
-class CommandController;
 class AlarmEvent;
 class EventDistributor;
 class InputEventGenerator;

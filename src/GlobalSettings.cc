@@ -3,7 +3,6 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
-#include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"

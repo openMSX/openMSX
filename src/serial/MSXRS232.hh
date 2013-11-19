@@ -15,7 +15,6 @@ class I8251;
 class I8251Interf;
 class Ram;
 class Rom;
-class ClockPin;
 class BooleanSetting;
 
 class MSXRS232 : public MSXDevice, public RS232Connector

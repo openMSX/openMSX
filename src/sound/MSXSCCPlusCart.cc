@@ -9,7 +9,6 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "serialize.hh"
 #include "memory.hh"

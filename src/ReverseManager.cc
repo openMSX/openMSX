@@ -8,7 +8,6 @@
 #include "MSXMixer.hh"
 #include "MSXCommandController.hh"
 #include "XMLException.hh"
-#include "XMLElement.hh"
 #include "TclObject.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
@@ -20,7 +19,6 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "checked_cast.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include <functional>

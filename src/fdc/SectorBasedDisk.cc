@@ -1,7 +1,5 @@
 #include "SectorBasedDisk.hh"
-#include "DiskExceptions.hh"
-#include "EmptyDiskPatch.hh"
-#include "IPSPatch.hh"
+#include "MSXException.hh"
 #include <cassert>
 
 namespace openmsx {

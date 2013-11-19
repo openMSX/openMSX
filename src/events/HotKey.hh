@@ -1,7 +1,6 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
-#include "Event.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "stl.hh"
@@ -13,6 +12,7 @@
 
 namespace openmsx {
 
+class Event;
 class GlobalCommandController;
 class EventDistributor;
 class XMLElement;

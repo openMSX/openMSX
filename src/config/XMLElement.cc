@@ -4,7 +4,6 @@
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <libxml/uri.h>
 #include <cassert>

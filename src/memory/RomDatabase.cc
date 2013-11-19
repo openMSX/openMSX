@@ -5,7 +5,6 @@
 #include "FileContext.hh"
 #include "File.hh"
 #include "FileOperations.hh"
-#include "FileException.hh"
 #include "GlobalCommandController.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"

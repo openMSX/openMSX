@@ -1,5 +1,6 @@
 #include "CLIOption.hh"
 #include "MSXException.hh"
+#include <algorithm>
 
 using std::string;
 using std::deque;

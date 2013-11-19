@@ -11,7 +11,6 @@
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
 #include "checked_cast.hh"
-#include <cassert>
 
 namespace openmsx {
 

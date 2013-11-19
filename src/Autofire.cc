@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <cassert>
 
-using std::string;
-
 namespace openmsx {
 
 Autofire::Autofire(CommandController& commandController,

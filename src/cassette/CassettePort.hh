@@ -3,7 +3,6 @@
 
 #include "Connector.hh"
 #include "components.hh"
-#include <memory>
 
 namespace openmsx {
 

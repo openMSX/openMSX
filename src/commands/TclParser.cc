@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <iostream>
 #include <cassert>
-#include <cstdlib>
 
 using std::string;
 

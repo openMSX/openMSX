@@ -2,11 +2,12 @@
 #define DISK_HH
 
 #include "SectorAccessibleDisk.hh"
-#include "RawTrack.hh"
 #include "DiskName.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
+
+class RawTrack;
 
 class Disk : public SectorAccessibleDisk
 {

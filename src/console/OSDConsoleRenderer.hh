@@ -4,6 +4,7 @@
 #include "Layer.hh"
 #include "TTFFont.hh"
 #include "Observer.hh"
+#include "string_ref.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <list>

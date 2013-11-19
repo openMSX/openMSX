@@ -3,12 +3,9 @@
 
 #include "ResampledSoundDevice.hh"
 #include "WavData.hh"
-#include <memory>
 #include <vector>
 
 namespace openmsx {
-
-class MSXMotherBoard;
 
 class SamplePlayer : public ResampledSoundDevice
 {

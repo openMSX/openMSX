@@ -2,7 +2,6 @@
 #include "RomBlockDebuggable.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
-#include "SimpleDebuggable.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "serialize.hh"

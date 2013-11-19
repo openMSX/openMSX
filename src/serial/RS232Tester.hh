@@ -6,7 +6,6 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 #include <fstream>
 #include <cstdio>
 #include <deque>

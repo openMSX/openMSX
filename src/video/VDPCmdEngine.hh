@@ -3,7 +3,6 @@
 
 #include "VDP.hh"
 #include "VDPAccessSlots.hh"
-#include "DisplayMode.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -13,9 +12,9 @@
 namespace openmsx {
 
 class VDPVRAM;
+class DisplayMode;
 class CommandController;
 class RenderSettings;
-class Setting;
 class BooleanSetting;
 class TclCallback;
 

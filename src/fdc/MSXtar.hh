@@ -9,7 +9,6 @@
 
 #include "MemBuffer.hh"
 #include "DiskImageUtils.hh"
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
 

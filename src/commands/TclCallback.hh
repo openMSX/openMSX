@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class CommandController;
-class Setting;
 class StringSetting;
 class TclObject;
 

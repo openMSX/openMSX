@@ -44,7 +44,6 @@
 #include "memory.hh"
 #include "build-info.hh"
 #include <cassert>
-#include <iostream>
 
 using std::string;
 using std::vector;

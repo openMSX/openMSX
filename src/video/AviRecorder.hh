@@ -3,14 +3,12 @@
 
 #include "EmuTime.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
 class Reactor;
-class VideoSourceSetting;
 class AviWriter;
 class Wav16Writer;
 class Filename;

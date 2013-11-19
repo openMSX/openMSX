@@ -4,7 +4,6 @@
 #include "VRAMObserver.hh"
 #include "VDP.hh"
 #include "VDPCmdEngine.hh"
-#include "DisplayMode.hh"
 #include "Ram.hh"
 #include "Math.hh"
 #include "openmsx.hh"
@@ -14,6 +13,7 @@
 
 namespace openmsx {
 
+class DisplayMode;
 class SpriteChecker;
 class Renderer;
 class LogicalVRAMDebuggable;

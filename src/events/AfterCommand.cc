@@ -3,22 +3,18 @@
 #include "CliComm.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
-#include "EventDistributor.hh"
 #include "InputEventFactory.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Alarm.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
-#include "Interpreter.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <algorithm>
 #include <iterator>
-#include <cstdlib>
 #include <sstream>
 
 using std::ostringstream;

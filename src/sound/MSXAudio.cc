@@ -2,7 +2,6 @@
 #include "Y8950.hh"
 #include "Y8950Periphery.hh"
 #include "DACSound8U.hh"
-#include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "memory.hh"

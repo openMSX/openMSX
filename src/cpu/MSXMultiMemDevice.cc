@@ -2,7 +2,6 @@
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "likely.hh"
 #include "unreachable.hh"
 #include "xrange.hh"

@@ -5,9 +5,7 @@
 
 namespace openmsx {
 
-class ColorTexture;
 class FrameSource;
-class ShaderProgram;
 
 /** Abstract base class for OpenGL scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.

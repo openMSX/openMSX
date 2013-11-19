@@ -1,5 +1,4 @@
 #include "GLScaleNxScaler.hh"
-#include "memory.hh"
 
 using std::string;
 

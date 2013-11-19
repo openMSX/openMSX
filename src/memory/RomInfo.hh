@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class CliComm;
-
 class RomInfo
 {
 public:

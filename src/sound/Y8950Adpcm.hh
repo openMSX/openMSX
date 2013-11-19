@@ -10,7 +10,6 @@
 
 namespace openmsx {
 
-class Y8950;
 class DeviceConfig;
 class Ram;
 

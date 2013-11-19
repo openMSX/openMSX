@@ -1,7 +1,6 @@
 #ifndef OGGREADER_HH
 #define OGGREADER_HH
 
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>

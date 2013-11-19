@@ -10,7 +10,6 @@ namespace openmsx {
 
 class MSXMixer;
 class DeviceConfig;
-class EmuDuration;
 class Wav16Writer;
 class Filename;
 class DynamicClock;

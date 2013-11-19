@@ -10,7 +10,6 @@ namespace openmsx {
 class MSXMidiCounter0;
 class MSXMidiCounter2;
 class MSXMidiI8251Interf;
-class ClockPin;
 class I8254;
 class I8251;
 class MidiOutConnector;

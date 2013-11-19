@@ -2,13 +2,11 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
-#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class DeviceConfig;
 class File;
 class CDXCommand;

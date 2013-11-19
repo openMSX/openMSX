@@ -1,6 +1,5 @@
 #include "JoyMega.hh"
 #include "PluggingController.hh"
-#include "PlugException.hh"
 #include "MSXEventDistributor.hh"
 #include "StateChangeDistributor.hh"
 #include "InputEvents.hh"

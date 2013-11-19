@@ -12,7 +12,6 @@
 
 namespace openmsx {
 
-class DiskContainer;
 class SectorAccessibleDisk;
 
 class NowindHost

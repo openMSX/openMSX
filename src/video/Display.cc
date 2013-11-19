@@ -1,7 +1,7 @@
 #include "Display.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
-#include "PostProcessor.hh"
+#include "VideoLayer.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"

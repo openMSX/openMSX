@@ -1,13 +1,13 @@
 #ifndef CHARACTERCONVERTER_HH
 #define CHARACTERCONVERTER_HH
 
-#include "DisplayMode.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class VDP;
 class VDPVRAM;
+class DisplayMode;
 
 
 /** Utility class for converting VRAM contents to host pixels.

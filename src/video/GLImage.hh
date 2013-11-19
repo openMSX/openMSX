@@ -2,10 +2,11 @@
 #define GLTEXTURE_HH
 
 #include "BaseImage.hh"
-#include "SDLSurfacePtr.hh"
 #include "GLUtil.hh"
 #include "openmsx.hh"
 #include <string>
+
+class SDLSurfacePtr;
 
 namespace openmsx {
 

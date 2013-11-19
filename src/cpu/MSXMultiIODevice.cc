@@ -1,7 +1,5 @@
 #include "MSXMultiIODevice.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
-#include "xrange.hh"
 #include <algorithm>
 #include <cassert>
 

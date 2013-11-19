@@ -1,8 +1,6 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
-#include "string_ref.hh"
-
 namespace openmsx {
 
 class OutputSurface;

@@ -6,7 +6,6 @@
 #include "endian.hh"
 #include "alignof.hh"
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 

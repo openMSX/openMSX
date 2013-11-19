@@ -18,7 +18,6 @@
 #include "vla.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>

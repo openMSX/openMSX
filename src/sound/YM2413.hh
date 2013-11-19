@@ -11,7 +11,6 @@ namespace openmsx {
 
 class YM2413Core;
 class YM2413Debuggable;
-class MSXMotherBoard;
 
 class YM2413 : public ResampledSoundDevice
 {

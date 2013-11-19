@@ -34,10 +34,8 @@ TODO:
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "array_ref.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include <algorithm>
 #include <cstring>
 #include <cassert>
 

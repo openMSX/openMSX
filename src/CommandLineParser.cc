@@ -21,11 +21,8 @@
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
-#include "XMLLoader.hh"
-#include "XMLElement.hh"
 #include "XMLException.hh"
 #include "StringOp.hh"
-#include "utf8_checked.hh"
 #include "xrange.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
@@ -42,17 +39,12 @@
 
 #include <cassert>
 #include <iostream>
-#include <cstdio>
 
 using std::cout;
 using std::endl;
 using std::deque;
 using std::string;
 using std::vector;
-
-#ifdef _WIN32
-using namespace utf8;
-#endif
 
 namespace openmsx {
 

@@ -1,5 +1,4 @@
 #include "ProxySetting.hh"
-#include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"

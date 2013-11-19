@@ -1,7 +1,6 @@
 #include "SDLGLOffScreenSurface.hh"
 #include "SDLGLVisibleSurface.hh"
 #include "GLUtil.hh"
-#include "memory.hh"
 
 namespace openmsx {
 

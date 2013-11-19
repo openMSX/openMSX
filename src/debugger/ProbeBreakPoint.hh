@@ -3,7 +3,6 @@
 
 #include "BreakPointBase.hh"
 #include "Observer.hh"
-#include <string>
 
 namespace openmsx {
 

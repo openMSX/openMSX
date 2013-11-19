@@ -3,7 +3,6 @@
 
 #include "HD.hh"
 #include "AbstractIDEDevice.hh"
-#include "serialize_meta.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {

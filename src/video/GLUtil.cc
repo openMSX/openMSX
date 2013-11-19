@@ -3,12 +3,10 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "InitException.hh"
-#include "Math.hh"
 #include "vla.hh"
 #include "Version.hh"
 #include <iostream>
 #include <vector>
-#include <memory>
 #include <cstring>
 #include <cstdio>
 

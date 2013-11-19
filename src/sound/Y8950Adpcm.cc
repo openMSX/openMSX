@@ -16,7 +16,6 @@
 #include "Math.hh"
 #include "serialize.hh"
 #include "memory.hh"
-#include <cstring>
 
 namespace openmsx {
 

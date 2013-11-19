@@ -9,7 +9,6 @@
 #include "unreachable.hh"
 #include "memory.hh"
 #include "build-info.hh"
-#include "openmsx.hh"
 #include <algorithm>
 #include <iostream>
 #include <cmath>

@@ -4,7 +4,6 @@
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
 #include "Keys.hh"
-#include "openmsx.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
 #include "unreachable.hh"

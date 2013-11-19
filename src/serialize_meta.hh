@@ -7,11 +7,9 @@
 #include "type_traits.hh"
 #include "likely.hh"
 #include "memory.hh"
-#include <string>
 #include <tuple>
 #include <type_traits>
 #include <map>
-#include <cassert>
 
 namespace openmsx {
 

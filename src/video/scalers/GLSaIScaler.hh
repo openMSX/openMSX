@@ -4,7 +4,6 @@
 #include "GLScaler.hh"
 #include "GLUtil.hh"
 #include "noncopyable.hh"
-#include <memory>
 
 namespace openmsx {
 

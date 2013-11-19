@@ -3,7 +3,6 @@
 #include "XMLException.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
 #include <limits>
@@ -11,7 +10,6 @@
 #include <libxml/parser.h>
 #include <libxml/xmlversion.h>
 
-using std::unique_ptr;
 using std::vector;
 using std::string;
 

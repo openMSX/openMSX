@@ -4,10 +4,8 @@
 #include "StringOp.hh"
 #include "Timer.hh"
 #include "checked_cast.hh"
-#include "openmsx.hh"
 #include <string>
 #include <tuple>
-#include <cassert>
 
 using std::make_tuple;
 using std::string;

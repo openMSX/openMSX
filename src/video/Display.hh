@@ -7,7 +7,6 @@
 #include "Observer.hh"
 #include "CircularBuffer.hh"
 #include "noncopyable.hh"
-#include "string_ref.hh"
 #include <memory>
 #include <vector>
 #include <cstdint>

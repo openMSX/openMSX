@@ -2,14 +2,13 @@
 #define IPSPATCH_HH
 
 #include "PatchInterface.hh"
+#include "Filename.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <map>
 #include <memory>
 
 namespace openmsx {
-
-class Filename;
 
 class IPSPatch : public PatchInterface, private noncopyable
 {

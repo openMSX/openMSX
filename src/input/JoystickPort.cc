@@ -5,7 +5,6 @@
 #include "checked_cast.hh"
 #include "serialize.hh"
 #include "memory.hh"
-#include <cctype>
 
 using std::string;
 

@@ -1,7 +1,6 @@
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 #include "serialize.hh"
-#include <cstring>
 
 namespace openmsx {
 

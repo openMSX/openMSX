@@ -4,7 +4,6 @@
 #include "RendererFactory.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -15,7 +14,6 @@ class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
 class StringSetting;
-class VideoSourceSetting;
 class TclObject;
 
 /** Class containing all settings for renderers.

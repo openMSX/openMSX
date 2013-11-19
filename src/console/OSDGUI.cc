@@ -8,7 +8,6 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "openmsx.hh"
 #include "memory.hh"
 #include <algorithm>
 #include <cassert>

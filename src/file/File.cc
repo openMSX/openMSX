@@ -4,7 +4,6 @@
 #include "LocalFile.hh"
 #include "GZFileAdapter.hh"
 #include "ZipFileAdapter.hh"
-#include "StringOp.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
 #include <cassert>

@@ -3,8 +3,6 @@
 #include "OutputSurface.hh"
 #include "PixelOperations.hh"
 #include "MSXException.hh"
-#include "vla.hh"
-#include "unreachable.hh"
 #include <cassert>
 #include <cstdlib>
 #include <SDL.h>

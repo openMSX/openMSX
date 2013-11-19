@@ -2,7 +2,6 @@
 #define DUMMYIDEDEVICE_HH
 
 #include "IDEDevice.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 

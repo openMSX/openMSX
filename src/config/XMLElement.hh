@@ -1,7 +1,6 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
-#include "serialize_constr.hh"
 #include "serialize_meta.hh"
 #include <utility>
 #include <string>

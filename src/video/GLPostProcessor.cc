@@ -9,7 +9,6 @@
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
-#include "memory.hh"
 #include "vla.hh"
 #include <algorithm>
 #include <cassert>

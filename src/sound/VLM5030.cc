@@ -79,7 +79,6 @@ chirp 12-..: vokume   0   : silent
 #include "Rom.hh"
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
-#include "FileContext.hh"
 #include "FileOperations.hh"
 #include "serialize.hh"
 #include "memory.hh"

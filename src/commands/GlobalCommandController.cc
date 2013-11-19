@@ -19,11 +19,9 @@
 #include "ScopedAssign.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
-#include "openmsx.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstdlib>
 
 using std::string;
 using std::vector;

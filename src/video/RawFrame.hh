@@ -2,7 +2,6 @@
 #define RAWFRAME_HH
 
 #include "FrameSource.hh"
-#include "SDLSurfacePtr.hh"
 #include "MemBuffer.hh"
 #include <cassert>
 

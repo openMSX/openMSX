@@ -16,7 +16,6 @@
 #include "StringOp.hh"
 #include "Thread.hh"
 #include "build-info.hh"
-#include <memory>
 #include <iostream>
 #include <exception>
 #include <ctime>

@@ -6,7 +6,6 @@
 #include "DiskContainer.hh"
 #include "TigerTree.hh"
 #include "serialize_meta.hh"
-#include "openmsx.hh"
 #include <string>
 #include <memory>
 

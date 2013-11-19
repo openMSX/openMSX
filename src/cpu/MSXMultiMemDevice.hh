@@ -6,8 +6,6 @@
 
 namespace openmsx {
 
-class MSXCPUInterface;
-
 class MSXMultiMemDevice : public MSXMultiDevice
 {
 public:
