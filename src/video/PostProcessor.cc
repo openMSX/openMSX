@@ -145,7 +145,15 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	}
 
 	if (recorder && needRecord()) {
-		recorder->addImage(paintFrame, time);
+		try {
+			recorder->addImage(paintFrame, time);
+		} catch (MSXException& e) {
+			getCliComm().printWarning(
+				"Recording stopped with error: " +
+				e.getMessage());
+			recorder->stop();
+			assert(!recorder);
+		}
 	}
 
 	if (canDoInterlace) {
