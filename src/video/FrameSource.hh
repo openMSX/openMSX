@@ -208,11 +208,11 @@ protected:
 		return false;
 	}
 
-private:
 	template <typename Pixel> void scaleLine(
 		const Pixel* in, Pixel* out,
 		unsigned inWidth, unsigned outWidth) const;
 
+private:
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
 	const SDL_PixelFormat& pixelFormat;

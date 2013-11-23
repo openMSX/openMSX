@@ -27,6 +27,9 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	deinterlaceSetting = make_unique<BooleanSetting>(commandController,
 		"deinterlace", "deinterlacing on/off", true);
 
+	deflickerSetting = make_unique<BooleanSetting>(commandController,
+		"deflicker", "deflicker on/off", false);
+
 	maxFrameSkipSetting = make_unique<IntegerSetting>(commandController,
 		"maxframeskip", "set the max amount of frameskip", 3, 0, 100);
 

@@ -3,6 +3,7 @@
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
+#include "Deflicker.hh"
 #include "SuperImposedFrame.hh"
 #include "PNG.hh"
 #include "RenderSettings.hh"
@@ -43,22 +44,24 @@ PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 {
 	if (canDoInterlace) {
-		currFrame = make_unique<RawFrame>(
-			screen.getSDLFormat(), maxWidth, height);
-		prevFrame = make_unique<RawFrame>(
-			screen.getSDLFormat(), maxWidth, height);
+		for (int i = 0; i < 4; ++i) {
+			lastFrames[i] = make_unique<RawFrame>(
+				screen.getSDLFormat(), maxWidth, height);
+		}
 		deinterlacedFrame = make_unique<DeinterlacedFrame>(
 			screen.getSDLFormat());
 		interlacedFrame   = make_unique<DoubledFrame>(
 			screen.getSDLFormat());
+		deflicker = Deflicker::create(
+			screen.getSDLFormat(), lastFrames);
 		superImposedFrame = SuperImposedFrame::create(
 			screen.getSDLFormat());
 	} else {
 		// Laserdisc always produces non-interlaced frames, so we don't
-		// need prevFrame, deinterlacedFrame and interlacedFrame. Also
-		// it produces a complete frame at a time, so we don't need
-		// currFrame (and have a separate work buffer, for partially
-		// rendered frames).
+		// need lastFrames[1..3], deinterlacedFrame and
+		// interlacedFrame. Also it produces a complete frame at a
+		// time, so we don't need lastFrames[0] (and have a separate
+		// work buffer, for partially rendered frames).
 	}
 }
 
@@ -102,40 +105,45 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 
 	std::unique_ptr<RawFrame> reuseFrame;
 	if (canDoInterlace) {
-		reuseFrame = std::move(prevFrame);
-		prevFrame = std::move(currFrame);
-		currFrame = std::move(finishedFrame);
+		reuseFrame    = std::move(lastFrames[3]);
+		std::move_backward(lastFrames, lastFrames + 3, lastFrames + 4);
+		lastFrames[0] = std::move(finishedFrame);
 		reuseFrame->init(field);
 	} else {
-		currFrame = std::move(finishedFrame);
-		assert(field                 == FrameSource::FIELD_NONINTERLACED);
-		assert(currFrame->getField() == FrameSource::FIELD_NONINTERLACED);
+		assert(field                     == FrameSource::FIELD_NONINTERLACED);
+		assert(finishedFrame->getField() == FrameSource::FIELD_NONINTERLACED);
+		lastFrames[0] = std::move(finishedFrame);
 	}
 
 	// TODO: When frames are being skipped or if (de)interlace was just
-	//       turned on, it's not guaranteed that prevFrame is a
-	//       different field from currFrame.
+	//       turned on, it's not guaranteed that lastFrames[1] is a
+	//       different field from lastFrames[0].
 	//       Or in the case of frame skip, it might be the right field,
 	//       but from several frames ago.
-	FrameSource::FieldType currType = currFrame->getField();
+	FrameSource::FieldType currType = lastFrames[0]->getField();
 	if (currType != FrameSource::FIELD_NONINTERLACED) {
 		if (renderSettings.getDeinterlace().getBoolean()) {
 			// deinterlaced
 			if (currType == FrameSource::FIELD_ODD) {
-				deinterlacedFrame->init(prevFrame.get(), currFrame.get());
+				deinterlacedFrame->init(lastFrames[1].get(), lastFrames[0].get());
 			} else {
-				deinterlacedFrame->init(currFrame.get(), prevFrame.get());
+				deinterlacedFrame->init(lastFrames[0].get(), lastFrames[1].get());
 			}
 			paintFrame = deinterlacedFrame.get();
 		} else {
 			// interlaced
-			interlacedFrame->init(currFrame.get(),
+			interlacedFrame->init(lastFrames[0].get(),
 				(currType == FrameSource::FIELD_ODD) ? 1 : 0);
 			paintFrame = interlacedFrame.get();
 		}
 	} else {
 		// non interlaced
-		paintFrame = currFrame.get();
+		if (renderSettings.getDeflicker().getBoolean()) {
+			deflicker->init();
+			paintFrame = deflicker.get();
+		} else {
+			paintFrame = lastFrames[0].get();
+		}
 	}
 
 	if (superImposeVdpFrame) {
@@ -158,7 +166,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	if (canDoInterlace) {
 		return reuseFrame;
 	} else {
-		return std::move(currFrame);
+		return std::move(lastFrames[0]);
 	}
 }
 

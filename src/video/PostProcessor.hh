@@ -15,6 +15,7 @@ class RenderSettings;
 class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
+class Deflicker;
 class SuperImposedFrame;
 class AviRecorder;
 class CliComm;
@@ -110,17 +111,17 @@ protected:
 	/** The surface which is visible to the user. */
 	OutputSurface& screen;
 
-	/** The last finished frame, ready to be displayed. */
-	std::unique_ptr<RawFrame> currFrame;
+	/** The last 4 fully rendered (unscaled) MSX frames. */
+	std::unique_ptr<RawFrame> lastFrames[4];
 
-	/** The frame before currFrame, ready to be displayed. */
-	std::unique_ptr<RawFrame> prevFrame;
-
-	/** Combined currFrame and prevFrame. */
+	/** Combined the last two frames in a deinterlaced frame. */
 	std::unique_ptr<DeinterlacedFrame> deinterlacedFrame;
 
-	/** Each line of currFrame twice, to get double vertical resolution. */
+	/** Each line of the last frame twice, to get double vertical resolution. */
 	std::unique_ptr<DoubledFrame> interlacedFrame;
+
+	/** Combine the last 4 frames into one 'flicker-free' frame. */
+	std::unique_ptr<Deflicker> deflicker;
 
 	/** Result of superimposing 2 frames. */
 	std::unique_ptr<SuperImposedFrame> superImposedFrame;

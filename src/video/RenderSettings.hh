@@ -48,6 +48,9 @@ public:
 	/** Deinterlacing [on, off]. */
 	BooleanSetting& getDeinterlace() const { return *deinterlaceSetting; }
 
+	/** Deflicker [on, off]. */
+	BooleanSetting& getDeflicker() const { return *deflickerSetting; }
+
 	/** The current max frameskip. */
 	IntegerSetting& getMaxFrameSkip() const { return *maxFrameSkipSetting; }
 
@@ -178,6 +181,7 @@ private:
 	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;
 	std::unique_ptr<EnumSetting<bool>> tooFastAccessSetting;
 	std::unique_ptr<BooleanSetting> deinterlaceSetting;
+	std::unique_ptr<BooleanSetting> deflickerSetting;
 	std::unique_ptr<BooleanSetting> fullScreenSetting;
 	std::unique_ptr<FloatSetting> gammaSetting;
 	std::unique_ptr<FloatSetting> brightnessSetting;

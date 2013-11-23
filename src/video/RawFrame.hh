@@ -21,6 +21,10 @@ public:
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
+	unsigned getLineWidthDirect(unsigned y) const {
+		return lineWidths[y];
+	}
+
 	inline void setLineWidth(unsigned line, unsigned width) {
 		assert(line < getHeight());
 		assert(width <= maxWidth);
