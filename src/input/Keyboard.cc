@@ -627,6 +627,13 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 			// and use direct matrix to matrix mapping for the exceptional
 			// cases (/*CTRL+character or*/ numeric keypad usage)
 			unicode = 0;
+#if defined(__APPLE__)
+		} else if ((keyCode & (Keys::K_MASK | Keys::KM_META))
+				== (Keys::K_I | Keys::KM_META)) {
+			// Apple keyboards don't have an Insert key, use Cmd+I as an alternative.
+			keyCode = key = Keys::K_INSERT;
+			unicode = 0;
+#endif
 		} else {
 			unicode = keyEvent.getUnicode();
 			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
@@ -672,6 +679,12 @@ bool Keyboard::processKeyEvent(EmuTime::param time, bool down, const KeyEvent& k
 		}
 	} else {
 		// key was released
+#if defined(__APPLE__)
+		if ((keyCode & (Keys::K_MASK | Keys::KM_META))
+				== (Keys::K_I | Keys::KM_META)) {
+			keyCode = key = Keys::K_INSERT;
+		}
+#endif
 		if (key < MAX_KEYSYM) {
 			unicode = dynKeymap[key]; // Get the unicode that was derived from this key
 		} else {
