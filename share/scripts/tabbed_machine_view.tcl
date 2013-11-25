@@ -90,11 +90,13 @@ proc update {} {
 
 proc on_mouse_click {} {
 	set x 2; set y 2
-	catch {lassign [osd info "tabbed_machine_view" -mousecoord] x y}
-	if {$x > 0 && 1 > $x && $y > 0 && 1 > $y} {
-		set machine_index [expr int($x * [llength [list_machines]])]
-		set machine [lindex [list_machines] $machine_index]
-		activate_machine $machine
+	if {[osd exists tabbed_machine_view]} {
+		catch {lassign [osd info "tabbed_machine_view" -mousecoord] x y}
+		if {$x > 0 && 1 > $x && $y > 0 && 1 > $y} {
+			set machine_index [expr int($x * [llength [list_machines]])]
+			set machine [lindex [list_machines] $machine_index]
+			activate_machine $machine
+		}
 	}
 
 	after "mouse button1 up" [namespace code on_mouse_click]
