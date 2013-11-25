@@ -608,7 +608,7 @@ set resampler_desc [dict create fast "fast (but low quality)" blip "blip (good s
 set sound_setting_menu {
 	font-size 8
 	border-size 2
-	width 180 
+	width 180
 	xpos 100
 	ypos 120
 	items {{ text "Sound Settings"
@@ -621,11 +621,98 @@ set sound_setting_menu {
 	       { text "Mute: $mute"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back mute] }
 	                   RIGHT { osd_menu::menu_setting [cycle      mute] }}}
+	       { text "Individual Sound Device Settings..."
+	         actions { A { osd_menu::menu_create [osd_menu::menu_create_sound_device_list]}}}
 	       { text "Resampler: [osd_menu::get_resampler_presentation $resampler]"
 	         actions { LEFT  { osd_menu::menu_setting [cycle_back resampler] }
 	                   RIGHT { osd_menu::menu_setting [cycle      resampler] }}}}}
 
 set horizontal_stretch_desc [dict create 320.0 "none (large borders)" 288.0 "a bit more than all border pixels" 284.0 "all border pixels" 280.0 "a bit less than all border pixels" 272.0 "realistic" 256.0 "no borders at all"]
+
+proc menu_create_sound_device_list {} {
+	set menu_def {
+	         execute menu_sound_device_select_exec
+	         font-size 8
+	         border-size 2
+	         width 200
+	         xpos 110
+	         ypos 130
+	         header { text "Select Sound Chip"
+	                  font-size 10
+	                  post-spacing 6 }}
+
+	set items [machine_info sounddevice]
+
+	return [prepare_menu_list $items 5 $menu_def]
+}
+
+proc menu_sound_device_select_exec {item} {
+	menu_create [create_sound_device_settings_menu $item]
+	select_menu_item $item
+}
+
+proc create_sound_device_settings_menu {device} {
+	set ypos 140
+	set menu_def [list \
+		font-size 8 \
+		border-size 2 \
+		width 210 \
+		xpos 120 \
+		ypos $ypos]
+	lappend items [list text "$device Settings" \
+	         font-size 10 \
+	         post-spacing 6 \
+	         selectable false]
+
+	# volume and balance
+	foreach aspect [list volume balance] {
+		set var_name ::${device}_${aspect}
+		set item [list]
+		lappend item "text"
+		set first [string range $aspect 0 0]
+		set rest [string range $aspect 1 end]
+		set first [string toupper $first]
+		set capped_aspect "${first}${rest}"
+		lappend item "$capped_aspect: \[[list set $var_name]]"
+		lappend item "actions"
+		set actions [list]
+		lappend actions "LEFT"
+		lappend actions "osd_menu::menu_setting \[[list incr $var_name -5]]"
+		lappend actions "RIGHT"
+		lappend actions "osd_menu::menu_setting \[[list incr $var_name  5]]"
+		lappend item $actions
+		lappend items $item
+	}
+	# channel mute
+	set channel_count [soundchip_utils::get_num_channels $device]
+	for {set channel 1} {$channel <= $channel_count} {incr channel} {
+		set chmute_var_name ${device}_ch${channel}_mute
+		set item [list]
+		lappend item "text"
+		set pretext ""
+		if {$channel_count > 1} {
+			set pretext "Channel $channel "
+		}
+		lappend item "${pretext}Mute: \[[list set $chmute_var_name]]"
+		lappend item "actions"
+		set actions [list]
+		lappend actions "LEFT"
+		lappend actions "osd_menu::menu_setting \[[list cycle_back $chmute_var_name]]"
+		lappend actions "RIGHT"
+		lappend actions "osd_menu::menu_setting \[[list cycle      $chmute_var_name]]"
+		lappend item $actions
+		lappend items $item
+	}
+
+	# adjust menu position for longer lists
+	# TODO: make this less magic
+	if {$channel_count > 8} {;# more won't fit
+		dict set menu_def ypos [expr $ypos - round(($channel_count - 8) * ($ypos - 10)/16)]
+	}
+
+	dict set menu_def items $items
+	return $menu_def
+}
 
 proc create_video_setting_menu {} {
 	variable scaling_available
