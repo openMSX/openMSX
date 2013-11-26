@@ -1203,7 +1203,16 @@ proc ls {directory extensions} {
 	foreach dir [concat $dirs $specialdir] {
 		lappend dirs2 "$dir/"
 	}
-	return [concat ".." [lsort $dirs2] [lsort $items]]
+	set extra_entries [list]
+	set volumes [file volumes]
+	if {[lsearch $volumes $directory] == -1} {
+		lappend extra_entries ".."
+	} else {
+		if {[llength $volumes] > 1} {
+			set extra_entries $volumes
+		}
+	}
+	return [concat [lsort $extra_entries] [lsort $dirs2] [lsort $items]]
 }
 
 proc menu_create_ROM_list {path slot} {
