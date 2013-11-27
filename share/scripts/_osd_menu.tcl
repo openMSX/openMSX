@@ -12,7 +12,7 @@ variable default_select_color "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80"
 variable default_header_text_color 0xff9020ff
 
 variable is_dingoo [string match *-dingux* $::tcl_platform(osVersion)]
-variable scaling_available [expr [lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1]
+variable scaling_available [expr {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] > 1}]
 
 proc get_optional {dict_name key default} {
 	upvar $dict_name d
@@ -707,7 +707,7 @@ proc create_sound_device_settings_menu {device} {
 	# adjust menu position for longer lists
 	# TODO: make this less magic
 	if {$channel_count > 8} {;# more won't fit
-		dict set menu_def ypos [expr $ypos - round(($channel_count - 8) * ($ypos - 10)/16)]
+		dict set menu_def ypos [expr {$ypos - round(($channel_count - 8) * ($ypos - 10)/16)}]
 	}
 
 	dict set menu_def items $items
