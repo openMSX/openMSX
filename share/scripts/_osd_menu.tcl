@@ -1205,7 +1205,7 @@ proc ls {directory extensions} {
 	}
 	set extra_entries [list]
 	set volumes [file volumes]
-	if {[lsearch $volumes $directory] == -1} {
+	if {$directory ni $volumes} {
 		lappend extra_entries ".."
 	} else {
 		if {[llength $volumes] > 1} {

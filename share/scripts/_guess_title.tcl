@@ -46,7 +46,7 @@ proc guess_rom_title_nonextension {} {
 	set system_rom_paths [list]
 	foreach line [split [filepool list] \n] {
 		regexp {.*: (.*)  (\[.*\])} $line dummy path types
-		if {[lsearch $types "system_rom"] != -1} {
+		if {"system_rom" in $types} {
 			lappend system_rom_paths $path
 		}
 	}
