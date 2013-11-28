@@ -10,11 +10,11 @@ following features:
 - FMPAC (slot 3-1)
 - MSX Audio
 - MoonSound with 640 kB sample RAM
-- GFX9000
+- GFX9000 with Video9000
 - 512 kB MegaRAM in slot 2-2
 - BASIC Compiler (MSX-BASIC Kun)
 
-This configuration needs the following ROMs in the roms subdir:
+This configuration needs the following system ROMs:
 - nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
   needed for the Philips NMS 8250 config
 - fmpac.rom: same as needed for the FMPAC extension

@@ -12,7 +12,7 @@ following features:
 - SCC+ in slot 2-0
 - MSX Audio
 - MoonSound with 640 kB sample RAM
-- GFX9000
+- GFX9000 with Video9000
 - 512 kB MegaRAM in slot 2-2
 - BASIC Compiler (MSX-BASIC Kun)
 
