@@ -21,7 +21,7 @@ the following features:
 - Built in IDE interface with 100MB harddisk and CD-ROM
 
 This configuration needs the following ROMs:
-- fs-a1wsx_kanjifont.rom, fs-a1gt_firmware.rom: same as needed for the
+- fs-a1gt_kanjifont.rom, fs-a1gt_firmware.rom: same as needed for the
   Panasonic FS-A1GT machine
 - phc-70fd2_basickun.rom: same as needed for the basic compiler in the Sanyo
   PHC-70FD2
