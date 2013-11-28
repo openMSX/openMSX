@@ -1334,7 +1334,7 @@ proc menu_create_tape_list {path} {
 		lappend eject_item "--eject-- [file tail $inserted]"
 		lappend rewind_item "--rewind-- [file tail $inserted]"
 	}
-	return [prepare_menu_list [concat $eject_item $rewind_item [ls $path "cas|wav|zip|gz"]] \
+	return [prepare_menu_list [concat [list "create new and insert"] $eject_item $rewind_item [ls $path "cas|wav|zip|gz"]] \
 	                          10 \
 	                          { execute menu_select_tape
 	                            font-size 8
@@ -1348,7 +1348,10 @@ proc menu_create_tape_list {path} {
 }
 
 proc menu_select_tape {item} {
-	if {[string range $item 0 8] eq "--eject--"} {
+	if {[string range $item 0 20] eq "create new and insert"} {
+		menu_close_all
+		osd::display_message [cassetteplayer new [menu_free_tape_name]]
+	} elseif {[string range $item 0 8] eq "--eject--"} {
 		menu_close_all
 		cassetteplayer eject
 	} elseif {[string range $item 0 9] eq "--rewind--"} {
@@ -1367,6 +1370,22 @@ proc menu_select_tape {item} {
 				menu_close_all
 			}
 		}
+	}
+}
+
+proc menu_free_tape_name {} {
+	set directory [file normalize $::env(OPENMSX_USER_DATA)/../taperecordings]
+	set existing [list]
+	foreach f [lsort [glob -tails -directory $directory -type f -nocomplain *.wav]] {
+		lappend existing [file rootname $f]
+	}
+	set i 1
+	while 1 {
+		set name [format "[guess_title]%04d" $i]
+		if {$name ni $existing} {
+			return $name
+		}
+		incr i
 	}
 }
 
