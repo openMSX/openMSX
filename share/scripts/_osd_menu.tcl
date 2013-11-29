@@ -1342,6 +1342,7 @@ proc menu_select_disk {drive item} {
 	if {$item eq "--eject--"} {
 		menu_close_all
 		$drive eject
+		osd::display_message "Disk $item ejected!"
 	} else {
 		set fullname [file join $::osd_disk_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1353,6 +1354,7 @@ proc menu_select_disk {drive item} {
 				osd::display_message "Can't insert disk: $errorText" error
 			} else {
 				menu_close_all
+				osd::display_message "Disk $item inserted!"
 			}
 		}
 	}
@@ -1410,10 +1412,10 @@ proc menu_select_tape {item} {
 		osd::display_message [cassetteplayer new [menu_free_tape_name]]
 	} elseif {$item eq "--eject--"} {
 		menu_close_all
-		cassetteplayer eject
+		osd::display_message [cassetteplayer eject]
 	} elseif {$item eq "--rewind--"} {
 		menu_close_all
-		cassetteplayer rewind
+		osd::display_message [cassetteplayer rewind]
 	} else {
 		set fullname [file join $::osd_tape_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1424,6 +1426,7 @@ proc menu_select_tape {item} {
 			if {[catch {cassetteplayer $fullname} errorText]} {
 				osd::display_message "Can't set tape: $errorText" error
 			} else {
+				osd::display_message "Inserted tape $item!"
 				menu_close_all
 			}
 		}
@@ -1468,7 +1471,7 @@ proc menu_create_ld_list {path} {
 proc menu_select_ld {item} {
 	if {[string range $item 0 8] eq "--eject--"} {
 		menu_close_all
-		laserdiscplayer eject
+		osd::display_message [laserdiscplayer eject]
 	} else {
 		set fullname [file join $::osd_ld_path $item]
 		if {[file isdirectory $fullname]} {
@@ -1477,8 +1480,9 @@ proc menu_select_ld {item} {
 			menu_create [menu_create_ld_list $::osd_ld_path]
 		} else {
 			if {[catch {laserdiscplayer insert $fullname} errorText]} {
-				osd::display_message "Can't load laserdisc: $errorText" error
+				osd::display_message "Can't load LaserDisc: $errorText" error
 			} else {
+				osd::display_message "Loaded LaserDisc $item!"
 				menu_close_all
 			}
 		}
