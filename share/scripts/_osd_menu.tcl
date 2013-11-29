@@ -1219,25 +1219,39 @@ proc ls {directory extensions} {
 }
 
 proc menu_create_ROM_list {path slot} {
-	set eject_item [list]
+	set menu_def [list execute [list menu_select_rom $slot] \
+		font-size 8 \
+		border-size 2 \
+		width 200 \
+		xpos 100 \
+		ypos 120 \
+		header { text "ROMs $::osd_rom_path" \
+			font-size 10 \
+			post-spacing 6 }]
+	set items [list]
+	set presentation [list]
 	if {[lindex [$slot] 2] ne "empty"} {
-		lappend eject_item "--eject-- [file tail [lindex [$slot] 1]]"
+		lappend items "--eject--"
+		lappend presentation "--eject-- [file tail [lindex [$slot] 1]]"
 	}
-	return [prepare_menu_list [concat $eject_item [ls $path "rom|ri|mx1|mx2|zip|gz"]] \
-	                          10 \
-	                          [list execute [list menu_select_rom $slot] \
-	                            font-size 8 \
-	                            border-size 2 \
-	                            width 200 \
-	                            xpos 100 \
-	                            ypos 120 \
-	                            header { text "ROMs $::osd_rom_path" \
-	                                     font-size 10 \
-	                                     post-spacing 6 }]]
+	set i 1
+	foreach pool_path [filepool::get_paths_for_type disk] {
+		if {$path ne $pool_path && [file exists $pool_path]} {
+			lappend items $pool_path
+			lappend presentation "\[ROM Pool $i\]"
+		}
+		incr i
+	}
+	set files [ls $path "rom|ri|mx1|mx2|zip|gz"]
+	set items [concat $items $files]
+	set presentation [concat $presentation $files]
+
+	lappend menu_def presentation $presentation
+	return [prepare_menu_list $items 10 $menu_def]
 }
 
 proc menu_select_rom {slot item} {
-	if {[string range $item 0 8] eq "--eject--"} {
+	if {$item eq "--eject--"} {
 		menu_close_all
 		$slot eject
 		reset
@@ -1292,25 +1306,40 @@ proc menu_select_rom {slot item} {
 }
 
 proc menu_create_disk_list {path drive} {
-	set eject_item [list]
+	set menu_def [list execute [list menu_select_disk $drive] \
+		font-size 8 \
+		border-size 2 \
+		width 200 \
+		xpos 100 \
+		ypos 120 \
+		header { text "Disks $::osd_disk_path" \
+			font-size 10 \
+			post-spacing 6 }]
+	set items [list]
+	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
-		lappend eject_item "--eject-- [file tail [lindex [$drive] 1]]"
+		lappend items "--eject--"
+		lappend presentation "--eject-- [file tail [lindex [$drive] 1]]"
 	}
-	return [prepare_menu_list [concat $eject_item [ls $path "dsk|zip|gz|xsa|dmk|di1|di2"]] \
-	                          10 \
-	                          [list execute [list menu_select_disk $drive] \
-	                            font-size 8 \
-	                            border-size 2 \
-	                            width 200 \
-	                            xpos 100 \
-	                            ypos 120 \
-	                            header { text "Disks $::osd_disk_path" \
-	                                     font-size 10 \
-	                                     post-spacing 6 }]]
+	set i 1
+	foreach pool_path [filepool::get_paths_for_type disk] {
+		if {$path ne $pool_path && [file exists $pool_path]} {
+			lappend items $pool_path
+			lappend presentation "\[Disk Pool $i\]"
+		}
+		incr i
+	}
+
+	set files [ls $path "dsk|zip|gz|xsa|dmk|di1|di2"]
+	set items [concat $items $files]
+	set presentation [concat $presentation $files]
+
+	lappend menu_def presentation $presentation
+	return [prepare_menu_list $items 10 $menu_def]
 }
 
 proc menu_select_disk {drive item} {
-	if {[string range $item 0 8] eq "--eject--"} {
+	if {$item eq "--eject--"} {
 		menu_close_all
 		$drive eject
 	} else {
