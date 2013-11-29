@@ -42,14 +42,7 @@ proc guess_rom_title_z80space {internal checkpage} {
 }
 
 proc guess_rom_title_nonextension {} {
-	# Get all systemrom filepool paths
-	set system_rom_paths [list]
-	foreach line [split [filepool list] \n] {
-		regexp {.*: (.*)  (\[.*\])} $line dummy path types
-		if {"system_rom" in $types} {
-			lappend system_rom_paths $path
-		}
-	}
+	set system_rom_paths [filepool::get_paths_for_type system_rom]
 	# Loop over all external slots which contain a ROM, return the first
 	# which is not located in one of the systemrom filepools.
 	for {set ps 0} {$ps < 4} {incr ps} {
