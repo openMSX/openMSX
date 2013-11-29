@@ -1441,7 +1441,7 @@ proc menu_free_tape_name {} {
 	}
 	set i 1
 	while 1 {
-		set name [format "[guess_title] %04d" $i]
+		set name [format "[guess_title untitled] %04d" $i]
 		if {$name ni $existing} {
 			return $name
 		}
@@ -1591,7 +1591,7 @@ proc menu_free_savestate_name {} {
 	set existing [list_savestates]
 	set i 1
 	while 1 {
-		set name [format "savestate%04d" $i]
+		set name [format "[guess_title savestate] %04d" $i]
 		if {$name ni $existing} {
 			return $name
 		}
