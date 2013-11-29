@@ -1564,13 +1564,22 @@ proc menu_loadstate_exec {item} {
 proc menu_savestate_exec {item} {
 	if {$item eq "create new"} {
 		set item [menu_free_savestate_name]
-	} else {
-		#TODO "Overwrite are you sure?" -dialog
-	}
-	if {[catch {savestate $item} errorText]} {
-		osd::display_message $errorText error
-	} else {
+		confirm_save_state $item "Yes"
 		menu_close_all
+	} else {
+		confirm_action "Overwrite $item?" osd_menu::confirm_save_state $item
+	}
+}
+
+proc confirm_save_state {item result} {
+	menu_close_top
+	if {$result eq "Yes"} {
+		if {[catch {savestate $item} errorText]} {
+			osd::display_message $errorText error
+		} else {
+			osd::display_message "State saved to $item!"
+			menu_close_all
+		}
 	}
 }
 
@@ -1584,6 +1593,21 @@ proc menu_free_savestate_name {} {
 		}
 		incr i
 	}
+}
+
+proc confirm_action {text action item} {
+	set items [list "No" "Yes"]
+	set menu_def [list execute [list $action $item] \
+			font-size 8 \
+			border-size 2 \
+			width 200 \
+			xpos 100 \
+			ypos 100 \
+			header [list text $text \
+					font-size 10 \
+					post-spacing 6 ]]
+
+	osd_menu::menu_create [osd_menu::prepare_menu_list $items [llength $items] $menu_def]
 }
 
 # Keep openmsx console from interfering with the osd menu:
