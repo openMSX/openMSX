@@ -9,7 +9,7 @@ proc screenshot {args} {
 		if {$arg eq "-no-sprites"} {
 			set sprites false
 		} elseif {$arg eq "-guess-name"} {
-			set base [utils::filename_clean [guess_title]]
+			set base [utils::filename_clean [guess_title untitled]]
 			if {$base ne ""} {lappend args2 -prefix "$base "}
 		} else {
 			lappend args2 $arg
