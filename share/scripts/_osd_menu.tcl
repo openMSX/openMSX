@@ -1357,6 +1357,14 @@ proc menu_create_tape_list {path} {
 		lappend items $taperecordings_directory
 		lappend presentation "\[My Tape Recordings\]"
 	}
+	set i 1
+	foreach pool_path [filepool::get_paths_for_type tape] {
+		if {$path ne $pool_path && [file exists $pool_path]} {
+			lappend items $pool_path
+			lappend presentation "\[Tape Pool $i\]"
+		}
+		incr i
+	}
 
 	set files [ls $path "cas|wav|zip|gz"]
 	set items [concat $items $files]

@@ -109,6 +109,18 @@ proc filepool_reset {}  {
 	unset ::__filepool
 }
 
+proc get_paths_for_type {type} {
+	set result [list]
+	foreach pool $::__filepool {
+		set path [dict get $pool -path]
+		set types [dict get $pool -types]
+		if {$type in $types} {
+			lappend result $path
+		}
+	}
+	return $result
+}
+
 namespace export filepool
 
 } ;# namespace filepool

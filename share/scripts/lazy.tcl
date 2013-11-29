@@ -13,7 +13,7 @@ register_lazy "_disasm.tcl" {
 	poke poke8 poke16 poke16_LE poke16_BE dpoke disasm run_to step_over
 	step_back step_out step_in step skip_instruction}
 register_lazy "_example_tools.tcl" {get_screen listing get_color_count}
-register_lazy "_filepool.tcl" filepool
+register_lazy "_filepool.tcl" {filepool get_paths_for_type}
 register_lazy "_guess_title.tcl" {guess_title guess_rom_title}
 register_lazy "_info_panel.tcl" toggle_info_panel
 register_lazy "_mog-overlay.tcl" {toggle_mog_overlay toggle_mog_editor}
