@@ -1331,47 +1331,53 @@ proc menu_select_disk {drive item} {
 
 proc menu_create_tape_list {path} {
 	variable taperecordings_directory
-	set eject_item [list]
-	set rewind_item [list]
-	set my_recordings_item [list]
+
+	set menu_def { execute menu_select_tape
+		font-size 8
+		border-size 2
+		width 200
+		xpos 100
+		ypos 120
+		header { text "Tapes $::osd_tape_path"
+			font-size 10
+			post-spacing 6 }}
+
+	set items [list]
+	set presentation [list]
+	lappend items "--create--"
+	lappend presentation "--create new and insert--"
 	set inserted [lindex [cassetteplayer] 1]
 	if {$inserted ne ""} {
-		lappend eject_item "--eject-- [file tail $inserted]"
-		lappend rewind_item "--rewind-- [file tail $inserted]"
+		lappend items "--eject--"
+		lappend presentation "--eject-- [file tail $inserted]"
+		lappend items "--rewind-"
+		lappend presentation "--rewind-- [file tail $inserted]"
 	}
 	if {$path ne $taperecordings_directory} {
-		lappend my_recordings_item "\[My Tape Recordings\]"
+		lappend items $taperecordings_directory
+		lappend presentation "\[My Tape Recordings\]"
 	}
-	return [prepare_menu_list [concat [list "create new and insert"] \
-		$eject_item $rewind_item $my_recordings_item \
-		[ls $path "cas|wav|zip|gz"]] \
-	                          10 \
-	                          { execute menu_select_tape
-	                            font-size 8
-	                            border-size 2
-	                            width 200
-	                            xpos 100
-	                            ypos 120
-	                            header { text "Tapes $::osd_tape_path"
-	                                     font-size 10
-	                                     post-spacing 6 }}]
+
+	set files [ls $path "cas|wav|zip|gz"]
+	set items [concat $items $files]
+	set presentation [concat $presentation $files]
+
+	lappend menu_def presentation $presentation
+	return [prepare_menu_list $items 10 $menu_def]
 }
 
 proc menu_select_tape {item} {
 	variable taperecordings_directory
-	if {$item eq "create new and insert"} {
+	if {$item eq "--create--"} {
 		menu_close_all
 		osd::display_message [cassetteplayer new [menu_free_tape_name]]
-	} elseif {[string range $item 0 8] eq "--eject--"} {
+	} elseif {$item eq "--eject--"} {
 		menu_close_all
 		cassetteplayer eject
-	} elseif {[string range $item 0 9] eq "--rewind--"} {
+	} elseif {$item eq "--rewind--"} {
 		menu_close_all
 		cassetteplayer rewind
 	} else {
-		if {$item eq "\[My Tape Recordings\]"} {
-			set item $taperecordings_directory
-		}
 		set fullname [file join $::osd_tape_path $item]
 		if {[file isdirectory $fullname]} {
 			menu_close_top
