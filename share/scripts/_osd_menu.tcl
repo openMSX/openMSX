@@ -1198,10 +1198,17 @@ proc menu_toys_exec {toy} {
 }
 
 proc ls {directory extensions} {
-	set files [glob -nocomplain -tails -directory $directory -types {f r} *]
-	set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
-	set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]
-	set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
+	set dirs [list]
+	set specialdir [list]
+	set items [list]
+	if {[catch {
+		set files [glob -nocomplain -tails -directory $directory -types {f r} *]
+		set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
+		set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]
+		set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
+	} errorText]} {
+		osd::display_message "Unable to read dir $directory: $errorText" error
+	}
 	set dirs2 [list]
 	foreach dir [concat $dirs $specialdir] {
 		lappend dirs2 "$dir/"
