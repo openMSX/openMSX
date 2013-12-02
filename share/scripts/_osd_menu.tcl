@@ -1391,7 +1391,7 @@ proc menu_create_tape_list {path} {
 		lappend items "--rewind-"
 		lappend presentation "--rewind-- [file tail $inserted]"
 	}
-	if {$path ne $taperecordings_directory} {
+	if {$path ne $taperecordings_directory && [file exists $taperecordings_directory]} {
 		lappend items $taperecordings_directory
 		lappend presentation "\[My Tape Recordings\]"
 	}
