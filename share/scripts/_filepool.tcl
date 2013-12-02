@@ -112,10 +112,9 @@ proc filepool_reset {}  {
 proc get_paths_for_type {type} {
 	set result [list]
 	foreach pool $::__filepool {
-		set path [dict get $pool -path]
 		set types [dict get $pool -types]
 		if {$type in $types} {
-			lappend result $path
+			lappend result [dict get $pool -path]
 		}
 	}
 	return $result
