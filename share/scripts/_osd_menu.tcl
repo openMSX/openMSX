@@ -1243,7 +1243,8 @@ proc menu_create_ROM_list {path slot} {
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type disk] {
-		if {$path ne $pool_path && [file exists $pool_path]} {
+		if {$path ne $pool_path && [file exists $pool_path]
+			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
 			lappend items $pool_path
 			lappend presentation "\[ROM Pool $i\]"
 		}
@@ -1330,7 +1331,8 @@ proc menu_create_disk_list {path drive} {
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type disk] {
-		if {$path ne $pool_path && [file exists $pool_path]} {
+		if {$path ne $pool_path && [file exists $pool_path]
+			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
 			lappend items $pool_path
 			lappend presentation "\[Disk Pool $i\]"
 		}
@@ -1397,7 +1399,8 @@ proc menu_create_tape_list {path} {
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type tape] {
-		if {$path ne $pool_path && [file exists $pool_path]} {
+		if {$path ne $pool_path && [file exists $pool_path]
+			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
 			lappend items $pool_path
 			lappend presentation "\[Tape Pool $i\]"
 		}
