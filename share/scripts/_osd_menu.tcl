@@ -1226,15 +1226,19 @@ proc ls {directory extensions} {
 }
 
 proc is_empty_dir {directory extensions} {
-	catch {
-		set files [glob -nocomplain -tails -directory $directory -types {f r} *]
-		set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
-		if {[llength $items] != 0} {return false}
-		set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]
-		if {[llength $dirs] != 0} {return false}
-		set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
-		if {[llength $specialdir] != 0} {return false}
-	}
+	set files [list]
+	catch {set files [glob -nocomplain -tails -directory $directory -types {f r} *]}
+	set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
+	if {[llength $items] != 0} {return false}
+
+	set dirs [list]
+	catch {set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]}
+	if {[llength $dirs] != 0} {return false}
+
+	set specialdir [list]
+	catch {set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]}
+	if {[llength $specialdir] != 0} {return false}
+
 	return true
 }
 
