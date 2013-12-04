@@ -1225,6 +1225,19 @@ proc ls {directory extensions} {
 	return [concat [lsort $extra_entries] [lsort $dirs2] [lsort $items]]
 }
 
+proc is_empty_dir {directory extensions} {
+	catch {
+		set files [glob -nocomplain -tails -directory $directory -types {f r} *]
+		set items [lsearch -regexp -all -inline -nocase $files .*\\.($extensions)]
+		if {[llength $items] != 0} {return false}
+		set dirs [glob -nocomplain -tails -directory $directory -types {d r x} *]
+		if {[llength $dirs] != 0} {return false}
+		set specialdir [glob -nocomplain -tails -directory $directory -types {hidden d} ".openMSX"]
+		if {[llength $specialdir] != 0} {return false}
+	}
+	return true
+}
+
 proc menu_create_ROM_list {path slot} {
 	set menu_def [list execute [list menu_select_rom $slot] \
 		font-size 8 \
@@ -1235,6 +1248,7 @@ proc menu_create_ROM_list {path slot} {
 		header { text "ROMs $::osd_rom_path" \
 			font-size 10 \
 			post-spacing 6 }]
+	set extensions "rom|ri|mx1|mx2|zip|gz"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$slot] 2] ne "empty"} {
@@ -1242,15 +1256,15 @@ proc menu_create_ROM_list {path slot} {
 		lappend presentation "--eject-- [file tail [lindex [$slot] 1]]"
 	}
 	set i 1
-	foreach pool_path [filepool::get_paths_for_type disk] {
-		if {$path ne $pool_path && [file exists $pool_path]
-			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
+	foreach pool_path [filepool::get_paths_for_type rom] {
+		if {$path ne $pool_path && [file exists $pool_path] &&
+		    ![is_empty_dir $pool_path $extensions]} {
 			lappend items $pool_path
 			lappend presentation "\[ROM Pool $i\]"
 		}
 		incr i
 	}
-	set files [ls $path "rom|ri|mx1|mx2|zip|gz"]
+	set files [ls $path $extensions]
 	set items [concat $items $files]
 	set presentation [concat $presentation $files]
 
@@ -1323,6 +1337,7 @@ proc menu_create_disk_list {path drive} {
 		header { text "Disks $::osd_disk_path" \
 			font-size 10 \
 			post-spacing 6 }]
+	set extensions "dsk|zip|gz|xsa|dmk|di1|di2"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
@@ -1331,15 +1346,15 @@ proc menu_create_disk_list {path drive} {
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type disk] {
-		if {$path ne $pool_path && [file exists $pool_path]
-			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
+		if {$path ne $pool_path && [file exists $pool_path] &&
+		    ![is_empty_dir $pool_path $extensions]} {
 			lappend items $pool_path
 			lappend presentation "\[Disk Pool $i\]"
 		}
 		incr i
 	}
 
-	set files [ls $path "dsk|zip|gz|xsa|dmk|di1|di2"]
+	set files [ls $path $extensions]
 	set items [concat $items $files]
 	set presentation [concat $presentation $files]
 
@@ -1381,6 +1396,7 @@ proc menu_create_tape_list {path} {
 		header { text "Tapes $::osd_tape_path"
 			font-size 10
 			post-spacing 6 }}
+	set extensions "cas|wav|zip|gz"
 
 	set items [list]
 	set presentation [list]
@@ -1399,15 +1415,15 @@ proc menu_create_tape_list {path} {
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type tape] {
-		if {$path ne $pool_path && [file exists $pool_path]
-			&& [llength [glob -nocomplain -directory $pool_path *]] > 0} {
+		if {$path ne $pool_path && [file exists $pool_path] &&
+		    ![is_empty_dir $pool_path $extensions]} {
 			lappend items $pool_path
 			lappend presentation "\[Tape Pool $i\]"
 		}
 		incr i
 	}
 
-	set files [ls $path "cas|wav|zip|gz"]
+	set files [ls $path $extensions]
 	set items [concat $items $files]
 	set presentation [concat $presentation $files]
 
