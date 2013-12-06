@@ -159,16 +159,20 @@ void CassettePlayer::autoRun()
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
-	string var = "::temp_bp_for_auto_run";
+	string var = "temp_bp_for_auto_run";
 	string command =
-		"proc auto_run_cb {} { debug remove_bp $" + var + "\n"
+		"namespace eval ::openmsx {\n"
+		"variable " + var + "\n"
+		"proc auto_run_cb {} {\n"
+		"variable " + var + "\n"
+		"debug remove_bp $" + var + "\n"
 		"set l " + loadingInstruction + "\\r;"
 		"debug write_block memory 0xFBF0 $l;"
 		"poke16 0xF3FA 0xFBF0;"
 		"poke16 0xF3F8 [expr {0xFBF0 + [string length $l]}];"
 		"unset " + var + "}\n"
 		"if {![info exists " + var + "]} { set " + var +
-		" [debug set_bp 0xFF07 1 {auto_run_cb}]}\n";
+		" [debug set_bp 0xFF07 1 {openmsx::auto_run_cb}]}}\n";
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
