@@ -154,11 +154,17 @@ void CassettePlayer::autoRun()
 			loadingInstruction = "BLOAD\\\"CAS:\\\",R";
 			break;
 		case CassetteImage::BASIC:
+			// Note that CLOAD:RUN won't work: BASIC ignores stuff
+			// after the CLOAD command.
 			loadingInstruction = "CLOAD\\rRUN";
 			break;
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
+	// we're poking into the keyboard buffer, because for the cload/run
+	// combination, type can't be used (the run part will go missing in
+	// many cases). A better solution is probably to type both parts (cload
+	// and run part) using the prompt hook used here.
 	string var = "temp_bp_for_auto_run";
 	string command =
 		"namespace eval ::openmsx {\n"
@@ -167,12 +173,13 @@ void CassettePlayer::autoRun()
 		"variable " + var + "\n"
 		"debug remove_bp $" + var + "\n"
 		"set l " + loadingInstruction + "\\r;"
-		"debug write_block memory 0xFBF0 $l;"
-		"poke16 0xF3FA 0xFBF0;"
-		"poke16 0xF3F8 [expr {0xFBF0 + [string length $l]}];"
-		"unset " + var + "}\n"
+		"debug write_block memory 0xFBF0 $l;" // write instr to KEYBUF
+		"poke16 0xF3FA 0xFBF0;" // set GETPNT to KEYBUF
+		"poke16 0xF3F8 [expr {0xFBF0 + [string length $l]}];" // update PUTPNT
+		"unset " + var + "}\n" // clean up
 		"if {![info exists " + var + "]} { set " + var +
-		" [debug set_bp 0xFF07 1 {openmsx::auto_run_cb}]}}\n";
+		" [debug set_bp 0xFF07 1 {openmsx::auto_run_cb}]}\n" // prompt print hook H_READ
+		"type \'\\r\n}\n"; // trigger the hook of the break point
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
