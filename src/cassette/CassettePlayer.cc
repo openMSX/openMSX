@@ -145,41 +145,55 @@ void CassettePlayer::autoRun()
 	if (!autoRunSetting->getBoolean() || type == CassetteImage::UNKNOWN) {
 		return;
 	}
-	string loadingInstruction;
+	string instr1, instr2;
 	switch (type) {
 		case CassetteImage::ASCII:
-			loadingInstruction = "RUN\\\"CAS:\\\"";
+			instr1 = "RUN\\\"CAS:\\\"";
 			break;
 		case CassetteImage::BINARY:
-			loadingInstruction = "BLOAD\\\"CAS:\\\",R";
+			instr1 = "BLOAD\\\"CAS:\\\",R";
 			break;
 		case CassetteImage::BASIC:
 			// Note that CLOAD:RUN won't work: BASIC ignores stuff
-			// after the CLOAD command.
-			loadingInstruction = "CLOAD\\rRUN";
+			// after the CLOAD command. That's why it's split in two.
+			instr1 = "CLOAD";
+			instr2 = "RUN";
 			break;
 		default:
 			UNREACHABLE; // Shouldn't be possible
 	}
-	// we're poking into the keyboard buffer, because for the cload/run
-	// combination, type can't be used (the run part will go missing in
-	// many cases). A better solution is probably to type both parts (cload
-	// and run part) using the prompt hook used here.
-	string var = "temp_bp_for_auto_run";
 	string command =
 		"namespace eval ::openmsx {\n"
-		"variable " + var + "\n"
-		"proc auto_run_cb {} {\n"
-		"variable " + var + "\n"
-		"debug remove_bp $" + var + "\n"
-		"set l " + loadingInstruction + "\\r;"
-		"debug write_block memory 0xFBF0 $l;" // write instr to KEYBUF
-		"poke16 0xF3FA 0xFBF0;" // set GETPNT to KEYBUF
-		"poke16 0xF3F8 [expr {0xFBF0 + [string length $l]}];" // update PUTPNT
-		"unset " + var + "}\n" // clean up
-		"if {![info exists " + var + "]} { set " + var +
-		" [debug set_bp 0xFF07 1 {openmsx::auto_run_cb}]}\n" // prompt print hook H_READ
-		"type \'\\r\n}\n"; // trigger the hook of the break point
+		"  variable auto_run_bp\n"
+
+		"  proc auto_run_cb {args} {\n"
+		"    variable auto_run_bp\n"
+		"    debug remove_bp $auto_run_bp\n"
+		"    unset auto_run_bp\n"
+
+		// Without the 0.1s delay here, the type command gets messed up
+		// on MSX1 machines for some reason (starting to type too early?)
+		"    after time 0.1 \"type [lindex $args 0]\\\\r\"\n"
+
+		"    set next [lrange $args 1 end]\n"
+		"    if {[llength $next] == 0} return\n"
+
+		// H_READ isn't called after CLOAD, but H_MAIN is. However, it's
+		// also called right after H_READ, so we wait a little before
+		// setting up the breakpoint.
+		"    set cmd1 \"openmsx::auto_run_cb $next\"\n"
+		"    set cmd2 \"set openmsx::auto_run_bp \\[debug set_bp 0xFF0C 1 \\\"$cmd1\\\"\\]\"\n" // H_MAIN
+		"    after time 0.2 $cmd2\n"
+		"  }\n"
+
+		"  if {[info exists auto_run_bp]} {debug remove_bp $auto_run_bp\n}\n"
+		"  set auto_run_bp [debug set_bp 0xFF07 1 {\n" // H_READ
+		"    openmsx::auto_run_cb " + instr1 + " " + instr2 + "\n"
+		"  }]\n"
+
+		// re-trigger hook(s), needed when already booted in BASIC
+		"  type \'\\r\n"
+		"}";
 	try {
 		motherBoard.getCommandController().executeCommand(command);
 	} catch (CommandException& e) {
