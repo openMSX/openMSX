@@ -327,6 +327,8 @@ variable prev_x 0
 variable prev_y 0
 variable overlayOffset
 
+user_setting create float reversebar_fadeout_time "Time it takes for the reverse bar to fade out when it's not in focus. Set to 0 for no fade out at all." 5.0 0.0 100.0
+
 set_help_text toggle_reversebar \
 {Enable/disable an on-screen reverse bar.
 This will show the recorded 'reverse history' and the current position in\
@@ -429,10 +431,10 @@ proc update_reversebar2 {} {
 		"enabled" {
 			osd configure reverse.int.bar \
 				-rgba "0xff4400a0 0xdd3300a0 0xbb2200a0 0xcccc11a0"
-			if {$mouseInside} {
+			if {$mouseInside || $::reversebar_fadeout_time == 0.0} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
 			} else {
-				osd configure reverse -fadePeriod 5.0 -fadeTarget 0.0
+				osd configure reverse -fadePeriod $::reversebar_fadeout_time -fadeTarget 0.0
 			}
 		}
 	}
