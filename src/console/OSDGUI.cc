@@ -236,7 +236,7 @@ string OSDCommand::help(const vector<string>& tokens) const
 			  "osd create <type> <widget-path> [<property-name> <property-value>]...\n"
 			  "\n"
 			  "Creates a new OSD widget of given type. Path is a "
-			  "hierarchical name for the wiget (separated by '.')."
+			  "hierarchical name for the widget (separated by '.'). "
 			  "The parent widget for this new widget must already "
 			  "exist.\n"
 			  "Optionally you can set initial values for one or "
