@@ -51,14 +51,20 @@ register "normal" [namespace code enter_normal_mode] \
 ## Define tas mode
 
 variable old_inputdelay
+variable old_reversebar_fadeout_time
 
 proc enter_tas_mode {} {
 
 	variable old_inputdelay
+	variable old_reversebar_fadeout_time
 
 	# in tas mode, set inputdelay to 0
 	set old_inputdelay $::inputdelay
 	set ::inputdelay 0
+
+	# in tas mode, do not fadeout reverse bar
+	set old_reversebar_fadeout_time $::reversebar_fadeout_time
+	set ::reversebar_fadeout_time 0
 
 	if {![osd exists framecount]} {
 		toggle_frame_counter
@@ -85,9 +91,13 @@ proc enter_tas_mode {} {
 proc leave_tas_mode {} {
 
 	variable old_inputdelay
+	variable old_reversebar_fadeout_time
 
 	# restore inputdelay
 	set ::inputdelay $old_inputdelay
+
+	# restore reversebar_fadeout_time 
+	set ::reversebar_fadeout_time $old_reversebar_fadeout_time
 
 	if {[osd exists lag_counter]} {
 		toggle_lag_counter
