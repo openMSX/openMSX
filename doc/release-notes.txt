@@ -62,7 +62,9 @@ New or improved emulator features:
   - speed up reverse in combination with harddisk by using incremental hashing
 - reverse/TAS:
   - added reverse subcommand to truncate the current replay
-  - show 2 decimals in the reverse bar time
+  - show two decimals in the reverse bar time
+  - added setting to prevent the reversebar from fading out and made that the
+    behaviour in TAS mode
   - added bookmarks feature to reverse bar
   - added possibility to customize TAS key bindings in an external script
   - added setting to auto save replays at intervals
