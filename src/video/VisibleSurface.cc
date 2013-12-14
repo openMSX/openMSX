@@ -146,7 +146,11 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 #endif
 	// try supported bpp in order of preference
 #if HAVE_16BPP
+#if !PLATFORM_DINGUX
+	// We have a PixelOpBase specialization for Dingux which hardcodes the
+	// RGB565 pixel layout, so don't use 15 bpp there.
 	if (!surface) surface = SDL_SetVideoMode(width, height, 15, flags);
+#endif
 	if (!surface) surface = SDL_SetVideoMode(width, height, 16, flags);
 #endif
 #if HAVE_32BPP
