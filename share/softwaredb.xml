@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
-<softwaredb xml:lang="en" timestamp="1382205778">
+<softwaredb xml:lang="en" timestamp="1387050394">
 <!-- Credits -->
 <![CDATA[
 The softwaredb.xml file contains information about rom mapper types
@@ -7567,6 +7567,14 @@ Generation MSXIDs by www.generation-msx.nl
 		<dump><rom><hash algo="sha1">0ab2bfd449bb97ea77ac35392812c045931e2cd5</hash></rom></dump>
 </software>
 <software>
+	<title xml:lang="en">Mr. Cracksman</title>
+	<system>MSX</system>
+	<company>RELEVO Videogames</company>
+	<year>2013</year>
+	<country>ES</country>
+		<dump><original value="true">Author</original><rom><hash algo="sha1">32e006436b49ed518f9594dc69d5afe123e701f4</hash><remark><text>MSXDev2014 entry</text></remark></rom></dump>
+</software>
+<software>
 	<title xml:lang="en">Mr. Do Vs Unicorns</title>
 	<genmsxid>335</genmsxid>
 	<system>MSX</system>
@@ -10950,11 +10958,12 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 <software>
 	<title xml:lang="en">Super Bros. World 1</title>
+	<genmsxid>3279</genmsxid>
 	<system>MSX</system>
 	<company>Clover</company>
 	<year>1991</year>
 	<country>KR</country>
-		<dump><original value="false">bad</original><megarom><type>Konami</type><hash algo="sha1">a3e8e076b9c8d4060082233a2f16184cf4911a85</hash></megarom></dump>
+		<dump><original value="false">bad</original><rom><hash algo="sha1">a3e8e076b9c8d4060082233a2f16184cf4911a85</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Super Bubble Bobble</title>
@@ -12847,6 +12856,6 @@ Generation MSXIDs by www.generation-msx.nl
 </software>
 </softwaredb>
 <!--
-Roms in this XML file:3214
-Created on Sat Oct 19 20:03:11 CEST 2013
+Roms in this XML file:3215
+Created on Sat Dec 14 20:46:48 CET 2013
  -->
