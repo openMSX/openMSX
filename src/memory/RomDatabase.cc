@@ -73,8 +73,6 @@ private:
 		YEAR,
 		COUNTRY,
 		GENMSXID,
-		SW_REMARK,
-		SW_TEXT,
 		DUMP_REMARK,
 		DUMP_TEXT,
 		DUMP,
@@ -87,7 +85,7 @@ private:
 	};
 
 	struct Dump {
-		string remarks;
+		string_ref remark;
 		Sha1Sum hash;
 		string_ref origData;
 		RomType type;
@@ -109,7 +107,6 @@ private:
 	string_ref company;
 	string_ref year;
 	string_ref country;
-	string remarks;
 	int genMSXid;
 
 	State state;
@@ -139,7 +136,6 @@ void DBParser::start(string_ref tag)
 			company.clear();
 			year.clear();
 			country.clear();
-			remarks.clear();
 			genMSXid = 0;
 			dumps.clear();
 			state = SOFTWARE;
@@ -158,8 +154,6 @@ void DBParser::start(string_ref tag)
 			state = YEAR;
 		} else if (tag == "country") {
 			state = COUNTRY;
-		} else if (tag == "remark") {
-			state = SW_REMARK;
 		} else if (tag == "genmsxid") {
 			state = GENMSXID;
 		} else if (tag == "dump") {
@@ -201,13 +195,6 @@ void DBParser::start(string_ref tag)
 			++unknownLevel;
 		}
 		break;
-	case SW_REMARK:
-		if (tag == "text") {
-			state = SW_TEXT;
-		} else {
-			++unknownLevel;
-		}
-		break;
 	case DUMP_REMARK:
 		if (tag == "text") {
 			state = DUMP_TEXT;
@@ -225,7 +212,6 @@ void DBParser::start(string_ref tag)
 	case TYPE:
 	case START:
 	case HASH:
-	case SW_TEXT:
 	case DUMP_TEXT:
 		++unknownLevel;
 		break;
@@ -262,8 +248,6 @@ void DBParser::attribute(string_ref name, string_ref value)
 	case YEAR:
 	case COUNTRY:
 	case GENMSXID:
-	case SW_REMARK:
-	case SW_TEXT:
 	case DUMP_REMARK:
 	case DUMP_TEXT:
 	case DUMP:
@@ -275,13 +259,6 @@ void DBParser::attribute(string_ref name, string_ref value)
 	default:
 		UNREACHABLE;
 	}
-}
-
-static void joinRemarks(string& result, string_ref extra)
-{
-	if (extra.empty()) return;
-	if (!result.empty()) result += '\n';
-	result.append(extra.data(), extra.size());
 }
 
 void DBParser::text(string_ref text)
@@ -326,13 +303,9 @@ void DBParser::text(string_ref text)
 			dumps.back().hash = Sha1Sum(text);
 		}
 		break;
-	case SW_REMARK:
-	case SW_TEXT:
-		joinRemarks(remarks, text);
-		break;
 	case DUMP_REMARK:
 	case DUMP_TEXT:
-		joinRemarks(dumps.back().remarks, text);
+		dumps.back().remark = text;
 		break;
 	case BEGIN:
 	case SOFTWAREDB:
@@ -355,11 +328,9 @@ void DBParser::addEntries()
 	}
 
 	for (auto& d : dumps) {
-		string r = remarks;
-		joinRemarks(r, d.remarks);
 		db.push_back(std::make_pair(d.hash, RomInfo(
 			title, year, company, country,
-			d.origValue, d.origData, r, d.type,
+			d.origValue, d.origData, d.remark, d.type,
 			genMSXid)));
 	}
 }
@@ -464,11 +435,7 @@ void DBParser::stop()
 	case YEAR:
 	case COUNTRY:
 	case GENMSXID:
-	case SW_REMARK:
 		state = SOFTWARE;
-		break;
-	case SW_TEXT:
-		state = SW_REMARK;
 		break;
 	case DUMP:
 		if (dumps.back().hash.empty()) {
