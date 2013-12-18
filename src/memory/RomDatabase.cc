@@ -125,10 +125,9 @@ void DBParser::start(string_ref tag)
 	case BEGIN:
 		if (tag == "softwaredb") {
 			state = SOFTWAREDB;
-		} else {
-			throw MSXException("Expected <softwaredb> as root tag.");
+			return;
 		}
-		break;
+		throw MSXException("Expected <softwaredb> as root tag.");
 	case SOFTWAREDB:
 		if (tag == "software") {
 			system.clear();
@@ -139,67 +138,124 @@ void DBParser::start(string_ref tag)
 			genMSXid = 0;
 			dumps.clear();
 			state = SOFTWARE;
-		} else {
-			++unknownLevel;
+			return;
 		}
 		break;
-	case SOFTWARE:
-		if        (tag == "system") {
-			state = SYSTEM;
-		} else if (tag == "title") {
-			state = TITLE;
-		} else if (tag == "company") {
-			state = COMPANY;
-		} else if (tag == "year") {
-			state = YEAR;
-		} else if (tag == "country") {
-			state = COUNTRY;
-		} else if (tag == "genmsxid") {
-			state = GENMSXID;
-		} else if (tag == "dump") {
-			dumps.resize(dumps.size() + 1);
-			dumps.back().type = ROM_UNKNOWN;
-			dumps.back().origValue = false;
-			state = DUMP;
-		} else {
-			++unknownLevel;
+	case SOFTWARE: {
+		char c = tag.front();
+		tag.pop_front();
+		switch (c) {
+		case 's':
+			if (tag == "ystem") {
+				state = SYSTEM;
+				return;
+			}
+			break;
+		case 't':
+			if (tag == "itle") {
+				state = TITLE;
+				return;
+			}
+			break;
+		case 'c':
+			if (tag == "ompany") {
+				state = COMPANY;
+				return;
+			} else if (tag == "ountry") {
+				state = COUNTRY;
+				return;
+			}
+			break;
+		case 'y':
+			if (tag == "ear") {
+				state = YEAR;
+				return;
+			}
+			break;
+		case 'g':
+			if (tag == "enmsxid") {
+				state = GENMSXID;
+				return;
+			}
+			break;
+		case 'd':
+			if (tag == "ump") {
+				dumps.resize(dumps.size() + 1);
+				dumps.back().type = ROM_UNKNOWN;
+				dumps.back().origValue = false;
+				state = DUMP;
+				return;
+			}
+			break;
 		}
 		break;
-	case DUMP:
-		if        (tag == "original") {
-			dumps.back().origValue = false;
-			state = ORIGINAL;
-		} else if (tag == "megarom") {
-			type.clear();
-			startVal.clear();
-			state = ROM;
-		} else if (tag == "rom") {
-			type = "Mirrored";
-			startVal.clear();
-			state = ROM;
-		} else {
-			++unknownLevel;
+	}
+	case DUMP: {
+		char c = tag.front();
+		tag.pop_front();
+		switch (c) {
+		case 'o':
+			if (tag == "riginal") {
+				dumps.back().origValue = false;
+				state = ORIGINAL;
+				return;
+			}
+			break;
+		case 'm':
+			if (tag == "egarom") {
+				type.clear();
+				startVal.clear();
+				state = ROM;
+				return;
+			}
+			break;
+		case 'r':
+			if (tag == "om") {
+				type = "Mirrored";
+				startVal.clear();
+				state = ROM;
+				return;
+			}
+			break;
 		}
 		break;
-	case ROM:
-		if        (tag == "type") {
-			state = TYPE;
-		} else if (tag == "start") {
-			state = START;
-		} else if (tag == "remark") {
-			state = DUMP_REMARK;
-		} else if (tag == "hash") {
-			algo.clear();
-			state = HASH;
-		} else {
-			++unknownLevel;
+	}
+	case ROM: {
+		char c = tag.front();
+		tag.pop_front();
+		switch (c) {
+		case 't':
+			if (tag == "ype") {
+				state = TYPE;
+				return;
+			}
+			break;
+		case 's':
+			if (tag == "tart") {
+				state = START;
+				return;
+			}
+			break;
+		case 'r':
+			if (tag == "emark") {
+				state = DUMP_REMARK;
+				return;
+			}
+			break;
+		case 'h':
+			if (tag == "ash") {
+				algo.clear();
+				state = HASH;
+				return;
+			}
+			break;
 		}
 		break;
+	}
 	case DUMP_REMARK:
 		if (tag == "text") {
 			state = DUMP_TEXT;
-		} else {
-			++unknownLevel;
+			return;
 		}
 		break;
 	case SYSTEM:
@@ -213,7 +269,6 @@ void DBParser::start(string_ref tag)
 	case START:
 	case HASH:
 	case DUMP_TEXT:
-		++unknownLevel;
 		break;
 
 	case END:
@@ -222,6 +277,8 @@ void DBParser::start(string_ref tag)
 	default:
 		UNREACHABLE;
 	}
+
+	++unknownLevel;
 }
 
 void DBParser::attribute(string_ref name, string_ref value)
