@@ -285,10 +285,10 @@ static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 			subGA = true;
 		}
 		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
-		drb = ((dr << 8) & 0xffff0000) |
-		      ((db >> 8) & 0x0000ffff);
-		dga = ((dg << 8) & 0xffff0000) |
-		      ((da >> 8) & 0x0000ffff);
+		drb = ((unsigned(dr) << 8) & 0xffff0000) |
+		      ((unsigned(db) >> 8) & 0x0000ffff);
+		dga = ((unsigned(dg) << 8) & 0xffff0000) |
+		      ((unsigned(da) >> 8) & 0x0000ffff);
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.

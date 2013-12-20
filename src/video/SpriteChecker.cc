@@ -282,7 +282,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					if (limitSprites) continue;
 				}
 				if (mag) spriteLine /= 2;
-				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+				int colorIndex = (-1u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readPlanar(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by
@@ -329,7 +329,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					if (limitSprites) continue;
 				}
 				if (mag) spriteLine /= 2;
-				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+				int colorIndex = (-1u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readNP(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by

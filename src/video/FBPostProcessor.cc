@@ -240,7 +240,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getSDLFormat())
 {
-	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
+	scaleAlgorithm = RenderSettings::NO_SCALER;
 	scaleFactor = unsigned(-1);
 
 	FloatSetting& noiseSetting = renderSettings.getNoise();
