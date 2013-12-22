@@ -327,8 +327,6 @@ variable prev_x 0
 variable prev_y 0
 variable overlayOffset
 
-user_setting create float reversebar_fadeout_time "Time it takes for the reverse bar to fade out when it's not in focus. Set to 0 for no fade out at all." 5.0 0.0 100.0
-
 set_help_text toggle_reversebar \
 {Enable/disable an on-screen reverse bar.
 This will show the recorded 'reverse history' and the current position in\

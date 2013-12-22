@@ -38,6 +38,10 @@ Possible values for this setting:
   gui   Reverse + reverse_bar enabled (see 'help toggle_reversebar')
 } $reverse::default_auto_enable_reverse
 
+user_setting create float "reversebar_fadeout_time" \
+{Time it takes for the reverse bar to fade out when it's not in focus. Set to 0 for no fade out at all.
+} 5.0 0.0 100.0
+
 
 # TODO hack:
 # The order in which the startup scripts are executed is not defined. But this
