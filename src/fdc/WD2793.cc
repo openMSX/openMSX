@@ -458,6 +458,12 @@ void WD2793::executeUntil(EmuTime::param time, int userData)
 				doneWriteTrack();
 			}
 			break;
+		case FSM_READ_TRACK:
+			if ((commandReg & 0xF0) == 0xE0) {
+				// read track command
+				endCmd(); // TODO check this (e.g. DRQ)
+			}
+			break;
 		default:
 			UNREACHABLE;
 	}
@@ -855,6 +861,10 @@ void WD2793::readTrackCmd(EmuTime::param time)
 		dataCurrent = 0;
 		dataAvailable = trackData.getLength();
 		drqTime.reset(time);
+
+		// Stop command at next index pulse
+		schedule(FSM_READ_TRACK, drqTime + dataAvailable);
+
 		drqTime += 1; // (first) byte can be read in a moment
 	} catch (MSXException& e) {
 		PRT_DEBUG("WD2793: read track failed: " << e.getMessage()); (void)&e;
@@ -958,6 +968,7 @@ static enum_string<WD2793::FSMState> fsmStateInfo[] = {
 	{ "TYPE3_LOADED",    WD2793::FSM_TYPE3_LOADED },
 	{ "TYPE3_ROTATED",   WD2793::FSM_TYPE3_ROTATED },
 	{ "WRITE_TRACK",     WD2793::FSM_WRITE_TRACK },
+	{ "READ_TRACK",      WD2793::FSM_READ_TRACK },
 	{ "IDX_IRQ",         WD2793::FSM_IDX_IRQ }
 };
 SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
