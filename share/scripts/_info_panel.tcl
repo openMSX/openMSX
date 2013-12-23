@@ -45,8 +45,18 @@ proc info_panel_init {} {
 			title "Speed" width 48 row 1 \
 			method {format "%d%%" [expr {round([get_actual_speed] * 100)}]}] \
 		machine [dict create \
-			title "Machine" width 250 row 1 \
-			method {utils::get_machine_display_name}]]
+			title "Machine name and type" width 250 row 1 \
+			method {
+				set name [utils::get_machine_display_name]
+				if {[catch {
+					set type [dict get [openmsx_info machines [machine_info config_name]] type]
+					set result [format "%s (%s)" $name $type]
+				}]} {
+					set result $name
+				}
+				set result
+			}] \
+		]
 
 	# calc width of software item
 	set software_width 0
