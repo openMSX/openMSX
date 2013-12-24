@@ -135,13 +135,14 @@ CommandConsole::CommandConsole(
 		commandController, "console_remove_doubles",
 		"don't add the command to history if it's the same as the previous one",
 		true))
+	, history(std::max(1, historySizeSetting->getInt()))
 	, executingCommand(false)
 {
 	resetScrollBack();
 	prompt = PROMPT_NEW;
 	newLineConsole(prompt);
-	putPrompt();
 	loadHistory();
+	putPrompt();
 	Completer::setOutput(this);
 
 	const auto& fullVersion = Version::full();
@@ -450,12 +451,9 @@ void CommandConsole::putCommandHistory(const string& command)
 		return;
 	}
 
+	if (history.full()) history.pop_front();
 	history.push_back(command);
 
-	// if necessary, shrink history to the desired (smaller) size
-	while (history.size() > unsigned(historySizeSetting->getInt())) {
-		history.pop_front();
-	}
 }
 
 void CommandConsole::commandExecute()
@@ -528,7 +526,7 @@ ConsoleLine CommandConsole::highLight(string_ref line)
 
 void CommandConsole::putPrompt()
 {
-	commandScrollBack = history.end();
+	commandScrollBack = history.size();
 	currentLine = prompt;
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
@@ -559,14 +557,14 @@ void CommandConsole::prevCommand()
 		return; // no elements
 	}
 	bool match = false;
-	auto tempScrollBack = commandScrollBack;
-	while ((tempScrollBack != history.begin()) && !match) {
-		--tempScrollBack;
-		match = StringOp::startsWith(*tempScrollBack, currentLine);
+	unsigned tmp = commandScrollBack;
+	while ((tmp != 0) && !match) {
+		--tmp;
+		match = StringOp::startsWith(history[tmp], currentLine);
 	}
 	if (match) {
-		commandScrollBack = tempScrollBack;
-		lines[0] = highLight(*commandScrollBack);
+		commandScrollBack = tmp;
+		lines[0] = highLight(history[commandScrollBack]);
 		cursorPosition = lines[0].numChars();
 	}
 }
@@ -574,20 +572,20 @@ void CommandConsole::prevCommand()
 void CommandConsole::nextCommand()
 {
 	resetScrollBack();
-	if (commandScrollBack == history.end()) {
+	if (commandScrollBack == history.size()) {
 		return; // don't loop !
 	}
 	bool match = false;
-	auto tempScrollBack = commandScrollBack;
-	while ((++tempScrollBack != history.end()) && !match) {
-		match = StringOp::startsWith(*tempScrollBack, currentLine);
+	auto tmp = commandScrollBack;
+	while ((++tmp != history.size()) && !match) {
+		match = StringOp::startsWith(history[tmp], currentLine);
 	}
 	if (match) {
-		--tempScrollBack; // one time to many
-		commandScrollBack = tempScrollBack;
-		lines[0] = highLight(*commandScrollBack);
+		--tmp; // one time to many
+		commandScrollBack = tmp;
+		lines[0] = highLight(history[commandScrollBack]);
 	} else {
-		commandScrollBack = history.end();
+		commandScrollBack = history.size();
 		lines[0] = highLight(currentLine);
 	}
 	cursorPosition = lines[0].numChars();
