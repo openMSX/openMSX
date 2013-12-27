@@ -24,16 +24,14 @@ Creating a release candidate
 ----------------------------
 
 - Update the release date in the release notes.
-- Tag the SVN archive:
-    svn copy \
-      https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk \
-      https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
-      -m "Tagging release 1.2.3."
+- Tag the git archive:
+  git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
+  git push
 - Export the tagged code:
-    svn export https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
-        openmsx-1.2.3
+  git archive RELEASE_1_2_3 -o openmsx-1.2.3.tar.gz
   This step makes sure that exactly the tagged code will be released.
-  Export instead of checkout gets rid of the SVN admin directories.
+- Untar-gz this file somewhere outside of any development area and change
+  directory to it.
 - Create the distribution tar.gz file:
     unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
     make dist
@@ -77,7 +75,7 @@ Repeat until release worthy
 Create and test release candidates until a satisfactory release candidate
 is made, which will become the release.
 
-Last-minute patches have to be merged from "trunk" or the pre-release branch to
+Last-minute patches have to be merged from "master" or the pre-release branch to
 the tag directory.
 TODO: Should we create a branch for every release?
 
