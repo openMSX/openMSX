@@ -32,7 +32,7 @@ public:
 		EmuTime::param time);
 
 private:
-	void preCalcNoise(double factor);
+	void preCalcNoise(float factor);
 	void drawNoise(OutputSurface& output);
 	void drawNoiseLine(Pixel* buf, signed char* noise,
 	                   unsigned long width);

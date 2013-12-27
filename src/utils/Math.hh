@@ -21,12 +21,6 @@ inline bool isPowerOfTwo(unsigned a)
   */
 unsigned powerOfTwo(unsigned a);
 
-/** Returns two gaussian distributed random numbers.
-  * We return two numbers instead of one because the second number comes for
-  * free in the current implementation.
-  */
-void gaussian2(double& r1, double& r2);
-
 /** Clips x to the range [LO,HI].
   * Slightly faster than    std::min(HI, std::max(LO, x))
   * especially when no clipping is required.
@@ -58,9 +52,9 @@ inline byte clipIntToByte(int x)
 /** Clips r * factor to the range [LO,HI].
   */
 template <int LO, int HI>
-inline int clip(double r, double factor)
+inline int clip(float r, float factor)
 {
-	int a = int(round(r * factor));
+	int a = int(roundf(r * factor));
 	return std::min(std::max(a, LO), HI);
 }
 

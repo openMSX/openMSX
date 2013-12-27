@@ -42,7 +42,7 @@ private:
 	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
 	                 unsigned lineWidth);
 
-	void preCalcNoise(double factor);
+	void preCalcNoise(float factor);
 	void drawNoise();
 	void drawGlow(int glow);
 
