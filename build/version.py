@@ -12,13 +12,13 @@ import re
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.9.1'
+packageVersionNumber = '0.10.0'
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = ''
+packageVersionSuffix = '-rc1'
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = False
+releaseFlag = True
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)
