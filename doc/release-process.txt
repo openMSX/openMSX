@@ -31,12 +31,12 @@ Creating a release candidate
 - Update the release date in the release notes.
 - Tag the git archive:
   git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
-  git push
+  git push --tags
 - Export the tagged code:
-  git archive RELEASE_1_2_3 -o openmsx-1.2.3.tar.gz
+  git archive RELEASE_1_2_3 --remote git://git.code.sf.net/p/openmsx/openmsx \
+    --prefix openmsx-1.2.3/ | tar -x -C .
   This step makes sure that exactly the tagged code will be released.
-- Untar-gz this file somewhere outside of any development area and change
-  directory to it.
+- Change directory to the just created openmsx-1.2.3/
 - Create the distribution tar.gz file:
     unset OPENMSX_FLAVOUR   (and any other OPENMSX_ flags you have set)
     make dist
