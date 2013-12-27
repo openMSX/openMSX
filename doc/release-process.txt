@@ -11,7 +11,7 @@ Preparing for a release
 - Tell all developers to commit only fixes.
 - Sync with most recent C-BIOS release.
 - Check that the "staticbindist" build still works, in particular on win32 and
-  Mac OS X universal (default is native!).
+  Mac OS X.
 - Verify the documentation is up-to-date.
   Currently most documentation is in "doc/manual".
 - Write release notes in "doc/release-notes.txt".
@@ -19,6 +19,11 @@ Preparing for a release
 - Edit the version number in build/version.py:
     packageVersionNumber = '1.2.3'
   And set releaseFlag to True.
+
+Note: An alternative approach would be to create a branch dedicated to the
+      release and continue accepting any kind of commit on "master".
+      To put the development focus on bug fixing, we haven't done this,
+      but it is an approach that might be useful at some point.
 
 Creating a release candidate
 ----------------------------
@@ -75,9 +80,8 @@ Repeat until release worthy
 Create and test release candidates until a satisfactory release candidate
 is made, which will become the release.
 
-Last-minute patches have to be merged from "master" or the pre-release branch to
-the tag directory.
-TODO: Should we create a branch for every release?
+If there are any last-minute patches, don't forget to move the release tag,
+such that the released code is equal to the tagged code.
 
 Make the release public
 -----------------------
