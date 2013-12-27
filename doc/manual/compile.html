@@ -324,7 +324,7 @@ openMSX depends on the following libraries:
 
 <h4>GCC / clang</h4>
 <p>
-You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or Mac OS X with MacPorts or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain Mac OS X or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
+You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or Mac OS X with MacPorts, Homebrew or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain Mac OS X or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
 </p>
 <h5>Android</h5>
 <p>
@@ -364,14 +364,13 @@ Applications that use a library only require the runtime package to be installed
 <h5>Mac OS X</h5>
 
 <p>
-The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a>  method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
-<a class="external" href="http://www.macports.org/">MacPorts</a>
+The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically.</p>
+<p>
+If you want to do things manually, you can get the libraries from
+<a class="external" href="http://www.macports.org/">MacPorts</a>,
+<a class="external" href="http://brew.sh/">Homebrew</a>
 or
-<a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
-If you are using MacPorts, you should install the ports
-<code>libpng</code>, <code>libsdl</code> and <code>libsdl_ttf</code>.
-If you are using Fink, you should install the packages
-<code>libpng3</code>, <code>sdl</code> and <code>sdl-ttf</code>.
+<a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports). The manual approach is not regularly tested by the openMSX developers; unless you enjoy tinkering with builds we suggest you use the stand-alone binary approach instead.
 </p>
 
 <h5>Microsoft Windows (MinGW)</h5>
@@ -649,7 +648,10 @@ Add <code>CXX=clang++</code> as an argument to the <code>make</code> command to 
 <h5>Mac OS X</h5>
 
 <p>
-By default, openMSX is compiled for the type of CPU that is present in your Mac. If you want to build for a different CPU, use <code>export OPENMSX_TARGET_CPU=x86</code> (32-bit Intel) or <code>export OPENMSX_TARGET_CPU=x86_64</code> (64-bit Intel). If you want to build a universal binary, use <code>export OPENMSX_TARGET_CPU=univ</code>. Note that the 64-bit version needs OS X 10.6 or later to run, while the 32-bit version can run on OS X 10.4 or later.
+Since openMSX 0.10.0, the minimum required Mac OS X release to build openMSX out of the box is 10.7. This implies that only x86_64 CPUs (64-bit Intel) are supported.
+</p>
+<p>
+Building for older Mac OS X releases should be possible in theory, but it requires a lot of effort to set up the compiler and SDK (C++11 support is required), adjust the openMSX build (<code>build/platform-darwin.mk</code>) etc. It's easier to try an older openMSX release instead.
 </p>
 
 <h4>Visual C++</h4>
@@ -697,7 +699,7 @@ derived/&lt;cpu&gt;-darwin-&lt;flavour&gt;/bindist/openMSX.app/Contents/MacOS/op
 <h2><a id="standalone">5. Stand-alone Binary</a></h2>
 
 <p>
-This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is highly recommended on Microsoft Windows. It is also recommended on Mac OS X if you are not a MacPorts or Fink user.
+This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is highly recommended on Microsoft Windows. It is also recommended on Mac OS X.
 </p>
 
 <p>
