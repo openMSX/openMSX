@@ -5,6 +5,6 @@ SUBDIRS:= \
 
 DIST:= \
 	controlpanel.wxi openmsx.wxs openmsx1033.wxl *.py \
-	package.cmd vc_menu.cmd
+	package.cmd
 
 include build/node-end.mk
