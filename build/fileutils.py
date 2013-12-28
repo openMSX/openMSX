@@ -1,5 +1,5 @@
 from os import altsep, chmod, mkdir, remove, sep, stat, walk
-from os.path import dirname, isdir, isfile, islink, join as joinpath
+from os.path import dirname, exists, isdir, isfile, islink, join as joinpath
 from shutil import copyfile
 
 try:
@@ -137,5 +137,7 @@ def installTree(srcDir, destDir, paths):
 		elif isfile(srcPath):
 			_installDirsRec(dirname(destPath))
 			installFile(srcPath, destPath)
+		elif exists(srcPath):
+			print 'Skipping unknown kind of file system entry:', srcPath
 		else:
-			print 'Skipping unknown file type:', srcPath
+			print 'Skipping non-existing path:', srcPath
