@@ -834,6 +834,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
 	if (!isRead) cpuVramData = write;
 	cpuVramReqIsRead = isRead;
+	cpuVramReqAddr = (controlRegs[14] << 14) | vramPointer; // see below
 	if (unlikely(cpuAccessScheduled())) {
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
@@ -845,7 +846,24 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 
 void VDP::executeCpuVramAccess(EmuTime::param time)
 {
-	int addr = (controlRegs[14] << 14) | vramPointer;
+	// We don't know whether the vram address is calculated now or already
+	// when the vram request gets scheduled. It's also not possible to test
+	// this difference on real HW (AFAIK). Though it does make a difference
+	// when e.g. emulating an overclocked Z80 (40Mhz) in combination with
+	// 'too_fast_vram_access=ignore'. See also this forum post:
+	//     http://www.msx.org/forum/msx-talk/openmsx/wanted-feedback-mac-os-x-users?pa
+	//     sd_snatcher's post of 29-12-2013, 01:02
+	// If I have to guess then I'd say the address is only calculated at
+	// this moment because that saves some hardware registers, and looking
+	// at the rest of the VDP design, the Yamaha engineers really tried to
+	// save registers whenever possible.
+	// Still, to fix the artificial turbo-Z80 scenario, we now calculate
+	// the address early.
+	// It's possible that once we emulate proper turbo-Z80 emulation (switch
+	// back to 3.5MHz speed when accessing the VDP) we can remove this part
+	// again from the VDP emulation.
+	//int addr = (controlRegs[14] << 14) | vramPointer;
+	int addr = cpuVramReqAddr;
 	if (displayMode.isPlanar()) {
 		// note: also extended VRAM is interleaved,
 		//       because there is only 64kB it's interleaved
@@ -1557,6 +1575,9 @@ void VDP::serialize(Archive& ar, unsigned version)
 		ar.serialize("cpuVramReqIsRead", cpuVramReqIsRead);
 	} else {
 		ar.serialize("readAhead", cpuVramData);
+	}
+	if (ar.versionAtLeast(version, 6)) {
+		ar.serialize("cpuVramReqAddr", cpuVramReqAddr);
 	}
 	ar.serialize("cpuExtendedVram", cpuExtendedVram);
 	ar.serialize("displayEnabled", displayEnabled);

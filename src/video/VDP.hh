@@ -875,6 +875,7 @@ private:
 	  * variable indicates whether the pending request is read or write.
 	  */
 	bool cpuVramReqIsRead;
+	unsigned cpuVramReqAddr;
 
 	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?
 	  * This is determined by MXC (R#45, bit 6).
@@ -902,7 +903,7 @@ private:
 	/** Cached version of tooFastAccess setting. */
 	bool allowTooFastAccess;
 };
-SERIALIZE_CLASS_VERSION(VDP, 5);
+SERIALIZE_CLASS_VERSION(VDP, 6);
 
 } // namespace openmsx
 
