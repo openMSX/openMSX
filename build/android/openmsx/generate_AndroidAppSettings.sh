@@ -42,6 +42,15 @@ fi
 CHANGE_APP_SETTINGS_VERSION=$(grep 'CHANGE_APP_SETTINGS_VERSION=[0-9][0-9]*' "${CHANGE_APP_SETTINS_SCRIPT}")
 CHANGE_APP_SETTINGS_VERSION=${CHANGE_APP_SETTINGS_VERSION#*=}
 
+if [ -z "${CHANGE_APP_SETTINGS_VERSION}" ]; then
+	# Latest version of changeAppSettings.sh no longer contains an explicit version
+	# number for the app-settings
+	# However, it does have a mechanism to automagically upgrade to newer app-settings
+	# with (hopefully sane) default values
+	# As such, use latest versioned template when the changeAppSettings.sh does not
+	# contain an explicit settings version
+	CHANGE_APP_SETTINGS_VERSION=19
+fi
 
 APP_SETTINGS_CFG="AndroidAppSettings.cfg"
 APP_SETTINGS_TEMPLATE="${APP_SETTINGS_CFG}.template.${CHANGE_APP_SETTINGS_VERSION}"
