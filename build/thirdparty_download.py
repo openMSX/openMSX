@@ -63,7 +63,7 @@ def fetchPackageSource(makeName, tarballsDir, sourcesDir, patchesDir):
 
 def main(platform, tarballsDir, sourcesDir, patchesDir):
 	if platform == 'android':
-		fetchPackageSource('TCL', tarballsDir, sourcesDir, patchesDir)
+		fetchPackageSource('TCL_ANDROID', tarballsDir, sourcesDir, patchesDir)
 	else:
 		configuration = getConfiguration('3RD_STA')
 		components = configuration.iterDesiredComponents()

@@ -2,7 +2,7 @@ from thirdparty_download import fetchPackageSource
 import sys
 
 def main(tarballsDir, sourcesDir, patchesDir):
-	fetchPackageSource('TCL', tarballsDir, sourcesDir, patchesDir)
+	fetchPackageSource('TCL_ANDROID', tarballsDir, sourcesDir, patchesDir)
 
 if __name__ == '__main__':
 	if len(sys.argv) == 1:
