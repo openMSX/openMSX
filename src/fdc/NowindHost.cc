@@ -77,12 +77,7 @@ byte NowindHost::peek() const
 // receive:  msx <- pc
 byte NowindHost::read()
 {
-	if (!isDataAvailable()) {
-		return 0xff;
-	}
-	byte result = hostToMsxFifo.front();
-	hostToMsxFifo.pop_front();
-	return result;
+	return isDataAvailable() ? hostToMsxFifo.pop_front() : 0xFF;
 }
 
 bool NowindHost::isDataAvailable() const

@@ -2,6 +2,7 @@
 #define SERIALIZE_STL_HH
 
 #include "serialize_core.hh"
+#include "circular_buffer.hh"
 #include <vector>
 #include <deque>
 #include <list>
@@ -58,6 +59,19 @@ template<typename T> struct serialize_as_collection<std::vector<T>>
 	}
 	static output_iterator output(std::vector<T>& v) {
 		return std::back_inserter(v);
+	}
+};
+
+template<typename T> struct serialize_as_collection<cb_queue<T>>
+	: serialize_as_stl_collection<cb_queue<T>>
+{
+	typedef typename std::back_insert_iterator<circular_buffer<T>>
+		output_iterator;
+	static void prepare(cb_queue<T>& q, int n) {
+		q.clear(); q.getBuffer().set_capacity(n);
+	}
+	static output_iterator output(cb_queue<T>& q) {
+		return std::back_inserter(q.getBuffer());
 	}
 };
 

@@ -6,8 +6,8 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
+#include "circular_buffer.hh"
 #include <cstdio>
-#include <deque>
 #include <memory>
 
 namespace openmsx {
@@ -47,7 +47,7 @@ private:
 	Scheduler& scheduler;
 	Thread thread;
 	FILE* file;
-	std::deque<byte> queue;
+	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 
 	const std::unique_ptr<FilenameSetting> readFilenameSetting;

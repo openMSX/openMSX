@@ -3,8 +3,8 @@
 
 #include "NowindInterface.hh"
 #include "DiskImageUtils.hh"
+#include "circular_buffer.hh"
 #include "openmsx.hh"
-#include <deque>
 #include <vector>
 #include <string>
 #include <memory>
@@ -104,7 +104,7 @@ private:
 
 	const NowindInterface::Drives& drives;
 
-	std::deque<byte> hostToMsxFifo;
+	cb_queue<byte> hostToMsxFifo;
 
 	struct {
 		std::unique_ptr<std::fstream> fs; // not in use when fs == nullptr
