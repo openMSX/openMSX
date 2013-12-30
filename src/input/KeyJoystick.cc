@@ -18,10 +18,10 @@ class KeyJoyState : public StateChange
 {
 public:
 	KeyJoyState() {} // for serialize
-	KeyJoyState(EmuTime::param time, const string& name_,
+	KeyJoyState(EmuTime::param time, string name_,
 	            byte press_, byte release_)
 		: StateChange(time)
-		, name(name_), press(press_), release(release_) {}
+		, name(std::move(name_)), press(press_), release(release_) {}
 	const string& getName() const { return name; }
 	byte getPress()   const { return press; }
 	byte getRelease() const { return release; }

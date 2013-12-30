@@ -66,13 +66,12 @@ static void initTable(const int16_t* slots, int16_t* output)
 		0, 1, 16, 24, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
 	};
 
-	for (int i = 0; i < NUM_DELTAS; ++i) {
-		int step = delta[i];
+	for (auto step : delta) {
 		int p = 0;
 		while (slots[p] < step) ++p;
-		for (int j = 0; j < TICKS; ++j) {
-			if ((slots[p] - j) < step) ++p;
-			assert((slots[p] - j) >= step);
+		for (int i = 0; i < TICKS; ++i) {
+			if ((slots[p] - i) < step) ++p;
+			assert((slots[p] - i) >= step);
 			*output++ = slots[p];
 		}
 	}

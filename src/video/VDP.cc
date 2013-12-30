@@ -100,11 +100,11 @@ public:
 	virtual int calc(const EmuTime& time) const = 0;
 
 protected:
-	VDPInfo(VDP& vdp_, const string& name, const string& helpText_)
+	VDPInfo(VDP& vdp_, const string& name, string helpText_)
 		: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
 			    vdp_.getName() + '_' + name)
 		, vdp(vdp_)
-		, helpText(helpText_) {}
+		, helpText(std::move(helpText_)) {}
 
 	VDP& vdp;
 	const string helpText;
@@ -347,8 +347,8 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	for (int i = 0; i < 32; i++) {
-		controlRegs[i] = 0;
+	for (auto& reg : controlRegs) {
+		reg = 0;
 	}
 	if (version == TMS9929A) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.

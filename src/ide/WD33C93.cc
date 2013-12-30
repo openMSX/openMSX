@@ -134,10 +134,8 @@ WD33C93::WD33C93(const DeviceConfig& config)
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
-	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		if (!dev[i]) {
-			dev[i] = make_unique<DummySCSIDevice>();
-		}
+	for (auto& d : dev) {
+		if (!d) d = make_unique<DummySCSIDevice>();
 	}
 	reset(false);
 
@@ -458,8 +456,8 @@ void WD33C93::reset(bool scsireset)
 	phase = SCSI::BUS_FREE;
 	bufIdx  = 0;
 	if (scsireset) {
-		for (unsigned i = 0; i < MAX_DEV; ++i) {
-			dev[i]->reset();
+		for (auto& d : dev) {
+			d->reset();
 		}
 	}
 }

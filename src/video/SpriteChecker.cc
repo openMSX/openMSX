@@ -450,7 +450,7 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		// any influence on the MSX state. So the effect of not
 		// serializing these two is that no sprites will be shown in the
 		// first (partial) frame after loadstate.
-		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
+		for (auto& c : spriteCount) c = 0;
 		// content of spriteBuffer[] doesn't matter if spriteCount[] is 0
 	}
 	ar.serialize("collisionX", collisionX);

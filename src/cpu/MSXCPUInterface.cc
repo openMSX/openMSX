@@ -180,8 +180,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 			}
 		}
 	}
-	for (int page = 0; page < 4; ++page) {
-		visibleDevices[page] = dummyDevice.get();
+	for (auto& dev : visibleDevices) {
+		dev = dummyDevice.get();
 	}
 
 	// initially allow all regions to be cached
@@ -519,11 +519,10 @@ void MSXCPUInterface::registerSlot(
 		// partial page
 		if (slot == dummyDevice.get()) {
 			// first
-			MSXMultiMemDevice* multi =
-				new MSXMultiMemDevice(device.getHardwareConfig());
+			auto* multi = new MSXMultiMemDevice(device.getHardwareConfig());
 			multi->add(device, base, size);
 			slot = multi;
-		} else if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+		} else if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 			// second or more
 			assert(multi->canAdd(base, size));
 			multi->add(device, base, size);
@@ -540,7 +539,7 @@ void MSXCPUInterface::unregisterSlot(
 {
 	int page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
-	if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+	if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
 		multi->remove(device, base, size);
 		if (multi->empty()) {
@@ -639,8 +638,8 @@ void MSXCPUInterface::updateVisible(int page)
 
 void MSXCPUInterface::reset()
 {
-	for (int i = 0; i < 4; ++i) {
-		subSlotRegister[i] = 0;
+	for (auto& reg : subSlotRegister) {
+		reg = 0;
 	}
 	setPrimarySlots(0);
 }

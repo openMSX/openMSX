@@ -95,7 +95,7 @@ class AfterInputEventCmd : public AfterCmd
 {
 public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
-	                   const AfterCommand::EventPtr& event,
+	                   AfterCommand::EventPtr event,
 	                   const TclObject& command);
 	virtual string getType() const;
 	AfterCommand::EventPtr getEvent() const { return event; }
@@ -434,8 +434,8 @@ struct AfterEmuTimePred {
 };
 
 struct AfterInputEventPred {
-	AfterInputEventPred(const AfterCommand::EventPtr& event_)
-		: event(event_) {}
+	AfterInputEventPred(AfterCommand::EventPtr event_)
+		: event(std::move(event_)) {}
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterInputEventCmd*>(x.get())) {
 			if (cmd->getEvent()->matches(*event)) return false;
@@ -615,10 +615,10 @@ string AfterEventCmd<T>::getType() const
 
 AfterInputEventCmd::AfterInputEventCmd(
 		AfterCommand& afterCommand,
-		const AfterCommand::EventPtr& event_,
+		AfterCommand::EventPtr event_,
 		const TclObject& command)
 	: AfterCmd(afterCommand, command)
-	, event(event_)
+	, event(std::move(event_))
 {
 }
 

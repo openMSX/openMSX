@@ -76,8 +76,8 @@ void MSXMapperIO::reset(EmuTime::param /*time*/)
 	// TODO in what state is mapper after reset?
 	// Zeroed is most likely.
 	// To find out for real, insert an external memory mapper on an MSX1.
-	for (unsigned i = 0; i < 4; ++i) {
-		registers[i] = 0;
+	for (auto& reg : registers) {
+		reg = 0;
 	}
 }
 

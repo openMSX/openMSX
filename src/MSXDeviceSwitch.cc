@@ -11,8 +11,8 @@ namespace openmsx {
 MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 	: MSXDevice(config)
 {
-	for (int i = 0; i < 256; ++i) {
-		devices[i] = nullptr;
+	for (auto& dev : devices) {
+		dev = nullptr;
 	}
 	count = 0;
 	selected = 0;
@@ -20,9 +20,9 @@ MSXDeviceSwitch::MSXDeviceSwitch(const DeviceConfig& config)
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
-	for (int i = 0; i < 256; ++i) {
+	for (auto& dev : devices) {
 		// all devices must be unregistered
-		assert(!devices[i]);
+		assert(!dev);
 	}
 	assert(count == 0);
 }

@@ -34,9 +34,9 @@ namespace openmsx {
 class CliCommandEvent : public Event
 {
 public:
-	CliCommandEvent(const string& command_, const CliConnection* id_)
+	CliCommandEvent(string command_, const CliConnection* id_)
 		: Event(OPENMSX_CLICOMMAND_EVENT)
-		, command(command_), id(id_)
+		, command(std::move(command_)), id(id_)
 	{
 	}
 	const string& getCommand() const
@@ -83,8 +83,8 @@ CliConnection::CliConnection(CommandController& commandController_,
 	parser_context = xmlCreatePushParserCtxt(
 		&sax_handler, &user_data, nullptr, 0, nullptr);
 
-	for (int i = 0; i < CliComm::NUM_UPDATES; ++i) {
-		updateEnabled[i] = false;
+	for (auto& en : updateEnabled) {
+		en = false;
 	}
 
 	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);

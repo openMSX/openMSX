@@ -541,8 +541,8 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	if (!needAlphaChannel) amask = 0;
 	SDLSurfacePtr tmp32(abs(width), abs(height), 32,
 	                    rmask, gmask, bmask, amask);
-	for (int i = 0; i < 4; ++i) {
-		rgba[i] = convertColor(*tmp32->format, rgba[i]);
+	for (auto& c : rgba) {
+		c = convertColor(*tmp32->format, c);
 	}
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);

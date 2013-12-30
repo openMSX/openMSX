@@ -4,6 +4,7 @@
 #include "RomTypes.hh"
 #include "string_ref.hh"
 #include <vector>
+#include <utility>
 
 namespace openmsx {
 
@@ -20,7 +21,7 @@ public:
 		, company (company_)
 		, country (country_)
 		, origType(origType_)
-		, remark  (remark_)
+		, remark  (std::move(remark_))
 		, romType(romType_)
 		, genMSXid(genMSXid_)
 		, original(original_)

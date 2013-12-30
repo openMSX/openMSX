@@ -87,8 +87,8 @@ I8254::~I8254()
 
 void I8254::reset(EmuTime::param time)
 {
-	for (int i = 0; i < 3; ++i) {
-		counter[i]->reset(time);
+	for (auto& c : counter) {
+		c->reset(time);
 	}
 }
 

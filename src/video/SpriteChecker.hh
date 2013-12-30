@@ -197,7 +197,7 @@ public:
 	inline void frameStart(EmuTime::param time) {
 		frameStartTime.reset(time);
 		currentLine = 0;
-		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
+		for (auto& c : spriteCount) c = 0;
 		// TODO: Reset anything else? Does the real VDP?
 	}
 

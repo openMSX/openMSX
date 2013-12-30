@@ -1963,7 +1963,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	ASX = ADX = ANX = 0;
 	COL = ARG = CMD = 0;
 
-	AbortCmd* abort = new AbortCmd();
+	auto* abort = new AbortCmd();
 	VDPCmd* dummy = new PsetCmd<Graphic7Mode, DummyOp>();
 	for (unsigned cmd = 0x0; cmd < 0x40; ++cmd) {
 		for (unsigned mode = 0; mode < 4; ++mode) {

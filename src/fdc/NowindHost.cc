@@ -168,8 +168,8 @@ void NowindHost::write(byte data, unsigned time)
 
 void NowindHost::msxReset()
 {
-	for (unsigned i = 0; i < MAX_DEVICES; ++i) {
-		devices[i].fs.reset();
+	for (auto& dev : devices) {
+		dev.fs.reset();
 	}
 	DBERR("MSX reset\n");
 }
