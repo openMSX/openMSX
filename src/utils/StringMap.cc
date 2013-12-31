@@ -1,18 +1,5 @@
 #include "StringMap.hh"
-
-// Hash function for strings
-//  Fowler / Noll / Vo (FNV-1a) Hash
-//  http://www.isthe.com/chongo/tech/comp/fnv/
-static inline unsigned hashString(string_ref str)
-{
-	unsigned hash = 2166136261u;
-	for (unsigned i = 0; i < str.size(); ++i) {
-		hash ^= str[i];
-		hash *= 16777619;
-	}
-	return hash;
-}
-
+#include "xxhash.hh"
 
 StringMapImpl::StringMapImpl(unsigned itemSize_, unsigned initSize)
 	: itemSize(itemSize_)
@@ -54,7 +41,7 @@ unsigned StringMapImpl::lookupBucketFor(string_ref name)
 	if (numBuckets == 0) { // Hash table unallocated so far?
 		init(16);
 	}
-	unsigned fullHashValue = hashString(name);
+	unsigned fullHashValue = xxhash(name);
 	unsigned bucketNo = fullHashValue & (numBuckets - 1);
 	unsigned* hashTable = getHashTable();
 
@@ -98,7 +85,7 @@ int StringMapImpl::findKey(string_ref key) const
 {
 	if (numBuckets == 0) return -1;
 
-	unsigned fullHashValue = hashString(key);
+	unsigned fullHashValue = xxhash(key);
 	unsigned bucketNo = fullHashValue & (numBuckets - 1);
 	unsigned* hashTable = getHashTable();
 

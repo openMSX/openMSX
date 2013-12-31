@@ -43,6 +43,7 @@ HDR_ONLY:= \
 	utf8_unchecked \
 	aligned cstdiop direntp statp stringsp unistdp vla win32-arggen \
 	countof \
-	xrange
+	xrange \
+	xxhash
 
 include build/node-end.mk
