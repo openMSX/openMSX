@@ -137,7 +137,7 @@ proc disasm {{address -1} {num 8}} {
 	for {set i 0} {$i < int($num)} {incr i} {
 		set l [debug disasm $address]
 		append result [format "%04X  %s\n" $address [join $l]]
-		set address [expr {$address + [llength $l] - 1}]
+		set address [expr {($address + [llength $l] - 1) & 0xFFFF}]
 	}
 	return $result
 }
