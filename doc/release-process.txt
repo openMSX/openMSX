@@ -28,7 +28,9 @@ Note: An alternative approach would be to create a branch dedicated to the
 Creating a release candidate
 ----------------------------
 
-- Update the release date in the release notes.
+- Update the release date in "doc/release-notes.txt" and
+  "doc/release-history.txt".
+- Don't forget to commit and push all these last changes before tagging!
 - Tag the git archive:
   git tag -a RELEASE_1_2_3 -m "Tagging release 1.2.3."
   git push --tags

@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.10.0 (2013-12-27)
+Release Notes for openMSX 0.10.0 (2014-01-05)
 =============================================
 
 This release adds many larger and smaller features, but most outstanding are:
