@@ -11,6 +11,7 @@ FilenameSetting::FilenameSetting(
 	: Setting(commandController, name, description,
 	          initialValue.str(), Setting::SAVE)
 {
+	init();
 }
 
 string_ref FilenameSetting::getTypeString() const

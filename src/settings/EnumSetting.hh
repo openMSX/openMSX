@@ -66,6 +66,7 @@ EnumSetting<T>::EnumSetting(
 	setChecker([this](TclObject& newValue) {
 		fromStringBase(newValue.getString()); // may throw
 	});
+	init();
 }
 
 template<typename T>

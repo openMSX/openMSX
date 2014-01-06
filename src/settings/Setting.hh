@@ -151,6 +151,7 @@ protected:
 	Setting(CommandController& commandController,
 	        string_ref name, string_ref description,
 	        const std::string& initialValue, SaveSetting save = SAVE);
+	void init();
 	void notifyPropertyChange() const;
 
 private:

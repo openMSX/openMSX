@@ -47,7 +47,10 @@ Setting::Setting(CommandController& commandController_,
 	, save(save_)
 {
 	checkFunc = [](TclObject&) { /* nothing */ };
+}
 
+void Setting::init()
+{
 	if (needLoadSave()) {
 		auto& settingsConfig = getGlobalCommandController()
 			.getSettingsConfig().getXMLElement();

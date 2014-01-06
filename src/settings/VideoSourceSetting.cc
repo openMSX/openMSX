@@ -15,6 +15,7 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	setChecker([this](TclObject& newValue) {
 		checkSetValue(newValue.getString()); // may throw
 	});
+	init();
 }
 
 void VideoSourceSetting::checkSetValue(string_ref value) const

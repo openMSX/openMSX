@@ -16,6 +16,7 @@ ReadOnlySetting::ReadOnlySetting(
 			throw MSXException("Read-only setting");
 		}
 	});
+	init();
 }
 
 void ReadOnlySetting::setReadOnlyValue(const std::string& value)
