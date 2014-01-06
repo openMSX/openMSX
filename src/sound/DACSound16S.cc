@@ -29,7 +29,7 @@ void DACSound16S::reset(EmuTime::param time)
 	writeDAC(0, time);
 }
 
-void DACSound16S::writeDAC(short value, EmuTime::param time)
+void DACSound16S::writeDAC(int16_t value, EmuTime::param time)
 {
 	int delta = value - lastWrittenValue;
 	if (delta == 0) return;
@@ -63,7 +63,7 @@ void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
 	// Note: It's ok to NOT serialize a DAC object if you call the
 	//       writeDAC() method in some other way during de-serialization.
 	//       This is for example done in MSXPPI/KeyClick.
-	short lastValue = lastWrittenValue;
+	int16_t lastValue = lastWrittenValue;
 	ar.serialize("lastValue", lastValue);
 	if (ar.isLoader()) {
 		writeDAC(lastValue, getHostSampleClock().getTime());

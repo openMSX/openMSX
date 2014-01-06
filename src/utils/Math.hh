@@ -7,18 +7,7 @@
 #include <cmath>
 
 namespace openmsx {
-
-#ifdef _MSC_VER
-	// C99 math functions missing from VC++'s CRT as of 2008
-	// TODO - define HAVE_C99MATHOPS instead
-	long lrint(double x);
-	long lrintf(float x);
-	float truncf(float x);
-	double round(double x);
-#endif
-
 namespace Math {
-
 
 /** Is the given number an integer power of 2?
   * Not correct for zero (according to this test 0 is a power of 2).
@@ -219,7 +208,6 @@ inline unsigned countLeadingZeros(unsigned x)
 }
 
 } // namespace Math
-
 } // namespace openmsx
 
 #endif // MATH_HH

@@ -5,6 +5,7 @@
 
 #include "SoundDevice.hh"
 #include "BlipBuffer.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -16,7 +17,7 @@ public:
 	virtual ~DACSound16S();
 
 	void reset(EmuTime::param time);
-	void writeDAC(short value, EmuTime::param time);
+	void writeDAC(int16_t value, EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -29,7 +30,7 @@ private:
 	                          EmuTime::param time);
 
 	BlipBuffer blip;
-	short lastWrittenValue;
+	int16_t lastWrittenValue;
 };
 
 } // namespace openmsx

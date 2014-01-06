@@ -7,6 +7,7 @@
 #include "components.hh"
 #include "memory.hh"
 #include <cassert>
+#include <cmath>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif
