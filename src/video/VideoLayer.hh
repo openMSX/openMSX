@@ -6,6 +6,7 @@
 #include "MSXEventListener.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <string>
 
 namespace openmsx {
 
