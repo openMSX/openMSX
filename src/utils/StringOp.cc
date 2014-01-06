@@ -2,7 +2,7 @@
 #include "MSXException.hh"
 #include <algorithm>
 #include <limits>
-#include "cstdlibp.hh"
+#include <cstdlib>
 #include <cassert>
 
 using std::advance;

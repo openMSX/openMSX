@@ -42,7 +42,7 @@ HDR_ONLY:= \
 	DivModByConst \
 	utf8_core \
 	utf8_unchecked \
-	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla win32-arggen \
+	aligned cstdiop direntp statp stringsp unistdp vla win32-arggen \
 	countof \
 	xrange
 
