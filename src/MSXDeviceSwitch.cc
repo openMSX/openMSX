@@ -22,7 +22,7 @@ MSXDeviceSwitch::~MSXDeviceSwitch()
 {
 	for (auto& dev : devices) {
 		// all devices must be unregistered
-		assert(!dev);
+		assert(!dev); (void)dev;
 	}
 	assert(count == 0);
 }
