@@ -705,7 +705,7 @@ template<typename Mode> struct PointCmd : public PointBaseCmd
 void PointBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // will finish soon
@@ -740,7 +740,7 @@ void PsetBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.time = time; engine.nextAccessSlot();
 	engine.statusChangeTime = EmuTime::zero; // will finish soon
 	engine.phase = 0;
@@ -790,7 +790,7 @@ template <typename Mode> struct SrchCmd : public SrchBaseCmd
 void SrchBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	engine.ASX = engine.SX;
 	engine.time = time; engine.nextAccessSlot();
@@ -845,7 +845,7 @@ void LineBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	engine.ASX = ((engine.NX - 1) >> 1);
 	engine.ADX = engine.DX;
@@ -966,7 +966,7 @@ void LmmvBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
 	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
@@ -1100,8 +1100,8 @@ template <typename Mode>
 void LmmmBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_2_pixel<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
@@ -1253,7 +1253,7 @@ template <typename Mode>
 void LmcmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
 	vram.cmdWriteWindow.disable(time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
@@ -1315,7 +1315,7 @@ void LmmcBaseCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
 	engine.ADX = engine.DX;
@@ -1383,7 +1383,7 @@ void HmmvCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
 	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
@@ -1494,8 +1494,8 @@ template <typename Mode>
 void HmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_2_byte<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
@@ -1636,8 +1636,8 @@ template <typename Mode>
 void YmmmCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
-	vram.cmdReadWindow.setMask(0x3FFFF, -1u << 18, time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdReadWindow.setMask(0x3FFFF, ~0u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
 		// large enough so that it gets clipped
@@ -1773,7 +1773,7 @@ void HmmcCmd<Mode>::start(EmuTime::param time, VDPCmdEngine& engine)
 {
 	VDPVRAM& vram = engine.vram;
 	vram.cmdReadWindow.disable(time);
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1u << 18, time);
+	vram.cmdWriteWindow.setMask(0x3FFFF, ~0u << 18, time);
 	engine.NY &= 1023;
 	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
 	engine.ADX = engine.DX;

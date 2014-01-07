@@ -94,7 +94,7 @@ public:
 				x = minX;
 			} else if (x > maxX - 32) {
 				if (x >= maxX) continue;
-				pattern &= -1u << (32 - (maxX - x));
+				pattern &= ~0u << (32 - (maxX - x));
 			}
 			// Convert pattern to pixels.
 			Pixel* p = &pixelPtr[x];

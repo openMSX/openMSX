@@ -70,7 +70,7 @@ void CharacterConverter<Pixel>::renderText1(
 	unsigned nameStart = (line / 8) * 40;
 	unsigned nameEnd = nameStart + 40;
 	for (unsigned name = nameStart; name < nameEnd; ++name) {
-		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (-1u << 12));
+		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned pattern = patternArea[charcode * 8];
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
@@ -89,7 +89,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
 
-	unsigned patternBaseLine = (-1u << 13) | ((line + vdp.getVerticalScroll()) & 7);
+	unsigned patternBaseLine = (~0u << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
 	// Note: Because line width is not a power of two, reading an entire line
 	//       from a VRAM pointer returned by readArea will not wrap the index
@@ -98,7 +98,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 	unsigned nameEnd = nameStart + 40;
 	unsigned patternQuarter = (line & 0xC0) << 2;
 	for (unsigned name = nameStart; name < nameEnd; ++name) {
-		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (-1u << 12));
+		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned patternNr = patternQuarter | charcode;
 		unsigned pattern = vram.patternTable.readNP(
 			patternBaseLine | (patternNr * 8));
@@ -136,9 +136,9 @@ void CharacterConverter<Pixel>::renderText2(
 	unsigned nameStart  = (line / 8) * 80;
 	for (unsigned i = 0; i < (80 / 8); ++i) {
 		unsigned colorPattern = vram.colorTable.readNP(
-			(colorStart + i) | (-1u << 9));
+			(colorStart + i) | (~0u << 9));
 		const byte* nameArea = vram.nameTable.getReadArea(
-			(nameStart + 8 * i) | (-1u << 12), 8);
+			(nameStart + 8 * i) | (~0u << 12), 8);
 
 		Pixel fg0 = (colorPattern & 0x80) ? blinkFg : plainFg;
 		Pixel bg0 = (colorPattern & 0x80) ? blinkBg : plainBg;
@@ -273,7 +273,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	unsigned partial = *pixelPtr;
 #endif
 	int quarter = ((line / 8) * 32) & ~0xFF;
-	int baseLine = (-1u << 13) | (quarter * 8) | (line & 7);
+	int baseLine = (~0u << 13) | (quarter * 8) | (line & 7);
 
 	// pattern area is contiguous, color area not
 	const byte* patternArea = vram.patternTable.getReadArea(quarter * 8, 8 * 256);
@@ -428,7 +428,7 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMulti(
 	Pixel* __restrict pixelPtr, int line)
 {
-	int mask = (-1u << 11);
+	int mask = (~0u << 11);
 	renderMultiHelper(pixelPtr, line, mask, 0);
 }
 
@@ -436,7 +436,7 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* __restrict pixelPtr, int line)
 {
-	int mask = (-1u << 13);
+	int mask = (~0u << 13);
 	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
 	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }

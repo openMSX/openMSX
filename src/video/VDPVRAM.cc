@@ -153,7 +153,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, EmuTime::param time)
 	// Whole VRAM is cachable.
 	// Because this window has no observer, any EmuTime can be passed.
 	// TODO: Move this to cache registration.
-	bitmapCacheWindow.setMask(0x1FFFF, -1u << 17, EmuTime::zero);
+	bitmapCacheWindow.setMask(0x1FFFF, ~0u << 17, EmuTime::zero);
 }
 
 VDPVRAM::~VDPVRAM()
@@ -255,7 +255,7 @@ void VDPVRAM::setRenderer(Renderer* renderer, EmuTime::param time)
 	bitmapVisibleWindow.resetObserver();
 	// Set up bitmapVisibleWindow to full VRAM.
 	// TODO: Have VDP/Renderer set the actual range.
-	bitmapVisibleWindow.setMask(0x1FFFF, -1u << 17, time);
+	bitmapVisibleWindow.setMask(0x1FFFF, ~0u << 17, time);
 	// TODO: If it is a good idea to send an initial sync,
 	//       then call setObserver before setMask.
 	bitmapVisibleWindow.setObserver(renderer);
