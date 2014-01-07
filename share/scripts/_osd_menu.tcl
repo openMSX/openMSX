@@ -917,9 +917,7 @@ proc menu_create_stretch_list {} {
 proc menu_stretch_exec {value} {
 	set ::horizontal_stretch $value
 	menu_close_top
-	# refresh the video settings menu
-	menu_close_top
-	menu_create $osd_menu::video_setting_menu
+	menu_refresh_top
 }
 
 proc menu_create_load_machine_list {{mode "replace"}} {
