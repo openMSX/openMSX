@@ -75,7 +75,7 @@ static inline uint32_t read32(const uint8_t* ptr)
 
 
 template<bool ALIGNED, uint8_t MASK8 = 0xFF, uint32_t SEED = 0>
-static inline uint32_t xxhash_impl(const uint8_t* p, uint32_t size)
+static inline uint32_t xxhash_impl(const uint8_t* p, size_t size)
 {
 	static const uint32_t MASK32 = MASK8 * 0x01010101U;
 
@@ -107,7 +107,7 @@ static inline uint32_t xxhash_impl(const uint8_t* p, uint32_t size)
 		h32  = SEED + PRIME32_5;
 	}
 
-	h32 += size;
+	h32 += uint32_t(size);
 
 	while (p <= bEnd - 4) {
 		uint32_t r = (read32<ALIGNED>(p) & MASK32) * PRIME32_3;
