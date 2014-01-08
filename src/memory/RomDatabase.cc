@@ -99,7 +99,6 @@ private:
 	string_ref systemID;
 	string_ref type;
 	string_ref startVal;
-	string_ref algo;
 
 	vector<Dump> dumps;
 	string_ref system;
@@ -244,7 +243,6 @@ void DBParser::start(string_ref tag)
 			break;
 		case 'h':
 			if (tag == "ash") {
-				algo.clear();
 				state = HASH;
 				return;
 			}
@@ -292,10 +290,6 @@ void DBParser::attribute(string_ref name, string_ref value)
 		}
 		break;
 	case HASH:
-		if (name == "algo") {
-			algo = value;
-		}
-		break;
 	case BEGIN:
 	case SOFTWAREDB:
 	case SOFTWARE:
@@ -356,9 +350,7 @@ void DBParser::text(string_ref text)
 		startVal = text;
 		break;
 	case HASH:
-		if (algo == "sha1") {
-			dumps.back().hash = Sha1Sum(text);
-		}
+		dumps.back().hash = Sha1Sum(text);
 		break;
 	case DUMP_REMARK:
 	case DUMP_TEXT:
