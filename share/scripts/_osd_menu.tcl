@@ -1160,6 +1160,7 @@ proc menu_plug_exec {connector pluggable} {
 	} else {
 		menu_close_top
 		# refresh the connectors menu
+		# The list must be recreated, so menu_refresh_top won't work
 		menu_close_top
 		menu_create [menu_create_connectors_list]
 	}
