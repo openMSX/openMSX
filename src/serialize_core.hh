@@ -110,7 +110,7 @@ template<typename T> struct serialize_as_enum_impl : std::true_type {
 			if (p->e == t) return p->str;
 			++p;
 		}
-		UNREACHABLE; return {};
+		UNREACHABLE; return "";
 	}
 	T fromString(const std::string& str) const {
 		auto* p = info;

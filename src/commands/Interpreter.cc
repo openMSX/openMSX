@@ -389,7 +389,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		if (flags & TCL_TRACE_WRITES) {
 			try {
 				const char* v = getVar(interp, part1);
-				string newValue = v ? v : string();
+				string newValue = v ? v : "";
 				variable->setStringDirect(newValue);
 				string newValue2 = variable->getString();
 				if (newValue != newValue2) {

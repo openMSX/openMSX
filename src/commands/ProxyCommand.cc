@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 ProxyCmd::ProxyCmd(CommandController& controller, Reactor& reactor_)
-	: Command(controller, {})
+	: Command(controller, "")
 	, reactor(reactor_)
 {
 }

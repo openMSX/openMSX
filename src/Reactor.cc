@@ -402,7 +402,7 @@ MSXMotherBoard* Reactor::getMotherBoard() const
 
 string Reactor::getMachineID() const
 {
-	return activeBoard ? activeBoard->getMachineID() : string();
+	return activeBoard ? activeBoard->getMachineID() : "";
 }
 
 vector<string_ref> Reactor::getMachineIDs() const
@@ -729,7 +729,7 @@ QuitCommand::QuitCommand(CommandController& commandController,
 string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
 	distributor.distributeEvent(make_shared<QuitEvent>());
-	return {};
+	return "";
 }
 
 string QuitCommand::help(const vector<string>& /*tokens*/) const
@@ -793,7 +793,7 @@ string TestMachineCommand::execute(const vector<string>& tokens)
 	try {
 		MSXMotherBoard mb(reactor);
 		mb.loadMachine(tokens[1]);
-		return {}; // success
+		return ""; // success
 	} catch (MSXException& e) {
 		return e.getMessage(); // error
 	}
@@ -860,7 +860,7 @@ string DeleteMachineCommand::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	reactor.deleteBoard(&reactor.getMachine(tokens[1]));
-	return {};
+	return "";
 }
 
 string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -1004,7 +1004,7 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 		// load last saved entry
 		struct stat st;
 		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
-		string lastEntry;
+		string lastEntry = "";
 		time_t lastTime = 0;
 		ReadDir dir(dirName);
 		while (dirent* d = dir.getEntry()) {
@@ -1017,7 +1017,7 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 				}
 			}
 		}
-		if (lastEntry.empty()) {
+		if (lastEntry == "") {
 			throw CommandException("Can't find last saved state.");
 		}
 		filename = dirName + lastEntry;

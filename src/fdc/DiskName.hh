@@ -8,7 +8,7 @@ namespace openmsx {
 class DiskName
 {
 public:
-	DiskName(const Filename& name, const std::string& extra = {});
+	DiskName(const Filename& name, const std::string& extra = "");
 
 	std::string getOriginal() const;
 	std::string getResolved() const;

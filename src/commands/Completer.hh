@@ -94,7 +94,7 @@ void Completer::completeString(
 	if (completeImpl(str,
 	                 filter(str, possibleValues, caseSensitive),
 	                 caseSensitive)) {
-		tokens.emplace_back();
+		tokens.push_back("");
 	}
 }
 

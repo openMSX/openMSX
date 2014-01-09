@@ -9,7 +9,7 @@ namespace openmsx {
 MSXKanji::MSXKanji(const DeviceConfig& config)
 	: MSXDevice(config)
 	, rom(make_unique<Rom>(getName(), "Kanji ROM", config))
-	, isLascom(config.getChildData("type", {}) == "lascom")
+	, isLascom(config.getChildData("type", "") == "lascom")
 {
 	int size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {

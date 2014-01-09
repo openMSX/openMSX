@@ -4,7 +4,7 @@
 namespace openmsx {
 
 OSDTopWidget::OSDTopWidget()
-	: OSDWidget({})
+	: OSDWidget("")
 {
 }
 

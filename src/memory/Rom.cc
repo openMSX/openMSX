@@ -44,13 +44,13 @@ private:
 
 
 Rom::Rom(const string& name_, const string& description_,
-         const DeviceConfig& config, const string& id /*= {}*/)
+         const DeviceConfig& config, const string& id /*= ""*/)
 	: name(name_), description(description_)
 {
 	// Try all <rom> tags with matching "id" attribute.
 	string errors;
 	for (auto& c : config.getXML()->getChildren("rom")) {
-		if (c->getAttribute("id", {}) == id) {
+		if (c->getAttribute("id", "") == id) {
 			try {
 				init(config.getMotherBoard(), *c, config.getFileContext());
 				return;
@@ -337,7 +337,7 @@ Rom::~Rom()
 
 string Rom::getFilename() const
 {
-	return file ? file->getURL() : string();
+	return file ? file->getURL() : "";
 }
 
 const string& Rom::getName() const

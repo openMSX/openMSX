@@ -28,11 +28,11 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"pause_on_lost_focus",
 	       "pause emulation when the openMSX window loses focus", false);
 	umrCallBackSetting = make_unique<StringSetting>(commandController,
-	        "umr_callback", "Tcl proc to call when an UMR is detected", string_ref());
+	        "umr_callback", "Tcl proc to call when an UMR is detected", "");
 	invalidPsgDirectionsSetting = make_unique<StringSetting>(commandController,
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
-		string_ref());
+		"");
 	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap = {
 		{ "hq",   ResampledSoundDevice::RESAMPLE_HQ },
 		{ "fast", ResampledSoundDevice::RESAMPLE_LQ },

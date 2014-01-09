@@ -83,7 +83,7 @@ void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 	} else {
 		prevValues[type][name] = value.str();
 	}
-	updateHelper(type, {}, name, value);
+	updateHelper(type, "", name, value);
 }
 
 void GlobalCliComm::updateHelper(UpdateType type, string_ref machine,

@@ -247,7 +247,7 @@ void HD::serialize(Archive& ar, unsigned version)
 
 		if (ar.versionAtLeast(version, 2)) {
 			// use tiger-tree-hash
-			string oldTiger = ar.isLoader() ? string() : getTigerTreeHash();
+			string oldTiger = ar.isLoader() ? "" : getTigerTreeHash();
 			ar.serialize("tthsum", oldTiger);
 			if (ar.isLoader()) {
 				string newTiger = getTigerTreeHash();
@@ -260,7 +260,7 @@ void HD::serialize(Archive& ar, unsigned version)
 				oldChecksum = getSha1Sum();
 			}
 			string oldChecksumStr = oldChecksum.empty()
-					      ? string()
+					      ? ""
 					      : oldChecksum.toString();
 			ar.serialize("checksum", oldChecksumStr);
 			oldChecksum = oldChecksumStr.empty()

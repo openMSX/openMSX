@@ -47,7 +47,7 @@ public:
 class UserFileContext : public FileContext
 {
 public:
-	explicit UserFileContext(string_ref savePath = {});
+	explicit UserFileContext(string_ref savePath = "");
 };
 
 class UserDataFileContext : public FileContext

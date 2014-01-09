@@ -228,7 +228,7 @@ SettingCompleter::SettingCompleter(
 
 string SettingCompleter::help(const vector<string>& /*tokens*/) const
 {
-	return {}; // TODO
+	return ""; // TODO
 }
 
 void SettingCompleter::tabCompletion(vector<string>& tokens) const

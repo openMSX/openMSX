@@ -35,7 +35,7 @@ std::string MessageCommand::execute(const std::vector<std::string>& tokens)
 	default:
 		throw SyntaxError();
 	}
-	return {};
+	return "";
 }
 
 std::string MessageCommand::help(const std::vector<std::string>& /*tokens*/) const

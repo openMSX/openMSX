@@ -17,7 +17,7 @@ MSXPSG::MSXPSG(const DeviceConfig& config)
 	, cassette(getMotherBoard().getCassettePort())
 	, renShaTurbo(getMotherBoard().getRenShaTurbo())
 	, prev(255)
-	, keyLayoutBit(config.getChildData("keyboardlayout", {}) == "JIS")
+	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
 {
 	selectedPort = 0;
 	ports[0] = &getMotherBoard().getJoystickPort(0);

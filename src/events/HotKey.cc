@@ -626,7 +626,7 @@ string UnbindCmd::execute(const vector<string>& tokens_)
 			hotKey.unbindFullLayer(layer);
 		}
 	}
-	return {};
+	return "";
 }
 string UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
@@ -699,7 +699,7 @@ string DeactivateCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	hotKey.deactivateLayer(tokens[1]);
-	return {};
+	return "";
 }
 
 string DeactivateCmd::help(const vector<string>& /*tokens*/) const
