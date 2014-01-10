@@ -334,7 +334,7 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 void XmlOutputArchive::beginTag(const char* tag)
 {
 	assert(!current.empty());
-	auto& elem = current.back()->addChild(XMLElement(tag));
+	auto& elem = current.back()->addChild(tag);
 	current.push_back(&elem);
 }
 void XmlOutputArchive::endTag(const char* tag)

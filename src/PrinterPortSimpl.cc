@@ -36,8 +36,7 @@ void PrinterPortSimpl::writeData(byte data, EmuTime::param time)
 static XMLElement createXML()
 {
 	XMLElement xml("simpl");
-	xml.addChild(XMLElement("sound"))
-	       .addChild(XMLElement("volume", "12000"));
+	xml.addChild("sound").addChild("volume", "12000");
 	return xml;
 }
 

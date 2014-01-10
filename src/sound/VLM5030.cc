@@ -579,14 +579,13 @@ VLM5030::Impl::Impl(const std::string& name, const std::string& desc,
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
-	XMLElement romElement("rom");
-	romElement.addChild(XMLElement( // load by sha1sum
-		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40"));
-	romElement.addChild(XMLElement( // load by predefined filename in software rom's dir
-		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom"));
-	romElement.addChild(XMLElement( // or hardcoded filename in ditto dir
-		"filename", "keyboardmaster/voice.rom"));
-	voiceROMconfig.addChild(std::move(romElement));
+	auto& romElement = voiceROMconfig.addChild("rom");
+	romElement.addChild( // load by sha1sum
+		"sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40");
+	romElement.addChild( // load by predefined filename in software rom's dir
+		"filename", FileOperations::stripExtension(romFilename) + "_voice.rom");
+	romElement.addChild( // or hardcoded filename in ditto dir
+		"filename", "keyboardmaster/voice.rom");
 	rom = make_unique<Rom>(
 		name + " ROM", "rom", DeviceConfig(config, voiceROMconfig));
 

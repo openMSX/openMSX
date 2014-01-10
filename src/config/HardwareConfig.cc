@@ -52,7 +52,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	const auto& sramfile = FileOperations::getFilename(romfile);
 	auto context = make_unique<UserFileContext>("roms/" + sramfile);
 
-	vector<string> ipsfiles;
+	vector<string_ref> ipsfiles;
 	string mapper;
 
 	bool romTypeOptionFound = false;
@@ -88,39 +88,28 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 
 	XMLElement extension("extension");
-	XMLElement devices("devices");
-	XMLElement primary("primary");
+	auto& devices = extension.addChild("devices");
+	auto& primary = devices.addChild("primary");
 	primary.addAttribute("slot", slotname);
-	XMLElement secondary("secondary");
+	auto& secondary = primary.addChild("secondary");
 	secondary.addAttribute("slot", slotname);
-	XMLElement device("ROM");
+	auto& device = secondary.addChild("ROM");
 	device.addAttribute("id", "MSXRom");
-	XMLElement mem("mem");
+	auto& mem = device.addChild("mem");
 	mem.addAttribute("base", "0x0000");
 	mem.addAttribute("size", "0x10000");
-	device.addChild(move(mem));
-	XMLElement rom("rom");
-	rom.addChild(XMLElement("resolvedFilename", resolvedFilename));
-	rom.addChild(XMLElement("filename", romfile));
+	auto& rom = device.addChild("rom");
+	rom.addChild("resolvedFilename", resolvedFilename);
+	rom.addChild("filename", romfile);
 	if (!ipsfiles.empty()) {
-		XMLElement patches("patches");
+		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {
-			patches.addChild(XMLElement("ips", s));
+			patches.addChild("ips", s);
 		}
-		rom.addChild(move(patches));
 	}
-	device.addChild(move(rom));
-	XMLElement sound("sound");
-	sound.addChild(XMLElement("volume", "9000"));
-	device.addChild(move(sound));
-	device.addChild(XMLElement(
-		"mappertype", mapper.empty() ? "auto" : mapper));
-	device.addChild(XMLElement("sramname", sramfile + ".SRAM"));
-
-	secondary.addChild(move(device));
-	primary.addChild(move(secondary));
-	devices.addChild(move(primary));
-	extension.addChild(move(devices));
+	device.addChild("sound").addChild("volume", "9000");
+	device.addChild("mappertype", mapper.empty() ? "auto" : mapper);
+	device.addChild("sramname", sramfile + ".SRAM");
 
 	result->setConfig(move(extension));
 	result->setName(romfile);

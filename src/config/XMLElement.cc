@@ -25,7 +25,7 @@ XMLElement::XMLElement(string_ref name_, string_ref data_)
 {
 }
 
-XMLElement& XMLElement::addChild(XMLElement child)
+XMLElement& XMLElement::addChild(XMLElement&& child)
 {
 	// Mixed-content elements are not supported by this class. In the past
 	// we had a 'assert(data.empty())' here to enforce this, though that
@@ -36,6 +36,17 @@ XMLElement& XMLElement::addChild(XMLElement child)
 	// ignored when this node is later written to disk. In the case of
 	// settings.xml this behaviour is fine.
 	children.push_back(std::move(child));
+	return children.back();
+}
+
+XMLElement& XMLElement::addChild(string_ref name)
+{
+	children.emplace_back(name);
+	return children.back();
+}
+XMLElement& XMLElement::addChild(string_ref name, string_ref data)
+{
+	children.emplace_back(name, data);
 	return children.back();
 }
 
@@ -196,7 +207,7 @@ XMLElement& XMLElement::getCreateChild(string_ref name,
 	if (auto* result = findChild(name)) {
 		return *result;
 	}
-	return addChild(XMLElement(name, defaultValue));
+	return addChild(name, defaultValue);
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
@@ -206,7 +217,7 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	if (auto* result = findChildWithAttribute(name, attName, attValue)) {
 		return *result;
 	}
-	auto& result = addChild(XMLElement(name));
+	auto& result = addChild(name);
 	result.addAttribute(attName, attValue);
 	return result;
 }
@@ -240,7 +251,7 @@ void XMLElement::setChildData(string_ref name, string_ref value)
 	if (auto* child = findChild(name)) {
 		child->setData(value);
 	} else {
-		addChild(XMLElement(name, value));
+		addChild(name, value);
 	}
 }
 

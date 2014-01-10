@@ -259,18 +259,16 @@ void HotKey::saveBindings(XMLElement& config) const
 		auto it2 = cmdMap.find(k);
 		assert(it2 != cmdMap.end());
 		auto& info = it2->second;
-		XMLElement elem("bind", info.command);
+		auto& elem = bindingsElement.addChild("bind", info.command);
 		elem.addAttribute("key", k->toString());
 		if (info.repeat) {
 			elem.addAttribute("repeat", "true");
 		}
-		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
 	for (auto& k : unboundKeys) {
-		XMLElement elem("unbind");
+		auto& elem = bindingsElement.addChild("unbind");
 		elem.addAttribute("key", k->toString());
-		bindingsElement.addChild(std::move(elem));
 	}
 }
 
