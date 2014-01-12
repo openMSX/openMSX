@@ -25,6 +25,7 @@
 #include "MidiOutWindows.hh"
 #endif
 #if defined(__APPLE__)
+#include "MidiInCoreMIDI.hh"
 #include "MidiOutCoreMIDI.hh"
 #endif
 #include "memory.hh"
@@ -100,6 +101,9 @@ void PluggableFactory::createAll(PluggingController& controller,
 	MidiOutWindows::registerAll(controller);
 #endif
 #if defined(__APPLE__)
+	controller.registerPluggable(make_unique<MidiInCoreMIDIVirtual>(
+		eventDistributor, scheduler));
+	MidiInCoreMIDI::registerAll(eventDistributor, scheduler, controller);
 	controller.registerPluggable(make_unique<MidiOutCoreMIDIVirtual>());
 	MidiOutCoreMIDI::registerAll(controller);
 #endif
