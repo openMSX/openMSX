@@ -102,11 +102,12 @@ void MidiInCoreMIDI::sendByte(const MIDIPacketList *packetList,
 
 void MidiInCoreMIDI::sendByte(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
 	ScopedLock l(lock);
+	const MIDIPacket *packet = &packetList->packet[0];
 	for (UInt32 i = 0; i < packetList->numPackets; i++) {
-		const MIDIPacket *packet = &packetList->packet[i];
 		for (UInt16 j = 0; j < packet->length; j++) {
 			queue.push_back(packet->data[j]);
 		}
+		packet = MIDIPacketNext(packet);
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_EVENT));
@@ -213,11 +214,12 @@ void MidiInCoreMIDIVirtual::sendByte(const MIDIPacketList *packetList,
 
 void MidiInCoreMIDIVirtual::sendByte(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
 	ScopedLock l(lock);
+	const MIDIPacket *packet = &packetList->packet[0];
 	for (UInt32 i = 0; i < packetList->numPackets; i++) {
-		const MIDIPacket *packet = &packetList->packet[i];
 		for (UInt16 j = 0; j < packet->length; j++) {
 			queue.push_back(packet->data[j]);
 		}
+		packet = MIDIPacketNext(packet);
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT));
