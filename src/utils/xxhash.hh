@@ -145,7 +145,7 @@ uint32_t xxhash(string_ref key)
 }
 uint32_t xxhash_case(string_ref key)
 {
-	return xxhash_impl<~('a' - 'A')>(key);
+	return xxhash_impl<static_cast<uint8_t>(~('a' - 'A'))>(key);
 }
 
 #endif
