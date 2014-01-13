@@ -6,13 +6,37 @@
 #include "MidiOutDevice.hh"
 #include <CoreMIDI/MIDIServices.h>
 
+#include <vector>
+
 namespace openmsx {
 
 class PluggingController;
 
+/** Combines MIDI bytes into full MIDI messages.
+  * CoreMIDI expects full messages in packet lists.
+  */
+class MidiOutMessageBuffer : public MidiOutDevice
+{
+public:
+	// SerialDataInterface (part)
+	virtual void recvByte(byte value, EmuTime::param time) override;
+
+protected:
+	explicit MidiOutMessageBuffer();
+	void clearBuffer();
+
+	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) = 0;
+
+private:
+	void messageComplete(EmuTime::param /*time*/);
+
+	std::vector<uint8_t> message;
+	bool isSysEx;
+};
+
 /** Sends MIDI events to an existing CoreMIDI destination.
   */
-class MidiOutCoreMIDI : public MidiOutDevice
+class MidiOutCoreMIDI : public MidiOutMessageBuffer
 {
 public:
 	static void registerAll(PluggingController& controller);
@@ -23,17 +47,16 @@ public:
 	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
+	virtual void plugHelper(Connector& connector, EmuTime::param time) override;
+	virtual void unplugHelper(EmuTime::param time) override;
+	virtual const std::string& getName() const override;
+	virtual string_ref getDescription() const override;
 
-	// SerialDataInterface (part)
-	virtual void recvByte(byte value, EmuTime::param time);
+	// MidiOutMessageBuffer
+	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
-
 
 private:
 	MIDIClientRef client;
@@ -48,19 +71,19 @@ private:
   * to a MIDI output. It is similar to using an IAC bus, but doesn't require
   * prior configuration to work.
   */
-class MidiOutCoreMIDIVirtual : public MidiOutDevice
+class MidiOutCoreMIDIVirtual : public MidiOutMessageBuffer
 {
 public:
 	explicit MidiOutCoreMIDIVirtual();
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
+	virtual void plugHelper(Connector& connector, EmuTime::param time) override;
+	virtual void unplugHelper(EmuTime::param time) override;
+	virtual const std::string& getName() const override;
+	virtual string_ref getDescription() const override;
 
-	// SerialDataInterface (part)
-	virtual void recvByte(byte value, EmuTime::param time);
+	// MidiOutMessageBuffer
+	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
