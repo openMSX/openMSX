@@ -87,6 +87,14 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 			isSysEx = false;
 		} else {
 			// Replace any message in progress.
+			if (isSysEx) {
+				PRT_DEBUG("Discarding incomplete MIDI SysEx message");
+			} else if (message.size() >= 2) {
+				PRT_DEBUG("Discarding incomplete MIDI message with status "
+						"0x" << std::hex << int(message[0]) << std::dec <<
+						", at " << message.size() << " of " <<
+						midiMessageLength(message[0]) << " bytes");
+			}
 			message = { value };
 			isSysEx = value == MIDI_MSG_SYSEX;
 		}
