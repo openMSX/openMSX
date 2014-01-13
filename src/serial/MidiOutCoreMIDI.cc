@@ -96,10 +96,16 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 			          "0x" << std::hex << int(value) << std::dec);
 		} else {
 			uint8_t status = isSysEx ? MIDI_MSG_SYSEX : message[0];
+			size_t len = midiMessageLength(status);
 			message.push_back(value);
-			if (message.size() >= midiMessageLength(status)) {
+			if (message.size() >= len) {
 				messageComplete(time);
-				message.clear();
+				if (isSysEx || len <= 1) {
+					message.clear();
+				} else {
+					// Keep last status, to support running status.
+					message.resize(1);
+				}
 			}
 		}
 	}
