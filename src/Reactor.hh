@@ -30,7 +30,6 @@ class FilePool;
 class UserSettings;
 class RomDatabase;
 class TclCallbackMessages;
-class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
@@ -48,7 +47,6 @@ class RestoreMachineCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
-class GlobalSettings;
 class PollEventGenerator;
 template <typename T> class EnumSetting;
 

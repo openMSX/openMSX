@@ -1,9 +1,7 @@
 #include "CompressedFileAdapter.hh"
 #include "FileException.hh"
 #include "StringMap.hh"
-#include <cstdlib>
 #include <cstring>
-#include <cassert>
 
 using std::string;
 

@@ -1,5 +1,4 @@
 #include "LedStatus.hh"
-#include "Reactor.hh"
 #include "AlarmEvent.hh"
 #include "MSXCliComm.hh"
 #include "ReadOnlySetting.hh"

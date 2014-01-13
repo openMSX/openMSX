@@ -7,6 +7,7 @@
 #include <map>
 #include <cassert>
 #include <cstdlib>
+#include <cstdint>
 #include <new> // for std::bad_alloc
 #if ASM_X86 && defined _MSC_VER
 #include <intrin.h>	// for __stosd intrinsic

@@ -1,6 +1,5 @@
 #include "RawFrame.hh"
 #include "MemoryOps.hh"
-#include "MSXException.hh"
 #include <cstdint>
 #include <SDL.h>
 

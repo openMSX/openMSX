@@ -3,7 +3,6 @@
 
 #include "MSXDevice.hh"
 #include "I8255Interface.hh"
-#include "serialize.hh"
 #include <memory>
 
 namespace openmsx {

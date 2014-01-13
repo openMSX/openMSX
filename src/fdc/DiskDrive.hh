@@ -4,7 +4,6 @@
 #include "EmuTime.hh"
 #include "RawTrack.hh"
 #include "noncopyable.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
 

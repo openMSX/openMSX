@@ -1,10 +1,8 @@
 #include "ReplayCLI.hh"
 #include "CommandLineParser.hh"
 #include "GlobalCommandController.hh"
-#include "MSXException.hh"
 #include "TclObject.hh"
 
-using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -16,7 +14,7 @@ ReplayCLI::ReplayCLI(CommandLineParser& parser_)
 	parser.registerFileType("omr", *this);
 }
 
-void ReplayCLI::parseOption(const string& option, deque<string>& cmdLine)
+void ReplayCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 }
@@ -27,7 +25,7 @@ string_ref ReplayCLI::optionHelp() const
 }
 
 void ReplayCLI::parseFileType(const string& filename,
-                                      deque<string>& /*cmdLine*/)
+                              array_ref<string>& /*cmdLine*/)
 {
 	TclObject command(parser.getGlobalCommandController().getInterpreter());
 	command.addListElement("reverse");

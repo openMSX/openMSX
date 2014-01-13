@@ -3,7 +3,6 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
-#include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
@@ -34,10 +33,10 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
 		"");
-	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap;
-	resampleMap.push_back(std::make_pair("hq",   ResampledSoundDevice::RESAMPLE_HQ));
-	resampleMap.push_back(std::make_pair("fast", ResampledSoundDevice::RESAMPLE_LQ));
-	resampleMap.push_back(std::make_pair("blip", ResampledSoundDevice::RESAMPLE_BLIP));
+	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap = {
+		{ "hq",   ResampledSoundDevice::RESAMPLE_HQ },
+		{ "fast", ResampledSoundDevice::RESAMPLE_LQ },
+		{ "blip", ResampledSoundDevice::RESAMPLE_BLIP } };
 	resampleSetting = make_unique<EnumSetting<ResampledSoundDevice::ResampleType>>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX

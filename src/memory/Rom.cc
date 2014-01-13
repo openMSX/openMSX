@@ -21,7 +21,6 @@
 #include "sha1.hh"
 #include "memory.hh"
 #include <limits>
-#include <sstream>
 #include <cstring>
 
 using std::string;
@@ -323,9 +322,9 @@ bool Rom::checkSHA1(const XMLElement& config)
 	if (sums.empty()) {
 		return true;
 	}
-	string sha1sum = getOriginalSHA1().toString();
+	auto& sha1sum = getOriginalSHA1();
 	for (auto& s : sums) {
-		if (s->getData() == sha1sum) {
+		if (Sha1Sum(s->getData()) == sha1sum) {
 			return true;
 		}
 	}

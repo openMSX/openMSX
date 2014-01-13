@@ -1,10 +1,7 @@
 #include "InfoCommand.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
-#include "MSXCommandController.hh"
-#include "CliComm.hh"
 #include "CommandException.hh"
-#include "MSXMotherBoard.hh"
 #include "KeyRange.hh"
 #include "unreachable.hh"
 #include <iostream>

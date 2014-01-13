@@ -4,10 +4,9 @@
 #include "EventListener.hh"
 #include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
-#include "openmsx.hh"
+#include "circular_buffer.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
-#include <list>
 #include <memory>
 #include <vector>
 
@@ -128,9 +127,8 @@ private:
 	std::string prompt;
 	/** Saves Current Command to enable command recall. */
 	std::string currentLine;
-	typedef std::list<std::string> History;
-	History history;
-	History::const_iterator commandScrollBack;
+	circular_buffer<std::string> history;
+	unsigned commandScrollBack;
 	unsigned columns;
 	unsigned rows;
 	int consoleScrollBack;

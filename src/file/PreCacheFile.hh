@@ -7,8 +7,6 @@
 
 namespace openmsx {
 
-class FileBase;
-
 /**
  * Read the complete file once and discard result. Hopefully the file
  * sticks in the OS cache. Mainly useful to avoid CDROM spinups or to

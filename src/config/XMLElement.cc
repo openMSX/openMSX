@@ -4,7 +4,6 @@
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "memory.hh"
 #include "xrange.hh"
 #include <libxml/uri.h>
 #include <cassert>
@@ -26,17 +25,14 @@ XMLElement::XMLElement(string_ref name_, string_ref data_)
 {
 }
 
-XMLElement& XMLElement::addChild(XMLElement child)
+XMLElement& XMLElement::addChild(string_ref name)
 {
-	// Mixed-content elements are not supported by this class. In the past
-	// we had a 'assert(data.empty())' here to enforce this, though that
-	// assert triggered when you started openMSX without a user (but with
-	// a system) settings.xml file (the deeper reason is a harmless comment
-	// in the system version of this file).
-	// When you add child nodes to a node with data, that data will be
-	// ignored when this node is later written to disk. In the case of
-	// settings.xml this behaviour is fine.
-	children.push_back(std::move(child));
+	children.emplace_back(name);
+	return children.back();
+}
+XMLElement& XMLElement::addChild(string_ref name, string_ref data)
+{
+	children.emplace_back(name, data);
 	return children.back();
 }
 
@@ -64,7 +60,7 @@ XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name
 void XMLElement::addAttribute(string_ref name, string_ref value)
 {
 	assert(findAttribute(name) == attributes.end());
-	attributes.push_back(make_pair(name.str(), value.str()));
+	attributes.emplace_back(name.str(), value.str());
 }
 
 void XMLElement::setAttribute(string_ref name, string_ref value)
@@ -73,7 +69,7 @@ void XMLElement::setAttribute(string_ref name, string_ref value)
 	if (it != attributes.end()) {
 		it->second = value.str();
 	} else {
-		attributes.push_back(make_pair(name.str(), value.str()));
+		attributes.emplace_back(name.str(), value.str());
 	}
 }
 
@@ -197,7 +193,7 @@ XMLElement& XMLElement::getCreateChild(string_ref name,
 	if (auto* result = findChild(name)) {
 		return *result;
 	}
-	return addChild(XMLElement(name, defaultValue));
+	return addChild(name, defaultValue);
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
@@ -207,7 +203,7 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	if (auto* result = findChildWithAttribute(name, attName, attValue)) {
 		return *result;
 	}
-	auto& result = addChild(XMLElement(name));
+	auto& result = addChild(name);
 	result.addAttribute(attName, attValue);
 	return result;
 }
@@ -241,7 +237,7 @@ void XMLElement::setChildData(string_ref name, string_ref value)
 	if (auto* child = findChild(name)) {
 		child->setData(value);
 	} else {
-		addChild(XMLElement(name, value));
+		addChild(name, value);
 	}
 }
 

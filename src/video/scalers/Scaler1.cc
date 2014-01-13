@@ -1,7 +1,6 @@
 #include "Scaler1.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"
-#include "RawFrame.hh"
 #include "SuperImposeScalerOutput.hh"
 #include "vla.hh"
 #include "unreachable.hh"

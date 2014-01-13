@@ -162,7 +162,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		vector<TclObject> tokens;
 		tokens.reserve(objc);
 		for (auto i : xrange(objc)) {
-			tokens.push_back(TclObject(interp, objv[i]));
+			tokens.emplace_back(interp, objv[i]);
 		}
 		int res = TCL_OK;
 		TclObject result(interp);

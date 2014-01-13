@@ -9,7 +9,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class DeviceConfig;
 
 class YMF262

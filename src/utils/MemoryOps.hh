@@ -2,7 +2,6 @@
 #define MEMORYOPS_HH
 
 #include <cstddef>
-#include <cstdint>
 
 namespace openmsx {
 namespace MemoryOps {

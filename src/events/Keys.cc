@@ -20,11 +20,7 @@ static void initialize()
 	if (init) return;
 	init = true;
 
-	struct Entry {
-		const char* name;
-		KeyCode code;
-	};
-	static const Entry entries[] = {
+	keys = {
 		{ "BACKSPACE",	K_BACKSPACE },
 		{ "TAB",	K_TAB },
 		{ "CLEAR",	K_CLEAR },
@@ -285,14 +281,7 @@ static void initialize()
 		// Direction modifiers
 		{ "PRESS",	KD_PRESS },
 		{ "RELEASE",	KD_RELEASE },
-
-		{ nullptr,	K_NONE }
 	};
-	const Entry* e = entries;
-	while (e->name) {
-		keys.push_back(std::make_pair(e->name, e->code));
-		++e;
-	}
 	sort(keys.begin(), keys.end(), CmpKeys());
 }
 

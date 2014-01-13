@@ -3,7 +3,6 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "DeviceConfig.hh"
-#include "Reactor.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
 #include "TclCallback.hh"

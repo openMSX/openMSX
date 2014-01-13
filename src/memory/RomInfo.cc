@@ -1,7 +1,8 @@
 #include "RomInfo.hh"
-#include "StringOp.hh"
+#include "StringMap.hh"
 #include "stl.hh"
 #include "unreachable.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::vector;
@@ -27,9 +28,9 @@ static bool isInit = false;
 
 // This maps a name to a RomType. There can be multiple names (aliases) for the
 // same type.
-typedef vector<std::pair<string_ref, RomType>> RomTypeMap;
-typedef CmpTupleElement<0, StringOp::caseless> RomTypeMapLess;
-static RomTypeMap romTypeMap;
+typedef StringMap<RomType, false> RomTypeMap;
+static RomTypeMap romTypeMap(256); // initial hashtable size
+                                   // (big enough so that no rehash is needed)
 
 // This contains extra information for each RomType. This structure only
 // contains the primary (non-alias) romtypes.
@@ -44,12 +45,12 @@ static RomTypeInfoMap romTypeInfoMap;
 static void init(RomType type, string_ref name,
                  unsigned blockSize, string_ref description)
 {
-	romTypeMap.push_back(std::make_pair(name, type));
-	romTypeInfoMap.push_back(std::make_tuple(type, description, blockSize));
+	romTypeMap[name] = type;
+	romTypeInfoMap.emplace_back(type, description, blockSize);
 }
 static void initAlias(RomType type, string_ref name)
 {
-	romTypeMap.push_back(std::make_pair(name, makeAlias(type)));
+	romTypeMap[name] = makeAlias(type);
 }
 static void init()
 {
@@ -159,7 +160,6 @@ static void init()
 	initAlias(ROM_ZEMINA126IN1,"KOREAN126IN1");
 	initAlias(ROM_HOLY_QURAN,  "HolyQuran");
 
-	sort(romTypeMap.begin(),     romTypeMap.end(),     RomTypeMapLess());
 	sort(romTypeInfoMap.begin(), romTypeInfoMap.end(), RomTypeInfoMapLess());
 }
 static const RomTypeMap& getRomTypeMap()
@@ -176,10 +176,8 @@ static const RomTypeInfoMap& getRomTypeInfoMap()
 RomType RomInfo::nameToRomType(string_ref name)
 {
 	auto& m = getRomTypeMap();
-	auto it = lower_bound(m.begin(), m.end(), name, RomTypeMapLess());
-	StringOp::casecmp cmp;
-	return (it != m.end()) && cmp(it->first, name)
-		? removeAlias(it->second) : ROM_UNKNOWN;
+	auto it = m.find(name);
+	return (it != m.end()) ? removeAlias(it->second) : ROM_UNKNOWN;
 }
 
 string_ref RomInfo::romTypeToName(RomType type)
@@ -187,7 +185,7 @@ string_ref RomInfo::romTypeToName(RomType type)
 	assert(!isAlias(type));
 	for (auto& p : getRomTypeMap()) {
 		if (p.second == type) {
-			return p.first;
+			return p.first();
 		}
 	}
 	UNREACHABLE; return "";
@@ -198,7 +196,7 @@ vector<string_ref> RomInfo::getAllRomTypes()
 	vector<string_ref> result;
 	for (auto& p : getRomTypeMap()) {
 		if (!isAlias(p.second)) {
-			result.push_back(p.first);
+			result.push_back(p.first());
 		}
 	}
 	return result;

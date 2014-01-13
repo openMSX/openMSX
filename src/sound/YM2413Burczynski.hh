@@ -8,7 +8,6 @@
 namespace openmsx {
 namespace YM2413Burczynski {
 
-class YM2413;
 class Channel;
 
 /** 16.16 fixed point type for frequency calculations.

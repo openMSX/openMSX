@@ -44,7 +44,6 @@
 #include "memory.hh"
 #include "build-info.hh"
 #include <cassert>
-#include <iostream>
 
 using std::string;
 using std::vector;
@@ -385,9 +384,9 @@ void Reactor::createMachineSetting()
 	EnumSetting<int>::Map machines; // int's are unique dummy values
 	int count = 1;
 	for (auto& name : getHwConfigs("machines")) {
-		machines.push_back(std::make_pair(name, count++));
+		machines.emplace_back(name, count++);
 	}
-	machines.push_back(std::make_pair("C-BIOS_MSX2+", 0)); // default machine
+	machines.emplace_back("C-BIOS_MSX2+", 0); // default machine
 
 	machineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",

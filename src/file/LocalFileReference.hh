@@ -1,13 +1,13 @@
 #ifndef LOCALFILEREFERENCE_HH
 #define LOCALFILEREFERENCE_HH
 
-#include "Filename.hh"
 #include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
 class File;
+class Filename;
 
 /** Helper class to use files is APIs other than openmsx::File.
  * The openMSX File class has support for (g)zipped files (or maybe in the

@@ -1,4 +1,5 @@
 #include "DMKDiskImage.hh"
+#include "RawTrack.hh"
 #include "DiskExceptions.hh"
 #include "File.hh"
 #include <algorithm>

@@ -20,25 +20,18 @@
 #include "Event.hh"
 #include "DeviceFactory.hh"
 #include "ReadOnlySetting.hh"
-#include "BooleanSetting.hh"
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <tcl.h>
-#include <cstdio>
-#include <sstream>
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
 #include <cstring>
 #include <iterator>
 
-using std::ostringstream;
-using std::setfill;
-using std::setw;
-using std::uppercase;
 using std::string;
 using std::vector;
 using std::min;
@@ -187,8 +180,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 			}
 		}
 	}
-	for (int page = 0; page < 4; ++page) {
-		visibleDevices[page] = dummyDevice.get();
+	for (auto& dev : visibleDevices) {
+		dev = dummyDevice.get();
 	}
 
 	// initially allow all regions to be cached
@@ -526,11 +519,10 @@ void MSXCPUInterface::registerSlot(
 		// partial page
 		if (slot == dummyDevice.get()) {
 			// first
-			MSXMultiMemDevice* multi =
-				new MSXMultiMemDevice(device.getHardwareConfig());
+			auto* multi = new MSXMultiMemDevice(device.getHardwareConfig());
 			multi->add(device, base, size);
 			slot = multi;
-		} else if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+		} else if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 			// second or more
 			assert(multi->canAdd(base, size));
 			multi->add(device, base, size);
@@ -547,7 +539,7 @@ void MSXCPUInterface::unregisterSlot(
 {
 	int page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
-	if (auto multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
+	if (auto* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
 		multi->remove(device, base, size);
 		if (multi->empty()) {
@@ -606,8 +598,7 @@ void MSXCPUInterface::unregisterMemDevice(
 
 void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 {
-	GlobalWriteInfo info = { &device, address };
-	globalWrites.push_back(info);
+	globalWrites.push_back({&device, address});
 
 	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_WRITE_BIT;
 	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
@@ -646,8 +637,8 @@ void MSXCPUInterface::updateVisible(int page)
 
 void MSXCPUInterface::reset()
 {
-	for (int i = 0; i < 4; ++i) {
-		subSlotRegister[i] = 0;
+	for (auto& reg : subSlotRegister) {
+		reg = 0;
 	}
 	setPrimarySlots(0);
 }

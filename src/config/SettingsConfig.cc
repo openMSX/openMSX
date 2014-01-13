@@ -10,9 +10,7 @@
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "Command.hh"
-#include "openmsx.hh"
 #include "memory.hh"
-#include <cassert>
 
 using std::string;
 using std::vector;

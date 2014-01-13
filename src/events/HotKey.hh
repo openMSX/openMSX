@@ -1,7 +1,6 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
-#include "Event.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "stl.hh"
@@ -13,6 +12,7 @@
 
 namespace openmsx {
 
+class Event;
 class GlobalCommandController;
 class EventDistributor;
 class XMLElement;
@@ -27,8 +27,8 @@ class HotKey : public EventListener, private noncopyable
 public:
 	struct HotKeyInfo {
 		HotKeyInfo() {} // for map::operator[]
-		HotKeyInfo(const std::string& command_, bool repeat_ = false)
-			: command(command_), repeat(repeat_) {}
+		HotKeyInfo(std::string command_, bool repeat_ = false)
+			: command(std::move(command_)), repeat(repeat_) {}
 		std::string command;
 		bool repeat;
 	};

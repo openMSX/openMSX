@@ -1,7 +1,6 @@
 #include "GLRGBScaler.hh"
 #include "GLUtil.hh"
 #include "RenderSettings.hh"
-#include "memory.hh"
 
 using std::string;
 

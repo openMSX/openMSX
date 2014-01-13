@@ -5,7 +5,6 @@
 #include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "DynamicClock.hh"
-#include "Clock.hh"
 #include "Filename.hh"
 #include "VideoSystemChangeListener.hh"
 #include "EventListener.hh"
@@ -18,7 +17,6 @@ class HardwareConfig;
 class MSXMotherBoard;
 class OggReader;
 class BooleanSetting;
-struct AudioFragment;
 class LDRenderer;
 class RawFrame;
 class LoadingIndicator;

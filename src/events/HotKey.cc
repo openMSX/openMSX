@@ -259,18 +259,16 @@ void HotKey::saveBindings(XMLElement& config) const
 		auto it2 = cmdMap.find(k);
 		assert(it2 != cmdMap.end());
 		auto& info = it2->second;
-		XMLElement elem("bind", info.command);
+		auto& elem = bindingsElement.addChild("bind", info.command);
 		elem.addAttribute("key", k->toString());
 		if (info.repeat) {
 			elem.addAttribute("repeat", "true");
 		}
-		bindingsElement.addChild(std::move(elem));
 	}
 	// add explicit unbind's
 	for (auto& k : unboundKeys) {
-		XMLElement elem("unbind");
+		auto& elem = bindingsElement.addChild("unbind");
 		elem.addAttribute("key", k->toString());
-		bindingsElement.addChild(std::move(elem));
 	}
 }
 
@@ -339,10 +337,7 @@ void HotKey::activateLayer(const std::string& layer, bool blocking)
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
-	LayerInfo info;
-	info.layer = layer;
-	info.blocking = blocking;
-	activeLayers.push_back(info);
+	activeLayers.push_back({layer, blocking});
 }
 
 void HotKey::deactivateLayer(const std::string& layer)

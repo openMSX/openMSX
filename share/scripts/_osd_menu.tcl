@@ -917,9 +917,7 @@ proc menu_create_stretch_list {} {
 proc menu_stretch_exec {value} {
 	set ::horizontal_stretch $value
 	menu_close_top
-	# refresh the video settings menu
-	menu_close_top
-	menu_create $osd_menu::video_setting_menu
+	menu_refresh_top
 }
 
 proc menu_create_load_machine_list {{mode "replace"}} {
@@ -1162,6 +1160,7 @@ proc menu_plug_exec {connector pluggable} {
 	} else {
 		menu_close_top
 		# refresh the connectors menu
+		# The list must be recreated, so menu_refresh_top won't work
 		menu_close_top
 		menu_create [menu_create_connectors_list]
 	}

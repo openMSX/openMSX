@@ -5,7 +5,6 @@
 #include "FilenameSetting.hh"
 #include "serialize.hh"
 #include "memory.hh"
-#include <cassert>
 
 namespace openmsx {
 

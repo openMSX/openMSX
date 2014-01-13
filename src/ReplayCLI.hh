@@ -12,10 +12,10 @@ class ReplayCLI : public CLIOption, public CLIFileType
 public:
 	explicit ReplayCLI(CommandLineParser& commandLineParser);
 	virtual void parseOption(const std::string& option,
-	                         std::deque<std::string>& cmdLine);
+	                         array_ref<std::string>& cmdLine);
 	virtual string_ref optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
-	                           std::deque<std::string>& cmdLine);
+	                           array_ref<std::string>& cmdLine);
 	virtual string_ref fileTypeHelp() const;
 
 private:

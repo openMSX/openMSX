@@ -8,12 +8,9 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "CliComm.hh"
-#include "SettingsConfig.hh"
-#include "XMLElement.hh"
 #include "InputEvents.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"
-#include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "Version.hh"
@@ -30,7 +27,6 @@
 using std::min;
 using std::max;
 using std::string;
-using std::make_pair;
 
 namespace openmsx {
 
@@ -42,13 +38,13 @@ ConsoleLine::ConsoleLine()
 
 ConsoleLine::ConsoleLine(string_ref line_, unsigned rgb)
 	: line(line_.str())
-	, chunks(1, make_pair(rgb, 0))
+	, chunks(1, {rgb, 0})
 {
 }
 
 void ConsoleLine::addChunk(string_ref text, unsigned rgb)
 {
-	chunks.push_back(make_pair(rgb, line.size()));
+	chunks.emplace_back(rgb, line.size());
 	line.append(text.data(), text.size());
 }
 
@@ -106,10 +102,10 @@ ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
 	while ((i < chunks.size()) && (chunks[i].second <= bpos)) {
 		++i;
 	}
-	result.chunks.push_back(make_pair(chunks[i - 1].first, 0));
+	result.chunks.emplace_back(chunks[i - 1].first, 0);
 	while ((i < chunks.size()) && (chunks[i].second < bend)) {
-		result.chunks.push_back(make_pair(chunks[i].first,
-		                                  chunks[i].second - bpos));
+		result.chunks.emplace_back(chunks[i].first,
+		                           chunks[i].second - bpos);
 		++i;
 	}
 	return result;
@@ -138,13 +134,14 @@ CommandConsole::CommandConsole(
 		commandController, "console_remove_doubles",
 		"don't add the command to history if it's the same as the previous one",
 		true))
+	, history(std::max(1, historySizeSetting->getInt()))
 	, executingCommand(false)
 {
 	resetScrollBack();
 	prompt = PROMPT_NEW;
 	newLineConsole(prompt);
-	putPrompt();
 	loadHistory();
+	putPrompt();
 	Completer::setOutput(this);
 
 	const auto& fullVersion = Version::full();
@@ -453,12 +450,9 @@ void CommandConsole::putCommandHistory(const string& command)
 		return;
 	}
 
+	if (history.full()) history.pop_front();
 	history.push_back(command);
 
-	// if necessary, shrink history to the desired (smaller) size
-	while (history.size() > unsigned(historySizeSetting->getInt())) {
-		history.pop_front();
-	}
 }
 
 void CommandConsole::commandExecute()
@@ -531,7 +525,7 @@ ConsoleLine CommandConsole::highLight(string_ref line)
 
 void CommandConsole::putPrompt()
 {
-	commandScrollBack = history.end();
+	commandScrollBack = history.size();
 	currentLine = prompt;
 	lines[0] = highLight(currentLine);
 	cursorPosition = unsigned(prompt.size());
@@ -562,14 +556,14 @@ void CommandConsole::prevCommand()
 		return; // no elements
 	}
 	bool match = false;
-	auto tempScrollBack = commandScrollBack;
-	while ((tempScrollBack != history.begin()) && !match) {
-		--tempScrollBack;
-		match = StringOp::startsWith(*tempScrollBack, currentLine);
+	unsigned tmp = commandScrollBack;
+	while ((tmp != 0) && !match) {
+		--tmp;
+		match = StringOp::startsWith(history[tmp], currentLine);
 	}
 	if (match) {
-		commandScrollBack = tempScrollBack;
-		lines[0] = highLight(*commandScrollBack);
+		commandScrollBack = tmp;
+		lines[0] = highLight(history[commandScrollBack]);
 		cursorPosition = lines[0].numChars();
 	}
 }
@@ -577,20 +571,20 @@ void CommandConsole::prevCommand()
 void CommandConsole::nextCommand()
 {
 	resetScrollBack();
-	if (commandScrollBack == history.end()) {
+	if (commandScrollBack == history.size()) {
 		return; // don't loop !
 	}
 	bool match = false;
-	auto tempScrollBack = commandScrollBack;
-	while ((++tempScrollBack != history.end()) && !match) {
-		match = StringOp::startsWith(*tempScrollBack, currentLine);
+	auto tmp = commandScrollBack;
+	while ((++tmp != history.size()) && !match) {
+		match = StringOp::startsWith(history[tmp], currentLine);
 	}
 	if (match) {
-		--tempScrollBack; // one time to many
-		commandScrollBack = tempScrollBack;
-		lines[0] = highLight(*commandScrollBack);
+		--tmp; // one time to many
+		commandScrollBack = tmp;
+		lines[0] = highLight(history[commandScrollBack]);
 	} else {
-		commandScrollBack = history.end();
+		commandScrollBack = history.size();
 		lines[0] = highLight(currentLine);
 	}
 	cursorPosition = lines[0].numChars();

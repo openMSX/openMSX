@@ -122,10 +122,8 @@ MB89352::MB89352(const DeviceConfig& config)
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
-	for (unsigned i = 0; i < MAX_DEV; ++i) {
-		if (!dev[i]) {
-			dev[i] = make_unique<DummySCSIDevice>();
-		}
+	for (auto& d : dev) {
+		if (!d) d = make_unique<DummySCSIDevice>();
 	}
 	reset(false);
 
@@ -187,8 +185,8 @@ void MB89352::reset(bool scsireset)
 	softReset();
 
 	if (scsireset) {
-		for (byte i = 0; i < MAX_DEV; ++i) {
-			dev[i]->reset();
+		for (auto& d : dev) {
+			d->reset();
 		}
 	}
 }
@@ -471,8 +469,8 @@ void MB89352::writeRegister(byte reg, byte value)
 				PRT_DEBUG("SPC: bus reset");
 				rst = true;
 				regs[REG_INTS] |= INTS_ResetCondition;
-				for (byte i = 0; i < MAX_DEV; ++i) {
-					dev[i]->busReset();
+				for (auto& d : dev) {
+					d->busReset();
 				}
 				disconnect();  // alternative routine
 			}

@@ -14,6 +14,7 @@ BooleanSetting::BooleanSetting(
 		// Re-set the queried value to get a normalized value.
 		newValue.setString(toString(newValue.getBoolean()));
 	});
+	init();
 }
 
 string_ref BooleanSetting::getTypeString() const

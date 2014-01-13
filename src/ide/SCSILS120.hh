@@ -10,11 +10,9 @@
 #ifndef SCSILS120_HH
 #define SCSILS120_HH
 
-#include "HD.hh"
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
-#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -23,6 +21,7 @@ namespace openmsx {
 class DeviceConfig;
 class MSXMotherBoard;
 class LSXCommand;
+class File;
 
 class SCSILS120 : public SCSIDevice, public SectorAccessibleDisk,
                   public DiskContainer, private noncopyable

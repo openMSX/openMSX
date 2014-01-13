@@ -54,7 +54,6 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
-#include <cassert>
 
 namespace openmsx {
 

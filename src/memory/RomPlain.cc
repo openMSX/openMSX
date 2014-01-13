@@ -26,7 +26,7 @@ RomPlain::RomPlain(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 {
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;
-	if (const XMLElement* mem = config.findChild("mem")) {
+	if (auto* mem = config.findChild("mem")) {
 		windowBase = mem->getAttributeAsInt("base");
 		windowSize = mem->getAttributeAsInt("size");
 	}

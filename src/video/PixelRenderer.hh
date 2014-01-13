@@ -4,7 +4,6 @@
 #include "Renderer.hh"
 #include "Observer.hh"
 #include "RenderSettings.hh"
-#include "DisplayMode.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -18,7 +17,9 @@ class Rasterizer;
 class VDP;
 class VDPVRAM;
 class SpriteChecker;
+class DisplayMode;
 class Setting;
+class VideoSourceSetting;
 
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.

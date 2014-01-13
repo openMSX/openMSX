@@ -8,9 +8,9 @@ DACSound8U::DACSound8U(string_ref name, string_ref desc,
 {
 }
 
-void DACSound8U::writeDAC(byte value, EmuTime::param time)
+void DACSound8U::writeDAC(uint8_t value, EmuTime::param time)
 {
-	DACSound16S::writeDAC((short(value) - 0x80) << 8, time);
+	DACSound16S::writeDAC((int16_t(value) - 0x80) << 8, time);
 }
 
 } // namespace openmsx

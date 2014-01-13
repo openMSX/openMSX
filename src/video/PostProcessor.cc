@@ -17,7 +17,6 @@
 #include "CommandException.hh"
 #include "MemoryOps.hh"
 #include "vla.hh"
-#include "unreachable.hh"
 #include "memory.hh"
 #include "build-info.hh"
 #include <algorithm>

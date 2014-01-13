@@ -2,7 +2,6 @@
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
-#include "StringOp.hh"
 #include "likely.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -29,7 +28,7 @@ MSXMultiMemDevice::MSXMultiMemDevice(const HardwareConfig& hwConf)
 	: MSXMultiDevice(hwConf)
 {
 	// add sentinel at the end
-	ranges.push_back(Range(0x0000, 0x10000, getCPUInterface().getDummyDevice()));
+	ranges.emplace_back(0x0000, 0x10000, getCPUInterface().getDummyDevice());
 }
 
 MSXMultiMemDevice::~MSXMultiMemDevice()

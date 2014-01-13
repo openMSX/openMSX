@@ -21,7 +21,6 @@
 
 using std::ifstream;
 using std::get;
-using std::make_pair;
 using std::make_tuple;
 using std::ofstream;
 using std::pair;
@@ -152,7 +151,7 @@ void FilePool::readSha1sums()
 	while (file.good()) {
 		getline(file, line);
 		if (parse(line, sum, time, filename)) {
-			pool.push_back(make_tuple(sum, time, filename));
+			pool.emplace_back(sum, time, filename);
 		}
 	}
 

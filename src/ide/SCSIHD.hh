@@ -12,14 +12,11 @@
 
 #include "HD.hh"
 #include "SCSIDevice.hh"
-#include "serialize_meta.hh"
 #include "noncopyable.hh"
-#include <memory>
 
 namespace openmsx {
 
 class DeviceConfig;
-class MSXMotherBoard;
 
 class SCSIHD : public HD, public SCSIDevice, private noncopyable
 {

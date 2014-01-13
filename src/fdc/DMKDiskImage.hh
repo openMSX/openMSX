@@ -3,7 +3,6 @@
 
 #include "Disk.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 

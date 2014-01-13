@@ -11,7 +11,6 @@
 #include "serialize.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include <string>
 
 namespace openmsx {
 

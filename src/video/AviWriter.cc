@@ -5,13 +5,11 @@
 #include "File.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
-#include "vla.hh"
 #include "memory.hh"
 #include "build-info.hh"
 #include "Version.hh"
 #include "cstdiop.hh" // for snprintf
 #include <cstring>
-#include <cstdlib>
 #include <ctime>
 #include <cassert>
 

@@ -87,7 +87,7 @@ echo "AB:DEBUG CXX_FLAGS_FILTER: $CXX_FLAGS_FILTER"
     export ANDROID_CXXFLAGS=\$(echo \${CXXFLAGS} | $CXX_FLAGS_FILTER);\
     echo \"AB:INFO ANDROID_CXXFLAGS: \${ANDROID_CXXFLAGS}\";\
     unset CXXFLAGS;\
-    make -j ${cpu_count} all\
+    make -k -j ${cpu_count} all\
          OPENMSX_TARGET_CPU=${openmsx_target_cpu}\
          OPENMSX_TARGET_OS=android\
          OPENMSX_FLAVOUR=${openmsx_flavour}\

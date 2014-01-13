@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class MSXAudio;
-class MSXMotherBoard;
 class DeviceConfig;
 
 class Y8950

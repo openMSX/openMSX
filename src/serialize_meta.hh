@@ -1,17 +1,15 @@
 #ifndef SERIALIZE_META_HH
 #define SERIALIZE_META_HH
 
-#include "TypeInfo.hh"
 #include "StringMap.hh"
 #include "noncopyable.hh"
 #include "type_traits.hh"
 #include "likely.hh"
 #include "memory.hh"
-#include <string>
 #include <tuple>
+#include <typeindex>
 #include <type_traits>
 #include <map>
-#include <cassert>
 
 namespace openmsx {
 
@@ -249,7 +247,7 @@ private:
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	std::map<TypeInfo, std::unique_ptr<PolymorphicSaverBase<Archive>>>
+	std::map<std::type_index, std::unique_ptr<PolymorphicSaverBase<Archive>>>
 		saverMap;
 };
 

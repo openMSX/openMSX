@@ -48,7 +48,6 @@
 #include "DeviceConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "serialize.hh"
 #include "memory.hh"
 
 using std::unique_ptr;

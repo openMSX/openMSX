@@ -1,11 +1,10 @@
 #include "SamplePlayer.hh"
 #include "DeviceConfig.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "FileContext.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include "memory.hh"
 #include <cassert>
 
 namespace openmsx {

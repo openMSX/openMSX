@@ -11,7 +11,6 @@ namespace openmsx {
 class NowindCommand;
 class Rom;
 class AmdFlash;
-class DiskChanger;
 class DiskContainer;
 class NowindHost;
 

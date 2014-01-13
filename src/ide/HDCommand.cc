@@ -1,6 +1,5 @@
 #include "HDCommand.hh"
 #include "HD.hh"
-#include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
@@ -80,7 +79,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.push_back("insert");
+		extra = { "insert" };
 	}
 	completeFileName(tokens, UserFileContext(), extra);
 }

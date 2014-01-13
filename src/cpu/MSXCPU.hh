@@ -1,11 +1,11 @@
 #ifndef MSXCPU_HH
 #define MSXCPU_HH
 
-#include "CPURegs.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
 #include "serialize_meta.hh"
+#include "openmsx.hh"
 #include <memory>
 #include <vector>
 
@@ -14,6 +14,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class MSXCPUInterface;
 class BooleanSetting;
+class CPURegs;
 class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;

@@ -8,7 +8,6 @@
 #include "MSXMotherBoard.hh"
 #include "Event.hh"
 #include "memory.hh"
-#include <cassert>
 
 namespace openmsx {
 

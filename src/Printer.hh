@@ -12,7 +12,6 @@
 
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
-#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {

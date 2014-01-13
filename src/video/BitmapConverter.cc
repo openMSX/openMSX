@@ -1,10 +1,8 @@
 #include "BitmapConverter.hh"
-#include "GLUtil.hh"
 #include "Math.hh"
 #include "likely.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <type_traits>
 #include <cstdint>
 
 namespace openmsx {

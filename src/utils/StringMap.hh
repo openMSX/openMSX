@@ -64,7 +64,32 @@ public:
 	unsigned size() const { return numItems; }
 
 protected:
-	explicit StringMapImpl(unsigned itemSize, unsigned initSize);
+	StringMapImpl(unsigned itemSize, unsigned initSize);
+
+	// Grow the table, redistributing values into the buckets with the
+	// appropriate mod-of-hashtable-size.
+	void rehashTable();
+
+	void init(unsigned size);
+	unsigned* getHashTable() const {
+		return reinterpret_cast<unsigned*>(theTable + numBuckets + 1);
+	}
+
+	// Array of numBuckets pointers to entries, nullptrs are holes.
+	// theTable[numBuckets] contains a sentinel value for easy iteration.
+	// Followed by an array of the actual hash values as unsigned integers.
+	StringMapEntryBase** theTable;
+	unsigned numBuckets;
+	unsigned numItems;
+	unsigned numTombstones;
+	const unsigned itemSize;
+};
+
+template<bool CASE_SENSITIVE> class StringMapImpl2
+	: public StringMapImpl
+{
+protected:
+	StringMapImpl2(unsigned itemSize, unsigned initSize);
 
 	// Look up the bucket that the specified string should end up in. If it
 	// already exists as a key in the map, the Item pointer for the
@@ -85,28 +110,6 @@ protected:
 	// Remove the StringMapEntry for the specified key from the table,
 	// returning it. If the key is not in the table, this returns null.
 	StringMapEntryBase* removeKey(string_ref key);
-
-	// Grow the table, redistributing values into the buckets with the
-	// appropriate mod-of-hashtable-size.
-	void rehashTable();
-
-private:
-	void init(unsigned size);
-	unsigned* getHashTable() const {
-		return reinterpret_cast<unsigned*>(theTable + numBuckets + 1);
-	}
-
-protected:
-	// Array of numBuckets pointers to entries, nullptrs are holes.
-	// theTable[numBuckets] contains a sentinel value for easy iteration.
-	// Followed by an array of the actual hash values as unsigned integers.
-	StringMapEntryBase** theTable;
-	unsigned numBuckets;
-	unsigned numItems;
-	unsigned numTombstones;
-
-private:
-	const unsigned itemSize;
 };
 
 
@@ -191,7 +194,8 @@ private:
 // "strings", which are basically ranges of bytes. This does some funky memory
 // allocation and hashing things to make it extremely efficient, storing the
 // string data *after* the value in the map.
-template<typename T> class StringMap : public StringMapImpl
+template<typename T, bool CASE_SENSITIVE = true>
+class StringMap : public StringMapImpl2<CASE_SENSITIVE>
 {
 public:
 	typedef const char* key_type;
@@ -202,35 +206,36 @@ public:
 	typedef StringMapIterator<T>      iterator;
 
 	explicit StringMap(unsigned initialSize = 0)
-		: StringMapImpl(sizeof(value_type), initialSize) {}
+		: StringMapImpl2<CASE_SENSITIVE>(sizeof(value_type), initialSize)
+	{}
 
 	~StringMap() {
 		clear();
-		free(theTable);
+		free(this->theTable);
 	}
 
 	iterator begin() {
-		return       iterator(theTable, numBuckets != 0);
+		return       iterator(this->theTable, this->numBuckets != 0);
 	}
 	const_iterator begin() const {
-		return const_iterator(theTable, numBuckets != 0);
+		return const_iterator(this->theTable, this->numBuckets != 0);
 	}
 	iterator end() {
-		return       iterator(theTable + numBuckets);
+		return       iterator(this->theTable + this->numBuckets);
 	}
 	const_iterator end() const {
-		return const_iterator(theTable + numBuckets);
+		return const_iterator(this->theTable + this->numBuckets);
 	}
 
 	iterator find(string_ref key) {
-		int bucket = findKey(key);
+		int bucket = this->findKey(key);
 		if (bucket == -1) return end();
-		return iterator(theTable + bucket);
+		return iterator(this->theTable + bucket);
 	}
 	const_iterator find(string_ref key) const {
-		int bucket = findKey(key);
+		int bucket = this->findKey(key);
 		if (bucket == -1) return end();
-		return const_iterator(theTable + bucket);
+		return const_iterator(this->theTable + bucket);
 	}
 
 	// Return the entry for the specified key, or a default constructed
@@ -254,70 +259,70 @@ public:
 	// insert it and return true.
 	bool insert(value_type* keyValue)
 	{
-		unsigned bucketNo = lookupBucketFor(keyValue->getKey());
-		StringMapEntryBase*& bucket = theTable[bucketNo];
-		if (bucket && (bucket != getTombstoneVal())) {
+		unsigned bucketNo = this->lookupBucketFor(keyValue->getKey());
+		StringMapEntryBase*& bucket = this->theTable[bucketNo];
+		if (bucket && (bucket != this->getTombstoneVal())) {
 			return false; // Already exists in map.
 		}
-		if (bucket == getTombstoneVal()) {
-			--numTombstones;
+		if (bucket == this->getTombstoneVal()) {
+			--this->numTombstones;
 		}
 		bucket = keyValue;
-		++numItems;
-		assert(numItems + numTombstones <= numBuckets);
+		++this->numItems;
+		assert(this->numItems + this->numTombstones <= this->numBuckets);
 
-		rehashTable();
+		this->rehashTable();
 		return true;
 	}
 
 	// Empties out the StringMap
 	void clear()
 	{
-		if (empty()) return;
+		if (this->empty()) return;
 
 		// Zap all values, resetting the keys back to non-present (not
 		// tombstone), which is safe because we're removing all
 		// elements.
-		for (unsigned i = 0; i != numBuckets; ++i) {
-			StringMapEntryBase*& bucket = theTable[i];
-			if (bucket && (bucket != getTombstoneVal())) {
+		for (unsigned i = 0; i != this->numBuckets; ++i) {
+			StringMapEntryBase*& bucket = this->theTable[i];
+			if (bucket && (bucket != this->getTombstoneVal())) {
 				static_cast<value_type*>(bucket)->destroy();
 			}
 			bucket = nullptr;
 		}
 
-		numItems = 0;
-		numTombstones = 0;
+		this->numItems = 0;
+		this->numTombstones = 0;
 	}
 
 	// Look up the specified key in the table. If a value exists, return
 	// it. Otherwise, default construct a value, insert it, and return.
 	value_type& getOrCreateValue(string_ref key, T val = T())
 	{
-		unsigned bucketNo = lookupBucketFor(key);
-		StringMapEntryBase*& bucket = theTable[bucketNo];
-		if (bucket && (bucket != getTombstoneVal())) {
+		unsigned bucketNo = this->lookupBucketFor(key);
+		StringMapEntryBase*& bucket = this->theTable[bucketNo];
+		if (bucket && (bucket != this->getTombstoneVal())) {
 			return *static_cast<value_type*>(bucket);
 		}
 
 		value_type* newItem = value_type::create(key, std::move(val));
 
-		if (bucket == getTombstoneVal()) --numTombstones;
-		++numItems;
-		assert(numItems + numTombstones <= numBuckets);
+		if (bucket == this->getTombstoneVal()) --this->numTombstones;
+		++this->numItems;
+		assert(this->numItems + this->numTombstones <= this->numBuckets);
 
 		// Fill in the bucket for the hash table. The FullHashValue was already
 		// filled in by lookupBucketFor().
 		bucket = newItem;
 
-		rehashTable();
+		this->rehashTable();
 		return *newItem;
 	}
 
 	// Remove the specified key/value pair from the map, but do not destroy
 	// it. This aborts if the key is not in the map.
 	void remove(value_type* keyValue) {
-		removeKey(keyValue);
+		this->removeKey(keyValue);
 	}
 
 	void erase(iterator i) {

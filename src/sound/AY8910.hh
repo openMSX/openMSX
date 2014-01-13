@@ -7,7 +7,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class AY8910Periphery;
 class DeviceConfig;
 class AY8910Debuggable;

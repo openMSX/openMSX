@@ -1,6 +1,5 @@
 #include "TigerTree.hh"
 #include "Math.hh"
-#include <cstdlib>
 #include <cstring>
 #include <cassert>
 

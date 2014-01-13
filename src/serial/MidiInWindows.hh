@@ -13,10 +13,10 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "serialize_meta.hh"
+#include "circular_buffer.hh"
 #include <SDL_thread.h>
 #include <windows.h>
 #include <mmsystem.h>
-#include <deque>
 
 namespace openmsx {
 
@@ -64,7 +64,7 @@ private:
 	Thread thread;
 	unsigned devidx;
 	unsigned thrdid;
-	std::deque<byte> queue;
+	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 	std::string name;
 	std::string desc;

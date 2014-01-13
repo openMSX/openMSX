@@ -1,5 +1,4 @@
 #include "Setting.hh"
-#include "Observer.hh"
 #include "CommandController.hh"
 #include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
@@ -9,8 +8,6 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "checked_cast.hh"
-#include <algorithm>
-#include <cassert>
 
 using std::string;
 
@@ -19,7 +16,7 @@ namespace openmsx {
 // class BaseSetting
 
 BaseSetting::BaseSetting(string_ref name_)
-	: name       (name_.str())
+	: name(name_.str())
 {
 }
 
@@ -50,7 +47,10 @@ Setting::Setting(CommandController& commandController_,
 	, save(save_)
 {
 	checkFunc = [](TclObject&) { /* nothing */ };
+}
 
+void Setting::init()
+{
 	if (needLoadSave()) {
 		auto& settingsConfig = getGlobalCommandController()
 			.getSettingsConfig().getXMLElement();

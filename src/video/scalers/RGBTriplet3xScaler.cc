@@ -2,7 +2,7 @@
 #include "SuperImposedVideoFrame.hh"
 #include "LineScalers.hh"
 #include "RawFrame.hh"
-#include "DirectScalerOutput.hh"
+#include "ScalerOutput.hh"
 #include "RenderSettings.hh"
 #include "vla.hh"
 #include "build-info.hh"

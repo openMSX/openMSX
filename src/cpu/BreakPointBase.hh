@@ -4,7 +4,6 @@
 #include "TclObject.hh"
 #include "noncopyable.hh"
 #include "string_ref.hh"
-#include <memory>
 
 struct Tcl_Interp;
 

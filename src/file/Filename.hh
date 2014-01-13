@@ -6,7 +6,6 @@
 namespace openmsx {
 
 class FileContext;
-class CommandController;
 
 /** This class represents a filename.
  * A filename is resolved in a certain context.

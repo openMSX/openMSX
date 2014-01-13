@@ -59,7 +59,7 @@ class CRC16;
 // Amiga can fit more data on the same disk (even more than simply storing 10
 // or 11 sectors on a track by making the gaps between the sectors smaller).
 
-struct RawTrack {
+class RawTrack {
 public:
 	// Typical track length is 6250 bytes:
 	//    250kbps, 300rpm -> 6250 bytes per rotation.

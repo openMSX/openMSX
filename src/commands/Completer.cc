@@ -5,7 +5,6 @@
 #include "ReadDir.hh"
 #include "utf8_unchecked.hh"
 #include "stringsp.hh"
-#include "xrange.hh"
 #include <algorithm>
 
 using std::vector;
@@ -149,7 +148,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 
 	vector<string> paths;
 	if (FileOperations::isAbsolutePath(filename)) {
-		paths.push_back("");
+		paths.emplace_back();
 	} else {
 		paths = context.getPaths();
 	}
@@ -178,7 +177,7 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 	bool t = completeImpl(filename, matches, true);
 	if (t && !filename.empty() && (filename.back() != '/')) {
 		// completed filename, start new token
-		tokens.push_back("");
+		tokens.emplace_back();
 	}
 }
 

@@ -175,7 +175,6 @@
 #include "inline.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include "build-info.hh"
 #include <iomanip>
 #include <iostream>
 #include <type_traits>

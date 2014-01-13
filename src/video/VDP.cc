@@ -34,10 +34,8 @@ TODO:
 #include "MSXException.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "array_ref.hh"
 #include "unreachable.hh"
 #include "memory.hh"
-#include <algorithm>
 #include <cstring>
 #include <cassert>
 
@@ -102,11 +100,11 @@ public:
 	virtual int calc(const EmuTime& time) const = 0;
 
 protected:
-	VDPInfo(VDP& vdp_, const string& name, const string& helpText_)
+	VDPInfo(VDP& vdp_, const string& name, string helpText_)
 		: InfoTopic(vdp_.getMotherBoard().getMachineInfoCommand(),
 			    vdp_.getName() + '_' + name)
 		, vdp(vdp_)
-		, helpText(helpText_) {}
+		, helpText(std::move(helpText_)) {}
 
 	VDP& vdp;
 	const string helpText;
@@ -349,8 +347,8 @@ void VDP::resetInit()
 {
 	// note: vram, spriteChecker, cmdEngine, renderer may not yet be
 	//       created at this point
-	for (int i = 0; i < 32; i++) {
-		controlRegs[i] = 0;
+	for (auto& reg : controlRegs) {
+		reg = 0;
 	}
 	if (version == TMS9929A) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
@@ -408,7 +406,7 @@ void VDP::resetMasks(EmuTime::param time)
 	updateSpritePatternBase(time);
 	// TODO: It is not clear to me yet how bitmapWindow should be used.
 	//       Currently it always spans 128K of VRAM.
-	//vram->bitmapWindow.setMask(~(-1 << 17), -1 << 17, time);
+	//vram->bitmapWindow.setMask(~(~0u << 17), ~0u << 17, time);
 }
 
 void VDP::powerUp(EmuTime::param time)
@@ -1094,7 +1092,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 		break;
 	case 2: {
-		int base = (val << 10) | ~(-1 << 10);
+		int base = (val << 10) | ~(~0u << 10);
 		// TODO:
 		// I reverted this fix.
 		// Although the code is correct, there is also a counterpart in the
@@ -1279,7 +1277,7 @@ void VDP::syncAtNextLine(SyncType type, EmuTime::param time)
 
 void VDP::updateNameBase(EmuTime::param time)
 {
-	int base = (controlRegs[2] << 10) | ~(-1 << 10);
+	int base = (controlRegs[2] << 10) | ~(~0u << 10);
 	// TODO:
 	// I reverted this fix.
 	// Although the code is correct, there is also a counterpart in the
@@ -1294,8 +1292,8 @@ void VDP::updateNameBase(EmuTime::param time)
 	*/
 	int indexMask =
 		  displayMode.isBitmapMode()
-		? -1 << 17 // TODO: Calculate actual value; how to handle planar?
-		: -1 << (displayMode.isTextMode() ? 12 : 10);
+		? ~0u << 17 // TODO: Calculate actual value; how to handle planar?
+		: ~0u << (displayMode.isTextMode() ? 12 : 10);
 	if (controlRegs[25] & 0x01) {
 		// Multi page scrolling. The same bit is used in character and
 		// (non)planar-bitmap modes.
@@ -1307,19 +1305,19 @@ void VDP::updateNameBase(EmuTime::param time)
 
 void VDP::updateColorBase(EmuTime::param time)
 {
-	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6);
+	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(~0u << 6);
 	renderer->updateColorBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x09: // Text 2.
 		// TODO: Enable this only if dual color is actually active.
-		vram->colorTable.setMask(base, -1 << 9, time);
+		vram->colorTable.setMask(base, ~0u << 9, time);
 		break;
 	case 0x00: // Graphic 1.
-		vram->colorTable.setMask(base, -1 << 6, time);
+		vram->colorTable.setMask(base, ~0u << 6, time);
 		break;
 	case 0x04: // Graphic 2.
 	case 0x08: // Graphic 3.
-		vram->colorTable.setMask(base, -1 << 13, time);
+		vram->colorTable.setMask(base, ~0u << 13, time);
 		break;
 	default:
 		// Other display modes do not use a color table.
@@ -1329,7 +1327,7 @@ void VDP::updateColorBase(EmuTime::param time)
 
 void VDP::updatePatternBase(EmuTime::param time)
 {
-	int base = (controlRegs[4] << 11) | ~(-1 << 11);
+	int base = (controlRegs[4] << 11) | ~(~0u << 11);
 	renderer->updatePatternBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x01: // Text 1.
@@ -1338,11 +1336,11 @@ void VDP::updatePatternBase(EmuTime::param time)
 	case 0x00: // Graphic 1.
 	case 0x02: // Multicolor.
 	case 0x06: // Multicolor Q.
-		vram->patternTable.setMask(base, -1 << 11, time);
+		vram->patternTable.setMask(base, ~0u << 11, time);
 		break;
 	case 0x04: // Graphic 2.
 	case 0x08: // Graphic 3.
-		vram->patternTable.setMask(base, -1 << 13, time);
+		vram->patternTable.setMask(base, ~0u << 13, time);
 		break;
 	default:
 		// Other display modes do not use a pattern table.
@@ -1357,8 +1355,8 @@ void VDP::updateSpriteAttributeBase(EmuTime::param time)
 		vram->spriteAttribTable.disable(time);
 		return;
 	}
-	int baseMask = (controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(-1 << 7);
-	int indexMask = mode == 1 ? -1 << 7 : -1 << 10;
+	int baseMask = (controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(~0u << 7);
+	int indexMask = mode == 1 ? ~0u << 7 : ~0u << 10;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
 		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);
@@ -1372,8 +1370,8 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 		vram->spritePatternTable.disable(time);
 		return;
 	}
-	int baseMask = (controlRegs[6] << 11) | ~(-1 << 11);
-	int indexMask = -1 << 11;
+	int baseMask = (controlRegs[6] << 11) | ~(~0u << 11);
+	int indexMask = ~0u << 11;
 	if (displayMode.isPlanar()) {
 		baseMask = ((baseMask << 16) | (baseMask >> 1)) & 0x1FFFF;
 		indexMask = ((indexMask << 16) | ~(1 << 16)) & (indexMask >> 1);

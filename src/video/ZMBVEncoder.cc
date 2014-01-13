@@ -282,15 +282,13 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 		unsigned bestchange = compareBlock<P>(bestvx, bestvy, offset);
 		if (bestchange >= 4) {
 			int possibles = 64;
-			for (unsigned v = 0; v < VECTOR_TAB_SIZE; ++v) {
-				int vx = vectorTable[v].x;
-				int vy = vectorTable[v].y;
-				if (possibleBlock<P>(vx, vy, offset) < 4) {
-					unsigned testchange = compareBlock<P>(vx, vy, offset);
+			for (auto& v : vectorTable) {
+				if (possibleBlock<P>(v.x, v.y, offset) < 4) {
+					unsigned testchange = compareBlock<P>(v.x, v.y, offset);
 					if (testchange < bestchange) {
 						bestchange = testchange;
-						bestvx = vx;
-						bestvy = vy;
+						bestvx = v.x;
+						bestvy = v.y;
 						if (bestchange < 4) break;
 					}
 					--possibles;

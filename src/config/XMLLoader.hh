@@ -6,8 +6,7 @@
 namespace openmsx {
 namespace XMLLoader {
 
-	XMLElement load(const std::string& filename,
-	                const std::string& systemID);
+	XMLElement load(string_ref filename, string_ref systemID);
 
 } // namespace XMLLoader
 } // namespace openmsx

@@ -307,6 +307,9 @@ void Slot::slotOff()
 void Slot::setPatch(Patch& patch)
 {
 	this->patch = patch; // copy data
+	if ((state == SUSHOLD) && (patch.EG == 0)) {
+		setEnvelopeState(SUSTAIN);
+	}
 	setEnvelopeState(state); // recalc eg_phase_max
 }
 
@@ -1130,10 +1133,6 @@ void YM2413::writeReg(byte r, byte data)
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
-				if ((ch.mod.state == SUSHOLD) &&
-				    (ch.mod.patch.EG == 0)) {
-					ch.mod.setEnvelopeState(SUSTAIN);
-				}
 				unsigned freq = getFreq(i);
 				ch.mod.updatePG (freq);
 				ch.mod.updateRKS(freq);
@@ -1153,10 +1152,6 @@ void YM2413::writeReg(byte r, byte data)
 			if ((reg[0x30 + i] & 0xF0) == 0) {
 				Channel& ch = channels[i];
 				ch.setPatch(0, *this); // TODO optimize
-				if ((ch.car.state == SUSHOLD) &&
-				    (ch.car.patch.EG == 0)) {
-					ch.car.setEnvelopeState(SUSTAIN);
-				}
 				unsigned freq = getFreq(i);
 				ch.car.updatePG (freq);
 				ch.car.updateRKS(freq);

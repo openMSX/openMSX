@@ -2,7 +2,6 @@
 #define DUMMYSCSIDEVICE_HH
 
 #include "SCSIDevice.hh"
-#include "serialize_meta.hh"
 
 namespace openmsx {
 

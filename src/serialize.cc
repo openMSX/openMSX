@@ -9,7 +9,6 @@
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
-#include "memory.hh"
 #include "Version.hh"
 #include "Date.hh"
 #include <cstring>
@@ -54,7 +53,7 @@ unsigned OutputArchiveBase2::generateID2(
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	auto key = std::make_pair(p, TypeInfo(typeInfo));
+	auto key = std::make_pair(p, std::type_index(typeInfo));
 	assert(idMap.find(key) == idMap.end());
 	idMap[key] = lastId;
 	return lastId;
@@ -68,8 +67,7 @@ unsigned OutputArchiveBase2::getID1(const void* p)
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
-	auto key = std::make_pair(p, TypeInfo(typeInfo));
-	auto it = idMap.find(key);
+	auto it = idMap.find({p, std::type_index(typeInfo)});
 	return it != idMap.end() ? it->second : 0;
 }
 
@@ -336,7 +334,7 @@ void XmlOutputArchive::attribute(const char* name, unsigned u)
 void XmlOutputArchive::beginTag(const char* tag)
 {
 	assert(!current.empty());
-	auto& elem = current.back()->addChild(XMLElement(tag));
+	auto& elem = current.back()->addChild(tag);
 	current.push_back(&elem);
 }
 void XmlOutputArchive::endTag(const char* tag)
@@ -351,7 +349,7 @@ void XmlOutputArchive::endTag(const char* tag)
 XmlInputArchive::XmlInputArchive(const string& filename)
 	: elem(XMLLoader::load(filename, "openmsx-serialize.dtd"))
 {
-	elems.push_back(std::make_pair(&elem, 0));
+	elems.emplace_back(&elem, 0);
 }
 
 void XmlInputArchive::loadChar(char& c)
@@ -486,7 +484,7 @@ void XmlInputArchive::beginTag(const char* tag)
 			"No child tag \"" << tag <<
 			"\" found at location \"" << path << '\"');
 	}
-	elems.push_back(std::make_pair(child, 0));
+	elems.emplace_back(child, 0);
 }
 void XmlInputArchive::endTag(const char* tag)
 {

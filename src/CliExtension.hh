@@ -13,7 +13,7 @@ public:
 	explicit CliExtension(CommandLineParser& cmdLineParser);
 
 	virtual void parseOption(const std::string& option,
-	                         std::deque<std::string>& cmdLine);
+	                         array_ref<std::string>& cmdLine);
 	virtual string_ref optionHelp() const;
 
 private:

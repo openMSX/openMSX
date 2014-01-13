@@ -9,9 +9,9 @@
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
-#include "memory.hh"
 #include "vla.hh"
 #include <algorithm>
+#include <random>
 #include <cassert>
 
 namespace openmsx {
@@ -114,9 +114,9 @@ void GLPostProcessor::createRegions()
 			dstEndY += dstStep;
 		}
 
-		regions.push_back(Region(srcStartY, srcEndY,
-		                         dstStartY, dstEndY,
-		                         lineWidth));
+		regions.emplace_back(srcStartY, srcEndY,
+		                     dstStartY, dstEndY,
+		                     lineWidth);
 
 		// next region
 		srcStartY = srcEndY;
@@ -404,19 +404,17 @@ void GLPostProcessor::drawGlow(int glow)
 	glDisable(GL_TEXTURE_2D);
 }
 
-void GLPostProcessor::preCalcNoise(double factor)
+void GLPostProcessor::preCalcNoise(float factor)
 {
 	GLbyte buf1[256 * 256];
 	GLbyte buf2[256 * 256];
-	for (int i = 0; i < 256 * 256; i += 2) {
-		double r1, r2;
-		Math::gaussian2(r1, r2);
-		int s1 = Math::clip<-255, 255>(r1, factor);
-		buf1[i + 0] = (s1 > 0) ?  s1 : 0;
-		buf2[i + 0] = (s1 < 0) ? -s1 : 0;
-		int s2 = Math::clip<-255, 255>(r2, factor);
-		buf1[i + 1] = (s2 > 0) ?  s2 : 0;
-		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
+	std::minstd_rand generator; // fast (non-cryptographic) random numbers
+	std::normal_distribution<float> distribution(0.0f, 1.0f);
+	for (int i = 0; i < 256 * 256; ++i) {
+		float r = distribution(generator);
+		int s = Math::clip<-255, 255>(r, factor);
+		buf1[i] = (s > 0) ?  s : 0;
+		buf2[i] = (s < 0) ? -s : 0;
 	}
 	noiseTextureA.updateImage(0, 0, 256, 256, buf1);
 	noiseTextureB.updateImage(0, 0, 256, 256, buf2);

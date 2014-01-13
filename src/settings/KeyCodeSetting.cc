@@ -15,6 +15,7 @@ KeyCodeSetting::KeyCodeSetting(CommandController& commandController,
 			throw CommandException("Not a valid key: " + str);
 		}
 	});
+	init();
 }
 
 string_ref KeyCodeSetting::getTypeString() const

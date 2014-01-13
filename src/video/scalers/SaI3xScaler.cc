@@ -7,7 +7,6 @@
 #include "SaI3xScaler.hh"
 #include "FrameSource.hh"
 #include "ScalerOutput.hh"
-#include "aligned.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <cassert>

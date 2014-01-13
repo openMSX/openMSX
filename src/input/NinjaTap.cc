@@ -10,8 +10,8 @@ NinjaTap::NinjaTap(PluggingController& pluggingController,
 {
 	status = 0x3F; // TODO check initial value
 	previous = 0;
-	for (int i = 0; i < 4; ++i) {
-		buf[i] = 0xFF;
+	for (auto& b : buf) {
+		b = 0xFF;
 	}
 }
 

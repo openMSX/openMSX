@@ -9,7 +9,6 @@
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
-#include <cstring>
 
 namespace openmsx {
 

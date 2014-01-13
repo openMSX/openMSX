@@ -1,10 +1,8 @@
 #include "ZlibInflate.hh"
 #include "FileException.hh"
-#include "Math.hh"
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include <limits>
-#include <cassert>
 
 namespace openmsx {
 

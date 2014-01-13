@@ -8,7 +8,6 @@
 #include "StateChangeDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "ReverseManager.hh"
-#include "MSXException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "SimpleDebuggable.hh"
@@ -27,7 +26,6 @@
 #include "openmsx.hh"
 #include <SDL.h>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <cassert>
 #include <cstdarg>

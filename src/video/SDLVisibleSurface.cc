@@ -7,7 +7,6 @@
 #include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <cassert>
 #include <cstdint>
 
 namespace openmsx {

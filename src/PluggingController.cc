@@ -11,7 +11,6 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "memory.hh"
-#include "openmsx.hh"
 #include <cassert>
 #include <iostream>
 #include <set>

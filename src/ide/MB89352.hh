@@ -19,7 +19,6 @@
 namespace openmsx {
 
 class DeviceConfig;
-class MSXMotherBoard;
 
 class MB89352
 {

@@ -11,10 +11,8 @@ namespace openmsx {
 
 class Reactor;
 class EventDistributor;
-class EventDistributor;
 class CommandController;
 class AfterCmd;
-class Event;
 
 class AfterCommand : public Command, private EventListener
 {

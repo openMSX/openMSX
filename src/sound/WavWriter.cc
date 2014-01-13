@@ -5,7 +5,6 @@
 #include "vla.hh"
 #include "endian.hh"
 #include "memory.hh"
-#include <algorithm>
 #include <cstring>
 #include <vector>
 

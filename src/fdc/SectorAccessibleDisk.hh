@@ -4,9 +4,7 @@
 #include "DiskImageUtils.hh"
 #include "Filename.hh"
 #include "sha1.hh"
-#include "openmsx.hh"
 #include <vector>
-#include <string>
 #include <memory>
 
 namespace openmsx {

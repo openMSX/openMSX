@@ -1,14 +1,14 @@
 #include "CLIOption.hh"
 #include "MSXException.hh"
+#include <algorithm>
 
 using std::string;
-using std::deque;
 
 namespace openmsx {
 
 // class CLIOption
 
-string CLIOption::getArgument(const string& option, deque<string>& cmdLine) const
+string CLIOption::getArgument(const string& option, array_ref<string>& cmdLine) const
 {
 	if (cmdLine.empty()) {
 		throw FatalError("Missing argument for option \"" + option + '\"');
@@ -18,7 +18,7 @@ string CLIOption::getArgument(const string& option, deque<string>& cmdLine) cons
 	return argument;
 }
 
-string CLIOption::peekArgument(const deque<string>& cmdLine) const
+string CLIOption::peekArgument(const array_ref<string>& cmdLine) const
 {
 	return cmdLine.empty() ? "" : cmdLine.front();
 }

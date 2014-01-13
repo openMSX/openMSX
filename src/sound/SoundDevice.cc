@@ -8,12 +8,9 @@
 #include "MemoryOps.hh"
 #include "MemBuffer.hh"
 #include "MSXException.hh"
-#include "aligned.hh"
 #include "likely.hh"
 #include "vla.hh"
-#include "unreachable.hh"
 #include "memory.hh"
-#include <cstring>
 #include <cassert>
 
 using std::string;

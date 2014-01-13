@@ -30,7 +30,7 @@ void EventDistributor::registerEventListener(
 	// insert at highest position that keeps listeners sorted on priority
 	auto it = upper_bound(priorityMap.begin(), priorityMap.end(), priority,
 	                      LessTupleElement<0>());
-	priorityMap.insert(it, std::make_pair(priority, &listener));
+	priorityMap.insert(it, {priority, &listener});
 }
 
 void EventDistributor::unregisterEventListener(

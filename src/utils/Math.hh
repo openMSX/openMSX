@@ -2,25 +2,12 @@
 #define MATH_HH
 
 #include "openmsx.hh"
-#include "inline.hh"
 #include "likely.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cmath>
 
 namespace openmsx {
-
-#ifdef _MSC_VER
-	// C99 math functions missing from VC++'s CRT as of 2008
-	// TODO - define HAVE_C99MATHOPS instead
-	long lrint(double x);
-	long lrintf(float x);
-	float truncf(float x);
-	double round(double x);
-#endif
-
 namespace Math {
-
 
 /** Is the given number an integer power of 2?
   * Not correct for zero (according to this test 0 is a power of 2).
@@ -33,12 +20,6 @@ inline bool isPowerOfTwo(unsigned a)
 /** Returns the smallest number that is both >=a and a power of two.
   */
 unsigned powerOfTwo(unsigned a);
-
-/** Returns two gaussian distributed random numbers.
-  * We return two numbers instead of one because the second number comes for
-  * free in the current implementation.
-  */
-void gaussian2(double& r1, double& r2);
 
 /** Clips x to the range [LO,HI].
   * Slightly faster than    std::min(HI, std::max(LO, x))
@@ -71,9 +52,9 @@ inline byte clipIntToByte(int x)
 /** Clips r * factor to the range [LO,HI].
   */
 template <int LO, int HI>
-inline int clip(double r, double factor)
+inline int clip(float r, float factor)
 {
-	int a = int(round(r * factor));
+	int a = int(roundf(r * factor));
 	return std::min(std::max(a, LO), HI);
 }
 
@@ -221,7 +202,6 @@ inline unsigned countLeadingZeros(unsigned x)
 }
 
 } // namespace Math
-
 } // namespace openmsx
 
 #endif // MATH_HH

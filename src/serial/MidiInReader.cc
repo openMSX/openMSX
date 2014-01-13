@@ -101,6 +101,7 @@ void MidiInReader::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
+		ScopedLock l(lock);
 		queue.clear();
 		return;
 	}
@@ -110,9 +111,7 @@ void MidiInReader::signal(EmuTime::param time)
 
 	ScopedLock l(lock);
 	if (queue.empty()) return;
-	byte data = queue.front();
-	queue.pop_front();
-	connector->recvByte(data, time);
+	connector->recvByte(queue.pop_front(), time);
 }
 
 // EventListener
@@ -122,7 +121,7 @@ int MidiInReader::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
-		queue.empty();
+		queue.clear();
 	}
 	return 0;
 }

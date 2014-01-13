@@ -4,7 +4,6 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "GLUtil.hh"
-#include "openmsx.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <SDL.h>

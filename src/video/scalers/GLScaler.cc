@@ -1,6 +1,5 @@
 #include "GLScaler.hh"
 #include "GLUtil.hh"
-#include "memory.hh"
 
 namespace openmsx {
 

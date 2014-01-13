@@ -8,7 +8,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class SCCDebuggable;
 
 class SCC : public ResampledSoundDevice

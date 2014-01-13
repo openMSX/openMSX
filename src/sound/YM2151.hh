@@ -39,7 +39,6 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
 class DeviceConfig;
 
 class YM2151

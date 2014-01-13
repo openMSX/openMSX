@@ -45,25 +45,25 @@ void JoyTap::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 
 void JoyTap::unplugHelper(EmuTime::param time)
 {
-	for (int i = 0; i < 4; ++i) {
-		slaves[i]->unplug(time);
-		slaves[i].reset();
+	for (auto& s : slaves) {
+		s->unplug(time);
+		s.reset();
 	}
 }
 
 byte JoyTap::read(EmuTime::param time)
 {
 	byte value = 255;
-	for (int i = 0; i < 4; ++i) {
-		value &= slaves[i]->read(time);
+	for (auto& s : slaves) {
+		value &= s->read(time);
 	}
 	return value;
 }
 
 void JoyTap::write(byte value, EmuTime::param time)
 {
-	for (int i = 0; i < 4; ++i) {
-		slaves[i]->write(value, time);
+	for (auto& s : slaves) {
+		s->write(value, time);
 	}
 }
 

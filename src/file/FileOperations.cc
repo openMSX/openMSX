@@ -20,6 +20,8 @@
 #include <unistd.h>
 #endif // ifdef _WIN32_ ... else ...
 
+#include "openmsx.hh" // for ad_printf
+
 #include "systemfuncs.hh"
 
 #if HAVE_NFTW
@@ -39,7 +41,6 @@
 #include <Carbon/Carbon.h>
 #endif
 
-#include "openmsx.hh"
 #include "ReadDir.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"

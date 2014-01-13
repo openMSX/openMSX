@@ -1,14 +1,13 @@
 #ifndef OGGREADER_HH
 #define OGGREADER_HH
 
-#include "openmsx.hh"
+#include "circular_buffer.hh"
 #include "noncopyable.hh"
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <theora/theoradec.h>
 #include <memory>
 #include <list>
-#include <deque>
 #include <utility>
 #include <vector>
 
@@ -100,9 +99,8 @@ private:
 	int granuleShift;
 	size_t totalFrames;
 
-	typedef std::deque<std::unique_ptr<Frame>> Frames;
-	Frames frameList;
-	Frames recycleFrameList;
+	cb_queue<std::unique_ptr<Frame>> frameList;
+	std::vector<std::unique_ptr<Frame>> recycleFrameList;
 
 	// audio
 	int audioHeaders;
@@ -113,9 +111,8 @@ private:
 	size_t currentSample;
 	size_t vorbisPos;
 
-	typedef std::list<std::unique_ptr<AudioFragment>> AudioFragments;
-	AudioFragments audioList;
-	AudioFragments recycleAudioList;
+	std::list<std::unique_ptr<AudioFragment>> audioList;
+	cb_queue<std::unique_ptr<AudioFragment>> recycleAudioList;
 
 	// Metadata
 	std::vector<size_t> stopFrames;

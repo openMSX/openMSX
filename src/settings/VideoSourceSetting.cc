@@ -10,11 +10,12 @@ VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	          "selects the video source to display on the screen",
 	          "none", DONT_SAVE)
 {
-	sources.push_back(std::make_pair("none", 0));
+	sources = { { "none", 0 } };
 
 	setChecker([this](TclObject& newValue) {
 		checkSetValue(newValue.getString()); // may throw
 	});
+	init();
 }
 
 void VideoSourceSetting::checkSetValue(string_ref value) const
@@ -103,7 +104,7 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 	static int counter = 0; // id's are globally unique
 
 	assert(!has(source));
-	sources.push_back(std::make_pair(source, ++counter));
+	sources.emplace_back(source, ++counter);
 
 	// First announce extended set of allowed values before announcing a
 	// (possibly) different value.

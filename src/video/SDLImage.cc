@@ -3,8 +3,6 @@
 #include "OutputSurface.hh"
 #include "PixelOperations.hh"
 #include "MSXException.hh"
-#include "vla.hh"
-#include "unreachable.hh"
 #include <cassert>
 #include <cstdlib>
 #include <SDL.h>
@@ -287,10 +285,10 @@ static void setupInterp2(unsigned r0, unsigned g0, unsigned b0, unsigned a0,
 			subGA = true;
 		}
 		// also pack two 8.16 delta values in one [8.8 ; 8.8] vector
-		drb = ((dr << 8) & 0xffff0000) |
-		      ((db >> 8) & 0x0000ffff);
-		dga = ((dg << 8) & 0xffff0000) |
-		      ((da >> 8) & 0x0000ffff);
+		drb = ((unsigned(dr) << 8) & 0xffff0000) |
+		      ((unsigned(db) >> 8) & 0x0000ffff);
+		dga = ((unsigned(dg) << 8) & 0xffff0000) |
+		      ((unsigned(da) >> 8) & 0x0000ffff);
 	}
 }
 // Pack two [8.8 ; 8.8] vectors into one pixel.
@@ -543,8 +541,8 @@ void SDLImage::initGradient(int width, int height, const unsigned* rgba_,
 	if (!needAlphaChannel) amask = 0;
 	SDLSurfacePtr tmp32(abs(width), abs(height), 32,
 	                    rmask, gmask, bmask, amask);
-	for (int i = 0; i < 4; ++i) {
-		rgba[i] = convertColor(*tmp32->format, rgba[i]);
+	for (auto& c : rgba) {
+		c = convertColor(*tmp32->format, c);
 	}
 	gradient(rgba, *tmp32, borderSize);
 	drawBorder(*tmp32, borderSize, borderRGBA);

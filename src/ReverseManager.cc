@@ -8,7 +8,6 @@
 #include "MSXMixer.hh"
 #include "MSXCommandController.hh"
 #include "XMLException.hh"
-#include "XMLElement.hh"
 #include "TclObject.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
@@ -20,7 +19,6 @@
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
-#include "checked_cast.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include <functional>
@@ -1037,8 +1035,7 @@ void ReverseCmd::tabCompletion(vector<string>& tokens) const
 		if (tokens[1] == "loadreplay" || tokens[1] == "savereplay") {
 			std::vector<const char*> cmds;
 			if (tokens[1] == "loadreplay") {
-				cmds.push_back("-goto");
-				cmds.push_back("-viewonly");
+				cmds = { "-goto", "-viewonly" };
 			}
 			UserDataFileContext context(REPLAY_DIR);
 			completeFileName(tokens, context, cmds);

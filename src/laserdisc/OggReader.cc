@@ -1,5 +1,4 @@
 #include "OggReader.hh"
-#include "Filename.hh"
 #include "File.hh"
 #include "MSXException.hh"
 #include "yuv2rgb.hh"
@@ -365,7 +364,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 		if (recycleAudioList.empty()) {
 			auto audio = make_unique<AudioFragment>();
 			audio->length = 0;
-			recycleAudioList.push_front(std::move(audio));
+			recycleAudioList.push_back(std::move(audio));
 		}
 		auto& audio = recycleAudioList.front();
 		if (audio->length == 0) {
@@ -397,8 +396,7 @@ void OggReader::readVorbis(ogg_packet* packet)
 		}
 
 		if (audio->length == AudioFragment::MAX_SAMPLES || last) {
-			audioList.push_back(std::move(recycleAudioList.front()));
-			recycleAudioList.pop_front();
+			audioList.push_back(recycleAudioList.pop_front());
 		}
 	}
 
@@ -460,7 +458,7 @@ void OggReader::readMetadata(th_comment& tc)
 			++p;
 			size_t frame = atol(p);
 			if (frame) {
-				chapters.push_back(std::make_pair(chapter, frame));
+				chapters.emplace_back(chapter, frame);
 			}
 		} else if (strncasecmp(p, "stop: ", 6) == 0) {
 			size_t stopframe = atol(p + 6);
@@ -633,8 +631,7 @@ void OggReader::getFrameNo(RawFrame& rawFrame, size_t frameno)
 		// and even frame are displayed during still, so we can
 		// only throw away the one two frames ago
 		while (frameList.size() >= 3 && frameList[2]->no <= frameno) {
-			recycleFrameList.push_back(std::move(frameList[0]));
-			frameList.pop_front();
+			recycleFrameList.push_back(frameList.pop_front());
 		}
 
 		if (!frameList.empty() && frameList[0]->no > frameno) {

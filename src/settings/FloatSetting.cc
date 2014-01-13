@@ -23,6 +23,7 @@ FloatSetting::FloatSetting(CommandController& commandController,
 		double clipped = std::min(std::max(value, minValue), maxValue);
 		newValue.setDouble(clipped);
 	});
+	init();
 }
 
 string_ref FloatSetting::getTypeString() const

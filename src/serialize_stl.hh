@@ -2,11 +2,8 @@
 #define SERIALIZE_STL_HH
 
 #include "serialize_core.hh"
+#include "circular_buffer.hh"
 #include <vector>
-#include <deque>
-#include <list>
-#include <map>
-#include <set>
 #include <iterator>
 
 namespace openmsx {
@@ -30,17 +27,17 @@ template<typename T> struct serialize_as_stl_collection : std::true_type
 	}
 };
 
-template<typename T> struct serialize_as_collection<std::list<T>>
-	: serialize_as_stl_collection<std::list<T>> {};
+//template<typename T> struct serialize_as_collection<std::list<T>>
+//	: serialize_as_stl_collection<std::list<T>> {};
 
-template<typename T> struct serialize_as_collection<std::set<T>>
-	: serialize_as_stl_collection<std::set<T>> {};
+//template<typename T> struct serialize_as_collection<std::set<T>>
+//	: serialize_as_stl_collection<std::set<T>> {};
 
-template<typename T> struct serialize_as_collection<std::deque<T>>
-	: serialize_as_stl_collection<std::deque<T>> {};
+//template<typename T> struct serialize_as_collection<std::deque<T>>
+//	: serialize_as_stl_collection<std::deque<T>> {};
 
-template<typename T1, typename T2> struct serialize_as_collection<std::map<T1, T2>>
-	: serialize_as_stl_collection<std::map<T1, T2>> {};
+//template<typename T1, typename T2> struct serialize_as_collection<std::map<T1, T2>>
+//	: serialize_as_stl_collection<std::map<T1, T2>> {};
 
 template<typename T> struct serialize_as_collection<std::vector<T>>
 	: serialize_as_stl_collection<std::vector<T>>
@@ -58,6 +55,19 @@ template<typename T> struct serialize_as_collection<std::vector<T>>
 	}
 	static output_iterator output(std::vector<T>& v) {
 		return std::back_inserter(v);
+	}
+};
+
+template<typename T> struct serialize_as_collection<cb_queue<T>>
+	: serialize_as_stl_collection<cb_queue<T>>
+{
+	typedef typename std::back_insert_iterator<circular_buffer<T>>
+		output_iterator;
+	static void prepare(cb_queue<T>& q, int n) {
+		q.clear(); q.getBuffer().set_capacity(n);
+	}
+	static output_iterator output(cb_queue<T>& q) {
+		return std::back_inserter(q.getBuffer());
 	}
 };
 

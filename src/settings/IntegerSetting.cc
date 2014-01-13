@@ -16,6 +16,7 @@ IntegerSetting::IntegerSetting(CommandController& commandController,
 		int clipped = std::min(std::max(value, minValue), maxValue);
 		newValue.setInt(clipped);
 	});
+	init();
 }
 
 string_ref IntegerSetting::getTypeString() const

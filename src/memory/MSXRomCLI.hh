@@ -13,27 +13,27 @@ public:
 	explicit MSXRomCLI(CommandLineParser& cmdLineParser);
 
 	virtual void parseOption(const std::string& option,
-	                         std::deque<std::string>& cmdLine);
+	                         array_ref<std::string>& cmdLine);
 	virtual string_ref optionHelp() const;
 
 	virtual void parseFileType(const std::string& filename,
-	                           std::deque<std::string>& cmdLine);
+	                           array_ref<std::string>& cmdLine);
 	virtual string_ref fileTypeHelp() const;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
-	           std::deque<std::string>& cmdLine);
+	           array_ref<std::string>& cmdLine);
 
 	CommandLineParser& cmdLineParser;
 
 	class IpsOption : public CLIOption {
 		virtual void parseOption(const std::string& option,
-		                         std::deque<std::string>& cmdLine);
+		                         array_ref<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;
 	} ipsOption;
 	class RomTypeOption : public CLIOption {
 		virtual void parseOption(const std::string& option,
-		                         std::deque<std::string>& cmdLine);
+		                         array_ref<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;
 	} romTypeOption;
 };

@@ -9,11 +9,9 @@
 #include "TclObject.hh"
 #include "StringSetting.hh"
 #include "CommandException.hh"
-#include "checked_cast.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
 #include "memory.hh"
-#include "unreachable.hh"
 #include "xrange.hh"
 #include "build-info.hh"
 

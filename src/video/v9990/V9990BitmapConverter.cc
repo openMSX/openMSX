@@ -1,11 +1,9 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"
-#include "GLUtil.hh"
 #include "Math.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
-#include <type_traits>
 #include <cassert>
 #include <cstdint>
 
@@ -29,8 +27,8 @@ static inline void draw_YJK_YUV_PAL(
 	Pixel* __restrict pixelPtr, unsigned& address, int firstX = 0)
 {
 	byte data[4];
-	for (int i = 0; i < 4; ++i) {
-		data[i] = vram.readVRAMBx(address++);
+	for (auto& d : data) {
+		d = vram.readVRAMBx(address++);
 	}
 
 	int u = (data[2] & 7) + ((data[3] & 3) << 3) - ((data[3] & 4) << 3);

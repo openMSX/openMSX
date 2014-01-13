@@ -86,8 +86,7 @@ private:
 static XMLElement createXML()
 {
 	XMLElement xml("cassetteplayer");
-	xml.addChild(XMLElement("sound"))
-	        .addChild(XMLElement("volume", "5000"));
+	xml.addChild("sound").addChild("volume", "5000");
 	return xml;
 }
 

@@ -28,6 +28,7 @@ HDR_ONLY:= \
 	Subject Observer \
 	ScopedAssign \
 	checked_cast \
+	circular_buffer \
 	endian \
 	alignof \
 	array_ref \
@@ -37,13 +38,13 @@ HDR_ONLY:= \
 	noncopyable \
 	unreachable \
 	stl \
-	TypeInfo \
 	type_traits \
 	DivModByConst \
 	utf8_core \
 	utf8_unchecked \
-	aligned cstdiop cstdlibp direntp statp stringsp unistdp vla win32-arggen \
+	aligned cstdiop direntp statp stringsp unistdp vla win32-arggen \
 	countof \
-	xrange
+	xrange \
+	xxhash
 
 include build/node-end.mk

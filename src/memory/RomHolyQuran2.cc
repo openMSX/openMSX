@@ -56,8 +56,8 @@ RomHolyQuran2::~RomHolyQuran2()
 
 void RomHolyQuran2::reset(EmuTime::param /*time*/)
 {
-	for (int i = 0; i < 4; ++i) {
-		bank[i] = &(*rom)[0];
+	for (auto& b : bank) {
+		b = &(*rom)[0];
 	}
 	decrypt = false;
 }

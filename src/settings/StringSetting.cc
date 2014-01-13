@@ -8,6 +8,7 @@ StringSetting::StringSetting(CommandController& commandController,
 	: Setting(commandController, name, description,
 	          initialValue.str(), save)
 {
+	init();
 }
 
 string_ref StringSetting::getTypeString() const

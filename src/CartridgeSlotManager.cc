@@ -3,13 +3,11 @@
 #include "HardwareConfig.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
-#include "CommandController.hh"
 #include "InfoTopic.hh"
 #include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "openmsx.hh"
 #include "CliComm.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -408,8 +406,7 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> extra;
 	if (tokens.size() < 3) {
-		extra.push_back("eject");
-		extra.push_back("insert");
+		extra = { "eject", "insert" };
 	}
 	completeFileName(tokens, UserFileContext(), extra);
 }

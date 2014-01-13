@@ -8,7 +8,6 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "BooleanSetting.hh"
-#include "CommandController.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "DeviceConfig.hh"

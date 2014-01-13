@@ -5,9 +5,9 @@
 #include "FileOperations.hh"
 #include "TclObject.hh"
 #include "components.hh"
-#include "Math.hh"
 #include "memory.hh"
 #include <cassert>
+#include <cmath>
 #if COMPONENT_GL
 #include "GLImage.hh"
 #endif

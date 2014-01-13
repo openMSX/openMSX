@@ -1,7 +1,6 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
-#include "serialize_constr.hh"
 #include "serialize_meta.hh"
 #include <utility>
 #include <string>
@@ -43,7 +42,9 @@ public:
 
 	// child
 	typedef std::vector<XMLElement> Children;
-	XMLElement& addChild(XMLElement child);
+	//  note: returned XMLElement& is validated on the next addChild() call
+	XMLElement& addChild(string_ref name);
+	XMLElement& addChild(string_ref name, string_ref data);
 	void removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
 	bool hasChildren() const { return !children.empty(); }

@@ -4,7 +4,6 @@
 #include "RendererFactory.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -15,7 +14,6 @@ class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
 class StringSetting;
-class VideoSourceSetting;
 class TclObject;
 
 /** Class containing all settings for renderers.
@@ -33,7 +31,8 @@ public:
 	  */
 	enum ScaleAlgorithm {
 		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
-		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV, SCALER_MLAA
+		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV, SCALER_MLAA,
+		NO_SCALER
 	};
 
 	enum DisplayDeform {

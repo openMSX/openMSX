@@ -19,11 +19,9 @@
 #include "ScopedAssign.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
-#include "openmsx.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
-#include <cstdlib>
 
 using std::string;
 using std::vector;
@@ -181,7 +179,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 		auto proxy = make_unique<ProxySetting>(reactor, name);
 		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
 		getInterpreter().registerSetting(*proxy, name);
-		proxySettings.push_back(std::make_pair(std::move(proxy), 1));
+		proxySettings.emplace_back(std::move(proxy), 1);
 	} else {
 		// was already registered
 		++(it->second);
@@ -311,11 +309,11 @@ void GlobalCommandController::split(string_ref str, vector<string>& tokens,
 		switch (state) {
 			case Alpha:
 				if (tokens.empty()) {
-					tokens.push_back("");
+					tokens.emplace_back();
 				}
 				if (chr == delimiter) {
 					// token done, start new token
-					tokens.push_back("");
+					tokens.emplace_back();
 				} else {
 					tokens.back() += chr;
 					if (chr == '\\') {
@@ -382,7 +380,7 @@ vector<string> GlobalCommandController::removeEscaping(
 		}
 	}
 	if (keepLastIfEmpty && (input.empty() || input.back().empty())) {
-		result.push_back("");
+		result.emplace_back();
 	}
 	return result;
 }
@@ -477,7 +475,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	vector<string> originalTokens;
 	split(post, originalTokens, ' ');
 	if (originalTokens.empty()) {
-		originalTokens.push_back("");
+		originalTokens.emplace_back();
 	}
 
 	// complete last token
@@ -497,7 +495,7 @@ string GlobalCommandController::tabCompletion(string_ref command)
 	if (tokenFinished) {
 		assert(newNum == (oldNum + 1));
 		assert(tokens.back().empty());
-		originalTokens.push_back("");
+		originalTokens.emplace_back();
 	}
 
 	// rebuild command string

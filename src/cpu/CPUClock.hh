@@ -3,13 +3,10 @@
 
 #include "DynamicClock.hh"
 #include "Scheduler.hh"
-#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace openmsx {
-
-class Scheduler;
 
 class CPUClock
 {

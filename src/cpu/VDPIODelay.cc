@@ -1,7 +1,6 @@
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
 #include "MSXCPUInterface.hh"
-#include "DeviceConfig.hh"
 #include "DummyDevice.hh"
 #include "serialize.hh"
 #include <cassert>

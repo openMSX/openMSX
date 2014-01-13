@@ -40,8 +40,8 @@ MSXFDC::~MSXFDC()
 
 void MSXFDC::powerDown(EmuTime::param time)
 {
-	for (int i = 0; i < 4; ++i) {
-		drives[i]->setMotor(false, time);
+	for (auto& drive : drives) {
+		drive->setMotor(false, time);
 	}
 }
 

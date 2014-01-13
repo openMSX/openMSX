@@ -15,7 +15,6 @@ class EventDistributor;
 class Command;
 class BaseSetting;
 class InterpreterOutput;
-class TclObject;
 
 class Interpreter : private EventListener, private noncopyable
 {

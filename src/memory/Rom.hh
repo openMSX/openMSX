@@ -16,7 +16,6 @@ class XMLElement;
 class DeviceConfig;
 class File;
 class FileContext;
-class CliComm;
 class RomDebuggable;
 
 class Rom : private noncopyable

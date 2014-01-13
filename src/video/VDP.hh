@@ -8,7 +8,6 @@
 #include "Clock.hh"
 #include "DisplayMode.hh"
 #include "Observer.hh"
-#include "likely.hh"
 #include "openmsx.hh"
 #include <memory>
 

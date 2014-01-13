@@ -1,12 +1,11 @@
 #include "TclCallback.hh"
 #include "TclObject.hh"
-#include "GlobalCommandController.hh"
+#include "CommandController.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
 #include "memory.hh"
 #include <iostream>
-#include <cassert>
 
 using std::string;
 

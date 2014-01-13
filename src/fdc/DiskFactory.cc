@@ -1,5 +1,4 @@
 #include "DiskFactory.hh"
-#include "CommandController.hh"
 #include "Reactor.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -9,7 +8,6 @@
 #include "RamDSKDiskImage.hh"
 #include "DirAsDSK.hh"
 #include "DiskPartition.hh"
-#include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -24,17 +22,17 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 {
 	CommandController& controller = reactor.getCommandController();
 
-	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap;
-	syncDirAsDSKMap.push_back(std::make_pair("read_only", DirAsDSK::SYNC_READONLY));
-	syncDirAsDSKMap.push_back(std::make_pair("full",      DirAsDSK::SYNC_FULL));
+	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap = {
+		{ "read_only", DirAsDSK::SYNC_READONLY },
+		{ "full",      DirAsDSK::SYNC_FULL } };
 	syncDirAsDSKSetting = make_unique<EnumSetting<DirAsDSK::SyncMode>>(
 		controller, "DirAsDSKmode",
 		"type of syncronisation between host directory and dir-as-dsk diskimage",
 		DirAsDSK::SYNC_FULL, syncDirAsDSKMap);
 
-	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap;
-	bootsectorMap.push_back(std::make_pair("DOS1", DirAsDSK::BOOTSECTOR_DOS1));
-	bootsectorMap.push_back(std::make_pair("DOS2", DirAsDSK::BOOTSECTOR_DOS2));
+	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap = {
+		{ "DOS1", DirAsDSK::BOOTSECTOR_DOS1 },
+		{ "DOS2", DirAsDSK::BOOTSECTOR_DOS2 } };
 	bootSectorSetting = make_unique<EnumSetting<DirAsDSK::BootSectorType>>(
 		controller, "bootsector", "boot sector type for dir-as-dsk",
 		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap);
