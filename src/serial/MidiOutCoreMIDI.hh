@@ -28,7 +28,7 @@ protected:
 	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) = 0;
 
 private:
-	void messageComplete(EmuTime::param /*time*/);
+	void messageComplete(EmuTime::param time, const uint8_t *data, size_t size);
 
 	std::vector<uint8_t> message;
 	bool isSysEx;
