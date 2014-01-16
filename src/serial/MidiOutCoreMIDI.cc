@@ -79,12 +79,15 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		if (value == MIDI_MSG_SYSEX_END) {
 			if (isSysEx) {
 				message.push_back(value);
-				messageComplete(time);
+				messageComplete(time, message.size(), message.data());
 			} else {
 				PRT_DEBUG("Ignoring SysEx end without start");
 			}
 			message.clear();
 			isSysEx = false;
+		} else if (value >= 0xF8) {  // realtime message, send immediately
+			messageComplete(time, 1, &value);
+			return;
 		} else {
 			// Replace any message in progress.
 			if (isSysEx) {
@@ -112,7 +115,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		uint8_t status = isSysEx ? MIDI_MSG_SYSEX : message[0];
 		size_t len = midiMessageLength(status);
 		if (message.size() >= len) {
-			messageComplete(time);
+			messageComplete(time, message.size(), message.data());
 			if (isSysEx || len <= 1) {
 				message.clear();
 			} else {
@@ -123,7 +126,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 	}
 }
 
-void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/)
+void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/, size_t size, uint8_t *data)
 {
 	// TODO: It would be better to schedule events based on EmuTime.
 	MIDITimeStamp abstime = mach_absolute_time();
@@ -131,7 +134,7 @@ void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/)
 	MIDIPacketList packetList;
 	MIDIPacket *curPacket = MIDIPacketListInit(&packetList);
 	curPacket = MIDIPacketListAdd(&packetList, sizeof(packetList),
-			curPacket, abstime, message.size(), message.data());
+			curPacket, abstime, size, data);
 	if (!curPacket) {
 		fprintf(stderr, "Failed to package MIDI data\n");
 	} else if (OSStatus status = sendPacketList(&packetList)) {
