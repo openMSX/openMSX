@@ -116,7 +116,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		size_t len = midiMessageLength(status);
 		if (message.size() >= len) {
 			messageComplete(time, message.size(), message.data());
-			if (isSysEx || len <= 1) {
+			if (status >= 0xF0 && status < 0xF8) {
 				message.clear();
 			} else {
 				// Keep last status, to support running status.
