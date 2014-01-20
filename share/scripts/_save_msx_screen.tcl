@@ -73,14 +73,24 @@ proc save_msx_screen {basename} {
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# OBJ Tiles
 	}
 	"5" - "6" {
-		lappend sections "VRAM" $name_base_bitmap 0x7400                ;# Bitmap
-		lappend sections "VRAM" $spr_att_base_2 0x280                   ;# Sprite colors + attributes
-		lappend sections "VDP palette" 0 0x20                           ;# Palette
+		set lines1 [expr {[vdpreg 23] > 24 ? 256 - [vdpreg 23] : 232}] ;# Store 232 lines, even
+		set lines2 [expr {232 - $lines1}]                              ;# though only 212 are visible
+		set base1 [expr {$name_base_bitmap + [vdpreg 23] * 128}]
+		set base2        $name_base_bitmap
+		lappend sections "VRAM" $base1 [expr {$lines1 * 128}]       ;# Bitmap (part 1)
+		lappend sections "VRAM" $base2 [expr {$lines2 * 128}]       ;# Bitmap (part 2)
+		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
+		lappend sections "VDP palette" 0 0x20                       ;# Palette
 		lappend sections "VRAM" [expr {$name_base_bitmap + 0x76A0}] 0x160 ;# Fill (Bitmap)
-		lappend sections "VRAM" $spr_pat_base 0x800                     ;# Sprite character patterns
+		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns
 	}
 	"7" - "8" - "11" - "12" {
-		lappend sections "VRAM" $name_base_bitmap 0xF000            ;# Bitmap
+		set lines1 [expr {[vdpreg 23] > 16 ? 256 - [vdpreg 23] : 240}] ;# Store 240 lines, even
+		set lines2 [expr {240 - $lines1}]                              ;# though only 212 are visible
+		set base1 [expr {$name_base_bitmap + [vdpreg 23] * 256}]
+		set base2        $name_base_bitmap
+		lappend sections "VRAM" $base1 [expr {$lines1 * 256}]       ;# Bitmap (part 1)
+		lappend sections "VRAM" $base2 [expr {$lines2 * 256}]       ;# Bitmap (part 2)
 		lappend sections "VRAM" $spr_pat_base 0x800                 ;# Sprite character patterns
 		lappend sections "VRAM" $spr_att_base_2 0x280               ;# Sprite colors + attributes
 		lappend sections "VDP palette" 0 0x20                       ;# Palette
