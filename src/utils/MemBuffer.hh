@@ -155,6 +155,7 @@ public:
 	}
 
 private:
+#if defined(_MSC_VER)
 	// Make non-copyable/assignable.
 	//  Strictly according to the c++11 standard this is not needed because
 	//  there's a user-defined move-constructor/assignment. Though visual
@@ -163,6 +164,7 @@ private:
 	//  also doesn't support the '=delete' syntax yet.
 	MemBuffer(const MemBuffer&);
 	MemBuffer& operator=(const MemBuffer&);
+#endif
 
 	T* dat;
 	size_t sz;

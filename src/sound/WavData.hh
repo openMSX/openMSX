@@ -42,10 +42,12 @@ public:
 	const void* getData() const;
 
 private:
+#if defined(_MSC_VER)
 	// Make non-copyable/assignable
 	//  work around limitation in vs2013, see comment in MemBuffer.
 	WavData(const WavData&);
 	WavData& operator=(const WavData&);
+#endif
 
 	MemBuffer<byte> buffer;
 	unsigned bits;
