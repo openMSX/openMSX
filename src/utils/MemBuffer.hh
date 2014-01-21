@@ -155,6 +155,15 @@ public:
 	}
 
 private:
+	// Make non-copyable/assignable.
+	//  Strictly according to the c++11 standard this is not needed because
+	//  there's a user-defined move-constructor/assignment. Though visual
+	//  studio 2013 isn't fully standard compliant yet (it still provides
+	//  an auto-generated copy-constructor/assignment). Visual studio 2013
+	//  also doesn't support the '=delete' syntax yet.
+	MemBuffer(const MemBuffer&);
+	MemBuffer& operator=(const MemBuffer&);
+
 	T* dat;
 	size_t sz;
 };
