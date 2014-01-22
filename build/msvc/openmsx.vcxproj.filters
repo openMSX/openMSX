@@ -732,9 +732,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\settings\Setting.cc">
       <Filter>settings</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingImpl.cc">
-      <Filter>settings</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingsManager.cc">
       <Filter>settings</Filter>
     </ClCompile>
@@ -924,12 +921,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\utils\HexDump.cc">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\HostCPU.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\utils\lzo.cc">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\utils\Math.cc">
       <Filter>utils</Filter>
     </ClCompile>
@@ -1084,9 +1075,6 @@
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoLayer.cc">
-      <Filter>video</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.cc">
       <Filter>video</Filter>
     </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc">
@@ -1342,6 +1330,19 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\scalers\Simple3xScaler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXCielTurbo.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\commands\TclCallback.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\MessageCommand.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\AVTFDC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\Tiger.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\TigerTree.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\utils\snappy.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(OpenMSXSrcDir)\cassette\CasImage.hh">
@@ -2064,13 +2065,7 @@
     <None Include="$(OpenMSXSrcDir)\settings\Setting.hh">
       <Filter>settings</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\settings\SettingImpl.hh">
-      <Filter>settings</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\settings\SettingPolicy.hh">
-      <Filter>settings</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\settings\SettingRangePolicy.hh">
       <Filter>settings</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\settings\SettingsManager.hh">
@@ -2298,22 +2293,10 @@
     <None Include="$(OpenMSXSrcDir)\utils\HexDump.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\HostCPU.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\inline.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\likely.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\lzo.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\lzoconf.hh">
-      <Filter>utils</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\utils\lzodefs.hh">
       <Filter>utils</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\utils\Math.hh">
@@ -2551,9 +2534,6 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VideoLayer.hh">
-      <Filter>video</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\video\VideoSource.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\VideoSourceSetting.hh">
@@ -2816,6 +2796,19 @@
     <None Include="$(OpenMSXSrcDir)\video\v9990\Video9000.hh" />
     <None Include="$(OpenMSXSrcDir)\SaveState.hh" />
     <None Include="$(OpenMSXSrcDir)\MSXCielTurbo.hh" />
+    <None Include="$(OpenMSXSrcDir)\commands\TclCallback.hh" />
+    <None Include="$(OpenMSXSrcDir)\events\MessageCommand.hh" />
+    <None Include="$(OpenMSXSrcDir)\fdc\AVTFDC.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
+    <None Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\snappy.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.hh" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(OpenMSXSrcDir)\resource\openmsx.rc">

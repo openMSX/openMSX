@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -35,28 +35,34 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -126,7 +132,7 @@
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
-	  <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -191,7 +197,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-	  <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -258,7 +264,7 @@
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
       <TargetMachine>MachineX86</TargetMachine>
-	  <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Developer|x64'">
@@ -362,9 +368,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\events\Socket.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\StdioMessages.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\events\TclCallbackMessages.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\events\MessageCommand.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\events\MessageCommand.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\BootBlocks.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\fdc\AVTFDC.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\fdc\AVTFDC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\Disk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\fdc\DiskChanger.cc" />
@@ -453,7 +459,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\input\StateChangeDistributor.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\Trackball.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\input\Touchpad.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\AmdFlash.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\CheckedRam.cc" />
@@ -497,8 +503,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomKonamiSCC.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomManbow2.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />	
-	<ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXtra.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMultiRom.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMatraInk.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\memory\RomNational.cc" />
@@ -526,11 +532,11 @@
     <ClCompile Include="$(OpenMSXSrcDir)\settings\KeyCodeSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\ProxySetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\Setting.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\ReadOnlySetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\SettingsManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\StringSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\settings\UserSettings.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />	
+    <ClCompile Include="$(OpenMSXSrcDir)\settings\VideoSourceSetting.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputConnector.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AudioInputDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\AY8910.cc" />
@@ -683,8 +689,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\VideoSystem.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\VisibleSurface.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\ZMBVEncoder.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
-	<ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedVideoFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\SuperImposedFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\Video9000.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\v9990\V9990BitmapConverter.cc" />
@@ -816,7 +822,7 @@
     <None Include="$(OpenMSXSrcDir)\commands\ProxyCommand.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclObject.hh" />
     <None Include="$(OpenMSXSrcDir)\commands\TclParser.hh" />
-	<None Include="$(OpenMSXSrcDir)\commands\TclCallback.hh" />
+    <None Include="$(OpenMSXSrcDir)\commands\TclCallback.hh" />
     <None Include="$(OpenMSXSrcDir)\config\ConfigException.hh" />
     <None Include="$(OpenMSXSrcDir)\config\HardwareConfig.hh" />
     <None Include="$(OpenMSXSrcDir)\config\DeviceConfig.hh" />
@@ -880,7 +886,7 @@
     <None Include="$(OpenMSXSrcDir)\events\StdioMessages.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\BootBlocks.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DirAsDSK.hh" />
-    <None Include="$(OpenMSXSrcDir)\fdc\AVTFDC.hh" />	
+    <None Include="$(OpenMSXSrcDir)\fdc\AVTFDC.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\Disk.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DiskChanger.hh" />
     <None Include="$(OpenMSXSrcDir)\fdc\DiskContainer.hh" />
@@ -975,8 +981,8 @@
     <None Include="$(OpenMSXSrcDir)\input\StateChangeListener.hh" />
     <None Include="$(OpenMSXSrcDir)\input\Trackball.hh" />
     <None Include="$(OpenMSXSrcDir)\input\UnicodeKeymap.hh" />
-    <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />	
-	<None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
+    <None Include="$(OpenMSXSrcDir)\input\Touchpad.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomSuperSwangi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\AmdFlash.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\CheckedRam.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\ESE_RAM.hh" />
@@ -1019,8 +1025,8 @@
     <None Include="$(OpenMSXSrcDir)\memory\RomKonamiSCC.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMajutsushi.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomManbow2.hh" />
-	<None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
-	<None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMSXtra.hh" />
+    <None Include="$(OpenMSXSrcDir)\memory\RomMultiRom.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMatraInk.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomMSXDOS2.hh" />
     <None Include="$(OpenMSXSrcDir)\memory\RomNational.hh" />
@@ -1121,8 +1127,8 @@
     <None Include="$(OpenMSXSrcDir)\thread\Timer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Aligned.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\StringMap.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />	
-    <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />	
+    <None Include="$(OpenMSXSrcDir)\utils\Tiger.hh" />
+    <None Include="$(OpenMSXSrcDir)\utils\TigerTree.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\AltSpaceSuppressor.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Base64.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\checked_cast.hh" />
