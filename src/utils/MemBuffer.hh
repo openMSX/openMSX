@@ -182,7 +182,7 @@ private:
 			if (!result && bytes) throw std::bad_alloc();
 		} else {
 			// already throws bad_alloc in case of error
-			result = MemoryOps::mallocAligned(bytes, ALIGNMENT);
+			result = MemoryOps::mallocAligned(ALIGNMENT, bytes);
 		}
 		return result;
 	}
@@ -203,7 +203,7 @@ private:
 			result = realloc(old, bytes);
 			if (!result && bytes) throw std::bad_alloc();
 		} else {
-			result = MemoryOps::mallocAligned(bytes, ALIGNMENT);
+			result = MemoryOps::mallocAligned(ALIGNMENT, bytes);
 			if (!result && bytes) throw std::bad_alloc();
 			MemoryOps::freeAligned(old);
 		}
