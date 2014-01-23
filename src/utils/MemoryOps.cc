@@ -296,7 +296,9 @@ void* mallocAligned(size_t alignment, size_t size)
 	#endif
 	return aligned;
 #elif defined _MSC_VER
-	return _aligned_malloc(size, alignment);
+	void* result = _aligned_malloc(size, alignment);
+	if (!result && size) throw std::bad_alloc();
+	return result;
 #else
 	auto t = alignment - 1;
 	void* unaligned = malloc(size + t);
