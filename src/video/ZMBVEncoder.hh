@@ -41,9 +41,9 @@ private:
 		const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset);
 	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf);
 
-	MemBuffer<uint8_t> oldframe;
-	MemBuffer<uint8_t> newframe;
-	MemBuffer<uint8_t> work;
+	MemBuffer<uint8_t, SSE2_ALIGNMENT> oldframe;
+	MemBuffer<uint8_t, SSE2_ALIGNMENT> newframe;
+	MemBuffer<uint8_t, SSE2_ALIGNMENT> work;
 	MemBuffer<uint8_t> output;
 	MemBuffer<unsigned> blockOffsets;
 	unsigned outputSize;

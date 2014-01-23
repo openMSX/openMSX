@@ -2,12 +2,23 @@
 #define MEMBUFFER_HH
 
 #include "noncopyable.hh"
+#include "MemoryOps.hh"
+#include "alignof.hh"
 #include <algorithm>
 #include <new>      // for bad_alloc
 #include <cstdlib>
 #include <cassert>
 
 namespace openmsx {
+
+// When SSE2 is enabled (some) buffers need to be 16-bytes aligned. If not
+// then don't enforce stricter than default alignment.
+#ifdef __SSE2__
+static const size_t SSE2_ALIGNMENT = 16;
+#else
+static const size_t SSE2_ALIGNMENT = 0;
+#endif
+
 
 /** This class manages the lifetime of a block of memory.
   *
@@ -24,7 +35,7 @@ namespace openmsx {
   * optimized for this case (it doesn't keep track of extra capacity). If you
   * need frequent resizing prefer to use vector instead of this class.
   */
-template<typename T> class MemBuffer //: private noncopyable
+template<typename T, size_t ALIGNMENT = 0> class MemBuffer //: private noncopyable
 {
 public:
 	/** Construct an empty MemBuffer, no memory is allocated.
@@ -38,12 +49,9 @@ public:
 	/** Construct a (uninitialized) memory buffer of given size.
 	 */
 	explicit MemBuffer(size_t size)
-		: dat(static_cast<T*>(malloc(size * sizeof(T))))
+		: dat(static_cast<T*>(my_malloc(size * sizeof(T))))
 		, sz(size)
 	{
-		if (size && !dat) {
-			throw std::bad_alloc();
-		}
 	}
 
 	/** Take ownership of the given memory block. This pointer should have
@@ -54,6 +62,7 @@ public:
 		: dat(data)
 		, sz(size)
 	{
+		assert(SIMPLE_MALLOC);
 	}
 
 	/** Move constructor. */
@@ -76,7 +85,7 @@ public:
 	 */
 	~MemBuffer()
 	{
-		free(dat);
+		my_free(dat);
 	}
 
 	/** Returns pointer to the start of the memory buffer.
@@ -115,26 +124,15 @@ public:
 	  */
 	void resize(size_t size)
 	{
-		if (size) {
-			auto newDat = static_cast<T*>(realloc(dat, size * sizeof(T)));
-			if (!newDat) {
-				throw std::bad_alloc();
-			}
-			dat = newDat;
-			sz = size;
-		} else {
-			// realloc() can handle zero-size allocactions,
-			// but then we anyway still need to check for
-			// 'size == 0' for the error handling.
-			clear();
-		}
+		dat = static_cast<T*>(my_realloc(dat, size * sizeof(T)));
+		sz = size;
 	}
 
 	/** Free the allocated memory block and set the current size to 0.
 	 */
 	void clear()
 	{
-		free(dat);
+		my_free(dat);
 		dat = nullptr;
 		sz = 0;
 	}
@@ -166,6 +164,53 @@ private:
 	MemBuffer& operator=(const MemBuffer&);
 #endif
 
+	// If the requested alignment is less or equally strict than the
+	// guaranteed alignment by the standard malloc()-like functions
+	// we use those. Otherwise we use platform specific functions to
+	// request aligned memory.
+	// A valid alternative would be to always use the platform specific
+	// functions. The only disadvantage is that we cannot use realloc()
+	// in that case (there are no, not even platform specific, functions
+	// to realloc memory with bigger than default alignment).
+	static const bool SIMPLE_MALLOC = ALIGNMENT <= ALIGNOF(MAX_ALIGN_T);
+
+	void* my_malloc(size_t bytes)
+	{
+		void* result;
+		if (SIMPLE_MALLOC) {
+			result = malloc(bytes);
+			if (!result && bytes) throw std::bad_alloc();
+		} else {
+			// already throws bad_alloc in case of error
+			result = MemoryOps::mallocAligned(bytes, ALIGNMENT);
+		}
+		return result;
+	}
+
+	void my_free(void* p)
+	{
+		if (SIMPLE_MALLOC) {
+			free(p);
+		} else {
+			MemoryOps::freeAligned(p);
+		}
+	}
+
+	void* my_realloc(void* old, size_t bytes)
+	{
+		void* result;
+		if (SIMPLE_MALLOC) {
+			result = realloc(old, bytes);
+			if (!result && bytes) throw std::bad_alloc();
+		} else {
+			result = MemoryOps::mallocAligned(bytes, ALIGNMENT);
+			if (!result && bytes) throw std::bad_alloc();
+			MemoryOps::freeAligned(old);
+		}
+		return result;
+	}
+
+private:
 	T* dat;
 	size_t sz;
 };
