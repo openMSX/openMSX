@@ -258,9 +258,6 @@ void MidiOutCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI endpoint (" << status << ")");
 	}
-
-	//struct mach_timebase_info timebaseInfo;
-	//mach_timebase_info(&timebaseInfo);
 }
 
 void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
