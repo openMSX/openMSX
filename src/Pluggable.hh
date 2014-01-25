@@ -29,9 +29,9 @@ public:
 	virtual string_ref getDescription() const = 0;
 
 	/** This method is called when this pluggable is inserted in a
-	 * connector.
-	 * @throws PlugException
-	 */
+	  * connector.
+	  * @throws PlugException
+	  */
 	void plug(Connector& connector, EmuTime::param time);
 
 	/** This method is called when this pluggable is removed from a
@@ -45,9 +45,9 @@ public:
 	Connector* getConnector() const;
 
 	/** Returns true if this pluggable is currently plugged into a connector.
-	 * The method getConnector() can also be used, but this is more
-	 * descriptive.
-	 */
+	  * The method getConnector() can also be used, but this is more
+	  * descriptive.
+	  */
 	bool isPluggedIn() const { return getConnector() != nullptr; }
 
 protected:
