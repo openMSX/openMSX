@@ -177,7 +177,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-bash",       *bashOption,    PHASE_BEFORE_INIT, 1);
 
 	registerOption("-setting",    *settingOption, PHASE_BEFORE_SETTINGS);
-	registerOption("-control",    *controlOption, PHASE_BEFORE_SETTINGS, 1);
 	registerOption("-script",     *scriptOption,  PHASE_BEFORE_SETTINGS, 1); // correct phase?
 	#if COMPONENT_GL
 	registerOption("-nopbo",      *noPBOOption,   PHASE_BEFORE_SETTINGS, 1);
@@ -185,6 +184,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-testconfig", *testConfigOption, PHASE_BEFORE_SETTINGS, 1);
 
 	registerOption("-machine",    *machineOption, PHASE_BEFORE_MACHINE);
+
+	registerOption("-control",    *controlOption, PHASE_LAST, 1);
 
 	registerFileType("tcl", *scriptOption);
 
