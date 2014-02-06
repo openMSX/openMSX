@@ -28,7 +28,7 @@ static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
 	size_t numNodes = calcNumNodes(dataSize);
-	auto& result = ttCache[{dataSize, name}];
+	auto& result = ttCache[std::make_pair(dataSize, name)];
 	if (!data.isCacheStillValid(result.time)) {
 		result.hash .resize(numNodes);
 		result.valid.resize(numNodes);
