@@ -55,7 +55,8 @@ HD::HD(const DeviceConfig& config)
 		file = make_unique<File>(filename);
 		filesize = file->getSize();
 		file->setFilePool(motherBoard.getReactor().getFilePool());
-		tigerTree = make_unique<TigerTree>(*this, filesize);
+		tigerTree = make_unique<TigerTree>(*this, filesize,
+		                                   filename.getResolved());
 	} catch (FileException&) {
 		// Image didn't exist yet, but postpone image creation:
 		// we don't want to create images during 'testconfig'
@@ -117,7 +118,8 @@ void HD::openImage()
 		file = make_unique<File>(filename, File::CREATE);
 		file->truncate(filesize);
 		file->setFilePool(motherBoard.getReactor().getFilePool());
-		tigerTree = make_unique<TigerTree>(*this, filesize);
+		tigerTree = make_unique<TigerTree>(*this, filesize,
+		                                   filename.getResolved());
 	} catch (FileException& e) {
 		motherBoard.getMSXCliComm().printWarning(
 			"Couldn't create HD image: " + e.getMessage());
@@ -131,7 +133,8 @@ void HD::switchImage(const Filename& name)
 	filename = name;
 	filesize = file->getSize();
 	file->setFilePool(motherBoard.getReactor().getFilePool());
-	tigerTree = make_unique<TigerTree>(*this, filesize);
+	tigerTree = make_unique<TigerTree>(*this, filesize,
+	                                   filename.getResolved());
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, getName(),
 	                                   filename.getResolved());
 }
@@ -154,7 +157,8 @@ void HD::writeSectorImpl(size_t sector, const SectorBuffer& buf)
 	openImage();
 	file->seek(sector * sizeof(buf));
 	file->write(&buf, sizeof(buf));
-	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf));
+	tigerTree->notifyChange(sector * sizeof(buf), sizeof(buf),
+	                        file->getModificationDate());
 }
 
 bool HD::isWriteProtectedImpl() const
@@ -199,6 +203,14 @@ uint8_t* HD::getData(size_t offset, size_t size)
 	return work.bufs[0].raw;
 }
 
+bool HD::isCacheStillValid(time_t& cacheTime)
+{
+	time_t fileTime = file->getModificationDate();
+	bool result = fileTime == cacheTime;
+	cacheTime = fileTime;
+	return result;
+}
+
 SectorAccessibleDisk* HD::getSectorAccessibleDisk()
 {
 	return this;
@@ -236,7 +248,7 @@ void HD::serialize(Archive& ar, unsigned version)
 			// lazily open file specified in config
 		} else {
 			tmp.updateAfterLoadState();
-			switchImage(tmp);
+			if (filename != tmp) switchImage(tmp);
 			assert(file);
 		}
 	}

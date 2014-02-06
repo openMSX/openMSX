@@ -27,16 +27,6 @@ Filename::Filename(const string& filename, const FileContext& context)
 {
 }
 
-const string& Filename::getOriginal() const
-{
-	return originalFilename;
-}
-
-const string& Filename::getResolved() const
-{
-	return resolvedFilename;
-}
-
 void Filename::updateAfterLoadState()
 {
 	if (empty()) return;

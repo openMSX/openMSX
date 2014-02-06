@@ -1,5 +1,6 @@
 #include "TigerTree.hh"
 #include "Math.hh"
+#include <map>
 #include <cstring>
 #include <cassert>
 
@@ -7,19 +8,43 @@ namespace openmsx {
 
 static const size_t BLOCK_SIZE = 1024;
 
+struct TTCacheEntry
+{
+	TTCacheEntry() : time(-1) {}
+
+	MemBuffer<TigerHash> hash;
+	MemBuffer<bool> valid;
+	time_t time;
+};
+static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
+
 static size_t calcNumNodes(size_t dataSize)
 {
 	auto numBlocks = (dataSize + BLOCK_SIZE - 1) / BLOCK_SIZE;
 	return (numBlocks == 0) ? 1 : 2 * numBlocks - 1;
 }
 
-TigerTree::TigerTree(TTData& data_, size_t dataSize_)
+static TTCacheEntry& getCacheEntry(
+	TTData& data, size_t dataSize, const std::string& name)
+{
+	size_t numNodes = calcNumNodes(dataSize);
+	auto& result = ttCache[{dataSize, name}];
+	if (!data.isCacheStillValid(result.time)) {
+		result.hash .resize(numNodes);
+		result.valid.resize(numNodes);
+		memset(result.valid.data(), 0, numNodes); // all invalid
+	} else {
+		assert(result.hash .size() == numNodes);
+		assert(result.valid.size() == numNodes);
+	}
+	return result;
+}
+
+TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
 	: data(data_)
 	, dataSize(dataSize_)
-	, hash (calcNumNodes(dataSize))
-	, valid(calcNumNodes(dataSize))
+	, entry(getCacheEntry(data, dataSize, name))
 {
-	memset(valid.data(), 0, valid.size()); // all invalid
 }
 
 const TigerHash& TigerTree::calcHash()
@@ -27,19 +52,21 @@ const TigerHash& TigerTree::calcHash()
 	return calcHash(getTop());
 }
 
-void TigerTree::notifyChange(size_t offset, size_t len)
+void TigerTree::notifyChange(size_t offset, size_t len, time_t time)
 {
+	entry.time = time;
+
 	assert((offset + len) <= dataSize);
 	if (len == 0) return;
 
-	valid[getTop().n] = false; // set sentinel
+	entry.valid[getTop().n] = false; // set sentinel
 	auto first = offset / BLOCK_SIZE;
 	auto last = (offset + len - 1) / BLOCK_SIZE;
 	assert(first <= last); // requires len != 0
 	do {
 		auto node = getLeaf(first);
-		while (valid[node.n]) {
-			valid[node.n] = false;
+		while (entry.valid[node.n]) {
+			entry.valid[node.n] = false;
 			node = getParent(node);
 		}
 	} while (++first <= last);
@@ -48,14 +75,14 @@ void TigerTree::notifyChange(size_t offset, size_t len)
 const TigerHash& TigerTree::calcHash(Node node)
 {
 	auto n = node.n;
-	if (!valid[n]) {
+	if (!entry.valid[n]) {
 		if (n & 1) {
 			// interior node
 			auto left  = getLeftChild (node);
 			auto right = getRightChild(node);
 			auto& h1 = calcHash(left);
 			auto& h2 = calcHash(right);
-			tiger_int(h1, h2, hash[n]);
+			tiger_int(h1, h2, entry.hash[n]);
 		} else {
 			// leaf node
 			size_t b = n * (BLOCK_SIZE / 2);
@@ -63,19 +90,19 @@ const TigerHash& TigerTree::calcHash(Node node)
 
 			if (l >= BLOCK_SIZE) {
 				auto* d = data.getData(b, BLOCK_SIZE);
-				tiger_leaf(d, hash[n]);
+				tiger_leaf(d, entry.hash[n]);
 			} else {
 				// partial last block
 				auto* d = data.getData(b, l);
 				auto backup = d[-1];
 				d[-1] = 0;
-				tiger(d - 1, l + 1, hash[n]);
+				tiger(d - 1, l + 1, entry.hash[n]);
 				d[-1] = backup;
 			}
 		}
-		valid[n] = true;
+		entry.valid[n] = true;
 	}
-	return hash[n];
+	return entry.hash[n];
 }
 
 
@@ -103,29 +130,29 @@ const TigerHash& TigerTree::calcHash(Node node)
 
 TigerTree::Node TigerTree::getTop() const
 {
-	auto n = Math::floodRight(valid.size() / 2);
+	auto n = Math::floodRight(entry.valid.size() / 2);
 	return Node(n, n + 1);
 }
 
 TigerTree::Node TigerTree::getLeaf(size_t block) const
 {
-	assert((2 * block) < valid.size());
+	assert((2 * block) < entry.valid.size());
 	return Node(2 * block, 1);
 }
 
 TigerTree::Node TigerTree::getParent(Node node) const
 {
-	assert(node.n < valid.size());
+	assert(node.n < entry.valid.size());
 	do {
 		node.n = (node.n & ~(2 * node.l)) + node.l;
 		node.l *= 2;
-	} while (node.n >= valid.size());
+	} while (node.n >= entry.valid.size());
 	return node;
 }
 
 TigerTree::Node TigerTree::getLeftChild(Node node) const
 {
-	assert(node.n < valid.size());
+	assert(node.n < entry.valid.size());
 	assert(node.l > 1);
 	node.l /= 2;
 	node.n -= node.l;
@@ -134,12 +161,12 @@ TigerTree::Node TigerTree::getLeftChild(Node node) const
 
 TigerTree::Node TigerTree::getRightChild(Node node) const
 {
-	assert(node.n < valid.size());
+	assert(node.n < entry.valid.size());
 	while (1) {
 		assert(node.l > 1);
 		node.l /= 2;
 		auto r = node.n + node.l;
-		if (r < valid.size()) return Node(r, node.l);
+		if (r < entry.valid.size()) return Node(r, node.l);
 	}
 }
 
