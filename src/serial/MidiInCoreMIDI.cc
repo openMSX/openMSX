@@ -101,13 +101,15 @@ void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
 }
 
 void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
-	ScopedLock l(lock);
-	const MIDIPacket *packet = &packetList->packet[0];
-	for (UInt32 i = 0; i < packetList->numPackets; i++) {
-		for (UInt16 j = 0; j < packet->length; j++) {
-			queue.push_back(packet->data[j]);
+	{
+		ScopedLock l(lock);
+		const MIDIPacket *packet = &packetList->packet[0];
+		for (UInt32 i = 0; i < packetList->numPackets; i++) {
+			for (UInt16 j = 0; j < packet->length; j++) {
+				queue.push_back(packet->data[j]);
+			}
+			packet = MIDIPacketNext(packet);
 		}
-		packet = MIDIPacketNext(packet);
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_EVENT));
@@ -126,10 +128,13 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 		return;
 	}
 
-	ScopedLock l(lock);
-	if (queue.empty()) return;
-	byte data = queue.front();
-	queue.pop_front();
+	byte data;
+	{
+		ScopedLock l(lock);
+		if (queue.empty()) return;
+		data = queue.front();
+		queue.pop_front();
+	}
 	connector->recvByte(data, time);
 }
 
@@ -214,13 +219,15 @@ void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
 }
 
 void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
-	ScopedLock l(lock);
-	const MIDIPacket *packet = &packetList->packet[0];
-	for (UInt32 i = 0; i < packetList->numPackets; i++) {
-		for (UInt16 j = 0; j < packet->length; j++) {
-			queue.push_back(packet->data[j]);
+	{
+		ScopedLock l(lock);
+		const MIDIPacket *packet = &packetList->packet[0];
+		for (UInt32 i = 0; i < packetList->numPackets; i++) {
+			for (UInt16 j = 0; j < packet->length; j++) {
+				queue.push_back(packet->data[j]);
+			}
+			packet = MIDIPacketNext(packet);
 		}
-		packet = MIDIPacketNext(packet);
 	}
 	eventDistributor.distributeEvent(
 		std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT));
@@ -239,10 +246,13 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 		return;
 	}
 
-	ScopedLock l(lock);
-	if (queue.empty()) return;
-	byte data = queue.front();
-	queue.pop_front();
+	byte data;
+	{
+		ScopedLock l(lock);
+		if (queue.empty()) return;
+		data = queue.front();
+		queue.pop_front();
+	}
 	connector->recvByte(data, time);
 }
 

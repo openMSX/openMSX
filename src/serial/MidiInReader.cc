@@ -89,8 +89,10 @@ void MidiInReader::run()
 		}
 		assert(isPluggedIn());
 
-		ScopedLock l(lock);
-		queue.push_back(buf);
+		{
+			ScopedLock l(lock);
+			queue.push_back(buf);
+		}
 		eventDistributor.distributeEvent(
 			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_READER_EVENT));
 	}
@@ -109,9 +111,13 @@ void MidiInReader::signal(EmuTime::param time)
 		return;
 	}
 
-	ScopedLock l(lock);
-	if (queue.empty()) return;
-	connector->recvByte(queue.pop_front(), time);
+	byte data;
+	{
+		ScopedLock l(lock);
+		if (queue.empty()) return;
+		data = queue.pop_front();
+	}
+	connector->recvByte(data, time);
 }
 
 // EventListener
