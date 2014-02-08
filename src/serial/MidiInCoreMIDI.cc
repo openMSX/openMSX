@@ -139,7 +139,7 @@ int MidiInCoreMIDI::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
-		queue.empty();
+		queue.clear();
 	}
 	return 0;
 }
@@ -251,7 +251,7 @@ int MidiInCoreMIDIVirtual::signalEvent(const std::shared_ptr<const Event>& /*eve
 		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
-		queue.empty();
+		queue.clear();
 	}
 	return 0;
 }
