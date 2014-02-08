@@ -118,6 +118,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
+		ScopedLock l(lock);
 		queue.clear();
 		return;
 	}
@@ -230,6 +231,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 {
 	auto connector = static_cast<MidiInConnector*>(getConnector());
 	if (!connector->acceptsData()) {
+		ScopedLock l(lock);
 		queue.clear();
 		return;
 	}
