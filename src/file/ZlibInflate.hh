@@ -1,13 +1,12 @@
 #ifndef ZLIBINFLATE_HH
 #define ZLIBINFLATE_HH
 
+#include "MemBuffer.hh"
 #include "openmsx.hh"
 #include <string>
 #include <zlib.h>
 
 namespace openmsx {
-
-template<typename T> class MemBuffer;
 
 class ZlibInflate
 {

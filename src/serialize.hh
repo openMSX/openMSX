@@ -4,6 +4,7 @@
 #include "serialize_core.hh"
 #include "SerializeBuffer.hh"
 #include "XMLElement.hh"
+#include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "inline.hh"
 #include "unreachable.hh"
@@ -19,7 +20,6 @@
 
 namespace openmsx {
 
-template<typename T> class MemBuffer;
 template<typename T> struct SerializeClassVersion;
 
 // In this section, the archive classes are defined.

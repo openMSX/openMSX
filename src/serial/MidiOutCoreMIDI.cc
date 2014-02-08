@@ -17,6 +17,7 @@ namespace openmsx {
 
 static constexpr uint8_t MIDI_MSG_SYSEX     = 0xF0;
 static constexpr uint8_t MIDI_MSG_SYSEX_END = 0xF7;
+static constexpr uint8_t MIDI_MSG_RESET     = 0xFF;
 
 /** Returns the size in bytes of a message that starts with the given status.
   */
@@ -79,14 +80,18 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		if (value == MIDI_MSG_SYSEX_END) {
 			if (isSysEx) {
 				message.push_back(value);
-				messageComplete(time, message.size(), message.data());
+				messageComplete(time, message.data(), message.size());
 			} else {
 				PRT_DEBUG("Ignoring SysEx end without start");
 			}
 			message.clear();
 			isSysEx = false;
-		} else if (value >= 0xF8) {  // realtime message, send immediately
-			messageComplete(time, 1, &value);
+		} else if (value >= 0xF8) {
+			// Realtime message, send immediately.
+			messageComplete(time, &value, 1);
+			if (value == MIDI_MSG_RESET) {
+				message.clear();
+			}
 			return;
 		} else {
 			// Replace any message in progress.
@@ -115,7 +120,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		uint8_t status = isSysEx ? MIDI_MSG_SYSEX : message[0];
 		size_t len = midiMessageLength(status);
 		if (message.size() >= len) {
-			messageComplete(time, message.size(), message.data());
+			messageComplete(time, message.data(), message.size());
 			if (status >= 0xF0 && status < 0xF8) {
 				message.clear();
 			} else {
@@ -126,7 +131,8 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 	}
 }
 
-void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/, size_t size, uint8_t *data)
+void MidiOutMessageBuffer::messageComplete(EmuTime::param /*time*/,
+		const uint8_t *data, size_t size)
 {
 	// TODO: It would be better to schedule events based on EmuTime.
 	MIDITimeStamp abstime = mach_absolute_time();

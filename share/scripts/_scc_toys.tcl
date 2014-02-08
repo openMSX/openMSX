@@ -168,7 +168,7 @@ proc update_scc_viewer {} {
 }
 
 proc get_scc_wave {sccval} {
-	expr {$sccval < 128 ? $sccval : $sccval - 256}
+	expr {-($sccval < 128 ? $sccval : $sccval - 256)}
 }
 
 proc scc_viewer_reset {} {

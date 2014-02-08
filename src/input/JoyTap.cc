@@ -1,5 +1,6 @@
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
+#include "PluggingController.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
 #include "memory.hh"
@@ -70,6 +71,13 @@ void JoyTap::write(byte value, EmuTime::param time)
 template<typename Archive>
 void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 {
+	// saving only happens when plugged in
+	if (!ar.isLoader()) assert(isPluggedIn());
+	// restore plugged state when loading
+	if (ar.isLoader()) {
+		plugHelper(*getConnector(), pluggingController.getCurrentTime());
+	}
+
 	char tag[6] = { 'p', 'o', 'r', 't', 'X', 0 };
 	for (int i = 0; i < 4; ++i) {
 		tag[4] = char('0' + i);

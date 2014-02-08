@@ -21,8 +21,8 @@ public:
 	explicit Filename(const std::string& filename);
 	Filename(const std::string& filename, const FileContext& context);
 
-	const std::string& getOriginal() const;
-	const std::string& getResolved() const;
+	const std::string& getOriginal() const { return originalFilename; }
+	const std::string& getResolved() const { return resolvedFilename; }
 
 	/** After a loadstate we prefer to use the exact same file as before
 	  * savestate. But if that file is not available (possibly because
@@ -42,6 +42,14 @@ public:
 	 * file with a matching checksum.
 	 */
 	void setResolved(const std::string& resolved);
+
+	// Do both Filename objects point to the same file?
+	bool operator==(const Filename& other) const {
+		return resolvedFilename == other.resolvedFilename;
+	}
+	bool operator!=(const Filename& other) const {
+		return !(*this == other);
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

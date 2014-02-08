@@ -30,7 +30,9 @@
 
 #include "tiger.hh"
 #include "MemBuffer.hh"
+#include <string>
 #include <cstdint>
+#include <ctime>
 
 namespace openmsx {
 
@@ -45,10 +47,22 @@ public:
 	 * the byte one position before the returned pointer.
 	 */
 	virtual uint8_t* getData(size_t offset, size_t size) = 0;
+
+	/** Because TTH calculation of a large file takes some time (a few
+	  * 1/10s for a harddisk image) we try to cache previous calculations.
+	  * This method makes sure we don't wrongly reuse the data. E.g. after
+	  * it has been modified (by openmsx or even externally).
+	  *
+	  * Note that the current implementation of the caching is only
+	  * suited for files. Refactor this if we ever need some different.
+	  */
+	virtual bool isCacheStillValid(time_t& time) = 0;
+
 protected:
 	~TTData() {}
 };
 
+struct TTCacheEntry;
 
 /** Calculate a tiger-tree-hash.
  * Calculation can be done incrementally, so recalculating the hash after a
@@ -60,7 +74,7 @@ public:
 	/** Create TigerTree calculator for the given (abstract) data block
 	 * of given size.
 	 */
-	TigerTree(TTData& data, size_t dataSize);
+	TigerTree(TTData& data, size_t dataSize, const std::string& name);
 
 	/** Calculate the hash value.
 	 */
@@ -71,7 +85,7 @@ public:
 	 * it's crucial this calculator is informed about  _all_ changes in
 	 * the input.
 	 */
-	void notifyChange(size_t offset, size_t len);
+	void notifyChange(size_t offset, size_t len, time_t time);
 
 private:
 	// functions to navigate in binary tree
@@ -90,8 +104,7 @@ private:
 
 	TTData& data;
 	const size_t dataSize;
-	MemBuffer<TigerHash> hash;
-	MemBuffer<bool> valid;
+	TTCacheEntry& entry;
 };
 
 } // namespace openmsx

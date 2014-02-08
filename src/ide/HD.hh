@@ -50,6 +50,7 @@ private:
 
 	// TTData
 	virtual uint8_t* getData(size_t offset, size_t size);
+	virtual bool isCacheStillValid(time_t& time);
 
 	void openImage();
 

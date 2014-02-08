@@ -385,7 +385,9 @@ public:
 
 private:
 	void checkGrow() {
-		if (buf.full()) buf.set_capacity(buf.capacity() * 2);
+		if (buf.full()) {
+			buf.set_capacity(std::max(size_t(4), buf.capacity() * 2));
+		}
 	}
 
 	circular_buffer<T> buf;
