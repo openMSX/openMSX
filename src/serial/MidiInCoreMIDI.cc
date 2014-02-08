@@ -65,7 +65,7 @@ void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*
 			"Failed to create MIDI client (" << status << ")");
 	}
 	// Create output port.
-	if (OSStatus status = MIDIInputPortCreate(client, CFSTR("Input"), sendByte, this, &port)) {
+	if (OSStatus status = MIDIInputPortCreate(client, CFSTR("Input"), sendPacketList, this, &port)) {
 		MIDIClientDispose(client);
 		client = 0;
 		throw PlugException(StringOp::Builder() <<
@@ -95,12 +95,12 @@ string_ref MidiInCoreMIDI::getDescription() const
 	return "Receives MIDI events from an existing CoreMIDI destination.";
 }
 
-void MidiInCoreMIDI::sendByte(const MIDIPacketList *packetList,
+void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
                               void *readProcRefCon, void *srcConnRefCon) {
-	((MidiInCoreMIDI*)readProcRefCon)->sendByte(packetList, srcConnRefCon);
+	((MidiInCoreMIDI*)readProcRefCon)->sendPacketList(packetList, srcConnRefCon);
 }
 
-void MidiInCoreMIDI::sendByte(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
+void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
 	ScopedLock l(lock);
 	const MIDIPacket *packet = &packetList->packet[0];
 	for (UInt32 i = 0; i < packetList->numPackets; i++) {
@@ -174,7 +174,7 @@ void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/, EmuTime::param 
 			"Failed to create MIDI client (" << status << ")");
 	}
 	// Create endpoint.
-	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"), sendByte, this, &endpoint)) {
+	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"), sendPacketList, this, &endpoint)) {
 		MIDIClientDispose(client);
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI endpoint (" << status << ")");
@@ -207,12 +207,12 @@ string_ref MidiInCoreMIDIVirtual::getDescription() const
 	return "Sends MIDI events from a newly created CoreMIDI virtual source.";
 }
 
-void MidiInCoreMIDIVirtual::sendByte(const MIDIPacketList *packetList,
+void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
                                      void *readProcRefCon, void *srcConnRefCon) {
-	((MidiInCoreMIDIVirtual*)readProcRefCon)->sendByte(packetList, srcConnRefCon);
+	((MidiInCoreMIDIVirtual*)readProcRefCon)->sendPacketList(packetList, srcConnRefCon);
 }
 
-void MidiInCoreMIDIVirtual::sendByte(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
+void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
 	ScopedLock l(lock);
 	const MIDIPacket *packet = &packetList->packet[0];
 	for (UInt32 i = 0; i < packetList->numPackets; i++) {

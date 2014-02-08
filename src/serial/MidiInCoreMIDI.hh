@@ -50,9 +50,9 @@ private:
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
-	static void sendByte(const MIDIPacketList *pktlist,
+	static void sendPacketList(const MIDIPacketList *pktlist,
                          void *readProcRefCon, void *srcConnRefCon);
-	void sendByte(const MIDIPacketList *pktlist, void *srcConnRefCon);
+	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
@@ -94,9 +94,9 @@ private:
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
-	static void sendByte(const MIDIPacketList *pktlist,
+	static void sendPacketList(const MIDIPacketList *pktlist,
                          void *readProcRefCon, void *srcConnRefCon);
-	void sendByte(const MIDIPacketList *pktlist, void *srcConnRefCon);
+	void sendPacketList(const MIDIPacketList *pktlist, void *srcConnRefCon);
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
