@@ -9,8 +9,8 @@
 #include "Semaphore.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
+#include "circular_buffer.hh"
 #include <CoreMIDI/MIDIServices.h>
-#include <deque>
 
 namespace openmsx {
 
@@ -56,7 +56,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::deque<byte> queue;
+	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 
 	MIDIClientRef client;
@@ -100,7 +100,7 @@ private:
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
-	std::deque<byte> queue;
+	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 
 	MIDIClientRef client;

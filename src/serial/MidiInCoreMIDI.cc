@@ -132,8 +132,7 @@ void MidiInCoreMIDI::signal(EmuTime::param time)
 	{
 		ScopedLock l(lock);
 		if (queue.empty()) return;
-		data = queue.front();
-		queue.pop_front();
+		data = queue.pop_front();
 	}
 	connector->recvByte(data, time);
 }
@@ -250,8 +249,7 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 	{
 		ScopedLock l(lock);
 		if (queue.empty()) return;
-		data = queue.front();
-		queue.pop_front();
+		data = queue.pop_front();
 	}
 	connector->recvByte(data, time);
 }
