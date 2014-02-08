@@ -56,7 +56,6 @@ proc get_display_name_by_config_name {config_name type} {
 		}
 	}]} {
 		# hmm, XML file probably broken. Fallback:
-		puts stderr $::errorInfo
 		set result "$config_name (CORRUPT)"
 	}
 	return $result
