@@ -1,18 +1,18 @@
 diff -ru tcl8.5.15.orig/generic/tcl.h tcl8.5.15/generic/tcl.h
 --- tcl8.5.15.orig/generic/tcl.h	2013-08-30 17:58:39.000000000 +0200
-+++ tcl8.5.15/generic/tcl.h	2014-02-07 21:05:35.026866949 +0100
-@@ -69,7 +69,7 @@
++++ tcl8.5.15/generic/tcl.h	2014-02-10 14:52:39.629756049 +0100
+@@ -168,7 +168,7 @@
+  *       MSVCRT.
   */
  
- #ifndef __WIN32__
--#   if defined(_WIN32) || defined(WIN32) || defined(__MINGW32__) || defined(__BORLANDC__) || (defined(__WATCOMC__) && defined(__WINDOWS_386__))
+-#if (defined(__WIN32__) && (defined(_MSC_VER) || (__BORLANDC__ >= 0x0550) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
 +#if (defined(__WIN32__) && (defined(_MSC_VER) || (defined(__BORLANDC__) && (__BORLANDC__ >= 0x0550)) || defined(__LCC__) || defined(__WATCOMC__) || (defined(__GNUC__) && defined(__declspec))))
- #	define __WIN32__
- #	ifndef WIN32
- #	    define WIN32
+ #   define HAVE_DECLSPEC 1
+ #   ifdef STATIC_BUILD
+ #       define DLLIMPORT
 diff -ru tcl8.5.15.orig/unix/configure tcl8.5.15/unix/configure
 --- tcl8.5.15.orig/unix/configure	2013-09-13 18:07:56.000000000 +0200
-+++ tcl8.5.15/unix/configure	2014-02-07 21:11:52.923693865 +0100
++++ tcl8.5.15/unix/configure	2014-02-10 14:53:16.030233421 +0100
 @@ -14976,7 +14976,7 @@
  else
  
@@ -24,7 +24,7 @@ diff -ru tcl8.5.15.orig/unix/configure tcl8.5.15/unix/configure
  /* confdefs.h.  */
 diff -ru tcl8.5.15.orig/win/Makefile.in tcl8.5.15/win/Makefile.in
 --- tcl8.5.15.orig/win/Makefile.in	2013-09-13 18:07:59.000000000 +0200
-+++ tcl8.5.15/win/Makefile.in	2014-02-07 21:09:33.829916664 +0100
++++ tcl8.5.15/win/Makefile.in	2014-02-10 14:53:40.054548449 +0100
 @@ -606,7 +606,7 @@
  	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg$(REGDOTVER); \
  	    fi
