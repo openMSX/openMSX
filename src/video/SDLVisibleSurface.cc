@@ -4,6 +4,8 @@
 #include "SDLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
+#include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -12,7 +14,7 @@
 namespace openmsx {
 
 SDLVisibleSurface::SDLVisibleSurface(
-		unsigned width, unsigned height, bool fullscreen,
+		unsigned width, unsigned height,
 		RenderSettings& renderSettings,
 		EventDistributor& eventDistributor,
 		InputEventGenerator& inputEventGenerator)
@@ -35,7 +37,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
-	if (fullscreen) flags |= SDL_FULLSCREEN;
+	if (renderSettings.getFullScreen().getBoolean()) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
 	SDL_Surface* surface = getSDLSurface();

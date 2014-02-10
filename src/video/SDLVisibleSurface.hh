@@ -8,7 +8,7 @@ namespace openmsx {
 class SDLVisibleSurface : public VisibleSurface
 {
 public:
-	SDLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
+	SDLVisibleSurface(unsigned width, unsigned height,
 	                  RenderSettings& renderSettings,
 	                  EventDistributor& eventDistributor,
 	                  InputEventGenerator& inputEventGenerator);

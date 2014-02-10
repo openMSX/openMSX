@@ -286,31 +286,30 @@ void SDLVideoSystem::resize()
 
 	unsigned width, height;
 	getWindowSize(width, height);
-	const bool fullscreen = renderSettings.getFullScreen().getBoolean();
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
 
 	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 		screen = make_unique<SDLVisibleSurface>(
-			width, height, fullscreen, renderSettings,
+			width, height, renderSettings,
 			eventDistributor, inputEventGenerator);
 		break;
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, fullscreen, renderSettings,
+			width, height, renderSettings,
 			eventDistributor, inputEventGenerator);
 		break;
 	case RendererFactory::SDLGL_FB16:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, fullscreen, renderSettings,
+			width, height, renderSettings,
 			eventDistributor, inputEventGenerator,
 			SDLGLVisibleSurface::FB_16BPP);
 		break;
 	case RendererFactory::SDLGL_FB32:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, fullscreen, renderSettings,
+			width, height, renderSettings,
 			eventDistributor, inputEventGenerator,
 			SDLGLVisibleSurface::FB_32BPP);
 		break;

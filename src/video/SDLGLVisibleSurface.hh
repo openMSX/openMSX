@@ -11,7 +11,7 @@ namespace openmsx {
 class SDLGLVisibleSurface : public VisibleSurface, public SDLGLOutputSurface
 {
 public:
-	SDLGLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
+	SDLGLVisibleSurface(unsigned width, unsigned height,
 	                    RenderSettings& renderSettings,
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
