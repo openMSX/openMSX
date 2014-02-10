@@ -20,7 +20,7 @@
     <LibNameSDL>SDL-1.2.15</LibNameSDL>
     <LibNameSDL_ttf>SDL_ttf-2.0.11</LibNameSDL_ttf>
     <LibNameSDLmain>SDLmain</LibNameSDLmain>
-    <LibNameTcl>tcl8.5.14</LibNameTcl>
+    <LibNameTcl>tcl8.5.15</LibNameTcl>
     <LibNameTheora>libtheora-1.1.1</LibNameTheora>
     <LibNameVorbis>libvorbis-1.3.3</LibNameVorbis>
     <LibNameZlib>zlib-1.2.8</LibNameZlib>
