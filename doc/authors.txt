@@ -1,17 +1,22 @@
 Prime Developers:
 David Heremans       <david.heremans@gnu-linux.net>
-Wouter Vermaelen     <wouter.vermaelen@scarlet.be>
+Wouter Vermaelen     <vermaelen.wouter@gmail.com>
 Maarten ter Huurne   <maarten@treewalker.org>
 Manuel Bilderbeek    <manuel@msxnet.org>
 Arnold Metselaar     <arnold_m@operamail.com>
 Patrick van Arkel    <vampiermsx@gmail.com>
 Max Feingold
 Sean Young           <sean@msxnet.org>
+Alex Wulms
+Albert Beevendorp    <bifimsx@users.sourceforge.net>
+Laurens Holst        <laurens.hg@grauw.nl>
+
+An actual overview of contributors can be found here:
+http://www.ohloh.net/p/openmsx/contributors
 
 Retired Developers:
 Eric Boon            <eric@auroramsx.nl>
 Joost Yervante Damad <joost@damad.be>
-  who currently acts as our Debian developer.
 Herman Oudejans      <hn.oudejans@quicknet.nl>
 Reikan               <openMSX4Win32@ranpub.com>
 
