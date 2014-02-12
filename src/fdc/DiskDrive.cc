@@ -1,5 +1,5 @@
 #include "DiskDrive.hh"
-#include "unreachable.hh"
+#include "DiskExceptions.hh"
 
 namespace openmsx {
 
@@ -69,12 +69,12 @@ bool DummyDrive::headLoaded(EmuTime::param /*time*/)
 
 void DummyDrive::writeTrack(const RawTrack& /*track*/)
 {
-	UNREACHABLE;
+	throw DriveEmptyException("No drive selected");
 }
 
 void DummyDrive::readTrack(RawTrack& /*track*/)
 {
-	UNREACHABLE;
+	throw DriveEmptyException("No drive selected");
 }
 
 EmuTime DummyDrive::getNextSector(EmuTime::param /*time*/, RawTrack& /*track*/,
