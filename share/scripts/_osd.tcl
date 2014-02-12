@@ -53,8 +53,6 @@ proc display_message {message {category info}} {
 					-suppressErrors true
 }
 
-set message_callback osd::display_message
-
 proc is_cursor_in {widget} {
 	set x 2; set y 2
 	catch {lassign [osd info $widget -mousecoord] x y}

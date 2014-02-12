@@ -51,3 +51,6 @@ proc dihaltcallback {} {
 	message "DI; HALT detected, which means a hang. You can just as well reset the MSX now..." warning
 }
 set di_halt_callback dihaltcallback
+
+# show message (also) as OSD message
+set message_callback osd::display_message
