@@ -25,6 +25,7 @@ New or improved emulator features:
 - fixed handling of corrupt hardware configuration XML file
 - fixed crash when MSX with TC8566AF FDC (e.g. turboR) crashed
 - fixed Tcl error when changing horizontal stretch in OSD menu
+- fixed displaying of error messages on OSD
 - Mac OS X MIDI support:
   - fixed MIDI output on Mac OS X (was not working for some applications)
   - added support for running status
