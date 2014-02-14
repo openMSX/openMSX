@@ -9,7 +9,6 @@ Max Feingold
 Sean Young           <sean@msxnet.org>
 Alex Wulms
 Albert Beevendorp    <bifimsx@users.sourceforge.net>
-Laurens Holst        <laurens.hg@grauw.nl>
 
 An actual overview of contributors can be found here:
 http://www.ohloh.net/p/openmsx/contributors
@@ -66,6 +65,8 @@ Jan Lukens           <j.lukens@xs4all.nl>
 Daniel Vik           <daniel@vik.cc>
 SukkoPera
 Maarten van Strien
+Laurens Holst        <laurens.hg@grauw.nl>
+Filip H.F. Slagter
 
 And a special "thank you" goes to
 ???????????          <sklaitin@mappi.helsinki.fi>
