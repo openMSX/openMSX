@@ -160,10 +160,10 @@ AppTouchscreenKeyboardKeysAmount=4
 AppTouchscreenKeyboardKeysAmountAutoFire=0
 
 # Redefine on-screen keyboard keys to SDL keysyms - 6 keyboard keys + 4 multitouch gestures (zoom in/out and rotate left/right)
-RedefinedKeysScreenKb="WORLD_93 WORLD_94 WORLD_95 F10 5 6 7 8 9 0"
+RedefinedKeysScreenKb="WORLD_93 WORLD_94 WORLD_95 F10 F1 F2 F3 F4 F5 0"
 
 # Names for on-screen keyboard keys, such as Fire, Jump, Run etc, separated by spaces, they are used in SDL config menu
-RedefinedKeysScreenKbNames="Joystick-button-1 Joystick-button-2 Console F10 5 6 7 8 9 0"
+RedefinedKeysScreenKbNames="Joystick-button-1 Joystick-button-2 Console F10 F1 F2 F3 F4 F5 0"
 
 # On-screen keys theme
 # 0 = Ultimate Droid by Sean Stieber (green, with gamepad joystick)
@@ -174,7 +174,7 @@ TouchscreenKeysTheme=2
 
 # Redefine gamepad keys to SDL keysyms, button order is:
 # A B X Y L1 R1 L2 R2 LThumb RThumb
-RedefinedKeysGamepad="WORLD_93 WORLD_94 WORLD_95 MENU F10 6 7 8 9 0"
+RedefinedKeysGamepad="WORLD_93 WORLD_94 WORLD_95 MENU F1 F2 F3 F4 F5 F10"
 
 # How long to show startup menu button, in msec, 0 to disable startup menu
 StartupMenuButtonTimeout=3000
