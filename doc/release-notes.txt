@@ -1,8 +1,8 @@
 Release Notes for openMSX 0.10.1 (2014-03-xx)
 =============================================
 
-This release fixes mostly bugs we introduced with 0.10.0... sorry for those,
-but most should be fixed now :)
+This release fixes mostly bugs we introduced with 0.10.0 or were already
+present for a bit longer... sorry for those, but most should be fixed now :)
 
 Here's the list with all highlights:
 
