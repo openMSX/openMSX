@@ -72,7 +72,7 @@ proc enable_osd_keyboard {} {
 	bind -layer osd_keyboard "mouse button1 down"  {osd_keyboard::key_handler true}
 	bind -layer osd_keyboard "mouse button1 up"    {osd_keyboard::key_handler false}
 
-	bind -layer osd_keyboard "mouse button3 down"  {osd_keyboard::key_hold_toggle}
+	bind -layer osd_keyboard "mouse button3 down"  {osd_keyboard::key_hold_toggle false}
 
 	bind -layer osd_keyboard "OSDcontrol UP PRESS"     -repeat {osd_keyboard::selection_row -1}
 	bind -layer osd_keyboard "OSDcontrol DOWN PRESS"   -repeat {osd_keyboard::selection_row +1}
@@ -81,10 +81,11 @@ proc enable_osd_keyboard {} {
 	if {$is_dingoo} {
 		bind -layer osd_keyboard "keyb LCTRL,PRESS"   {osd_keyboard::selection_press  }
 		bind -layer osd_keyboard "keyb LCTRL,RELEASE" {osd_keyboard::selection_release}
-		bind -layer osd_keyboard "keyb LALT"          {osd_keyboard::key_hold_toggle  }
+		bind -layer osd_keyboard "keyb LALT"          {osd_keyboard::key_hold_toggle true }
 	} else {
 		bind -layer osd_keyboard "OSDcontrol A PRESS"    {osd_keyboard::selection_press  }
 		bind -layer osd_keyboard "OSDcontrol A RELEASE"  {osd_keyboard::selection_release}
+		bind -layer osd_keyboard "OSDcontrol B PRESS"          {osd_keyboard::key_hold_toggle true }
 	}
 	activate_input_layer osd_keyboard -blocking
 
@@ -335,12 +336,11 @@ proc key_at_mouse {} {
 	             [expr {$y * [osd info kb -h]}]
 }
 
-proc key_hold_toggle {} {
+proc key_hold_toggle {at_selection} {
 	variable keys_held
 	variable key_selected
-	variable is_dingoo
 
-	if {$is_dingoo} {
+	if {$at_selection} {
 		set key_id $key_selected
 	} else {
 		set key_id [key_at_mouse]
