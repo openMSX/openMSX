@@ -47,9 +47,9 @@ if [ -z "${CHANGE_APP_SETTINGS_VERSION}" ]; then
 	# number for the app-settings
 	# However, it does have a mechanism to automagically upgrade to newer app-settings
 	# with (hopefully sane) default values
-	# As such, use latest versioned template when the changeAppSettings.sh does not
+	# As such, use a non-versioned template when the changeAppSettings.sh does not
 	# contain an explicit settings version
-	CHANGE_APP_SETTINGS_VERSION=19
+	CHANGE_APP_SETTINGS_VERSION=noVersion
 fi
 
 APP_SETTINGS_CFG="AndroidAppSettings.cfg"
