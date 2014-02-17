@@ -18,7 +18,7 @@ template <class Pixel> class Blur_1on3
 {
 public:
 	Blur_1on3(const PixelOperations<Pixel>& pixelOps);
-	void setBlur(unsigned blur_);
+	inline void setBlur(unsigned blur_) { blur = blur_; }
 	void operator()(const Pixel* in, Pixel* out, size_t dstWidth);
 private:
 	Multiply32<Pixel> mult0;
@@ -28,7 +28,6 @@ private:
 	unsigned blur;
 #ifdef __SSE2__
 	void blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth);
-	__m128i C0C1, C1C0, C2C3, C3C2;
 #endif
 };
 
@@ -301,25 +300,6 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps)
 {
 }
 
-template<class Pixel>
-void Blur_1on3<Pixel>::setBlur(unsigned blur_)
-{
-	blur = blur_;
-#ifdef __SSE2__
-	if (sizeof(Pixel) == 4) {
-		unsigned alpha = blur * 256;
-		unsigned c0 = alpha / 2;
-		unsigned c1 = alpha + c0;
-		unsigned c2 = 0x10000 - c1;
-		unsigned c3 = 0x10000 - alpha;
-		C0C1 = _mm_set_epi16(c1, c1, c1, c1, c0, c0, c0, c0);
-		C1C0 = _mm_shuffle_epi32(C0C1, 0x4E);
-		C2C3 = _mm_set_epi16(c3, c3, c3, c3, c2, c2, c2, c2);
-		C3C2 = _mm_shuffle_epi32(C2C3, 0x4E);
-	}
-#endif
-}
-
 #ifdef __SSE2__
 template<class Pixel>
 void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
@@ -332,6 +312,16 @@ void Blur_1on3<Pixel>::blur_SSE(const Pixel* in_, Pixel* out_, size_t srcWidth)
 	assert(srcWidth >= 8);
 	assert((size_t(in_ ) % 16) == 0);
 	assert((size_t(out_) % 16) == 0);
+
+	unsigned alpha = blur * 256;
+	unsigned c0 = alpha / 2;
+	unsigned c1 = alpha + c0;
+	unsigned c2 = 0x10000 - c1;
+	unsigned c3 = 0x10000 - alpha;
+	__m128i C0C1 = _mm_set_epi16(c1, c1, c1, c1, c0, c0, c0, c0);
+	__m128i C1C0 = _mm_shuffle_epi32(C0C1, 0x4E);
+	__m128i C2C3 = _mm_set_epi16(c3, c3, c3, c3, c2, c2, c2, c2);
+	__m128i C3C2 = _mm_shuffle_epi32(C2C3, 0x4E);
 
 	size_t tmp = srcWidth - 4;
 	auto* in  = reinterpret_cast<const char*>(in_  +     tmp);
