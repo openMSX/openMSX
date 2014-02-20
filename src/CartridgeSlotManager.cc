@@ -61,7 +61,7 @@ CartridgeSlotManager::Slot::~Slot()
 
 bool CartridgeSlotManager::Slot::exists() const
 {
-	return command != nullptr;
+	return cartCommand != nullptr;
 }
 
 bool CartridgeSlotManager::Slot::used(const HardwareConfig* allowed) const
@@ -130,10 +130,14 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slots[slot].ss = ss;
 			char slotName[] = "carta";
 			slotName[4] += slot;
+			char extName[] = "exta";
+			extName[3] += slot;
 			motherBoard.getMSXCliComm().update(
 				CliComm::HARDWARE, slotName, "add");
-			slots[slot].command = make_unique<CartCmd>(
+			slots[slot].cartCommand = make_unique<CartCmd>(
 				*this, motherBoard, slotName);
+			slots[slot].extCommand = make_unique<ExtCmd>(
+				motherBoard, extName);
 			return;
 		}
 	}
@@ -177,10 +181,11 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used());
-	const auto& slotName = slots[slot].command->getName();
+	const auto& slotName = slots[slot].cartCommand->getName();
 	motherBoard.getMSXCliComm().update(
 		CliComm::HARDWARE, slotName, "remove");
-	slots[slot].command.reset();
+	slots[slot].cartCommand.reset();
+	slots[slot].extCommand.reset();
 }
 
 void CartridgeSlotManager::getSpecificSlot(unsigned slot, int& ps, int& ss) const

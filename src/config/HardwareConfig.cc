@@ -36,11 +36,12 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, const string& extensionName)
+	MSXMotherBoard& motherBoard, const string& extensionName, const string& slotname)
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, extensionName);
 	result->load("extensions");
 	result->setName(extensionName);
+	result->setSlot(slotname);
 	return result;
 }
 
@@ -377,6 +378,16 @@ void HardwareConfig::setName(const string& proposedName)
 	}
 }
 
+void HardwareConfig::setSlot(const string& slotname)
+{
+	for (auto& psElem : getDevices().getChildren("primary")) {
+		const auto& primSlot = psElem->getAttribute("slot");
+		if (primSlot == "any") {
+			auto& mutableElem = const_cast<XMLElement*&>(psElem);
+			mutableElem->setAttribute("slot", slotname);
+		}
+	}
+}
 
 // version 1: initial version
 // version 2: moved FileContext here (was part of config)

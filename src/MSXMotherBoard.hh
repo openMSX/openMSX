@@ -6,6 +6,7 @@
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "RecordedCommand.hh"
 #include <memory>
 
 namespace openmsx {
@@ -80,7 +81,7 @@ public:
 	std::string loadMachine(const std::string& machine);
 
 	HardwareConfig* findExtension(string_ref extensionName);
-	std::string loadExtension(const std::string& extensionName);
+	std::string loadExtension(const std::string& extensionName, const std::string& slotname);
 	std::string insertExtension(const std::string& name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
@@ -176,6 +177,19 @@ private:
 	friend class Impl;
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
+
+class ExtCmd : public RecordedCommand
+{
+public:
+	ExtCmd(MSXMotherBoard& motherBoard, string_ref commandName);
+	virtual std::string execute(const std::vector<std::string>& tokens,
+	                       EmuTime::param time);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+	std::string commandName;
+};
 
 } // namespace openmsx
 

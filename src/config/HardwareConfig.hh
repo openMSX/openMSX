@@ -23,7 +23,7 @@ public:
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
 	static std::unique_ptr<HardwareConfig> createExtensionConfig(
-		MSXMotherBoard& motherBoard, const std::string& extensionName);
+		MSXMotherBoard& motherBoard, const std::string& extensionName, const std::string& slotname);
 	static std::unique_ptr<HardwareConfig> createRomConfig(
 		MSXMotherBoard& motherBoard, const std::string& romfile,
 		const std::string& slotname, const std::vector<std::string>& options);
@@ -65,6 +65,7 @@ private:
 	int getFreePrimarySlot();
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(const std::string& proposedName);
+	void setSlot(const std::string& slotname);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;

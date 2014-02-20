@@ -730,7 +730,7 @@ void BashOption::parseOption(const string& /*option*/,
 		for (auto& s : Reactor::getHwConfigs("machines")) {
 			cout << s << '\n';
 		}
-	} else if (last == "-ext") {
+	} else if (StringOp::startsWith(last, "-ext")) {
 		for (auto& s : Reactor::getHwConfigs("extensions")) {
 			cout << s << '\n';
 		}

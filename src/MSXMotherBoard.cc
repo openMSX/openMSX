@@ -35,7 +35,6 @@
 #include "VideoSourceSetting.hh"
 #include "Command.hh"
 #include "CommandException.hh"
-#include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "FileException.hh"
 #include "TclObject.hh"
@@ -100,7 +99,7 @@ public:
 	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
 	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(string_ref extensionName);
-	string loadExtension(MSXMotherBoard& self, const string& extensionName);
+	string loadExtension(MSXMotherBoard& self, const string& extensionName, const string& slotname);
 	string insertExtension(const std::string& name,
 	                       unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
@@ -259,18 +258,6 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class ExtCmd : public RecordedCommand
-{
-public:
-	ExtCmd(MSXMotherBoard& motherBoard);
-	virtual string execute(const vector<string>& tokens,
-	                       EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	MSXMotherBoard& motherBoard;
-};
-
 class RemoveExtCmd : public RecordedCommand
 {
 public:
@@ -361,7 +348,7 @@ MSXMotherBoard::Impl::Impl(
 	resetCommand = make_unique<ResetCmd>(*this);
 	loadMachineCommand = make_unique<LoadMachineCmd>(self);
 	listExtCommand = make_unique<ListExtCmd>(*this);
-	extCommand = make_unique<ExtCmd>(self);
+	extCommand = make_unique<ExtCmd>(self, "ext");
 	removeExtCommand = make_unique<RemoveExtCmd>(*this);
 	machineNameInfo = make_unique<MachineNameInfo>(*this);
 	deviceInfo = make_unique<DeviceInfo>(*this);
@@ -483,11 +470,11 @@ string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& mac
 	return machineName;
 }
 
-string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& name)
+string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& name, const string& slotname)
 {
 	unique_ptr<HardwareConfig> extension;
 	try {
-		extension = HardwareConfig::createExtensionConfig(self, name);
+		extension = HardwareConfig::createExtensionConfig(self, name, slotname);
 	} catch (FileException& e) {
 		throw MSXException(
 			"Extension \"" + name + "\" not found: " + e.getMessage());
@@ -1090,12 +1077,13 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 
 
 // ExtCmd
-ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_)
+ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, string_ref commandName_)
 	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getStateChangeDistributor(),
 	                  motherBoard_.getScheduler(),
-	                  "ext")
+	                  commandName_)
 	, motherBoard(motherBoard_)
+	, commandName(commandName_.str())
 {
 }
 
@@ -1105,7 +1093,10 @@ string ExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		throw SyntaxError();
 	}
 	try {
-		return motherBoard.loadExtension(tokens[1]);
+		auto slotname = (commandName.size() == 4)
+			? string(1, commandName[3])
+			: "any";
+		return motherBoard.loadExtension(tokens[1], slotname);
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}
@@ -1421,9 +1412,9 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 {
 	return pimpl->findExtension(extensionName);
 }
-string MSXMotherBoard::loadExtension(const string& extensionName)
+string MSXMotherBoard::loadExtension(const string& extensionName, const string& slotname)
 {
-	return pimpl->loadExtension(*this, extensionName);
+	return pimpl->loadExtension(*this, extensionName, slotname);
 }
 string MSXMotherBoard::insertExtension(
 	const string& name, unique_ptr<HardwareConfig> extension)

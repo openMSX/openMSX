@@ -9,6 +9,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class CartCmd;
+class ExtCmd;
 class HardwareConfig;
 class CartridgeSlotInfo;
 
@@ -48,7 +49,8 @@ private:
 		bool exists() const;
 		bool used(const HardwareConfig* allowed = nullptr) const;
 
-		std::unique_ptr<CartCmd> command;
+		std::unique_ptr<CartCmd> cartCommand;
+		std::unique_ptr<ExtCmd> extCommand;
 		const HardwareConfig* config;
 		unsigned useCount;
 		int ps;
