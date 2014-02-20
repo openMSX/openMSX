@@ -11,7 +11,7 @@ namespace openmsx {
 CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
-	cmdLineParser.registerOption("-ext", *this, CommandLineParser::PHASE_EXT);
+	cmdLineParser.registerOption("-ext", *this);
 }
 
 void CliExtension::parseOption(const string& option, array_ref<string>& cmdLine)

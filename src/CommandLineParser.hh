@@ -47,7 +47,6 @@ public:
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
 		PHASE_BEFORE_MACHINE,    // -machine
 		PHASE_LOAD_MACHINE,      // loads machine hardwareconfig.xml
-		PHASE_EXT,               // -ext
 		PHASE_DEFAULT,           // all the rest
 		PHASE_LAST,              // -control
 	};
