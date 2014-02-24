@@ -856,7 +856,7 @@ void DirAsDSK::writeSectorImpl(size_t sector_, const SectorBuffer& buf)
 void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 {
 	// Create copy of old FAT (to be able to detect changes).
-	SectorBuffer oldFAT[nofSectorsPerFat];
+	vector<SectorBuffer> oldFAT = vector<SectorBuffer>(nofSectorsPerFat);
 	memcpy(&oldFAT[0], fat(), sizeof(oldFAT));
 
 	// Update current FAT with new data.
@@ -864,8 +864,8 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 
 	// Look for changes.
 	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
-		if (readFAT(i) != readFATHelper(oldFAT, i)) {
-			exportFileFromFATChange(i, oldFAT);
+		if (readFAT(i) != readFATHelper(oldFAT.data(), i)) {
+			exportFileFromFATChange(i, oldFAT.data());
 		}
 	}
 	// At this point there should be no more differences.
@@ -876,7 +876,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const SectorBuffer& buf)
 	// beginning nor the unsused part at the end. And for example the 'CALL
 	// FORMAT' routine also writes these parts of the FAT.
 	for (unsigned i = FIRST_CLUSTER; i < maxCluster; ++i) {
-		assert(readFAT(i) == readFATHelper(oldFAT, i));
+		assert(readFAT(i) == readFATHelper(oldFAT.data(), i));
 	}
 }
 
