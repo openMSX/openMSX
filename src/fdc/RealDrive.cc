@@ -64,7 +64,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
-	changer = make_unique<DiskChanger>(motherBoard, driveName, true);
+	changer = make_unique<DiskChanger>(motherBoard, driveName, true, doubleSizedDrive);
 }
 
 RealDrive::~RealDrive()

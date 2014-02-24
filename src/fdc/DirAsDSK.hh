@@ -18,8 +18,6 @@ public:
 	enum SyncMode { SYNC_READONLY, SYNC_FULL };
 	enum BootSectorType { BOOTSECTOR_DOS1, BOOTSECTOR_DOS2 };
 
-	static const unsigned NUM_SECTORS = 1440;
-
 public:
 	DirAsDSK(DiskChanger& diskChanger, CliComm& cliComm,
 	         const Filename& hostDir, SyncMode syncMode,
@@ -108,6 +106,14 @@ private:
 	friend struct DirEntryForCluster;
 	friend struct UnmapHostFiles;
 
+	// internal helper functions
+	unsigned readFATHelper(const SectorBuffer* fat, unsigned cluster) const;
+	void writeFATHelper(SectorBuffer* fat, unsigned cluster, unsigned val) const;
+	unsigned clusterToSector(unsigned cluster) const;
+	void sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset) const;
+	unsigned sectorToCluster(unsigned sector) const;
+
+
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
@@ -116,14 +122,25 @@ private:
 
 	EmuTime lastAccess; // last time there was a sector read/write
 
-	// Storage for the whole virtual disk.
-	SectorBuffer sectors[NUM_SECTORS];
-
 	// For each directory entry that has a mapped host file/directory we
 	// store the name, last modification time and size of the corresponding
 	// host file/dir.
 	typedef std::map<DirIndex, MapDir> MapDirs;
 	MapDirs mapDirs;
+
+	// format parameters which depend on single/double sided
+	// varying root parameters
+	const unsigned nofSectors;
+	const unsigned nofSectorsPerFat;
+	// parameters that depend on these and thus also vary
+	const unsigned firstSector2ndFAT;
+	const unsigned firstDirSector;
+	const unsigned firstDataSector;
+	const unsigned maxCluster; // First cluster number that can NOT be used anymore.
+
+	// Storage for the whole virtual disk.
+	std::vector<SectorBuffer> sectors;
+
 };
 
 } // namespace openmsx

@@ -29,7 +29,8 @@ class DiskChanger : public DiskContainer, private StateChangeListener,
 public:
 	DiskChanger(MSXMotherBoard& board,
 	            const std::string& driveName,
-	            bool createCommand = true);
+	            bool createCommand = true,
+	            bool isDoubleSidedDrive = true);
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
 	            DiskFactory& diskFactory,
@@ -56,6 +57,7 @@ public:
 
 	// for DirAsDSK
 	Scheduler* getScheduler() const { return scheduler; }
+	bool isDoubleSidedDrive() const { return doubleSidedDrive; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -82,6 +84,7 @@ private:
 
 	friend class DiskCommand;
 	std::unique_ptr<DiskCommand> diskCommand; // must come after driveName
+	const bool doubleSidedDrive; // for DirAsDSK
 
 	bool diskChangedFlag;
 };

@@ -46,7 +46,8 @@ private:
 
 DiskChanger::DiskChanger(MSXMotherBoard& board,
                          const string& driveName_,
-                         bool createCmd)
+                         bool createCmd,
+                         bool isDoubleSidedDrive)
 	: controller(board.getCommandController())
 	, stateChangeDistributor(&board.getStateChangeDistributor())
 	, scheduler(&board.getScheduler())
@@ -54,6 +55,7 @@ DiskChanger::DiskChanger(MSXMotherBoard& board,
 	, diskFactory(board.getReactor().getDiskFactory())
 	, manipulator(board.getReactor().getDiskManipulator())
 	, driveName(driveName_)
+	, doubleSidedDrive(isDoubleSidedDrive)
 {
 	init(board.getMachineID() + "::", createCmd);
 }
@@ -70,6 +72,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, diskFactory(diskFactory_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
+	, doubleSidedDrive(true) // irrelevant, but needs a value
 {
 	init("", createCmd);
 }

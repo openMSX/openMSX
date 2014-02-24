@@ -32,7 +32,7 @@ unique_ptr<DiskChanger> NowindCommand::createDiskChanger(
 	const string& basename, unsigned n, MSXMotherBoard& motherBoard) const
 {
 	string name = StringOp::Builder() << basename << n + 1;
-	return make_unique<DiskChanger>(motherBoard, name, false);
+	return make_unique<DiskChanger>(motherBoard, name, false, true);
 }
 
 unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) const
