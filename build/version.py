@@ -37,7 +37,7 @@ def _extractRevisionFromStdout(log, command, regex):
 
 def extractGitRevision(log):
 	return _extractRevisionFromStdout(
-		log, 'git describe', r'\S+?-(\S+)$'
+		log, 'git describe --dirty', r'\S+?-(\S+)$'
 		)
 
 def extractNumberFromGitRevision(revisionStr):
