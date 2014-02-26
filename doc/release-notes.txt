@@ -3,6 +3,7 @@ Release Notes for openMSX 0.10.1 (2014-03-xx)
 
 This release fixes mostly bugs we introduced with 0.10.0 or were already
 present for a bit longer... sorry for those, but most should be fixed now :)
+There are also some small but nice additions...
 
 Here's the list with all highlights:
 
@@ -17,6 +18,8 @@ New or improved emulator features:
   cassetteplayer)
 - fixed crash on 32-bit Visual Studio build when recording videos without
   the -doublesize option
+- fixed crash on 32-bit Visual Studio build when using scale_factor 3 and SDL
+  renderer
 - fixed waves shown upside-down in the SCC Viewer OSD widget
 - fixed crash when loading a savestate that has JoyTap plugged in
 - performance improvements:
@@ -30,6 +33,11 @@ New or improved emulator features:
   - fixed MIDI output on Mac OS X (was not working for some applications)
   - added support for running status
   - added support for system realtime messages
+- fixed issues with on-screen-keyboard on Android 4.4
+- added default keybindings for controllers targeted at gaming
+- added mapping of B-control button to press CTRL or SHIFT in OSD keyboard
+- added fine grained control in which slots carts and extensions will end up
+- added support for single sided disk drives for dir-as-disk
 
 
 Build system, packaging, documentation:
