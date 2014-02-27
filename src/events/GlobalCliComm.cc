@@ -1,5 +1,6 @@
 #include "GlobalCliComm.hh"
 #include "CliListener.hh"
+#include "CliConnection.hh"
 #include "Thread.hh"
 #include "ScopedAssign.hh"
 #include <algorithm>
@@ -11,6 +12,7 @@ namespace openmsx {
 GlobalCliComm::GlobalCliComm()
 	: sem(1)
 	, delivering(false)
+	, allowExternalCommands(false)
 {
 }
 
@@ -32,6 +34,11 @@ void GlobalCliComm::addListener(CliListener* listener)
 	// can be called from any thread
 	ScopedLock lock(sem);
 	listeners.push_back(listener);
+	if (allowExternalCommands) {
+		if (auto* conn = dynamic_cast<CliConnection*>(listener)) {
+			conn->start();
+		}
+	}
 }
 
 void GlobalCliComm::removeListener(CliListener* listener)
@@ -41,6 +48,17 @@ void GlobalCliComm::removeListener(CliListener* listener)
 	auto it = find(listeners.begin(), listeners.end(), listener);
 	assert(it != listeners.end());
 	listeners.erase(it);
+}
+
+void GlobalCliComm::setAllowExternalCommands()
+{
+	assert(!allowExternalCommands); // should only be called once
+	allowExternalCommands = true;
+	for (auto* listener : listeners) {
+		if (auto* conn = dynamic_cast<CliConnection*>(listener)) {
+			conn->start();
+		}
+	}
 }
 
 void GlobalCliComm::log(LogLevel level, string_ref message)

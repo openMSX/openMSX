@@ -24,17 +24,18 @@ public:
 	void setUpdateEnable(CliComm::UpdateType type, bool value);
 	bool getUpdateEnable(CliComm::UpdateType type) const;
 
+	/** Starts the helper thread.
+	  * Called when this CliConnection is added to GlobalCliComm (and
+	  * after it's allowed to respond to external commands).
+	  * Subclasses should themself send the opening tag (startOutput()).
+	  */
+	void start();
+
 protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
 
 	virtual void output(string_ref message) = 0;
-
-	/** Starts the helper thread.
-	  * Subclasses should call this method at the end of their constructor.
-	  * Subclasses should themself send the opening tag (startOutput()).
-	  */
-	void start();
 
 	/** End this connection by sending the closing tag
 	  * and then closing the stream.

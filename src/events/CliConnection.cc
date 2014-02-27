@@ -259,7 +259,6 @@ StdioConnection::StdioConnection(CommandController& commandController,
 	, ok(true)
 {
 	startOutput();
-	start();
 }
 
 StdioConnection::~StdioConnection()
@@ -325,7 +324,6 @@ PipeConnection::PipeConnection(CommandController& commandController,
 	}
 
 	startOutput();
-	start();
 }
 
 PipeConnection::~PipeConnection()
@@ -414,7 +412,6 @@ SocketConnection::SocketConnection(CommandController& commandController,
 	: CliConnection(commandController, eventDistributor)
 	, sem(1), sd(sd_), established(false)
 {
-	start();
 }
 
 SocketConnection::~SocketConnection()

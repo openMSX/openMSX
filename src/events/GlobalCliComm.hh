@@ -20,6 +20,10 @@ public:
 	void addListener(CliListener* listener);
 	void removeListener(CliListener* listener);
 
+	// Before this method has been called commands send over external
+	// connections are not yet processed (but they keep pending).
+	void setAllowExternalCommands();
+
 	// CliComm
 	virtual void log(LogLevel level, string_ref message);
 	virtual void update(UpdateType type, string_ref name,
@@ -34,6 +38,7 @@ private:
 	std::vector<CliListener*> listeners;
 	Semaphore sem; // lock access to listeners member
 	bool delivering;
+	bool allowExternalCommands;
 
 	friend class MSXCliComm;
 };

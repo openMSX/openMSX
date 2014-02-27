@@ -588,6 +588,10 @@ void Reactor::run(CommandLineParser& parser)
 		}
 	}
 
+	// At this point openmsx is fully started, it's OK now to start
+	// accepting external commands
+	getGlobalCliComm().setAllowExternalCommands();
+
 	// Run
 	if (parser.getParseStatus() == CommandLineParser::RUN) {
 		// don't use Tcl to power up the machine, we cannot pass
