@@ -236,21 +236,6 @@ DEADKEY3, 20,         # ~ -> ã, õ
 0132, 53, CODE        # Ĳ
 20a7, 54, CODE        # ₧
 007b, 55, CODE        # {
-00bb, 00, SHIFT CODE  # »
-0032, 01, SHIFT CODE  # 2
-00bc, 02, SHIFT CODE  # ¼
-207f, 03, SHIFT CODE  # ⁿ
-25bc, 04, SHIFT CODE  # ▼
-2310, 05, SHIFT CODE  # ⌐
-003a, 07, SHIFT CODE  # :
-00b7, 10, SHIFT CODE  # ·
-2264, 11, SHIFT CODE  # ≤
-2030, 12, SHIFT CODE  # ‰
-258a, 13, SHIFT CODE  # ▊
-0022, 14, SHIFT CODE  # "
-00b0, 15, SHIFT CODE  # °
-2264, 16, SHIFT CODE  # ≤
-2595, 17, SHIFT CODE  # ▕
 0001, 26, CTRL        # ^A
 0002, 27, CTRL        # ^B
 0003, 30, CTRL        # ^C
