@@ -235,42 +235,7 @@ DEADKEY3, 20,         # ~ -> ã, õ
 0132, 53, CODE        # Ĳ
 20a7, 54, CODE        # ₧
 007b, 55, CODE        # {
-25fc, 00, SHIFT CODE  # ◼
-03c9, 02, SHIFT CODE  # ω
-00bc, 03, SHIFT CODE  # ¼
-2518, 04, SHIFT CODE  # ┘
-03c3, 06, SHIFT CODE  # σ
-263a, 07, SHIFT CODE  # ☺
-0021, 12, SHIFT CODE  # !
-00f6, 13, SHIFT CODE  # ö
-263a, 14, SHIFT CODE  # ☺
-03c6, 15, SHIFT CODE  # φ
-0133, 16, SHIFT CODE  # ĳ
-25d9, 20, SHIFT CODE  # ◙
-0023, 21, SHIFT CODE  # #
-266b, 22, SHIFT CODE  # ♫
-25cb, 24, SHIFT CODE  # ○
 007e, 21, GRAPH       # ~
-00df, 26, SHIFT CODE  # ß
-259a, 27, SHIFT CODE  # ▚
-2594, 30, SHIFT CODE  # ▔
-00bc, 31, SHIFT CODE  # ¼
-2518, 32, SHIFT CODE  # ┘
-00df, 33, SHIFT CODE  # ß
-259a, 34, SHIFT CODE  # ▚
-2594, 35, SHIFT CODE  # ▔
-0169, 36, SHIFT CODE  # ũ
-2518, 37, SHIFT CODE  # ┘
-003a, 40, SHIFT CODE  # :
-03b4, 41, SHIFT CODE  # δ
-221a, 42, SHIFT CODE  # √
-005f, 43, SHIFT CODE  # _
-2595, 44, SHIFT CODE  # ▕
-00b5, 45, SHIFT CODE  # µ
-263a, 46, SHIFT CODE  # ☺
-2594, 47, SHIFT CODE  # ▔
-00e1, 50, SHIFT CODE  # á
-263c, 51, SHIFT CODE  # ☼
 0001, 26, CTRL        # ^A
 0002, 27, CTRL        # ^B
 0003, 30, CTRL        # ^C
