@@ -208,7 +208,6 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 03b1, 06, CODE        # α
 00df, 07, CODE        # ß
 03c4, 10, CODE        # τ
-00e7, 11, CODE        # ç
 03b5, 12, CODE        # ε
 03b8, 13, CODE        # θ
 03c6, 15, CODE        # φ
@@ -252,7 +251,6 @@ DEADKEY2, 17,         # ~ -> ã, ũ, ĩ, õ
 00a3, 04, SHIFT CODE  # £
 00a5, 05, SHIFT CODE  # ¥
 0393, 10, SHIFT CODE  # Γ
-00c7, 11, SHIFT CODE  # Ç
 03a6, 15, SHIFT CODE  # Φ
 03a9, 16, SHIFT CODE  # Ω
 0168, 17, SHIFT CODE  # Ũ
