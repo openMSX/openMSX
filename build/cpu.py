@@ -28,6 +28,18 @@ class ARM(CPU):
 	name = 'arm'
 	bigEndian = False
 
+class ARM64(CPU):
+	'''ARM 64-bit, little endian mode.
+	'''
+	name = 'aarch64'
+	bigEndian = False
+
+class ARM64BE(CPU):
+	'''ARM 64-bit, big endian mode.
+	'''
+	name = 'aarch64_be'
+	bigEndian = True
+
 class AVR32(CPU):
 	'''Atmel AVR32, an embedded RISC CPU.
 	'''

@@ -24,6 +24,10 @@ def detectCPU():
 		return 'ppc64' if cpu.endswith('64') else 'ppc'
 	elif cpu.startswith('arm'):
 		return 'arm'
+	elif cpu == 'aarch64':
+		return 'aarch64'
+	elif cpu == 'aarch64_be':
+		return 'aarch64_be'
 	elif cpu.startswith('mips') or cpu == 'sgi':
 		return 'mipsel' if cpu.endswith('el') else 'mips'
 	elif cpu == 'm68k':
