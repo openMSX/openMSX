@@ -214,7 +214,7 @@ void Joystick::unplugHelper(EmuTime::param /*time*/)
 // JoystickDevice
 byte Joystick::read(EmuTime::param /*time*/)
 {
-	return status;
+	return pin8 ? 0x3F : status;
 }
 
 void Joystick::write(byte value, EmuTime::param /*time*/)
@@ -226,7 +226,7 @@ byte Joystick::calcState()
 {
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
-	if (joystick && !pin8) {
+	if (joystick) {
 		const TclObject& dict = configSetting->getValue();
 		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
 		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
