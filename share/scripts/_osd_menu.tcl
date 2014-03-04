@@ -294,6 +294,7 @@ proc menu_mouse_motion {} {
 user_setting create string osd_rom_path "OSD Rom Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_disk_path "OSD Disk Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_tape_path "OSD Tape Load Menu Last Known Path" $env(HOME)
+user_setting create string osd_hdd_path "OSD HDD Load Menu Last Known Path" $env(HOME)
 user_setting create string osd_ld_path "OSD LD Load Menu Last Known Path" $env(HOME)
 if {![file exists $::osd_rom_path]} {
 	# revert to default (should always exist)
@@ -308,6 +309,11 @@ if {![file exists $::osd_disk_path]} {
 if {![file exists $::osd_tape_path]} {
 	# revert to default (should always exist)
 	unset ::osd_tape_path
+}
+
+if {![file exists $::osd_hdd_path]} {
+	# revert to default (should always exist)
+	unset ::osd_hdd_path
 }
 
 if {![file exists $::osd_ld_path]} {
@@ -542,6 +548,11 @@ proc create_main_menu {} {
 			set drive_str [string toupper [string index $drive end]]
 			lappend items [list text "Insert Disk... (drive $drive_str)" \
 				actions [list A "osd_menu::menu_create \[osd_menu::menu_create_disk_list \$::osd_disk_path $drive\]"]]
+		}
+	}
+	if {[info command hda] ne ""} {; # only exists when hard disk extension available
+		lappend items { text "Change hard disk image..."
+			actions { A { osd_menu::menu_create [osd_menu::menu_create_hdd_list $::osd_hdd_path]} }
 		}
 	}
 	if {[info command laserdiscplayer] ne ""} {; # only exists on some Pioneers
@@ -1478,6 +1489,46 @@ proc menu_free_tape_name {} {
 	}
 }
 
+proc menu_create_hdd_list {path} {
+	return [prepare_menu_list [ls $path "dsk|zip|gz"] \
+	                          10 \
+	                          { execute menu_select_hdd
+	                            font-size 8
+	                            border-size 2
+	                            width 200
+	                            xpos 100
+	                            ypos 120
+	                            header { text "Hard disk images $::osd_hdd_path"
+	                                     font-size 10
+	                                     post-spacing 6 }}]
+}
+
+proc menu_select_hdd {item} {
+	set fullname [file join $::osd_hdd_path $item]
+	if {[file isdirectory $fullname]} {
+		menu_close_top
+		set ::osd_hdd_path [file normalize $fullname]
+		menu_create [menu_create_hdd_list $::osd_hdd_path]
+	} else {
+		confirm_action "Really power off to change HDD image?" osd_menu::confirm_change_hdd $item
+	}
+}
+
+proc confirm_change_hdd {item result} {
+	menu_close_top
+	if {$result eq "Yes"} {
+		set fullname [file join $::osd_hdd_path $item]
+		if {[catch {set ::power off; hda $fullname} errorText]} {
+				osd::display_message "Can't change hard disk image: $errorText" error
+				# TODO: we already powered off even though the file may be invalid... save state first?
+		} else {
+			osd::display_message "Changed hard disk image to $item!"
+			menu_close_all
+		}
+		set ::power on
+	}
+}
+
 proc menu_create_ld_list {path} {
 	set eject_item [list]
 	set inserted [lindex [laserdiscplayer] 1]
@@ -1633,7 +1684,7 @@ proc confirm_action {text action item} {
 	set menu_def [list execute [list $action $item] \
 			font-size 8 \
 			border-size 2 \
-			width 200 \
+			width 210 \
 			xpos 100 \
 			ypos 100 \
 			header [list text $text \
