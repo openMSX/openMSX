@@ -165,7 +165,7 @@ AviWriter::~AviWriter()
 		AVIOUTw(bitsPerSample);     // BitsPerSample
 	}
 
-	const char* versionStr = Version::full().c_str();
+	std::string versionStr = Version::full();
 
 	// The standard snprintf() function does always zero-terminate the
 	// output it writes. Though windows doesn't have a snprintf() function,
@@ -181,13 +181,13 @@ AviWriter::~AviWriter()
 
 	AVIOUT4("LIST");
 	AVIOUTd(4 // list type
-		+ (4 + 4 + ((strlen(versionStr) + 1 + 1) & ~1)) // 1st chunk
-		+ (4 + 4 + ((strlen(dateStr   ) + 1 + 1) & ~1)) // 2nd chunk
+		+ (4 + 4 + ((versionStr.size() + 1 + 1) & ~1)) // 1st chunk
+		+ (4 + 4 + ((strlen(dateStr  ) + 1 + 1) & ~1)) // 2nd chunk
 		); // size of the list
 	AVIOUT4("INFO");
 	AVIOUT4("ISFT");
-	AVIOUTd(unsigned(strlen(versionStr)) + 1); // # of bytes to follow
-	AVIOUTs(versionStr);
+	AVIOUTd(unsigned(versionStr.size()) + 1); // # of bytes to follow
+	AVIOUTs(versionStr.c_str());
 	AVIOUT4("ICRD");
 	AVIOUTd(unsigned(strlen(dateStr)) + 1); // # of bytes to follow
 	AVIOUTs(dateStr);
