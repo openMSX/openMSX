@@ -81,7 +81,7 @@ public:
 	GLScopedClip(OutputSurface& output, int x, int y, int w, int h);
 	~GLScopedClip();
 private:
-	GLint xo, yo, wo, ho; // order is important
+	GLint box[4]; // x, y, w, h;
 	GLboolean wasEnabled;
 };
 
@@ -93,9 +93,9 @@ GLScopedClip::GLScopedClip(OutputSurface& output, int x, int y, int w, int h)
 
 	wasEnabled = glIsEnabled(GL_SCISSOR_TEST);
 	if (wasEnabled == GL_TRUE) {
-		glGetIntegerv(GL_SCISSOR_BOX, &xo);
+		glGetIntegerv(GL_SCISSOR_BOX, box);
 		int xn, yn, wn, hn;
-		intersect(xo, yo, wo, ho,
+		intersect(box[0], box[1], box[2], box[3],
 		          x,  y,  w,  h,
 		          xn, yn, wn, hn);
 		glScissor(xn, yn, wn, hn);
@@ -108,7 +108,7 @@ GLScopedClip::GLScopedClip(OutputSurface& output, int x, int y, int w, int h)
 GLScopedClip::~GLScopedClip()
 {
 	if (wasEnabled == GL_TRUE) {
-		glScissor(xo, yo, wo, ho);
+		glScissor(box[0], box[1], box[2], box[3]);
 	} else {
 		glDisable(GL_SCISSOR_TEST);
 	}
