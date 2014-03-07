@@ -259,6 +259,7 @@ void MSXDevice::registerSlots()
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
+	assert((0 <= ps) && (ps <= 3));
 
 	if (!getCPUInterface().isExpanded(ps)) {
 		ss = -1;
