@@ -65,6 +65,7 @@ public:
 
 protected:
 	StringMapImpl(unsigned itemSize, unsigned initSize);
+	~StringMapImpl() { free(theTable); }
 
 	// Grow the table, redistributing values into the buckets with the
 	// appropriate mod-of-hashtable-size.
@@ -211,7 +212,6 @@ public:
 
 	~StringMap() {
 		clear();
-		free(this->theTable);
 	}
 
 	iterator begin() {
