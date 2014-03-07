@@ -27,7 +27,8 @@ static std::unique_ptr<Rom> createRom(MSXMotherBoard& motherBoard)
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
 	: msxcpu(motherBoard.getCPU())
 	, rom(createRom(motherBoard))
-	, ram(nullptr), dram(false)
+	, ram(nullptr), ramSize(0)
+	, dram(false)
 {
 }
 
@@ -97,8 +98,6 @@ byte* PanasonicMemory::getRamBlock(unsigned block)
 }
 unsigned PanasonicMemory::getRamSize() const
 {
-	if (!ram) return 0;
-
 	return ramSize;
 }
 
