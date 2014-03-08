@@ -52,6 +52,10 @@ public:
 	void removeSha1Sum(File& file);
 
 private:
+	struct ScanProgress {
+		uint64_t lastTime;
+		unsigned amountScanned;
+	};
 	struct Entry {
 		std::string path;
 		int types;
@@ -71,11 +75,13 @@ private:
 	std::unique_ptr<File> getFromPool(const Sha1Sum& sha1sum);
 	std::unique_ptr<File> scanDirectory(const Sha1Sum& sha1sum,
 	                                    const std::string& directory,
-	                                    const std::string& poolPath);
+	                                    const std::string& poolPath,
+	                                    ScanProgress& progress);
 	std::unique_ptr<File> scanFile(const Sha1Sum& sha1sum,
 	                               const std::string& filename,
 	                               const FileOperations::Stat& st,
-	                               const std::string& poolPath);
+	                               const std::string& poolPath,
+	                               ScanProgress& progress);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Directories getDirectories() const;
@@ -92,8 +98,6 @@ private:
 	CliComm& cliComm;
 
 	Pool pool;
-	uint64_t lastTime; // to indicate progress
-	unsigned amountScanned; // to indicate progress
 	bool quit;
 	bool needWrite;
 };

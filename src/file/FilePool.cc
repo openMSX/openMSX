@@ -256,8 +256,10 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	if (result) return result;
 
 	// not found in cache, need to scan directories
-	lastTime = Timer::getTime(); // for progress messages
-	amountScanned = 0; // also for progress messages
+	ScanProgress progress;
+	progress.lastTime = Timer::getTime();
+	progress.amountScanned = 0;
+
 	Directories directories;
 	try {
 		directories = getDirectories();
@@ -268,7 +270,7 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	for (auto& d : directories) {
 		if (d.types & fileType) {
 			string path = FileOperations::expandTilde(d.path);
-			result = scanDirectory(sha1sum, path, d.path);
+			result = scanDirectory(sha1sum, path, d.path, progress);
 			if (result) return result;
 		}
 	}
@@ -330,7 +332,9 @@ unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 	return nullptr; // not found
 }
 
-unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& directory, const string& poolPath)
+unique_ptr<File> FilePool::scanDirectory(
+	const Sha1Sum& sha1sum, const string& directory, const string& poolPath,
+	ScanProgress& progress)
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
@@ -346,10 +350,10 @@ unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& d
 		if (FileOperations::getStat(path, st)) {
 			unique_ptr<File> result;
 			if (FileOperations::isRegularFile(st)) {
-				result = scanFile(sha1sum, path, st, poolPath);
+				result = scanFile(sha1sum, path, st, poolPath, progress);
 			} else if (FileOperations::isDirectory(st)) {
 				if ((file != ".") && (file != "..")) {
-					result = scanDirectory(sha1sum, path, poolPath);
+					result = scanDirectory(sha1sum, path, poolPath, progress);
 				}
 			}
 			if (result) return result;
@@ -359,16 +363,17 @@ unique_ptr<File> FilePool::scanDirectory(const Sha1Sum& sha1sum, const string& d
 }
 
 unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filename,
-                                  const FileOperations::Stat& st, const string& poolPath)
+                                    const FileOperations::Stat& st, const string& poolPath,
+                                    ScanProgress& progress)
 {
-	amountScanned++;
+	++progress.amountScanned;
 	// Periodically send a progress message with the current filename
 	auto now = Timer::getTime();
-	if (now > (lastTime + 250000)) { // 4Hz
-		lastTime = now;
+	if (now > (progress.lastTime + 250000)) { // 4Hz
+		progress.lastTime = now;
 		cliComm.printProgress("Searching for file with sha1sum " +
 			sha1sum.toString() + "...\nIndexing filepool " + poolPath +
-			": [" + StringOp::toString(amountScanned) + "]: " +
+			": [" + StringOp::toString(progress.amountScanned) + "]: " +
 			filename.substr(poolPath.size()));
 	}
 
