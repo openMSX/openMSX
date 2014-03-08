@@ -33,12 +33,13 @@ private:
 
 	void setupBuffers(unsigned bpp);
 	unsigned neededSize();
-	template<class P> void addFullFrame(const SDL_PixelFormat& pixelFormat);
-	template<class P> void addXorFrame(const SDL_PixelFormat& pixelFormat);
+	template<class P> void addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed);
+	template<class P> void addXorFrame (const SDL_PixelFormat& pixelFormat, unsigned& workUsed);
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(
-		const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset);
+		const PixelOperations<P>& pixelOps, int vx, int vy,
+		unsigned offset, unsigned& workUsed);
 	const void* getScaledLine(FrameSource* frame, unsigned y, void* workBuf);
 
 	MemBuffer<uint8_t, SSE2_ALIGNMENT> oldframe;
@@ -47,7 +48,6 @@ private:
 	MemBuffer<uint8_t> output;
 	MemBuffer<unsigned> blockOffsets;
 	unsigned outputSize;
-	unsigned workUsed;
 
 	z_stream zstream;
 

@@ -247,7 +247,7 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 
 template<class P>
 void ZMBVEncoder::addXorBlock(
-	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset)
+	const PixelOperations<P>& pixelOps, int vx, int vy, unsigned offset, unsigned& workUsed)
 {
 	typedef typename Endian::Little<P>::type LE_P;
 
@@ -265,7 +265,7 @@ void ZMBVEncoder::addXorBlock(
 }
 
 template<class P>
-void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
+void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	PixelOperations<P> pixelOps(pixelFormat);
 	auto* vectors = reinterpret_cast<int8_t*>(&work[workUsed]);
@@ -300,13 +300,13 @@ void ZMBVEncoder::addXorFrame(const SDL_PixelFormat& pixelFormat)
 		vectors[b * 2 + 1] = (bestvy << 1);
 		if (bestchange) {
 			vectors[b * 2 + 0] |= 1;
-			addXorBlock<P>(pixelOps, bestvx, bestvy, offset);
+			addXorBlock<P>(pixelOps, bestvx, bestvy, offset, workUsed);
 		}
 	}
 }
 
 template<class P>
-void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat)
+void ZMBVEncoder::addFullFrame(const SDL_PixelFormat& pixelFormat, unsigned& workUsed)
 {
 	typedef typename Endian::Little<P>::type LE_P;
 
@@ -362,7 +362,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 	std::swap(newframe, oldframe); // replace oldframe with newframe
 
 	// Reset the work buffer
-	workUsed = 0;
+	unsigned workUsed = 0;
 	unsigned writeDone = 1;
 	uint8_t* writeBuf = output.data();
 
@@ -398,12 +398,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addFullFrame<uint16_t>(frame->getSDLPixelFormat());
+			addFullFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addFullFrame<uint32_t>(frame->getSDLPixelFormat());
+			addFullFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
 			break;
 #endif
 		default:
@@ -414,12 +414,12 @@ void ZMBVEncoder::compressFrame(bool keyFrame, FrameSource* frame,
 		switch (pixelSize) {
 #if HAVE_16BPP
 		case 2:
-			addXorFrame<uint16_t>(frame->getSDLPixelFormat());
+			addXorFrame<uint16_t>(frame->getSDLPixelFormat(), workUsed);
 			break;
 #endif
 #if HAVE_32BPP
 		case 4:
-			addXorFrame<uint32_t>(frame->getSDLPixelFormat());
+			addXorFrame<uint32_t>(frame->getSDLPixelFormat(), workUsed);
 			break;
 #endif
 		default:
