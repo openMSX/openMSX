@@ -24,6 +24,8 @@ Video9000::Video9000(const DeviceConfig& config)
 	getReactor().getDisplay().attach(*this);
 
 	activeLayer = nullptr; // we can't set activeLayer yet
+	v99x8Layer = nullptr;
+	v9990Layer = nullptr;
 	value = 0x10;
 }
 
