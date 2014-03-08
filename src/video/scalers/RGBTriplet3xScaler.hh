@@ -68,8 +68,7 @@ protected:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
-	void recalcBlur();
-	inline void calcSpil(unsigned x, unsigned& r, unsigned& s);
+	void calcBlur(unsigned& c1, unsigned& c2);
 
 	/**
 	 * Calculates the RGB triplets.
@@ -77,10 +76,11 @@ private:
 	 * @param out Buffer of output pixels, should be 3x as long as input
 	 * @param inwidth Width of the input buffer (in pixels)
 	 */
-	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
+	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth, unsigned c1, unsigned c2);
 
 	void scaleLine(const Pixel* srcLine, Pixel* dstLine,
-	               PolyLineScaler<Pixel>& scale, unsigned tmpWidth);
+	               PolyLineScaler<Pixel>& scale, unsigned tmpWidth,
+	               unsigned c1, unsigned c2);
 	void doScale1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
@@ -90,7 +90,6 @@ private:
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,
 		PolyLineScaler<Pixel>& scale);
 
-	int c1, c2;
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
 	const RenderSettings& settings;

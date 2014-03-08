@@ -22,14 +22,13 @@ RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
 }
 
 template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::recalcBlur()
+void RGBTriplet3xScaler<Pixel>::calcBlur(unsigned& c1, unsigned& c2)
 {
 	c1 = settings.getBlurFactor();
 	c2 = (3 * 256) - (2 * c1);
 }
 
-template <class Pixel>
-void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
+static inline void calcSpil(unsigned c1, unsigned c2, unsigned x, unsigned& r, unsigned& s)
 {
 	r = (c2 * x) >> 8;
 	s = (c1 * x) >> 8;
@@ -41,46 +40,47 @@ void RGBTriplet3xScaler<Pixel>::calcSpil(unsigned x, unsigned& r, unsigned& s)
 
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::rgbify(
-		const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth)
+	const Pixel* __restrict in, Pixel* __restrict out, unsigned inwidth,
+	unsigned c1, unsigned c2)
 {
 	unsigned r, g, b, rs, gs, bs;
 	unsigned i = 0;
 
-	calcSpil(pixelOps.red256  (in[i + 0]), r, rs);
-	calcSpil(pixelOps.green256(in[i + 0]), g, gs);
+	calcSpil(c1, c2, pixelOps.red256  (in[i + 0]), r, rs);
+	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
 	out[3 * i + 0] = pixelOps.combine256(r , gs, 0 );
-	calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
+	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-	calcSpil(pixelOps.red256  (in[i + 1]), r, rs);
+	calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
 	out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 
 	for (++i; i < (inwidth - 1); ++i) {
-		calcSpil(pixelOps.green256(in[i + 0]), g, gs);
+		calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
 		out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-		calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
+		calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
 		out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
-		calcSpil(pixelOps.red256  (in[i + 1]), r, rs);
+		calcSpil(c1, c2, pixelOps.red256  (in[i + 1]), r, rs);
 		out[3 * i + 2] = pixelOps.combine256(rs, gs, b );
 	}
 
-	calcSpil(pixelOps.green256(in[i + 0]), g, gs);
+	calcSpil(c1, c2, pixelOps.green256(in[i + 0]), g, gs);
 	out[3 * i + 0] = pixelOps.combine256(r , gs, bs);
-	calcSpil(pixelOps.blue256 (in[i + 0]), b, bs);
+	calcSpil(c1, c2, pixelOps.blue256 (in[i + 0]), b, bs);
 	out[3 * i + 1] = pixelOps.combine256(rs, g , bs);
 	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
 }
 
 template <typename Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleLine(
-		const Pixel* srcLine, Pixel* dstLine, PolyLineScaler<Pixel>& scale,
-		unsigned tmpWidth)
+	const Pixel* srcLine, Pixel* dstLine, PolyLineScaler<Pixel>& scale,
+	unsigned tmpWidth, unsigned c1, unsigned c2)
 {
 	if (scale.isCopy()) {
-		rgbify(srcLine, dstLine, tmpWidth);
+		rgbify(srcLine, dstLine, tmpWidth, c1, c2);
 	} else {
 		VLA_SSE_ALIGNED(Pixel, tmp, tmpWidth);
 		scale(srcLine, tmp, tmpWidth);
-		rgbify(tmp, dstLine, tmpWidth);
+		rgbify(tmp, dstLine, tmpWidth, c1, c2);
 	}
 }
 
@@ -95,7 +95,8 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
 
-	recalcBlur();
+	unsigned c1, c2;
+	calcBlur(c1, c2);
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -103,7 +104,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned y = dstStartY;
 	auto* srcLine = src.getLinePtr(srcStartY++, srcWidth, buf);
 	auto* dstLine0 = dst.acquireLine(y + 0);
-	scaleLine(srcLine, dstLine0, scale, tmpWidth);
+	scaleLine(srcLine, dstLine0, scale, tmpWidth, c1, c2);
 
 	Scale_1on1<Pixel> copy;
 	auto* dstLine1 = dst.acquireLine(y + 1);
@@ -112,7 +113,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 		auto* dstLine3 = dst.acquireLine(y + 3);
-		scaleLine(srcLine, dstLine3, scale, tmpWidth);
+		scaleLine(srcLine, dstLine3, scale, tmpWidth, c1, c2);
 
 		auto* dstLine4 = dst.acquireLine(y + 4);
 		copy(dstLine3, dstLine4, dstWidth);
@@ -130,7 +131,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 
 	srcLine = src.getLinePtr(srcStartY, srcWidth, buf);
 	VLA_SSE_ALIGNED(Pixel, buf2, dstWidth);
-	scaleLine(srcLine, buf2, scale, tmpWidth);
+	scaleLine(srcLine, buf2, scale, tmpWidth, c1, c2);
 	auto* dstLine2 = dst.acquireLine(y + 2);
 	scanline.draw(dstLine0, buf2, dstLine2, scanlineFactor, dstWidth);
 	dst.releaseLine(y + 0, dstLine0);
@@ -145,7 +146,8 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	PolyLineScaler<Pixel>& scale)
 {
 	VLA_SSE_ALIGNED(Pixel, buf, srcWidth);
-	recalcBlur();
+	unsigned c1, c2;
+	calcBlur(c1, c2);
 
 	unsigned dstWidth = dst.getWidth();
 	unsigned tmpWidth = dstWidth / 3;
@@ -154,11 +156,11 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	     srcY += 2, dstY += 3) {
 		auto* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, buf);
 		auto* dstLine0 = dst.acquireLine(dstY + 0);
-		scaleLine(srcLine0, dstLine0, scale, tmpWidth);
+		scaleLine(srcLine0, dstLine0, scale, tmpWidth, c1, c2);
 
 		auto* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, buf);
 		auto* dstLine2 = dst.acquireLine(dstY + 2);
-		scaleLine(srcLine1, dstLine2, scale, tmpWidth);
+		scaleLine(srcLine1, dstLine2, scale, tmpWidth, c1, c2);
 
 		auto* dstLine1 = dst.acquireLine(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
@@ -312,7 +314,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	recalcBlur();
+	unsigned c1, c2;
+	calcBlur(c1, c2);
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned dstWidth  = dst.getWidth();
@@ -326,7 +329,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		Pixel inNormal [3];
 		Pixel outNormal[3 * 3];
 		inNormal[0] = inNormal[1] = inNormal[2] = color;
-		rgbify(inNormal, outNormal, 3);
+		rgbify(inNormal, outNormal, 3, c1, c2);
 		Pixel outScanline[3 * 3];
 		for (int i = 0; i < (3 * 3); ++i) {
 			outScanline[i] = scanline.darken(
@@ -359,7 +362,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	recalcBlur();
+	unsigned c1, c2;
+	calcBlur(c1, c2);
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned dstWidth = dst.getWidth();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
@@ -373,9 +377,9 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		Pixel outScanline[3 * 3];
 
 		inNormal[0] = inNormal[1] = inNormal[2] = color0;
-		rgbify(inNormal, out0Normal, 3);
+		rgbify(inNormal, out0Normal, 3, c1, c2);
 		inNormal[0] = inNormal[1] = inNormal[2] = color1;
-		rgbify(inNormal, out1Normal, 3);
+		rgbify(inNormal, out1Normal, 3, c1, c2);
 
 		for (int i = 0; i < (3 * 3); ++i) {
 			outScanline[i] = scanline.darken(
