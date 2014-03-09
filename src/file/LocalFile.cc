@@ -236,8 +236,7 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-	fseek(file, long(pos), SEEK_SET);
-	if (ferror(file)) {
+	if (fseek(file, long(pos), SEEK_SET) != 0) {
 		throw FileException("Error seeking file");
 	}
 }
