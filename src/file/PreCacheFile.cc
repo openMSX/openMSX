@@ -50,7 +50,7 @@ void PreCacheFile::run()
 			if (exitLoop2) break;
 
 			char buf[BLOCK_SIZE];
-			fseek(file, block * BLOCK_SIZE, SEEK_SET);
+			if (fseek(file, block * BLOCK_SIZE, SEEK_SET)) break;
 			size_t read = fread(buf, 1, BLOCK_SIZE, file);
 			if (read != BLOCK_SIZE) {
 				// error or end-of-file reached,
