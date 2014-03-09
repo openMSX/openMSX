@@ -57,9 +57,9 @@ private:
 	unsigned charTime;
 	unsigned timeRecv;
 	unsigned timeTrans;
+	unsigned status;
 	byte     command;
 	byte     rxData;
-	byte     status;
 	byte     txBuffer;
 	byte     rxQueue[RX_QUEUE_SIZE];
 	byte     vector;

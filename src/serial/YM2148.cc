@@ -72,6 +72,7 @@ void YM2148::onTrans()
 		// TODO: boardTimerAdd(timerTrans, timeTrans);
 
 		status |= STAT_TXEMPTY;
+		// TODO currently this test can never be true
 		if (command & CMD_WRINT) {
 			/* TODO:
 			boardSetDataBus(vector, 0, 0);
