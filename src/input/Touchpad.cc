@@ -60,7 +60,7 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 	, start(EmuTime::zero)
 	, hostX(0), hostY(0), hostButtons(0)
 	, x(0), y(0), touch(false), button(false)
-	, shift(0), last(0)
+	, shift(0), channel(0), last(0)
 {
 	transformSetting = make_unique<StringSetting>(commandController,
 		"touchpad_transform_matrix",
