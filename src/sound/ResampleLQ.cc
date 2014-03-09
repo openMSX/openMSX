@@ -60,7 +60,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 		auto p = reinterpret_cast<uintptr_t>(bufferStorage.data());
 		bufferInt = reinterpret_cast<int*>((p + 15) & ~15);
 		// calculate actual usable size (the aligned portion)
-		bufferSize = &*bufferStorage.end() - bufferInt;
+		bufferSize = (bufferStorage.data() + bufferStorage.size()) - bufferInt;
 		assert(bufferSize >= required);
 	}
 
