@@ -3,6 +3,7 @@
 #include "ScalerOutput.hh"
 #include "Math.hh"
 #include "MemoryOps.hh"
+#include "MemBuffer.hh"
 #include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -58,8 +59,8 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 
 	enum { UP = 1 << 0, RIGHT = 1 << 1, DOWN = 1 << 2, LEFT = 1 << 3 };
-	VLA(uint8_t, edges, srcNumLines * srcWidth);
-	uint8_t* edgeGenPtr = edges;
+	MemBuffer<uint8_t> edges(srcNumLines * srcWidth);
+	uint8_t* edgeGenPtr = edges.data();
 	for (int y = 0; y < srcNumLines; y++) {
 		auto* srcLinePtr = srcLinePtrs[y];
 		for (unsigned x = 0; x < srcWidth; x++) {
@@ -106,9 +107,9 @@ void MLAAScaler<Pixel>::scaleImage(
 	assert(srcWidth <= SPAN_MASK);
 
 	// Find horizontal edges.
-	VLA(unsigned, horizontals, srcNumLines * srcWidth);
-	unsigned* horizontalGenPtr = horizontals;
-	const uint8_t* edgePtr = edges;
+	MemBuffer<unsigned> horizontals(srcNumLines * srcWidth);
+	unsigned* horizontalGenPtr = horizontals.data();
+	const uint8_t* edgePtr = edges.data();
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
 		while (x < srcWidth) {
@@ -186,12 +187,12 @@ void MLAAScaler<Pixel>::scaleImage(
 		assert(x == srcWidth);
 		edgePtr += srcWidth;
 	}
-	assert(unsigned(edgePtr - edges) == srcNumLines * srcWidth);
-	assert(unsigned(horizontalGenPtr - horizontals) == srcNumLines * srcWidth);
+	assert(unsigned(edgePtr - edges.data()) == srcNumLines * srcWidth);
+	assert(unsigned(horizontalGenPtr - horizontals.data()) == srcNumLines * srcWidth);
 
 	// Find vertical edges.
-	VLA(unsigned, verticals, srcNumLines * srcWidth);
-	edgePtr = edges;
+	MemBuffer<unsigned> verticals(srcNumLines * srcWidth);
+	edgePtr = edges.data();
 	for (unsigned x = 0; x < srcWidth; x++) {
 		unsigned* verticalGenPtr = &verticals[x];
 		int y = 0;
@@ -274,10 +275,10 @@ void MLAAScaler<Pixel>::scaleImage(
 			}
 		}
 		assert(y == srcNumLines);
-		assert(unsigned(verticalGenPtr - verticals) == x + srcNumLines * srcWidth);
+		assert(unsigned(verticalGenPtr - verticals.data()) == x + srcNumLines * srcWidth);
 		edgePtr++;
 	}
-	assert(unsigned(edgePtr - edges) == srcWidth);
+	assert(unsigned(edgePtr - edges.data()) == srcWidth);
 
 	VLA(Pixel*, dstLines, dst.getHeight());
 	for (unsigned i = dstStartY; i < dstEndY; ++i) {
@@ -300,7 +301,7 @@ void MLAAScaler<Pixel>::scaleImage(
 	}
 
 	// Render the horizontal edges.
-	const unsigned* horizontalPtr = horizontals;
+	const unsigned* horizontalPtr = horizontals.data();
 	dstY = dstStartY;
 	for (int y = 0; y < srcNumLines; y++) {
 		unsigned x = 0;
@@ -468,7 +469,7 @@ void MLAAScaler<Pixel>::scaleImage(
 		assert(x == srcWidth);
 		dstY += zoomFactorY;
 	}
-	assert(unsigned(horizontalPtr - horizontals) == srcNumLines * srcWidth);
+	assert(unsigned(horizontalPtr - horizontals.data()) == srcNumLines * srcWidth);
 
 	// Render the vertical edges.
 	for (unsigned x = 0; x < srcWidth; x++) {
