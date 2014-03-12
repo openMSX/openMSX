@@ -955,7 +955,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 		auto time = getCurrentTime();
 		if (playImage && (tapePos > playImage->getEndTime())) {
 			tapePos = playImage->getEndTime();
-			motherBoard.getMSXCliComm().printWarning("Tape position  "
+			motherBoard.getMSXCliComm().printWarning("Tape position "
 				"beyond tape end! Setting tape position to end. "
 				"This can happen if you load a replay from an "
 				"older openMSX version with a different CAS-to-WAV "
