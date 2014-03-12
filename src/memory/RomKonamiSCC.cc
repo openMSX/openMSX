@@ -15,15 +15,25 @@
 #include "SCC.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "MSXMotherBoard.hh"
+#include "CliComm.hh"
 #include "serialize.hh"
 #include "memory.hh"
 
 namespace openmsx {
 
-RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom8kBBlocks(config, std::move(rom))
+RomKonamiSCC::RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 	, scc(make_unique<SCC>("SCC", config, getCurrentTime()))
 {
+
+	// warn if a ROM is used that would not work on a real KonamiSCC mapper
+	if (rom->getSize() > 512 * 1024) {
+		getMotherBoard().getMSXCliComm().printWarning("The size of "
+				"this ROM image is larger than 512kB, which is "
+				"not supported on real Konami SCC mapper "
+				"chips!"); }
+
 	powerUp(getCurrentTime());
 }
 

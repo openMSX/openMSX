@@ -11,15 +11,25 @@
 
 #include "RomKonami.hh"
 #include "Rom.hh"
+#include "MSXMotherBoard.hh"
+#include "CliComm.hh"
 #include "serialize.hh"
 
 namespace openmsx {
 
-RomKonami::RomKonami(const DeviceConfig& config, std::unique_ptr<Rom> rom)
-	: Rom8kBBlocks(config, std::move(rom))
+RomKonami::RomKonami(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: Rom8kBBlocks(config, std::move(rom_))
 {
 	// Konami mapper is 256kB in size, even if ROM is smaller.
 	setBlockMask(31);
+
+	// warn if a ROM is used that would not work on a real Konami mapper
+	if (rom->getSize() > 256 * 1024) {
+		getMotherBoard().getMSXCliComm().printWarning("The size of "
+				"this ROM image is larger than 256kB, which is "
+				"not supported on real Konami mapper chips!");
+	}
+
 	// Do not call reset() here, since it can be overridden and the subclass
 	// constructor has not been run yet. And there will be a reset() at power
 	// up anyway.
