@@ -319,6 +319,7 @@ void CassettePlayer::setState(State newState, const Filename& newImage,
 
 void CassettePlayer::updateLoadingState(EmuTime::param time)
 {
+	assert(prevSyncTime == time); // sync() must be called
 	// TODO also set loadingIndicator for RECORD?
 	// note: we don't use isRolling()
 	loadingIndicator->update(motor && (getState() == PLAY));
@@ -475,6 +476,7 @@ void CassettePlayer::updateTapePosition(
 	if (!isRolling()) return;
 
 	tapePos += duration;
+	assert(tapePos <= playImage->getEndTime());
 
 	// synchronize audio with actual tape position
 	if ((getState() == PLAY) && !syncScheduled) {
@@ -612,6 +614,8 @@ void CassettePlayer::executeUntil(EmuTime::param time, int userData)
 	switch (userData) {
 	case END_OF_TAPE:
 		// tape ended
+		sync(time);
+		assert(tapePos == playImage->getEndTime());
 		motherBoard.getMSXCliComm().printWarning(
 			"Tape end reached... stopping. "
 			"You may need to insert another tape image "
@@ -948,6 +952,7 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 	ar.serialize("motorControl", motorControl);
 
 	if (ar.isLoader()) {
+		auto time = getCurrentTime();
 		if (playImage && (tapePos > playImage->getEndTime())) {
 			tapePos = playImage->getEndTime();
 			motherBoard.getMSXCliComm().printWarning("Tape position  "
@@ -963,14 +968,15 @@ void CassettePlayer::serialize(Archive& ar, unsigned version)
 				"Restoring a state where the MSX was saving to "
 				"tape is not yet supported. Emulation will "
 				"continue without actually saving.");
-			setState(STOP, getImageName(), getCurrentTime());
+			setState(STOP, getImageName(), time);
 		}
 		if (!playImage && (state == PLAY)) {
 			// This should only happen for manually edited
 			// savestates, though we shouldn't crash on it.
-			setState(STOP, getImageName(), getCurrentTime());
+			setState(STOP, getImageName(), time);
 		}
-		updateLoadingState(getCurrentTime());
+		sync(time);
+		updateLoadingState(time);
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(CassettePlayer);
