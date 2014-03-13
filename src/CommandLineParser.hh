@@ -47,14 +47,13 @@ public:
 		PHASE_LOAD_SETTINGS,     // loads settings.xml
 		PHASE_BEFORE_MACHINE,    // -machine
 		PHASE_LOAD_MACHINE,      // loads machine hardwareconfig.xml
-		PHASE_DEFAULT,           // all the rest
-		PHASE_LAST,              // -control
+		PHASE_LAST,              // all the rest
 	};
 
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
 	void registerOption(const char* str, CLIOption& cliOption,
-		ParsePhase phase = PHASE_DEFAULT, unsigned length = 2);
+		ParsePhase phase = PHASE_LAST, unsigned length = 2);
 	void registerFileType(string_ref extensions, CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
