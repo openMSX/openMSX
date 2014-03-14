@@ -648,19 +648,16 @@ As announced above, there is (limited) support for CD-ROM with the 'ide' extensi
 <p>The SCSI extensions (currently Gouda_SCSI, ESE_MEGA-SCSI and ESE_WAVE-SCSI) have the default 100 MB harddisk image connected on target ID 1 and an (even more experimental) LS-120 device (basically a harddisk like media that can be changed/ejected when the power is on) on target ID 2.
 </p>
 
-<p>You cannot yet specify SCSI devices on the command line. However, you can change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting), exactly as with the Sunrise IDE extension:</p>
-<div class="commandline">
-    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
-</div>
+<p>Specifying or changing hard disk images works the same as with IDE, see above.</p>
 
 <p>
-To change the disk image of the LS-120 device, use the <code>lsa</code> (LS drive A) command, exactly the same as the <a class="external" href="commands.html#hd">hda</a> command. Of course you do not need to have the power turned off to do this, as this is the whole point of the LS-120 device. You can also just eject it, with the <code>eject</code> subcommand. At the time of writing there seems to be a bug when doing this: the device isn't listed in the device list if there is no media inserted.
+To change the disk image of the LS-120 device, use the <code>lsa</code> (LS drive A) command, exactly the same as the <a class="external" href="commands.html#hd">hda</a> command. Of course you do not need to have the power turned off to do this, as this is the whole point of the LS-120 device. You can also just eject it, with the <code>eject</code> subcommand. At the time of writing there seems to be a bug when doing this: the device isn't listed in the device list if there is no media inserted. It is not possible to specify an LS-120 device on the command line.
 </p>
 
 <p>Initialisation for the ESE SCSI devices needs tools like <code>MGINST</code>, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the <code>MGINST</code> program (you might want to use <code>KSAVER</code> first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the <code>SFORM-1</code> (for MSX-DOS) or the <code>SFORM-2</code> (for MSX-DOS 2) to format the drive (use a physical format, for now). Use <code>ESET</code> to assign drive letters to partitions.
 </p>
 
-<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+<p>For the Gouda (Novaxis) SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
