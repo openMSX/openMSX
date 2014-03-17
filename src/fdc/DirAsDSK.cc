@@ -214,14 +214,11 @@ bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
 	return dirIndex.sector != unsigned(-1);
 }
 
-// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
-static char toMSXChr(char a)
-{
-	return (a == ' ') ? '_' : ::toupper(a);
-}
 static string hostToMsxName(string hostName)
 {
-	transform(hostName.begin(), hostName.end(), hostName.begin(), toMSXChr);
+	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
+	transform(hostName.begin(), hostName.end(), hostName.begin(),
+			[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
 
 	string_ref file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
@@ -230,6 +227,7 @@ static string hostToMsxName(string hostName)
 	string result(8 + 3, ' ');
 	memcpy(&*result.begin() + 0, file.data(), std::min<size_t>(8, file.size()));
 	memcpy(&*result.begin() + 8, ext .data(), std::min<size_t>(3, ext .size()));
+	replace(result.begin(), result.end(), '.', '_');
 	return result;
 }
 
@@ -799,7 +797,7 @@ DirAsDSK::DirIndex DirAsDSK::fillMSXDirEntry(
 		if (checkMSXFileExists(msxFilename, msxDirSector)) {
 			// TODO: actually should increase vfat abrev if possible!!
 			throw MSXException(
-				"MSX name " + msxFilename + " exists already");
+				"MSX name " + msxToHostName(msxFilename.c_str()) + " already exists");
 		}
 
 		// Fill in hostName / msx filename.
