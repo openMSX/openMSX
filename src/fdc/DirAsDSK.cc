@@ -640,15 +640,46 @@ void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 	msxDir(dirIndex).date = t2;
 }
 
+// Used to add 'regular' files before 'derived' files. E.g. when editing a file
+// in a host editor, you often get a backup/swap fileis like this:
+//   myfile.txt  myfile.txt~  .myfile.txt.swp
+// Currently the 1st and 2nd are mapped to the same MSX filename. If more
+// host files map to the same MSX file then (currently) one of the two is
+// ignored. Which one is ignored depends on the order in which they are added
+// to the virtual disk. This routine/heuristic tries to add 'regular' files
+// before derived files.
+static int weight(const string& hostName)
+{
+	// TODO this weight function can most likely be improved
+	int result = 0;
+	string_ref file, ext;
+	StringOp::splitOnLast(hostName, '.', file, ext);
+	// too many '.' characters
+	result += std::count(file.begin(), file.end(), '.') * 100;
+	// too long extension
+	result += ext.size() * 10;
+	// too long file
+	result += file.size();
+	return result;
+}
+
 void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 {
 	assert(!StringOp::startsWith(hostSubDir, '/'));
 	assert(hostSubDir.empty() || StringOp::endsWith(hostSubDir, '/'));
 
-	ReadDir dir(hostDir + hostSubDir);
-	while (auto* d = dir.getEntry()) {
+	vector<string> hostNames;
+	{
+		ReadDir dir(hostDir + hostSubDir);
+		while (auto* d = dir.getEntry()) {
+			hostNames.emplace_back(d->d_name);
+		}
+	}
+	sort(hostNames.begin(), hostNames.end(),
+	     [](const string& l, const string& r) { return weight(l) < weight(r); });
+
+	for (auto& hostName : hostNames) {
 		try {
-			string hostName = d->d_name;
 			string fullHostName = hostDir + hostSubDir + hostName;
 			FileOperations::Stat fst;
 			if (!FileOperations::getStat(fullHostName, fst)) {
