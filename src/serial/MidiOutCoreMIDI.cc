@@ -121,7 +121,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		size_t len = midiMessageLength(status);
 		if (message.size() >= len) {
 			messageComplete(time, message.data(), message.size());
-			if (isSysEx || len <= 1) {
+			if (status >= 0xF0 && status < 0xF8) {
 				message.clear();
 			} else {
 				// Keep last status, to support running status.
@@ -179,7 +179,7 @@ MidiOutCoreMIDI::MidiOutCoreMIDI(MIDIEndpointRef endpoint_)
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::fromCFString(midiDeviceName);
+		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName) << " OUT";
 		CFRelease(midiDeviceName);
 	}
 }
@@ -279,7 +279,7 @@ void MidiOutCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
 
 const std::string& MidiOutCoreMIDIVirtual::getName() const
 {
-	static const std::string name("Virtual");
+	static const std::string name("Virtual OUT");
 	return name;
 }
 

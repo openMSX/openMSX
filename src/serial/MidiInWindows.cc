@@ -94,9 +94,11 @@ string_ref MidiInWindows::getDescription() const
 void MidiInWindows::procLongMsg(LPMIDIHDR p)
 {
 	if (p->dwBytesRecorded) {
-		ScopedLock l(lock);
-		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
-			queue.push_back(p->lpData[i]);
+		{
+			ScopedLock l(lock);
+			for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
+				queue.push_back(p->lpData[i]);
+			}
 		}
 		eventDistributor.distributeEvent(
 			std::make_shared<SimpleEvent>(OPENMSX_MIDI_IN_WINDOWS_EVENT));
@@ -170,9 +172,13 @@ void MidiInWindows::signal(EmuTime::param time)
 	}
 	if (!connector->ready()) return;
 
-	ScopedLock l(lock);
-	if (queue.empty()) return;
-	connector->recvByte(queue.pop_front(), time);
+	byte data;
+	{
+		ScopedLock l(lock);
+		if (queue.empty()) return;
+		data = queue.pop_front();
+	}
+	connector->recvByte(data, time);
 }
 
 // EventListener

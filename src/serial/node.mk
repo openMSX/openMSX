@@ -9,7 +9,7 @@ SRC_HDR:= \
 	MidiInDevice DummyMidiInDevice MidiInConnector MidiInReader \
 	MidiOutDevice DummyMidiOutDevice MidiOutConnector MidiOutLogger \
 	MidiInWindows MidiOutWindows Midi_w32 \
-	MidiOutCoreMIDI \
+	MidiInCoreMIDI MidiOutCoreMIDI \
 	RS232Connector RS232Device MSXRS232 DummyRS232Device RS232Tester
 
 HDR_ONLY:= \
