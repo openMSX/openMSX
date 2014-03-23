@@ -4,7 +4,7 @@ from fileutils import (
 from makeutils import extractMakeVariables, parseBool
 
 from os import listdir
-from os.path import basename, expanduser, isdir, splitext, abspath
+from os.path import basename, expanduser, isdir, splitext
 import os
 import sys
 
@@ -77,7 +77,7 @@ def installAll(
 				if linkDir != binaryDestDir and isdir(linkDir):
 					try:
 						installSymlink(
-							abspath(binaryDestDir + '/' + binaryFileName),
+							binaryDestDir + '/' + binaryFileName,
 							linkDir + '/' + binaryFileName
 							)
 					except OSError:
