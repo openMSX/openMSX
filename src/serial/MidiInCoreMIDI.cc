@@ -10,27 +10,31 @@
 #include "memory.hh"
 #include <mach/mach_time.h>
 
+
 namespace openmsx {
 
 // MidiInCoreMIDI ===========================================================
 
 void MidiInCoreMIDI::registerAll(EventDistributor& eventDistributor,
-                                 Scheduler& scheduler, PluggingController& controller)
+                                 Scheduler& scheduler,
+                                 PluggingController& controller)
 {
 	ItemCount numberOfEndpoints = MIDIGetNumberOfSources();
 	for (ItemCount i = 0; i < numberOfEndpoints; i++) {
 		MIDIEndpointRef endpoint = MIDIGetSource(i);
 		if (endpoint) {
-			controller.registerPluggable(
-				make_unique<MidiInCoreMIDI>(eventDistributor, scheduler, endpoint));
+			controller.registerPluggable(make_unique<MidiInCoreMIDI>(
+					eventDistributor, scheduler, endpoint));
 		}
 	}
 }
 
 MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
                                Scheduler& scheduler_, MIDIEndpointRef endpoint_)
-	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, lock(1), endpoint(endpoint_)
+	: eventDistributor(eventDistributor_)
+	, scheduler(scheduler_)
+	, lock(1)
+	, endpoint(endpoint_)
 {
 	// Get a user-presentable name for the endpoint.
 	CFStringRef midiDeviceName;
@@ -43,29 +47,32 @@ MidiInCoreMIDI::MidiInCoreMIDI(EventDistributor& eventDistributor_,
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName) << " IN";
+		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName)
+		                           << " IN";
 		CFRelease(midiDeviceName);
 	}
 
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+	eventDistributor.registerEventListener(
+			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
 }
 
 MidiInCoreMIDI::~MidiInCoreMIDI()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+			OPENMSX_MIDI_IN_COREMIDI_EVENT, *this);
 }
 
 void MidiInCoreMIDI::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
 {
-	using namespace std::placeholders;
-
 	// Create client.
-	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {
+	if (OSStatus status = MIDIClientCreate(
+			CFSTR("openMSX"), nullptr, nullptr, &client)) {
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI client (" << status << ")");
 	}
-	// Create output port.
-	if (OSStatus status = MIDIInputPortCreate(client, CFSTR("Input"), sendPacketList, this, &port)) {
+	// Create input port.
+	if (OSStatus status = MIDIInputPortCreate(
+			client, CFSTR("Input"), sendPacketList, this, &port)) {
 		MIDIClientDispose(client);
 		client = 0;
 		throw PlugException(StringOp::Builder() <<
@@ -92,15 +99,18 @@ const std::string& MidiInCoreMIDI::getName() const
 
 string_ref MidiInCoreMIDI::getDescription() const
 {
-	return "Receives MIDI events from an existing CoreMIDI destination.";
+	return "Receives MIDI events from an existing CoreMIDI source.";
 }
 
 void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
-                              void *readProcRefCon, void *srcConnRefCon) {
-	((MidiInCoreMIDI*)readProcRefCon)->sendPacketList(packetList, srcConnRefCon);
+                                    void *readProcRefCon, void *srcConnRefCon)
+{
+	((MidiInCoreMIDI*)readProcRefCon)
+			->sendPacketList(packetList, srcConnRefCon);
 }
 
-void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
+void MidiInCoreMIDI::sendPacketList(const MIDIPacketList *packetList,
+                                    void * /*srcConnRefCon*/) {
 	{
 		ScopedLock l(lock);
 		const MIDIPacket *packet = &packetList->packet[0];
@@ -156,37 +166,44 @@ void MidiInCoreMIDI::serialize(Archive& /*ar*/, unsigned /*version*/)
 INSTANTIATE_SERIALIZE_METHODS(MidiInCoreMIDI);
 REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInCoreMIDI, "MidiInCoreMIDI");
 
+
 // MidiInCoreMIDIVirtual ====================================================
 
 MidiInCoreMIDIVirtual::MidiInCoreMIDIVirtual(EventDistributor& eventDistributor_,
                                              Scheduler& scheduler_)
-	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, lock(1), client(0), endpoint(0)
+	: eventDistributor(eventDistributor_)
+	, scheduler(scheduler_)
+	, lock(1)
+	, client(0)
+	, endpoint(0)
 {
-	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+	eventDistributor.registerEventListener(
+			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
 }
 
 MidiInCoreMIDIVirtual::~MidiInCoreMIDIVirtual()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+			OPENMSX_MIDI_IN_COREMIDI_VIRTUAL_EVENT, *this);
 }
 
-void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/, EmuTime::param /*time*/)
+void MidiInCoreMIDIVirtual::plugHelper(Connector& /*connector*/,
+                                       EmuTime::param /*time*/)
 {
 	// Create client.
-	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"), nullptr, nullptr, &client)) {
+	if (OSStatus status = MIDIClientCreate(CFSTR("openMSX"),
+	                                       nullptr, nullptr, &client)) {
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI client (" << status << ")");
 	}
 	// Create endpoint.
-	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"), sendPacketList, this, &endpoint)) {
+	if (OSStatus status = MIDIDestinationCreate(client, CFSTR("openMSX"),
+	                                            sendPacketList, this,
+	                                            &endpoint)) {
 		MIDIClientDispose(client);
 		throw PlugException(StringOp::Builder() <<
 			"Failed to create MIDI endpoint (" << status << ")");
 	}
-
-	//struct mach_timebase_info timebaseInfo;
-	//mach_timebase_info(&timebaseInfo);
 }
 
 void MidiInCoreMIDIVirtual::unplugHelper(EmuTime::param /*time*/)
@@ -213,11 +230,16 @@ string_ref MidiInCoreMIDIVirtual::getDescription() const
 }
 
 void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
-                                     void *readProcRefCon, void *srcConnRefCon) {
-	((MidiInCoreMIDIVirtual*)readProcRefCon)->sendPacketList(packetList, srcConnRefCon);
+                                           void *readProcRefCon,
+                                           void *srcConnRefCon)
+{
+	((MidiInCoreMIDIVirtual*)readProcRefCon)
+			->sendPacketList(packetList, srcConnRefCon);
 }
 
-void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList, void * /*srcConnRefCon*/) {
+void MidiInCoreMIDIVirtual::sendPacketList(const MIDIPacketList *packetList,
+                                           void * /*srcConnRefCon*/)
+{
 	{
 		ScopedLock l(lock);
 		const MIDIPacket *packet = &packetList->packet[0];
@@ -255,7 +277,8 @@ void MidiInCoreMIDIVirtual::signal(EmuTime::param time)
 }
 
 // EventListener
-int MidiInCoreMIDIVirtual::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+int MidiInCoreMIDIVirtual::signalEvent(
+		const std::shared_ptr<const Event>& /*event*/)
 {
 	if (isPluggedIn()) {
 		signal(scheduler.getCurrentTime());

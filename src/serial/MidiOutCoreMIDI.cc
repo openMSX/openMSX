@@ -179,7 +179,8 @@ MidiOutCoreMIDI::MidiOutCoreMIDI(MIDIEndpointRef endpoint_)
 	if (status) {
 		name = "Nameless endpoint";
 	} else {
-		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName) << " OUT";
+		name = StringOp::Builder() << StringOp::fromCFString(midiDeviceName)
+		                           << " OUT";
 		CFRelease(midiDeviceName);
 	}
 }
