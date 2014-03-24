@@ -931,6 +931,34 @@ proc menu_stretch_exec {value} {
 	menu_refresh_top
 }
 
+# Returns list of machines/extensions, but try to filter out duplicates caused
+# by symlinks (e.g. turbor.xml -> Panasonic_FS-A1GT.xml). What this does not
+# catch is a symlink in the systemdir (so link also pointing to the systemdir)
+# and a similarly named file in the userdir. This situation does occur on my
+# development setup, but it shouldn't happen for regular users.
+proc get_filtered_configs {type} {
+	set result [list]
+	set configs [list]
+	foreach t [openmsx_info $type] {
+		# try both <name>.xml and <name>/hardwareconfig.xml
+		set conf [data_file $type/$t.xml]
+		if {![file exists $conf]} {
+			set conf [data_file $type/$t/hardwareconfig.xml]
+		}
+		# follow symlink (on platforms that support links)
+		catch {
+			set conf [file join [file dirname $conf]
+			                    [file readlink $conf]]
+		}
+		# only add if the (possibly resolved link) hasn't been seen before
+		if {$conf ni $configs} {
+			lappend configs $conf
+			lappend result $t
+		}
+	}
+	return $result
+}
+
 proc menu_create_load_machine_list {{mode "replace"}} {
 	if {$mode eq "replace"} {
 		set proc_to_exec osd_menu::menu_load_machine_exec_replace
@@ -951,7 +979,7 @@ proc menu_create_load_machine_list {{mode "replace"}} {
 	                  font-size 10
 	                  post-spacing 6 }]
 
-	set items [openmsx_info machines]
+	set items [get_filtered_configs machines]
 
 	foreach i $items {
 		set extra_info ""
@@ -1005,7 +1033,7 @@ proc menu_create_extensions_list {} {
 	                  font-size 10
 	                  post-spacing 6 }}
 
-	set items [openmsx_info extensions]
+	set items [get_filtered_configs extensions]
 	set presentation [list]
 
 	foreach i $items {
@@ -1046,7 +1074,7 @@ proc menu_create_plugged_extensions_list {} {
 	                  post-spacing 6 }}
 
 	set items [list_extensions]
-	set possible_items [openmsx_info extensions]
+	set possible_items [get_filtered_configs extensions]
 
 	set useful_items [list]
 	foreach item $items {
