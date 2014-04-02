@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.10.1 (2014-03-xx)
+Release Notes for openMSX 0.10.1 (2014-04-xx)
 =============================================
 
 This release fixes mostly bugs we introduced with 0.10.0 or were already
@@ -38,6 +38,9 @@ New or improved emulator features:
 - added mapping of B-control button to press CTRL or SHIFT in OSD keyboard
 - added fine grained control in which slots carts and extensions will end up
 - added support for single sided disk drives for dir-as-disk
+- added support for hard disk images to the OSD menu
+- added warning if ROM images with larger size than supported on real Konami
+  and Konami SCC mappers are used
 
 
 Build system, packaging, documentation:
@@ -45,6 +48,7 @@ Build system, packaging, documentation:
 - made compilation faster by removing more than 250 unnecessary includes
 - even more use of C++11 features
 - upgraded Tcl to 8.5.15
+- added build support for 64-bit ARM
 
 And of course the usual various bug fixes.
 
