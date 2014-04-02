@@ -31,7 +31,7 @@
         <li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
         <li><a class="internal" href="#escape_grab">escape_grab</a></li>
         <li><a class="internal" href="#exit">exit</a></li>
-        <li><a class="internal" href="#ext">ext</a></li>
+        <li><a class="internal" href="#ext">ext / ext&lt;x&gt;</a></li>
         <li><a class="internal" href="#filepool">filepool</a></li>
         <li><a class="internal" href="#findcheat">findcheat</a></li>
         <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
@@ -882,10 +882,12 @@
     </tr>
   </table>
 
-  <h3><a id="ext">ext</a></h3>
+  <h3><a id="ext">ext / ext&lt;x&gt;</a></h3>
 
-  <p>Insert an MSX extension in a running MSX machine. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
+  <p>Insert an MSX extension in a running MSX machine. The <code>ext</code> command inserts the extension in the first available slot. The <code>exta</code>, <code>extb</code> etc. commands insert it in the specified slot. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
+
+  <p>Note that some extensions (i.e. those without any memory) will not physically occupy any slot when inserted, even when they were inserted in a specific slot.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -895,7 +897,12 @@
     <tr>
       <td><code>ext fmpac</code></td>
 
-      <td>Insert an FMPAC in a running MSX machine</td>
+      <td>Insert an FMPAC in a running MSX machine in the first free slot</td>
+    </tr>
+    <tr>
+      <td><code>extb scc</code></td>
+
+      <td>Insert the empty SCC cart in slot B of the running MSX machine</td>
     </tr>
   </table>
 
