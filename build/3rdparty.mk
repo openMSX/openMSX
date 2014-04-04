@@ -262,6 +262,7 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--with-minimum \
 		--with-push \
+		--without-lzma \
 		--disable-shared \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
