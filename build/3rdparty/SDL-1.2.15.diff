@@ -1,6 +1,6 @@
 diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.15.org/src/video/quartz/SDL_QuartzEvents.m	2012-01-19 07:30:06.000000000 +0100
-+++ SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m	2012-01-29 14:50:43.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzEvents.m	2013-10-23 07:16:42.000000000 +0200
 @@ -345,7 +345,9 @@
          the scancode/keysym.
      */
@@ -21,9 +21,22 @@ diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.15/src/video
          [ NSApp sendEvent:event ];
  }
  
+diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzVideo.h SDL-1.2.15/src/video/quartz/SDL_QuartzVideo.h
+--- SDL-1.2.15.org/src/video/quartz/SDL_QuartzVideo.h	2012-01-19 07:30:06.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzVideo.h	2014-04-04 23:48:34.000000000 +0200
+@@ -91,7 +91,9 @@
+     CGDirectDisplayID  display;            /* 0 == main display (only support single display) */
+     const void         *mode;              /* current mode of the display */
+     const void         *save_mode;         /* original mode of the display */
++#if (MAC_OS_X_VERSION_MIN_REQUIRED < 1070)
+     CGDirectPaletteRef palette;            /* palette of an 8-bit display */
++#endif
+     NSOpenGLContext    *gl_context;        /* OpenGL rendering context */
+     NSGraphicsContext  *nsgfx_context;     /* Cocoa graphics context */
+     Uint32             width, height, bpp; /* frequently used data about the display */
 diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.h
 --- SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.h	2012-01-19 07:30:06.000000000 +0100
-+++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.h	2012-01-29 14:53:02.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.h	2013-10-23 07:16:42.000000000 +0200
 @@ -38,6 +38,7 @@
  - (void)appWillUnhide:(NSNotification*)note;
  - (void)appDidUnhide:(NSNotification*)note;
@@ -34,7 +47,7 @@ diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.15/src/video
  /* Delegate for our NSWindow to send SDLQuit() on close */
 diff -ru SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.m
 --- SDL-1.2.15.org/src/video/quartz/SDL_QuartzWindow.m	2012-01-19 07:30:06.000000000 +0100
-+++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.m	2012-01-29 14:54:35.000000000 +0100
++++ SDL-1.2.15/src/video/quartz/SDL_QuartzWindow.m	2013-10-23 07:16:42.000000000 +0200
 @@ -197,6 +197,14 @@
      return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
  }
