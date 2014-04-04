@@ -307,20 +307,7 @@ class LibXML2(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'darwin')
-
-	@classmethod
-	def getConfigScript(cls, platform, linkStatic, distroRoot):
-		if platform == 'darwin':
-			# Use xml2-config from /usr: ideally we would use xml2-config from
-			# the SDK, but the SDK doesn't contain that file. The -isysroot
-			# compiler argument makes sure the headers are taken from the SDK
-			# though.
-			return '/usr/bin/%s' % cls.configScriptName
-		else:
-			return super(LibXML2, cls).getConfigScript(
-				platform, linkStatic, distroRoot
-				)
+		return platform in ('android',)
 
 	@classmethod
 	def getCompileFlags(cls, platform, linkStatic, distroRoot):
@@ -384,7 +371,7 @@ class SQLite(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'darwin', 'dingux')
+		return platform in ('android', 'dingux')
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):
@@ -628,7 +615,7 @@ class ZLib(Library):
 
 	@classmethod
 	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'darwin', 'dingux')
+		return platform in ('android', 'dingux')
 
 	@classmethod
 	def getVersion(cls, platform, linkStatic, distroRoot):

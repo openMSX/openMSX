@@ -29,20 +29,6 @@ LIBRARYEXT:=.so
 OSX_VER:=10.7
 TARGET_FLAGS+=-mmacosx-version-min=$(OSX_VER)
 
-# Select the SDK to use.
-XCODE_PATH:=$(shell xcode-select -print-path)
-ifneq ($(XCODE_PATH),)
-SDK_PATH:=$(XCODE_PATH)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$(OSX_VER).sdk
-else
-# The SDK path for the older stand-alone Xcode:
-SDK_PATH:=/Developer/SDKs/MacOSX$(OSX_VER).sdk
-ifneq ($(shell [ -d $(SDK_PATH) ] && echo exists),exists)
-$(error No Mac OS X SDK found)
-endif
-endif
-$(info Using SDK: $(SDK_PATH))
-TARGET_FLAGS+=-isysroot $(SDK_PATH)
-
 # Select Clang as the compiler and libc++ as the standard library.
 CXX:=clang++
 TARGET_FLAGS+=-stdlib=libc++
