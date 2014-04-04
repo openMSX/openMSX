@@ -45,8 +45,7 @@ TARGET_FLAGS+=-isysroot $(SDK_PATH)
 
 # Select Clang as the compiler and libc++ as the standard library.
 CXX:=clang++
-COMPILE_FLAGS+=-stdlib=libc++
-LINK_FLAGS+=-lc++
+TARGET_FLAGS+=-stdlib=libc++
 
 # Link against CoreMIDI.
 LINK_FLAGS+=-framework CoreMIDI
