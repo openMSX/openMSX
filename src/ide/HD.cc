@@ -245,7 +245,23 @@ void HD::serialize(Archive& ar, unsigned version)
 	ar.serialize("filename", tmp);
 	if (ar.isLoader()) {
 		if (tmp.empty()) {
-			// lazily open file specified in config
+			// Lazily open file specified in config. And close if
+			// it was already opened (in the constructor). The
+			// latter can occur in the following scenario:
+			//  - The hd image doesn't exist yet
+			//  - Reverse creates savestates, these still have
+			//      tmp="" (because file=nullptr)
+			//  - At some later point the hd image gets created
+			//     (e.g. on first access to the image)
+			//  - Now reverse to some point in EmuTime before the
+			//    first disk access
+			//  - The loadstate re-constructs this HD object, but
+			//    because the hd image does exist now, it gets
+			//    opened in the constructor (file!=nullptr).
+			//  - So to get in the same state as the initial
+			//    savestate we again close the file. Otherwise the
+			//    checksum-check code below goes wrong.
+			file.reset();
 		} else {
 			tmp.updateAfterLoadState();
 			if (filename != tmp) switchImage(tmp);
