@@ -110,85 +110,59 @@ private:
 namespace internal {
 
 typedef unsigned char u8;
+extern const u8 lutChar  [256]; // Character class
+extern const u8 lutDigits[256]; // Digits
 
-extern const bool lutWhitespace[256];         // Whitespace table
-extern const bool lutNodeName[256];           // Node name table
-extern const bool lutText[256];               // Text table
-extern const bool lutTextPureNoWs[256];       // Text table
-extern const bool lutTextPureWithWs[256];     // Text table
-extern const bool lutAttributeName[256];      // Attribute name table
-extern const bool lutAttributeData1[256];     // Attribute data table, single quote
-extern const bool lutAttributeData1Pure[256]; // Attribute data table, single quote
-extern const bool lutAttributeData2[256];     // Attribute data table, double quotes
-extern const bool lutAttributeData2Pure[256]; // Attribute data table, double quotes
-extern const u8   lutDigits[256];             // Digits
-
-// Detect whitespace character
+// Detect whitespace character (space \n \r \t)
 struct WhitespacePred {
-	static bool test(char ch) {
-		return lutWhitespace[u8(ch)];
-	}
+	static bool test(char ch) { return lutChar[u8(ch)] & 0x02; }
 };
 
-// Detect node name character
+// Detect node name character (anything but space \n \r \t / > ? \0)
 struct NodeNamePred {
-	static bool test(char ch) {
-		return lutNodeName[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x43); }
 };
 
-// Detect attribute name character
+// Detect attribute name character (anything but space \n \r \t / < > = ? ! \0)
 struct AttributeNamePred {
-	static bool test(char ch) {
-		return lutAttributeName[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0xC7); }
 };
 
-// Detect text character (PCDATA)
+// Detect text character (PCDATA) (anything but < \0)
 struct TextPred {
-	static bool test(char ch) {
-		return lutText[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x05); }
 };
 
-// Detect text character (PCDATA) that does not require processing
+// Detect text character (PCDATA) that does not require processing when ws
+// normalization is disabled (anything but < \0 &)
 struct TextPureNoWsPred {
-	static bool test(char ch) {
-		return lutTextPureNoWs[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x0D); }
 };
 
-// Detect text character (PCDATA) that does not require processing
+// Detect text character (PCDATA) that does not require processing when ws
+// normalizationis is enabled (anything but < \0 & space \n \r \t)
 struct TextPureWithWsPred {
-	static bool test(char ch) {
-		return lutTextPureWithWs[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x0F); }
 };
 
-// Detect attribute value character (single quote)
+// Detect attribute value character, single quote (anything but ' \0)
 struct AttPred1 {
-	static bool test(char ch) {
-		return lutAttributeData1[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x11); }
 };
-// Detect attribute value character (double quote)
+// Detect attribute value character, double quote (anything but " \0)
 struct AttPred2 {
-	static bool test(char ch) {
-		return lutAttributeData2[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x21); }
 };
 
-// Detect attribute value character (single quote)
+// Detect attribute value character, single quote, that does not require
+// processing (anything but ' \0 &)
 struct AttPurePred1 {
-	static bool test(char ch) {
-		return lutAttributeData1Pure[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x19); }
 };
-// Detect attribute value character (double quote)
+// Detect attribute value character, double quote, that does not require
+// processing (anything but " \0 &)
 struct AttPurePred2 {
-	static bool test(char ch) {
-		return lutAttributeData2Pure[u8(ch)];
-	}
+	static bool test(char ch) { return !(lutChar[u8(ch)] & 0x29); }
 };
 
 // Insert coded character, using UTF8
