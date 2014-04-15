@@ -90,10 +90,10 @@ void SRAM::load(bool* loaded)
 		File file(config.getFileContext().resolveCreate(filename),
 			  File::LOAD_PERSISTENT);
 		if (header) {
-			int length = int(strlen(header));
+			size_t length = strlen(header);
 			VLA(char, temp, length);
 			file.read(temp, length);
-			if (strncmp(temp, header, length) != 0) {
+			if (memcmp(temp, header, length) != 0) {
 				headerOk = false;
 			}
 		}
