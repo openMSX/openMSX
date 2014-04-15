@@ -109,7 +109,7 @@ const MSXMultiMemDevice::Range& MSXMultiMemDevice::searchRange(unsigned address)
 			return r;
 		}
 	}
-	UNREACHABLE;
+	UNREACHABLE; return ranges.back();
 }
 
 MSXDevice* MSXMultiMemDevice::searchDevice(unsigned address) const
