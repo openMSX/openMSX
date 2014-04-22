@@ -14,7 +14,7 @@
       <secondary slot="any">
         <WD1770 id="Talent DPF-550 diskROM/FDC">
           <connectionstyle>National</connectionstyle>
-          <mem base="0x0000" size="0x8000"/>
+          <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>d9c82e091b5fa1b5ee9b7f012f0084611762eb93</sha1> <!-- Confirmed by saccopharynx -->
             <filename>dpf-550_disk.rom</filename>
