@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.10.1 (2014-04-xx)
+Release Notes for openMSX 0.10.1 (2014-04-26)
 =============================================
 
 This release fixes mostly bugs we introduced with 0.10.0 or were already
@@ -27,12 +27,14 @@ New or improved emulator features:
   - fixed reverse-performance when using hard disks
 - fixed handling of corrupt hardware configuration XML file
 - fixed crash when MSX with TC8566AF FDC (e.g. turboR) crashed
+- fixed possible hang up when reversing with harddisks
 - fixed Tcl error when changing horizontal stretch in OSD menu
 - fixed displaying of error messages on OSD
 - Mac OS X MIDI support:
   - fixed MIDI output on Mac OS X (was not working for some applications)
   - added support for running status
   - added support for system realtime messages
+  - added support for MIDI in
 - fixed issues with on-screen-keyboard on Android 4.4
 - added default keybindings for controllers targeted at gaming
 - added mapping of B-control button to press CTRL or SHIFT in OSD keyboard
@@ -49,6 +51,11 @@ Build system, packaging, documentation:
 - even more use of C++11 features
 - upgraded Tcl to 8.5.15
 - added build support for 64-bit ARM
+- added 256x256 pixel openMSX logo image and use it e.g. for Mac OS X icon
+- fixed staticbindist build with more recent clang releases and for Mac OS 10.9
+  SDK
+- do not link against libraries in /usr/lib anymore on Mac OS X, only link
+  against frameworks. This enables to compile against the default SDK.
 
 And of course the usual various bug fixes.
 
