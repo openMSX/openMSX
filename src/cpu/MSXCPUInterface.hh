@@ -8,6 +8,7 @@
 #include "noncopyable.hh"
 #include "likely.hh"
 #include <bitset>
+#include <map>
 #include <vector>
 #include <memory>
 
