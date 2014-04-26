@@ -3,6 +3,63 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.10.1 (2014-04-26)
+---------------------------
+
+This release fixes mostly bugs we introduced with 0.10.0 or were already
+present for a bit longer... sorry for those, but most should be fixed now :)
+There are also some small but nice additions...
+
+Here's the list with all highlights:
+
+MSX device support:
+- fixed bug in YM2413 (FMPAC), that was audible in BPS Tetris
+- added Sharp/Epcom HB-4000 80 column cartridge extension
+
+New or improved emulator features:
+- extended save_msx_screen script to take VDP(24) into acount
+- fixed crash on Visual Studio build when using wav files (e.g. in the
+  cassetteplayer)
+- fixed crash on 32-bit Visual Studio build when recording videos without
+  the -doublesize option
+- fixed crash on 32-bit Visual Studio build when using scale_factor 3 and SDL
+  renderer
+- fixed waves shown upside-down in the SCC Viewer OSD widget
+- fixed crash when loading a savestate that has JoyTap plugged in
+- performance improvements:
+  - several improvements that result in shorter start up time
+  - fixed reverse-performance when using hard disks
+- fixed handling of corrupt hardware configuration XML file
+- fixed crash when MSX with TC8566AF FDC (e.g. turboR) crashed
+- fixed possible hang up when reversing with harddisks
+- fixed Tcl error when changing horizontal stretch in OSD menu
+- fixed displaying of error messages on OSD
+- Mac OS X MIDI support:
+  - fixed MIDI output on Mac OS X (was not working for some applications)
+  - added support for running status
+  - added support for system realtime messages
+  - added support for MIDI in
+- fixed issues with on-screen-keyboard on Android 4.4
+- added default keybindings for controllers targeted at gaming
+- added mapping of B-control button to press CTRL or SHIFT in OSD keyboard
+- added fine grained control in which slots carts and extensions will end up
+- added support for single sided disk drives for dir-as-disk
+- added support for hard disk images to the OSD menu
+- added warning if ROM images with larger size than supported on real Konami
+  and Konami SCC mappers are used
+
+Build system, packaging, documentation:
+- updated Windows build to Visual Studio 2013
+- made compilation faster by removing more than 250 unnecessary includes
+- even more use of C++11 features
+- upgraded Tcl to 8.5.15
+- added build support for 64-bit ARM
+- added 256x256 pixel openMSX logo image and use it e.g. for Mac OS X icon
+- fixed staticbindist build with more recent clang releases and for Mac OS 10.9
+  SDK
+- do not link against libraries in /usr/lib anymore on Mac OS X, only link
+  against frameworks. This enables to compile against the default SDK.
+
 openMSX 0.10.0 (2014-01-05)
 ---------------------------
 
