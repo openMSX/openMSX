@@ -9,10 +9,13 @@
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <iostream>
-#include <map>
+#include <utility>
+#include <vector>
+#include <cstdint>
 //#include <tk.h>
 #include "openmsx.hh"
 
@@ -22,8 +25,8 @@ using std::vector;
 namespace openmsx {
 
 // See comments in traceProc()
-static std::map<long, BaseSetting*> traceMap;
-static long traceCount = 0;
+static std::vector<std::pair<uintptr_t, BaseSetting*>> traces;
+static uintptr_t traceCount = 0;
 
 
 static int dummyClose(ClientData /*instanceData*/, Tcl_Interp* /*interp*/)
@@ -309,8 +312,8 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 	// setVariable(), I did an initial attempt but there were some
 	// problems. TODO investigate this further.
 
-	long traceID = traceCount++;
-	traceMap[traceID] = &variable;
+	uintptr_t traceID = traceCount++;
+	traces.emplace_back(traceID, &variable); // still in sorted order
 	Tcl_TraceVar(interp, name.c_str(),
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	             traceProc, reinterpret_cast<ClientData>(traceID));
@@ -318,25 +321,24 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 
 void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
 {
-	auto it = traceMap.begin();
-	while (true) {
-		assert(it != traceMap.end());
-		if (it->second == &variable) break;
-		++it;
-	}
+	auto it = find_if(traces.begin(), traces.end(),
+	                  EqualTupleValue<1>(&variable));
+	assert(it != traces.end());
+	uintptr_t traceID = it->first;
+	traces.erase(it);
 
-	long traceID = it->first;
 	Tcl_UntraceVar(interp, name.c_str(),
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	               traceProc, reinterpret_cast<ClientData>(traceID));
-	traceMap.erase(it);
 	unsetVariable(name);
 }
 
-static BaseSetting* getTraceSetting(unsigned traceID)
+static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = traceMap.find(traceID);
-	return (it != traceMap.end()) ? it->second : nullptr;
+	auto it = lower_bound(traces.begin(), traces.end(), traceID,
+	                      LessTupleElement<0>());
+	return ((it != traces.end()) && (it->first == traceID))
+		? it->second : nullptr;
 }
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
