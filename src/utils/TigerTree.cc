@@ -1,6 +1,6 @@
 #include "TigerTree.hh"
 #include "Math.hh"
-#include <map>
+#include <vector>
 #include <cstring>
 #include <cassert>
 
@@ -10,13 +10,14 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
-	TTCacheEntry() : time(-1) {}
-
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
+	std::string name;
+	size_t size;
 	time_t time;
 };
-static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
+// Typically contains 0 or 1 element, and only rarely 2 or more.
+static std::vector<TTCacheEntry> ttCache;
 
 static size_t calcNumNodes(size_t dataSize)
 {
@@ -27,17 +28,27 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	size_t numNodes = calcNumNodes(dataSize);
-	auto& result = ttCache[std::make_pair(dataSize, name)];
-	if (!data.isCacheStillValid(result.time)) {
-		result.hash .resize(numNodes);
-		result.valid.resize(numNodes);
-		memset(result.valid.data(), 0, numNodes); // all invalid
-	} else {
-		assert(result.hash .size() == numNodes);
-		assert(result.valid.size() == numNodes);
+	auto it = find_if(ttCache.begin(), ttCache.end(),
+		[&](const TTCacheEntry& e) {
+			return (e.size == dataSize) && (e.name == name); });
+	if (it == ttCache.end()) {
+		ttCache.emplace_back();
+		it = ttCache.end() - 1;
+		it->name = name;
+		it->size = dataSize;
+		it->time = -1;
 	}
-	return result;
+
+	size_t numNodes = calcNumNodes(dataSize);
+	if (!data.isCacheStillValid(it->time)) {
+		it->hash .resize(numNodes);
+		it->valid.resize(numNodes);
+		memset(it->valid.data(), 0, numNodes); // all invalid
+	} else {
+		assert(it->hash .size() == numNodes);
+		assert(it->valid.size() == numNodes);
+	}
+	return *it;
 }
 
 TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
