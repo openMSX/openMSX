@@ -47,7 +47,8 @@ MSXMixer::SoundDeviceInfo::SoundDeviceInfo()
 }
 
 MSXMixer::SoundDeviceInfo::SoundDeviceInfo(SoundDeviceInfo&& rhs)
-	: defaultVolume  (std::move(rhs.defaultVolume))
+	: device         (std::move(rhs.device))
+	, defaultVolume  (std::move(rhs.defaultVolume))
 	, volumeSetting  (std::move(rhs.volumeSetting))
 	, balanceSetting (std::move(rhs.balanceSetting))
 	, channelSettings(std::move(rhs.channelSettings))
@@ -60,6 +61,7 @@ MSXMixer::SoundDeviceInfo::SoundDeviceInfo(SoundDeviceInfo&& rhs)
 
 MSXMixer::SoundDeviceInfo& MSXMixer::SoundDeviceInfo::operator=(SoundDeviceInfo&& rhs)
 {
+	device          = std::move(rhs.device);
 	defaultVolume   = std::move(rhs.defaultVolume);
 	volumeSetting   = std::move(rhs.volumeSetting);
 	balanceSetting  = std::move(rhs.balanceSetting);
@@ -138,6 +140,7 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	// TODO read volume/balance(mode) from config file
 	const string& name = device.getName();
 	SoundDeviceInfo info;
+	info.device = &device;
 	info.defaultVolume = volume;
 	info.volumeSetting = make_unique<IntegerSetting>(
 		commandController, name + "_volume",
@@ -168,27 +171,26 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 		info.channelSettings.push_back(std::move(channelSettings));
 	}
 
-	infos[&device] = std::move(info);
 	device.setOutputRate(getSampleRate());
-
-	auto it = infos.find(&device);
-	assert(it != infos.end());
-	updateVolumeParams(*it);
+	infos.push_back(std::move(info));
+	updateVolumeParams(infos.back());
 
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "add");
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = infos.find(&device);
-	assert(it != infos.end());
-	it->second.volumeSetting->detach(*this);
-	it->second.balanceSetting->detach(*this);
-	for (auto& s : it->second.channelSettings) {
+	auto it = find_if(infos.rbegin(), infos.rend(),
+		[&](const SoundDeviceInfo& i) { return i.device == &device; });
+	assert(it != infos.rend());
+	it->volumeSetting->detach(*this);
+	it->balanceSetting->detach(*this);
+	for (auto& s : it->channelSettings) {
 		s.recordSetting->detach(*this);
 		s.muteSetting->detach(*this);
 	}
-	infos.erase(it);
+	std::swap(*it, infos.back());
+	infos.pop_back();
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
 
@@ -255,14 +257,14 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 
 	// FIXME: The Infos should be ordered such that all the mono
 	// devices are handled first
-	for (auto& p : infos) {
+	for (auto& info : infos) {
 		// When samples==0, call updateBuffer() but skip mixing
-		SoundDevice& device = *p.first;
+		SoundDevice& device = *info.device;
 		if (device.updateBuffer(samples, tmpBuf, time) &&
 		    (samples > 0)) {
 			if (!device.isStereo()) {
-				int l1 = p.second.left1;
-				int r1 = p.second.right1;
+				int l1 = info.left1;
+				int r1 = info.right1;
 				if (l1 == r1) {
 					if (!(usedBuffers & HAS_MONO_FLAG)) {
 						usedBuffers |= HAS_MONO_FLAG;
@@ -344,10 +346,10 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 					}
 				}
 			} else {
-				int l1 = p.second.left1;
-				int r1 = p.second.right1;
-				int l2 = p.second.left2;
-				int r2 = p.second.right2;
+				int l1 = info.left1;
+				int r1 = info.right1;
+				int l2 = info.left2;
+				int r2 = info.right2;
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
 					usedBuffers |= HAS_STEREO_FLAG;
 					for (unsigned i = 0; i < samples; ++i) {
@@ -523,14 +525,10 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 
 bool MSXMixer::needStereoRecording() const
 {
-	for (auto& p : infos) {
-		auto& device = *p.first;
-		auto& balance = *p.second.balanceSetting;
-		if (device.isStereo() || balance.getInt() != 0) {
-			return true;
-		}
-	}
-	return false;
+	return any_of(infos.begin(), infos.end(),
+		[](const SoundDeviceInfo& info) {
+			return info.device->isStereo() ||
+			       info.balanceSetting->getInt() != 0; });
 }
 
 void MSXMixer::mute()
@@ -577,8 +575,8 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 
 	reInit(); // must come before call to setOutputRate()
 
-	for (auto& p : infos) {
-		p.first->setOutputRate(newSampleRate);
+	for (auto& info : infos) {
+		info.device->setOutputRate(newSampleRate);
 	}
 }
 
@@ -616,12 +614,10 @@ void MSXMixer::update(const Setting& setting)
 			// the speed setting).
 		}
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
-		auto it = infos.begin();
-		while (it != infos.end() &&
-		       it->second.volumeSetting.get() != &setting &&
-		       it->second.balanceSetting.get() != &setting) {
-			++it;
-		}
+		auto it = find_if(infos.begin(), infos.end(),
+			[&](const SoundDeviceInfo& i) {
+				return (i.volumeSetting .get() == &setting) ||
+				       (i.balanceSetting.get() == &setting); });
 		assert(it != infos.end());
 		updateVolumeParams(*it);
 	} else if (dynamic_cast<const StringSetting*>(&setting)) {
@@ -635,11 +631,11 @@ void MSXMixer::update(const Setting& setting)
 
 void MSXMixer::changeRecordSetting(const Setting& setting)
 {
-	for (auto& p : infos) {
+	for (auto& info : infos) {
 		unsigned channel = 0;
-		for (auto& s : p.second.channelSettings) {
+		for (auto& s : info.channelSettings) {
 			if (s.recordSetting.get() == &setting) {
-				p.first->recordChannel(
+				info.device->recordChannel(
 					channel,
 					Filename(s.recordSetting->getString()));
 				return;
@@ -652,11 +648,11 @@ void MSXMixer::changeRecordSetting(const Setting& setting)
 
 void MSXMixer::changeMuteSetting(const Setting& setting)
 {
-	for (auto& p : infos) {
+	for (auto& info : infos) {
 		unsigned channel = 0;
-		for (auto& s : p.second.channelSettings) {
+		for (auto& s : info.channelSettings) {
 			if (s.muteSetting.get() == &setting) {
-				p.first->muteChannel(
+				info.device->muteChannel(
 					channel, s.muteSetting->getBoolean());
 				return;
 			}
@@ -672,15 +668,14 @@ void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
 	// TODO Should this be removed?
 }
 
-void MSXMixer::updateVolumeParams(Infos::value_type& p)
+void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 {
-	auto& info = p.second;
 	int mVolume = masterVolume.getInt();
 	int dVolume = info.volumeSetting->getInt();
 	double volume = info.defaultVolume * mVolume * dVolume / (100.0 * 100.0);
 	int balance = info.balanceSetting->getInt();
 	double l1, r1, l2, r2;
-	if (p.first->isStereo()) {
+	if (info.device->isStereo()) {
 		if (balance < 0) {
 			double b = (balance + 100.0) / 100.0;
 			l1 = volume;
@@ -702,7 +697,7 @@ void MSXMixer::updateVolumeParams(Infos::value_type& p)
 		r1 = volume * sqrt(std::max(0.0,       b));
 		l2 = r2 = 0.0; // dummy
 	}
-	int amp = 256 * p.first->getAmplificationFactor();
+	int amp = 256 * info.device->getAmplificationFactor();
 	info.left1  = int(l1 * amp);
 	info.right1 = int(r1 * amp);
 	info.left2  = int(l2 * amp);
@@ -727,12 +722,10 @@ void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 
 SoundDevice* MSXMixer::findDevice(string_ref name) const
 {
-	for (auto& p : infos) {
-		if (p.first->getName() == name) {
-			return p.first;
-		}
-	}
-	return nullptr;
+	auto it = find_if(infos.begin(), infos.end(),
+		[&](const SoundDeviceInfo& i) {
+			return i.device->getName() == name; });
+	return (it != infos.end()) ? it->device : nullptr;
 }
 
 SoundDeviceInfoTopic::SoundDeviceInfoTopic(
@@ -747,8 +740,8 @@ void SoundDeviceInfoTopic::execute(const vector<TclObject>& tokens,
 {
 	switch (tokens.size()) {
 	case 2:
-		for (auto& p : mixer.infos) {
-			result.addListElement(p.first->getName());
+		for (auto& info : mixer.infos) {
+			result.addListElement(info.device->getName());
 		}
 		break;
 	case 3: {
@@ -773,8 +766,8 @@ void SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		vector<string_ref> devices;
-		for (auto& p : mixer.infos) {
-			devices.push_back(p.first->getName());
+		for (auto& info : mixer.infos) {
+			devices.push_back(info.device->getName());
 		}
 		completeString(tokens, devices);
 	}
