@@ -19,7 +19,7 @@
 #include "likely.hh"
 #include "build-info.hh"
 #include <algorithm>
-#include <map>
+#include <vector>
 #include <cmath>
 #include <cstring>
 #include <cassert>
@@ -58,11 +58,12 @@ private:
 	void calcTable(double ratio, float*& table, unsigned& filterLen);
 
 	struct Element {
+		double ratio;
 		float* table;
-		unsigned count;
 		unsigned filterLen;
+		unsigned count;
 	};
-	std::map<double, Element> cache;
+	std::vector<Element> cache; // typically 1-4 entries -> unsorted vector
 };
 
 ResampleCoeffs::ResampleCoeffs()
@@ -83,29 +84,28 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, float*& table, unsigned& filterLen)
 {
-	auto it = cache.find(ratio);
+	auto it = find_if(cache.begin(), cache.end(),
+		[=](const Element& e) { return e.ratio == ratio; });
 	if (it != cache.end()) {
-		it->second.count++;
-		table     = it->second.table;
-		filterLen = it->second.filterLen;
+		table     = it->table;
+		filterLen = it->filterLen;
+		it->count++;
 		return;
 	}
 	calcTable(ratio, table, filterLen);
-	Element elem;
-	elem.count = 1;
-	elem.table = table;
-	elem.filterLen = filterLen;
-	cache[ratio] = elem;
+	cache.push_back({ratio, table, filterLen, 1});
 }
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = cache.find(ratio);
+	auto it = find_if(cache.begin(), cache.end(),
+		[=](const Element& e) { return e.ratio == ratio; });
 	assert(it != cache.end());
-	it->second.count--;
-	if (it->second.count == 0) {
-		MemoryOps::freeAligned(it->second.table);
-		cache.erase(it);
+	it->count--;
+	if (it->count == 0) {
+		MemoryOps::freeAligned(it->table);
+		*it = cache.back(); // move last element here
+		cache.pop_back();   // and erase last
 	}
 }
 
