@@ -4,7 +4,7 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
-#include <map>
+#include <utility>
 #include <vector>
 #include <memory>
 
@@ -68,7 +68,7 @@ private:
 		ColorTexture tex;
 		PixelBuffer<unsigned> pbo;
 	};
-	std::map<unsigned, TextureData> textures;
+	std::vector<std::pair<unsigned, TextureData>> textures;
 
 	ColorTexture superImposeTex;
 
