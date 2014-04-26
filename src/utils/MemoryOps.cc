@@ -3,8 +3,10 @@
 #include "build-info.hh"
 #include "systemfuncs.hh"
 #include "Math.hh"
+#include "stl.hh"
 #include "unreachable.hh"
-#include <map>
+#include <utility>
+#include <vector>
 #include <cassert>
 #include <cstdlib>
 #include <cstdint>
@@ -261,15 +263,22 @@ public:
 	}
 
 	void insert(void* aligned, void* unaligned) {
-		assert(allocMap.find(aligned) == allocMap.end());
-		allocMap[aligned] = unaligned;
+		assert(find_if(allocMap.begin(), allocMap.end(),
+		               EqualTupleValue<0>(aligned))
+		       == allocMap.end());
+		allocMap.emplace_back(aligned, unaligned);
 	}
 
 	void* remove(void* aligned) {
-		auto it = allocMap.find(aligned);
-		assert(it != allocMap.end());
+		// LIFO order is more likely than FIFO -> search backwards
+		auto it = find_if(allocMap.rbegin(), allocMap.rend(),
+		               EqualTupleValue<0>(aligned));
+		assert(it != allocMap.rend());
+		// return the associated unaligned value
 		void* unaligned = it->second;
-		allocMap.erase(it);
+		// instead of vector::erase(), swap with back and drop that
+		*it = allocMap.back();
+		allocMap.pop_back();
 		return unaligned;
 	}
 
@@ -279,7 +288,8 @@ private:
 		assert(allocMap.empty());
 	}
 
-	std::map<void*, void*> allocMap;
+	// typically contains 5-10 items, so (unsorted) vector is fine
+	std::vector<std::pair<void*, void*>> allocMap;
 };
 
 void* mallocAligned(size_t alignment, size_t size)
