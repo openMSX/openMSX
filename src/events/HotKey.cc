@@ -226,8 +226,7 @@ void HotKey::loadBindings(const XMLElement& config)
 	// restore default bindings
 	unboundKeys.clear();
 	boundKeys.clear();
-	cmdMap.clear();
-	cmdMap.insert(defaultMap.begin(), defaultMap.end());
+	cmdMap = defaultMap;
 
 	// load bindings
 	auto* bindingsElement = config.findChild("bindings");
