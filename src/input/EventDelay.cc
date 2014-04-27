@@ -8,6 +8,7 @@
 #include "MSXException.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include <cassert>
 
 using std::make_shared;
@@ -121,12 +122,17 @@ void EventDelay::sync(EmuTime::param curEmu)
 		    e->getType() == OPENMSX_KEY_UP_EVENT) {
 			auto keyEvent = checked_cast<const KeyEvent*>(e.get());
 			int maskedKeyCode = int(keyEvent->getKeyCode()) & int(Keys::K_MASK);
+			auto it = find_if(nonMatchedKeyPresses.begin(), nonMatchedKeyPresses.end(),
+				          EqualTupleValue<0>(maskedKeyCode));
 			if (e->getType() == OPENMSX_KEY_DOWN_EVENT) {
-				nonMatchedKeyPresses[maskedKeyCode] = e;
+				if (it == nonMatchedKeyPresses.end()) {
+					nonMatchedKeyPresses.emplace_back(maskedKeyCode, e);
+				} else {
+					it->second = e;
+				}
 			} else {
-				auto nonMatchedKeyPressesIterator = nonMatchedKeyPresses.find(maskedKeyCode);
-				if (nonMatchedKeyPressesIterator != nonMatchedKeyPresses.end()) {
-					auto timedPressEvent = checked_cast<const TimedEvent*>(nonMatchedKeyPressesIterator->second.get());
+				if (it != nonMatchedKeyPresses.end()) {
+					auto timedPressEvent = checked_cast<const TimedEvent*>(it->second.get());
 					auto timedReleaseEvent = checked_cast<const TimedEvent*>(e.get());
 					auto pressRealTime = timedPressEvent->getRealTime();
 					auto releaseRealTime = timedReleaseEvent->getRealTime();
@@ -140,7 +146,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
-					nonMatchedKeyPresses.erase(nonMatchedKeyPressesIterator);
+					std::swap(*it, nonMatchedKeyPresses.back());
+					nonMatchedKeyPresses.pop_back();
 				}
 			}
 		}
