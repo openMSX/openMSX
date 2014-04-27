@@ -3,6 +3,7 @@
 #include "V9990.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <algorithm>
 #include <cstdint>
 

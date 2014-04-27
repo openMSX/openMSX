@@ -3,6 +3,7 @@
 #include "V9990VRAM.hh"
 #include "MemoryOps.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <cassert>
 #include <algorithm>
 #include <cstdint>
