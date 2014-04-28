@@ -111,7 +111,7 @@ fi
 echo "AB:INFO Done with build of app"
 
 echo "AB:INFO Copying icon file"
-openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-128.png"
+openmsx_icon_file="${my_home_dir}/share/icons/openMSX-logo-256.png"
 cp -p "${openmsx_icon_file}" icon.png
 
 echo "AB:INFO Validating if appdata.zip must be rebuild"
