@@ -1,5 +1,4 @@
 #include "MSXCPUInterface.hh"
-#include "BreakPoint.hh"
 #include "DebugCondition.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
@@ -778,23 +777,20 @@ DummyDevice& MSXCPUInterface::getDummyDevice()
 
 void MSXCPUInterface::insertBreakPoint(const shared_ptr<BreakPoint>& bp)
 {
-	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
+	auto it = upper_bound(breakPoints.begin(), breakPoints.end(),
+	                      bp->getAddress(), CompareBreakpoints());
+	breakPoints.insert(it, bp);
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto range = breakPoints.equal_range(bp.getAddress());
-	for (auto it = range.first; it != range.second; ++it) {
-		if (it->second.get() == &bp) {
-			breakPoints.erase(it);
-			break;
-		}
-	}
-}
-
-const MSXCPUInterface::BreakPoints& MSXCPUInterface::getBreakPoints()
-{
-	return breakPoints;
+	auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+	                         bp.getAddress(), CompareBreakpoints());
+	auto it = find_if(range.first, range.second,
+		[&](const shared_ptr<BreakPoint>& i) {
+			return i.get() == &bp; });
+	assert(it != range.second);
+	breakPoints.erase(it);
 }
 
 void MSXCPUInterface::checkBreakPoints(
@@ -806,7 +802,7 @@ void MSXCPUInterface::checkBreakPoints(
 	//  - avoids iterating over a changing collection
 	BreakPoints bpCopy(range.first, range.second);
 	for (auto& p : bpCopy) {
-		p.second->checkAndExecute();
+		p->checkAndExecute();
 	}
 	auto condCopy = conditions;
 	for (auto& c : condCopy) {

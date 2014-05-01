@@ -3,12 +3,13 @@
 
 #include "CacheLine.hh"
 #include "MSXDevice.hh"
+#include "BreakPoint.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "likely.hh"
+#include <algorithm>
 #include <bitset>
-#include <map>
 #include <vector>
 #include <memory>
 
@@ -28,6 +29,21 @@ class ExternalSlotInfo;
 class IOInfo;
 class BreakPoint;
 class DebugCondition;
+
+struct CompareBreakpoints {
+	bool operator()(const std::shared_ptr<BreakPoint>& x,
+			const std::shared_ptr<BreakPoint>& y) const {
+		return x->getAddress() < y->getAddress();
+	}
+	bool operator()(const std::shared_ptr<BreakPoint>& x,
+			word y) const {
+		return x->getAddress() < y;
+	}
+	bool operator()(word x,
+			const std::shared_ptr<BreakPoint>& y) const {
+		return x < y->getAddress();
+	}
+};
 
 class MSXCPUInterface : private noncopyable
 {
@@ -181,8 +197,8 @@ public:
 	static void removeBreakPoint(const BreakPoint& bp);
 	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
 	// TODO use multi_set sorted on BreakPoint->getAddress()
-	typedef std::multimap<word, std::shared_ptr<BreakPoint>> BreakPoints;
-	static const BreakPoints& getBreakPoints();
+	typedef std::vector<std::shared_ptr<BreakPoint>> BreakPoints;
+	static const BreakPoints& getBreakPoints() { return breakPoints; }
 
 	void setWatchPoint(const std::shared_ptr<WatchPoint>& watchPoint);
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
@@ -214,7 +230,8 @@ public:
 	}
 	static bool checkBreakPoints(unsigned pc)
 	{
-		auto range = breakPoints.equal_range(pc);
+		auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+		                         pc, CompareBreakpoints());
 		if (conditions.empty() && (range.first == range.second)) {
 			return false;
 		}
