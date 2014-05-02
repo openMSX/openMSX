@@ -10,6 +10,24 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
+	TTCacheEntry(const std::string& name_, size_t size_)
+		: name(name_), size(size_), time(-1) {}
+	// TODO use compiler generated versions once VS supports that
+	TTCacheEntry(TTCacheEntry&& other)
+		: hash (std::move(other.hash ))
+		, valid(std::move(other.valid))
+		, name (std::move(other.name ))
+		, size (std::move(other.size ))
+		, time (std::move(other.time )) {}
+	TTCacheEntry& operator=(TTCacheEntry&& other) {
+		hash  = std::move(other.hash );
+		valid = std::move(other.valid);
+		name  = std::move(other.name );
+		size  = std::move(other.size );
+		time  = std::move(other.time );
+		return *this;
+	}
+
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
 	std::string name;
@@ -32,11 +50,8 @@ static TTCacheEntry& getCacheEntry(
 		[&](const TTCacheEntry& e) {
 			return (e.size == dataSize) && (e.name == name); });
 	if (it == ttCache.end()) {
-		ttCache.emplace_back();
+		ttCache.emplace_back(name, dataSize);
 		it = ttCache.end() - 1;
-		it->name = name;
-		it->size = dataSize;
-		it->time = -1;
 	}
 
 	size_t numNodes = calcNumNodes(dataSize);
