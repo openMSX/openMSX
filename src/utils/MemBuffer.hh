@@ -6,6 +6,7 @@
 #include "alignof.hh"
 #include <algorithm>
 #include <new>      // for bad_alloc
+#include <cstddef>  // max_align_t
 #include <cstdlib>
 #include <cassert>
 
@@ -172,7 +173,7 @@ private:
 	// functions. The only disadvantage is that we cannot use realloc()
 	// in that case (there are no, not even platform specific, functions
 	// to realloc memory with bigger than default alignment).
-	static const bool SIMPLE_MALLOC = ALIGNMENT <= ALIGNOF(MAX_ALIGN_T);
+	static const bool SIMPLE_MALLOC = ALIGNMENT <= ALIGNOF(max_align_t);
 
 	void* my_malloc(size_t bytes)
 	{

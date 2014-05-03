@@ -24,17 +24,4 @@ template<typename T> struct AlignOf
 
 #define ALIGNOF(T) AlignOf<T>::value
 
-
-// c++11 offers std::max_align_t, a type whose alignment is at least as great
-// as that of any standard type. The malloc() function guarantees to return
-// memory with at least this alignment.
-//  gcc-4.6           : doesn't have this type yet
-//  gcc-4.7, gcc-4.8  : only offer  ::max_align_t but not std::max_align_t
-//  visual studio 2013: offers both ::max_align_t   and   std::max_align_t
-struct MAX_ALIGN_T
-{
-        long long ll;
-        long double ld;
-};
-
 #endif
