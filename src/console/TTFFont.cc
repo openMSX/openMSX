@@ -146,7 +146,7 @@ void TTFFontPool::release(TTF_Font* font)
 	--it->count;
 	if (it->count == 0) {
 		TTF_CloseFont(it->font);
-		std::swap(*it, pool.back());
+		if (it != (pool.end() - 1)) std::swap(*it, *(pool.end() - 1));
 		pool.pop_back();
 	}
 }

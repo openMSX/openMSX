@@ -180,16 +180,16 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = find_if(infos.rbegin(), infos.rend(),
+	auto it = find_if(infos.begin(), infos.end(),
 		[&](const SoundDeviceInfo& i) { return i.device == &device; });
-	assert(it != infos.rend());
+	assert(it != infos.end());
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);
 	for (auto& s : it->channelSettings) {
 		s.recordSetting->detach(*this);
 		s.muteSetting->detach(*this);
 	}
-	std::swap(*it, infos.back());
+	if (it != (infos.end() - 1)) std::swap(*it, *(infos.end() - 1));
 	infos.pop_back();
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
