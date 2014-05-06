@@ -293,24 +293,28 @@ void SDLVideoSystem::resize()
 	case RendererFactory::SDL:
 		screen = make_unique<SDLVisibleSurface>(
 			width, height, renderSettings,
-			eventDistributor, inputEventGenerator);
+			eventDistributor, inputEventGenerator,
+			reactor.getCliComm());
 		break;
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings,
-			eventDistributor, inputEventGenerator);
+			eventDistributor, inputEventGenerator,
+			reactor.getCliComm());
 		break;
 	case RendererFactory::SDLGL_FB16:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings,
 			eventDistributor, inputEventGenerator,
+			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_16BPP);
 		break;
 	case RendererFactory::SDLGL_FB32:
 		screen = make_unique<SDLGLVisibleSurface>(
 			width, height, renderSettings,
 			eventDistributor, inputEventGenerator,
+			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_32BPP);
 		break;
 #endif
