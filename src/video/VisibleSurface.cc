@@ -98,10 +98,13 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 	// set icon
 	if (OPENMSX_SET_WINDOW_ICON) {
 		SDLSurfacePtr iconSurf;
+		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
+#ifndef _WIN32
 		try {
 			iconSurf = PNG::load(PreferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
 		} catch (MSXException& e) {
 			cliComm.printWarning("Falling back to built in 32x32 icon, because failed to load icon: " + e.getMessage());
+#endif
 			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
 				const_cast<char*>(openMSX_icon.pixel_data),
 				openMSX_icon.width, openMSX_icon.height,
@@ -111,7 +114,9 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 				OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
 				OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
 				OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+#ifndef _WIN32
 		}
+#endif
 		SDL_SetColorKey(iconSurf.get(), SDL_SRCCOLORKEY, 0);
 		SDL_WM_SetIcon(iconSurf.get(), nullptr);
 	}
