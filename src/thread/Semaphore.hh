@@ -2,8 +2,9 @@
 #define SEMAPHORE_HH
 
 #include "noncopyable.hh"
-#include <SDL.h>
 #include <cassert>
+#include <condition_variable>
+#include <mutex>
 
 namespace openmsx {
 
@@ -11,12 +12,13 @@ class Semaphore : private noncopyable
 {
 public:
 	explicit Semaphore(unsigned value);
-	~Semaphore();
 	void up();
 	void down();
 
 private:
-	SDL_sem* semaphore;
+	std::mutex mutex;
+	std::condition_variable condition;
+	unsigned value;
 };
 
 class ScopedLock : private noncopyable
