@@ -6,7 +6,6 @@
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
 #include <vector>
-#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -108,10 +107,12 @@ public:
 
 private:
 	struct SoundDeviceInfo {
+		// TODO use compiler-generated versions once VS supports it
 		SoundDeviceInfo();
 		SoundDeviceInfo(SoundDeviceInfo&& rhs);
 		SoundDeviceInfo& operator=(SoundDeviceInfo&& rhs);
 
+		SoundDevice* device;
 		double defaultVolume;
 		std::unique_ptr<IntegerSetting> volumeSetting;
 		std::unique_ptr<IntegerSetting> balanceSetting;
@@ -126,9 +127,8 @@ private:
 		std::vector<ChannelSettings> channelSettings;
 		int left1, right1, left2, right2;
 	};
-	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 
-	void updateVolumeParams(Infos::value_type& p);
+	void updateVolumeParams(SoundDeviceInfo& info);
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
@@ -149,7 +149,7 @@ private:
 	unsigned hostSampleRate; // requested freq by sound driver,
 	                         // not compensated for speed
 
-	Infos infos;
+	std::vector<SoundDeviceInfo> infos;
 
 	Mixer& mixer;
 	CommandController& commandController;

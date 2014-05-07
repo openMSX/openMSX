@@ -14,11 +14,11 @@ packageName = 'openmsx'
 # Version number.
 packageVersionNumber = '0.10.1'
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = '-rc1'
+packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
-releaseFlag = True
+releaseFlag = False
 
 def _extractRevisionFromStdout(log, command, regex):
 	text = captureStdout(log, command)

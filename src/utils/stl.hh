@@ -65,4 +65,21 @@ private:
 	CMP cmp;
 };
 
+
+// Check whether the N-the element of a tuple is equal to the given value.
+template<int N, typename T> struct EqualTupleValueImpl
+{
+	EqualTupleValueImpl(const T& t_) : t(t_) {}
+	template<typename TUPLE>
+	bool operator()(const TUPLE& tup) const {
+		return std::get<N>(tup) == t;
+	}
+private:
+	const T& t;
+};
+template<int N, typename T>
+EqualTupleValueImpl<N, T> EqualTupleValue(const T& t) {
+	return EqualTupleValueImpl<N, T>(t);
+}
+
 #endif

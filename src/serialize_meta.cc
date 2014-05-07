@@ -2,7 +2,8 @@
 #include "serialize.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
+#include "stl.hh"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 
@@ -10,6 +11,7 @@ namespace openmsx {
 
 template<typename Archive>
 PolymorphicSaverRegistry<Archive>::PolymorphicSaverRegistry()
+	: initialized(false)
 {
 }
 
@@ -30,8 +32,10 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 	const std::type_info& type,
 	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
-	assert(saverMap.find(type) == saverMap.end());
-	saverMap[type] = std::move(saver);
+	assert(!initialized);
+	assert(find_if(saverMap.begin(), saverMap.end(), EqualTupleValue<0>(type))
+	       == saverMap.end());
+	saverMap.emplace_back(type, std::move(saver));
 }
 
 template<typename Archive>
@@ -39,11 +43,17 @@ void PolymorphicSaverRegistry<Archive>::save(
 	Archive& ar, const void* t, const std::type_info& typeInfo)
 {
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
-	auto it = reg.saverMap.find(typeInfo);
-	if (it == reg.saverMap.end()) {
+	if (unlikely(!reg.initialized)) {
+		reg.initialized = true;
+		sort(reg.saverMap.begin(), reg.saverMap.end(),
+		     LessTupleElement<0>());
+	}
+	auto it = lower_bound(reg.saverMap.begin(), reg.saverMap.end(), typeInfo,
+		LessTupleElement<0>());
+	if ((it == reg.saverMap.end()) || (it->first != typeInfo)) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << std::endl;
-		UNREACHABLE;
+		assert(false); return;
 	}
 	it->second->save(ar, t);
 }

@@ -2,6 +2,7 @@
 #include "File.hh"
 #include "Filename.hh"
 #include "MSXException.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cstring>
 #include <cassert>
@@ -44,12 +45,14 @@ IPSPatch::IPSPatch(const Filename& filename_,
 			ipsFile.read(&v.front(), length);
 		}
 		// find overlapping or adjacent patch regions
-		auto b = patchMap.lower_bound(offset);
+		auto b = lower_bound(patchMap.begin(), patchMap.end(),
+		                     offset, LessTupleElement<0>());
 		if (b != patchMap.begin()) {
 			--b;
 			if (getStop(b) < offset) ++b;
 		}
-		auto e = patchMap.upper_bound(offset + v.size());
+		auto e = upper_bound(patchMap.begin(), patchMap.end(),
+		                     offset + v.size(), LessTupleElement<0>());
 		if (b != e) {
 			// remove operlapping regions, merge adjacent regions
 			--e;
@@ -63,11 +66,11 @@ IPSPatch::IPSPatch(const Filename& filename_,
 				       it->second.size());
 			}
 			memcpy(&tmp[offset - start], v.data(), v.size());
-			patchMap.erase(b, e);
-			patchMap[start] = tmp;
+			*b = std::make_pair(start, std::move(tmp));
+			patchMap.erase(b + 1, e);
 		} else {
 			// add new region
-			patchMap[offset] = v;
+			patchMap.emplace(b, offset, std::move(v));
 		}
 
 		ipsFile.read(buf, 3);
@@ -84,9 +87,11 @@ void IPSPatch::copyBlock(size_t src, byte* dst, size_t num) const
 {
 	parent->copyBlock(src, dst, num);
 
-	auto b = patchMap.lower_bound(src);
+	auto b = lower_bound(patchMap.begin(), patchMap.end(),
+	                     src, LessTupleElement<0>());
 	if (b != patchMap.begin()) --b;
-	auto e = patchMap.upper_bound(src + num - 1);
+	auto e = upper_bound(patchMap.begin(), patchMap.end(),
+	                     src + num - 1, LessTupleElement<0>());
 	for (auto it = b; it != e; ++it) {
 		auto chunkStart = it->first;
 		int chunkSize = int(it->second.size());

@@ -15,6 +15,7 @@ public:
 	                    RenderSettings& renderSettings,
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
+	                    CliComm& cliComm,
 	                    FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 

@@ -9,6 +9,7 @@
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
+#include "stl.hh"
 #include "vla.hh"
 #include <algorithm>
 #include <random>
@@ -181,11 +182,13 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
-		assert(textures.find(r.lineWidth) != textures.end());
+		auto it = find_if(textures.begin(), textures.end(),
+		                  EqualTupleValue<0>(r.lineWidth));
+		assert(it != textures.end());
 		auto superImpose = superImposeVideoFrame
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
-			textures[r.lineWidth].tex, superImpose,
+			it->second.tex, superImpose,
 			r.srcStartY, r.srcEndY, r.lineWidth,       // src
 			r.dstStartY, r.dstEndY, screen.getWidth(), // dst
 			paintFrame->getHeight()); // dst
@@ -291,7 +294,8 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = textures.find(lineWidth);
+	auto it = find_if(textures.begin(), textures.end(),
+	                  EqualTupleValue<0>(lineWidth));
 	if (it == textures.end()) {
 		TextureData textureData;
 
@@ -302,8 +306,8 @@ void GLPostProcessor::uploadBlock(
 			textureData.pbo.setImage(lineWidth, height * 2);
 		}
 
-		it = textures.insert(std::make_pair(
-			lineWidth, std::move(textureData))).first;
+		textures.emplace_back(lineWidth, std::move(textureData));
+		it = textures.end() - 1;
 	}
 	auto& tex = it->second.tex;
 	auto& pbo = it->second.pbo;

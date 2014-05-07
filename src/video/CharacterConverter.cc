@@ -13,6 +13,7 @@ TODO:
 #include "VDPVRAM.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <cstdint>
 
 namespace openmsx {

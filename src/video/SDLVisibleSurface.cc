@@ -17,8 +17,10 @@ SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height,
 		RenderSettings& renderSettings,
 		EventDistributor& eventDistributor,
-		InputEventGenerator& inputEventGenerator)
-	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator)
+		InputEventGenerator& inputEventGenerator,
+		CliComm& cliComm)
+	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator,
+			cliComm)
 {
 #if PLATFORM_DINGUX
 	// The OpenDingux kernel supports double buffering, while the legacy

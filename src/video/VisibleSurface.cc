@@ -9,7 +9,10 @@
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "PNG.hh"
+#include "FileContext.hh"
 #include "StringOp.hh"
+#include "CliComm.hh"
 #include "memory.hh"
 #include "build-info.hh"
 
@@ -78,7 +81,8 @@ static void setMaemo5WMHints(bool fullscreen)
 
 VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 		EventDistributor& eventDistributor_,
-		InputEventGenerator& inputEventGenerator_)
+		InputEventGenerator& inputEventGenerator_,
+		CliComm& cliComm)
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
@@ -93,15 +97,26 @@ VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 
 	// set icon
 	if (OPENMSX_SET_WINDOW_ICON) {
-		SDLSurfacePtr iconSurf(SDL_CreateRGBSurfaceFrom(
-			const_cast<char*>(openMSX_icon.pixel_data),
-			openMSX_icon.width, openMSX_icon.height,
-			openMSX_icon.bytes_per_pixel * 8,
-			openMSX_icon.bytes_per_pixel * openMSX_icon.width,
-			OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
-			OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
-			OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-			OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+		SDLSurfacePtr iconSurf;
+		// always use 32x32 icon on Windows, for some reason you get badly scaled icons there
+#ifndef _WIN32
+		try {
+			iconSurf = PNG::load(PreferSystemFileContext().resolve("icons/openMSX-logo-256.png"), true);
+		} catch (MSXException& e) {
+			cliComm.printWarning("Falling back to built in 32x32 icon, because failed to load icon: " + e.getMessage());
+#endif
+			iconSurf.reset(SDL_CreateRGBSurfaceFrom(
+				const_cast<char*>(openMSX_icon.pixel_data),
+				openMSX_icon.width, openMSX_icon.height,
+				openMSX_icon.bytes_per_pixel * 8,
+				openMSX_icon.bytes_per_pixel * openMSX_icon.width,
+				OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
+				OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
+				OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
+				OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000));
+#ifndef _WIN32
+		}
+#endif
 		SDL_SetColorKey(iconSurf.get(), SDL_SRCCOLORKEY, 0);
 		SDL_WM_SetIcon(iconSurf.get(), nullptr);
 	}

@@ -1,6 +1,6 @@
 #ifdef _WIN32
 
-#include "sdlwin32.hh"
+#include "win32-windowhandle.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include <SDL.h>
@@ -11,11 +11,16 @@
 
 namespace openmsx {
 
-HWND getSDLWindowHandle()
+HWND getWindowHandle()
 {
+	// There is no window handle until the video subsystem has been initialized.
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
+
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if (!SDL_GetWMInfo(&info)) {
+	if (SDL_GetWMInfo(&info) != 1) {
 		throw MSXException(StringOp::Builder() <<
 			"SDL_GetWMInfo failed: " << SDL_GetError());
 	}

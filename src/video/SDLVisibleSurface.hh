@@ -11,7 +11,8 @@ public:
 	SDLVisibleSurface(unsigned width, unsigned height,
 	                  RenderSettings& renderSettings,
 	                  EventDistributor& eventDistributor,
-	                  InputEventGenerator& inputEventGenerator);
+	                  InputEventGenerator& inputEventGenerator,
+	                  CliComm& cliComm);
 
 private:
 	// OutputSurface

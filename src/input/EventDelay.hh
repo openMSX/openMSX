@@ -8,7 +8,6 @@
 #include <vector>
 #include <deque>
 #include <memory>
-#include <map>
 #include <cstdint>
 
 namespace openmsx {
@@ -53,7 +52,7 @@ private:
 	std::deque<EventPtr> scheduledEvents;
 
 #if PLATFORM_ANDROID
-	std::map<int, EventPtr> nonMatchedKeyPresses;
+	std::vector<std::pair<int, EventPtr>> nonMatchedKeyPresses;
 #endif
 
 	EmuTime prevEmu;

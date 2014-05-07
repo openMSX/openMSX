@@ -19,6 +19,7 @@ class RenderSettings;
 class Setting;
 class Display;
 class OSDGUI;
+class CliComm;
 
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
@@ -53,7 +54,8 @@ public:
 protected:
 	VisibleSurface(RenderSettings& renderSettings,
 	               EventDistributor& eventDistributor,
-	               InputEventGenerator& inputEventGenerator);
+	               InputEventGenerator& inputEventGenerator,
+		       CliComm& cliComm);
 	void createSurface(unsigned width, unsigned height, int flags);
 
 private:

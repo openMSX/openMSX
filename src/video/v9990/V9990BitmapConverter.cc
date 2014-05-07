@@ -4,6 +4,7 @@
 #include "Math.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <cassert>
 #include <cstdint>
 

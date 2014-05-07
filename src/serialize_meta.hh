@@ -9,7 +9,7 @@
 #include <tuple>
 #include <typeindex>
 #include <type_traits>
-#include <map>
+#include <vector>
 
 namespace openmsx {
 
@@ -247,8 +247,9 @@ private:
 	static void save(const char* tag, Archive& ar, const void* t,
 	                 const std::type_info& typeInfo);
 
-	std::map<std::type_index, std::unique_ptr<PolymorphicSaverBase<Archive>>>
-		saverMap;
+	std::vector<std::pair<std::type_index,
+	                      std::unique_ptr<PolymorphicSaverBase<Archive>>>> saverMap;
+	bool initialized;
 };
 
 template<typename Archive>

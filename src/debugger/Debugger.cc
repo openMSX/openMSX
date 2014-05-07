@@ -19,7 +19,6 @@
 #include "memory.hh"
 #include <cassert>
 
-using std::map;
 using std::shared_ptr;
 using std::make_shared;
 using std::string;
@@ -520,27 +519,26 @@ void DebugCmd::removeBreakPoint(const vector<TclObject>& tokens,
 	if (tmp.starts_with("bp#")) {
 		// remove by id
 		unsigned id = stoi(tmp.substr(3));
-		for (auto& p : breakPoints) {
-			const BreakPoint& bp = *p.second;
-			if (bp.getId() == id) {
-				interface.removeBreakPoint(bp);
-				return;
-			}
+		auto it = find_if(breakPoints.begin(), breakPoints.end(),
+			[&](const shared_ptr<BreakPoint>& bp) {
+				return bp->getId() == id; });
+		if (it == breakPoints.end()) {
+			throw CommandException("No such breakpoint: " + tmp);
 		}
-		throw CommandException("No such breakpoint: " + tmp);
+		interface.removeBreakPoint(**it);
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(tokens);
-		auto range = breakPoints.equal_range(addr);
-		for (auto it = range.first; it != range.second; ++it) {
-			const BreakPoint& bp = *it->second;
-			if (bp.getCondition().empty()) {
-				interface.removeBreakPoint(bp);
-				return;
-			}
+		auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+		                         addr, CompareBreakpoints());
+		auto it = find_if(range.first, range.second,
+			[&](const shared_ptr<BreakPoint>& bp) {
+				return bp->getCondition().empty(); });
+		if (it == range.second) {
+			throw CommandException(
+				"No (unconditional) breakpoint at address: " + tmp);
 		}
-		throw CommandException(
-			"No (unconditional) breakpoint at address: " + tmp);
+		interface.removeBreakPoint(**it);
 	}
 }
 
@@ -549,13 +547,12 @@ void DebugCmd::listBreakPoints(const vector<TclObject>& /*tokens*/,
 {
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
-	for (auto& p : interface.getBreakPoints()) {
-		const BreakPoint& bp = *p.second;
+	for (auto& bp : interface.getBreakPoints()) {
 		TclObject line(result.getInterpreter());
-		line.addListElement(StringOp::Builder() << "bp#" << bp.getId());
-		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
-		line.addListElement(bp.getCondition());
-		line.addListElement(bp.getCommand());
+		line.addListElement(StringOp::Builder() << "bp#" << bp->getId());
+		line.addListElement("0x" + StringOp::toHexString(bp->getAddress(), 4));
+		line.addListElement(bp->getCondition());
+		line.addListElement(bp->getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -1094,8 +1091,8 @@ vector<string> DebugCmd::getBreakPointIds() const
 {
 	vector<string> bpids;
 	auto& interface = debugger.motherBoard.getCPUInterface();
-	for (auto& p : interface.getBreakPoints()) {
-		bpids.push_back(StringOp::Builder() << "bp#" << p.second->getId());
+	for (auto& bp : interface.getBreakPoints()) {
+		bpids.push_back(StringOp::Builder() << "bp#" << bp->getId());
 	}
 	return bpids;
 }

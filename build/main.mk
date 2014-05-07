@@ -334,11 +334,16 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
     echo | $(CXX) -E -Wno-missing-field-initializers - >/dev/null 2>&1 \
     && echo -Wno-missing-field-initializers \
     )
+
   # -Wzero-as-null-pointer-constant is available from gcc-4.7
-  COMPILE_FLAGS+=$(shell \
-    echo | $(CXX) -E -Wzero-as-null-pointer-constant - >/dev/null 2>&1 \
-    && echo -Wzero-as-null-pointer-constant \
-    )
+  ## IMHO this is a useful but not very important warning. It triggers in
+  ## quite a few places via macros defined in tcl8.5/tclDecls.h, so we can't
+  ## easily suppress it. So for now I'll disable this warning again.
+  ##COMPILE_FLAGS+=$(shell \
+  ##  echo | $(CXX) -E -Wzero-as-null-pointer-constant - >/dev/null 2>&1 \
+  ##  && echo -Wzero-as-null-pointer-constant \
+  ##  )
+
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.

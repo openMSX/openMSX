@@ -50,7 +50,7 @@ extern int w32_midiInClean();
 extern unsigned w32_midiInGetVFNsNum();
 extern std::string w32_midiInGetVFN(unsigned nmb);
 extern std::string w32_midiInGetRDN(unsigned nmb);
-extern unsigned w32_midiInOpen(const char* vfn, unsigned thrdid);
+extern unsigned w32_midiInOpen(const char* vfn, DWORD thrdid);
 extern int w32_midiInClose(unsigned idx);
 
 } // namespace openmsx

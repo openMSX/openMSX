@@ -149,29 +149,34 @@ SDLSurfacePtr load(const std::string& filename, bool want32bpp)
 		// When the output surface is 16bpp, still produce PNG in BGRA
 		// format because SDL *seems* to be better optimized for this
 		// format (not documented, but I checked SDL-1.2.15 source code).
-		const SDL_PixelFormat& format = *SDL_GetVideoSurface()->format;
-		bool bgr, swapAlpha;
-		if (format.BitsPerPixel < 24) {
-			bgr = true; swapAlpha = false;
-		} else {
-			int r = format.Rshift;
-			int g = format.Gshift;
-			int b = format.Bshift;
-			// Can't trust Ashift in a video surface, but it's safe
-			// to assume Alpha channel is located in the leftover
-			// position.
-			if        (r ==  0 && g ==  8 && b == 16) { // RGBA
-				bgr = false; swapAlpha = false;
-			} else if (r == 16 && g ==  8 && b ==  0) { // BGRA
-				bgr = true;  swapAlpha = false;
-			} else if (r ==  8 && g == 16 && b == 24) { // ARGB
-				bgr = false; swapAlpha = true;
-			} else if (r == 24 && g == 16 && b ==  8) { // ABGR
-				bgr = true;  swapAlpha = true;
+		// if (for some reason) the surface is not available yet,
+		// we just skip this
+		bool bgr(true), swapAlpha(false);
+		SDL_Surface* videoSurface = SDL_GetVideoSurface();
+		if (videoSurface) {
+			const SDL_PixelFormat& format = *videoSurface->format;
+			if (format.BitsPerPixel < 24) {
+				bgr = true; swapAlpha = false;
 			} else {
-				// Format not directly supported by libpng,
-				// use BGRA and still convert later.
-				bgr = true;  swapAlpha = false;
+				int r = format.Rshift;
+				int g = format.Gshift;
+				int b = format.Bshift;
+				// Can't trust Ashift in a video surface, but it's safe
+				// to assume Alpha channel is located in the leftover
+				// position.
+				if        (r ==  0 && g ==  8 && b == 16) { // RGBA
+					bgr = false; swapAlpha = false;
+				} else if (r == 16 && g ==  8 && b ==  0) { // BGRA
+					bgr = true;  swapAlpha = false;
+				} else if (r ==  8 && g == 16 && b == 24) { // ARGB
+					bgr = false; swapAlpha = true;
+				} else if (r == 24 && g == 16 && b ==  8) { // ABGR
+					bgr = true;  swapAlpha = true;
+				} else {
+					// Format not directly supported by libpng,
+					// use BGRA and still convert later.
+					// (so, use defaults)
+				}
 			}
 		}
 		if (bgr)       png_set_bgr       (png.ptr);

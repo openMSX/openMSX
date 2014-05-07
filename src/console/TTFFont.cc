@@ -5,13 +5,11 @@
 #include "memory.hh"
 #include "xrange.hh"
 #include <SDL_ttf.h>
-#include <map>
 #include <algorithm>
 #include <vector>
 #include <cassert>
 
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
@@ -51,16 +49,28 @@ private:
 	// of step 3 and 4. Though this has the disadvantage that if openMSX
 	// crashes between step 3 and 4 the temp file is still left behind.
 	struct FontInfo {
+		// TODO use compiler generated versions once VS supports this
 		FontInfo() {}
 		FontInfo(FontInfo&& rhs)
 			: file(std::move(rhs.file)), font(std::move(rhs.font))
+			, name(std::move(rhs.name)), size(std::move(rhs.size))
 			, count(std::move(rhs.count)) {}
+		FontInfo& operator=(FontInfo&& rhs) {
+			file  = std::move(rhs.file);
+			font  = std::move(rhs.font);
+			name  = std::move(rhs.name);
+			size  = std::move(rhs.size);
+			count = std::move(rhs.count);
+			return *this;
+		}
+
 		std::unique_ptr<LocalFileReference> file;
 		TTF_Font* font;
+		std::string name;
+		int size;
 		int count;
 	};
-	typedef std::map<std::pair<string, int>, FontInfo> Pool;
-	Pool pool;
+	std::vector<FontInfo> pool;
 };
 
 
@@ -105,35 +115,39 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	auto key = make_pair(filename, ptSize);
-	auto it = pool.find(key);
+	auto it = find_if(pool.begin(), pool.end(),
+		[&](const FontInfo& i) {
+			return (i.name == filename) && (i.size == ptSize); });
 	if (it != pool.end()) {
-		++(it->second.count);
-		return it->second.font;
+		++it->count;
+		return it->font;
 	}
 
 	SDLTTF::instance(); // init library
 	FontInfo info;
 	info.file = make_unique<LocalFileReference>(filename);
-	info.font = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
-	if (!info.font) {
+	auto* result = TTF_OpenFont(info.file->getFilename().c_str(), ptSize);
+	if (!result) {
 		throw MSXException(TTF_GetError());
 	}
+	info.font = result;
+	info.name = filename;
+	info.size = ptSize;
 	info.count = 1;
-	auto result = info.font;
-	pool.insert(std::make_pair(key, std::move(info)));
+	pool.push_back(std::move(info));
 	return result;
 }
 
 void TTFFontPool::release(TTF_Font* font)
 {
 	auto it = find_if(pool.begin(), pool.end(),
-		[&](Pool::value_type& v) { return v.second.font == font; });
+		[&](const FontInfo& i) { return i.font == font; });
 	assert(it != pool.end());
-	--(it->second.count);
-	if (it->second.count == 0) {
-		TTF_CloseFont(it->second.font);
-		pool.erase(it);
+	--it->count;
+	if (it->count == 0) {
+		TTF_CloseFont(it->font);
+		if (it != (pool.end() - 1)) std::swap(*it, *(pool.end() - 1));
+		pool.pop_back();
 	}
 }
 

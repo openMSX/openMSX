@@ -3,26 +3,13 @@
 #include "DirectXSoundDriver.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
-#include "sdlwin32.hh"
-#include <SDL.h>
+#include "win32-windowhandle.hh"
 #include <cstring>
 
 namespace openmsx {
 
 static const int BYTES_PER_SAMPLE = 2;
 static const int CHANNELS = 2;
-
-static HWND getWindowHandle()
-{
-	// This is SDL specific code, refactor when needed
-
-	// !! Initialize video system, DirectX needs a handle to the window
-	// !! and this only works when SDL video part is initialized
-	if (!SDL_WasInit(SDL_INIT_VIDEO)) SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-	return getSDLWindowHandle();
-}
-
 
 DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 {

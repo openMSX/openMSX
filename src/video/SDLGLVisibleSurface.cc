@@ -15,8 +15,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		RenderSettings& renderSettings,
 		EventDistributor& eventDistributor,
 		InputEventGenerator& inputEventGenerator,
+		CliComm& cliComm,
 		FrameBuffer frameBuffer)
-	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator)
+	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator,
+			cliComm)
 	, SDLGLOutputSurface(frameBuffer)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);

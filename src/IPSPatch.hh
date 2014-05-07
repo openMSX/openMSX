@@ -4,8 +4,8 @@
 #include "PatchInterface.hh"
 #include "Filename.hh"
 #include "noncopyable.hh"
+#include <utility>
 #include <vector>
-#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -13,7 +13,7 @@ namespace openmsx {
 class IPSPatch : public PatchInterface, private noncopyable
 {
 public:
-	typedef std::map<size_t, std::vector<byte>> PatchMap;
+	typedef std::vector<std::pair<size_t, std::vector<byte>>> PatchMap;
 
 	IPSPatch(const Filename& filename,
 	         std::unique_ptr<const PatchInterface> parent);

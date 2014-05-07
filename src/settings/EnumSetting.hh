@@ -92,6 +92,11 @@ T EnumSetting<T>::getEnum() const
 {
 	return static_cast<T>(fromStringBase(getValue().getString()));
 }
+template<> inline bool EnumSetting<bool>::getEnum() const
+{
+	// _exactly_ the same functionality as above, but suppress VS warning
+	return fromStringBase(getValue().getString()) != 0;
+}
 
 template<typename T>
 void EnumSetting<T>::setEnum(T value)

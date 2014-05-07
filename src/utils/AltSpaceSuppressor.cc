@@ -2,7 +2,6 @@
 
 #include "AltSpaceSuppressor.hh"
 #include "MSXException.hh"
-#include "sdlwin32.hh"
 #include "openmsx.hh"
 #include <cassert>
 

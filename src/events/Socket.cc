@@ -1,6 +1,6 @@
 #include "Socket.hh"
 #include "MSXException.hh"
-#include <map>
+#include "utf8_checked.hh"
 #include <cerrno>
 #include <cstring>
 
@@ -9,68 +9,15 @@ namespace openmsx {
 std::string sock_error()
 {
 #ifdef _WIN32
-	static std::map<int, std::string> errMap;
-	static std::string UnknownError = "Unknown error";
-	static bool alreadyInit = false;
-	if (!alreadyInit) {
-		alreadyInit = true;
-		errMap[0]                  = "No error";
-		errMap[WSAEINTR]           = "Interrupted system call";
-		errMap[WSAEBADF]           = "Bad file number";
-		errMap[WSAEACCES]          = "Permission denied";
-		errMap[WSAEFAULT]          = "Bad address";
-		errMap[WSAEINVAL]          = "Invalid argument";
-		errMap[WSAEMFILE]          = "Too many open sockets";
-		errMap[WSAEWOULDBLOCK]     = "Operation would block";
-		errMap[WSAEINPROGRESS]     = "Operation now in progress";
-		errMap[WSAEALREADY]        = "Operation already in progress";
-		errMap[WSAENOTSOCK]        = "Socket operation on non-socket";
-		errMap[WSAEDESTADDRREQ]    = "Destination address required";
-		errMap[WSAEMSGSIZE]        = "Message too long";
-		errMap[WSAEPROTOTYPE]      = "Protocol wrong type for socket";
-		errMap[WSAENOPROTOOPT]     = "Bad protocol option";
-		errMap[WSAEPROTONOSUPPORT] = "Protocol not supported";
-		errMap[WSAESOCKTNOSUPPORT] = "Socket type not supported";
-		errMap[WSAEOPNOTSUPP]      = "Operation not supported on socket";
-		errMap[WSAEPFNOSUPPORT]    = "Protocol family not supported";
-		errMap[WSAEAFNOSUPPORT]    = "Address family not supported";
-		errMap[WSAEADDRINUSE]      = "Address already in use";
-		errMap[WSAEADDRNOTAVAIL]   = "Can't assign requested address";
-		errMap[WSAENETDOWN]        = "Network is down";
-		errMap[WSAENETUNREACH]     = "Network is unreachable";
-		errMap[WSAENETRESET]       = "Net connection reset";
-		errMap[WSAECONNABORTED]    = "Software caused connection abort";
-		errMap[WSAECONNRESET]      = "Connection reset by peer";
-		errMap[WSAENOBUFS]         = "No buffer space available";
-		errMap[WSAEISCONN]         = "Socket is already connected";
-		errMap[WSAENOTCONN]        = "Socket is not connected";
-		errMap[WSAESHUTDOWN]       = "Can't send after socket shutdown";
-		errMap[WSAETOOMANYREFS]    = "Too many references, can't splice";
-		errMap[WSAETIMEDOUT]       = "Connection timed out";
-		errMap[WSAECONNREFUSED]    = "Connection refused";
-		errMap[WSAELOOP]           = "Too many levels of symbolic links";
-		errMap[WSAENAMETOOLONG]    = "File name too long";
-		errMap[WSAEHOSTDOWN]       = "Host is down";
-		errMap[WSAEHOSTUNREACH]    = "No route to host";
-		errMap[WSAENOTEMPTY]       = "Directory not empty";
-		errMap[WSAEPROCLIM]        = "Too many processes";
-		errMap[WSAEUSERS]          = "Too many users";
-		errMap[WSAEDQUOT]          = "Disc quota exceeded";
-		errMap[WSAESTALE]          = "Stale NFS file handle";
-		errMap[WSAEREMOTE]         = "Too many levels of remote in path";
-		errMap[WSASYSNOTREADY]     = "Network system is unavailable";
-		errMap[WSAVERNOTSUPPORTED] = "Winsock version out of range";
-		errMap[WSANOTINITIALISED]  = "WSAStartup not yet called";
-		errMap[WSAEDISCON]         = "Graceful shutdown in progress";
-		errMap[WSAHOST_NOT_FOUND]  = "Host not found";
-		errMap[WSANO_DATA]         = "No host data of that type was found";
-	}
-	auto it = errMap.find(WSAGetLastError());
-	if (it != errMap.end()) {
-		return it->second;
-	} else {
-		return UnknownError;
-	}
+	wchar_t* s = nullptr;
+	FormatMessageW(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER
+		| FORMAT_MESSAGE_FROM_SYSTEM
+		| FORMAT_MESSAGE_IGNORE_INSERTS,
+		nullptr, WSAGetLastError(), 0, (LPWSTR)&s, 0, nullptr);
+	std::string result = utf8::utf16to8(s);
+	LocalFree(s);
+	return result;
 #else
 	return strerror(errno);
 #endif

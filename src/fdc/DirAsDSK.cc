@@ -639,17 +639,17 @@ void DirAsDSK::setMSXTimeStamp(DirIndex dirIndex, FileOperations::Stat& fst)
 }
 
 // Used to add 'regular' files before 'derived' files. E.g. when editing a file
-// in a host editor, you often get a backup/swap fileis like this:
+// in a host editor, you often get backup/swap files like this:
 //   myfile.txt  myfile.txt~  .myfile.txt.swp
 // Currently the 1st and 2nd are mapped to the same MSX filename. If more
 // host files map to the same MSX file then (currently) one of the two is
 // ignored. Which one is ignored depends on the order in which they are added
 // to the virtual disk. This routine/heuristic tries to add 'regular' files
 // before derived files.
-static int weight(const string& hostName)
+static size_t weight(const string& hostName)
 {
 	// TODO this weight function can most likely be improved
-	int result = 0;
+	size_t result = 0;
 	string_ref file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	// too many '.' characters

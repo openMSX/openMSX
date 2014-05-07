@@ -377,7 +377,7 @@ string w32_midiInGetRDN(unsigned nmb)
 	return vfnt_midiin[nmb].devname;
 }
 
-unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
+unsigned w32_midiInOpen(const char *vfn, DWORD thrdid)
 {
 	unsigned idx, devid;
 	if (w32_midiInFindDev(&idx, &devid, vfn)) {
