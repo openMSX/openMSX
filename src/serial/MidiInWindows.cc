@@ -129,7 +129,7 @@ void MidiInWindows::procShortMsg(DWORD param)
 void MidiInWindows::run()
 {
 	assert(isPluggedIn());
-	thrdid = SDL_ThreadID();
+	thrdid = GetCurrentThreadId();
 
 	MSG msg;
 	bool fexit = false;
