@@ -15,7 +15,7 @@ HWND getSDLWindowHandle()
 {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if (!SDL_GetWMInfo(&info)) {
+	if (SDL_GetWMInfo(&info) != 1) {
 		throw MSXException(StringOp::Builder() <<
 			"SDL_GetWMInfo failed: " << SDL_GetError());
 	}
