@@ -13,6 +13,11 @@ namespace openmsx {
 
 HWND getSDLWindowHandle()
 {
+	// There is no window handle until the video subsystem has been initialized.
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
+
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if (SDL_GetWMInfo(&info) != 1) {

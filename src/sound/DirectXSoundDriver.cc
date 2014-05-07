@@ -4,7 +4,6 @@
 #include "MSXException.hh"
 #include "openmsx.hh"
 #include "sdlwin32.hh"
-#include <SDL.h>
 #include <cstring>
 
 namespace openmsx {
@@ -12,24 +11,12 @@ namespace openmsx {
 static const int BYTES_PER_SAMPLE = 2;
 static const int CHANNELS = 2;
 
-static HWND getWindowHandle()
-{
-	// This is SDL specific code, refactor when needed
-
-	// !! Initialize video system, DirectX needs a handle to the window
-	// !! and this only works when SDL video part is initialized
-	if (!SDL_WasInit(SDL_INIT_VIDEO)) SDL_InitSubSystem(SDL_INIT_VIDEO);
-
-	return getSDLWindowHandle();
-}
-
-
 DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 {
 	if (DirectSoundCreate(nullptr, &directSound, nullptr) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
-	HWND hwnd = getWindowHandle();
+	HWND hwnd = getSDLWindowHandle();
 	if (IDirectSound_SetCooperativeLevel(
 				directSound, hwnd, DSSCL_EXCLUSIVE) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
