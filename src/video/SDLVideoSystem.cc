@@ -20,7 +20,7 @@
 
 #ifdef _WIN32
 #include "AltSpaceSuppressor.hh"
-#include "sdlwin32.hh"
+#include "win32-windowhandle.hh"
 #endif
 #include "components.hh"
 #if COMPONENT_GL
@@ -54,7 +54,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor, CommandConsole& console)
 		OPENMSX_RESIZE_EVENT, *this);
 
 #ifdef _WIN32
-	HWND hWnd = getSDLWindowHandle();
+	HWND hWnd = getWindowHandle();
 	assert(hWnd);
 	AltSpaceSuppressor::Start(hWnd);
 #endif
@@ -64,7 +64,7 @@ SDLVideoSystem::~SDLVideoSystem()
 {
 #ifdef _WIN32
 	// This needs to be done while the SDL window handle is still valid
-	assert(getSDLWindowHandle());
+	assert(getWindowHandle());
 	AltSpaceSuppressor::Stop();
 #endif
 

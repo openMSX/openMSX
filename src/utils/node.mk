@@ -15,7 +15,8 @@ SRC_HDR:= \
 	TigerTree \
 	uint128 \
 	DivModBySame \
-	AltSpaceSuppressor sdlwin32 utf8_checked win32-dirent win32-arggen \
+	AltSpaceSuppressor win32-arggen win32-dirent win32-windowhandle \
+	utf8_checked \
 	snappy \
 	string_ref \
 	rapidsax \

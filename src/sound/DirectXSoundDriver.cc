@@ -3,7 +3,7 @@
 #include "DirectXSoundDriver.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
-#include "sdlwin32.hh"
+#include "win32-windowhandle.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -16,7 +16,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	if (DirectSoundCreate(nullptr, &directSound, nullptr) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
-	HWND hwnd = getSDLWindowHandle();
+	HWND hwnd = getWindowHandle();
 	if (IDirectSound_SetCooperativeLevel(
 				directSound, hwnd, DSSCL_EXCLUSIVE) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
