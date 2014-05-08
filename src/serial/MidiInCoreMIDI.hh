@@ -4,7 +4,6 @@
 #if defined(__APPLE__)
 
 #include "MidiInDevice.hh"
-#include "Thread.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
