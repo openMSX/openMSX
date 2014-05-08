@@ -69,8 +69,9 @@ private:
 			// unless there is a move operation that never throws,
 			// std::vector may require a copy constructor, and in
 			// fact that happens with LLVM's libc++.
-			noexcept;
+			noexcept
 #endif
+			;
 
 		ColorTexture tex;
 		PixelBuffer<unsigned> pbo;
