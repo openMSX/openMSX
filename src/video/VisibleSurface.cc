@@ -82,7 +82,13 @@ static void setMaemo5WMHints(bool fullscreen)
 VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm& cliComm)
+		CliComm&
+#ifndef _WIN32
+		cliComm
+#else
+		/*cliComm*/ // avoid unused parameter warning on _WIN32
+#endif
+		)
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
