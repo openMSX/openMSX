@@ -22,6 +22,9 @@ GLPostProcessor::TextureData::TextureData()
 }
 
 GLPostProcessor::TextureData::TextureData(TextureData&& rhs)
+#if !defined(_MSC_VER)
+	noexcept
+#endif
 	: tex(std::move(rhs.tex))
 	, pbo(std::move(rhs.pbo))
 {
