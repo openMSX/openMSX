@@ -1,6 +1,6 @@
-diff -ru tcl8.5.15.orig/generic/tcl.h tcl8.5.15/generic/tcl.h
---- tcl8.5.15.orig/generic/tcl.h	2013-08-30 17:58:39.000000000 +0200
-+++ tcl8.5.15/generic/tcl.h	2014-02-10 14:52:39.629756049 +0100
+diff -ru tcl8.5.15.org/generic/tcl.h tcl8.5.15/generic/tcl.h
+--- tcl8.5.15.org/generic/tcl.h	2013-08-30 17:58:39.000000000 +0200
++++ tcl8.5.15/generic/tcl.h	2014-05-08 17:57:29.373173568 +0200
 @@ -168,7 +168,7 @@
   *       MSVCRT.
   */
@@ -10,9 +10,9 @@ diff -ru tcl8.5.15.orig/generic/tcl.h tcl8.5.15/generic/tcl.h
  #   define HAVE_DECLSPEC 1
  #   ifdef STATIC_BUILD
  #       define DLLIMPORT
-diff -ru tcl8.5.15.orig/unix/configure tcl8.5.15/unix/configure
---- tcl8.5.15.orig/unix/configure	2013-09-13 18:07:56.000000000 +0200
-+++ tcl8.5.15/unix/configure	2014-02-10 14:53:16.030233421 +0100
+diff -ru tcl8.5.15.org/unix/configure tcl8.5.15/unix/configure
+--- tcl8.5.15.org/unix/configure	2013-09-13 18:07:56.000000000 +0200
++++ tcl8.5.15/unix/configure	2014-05-08 17:57:29.384173253 +0200
 @@ -14976,7 +14976,7 @@
  else
  
@@ -22,9 +22,9 @@ diff -ru tcl8.5.15.orig/unix/configure tcl8.5.15/unix/configure
  else
    cat >conftest.$ac_ext <<_ACEOF
  /* confdefs.h.  */
-diff -ru tcl8.5.15.orig/win/Makefile.in tcl8.5.15/win/Makefile.in
---- tcl8.5.15.orig/win/Makefile.in	2013-09-13 18:07:59.000000000 +0200
-+++ tcl8.5.15/win/Makefile.in	2014-02-10 14:53:40.054548449 +0100
+diff -ru tcl8.5.15.org/win/Makefile.in tcl8.5.15/win/Makefile.in
+--- tcl8.5.15.org/win/Makefile.in	2013-09-13 18:07:59.000000000 +0200
++++ tcl8.5.15/win/Makefile.in	2014-05-08 17:57:29.385173225 +0200
 @@ -606,7 +606,7 @@
  	    $(COPY) $(REG_LIB_FILE) $(LIB_INSTALL_DIR)/reg$(REGDOTVER); \
  	    fi
@@ -34,3 +34,329 @@ diff -ru tcl8.5.15.orig/win/Makefile.in tcl8.5.15/win/Makefile.in
  	@for i in $(prefix)/lib $(INCLUDE_INSTALL_DIR) \
  		$(SCRIPT_INSTALL_DIR); \
  	    do \
+diff -ru tcl8.5.15.org/win/tclWin32Dll.c tcl8.5.15/win/tclWin32Dll.c
+--- tcl8.5.15.org/win/tclWin32Dll.c	2013-08-30 17:58:40.000000000 +0200
++++ tcl8.5.15/win/tclWin32Dll.c	2014-05-08 17:39:34.159854591 +0200
+@@ -46,23 +46,6 @@
+ static HINSTANCE hInstance;	/* HINSTANCE of this DLL. */
+ static int platformId;		/* Running under NT, or 95/98? */
+ 
+-#ifdef HAVE_NO_SEH
+-/*
+- * Unlike Borland and Microsoft, we don't register exception handlers by
+- * pushing registration records onto the runtime stack. Instead, we register
+- * them by creating an EXCEPTION_REGISTRATION within the activation record.
+- */
+-
+-typedef struct EXCEPTION_REGISTRATION {
+-    struct EXCEPTION_REGISTRATION *link;
+-    EXCEPTION_DISPOSITION (*handler)(
+-	    struct _EXCEPTION_RECORD*, void*, struct _CONTEXT*, void*);
+-    void *ebp;
+-    void *esp;
+-    int status;
+-} EXCEPTION_REGISTRATION;
+-#endif
+-
+ /*
+  * VC++ 5.x has no 'cpuid' assembler instruction, so we must emulate it
+  */
+@@ -1086,7 +1069,7 @@
+ 
+ #   else
+ 
+-    EXCEPTION_REGISTRATION registration;
++    TCLEXCEPTION_REGISTRATION registration;
+ 
+     /*
+      * Execute the CPUID instruction with the given index, and store results
+@@ -1095,7 +1078,7 @@
+ 
+     __asm__ __volatile__(
+ 	/*
+-	 * Construct an EXCEPTION_REGISTRATION to protect the CPUID
++	 * Construct an TCLEXCEPTION_REGISTRATION to protect the CPUID
+ 	 * instruction (early 486's don't have CPUID)
+ 	 */
+ 
+@@ -1109,7 +1092,7 @@
+ 	"movl	%[error],	0x10(%%edx)"	"\n\t" /* status */
+ 
+ 	/*
+-	 * Link the EXCEPTION_REGISTRATION on the chain
++	 * Link the TCLEXCEPTION_REGISTRATION on the chain
+ 	 */
+ 
+ 	"movl	%%edx,		%%fs:0"		"\n\t"
+@@ -1128,7 +1111,7 @@
+ 	"movl	%%edx,		0xc(%%edi)"	"\n\t"
+ 
+ 	/*
+-	 * Come here on a normal exit. Recover the EXCEPTION_REGISTRATION and
++	 * Come here on a normal exit. Recover the TCLEXCEPTION_REGISTRATION and
+ 	 * store a TCL_OK status.
+ 	 */
+ 
+@@ -1138,7 +1121,7 @@
+ 	"jmp	2f"				"\n"
+ 
+ 	/*
+-	 * Come here on an exception. Get the EXCEPTION_REGISTRATION that we
++	 * Come here on an exception. Get the TCLEXCEPTION_REGISTRATION that we
+ 	 * previously put on the chain.
+ 	 */
+ 
+@@ -1148,7 +1131,7 @@
+ 
+ 	/*
+ 	 * Come here however we exited. Restore context from the
+-	 * EXCEPTION_REGISTRATION in case the stack is unbalanced.
++	 * TCLEXCEPTION_REGISTRATION in case the stack is unbalanced.
+ 	 */
+ 
+ 	"2:"					"\t"
+diff -ru tcl8.5.15.org/win/tclWinChan.c tcl8.5.15/win/tclWinChan.c
+--- tcl8.5.15.org/win/tclWinChan.c	2013-08-30 17:58:40.000000000 +0200
++++ tcl8.5.15/win/tclWinChan.c	2014-05-08 17:50:02.715941103 +0200
+@@ -119,23 +119,6 @@
+     FileThreadActionProc,	/* Thread action proc. */
+     FileTruncateProc,		/* Truncate proc. */
+ };
+-
+-#ifdef HAVE_NO_SEH
+-/*
+- * Unlike Borland and Microsoft, we don't register exception handlers by
+- * pushing registration records onto the runtime stack. Instead, we register
+- * them by creating an EXCEPTION_REGISTRATION within the activation record.
+- */
+-
+-typedef struct EXCEPTION_REGISTRATION {
+-    struct EXCEPTION_REGISTRATION* link;
+-    EXCEPTION_DISPOSITION (*handler)(
+-	    struct _EXCEPTION_RECORD*, void*, struct _CONTEXT*, void*);
+-    void* ebp;
+-    void* esp;
+-    int status;
+-} EXCEPTION_REGISTRATION;
+-#endif
+ 
+ /*
+  *----------------------------------------------------------------------
+@@ -1027,7 +1010,7 @@
+ 				 * TCL_WRITABLE to indicate file mode. */
+ {
+ #if defined(HAVE_NO_SEH) && !defined(_WIN64)
+-    EXCEPTION_REGISTRATION registration;
++    TCLEXCEPTION_REGISTRATION registration;
+ #endif
+     char channelName[16 + TCL_INTEGER_SPACE];
+     Tcl_Channel channel = NULL;
+@@ -1108,7 +1091,7 @@
+ 	    "movl       %[dupedHandle], %%ebx"          "\n\t"
+ 
+ 	    /*
+-	     * Construct an EXCEPTION_REGISTRATION to protect the call to
++	     * Construct an TCLEXCEPTION_REGISTRATION to protect the call to
+ 	     * CloseHandle.
+ 	     */
+ 
+@@ -1122,7 +1105,7 @@
+ 	    "movl       $0,             0x10(%%edx)"    "\n\t" /* status */
+ 
+ 	    /*
+-	     * Link the EXCEPTION_REGISTRATION on the chain.
++	     * Link the TCLEXCEPTION_REGISTRATION on the chain.
+ 	     */
+ 
+ 	    "movl       %%edx,          %%fs:0"         "\n\t"
+@@ -1135,7 +1118,7 @@
+ 	    "call       _CloseHandle@4"                 "\n\t"
+ 
+ 	    /*
+-	     * Come here on normal exit. Recover the EXCEPTION_REGISTRATION
++	     * Come here on normal exit. Recover the TCLEXCEPTION_REGISTRATION
+ 	     * and put a TRUE status return into it.
+ 	     */
+ 
+@@ -1145,7 +1128,7 @@
+ 	    "jmp        2f"                             "\n"
+ 
+ 	    /*
+-	     * Come here on an exception. Recover the EXCEPTION_REGISTRATION
++	     * Come here on an exception. Recover the TCLEXCEPTION_REGISTRATION
+ 	     */
+ 
+ 	    "1:"                                        "\t"
+@@ -1154,7 +1137,7 @@
+ 
+ 	    /*
+ 	     * Come here however we exited. Restore context from the
+-	     * EXCEPTION_REGISTRATION in case the stack is unbalanced.
++	     * TCLEXCEPTION_REGISTRATION in case the stack is unbalanced.
+ 	     */
+ 
+ 	    "2:"                                        "\t"
+diff -ru tcl8.5.15.org/win/tclWinFCmd.c tcl8.5.15/win/tclWinFCmd.c
+--- tcl8.5.15.org/win/tclWinFCmd.c	2013-08-30 17:58:40.000000000 +0200
++++ tcl8.5.15/win/tclWinFCmd.c	2014-05-08 17:53:40.526718744 +0200
+@@ -67,25 +67,6 @@
+ 	{GetWinFileShortName, CannotSetAttribute},
+ 	{GetWinFileAttributes, SetWinFileAttributes}};
+ 
+-#ifdef HAVE_NO_SEH
+-
+-/*
+- * Unlike Borland and Microsoft, we don't register exception handlers by
+- * pushing registration records onto the runtime stack. Instead, we register
+- * them by creating an EXCEPTION_REGISTRATION within the activation record.
+- */
+-
+-typedef struct EXCEPTION_REGISTRATION {
+-    struct EXCEPTION_REGISTRATION *link;
+-    EXCEPTION_DISPOSITION (*handler)(
+-	    struct _EXCEPTION_RECORD *, void *, struct _CONTEXT *, void *);
+-    void *ebp;
+-    void *esp;
+-    int status;
+-} EXCEPTION_REGISTRATION;
+-
+-#endif
+-
+ /*
+  * Prototype for the TraverseWinTree callback function.
+  */
+@@ -176,7 +157,7 @@
+ 				 * (native). */
+ {
+ #if defined(HAVE_NO_SEH) && !defined(_WIN64)
+-    EXCEPTION_REGISTRATION registration;
++    TCLEXCEPTION_REGISTRATION registration;
+ #endif
+     DWORD srcAttr, dstAttr;
+     int retval = -1;
+@@ -213,7 +194,7 @@
+ 	"movl	    %[nativeSrc],   %%ecx"	    "\n\t"
+ 
+ 	/*
+-	 * Construct an EXCEPTION_REGISTRATION to protect the call to
++	 * Construct an TCLEXCEPTION_REGISTRATION to protect the call to
+ 	 * MoveFile.
+ 	 */
+ 
+@@ -227,7 +208,7 @@
+ 	"movl	    $0,		    0x10(%%edx)"    "\n\t" /* status */
+ 
+ 	/*
+-	 * Link the EXCEPTION_REGISTRATION on the chain.
++	 * Link the TCLEXCEPTION_REGISTRATION on the chain.
+ 	 */
+ 
+ 	"movl	    %%edx,	    %%fs:0"	    "\n\t"
+@@ -242,7 +223,7 @@
+ 	"call	    *%%eax"			    "\n\t"
+ 
+ 	/*
+-	 * Come here on normal exit. Recover the EXCEPTION_REGISTRATION and
++	 * Come here on normal exit. Recover the TCLEXCEPTION_REGISTRATION and
+ 	 * put the status return from MoveFile into it.
+ 	 */
+ 
+@@ -251,7 +232,7 @@
+ 	"jmp	    2f"				    "\n"
+ 
+ 	/*
+-	 * Come here on an exception. Recover the EXCEPTION_REGISTRATION
++	 * Come here on an exception. Recover the TCLEXCEPTION_REGISTRATION
+ 	 */
+ 
+ 	"1:"					    "\t"
+@@ -260,7 +241,7 @@
+ 
+ 	/*
+ 	 * Come here however we exited. Restore context from the
+-	 * EXCEPTION_REGISTRATION in case the stack is unbalanced.
++	 * TCLEXCEPTION_REGISTRATION in case the stack is unbalanced.
+ 	 */
+ 
+ 	"2:"					    "\t"
+@@ -568,7 +549,7 @@
+     CONST TCHAR *nativeDst)	/* Pathname of file to copy to (native). */
+ {
+ #if defined(HAVE_NO_SEH) && !defined(_WIN64)
+-    EXCEPTION_REGISTRATION registration;
++    TCLEXCEPTION_REGISTRATION registration;
+ #endif
+     int retval = -1;
+ 
+@@ -605,7 +586,7 @@
+ 	"movl	    %[nativeSrc],   %%ecx"	    "\n\t"
+ 
+ 	/*
+-	 * Construct an EXCEPTION_REGISTRATION to protect the call to
++	 * Construct an TCLEXCEPTION_REGISTRATION to protect the call to
+ 	 * CopyFile.
+ 	 */
+ 
+@@ -619,7 +600,7 @@
+ 	"movl	    $0,		    0x10(%%edx)"    "\n\t" /* status */
+ 
+ 	/*
+-	 * Link the EXCEPTION_REGISTRATION on the chain.
++	 * Link the TCLEXCEPTION_REGISTRATION on the chain.
+ 	 */
+ 
+ 	"movl	    %%edx,	    %%fs:0"	    "\n\t"
+@@ -635,7 +616,7 @@
+ 	"call	    *%%eax"			    "\n\t"
+ 
+ 	/*
+-	 * Come here on normal exit. Recover the EXCEPTION_REGISTRATION and
++	 * Come here on normal exit. Recover the TCLEXCEPTION_REGISTRATION and
+ 	 * put the status return from CopyFile into it.
+ 	 */
+ 
+@@ -644,7 +625,7 @@
+ 	"jmp	    2f"				    "\n"
+ 
+ 	/*
+-	 * Come here on an exception. Recover the EXCEPTION_REGISTRATION
++	 * Come here on an exception. Recover the TCLEXCEPTION_REGISTRATION
+ 	 */
+ 
+ 	"1:"					    "\t"
+@@ -653,7 +634,7 @@
+ 
+ 	/*
+ 	 * Come here however we exited. Restore context from the
+-	 * EXCEPTION_REGISTRATION in case the stack is unbalanced.
++	 * TCLEXCEPTION_REGISTRATION in case the stack is unbalanced.
+ 	 */
+ 
+ 	"2:"					    "\t"
+diff -ru tcl8.5.15.org/win/tclWinInt.h tcl8.5.15/win/tclWinInt.h
+--- tcl8.5.15.org/win/tclWinInt.h	2013-08-30 17:58:40.000000000 +0200
++++ tcl8.5.15/win/tclWinInt.h	2014-05-08 17:52:31.051704267 +0200
+@@ -22,6 +22,23 @@
+ 
+ #define TCL_WIN_STACK_THRESHOLD 0x8000
+ 
++#ifdef HAVE_NO_SEH
++/*
++ * Unlike Borland and Microsoft, we don't register exception handlers by
++ * pushing registration records onto the runtime stack. Instead, we register
++ * them by creating an TCLEXCEPTION_REGISTRATION within the activation record.
++ */
++
++typedef struct TCLEXCEPTION_REGISTRATION {
++    struct TCLEXCEPTION_REGISTRATION *link;
++    EXCEPTION_DISPOSITION (*handler)(
++	    struct _EXCEPTION_RECORD*, void*, struct _CONTEXT*, void*);
++    void *ebp;
++    void *esp;
++    int status;
++} TCLEXCEPTION_REGISTRATION;
++#endif
++
+ /*
+  * Some versions of Borland C have a define for the OSVERSIONINFO for
+  * Win32s and for NT, but not for Windows 95.
