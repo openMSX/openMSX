@@ -88,7 +88,7 @@ def extract(archivePath, destDir, rename = None):
 			# one is older than the other.
 			# Note: Apparently Python 2.5's utime() cannot set timestamps on
 			#       directories in Windows.
-			if member.isfile() or hostOS != 'mingw32':
+			if member.isfile() or not hostOS.startswith('mingw'):
 				utime(absMemberPath, (member.mtime, member.mtime))
 	finally:
 		tar.close()

@@ -214,7 +214,7 @@ class GL(Library):
 	def getLinkFlags(cls, platform, linkStatic, distroRoot):
 		if platform == 'darwin':
 			return '-framework OpenGL'
-		elif platform == 'mingw32':
+		elif platform.startswith('mingw'):
 			return '-lopengl32'
 		elif platform in ('netbsd', 'openbsd'):
 			return '-L/usr/X11R6/lib -L/usr/X11R7/lib -lGL'
@@ -250,7 +250,7 @@ class GLEW(Library):
 
 	@classmethod
 	def getLibName(cls, platform):
-		if platform == 'mingw32':
+		if platform.startswith('mingw'):
 			return 'glew32'
 		else:
 			return 'GLEW'
@@ -260,7 +260,7 @@ class GLEW(Library):
 		flags = super(GLEW, cls).getCompileFlags(
 			platform, linkStatic, distroRoot
 			)
-		if platform == 'mingw32' and linkStatic:
+		if platform.startswith('mingw') and linkStatic:
 			return '%s -DGLEW_STATIC' % flags
 		else:
 			return flags
@@ -279,7 +279,7 @@ class LibAO(Library):
 	def getSystemDependentFlags(cls, platform):
 		if platform in ('linux', 'dingux'):
 			return ('-ldl', )
-		elif platform == 'mingw32':
+		elif platform.startswith('mingw'):
 			return ('-lwinmm', )
 		else:
 			return ()

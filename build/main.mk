@@ -289,7 +289,7 @@ DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
 OBJECTS_PATH:=$(BUILD_PATH)/obj
 OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 RESOURCE_SRC:=src/resource/openmsx.rc
 RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
 RESOURCE_SCRIPT:=build/win_resource.py
@@ -570,7 +570,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 $(DEPEND_FULL):
 
 # Windows resources that are added to the executable.
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 $(RESOURCE_HEADER): $(INIT_DUMMY_FILE) forceversionextraction
 	@$(PYTHON) $(RESOURCE_SCRIPT) $@
 $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
@@ -640,7 +640,7 @@ BINDIST_PACKAGE:=
 
 # Override install locations.
 INSTALL_ROOT:=$(BINDIST_DIR)/install
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 # In Windows the "share" dir is expected at the same level as the executable,
 # so do not put the executable in "bin".
 INSTALL_BINARY_DIR:=$(INSTALL_ROOT)

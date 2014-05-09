@@ -41,6 +41,7 @@ BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
 
 # Create a GNU-style system triple.
+TRIPLE_VENDOR:=unknown
 ifeq ($(OPENMSX_TARGET_CPU),x86)
 TRIPLE_MACHINE:=i686
 else
@@ -59,7 +60,11 @@ TRIPLE_OS:=linux
 else
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 endif
-TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
+ifeq ($(OPENMSX_TARGET_OS),mingw-w64)
+TRIPLE_OS:=mingw32
+TRIPLE_VENDOR:=w64
+endif
+TARGET_TRIPLE:=$(TRIPLE_MACHINE)-$(TRIPLE_VENDOR)-$(TRIPLE_OS)
 
 # If we're using a compiler with a <triple>-cc naming scheme, assume the
 # entire toolchain does.
@@ -91,7 +96,7 @@ endif
 
 PACKAGES_BUILD:=$(shell $(PYTHON) build/3rdparty_libraries.py $(OPENMSX_TARGET_OS) $(LINK_MODE))
 PACKAGES_NOBUILD:=
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
+ifneq ($(filter mingw%,$(OPENMSX_TARGET_OS)),)
 PACKAGES_NOBUILD+=DIRECTX
 endif
 PACKAGES_3RD:=$(PACKAGES_BUILD) $(PACKAGES_NOBUILD)
@@ -257,7 +262,7 @@ endif
 # Configure Tcl.
 # Note: Tcl seems to build either dynamic libs or static libs, which is why we
 #       have to pass --disable-shared to configure.
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
+ifeq ($(TRIPLE_OS),mingw32)
 TCL_OS:=win
 else
 # Note: Use "unix" on Mac OS X as well. There is a "configure" script in

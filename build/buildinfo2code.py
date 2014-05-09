@@ -9,7 +9,9 @@ def iterBuildInfoHeader(targetPlatform, cpuName, flavour, installShareDir):
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-                'COMPILE_ENV', 'LINK_ENV', 'ANDROID_LDFLAGS', 'ANDROID_CXXFLAGS'),
+				'COMPILE_ENV', 'LINK_ENV',
+				'ANDROID_LDFLAGS', 'ANDROID_CXXFLAGS',
+				'OPENMSX_TARGET_CPU'),
 			''
 			)
 		)
