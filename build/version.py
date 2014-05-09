@@ -12,7 +12,14 @@ import re
 packageName = 'openmsx'
 
 # Version number.
-packageVersionNumber = '0.10.1'
+packageVersionNumber = '0.10.2'
+
+# Version code for Android must be an incremental number
+# Increase this number for each release build. For a dev build, the
+# version number is based on the git commit count but for a release
+# build, it must be hardcoded
+androidReleaseVersionCode=3
+
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
 packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
@@ -42,6 +49,8 @@ def extractGitRevision(log):
 
 def extractNumberFromGitRevision(revisionStr):
 	if revisionStr is None:
+		return None
+	if revisionStr == 'dirty':
 		return None
 	return re.match(r'(\d+)+', revisionStr).group(0)
 
@@ -80,3 +89,22 @@ def getVersionedPackageName():
 		return '%s-%s-%s' % (
 			packageName, packageVersion, extractRevisionString()
 			)
+
+def countGitCommits():
+	if not isdir('derived'):
+		makedirs('derived')
+	log = open('derived/commitCountVersion.log', 'w')
+	print >> log, 'Extracting commit count...'
+	try:
+		commitCount = captureStdout(log, 'git rev-list HEAD --count')
+		print >> log, 'Commit count: %s' % commitCount
+	finally:
+		log.close()
+	return commitCount
+
+def getAndroidVersionCode():
+	if releaseFlag:
+		return '%s' % (androidReleaseVersionCode)
+	else:
+		return '%s' % ( countGitCommits() )
+
