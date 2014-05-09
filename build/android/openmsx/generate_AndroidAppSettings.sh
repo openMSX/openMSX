@@ -20,7 +20,8 @@ cd "${my_home_dir}"
 # appropriate action like retaining or migrating the user settings
 # The easiest way to get an increasing number for new builds in git is by
 # counting the number of commit messages.
-VERSION_CODE=$(git log --oneline | wc -l)
+#VERSION_CODE=$(git log --oneline | wc -l)
+VERSION_CODE=$(python -c "import version; print version.getAndroidVersionCode()")
 
 # The (Android) version name can be any arbitrary string that is hopefully
 # meaningfull to the user. Best is to use the version package name
