@@ -232,6 +232,12 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 # GLEW does not have a configure script to pass CFLAGS to.
 MAKEVAR_OVERRIDE_GLEW:=CC="$(_CC) $(_CFLAGS)" LD="$(_CC) $(_LDFLAGS)"
+# Tell GLEW to cross compile.
+ifeq ($(TRIPLE_OS),mingw32)
+MAKEVAR_OVERRIDE_GLEW+=SYSTEM=mingw
+else
+MAKEVAR_OVERRIDE_GLEW+=SYSTEM=$(TRIPLE_OS)
+endif
 
 # Configure Tcl.
 # Note: Tcl seems to build either dynamic libs or static libs, which is why we
