@@ -26,10 +26,9 @@ TimedEvent::TimedEvent(EventType type)
 
 #if PLATFORM_ANDROID
 // The unicode support in the SDL Android port is currently broken.
-// It always sets the unicode value equal to the keycode value, even for non-character
-// keys like the function keys. Furthermore, it has the unicode value set on both
-// press and release, while SDL on other platforms only sets unicode value on press.
-// As a workaround, set unicode to 0 for non-character keys and on release for any key,
+// It always sets the unicode value to 0 while on other platforms,
+// unicode is set to non-zero for character keys on keypress.
+// As a workaround, set unicode to keycode for character keys on keypress
 // until SDL Android port has been fixed.
 // Furthermore, try to set unicode value to correct character, taking into consideration
 // the modifier keys. The assumption is that Android has a qwerty keyboard, which is
@@ -39,8 +38,12 @@ TimedEvent::TimedEvent(EventType type)
 // I don't know what the SDL layer does with the key events received from such Azerty
 // keyboard. Probably it won't work well with this work-around code. Must eventually fix
 // the unicode support in the SDL Android port, together with the main developer of the port.
+// Note that in an older version od SDL Android port, the unicode was always set to the
+// keycode (for all key presses and releases so even for non character keys)
+// Simulate this old broken behaviour and then "fix" the unicode
 static uint16_t fixUnicode(Keys::KeyCode keyCode, uint16_t brokenUnicode)
 {
+	brokenUnicode = keyCode;
 	Keys::KeyCode maskedKeyCode = (Keys::KeyCode)(int(brokenUnicode) & int(Keys::K_MASK));
 	if (brokenUnicode & Keys::KD_RELEASE) {
 		return 0;
