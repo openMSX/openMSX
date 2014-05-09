@@ -61,6 +61,19 @@ TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 endif
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 
+# If we're using a compiler with a <triple>-cc naming scheme, assume the
+# entire toolchain does.
+ifneq ($(filter $(TARGET_TRIPLE)%,$(CC)),)
+export AR=$(TARGET_TRIPLE)-ar
+export RANLIB=$(TARGET_TRIPLE)-ranlib
+export STRIP=$(TARGET_TRIPLE)-strip
+ifeq ($(TRIPLE_OS),mingw32)
+# SDL calls it WINDRES, Tcl calls it RC; define both.
+export RC:=$(TARGET_TRIPLE)-windres
+export WINDRES:=$(RC)
+endif
+endif
+
 # Work around some autoconf versions returning "universal" for endianess when
 # compiling with "-arch" in the CFLAGS, even in a single arch compile.
 BIGENDIAN:=$(shell PYTHONPATH=build/ $(PYTHON) -c 'from cpu import getCPU ; print "yes" if getCPU("$(OPENMSX_TARGET_CPU)").bigEndian else "no"')
