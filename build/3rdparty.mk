@@ -125,7 +125,9 @@ clean:
 
 # Install.
 $(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
-	$(MAKE) -C $(BUILD_DIR)/$* install $(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
+	$(MAKE) -C $(BUILD_DIR)/$* install \
+		$(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*)) \
+		$(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
 
