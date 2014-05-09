@@ -16,7 +16,7 @@ def installAll(
 		'build/platform-%s.mk' % targetPlatform,
 		dict.fromkeys(
 			('COMPILE_FLAGS', 'LINK_FLAGS', 'TARGET_FLAGS',
-			 'COMPILE_ENV', 'LINK_ENV'),
+			 'COMPILE_ENV', 'LINK_ENV', 'OPENMSX_TARGET_CPU'),
 			''
 			)
 		)
