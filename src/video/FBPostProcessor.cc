@@ -91,7 +91,7 @@ static inline void drawNoiseLineSse2(uint32_t* buf_, signed char* noise, long wi
 	// iteration.
 	long x = width * sizeof(uint32_t);
 	assert((x & 63) == 0);
-	assert((long(buf_) & 15) == 0);
+	assert((uintptr_t(buf_) & 15) == 0);
 
 	char* buf = reinterpret_cast<char*>(buf_)  + x;
 	char* nse = reinterpret_cast<char*>(noise) + x;

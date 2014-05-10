@@ -69,7 +69,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	assert(emuClock.getFastAdd(1) > time);
 
 	int* buffer = &bufferInt[4 - 2 * CHANNELS];
-	assert((long(&buffer[2 * CHANNELS]) & 15) == 0);
+	assert((uintptr_t(&buffer[2 * CHANNELS]) & 15) == 0);
 
 	if (!input.generateInput(&buffer[2 * CHANNELS], emuNum)) {
 		// New input is all zero

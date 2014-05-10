@@ -148,11 +148,11 @@ template<bool DOUBLE_X, typename Pixel> static inline void scaleSSE(
 	unsigned long width)
 {
 	// Must be properly aligned.
-	assert((reinterpret_cast<long>(in0_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(in1_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(in2_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(out0_) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(out1_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in0_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in1_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in2_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(out0_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(out1_) % sizeof(__m128i)) == 0);
 
 	// Must be a (strict positive) multiple of 16 bytes.
 	width *= sizeof(Pixel); // width in bytes

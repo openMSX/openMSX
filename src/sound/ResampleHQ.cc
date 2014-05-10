@@ -193,7 +193,7 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 static inline void calcSseMono(const float* buf_, const float* tab_, long len, int* out)
 {
 	assert((len % 4) == 0);
-	assert((long(tab_) % 16) == 0);
+	assert((uintptr_t(tab_) % 16) == 0);
 
 	long x = (len & ~7) * sizeof(float);
 	assert((x % 32) == 0);
@@ -222,7 +222,7 @@ static inline void calcSseMono(const float* buf_, const float* tab_, long len, i
 	}
 
 	__m128 a = _mm_add_ps(a0, a1);
-	// The follwoing can _slighly_ faster by using the SSE3 _mm_hadd_ps()
+	// The following can be _slighly_ faster by using the SSE3 _mm_hadd_ps()
 	// intrinsic, but not worth the trouble.
 	__m128 t = _mm_add_ps(a, _mm_movehl_ps(a, a));
 	__m128 s = _mm_add_ss(t, _mm_shuffle_ps(t, t, 1));
@@ -237,7 +237,7 @@ template<int N> static inline __m128 shuffle(__m128 x)
 static inline void calcSseStereo(const float* buf_, const float* tab_, long len, int* out)
 {
 	assert((len % 4) == 0);
-	assert((long(tab_) % 16) == 0);
+	assert((uintptr_t(tab_) % 16) == 0);
 
 	long x = (len & ~7) * sizeof(float);
 	const char* buf = reinterpret_cast<const char*>(buf_) + 2*x;

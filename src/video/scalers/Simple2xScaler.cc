@@ -79,8 +79,8 @@ void blur1on2_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
-	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	long x = -long(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) -     x;
@@ -246,8 +246,8 @@ void blur1on1_SSE2(const uint32_t* __restrict in_, uint32_t* __restrict out_,
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= (2 * sizeof(__m128i)));
-	assert((reinterpret_cast<long>(in_ ) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in_ ) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 
 	long x = -long(width - sizeof(__m128i));
 	auto* in  = reinterpret_cast<const char*>(in_ ) - x;

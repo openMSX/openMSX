@@ -13,7 +13,7 @@ bool ResampleTrivial::generateOutput(int* dataOut, unsigned num,
                                      EmuTime::param /*time*/)
 {
 #ifdef __SSE2__
-	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
+	assert((uintptr_t(dataOut) & 15) == 0); // must be 16-byte aligned
 #endif
 	return input.generateInput(dataOut, num);
 }

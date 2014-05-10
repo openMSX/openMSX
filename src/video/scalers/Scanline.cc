@@ -107,9 +107,9 @@ static inline void drawSSE2(
 {
 	width *= sizeof(uint32_t); // in bytes
 	assert(width >= 64);
-	assert((reinterpret_cast<long>(in1_) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(in2_) % sizeof(__m128i)) == 0);
-	assert((reinterpret_cast<long>(out_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in1_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(in2_) % sizeof(__m128i)) == 0);
+	assert((reinterpret_cast<uintptr_t>(out_) % sizeof(__m128i)) == 0);
 	auto* in1 = reinterpret_cast<const char*>(in1_) + width;
 	auto* in2 = reinterpret_cast<const char*>(in2_) + width;
 	auto* out = reinterpret_cast<      char*>(out_) + width;
