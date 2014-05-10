@@ -64,7 +64,7 @@ private:
 	const std::unique_ptr<IntegerSetting> masterVolume;
 	const std::unique_ptr<IntegerSetting> frequencySetting;
 	const std::unique_ptr<IntegerSetting> samplesSetting;
-	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX, SND_LIBAO };
+	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::unique_ptr<EnumSetting<SoundDriverType>> soundDriverSetting;
 
 	int muteCount;

@@ -295,23 +295,6 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 
-# Configure libao.
-$(BUILD_DIR)/$(PACKAGE_AO)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_AO)
-	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
-		--enable-static \
-		--disable-shared \
-		--disable-arts \
-		--disable-esd \
-		--enable-alsa-mmap \
-		--disable-broken-oss \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)" \
-		PKG_CONFIG=/nowhere
-
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \

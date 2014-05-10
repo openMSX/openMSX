@@ -1,5 +1,5 @@
 from components import (
-	AODriver, EmulationCore, GLRenderer, Laserdisc, iterComponents
+	EmulationCore, GLRenderer, Laserdisc, iterComponents
 	)
 
 class Configuration(object):
@@ -40,7 +40,6 @@ def getConfiguration(name):
 		linkStatic = True
 	elif name == '3RD_STA_MIN':
 		requiredComponents = set((EmulationCore, ))
-		optionalComponents = set((AODriver, ))
 		linkStatic = True
 	else:
 		raise ValueError('No configuration named "%s"' % name)

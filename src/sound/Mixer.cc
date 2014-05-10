@@ -3,7 +3,6 @@
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
 #include "DirectXSoundDriver.hh"
-#include "LibAOSoundDriver.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "IntegerSetting.hh"
@@ -51,9 +50,6 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	soundDriverMap.emplace_back("directx", SND_DIRECTX);
 	defaultSoundDriver = SND_DIRECTX;
 #endif
-#if COMPONENT_AO
-	soundDriverMap.emplace_back("libao", SND_LIBAO);
-#endif
 	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
 		commandController, "sound_driver",
 		"select the sound output driver",
@@ -99,13 +95,6 @@ void Mixer::reloadDriver()
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver = make_unique<DirectXSoundDriver>(
-				frequencySetting->getInt(),
-				samplesSetting->getInt());
-			break;
-#endif
-#if COMPONENT_AO
-		case SND_LIBAO:
-			driver = make_unique<LibAOSoundDriver>(
 				frequencySetting->getInt(),
 				samplesSetting->getInt());
 			break;

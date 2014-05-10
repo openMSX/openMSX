@@ -28,16 +28,10 @@ class Laserdisc(Component):
 	makeName = 'LASERDISC'
 	dependsOn = ('OGG', 'VORBIS', 'THEORA')
 
-class AODriver(Component):
-	niceName = 'Libao sound driver'
-	makeName = 'AO'
-	dependsOn = ('AO', )
-
 def iterComponents():
 	yield EmulationCore
 	yield GLRenderer
 	yield Laserdisc
-	yield AODriver
 
 def requiredLibrariesFor(components):
 	'''Compute the library packages required to build the given components.

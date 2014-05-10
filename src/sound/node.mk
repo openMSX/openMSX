@@ -35,9 +35,6 @@ HDR_ONLY:= \
 	YM2413OkazakiConfig \
 	DummyAY8910Periphery
 
-SRC_HDR_$(COMPONENT_AO)+= \
-	LibAOSoundDriver
-
 DIST:= \
 	ResampleCoeffs.ii \
 	BlipTable.ii \

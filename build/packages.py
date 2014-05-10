@@ -97,21 +97,6 @@ class GLEW(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s-%s.tgz' % (cls.sourceName, cls.version)
 
-class LibAO(DownloadablePackage):
-	downloadURL = 'http://downloads.xiph.org/releases/ao'
-	niceName = 'libao'
-	sourceName = 'libao'
-	version = '1.1.0'
-	fileLength = 397102
-	checksums = {
-		'sha256':
-			'29de5bb9b1726ba890455ef7e562d877df87811febb0d99ee69164b88c171bd4',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'AO'
-
 class LibPNG(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/libpng'
 	niceName = 'libpng'

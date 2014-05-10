@@ -265,25 +265,6 @@ class GLEW(Library):
 		else:
 			return flags
 
-class LibAO(Library):
-	libName = 'ao'
-	makeName = 'AO'
-	header = '<ao/ao.h>'
-	function = 'ao_open_live'
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('android', 'dingux')
-
-	@classmethod
-	def getSystemDependentFlags(cls, platform):
-		if platform in ('linux', 'dingux'):
-			return ('-ldl', )
-		elif platform.startswith('mingw'):
-			return ('-lwinmm', )
-		else:
-			return ()
-
 class LibPNG(Library):
 	libName = 'png12'
 	makeName = 'PNG'
