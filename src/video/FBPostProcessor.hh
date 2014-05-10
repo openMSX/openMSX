@@ -28,8 +28,7 @@ public:
 	virtual void paint(OutputSurface& output);
 
 	virtual std::unique_ptr<RawFrame> rotateFrames(
-		std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
-		EmuTime::param time);
+		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
 
 private:
 	void preCalcNoise(float factor);

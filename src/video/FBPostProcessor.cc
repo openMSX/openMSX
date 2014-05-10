@@ -334,14 +334,13 @@ void FBPostProcessor<Pixel>::paint(OutputSurface& output)
 
 template <class Pixel>
 std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
-	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
-	EmuTime::param time)
+	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {
 	for (auto y : xrange(screen.getHeight())) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;
 	}
 
-	return PostProcessor::rotateFrames(std::move(finishedFrame), field, time);
+	return PostProcessor::rotateFrames(std::move(finishedFrame), time);
 }
 
 

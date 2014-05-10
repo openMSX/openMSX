@@ -33,8 +33,7 @@ PostProcessor* LDSDLRasterizer<Pixel>::getPostProcessor() const
 template <class Pixel>
 void LDSDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 {
-	workFrame = postProcessor->rotateFrames(std::move(workFrame),
-		FrameSource::FIELD_NONINTERLACED, time);
+	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
 }
 
 template<class Pixel>

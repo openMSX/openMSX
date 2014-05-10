@@ -40,16 +40,13 @@ public:
 	  *       out is to be able to split off the scaler application as a
 	  *       separate class.
 	  * @param finishedFrame Frame that has just become available.
-	  * @param field Specifies what role (if any) the new frame plays in
-	  *   interlacing.
 	  * @param time The moment in time the frame becomes available. Used to
 	  *             calculate the framerate for recording (depends on
 	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
 	virtual std::unique_ptr<RawFrame> rotateFrames(
-		std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
-		EmuTime::param time);
+		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
 
 	/** Set the Video frame on which to superimpose the 'normal' output of
 	  * this PostProcessor. Superimpose is done (preferably) after the

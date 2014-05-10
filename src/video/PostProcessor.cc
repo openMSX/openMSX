@@ -92,8 +92,7 @@ unsigned PostProcessor::getLineWidth(
 }
 
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
-	std::unique_ptr<RawFrame> finishedFrame, FrameSource::FieldType field,
-	EmuTime::param time)
+	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {
 	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
 		auto delta = time - lastRotate; // time between last two calls
@@ -199,7 +198,6 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 			recycleFrame = make_unique<RawFrame>(
 				screen.getSDLFormat(), maxWidth, height);
 		}
-		recycleFrame->init(field);
 		return recycleFrame;
 	} else {
 		return std::move(lastFrames[0]);

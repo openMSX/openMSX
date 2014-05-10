@@ -103,12 +103,11 @@ void V9990SDLRasterizer<Pixel>::frameStart()
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::frameEnd(EmuTime::param time)
 {
-	workFrame = postProcessor->rotateFrames(
-	    std::move(workFrame),
+	workFrame = postProcessor->rotateFrames(std::move(workFrame), time);
+	workFrame->init(
 	    vdp.isInterlaced() ? (vdp.getEvenOdd() ? RawFrame::FIELD_EVEN
 	                                           : RawFrame::FIELD_ODD)
-	                       : RawFrame::FIELD_NONINTERLACED,
-	    time);
+	                       : RawFrame::FIELD_NONINTERLACED);
 }
 
 template <class Pixel>
