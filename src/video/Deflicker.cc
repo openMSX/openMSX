@@ -72,6 +72,7 @@ DeflickerImpl<Pixel>::DeflickerImpl(const SDL_PixelFormat& format,
 {
 }
 
+#ifdef __SSE2__
 template<typename Pixel>
 static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 {
@@ -88,6 +89,7 @@ static inline __m128i blend(__m128i x, __m128i y, Pixel mask)
 		return _mm_add_epi16(a, d);
 	}
 }
+#endif
 
 template<typename Pixel>
 const void* DeflickerImpl<Pixel>::getLineInfo(
