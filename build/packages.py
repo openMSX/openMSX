@@ -157,21 +157,6 @@ class SDL_ttf(DownloadablePackage):
 			'724cd895ecf4da319a3ef164892b72078bd92632a5d812111261cde248ebcdb7',
 		}
 
-class SQLite(DownloadablePackage):
-	downloadURL = 'http://www.sqlite.org/'
-	niceName = 'SQLite'
-	sourceName = 'sqlite'
-	version = '3.6.16'
-	fileLength = 1353155
-	checksums = {
-		'sha256':
-			'f576c1be29726c03c079ac466095776b2c5b1ac8f996af1422b251855a0619a9',
-		}
-
-	@classmethod
-	def getTarballName(cls):
-		return 'sqlite-amalgamation-%s.tar.gz' % cls.version
-
 class TCL_ANDROID(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/tcl'
 	niceName = 'Tcl'
