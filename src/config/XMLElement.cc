@@ -4,8 +4,8 @@
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "unreachable.hh"
 #include "xrange.hh"
-#include <libxml/uri.h>
 #include <cassert>
 #include <algorithm>
 
@@ -327,13 +327,39 @@ void XMLElement::dump(StringOp::Builder& result, unsigned indentNum) const
 	}
 }
 
-string XMLElement::XMLEscape(const string& str)
+// This routine does the following substitutions:
+//  & -> &amp;   must always be done
+//  < -> &lt;    must always be done
+//  > -> &gt;    always allowed, but must be done when it appears as ]]>
+//  ' -> &apos;  always allowed, but must be done inside quoted attribute
+//  " -> &quot;  always allowed, but must be done inside quoted attribute
+// So to simplify things we always do these 5 substitutions.
+string XMLElement::XMLEscape(const string& s)
 {
-	xmlChar* buffer = xmlEncodeEntitiesReentrant(
-		nullptr, reinterpret_cast<const xmlChar*>(str.c_str()));
-	string result = reinterpret_cast<const char*>(buffer);
-	xmlFree(buffer);
-	return result;
+	static const char* const CHARS = "<>&\"'";
+	size_t i = s.find_first_of(CHARS);
+	if (i == string::npos) return s; // common case, no substitutions
+
+	string result;
+	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
+	size_t pos = 0;
+	while (true) {
+		result += s.substr(pos, i - pos);
+		switch (s[i]) {
+		case '<' : result += "&lt;";   break;
+		case '>' : result += "&gt;";   break;
+		case '&' : result += "&amp;";  break;
+		case '"' : result += "&quot;"; break;
+		case '\'': result += "&apos;"; break;
+		default: UNREACHABLE;
+		}
+		pos = i + 1;
+		i = s.find_first_of(CHARS, pos);
+		if (i == string::npos) {
+			result += s.substr(pos);
+			return result;
+		}
+	}
 }
 
 static unique_ptr<FileContext> lastSerializedFileContext;
