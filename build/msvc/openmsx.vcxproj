@@ -615,6 +615,7 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\BitmapConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\CharacterConverter.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\video\Deflicker.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\Display.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\DoubledFrame.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\video\DummyRenderer.cc" />
@@ -1176,6 +1177,7 @@
     <None Include="$(OpenMSXSrcDir)\video\BitmapConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\CharacterConverter.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.hh" />
+    <None Include="$(OpenMSXSrcDir)\video\Deflicker.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DirtyChecker.hh" />
     <None Include="$(OpenMSXSrcDir)\video\Display.hh" />
     <None Include="$(OpenMSXSrcDir)\video\DisplayMode.hh" />

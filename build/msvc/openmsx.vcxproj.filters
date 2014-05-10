@@ -969,6 +969,9 @@
     <ClCompile Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.cc">
       <Filter>video</Filter>
     </ClCompile>
+    <ClCompile Include="$(OpenMSXSrcDir)\video\Deflicker.cc">
+      <Filter>video</Filter>
+    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\video\Display.cc">
       <Filter>video</Filter>
     </ClCompile>
@@ -2402,6 +2405,9 @@
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\DeinterlacedFrame.hh">
+      <Filter>video</Filter>
+    </None>
+    <None Include="$(OpenMSXSrcDir)\video\Deflicker.hh">
       <Filter>video</Filter>
     </None>
     <None Include="$(OpenMSXSrcDir)\video\DirtyChecker.hh">
