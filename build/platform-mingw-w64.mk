@@ -4,6 +4,10 @@
 
 include build/platform-mingw32.mk
 
+# File name extension of executables.... AGAIN.
+# Workaround because the makevar parsing doesn't do includes
+EXEEXT:=.exe
+
 ifeq ($(OPENMSX_TARGET_CPU),x86)
 MINGW_CPU:=i686
 else
