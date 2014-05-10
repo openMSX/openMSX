@@ -141,6 +141,9 @@ protected:
 	const FrameSource* superImposeVdpFrame;
 
 	int interleaveCount; // for interleave-black-frame
+	int lastFramesCount; // How many items in lastFrames[] are up-to-date
+	int maxWidth; // we lazily create RawFrame objects in lastFrames[]
+	int height;   // these two vars remember how big those should be
 
 private:
 	void getScaledFrame(unsigned height, const void** lines,
