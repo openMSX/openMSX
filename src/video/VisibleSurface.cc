@@ -82,19 +82,15 @@ static void setMaemo5WMHints(bool fullscreen)
 VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
-		CliComm&
-#ifndef _WIN32
-		cliComm
-#else
-		/*cliComm*/ // avoid unused parameter warning on _WIN32
-#endif
-		)
+		CliComm& cliComm)
 	: renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
 	, alarm(make_unique<AlarmEvent>(
 		eventDistributor, *this, OPENMSX_POINTER_TIMER_EVENT))
 {
+	(void)cliComm; // avoid unused parameter warning on _WIN32
+
 	if (!SDL_WasInit(SDL_INIT_VIDEO) &&
 	    SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
 		throw InitException(StringOp::Builder() <<
