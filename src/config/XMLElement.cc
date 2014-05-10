@@ -343,7 +343,7 @@ string XMLElement::XMLEscape(const string& s)
 	string result;
 	result.reserve(s.size() + 10); // extra space for at least 2 substitutions
 	size_t pos = 0;
-	while (true) {
+	do {
 		result += s.substr(pos, i - pos);
 		switch (s[i]) {
 		case '<' : result += "&lt;";   break;
@@ -355,11 +355,9 @@ string XMLElement::XMLEscape(const string& s)
 		}
 		pos = i + 1;
 		i = s.find_first_of(CHARS, pos);
-		if (i == string::npos) {
-			result += s.substr(pos);
-			return result;
-		}
-	}
+	} while (i == string::npos);
+	result += s.substr(pos);
+	return result;
 }
 
 static unique_ptr<FileContext> lastSerializedFileContext;
