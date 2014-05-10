@@ -355,7 +355,7 @@ string XMLElement::XMLEscape(const string& s)
 		}
 		pos = i + 1;
 		i = s.find_first_of(CHARS, pos);
-	} while (i == string::npos);
+	} while (i != string::npos);
 	result += s.substr(pos);
 	return result;
 }
