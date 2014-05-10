@@ -60,17 +60,6 @@ class DirectX(DownloadablePackage):
 	def getTarballName(cls):
 		return '%s%s_mgw.tar.gz' % (cls.sourceName, cls.version)
 
-class Expat(DownloadablePackage):
-	downloadURL = 'http://downloads.sourceforge.net/expat'
-	niceName = 'Expat'
-	sourceName = 'expat'
-	version = '2.0.1'
-	fileLength = 446456
-	checksums = {
-		'sha256':
-			'847660b4df86e707c9150e33cd8c25bc5cd828f708c7418e765e3e983a2e5e93',
-		}
-
 class FreeType(DownloadablePackage):
 	downloadURL = 'http://downloads.sourceforge.net/freetype'
 	niceName = 'FreeType'
