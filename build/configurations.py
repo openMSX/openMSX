@@ -40,6 +40,7 @@ def getConfiguration(name):
 		linkStatic = True
 	elif name == '3RD_STA_MIN':
 		requiredComponents = set((EmulationCore, ))
+		optionalComponents = set()
 		linkStatic = True
 	else:
 		raise ValueError('No configuration named "%s"' % name)
