@@ -17,7 +17,7 @@
           <memorybasedio>true</memorybasedio>
           <rom>
             <sha1>373aa82d0426830880a7344ef98f7309d93814c7</sha1>
-            <filename>roms/hbi-232.rom</filename>
+            <filename>hbi-232.rom</filename>
           </rom>
           <io base="0x80" num="8"/>
           <mem base="0x0000" size="0x10000"/>

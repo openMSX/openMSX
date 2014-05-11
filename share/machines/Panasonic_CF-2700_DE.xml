@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/cf-2700_basic-bios1_german.rom</filename>
+          <filename>cf-2700_basic-bios1_german.rom</filename>
           <sha1>69bf27b610e11437dad1f7a1c37a63179a293d12</sha1> <!-- Verified on n_n's machine -->
         </rom>
         <mem base="0x0000" size="0x8000"/>

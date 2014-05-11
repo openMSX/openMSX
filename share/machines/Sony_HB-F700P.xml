@@ -64,7 +64,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/hb-f700p_basic-bios2.rom</filename>
+            <filename>hb-f700p_basic-bios2.rom</filename>
             <sha1>0de3c802057560560a03d7965fcc4cff69f8575c</sha1> <!-- Verified on Meits' machine -->
           </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -82,7 +82,7 @@
         <secondary slot="0">
           <ROM id="MSX Sub ROM">
           <rom>
-             <filename>roms/hb-f700p_msx2sub.rom</filename>
+             <filename>hb-f700p_msx2sub.rom</filename>
              <sha1>24624c5fa3a8069b1d865cdea8a029f15c1955ea</sha1> <!-- On Meits' machine -->
              <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1> <!-- According to team blueMSX -->
            </rom>
@@ -93,7 +93,7 @@
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>
-            <filename>roms/hb-f700p_disk.rom</filename>
+            <filename>hb-f700p_disk.rom</filename>
             <sha1>3376cf9dd2b1ac9b41bf6bf6598b33136e86f9d5</sha1> <!-- According to team blueMSX -->
             <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This is a fast diskROM, which is also in Meits' machine, certainly not original -->
           </rom>

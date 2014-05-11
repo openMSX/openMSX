@@ -61,7 +61,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/phc-23jb_basic-bios2.rom</filename>
+          <filename>phc-23jb_basic-bios2.rom</filename>
           <sha1>4ce41fcc1a603411ec4e99556409c442078f0ecf</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -77,7 +77,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/phc-23jb_msx2sub.rom</filename>
+            <filename>phc-23jb_msx2sub.rom</filename>
             <sha1>fd9fa78bac25aa3c0792425b21d14e364cf7eea4</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>

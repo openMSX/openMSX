@@ -58,7 +58,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/ml-g1_es_basic-bios2.rom</filename>
+          <filename>ml-g1_es_basic-bios2.rom</filename>
           <sha1>e4fdf518a8b9c8ab4290c21b83be2c347965fc24</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -74,7 +74,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/ml-g1_es_msx2sub.rom</filename>
+            <filename>ml-g1_es_msx2sub.rom</filename>
             <sha1>1e9a955943aeea9b1807ddf1250ba6436d8dd276</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/> <!-- no mirroring -->
@@ -92,7 +92,7 @@
       <secondary slot="3">
         <ROM id="MSX Designer">
           <rom>
-            <filename>roms/ml-g1_paint.rom</filename>
+            <filename>ml-g1_paint.rom</filename>
             <sha1>5cf0abca6dbcf940bc33c433ecb4e4ada02fbfe6</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/> <!-- no mirroring -->

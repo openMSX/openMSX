@@ -26,7 +26,7 @@
             <sha1>36d47cf70618fdb460f97a8ceb75013ec4529063</sha1> <!-- clean dump with EPROM reader from FRS -->
 	    <sha1>a45692849acf29ddb653707a62747985439f6d4f</sha1> <!-- GoodMSX1 and Jorrith's dump, with RAM area filled with 0xFF - is one bit different from FRS's dump, which thus might be a bad dump... -->
             <sha1>930eae7057af1652abae794072b296a59decd61b</sha1> <!-- contains dirty RAM area -->
-            <filename>roms/fs-ca1.rom</filename>
+            <filename>fs-ca1.rom</filename>
           </rom>
         </MSX-AUDIO>
       </secondary>

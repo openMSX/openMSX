@@ -18,7 +18,7 @@
           <rom>
                   <sha1>47c78981b5ffbb9e8d9c2145f9c2e642ff0e8193</sha1> <!-- v1.01 -->
                   <sha1>92a433e877626461a6481ca75c252e643752f0c4</sha1> <!-- v1.00 -->
-            <filename>roms/rs232.rom</filename>
+            <filename>rs232.rom</filename>
           </rom>
         </MSX-RS232>
       </secondary>

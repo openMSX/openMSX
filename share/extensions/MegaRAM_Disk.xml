@@ -18,7 +18,7 @@
           <size>512</size>
           <rom>
             <sha1>f0abc38f345c05e2112079239d09f25fb08a7c56</sha1>
-            <filename>roms/mr512.rom</filename>
+            <filename>mr512.rom</filename>
           </rom>
         </MegaRam>
       </secondary>

@@ -19,7 +19,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
-          <filename>roms/v-20_basic-bios1.rom</filename>
+          <filename>v-20_basic-bios1.rom</filename>
         </rom>
       </ROM>
     </primary>

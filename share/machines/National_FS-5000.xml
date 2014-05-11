@@ -18,7 +18,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>roms/fs-5000_kanjifont.rom</filename>
+        <filename>fs-5000_kanjifont.rom</filename>
         <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -74,7 +74,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/fs-5000_basic-bios2.rom</filename>
+            <filename>fs-5000_basic-bios2.rom</filename>
             <sha1>59967765d6e9328909dee4dac1cbe4cf9d47d315</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>
@@ -98,14 +98,14 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/fs-5000_msx2sub.rom</filename>
+            <filename>fs-5000_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="MSX Kanji Driver">
           <rom>
-            <filename>roms/fs-5000_kanjibasic.rom</filename>
+            <filename>fs-5000_kanjibasic.rom</filename>
             <sha1>3a9a942ed888dd641cddf8deada1879c454df3c6</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -115,7 +115,7 @@
       <secondary slot="1">
         <ROM id="Set-Up RTC">
           <rom>
-            <filename>roms/fs-5000_setuprtc.rom</filename>
+            <filename>fs-5000_setuprtc.rom</filename>
             <sha1>98bbfa3ab07b7a5cad55d7ddf7cbd9440caa2a86</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -134,7 +134,7 @@
           <connectionstyle>National</connectionstyle>
           <drives>2</drives>
           <rom>
-            <filename>roms/fs-5000_disk.rom</filename>
+            <filename>fs-5000_disk.rom</filename>
             <sha1>073feb8bb645d935e099afaf61e6f04f52adee42</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

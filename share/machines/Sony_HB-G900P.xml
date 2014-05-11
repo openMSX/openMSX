@@ -57,7 +57,7 @@
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
             <sha1>0de3c802057560560a03d7965fcc4cff69f8575c</sha1>
-            <filename>roms/hb-g900p_basic-bios2.rom</filename>
+            <filename>hb-g900p_basic-bios2.rom</filename>
           </rom>
           <mem base="0x0000" size="0x8000"/>
         </ROM>
@@ -67,7 +67,7 @@
         <ROM id="MSX Sub ROM">
           <rom>
             <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1>
-            <filename>roms/hb-g900p_msx2sub.rom</filename>
+            <filename>hb-g900p_msx2sub.rom</filename>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
@@ -78,7 +78,7 @@
           <drives>1</drives>
           <rom>
             <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
-            <filename>roms/hb-g900p_disk.rom</filename>
+            <filename>hb-g900p_disk.rom</filename>
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>
@@ -91,7 +91,7 @@
           <memorybasedio>true</memorybasedio>
           <rom>
             <sha1>373aa82d0426830880a7344ef98f7309d93814c7</sha1>
-            <filename>roms/hb-g900p_rs232.rom</filename>
+            <filename>hb-g900p_rs232.rom</filename>
           </rom>
           <io base="0x80" num="8"/>
           <mem base="0x0000" size="0x10000"/>
@@ -102,7 +102,7 @@
         <ROM id="Video Utility">
           <rom>
             <sha1>8779b004e7605a3c419825f0373a5d8fa84e1d5b</sha1>
-            <filename>roms/hb-g900p_video-utility.rom</filename>
+            <filename>hb-g900p_video-utility.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </ROM>

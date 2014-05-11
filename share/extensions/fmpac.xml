@@ -20,7 +20,7 @@
           </sound>
           <rom>
             <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-            <filename>roms/fmpac.rom</filename>
+            <filename>fmpac.rom</filename>
           </rom>
           <sramname>fmpac.pac</sramname>
         </FMPAC>

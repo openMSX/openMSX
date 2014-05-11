@@ -70,12 +70,12 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom> <!-- From original EPROM dump -->
-          <filename>roms/2+FM cks-B414h.ROM</filename>
+          <filename>2+FM cks-B414h.ROM</filename>
           <sha1>c5bfa85f7315fb11928b27a721a908c93b7d3fbf</sha1>
           <window base="0x8000" size="0x8000"/>
         </rom>
         <rom>
-          <filename>roms/ExpertTurbo_basic-bios2p.rom</filename>
+          <filename>ExpertTurbo_basic-bios2p.rom</filename>
           <sha1>5029cf47031b22bd5d1f68ebfd3be6d6da56dfe9</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -90,12 +90,12 @@
 
         <ROM id="MSX2+ Sub ROM">
           <rom> <!-- From original EPROM dump -->
-            <filename>roms/2+FM cks-B414h.ROM</filename>
+            <filename>2+FM cks-B414h.ROM</filename>
             <sha1>c5bfa85f7315fb11928b27a721a908c93b7d3fbf</sha1>
             <window base="0x0000" size="0x4000"/>
           </rom>
           <rom>
-            <filename>roms/ExpertTurbo_msx2psub.rom</filename>
+            <filename>ExpertTurbo_msx2psub.rom</filename>
             <sha1>cc1744c6c513d6409a142b4fb42fbe70a95d9b7f</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -103,12 +103,12 @@
 
         <MSX-MUSIC id="MSX Music">
           <rom> <!-- From original EPROM dump -->
-            <filename>roms/2+FM cks-B414h.ROM</filename>
+            <filename>2+FM cks-B414h.ROM</filename>
             <sha1>c5bfa85f7315fb11928b27a721a908c93b7d3fbf</sha1>
             <window base="0x4000" size="0x4000"/>
           </rom>
           <rom>
-            <filename>roms/ExpertTurbo_fmbasic.rom</filename>
+            <filename>ExpertTurbo_fmbasic.rom</filename>
             <sha1>befebc916bfdb5e8057040f0ae82b5517a7750db</sha1>
           </rom>
           <sound>

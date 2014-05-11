@@ -17,7 +17,7 @@
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>658bc7cd4b19bd5face14f09e4e2904157a5c298</sha1>
-            <filename>roms/ml-30dc.rom</filename>
+            <filename>ml-30dc.rom</filename>
           </rom>
           <drives>2</drives>
         </WD2793>

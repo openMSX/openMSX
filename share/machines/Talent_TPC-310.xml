@@ -95,7 +95,7 @@
       <secondary slot="0">
         <ROM id="Turbo BASIC ROM">
           <rom>
-            <filename>roms/tpc-310_turbo.rom</filename>
+            <filename>tpc-310_turbo.rom</filename>
             <sha1>181bf58da7184e128cd419da3109b93344a543cf</sha1>
           </rom>
           <mem base="0x4000" size="0x4000"/>
@@ -105,7 +105,7 @@
       <secondary slot="1">
         <ROM id="Accessories ROM">
           <rom>
-            <filename>roms/tpc-310_accessories.rom</filename>
+            <filename>tpc-310_accessories.rom</filename>
             <sha1>cdeb0ed8adecaaadb78d5a5364fd603238591685</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

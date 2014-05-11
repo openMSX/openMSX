@@ -23,7 +23,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>roms/phc-35j_kanjifont.rom</filename>
+        <filename>phc-35j_kanjifont.rom</filename>
         <sha1>84a645becec0a25d3ab7a909cde1b242699a8662</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -77,7 +77,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/phc-35j_basic-bios2p.rom</filename>
+          <filename>phc-35j_basic-bios2p.rom</filename>
           <sha1>f4433752d3bf876bfefb363c749d4d2e08a218b6</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -100,14 +100,14 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/phc-35j_msx2psub.rom</filename>
+            <filename>phc-35j_msx2psub.rom</filename>
             <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="MSX Kanji Driver with BASIC">
           <rom>
-            <filename>roms/phc-35j_kanjibasic.rom</filename>
+            <filename>phc-35j_kanjibasic.rom</filename>
             <sha1>dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

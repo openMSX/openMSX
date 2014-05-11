@@ -58,7 +58,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/vg8230_basic-bios2.rom</filename>
+          <filename>vg8230_basic-bios2.rom</filename>
           <sha1>0de3c802057560560a03d7965fcc4cff69f8575c</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -74,7 +74,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/vg8230_msx2sub.rom</filename>
+            <filename>vg8230_msx2sub.rom</filename>
             <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1> <!-- verified on 8230/00 from Luc -->
           </rom>
           <mem base="0x0000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
@@ -97,7 +97,7 @@
           <singlesided/>
           <drives>1</drives>
           <rom>
-            <filename>roms/vg8230_disk.rom</filename>
+            <filename>vg8230_disk.rom</filename>
 	    <sha1>b43a4be5c754f68dc3ee64eee29d64f30fac2aff</sha1> <!-- these two dumps are the same, except for the FDC registers -->
             <sha1>0f5798850d11b316a4254b222ca08cc4ad6d4da2</sha1>
           </rom>

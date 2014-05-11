@@ -51,7 +51,7 @@
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/cf-2700_basic-bios1.rom</filename>
+          <filename>cf-2700_basic-bios1.rom</filename>
           <sha1>c7a2c5baee6a9f0e1c6ee7d76944c0ab1886796c</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>

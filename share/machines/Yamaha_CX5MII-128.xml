@@ -55,7 +55,7 @@
         <rom>
 	  <sha1>ea4a723cf098be7d7b40f23a7ab831cf5e2190d7</sha1> <!-- From Gerrit's machine -->
 	  <sha1>521928db7bc81a8db4cac1e666851e2bf01c8d53</sha1>
-          <filename>roms/cx5mii-128_basic-bios1.rom</filename>
+          <filename>cx5mii-128_basic-bios1.rom</filename>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -72,7 +72,7 @@
           <rom>
 	    <sha1>c2340313bfda751181e8a5287d60f77bc6a2f3e6</sha1> <!-- From Gerrit's machine -->
 	    <sha1>df503d6f5d72a2a355db53c35950348fb7c767bf</sha1>
-            <filename>roms/cx5mii-128_sub.rom</filename>
+            <filename>cx5mii-128_sub.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </ROM>
@@ -82,7 +82,7 @@
         <ROM id="FM Voicing Program II">
           <rom>
             <sha1>30747a56f45389be76362f7fc55d673f1bff8312</sha1>
-            <filename>roms/cx5mii-128_fmvoicingprogramii.rom</filename>
+            <filename>cx5mii-128_fmvoicingprogramii.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </ROM>
@@ -103,7 +103,7 @@
           </sound>
           <rom>
             <sha1>6680d7118d85418813f1db9449bf3e20942b16da</sha1>
-            <filename>roms/sfg-05.rom</filename>
+            <filename>sfg-05.rom</filename>
           </rom>
         </YamahaSFG>
       </secondary>

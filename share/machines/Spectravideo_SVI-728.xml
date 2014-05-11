@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/svi-728_basic-bios1.rom</filename>
+          <filename>svi-728_basic-bios1.rom</filename>
           <sha1>ea6a82cf8c6e65eb30b98755c8577cde8d9186c0</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>

@@ -25,7 +25,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>0f851ee7a1cf79819f61cc89e9948ee72a413802</sha1>
-          <filename>roms/yis805-128r2_basic-bios2.rom</filename>
+          <filename>yis805-128r2_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -41,7 +41,7 @@
           <mem base="0x0000" size="0x10000"/>
           <rom>
             <sha1>7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</sha1>
-            <filename>roms/yis805-128r2_painter.rom</filename>
+            <filename>yis805-128r2_painter.rom</filename>
           </rom>
         </ROM>
       </secondary>
@@ -51,7 +51,7 @@
           <mem base="0x0000" size="0x4000"/>
           <rom>
             <sha1>03bf6d2ac86f5c9ab618e155442787c700f99fed</sha1>
-            <filename>roms/yis805-128r2_msx2sub.rom</filename>
+            <filename>yis805-128r2_msx2sub.rom</filename>
           </rom>
         </ROM>
 
@@ -61,7 +61,7 @@
           <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>3a481c7b7e4f0406a55952bc5b9f8cf9d699376c</sha1>
-            <filename>roms/yis805-128r2_disk.rom</filename>
+            <filename>yis805-128r2_disk.rom</filename>
           </rom>
           <drives>2</drives>
         </WD2793>
@@ -81,7 +81,7 @@
           <rom>
             <sha1>307a7be064442feb4ab2e1a2bc971b138c1a1169</sha1>
             <sha1>e8fd2bbc1bdab12c73a0fec178a190f9063547bb</sha1> < ! - - based on Stanislav's dump with the last 2kB (of RAM) zeroed - - >
-            <filename>roms/yis805-128r2_net_2.rom</filename>
+            <filename>yis805-128r2_net_2.rom</filename>
           </rom>
         </ROM>
       </secondary>

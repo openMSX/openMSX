@@ -16,7 +16,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>roms/hb-f900_kanjifont.rom</filename>
+        <filename>hb-f900_kanjifont.rom</filename>
         <sha1>6acaf2eeb57f65f7408235d5e07b7563229de799</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -65,7 +65,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hb-f900_basic-bios2.rom</filename>
+          <filename>hb-f900_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -81,7 +81,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/hb-f900_msx2sub.rom</filename>
+            <filename>hb-f900_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -100,11 +100,11 @@
           <connectionstyle>Sony</connectionstyle>
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <!-- The 2nd released version of this machine uses another disk rom:
-    <parameter name="filename">roms/hb-f900_disk2.rom</parameter>
+    <parameter name="filename">hb-f900_disk2.rom</parameter>
     -->
           <drives>2</drives>
           <rom>
-            <filename>roms/hb-f900_disk.rom</filename>
+            <filename>hb-f900_disk.rom</filename>
             <sha1>fc760d1d7b16370abc7eea39955f230b95b37df6</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -114,7 +114,7 @@
       <secondary slot="3">
         <ROM id="HB-F900 Video Utility 1.10">
           <rom>
-            <filename>roms/hb-f900_video-utility.rom</filename>
+            <filename>hb-f900_video-utility.rom</filename>
             <sha1>558b7383544542cf7333700ff90c3efbf93ba2a3</sha1>
           </rom>
           <mem base="0x4000" size="0x4000"/>

@@ -66,7 +66,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/hb-f700d_basic-bios2.rom</filename>
+            <filename>hb-f700d_basic-bios2.rom</filename>
             <sha1>cef16eb95502ba6ab2265fcafcedde470a101541</sha1>
           </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -84,7 +84,7 @@
         <secondary slot="0">
           <ROM id="MSX Sub ROM">
           <rom>
-             <filename>roms/hb-f700d_msx2sub.rom</filename>
+             <filename>hb-f700d_msx2sub.rom</filename>
              <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1>
            </rom>
            <mem base="0x0000" size="0x4000"/>
@@ -94,7 +94,7 @@
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>
-            <filename>roms/hb-f700d_disk.rom</filename>
+            <filename>hb-f700d_disk.rom</filename>
             <sha1>0e081572f84555dc13bdb0c7044a19d6c164d985</sha1>
             <sha1>7dcd434d9a244e23afd212d3fea4c3bf3fe2a300</sha1> <!-- This seems to be some kind of faster disk ROM, certainly not original! -->
           </rom>

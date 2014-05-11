@@ -47,7 +47,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/ml-fx1_basic-bios1.rom</filename>
+          <filename>ml-fx1_basic-bios1.rom</filename>
           <sha1>0cbe0df4af45e8f531e9c761403ac9e71808f20c</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>

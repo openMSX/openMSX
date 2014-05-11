@@ -58,7 +58,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hb-f1_basic-bios2.rom</filename>
+          <filename>hb-f1_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -74,14 +74,14 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/hb-f1_msx2sub.rom</filename>
+            <filename>hb-f1_msx2sub.rom</filename>
             <sha1>b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="Firmware 1">
           <rom>
-            <filename>roms/hb-f1_firmware1.rom</filename>
+            <filename>hb-f1_firmware1.rom</filename>
             <sha1>9db72bb78792595a12499c821048504dc96ef848</sha1>
           </rom>
           <mem base="0x4000" size="0x4000"/>
@@ -91,7 +91,7 @@
       <secondary slot="1">
         <ROM id="Firmware 2">
           <rom>
-            <filename>roms/hb-f1_firmware2.rom</filename>
+            <filename>hb-f1_firmware2.rom</filename>
             <sha1>aa78fc9bcd2343f84cf790310a768ee47f90c841</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -101,7 +101,7 @@
       <secondary slot="2">
         <ROM id="Firmware 3">
           <rom>
-            <filename>roms/hb-f1_firmware3.rom</filename>
+            <filename>hb-f1_firmware3.rom</filename>
             <sha1>58accf41a90693874b86ce98d8d43c27beb8b6dc</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

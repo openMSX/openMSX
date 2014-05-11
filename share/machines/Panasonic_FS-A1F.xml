@@ -16,7 +16,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>roms/fs-a1f_kanjifont.rom</filename>
+        <filename>fs-a1f_kanjifont.rom</filename>
         <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -65,7 +65,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/fs-a1f_basic-bios2.rom</filename>
+          <filename>fs-a1f_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -88,14 +88,14 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/fs-a1f_msx2sub.rom</filename>
+            <filename>fs-a1f_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="MSX Kanji Driver">
           <rom>
-            <filename>roms/fs-a1f_kanjibasic.rom</filename>
+            <filename>fs-a1f_kanjibasic.rom</filename>
             <sha1>ea35cc2cad9cfdf56cae224d8ee41579de37f000</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -107,7 +107,7 @@
           <io_regs>7FF8</io_regs>
           <drives>1</drives>
           <rom>
-            <filename>roms/fs-a1f_disk.rom</filename>
+            <filename>fs-a1f_disk.rom</filename>
             <sha1>141e61cc8e0e51382e508fbd77a34b778a4f8444</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -117,7 +117,7 @@
       <secondary slot="3">
         <ROM id="A1 Cockpit">
           <rom>
-            <filename>roms/fs-a1f_cockpit.rom</filename>
+            <filename>fs-a1f_cockpit.rom</filename>
             <sha1>4a99f2444f29c2b642efd6f084081d6fd96bfa9b</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

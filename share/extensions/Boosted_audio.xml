@@ -38,7 +38,7 @@
            <sha1>dde213b6d9324b94e78ed8df753042469bd31ef0</sha1> <!-- MSX-Audio v1.2pre4 with aditional fixes by SuperSoniqs -->
            <sha1>05e9f40bb7bdc46b557d445c717cb84ad75252f6</sha1> <!-- MSX-Audio v1.2pre4 -->
            <sha1>7f115ff923a1cc0d1944cf280168add946fde854</sha1> <!-- MSX-Audio BIOS v1.0, patched to disable the I/O port configuration, the mute-switch and the SYNTHE-switch  -->
-           <filename>roms/msxaudio12pre4a.rom</filename>
+           <filename>msxaudio12pre4a.rom</filename>
          </rom>
        </ROM>
        <RAM id="MSX-Audio BIOS base WorkRAM">

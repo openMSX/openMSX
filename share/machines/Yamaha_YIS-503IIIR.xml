@@ -21,7 +21,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>0f851ee7a1cf79819f61cc89e9948ee72a413802</sha1> <!-- verified on Jetze's machine -->
-          <filename>roms/yis-503iiir_basic-bios2.rom</filename>
+          <filename>yis-503iiir_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -37,7 +37,7 @@
           <mem base="0x0000" size="0x4000"/>
           <rom>
             <sha1>03bf6d2ac86f5c9ab618e155442787c700f99fed</sha1> <!-- verified on Jetze's machine -->
-            <filename>roms/yis-503iiir_msx2sub.rom</filename>
+            <filename>yis-503iiir_msx2sub.rom</filename>
           </rom>
         </ROM>
 
@@ -45,7 +45,7 @@
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>f4f7a54cdf5a9dd6c59f7cb219c2c5eb0a00fa8a</sha1> <!-- verified on Jetze's machine -->
-            <filename>roms/yis-503iiir_cpm.rom</filename>
+            <filename>yis-503iiir_cpm.rom</filename>
           </rom>
         </ROM>
       </secondary>
@@ -64,7 +64,7 @@
           <rom>
             <sha1>307a7be064442feb4ab2e1a2bc971b138c1a1169</sha1>
             <sha1>e8fd2bbc1bdab12c73a0fec178a190f9063547bb</sha1> < ! - - based on Stanislav's dump with the last 2kB (of RAM) zeroed - - >
-            <filename>roms/yis-503iiir_net_2.rom</filename>
+            <filename>yis-503iiir_net_2.rom</filename>
           </rom>
         </ROM>
       </secondary>

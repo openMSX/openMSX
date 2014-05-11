@@ -48,7 +48,7 @@
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/vg8010-19_basic-bios1.rom</filename>
+          <filename>vg8010-19_basic-bios1.rom</filename>
           <sha1>898630ad1497dc9a329580c682ee55c4bcb9c30c</sha1> <!-- Confirmed by Bas Tilborghs -->
         </rom>
         <mem base="0x0000" size="0x8000"/>

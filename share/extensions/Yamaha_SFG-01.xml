@@ -21,7 +21,7 @@
           </sound>
           <rom>
             <sha1>49a1750c10e407293af6bce27a02e99307ceba12</sha1>
-            <filename>roms/sfg-01.rom</filename>
+            <filename>sfg-01.rom</filename>
           </rom>
         </YamahaSFG>
       </secondary>

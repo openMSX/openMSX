@@ -60,7 +60,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/ml-g3_es_basic-bios2.rom</filename>
+          <filename>ml-g3_es_basic-bios2.rom</filename>
           <sha1>e4fdf518a8b9c8ab4290c21b83be2c347965fc24</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -74,7 +74,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/ml-g3_es_msx2sub.rom</filename>
+            <filename>ml-g3_es_msx2sub.rom</filename>
             <sha1>1e9a955943aeea9b1807ddf1250ba6436d8dd276</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -85,7 +85,7 @@
           <drives>1</drives>
           <rom>
             <sha1>30ba1144c872a0bb1c91768e75a2c28ab1f4e3c6</sha1>
-            <filename>roms/ml-g3_es_disk.rom</filename>
+            <filename>ml-g3_es_disk.rom</filename>
           </rom>
           <mem base="0x4000" size="0x4000"/>
         </WD2793>
@@ -104,7 +104,7 @@
         <MSX-RS232 id="MSX RS-232">
           <rom>
             <sha1>150bd1d4989f879570861edff26b800e7b832333</sha1>
-            <filename>roms/ml-g3_es_rs232.rom</filename>
+            <filename>ml-g3_es_rs232.rom</filename>
           </rom>
           <io base="0x80" num="8"/>
           <mem base="0x0000" size="0x10000"/>

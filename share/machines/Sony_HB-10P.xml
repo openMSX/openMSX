@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hb-10p_basic-bios1.rom</filename>
+          <filename>hb-10p_basic-bios1.rom</filename>
           <sha1>5e7c8eab238712d1e18b0219c0f4d4dae180420d</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>

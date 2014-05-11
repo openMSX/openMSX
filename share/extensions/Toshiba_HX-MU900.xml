@@ -25,7 +25,7 @@
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>0d246b0e3edc63803fcce861ea07eadf29dc488c</sha1>
-            <filename>roms/hx-mu900.rom</filename>
+            <filename>hx-mu900.rom</filename>
           </rom>
         </ROM>
       </secondary>

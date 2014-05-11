@@ -62,7 +62,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hb-f9p_russian_basic-bios2.rom</filename>
+          <filename>hb-f9p_russian_basic-bios2.rom</filename>
           <sha1>7f440ec7295d889b097e1b66bf9bc5ce086f59aa</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -78,7 +78,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/hb-f9p_russian_msx2sub.rom</filename>
+            <filename>hb-f9p_russian_msx2sub.rom</filename>
             <sha1>a6d7b1fd4ee896ca7513d02c033fc9a8aa065235</sha1>
           </rom>
 	  <mem base="0x0000" size="0x8000"/> <!-- Mirrored to page 1, maybe

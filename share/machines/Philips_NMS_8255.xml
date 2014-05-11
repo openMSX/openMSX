@@ -59,7 +59,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/nms8250_basic-bios2.rom</filename>
+          <filename>nms8250_basic-bios2.rom</filename>
           <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -76,7 +76,7 @@
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x10000"/> <!-- it is mirrored all over the slot -->
           <rom>
-            <filename>roms/nms8250_msx2sub.rom</filename>
+            <filename>nms8250_msx2sub.rom</filename>
             <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
           </rom>
         </ROM>
@@ -101,7 +101,7 @@
                in the WD2793 device -->
           <drives>2</drives>
           <rom>
-            <filename>roms/nms8250_disk.rom</filename>
+            <filename>nms8250_disk.rom</filename>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
           </rom>
         </WD2793>

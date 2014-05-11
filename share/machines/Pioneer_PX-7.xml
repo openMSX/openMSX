@@ -55,7 +55,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/px-7_basic-bios1.rom</filename>
+          <filename>px-7_basic-bios1.rom</filename>
           <sha1>302afb5d8be26c758309ca3df611ae69cced2821</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -70,7 +70,7 @@
     <primary slot="2">
       <PioneerLDControl id="PBASIC">
         <rom>
-          <filename>roms/px-7_pbasic.rom</filename>
+          <filename>px-7_pbasic.rom</filename>
           <sha1>665d805f96616e1037f1823050657b7849899283</sha1>
         </rom>
         <mem base="0x4000" size="0x4000"/>

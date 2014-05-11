@@ -17,7 +17,7 @@
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <sha1>608e8e9ab91c67f7015a67ea12f52ea3b0d609cd</sha1>
-            <filename>roms/hb3600_disk.rom</filename>
+            <filename>hb3600_disk.rom</filename>
           </rom>
           <drives>2</drives>
         </WD2793>

@@ -23,7 +23,7 @@
           <rom>
             <sha1>ab57b4c8e5d47c2a39031c2057b97d2d10546582</sha1>
             <sha1>2144036d6573d666143e890e5413956bfe8f66c5</sha1>
-            <filename>roms/hbd-50.rom</filename>
+            <filename>hbd-50.rom</filename>
           </rom>
           <drives>1</drives>
         </WD2793>

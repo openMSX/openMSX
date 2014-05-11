@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/vg8020_basic-bios1.rom</filename>
+          <filename>vg8020_basic-bios1.rom</filename>
           <sha1>829c00c3114f25b3dae5157c0a238b52a3ac37db</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>

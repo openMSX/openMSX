@@ -16,7 +16,7 @@
 
     <Kanji id="Kanji ROM">
       <rom>
-        <filename>roms/fs-a1fm_kanjifont.rom</filename>
+        <filename>fs-a1fm_kanjifont.rom</filename>
         <sha1>5e872d5853698731a0ed22fb72dbcdfd59cd19c3</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -25,7 +25,7 @@
 
     <Kanji12 id="Kanji ROM 12X12">
       <rom>
-        <filename>roms/fs-a1fm_kanjifont12.rom</filename>
+        <filename>fs-a1fm_kanjifont12.rom</filename>
         <sha1>a7a23dc01314e88381eee88b4878b39931ab4818</sha1>
       </rom>
     </Kanji12>
@@ -72,7 +72,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/fs-a1fm_basic-bios2.rom</filename>
+          <filename>fs-a1fm_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -95,7 +95,7 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/fs-a1fm_msx2sub.rom</filename>
+            <filename>fs-a1fm_msx2sub.rom</filename>
             <sha1>d552319a19814494e3016de4b8f010e8f7b97e02</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -104,7 +104,7 @@
           <mappertype>FSA1FM1</mappertype>
           <sramname>fs-a1fm_modem.sram</sramname>
           <rom>
-            <filename>roms/fs-a1fm_firmware.rom</filename>
+            <filename>fs-a1fm_firmware.rom</filename>
             <sha1>f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</sha1> <!-- 1MB -->
             <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1> <!-- 2MB -->
           </rom>
@@ -117,7 +117,7 @@
           <io_regs>7FF8</io_regs>
           <drives>1</drives>
           <rom>
-            <filename>roms/fs-a1fm_disk.rom</filename>
+            <filename>fs-a1fm_disk.rom</filename>
             <sha1>141e61cc8e0e51382e508fbd77a34b778a4f8444</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -129,7 +129,7 @@
           <mappertype>FSA1FM2</mappertype>
           <sramname>fs-a1fm.sram</sramname>
           <rom>
-            <filename>roms/fs-a1fm_firmware.rom</filename>
+            <filename>fs-a1fm_firmware.rom</filename>
             <sha1>f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</sha1> <!-- 1MB -->
             <sha1>716952eab41077f18e6835d11caad6761b17d400</sha1> <!-- 2MB -->
           </rom>

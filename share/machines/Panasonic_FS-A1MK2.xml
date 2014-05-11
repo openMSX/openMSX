@@ -56,7 +56,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/fs-a1mk2_basic-bios2.rom</filename>
+          <filename>fs-a1mk2_basic-bios2.rom</filename>
           <sha1>0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -79,14 +79,14 @@
       <secondary slot="1">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/fs-a1mk2_msx2sub.rom</filename>
+            <filename>fs-a1mk2_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
         <ROM id="A1 Cockpit 1">
           <rom>
-            <filename>roms/fs-a1mk2_cockpit1.rom</filename>
+            <filename>fs-a1mk2_cockpit1.rom</filename>
             <sha1>2752cd89754c05abdf7c23cba132d38e3ef0f27d</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -96,7 +96,7 @@
       <secondary slot="2">
         <ROM id="A1 Cockpit 2">
           <rom>
-            <filename>roms/fs-a1mk2_cockpit2.rom</filename>
+            <filename>fs-a1mk2_cockpit2.rom</filename>
             <sha1>e194d290ebfa4595ce0349ea2fc15442508485b0</sha1>
           </rom>
           <mem base="0x4000" size="0x4000"/>
@@ -106,7 +106,7 @@
       <secondary slot="3">
         <ROM id="A1 Cockpit 3">
           <rom>
-            <filename>roms/fs-a1mk2_cockpit3.rom</filename>
+            <filename>fs-a1mk2_cockpit3.rom</filename>
             <sha1>a3f4e2e4934074925d775afe30ac72f150ede543</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

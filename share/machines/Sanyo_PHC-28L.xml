@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/phc-28l_basic-bios1.rom</filename>
+          <filename>phc-28l_basic-bios1.rom</filename>
           <sha1>d3af963e2529662eae63f04a2530454685a1989f</sha1> <!-- Data taken from Jetze's machine -->
         </rom>
         <mem base="0x0000" size="0x8000"/>

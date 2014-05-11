@@ -47,7 +47,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hotbit_1.2_basic-bios1.rom</filename>
+          <filename>hotbit_1.2_basic-bios1.rom</filename>
           <sha1>9425815446d468058705bae545ffa13646744a87</sha1> <!-- verified on Jetze's machine -->
         </rom>
         <mem base="0x0000" size="0x8000"/>

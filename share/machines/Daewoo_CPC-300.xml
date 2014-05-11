@@ -64,7 +64,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/cpc-300_basic-bios2.rom</filename>
+            <filename>cpc-300_basic-bios2.rom</filename>
             <sha1>affa3c5cd8db79a1450ad8a7f405a425b251653d</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>
@@ -74,7 +74,7 @@
       <secondary slot="1">
         <ROM id="MSX Hangul Driver">
           <rom>
-            <filename>roms/cpc-300_hangul.rom</filename>
+            <filename>cpc-300_hangul.rom</filename>
             <sha1>47a9d9a24e4fc6f9467c6e7d61a02d45f5a753ef</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -91,7 +91,7 @@
       <secondary slot="3">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/cpc-300_msx2sub.rom</filename>
+            <filename>cpc-300_msx2sub.rom</filename>
             <sha1>fb51c505adfbc174df94289fa894ef969f5357bc</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>

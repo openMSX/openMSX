@@ -18,7 +18,7 @@
           <drives>1</drives>
           <mem base="0x4000" size="0x4000"/>
           <rom>
-            <filename>roms/ddx_3.0.rom</filename>
+            <filename>ddx_3.0.rom</filename>
             <sha1>9e8256c90c37619dccdc2c8a6aa4539fb742a4b3</sha1>
           </rom>
         </WD2793>

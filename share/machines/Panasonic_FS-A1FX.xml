@@ -30,7 +30,7 @@
         <window base="0x0000" size="0x20000"/>
       </rom>
       <rom>
-        <filename>roms/fs-a1fx_kanjifont.rom</filename>
+        <filename>fs-a1fx_kanjifont.rom</filename>
         <sha1>e0e99cd91e88ce2676445663f832c835d74d6fd4</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -93,7 +93,7 @@
           <window base="0x30000" size="0x8000"/>
         </rom>
         <rom>
-          <filename>roms/fs-a1fx_basic-bios2p.rom</filename>
+          <filename>fs-a1fx_basic-bios2p.rom</filename>
           <sha1>e90f80a61d94c617850c415e12ad70ac41e66bb7</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -121,7 +121,7 @@
             <window base="0x38000" size="0x4000"/>
           </rom>
           <rom>
-            <filename>roms/fs-a1fx_msx2psub.rom</filename>
+            <filename>fs-a1fx_msx2psub.rom</filename>
             <sha1>fe0254cbfc11405b79e7c86c7769bd6322b04995</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -133,7 +133,7 @@
             <window base="0x28000" size="0x8000"/>
           </rom>
           <rom>
-            <filename>roms/fs-a1fx_kanjibasic.rom</filename>
+            <filename>fs-a1fx_kanjibasic.rom</filename>
             <sha1>1ef3956f7f918873fb9b031339bba45d1e5e5878</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -150,7 +150,7 @@
             <window base="0x3C000" size="0x4000"/>
           </rom>
           <rom>
-            <filename>roms/fs-a1fx_disk.rom</filename>
+            <filename>fs-a1fx_disk.rom</filename>
             <sha1>bb59c849898d46a23fdbd0cc04ab35088e74a18d</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -165,7 +165,7 @@
             <window base="0x20000" size="0x8000"/>
           </rom>
           <rom>
-            <filename>roms/fs-a1fx_cockpit.rom</filename>
+            <filename>fs-a1fx_cockpit.rom</filename>
             <sha1>9d67fab55b85f4ac4f5924323a70020eb8589057</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

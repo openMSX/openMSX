@@ -55,7 +55,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/px-7uk_basic-bios1.rom</filename>
+          <filename>px-7uk_basic-bios1.rom</filename>
           <sha1>8963fc041975f31dc2ab1019cfdd4967999de53e</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -73,7 +73,7 @@
 	     Are there any laserdisc players which will work? -->
 	<laserdisc>false</laserdisc>
         <rom>
-          <filename>roms/px-7uk_pbasic.rom</filename>
+          <filename>px-7uk_pbasic.rom</filename>
           <sha1>4f0102cdc27216fd9bcdb9663db728d2ccd8ca6d</sha1>
         </rom>
         <mem base="0x4000" size="0x4000"/>

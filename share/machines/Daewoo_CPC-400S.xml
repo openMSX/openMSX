@@ -18,7 +18,7 @@
 
     <Kanji id="Hangul ROM">
       <rom>
-        <filename>roms/cpc-400s_hangulfont.rom</filename>
+        <filename>cpc-400s_hangulfont.rom</filename>
         <sha1>30fff22e3e3d464993707488442721a5e56a9707</sha1>
       </rom>
       <io base="0xD8" num="2" type="O"/>
@@ -73,7 +73,7 @@
       <secondary slot="0">
         <ROM id="MSX BIOS with BASIC ROM">
           <rom>
-            <filename>roms/cpc-400s_basic-bios2.rom</filename>
+            <filename>cpc-400s_basic-bios2.rom</filename>
             <sha1>affa3c5cd8db79a1450ad8a7f405a425b251653d</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>
@@ -83,7 +83,7 @@
       <secondary slot="1">
         <ROM id="MSX Hangul Driver">
           <rom>
-            <filename>roms/cpc-400s_hangul.rom</filename>
+            <filename>cpc-400s_hangul.rom</filename>
             <sha1>6a50295ea35e720ba6f4ba5616c3441128b384ed</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
@@ -100,7 +100,7 @@
       <secondary slot="3">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/cpc-400s_msx2sub.rom</filename>
+            <filename>cpc-400s_msx2sub.rom</filename>
             <sha1>b6d3649a6647fa9f6bd61efc317485a20901128f</sha1>
           </rom>
           <mem base="0x0000" size="0x8000"/>
@@ -116,7 +116,7 @@
         <connectionstyle>National</connectionstyle>
         <drives>1</drives>
         <rom>
-          <filename>roms/cpc-400s_disk.rom</filename>
+          <filename>cpc-400s_disk.rom</filename>
           <sha1>914f6ccb25d78621186001f2f5e2aaa2d628cd0c</sha1>
         </rom>
         <mem base="0x4000" size="0x8000"/>

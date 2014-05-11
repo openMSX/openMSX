@@ -17,7 +17,7 @@
           <mem base="0x4000" size="0x04000"/>
           <rom>
             <sha1>42f4e3360eb134857b0efa82c1abedf342680124</sha1>
-            <filename>roms/ascii_msxdos22.rom</filename>
+            <filename>ascii_msxdos22.rom</filename>
           </rom>
           <mappertype>MSXDOS2</mappertype>
         </ROM>
@@ -35,7 +35,7 @@
           <mem base="0x4000" size="0x04000"/>
           <rom>
             <sha1>42f4e3360eb134857b0efa82c1abedf342680124</sha1>
-            <filename>roms/ascii_msxdos22.rom</filename>
+            <filename>ascii_msxdos22.rom</filename>
             <window base="0xC000" size="0x4000"/>
           </rom>
         </ROM>

@@ -17,7 +17,7 @@
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>bb72819da1160bc375fa3623f2d0a5424d08c89b</sha1>
-            <filename>roms/mfd-001_disk.rom</filename>
+            <filename>mfd-001_disk.rom</filename>
           </rom>
           <drives>2</drives>
         </WD2793>

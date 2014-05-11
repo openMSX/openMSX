@@ -48,7 +48,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/ax170_basic-bios1.rom</filename>
+          <filename>ax170_basic-bios1.rom</filename>
           <sha1>5e094fca95ab8e91873ee372a3f1239b9a48a48d</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -59,7 +59,7 @@
       <secondary slot="0">
         <ROM id="Arabic ROM">
           <rom>
-            <filename>roms/ax170_arabic.rom</filename>
+            <filename>ax170_arabic.rom</filename>
             <sha1>0287b2ec897b9196788cd9f10c99e1487d7adbbb</sha1>
           </rom>
           <mem base="0x0000" size="0x10000"/>

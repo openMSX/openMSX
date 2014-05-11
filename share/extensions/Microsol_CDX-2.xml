@@ -18,7 +18,7 @@
           <drives>1</drives>
           <mem base="0x4000" size="0x4000"/>
           <rom>
-            <filename>roms/cdx-2.rom</filename>
+            <filename>cdx-2.rom</filename>
             <sha1>ffc1bafca38d20ed6e9a27c90c6ab089a8482d89</sha1>
           </rom>
         </WD2793>

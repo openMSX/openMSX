@@ -21,7 +21,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</sha1>
-          <filename>roms/nms8250_basic-bios2.rom</filename>
+          <filename>nms8250_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -35,7 +35,7 @@
           <mem base="0x0000" size="0x10000"/> <!-- it is mirrored all over the slot -->
           <rom>
             <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
-            <filename>roms/nms8250_msx2sub.rom</filename>
+            <filename>nms8250_msx2sub.rom</filename>
           </rom>
         </ROM>
       </secondary>
@@ -55,7 +55,7 @@
           <!-- See 8250 config for info on mirroring stuff -->
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
-            <filename>roms/nms8250_disk.rom</filename>
+            <filename>nms8250_disk.rom</filename>
           </rom>
           <drives>2</drives>
         </WD2793>
@@ -114,13 +114,13 @@
           </sound>
           <rom>
             <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-            <filename>roms/fmpac.rom</filename>
+            <filename>fmpac.rom</filename>
           </rom>
           <sramname>fmpac.pac</sramname>
         </FMPAC>
         <ROM id="BASIC Compiler">
           <rom>
-            <filename>roms/phc-70fd2_basickun.rom</filename>
+            <filename>phc-70fd2_basickun.rom</filename>
             <sha1>22b3191d865010264001b9d896186a9818478a6b</sha1>
           </rom>
           <mem base="0x8000" size="0x4000"/>
@@ -150,7 +150,7 @@
       <io base="0xc4" num="4"/>
       <rom>
         <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
-        <filename>roms/yrw801.rom</filename>
+        <filename>yrw801.rom</filename>
       </rom>
       <sound>
         <volume>12000</volume>

@@ -68,7 +68,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hb-f1xd_basic-bios2.rom</filename>
+          <filename>hb-f1xd_basic-bios2.rom</filename>
           <sha1>4ce41fcc1a603411ec4e99556409c442078f0ecf</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -84,7 +84,7 @@
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
           <rom>
-            <filename>roms/hb-f1xd_msx2sub.rom</filename>
+            <filename>hb-f1xd_msx2sub.rom</filename>
             <sha1>0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
@@ -94,7 +94,7 @@
           <motor_off_timeout_ms>4000</motor_off_timeout_ms>
           <drives>1</drives>
           <rom>
-            <filename>roms/hb-f1xd_disk.rom</filename>
+            <filename>hb-f1xd_disk.rom</filename>
             <sha1>12f2cc79b3d09723840bae774be48c0d721ec1c6</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>

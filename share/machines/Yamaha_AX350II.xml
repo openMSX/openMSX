@@ -23,7 +23,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <sha1>35195ab67c289a0b470883464df66bc6ea5b00d3</sha1> <!-- verified by dhau -->
-          <filename>roms/ax350ii_basic-bios2.rom</filename>
+          <filename>ax350ii_basic-bios2.rom</filename>
         </rom>
       </ROM>
     </secondary>
@@ -34,7 +34,7 @@
         <rom>
           <sha1>f8cd4c05083decfc098cff077e055a4ae1e91a73</sha1> <!-- on dhau's machine -->
           <!-- <sha1>2c9600c6e0025fee10d249e97448ecaa37e38c42</sha1> - TODO: CHECK! Unreliable source. -->
-          <filename>roms/ax350ii_arabic.rom</filename>
+          <filename>ax350ii_arabic.rom</filename>
         </rom>
       </ROM>
     </secondary>
@@ -45,7 +45,7 @@
         <rom>
           <sha1>3a74e73b94d066b0187feb743c5eceddf0c61c2b</sha1> <!-- on dhau's machine -->
      <!-- <sha1>4b4508131dca6d811694ae6379f41364c477de58</sha1> this is from an unreliable source-->
-          <filename>roms/ax350ii_swp.rom</filename>
+          <filename>ax350ii_swp.rom</filename>
         </rom>
       </ROM>
     </secondary>
@@ -63,7 +63,7 @@
           <mem base="0x0000" size="0x10000"/>
           <rom>
             <sha1>ace202e87337fbc54fea21e22c0b3af0abe6f4ae</sha1>
-            <filename>roms/ax350ii_painter.rom</filename>
+            <filename>ax350ii_painter.rom</filename>
           </rom>
         </ROM>
       </secondary>
@@ -73,7 +73,7 @@
           <mem base="0x0000" size="0x4000"/>
           <rom>
             <sha1>ebb76f9061e875365023523607db610f2eda1d26</sha1> <!-- verified by dhau -->
-            <filename>roms/ax350ii_msx2sub.rom</filename>
+            <filename>ax350ii_msx2sub.rom</filename>
           </rom>
         </ROM>
         <WD2793 id="Memory Mapped FDC">
@@ -81,7 +81,7 @@
           <mem base="0x4000" size="0x8000"/>
           <rom>
             <sha1>358e69f427390041b5aa28018550a88f996bddb6</sha1> <!-- on dhau's machine -->
-            <filename>roms/ax350ii_disk.rom</filename>
+            <filename>ax350ii_disk.rom</filename>
           </rom>
           <drives>1</drives>
         </WD2793>

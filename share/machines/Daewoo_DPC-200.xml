@@ -47,14 +47,14 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/dpc-200_basic-bios1.rom</filename>
+          <filename>dpc-200_basic-bios1.rom</filename>
           <sha1>171b587bd5a947a13f3114120b6e7baca3b57d78</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
       <ROM id="MSX Hangul Driver">
         <rom>
-          <filename>roms/dpc-200_hangul.rom</filename>
+          <filename>dpc-200_hangul.rom</filename>
           <sha1>4421fa2504cbce18f7c84b5ea97f04e017007f07</sha1>
         </rom>
         <mem base="0x8000" size="0x4000"/>

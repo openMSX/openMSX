@@ -15,7 +15,7 @@
       <io base="0xc4" num="4"/>
       <rom>
         <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
-        <filename>roms/yrw801.rom</filename>
+        <filename>yrw801.rom</filename>
       </rom>
       <sound>
         <volume>12000</volume>
