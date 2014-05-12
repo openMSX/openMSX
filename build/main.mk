@@ -353,41 +353,6 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX))$(findstring /g++-,$(CXX)),)
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set CXX to your "g++" executable instead of "gcc")
-  endif
-  ifneq ($(filter %icc,$(CXX)),)
-    # Report all errors, warnings and remarks, except the following remarks:
-    # (on the openmsx-devel list these were discussed and it was decided to
-    # disable them since fixing them would not improve code quality)
-    #  177: "handler parameter "e" was declared but never referenced"
-    #  185: "dynamic initialization in unreachable code"
-    #  271: "trailing comma is nonstandard"
-    #  279: "controlling expression is constant"
-    #  383: "value copied to temporary, reference to temporary used"
-    #  869: "parameter [name] was never referenced"
-    #  981: "operands are evaluated in unspecified order"
-    COMPILE_FLAGS+=-Wall -wd177,185,271,279,383,869,981
-    # Temporarily disabled remarks: (may be re-enabled some time)
-    #  111: "statement is unreachable"
-    #       Occurs in template where code is unreachable for some expansions
-    #       but not for others.
-    #  444: "destructor for base class [class] is not virtual"
-    #       Sometimes issued incorrectly.
-    #       Reported to Intel: issue number 221909.
-    #  530: "inline function [name] cannot be explicitly instantiated"
-    #       Issued when explicitly instantiating template classes with inline
-    #       methods. Needs more investigation / discussion.
-    #  810: "conversion from [larger type] to [smaller type] may lose
-    #       significant bits"
-    #       Many instances not fixed yet, but should be fixed eventually.
-    # 1125: "function [f1] is hidden by [f2] -- virtual function override
-    #       intended?"
-    #       Occurs lots of times on Command class. I don't understand why it
-    #       thinks hiding is occurring there.
-    # 1469: ""cc" clobber ignored"
-    #       Seems to be caused by glibc headers.
-    COMPILE_FLAGS+=-wd111,444,530,810,1125,1469
-    # Plain C compiler, for the 3rd party libs.
-    CC:=icc
   else
     $(warning Unsupported compiler: $(CXX), please update Makefile)
   endif
