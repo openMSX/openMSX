@@ -358,11 +358,6 @@ else
   endif
 endif
 endif
-# Check if ccache usage was requested
-ifeq ($(USE_CCACHE),true)
-	override CC:=ccache $(CC)
-	override CXX:=ccache $(CXX)
-endif
 
 # Strip binary?
 OPENMSX_STRIP?=false
