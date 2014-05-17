@@ -1,3 +1,14 @@
+!!! THIS INFORMATION IS OBSOLETE !!!
+
+This document describes an initial improvement to the openMSX VDP LINE command
+timing. Later it has been improved further to be nearly identical to the real
+VDP. Those improvements are described in the 'vdp-vram-timing' document.
+
+So this document is only useful if you're interested in the historic
+development of openMSX.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 Speed-test for V99x8 LINE commands
 ----------------------------------
 
