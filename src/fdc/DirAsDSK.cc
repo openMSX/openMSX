@@ -21,7 +21,9 @@ namespace openmsx {
 static const unsigned SECTOR_SIZE = sizeof(SectorBuffer);
 static const unsigned SECTORS_PER_DIR = 7;
 static const unsigned NUM_FATS = 2;
+static const unsigned NUM_TRACKS = 80;
 static const unsigned SECTORS_PER_CLUSTER = 2;
+static const unsigned SECTORS_PER_TRACK = 9;
 static const unsigned FIRST_FAT_SECTOR = 1;
 static const unsigned DIR_ENTRIES_PER_SECTOR =
 	SECTOR_SIZE / sizeof(MSXDirEntry);
@@ -256,8 +258,8 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	, hostDir(hostDir_.getResolved() + '/')
 	, syncMode(syncMode_)
 	, lastAccess(EmuTime::zero)
-	, nofSectors(diskChanger_.isDoubleSidedDrive() ? 1440 : 720)
-	, nofSectorsPerFat(diskChanger_.isDoubleSidedDrive() ? 3 : 2)
+	, nofSectors((diskChanger_.isDoubleSidedDrive() ? 2 : 1) * SECTORS_PER_TRACK * NUM_TRACKS)
+	, nofSectorsPerFat((((3 * nofSectors) / (2 * SECTORS_PER_CLUSTER)) + SECTOR_SIZE - 1) / SECTOR_SIZE)
 	, firstSector2ndFAT(FIRST_FAT_SECTOR + nofSectorsPerFat)
 	, firstDirSector(FIRST_FAT_SECTOR + NUM_FATS * nofSectorsPerFat)
 	, firstDataSector(firstDirSector + SECTORS_PER_DIR)
@@ -269,19 +271,31 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	}
 
 	// First create structure for the virtual disk.
+	byte numSides = diskChanger_.isDoubleSidedDrive() ? 2 : 1;
 	setNbSectors(nofSectors);
-	setSectorsPerTrack(9);
-	setNbSides(diskChanger_.isDoubleSidedDrive() ? 2 : 1);
+	setSectorsPerTrack(SECTORS_PER_TRACK);
+	setNbSides(numSides);
 
 	// Initially the whole disk is filled with 0xE5 (at least on Philips
 	// NMS8250).
 	memset(sectors.data(), 0xE5, sizeof(SectorBuffer) * nofSectors);
 
-	// Use selected bootsector.
-	auto& bootSector = bootSectorType == BOOTSECTOR_DOS1
-	                 ? BootBlocks::dos1BootBlock
-	                 : BootBlocks::dos2BootBlock;
-	memcpy(&sectors[0], &bootSector, sizeof(bootSector));
+	// Use selected bootsector, fill-in values.
+	byte mediaDescriptor = (numSides == 2) ? 0xF9 : 0xF8;
+	const auto& protoBootSector = bootSectorType == BOOTSECTOR_DOS1
+		? BootBlocks::dos1BootBlock
+		: BootBlocks::dos2BootBlock;
+	memcpy(&sectors[0], &protoBootSector, sizeof(protoBootSector));
+	auto& bootSector = sectors[0].bootSector;
+	bootSector.bpSector     = SECTOR_SIZE;
+	bootSector.spCluster    = SECTORS_PER_CLUSTER;
+	bootSector.nrFats       = NUM_FATS;
+	bootSector.dirEntries   = SECTORS_PER_DIR * (SECTOR_SIZE / sizeof(MSXDirEntry));
+	bootSector.nrSectors    = nofSectors;
+	bootSector.descriptor   = mediaDescriptor;
+	bootSector.sectorsFat   = nofSectorsPerFat;
+	bootSector.sectorsTrack = SECTORS_PER_TRACK;
+	bootSector.nrSides      = numSides;
 
 	// Clear FAT1 + FAT2.
 	memset(fat(), 0, SECTOR_SIZE * nofSectorsPerFat * NUM_FATS);
@@ -289,7 +303,6 @@ DirAsDSK::DirAsDSK(DiskChanger& diskChanger_, CliComm& cliComm_,
 	//  'cluster 0' contains the media descriptor
 	//  'cluster 1' is marked as EOF_FAT
 	//  So cluster 2 is the first usable cluster number
-	byte mediaDescriptor = diskChanger_.isDoubleSidedDrive() ? 0xF9 : 0xF8;
 	fat ()->raw[0] = mediaDescriptor; fat ()->raw[1] = 0xFF; fat ()->raw[2] = 0xFF;
 	fat2()->raw[0] = mediaDescriptor; fat2()->raw[1] = 0xFF; fat2()->raw[2] = 0xFF;
 

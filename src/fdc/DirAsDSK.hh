@@ -113,7 +113,6 @@ private:
 	void sectorToCluster(unsigned sector, unsigned& cluster, unsigned& offset) const;
 	unsigned sectorToCluster(unsigned sector) const;
 
-
 private:
 	DiskChanger& diskChanger; // used to query time / report disk change
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
