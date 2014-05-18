@@ -257,15 +257,9 @@ endif # universal binary
 # Force evaluation upon assignment.
 SOURCES_FULL:=
 HEADERS_FULL:=
-DIST_FULL:=
 # Include root node.
-CURDIR:=
-include node.mk
-# Remove "./" in front of file names.
-# It can cause trouble because Make removes it automatically in rules.
-SOURCES_FULL:=$(SOURCES_FULL:./%=%)
-HEADERS_FULL:=$(HEADERS_FULL:./%=%)
-DIST_FULL:=$(DIST_FULL:./%=%)
+CURDIR:=src/
+include src/node.mk
 # Apply subset to sources list.
 SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
 ifeq ($(SOURCES_FULL),)
