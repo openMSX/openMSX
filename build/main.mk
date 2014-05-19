@@ -254,28 +254,41 @@ endif # universal binary
 # Filesets
 # ========
 
-# Force evaluation upon assignment.
-SOURCES_FULL:=
-HEADERS_FULL:=
-# Include root node.
-CURDIR:=src/
-include src/node.mk
-# Apply subset to sources list.
-SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
-ifeq ($(SOURCES_FULL),)
-$(error Sources list empty $(if \
-	$(OPENMSX_SUBSET),after applying subset "$(OPENMSX_SUBSET)*"))
+SOURCE_DIRS:=$(sort $(shell find src -type d))
+
+SOURCES_FULL:=$(foreach dir,$(SOURCE_DIRS),$(sort $(wildcard $(dir)/*.cc)))
+SOURCES_FULL:=$(filter-out %Test.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out src/sound/generate%.cc,$(SOURCES_FULL))
+
+# TODO: This doesn't work since MAX_SCALE_FACTOR is not a Make variable,
+#       only a #define in build-info.hh.
+ifeq ($(MAX_SCALE_FACTOR),1)
+define SOURCES_UPSCALE
+	Scanline
+	Scaler2 Scaler3
+	Simple2xScaler Simple3xScaler
+	SaI2xScaler SaI3xScaler
+	Scale2xScaler Scale3xScaler
+	HQ2xScaler HQ2xLiteScaler
+	HQ3xScaler HQ3xLiteScaler
+	RGBTriplet3xScaler MLAAScaler
+	Multiply32
+endef
+SOURCES_FULL:=$(filter-out $(foreach src,$(strip $(SOURCES_UPSCALE)),src/video/scalers/$(src).cc),$(SOURCES_FULL))
 endif
-# Sanity check: only .cc files are allowed in sources list,
-# because we don't have any way to build other sources.
-NON_CC_SOURCES:=$(filter-out %.cc,$(SOURCES_FULL))
-ifneq ($(NON_CC_SOURCES),)
-$(error The following sources files do not have a .cc extension: \
-$(NON_CC_SOURCES))
+
+ifneq ($(COMPONENT_GL),true)
+SOURCES_FULL:=$(filter-out src/video/GL%.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out src/video/SDLGL%.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out src/video/scalers/GL%.cc,$(SOURCES_FULL))
+endif
+
+ifneq ($(COMPONENT_LASERDISC),true)
+SOURCES_FULL:=$(filter-out src/laserdisc/%.cc,$(SOURCES_FULL))
+SOURCES_FULL:=$(filter-out src/video/ld/%.cc,$(SOURCES_FULL))
 endif
 
 SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
-HEADERS:=$(HEADERS_FULL:$(SOURCES_PATH)/%=%)
 
 DEPEND_PATH:=$(BUILD_PATH)/dep
 DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
@@ -370,9 +383,7 @@ ifeq ($(OPENMSX_STRIP),true)
 endif
 
 # Determine common compile flags.
-INCLUDE_INTERNAL:=$(sort $(foreach header,$(HEADERS_FULL),$(patsubst %/,%,$(dir $(header)))))
-INCLUDE_INTERNAL+=$(BUILD_PATH)/config
-COMPILE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
+COMPILE_FLAGS+=$(addprefix -I,$(SOURCE_DIRS) $(BUILD_PATH)/config)
 
 # Determine common link flags.
 LINK_FLAGS_PREFIX:=-Wl,
