@@ -31,8 +31,8 @@
     </PPI>
 
     <VDP id="vdp">
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
       <version>V9938</version>
       <vram>16</vram>
     </VDP>

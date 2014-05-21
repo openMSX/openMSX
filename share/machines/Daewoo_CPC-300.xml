@@ -36,8 +36,8 @@
     <VDP id="VDP">
       <version>V9938</version>
       <vram>128</vram>
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8" type="O"/> <!-- S-1985 mirrors -->
+      <io base="0x98" num="8" type="I"/> <!-- S-1985 mirrors -->
     </VDP>
 
     <PSG id="PSG">
