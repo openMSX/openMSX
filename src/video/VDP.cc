@@ -719,7 +719,7 @@ void VDP::frameStart(EmuTime::param time)
 void VDP::writeIO(word port, byte value, EmuTime::param time)
 {
 	assert(isInsideFrame(time));
-	switch (port & 0x03) {
+	switch (port & (isMSX1VDP() ? 0x01 : 0x03)) {
 	case 0: // VRAM data write
 		vramWrite(value, time);
 		registerDataStored = false;
@@ -1011,14 +1011,16 @@ byte VDP::readIO(word port, EmuTime::param time)
 
 	registerDataStored = false; // Abort any port #1 writes in progress.
 
-	switch (port & 0x03) {
+	switch (port & (isMSX1VDP() ? 0x01 : 0x03)) {
 	case 0: // VRAM data read
 		return vramRead(time);
 	case 1: // Status register read
 		// Calculate status register contents.
 		return readStatusReg(controlRegs[15], time);
+	case 2:
+	case 3:
+		return 0xFF;
 	default:
-		// These ports should not be registered for reading.
 		UNREACHABLE; return 0xFF;
 	}
 }
