@@ -193,7 +193,7 @@ proc slotmap {} {
 set_help_text iomap \
 {Gives an overview of the devices connected to the different I/O ports.}
 proc iomap_helper {prefix begin end name} {
-	if {$name eq "empty"} {return ""}
+	if {$name eq ""} {return ""}
 	set result [format "port %02X" $begin]
 	if {$begin == ($end - 1)} {
 		append result ":   "
