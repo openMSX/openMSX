@@ -107,12 +107,10 @@ byte MSXYamahaSFG::peekMem(word address, EmuTime::param /*time*/) const
 		// TODO: return getKbdStatus();
 		break;
 	case 0x3FF5: // MIDI standard UART DATA READ BUFFER
-		// For now disabled, as it breaks working functionality (YRM-104)
-		// return ym2148->readData();
+		return ym2148->readData();
 		break;
 	case 0x3FF6: // MIDI standard UART STATUS REGISTER
-		// For now disabled, as it breaks working functionality (YRM-104)
-		//return ym2148->readStatus();
+		return ym2148->readStatus();
 		break;
 	}
 	return 0xFF;
