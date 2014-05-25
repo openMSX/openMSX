@@ -11,6 +11,160 @@
 #include <cassert>
 #include <vector>
 
+/******************************************************************************
+ * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
+ ******************************************************************************
+
+--------------------------------------------------------------------------------
+MegaFlashROM SCC+ Technical Details
+(c) Manuel Pazos 28-09-2010
+--------------------------------------------------------------------------------
+
+Main features:
+ - 1024KB flashROM memory (M29W800DB)
+ - SCC-I (2312P001)
+ - PSG (AY-3-8910/YM2149)
+ - Mappers: ASCII8, ASCII16, Konami, Konami SCC, linear 64K
+ - Subslot simulation (4 x 256K)
+
+
+--------------------------------------------------------------------------------
+[Memory]
+
+ - Model Numonix M29W800DB TSOP48
+ - Datasheet: http://www.numonyx.com/Documents/Datasheets/M29W800D.PDF
+ - Block layout:
+     #00000 16K
+     #04000  8K
+     #06000  8K
+     #08000 32K
+     #10000 64K x 15
+ - Command addresses #4555 and #5AAA
+ - Commands:
+    AUTOSELECT  #90
+    WRITE       #A0
+    CHIP_ERASE  #10
+    BLOCK_ERASE #30
+    RESET       #F0
+ - FlashROM ID = #5B
+
+
+--------------------------------------------------------------------------------
+[PSG]
+
+ The PSG included in the cartridge is mapped to ports #10-#12
+
+ Port #A0 -> #10
+ Port #A1 -> #11
+ Port #A2 -> #12
+
+
+--------------------------------------------------------------------------------
+[REGISTERS]
+
+ -#7FFE or #7FFF = CONFIGURATION REGISTER:
+    7 mapper mode 1: \ %00 = SCC,  %01 = 64K
+    6 mapper mode 0: / %10 = ASC8, %11 = ASC16
+    5 mapper mode  :   Select Konami mapper (0 = SCC, 1 = normal)
+    4 Enable subslot mode and register #FFFF (1 = Enable, 0 = Disable)
+    3 Disable #4000-#5FFF mapper in Konami mode (0 = Enable, 1 = Disable)
+    2 Disable configuration register (1 = Disabled)
+    1 Disable mapper registers (0 = Enable, 1 = Disable)
+    0 Enable 512K mapper limit in SCC mapper or 256K limit in Konami mapper
+(1 = Enable, 0 = Disable)
+
+
+--------------------------------------------------------------------------------
+[MAPPERS]
+
+ - ASCII 8:    Common ASC8 mapper
+
+ - ASCII 16:   Common ASC16 mapper
+
+ - Konami:     Common Konami mapper.
+               Bank0 (#4000-#5FFF) can be also changed unless CONF_REG bit3 is 1
+
+ - Konami SCC: Common Konami SCC mapper
+               Bank0 mapper register: if bank number bit 7 is 1 then bit 6-0 sets mapper offset.
+
+ - Linear 64:  #0000-#3FFF bank0
+               #4000-#7FFF bank1
+               #8000-#BFFF bank2
+               #C000-#FFFF bank3
+               Banks mapper registers addresses = Konami
+
+--------------------------------------------------------------------------------
+[DEFAULT VALUES]
+ - CONFIGURATION REGISTER = 0
+ - Bank0 = 0
+ - Bank1 = 1
+ - Bank2 = 2
+ - Bank3 = 3
+ - Bank offset = 0
+ - Subslot register = 0
+
+--------------------------------------------------------------------------------
+[LOGIC]
+
+  Banks0-3: are set depending on the mapper mode.
+  Subslots: are set writting to #FFFF in the MegaFlashROM SCC+ slot when CONFIG_REG bit 4 is set.
+  Offset:   is set by writing offset value + #80 to bank0 mapper register in Konami SCC mode.
+
+  -- Subslots offsets
+  SubOff0 = subslot(1-0) & "0000" + mapOff;	-- In 64K mode, the banks are 16K, with the offsets halved
+  SubOff1 = subslot(3-2) & "0000" + mapOff when maptyp = "10" else subslot(3-2) & "00000" + mapOff;
+  SubOff2 = subslot(5-4) & "0000" + mapOff when maptyp = "10" else subslot(5-4) & "00000" + mapOff;
+  SubOff3 = subslot(7-6) & "0000" + mapOff when maptyp = "10" else subslot(7-6) & "00000";
+
+  -- Calculate the bank mapper to use taking into account the offset
+  Bank0 =  SubBank0(x) + SubOff0 when SccModeA(4) = '1' and subslot(1 downto 0) = "00" and maptyp = "10" else
+           SubBank0(1) + SubOff0 when SccModeA(4) = '1' and subslot(1 downto 0) = "01" and maptyp = "10" else
+           SubBank0(2) + SubOff0 when SccModeA(4) = '1' and subslot(1 downto 0) = "10" and maptyp = "10" else
+           SubBank0(3) + SubOff0 when SccModeA(4) = '1' and subslot(1 downto 0) = "11" and maptyp = "10" else
+
+           SubBank0(0) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "00" else
+           SubBank0(1) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "01" else
+           SubBank0(2) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "10" else
+           SubBank0(3) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "11" else
+           SccBank0    + mapOff;
+
+  Bank1 <= SubBank1(0) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "00" else
+           SubBank1(1) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "01" else
+           SubBank1(2) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "10" else
+           SubBank1(3) + SubOff1 when SccModeA(4) = '1' and subslot(3 downto 2) = "11" else
+           SccBank1    + mapOff;
+
+  Bank2 <= SubBank2(0) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "00" else
+           SubBank2(1) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "01" else
+           SubBank2(2) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "10" else
+           SubBank2(3) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "11" else
+           SccBank2    + mapOff;
+
+  Bank3 <= SubBank3(0) + SubOff3 when SccModeA(4) = '1' and subslot(7 downto 6) = "00" and maptyp = "10" else
+           SubBank3(1) + SubOff3 when SccModeA(4) = '1' and subslot(7 downto 6) = "01" and maptyp = "10" else
+           SubBank3(2) + SubOff3 when SccModeA(4) = '1' and subslot(7 downto 6) = "10" and maptyp = "10" else
+           SubBank3(3) + SubOff3 when SccModeA(4) = '1' and subslot(7 downto 6) = "11" and maptyp = "10" else
+
+           SubBank3(0) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "00" else
+           SubBank3(1) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "01" else
+           SubBank3(2) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "10" else
+           SubBank3(3) + SubOff2 when SccModeA(4) = '1' and subslot(5 downto 4) = "11" else
+           SccBank3    + mapOff;
+
+
+            -- 64K Mode
+  RamAdr <= Bank0(5 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "00" and maptyp = "10" else 	--#0000-#3FFF
+            Bank1(5 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "01" and maptyp = "10" else 	--#4000-#7FFF
+            Bank2(5 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "10" and maptyp = "10" else 	--#8000-#BFFF
+            Bank3(5 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "11" and maptyp = "10" else 	--#C000-#FFFF
+            -- Modes SCC, ASC8 and ASC16
+            Bank0(6 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "10" else 	--#4000-#5FFF
+            Bank1(6 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "11" else 	--#6000-#7FFF
+            Bank2(6 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "00" else 	--#8000-#9FFF
+            Bank3(6 downto 0) & adr(12 downto 0);
+
+******************************************************************************/
+
 namespace openmsx {
 
 static unsigned sectorSizes[19] = {
