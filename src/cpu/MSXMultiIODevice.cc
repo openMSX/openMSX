@@ -1,5 +1,6 @@
 #include "MSXMultiIODevice.hh"
 #include "TclObject.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -17,14 +18,13 @@ MSXMultiIODevice::~MSXMultiIODevice()
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
-	assert(std::count(begin(devices), end(devices), device) == 0);
+	assert(!contains(devices, device));
 	devices.push_back(device);
 }
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
-	assert(std::count(begin(devices), end(devices), device) == 1);
-	devices.erase(std::find(begin(devices), end(devices), device));
+	devices.erase(find_unguarded(devices, device));
 }
 
 MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()

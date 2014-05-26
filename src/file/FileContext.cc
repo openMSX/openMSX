@@ -5,6 +5,7 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "openmsx.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -105,7 +106,7 @@ vector<string> FileContext::getPaths() const
 
 bool FileContext::isUserContext() const
 {
-	return find(begin(paths), end(paths), USER_DIRS) != end(paths);
+	return contains(paths, USER_DIRS);
 }
 
 ///

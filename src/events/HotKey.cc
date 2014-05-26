@@ -356,8 +356,7 @@ static HotKey::BindMap::const_iterator findMatch(
 {
 	return find_if(begin(map), end(map),
 		[&](const HotKey::BindMap::value_type& p) {
-			return p.first->matches(event);
-		});
+			return p.first->matches(event); });
 }
 
 int HotKey::signalEvent(const EventPtr& event_)

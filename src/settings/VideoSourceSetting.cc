@@ -2,6 +2,7 @@
 #include "CommandException.hh"
 #include "Completer.hh"
 #include "StringOp.hh"
+#include "stl.hh"
 
 namespace openmsx {
 
@@ -59,9 +60,8 @@ int VideoSourceSetting::getSource()
 
 void VideoSourceSetting::setSource(int id)
 {
-	auto it = find_if(begin(sources), end(sources),
+	auto it = find_if_unguarded(sources,
 		[&](const Sources::value_type& p) { return p.second == id; });
-	assert(it != end(sources));
 	setString(it->first);
 }
 
@@ -116,10 +116,8 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 
 void VideoSourceSetting::unregisterVideoSource(int source)
 {
-	auto it = find_if(begin(sources), end(sources),
-		[&](Sources::value_type& p) { return p.second == source; });
-	assert(it != end(sources));
-	sources.erase(it);
+	sources.erase(find_if_unguarded(sources,
+		[&](Sources::value_type& p) { return p.second == source; }));
 
 	// First notify the (possibly) changed value before announcing the
 	// shrinked set of values.

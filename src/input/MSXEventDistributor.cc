@@ -1,5 +1,6 @@
 #include "MSXEventDistributor.hh"
 #include "MSXEventListener.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -16,8 +17,7 @@ MSXEventDistributor::~MSXEventDistributor()
 
 bool MSXEventDistributor::isRegistered(MSXEventListener* listener) const
 {
-	return find(begin(listeners), end(listeners), listener) !=
-	       end(listeners);
+	return contains(listeners, listener);
 }
 
 void MSXEventDistributor::registerEventListener(MSXEventListener& listener)
@@ -28,8 +28,7 @@ void MSXEventDistributor::registerEventListener(MSXEventListener& listener)
 
 void MSXEventDistributor::unregisterEventListener(MSXEventListener& listener)
 {
-	assert(isRegistered(&listener));
-	listeners.erase(find(begin(listeners), end(listeners), &listener));
+	listeners.erase(find_unguarded(listeners, &listener));
 }
 
 void MSXEventDistributor::distributeEvent(const EventPtr& event, EmuTime::param time)

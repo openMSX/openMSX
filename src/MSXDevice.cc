@@ -10,6 +10,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "serialize.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include <algorithm>
 #include <cassert>
@@ -137,9 +138,7 @@ void MSXDevice::lockDevices()
 void MSXDevice::unlockDevices()
 {
 	for (auto& r : references) {
-		auto it = find(begin(r->referencedBy), end(r->referencedBy), this);
-		assert(it != end(r->referencedBy));
-		r->referencedBy.erase(it);
+		r->referencedBy.erase(find_unguarded(r->referencedBy, this));
 	}
 }
 

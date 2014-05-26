@@ -15,9 +15,10 @@
 #include "CliComm.hh"
 #include "Math.hh"
 #include "StringOp.hh"
-#include "vla.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
+#include "vla.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -180,9 +181,8 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = find_if(begin(infos), end(infos),
+	auto it = find_if_unguarded(infos,
 		[&](const SoundDeviceInfo& i) { return i.device == &device; });
-	assert(it != end(infos));
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);
 	for (auto& s : it->channelSettings) {
@@ -614,11 +614,10 @@ void MSXMixer::update(const Setting& setting)
 			// the speed setting).
 		}
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
-		auto it = find_if(begin(infos), end(infos),
+		auto it = find_if_unguarded(infos,
 			[&](const SoundDeviceInfo& i) {
 				return (i.volumeSetting .get() == &setting) ||
 				       (i.balanceSetting.get() == &setting); });
-		assert(it != end(infos));
 		updateVolumeParams(*it);
 	} else if (dynamic_cast<const StringSetting*>(&setting)) {
 		changeRecordSetting(setting);

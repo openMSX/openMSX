@@ -11,6 +11,7 @@
 #include "CliComm.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include <cassert>
 #include <iostream>
 #include <set>
@@ -129,10 +130,7 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
-	auto it = find(begin(connectors), end(connectors), &connector);
-	assert(it != end(connectors));
-	connectors.erase(it);
-
+	connectors.erase(find_unguarded(connectors, &connector));
 	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");
 }
 

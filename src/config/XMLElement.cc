@@ -4,6 +4,7 @@
 #include "ConfigException.hh"
 #include "serialize.hh"
 #include "serialize_stl.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -38,12 +39,8 @@ XMLElement& XMLElement::addChild(string_ref name, string_ref data)
 
 void XMLElement::removeChild(const XMLElement& child)
 {
-	assert(std::count_if(begin(children), end(children),
-		[&](Children::value_type& v) { return &v == &child; }) == 1);
-	auto it = std::find_if(begin(children), end(children),
-		[&](Children::value_type& v) { return &v == &child; });
-	assert(it != end(children));
-	children.erase(it);
+	children.erase(find_if_unguarded(children,
+		[&](Children::value_type& v) { return &v == &child; }));
 }
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)

@@ -43,8 +43,9 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "ScopedAssign.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include <cassert>
 #include <functional>
 #include <vector>
@@ -517,9 +518,8 @@ const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() co
 void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	auto it = std::find_if(begin(extensions), end(extensions),
+	auto it = find_if_unguarded(extensions,
 		[&](Extensions::value_type& v) { return v.get() == &extension; });
-	assert(it != end(extensions));
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
 	extensions.erase(it);
 }
@@ -759,9 +759,7 @@ void MSXMotherBoard::Impl::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::Impl::removeDevice(MSXDevice& device)
 {
-	auto it = find(begin(availableDevices), end(availableDevices), &device);
-	assert(it != end(availableDevices));
-	availableDevices.erase(it);
+	availableDevices.erase(find_unguarded(availableDevices, &device));
 }
 
 void MSXMotherBoard::Impl::doReset()

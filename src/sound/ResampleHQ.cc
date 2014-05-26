@@ -13,10 +13,11 @@
 #include "ResampledSoundDevice.hh"
 #include "FixedPoint.hh"
 #include "MemoryOps.hh"
-#include "noncopyable.hh"
-#include "vla.hh"
 #include "countof.hh"
 #include "likely.hh"
+#include "noncopyable.hh"
+#include "stl.hh"
+#include "vla.hh"
 #include "build-info.hh"
 #include <algorithm>
 #include <vector>
@@ -98,9 +99,8 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = find_if(begin(cache), end(cache),
+	auto it = find_if_unguarded(cache,
 		[=](const Element& e) { return e.ratio == ratio; });
-	assert(it != end(cache));
 	it->count--;
 	if (it->count == 0) {
 		MemoryOps::freeAligned(it->table);

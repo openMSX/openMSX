@@ -24,6 +24,7 @@
 #include "serialize_meta.hh"
 #include "memory.hh"
 #include "openmsx.hh"
+#include "stl.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstring>
@@ -1159,10 +1160,10 @@ string KeyInserter::help(const vector<string>& /*tokens*/) const
 void KeyInserter::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> options;
-	if (find(begin(tokens), end(tokens), "-release") == end(tokens)) {
+	if (!contains(tokens, "-release")) {
 		options.push_back("-release");
 	}
-	if (find(begin(tokens), end(tokens), "-freq") == end(tokens)) {
+	if (!contains(tokens, "-freq")) {
 		options.push_back("-freq");
 	}
 	completeString(tokens, options);

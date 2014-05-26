@@ -3,6 +3,7 @@
 
 #include "Observer.hh"
 #include "ScopedAssign.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -57,9 +58,7 @@ template <typename T> void Subject<T>::attach(Observer<T>& observer)
 template <typename T> void Subject<T>::detach(Observer<T>& observer)
 {
 	assert(!notifyInProgress);
-	auto it = find(begin(observers), end(observers), &observer);
-	assert(it != end(observers));
-	observers.erase(it);
+	observers.erase(find_unguarded(observers, &observer));
 }
 
 template <typename T> void Subject<T>::notify() const

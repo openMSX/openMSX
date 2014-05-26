@@ -263,17 +263,15 @@ public:
 	}
 
 	void insert(void* aligned, void* unaligned) {
-		assert(find_if(begin(allocMap), end(allocMap),
-		               EqualTupleValue<0>(aligned))
-		       == end(allocMap));
+		assert(none_of(begin(allocMap), end(allocMap),
+		               EqualTupleValue<0>(aligned)));
 		allocMap.emplace_back(aligned, unaligned);
 	}
 
 	void* remove(void* aligned) {
 		// LIFO order is more likely than FIFO -> search backwards
-		auto it = find_if(allocMap.rbegin(), allocMap.rend(),
+		auto it = find_if_unguarded(allocMap.rbegin(), allocMap.rend(),
 		               EqualTupleValue<0>(aligned));
-		assert(it != allocMap.rend());
 		// return the associated unaligned value
 		void* unaligned = it->second;
 		// instead of vector::erase(), swap with back and drop that

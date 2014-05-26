@@ -3,6 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "likely.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -66,9 +67,7 @@ void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 {
-	auto it = find(begin(ranges), end(ranges), Range(base, size, device));
-	assert(it != end(ranges));
-	ranges.erase(it);
+	ranges.erase(find_unguarded(ranges, Range(base, size, device)));
 }
 
 bool MSXMultiMemDevice::empty() const

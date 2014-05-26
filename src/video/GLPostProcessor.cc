@@ -185,9 +185,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
-		auto it = find_if(begin(textures), end(textures),
+		auto it = find_if_unguarded(textures,
 		                  EqualTupleValue<0>(r.lineWidth));
-		assert(it != end(textures));
 		auto superImpose = superImposeVideoFrame
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(

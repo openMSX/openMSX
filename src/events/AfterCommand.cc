@@ -11,8 +11,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -512,9 +513,8 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	auto it = find_if(begin(afterCommand.afterCmds), end(afterCommand.afterCmds),
+	auto it = find_if_unguarded(afterCommand.afterCmds,
 		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
-	assert(it != end(afterCommand.afterCmds));
 	auto result = move(*it);
 	afterCommand.afterCmds.erase(it);
 	return result;

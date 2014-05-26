@@ -1,8 +1,10 @@
 #ifndef STL_HH
 #define STL_HH
 
+#include <algorithm>
 #include <tuple>
 #include <utility>
+#include <cassert>
 
 // Dereference the two given (pointer-like) parameters and then compare
 // them with the less-than operator.
@@ -80,6 +82,71 @@ private:
 template<int N, typename T>
 EqualTupleValueImpl<N, T> EqualTupleValue(const T& t) {
 	return EqualTupleValueImpl<N, T>(t);
+}
+
+
+/** Check if a range contains a given value, using linear search.
+  * Equivalent to 'find(first, last, val) != last', though this algorithm
+  * is more convenient to use.
+  * Note: we don't need a variant that uses 'find_if' instead of 'find' because
+  * STL already has the 'any_of' algorithm.
+  */
+template<typename ITER, typename VAL>
+inline bool contains(ITER first, ITER last, const VAL& val)
+{
+	return std::find(first, last, val) != last;
+}
+template<typename RANGE, typename VAL>
+inline bool contains(RANGE& range, const VAL& val)
+{
+	return contains(std::begin(range), std::end(range), val);
+}
+
+
+/** Faster alternative to 'find' when it's guaranteed that the value will be
+  * found (if not the behavior is undefined).
+  * When asserts are enabled we check whether we really don't move beyond the
+  * end of the range. And this check is the only reason why you need to pass
+  * the 'last' parameter. Sometimes you see 'find_unguarded' without a 'last'
+  * parameter, we could consider providing such an overload as well.
+  */
+template<typename ITER, typename VAL>
+inline ITER find_unguarded(ITER first, ITER last, const VAL& val)
+{
+	(void)last;
+	while (1) {
+		assert(first != last);
+		if (*first == val) return first;
+		++first;
+	}
+}
+template<typename RANGE, typename VAL>
+inline auto find_unguarded(RANGE& range, const VAL& val)
+-> decltype(std::begin(range))
+{
+	return find_unguarded(std::begin(range), std::end(range), val);
+}
+
+
+/** Faster alternative to 'find_if' when it's guaranteed that the predicate
+  * will be true for at least one element in the given range.
+  * See also 'find_unguarded'.
+  */
+template<typename ITER, typename PRED>
+inline ITER find_if_unguarded(ITER first, ITER last, PRED pred)
+{
+	(void)last;
+	while (1) {
+		assert(first != last);
+		if (pred(*first)) return first;
+		++first;
+	}
+}
+template<typename RANGE, typename PRED>
+inline auto find_if_unguarded(RANGE& range, PRED pred)
+-> decltype(std::begin(range))
+{
+	return find_if_unguarded(std::begin(range), std::end(range), pred);
 }
 
 #endif

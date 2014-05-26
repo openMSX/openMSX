@@ -15,6 +15,7 @@
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "KeyRange.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <cassert>
@@ -217,10 +218,8 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	auto it = std::find_if(begin(probeBreakPoints), end(probeBreakPoints),
-		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; });
-	assert(it != end(probeBreakPoints));
-	probeBreakPoints.erase(it);
+	probeBreakPoints.erase(find_if_unguarded(probeBreakPoints,
+		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
 }
 
 unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
@@ -1138,12 +1137,9 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 		break;
 	}
 	case 3:
-		if (find(begin(singleArgCmds), end(singleArgCmds), tokens[1]) ==
-		    end(singleArgCmds)) {
+		if (!contains(singleArgCmds, tokens[1])) {
 			// this command takes (an) argument(s)
-			if (find(begin(debuggableArgCmds), end(debuggableArgCmds),
-			         tokens[1]) !=
-			    end(debuggableArgCmds)) {
+			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
 				completeString(tokens, keys(debugger.debuggables));
 			} else if (tokens[1] == "remove_bp") {

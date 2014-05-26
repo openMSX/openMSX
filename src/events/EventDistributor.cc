@@ -38,10 +38,8 @@ void EventDistributor::unregisterEventListener(
 {
 	ScopedLock lock(sem);
 	auto& priorityMap = listeners[type];
-	auto it = find_if(begin(priorityMap), end(priorityMap),
-		[&](PriorityMap::value_type v) { return v.second == &listener; });
-	assert(it != end(priorityMap));
-	priorityMap.erase(it);
+	priorityMap.erase(find_if_unguarded(priorityMap,
+		[&](PriorityMap::value_type v) { return v.second == &listener; }));
 }
 
 void EventDistributor::distributeEvent(const EventPtr& event)

@@ -33,8 +33,7 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
 	assert(!initialized);
-	assert(find_if(begin(saverMap), end(saverMap), EqualTupleValue<0>(type))
-	       == end(saverMap));
+	assert(none_of(begin(saverMap), end(saverMap), EqualTupleValue<0>(type)));
 	saverMap.emplace_back(type, std::move(saver));
 }
 

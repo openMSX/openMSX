@@ -22,8 +22,9 @@
 #include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include <tcl.h>
 #include <iomanip>
 #include <algorithm>
@@ -606,9 +607,7 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
-	auto it = find(begin(globalWrites), end(globalWrites), info);
-	assert(it != end(globalWrites));
-	globalWrites.erase(it);
+	globalWrites.erase(find_unguarded(globalWrites, info));
 
 	for (auto& g : globalWrites) {
 		if ((g.addr >> CacheLine::BITS) ==
@@ -786,11 +785,9 @@ void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
 	auto range = equal_range(begin(breakPoints), end(breakPoints),
 	                         bp.getAddress(), CompareBreakpoints());
-	auto it = find_if(range.first, range.second,
+	breakPoints.erase(find_if_unguarded(range.first, range.second,
 		[&](const shared_ptr<BreakPoint>& i) {
-			return i.get() == &bp; });
-	assert(it != range.second);
-	breakPoints.erase(it);
+			return i.get() == &bp; }));
 }
 
 void MSXCPUInterface::checkBreakPoints(
@@ -873,10 +870,8 @@ void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	auto it = find_if(begin(conditions), end(conditions),
-		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; });
-	assert(it != end(conditions));
-	conditions.erase(it);
+	conditions.erase(find_if_unguarded(conditions,
+		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; }));
 }
 
 const MSXCPUInterface::Conditions& MSXCPUInterface::getConditions()

@@ -7,6 +7,7 @@
 #include "FileException.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -997,7 +998,7 @@ template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
 					continue;
 				}
 				unsigned dir = clusterToSector(cluster);
-				if (find(begin(dirs), end(dirs), dir) != end(dirs)) {
+				if (contains(dirs, dir)) {
 					// Already found this sector. Except
 					// for the special "." and ".."
 					// entries, loops should not occur in

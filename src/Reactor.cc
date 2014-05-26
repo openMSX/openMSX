@@ -40,6 +40,7 @@
 #include "openmsx.hh"
 #include "checked_cast.hh"
 #include "statp.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include "build-info.hh"
@@ -492,13 +493,11 @@ void Reactor::switchBoard(MSXMotherBoard* newBoard)
 {
 	assert(Thread::isMainThread());
 	assert(!newBoard ||
-	       (find_if(begin(boards), end(boards),
-	               [&](Boards::value_type& b) { return b.get() == newBoard; })
-	        != end(boards)));
+	       (any_of(begin(boards), end(boards),
+	               [&](Boards::value_type& b) { return b.get() == newBoard; })));
 	assert(!activeBoard ||
-	       (find_if(begin(boards), end(boards),
-	                [&](Boards::value_type& b) { return b.get() == activeBoard; })
-	        != end(boards)));
+	       (any_of(begin(boards), end(boards),
+	               [&](Boards::value_type& b) { return b.get() == activeBoard; })));
 	if (activeBoard) {
 		activeBoard->activate(false);
 	}
@@ -531,9 +530,8 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		// delete active board -> there is no active board anymore
 		switchBoard(nullptr);
 	}
-	auto it = find_if(begin(boards), end(boards),
-	                  [&](Boards::value_type& b) { return b.get() == board; });
-	assert(it != end(boards));
+	auto it = find_if_unguarded(boards,
+		[&](Boards::value_type& b) { return b.get() == board; });
 	auto board_ = move(*it);
 	boards.erase(it);
 	// Don't immediately delete old boards because it's possible this

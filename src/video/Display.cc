@@ -28,6 +28,7 @@
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <algorithm>
@@ -179,15 +180,13 @@ CommandConsole& Display::getCommandConsole()
 
 void Display::attach(VideoSystemChangeListener& listener)
 {
-	assert(count(begin(listeners), end(listeners), &listener) == 0);
+	assert(!contains(listeners, &listener));
 	listeners.push_back(&listener);
 }
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	auto it = find(begin(listeners), end(listeners), &listener);
-	assert(it != end(listeners));
-	listeners.erase(it);
+	listeners.erase(find_unguarded(listeners, &listener));
 }
 
 Layer* Display::findActiveLayer() const
@@ -423,9 +422,7 @@ void Display::addLayer(Layer& layer)
 
 void Display::removeLayer(Layer& layer)
 {
-	auto it = std::find(begin(layers), end(layers), &layer);
-	assert(it != end(layers));
-	layers.erase(it);
+	layers.erase(find_unguarded(layers, &layer));
 }
 
 void Display::updateZ(Layer& layer)
