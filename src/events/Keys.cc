@@ -282,7 +282,7 @@ static void initialize()
 		{ "PRESS",	KD_PRESS },
 		{ "RELEASE",	KD_RELEASE },
 	};
-	sort(keys.begin(), keys.end(), CmpKeys());
+	sort(begin(keys), end(keys), CmpKeys());
 }
 
 KeyCode getCode(string_ref name)
@@ -296,9 +296,9 @@ KeyCode getCode(string_ref name)
 		auto part = (pos != string_ref::npos)
 		          ? name.substr(lastPos, pos)
 		          : name.substr(lastPos);
-		auto it = lower_bound(keys.begin(), keys.end(), part, CmpKeys());
+		auto it = lower_bound(begin(keys), end(keys), part, CmpKeys());
 		StringOp::casecmp cmp;
-		if ((it == keys.end()) || !cmp(it->first, part)) {
+		if ((it == end(keys)) || !cmp(it->first, part)) {
 			return K_NONE;
 		}
 		KeyCode partCode = it->second;

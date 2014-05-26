@@ -81,7 +81,7 @@ FilePool::~FilePool()
 
 void FilePool::insert(const Sha1Sum& sum, time_t time, const string& filename)
 {
-	auto it = upper_bound(pool.begin(), pool.end(), sum,
+	auto it = upper_bound(begin(pool), end(pool), sum,
 	                      LessTupleElement<0>());
 	pool.insert(it, make_tuple(sum, time, filename));
 	needWrite = true;
@@ -101,7 +101,7 @@ void FilePool::remove(Pool::iterator it)
 bool FilePool::adjust(Pool::iterator it, const Sha1Sum& newSum)
 {
 	needWrite = true;
-	auto newIt = upper_bound(pool.begin(), pool.end(), newSum,
+	auto newIt = upper_bound(begin(pool), end(pool), newSum,
 	                         LessTupleElement<0>());
 	get<0>(*it) = newSum; // update sum
 	if (newIt > it) {
@@ -155,12 +155,12 @@ void FilePool::readSha1sums()
 		}
 	}
 
-	if (!std::is_sorted(pool.begin(), pool.end(), LessTupleElement<0>())) {
+	if (!std::is_sorted(begin(pool), end(pool), LessTupleElement<0>())) {
 		// This should _rarely_ happen. In fact it should only happen
 		// when .filecache was manually edited. Though because it's
 		// very important that pool is indeed sorted I've added this
 		// safety mechanism.
-		sort(pool.begin(), pool.end(), LessTupleElement<0>());
+		sort(begin(pool), end(pool), LessTupleElement<0>());
 	}
 }
 
@@ -287,13 +287,13 @@ static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distr
 
 unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)
 {
-	auto bound = equal_range(pool.begin(), pool.end(), sha1sum,
+	auto bound = equal_range(begin(pool), end(pool), sha1sum,
 	                         LessTupleElement<0>());
 	// use indices instead of iterators
-	auto i    = distance(pool.begin(), bound.first);
-	auto last = distance(pool.begin(), bound.second);
+	auto i    = distance(begin(pool), bound.first);
+	auto last = distance(begin(pool), bound.second);
 	while (i != last) {
-		auto it = pool.begin() + i;
+		auto it = begin(pool) + i;
 		auto& time           = get<1>(*it);
 		const auto& filename = get<2>(*it);
 		try {
@@ -382,7 +382,7 @@ unique_ptr<File> FilePool::scanFile(const Sha1Sum& sha1sum, const string& filena
 	distributor.deliverEvents();
 
 	auto it = findInDatabase(filename);
-	if (it == pool.end()) {
+	if (it == end(pool)) {
 		// not in pool
 		try {
 			auto file = make_unique<File>(filename);
@@ -436,7 +436,7 @@ FilePool::Pool::iterator FilePool::findInDatabase(const string& filename)
 			return it.base() - 1;
 		}
 	}
-	return pool.end(); // not found
+	return end(pool); // not found
 }
 
 Sha1Sum FilePool::getSha1Sum(File& file)
@@ -445,7 +445,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 	const auto& filename = file.getURL();
 
 	auto it = findInDatabase(filename);
-	if ((it != pool.end()) && (get<1>(*it) == time)) {
+	if ((it != end(pool)) && (get<1>(*it) == time)) {
 		// in database and modification time matches,
 		// assume sha1sum also matches
 		return get<0>(*it);
@@ -453,7 +453,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 
 	// not in database or timestamp mismatch
 	auto sum = calcSha1sum(file, cliComm, distributor);
-	if (it == pool.end()) {
+	if (it == end(pool)) {
 		// was not yet in database, insert new entry
 		insert(sum, time, filename);
 	} else {
@@ -467,7 +467,7 @@ Sha1Sum FilePool::getSha1Sum(File& file)
 void FilePool::removeSha1Sum(File& file)
 {
 	auto it = findInDatabase(file.getURL());
-	if (it != pool.end()) {
+	if (it != end(pool)) {
 		remove(it);
 	}
 }

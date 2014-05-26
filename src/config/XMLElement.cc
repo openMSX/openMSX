@@ -38,35 +38,35 @@ XMLElement& XMLElement::addChild(string_ref name, string_ref data)
 
 void XMLElement::removeChild(const XMLElement& child)
 {
-	assert(std::count_if(children.begin(), children.end(),
+	assert(std::count_if(begin(children), end(children),
 		[&](Children::value_type& v) { return &v == &child; }) == 1);
-	auto it = std::find_if(children.begin(), children.end(),
+	auto it = std::find_if(begin(children), end(children),
 		[&](Children::value_type& v) { return &v == &child; });
-	assert(it != children.end());
+	assert(it != end(children));
 	children.erase(it);
 }
 
 XMLElement::Attributes::iterator XMLElement::findAttribute(string_ref name)
 {
-	return find_if(attributes.begin(), attributes.end(),
+	return find_if(begin(attributes), end(attributes),
 	               [&](Attribute& a) { return a.first == name; });
 }
 XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_ref name) const
 {
-	return find_if(attributes.begin(), attributes.end(),
+	return find_if(begin(attributes), end(attributes),
 	               [&](const Attribute& a) { return a.first == name; });
 }
 
 void XMLElement::addAttribute(string_ref name, string_ref value)
 {
-	assert(findAttribute(name) == attributes.end());
+	assert(findAttribute(name) == end(attributes));
 	attributes.emplace_back(name.str(), value.str());
 }
 
 void XMLElement::setAttribute(string_ref name, string_ref value)
 {
 	auto it = findAttribute(name);
-	if (it != attributes.end()) {
+	if (it != end(attributes)) {
 		it->second = value.str();
 	} else {
 		attributes.emplace_back(name.str(), value.str());
@@ -76,7 +76,7 @@ void XMLElement::setAttribute(string_ref name, string_ref value)
 void XMLElement::removeAttribute(string_ref name)
 {
 	auto it = findAttribute(name);
-	if (it != attributes.end()) {
+	if (it != end(attributes)) {
 		attributes.erase(it);
 	}
 }
@@ -248,13 +248,13 @@ void XMLElement::removeAllChildren()
 
 bool XMLElement::hasAttribute(string_ref name) const
 {
-	return findAttribute(name) != attributes.end();
+	return findAttribute(name) != end(attributes);
 }
 
 const string& XMLElement::getAttribute(string_ref attName) const
 {
 	auto it = findAttribute(attName);
-	if (it == attributes.end()) {
+	if (it == end(attributes)) {
 		throw ConfigException("Missing attribute \"" +
 		                      attName + "\".");
 	}
@@ -265,14 +265,14 @@ string_ref XMLElement::getAttribute(string_ref attName,
 	                            string_ref defaultValue) const
 {
 	auto it = findAttribute(attName);
-	return (it == attributes.end()) ? defaultValue : it->second;
+	return (it == end(attributes)) ? defaultValue : it->second;
 }
 
 bool XMLElement::getAttributeAsBool(string_ref attName,
                                     bool defaultValue) const
 {
 	auto it = findAttribute(attName);
-	return (it == attributes.end()) ? defaultValue
+	return (it == end(attributes)) ? defaultValue
 	                                : StringOp::stringToBool(it->second);
 }
 
@@ -280,7 +280,7 @@ int XMLElement::getAttributeAsInt(string_ref attName,
                                   int defaultValue) const
 {
 	auto it = findAttribute(attName);
-	return (it == attributes.end()) ? defaultValue
+	return (it == end(attributes)) ? defaultValue
 	                                : StringOp::stringToInt(it->second);
 }
 
@@ -288,7 +288,7 @@ bool XMLElement::findAttributeInt(string_ref attName,
                                   unsigned& result) const
 {
 	auto it = findAttribute(attName);
-	if (it != attributes.end()) {
+	if (it != end(attributes)) {
 		result = StringOp::stringToInt(it->second);
 		return true;
 	} else {

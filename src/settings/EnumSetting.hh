@@ -58,8 +58,8 @@ EnumSetting<T>::EnumSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, T initialValue,
 		Map& map, SaveSetting save)
-	: EnumSettingBase(BaseMap(std::make_move_iterator(map.begin()),
-	                          std::make_move_iterator(map.end())))
+	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
+	                          std::make_move_iterator(end(map))))
 	, Setting(commandController, name, description,
 	          toString(initialValue).str(), save)
 {

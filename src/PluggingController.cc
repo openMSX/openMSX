@@ -129,8 +129,8 @@ void PluggingController::registerConnector(Connector& connector)
 
 void PluggingController::unregisterConnector(Connector& connector)
 {
-	auto it = find(connectors.begin(), connectors.end(), &connector);
-	assert(it != connectors.end());
+	auto it = find(begin(connectors), end(connectors), &connector);
+	assert(it != end(connectors));
 	connectors.erase(it);
 
 	getCliComm().update(CliComm::CONNECTOR, connector.getName(), "remove");

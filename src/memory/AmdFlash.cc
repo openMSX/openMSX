@@ -25,7 +25,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
 	, sectorSizes(sectorSizes_)
-	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
+	, size(std::accumulate(begin(sectorSizes), end(sectorSizes), 0))
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
 	, state(ST_IDLE)
@@ -110,13 +110,13 @@ void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
                              unsigned& sectorSize, unsigned& offset) const
 {
 	address &= getSize() - 1;
-	auto it = sectorSizes.begin();
+	auto it = begin(sectorSizes);
 	sector = 0;
 	while (address >= *it) {
 		address -= *it;
 		++sector;
 		++it;
-		assert(it != sectorSizes.end());
+		assert(it != end(sectorSizes));
 	}
 	sectorSize = *it;
 	offset = address;

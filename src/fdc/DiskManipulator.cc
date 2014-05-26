@@ -52,7 +52,7 @@ string DiskManipulator::getMachinePrefix() const
 void DiskManipulator::registerDrive(
 	DiskContainer& drive, const std::string& prefix)
 {
-	assert(findDriveSettings(drive) == drives.end());
+	assert(findDriveSettings(drive) == end(drives));
 	DriveSettings driveSettings;
 	driveSettings.drive = &drive;
 	driveSettings.driveName = prefix + drive.getContainerName();
@@ -66,21 +66,21 @@ void DiskManipulator::registerDrive(
 void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
 	auto it = findDriveSettings(drive);
-	assert(it != drives.end());
+	assert(it != end(drives));
 	drives.erase(it);
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	DiskContainer& drive)
 {
-	return find_if(drives.begin(), drives.end(),
+	return find_if(begin(drives), end(drives),
 	               [&](DriveSettings& ds) { return ds.drive == &drive; });
 }
 
 DiskManipulator::Drives::iterator DiskManipulator::findDriveSettings(
 	string_ref name)
 {
-	return find_if(drives.begin(), drives.end(),
+	return find_if(begin(drives), end(drives),
 	               [&](DriveSettings& ds) { return ds.driveName == name; });
 }
 
@@ -96,9 +96,9 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	auto tmp2 = diskname.substr(0, pos2 + pos1b);
 
 	auto it = findDriveSettings(tmp2);
-	if (it == drives.end()) {
+	if (it == end(drives)) {
 		it = findDriveSettings(getMachinePrefix() + tmp2);
-		if (it == drives.end()) {
+		if (it == end(drives)) {
 			throw CommandException("Unknown drive: " + tmp2);
 		}
 	}
@@ -153,12 +153,12 @@ string DiskManipulator::execute(const vector<string>& tokens)
 			throw CommandException(tokens[3] + " is not a directory");
 		}
 		auto& settings = getDriveSettings(tokens[2]);
-		vector<string> lists(tokens.begin() + 4, tokens.end());
+		vector<string> lists(begin(tokens) + 4, end(tokens));
 		exprt(settings, tokens[3], lists);
 
 	} else if (tokens[1] == "import") {
 		auto& settings = getDriveSettings(tokens[2]);
-		vector<string> lists(tokens.begin() + 3, tokens.end());
+		vector<string> lists(begin(tokens) + 3, end(tokens));
 		result = import(settings, lists);
 
 	} else if (tokens[1] == "savedsk") {
@@ -184,8 +184,8 @@ string DiskManipulator::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "format") {
 		bool dos1 = false;
 		vector<string> myTokens(tokens);
-		const auto it = find(myTokens.begin(), myTokens.end(), "-dos1");
-		if (it != myTokens.end()) {
+		auto it = find(begin(myTokens), end(myTokens), "-dos1");
+		if (it != end(myTokens)) {
 			myTokens.erase(it);
 			dos1 = true;
 		}
@@ -295,14 +295,14 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		for (auto& d : drives) {
 			const auto& name1 = d.driveName; // with prexix
 			const auto& name2 = d.drive->getContainerName(); // without prefix
-			names.insert(names.end(), {name1, name2});
+			names.insert(end(names), {name1, name2});
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			if (auto* disk = d.drive->getSectorAccessibleDisk()) {
 				for (unsigned i = 1; i <= MAX_PARTITIONS; ++i) {
 					try {
 						DiskImageUtils::checkFAT12Partition(*disk, i);
-						names.insert(names.end(), {
+						names.insert(end(names), {
 							name1 + StringOp::toString(i),
 							name2 + StringOp::toString(i)});
 					} catch (MSXException&) {
@@ -350,8 +350,8 @@ void DiskManipulator::create(const vector<string>& tokens)
 	unsigned totalSectors = 0;
 	bool dos1 = false;
 	vector<string> myTokens(tokens);
-	const auto it = find(myTokens.begin(), myTokens.end(), "-dos1");
-	if (it != myTokens.end()) {
+	const auto it = find(begin(myTokens), end(myTokens), "-dos1");
+	if (it != end(myTokens)) {
 		myTokens.erase(it);
 		dos1 = true;
 	}

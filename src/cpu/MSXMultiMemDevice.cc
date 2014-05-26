@@ -61,14 +61,13 @@ bool MSXMultiMemDevice::canAdd(int base, int size)
 void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 {
 	assert(canAdd(base, size));
-	ranges.insert(ranges.begin(), Range(base, size, device));
+	ranges.insert(begin(ranges), Range(base, size, device));
 }
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 {
-	auto it = find(ranges.begin(), ranges.end(),
-	               Range(base, size, device));
-	assert(it != ranges.end());
+	auto it = find(begin(ranges), end(ranges), Range(base, size, device));
+	assert(it != end(ranges));
 	ranges.erase(it);
 }
 

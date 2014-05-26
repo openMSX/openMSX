@@ -503,10 +503,10 @@ string MSXMotherBoard::Impl::insertExtension(
 
 HardwareConfig* MSXMotherBoard::Impl::findExtension(string_ref extensionName)
 {
-	auto it = std::find_if(extensions.begin(), extensions.end(),
+	auto it = std::find_if(begin(extensions), end(extensions),
 		[&](Extensions::value_type& v) {
 			return v->getName() == extensionName; });
-	return (it != extensions.end()) ? it->get() : nullptr;
+	return (it != end(extensions)) ? it->get() : nullptr;
 }
 
 const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() const
@@ -517,10 +517,9 @@ const MSXMotherBoard::Impl::Extensions& MSXMotherBoard::Impl::getExtensions() co
 void MSXMotherBoard::Impl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
-	auto it = std::find_if(extensions.begin(), extensions.end(),
-		[&](Extensions::value_type& v) {
-			return v.get() == &extension; });
-	assert(it != extensions.end());
+	auto it = std::find_if(begin(extensions), end(extensions),
+		[&](Extensions::value_type& v) { return v.get() == &extension; });
+	assert(it != end(extensions));
 	getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
 	extensions.erase(it);
 }
@@ -760,9 +759,8 @@ void MSXMotherBoard::Impl::addDevice(MSXDevice& device)
 
 void MSXMotherBoard::Impl::removeDevice(MSXDevice& device)
 {
-	auto it = find(availableDevices.begin(), availableDevices.end(),
-	               &device);
-	assert(it != availableDevices.end());
+	auto it = find(begin(availableDevices), end(availableDevices), &device);
+	assert(it != end(availableDevices));
 	availableDevices.erase(it);
 }
 
@@ -948,7 +946,7 @@ string MSXMotherBoard::Impl::getUserName(const string& hwName)
 	string userName;
 	do {
 		userName = StringOp::Builder() << "untitled" << ++n;
-	} while (s.find(userName) != s.end());
+	} while (s.find(userName) != end(s));
 	s.insert(userName);
 	return userName;
 }
@@ -957,7 +955,7 @@ void MSXMotherBoard::Impl::freeUserName(const string& hwName,
                                       const string& userName)
 {
 	auto& s = userNames[hwName];
-	assert(s.find(userName) != s.end());
+	assert(s.find(userName) != end(s));
 	s.erase(userName);
 }
 

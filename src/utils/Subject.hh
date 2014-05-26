@@ -57,8 +57,8 @@ template <typename T> void Subject<T>::attach(Observer<T>& observer)
 template <typename T> void Subject<T>::detach(Observer<T>& observer)
 {
 	assert(!notifyInProgress);
-	auto it = find(observers.begin(), observers.end(), &observer);
-	assert(it != observers.end());
+	auto it = find(begin(observers), end(observers), &observer);
+	assert(it != end(observers));
 	observers.erase(it);
 }
 

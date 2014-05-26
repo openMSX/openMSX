@@ -1159,10 +1159,10 @@ string KeyInserter::help(const vector<string>& /*tokens*/) const
 void KeyInserter::tabCompletion(vector<string>& tokens) const
 {
 	vector<const char*> options;
-	if (find(tokens.begin(), tokens.end(), "-release") == tokens.end()) {
+	if (find(begin(tokens), end(tokens), "-release") == end(tokens)) {
 		options.push_back("-release");
 	}
-	if (find(tokens.begin(), tokens.end(), "-freq") == tokens.end()) {
+	if (find(begin(tokens), end(tokens), "-freq") == end(tokens)) {
 		options.push_back("-freq");
 	}
 	completeString(tokens, options);
@@ -1218,8 +1218,8 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 	}
 
 	try {
-		auto it = text_utf8.begin();
-		unsigned current = utf8::next(it, text_utf8.end());
+		auto it = begin(text_utf8);
+		unsigned current = utf8::next(it, end(text_utf8));
 		if (releaseLast == true && (releaseBeforePress || keyboard.commonKeys(last, current))) {
 			// There are common keys between previous and current character
 			// Do not immediately press again but give MSX the time to notice
@@ -1232,7 +1232,7 @@ void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
 			if (lockKeysMask == 0) {
 				last = current;
 				releaseLast = true;
-				text_utf8.erase(text_utf8.begin(), it);
+				text_utf8.erase(begin(text_utf8), it);
 			}
 			if (releaseBeforePress) releaseLast = true;
 		}

@@ -105,7 +105,7 @@ vector<string> FileContext::getPaths() const
 
 bool FileContext::isUserContext() const
 {
-	return find(paths.begin(), paths.end(), USER_DIRS) != paths.end();
+	return find(begin(paths), end(paths), USER_DIRS) != end(paths);
 }
 
 ///

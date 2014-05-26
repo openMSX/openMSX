@@ -469,8 +469,8 @@ void OggReader::readMetadata(th_comment& tc)
 		p = strchr(p, '\n');
 		if (p) ++p;
 	}
-	sort(stopFrames.begin(), stopFrames.end());
-	sort(chapters  .begin(), chapters  .end(), LessTupleElement<0>());
+	sort(begin(stopFrames), end(stopFrames));
+	sort(begin(chapters  ), end(chapters  ), LessTupleElement<0>());
 }
 
 void OggReader::readTheora(ogg_packet* packet)
@@ -691,7 +691,7 @@ const AudioFragment* OggReader::getAudio(size_t sample)
 		}
 	}
 
-	auto it = audioList.begin();
+	auto it = begin(audioList);
 	while (true) {
 		auto& audio = *it;
 		if (audio->position + audio->length + getSampleRate() <= sample) {
@@ -710,7 +710,7 @@ const AudioFragment* OggReader::getAudio(size_t sample)
 		}
 
 		// read more if we're at the end of the list
-		if (it == audioList.end()) {
+		if (it == end(audioList)) {
 			size_t size = audioList.size();
 			while (size == audioList.size()) {
 				if (!nextPacket()) {
@@ -719,7 +719,7 @@ const AudioFragment* OggReader::getAudio(size_t sample)
 			}
 
 			// reset the iterator to not point to the end
-			it = audioList.begin();
+			it = begin(audioList);
 		}
 	}
 }
@@ -944,9 +944,9 @@ size_t OggReader::findOffset(size_t frame, size_t sample)
 bool OggReader::seek(size_t frame, size_t samples)
 {
 	// Remove all queued frames
-	recycleFrameList.insert(recycleFrameList.end(),
-		make_move_iterator(frameList.begin()),
-		make_move_iterator(frameList.end()));
+	recycleFrameList.insert(end(recycleFrameList),
+		make_move_iterator(begin(frameList)),
+		make_move_iterator(end  (frameList)));
 	frameList.clear();
 
 	// Remove all queued audio
@@ -974,14 +974,14 @@ bool OggReader::seek(size_t frame, size_t samples)
 
 bool OggReader::stopFrame(size_t frame) const
 {
-	return std::binary_search(stopFrames.begin(), stopFrames.end(), frame);
+	return std::binary_search(begin(stopFrames), end(stopFrames), frame);
 }
 
 size_t OggReader::chapter(int chapterNo) const
 {
-	auto it = std::lower_bound(chapters.begin(), chapters.end(),
+	auto it = std::lower_bound(begin(chapters), end(chapters),
 	                           chapterNo, LessTupleElement<0>());
-	return ((it != chapters.end()) && (it->first == chapterNo))
+	return ((it != end(chapters)) && (it->first == chapterNo))
 		? it->second : 0;
 }
 

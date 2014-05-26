@@ -58,15 +58,15 @@ void MSXMapperIO::updateMask()
 
 void MSXMapperIO::registerMapper(unsigned blocks)
 {
-	auto it = upper_bound(mapperSizes.begin(), mapperSizes.end(), blocks);
+	auto it = upper_bound(begin(mapperSizes), end(mapperSizes), blocks);
 	mapperSizes.insert(it, blocks);
 	updateMask();
 }
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
-	auto it = find(mapperSizes.begin(), mapperSizes.end(), blocks);
-	assert(it != mapperSizes.end());
+	auto it = find(begin(mapperSizes), end(mapperSizes), blocks);
+	assert(it != end(mapperSizes));
 	mapperSizes.erase(it);
 	updateMask();
 }

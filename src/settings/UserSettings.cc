@@ -62,9 +62,9 @@ void UserSettings::addSetting(unique_ptr<Setting> setting)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	auto it = find_if(settings.begin(), settings.end(),
+	auto it = find_if(begin(settings), end(settings),
 		[&](unique_ptr<Setting>& p) { return p.get() == &setting; });
-	assert(it != settings.end());
+	assert(it != end(settings));
 	settings.erase(it);
 }
 

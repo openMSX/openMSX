@@ -142,7 +142,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 			wavWriter->write(data, 2, num);
 		} else {
 			assert(aviWriter);
-			audioBuf.insert(audioBuf.end(), data, data + 2 * num);
+			audioBuf.insert(end(audioBuf), data, data + 2 * num);
 		}
 	} else {
 		VLA(short, buf, num);
@@ -167,7 +167,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 			wavWriter->write(buf, 1, num);
 		} else {
 			assert(aviWriter);
-			audioBuf.insert(audioBuf.end(), buf, buf + num);
+			audioBuf.insert(end(audioBuf), buf, buf + num);
 		}
 	}
 }
@@ -218,8 +218,8 @@ void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& resul
 		string_ref token = tokens[i].getString();
 		if (token.starts_with("-")) {
 			if (token == "--") {
-				for (auto it = tokens.begin() + i + 1;
-				     it != tokens.end(); ++it) {
+				for (auto it = begin(tokens) + i + 1;
+				     it != end(tokens); ++it) {
 					arguments.push_back(it->getString().str());
 				}
 				break;
@@ -293,7 +293,7 @@ void AviRecorder::processToggle(const vector<TclObject>& tokens, TclObject& resu
 {
 	if (aviWriter || wavWriter) {
 		// drop extra tokens
-		vector<TclObject> tmp(tokens.begin(), tokens.begin() + 2);
+		vector<TclObject> tmp(begin(tokens), begin(tokens) + 2);
 		processStop(tmp);
 	} else {
 		processStart(tokens, result);

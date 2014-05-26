@@ -40,7 +40,7 @@ vector<string_ref> OSDText::getProperties() const
 		"-text", "-font", "-size", "-wrap", "-wrapw", "-wraprelw",
 		"-query-size",
 	};
-	result.insert(result.end(), std::begin(vals), std::end(vals));
+	result.insert(end(result), std::begin(vals), std::end(vals));
 	return result;
 }
 

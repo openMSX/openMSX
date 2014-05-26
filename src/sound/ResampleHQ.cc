@@ -84,9 +84,9 @@ ResampleCoeffs& ResampleCoeffs::instance()
 void ResampleCoeffs::getCoeffs(
 	double ratio, float*& table, unsigned& filterLen)
 {
-	auto it = find_if(cache.begin(), cache.end(),
+	auto it = find_if(begin(cache), end(cache),
 		[=](const Element& e) { return e.ratio == ratio; });
-	if (it != cache.end()) {
+	if (it != end(cache)) {
 		table     = it->table;
 		filterLen = it->filterLen;
 		it->count++;
@@ -98,9 +98,9 @@ void ResampleCoeffs::getCoeffs(
 
 void ResampleCoeffs::releaseCoeffs(double ratio)
 {
-	auto it = find_if(cache.begin(), cache.end(),
+	auto it = find_if(begin(cache), end(cache),
 		[=](const Element& e) { return e.ratio == ratio; });
-	assert(it != cache.end());
+	assert(it != end(cache));
 	it->count--;
 	if (it->count == 0) {
 		MemoryOps::freeAligned(it->table);

@@ -107,7 +107,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		// TODO is this still true now that SDLGL is removed?
-		rendererMap.insert(rendererMap.end(), {
+		rendererMap.insert(end(rendererMap), {
 			{"SDLGL-FB16", SDLGL_FB16},
 			{"SDLGL-FB32", SDLGL_FB32}});
 	}

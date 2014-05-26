@@ -421,7 +421,7 @@ string getNativePath(string_ref path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(result.begin(), result.end(), '/', '\\');
+	replace(begin(result), end(result), '/', '\\');
 #endif
 	return result;
 }
@@ -430,7 +430,7 @@ string getConventionalPath(string_ref path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(result.begin(), result.end(), '\\', '/');
+	replace(begin(result), end(result), '\\', '/');
 #endif
 	return result;
 }

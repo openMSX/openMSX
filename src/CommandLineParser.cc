@@ -189,8 +189,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerFileType("tcl", *scriptOption);
 
 	// At this point all options and file-types must be registered
-	sort(options.begin(), options.end(), CmpOptions());
-	sort(fileTypes.begin(), fileTypes.end(), CmpFileTypes());
+	sort(begin(options),   end(options),   CmpOptions());
+	sort(begin(fileTypes), end(fileTypes), CmpFileTypes());
 }
 
 CommandLineParser::~CommandLineParser()
@@ -214,9 +214,8 @@ void CommandLineParser::registerFileType(
 bool CommandLineParser::parseOption(
 	const string& arg, array_ref<string>& cmdLine, ParsePhase phase)
 {
-	auto it = lower_bound(options.begin(), options.end(), arg,
-	                      CmpOptions());
-	if ((it != options.end()) && (it->first == arg)) {
+	auto it = lower_bound(begin(options), end(options), arg, CmpOptions());
+	if ((it != end(options)) && (it->first == arg)) {
 		// parse option
 		if (it->second.phase <= phase) {
 			try {
@@ -257,10 +256,10 @@ bool CommandLineParser::parseFileNameInner(const string& name, const string& ori
 		return false; // no extension
 	}
 
-	auto it = lower_bound(fileTypes.begin(), fileTypes.end(), extension,
+	auto it = lower_bound(begin(fileTypes), end(fileTypes), extension,
 	                      CmpFileTypes());
 	StringOp::casecmp cmp;
-	if ((it == fileTypes.end()) || !cmp(it->first, extension)) {
+	if ((it == end(fileTypes)) || !cmp(it->first, extension)) {
 		return false; // unknown extension
 	}
 
@@ -364,8 +363,8 @@ void CommandLineParser::parse(int argc, char** argv)
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
-						auto it = lower_bound(options.begin(), options.end(), arg, CmpOptions());
-						if ((it != options.end()) && (it->first == arg)) {
+						auto it = lower_bound(begin(options), end(options), arg, CmpOptions());
+						if ((it != end(options)) && (it->first == arg)) {
 							for (unsigned i = 0; i < it->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
 									backupCmdLine.push_back(std::move(cmdLine.front()));
@@ -550,7 +549,7 @@ static void printItemMap(const StringMap<vector<string_ref>>& itemMap)
 		printSet.push_back(formatSet(p.second, 15) + ' ' +
 		                   formatHelptext(p.first(), 50, 20));
 	}
-	sort(printSet.begin(), printSet.end());
+	sort(begin(printSet), end(printSet));
 	for (auto& s : printSet) {
 		cout << s << endl;
 	}

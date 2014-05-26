@@ -263,9 +263,9 @@ public:
 	}
 
 	void insert(void* aligned, void* unaligned) {
-		assert(find_if(allocMap.begin(), allocMap.end(),
+		assert(find_if(begin(allocMap), end(allocMap),
 		               EqualTupleValue<0>(aligned))
-		       == allocMap.end());
+		       == end(allocMap));
 		allocMap.emplace_back(aligned, unaligned);
 	}
 

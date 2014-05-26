@@ -111,7 +111,7 @@ void Mixer::reloadDriver()
 
 void Mixer::registerMixer(MSXMixer& mixer)
 {
-	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 0);
+	assert(count(begin(msxMixers), end(msxMixers), &mixer) == 0);
 	msxMixers.push_back(&mixer);
 
 	muteHelper();
@@ -119,8 +119,8 @@ void Mixer::registerMixer(MSXMixer& mixer)
 
 void Mixer::unregisterMixer(MSXMixer& mixer)
 {
-	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 1);
-	msxMixers.erase(find(msxMixers.begin(), msxMixers.end(), &mixer));
+	assert(count(begin(msxMixers), end(msxMixers), &mixer) == 1);
+	msxMixers.erase(find(begin(msxMixers), end(msxMixers), &mixer));
 
 	muteHelper();
 }

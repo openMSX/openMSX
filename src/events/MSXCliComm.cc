@@ -19,7 +19,7 @@ void MSXCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
 	auto it = prevValues[type].find(name);
-	if (it != prevValues[type].end()) {
+	if (it != end(prevValues[type])) {
 		if (it->second == value) {
 			return;
 		}

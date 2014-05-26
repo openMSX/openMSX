@@ -19,7 +19,7 @@ CompressedFileAdapter::~CompressedFileAdapter()
 {
 	auto it = decompressCache.find(getURL());
 	decompressed.reset();
-	if (it != decompressCache.end() && it->second.unique()) {
+	if (it != end(decompressCache) && it->second.unique()) {
 		// delete last user of Decompressed, remove from cache
 		decompressCache.erase(it);
 	}
@@ -31,7 +31,7 @@ void CompressedFileAdapter::decompress()
 
 	string url = getURL();
 	auto it = decompressCache.find(url);
-	if (it != decompressCache.end()) {
+	if (it != end(decompressCache)) {
 		decompressed = it->second;
 	} else {
 		decompressed = std::make_shared<Decompressed>();

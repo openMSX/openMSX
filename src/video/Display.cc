@@ -179,14 +179,14 @@ CommandConsole& Display::getCommandConsole()
 
 void Display::attach(VideoSystemChangeListener& listener)
 {
-	assert(count(listeners.begin(), listeners.end(), &listener) == 0);
+	assert(count(begin(listeners), end(listeners), &listener) == 0);
 	listeners.push_back(&listener);
 }
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	auto it = find(listeners.begin(), listeners.end(), &listener);
-	assert(it != listeners.end());
+	auto it = find(begin(listeners), end(listeners), &listener);
+	assert(it != end(listeners));
 	listeners.erase(it);
 }
 
@@ -204,9 +204,9 @@ Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is
 	//       low at the moment, it's not really worth it.
-	auto it = layers.end();
+	auto it = end(layers);
 	while (true) {
-		if (it == layers.begin()) {
+		if (it == begin(layers)) {
 			// There should always be at least one opaque layer.
 			// TODO: This is not true for DummyVideoSystem.
 			//       Anyway, a missing layer will probably stand out visually,
@@ -396,7 +396,7 @@ void Display::repaint()
 
 void Display::repaint(OutputSurface& surface)
 {
-	for (auto it = baseLayer(); it != layers.end(); ++it) {
+	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);
 		}
@@ -415,7 +415,7 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	auto it = find_if(layers.begin(), layers.end(),
+	auto it = find_if(begin(layers), end(layers),
 		[&](Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
@@ -423,8 +423,8 @@ void Display::addLayer(Layer& layer)
 
 void Display::removeLayer(Layer& layer)
 {
-	auto it = std::find(layers.begin(), layers.end(), &layer);
-	assert(it != layers.end());
+	auto it = std::find(begin(layers), end(layers), &layer);
+	assert(it != end(layers));
 	layers.erase(it);
 }
 
@@ -456,8 +456,8 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	for (unsigned i = 1; i < tokens.size(); ++i) {
 		if (StringOp::startsWith(tokens[i], '-')) {
 			if (tokens[i] == "--") {
-				arguments.insert(arguments.end(),
-					tokens.begin() + i + 1, tokens.end());
+				arguments.insert(end(arguments),
+					begin(tokens) + i + 1, end(tokens));
 				break;
 			}
 			if (tokens[i] == "-prefix") {

@@ -17,14 +17,14 @@ MSXMultiIODevice::~MSXMultiIODevice()
 
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
-	assert(std::count(devices.begin(), devices.end(), device) == 0);
+	assert(std::count(begin(devices), end(devices), device) == 0);
 	devices.push_back(device);
 }
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
-	assert(std::count(devices.begin(), devices.end(), device) == 1);
-	devices.erase(std::find(devices.begin(), devices.end(), device));
+	assert(std::count(begin(devices), end(devices), device) == 1);
+	devices.erase(std::find(begin(devices), end(devices), device));
 }
 
 MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
@@ -53,9 +53,9 @@ byte MSXMultiIODevice::readIO(word port, EmuTime::param time)
 	// conflict: return the result from the first device, call readIO()
 	//           also on all other devices, but discard result
 	assert(!devices.empty());
-	auto it = devices.begin();
+	auto it = begin(devices);
 	byte result = (*it)->readIO(port, time);
-	for (++it; it != devices.end(); ++it) {
+	for (++it; it != end(devices); ++it) {
 		(*it)->readIO(port, time);
 	}
 	return result;

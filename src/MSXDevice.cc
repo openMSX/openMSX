@@ -97,10 +97,10 @@ const DeviceConfig& MSXDevice::getDeviceConfig2() const
 void MSXDevice::testRemove(Devices removed) const
 {
 	auto all = referencedBy;
-	sort(all.begin(), all.end());
-	sort(removed.begin(), removed.end());
+	sort(begin(all),     end(all));
+	sort(begin(removed), end(removed));
 	Devices rest;
-	set_difference(all.begin(), all.end(), removed.begin(), removed.end(),
+	set_difference(begin(all), end(all), begin(removed), end(removed),
 	               back_inserter(rest));
 	if (!rest.empty()) {
 		StringOp::Builder msg;
@@ -137,10 +137,8 @@ void MSXDevice::lockDevices()
 void MSXDevice::unlockDevices()
 {
 	for (auto& r : references) {
-		auto it = find(r->referencedBy.begin(),
-		               r->referencedBy.end(),
-		               this);
-		assert(it != r->referencedBy.end());
+		auto it = find(begin(r->referencedBy), end(r->referencedBy), this);
+		assert(it != end(r->referencedBy));
 		r->referencedBy.erase(it);
 	}
 }
@@ -323,10 +321,10 @@ void MSXDevice::getVisibleMemRegion(unsigned& base, unsigned& size) const
 		size = 0;
 		return;
 	}
-	auto it = memRegions.begin();
+	auto it = begin(memRegions);
 	unsigned lowest  = it->first;
 	unsigned highest = it->first + it->second;
-	for (++it; it != memRegions.end(); ++it) {
+	for (++it; it != end(memRegions); ++it) {
 		lowest  = std::min(lowest,  it->first);
 		highest = std::max(highest, it->first + it->second);
 	}

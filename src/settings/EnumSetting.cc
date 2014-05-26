@@ -15,14 +15,14 @@ typedef CmpTupleElement<0, StringOp::caseless> Comp;
 EnumSettingBase::EnumSettingBase(BaseMap&& map)
 	: baseMap(std::move(map))
 {
-	sort(baseMap.begin(), baseMap.end(), Comp());
+	sort(begin(baseMap), end(baseMap), Comp());
 }
 
 int EnumSettingBase::fromStringBase(string_ref str) const
 {
-	auto it = lower_bound(baseMap.begin(), baseMap.end(), str, Comp());
+	auto it = lower_bound(begin(baseMap), end(baseMap), str, Comp());
 	StringOp::casecmp cmp;
-	if ((it == baseMap.end()) || !cmp(it->first, str)) {
+	if ((it == end(baseMap)) || !cmp(it->first, str)) {
 		throw CommandException("not a valid value: " + str);
 	}
 	return it->second;

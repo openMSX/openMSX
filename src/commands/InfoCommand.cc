@@ -25,7 +25,7 @@ InfoCommand::~InfoCommand()
 void InfoCommand::registerTopic(InfoTopic& topic, string_ref name)
 {
 #ifndef NDEBUG
-	if (infoTopics.find(name) != infoTopics.end()) {
+	if (infoTopics.find(name) != end(infoTopics)) {
 		std::cerr << "INTERNAL ERROR: already have a info topic with "
 		             "name " << name << std::endl;
 		UNREACHABLE;
@@ -37,7 +37,7 @@ void InfoCommand::registerTopic(InfoTopic& topic, string_ref name)
 void InfoCommand::unregisterTopic(InfoTopic& topic, string_ref name)
 {
 	(void)topic;
-	if (infoTopics.find(name) == infoTopics.end()) {
+	if (infoTopics.find(name) == end(infoTopics)) {
 		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
 			"name " << name << ", not found!" << std::endl;
 		UNREACHABLE;
@@ -63,7 +63,7 @@ void InfoCommand::execute(const vector<TclObject>& tokens,
 		assert(tokens.size() >= 2);
 		const auto& topic = tokens[1].getString();
 		auto it = infoTopics.find(topic);
-		if (it == infoTopics.end()) {
+		if (it == end(infoTopics)) {
 			throw CommandException("No info on: " + topic);
 		}
 		it->second->execute(tokens, result);
@@ -84,7 +84,7 @@ string InfoCommand::help(const vector<string>& tokens) const
 		// show help on a certain topic
 		assert(tokens.size() >= 2);
 		auto it = infoTopics.find(tokens[1]);
-		if (it == infoTopics.end()) {
+		if (it == end(infoTopics)) {
 			throw CommandException("No info on: " + tokens[1]);
 		}
 		result = it->second->help(tokens);
@@ -105,7 +105,7 @@ void InfoCommand::tabCompletion(vector<string>& tokens) const
 		// show help on a certain topic
 		assert(tokens.size() >= 3);
 		auto it = infoTopics.find(tokens[1]);
-		if (it != infoTopics.end()) {
+		if (it != end(infoTopics)) {
 			it->second->tabCompletion(tokens);
 		}
 		break;

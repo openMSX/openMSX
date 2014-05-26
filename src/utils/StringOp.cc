@@ -234,7 +234,7 @@ bool stringToDouble(const string& str, double& result)
 string toLower(string_ref str)
 {
 	string result = str.str();
-	transform(result.begin(), result.end(), result.begin(), ::tolower);
+	transform(begin(result), end(result), begin(result), ::tolower);
 	return result;
 }
 
@@ -359,10 +359,10 @@ string join(const vector<string_ref>& elems, char separator)
 {
 	if (elems.empty()) return string();
 
-	auto it = elems.begin();
+	auto it = begin(elems);
 	Builder result;
 	result << *it;
-	for (++it; it != elems.end(); ++it) {
+	for (++it; it != end(elems); ++it) {
 		result << separator;
 		result << *it;
 	}

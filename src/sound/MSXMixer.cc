@@ -180,16 +180,16 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	auto it = find_if(infos.begin(), infos.end(),
+	auto it = find_if(begin(infos), end(infos),
 		[&](const SoundDeviceInfo& i) { return i.device == &device; });
-	assert(it != infos.end());
+	assert(it != end(infos));
 	it->volumeSetting->detach(*this);
 	it->balanceSetting->detach(*this);
 	for (auto& s : it->channelSettings) {
 		s.recordSetting->detach(*this);
 		s.muteSetting->detach(*this);
 	}
-	if (it != (infos.end() - 1)) std::swap(*it, *(infos.end() - 1));
+	if (it != (end(infos) - 1)) std::swap(*it, *(end(infos) - 1));
 	infos.pop_back();
 	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
@@ -525,7 +525,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 
 bool MSXMixer::needStereoRecording() const
 {
-	return any_of(infos.begin(), infos.end(),
+	return any_of(begin(infos), end(infos),
 		[](const SoundDeviceInfo& info) {
 			return info.device->isStereo() ||
 			       info.balanceSetting->getInt() != 0; });
@@ -614,11 +614,11 @@ void MSXMixer::update(const Setting& setting)
 			// the speed setting).
 		}
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
-		auto it = find_if(infos.begin(), infos.end(),
+		auto it = find_if(begin(infos), end(infos),
 			[&](const SoundDeviceInfo& i) {
 				return (i.volumeSetting .get() == &setting) ||
 				       (i.balanceSetting.get() == &setting); });
-		assert(it != infos.end());
+		assert(it != end(infos));
 		updateVolumeParams(*it);
 	} else if (dynamic_cast<const StringSetting*>(&setting)) {
 		changeRecordSetting(setting);
@@ -722,10 +722,10 @@ void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
 
 SoundDevice* MSXMixer::findDevice(string_ref name) const
 {
-	auto it = find_if(infos.begin(), infos.end(),
+	auto it = find_if(begin(infos), end(infos),
 		[&](const SoundDeviceInfo& i) {
 			return i.device->getName() == name; });
-	return (it != infos.end()) ? it->device : nullptr;
+	return (it != end(infos)) ? it->device : nullptr;
 }
 
 SoundDeviceInfoTopic::SoundDeviceInfoTopic(

@@ -33,8 +33,8 @@ void PolymorphicSaverRegistry<Archive>::registerHelper(
 	std::unique_ptr<PolymorphicSaverBase<Archive>> saver)
 {
 	assert(!initialized);
-	assert(find_if(saverMap.begin(), saverMap.end(), EqualTupleValue<0>(type))
-	       == saverMap.end());
+	assert(find_if(begin(saverMap), end(saverMap), EqualTupleValue<0>(type))
+	       == end(saverMap));
 	saverMap.emplace_back(type, std::move(saver));
 }
 
@@ -45,12 +45,12 @@ void PolymorphicSaverRegistry<Archive>::save(
 	auto& reg = PolymorphicSaverRegistry<Archive>::instance();
 	if (unlikely(!reg.initialized)) {
 		reg.initialized = true;
-		sort(reg.saverMap.begin(), reg.saverMap.end(),
+		sort(begin(reg.saverMap), end(reg.saverMap),
 		     LessTupleElement<0>());
 	}
-	auto it = lower_bound(reg.saverMap.begin(), reg.saverMap.end(), typeInfo,
+	auto it = lower_bound(begin(reg.saverMap), end(reg.saverMap), typeInfo,
 		LessTupleElement<0>());
-	if ((it == reg.saverMap.end()) || (it->first != typeInfo)) {
+	if ((it == end(reg.saverMap)) || (it->first != typeInfo)) {
 		std::cerr << "Trying to save an unregistered polymorphic type: "
 			  << typeInfo.name() << std::endl;
 		assert(false); return;
@@ -93,7 +93,7 @@ void PolymorphicLoaderRegistry<Archive>::registerHelper(
 	const char* name,
 	std::unique_ptr<PolymorphicLoaderBase<Archive>> loader)
 {
-	assert(loaderMap.find(name) == loaderMap.end());
+	assert(loaderMap.find(name) == end(loaderMap));
 	loaderMap[name] = std::move(loader);
 }
 
@@ -105,7 +105,7 @@ void* PolymorphicLoaderRegistry<Archive>::load(
 	ar.attribute("type", type);
 	auto& reg = PolymorphicLoaderRegistry<Archive>::instance();
 	auto it = reg.loaderMap.find(type);
-	assert(it != reg.loaderMap.end());
+	assert(it != end(reg.loaderMap));
 	return it->second->load(ar, id, args);
 }
 
@@ -142,7 +142,7 @@ void PolymorphicInitializerRegistry<Archive>::registerHelper(
 	const char* name,
 	std::unique_ptr<PolymorphicInitializerBase<Archive>> initializer)
 {
-	assert(initializerMap.find(name) == initializerMap.end());
+	assert(initializerMap.find(name) == end(initializerMap));
 	initializerMap[name] = std::move(initializer);
 }
 
@@ -159,7 +159,7 @@ void PolymorphicInitializerRegistry<Archive>::init(
 
 	auto& reg = PolymorphicInitializerRegistry<Archive>::instance();
 	auto it = reg.initializerMap.find(type);
-	assert(it != reg.initializerMap.end());
+	assert(it != end(reg.initializerMap));
 	it->second->init(ar, t, id);
 
 	ar.endTag(tag);

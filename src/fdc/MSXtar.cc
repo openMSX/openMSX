@@ -335,7 +335,7 @@ static string makeSimpleMSXFileName(string_ref fullFilename)
 	// handle speciale case '.' and '..' first
 	string result(8 + 3, ' ');
 	if ((fullFile == ".") || (fullFile == "..")) {
-		memcpy(&*result.begin(), fullFile.data(), fullFile.size());
+		memcpy(&*begin(result), fullFile.data(), fullFile.size());
 		return result;
 	}
 
@@ -349,12 +349,12 @@ static string makeSimpleMSXFileName(string_ref fullFilename)
 	// put in major case and create '_' if needed
 	string fileS(file.data(), std::min<size_t>(8, file.size()));
 	string extS (ext .data(), std::min<size_t>(3, ext .size()));
-	std::transform(fileS.begin(), fileS.end(), fileS.begin(), toMSXChr);
-	std::transform(extS .begin(), extS .end(), extS .begin(), toMSXChr);
+	std::transform(begin(fileS), end(fileS), begin(fileS), toMSXChr);
+	std::transform(begin(extS ), end(extS ), begin(extS ), toMSXChr);
 
 	// add correct number of spaces
-	memcpy(&*result.begin() + 0, fileS.data(), fileS.size());
-	memcpy(&*result.begin() + 8, extS .data(), extS .size());
+	memcpy(&*begin(result) + 0, fileS.data(), fileS.size());
+	memcpy(&*begin(result) + 8, extS .data(), extS .size());
 	return result;
 }
 

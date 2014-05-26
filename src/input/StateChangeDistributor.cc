@@ -19,8 +19,8 @@ StateChangeDistributor::~StateChangeDistributor()
 
 bool StateChangeDistributor::isRegistered(StateChangeListener* listener) const
 {
-	return find(listeners.begin(), listeners.end(), listener) !=
-	       listeners.end();
+	return find(begin(listeners), end(listeners), listener) !=
+	       end(listeners);
 }
 
 void StateChangeDistributor::registerListener(StateChangeListener& listener)
@@ -32,7 +32,7 @@ void StateChangeDistributor::registerListener(StateChangeListener& listener)
 void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 {
 	assert(isRegistered(&listener));
-	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
+	listeners.erase(find(begin(listeners), end(listeners), &listener));
 }
 
 void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)

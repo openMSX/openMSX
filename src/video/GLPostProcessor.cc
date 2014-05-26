@@ -185,9 +185,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
-		auto it = find_if(textures.begin(), textures.end(),
+		auto it = find_if(begin(textures), end(textures),
 		                  EqualTupleValue<0>(r.lineWidth));
-		assert(it != textures.end());
+		assert(it != end(textures));
 		auto superImpose = superImposeVideoFrame
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
@@ -296,9 +296,9 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = find_if(textures.begin(), textures.end(),
+	auto it = find_if(begin(textures), end(textures),
 	                  EqualTupleValue<0>(lineWidth));
-	if (it == textures.end()) {
+	if (it == end(textures)) {
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
@@ -309,7 +309,7 @@ void GLPostProcessor::uploadBlock(
 		}
 
 		textures.emplace_back(lineWidth, std::move(textureData));
-		it = textures.end() - 1;
+		it = end(textures) - 1;
 	}
 	auto& tex = it->second.tex;
 	auto& pbo = it->second.pbo;

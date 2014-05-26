@@ -219,17 +219,17 @@ bool DirAsDSK::checkFileUsedInDSK(const string& hostName)
 static string hostToMsxName(string hostName)
 {
 	// Create an MSX filename 8.3 format. TODO use vfat-like abbreviation
-	transform(hostName.begin(), hostName.end(), hostName.begin(),
-			[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
+	transform(begin(hostName), end(hostName), begin(hostName),
+		[](char a) { return (a == ' ') ? '_' : ::toupper(a); });
 
 	string_ref file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	if (file.empty()) std::swap(file, ext);
 
 	string result(8 + 3, ' ');
-	memcpy(&*result.begin() + 0, file.data(), std::min<size_t>(8, file.size()));
-	memcpy(&*result.begin() + 8, ext .data(), std::min<size_t>(3, ext .size()));
-	replace(result.begin(), result.end(), '.', '_');
+	memcpy(&*begin(result) + 0, file.data(), std::min<size_t>(8, file.size()));
+	memcpy(&*begin(result) + 8, ext .data(), std::min<size_t>(3, ext .size()));
+	replace(begin(result), end(result), '.', '_');
 	return result;
 }
 
@@ -394,7 +394,7 @@ void DirAsDSK::checkDeletedHostFiles()
 	// This handles both host files and directories.
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (mapDirs.find(p.first) == mapDirs.end()) {
+		if (mapDirs.find(p.first) == end(mapDirs)) {
 			// While iterating over (the copy of) mapDirs we delete
 			// entries of mapDirs (when we delete files only the
 			// current entry is deleted, when we delete
@@ -484,7 +484,7 @@ void DirAsDSK::checkModifiedHostFiles()
 {
 	auto copy = mapDirs;
 	for (auto& p : copy) {
-		if (mapDirs.find(p.first) == mapDirs.end()) {
+		if (mapDirs.find(p.first) == end(mapDirs)) {
 			// See comment in checkDeletedHostFiles().
 			continue;
 		}
@@ -521,7 +521,7 @@ void DirAsDSK::checkModifiedHostFiles()
 void DirAsDSK::importHostFile(DirIndex dirIndex, FileOperations::Stat& fst)
 {
 	assert(!(msxDir(dirIndex).attrib & MSXDirEntry::ATT_DIRECTORY));
-	assert(mapDirs.find(dirIndex) != mapDirs.end());
+	assert(mapDirs.find(dirIndex) != end(mapDirs));
 
 	// Set _msx_ modification time.
 	setMSXTimeStamp(dirIndex, fst);
@@ -666,7 +666,7 @@ static size_t weight(const string& hostName)
 	string_ref file, ext;
 	StringOp::splitOnLast(hostName, '.', file, ext);
 	// too many '.' characters
-	result += std::count(file.begin(), file.end(), '.') * 100;
+	result += std::count(begin(file), end(file), '.') * 100;
 	// too long extension
 	result += ext.size() * 10;
 	// too long file
@@ -686,7 +686,7 @@ void DirAsDSK::addNewHostFiles(const string& hostSubDir, unsigned msxDirSector)
 			hostNames.emplace_back(d->d_name);
 		}
 	}
-	sort(hostNames.begin(), hostNames.end(),
+	sort(begin(hostNames), end(hostNames),
 	     [](const string& l, const string& r) { return weight(l) < weight(r); });
 
 	for (auto& hostName : hostNames) {
@@ -835,7 +835,7 @@ DirAsDSK::DirIndex DirAsDSK::getFreeDirEntry(unsigned msxDirSector)
 			    (msxName[0] == char(0xE5))) {
 				// Found an unused msx entry. There shouldn't
 				// be any hostfile mapped to this entry.
-				assert(mapDirs.find(dirIndex) == mapDirs.end());
+				assert(mapDirs.find(dirIndex) == end(mapDirs));
 				return dirIndex;
 			}
 		}
@@ -997,8 +997,7 @@ template<typename FUNC> bool DirAsDSK::scanMsxDirs(FUNC func, unsigned sector)
 					continue;
 				}
 				unsigned dir = clusterToSector(cluster);
-				if (find(dirs.begin(), dirs.end(), dir) !=
-				    dirs.end()) {
+				if (find(begin(dirs), end(dirs), dir) != end(dirs)) {
 					// Already found this sector. Except
 					// for the special "." and ".."
 					// entries, loops should not occur in
@@ -1136,7 +1135,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 	const char* msxName = msxDir(dirIndex).filename;
 	string hostName;
 	auto it = mapDirs.find(dirIndex);
-	if (it == mapDirs.end()) {
+	if (it == end(mapDirs)) {
 		// Host file/dir does not yet exist, create hostname from
 		// msx name.
 		if ((msxName[0] == char(0x00)) || (msxName[0] == char(0xE5))) {
@@ -1147,7 +1146,7 @@ void DirAsDSK::exportToHost(DirIndex dirIndex, DirIndex dirDirIndex)
 		if (dirDirIndex.sector != 0) {
 			// Not the msx root directory.
 			auto it2 = mapDirs.find(dirDirIndex);
-			assert(it2 != mapDirs.end());
+			assert(it2 != end(mapDirs));
 			hostSubDir = it2->second.hostName;
 			assert(!StringOp::endsWith(hostSubDir, '/'));
 			hostSubDir += '/';
@@ -1258,7 +1257,7 @@ void DirAsDSK::writeDIREntry(DirIndex dirIndex, DirIndex dirDirIndex,
 	     (        newEntry.attrib & MSXDirEntry::ATT_DIRECTORY))) {
 		// Name or file-type in the direntry was changed.
 		auto it = mapDirs.find(dirIndex);
-		if (it != mapDirs.end()) {
+		if (it != end(mapDirs)) {
 			// If there is an associated hostfile, then delete it
 			// (in case of a rename, the file will be recreated
 			// below).
@@ -1303,7 +1302,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const SectorBuffer& buf)
 	DirIndex dirIndex = getDirEntryForCluster(startCluster);
 	// no need to check for 'dirIndex.sector == unsigned(-1)'
 	auto it = mapDirs.find(dirIndex);
-	if (it == mapDirs.end()) {
+	if (it == end(mapDirs)) {
 		// This sector was not mapped to a file, nothing more to do.
 		return;
 	}

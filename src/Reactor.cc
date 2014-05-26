@@ -374,8 +374,8 @@ vector<string> Reactor::getHwConfigs(string_ref type)
 		}
 	}
 	// remove duplicates
-	sort(result.begin(), result.end());
-	result.erase(unique(result.begin(), result.end()), result.end());
+	sort(begin(result), end(result));
+	result.erase(unique(begin(result), end(result)), end(result));
 	return result;
 }
 
@@ -438,10 +438,10 @@ void Reactor::replaceBoard(MSXMotherBoard& oldBoard_, Board newBoard_)
 	boards.push_back(move(newBoard_));
 
 	// Lookup old board (it must be present).
-	auto it = boards.begin();
+	auto it = begin(boards);
 	while (it->get() != &oldBoard_) {
 		++it;
-		assert(it != boards.end());
+		assert(it != end(boards));
 	}
 
 	// If the old board was the active board, then activate the new board
@@ -492,13 +492,13 @@ void Reactor::switchBoard(MSXMotherBoard* newBoard)
 {
 	assert(Thread::isMainThread());
 	assert(!newBoard ||
-	       (find_if(boards.begin(), boards.end(),
+	       (find_if(begin(boards), end(boards),
 	               [&](Boards::value_type& b) { return b.get() == newBoard; })
-	        != boards.end()));
+	        != end(boards)));
 	assert(!activeBoard ||
-	       (find_if(boards.begin(), boards.end(),
+	       (find_if(begin(boards), end(boards),
 	                [&](Boards::value_type& b) { return b.get() == activeBoard; })
-	        != boards.end()));
+	        != end(boards)));
 	if (activeBoard) {
 		activeBoard->activate(false);
 	}
@@ -531,9 +531,9 @@ void Reactor::deleteBoard(MSXMotherBoard* board)
 		// delete active board -> there is no active board anymore
 		switchBoard(nullptr);
 	}
-	auto it = find_if(boards.begin(), boards.end(),
+	auto it = find_if(begin(boards), end(boards),
 	                  [&](Boards::value_type& b) { return b.get() == board; });
-	assert(it != boards.end());
+	assert(it != end(boards));
 	auto board_ = move(*it);
 	boards.erase(it);
 	// Don't immediately delete old boards because it's possible this
@@ -713,7 +713,7 @@ int Reactor::signalEvent(const std::shared_ptr<const Event>& event)
 #endif
 	} else if (type == OPENMSX_DELETE_BOARDS) {
 		assert(!garbageBoards.empty());
-		garbageBoards.erase(garbageBoards.begin());
+		garbageBoards.erase(begin(garbageBoards));
 	} else {
 		UNREACHABLE; // we didn't subscribe to this event...
 	}

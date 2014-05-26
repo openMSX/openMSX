@@ -368,16 +368,16 @@ bool OSDConsoleRenderer::getFromCache(string_ref text, unsigned rgb,
 	// Search the whole cache for a match. If the cache is big enough then
 	// all N items used for rendering the previous frame should be located
 	// in the N first positions in the cache (in approx reverse order).
-	for (it = textCache.begin(); it != textCache.end(); ++it) {
+	for (it = begin(textCache); it != end(textCache); ++it) {
 		if (it->text != text) continue;
 		if (it->rgb  != rgb ) continue;
 found:		image = it->image.get();
 		width = it->width;
 		cacheHint = it;
-		if (it != textCache.begin()) {
+		if (it != begin(textCache)) {
 			--cacheHint; // likely candiate for next item
 			// move to front (to keep in LRU order)
-			textCache.splice(textCache.begin(), textCache, it);
+			textCache.splice(begin(textCache), textCache, it);
 		}
 		return true;
 	}
@@ -391,10 +391,10 @@ void OSDConsoleRenderer::insertInCache(
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;
 	if (textCache.size() == MAX_TEXT_CACHE_SIZE) {
 		// flush the least recently used entry
-		auto it = textCache.end();
+		auto it = end(textCache);
 		--it;
 		if (it == cacheHint) {
-			cacheHint = textCache.begin();
+			cacheHint = begin(textCache);
 		}
 		textCache.pop_back();
 	}
@@ -407,7 +407,7 @@ void OSDConsoleRenderer::clearCache()
 	// cacheHint must always point to a valid item, so insert a dummy entry
 	textCache.clear();
 	textCache.emplace_back("", 0, nullptr, 0);
-	cacheHint = textCache.begin();
+	cacheHint = begin(textCache);
 }
 
 void OSDConsoleRenderer::paint(OutputSurface& output)

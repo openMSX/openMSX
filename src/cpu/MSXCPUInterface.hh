@@ -230,7 +230,7 @@ public:
 	}
 	static bool checkBreakPoints(unsigned pc)
 	{
-		auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+		auto range = equal_range(begin(breakPoints), end(breakPoints),
 		                         pc, CompareBreakpoints());
 		if (conditions.empty() && (range.first == range.second)) {
 			return false;

@@ -274,7 +274,7 @@ void AfterCommand::afterTclTime(
 	int ms, const vector<TclObject>& tokens, TclObject& result)
 {
 	TclObject command(tokens.front().getInterpreter());
-	command.addListElements(tokens.begin() + 2, tokens.end());
+	command.addListElements(begin(tokens) + 2, end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
 	result.setString(cmd->getId());
@@ -337,24 +337,24 @@ void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& res
 
 void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
+	if (tokens.size() < 3) {
 		throw SyntaxError();
 	}
 	if (tokens.size() == 3) {
 		auto id = tokens[2].getString();
-		auto it = find_if(afterCmds.begin(), afterCmds.end(),
+		auto it = find_if(begin(afterCmds), end(afterCmds),
 			[&](std::unique_ptr<AfterCmd>& e) { return e->getId() == id; });
-		if (it != afterCmds.end()) {
+		if (it != end(afterCmds)) {
 			afterCmds.erase(it);
 			return;
 		}
 	}
 	TclObject command;
-	command.addListElements(tokens.begin() + 2, tokens.end());
+	command.addListElements(begin(tokens) + 2, end(tokens));
 	string_ref cmdStr = command.getString();
-	auto it = find_if(afterCmds.begin(), afterCmds.end(),
+	auto it = find_if(begin(afterCmds), end(afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
-	if (it != afterCmds.end()) {
+	if (it != end(afterCmds)) {
 		afterCmds.erase(it);
 		// Tcl manual is not clear about this, but it seems
 		// there's only occurence of this command canceled.
@@ -393,10 +393,10 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
 	// predicate should return false on matches
-	auto it = partition(afterCmds.begin(), afterCmds.end(), pred);
+	auto it = partition(begin(afterCmds), end(afterCmds), pred);
 	AfterCmds tmp(std::make_move_iterator(it),
-	              std::make_move_iterator(afterCmds.end()));
-	afterCmds.erase(it, afterCmds.end());
+	              std::make_move_iterator(end(afterCmds)));
+	afterCmds.erase(it, end(afterCmds));
 	for (auto& c : tmp) {
 		c->execute();
 	}
@@ -512,9 +512,9 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	auto it = find_if(afterCommand.afterCmds.begin(), afterCommand.afterCmds.end(),
+	auto it = find_if(begin(afterCommand.afterCmds), end(afterCommand.afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
-	assert(it != afterCommand.afterCmds.end());
+	assert(it != end(afterCommand.afterCmds));
 	auto result = move(*it);
 	afterCommand.afterCmds.erase(it);
 	return result;

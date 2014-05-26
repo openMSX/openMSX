@@ -149,13 +149,13 @@ void MSXCommandController::changeSetting(Setting& setting, const string& value)
 Command* MSXCommandController::findCommand(string_ref name) const
 {
 	auto it = commandMap.find(name);
-	return (it != commandMap.end()) ? it->second : nullptr;
+	return (it != end(commandMap)) ? it->second : nullptr;
 }
 
 BaseSetting* MSXCommandController::findSetting(string_ref name)
 {
 	auto it = settingMap.find(name);
-	return (it != settingMap.end()) ? it->second : nullptr;
+	return (it != end(settingMap)) ? it->second : nullptr;
 }
 
 const BaseSetting* MSXCommandController::findSetting(string_ref setting) const

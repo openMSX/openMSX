@@ -45,8 +45,8 @@ void GlobalCliComm::removeListener(CliListener* listener)
 {
 	// can be called from any thread
 	ScopedLock lock(sem);
-	auto it = find(listeners.begin(), listeners.end(), listener);
-	assert(it != listeners.end());
+	auto it = find(begin(listeners), end(listeners), listener);
+	assert(it != end(listeners));
 	listeners.erase(it);
 }
 
@@ -93,7 +93,7 @@ void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
 	auto it = prevValues[type].find(name);
-	if (it != prevValues[type].end()) {
+	if (it != end(prevValues[type])) {
 		if (it->second == value) {
 			return;
 		}

@@ -59,9 +59,9 @@ int VideoSourceSetting::getSource()
 
 void VideoSourceSetting::setSource(int id)
 {
-	auto it = find_if(sources.begin(), sources.end(),
+	auto it = find_if(begin(sources), end(sources),
 		[&](const Sources::value_type& p) { return p.second == id; });
-	assert(it != sources.end());
+	assert(it != end(sources));
 	setString(it->first);
 }
 
@@ -116,9 +116,9 @@ int VideoSourceSetting::registerVideoSource(const std::string& source)
 
 void VideoSourceSetting::unregisterVideoSource(int source)
 {
-	auto it = find_if(sources.begin(), sources.end(),
+	auto it = find_if(begin(sources), end(sources),
 		[&](Sources::value_type& p) { return p.second == source; });
-	assert(it != sources.end());
+	assert(it != end(sources));
 	sources.erase(it);
 
 	// First notify the (possibly) changed value before announcing the
@@ -137,11 +137,11 @@ bool VideoSourceSetting::has(int value) const
 
 int VideoSourceSetting::has(string_ref value) const
 {
-	auto it = find_if(sources.begin(), sources.end(),
+	auto it = find_if(begin(sources), end(sources),
 		[&](const Sources::value_type& p) {
 			StringOp::casecmp cmp;
 			return cmp(p.first, value); });
-	return (it != sources.end()) ? it->second : 0;
+	return (it != end(sources)) ? it->second : 0;
 }
 
 

@@ -91,7 +91,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 
 	EnumSetting<ScaleAlgorithm>::Map scalerMap = { { "simple", SCALER_SIMPLE } };
 	if (MAX_SCALE_FACTOR > 1) {
-		scalerMap.insert(scalerMap.end(), {
+		scalerMap.insert(end(scalerMap), {
 			{ "SaI",        SCALER_SAI },
 			{ "ScaleNx",    SCALER_SCALE },
 			{ "hq",         SCALER_HQ },

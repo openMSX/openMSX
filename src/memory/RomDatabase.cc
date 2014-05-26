@@ -391,8 +391,8 @@ void DBParser::addAllEntries()
 	//  old: [first, mid)   already sorted, no duplicates
 	//  new: [mid, last)    not yet sorted, may have duplicates
 	//    there may also be duplicates between old and new
-	const auto first = db.begin();
-	const auto last  = db.end();
+	const auto first = begin(db);
+	const auto last  = end  (db);
 	const auto mid = first + initialSize;
 	if (mid == last) return; // no new entries
 
@@ -613,9 +613,9 @@ RomDatabase::~RomDatabase()
 
 const RomInfo* RomDatabase::fetchRomInfo(const Sha1Sum& sha1sum) const
 {
-	auto it = lower_bound(db.begin(), db.end(), sha1sum,
+	auto it = lower_bound(begin(db), end(db), sha1sum,
 	                      LessTupleElement<0>());
-	return ((it != db.end()) && (it->first == sha1sum))
+	return ((it != end(db)) && (it->first == sha1sum))
 		? &it->second : nullptr;
 }
 

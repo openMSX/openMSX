@@ -87,15 +87,15 @@ AlarmManager& AlarmManager::instance()
 void AlarmManager::registerAlarm(Alarm& alarm)
 {
 	ScopedLock lock(sem);
-	assert(find(alarms.begin(), alarms.end(), &alarm) == alarms.end());
+	assert(find(begin(alarms), end(alarms), &alarm) == end(alarms));
 	alarms.push_back(&alarm);
 }
 
 void AlarmManager::unregisterAlarm(Alarm& alarm)
 {
 	ScopedLock lock(sem);
-	auto it = find(alarms.begin(), alarms.end(), &alarm);
-	assert(it != alarms.end());
+	auto it = find(begin(alarms), end(alarms), &alarm);
+	assert(it != end(alarms));
 	alarms.erase(it);
 }
 

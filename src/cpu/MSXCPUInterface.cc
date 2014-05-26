@@ -324,7 +324,7 @@ void MSXCPUInterface::testUnsetExpanded(
 {
 	// TODO handle multi-devices
 	allowed.push_back(dummyDevice.get());
-	sort(allowed.begin(), allowed.end()); // for set_difference()
+	sort(begin(allowed), end(allowed)); // for set_difference()
 	assert(isExpanded(ps));
 	if (expanded[ps] != 1) return; // ok, still expanded after this
 
@@ -335,13 +335,13 @@ void MSXCPUInterface::testUnsetExpanded(
 			std::vector<MSXDevice*> devices;
 			if (auto memDev = dynamic_cast<MSXMultiMemDevice*>(device)) {
 				devices = memDev->getDevices();
-				sort(devices.begin(), devices.end()); // for set_difference()
+				sort(begin(devices), end(devices)); // for set_difference()
 			} else {
 				devices.push_back(device);
 			}
-			std::set_difference(devices.begin(), devices.end(),
-			                    allowed.begin(), allowed.end(),
-			                    std::inserter(inUse, inUse.end()));
+			std::set_difference(begin(devices), end(devices),
+			                    begin(allowed), end(allowed),
+			                    std::inserter(inUse, end(inUse)));
 
 		}
 	}
@@ -606,8 +606,8 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
-	auto it = find(globalWrites.begin(), globalWrites.end(), info);
-	assert(it != globalWrites.end());
+	auto it = find(begin(globalWrites), end(globalWrites), info);
+	assert(it != end(globalWrites));
 	globalWrites.erase(it);
 
 	for (auto& g : globalWrites) {
@@ -777,14 +777,14 @@ DummyDevice& MSXCPUInterface::getDummyDevice()
 
 void MSXCPUInterface::insertBreakPoint(const shared_ptr<BreakPoint>& bp)
 {
-	auto it = upper_bound(breakPoints.begin(), breakPoints.end(),
+	auto it = upper_bound(begin(breakPoints), end(breakPoints),
 	                      bp->getAddress(), CompareBreakpoints());
 	breakPoints.insert(it, bp);
 }
 
 void MSXCPUInterface::removeBreakPoint(const BreakPoint& bp)
 {
-	auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+	auto range = equal_range(begin(breakPoints), end(breakPoints),
 	                         bp.getAddress(), CompareBreakpoints());
 	auto it = find_if(range.first, range.second,
 		[&](const shared_ptr<BreakPoint>& i) {
@@ -836,7 +836,7 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	// Pass shared_ptr by value to keep the object alive for the duration
 	// of this function, otherwise it gets deleted as soon as it's removed
 	// from the watchPoints collection.
-	for (auto it = watchPoints.begin(); it != watchPoints.end(); ++it) {
+	for (auto it = begin(watchPoints); it != end(watchPoints); ++it) {
 		if (*it == watchPoint) {
 			// remove before calling updateMemWatch()
 			watchPoints.erase(it);
@@ -873,9 +873,9 @@ void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	auto it = find_if(conditions.begin(), conditions.end(),
+	auto it = find_if(begin(conditions), end(conditions),
 		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; });
-	assert(it != conditions.end());
+	assert(it != end(conditions));
 	conditions.erase(it);
 }
 

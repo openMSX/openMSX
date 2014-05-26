@@ -59,9 +59,9 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	bool romTypeOptionFound = false;
 
 	// parse options
-	for (auto it = options.begin(); it != options.end(); ++it) {
+	for (auto it = begin(options); it != end(options); ++it) {
 		const auto& option = *it++;
-		if (it == options.end()) {
+		if (it == end(options)) {
 			throw MSXException("Missing argument for option \"" +
 			                   option + '\"');
 		}
