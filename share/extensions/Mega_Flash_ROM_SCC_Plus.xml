@@ -12,7 +12,7 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <ROM id="MegaFlashRomSCC">
+        <ROM id="MegaFlashRomSCC+">
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>9000</volume>
