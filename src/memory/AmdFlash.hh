@@ -69,7 +69,9 @@ private:
 	void setState(State newState);
 	bool checkCommandEraseSector();
 	bool checkCommandEraseChip();
+	bool checkCommandProgramHelper(unsigned, const byte*, size_t cmdLen);
 	bool checkCommandProgram();
+	bool checkCommandQuadrupleByteProgram();
 	bool checkCommandManifacturer();
 	bool partialMatch(unsigned len, const byte* dataSeq) const;
 

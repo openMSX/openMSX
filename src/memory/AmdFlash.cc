@@ -8,6 +8,7 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "xrange.hh"
+#include "countof.hh"
 #include <numeric>
 #include <cstring>
 #include <cassert>
@@ -192,6 +193,7 @@ void AmdFlash::write(unsigned address, byte value)
 	if (checkCommandManifacturer() ||
 	    checkCommandEraseSector() ||
 	    checkCommandProgram() ||
+	    checkCommandQuadrupleByteProgram() ||
 	    checkCommandEraseChip()) {
 		if (value == 0xf0) {
 			reset();
@@ -236,20 +238,33 @@ bool AmdFlash::checkCommandEraseChip()
 	return false;
 }
 
-bool AmdFlash::checkCommandProgram()
+bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen)
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
-	if (partialMatch(3, cmdSeq)) {
-		if (cmdIdx < 4) return true;
-		unsigned addr = cmd[3].addr;
-		unsigned sector, sectorSize, offset;
-		getSectorInfo(addr, sector, sectorSize, offset);
-		if (writeAddress[sector] != -1) {
-			unsigned ramAddr = writeAddress[sector] + offset;
-			ram->write(ramAddr, (*ram)[ramAddr] & cmd[3].value);
+	if (partialMatch(cmdLen, cmdSeq)) {
+		if (cmdIdx < (cmdLen + numBytes)) return true;
+		for (auto i = cmdLen; i < (cmdLen + numBytes); ++i) {
+			unsigned addr = cmd[i].addr;
+			unsigned sector, sectorSize, offset;
+			getSectorInfo(addr, sector, sectorSize, offset);
+			if (writeAddress[sector] != -1) {
+				unsigned ramAddr = writeAddress[sector] + offset;
+				ram->write(ramAddr, (*ram)[ramAddr] & cmd[i].value);
+			}
 		}
 	}
 	return false;
+}
+
+bool AmdFlash::checkCommandProgram()
+{
+	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
+	return checkCommandProgramHelper(1, cmdSeq, countof(cmdSeq));
+}
+
+bool AmdFlash::checkCommandQuadrupleByteProgram()
+{
+	static const byte cmdSeq[] = { 0x56 };
+	return checkCommandProgramHelper(4, cmdSeq, countof(cmdSeq));
 }
 
 bool AmdFlash::checkCommandManifacturer()
