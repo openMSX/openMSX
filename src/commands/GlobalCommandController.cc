@@ -593,10 +593,10 @@ string HelpCmd::help(const vector<string>& /*tokens*/) const
 
 void HelpCmd::tabCompletion(vector<string>& tokens) const
 {
-	string front = tokens.front();
+	string front = std::move(tokens.front());
 	tokens.erase(tokens.begin());
 	controller.tabCompletion(tokens);
-	tokens.insert(tokens.begin(), front);
+	tokens.insert(tokens.begin(), std::move(front));
 }
 
 

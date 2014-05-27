@@ -913,11 +913,8 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		Events& events = history.events;
 		events.erase(events.begin() + replayIndex, events.end());
 		// search snapshots that are newer than 'time' and erase them
-		auto it = history.chunks.begin();
-		while ((it != history.chunks.end()) &&
-		       (it->second.time <= time)) {
-			++it;
-		}
+		auto it = find_if(history.chunks.begin(), history.chunks.end(),
+			[&](Chunks::value_type& p) { return p.second.time > time; });
 		history.chunks.erase(it, history.chunks.end());
 		// this also means someone is changing history, record that
 		reRecordCount++;

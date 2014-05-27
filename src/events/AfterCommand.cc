@@ -341,25 +341,26 @@ void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*res
 		throw SyntaxError();
 	}
 	if (tokens.size() == 3) {
-		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-			if ((*it)->getId() == tokens[2].getString()) {
-				afterCmds.erase(it);
-				return;
-			}
+		auto id = tokens[2].getString();
+		auto it = find_if(afterCmds.begin(), afterCmds.end(),
+			[&](std::unique_ptr<AfterCmd>& e) { return e->getId() == id; });
+		if (it != afterCmds.end()) {
+			afterCmds.erase(it);
+			return;
 		}
 	}
 	TclObject command;
 	command.addListElements(tokens.begin() + 2, tokens.end());
 	string_ref cmdStr = command.getString();
-	for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-		if ((*it)->getCommand() == cmdStr) {
-			afterCmds.erase(it);
-			// Tcl manual is not clear about this, but it seems
-			// there's only occurence of this command canceled.
-			// It's also not clear which of the (possibly) several
-			// matches is canceled.
-			return;
-		}
+	auto it = find_if(afterCmds.begin(), afterCmds.end(),
+		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
+	if (it != afterCmds.end()) {
+		afterCmds.erase(it);
+		// Tcl manual is not clear about this, but it seems
+		// there's only occurence of this command canceled.
+		// It's also not clear which of the (possibly) several
+		// matches is canceled.
+		return;
 	}
 	// It's not an error if no match is found
 }
@@ -511,15 +512,12 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	for (auto it = afterCommand.afterCmds.begin();
-	     it != afterCommand.afterCmds.end(); ++it) {
-		if (it->get() == this) {
-			auto result = move(*it);
-			afterCommand.afterCmds.erase(it);
-			return result;
-		}
-	}
-	UNREACHABLE; return nullptr;
+	auto it = find_if(afterCommand.afterCmds.begin(), afterCommand.afterCmds.end(),
+		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
+	assert(it != afterCommand.afterCmds.end());
+	auto result = move(*it);
+	afterCommand.afterCmds.erase(it);
+	return result;
 }
 
 

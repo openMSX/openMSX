@@ -195,25 +195,23 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 	if (name.starts_with("pp#")) {
 		// remove by id
 		unsigned id = stoi(name.substr(3));
-		for (auto it = probeBreakPoints.begin();
-		     it != probeBreakPoints.end(); ++it) {
-			if ((*it)->getId() == id) {
-				probeBreakPoints.erase(it);
-				return;
-			}
+		auto it = find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
+			[&](std::unique_ptr<ProbeBreakPoint>& e)
+				{ return e->getId() == id; });
+		if (it == probeBreakPoints.end()) {
+			throw CommandException("No such breakpoint: " + name);
 		}
-		throw CommandException("No such breakpoint: " + name);
+		probeBreakPoints.erase(it);
 	} else {
 		// remove by probe, only works for unconditional bp
-		for (auto it = probeBreakPoints.begin();
-		     it != probeBreakPoints.end(); ++it) {
-			if ((*it)->getProbe().getName() == name) {
-				probeBreakPoints.erase(it);
-				return;
-			}
+		auto it = find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
+			[&](std::unique_ptr<ProbeBreakPoint>& e)
+				{ return e->getProbe().getName() == name; });
+		if (it == probeBreakPoints.end()) {
+			throw CommandException(
+				"No (unconditional) breakpoint for probe: " + name);
 		}
-		throw CommandException(
-			"No (unconditional) breakpoint for probe: " + name);
+		probeBreakPoints.erase(it);
 	}
 }
 

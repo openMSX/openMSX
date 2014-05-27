@@ -415,11 +415,8 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	auto it = layers.begin();
-	while (it != layers.end() && (*it)->getZ() < z) {
-		++it;
-	}
-
+	auto it = find_if(layers.begin(), layers.end(),
+		[&](Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }

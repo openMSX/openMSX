@@ -873,12 +873,10 @@ void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 
 void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 {
-	for (auto it = conditions.begin(); it != conditions.end(); ++it) {
-		if (it->get() == &cond) {
-			conditions.erase(it);
-			break;
-		}
-	}
+	auto it = find_if(conditions.begin(), conditions.end(),
+		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; });
+	assert(it != conditions.end());
+	conditions.erase(it);
 }
 
 const MSXCPUInterface::Conditions& MSXCPUInterface::getConditions()
