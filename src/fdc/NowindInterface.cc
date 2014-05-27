@@ -26,7 +26,7 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	, rom(make_unique<Rom>(getName() + " ROM", "rom", config))
 	, flash(make_unique<AmdFlash>(
 		*rom, std::vector<unsigned>(rom->getSize() / 0x10000, 0x10000),
-		0, 0x01A4, config))
+		0, 0x01A4, false, config))
 	, host(make_unique<NowindHost>(drives))
 	, basename("nowindX")
 {

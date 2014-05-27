@@ -32,11 +32,12 @@ public:
 	 *   or not (a 1-bit means write-wrotected).
 	 * @param ID
 	 *   Contains manufacturer and device ID for this flash.
+	 * @param use12bitAddressing set to true for 12-bit command addresses, false for 11-bit command addresses
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
 	AmdFlash(const Rom& rom, const std::vector<unsigned>& sectorSizes,
-	         unsigned writeProtectedFlags, word ID,
+	         unsigned writeProtectedFlags, word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
 	~AmdFlash();
 
@@ -83,6 +84,7 @@ private:
 	const std::vector<unsigned> sectorSizes;
 	const unsigned size;
 	const word ID;
+	const bool use12bitAddressing;
 
 	static const unsigned MAX_CMD_SIZE = 8;
 	AmdCmd cmd[MAX_CMD_SIZE];

@@ -39,7 +39,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 		: nullptr)
 	, flash(make_unique<AmdFlash>(
 		*rom, std::vector<unsigned>(512 / 64, 0x10000),
-		getWriteProtected(type), 0x01A4, config))
+		getWriteProtected(type), 0x01A4, false, config))
 	, romBlockDebug(make_unique<RomBlockDebuggable>(
 		*this, bank, 0x4000, 0x8000, 13))
 {

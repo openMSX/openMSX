@@ -186,7 +186,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		getCurrentTime()))
 	, flash(make_unique<AmdFlash>(
 		*rom, std::vector<unsigned>(sectorSizes, sectorSizes + 19),
-		0, 0x205B, config))
+		0, 0x205B, false, config))
 {
 	powerUp(getCurrentTime());
 

@@ -20,12 +20,14 @@ namespace openmsx {
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
 AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
                    unsigned writeProtectedFlags, word ID_,
+                   bool use12bitAddressing_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
 	, sectorSizes(sectorSizes_)
 	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
 	, ID(ID_)
+	, use12bitAddressing(use12bitAddressing_)
 	, state(ST_IDLE)
 {
 	assert(Math::isPowerOfTwo(getSize()));
@@ -149,6 +151,10 @@ byte AmdFlash::peek(unsigned address) const
 			return 0xFF;
 		}
 	} else {
+		if (use12bitAddressing) {
+			// convert the address to the '11 bit case'
+			address >>= 1;
+		}
 		switch (address & 3) {
 		case 0:
 			return ID >> 8;
@@ -287,7 +293,9 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 	assert(len <= 5);
 	unsigned n = std::min(len, cmdIdx);
 	for (unsigned i = 0; i < n; ++i) {
-		if (((cmd[i].addr & 0x7ff) != cmdAddr[addrSeq[i]]) ||
+		// convert the address to the '11 bit case'
+		unsigned addr = use12bitAddressing ? cmd[i].addr >> 1 : cmd[i].addr;
+		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||
 		    (cmd[i].value != dataSeq[i])) {
 			return false;
 		}
