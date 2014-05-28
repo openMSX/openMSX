@@ -251,15 +251,15 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	root.addAttribute("openmsx_version", Version::full());
 	root.addAttribute("date_time", Date::toString(time(nullptr)));
 	root.addAttribute("platform", TARGET_PLATFORM);
-	FILE* f = FileOperations::openFile(filename, "wb");
+	auto f = FileOperations::openFile(filename, "wb");
 	if (!f) {
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
-	file = gzdopen(fileno(f), "wb9");
+	file = gzdopen(fileno(f.get()), "wb9");
 	if (!file) {
-		fclose(f);
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
+	f.release();
 	current.push_back(&root);
 }
 

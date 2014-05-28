@@ -4,6 +4,7 @@
 #include "RS232Device.hh"
 #include "Thread.hh"
 #include "EventListener.hh"
+#include "FileOperations.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
 #include "circular_buffer.hh"
@@ -50,7 +51,7 @@ private:
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	Thread thread;
-	FILE* inFile;
+	FileOperations::FILE_t inFile;
 	cb_queue<byte> queue;
 	Semaphore lock; // to protect queue
 

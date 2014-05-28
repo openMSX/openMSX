@@ -10,7 +10,6 @@
 #include <iostream>
 #endif
 #include "LocalFile.hh"
-#include "FileOperations.hh"
 #include "FileException.hh"
 #include "FileNotFoundException.hh"
 #include "PreCacheFile.hh"
@@ -103,7 +102,6 @@ LocalFile::LocalFile(string_ref filename_, const char* mode)
 LocalFile::~LocalFile()
 {
 	munmap();
-	fclose(file);
 }
 
 void LocalFile::preCacheFile()
@@ -114,11 +112,11 @@ void LocalFile::preCacheFile()
 
 void LocalFile::read(void* buffer, size_t num)
 {
-	if (fread(buffer, 1, num, file) != num) {
-		if (ferror(file)) {
+	if (fread(buffer, 1, num, file.get()) != num) {
+		if (ferror(file.get())) {
 			throw FileException("Error reading file");
 		}
-		if (feof(file)) {
+		if (feof(file.get())) {
 			throw FileException("Read beyond end of file");
 		}
 	}
@@ -126,8 +124,8 @@ void LocalFile::read(void* buffer, size_t num)
 
 void LocalFile::write(const void* buffer, size_t num)
 {
-	if (fwrite(buffer, 1, num, file) != num) {
-		if (ferror(file)) {
+	if (fwrite(buffer, 1, num, file.get()) != num) {
+		if (ferror(file.get())) {
 			throw FileException("Error writing file");
 		}
 	}
@@ -140,7 +138,7 @@ const byte* LocalFile::mmap(size_t& size)
 	if (size == 0) return nullptr;
 
 	if (!mmem) {
-		int fd = _fileno(file);
+		int fd = _fileno(file.get());
 		if (fd == -1) {
 			throw FileException("_fileno failed");
 		}
@@ -198,7 +196,7 @@ const byte* LocalFile::mmap(size_t& size)
 	if (!mmem) {
 		mmem = static_cast<byte*>(
 		          ::mmap(nullptr, size, PROT_READ | PROT_WRITE,
-		                 MAP_PRIVATE, fileno(file), 0));
+		                 MAP_PRIVATE, fileno(file.get()), 0));
 		// MAP_FAILED is #define'd using an old-style cast, we
 		// have to redefine it ourselves to avoid a warning
 		auto MY_MAP_FAILED = reinterpret_cast<void*>(-1);
@@ -221,7 +219,7 @@ void LocalFile::munmap()
 size_t LocalFile::getSize()
 {
 	struct stat st;
-	int ret = fstat(fileno(file), &st);
+	int ret = fstat(fileno(file.get()), &st);
 	if (ret && (errno == EOVERFLOW)) {
 		// on 32-bit systems, the fstat() call returns a EOVERFLOW
 		// error in case the file is bigger than (1<<31)-1 bytes
@@ -236,20 +234,20 @@ size_t LocalFile::getSize()
 
 void LocalFile::seek(size_t pos)
 {
-	if (fseek(file, long(pos), SEEK_SET) != 0) {
+	if (fseek(file.get(), long(pos), SEEK_SET) != 0) {
 		throw FileException("Error seeking file");
 	}
 }
 
 size_t LocalFile::getPos()
 {
-	return ftell(file);
+	return ftell(file.get());
 }
 
 #if HAVE_FTRUNCATE
 void LocalFile::truncate(size_t size)
 {
-	int fd = fileno(file);
+	int fd = fileno(file.get());
 	if (ftruncate(fd, size)) {
 		throw FileException("Error truncating file");
 	}
@@ -258,7 +256,7 @@ void LocalFile::truncate(size_t size)
 
 void LocalFile::flush()
 {
-	fflush(file);
+	fflush(file.get());
 }
 
 const string LocalFile::getURL() const
@@ -279,7 +277,7 @@ bool LocalFile::isReadOnly() const
 time_t LocalFile::getModificationDate()
 {
 	struct stat st;
-	if (fstat(fileno(file), &st)) {
+	if (fstat(fileno(file.get()), &st)) {
 		throw FileException("Cannot stat file");
 	}
 	return st.st_mtime;
