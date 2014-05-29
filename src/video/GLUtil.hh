@@ -482,6 +482,27 @@ private:
 	GLuint handle;
 };
 
+class BufferObject //: public noncopyable
+{
+public:
+	BufferObject();
+	~BufferObject();
+	BufferObject(BufferObject&& other)
+		: bufferId(other.bufferId)
+	{
+		other.bufferId = 0;
+	}
+	BufferObject& operator=(BufferObject&& other) {
+		std::swap(bufferId, other.bufferId);
+		return *this;
+	}
+
+	GLuint get() const { return bufferId; }
+
+private:
+	GLuint bufferId;
+};
+
 } // namespace openmsx
 
 #endif // COMPONENT_GL

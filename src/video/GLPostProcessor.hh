@@ -105,6 +105,8 @@ private:
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
 	ShaderProgram monitor3DProg;
+	BufferObject arrayBuffer;
+	BufferObject elementbuffer;
 
 	bool storedFrame;
 };

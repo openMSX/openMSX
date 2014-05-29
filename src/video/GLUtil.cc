@@ -411,4 +411,17 @@ void ShaderProgram::validate()
 	          << ": " << infoLog << std::endl;
 }
 
+
+// class BufferObject
+
+BufferObject::BufferObject()
+{
+	glGenBuffers(1, &bufferId);
+}
+
+BufferObject::~BufferObject()
+{
+	glDeleteBuffers(1, &bufferId); // ok to delete 0-buffer
+}
+
 } // namespace openmsx
