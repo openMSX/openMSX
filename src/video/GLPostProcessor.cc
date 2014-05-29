@@ -86,6 +86,17 @@ GLPostProcessor::GLPostProcessor(
 	monitor3DProg.link();
 	preCalcMonitor3D(renderSettings.getHorizontalStretch().getDouble());
 
+	VertexShader   texVertexShader  ("tex2D.vert");
+	FragmentShader texFragmentShader("tex2D.frag");
+	texProg.attach(texVertexShader);
+	texProg.attach(texFragmentShader);
+	texProg.bindAttribLocation(0, "a_position");
+	texProg.bindAttribLocation(1, "a_texCoord");
+	texProg.link();
+	texProg.activate();
+	glUniform1i(texProg.getUniformLocation("u_tex"),  0);
+	texProg.deactivate();
+
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
 }
@@ -439,52 +450,45 @@ void GLPostProcessor::drawNoise()
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
-	static const int coord[8][4][2] = {
-		{ {   0,   0 }, { 320,   0 }, { 320, 240 }, {   0, 240 } },
-		{ {   0, 240 }, { 320, 240 }, { 320,   0 }, {   0,   0 } },
-		{ {   0, 240 }, {   0,   0 }, { 320,   0 }, { 320, 240 } },
-		{ { 320, 240 }, { 320,   0 }, {   0,   0 }, {   0, 240 } },
-		{ { 320, 240 }, {   0, 240 }, {   0,   0 }, { 320,   0 } },
-		{ { 320,   0 }, {   0,   0 }, {   0, 240 }, { 320, 240 } },
-		{ { 320,   0 }, { 320, 240 }, {   0, 240 }, {   0,   0 } },
-		{ {   0,   0 }, {   0, 240 }, { 320, 240 }, { 320,   0 } }
+	static const vec2 pos[8][4] = {
+		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
+		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
+		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },
+		{ {  1,  1 }, {  1, -1 }, { -1, -1 }, { -1,  1 } },
+		{ {  1,  1 }, { -1,  1 }, { -1, -1 }, {  1, -1 } },
+		{ {  1, -1 }, { -1, -1 }, { -1,  1 }, {  1,  1 } },
+		{ {  1, -1 }, {  1,  1 }, { -1,  1 }, { -1, -1 } },
+		{ { -1, -1 }, { -1,  1 }, {  1,  1 }, {  1, -1 } }
 	};
-	int zoom = renderSettings.getScaleFactor().getInt();
+	vec2 noise(noiseX, noiseY);
+	const vec2 tex[4] = {
+		noise + vec2(0.0f, 1.875f),
+		noise + vec2(2.0f, 1.875f),
+		noise + vec2(2.0f, 0.0f  ),
+		noise + vec2(0.0f, 0.0f  )
+	};
 
-	unsigned seq = frameCounter & 7;
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	texProg.activate();
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	unsigned seq = frameCounter & 7;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
 	noiseTextureA.bind();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
-	glEnd();
-	// Note: If glBlendEquation is not present, the second noise texture will
-	//       be added instead of subtracted, which means there will be no noise
-	//       on white pixels. A pity, but it's better than no noise at all.
-	if (glBlendEquation) glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
-	glEnd();
-	glPopAttrib();
-	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBlendEquation(GL_FUNC_ADD); // restore default
+
+	texProg.deactivate();
 }
 
 static const int GRID_SIZE = 16;

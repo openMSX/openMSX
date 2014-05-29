@@ -108,6 +108,8 @@ private:
 	BufferObject arrayBuffer;
 	BufferObject elementbuffer;
 
+	ShaderProgram texProg;
+
 	bool storedFrame;
 };
 
