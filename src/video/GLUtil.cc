@@ -363,6 +363,11 @@ void ShaderProgram::link()
 	}
 }
 
+void ShaderProgram::bindAttribLocation(unsigned index, const char* name)
+{
+	glBindAttribLocation(handle, index, name);
+}
+
 GLint ShaderProgram::getUniformLocation(const char* name) const
 {
 	// Sanity check on this program.

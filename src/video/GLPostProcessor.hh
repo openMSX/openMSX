@@ -45,7 +45,8 @@ private:
 	void drawNoise();
 	void drawGlow(int glow);
 
-	void preCalc3DDisplayList(double width);
+	void preCalcMonitor3D(float width);
+	void drawMonitor3D();
 
 	/** The currently active scaler.
 	  */
@@ -103,7 +104,7 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	GLuint monitor3DList;
+	ShaderProgram monitor3DProg;
 
 	bool storedFrame;
 };

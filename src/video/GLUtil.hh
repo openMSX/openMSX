@@ -456,6 +456,11 @@ public:
 	  */
 	void link();
 
+	/** Bind the given name for a vertex shader attribute to the given
+	  * location.
+	  */
+	void bindAttribLocation(unsigned index, const char* name);
+
 	/** Gets a reference to a uniform variable declared in the shader source.
 	  * Note that you have to activate this program before you can change
 	  * the uniform variable's value.

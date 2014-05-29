@@ -9,11 +9,14 @@
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
+#include "gl_transform.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include <algorithm>
 #include <random>
 #include <cassert>
+
+using namespace gl;
 
 namespace openmsx {
 
@@ -73,8 +76,15 @@ GLPostProcessor::GLPostProcessor(
 		fbo[i] = FrameBufferObject(colorTex[i]);
 	}
 
-	monitor3DList = glGenLists(1);
-	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getDouble());
+	VertexShader   vertexShader  ("monitor3D.vert");
+	FragmentShader fragmentShader("monitor3D.frag");
+	monitor3DProg.attach(vertexShader);
+	monitor3DProg.attach(fragmentShader);
+	monitor3DProg.bindAttribLocation(0, "a_position");
+	monitor3DProg.bindAttribLocation(1, "a_normal");
+	monitor3DProg.bindAttribLocation(2, "a_texCoord");
+	monitor3DProg.link();
+	preCalcMonitor3D(renderSettings.getHorizontalStretch().getDouble());
 
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
@@ -84,8 +94,6 @@ GLPostProcessor::~GLPostProcessor()
 {
 	renderSettings.getHorizontalStretch().detach(*this);
 	renderSettings.getNoise().detach(*this);
-
-	glDeleteLists(monitor3DList, 1);
 }
 
 void GLPostProcessor::createRegions()
@@ -210,7 +218,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 
 		glEnable(GL_TEXTURE_2D);
 		if (deform == RenderSettings::DEFORM_3D) {
-			glCallList(monitor3DList);
+			drawMonitor3D();
 		} else {
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
@@ -250,7 +258,7 @@ void GLPostProcessor::update(const Setting& setting)
 	if (&setting == &noiseSetting) {
 		preCalcNoise(noiseSetting.getDouble());
 	} else if (&setting == &horizontalStretch) {
-		preCalc3DDisplayList(horizontalStretch.getDouble());
+		preCalcMonitor3D(horizontalStretch.getDouble());
 	}
 }
 
@@ -479,76 +487,95 @@ void GLPostProcessor::drawNoise()
 	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
 }
 
-void GLPostProcessor::preCalc3DDisplayList(double width)
+static const int GRID_SIZE = 16;
+static const int GRID_SIZE1 = GRID_SIZE + 1;
+struct Vertex {
+	vec3 position;
+	vec3 normal;
+	vec2 tex;
+};
+Vertex vertices[GRID_SIZE1][GRID_SIZE1];
+
+static const int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+unsigned short indices[NUM_INDICES];
+
+void GLPostProcessor::preCalcMonitor3D(float width)
 {
-	// generate display list for 3d deform
-	static const int GRID_SIZE = 16;
-	struct Point {
-		GLfloat vx, vy, vz;
-		GLfloat nx, ny, nz;
-		GLfloat tx, ty;
-	} points[GRID_SIZE + 1][GRID_SIZE + 1];
-	const int GRID_SIZE2 = GRID_SIZE / 2;
-	GLfloat s = GLfloat(width) / 320.0f;
-	GLfloat b = (320.0f - GLfloat(width)) / (2.0f * 320.0f);
+	// precalculate vertex-positions, -normals and -texture-coordinates
+	static const float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
+	float s = width / 320.0f;
+	float b = (320.0f - width) / (2.0f * 320.0f);
 
-	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
-		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
-			Point& p = points[sx][sy];
-			GLfloat x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
-			GLfloat y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
+	for (int sx = 0; sx < GRID_SIZE1; ++sx) {
+		for (int sy = 0; sy < GRID_SIZE1; ++sy) {
+			Vertex& v = vertices[sx][sy];
+			float x = (sx - GRID_SIZE2) / GRID_SIZE2;
+			float y = (sy - GRID_SIZE2) / GRID_SIZE2;
 
-			p.vx = x;
-			p.vy = y;
-			p.vz = (x * x + y * y) / -12.0f;
-
-			p.nx = x / 6.0f;
-			p.ny = y / 6.0f;
-			p.nz = 1.0f;      // note: not normalized
-
-			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
-			p.ty = GLfloat(sy) / GRID_SIZE;
+			v.position = vec3(x, y, (x * x + y * y) / -12.0f);
+			v.normal = normalize(vec3(x / 6.0f, y / 6.0f, 1.0f)) * 1.2f;
+			v.tex = vec2((float(sx) / GRID_SIZE) * s + b,
+			              float(sy) / GRID_SIZE);
 		}
 	}
 
-	GLfloat LightDiffuse[]= { 1.2f, 1.2f, 1.2f, 1.2f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_NORMALIZE);
-
-	glNewList(monitor3DList, GL_COMPILE);
-	glEnable(GL_LIGHTING);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glFrustum(-1, 1, -1, 1, 1, 10);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.4f, -2.0f);
-	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
-	glScalef(2.2f, 2.2f, 2.2f);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	// calculate indices
+	unsigned short* ind = indices;
 	for (int y = 0; y < GRID_SIZE; ++y) {
-		glBegin(GL_TRIANGLE_STRIP);
-		for (int x = 0; x < (GRID_SIZE + 1); ++x) {
-			Point& p1 = points[x][y + 0];
-			Point& p2 = points[x][y + 1];
-			glTexCoord2f(p1.tx, p1.ty);
-			glNormal3f  (p1.nx, p1.ny, p1.nz);
-			glVertex3f  (p1.vx, p1.vy, p1.vz);
-			glTexCoord2f(p2.tx, p2.ty);
-			glNormal3f  (p2.nx, p2.ny, p2.nz);
-			glVertex3f  (p2.vx, p2.vy, p2.vz);
+		for (int x = 0; x < GRID_SIZE1; ++x) {
+			*ind++ = (y + 0) * GRID_SIZE1 + x;
+			*ind++ = (y + 1) * GRID_SIZE1 + x;
 		}
-		glEnd();
+		// skip 2, filled in later
+		ind += 2;
 	}
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glDisable(GL_LIGHTING);
-	glEndList();
+	assert((ind - indices) == NUM_INDICES + 2);
+	ind = indices;
+	for (int y = 0; y < (GRID_SIZE - 1); ++y) {
+		ind += 2 * GRID_SIZE1;
+		// repeat prev and next index to restart strip
+		ind[0] = ind[-1];
+		ind[1] = ind[ 2];
+		ind += 2;
+	}
+
+	// calculate transformation matrices
+	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
+	mat4 tran = translate(vec3(0.0f, 0.4f, -2.0f));
+	mat4 rotx = rotateX(radians(-10.0f));
+	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
+
+	mat3 normal = mat3(rotx);
+	mat4 mvp = proj * tran * rotx * scal;
+
+	// set uniforms
+	monitor3DProg.activate();
+	glUniform1i(monitor3DProg.getUniformLocation("u_tex"), 0);
+	glUniformMatrix4fv(monitor3DProg.getUniformLocation("u_mvpMatrix"),
+		1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix3fv(monitor3DProg.getUniformLocation("u_normalMatrix"),
+		1, GL_FALSE, &normal[0][0]);
+	monitor3DProg.deactivate();
+}
+
+void GLPostProcessor::drawMonitor3D()
+{
+	monitor3DProg.activate();
+
+	char* base = reinterpret_cast<char*>(vertices);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3) + sizeof(vec3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, indices);
+
+	monitor3DProg.deactivate();
 }
 
 } // namespace openmsx
