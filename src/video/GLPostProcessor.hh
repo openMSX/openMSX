@@ -110,6 +110,9 @@ private:
 
 	ShaderProgram texProg;
 
+	ShaderProgram glowProg;
+	GLint glowAlphaLoc;
+
 	bool storedFrame;
 };
 

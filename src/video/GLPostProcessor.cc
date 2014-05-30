@@ -97,6 +97,18 @@ GLPostProcessor::GLPostProcessor(
 	glUniform1i(texProg.getUniformLocation("u_tex"),  0);
 	texProg.deactivate();
 
+	VertexShader   glowVertexShader  ("glow.vert");
+	FragmentShader glowFragmentShader("glow.frag");
+	glowProg.attach(glowVertexShader);
+	glowProg.attach(glowFragmentShader);
+	glowProg.bindAttribLocation(0, "a_position");
+	glowProg.bindAttribLocation(1, "a_texCoord");
+	glowProg.link();
+	glowProg.activate();
+	glUniform1i(glowProg.getUniformLocation("u_tex"),  0);
+	glowAlphaLoc = glowProg.getUniformLocation("u_alpha");
+	glowProg.deactivate();
+
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
 }
@@ -227,22 +239,30 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		glViewport(screen.getX(), screen.getY(),
 		           screen.getWidth(), screen.getHeight());
 
-		glEnable(GL_TEXTURE_2D);
 		if (deform == RenderSettings::DEFORM_3D) {
 			drawMonitor3D();
 		} else {
-			glBegin(GL_QUADS);
-			int w = screen.getWidth();
-			int h = screen.getHeight();
-			GLfloat x1 = (320.0f - GLfloat(horStretch)) / (2.0f * 320.0f);
-			GLfloat x2 = 1.0f - x1;
-			glTexCoord2f(x1, 0.0f); glVertex2i(0, h);
-			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0);
-			glTexCoord2f(x2, 1.0f); glVertex2i(w, 0);
-			glTexCoord2f(x2, 0.0f); glVertex2i(w, h);
-			glEnd();
+			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
+			float x2 = 1.0f - x1;
+
+			static const vec2 pos[4] = {
+				vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
+			};
+			vec2 tex[4] = {
+				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
+			};
+
+			texProg.activate();
+			glDisable(GL_BLEND);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			texProg.deactivate();
 		}
-		glDisable(GL_TEXTURE_2D);
 		storedFrame = true;
 	} else {
 		storedFrame = false;
@@ -410,22 +430,27 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	colorTex[(frameCounter & 1) ^ 1].bind();
-	glEnable(GL_TEXTURE_2D);
+	static const vec2 pos[4] = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
+	};
+	static const vec2 tex[4] = {
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
+	};
+
+	glowProg.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBegin(GL_QUADS);
-	GLfloat alpha = glow * 31 / 3200.0f;
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	int w = screen.getWidth();
-	int h = screen.getHeight();
-	glTexCoord2i(0, 0); glVertex2i(0, h);
-	glTexCoord2i(0, 1); glVertex2i(0, 0);
-	glTexCoord2i(1, 1); glVertex2i(w, 0);
-	glTexCoord2i(1, 0); glVertex2i(w, h);
-	glEnd();
+	colorTex[(frameCounter & 1) ^ 1].bind();
+	glUniform1f(glowAlphaLoc, glow * 31 / 3200.0f);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
+	glowProg.deactivate();
 }
 
 void GLPostProcessor::preCalcNoise(float factor)
