@@ -14,17 +14,15 @@ class Display;
 class GLSnow : public Layer, private noncopyable
 {
 public:
-	GLSnow(Display& display, unsigned width, unsigned height);
-	virtual ~GLSnow();
+	GLSnow(Display& display);
 
 	// Layer interface:
 	virtual void paint(OutputSurface& output);
 
 private:
 	Display& display;
-	const unsigned width;
-	const unsigned height;
-	GLuint noiseTextureId;
+	Texture noiseTexture;
+	ShaderProgram texProg;
 };
 
 } // namespace openmsx

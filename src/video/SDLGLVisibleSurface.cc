@@ -105,7 +105,7 @@ void SDLGLVisibleSurface::finish()
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 {
-	return make_unique<GLSnow>(display, getWidth(), getHeight());
+	return make_unique<GLSnow>(display);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
