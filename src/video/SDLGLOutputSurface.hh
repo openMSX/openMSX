@@ -35,7 +35,7 @@ protected:
 	                    unsigned width, unsigned height);
 
 private:
-	double texCoordX, texCoordY;
+	float texCoordX, texCoordY;
 	gl::Texture fbTex;
 	MemBuffer<char> fbBuf;
 	const FrameBuffer frameBuffer;

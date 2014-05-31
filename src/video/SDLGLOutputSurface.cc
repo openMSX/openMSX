@@ -1,4 +1,5 @@
 #include "SDLGLOutputSurface.hh"
+#include "GLPrograms.hh"
 #include "OutputSurface.hh"
 #include "PNG.hh"
 #include "build-info.hh"
@@ -90,8 +91,8 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		unsigned pitch = width * format.BytesPerPixel;
 		output.setBufferPtr(fbBuf.data(), pitch);
 
-		texCoordX = double(width)  / texW;
-		texCoordY = double(height) / texH;
+		texCoordX = float(width)  / texW;
+		texCoordY = float(height) / texH;
 
 		fbTex.allocate();
 		fbTex.disableInterpolation();
@@ -119,15 +120,29 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 		                GL_BGRA, GL_UNSIGNED_BYTE, fbBuf.data());
 	}
 
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,                GLfloat(texCoordY)); glVertex2i(0,     height);
-	glTexCoord2f(GLfloat(texCoordX), GLfloat(texCoordY)); glVertex2i(width, height);
-	glTexCoord2f(GLfloat(texCoordX), 0.0               ); glVertex2i(width, 0     );
-	glTexCoord2f(0.0,                0.0               ); glVertex2i(0,     0     );
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	vec2 pos[4] = {
+		vec2(0,     height),
+		vec2(width, height),
+		vec2(width, 0     ),
+		vec2(0,     0     ),
+	};
+	vec2 tex[4] = {
+		vec2(0.0f,      texCoordY),
+		vec2(texCoordX, texCoordY),
+		vec2(texCoordX, 0.0f     ),
+		vec2(0.0f,      0.0f     ),
+	};
+	progTex.activate();
+	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	progTex.deactivate();
 }
 
 void SDLGLOutputSurface::clearScreen()
