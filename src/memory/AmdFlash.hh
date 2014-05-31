@@ -17,27 +17,28 @@ class DeviceConfig;
 class AmdFlash : private noncopyable
 {
 public:
+	struct SectorInfo {
+		unsigned size;
+		bool writeProtected;
+	};
 	/** Create AmdFlash with given configuration.
 	 * @param rom The initial content for this flash
-	 * @param sectorSizes
-	 *   A vector containing the size of each sector in the flash. This
-	 *   implicitly also communicates the number of sectors (a sector
-	 *   is a region in the flash that can be erased individually). There
-	 *   exist flash roms were the different sectors are not all equally
-	 *   large, that's why it's required to enumerate the size of each
-	 *   sector (instead of simply specifying the size and the number of
-	 *   sectors).
-	 * @param writeProtectedFlags
-	 *   A bitmask indicating for each sector whether is write-protected
-	 *   or not (a 1-bit means write-wrotected).
+	 * @param sectorInfo
+	 *   A vector containing the size and write protected status of each
+	 *   sector in the flash. This implicitly also communicates the number
+	 *   of sectors (a sector is a region in the flash that can be erased
+	 *   individually). There exist flash roms were the different sectors
+	 *   are not all equally large, that's why it's required to enumerate
+	 *   the size of each sector (instead of simply specifying the size and
+	 *   the number of sectors).
 	 * @param ID
 	 *   Contains manufacturer and device ID for this flash.
 	 * @param use12bitAddressing set to true for 12-bit command addresses, false for 11-bit command addresses
 	 * @param config The motherboard this flash belongs to
 	 * @param load Load initial content (hack for 'Matra INK')
 	 */
-	AmdFlash(const Rom& rom, const std::vector<unsigned>& sectorSizes,
-	         unsigned writeProtectedFlags, word ID, bool use12bitAddressing,
+	AmdFlash(const Rom& rom, const std::vector<SectorInfo>& sectorInfo,
+	         word ID, bool use12bitAddressing,
 	         const DeviceConfig& config, bool load = true);
 	~AmdFlash();
 
@@ -68,6 +69,7 @@ private:
                            unsigned& sectorSize, unsigned& offset) const;
 
 	void setState(State newState);
+	bool checkCommandReset();
 	bool checkCommandEraseSector();
 	bool checkCommandEraseChip();
 	bool checkCommandProgramHelper(unsigned, const byte*, size_t cmdLen);
@@ -81,7 +83,7 @@ private:
 	std::unique_ptr<SRAM> ram;
 	MemBuffer<int> writeAddress;
 	MemBuffer<const byte*> readAddress;
-	const std::vector<unsigned> sectorSizes;
+	const std::vector<SectorInfo> sectorInfo;
 	const unsigned size;
 	const word ID;
 	const bool use12bitAddressing;

@@ -167,12 +167,17 @@ Main features:
 
 namespace openmsx {
 
-static unsigned sectorSizes[19] = {
-	0x4000, 0x2000, 0x2000, 0x8000,      // 16kB + 8kB + 8kB + 32kB
-	0x10000, 0x10000, 0x10000, 0x10000,  // 15 * 64kB
-	0x10000, 0x10000, 0x10000, 0x10000,
-	0x10000, 0x10000, 0x10000, 0x10000,
-	0x10000, 0x10000, 0x10000,
+static std::vector<AmdFlash::SectorInfo> getSectorInfo() {
+	std::vector<AmdFlash::SectorInfo> sectorInfo;
+	// 1 * 16kB
+	sectorInfo.insert(sectorInfo.end(), 1, {16 * 1024, false});
+	// 2 * 8kB
+	sectorInfo.insert(sectorInfo.end(), 2, {8 * 1024, false});
+	// 1 * 32kB
+	sectorInfo.insert(sectorInfo.end(), 1, {32 * 1024, false});
+	// 15 * 64kB
+	sectorInfo.insert(sectorInfo.end(), 15, {64 * 1024, false});
+	return sectorInfo;
 };
 
 MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
@@ -185,8 +190,7 @@ MegaFlashRomSCCPlus::MegaFlashRomSCCPlus(
 		"MFR SCC+ PSG", DummyAY8910Periphery::instance(), config,
 		getCurrentTime()))
 	, flash(make_unique<AmdFlash>(
-		*rom, std::vector<unsigned>(sectorSizes, sectorSizes + 19),
-		0, 0x205B, false, config))
+		*rom, getSectorInfo(), 0x205B, false, config))
 {
 	powerUp(getCurrentTime());
 
