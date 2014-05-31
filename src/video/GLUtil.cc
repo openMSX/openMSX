@@ -78,24 +78,6 @@ void Texture::setWrapMode(bool wrap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, mode);
 }
 
-void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
-                       GLint   x,  GLint   y,  GLint   width,  GLint   height)
-{
-	const GLint x2 = x + width;
-	const GLint y2 = y + height;
-	const GLfloat tx2 = tx + twidth;
-	const GLfloat ty2 = ty + theight;
-	bind();
-	glEnable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glTexCoord2f(tx,  ty ); glVertex2i(x , y );
-	glTexCoord2f(tx2, ty ); glVertex2i(x2, y );
-	glTexCoord2f(tx2, ty2); glVertex2i(x2, y2);
-	glTexCoord2f(tx,  ty2); glVertex2i(x,  y2);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-}
-
 
 // class ColorTexture
 

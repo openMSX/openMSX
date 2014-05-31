@@ -87,11 +87,6 @@ public:
 
 	void setWrapMode(bool wrap);
 
-	/** Draws this texture as a rectangle on the frame buffer.
-	  */
-	void drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
-	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
-
 protected:
 	GLuint textureId;
 
