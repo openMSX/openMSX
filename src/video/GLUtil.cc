@@ -34,15 +34,25 @@ void checkGLError(const string& prefix)
 
 // class Texture
 
-Texture::Texture()
+Texture::Texture(bool interpolation)
 {
-	glGenTextures(1, &textureId);
-	disableInterpolation();
+	allocate();
+	if (interpolation) {
+		enableInterpolation();
+	} else {
+		disableInterpolation();
+	}
 }
 
-Texture::~Texture()
+void Texture::allocate()
+{
+	glGenTextures(1, &textureId);
+}
+
+void Texture::reset()
 {
 	glDeleteTextures(1, &textureId); // ok to delete 0-texture
+	textureId = 0;
 }
 
 void Texture::enableInterpolation()
@@ -307,19 +317,18 @@ FragmentShader::FragmentShader(const string& header, const string& filename)
 
 // class ShaderProgram
 
-ShaderProgram::ShaderProgram()
+void ShaderProgram::allocate()
 {
-	// Allocate program handle.
 	handle = glCreateProgram();
 	if (handle == 0) {
 		std::cerr << "Failed to allocate program" << std::endl;
-		return;
 	}
 }
 
-ShaderProgram::~ShaderProgram()
+void ShaderProgram::reset()
 {
 	glDeleteProgram(handle); // ok to delete '0'
+	handle = 0;
 }
 
 bool ShaderProgram::isOK() const

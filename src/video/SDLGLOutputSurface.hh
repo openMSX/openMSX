@@ -5,7 +5,6 @@
 #include "MemBuffer.hh"
 #include "noncopyable.hh"
 #include <string>
-#include <memory>
 
 namespace openmsx {
 
@@ -37,7 +36,7 @@ protected:
 
 private:
 	double texCoordX, texCoordY;
-	std::unique_ptr<gl::Texture> fbTex;
+	gl::Texture fbTex;
 	MemBuffer<char> fbBuf;
 	const FrameBuffer frameBuffer;
 };

@@ -26,14 +26,24 @@ namespace gl {
 //void checkGLError(const std::string& prefix);
 
 
+// Dummy object, to be able to construct empty handler objects.
+struct Null {};
+
+
 /** Most basic/generic texture: only contains a texture ID.
   * Current implementation always assumes 2D textures.
   */
 class Texture
 {
 public:
-	/** Default constructor, allocate a openGL texture name. */
-	Texture();
+	/** Allocate a openGL texture name and enable/disable interpolation. */
+	explicit Texture(bool interpolation = false);
+
+	/** Create null-handle (not yet allocate an openGL handle). */
+	explicit Texture(Null) : textureId(0) {}
+
+	/** Release openGL texture name. */
+	~Texture() { reset(); }
 
 	/** Move constructor and assignment. */
 	Texture(Texture&& other)
@@ -46,8 +56,16 @@ public:
 		return *this;
 	}
 
+	/** Allocate an openGL texture name. */
+	void allocate();
+
 	/** Release openGL texture name. */
-	~Texture();
+	void reset();
+
+	/** Returns the underlying openGL handler id.
+	  * 0 iff no openGL texture is allocated.
+	  */
+	GLuint get() const { return textureId; }
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly
@@ -435,8 +453,25 @@ public:
 class ShaderProgram : public noncopyable
 {
 public:
-	ShaderProgram();
-	~ShaderProgram();
+	/** Create handler and allocate underlying openGL object. */
+	ShaderProgram() { allocate(); }
+
+	/** Create null handler (don't yet allocate a openGL object). */
+	explicit ShaderProgram(Null) : handle(0) {}
+
+	/** Destroy handler object (release the underlying openGL object). */
+	~ShaderProgram() { reset(); }
+
+	/** Allocate a shader program handle. */
+	void allocate();
+
+	/** Release the shader program handle. */
+	void reset();
+
+	/** Returns the underlying openGL handler id.
+	  * 0 iff no openGL program is allocated.
+	  */
+	GLuint get() const { return handle; }
 
 	/** Returns true iff this program was linked without errors.
 	  * Note that this will certainly return false until link() is called.

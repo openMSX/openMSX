@@ -8,10 +8,13 @@
 #include "vla.hh"
 #include <SDL.h>
 
+using namespace gl;
+
 namespace openmsx {
 
 SDLGLOutputSurface::SDLGLOutputSurface(FrameBuffer frameBuffer_)
-	: frameBuffer(frameBuffer_)
+	: fbTex(Null())
+	, frameBuffer(frameBuffer_)
 {
 }
 
@@ -90,8 +93,8 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
 
-		fbTex = make_unique<gl::Texture>();
-		fbTex->bind();
+		fbTex.allocate();
+		fbTex.disableInterpolation();
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
@@ -107,7 +110,7 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 {
 	assert((frameBuffer == FB_16BPP) || (frameBuffer == FB_32BPP));
 
-	fbTex->bind();
+	fbTex.bind();
 	if (frameBuffer == FB_16BPP) {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
 		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf.data());

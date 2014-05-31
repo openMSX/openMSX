@@ -11,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-static GLuint loadTexture(SDLSurfacePtr surface,
+static gl::Texture loadTexture(SDLSurfacePtr surface,
 	int& width, int& height, GLfloat* texCoord)
 {
 	width  = surface->w;
@@ -37,17 +37,13 @@ static GLuint loadTexture(SDLSurfacePtr surface,
 	SDL_SetAlpha(surface.get(), 0, 0);
 	SDL_BlitSurface(surface.get(), &area, image2.get(), &area);
 
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gl::Texture texture(true); // enable interpolation
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w2, h2, 0, GL_RGBA,
 	             GL_UNSIGNED_BYTE, image2->pixels);
 	return texture;
 }
 
-static GLuint loadTexture(const string& filename,
+static gl::Texture loadTexture(const string& filename,
 	int& width, int& height, GLfloat* texCoord)
 {
 	SDLSurfacePtr surface(PNG::load(filename, false));
@@ -61,30 +57,30 @@ static GLuint loadTexture(const string& filename,
 
 
 GLImage::GLImage(const string& filename)
+	: texture(loadTexture(filename, width, height, texCoord))
 {
-	texture = loadTexture(filename, width, height, texCoord);
 }
 
 GLImage::GLImage(const string& filename, double scalefactor)
+	: texture(loadTexture(filename, width, height, texCoord))
 {
-	texture = loadTexture(filename, width, height, texCoord);
 	width  = int(scalefactor * width);
 	height = int(scalefactor * height);
 	checkSize(width, height);
 }
 
 GLImage::GLImage(const string& filename, int width_, int height_)
+	: texture(loadTexture(filename, width, height, texCoord))
 {
 	checkSize(width_, height_);
-	texture = loadTexture(filename, width, height, texCoord);
 	width  = width_;
 	height = height_;
 }
 
 GLImage::GLImage(int width_, int height_, unsigned rgba)
+	: texture(gl::Null())
 {
 	checkSize(width_, height_);
-	texture = 0;
 	width  = width_;
 	height = height_;
 	borderSize = 0;
@@ -99,9 +95,9 @@ GLImage::GLImage(int width_, int height_, unsigned rgba)
 
 GLImage::GLImage(int width_, int height_, const unsigned* rgba,
                  int borderSize_, unsigned borderRGBA)
+	: texture(gl::Null())
 {
 	checkSize(width_, height_);
-	texture = 0;
 	width  = width_;
 	height = height_;
 	borderSize = borderSize_;
@@ -121,13 +117,8 @@ GLImage::GLImage(int width_, int height_, const unsigned* rgba,
 }
 
 GLImage::GLImage(SDLSurfacePtr image)
+	: texture(loadTexture(std::move(image), width, height, texCoord))
 {
-	texture = loadTexture(std::move(image), width, height, texCoord);
-}
-
-GLImage::~GLImage()
-{
-	glDeleteTextures(1, &texture);
 }
 
 void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
@@ -135,10 +126,10 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	if (texture) {
+	if (texture.get()) {
 		glEnable(GL_TEXTURE_2D);
 		glColor4ub(255, 255, 255, alpha);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		texture.bind();
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
 			  (alpha == 255) ? GL_REPLACE : GL_MODULATE);
 		glBegin(GL_QUADS);
