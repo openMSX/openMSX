@@ -1,4 +1,6 @@
 #include "GLSnow.hh"
+#include "GLPrograms.hh"
+#include "gl_mat.hh"
 #include "Display.hh"
 #include "gl_vec.hh"
 #include "openmsx.hh"
@@ -20,19 +22,6 @@ GLSnow::GLSnow(Display& display_)
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
-
-	// TODO The exact same program is used in GLPostProcessor.
-	//      Can we share them?
-	VertexShader   texVertexShader  ("tex2D.vert");
-	FragmentShader texFragmentShader("tex2D.frag");
-	texProg.attach(texVertexShader);
-	texProg.attach(texFragmentShader);
-	texProg.bindAttribLocation(0, "a_position");
-	texProg.bindAttribLocation(1, "a_texCoord");
-	texProg.link();
-	texProg.activate();
-	glUniform1i(texProg.getUniformLocation("u_tex"),  0);
-	texProg.deactivate();
 }
 
 void GLSnow::paint(OutputSurface& /*output*/)
@@ -60,7 +49,10 @@ void GLSnow::paint(OutputSurface& /*output*/)
 		offset + vec2(0.0f, 0.0f)
 	};
 
-	texProg.activate();
+	progTex.activate();
+	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	mat4 I;
+	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[cnt]);
@@ -69,7 +61,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glEnableVertexAttribArray(1);
 	noiseTexture.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	texProg.deactivate();
+	progTex.deactivate();
 
 	display.repaintDelayed(100 * 1000); // 10fps
 }

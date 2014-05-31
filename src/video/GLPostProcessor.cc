@@ -1,4 +1,5 @@
 #include "GLPostProcessor.hh"
+#include "GLPrograms.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
@@ -85,29 +86,6 @@ GLPostProcessor::GLPostProcessor(
 	monitor3DProg.bindAttribLocation(2, "a_texCoord");
 	monitor3DProg.link();
 	preCalcMonitor3D(renderSettings.getHorizontalStretch().getDouble());
-
-	VertexShader   texVertexShader  ("tex2D.vert");
-	FragmentShader texFragmentShader("tex2D.frag");
-	texProg.attach(texVertexShader);
-	texProg.attach(texFragmentShader);
-	texProg.bindAttribLocation(0, "a_position");
-	texProg.bindAttribLocation(1, "a_texCoord");
-	texProg.link();
-	texProg.activate();
-	glUniform1i(texProg.getUniformLocation("u_tex"),  0);
-	texProg.deactivate();
-
-	VertexShader   glowVertexShader  ("glow.vert");
-	FragmentShader glowFragmentShader("glow.frag");
-	glowProg.attach(glowVertexShader);
-	glowProg.attach(glowFragmentShader);
-	glowProg.bindAttribLocation(0, "a_position");
-	glowProg.bindAttribLocation(1, "a_texCoord");
-	glowProg.link();
-	glowProg.activate();
-	glUniform1i(glowProg.getUniformLocation("u_tex"),  0);
-	glowAlphaLoc = glowProg.getUniformLocation("u_alpha");
-	glowProg.deactivate();
 
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
@@ -252,7 +230,10 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
 
-			texProg.activate();
+			progTex.activate();
+			glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+			mat4 I;
+			glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
 			glDisable(GL_BLEND);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -261,7 +242,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-			texProg.deactivate();
+			progTex.deactivate();
 		}
 		storedFrame = true;
 	} else {
@@ -437,11 +418,13 @@ void GLPostProcessor::drawGlow(int glow)
 		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
 	};
 
-	glowProg.activate();
+	progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	colorTex[(frameCounter & 1) ^ 1].bind();
-	glUniform1f(glowAlphaLoc, glow * 31 / 3200.0f);
+	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
+	mat4 I;
+	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
@@ -450,7 +433,7 @@ void GLPostProcessor::drawGlow(int glow)
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisable(GL_BLEND);
-	glowProg.deactivate();
+	progTex.deactivate();
 }
 
 void GLPostProcessor::preCalcNoise(float factor)
@@ -493,10 +476,13 @@ void GLPostProcessor::drawNoise()
 		noise + vec2(0.0f, 0.0f  )
 	};
 
-	texProg.activate();
+	progTex.activate();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
+	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	mat4 I;
+	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -513,7 +499,7 @@ void GLPostProcessor::drawNoise()
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glBlendEquation(GL_FUNC_ADD); // restore default
 
-	texProg.deactivate();
+	progTex.deactivate();
 }
 
 static const int GRID_SIZE = 16;

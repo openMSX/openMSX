@@ -22,7 +22,6 @@ public:
 private:
 	Display& display;
 	gl::Texture noiseTexture;
-	gl::ShaderProgram texProg;
 };
 
 } // namespace openmsx

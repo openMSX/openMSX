@@ -108,11 +108,6 @@ private:
 	gl::BufferObject arrayBuffer;
 	gl::BufferObject elementbuffer;
 
-	gl::ShaderProgram texProg;
-
-	gl::ShaderProgram glowProg;
-	GLint glowAlphaLoc;
-
 	bool storedFrame;
 };
 

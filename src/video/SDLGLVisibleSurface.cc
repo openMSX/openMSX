@@ -1,5 +1,6 @@
 #include "SDLGLVisibleSurface.hh"
 #include "SDLGLOffScreenSurface.hh"
+#include "GLPrograms.hh"
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
@@ -77,10 +78,13 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is done in this constructor. So construction of SDLGLOutputSurface
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
+
+	gl::initPrograms();
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
+	gl::destroyPrograms();
 }
 
 void SDLGLVisibleSurface::flushFrameBuffer()
