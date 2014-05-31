@@ -10,6 +10,7 @@
 #include <algorithm>
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 

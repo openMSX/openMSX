@@ -2,6 +2,7 @@
 #include "RenderSettings.hh"
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 

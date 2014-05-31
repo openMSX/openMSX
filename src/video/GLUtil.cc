@@ -16,11 +16,11 @@
 #endif
 
 using std::string;
+using namespace openmsx;
 
-namespace openmsx {
+namespace gl {
 
-/*namespace GLUtil {
-
+/*
 void checkGLError(const string& prefix)
 {
 	GLenum error = glGetError();
@@ -29,8 +29,7 @@ void checkGLError(const string& prefix)
 		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
 	}
 }
-
-}*/
+*/
 
 
 // class Texture
@@ -424,4 +423,4 @@ BufferObject::~BufferObject()
 	glDeleteBuffers(1, &bufferId); // ok to delete 0-buffer
 }
 
-} // namespace openmsx
+} // namespace gl

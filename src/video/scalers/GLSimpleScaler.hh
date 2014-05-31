@@ -15,7 +15,7 @@ public:
 	explicit GLSimpleScaler(RenderSettings& renderSettings);
 
 	virtual void scaleImage(
-		ColorTexture& src, ColorTexture* superImpose,
+		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 		unsigned logSrcHeight);
@@ -23,7 +23,7 @@ public:
 private:
 	RenderSettings& renderSettings;
 	struct Data {
-		ShaderProgram scalerProgram;
+		gl::ShaderProgram scalerProgram;
 		int texSizeLoc;
 		int texStepXLoc;
 		int cnstLoc;

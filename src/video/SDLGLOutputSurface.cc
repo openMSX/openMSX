@@ -1,6 +1,5 @@
 #include "SDLGLOutputSurface.hh"
 #include "OutputSurface.hh"
-#include "GLUtil.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "Math.hh"
@@ -91,7 +90,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
 
-		fbTex = make_unique<Texture>();
+		fbTex = make_unique<gl::Texture>();
 		fbTex->bind();
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?

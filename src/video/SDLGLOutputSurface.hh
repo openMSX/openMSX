@@ -1,6 +1,7 @@
 #ifndef SDLGLOUTPUTSURFACE_HH
 #define SDLGLOUTPUTSURFACE_HH
 
+#include "GLUtil.hh"
 #include "MemBuffer.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -9,7 +10,6 @@
 namespace openmsx {
 
 class OutputSurface;
-class Texture;
 
 /** This is a common base class for SDLGLVisibleSurface and
   * SDLGLOffScreenSurface. It's only purpose is to have a place to put common
@@ -37,7 +37,7 @@ protected:
 
 private:
 	double texCoordX, texCoordY;
-	std::unique_ptr<Texture> fbTex;
+	std::unique_ptr<gl::Texture> fbTex;
 	MemBuffer<char> fbBuf;
 	const FrameBuffer frameBuffer;
 };

@@ -1,6 +1,7 @@
 #include "GLSaIScaler.hh"
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 

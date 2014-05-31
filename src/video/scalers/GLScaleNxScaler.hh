@@ -13,13 +13,13 @@ public:
 	GLScaleNxScaler();
 
 	virtual void scaleImage(
-		ColorTexture& src, ColorTexture* superImpose,
+		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 		unsigned logSrcHeight);
 
 private:
-	ShaderProgram scalerProgram[2];
+	gl::ShaderProgram scalerProgram[2];
 	GLint texSizeLoc[2];
 };
 

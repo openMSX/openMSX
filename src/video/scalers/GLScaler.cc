@@ -1,6 +1,8 @@
 #include "GLScaler.hh"
 #include "GLUtil.hh"
 
+using namespace gl;
+
 namespace openmsx {
 
 GLScaler::GLScaler()

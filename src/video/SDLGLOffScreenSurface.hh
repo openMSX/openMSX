@@ -24,8 +24,8 @@ private:
 	virtual void flushFrameBuffer();
 	virtual void clearScreen();
 
-	Texture fboTex;
-	FrameBufferObject fbo;
+	gl::Texture fboTex;
+	gl::FrameBufferObject fbo;
 };
 
 } // namespace openmsx

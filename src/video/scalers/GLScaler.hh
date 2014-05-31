@@ -33,7 +33,7 @@ public:
 	  *        to superImpose-Y-coordinates.
 	  */
 	virtual void scaleImage(
-		ColorTexture& src, ColorTexture* superImpose,
+		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 		unsigned logSrcHeight) = 0;
@@ -64,14 +64,14 @@ protected:
 	  *   subpixels will be centered: for example in 4x zoom the source
 	  *   coordinates will be 0.125, 0.375, 0.625, 0.875.
 	  */
-	void drawMultiTex(ColorTexture& src,
+	void drawMultiTex(gl::ColorTexture& src,
 	                  unsigned srcStartY, unsigned srcEndY,
 	                  float physSrcHeight, float logSrcHeight,
 	                  unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	                  bool textureFromZero = false);
 
 private:
-	ShaderProgram scalerProgram;
+	gl::ShaderProgram scalerProgram;
 };
 
 } // namespace openmsx

@@ -20,14 +20,10 @@
 #include <string>
 #include <cassert>
 
-namespace openmsx {
-
-namespace GLUtil {
+namespace gl {
 
 // TODO this needs glu, but atm we don't link against glu (in windows)
 //void checkGLError(const std::string& prefix);
-
-} // namespace GLUtil
 
 
 /** Most basic/generic texture: only contains a texture ID.
@@ -250,7 +246,7 @@ public:
 private:
 	/** Buffer for main RAM fallback (not allocated in the normal case).
 	  */
-	MemBuffer<T> allocated;
+	openmsx::MemBuffer<T> allocated;
 
 	/** Handle of the GL buffer, or 0 if no GL buffer is available.
 	  */
@@ -503,7 +499,7 @@ private:
 	GLuint bufferId;
 };
 
-} // namespace openmsx
+} // namespace gl
 
 #endif // COMPONENT_GL
 #endif // GLUTIL_HH

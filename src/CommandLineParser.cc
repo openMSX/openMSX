@@ -683,7 +683,7 @@ void NoPBOOption::parseOption(const string& /*option*/,
 {
 	#if COMPONENT_GL
 	cout << "Disabling PBO" << endl;
-	PixelBuffers::enabled = false;
+	gl::PixelBuffers::enabled = false;
 	#endif
 }
 

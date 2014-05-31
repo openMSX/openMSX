@@ -52,12 +52,12 @@ private:
 	  */
 	std::unique_ptr<GLScaler> currScaler;
 
-	Texture colorTex[2];
-	FrameBufferObject fbo[2];
+	gl::Texture colorTex[2];
+	gl::FrameBufferObject fbo[2];
 
 	// Noise effect:
-	LuminanceTexture noiseTextureA;
-	LuminanceTexture noiseTextureB;
+	gl::LuminanceTexture noiseTextureA;
+	gl::LuminanceTexture noiseTextureB;
 	double noiseX;
 	double noiseY;
 
@@ -73,12 +73,12 @@ private:
 #endif
 			;
 
-		ColorTexture tex;
-		PixelBuffer<unsigned> pbo;
+		gl::ColorTexture tex;
+		gl::PixelBuffer<unsigned> pbo;
 	};
 	std::vector<std::pair<unsigned, TextureData>> textures;
 
-	ColorTexture superImposeTex;
+	gl::ColorTexture superImposeTex;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,
@@ -104,13 +104,13 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	ShaderProgram monitor3DProg;
-	BufferObject arrayBuffer;
-	BufferObject elementbuffer;
+	gl::ShaderProgram monitor3DProg;
+	gl::BufferObject arrayBuffer;
+	gl::BufferObject elementbuffer;
 
-	ShaderProgram texProg;
+	gl::ShaderProgram texProg;
 
-	ShaderProgram glowProg;
+	gl::ShaderProgram glowProg;
 	GLint glowAlphaLoc;
 
 	bool storedFrame;

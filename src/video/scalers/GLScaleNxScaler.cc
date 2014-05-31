@@ -1,6 +1,7 @@
 #include "GLScaleNxScaler.hh"
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 
