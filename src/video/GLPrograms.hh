@@ -2,13 +2,14 @@
 #define GL_PROGRAMS_HH
 
 #include "GLUtil.hh"
+#include "gl_mat.hh"
 
 namespace gl {
 
 // Initialize or destroy global openGL shader programs.
 //  init()    must be called right after  the openGL context has been created
 //  destroy() must be called right before the openGL context will be destroyed
-void initPrograms();
+void initPrograms(int width, int height);
 void destroyPrograms();
 
 // Simple texture program. It expects
@@ -23,6 +24,20 @@ void destroyPrograms();
 extern ShaderProgram progTex;
 extern GLuint unifTexColor;
 extern GLuint unifTexMvp;
+
+// Simple color-fill program. It expects
+//  uniforms:
+//    unifFillMvp: Model-View-Projection-matrix
+//  attributes:
+//    0: 4D vertex positions, get multiplied by Model-View-Projection-matrix
+//    1: 4D vertex color
+extern ShaderProgram progFill;
+extern GLuint unifFillMvp;
+
+// Model-View-Projection-matrix that maps integer vertex positions to host
+// display pixel positions. (0,0) is the top-left pixel, (width-1,height-1) is
+// the bottom-right pixel.
+extern mat4 pixelMvp;
 
 } // namespace gl
 

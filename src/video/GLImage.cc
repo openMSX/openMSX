@@ -1,4 +1,5 @@
 #include "GLImage.hh"
+#include "GLPrograms.hh"
 #include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "Math.hh"
@@ -8,6 +9,7 @@
 #include <SDL.h>
 
 using std::string;
+using namespace gl;
 
 namespace openmsx {
 
@@ -123,74 +125,83 @@ GLImage::GLImage(SDLSurfacePtr image)
 
 void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 {
-	glPushAttrib(GL_ENABLE_BIT);
+	// 4-----------------7
+	// |                 |
+	// |   0---------3   |
+	// |   |         |   |
+	// |   |         |   |
+	// |   1-------- 2   |
+	// |                 |
+	// 5-----------------6
+	int bx = (width  > 0) ? borderSize : -borderSize;
+	int by = (height > 0) ? borderSize : -borderSize;
+	vec2 pos[8] = {
+		vec2(x         + bx, y          + by), // 0
+		vec2(x         + bx, y + height - by), // 1
+		vec2(x + width - bx, y + height - by), // 2
+		vec2(x + width - bx, y          + by), // 3
+		vec2(x             , y              ), // 4
+		vec2(x             , y + height     ), // 5
+		vec2(x + width     , y + height     ), // 6
+		vec2(x + width     , y              ), // 7
+	};
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glEnableVertexAttribArray(0);
+
 	if (texture.get()) {
-		glEnable(GL_TEXTURE_2D);
-		glColor4ub(255, 255, 255, alpha);
+		vec2 tex[4] = {
+			vec2(texCoord[0], texCoord[1]),
+			vec2(texCoord[0], texCoord[3]),
+			vec2(texCoord[2], texCoord[3]),
+			vec2(texCoord[2], texCoord[1]),
+		};
+
+		progTex.activate();
+		glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, alpha / 255.0f);
+		glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos + 4);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+		glEnableVertexAttribArray(1);
 		texture.bind();
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,
-			  (alpha == 255) ? GL_REPLACE : GL_MODULATE);
-		glBegin(GL_QUADS);
-		glTexCoord2f(texCoord[0], texCoord[1]); glVertex2i(x,         y         );
-		glTexCoord2f(texCoord[0], texCoord[3]); glVertex2i(x,         y + height);
-		glTexCoord2f(texCoord[2], texCoord[3]); glVertex2i(x + width, y + height);
-		glTexCoord2f(texCoord[2], texCoord[1]); glVertex2i(x + width, y         );
-		glEnd();
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	} else {
-		bool onlyBorder = (2 * borderSize >= abs(width )) ||
-		                  (2 * borderSize >= abs(height));
-		if (onlyBorder) {
-			glBegin(GL_QUADS);
-			glColor4ub(borderR, borderG, borderB,
-			           (borderA * alpha) / 256);
-			glVertex2i(x,         y         );
-			glVertex2i(x,         y + height);
-			glVertex2i(x + width, y + height);
-			glVertex2i(x + width, y         );
-			glEnd();
+		progFill.activate();
+		glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+		glVertexAttrib4f(1, borderR / 255.0f, borderG / 255.0f, borderB / 255.0f,
+		                (borderA * alpha) / (255.0f * 255.0f));
+
+		if ((2 * borderSize >= abs(width )) ||
+		    (2 * borderSize >= abs(height))) {
+			// only border
+			glDisableVertexAttribArray(1);
+			glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
 		} else {
 			// interior
-			int bx = (width  > 0) ? borderSize : -borderSize;
-			int by = (height > 0) ? borderSize : -borderSize;
-			glBegin(GL_QUADS);
-			glColor4ub(r[0], g[0], b[0], (a[0] * alpha) / 256);
-			glVertex2i(x + bx,         y + by        );
-			glColor4ub(r[2], g[2], b[2], (a[2] * alpha) / 256);
-			glVertex2i(x + bx,         y + height - by);
-			glColor4ub(r[3], g[3], b[3], (a[3] * alpha) / 256);
-			glVertex2i(x + width - bx, y + height - by);
-			glColor4ub(r[1], g[1], b[1], (a[1] * alpha) / 256);
-			glVertex2i(x + width - bx, y + by        );
-			glEnd();
+			byte col[4][4] = {
+				{ r[0], g[0], b[0], byte((a[0] * alpha) / 256) },
+				{ r[2], g[2], b[2], byte((a[2] * alpha) / 256) },
+				{ r[3], g[3], b[3], byte((a[3] * alpha) / 256) },
+				{ r[1], g[1], b[1], byte((a[1] * alpha) / 256) },
+			};
+			glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, col);
+			glEnableVertexAttribArray(1);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+			// border
 			if (borderSize > 0) {
-				glColor4ub(borderR, borderG, borderB,
-					   (borderA * alpha) / 256);
-				// 0/8---------------6
-				// |                 |
-				// |   1/9-------7   |
-				// |   |         |   |
-				// |   |         |   |
-				// |   3-------- 5   |
-				// |                 |
-				// 2-----------------4
-				glBegin(GL_TRIANGLE_STRIP);
-				glVertex2i(x             , y              ); // 0
-				glVertex2i(x         + bx, y          + by); // 1
-				glVertex2i(x             , y + height     ); // 2
-				glVertex2i(x         + bx, y + height - by); // 3
-				glVertex2i(x + width     , y + height     ); // 4
-				glVertex2i(x + width - bx, y + height - by); // 5
-				glVertex2i(x + width     , y              ); // 6
-				glVertex2i(x + width - bx, y          + by); // 7
-				glVertex2i(x             , y              ); // 8 = 0
-				glVertex2i(x         + bx, y          + by); // 9 = 1
-				glEnd();
+				byte indices[10] = { 4,0,5,1,6,2,7,3,4,0 };
+				glDisableVertexAttribArray(1);
+				glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_BYTE, indices);
 			}
 		}
 	}
-	glPopAttrib();
+	ShaderProgram::deactivate();
+	glDisable(GL_BLEND);
 }
 
 int GLImage::getWidth() const

@@ -79,7 +79,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
 
-	gl::initPrograms();
+	gl::initPrograms(width, height);
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
