@@ -288,6 +288,13 @@ SOURCES_FULL:=$(filter-out src/laserdisc/%.cc,$(SOURCES_FULL))
 SOURCES_FULL:=$(filter-out src/video/ld/%.cc,$(SOURCES_FULL))
 endif
 
+# Apply subset to sources list.
+SOURCES_FULL:=$(filter $(SOURCES_PATH)/$(OPENMSX_SUBSET)%,$(SOURCES_FULL))
+ifeq ($(SOURCES_FULL),)
+$(error Sources list empty $(if \
+   $(OPENMSX_SUBSET),after applying subset "$(OPENMSX_SUBSET)*"))
+endif
+
 SOURCES:=$(SOURCES_FULL:$(SOURCES_PATH)/%.cc=%)
 
 DEPEND_PATH:=$(BUILD_PATH)/dep
