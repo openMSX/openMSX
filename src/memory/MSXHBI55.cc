@@ -191,9 +191,17 @@ nibble MSXHBI55::peekC1(EmuTime::param /*time*/) const
 	return readSRAM(readAddress) >> 4;
 }
 
+// When only one of the nibbles is written (actually when one is set as
+// input the other as output), the other nibble gets the value of the
+// last time that nibble was written. Thanks to Laurens Holst for
+// investigating this. See this bug report for more details:
+//   https://sourceforge.net/p/openmsx/bugs/536/
 void MSXHBI55::writeC0(nibble value, EmuTime::param /*time*/)
 {
 	writeLatch = (writeLatch & 0xF0) | value;
+	if (mode == 1) {
+		sram->write(writeAddress, writeLatch);
+	}
 }
 void MSXHBI55::writeC1(nibble value, EmuTime::param /*time*/)
 {
