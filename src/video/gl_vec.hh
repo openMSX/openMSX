@@ -446,8 +446,8 @@ inline vec4 recip(vec4 a)
 	return vec4(x1);
 }
 
-#endif // __SSE__
-
 } // namespace gl
+
+#endif // __SSE__
 
 #endif // GL_VEC_HH

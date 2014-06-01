@@ -475,8 +475,8 @@ inline mat4 inverse(const mat4& A)
 	return mat4(vec4(i0) * rd, vec4(i1) * rd, vec4(i2) * rd, vec4(i3) * rd);
 }
 
-#endif // __SSE__
-
 } // namespace gl
+
+#endif // __SSE__
 
 #endif
