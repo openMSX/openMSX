@@ -4,6 +4,7 @@
 #include "MemBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "serialize_meta.hh"
 #include <memory>
 #include <vector>
 
@@ -43,6 +44,13 @@ public:
 	~AmdFlash();
 
 	void reset();
+	/**
+	 * Setting the Vpp/WP# pin LOW enables a certain kind of write
+	 * protection of some sectors. Currently it is implemented that it will
+	 * enable protection of the first two sectors. (As for example in
+	 * Numonix/Micron M29W640FB/M29W640GB.)
+	 */
+	void setVppWpPinLow(bool value);
 
 	unsigned getSize() const;
 	byte read(unsigned address);
@@ -78,6 +86,8 @@ private:
 	bool checkCommandManifacturer();
 	bool partialMatch(unsigned len, const byte* dataSeq) const;
 
+	bool isSectorWritable(unsigned sector) const;
+
 	MSXMotherBoard& motherBoard;
 	const Rom& rom;
 	std::unique_ptr<SRAM> ram;
@@ -92,7 +102,9 @@ private:
 	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
 	State state;
+	bool vppWpPinLow; // true = protection on
 };
+SERIALIZE_CLASS_VERSION(AmdFlash, 2);
 
 } // namespace openmsx
 

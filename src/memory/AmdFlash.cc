@@ -28,6 +28,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
 	, ID(ID_)
 	, use12bitAddressing(use12bitAddressing_)
 	, state(ST_IDLE)
+	, vppWpPinLow(false)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
@@ -66,7 +67,7 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
 	unsigned offset = 0;
 	for (auto i : xrange(numSectors)) {
 		unsigned sectorSize = sectorInfo[i].size;
-		if (writeAddress[i] != -1) {
+		if (isSectorWritable(i)) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
 				auto ramPtr = const_cast<byte*>(
@@ -161,7 +162,7 @@ byte AmdFlash::peek(unsigned address) const
 			return ID & 0xFF;
 		case 2:
 			// 1 -> write protected
-			return (writeAddress[sector] == -1) ? 1 : 0;
+			return isSectorWritable(sector) ? 0 : 1;
 		case 3:
 		default:
 			// TODO what is this? According to this it reads as '1'
@@ -169,6 +170,11 @@ byte AmdFlash::peek(unsigned address) const
 			return 1;
 		}
 	}
+}
+
+bool AmdFlash::isSectorWritable(unsigned sector) const
+{
+	return vppWpPinLow && (sector == 0 || sector == 1) ? false : (writeAddress[sector] != -1) ;
 }
 
 byte AmdFlash::read(unsigned address)
@@ -229,7 +235,7 @@ bool AmdFlash::checkCommandEraseSector()
 			unsigned addr = cmd[5].addr;
 			unsigned sector, sectorSize, offset;
 			getSectorInfo(addr, sector, sectorSize, offset);
-			if (writeAddress[sector] != -1) {
+			if (isSectorWritable(sector)) {
 				ram->memset(writeAddress[sector],
 				            0xff, sectorSize);
 			}
@@ -258,7 +264,7 @@ bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, 
 			unsigned addr = cmd[i].addr;
 			unsigned sector, sectorSize, offset;
 			getSectorInfo(addr, sector, sectorSize, offset);
-			if (writeAddress[sector] != -1) {
+			if (isSectorWritable(sector)) {
 				unsigned ramAddr = writeAddress[sector] + offset;
 				ram->write(ramAddr, (*ram)[ramAddr] & cmd[i].value);
 			}
@@ -310,6 +316,11 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 }
 
 
+void AmdFlash::setVppWpPinLow(bool value)
+{
+	vppWpPinLow = value;
+}
+
 static enum_string<AmdFlash::State> stateInfo[] = {
 	{ "IDLE",  AmdFlash::ST_IDLE  },
 	{ "IDENT", AmdFlash::ST_IDENT }
@@ -324,12 +335,15 @@ void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
-void AmdFlash::serialize(Archive& ar, unsigned /*version*/)
+void AmdFlash::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("ram", *ram);
 	ar.serialize("cmd", cmd);
 	ar.serialize("cmdIdx", cmdIdx);
 	ar.serialize("state", state);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("vppWpPinLow", vppWpPinLow);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash);
 
