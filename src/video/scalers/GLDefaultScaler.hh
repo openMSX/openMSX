@@ -18,7 +18,7 @@ public:
 		unsigned logSrcHeight);
 
 private:
-	gl::ShaderProgram scalerProgram;
+	gl::ShaderProgram scalerProgram[2];
 };
 
 } // namespace openmsx
