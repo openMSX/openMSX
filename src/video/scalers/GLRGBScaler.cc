@@ -1,5 +1,6 @@
 #include "GLRGBScaler.hh"
 #include "GLUtil.hh"
+#include "GLPrograms.hh"
 #include "RenderSettings.hh"
 
 using std::string;
@@ -19,6 +20,8 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 		FragmentShader fragmentShader(header, "rgb.frag");
 		d.scalerProgram.attach(vertexShader);
 		d.scalerProgram.attach(fragmentShader);
+		d.scalerProgram.bindAttribLocation(0, "a_position");
+		d.scalerProgram.bindAttribLocation(1, "a_texCoord");
 		d.scalerProgram.link();
 
 		d.scalerProgram.activate();
@@ -28,6 +31,8 @@ GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
 		}
 		d.texSizeLoc = d.scalerProgram.getUniformLocation("texSize");
 		d.cnstsLoc   = d.scalerProgram.getUniformLocation("cnsts");
+		glUniformMatrix4fv(d.scalerProgram.getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
 	}
 }
 
@@ -48,14 +53,14 @@ void GLRGBScaler::scaleImage(
 		scanline = 1.0f;
 		yScale = 1;
 	}
-	if (srcWidth != 1) {
-		// workaround for ATI cards
-		src.enableInterpolation();
-	} else {
-		// treat border as 256-pixel wide display area
-		srcWidth = 320;
-	}
-	if (((blur != 0.0f) || (scanline != 1.0f) || superImpose)) {
+	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
+		if (srcWidth != 1) {
+			// workaround for ATI cards
+			src.enableInterpolation();
+		} else {
+			// treat border as 256-pixel wide display area
+			srcWidth = 320;
+		}
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();
@@ -71,10 +76,13 @@ void GLRGBScaler::scaleImage(
 		            (1.0f - scanline) * 2.0f * c2, // scan_b_c2
 		            scanline * c2,                 // scan_c_c2
 		            (c1 - c2) / c2);               // scan_c1_2_2
+		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+			     dstStartY, dstEndY, dstWidth);
+		src.disableInterpolation();
+	} else {
+		GLScaler::scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
+		                     dstStartY, dstEndY, dstWidth, logSrcHeight);
 	}
-	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
-	src.disableInterpolation();
 }
 
 } // namespace openmsx

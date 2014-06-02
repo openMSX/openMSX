@@ -5,6 +5,7 @@ uniform sampler2D videoTex;
 
 varying vec2 texStep; // could be uniform
 varying vec2 coord2pi;
+varying vec2 texCoord;
 varying vec2 videoCoord;
 
 vec4 scaleNx()
@@ -13,8 +14,8 @@ vec4 scaleNx()
 	delta.xw = sin(coord2pi) * texStep;
 	delta.yz = vec2(0.0);
 
-	vec4 posLeftTop  = gl_TexCoord[0].stst - delta;
-	vec4 posRightBot = gl_TexCoord[0].stst + delta;
+	vec4 posLeftTop  = texCoord.stst - delta;
+	vec4 posRightBot = texCoord.stst + delta;
 
 	vec4 left  = texture2D(tex, posLeftTop.xy);
 	vec4 top   = texture2D(tex, posLeftTop.zw);
@@ -22,7 +23,7 @@ vec4 scaleNx()
 	vec4 bot   = texture2D(tex, posRightBot.zw);
 
 	if (dot(left.rgb - right.rgb, top.rgb - bot.rgb) == 0.0 || left.rgb != top.rgb) {
-		return texture2D(tex, gl_TexCoord[0].st);
+		return texture2D(tex, texCoord.st);
 	} else {
 		return top;
 	}

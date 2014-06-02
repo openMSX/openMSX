@@ -1,5 +1,6 @@
 #include "GLSimpleScaler.hh"
 #include "GLUtil.hh"
+#include "GLPrograms.hh"
 #include "RenderSettings.hh"
 
 using std::string;
@@ -19,18 +20,20 @@ GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 		FragmentShader fragmentShader(header, "simple.frag");
 		d.scalerProgram.attach(vertexShader);
 		d.scalerProgram.attach(fragmentShader);
+		d.scalerProgram.bindAttribLocation(0, "a_position");
+		d.scalerProgram.bindAttribLocation(1, "a_texCoord");
 		d.scalerProgram.link();
 
 		data[i].scalerProgram.activate();
-		GLint texLoc = d.scalerProgram.getUniformLocation("tex");
-		glUniform1i(texLoc, 0);
+		glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
 		if (i == 1) {
-			GLint texLoc2 = d.scalerProgram.getUniformLocation("videoTex");
-			glUniform1i(texLoc2, 1);
+			glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
 		}
 		data[i].texSizeLoc  = d.scalerProgram.getUniformLocation("texSize");
 		data[i].texStepXLoc = d.scalerProgram.getUniformLocation("texStepX");
 		data[i].cnstLoc     = d.scalerProgram.getUniformLocation("cnst");
+		glUniformMatrix4fv(d.scalerProgram.getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
 	}
 }
 
@@ -52,10 +55,10 @@ void GLSimpleScaler::scaleImage(
 		yScale = 1;
 	}
 
-	if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
-		src.enableInterpolation();
-	}
-	if (((blur != 0.0f) || (scanline != 1.0f) || superImpose)) {
+	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
+		if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
+			src.enableInterpolation();
+		}
 		if (superImpose) {
 			glActiveTexture(GL_TEXTURE1);
 			superImpose->bind();
@@ -74,12 +77,15 @@ void GLSimpleScaler::scaleImage(
 		glUniform2f(d.texSizeLoc, srcWidth, src.getHeight());
 		glUniform3f(d.texStepXLoc, 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
 		glUniform4f(d.cnstLoc, scan_a, scan_b, scan_c, blur);
-	}
 
-	// actually draw texture
-	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-	             dstStartY, dstEndY, dstWidth);
-	src.disableInterpolation();
+		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
+			     dstStartY, dstEndY, dstWidth);
+
+		src.disableInterpolation();
+	} else {
+		GLScaler::scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
+		                     dstStartY, dstEndY, dstWidth, logSrcHeight);
+	}
 }
 
 } // namespace openmsx

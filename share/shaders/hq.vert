@@ -1,4 +1,8 @@
+uniform mat4 u_mvpMatrix;
 uniform vec2 texSize;
+
+attribute vec4 a_position;
+attribute vec3 a_texCoord;
 
 varying vec2 mid;
 varying vec2 leftTop;
@@ -9,20 +13,18 @@ varying vec2 videoCoord;
 
 void main()
 {
-	gl_Position = ftransform();
+	gl_Position = u_mvpMatrix * a_position;
 
 	vec2 texStep = 1.0 / texSize;
-	mid     = gl_MultiTexCoord0.st;
-	leftTop = gl_MultiTexCoord0.st - texStep;
+	mid     = a_texCoord.xy;
+	leftTop = a_texCoord.xy - texStep;
 
-	edgePos.x = gl_MultiTexCoord0.s;
-	edgePos.y = gl_MultiTexCoord0.t * 2.0;
-	vec2 texSizeB = vec2(texSize.x, texSize.y * 0.5);
-	weightPos = edgePos * texSizeB;
+	edgePos = a_texCoord.xy * vec2(1.0, 2.0);
+	weightPos = edgePos * texSize * vec2(1.0, 0.5);
 
 	texStep2 = 2.0 * texStep;
 
 #if SUPERIMPOSE
-	videoCoord = gl_MultiTexCoord1.st;
+	videoCoord = a_texCoord.xz;
 #endif
 }

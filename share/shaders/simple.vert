@@ -1,6 +1,10 @@
+uniform mat4 u_mvpMatrix;
 uniform vec2 texSize;
 uniform vec3 texStepX; // = vec3(vec2(1.0 / texSize.x), 0.0);
 uniform vec4 cnst;     // = vec4(scan_a, scan_b, scan_c, alpha);
+
+attribute vec4 a_position;
+attribute vec3 a_texCoord;
 
 varying vec2 scaled;
 varying vec3 misc;
@@ -10,12 +14,11 @@ void main()
 {
 	float alpha  = cnst.w;
 
-	gl_Position = ftransform();
-	misc = vec3((vec2(0.5) - vec2(1.0, 0.0) * alpha) * texStepX.x, gl_MultiTexCoord0.t);
-	scaled.x = gl_MultiTexCoord0.s * texSize.x;
-	scaled.y = gl_MultiTexCoord0.t * texSize.y + 0.5;
+	gl_Position = u_mvpMatrix * a_position;
+	misc = vec3((vec2(0.5) - vec2(1.0, 0.0) * alpha) * texStepX.x, a_texCoord.y);
+	scaled = a_texCoord.xy * texSize + vec2(0.0, 0.5);
 
 #if SUPERIMPOSE
-	videoCoord = gl_MultiTexCoord1.st;
+	videoCoord = a_texCoord.xz;
 #endif
 }

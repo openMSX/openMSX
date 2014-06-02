@@ -1,4 +1,8 @@
+uniform mat4 u_mvpMatrix;
 uniform vec2 texSize;
+
+attribute vec4 a_position;
+attribute vec3 a_texCoord;
 
 varying vec4 scaled;
 varying vec2 pos;
@@ -6,11 +10,11 @@ varying vec2 videoCoord;
 
 void main()
 {
-	gl_Position = ftransform();
-	scaled.xyz = vec3(gl_MultiTexCoord0.s * texSize.x) + vec3(0.0, 1.0/3.0, 2.0/3.0);
-	scaled.w = gl_MultiTexCoord0.t * texSize.y + 0.5;
-	pos        = gl_MultiTexCoord0.st;
+	gl_Position = u_mvpMatrix * a_position;
+	vec2 tmp = a_texCoord.xy * texSize;
+	scaled = tmp.xxxy + vec4(0.0, 1.0/3.0, 2.0/3.0, 0.5);
+	pos        = a_texCoord.xy;
 #if SUPERIMPOSE
-	videoCoord = gl_MultiTexCoord1.st;
+	videoCoord = a_texCoord.xz;
 #endif
 }

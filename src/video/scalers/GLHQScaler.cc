@@ -1,5 +1,6 @@
 #include "GLHQScaler.hh"
 #include "GLUtil.hh"
+#include "GLPrograms.hh"
 #include "HQCommon.hh"
 #include "FrameSource.hh"
 #include "FileContext.hh"
@@ -23,6 +24,8 @@ GLHQScaler::GLHQScaler()
 		FragmentShader fragmentShader(header, "hq.frag");
 		scalerProgram[i].attach(vertexShader);
 		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].bindAttribLocation(0, "a_position");
+		scalerProgram[i].bindAttribLocation(1, "a_texCoord");
 		scalerProgram[i].link();
 
 		scalerProgram[i].activate();
@@ -35,6 +38,8 @@ GLHQScaler::GLHQScaler()
 		glUniform1i(scalerProgram[i].getUniformLocation("weightTex"), 4);
 		glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
 		            320.0f, 2 * 240.0f);
+		glUniformMatrix4fv(scalerProgram[i].getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
 	}
 
 	edgeTexture.bind();

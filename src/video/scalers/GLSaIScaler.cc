@@ -1,4 +1,5 @@
 #include "GLSaIScaler.hh"
+#include "GLPrograms.hh"
 
 using std::string;
 using namespace gl;
@@ -14,6 +15,8 @@ GLSaIScaler::GLSaIScaler()
 		FragmentShader fragmentShader(header, "sai.frag");
 		scalerProgram[i].attach(vertexShader);
 		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].bindAttribLocation(0, "a_position");
+		scalerProgram[i].bindAttribLocation(1, "a_texCoord");
 		scalerProgram[i].link();
 
 		scalerProgram[i].activate();
@@ -22,6 +25,8 @@ GLSaIScaler::GLSaIScaler()
 			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
 		}
 		texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
+		glUniformMatrix4fv(scalerProgram[i].getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
 	}
 }
 

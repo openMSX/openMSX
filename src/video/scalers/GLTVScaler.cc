@@ -1,4 +1,5 @@
 #include "GLTVScaler.hh"
+#include "GLPrograms.hh"
 #include "RenderSettings.hh"
 
 using std::string;
@@ -16,6 +17,8 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 		FragmentShader fragmentShader(header, "tv.frag");
 		scalerProgram[i].attach(vertexShader);
 		scalerProgram[i].attach(fragmentShader);
+		scalerProgram[i].bindAttribLocation(0, "a_position");
+		scalerProgram[i].bindAttribLocation(1, "a_texCoord");
 		scalerProgram[i].link();
 
 		scalerProgram[i].activate();
@@ -28,6 +31,8 @@ GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
 			scalerProgram[i].getUniformLocation("minScanline");
 		sizeVarianceLoc[i] =
 			scalerProgram[i].getUniformLocation("sizeVariance");
+		glUniformMatrix4fv(scalerProgram[i].getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
 	}
 }
 
