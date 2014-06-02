@@ -8,8 +8,10 @@ using namespace gl;
 
 namespace openmsx {
 
-GLRGBScaler::GLRGBScaler(RenderSettings& renderSettings_)
+GLRGBScaler::GLRGBScaler(
+		RenderSettings& renderSettings_, GLScaler& fallback_)
 	: renderSettings(renderSettings_)
+	, fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
 		Data& d = data[i];
@@ -80,8 +82,8 @@ void GLRGBScaler::scaleImage(
 			     dstStartY, dstEndY, dstWidth);
 		src.disableInterpolation();
 	} else {
-		GLScaler::scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
-		                     dstStartY, dstEndY, dstWidth, logSrcHeight);
+		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth, logSrcHeight);
 	}
 }
 

@@ -6,7 +6,8 @@ using namespace gl;
 
 namespace openmsx {
 
-GLScaleNxScaler::GLScaleNxScaler()
+GLScaleNxScaler::GLScaleNxScaler(GLScaler& fallback_)
+	: fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
@@ -48,10 +49,10 @@ void GLScaleNxScaler::scaleImage(
 		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 		             dstStartY, dstEndY, dstWidth);
 	} else {
-		GLScaler::scaleImage(src, superImpose,
-		                     srcStartY, srcEndY, srcWidth,
-		                     dstStartY, dstEndY, dstWidth,
-		                     logSrcHeight);
+		fallback.scaleImage(src, superImpose,
+		                    srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth,
+		                    logSrcHeight);
 	}
 }
 

@@ -12,7 +12,7 @@ class RenderSettings;
 class GLRGBScaler : public GLScaler, private noncopyable
 {
 public:
-	explicit GLRGBScaler(RenderSettings& renderSettings);
+	GLRGBScaler(RenderSettings& renderSettings, GLScaler& fallback);
 
 	virtual void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
@@ -22,6 +22,7 @@ public:
 
 private:
 	RenderSettings& renderSettings;
+	GLScaler& fallback;
 	struct Data {
 		gl::ShaderProgram scalerProgram;
 		int texSizeLoc;

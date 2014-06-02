@@ -3,6 +3,9 @@
 
 #include "GLUtil.hh"
 #include "gl_mat.hh"
+#include <memory>
+
+namespace openmsx { class GLScaler; }
 
 namespace gl {
 
@@ -38,6 +41,9 @@ extern GLuint unifFillMvp;
 // display pixel positions. (0,0) is the top-left pixel, (width-1,height-1) is
 // the bottom-right pixel.
 extern mat4 pixelMvp;
+
+// Fallback scaler
+extern std::unique_ptr<openmsx::GLScaler> fallbackScaler;
 
 } // namespace gl
 

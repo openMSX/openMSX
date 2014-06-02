@@ -1,16 +1,15 @@
-#ifndef GLSCALENXSCALER_HH
-#define GLSCALENXSCALER_HH
+#ifndef GLDEFAULTSCALER_HH
+#define GLDEFAULTSCALER_HH
 
 #include "GLScaler.hh"
-#include "GLUtil.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
 
-class GLScaleNxScaler : public GLScaler, private noncopyable
+class GLDefaultScaler : public GLScaler, private noncopyable
 {
 public:
-	explicit GLScaleNxScaler(GLScaler& fallback);
+	GLDefaultScaler();
 
 	virtual void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
@@ -19,11 +18,9 @@ public:
 		unsigned logSrcHeight);
 
 private:
-	GLScaler& fallback;
-	gl::ShaderProgram scalerProgram[2];
-	GLint texSizeLoc[2];
+	gl::ShaderProgram scalerProgram;
 };
 
 } // namespace openmsx
 
-#endif // GLSCALENXSCALER_HH
+#endif // GLDEFAULTSCALER_HH

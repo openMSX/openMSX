@@ -1,5 +1,7 @@
 #include "GLPrograms.hh"
+#include "GLDefaultScaler.hh"
 #include "gl_transform.hh"
+#include "memory.hh"
 
 namespace gl {
 
@@ -12,6 +14,8 @@ ShaderProgram progFill((Null()));
 GLuint unifFillMvp  = -1;
 
 mat4 pixelMvp;
+
+std::unique_ptr<openmsx::GLScaler> fallbackScaler;
 
 
 void initPrograms(int width, int height)
@@ -43,6 +47,8 @@ void initPrograms(int width, int height)
 	progFill.deactivate();
 
 	pixelMvp = ortho(0, width, height, 0, -1, 1);
+
+	fallbackScaler = make_unique<openmsx::GLDefaultScaler>();
 }
 
 void destroyPrograms()
@@ -53,6 +59,8 @@ void destroyPrograms()
 
 	progFill.reset();
 	unifFillMvp = -1;
+
+	fallbackScaler.reset();
 }
 
 } // namespace gl

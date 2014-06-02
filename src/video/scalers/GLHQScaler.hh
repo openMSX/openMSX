@@ -11,7 +11,7 @@ namespace openmsx {
 class GLHQScaler : public GLScaler, private noncopyable
 {
 public:
-	GLHQScaler();
+	explicit GLHQScaler(GLScaler& fallback);
 
 	virtual void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
@@ -23,6 +23,7 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 private:
+	GLScaler& fallback;
 	gl::ShaderProgram scalerProgram[2];
 	gl::Texture edgeTexture;
 	gl::Texture offsetTexture[3];

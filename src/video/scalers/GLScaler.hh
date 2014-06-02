@@ -13,8 +13,7 @@ class FrameSource;
 class GLScaler
 {
 public:
-	GLScaler();
-	virtual ~GLScaler();
+	virtual ~GLScaler() {}
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.
@@ -69,9 +68,6 @@ protected:
 	                  float physSrcHeight, float logSrcHeight,
 	                  unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	                  bool textureFromZero = false);
-
-private:
-	gl::ShaderProgram scalerProgram;
 };
 
 } // namespace openmsx

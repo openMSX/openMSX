@@ -15,7 +15,8 @@ using namespace gl;
 
 namespace openmsx {
 
-GLHQLiteScaler::GLHQLiteScaler()
+GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
+	: fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
 		string header = string("#define SUPERIMPOSE ")
@@ -104,10 +105,10 @@ void GLHQLiteScaler::scaleImage(
 		             dstStartY, dstEndY, dstWidth);
 		src.disableInterpolation();
 	} else {
-		GLScaler::scaleImage(src, superImpose,
-		                     srcStartY, srcEndY, srcWidth,
-		                     dstStartY, dstEndY, dstWidth,
-		                     logSrcHeight);
+		fallback.scaleImage(src, superImpose,
+		                    srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth,
+		                    logSrcHeight);
 	}
 }
 
