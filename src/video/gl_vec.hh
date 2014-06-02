@@ -213,6 +213,36 @@ inline vecN<N, T> operator*(const vecN<N, T>& x, const vecN<N, T>& y)
 	return r;
 }
 
+// element-wise reciprocal
+template<int N, typename T>
+inline vecN<N, T> recip(const vecN<N, T>& x)
+{
+	vecN<N, T> r;
+	for (int i = 0; i < N; ++i) r[i] = T(1) / x[i];
+	return r;
+}
+
+// scalar / vector
+template<int N, typename T>
+inline vecN<N, T> operator/(T x, const vecN<N, T>& y)
+{
+	return x * recip(y);
+}
+
+// vector / scalar
+template<int N, typename T>
+inline vecN<N, T> operator/(const vecN<N, T>& x, T y)
+{
+	return x * (T(1) / y);
+}
+
+// vector / vector
+template<int N, typename T>
+inline vecN<N, T> operator/(const vecN<N, T>& x, const vecN<N, T>& y)
+{
+	return x * recip(y);
+}
+
 // sum of components
 template<int N, typename T>
 inline T sum(const vecN<N, T>& x)
@@ -267,15 +297,6 @@ inline vecN<3, T> cross(const vecN<3, T>& x, const vecN<3, T>& y)
 	return vecN<3, T>(x[1] * y[2] - x[2] * y[1],
 	                  x[2] * y[0] - x[0] * y[2],
 	                  x[0] * y[1] - x[1] * y[0]);
-}
-
-// element-wise reciprocal
-template<int N, typename T>
-inline vecN<N, T> recip(const vecN<N, T>& x)
-{
-	vecN<N, T> r;
-	for (int i = 0; i < N; ++i) r[i] = T(1) / x[i];
-	return r;
 }
 
 } // namespace gl

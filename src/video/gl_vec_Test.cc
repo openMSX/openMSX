@@ -357,6 +357,25 @@ int main()
 		i4 *= j4; assert(i4 == ivec4(0,8,18,-32));
 	}
 	{
+		// reciprocal, only floating point
+		assert(approxEq(recip(vec3(4,2,0.5)),   vec3(0.25,0.5,2)));
+		assert(approxEq(recip(vec4(4,2,0.5,1)), vec4(0.25,0.5,2,1)));
+	}
+	{
+		// component-wise division, only floating point
+		vec3 v3( 0, 1,-4);
+		vec3 w3(-1,-2, 2);
+		assert((v3 / 2.0f) == vec3(0,0.5f,-2));
+		assert((6.0f / w3) == vec3(-6,-3,3));
+		assert((v3 / w3) == vec3(0,-0.5f,-2));
+
+		vec4 v4( 2, 1,-4,-3);
+		vec4 w4(-1, 2, 2,-6);
+		assert(approxEq((v4 / -2.0f), vec4(-1,-0.5f,2,1.5f)));
+		assert(approxEq((6.0f / w4), vec4(-6,3,3,-1)));
+		assert(approxEq((v4 / w4), vec4(-2,0.5f,-2,0.5f)));
+	}
+	{
 		// sum of vector components
 		assert(sum( vec3(4,-3,2))    == 3.0f);
 		assert(sum(ivec3(4,-3,2))    == 3   );
@@ -397,11 +416,6 @@ int main()
 		// vector normalization, only floating point
 		assert(normalize(vec3(0,4,-3  )) == vec3(0.0f,0.8f,-0.6f));
 		assert(normalize(vec4(-4,0,0,3)) == vec4(-0.8f,0.0f,0.0f,0.6f));
-	}
-	{
-		// reciprocal, only floating point
-		assert(approxEq(recip(vec3(4,2,0.5)),   vec3(0.25,0.5,2)));
-		assert(approxEq(recip(vec4(4,2,0.5,1)), vec4(0.25,0.5,2,1)));
 	}
 }
 
@@ -472,6 +486,19 @@ void test_mul(const vec4& x, const vec4& y, vec4& z)
 void test_mul(float x, const vec4& y, vec4& z)
 {
 	z = x * y;
+}
+
+void test_div(const vec4& x, const vec4& y, vec4& z)
+{
+	z = x / y;
+}
+void test_div(float x, const vec4& y, vec4& z)
+{
+	z = x / y;
+}
+void test_div(const vec4& x, float y, vec4& z)
+{
+	z = x / y;
 }
 
 void test_sum(const vec4& x, float& y)
@@ -578,6 +605,19 @@ void test_mul(const vec3& x, const vec3& y, vec3& z)
 void test_mul(float x, const vec3& y, vec3& z)
 {
 	z = x * y;
+}
+
+void test_div(const vec3& x, const vec3& y, vec3& z)
+{
+	z = x / y;
+}
+void test_div(float x, const vec3& y, vec3& z)
+{
+	z = x / y;
+}
+void test_div(const vec3& x, float y, vec3& z)
+{
+	z = x / y;
 }
 
 void test_sum(const vec3& x, float& y)
