@@ -20,8 +20,6 @@ public:
 
 private:
 	GLScaler& fallback;
-	gl::ShaderProgram scalerProgram[2];
-	GLint texSizeLoc[2];
 };
 
 } // namespace openmsx

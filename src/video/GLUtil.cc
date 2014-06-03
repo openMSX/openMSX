@@ -363,16 +363,7 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 	// Sanity check on this program.
 	if (!isOK()) return -1;
 
-	// Get location and verify returned value.
-	GLint location = glGetUniformLocation(handle, name);
-	if (location == -1) {
-		fprintf(stderr, "%s: \"%s\"\n",
-			  strncmp(name, "gl_", 3) == 0
-			? "Accessing built-in shader variables is not possible"
-			: "Could not find shader variable",
-			name);
-	}
-	return location;
+	return glGetUniformLocation(handle, name);
 }
 
 void ShaderProgram::activate() const

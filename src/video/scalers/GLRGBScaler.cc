@@ -10,31 +10,13 @@ namespace openmsx {
 
 GLRGBScaler::GLRGBScaler(
 		RenderSettings& renderSettings_, GLScaler& fallback_)
-	: renderSettings(renderSettings_)
+	: GLScaler("rgb")
+	, renderSettings(renderSettings_)
 	, fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
-		Data& d = data[i];
-
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  (header, "rgb.vert");
-		FragmentShader fragmentShader(header, "rgb.frag");
-		d.scalerProgram.attach(vertexShader);
-		d.scalerProgram.attach(fragmentShader);
-		d.scalerProgram.bindAttribLocation(0, "a_position");
-		d.scalerProgram.bindAttribLocation(1, "a_texCoord");
-		d.scalerProgram.link();
-
-		d.scalerProgram.activate();
-		glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
-		if (i == 1) {
-			glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
-		}
-		d.texSizeLoc = d.scalerProgram.getUniformLocation("texSize");
-		d.cnstsLoc   = d.scalerProgram.getUniformLocation("cnsts");
-		glUniformMatrix4fv(d.scalerProgram.getUniformLocation("u_mvpMatrix"),
-		                   1, GL_FALSE, &pixelMvp[0][0]);
+		program[i].activate();
+		unifCnsts[i] = program[i].getUniformLocation("cnsts");
 	}
 }
 
@@ -44,7 +26,7 @@ void GLRGBScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	Data& d = data[superImpose ? 1 : 0];
+	int i = superImpose ? 1 : 0;
 
 	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
 	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;
@@ -68,12 +50,12 @@ void GLRGBScaler::scaleImage(
 			superImpose->bind();
 			glActiveTexture(GL_TEXTURE0);
 		}
-		d.scalerProgram.activate();
-		glUniform2f(d.texSizeLoc, srcWidth, src.getHeight());
+		program[i].activate();
+		glUniform2f(unifTexSize[i], srcWidth, src.getHeight());
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat c1 = blur;
 		GLfloat c2 = 3.0f - 2.0f * c1;
-		glUniform4f(d.cnstsLoc,
+		glUniform4f(unifCnsts[i],
 		            a,                             // scan_a
 		            (1.0f - scanline) * 2.0f * c2, // scan_b_c2
 		            scanline * c2,                 // scan_c_c2

@@ -22,10 +22,8 @@ public:
 
 private:
 	RenderSettings& renderSettings;
-	gl::ShaderProgram scalerProgram[2];
-	GLint texSizeLoc[2];
-	GLint minScanlineLoc[2];
-	GLint sizeVarianceLoc[2];
+	GLint unifMinScanline [2];
+	GLint unifSizeVariance[2];
 };
 
 } // namespace openmsx

@@ -8,31 +8,15 @@ using namespace gl;
 namespace openmsx {
 
 GLTVScaler::GLTVScaler(RenderSettings& renderSettings_)
-	: renderSettings(renderSettings_)
+	: GLScaler("tv")
+	, renderSettings(renderSettings_)
 {
 	for (int i = 0; i < 2; ++i) {
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  ("tv.vert");
-		FragmentShader fragmentShader(header, "tv.frag");
-		scalerProgram[i].attach(vertexShader);
-		scalerProgram[i].attach(fragmentShader);
-		scalerProgram[i].bindAttribLocation(0, "a_position");
-		scalerProgram[i].bindAttribLocation(1, "a_texCoord");
-		scalerProgram[i].link();
-
-		scalerProgram[i].activate();
-		glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
-		if (i == 1) {
-			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
-		}
-		texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
-		minScanlineLoc[i] =
-			scalerProgram[i].getUniformLocation("minScanline");
-		sizeVarianceLoc[i] =
-			scalerProgram[i].getUniformLocation("sizeVariance");
-		glUniformMatrix4fv(scalerProgram[i].getUniformLocation("u_mvpMatrix"),
-		                   1, GL_FALSE, &pixelMvp[0][0]);
+		program[i].activate();
+		unifMinScanline[i] =
+			program[i].getUniformLocation("minScanline");
+		unifSizeVariance[i] =
+			program[i].getUniformLocation("sizeVariance");
 	}
 }
 
@@ -48,13 +32,13 @@ void GLTVScaler::scaleImage(
 		superImpose->bind();
 		glActiveTexture(GL_TEXTURE0);
 	}
-	scalerProgram[i].activate();
-	glUniform3f(texSizeLoc[i], src.getWidth(), src.getHeight(), logSrcHeight);
+	program[i].activate();
+	glUniform3f(unifTexSize[i], src.getWidth(), src.getHeight(), logSrcHeight);
 	// These are experimentally established functions that look good.
 	// By design, both are 0 for scanline 0.
 	float gap = renderSettings.getScanlineGap();
-	glUniform1f(minScanlineLoc[i],  0.1f * gap + 0.2f * gap * gap);
-	glUniform1f(sizeVarianceLoc[i], 0.7f * gap - 0.3f * gap * gap);
+	glUniform1f(unifMinScanline [i], 0.1f * gap + 0.2f * gap * gap);
+	glUniform1f(unifSizeVariance[i], 0.7f * gap - 0.3f * gap * gap);
 	drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 	             dstStartY, dstEndY, dstWidth, true);
 }

@@ -1,9 +1,34 @@
 #include "GLScaler.hh"
+#include "GLPrograms.hh"
 #include "gl_vec.hh"
 
+using std::string;
 using namespace gl;
 
 namespace openmsx {
+
+GLScaler::GLScaler(const string& progName)
+{
+	for (int i = 0; i < 2; ++i) {
+		string header = string("#define SUPERIMPOSE ")
+		              + char('0' + i) + '\n';
+		VertexShader   vShader(header, progName + ".vert");
+		FragmentShader fShader(header, progName + ".frag");
+		program[i].attach(vShader);
+		program[i].attach(fShader);
+		program[i].bindAttribLocation(0, "a_position");
+		program[i].bindAttribLocation(1, "a_texCoord");
+		program[i].link();
+		program[i].activate();
+		glUniform1i(program[i].getUniformLocation("tex"), 0);
+		if (i == 1) {
+			glUniform1i(program[i].getUniformLocation("videoTex"), 1);
+		}
+		unifTexSize[i] = program[i].getUniformLocation("texSize");
+		glUniformMatrix4fv(program[i].getUniformLocation("u_mvpMatrix"),
+		                   1, GL_FALSE, &pixelMvp[0][0]);
+	}
+}
 
 void GLScaler::uploadBlock(
 	unsigned /*srcStartY*/, unsigned /*srcEndY*/,

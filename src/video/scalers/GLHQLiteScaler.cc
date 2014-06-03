@@ -16,30 +16,13 @@ using namespace gl;
 namespace openmsx {
 
 GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
-	: fallback(fallback_)
+	: GLScaler("hqlite")
+	, fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  (header, "hqlite.vert");
-		FragmentShader fragmentShader(header, "hqlite.frag");
-		scalerProgram[i].attach(vertexShader);
-		scalerProgram[i].attach(fragmentShader);
-		scalerProgram[i].bindAttribLocation(0, "a_position");
-		scalerProgram[i].bindAttribLocation(1, "a_texCoord");
-		scalerProgram[i].link();
-
-		scalerProgram[i].activate();
-		glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
-		if (i == 1) {
-			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),  1);
-		}
-		glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
-		glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
-		glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
-		            320.0f, 240.0f);
-		glUniformMatrix4fv(scalerProgram[i].getUniformLocation("u_mvpMatrix"),
-		                   1, GL_FALSE, &pixelMvp[0][0]);
+		program[i].activate();
+		glUniform1i(program[i].getUniformLocation("edgeTex"),   2);
+		glUniform1i(program[i].getUniformLocation("offsetTex"), 3);
 	}
 
 	edgeTexture.bind();
@@ -87,7 +70,7 @@ void GLHQLiteScaler::scaleImage(
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	auto& prog = scalerProgram[superImpose ? 1 : 0];
+	int i = superImpose ? 1 : 0;
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		src.enableInterpolation();
 		glActiveTexture(GL_TEXTURE3);
@@ -99,8 +82,8 @@ void GLHQLiteScaler::scaleImage(
 			superImpose->bind();
 		}
 		glActiveTexture(GL_TEXTURE0);
-		prog.activate();
-		//prog.validate();
+		program[i].activate();
+		glUniform2f(unifTexSize[i], 320.0f, 240.0f);
 		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 		             dstStartY, dstEndY, dstWidth);
 		src.disableInterpolation();

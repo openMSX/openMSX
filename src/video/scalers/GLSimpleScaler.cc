@@ -10,32 +10,14 @@ namespace openmsx {
 
 GLSimpleScaler::GLSimpleScaler(
 		RenderSettings& renderSettings_, GLScaler& fallback_)
-	: renderSettings(renderSettings_)
+	: GLScaler("simple")
+	, renderSettings(renderSettings_)
 	, fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
-		Data& d = data[i];
-
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  (header, "simple.vert");
-		FragmentShader fragmentShader(header, "simple.frag");
-		d.scalerProgram.attach(vertexShader);
-		d.scalerProgram.attach(fragmentShader);
-		d.scalerProgram.bindAttribLocation(0, "a_position");
-		d.scalerProgram.bindAttribLocation(1, "a_texCoord");
-		d.scalerProgram.link();
-
-		data[i].scalerProgram.activate();
-		glUniform1i(d.scalerProgram.getUniformLocation("tex"), 0);
-		if (i == 1) {
-			glUniform1i(d.scalerProgram.getUniformLocation("videoTex"), 1);
-		}
-		data[i].texSizeLoc  = d.scalerProgram.getUniformLocation("texSize");
-		data[i].texStepXLoc = d.scalerProgram.getUniformLocation("texStepX");
-		data[i].cnstLoc     = d.scalerProgram.getUniformLocation("cnst");
-		glUniformMatrix4fv(d.scalerProgram.getUniformLocation("u_mvpMatrix"),
-		                   1, GL_FALSE, &pixelMvp[0][0]);
+		program[i].activate();
+		unifTexStepX[i] = program[i].getUniformLocation("texStepX");
+		unifCnst[i]     = program[i].getUniformLocation("cnst");
 	}
 }
 
@@ -45,7 +27,7 @@ void GLSimpleScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
-	Data& d = data[superImpose ? 1 : 0];
+	int i = superImpose ? 1 : 0;
 
 	GLfloat blur = renderSettings.getBlurFactor() / 256.0f;
 	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0f;
@@ -66,7 +48,7 @@ void GLSimpleScaler::scaleImage(
 			superImpose->bind();
 			glActiveTexture(GL_TEXTURE0);
 		}
-		d.scalerProgram.activate();
+		program[i].activate();
 		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat scan_b = 2.0f - 2.0f * scanline;
 		GLfloat scan_c = scanline;
@@ -76,9 +58,9 @@ void GLSimpleScaler::scaleImage(
 			scan_b *= 0.5f;
 			scan_c *= 0.5f;
 		}
-		glUniform2f(d.texSizeLoc, srcWidth, src.getHeight());
-		glUniform3f(d.texStepXLoc, 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
-		glUniform4f(d.cnstLoc, scan_a, scan_b, scan_c, blur);
+		glUniform2f(unifTexSize[i], srcWidth, src.getHeight());
+		glUniform3f(unifTexStepX[i], 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
+		glUniform4f(unifCnst[i], scan_a, scan_b, scan_c, blur);
 
 		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
 			     dstStartY, dstEndY, dstWidth);

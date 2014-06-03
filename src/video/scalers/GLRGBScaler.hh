@@ -23,11 +23,7 @@ public:
 private:
 	RenderSettings& renderSettings;
 	GLScaler& fallback;
-	struct Data {
-		gl::ShaderProgram scalerProgram;
-		int texSizeLoc;
-		int cnstsLoc;
-	} data[2];
+	int unifCnsts[2];
 };
 
 } // namespace openmsx

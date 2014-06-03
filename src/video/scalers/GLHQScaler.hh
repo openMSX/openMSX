@@ -24,7 +24,6 @@ public:
 
 private:
 	GLScaler& fallback;
-	gl::ShaderProgram scalerProgram[2];
 	gl::Texture edgeTexture;
 	gl::Texture offsetTexture[3];
 	gl::Texture weightTexture[3];

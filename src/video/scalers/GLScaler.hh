@@ -13,6 +13,7 @@ class FrameSource;
 class GLScaler
 {
 public:
+	GLScaler(const std::string& progName);
 	virtual ~GLScaler() {}
 
 	/** Scales the image in the given area, which must consist of lines which
@@ -68,6 +69,10 @@ protected:
 	                  float physSrcHeight, float logSrcHeight,
 	                  unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	                  bool textureFromZero = false);
+
+protected:
+	gl::ShaderProgram program[2];
+	GLint unifTexSize[2];
 };
 
 } // namespace openmsx
