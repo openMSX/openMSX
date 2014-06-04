@@ -1,5 +1,5 @@
 uniform mat4 u_mvpMatrix;
-uniform vec2 texSize;
+uniform vec3 texSize;
 
 attribute vec4 a_position;
 attribute vec3 a_texCoord;
@@ -16,8 +16,8 @@ void main()
 {
 	gl_Position = u_mvpMatrix * a_position;
 	texCoord = a_texCoord.xy;
-	coord2pi = a_texCoord.xy * texSize * pi2;
-	texStep = 1.0 / texSize;
+	coord2pi = a_texCoord.xy * texSize.xy * pi2;
+	texStep = 1.0 / texSize.xy;
 
 #if SUPERIMPOSE
 	videoCoord = a_texCoord.xz;

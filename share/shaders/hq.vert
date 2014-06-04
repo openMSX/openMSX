@@ -1,5 +1,5 @@
 uniform mat4 u_mvpMatrix;
-uniform vec2 texSize;
+uniform vec3 texSize;
 
 attribute vec4 a_position;
 attribute vec3 a_texCoord;
@@ -15,12 +15,12 @@ void main()
 {
 	gl_Position = u_mvpMatrix * a_position;
 
-	vec2 texStep = 1.0 / texSize;
+	vec2 texStep = 1.0 / texSize.xy;
 	mid     = a_texCoord.xy;
 	leftTop = a_texCoord.xy - texStep;
 
 	edgePos = a_texCoord.xy * vec2(1.0, 2.0);
-	weightPos = edgePos * texSize * vec2(1.0, 0.5);
+	weightPos = edgePos * texSize.xy * vec2(1.0, 0.5);
 
 	texStep2 = 2.0 * texStep;
 

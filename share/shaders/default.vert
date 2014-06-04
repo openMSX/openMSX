@@ -1,4 +1,5 @@
 uniform mat4 u_mvpMatrix;
+uniform vec3 texSize; // not used
 
 attribute vec4 a_position;
 attribute vec3 a_texCoord;

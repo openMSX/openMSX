@@ -1,6 +1,5 @@
 #include "GLHQScaler.hh"
 #include "GLUtil.hh"
-#include "GLPrograms.hh"
 #include "HQCommon.hh"
 #include "FrameSource.hh"
 #include "FileContext.hh"
@@ -11,7 +10,6 @@
 #include <algorithm>
 
 using std::string;
-using namespace gl;
 
 namespace openmsx {
 
@@ -78,7 +76,7 @@ GLHQScaler::GLHQScaler(GLScaler& fallback_)
 }
 
 void GLHQScaler::scaleImage(
-	ColorTexture& src, ColorTexture* superImpose,
+	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
@@ -86,24 +84,20 @@ void GLHQScaler::scaleImage(
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	int i = superImpose ? 1 : 0;
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		assert(src.getHeight() == 2 * 240);
+		setup(superImpose);
 		glActiveTexture(GL_TEXTURE4);
 		weightTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE3);
 		offsetTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
 		edgeTexture.bind();
-		if (superImpose) {
-			glActiveTexture(GL_TEXTURE1);
-			superImpose->bind();
-		}
 		glActiveTexture(GL_TEXTURE0);
-		program[i].activate();
-		glUniform2f(unifTexSize[i], 320.0f, 2 * 240.0f);
-		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-		             dstStartY, dstEndY, dstWidth);
+		execute(src, superImpose,
+		        srcStartY, srcEndY, srcWidth,
+		        dstStartY, dstEndY, dstWidth,
+		        logSrcHeight);
 	} else {
 		fallback.scaleImage(src, superImpose,
 		                    srcStartY, srcEndY, srcWidth,

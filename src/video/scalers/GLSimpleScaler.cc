@@ -1,10 +1,5 @@
 #include "GLSimpleScaler.hh"
-#include "GLUtil.hh"
-#include "GLPrograms.hh"
 #include "RenderSettings.hh"
-
-using std::string;
-using namespace gl;
 
 namespace openmsx {
 
@@ -22,7 +17,7 @@ GLSimpleScaler::GLSimpleScaler(
 }
 
 void GLSimpleScaler::scaleImage(
-	ColorTexture& src, ColorTexture* superImpose,
+	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
@@ -40,15 +35,10 @@ void GLSimpleScaler::scaleImage(
 	}
 
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
+		setup(superImpose);
 		if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 			src.enableInterpolation();
 		}
-		if (superImpose) {
-			glActiveTexture(GL_TEXTURE1);
-			superImpose->bind();
-			glActiveTexture(GL_TEXTURE0);
-		}
-		program[i].activate();
 		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat scan_b = 2.0f - 2.0f * scanline;
 		GLfloat scan_c = scanline;
@@ -58,12 +48,13 @@ void GLSimpleScaler::scaleImage(
 			scan_b *= 0.5f;
 			scan_c *= 0.5f;
 		}
-		glUniform2f(unifTexSize[i], srcWidth, src.getHeight());
 		glUniform3f(unifTexStepX[i], 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
 		glUniform4f(unifCnst[i], scan_a, scan_b, scan_c, blur);
 
-		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-			     dstStartY, dstEndY, dstWidth);
+		execute(src, superImpose,
+		        srcStartY, srcEndY, srcWidth,
+		        dstStartY, dstEndY, dstWidth,
+		        logSrcHeight);
 
 		src.disableInterpolation();
 	} else {

@@ -43,32 +43,35 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 protected:
+	void setup(bool superImpose);
+
 	/** Helper method to draw a rectangle with multiple texture coordinates.
 	  * This method is similar to Texture::drawRect() but it calculates a
 	  * seconds set of texture coordinates. The first tex-coords are used
 	  * for the MSX texture (textur unit 0), and are calculated from
-	  * src{Start,End}Y and physSrcHeight. The second set of tex-coord are
+	  * src{Start,End}Y and src.getHeight(). The second set of tex-coord are
 	  * used for the superimpose texture (texture unit 1) and are calculated
 	  * from src{Start,End}Y and logSrcHeight.
 	  * @param src
+	  * @param superImpose
 	  * @param srcStartY
 	  * @param srcEndY
-	  * @param physSrcHeight
-	  * @param logSrcHeight
+	  * @param srcWidth
 	  * @param dstStartY
 	  * @param dstEndY
 	  * @param dstWidth
+	  * @param logSrcHeight
 	  * @param textureFromZero If true, the texture coordinates of subpixels
 	  *   will start from zero: for example in 4x zoom the source coordinates
 	  *   will be 0.0, 0.25, 0.5, 0.75. If false, the texture coordinates of
 	  *   subpixels will be centered: for example in 4x zoom the source
 	  *   coordinates will be 0.125, 0.375, 0.625, 0.875.
 	  */
-	void drawMultiTex(gl::ColorTexture& src,
-	                  unsigned srcStartY, unsigned srcEndY,
-	                  float physSrcHeight, float logSrcHeight,
-	                  unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	                  bool textureFromZero = false);
+	void execute(gl::ColorTexture& src, gl::ColorTexture* superImpose,
+	             unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	             unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	             unsigned logSrcHeight,
+	             bool textureFromZero = false);
 
 protected:
 	gl::ShaderProgram program[2];

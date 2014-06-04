@@ -1,10 +1,5 @@
 #include "GLRGBScaler.hh"
-#include "GLUtil.hh"
-#include "GLPrograms.hh"
 #include "RenderSettings.hh"
-
-using std::string;
-using namespace gl;
 
 namespace openmsx {
 
@@ -21,7 +16,7 @@ GLRGBScaler::GLRGBScaler(
 }
 
 void GLRGBScaler::scaleImage(
-	ColorTexture& src, ColorTexture* superImpose,
+	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
@@ -38,6 +33,7 @@ void GLRGBScaler::scaleImage(
 		yScale = 1;
 	}
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
+		setup(superImpose);
 		if (srcWidth != 1) {
 			// workaround for ATI cards
 			src.enableInterpolation();
@@ -45,13 +41,6 @@ void GLRGBScaler::scaleImage(
 			// treat border as 256-pixel wide display area
 			srcWidth = 320;
 		}
-		if (superImpose) {
-			glActiveTexture(GL_TEXTURE1);
-			superImpose->bind();
-			glActiveTexture(GL_TEXTURE0);
-		}
-		program[i].activate();
-		glUniform2f(unifTexSize[i], srcWidth, src.getHeight());
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat c1 = blur;
 		GLfloat c2 = 3.0f - 2.0f * c1;
@@ -60,12 +49,16 @@ void GLRGBScaler::scaleImage(
 		            (1.0f - scanline) * 2.0f * c2, // scan_b_c2
 		            scanline * c2,                 // scan_c_c2
 		            (c1 - c2) / c2);               // scan_c1_2_2
-		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-			     dstStartY, dstEndY, dstWidth);
+		execute(src, superImpose,
+		        srcStartY, srcEndY, srcWidth,
+		        dstStartY, dstEndY, dstWidth,
+		        logSrcHeight);
 		src.disableInterpolation();
 	} else {
-		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
-		                    dstStartY, dstEndY, dstWidth, logSrcHeight);
+		fallback.scaleImage(src, superImpose,
+		                    srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth,
+		                    logSrcHeight);
 	}
 }
 

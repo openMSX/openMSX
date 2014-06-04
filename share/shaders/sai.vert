@@ -1,5 +1,5 @@
 uniform mat4 u_mvpMatrix;
-uniform vec2 texSize;
+uniform vec3 texSize;
 
 attribute vec4 a_position;
 attribute vec3 a_texCoord;
@@ -13,7 +13,7 @@ varying vec2 videoCoord;
 void main()
 {
 	gl_Position = u_mvpMatrix * a_position;
-	vec2 texStep = 1.0 / texSize;
+	vec2 texStep = 1.0 / texSize.xy;
 
 	posABCD.xy = a_texCoord.xy;
 	posABCD.zw = a_texCoord.xy + texStep * vec2( 1.0,  1.0);

@@ -36,13 +36,26 @@ void GLScaler::uploadBlock(
 {
 }
 
-void GLScaler::drawMultiTex(
-	ColorTexture& src,
-	unsigned srcStartY, unsigned srcEndY,
-	float physSrcHeight, float logSrcHeight,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-	bool textureFromZero)
+void GLScaler::setup(bool superImpose)
 {
+	int i = superImpose ? 1 : 0;
+	program[i].activate();
+}
+
+void GLScaler::execute(
+	ColorTexture& src, ColorTexture* superImpose,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
+	unsigned logSrcHeight, bool textureFromZero)
+{
+	if (superImpose) {
+		glActiveTexture(GL_TEXTURE1);
+		superImpose->bind();
+		glActiveTexture(GL_TEXTURE0);
+	}
+	int i = superImpose ? 1 : 0;
+	glUniform3f(unifTexSize[i], srcWidth, src.getHeight(), logSrcHeight);
+
 	src.bind();
 	// Note: hShift is pre-divided by srcWidth, while vShift will be divided
 	//       by srcHeight later on.
@@ -61,10 +74,10 @@ void GLScaler::drawMultiTex(
 		vec2(       0, dstEndY  ),
 	};
 	// texture coordinates, X-coord shared, Y-coord separate for tex0 and tex1
-	float tex0StartY = (srcStartY + vShift) / physSrcHeight;
-	float tex0EndY   = (srcEndY   + vShift) / physSrcHeight;
-	float tex1StartY = (srcStartY + vShift) / logSrcHeight;
-	float tex1EndY   = (srcEndY   + vShift) / logSrcHeight;
+	float tex0StartY = float(srcStartY + vShift) / src.getHeight();
+	float tex0EndY   = float(srcEndY   + vShift) / src.getHeight();
+	float tex1StartY = float(srcStartY + vShift) / logSrcHeight;
+	float tex1EndY   = float(srcEndY   + vShift) / logSrcHeight;
 	vec3 tex[4] = {
 		vec3(0.0f + hShift, tex0StartY, tex1StartY),
 		vec3(1.0f + hShift, tex0StartY, tex1StartY),

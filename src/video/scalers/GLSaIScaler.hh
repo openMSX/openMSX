@@ -2,7 +2,6 @@
 #define GLSAISCALER_HH
 
 #include "GLScaler.hh"
-#include "GLUtil.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
