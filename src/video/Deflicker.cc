@@ -165,7 +165,9 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])
 	               : line0[x];
 	}
+#ifdef __SSE2__
 end:
+#endif
 	if (width0 <= bufWidth) {
 		// It it already fits, we're done
 		width = width0;
