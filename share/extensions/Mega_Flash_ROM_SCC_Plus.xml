@@ -2,7 +2,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>Mega Flash ROM SCC+</name>
+    <name>MegaFlashROM SCC+</name>
     <manufacturer>Manuel Pazos</manufacturer>
     <code/>
     <release_year>2010</release_year>
@@ -12,14 +12,13 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <ROM id="MegaFlashRomSCC+">
+        <ROM id="MegaFlashRom SCC+">
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>9000</volume>
           </sound>
           <rom>
             <!--<filename>initial-content</filename>-->
-            <size>1024</size>
           </rom>
           <sramname>megaflashromsccplus.sram</sramname>
           <mappertype>MegaFlashRomSccPlus</mappertype>
