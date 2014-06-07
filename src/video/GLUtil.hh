@@ -498,10 +498,6 @@ public:
 	  */
 	void activate() const;
 
-	/** Deactivates all shader programs.
-	  */
-	static void deactivate();
-
 	void validate();
 
 private:

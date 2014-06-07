@@ -32,7 +32,6 @@ void initPrograms(int width, int height)
 	glUniform1i(progTex.getUniformLocation("u_tex"), 0);
 	unifTexColor = progTex.getUniformLocation("u_color");
 	unifTexMvp   = progTex.getUniformLocation("u_mvpMatrix");
-	progTex.deactivate();
 
 	VertexShader   fillVertexShader  ("fill.vert");
 	FragmentShader fillFragmentShader("fill.frag");
@@ -44,7 +43,6 @@ void initPrograms(int width, int height)
 	progFill.link();
 	progFill.activate();
 	unifFillMvp = progFill.getUniformLocation("u_mvpMatrix");
-	progFill.deactivate();
 
 	pixelMvp = ortho(0, width, height, 0, -1, 1);
 

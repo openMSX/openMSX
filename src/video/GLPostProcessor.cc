@@ -206,8 +206,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
-	ShaderProgram::deactivate();
-
 	drawNoise();
 	drawGlow(glow);
 
@@ -242,7 +240,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-			progTex.deactivate();
 		}
 		storedFrame = true;
 	} else {
@@ -433,7 +430,6 @@ void GLPostProcessor::drawGlow(int glow)
 	glEnableVertexAttribArray(1);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisable(GL_BLEND);
-	progTex.deactivate();
 }
 
 void GLPostProcessor::preCalcNoise(float factor)
@@ -498,8 +494,6 @@ void GLPostProcessor::drawNoise()
 	noiseTextureB.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glBlendEquation(GL_FUNC_ADD); // restore default
-
-	progTex.deactivate();
 }
 
 static const int GRID_SIZE = 16;
@@ -579,7 +573,6 @@ void GLPostProcessor::preCalcMonitor3D(float width)
 		1, GL_FALSE, &mvp[0][0]);
 	glUniformMatrix3fv(monitor3DProg.getUniformLocation("u_normalMatrix"),
 		1, GL_FALSE, &normal[0][0]);
-	monitor3DProg.deactivate();
 }
 
 void GLPostProcessor::drawMonitor3D()
@@ -600,8 +593,6 @@ void GLPostProcessor::drawMonitor3D()
 	glEnableVertexAttribArray(2);
 
 	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
-
-	monitor3DProg.deactivate();
 }
 
 } // namespace openmsx

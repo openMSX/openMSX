@@ -200,7 +200,6 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			}
 		}
 	}
-	ShaderProgram::deactivate();
 	glDisable(GL_BLEND);
 }
 

@@ -61,7 +61,6 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glEnableVertexAttribArray(1);
 	noiseTexture.bind();
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-	progTex.deactivate();
 
 	display.repaintDelayed(100 * 1000); // 10fps
 }

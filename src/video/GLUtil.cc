@@ -371,11 +371,6 @@ void ShaderProgram::activate() const
 	glUseProgram(handle);
 }
 
-void ShaderProgram::deactivate()
-{
-	glUseProgram(0);
-}
-
 // only useful for debugging
 void ShaderProgram::validate()
 {
