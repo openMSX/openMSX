@@ -53,8 +53,6 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
 	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[cnt]);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 	glEnableVertexAttribArray(0);

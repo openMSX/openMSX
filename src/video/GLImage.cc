@@ -148,8 +148,6 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(0);
 
 	if (texture.get()) {
