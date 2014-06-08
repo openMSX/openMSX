@@ -309,6 +309,15 @@ void ShaderProgram::allocate()
 
 void ShaderProgram::reset()
 {
+	if (!handle) {
+		// It's ok to delete a '0' handle (it has no effect). Though it
+		// is not OK to call glDeleteProgram() after the openGL context
+		// has already been destroyed. And this is what's happening
+		// from the global variable destructors in GLPrograms.
+		//  TODO refactor GLPrograms so that this hack is no longer
+		//  needed.
+		return;
+	}
 	glDeleteProgram(handle); // ok to delete '0'
 	handle = 0;
 }
