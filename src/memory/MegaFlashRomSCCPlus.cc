@@ -390,6 +390,8 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			sccMode = value;
 			scc->setChipMode((value & 0x20) ? SCC::SCC_plusmode
 			                                : SCC::SCC_Compatible);
+			invalidateMemCache(0x9800, 0x800);
+			invalidateMemCache(0xB800, 0x800);
 		}
 		SCCEnable enable = getSCCEnable();
 		bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
