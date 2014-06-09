@@ -179,6 +179,13 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			glDisableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
 		} else {
+			// border
+			if (borderSize > 0) {
+				byte indices[10] = { 4,0,5,1,6,2,7,3,4,0 };
+				glDisableVertexAttribArray(1);
+				glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_BYTE, indices);
+			}
+
 			// interior
 			byte col[4][4] = {
 				{ r[0], g[0], b[0], byte((a[0] * alpha) / 256) },
@@ -189,13 +196,6 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, col);
 			glEnableVertexAttribArray(1);
 			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-			// border
-			if (borderSize > 0) {
-				byte indices[10] = { 4,0,5,1,6,2,7,3,4,0 };
-				glDisableVertexAttribArray(1);
-				glDrawElements(GL_TRIANGLE_STRIP, 10, GL_UNSIGNED_BYTE, indices);
-			}
 		}
 	}
 	glDisable(GL_BLEND);
