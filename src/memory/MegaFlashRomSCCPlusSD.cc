@@ -1,0 +1,934 @@
+#include "MegaFlashRomSCCPlusSD.hh"
+#include "Rom.hh"
+#include "SCC.hh"
+#include "AY8910.hh"
+#include "DummyAY8910Periphery.hh"
+#include "AmdFlash.hh"
+#include "MSXCPUInterface.hh"
+#include "CacheLine.hh"
+#include "Ram.hh"
+#include "CheckedRam.hh"
+#include "serialize.hh"
+#include "memory.hh"
+#include <cassert>
+#include <vector>
+
+// Not implemented yet:
+// - SD
+
+/******************************************************************************
+ * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
+ ******************************************************************************
+
+--------------------------------------------------------------------------------
+MegaFlashROM SCC+ SD Technical Details
+(c) Manuel Pazos 24-02-2014
+--------------------------------------------------------------------------------
+
+[Main features]
+
+ - 8192 KB flashROM memory
+ - SD interface (MegaSD)
+ - SCC-I (2312P001)
+ - PSG (AY-3-8910/YM2149)
+ - Mappers: ASCII8, ASCII16, Konami, Konami SCC, linear 64K
+ - Slot expander
+
+
+--------------------------------------------------------------------------------
+[Memory]
+
+ - Model Numonix/Micron M29W640FB/M29W640GB TSOP48
+ - Datasheet: http://www.micron.com/~/media/Documents/Products/Data%20Sheet/NOR%20Flash/Parallel/M29W/M29W640F.pdf
+ - Block layout:
+     #00000 8K x 8
+     #10000 64K x 127
+ - Command addresses:
+     #4555 and #4AAA
+ - FlashROM ID:
+    ID_M29W640FB    #FD
+    ID_M29W640GB    #7E
+
+
+--------------------------------------------------------------------------------
+[PSG]
+
+ The PSG included in the cartridge is mapped to ports #10-#12
+
+ Port #A0 -> #10
+ Port #A1 -> #11
+ Port #A2 -> #12
+
+
+--------------------------------------------------------------------------------
+[Cartridge layout]
+
+    - Subslot 0: Recovery - 16K linear (Visible on page 1 and 2)
+    - Subslot 1: MegaFlashROM SCC+ - 7104K (multiple mapper support)
+    - Subslot 2: RAM (when available)
+    - Subslot 3: MegaSD - 1024K (ASC8 mapper)
+
+
+--------------------------------------------------------------------------------
+[FlashROM layout]
+
+#000000+----------------+
+       |    Recovery    | 16K - Subslot 0 (Note: Blocks are write protected
+by VPP/WD pin)
+       +----------------+
+       |   DSK Kernel   | 16K
+       +----------------+
+       |    Not used    | 32K
+#010000+----------------+
+       |                |
+       |                |
+       | MegaFlashROM   | 7104K - Subslot 1
+       |                |
+       |                |
+#700000+----------------+
+       |                |
+       |     MegaSD     | 1024K - Subslot 3
+       |                |
+       +----------------+
+
+
+--------------------------------------------------------------------------------
+[Subslot register (#FFFF)]
+
+    Available when writing at #FFFF in the cartridge slot.
+    Reading that address will return all the bits inverted.
+    Default value = 0
+
+
+--------------------------------------------------------------------------------
+[Subslot 0: RECOVERY]
+
+    Size 16K
+    Common ROM (Without mapper).
+    Visible on pages 1 and 2 (mirrored all over the slot)
+
+
+--------------------------------------------------------------------------------
+[Subslot 1: MegaFlashROM SCC+ SD]
+
+  [REGISTERS]
+
+    [MAPPER REGISTER (#7FFF)]
+    7	mapper mode 1: \ #00 = SCC,  #40 = 64K
+    6	mapper mode 0: / #80 = ASC8, #C0 = ASC16
+    5	mapper mode  :   Select Konami mapper (0=SCC or 1=normal)
+    4
+    3	Disable #4000-#5FFF mapper in Konami mode
+    2	Disable this mapper register #7FFF
+    1	Disable mapper and offset registers
+    0	Enable 512K mapper limit in SCC mapper or 256K limit in Konami mapper
+
+
+    [OFFSET REGISTER (#7FFD)]
+    7-0 Offset value bits 7-0
+
+
+    [OFFSET REGISTER (#7FFE)]
+    1	Offset bit 9
+    0	Offset bit 8
+
+
+    [CONFIG REGISTER (#7FFC)]
+    7	Disable config register (1 = Disabled)
+    6
+    5	Disable SRAM (i.e. the RAM in subslot 2)
+    4	DSK mode (1 = On): Bank 0 and 1 are remaped to DSK kernel (config banks 2-3)
+    3	Cartridge PSG also mapped to ports #A0-#A3
+    2	Subslots disabled (1 = Disabled) Only MegaflashROM SCC+ is available.
+    1	FlashROM Block protect (1 = Protect) VPP_WD pin
+    0	FlashROM write enable (1 = Enabled)
+
+
+
+  [MAPPERS]
+
+   - ASCII 8:    Common ASC8 mapper
+
+   - ASCII 16:   Common ASC16 mapper
+
+   - Konami:     Common Konami mapper.
+                 Bank0 (#4000-#5FFF) can be also changed unless [MAPPER REGISTER] bit 3 is 1
+
+   - Konami SCC: Common Konami SCC mapper
+
+   - Linear 64:  #0000-#3FFF bank0
+                 #4000-#7FFF bank1
+                 #8000-#BFFF bank2
+                 #C000-#FFFF bank3
+                 Banks mapper registers addresses = Konami
+
+
+  [DEFAULT VALUES]
+
+   - MAPPER REGISTER = 0
+   - CONFIG REGISTER = %00000011
+   - MapperBank0 = 0
+   - MapperBank1 = 1
+   - MapperBank2 = 2
+   - MapperBank3 = 3
+   - BankOffset = 0
+   - Subslot register = 0
+
+
+  [LOGIC]
+
+  Bank0   <=    "1111111010" when CONFIG REGISTER(4) = '1' and MapperBank0 = "0000000000" else  ; DSK mode
+                MapperBank0 + bankOffset;
+
+  Bank1   <=    "1111111011" when CONFIG REGISTER(4) = '1' and MapperBank1 = "0000000001" else  ; DSK mode
+                MapperBank1 + bankOffset;
+
+  Bank2   <=    MapperBank2 + bankOffset;
+
+  Bank3   <=    MapperBank3 + bankOffset;
+
+
+  RamAdr  <=
+                -- Mapper in 64K mode
+                Bank0(8 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "00" else  --#0000-#3FFF
+                Bank1(8 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "01" else  --#4000-#7FFF
+                Bank2(8 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "10" else  --#8000-#BFFF
+                Bank3(8 downto 0) & adr(13 downto 0) when adr(15 downto 14) = "11" else  --#C000-#FFFF
+
+                -- Mapper in SCC, ASC8 or ASC16 modes
+                Bank0(9 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "10" else  --#4000-#5FFF
+                Bank1(9 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "11" else  --#6000-#7FFF
+                Bank2(9 downto 0) & adr(12 downto 0) when adr(14 downto 13) = "00" else  --#8000-#9FFF
+                Bank3(9 downto 0) & adr(12 downto 0);                                    --#A000-#BFFF
+
+
+  Note: It is possible to access the whole flashROM from the MegaFlashROM SCC+
+  SD using the offsets register!
+
+--------------------------------------------------------------------------------
+[Subslot 2: 512K RAM expansion]
+
+  Mapper ports:
+    Page 0 = #FC
+    Page 1 = #FD
+    Page 2 = #FE
+    Page 3 = #FF
+
+  Default bank values:
+    Page 0 = 3
+    Page 1 = 2
+    Page 2 = 1
+    Page 3 = 0
+
+  Disabled when [CONFIG REGISTER] bit 5 = 1
+
+  Since mapper ports must not be read, as stated on MSX Technical Handbook, and
+  mapper ports as read only, as stated on MSX Datapack, all read operations on
+  these ports will not return any value.
+
+--------------------------------------------------------------------------------
+[Subslot 3: MegaSD]
+
+  Mapper type: ASCII8
+
+  Default mapper values:
+    Bank0 = 0
+    Bank1 = 1
+    Bank2 = 0
+    Bank3 = 0
+
+  Memory range 1024K: Banks #00-#7F are mirrored in #80-#FF (except registers
+  bank #40)
+
+  Memory registers area (Bank #40):
+    #4000-#57FF: SD card access (R/W)
+                 #4000-#4FFF: /CS signal = 0 - SD enabled
+                 #5000-#5FFF: /CS signal = 1 - SD disabled
+
+    #5800-#5FFF: SD slot select (bit 0: 0 = SD slot 1, 1 = SD slot 2)
+
+  Cards work in SPI mode.
+  Signals used: CS, DI, DO, SCLK
+  When reading, 8 bits are read from DO
+  When writing, 8 bits are written to DI
+
+  SD specifications: https://www.sdcard.org/downloads/pls/simplified_specs/part1_410.pdf
+
+******************************************************************************/
+
+static const unsigned MEMORY_MAPPER_SIZE = 512;
+
+namespace openmsx {
+
+static std::vector<AmdFlash::SectorInfo> getSectorInfo()
+{
+	std::vector<AmdFlash::SectorInfo> sectorInfo;
+	// 8 * 8kB
+	sectorInfo.insert(end(sectorInfo), 8, {8 * 1024, false});
+	// 127 * 64kB
+	sectorInfo.insert(end(sectorInfo), 127, {64 * 1024, false});
+	return sectorInfo;
+}
+
+MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
+		const DeviceConfig& config, std::unique_ptr<Rom> rom_)
+	: MSXRom(config, std::move(rom_))
+	, flash(make_unique<AmdFlash>(
+		*rom, getSectorInfo(), 0x207E, true, config))
+	, scc(make_unique<SCC>(
+		"MFR SCC+ SD SCC-I", config, getCurrentTime(),
+		SCC::SCC_Compatible))
+	, psg(make_unique<AY8910>(
+		"MFR SCC+ SD PSG", DummyAY8910Periphery::instance(), config,
+		getCurrentTime()))
+	, configReg(3) // avoid UMR
+	, checkedRam(config.getChildDataAsBool("hasmemorymapper", true) ?
+		make_unique<CheckedRam>(config, getName() + " memory mapper", "memory mapper", MEMORY_MAPPER_SIZE * 1024)
+		: nullptr)
+{
+	powerUp(getCurrentTime());
+
+	getCPUInterface().register_IO_Out(0x10, this);
+	getCPUInterface().register_IO_Out(0x11, this);
+	getCPUInterface().register_IO_In (0x12, this);
+
+	if (checkedRam) {
+		getCPUInterface().register_IO_Out(0xFF, this);
+		getCPUInterface().register_IO_Out(0xFE, this);
+		getCPUInterface().register_IO_Out(0xFD, this);
+		getCPUInterface().register_IO_Out(0xFC, this);
+	}
+}
+
+MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
+{
+	// unregister extra PSG I/O ports
+	updateConfigReg(3);
+
+	getCPUInterface().unregister_IO_Out(0x10, this);
+	getCPUInterface().unregister_IO_Out(0x11, this);
+	getCPUInterface().unregister_IO_In (0x12, this);
+
+	if (checkedRam) {
+		getCPUInterface().unregister_IO_Out(0xFF, this);
+		getCPUInterface().unregister_IO_Out(0xFE, this);
+		getCPUInterface().unregister_IO_Out(0xFD, this);
+		getCPUInterface().unregister_IO_Out(0xFC, this);
+	}
+}
+
+void MegaFlashRomSCCPlusSD::powerUp(EmuTime::param time)
+{
+	scc->powerUp(time);
+	reset(time);
+}
+
+void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
+{
+	mapperReg = 0;
+	offsetReg = 0;
+	updateConfigReg(3);
+	subslotReg = 0;
+	for (int bank = 0; bank < 4; ++bank) {
+		bankRegsSubSlot1[bank] = bank;
+	}
+
+	sccMode = 0;
+	for (int i = 0; i < 4; ++i) {
+		sccBanks[i] = i;
+	}
+	scc->reset(time);
+
+	psgLatch = 0;
+	psg->reset(time);
+
+	flash->reset();
+
+	// memory mapper
+	for (auto i = 0; i < 4; ++i) {
+		memMapperRegs[i] = 3 - i;
+	}
+
+	for (int bank = 0; bank < 4; ++bank) {
+		bankRegsSubSlot3[bank] = (bank == 1) ? 1 : 0;
+	}
+
+	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+}
+
+byte MegaFlashRomSCCPlusSD::getSubSlot(unsigned addr) const
+{
+	return isSlotExpanderEnabled() ?
+		(subslotReg >> (2 * (addr >> 14))) & 3 : 1;
+}
+
+void MegaFlashRomSCCPlusSD::writeToFlash(unsigned addr, byte value)
+{
+	if (isFlashRomWriteEnabled()) {
+		flash->write(addr, value);
+	} else {
+		// flash is write protected, this is implemented by not passing
+		// writes to flash at all.
+	}
+}
+
+byte MegaFlashRomSCCPlusSD::peekMem(word addr, EmuTime::param time) const
+{
+	if (isSlotExpanderEnabled() && (addr == 0xFFFF)) {
+		// read subslot register
+		return subslotReg ^ 0xFF;
+	}
+
+	switch (getSubSlot(addr)) {
+		case 0: return peekMemSubSlot0(addr);
+		case 1: return peekMemSubSlot1(addr, time);
+		case 2: return isMemoryMapperEnabled() ?
+				peekMemSubSlot2(addr) : 0xFF;
+		case 3: return peekMemSubSlot3(addr, time);
+		default: UNREACHABLE; return 0;
+	}
+}
+
+byte MegaFlashRomSCCPlusSD::readMem(word addr, EmuTime::param time)
+{
+	if (isSlotExpanderEnabled() && (addr == 0xFFFF)) {
+		// read subslot register
+		return subslotReg ^ 0xFF;
+	}
+
+	switch (getSubSlot(addr)) {
+		case 0: return readMemSubSlot0(addr);
+		case 1: return readMemSubSlot1(addr, time);
+		case 2: return isMemoryMapperEnabled() ?
+				readMemSubSlot2(addr) : 0xFF;
+		case 3: return readMemSubSlot3(addr, time);
+		default: UNREACHABLE; return 0;
+	}
+}
+
+const byte* MegaFlashRomSCCPlusSD::getReadCacheLine(word addr) const
+{
+	if (isSlotExpanderEnabled() &&
+		((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
+		// read subslot register
+		return nullptr;
+	}
+
+	switch (getSubSlot(addr)) {
+		case 0: return getReadCacheLineSubSlot0(addr);
+		case 1: return getReadCacheLineSubSlot1(addr);
+		case 2: return isMemoryMapperEnabled() ?
+				getReadCacheLineSubSlot2(addr) : unmappedRead;
+		case 3: return getReadCacheLineSubSlot3(addr);
+		default: UNREACHABLE; return nullptr;
+	}
+}
+
+void MegaFlashRomSCCPlusSD::writeMem(word addr, byte value, EmuTime::param time)
+{
+	if (isSlotExpanderEnabled() && (addr == 0xFFFF)) {
+		// write subslot register
+		byte diff = value ^ subslotReg;
+		subslotReg = value;
+		for (int i = 0; i < 4; ++i) {
+			if (diff & (3 << (2 * i))) {
+				invalidateMemCache(0x4000 * i, 0x4000);
+			}
+		}
+	}
+
+	switch (getSubSlot(addr)) {
+		case 0: writeMemSubSlot0(addr, value); break;
+		case 1: writeMemSubSlot1(addr, value, time); break;
+		case 2: if (isMemoryMapperEnabled()) {
+				writeMemSubSlot2(addr, value);
+			}
+			break;
+		case 3: writeMemSubSlot3(addr, value, time); break;
+		default: UNREACHABLE;
+	}
+}
+
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLine(word addr) const
+{
+	if (isSlotExpanderEnabled() &&
+		((addr & CacheLine::HIGH) == (0xFFFF & CacheLine::HIGH))) {
+		// read subslot register
+		return nullptr;
+	}
+
+	switch (getSubSlot(addr)) {
+		case 0: return getWriteCacheLineSubSlot0(addr);
+		case 1: return getWriteCacheLineSubSlot1(addr);
+		case 2: return isMemoryMapperEnabled() ?
+				getWriteCacheLineSubSlot2(addr) : unmappedWrite;
+		case 3: return getWriteCacheLineSubSlot3(addr);
+		default: UNREACHABLE; return nullptr;
+	}
+}
+
+/////////////////////// sub slot 0 ////////////////////////////////////////////
+
+byte MegaFlashRomSCCPlusSD::readMemSubSlot0(word addr)
+{
+	// read from the first 16kB of flash
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	return flash->read(addr & 0x3FFF);
+}
+
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot0(word addr) const
+{
+	// read from the first 16kB of flash
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	return flash->peek(addr & 0x3FFF);
+}
+
+const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot0(word addr) const
+{
+	return flash->getReadCacheLine(addr & 0x3FFF);
+}
+
+void MegaFlashRomSCCPlusSD::writeMemSubSlot0(word addr, byte value)
+{
+	// Pazos: ROM and flash can be accessed in all pages (0,1,2,3) (#0000-#FFFF) 
+	writeToFlash(addr & 0x3FFF, value);
+}
+
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot0(word /*addr*/) const
+{
+	return nullptr; // flash isn't cacheable
+}
+
+/////////////////////// sub slot 1 ////////////////////////////////////////////
+
+void MegaFlashRomSCCPlusSD::updateConfigReg(byte value)
+{
+	if ((value ^ configReg) & 0x08) {
+		if (value & 0x08) {
+			getCPUInterface().register_IO_Out(0xA0, this);
+			getCPUInterface().register_IO_Out(0xA1, this);
+			getCPUInterface().register_IO_In (0xA2, this);
+		} else {
+			getCPUInterface().unregister_IO_Out(0xA0, this);
+			getCPUInterface().unregister_IO_Out(0xA1, this);
+			getCPUInterface().unregister_IO_In (0xA2, this);
+		}
+	}
+	configReg = value;
+	flash->setVppWpPinLow(isFlashRomBlockProtectEnabled());
+	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+}
+
+MegaFlashRomSCCPlusSD::SCCEnable MegaFlashRomSCCPlusSD::getSCCEnable() const
+{
+	if ((sccMode & 0x20) && (sccBanks[3] & 0x80)) {
+		return EN_SCCPLUS;
+	} else if ((!(sccMode & 0x20)) && ((sccBanks[2] & 0x3F) == 0x3F)) {
+		return EN_SCC;
+	} else {
+		return EN_NONE;
+	}
+}
+
+unsigned MegaFlashRomSCCPlusSD::getFlashAddrSubSlot1(unsigned addr) const
+{
+	unsigned page = is64KmapperConfigured() ? (addr >> 14) : ((addr >> 13) - 2);
+	unsigned size = is64KmapperConfigured() ? 0x4000 : 0x2000;
+
+	if (page >= 4) return unsigned(-1); // outside [0x4000, 0xBFFF] for non-64K mapper
+
+	unsigned bank = bankRegsSubSlot1[page];
+	if        (isDSKmodeEnabled() && (page == 0) && (bank == 0)) {
+		bank = 0x3FA;
+	} else if (isDSKmodeEnabled() && (page == 1) && (bank == 1)) {
+		bank = 0x3FB;
+	} else { // not DSK mode
+		bank += offsetReg;
+	}
+
+	unsigned tmp = (bank * size) + (addr & (size - 1));
+	return (tmp +  0x010000) & 0x7FFFFF; // wrap at 8MB
+}
+
+byte MegaFlashRomSCCPlusSD::readMemSubSlot1(word addr, EmuTime::param time)
+{
+	if (isKonamiSCCmapperConfigured()) { // Konami SCC
+		SCCEnable enable = getSCCEnable();
+		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+			byte val = scc->readMem(addr & 0xFF, time);
+			return val;
+		}
+	}
+
+	unsigned flashAddr = getFlashAddrSubSlot1(addr);
+	return (flashAddr != unsigned(-1))
+		? flash->read(flashAddr)
+		: 0xFF; // unmapped read
+}
+
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot1(word addr, EmuTime::param time) const
+{
+	if (isKonamiSCCmapperConfigured()) { // Konami SCC
+		SCCEnable enable = getSCCEnable();
+		if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+			byte val = scc->peekMem(addr & 0xFF, time);
+			return val;
+		}
+	}
+
+	unsigned flashAddr = getFlashAddrSubSlot1(addr);
+	return (flashAddr != unsigned(-1))
+		? flash->peek(flashAddr)
+		: 0xFF; // unmapped read
+}
+
+const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot1(word addr) const
+{
+        if (isKonamiSCCmapperConfigured()) {
+                SCCEnable enable = getSCCEnable();
+                if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+                    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+                        return nullptr;
+                }
+        }
+
+	unsigned flashAddr = getFlashAddrSubSlot1(addr);
+	return (flashAddr != unsigned(-1))
+		? flash->getReadCacheLine(flashAddr)
+		: unmappedRead;
+}
+
+void MegaFlashRomSCCPlusSD::writeMemSubSlot1(word addr, byte value, EmuTime::param time)
+{
+	// address is calculated before writes to other regions take effect
+	unsigned flashAddr = getFlashAddrSubSlot1(addr);
+
+	// There are several overlapping functional regions in the address
+	// space. A single write can trigger behaviour in multiple regions. In
+	// other words there's no priority amongst the regions where a higher
+	// priority region blocks the write from the lower priority regions.
+	// This only goes for places where the flash is 'seen', so not for the
+	// SCC registers and the SSR
+
+	if (!isConfigRegDisabled() && (addr == 0x7FFC)) {
+		// write config register
+		updateConfigReg(value);
+	}
+
+	if (!isMapperRegisterDisabled() && (addr == 0x7FFF)) {
+		// write mapper register
+		mapperReg = value;
+		invalidateMemCache(0x0000, 0x10000); // flush all to be sure
+	}
+
+	if (!areBankRegsAndOffsetRegsDisabled() && (addr == 0x7FFD)) {
+		// write offset register low part
+		offsetReg = (offsetReg & 0x300) | value;
+		invalidateMemCache(0x0000, 0x10000);
+	}
+
+	if (!areBankRegsAndOffsetRegsDisabled() && (addr == 0x7FFE)) {
+		// write offset register high part (bit 8 and 9)
+		offsetReg = (offsetReg & 0xFF) + ((value & 0x3) << 8);
+		invalidateMemCache(0x0000, 0x10000);
+	}
+
+	if (isKonamiSCCmapperConfigured()) {
+		// Konami-SCC
+		if ((addr & 0xFFFE) == 0xBFFE) {
+			sccMode = value;
+			scc->setChipMode((value & 0x20) ? SCC::SCC_plusmode
+			                                : SCC::SCC_Compatible);
+			invalidateMemCache(0x9800, 0x800);
+			invalidateMemCache(0xB800, 0x800);
+		}
+		SCCEnable enable = getSCCEnable();
+		bool isRamSegment2 = ((sccMode & 0x24) == 0x24) ||
+		                     ((sccMode & 0x10) == 0x10);
+		bool isRamSegment3 = ((sccMode & 0x10) == 0x10);
+		if (((enable == EN_SCC)     && !isRamSegment2 &&
+		     (0x9800 <= addr) && (addr < 0xA000)) ||
+		    ((enable == EN_SCCPLUS) && !isRamSegment3 &&
+		     (0xB800 <= addr) && (addr < 0xC000))) {
+			scc->writeMem(addr & 0xFF, value, time);
+			return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands. 
+		}
+	}
+
+	unsigned page8kB = (addr >> 13) - 2;
+	if (!areBankRegsAndOffsetRegsDisabled() && (page8kB < 4)) {
+		// (possibly) write to bank registers
+		switch (mapperReg & 0xE0) {
+		case 0x00:
+			// Konami-SCC
+			if ((addr & 0x1800) == 0x1000) {
+				// Storing 'sccBanks' may seem redundant at
+				// first, but it's required to calculate
+				// whether the SCC is enabled or not.
+				sccBanks[page8kB] = value;
+				// Masking of the mapper bits is done on
+				// write (and only in Konami(-scc) mode)
+				byte mask = areKonamiMapperLimitsEnabled() ? 0x3F : 0x7F;
+				bankRegsSubSlot1[page8kB] = value & mask;
+				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			}
+			break;
+		case 0x20: {
+			// Konami
+			if (isWritingKonamiBankRegisterDisabled() && (addr < 0x6000)) {
+				// Switching 0x4000-0x5FFF disabled.
+				// This bit blocks writing to the bank register
+				// (an alternative was forcing a 0 on read).
+				// It only has effect in Konami mode.
+				break;
+			}
+			// Making of the mapper bits is done on
+			// write (and only in Konami(-scc) mode)
+			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
+			byte mask = areKonamiMapperLimitsEnabled() ? 0x1F : 0x7F;
+			bankRegsSubSlot1[page8kB] = value & mask;
+			invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			break;
+		}
+		case 0x40:
+		case 0x60:
+			// 64kB
+			bankRegsSubSlot1[page8kB] = value;
+			invalidateMemCache(0x0000 + 0x4000 * page8kB, 0x4000);
+			break;
+		case 0x80:
+		case 0xA0:
+			// ASCII-8
+			if ((0x6000 <= addr) && (addr < 0x8000)) {
+				byte bank = (addr >> 11) & 0x03;
+				bankRegsSubSlot1[bank] = value;
+				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+			}
+			break;
+		case 0xC0:
+		case 0xE0:
+			// ASCII-16
+			// This behaviour is confirmed by Manuel Pazos (creator
+			// of the cartridge): ASCII-16 uses all 4 bank registers
+			// and one bank switch changes 2 registers at once.
+			// This matters when switching mapper mode, because
+			// the content of the bank registers is unchanged after
+			// a switch.
+			if ((0x6000 <= addr) && (addr < 0x6800)) {
+				bankRegsSubSlot1[0] = 2 * value + 0;
+				bankRegsSubSlot1[1] = 2 * value + 1;
+				invalidateMemCache(0x4000, 0x4000);
+			}
+			if ((0x7000 <= addr) && (addr < 0x7800)) {
+				bankRegsSubSlot1[2] = 2 * value + 0;
+				bankRegsSubSlot1[3] = 2 * value + 1;
+				invalidateMemCache(0x8000, 0x4000);
+			}
+			break;
+		}
+	}
+
+	if (flashAddr != unsigned(-1)) {
+		writeToFlash(flashAddr, value);
+	}
+}
+
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot1(word /*addr*/) const
+{
+	return nullptr; // flash isn't cacheable
+}
+
+/////////////////////// sub slot 2 ////////////////////////////////////////////
+
+unsigned MegaFlashRomSCCPlusSD::calcMemMapperAddress(word address) const
+{
+	static const unsigned MASK = (MEMORY_MAPPER_SIZE / 16) - 1;
+	unsigned bank = memMapperRegs[address >> 14];
+	return ((bank & MASK) << 14) | (address & 0x3FFF);
+}
+
+byte MegaFlashRomSCCPlusSD::readMemSubSlot2(word addr)
+{
+	// read from the memory mapper
+	return checkedRam->read(calcMemMapperAddress(addr));
+}
+
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot2(word addr) const
+{
+	return checkedRam->peek(calcMemMapperAddress(addr));
+}
+
+const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot2(word addr) const
+{
+	return checkedRam->getReadCacheLine(calcMemMapperAddress(addr));
+}
+
+void MegaFlashRomSCCPlusSD::writeMemSubSlot2(word addr, byte value)
+{
+	// write to the memory mapper
+	checkedRam->write(calcMemMapperAddress(addr), value);
+}
+
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot2(word addr) const
+{
+	return checkedRam->getWriteCacheLine(calcMemMapperAddress(addr));
+}
+
+/////////////////////// sub slot 3 ////////////////////////////////////////////
+
+unsigned MegaFlashRomSCCPlusSD::getFlashAddrSubSlot3(unsigned addr) const
+{
+	unsigned page8kB = (addr >> 13) - 2;
+	return (bankRegsSubSlot3[page8kB] & 0x7f) * 0x2000 + (addr & 0x1fff) + 0x700000;
+}
+
+byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
+{
+	if ((0x4000 <= addr) && (addr < 0xC000)) {
+		// read (flash)rom content
+		unsigned flashAddr = getFlashAddrSubSlot3(addr);
+		return flash->read(flashAddr);
+	} else {
+		// unmapped read
+		return 0xFF;
+	}
+
+	// TODO: read from the SD stuff via block #40
+	return 0xFF;
+}
+
+byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) const
+{
+	if ((0x4000 <= addr) && (addr < 0xC000)) {
+		// read (flash)rom content
+		unsigned flashAddr = getFlashAddrSubSlot3(addr);
+		return flash->peek(flashAddr);
+	} else {
+		// unmapped read
+		return 0xFF;
+	}
+
+	// TODO: read from the SD stuff via block #40
+	return 0xFF;
+}
+
+const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
+{
+	if ((0x4000 <= addr) && (addr < 0xC000)) {
+		// (flash)rom content
+		unsigned flashAddr = getFlashAddrSubSlot3(addr);
+		return flash->getReadCacheLine(flashAddr);
+	} else {
+		return unmappedRead;
+	}
+	// TODO: read from the SD stuff via block #40
+	return nullptr;
+}
+
+void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::param /*time*/)
+{
+	// write to flash (first, before modifying bank regs)
+	if ((0x4000 <= addr) && (addr < 0xC000)) {
+		unsigned flashAddr = getFlashAddrSubSlot3(addr);
+		writeToFlash(flashAddr, value);
+	}
+
+	// ASCII-8 mapper
+	if ((0x6000 <= addr) && (addr < 0x8000)) {
+		byte page8kB = (addr >> 11) & 0x03;
+		bankRegsSubSlot3[page8kB] = value;
+		invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
+	}
+
+	// TODO write to the SD stuff for block #40
+}
+
+byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/) const
+{
+	return nullptr; // flash isn't cacheable
+}
+
+/////////////////////// I/O ////////////////////////////////////////////
+
+byte MegaFlashRomSCCPlusSD::readIO(word port, EmuTime::param time)
+{
+	// Note: it's not possible to read from the Memory Mapper ports
+	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
+	return psg->readRegister(psgLatch, time);
+}
+
+byte MegaFlashRomSCCPlusSD::peekIO(word port, EmuTime::param time) const
+{
+	assert((port & 0xFF) == 0x12 || (isPSGalsoMappedToNormalPorts() && ((port & 0xFF) == 0xA2))); (void)port;
+	return psg->peekRegister(psgLatch, time);
+}
+
+void MegaFlashRomSCCPlusSD::writeIO(word port, byte value, EmuTime::param time)
+{
+	switch (port & 0xFF) {
+		case 0xA0:
+			if (!isPSGalsoMappedToNormalPorts()) return;
+		case 0x10:
+			psgLatch = value & 0x0F;
+			break;
+		case 0xA1:
+			if (!isPSGalsoMappedToNormalPorts()) return;
+		case 0x11:
+			psg->writeRegister(psgLatch, value, time);
+			break;
+		case 0xFC:
+		case 0xFD:
+		case 0xFE:
+		case 0xFF:
+			memMapperRegs[port & 3] = value;
+			invalidateMemCache(0x4000 * (port & 3), 0x4000);
+			break;
+		default:
+			UNREACHABLE;
+	}
+}
+
+template<typename Archive>
+void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
+{
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
+	// overall
+	ar.serialize("flash", *flash);
+	ar.serialize("subslotReg", subslotReg);
+
+	// subslot 0 stuff
+	// (nothing)
+
+	// subslot 1 stuff
+	ar.serialize("scc", *scc);
+	ar.serialize("sccMode", sccMode);
+	ar.serialize("sccBanks", sccBanks);
+	ar.serialize("psg", *psg);
+	ar.serialize("psgLatch", psgLatch);
+	ar.serialize("configReg", configReg);
+	ar.serialize("mapperReg", mapperReg);
+	ar.serialize("offsetReg", offsetReg);
+	ar.serialize("bankRegsSubSlot1", bankRegsSubSlot1);
+	if (ar.isLoader()) {
+		// Re-register PSG ports (if needed)
+		byte tmp = configReg;
+		configReg = 3; // set to un-registered
+		updateConfigReg(tmp); // restore correct value
+	}
+
+	// subslot 2 stuff
+	// TODO ar.serialize("checkedRam", checkedRam);
+	if (checkedRam) ar.serialize("ram", checkedRam->getUncheckedRam());
+	ar.serialize("memMapperRegs", memMapperRegs);
+
+	// subslot 3 stuff
+	ar.serialize("bankRegsSubSlot3", bankRegsSubSlot3);
+}
+INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlusSD);
+REGISTER_MSXDEVICE(MegaFlashRomSCCPlusSD, "MegaFlashRomSCCPlusSD");
+
+} // namespace openmsx

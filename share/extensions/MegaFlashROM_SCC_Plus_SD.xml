@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <name>MegaFlashROM SCC+ SD</name>
+    <manufacturer>Manuel Pazos</manufacturer>
+    <code/>
+    <release_year>2013</release_year>
+    <description>MSX Flash cartridge of 8MB with SCC-I and PSG and 2 SD card slots.</description>
+    <type>Flash cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="MegaFlashRom SCC+ SD">
+          <mem base="0x0000" size="0x10000"/>
+          <sound>
+            <volume>9000</volume>
+          </sound>
+          <rom/>
+          <sramname>megaflashromsccplussd.sram</sramname>
+          <mappertype>MegaFlashRomSccPlusSD</mappertype>
+          <hasmemorymapper>true</hasmemorymapper>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

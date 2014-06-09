@@ -39,6 +39,7 @@
 #include "RomMatraInk.hh"
 #include "RomArc.hh"
 #include "MegaFlashRomSCCPlus.hh"
+#include "MegaFlashRomSCCPlusSD.hh"
 #include "RomDooly.hh"
 #include "RomMSXtra.hh"
 #include "RomMultiRom.hh"
@@ -337,6 +338,9 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 		break;
 	case ROM_MEGAFLASHROMSCCPLUS:
 		result = make_unique<MegaFlashRomSCCPlus>(config, move(rom));
+		break;
+	case ROM_MEGAFLASHROMSCCPLUSSD:
+		result = make_unique<MegaFlashRomSCCPlusSD>(config, move(rom));
 		break;
 	case ROM_DOOLY:
 		result = make_unique<RomDooly>(config, move(rom));
