@@ -233,6 +233,8 @@ void MegaFlashRomSCCPlus::reset(EmuTime::param time)
 	psg->reset(time);
 
 	flash->reset();
+
+	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 }
 
 MegaFlashRomSCCPlus::SCCEnable MegaFlashRomSCCPlus::getSCCEnable() const
@@ -399,11 +401,12 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 		     (0xB800 <= addr) && (addr < 0xC000))) {
 			scc->writeMem(addr & 0xFF, value, time);
 		}
+		return; // Pazos: when SCC registers are selected flashROM is not seen, so it does not accept commands.
 	}
 
 	unsigned subslot = getSubslot(addr);
-	unsigned page8 = (addr >> 13) - 2;
-	if (((configReg & 0x02) == 0x00) && (page8 < 4)) {
+	unsigned page8kB = (addr >> 13) - 2;
+	if (((configReg & 0x02) == 0x00) && (page8kB < 4)) {
 		// (possibly) write to bank registers
 		switch (configReg & 0xE0) {
 		case 0x00:
@@ -412,16 +415,16 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 				// Storing 'sccBanks' may seem redundant at
 				// first, but it's required to calculate
 				// whether the SCC is enabled or not.
-				sccBanks[page8] = value;
-				if ((value & 0x80) && (page8 == 0)) {
+				sccBanks[page8kB] = value;
+				if ((value & 0x80) && (page8kB == 0)) {
 					offsetReg = value & 0x7F;
 					invalidateMemCache(0x4000, 0x8000);
 				} else {
-					// Making of the mapper bits is done on
+					// Masking of the mapper bits is done on
 					// write (and only in Konami(-scc) mode)
 					byte mask = (configReg & 0x01) ? 0x3F : 0x7F;
-					bankRegs[subslot][page8] = value & mask;
-					invalidateMemCache(0x4000 + 0x2000 * page8, 0x2000);
+					bankRegs[subslot][page8kB] = value & mask;
+					invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 				}
 			}
 			break;
@@ -438,15 +441,15 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			// write (and only in Konami(-scc) mode)
 			if ((addr < 0x5000) || ((0x5800 <= addr) && (addr < 0x6000))) break; // only SCC range works
 			byte mask = (configReg & 0x01) ? 0x1F : 0x7F;
-			bankRegs[subslot][page8] = value & mask;
-			invalidateMemCache(0x4000 + 0x2000 * page8, 0x2000);
+			bankRegs[subslot][page8kB] = value & mask;
+			invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			break;
 		}
 		case 0x40:
 		case 0x60:
 			// 64kB
-			bankRegs[subslot][page8] = value;
-			invalidateMemCache(0x4000 + 0x2000 * page8, 0x2000);
+			bankRegs[subslot][page8kB] = value;
+			invalidateMemCache(0x0000 + 0x4000 * page8kB, 0x4000);
 			break;
 		case 0x80:
 		case 0xA0:
@@ -454,7 +457,7 @@ void MegaFlashRomSCCPlus::writeMem(word addr, byte value, EmuTime::param time)
 			if ((0x6000 <= addr) && (addr < 0x8000)) {
 				byte bank = (addr >> 11) & 0x03;
 				bankRegs[subslot][bank] = value;
-				invalidateMemCache(0x4000 + 0x2000 * page8, 0x2000);
+				invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 			}
 			break;
 		case 0xC0:
