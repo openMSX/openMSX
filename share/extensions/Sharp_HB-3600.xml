@@ -3,7 +3,7 @@
 <msxconfig>
   <info>
     <name>Dual Disk Drive Controller</name>
-    <manufacturer>Sharp EPCOM</manufacturer>
+    <manufacturer>Sharp</manufacturer>
     <code>HB-3600</code>
     <release_year>1985</release_year>
     <description>External 5.25" disk drives.</description>
@@ -12,7 +12,7 @@
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <WD2793 id="Sharp Epcom HB-3600 diskROM/FDC">
+        <WD2793 id="Sharp HB-3600 diskROM/FDC">
           <connectionstyle>Philips</connectionstyle>
           <mem base="0x4000" size="0x4000"/>
           <rom>
