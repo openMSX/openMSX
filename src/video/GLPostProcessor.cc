@@ -1,5 +1,5 @@
 #include "GLPostProcessor.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
@@ -228,10 +228,12 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
 			};
 
-			progTex.activate();
-			glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+			gl::context->progTex.activate();
+			glUniform4f(gl::context->unifTexColor,
+			            1.0f, 1.0f, 1.0f, 1.0f);
 			mat4 I;
-			glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
+			glUniformMatrix4fv(gl::context->unifTexMvp,
+			                   1, GL_FALSE, &I[0][0]);
 			glDisable(GL_BLEND);
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
@@ -413,13 +415,14 @@ void GLPostProcessor::drawGlow(int glow)
 		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
 	};
 
-	progTex.activate();
+	gl::context->progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	colorTex[(frameCounter & 1) ^ 1].bind();
-	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
+	glUniform4f(gl::context->unifTexColor,
+	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
 	mat4 I;
-	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 	glEnableVertexAttribArray(0);
@@ -468,13 +471,13 @@ void GLPostProcessor::drawNoise()
 		noise + vec2(0.0f, 0.0f  )
 	};
 
-	progTex.activate();
+	gl::context->progTex.activate();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
 	mat4 I;
-	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
 
 	unsigned seq = frameCounter & 7;
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);

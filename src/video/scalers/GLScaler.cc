@@ -1,5 +1,5 @@
 #include "GLScaler.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "gl_vec.hh"
 
 using std::string;
@@ -26,7 +26,7 @@ GLScaler::GLScaler(const string& progName)
 		}
 		unifTexSize[i] = program[i].getUniformLocation("texSize");
 		glUniformMatrix4fv(program[i].getUniformLocation("u_mvpMatrix"),
-		                   1, GL_FALSE, &pixelMvp[0][0]);
+		                   1, GL_FALSE, &gl::context->pixelMvp[0][0]);
 	}
 }
 

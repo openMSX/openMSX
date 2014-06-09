@@ -1,6 +1,6 @@
 #include "SDLGLVisibleSurface.hh"
 #include "SDLGLOffScreenSurface.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
@@ -79,12 +79,12 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
 
-	gl::initPrograms(width, height);
+	gl::context = make_unique<gl::Context>(width, height);
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	gl::destroyPrograms();
+	gl::context.reset();
 }
 
 void SDLGLVisibleSurface::flushFrameBuffer()

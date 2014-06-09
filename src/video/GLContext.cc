@@ -1,4 +1,4 @@
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "GLDefaultScaler.hh"
 #include "gl_transform.hh"
 #include "memory.hh"
@@ -6,19 +6,9 @@
 namespace gl {
 
 // Global variables
-ShaderProgram progTex((Null()));
-GLuint unifTexColor = -1;
-GLuint unifTexMvp   = -1;
+std::unique_ptr<Context> context;
 
-ShaderProgram progFill((Null()));
-GLuint unifFillMvp  = -1;
-
-mat4 pixelMvp;
-
-std::unique_ptr<openmsx::GLScaler> fallbackScaler;
-
-
-void initPrograms(int width, int height)
+Context::Context(int width, int height)
 {
 	VertexShader   texVertexShader  ("texture.vert");
 	FragmentShader texFragmentShader("texture.frag");
@@ -45,20 +35,18 @@ void initPrograms(int width, int height)
 	unifFillMvp = progFill.getUniformLocation("u_mvpMatrix");
 
 	pixelMvp = ortho(0, width, height, 0, -1, 1);
-
-	fallbackScaler = make_unique<openmsx::GLDefaultScaler>();
 }
 
-void destroyPrograms()
+Context::~Context()
 {
-	progTex.reset();
-	unifTexColor = -1;
-	unifTexMvp   = -1;
+}
 
-	progFill.reset();
-	unifFillMvp = -1;
-
-	fallbackScaler.reset();
+openmsx::GLScaler& Context::getFallbackScaler()
+{
+	if (!fallbackScaler) {
+		fallbackScaler = make_unique<openmsx::GLDefaultScaler>();
+	}
+	return *fallbackScaler;
 }
 
 } // namespace gl

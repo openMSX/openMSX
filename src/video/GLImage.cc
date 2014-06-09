@@ -1,5 +1,5 @@
 #include "GLImage.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "SDLSurfacePtr.hh"
 #include "MSXException.hh"
 #include "Math.hh"
@@ -158,17 +158,20 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 			vec2(texCoord[2], texCoord[1]),
 		};
 
-		progTex.activate();
-		glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, alpha / 255.0f);
-		glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+		gl::context->progTex.activate();
+		glUniform4f(gl::context->unifTexColor,
+		            1.0f, 1.0f, 1.0f, alpha / 255.0f);
+		glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
+		                   &gl::context->pixelMvp[0][0]);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos + 4);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 		glEnableVertexAttribArray(1);
 		texture.bind();
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	} else {
-		progFill.activate();
-		glUniformMatrix4fv(unifFillMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+		gl::context->progFill.activate();
+		glUniformMatrix4fv(gl::context->unifFillMvp, 1, GL_FALSE,
+		                   &gl::context->pixelMvp[0][0]);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 		glVertexAttrib4f(1, borderR / 255.0f, borderG / 255.0f, borderB / 255.0f,
 		                (borderA * alpha) / (255.0f * 255.0f));

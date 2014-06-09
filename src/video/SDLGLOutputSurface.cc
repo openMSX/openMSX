@@ -1,5 +1,5 @@
 #include "SDLGLOutputSurface.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "OutputSurface.hh"
 #include "PNG.hh"
 #include "build-info.hh"
@@ -132,9 +132,10 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 		vec2(texCoordX, 0.0f     ),
 		vec2(0.0f,      0.0f     ),
 	};
-	progTex.activate();
-	glUniform4f(unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
-	glUniformMatrix4fv(unifTexMvp, 1, GL_FALSE, &pixelMvp[0][0]);
+	gl::context->progTex.activate();
+	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
+	                   &gl::context->pixelMvp[0][0]);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
 	glEnableVertexAttribArray(0);

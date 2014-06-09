@@ -6,7 +6,7 @@
 #include "GLTVScaler.hh"
 #include "GLHQScaler.hh"
 #include "GLHQLiteScaler.hh"
-#include "GLPrograms.hh"
+#include "GLContext.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "memory.hh"
@@ -19,7 +19,7 @@ namespace GLScalerFactory {
 
 unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
-	GLScaler& fallback = *gl::fallbackScaler;
+	GLScaler& fallback = gl::context->getFallbackScaler();
 	switch (renderSettings.getScaleAlgorithm().getEnum()) {
 	case RenderSettings::SCALER_SAI:
 		// disabled for now:
