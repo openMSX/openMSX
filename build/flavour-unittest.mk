@@ -2,7 +2,7 @@
 # Build executable that runs unit tests.
 
 # Debug flags.
-CXXFLAGS+=-O0 -g -DUNITTEST
+CXXFLAGS+=-O3 -g -DUNITTEST
 
 # Strip executable?
 OPENMSX_STRIP:=false
