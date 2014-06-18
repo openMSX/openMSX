@@ -27,7 +27,7 @@ string encode(const void* input_, size_t len, bool newlines)
 		int t = int(std::min<size_t>(16, len));
 		for (int i = 0; i < t; ++i) {
 			ret += encode(*input++);
-			if (i != 15) ret += ' ';
+			if (i != (t - 1)) ret += ' ';
 		}
 		len -= t;
 	}
