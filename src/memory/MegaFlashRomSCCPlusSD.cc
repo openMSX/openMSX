@@ -843,7 +843,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 			selectedCard = value & 1;
 		} else {
 			// transfer to SD card
-			byte tmpval = sdCard[selectedCard]->transfer(value, addr & 0x1000);
+			/*byte tmpval = */sdCard[selectedCard]->transfer(value, addr & 0x1000); // use tmpval in your logging to find which value was discarded
 		}
 	}
 
