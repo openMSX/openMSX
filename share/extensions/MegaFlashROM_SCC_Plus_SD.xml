@@ -18,6 +18,14 @@
             <volume>9000</volume>
           </sound>
           <rom/>
+          <sdcard1>
+            <sramname>SDcard1.sram</sram>
+            <size>8</sram>
+          </sdcard1>
+          <sdcard2>
+            <sramname>SDcard2.sram</sram>
+            <size>100</sram>
+          </sdcard2>
           <sramname>megaflashromsccplussd.sram</sramname>
           <mappertype>MegaFlashRomSccPlusSD</mappertype>
           <hasmemorymapper>true</hasmemorymapper>

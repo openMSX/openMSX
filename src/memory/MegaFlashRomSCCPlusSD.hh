@@ -10,6 +10,7 @@ class SCC;
 class AY8910;
 class AmdFlash;
 class CheckedRam;
+class SdCard;
 
 class MegaFlashRomSCCPlusSD : public MSXRom
 {
@@ -111,6 +112,9 @@ private:
 	unsigned getFlashAddrSubSlot3(unsigned addr) const;
 
 	byte bankRegsSubSlot3[4];
+
+	byte selectedCard;
+	std::unique_ptr<SdCard> sdCard[2];
 
 };
 

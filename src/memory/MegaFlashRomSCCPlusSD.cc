@@ -8,13 +8,11 @@
 #include "CacheLine.hh"
 #include "Ram.hh"
 #include "CheckedRam.hh"
+#include "SdCard.hh"
 #include "serialize.hh"
 #include "memory.hh"
 #include <cassert>
 #include <vector>
-
-// Not implemented yet:
-// - SD
 
 /******************************************************************************
  * DOCUMENTATION AS PROVIDED BY MANUEL PAZOS, WHO DEVELOPED THE CARTRIDGE     *
@@ -298,6 +296,9 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 		getCPUInterface().register_IO_Out(0xFD, this);
 		getCPUInterface().register_IO_Out(0xFC, this);
 	}
+
+	sdCard[0] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")), "Card 1");
+	sdCard[1] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")), "Card 2");
 }
 
 MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
@@ -352,6 +353,8 @@ void MegaFlashRomSCCPlusSD::reset(EmuTime::param time)
 	for (int bank = 0; bank < 4; ++bank) {
 		bankRegsSubSlot3[bank] = (bank == 1) ? 1 : 0;
 	}
+
+	selectedCard = 0;
 
 	invalidateMemCache(0x0000, 0x10000); // flush all to be sure
 }
@@ -786,6 +789,11 @@ unsigned MegaFlashRomSCCPlusSD::getFlashAddrSubSlot3(unsigned addr) const
 
 byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
 {
+	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
+		// transfer from SD card
+		return sdCard[selectedCard]->transfer(0xFF, addr & 0x1000);
+	}
+
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// read (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
@@ -794,9 +802,6 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
 		// unmapped read
 		return 0xFF;
 	}
-
-	// TODO: read from the SD stuff via block #40
-	return 0xFF;
 }
 
 byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) const
@@ -810,12 +815,16 @@ byte MegaFlashRomSCCPlusSD::peekMemSubSlot3(word addr, EmuTime::param /*time*/) 
 		return 0xFF;
 	}
 
-	// TODO: read from the SD stuff via block #40
+	// no peek possible for SD card
 	return 0xFF;
 }
 
 const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 {
+	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
+		return nullptr;
+	}
+
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// (flash)rom content
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
@@ -823,12 +832,21 @@ const byte* MegaFlashRomSCCPlusSD::getReadCacheLineSubSlot3(word addr) const
 	} else {
 		return unmappedRead;
 	}
-	// TODO: read from the SD stuff via block #40
 	return nullptr;
 }
 
 void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::param /*time*/)
 {
+
+	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
+		if (addr >= 0x5800) {
+			selectedCard = value & 1;
+		} else {
+			// transfer to SD card
+			byte tmpval = sdCard[selectedCard]->transfer(value, addr & 0x1000);
+		}
+	}
+
 	// write to flash (first, before modifying bank regs)
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
 		unsigned flashAddr = getFlashAddrSubSlot3(addr);
@@ -841,8 +859,6 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 		bankRegsSubSlot3[page8kB] = value;
 		invalidateMemCache(0x4000 + 0x2000 * page8kB, 0x2000);
 	}
-
-	// TODO write to the SD stuff for block #40
 }
 
 byte* MegaFlashRomSCCPlusSD::getWriteCacheLineSubSlot3(word /*addr*/) const
@@ -927,6 +943,7 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 
 	// subslot 3 stuff
 	ar.serialize("bankRegsSubSlot3", bankRegsSubSlot3);
+	ar.serialize("selectedCard", selectedCard);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlusSD);
 REGISTER_MSXDEVICE(MegaFlashRomSCCPlusSD, "MegaFlashRomSCCPlusSD");
