@@ -2,11 +2,11 @@ This directory contains a so-called "Boosted" MSX2 configuration. It has the
 following features:
 
 - based on Philips NMS-8250 (most standard MSX2 in the Netherlands at least)
-- two external slots, slot B is a sub slot (2-1)
+- three external slots, slot B and C are in a sub slot (2-0 and 2-1)
 - 2048 kB memory mapper (in slot 3-2)
 - 2 disk drives
 - V9958 VDP with 192 kB VRAM
-- SCC+ in slot 2-0
+- SCC+ in slot 2-3
 - FMPAC (slot 3-1)
 - MSX Audio
 - MoonSound with 640 kB sample RAM

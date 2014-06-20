@@ -92,21 +92,13 @@
 
     </primary>
 
-    <primary external="true" slot="1"/>
+    <primary slot="1" external="true"/>
 
     <primary slot="2">
 
-      <secondary slot="0">
-        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
-          <mem base="0x4000" size="0x8000"/>
-          <subtype>expanded</subtype>
-          <sound>
-            <volume>13000</volume>
-          </sound>
-        </SCCplus>
-      </secondary>
+      <secondary slot="0" external="true"/>
 
-      <secondary external="true" slot="1"/>
+      <secondary slot="1" external="true"/>
 
       <secondary slot="2">
         <MegaRam id="MegaRam">
@@ -116,7 +108,15 @@
         </MegaRam>
       </secondary>
 
-      <secondary external="true" slot="3"/>
+      <secondary slot="3">
+        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
+          <mem base="0x4000" size="0x8000"/>
+          <subtype>expanded</subtype>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+        </SCCplus>
+      </secondary>
 
     </primary>
 

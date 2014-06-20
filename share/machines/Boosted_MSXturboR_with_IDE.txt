@@ -8,7 +8,7 @@ the following features:
   - PCM
   - MSX-MIDI
   - firmware
-- three external slots, slot B and C are in a sub slot (2-1 and 2-3)
+- three external slots, slot B and C are in a sub slot (2-0 and 2-1)
 - 2048 kB memory mapper (in slot 3-3)
 - 2 disk drives
 - V9958 VDP with 192 kB VRAM

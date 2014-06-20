@@ -82,6 +82,44 @@
       <sramname>Boosted_MSX2+_JP_matsushita.sram</sramname>
     </Matsushita>
 
+    <MSX-AUDIO id="Generic MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <io base="0x0A" num="1" type="O"/>
+      <type>Philips</type>
+      <sound>
+        <volume>12000</volume>
+        <balance>75</balance>
+      </sound>
+      <sampleram>256</sampleram>
+    </MSX-AUDIO>
+
+    <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
+      <io base="0x00" num="2" type="O"/>
+      <io base="0x04" num="2" type="I"/>
+    </MusicModuleMIDI>
+
+    <MoonSound id="Sunrise MoonSound">
+      <io base="0x7e" num="2"/>
+      <io base="0xc4" num="4"/>
+      <rom>
+        <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
+        <filename>yrw801.rom</filename>
+      </rom>
+      <sound>
+        <volume>12000</volume>
+      </sound>
+      <sampleram>640</sampleram>
+    </MoonSound>
+
+    <V9990 id="Sunrise GFX9000">
+      <io base="0x60" num="0x0f"/>
+    </V9990>
+    <Video9000 id="Video9000">
+      <io base="0x6f" num="0x01"/>
+      <device idref="VDP"/>
+      <device idref="Sunrise GFX9000"/>
+    </Video9000>
+
     <primary slot="0">
 
       <secondary slot="0">
@@ -121,59 +159,13 @@
 
     </primary>
 
-    <MSX-AUDIO id="Generic MSX-Audio">
-      <io base="0xC0" num="2"/>
-      <io base="0x0A" num="1" type="O"/>
-      <type>Philips</type>
-      <sound>
-        <volume>12000</volume>
-        <balance>75</balance>
-      </sound>
-      <sampleram>256</sampleram>
-    </MSX-AUDIO>
-
-    <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
-      <io base="0x00" num="2" type="O"/>
-      <io base="0x04" num="2" type="I"/>
-    </MusicModuleMIDI>
-
-    <MoonSound id="Sunrise MoonSound">
-      <io base="0x7e" num="2"/>
-      <io base="0xc4" num="4"/>
-      <rom>
-        <sha1>32760893ce06dbe3930627755ba065cc3d8ec6ca</sha1>
-        <filename>yrw801.rom</filename>
-      </rom>
-      <sound>
-        <volume>12000</volume>
-      </sound>
-      <sampleram>640</sampleram>
-    </MoonSound>
-
-    <V9990 id="Sunrise GFX9000">
-      <io base="0x60" num="0x0f"/>
-    </V9990>
-    <Video9000 id="Video9000">
-      <io base="0x6f" num="0x01"/>
-      <device idref="VDP"/>
-      <device idref="Sunrise GFX9000"/>
-    </Video9000>
-
-    <primary external="true" slot="1"/>
+    <primary slot="1" external="true"/>
 
     <primary slot="2">
 
-      <secondary slot="0">
-        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
-          <mem base="0x4000" size="0x8000"/>
-          <subtype>expanded</subtype>
-          <sound>
-            <volume>13000</volume>
-          </sound>
-        </SCCplus>
-      </secondary>
+      <secondary slot="0" external="true"/>
 
-      <secondary external="true" slot="1"/>
+      <secondary slot="1" external="true"/>
 
       <secondary slot="2">
         <MegaRam id="MegaRam">
@@ -183,9 +175,17 @@
         </MegaRam>
       </secondary>
 
-      <secondary external="true" slot="3"/>
+       <secondary slot="3">
+        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
+          <mem base="0x4000" size="0x8000"/>
+          <subtype>expanded</subtype>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+        </SCCplus>
+      </secondary>
 
-    </primary>
+   </primary>
 
     <primary slot="3">
 
