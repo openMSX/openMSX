@@ -1,6 +1,6 @@
 #include "TigerTree.hh"
 #include "Math.hh"
-#include <vector>
+#include <map>
 #include <cstring>
 #include <cassert>
 
@@ -10,32 +10,27 @@ static const size_t BLOCK_SIZE = 1024;
 
 struct TTCacheEntry
 {
-	TTCacheEntry(const std::string& name_, size_t size_)
-		: name(name_), size(size_), time(-1) {}
+	TTCacheEntry() : time(-1) {}
 	// TODO use compiler generated versions once VS supports that
 	TTCacheEntry(TTCacheEntry&& other)
 		: hash (std::move(other.hash ))
 		, valid(std::move(other.valid))
-		, name (std::move(other.name ))
-		, size (std::move(other.size ))
 		, time (std::move(other.time )) {}
 	TTCacheEntry& operator=(TTCacheEntry&& other) {
 		hash  = std::move(other.hash );
 		valid = std::move(other.valid);
-		name  = std::move(other.name );
-		size  = std::move(other.size );
 		time  = std::move(other.time );
 		return *this;
 	}
 
 	MemBuffer<TigerHash> hash;
 	MemBuffer<bool> valid;
-	std::string name;
-	size_t size;
 	time_t time;
 };
-// Typically contains 0 or 1 element, and only rarely 2 or more.
-static std::vector<TTCacheEntry> ttCache;
+// Typically contains 0 or 1 element, and only rarely 2 or more. But we need
+// the address of existing elements to remain stable when new elements are
+// inserted. So still use std::map instead of std::vector.
+static std::map<std::pair<size_t, std::string>, TTCacheEntry> ttCache;
 
 static size_t calcNumNodes(size_t dataSize)
 {
@@ -46,24 +41,17 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	auto it = find_if(begin(ttCache), end(ttCache),
-		[&](const TTCacheEntry& e) {
-			return (e.size == dataSize) && (e.name == name); });
-	if (it == end(ttCache)) {
-		ttCache.emplace_back(name, dataSize);
-		it = end(ttCache) - 1;
-	}
-
 	size_t numNodes = calcNumNodes(dataSize);
-	if (!data.isCacheStillValid(it->time)) {
-		it->hash .resize(numNodes);
-		it->valid.resize(numNodes);
-		memset(it->valid.data(), 0, numNodes); // all invalid
+	auto& result = ttCache[std::make_pair(dataSize, name)];
+	if (!data.isCacheStillValid(result.time)) {
+		result.hash .resize(numNodes);
+		result.valid.resize(numNodes);
+		memset(result.valid.data(), 0, numNodes); // all invalid
 	} else {
-		assert(it->hash .size() == numNodes);
-		assert(it->valid.size() == numNodes);
+		assert(result.hash .size() == numNodes);
+		assert(result.valid.size() == numNodes);
 	}
-	return *it;
+	return result;
 }
 
 TigerTree::TigerTree(TTData& data_, size_t dataSize_, const std::string& name)
