@@ -6,9 +6,15 @@
 #include "statp.hh"
 #include <sys/types.h>
 #include <fstream>
+#include <memory>
 
 namespace openmsx {
 namespace FileOperations {
+
+	struct FClose {
+		void operator()(FILE* f) { fclose(f); }
+	};
+	typedef std::unique_ptr<FILE, FClose> FILE_t;
 
 	const char nativePathSeparator =
 #ifdef _WIN32
@@ -66,7 +72,7 @@ namespace FileOperations {
 	  * @result A pointer to the opened file, or nullptr on error
 	  *         On error the global variable 'errno' is filled in (see
 	  *         man fopen for details). */
-	FILE* openFile(const std::string& filename, const std::string& mode);
+	FILE_t openFile(const std::string& filename, const std::string& mode);
 
 	/**
 	 * Open an ofstream in a platform-independent manner
@@ -271,7 +277,7 @@ namespace FileOperations {
 	 * @param filename [output param] the name of the resulting file
 	 * @result pointer to the opened file
 	 */
-	FILE* openUniqueFile(const std::string& directory, std::string& filename);
+	FILE_t openUniqueFile(const std::string& directory, std::string& filename);
 
 } // namespace FileOperations
 } // namespace openmsx

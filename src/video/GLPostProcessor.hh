@@ -45,18 +45,19 @@ private:
 	void drawNoise();
 	void drawGlow(int glow);
 
-	void preCalc3DDisplayList(double width);
+	void preCalcMonitor3D(float width);
+	void drawMonitor3D();
 
 	/** The currently active scaler.
 	  */
 	std::unique_ptr<GLScaler> currScaler;
 
-	Texture colorTex[2];
-	FrameBufferObject fbo[2];
+	gl::Texture colorTex[2];
+	gl::FrameBufferObject fbo[2];
 
 	// Noise effect:
-	LuminanceTexture noiseTextureA;
-	LuminanceTexture noiseTextureB;
+	gl::LuminanceTexture noiseTextureA;
+	gl::LuminanceTexture noiseTextureB;
 	double noiseX;
 	double noiseY;
 
@@ -72,12 +73,12 @@ private:
 #endif
 			;
 
-		ColorTexture tex;
-		PixelBuffer<unsigned> pbo;
+		gl::ColorTexture tex;
+		gl::PixelBuffer<unsigned> pbo;
 	};
 	std::vector<std::pair<unsigned, TextureData>> textures;
 
-	ColorTexture superImposeTex;
+	gl::ColorTexture superImposeTex;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,
@@ -103,7 +104,9 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	GLuint monitor3DList;
+	gl::ShaderProgram monitor3DProg;
+	gl::BufferObject arrayBuffer;
+	gl::BufferObject elementbuffer;
 
 	bool storedFrame;
 };

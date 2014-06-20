@@ -40,7 +40,7 @@ vector<string_ref> OSDImageBasedWidget::getProperties() const
 		"-rgba", "-rgb", "-alpha", "-fadePeriod", "-fadeTarget",
 		"-fadeCurrent",
 	};
-	result.insert(result.end(), std::begin(vals), std::end(vals));
+	result.insert(end(result), std::begin(vals), std::end(vals));
 	return result;
 }
 

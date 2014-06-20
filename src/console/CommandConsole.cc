@@ -88,16 +88,16 @@ ConsoleLine ConsoleLine::substr(unsigned pos, unsigned len) const
 		return result;
 	}
 
-	auto begin = line.begin();
-	utf8::unchecked::advance(begin, pos);
-	auto end = begin;
-	while (len-- && (end != line.end())) {
-		utf8::unchecked::next(end);
+	auto b = begin(line);
+	utf8::unchecked::advance(b, pos);
+	auto e = b;
+	while (len-- && (e != end(line))) {
+		utf8::unchecked::next(e);
 	}
-	result.line.assign(begin, end);
+	result.line.assign(b, e);
 
-	unsigned bpos = begin - line.begin();
-	unsigned bend = end   - line.begin();
+	unsigned bpos = b - begin(line);
+	unsigned bend = e - begin(line);
 	unsigned i = 1;
 	while ((i < chunks.size()) && (chunks[i].second <= bpos)) {
 		++i;
@@ -605,11 +605,11 @@ void CommandConsole::backspace()
 	resetScrollBack();
 	if (cursorPosition > prompt.size()) {
 		currentLine = lines[0].str();
-		auto begin = currentLine.begin();
-		utf8::unchecked::advance(begin, cursorPosition - 1);
-		auto end = begin;
-		utf8::unchecked::advance(end, 1);
-		currentLine.erase(begin, end);
+		auto b = begin(currentLine);
+		utf8::unchecked::advance(b, cursorPosition - 1);
+		auto e = b;
+		utf8::unchecked::advance(e, 1);
+		currentLine.erase(b, e);
 		lines[0] = highLight(currentLine);
 		--cursorPosition;
 	}
@@ -620,11 +620,11 @@ void CommandConsole::delete_key()
 	resetScrollBack();
 	if (lines[0].numChars() > cursorPosition) {
 		currentLine = lines[0].str();
-		auto begin = currentLine.begin();
-		utf8::unchecked::advance(begin, cursorPosition);
-		auto end = begin;
-		utf8::unchecked::advance(end, 1);
-		currentLine.erase(begin, end);
+		auto b = begin(currentLine);
+		utf8::unchecked::advance(b, cursorPosition);
+		auto e = b;
+		utf8::unchecked::advance(e, 1);
+		currentLine.erase(b, e);
 		lines[0] = highLight(currentLine);
 	}
 }
@@ -634,7 +634,7 @@ void CommandConsole::normalKey(uint16_t chr)
 	assert(chr);
 	resetScrollBack();
 	currentLine = lines[0].str();
-	auto pos = currentLine.begin();
+	auto pos = begin(currentLine);
 	utf8::unchecked::advance(pos, cursorPosition);
 	utf8::unchecked::append(uint32_t(chr), inserter(currentLine, pos));
 	lines[0] = highLight(currentLine);

@@ -46,12 +46,12 @@ static size_t calcNumNodes(size_t dataSize)
 static TTCacheEntry& getCacheEntry(
 	TTData& data, size_t dataSize, const std::string& name)
 {
-	auto it = find_if(ttCache.begin(), ttCache.end(),
+	auto it = find_if(begin(ttCache), end(ttCache),
 		[&](const TTCacheEntry& e) {
 			return (e.size == dataSize) && (e.name == name); });
-	if (it == ttCache.end()) {
+	if (it == end(ttCache)) {
 		ttCache.emplace_back(name, dataSize);
-		it = ttCache.end() - 1;
+		it = end(ttCache) - 1;
 	}
 
 	size_t numNodes = calcNumNodes(dataSize);

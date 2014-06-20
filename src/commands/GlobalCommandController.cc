@@ -166,7 +166,7 @@ void GlobalCommandController::unregisterProxyCommand(string_ref name)
 GlobalCommandController::ProxySettings::iterator
 GlobalCommandController::findProxySetting(const std::string& name)
 {
-	return find_if(proxySettings.begin(), proxySettings.end(),
+	return find_if(begin(proxySettings), end(proxySettings),
 		[&](ProxySettings::value_type& v) { return v.first->getName() == name; });
 }
 
@@ -174,7 +174,7 @@ void GlobalCommandController::registerProxySetting(Setting& setting)
 {
 	const auto& name = setting.getName();
 	auto it = findProxySetting(name);
-	if (it == proxySettings.end()) {
+	if (it == end(proxySettings)) {
 		// first occurrence
 		auto proxy = make_unique<ProxySetting>(reactor, name);
 		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
@@ -190,7 +190,7 @@ void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
 	const auto& name = setting.getName();
 	auto it = findProxySetting(name);
-	assert(it != proxySettings.end());
+	assert(it != end(proxySettings));
 	assert(it->second);
 	--(it->second);
 	if (it->second == 0) {
@@ -232,7 +232,7 @@ SettingsConfig& GlobalCommandController::getSettingsConfig()
 void GlobalCommandController::registerCommand(
 	Command& command, const string& str)
 {
-	assert(commands.find(str) == commands.end());
+	assert(commands.find(str) == end(commands));
 
 	commands[str] = &command;
 	interpreter->registerCommand(str, command);
@@ -241,7 +241,7 @@ void GlobalCommandController::registerCommand(
 void GlobalCommandController::unregisterCommand(
 	Command& command, string_ref str)
 {
-	assert(commands.find(str) != commands.end());
+	assert(commands.find(str) != end(commands));
 	assert(commands.find(str)->second == &command);
 
 	interpreter->unregisterCommand(str, command);
@@ -251,7 +251,7 @@ void GlobalCommandController::unregisterCommand(
 void GlobalCommandController::registerCompleter(
 	CommandCompleter& completer, string_ref str)
 {
-	assert(commandCompleters.find(str) == commandCompleters.end());
+	assert(commandCompleters.find(str) == end(commandCompleters));
 	commandCompleters[str] = &completer;
 }
 
@@ -259,7 +259,7 @@ void GlobalCommandController::unregisterCompleter(
 	CommandCompleter& completer, string_ref str)
 {
 	(void)completer;
-	assert(commandCompleters.find(str) != commandCompleters.end());
+	assert(commandCompleters.find(str) != end(commandCompleters));
 	assert(commandCompleters.find(str)->second == &completer);
 	commandCompleters.erase(str);
 }
@@ -296,7 +296,7 @@ void GlobalCommandController::changeSetting(Setting& setting, const string& valu
 
 bool GlobalCommandController::hasCommand(string_ref command) const
 {
-	return commands.find(command) != commands.end();
+	return commands.find(command) != end(commands);
 }
 
 void GlobalCommandController::split(string_ref str, vector<string>& tokens,
@@ -514,7 +514,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		                          interpreter->getCommandNames());
 	} else {
 		auto it = commandCompleters.find(tokens.front());
-		if (it != commandCompleters.end()) {
+		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
 			TclObject command(*interpreter);
@@ -568,17 +568,17 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 	}
 	default: {
 		auto it = controller.commandCompleters.find(tokens[1].getString());
-		if (it != controller.commandCompleters.end()) {
+		if (it != end(controller.commandCompleters)) {
 			vector<string> tokens2;
-			auto it2 = tokens.begin();
-			for (++it2; it2 != tokens.end(); ++it2) {
+			auto it2 = begin(tokens);
+			for (++it2; it2 != end(tokens); ++it2) {
 				tokens2.push_back(it2->getString().str());
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
 			TclObject command(result.getInterpreter());
 			command.addListElement("openmsx::help");
-			command.addListElements(tokens.begin() + 1, tokens.end());
+			command.addListElements(begin(tokens) + 1, end(tokens));
 			result.setString(command.executeCommand());
 		}
 		break;
@@ -593,10 +593,10 @@ string HelpCmd::help(const vector<string>& /*tokens*/) const
 
 void HelpCmd::tabCompletion(vector<string>& tokens) const
 {
-	string front = tokens.front();
-	tokens.erase(tokens.begin());
+	string front = std::move(tokens.front());
+	tokens.erase(begin(tokens));
 	controller.tabCompletion(tokens);
-	tokens.insert(tokens.begin(), front);
+	tokens.insert(begin(tokens), std::move(front));
 }
 
 

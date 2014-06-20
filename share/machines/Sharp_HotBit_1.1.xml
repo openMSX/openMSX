@@ -3,8 +3,8 @@
 <msxconfig>
 
   <info>
-    <manufacturer>Sharp/Epcom</manufacturer>
-    <code>HotBit 1.2</code>
+    <manufacturer>Sharp</manufacturer>
+    <code>HotBit 1.1</code>
     <release_year>1985</release_year>
     <description/>
     <type>MSX</type>
@@ -20,7 +20,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>br_hotbit_1_2</keyboard_type> <!-- This is a Brazillian keyboard type with composing functionality in the ROM -->
+      <keyboard_type>br_hotbit_1_1</keyboard_type> <!-- This is a Brazillian keyboard type -->
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
@@ -28,7 +28,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version> <!-- actually probably TMS91X8A -->
+      <version>TMS99X8A</version>
       <io base="0x98" num="2"/>
     </VDP>
 
@@ -47,8 +47,8 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>hotbit_1.2_basic-bios1.rom</filename>
-          <sha1>9425815446d468058705bae545ffa13646744a87</sha1> <!-- verified on Jetze's machine -->
+          <filename>hotbit_1.1_basic-bios1.rom</filename>
+          <sha1>663f8c512d04d213fa616b0db5eefe3774012a4b</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>

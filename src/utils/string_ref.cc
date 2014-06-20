@@ -120,7 +120,7 @@ string_ref::size_type string_ref::find_first_of(char c) const
 
 string_ref::size_type string_ref::find_last_of(string_ref s) const
 {
-	auto it = std::find_first_of( rbegin(), rend(), s.begin(), s.end());
+	auto it = std::find_first_of(rbegin(), rend(), s.begin(), s.end());
 	return (it == rend()) ? npos : (it.base() - begin() - 1);
 }
 

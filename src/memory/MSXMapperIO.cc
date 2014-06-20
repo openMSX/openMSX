@@ -6,6 +6,7 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "serialize.hh"
+#include "stl.hh"
 #include "memory.hh"
 
 using std::string;
@@ -58,16 +59,14 @@ void MSXMapperIO::updateMask()
 
 void MSXMapperIO::registerMapper(unsigned blocks)
 {
-	auto it = upper_bound(mapperSizes.begin(), mapperSizes.end(), blocks);
+	auto it = upper_bound(begin(mapperSizes), end(mapperSizes), blocks);
 	mapperSizes.insert(it, blocks);
 	updateMask();
 }
 
 void MSXMapperIO::unregisterMapper(unsigned blocks)
 {
-	auto it = find(mapperSizes.begin(), mapperSizes.end(), blocks);
-	assert(it != mapperSizes.end());
-	mapperSizes.erase(it);
+	mapperSizes.erase(find_unguarded(mapperSizes, blocks));
 	updateMask();
 }
 

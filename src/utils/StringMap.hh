@@ -412,4 +412,14 @@ public:
 	}
 };
 
+// begin, end
+template<typename T, bool C>
+inline typename StringMap<T, C>::iterator       begin(StringMap<T, C>& m)       { return m.begin(); }
+template<typename T, bool C>
+inline typename StringMap<T, C>::const_iterator begin(const StringMap<T, C>& m) { return m.begin(); }
+template<typename T, bool C>
+inline typename StringMap<T, C>::iterator       end  (StringMap<T, C>& m)       { return m.end();   }
+template<typename T, bool C>
+inline typename StringMap<T, C>::const_iterator end  (const StringMap<T, C>& m) { return m.end();   }
+
 #endif

@@ -55,7 +55,7 @@ void LocalFileReference::init(File& file)
 	FileOperations::mkdirp(tmpDir);
 
 	// create temp file
-	FILE* fp = FileOperations::openUniqueFile(tmpDir, tmpFile);
+	auto fp = FileOperations::openUniqueFile(tmpDir, tmpFile);
 	if (!fp) {
 		throw FileException("Couldn't create temp file");
 	}
@@ -63,10 +63,9 @@ void LocalFileReference::init(File& file)
 	// write temp file
 	size_t size;
 	const byte* buf = file.mmap(size);
-	if (fwrite(buf, 1, size, fp) != size) {
+	if (fwrite(buf, 1, size, fp.get()) != size) {
 		throw FileException("Couldn't write temp file");
 	}
-	fclose(fp);
 }
 
 LocalFileReference::~LocalFileReference()

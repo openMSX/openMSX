@@ -33,10 +33,10 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
                          vector<string>& result)
 {
 	size_t column = 0;
-	auto it = input.begin();
+	auto it = begin(input);
 	do {
 		size_t maxcolumn = column;
-		for (size_t i = 0; (i < result.size()) && (it != input.end());
+		for (size_t i = 0; (i < result.size()) && (it != end(input));
 		     ++i, ++it) {
 			auto curSize = utf8::unchecked::size(result[i]);
 			result[i] += string(column - curSize, ' ');
@@ -46,7 +46,7 @@ static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
 			if (maxcolumn > columnLimit) return false;
 		}
 		column = maxcolumn + 2;
-	} while (it != input.end());
+	} while (it != end(input));
 	return true;
 }
 
@@ -97,22 +97,22 @@ bool Completer::completeImpl(string& str, vector<string_ref> matches,
 	//  start with. Though sometimes this is hard to avoid. E.g. when doing
 	//  filename completion + some extra allowed strings and one of these
 	//  extra strings is the same as one of the filenames.
-	sort(matches.begin(), matches.end());
-	matches.erase(unique(matches.begin(), matches.end()), matches.end());
+	sort(begin(matches), end(matches));
+	matches.erase(unique(begin(matches), end(matches)), end(matches));
 
 	bool expanded = false;
 	while (true) {
-		auto it = matches.begin();
+		auto it = begin(matches);
 		if (str.size() == it->size()) {
 			// match is as long as first word
 			goto out; // TODO rewrite this
 		}
 		// expand with one char and check all strings
-		auto begin = it->begin();
-		auto end = begin + str.size();
-		utf8::unchecked::next(end); // one more utf8 char
-		string_ref string2(begin, end);
-		for (/**/; it != matches.end(); ++it) {
+		auto b = begin(*it);
+		auto e = b + str.size();
+		utf8::unchecked::next(e); // one more utf8 char
+		string_ref string2(b, e);
+		for (/**/; it != end(matches); ++it) {
 			if (!equalHead(string2, *it, caseSensitive)) {
 				goto out; // TODO rewrite this
 			}

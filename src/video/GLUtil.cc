@@ -16,11 +16,11 @@
 #endif
 
 using std::string;
+using namespace openmsx;
 
-namespace openmsx {
+namespace gl {
 
-/*namespace GLUtil {
-
+/*
 void checkGLError(const string& prefix)
 {
 	GLenum error = glGetError();
@@ -29,21 +29,30 @@ void checkGLError(const string& prefix)
 		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
 	}
 }
-
-}*/
+*/
 
 
 // class Texture
 
-Texture::Texture()
+Texture::Texture(bool interpolation)
 {
-	glGenTextures(1, &textureId);
-	disableInterpolation();
+	allocate();
+	if (interpolation) {
+		enableInterpolation();
+	} else {
+		disableInterpolation();
+	}
 }
 
-Texture::~Texture()
+void Texture::allocate()
+{
+	glGenTextures(1, &textureId);
+}
+
+void Texture::reset()
 {
 	glDeleteTextures(1, &textureId); // ok to delete 0-texture
+	textureId = 0;
 }
 
 void Texture::enableInterpolation()
@@ -63,28 +72,10 @@ void Texture::disableInterpolation()
 void Texture::setWrapMode(bool wrap)
 {
 	bind();
-	int mode = wrap ? GL_REPEAT : GL_CLAMP;
+	int mode = wrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, mode);
-}
-
-void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
-                       GLint   x,  GLint   y,  GLint   width,  GLint   height)
-{
-	const GLint x2 = x + width;
-	const GLint y2 = y + height;
-	const GLfloat tx2 = tx + twidth;
-	const GLfloat ty2 = ty + theight;
-	bind();
-	glEnable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	glTexCoord2f(tx,  ty ); glVertex2i(x , y );
-	glTexCoord2f(tx2, ty ); glVertex2i(x2, y );
-	glTexCoord2f(tx2, ty2); glVertex2i(x2, y2);
-	glTexCoord2f(tx,  ty2); glVertex2i(x,  y2);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
 }
 
 
@@ -308,19 +299,18 @@ FragmentShader::FragmentShader(const string& header, const string& filename)
 
 // class ShaderProgram
 
-ShaderProgram::ShaderProgram()
+void ShaderProgram::allocate()
 {
-	// Allocate program handle.
 	handle = glCreateProgram();
 	if (handle == 0) {
 		std::cerr << "Failed to allocate program" << std::endl;
-		return;
 	}
 }
 
-ShaderProgram::~ShaderProgram()
+void ShaderProgram::reset()
 {
 	glDeleteProgram(handle); // ok to delete '0'
+	handle = 0;
 }
 
 bool ShaderProgram::isOK() const
@@ -363,31 +353,22 @@ void ShaderProgram::link()
 	}
 }
 
+void ShaderProgram::bindAttribLocation(unsigned index, const char* name)
+{
+	glBindAttribLocation(handle, index, name);
+}
+
 GLint ShaderProgram::getUniformLocation(const char* name) const
 {
 	// Sanity check on this program.
 	if (!isOK()) return -1;
 
-	// Get location and verify returned value.
-	GLint location = glGetUniformLocation(handle, name);
-	if (location == -1) {
-		fprintf(stderr, "%s: \"%s\"\n",
-			  strncmp(name, "gl_", 3) == 0
-			? "Accessing built-in shader variables is not possible"
-			: "Could not find shader variable",
-			name);
-	}
-	return location;
+	return glGetUniformLocation(handle, name);
 }
 
 void ShaderProgram::activate() const
 {
 	glUseProgram(handle);
-}
-
-void ShaderProgram::deactivate()
-{
-	glUseProgram(0);
 }
 
 // only useful for debugging
@@ -406,4 +387,17 @@ void ShaderProgram::validate()
 	          << ": " << infoLog << std::endl;
 }
 
-} // namespace openmsx
+
+// class BufferObject
+
+BufferObject::BufferObject()
+{
+	glGenBuffers(1, &bufferId);
+}
+
+BufferObject::~BufferObject()
+{
+	glDeleteBuffers(1, &bufferId); // ok to delete 0-buffer
+}
+
+} // namespace gl

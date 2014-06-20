@@ -6,6 +6,7 @@
 #endif
 #include "File.hh"
 #include "FileBase.hh"
+#include "FileOperations.hh"
 #include "systemfuncs.hh"
 #include <cstdio>
 #include <memory>
@@ -42,7 +43,7 @@ public:
 
 private:
 	std::string filename;
-	FILE* file;
+	FileOperations::FILE_t file;
 #if HAVE_MMAP
 	byte* mmem;
 #endif

@@ -3,6 +3,7 @@
 #include "CliConnection.hh"
 #include "Thread.hh"
 #include "ScopedAssign.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -45,9 +46,7 @@ void GlobalCliComm::removeListener(CliListener* listener)
 {
 	// can be called from any thread
 	ScopedLock lock(sem);
-	auto it = find(listeners.begin(), listeners.end(), listener);
-	assert(it != listeners.end());
-	listeners.erase(it);
+	listeners.erase(find_unguarded(listeners, listener));
 }
 
 void GlobalCliComm::setAllowExternalCommands()
@@ -93,7 +92,7 @@ void GlobalCliComm::update(UpdateType type, string_ref name, string_ref value)
 {
 	assert(type < NUM_UPDATES);
 	auto it = prevValues[type].find(name);
-	if (it != prevValues[type].end()) {
+	if (it != end(prevValues[type])) {
 		if (it->second == value) {
 			return;
 		}

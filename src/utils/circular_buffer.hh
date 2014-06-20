@@ -223,6 +223,10 @@ public:
 	void push_front(const T&  t) { push_front_impl<const T& >(          t ); }
 	void push_front(      T&& t) { push_front_impl<      T&&>(std::move(t)); }
 
+	void push_back(std::initializer_list<T> list) {
+		for (auto& e : list) push_back(e);
+	}
+
 	void pop_back() {
 		decrement(last);
 		last->~T();
@@ -358,6 +362,11 @@ public:
 	template<typename U>
 	void push_back(U&& u) { checkGrow(); buf.push_back(std::forward<U>(u)); }
 
+	template<typename U>
+	void push_back(std::initializer_list<U> list) {
+		for (auto& e : list) push_back(e);
+	}
+
 	T pop_front() {
 		T t = std::move(buf.front());
 		buf.pop_front();
@@ -381,7 +390,8 @@ public:
 	bool empty() const { return buf.empty(); }
 	void clear() { buf.clear(); }
 
-	circular_buffer<T>& getBuffer() { return buf; }
+	      circular_buffer<T>& getBuffer()       { return buf; }
+	const circular_buffer<T>& getBuffer() const { return buf; }
 
 private:
 	void checkGrow() {

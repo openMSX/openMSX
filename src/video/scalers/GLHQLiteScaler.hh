@@ -11,10 +11,10 @@ namespace openmsx {
 class GLHQLiteScaler : public GLScaler, private noncopyable
 {
 public:
-	GLHQLiteScaler();
+	explicit GLHQLiteScaler(GLScaler& fallback);
 
 	virtual void scaleImage(
-		ColorTexture& src, ColorTexture* superImpose,
+		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 		unsigned logSrcHeight);
@@ -23,10 +23,10 @@ public:
 		unsigned lineWidth, FrameSource& paintFrame);
 
 private:
-	ShaderProgram scalerProgram[2];
-	Texture edgeTexture;
-	Texture offsetTexture[3];
-	PixelBuffer<uint16_t> edgeBuffer;
+	GLScaler& fallback;
+	gl::Texture edgeTexture;
+	gl::Texture offsetTexture[3];
+	gl::PixelBuffer<uint16_t> edgeBuffer;
 };
 
 } // namespace openmsx

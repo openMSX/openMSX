@@ -220,7 +220,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 		isMapped[regio] = true;
 	}
 
-	checkEnable();
+	checkEnable(); // invalidateMemCache() done below
 	internalMemoryBank[regio] = block;
 	invalidateMemCache(0x4000 + regio * 0x2000, 0x2000);
 }
@@ -228,7 +228,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 void MSXSCCPlusCart::setModeRegister(byte value)
 {
 	modeRegister = value;
-	checkEnable();
+	checkEnable(); // invalidateMemCache() done below
 
 	if (modeRegister & 0x20) {
 		scc->setChipMode(SCC::SCC_plusmode);
@@ -242,36 +242,12 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 		isRamSegment[2] = true;
 		isRamSegment[3] = true;
 	} else {
-		if (modeRegister & 0x01) {
-			isRamSegment[0] = true;
-		} else {
-			if (isRamSegment[0]) {
-				invalidateMemCache(0x4000, 0x2000);
-				isRamSegment[0] = false;
-			}
-		}
-		if (modeRegister & 0x02) {
-			isRamSegment[1] = true;
-		} else {
-			if (isRamSegment[1]) {
-				invalidateMemCache(0x6000, 0x2000);
-				isRamSegment[1] = false;
-			}
-		}
-		if ((modeRegister & 0x24) == 0x24) {
-			// extra requirement for this bank: SCC+ mode
-			isRamSegment[2] = true;
-		} else {
-			if (isRamSegment[2]) {
-				invalidateMemCache(0x8000, 0x2000);
-				isRamSegment[2] = false;
-			}
-		}
-		if (isRamSegment[3]) {
-			invalidateMemCache(0xA000, 0x2000);
-			isRamSegment[3] = false;
-		}
+		isRamSegment[0] = (modeRegister & 0x01) == 0x01;
+		isRamSegment[1] = (modeRegister & 0x02) == 0x02;
+		isRamSegment[2] = (modeRegister & 0x24) == 0x24; // extra requirement: SCC+ mode
+		isRamSegment[3] = false;
 	}
+	invalidateMemCache(0x4000, 0x8000);
 }
 
 void MSXSCCPlusCart::checkEnable()

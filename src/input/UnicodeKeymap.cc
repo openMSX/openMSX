@@ -112,9 +112,9 @@ UnicodeKeymap::UnicodeKeymap(string_ref keyboardType)
 
 UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
 {
-	auto it = lower_bound(mapdata.begin(), mapdata.end(), unicode,
+	auto it = lower_bound(begin(mapdata), end(mapdata), unicode,
 	                      LessTupleElement<0>());
-	return ((it != mapdata.end()) && (it->first == unicode))
+	return ((it != end(mapdata)) && (it->first == unicode))
 		? it->second : emptyInfo;
 }
 
@@ -124,24 +124,24 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey(unsigned n) const
 	return deadKeys[n];
 }
 
-void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
+void UnicodeKeymap::parseUnicodeKeymapfile(const char* b, const char* e)
 {
-	begin = skipSep(begin, end);
+	b = skipSep(b, e);
 	while (true) {
 		// Find a line containing tokens.
-		while (begin != end && *begin == '\n') {
+		while (b != e && *b == '\n') {
 			// Next line.
-			begin = skipSep(begin + 1, end);
+			b = skipSep(b + 1, e);
 		}
-		if (begin == end) break;
+		if (b == e) break;
 
 		// Parse first token: a unicode value or the keyword DEADKEY.
-		const char* tokenEnd = findSep(begin, end);
+		const char* tokenEnd = findSep(b, e);
 		int unicode = 0;
 		unsigned deadKeyIndex = 0;
-		bool isDeadKey = segmentStartsWith(begin, tokenEnd, "DEADKEY");
+		bool isDeadKey = segmentStartsWith(b, tokenEnd, "DEADKEY");
 		if (isDeadKey) {
-			const char* begin2 = begin + strlen("DEADKEY");
+			const char* begin2 = b + strlen("DEADKEY");
 			if (begin2 == tokenEnd) {
 				// The normal keywords are
 				//    DEADKEY1  DEADKEY2  DEADKEY3
@@ -159,20 +159,20 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 			}
 		} else {
 			bool ok;
-			unicode = parseHex(begin, tokenEnd, ok);
+			unicode = parseHex(b, tokenEnd, ok);
 			if (!ok || unicode > 0xFFFF) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
 		}
-		begin = skipSep(tokenEnd, end);
+		b = skipSep(tokenEnd, e);
 
 		// Parse second token. It must be <ROW><COL>
-		tokenEnd = findSep(begin, end);
-		if (tokenEnd == end) {
+		tokenEnd = findSep(b, e);
+		if (tokenEnd == e) {
 			throw MSXException("Missing <ROW><COL> in unicode file");
 		}
 		bool ok;
-		int rowcol = parseHex(begin, tokenEnd, ok);
+		int rowcol = parseHex(b, tokenEnd, ok);
 		if (!ok || rowcol >= 0x100) {
 			throw MSXException("Wrong rowcol value in keymap file");
 		}
@@ -182,29 +182,29 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 		if ((rowcol & 0x0F) >= 8) {
 			throw MSXException("Too high column value in keymap file");
 		}
-		begin = skipSep(tokenEnd, end);
+		b = skipSep(tokenEnd, e);
 
 		// Parse remaining tokens. It is an optional list of modifier keywords.
 		byte modmask = 0;
-		while (begin != end && *begin != '\n') {
-			tokenEnd = findSep(begin, end);
-			if (segmentEquals(begin, tokenEnd, "SHIFT")) {
+		while (b != e && *b != '\n') {
+			tokenEnd = findSep(b, e);
+			if (segmentEquals(b, tokenEnd, "SHIFT")) {
 				modmask |= 1;
-			} else if (segmentEquals(begin, tokenEnd, "CTRL")) {
+			} else if (segmentEquals(b, tokenEnd, "CTRL")) {
 				modmask |= 2;
-			} else if (segmentEquals(begin, tokenEnd, "GRAPH")) {
+			} else if (segmentEquals(b, tokenEnd, "GRAPH")) {
 				modmask |= 4;
-			} else if (segmentEquals(begin, tokenEnd, "CAPSLOCK")) {
+			} else if (segmentEquals(b, tokenEnd, "CAPSLOCK")) {
 				modmask |= 8;
-			} else if (segmentEquals(begin, tokenEnd, "CODE")) {
+			} else if (segmentEquals(b, tokenEnd, "CODE")) {
 				modmask |= 16;
 			} else {
 				throw MSXException(StringOp::Builder()
 					<< "Invalid modifier \""
-					<< string_ref(begin, tokenEnd)
+					<< string_ref(b, tokenEnd)
 					<< "\" in keymap file");
 			}
-			begin = skipSep(tokenEnd, end);
+			b = skipSep(tokenEnd, e);
 		}
 
 		if (isDeadKey) {
@@ -219,7 +219,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const char* begin, const char* end)
 				modmask));            // modmask
 		}
 	}
-	sort(mapdata.begin(), mapdata.end(), LessTupleElement<0>());
+	sort(begin(mapdata), end(mapdata), LessTupleElement<0>());
 }
 
 } // namespace openmsx

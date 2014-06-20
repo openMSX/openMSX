@@ -492,7 +492,7 @@ public:
 			return;
 		}
 		auto it = sharedPtrMap.find(r);
-		if (it == sharedPtrMap.end()) {
+		if (it == end(sharedPtrMap)) {
 			s.reset(r);
 			sharedPtrMap[r] = s;
 		} else {

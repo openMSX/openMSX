@@ -2,7 +2,6 @@
 #define GLSCALENXSCALER_HH
 
 #include "GLScaler.hh"
-#include "GLUtil.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
@@ -10,17 +9,16 @@ namespace openmsx {
 class GLScaleNxScaler : public GLScaler, private noncopyable
 {
 public:
-	GLScaleNxScaler();
+	explicit GLScaleNxScaler(GLScaler& fallback);
 
 	virtual void scaleImage(
-		ColorTexture& src, ColorTexture* superImpose,
+		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 		unsigned logSrcHeight);
 
 private:
-	ShaderProgram scalerProgram[2];
-	GLint texSizeLoc[2];
+	GLScaler& fallback;
 };
 
 } // namespace openmsx

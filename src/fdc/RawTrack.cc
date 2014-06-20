@@ -113,11 +113,9 @@ vector<RawTrack::Sector> RawTrack::decodeAll() const
 static vector<unsigned> rotateIdam(vector<unsigned> idam, unsigned startIdx)
 {
 	// find first element that is equal or bigger
-	auto it = lower_bound(idam.begin(), idam.end(), startIdx);
+	auto it = lower_bound(begin(idam), end(idam), startIdx);
 	// rotate range so that we start at that element
-	if (it != idam.end()) {
-		rotate(idam.begin(), it, idam.end());
-	}
+	rotate(begin(idam), it, end(idam));
 	return idam;
 }
 

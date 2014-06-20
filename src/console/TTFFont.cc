@@ -3,6 +3,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include "xrange.hh"
 #include <SDL_ttf.h>
 #include <algorithm>
@@ -115,10 +116,10 @@ TTFFontPool& TTFFontPool::instance()
 
 TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 {
-	auto it = find_if(pool.begin(), pool.end(),
+	auto it = find_if(begin(pool), end(pool),
 		[&](const FontInfo& i) {
 			return (i.name == filename) && (i.size == ptSize); });
-	if (it != pool.end()) {
+	if (it != end(pool)) {
 		++it->count;
 		return it->font;
 	}
@@ -140,13 +141,12 @@ TTF_Font* TTFFontPool::get(const string& filename, int ptSize)
 
 void TTFFontPool::release(TTF_Font* font)
 {
-	auto it = find_if(pool.begin(), pool.end(),
+	auto it = find_if_unguarded(pool,
 		[&](const FontInfo& i) { return i.font == font; });
-	assert(it != pool.end());
 	--it->count;
 	if (it->count == 0) {
 		TTF_CloseFont(it->font);
-		if (it != (pool.end() - 1)) std::swap(*it, *(pool.end() - 1));
+		if (it != (end(pool) - 1)) std::swap(*it, *(end(pool) - 1));
 		pool.pop_back();
 	}
 }

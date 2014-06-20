@@ -1,51 +1,30 @@
 #include "GLScaleNxScaler.hh"
 
-using std::string;
-
 namespace openmsx {
 
-GLScaleNxScaler::GLScaleNxScaler()
+GLScaleNxScaler::GLScaleNxScaler(GLScaler& fallback_)
+	: GLScaler("scale2x")
+	, fallback(fallback_)
 {
-	for (int i = 0; i < 2; ++i) {
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  (header, "scale2x.vert");
-		FragmentShader fragmentShader(header, "scale2x.frag");
-		scalerProgram[i].attach(vertexShader);
-		scalerProgram[i].attach(fragmentShader);
-		scalerProgram[i].link();
-
-		scalerProgram[i].activate();
-		glUniform1i(scalerProgram[i].getUniformLocation("tex"), 0);
-		if (i == 1) {
-			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"), 1);
-		}
-		texSizeLoc[i] = scalerProgram[i].getUniformLocation("texSize");
-	}
 }
 
 void GLScaleNxScaler::scaleImage(
-	ColorTexture& src, ColorTexture* superImpose,
+	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
 {
 	if (srcWidth == 320) {
-		int i = superImpose ? 1 : 0;
-		if (superImpose) {
-			glActiveTexture(GL_TEXTURE1);
-			superImpose->bind();
-			glActiveTexture(GL_TEXTURE0);
-		}
-		scalerProgram[i].activate();
-		glUniform2f(texSizeLoc[i], 320.0f, src.getHeight());
-		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-		             dstStartY, dstEndY, dstWidth);
+		setup(superImpose);
+		execute(src, superImpose,
+		        srcStartY, srcEndY, srcWidth,
+		        dstStartY, dstEndY, dstWidth,
+		        logSrcHeight);
 	} else {
-		GLScaler::scaleImage(src, superImpose,
-		                     srcStartY, srcEndY, srcWidth,
-		                     dstStartY, dstEndY, dstWidth,
-		                     logSrcHeight);
+		fallback.scaleImage(src, superImpose,
+		                    srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth,
+		                    logSrcHeight);
 	}
 }
 

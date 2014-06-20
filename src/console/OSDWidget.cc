@@ -161,7 +161,7 @@ OSDWidget* OSDWidget::findSubWidget(string_ref name)
 	string_ref first, last;
 	StringOp::splitOnFirst(name, '.', first, last);
 	auto it = subWidgetsMap.find(first);
-	return it == subWidgetsMap.end() ? nullptr : it->second->findSubWidget(last);
+	return it == end(subWidgetsMap) ? nullptr : it->second->findSubWidget(last);
 }
 
 const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
@@ -186,7 +186,7 @@ void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
 		subWidgets.push_back(widget);
 	} else {
-		auto it = subWidgets.begin();
+		auto it = begin(subWidgets);
 		while ((*it)->getZ() <= z) ++it;
 		subWidgets.insert(it, widget);
 
@@ -196,7 +196,7 @@ void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 void OSDWidget::deleteWidget(OSDWidget& widget)
 {
 	string widgetName = widget.getName();
-	for (auto it = subWidgets.begin(); it != subWidgets.end(); ++it) {
+	for (auto it = begin(subWidgets); it != end(subWidgets); ++it) {
 		if (it->get() == &widget) {
 			subWidgets.erase(it);
 			auto existed = subWidgetsMap.erase(widgetName);
@@ -218,36 +218,36 @@ struct AscendingZ {
 void OSDWidget::resortUp(OSDWidget* elem)
 {
 	// z-coordinate was increased, first search for elements current position
-	auto it1 = subWidgets.begin();
+	auto it1 = begin(subWidgets);
 	while (it1->get() != elem) ++it1;
 	// next search for the position were it belongs
 	double z = elem->getZ();
 	auto it2 = it1;
 	++it2;
-	while ((it2 != subWidgets.end()) && ((*it2)->getZ() < z)) ++it2;
+	while ((it2 != end(subWidgets)) && ((*it2)->getZ() < z)) ++it2;
 	// now move elements to correct position
 	rotate(it1, it1 + 1, it2);
 #ifdef DEBUG
-	assert(std::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
 #endif
 }
 void OSDWidget::resortDown(OSDWidget* elem)
 {
 	// z-coordinate was decreased, first search for new position
-	auto it1 = subWidgets.begin();
+	auto it1 = begin(subWidgets);
 	double z = elem->getZ();
 	while ((*it1)->getZ() <= z) {
 		++it1;
-		if (it1 == subWidgets.end()) return;
+		if (it1 == end(subWidgets)) return;
 	}
 	// next search for the elements current position
 	auto it2 = it1;
-	if ((it2 != subWidgets.begin()) && ((it2 - 1)->get() == elem)) return;
+	if ((it2 != begin(subWidgets)) && ((it2 - 1)->get() == elem)) return;
 	while (it2->get() != elem) ++it2;
 	// now move elements to correct position
 	rotate(it1, it2, it2 + 1);
 #ifdef DEBUG
-	assert(std::is_sorted(subWidgets.begin(), subWidgets.end(), AscendingZ()));
+	assert(std::is_sorted(begin(subWidgets), end(subWidgets), AscendingZ()));
 #endif
 }
 

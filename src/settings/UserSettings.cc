@@ -8,6 +8,7 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "memory.hh"
+#include "stl.hh"
 #include <cassert>
 
 using std::string;
@@ -62,10 +63,8 @@ void UserSettings::addSetting(unique_ptr<Setting> setting)
 
 void UserSettings::deleteSetting(Setting& setting)
 {
-	auto it = find_if(settings.begin(), settings.end(),
-		[&](unique_ptr<Setting>& p) { return p.get() == &setting; });
-	assert(it != settings.end());
-	settings.erase(it);
+	settings.erase(find_if_unguarded(settings,
+		[&](unique_ptr<Setting>& p) { return p.get() == &setting; }));
 }
 
 Setting* UserSettings::findSetting(string_ref name) const

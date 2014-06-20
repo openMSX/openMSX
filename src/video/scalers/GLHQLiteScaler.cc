@@ -13,26 +13,14 @@ using std::string;
 
 namespace openmsx {
 
-GLHQLiteScaler::GLHQLiteScaler()
+GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
+	: GLScaler("hqlite")
+	, fallback(fallback_)
 {
 	for (int i = 0; i < 2; ++i) {
-		string header = string("#define SUPERIMPOSE ")
-		              + char('0' + i) + '\n';
-		VertexShader   vertexShader  (header, "hqlite.vert");
-		FragmentShader fragmentShader(header, "hqlite.frag");
-		scalerProgram[i].attach(vertexShader);
-		scalerProgram[i].attach(fragmentShader);
-		scalerProgram[i].link();
-
-		scalerProgram[i].activate();
-		glUniform1i(scalerProgram[i].getUniformLocation("colorTex"),  0);
-		if (i == 1) {
-			glUniform1i(scalerProgram[i].getUniformLocation("videoTex"),  1);
-		}
-		glUniform1i(scalerProgram[i].getUniformLocation("edgeTex"),   2);
-		glUniform1i(scalerProgram[i].getUniformLocation("offsetTex"), 3);
-		glUniform2f(scalerProgram[i].getUniformLocation("texSize"),
-		            320.0f, 240.0f);
+		program[i].activate();
+		glUniform1i(program[i].getUniformLocation("edgeTex"),   2);
+		glUniform1i(program[i].getUniformLocation("offsetTex"), 3);
 	}
 
 	edgeTexture.bind();
@@ -72,7 +60,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 }
 
 void GLHQLiteScaler::scaleImage(
-	ColorTexture& src, ColorTexture* superImpose,
+	gl::ColorTexture& src, gl::ColorTexture* superImpose,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
 	unsigned logSrcHeight)
@@ -80,28 +68,24 @@ void GLHQLiteScaler::scaleImage(
 	unsigned factorX = dstWidth / srcWidth; // 1 - 4
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
-	auto& prog = scalerProgram[superImpose ? 1 : 0];
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
+		setup(superImpose);
 		src.enableInterpolation();
 		glActiveTexture(GL_TEXTURE3);
 		offsetTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
 		edgeTexture.bind();
-		if (superImpose) {
-			glActiveTexture(GL_TEXTURE1);
-			superImpose->bind();
-		}
 		glActiveTexture(GL_TEXTURE0);
-		prog.activate();
-		//prog.validate();
-		drawMultiTex(src, srcStartY, srcEndY, src.getHeight(), logSrcHeight,
-		             dstStartY, dstEndY, dstWidth);
+		execute(src, superImpose,
+		        srcStartY, srcEndY, srcWidth,
+		        dstStartY, dstEndY, dstWidth,
+		        logSrcHeight);
 		src.disableInterpolation();
 	} else {
-		GLScaler::scaleImage(src, superImpose,
-		                     srcStartY, srcEndY, srcWidth,
-		                     dstStartY, dstEndY, dstWidth,
-		                     logSrcHeight);
+		fallback.scaleImage(src, superImpose,
+		                    srcStartY, srcEndY, srcWidth,
+		                    dstStartY, dstEndY, dstWidth,
+		                    logSrcHeight);
 	}
 }
 

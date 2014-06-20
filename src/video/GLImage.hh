@@ -20,7 +20,6 @@ public:
 	GLImage(int width, int height, unsigned rgba);
 	GLImage(int width, int height, const unsigned* rgba,
 	        int borderSize, unsigned borderRGBA);
-	virtual ~GLImage();
 
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255);
@@ -28,7 +27,7 @@ public:
 	virtual int getHeight() const;
 
 private:
-	GLuint texture;
+	gl::Texture texture;
 	int width;
 	int height;
 	GLfloat texCoord[4];

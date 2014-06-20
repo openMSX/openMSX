@@ -31,7 +31,7 @@ vector<string_ref> OSDRectangle::getProperties() const
 		"-w", "-h", "-relw", "-relh", "-scale", "-image",
 		"-bordersize", "-relbordersize", "-borderrgba",
 	};
-	result.insert(result.end(), std::begin(vals), std::end(vals));
+	result.insert(end(result), std::begin(vals), std::end(vals));
 	return result;
 }
 

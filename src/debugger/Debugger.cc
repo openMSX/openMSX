@@ -15,6 +15,7 @@
 #include "MemBuffer.hh"
 #include "StringOp.hh"
 #include "KeyRange.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <cassert>
@@ -122,7 +123,7 @@ void Debugger::setCPU(MSXCPU* cpu_)
 
 void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
 {
-	assert(debuggables.find(name) == debuggables.end());
+	assert(debuggables.find(name) == end(debuggables));
 	debuggables[name] = &debuggable;
 }
 
@@ -130,14 +131,14 @@ void Debugger::unregisterDebuggable(string_ref name, Debuggable& debuggable)
 {
 	(void)debuggable;
 	auto it = debuggables.find(name);
-	assert(it != debuggables.end() && (it->second == &debuggable));
+	assert(it != end(debuggables) && (it->second == &debuggable));
 	debuggables.erase(it);
 }
 
 Debuggable* Debugger::findDebuggable(string_ref name)
 {
 	auto it = debuggables.find(name);
-	return (it != debuggables.end()) ? it->second : nullptr;
+	return (it != end(debuggables)) ? it->second : nullptr;
 }
 
 Debuggable& Debugger::getDebuggable(string_ref name)
@@ -151,7 +152,7 @@ Debuggable& Debugger::getDebuggable(string_ref name)
 
 void Debugger::registerProbe(string_ref name, ProbeBase& probe)
 {
-	assert(probes.find(name) == probes.end());
+	assert(probes.find(name) == end(probes));
 	probes[name] = &probe;
 }
 
@@ -159,14 +160,14 @@ void Debugger::unregisterProbe(string_ref name, ProbeBase& probe)
 {
 	(void)probe;
 	auto it = probes.find(name);
-	assert(it != probes.end() && (it->second == &probe));
+	assert(it != end(probes) && (it->second == &probe));
 	probes.erase(it);
 }
 
 ProbeBase* Debugger::findProbe(string_ref name)
 {
 	auto it = probes.find(name);
-	return (it != probes.end()) ? it->second : nullptr;
+	return (it != end(probes)) ? it->second : nullptr;
 }
 
 ProbeBase& Debugger::getProbe(string_ref name)
@@ -195,34 +196,30 @@ void Debugger::removeProbeBreakPoint(string_ref name)
 	if (name.starts_with("pp#")) {
 		// remove by id
 		unsigned id = stoi(name.substr(3));
-		for (auto it = probeBreakPoints.begin();
-		     it != probeBreakPoints.end(); ++it) {
-			if ((*it)->getId() == id) {
-				probeBreakPoints.erase(it);
-				return;
-			}
+		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
+			[&](std::unique_ptr<ProbeBreakPoint>& e)
+				{ return e->getId() == id; });
+		if (it == end(probeBreakPoints)) {
+			throw CommandException("No such breakpoint: " + name);
 		}
-		throw CommandException("No such breakpoint: " + name);
+		probeBreakPoints.erase(it);
 	} else {
 		// remove by probe, only works for unconditional bp
-		for (auto it = probeBreakPoints.begin();
-		     it != probeBreakPoints.end(); ++it) {
-			if ((*it)->getProbe().getName() == name) {
-				probeBreakPoints.erase(it);
-				return;
-			}
+		auto it = find_if(begin(probeBreakPoints), end(probeBreakPoints),
+			[&](std::unique_ptr<ProbeBreakPoint>& e)
+				{ return e->getProbe().getName() == name; });
+		if (it == end(probeBreakPoints)) {
+			throw CommandException(
+				"No (unconditional) breakpoint for probe: " + name);
 		}
-		throw CommandException(
-			"No (unconditional) breakpoint for probe: " + name);
+		probeBreakPoints.erase(it);
 	}
 }
 
 void Debugger::removeProbeBreakPoint(ProbeBreakPoint& bp)
 {
-	auto it = std::find_if(probeBreakPoints.begin(), probeBreakPoints.end(),
-		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; });
-	assert(it != probeBreakPoints.end());
-	probeBreakPoints.erase(it);
+	probeBreakPoints.erase(find_if_unguarded(probeBreakPoints,
+		[&](ProbeBreakPoints::value_type& v) { return v.get() == &bp; }));
 }
 
 unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
@@ -519,17 +516,17 @@ void DebugCmd::removeBreakPoint(const vector<TclObject>& tokens,
 	if (tmp.starts_with("bp#")) {
 		// remove by id
 		unsigned id = stoi(tmp.substr(3));
-		auto it = find_if(breakPoints.begin(), breakPoints.end(),
+		auto it = find_if(begin(breakPoints), end(breakPoints),
 			[&](const shared_ptr<BreakPoint>& bp) {
 				return bp->getId() == id; });
-		if (it == breakPoints.end()) {
+		if (it == end(breakPoints)) {
 			throw CommandException("No such breakpoint: " + tmp);
 		}
 		interface.removeBreakPoint(**it);
 	} else {
 		// remove by addr, only works for unconditional bp
 		word addr = getAddress(tokens);
-		auto range = equal_range(breakPoints.begin(), breakPoints.end(),
+		auto range = equal_range(begin(breakPoints), end(breakPoints),
 		                         addr, CompareBreakpoints());
 		auto it = find_if(range.first, range.second,
 			[&](const shared_ptr<BreakPoint>& bp) {
@@ -1140,12 +1137,9 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 		break;
 	}
 	case 3:
-		if (find(begin(singleArgCmds), end(singleArgCmds), tokens[1]) ==
-		    end(singleArgCmds)) {
+		if (!contains(singleArgCmds, tokens[1])) {
 			// this command takes (an) argument(s)
-			if (find(begin(debuggableArgCmds), end(debuggableArgCmds),
-			         tokens[1]) !=
-			    end(debuggableArgCmds)) {
+			if (contains(debuggableArgCmds, tokens[1])) {
 				// it takes a debuggable here
 				completeString(tokens, keys(debugger.debuggables));
 			} else if (tokens[1] == "remove_bp") {

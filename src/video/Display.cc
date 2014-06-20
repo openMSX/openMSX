@@ -28,6 +28,7 @@
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "memory.hh"
 #include <algorithm>
@@ -179,15 +180,13 @@ CommandConsole& Display::getCommandConsole()
 
 void Display::attach(VideoSystemChangeListener& listener)
 {
-	assert(count(listeners.begin(), listeners.end(), &listener) == 0);
+	assert(!contains(listeners, &listener));
 	listeners.push_back(&listener);
 }
 
 void Display::detach(VideoSystemChangeListener& listener)
 {
-	auto it = find(listeners.begin(), listeners.end(), &listener);
-	assert(it != listeners.end());
-	listeners.erase(it);
+	listeners.erase(find_unguarded(listeners, &listener));
 }
 
 Layer* Display::findActiveLayer() const
@@ -204,9 +203,9 @@ Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is
 	//       low at the moment, it's not really worth it.
-	auto it = layers.end();
+	auto it = end(layers);
 	while (true) {
-		if (it == layers.begin()) {
+		if (it == begin(layers)) {
 			// There should always be at least one opaque layer.
 			// TODO: This is not true for DummyVideoSystem.
 			//       Anyway, a missing layer will probably stand out visually,
@@ -396,7 +395,7 @@ void Display::repaint()
 
 void Display::repaint(OutputSurface& surface)
 {
-	for (auto it = baseLayer(); it != layers.end(); ++it) {
+	for (auto it = baseLayer(); it != end(layers); ++it) {
 		if ((*it)->getCoverage() != Layer::COVER_NONE) {
 			(*it)->paint(surface);
 		}
@@ -415,20 +414,15 @@ void Display::repaintDelayed(uint64_t delta)
 void Display::addLayer(Layer& layer)
 {
 	int z = layer.getZ();
-	auto it = layers.begin();
-	while (it != layers.end() && (*it)->getZ() < z) {
-		++it;
-	}
-
+	auto it = find_if(begin(layers), end(layers),
+		[&](Layer* l) { return l->getZ() > z; });
 	layers.insert(it, &layer);
 	layer.setDisplay(*this);
 }
 
 void Display::removeLayer(Layer& layer)
 {
-	auto it = std::find(layers.begin(), layers.end(), &layer);
-	assert(it != layers.end());
-	layers.erase(it);
+	layers.erase(find_unguarded(layers, &layer));
 }
 
 void Display::updateZ(Layer& layer)
@@ -459,8 +453,8 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	for (unsigned i = 1; i < tokens.size(); ++i) {
 		if (StringOp::startsWith(tokens[i], '-')) {
 			if (tokens[i] == "--") {
-				arguments.insert(arguments.end(),
-					tokens.begin() + i + 1, tokens.end());
+				arguments.insert(end(arguments),
+					begin(tokens) + i + 1, end(tokens));
 				break;
 			}
 			if (tokens[i] == "-prefix") {

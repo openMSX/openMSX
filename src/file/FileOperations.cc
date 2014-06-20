@@ -317,18 +317,17 @@ int deleteRecursive(const std::string& path)
 }
 #endif
 
-FILE* openFile(const std::string& filename, const std::string& mode)
+FILE_t openFile(const std::string& filename, const std::string& mode)
 {
 	// Mode must contain a 'b' character. On unix this doesn't make any
 	// difference. But on windows this is required to open the file
 	// in binary mode.
 	assert(mode.find('b') != std::string::npos);
 #ifdef _WIN32
-	return _wfopen(
-		utf8to16(filename).c_str(),
-		utf8to16(mode).c_str());
+	return FILE_t(_wfopen(utf8to16(filename).c_str(),
+	                      utf8to16(mode).c_str()));
 #else
-	return fopen(filename.c_str(), mode.c_str());
+	return FILE_t(fopen(filename.c_str(), mode.c_str()));
 #endif
 }
 
@@ -421,7 +420,7 @@ string getNativePath(string_ref path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(result.begin(), result.end(), '/', '\\');
+	replace(begin(result), end(result), '/', '\\');
 #endif
 	return result;
 }
@@ -430,7 +429,7 @@ string getConventionalPath(string_ref path)
 {
 	string result = path.str();
 #ifdef _WIN32
-	replace(result.begin(), result.end(), '\\', '/');
+	replace(begin(result), end(result), '\\', '/');
 #endif
 	return result;
 }
@@ -755,7 +754,7 @@ string getTempDir()
 #endif
 }
 
-FILE* openUniqueFile(const std::string& directory, std::string& filename)
+FILE_t openUniqueFile(const std::string& directory, std::string& filename)
 {
 #ifdef _WIN32
 	std::wstring directoryW = utf8to16(directory);
@@ -765,16 +764,15 @@ FILE* openUniqueFile(const std::string& directory, std::string& filename)
 			"GetTempFileNameW failed: " << GetLastError());
 	}
 	filename = utf16to8(filenameW);
-	FILE* fp = _wfopen(filenameW, L"wb");
+	return FILE_t(_wfopen(filenameW, L"wb"));
 #else
 	filename = directory + "/XXXXXX";
 	int fd = mkstemp(const_cast<char*>(filename.c_str()));
 	if (fd == -1) {
 		throw FileException("Coundn't get temp file name");
 	}
-	FILE* fp = fdopen(fd, "wb");
+	return FILE_t(fdopen(fd, "wb"));
 #endif
-	return fp;
 }
 
 } // namespace FileOperations

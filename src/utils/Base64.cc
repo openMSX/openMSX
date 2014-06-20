@@ -38,14 +38,18 @@ static inline byte decode(unsigned char c)
 
 string encode(const void* input_, size_t inSize)
 {
+	static const int CHUNKS = 19;
+	static const int IN_CHUNKS  = 3 * CHUNKS;
+	static const int OUT_CHUNKS = 4 * CHUNKS; // 76 chars per line
+
 	auto input = static_cast<const byte*>(input_);
-	auto outSize = ((inSize + 44) / 45) * 61; // overestimation
+	auto outSize = ((inSize + (IN_CHUNKS - 1)) / IN_CHUNKS) * (OUT_CHUNKS + 1); // overestimation
 	string ret(outSize, 0); // too big
 
 	size_t out = 0;
 	while (inSize) {
-		if (!ret.empty()) ret += '\n';
-		auto n2 = std::min<size_t>(45, inSize);
+		if (out) ret[out++] = '\n';
+		auto n2 = std::min<size_t>(IN_CHUNKS, inSize);
 		auto n = unsigned(n2);
 		for (/**/; n >= 3; n -= 3) {
 			ret[out++] = encode( (input[0] & 0xfc) >> 2);

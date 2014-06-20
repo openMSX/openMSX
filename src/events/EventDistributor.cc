@@ -28,7 +28,7 @@ void EventDistributor::registerEventListener(
 		assert(p.second != &listener); (void)p;
 	}
 	// insert at highest position that keeps listeners sorted on priority
-	auto it = upper_bound(priorityMap.begin(), priorityMap.end(), priority,
+	auto it = upper_bound(begin(priorityMap), end(priorityMap), priority,
 	                      LessTupleElement<0>());
 	priorityMap.insert(it, {priority, &listener});
 }
@@ -38,10 +38,8 @@ void EventDistributor::unregisterEventListener(
 {
 	ScopedLock lock(sem);
 	auto& priorityMap = listeners[type];
-	auto it = find_if(priorityMap.begin(), priorityMap.end(),
-		[&](PriorityMap::value_type v) { return v.second == &listener; });
-	assert(it != priorityMap.end());
-	priorityMap.erase(it);
+	priorityMap.erase(find_if_unguarded(priorityMap,
+		[&](PriorityMap::value_type v) { return v.second == &listener; }));
 }
 
 void EventDistributor::distributeEvent(const EventPtr& event)

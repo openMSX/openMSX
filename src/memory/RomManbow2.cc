@@ -13,18 +13,23 @@
 
 namespace openmsx {
 
-static unsigned getWriteProtected(RomType type)
+static std::vector<AmdFlash::SectorInfo> getSectorInfo(RomType type)
 {
+	std::vector<AmdFlash::SectorInfo> sectorInfo(512 / 64, {0x10000, true}); // none writable
 	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC) || (type == ROM_MANBOW2_2) || (type == ROM_HAMARAJANIGHT));
 	switch (type) {
 	case ROM_MANBOW2:
-	case ROM_MANBOW2_2:
-		return 0x7F; // only the last 64kb is writeable
-	case ROM_HAMARAJANIGHT:
-		return 0xCF; // only 128kb is writeable
-	default:
-		return 0x00; // fully writeable
+	case ROM_MANBOW2_2: // only the last 64kb is writeable
+		sectorInfo[7].writeProtected = false;
+		break;
+	case ROM_HAMARAJANIGHT: // only 128kb is writeable
+		sectorInfo[4].writeProtected = false;
+		sectorInfo[5].writeProtected = false;
+		break;
+	default: // fully writeable
+		for (auto& i : sectorInfo) i.writeProtected = false;
 	}
+	return sectorInfo;
 }
 
 
@@ -38,8 +43,7 @@ RomManbow2::RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom_,
 			config, getCurrentTime())
 		: nullptr)
 	, flash(make_unique<AmdFlash>(
-		*rom, std::vector<unsigned>(512 / 64, 0x10000),
-		getWriteProtected(type), 0x01A4, config))
+		*rom, getSectorInfo(type), 0x01A4, false, config))
 	, romBlockDebug(make_unique<RomBlockDebuggable>(
 		*this, bank, 0x4000, 0x8000, 13))
 {

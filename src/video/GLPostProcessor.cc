@@ -1,4 +1,5 @@
 #include "GLPostProcessor.hh"
+#include "GLContext.hh"
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
@@ -9,11 +10,14 @@
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "InitException.hh"
+#include "gl_transform.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include <algorithm>
 #include <random>
 #include <cassert>
+
+using namespace gl;
 
 namespace openmsx {
 
@@ -73,8 +77,15 @@ GLPostProcessor::GLPostProcessor(
 		fbo[i] = FrameBufferObject(colorTex[i]);
 	}
 
-	monitor3DList = glGenLists(1);
-	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getDouble());
+	VertexShader   vertexShader  ("monitor3D.vert");
+	FragmentShader fragmentShader("monitor3D.frag");
+	monitor3DProg.attach(vertexShader);
+	monitor3DProg.attach(fragmentShader);
+	monitor3DProg.bindAttribLocation(0, "a_position");
+	monitor3DProg.bindAttribLocation(1, "a_normal");
+	monitor3DProg.bindAttribLocation(2, "a_texCoord");
+	monitor3DProg.link();
+	preCalcMonitor3D(renderSettings.getHorizontalStretch().getDouble());
 
 	renderSettings.getNoise().attach(*this);
 	renderSettings.getHorizontalStretch().attach(*this);
@@ -84,8 +95,6 @@ GLPostProcessor::~GLPostProcessor()
 {
 	renderSettings.getHorizontalStretch().detach(*this);
 	renderSettings.getNoise().detach(*this);
-
-	glDeleteLists(monitor3DList, 1);
 }
 
 void GLPostProcessor::createRegions()
@@ -185,9 +194,8 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	for (auto& r : regions) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	r.srcStartY, r.srcEndY, r.lineWidth);
-		auto it = find_if(textures.begin(), textures.end(),
+		auto it = find_if_unguarded(textures,
 		                  EqualTupleValue<0>(r.lineWidth));
-		assert(it != textures.end());
 		auto superImpose = superImposeVideoFrame
 		                 ? &superImposeTex : nullptr;
 		currScaler->scaleImage(
@@ -198,8 +206,6 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
-	ShaderProgram::deactivate();
-
 	drawNoise();
 	drawGlow(glow);
 
@@ -209,22 +215,32 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		glViewport(screen.getX(), screen.getY(),
 		           screen.getWidth(), screen.getHeight());
 
-		glEnable(GL_TEXTURE_2D);
 		if (deform == RenderSettings::DEFORM_3D) {
-			glCallList(monitor3DList);
+			drawMonitor3D();
 		} else {
-			glBegin(GL_QUADS);
-			int w = screen.getWidth();
-			int h = screen.getHeight();
-			GLfloat x1 = (320.0f - GLfloat(horStretch)) / (2.0f * 320.0f);
-			GLfloat x2 = 1.0f - x1;
-			glTexCoord2f(x1, 0.0f); glVertex2i(0, h);
-			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0);
-			glTexCoord2f(x2, 1.0f); glVertex2i(w, 0);
-			glTexCoord2f(x2, 0.0f); glVertex2i(w, h);
-			glEnd();
+			float x1 = (320.0f - float(horStretch)) / (2.0f * 320.0f);
+			float x2 = 1.0f - x1;
+
+			static const vec2 pos[4] = {
+				vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
+			};
+			vec2 tex[4] = {
+				vec2(x1, 1), vec2(x1, 0), vec2(x2, 0), vec2(x2, 1)
+			};
+
+			gl::context->progTex.activate();
+			glUniform4f(gl::context->unifTexColor,
+			            1.0f, 1.0f, 1.0f, 1.0f);
+			mat4 I;
+			glUniformMatrix4fv(gl::context->unifTexMvp,
+			                   1, GL_FALSE, &I[0][0]);
+			glDisable(GL_BLEND);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+			glEnableVertexAttribArray(0);
+			glEnableVertexAttribArray(1);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		}
-		glDisable(GL_TEXTURE_2D);
 		storedFrame = true;
 	} else {
 		storedFrame = false;
@@ -251,7 +267,7 @@ void GLPostProcessor::update(const Setting& setting)
 	if (&setting == &noiseSetting) {
 		preCalcNoise(noiseSetting.getDouble());
 	} else if (&setting == &horizontalStretch) {
-		preCalc3DDisplayList(horizontalStretch.getDouble());
+		preCalcMonitor3D(horizontalStretch.getDouble());
 	}
 }
 
@@ -296,9 +312,9 @@ void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
 	// create texture/pbo if needed
-	auto it = find_if(textures.begin(), textures.end(),
+	auto it = find_if(begin(textures), end(textures),
 	                  EqualTupleValue<0>(lineWidth));
-	if (it == textures.end()) {
+	if (it == end(textures)) {
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
@@ -309,7 +325,7 @@ void GLPostProcessor::uploadBlock(
 		}
 
 		textures.emplace_back(lineWidth, std::move(textureData));
-		it = textures.end() - 1;
+		it = end(textures) - 1;
 	}
 	auto& tex = it->second.tex;
 	auto& pbo = it->second.pbo;
@@ -392,22 +408,27 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	colorTex[(frameCounter & 1) ^ 1].bind();
-	glEnable(GL_TEXTURE_2D);
+	static const vec2 pos[4] = {
+		vec2(-1, 1), vec2(-1,-1), vec2( 1,-1), vec2( 1, 1)
+	};
+	static const vec2 tex[4] = {
+		vec2( 0, 1), vec2( 0, 0), vec2( 1, 0), vec2( 1, 1)
+	};
+
+	gl::context->progTex.activate();
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBegin(GL_QUADS);
-	GLfloat alpha = glow * 31 / 3200.0f;
-	glColor4f(0.0f, 0.0f, 0.0f, alpha);
-	int w = screen.getWidth();
-	int h = screen.getHeight();
-	glTexCoord2i(0, 0); glVertex2i(0, h);
-	glTexCoord2i(0, 1); glVertex2i(0, 0);
-	glTexCoord2i(1, 1); glVertex2i(w, 0);
-	glTexCoord2i(1, 0); glVertex2i(w, h);
-	glEnd();
+	colorTex[(frameCounter & 1) ^ 1].bind();
+	glUniform4f(gl::context->unifTexColor,
+	            1.0f, 1.0f, 1.0f, glow * 31 / 3200.0f);
+	mat4 I;
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
 }
 
 void GLPostProcessor::preCalcNoise(float factor)
@@ -432,124 +453,148 @@ void GLPostProcessor::drawNoise()
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.
-	static const int coord[8][4][2] = {
-		{ {   0,   0 }, { 320,   0 }, { 320, 240 }, {   0, 240 } },
-		{ {   0, 240 }, { 320, 240 }, { 320,   0 }, {   0,   0 } },
-		{ {   0, 240 }, {   0,   0 }, { 320,   0 }, { 320, 240 } },
-		{ { 320, 240 }, { 320,   0 }, {   0,   0 }, {   0, 240 } },
-		{ { 320, 240 }, {   0, 240 }, {   0,   0 }, { 320,   0 } },
-		{ { 320,   0 }, {   0,   0 }, {   0, 240 }, { 320, 240 } },
-		{ { 320,   0 }, { 320, 240 }, {   0, 240 }, {   0,   0 } },
-		{ {   0,   0 }, {   0, 240 }, { 320, 240 }, { 320,   0 } }
+	static const vec2 pos[8][4] = {
+		{ { -1, -1 }, {  1, -1 }, {  1,  1 }, { -1,  1 } },
+		{ { -1,  1 }, {  1,  1 }, {  1, -1 }, { -1, -1 } },
+		{ { -1,  1 }, { -1, -1 }, {  1, -1 }, {  1,  1 } },
+		{ {  1,  1 }, {  1, -1 }, { -1, -1 }, { -1,  1 } },
+		{ {  1,  1 }, { -1,  1 }, { -1, -1 }, {  1, -1 } },
+		{ {  1, -1 }, { -1, -1 }, { -1,  1 }, {  1,  1 } },
+		{ {  1, -1 }, {  1,  1 }, { -1,  1 }, { -1, -1 } },
+		{ { -1, -1 }, { -1,  1 }, {  1,  1 }, {  1, -1 } }
 	};
-	int zoom = renderSettings.getScaleFactor().getInt();
+	vec2 noise(noiseX, noiseY);
+	const vec2 tex[4] = {
+		noise + vec2(0.0f, 1.875f),
+		noise + vec2(2.0f, 1.875f),
+		noise + vec2(2.0f, 0.0f  ),
+		noise + vec2(0.0f, 0.0f  )
+	};
 
-	unsigned seq = frameCounter & 7;
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	gl::context->progTex.activate();
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	mat4 I;
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE, &I[0][0]);
+
+	unsigned seq = frameCounter & 7;
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos[seq]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
 	noiseTextureA.bind();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
-	glEnd();
-	// Note: If glBlendEquation is not present, the second noise texture will
-	//       be added instead of subtracted, which means there will be no noise
-	//       on white pixels. A pity, but it's better than no noise at all.
-	if (glBlendEquation) glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	noiseTextureB.bind();
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][0][0] * zoom, coord[seq][0][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 1.875f + GLfloat(noiseY));
-	glVertex2i(coord[seq][1][0] * zoom, coord[seq][1][1] * zoom);
-	glTexCoord2f(2.5f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][2][0] * zoom, coord[seq][2][1] * zoom);
-	glTexCoord2f(0.0f + GLfloat(noiseX), 0.000f + GLfloat(noiseY));
-	glVertex2i(coord[seq][3][0] * zoom, coord[seq][3][1] * zoom);
-	glEnd();
-	glPopAttrib();
-	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glBlendEquation(GL_FUNC_ADD); // restore default
 }
 
-void GLPostProcessor::preCalc3DDisplayList(double width)
+static const int GRID_SIZE = 16;
+static const int GRID_SIZE1 = GRID_SIZE + 1;
+static const int NUM_INDICES = (GRID_SIZE1 * 2 + 2) * GRID_SIZE - 2;
+struct Vertex {
+	vec3 position;
+	vec3 normal;
+	vec2 tex;
+};
+
+void GLPostProcessor::preCalcMonitor3D(float width)
 {
-	// generate display list for 3d deform
-	static const int GRID_SIZE = 16;
-	struct Point {
-		GLfloat vx, vy, vz;
-		GLfloat nx, ny, nz;
-		GLfloat tx, ty;
-	} points[GRID_SIZE + 1][GRID_SIZE + 1];
-	const int GRID_SIZE2 = GRID_SIZE / 2;
-	GLfloat s = GLfloat(width) / 320.0f;
-	GLfloat b = (320.0f - GLfloat(width)) / (2.0f * 320.0f);
+	// precalculate vertex-positions, -normals and -texture-coordinates
+	Vertex vertices[GRID_SIZE1][GRID_SIZE1];
 
-	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
-		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
-			Point& p = points[sx][sy];
-			GLfloat x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
-			GLfloat y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
+	static const float GRID_SIZE2 = float(GRID_SIZE) / 2.0f;
+	float s = width / 320.0f;
+	float b = (320.0f - width) / (2.0f * 320.0f);
 
-			p.vx = x;
-			p.vy = y;
-			p.vz = (x * x + y * y) / -12.0f;
+	for (int sx = 0; sx < GRID_SIZE1; ++sx) {
+		for (int sy = 0; sy < GRID_SIZE1; ++sy) {
+			Vertex& v = vertices[sx][sy];
+			float x = (sx - GRID_SIZE2) / GRID_SIZE2;
+			float y = (sy - GRID_SIZE2) / GRID_SIZE2;
 
-			p.nx = x / 6.0f;
-			p.ny = y / 6.0f;
-			p.nz = 1.0f;      // note: not normalized
-
-			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
-			p.ty = GLfloat(sy) / GRID_SIZE;
+			v.position = vec3(x, y, (x * x + y * y) / -12.0f);
+			v.normal = normalize(vec3(x / 6.0f, y / 6.0f, 1.0f)) * 1.2f;
+			v.tex = vec2((float(sx) / GRID_SIZE) * s + b,
+			              float(sy) / GRID_SIZE);
 		}
 	}
 
-	GLfloat LightDiffuse[]= { 1.2f, 1.2f, 1.2f, 1.2f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_NORMALIZE);
+	// calculate indices
+	unsigned short indices[NUM_INDICES];
 
-	glNewList(monitor3DList, GL_COMPILE);
-	glEnable(GL_LIGHTING);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glFrustum(-1, 1, -1, 1, 1, 10);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.4f, -2.0f);
-	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
-	glScalef(2.2f, 2.2f, 2.2f);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	unsigned short* ind = indices;
 	for (int y = 0; y < GRID_SIZE; ++y) {
-		glBegin(GL_TRIANGLE_STRIP);
-		for (int x = 0; x < (GRID_SIZE + 1); ++x) {
-			Point& p1 = points[x][y + 0];
-			Point& p2 = points[x][y + 1];
-			glTexCoord2f(p1.tx, p1.ty);
-			glNormal3f  (p1.nx, p1.ny, p1.nz);
-			glVertex3f  (p1.vx, p1.vy, p1.vz);
-			glTexCoord2f(p2.tx, p2.ty);
-			glNormal3f  (p2.nx, p2.ny, p2.nz);
-			glVertex3f  (p2.vx, p2.vy, p2.vz);
+		for (int x = 0; x < GRID_SIZE1; ++x) {
+			*ind++ = (y + 0) * GRID_SIZE1 + x;
+			*ind++ = (y + 1) * GRID_SIZE1 + x;
 		}
-		glEnd();
+		// skip 2, filled in later
+		ind += 2;
 	}
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glDisable(GL_LIGHTING);
-	glEndList();
+	assert((ind - indices) == NUM_INDICES + 2);
+	ind = indices;
+	for (int y = 0; y < (GRID_SIZE - 1); ++y) {
+		ind += 2 * GRID_SIZE1;
+		// repeat prev and next index to restart strip
+		ind[0] = ind[-1];
+		ind[1] = ind[ 2];
+		ind += 2;
+	}
+
+	// upload calculated values to buffers
+	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+	             GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+	             GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// calculate transformation matrices
+	mat4 proj = frustum(-1, 1, -1, 1, 1, 10);
+	mat4 tran = translate(vec3(0.0f, 0.4f, -2.0f));
+	mat4 rotx = rotateX(radians(-10.0f));
+	mat4 scal = scale(vec3(2.2f, 2.2f, 2.2f));
+
+	mat3 normal = mat3(rotx);
+	mat4 mvp = proj * tran * rotx * scal;
+
+	// set uniforms
+	monitor3DProg.activate();
+	glUniform1i(monitor3DProg.getUniformLocation("u_tex"), 0);
+	glUniformMatrix4fv(monitor3DProg.getUniformLocation("u_mvpMatrix"),
+		1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix3fv(monitor3DProg.getUniformLocation("u_normalMatrix"),
+		1, GL_FALSE, &normal[0][0]);
+}
+
+void GLPostProcessor::drawMonitor3D()
+{
+	monitor3DProg.activate();
+
+	char* base = nullptr;
+	glBindBuffer(GL_ARRAY_BUFFER, arrayBuffer.get());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer.get());
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+	                      base + sizeof(vec3) + sizeof(vec3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glDrawElements(GL_TRIANGLE_STRIP, NUM_INDICES, GL_UNSIGNED_SHORT, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 } // namespace openmsx

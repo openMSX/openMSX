@@ -143,7 +143,7 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 
 void Interpreter::registerCommand(const string& name, Command& command)
 {
-	assert(commandTokenMap.find(name) == commandTokenMap.end());
+	assert(commandTokenMap.find(name) == end(commandTokenMap));
 	commandTokenMap[name] = Tcl_CreateObjCommand(
 		interp, name.c_str(), commandProc,
 		static_cast<ClientData>(&command), nullptr);
@@ -152,7 +152,7 @@ void Interpreter::registerCommand(const string& name, Command& command)
 void Interpreter::unregisterCommand(string_ref name, Command& /*command*/)
 {
 	auto it = commandTokenMap.find(name);
-	assert(it != commandTokenMap.end());
+	assert(it != end(commandTokenMap));
 	Tcl_DeleteCommandFromToken(interp, it->second);
 	commandTokenMap.erase(it);
 }
@@ -321,9 +321,7 @@ void Interpreter::registerSetting(BaseSetting& variable, const string& name)
 
 void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
 {
-	auto it = find_if(traces.begin(), traces.end(),
-	                  EqualTupleValue<1>(&variable));
-	assert(it != traces.end());
+	auto it = find_if_unguarded(traces, EqualTupleValue<1>(&variable));
 	uintptr_t traceID = it->first;
 	traces.erase(it);
 
@@ -335,9 +333,9 @@ void Interpreter::unregisterSetting(BaseSetting& variable, const string& name)
 
 static BaseSetting* getTraceSetting(uintptr_t traceID)
 {
-	auto it = lower_bound(traces.begin(), traces.end(), traceID,
+	auto it = lower_bound(begin(traces), end(traces), traceID,
 	                      LessTupleElement<0>());
-	return ((it != traces.end()) && (it->first == traceID))
+	return ((it != end(traces)) && (it->first == traceID))
 		? it->second : nullptr;
 }
 

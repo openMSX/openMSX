@@ -1,6 +1,7 @@
 #include "StateChangeDistributor.hh"
 #include "StateChangeListener.hh"
 #include "StateChange.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -19,8 +20,7 @@ StateChangeDistributor::~StateChangeDistributor()
 
 bool StateChangeDistributor::isRegistered(StateChangeListener* listener) const
 {
-	return find(listeners.begin(), listeners.end(), listener) !=
-	       listeners.end();
+	return contains(listeners, listener);
 }
 
 void StateChangeDistributor::registerListener(StateChangeListener& listener)
@@ -31,8 +31,7 @@ void StateChangeDistributor::registerListener(StateChangeListener& listener)
 
 void StateChangeDistributor::unregisterListener(StateChangeListener& listener)
 {
-	assert(isRegistered(&listener));
-	listeners.erase(find(listeners.begin(), listeners.end(), &listener));
+	listeners.erase(find_unguarded(listeners, &listener));
 }
 
 void StateChangeDistributor::registerRecorder(StateChangeRecorder& recorder_)

@@ -11,8 +11,9 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include <algorithm>
 #include <iterator>
 #include <sstream>
@@ -274,7 +275,7 @@ void AfterCommand::afterTclTime(
 	int ms, const vector<TclObject>& tokens, TclObject& result)
 {
 	TclObject command(tokens.front().getInterpreter());
-	command.addListElements(tokens.begin() + 2, tokens.end());
+	command.addListElements(begin(tokens) + 2, end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
 	result.setString(cmd->getId());
@@ -337,29 +338,30 @@ void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& res
 
 void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*result*/)
 {
-	if (tokens.size() != 3) {
+	if (tokens.size() < 3) {
 		throw SyntaxError();
 	}
 	if (tokens.size() == 3) {
-		for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-			if ((*it)->getId() == tokens[2].getString()) {
-				afterCmds.erase(it);
-				return;
-			}
+		auto id = tokens[2].getString();
+		auto it = find_if(begin(afterCmds), end(afterCmds),
+			[&](std::unique_ptr<AfterCmd>& e) { return e->getId() == id; });
+		if (it != end(afterCmds)) {
+			afterCmds.erase(it);
+			return;
 		}
 	}
 	TclObject command;
-	command.addListElements(tokens.begin() + 2, tokens.end());
+	command.addListElements(begin(tokens) + 2, end(tokens));
 	string_ref cmdStr = command.getString();
-	for (auto it = afterCmds.begin(); it != afterCmds.end(); ++it) {
-		if ((*it)->getCommand() == cmdStr) {
-			afterCmds.erase(it);
-			// Tcl manual is not clear about this, but it seems
-			// there's only occurence of this command canceled.
-			// It's also not clear which of the (possibly) several
-			// matches is canceled.
-			return;
-		}
+	auto it = find_if(begin(afterCmds), end(afterCmds),
+		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });
+	if (it != end(afterCmds)) {
+		afterCmds.erase(it);
+		// Tcl manual is not clear about this, but it seems
+		// there's only occurence of this command canceled.
+		// It's also not clear which of the (possibly) several
+		// matches is canceled.
+		return;
 	}
 	// It's not an error if no match is found
 }
@@ -392,10 +394,10 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 template<typename PRED> void AfterCommand::executeMatches(PRED pred)
 {
 	// predicate should return false on matches
-	auto it = partition(afterCmds.begin(), afterCmds.end(), pred);
+	auto it = partition(begin(afterCmds), end(afterCmds), pred);
 	AfterCmds tmp(std::make_move_iterator(it),
-	              std::make_move_iterator(afterCmds.end()));
-	afterCmds.erase(it, afterCmds.end());
+	              std::make_move_iterator(end(afterCmds)));
+	afterCmds.erase(it, end(afterCmds));
 	for (auto& c : tmp) {
 		c->execute();
 	}
@@ -511,15 +513,11 @@ void AfterCmd::execute()
 
 unique_ptr<AfterCmd> AfterCmd::removeSelf()
 {
-	for (auto it = afterCommand.afterCmds.begin();
-	     it != afterCommand.afterCmds.end(); ++it) {
-		if (it->get() == this) {
-			auto result = move(*it);
-			afterCommand.afterCmds.erase(it);
-			return result;
-		}
-	}
-	UNREACHABLE; return nullptr;
+	auto it = find_if_unguarded(afterCommand.afterCmds,
+		[&](std::unique_ptr<AfterCmd>& e) { return e.get() == this; });
+	auto result = move(*it);
+	afterCommand.afterCmds.erase(it);
+	return result;
 }
 
 

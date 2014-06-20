@@ -130,4 +130,8 @@ std::string operator+(string_ref x, char y);
 
 std::ostream& operator<<(std::ostream& os, string_ref str);
 
+// begin, end
+inline string_ref::const_iterator begin(const string_ref& x) { return x.begin(); }
+inline string_ref::const_iterator end  (const string_ref& x) { return x.end();   }
+
 #endif

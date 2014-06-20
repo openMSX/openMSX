@@ -256,7 +256,7 @@ void HotKey::saveBindings(XMLElement& config) const
 	// add explicit bind's
 	for (auto& k : boundKeys) {
 		auto it2 = cmdMap.find(k);
-		assert(it2 != cmdMap.end());
+		assert(it2 != end(cmdMap));
 		auto& info = it2->second;
 		auto& elem = bindingsElement.addChild("bind", info.command);
 		elem.addAttribute("key", k->toString());
@@ -283,7 +283,7 @@ void HotKey::bind(const EventPtr& event, const HotKeyInfo& info)
 
 void HotKey::unbind(const EventPtr& event)
 {
-	if (boundKeys.find(event) == boundKeys.end()) {
+	if (boundKeys.find(event) == end(boundKeys)) {
 		// only when not a regular bound event
 		unboundKeys.insert(event);
 	}
@@ -296,8 +296,8 @@ void HotKey::unbind(const EventPtr& event)
 
 void HotKey::bindDefault(const EventPtr& event, const HotKeyInfo& info)
 {
-	if ((unboundKeys.find(event) == unboundKeys.end()) &&
-	    (boundKeys.find(event)   == boundKeys.end())) {
+	if ((unboundKeys.find(event) == end(unboundKeys)) &&
+	    (boundKeys.find(event)   == end(boundKeys))) {
 		// not explicity bound or unbound
 		cmdMap[event] = info;
 	}
@@ -306,8 +306,8 @@ void HotKey::bindDefault(const EventPtr& event, const HotKeyInfo& info)
 
 void HotKey::unbindDefault(const EventPtr& event)
 {
-	if ((unboundKeys.find(event) == unboundKeys.end()) &&
-	    (boundKeys.find(event)   == boundKeys.end())) {
+	if ((unboundKeys.find(event) == end(unboundKeys)) &&
+	    (boundKeys.find(event)   == end(boundKeys))) {
 		// not explicity bound or unbound
 		cmdMap.erase(event);
 	}
@@ -354,10 +354,9 @@ void HotKey::deactivateLayer(const std::string& layer)
 static HotKey::BindMap::const_iterator findMatch(
 	const HotKey::BindMap& map, const Event& event)
 {
-	return find_if(map.begin(), map.end(),
+	return find_if(begin(map), end(map),
 		[&](const HotKey::BindMap::value_type& p) {
-			return p.first->matches(event);
-		});
+			return p.first->matches(event); });
 }
 
 int HotKey::signalEvent(const EventPtr& event_)
@@ -386,7 +385,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 	for (auto it = activeLayers.rbegin(); it != activeLayers.rend(); ++it) {
 		auto& cmap = layerMap[it->layer]; // ok, if this entry doesn't exist yet
 		auto it2 = findMatch(cmap, *event);
-		if (it2 != cmap.end()) {
+		if (it2 != end(cmap)) {
 			executeBinding(event, it2->second);
 			// Deny event to MSX listeners, also don't pass event
 			// to other layers (including the default layer).
@@ -398,7 +397,7 @@ int HotKey::signalEvent(const EventPtr& event_)
 
 	// If the event was not yet handled, try the default layer.
 	auto it = findMatch(cmdMap, *event);
-	if (it != cmdMap.end()) {
+	if (it != end(cmdMap)) {
 		executeBinding(event, it->second);
 		return EventDistributor::MSX; // deny event to MSX listeners
 	}
@@ -484,11 +483,11 @@ static vector<string> parse(bool defaultCmd, vector<string> tokens,
 			}
 			layer = tokens[i + 1];
 
-			auto it = tokens.begin() + i;
+			auto it = begin(tokens) + i;
 			tokens.erase(it, it + 2);
 		} else if (tokens[i] == "-layers") {
 			layers = true;
-			tokens.erase(tokens.begin() + i);
+			tokens.erase(begin(tokens) + i);
 		} else {
 			++i;
 		}
@@ -532,7 +531,7 @@ string BindCmd::execute(const vector<string>& tokens_)
 	case 2: {
 		// show bindings for this key (in this layer)
 		auto it = cmdMap.find(createEvent(tokens[1]));
-		if (it == cmdMap.end()) {
+		if (it == end(cmdMap)) {
 			throw CommandException("Key not bound");
 		}
 		result = formatBinding(*it);

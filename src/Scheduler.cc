@@ -80,7 +80,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 	assert(time >= scheduleTime);
 
 	// Push sync point into queue.
-	auto it = std::upper_bound(syncPoints.begin(), syncPoints.end(), time,
+	auto it = std::upper_bound(begin(syncPoints), end(syncPoints), time,
 	                           LessSyncPoint());
 	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
 
@@ -95,7 +95,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
+	copy_if(begin(syncPoints), end(syncPoints), back_inserter(result),
 	        FindSchedulable(device));
 	return result;
 }
@@ -103,9 +103,9 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	auto it = find_if(syncPoints.begin(), syncPoints.end(),
+	auto it = find_if(begin(syncPoints), end(syncPoints),
 	                  EqualSchedulable(device, userData));
-	if (it != syncPoints.end()) {
+	if (it != end(syncPoints)) {
 		syncPoints.erase(it);
 		return true;
 	} else {
@@ -116,16 +116,16 @@ bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 void Scheduler::removeSyncPoints(Schedulable& device)
 {
 	assert(Thread::isMainThread());
-	syncPoints.erase(remove_if(syncPoints.begin(), syncPoints.end(),
+	syncPoints.erase(remove_if(begin(syncPoints), end(syncPoints),
 	                           FindSchedulable(device)),
-	                 syncPoints.end());
+	                 end(syncPoints));
 }
 
 bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData) const
 {
 	assert(Thread::isMainThread());
-	return find_if(syncPoints.begin(), syncPoints.end(),
-	               EqualSchedulable(device, userData)) != syncPoints.end();
+	return find_if(begin(syncPoints), end(syncPoints),
+	               EqualSchedulable(device, userData)) != end(syncPoints);
 }
 
 EmuTime::param Scheduler::getCurrentTime() const
@@ -153,7 +153,7 @@ void Scheduler::scheduleHelper(EmuTime::param limit)
 		assert(device);
 		int userData = sp.getUserData();
 
-		syncPoints.erase(syncPoints.begin());
+		syncPoints.erase(begin(syncPoints));
 
 		device->executeUntil(time, userData);
 	}

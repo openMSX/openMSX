@@ -103,7 +103,8 @@ static void init()
 	init(ROM_DOOLY,          "Dooly",          0x4000, "Baby Dinosaur Dooly"); // officially 32K blocksize, but spread over 2 pages
 	init(ROM_MSXTRA,         "MSXtra",         0x0000, "PTC MSXtra");
 	init(ROM_MULTIROM,       "MultiRom",       0x0000, "MultiRom Collection");
-	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus"); // ****
+	init(ROM_MEGAFLASHROMSCCPLUS,"MegaFlashRomSccPlus",0x0000, "Mega Flash ROM SCC Plus");
+	init(ROM_MEGAFLASHROMSCCPLUSSD,"MegaFlashRomSccPlusSD",0x0000, "Mega Flash ROM SCC Plus SD"); // ****
 
 	// ROM mapper types used for system ROMs in machines
 	init(ROM_PANASONIC, "Panasonic", 0x2000, "Panasonic internal mapper");
@@ -160,7 +161,7 @@ static void init()
 	initAlias(ROM_ZEMINA126IN1,"KOREAN126IN1");
 	initAlias(ROM_HOLY_QURAN,  "HolyQuran");
 
-	sort(romTypeInfoMap.begin(), romTypeInfoMap.end(), RomTypeInfoMapLess());
+	sort(begin(romTypeInfoMap), end(romTypeInfoMap), RomTypeInfoMapLess());
 }
 static const RomTypeMap& getRomTypeMap()
 {
@@ -177,7 +178,7 @@ RomType RomInfo::nameToRomType(string_ref name)
 {
 	auto& m = getRomTypeMap();
 	auto it = m.find(name);
-	return (it != m.end()) ? removeAlias(it->second) : ROM_UNKNOWN;
+	return (it != end(m)) ? removeAlias(it->second) : ROM_UNKNOWN;
 }
 
 string_ref RomInfo::romTypeToName(RomType type)
@@ -205,8 +206,8 @@ vector<string_ref> RomInfo::getAllRomTypes()
 string_ref RomInfo::getDescription(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = lower_bound(m.begin(), m.end(), type, RomTypeInfoMapLess());
-	assert(it != m.end());
+	auto it = lower_bound(begin(m), end(m), type, RomTypeInfoMapLess());
+	assert(it != end(m));
 	assert(std::get<0>(*it) == type);
 	return std::get<1>(*it);
 }
@@ -214,8 +215,8 @@ string_ref RomInfo::getDescription(RomType type)
 unsigned RomInfo::getBlockSize(RomType type)
 {
 	auto& m = getRomTypeInfoMap();
-	auto it = lower_bound(m.begin(), m.end(), type, RomTypeInfoMapLess());
-	assert(it != m.end());
+	auto it = lower_bound(begin(m), end(m), type, RomTypeInfoMapLess());
+	assert(it != end(m));
 	assert(std::get<0>(*it) == type);
 	return std::get<2>(*it);
 }

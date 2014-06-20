@@ -1,5 +1,6 @@
 #include "SDLGLVisibleSurface.hh"
 #include "SDLGLOffScreenSurface.hh"
+#include "GLContext.hh"
 #include "GLSnow.hh"
 #include "OSDConsoleRenderer.hh"
 #include "OSDGUILayer.hh"
@@ -77,10 +78,13 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// is done in this constructor. So construction of SDLGLOutputSurface
 	// is split in two phases.
 	SDLGLOutputSurface::init(*this);
+
+	gl::context = make_unique<gl::Context>(width, height);
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
+	gl::context.reset();
 }
 
 void SDLGLVisibleSurface::flushFrameBuffer()
@@ -105,7 +109,7 @@ void SDLGLVisibleSurface::finish()
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createSnowLayer(Display& display)
 {
-	return make_unique<GLSnow>(display, getWidth(), getHeight());
+	return make_unique<GLSnow>(display);
 }
 
 std::unique_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(

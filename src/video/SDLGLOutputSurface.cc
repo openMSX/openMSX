@@ -1,6 +1,6 @@
 #include "SDLGLOutputSurface.hh"
+#include "GLContext.hh"
 #include "OutputSurface.hh"
-#include "GLUtil.hh"
 #include "PNG.hh"
 #include "build-info.hh"
 #include "Math.hh"
@@ -9,10 +9,13 @@
 #include "vla.hh"
 #include <SDL.h>
 
+using namespace gl;
+
 namespace openmsx {
 
 SDLGLOutputSurface::SDLGLOutputSurface(FrameBuffer frameBuffer_)
-	: frameBuffer(frameBuffer_)
+	: fbTex(Null())
+	, frameBuffer(frameBuffer_)
 {
 }
 
@@ -88,11 +91,11 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		unsigned pitch = width * format.BytesPerPixel;
 		output.setBufferPtr(fbBuf.data(), pitch);
 
-		texCoordX = double(width)  / texW;
-		texCoordY = double(height) / texH;
+		texCoordX = float(width)  / texW;
+		texCoordY = float(height) / texH;
 
-		fbTex = make_unique<Texture>();
-		fbTex->bind();
+		fbTex.allocate();
+		fbTex.disableInterpolation();
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
@@ -108,7 +111,7 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 {
 	assert((frameBuffer == FB_16BPP) || (frameBuffer == FB_32BPP));
 
-	fbTex->bind();
+	fbTex.bind();
 	if (frameBuffer == FB_16BPP) {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
 		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, fbBuf.data());
@@ -117,15 +120,27 @@ void SDLGLOutputSurface::flushFrameBuffer(unsigned width, unsigned height)
 		                GL_BGRA, GL_UNSIGNED_BYTE, fbBuf.data());
 	}
 
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0.0,                GLfloat(texCoordY)); glVertex2i(0,     height);
-	glTexCoord2f(GLfloat(texCoordX), GLfloat(texCoordY)); glVertex2i(width, height);
-	glTexCoord2f(GLfloat(texCoordX), 0.0               ); glVertex2i(width, 0     );
-	glTexCoord2f(0.0,                0.0               ); glVertex2i(0,     0     );
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	vec2 pos[4] = {
+		vec2(0,     height),
+		vec2(width, height),
+		vec2(width, 0     ),
+		vec2(0,     0     ),
+	};
+	vec2 tex[4] = {
+		vec2(0.0f,      texCoordY),
+		vec2(texCoordX, texCoordY),
+		vec2(texCoordX, 0.0f     ),
+		vec2(0.0f,      0.0f     ),
+	};
+	gl::context->progTex.activate();
+	glUniform4f(gl::context->unifTexColor, 1.0f, 1.0f, 1.0f, 1.0f);
+	glUniformMatrix4fv(gl::context->unifTexMvp, 1, GL_FALSE,
+	                   &gl::context->pixelMvp[0][0]);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, pos);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, tex);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 }
 
 void SDLGLOutputSurface::clearScreen()

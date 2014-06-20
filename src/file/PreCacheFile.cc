@@ -30,11 +30,11 @@ void PreCacheFile::run()
 		return;
 	}
 
-	FILE* file = FileOperations::openFile(name, "rb");
+	auto file = FileOperations::openFile(name, "rb");
 	if (!file) return;
 
-	fseek(file, 0, SEEK_END);
-	auto size = ftell(file);
+	fseek(file.get(), 0, SEEK_END);
+	auto size = ftell(file.get());
 	if (size < 1024 * 1024) {
 		// only pre-cache small files
 
@@ -50,8 +50,8 @@ void PreCacheFile::run()
 			if (exitLoop2) break;
 
 			char buf[BLOCK_SIZE];
-			if (fseek(file, block * BLOCK_SIZE, SEEK_SET)) break;
-			size_t read = fread(buf, 1, BLOCK_SIZE, file);
+			if (fseek(file.get(), block * BLOCK_SIZE, SEEK_SET)) break;
+			size_t read = fread(buf, 1, BLOCK_SIZE, file.get());
 			if (read != BLOCK_SIZE) {
 				// error or end-of-file reached,
 				// in both cases stop pre-caching
@@ -69,7 +69,6 @@ void PreCacheFile::run()
 			}
 		}
 	}
-	fclose(file);
 }
 
 } // namespace openmsx

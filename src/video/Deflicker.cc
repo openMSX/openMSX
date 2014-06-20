@@ -99,10 +99,10 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 	unsigned width1 = lastFrames[1]->getLineWidthDirect(line);
 	unsigned width2 = lastFrames[2]->getLineWidthDirect(line);
 	unsigned width3 = lastFrames[3]->getLineWidthDirect(line);
-	const Pixel* line0 = lastFrames[0]->getLinePtrDirect<Pixel>(line);
-	const Pixel* line1 = lastFrames[1]->getLinePtrDirect<Pixel>(line);
-	const Pixel* line2 = lastFrames[2]->getLinePtrDirect<Pixel>(line);
-	const Pixel* line3 = lastFrames[3]->getLinePtrDirect<Pixel>(line);
+	const Pixel* line0 = lastFrames[0]->template getLinePtrDirect<Pixel>(line);
+	const Pixel* line1 = lastFrames[1]->template getLinePtrDirect<Pixel>(line);
+	const Pixel* line2 = lastFrames[2]->template getLinePtrDirect<Pixel>(line);
+	const Pixel* line3 = lastFrames[3]->template getLinePtrDirect<Pixel>(line);
 	if ((width0 != width3) || (width0 != width2) || (width0 != width1)) {
 		// Not all the same width.
 		width = width0;
@@ -165,7 +165,9 @@ const void* DeflickerImpl<Pixel>::getLineInfo(
 		       ? pixelOps.template blend<1, 1>(line0[x], line1[x])
 	               : line0[x];
 	}
+#ifdef __SSE2__
 end:
+#endif
 	if (width0 <= bufWidth) {
 		// It it already fits, we're done
 		width = width0;

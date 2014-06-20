@@ -272,9 +272,9 @@ void ReverseManager::status(TclObject& result) const
 	}
 
 	result.addListElement("begin");
-	EmuTime begin(isCollecting() ? history.chunks.begin()->second.time
-	                           : EmuTime::zero);
-	result.addListElement((begin - EmuTime::zero).toDouble());
+	EmuTime b(isCollecting() ? begin(history.chunks)->second.time
+	                         : EmuTime::zero);
+	result.addListElement((b - EmuTime::zero).toDouble());
 
 	result.addListElement("end");
 	EmuTime end(isCollecting() ? getEndTime(history) : EmuTime::zero);
@@ -388,7 +388,7 @@ void ReverseManager::goTo(
 		// -- Locate destination snapshot --
 		// We can't go back further in the past than the first snapshot.
 		assert(!history.chunks.empty());
-		auto it = history.chunks.begin();
+		auto it = begin(history.chunks);
 		EmuTime firstTime = it->second.time;
 		EmuTime targetTime = std::max(target, firstTime);
 		// Also don't go further into the future than 'end time'.
@@ -408,14 +408,14 @@ void ReverseManager::goTo(
 		// find oldest snapshot that is not newer than requested time
 		// TODO ATM we do a linear search, could be improved to do a binary search.
 		assert(it->second.time <= preTarget); // first one is not newer
-		assert(it != history.chunks.end()); // there are snapshots
+		assert(it != end(history.chunks)); // there are snapshots
 		do {
 			++it;
-		} while (it != history.chunks.end() &&
+		} while (it != end(history.chunks) &&
 			 it->second.time <= preTarget);
 		// We found the first one that's newer, previous one is last
 		// one that's not newer (thus older or equal).
-		assert(it != history.chunks.begin());
+		assert(it != begin(history.chunks));
 		--it;
 		EmuTime snapshotTime = it->second.time;
 		assert(snapshotTime <= preTarget);
@@ -561,23 +561,23 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 
 	// restore first snapshot to be able to serialize it to a file
 	auto initialBoard = reactor.createEmptyMotherBoard();
-	MemInputArchive in(chunks.begin()->second.savestate.data(),
-	                   chunks.begin()->second.savestate.size());
+	MemInputArchive in(begin(chunks)->second.savestate.data(),
+	                   begin(chunks)->second.savestate.size());
 	in.serialize("machine", *initialBoard);
 	replay.motherBoards.push_back(move(initialBoard));
 
 	// determine which extra snapshots to put in the replay
-	const auto& startTime = chunks.begin()->second.time;
+	const auto& startTime = begin(chunks)->second.time;
 	const auto& endTime   = chunks.rbegin()->second.time;
 	EmuDuration totalLength = endTime - startTime;
 	EmuDuration partitionLength = totalLength.divRoundUp(MAX_NOF_SNAPSHOTS);
 	partitionLength = std::max(MIN_PARTITION_LENGTH, partitionLength);
 	EmuTime nextPartitionEnd = startTime + partitionLength;
-	auto it = chunks.begin();
-	auto lastAddedIt = chunks.begin(); // already added
-	while (it != chunks.end()) {
+	auto it = begin(chunks);
+	auto lastAddedIt = begin(chunks); // already added
+	while (it != end(chunks)) {
 		++it;
-		if (it == chunks.end() || (it->second.time > nextPartitionEnd)) {
+		if (it == end(chunks) || (it->second.time > nextPartitionEnd)) {
 			--it;
 			assert(it->second.time <= nextPartitionEnd);
 			if (it != lastAddedIt) {
@@ -590,12 +590,12 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 				lastAddedIt = it;
 			}
 			++it;
-			while (it != chunks.end() && it->second.time > nextPartitionEnd) {
+			while (it != end(chunks) && it->second.time > nextPartitionEnd) {
 				nextPartitionEnd += partitionLength;
 			}
 		}
 	}
-	assert(lastAddedIt == --chunks.end()); // last snapshot must be included
+	assert(lastAddedIt == --end(chunks)); // last snapshot must be included
 
 	// add sentinel when there isn't one yet
 	bool addSentinel = history.events.empty() ||
@@ -842,7 +842,7 @@ unsigned ReverseManager::ReverseHistory::getNextSeqNum(EmuTime::param time) cons
 	if (chunks.empty()) {
 		return 1;
 	}
-	const auto& startTime = chunks.begin()->second.time;
+	const auto& startTime = begin(chunks)->second.time;
 	double duration = (time - startTime).toDouble();
 	return unsigned(duration / SNAPSHOT_PERIOD + 0.5) + 1;
 }
@@ -911,14 +911,11 @@ void ReverseManager::stopReplay(EmuTime::param time)
 		// if we're replaying, stop it and erase remainder of event log
 		removeSyncPoint(INPUT_EVENT);
 		Events& events = history.events;
-		events.erase(events.begin() + replayIndex, events.end());
+		events.erase(begin(events) + replayIndex, end(events));
 		// search snapshots that are newer than 'time' and erase them
-		auto it = history.chunks.begin();
-		while ((it != history.chunks.end()) &&
-		       (it->second.time <= time)) {
-			++it;
-		}
-		history.chunks.erase(it, history.chunks.end());
+		auto it = find_if(begin(history.chunks), end(history.chunks),
+			[&](Chunks::value_type& p) { return p.second.time > time; });
+		history.chunks.erase(it, end(history.chunks));
 		// this also means someone is changing history, record that
 		reRecordCount++;
 	}

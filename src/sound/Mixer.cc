@@ -9,8 +9,9 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
-#include "unreachable.hh"
 #include "memory.hh"
+#include "stl.hh"
+#include "unreachable.hh"
 #include "components.hh"
 #include "build-info.hh"
 #include <cassert>
@@ -111,17 +112,14 @@ void Mixer::reloadDriver()
 
 void Mixer::registerMixer(MSXMixer& mixer)
 {
-	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 0);
+	assert(!contains(msxMixers, &mixer));
 	msxMixers.push_back(&mixer);
-
 	muteHelper();
 }
 
 void Mixer::unregisterMixer(MSXMixer& mixer)
 {
-	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 1);
-	msxMixers.erase(find(msxMixers.begin(), msxMixers.end(), &mixer));
-
+	msxMixers.erase(find_unguarded(msxMixers, &mixer));
 	muteHelper();
 }
 

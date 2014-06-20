@@ -3,6 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
 #include "likely.hh"
+#include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
 #include <algorithm>
@@ -61,15 +62,12 @@ bool MSXMultiMemDevice::canAdd(int base, int size)
 void MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 {
 	assert(canAdd(base, size));
-	ranges.insert(ranges.begin(), Range(base, size, device));
+	ranges.insert(begin(ranges), Range(base, size, device));
 }
 
 void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 {
-	auto it = find(ranges.begin(), ranges.end(),
-	               Range(base, size, device));
-	assert(it != ranges.end());
-	ranges.erase(it);
+	ranges.erase(find_unguarded(ranges, Range(base, size, device)));
 }
 
 bool MSXMultiMemDevice::empty() const

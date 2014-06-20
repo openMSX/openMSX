@@ -41,7 +41,7 @@ unsigned OutputArchiveBase2::generateID1(const void* p)
 	       !addressOnStack(p));
 	#endif
 	++lastId;
-	assert(polyIdMap.find(p) == polyIdMap.end());
+	assert(polyIdMap.find(p) == end(polyIdMap));
 	polyIdMap[p] = lastId;
 	return lastId;
 }
@@ -54,7 +54,7 @@ unsigned OutputArchiveBase2::generateID2(
 	#endif
 	++lastId;
 	auto key = std::make_pair(p, std::type_index(typeInfo));
-	assert(idMap.find(key) == idMap.end());
+	assert(idMap.find(key) == end(idMap));
 	idMap[key] = lastId;
 	return lastId;
 }
@@ -62,13 +62,13 @@ unsigned OutputArchiveBase2::generateID2(
 unsigned OutputArchiveBase2::getID1(const void* p)
 {
 	auto it = polyIdMap.find(p);
-	return it != polyIdMap.end() ? it->second : 0;
+	return it != end(polyIdMap) ? it->second : 0;
 }
 unsigned OutputArchiveBase2::getID2(
 	const void* p, const std::type_info& typeInfo)
 {
 	auto it = idMap.find({p, std::type_index(typeInfo)});
-	return it != idMap.end() ? it->second : 0;
+	return it != end(idMap) ? it->second : 0;
 }
 
 
@@ -113,12 +113,12 @@ template class OutputArchiveBase<XmlOutputArchive>;
 void* InputArchiveBase2::getPointer(unsigned id)
 {
 	auto it = idMap.find(id);
-	return it != idMap.end() ? it->second : nullptr;
+	return it != end(idMap) ? it->second : nullptr;
 }
 
 void InputArchiveBase2::addPointer(unsigned id, const void* p)
 {
-	assert(idMap.find(id) == idMap.end());
+	assert(idMap.find(id) == end(idMap));
 	idMap[id] = const_cast<void*>(p);
 }
 
@@ -251,15 +251,15 @@ XmlOutputArchive::XmlOutputArchive(const string& filename)
 	root.addAttribute("openmsx_version", Version::full());
 	root.addAttribute("date_time", Date::toString(time(nullptr)));
 	root.addAttribute("platform", TARGET_PLATFORM);
-	FILE* f = FileOperations::openFile(filename, "wb");
+	auto f = FileOperations::openFile(filename, "wb");
 	if (!f) {
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
-	file = gzdopen(fileno(f), "wb9");
+	file = gzdopen(fileno(f.get()), "wb9");
 	if (!file) {
-		fclose(f);
 		throw XMLException("Could not open compressed file \"" + filename + "\"");
 	}
+	f.release();
 	current.push_back(&root);
 }
 

@@ -228,23 +228,23 @@ public:
 // convenience functions
 inline size_t size(string_ref utf8)
 {
-	return utf8::unchecked::distance(utf8.begin(), utf8.end());
+	return utf8::unchecked::distance(begin(utf8), end(utf8));
 }
 inline string_ref substr(string_ref utf8, string_ref::size_type first = 0,
                          string_ref::size_type len = string_ref::npos)
 {
-	auto begin = utf8.begin();
-	utf8::unchecked::advance(begin, first);
-	string_ref::const_iterator end;
+	auto b = begin(utf8);
+	utf8::unchecked::advance(b, first);
+	string_ref::const_iterator e;
 	if (len != string_ref::npos) {
-		end = begin;
-		while (len && (end != utf8.end())) {
-			unchecked::next(end); --len;
+		e = b;
+		while (len && (e != end(utf8))) {
+			unchecked::next(e); --len;
 		}
 	} else {
-		end = utf8.end();
+		e = end(utf8);
 	}
-	return string_ref(begin, end);
+	return string_ref(b, e);
 }
 
 } // namespace unchecked

@@ -3,6 +3,7 @@
 #include "Semaphore.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "stl.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -87,16 +88,14 @@ AlarmManager& AlarmManager::instance()
 void AlarmManager::registerAlarm(Alarm& alarm)
 {
 	ScopedLock lock(sem);
-	assert(find(alarms.begin(), alarms.end(), &alarm) == alarms.end());
+	assert(!contains(alarms, &alarm));
 	alarms.push_back(&alarm);
 }
 
 void AlarmManager::unregisterAlarm(Alarm& alarm)
 {
 	ScopedLock lock(sem);
-	auto it = find(alarms.begin(), alarms.end(), &alarm);
-	assert(it != alarms.end());
-	alarms.erase(it);
+	alarms.erase(find_unguarded(alarms, &alarm));
 }
 
 static int convert(int period)

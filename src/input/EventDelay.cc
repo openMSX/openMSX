@@ -122,16 +122,16 @@ void EventDelay::sync(EmuTime::param curEmu)
 		    e->getType() == OPENMSX_KEY_UP_EVENT) {
 			auto keyEvent = checked_cast<const KeyEvent*>(e.get());
 			int maskedKeyCode = int(keyEvent->getKeyCode()) & int(Keys::K_MASK);
-			auto it = find_if(nonMatchedKeyPresses.begin(), nonMatchedKeyPresses.end(),
+			auto it = find_if(begin(nonMatchedKeyPresses), end(nonMatchedKeyPresses),
 				          EqualTupleValue<0>(maskedKeyCode));
 			if (e->getType() == OPENMSX_KEY_DOWN_EVENT) {
-				if (it == nonMatchedKeyPresses.end()) {
+				if (it == end(nonMatchedKeyPresses)) {
 					nonMatchedKeyPresses.emplace_back(maskedKeyCode, e);
 				} else {
 					it->second = e;
 				}
 			} else {
-				if (it != nonMatchedKeyPresses.end()) {
+				if (it != end(nonMatchedKeyPresses)) {
 					auto timedPressEvent = checked_cast<const TimedEvent*>(it->second.get());
 					auto timedReleaseEvent = checked_cast<const TimedEvent*>(e.get());
 					auto pressRealTime = timedPressEvent->getRealTime();
@@ -146,9 +146,8 @@ void EventDelay::sync(EmuTime::param curEmu)
 						toBeRescheduledEvents.push_back(newKeyupEvent);
 						continue; // continue with next to be scheduled event
 					}
-					if (it != (nonMatchedKeyPresses.end() - 1)) {
-						std::swap(*it, *(nonMatchedKeyPresses.end() - 1));
-					}
+					auto backIt = end(nonMatchedKeyPresses) - 1;
+					if (it != backIt) std::swap(*it, *backIt);
 					nonMatchedKeyPresses.pop_back();
 				}
 			}
@@ -169,9 +168,9 @@ void EventDelay::sync(EmuTime::param curEmu)
 	toBeScheduledEvents.clear();
 
 #if PLATFORM_ANDROID
-	toBeScheduledEvents.insert(toBeScheduledEvents.end(),
-		make_move_iterator(toBeRescheduledEvents.begin()),
-		make_move_iterator(toBeRescheduledEvents.end()));
+	toBeScheduledEvents.insert(end(toBeScheduledEvents),
+		make_move_iterator(begin(toBeRescheduledEvents)),
+		make_move_iterator(end  (toBeRescheduledEvents)));
 #endif
 }
 

@@ -1,4 +1,8 @@
-uniform vec2 texSize;
+uniform mat4 u_mvpMatrix;
+uniform vec3 texSize;
+
+attribute vec4 a_position;
+attribute vec3 a_texCoord;
 
 varying vec4 posABCD;
 varying vec4 posEL;
@@ -8,21 +12,21 @@ varying vec2 videoCoord;
 
 void main()
 {
-	gl_Position = ftransform();
-	vec2 texStep = 1.0 / texSize;
+	gl_Position = u_mvpMatrix * a_position;
+	vec2 texStep = 1.0 / texSize.xy;
 
-	posABCD.xy = gl_MultiTexCoord0.st;
-	posABCD.zw = gl_MultiTexCoord0.st + texStep * vec2( 1.0,  1.0);
-	posEL.xy = gl_MultiTexCoord0.st + texStep * vec2( 0.0, -1.0);
-	posEL.zw = gl_MultiTexCoord0.st + texStep * vec2( 1.0,  2.0);
-	posGJ.xy = gl_MultiTexCoord0.st + texStep * vec2(-1.0,  0.0);
-	posGJ.zw = gl_MultiTexCoord0.st + texStep * vec2( 2.0,  1.0);
+	posABCD.xy = a_texCoord.xy;
+	posABCD.zw = a_texCoord.xy + texStep * vec2( 1.0,  1.0);
+	posEL.xy = a_texCoord.xy + texStep * vec2( 0.0, -1.0);
+	posEL.zw = a_texCoord.xy + texStep * vec2( 1.0,  2.0);
+	posGJ.xy = a_texCoord.xy + texStep * vec2(-1.0,  0.0);
+	posGJ.zw = a_texCoord.xy + texStep * vec2( 2.0,  1.0);
 
-	scaled.x =        gl_MultiTexCoord0.s  * texSize.x;
-	scaled.y = (1.0 - gl_MultiTexCoord0.s) * texSize.x;
-	scaled.z =        gl_MultiTexCoord0.t  * texSize.y;
+	scaled.x =        a_texCoord.x  * texSize.x;
+	scaled.y = (1.0 - a_texCoord.x) * texSize.x;
+	scaled.z =        a_texCoord.y  * texSize.y;
 
 #if SUPERIMPOSE
-	videoCoord = gl_MultiTexCoord1.st;
+	videoCoord = a_texCoord.xz;
 #endif
 }

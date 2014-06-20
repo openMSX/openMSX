@@ -8,6 +8,7 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "xrange.hh"
+#include "countof.hh"
 #include <numeric>
 #include <cstring>
 #include <cassert>
@@ -17,28 +18,30 @@ using std::vector;
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
-                   unsigned writeProtectedFlags, word ID_,
+AmdFlash::AmdFlash(const Rom& rom_, const vector<SectorInfo>& sectorInfo_,
+                   word ID_, bool use12bitAddressing_,
                    const DeviceConfig& config, bool load)
 	: motherBoard(config.getMotherBoard())
 	, rom(rom_)
-	, sectorSizes(sectorSizes_)
-	, size(std::accumulate(sectorSizes.begin(), sectorSizes.end(), 0))
+	, sectorInfo(sectorInfo_)
+	, size(std::accumulate(begin(sectorInfo), end(sectorInfo), 0, [](int t, SectorInfo i) { return t + i.size;}))
 	, ID(ID_)
+	, use12bitAddressing(use12bitAddressing_)
 	, state(ST_IDLE)
+	, vppWpPinLow(false)
 {
 	assert(Math::isPowerOfTwo(getSize()));
 
-	auto numSectors = sectorSizes.size();
+	auto numSectors = sectorInfo.size();
 
 	unsigned writableSize = 0;
 	writeAddress.resize(numSectors);
 	for (auto i : xrange(numSectors)) {
-		if (writeProtectedFlags & (1 << i)) {
+		if (sectorInfo[i].writeProtected) {
 			writeAddress[i] = -1;
 		} else {
 			writeAddress[i] = writableSize;
-			writableSize += sectorSizes[i];
+			writableSize += sectorInfo[i].size;
 		}
 	}
 
@@ -63,8 +66,8 @@ AmdFlash::AmdFlash(const Rom& rom_, const vector<unsigned>& sectorSizes_,
 	unsigned romSize = rom.getSize();
 	unsigned offset = 0;
 	for (auto i : xrange(numSectors)) {
-		unsigned sectorSize = sectorSizes[i];
-		if (writeAddress[i] != -1) {
+		unsigned sectorSize = sectorInfo[i].size;
+		if (isSectorWritable(i)) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
 				auto ramPtr = const_cast<byte*>(
@@ -107,15 +110,15 @@ void AmdFlash::getSectorInfo(unsigned address, unsigned& sector,
                              unsigned& sectorSize, unsigned& offset) const
 {
 	address &= getSize() - 1;
-	auto it = sectorSizes.begin();
+	auto it = begin(sectorInfo);
 	sector = 0;
-	while (address >= *it) {
-		address -= *it;
+	while (address >= it->size) {
+		address -= it->size;
 		++sector;
 		++it;
-		assert(it != sectorSizes.end());
+		assert(it != end(sectorInfo));
 	}
-	sectorSize = *it;
+	sectorSize = it->size;
 	offset = address;
 }
 
@@ -148,6 +151,10 @@ byte AmdFlash::peek(unsigned address) const
 			return 0xFF;
 		}
 	} else {
+		if (use12bitAddressing) {
+			// convert the address to the '11 bit case'
+			address >>= 1;
+		}
 		switch (address & 3) {
 		case 0:
 			return ID >> 8;
@@ -155,7 +162,7 @@ byte AmdFlash::peek(unsigned address) const
 			return ID & 0xFF;
 		case 2:
 			// 1 -> write protected
-			return (writeAddress[sector] == -1) ? 1 : 0;
+			return isSectorWritable(sector) ? 0 : 1;
 		case 3:
 		default:
 			// TODO what is this? According to this it reads as '1'
@@ -163,6 +170,11 @@ byte AmdFlash::peek(unsigned address) const
 			return 1;
 		}
 	}
+}
+
+bool AmdFlash::isSectorWritable(unsigned sector) const
+{
+	return vppWpPinLow && (sector == 0 || sector == 1) ? false : (writeAddress[sector] != -1) ;
 }
 
 byte AmdFlash::read(unsigned address)
@@ -192,20 +204,28 @@ void AmdFlash::write(unsigned address, byte value)
 	if (checkCommandManifacturer() ||
 	    checkCommandEraseSector() ||
 	    checkCommandProgram() ||
-	    checkCommandEraseChip()) {
-		if (value == 0xf0) {
-			reset();
-		}
+	    checkCommandQuadrupleByteProgram() ||
+	    checkCommandEraseChip() ||
+	    checkCommandReset()) {
+		// do nothing, we're still matching a command, but it is not complete yet
 	} else {
 		reset();
 	}
 }
 
-// The 4 checkCommandXXX() methods below return
+// The checkCommandXXX() methods below return
 //   true  -> if the command sequence still matches, but is not complete yet
 //   false -> if the command was fully matched or does not match with
 //            the current command sequence.
 // If there was a full match, the command is also executed.
+bool AmdFlash::checkCommandReset()
+{
+	if (cmd[0].value == 0xf0) {
+		reset();
+	}
+	return false;
+}
+
 bool AmdFlash::checkCommandEraseSector()
 {
 	static const byte cmdSeq[] = { 0xaa, 0x55, 0x80, 0xaa, 0x55 };
@@ -215,7 +235,7 @@ bool AmdFlash::checkCommandEraseSector()
 			unsigned addr = cmd[5].addr;
 			unsigned sector, sectorSize, offset;
 			getSectorInfo(addr, sector, sectorSize, offset);
-			if (writeAddress[sector] != -1) {
+			if (isSectorWritable(sector)) {
 				ram->memset(writeAddress[sector],
 				            0xff, sectorSize);
 			}
@@ -236,20 +256,33 @@ bool AmdFlash::checkCommandEraseChip()
 	return false;
 }
 
-bool AmdFlash::checkCommandProgram()
+bool AmdFlash::checkCommandProgramHelper(unsigned numBytes, const byte* cmdSeq, size_t cmdLen)
 {
-	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
-	if (partialMatch(3, cmdSeq)) {
-		if (cmdIdx < 4) return true;
-		unsigned addr = cmd[3].addr;
-		unsigned sector, sectorSize, offset;
-		getSectorInfo(addr, sector, sectorSize, offset);
-		if (writeAddress[sector] != -1) {
-			unsigned ramAddr = writeAddress[sector] + offset;
-			ram->write(ramAddr, (*ram)[ramAddr] & cmd[3].value);
+	if (partialMatch(cmdLen, cmdSeq)) {
+		if (cmdIdx < (cmdLen + numBytes)) return true;
+		for (auto i = cmdLen; i < (cmdLen + numBytes); ++i) {
+			unsigned addr = cmd[i].addr;
+			unsigned sector, sectorSize, offset;
+			getSectorInfo(addr, sector, sectorSize, offset);
+			if (isSectorWritable(sector)) {
+				unsigned ramAddr = writeAddress[sector] + offset;
+				ram->write(ramAddr, (*ram)[ramAddr] & cmd[i].value);
+			}
 		}
 	}
 	return false;
+}
+
+bool AmdFlash::checkCommandProgram()
+{
+	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
+	return checkCommandProgramHelper(1, cmdSeq, countof(cmdSeq));
+}
+
+bool AmdFlash::checkCommandQuadrupleByteProgram()
+{
+	static const byte cmdSeq[] = { 0x56 };
+	return checkCommandProgramHelper(4, cmdSeq, countof(cmdSeq));
 }
 
 bool AmdFlash::checkCommandManifacturer()
@@ -272,7 +305,9 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 	assert(len <= 5);
 	unsigned n = std::min(len, cmdIdx);
 	for (unsigned i = 0; i < n; ++i) {
-		if (((cmd[i].addr & 0x7ff) != cmdAddr[addrSeq[i]]) ||
+		// convert the address to the '11 bit case'
+		unsigned addr = use12bitAddressing ? cmd[i].addr >> 1 : cmd[i].addr;
+		if (((addr & 0x7FF) != cmdAddr[addrSeq[i]]) ||
 		    (cmd[i].value != dataSeq[i])) {
 			return false;
 		}
@@ -280,6 +315,11 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 	return true;
 }
 
+
+void AmdFlash::setVppWpPinLow(bool value)
+{
+	vppWpPinLow = value;
+}
 
 static enum_string<AmdFlash::State> stateInfo[] = {
 	{ "IDLE",  AmdFlash::ST_IDLE  },
@@ -295,12 +335,15 @@ void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
-void AmdFlash::serialize(Archive& ar, unsigned /*version*/)
+void AmdFlash::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("ram", *ram);
 	ar.serialize("cmd", cmd);
 	ar.serialize("cmdIdx", cmdIdx);
 	ar.serialize("state", state);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("vppWpPinLow", vppWpPinLow);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(AmdFlash);
 

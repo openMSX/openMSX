@@ -72,20 +72,20 @@ SettingsManager::~SettingsManager()
 
 void SettingsManager::registerSetting(BaseSetting& setting, string_ref name)
 {
-	assert(settingsMap.find(name) == settingsMap.end());
+	assert(settingsMap.find(name) == end(settingsMap));
 	settingsMap[name] = &setting;
 }
 
 void SettingsManager::unregisterSetting(BaseSetting& /*setting*/, string_ref name)
 {
-	assert(settingsMap.find(name) != settingsMap.end());
+	assert(settingsMap.find(name) != end(settingsMap));
 	settingsMap.erase(name);
 }
 
 BaseSetting* SettingsManager::findSetting(string_ref name) const
 {
 	auto it = settingsMap.find(name);
-	return (it != settingsMap.end()) ? it->second : nullptr;
+	return (it != end(settingsMap)) ? it->second : nullptr;
 }
 
 // Helper functions for setting commands
@@ -149,7 +149,7 @@ void SettingInfo::execute(
 	case 3: {
 		const auto& name = tokens[2].getString();
 		auto it = settingsMap.find(name);
-		if (it == settingsMap.end()) {
+		if (it == end(settingsMap)) {
 			throw CommandException("No such setting: " + name);
 		}
 		it->second->info(result);
@@ -207,7 +207,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 	case 3: {
 		// complete setting value
 		auto it = manager.settingsMap.find(tokens[1]);
-		if (it != manager.settingsMap.end()) {
+		if (it != end(manager.settingsMap)) {
 			it->second->tabCompletion(tokens);
 		}
 		break;

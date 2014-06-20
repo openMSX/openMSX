@@ -14,7 +14,7 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), inFile(nullptr), lock(1)
+	, thread(this), lock(1)
 	, rs232InputFilenameSetting(make_unique<FilenameSetting>(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -69,10 +69,7 @@ void RS232Tester::unplugHelper(EmuTime::param /*time*/)
 	// input
 	ScopedLock l(lock);
 	thread.stop();
-	if (inFile) {
-		fclose(inFile);
-		inFile = nullptr;
-	}
+	inFile.reset();
 }
 
 const std::string& RS232Tester::getName() const
@@ -94,8 +91,8 @@ void RS232Tester::run()
 {
 	byte buf;
 	if (!inFile) return;
-	while (!feof(inFile)) {
-		size_t num = fread(&buf, 1, 1, inFile);
+	while (!feof(inFile.get())) {
+		size_t num = fread(&buf, 1, 1, inFile.get());
 		if (num != 1) {
 			continue;
 		}

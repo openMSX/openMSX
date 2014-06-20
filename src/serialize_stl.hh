@@ -23,7 +23,7 @@ template<typename T> struct serialize_as_stl_collection : std::true_type
 		t.clear();
 	}
 	static output_iterator output(T& t) {
-		return std::inserter(t, t.begin());
+		return std::inserter(t, begin(t));
 	}
 };
 
