@@ -2,6 +2,7 @@
 #include "EventListener.hh"
 #include "Reactor.hh"
 #include "Thread.hh"
+#include "KeyRange.hh"
 #include "stl.hh"
 #include <algorithm>
 #include <cassert>
@@ -23,9 +24,9 @@ void EventDistributor::registerEventListener(
 {
 	ScopedLock lock(sem);
 	auto& priorityMap = listeners[type];
-	for (auto& p : priorityMap) {
+	for (auto* l : values(priorityMap)) {
 		// a listener may only be registered once for each type
-		assert(p.second != &listener); (void)p;
+		assert(l != &listener); (void)l;
 	}
 	// insert at highest position that keeps listeners sorted on priority
 	auto it = upper_bound(begin(priorityMap), end(priorityMap), priority,
@@ -67,10 +68,8 @@ void EventDistributor::distributeEvent(const EventPtr& event)
 
 bool EventDistributor::isRegistered(EventType type, EventListener* listener) const
 {
-	for (auto& p : listeners[type]) {
-		if (p.second == listener) {
-			return true;
-		}
+	for (auto* l : values(listeners[type])) {
+		if (l == listener) return true;
 	}
 	return false;
 }

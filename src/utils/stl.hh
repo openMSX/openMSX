@@ -97,7 +97,7 @@ inline bool contains(ITER first, ITER last, const VAL& val)
 	return std::find(first, last, val) != last;
 }
 template<typename RANGE, typename VAL>
-inline bool contains(RANGE& range, const VAL& val)
+inline bool contains(const RANGE& range, const VAL& val)
 {
 	return contains(std::begin(range), std::end(range), val);
 }

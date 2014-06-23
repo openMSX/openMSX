@@ -101,10 +101,9 @@ BaseSetting& SettingsManager::getByName(string_ref cmd, string_ref name) const
 void SettingsManager::loadSettings(const XMLElement& config)
 {
 	// restore default values
-	for (auto& p : settingsMap) {
-		auto& setting = *p.second;
-		if (setting.needLoadSave()) {
-			setting.setString(setting.getRestoreValue());
+	for (auto* s : values(settingsMap)) {
+		if (s->needLoadSave()) {
+			s->setString(s->getRestoreValue());
 		}
 	}
 

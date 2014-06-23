@@ -1,6 +1,7 @@
 #include "VideoSourceSetting.hh"
 #include "CommandException.hh"
 #include "Completer.hh"
+#include "KeyRange.hh"
 #include "StringOp.hh"
 #include "stl.hh"
 
@@ -50,9 +51,7 @@ int VideoSourceSetting::getSource()
 		// This handles the "none" case, but also stuff like
 		// multiple V99x8/V9990 chips. Prefer the source with
 		// highest id (=newest).
-		for (auto& p : sources) {
-			id = std::max(id, p.second);
-		}
+		for (auto& s : values(sources)) id = std::max(id, s);
 	}
 	setSource(id); // store new value
 	return id;
@@ -127,10 +126,7 @@ void VideoSourceSetting::unregisterVideoSource(int source)
 
 bool VideoSourceSetting::has(int value) const
 {
-	for (auto& p : sources) {
-		if (p.second == value) return true;
-	}
-	return false;
+	return contains(values(sources), value);
 }
 
 int VideoSourceSetting::has(string_ref value) const

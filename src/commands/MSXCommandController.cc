@@ -10,6 +10,7 @@
 #include "Setting.hh"
 #include "Event.hh"
 #include "MSXException.hh"
+#include "KeyRange.hh"
 #include "memory.hh"
 #include <iostream>
 
@@ -195,9 +196,9 @@ void MSXCommandController::signalEvent(
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
 	// simple way to synchronize proxy settings
-	for (auto& p : settingMap) {
+	for (auto* s : values(settingMap)) {
 		try {
-			changeSetting(*p.second, p.second->getString());
+			changeSetting(*s, s->getString());
 		} catch (MSXException&) {
 			// ignore
 		}
