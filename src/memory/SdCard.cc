@@ -8,7 +8,6 @@
 // TODO:
 // - use HD instead of SRAM?
 //   - then also decide on which constructor args we need like name
-// - use sectorBuf and write when completed
 // - check behaviour of case where /CS = 1
 // - check alignment and give alignment/address error if not aligned
 // - replace transferDelayCounter with 0xFF's in responseQueue? What to do with
@@ -17,8 +16,6 @@
 // - implement serialize stuff
 
 namespace openmsx {
-
-static const int SECTOR_SIZE = 512;
 
 // data response tokens
 static const byte DRT_ACCEPTED    = 0x05;
@@ -33,8 +30,8 @@ static const byte STOP_TRAN_TOKEN       = 0xFD;
 static const byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x40;
 
 // responses
-static const byte R1_OK              = 0x00;
-static const byte R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_OK?
+static const byte R1_BUSY            = 0x00;
+static const byte R1_IDLE            = 0x01; // TODO: why is lots of code checking for this instead of R1_BUSY?
 static const byte R1_ILLEGAL_COMMAND = 0x04;
 static const byte R1_PARAMETER_ERROR = 0x80;
 
@@ -112,6 +109,10 @@ byte SdCard::transfer(byte value, bool cs)
 					}
 				}
 				break;
+			case WRITE:
+			case MULTI_WRITE:
+				retval = R1_BUSY;
+				break;
 			case COMMAND:
 			default:
 			break;
@@ -132,10 +133,14 @@ byte SdCard::transfer(byte value, bool cs)
 			break;
 		}
 		if (currentByteInSector < SECTOR_SIZE) {
-			ram->write(currentSector * SECTOR_SIZE + currentByteInSector, value);
+			sectorBuf[currentByteInSector] = value;
 		}
 		currentByteInSector++;
 		if (currentByteInSector == (SECTOR_SIZE + 2)) {
+			// copy buffer to SD card
+			for (unsigned bc = 0; bc < SECTOR_SIZE; bc++) {
+				ram->write(currentSector * SECTOR_SIZE + bc, sectorBuf[bc]);
+			}
 			mode = COMMAND;
 			transferDelayCounter = 1;
 			responseQueue.push_back(DRT_ACCEPTED);
@@ -152,24 +157,26 @@ byte SdCard::transfer(byte value, bool cs)
 			}
 			break;
 		}
-		// check if still in valid range
-		// TODO: this is wrong, the error will never be read. Should be
-		// after the CRC bytes. Implement when implementing buffer.
-		if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
-			transferDelayCounter = 1;
-			responseQueue.push_back(DRT_WRITE_ERROR);
-			// note: mode is not changed, should be done by the host with CMD12 (STOP_TRANSMISSION)
-			break;
-		}
 		if (currentByteInSector < SECTOR_SIZE) {
-			ram->write(currentSector * SECTOR_SIZE + currentByteInSector, value);
+			sectorBuf[currentByteInSector] = value;
 		}
 		currentByteInSector++;
 		if (currentByteInSector == (SECTOR_SIZE + 2)) {
-			currentByteInSector = -1;
-			currentSector++;
+			// check if still in valid range
+			byte response = DRT_ACCEPTED;
+			if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
+				response = DRT_WRITE_ERROR;
+				// note: mode is not changed, should be done by the host with CMD12 (STOP_TRANSMISSION)
+			} else {
+				// copy buffer to SD card
+				for (unsigned bc = 0; bc < SECTOR_SIZE; bc++) {
+					ram->write(currentSector * SECTOR_SIZE + bc, sectorBuf[bc]);
+				}
+				currentByteInSector = -1;
+				currentSector++;
+			}
 			transferDelayCounter = 1;
-			responseQueue.push_back(DRT_ACCEPTED);
+			responseQueue.push_back(response);
 		}
 		break;
 	case COMMAND:
@@ -266,7 +273,7 @@ void SdCard::executeCommand()
 		if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
 			responseQueue.push_back(R1_PARAMETER_ERROR);
 		} else {
-			responseQueue.push_back(R1_OK);
+			responseQueue.push_back(R1_BUSY);
 			switch (command) {
 				case 17: mode = READ; break;
 				case 18: mode = MULTI_READ; break;
@@ -279,7 +286,7 @@ void SdCard::executeCommand()
 		break;
 	case 41: // implementation of ACMD 41!!
 		 // SD_SEND_OP_COND
-		responseQueue.push_back(R1_OK);
+		responseQueue.push_back(R1_BUSY);
 		break;
 	case 55: // APP_CMD
 		// TODO: go to ACMD mode, but not necessary now

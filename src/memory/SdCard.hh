@@ -23,6 +23,8 @@ private:
 	void reset();
 	void executeCommand();
 	
+	static const int SECTOR_SIZE = 512;
+
 	enum Mode {
 		COMMAND,
 		READ,
@@ -35,6 +37,7 @@ private:
 	std::string name;
 
 	byte cmdBuf[6];
+	byte sectorBuf[SECTOR_SIZE];
 	unsigned cmdIdx;
 
 	cb_queue<byte> responseQueue;
