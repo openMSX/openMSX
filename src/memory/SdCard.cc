@@ -9,7 +9,6 @@
 // - use HD instead of SRAM?
 //   - then also decide on which constructor args we need like name
 // - check behaviour of case where /CS = 1
-// - check alignment and give alignment/address error if not aligned
 // - replace transferDelayCounter with 0xFF's in responseQueue? What to do with
 //   reset command which clears the queue?
 // - remove duplication between READ/WRITE and READ_MULTI/WRITE_MULTI (is it worth it?)
@@ -269,6 +268,7 @@ void SdCard::executeCommand()
 	case 18: // READ_MULTIPLE_BLOCK
 	case 24: // WRITE_BLOCK
 	case 25: // WRITE_MULTIPLE_BLOCK
+		// SDHC so the address is the sector
 		currentSector = Endian::readB32(&cmdBuf[1]);
 		if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
 			responseQueue.push_back(R1_PARAMETER_ERROR);
