@@ -278,11 +278,41 @@ unique_ptr<File> FilePool::getFile(FileType fileType, const Sha1Sum& sha1sum)
 	return result; // not found
 }
 
+static void reportProgress(const string& filename, size_t percentage,
+                           CliComm& cliComm, EventDistributor& distributor)
+{
+	cliComm.printProgress(
+		"Calculating SHA1 sum for " + filename + "... " + StringOp::toString(percentage) + "%");
+	distributor.deliverEvents();
+}
+
 static Sha1Sum calcSha1sum(File& file, CliComm& cliComm, EventDistributor& distributor)
 {
 	size_t size;
 	const byte* data = file.mmap(size);
-	return SHA1::calcWithProgress(data, size, file.getOriginalName(), cliComm, distributor);
+
+	if (size < 10*1024*1024) {
+		// for small files, don't show progress
+		return SHA1::calc(data, size);
+	}
+
+	// Calculate sha1 in several steps so that we can show progress information
+	SHA1 sha1;
+	static const size_t NUMBER_OF_STEPS = 100;
+	// calculate in NUMBER_OF_STEPS steps and report progress every step
+	auto stepSize  = size / NUMBER_OF_STEPS;
+	auto remainder = size % NUMBER_OF_STEPS;
+	size_t offset = 0;
+	string filename = file.getOriginalName();
+	reportProgress(filename, 0, cliComm, distributor);
+	for (size_t i = 0; i < (NUMBER_OF_STEPS - 1); ++i) {
+		sha1.update(&data[offset], stepSize);
+		offset += stepSize;
+		reportProgress(filename, i + 1, cliComm, distributor);
+	}
+	sha1.update(data + offset, stepSize + remainder);
+	reportProgress(filename, 100, cliComm, distributor);
+	return sha1.digest();
 }
 
 unique_ptr<File> FilePool::getFromPool(const Sha1Sum& sha1sum)

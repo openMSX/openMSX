@@ -2,6 +2,7 @@
 #define SHA1_HH
 
 #include "string_ref.hh"
+#include <ostream>
 #include <string>
 #include <cstdint>
 
@@ -31,16 +32,22 @@ public:
 	void clear();
 
 	bool operator==(const Sha1Sum& other) const;
-	bool operator!=(const Sha1Sum& other) const;
+	bool operator!=(const Sha1Sum& other) const { return !(*this == other); }
 	bool operator< (const Sha1Sum& other) const;
+	bool operator<=(const Sha1Sum& other) const { return !(other <  *this); }
+	bool operator> (const Sha1Sum& other) const { return  (other <  *this); }
+	bool operator>=(const Sha1Sum& other) const { return !(*this <  other); }
+
+	friend std::ostream& operator<<(std::ostream& os, const Sha1Sum& sum) {
+		os << sum.toString();
+		return os;
+	}
 
 private:
 	uint32_t a[5];
 	friend class SHA1;
 };
 
-class CliComm;
-class EventDistributor;
 
 /** Helper class to perform a sha1 calculation.
   * Basic usage:
@@ -64,16 +71,6 @@ public:
 
 	/** Easier to use interface, if you can pass all data in one go. */
 	static Sha1Sum calc(const uint8_t* data, size_t len);
-
-	/** Easier to use interface, if you can pass all data in one go. But
-	  * also report progress.
-	  * Note that this only works when the given file is calculated
-	  * completely, in one call. The caller is responsible to make sure
-	  * this is the case.
-	  */
-	static Sha1Sum calcWithProgress(const uint8_t* data, size_t len, const
-			std::string& filename, CliComm& cliComm,
-			EventDistributor& distributor);
 
 private:
 	void transform(const uint8_t buffer[64]);
