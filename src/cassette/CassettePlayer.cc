@@ -385,11 +385,12 @@ void CassettePlayer::insertTape(const Filename& filename)
 
 void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 {
-	if (getState() == RECORD) {
-		// First close the recorded image. Otherwise it goes wrong
-		// if you switch from RECORD->PLAY on the same image.
-		setState(STOP, getImageName(), time); // keep current image
-	}
+	// Temporally go to STOP state:
+	// RECORD: First close the recorded image. Otherwise it goes wrong
+	//         if you switch from RECORD->PLAY on the same image.
+	// PLAY: Go to stop because we temporally violate some invariants
+	//       (tapePos can be beyond end-of-tape).
+	setState(STOP, getImageName(), time); // keep current image
 	insertTape(filename);
 	rewind(time); // sets PLAY mode
 	autoRun();
@@ -397,6 +398,7 @@ void CassettePlayer::playTape(const Filename& filename, EmuTime::param time)
 
 void CassettePlayer::rewind(EmuTime::param time)
 {
+	sync(time); // before tapePos changes
 	assert(getState() != RECORD);
 	tapePos = EmuTime::zero;
 	audioPos = 0;
@@ -408,6 +410,7 @@ void CassettePlayer::rewind(EmuTime::param time)
 		// keep current image
 		setState(PLAY, getImageName(), time);
 	}
+	updateLoadingState(time);
 }
 
 void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
@@ -420,6 +423,7 @@ void CassettePlayer::recordTape(const Filename& filename, EmuTime::param time)
 
 void CassettePlayer::removeTape(EmuTime::param time)
 {
+	sync(time); // before tapePos changes
 	playImage.reset();
 	tapePos = EmuTime::zero;
 	setState(STOP, Filename(), time);
