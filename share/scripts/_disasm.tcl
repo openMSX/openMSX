@@ -2,66 +2,67 @@ namespace eval disasm {
 
 # very common debug functions
 
-proc peek {addr} {
-	debug read memory $addr
+proc peek {addr {m memory}} {
+	debug read $m $addr
 }
-proc peek8 {addr} {
-	peek $addr
+proc peek8 {addr {m memory}} {
+	peek $addr $m
 }
-proc peek_u8 {addr} {
-	peek $addr
+proc peek_u8 {addr {m memory}} {
+	peek $addr $m
 }
-proc peek_s8 {addr} {
-	set b [peek $addr]
+proc peek_s8 {addr {m memory}} {
+	set b [peek $addr $m]
 	expr {($b < 128) ? $b : ($b - 256)}
 }
-proc peek16 {addr} {
-	expr {[peek $addr] + 256 * [peek [expr {$addr + 1}]]}
+proc peek16 {addr {m memory}} {
+	expr {[peek $addr $m] + 256 * [peek [expr {$addr + 1}] $m]}
 }
-proc peek16_LE {addr} {
-	peek16 $addr
+proc peek16_LE {addr {m memory}} {
+	peek16 $addr $m
 }
-proc peek16_BE {addr} {
-	expr {256 * [peek $addr] + [peek [expr {$addr + 1}]]}
+proc peek16_BE {addr {m memory}} {
+	expr {256 * [peek $addr $m] + [peek [expr {$addr + 1}] $m]}
 }
-proc peek_u16 {addr} {
-	peek16 $addr
+proc peek_u16 {addr {m memory}} {
+	peek16 $addr $m
 }
-proc peek_u16LE {addr} {
-	peek16 $addr
+proc peek_u16LE {addr {m memory}} {
+	peek16 $addr $m
 }
-proc peek_u16BE {addr} {
-	peek16_BE $addr
+proc peek_u16BE {addr {m memory}} {
+	peek16_BE $addr $m
 }
-proc peek_s16 {addr} {
-	set w [peek16 $addr]
+proc peek_s16 {addr {m memory}} {
+	set w [peek16 $addr $m]
 	expr {($w < 32768) ? $w : ($w - 65536)}
 }
-proc peek_s16LE {addr} {
-	peek_s16 $addr
+proc peek_s16LE {addr {m memory}} {
+	peek_s16 $addr $m
 }
-proc peek_s16BE {addr} {
-	set w [peek16_BE $addr]
+proc peek_s16BE {addr {m memory}} {
+	set w [peek16_BE $addr $m]
 	expr {($w < 32768) ? $w : ($w - 65536)}
 }
 
 set help_text_peek \
 {Read a byte or word from the given memory location.
+Optionally allows to specify a different 'debuggable' (default is 'memory').
 
 usage:
-  peek        <addr>  Read unsigned 8-bit value from address
-  peek8       <addr>       unsigned 8-bit
-  peek_u8     <addr>       unsigned 8-bit
-  peek_s8     <addr>         signed 8-bit
-  peek16      <addr>       unsigned 16-bit little endian
-  peek16_LE   <addr>       unsigned 16-bit little endian
-  peek16_BE   <addr>       unsigned 16-bit big    endian
-  peek_u16    <addr>       unsigned 16-bit little endian
-  peek_u16_LE <addr>       unsigned 16-bit little endian
-  peek_u16_BE <addr>       unsigned 16-bit big    endian
-  peek_s16    <addr>         signed 16-bit little endian
-  peek_s16_LE <addr>         signed 16-bit little endian
-  peek_s16_BE <addr>         signed 16-bit big    endian
+  peek        <addr> [<mem>] Read unsigned 8-bit value from address
+  peek8       <addr> [<mem>]      unsigned 8-bit
+  peek_u8     <addr> [<mem>]      unsigned 8-bit
+  peek_s8     <addr> [<mem>]        signed 8-bit
+  peek16      <addr> [<mem>]      unsigned 16-bit little endian
+  peek16_LE   <addr> [<mem>]      unsigned 16-bit little endian
+  peek16_BE   <addr> [<mem>]      unsigned 16-bit big    endian
+  peek_u16    <addr> [<mem>]      unsigned 16-bit little endian
+  peek_u16_LE <addr> [<mem>]      unsigned 16-bit little endian
+  peek_u16_BE <addr> [<mem>]      unsigned 16-bit big    endian
+  peek_s16    <addr> [<mem>]        signed 16-bit little endian
+  peek_s16_LE <addr> [<mem>]        signed 16-bit little endian
+  peek_s16_BE <addr> [<mem>]        signed 16-bit big    endian
 }
 set_help_text peek        $help_text_peek
 set_help_text peek8       $help_text_peek
@@ -78,32 +79,33 @@ set_help_text peek_s16_LE $help_text_peek
 set_help_text peek_s16_BE $help_text_peek
 
 
-proc poke {addr val} {
-	debug write memory $addr $val
+proc poke {addr val {m memory}} {
+	debug write $m $addr $val
 }
-proc poke8 {addr val} {
-	poke $addr $val
+proc poke8 {addr val {m memory}} {
+	poke $addr $val $m
 }
-proc poke16 {addr val} {
-	debug write memory       $addr        [expr { $val       & 255}]
-	debug write memory [expr {$addr + 1}] [expr {($val >> 8) & 255}]
+proc poke16 {addr val {m memory}} {
+	poke        $addr       [expr { $val       & 255}] $m
+	poke [expr {$addr + 1}] [expr {($val >> 8) & 255}] $m
 }
-proc poke16_LE {addr val} {
-	poke16 $addr $val
+proc poke16_LE {addr val {m memory}} {
+	poke16 $addr $val $m
 }
-proc poke16_BE {addr val} {
-	debug write memory       $addr        [expr {($val >> 8) & 255}]
-	debug write memory [expr {$addr + 1}] [expr { $val       & 255}]
+proc poke16_BE {addr val {m memory}} {
+	 poke        $addr       [expr {($val >> 8) & 255}] $m
+	 poke [expr {$addr + 1}] [expr { $val       & 255}] $m
 }
 set help_text_poke \
 {Write a byte or word to the given memory location.
+Optionally allows to specify a different 'debuggable' (default is 'memory').
 
 usage:
-  poke      <addr> <val>    Write 8-bit value
-  poke8     <addr> <val>          8-bit
-  poke16    <addr> <val>         16-bit little endian
-  poke16_LE <addr> <val>         16-bit little endian
-  poke16_BE <addr> <val>         16-bit big    endian
+  poke      <addr> <val> [<mem>]   Write 8-bit value
+  poke8     <addr> <val> [<mem>]         8-bit
+  poke16    <addr> <val> [<mem>]        16-bit little endian
+  poke16_LE <addr> <val> [<mem>]        16-bit little endian
+  poke16_BE <addr> <val> [<mem>]        16-bit big    endian
 }
 set_help_text poke      $help_text_poke
 set_help_text poke8     $help_text_poke
@@ -116,8 +118,8 @@ set_help_text poke16_BE $help_text_poke
 # poke-ing adds an entry into the replay file and therefore
 # the file size can grow significantly. Therefor dpoke (poke
 # if different or diffpoke) is introduced.
-proc dpoke {addr val} {
-	if {[debug read memory $addr] != $val} {debug write memory $addr $val}
+proc dpoke {addr val {m memory}} {
+	if {[peek $addr $m] != $val} {poke $addr $val $m}
 }
 
 
