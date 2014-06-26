@@ -105,6 +105,7 @@ public:
 	inline void writeMem(word address, byte value, EmuTime::param time) {
 		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 			writeMemSlow(address, value, time);
+			return;
 		}
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}

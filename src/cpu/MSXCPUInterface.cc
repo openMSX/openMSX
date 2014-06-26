@@ -285,6 +285,9 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, EmuTime::param time
 {
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
 		setSubSlot(primarySlotState[3], value);
+		// Confirmed on turboR GT machine: write does _not_ also go to
+		// the underlying (hidden) device. But it's theoretically
+		// possible other slotexpanders behave different.
 	} else {
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
