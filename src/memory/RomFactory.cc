@@ -82,6 +82,11 @@ static RomType guessRomType(const Rom& rom)
 		// not correct for Konami-DAC, but does this really need
 		// to be correct for _every_ rom?
 		return ROM_MIRRORED;
+	} else if (size == 0x10000 && !((data[0] == 'A') && (data[1] == 'B'))) {
+		// 64 kB ROMs can be plain or memory mapped...
+		// check here for plain, if not, try the auto detection
+		// (thanks for the hint, hap)
+		return ROM_MIRRORED;
 	} else {
 		//  GameCartridges do their bankswitching by using the Z80
 		//  instruction ld(nn),a in the middle of program code. The
@@ -153,6 +158,8 @@ unique_ptr<MSXDevice> create(const DeviceConfig& config)
 
 	// Get specified mapper type from the config.
 	RomType type;
+	// if no type is mentioned, we assume 'mirrored' which works for most
+	// plain ROMs...
 	string_ref typestr = config.getChildData("mappertype", "Mirrored");
 	if (typestr == "auto") {
 		// Guess mapper type, if it was not in DB.
