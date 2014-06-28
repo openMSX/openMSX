@@ -393,7 +393,7 @@ string OSDText::getWordWrappedText(const string& text, unsigned maxWidth) const
 			StringOp::trimRight(first, ' '); // remove trailing spaces
 			wrappedLines.push_back(first);
 			line = line.substr(pos);
-			StringOp::trimLeft(line, " "); // remove leading spaces
+			StringOp::trimLeft(line, ' '); // remove leading spaces
 		} while (!line.empty());
 	}
 	return StringOp::join(wrappedLines, '\n');

@@ -107,7 +107,9 @@ namespace StringOp
 	void trimRight(string_ref& str, string_ref chars);
 	void trimRight(string_ref& str, char chars);
 	void trimLeft (std::string& str, const char* chars);
+	void trimLeft (std::string& str, char chars);
 	void trimLeft (string_ref& str, string_ref chars);
+	void trimLeft (string_ref& str, char chars);
 
 	void splitOnFirst(string_ref str, string_ref chars,
 	                  string_ref& first, string_ref& last);

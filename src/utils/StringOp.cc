@@ -286,13 +286,24 @@ void trimRight(string_ref& str, char chars)
 		str.pop_back();
 	}
 }
-void trimLeft (string& str, const char* chars)
+
+void trimLeft(string& str, const char* chars)
 {
 	str.erase(0, str.find_first_not_of(chars));
 }
-void trimLeft (string_ref& str, string_ref chars)
+void trimLeft(string& str, char chars)
 {
-	while (!str.empty() && (chars.find(str[0]) != string_ref::npos)) {
+	str.erase(0, str.find_first_not_of(chars));
+}
+void trimLeft(string_ref& str, string_ref chars)
+{
+	while (!str.empty() && (chars.find(str.front()) != string_ref::npos)) {
+		str.pop_front();
+	}
+}
+void trimLeft(string_ref& str, char chars)
+{
+	while (!str.empty() && (str.front() == chars)) {
 		str.pop_front();
 	}
 }
