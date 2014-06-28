@@ -40,8 +40,8 @@ GLPostProcessor::GLPostProcessor(
 	unsigned maxWidth, unsigned height_, bool canDoInterlace)
 	: PostProcessor(motherBoard, display, screen,
 	                videoSource, maxWidth, height_, canDoInterlace)
-	, noiseTextureA(true) // interpolate
-	, noiseTextureB(true)
+	, noiseTextureA(true, true) // interpolate + wrap
+	, noiseTextureB(true, true)
 	, height(height_)
 {
 	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
@@ -63,7 +63,6 @@ GLPostProcessor::GLPostProcessor(
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].bind();
-		colorTex[i].setWrapMode(false);
 		colorTex[i].enableInterpolation();
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
@@ -318,7 +317,6 @@ void GLPostProcessor::uploadBlock(
 		TextureData textureData;
 
 		textureData.tex.resize(lineWidth, height * 2); // *2 for interlace
-		textureData.tex.setWrapMode(false);
 
 		if (textureData.pbo.openGLSupported()) {
 			textureData.pbo.setImage(lineWidth, height * 2);

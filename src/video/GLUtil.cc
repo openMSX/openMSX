@@ -34,7 +34,7 @@ void checkGLError(const string& prefix)
 
 // class Texture
 
-Texture::Texture(bool interpolation)
+Texture::Texture(bool interpolation, bool wrap)
 {
 	allocate();
 	if (interpolation) {
@@ -42,6 +42,7 @@ Texture::Texture(bool interpolation)
 	} else {
 		disableInterpolation();
 	}
+	setWrapMode(wrap);
 }
 
 void Texture::allocate()
@@ -75,7 +76,6 @@ void Texture::setWrapMode(bool wrap)
 	int mode = wrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, mode);
 }
 
 

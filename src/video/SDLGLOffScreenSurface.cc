@@ -11,7 +11,6 @@ SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
 
 	fboTex.bind();
-	fboTex.setWrapMode(false);
 	fboTex.enableInterpolation();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level

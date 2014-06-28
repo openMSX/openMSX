@@ -37,7 +37,7 @@ class Texture
 {
 public:
 	/** Allocate a openGL texture name and enable/disable interpolation. */
-	explicit Texture(bool interpolation = false);
+	explicit Texture(bool interpolation = false, bool wrap = false);
 
 	/** Create null-handle (not yet allocate an openGL handle). */
 	explicit Texture(Null) : textureId(0) {}

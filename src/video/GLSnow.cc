@@ -13,14 +13,14 @@ namespace openmsx {
 GLSnow::GLSnow(Display& display_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
 	, display(display_)
-	, noiseTexture(true) // enable interpolation
+	, noiseTexture(true, true) // enable interpolation + wrapping
 {
 	// Create noise texture.
 	byte buf[128 * 128];
 	for (auto& b : buf) {
 		b = byte(rand());
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 128, 128, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
 }
 

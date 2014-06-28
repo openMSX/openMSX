@@ -24,7 +24,6 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 	}
 
 	edgeTexture.bind();
-	edgeTexture.setWrapMode(false);
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_LUMINANCE16,   // internal format
@@ -43,7 +42,6 @@ GLHQLiteScaler::GLHQLiteScaler(GLScaler& fallback_)
 		string offsetName = StringOp::Builder() <<
 			"shaders/HQ" << n << "xLiteOffsets.dat";
 		File offsetFile(context.resolve(offsetName));
-		offsetTexture[i].setWrapMode(false);
 		offsetTexture[i].bind();
 		size_t size; // dummy
 		glTexImage2D(GL_TEXTURE_2D,        // target
