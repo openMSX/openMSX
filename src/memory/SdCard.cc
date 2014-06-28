@@ -10,8 +10,7 @@
 // TODO:
 // - use HD instead of SRAM?
 //   - then also decide on which constructor args we need like name
-// - replace transferDelayCounter with 0xFF's in responseQueue? What to do with
-//   reset command which clears the queue?
+// - replace transferDelayCounter with 0xFF's in responseQueue?
 // - remove duplication between READ/WRITE and READ_MULTI/WRITE_MULTI (is it worth it?)
 // - see TODOs in the code below
 
@@ -38,23 +37,16 @@ static const byte R1_PARAMETER_ERROR = 0x80;
 SdCard::SdCard(const DeviceConfig& config, const std::string& name_)
 	: ram(config.getXML() == nullptr ? nullptr : make_unique<SRAM>(name_ + "SD flash", config.getChildDataAsInt("size", 100) * 1024 * 1024, config))
 	, name(name_)
+	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)
 	, currentSector(0)
 	, currentByteInSector(0)
 {
-	reset();
 }
 
 SdCard::~SdCard()
 {
-}
-
-void SdCard::reset()
-{
-	cmdIdx = 0;
-	responseQueue.clear();
-	mode = COMMAND;
 }
 
 byte SdCard::transfer(byte value, bool cs)
@@ -63,7 +55,6 @@ byte SdCard::transfer(byte value, bool cs)
 
 	if (cs) {
 		// /CS is true: not for this chip
-		reset(); // TODO: is this correct?
 		return 0xFF;
 	}
 
@@ -202,7 +193,8 @@ void SdCard::executeCommand()
 	byte command = cmdBuf[0] & 0x3F;
 	switch (command) {
 	case 0:  // GO_IDLE_STATE
-		reset();
+		responseQueue.clear();
+		mode = COMMAND;
 		responseQueue.push_back(R1_IDLE);
 		break;
 	case 8:  // SEND_IF_COND

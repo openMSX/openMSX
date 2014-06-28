@@ -32,7 +32,6 @@ public:
 	};
 
 private:
-	void reset();
 	void executeCommand();
 
 	static const int SECTOR_SIZE = 512;
