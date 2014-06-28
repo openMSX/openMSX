@@ -62,7 +62,7 @@ byte SdCard::transfer(byte value, bool cs)
 
 	if (cs) {
 		// /CS is true: not for this chip
-		reset();
+		reset(); // TODO: is this correct?
 		return 0xFF;
 	}
 
@@ -82,8 +82,7 @@ byte SdCard::transfer(byte value, bool cs)
 				}
 				currentByteInSector++;
 				if (currentByteInSector == SECTOR_SIZE) {
-					responseQueue.push_back(0x00); // CRC 1 (dummy)
-					responseQueue.push_back(0x00); // CRC 2 (dummy)	
+					responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 					mode = COMMAND;
 				}
 				break;
@@ -103,8 +102,7 @@ byte SdCard::transfer(byte value, bool cs)
 					if (currentByteInSector == SECTOR_SIZE) {
 						currentSector++;
 						currentByteInSector = -1;
-						responseQueue.push_back(0x00); // CRC 1 (dummy)
-						responseQueue.push_back(0x00); // CRC 2 (dummy)	
+						responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 					}
 				}
 				break;
@@ -208,54 +206,58 @@ void SdCard::executeCommand()
 		break;
 	case 8:  // SEND_IF_COND
 		// conditions are always OK
-		responseQueue.push_back(R1_IDLE); // R1 (OK) SDHC
-		responseQueue.push_back(0x02); // command version
-		responseQueue.push_back(0x00); // reserved
-		responseQueue.push_back(0x01); // voltage accepted
-		responseQueue.push_back(cmdBuf[4]); // check pattern
+		responseQueue.push_back({
+			R1_IDLE,    // R1 (OK) SDHC
+			byte(0x02), // command version
+			byte(0x00), // reserved
+			byte(0x01), // voltage accepted
+			cmdBuf[4]});// check pattern
 		break;
 	case 9:{ // SEND_CSD 
-		responseQueue.push_back(R1_IDLE); // OK
+		responseQueue.push_back({
+			R1_IDLE, // OK
 		// now follows a CSD version 2.0 (for SDHC)
-		responseQueue.push_back(START_BLOCK_TOKEN); // data token
-		responseQueue.push_back(0x01); // CSD_STRUCTURE [127:120]
-		responseQueue.push_back(0x0E); // (TAAC)
-		responseQueue.push_back(0x00); // (NSAC) 
-		responseQueue.push_back(0x32); // (TRAN_SPEED)
-		responseQueue.push_back(0x00); // CCC
-		responseQueue.push_back(0x00); // CCC / (READ_BL_LEN)
-		responseQueue.push_back(0x00); // (RBP)/(WBM)/(RBM)/ DSR_IMP 
+			START_BLOCK_TOKEN, // data token
+			byte(0x01),        // CSD_STRUCTURE [127:120]
+			byte(0x0E),        // (TAAC)
+			byte(0x00),        // (NSAC)
+			byte(0x32),        // (TRAN_SPEED)
+			byte(0x00),        // CCC
+			byte(0x00),        // CCC / (READ_BL_LEN)
+			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
 		unsigned c_size = ram->getSize() / (512 * 1024) - 1;
-		responseQueue.push_back((c_size >> 16) & 0x3F); // C_SIZE 1
-		responseQueue.push_back((c_size >>  8) & 0xFF); // C_SIZE 2
-		responseQueue.push_back((c_size >>  0) & 0xFF); // C_SIZE 3
-		responseQueue.push_back(0x00); // res/(EBE)/(SS1)
-		responseQueue.push_back(0x00); // (SS2)/(WGS)
-		responseQueue.push_back(0x00); // (WGE)/res/(RF)/(WBL1)
-		responseQueue.push_back(0x00); // (WBL2)/(WBP)/res 
-		responseQueue.push_back(0x00); // (FFG)/COPY/PWP/TWP/(FF)/res
-		responseQueue.push_back(0x01); // CRC / 1
+		responseQueue.push_back({
+			byte((c_size >> 16) & 0x3F), // C_SIZE 1
+			byte((c_size >>  8) & 0xFF), // C_SIZE 2
+			byte((c_size >>  0) & 0xFF), // C_SIZE 3
+			byte(0x00),   // res/(EBE)/(SS1)
+			byte(0x00),   // (SS2)/(WGS)
+			byte(0x00),   // (WGE)/res/(RF)/(WBL1)
+			byte(0x00),   // (WBL2)/(WBP)/res
+			byte(0x00),   // (FFG)/COPY/PWP/TWP/(FF)/res
+			byte(0x01)}); // CRC / 1
 		break;}
 	case 10: // SEND_CID
-		responseQueue.push_back(R1_IDLE); // OK
-		responseQueue.push_back(START_BLOCK_TOKEN); // data token
-		responseQueue.push_back(0xAA); // CID01 // manuf ID
-		responseQueue.push_back( 'o'); // CID02 // OEM/App ID 1
-		responseQueue.push_back( 'p'); // CID03 // OEM/App ID 2
-		responseQueue.push_back( 'e'); // CID04 // Prod name 1
-		responseQueue.push_back( 'n'); // CID05 // Prod name 2
-		responseQueue.push_back( 'M'); // CID06 // Prod name 3
-		responseQueue.push_back( 'S'); // CID07 // Prod name 4
-		responseQueue.push_back( 'X'); // CID08 // Prod name 5
-		responseQueue.push_back(0x01); // CID09 // Prod Revision
-		responseQueue.push_back(0x12); // CID10 // Prod Serial 1
-		responseQueue.push_back(0x34); // CID11 // Prod Serial 2
-		responseQueue.push_back(0x56); // CID12 // Prod Serial 3 
-		responseQueue.push_back(0x78); // CID13 // Prod Serial 4
-		responseQueue.push_back(0x00); // CID14 // reserved / Y1
-		responseQueue.push_back(0xE6); // CID15 // Y2 / M
-		responseQueue.push_back(0x01); // CID16 // CRC / not used
+		responseQueue.push_back({
+			R1_IDLE, // OK
+			START_BLOCK_TOKEN, // data token
+			byte(0xAA),   // CID01 // manuf ID
+			byte('o' ),   // CID02 // OEM/App ID 1
+			byte('p' ),   // CID03 // OEM/App ID 2
+			byte('e' ),   // CID04 // Prod name 1
+			byte('n' ),   // CID05 // Prod name 2
+			byte('M' ),   // CID06 // Prod name 3
+			byte('S' ),   // CID07 // Prod name 4
+			byte('X' ),   // CID08 // Prod name 5
+			byte(0x01),   // CID09 // Prod Revision
+			byte(0x12),   // CID10 // Prod Serial 1
+			byte(0x34),   // CID11 // Prod Serial 2
+			byte(0x56),   // CID12 // Prod Serial 3
+			byte(0x78),   // CID13 // Prod Serial 4
+			byte(0x00),   // CID14 // reserved / Y1
+			byte(0xE6),   // CID15 // Y2 / M
+			byte(0x01)}); // CID16 // CRC / not used
 		break;
 	case 12: // STOP TRANSMISSION
 		responseQueue.push_back(R1_IDLE); // R1 (OK)
@@ -293,11 +295,12 @@ void SdCard::executeCommand()
 		responseQueue.push_back(R1_IDLE);
 		break;
 	case 58: // READ_OCR
-		responseQueue.push_back(0x01); // R1 (OK)
-		responseQueue.push_back(0x40); // OCR Reg part 1 (SDHC: CCS=1)
-		responseQueue.push_back(0x00); // OCR Reg part 2
-		responseQueue.push_back(0x00); // OCR Reg part 3
-		responseQueue.push_back(0x00); // OCR Reg part 4
+		responseQueue.push_back({
+			0x01,   // R1 (OK)
+			0x40,   // OCR Reg part 1 (SDHC: CCS=1)
+			0x00,   // OCR Reg part 2
+			0x00,   // OCR Reg part 3
+			0x00}); // OCR Reg part 4
 		break;
 	
 	default:
