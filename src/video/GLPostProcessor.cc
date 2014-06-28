@@ -40,8 +40,8 @@ GLPostProcessor::GLPostProcessor(
 	unsigned maxWidth, unsigned height_, bool canDoInterlace)
 	: PostProcessor(motherBoard, display, screen,
 	                videoSource, maxWidth, height_, canDoInterlace)
-	, noiseTextureA(256, 256)
-	, noiseTextureB(256, 256)
+	, noiseTextureA(true) // interpolate
+	, noiseTextureB(true)
 	, height(height_)
 {
 	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
@@ -443,8 +443,30 @@ void GLPostProcessor::preCalcNoise(float factor)
 		buf1[i] = (s > 0) ?  s : 0;
 		buf2[i] = (s < 0) ? -s : 0;
 	}
-	noiseTextureA.updateImage(0, 0, 256, 256, buf1);
-	noiseTextureB.updateImage(0, 0, 256, 256, buf2);
+
+	noiseTextureA.bind();
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		GL_LUMINANCE,     // internal format
+		256,              // width
+		256,              // height
+		0,                // border
+		GL_LUMINANCE,     // format
+		GL_UNSIGNED_BYTE, // type
+		buf1);            // data
+
+	noiseTextureB.bind();
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		GL_LUMINANCE,     // internal format
+		256,              // width
+		256,              // height
+		0,                // border
+		GL_LUMINANCE,     // format
+		GL_UNSIGNED_BYTE, // type
+		buf2);            // data
 }
 
 void GLPostProcessor::drawNoise()

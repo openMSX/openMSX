@@ -56,8 +56,8 @@ private:
 	gl::FrameBufferObject fbo[2];
 
 	// Noise effect:
-	gl::LuminanceTexture noiseTextureA;
-	gl::LuminanceTexture noiseTextureB;
+	gl::Texture noiseTextureA;
+	gl::Texture noiseTextureB;
 	double noiseX;
 	double noiseY;
 

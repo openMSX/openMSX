@@ -136,36 +136,6 @@ private:
 	GLsizei height;
 };
 
-class LuminanceTexture : public Texture
-{
-public:
-	/** Move constructor and assignment. */
-	LuminanceTexture(LuminanceTexture&& other)
-		: Texture(std::move(other))
-	{
-	}
-	LuminanceTexture& operator=(LuminanceTexture&& other) {
-		*this = std::move(other);
-		return *this;
-	}
-
-	/** Create grayscale texture with given size.
-	  * Initial content is undefined.
-	  */
-	LuminanceTexture(GLsizei width, GLsizei height);
-
-	/** Redefines (part of) the image for this texture.
-	  */
-	void updateImage(GLint x, GLint y,
-	                 GLsizei width, GLsizei height,
-	                 GLbyte* data);
-
-private:
-	// Disable copy, assign.
-	LuminanceTexture(const LuminanceTexture&);
-	LuminanceTexture& operator=(const LuminanceTexture&);
-};
-
 class FrameBufferObject //: public noncopyable
 {
 public:

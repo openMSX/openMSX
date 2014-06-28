@@ -104,41 +104,6 @@ void ColorTexture::resize(GLsizei width_, GLsizei height_)
 }
 
 
-// class LuminanceTexture
-
-LuminanceTexture::LuminanceTexture(GLsizei width, GLsizei height)
-{
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexImage2D(
-		GL_TEXTURE_2D,    // target
-		0,                // level
-		GL_LUMINANCE8,    // internal format
-		width,            // width
-		height,           // height
-		0,                // border
-		GL_LUMINANCE,     // format
-		GL_UNSIGNED_BYTE, // type
-		nullptr);         // data
-}
-
-void LuminanceTexture::updateImage(
-	GLint x, GLint y, GLsizei width, GLsizei height, GLbyte* data)
-{
-	bind();
-	glTexSubImage2D(
-		GL_TEXTURE_2D,    // target
-		0,                // level
-		x,                // offset x
-		y,                // offset y
-		width,            // width
-		height,           // height
-		GL_LUMINANCE,     // format
-		GL_UNSIGNED_BYTE, // type
-		data);            // data
-}
-
-
 // class FrameBufferObject
 
 static GLuint currentId = 0;
