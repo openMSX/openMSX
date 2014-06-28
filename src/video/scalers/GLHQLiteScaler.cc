@@ -68,7 +68,7 @@ void GLHQLiteScaler::scaleImage(
 
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		setup(superImpose);
-		src.enableInterpolation();
+		src.setInterpolation(true);
 		glActiveTexture(GL_TEXTURE3);
 		offsetTexture[factorX - 2].bind();
 		glActiveTexture(GL_TEXTURE2);
@@ -78,7 +78,7 @@ void GLHQLiteScaler::scaleImage(
 		        srcStartY, srcEndY, srcWidth,
 		        dstStartY, dstEndY, dstWidth,
 		        logSrcHeight);
-		src.disableInterpolation();
+		src.setInterpolation(false);
 	} else {
 		fallback.scaleImage(src, superImpose,
 		                    srcStartY, srcEndY, srcWidth,

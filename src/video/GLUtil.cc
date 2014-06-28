@@ -37,11 +37,7 @@ void checkGLError(const string& prefix)
 Texture::Texture(bool interpolation, bool wrap)
 {
 	allocate();
-	if (interpolation) {
-		enableInterpolation();
-	} else {
-		disableInterpolation();
-	}
+	setInterpolation(interpolation);
 	setWrapMode(wrap);
 }
 
@@ -56,18 +52,12 @@ void Texture::reset()
 	textureId = 0;
 }
 
-void Texture::enableInterpolation()
+void Texture::setInterpolation(bool interpolation)
 {
 	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-void Texture::disableInterpolation()
-{
-	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	int mode = interpolation ? GL_LINEAR : GL_NEAREST;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mode);
 }
 
 void Texture::setWrapMode(bool wrap)

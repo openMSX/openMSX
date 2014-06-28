@@ -37,7 +37,7 @@ void GLSimpleScaler::scaleImage(
 	if ((blur != 0.0f) || (scanline != 1.0f) || superImpose) {
 		setup(superImpose);
 		if ((blur != 0.0f) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
-			src.enableInterpolation();
+			src.setInterpolation(true);
 		}
 		GLfloat scan_a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		GLfloat scan_b = 2.0f - 2.0f * scanline;
@@ -56,7 +56,7 @@ void GLSimpleScaler::scaleImage(
 		        dstStartY, dstEndY, dstWidth,
 		        logSrcHeight);
 
-		src.disableInterpolation();
+		src.setInterpolation(false);
 	} else {
 		fallback.scaleImage(src, superImpose, srcStartY, srcEndY, srcWidth,
 		                    dstStartY, dstEndY, dstWidth, logSrcHeight);

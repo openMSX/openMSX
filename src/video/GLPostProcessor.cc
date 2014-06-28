@@ -63,7 +63,7 @@ GLPostProcessor::GLPostProcessor(
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
 		colorTex[i].bind();
-		colorTex[i].enableInterpolation();
+		colorTex[i].setInterpolation(true);
 		glTexImage2D(GL_TEXTURE_2D,     // target
 			     0,                 // level
 			     GL_RGB8,           // internal format
@@ -291,7 +291,7 @@ void GLPostProcessor::uploadFrame()
 		if (superImposeTex.getWidth()  != width ||
 		    superImposeTex.getHeight() != height) {
 			superImposeTex.resize(width, height);
-			superImposeTex.enableInterpolation();
+			superImposeTex.setInterpolation(true);
 		}
 		superImposeTex.bind();
 		glTexSubImage2D(

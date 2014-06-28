@@ -6,12 +6,12 @@ namespace openmsx {
 
 SDLGLOffScreenSurface::SDLGLOffScreenSurface(const SDLGLVisibleSurface& output)
 	: SDLGLOutputSurface(output.getFrameBufferType())
+	, fboTex(true) // enable interpolation   TODO why?
 {
 	// only used for width and height
 	setSDLSurface(const_cast<SDL_Surface*>(output.getSDLSurface()));
 
 	fboTex.bind();
-	fboTex.enableInterpolation();
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_RGB8,          // internal format

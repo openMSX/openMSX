@@ -95,7 +95,7 @@ void SDLGLOutputSurface::init(OutputSurface& output)
 		texCoordY = float(height) / texH;
 
 		fbTex.allocate();
-		fbTex.disableInterpolation();
+		fbTex.setInterpolation(false);
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,

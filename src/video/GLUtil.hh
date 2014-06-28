@@ -76,14 +76,10 @@ public:
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 
-	/** Enables bilinear interpolation for this texture.
+	/** Enable/disable bilinear interpolation for this texture. IOW selects
+	 * between GL_NEAREST or GL_LINEAR filtering.
 	  */
-	void enableInterpolation();
-
-	/** Disables bilinear interpolation for this texture and uses nearest
-	  * neighbour instead.
-	  */
-	void disableInterpolation();
+	void setInterpolation(bool interpolation);
 
 	void setWrapMode(bool wrap);
 

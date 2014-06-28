@@ -36,7 +36,7 @@ void GLRGBScaler::scaleImage(
 		setup(superImpose);
 		if (srcWidth != 1) {
 			// workaround for ATI cards
-			src.enableInterpolation();
+			src.setInterpolation(true);
 		} else {
 			// treat border as 256-pixel wide display area
 			srcWidth = 320;
@@ -53,7 +53,7 @@ void GLRGBScaler::scaleImage(
 		        srcStartY, srcEndY, srcWidth,
 		        dstStartY, dstEndY, dstWidth,
 		        logSrcHeight);
-		src.disableInterpolation();
+		src.setInterpolation(false);
 	} else {
 		fallback.scaleImage(src, superImpose,
 		                    srcStartY, srcEndY, srcWidth,
