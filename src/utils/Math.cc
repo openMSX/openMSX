@@ -1,8 +1,5 @@
 #include "Math.hh"
-#include <cstdint>
-#include <cstdlib>
 
-namespace openmsx {
 namespace Math {
 
 unsigned powerOfTwo(unsigned a)
@@ -18,4 +15,3 @@ unsigned powerOfTwo(unsigned a)
 }
 
 } // namespace Math
-} // namespace openmsx

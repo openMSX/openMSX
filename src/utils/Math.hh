@@ -1,12 +1,11 @@
 #ifndef MATH_HH
 #define MATH_HH
 
-#include "openmsx.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
-namespace openmsx {
 namespace Math {
 
 /** Is the given number an integer power of 2?
@@ -28,34 +27,26 @@ unsigned powerOfTwo(unsigned a);
 template <int LO, int HI>
 inline int clip(int x)
 {
+	static_assert(LO <= HI, "invalid clip range");
 	return unsigned(x - LO) <= unsigned(HI - LO) ? x : (x < HI ? LO : HI);
 }
 
 /** Clip x to range [-32768,32767]. Special case of the version above.
   * Optimized for the case when no clipping is needed.
   */
-inline short clipIntToShort(int x)
+inline int16_t clipIntToShort(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(short(x) == x) ? x : (0x7FFF - (x >> 31));
+	return likely(int16_t(x) == x) ? x : (0x7FFF - (x >> 31));
 }
 
 /** Clip x to range [0,255].
   * Optimized for the case when no clipping is needed.
   */
-inline byte clipIntToByte(int x)
+inline uint8_t clipIntToByte(int x)
 {
 	static_assert((-1 >> 1) == -1, "right-shift must preserve sign");
-	return likely(byte(x) == x) ? x : ~(x >> 31);
-}
-
-/** Clips r * factor to the range [LO,HI].
-  */
-template <int LO, int HI>
-inline int clip(float r, float factor)
-{
-	int a = int(roundf(r * factor));
-	return std::min(std::max(a, LO), HI);
+	return likely(uint8_t(x) == x) ? x : ~(x >> 31);
 }
 
 /** Calculate greatest common divider of two strictly positive integers.
@@ -145,7 +136,7 @@ inline unsigned reverseNBits(unsigned x, unsigned bits)
 /** Reverse the bits in a byte.
   * This is equivalent to (but faster than) reverseNBits(x, 8);
   */
-inline byte reverseByte(byte a)
+inline uint8_t reverseByte(uint8_t a)
 {
 	// Classical implementation (can be extended to 16 and 32 bits)
 	//   a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
@@ -202,6 +193,5 @@ inline unsigned countLeadingZeros(unsigned x)
 }
 
 } // namespace Math
-} // namespace openmsx
 
 #endif // MATH_HH

@@ -153,7 +153,7 @@ void SDLGLOutputSurface::saveScreenshot(
 	const std::string& filename, unsigned width, unsigned height)
 {
 	VLA(const void*, rowPointers, height);
-	MemBuffer<byte> buffer(width * height * 3);
+	MemBuffer<uint8_t> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
 		rowPointers[height - 1 - i] = &buffer[width * 3 * i];
 	}

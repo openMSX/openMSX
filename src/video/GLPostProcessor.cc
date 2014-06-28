@@ -437,7 +437,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (int i = 0; i < 256 * 256; ++i) {
 		float r = distribution(generator);
-		int s = Math::clip<-255, 255>(r, factor);
+		int s = Math::clip<-255, 255>(roundf(r * factor));
 		buf1[i] = (s > 0) ?  s : 0;
 		buf2[i] = (s < 0) ? -s : 0;
 	}
