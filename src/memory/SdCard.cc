@@ -3,16 +3,17 @@
 #include "memory.hh"
 #include "unreachable.hh"
 #include "endian.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
 #include <string>
 
 // TODO:
 // - use HD instead of SRAM?
 //   - then also decide on which constructor args we need like name
-// - check behaviour of case where /CS = 1
 // - replace transferDelayCounter with 0xFF's in responseQueue? What to do with
 //   reset command which clears the queue?
 // - remove duplication between READ/WRITE and READ_MULTI/WRITE_MULTI (is it worth it?)
-// - implement serialize stuff
+// - see TODOs in the code below
 
 namespace openmsx {
 
@@ -308,5 +309,28 @@ void SdCard::executeCommand()
 		break;
 	}
 }
+
+static enum_string<SdCard::Mode> modeInfo[] = {
+	{ "COMMAND",     SdCard::COMMAND  },
+	{ "READ",        SdCard::READ },
+	{ "MULTI_READ",  SdCard::MULTI_READ },
+	{ "WRITE",       SdCard::WRITE },
+	{ "MULTI_WRITE", SdCard::MULTI_WRITE }
+};
+SERIALIZE_ENUM(SdCard::Mode, modeInfo);
+
+template<typename Archive>
+void SdCard::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("mode", mode);
+	ar.serialize("cmdBuf", cmdBuf);
+	ar.serialize_blob("sectorBuf", sectorBuf, sizeof(sectorBuf));
+	ar.serialize("cmdIdx", cmdIdx);
+	ar.serialize("transferDelayCounter", transferDelayCounter);
+	ar.serialize("responseQueue", responseQueue);
+	ar.serialize("currentSector", currentSector);
+	ar.serialize("currentByteInSector", currentByteInSector);
+}
+INSTANTIATE_SERIALIZE_METHODS(SdCard);
 
 } // namespace openmsx

@@ -944,6 +944,8 @@ void MegaFlashRomSCCPlusSD::serialize(Archive& ar, unsigned /*version*/)
 	// subslot 3 stuff
 	ar.serialize("bankRegsSubSlot3", bankRegsSubSlot3);
 	ar.serialize("selectedCard", selectedCard);
+	ar.serialize("sdCard0", *sdCard[0]);
+	ar.serialize("sdCard1", *sdCard[1]);
 }
 INSTANTIATE_SERIALIZE_METHODS(MegaFlashRomSCCPlusSD);
 REGISTER_MSXDEVICE(MegaFlashRomSCCPlusSD, "MegaFlashRomSCCPlusSD");

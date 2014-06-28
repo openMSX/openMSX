@@ -19,12 +19,10 @@ public:
 
 	byte transfer(byte value, bool cs);
 
-private:
-	void reset();
-	void executeCommand();
-	
-	static const int SECTOR_SIZE = 512;
+        template<typename Archive>
+        void serialize(Archive& ar, unsigned version);
 
+// private:
 	enum Mode {
 		COMMAND,
 		READ,
@@ -32,9 +30,16 @@ private:
 		WRITE,
 		MULTI_WRITE
 	};
-	std::unique_ptr<SRAM> ram;
 
-	std::string name;
+private:
+	void reset();
+	void executeCommand();
+
+	static const int SECTOR_SIZE = 512;
+
+	const std::unique_ptr<SRAM> ram;
+
+	const std::string name;
 
 	byte cmdBuf[6];
 	byte sectorBuf[SECTOR_SIZE];
