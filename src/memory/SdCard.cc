@@ -1,5 +1,7 @@
 #include "SdCard.hh"
-#include "SRAM.hh"
+#include "DeviceConfig.hh"
+#include "HD.hh"
+#include "MSXException.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 #include "endian.hh"
@@ -8,8 +10,6 @@
 #include <string>
 
 // TODO:
-// - use HD instead of SRAM?
-//   - then also decide on which constructor args we need like name
 // - replace transferDelayCounter with 0xFF's in responseQueue?
 // - remove duplication between READ/WRITE and READ_MULTI/WRITE_MULTI (is it worth it?)
 // - see TODOs in the code below
@@ -26,7 +26,8 @@ static const byte START_BLOCK_TOKEN_MBW = 0xFC;
 static const byte STOP_TRAN_TOKEN       = 0xFD;
 
 // data error token
-static const byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x40;
+static const byte DATA_ERROR_TOKEN_ERROR        = 0x01;
+static const byte DATA_ERROR_TOKEN_OUT_OF_RANGE = 0x08;
 
 // responses
 static const byte R1_BUSY            = 0x00;
@@ -34,9 +35,8 @@ static const byte R1_IDLE            = 0x01; // TODO: why is lots of code checki
 static const byte R1_ILLEGAL_COMMAND = 0x04;
 static const byte R1_PARAMETER_ERROR = 0x80;
 
-SdCard::SdCard(const DeviceConfig& config, const std::string& name_)
-	: ram(config.getXML() == nullptr ? nullptr : make_unique<SRAM>(name_ + "SD flash", config.getChildDataAsInt("size", 100) * 1024 * 1024, config))
-	, name(name_)
+SdCard::SdCard(const DeviceConfig& config)
+	: hd(config.getXML() ? make_unique<HD>(config) : nullptr)
 	, cmdIdx(0)
 	, transferDelayCounter(0)
 	, mode(COMMAND)
@@ -51,7 +51,7 @@ SdCard::~SdCard()
 
 byte SdCard::transfer(byte value, bool cs)
 {
-	if (!ram) return 0xFF; // no card inserted
+	if (!hd) return 0xFF; // no card inserted
 
 	if (cs) {
 		// /CS is true: not for this chip
@@ -68,30 +68,43 @@ byte SdCard::transfer(byte value, bool cs)
 			case READ:
 				if (currentByteInSector == -1) {
 					retval = START_BLOCK_TOKEN;
+					try {
+						hd->readSector(currentSector, sectorBuf);
+					} catch (MSXException&) {
+						retval = DATA_ERROR_TOKEN_ERROR;
+					}
 				} else {
 					// output next byte from stream
-					retval = (*ram)[currentSector * SECTOR_SIZE + currentByteInSector];
+					retval = sectorBuf.raw[currentByteInSector];
 				}
 				currentByteInSector++;
-				if (currentByteInSector == SECTOR_SIZE) {
+				if (currentByteInSector == sizeof(sectorBuf)) {
 					responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 					mode = COMMAND;
 				}
 				break;
 			case MULTI_READ:
-				if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
+				// when there's an error, you probably have to send a CMD12
+				// to go back to the COMMAND mode. This is not
+				// clear in the spec (it's wrongly suggested
+				// for the MULTI_WRITE mode!)
+				if (currentSector >= hd->getNbSectors()) {
 					// data out of range, send data error token
 					retval = DATA_ERROR_TOKEN_OUT_OF_RANGE;
-					mode = COMMAND; // TODO: verify this (how?)
 				} else {
 					if (currentByteInSector == -1) {
 						retval = START_BLOCK_TOKEN;
+						try {
+							hd->readSector(currentSector, sectorBuf);
+						} catch (MSXException&) {
+							retval = DATA_ERROR_TOKEN_ERROR;
+						}
 					} else {
 						// output next byte from stream
-						retval = (*ram)[currentSector * SECTOR_SIZE + currentByteInSector];
+						retval = sectorBuf.raw[currentByteInSector];
 					}
 					currentByteInSector++;
-					if (currentByteInSector == SECTOR_SIZE) {
+					if (currentByteInSector == sizeof(sectorBuf)) {
 						currentSector++;
 						currentByteInSector = -1;
 						responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
@@ -121,18 +134,21 @@ byte SdCard::transfer(byte value, bool cs)
 			}
 			break;
 		}
-		if (currentByteInSector < SECTOR_SIZE) {
-			sectorBuf[currentByteInSector] = value;
+		if (currentByteInSector < int(sizeof(sectorBuf))) {
+			sectorBuf.raw[currentByteInSector] = value;
 		}
 		currentByteInSector++;
-		if (currentByteInSector == (SECTOR_SIZE + 2)) {
+		if (currentByteInSector == (sizeof(sectorBuf) + 2)) {
+			byte response = DRT_ACCEPTED;
 			// copy buffer to SD card
-			for (unsigned bc = 0; bc < SECTOR_SIZE; bc++) {
-				ram->write(currentSector * SECTOR_SIZE + bc, sectorBuf[bc]);
+			try {
+				hd->writeSector(currentSector, sectorBuf);
+			} catch (MSXException&) {
+				response = DRT_WRITE_ERROR;
 			}
 			mode = COMMAND;
 			transferDelayCounter = 1;
-			responseQueue.push_back(DRT_ACCEPTED);
+			responseQueue.push_back(response);
 		}
 		break;
 	case MULTI_WRITE:
@@ -146,23 +162,34 @@ byte SdCard::transfer(byte value, bool cs)
 			}
 			break;
 		}
-		if (currentByteInSector < SECTOR_SIZE) {
-			sectorBuf[currentByteInSector] = value;
+		if (currentByteInSector < int(sizeof(sectorBuf))) {
+			sectorBuf.raw[currentByteInSector] = value;
 		}
 		currentByteInSector++;
-		if (currentByteInSector == (SECTOR_SIZE + 2)) {
+		if (currentByteInSector == (sizeof(sectorBuf) + 2)) {
 			// check if still in valid range
 			byte response = DRT_ACCEPTED;
-			if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
+			if (currentSector >= hd->getNbSectors()) {
 				response = DRT_WRITE_ERROR;
-				// note: mode is not changed, should be done by the host with CMD12 (STOP_TRANSMISSION)
+				// note: mode is not changed, should be done by
+				// the host with CMD12 (STOP_TRANSMISSION) -
+				// however, this makes no sense, CMD12 is only
+				// for Multiple Block Read!? Wrong in the spec?
 			} else {
 				// copy buffer to SD card
-				for (unsigned bc = 0; bc < SECTOR_SIZE; bc++) {
-					ram->write(currentSector * SECTOR_SIZE + bc, sectorBuf[bc]);
+				try {
+					hd->writeSector(currentSector, sectorBuf);
+					currentByteInSector = -1;
+					currentSector++;
+				} catch (MSXException&) {
+					response = DRT_WRITE_ERROR;
+					// note: mode is not changed, should be
+					// done by the host with CMD12
+					// (STOP_TRANSMISSION) - however, this
+					// makes no sense, CMD12 is only for
+					// Multiple Block Read!? Wrong in the
+					// spec?
 				}
-				currentByteInSector = -1;
-				currentSector++;
 			}
 			transferDelayCounter = 1;
 			responseQueue.push_back(response);
@@ -219,7 +246,7 @@ void SdCard::executeCommand()
 			byte(0x00),        // CCC / (READ_BL_LEN)
 			byte(0x00)});      // (RBP)/(WBM)/(RBM)/ DSR_IMP
 		// SD_CARD_SIZE = (C_SIZE + 1) * 512kByte
-		unsigned c_size = ram->getSize() / (512 * 1024) - 1;
+		unsigned c_size = (hd->getNbSectors() * sizeof(sectorBuf)) / (512 * 1024) - 1;
 		responseQueue.push_back({
 			byte((c_size >> 16) & 0x3F), // C_SIZE 1
 			byte((c_size >>  8) & 0xFF), // C_SIZE 2
@@ -265,7 +292,7 @@ void SdCard::executeCommand()
 	case 25: // WRITE_MULTIPLE_BLOCK
 		// SDHC so the address is the sector
 		currentSector = Endian::readB32(&cmdBuf[1]);
-		if (currentSector >= (ram->getSize() / SECTOR_SIZE)) {
+		if (currentSector >= hd->getNbSectors()) {
 			responseQueue.push_back(R1_PARAMETER_ERROR);
 		} else {
 			responseQueue.push_back(R1_BUSY);
@@ -316,7 +343,8 @@ void SdCard::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("mode", mode);
 	ar.serialize("cmdBuf", cmdBuf);
-	ar.serialize_blob("sectorBuf", sectorBuf, sizeof(sectorBuf));
+	ar.serialize_blob("sectorBuf", sectorBuf.raw, sizeof(sectorBuf));
+	if (hd) ar.serialize("hd", *hd);
 	ar.serialize("cmdIdx", cmdIdx);
 	ar.serialize("transferDelayCounter", transferDelayCounter);
 	ar.serialize("responseQueue", responseQueue);

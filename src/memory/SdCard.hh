@@ -3,18 +3,19 @@
 
 #include "openmsx.hh"
 #include "circular_buffer.hh"
+#include "DiskImageUtils.hh"
 #include <memory>
 #include <string>
 
 namespace openmsx {
 
-class SRAM;
 class DeviceConfig;
+class HD;
 
 class SdCard
 {
 public:
-	SdCard(const DeviceConfig& config, const std::string& name);
+	SdCard(const DeviceConfig& config);
 	~SdCard();
 
 	byte transfer(byte value, bool cs);
@@ -34,14 +35,10 @@ public:
 private:
 	void executeCommand();
 
-	static const int SECTOR_SIZE = 512;
-
-	const std::unique_ptr<SRAM> ram;
-
-	const std::string name;
+	const std::unique_ptr<HD> hd;
 
 	byte cmdBuf[6];
-	byte sectorBuf[SECTOR_SIZE];
+	SectorBuffer sectorBuf;
 	unsigned cmdIdx;
 
 	cb_queue<byte> responseQueue;

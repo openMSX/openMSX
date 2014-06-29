@@ -297,8 +297,8 @@ MegaFlashRomSCCPlusSD::MegaFlashRomSCCPlusSD(
 		getCPUInterface().register_IO_Out(0xFC, this);
 	}
 
-	sdCard[0] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")), "Card 1");
-	sdCard[1] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")), "Card 2");
+	sdCard[0] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard1")));
+	sdCard[1] = make_unique<SdCard>(DeviceConfig(config, config.findChild("sdcard2")));
 }
 
 MegaFlashRomSCCPlusSD::~MegaFlashRomSCCPlusSD()
