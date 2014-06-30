@@ -34,6 +34,7 @@ public:
 
 private:
 	void executeCommand();
+	byte readCurrentByteFromCurrentSector();
 
 	const std::unique_ptr<HD> hd;
 

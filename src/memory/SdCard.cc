@@ -11,7 +11,7 @@
 
 // TODO:
 // - replace transferDelayCounter with 0xFF's in responseQueue?
-// - remove duplication between READ/WRITE and READ_MULTI/WRITE_MULTI (is it worth it?)
+// - remove duplication between WRITE and MULTI_WRITE (is it worth it?)
 // - see TODOs in the code below
 
 namespace openmsx {
@@ -49,6 +49,27 @@ SdCard::~SdCard()
 {
 }
 
+// helper methods for 'transfer' to avoid duplication
+byte SdCard::readCurrentByteFromCurrentSector() {
+	byte retval;
+	if (currentByteInSector == -1) {
+		retval = START_BLOCK_TOKEN;
+		try {
+			hd->readSector(currentSector, sectorBuf);
+		} catch (MSXException&) {
+			retval = DATA_ERROR_TOKEN_ERROR;
+		}
+	} else {
+		// output next byte from stream
+		retval = sectorBuf.raw[currentByteInSector];
+	}
+	currentByteInSector++;
+	if (currentByteInSector == sizeof(sectorBuf)) {
+		responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
+	}
+	return retval;
+}
+
 byte SdCard::transfer(byte value, bool cs)
 {
 	if (!hd) return 0xFF; // no card inserted
@@ -66,20 +87,8 @@ byte SdCard::transfer(byte value, bool cs)
 		if (responseQueue.empty()) {
 			switch (mode) {
 			case READ:
-				if (currentByteInSector == -1) {
-					retval = START_BLOCK_TOKEN;
-					try {
-						hd->readSector(currentSector, sectorBuf);
-					} catch (MSXException&) {
-						retval = DATA_ERROR_TOKEN_ERROR;
-					}
-				} else {
-					// output next byte from stream
-					retval = sectorBuf.raw[currentByteInSector];
-				}
-				currentByteInSector++;
+				retval = readCurrentByteFromCurrentSector();
 				if (currentByteInSector == sizeof(sectorBuf)) {
-					responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 					mode = COMMAND;
 				}
 				break;
@@ -92,22 +101,10 @@ byte SdCard::transfer(byte value, bool cs)
 					// data out of range, send data error token
 					retval = DATA_ERROR_TOKEN_OUT_OF_RANGE;
 				} else {
-					if (currentByteInSector == -1) {
-						retval = START_BLOCK_TOKEN;
-						try {
-							hd->readSector(currentSector, sectorBuf);
-						} catch (MSXException&) {
-							retval = DATA_ERROR_TOKEN_ERROR;
-						}
-					} else {
-						// output next byte from stream
-						retval = sectorBuf.raw[currentByteInSector];
-					}
-					currentByteInSector++;
+					retval = readCurrentByteFromCurrentSector();
 					if (currentByteInSector == sizeof(sectorBuf)) {
 						currentSector++;
 						currentByteInSector = -1;
-						responseQueue.push_back({0x00, 0x00}); // 2 CRC's (dummy)
 					}
 				}
 				break;
