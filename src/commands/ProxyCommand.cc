@@ -1,4 +1,5 @@
 #include "ProxyCommand.hh"
+#include "GlobalCommandController.hh"
 #include "MSXCommandController.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -11,13 +12,14 @@ using std::string;
 
 namespace openmsx {
 
-ProxyCmd::ProxyCmd(CommandController& controller, Reactor& reactor_)
-	: Command(controller, "")
+ProxyCmd::ProxyCmd(Reactor& reactor_, std::string name_)
+	: Command(reactor_.getGlobalCommandController(), "")
 	, reactor(reactor_)
+	, name(std::move(name_))
 {
 }
 
-Command* ProxyCmd::getMachineCommand(string_ref name) const
+Command* ProxyCmd::getMachineCommand() const
 {
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return nullptr;
@@ -26,8 +28,7 @@ Command* ProxyCmd::getMachineCommand(string_ref name) const
 
 void ProxyCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 {
-	string_ref name = tokens[0].getString();
-	if (Command* command = getMachineCommand(name)) {
+	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {
 			auto controller = checked_cast<MSXCommandController*>(
 				&command->getCommandController());
@@ -44,16 +45,16 @@ void ProxyCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 
 string ProxyCmd::help(const vector<string>& tokens) const
 {
-	if (Command* command = getMachineCommand(tokens[0])) {
+	if (Command* command = getMachineCommand()) {
 		return command->help(tokens);
 	} else {
-		return "unknown command: " + tokens[0];
+		return "unknown command: " + name;
 	}
 }
 
 void ProxyCmd::tabCompletion(vector<string>& tokens) const
 {
-	if (Command* command = getMachineCommand(tokens[0])) {
+	if (Command* command = getMachineCommand()) {
 		command->tabCompletion(tokens);
 	}
 }

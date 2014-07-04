@@ -92,7 +92,6 @@ GlobalCommandController::GlobalCommandController(
 	, hotKey(make_unique<HotKey>(*this, eventDistributor))
 	, helpCmd(make_unique<HelpCmd>(*this))
 	, tabCompletionCmd(make_unique<TabCompletionCmd>(*this))
-	, proxyCmd(make_unique<ProxyCmd>(*this, reactor))
 	, platformInfo(make_unique<PlatformInfo>(getOpenMSXInfoCommand()))
 	, versionInfo(make_unique<VersionInfo>(getOpenMSXInfoCommand()))
 	, romInfoTopic(make_unique<RomInfoTopic>(getOpenMSXInfoCommand()))
@@ -146,20 +145,24 @@ GlobalCommandController::~GlobalCommandController()
 
 void GlobalCommandController::registerProxyCommand(const string& name)
 {
-	if (proxyCommandMap[name] == 0) {
-		registerCommand(*proxyCmd, name);
-		registerCompleter(*proxyCmd, name);
+	auto& p = proxyCommandMap[name];
+	if (p.first == 0) {
+		p.second = make_unique<ProxyCmd>(reactor, name);
+		registerCommand(*p.second, name);
+		registerCompleter(*p.second, name);
 	}
-	++proxyCommandMap[name];
+	++p.first;
 }
 
 void GlobalCommandController::unregisterProxyCommand(string_ref name)
 {
-	assert(proxyCommandMap[name]);
-	--proxyCommandMap[name];
-	if (proxyCommandMap[name] == 0) {
-		unregisterCompleter(*proxyCmd, name);
-		unregisterCommand(*proxyCmd, name);
+	auto& p = proxyCommandMap[name];
+	assert(p.first > 0);
+	--p.first;
+	if (p.first == 0) {
+		unregisterCompleter(*p.second, name);
+		unregisterCommand(*p.second, name);
+		p.second.reset();
 	}
 }
 

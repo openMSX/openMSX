@@ -6,20 +6,20 @@
 
 namespace openmsx {
 
-class CommandController;
 class Reactor;
 
 class ProxyCmd : public Command
 {
 public:
-	ProxyCmd(CommandController& controller, Reactor& reactor);
+	ProxyCmd(Reactor& reactor, std::string name_);
 	virtual void execute(const std::vector<TclObject>& tokens,
 	                     TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 private:
-	Command* getMachineCommand(string_ref name) const;
+	Command* getMachineCommand() const;
 	Reactor& reactor;
+	const std::string name;
 };
 
 } // namespace openmsx
