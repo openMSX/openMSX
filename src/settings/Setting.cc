@@ -41,7 +41,7 @@ Setting::Setting(CommandController& commandController_,
 	: BaseSetting(name_)
 	, commandController(commandController_)
 	, description(desc_.str())
-	, value(TclObject(getInterpreter(), initialValue))
+	, value(initialValue)
 	, defaultValue(initialValue)
 	, restoreValue(initialValue)
 	, save(save_)
@@ -205,7 +205,7 @@ string Setting::getRestoreValue() const
 
 void Setting::setStringDirect(const string& str)
 {
-	TclObject newValue(getInterpreter(), str);
+	TclObject newValue(str);
 	checkFunc(newValue);
 	if (newValue != value) {
 		value = newValue;

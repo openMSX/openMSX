@@ -60,10 +60,9 @@ string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param ti
 {
 	string result;
 	if (tokens.size() == 1) {
-		Interpreter& interpreter = getInterpreter();
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp(interpreter);
+		TclObject tmp;
 		tmp.addListElement(getName() + ':');
 		tmp.addListElement(laserdiscPlayer.getImageName().getResolved());
 		result += tmp.getString().str();

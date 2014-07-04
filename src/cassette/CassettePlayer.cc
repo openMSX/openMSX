@@ -657,14 +657,13 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 {
 	StringOp::Builder result;
 	if (tokens.size() == 1) {
-		Interpreter& interpreter = getInterpreter();
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp(interpreter);
+		TclObject tmp;
 		tmp.addListElement(getName() + ':');
 		tmp.addListElement(cassettePlayer.getImageName().getResolved());
 
-		TclObject options(interpreter);
+		TclObject options;
 		options.addListElement(cassettePlayer.getStateString());
 		tmp.addListElement(options);
 		result << tmp.getString();

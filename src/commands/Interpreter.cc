@@ -165,10 +165,10 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		vector<TclObject> tokens;
 		tokens.reserve(objc);
 		for (auto i : xrange(objc)) {
-			tokens.emplace_back(interp, objv[i]);
+			tokens.emplace_back(objv[i]);
 		}
 		int res = TCL_OK;
-		TclObject result(interp);
+		TclObject result;
 		try {
 			if (!command.isAllowedInEmptyMachine()) {
 				if (auto controller =

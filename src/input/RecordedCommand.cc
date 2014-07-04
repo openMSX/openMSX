@@ -21,7 +21,7 @@ RecordedCommand::RecordedCommand(CommandController& commandController,
 	: Command(commandController, name)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, scheduler(scheduler_)
-	, dummyResultObject(make_unique<TclObject>(getInterpreter()))
+	, dummyResultObject(make_unique<TclObject>())
 	, currentResultObject(dummyResultObject.get())
 {
 	stateChangeDistributor.registerListener(*this);

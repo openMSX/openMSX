@@ -1,61 +1,28 @@
 #include "TclObject.hh"
 #include "Interpreter.hh"
 #include "CommandException.hh"
-#include <cassert>
 #include <tcl.h>
-
-using std::string;
 
 namespace openmsx {
 
-// class TclObject
+TclObject::TclObject()
+{
+	init(Tcl_NewObj());
+}
 
-TclObject::TclObject(Tcl_Interp* interp_, Tcl_Obj* obj_)
-	: interp(interp_)
+TclObject::TclObject(Tcl_Obj* obj_)
 {
 	init(obj_);
 }
 
-TclObject::TclObject(Tcl_Interp* interp_, string_ref value)
-	: interp(interp_)
-{
-	init(Tcl_NewStringObj(value.data(), int(value.size())));
-}
-
-TclObject::TclObject(Interpreter& interp_, string_ref value)
-	: interp(interp_.interp)
-{
-	init(Tcl_NewStringObj(value.data(), int(value.size())));
-}
-
 TclObject::TclObject(string_ref value)
-	: interp(nullptr)
 {
 	init(Tcl_NewStringObj(value.data(), int(value.size())));
-}
-
-TclObject::TclObject(Tcl_Interp* interp_)
-	: interp(interp_)
-{
-	init(Tcl_NewObj());
-}
-
-TclObject::TclObject(Interpreter& interp_)
-	: interp(interp_.interp)
-{
-	init(Tcl_NewObj());
 }
 
 TclObject::TclObject(const TclObject& object)
-	: interp(object.interp)
 {
 	init(object.obj);
-}
-
-TclObject::TclObject()
-	: interp(nullptr)
-{
-	init(Tcl_NewObj());
 }
 
 void TclObject::init(Tcl_Obj* obj_)
@@ -73,15 +40,9 @@ TclObject& TclObject::operator=(const TclObject& other)
 {
 	if (&other != this) {
 		Tcl_DecrRefCount(obj);
-		interp = other.interp;
 		init(other.obj);
 	}
 	return *this;
-}
-
-Tcl_Obj* TclObject::getTclObject()
-{
-	return obj;
 }
 
 static void throwException(Tcl_Interp* interp)
@@ -246,8 +207,7 @@ TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
 		throwException(interp);
 	}
-	return element ? TclObject(interp, element)
-	               : TclObject(interp);
+	return element ? TclObject(element) : TclObject();
 }
 
 TclObject TclObject::getDictValue(Interpreter& interp_, const TclObject& key) const
@@ -257,8 +217,7 @@ TclObject TclObject::getDictValue(Interpreter& interp_, const TclObject& key) co
 	if (Tcl_DictObjGet(interp, obj, key.obj, &value) != TCL_OK) {
 		throwException(interp);
 	}
-	return value ? TclObject(interp, value)
-	             : TclObject(interp);
+	return value ? TclObject(value) : TclObject();
 }
 
 bool TclObject::evalBool(Interpreter& interp_) const
@@ -271,13 +230,12 @@ bool TclObject::evalBool(Interpreter& interp_) const
 	return result != 0;
 }
 
-string TclObject::executeCommand(Interpreter& interp_, bool compile)
+std::string TclObject::executeCommand(Interpreter& interp_, bool compile)
 {
 	auto* interp = interp_.interp;
-	assert(interp);
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
 	int success = Tcl_EvalObjEx(interp, obj, flags);
-	string result =  Tcl_GetStringResult(interp);
+	std::string result =  Tcl_GetStringResult(interp);
 	if (success != TCL_OK) {
 		throw CommandException(result);
 	}

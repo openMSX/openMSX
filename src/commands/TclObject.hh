@@ -5,7 +5,6 @@
 #include "openmsx.hh"
 #include <iterator>
 
-struct Tcl_Interp;
 struct Tcl_Obj;
 
 namespace openmsx {
@@ -15,21 +14,17 @@ class Interpreter;
 class TclObject
 {
 public:
-	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
-	TclObject(Tcl_Interp* interp, string_ref value);
-	TclObject(Interpreter& interp, string_ref value);
-	explicit TclObject(string_ref value);
-	explicit TclObject(Tcl_Interp* interp);
-	explicit TclObject(Interpreter& interp);
-	TclObject(const TclObject& object);
 	TclObject();
+	explicit TclObject(Tcl_Obj* object);
+	explicit TclObject(string_ref value);
+	TclObject(const TclObject& object);
 	~TclObject();
 
 	// assignment operator so we can use vector<TclObject>
 	TclObject& operator=(const TclObject& other);
 
 	// get underlying Tcl_Obj
-	Tcl_Obj* getTclObject();
+	Tcl_Obj* getTclObject() { return obj; }
 
 	// value setters
 	void setString(string_ref value);
@@ -66,7 +61,6 @@ public:
 	  */
 	std::string executeCommand(Interpreter& interp, bool compile = false);
 
-	/** Comparison. Only compares the 'value', not the interpreter. */
 	bool operator==(const TclObject& other) const {
 		return getString() == other.getString();
 	}
@@ -78,7 +72,6 @@ private:
 	void init(Tcl_Obj* obj_);
 	void addListElement(Tcl_Obj* element);
 
-	Tcl_Interp* interp;
 	Tcl_Obj* obj;
 };
 
