@@ -79,11 +79,6 @@ TclObject& TclObject::operator=(const TclObject& other)
 	return *this;
 }
 
-Tcl_Interp* TclObject::getInterpreter() const
-{
-	return interp;
-}
-
 Tcl_Obj* TclObject::getTclObject()
 {
 	return obj;
@@ -261,8 +256,9 @@ bool TclObject::evalBool() const
 	return result != 0;
 }
 
-string TclObject::executeCommand(bool compile)
+string TclObject::executeCommand(Interpreter& interpreter, bool compile)
 {
+	auto* interp = interpreter.interp;
 	assert(interp);
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
 	int success = Tcl_EvalObjEx(interp, obj, flags);

@@ -50,7 +50,7 @@ void TclCallback::execute()
 	const string callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command(callbackSetting.getInterpreter());
+	TclObject command;
 	command.addListElement(callback);
 	executeCommon(command);
 }
@@ -60,7 +60,7 @@ void TclCallback::execute(int arg1, int arg2)
 	const string callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command(callbackSetting.getInterpreter());
+	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
@@ -72,7 +72,7 @@ void TclCallback::execute(int arg1, string_ref arg2)
 	const string callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command(callbackSetting.getInterpreter());
+	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
@@ -84,7 +84,7 @@ void TclCallback::execute(string_ref arg1, string_ref arg2)
 	const string callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command(callbackSetting.getInterpreter());
+	TclObject command;
 	command.addListElement(callback);
 	command.addListElement(arg1);
 	command.addListElement(arg2);
@@ -94,7 +94,7 @@ void TclCallback::execute(string_ref arg1, string_ref arg2)
 void TclCallback::executeCommon(TclObject& command)
 {
 	try {
-		command.executeCommand();
+		command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
 		string message =
 			"Error executing callback function \"" +

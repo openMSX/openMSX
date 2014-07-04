@@ -1,6 +1,5 @@
 #include "SaveStateCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
 #include "TclObject.hh"
 
 using std::string;
@@ -29,24 +28,28 @@ void SaveStateCLI::parseFileType(const string& filename,
 {
 	// TODO: this is basically a C++ version of a part of savestate.tcl.
 	// Can that be improved?
-	GlobalCommandController& controller = parser.getGlobalCommandController();
-	TclObject command(controller.getInterpreter());
-	command.addListElement("restore_machine");
-	command.addListElement(filename);
-	string newId = command.executeCommand();
-	command = TclObject(controller.getInterpreter());
-	command.addListElement("machine");
-	string currentId = command.executeCommand();
-	if (currentId != "") {
-		command = TclObject(controller.getInterpreter());
-		command.addListElement("delete_machine");
-		command.addListElement(currentId);
-		command.executeCommand();
+	auto& interp = parser.getInterpreter();
+
+	TclObject command1;
+	command1.addListElement("restore_machine");
+	command1.addListElement(filename);
+	string newId = command1.executeCommand(interp);
+
+	TclObject command2;
+	command2.addListElement("machine");
+	string currentId = command2.executeCommand(interp);
+
+	if (!currentId.empty()) {
+		TclObject command3;
+		command3.addListElement("delete_machine");
+		command3.addListElement(currentId);
+		command3.executeCommand(interp);
 	}
-	command = TclObject(controller.getInterpreter());
-	command.addListElement("activate_machine");
-	command.addListElement(newId);
-	command.executeCommand();
+
+	TclObject command4;
+	command4.addListElement("activate_machine");
+	command4.addListElement(newId);
+	command4.executeCommand(interp);
 }
 
 string_ref SaveStateCLI::fileTypeHelp() const

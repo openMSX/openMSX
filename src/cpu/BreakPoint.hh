@@ -13,7 +13,7 @@ namespace openmsx {
 class BreakPoint : public BreakPointBase
 {
 public:
-	BreakPoint(GlobalCliComm& CliComm, word address,
+	BreakPoint(GlobalCliComm& CliComm, Interpreter& interp, word address,
 	           TclObject command, TclObject condition);
 
 	word getAddress() const;

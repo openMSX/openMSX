@@ -9,12 +9,13 @@ unsigned ProbeBreakPoint::lastId = 0;
 
 ProbeBreakPoint::ProbeBreakPoint(
 		GlobalCliComm& cliComm,
+		Interpreter& interp,
 		TclObject command,
 		TclObject condition,
 		Debugger& debugger_,
 		ProbeBase& probe_,
 		unsigned newId /*= -1*/)
-	: BreakPointBase(cliComm, command, condition)
+	: BreakPointBase(cliComm, interp, command, condition)
 	, debugger(debugger_)
 	, probe(probe_)
 	, id((newId == unsigned(-1)) ? ++lastId : newId)

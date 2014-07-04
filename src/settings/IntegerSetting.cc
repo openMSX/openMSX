@@ -26,7 +26,7 @@ string_ref IntegerSetting::getTypeString() const
 
 void IntegerSetting::additionalInfo(TclObject& result) const
 {
-	TclObject range(result.getInterpreter());
+	TclObject range;
 	range.addListElement(minValue);
 	range.addListElement(maxValue);
 	result.addListElement(range);

@@ -5,7 +5,7 @@
 #include "noncopyable.hh"
 #include "string_ref.hh"
 
-struct Tcl_Interp;
+class Interpreter;
 
 namespace openmsx {
 
@@ -24,19 +24,20 @@ public:
 	void checkAndExecute();
 
 	// get associated interpreter
-	Tcl_Interp* getInterpreter() const;
+	Interpreter& getInterpreter() const { return interp; }
 
 protected:
 	// Note: we require GlobalCliComm here because breakpoint objects can
 	// be transfered to different MSX machines, and so the MSXCliComm
 	// object won't remain valid.
-	BreakPointBase(GlobalCliComm& cliComm,
+	BreakPointBase(GlobalCliComm& cliComm, Interpreter& interp,
 	               TclObject command, TclObject condition);
 
 private:
 	bool isTrue() const;
 
 	GlobalCliComm& cliComm;
+	Interpreter& interp;
 	TclObject command;
 	TclObject condition;
 	bool executing;

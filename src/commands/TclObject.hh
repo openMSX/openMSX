@@ -28,8 +28,6 @@ public:
 	// assignment operator so we can use vector<TclObject>
 	TclObject& operator=(const TclObject& other);
 
-	// get associated interpreter
-	Tcl_Interp* getInterpreter() const;
 	// get underlying Tcl_Obj
 	Tcl_Obj* getTclObject();
 
@@ -66,7 +64,7 @@ public:
 	  *           flag when the command will be executed more than once.
 	  * TODO return TclObject instead of string?
 	  */
-	std::string executeCommand(bool compile = false);
+	std::string executeCommand(Interpreter& interp, bool compile = false);
 
 	/** Comparison. Only compares the 'value', not the interpreter. */
 	bool operator==(const TclObject& other) const {

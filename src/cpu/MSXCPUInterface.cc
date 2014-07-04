@@ -5,6 +5,7 @@
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "Interpreter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
@@ -25,7 +26,6 @@
 #include "memory.hh"
 #include "stl.hh"
 #include "unreachable.hh"
-#include <tcl.h>
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
@@ -957,12 +957,10 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 	assert(!watchPoints.empty());
 	if (isFastForward()) return;
 
-	Tcl_Interp* interp = watchPoints.front()->getInterpreter();
-	Tcl_SetVar(interp, "wp_last_address", StringOp::toString(address).c_str(),
-	           TCL_GLOBAL_ONLY);
+	auto& interp = watchPoints.front()->getInterpreter();
+	interp.setVariable("wp_last_address", StringOp::toString(address));
 	if (value != ~0u) {
-		Tcl_SetVar(interp, "wp_last_value", StringOp::toString(value).c_str(),
-			   TCL_GLOBAL_ONLY);
+		interp.setVariable("wp_last_value", StringOp::toString(value));
 	}
 
 	auto wpCopy = watchPoints;
@@ -974,8 +972,8 @@ void MSXCPUInterface::executeMemWatch(WatchPoint::Type type,
 		}
 	}
 
-	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
-	Tcl_UnsetVar(interp, "wp_last_value", TCL_GLOBAL_ONLY);
+	interp.unsetVariable("wp_last_address");
+	interp.unsetVariable("wp_last_value");
 }
 
 

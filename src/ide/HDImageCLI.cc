@@ -22,10 +22,10 @@ void HDImageCLI::parseOption(const string& option, array_ref<string>& cmdLine)
 	if (!parser.getGlobalCommandController().hasCommand(hd)) { // TODO WIP
 		throw MSXException("No hard disk named '" + hd + "'.");
 	}
-	TclObject command(parser.getGlobalCommandController().getInterpreter());
+	TclObject command;
 	command.addListElement(hd);
 	command.addListElement(filename);
-	command.executeCommand();
+	command.executeCommand(parser.getInterpreter());
 }
 string_ref HDImageCLI::optionHelp() const
 {

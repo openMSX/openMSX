@@ -233,7 +233,7 @@ void DiskCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 		result.addListElement(diskChanger.getDriveName() + ':');
 		result.addListElement(diskChanger.getDiskName().getResolved());
 
-		TclObject options(result.getInterpreter());
+		TclObject options;
 		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
 			options.addListElement("empty");
 		} else if (dynamic_cast<DirAsDSK*>(diskChanger.disk.get())) {

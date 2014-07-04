@@ -20,6 +20,7 @@ class GlobalCliComm;
 class GlobalCommandController;
 class GlobalSettings;
 class CliComm;
+class Interpreter;
 class Display;
 class Mixer;
 class InputEventGenerator;
@@ -100,6 +101,7 @@ public:
 	InfoCommand& getOpenMSXInfoCommand();
 	CommandController& getCommandController();
 	CliComm& getCliComm();
+	Interpreter& getInterpreter();
 	std::string getMachineID() const;
 
 	typedef std::unique_ptr<MSXMotherBoard> Board;

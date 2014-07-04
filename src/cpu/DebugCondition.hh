@@ -11,7 +11,7 @@ namespace openmsx {
 class DebugCondition : public BreakPointBase
 {
 public:
-	DebugCondition(GlobalCliComm& CliComm,
+	DebugCondition(GlobalCliComm& CliComm, Interpreter& interp,
 	               TclObject command, TclObject condition);
 	unsigned getId() const { return id; }
 

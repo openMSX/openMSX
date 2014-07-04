@@ -274,7 +274,7 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 void AfterCommand::afterTclTime(
 	int ms, const vector<TclObject>& tokens, TclObject& result)
 {
-	TclObject command(tokens.front().getInterpreter());
+	TclObject command;
 	command.addListElements(begin(tokens) + 2, end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
@@ -504,7 +504,7 @@ const string& AfterCmd::getId() const
 void AfterCmd::execute()
 {
 	try {
-		command.executeCommand();
+		command.executeCommand(afterCommand.getInterpreter());
 	} catch (CommandException& e) {
 		afterCommand.getCommandController().getCliComm().printWarning(
 			"Error executing delayed command: " + e.getMessage());

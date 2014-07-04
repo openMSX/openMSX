@@ -520,11 +520,12 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
-			TclObject command(*interpreter);
+			TclObject command;
 			command.addListElement("openmsx::tabcompletion");
 			command.addListElements(tokens);
 			try {
-				auto list = splitList(command.executeCommand());
+				auto list = splitList(
+					command.executeCommand(*interpreter));
 				bool sensitive = true;
 				if (!list.empty()) {
 					if (list.back() == "false") {
@@ -579,10 +580,10 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
-			TclObject command(result.getInterpreter());
+			TclObject command;
 			command.addListElement("openmsx::help");
 			command.addListElements(begin(tokens) + 1, end(tokens));
-			result.setString(command.executeCommand());
+			result.setString(command.executeCommand(getInterpreter()));
 		}
 		break;
 	}

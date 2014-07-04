@@ -49,7 +49,7 @@ std::vector<string_ref> EnumSettingBase::getPossibleValues() const
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const
 {
-	TclObject valueList(result.getInterpreter());
+	TclObject valueList;
 	valueList.addListElements(getPossibleValues());
 	result.addListElement(valueList);
 }

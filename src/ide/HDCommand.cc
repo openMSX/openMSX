@@ -31,7 +31,7 @@ void HDCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
 		result.addListElement(hd.getName() + ':');
 		result.addListElement(hd.getImageName().getResolved());
 
-		TclObject options(result.getInterpreter());
+		TclObject options;
 		if (hd.isWriteProtected()) {
 			options.addListElement("readonly");
 		}

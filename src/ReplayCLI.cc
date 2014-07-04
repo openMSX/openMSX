@@ -1,6 +1,5 @@
 #include "ReplayCLI.hh"
 #include "CommandLineParser.hh"
-#include "GlobalCommandController.hh"
 #include "TclObject.hh"
 
 using std::string;
@@ -27,12 +26,12 @@ string_ref ReplayCLI::optionHelp() const
 void ReplayCLI::parseFileType(const string& filename,
                               array_ref<string>& /*cmdLine*/)
 {
-	TclObject command(parser.getGlobalCommandController().getInterpreter());
+	TclObject command;
 	command.addListElement("reverse");
 	command.addListElement("loadreplay");
 	command.addListElement("-viewonly");
 	command.addListElement(filename);
-	command.executeCommand();
+	command.executeCommand(parser.getInterpreter());
 }
 
 string_ref ReplayCLI::fileTypeHelp() const

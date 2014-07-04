@@ -3,8 +3,8 @@
 #include "Reactor.hh"
 #include "MSXCPUInterface.hh"
 #include "TclObject.hh"
+#include "Interpreter.hh"
 #include "StringOp.hh"
-#include <tcl.h>
 #include <cassert>
 
 namespace openmsx {
@@ -16,8 +16,9 @@ WatchIO::WatchIO(MSXMotherBoard& motherboard,
                  unsigned beginAddr, unsigned endAddr,
                  TclObject command, TclObject condition,
                  unsigned newId /*= -1*/)
-	: WatchPoint(motherboard.getReactor().getGlobalCliComm(), command,
-	             condition, type, beginAddr, endAddr, newId)
+	: WatchPoint(motherboard.getReactor().getGlobalCliComm(),
+	             motherboard.getReactor().getInterpreter(),
+	             command, condition, type, beginAddr, endAddr, newId)
 	, cpuInterface(motherboard.getCPUInterface())
 {
 	for (unsigned i = byte(beginAddr); i <= byte(endAddr); ++i) {
@@ -40,9 +41,8 @@ void WatchIO::doReadCallback(unsigned port)
 {
 	if (cpuInterface.isFastForward()) return;
 
-	Tcl_Interp* interp = getInterpreter();
-	Tcl_SetVar(interp, "wp_last_address",
-	           StringOp::toString(port).c_str(), TCL_GLOBAL_ONLY);
+	auto& interp = getInterpreter();
+	interp.setVariable("wp_last_address", StringOp::toString(port));
 
 	// keep this object alive by holding a shared_ptr to it, for the case
 	// this watchpoint deletes itself in checkAndExecute()
@@ -51,25 +51,23 @@ void WatchIO::doReadCallback(unsigned port)
 	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
 	checkAndExecute();
 
-	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
+	interp.unsetVariable("wp_last_address");
 }
 
 void WatchIO::doWriteCallback(unsigned port, unsigned value)
 {
 	if (cpuInterface.isFastForward()) return;
 
-	Tcl_Interp* interp = getInterpreter();
-	Tcl_SetVar(interp, "wp_last_address",
-	           StringOp::toString(port).c_str(), TCL_GLOBAL_ONLY);
-	Tcl_SetVar(interp, "wp_last_value",
-	           StringOp::toString(value).c_str(), TCL_GLOBAL_ONLY);
+	auto& interp = getInterpreter();
+	interp.setVariable("wp_last_address", StringOp::toString(port));
+	interp.setVariable("wp_last_value",   StringOp::toString(value));
 
 	// see comment in doReadCallback() above
 	MSXCPUInterface::WatchPoints wpCopy(cpuInterface.getWatchPoints());
 	checkAndExecute();
 
-	Tcl_UnsetVar(interp, "wp_last_address", TCL_GLOBAL_ONLY);
-	Tcl_UnsetVar(interp, "wp_last_value",   TCL_GLOBAL_ONLY);
+	interp.unsetVariable("wp_last_address");
+	interp.unsetVariable("wp_last_value");
 }
 
 

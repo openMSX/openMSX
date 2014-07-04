@@ -35,6 +35,7 @@ class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
 class GlobalCommandController;
+class Interpreter;
 
 class CommandLineParser : private noncopyable
 {
@@ -63,6 +64,7 @@ public:
 
 	MSXMotherBoard* getMotherBoard() const;
 	GlobalCommandController& getGlobalCommandController() const;
+	Interpreter& getInterpreter() const;
 
 	/** Need to suppress renderer window on startup?
 	  */

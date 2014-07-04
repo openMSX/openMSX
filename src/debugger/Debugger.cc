@@ -185,6 +185,7 @@ unsigned Debugger::insertProbeBreakPoint(
 {
 	auto bp = make_unique<ProbeBreakPoint>(
 		motherBoard.getReactor().getGlobalCliComm(),
+		motherBoard.getReactor().getInterpreter(),
 		command, condition, *this, probe, newId);
 	unsigned result = bp->getId();
 	probeBreakPoints.push_back(std::move(bp));
@@ -249,6 +250,7 @@ unsigned Debugger::setWatchPoint(TclObject command, TclObject condition,
 		//	command, condition, type, beginAddr, endAddr, newId);
 		wp.reset(new WatchPoint(
 			motherBoard.getReactor().getGlobalCliComm(),
+			motherBoard.getReactor().getInterpreter(),
 			command, condition, type, beginAddr, endAddr, newId));
 	}
 	motherBoard.getCPUInterface().setWatchPoint(wp);
@@ -477,8 +479,8 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
                              TclObject& result)
 {
 	shared_ptr<BreakPoint> bp;
-	TclObject command  (result.getInterpreter(), "debug break");
-	TclObject condition(result.getInterpreter());
+	TclObject command("debug break");
+	TclObject condition;
 	word addr;
 
 	switch (tokens.size()) {
@@ -490,7 +492,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
 		// fall-through
 	case 3: // address
 		addr = getAddress(tokens);
-		bp = make_shared<BreakPoint>(cliComm, addr, command, condition);
+		bp = make_shared<BreakPoint>(cliComm, getInterpreter(), addr, command, condition);
 		break;
 	default:
 		if (tokens.size() < 3) {
@@ -545,7 +547,7 @@ void DebugCmd::listBreakPoints(const vector<TclObject>& /*tokens*/,
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& bp : interface.getBreakPoints()) {
-		TclObject line(result.getInterpreter());
+		TclObject line;
 		line.addListElement(StringOp::Builder() << "bp#" << bp->getId());
 		line.addListElement("0x" + StringOp::toHexString(bp->getAddress(), 4));
 		line.addListElement(bp->getCondition());
@@ -559,8 +561,8 @@ void DebugCmd::listBreakPoints(const vector<TclObject>& /*tokens*/,
 void DebugCmd::setWatchPoint(const vector<TclObject>& tokens,
                              TclObject& result)
 {
-	TclObject command  (result.getInterpreter(), "debug break");
-	TclObject condition(result.getInterpreter());
+	TclObject command("debug break");
+	TclObject condition;
 	unsigned beginAddr, endAddr;
 	WatchPoint::Type type;
 
@@ -644,7 +646,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject>& /*tokens*/,
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& wp : interface.getWatchPoints()) {
-		TclObject line(result.getInterpreter());
+		TclObject line;
 		line.addListElement(StringOp::Builder() << "wp#" << wp->getId());
 		string type;
 		switch (wp->getType()) {
@@ -669,7 +671,7 @@ void DebugCmd::listWatchPoints(const vector<TclObject>& /*tokens*/,
 		if (beginAddr == endAddr) {
 			line.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
 		} else {
-			TclObject range(result.getInterpreter());
+			TclObject range;
 			range.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
 			range.addListElement("0x" + StringOp::toHexString(endAddr,   4));
 			line.addListElement(range);
@@ -686,8 +688,8 @@ void DebugCmd::setCondition(const vector<TclObject>& tokens,
                             TclObject& result)
 {
 	shared_ptr<DebugCondition> dc;
-	TclObject command  (result.getInterpreter(), "debug break");
-	TclObject condition(result.getInterpreter());
+	TclObject command("debug break");
+	TclObject condition;
 
 	switch (tokens.size()) {
 	case 4: // command
@@ -695,7 +697,7 @@ void DebugCmd::setCondition(const vector<TclObject>& tokens,
 		// fall-through
 	case 3: // condition
 		condition = tokens[2];
-		dc = make_shared<DebugCondition>(cliComm, command, condition);
+		dc = make_shared<DebugCondition>(cliComm, getInterpreter(), command, condition);
 		break;
 	default:
 		if (tokens.size() < 3) {
@@ -736,7 +738,7 @@ void DebugCmd::listConditions(const vector<TclObject>& /*tokens*/,
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		TclObject line(result.getInterpreter());
+		TclObject line;
 		line.addListElement(StringOp::Builder() << "cond#" << c->getId());
 		line.addListElement(c->getCondition());
 		line.addListElement(c->getCommand());
@@ -795,8 +797,8 @@ void DebugCmd::probeRead(const vector<TclObject>& tokens,
 void DebugCmd::probeSetBreakPoint(const vector<TclObject>& tokens,
                                   TclObject& result)
 {
-	TclObject command  (result.getInterpreter(), "debug break");
-	TclObject condition(result.getInterpreter());
+	TclObject command("debug break");
+	TclObject condition;
 	ProbeBase* probe;
 
 	switch (tokens.size()) {
@@ -834,7 +836,7 @@ void DebugCmd::probeListBreakPoints(const vector<TclObject>& /*tokens*/,
 {
 	string res;
 	for (auto& p : debugger.probeBreakPoints) {
-		TclObject line(result.getInterpreter());
+		TclObject line;
 		line.addListElement(StringOp::Builder() << "pp#" << p->getId());
 		line.addListElement(p->getProbe().getName());
 		line.addListElement(p->getCondition());

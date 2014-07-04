@@ -87,7 +87,7 @@ std::vector<string_ref> VideoSourceSetting::getPossibleValues() const
 
 void VideoSourceSetting::additionalInfo(TclObject& result) const
 {
-	TclObject valueList(result.getInterpreter());
+	TclObject valueList;
 	valueList.addListElements(getPossibleValues());
 	result.addListElement(valueList);
 }

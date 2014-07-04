@@ -296,6 +296,11 @@ CliComm& Reactor::getCliComm()
 	return *globalCliComm;
 }
 
+Interpreter& Reactor::getInterpreter()
+{
+	return getGlobalCommandController().getInterpreter();
+}
+
 InputEventGenerator& Reactor::getInputEventGenerator()
 {
 	return *inputEventGenerator;

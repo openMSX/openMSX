@@ -289,7 +289,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (phase) {
 		case PHASE_INIT:
 			reactor.init();
-			reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
+			getInterpreter().init(argv[0]);
 			break;
 		case PHASE_LOAD_SETTINGS:
 			// after -control and -setting has been parsed
@@ -414,6 +414,11 @@ MSXMotherBoard* CommandLineParser::getMotherBoard() const
 GlobalCommandController& CommandLineParser::getGlobalCommandController() const
 {
 	return reactor.getGlobalCommandController();
+}
+
+Interpreter& CommandLineParser::getInterpreter() const
+{
+	return reactor.getInterpreter();
 }
 
 

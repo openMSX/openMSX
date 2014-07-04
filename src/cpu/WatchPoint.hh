@@ -16,7 +16,7 @@ public:
 
 	/** Begin and end address are inclusive (IOW range = [begin, end])
 	 */
-	WatchPoint(GlobalCliComm& CliComm,
+	WatchPoint(GlobalCliComm& CliComm, Interpreter& interp,
 	           TclObject command, TclObject condition,
 	           Type type, unsigned beginAddr, unsigned endAddr,
 	           unsigned newId = -1);

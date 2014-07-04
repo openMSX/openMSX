@@ -6,9 +6,10 @@
 
 namespace openmsx {
 
-BreakPointBase::BreakPointBase(GlobalCliComm& cliComm_,
+BreakPointBase::BreakPointBase(GlobalCliComm& cliComm_, Interpreter& interp_,
                                TclObject command_, TclObject condition_)
-	: cliComm(cliComm_), command(command_), condition(condition_)
+	: cliComm(cliComm_), interp(interp_)
+	, command(command_), condition(condition_)
 	, executing(false)
 {
 }
@@ -36,16 +37,11 @@ void BreakPointBase::checkAndExecute()
 	ScopedAssign<bool> sa(executing, true);
 	if (isTrue()) {
 		try {
-			command.executeCommand(true); // compile command
+			command.executeCommand(interp, true); // compile command
 		} catch (CommandException& e) {
 			cliComm.printWarning(e.getMessage());
 		}
 	}
-}
-
-Tcl_Interp* BreakPointBase::getInterpreter() const
-{
-	return command.getInterpreter();
 }
 
 } // namespace openmsx
