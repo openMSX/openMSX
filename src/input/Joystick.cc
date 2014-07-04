@@ -8,6 +8,7 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "serialize.hh"
 #include "serialize_meta.hh"
@@ -95,15 +96,15 @@ private:
 REGISTER_POLYMORPHIC_CLASS(StateChange, JoyState, "JoyState");
 
 
-void checkJoystickConfig(TclObject& newValue)
+void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 {
-	unsigned n = newValue.getListLength();
+	unsigned n = newValue.getListLength(interp);
 	if (n & 1) {
 		throw CommandException("Need an even number of elements");
 	}
 	for (unsigned i = 0; i < n; i += 2) {
-		string_ref key  = newValue.getListIndex(i + 0).getString();
-		TclObject value = newValue.getListIndex(i + 1);
+		string_ref key  = newValue.getListIndex(interp, i + 0).getString();
+		TclObject value = newValue.getListIndex(interp, i + 1);
 		if ((key != "A"   ) && (key != "B"    ) &&
 		    (key != "LEFT") && (key != "RIGHT") &&
 		    (key != "UP"  ) && (key != "DOWN" )) {
@@ -111,8 +112,8 @@ void checkJoystickConfig(TclObject& newValue)
 				"Invalid MSX joystick action: must be one of "
 				"'A', 'B', 'LEFT', 'RIGHT', 'UP', 'DOWN'.");
 		}
-		for (auto j : xrange(value.getListLength())) {
-			string_ref host = value.getListIndex(j).getString();
+		for (auto j : xrange(value.getListLength(interp))) {
+			string_ref host = value.getListIndex(interp, j).getString();
 			if (!host.starts_with("button") &&
 			    !host.starts_with("+axis") &&
 			    !host.starts_with("-axis")) {
@@ -163,7 +164,9 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	configSetting = make_unique<StringSetting>(
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
-	configSetting->setChecker(checkJoystickConfig);
+	auto& interp = commandController.getInterpreter();
+	configSetting->setChecker([&interp](TclObject& newValue) {
+		checkJoystickConfig(interp, newValue); });
 
 	pin8 = false; // avoid UMR
 }
@@ -227,23 +230,24 @@ byte Joystick::calcState()
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
-		const TclObject& dict = configSetting->getValue();
-		if (getState(dict, "A"    )) result &= ~JOY_BUTTONA;
-		if (getState(dict, "B"    )) result &= ~JOY_BUTTONB;
-		if (getState(dict, "UP"   )) result &= ~JOY_UP;
-		if (getState(dict, "DOWN" )) result &= ~JOY_DOWN;
-		if (getState(dict, "LEFT" )) result &= ~JOY_LEFT;
-		if (getState(dict, "RIGHT")) result &= ~JOY_RIGHT;
+		auto& interp = configSetting->getInterpreter();
+		auto& dict   = configSetting->getValue();
+		if (getState(interp, dict, "A"    )) result &= ~JOY_BUTTONA;
+		if (getState(interp, dict, "B"    )) result &= ~JOY_BUTTONB;
+		if (getState(interp, dict, "UP"   )) result &= ~JOY_UP;
+		if (getState(interp, dict, "DOWN" )) result &= ~JOY_DOWN;
+		if (getState(interp, dict, "LEFT" )) result &= ~JOY_LEFT;
+		if (getState(interp, dict, "RIGHT")) result &= ~JOY_RIGHT;
 	}
 	return result;
 }
 
-bool Joystick::getState(const TclObject& dict, string_ref key)
+bool Joystick::getState(Interpreter& interp, const TclObject& dict, string_ref key)
 {
 	try {
-		const auto& list = dict.getDictValue(TclObject(key));
-		for (auto i : xrange(list.getListLength())) {
-			const auto& elem = list.getListIndex(i).getString();
+		const auto& list = dict.getDictValue(interp, TclObject(key));
+		for (auto i : xrange(list.getListLength(interp))) {
+			const auto& elem = list.getListIndex(interp, i).getString();
 			if (elem.starts_with("button")) {
 				int n = stoi(elem.substr(6));
 				if (InputEventGenerator::joystickGetButton(joystick, n)) {

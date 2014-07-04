@@ -8,6 +8,7 @@
 namespace openmsx {
 
 class TclObject;
+class Interpreter;
 class InfoCommand;
 
 class InfoTopic : public Completer
@@ -37,6 +38,8 @@ public:
 	  *     The last token is incomplete, this method tries to complete it.
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+
+	Interpreter& getInterpreter() const;
 
 protected:
 	InfoTopic(InfoCommand& infoCommand, const std::string& name);

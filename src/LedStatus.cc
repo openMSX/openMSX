@@ -2,6 +2,7 @@
 #include "AlarmEvent.hh"
 #include "MSXCliComm.hh"
 #include "ReadOnlySetting.hh"
+#include "CommandController.hh"
 #include "Timer.hh"
 #include "memory.hh"
 
@@ -20,6 +21,7 @@ LedStatus::LedStatus(
 		CommandController& commandController,
 		MSXCliComm& msxCliComm_)
 	: msxCliComm(msxCliComm_)
+	, interp(commandController.getInterpreter())
 	, alarm(make_unique<AlarmEvent>(
 		eventDistributor, *this, OPENMSX_THROTTLE_LED_EVENT))
 {
@@ -74,7 +76,7 @@ int LedStatus::signalEvent(const std::shared_ptr<const Event>& /*event*/)
 {
 	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {
-		if (ledValue[i] != ledStatus[i]->getValue().getBoolean()) {
+		if (ledValue[i] != ledStatus[i]->getValue().getBoolean(interp)) {
 			handleEvent(static_cast<Led>(i));
 		}
 	}

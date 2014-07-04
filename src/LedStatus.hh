@@ -13,6 +13,7 @@ class CommandController;
 class EventDistributor;
 class MSXCliComm;
 class ReadOnlySetting;
+class Interpreter;
 
 class LedStatus : public EventListener, private noncopyable
 {
@@ -42,6 +43,7 @@ private:
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
 	MSXCliComm& msxCliComm;
+	Interpreter& interp;
 	const std::unique_ptr<AlarmEvent> alarm;
 	std::unique_ptr<ReadOnlySetting> ledStatus[NUM_LEDS];
 	uint64_t lastTime;

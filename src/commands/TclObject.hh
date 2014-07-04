@@ -46,16 +46,16 @@ public:
 
 	// value getters
 	string_ref getString() const;
-	int getInt() const;
-	bool getBoolean() const;
-	double getDouble() const;
+	int getInt      (Interpreter& interp) const;
+	bool getBoolean (Interpreter& interp) const;
+	double getDouble(Interpreter& interp) const;
 	const byte* getBinary(unsigned& length) const;
-	unsigned getListLength() const;
-	TclObject getListIndex(unsigned index) const;
-	TclObject getDictValue(const TclObject& key) const;
+	unsigned getListLength(Interpreter& interp) const;
+	TclObject getListIndex(Interpreter& interp, unsigned index) const;
+	TclObject getDictValue(Interpreter& interp, const TclObject& key) const;
 
 	// expressions
-	bool evalBool() const;
+	bool evalBool(Interpreter& interp) const;
 
 	/** Interpret this TclObject as a command and execute it.
 	  * @param compile Should the command be compiled to bytecode? The
@@ -76,7 +76,6 @@ public:
 
 private:
 	void init(Tcl_Obj* obj_);
-	void throwException() const;
 	void addListElement(Tcl_Obj* element);
 
 	Tcl_Interp* interp;

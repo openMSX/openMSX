@@ -1,4 +1,5 @@
 #include "BooleanSetting.hh"
+#include "CommandController.hh"
 #include "Completer.hh"
 
 namespace openmsx {
@@ -9,10 +10,11 @@ BooleanSetting::BooleanSetting(
 	: Setting(commandController, name, description,
 	          toString(initialValue), save)
 {
-	setChecker([this](TclObject& newValue) {
+	auto& interp = commandController.getInterpreter();
+	setChecker([this, &interp](TclObject& newValue) {
 		// May throw.
 		// Re-set the queried value to get a normalized value.
-		newValue.setString(toString(newValue.getBoolean()));
+		newValue.setString(toString(newValue.getBoolean(interp)));
 	});
 	init();
 }

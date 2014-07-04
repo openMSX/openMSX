@@ -221,9 +221,10 @@ void OSDCommand::configure(OSDWidget& widget, const vector<TclObject>& tokens,
 			"Missing value for '" + tokens.back().getString() + "'.");
 	}
 
+	auto& interp = getInterpreter();
 	for (size_t i = skip; i < tokens.size(); i += 2) {
 		const auto& name = tokens[i + 0].getString();
-		widget.setProperty(name, tokens[i + 1]);
+		widget.setProperty(interp, name, tokens[i + 1]);
 	}
 }
 

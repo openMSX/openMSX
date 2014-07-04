@@ -236,9 +236,9 @@ void AfterCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 	}
 }
 
-static double getTime(const TclObject& obj)
+static double getTime(Interpreter& interp, const TclObject& obj)
 {
-	double time = obj.getDouble();
+	double time = obj.getDouble(interp);
 	if (time < 0) {
 		throw CommandException("Not a valid time specification");
 	}
@@ -252,7 +252,7 @@ void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
 	}
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
-	double time = getTime(tokens[2]);
+	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = make_unique<AfterTimeCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());
@@ -264,7 +264,7 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
-	double time = getTime(tokens[2]);
+	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, tokens[3], time);
 	result.setString(cmd->getId());
@@ -313,7 +313,7 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 	}
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) return;
-	double time = getTime(tokens[2]);
+	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = make_unique<AfterIdleCmd>(
 		motherBoard->getScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());

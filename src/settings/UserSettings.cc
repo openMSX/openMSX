@@ -163,7 +163,7 @@ unique_ptr<Setting> UserSettingCommand::createBoolean(const vector<TclObject>& t
 	}
 	const auto& name    = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
-	const auto& initVal = tokens[5].getBoolean();
+	const auto& initVal = tokens[5].getBoolean(getInterpreter());
 	return make_unique<BooleanSetting>(
 		getCommandController(), name, desc, initVal);
 }
@@ -173,11 +173,12 @@ unique_ptr<Setting> UserSettingCommand::createInteger(const vector<TclObject>& t
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
+	auto& interp = getInterpreter();
 	const auto& name    = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
-	const auto& initVal = tokens[5].getInt();
-	const auto& minVal  = tokens[6].getInt();
-	const auto& maxVal  = tokens[7].getInt();
+	const auto& initVal = tokens[5].getInt(interp);
+	const auto& minVal  = tokens[6].getInt(interp);
+	const auto& maxVal  = tokens[7].getInt(interp);
 	return make_unique<IntegerSetting>(
 		getCommandController(), name, desc, initVal, minVal, maxVal);
 }
@@ -187,11 +188,12 @@ unique_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject>& tok
 	if (tokens.size() != 8) {
 		throw SyntaxError();
 	}
+	auto& interp = getInterpreter();
 	const auto& name    = tokens[3].getString();
 	const auto& desc    = tokens[4].getString();
-	const auto& initVal = tokens[5].getDouble();
-	const auto& minVal  = tokens[6].getDouble();
-	const auto& maxVal  = tokens[7].getDouble();
+	const auto& initVal = tokens[5].getDouble(interp);
+	const auto& minVal  = tokens[6].getDouble(interp);
+	const auto& maxVal  = tokens[7].getDouble(interp);
 	return make_unique<FloatSetting>(
 		getCommandController(), name, desc, initVal, minVal, maxVal);
 }

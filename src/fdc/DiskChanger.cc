@@ -244,7 +244,7 @@ void DiskCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 		if (diskChanger.disk->isWriteProtected()) {
 			options.addListElement("readonly");
 		}
-		if (options.getListLength() != 0) {
+		if (options.getListLength(getInterpreter()) != 0) {
 			result.addListElement(options);
 		}
 

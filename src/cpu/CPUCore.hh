@@ -20,6 +20,7 @@ class IntegerSetting;
 class Setting;
 class TclCallback;
 class TclObject;
+class Interpreter;
 enum Reg8  : int;
 enum Reg16 : int;
 
@@ -62,7 +63,8 @@ public:
 	void invalidateMemCache(unsigned start, unsigned size);
 	bool isM1Cycle(unsigned address) const;
 
-	void disasmCommand(const std::vector<TclObject>& tokens,
+	void disasmCommand(Interpreter& interp,
+	                   const std::vector<TclObject>& tokens,
                            TclObject& result) const;
 
 	/**

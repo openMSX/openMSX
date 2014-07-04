@@ -21,7 +21,7 @@ bool BreakPointBase::isTrue() const
 		return true;
 	}
 	try {
-		return condition.evalBool();
+		return condition.evalBool(interp);
 	} catch (CommandException& e) {
 		cliComm.printWarning(e.getMessage());
 		return false;

@@ -44,15 +44,15 @@ vector<string_ref> OSDImageBasedWidget::getProperties() const
 	return result;
 }
 
-static void get4(const TclObject& value, unsigned* result)
+static void get4(Interpreter& interp, const TclObject& value, unsigned* result)
 {
-	unsigned len = value.getListLength();
+	unsigned len = value.getListLength(interp);
 	if (len == 4) {
 		for (auto i : xrange(4)) {
-			result[i] = value.getListIndex(i).getInt();
+			result[i] = value.getListIndex(interp, i).getInt(interp);
 		}
 	} else if (len == 1) {
-		unsigned val = value.getInt();
+		unsigned val = value.getInt(interp);
 		for (auto i : xrange(4)) {
 			result[i] = val;
 		}
@@ -60,15 +60,16 @@ static void get4(const TclObject& value, unsigned* result)
 		throw CommandException("Expected either 1 or 4 values.");
 	}
 }
-void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
+void OSDImageBasedWidget::setProperty(
+	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-rgba") {
 		unsigned newRGBA[4];
-		get4(value, newRGBA);
+		get4(interp, value, newRGBA);
 		setRGBA(newRGBA);
 	} else if (name == "-rgb") {
 		unsigned newRGB[4];
-		get4(value, newRGB);
+		get4(interp, value, newRGB);
 		unsigned newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]          & 0x000000ff) |
@@ -77,7 +78,7 @@ void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
 		setRGBA(newRGBA);
 	} else if (name == "-alpha") {
 		unsigned newAlpha[4];
-		get4(value, newAlpha);
+		get4(interp, value, newAlpha);
 		unsigned newRGBA[4];
 		for (auto i : xrange(4)) {
 			newRGBA[i] = (rgba[i]     & 0xffffff00) |
@@ -86,15 +87,15 @@ void OSDImageBasedWidget::setProperty(string_ref name, const TclObject& value)
 		setRGBA(newRGBA);
 	} else if (name == "-fadePeriod") {
 		updateCurrentFadeValue();
-		fadePeriod = value.getDouble();
+		fadePeriod = value.getDouble(interp);
 	} else if (name == "-fadeTarget") {
 		updateCurrentFadeValue();
-		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble()));
+		fadeTarget = std::max(0.0, std::min(1.0 , value.getDouble(interp)));
 	} else if (name == "-fadeCurrent") {
-		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble()));
+		startFadeValue = std::max(0.0, std::min(1.0, value.getDouble(interp)));
 		startFadeTime = Timer::getTime();
 	} else {
-		OSDWidget::setProperty(name, value);
+		OSDWidget::setProperty(interp, name, value);
 	}
 }
 

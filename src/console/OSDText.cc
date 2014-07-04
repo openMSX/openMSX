@@ -44,7 +44,8 @@ vector<string_ref> OSDText::getProperties() const
 	return result;
 }
 
-void OSDText::setProperty(string_ref name, const TclObject& value)
+void OSDText::setProperty(
+	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-text") {
 		string_ref val = value.getString();
@@ -65,7 +66,7 @@ void OSDText::setProperty(string_ref name, const TclObject& value)
 			invalidateRecursive();
 		}
 	} else if (name == "-size") {
-		int size2 = value.getInt();
+		int size2 = value.getInt(interp);
 		if (size != size2) {
 			size = size2;
 			invalidateRecursive();
@@ -89,13 +90,13 @@ void OSDText::setProperty(string_ref name, const TclObject& value)
 			invalidateRecursive();
 		}
 	} else if (name == "-wrapw") {
-		double wrapw2 = value.getDouble();
+		double wrapw2 = value.getDouble(interp);
 		if (wrapw != wrapw2) {
 			wrapw = wrapw2;
 			invalidateRecursive();
 		}
 	} else if (name == "-wraprelw") {
-		double wraprelw2 = value.getDouble();
+		double wraprelw2 = value.getDouble(interp);
 		if (wraprelw != wraprelw2) {
 			wraprelw = wraprelw2;
 			invalidateRecursive();
@@ -103,7 +104,7 @@ void OSDText::setProperty(string_ref name, const TclObject& value)
 	} else if (name == "-query-size") {
 		throw CommandException("-query-size property is readonly");
 	} else {
-		OSDImageBasedWidget::setProperty(name, value);
+		OSDImageBasedWidget::setProperty(interp, name, value);
 	}
 }
 

@@ -17,7 +17,7 @@ public:
 	virtual string_ref getTypeString() const;
 	virtual void additionalInfo(TclObject& result) const;
 
-	double getDouble() const { return getValue().getDouble(); }
+	double getDouble() const { return getValue().getDouble(getInterpreter()); }
 	void setDouble (double d);
 
 private:

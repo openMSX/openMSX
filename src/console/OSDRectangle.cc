@@ -35,34 +35,35 @@ vector<string_ref> OSDRectangle::getProperties() const
 	return result;
 }
 
-void OSDRectangle::setProperty(string_ref name, const TclObject& value)
+void OSDRectangle::setProperty(
+	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-w") {
-		double w2 = value.getDouble();
+		double w2 = value.getDouble(interp);
 		if (w != w2) {
 			w = w2;
 			invalidateRecursive();
 		}
 	} else if (name == "-h") {
-		double h2 = value.getDouble();
+		double h2 = value.getDouble(interp);
 		if (h != h2) {
 			h = h2;
 			invalidateRecursive();
 		}
 	} else if (name == "-relw") {
-		double relw2 = value.getDouble();
+		double relw2 = value.getDouble(interp);
 		if (relw != relw2) {
 			relw = relw2;
 			invalidateRecursive();
 		}
 	} else if (name == "-relh") {
-		double relh2 = value.getDouble();
+		double relh2 = value.getDouble(interp);
 		if (relh != relh2) {
 			relh = relh2;
 			invalidateRecursive();
 		}
 	} else if (name == "-scale") {
-		double scale2 = value.getDouble();
+		double scale2 = value.getDouble(interp);
 		if (scale != scale2) {
 			scale = scale2;
 			invalidateRecursive();
@@ -77,25 +78,25 @@ void OSDRectangle::setProperty(string_ref name, const TclObject& value)
 			invalidateRecursive();
 		}
 	} else if (name == "-bordersize") {
-		double size = value.getDouble();
+		double size = value.getDouble(interp);
 		if (borderSize != size) {
 			borderSize = size;
 			invalidateLocal();
 		}
 	} else if (name == "-relbordersize") {
-		double size = value.getDouble();
+		double size = value.getDouble(interp);
 		if (relBorderSize != size) {
 			relBorderSize = size;
 			invalidateLocal();
 		}
 	} else if (name == "-borderrgba") {
-		unsigned newRGBA = value.getInt();
+		unsigned newRGBA = value.getInt(interp);
 		if (borderRGBA != newRGBA) {
 			borderRGBA = newRGBA;
 			invalidateLocal();
 		}
 	} else {
-		OSDImageBasedWidget::setProperty(name, value);
+		OSDImageBasedWidget::setProperty(interp, name, value);
 	}
 }
 

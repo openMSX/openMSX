@@ -11,6 +11,7 @@
 #include "InputEvents.hh"
 #include "StateChange.hh"
 #include "StringSetting.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "Clock.hh"
 #include "Math.hh"
@@ -62,21 +63,22 @@ Touchpad::Touchpad(MSXEventDistributor& eventDistributor_,
 	, x(0), y(0), touch(false), button(false)
 	, shift(0), channel(0), last(0)
 {
+	auto& interp = commandController.getInterpreter();
 	transformSetting = make_unique<StringSetting>(commandController,
 		"touchpad_transform_matrix",
 		"2x3 matrix to transform host mouse coordinates to "
 		"MSX touchpad coordinates, see manual for details",
 		"{ 256 0 0 } { 0 256 0 }");
-	transformSetting->setChecker([this](TclObject& newValue) {
+	transformSetting->setChecker([this, &interp](TclObject& newValue) {
 		try {
-			parseTransformMatrix(newValue);
+			parseTransformMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
 				"Invalid transformation matrix: " + e.getMessage());
 		}
 	});
 	try {
-		parseTransformMatrix(transformSetting->getValue());
+		parseTransformMatrix(interp, transformSetting->getValue());
 	} catch (CommandException& e) {
 		// should only happen when settings.xml was manually edited
 		std::cerr << e.getMessage() << std::endl;
@@ -93,18 +95,18 @@ Touchpad::~Touchpad()
 	}
 }
 
-void Touchpad::parseTransformMatrix(const TclObject& value)
+void Touchpad::parseTransformMatrix(Interpreter& interp, const TclObject& value)
 {
-	if (value.getListLength() != 2) {
+	if (value.getListLength(interp) != 2) {
 		throw CommandException("must have 2 rows");
 	}
 	for (int i = 0; i < 2; ++i) {
-		TclObject row = value.getListIndex(i);
-		if (row.getListLength() != 3) {
+		TclObject row = value.getListIndex(interp, i);
+		if (row.getListLength(interp) != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
 		for (int j = 0; j < 3; ++j) {
-			m[i][j] = row.getListIndex(j).getDouble();
+			m[i][j] = row.getListIndex(interp, j).getDouble(interp);
 		}
 	}
 }

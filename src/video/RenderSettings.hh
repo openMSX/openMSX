@@ -15,6 +15,7 @@ class FloatSetting;
 class BooleanSetting;
 class StringSetting;
 class TclObject;
+class Interpreter;
 
 /** Class containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
@@ -175,7 +176,7 @@ private:
 	  */
 	void updateBrightnessAndContrast();
 
-	void parseColorMatrix(const TclObject& value);
+	void parseColorMatrix(Interpreter& interp, const TclObject& value);
 
 	std::unique_ptr<EnumSetting<Accuracy>> accuracySetting;
 	std::unique_ptr<EnumSetting<bool>> cmdTimingSetting;

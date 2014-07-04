@@ -16,6 +16,7 @@ class CommandController;
 class PluggingController;
 class StringSetting;
 class TclObject;
+class Interpreter;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
@@ -55,7 +56,7 @@ public:
 private:
 	void plugHelper2();
 	byte calcState();
-	bool getState(const TclObject& dict, string_ref key);
+	bool getState(Interpreter& interp, const TclObject& dict, string_ref key);
 	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener

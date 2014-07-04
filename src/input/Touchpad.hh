@@ -13,6 +13,7 @@ class StateChangeDistributor;
 class CommandController;
 class StringSetting;
 class TclObject;
+class Interpreter;
 
 class Touchpad : public JoystickDevice, private MSXEventListener
                , private StateChangeListener
@@ -29,7 +30,7 @@ public:
 private:
 	void createTouchpadStateChange(EmuTime::param time,
 		byte x, byte y, bool touch, bool button);
-	void parseTransformMatrix(const TclObject& value);
+	void parseTransformMatrix(Interpreter& interp, const TclObject& value);
 	void transformCoords(int& x, int& y);
 
 	// Pluggable

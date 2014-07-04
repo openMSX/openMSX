@@ -15,7 +15,8 @@ public:
 	OSDRectangle(const OSDGUI& gui, const std::string& name);
 
 	virtual std::vector<string_ref> getProperties() const;
-	virtual void setProperty(string_ref name, const TclObject& value);
+	virtual void setProperty(Interpreter& interp,
+	                         string_ref name, const TclObject& value);
 	virtual void getProperty(string_ref name, TclObject& result) const;
 	virtual string_ref getType() const;
 

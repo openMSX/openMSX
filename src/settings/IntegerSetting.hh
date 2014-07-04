@@ -17,7 +17,7 @@ public:
 	virtual string_ref getTypeString() const;
 	virtual void additionalInfo(TclObject& result) const;
 
-	int getInt() const { return getValue().getInt(); }
+	int getInt() const { return getValue().getInt(getInterpreter()); }
 	void setInt(int i);
 
 private:

@@ -4,6 +4,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "EnumSetting.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "Version.hh"
 #include "unreachable.hh"
@@ -55,20 +56,21 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	contrastSetting->attach(*this);
 	updateBrightnessAndContrast();
 
+	auto& interp = commandController.getInterpreter();
 	colorMatrixSetting = make_unique<StringSetting>(commandController,
 		"color_matrix",
 		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
 		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }");
-	colorMatrixSetting->setChecker([this](TclObject& newValue) {
+	colorMatrixSetting->setChecker([this, &interp](TclObject& newValue) {
 		try {
-			parseColorMatrix(newValue);
+			parseColorMatrix(interp, newValue);
 		} catch (CommandException& e) {
 			throw CommandException(
 				"Invalid color matrix: " + e.getMessage());
 		}
 	});
 	try {
-		parseColorMatrix(colorMatrixSetting->getValue());
+		parseColorMatrix(interp, colorMatrixSetting->getValue());
 	} catch (MSXException& e) {
 		std::cerr << e.getMessage() << std::endl;
 		cmIdentity = true;
@@ -247,20 +249,20 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	b = conv2(b2, gamma);
 }
 
-void RenderSettings::parseColorMatrix(const TclObject& value)
+void RenderSettings::parseColorMatrix(Interpreter& interp, const TclObject& value)
 {
-	if (value.getListLength() != 3) {
+	if (value.getListLength(interp) != 3) {
 		throw CommandException("must have 3 rows");
 	}
 	bool identity = true;
 	for (int i = 0; i < 3; ++i) {
-		TclObject row = value.getListIndex(i);
-		if (row.getListLength() != 3) {
+		TclObject row = value.getListIndex(interp, i);
+		if (row.getListLength(interp) != 3) {
 			throw CommandException("each row must have 3 elements");
 		}
 		for (int j = 0; j < 3; ++j) {
-			TclObject element = row.getListIndex(j);
-			double value = element.getDouble();
+			TclObject element = row.getListIndex(interp, j);
+			double value = element.getDouble(interp);
 			cm[i][j] = value;
 			identity &= (value == (i == j ? 1.0 : 0.0));
 		}

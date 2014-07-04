@@ -180,12 +180,12 @@ void FilePool::writeSha1sums()
 	}
 }
 
-static int parseTypes(const TclObject& list)
+static int parseTypes(Interpreter& interp, const TclObject& list)
 {
 	int result = 0;
-	unsigned num = list.getListLength();
+	unsigned num = list.getListLength(interp);
 	for (unsigned i = 0; i < num; ++i) {
-		string_ref elem = list.getListIndex(i).getString();
+		string_ref elem = list.getListIndex(interp, i).getString();
 		if (elem == "system_rom") {
 			result |= FilePool::SYSTEM_ROM;
 		} else if (elem == "rom") {
@@ -210,27 +210,28 @@ void FilePool::update(const Setting& setting)
 FilePool::Directories FilePool::getDirectories() const
 {
 	Directories result;
+	auto& interp = filePoolSetting->getInterpreter();
 	const TclObject& all = filePoolSetting->getValue();
-	unsigned numLines = all.getListLength();
+	unsigned numLines = all.getListLength(interp);
 	for (unsigned i = 0; i < numLines; ++i) {
 		Entry entry;
 		bool hasPath = false;
 		entry.types = 0;
-		TclObject line = all.getListIndex(i);
-		unsigned numItems = line.getListLength();
+		TclObject line = all.getListIndex(interp, i);
+		unsigned numItems = line.getListLength(interp);
 		if (numItems & 1) {
 			throw CommandException(
 				"Expected a list with an even number "
 				"of elements, but got " + line.getString());
 		}
 		for (unsigned j = 0; j < numItems; j += 2) {
-			string_ref name  = line.getListIndex(j + 0).getString();
-			TclObject value = line.getListIndex(j + 1);
+			string_ref name  = line.getListIndex(interp, j + 0).getString();
+			TclObject value = line.getListIndex(interp, j + 1);
 			if (name == "-path") {
 				entry.path = value.getString().str();
 				hasPath = true;
 			} else if (name == "-types") {
-				entry.types = parseTypes(value);
+				entry.types = parseTypes(interp, value);
 			} else {
 				throw CommandException(
 					"Unknown item: " + name);

@@ -23,4 +23,9 @@ void InfoTopic::tabCompletion(vector<string>& /*tokens*/) const
 	// do nothing
 }
 
+Interpreter& InfoTopic::getInterpreter() const
+{
+	return infoCommand.getInterpreter();
+}
+
 } // namespace openmsx

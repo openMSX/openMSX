@@ -14,7 +14,7 @@ public:
 	virtual string_ref getTypeString() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	bool getBoolean() const { return getValue().getBoolean(); }
+	bool getBoolean() const { return getValue().getBoolean(getInterpreter()); }
 	void setBoolean(bool b) { setString(toString(b)); }
 
 private:

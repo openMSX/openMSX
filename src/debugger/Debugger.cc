@@ -284,12 +284,12 @@ void Debugger::transfer(Debugger& other)
 
 // class DebugCmd
 
-static word getAddress(const vector<TclObject>& tokens)
+static word getAddress(Interpreter& interp, const vector<TclObject>& tokens)
 {
 	if (tokens.size() < 3) {
 		throw CommandException("Missing argument");
 	}
-	unsigned addr = tokens[2].getInt();
+	unsigned addr = tokens[2].getInt(interp);
 	if (addr >= 0x10000) {
 		throw CommandException("Invalid address");
 	}
@@ -344,7 +344,7 @@ void DebugCmd::execute(const vector<TclObject>& tokens,
 	} else if (subCmd == "cont") {
 		debugger.motherBoard.getCPUInterface().doContinue();
 	} else if (subCmd == "disasm") {
-		debugger.cpu->disasmCommand(tokens, result);
+		debugger.cpu->disasmCommand(getInterpreter(), tokens, result);
 	} else if (subCmd == "break") {
 		debugger.motherBoard.getCPUInterface().doBreak();
 	} else if (subCmd == "breaked") {
@@ -403,7 +403,7 @@ void DebugCmd::read(const vector<TclObject>& tokens, TclObject& result)
 		throw SyntaxError();
 	}
 	Debuggable& device = debugger.getDebuggable(tokens[2].getString());
-	unsigned addr = tokens[3].getInt();
+	unsigned addr = tokens[3].getInt(getInterpreter());
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
@@ -415,13 +415,14 @@ void DebugCmd::readBlock(const vector<TclObject>& tokens, TclObject& result)
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
+	auto& interp = getInterpreter();
 	Debuggable& device = debugger.getDebuggable(tokens[2].getString());
 	unsigned size = device.getSize();
-	unsigned addr = tokens[3].getInt();
+	unsigned addr = tokens[3].getInt(interp);
 	if (addr >= size) {
 		throw CommandException("Invalid address");
 	}
-	unsigned num = tokens[4].getInt();
+	unsigned num = tokens[4].getInt(interp);
 	if (num > (size - addr)) {
 		throw CommandException("Invalid size");
 	}
@@ -439,12 +440,13 @@ void DebugCmd::write(const vector<TclObject>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
+	auto& interp = getInterpreter();
 	Debuggable& device = debugger.getDebuggable(tokens[2].getString());
-	unsigned addr = tokens[3].getInt();
+	unsigned addr = tokens[3].getInt(interp);
 	if (addr >= device.getSize()) {
 		throw CommandException("Invalid address");
 	}
-	unsigned value = tokens[4].getInt();
+	unsigned value = tokens[4].getInt(interp);
 	if (value >= 256) {
 		throw CommandException("Invalid value");
 	}
@@ -460,7 +462,7 @@ void DebugCmd::writeBlock(const vector<TclObject>& tokens,
 	}
 	Debuggable& device = debugger.getDebuggable(tokens[2].getString());
 	unsigned size = device.getSize();
-	unsigned addr = tokens[3].getInt();
+	unsigned addr = tokens[3].getInt(getInterpreter());
 	if (addr >= size) {
 		throw CommandException("Invalid address");
 	}
@@ -490,10 +492,12 @@ void DebugCmd::setBreakPoint(const vector<TclObject>& tokens,
 	case 4: // condition
 		condition = tokens[3];
 		// fall-through
-	case 3: // address
-		addr = getAddress(tokens);
-		bp = make_shared<BreakPoint>(cliComm, getInterpreter(), addr, command, condition);
+	case 3: { // address
+		auto& interp = getInterpreter();
+		addr = getAddress(interp, tokens);
+		bp = make_shared<BreakPoint>(cliComm, interp, addr, command, condition);
 		break;
+	}
 	default:
 		if (tokens.size() < 3) {
 			throw CommandException("Too few arguments.");
@@ -527,7 +531,7 @@ void DebugCmd::removeBreakPoint(const vector<TclObject>& tokens,
 		interface.removeBreakPoint(**it);
 	} else {
 		// remove by addr, only works for unconditional bp
-		word addr = getAddress(tokens);
+		word addr = getAddress(getInterpreter(), tokens);
 		auto range = equal_range(begin(breakPoints), end(breakPoints),
 		                         addr, CompareBreakpoints());
 		auto it = find_if(range.first, range.second,
@@ -591,16 +595,17 @@ void DebugCmd::setWatchPoint(const vector<TclObject>& tokens,
 		} else {
 			throw CommandException("Invalid type: " + typeStr);
 		}
-		if (tokens[3].getListLength() == 2) {
-			beginAddr = tokens[3].getListIndex(0).getInt();
-			endAddr   = tokens[3].getListIndex(1).getInt();
+		auto& interp = getInterpreter();
+		if (tokens[3].getListLength(interp) == 2) {
+			beginAddr = tokens[3].getListIndex(interp, 0).getInt(interp);
+			endAddr   = tokens[3].getListIndex(interp, 1).getInt(interp);
 			if (endAddr < beginAddr) {
 				throw CommandException(
 					"Not a valid range: end address may "
 					"not be smaller than begin address.");
 			}
 		} else {
-			beginAddr = endAddr = tokens[3].getInt();
+			beginAddr = endAddr = tokens[3].getInt(interp);
 		}
 		if (endAddr >= max) {
 			throw CommandException("Invalid address: out of range");

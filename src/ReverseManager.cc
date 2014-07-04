@@ -312,7 +312,8 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result.setString(string(res));
 }
 
-static void parseGoTo(const vector<TclObject>& tokens, bool& novideo, double& time)
+static void parseGoTo(Interpreter& interp, const vector<TclObject>& tokens,
+                      bool& novideo, double& time)
 {
 	novideo = false;
 	bool hasTime = false;
@@ -320,7 +321,7 @@ static void parseGoTo(const vector<TclObject>& tokens, bool& novideo, double& ti
 		if (tokens[i].getString() == "-novideo") {
 			novideo = true;
 		} else {
-			time = tokens[i].getDouble();
+			time = tokens[i].getDouble(interp);
 			hasTime = true;
 		}
 	}
@@ -333,7 +334,8 @@ void ReverseManager::goBack(const vector<TclObject>& tokens)
 {
 	bool novideo;
 	double t;
-	parseGoTo(tokens, novideo, t);
+	auto& interp = motherBoard.getReactor().getInterpreter();
+	parseGoTo(interp, tokens, novideo, t);
 
 	EmuTime now = getCurrentTime();
 	EmuTime target(EmuTime::dummy());
@@ -354,7 +356,8 @@ void ReverseManager::goTo(const std::vector<TclObject>& tokens)
 {
 	bool novideo;
 	double t;
-	parseGoTo(tokens, novideo, t);
+	auto& interp = motherBoard.getReactor().getInterpreter();
+	parseGoTo(interp, tokens, novideo, t);
 
 	EmuTime target = EmuTime::zero + EmuDuration(t);
 	goTo(target, novideo);
@@ -627,7 +630,8 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 	result.setString("Saved replay to " + filename);
 }
 
-void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& result)
+void ReverseManager::loadReplay(
+	Interpreter& interp, const vector<TclObject>& tokens, TclObject& result)
 {
 	if (tokens.size() < 3) throw SyntaxError();
 
@@ -694,7 +698,7 @@ void ReverseManager::loadReplay(const vector<TclObject>& tokens, TclObject& resu
 	} else if (where == "savetime") {
 		destination = replay.currentTime;
 	} else {
-		destination += EmuDuration(whereArg->getDouble());
+		destination += EmuDuration(whereArg->getDouble(interp));
 	}
 
 	// OK, we are going to be actually changing states now
@@ -968,6 +972,7 @@ void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");
 	}
+	auto& interp = getInterpreter();
 	string_ref subcommand = tokens[1].getString();
 	if        (subcommand == "start") {
 		manager.start();
@@ -984,7 +989,7 @@ void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 	} else if (subcommand == "savereplay") {
 		return manager.saveReplay(tokens, result);
 	} else if (subcommand == "loadreplay") {
-		return manager.loadReplay(tokens, result);
+		return manager.loadReplay(interp, tokens, result);
 	} else if (subcommand == "viewonlymode") {
 		auto& distributor = manager.motherBoard.getStateChangeDistributor();
 		switch (tokens.size()) {
@@ -992,7 +997,7 @@ void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 			result.setString(distributor.isViewOnlyMode() ? "true" : "false");
 			break;
 		case 3:
-			distributor.setViewOnlyMode(tokens[2].getBoolean());
+			distributor.setViewOnlyMode(tokens[2].getBoolean(interp));
 			break;
 		default:
 			throw SyntaxError();

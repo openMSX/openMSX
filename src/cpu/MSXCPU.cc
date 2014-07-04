@@ -268,11 +268,12 @@ void MSXCPU::update(const Setting& setting)
 
 // Command
 
-void MSXCPU::disasmCommand(const vector<TclObject>& tokens,
-                           TclObject& result) const
+void MSXCPU::disasmCommand(
+	Interpreter& interp, const vector<TclObject>& tokens,
+	TclObject& result) const
 {
-	z80Active ? z80 ->disasmCommand(tokens, result)
-	          : r800->disasmCommand(tokens, result);
+	z80Active ? z80 ->disasmCommand(interp, tokens, result)
+	          : r800->disasmCommand(interp, tokens, result);
 }
 
 void MSXCPU::setPaused(bool paused)

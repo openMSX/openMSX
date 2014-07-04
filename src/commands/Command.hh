@@ -17,6 +17,7 @@ class CommandCompleter : public Completer
 {
 public:
 	CommandController& getCommandController() const;
+	Interpreter& getInterpreter() const;
 
 protected:
 	CommandCompleter(CommandController& commandController,
@@ -24,7 +25,6 @@ protected:
 	virtual ~CommandCompleter();
 
 	GlobalCommandController& getGlobalCommandController() const;
-	Interpreter& getInterpreter() const;
 	CliComm& getCliComm() const;
 
 private:

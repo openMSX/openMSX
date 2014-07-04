@@ -260,18 +260,19 @@ vector<string_ref> OSDWidget::getProperties() const
 	return vector<string_ref>(std::begin(vals), std::end(vals));
 }
 
-void OSDWidget::setProperty(string_ref name, const TclObject& value)
+void OSDWidget::setProperty(
+	Interpreter& interp, string_ref name, const TclObject& value)
 {
 	if (name == "-type") {
 		throw CommandException("-type property is readonly");
 	} else if (name == "-mousecoord") {
 		throw CommandException("-mousecoord property is readonly");
 	} else if (name == "-x") {
-		x = value.getDouble();
+		x = value.getDouble(interp);
 	} else if (name == "-y") {
-		y = value.getDouble();
+		y = value.getDouble(interp);
 	} else if (name == "-z") {
-		double z2 = value.getDouble();
+		double z2 = value.getDouble(interp);
 		if (z != z2) {
 			bool up = z2 > z; // was z increased?
 			z = z2;
@@ -285,19 +286,19 @@ void OSDWidget::setProperty(string_ref name, const TclObject& value)
 			}
 		}
 	} else if (name == "-relx") {
-		relx = value.getDouble();
+		relx = value.getDouble(interp);
 	} else if (name == "-rely") {
-		rely = value.getDouble();
+		rely = value.getDouble(interp);
 	} else if (name == "-scaled") {
-		bool scaled2 = value.getBoolean();
+		bool scaled2 = value.getBoolean(interp);
 		if (scaled != scaled2) {
 			scaled = scaled2;
 			invalidateRecursive();
 		}
 	} else if (name == "-clip") {
-		clip = value.getBoolean();
+		clip = value.getBoolean(interp);
 	} else if (name == "-suppressErrors") {
-		suppressErrors = value.getBoolean();
+		suppressErrors = value.getBoolean(interp);
 	} else {
 		throw CommandException("No such property: " + name);
 	}

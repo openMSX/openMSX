@@ -1,4 +1,5 @@
 #include "FloatSetting.hh"
+#include "CommandController.hh"
 
 namespace openmsx {
 
@@ -18,8 +19,9 @@ FloatSetting::FloatSetting(CommandController& commandController,
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
-	setChecker([this](TclObject& newValue) {
-		double value = newValue.getDouble(); // may throw
+	auto& interp = commandController.getInterpreter();
+	setChecker([this, &interp](TclObject& newValue) {
+		double value = newValue.getDouble(interp); // may throw
 		double clipped = std::min(std::max(value, minValue), maxValue);
 		newValue.setDouble(clipped);
 	});

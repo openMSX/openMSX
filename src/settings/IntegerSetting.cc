@@ -1,4 +1,5 @@
 #include "IntegerSetting.hh"
+#include "CommandController.hh"
 #include "StringOp.hh"
 
 namespace openmsx {
@@ -11,8 +12,9 @@ IntegerSetting::IntegerSetting(CommandController& commandController,
 	, minValue(minValue_)
 	, maxValue(maxValue_)
 {
-	setChecker([this](TclObject& newValue) {
-		int value = newValue.getInt(); // may throw
+	auto& interp = commandController.getInterpreter();
+	setChecker([this, &interp](TclObject& newValue) {
+		int value = newValue.getInt(interp); // may throw
 		int clipped = std::min(std::max(value, minValue), maxValue);
 		newValue.setInt(clipped);
 	});

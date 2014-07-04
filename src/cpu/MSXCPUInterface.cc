@@ -1077,9 +1077,10 @@ void SlottedMemoryDebug::write(unsigned address, byte value,
 
 // class SubSlottedInfo
 
-static unsigned getSlot(const TclObject& token, const string& itemName)
+static unsigned getSlot(
+	Interpreter& interp, const TclObject& token, const string& itemName)
 {
-	unsigned slot = token.getInt();
+	unsigned slot = token.getInt(interp);
 	if (slot >= 4) {
 		throw CommandException(itemName + " must be in range 0..3");
 	}
@@ -1099,9 +1100,10 @@ void SlotInfo::execute(const vector<TclObject>& tokens,
 	if (tokens.size() != 5) {
 		throw SyntaxError();
 	}
-	unsigned ps   = getSlot(tokens[2], "Primary slot");
-	unsigned ss   = getSlot(tokens[3], "Secondary slot");
-	unsigned page = getSlot(tokens[4], "Page");
+	auto& interp = getInterpreter();
+	unsigned ps   = getSlot(interp, tokens[2], "Primary slot");
+	unsigned ss   = getSlot(interp, tokens[3], "Secondary slot");
+	unsigned page = getSlot(interp, tokens[4], "Page");
 	if (!interface.isExpanded(ps)) {
 		ss = 0;
 	}
@@ -1130,7 +1132,8 @@ void SubSlottedInfo::execute(const vector<TclObject>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	result.setInt(interface.isExpanded(getSlot(tokens[2], "Slot")));
+	result.setInt(interface.isExpanded(
+		getSlot(getInterpreter(), tokens[2], "Slot")));
 }
 
 string SubSlottedInfo::help(
@@ -1154,12 +1157,13 @@ void ExternalSlotInfo::execute(const vector<TclObject>& tokens,
 {
 	int ps = 0;
 	int ss = 0;
+	auto& interp = getInterpreter();
 	switch (tokens.size()) {
 	case 4:
-		ss = getSlot(tokens[3], "Secondary slot");
+		ss = getSlot(interp, tokens[3], "Secondary slot");
 		// Fall-through
 	case 3:
-		ps = getSlot(tokens[2], "Primary slot");
+		ps = getSlot(interp, tokens[2], "Primary slot");
 		break;
 	default:
 		throw SyntaxError();
@@ -1209,7 +1213,7 @@ void IOInfo::execute(const vector<TclObject>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	unsigned port = tokens[2].getInt();
+	unsigned port = tokens[2].getInt(getInterpreter());
 	if (port >= 256) {
 		throw CommandException("Port must be in range 0..255");
 	}

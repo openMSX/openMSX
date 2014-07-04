@@ -24,6 +24,7 @@ class CPUFreqInfoTopic;
 class MSXCPUDebuggable;
 class TclCallback;
 class TclObject;
+class Interpreter;
 
 class MSXCPU : private Observer<Setting>, private noncopyable
 {
@@ -100,7 +101,8 @@ public:
 
 	void setInterface(MSXCPUInterface* interf);
 
-	void disasmCommand(const std::vector<TclObject>& tokens,
+	void disasmCommand(Interpreter& interp,
+	                   const std::vector<TclObject>& tokens,
                            TclObject& result) const;
 
 	/** (un)pause CPU. During pause the CPU executes NOP instructions

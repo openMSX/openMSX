@@ -84,10 +84,10 @@ Tcl_Obj* TclObject::getTclObject()
 	return obj;
 }
 
-void TclObject::throwException() const
+static void throwException(Tcl_Interp* interp)
 {
 	string_ref message = interp ? Tcl_GetStringResult(interp)
-	                        : "TclObject error";
+	                            : "TclObject error";
 	throw CommandException(message);
 }
 
@@ -168,39 +168,50 @@ void TclObject::addListElement(const TclObject& element)
 
 void TclObject::addListElement(Tcl_Obj* element)
 {
+	// Although it's theoretically possible that Tcl_ListObjAppendElement()
+	// returns an error (e.g. adding an element to a string containing
+	// unbalanced quotes), this rarely occurs in our context. So we don't
+	// require passing an Interpreter parameter in all addListElement()
+	// functions. And in the very unlikely case that it does happen the
+	// only problem is that the error message is less descriptive than it
+	// could be.
+	Tcl_Interp* interp = nullptr;
 	if (Tcl_IsShared(obj)) {
 		Tcl_DecrRefCount(obj);
 		obj = Tcl_DuplicateObj(obj);
 		Tcl_IncrRefCount(obj);
 	}
 	if (Tcl_ListObjAppendElement(interp, obj, element) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 }
 
-int TclObject::getInt() const
+int TclObject::getInt(Interpreter& interp_) const
 {
+	auto* interp = interp_.interp;
 	int result;
 	if (Tcl_GetIntFromObj(interp, obj, &result) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return result;
 }
 
-bool TclObject::getBoolean() const
+bool TclObject::getBoolean(Interpreter& interp_) const
 {
+	auto* interp = interp_.interp;
 	int result;
 	if (Tcl_GetBooleanFromObj(interp, obj, &result) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return result != 0;
 }
 
-double TclObject::getDouble() const
+double TclObject::getDouble(Interpreter& interp_) const
 {
+	auto* interp = interp_.interp;
 	double result;
 	if (Tcl_GetDoubleFromObj(interp, obj, &result) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return result;
 }
@@ -218,47 +229,51 @@ const byte* TclObject::getBinary(unsigned& length) const
 		obj, reinterpret_cast<int*>(&length)));
 }
 
-unsigned TclObject::getListLength() const
+unsigned TclObject::getListLength(Interpreter& interp_) const
 {
+	auto* interp = interp_.interp;
 	int result;
 	if (Tcl_ListObjLength(interp, obj, &result) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return result;
 }
 
-TclObject TclObject::getListIndex(unsigned index) const
+TclObject TclObject::getListIndex(Interpreter& interp_, unsigned index) const
 {
+	auto* interp = interp_.interp;
 	Tcl_Obj* element;
 	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return element ? TclObject(interp, element)
 	               : TclObject(interp);
 }
 
-TclObject TclObject::getDictValue(const TclObject& key) const
+TclObject TclObject::getDictValue(Interpreter& interp_, const TclObject& key) const
 {
+	auto* interp = interp_.interp;
 	Tcl_Obj* value;
 	if (Tcl_DictObjGet(interp, obj, key.obj, &value) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return value ? TclObject(interp, value)
 	             : TclObject(interp);
 }
 
-bool TclObject::evalBool() const
+bool TclObject::evalBool(Interpreter& interp_) const
 {
+	auto* interp = interp_.interp;
 	int result;
 	if (Tcl_ExprBooleanObj(interp, obj, &result) != TCL_OK) {
-		throwException();
+		throwException(interp);
 	}
 	return result != 0;
 }
 
-string TclObject::executeCommand(Interpreter& interpreter, bool compile)
+string TclObject::executeCommand(Interpreter& interp_, bool compile)
 {
-	auto* interp = interpreter.interp;
+	auto* interp = interp_.interp;
 	assert(interp);
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
 	int success = Tcl_EvalObjEx(interp, obj, flags);
