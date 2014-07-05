@@ -145,11 +145,10 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	const_cast<string&>(name)[8] = char('1' + joyNum);
 
 	// create config setting
-	TclObject value;
-	value.addListElement("LEFT" ); value.addListElement("-axis0");
-	value.addListElement("RIGHT"); value.addListElement("+axis0");
-	value.addListElement("UP"   ); value.addListElement("-axis1");
-	value.addListElement("DOWN" ); value.addListElement("+axis1");
+	TclObject value({"LEFT",  "-axis0",
+	                 "RIGHT", "+axis0",
+	                 "UP",    "-axis1",
+	                 "DOWN",  "+axis1"});
 	TclObject listA, listB;
 	for (auto i : xrange(InputEventGenerator::joystickNumButtons(joystick))) {
 		string button = "button" + StringOp::toString(i);

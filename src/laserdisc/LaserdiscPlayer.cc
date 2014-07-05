@@ -62,9 +62,9 @@ string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param ti
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp;
-		tmp.addListElement(getName() + ':');
-		tmp.addListElement(laserdiscPlayer.getImageName().getResolved());
+		TclObject tmp({
+			getName() + ':',
+			laserdiscPlayer.getImageName().getResolved()});
 		result += tmp.getString().str();
 	} else if (tokens.size() == 2 && tokens[1] == "eject") {
 		result += "Ejecting laserdisc.";

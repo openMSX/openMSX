@@ -338,13 +338,11 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
-		TclObject object;
-		object.addListElement(cartname + ':');
-		object.addListElement(extConf ? extConf->getName() : "");
+		TclObject object({
+			cartname + ':',
+			extConf ? extConf->getName() : ""});
 		if (!extConf) {
-			TclObject options;
-			options.addListElement("empty");
-			object.addListElement(options);
+			object.addListElement(TclObject({"empty"}));
 		}
 		result = object.getString().str();
 	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {

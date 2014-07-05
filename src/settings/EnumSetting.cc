@@ -49,9 +49,8 @@ std::vector<string_ref> EnumSettingBase::getPossibleValues() const
 
 void EnumSettingBase::additionalInfoBase(TclObject& result) const
 {
-	TclObject valueList;
-	valueList.addListElements(getPossibleValues());
-	result.addListElement(valueList);
+	const auto& values = getPossibleValues();
+	result.addListElement(TclObject(begin(values), end(values)));
 }
 
 void EnumSettingBase::tabCompletionBase(std::vector<std::string>& tokens) const

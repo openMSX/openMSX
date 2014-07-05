@@ -26,11 +26,10 @@ string_ref ReplayCLI::optionHelp() const
 void ReplayCLI::parseFileType(const string& filename,
                               array_ref<string>& /*cmdLine*/)
 {
-	TclObject command;
-	command.addListElement("reverse");
-	command.addListElement("loadreplay");
-	command.addListElement("-viewonly");
-	command.addListElement(filename);
+	TclObject command({string_ref("reverse"),
+	                   string_ref("loadreplay"),
+	                   string_ref("-viewonly"),
+	                   string_ref(filename)});
 	command.executeCommand(parser.getInterpreter());
 }
 

@@ -27,8 +27,8 @@ const string& BaseSetting::getName() const
 
 void BaseSetting::info(TclObject& result) const
 {
-	result.addListElement(getTypeString());
-	result.addListElement(getDefaultValue());
+	result.addListElements({getTypeString(),
+	                        string_ref(getDefaultValue())});
 	additionalInfo(result);
 }
 

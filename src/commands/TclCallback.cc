@@ -7,8 +7,6 @@
 #include "memory.hh"
 #include <iostream>
 
-using std::string;
-
 namespace openmsx {
 
 TclCallback::TclCallback(
@@ -35,45 +33,36 @@ TclCallback::~TclCallback()
 {
 }
 
-StringSetting& TclCallback::getSetting() const
-{
-	return callbackSetting;
-}
-
-string TclCallback::getValue() const
+string_ref TclCallback::getValue() const
 {
 	return getSetting().getString();
 }
 
 void TclCallback::execute()
 {
-	const string callback = getValue();
+	string_ref callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command;
-	command.addListElement(callback);
+	TclObject command({callback});
 	executeCommon(command);
 }
 
 void TclCallback::execute(int arg1, int arg2)
 {
-	const string callback = getValue();
+	string_ref callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	TclObject command({callback});
+	command.addListElements({arg1, arg2});
 	executeCommon(command);
 }
 
 void TclCallback::execute(int arg1, string_ref arg2)
 {
-	const string callback = getValue();
+	string_ref callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command;
-	command.addListElement(callback);
+	TclObject command({callback});
 	command.addListElement(arg1);
 	command.addListElement(arg2);
 	executeCommon(command);
@@ -81,13 +70,10 @@ void TclCallback::execute(int arg1, string_ref arg2)
 
 void TclCallback::execute(string_ref arg1, string_ref arg2)
 {
-	const string callback = getValue();
+	string_ref callback = getValue();
 	if (callback.empty()) return;
 
-	TclObject command;
-	command.addListElement(callback);
-	command.addListElement(arg1);
-	command.addListElement(arg2);
+	TclObject command({callback, arg1, arg2});
 	executeCommon(command);
 }
 
@@ -96,7 +82,7 @@ void TclCallback::executeCommon(TclObject& command)
 	try {
 		command.executeCommand(callbackSetting.getInterpreter());
 	} catch (CommandException& e) {
-		string message =
+		std::string message =
 			"Error executing callback function \"" +
 			getSetting().getName() + "\": " + e.getMessage();
 		if (useCliComm) {

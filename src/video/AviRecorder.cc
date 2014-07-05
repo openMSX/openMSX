@@ -301,16 +301,11 @@ void AviRecorder::processToggle(array_ref<TclObject> tokens, TclObject& result)
 
 void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
 {
-	if (tokens.size() != 2) {
-		throw SyntaxError();
-	}
-	result.addListElement("status");
-	if (aviWriter || wavWriter) {
-		result.addListElement("recording");
-	} else {
-		result.addListElement("idle");
-	}
+	if (tokens.size() != 2) throw SyntaxError();
 
+	result.addListElements({
+		"status",
+		(aviWriter || wavWriter) ? "recording" : "idle"});
 }
 
 // class RecordCommand

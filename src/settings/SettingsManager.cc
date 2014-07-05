@@ -140,9 +140,7 @@ void SettingInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 	auto& settingsMap = manager.settingsMap;
 	switch (tokens.size()) {
 	case 2:
-		for (auto& p : settingsMap) {
-			result.addListElement(p.first());
-		}
+		result.addListElements(keys(settingsMap));
 		break;
 	case 3: {
 		const auto& name = tokens[2].getString();

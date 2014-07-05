@@ -87,9 +87,8 @@ std::vector<string_ref> VideoSourceSetting::getPossibleValues() const
 
 void VideoSourceSetting::additionalInfo(TclObject& result) const
 {
-	TclObject valueList;
-	valueList.addListElements(getPossibleValues());
-	result.addListElement(valueList);
+	const auto& values = getPossibleValues();
+	result.addListElement(TclObject(begin(values), end(values)));
 }
 
 void VideoSourceSetting::tabCompletion(std::vector<std::string>& tokens) const

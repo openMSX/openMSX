@@ -35,21 +35,17 @@ const char* const FILE_CACHE = "/.filecache";
 static string initialFilePoolSettingValue()
 {
 	TclObject result;
-
 	for (auto& p : SystemFileContext().getPaths()) {
-		TclObject entry1;
-		entry1.addListElement("-path");
-		entry1.addListElement(FileOperations::join(p, "systemroms"));
-		entry1.addListElement("-types");
-		entry1.addListElement("system_rom");
-		result.addListElement(entry1);
-
-		TclObject entry2;
-		entry2.addListElement("-path");
-		entry2.addListElement(FileOperations::join(p, "software"));
-		entry2.addListElement("-types");
-		entry2.addListElement("rom disk tape");
-		result.addListElement(entry2);
+		result.addListElement(TclObject({
+			string_ref("-path"),
+			string_ref(FileOperations::join(p, "systemroms")),
+			string_ref("-types"),
+			string_ref("system_rom")}));
+		result.addListElement(TclObject({
+			string_ref("-path"),
+			string_ref(FileOperations::join(p, "software")),
+			string_ref("-types"),
+			string_ref("rom disk tape")}));
 	}
 	return result.getString().str();
 }

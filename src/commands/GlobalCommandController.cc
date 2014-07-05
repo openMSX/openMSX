@@ -520,8 +520,7 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 		if (it != end(commandCompleters)) {
 			it->second->tabCompletion(tokens);
 		} else {
-			TclObject command;
-			command.addListElement("openmsx::tabcompletion");
+			TclObject command({"openmsx::tabcompletion"});
 			command.addListElements(tokens);
 			try {
 				auto list = splitList(
@@ -580,8 +579,7 @@ void HelpCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
-			TclObject command;
-			command.addListElement("openmsx::help");
+			TclObject command({"openmsx::help"});
 			command.addListElements(std::begin(tokens) + 1, std::end(tokens));
 			result.setString(command.executeCommand(getInterpreter()));
 		}

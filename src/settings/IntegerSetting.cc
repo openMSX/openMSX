@@ -28,10 +28,7 @@ string_ref IntegerSetting::getTypeString() const
 
 void IntegerSetting::additionalInfo(TclObject& result) const
 {
-	TclObject range;
-	range.addListElement(minValue);
-	range.addListElement(maxValue);
-	result.addListElement(range);
+	result.addListElement(TclObject({minValue, maxValue}));
 }
 
 void IntegerSetting::setInt(int i)

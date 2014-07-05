@@ -32,10 +32,10 @@ void LaserdiscPlayerCLI::parseFileType(const string& filename,
 	if (!parser.getGlobalCommandController().hasCommand("laserdiscplayer")) {
 		throw MSXException("No laserdiscplayer.");
 	}
-	TclObject command;
-	command.addListElement("laserdiscplayer");
-	command.addListElement("insert");
-	command.addListElement(filename);
+	TclObject command({
+		string_ref("laserdiscplayer"),
+		string_ref("insert"),
+		string_ref(filename)});
 	command.executeCommand(parser.getInterpreter());
 }
 

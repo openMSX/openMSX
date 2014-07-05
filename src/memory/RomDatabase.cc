@@ -644,22 +644,17 @@ void SoftwareInfoTopic::execute(array_ref<TclObject> tokens,
 			"Software with sha1sum " + sha1sum.toString() + " not found");
 	}
 
-	result.addListElement("title");
-	result.addListElement(romInfo->getTitle());
-	result.addListElement("year");
-	result.addListElement(romInfo->getYear());
-	result.addListElement("company");
-	result.addListElement(romInfo->getCompany());
-	result.addListElement("country");
-	result.addListElement(romInfo->getCountry());
-	result.addListElement("orig_type");
-	result.addListElement(romInfo->getOrigType());
-	result.addListElement("remark");
-	result.addListElement(romInfo->getRemark());
+	result.addListElements({
+		string_ref("title"),     romInfo->getTitle(),
+		string_ref("year"),      romInfo->getYear(),
+		string_ref("company"),   romInfo->getCompany(),
+		string_ref("country"),   romInfo->getCountry(),
+		string_ref("orig_type"), romInfo->getOrigType(),
+		string_ref("remark"),    romInfo->getRemark(),
+		string_ref("mapper_type_name"),
+			RomInfo::romTypeToName(romInfo->getRomType())});
 	result.addListElement("original");
 	result.addListElement(romInfo->getOriginal());
-	result.addListElement("mapper_type_name");
-	result.addListElement(RomInfo::romTypeToName(romInfo->getRomType()));
 	result.addListElement("genmsxid");
 	result.addListElement(romInfo->getGenMSXid());
 }
