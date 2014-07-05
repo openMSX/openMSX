@@ -80,7 +80,7 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, UserFileContext(), extra);
 }
 
-bool HDCommand::needRecord(const vector<string>& tokens) const
+bool HDCommand::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

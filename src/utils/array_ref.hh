@@ -38,6 +38,8 @@ public:
 		: dat(r.data()), siz(r.size()) {}
 	array_ref(const T* array, size_t length)
 		: dat(array), siz(length) {}
+	template<typename ITER> array_ref(ITER begin, ITER end)
+		: dat(&*begin), siz(std::distance(begin, end)) {}
 	array_ref(const std::vector<T>& v)
 		: dat(v.data()), siz(v.size()) {}
 	template<size_t N> array_ref(const T(&a)[N])

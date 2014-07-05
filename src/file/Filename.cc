@@ -14,14 +14,14 @@ Filename::Filename()
 {
 }
 
-Filename::Filename(const string& filename)
-	: originalFilename(filename)
-	, resolvedFilename(filename)
+Filename::Filename(string filename)
+	: originalFilename(std::move(filename))
+	, resolvedFilename(originalFilename)
 {
 }
 
-Filename::Filename(const string& filename, const FileContext& context)
-	: originalFilename(filename)
+Filename::Filename(string filename, const FileContext& context)
+	: originalFilename(std::move(filename))
 	, resolvedFilename(FileOperations::getAbsolutePath(
 		context.resolve(originalFilename)))
 {

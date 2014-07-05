@@ -5,6 +5,8 @@
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
 #include "noncopyable.hh"
+#include "array_ref.hh"
+#include "string_ref.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -14,6 +16,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class MSXDevice;
 class FileContext;
+class TclObject;
 
 class HardwareConfig : private noncopyable
 {
@@ -23,12 +26,12 @@ public:
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
 		MSXMotherBoard& motherBoard, const std::string& machineName);
 	static std::unique_ptr<HardwareConfig> createExtensionConfig(
-		MSXMotherBoard& motherBoard, const std::string& extensionName, const std::string& slotname);
+		MSXMotherBoard& motherBoard, string_ref extensionName, string_ref slotname);
 	static std::unique_ptr<HardwareConfig> createRomConfig(
-		MSXMotherBoard& motherBoard, const std::string& romfile,
-		const std::string& slotname, const std::vector<std::string>& options);
+		MSXMotherBoard& motherBoard, string_ref romfile,
+		string_ref slotname, array_ref<TclObject> options);
 
-	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
+	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
 	~HardwareConfig();
 
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
@@ -37,7 +40,7 @@ public:
 	void setFileContext(std::unique_ptr<FileContext> context);
 
 	const XMLElement& getConfig() const { return config; }
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 
 	void parseSlots();
 	void createDevices();
@@ -64,8 +67,8 @@ private:
 	void createExpandedSlot(int ps);
 	int getFreePrimarySlot();
 	void addDevice(std::unique_ptr<MSXDevice> device);
-	void setName(const std::string& proposedName);
-	void setSlot(const std::string& slotname);
+	void setName(string_ref proposedName);
+	void setSlot(string_ref slotname);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;

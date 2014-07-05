@@ -54,13 +54,13 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
                       array_ref<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
-	std::vector<string> options;
+	std::vector<TclObject> options;
 	while (true) {
 		string option = peekArgument(cmdLine);
 		if ((option == "-ips") || (option == "-romtype")) {
-			options.push_back(option);
+			options.emplace_back(option);
 			cmdLine.pop_front();
-			options.push_back(getArgument(option, cmdLine));
+			options.emplace_back(getArgument(option, cmdLine));
 		} else {
 			break;
 		}

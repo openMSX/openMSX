@@ -36,9 +36,9 @@ unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, const string& extensionName, const string& slotname)
+	MSXMotherBoard& motherBoard, string_ref extensionName, string_ref slotname)
 {
-	auto result = make_unique<HardwareConfig>(motherBoard, extensionName);
+	auto result = make_unique<HardwareConfig>(motherBoard, extensionName.str());
 	result->load("extensions");
 	result->setName(extensionName);
 	result->setSlot(slotname);
@@ -46,33 +46,35 @@ unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
-	MSXMotherBoard& motherBoard, const string& romfile,
-	const string& slotname, const vector<string>& options)
+	MSXMotherBoard& motherBoard, string_ref romfile,
+	string_ref slotname, array_ref<TclObject> options)
 {
 	auto result = make_unique<HardwareConfig>(motherBoard, "rom");
 	const auto& sramfile = FileOperations::getFilename(romfile);
 	auto context = make_unique<UserFileContext>("roms/" + sramfile);
 
 	vector<string_ref> ipsfiles;
-	string mapper;
+	string_ref mapper;
 
 	bool romTypeOptionFound = false;
 
 	// parse options
-	for (auto it = begin(options); it != end(options); ++it) {
-		const auto& option = *it++;
-		if (it == end(options)) {
+	for (auto it = std::begin(options); it != std::end(options); ++it) {
+		string_ref option = it->getString();
+		++it;
+		if (it == std::end(options)) {
 			throw MSXException("Missing argument for option \"" +
 			                   option + '\"');
 		}
+		string_ref arg = it->getString();
 		if (option == "-ips") {
-			if (!FileOperations::isRegularFile(context->resolve(*it))) {
-				throw MSXException("Invalid IPS file: " + *it);
+			if (!FileOperations::isRegularFile(context->resolve(arg))) {
+				throw MSXException("Invalid IPS file: " + arg);
 			}
-			ipsfiles.push_back(*it);
+			ipsfiles.push_back(arg);
 		} else if (option == "-romtype") {
 			if (!romTypeOptionFound) {
-				mapper = *it;
+				mapper = arg;
 				romTypeOptionFound = true;
 			} else {
 				throw MSXException("Only one -romtype option is allowed");
@@ -119,9 +121,9 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	return result;
 }
 
-HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, const string& hwName_)
+HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, string hwName_)
 	: motherBoard(motherBoard_)
-	, hwName(hwName_)
+	, hwName(std::move(hwName_))
 {
 	for (auto ps : xrange(4)) {
 		for (auto ss : xrange(4)) {
@@ -361,15 +363,10 @@ void HardwareConfig::addDevice(std::unique_ptr<MSXDevice> device)
 	devices.push_back(move(device));
 }
 
-const string& HardwareConfig::getName() const
-{
-	return name;
-}
-
-void HardwareConfig::setName(const string& proposedName)
+void HardwareConfig::setName(string_ref proposedName)
 {
 	if (!motherBoard.findExtension(proposedName)) {
-		name = proposedName;
+		name = proposedName.str();
 	} else {
 		unsigned n = 0;
 		do {
@@ -378,7 +375,7 @@ void HardwareConfig::setName(const string& proposedName)
 	}
 }
 
-void HardwareConfig::setSlot(const string& slotname)
+void HardwareConfig::setSlot(string_ref slotname)
 {
 	for (auto& psElem : getDevices().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");

@@ -74,10 +74,11 @@ public:
 	            StateChangeDistributor& stateChangeDistributor,
 	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
-	virtual bool needRecord(const vector<string>& tokens) const;
+	virtual bool needRecord(array_ref<TclObject> tokens) const;
 private:
 	CassettePlayer& cassettePlayer;
 };
@@ -653,45 +654,44 @@ TapeCommand::TapeCommand(CommandController& commandController,
 {
 }
 
-string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
+void TapeCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+                          EmuTime::param time)
 {
-	StringOp::Builder result;
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp({
+		result.addListElements({
 			getName() + ':',
 			cassettePlayer.getImageName().getResolved()});
-		tmp.addListElement(TclObject({cassettePlayer.getStateString()}));
-		result << tmp.getString();
+		result.addListElement(TclObject({cassettePlayer.getStateString()}));
 
-	} else if (tokens[1] == "new") {
+	} else if (tokens[1].getString() == "new") {
 		string directory = "taperecordings";
 		string prefix = "openmsx";
 		string extension = ".wav";
 		string filename = FileOperations::parseCommandFileArgument(
-			(tokens.size() == 3) ? tokens[2] : "",
+			(tokens.size() == 3) ? tokens[2].getString() : "",
 			directory, prefix, extension);
 		cassettePlayer.recordTape(Filename(filename), time);
-		result << "Created new cassette image file: " << filename
-		       << ", inserted it and set recording mode.";
+		result.setString("Created new cassette image file: " + filename +
+		                 ", inserted it and set recording mode.");
 
-	} else if (tokens[1] == "insert" && tokens.size() == 3) {
+	} else if (tokens[1].getString() == "insert" && tokens.size() == 3) {
 		try {
-			result << "Changing tape";
-			Filename filename(tokens[2], UserFileContext());
+			result.setString("Changing tape");
+			Filename filename(tokens[2].getString().str(), UserFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
 
-	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
-		if (tokens[2] == "on") {
+	} else if (tokens[1].getString() == "motorcontrol" && tokens.size() == 3) {
+		if (tokens[2].getString() == "on") {
 			cassettePlayer.setMotorControl(true, time);
-			result << "Motor control enabled.";
-		} else if (tokens[2] == "off") {
+			result.setString("Motor control enabled.");
+		} else if (tokens[2].getString() == "off") {
 			cassettePlayer.setMotorControl(false, time);
-			result << "Motor control disabled.";
+			result.setString("Motor control disabled.");
 		} else {
 			throw SyntaxError();
 		}
@@ -699,17 +699,17 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
 
-	} else if (tokens[1] == "motorcontrol") {
-		result << "Motor control is "
-		       << (cassettePlayer.motorControl ? "on" : "off");
+	} else if (tokens[1].getString() == "motorcontrol") {
+		result.setString(string("Motor control is ") +
+		                 (cassettePlayer.motorControl ? "on" : "off"));
 
-	} else if (tokens[1] == "record") {
-			result << "TODO: implement this... (sorry)";
+	} else if (tokens[1].getString() == "record") {
+			result.setString("TODO: implement this... (sorry)");
 
-	} else if (tokens[1] == "play") {
+	} else if (tokens[1].getString() == "play") {
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
-				result << "Play mode set, rewinding tape.";
+				result.setString("Play mode set, rewinding tape.");
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
@@ -719,17 +719,18 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 			throw CommandException("No tape inserted or tape at end!");
 		} else {
 			// PLAY mode
-			result << "Already in play mode.";
+			result.setString("Already in play mode.");
 		}
 
-	} else if (tokens[1] == "eject") {
-		result << "Tape ejected";
+	} else if (tokens[1].getString() == "eject") {
+		result.setString("Tape ejected");
 		cassettePlayer.removeTape(time);
 
-	} else if (tokens[1] == "rewind") {
+	} else if (tokens[1].getString() == "rewind") {
+		string r;
 		if (cassettePlayer.getState() == CassettePlayer::RECORD) {
 			try {
-				result << "First stopping recording... ";
+				r = "First stopping recording... ";
 				cassettePlayer.playTape(
 					cassettePlayer.getImageName(), time);
 			} catch (MSXException& e) {
@@ -737,18 +738,19 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 			}
 		}
 		cassettePlayer.rewind(time);
-		result << "Tape rewound";
+		r += "Tape rewound";
+		result.setString(r);
 
-	} else if (tokens[1] == "getpos") {
-		result << cassettePlayer.getTapePos(time);
+	} else if (tokens[1].getString() == "getpos") {
+		result.setDouble(cassettePlayer.getTapePos(time));
 
-	} else if (tokens[1] == "getlength") {
-		result << cassettePlayer.getTapeLength(time);
+	} else if (tokens[1].getString() == "getlength") {
+		result.setDouble(cassettePlayer.getTapeLength(time));
 
 	} else {
 		try {
-			result << "Changing tape";
-			Filename filename(tokens[1], UserFileContext());
+			result.setString("Changing tape");
+			Filename filename(tokens[1].getString().str(), UserFileContext());
 			cassettePlayer.playTape(filename, time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -757,7 +759,6 @@ string TapeCommand::execute(const vector<string>& tokens, EmuTime::param time)
 	//if (!cassettePlayer.getConnector()) {
 	//	cassettePlayer.cliComm.printWarning("Cassetteplayer not plugged in.");
 	//}
-	return result;
 }
 
 string TapeCommand::help(const vector<string>& tokens) const
@@ -855,7 +856,7 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool TapeCommand::needRecord(const vector<string>& tokens) const
+bool TapeCommand::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

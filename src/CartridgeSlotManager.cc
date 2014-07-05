@@ -24,10 +24,11 @@ class CartCmd : public RecordedCommand
 public:
 	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
 	        string_ref commandName);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
-	virtual bool needRecord(const vector<string>& tokens) const;
+	virtual bool needRecord(array_ref<TclObject> tokens) const;
 private:
 	const HardwareConfig* getExtensionConfig(string_ref cartname);
 	CartridgeSlotManager& manager;
@@ -322,10 +323,10 @@ const HardwareConfig* CartCmd::getExtensionConfig(string_ref cartname)
 	return manager.slots[slot].config;
 }
 
-string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void CartCmd::execute(array_ref<TclObject> tokens, TclObject& result,
+                      EmuTime::param /*time*/)
 {
-	string result;
-	string_ref cartname = tokens[0];
+	string_ref cartname = tokens[0].getString();
 
 	// strip namespace qualification
 	//  TODO investigate whether it's a good idea to strip namespace at a
@@ -338,18 +339,19 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
-		TclObject object({
+		result.addListElements({
 			cartname + ':',
 			extConf ? extConf->getName() : ""});
 		if (!extConf) {
-			object.addListElement(TclObject({"empty"}));
+			result.addListElement(TclObject({"empty"}));
 		}
-		result = object.getString().str();
-	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
+	} else if ((tokens[1].getString() ==  "eject") ||
+	           (tokens[1].getString() == "-eject")) {
 		// remove cartridge (or extension)
-		if (tokens[1] == "-eject") {
-			result = "Warning: use of '-eject' is deprecated, "
-			         "instead use the 'eject' subcommand";
+		if (tokens[1].getString() == "-eject") {
+			result.setString(
+				"Warning: use of '-eject' is deprecated, "
+				"instead use the 'eject' subcommand");
 		}
 		if (auto* extConf = getExtensionConfig(cartname)) {
 			try {
@@ -366,17 +368,17 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 			? string(1, cartname[4])
 			: "any";
 		size_t extensionNameToken = 1;
-		if (tokens[1] == "insert") {
+		if (tokens[1].getString() == "insert") {
 			if (tokens.size() > 2) {
 				extensionNameToken = 2;
 			} else {
 				throw CommandException("Missing argument to insert subcommand");
 			}
 		}
-		vector<string> options(begin(tokens) + extensionNameToken + 1,
-		                       end(tokens));
+		array_ref<TclObject> options(std::begin(tokens) + extensionNameToken + 1,
+		                             std::end(tokens));
 		try {
-			const auto& romname = tokens[extensionNameToken];
+			string_ref romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
 				manager.motherBoard, romname, slotname, options);
 			if (slotname != "any") {
@@ -385,14 +387,13 @@ string CartCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 					manager.motherBoard.removeExtension(*extConf);
 				}
 			}
-			result = manager.motherBoard.insertExtension(
-				"ROM", std::move(extension));
+			result.setString(manager.motherBoard.insertExtension(
+				"ROM", std::move(extension)));
 			cliComm.update(CliComm::MEDIA, cartname, romname);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
 	}
-	return result;
 }
 
 string CartCmd::help(const vector<string>& tokens) const
@@ -412,7 +413,7 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 	completeFileName(tokens, UserFileContext(), extra);
 }
 
-bool CartCmd::needRecord(const vector<string>& tokens) const
+bool CartCmd::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() > 1;
 }

@@ -38,8 +38,8 @@ public:
 			 StateChangeDistributor& stateChangeDistributor,
 			 Scheduler& scheduler,
 			 LaserdiscPlayer& laserdiscPlayer);
-	virtual string execute(const vector<string>& tokens,
-			       EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+			     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -56,30 +56,28 @@ LaserdiscCommand::LaserdiscCommand(
 {
 }
 
-string LaserdiscCommand::execute(const vector<string>& tokens, EmuTime::param time)
+void LaserdiscCommand::execute(array_ref<TclObject> tokens, TclObject& result,
+                               EmuTime::param time)
 {
-	string result;
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp({
+		result.addListElements({
 			getName() + ':',
 			laserdiscPlayer.getImageName().getResolved()});
-		result += tmp.getString().str();
-	} else if (tokens.size() == 2 && tokens[1] == "eject") {
-		result += "Ejecting laserdisc.";
+	} else if (tokens.size() == 2 && tokens[1].getString() == "eject") {
+		result.setString("Ejecting laserdisc.");
 		laserdiscPlayer.eject(time);
-	} else if (tokens.size() == 3 && tokens[1] == "insert") {
+	} else if (tokens.size() == 3 && tokens[1].getString() == "insert") {
 		try {
-			result += "Changing laserdisc.";
-			laserdiscPlayer.setImageName(tokens[2], time);
+			result.setString("Changing laserdisc.");
+			laserdiscPlayer.setImageName(tokens[2].getString().str(), time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
 	} else {
 		throw SyntaxError();
 	}
-	return result;
 }
 
 string LaserdiscCommand::help(const vector<string>& tokens) const
@@ -669,10 +667,10 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::setImageName(const string& newImage, EmuTime::param time)
+void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 {
 	stop(time);
-	oggImage = Filename(newImage, UserFileContext());
+	oggImage = Filename(std::move(newImage), UserFileContext());
 	video = make_unique<OggReader>(oggImage, motherBoard.getMSXCliComm());
 
 	unsigned inputRate = video->getSampleRate();

@@ -44,17 +44,7 @@ void RecordedCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 	}
 }
 
-bool RecordedCommand::needRecord(array_ref<TclObject> tokens) const
-{
-	vector<string> strings;
-	strings.reserve(tokens.size());
-	for (auto& t : tokens) {
-		strings.push_back(t.getString().str());
-	}
-	return needRecord(strings);
-}
-
-bool RecordedCommand::needRecord(const vector<string>& /*tokens*/) const
+bool RecordedCommand::needRecord(array_ref<TclObject> /*tokens*/) const
 {
 	return true;
 }
@@ -93,25 +83,6 @@ void RecordedCommand::signalStateChange(const std::shared_ptr<StateChange>& even
 void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 {
 	// nothing
-}
-
-void RecordedCommand::execute(array_ref<TclObject> tokens,
-                              TclObject& result, EmuTime::param time)
-{
-	vector<string> strings;
-	strings.reserve(tokens.size());
-	for (auto& t : tokens) {
-		strings.push_back(t.getString().str());
-	}
-	result.setString(execute(strings, time));
-}
-
-string RecordedCommand::execute(const vector<string>& /*tokens*/,
-                                EmuTime::param /*time*/)
-{
-	// either this method or the method above should be reimplemented
-	// by the subclasses
-	UNREACHABLE; return "";
 }
 
 

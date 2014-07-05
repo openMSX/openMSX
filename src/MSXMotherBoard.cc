@@ -100,8 +100,8 @@ public:
 	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
 	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(string_ref extensionName);
-	string loadExtension(MSXMotherBoard& self, const string& extensionName, const string& slotname);
-	string insertExtension(const std::string& name,
+	string loadExtension(MSXMotherBoard& self, string_ref extensionName, string_ref slotname);
+	string insertExtension(string_ref name,
 	                       unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
@@ -230,8 +230,8 @@ class ResetCmd : public RecordedCommand
 {
 public:
 	ResetCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual string execute(const vector<string>& tokens,
-	                       EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXMotherBoard::Impl& motherBoard;
@@ -262,8 +262,8 @@ class RemoveExtCmd : public RecordedCommand
 {
 public:
 	RemoveExtCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual string execute(const vector<string>& tokens,
-	                       EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -470,7 +470,7 @@ string MSXMotherBoard::Impl::loadMachine(MSXMotherBoard& self, const string& mac
 	return machineName;
 }
 
-string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& name, const string& slotname)
+string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, string_ref name, string_ref slotname)
 {
 	unique_ptr<HardwareConfig> extension;
 	try {
@@ -486,7 +486,7 @@ string MSXMotherBoard::Impl::loadExtension(MSXMotherBoard& self, const string& n
 }
 
 string MSXMotherBoard::Impl::insertExtension(
-	const string& name, unique_ptr<HardwareConfig> extension)
+	string_ref name, unique_ptr<HardwareConfig> extension)
 {
 	try {
 		extension->parseSlots();
@@ -982,11 +982,10 @@ ResetCmd::ResetCmd(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-string ResetCmd::execute(const vector<string>& /*tokens*/,
-                         EmuTime::param /*time*/)
+void ResetCmd::execute(array_ref<TclObject> /*tokens*/, TclObject& /*result*/,
+                       EmuTime::param /*time*/)
 {
 	motherBoard.doReset();
-	return "";
 }
 
 string ResetCmd::help(const vector<string>& /*tokens*/) const
@@ -1081,7 +1080,8 @@ ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_, string_ref commandName_)
 {
 }
 
-string ExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void ExtCmd::execute(array_ref<TclObject> tokens, TclObject& result,
+                     EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -1090,7 +1090,8 @@ string ExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
 		auto slotname = (commandName.size() == 4)
 			? string(1, commandName[3])
 			: "any";
-		return motherBoard.loadExtension(tokens[1], slotname);
+		result.setString(motherBoard.loadExtension(
+			tokens[1].getString(), slotname));
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}
@@ -1118,22 +1119,23 @@ RemoveExtCmd::RemoveExtCmd(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-string RemoveExtCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void RemoveExtCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
+                           EmuTime::param /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	HardwareConfig* extension = motherBoard.findExtension(tokens[1]);
+	string_ref name = tokens[1].getString();
+	HardwareConfig* extension = motherBoard.findExtension(name);
 	if (!extension) {
-		throw CommandException("No such extension: " + tokens[1]);
+		throw CommandException("No such extension: " + name);
 	}
 	try {
 		motherBoard.removeExtension(*extension);
 	} catch (MSXException& e) {
-		throw CommandException("Can't remove extension '" + tokens[1] +
+		throw CommandException("Can't remove extension '" + name +
 		                       "': " + e.getMessage());
 	}
-	return "";
 }
 
 string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
@@ -1405,12 +1407,12 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 {
 	return pimpl->findExtension(extensionName);
 }
-string MSXMotherBoard::loadExtension(const string& extensionName, const string& slotname)
+string MSXMotherBoard::loadExtension(string_ref extensionName, string_ref slotname)
 {
 	return pimpl->loadExtension(*this, extensionName, slotname);
 }
 string MSXMotherBoard::insertExtension(
-	const string& name, unique_ptr<HardwareConfig> extension)
+	string_ref name, unique_ptr<HardwareConfig> extension)
 {
 	return pimpl->insertExtension(name, std::move(extension));
 }

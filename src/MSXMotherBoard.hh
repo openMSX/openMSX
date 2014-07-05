@@ -81,8 +81,8 @@ public:
 	std::string loadMachine(const std::string& machine);
 
 	HardwareConfig* findExtension(string_ref extensionName);
-	std::string loadExtension(const std::string& extensionName, const std::string& slotname);
-	std::string insertExtension(const std::string& name,
+	std::string loadExtension(string_ref extensionName, string_ref slotname);
+	std::string insertExtension(string_ref name,
 	                            std::unique_ptr<HardwareConfig> extension);
 	void removeExtension(const HardwareConfig& extension);
 
@@ -182,8 +182,8 @@ class ExtCmd : public RecordedCommand
 {
 public:
 	ExtCmd(MSXMotherBoard& motherBoard, string_ref commandName);
-	virtual std::string execute(const std::vector<std::string>& tokens,
-	                       EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 private:

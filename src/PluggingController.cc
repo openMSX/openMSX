@@ -28,10 +28,11 @@ public:
 	        StateChangeDistributor& stateChangeDistributor,
 	        Scheduler& scheduler,
 	        PluggingController& pluggingController);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
-	virtual bool needRecord(const vector<string>& tokens) const;
+	virtual bool needRecord(array_ref<TclObject> tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -43,7 +44,8 @@ public:
 	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler,
 	          PluggingController& pluggingController);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help   (const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -154,39 +156,41 @@ PlugCmd::PlugCmd(CommandController& commandController,
 {
 }
 
-string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
+void PlugCmd::execute(array_ref<TclObject> tokens, TclObject& result_,
+                      EmuTime::param time)
 {
 	StringOp::Builder result;
 	switch (tokens.size()) {
-	case 1: {
+	case 1:
 		for (auto& c : pluggingController.connectors) {
 			result << c->getName() << ": "
 			       << c->getPlugged().getName() << '\n';
 		}
 		break;
-	}
 	case 2: {
-		auto& connector = pluggingController.getConnector(tokens[1]);
+		auto& connector = pluggingController.getConnector(tokens[1].getString());
 		result << connector.getName() << ": "
 		       << connector.getPlugged().getName();
 		break;
 	}
 	case 3: {
-		auto& connector = pluggingController.getConnector(tokens[1]);
-		auto& pluggable = pluggingController.getPluggable(tokens[2]);
+		string_ref connName = tokens[1].getString();
+		string_ref plugName = tokens[2].getString();
+		auto& connector = pluggingController.getConnector(connName);
+		auto& pluggable = pluggingController.getPluggable(plugName);
 		if (&connector.getPlugged() == &pluggable) {
 			// already plugged, don't unplug/replug
 			break;
 		}
 		if (connector.getClass() != pluggable.getClass()) {
-			throw CommandException("plug: " + tokens[2] +
-					   " doesn't fit in " + tokens[1]);
+			throw CommandException("plug: " + plugName +
+					   " doesn't fit in " + connName);
 		}
 		connector.unplug(time);
 		try {
 			connector.plug(pluggable, time);
 			pluggingController.getCliComm().update(
-				CliComm::PLUG, tokens[1], tokens[2]);
+				CliComm::PLUG, connName, plugName);
 		} catch (PlugException& e) {
 			throw CommandException("plug: plug failed: " + e.getMessage());
 		}
@@ -195,7 +199,7 @@ string PlugCmd::execute(const vector<string>& tokens, EmuTime::param time)
 	default:
 		throw SyntaxError();
 	}
-	return result;
+	result_.setString(result); // TODO return Tcl list
 }
 
 string PlugCmd::help(const vector<string>& /*tokens*/) const
@@ -227,7 +231,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-bool PlugCmd::needRecord(const vector<string>& tokens) const
+bool PlugCmd::needRecord(array_ref<TclObject> tokens) const
 {
 	return tokens.size() == 3;
 }
@@ -245,15 +249,16 @@ UnplugCmd::UnplugCmd(CommandController& commandController,
 {
 }
 
-string UnplugCmd::execute(const vector<string>& tokens, EmuTime::param time)
+void UnplugCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
+                        EmuTime::param time)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	auto& connector = pluggingController.getConnector(tokens[1]);
+	string_ref connName = tokens[1].getString();
+	auto& connector = pluggingController.getConnector(connName);
 	connector.unplug(time);
-	pluggingController.getCliComm().update(CliComm::UNPLUG, tokens[1], "");
-	return "";
+	pluggingController.getCliComm().update(CliComm::UNPLUG, connName, "");
 }
 
 string UnplugCmd::help(const vector<string>& /*tokens*/) const

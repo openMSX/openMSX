@@ -51,7 +51,8 @@ public:
 	KeyMatrixUpCmd(CommandController& commandController,
 	               StateChangeDistributor& stateChangeDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
@@ -63,7 +64,8 @@ public:
 	KeyMatrixDownCmd(CommandController& commandController,
 	                 StateChangeDistributor& stateChangeDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
@@ -95,11 +97,12 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void type(const string& str);
+	void type(string_ref str);
 	void reschedule(EmuTime::param time);
 
 	// Command
-	virtual string execute(const vector<string>& tokens, EmuTime::param time);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
+	                     EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
@@ -760,16 +763,17 @@ void Keyboard::doKeyGhosting()
 	} while (changedSomething);
 }
 
-string Keyboard::processCmd(const vector<string>& tokens, bool up)
+void Keyboard::processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	unsigned row, mask;
-	if (!StringOp::stringToUint(tokens[1], row) || (row >= NR_KEYROWS)) {
+	unsigned row  = tokens[1].getInt(interp);
+	unsigned mask = tokens[2].getInt(interp);
+	if (row >= NR_KEYROWS) {
 		throw CommandException("Invalid row");
 	}
-	if (!StringOp::stringToUint(tokens[2], mask) || (mask >= 256)) {
+	if (mask >= 256) {
 		throw CommandException("Invalid mask");
 	}
 	if (up) {
@@ -778,7 +782,6 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 		cmdKeyMatrix[row] &= ~mask;
 	}
 	keysChanged = true;
-	return "";
 }
 
 /*
@@ -999,9 +1002,10 @@ KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
 {
 }
 
-string KeyMatrixUpCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void KeyMatrixUpCmd::execute(array_ref<TclObject> tokens,
+                             TclObject& /*result*/, EmuTime::param /*time*/)
 {
-	return keyboard.processCmd(tokens, true);
+	return keyboard.processCmd(getInterpreter(), tokens, true);
 }
 
 string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
@@ -1023,9 +1027,10 @@ KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 {
 }
 
-string KeyMatrixDownCmd::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void KeyMatrixDownCmd::execute(array_ref<TclObject> tokens,
+                               TclObject& /*result*/, EmuTime::param /*time*/)
 {
-	return keyboard.processCmd(tokens, false);
+	return keyboard.processCmd(getInterpreter(), tokens, false);
 }
 
 string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
@@ -1110,7 +1115,8 @@ KeyInserter::KeyInserter(CommandController& commandController,
 	typingFrequency = 15;
 }
 
-string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*/)
+void KeyInserter::execute(array_ref<TclObject> tokens, TclObject& /*result*/,
+                          EmuTime::param /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -1121,22 +1127,24 @@ string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*
 
 	// for full backwards compatibility: one option means type it...
 	if (tokens.size() == 2) {
-		type(tokens[1]);
-		return "";
+		type(tokens[1].getString());
+		return;
 	}
 
-        vector<string> arguments;
+        vector<string_ref> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
-		const string token = tokens[i];
+		string_ref token = tokens[i].getString();
 		if (token == "-release") {
 			releaseBeforePress = true;
 		} else if (token == "-freq") {
 			if (++i == tokens.size()) {
 				throw CommandException("Missing argument");
 			}
-			if (!StringOp::stringToUint(tokens[i], typingFrequency) || (typingFrequency == 0)) {
+			int tmp = tokens[1].getInt(getInterpreter());
+			if (tmp <= 0) {
 				throw CommandException("Wrong argument for -freq (should be a positive number)");
 			}
+			typingFrequency = tmp;
 		} else {
 			arguments.push_back(token);
 		}
@@ -1145,8 +1153,6 @@ string KeyInserter::execute(const vector<string>& tokens, EmuTime::param /*time*
 	if (arguments.size() != 1) throw SyntaxError();
 
 	type(arguments[0]);
-
-	return "";
 }
 
 string KeyInserter::help(const vector<string>& /*tokens*/) const
@@ -1169,7 +1175,7 @@ void KeyInserter::tabCompletion(vector<string>& tokens) const
 	completeString(tokens, options);
 }
 
-void KeyInserter::type(const string& str)
+void KeyInserter::type(string_ref str)
 {
 	if (str.empty()) {
 		return;
@@ -1180,7 +1186,7 @@ void KeyInserter::type(const string& str)
 	if (text_utf8.empty()) {
 		reschedule(getCurrentTime());
 	}
-	text_utf8 += str;
+	text_utf8.append(str.data(), str.size());
 }
 
 void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)

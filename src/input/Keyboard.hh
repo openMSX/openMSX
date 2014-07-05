@@ -5,6 +5,7 @@
 #include "StateChangeListener.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+#include "array_ref.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include <vector>
@@ -28,6 +29,8 @@ class MsxKeyEventQueue;
 class UnicodeKeymap;
 class KeybDebuggable;
 class StateChange;
+class TclObject;
+class Interpreter;
 
 class Keyboard : private MSXEventListener, private StateChangeListener,
                  private Schedulable
@@ -96,7 +99,7 @@ private:
 	bool processKeyEvent(EmuTime::param time, bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(EmuTime::param time, bool down, int row, byte mask);
 	void doKeyGhosting();
-	std::string processCmd(const std::vector<std::string>& tokens, bool up);
+	void processCmd(Interpreter& interp, array_ref<TclObject> tokens, bool up);
 	bool pressUnicodeByUser(EmuTime::param time, unsigned unicode, bool down);
 	int pressAscii(unsigned unicode, bool down);
 	void pressLockKeys(int lockKeysMask, bool down);

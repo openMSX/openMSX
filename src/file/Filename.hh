@@ -18,8 +18,8 @@ class Filename
 {
 public:
 	Filename();
-	explicit Filename(const std::string& filename);
-	Filename(const std::string& filename, const FileContext& context);
+	explicit Filename(std::string filename);
+	Filename(std::string filename, const FileContext& context);
 
 	const std::string& getOriginal() const { return originalFilename; }
 	const std::string& getResolved() const { return resolvedFilename; }

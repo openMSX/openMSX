@@ -80,7 +80,7 @@ public:
 		IR_NEC,
 	};
 private:
-	void setImageName(const std::string& newImage, EmuTime::param time);
+	void setImageName(std::string newImage, EmuTime::param time);
 	const Filename& getImageName() const;
 	void autoRun();
 
