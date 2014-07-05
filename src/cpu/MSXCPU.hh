@@ -6,8 +6,8 @@
 #include "noncopyable.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "array_ref.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
@@ -102,7 +102,7 @@ public:
 	void setInterface(MSXCPUInterface* interf);
 
 	void disasmCommand(Interpreter& interp,
-	                   const std::vector<TclObject>& tokens,
+	                   array_ref<TclObject> tokens,
                            TclObject& result) const;
 
 	/** (un)pause CPU. During pause the CPU executes NOP instructions

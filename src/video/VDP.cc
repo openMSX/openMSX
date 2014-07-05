@@ -87,7 +87,7 @@ private:
 class VDPInfo : public InfoTopic
 {
 public:
-	virtual void execute(const vector<TclObject>& /*tokens*/,
+	virtual void execute(array_ref<TclObject> /*tokens*/,
 	                     TclObject& result) const
 	{
 		const Schedulable& schedulable = vdp; // resolve ambiguity

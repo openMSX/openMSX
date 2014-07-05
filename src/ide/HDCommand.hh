@@ -20,7 +20,7 @@ public:
 	HDCommand(CommandController& commandController,
 	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler, HD& hd, BooleanSetting& powerSetting);
-	virtual void execute(const std::vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result, EmuTime::param time);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;

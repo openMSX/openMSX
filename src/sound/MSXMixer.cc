@@ -34,7 +34,7 @@ class SoundDeviceInfoTopic : public InfoTopic
 {
 public:
 	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -734,8 +734,8 @@ SoundDeviceInfoTopic::SoundDeviceInfoTopic(
 {
 }
 
-void SoundDeviceInfoTopic::execute(const vector<TclObject>& tokens,
-	TclObject& result) const
+void SoundDeviceInfoTopic::execute(array_ref<TclObject> tokens,
+                                   TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:

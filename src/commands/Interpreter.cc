@@ -9,6 +9,7 @@
 #include "InterpreterOutput.hh"
 #include "MSXCPUInterface.hh"
 #include "FileOperations.hh"
+#include "array_ref.hh"
 #include "stl.hh"
 #include "unreachable.hh"
 #include "xrange.hh"
@@ -162,11 +163,9 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 {
 	try {
 		auto& command = *static_cast<Command*>(clientData);
-		vector<TclObject> tokens;
-		tokens.reserve(objc);
-		for (auto i : xrange(objc)) {
-			tokens.emplace_back(objv[i]);
-		}
+		auto tokens = make_array_ref(
+			reinterpret_cast<TclObject*>(const_cast<Tcl_Obj**>(objv)),
+			objc);
 		int res = TCL_OK;
 		TclObject result;
 		try {

@@ -6,6 +6,7 @@
 #include "StateChangeListener.hh"
 #include "EmuTime.hh"
 #include "MemBuffer.hh"
+#include "array_ref.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -74,11 +75,11 @@ private:
 	void stop();
 	void status(TclObject& result) const;
 	void debugInfo(TclObject& result) const;
-	void goBack(const std::vector<TclObject>& tokens);
-	void goTo(const std::vector<TclObject>& tokens);
-	void saveReplay(const std::vector<TclObject>& tokens, TclObject& result);
+	void goBack(array_ref<TclObject> tokens);
+	void goTo(array_ref<TclObject> tokens);
+	void saveReplay(array_ref<TclObject> tokens, TclObject& result);
 	void loadReplay(Interpreter& interp,
-	                const std::vector<TclObject>& tokens, TclObject& result);
+	                array_ref<TclObject> tokens, TclObject& result);
 
 	void signalStopReplay(EmuTime::param time);
 	EmuTime::param getEndTime(const ReverseHistory& history) const;

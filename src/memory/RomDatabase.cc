@@ -24,7 +24,7 @@ class SoftwareInfoTopic : public InfoTopic
 public:
         SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);
 
-        virtual void execute(const vector<TclObject>& tokens,
+        virtual void execute(array_ref<TclObject> tokens,
                              TclObject& result) const;
         virtual string help(const vector<string>& tokens) const;
         virtual void tabCompletion(vector<string>& tokens) const;
@@ -629,7 +629,7 @@ SoftwareInfoTopic::SoftwareInfoTopic(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void SoftwareInfoTopic::execute(const vector<TclObject>& tokens,
+void SoftwareInfoTopic::execute(array_ref<TclObject> tokens,
                                 TclObject& result) const
 {
 	if (tokens.size() != 3) {

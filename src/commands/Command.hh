@@ -2,6 +2,7 @@
 #define COMMAND_HH
 
 #include "Completer.hh"
+#include "array_ref.hh"
 #include "string_ref.hh"
 #include <vector>
 
@@ -20,8 +21,7 @@ public:
 	Interpreter& getInterpreter() const;
 
 protected:
-	CommandCompleter(CommandController& commandController,
-	                 string_ref name);
+	CommandCompleter(CommandController& controller, string_ref name);
 	virtual ~CommandCompleter();
 
 	GlobalCommandController& getGlobalCommandController() const;
@@ -43,8 +43,7 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(const std::vector<TclObject>& tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 
 	/** Alternative for the execute() method above.
 	  * It has a simpler interface, but performance is a bit lower.
@@ -65,8 +64,7 @@ public:
 	bool isAllowedInEmptyMachine() const { return allowInEmptyMachine; }
 
 protected:
-	Command(CommandController& commandController,
-	        string_ref name);
+	Command(CommandController& controller, string_ref name);
 	virtual ~Command();
 
 private:

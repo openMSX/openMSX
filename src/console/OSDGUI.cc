@@ -22,18 +22,18 @@ class OSDCommand : public Command
 {
 public:
 	OSDCommand(OSDGUI& gui, CommandController& commandController);
-	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
-	void create   (const vector<TclObject>& tokens, TclObject& result);
-	void destroy  (const vector<TclObject>& tokens, TclObject& result);
-	void info     (const vector<TclObject>& tokens, TclObject& result);
-	void exists   (const vector<TclObject>& tokens, TclObject& result);
-	void configure(const vector<TclObject>& tokens, TclObject& result);
+	void create   (array_ref<TclObject> tokens, TclObject& result);
+	void destroy  (array_ref<TclObject> tokens, TclObject& result);
+	void info     (array_ref<TclObject> tokens, TclObject& result);
+	void exists   (array_ref<TclObject> tokens, TclObject& result);
+	void configure(array_ref<TclObject> tokens, TclObject& result);
 	shared_ptr<OSDWidget> create(string_ref type, const string& name) const;
-	void configure(OSDWidget& widget, const vector<TclObject>& tokens,
+	void configure(OSDWidget& widget, array_ref<TclObject> tokens,
 	               unsigned skip);
 
 	OSDWidget& getWidget(string_ref name) const;
@@ -79,7 +79,7 @@ OSDCommand::OSDCommand(OSDGUI& gui_, CommandController& commandController)
 {
 }
 
-void OSDCommand::execute(const vector<TclObject>& tokens, TclObject& result)
+void OSDCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw SyntaxError();
@@ -105,7 +105,7 @@ void OSDCommand::execute(const vector<TclObject>& tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::create(const vector<TclObject>& tokens, TclObject& result)
+void OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 4) {
 		throw SyntaxError();
@@ -148,7 +148,7 @@ shared_ptr<OSDWidget> OSDCommand::create(
 	}
 }
 
-void OSDCommand::destroy(const vector<TclObject>& tokens, TclObject& result)
+void OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -167,7 +167,7 @@ void OSDCommand::destroy(const vector<TclObject>& tokens, TclObject& result)
 	result.setBoolean(true);
 }
 
-void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
+void OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -194,7 +194,7 @@ void OSDCommand::info(const vector<TclObject>& tokens, TclObject& result)
 	}
 }
 
-void OSDCommand::exists(const vector<TclObject>& tokens, TclObject& result)
+void OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -203,7 +203,7 @@ void OSDCommand::exists(const vector<TclObject>& tokens, TclObject& result)
 	result.setBoolean(widget != nullptr);
 }
 
-void OSDCommand::configure(const vector<TclObject>& tokens, TclObject& /*result*/)
+void OSDCommand::configure(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() < 3) {
 		throw SyntaxError();
@@ -211,7 +211,7 @@ void OSDCommand::configure(const vector<TclObject>& tokens, TclObject& /*result*
 	configure(getWidget(tokens[2].getString()), tokens, 3);
 }
 
-void OSDCommand::configure(OSDWidget& widget, const vector<TclObject>& tokens,
+void OSDCommand::configure(OSDWidget& widget, array_ref<TclObject> tokens,
                            unsigned skip)
 {
 	assert(tokens.size() >= skip);

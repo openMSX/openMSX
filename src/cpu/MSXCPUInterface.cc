@@ -77,7 +77,7 @@ class SlotInfo : public InfoTopic
 public:
 	SlotInfo(InfoCommand& machineInfoCommand,
 	         MSXCPUInterface& interface);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -89,7 +89,7 @@ class SubSlottedInfo : public InfoTopic
 public:
 	SubSlottedInfo(InfoCommand& machineInfoCommand,
 		       MSXCPUInterface& interface);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -101,7 +101,7 @@ class ExternalSlotInfo : public InfoTopic
 public:
 	ExternalSlotInfo(InfoCommand& machineInfoCommand,
 			 CartridgeSlotManager& manager);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -113,7 +113,7 @@ class IOInfo : public InfoTopic
 public:
 	IOInfo(InfoCommand& machineInfoCommand,
 	       MSXCPUInterface& interface, bool input);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -1094,7 +1094,7 @@ SlotInfo::SlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void SlotInfo::execute(const vector<TclObject>& tokens,
+void SlotInfo::execute(array_ref<TclObject> tokens,
                        TclObject& result) const
 {
 	if (tokens.size() != 5) {
@@ -1126,7 +1126,7 @@ SubSlottedInfo::SubSlottedInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void SubSlottedInfo::execute(const vector<TclObject>& tokens,
+void SubSlottedInfo::execute(array_ref<TclObject> tokens,
                              TclObject& result) const
 {
 	if (tokens.size() != 3) {
@@ -1152,7 +1152,7 @@ ExternalSlotInfo::ExternalSlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void ExternalSlotInfo::execute(const vector<TclObject>& tokens,
+void ExternalSlotInfo::execute(array_ref<TclObject> tokens,
                                TclObject& result) const
 {
 	int ps = 0;
@@ -1207,7 +1207,7 @@ IOInfo::IOInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void IOInfo::execute(const vector<TclObject>& tokens,
+void IOInfo::execute(array_ref<TclObject> tokens,
                      TclObject& result) const
 {
 	if (tokens.size() != 3) {

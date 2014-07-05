@@ -38,8 +38,8 @@ class CartridgeSlotInfo : public InfoTopic
 {
 public:
 	CartridgeSlotInfo(InfoCommand& machineInfoCommand,
-	                 CartridgeSlotManager& manger);
-	virtual void execute(const vector<TclObject>& tokens,
+	                  CartridgeSlotManager& manger);
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -429,8 +429,8 @@ CartridgeSlotInfo::CartridgeSlotInfo(InfoCommand& machineInfoCommand,
 {
 }
 
-void CartridgeSlotInfo::execute(const vector<TclObject>& tokens,
-                               TclObject& result) const
+void CartridgeSlotInfo::execute(array_ref<TclObject> tokens,
+                                TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {

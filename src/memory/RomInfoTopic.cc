@@ -13,8 +13,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RomInfoTopic::execute(const vector<TclObject>& tokens,
-                           TclObject& result) const
+void RomInfoTopic::execute(array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {

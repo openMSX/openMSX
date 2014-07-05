@@ -97,7 +97,7 @@ class ReverseCmd : public Command
 {
 public:
 	ReverseCmd(ReverseManager& manager, CommandController& controller);
-	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -312,7 +312,7 @@ void ReverseManager::debugInfo(TclObject& result) const
 	result.setString(string(res));
 }
 
-static void parseGoTo(Interpreter& interp, const vector<TclObject>& tokens,
+static void parseGoTo(Interpreter& interp, array_ref<TclObject> tokens,
                       bool& novideo, double& time)
 {
 	novideo = false;
@@ -330,7 +330,7 @@ static void parseGoTo(Interpreter& interp, const vector<TclObject>& tokens,
 	}
 }
 
-void ReverseManager::goBack(const vector<TclObject>& tokens)
+void ReverseManager::goBack(array_ref<TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -352,7 +352,7 @@ void ReverseManager::goBack(const vector<TclObject>& tokens)
 	goTo(target, novideo);
 }
 
-void ReverseManager::goTo(const std::vector<TclObject>& tokens)
+void ReverseManager::goTo(array_ref<TclObject> tokens)
 {
 	bool novideo;
 	double t;
@@ -533,7 +533,7 @@ void ReverseManager::transferState(MSXMotherBoard& newBoard)
 	newBoard.getMSXCommandController().transferSettings(oldController);
 }
 
-void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& result)
+void ReverseManager::saveReplay(array_ref<TclObject> tokens, TclObject& result)
 {
 	const auto& chunks = history.chunks;
 	if (chunks.empty()) {
@@ -631,7 +631,7 @@ void ReverseManager::saveReplay(const vector<TclObject>& tokens, TclObject& resu
 }
 
 void ReverseManager::loadReplay(
-	Interpreter& interp, const vector<TclObject>& tokens, TclObject& result)
+	Interpreter& interp, array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 3) throw SyntaxError();
 
@@ -967,7 +967,7 @@ ReverseCmd::ReverseCmd(ReverseManager& manager_, CommandController& controller)
 {
 }
 
-void ReverseCmd::execute(const vector<TclObject>& tokens, TclObject& result)
+void ReverseCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing subcommand");

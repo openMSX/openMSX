@@ -48,7 +48,7 @@ void InfoCommand::unregisterTopic(InfoTopic& topic, string_ref name)
 
 // Command
 
-void InfoCommand::execute(const vector<TclObject>& tokens,
+void InfoCommand::execute(array_ref<TclObject> tokens,
                           TclObject& result)
 {
 	switch (tokens.size()) {

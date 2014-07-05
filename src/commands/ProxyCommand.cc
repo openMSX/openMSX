@@ -26,7 +26,7 @@ Command* ProxyCmd::getMachineCommand() const
 	return motherBoard->getMSXCommandController().findCommand(name);
 }
 
-void ProxyCmd::execute(const vector<TclObject>& tokens, TclObject& result)
+void ProxyCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (Command* command = getMachineCommand()) {
 		if (!command->isAllowedInEmptyMachine()) {

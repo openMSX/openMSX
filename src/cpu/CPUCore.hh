@@ -7,6 +7,7 @@
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
+#include "array_ref.hh"
 #include <string>
 #include <memory>
 
@@ -64,7 +65,7 @@ public:
 	bool isM1Cycle(unsigned address) const;
 
 	void disasmCommand(Interpreter& interp,
-	                   const std::vector<TclObject>& tokens,
+	                   array_ref<TclObject> tokens,
                            TclObject& result) const;
 
 	/**

@@ -252,8 +252,7 @@ class ListExtCmd : public Command
 {
 public:
 	ListExtCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject>& tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXMotherBoard::Impl& motherBoard;
@@ -275,7 +274,7 @@ class MachineNameInfo : public InfoTopic
 {
 public:
 	MachineNameInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -286,7 +285,7 @@ class DeviceInfo : public InfoTopic
 {
 public:
 	DeviceInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -1058,8 +1057,7 @@ ListExtCmd::ListExtCmd(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void ListExtCmd::execute(const vector<TclObject>& /*tokens*/,
-                         TclObject& result)
+void ListExtCmd::execute(array_ref<TclObject> /*tokens*/, TclObject& result)
 {
 	for (auto& e : motherBoard.getExtensions()) {
 		result.addListElement(e->getName());
@@ -1163,7 +1161,7 @@ MachineNameInfo::MachineNameInfo(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void MachineNameInfo::execute(const vector<TclObject>& /*tokens*/,
+void MachineNameInfo::execute(array_ref<TclObject> /*tokens*/,
                               TclObject& result) const
 {
 	result.setString(motherBoard.getMachineName());
@@ -1183,8 +1181,7 @@ DeviceInfo::DeviceInfo(MSXMotherBoard::Impl& motherBoard_)
 {
 }
 
-void DeviceInfo::execute(const vector<TclObject>& tokens,
-                         TclObject& result) const
+void DeviceInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:

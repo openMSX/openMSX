@@ -195,7 +195,7 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_UP_EVENT, *this);
 }
 
-void AfterCommand::execute(const vector<TclObject>& tokens, TclObject& result)
+void AfterCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -245,7 +245,7 @@ static double getTime(Interpreter& interp, const TclObject& obj)
 	return time;
 }
 
-void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
+void AfterCommand::afterTime(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -259,7 +259,7 @@ void AfterCommand::afterTime(const vector<TclObject>& tokens, TclObject& result)
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& result)
+void AfterCommand::afterRealTime(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -272,10 +272,10 @@ void AfterCommand::afterRealTime(const vector<TclObject>& tokens, TclObject& res
 }
 
 void AfterCommand::afterTclTime(
-	int ms, const vector<TclObject>& tokens, TclObject& result)
+	int ms, array_ref<TclObject> tokens, TclObject& result)
 {
 	TclObject command;
-	command.addListElements(begin(tokens) + 2, end(tokens));
+	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
 	result.setString(cmd->getId());
@@ -283,7 +283,7 @@ void AfterCommand::afterTclTime(
 }
 
 template<EventType T>
-void AfterCommand::afterEvent(const vector<TclObject>& tokens, TclObject& result)
+void AfterCommand::afterEvent(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -295,7 +295,7 @@ void AfterCommand::afterEvent(const vector<TclObject>& tokens, TclObject& result
 }
 
 void AfterCommand::afterInputEvent(
-	const EventPtr& event, const vector<TclObject>& tokens, TclObject& result)
+	const EventPtr& event, array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -306,7 +306,7 @@ void AfterCommand::afterInputEvent(
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
+void AfterCommand::afterIdle(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -320,7 +320,7 @@ void AfterCommand::afterIdle(const vector<TclObject>& tokens, TclObject& result)
 	afterCmds.push_back(move(cmd));
 }
 
-void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& result)
+void AfterCommand::afterInfo(array_ref<TclObject> /*tokens*/, TclObject& result)
 {
 	ostringstream str;
 	for (auto& cmd : afterCmds) {
@@ -336,7 +336,7 @@ void AfterCommand::afterInfo(const vector<TclObject>& /*tokens*/, TclObject& res
 	result.setString(str.str());
 }
 
-void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*result*/)
+void AfterCommand::afterCancel(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() < 3) {
 		throw SyntaxError();
@@ -351,7 +351,7 @@ void AfterCommand::afterCancel(const vector<TclObject>& tokens, TclObject& /*res
 		}
 	}
 	TclObject command;
-	command.addListElements(begin(tokens) + 2, end(tokens));
+	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	string_ref cmdStr = command.getString();
 	auto it = find_if(begin(afterCmds), end(afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });

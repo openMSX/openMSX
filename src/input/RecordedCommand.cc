@@ -32,8 +32,7 @@ RecordedCommand::~RecordedCommand()
 	stateChangeDistributor.unregisterListener(*this);
 }
 
-void RecordedCommand::execute(const vector<TclObject>& tokens,
-                              TclObject& result)
+void RecordedCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	auto time = scheduler.getCurrentTime();
 	if (needRecord(tokens)) {
@@ -45,7 +44,7 @@ void RecordedCommand::execute(const vector<TclObject>& tokens,
 	}
 }
 
-bool RecordedCommand::needRecord(const vector<TclObject>& tokens) const
+bool RecordedCommand::needRecord(array_ref<TclObject> tokens) const
 {
 	vector<string> strings;
 	strings.reserve(tokens.size());
@@ -96,7 +95,7 @@ void RecordedCommand::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-void RecordedCommand::execute(const vector<TclObject>& tokens,
+void RecordedCommand::execute(array_ref<TclObject> tokens,
                               TclObject& result, EmuTime::param time)
 {
 	vector<string> strings;
@@ -118,7 +117,7 @@ string RecordedCommand::execute(const vector<string>& /*tokens*/,
 
 // class MSXCommandEvent
 
-MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param time)
+MSXCommandEvent::MSXCommandEvent(array_ref<string> tokens_, EmuTime::param time)
 	: StateChange(time)
 {
 	for (auto& t : tokens_) {
@@ -126,19 +125,10 @@ MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_, EmuTime::param t
 	}
 }
 
-MSXCommandEvent::MSXCommandEvent(const vector<TclObject>& tokens_, EmuTime::param time)
+MSXCommandEvent::MSXCommandEvent(array_ref<TclObject> tokens_, EmuTime::param time)
 	: StateChange(time)
-	, tokens(tokens_)
+	, tokens(tokens_.begin(), tokens_.end())
 {
-}
-
-MSXCommandEvent::~MSXCommandEvent()
-{
-}
-
-const vector<TclObject>& MSXCommandEvent::getTokens() const
-{
-	return tokens;
 }
 
 template<typename Archive>

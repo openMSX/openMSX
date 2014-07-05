@@ -2,6 +2,7 @@
 #define INFOTOPIC_HH
 
 #include "Completer.hh"
+#include "array_ref.hh"
 #include <string>
 #include <vector>
 
@@ -22,7 +23,7 @@ public:
 	  * @throw CommandException Thrown when there was an error while
 	  *                         executing this InfoTopic.
 	  */
-	virtual void execute(const std::vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const = 0;
 
 	/** Print help for this topic.

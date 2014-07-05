@@ -4,8 +4,8 @@
 #include "DiskContainer.hh"
 #include "StateChangeListener.hh"
 #include "serialize_meta.hh"
+#include "array_ref.hh"
 #include "noncopyable.hh"
-#include <vector>
 #include <string>
 #include <memory>
 
@@ -64,9 +64,9 @@ public:
 
 private:
 	void init(const std::string& prefix, bool createCmd);
-	void insertDisk(const std::vector<TclObject>& args);
+	void insertDisk(array_ref<TclObject> args);
 	void ejectDisk();
-	void sendChangeDiskEvent(const std::vector<std::string>& args);
+	void sendChangeDiskEvent(array_ref<std::string> args);
 
 	// StateChangeListener
 	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);

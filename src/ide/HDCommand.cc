@@ -24,7 +24,7 @@ HDCommand::HDCommand(CommandController& commandController,
 {
 }
 
-void HDCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
+void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {

@@ -32,7 +32,7 @@ class HelpCmd : public Command
 {
 public:
 	explicit HelpCmd(GlobalCommandController& controller);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -44,7 +44,7 @@ class TabCompletionCmd : public Command
 {
 public:
 	explicit TabCompletionCmd(GlobalCommandController& controller);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -66,7 +66,7 @@ class PlatformInfo : public InfoTopic
 {
 public:
 	explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 };
@@ -75,7 +75,7 @@ class VersionInfo : public InfoTopic
 {
 public:
 	explicit VersionInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 };
@@ -555,7 +555,7 @@ HelpCmd::HelpCmd(GlobalCommandController& controller_)
 {
 }
 
-void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
+void HelpCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1: {
@@ -574,15 +574,15 @@ void HelpCmd::execute(const vector<TclObject>& tokens, TclObject& result)
 		auto it = controller.commandCompleters.find(tokens[1].getString());
 		if (it != end(controller.commandCompleters)) {
 			vector<string> tokens2;
-			auto it2 = begin(tokens);
-			for (++it2; it2 != end(tokens); ++it2) {
+			auto it2 = std::begin(tokens);
+			for (++it2; it2 != std::end(tokens); ++it2) {
 				tokens2.push_back(it2->getString().str());
 			}
 			result.setString(it->second->help(tokens2));
 		} else {
 			TclObject command;
 			command.addListElement("openmsx::help");
-			command.addListElements(begin(tokens) + 1, end(tokens));
+			command.addListElements(std::begin(tokens) + 1, std::end(tokens));
 			result.setString(command.executeCommand(getInterpreter()));
 		}
 		break;
@@ -612,7 +612,7 @@ TabCompletionCmd::TabCompletionCmd(GlobalCommandController& controller_)
 {
 }
 
-void TabCompletionCmd::execute(const vector<TclObject>& tokens, TclObject& result)
+void TabCompletionCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 2: {
@@ -706,8 +706,8 @@ PlatformInfo::PlatformInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void PlatformInfo::execute(const vector<TclObject>& /*tokens*/,
-                          TclObject& result) const
+void PlatformInfo::execute(array_ref<TclObject> /*tokens*/,
+                           TclObject& result) const
 {
 	result.setString(TARGET_PLATFORM);
 }
@@ -724,7 +724,7 @@ VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void VersionInfo::execute(const vector<TclObject>& /*tokens*/,
+void VersionInfo::execute(array_ref<TclObject> /*tokens*/,
                           TclObject& result) const
 {
 	result.setString(Version::full());

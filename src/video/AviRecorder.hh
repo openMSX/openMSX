@@ -2,6 +2,7 @@
 #define AVIRECORDER_HH
 
 #include "EmuTime.hh"
+#include "array_ref.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <memory>
@@ -32,11 +33,11 @@ public:
 private:
 	void start(bool recordAudio, bool recordVideo, bool recordMono,
 		   bool recordStereo, const Filename& filename);
-	void status(const std::vector<TclObject>& tokens, TclObject& result) const;
+	void status(array_ref<TclObject> tokens, TclObject& result) const;
 
-	void processStart(const std::vector<TclObject>& tokens, TclObject& result);
-	void processStop(const std::vector<TclObject>& tokens);
-	void processToggle(const std::vector<TclObject>& tokens, TclObject& result);
+	void processStart (array_ref<TclObject> tokens, TclObject& result);
+	void processStop  (array_ref<TclObject> tokens);
+	void processToggle(array_ref<TclObject> tokens, TclObject& result);
 
 	Reactor& reactor;
 	const std::unique_ptr<RecordCommand> recordCommand;

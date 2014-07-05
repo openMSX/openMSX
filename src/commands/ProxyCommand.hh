@@ -12,7 +12,7 @@ class ProxyCmd : public Command
 {
 public:
 	ProxyCmd(Reactor& reactor, std::string name_);
-	virtual void execute(const std::vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;

@@ -26,7 +26,7 @@ class RecordCommand : public Command
 {
 public:
 	RecordCommand(CommandController& commandController, AviRecorder& recorder);
-	virtual void execute(const vector<TclObject>& tokens, TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -202,7 +202,7 @@ unsigned AviRecorder::getFrameHeight() const {
 	return frameHeight;
 }
 
-void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& result)
+void AviRecorder::processStart(array_ref<TclObject> tokens, TclObject& result)
 {
 	string filename;
 	string prefix = "openmsx";
@@ -218,8 +218,8 @@ void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& resul
 		string_ref token = tokens[i].getString();
 		if (token.starts_with("-")) {
 			if (token == "--") {
-				for (auto it = begin(tokens) + i + 1;
-				     it != end(tokens); ++it) {
+				for (auto it = std::begin(tokens) + i + 1;
+				     it != std::end(tokens); ++it) {
 					arguments.push_back(it->getString().str());
 				}
 				break;
@@ -281,7 +281,7 @@ void AviRecorder::processStart(const vector<TclObject>& tokens, TclObject& resul
 	}
 }
 
-void AviRecorder::processStop(const vector<TclObject>& tokens)
+void AviRecorder::processStop(array_ref<TclObject> tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -289,18 +289,17 @@ void AviRecorder::processStop(const vector<TclObject>& tokens)
 	stop();
 }
 
-void AviRecorder::processToggle(const vector<TclObject>& tokens, TclObject& result)
+void AviRecorder::processToggle(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (aviWriter || wavWriter) {
 		// drop extra tokens
-		vector<TclObject> tmp(begin(tokens), begin(tokens) + 2);
-		processStop(tmp);
+		processStop(make_array_ref(tokens.data(), 2));
 	} else {
 		processStart(tokens, result);
 	}
 }
 
-void AviRecorder::status(const vector<TclObject>& tokens, TclObject& result) const
+void AviRecorder::status(array_ref<TclObject> tokens, TclObject& result) const
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -323,7 +322,7 @@ RecordCommand::RecordCommand(CommandController& commandController,
 {
 }
 
-void RecordCommand::execute(const vector<TclObject>& tokens, TclObject& result)
+void RecordCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");

@@ -24,8 +24,7 @@ public:
 	             CommandController& commandController);
 	virtual ~AfterCommand();
 
-	virtual void execute(const std::vector<TclObject>& tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
@@ -33,16 +32,16 @@ private:
 	template<typename PRED> void executeMatches(PRED pred);
 	template<EventType T> void executeEvents();
 	template<EventType T> void afterEvent(
-	                   const std::vector<TclObject>& tokens, TclObject& result);
+	                   array_ref<TclObject> tokens, TclObject& result);
 	void afterInputEvent(const EventPtr& event,
-	                   const std::vector<TclObject>& tokens, TclObject& result);
+	                   array_ref<TclObject> tokens, TclObject& result);
 	void afterTclTime (int ms,
-	                   const std::vector<TclObject>& tokens, TclObject& result);
-	void afterTime    (const std::vector<TclObject>& tokens, TclObject& result);
-	void afterRealTime(const std::vector<TclObject>& tokens, TclObject& result);
-	void afterIdle    (const std::vector<TclObject>& tokens, TclObject& result);
-	void afterInfo    (const std::vector<TclObject>& tokens, TclObject& result);
-	void afterCancel  (const std::vector<TclObject>& tokens, TclObject& result);
+	                   array_ref<TclObject> tokens, TclObject& result);
+	void afterTime    (array_ref<TclObject> tokens, TclObject& result);
+	void afterRealTime(array_ref<TclObject> tokens, TclObject& result);
+	void afterIdle    (array_ref<TclObject> tokens, TclObject& result);
+	void afterInfo    (array_ref<TclObject> tokens, TclObject& result);
+	void afterCancel  (array_ref<TclObject> tokens, TclObject& result);
 
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);

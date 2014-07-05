@@ -22,10 +22,9 @@ class MSXCommandEvent : public StateChange
 {
 public:
 	MSXCommandEvent() {} // for serialize
-	MSXCommandEvent(const std::vector<std::string>& tokens, EmuTime::param time);
-	MSXCommandEvent(const std::vector<TclObject>& tokens,  EmuTime::param time);
-	virtual ~MSXCommandEvent();
-	const std::vector<TclObject>& getTokens() const;
+	MSXCommandEvent(array_ref<std::string> tokens, EmuTime::param time);
+	MSXCommandEvent(array_ref<TclObject>   tokens, EmuTime::param time);
+	const std::vector<TclObject>& getTokens() const { return tokens; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -54,7 +53,7 @@ public:
 	  * Subclasses must reimplement exactly one of these two.
 	  */
 	virtual void execute(
-		const std::vector<TclObject>& tokens, TclObject& result,
+		array_ref<TclObject> tokens, TclObject& result,
 		EmuTime::param time);
 	virtual std::string execute(
 		const std::vector<std::string>& tokens, EmuTime::param time);
@@ -72,7 +71,7 @@ public:
 	  * to override the TclObject variant of this method (and just return
 	  * true).
 	  */
-	virtual bool needRecord(const std::vector<TclObject>& tokens) const;
+	virtual bool needRecord(array_ref<TclObject> tokens) const;
 	virtual bool needRecord(const std::vector<std::string>& tokens) const;
 
 protected:
@@ -84,8 +83,7 @@ protected:
 
 private:
 	// Command
-	virtual void execute(const std::vector<TclObject>& tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 
 	// StateChangeListener
 	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);

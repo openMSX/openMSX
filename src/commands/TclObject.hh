@@ -89,6 +89,9 @@ void TclObject::addListElements(const CONT& container)
 	addListElements(std::begin(container), std::end(container));
 }
 
+// We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.
+static_assert(sizeof(TclObject) == sizeof(Tcl_Obj*), "");
+
 } // namespace openmsx
 
 #endif

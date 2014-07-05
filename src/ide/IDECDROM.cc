@@ -27,7 +27,7 @@ public:
 	CDXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
-	virtual void execute(const std::vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 		TclObject& result, EmuTime::param time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -353,7 +353,7 @@ CDXCommand::CDXCommand(CommandController& commandController,
 {
 }
 
-void CDXCommand::execute(const std::vector<TclObject>& tokens, TclObject& result,
+void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
                          EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {

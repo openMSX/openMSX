@@ -109,8 +109,7 @@ class ListMachinesCommand : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(const vector<TclObject>& tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Reactor& reactor;
@@ -164,7 +163,7 @@ class ConfigInfo : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -176,7 +175,7 @@ class RealTimeInfo : public InfoTopic
 {
 public:
 	RealTimeInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(const vector<TclObject>& tokens,
+	virtual void execute(array_ref<TclObject> tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -890,7 +889,7 @@ ListMachinesCommand::ListMachinesCommand(
 {
 }
 
-void ListMachinesCommand::execute(const vector<TclObject>& /*tokens*/,
+void ListMachinesCommand::execute(array_ref<TclObject> /*tokens*/,
                                   TclObject& result)
 {
 	result.addListElements(reactor.getMachineIDs());
@@ -1112,8 +1111,7 @@ ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 {
 }
 
-void ConfigInfo::execute(const vector<TclObject>& tokens,
-                         TclObject& result) const
+void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 {
 	// TODO make meta info available through this info topic
 	switch (tokens.size()) {
@@ -1162,7 +1160,7 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RealTimeInfo::execute(const vector<TclObject>& /*tokens*/,
+void RealTimeInfo::execute(array_ref<TclObject> /*tokens*/,
                            TclObject& result) const
 {
 	auto delta = Timer::getTime() - reference;
