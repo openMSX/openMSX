@@ -39,7 +39,7 @@ private:
 	Drives drives;
 
 	// Command interface
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
@@ -52,17 +52,17 @@ private:
 	std::unique_ptr<MSXtar> getMSXtar(SectorAccessibleDisk& disk,
 	                                  DriveSettings& driveData);
 
-	void create(const std::vector<std::string>& tokens);
+	void create(array_ref<TclObject> tokens);
 	void savedsk(const DriveSettings& driveData,
-	             const std::string& filename);
+	             string_ref filename);
 	void format(DriveSettings& driveData, bool dos1);
-	std::string chdir(DriveSettings& driveData, const std::string& filename);
-	void mkdir(DriveSettings& driveData, const std::string& filename);
+	std::string chdir(DriveSettings& driveData, string_ref filename);
+	void mkdir(DriveSettings& driveData, string_ref filename);
 	std::string dir(DriveSettings& driveData);
 	std::string import(DriveSettings& driveData,
-	                   const std::vector<std::string>& lists);
-	void exprt(DriveSettings& driveData, const std::string& dirname,
-	           const std::vector<std::string>& lists);
+	                   array_ref<TclObject> lists);
+	void exprt(DriveSettings& driveData, string_ref dirname,
+	           array_ref<TclObject> lists);
 
 	Reactor& reactor;
 };

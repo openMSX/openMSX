@@ -22,14 +22,13 @@ public:
 	explicit MSXtar(SectorAccessibleDisk& disk);
 	~MSXtar();
 
-	void chdir(const std::string& newRootDir);
-	void mkdir(const std::string& newRootDir);
+	void chdir(string_ref newRootDir);
+	void mkdir(string_ref newRootDir);
 	std::string dir();
 	std::string addFile(const std::string& filename);
-	std::string addDir(const std::string& rootDirName);
-	std::string getItemFromDir(const std::string& rootDirName,
-	                           const std::string& itemName);
-	void getDir(const std::string& rootDirName);
+	std::string addDir(string_ref rootDirName);
+	std::string getItemFromDir(string_ref rootDirName, string_ref itemName);
+	void getDir(string_ref rootDirName);
 
 private:
 	struct DirEntry {
@@ -59,13 +58,13 @@ private:
 	DirEntry findEntryInDir(const std::string& name, unsigned sector,
 	                        SectorBuffer& sectorBuf);
 	std::string addFileToDSK(const std::string& hostName, unsigned sector);
-	std::string recurseDirFill(const std::string& dirName, unsigned sector);
+	std::string recurseDirFill(string_ref dirName, unsigned sector);
 	std::string condensName(const MSXDirEntry& dirEntry);
 	void changeTime (const std::string& resultFile, const MSXDirEntry& dirEntry);
 	void fileExtract(const std::string& resultFile, const MSXDirEntry& dirEntry);
-	void recurseDirExtract(const std::string& dirName, unsigned sector);
-	std::string singleItemExtract(const std::string& dirName,
-	                              const std::string& itemName, unsigned sector);
+	void recurseDirExtract(string_ref dirName, unsigned sector);
+	std::string singleItemExtract(string_ref dirName, string_ref itemName,
+	                              unsigned sector);
 	void chroot(string_ref newRootDir, bool createDir);
 
 

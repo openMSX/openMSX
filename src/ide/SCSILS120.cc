@@ -517,7 +517,7 @@ void SCSILS120::eject()
 	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
 }
 
-void SCSILS120::insert(const string& filename)
+void SCSILS120::insert(string_ref filename)
 {
 	file = make_unique<File>(filename);
 	file->setFilePool(motherBoard.getReactor().getFilePool());
@@ -798,7 +798,7 @@ bool SCSILS120::diskChanged()
 	return mediaChanged; // TODO not reset on read
 }
 
-int SCSILS120::insertDisk(const std::string& filename)
+int SCSILS120::insertDisk(string_ref filename)
 {
 	try {
 		insert(filename);

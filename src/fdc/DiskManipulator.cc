@@ -14,6 +14,7 @@
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
 #include "StringOp.hh"
+#include "TclObject.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include <cassert>
@@ -130,76 +131,79 @@ unique_ptr<DiskPartition> DiskManipulator::getPartition(
 }
 
 
-string DiskManipulator::execute(const vector<string>& tokens)
+void DiskManipulator::execute(array_ref<TclObject> tokens, TclObject& result)
 {
-	string result;
 	if (tokens.size() == 1) {
 		throw CommandException("Missing argument");
+	}
 
-	} else if ((tokens.size() != 4 && ( tokens[1] == "savedsk"
-	                                || tokens[1] == "mkdir"))
-	        || (tokens.size() != 3 && tokens[1] == "dir")
-	        || ((tokens.size() < 3 || tokens.size() > 4) &&
-	                                tokens[1] == "format")
-	        || ((tokens.size() < 3 || tokens.size() > 4) &&
-	                                  (tokens[1] == "chdir"))
-	        || (tokens.size() < 4 && ( tokens[1] == "export"
-					|| tokens[1] == "import"))
-	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
+	string_ref subcmd = tokens[1].getString();
+	if (((tokens.size() != 4)                     && (subcmd == "savedsk")) ||
+	    ((tokens.size() != 4)                     && (subcmd == "mkdir"))   ||
+	    ((tokens.size() != 3)                     && (subcmd == "dir"))     ||
+	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == "format"))  ||
+	    ((tokens.size() < 3 || tokens.size() > 4) && (subcmd == "chdir"))   ||
+	    ((tokens.size() < 4)                      && (subcmd == "export"))  ||
+	    ((tokens.size() < 4)                      && (subcmd == "import"))  ||
+	    ((tokens.size() < 4)                      && (subcmd == "create"))) {
 		throw CommandException("Incorrect number of parameters");
+	}
 
-	} else if (tokens[1] == "export") {
-		if (!FileOperations::isDirectory(tokens[3])) {
-			throw CommandException(tokens[3] + " is not a directory");
+	if (subcmd == "export") {
+		string_ref dir = tokens[3].getString();
+		if (!FileOperations::isDirectory(dir)) {
+			throw CommandException(dir + " is not a directory");
 		}
-		auto& settings = getDriveSettings(tokens[2]);
-		vector<string> lists(begin(tokens) + 4, end(tokens));
-		exprt(settings, tokens[3], lists);
+		auto& settings = getDriveSettings(tokens[2].getString());
+		array_ref<TclObject> lists(std::begin(tokens) + 4, std::end(tokens));
+		exprt(settings, dir, lists);
 
-	} else if (tokens[1] == "import") {
-		auto& settings = getDriveSettings(tokens[2]);
-		vector<string> lists(begin(tokens) + 3, end(tokens));
-		result = import(settings, lists);
+	} else if (subcmd == "import") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		array_ref<TclObject> lists(std::begin(tokens) + 3, std::end(tokens));
+		result.setString(import(settings, lists));
 
-	} else if (tokens[1] == "savedsk") {
-		auto& settings = getDriveSettings(tokens[2]);
-		savedsk(settings, tokens[3]);
+	} else if (subcmd == "savedsk") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		savedsk(settings, tokens[3].getString());
 
-	} else if (tokens[1] == "chdir") {
-		auto& settings = getDriveSettings(tokens[2]);
+	} else if (subcmd == "chdir") {
+		auto& settings = getDriveSettings(tokens[2].getString());
 		if (tokens.size() == 3) {
-			result += "Current directory: " +
-			          settings.workingDir[settings.partition];
+			result.setString("Current directory: " +
+			                 settings.workingDir[settings.partition]);
 		} else {
-			result += chdir(settings, tokens[3]);
+			result.setString(chdir(settings, tokens[3].getString()));
 		}
 
-	} else if (tokens[1] == "mkdir") {
-		auto& settings = getDriveSettings(tokens[2]);
-		mkdir(settings, tokens[3]);
+	} else if (subcmd == "mkdir") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		mkdir(settings, tokens[3].getString());
 
-	} else if (tokens[1] == "create") {
+	} else if (subcmd == "create") {
 		create(tokens);
 
-	} else if (tokens[1] == "format") {
+	} else if (subcmd == "format") {
 		bool dos1 = false;
-		vector<string> myTokens(tokens);
-		auto it = find(begin(myTokens), end(myTokens), "-dos1");
-		if (it != end(myTokens)) {
-			myTokens.erase(it);
-			dos1 = true;
+		string_ref drive = tokens[2].getString();
+		if (tokens.size() == 4) {
+			if (drive == "-dos1") {
+				dos1 = true;
+				drive = tokens[3].getString();
+			} else if (tokens[3].getString() == "-dos1") {
+				dos1 = true;
+			}
 		}
-		auto& settings = getDriveSettings(myTokens[2]);
+		auto& settings = getDriveSettings(drive);
 		format(settings, dos1);
 
-	} else if (tokens[1] == "dir") {
-		auto& settings = getDriveSettings(tokens[2]);
-		result += dir(settings);
+	} else if (subcmd == "dir") {
+		auto& settings = getDriveSettings(tokens[2].getString());
+		result.setString(dir(settings));
 
 	} else {
-		throw CommandException("Unknown subcommand: " + tokens[1]);
+		throw CommandException("Unknown subcommand: " + subcmd);
 	}
-	return result;
 }
 
 string DiskManipulator::help(const vector<string>& tokens) const
@@ -333,7 +337,7 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 }
 
 void DiskManipulator::savedsk(const DriveSettings& driveData,
-                              const string& filename)
+                              string_ref filename)
 {
 	auto partition = getPartition(driveData);
 	SectorBuffer buf;
@@ -344,29 +348,29 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	}
 }
 
-void DiskManipulator::create(const vector<string>& tokens)
+void DiskManipulator::create(array_ref<TclObject> tokens)
 {
 	vector<unsigned> sizes;
 	unsigned totalSectors = 0;
 	bool dos1 = false;
-	vector<string> myTokens(tokens);
-	const auto it = find(begin(myTokens), end(myTokens), "-dos1");
-	if (it != end(myTokens)) {
-		myTokens.erase(it);
-		dos1 = true;
-	}
-	for (unsigned i = 3; i < myTokens.size(); ++i) {
+
+	for (unsigned i = 3; i < tokens.size(); ++i) {
+		if (tokens[i].getString() == "-dos1") {
+			dos1 = true;
+			continue;
+		}
+
 		if (sizes.size() >= MAX_PARTITIONS) {
 			throw CommandException(StringOp::Builder() <<
 				"Maximum number of partitions is " << MAX_PARTITIONS);
 		}
+		string tok = tokens[i].getString().str();
 		char* q;
-		int sectors = strtol(myTokens[i].c_str(), &q, 0);
+		int sectors = strtol(tok.c_str(), &q, 0);
 		int scale = 1024; // default is kilobytes
 		if (*q) {
-			if ((q == myTokens[i].c_str()) || *(q + 1)) {
-				throw CommandException(
-					"Invalid size: " + myTokens[i]);
+			if ((q == tok.c_str()) || *(q + 1)) {
+				throw CommandException("Invalid size: " + tok);
 			}
 			switch (tolower(*q)) {
 				case 'b':
@@ -411,7 +415,7 @@ void DiskManipulator::create(const vector<string>& tokens)
 	}
 
 	// create file with correct size
-	Filename filename(myTokens[2]);
+	Filename filename(tokens[2].getString().str());
 	try {
 		File file(filename, File::CREATE);
 		file.truncate(totalSectors * SectorBasedDisk::SECTOR_SIZE);
@@ -464,7 +468,7 @@ string DiskManipulator::dir(DriveSettings& driveData)
 	return workhorse->dir();
 }
 
-string DiskManipulator::chdir(DriveSettings& driveData, const string& filename)
+string DiskManipulator::chdir(DriveSettings& driveData, string_ref filename)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
@@ -476,15 +480,15 @@ string DiskManipulator::chdir(DriveSettings& driveData, const string& filename)
 	// TODO clean-up this temp hack, used to enable relative paths
 	string& cwd = driveData.workingDir[driveData.partition];
 	if (StringOp::startsWith(filename, '/')) {
-		cwd = filename;
+		cwd = filename.str();
 	} else {
 		if (!StringOp::endsWith(cwd, '/')) cwd += '/';
-		cwd += filename;
+		cwd.append(filename.data(), filename.size());
 	}
 	return "New working directory: " + cwd;
 }
 
-void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
+void DiskManipulator::mkdir(DriveSettings& driveData, string_ref filename)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
@@ -496,14 +500,14 @@ void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 }
 
 string DiskManipulator::import(DriveSettings& driveData,
-                               const vector<string>& lists)
+                               array_ref<TclObject> lists)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
 
 	string messages;
 	for (auto& l : lists) {
-		for (auto& i : getCommandController().splitList(l)) {
+		for (auto& i : getCommandController().splitList(l.getString().str())) {
 			try {
 				FileOperations::Stat st;
 				if (!FileOperations::getStat(i, st)) {
@@ -526,8 +530,8 @@ string DiskManipulator::import(DriveSettings& driveData,
 	return messages;
 }
 
-void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
-                            const vector<string>& lists)
+void DiskManipulator::exprt(DriveSettings& driveData, string_ref dirname,
+                            array_ref<TclObject> lists)
 {
 	auto partition = getPartition(driveData);
 	auto workhorse = getMSXtar(*partition, driveData);
@@ -537,7 +541,7 @@ void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
 			workhorse->getDir(dirname);
 		} else {
 			for (auto& l : lists) {
-				workhorse->getItemFromDir(dirname, l);
+				workhorse->getItemFromDir(dirname, l.getString());
 			}
 		}
 	} catch (MSXException& e) {

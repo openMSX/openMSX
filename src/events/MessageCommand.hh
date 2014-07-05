@@ -12,7 +12,7 @@ class MessageCommand : public Command
 public:
 	MessageCommand(CommandController& controller);
 
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 };

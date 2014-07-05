@@ -8,6 +8,7 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
 #include "array_ref.hh"
 #include "memory.hh"
 #include "unreachable.hh"
@@ -46,7 +47,7 @@ unsigned NowindCommand::searchRomdisk(const NowindInterface::Drives& drives) con
 }
 
 void NowindCommand::processHdimage(
-	const string& hdimage, NowindInterface::Drives& drives) const
+	string_ref hdimage, NowindInterface::Drives& drives) const
 {
 	MSXMotherBoard& motherboard = interface.getMotherBoard();
 
@@ -59,10 +60,10 @@ void NowindCommand::processHdimage(
 	auto pos = hdimage.find_last_of(':');
 	if ((pos != string::npos) && !FileOperations::exists(hdimage)) {
 		partitions = StringOp::parseRange(
-			string_ref(hdimage).substr(pos + 1), 1, 31);
+			hdimage.substr(pos + 1), 1, 31);
 	}
 
-	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage));
+	auto wholeDisk = std::make_shared<DSKDiskImage>(Filename(hdimage.str()));
 	bool failOnError = true;
 	if (partitions.empty()) {
 		// insert all partitions
@@ -91,7 +92,7 @@ void NowindCommand::processHdimage(
 	}
 }
 
-string NowindCommand::execute(const vector<string>& tokens)
+void NowindCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	NowindHost& host = *interface.host;
 	NowindInterface::Drives& drives = interface.drives;
@@ -100,27 +101,28 @@ string NowindCommand::execute(const vector<string>& tokens)
 	if (tokens.size() == 1) {
 		// no arguments, show general status
 		assert(!drives.empty());
-		StringOp::Builder result;
+		StringOp::Builder r;
 		for (unsigned i = 0; i < drives.size(); ++i) {
-			result << "nowind" << i + 1 << ": ";
+			r << "nowind" << i + 1 << ": ";
 			if (dynamic_cast<NowindRomDisk*>(drives[i].get())) {
-				result << "romdisk\n";
+				r << "romdisk\n";
 			} else if (auto changer = dynamic_cast<DiskChanger*>(
 						drives[i].get())) {
 				string filename = changer->getDiskName().getOriginal();
-				result << (filename.empty() ? "--empty--" : filename)
-				       << '\n';
+				r << (filename.empty() ? "--empty--" : filename)
+				  << '\n';
 			} else {
 				UNREACHABLE;
 			}
 		}
-		result << "phantom drives: "
-		       << (host.getEnablePhantomDrives() ? "enabled" : "disabled")
-		       << '\n';
-		result << "allow other diskroms: "
-		       << (host.getAllowOtherDiskroms() ? "yes" : "no")
-		       << '\n';
-		return result;
+		r << "phantom drives: "
+		  << (host.getEnablePhantomDrives() ? "enabled" : "disabled")
+		  << '\n';
+		r << "allow other diskroms: "
+		  << (host.getAllowOtherDiskroms() ? "yes" : "no")
+		  << '\n';
+		result.setString(r);
+		return;
 	}
 
 	// first parse complete commandline and store state in these local vars
@@ -134,12 +136,12 @@ string NowindCommand::execute(const vector<string>& tokens)
 	string error;
 
 	// actually parse the commandline
-	array_ref<string> args(&tokens[1], tokens.size() - 1);
+	array_ref<TclObject> args(&tokens[1], tokens.size() - 1);
 	while (error.empty() && !args.empty()) {
 		bool createDrive = false;
-		string image;
+		string_ref image;
 
-		string arg = std::move(args.front());
+		string_ref arg = args.front().getString();
 		args.pop_front();
 		if        ((arg == "--ctrl")    || (arg == "-c")) {
 			enablePhantom  = false;
@@ -167,7 +169,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 			if (args.empty()) {
 				error = "Missing argument for option: " + arg;
 			} else {
-				image = std::move(args.front());
+				image = args.front().getString();
 				args.pop_front();
 				createDrive = true;
 			}
@@ -177,7 +179,7 @@ string NowindCommand::execute(const vector<string>& tokens)
 				error = "Missing argument for option: " + arg;
 			} else {
 				try {
-					string hdimage = std::move(args.front());
+					string_ref hdimage = args.front().getString();
 					args.pop_front();
 					processHdimage(hdimage, tmpDrives);
 					changeDrives = true;
@@ -249,26 +251,26 @@ string NowindCommand::execute(const vector<string>& tokens)
 	}
 
 	// calculate result string
-	string result;
+	string r;
 	if (changeDrives && (prevSize != drives.size())) {
-		result += "Number of drives changed. ";
+		r += "Number of drives changed. ";
 	}
 	if (changeDrives && (romdisk != oldRomdisk)) {
 		if (oldRomdisk == 255) {
-			result += "Romdisk added. ";
+			r += "Romdisk added. ";
 		} else if (romdisk == 255) {
-			result += "Romdisk removed. ";
+			r += "Romdisk removed. ";
 		} else {
-			result += "Romdisk changed position. ";
+			r += "Romdisk changed position. ";
 		}
 	}
 	if (optionsChanged) {
-		result += "Boot options changed. ";
+		r += "Boot options changed. ";
 	}
-	if (!result.empty()) {
-		result += "You may need to reset the MSX for the changes to take effect.";
+	if (!r.empty()) {
+		r += "You may need to reset the MSX for the changes to take effect.";
 	}
-	return result;
+	result.setString(r);
 }
 
 string NowindCommand::help(const vector<string>& /*tokens*/) const

@@ -46,7 +46,7 @@ private:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 	virtual bool diskChanged();
-	virtual int insertDisk(const std::string& filename);
+	virtual int insertDisk(string_ref filename);
 
 	// SCSI Device
 	virtual void reset();
@@ -59,7 +59,7 @@ private:
 	virtual void disconnect();
 	virtual void busReset();
 	virtual void eject();
-	virtual void insert(const std::string& filename);
+	virtual void insert(string_ref filename);
 
 	virtual unsigned dataIn(unsigned& blocks);
 	virtual unsigned dataOut(unsigned& blocks);

@@ -3,6 +3,7 @@
 
 #include "XMLElement.hh"
 #include "noncopyable.hh"
+#include "string_ref.hh"
 #include <string>
 #include <memory>
 
@@ -23,10 +24,10 @@ public:
 	               HotKey& hotKey);
 	~SettingsConfig();
 
-	void loadSetting(const FileContext& context, const std::string& filename);
-	void saveSetting(const std::string& filename = "");
+	void loadSetting(const FileContext& context, string_ref filename);
+	void saveSetting(string_ref filename = "");
 	void setSaveSettings(bool save);
-	void setSaveFilename(const FileContext& context, const std::string& filename);
+	void setSaveFilename(const FileContext& context, string_ref filename);
 
 	SettingsManager& getSettingsManager();
 	XMLElement& getXMLElement() { return xmlElement; }

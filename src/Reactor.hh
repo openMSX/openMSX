@@ -114,7 +114,7 @@ private:
 	void createMachineSetting();
 	void switchBoard(MSXMotherBoard* newBoard);
 	void deleteBoard(MSXMotherBoard* board);
-	MSXMotherBoard& getMachine(const std::string& machineID) const;
+	MSXMotherBoard& getMachine(string_ref machineID) const;
 	std::vector<string_ref> getMachineIDs() const;
 
 	// Observer<Setting>

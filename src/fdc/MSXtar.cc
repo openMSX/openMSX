@@ -598,10 +598,10 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 
 // Transfer directory and all its subdirectories to the MSX diskimage
 // @throws when an error occurs
-string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
+string MSXtar::recurseDirFill(string_ref dirName, unsigned sector)
 {
 	string messages;
-	ReadDir dir(dirName);
+	ReadDir dir(dirName.str());
 	while (dirent* d = dir.getEntry()) {
 		string name(d->d_name);
 		string fullName = dirName + '/' + name;
@@ -711,12 +711,12 @@ string MSXtar::dir()
 }
 
 // routines to update the global vars: chrootSector
-void MSXtar::chdir(const string& newRootDir)
+void MSXtar::chdir(string_ref newRootDir)
 {
 	chroot(newRootDir, false);
 }
 
-void MSXtar::mkdir(const string& newRootDir)
+void MSXtar::mkdir(string_ref newRootDir)
 {
 	unsigned tmpMSXchrootSector = chrootSector;
 	chroot(newRootDir, true);
@@ -781,7 +781,7 @@ void MSXtar::fileExtract(const string& resultFile, const MSXDirEntry& dirEntry)
 }
 
 // extracts a single item (file or directory) from the msximage to the host OS
-string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
+string MSXtar::singleItemExtract(string_ref dirName, string_ref itemName,
                                  unsigned sector)
 {
 	// first find out if the filename exists in current dir
@@ -812,7 +812,7 @@ string MSXtar::singleItemExtract(const string& dirName, const string& itemName,
 
 
 // extracts the contents of the directory (at sector) and all its subdirs to the host OS
-void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
+void MSXtar::recurseDirExtract(string_ref dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		SectorBuffer buf;
@@ -843,7 +843,7 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 	}
 }
 
-string MSXtar::addDir(const string& rootDirName)
+string MSXtar::addDir(string_ref rootDirName)
 {
 	return recurseDirFill(rootDirName, chrootSector);
 }
@@ -853,12 +853,12 @@ string MSXtar::addFile(const string& filename)
 	return addFileToDSK(filename, chrootSector);
 }
 
-string MSXtar::getItemFromDir(const string& rootDirName, const string& itemName)
+string MSXtar::getItemFromDir(string_ref rootDirName, string_ref itemName)
 {
 	return singleItemExtract(rootDirName, itemName, chrootSector);
 }
 
-void MSXtar::getDir(const string& rootDirName)
+void MSXtar::getDir(string_ref rootDirName)
 {
 	recurseDirExtract(rootDirName, chrootSector);
 }

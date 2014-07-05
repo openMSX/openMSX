@@ -41,7 +41,7 @@ class BindCmd : public Command
 public:
 	BindCmd(CommandController& commandController, HotKey& hotKey,
 	        bool defaultCmd);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	string formatBinding(const HotKey::BindMap::value_type& p);
@@ -55,7 +55,7 @@ class UnbindCmd : public Command
 public:
 	UnbindCmd(CommandController& commandController, HotKey& hotKey,
 	          bool defaultCmd);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
@@ -66,7 +66,7 @@ class ActivateCmd : public Command
 {
 public:
 	ActivateCmd(CommandController& commandController, HotKey& hotKey);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
@@ -76,7 +76,7 @@ class DeactivateCmd : public Command
 {
 public:
 	DeactivateCmd(CommandController& commandController, HotKey& hotKey);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
@@ -330,16 +330,16 @@ void HotKey::unbindFullLayer(const string& layer)
 	layerMap.erase(layer);
 }
 
-void HotKey::activateLayer(const std::string& layer, bool blocking)
+void HotKey::activateLayer(std::string layer, bool blocking)
 {
 	// Insert new activattion record at the end of the list.
 	// (it's not an error if the same layer was already active, in such
 	// as case it will now appear twice in the list of active layer,
 	// and it must also be deactivated twice).
-	activeLayers.push_back({layer, blocking});
+	activeLayers.push_back({std::move(layer), blocking});
 }
 
-void HotKey::deactivateLayer(const std::string& layer)
+void HotKey::deactivateLayer(string_ref layer)
 {
 	// remove the first matching activation record from the end
 	// (it's not an error if there is no match at all)
@@ -468,12 +468,13 @@ string BindCmd::formatBinding(const HotKey::BindMap::value_type& p)
 	       ":  " + info.command + '\n';
 }
 
-static vector<string> parse(bool defaultCmd, vector<string> tokens,
-                            string& layer, bool& layers)
+static vector<TclObject> parse(bool defaultCmd, array_ref<TclObject> tokens_,
+                               string& layer, bool& layers)
 {
 	layers = false;
-	for (size_t i = 1; i < tokens.size(); /**/) {
-		if (tokens[i] == "-layer") {
+	vector<TclObject> tokens(std::begin(tokens_) + 1, std::end(tokens_));
+	for (size_t i = 0; i < tokens.size(); /**/) {
+		if (tokens[i].getString() == "-layer") {
 			if (i == (tokens.size() - 1)) {
 				throw CommandException("Missing layer name");
 			}
@@ -481,11 +482,11 @@ static vector<string> parse(bool defaultCmd, vector<string> tokens,
 				throw CommandException(
 					"Layers are not supported for default bindings");
 			}
-			layer = tokens[i + 1];
+			layer = tokens[i + 1].getString().str();
 
 			auto it = begin(tokens) + i;
 			tokens.erase(it, it + 2);
-		} else if (tokens[i] == "-layers") {
+		} else if (tokens[i].getString() == "-layers") {
 			layers = true;
 			tokens.erase(begin(tokens) + i);
 		} else {
@@ -495,7 +496,7 @@ static vector<string> parse(bool defaultCmd, vector<string> tokens,
 	return tokens;
 }
 
-string BindCmd::execute(const vector<string>& tokens_)
+void BindCmd::execute(array_ref<TclObject> tokens_, TclObject& result)
 {
 	string layer;
 	bool layers;
@@ -507,7 +508,6 @@ string BindCmd::execute(const vector<string>& tokens_)
 		                : hotKey.layerMap[layer];
 
 	if (layers) {
-		TclObject result;
 		for (auto& p : hotKey.layerMap) {
 			// An alternative for this test is to always properly
 			// prune layerMap. ATM this approach seems simpler.
@@ -515,43 +515,44 @@ string BindCmd::execute(const vector<string>& tokens_)
 				result.addListElement(p.first);
 			}
 		}
-		return result.getString().str();
+		return;
 	}
 
-	string result;
 	switch (tokens.size()) {
-	case 0:
-		UNREACHABLE;
-	case 1:
+	case 0: {
 		// show all bounded keys (for this layer)
+		string r;
 		for (auto& p : cmdMap) {
-			result += formatBinding(p);
+			r += formatBinding(p);
 		}
+		result.setString(r);
 		break;
-	case 2: {
+	}
+	case 1: {
 		// show bindings for this key (in this layer)
-		auto it = cmdMap.find(createEvent(tokens[1]));
+		auto it = cmdMap.find(createEvent(tokens[0].getString().str()));
 		if (it == end(cmdMap)) {
 			throw CommandException("Key not bound");
 		}
-		result = formatBinding(*it);
+		result.setString(formatBinding(*it));
 		break;
 	}
 	default: {
 		// make a new binding
 		string command;
 		bool repeat = false;
-		unsigned start = 2;
-		if (tokens[2] == "-repeat") {
+		unsigned start = 1;
+		if (tokens[1].getString() == "-repeat") {
 			repeat = true;
 			++start;
 		}
 		for (unsigned i = start; i < tokens.size(); ++i) {
 			if (i != start) command += ' ';
-			command += tokens[i];
+			string_ref t = tokens[i].getString();
+			command.append(t.data(), t.size());
 		}
 		HotKey::HotKeyInfo info(command, repeat);
-		auto event = createEvent(tokens[1]);
+		auto event = createEvent(tokens[0].getString().str());
 		if (defaultCmd) {
 			hotKey.bindDefault(event, info);
 		} else if (layer.empty()) {
@@ -562,7 +563,6 @@ string BindCmd::execute(const vector<string>& tokens_)
 		break;
 	}
 	}
-	return result;
 }
 string BindCmd::help(const vector<string>& /*tokens*/) const
 {
@@ -592,21 +592,22 @@ UnbindCmd::UnbindCmd(CommandController& commandController,
 {
 }
 
-string UnbindCmd::execute(const vector<string>& tokens_)
+void UnbindCmd::execute(array_ref<TclObject> tokens_, TclObject& /*result*/)
 {
 	string layer;
 	bool layers;
 	auto tokens = parse(defaultCmd, tokens_, layer, layers);
+
 	if (layers) {
 		throw SyntaxError();
 	}
-	if ((tokens.size() > 2) || (layer.empty() && (tokens.size() != 2))) {
+	if ((tokens.size() > 1) || (layer.empty() && (tokens.size() != 1))) {
 		throw SyntaxError();
 	}
 
 	HotKey::EventPtr event;
-	if (tokens.size() == 2) {
-		event = createEvent(tokens[1]);
+	if (tokens.size() == 1) {
+		event = createEvent(tokens[0].getString().str());
 	}
 
 	if (defaultCmd) {
@@ -622,7 +623,6 @@ string UnbindCmd::execute(const vector<string>& tokens_)
 			hotKey.unbindFullLayer(layer);
 		}
 	}
-	return "";
 }
 string UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
@@ -641,35 +641,35 @@ ActivateCmd::ActivateCmd(CommandController& commandController, HotKey& hotKey_)
 {
 }
 
-string ActivateCmd::execute(const vector<string>& tokens)
+void ActivateCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
-	string layer;
+	string_ref layer;
 	bool blocking = false;
 	for (size_t i = 1; i < tokens.size(); ++i) {
-		if (tokens[i] == "-blocking") {
+		if (tokens[i].getString() == "-blocking") {
 			blocking = true;
 		} else {
 			if (!layer.empty()) {
 				throw SyntaxError();
 			}
-			layer = tokens[i];
+			layer = tokens[i].getString();
 		}
 	}
 
-	string result;
+	string r;
 	if (layer.empty()) {
 		for (auto it = hotKey.activeLayers.rbegin();
 		     it != hotKey.activeLayers.rend(); ++it) {
-			result += it->layer;
+			r += it->layer;
 			if (it->blocking) {
-				result += " -blocking";
+				r += " -blocking";
 			}
-			result += '\n';
+			r += '\n';
 		}
 	} else {
-		hotKey.activateLayer(layer, blocking);
+		hotKey.activateLayer(layer.str(), blocking);
 	}
-	return result;
+	result.setString(r);
 }
 
 string ActivateCmd::help(const vector<string>& /*tokens*/) const
@@ -689,13 +689,12 @@ DeactivateCmd::DeactivateCmd(CommandController& commandController, HotKey& hotKe
 {
 }
 
-string DeactivateCmd::execute(const vector<string>& tokens)
+void DeactivateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	hotKey.deactivateLayer(tokens[1]);
-	return "";
+	hotKey.deactivateLayer(tokens[1].getString());
 }
 
 string DeactivateCmd::help(const vector<string>& /*tokens*/) const

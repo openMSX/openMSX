@@ -50,7 +50,7 @@ public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 	virtual bool diskChanged();
-	virtual int insertDisk(const std::string& filename);
+	virtual int insertDisk(string_ref filename);
 
 	// for NowindCommand
 	void changeDisk(std::unique_ptr<Disk> newDisk);

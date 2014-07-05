@@ -179,7 +179,7 @@ void DiskChanger::stopReplay(EmuTime::param /*time*/)
 	// nothing
 }
 
-int DiskChanger::insertDisk(const string& filename)
+int DiskChanger::insertDisk(string_ref filename)
 {
 	TclObject args[] = { TclObject("dummy"), TclObject(filename) };
 	try {

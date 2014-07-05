@@ -56,7 +56,7 @@ class QuitCommand : public Command
 {
 public:
 	QuitCommand(CommandController& commandController, EventDistributor& distributor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	EventDistributor& distributor;
@@ -66,7 +66,7 @@ class MachineCommand : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -77,7 +77,7 @@ class TestMachineCommand : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -88,7 +88,7 @@ class CreateMachineCommand : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	Reactor& reactor;
@@ -98,7 +98,7 @@ class DeleteMachineCommand : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -119,7 +119,7 @@ class ActivateMachineCommand : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -130,7 +130,7 @@ class StoreMachineCommand : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -141,7 +141,7 @@ class RestoreMachineCommand : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -419,7 +419,7 @@ vector<string_ref> Reactor::getMachineIDs() const
 	return result;
 }
 
-MSXMotherBoard& Reactor::getMachine(const string& machineID) const
+MSXMotherBoard& Reactor::getMachine(string_ref machineID) const
 {
 	for (auto& b : boards) {
 		if (b->getMachineID() == machineID) {
@@ -732,10 +732,9 @@ QuitCommand::QuitCommand(CommandController& commandController,
 {
 }
 
-string QuitCommand::execute(const vector<string>& /*tokens*/)
+void QuitCommand::execute(array_ref<TclObject> /*tokens*/, TclObject& /*result*/)
 {
 	distributor.distributeEvent(make_shared<QuitEvent>());
-	return "";
 }
 
 string QuitCommand::help(const vector<string>& /*tokens*/) const
@@ -753,22 +752,25 @@ MachineCommand::MachineCommand(CommandController& commandController,
 {
 }
 
-string MachineCommand::execute(const vector<string>& tokens)
+void MachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1: // get current machine
-		return reactor.getMachineID();
+		// nothing
+		break;
 	case 2:
 		try {
-			reactor.switchMachine(tokens[1]);
+			reactor.switchMachine(tokens[1].getString().str());
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: " +
 			                       e.getMessage());
 		}
-		return reactor.getMachineID();
+		break;
 	default:
 		throw SyntaxError();
 	}
+	// Always return machineID (of current or of new machine).
+	result.setString(reactor.getMachineID());
 }
 
 string MachineCommand::help(const vector<string>& /*tokens*/) const
@@ -791,17 +793,17 @@ TestMachineCommand::TestMachineCommand(CommandController& commandController,
 {
 }
 
-string TestMachineCommand::execute(const vector<string>& tokens)
+void TestMachineCommand::execute(array_ref<TclObject> tokens,
+                                 TclObject& result)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
 	try {
 		MSXMotherBoard mb(reactor);
-		mb.loadMachine(tokens[1]);
-		return ""; // success
+		mb.loadMachine(tokens[1].getString().str());
 	} catch (MSXException& e) {
-		return e.getMessage(); // error
+		result.setString(e.getMessage()); // error
 	}
 }
 
@@ -827,15 +829,14 @@ CreateMachineCommand::CreateMachineCommand(
 {
 }
 
-string CreateMachineCommand::execute(const vector<string>& tokens)
+void CreateMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 1) {
 		throw SyntaxError();
 	}
 	auto newBoard = reactor.createEmptyMotherBoard();
-	auto result = newBoard->getMachineID();
+	result.setString(newBoard->getMachineID());
 	reactor.boards.push_back(move(newBoard));
-	return result;
 }
 
 string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -860,13 +861,13 @@ DeleteMachineCommand::DeleteMachineCommand(
 {
 }
 
-string DeleteMachineCommand::execute(const vector<string>& tokens)
+void DeleteMachineCommand::execute(array_ref<TclObject> tokens,
+                                   TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	reactor.deleteBoard(&reactor.getMachine(tokens[1]));
-	return "";
+	reactor.deleteBoard(&reactor.getMachine(tokens[1].getString()));
 }
 
 string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -910,18 +911,20 @@ ActivateMachineCommand::ActivateMachineCommand(
 {
 }
 
-string ActivateMachineCommand::execute(const vector<string>& tokens)
+void ActivateMachineCommand::execute(array_ref<TclObject> tokens,
+                                     TclObject& result)
 {
 	switch (tokens.size()) {
 	case 1:
-		return reactor.getMachineID();
+		break;
 	case 2: {
-		reactor.switchBoard(&reactor.getMachine(tokens[1]));
-		return reactor.getMachineID();
+		reactor.switchBoard(&reactor.getMachine(tokens[1].getString()));
+		break;
 	}
 	default:
 		throw SyntaxError();
 	}
+	result.setString(reactor.getMachineID());
 }
 
 string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -946,22 +949,22 @@ StoreMachineCommand::StoreMachineCommand(
 {
 }
 
-string StoreMachineCommand::execute(const vector<string>& tokens)
+void StoreMachineCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	string filename;
-	string machineID;
+	string_ref machineID;
 	switch (tokens.size()) {
 	case 1:
 		machineID = reactor.getMachineID();
 		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
 		break;
 	case 2:
-		machineID = tokens[1];
+		machineID = tokens[1].getString();
 		filename = FileOperations::getNextNumberedFileName("savestates", "openmsxstate", ".xml.gz");
 		break;
 	case 3:
-		machineID = tokens[1];
-		filename = tokens[2];
+		machineID = tokens[1].getString();
+		filename = tokens[2].getString().str();
 		break;
 	default:
 		throw SyntaxError();
@@ -971,7 +974,7 @@ string StoreMachineCommand::execute(const vector<string>& tokens)
 
 	XmlOutputArchive out(filename);
 	out.serialize("machine", board);
-	return filename;
+	result.setString(filename);
 }
 
 string StoreMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -999,14 +1002,14 @@ RestoreMachineCommand::RestoreMachineCommand(
 {
 }
 
-string RestoreMachineCommand::execute(const vector<string>& tokens)
+void RestoreMachineCommand::execute(array_ref<TclObject> tokens,
+                                    TclObject& result)
 {
 	auto newBoard = reactor.createEmptyMotherBoard();
 
 	string filename;
-	string machineID;
 	switch (tokens.size()) {
-	case 1: { // add an extra scope to avoid case label jump problems
+	case 1: {
 		// load last saved entry
 		struct stat st;
 		string dirName = FileOperations::getUserOpenMSXDir() + "/savestates/";
@@ -1027,10 +1030,10 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 			throw CommandException("Can't find last saved state.");
 		}
 		filename = dirName + lastEntry;
-		}
 		break;
+	}
 	case 2:
-		filename = tokens[1];
+		filename = tokens[1].getString().str();
 		break;
 	default:
 		throw SyntaxError();
@@ -1051,9 +1054,8 @@ string RestoreMachineCommand::execute(const vector<string>& tokens)
 	// now we want the MSX to see the actual host keyboard state.
 	newBoard->getStateChangeDistributor().stopReplay(newBoard->getCurrentTime());
 
-	auto result = newBoard->getMachineID();
+	result.setString(newBoard->getMachineID());
 	reactor.boards.push_back(move(newBoard));
-	return result;
 }
 
 string RestoreMachineCommand::help(const vector<string>& /*tokens*/) const

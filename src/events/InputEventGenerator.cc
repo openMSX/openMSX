@@ -21,7 +21,7 @@ class EscapeGrabCmd : public Command
 public:
 	EscapeGrabCmd(CommandController& commandController,
 		      InputEventGenerator& inputEventGenerator);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	InputEventGenerator& inputEventGenerator;
@@ -431,14 +431,14 @@ EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
 {
 }
 
-string EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
+void EscapeGrabCmd::execute(array_ref<TclObject> /*tokens*/,
+		            TclObject& /*result*/)
 {
 	if (inputEventGenerator.grabInput->getBoolean()) {
 		inputEventGenerator.escapeGrabState =
 			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);
 	}
-	return "";
 }
 
 string EscapeGrabCmd::help(const vector<string>& /*tokens*/) const

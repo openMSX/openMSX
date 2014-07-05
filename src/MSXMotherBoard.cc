@@ -241,7 +241,7 @@ class LoadMachineCmd : public Command
 {
 public:
 	LoadMachineCmd(MSXMotherBoard& motherBoard);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -1026,7 +1026,7 @@ LoadMachineCmd::LoadMachineCmd(MSXMotherBoard& motherBoard_)
 	setAllowedInEmptyMachine(true);
 }
 
-string LoadMachineCmd::execute(const vector<string>& tokens)
+void LoadMachineCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -1034,7 +1034,7 @@ string LoadMachineCmd::execute(const vector<string>& tokens)
 	if (motherBoard.getMachineConfig()) {
 		throw CommandException("Already loaded a config in this machine.");
 	}
-	return motherBoard.loadMachine(tokens[1]);
+	result.setString(motherBoard.loadMachine(tokens[1].getString().str()));
 }
 
 string LoadMachineCmd::help(const vector<string>& /*tokens*/) const

@@ -4,6 +4,7 @@
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include "stl.hh"
+#include "string_ref.hh"
 #include <map>
 #include <set>
 #include <vector>
@@ -58,8 +59,8 @@ private:
 	                   const std::string& layer);
 	void unbindLayer  (const EventPtr& event, const std::string& layer);
 	void unbindFullLayer(const std::string& layer);
-	void activateLayer  (const std::string& layer, bool blocking);
-	void deactivateLayer(const std::string& layer);
+	void activateLayer  (std::string layer, bool blocking);
+	void deactivateLayer(string_ref layer);
 
 	void executeBinding(const EventPtr& event, const HotKeyInfo& info);
 	void startRepeat  (const EventPtr& event);

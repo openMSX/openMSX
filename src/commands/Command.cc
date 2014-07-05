@@ -33,11 +33,6 @@ CommandCompleter::~CommandCompleter()
 // TODO: getCommandController(), getGlobalCommandController() and
 //       getInterpreter() occur both here and in Setting.
 
-CommandController& CommandCompleter::getCommandController() const
-{
-	return commandController;
-}
-
 GlobalCommandController& CommandCompleter::getGlobalCommandController() const
 {
 	if (auto globalCommandController =
@@ -51,7 +46,7 @@ GlobalCommandController& CommandCompleter::getGlobalCommandController() const
 
 Interpreter& CommandCompleter::getInterpreter() const
 {
-	return getGlobalCommandController().getInterpreter();
+	return getCommandController().getInterpreter();
 }
 
 CliComm& CommandCompleter::getCliComm() const
@@ -75,23 +70,6 @@ Command::~Command()
 	if (!getName().empty()) {
 		getCommandController().unregisterCommand(*this, getName());
 	}
-}
-
-void Command::execute(array_ref<TclObject> tokens, TclObject& result)
-{
-	vector<string> strings;
-	strings.reserve(tokens.size());
-	for (auto& t : tokens) {
-		strings.emplace_back(t.getString().str());
-	}
-	result.setString(execute(strings));
-}
-
-string Command::execute(const vector<string>& /*tokens*/)
-{
-	// either this method or the method above should be reimplemented
-	// by the subclasses
-	UNREACHABLE; return "";
 }
 
 void Command::tabCompletion(vector<string>& /*tokens*/) const

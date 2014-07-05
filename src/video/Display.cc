@@ -43,7 +43,7 @@ class ScreenShotCmd : public Command
 {
 public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -443,39 +443,40 @@ ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
 {
 }
 
-string ScreenShotCmd::execute(const vector<string>& tokens)
+void ScreenShotCmd::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	bool rawShot = false;
 	bool withOsd = false;
 	bool doubleSize = false;
-	string prefix = "openmsx";
-	vector<string> arguments;
+	string_ref prefix = "openmsx";
+	vector<TclObject> arguments;
 	for (unsigned i = 1; i < tokens.size(); ++i) {
-		if (StringOp::startsWith(tokens[i], '-')) {
-			if (tokens[i] == "--") {
+		string_ref tok = tokens[i].getString();
+		if (StringOp::startsWith(tok, '-')) {
+			if (tok == "--") {
 				arguments.insert(end(arguments),
-					begin(tokens) + i + 1, end(tokens));
+					std::begin(tokens) + i + 1, std::end(tokens));
 				break;
 			}
-			if (tokens[i] == "-prefix") {
+			if (tok == "-prefix") {
 				if (++i == tokens.size()) {
 					throw CommandException("Missing argument");
 				}
-				prefix = tokens[i];
-			} else if (tokens[i] == "-raw") {
+				prefix = tokens[i].getString();
+			} else if (tok == "-raw") {
 				rawShot = true;
-			} else if (tokens[i] == "-msxonly") {
+			} else if (tok == "-msxonly") {
 				display.getCliComm().printWarning(
 					"The -msxonly option has been deprecated and will "
 					"be removed in a future release. Instead, use the "
 					"-raw option for the same effect.");
 				rawShot = true;
-			} else if (tokens[i] == "-doublesize") {
+			} else if (tok == "-doublesize") {
 				doubleSize = true;
-			} else if (tokens[i] == "-with-osd") {
+			} else if (tok == "-with-osd") {
 				withOsd = true;
 			} else {
-				throw CommandException("Invalid option: " + tokens[i]);
+				throw CommandException("Invalid option: " + tok);
 			}
 		} else {
 			arguments.push_back(tokens[i]);
@@ -490,19 +491,19 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 		                       "combination with -raw");
 	}
 
-	string filename;
+	string_ref fname;
 	switch (arguments.size()) {
 	case 0:
 		// nothing
 		break;
 	case 1:
-		filename = arguments[0];
+		fname = arguments[0].getString();
 		break;
 	default:
 		throw SyntaxError();
 	}
-	filename = FileOperations::parseCommandFileArgument(
-		filename, "screenshots", prefix, ".png");
+	string filename = FileOperations::parseCommandFileArgument(
+		fname, "screenshots", prefix, ".png");
 
 	if (!rawShot) {
 		// include all layers (OSD stuff, console)
@@ -529,7 +530,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 
 	display.getCliComm().printInfo("Screen saved to " + filename);
-	return filename;
+	result.setString(filename);
 }
 
 string ScreenShotCmd::help(const vector<string>& /*tokens*/) const

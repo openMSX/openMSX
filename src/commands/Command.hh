@@ -17,7 +17,7 @@ class CliComm;
 class CommandCompleter : public Completer
 {
 public:
-	CommandController& getCommandController() const;
+	CommandController& getCommandController() const { return commandController; }
 	Interpreter& getInterpreter() const;
 
 protected:
@@ -43,13 +43,7 @@ public:
 	  * @throws CommandException Thrown when there was an error while
 	  *                          executing this command.
 	  */
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-
-	/** Alternative for the execute() method above.
-	  * It has a simpler interface, but performance is a bit lower.
-	  * Subclasses should override either this method or the one above.
-	  */
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result) = 0;
 
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.

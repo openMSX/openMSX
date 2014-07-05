@@ -596,7 +596,7 @@ string expandCurrentDirFromDrive(string_ref path)
 	return result;
 }
 
-bool getStat(const string& filename_, Stat& st)
+bool getStat(string_ref filename_, Stat& st)
 {
 	string filename = expandTilde(filename_);
 	// workaround for VC++: strip trailing slashes (but keep it if it's the
@@ -619,7 +619,7 @@ bool isRegularFile(const Stat& st)
 {
 	return S_ISREG(st.st_mode);
 }
-bool isRegularFile(const string& filename)
+bool isRegularFile(string_ref filename)
 {
 	Stat st;
 	return getStat(filename, st) && isRegularFile(st);
@@ -630,13 +630,13 @@ bool isDirectory(const Stat& st)
 	return S_ISDIR(st.st_mode);
 }
 
-bool isDirectory(const string& directory)
+bool isDirectory(string_ref directory)
 {
 	Stat st;
 	return getStat(directory, st) && isDirectory(st);
 }
 
-bool exists(const string& filename)
+bool exists(string_ref filename)
 {
 	Stat st; // dummy
 	return getStat(filename, st);

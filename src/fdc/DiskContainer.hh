@@ -2,6 +2,7 @@
 #define DISKCONTAINER_HH
 
 #include "serialize_meta.hh"
+#include "string_ref.hh"
 #include <functional>
 #include <string>
 
@@ -21,7 +22,7 @@ public:
 
 	// for nowind
 	//  - error handling with return values instead of exceptions
-	virtual int insertDisk(const std::string& filename) = 0;
+	virtual int insertDisk(string_ref filename) = 0;
 	// for nowind
 	bool isRomdisk() const;
 

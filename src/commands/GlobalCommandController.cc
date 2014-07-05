@@ -32,8 +32,7 @@ class HelpCmd : public Command
 {
 public:
 	explicit HelpCmd(GlobalCommandController& controller);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -44,8 +43,7 @@ class TabCompletionCmd : public Command
 {
 public:
 	explicit TabCompletionCmd(GlobalCommandController& controller);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	GlobalCommandController& controller;
@@ -55,7 +53,7 @@ class UpdateCmd : public Command
 {
 public:
 	explicit UpdateCmd(CommandController& commandController);
-	virtual string execute(const vector<string>& tokens);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -639,7 +637,7 @@ UpdateCmd::UpdateCmd(CommandController& commandController)
 {
 }
 
-static GlobalCliComm::UpdateType getType(const string& name)
+static GlobalCliComm::UpdateType getType(string_ref name)
 {
 	auto updateStr = CliComm::getUpdateStrings();
 	for (auto i : xrange(updateStr.size())) {
@@ -661,19 +659,18 @@ CliConnection& UpdateCmd::getConnection()
 	                       "it's used from an external application.");
 }
 
-string UpdateCmd::execute(const vector<string>& tokens)
+void UpdateCmd::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	if (tokens[1] == "enable") {
-		getConnection().setUpdateEnable(getType(tokens[2]), true);
-	} else if (tokens[1] == "disable") {
-		getConnection().setUpdateEnable(getType(tokens[2]), false);
+	if (tokens[1].getString() == "enable") {
+		getConnection().setUpdateEnable(getType(tokens[2].getString()), true);
+	} else if (tokens[1].getString() == "disable") {
+		getConnection().setUpdateEnable(getType(tokens[2].getString()), false);
 	} else {
 		throw SyntaxError();
 	}
-	return "";
 }
 
 string UpdateCmd::help(const vector<string>& /*tokens*/) const

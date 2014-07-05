@@ -10,6 +10,7 @@
 #include "CommandException.hh"
 #include "GlobalCommandController.hh"
 #include "Command.hh"
+#include "TclObject.hh"
 #include "memory.hh"
 
 using std::string;
@@ -21,9 +22,9 @@ class SaveSettingsCommand : public Command
 {
 public:
 	SaveSettingsCommand(CommandController& commandController,
-			    SettingsConfig& settingsConfig);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help   (const vector<string>& tokens) const;
+	                    SettingsConfig& settingsConfig);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
+	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsConfig& settingsConfig;
@@ -33,9 +34,9 @@ class LoadSettingsCommand : public Command
 {
 public:
 	LoadSettingsCommand(CommandController& commandController,
-			    SettingsConfig& settingsConfig);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help   (const vector<string>& tokens) const;
+	                    SettingsConfig& settingsConfig);
+	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
+	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsConfig& settingsConfig;
@@ -69,7 +70,7 @@ SettingsConfig::~SettingsConfig()
 	}
 }
 
-void SettingsConfig::loadSetting(const FileContext& context, const string& filename)
+void SettingsConfig::loadSetting(const FileContext& context, string_ref filename)
 {
 	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::load(file.getFilename(), "settings.dtd");
@@ -80,14 +81,14 @@ void SettingsConfig::loadSetting(const FileContext& context, const string& filen
 	setSaveFilename(context, filename);
 }
 
-void SettingsConfig::setSaveFilename(const FileContext& context, const string& filename)
+void SettingsConfig::setSaveFilename(const FileContext& context, string_ref filename)
 {
 	saveName = context.resolveCreate(filename);
 }
 
-void SettingsConfig::saveSetting(const string& filename)
+void SettingsConfig::saveSetting(string_ref filename)
 {
-	const string& name = filename.empty() ? saveName : filename;
+	string_ref name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
 	// Normally the following isn't needed. Only when there was no
@@ -126,7 +127,7 @@ SaveSettingsCommand::SaveSettingsCommand(
 {
 }
 
-string SaveSettingsCommand::execute(const vector<string>& tokens)
+void SaveSettingsCommand::execute(array_ref<TclObject> tokens, TclObject& /*result*/)
 {
 	try {
 		switch (tokens.size()) {
@@ -134,7 +135,7 @@ string SaveSettingsCommand::execute(const vector<string>& tokens)
 			settingsConfig.saveSetting();
 			break;
 		case 2:
-			settingsConfig.saveSetting(tokens[1]);
+			settingsConfig.saveSetting(tokens[1].getString());
 			break;
 		default:
 			throw SyntaxError();
@@ -142,7 +143,6 @@ string SaveSettingsCommand::execute(const vector<string>& tokens)
 	} catch (FileException& e) {
 		throw CommandException(e.getMessage());
 	}
-	return "";
 }
 
 string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
@@ -168,13 +168,13 @@ LoadSettingsCommand::LoadSettingsCommand(
 {
 }
 
-string LoadSettingsCommand::execute(const vector<string>& tokens)
+void LoadSettingsCommand::execute(array_ref<TclObject> tokens,
+                                  TclObject& /*result*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	settingsConfig.loadSetting(SystemFileContext(), tokens[1]);
-	return "";
+	settingsConfig.loadSetting(SystemFileContext(), tokens[1].getString());
 }
 
 string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const

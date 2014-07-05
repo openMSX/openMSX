@@ -218,24 +218,24 @@ namespace FileOperations {
 	 * @param st The stat structute that will be filled in
 	 * @result true iff success
 	 */
-	bool getStat(const std::string& filename, Stat& st);
+	bool getStat(string_ref filename, Stat& st);
 
 	/**
 	 * Is this a regular file (no directory, device, ..)?
 	 */
-	bool isRegularFile(const std::string& filename);
+	bool isRegularFile(string_ref filename);
 	bool isRegularFile(const Stat& st);
 
 	/**
 	 * Is this a directory?
 	 */
-	bool isDirectory(const std::string& directory);
+	bool isDirectory(string_ref directory);
 	bool isDirectory(const Stat& st);
 
 	/**
 	 * Does this file (directory) exists?
 	 */
-	bool exists(const std::string& filename);
+	bool exists(string_ref filename);
 
 	/** Get the date/time of last modification
 	 */
