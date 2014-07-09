@@ -27,12 +27,13 @@ public:
 	static XMLElement loadConfig(string_view type, string_view name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(
-		MSXMotherBoard& motherBoard, const std::string& machineName);
+		MSXMotherBoard& motherBoard, std::string machineName);
 	static std::unique_ptr<HardwareConfig> createExtensionConfig(
-		MSXMotherBoard& motherBoard, string_view extensionName, string_view slotname);
+		MSXMotherBoard& motherBoard, std::string extensionName,
+		std::string slotname);
 	static std::unique_ptr<HardwareConfig> createRomConfig(
-		MSXMotherBoard& motherBoard, string_view romfile,
-		string_view slotname, span<const TclObject> options);
+		MSXMotherBoard& motherBoard, std::string romfile,
+		std::string slotname, span<const TclObject> options);
 
 	HardwareConfig(MSXMotherBoard& motherBoard, std::string hwName);
 	~HardwareConfig();
@@ -63,8 +64,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	static std::string getFilename(string_view type, string_view name);
-	static XMLElement loadConfig(const std::string& filename);
 	void setConfig(XMLElement config_) { config = std::move(config_); }
 	void load(string_view type);
 
@@ -78,7 +77,7 @@ private:
 	int getSpecificFreePrimarySlot(unsigned slot);
 	void addDevice(std::unique_ptr<MSXDevice> device);
 	void setName(string_view proposedName);
-	void setSlot(string_view slotname);
+	void setSlot(std::string slotname);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;

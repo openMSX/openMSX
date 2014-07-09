@@ -352,7 +352,7 @@ void CartridgeSlotManager::CartCmd::execute(
 		try {
 			string_view romname = tokens[extensionNameToken].getString();
 			auto extension = HardwareConfig::createRomConfig(
-				manager.motherBoard, romname, slotname, options);
+				manager.motherBoard, romname.str(), slotname.str(), options);
 			if (slotname != "any") {
 				if (auto* extConf = getExtensionConfig(cartname)) {
 					// still a cartridge inserted, (try to) remove it now

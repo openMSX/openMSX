@@ -16,25 +16,14 @@ using std::string;
 
 namespace openmsx {
 
-XMLElement::XMLElement(string_view name_)
-	: name(name_.str())
+XMLElement& XMLElement::addChild(string childName)
 {
-}
-
-XMLElement::XMLElement(string_view name_, string_view data_)
-	: name(name_.str())
-	, data(data_.str())
-{
-}
-
-XMLElement& XMLElement::addChild(string_view childName)
-{
-	children.emplace_back(childName);
+	children.emplace_back(std::move(childName));
 	return children.back();
 }
-XMLElement& XMLElement::addChild(string_view childName, string_view childData)
+XMLElement& XMLElement::addChild(string childName, string childData)
 {
-	children.emplace_back(childName, childData);
+	children.emplace_back(std::move(childName), std::move(childData));
 	return children.back();
 }
 
@@ -55,19 +44,19 @@ XMLElement::Attributes::const_iterator XMLElement::findAttribute(string_view att
 	                       [&](auto& a) { return a.first == attrName; });
 }
 
-void XMLElement::addAttribute(string_view attrName, string_view value)
+void XMLElement::addAttribute(string attrName, string value)
 {
 	assert(findAttribute(attrName) == end(attributes));
-	attributes.emplace_back(attrName.str(), value.str());
+	attributes.emplace_back(std::move(attrName), std::move(value));
 }
 
-void XMLElement::setAttribute(string_view attrName, string_view value)
+void XMLElement::setAttribute(string_view attrName, string value)
 {
 	auto it = findAttribute(attrName);
 	if (it != end(attributes)) {
-		it->second = value.str();
+		it->second = std::move(value);
 	} else {
-		attributes.emplace_back(attrName.str(), value.str());
+		attributes.emplace_back(attrName.str(), std::move(value));
 	}
 }
 
@@ -77,22 +66,6 @@ void XMLElement::removeAttribute(string_view attrName)
 	if (it != end(attributes)) {
 		attributes.erase(it);
 	}
-}
-
-void XMLElement::setName(string_view newName)
-{
-	name = newName.str();
-}
-
-void XMLElement::clearName()
-{
-	name.clear();
-}
-
-void XMLElement::setData(string_view newData)
-{
-	assert(children.empty()); // no mixed-content elements
-	data = newData.str();
 }
 
 std::vector<const XMLElement*> XMLElement::getChildren(string_view childName) const
@@ -170,7 +143,7 @@ XMLElement& XMLElement::getCreateChild(string_view childName,
 	if (auto* result = findChild(childName)) {
 		return *result;
 	}
-	return addChild(childName, defaultValue);
+	return addChild(childName.str(), defaultValue.str());
 }
 
 XMLElement& XMLElement::getCreateChildWithAttribute(
@@ -180,8 +153,8 @@ XMLElement& XMLElement::getCreateChildWithAttribute(
 	if (auto* result = findChildWithAttribute(childName, attName, attValue)) {
 		return *result;
 	}
-	auto& result = addChild(childName);
-	result.addAttribute(attName, attValue);
+	auto& result = addChild(childName.str());
+	result.addAttribute(attName.str(), attValue.str());
 	return result;
 }
 
@@ -209,12 +182,12 @@ int XMLElement::getChildDataAsInt(string_view childName, int defaultValue) const
 	return child ? StringOp::stringToInt(child->getData()) : defaultValue;
 }
 
-void XMLElement::setChildData(string_view childName, string_view value)
+void XMLElement::setChildData(string_view childName, string value)
 {
 	if (auto* child = findChild(childName)) {
-		child->setData(value);
+		child->setData(std::move(value));
 	} else {
-		addChild(childName, value);
+		addChild(childName.str(), std::move(value));
 	}
 }
 

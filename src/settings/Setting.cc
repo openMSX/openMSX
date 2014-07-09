@@ -121,7 +121,7 @@ void Setting::notify() const
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		if (val == dontSaveValue) val = getRestoreValue();
-		elem.setData(val.getString());
+		elem.setData(val.getString().str());
 	}
 }
 

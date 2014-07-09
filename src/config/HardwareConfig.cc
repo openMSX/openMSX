@@ -27,29 +27,34 @@ using std::move;
 namespace openmsx {
 
 unique_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
-	MSXMotherBoard& motherBoard, const string& machineName)
+	MSXMotherBoard& motherBoard, string machineName)
 {
-	auto result = std::make_unique<HardwareConfig>(motherBoard, machineName);
+	auto result = std::make_unique<HardwareConfig>(
+		motherBoard, move(machineName));
 	result->load("machines");
 	return result;
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
-	MSXMotherBoard& motherBoard, string_view extensionName, string_view slotname)
+	MSXMotherBoard& motherBoard, string extensionName, string slotname)
 {
-	auto result = std::make_unique<HardwareConfig>(motherBoard, extensionName.str());
+	auto result = std::make_unique<HardwareConfig>(
+		motherBoard, move(extensionName));
 	result->load("extensions");
-	result->setName(extensionName);
-	result->setSlot(slotname);
+	result->setName(result->hwName);
+	result->setSlot(move(slotname));
 	return result;
 }
 
 unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
-	MSXMotherBoard& motherBoard, string_view romfile,
-	string_view slotname, span<const TclObject> options)
+	MSXMotherBoard& motherBoard, string romfile,
+	string slotname, span<const TclObject> options)
 {
+	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
+	result->setName(romfile);
+
 	vector<string_view> ipsfiles;
-	string_view mapper;
+	string mapper;
 	ArgsInfo info[] = {
 		valueArg("-ips", ipsfiles),
 		valueArg("-romtype", mapper),
@@ -79,7 +84,7 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	auto& primary = devices.addChild("primary");
 	primary.addAttribute("slot", slotname);
 	auto& secondary = primary.addChild("secondary");
-	secondary.addAttribute("slot", slotname);
+	secondary.addAttribute("slot", move(slotname));
 	auto& device = secondary.addChild("ROM");
 	device.addAttribute("id", "MSXRom");
 	auto& mem = device.addChild("mem");
@@ -87,27 +92,25 @@ unique_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	mem.addAttribute("size", "0x10000");
 	auto& rom = device.addChild("rom");
 	rom.addChild("resolvedFilename", resolvedFilename);
-	rom.addChild("filename", romfile);
+	rom.addChild("filename", move(romfile));
 	if (!ipsfiles.empty()) {
 		auto& patches = rom.addChild("patches");
 		for (auto& s : ipsfiles) {
-			patches.addChild("ips", s);
+			patches.addChild("ips", s.str());
 		}
 	}
 	device.addChild("sound").addChild("volume", "9000");
-	device.addChild("mappertype", mapper.empty() ? "auto" : mapper);
+	device.addChild("mappertype", mapper.empty() ? "auto" : std::move(mapper));
 	device.addChild("sramname", strCat(sramfile, ".SRAM"));
 
-	auto result = std::make_unique<HardwareConfig>(motherBoard, "rom");
 	result->setConfig(move(extension));
-	result->setName(romfile);
 	result->setFileContext(move(context));
 	return result;
 }
 
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, string hwName_)
 	: motherBoard(motherBoard_)
-	, hwName(std::move(hwName_))
+	, hwName(move(hwName_))
 {
 	for (auto ps : xrange(4)) {
 		for (auto ss : xrange(4)) {
@@ -183,12 +186,7 @@ const XMLElement& HardwareConfig::getDevices() const
 	return getConfig().getChild("devices");
 }
 
-XMLElement HardwareConfig::loadConfig(string_view type, string_view name)
-{
-	return loadConfig(getFilename(type, name));
-}
-
-XMLElement HardwareConfig::loadConfig(const string& filename)
+static XMLElement loadHelper(const string& filename)
 {
 	try {
 		return XMLLoader::load(filename, "msxconfig2.dtd");
@@ -199,7 +197,7 @@ XMLElement HardwareConfig::loadConfig(const string& filename)
 	}
 }
 
-string HardwareConfig::getFilename(string_view type, string_view name)
+static string getFilename(string_view type, string_view name)
 {
 	auto context = systemFileContext();
 	try {
@@ -218,10 +216,15 @@ string HardwareConfig::getFilename(string_view type, string_view name)
 	}
 }
 
+XMLElement HardwareConfig::loadConfig(string_view type, string_view name)
+{
+	return loadHelper(getFilename(type, name));
+}
+
 void HardwareConfig::load(string_view type)
 {
 	string filename = getFilename(type, hwName);
-	setConfig(loadConfig(filename));
+	setConfig(loadHelper(filename));
 
 	assert(!userName.empty());
 	const auto& dirname = FileOperations::getDirName(filename);
@@ -396,13 +399,13 @@ void HardwareConfig::setName(string_view proposedName)
 	}
 }
 
-void HardwareConfig::setSlot(string_view slotname)
+void HardwareConfig::setSlot(string slotname)
 {
 	for (auto& psElem : getDevices().getChildren("primary")) {
 		const auto& primSlot = psElem->getAttribute("slot");
 		if (primSlot == "any") {
 			auto& mutableElem = const_cast<XMLElement*&>(psElem);
-			mutableElem->setAttribute("slot", slotname);
+			mutableElem->setAttribute("slot", move(slotname));
 		}
 	}
 }

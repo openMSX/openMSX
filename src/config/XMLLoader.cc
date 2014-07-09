@@ -68,9 +68,9 @@ void XMLElementParser::start(string_view name)
 {
 	XMLElement* newElem;
 	if (!current.empty()) {
-		newElem = &current.back()->addChild(name);
+		newElem = &current.back()->addChild(name.str());
 	} else {
-		root.setName(name);
+		root.setName(name.str());
 		newElem = &root;
 	}
 	current.push_back(newElem);
@@ -83,7 +83,7 @@ void XMLElementParser::attribute(string_view name, string_view value)
 			"Found duplicate attribute \"", name, "\" in <",
 			current.back()->getName(), ">.");
 	}
-	current.back()->addAttribute(name, value);
+	current.back()->addAttribute(name.str(), value.str());
 }
 
 void XMLElementParser::text(string_view txt)
@@ -94,7 +94,7 @@ void XMLElementParser::text(string_view txt)
 			"Mixed text+subtags in <", current.back()->getName(),
 			">: \"", txt, "\".");
 	}
-	current.back()->setData(txt);
+	current.back()->setData(txt.str());
 }
 
 void XMLElementParser::stop()

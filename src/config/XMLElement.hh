@@ -21,28 +21,33 @@ public:
 	// Construction.
 	//  (copy, assign, move, destruct are default)
 	XMLElement() = default;
-	explicit XMLElement(string_view name);
-	XMLElement(string_view name, string_view data);
+	explicit XMLElement(std::string name_)
+		: name(std::move(name_)) {}
+	XMLElement(std::string name_, std::string data_)
+		: name(std::move(name_)), data(std::move(data_)) {}
 
 	// name
 	const std::string& getName() const { return name; }
-	void setName(string_view name);
-	void clearName();
+	void setName(std::string name_) { name = std::move(name_); }
+	void clearName() { name.clear(); }
 
 	// data
 	const std::string& getData() const { return data; }
-	void setData(string_view data);
+	void setData(std::string data_) {
+		assert(children.empty()); // no mixed-content elements
+		data = std::move(data_);
+	}
 
 	// attribute
-	void addAttribute(string_view name, string_view value);
-	void setAttribute(string_view name, string_view value);
+	void addAttribute(std::string name, std::string value);
+	void setAttribute(string_view name, std::string value);
 	void removeAttribute(string_view name);
 
 	// child
 	using Children = std::vector<XMLElement>;
 	//  note: returned XMLElement& is validated on the next addChild() call
-	XMLElement& addChild(string_view name);
-	XMLElement& addChild(string_view name, string_view data);
+	XMLElement& addChild(std::string name);
+	XMLElement& addChild(std::string name, std::string data);
 	void removeChild(const XMLElement& child);
 	const Children& getChildren() const { return children; }
 	bool hasChildren() const { return !children.empty(); }
@@ -54,8 +59,8 @@ public:
 	// attribute
 	bool hasAttribute(string_view name) const;
 	const std::string& getAttribute(string_view attName) const;
-	string_view  getAttribute(string_view attName,
-	                         string_view defaultValue) const;
+	string_view getAttribute(string_view attName,
+	                        string_view defaultValue) const;
 	bool getAttributeAsBool(string_view attName,
 	                        bool defaultValue = false) const;
 	int getAttributeAsInt(string_view attName,
@@ -93,7 +98,7 @@ public:
 	                        bool defaultValue = false) const;
 	int getChildDataAsInt(string_view name,
 	                      int defaultValue = 0) const;
-	void setChildData(string_view name, string_view value);
+	void setChildData(string_view name, std::string value);
 
 	void removeAllChildren();
 
