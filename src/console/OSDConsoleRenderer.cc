@@ -35,16 +35,6 @@ static const uint64_t BLINK_RATE = 500000; // us
 static const int CHAR_BORDER = 4;
 
 
-// class OSDConsoleRenderer::TextCacheElement
-
-OSDConsoleRenderer::TextCacheElement::TextCacheElement(
-		std::string&& text_, unsigned rgb_,
-		std::unique_ptr<BaseImage> image_, unsigned width_)
-	: text(std::move(text_)), image(std::move(image_)), rgb(rgb_), width(width_)
-{
-}
-
-
 // class OSDConsoleRenderer
 
 static const string_view defaultFont = "skins/VeraMono.ttf.gz";
@@ -396,7 +386,7 @@ found:		image = it->image.get();
 }
 
 void OSDConsoleRenderer::insertInCache(
-	string&& text, unsigned rgb, std::unique_ptr<BaseImage> image,
+	string text, unsigned rgb, std::unique_ptr<BaseImage> image,
 	unsigned width)
 {
 	static const unsigned MAX_TEXT_CACHE_SIZE = 250;

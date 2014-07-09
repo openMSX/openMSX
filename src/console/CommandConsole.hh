@@ -26,7 +26,7 @@ public:
 	ConsoleLine() = default;
 
 	/** Construct line with a single color (by default white). */
-	explicit ConsoleLine(string_view line, uint32_t rgb = 0xffffff);
+	explicit ConsoleLine(std::string line, uint32_t rgb = 0xffffff);
 
 	/** Append a chunk with a (different) color. This is currently the
 	  * only way to construct a multi-colored line/ */
@@ -100,7 +100,7 @@ private:
 	void delete_key();
 	void normalKey(uint32_t chr);
 	void putCommandHistory(const std::string& command);
-	void newLineConsole(string_view line);
+	void newLineConsole(std::string line);
 	void newLineConsole(ConsoleLine line);
 	void putPrompt();
 	void resetScrollBack();

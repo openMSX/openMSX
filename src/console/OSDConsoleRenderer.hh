@@ -1,6 +1,7 @@
 #ifndef OSDCONSOLERENDERER_HH
 #define OSDCONSOLERENDERER_HH
 
+#include "BaseImage.hh"
 #include "Layer.hh"
 #include "TTFFont.hh"
 #include "EnumSetting.hh"
@@ -15,7 +16,6 @@
 
 namespace openmsx {
 
-class BaseImage;
 class BooleanSetting;
 class CommandConsole;
 class ConsoleLine;
@@ -54,7 +54,7 @@ private:
 
 	bool getFromCache(string_view text, unsigned rgb,
 	                  BaseImage*& image, unsigned& width);
-	void insertInCache(std::string&& text, unsigned rgb,
+	void insertInCache(std::string text, unsigned rgb,
 	                   std::unique_ptr<BaseImage> image, unsigned width);
 	void clearCache();
 
@@ -65,9 +65,10 @@ private:
 	};
 
 	struct TextCacheElement {
-		TextCacheElement(std::string&& text_, unsigned rgb_,
-		                 std::unique_ptr<BaseImage> image_,
-		                 unsigned width_);
+		TextCacheElement(std::string text_, unsigned rgb_,
+		                 std::unique_ptr<BaseImage> image_, unsigned width_)
+			: text(std::move(text_)), image(std::move(image_))
+			, rgb(rgb_), width(width_) {}
 
 		std::string text;
 		std::unique_ptr<BaseImage> image;

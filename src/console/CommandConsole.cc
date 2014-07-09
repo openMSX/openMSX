@@ -29,8 +29,8 @@ namespace openmsx {
 
 // class ConsoleLine
 
-ConsoleLine::ConsoleLine(string_view line_, uint32_t rgb)
-	: line(line_.str())
+ConsoleLine::ConsoleLine(string line_, uint32_t rgb)
+	: line(std::move(line_))
 	, chunks(1, {rgb, 0})
 {
 }
@@ -371,16 +371,16 @@ void CommandConsole::print(string_view text, unsigned rgb)
 {
 	while (true) {
 		auto pos = text.find('\n');
-		newLineConsole(ConsoleLine(text.substr(0, pos), rgb));
+		newLineConsole(ConsoleLine(text.substr(0, pos).str(), rgb));
 		if (pos == string_view::npos) return;
 		text = text.substr(pos + 1); // skip newline
 		if (text.empty()) return;
 	}
 }
 
-void CommandConsole::newLineConsole(string_view line)
+void CommandConsole::newLineConsole(string line)
 {
-	newLineConsole(ConsoleLine(line));
+	newLineConsole(ConsoleLine(std::move(line)));
 }
 
 void CommandConsole::newLineConsole(ConsoleLine line)
@@ -388,9 +388,9 @@ void CommandConsole::newLineConsole(ConsoleLine line)
 	if (lines.isFull()) {
 		lines.removeBack();
 	}
-	ConsoleLine tmp = lines[0];
+	ConsoleLine tmp = std::move(lines[0]);
 	lines[0] = std::move(line);
-	lines.addFront(tmp);
+	lines.addFront(std::move(tmp));
 }
 
 void CommandConsole::putCommandHistory(const string& command)
@@ -400,7 +400,6 @@ void CommandConsole::putCommandHistory(const string& command)
 	    (history.back() == command)) {
 		return;
 	}
-
 	if (history.full()) history.pop_front();
 	history.push_back(command);
 }
