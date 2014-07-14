@@ -97,7 +97,7 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || T6950NTSC || version == TMS91X8 || version == TMS9129;
+		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || version == T6950NTSC || version == TMS91X8 || version == TMS9129;
 	}
 
 	/** Is this a MSX1 VDP with PAL?
