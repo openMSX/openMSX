@@ -12,6 +12,8 @@
 
   <CassettePort/>
 
+  <!-- Z80: 01C529ED -->
+
   <devices>
 
     <PPI id="ppi">
@@ -29,7 +31,7 @@
 
     <VDP id="VDP">
       <type>AY8910</type>
-      <version>TMS9929A</version>
+      <version>TMS9929A</version> <!-- HAS 4k/16k effect, no address latch, HAS sprite clones, has screen 2 mirrored mode, has mode 3 mixed mode -->
       <io base="0x98" num="2"/>
     </VDP>
 

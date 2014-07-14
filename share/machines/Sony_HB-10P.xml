@@ -10,6 +10,13 @@
     <type>MSX</type>
   </info>
 
+<!-- hap:
+CPU: NEC D780C-1
+PPI/PSG: Yamaha S3527 - ANSI
+VDP: Toshiba T6950
+crystal: 3.579545 and 22.168 near the VDP (PAL = 22.168/5=4.4336).. not synced
+-->
+
   <CassettePort/>
 
   <devices>
@@ -28,7 +35,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9929A</version>
+      <version>T6950PAL</version>
       <io base="0x98" num="2"/>
     </VDP>
 

@@ -14,7 +14,15 @@
 
   <devices>
 
-  <!-- CPU: NEC -->
+<!-- hap:
+CPU: NEC D780C-1
+PPI: NEC D8255AC-5
+PSG: GI AY-3-8910A - ANSI
+VDP: TI TMS9918A (heatsink, with hole so you can see the label)
+PCB label: DFUP0001ZA-3 (PSU PCB label: DFUP0002ZA-2a)
+ROM label: MN23257CFB Matshushita 4D 8
+crystal: 10738.6
+-->
 
     <PPI id="ppi">
       <!-- brand: NEC -->

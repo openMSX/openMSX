@@ -10,6 +10,15 @@
     <type>MSX</type>
   </info>
 
+<!-- hap:
+CPU: NEC D780C-1
+PPI: NEC D8255AC-2
+PSG: GI AY-3-8910A - ANSI
+VDP: under heat sink (TMS9129 probably: has sprite clones, screen 2 mirrored,
+no 4k/16k effect)
+crystal: same for cpu/vdp/psg
+-->
+
   <CassettePort/>
 
   <devices>
@@ -28,7 +37,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9929A</version> <!-- actually probably TMS9129 -->
+      <version>TMS9129</version>
       <io base="0x98" num="2"/>
     </VDP>
 

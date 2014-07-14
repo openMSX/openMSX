@@ -10,6 +10,14 @@
     <type>MSX</type>
   </info>
 
+<!-- hap:
+CPU: ZiLOG Z8400APS Z80A
+PPI: Mitsubishi M5L8255AP-5
+PSG: Yamaha YM2149 - JIS
+VDP: TI TMS9929ANL
+crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
+-->
+
   <CassettePort/>
 
   <devices>

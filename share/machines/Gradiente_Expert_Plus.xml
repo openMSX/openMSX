@@ -28,7 +28,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version>
+      <version>TMS99X8A</version> <!-- actually part of T9737A engine -->
       <io base="0x98" num="2"/>
     </VDP>
 

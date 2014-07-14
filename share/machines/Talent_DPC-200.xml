@@ -28,7 +28,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9929A</version> <!-- actually probably TMS9129 -->
+      <version>TMS9129</version>
       <io base="0x98" num="2"/>
     </VDP>
 
