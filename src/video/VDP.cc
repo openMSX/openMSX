@@ -252,7 +252,8 @@ VDP::VDP(const DeviceConfig& config)
 
 	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
-	else if (versionString == "T6950") version = T6950;
+	else if (versionString == "T6950PAL") version = T6950PAL;
+	else if (versionString == "T6950NTSC") version = T6950NTSC;
 	else if (versionString == "TMS91x8") version = TMS91X8;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "TMS9129") version = TMS9129;

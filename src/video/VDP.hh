@@ -97,7 +97,7 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version == TMS99X8A || version == TMS9929A || version == T6950 || version == TMS91X8 || version == TMS9129;
+		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || T6950NTSC || version == TMS91X8 || version == TMS9129;
 	}
 
 	/** Is this a MSX1 VDP with PAL?
@@ -105,7 +105,7 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDPwithPAL() const {
-		return version == TMS9929A || version == TMS9129;
+		return version == TMS9929A || version == TMS9129 || version == T6950PAL;
 	}
 
 	/** Does this VDP support YJK display?
@@ -496,7 +496,8 @@ private:
 		  * in emulation there is no difference.
 		  */
 		TMS99X8A,
-		T6950, // Toshiba clone
+		T6950PAL, // Toshiba clone (hardwired as PAL)
+		T6950NTSC, // Toshiba clone (hardwired as NTSC)
 		TMS91X8, // newer variant NTSC
 		/** MSX1 VDP, PAL version.
 		  */
