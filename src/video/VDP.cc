@@ -252,7 +252,10 @@ VDP::VDP(const DeviceConfig& config)
 
 	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
+	else if (versionString == "T6950") version = T6950;
+	else if (versionString == "TMS91x8") version = TMS91X8;
 	else if (versionString == "TMS9929A") version = TMS9929A;
+	else if (versionString == "TMS9129") version = TMS9129;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
 	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
@@ -350,7 +353,7 @@ void VDP::resetInit()
 	for (auto& reg : controlRegs) {
 		reg = 0;
 	}
-	if (version == TMS9929A) {
+	if (isMSX1VDPwithPAL()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}

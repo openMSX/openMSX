@@ -93,11 +93,19 @@ public:
 	PostProcessor* getPostProcessor() const;
 
 	/** Is this an MSX1 VDP?
-	  * @return True if this is an MSX1 VDP (TMS99X8A or TMS9929A),
+	  * @return True if this is an MSX1 VDP
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version == TMS99X8A || version == TMS9929A;
+		return version == TMS99X8A || version == TMS9929A || version == T6950 || version == TMS91X8 || version == TMS9129;
+	}
+
+	/** Is this a MSX1 VDP with PAL?
+	  * @return True if this is an MSX1 VDP with PAL
+	  *   False otherwise.
+	  */
+	inline bool isMSX1VDPwithPAL() const {
+		return version == TMS9929A || version == TMS9129;
 	}
 
 	/** Does this VDP support YJK display?
@@ -488,9 +496,12 @@ private:
 		  * in emulation there is no difference.
 		  */
 		TMS99X8A,
+		T6950, // Toshiba clone
+		TMS91X8, // newer variant NTSC
 		/** MSX1 VDP, PAL version.
 		  */
 		TMS9929A,
+		TMS9129, // newer variant PAL
 		/** MSX2 VDP.
 		  */
 		V9938,
