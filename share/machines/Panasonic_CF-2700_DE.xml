@@ -39,6 +39,7 @@ crystal: same for cpu/vdp/psg
     <VDP id="VDP">
       <version>TMS9129</version>
       <io base="0x98" num="2"/>
+      <initialContent encoding="hex">FF00</initialContent>
     </VDP>
 
     <PSG id="PSG">

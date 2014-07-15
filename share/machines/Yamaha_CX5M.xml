@@ -31,7 +31,6 @@
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
       <version>TMS9929A</version>
-      <vram>16</vram>
     </VDP>
 
     <PSG id="PSG">

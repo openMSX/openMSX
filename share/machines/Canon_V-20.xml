@@ -63,7 +63,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
       <version>TMS9929A</version>
-      <vram>16</vram>
+      <initialContent encoding="hex">FF00</initialContent>
     </VDP>
 
     <PSG id="PSG">

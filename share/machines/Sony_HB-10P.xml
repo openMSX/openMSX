@@ -37,6 +37,7 @@ crystal: 3.579545 and 22.168 near the VDP (PAL = 22.168/5=4.4336).. not synced
     <VDP id="VDP">
       <version>T6950PAL</version>
       <io base="0x98" num="2"/>
+      <initialContent encoding="hex">FF00</initialContent>
     </VDP>
 
     <PSG id="PSG">
