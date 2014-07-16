@@ -83,7 +83,7 @@ proc casclose {rw} {
 		variable bphread
 		catch {debug remove_bp $bphread} ;# often not set, so catch error
 	} else {
-	        # In case of write allign end of file in order to make combine with other CAS-files easy.
+	        # In case of write align end of file in order to make combine with other CAS-files easy.
 		set align [expr {[tell $fidw] & 7}]
 		if {$align} {puts -nonewline $fidw [string repeat \x0 [expr {8 - $align}]]}
 	}
@@ -300,8 +300,33 @@ proc typeload {type} {
 	poke16 0xf3f8 [expr {$keybuf + [string length $cmd]}]
 }
 
+######################################################
+proc tapedeck {args} {
+	if {[string toupper [file extension [lindex $args end]]]==".CAS"} {
+
+		switch [lindex $args 0] {
+			eject         {caseject}
+			rewind        {caspos 1}
+			motorcontrol  {}
+			play          {}
+			record        {}
+			new           {cassave [lindex $args 1]}
+			insert        {casload [lindex $args 1]}
+			getpos        {}
+			getlength     {}
+			""            {}
+			default       {casload $args}
+		}
+	} else {
+		caseject
+	}
+	return [uplevel 1 [list interp invokehidden {} -global cassetteplayer] $args]
+}
+
+######################################################
+
 namespace export casload cassave caslist casrun caspos caseject
 
-} ;# namespace casload
+} ;# namespace cashandler
 
 namespace import cashandler::*

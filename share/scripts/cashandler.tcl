@@ -1,0 +1,38 @@
+namespace eval cashandler {
+
+user_setting create boolean fast_cas_load_hack_enabled "Whether you want to enable a hack that enables you to quickly load CAS files with the cassetteplayer, without converting them to WAV first. This is not recommended and several cassetteplayer functions will not work anymore (motor control, position indication, size indication). Also note that this hack only works when inserting cassettes when the MSX is already started up, not when inserting them via the openMSX command line." false
+
+variable old_value $::fast_cas_load_hack_enabled
+
+proc set_hack {} {
+	if {$::fast_cas_load_hack_enabled} {
+		interp hide {} cassetteplayer
+		interp alias {} cassetteplayer {} cashandler::tapedeck
+		puts "Fast cas load hack installed."
+	} else {
+		interp alias {} cassetteplayer {}
+		interp expose {} cassetteplayer
+		puts "Fast cas load hack uninstalled."
+	}
+}
+
+proc setting_changed {name1 name2 op} {
+	variable old_value
+
+	if {$::fast_cas_load_hack_enabled != $old_value} {
+		set_hack
+		set old_value $::fast_cas_load_hack_enabled
+	}
+}
+
+trace add variable ::fast_cas_load_hack_enabled write [namespace code setting_changed]
+
+proc initial_set {} {
+	if {$::fast_cas_load_hack_enabled} {
+		set_hack
+	}
+}
+
+after realtime 0 [namespace code initial_set]
+
+} ;# namespace cashandler
