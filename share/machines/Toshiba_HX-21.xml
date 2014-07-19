@@ -31,7 +31,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS99X8A</version> <!-- 9928 -->
+      <version>TMS9928A</version>
       <io base="0x98" num="2"/>
     </VDP>
 

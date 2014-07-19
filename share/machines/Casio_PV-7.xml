@@ -30,7 +30,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS91X8</version> <!-- TMS 9118, NO effect of 4k/16k switch, no latch, HAS clones, HAS screen 2 mirrored mode, HAS mode 3 mixed mode -->
+      <version>TMS9118</version> <!-- NO effect of 4k/16k switch, no latch, HAS clones, HAS screen 2 mirrored mode, HAS mode 3 mixed mode -->
       <io base="0x98" num="2"/>
     </VDP>
 
