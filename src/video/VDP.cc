@@ -1216,8 +1216,8 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 				irqVertical.reset();
 			}
 		}
-		if ((change & 0x80) && isMSX1VDP()) {
-			// confirmed: VRAM remapping does not happen on a V99x8
+		if ((change & 0x80) && isMSX1VDPwithVRAMremapping()) {
+			// confirmed: VRAM remapping only happens on TMS99xx
 			// see VDPVRAM for details on the remapping itself
 			vram->change4k8kMapping((val & 0x80) != 0);
 		}

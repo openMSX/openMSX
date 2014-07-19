@@ -116,6 +116,14 @@ public:
 		return version == T6950PAL || version == T6950NTSC;
 	}
 
+	/** Does this MSX1 VDP have VRAM remapping when switching from 4k to 8/16k mode?
+	  * @return True if this is an MSX1 VDP with VRAM remapping
+	  *   False otherwise.
+	  */
+	inline bool isMSX1VDPwithVRAMremapping() const {
+		return version == TMS9929A || version == TMS99X8A;
+	}
+
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
