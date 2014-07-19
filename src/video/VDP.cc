@@ -256,6 +256,8 @@ VDP::VDP(const DeviceConfig& config)
 	else if (versionString == "TMS9928A") version = TMS99X8A;
 	else if (versionString == "T6950PAL") version = T6950PAL;
 	else if (versionString == "T6950NTSC") version = T6950NTSC;
+	else if (versionString == "T7937APAL") version = T7937APAL;
+	else if (versionString == "T7937ANTSC") version = T7937ANTSC;
 	else if (versionString == "TMS91X8") version = TMS91X8;
 	else if (versionString == "TMS9118") version = TMS91X8;
 	else if (versionString == "TMS9128") version = TMS91X8;

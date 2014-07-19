@@ -97,7 +97,7 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || version == T6950NTSC || version == TMS91X8 || version == TMS9129;
+		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || version == T6950NTSC || version == TMS91X8 || version == TMS9129 || version == T7937APAL || version == T7937ANTSC;
 	}
 
 	/** Is this a MSX1 VDP with PAL?
@@ -105,7 +105,7 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDPwithPAL() const {
-		return version == TMS9929A || version == TMS9129 || version == T6950PAL;
+		return version == TMS9929A || version == TMS9129 || version == T6950PAL || version == T7937APAL;
 	}
 
 	/** Is this a VDP that lacks mirroring?
@@ -504,13 +504,15 @@ private:
 		  * in emulation there is no difference.
 		  */
 		TMS99X8A,
-		T6950PAL, // Toshiba clone (hardwired as PAL)
-		T6950NTSC, // Toshiba clone (hardwired as NTSC)
-		TMS91X8, // newer variant NTSC
+		T6950PAL,   // Toshiba clone (hardwired as PAL)
+		T6950NTSC,  // Toshiba clone (hardwired as NTSC)
+		T7937APAL,  // VDP in Toshiba T7937A engine (hardwired as PAL)
+		T7937ANTSC, // VDP in Toshiba T7937A engine (hardwired as NTSC)
+		TMS91X8,    // newer variant NTSC
 		/** MSX1 VDP, PAL version.
 		  */
 		TMS9929A,
-		TMS9129, // newer variant PAL
+		TMS9129,    // newer variant PAL
 		/** MSX2 VDP.
 		  */
 		V9938,
