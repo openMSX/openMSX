@@ -108,6 +108,14 @@ public:
 		return version == TMS9929A || version == TMS9129 || version == T6950PAL;
 	}
 
+	/** Is this a VDP that lacks mirroring?
+	  * @return True if this VDP lacks the screen 2 mirrored mode
+	  *   False otherwise.
+	  */
+	inline bool vdpLacksMirroring() const {
+		return version == T6950PAL || version == T6950NTSC;
+	}
+
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */

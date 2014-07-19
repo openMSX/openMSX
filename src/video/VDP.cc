@@ -1326,6 +1326,8 @@ void VDP::updateColorBase(EmuTime::param time)
 		vram->colorTable.setMask(base, ~0u << 6, time);
 		break;
 	case 0x04: // Graphic 2.
+		vram->colorTable.setMask(base | (vdpLacksMirroring() ? 0x1800 : 0), ~0u << 13, time);
+		break;
 	case 0x08: // Graphic 3.
 		vram->colorTable.setMask(base, ~0u << 13, time);
 		break;
@@ -1349,6 +1351,8 @@ void VDP::updatePatternBase(EmuTime::param time)
 		vram->patternTable.setMask(base, ~0u << 11, time);
 		break;
 	case 0x04: // Graphic 2.
+		vram->patternTable.setMask(base | (vdpLacksMirroring() ? 0x1800 : 0), ~0u << 13, time);
+		break;
 	case 0x08: // Graphic 3.
 		vram->patternTable.setMask(base, ~0u << 13, time);
 		break;
