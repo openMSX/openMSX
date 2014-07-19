@@ -258,9 +258,10 @@ static EnvPhaseIndex dphaseDRTable[16][16];
 // TL Table.
 static int tllTable[16 * 8][4];
 
-// Liner to Log curve conversion table (for Attack rate).
+// Linear to Log curve conversion table (for Attack rate) and vice versa.
 //   values are in the range [0 .. EG_MUTE]
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
+static unsigned RA_ADJUST_TABLE[(1 << EG_BITS) + 1];
 
 // Definition of envelope mode
 enum { ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
@@ -389,7 +390,7 @@ static inline unsigned DB_NEG(int x)
 //                                                  //
 //**************************************************//
 
-// Table for AR to LogCurve.
+// Table for AR to LogCurve and vice versa.
 static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = EG_MUTE;
@@ -398,6 +399,14 @@ static void makeAdjustTable()
 		         EG_MUTE * ::log(double(i)) / ::log(double(1 << EG_BITS))) >> 1;
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
 		assert(int(AR_ADJUST_TABLE[i]) >= 0);
+	}
+
+	RA_ADJUST_TABLE[0] = EG_MUTE;
+	for (int i = 1; i <= (1 << EG_BITS); ++i) {
+		RA_ADJUST_TABLE[i] = int(pow(double(1 << EG_BITS),
+		         (double(EG_MUTE) - 1 - double(i << 1)) / double(EG_MUTE)));
+		assert(RA_ADJUST_TABLE[i] <= EG_MUTE);
+		assert(int(RA_ADJUST_TABLE[i]) >= 0);
 	}
 }
 
@@ -612,7 +621,7 @@ void Y8950Slot::slotOn()
 		slotStatus = true;
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = EnvPhaseIndex(0);
+		eg_phase = EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
 	}
 }
 
@@ -854,6 +863,7 @@ unsigned Y8950Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		egout = eg_phase.toInt();
 		if (egout >= EG_MUTE) {
+			eg_phase = EG_DP_MAX;
 			eg_mode = FINISH;
 			egout = EG_MUTE - 1;
 		}
