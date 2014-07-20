@@ -32,7 +32,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS91X8</version>
+      <version>TMS9118</version>
       <io base="0x98" num="2"/>
     </VDP>
 
