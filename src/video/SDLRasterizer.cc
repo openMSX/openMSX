@@ -226,7 +226,7 @@ void SDLRasterizer<Pixel>::precalcPalette()
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
-			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
+			const byte* rgb = vdp.hasToshibaPalette() ? Renderer::TOSHIBA_PALETTE[i] : Renderer::TMS99X8A_PALETTE[i];
 			double dr = rgb[0] / 255.0;
 			double dg = rgb[1] / 255.0;
 			double db = rgb[2] / 255.0;

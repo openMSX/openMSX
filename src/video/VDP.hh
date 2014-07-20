@@ -124,6 +124,14 @@ public:
 		return version == TMS9929A || version == TMS99X8A;
 	}
 
+	/** Is this a VDP with a Toshiba palette?
+	  * @return True if this VDP has the Toshiba palette
+	  *   False otherwise.
+	  */
+	inline bool hasToshibaPalette() const {
+		return version == T6950PAL || version == T6950NTSC || version == T7937APAL || version == T7937ANTSC;
+	}
+
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */

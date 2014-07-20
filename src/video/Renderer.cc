@@ -72,6 +72,37 @@ const uint8_t Renderer::TMS99X8A_PALETTE[16][3] = {
 };
 
 /*
+ * Roughly measured RGB values in volts (converted to 0-255 range).
+ * Voltages were in range of 1.12-5.04, and had 2 digits accuracy.
+ * Blue component of color 5 and red component of color 9 were higher than
+ * the components for white... There are several methods to handle this...
+ * 1) clip to values of white
+ * 2) scale all colors by min/max of that component (means white is not 3x 255)
+ * 3) scale per color if components for that color are beyond those of white
+ * Values below are for method 3, because clipping may be a bit too simple
+ * (makes color 9 not red enough) and the white of the Toshiba VDP doesn't seem
+ * to be less bright or even off-white compared to TMS)
+ * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
+ */
+const uint8_t Renderer::TOSHIBA_PALETTE[16][3] = {
+	{   0,   0,   0 },
+	{   0,   0,   0 },
+	{ 106, 216, 106 },
+	{ 143, 255, 143 },
+	{  73,  73, 235 },
+	{ 117, 114, 255 },
+	{ 199,  90,  90 },
+	{ 123, 235, 238 },
+	{ 235, 106, 106 },
+	{ 255, 157, 114 },
+	{ 219, 216,  90 },
+	{ 255, 255, 143 },
+	{  90, 179,  90 },
+	{ 199,  87, 199 },
+	{ 219, 216, 216 },
+	{ 255, 255, 255 },
+};
+/*
 Sprite palette in Graphic 7 mode.
 See page 98 of the V9938 data book.
 */
