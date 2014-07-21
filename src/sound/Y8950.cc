@@ -260,8 +260,8 @@ static int tllTable[16 * 8][4];
 
 // Linear to Log curve conversion table (for Attack rate) and vice versa.
 //   values are in the range [0 .. EG_MUTE]
-static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
-static unsigned RA_ADJUST_TABLE[(1 << EG_BITS) + 1];
+static unsigned AR_ADJUST_TABLE[EG_MUTE];
+static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
 
 // Definition of envelope mode
 enum { ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
@@ -390,24 +390,30 @@ static inline unsigned DB_NEG(int x)
 //                                                  //
 //**************************************************//
 
+// Return log_BASE(x)  IOW the value y so that pow(BASE, y) == x.
+template<int BASE> static inline double log(double x)
+{
+	return ::log(x) / ::log(double(BASE));
+}
+
 // Table for AR to LogCurve and vice versa.
 static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = EG_MUTE;
-	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = int(double(EG_MUTE) - 1 -
-		         EG_MUTE * ::log(double(i)) / ::log(double(1 << EG_BITS))) >> 1;
-		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
-		assert(int(AR_ADJUST_TABLE[i]) >= 0);
-	}
-
 	RA_ADJUST_TABLE[0] = EG_MUTE;
-	for (int i = 1; i <= (1 << EG_BITS); ++i) {
-		RA_ADJUST_TABLE[i] = int(pow(double(1 << EG_BITS),
-		         (double(EG_MUTE) - 1 - double(i << 1)) / double(EG_MUTE)));
+	for (int i = 1; i < int(EG_MUTE); ++i) {
+		AR_ADJUST_TABLE[i] = (EG_MUTE - 1 - EG_MUTE * log<EG_MUTE>(i)) / 2;
+		RA_ADJUST_TABLE[i] = pow(EG_MUTE, double(EG_MUTE - 1 - 2 * i) / EG_MUTE);
+		assert(0 <= int(AR_ADJUST_TABLE[i]));
+		assert(0 <= int(RA_ADJUST_TABLE[i]));
+		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
 		assert(RA_ADJUST_TABLE[i] <= EG_MUTE);
-		assert(int(RA_ADJUST_TABLE[i]) >= 0);
 	}
+	RA_ADJUST_TABLE[EG_MUTE] = 0;
+
+	// AR_ADJUST_TABLE[] and RA_ADJUST_TABLE[] are each others inverse, IOW
+	//   RA_ADJUST_TABLE[AR_ADJUST_TABLE[x]] == x
+	// (except for rounding errors).
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
