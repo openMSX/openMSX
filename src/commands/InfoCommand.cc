@@ -54,7 +54,9 @@ void InfoCommand::execute(array_ref<TclObject> tokens,
 	switch (tokens.size()) {
 	case 1:
 		// list topics
-		result.addListElements(keys(infoTopics));
+		for (auto& p : infoTopics) {
+			result.addListElement(p.first());
+		}
 		break;
 	default:
 		// show info about topic

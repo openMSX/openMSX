@@ -132,7 +132,8 @@ void OSDText::getProperty(string_ref name, TclObject& result) const
 	} else if (name == "-query-size") {
 		double outX, outY;
 		getRenderedSize(outX, outY);
-		result.addListElements({outX, outY});
+		result.addListElement(outX);
+		result.addListElement(outY);
 	} else {
 		OSDImageBasedWidget::getProperty(name, result);
 	}

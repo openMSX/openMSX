@@ -38,7 +38,9 @@ public:
 	virtual void toStringImpl(TclObject& result) const
 	{
 		result.addListElement("finishframe");
-		result.addListElements({thisSource, selectedSource, int(skipped)});
+		result.addListElement(int(thisSource));
+		result.addListElement(int(selectedSource));
+		result.addListElement(skipped);
 	}
 	virtual bool lessImpl(const Event& other) const
 	{

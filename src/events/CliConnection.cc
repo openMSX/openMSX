@@ -49,8 +49,8 @@ public:
 	}
 	virtual void toStringImpl(TclObject& result) const
 	{
-		result.addListElements({string_ref("CliCmd"),
-		                        string_ref(getCommand())});
+		result.addListElement("CliCmd");
+		result.addListElement(getCommand());
 	}
 	virtual bool lessImpl(const Event& other) const
 	{

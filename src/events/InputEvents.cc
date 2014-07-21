@@ -107,8 +107,8 @@ KeyEvent::KeyEvent(EventType type, Keys::KeyCode keyCode_, uint16_t unicode_)
 
 void KeyEvent::toStringImpl(TclObject& result) const
 {
-	result.addListElements({string_ref("keyb"),
-	                        string_ref(Keys::getName(getKeyCode()))});
+	result.addListElement("keyb");
+	result.addListElement(Keys::getName(getKeyCode()));
 	if (getUnicode() != 0) {
 		result.addListElement(StringOp::Builder() <<
 			"unicode" << getUnicode());
@@ -208,8 +208,12 @@ MouseMotionEvent::MouseMotionEvent(int xrel_, int yrel_, int xabs_, int yabs_)
 
 void MouseMotionEvent::toStringImpl(TclObject& result) const
 {
-	result.addListElements({"mouse", "motion"});
-	result.addListElements({getX(), getY(), getAbsX(), getAbsY()});
+	result.addListElement("mouse");
+	result.addListElement("motion");
+	result.addListElement(getX());
+	result.addListElement(getY());
+	result.addListElement(getAbsX());
+	result.addListElement(getAbsY());
 }
 
 bool MouseMotionEvent::lessImpl(const Event& other) const
@@ -229,7 +233,8 @@ MouseMotionGroupEvent::MouseMotionGroupEvent()
 
 void MouseMotionGroupEvent::toStringImpl(TclObject& result) const
 {
-	result.addListElements({"mouse", "motion"});
+	result.addListElement("mouse");
+	result.addListElement("motion");
 }
 
 bool MouseMotionGroupEvent::lessImpl(const Event& /*other*/) const
@@ -368,7 +373,8 @@ ResizeEvent::ResizeEvent(unsigned x_, unsigned y_)
 void ResizeEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("resize");
-	result.addListElements({int(getX()), int(getY())});
+	result.addListElement(int(getX()));
+	result.addListElement(int(getY()));
 }
 
 bool ResizeEvent::lessImpl(const Event& other) const
@@ -422,10 +428,11 @@ bool OsdControlEvent::isRepeatStopper(const Event& other) const
 
 void OsdControlEvent::toStringHelper(TclObject& result) const
 {
+	result.addListElement("OSDcontrol");
 	static const char* const names[] = {
 		"LEFT", "RIGHT", "UP", "DOWN", "A", "B"
 	};
-	result.addListElements({"OSDcontrol", names[getButton()]});
+	result.addListElement(names[getButton()]);
 }
 
 bool OsdControlEvent::lessImpl(const Event& other) const

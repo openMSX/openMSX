@@ -3,7 +3,6 @@
 
 #include "string_ref.hh"
 #include "openmsx.hh"
-#include <initializer_list>
 #include <iterator>
 
 struct Tcl_Obj;
@@ -18,8 +17,6 @@ public:
 	TclObject();
 	explicit TclObject(Tcl_Obj* object);
 	explicit TclObject(string_ref value);
-	template<typename ITER> TclObject(ITER begin, ITER end);
-	template<typename T> explicit TclObject(std::initializer_list<T> list);
 	TclObject(const TclObject& object);
 	~TclObject();
 
@@ -41,7 +38,6 @@ public:
 	void addListElement(const TclObject& element);
 	template <typename ITER> void addListElements(ITER begin, ITER end);
 	template <typename CONT> void addListElements(const CONT& container);
-	template <typename T>    void addListElements(std::initializer_list<T> list);
 
 	// value getters
 	string_ref getString() const;
@@ -73,29 +69,14 @@ public:
 	}
 
 private:
-	void initList();
 	void init(Tcl_Obj* obj_);
 	void addListElement(Tcl_Obj* element);
 
 	Tcl_Obj* obj;
 };
 
-template<typename ITER>
-inline TclObject::TclObject(ITER begin, ITER end)
-{
-	initList();
-	addListElements(begin, end);
-}
-
-template<typename T>
-inline TclObject::TclObject(std::initializer_list<T> list)
-{
-	initList();
-	addListElements(list);
-}
-
 template <typename ITER>
-inline void TclObject::addListElements(ITER begin, ITER end)
+void TclObject::addListElements(ITER begin, ITER end)
 {
 	for (ITER it = begin; it != end; ++it) {
 		addListElement(*it);
@@ -103,15 +84,9 @@ inline void TclObject::addListElements(ITER begin, ITER end)
 }
 
 template <typename CONT>
-inline void TclObject::addListElements(const CONT& container)
+void TclObject::addListElements(const CONT& container)
 {
 	addListElements(std::begin(container), std::end(container));
-}
-
-template <typename T>
-inline void TclObject::addListElements(std::initializer_list<T> list)
-{
-	addListElements(std::begin(list), std::end(list));
 }
 
 // We want to be able to reinterpret_cast a Tcl_Obj* as a TclObject.

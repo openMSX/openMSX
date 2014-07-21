@@ -27,8 +27,8 @@ public:
 	void execute(int arg1, string_ref arg2);
 	void execute(string_ref arg1, string_ref arg2);
 
-	string_ref getValue() const;
-	StringSetting& getSetting() const { return callbackSetting; }
+	std::string getValue() const;
+	StringSetting& getSetting() const;
 
 private:
 	void executeCommon(TclObject& command);

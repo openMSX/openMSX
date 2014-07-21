@@ -274,7 +274,8 @@ void AfterCommand::afterRealTime(array_ref<TclObject> tokens, TclObject& result)
 void AfterCommand::afterTclTime(
 	int ms, array_ref<TclObject> tokens, TclObject& result)
 {
-	TclObject command(std::begin(tokens) + 2, std::end(tokens));
+	TclObject command;
+	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
 		*this, command, ms / 1000.0);
 	result.setString(cmd->getId());
@@ -349,7 +350,8 @@ void AfterCommand::afterCancel(array_ref<TclObject> tokens, TclObject& /*result*
 			return;
 		}
 	}
-	TclObject command(std::begin(tokens) + 2, std::end(tokens));
+	TclObject command;
+	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	string_ref cmdStr = command.getString();
 	auto it = find_if(begin(afterCmds), end(afterCmds),
 		[&](std::unique_ptr<AfterCmd>& e) { return e->getCommand() == cmdStr; });

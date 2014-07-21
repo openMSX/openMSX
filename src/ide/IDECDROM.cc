@@ -358,9 +358,8 @@ void CDXCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 {
 	if (tokens.size() == 1) {
 		auto* file = cd.file.get();
-		result.addListElements({
-			cd.name + ':',
-			file ? file->getURL() : ""});
+		result.addListElement(cd.name + ':');
+		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
 	} else if ((tokens.size() == 2) &&
 	           ((tokens[1].getString() == "eject") ||

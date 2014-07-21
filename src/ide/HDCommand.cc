@@ -28,11 +28,13 @@ void HDCommand::execute(array_ref<TclObject> tokens, TclObject& result,
                         EmuTime::param /*time*/)
 {
 	if (tokens.size() == 1) {
-		result.addListElements({
-			hd.getName() + ':',
-			hd.getImageName().getResolved()});
+		result.addListElement(hd.getName() + ':');
+		result.addListElement(hd.getImageName().getResolved());
+
 		if (hd.isWriteProtected()) {
-			result.addListElement(TclObject({"readonly"}));
+			TclObject options;
+			options.addListElement("readonly");
+			result.addListElement(options);
 		}
 	} else if ((tokens.size() == 2) ||
 	           ((tokens.size() == 3) && tokens[1].getString() == "insert")) {

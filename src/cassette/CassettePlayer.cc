@@ -660,10 +660,12 @@ void TapeCommand::execute(array_ref<TclObject> tokens, TclObject& result,
 	if (tokens.size() == 1) {
 		// Returning Tcl lists here, similar to the disk commands in
 		// DiskChanger
-		result.addListElements({
-			getName() + ':',
-			cassettePlayer.getImageName().getResolved()});
-		result.addListElement(TclObject({cassettePlayer.getStateString()}));
+		result.addListElement(getName() + ':');
+		result.addListElement(cassettePlayer.getImageName().getResolved());
+
+		TclObject options;
+		options.addListElement(cassettePlayer.getStateString());
+		result.addListElement(options);
 
 	} else if (tokens[1].getString() == "new") {
 		string directory = "taperecordings";

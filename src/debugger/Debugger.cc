@@ -529,7 +529,8 @@ void DebugCmd::listBreakPoints(array_ref<TclObject> /*tokens*/,
 		TclObject line;
 		line.addListElement(StringOp::Builder() << "bp#" << bp->getId());
 		line.addListElement("0x" + StringOp::toHexString(bp->getAddress(), 4));
-		line.addListElements({bp->getCondition(), bp->getCommand()});
+		line.addListElement(bp->getCondition());
+		line.addListElement(bp->getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -624,7 +625,8 @@ void DebugCmd::listWatchPoints(array_ref<TclObject> /*tokens*/,
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& wp : interface.getWatchPoints()) {
-		TclObject line({StringOp::Builder() << "wp#" << wp->getId()});
+		TclObject line;
+		line.addListElement(StringOp::Builder() << "wp#" << wp->getId());
 		string type;
 		switch (wp->getType()) {
 		case WatchPoint::READ_IO:
@@ -648,11 +650,13 @@ void DebugCmd::listWatchPoints(array_ref<TclObject> /*tokens*/,
 		if (beginAddr == endAddr) {
 			line.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
 		} else {
-			line.addListElement(TclObject({
-				"0x" + StringOp::toHexString(beginAddr, 4),
-				"0x" + StringOp::toHexString(endAddr,   4)}));
+			TclObject range;
+			range.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
+			range.addListElement("0x" + StringOp::toHexString(endAddr,   4));
+			line.addListElement(range);
 		}
-		line.addListElements({wp->getCondition(), wp->getCommand()});
+		line.addListElement(wp->getCondition());
+		line.addListElement(wp->getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -712,8 +716,10 @@ void DebugCmd::listConditions(array_ref<TclObject> /*tokens*/,
 	string res;
 	auto& interface = debugger.motherBoard.getCPUInterface();
 	for (auto& c : interface.getConditions()) {
-		TclObject line({StringOp::Builder() << "cond#" << c->getId()});
-		line.addListElements({c->getCondition(), c->getCommand()});
+		TclObject line;
+		line.addListElement(StringOp::Builder() << "cond#" << c->getId());
+		line.addListElement(c->getCondition());
+		line.addListElement(c->getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);
@@ -804,9 +810,11 @@ void DebugCmd::probeListBreakPoints(array_ref<TclObject> /*tokens*/,
 {
 	string res;
 	for (auto& p : debugger.probeBreakPoints) {
-		TclObject line({StringOp::Builder() << "pp#" << p->getId()});
+		TclObject line;
+		line.addListElement(StringOp::Builder() << "pp#" << p->getId());
 		line.addListElement(p->getProbe().getName());
-		line.addListElements({p->getCondition(), p->getCommand()});
+		line.addListElement(p->getCondition());
+		line.addListElement(p->getCommand());
 		res += line.getString() + '\n';
 	}
 	result.setString(res);

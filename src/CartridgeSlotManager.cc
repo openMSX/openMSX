@@ -339,11 +339,12 @@ void CartCmd::execute(array_ref<TclObject> tokens, TclObject& result,
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		auto* extConf = getExtensionConfig(cartname);
-		result.addListElements({
-			cartname + ':',
-			extConf ? extConf->getName() : ""});
+		result.addListElement(cartname + ':');
+		result.addListElement(extConf ? extConf->getName() : "");
 		if (!extConf) {
-			result.addListElement(TclObject({"empty"}));
+			TclObject options;
+			options.addListElement("empty");
+			result.addListElement(options);
 		}
 	} else if ((tokens[1].getString() ==  "eject") ||
 	           (tokens[1].getString() == "-eject")) {

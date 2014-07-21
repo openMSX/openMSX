@@ -1127,8 +1127,8 @@ void ConfigInfo::execute(array_ref<TclObject> tokens, TclObject& result) const
 				configName, tokens[2].getString());
 			if (auto* info = config.findChild("info")) {
 				for (auto& i : info->getChildren()) {
-					result.addListElements({
-						i.getName(), i.getData()});
+					result.addListElement(i.getName());
+					result.addListElement(i.getData());
 				}
 			}
 		} catch (MSXException& e) {

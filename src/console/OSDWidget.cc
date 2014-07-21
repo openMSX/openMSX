@@ -325,7 +325,8 @@ void OSDWidget::getProperty(string_ref name, TclObject& result) const
 	} else if (name == "-mousecoord") {
 		double x, y;
 		getMouseCoord(x, y);
-		result.addListElements({x, y});
+		result.addListElement(x);
+		result.addListElement(y);
 	} else if (name == "-suppressErrors") {
 		result.setBoolean(suppressErrors);
 	} else {

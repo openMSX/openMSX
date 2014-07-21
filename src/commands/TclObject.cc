@@ -25,11 +25,6 @@ TclObject::TclObject(const TclObject& object)
 	init(object.obj);
 }
 
-void TclObject::initList()
-{
-	init(Tcl_NewListObj(0, nullptr));
-}
-
 void TclObject::init(Tcl_Obj* obj_)
 {
 	obj = obj_;

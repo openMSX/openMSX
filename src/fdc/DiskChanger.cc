@@ -230,9 +230,8 @@ DiskCommand::DiskCommand(CommandController& commandController,
 void DiskCommand::execute(array_ref<TclObject> tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
-		result.addListElements({
-			diskChanger.getDriveName() + ':',
-			diskChanger.getDiskName().getResolved()});
+		result.addListElement(diskChanger.getDriveName() + ':');
+		result.addListElement(diskChanger.getDiskName().getResolved());
 
 		TclObject options;
 		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
