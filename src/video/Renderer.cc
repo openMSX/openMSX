@@ -72,36 +72,41 @@ const uint8_t Renderer::TMS99X8A_PALETTE[16][3] = {
 };
 
 /*
- * Roughly measured RGB values in volts (converted to 0-255 range).
- * Voltages were in range of 1.12-5.04, and had 2 digits accuracy.
+ * Roughly measured RGB values in volts.
+ * Voltages were in range of 1.12-5.04, and had 2 digits accuracy (it seems
+ * minimum difference was 0.04 V).
  * Blue component of color 5 and red component of color 9 were higher than
  * the components for white... There are several methods to handle this...
  * 1) clip to values of white
  * 2) scale all colors by min/max of that component (means white is not 3x 255)
  * 3) scale per color if components for that color are beyond those of white
- * Values below are for method 3, because clipping may be a bit too simple
- * (makes color 9 not red enough) and the white of the Toshiba VDP doesn't seem
- * to be less bright or even off-white compared to TMS)
+ * 4) assume the analog values are output by a DA converter, derive the digital
+ *    values and scale that to the range 0-255 (thanks to FRS for this idea).
+ *    This also results in white not being 3x 255, of course.
+ *
+ * Method 4 results in the table below and seems the most accurate (so far).
+ *
  * Thanks to Tiago Valença and Carlos Mansur for measuring on a T7937A.
  */
 const uint8_t Renderer::TOSHIBA_PALETTE[16][3] = {
 	{   0,   0,   0 },
 	{   0,   0,   0 },
-	{ 106, 216, 106 },
-	{ 143, 255, 143 },
-	{  73,  73, 235 },
-	{ 117, 114, 255 },
-	{ 199,  90,  90 },
-	{ 123, 235, 238 },
-	{ 235, 106, 106 },
-	{ 255, 157, 114 },
-	{ 219, 216,  90 },
-	{ 255, 255, 143 },
-	{  90, 179,  90 },
-	{ 199,  87, 199 },
-	{ 219, 216, 216 },
-	{ 255, 255, 255 },
+	{ 102, 204, 102 },
+	{ 136, 238, 136 },
+	{  68,  68, 221 },
+	{ 119, 119, 255 },
+	{ 187,  85,  85 },
+	{ 119, 221, 221 },
+	{ 221, 102, 102 },
+	{ 255, 119, 119 },
+	{ 204, 204,  85 },
+	{ 238, 238, 136 },
+	{  85, 170,  85 },
+	{ 187,  85, 187 },
+	{ 204, 204, 204 },
+	{ 238, 238, 238 },
 };
+
 /*
 Sprite palette in Graphic 7 mode.
 See page 98 of the V9938 data book.
