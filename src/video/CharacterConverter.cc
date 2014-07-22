@@ -277,17 +277,13 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	int quarter = ((line / 8) * 32) & ~0xFF;
 	int baseLine = (~0u << 13) | (quarter * 8) | (line & 7);
 
-	// pattern area is contiguous, color area not
-	const byte* patternArea = vram.patternTable.getReadArea(quarter * 8, 8 * 256);
-	patternArea += line & 7;
-
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 
 	for (unsigned n = 0; n < 32; ++n) {
 		unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
-		unsigned pattern = patternArea[charCode8];
 		unsigned index = charCode8 | baseLine;
+		unsigned pattern = vram.patternTable.readNP(index);
 		unsigned color = vram.colorTable.readNP(index);
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];

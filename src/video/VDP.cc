@@ -1228,6 +1228,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	case 3:
 	case 10:
 		updateColorBase(time);
+		if (vdpHasPatColMirroring()) updatePatternBase(time);
 		break;
 	case 4:
 		updatePatternBase(time);
@@ -1353,6 +1354,15 @@ void VDP::updatePatternBase(EmuTime::param time)
 		vram->patternTable.setMask(base, ~0u << 11, time);
 		break;
 	case 0x04: // Graphic 2.
+		if (vdpHasPatColMirroring()) {
+			// TMS99XX has weird pattern table behavior: some
+			// bits of the color-base register leak into the
+			// pattern-base. See also:
+			//   http://www.youtube.com/watch?v=XJljSJqzDR0
+			base =  (controlRegs[4]         << 11)
+			     | ((controlRegs[3] & 0x1f) <<  6)
+			     | ~(~0u << 6);
+		}
 		vram->patternTable.setMask(base | (vdpLacksMirroring() ? 0x1800 : 0), ~0u << 13, time);
 		break;
 	case 0x08: // Graphic 3.

@@ -116,6 +116,14 @@ public:
 		return version == T6950PAL || version == T6950NTSC;
 	}
 
+	/** Is this a VDP that has pattern/colortable mirroring?
+	 * @return True if this VDP has pattern/colortable mirroring
+	 *   False otherwise.
+	 */
+	inline bool vdpHasPatColMirroring() const {
+		return version == TMS9929A || version == TMS99X8A;
+	}
+
 	/** Does this MSX1 VDP have VRAM remapping when switching from 4k to 8/16k mode?
 	  * @return True if this is an MSX1 VDP with VRAM remapping
 	  *   False otherwise.
@@ -901,7 +909,7 @@ private:
 
 	/** VRAM is read as soon as VRAM pointer changes.
 	  * TODO: Is this actually what happens?
-	  *   On TMS9928 the VRAM interface is the only access method.
+	  *   On TMS9928A the VRAM interface is the only access method.
 	  *   But on V9938/58 there are other ways to access VRAM;
 	  *   I wonder if they are consistent with this implementation.
 	  * This also holds the soon-to-be-written data for CPU-VRAM writes.
