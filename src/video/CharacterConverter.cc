@@ -378,8 +378,8 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 
-	if (vram.colorTable  .isContinuous(quarter8, 8 * 256) &&
-	    vram.patternTable.isContinuous(quarter8, 8 * 256) &&
+	if (vram.colorTable  .isContinuous((8 * 256) - 1) &&
+	    vram.patternTable.isContinuous((8 * 256) - 1) &&
 	    ((scroll & 0x1f) == 0)) {
 		// Both color and pattern table can be accessed contiguously
 		// (no mirroring) and there's no v9958 horizontal scrolling.

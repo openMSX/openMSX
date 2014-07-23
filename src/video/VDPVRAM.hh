@@ -199,6 +199,20 @@ public:
 		return true;
 	}
 
+	/** Alternative version to check whether a region is continuous in
+	  * VRAM. This tests whether all addresses in the range
+	  *    0bCCCCCCCCCCXXXXXXXX (with C constant and X varying)
+	  * are continuous. The input must be a value 1-less-than-a-power-of-2
+	  * (so a binary value containing zeros on the left ones on the right)
+	  * 1-bits in the parameter correspond with 'X' in the pattern above.
+	  * Or IOW it tests an aligned-power-of-2-sized region.
+	  */
+	inline bool isContinuous(unsigned mask) const {
+		assert(isEnabled());
+		assert((mask & ~indexMask)        == mask);
+		return (mask & effectiveBaseMask) == mask;
+	}
+
 	/** Gets a pointer to a contiguous part of the VRAM. The region is
 	  * [index, index + size) inside the current window.
 	  * @param index Index in table
