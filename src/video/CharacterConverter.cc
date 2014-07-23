@@ -15,6 +15,10 @@ TODO:
 #include "components.hh"
 #include <cstdint>
 
+#ifdef __SSE2__
+#include "emmintrin.h" // SSE2
+#endif
+
 namespace openmsx {
 
 template <class Pixel>
@@ -53,6 +57,14 @@ void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 		default: UNREACHABLE;
 	}
 }
+
+#ifdef __SSE2__
+// Copied from Scale2xScaler.cc, TODO move to common location?
+static inline __m128i select(__m128i a0, __m128i a1, __m128i mask)
+{
+	return _mm_xor_si128(_mm_and_si128(_mm_xor_si128(a0, a1), mask), a0);
+}
+#endif
 
 template<typename Pixel> static inline void draw6(
 	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
@@ -166,6 +178,28 @@ template<typename Pixel> static inline void draw8(
 	}
 #endif
 	(void)misAligned; (void)partial;
+
+#ifdef __SSE2__
+	// SSE2 version, 32bpp  (16bpp is possible, but not worth it anymore)
+	if (sizeof(Pixel) == 4) {
+		const __m128i m74 = _mm_set_epi32(0x10, 0x20, 0x40, 0x80);
+		const __m128i m30 = _mm_set_epi32(0x01, 0x02, 0x04, 0x08);
+		const __m128i zero = _mm_setzero_si128();
+
+		__m128i fg4 = _mm_set1_epi32(fg);
+		__m128i bg4 = _mm_set1_epi32(bg);
+		__m128i pat = _mm_set1_epi32(pattern);
+
+		__m128i b74 = _mm_cmpeq_epi32(_mm_and_si128(pat, m74), zero);
+		__m128i b30 = _mm_cmpeq_epi32(_mm_and_si128(pat, m30), zero);
+
+		__m128i* out = reinterpret_cast<__m128i*>(pixelPtr);
+		_mm_storeu_si128(out + 0, select(fg4, bg4, b74));
+		_mm_storeu_si128(out + 1, select(fg4, bg4, b30));
+		pixelPtr += 8;
+		return;
+	}
+#endif
 
 	// C++ version
 	pixelPtr[0] = (pattern & 0x80) ? fg : bg;
