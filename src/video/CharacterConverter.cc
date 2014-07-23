@@ -2,7 +2,6 @@
 TODO:
 - Clean up renderGraphics2, it is currently very hard to understand
   with all the masks and quarters etc.
-- Try using a generic inlined pattern-to-pixels converter.
 - Correctly implement vertical scroll in text modes.
   Can be implemented by reordering blitting, but uses a smaller
   wrap than GFX modes: 8 lines instead of 256 lines.
@@ -53,6 +52,18 @@ void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 		case 11: renderBogus   (linePtr);       break;
 		default: UNREACHABLE;
 	}
+}
+
+template<typename Pixel> static inline void draw6(
+	Pixel* __restrict & pixelPtr, Pixel fg, Pixel bg, byte pattern)
+{
+	pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+	pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+	pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+	pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+	pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+	pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+	pixelPtr += 6;
 }
 
 template<typename Pixel> static inline void draw8(
@@ -187,13 +198,7 @@ void CharacterConverter<Pixel>::renderText1(
 	for (unsigned name = nameStart; name < nameEnd; ++name) {
 		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
 		unsigned pattern = patternArea[charcode * 8];
-		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		pixelPtr += 6;
+		draw6(pixelPtr, fg, bg, pattern);
 	}
 }
 
@@ -217,13 +222,7 @@ void CharacterConverter<Pixel>::renderText1Q(
 		unsigned patternNr = patternQuarter | charcode;
 		unsigned pattern = vram.patternTable.readNP(
 			patternBaseLine | (patternNr * 8));
-		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		pixelPtr += 6;
+		draw6(pixelPtr, fg, bg, pattern);
 	}
 }
 
@@ -254,88 +253,38 @@ void CharacterConverter<Pixel>::renderText2(
 			(colorStart + i) | (~0u << 9));
 		const byte* nameArea = vram.nameTable.getReadArea(
 			(nameStart + 8 * i) | (~0u << 12), 8);
-
-		Pixel fg0 = (colorPattern & 0x80) ? blinkFg : plainFg;
-		Pixel bg0 = (colorPattern & 0x80) ? blinkBg : plainBg;
-		unsigned pattern0 = patternArea[nameArea[0] * 8];
-		pixelPtr[ 0] = (pattern0 & 0x80) ? fg0 : bg0;
-		pixelPtr[ 1] = (pattern0 & 0x40) ? fg0 : bg0;
-		pixelPtr[ 2] = (pattern0 & 0x20) ? fg0 : bg0;
-		pixelPtr[ 3] = (pattern0 & 0x10) ? fg0 : bg0;
-		pixelPtr[ 4] = (pattern0 & 0x08) ? fg0 : bg0;
-		pixelPtr[ 5] = (pattern0 & 0x04) ? fg0 : bg0;
-
-		Pixel fg1 = (colorPattern & 0x40) ? blinkFg : plainFg;
-		Pixel bg1 = (colorPattern & 0x40) ? blinkBg : plainBg;
-		unsigned pattern1 = patternArea[nameArea[1] * 8];
-		pixelPtr[ 6] = (pattern1 & 0x80) ? fg1 : bg1;
-		pixelPtr[ 7] = (pattern1 & 0x40) ? fg1 : bg1;
-		pixelPtr[ 8] = (pattern1 & 0x20) ? fg1 : bg1;
-		pixelPtr[ 9] = (pattern1 & 0x10) ? fg1 : bg1;
-		pixelPtr[10] = (pattern1 & 0x08) ? fg1 : bg1;
-		pixelPtr[11] = (pattern1 & 0x04) ? fg1 : bg1;
-
-		Pixel fg2 = (colorPattern & 0x20) ? blinkFg : plainFg;
-		Pixel bg2 = (colorPattern & 0x20) ? blinkBg : plainBg;
-		unsigned pattern2 = patternArea[nameArea[2] * 8];
-		pixelPtr[12] = (pattern2 & 0x80) ? fg2 : bg2;
-		pixelPtr[13] = (pattern2 & 0x40) ? fg2 : bg2;
-		pixelPtr[14] = (pattern2 & 0x20) ? fg2 : bg2;
-		pixelPtr[15] = (pattern2 & 0x10) ? fg2 : bg2;
-		pixelPtr[16] = (pattern2 & 0x08) ? fg2 : bg2;
-		pixelPtr[17] = (pattern2 & 0x04) ? fg2 : bg2;
-
-		Pixel fg3 = (colorPattern & 0x10) ? blinkFg : plainFg;
-		Pixel bg3 = (colorPattern & 0x10) ? blinkBg : plainBg;
-		unsigned pattern3 = patternArea[nameArea[3] * 8];
-		pixelPtr[18] = (pattern3 & 0x80) ? fg3 : bg3;
-		pixelPtr[19] = (pattern3 & 0x40) ? fg3 : bg3;
-		pixelPtr[20] = (pattern3 & 0x20) ? fg3 : bg3;
-		pixelPtr[21] = (pattern3 & 0x10) ? fg3 : bg3;
-		pixelPtr[22] = (pattern3 & 0x08) ? fg3 : bg3;
-		pixelPtr[23] = (pattern3 & 0x04) ? fg3 : bg3;
-
-		Pixel fg4 = (colorPattern & 0x08) ? blinkFg : plainFg;
-		Pixel bg4 = (colorPattern & 0x08) ? blinkBg : plainBg;
-		unsigned pattern4 = patternArea[nameArea[4] * 8];
-		pixelPtr[24] = (pattern4 & 0x80) ? fg4 : bg4;
-		pixelPtr[25] = (pattern4 & 0x40) ? fg4 : bg4;
-		pixelPtr[26] = (pattern4 & 0x20) ? fg4 : bg4;
-		pixelPtr[27] = (pattern4 & 0x10) ? fg4 : bg4;
-		pixelPtr[28] = (pattern4 & 0x08) ? fg4 : bg4;
-		pixelPtr[29] = (pattern4 & 0x04) ? fg4 : bg4;
-
-		Pixel fg5 = (colorPattern & 0x04) ? blinkFg : plainFg;
-		Pixel bg5 = (colorPattern & 0x04) ? blinkBg : plainBg;
-		unsigned pattern5 = patternArea[nameArea[5] * 8];
-		pixelPtr[30] = (pattern5 & 0x80) ? fg5 : bg5;
-		pixelPtr[31] = (pattern5 & 0x40) ? fg5 : bg5;
-		pixelPtr[32] = (pattern5 & 0x20) ? fg5 : bg5;
-		pixelPtr[33] = (pattern5 & 0x10) ? fg5 : bg5;
-		pixelPtr[34] = (pattern5 & 0x08) ? fg5 : bg5;
-		pixelPtr[35] = (pattern5 & 0x04) ? fg5 : bg5;
-
-		Pixel fg6 = (colorPattern & 0x02) ? blinkFg : plainFg;
-		Pixel bg6 = (colorPattern & 0x02) ? blinkBg : plainBg;
-		unsigned pattern6 = patternArea[nameArea[6] * 8];
-		pixelPtr[36] = (pattern6 & 0x80) ? fg6 : bg6;
-		pixelPtr[37] = (pattern6 & 0x40) ? fg6 : bg6;
-		pixelPtr[38] = (pattern6 & 0x20) ? fg6 : bg6;
-		pixelPtr[39] = (pattern6 & 0x10) ? fg6 : bg6;
-		pixelPtr[40] = (pattern6 & 0x08) ? fg6 : bg6;
-		pixelPtr[41] = (pattern6 & 0x04) ? fg6 : bg6;
-
-		Pixel fg7 = (colorPattern & 0x01) ? blinkFg : plainFg;
-		Pixel bg7 = (colorPattern & 0x01) ? blinkBg : plainBg;
-		unsigned pattern7 = patternArea[nameArea[7] * 8];
-		pixelPtr[42] = (pattern7 & 0x80) ? fg7 : bg7;
-		pixelPtr[43] = (pattern7 & 0x40) ? fg7 : bg7;
-		pixelPtr[44] = (pattern7 & 0x20) ? fg7 : bg7;
-		pixelPtr[45] = (pattern7 & 0x10) ? fg7 : bg7;
-		pixelPtr[46] = (pattern7 & 0x08) ? fg7 : bg7;
-		pixelPtr[47] = (pattern7 & 0x04) ? fg7 : bg7;
-
-		pixelPtr += 48;
+		draw6(pixelPtr,
+		      (colorPattern & 0x80) ? blinkFg : plainFg,
+		      (colorPattern & 0x80) ? blinkBg : plainBg,
+		      patternArea[nameArea[0] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x40) ? blinkFg : plainFg,
+		      (colorPattern & 0x40) ? blinkBg : plainBg,
+		      patternArea[nameArea[1] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x20) ? blinkFg : plainFg,
+		      (colorPattern & 0x20) ? blinkBg : plainBg,
+		      patternArea[nameArea[2] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x10) ? blinkFg : plainFg,
+		      (colorPattern & 0x10) ? blinkBg : plainBg,
+		      patternArea[nameArea[3] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x08) ? blinkFg : plainFg,
+		      (colorPattern & 0x08) ? blinkBg : plainBg,
+		      patternArea[nameArea[4] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x04) ? blinkFg : plainFg,
+		      (colorPattern & 0x04) ? blinkBg : plainBg,
+		      patternArea[nameArea[5] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x02) ? blinkFg : plainFg,
+		      (colorPattern & 0x02) ? blinkBg : plainBg,
+		      patternArea[nameArea[6] * 8]);
+		draw6(pixelPtr,
+		      (colorPattern & 0x01) ? blinkFg : plainFg,
+		      (colorPattern & 0x01) ? blinkBg : plainBg,
+		      patternArea[nameArea[7] * 8]);
 	}
 }
 
