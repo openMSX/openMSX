@@ -373,21 +373,43 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	partial = *pixelPtr;
 #endif
 
-	int quarter = ((line / 8) * 32) & ~0xFF;
-	int baseLine = (~0u << 13) | (quarter * 8) | (line & 7);
-
+	int quarter8 = (((line / 8) * 32) & ~0xFF) * 8;
+	int line7 = line & 7;
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 
-	for (unsigned n = 0; n < 32; ++n) {
-		unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
-		unsigned index = charCode8 | baseLine;
-		unsigned pattern = vram.patternTable.readNP(index);
-		unsigned color = vram.colorTable.readNP(index);
-		Pixel fg = palFg[color >> 4];
-		Pixel bg = palFg[color & 0x0F];
-		draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
-		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
+	if (vram.colorTable  .isContinuous(quarter8, 8 * 256) &&
+	    vram.patternTable.isContinuous(quarter8, 8 * 256) &&
+	    ((scroll & 0x1f) == 0)) {
+		// Both color and pattern table can be accessed contiguously
+		// (no mirroring) and there's no v9958 horizontal scrolling.
+		// This is very common, so make an optimized version for this.
+		const byte* patternArea = vram.patternTable.getReadArea(quarter8, 8 * 256) + line7;
+		const byte* colorArea   = vram.colorTable  .getReadArea(quarter8, 8 * 256) + line7;
+		for (unsigned n = 0; n < 32; ++n) {
+			unsigned charCode8 = namePtr[n] * 8;
+			unsigned pattern = patternArea[charCode8];
+			unsigned color   = colorArea  [charCode8];
+			Pixel fg = palFg[color >> 4];
+			Pixel bg = palFg[color & 0x0F];
+			draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
+		}
+	} else {
+		// Slower variant, also works when:
+		// - there is mirroring in the color table
+		// - there is mirroring in the pattern table (TMS9929)
+		// - V9958 horizontal scroll feature is used
+		int baseLine = (~0u << 13) | quarter8 | line7;
+		for (unsigned n = 0; n < 32; ++n) {
+			unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
+			unsigned index = charCode8 | baseLine;
+			unsigned pattern = vram.patternTable.readNP(index);
+			unsigned color   = vram.colorTable  .readNP(index);
+			Pixel fg = palFg[color >> 4];
+			Pixel bg = palFg[color & 0x0F];
+			draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
+			if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
+		}
 	}
 
 #ifdef __arm__

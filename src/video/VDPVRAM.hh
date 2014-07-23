@@ -187,6 +187,18 @@ public:
 		baseAddr = -1;
 	}
 
+	/** Is the given index range continuous in VRAM (iow there's no mirroring)
+	  * Only if the range is continuous it's allowed to call getReadArea().
+	  */
+	inline bool isContinuous(unsigned index, unsigned size) const {
+		assert(isEnabled());
+		unsigned endIndex = index + size - 1;
+		unsigned areaBits = Math::floodRight(index ^ endIndex);
+		if ((areaBits & effectiveBaseMask) != areaBits) return false;
+		if ((areaBits & ~indexMask)        != areaBits) return false;
+		return true;
+	}
+
 	/** Gets a pointer to a contiguous part of the VRAM. The region is
 	  * [index, index + size) inside the current window.
 	  * @param index Index in table
@@ -194,12 +206,7 @@ public:
 	  *             requested block is not too large.
 	  */
 	inline const byte* getReadArea(unsigned index, unsigned size) const {
-		unsigned endIndex = index + size - 1;
-		unsigned areaBits = Math::floodRight(index ^ endIndex);
-		(void)areaBits;
-		assert((areaBits & effectiveBaseMask) == areaBits);
-		assert((areaBits & ~indexMask)        == areaBits);
-		assert(isEnabled());
+		assert(isContinuous(index, size)); (void)size;
 		return &data[effectiveBaseMask & (indexMask | index)];
 	}
 
