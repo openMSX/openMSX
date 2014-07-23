@@ -351,6 +351,13 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* __restrict pixelPtr, int line)
 {
+	bool misAligned; uint32_t partial;
+#ifdef __arm__
+	misAligned = sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
+	if (misAligned) pixelPtr--;
+	partial = *pixelPtr;
+#endif
+
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += line & 7;
 	const byte* colorArea = vram.colorTable.getReadArea(0, 256 / 8);
@@ -359,22 +366,17 @@ void CharacterConverter<Pixel>::renderGraphic1(
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (unsigned n = 0; n < 32; ++n) {
 		unsigned charcode = namePtr[scroll & 0x1F];
+		unsigned pattern = patternArea[charcode * 8];
 		unsigned color = colorArea[charcode / 8];
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
-
-		unsigned pattern = patternArea[charcode * 8];
-		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		pixelPtr[6] = (pattern & 0x02) ? fg : bg;
-		pixelPtr[7] = (pattern & 0x01) ? fg : bg;
-		pixelPtr += 8;
+		draw8(pixelPtr, fg, bg, pattern, misAligned, partial);
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
+
+#ifdef __arm__
+	if (misAligned) *pixelPtr = static_cast<Pixel>(partial);
+#endif
 }
 
 template <class Pixel>
