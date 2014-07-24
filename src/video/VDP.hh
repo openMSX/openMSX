@@ -945,7 +945,8 @@ private:
 	  * is printed.  */
 	bool warningPrinted;
 
-	/** Cached version of tooFastAccess setting. */
+	/** Cached version of cmdTiming/tooFastAccess setting. */
+	bool brokenCmdTiming;
 	bool allowTooFastAccess;
 };
 SERIALIZE_CLASS_VERSION(VDP, 6);

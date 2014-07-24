@@ -318,15 +318,17 @@ VDP::VDP(const DeviceConfig& config)
 	// Reset state.
 	powerUp(time);
 
-	display.attach(*this);
+	display      .attach(*this);
+	cmdTiming    .attach(*this);
 	tooFastAccess.attach(*this);
-	update(tooFastAccess);
+	update(tooFastAccess); // handles both cmdTiming and tooFastAccess
 }
 
 VDP::~VDP()
 {
 	tooFastAccess.detach(*this);
-	display.detach(*this);
+	cmdTiming    .detach(*this);
+	display      .detach(*this);
 }
 
 void VDP::preVideoSystemChange()
@@ -918,9 +920,8 @@ EmuTime VDP::getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) con
 {
 	bool display = isDisplayEnabled();
 	bool sprites = (controlRegs[8] & 2) == 0;
-	bool broken  = cmdTiming.getEnum();
 	return VDPAccessSlots::getAccessSlot(
-		getFrameStartTime(), time, delta, display, sprites, broken);
+		getFrameStartTime(), time, delta, display, sprites, brokenCmdTiming);
 }
 
 VDPAccessSlots::Calculator VDP::getAccessSlotCalculator(
@@ -928,9 +929,8 @@ VDPAccessSlots::Calculator VDP::getAccessSlotCalculator(
 {
 	bool display = isDisplayEnabled();
 	bool sprites = (controlRegs[8] & 2) == 0;
-	bool broken  = cmdTiming.getEnum();
 	return VDPAccessSlots::getCalculator(
-		getFrameStartTime(), time, limit, display, sprites, broken);
+		getFrameStartTime(), time, limit, display, sprites, brokenCmdTiming);
 }
 
 byte VDP::peekStatusReg(byte reg, EmuTime::param time) const
@@ -1452,7 +1452,10 @@ void VDP::setExternalVideoSource(const RawFrame* externalSource)
 
 void VDP::update(const Setting& setting)
 {
-	assert(&setting == &tooFastAccess); (void)setting;
+	assert((&setting == &cmdTiming) ||
+	       (&setting == &tooFastAccess));
+	(void)setting;
+	brokenCmdTiming    = cmdTiming    .getEnum();
 	allowTooFastAccess = tooFastAccess.getEnum();
 }
 
