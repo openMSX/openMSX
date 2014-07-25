@@ -44,6 +44,9 @@ public:
 	virtual void setDisplayMode(DisplayMode mode);
 	virtual void setPalette(int index, int grb);
 	virtual void setBackgroundColor(int index);
+	virtual void setHorizontalAdjust(int adjust);
+	virtual void setHorizontalScrollLow(byte scroll);
+	virtual void setBorderMask(bool masked);
 	virtual void setTransparency(bool enabled);
 	virtual void setSuperimposeVideoFrame(const RawFrame* videoSource);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);

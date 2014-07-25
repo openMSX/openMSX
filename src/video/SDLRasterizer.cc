@@ -208,8 +208,25 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 template <class Pixel>
 void SDLRasterizer<Pixel>::setBackgroundColor(int index)
 {
-	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
-	                   vdp.isSuperimposing(), index);
+	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
+		precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
+				   vdp.isSuperimposing(), index);
+	}
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::setHorizontalAdjust(int /*adjust*/)
+{
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::setHorizontalScrollLow(byte /*scroll*/)
+{
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::setBorderMask(bool /*masked*/)
+{
 }
 
 template <class Pixel>

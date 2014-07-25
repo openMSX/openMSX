@@ -237,26 +237,28 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 }
 
 void PixelRenderer::updateHorizontalScrollLow(
-	byte /*scroll*/, EmuTime::param time
-) {
+	byte scroll, EmuTime::param time)
+{
 	if (displayEnabled) sync(time);
+	rasterizer->setHorizontalScrollLow(scroll);
 }
 
 void PixelRenderer::updateHorizontalScrollHigh(
-	byte /*scroll*/, EmuTime::param time
-) {
+	byte /*scroll*/, EmuTime::param time)
+{
 	if (displayEnabled) sync(time);
 }
 
 void PixelRenderer::updateBorderMask(
-	bool /*masked*/, EmuTime::param time
-) {
+	bool masked, EmuTime::param time)
+{
 	if (displayEnabled) sync(time);
+	rasterizer->setBorderMask(masked);
 }
 
 void PixelRenderer::updateMultiPage(
-	bool /*multiPage*/, EmuTime::param time
-) {
+	bool /*multiPage*/, EmuTime::param time)
+{
 	if (displayEnabled) sync(time);
 }
 
@@ -284,9 +286,7 @@ void PixelRenderer::updateBackgroundColor(
 	int color, EmuTime::param time)
 {
 	sync(time);
-	if (vdp.getDisplayMode().getByte() != DisplayMode::GRAPHIC7) {
-		rasterizer->setBackgroundColor(color);
-	}
+	rasterizer->setBackgroundColor(color);
 }
 
 void PixelRenderer::updateBlinkForegroundColor(
@@ -340,9 +340,10 @@ void PixelRenderer::updateVerticalScroll(
 }
 
 void PixelRenderer::updateHorizontalAdjust(
-	int /*adjust*/, EmuTime::param time)
+	int adjust, EmuTime::param time)
 {
 	if (displayEnabled) sync(time);
+	rasterizer->setHorizontalAdjust(adjust);
 }
 
 void PixelRenderer::updateDisplayMode(
