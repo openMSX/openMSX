@@ -426,6 +426,13 @@ public:
 			getTicksThisFrame(time) <= getTicksPerFrame();
 	}
 
+	/** This is a combination of the (horizontal) set adjust register and
+	  * the YJK-mode bit.
+	  */
+	inline int getHorizontalAdjust() const {
+		return horizontalAdjust;
+	}
+
 	/** Gets the number of VDP clockticks between start of line and the start
 	  * of the sprite plane.
 	  * The location of the sprite plane is not influenced by horizontal scroll

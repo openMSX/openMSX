@@ -3,9 +3,23 @@
 
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
+#include "openmsx.hh"
+#include <bitset>
 #include <cassert>
 
 namespace openmsx {
+
+// Used by SDLRasterizer to implement left/right border drawing optimization.
+struct V9958RasterizerBorderInfo
+{
+	V9958RasterizerBorderInfo()
+		: mode(0xff) {} // invalid mode
+	uint32_t color0, color1;
+	byte mode, adjust, scroll;
+	bool masked;
+	std::bitset<240> line;
+};
+
 
 /** A video frame as output by the VDP scanline conversion unit,
   * before any postprocessing filters are applied.
@@ -41,6 +55,10 @@ public:
 
 	virtual unsigned getRowLength() const;
 
+	// RawFrame is mostly agnostic of the border info struct. The only
+	// thing it does is store the information and give access to it.
+	V9958RasterizerBorderInfo& getBorderInfo() { return borderInfo; }
+
 protected:
 	virtual unsigned getLineWidth(unsigned line) const;
 	virtual const void* getLineInfo(
@@ -53,6 +71,8 @@ private:
 	MemBuffer<unsigned> lineWidths;
 	unsigned maxWidth;
 	unsigned pitch;
+
+	V9958RasterizerBorderInfo borderInfo;
 };
 
 } // namespace openmsx

@@ -88,6 +88,12 @@ private:
 	void precalcColorIndex0(DisplayMode mode, bool transparency,
 	                        const RawFrame* superimposing, byte bgcolorIndex);
 
+	// Some of the border-related settings changed.
+	void borderSettingChanged();
+
+	// Get the border color(s). These are 16bpp or 32bpp host pixels.
+	void getBorderColors(Pixel& border0, Pixel& border1);
+
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
@@ -159,6 +165,15 @@ private:
 	/** Host colors corresponding to each possible V9958 color.
 	  */
 	Pixel V9958_COLORS[32768];
+
+	// True iff left/right border optimization can (still) be applied
+	// this frame.
+	bool canSkipLeftRightBorders;
+
+	// True iff some of the left/right border related settings changed
+	// during this frame (meaning the border pixels of this frame cannot
+	// be reused for future frames).
+	bool mixedLeftRightBorders;
 };
 
 } // namespace openmsx

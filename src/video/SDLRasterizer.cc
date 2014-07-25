@@ -168,12 +168,57 @@ void SDLRasterizer<Pixel>::frameStart(EmuTime::param time)
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
+
+
+	// We haven't drawn any left/right borders yet this frame, thus so far
+	// all is still consistent (same settings for all left/right borders).
+	mixedLeftRightBorders = false;
+
+	auto& borderInfo = workFrame->getBorderInfo();
+	Pixel color0, color1;
+	getBorderColors(color0, color1);
+	canSkipLeftRightBorders =
+		(borderInfo.mode   == vdp.getDisplayMode().getByte()) &&
+		(borderInfo.color0 == color0)                         &&
+		(borderInfo.color1 == color1)                         &&
+		(borderInfo.adjust == vdp.getHorizontalAdjust())      &&
+		(borderInfo.scroll == vdp.getHorizontalScrollLow())   &&
+		(borderInfo.masked == vdp.isBorderMasked());
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::frameEnd()
 {
-	// Nothing to do.
+	auto& borderInfo = workFrame->getBorderInfo();
+	if (mixedLeftRightBorders) {
+		// This frame contains left/right borders drawn with different
+		// settings. So don't use it as a starting point for future
+		// border drawing optimizations.
+		borderInfo.mode = 0xff; // invalid mode, other fields don't matter
+	} else {
+		// All left/right borders in this frame are uniform (drawn with
+		// the same settings). If in a later frame the border-related
+		// settings are still the same, we can skip drawing borders.
+		Pixel color0, color1;
+		getBorderColors(color0, color1);
+		borderInfo.mode   = vdp.getDisplayMode().getByte();
+		borderInfo.color0 = color0;
+		borderInfo.color1 = color1;
+		borderInfo.adjust = vdp.getHorizontalAdjust();
+		borderInfo.scroll = vdp.getHorizontalScrollLow();
+		borderInfo.masked = vdp.isBorderMasked();
+	}
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::borderSettingChanged()
+{
+	// Can no longer use the skip-border drawing optimization this frame.
+	canSkipLeftRightBorders = false;
+
+	// Cannot use this frame as a starting point for future skip-border
+	// optimizations.
+	mixedLeftRightBorders = true;
 }
 
 template <class Pixel>
@@ -189,6 +234,8 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 	spriteConverter->setDisplayMode(mode);
 	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7
 	                            ? palGraphic7Sprites : palBg);
+
+	borderSettingChanged();
 }
 
 template <class Pixel>
@@ -203,6 +250,7 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 
 	precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                   vdp.isSuperimposing(), vdp.getBackgroundColor());
+	borderSettingChanged();
 }
 
 template <class Pixel>
@@ -212,21 +260,25 @@ void SDLRasterizer<Pixel>::setBackgroundColor(int index)
 		precalcColorIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 				   vdp.isSuperimposing(), index);
 	}
+	borderSettingChanged();
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setHorizontalAdjust(int /*adjust*/)
 {
+	borderSettingChanged();
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setHorizontalScrollLow(byte /*scroll*/)
 {
+	borderSettingChanged();
 }
 
 template <class Pixel>
 void SDLRasterizer<Pixel>::setBorderMask(bool /*masked*/)
 {
+	borderSettingChanged();
 }
 
 template <class Pixel>
@@ -376,13 +428,11 @@ void SDLRasterizer<Pixel>::precalcColorIndex0(DisplayMode mode,
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::drawBorder(
-	int fromX, int fromY, int limitX, int limitY)
+void SDLRasterizer<Pixel>::getBorderColors(Pixel& border0, Pixel& border1)
 {
 	DisplayMode mode = vdp.getDisplayMode();
 	byte modeBase = mode.getBase();
 	int bgColor = vdp.getBackgroundColor();
-	Pixel border0, border1;
 	if (modeBase == DisplayMode::GRAPHIC5) {
 		// border in SCREEN6 has separate color for even and odd pixels.
 		// TODO odd/even swapped?
@@ -397,22 +447,34 @@ void SDLRasterizer<Pixel>::drawBorder(
 			border0 = border1 = palBg[bgColor];
 		}
 	}
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::drawBorder(
+	int fromX, int fromY, int limitX, int limitY)
+{
+	Pixel border0, border1;
+	getBorderColors(border0, border1);
 
 	int startY = std::max(fromY - lineRenderTop, 0);
 	int endY = std::min(limitY - lineRenderTop, 240);
+	auto& borderInfo = workFrame->getBorderInfo();
 	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE) &&
 	    (border0 == border1)) {
 		// complete lines, non striped
 		for (int y = startY; y < endY; y++) {
 			workFrame->setBlank(y, border0);
+			borderInfo.line[y] = false; // no valid left/right border info
 		}
 	} else {
-		unsigned lineWidth = mode.getLineWidth();
+		unsigned lineWidth = vdp.getDisplayMode().getLineWidth();
 		unsigned x = translateX(fromX, (lineWidth == 512));
 		unsigned num = translateX(limitX, (lineWidth == 512)) - x;
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel> memset;
 		for (int y = startY; y < endY; ++y) {
+			if (canSkipLeftRightBorders && borderInfo.line[y]) continue;
+			if (limitX == VDP::TICKS_PER_LINE) borderInfo.line[y] = true;
 			memset(workFrame->getLinePtrDirect<Pixel>(y) + x,
 			       num, border0, border1);
 			workFrame->setLineWidth(y, width);
