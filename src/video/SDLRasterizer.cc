@@ -458,13 +458,14 @@ void SDLRasterizer<Pixel>::drawBorder(
 
 	int startY = std::max(fromY - lineRenderTop, 0);
 	int endY = std::min(limitY - lineRenderTop, 240);
-	auto& borderInfo = workFrame->getBorderInfo();
 	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE) &&
 	    (border0 == border1)) {
 		// complete lines, non striped
 		for (int y = startY; y < endY; y++) {
 			workFrame->setBlank(y, border0);
-			borderInfo.line[y] = false; // no valid left/right border info
+			// setBlank() implies this line is not suitable
+			// for left/right border optimization in a later
+			// frame.
 		}
 	} else {
 		unsigned lineWidth = vdp.getDisplayMode().getLineWidth();
@@ -473,11 +474,20 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel> memset;
 		for (int y = startY; y < endY; ++y) {
-			if (canSkipLeftRightBorders && borderInfo.line[y]) continue;
-			if (limitX == VDP::TICKS_PER_LINE) borderInfo.line[y] = true;
+			// workFrame->linewidth != 1 means the line has
+			// left/right borders.
+			if (canSkipLeftRightBorders &&
+			    (workFrame->getLineWidthDirect(y) != 1)) continue;
 			memset(workFrame->getLinePtrDirect<Pixel>(y) + x,
 			       num, border0, border1);
-			workFrame->setLineWidth(y, width);
+			if (limitX == VDP::TICKS_PER_LINE) {
+				// Only set line width at the end (right
+				// border) of the line. This ensures we can
+				// keep testing the width of the previous
+				// version of this line for all (partial)
+				// updates of this line.
+				workFrame->setLineWidth(y, width);
+			}
 		}
 	}
 }
@@ -488,6 +498,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
+	// Note: we don't call workFrame->setLineWidth() because that's done in
+	// drawBorder() (for the right border). And the value we set there is
+	// anyway the same as the one we would set here.
 	DisplayMode mode = vdp.getDisplayMode();
 	unsigned lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
@@ -580,7 +593,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				       buf + x,
 				       (displayWidth - firstPageWidth) * sizeof(Pixel));
 			}
-			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 
 			displayY = (displayY + 1) & 255;
 		}
@@ -600,7 +612,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				memcpy(dst, src, displayWidth * sizeof(Pixel));
 			}
 
-			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 			displayY = (displayY + 1) & 255;
 		}
 	}

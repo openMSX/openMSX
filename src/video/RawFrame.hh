@@ -4,7 +4,6 @@
 #include "FrameSource.hh"
 #include "MemBuffer.hh"
 #include "openmsx.hh"
-#include <bitset>
 #include <cassert>
 
 namespace openmsx {
@@ -17,7 +16,6 @@ struct V9958RasterizerBorderInfo
 	uint32_t color0, color1;
 	byte mode, adjust, scroll;
 	bool masked;
-	std::bitset<240> line;
 };
 
 

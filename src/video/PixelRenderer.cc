@@ -582,18 +582,20 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 			vdp.isBorderMasked() ? borderL : vdp.getLeftBackground();
 		int borderR = vdp.getRightBorder();
 
+		// It's important that right border is drawn last (after left
+		// border and display area). See comment in SDLRasterizer::drawBorder().
 		// Left border.
 		subdivide(nextX, nextY, limitX, limitY,
-			0, displayL, DRAW_BORDER );
+			0, displayL, DRAW_BORDER);
 		// Display area.
 		subdivide(nextX, nextY, limitX, limitY,
-			displayL, borderR, DRAW_DISPLAY );
+			displayL, borderR, DRAW_DISPLAY);
 		// Right border.
 		subdivide(nextX, nextY, limitX, limitY,
-			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER );
+			borderR, VDP::TICKS_PER_LINE, DRAW_BORDER);
 	} else {
 		subdivide(nextX, nextY, limitX, limitY,
-			0, VDP::TICKS_PER_LINE, DRAW_BORDER );
+			0, VDP::TICKS_PER_LINE, DRAW_BORDER);
 	}
 
 	nextX = limitX;
