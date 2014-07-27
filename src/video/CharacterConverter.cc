@@ -240,23 +240,27 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
-	Pixel fg = palFg[vdp.getForegroundColor()];
-	Pixel bg = palFg[vdp.getBackgroundColor()];
+	if (vdp.isMSX1VDP()) {
+		Pixel fg = palFg[vdp.getForegroundColor()];
+		Pixel bg = palFg[vdp.getBackgroundColor()];
 
-	unsigned patternBaseLine = (~0u << 13) | ((line + vdp.getVerticalScroll()) & 7);
+		unsigned patternBaseLine = (~0u << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
-	// Note: Because line width is not a power of two, reading an entire line
-	//       from a VRAM pointer returned by readArea will not wrap the index
-	//       correctly. Therefore we read one character at a time.
-	unsigned nameStart = (line / 8) * 40;
-	unsigned nameEnd = nameStart + 40;
-	unsigned patternQuarter = (line & 0xC0) << 2;
-	for (unsigned name = nameStart; name < nameEnd; ++name) {
-		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
-		unsigned patternNr = patternQuarter | charcode;
-		unsigned pattern = vram.patternTable.readNP(
-			patternBaseLine | (patternNr * 8));
-		draw6(pixelPtr, fg, bg, pattern);
+		// Note: Because line width is not a power of two, reading an entire line
+		//       from a VRAM pointer returned by readArea will not wrap the index
+		//       correctly. Therefore we read one character at a time.
+		unsigned nameStart = (line / 8) * 40;
+		unsigned nameEnd = nameStart + 40;
+		unsigned patternQuarter = (line & 0xC0) << 2;
+		for (unsigned name = nameStart; name < nameEnd; ++name) {
+			unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
+			unsigned patternNr = patternQuarter | charcode;
+			unsigned pattern = vram.patternTable.readNP(
+				patternBaseLine | (patternNr * 8));
+			draw6(pixelPtr, fg, bg, pattern);
+		}
+	} else {
+		renderBlank(pixelPtr);
 	}
 }
 
@@ -450,23 +454,40 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* __restrict pixelPtr, int line)
 {
-	int mask = (~0u << 13);
-	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
-	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
+	if (vdp.isMSX1VDP()) {
+		int mask = (~0u << 13);
+		int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
+		renderMultiHelper(pixelPtr, line, mask, patternQuarter);
+	} else {
+		renderBlank(pixelPtr);
+	}
 }
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr)
 {
-	Pixel fg = palFg[vdp.getForegroundColor()];
-	Pixel bg = palFg[vdp.getBackgroundColor()];
-	for (int n = 8; n--; ) *pixelPtr++ = bg;
-	for (int c = 20; c--; ) {
-		for (int n = 4; n--; ) *pixelPtr++ = fg;
-		for (int n = 2; n--; ) *pixelPtr++ = bg;
+	if (vdp.isMSX1VDP()) {
+		Pixel fg = palFg[vdp.getForegroundColor()];
+		Pixel bg = palFg[vdp.getBackgroundColor()];
+		for (int n = 8; n--; ) *pixelPtr++ = bg;
+		for (int c = 20; c--; ) {
+			for (int n = 4; n--; ) *pixelPtr++ = fg;
+			for (int n = 2; n--; ) *pixelPtr++ = bg;
+		}
+		for (int n = 8; n--; ) *pixelPtr++ = bg;
+	} else {
+		renderBlank(pixelPtr);
 	}
-	for (int n = 8; n--; ) *pixelPtr++ = bg;
+}
+
+template <class Pixel>
+void CharacterConverter<Pixel>::renderBlank(
+	Pixel* __restrict pixelPtr)
+{
+	// when this is in effect, the VRAM is not refreshed anymore, but that
+	// is not emulated
+	for (int n = 256; n--; ) *pixelPtr++ = palFg[15];
 }
 
 // Force template instantiation.

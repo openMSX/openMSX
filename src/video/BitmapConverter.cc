@@ -365,14 +365,14 @@ void BitmapConverter<Pixel>::renderYAE(
 	}
 }
 
-// TODO: Check what happens on real V9938.
 template <class Pixel>
 void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
-	Pixel color = palette16[0];
-	for (unsigned i = 0; i < 256; ++i) {
-		pixelPtr[i] = color;
-	}
+	// when this is in effect, the VRAM is not refreshed anymore, but that
+	// is not emulated
+	// TODO: test if it's palette16 for all bogus modes, could also be that
+	// the other palettes are used in some bogus modes
+	for (int n = 256; n--; ) *pixelPtr++ = palette16[15];
 }
 
 // Force template instantiation.

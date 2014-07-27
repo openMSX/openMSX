@@ -50,6 +50,7 @@ private:
 	inline void renderMulti   (Pixel* pixelPtr, int line);
 	inline void renderMultiQ  (Pixel* pixelPtr, int line);
 	inline void renderBogus   (Pixel* pixelPtr);
+	inline void renderBlank   (Pixel* pixelPtr);
 	inline void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
