@@ -97,54 +97,49 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version == TMS99X8A || version == TMS9929A || version == T6950PAL || version == T6950NTSC || version == TMS91X8 || version == TMS9129 || version == T7937APAL || version == T7937ANTSC;
+		return version & VM_MSX1;
 	}
 
 	/** Is this a MSX1 VDP with PAL?
-	  * @return True if this is an MSX1 VDP with PAL
-	  *   False otherwise.
+	  * @return True iff this is an MSX1 VDP with PAL
 	  */
 	inline bool isMSX1VDPwithPAL() const {
-		return version == TMS9929A || version == TMS9129 || version == T6950PAL || version == T7937APAL;
+		return version & (VM_MSX1 | VM_PAL);
 	}
 
 	/** Is this a VDP that lacks mirroring?
-	  * @return True if this VDP lacks the screen 2 mirrored mode
-	  *   False otherwise.
+	  * @return True iff this VDP lacks the screen 2 mirrored mode
 	  */
 	inline bool vdpLacksMirroring() const {
-		return version == T6950PAL || version == T6950NTSC;
+		return version & VM_NO_MIRRORING;
 	}
 
 	/** Is this a VDP that has pattern/colortable mirroring?
-	 * @return True if this VDP has pattern/colortable mirroring
-	 *   False otherwise.
+	 * @return True iff this VDP has pattern/colortable mirroring
 	 */
 	inline bool vdpHasPatColMirroring() const {
-		return version == TMS9929A || version == TMS99X8A;
+		return version & VM_PALCOL_MIRRORING;
 	}
 
 	/** Does this MSX1 VDP have VRAM remapping when switching from 4k to 8/16k mode?
-	  * @return True if this is an MSX1 VDP with VRAM remapping
-	  *   False otherwise.
+	  * @return True iff this is an MSX1 VDP with VRAM remapping
 	  */
 	inline bool isMSX1VDPwithVRAMremapping() const {
-		return version == TMS9929A || version == TMS99X8A;
+		return version & (VM_MSX1 | VM_VRAM_REMAPPING);
 	}
 
 	/** Is this a VDP with a Toshiba palette?
-	  * @return True if this VDP has the Toshiba palette
-	  *   False otherwise.
+	  * @return True iff this VDP has the Toshiba palette
 	  */
 	inline bool hasToshibaPalette() const {
-		return version == T6950PAL || version == T6950NTSC || version == T7937APAL || version == T7937ANTSC;
+		return version & VM_TOSHIBA_PALETTE;
 	}
 
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
 	inline bool hasYJK() const {
-		return version == V9958;
+		return version & VM_YJK;
 	}
 
 	/** Get the display mode the VDP is in.
@@ -527,30 +522,49 @@ public:
 private:
 	void initTables();
 
-	/** VDP version: the VDP model being emulated.
-	  */
+	// VdpVersion bitmasks
+	static const unsigned VM_MSX1             =  1; // set-> MSX1,       unset-> MSX2 or MSX2+
+	static const unsigned VM_PAL              =  2; // set-> fixed PAL,  unset-> fixed NTSC or switchable
+	static const unsigned VM_NO_MIRRORING     =  4; // set-> no (screen2) mirroring
+	static const unsigned VM_PALCOL_MIRRORING =  8; // set-> pattern/color-table mirroring
+	static const unsigned VM_VRAM_REMAPPING   = 16; // set-> 4k,8/16k VRAM remapping
+	static const unsigned VM_TOSHIBA_PALETTE  = 32; // set-> has Toshiba palette
+	static const unsigned VM_YJK              = 64; // set-> has YJK (MSX2+)
+
+	/** VDP version: the VDP model being emulated. */
 	enum VdpVersion {
 		/** MSX1 VDP, NTSC version.
 		  * TMS9918A has NTSC encoding built in,
 		  * while TMS9928A has color difference output;
-		  * in emulation there is no difference.
-		  */
-		TMS99X8A,
-		T6950PAL,   // Toshiba clone (hardwired as PAL)
-		T6950NTSC,  // Toshiba clone (hardwired as NTSC)
-		T7937APAL,  // VDP in Toshiba T7937A engine (hardwired as PAL)
-		T7937ANTSC, // VDP in Toshiba T7937A engine (hardwired as NTSC)
-		TMS91X8,    // newer variant NTSC
-		/** MSX1 VDP, PAL version.
-		  */
-		TMS9929A,
-		TMS9129,    // newer variant PAL
-		/** MSX2 VDP.
-		  */
-		V9938,
-		/** MSX2+ and turbo R VDP.
-		  */
-		V9958
+		  * in emulation there is no difference. */
+		TMS99X8A   = VM_MSX1 | VM_PALCOL_MIRRORING | VM_VRAM_REMAPPING,
+
+		/** MSX1 VDP, PAL version. */
+		TMS9929A   = VM_MSX1 | VM_PALCOL_MIRRORING | VM_VRAM_REMAPPING | VM_PAL,
+
+		/** newer variant PAL. */
+		TMS9129    = VM_MSX1 | VM_PAL,
+
+		/** newer variant NTSC. */
+		TMS91X8    = VM_MSX1,
+
+		/** Toshiba clone (hardwired as PAL). */
+		T6950PAL   = VM_MSX1 | VM_TOSHIBA_PALETTE | VM_NO_MIRRORING | VM_PAL,
+
+		/** Toshiba clone (hardwired as NTSC). */
+		T6950NTSC  = VM_MSX1 | VM_TOSHIBA_PALETTE | VM_NO_MIRRORING,
+
+		/** VDP in Toshiba T7937A engine (hardwired as PAL). */
+		T7937APAL  = VM_MSX1 | VM_TOSHIBA_PALETTE | VM_PAL,
+
+		/** VDP in Toshiba T7937A engine (hardwired as NTSC). */
+		T7937ANTSC = VM_MSX1 | VM_TOSHIBA_PALETTE,
+
+		/** MSX2 VDP. */
+		V9938      = 0,
+
+		/** MSX2+ and turbo R VDP. */
+		V9958      = VM_YJK,
 	};
 
 	/** Types of VDP sync points that can be scheduled.
