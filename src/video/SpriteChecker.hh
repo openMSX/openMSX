@@ -251,7 +251,7 @@ private:
 	/** Calculate 'updateSpritesMethod' and 'planar'.
 	  */
 	inline void setDisplayMode(DisplayMode mode) {
-		switch (mode.getSpriteMode()) {
+		switch (mode.getSpriteMode(vdp.isMSX1VDP())) {
 		case 0:
 			updateSpritesMethod = nullptr;
 			break;

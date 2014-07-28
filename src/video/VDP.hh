@@ -255,7 +255,8 @@ public:
 	  *   sprites and sprites are not disabled.
 	  */
 	inline bool spritesEnabled() const {
-		return displayEnabled && !displayMode.isTextMode() &&
+		return displayEnabled &&
+		       (displayMode.getSpriteMode(isMSX1VDP()) != 0) &&
 		       ((controlRegs[8] & 0x02) == 0x00);
 	}
 
@@ -263,7 +264,7 @@ public:
 	  * mode 1 or 2. Is a tiny bit faster.
 	  */
 	inline bool spritesEnabledFast() const {
-		assert(!displayMode.isTextMode());
+		assert(displayMode.getSpriteMode(isMSX1VDP()) != 0);
 		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
 	}
 

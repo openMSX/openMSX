@@ -173,8 +173,22 @@ public:
 	  *     1 means sprite mode 1 (MSX1 display modes),
 	  *     2 means sprite mode 2 (MSX2 display modes).
 	  */
-	inline int getSpriteMode() const {
-		return isTextMode() ? 0 : (isV9938Mode() ? 2 : 1);
+	inline int getSpriteMode(bool isMSX1) const {
+		switch (getBase()) {
+		case GRAPHIC1: case MULTICOLOR: case GRAPHIC2:
+			return 1;
+		case MULTIQ: // depends on VDP type
+			return isMSX1 ? 1 : 0;
+		case GRAPHIC3: case GRAPHIC4: case GRAPHIC5:
+		case GRAPHIC6: case GRAPHIC7:
+			return 2;
+		case TEXT1: case TEXT1Q: case TEXT2:
+		default: // and all other (bogus) modes
+			// Verified on real V9958: none of the bogus modes
+			// show sprites.
+			// TODO check on TMSxxxx
+			return 0;
+		}
 	}
 
 	/** Get number of pixels on a display line in this mode.

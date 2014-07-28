@@ -1376,7 +1376,7 @@ void VDP::updatePatternBase(EmuTime::param time)
 
 void VDP::updateSpriteAttributeBase(EmuTime::param time)
 {
-	int mode = displayMode.getSpriteMode();
+	int mode = displayMode.getSpriteMode(isMSX1VDP());
 	if (mode == 0) {
 		vram->spriteAttribTable.disable(time);
 		return;
@@ -1392,7 +1392,7 @@ void VDP::updateSpriteAttributeBase(EmuTime::param time)
 
 void VDP::updateSpritePatternBase(EmuTime::param time)
 {
-	if (displayMode.getSpriteMode() == 0) {
+	if (displayMode.getSpriteMode(isMSX1VDP()) == 0) {
 		vram->spritePatternTable.disable(time);
 		return;
 	}
@@ -1419,8 +1419,9 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 	bool planarChange =
 		newMode.isPlanar() != displayMode.isPlanar();
 	// Sprite mode changed.
+	bool msx1 = isMSX1VDP();
 	bool spriteModeChange =
-		newMode.getSpriteMode() != displayMode.getSpriteMode();
+		newMode.getSpriteMode(msx1) != displayMode.getSpriteMode(msx1);
 
 	// Commit the new display mode.
 	displayMode = newMode;
