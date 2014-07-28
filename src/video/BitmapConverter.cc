@@ -40,28 +40,33 @@ template <class Pixel>
 void BitmapConverter<Pixel>::convertLine(
 	Pixel* linePtr, const byte* vramPtr)
 {
-	// TODO: Support YJK on modes other than Graphic 6/7.
 	switch (mode.getByte()) {
-		case DisplayMode::GRAPHIC4:
-		case DisplayMode::GRAPHIC4 | DisplayMode::YAE:
-			renderGraphic4(linePtr, vramPtr);
-			break;
-		case DisplayMode::GRAPHIC5:
-		case DisplayMode::GRAPHIC5 | DisplayMode::YAE:
-			renderGraphic5(linePtr, vramPtr);
-			break;
-		case DisplayMode::GRAPHIC6:
-		case DisplayMode::GRAPHIC6 | DisplayMode::YAE:
-		case DisplayMode::GRAPHIC7:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YAE:
-		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
-		case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
-			UNREACHABLE;
-		default:
-			renderBogus(linePtr);
-			break;
+	case DisplayMode::GRAPHIC4: // screen 5
+	case DisplayMode::GRAPHIC4 | DisplayMode::YAE:
+		renderGraphic4(linePtr, vramPtr);
+		break;
+	case DisplayMode::GRAPHIC5: // screen 6
+	case DisplayMode::GRAPHIC5 | DisplayMode::YAE:
+		renderGraphic5(linePtr, vramPtr);
+		break;
+	// These are handled in convertLinePlanar().
+	case DisplayMode::GRAPHIC6:
+	case DisplayMode::GRAPHIC7:
+	case DisplayMode::GRAPHIC6 |                    DisplayMode::YAE:
+	case DisplayMode::GRAPHIC7 |                    DisplayMode::YAE:
+	case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
+	case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
+		UNREACHABLE;
+	// TODO: Support YJK on modes other than Graphic 6/7.
+	case DisplayMode::GRAPHIC4 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC5 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC4 | DisplayMode::YJK | DisplayMode::YAE:
+	case DisplayMode::GRAPHIC5 | DisplayMode::YJK | DisplayMode::YAE:
+	default:
+		renderBogus(linePtr);
+		break;
 	}
 }
 
@@ -70,30 +75,35 @@ void BitmapConverter<Pixel>::convertLinePlanar(
 	Pixel* linePtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	switch (mode.getByte()) {
-		case DisplayMode::GRAPHIC6:
-		case DisplayMode::GRAPHIC6 | DisplayMode::YAE:
-			renderGraphic6(linePtr, vramPtr0, vramPtr1);
-			break;
-		case DisplayMode::GRAPHIC7:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YAE:
-			renderGraphic7(linePtr, vramPtr0, vramPtr1);
-			break;
-		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
-			renderYJK(linePtr, vramPtr0, vramPtr1);
-			break;
-		case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
-			renderYAE(linePtr, vramPtr0, vramPtr1);
-			break;
-		case DisplayMode::GRAPHIC4:
-		case DisplayMode::GRAPHIC4 | DisplayMode::YAE:
-		case DisplayMode::GRAPHIC5:
-		case DisplayMode::GRAPHIC5 | DisplayMode::YAE:
-			UNREACHABLE;
-		default:
-			renderBogus(linePtr);
-			break;
+	case DisplayMode::GRAPHIC6: // screen 7
+	case DisplayMode::GRAPHIC6 | DisplayMode::YAE:
+		renderGraphic6(linePtr, vramPtr0, vramPtr1);
+		break;
+	case DisplayMode::GRAPHIC7: // screen 8
+	case DisplayMode::GRAPHIC7 | DisplayMode::YAE:
+		renderGraphic7(linePtr, vramPtr0, vramPtr1);
+		break;
+	case DisplayMode::GRAPHIC6 | DisplayMode::YJK: // screen 12
+	case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
+		renderYJK(linePtr, vramPtr0, vramPtr1);
+		break;
+	case DisplayMode::GRAPHIC6 | DisplayMode::YJK | DisplayMode::YAE: // screen 11
+	case DisplayMode::GRAPHIC7 | DisplayMode::YJK | DisplayMode::YAE:
+		renderYAE(linePtr, vramPtr0, vramPtr1);
+		break;
+	// These are handled in convertLine().
+	case DisplayMode::GRAPHIC4:
+	case DisplayMode::GRAPHIC5:
+	case DisplayMode::GRAPHIC4 |                    DisplayMode::YAE:
+	case DisplayMode::GRAPHIC5 |                    DisplayMode::YAE:
+	case DisplayMode::GRAPHIC4 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC5 | DisplayMode::YJK:
+	case DisplayMode::GRAPHIC4 | DisplayMode::YJK | DisplayMode::YAE:
+	case DisplayMode::GRAPHIC5 | DisplayMode::YJK | DisplayMode::YAE:
+		UNREACHABLE;
+	default:
+		renderBogus(linePtr);
+		break;
 	}
 }
 
@@ -368,10 +378,10 @@ void BitmapConverter<Pixel>::renderYAE(
 template <class Pixel>
 void BitmapConverter<Pixel>::renderBogus(Pixel* pixelPtr)
 {
-	// when this is in effect, the VRAM is not refreshed anymore, but that
-	// is not emulated
-	// TODO: test if it's palette16 for all bogus modes, could also be that
-	// the other palettes are used in some bogus modes
+	// Verified on real V9958: all bogus modes behave like this, always
+	// show palette color 15.
+	// When this is in effect, the VRAM is not refreshed anymore, but that
+	// is not emulated.
 	for (int n = 256; n--; ) *pixelPtr++ = palette16[15];
 }
 

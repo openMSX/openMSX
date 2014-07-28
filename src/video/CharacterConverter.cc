@@ -10,7 +10,6 @@ TODO:
 #include "CharacterConverter.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "unreachable.hh"
 #include "build-info.hh"
 #include "components.hh"
 #include <cstdint>
@@ -39,22 +38,46 @@ void CharacterConverter<Pixel>::setDisplayMode(DisplayMode mode)
 template <class Pixel>
 void CharacterConverter<Pixel>::convertLine(Pixel* linePtr, int line)
 {
+	// TODO: Support YJK on modes other than Graphic 6/7.
 	switch (modeBase) {
-		// M5 M4 = 0 0  (MSX1 modes)
-		case  0: renderGraphic1(linePtr, line); break;
-		case  1: renderText1   (linePtr, line); break;
-		case  2: renderMulti   (linePtr, line); break;
-		case  3: renderBogus   (linePtr);       break;
-		case  4: renderGraphic2(linePtr, line); break;
-		case  5: renderText1Q  (linePtr, line); break;
-		case  6: renderMultiQ  (linePtr, line); break;
-		case  7: renderBogus   (linePtr);       break;
-		// M5 M4 = 0 1
-		case  8: renderGraphic2(linePtr, line); break; // graphic 3, actually
-		case  9: renderText2   (linePtr, line); break;
-		case 10: renderBogus   (linePtr);       break;
-		case 11: renderBogus   (linePtr);       break;
-		default: UNREACHABLE;
+	case DisplayMode::GRAPHIC1:   // screen 1
+		renderGraphic1(linePtr, line);
+		break;
+	case DisplayMode::TEXT1:      // screen 0, width 40
+		renderText1(linePtr, line);
+		break;
+	case DisplayMode::MULTICOLOR: // screen 3
+		renderMulti(linePtr, line);
+		break;
+	case DisplayMode::GRAPHIC2:   // screen 2
+		renderGraphic2(linePtr, line);
+		break;
+	case DisplayMode::GRAPHIC3:   // screen 4
+		renderGraphic2(linePtr, line); // graphic3, actually
+		break;
+	case  DisplayMode::TEXT2:     // screen 0, width 80
+		renderText2(linePtr, line);
+		break;
+	case DisplayMode::TEXT1Q:     // TMSxxxx only
+		if (vdp.isMSX1VDP()) {
+			renderText1Q(linePtr, line);
+		} else {
+			renderBlank (linePtr);
+		}
+		break;
+	case DisplayMode::MULTIQ:     // TMSxxxx only
+		if (vdp.isMSX1VDP()) {
+			renderMultiQ(linePtr, line);
+		} else {
+			renderBlank (linePtr);
+		}
+		break;
+	default: // remaining (non-bitmap) modes
+		if (vdp.isMSX1VDP()) {
+			renderBogus(linePtr);
+		} else {
+			renderBlank(linePtr);
+		}
 	}
 }
 
@@ -240,27 +263,23 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* __restrict pixelPtr, int line)
 {
-	if (vdp.isMSX1VDP()) {
-		Pixel fg = palFg[vdp.getForegroundColor()];
-		Pixel bg = palFg[vdp.getBackgroundColor()];
+	Pixel fg = palFg[vdp.getForegroundColor()];
+	Pixel bg = palFg[vdp.getBackgroundColor()];
 
-		unsigned patternBaseLine = (~0u << 13) | ((line + vdp.getVerticalScroll()) & 7);
+	unsigned patternBaseLine = (~0u << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
-		// Note: Because line width is not a power of two, reading an entire line
-		//       from a VRAM pointer returned by readArea will not wrap the index
-		//       correctly. Therefore we read one character at a time.
-		unsigned nameStart = (line / 8) * 40;
-		unsigned nameEnd = nameStart + 40;
-		unsigned patternQuarter = (line & 0xC0) << 2;
-		for (unsigned name = nameStart; name < nameEnd; ++name) {
-			unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
-			unsigned patternNr = patternQuarter | charcode;
-			unsigned pattern = vram.patternTable.readNP(
-				patternBaseLine | (patternNr * 8));
-			draw6(pixelPtr, fg, bg, pattern);
-		}
-	} else {
-		renderBlank(pixelPtr);
+	// Note: Because line width is not a power of two, reading an entire line
+	//       from a VRAM pointer returned by readArea will not wrap the index
+	//       correctly. Therefore we read one character at a time.
+	unsigned nameStart = (line / 8) * 40;
+	unsigned nameEnd = nameStart + 40;
+	unsigned patternQuarter = (line & 0xC0) << 2;
+	for (unsigned name = nameStart; name < nameEnd; ++name) {
+		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (~0u << 12));
+		unsigned patternNr = patternQuarter | charcode;
+		unsigned pattern = vram.patternTable.readNP(
+			patternBaseLine | (patternNr * 8));
+		draw6(pixelPtr, fg, bg, pattern);
 	}
 }
 
@@ -454,31 +473,23 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiQ(
 	Pixel* __restrict pixelPtr, int line)
 {
-	if (vdp.isMSX1VDP()) {
-		int mask = (~0u << 13);
-		int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
-		renderMultiHelper(pixelPtr, line, mask, patternQuarter);
-	} else {
-		renderBlank(pixelPtr);
-	}
+	int mask = (~0u << 13);
+	int patternQuarter = (line * 4) & ~0xFF;  // (line / 8) * 32
+	renderMultiHelper(pixelPtr, line, mask, patternQuarter);
 }
 
 template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* __restrict pixelPtr)
 {
-	if (vdp.isMSX1VDP()) {
-		Pixel fg = palFg[vdp.getForegroundColor()];
-		Pixel bg = palFg[vdp.getBackgroundColor()];
-		for (int n = 8; n--; ) *pixelPtr++ = bg;
-		for (int c = 20; c--; ) {
-			for (int n = 4; n--; ) *pixelPtr++ = fg;
-			for (int n = 2; n--; ) *pixelPtr++ = bg;
-		}
-		for (int n = 8; n--; ) *pixelPtr++ = bg;
-	} else {
-		renderBlank(pixelPtr);
+	Pixel fg = palFg[vdp.getForegroundColor()];
+	Pixel bg = palFg[vdp.getBackgroundColor()];
+	for (int n = 8; n--; ) *pixelPtr++ = bg;
+	for (int c = 20; c--; ) {
+		for (int n = 4; n--; ) *pixelPtr++ = fg;
+		for (int n = 2; n--; ) *pixelPtr++ = bg;
 	}
+	for (int n = 8; n--; ) *pixelPtr++ = bg;
 }
 
 template <class Pixel>
