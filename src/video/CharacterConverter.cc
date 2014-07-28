@@ -485,7 +485,7 @@ void CharacterConverter<Pixel>::renderBogus(
 	Pixel fg = palFg[vdp.getForegroundColor()];
 	Pixel bg = palFg[vdp.getBackgroundColor()];
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
-	for (int c = 20; c--; ) {
+	for (int c = 40; c--; ) {
 		for (int n = 4; n--; ) *pixelPtr++ = fg;
 		for (int n = 2; n--; ) *pixelPtr++ = bg;
 	}
