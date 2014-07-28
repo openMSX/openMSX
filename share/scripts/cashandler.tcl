@@ -5,6 +5,12 @@ user_setting create boolean fast_cas_load_hack_enabled "Whether you want to enab
 variable old_value $::fast_cas_load_hack_enabled
 
 proc set_hack {} {
+	# example: turboR..
+	# for now, ignore the commands... it's quite complex to
+	# get this 100% water tight with adding/removing machines
+	# at run time
+	if {[catch "machine_info connector cassetteport"]} return
+	
 	if {$::fast_cas_load_hack_enabled} {
 		interp hide {} cassetteplayer
 		interp alias {} cassetteplayer {} cashandler::tapedeck
