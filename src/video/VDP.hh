@@ -942,6 +942,7 @@ private:
 	  * variable indicates whether the pending request is read or write.
 	  */
 	bool cpuVramReqIsRead;
+	bool pendingCpuAccess; // always equal to pendingSyncPoint(CPU_VRAM_ACCESS)
 	unsigned cpuVramReqAddr;
 
 	/** Does CPU interface access main VRAM (false) or extended VRAM (true)?

@@ -437,6 +437,7 @@ void VDP::reset(EmuTime::param time)
 	removeSyncPoint(SET_MODE);
 	removeSyncPoint(SET_BLANK);
 	removeSyncPoint(CPU_VRAM_ACCESS);
+	pendingCpuAccess = false;
 
 	// Reset subsystems.
 	cmdEngine->sync(time);
@@ -541,6 +542,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		break;
 	}
 	case CPU_VRAM_ACCESS:
+		pendingCpuAccess = false;
 		executeCpuVramAccess(time);
 		break;
 	default:
@@ -836,6 +838,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 		// execute the previous one right now.
 		if (unlikely(cpuAccessScheduled())) {
 			removeSyncPoint(CPU_VRAM_ACCESS);
+			pendingCpuAccess = false;
 			executeCpuVramAccess(time);
 		}
 	}
@@ -849,6 +852,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 	} else {
+		pendingCpuAccess = true;
 		setSyncPoint(getAccessSlot(time, VDPAccessSlots::DELTA_16),
 		             CPU_VRAM_ACCESS);
 	}
@@ -913,7 +917,7 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 
 bool VDP::cpuAccessScheduled() const
 {
-	return pendingSyncPoint(CPU_VRAM_ACCESS);
+	return pendingCpuAccess; // pendingSyncPoint(CPU_VRAM_ACCESS)
 }
 
 EmuTime VDP::getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const
@@ -1606,6 +1610,9 @@ void VDP::serialize(Archive& ar, unsigned version)
 	}
 	if (ar.versionAtLeast(version, 6)) {
 		ar.serialize("cpuVramReqAddr", cpuVramReqAddr);
+	}
+	if (ar.isLoader()) {
+		pendingCpuAccess = pendingSyncPoint(CPU_VRAM_ACCESS);
 	}
 	ar.serialize("cpuExtendedVram", cpuExtendedVram);
 	ar.serialize("displayEnabled", displayEnabled);
