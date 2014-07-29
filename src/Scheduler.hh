@@ -2,6 +2,7 @@
 #define SCHEDULER_HH
 
 #include "EmuTime.hh"
+#include "SchedulerQueue.hh"
 #include "likely.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -20,6 +21,7 @@ public:
 	SynchronizationPoint()
 		: timeStamp(EmuTime::zero), device(nullptr), userData(0) {}
 	EmuTime::param getTime() const { return timeStamp; }
+	void setTime(EmuTime::param time) { timeStamp = time; }
 	Schedulable* getDevice() const { return device; }
 	int getUserData() const { return userData; }
 
@@ -56,7 +58,7 @@ public:
 	 */
 	inline EmuTime::param getNext() const
 	{
-		return syncPoints.front().getTime();
+		return queue.front().getTime();
 	}
 
 	/**
@@ -121,7 +123,7 @@ private:
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */
-	SyncPoints syncPoints;
+	SchedulerQueue<SynchronizationPoint> queue;
 	EmuTime scheduleTime;
 	MSXCPU* cpu;
 	bool scheduleInProgress;

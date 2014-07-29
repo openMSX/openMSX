@@ -9,32 +9,6 @@
 
 namespace openmsx {
 
-struct LessSyncPoint {
-	bool operator()(EmuTime::param time,
-	                const SynchronizationPoint& sp) const;
-	bool operator()(const SynchronizationPoint& sp,
-	                EmuTime::param time) const;
-	bool operator()(const SynchronizationPoint& lhs,
-	                const SynchronizationPoint& rhs) const;
-};
-bool LessSyncPoint::operator()(
-	EmuTime::param time, const SynchronizationPoint& sp) const
-{
-	return time < sp.getTime();
-}
-bool LessSyncPoint::operator()(
-	const SynchronizationPoint& sp, EmuTime::param time) const
-{
-	return sp.getTime() < time;
-}
-bool LessSyncPoint::operator()(
-	const SynchronizationPoint& lhs, const SynchronizationPoint& rhs) const
-{
-	// This method is needed for VC++ debug build (I'm not sure why).
-	return lhs.getTime() < rhs.getTime();
-}
-
-
 struct FindSchedulable {
 	explicit FindSchedulable(const Schedulable& schedulable_)
 		: schedulable(schedulable_) {}
@@ -66,12 +40,12 @@ Scheduler::Scheduler()
 Scheduler::~Scheduler()
 {
 	assert(!cpu);
-	auto copy = syncPoints;
+	SyncPoints copy(std::begin(queue), std::end(queue));
 	for (auto& s : copy) {
 		s.getDevice()->schedulerDeleted();
 	}
 
-	assert(syncPoints.empty());
+	assert(queue.empty());
 }
 
 void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userData)
@@ -80,9 +54,10 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 	assert(time >= scheduleTime);
 
 	// Push sync point into queue.
-	auto it = std::upper_bound(begin(syncPoints), end(syncPoints), time,
-	                           LessSyncPoint());
-	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
+	queue.insert(SynchronizationPoint(time, &device, userData),
+	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity); },
+	             [](const SynchronizationPoint& x, const SynchronizationPoint& y) {
+	                     return x.getTime() < y.getTime(); });
 
 	if (!scheduleInProgress && cpu) {
 		// only when scheduleHelper() is not being executed
@@ -95,7 +70,7 @@ void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userD
 Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
-	copy_if(begin(syncPoints), end(syncPoints), back_inserter(result),
+	copy_if(std::begin(queue), std::end(queue), back_inserter(result),
 	        FindSchedulable(device));
 	return result;
 }
@@ -103,29 +78,20 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
 	assert(Thread::isMainThread());
-	auto it = find_if(begin(syncPoints), end(syncPoints),
-	                  EqualSchedulable(device, userData));
-	if (it != end(syncPoints)) {
-		syncPoints.erase(it);
-		return true;
-	} else {
-		return false;
-	}
+	return queue.remove(EqualSchedulable(device, userData));
 }
 
 void Scheduler::removeSyncPoints(Schedulable& device)
 {
 	assert(Thread::isMainThread());
-	syncPoints.erase(remove_if(begin(syncPoints), end(syncPoints),
-	                           FindSchedulable(device)),
-	                 end(syncPoints));
+	queue.remove_all(FindSchedulable(device));
 }
 
 bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData) const
 {
 	assert(Thread::isMainThread());
-	return find_if(begin(syncPoints), end(syncPoints),
-	               EqualSchedulable(device, userData)) != end(syncPoints);
+	return std::find_if(std::begin(queue), std::end(queue),
+	                    EqualSchedulable(device, userData)) != std::end(queue);
 }
 
 EmuTime::param Scheduler::getCurrentTime() const
@@ -142,11 +108,11 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 		assert(scheduleTime <= next);
 		scheduleTime = next;
 
-		const auto& sp = syncPoints.front();
+		const auto& sp = queue.front();
 		auto* device = sp.getDevice();
 		int userData = sp.getUserData();
 
-		syncPoints.erase(begin(syncPoints));
+		queue.remove_front();
 
 		device->executeUntil(next, userData);
 
@@ -175,7 +141,7 @@ template <typename Archive>
 void Scheduler::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("currentTime", scheduleTime);
-	// don't serialize syncPoints, each Schedulable serializes its own
+	// don't serialize 'queue', each Schedulable serializes its own
 	// syncpoints
 }
 INSTANTIATE_SERIALIZE_METHODS(Scheduler);

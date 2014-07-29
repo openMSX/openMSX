@@ -1,0 +1,157 @@
+#ifndef SCHEDULERQUEUE_HH
+#define SCHEDULERQUEUE_HH
+
+#include "likely.hh"
+#include <algorithm>
+#include <cassert>
+#include <cstdlib>
+
+// This is similar to a sorted vector<T>. Though this container can have spare
+// capacity both at the front and at the end (vector only at the end). This
+// means that when you remove the smallest element and insert a new element
+// that's only slightly bigger than the smallest one, there's a very good
+// chance this insert runs in O(1) (for vector it's O(N), with N the size of
+// the vector). This is a scenario that occurs very often in the Scheduler
+// code.
+template<typename T> class SchedulerQueue
+{
+public:
+	SchedulerQueue()
+	{
+		static const int CAPACITY = 32; // initial capacity
+		static const int SPARE_FRONT = 1;
+
+		// Allocate one extra to be able to store sentinel.
+		storageBegin = static_cast<T*>(malloc((CAPACITY + 1) * sizeof(T)));
+		storageEnd = storageBegin + CAPACITY;
+		useBegin   = storageBegin + SPARE_FRONT;
+		useEnd     = useBegin;
+	}
+
+	~SchedulerQueue()
+	{
+		free(storageBegin);
+	}
+
+	size_t capacity()   const { return storageEnd - storageBegin; }
+	size_t spareFront() const { return useBegin   - storageBegin; }
+	size_t spareBack()  const { return storageEnd - useEnd;       }
+	size_t size()  const { return useEnd -  useBegin; }
+	bool   empty() const { return useEnd == useBegin; }
+
+	// Returns reference to the first element, This is the smallest element
+	// according to the sorting criteria, see insert().
+	      T& front()       { return *useBegin; }
+	const T& front() const { return *useBegin; }
+
+	      T* begin()       { return useBegin; }
+	const T* begin() const { return useBegin; }
+	      T* end()         { return useEnd;   }
+	const T* end()   const { return useEnd;   }
+
+	// Insert new element.
+	// Elements are sorted according to the given LESS predicate.
+	// SET_SENTINEL must set an element to it's maximum value (so that
+	// 'less(x, sentinel)' is true for any x).
+	// (Important) two elements that are equivalent according to 'less'
+	// keep their relative order, IOW newly inserted elements are inserted
+	// after existing equivalent elements.
+	template<typename SET_SENTINEL, typename LESS>
+	void insert(const T& t, SET_SENTINEL setSentinel, LESS less)
+	{
+		setSentinel(*useEnd); // put sentinel at the end
+		T* it = useBegin;
+		while (!less(t, *it)) ++it;
+
+		if ((it - useBegin) <= (useEnd - it)) {
+			if (likely(useBegin != storageBegin)) {
+				insertFront(it, t);
+			} else if (useEnd != storageEnd) {
+				insertBack(it, t);
+			} else {
+				insertRealloc(it, t);
+			}
+		} else {
+			if (likely(useEnd != storageEnd)) {
+				insertBack(it, t);
+			} else if (useBegin != storageBegin) {
+				insertFront(it, t);
+			} else {
+				insertRealloc(it, t);
+			}
+		}
+	}
+
+	// Remove the smallest element.
+	void remove_front()
+	{
+		assert(!empty());
+		++useBegin;
+	}
+
+	// Remove the first element for which the given predicate returns true.
+	template<typename PRED> bool remove(PRED p)
+	{
+		T* it = std::find_if(useBegin, useEnd, p);
+		if (it == useEnd) return false;
+
+		if (unlikely((it - useBegin) < (useEnd - it - 1))) {
+			++useBegin;
+			std::copy_backward(useBegin - 1, it, it + 1);
+		} else {
+			std::copy(it + 1, useEnd, it);
+			--useEnd;
+		}
+		return true;
+	}
+
+	// Remove all elements for which the given predicate returns true.
+	template<typename PRED> void remove_all(PRED p)
+	{
+		useEnd = std::remove_if(useBegin, useEnd, p);
+	}
+
+private:
+	void insertFront(T* it, const T& t)
+	{
+		--useBegin;
+		std::copy(useBegin + 1, it, useBegin);
+		--it;
+		*it = t;
+	}
+	void insertBack(T* it, const T& t)
+	{
+		++useEnd;
+		std::copy_backward(it, useEnd -1, useEnd);
+		*it = t;
+	}
+	void insertRealloc(T* it, const T& t)
+	{
+		static const int SPARE_FRONT = 1;
+
+		size_t oldSize = storageEnd - storageBegin;
+		size_t newSize = oldSize * 2;
+
+		// Allocate one extra to be able to store sentinel.
+		T* newStorage = static_cast<T*>(malloc((newSize + 1) * sizeof(T)));
+		T* newUseBegin = newStorage + SPARE_FRONT;
+		std::copy(useBegin, it, newUseBegin);
+		*(newUseBegin + (it - useBegin)) = t;
+		std::copy(it, useEnd, newUseBegin + (it - useBegin) + 1);
+		free(storageBegin);
+
+		storageBegin = newStorage;
+		storageEnd   = newStorage + newSize;
+		useBegin     = newUseBegin;
+		useEnd       = useBegin + oldSize + 1;
+	}
+
+private:
+	// Invariant: storageBegin <= useBegin <= useEnd <= storageEnd
+	T* storageBegin;
+	T* storageEnd;
+	T* useBegin;
+	T* useEnd;
+};
+
+#endif // SCHEDULERQUEUE_HH
