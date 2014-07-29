@@ -64,8 +64,9 @@ public:
 	 */
 	inline void schedule(EmuTime::param limit)
 	{
-		if (unlikely(limit >= getNext())) {
-			scheduleHelper(limit); // slow path not inlined
+		EmuTime next = getNext();
+		if (unlikely(limit >= next)) {
+			scheduleHelper(limit, next); // slow path not inlined
 		}
 		scheduleTime = limit;
 	}
@@ -115,7 +116,7 @@ private: // -> intended for Schedulable
 	bool pendingSyncPoint(const Schedulable& device, int userdata = 0) const;
 
 private:
-	void scheduleHelper(EmuTime::param limit);
+	void scheduleHelper(EmuTime::param limit, EmuTime next);
 
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.

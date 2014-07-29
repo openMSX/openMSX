@@ -134,32 +134,28 @@ EmuTime::param Scheduler::getCurrentTime() const
 	return scheduleTime;
 }
 
-void Scheduler::scheduleHelper(EmuTime::param limit)
+void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 {
 	assert(!scheduleInProgress);
 	scheduleInProgress = true;
 	while (true) {
-		// Get next sync point.
+		assert(scheduleTime <= next);
+		scheduleTime = next;
+
 		const auto& sp = syncPoints.front();
-		EmuTime time = sp.getTime();
-		if (time > limit) {
-			break;
-		}
-
-		assert(scheduleTime <= time);
-		scheduleTime = time;
-
-		Schedulable* device = sp.getDevice();
-		assert(device);
+		auto* device = sp.getDevice();
 		int userData = sp.getUserData();
 
 		syncPoints.erase(begin(syncPoints));
 
-		device->executeUntil(time, userData);
+		device->executeUntil(next, userData);
+
+		next = getNext();
+		if (likely(next > limit)) break;
 	}
 	scheduleInProgress = false;
 
-	cpu->setNextSyncPoint(getNext());
+	cpu->setNextSyncPoint(next);
 }
 
 
