@@ -362,7 +362,7 @@ void VDP::resetInit()
 	for (auto& reg : controlRegs) {
 		reg = 0;
 	}
-	if (isMSX1VDPwithPAL()) {
+	if (isVDPwithPALonly()) {
 		// Boots (and remains) in PAL mode, all other VDPs boot in NTSC.
 		controlRegs[9] |= 0x02;
 	}
@@ -1220,7 +1220,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 				irqVertical.reset();
 			}
 		}
-		if ((change & 0x80) && isMSX1VDPwithVRAMremapping()) {
+		if ((change & 0x80) && isVDPwithVRAMremapping()) {
 			// confirmed: VRAM remapping only happens on TMS99xx
 			// see VDPVRAM for details on the remapping itself
 			vram->change4k8kMapping((val & 0x80) != 0);

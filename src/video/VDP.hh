@@ -100,11 +100,11 @@ public:
 		return version & VM_MSX1;
 	}
 
-	/** Is this a MSX1 VDP with PAL?
-	  * @return True iff this is an MSX1 VDP with PAL
+	/** Is this a VDP only capable of PAL?
+	  * @return True iff this is a PAL only VDP
 	  */
-	inline bool isMSX1VDPwithPAL() const {
-		return version & (VM_MSX1 | VM_PAL);
+	inline bool isVDPwithPALonly() const {
+		return version & VM_PAL;
 	}
 
 	/** Is this a VDP that lacks mirroring?
@@ -121,11 +121,11 @@ public:
 		return version & VM_PALCOL_MIRRORING;
 	}
 
-	/** Does this MSX1 VDP have VRAM remapping when switching from 4k to 8/16k mode?
-	  * @return True iff this is an MSX1 VDP with VRAM remapping
+	/** Does this VDP have VRAM remapping when switching from 4k to 8/16k mode?
+	  * @return True iff this is a VDP with VRAM remapping
 	  */
-	inline bool isMSX1VDPwithVRAMremapping() const {
-		return version & (VM_MSX1 | VM_VRAM_REMAPPING);
+	inline bool isVDPwithVRAMremapping() const {
+		return version & VM_VRAM_REMAPPING;
 	}
 
 	/** Is this a VDP with a Toshiba palette?
