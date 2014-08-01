@@ -6,7 +6,7 @@
     <manufacturer>Al-Alamiah</manufacturer>
     <code>AX170</code>
     <release_year>1986</release_year>
-    <description>Arabic MSX1 machine. NOTE: this machine configuration is very unconfirmed, so don't use it for any compatibility tests...</description>
+    <description>Arabic MSX1 machine.</description>
     <type>MSX</type>
   </info>
 
@@ -33,7 +33,7 @@
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type> <!-- just a guess -->
+      <type>AY8910</type>
       <sound>
         <volume>21000</volume>
       </sound>
@@ -63,32 +63,21 @@
             <sha1>0287b2ec897b9196788cd9f10c99e1487d7adbbb</sha1>
           </rom>
           <mem base="0x0000" size="0x10000"/>
-      </ROM>
+        </ROM>
       </secondary>
-
-      <secondary slot="1"/>
-
-      <secondary slot="2"/>
-
-      <secondary slot="3"/>
-
     </primary>
 
     <primary external="true" slot="2"/>
 
     <primary slot="3">
 
-      <secondary external="true" slot="0"/>
-
-      <secondary slot="1"/>
-
-      <secondary slot="2">
+      <secondary slot="0">
         <RAM id="Main RAM">
           <mem base="0x0000" size="0x10000"/>
         </RAM>
       </secondary>
 
-      <secondary slot="3"/>
+      <secondary external="true" slot="3"/>
 
     </primary>
 
