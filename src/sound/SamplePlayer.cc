@@ -123,6 +123,7 @@ inline int SamplePlayer::getSample(unsigned index)
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
+	// Single channel device: replace content of bufs[0] (not add to it).
 	if (!isPlaying()) {
 		bufs[0] = nullptr;
 		return;
@@ -132,14 +133,15 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 			if (nextSampleNum != unsigned(-1)) {
 				doRepeat();
 			} else {
-				// no need to add 0 to the remainder of bufs[0]
-				//  bufs[0][i] += 0;
 				currentSampleNum = unsigned(-1);
+				// fill remaining buffer with zeros
+				do {
+					bufs[0][i++] = 0;
+				} while (i < num);
 				break;
 			}
 		}
-		int samp = getSample(index++);
-		bufs[0][i] += 3 * samp;
+		bufs[0][i] = 3 * getSample(index++);
 	}
 }
 

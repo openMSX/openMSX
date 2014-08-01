@@ -42,9 +42,9 @@ void DACSound16S::writeDAC(int16_t value, EmuTime::param time)
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)
 {
-	// Note: readSamples() replaces the values in the buffer. It should add
-	//       to the existing values in the buffer. But because there is only
-	//       one channel this doesn't matter (buffer contains all zeros).
+	// Note: readSamples() replaces the values in the buffer (it doesn't
+	// add the new values to the existing values in the buffer). That's OK
+	// because this is a single-channel SoundDevice.
 	if (!blip.readSamples<1>(bufs[0], num)) {
 		bufs[0] = nullptr;
 	}

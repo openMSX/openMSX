@@ -188,7 +188,14 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	unsigned outputStereo = isStereo() ? 2 : 1;
 
 	MemoryOps::MemSet<unsigned> mset;
-	mset(reinterpret_cast<unsigned*>(dataOut), outputStereo * samples, 0);
+	if (numChannels != 1) {
+		// The generateChannels() method of SoundDevices with more than
+		// one channel will _add_ the generated channel data in the
+		// provided buffers. Those with only one channel will directly
+		// replace the content of the buffer. For the former we must
+		// start from a buffer containing all zeros.
+		mset(reinterpret_cast<unsigned*>(dataOut), outputStereo * samples, 0);
+	}
 
 	VLA(int*, bufs, numChannels);
 	unsigned separateChannels = 0;
@@ -220,9 +227,6 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		assert(count == separateChannels);
 	}
 
-	// note: some SoundDevices (DACSound16S and CassettePlayer) replace the
-	//	 (single) channel data instead of adding to the exiting data.
-	//	 ATM that's ok because the existing data is anyway zero.
 	generateChannels(bufs, samples);
 
 	if (separateChannels == 0) {

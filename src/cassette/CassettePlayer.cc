@@ -586,13 +586,11 @@ void CassettePlayer::unplugHelper(EmuTime::param time)
 
 void CassettePlayer::generateChannels(int** buffers, unsigned num)
 {
+	// Single channel device: replace content of buffers[0] (not add to it).
 	if ((getState() != PLAY) || !isRolling()) {
 		buffers[0] = nullptr;
 		return;
 	}
-	// Note: fillBuffer() replaces the values in the buffer. It should add
-	//       to the existing values in the buffer. But because there is only
-	//       one channel this doesn't matter (buffer contains all zeros).
 	playImage->fillBuffer(audioPos, buffers, num);
 	audioPos += num;
 }

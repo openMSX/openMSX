@@ -717,8 +717,8 @@ void LaserdiscPlayer::autoRun()
 
 void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 {
-	if (playerState != PLAYER_PLAYING || seeking ||
-						(muteLeft && muteRight)) {
+	// Single channel device: replace content of buffers[0] (not add to it).
+	if (playerState != PLAYER_PLAYING || seeking || (muteLeft && muteRight)) {
 		buffers[0] = nullptr;
 		return;
 	}
