@@ -741,7 +741,7 @@ void VDP::writeIO(word port, byte value, EmuTime::param time)
 	case 1: // Register or address write
 		if (registerDataStored) {
 			if (value & 0x80) {
-				if (!(value & 0x40)) {
+				if (!(value & 0x40) || isMSX1VDP()) {
 					// Register write.
 					changeRegister(
 						value & controlRegMask,
