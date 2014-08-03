@@ -47,7 +47,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     <primary external="true" slot="3"/>
 
     <PPI id="ppi">
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- mirroring confirmed by hap -->
       <sound>
         <volume>16000</volume>
       </sound>
@@ -60,8 +60,7 @@ crystal: X1:10.6875 (VDP), X2:1431818(CPU/PSG): so not synced
     </PPI>
 
     <VDP id="VDP">
-      <io base="0x98" num="4" type="O"/>
-      <io base="0x98" num="2" type="I"/>
+      <io base="0x98" num="8"/> <!-- mirroring confirmed by hap -->
       <version>TMS9929A</version>
       <initialContent encoding="hex">FF00</initialContent>
     </VDP>

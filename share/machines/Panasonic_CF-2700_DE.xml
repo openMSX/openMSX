@@ -28,7 +28,7 @@ crystal: same for cpu/vdp/psg
       <sound>
         <volume>16000</volume>
       </sound>
-      <io base="0xA8" num="4"/>
+      <io base="0xA8" num="8"/> <!-- mirroring confirmed by hap -->
       <keyboard_type>de</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
@@ -38,7 +38,7 @@ crystal: same for cpu/vdp/psg
 
     <VDP id="VDP">
       <version>TMS9129</version>
-      <io base="0x98" num="2"/>
+      <io base="0x98" num="8"/> <!-- mirroring confirmed by hap -->
       <initialContent encoding="hex">FF00</initialContent>
     </VDP>
 
