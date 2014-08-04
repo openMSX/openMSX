@@ -30,7 +30,7 @@
       <graph_locks>false</graph_locks>
     </PPI>
 
-    <VDP id="vdp">
+    <VDP id="VDP">
       <io base="0x98" num="8" type="O"/> <!-- S-3527 mirrors -->
       <io base="0x98" num="8" type="I"/> <!-- S-3527 mirrors -->
       <version>V9938</version>

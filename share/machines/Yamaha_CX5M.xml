@@ -27,7 +27,7 @@
       <graph_locks>false</graph_locks>
     </PPI>
 
-    <VDP id="vdp">
+    <VDP id="VDP">
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
       <version>TMS9929A</version>
