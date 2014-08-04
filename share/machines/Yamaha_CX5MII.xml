@@ -1,5 +1,4 @@
 <?xml version="1.0" ?>
-<!-- There is also a /64 model, with a 64 kB mapper -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
