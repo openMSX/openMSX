@@ -19,6 +19,7 @@
        PSG: GI AY-3-8910
        VDP: TMS9928ANL
        has an internal speaker
+       has an RGB-in connector (?)
   -->
 
   <devices>
@@ -50,10 +51,6 @@
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
     </PSG>
-
-    <PrinterPort id="Printer Port">
-      <io base="0x90" num="2"/>
-    </PrinterPort>
 
     <primary slot="0">
       <RAM id="Main RAM">
