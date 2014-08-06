@@ -5,8 +5,8 @@
   <info>
     <manufacturer>Fujitsu</manufacturer>
     <code>FM-X</code>
-    <release_year>?</release_year>
-    <description/>
+    <release_year>1983</release_year>
+    <description>Fujitsu's one and only MSX computer. Can be connected to Fujitsu's FM-7 computer, which gives several special features, but all of that is not emulated.</description>
     <type>MSX</type>
   </info>
 
@@ -19,7 +19,27 @@
        PSG: GI AY-3-8910
        VDP: TMS9928ANL
        has an internal speaker
-       has an RGB-in connector (?)
+       can be connected to the (non-MSX) Fujitsu FM-7 via the 60 pin connector
+       (with a special interface cartridge, which include a ROM with a
+       MSX-BASIC extension), enabling to:
+       - use 16kB additional memory from the FM-7
+       - use the printer of the FM-7
+       - use the RS-232C card of the FM-7
+       - use the FM-7 as keyboard input
+       - use the FM-7 as a monitor of the FM-X (view/modify contents of memory,
+         setting breakpoints, etc.)
+       Likewise, the FM-7 can use the FM-X to:
+       - use the sprite function of the FM-X by connecting digital RGB in/out
+       - use 3 extra PSG channels of the FM-X
+       - use the joysticks connected to the FM-X
+
+       The FM-7's video output can be connected to the digital RGB-in connector
+       of the FM-X, so that the monitor on the FM-X can be used to view the
+       FM-7's video output.
+
+       All of this info from here:
+       http://fururingo.cocolog-nifty.com/blog/2012/09/fm-xfm-7-1459.html
+       http://ja.wikipedia.org/wiki/FM-X
   -->
 
   <devices>
