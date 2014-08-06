@@ -10,6 +10,11 @@
     <type>MSX</type>
   </info>
 
+  <!-- Thanks to Werner Kai for his information
+       Based on serial 02- 58662962
+       Mainboard says UF0896B1
+  -->
+
   <CassettePort/>
 
   <devices>
