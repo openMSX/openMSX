@@ -68,7 +68,7 @@
       </ROM>
     </primary>
 
-    <primary external="true" slot="1"/>
+    <!-- <primary external="true" slot="1"/> this is a proprietary 60-pin port-->
 
     <primary external="true" slot="2"/>
 
