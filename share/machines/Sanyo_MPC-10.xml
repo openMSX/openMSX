@@ -10,10 +10,12 @@
     <type>MSX</type>
   </info>
 
-  <!-- Thanks to Werner Kai for the details! -->
-  <!-- CPU is a NEC -->
+  <!-- Thanks to Werner Kai for the details!
+       Based on serial number 10219293
+       CPU is a NEC
 
-  <!-- missing: light pen controller -->
+       missing: light pen controller
+  -->
 
   <CassettePort/>
 
