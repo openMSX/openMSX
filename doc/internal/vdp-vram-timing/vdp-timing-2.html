@@ -191,13 +191,14 @@ for all 4 sprites (and ignores the results of the redundant reads).</p>
 <p>(As you may have guessed already) all these dummy reads can be explained by
 looking at how the V9938 implements sprite mode 2:</p>
 <ul>
- <li>Sprite mode 2 reads 6 bytes from the sprite attribute table (using a
-     single(*) burst read). Sprite mode 1 reads 4+2 bytes (in a single
-     burst).</li>
- <li>Sprite mode 2 reads 8&times;2 bytes from the sprite-pattern-table. Sprite
-     mode 1 reads (4+4)&times;2 bytes.</li>
- <li>Sprite mode 2 reads 8 bytes from the sprite-color-table. Sprite mode 1
-     does 8 dummy reads.</li>
+ <li>Per group of 2 sprites (4 groups), sprite mode 2 reads 6 bytes from the
+     sprite attribute table (using a single(*) burst read). Sprite mode 1 reads
+     4&times;(4+2) bytes (in a single burst). In both cases that's 24 bytes
+     total.</li>
+ <li>In total, sprite mode 2 reads 8&times;2 bytes from the
+     sprite-pattern-table. Sprite mode 1 reads (4+4)&times;2 bytes.</li>
+ <li>In total, sprite mode 2 reads 8 bytes from the sprite-color-table. Sprite
+     mode 1 does 8 dummy reads.</li>
 </ul>
 <p>(*)<i>Actually, this is not true. But I believe this is how it was
 intended: the 6 bytes are located in the same DRAM bank. In reality the
@@ -473,10 +474,10 @@ V9938). This is confirmed by the following quote from the application manual,
 section 2.1.5 "&hellip; in the Multicolor mode, CPU windows occur at least once
 out of every four memory cycles &hellip;". Though when you look at the
 sprite-accesses in the horizontal border area this quote isn't true: there's
-still one location where there are 15 memory cycles between 2 CPU access
-slots! <i>On the other hand, it would be possible to distribute the sprite and
-cpu accesses more evenly in the horizontal border. So maybe that hand-drawn
-timing picture is wrong?</i></p>
+still one location where there are 15 memory cycles between 2 CPU access slots!
+<i>On the other hand, it would be possible to distribute the sprite and cpu
+accesses more evenly in the horizontal border. So maybe that hand-drawn timing
+picture is wrong? Or maybe not for the final TMS9918 design?</i></p>
 
 <h5>Text mode 1 (aka screen 0, width 40)</h5>
 <p>Again see the big timing diagram. There's nothing really special about this
@@ -529,8 +530,17 @@ between two accesses. Translated to Z80 cycles this gives 28.6 and rounded up
 7.5&micro;s or 8.5&micro;s. Rounded up to the nearest Z80 cycle that's between
 27 and 31 Z80 cycles. Many people use the 29-cycles rule and apparently that
 works fine in practice. But you also see reports that only 28 cycles
-often(?)/always(?) work as well. It would be nice if we could figure out an
+often(?)/always(?) work as well. It would be nice if we could measure the
 exact value.</p>
+
+<p><i>That value 2&micro;s is also mentioned in table 2.2 of the TMS9918
+application manual. Other values in that table seem to be accurate to
+&plusmn;0.05&micro;s, so it's possible (even likely?) those 2&micro;s can be
+read as 2.0&micro;s. It must be an integer multiple of VDP clock cycles: 10
+cycles is 1.86&micro;s, 11 cycles is 2.05&micro;s. If I have to make a guess
+I'd pick the latter (this still results in a total CPU-VRAM access time of 29
+Z80 cycles). Though in the rest of this text I'm still assuming the larger
+uncertainty interval.</i></p>
 
 <p>Sometimes you find discussions about when it's allowed to go faster than the
 worst case requirement. Here the consensus is that in the vertical border you
@@ -572,10 +582,13 @@ more. But unfortunately some details will remain unclear.</p>
      VRAM accesses. The fastest Z80 I/O instruction takes 12 cycles (on MSX,
      taking the extra Z80 wait cycle into account). So this confirms that in
      the vertical border you can indeed access VRAM as fast as you want.</li>
- <li>Text mode has maximum 6 VDP cycles between CPU slots. So rounded that's somewhere
-     between 10 and 13 Z80 cycles. So it's <i>likely</i> OK to also in text mode
-     access the VRAM as fast as you want, but we can only be certain if we know
-     a more accurate value for those '2&micro;s'.</li>
+ <li>Text mode has maximum 6 VDP cycles between CPU slots. So rounded that's
+     somewhere between 10 and 13 Z80 cycles. So it's <i>likely</i> OK to also
+     in text mode access the VRAM as fast as you want, but we can only be
+     certain if we know a more accurate value for those '2&micro;s'. It's worth
+     repeating that on V9938 you can <b>not</b> access VRAM as fast in this
+     mode. Keep that in mind when writing MSX1 software that needs to be upward
+     compatible with MSX2.</li>
  <li>Multi-color mode is unclear: the application manual says there's a CPU
      slot at least every 4 memory accesses. But as explained above I don't
      believe this (it's true for the display area, but not for the horizontal
