@@ -39,7 +39,7 @@ class Calculator
 public:
 	/** This shouldn't be called directly, instead use getCalculator(). */
 	Calculator(EmuTime::param frame, EmuTime::param time,
-	           EmuTime::param limit_, const int16_t* tab_)
+	           EmuTime::param limit_, const uint8_t* tab_)
 		: ref(frame), tab(tab_)
 	{
 		assert(frame <= time);
@@ -70,7 +70,7 @@ public:
 	/** Advance time to the earliest access slot that is at least 'delta'
 	  * ticks later than the current time. */
 	inline void next(Delta delta) {
-		ticks = tab[delta + ticks];
+		ticks += tab[delta + ticks];
 		if (unlikely(ticks >= TICKS)) {
 			ticks -= TICKS;
 			limit -= TICKS;
@@ -82,7 +82,7 @@ private:
 	int ticks;
 	int limit;
 	VDP::VDPClock ref;
-	const int16_t* const tab;
+	const uint8_t* const tab;
 };
 
 /** This function should be called (once) before the next functions. */

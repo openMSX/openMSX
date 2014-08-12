@@ -54,12 +54,12 @@ static const int16_t slotsSpritesOn[31 + 3] = {
 	1368+28, 1368+92, 1368+162,
 };
 
-static int16_t tabSpritesOn [NUM_DELTAS * TICKS];
-static int16_t tabSpritesOff[NUM_DELTAS * TICKS];
-static int16_t tabScreenOff [NUM_DELTAS * TICKS];
-static int16_t tabBroken    [NUM_DELTAS * TICKS];
+static uint8_t tabSpritesOn [NUM_DELTAS * TICKS];
+static uint8_t tabSpritesOff[NUM_DELTAS * TICKS];
+static uint8_t tabScreenOff [NUM_DELTAS * TICKS];
+static uint8_t tabBroken    [NUM_DELTAS * TICKS];
 
-static void initTable(const int16_t* slots, int16_t* output)
+static void initTable(const int16_t* slots, uint8_t* output)
 {
 	// !!! Keep this in sync with the 'Delta' enum !!!
 	static const int delta[NUM_DELTAS] = {
@@ -72,7 +72,9 @@ static void initTable(const int16_t* slots, int16_t* output)
 		for (int i = 0; i < TICKS; ++i) {
 			if ((slots[p] - i) < step) ++p;
 			assert((slots[p] - i) >= step);
-			*output++ = slots[p];
+			unsigned t = slots[p] - i;
+			assert(t < 256);
+			*output++ = t;
 		}
 	}
 }
@@ -85,14 +87,12 @@ void initTables()
 	initTable(slotsSpritesOn,  tabSpritesOn);
 	initTable(slotsSpritesOff, tabSpritesOff);
 	initTable(slotsScreenOff,  tabScreenOff);
-	for (int i = 0; i < NUM_DELTAS; ++i) {
-		for (int j = 0; j < TICKS; ++j) {
-			tabBroken[i * TICKS + j] = j;
-		}
+	for (int i = 0; i < NUM_DELTAS * TICKS; ++i) {
+		tabBroken[i] = 0;
 	}
 }
 
-static const int16_t* getTab(bool display, bool sprites, bool broken)
+static const uint8_t* getTab(bool display, bool sprites, bool broken)
 {
 	return broken ? tabBroken
 	              : (display ? (sprites ? tabSpritesOn : tabSpritesOff)
@@ -106,7 +106,7 @@ EmuTime getAccessSlot(
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
 	auto* tab = getTab(display, sprites, broken);
-	return time + VDP::VDPClock::duration(tab[delta + ticks] - ticks);
+	return time + VDP::VDPClock::duration(tab[delta + ticks]);
 }
 
 Calculator getCalculator(
