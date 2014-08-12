@@ -47,7 +47,7 @@ private:
 	};
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	void schedule();
 	void restart(PlayData& pd);

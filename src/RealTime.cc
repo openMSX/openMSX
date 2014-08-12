@@ -115,7 +115,7 @@ void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 	emuTime = time;
 }
 
-void RealTime::executeUntil(EmuTime::param time, int /*userData*/)
+void RealTime::executeUntil(EmuTime::param time)
 {
 	internalSync(time, true);
 	setSyncPoint(time + getEmuDuration(SYNC_INTERVAL));

@@ -1,7 +1,5 @@
 #include "Schedulable.hh"
 #include "Scheduler.hh"
-#include "serialize.hh"
-#include "serialize_stl.hh"
 #include <iostream>
 
 namespace openmsx {
@@ -22,14 +20,14 @@ void Schedulable::schedulerDeleted()
 	          << "\" failed to unregister." << std::endl;
 }
 
-void Schedulable::setSyncPoint(EmuTime::param timestamp, int userData)
+void Schedulable::setSyncPoint(EmuTime::param timestamp)
 {
-	scheduler.setSyncPoint(timestamp, *this, userData);
+	scheduler.setSyncPoint(timestamp, *this);
 }
 
-bool Schedulable::removeSyncPoint(int userData)
+bool Schedulable::removeSyncPoint()
 {
-	return scheduler.removeSyncPoint(*this, userData);
+	return scheduler.removeSyncPoint(*this);
 }
 
 void Schedulable::removeSyncPoints()
@@ -37,15 +35,15 @@ void Schedulable::removeSyncPoints()
 	scheduler.removeSyncPoints(*this);
 }
 
-bool Schedulable::pendingSyncPoint(int userData) const
+bool Schedulable::pendingSyncPoint() const
 {
 	auto dummy = EmuTime::dummy();
-	return scheduler.pendingSyncPoint(*this, userData, dummy);
+	return scheduler.pendingSyncPoint(*this, dummy);
 }
 
-bool Schedulable::pendingSyncPoint(int userData, EmuTime& result) const
+bool Schedulable::pendingSyncPoint(EmuTime& result) const
 {
-	return scheduler.pendingSyncPoint(*this, userData, result);
+	return scheduler.pendingSyncPoint(*this, result);
 }
 
 EmuTime::param Schedulable::getCurrentTime() const
@@ -64,7 +62,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		removeSyncPoints();
 		for (auto& s : syncPoints) {
-			setSyncPoint(s.getTime(), s.getUserData());
+			setSyncPoint(s.getTime());
 		}
 	}
 }

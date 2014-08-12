@@ -22,7 +22,6 @@ class RawFrame;
 class LoadingIndicator;
 
 class LaserdiscPlayer final : public ResampledSoundDevice
-                            , public Schedulable
                             , private EventListener
                             , private VideoSystemChangeListener
 {
@@ -112,7 +111,34 @@ private:
 	                  EmuTime::param time) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	struct SyncBase : public Schedulable {
+		SyncBase(Scheduler& s, LaserdiscPlayer& player_)
+			: Schedulable(s), player(player_) {}
+		LaserdiscPlayer& player;
+		friend class LaserdiscPlayer;
+	};
+	struct SyncAck : public SyncBase {
+		SyncAck(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+		void executeUntil(EmuTime::param time) override {
+			player.execSyncAck(time);
+		}
+	} syncAck;
+	struct SyncOdd : public SyncBase {
+		SyncOdd(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+		void executeUntil(EmuTime::param time) override {
+			player.execSyncFrame(time, true);
+		}
+	} syncOdd;
+	struct SyncEven : public SyncBase {
+		SyncEven(Scheduler& s, LaserdiscPlayer& p) : SyncBase(s, p) {}
+		void executeUntil(EmuTime::param time) override {
+			player.execSyncFrame(time, false);
+		}
+	} syncEven;
+
+	void execSyncAck(EmuTime::param time);
+	void execSyncFrame(EmuTime::param time, bool odd);
+	EmuTime::param getCurrentTime() const { return syncAck.getCurrentTime(); }
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
@@ -141,12 +167,6 @@ private:
 	size_t lastPlayedSample;
 	bool muteLeft, muteRight;
 	StereoMode stereoMode;
-
-	enum SyncType {
-		EVEN_FRAME,
-		ODD_FRAME,
-		ACK
-	};
 
 	// Ext Control
 	RemoteState remoteState;
@@ -201,7 +221,7 @@ private:
 	friend class LaserdiscCommand;
 };
 
-SERIALIZE_CLASS_VERSION(LaserdiscPlayer,  3);
+SERIALIZE_CLASS_VERSION(LaserdiscPlayer, 4);
 
 } // namespace openmsx
 

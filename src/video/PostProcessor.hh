@@ -151,7 +151,7 @@ private:
 	                    std::vector<void*>& workBuffer);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	Display& display;
 

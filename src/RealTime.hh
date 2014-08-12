@@ -57,7 +57,7 @@ private:
 	void sync(EmuTime::param time, bool allowSleep);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;

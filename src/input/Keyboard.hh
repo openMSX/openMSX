@@ -83,7 +83,7 @@ private:
 	void stopReplay(EmuTime::param time) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);

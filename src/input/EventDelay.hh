@@ -43,7 +43,7 @@ private:
 	int signalEvent(const EventPtr& event) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;

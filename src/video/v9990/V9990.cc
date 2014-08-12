@@ -75,13 +75,17 @@ static const byte regAccess[64] = {
 
 V9990::V9990(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Schedulable(MSXDevice::getScheduler())
+	, syncVSync(*this)
+	, syncDisplayStart(*this)
+	, syncVScan(*this)
+	, syncHScan(*this)
+	, syncSetMode(*this)
 	, v9990RegDebug(make_unique<V9990RegDebug>(*this))
 	, v9990PalDebug(make_unique<V9990PalDebug>(*this))
 	, irq(getMotherBoard(), getName() + ".IRQ")
 	, display(getReactor().getDisplay())
-	, frameStartTime(Schedulable::getCurrentTime())
-	, hScanSyncTime(Schedulable::getCurrentTime())
+	, frameStartTime(getCurrentTime())
+	, hScanSyncTime(getCurrentTime())
 	, pendingIRQs(0)
 	, externalVideoSource(false)
 {
@@ -98,7 +102,7 @@ V9990::V9990(const DeviceConfig& config)
 	}
 
 	// create VRAM
-	EmuTime::param time = Schedulable::getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	vram = make_unique<V9990VRAM>(*this, time);
 
 	// create Command Engine
@@ -143,11 +147,11 @@ void V9990::powerUp(EmuTime::param time)
 
 void V9990::reset(EmuTime::param time)
 {
-	removeSyncPoint(V9990_VSYNC);
-	removeSyncPoint(V9990_DISPLAY_START);
-	removeSyncPoint(V9990_VSCAN);
-	removeSyncPoint(V9990_HSCAN);
-	removeSyncPoint(V9990_SET_MODE);
+	syncVSync       .removeSyncPoint();
+	syncDisplayStart.removeSyncPoint();
+	syncVScan       .removeSyncPoint();
+	syncHScan       .removeSyncPoint();
+	syncSetMode     .removeSyncPoint();
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
@@ -394,7 +398,7 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 			// TODO investigate: does switching overscan mode
 			//      happen at next line or next frame
 			status = (status & 0xFB) | ((val & 1) << 2);
-			syncAtNextLine(V9990_SET_MODE, time);
+			syncAtNextLine(syncSetMode, time);
 
 			bool newSystemReset = (val & 2) != 0;
 			if (newSystemReset != systemReset) {
@@ -433,43 +437,40 @@ void V9990::writeIO(word port, byte val, EmuTime::param time)
 // Schedulable
 // -------------------------------------------------------------------------
 
-void V9990::executeUntil(EmuTime::param time, int userData)
+void V9990::execVSync(EmuTime::param time)
 {
-	switch (userData)  {
-	case V9990_VSYNC:
-		// Transition from one frame to the next
-		renderer->frameEnd(time);
-		frameStart(time);
-		break;
+	// Transition from one frame to the next
+	renderer->frameEnd(time);
+	frameStart(time);
+}
 
-	case V9990_DISPLAY_START:
-		if (displayEnabled) {
-			renderer->updateDisplayEnabled(true, time);
-		}
-		isDisplayArea = true;
-		break;
-
-	case V9990_VSCAN:
-		if (isDisplayEnabled()) {
-			renderer->updateDisplayEnabled(false, time);
-		}
-		isDisplayArea = false;
-		raiseIRQ(VER_IRQ);
-		break;
-
-	case V9990_HSCAN:
-		raiseIRQ(HOR_IRQ);
-		break;
-
-	case V9990_SET_MODE:
-		calcDisplayMode();
-		renderer->setDisplayMode(getDisplayMode(), time);
-		renderer->setColorMode(getColorMode(), time);
-		break;
-
-	default:
-		UNREACHABLE;
+void V9990::execDisplayStart(EmuTime::param time)
+{
+	if (displayEnabled) {
+		renderer->updateDisplayEnabled(true, time);
 	}
+	isDisplayArea = true;
+}
+
+void V9990::execVScan(EmuTime::param time)
+{
+	if (isDisplayEnabled()) {
+		renderer->updateDisplayEnabled(false, time);
+	}
+	isDisplayArea = false;
+	raiseIRQ(VER_IRQ);
+}
+
+void V9990::execHScan()
+{
+	raiseIRQ(HOR_IRQ);
+}
+
+void V9990::execSetMode(EmuTime::param time)
+{
+	calcDisplayMode();
+	renderer->setDisplayMode(getDisplayMode(), time);
+	renderer->setColorMode(getColorMode(), time);
 }
 
 // -------------------------------------------------------------------------
@@ -483,7 +484,7 @@ void V9990::preVideoSystemChange()
 
 void V9990::postVideoSystemChange()
 {
-	EmuTime::param time = Schedulable::getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }
@@ -571,12 +572,12 @@ byte V9990::readRegister(byte reg, EmuTime::param time) const
 	return result;
 }
 
-void V9990::syncAtNextLine(V9990SyncType type, EmuTime::param time)
+void V9990::syncAtNextLine(SyncBase& type, EmuTime::param time)
 {
 	int line = getUCTicksThisFrame(time) / V9990DisplayTiming::UC_TICKS_PER_LINE;
 	int ticks = (line + 1) * V9990DisplayTiming::UC_TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	setSyncPoint(nextTime, type);
+	type.setSyncPoint(nextTime);
 }
 
 void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
@@ -612,7 +613,7 @@ void V9990::writeRegister(byte reg, byte val, EmuTime::param time)
 		case SCREEN_MODE_0:
 		case SCREEN_MODE_1:
 			// TODO verify this on real V9990
-			syncAtNextLine(V9990_SET_MODE, time);
+			syncAtNextLine(syncSetMode, time);
 			break;
 		case PALETTE_CONTROL:
 			renderer->setColorMode(getColorMode(val), time);
@@ -723,19 +724,16 @@ void V9990::frameStart(EmuTime::param time)
 	frameStartTime.reset(time);
 
 	// schedule next VSYNC
-	setSyncPoint(
-		frameStartTime + V9990DisplayTiming::getUCTicksPerFrame(palTiming),
-		V9990_VSYNC);
+	syncVSync.setSyncPoint(
+		frameStartTime + V9990DisplayTiming::getUCTicksPerFrame(palTiming));
 
 	// schedule DISPLAY_START
-	setSyncPoint(
-	    frameStartTime + getTopBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	    V9990_DISPLAY_START);
+	syncDisplayStart.setSyncPoint(
+	    frameStartTime + getTopBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE);
 
 	// schedule VSCAN
-	setSyncPoint(
-	    frameStartTime + getBottomBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE,
-	    V9990_VSCAN);
+	syncVScan.setSyncPoint(
+	    frameStartTime + getBottomBorder() * V9990DisplayTiming::UC_TICKS_PER_LINE);
 
 	renderer->frameStart(time);
 }
@@ -861,7 +859,7 @@ void V9990::scheduleHscan(EmuTime::param time)
 {
 	// remove pending HSCAN, if any
 	if (hScanSyncTime > time) {
-		removeSyncPoint(V9990_HSCAN);
+		syncHScan.removeSyncPoint();
 		hScanSyncTime = time;
 	}
 
@@ -887,7 +885,7 @@ void V9990::scheduleHscan(EmuTime::param time)
 	}
 
 	hScanSyncTime = frameStartTime + offset;
-	setSyncPoint(hScanSyncTime, V9990_HSCAN);
+	syncHScan.setSyncPoint(hScanSyncTime);
 }
 
 static enum_string<V9990DisplayMode> displayModeInfo[] = {
@@ -898,14 +896,26 @@ static enum_string<V9990DisplayMode> displayModeInfo[] = {
 };
 SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
 
-// version 1:  initial version
-// version 2:  added systemReset
-// version 3:  added vramReadPtr, vramWritePtr, vramReadBuffer
+// version 1: initial version
+// version 2: added systemReset
+// version 3: added vramReadPtr, vramWritePtr, vramReadBuffer
+// version 4: removed 'userData' from Schedulable
 template<typename Archive>
 void V9990::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.template serializeBase<Schedulable>(*this);
+
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("syncVSync",        syncVSync);
+		ar.serialize("syncDisplayStart", syncDisplayStart);
+		ar.serialize("syncVScan",        syncVScan);
+		ar.serialize("syncHScan",        syncHScan);
+		ar.serialize("syncSetMode",      syncSetMode);
+	} else {
+		Schedulable::restoreOld(ar,
+			{&syncVSync, &syncDisplayStart, &syncVScan,
+			 &syncHScan, &syncSetMode});
+	}
 
 	ar.serialize("vram", *vram);
 	ar.serialize("cmdEngine", *cmdEngine);
@@ -934,7 +944,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 	if (ar.versionBelow(version, 3)) {
 		vramReadPtr = getVRAMAddr(VRAM_READ_ADDRESS_0);
 		vramWritePtr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-		vramReadBuffer = vram->readVRAMCPU(vramReadPtr, Schedulable::getCurrentTime());
+		vramReadBuffer = vram->readVRAMCPU(vramReadPtr, getCurrentTime());
 	} else {
 		ar.serialize("vramReadPtr", vramReadPtr);
 		ar.serialize("vramWritePtr", vramWritePtr);
@@ -956,7 +966,7 @@ void V9990::serialize(Archive& ar, unsigned version)
 		setHorizontalTiming();
 		setVerticalTiming();
 
-		renderer->reset(Schedulable::getCurrentTime());
+		renderer->reset(getCurrentTime());
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(V9990);

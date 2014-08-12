@@ -9,24 +9,13 @@
 
 namespace openmsx {
 
-struct FindSchedulable {
-	explicit FindSchedulable(const Schedulable& schedulable_)
+struct EqualSchedulable {
+	EqualSchedulable(const Schedulable& schedulable_)
 		: schedulable(schedulable_) {}
 	bool operator()(const SynchronizationPoint& sp) const {
 		return sp.getDevice() == &schedulable;
 	}
 	const Schedulable& schedulable;
-};
-
-struct EqualSchedulable {
-	EqualSchedulable(const Schedulable& schedulable_, int userdata_)
-		: schedulable(schedulable_), userdata(userdata_) {}
-	bool operator()(const SynchronizationPoint& sp) const {
-		return (sp.getDevice() == &schedulable) &&
-		       (sp.getUserData() == userdata);
-	}
-	const Schedulable& schedulable;
-	int userdata;
 };
 
 
@@ -48,13 +37,13 @@ Scheduler::~Scheduler()
 	assert(queue.empty());
 }
 
-void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device, int userData)
+void Scheduler::setSyncPoint(EmuTime::param time, Schedulable& device)
 {
 	assert(Thread::isMainThread());
 	assert(time >= scheduleTime);
 
 	// Push sync point into queue.
-	queue.insert(SynchronizationPoint(time, &device, userData),
+	queue.insert(SynchronizationPoint(time, &device),
 	             [](SynchronizationPoint& sp) { sp.setTime(EmuTime::infinity); },
 	             [](const SynchronizationPoint& x, const SynchronizationPoint& y) {
 	                     return x.getTime() < y.getTime(); });
@@ -71,28 +60,28 @@ Scheduler::SyncPoints Scheduler::getSyncPoints(const Schedulable& device) const
 {
 	SyncPoints result;
 	copy_if(std::begin(queue), std::end(queue), back_inserter(result),
-	        FindSchedulable(device));
+	        EqualSchedulable(device));
 	return result;
 }
 
-bool Scheduler::removeSyncPoint(Schedulable& device, int userData)
+bool Scheduler::removeSyncPoint(Schedulable& device)
 {
 	assert(Thread::isMainThread());
-	return queue.remove(EqualSchedulable(device, userData));
+	return queue.remove(EqualSchedulable(device));
 }
 
 void Scheduler::removeSyncPoints(Schedulable& device)
 {
 	assert(Thread::isMainThread());
-	queue.remove_all(FindSchedulable(device));
+	queue.remove_all(EqualSchedulable(device));
 }
 
-bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData,
+bool Scheduler::pendingSyncPoint(const Schedulable& device,
                                  EmuTime& result) const
 {
 	assert(Thread::isMainThread());
 	auto it = std::find_if(std::begin(queue), std::end(queue),
-	                       EqualSchedulable(device, userData));
+	                       EqualSchedulable(device));
 	if (it != std::end(queue)) {
 		result = it->getTime();
 		return true;
@@ -117,11 +106,10 @@ void Scheduler::scheduleHelper(EmuTime::param limit, EmuTime next)
 
 		const auto& sp = queue.front();
 		auto* device = sp.getDevice();
-		int userData = sp.getUserData();
 
 		queue.remove_front();
 
-		device->executeUntil(next, userData);
+		device->executeUntil(next);
 
 		next = getNext();
 		if (likely(next > limit)) break;
@@ -140,7 +128,6 @@ void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 	// same Schedulable. So there's no need to serialize 'device'.
 	//Schedulable* device;
 	ar.serialize("time", timeStamp);
-	ar.serialize("type", userData);
 }
 INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);
 

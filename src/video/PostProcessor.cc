@@ -204,7 +204,7 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	}
 }
 
-void PostProcessor::executeUntil(EmuTime::param /*time*/, int /*userData*/)
+void PostProcessor::executeUntil(EmuTime::param /*time*/)
 {
 	// insert fake end of frame event
 	eventDistributor.distributeEvent(

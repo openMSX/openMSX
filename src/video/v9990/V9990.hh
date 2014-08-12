@@ -26,9 +26,7 @@ class V9990PalDebug;
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
   */
-class V9990 final : public MSXDevice
-                  , public Schedulable
-                  , private VideoSystemChangeListener
+class V9990 final : public MSXDevice, private VideoSystemChangeListener
 {
 public:
 	explicit V9990(const DeviceConfig& config);
@@ -353,33 +351,59 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// Schedulable interface:
-	void executeUntil(EmuTime::param time, int userData) override;
-
 	// VideoSystemChangeListener interface:
 	void preVideoSystemChange() override;
 	void postVideoSystemChange() override;
 
-	// --- types ------------------------------------------------------
-
-	/** Types of V9990 Sync points that can be scheduled
-	  */
-	enum V9990SyncType {
-		/** Vertical Sync: transition to next frame */
-		V9990_VSYNC,
-
-		/** Start of display */
-		V9990_DISPLAY_START,
-
-		/** Vertical scanning: end of display */
-		V9990_VSCAN,
-
-		/** Horizontal Sync (line interrupt) */
-		V9990_HSCAN,
-
-		/** Change screen mode */
-		V9990_SET_MODE,
+	// Scheduler stuff
+	struct SyncBase : public Schedulable {
+		SyncBase(V9990& v9990_) : Schedulable(v9990_.getScheduler()), v9990(v9990_) {}
+		V9990& v9990;
+		friend class V9990;
 	};
+
+	struct SyncVSync : public SyncBase {
+		SyncVSync(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			v9990.execVSync(time);
+		}
+	} syncVSync;
+
+	struct SyncDisplayStart : public SyncBase {
+		SyncDisplayStart(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			v9990.execDisplayStart(time);
+		}
+	} syncDisplayStart;
+
+	struct SyncVScan : public SyncBase {
+		SyncVScan(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			v9990.execVScan(time);
+		}
+	} syncVScan;
+
+	struct SyncHScan : public SyncBase {
+		SyncHScan(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param /*time*/) override {
+			v9990.execHScan();
+		}
+	} syncHScan;
+
+	struct SyncSetMode : public SyncBase {
+		SyncSetMode(V9990& v9990) : SyncBase(v9990) {}
+		void executeUntil(EmuTime::param time) override {
+			v9990.execSetMode(time);
+		}
+	} syncSetMode;
+
+	void execVSync(EmuTime::param time);
+	void execDisplayStart(EmuTime::param time);
+	void execVScan(EmuTime::param time);
+	void execHScan();
+	void execSetMode(EmuTime::param time);
+
+	// --- types ------------------------------------------------------
 
 	/** IRQ types
 	  */
@@ -616,7 +640,7 @@ private:
 
 	/** Schedule a sync point at the start of the next line
 	 */
-	void syncAtNextLine(V9990SyncType type, EmuTime::param time);
+	void syncAtNextLine(SyncBase& type, EmuTime::param time);
 
 	/** Create a new renderer.
 	  * @param time  Moment in emulated time to create the renderer
@@ -643,7 +667,7 @@ private:
 	  */
 	void scheduleHscan(EmuTime::param time);
 };
-SERIALIZE_CLASS_VERSION(V9990, 3);
+SERIALIZE_CLASS_VERSION(V9990, 4);
 
 } // namespace openmsx
 

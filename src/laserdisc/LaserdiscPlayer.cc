@@ -120,7 +120,9 @@ LaserdiscPlayer::LaserdiscPlayer(
 		const HardwareConfig& hwConf, PioneerLDControl& ldcontrol_)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), "laserdiscplayer",
 	                       "Laserdisc Player", 1, true)
-	, Schedulable(hwConf.getMotherBoard().getScheduler())
+	, syncAck (hwConf.getMotherBoard().getScheduler(), *this)
+	, syncOdd (hwConf.getMotherBoard().getScheduler(), *this)
+	, syncEven(hwConf.getMotherBoard().getScheduler(), *this)
 	, motherBoard(hwConf.getMotherBoard())
 	, ldcontrol(ldcontrol_)
 	, laserdiscCommand(make_unique<LaserdiscCommand>(
@@ -153,7 +155,7 @@ LaserdiscPlayer::LaserdiscPlayer(
 
 	createRenderer();
 	reactor.getEventDistributor().registerEventListener(OPENMSX_BOOT_EVENT, *this);
-	scheduleDisplayStart(Schedulable::getCurrentTime());
+	scheduleDisplayStart(getCurrentTime());
 
 	setInputRate(44100); // Initialize with dummy value
 
@@ -174,8 +176,8 @@ void LaserdiscPlayer::scheduleDisplayStart(EmuTime::param time)
 	Clock<60000, 1001> frameClock(time);
 	// The video is 29.97Hz, however we need to do vblank processing
 	// at the full 59.94Hz
-	setSyncPoint(frameClock + 1, ODD_FRAME);
-	setSyncPoint(frameClock + 2, EVEN_FRAME);
+	syncOdd .setSyncPoint(frameClock + 1);
+	syncEven.setSyncPoint(frameClock + 2);
 }
 
 // The protocol used to communicate over the cable for commands to the
@@ -284,8 +286,8 @@ const RawFrame* LaserdiscPlayer::getRawFrame() const
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
 	// activate ACK for 'wait' milliseconds
-	removeSyncPoint(ACK);
-	setSyncPoint(time + EmuDuration::msec(wait), ACK);
+	syncAck.removeSyncPoint();
+	syncAck.setSyncPoint(time + EmuDuration::msec(wait));
 	ack = true;
 }
 
@@ -503,44 +505,41 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 }
 
-void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
+void LaserdiscPlayer::execSyncAck(EmuTime::param time)
 {
 	updateStream(time);
 
-	switch (userdata) {
-	case ACK:
-		if (seeking && playerState == PLAYER_PLAYING) {
-			sampleClock.advance(time);
-		}
-		// seek complete
-		ack = false;
-		seeking = false;
-		break;
+	if (seeking && playerState == PLAYER_PLAYING) {
+		sampleClock.advance(time);
+	}
 
-	case ODD_FRAME:
-		if (!video || video->getFrameRate() != 60)
-			break;
-	case EVEN_FRAME:
+	ack = false;
+	seeking = false;
+}
+
+void LaserdiscPlayer::execSyncFrame(EmuTime::param time, bool odd)
+{
+	updateStream(time);
+
+	if (!odd || (video && video->getFrameRate() == 60)) {
 		if ((playerState != PLAYER_STOPPED) &&
 		    (currentFrame > video->getFrames())) {
 			playerState = PLAYER_STOPPED;
 		}
 
-		if (RawFrame* rawFrame = renderer->getRawFrame()) {
+		if (auto* rawFrame = renderer->getRawFrame()) {
 			renderer->frameStart(time);
 
 			if (isVideoOutputAvailable(time)) {
 				auto frame = currentFrame;
 				if (video->getFrameRate() == 60) {
 					frame *= 2;
-					if (userdata == ODD_FRAME) {
-						frame--;
-					}
+					if (odd) frame--;
 				}
 
 				video->getFrameNo(*rawFrame, frame);
 
-				if (userdata == EVEN_FRAME) {
+				if (!odd) {
 					nextFrame(time);
 				}
 			} else {
@@ -553,25 +552,23 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		loadingIndicator->update(seeking || sampleReads > 500);
 		sampleReads = 0;
 
-		if (userdata == EVEN_FRAME) {
+		if (!odd) {
 			scheduleDisplayStart(time);
 		}
 	}
 
-	if (userdata == EVEN_FRAME || userdata == ODD_FRAME) {
-		// Processing of the remote control happens at each frame
-		// (even and odd, so at 59.94Hz)
-		if (remoteProtocol == IR_NEC) {
-			if (remoteExecuteDelayed) {
-				remoteButtonNEC(remoteCode, time);
-			}
-
-			if (++remoteVblanksBack > 6) {
-				remoteProtocol = IR_NONE;
-			}
+	// Processing of the remote control happens at each frame
+	// (even and odd, so at 59.94Hz)
+	if (remoteProtocol == IR_NEC) {
+		if (remoteExecuteDelayed) {
+			remoteButtonNEC(remoteCode, time);
 		}
-		remoteExecuteDelayed = false;
+
+		if (++remoteVblanksBack > 6) {
+			remoteProtocol = IR_NONE;
+		}
 	}
+	remoteExecuteDelayed = false;
 }
 
 void LaserdiscPlayer::setFrameStep()
@@ -1044,6 +1041,7 @@ SERIALIZE_ENUM(LaserdiscPlayer::RemoteProtocol, RemoteProtocolInfo);
 // version 1: initial version
 // version 2: added 'stillOnWaitFrame'
 // version 3: reversed bit order of 'remoteBits' and 'remoteCode'
+// version 4: removed 'userData' from Schedulable
 template<typename Archive>
 void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 {
@@ -1133,7 +1131,13 @@ void LaserdiscPlayer::serialize(Archive& ar, unsigned version)
 		}
 	}
 
-	ar.template serializeBase<Schedulable>(*this);
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("syncEven", syncEven);
+		ar.serialize("syncOdd",  syncOdd);
+		ar.serialize("syncAck",  syncAck);
+	} else {
+		Schedulable::restoreOld(ar, {&syncEven, &syncOdd, &syncAck});
+	}
 
 	if (ar.isLoader()) {
 		isVideoOutputAvailable(getCurrentTime());

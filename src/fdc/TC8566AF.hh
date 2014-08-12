@@ -58,7 +58,7 @@ public:
 
 private:
 	// Schedulable
-	void executeUntil(EmuTime::param time, int state) override;
+	void executeUntil(EmuTime::param time) override;
 
 	byte peekDataPort(EmuTime::param time) const;
 	byte readDataPort(EmuTime::param time);

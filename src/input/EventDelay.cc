@@ -178,7 +178,7 @@ void EventDelay::sync(EmuTime::param curEmu)
 #endif
 }
 
-void EventDelay::executeUntil(EmuTime::param time, int /*userData*/)
+void EventDelay::executeUntil(EmuTime::param time)
 {
 	try {
 		auto event = std::move(scheduledEvents.front());

@@ -22,7 +22,7 @@ class BooleanSetting;
 class TapeCommand;
 
 class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
-                           , private EventListener, private Schedulable
+                           , private EventListener
 {
 public:
 	explicit CassettePlayer(const HardwareConfig& hwConf);
@@ -113,7 +113,28 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	struct SyncBase : public Schedulable {
+		SyncBase(Scheduler& s, CassettePlayer& cp_)
+			: Schedulable(s), cp(cp_) {}
+		CassettePlayer& cp;
+		friend class CassettePlayer;
+	};
+	struct SyncEndOfTape : public SyncBase {
+		SyncEndOfTape(Scheduler& s, CassettePlayer& c) : SyncBase(s, c) {}
+		void executeUntil(EmuTime::param time) override {
+			cp.execEndOfTape(time);
+		}
+	} syncEndOfTape;
+	struct SyncAudioEmu : public SyncBase {
+		SyncAudioEmu(Scheduler& s, CassettePlayer& c) : SyncBase(s, c) {}
+		void executeUntil(EmuTime::param time) override {
+			cp.execSyncAudioEmu(time);
+		}
+	} syncAudioEmu;
+
+	void execEndOfTape(EmuTime::param time);
+	void execSyncAudioEmu(EmuTime::param time);
+	EmuTime::param getCurrentTime() const { return syncEndOfTape.getCurrentTime(); }
 
 	static const size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];

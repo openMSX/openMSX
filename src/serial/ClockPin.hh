@@ -46,7 +46,7 @@ public:
 private:
 	void unschedule();
 	void schedule(EmuTime::param time);
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	ClockPinListener* const listener;
 

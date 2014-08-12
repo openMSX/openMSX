@@ -15,15 +15,13 @@ class MSXCPU;
 class SynchronizationPoint
 {
 public:
-	SynchronizationPoint(EmuTime::param time,
-			     Schedulable* dev, int usrdat)
-		: timeStamp(time), device(dev), userData(usrdat) {}
+	SynchronizationPoint(EmuTime::param time, Schedulable* dev)
+		: timeStamp(time), device(dev) {}
 	SynchronizationPoint()
-		: timeStamp(EmuTime::zero), device(nullptr), userData(0) {}
+		: timeStamp(EmuTime::zero), device(nullptr) {}
 	EmuTime::param getTime() const { return timeStamp; }
 	void setTime(EmuTime::param time) { timeStamp = time; }
 	Schedulable* getDevice() const { return device; }
-	int getUserData() const { return userData; }
 
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -31,7 +29,6 @@ public:
 private:
 	EmuTime timeStamp;
 	Schedulable* device;
-	int userData;
 };
 
 
@@ -87,26 +84,19 @@ private: // -> intended for Schedulable
 	 * The supplied EmuTime may not be smaller than the current CPU
 	 * time.
 	 * A device may register several syncPoints.
-	 * Optionally a "userData" parameter can be passed, this
-	 * parameter is not used by the Scheduler but it is passed to
-	 * the executeUntil() method of "device". This is useful
-	 * if you want to distinguish between several syncPoint types.
-	 * If you do not supply "userData" it is assumed to be zero.
 	 */
-	void setSyncPoint(EmuTime::param timestamp, Schedulable& device,
-	                  int userData = 0);
+	void setSyncPoint(EmuTime::param timestamp, Schedulable& device);
 
 	SyncPoints getSyncPoints(const Schedulable& device) const;
 
 	/**
-	 * Removes a syncPoint of a given device that matches the given
-	 * userData.
+	 * Removes a syncPoint of a given device.
 	 * If there is more than one match only one will be removed,
 	 * there is no guarantee that the earliest syncPoint is
 	 * removed.
 	 * Returns false <=> if there was no match (so nothing removed)
 	 */
-	bool removeSyncPoint(Schedulable& device, int userdata = 0);
+	bool removeSyncPoint(Schedulable& device);
 
 	/** Remove all syncpoints for the given device.
 	  */
@@ -115,8 +105,7 @@ private: // -> intended for Schedulable
 	/**
 	 * Is there a pending syncPoint for this device?
 	 */
-	bool pendingSyncPoint(const Schedulable& device, int userdata,
-	                      EmuTime& result) const;
+	bool pendingSyncPoint(const Schedulable& device, EmuTime& result) const;
 
 private:
 	void scheduleHelper(EmuTime::param limit, EmuTime next);

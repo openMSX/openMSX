@@ -45,13 +45,11 @@ const byte CMD_RTS    = 0x20;
 const byte CMD_RESET  = 0x40;
 const byte CMD_HUNT   = 0x80;
 
-enum SyncPointType {
-	RECV, TRANS
-};
-
 
 I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, EmuTime::param time)
-	: Schedulable(scheduler), interf(interf_), clock(scheduler)
+	: syncRecv (scheduler, *this)
+	, syncTrans(scheduler, *this)
+	, interf(interf_), clock(scheduler)
 {
 	reset(time);
 }
@@ -235,7 +233,7 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 
 	if (!(command & CMD_TXEN)) {
 		// disable transmitter
-		removeSyncPoint(TRANS);
+		syncTrans.removeSyncPoint();
 		status |= STAT_TXRDY | STAT_TXEMPTY;
 	}
 	if (command & CMD_RSTERR) {
@@ -255,7 +253,7 @@ void I8251::writeCommand(byte value, EmuTime::param time)
 			recvReady = true;
 		} else {
 			// disable receiver
-			removeSyncPoint(RECV);
+			syncRecv.removeSyncPoint();
 			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			status &= ~STAT_RXRDY;
 		}
@@ -313,7 +311,7 @@ void I8251::recvByte(byte value, EmuTime::param time)
 	recvReady = false;
 	if (clock.isPeriodic()) {
 		EmuTime next = time + (clock.getTotalDuration() * charLength);
-		setSyncPoint(next, RECV);
+		syncRecv.setSyncPoint(next);
 	}
 }
 
@@ -328,31 +326,27 @@ void I8251::send(byte value, EmuTime::param time)
 	sendByte = value;
 	if (clock.isPeriodic()) {
 		EmuTime next = time + (clock.getTotalDuration() * charLength);
-		setSyncPoint(next, TRANS);
+		syncTrans.setSyncPoint(next);
 	}
 }
 
-void I8251::executeUntil(EmuTime::param time, int userData)
+void I8251::execRecv(EmuTime::param time)
 {
-	switch (userData) {
-	case RECV:
-		assert(command & CMD_RXE);
-		recvReady = true;
-		interf.signal(time);
-		break;
-	case TRANS:
-		assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));
+	assert(command & CMD_RXE);
+	recvReady = true;
+	interf.signal(time);
+}
 
-		interf.recvByte(sendByte, time);
-		if (status & STAT_TXRDY) {
-			status |= STAT_TXEMPTY;
-		} else {
-			status |= STAT_TXRDY;
-			send(sendBuffer, time);
-		}
-		break;
-	default:
-		UNREACHABLE;
+void I8251::execTrans(EmuTime::param time)
+{
+	assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));
+
+	interf.recvByte(sendByte, time);
+	if (status & STAT_TXRDY) {
+		status |= STAT_TXEMPTY;
+	} else {
+		status |= STAT_TXRDY;
+		send(sendBuffer, time);
 	}
 }
 
@@ -387,10 +381,17 @@ static enum_string<I8251::CmdFaze> cmdFazeInfo[] = {
 };
 SERIALIZE_ENUM(I8251::CmdFaze, cmdFazeInfo);
 
+// version 1: initial version
+// version 2: removed 'userData' from Schedulable
 template<typename Archive>
-void I8251::serialize(Archive& ar, unsigned /*version*/)
+void I8251::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<Schedulable>(*this);
+	if (ar.versionAtLeast(version, 2)) {
+		ar.serialize("syncRecv",  syncRecv);
+		ar.serialize("syncTrans", syncTrans);
+	} else {
+		Schedulable::restoreOld(ar, {&syncRecv, &syncTrans});
+	}
 	ar.serialize("clock", clock);
 	ar.serialize("charLength", charLength);
 	ar.serialize("recvDataBits", recvDataBits);

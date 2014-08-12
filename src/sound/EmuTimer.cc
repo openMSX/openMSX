@@ -89,7 +89,7 @@ void EmuTimer::unschedule()
 	removeSyncPoint();
 }
 
-void EmuTimer::executeUntil(EmuTime::param time, int /*userData*/)
+void EmuTimer::executeUntil(EmuTime::param time)
 {
 	cb.callback(flag);
 	schedule(time);

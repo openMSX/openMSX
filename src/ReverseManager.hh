@@ -22,8 +22,7 @@ class ReverseCmd;
 class TclObject;
 class Interpreter;
 
-class ReverseManager final : private Schedulable, private EventListener
-                           , private StateChangeRecorder
+class ReverseManager final : private EventListener, private StateChangeRecorder
 {
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);
@@ -101,7 +100,28 @@ private:
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	struct SyncBase : public Schedulable {
+		SyncBase(Scheduler& s, ReverseManager& rm_)
+			: Schedulable(s), rm(rm_) {}
+		ReverseManager& rm;
+		friend class ReverseManager;
+	};
+	struct SyncNewSnapshot : public SyncBase {
+		SyncNewSnapshot(Scheduler& s, ReverseManager& m) : SyncBase(s, m) {}
+		void executeUntil(EmuTime::param /*time*/) override {
+			rm.execNewSnapshot();
+		}
+	} syncNewSnapshot;
+	struct SyncInputEvent : public SyncBase {
+		SyncInputEvent(Scheduler& s, ReverseManager& m) : SyncBase(s, m) {}
+		void executeUntil(EmuTime::param /*time*/) override {
+			rm.execInputEvent();
+		}
+	} syncInputEvent;
+
+	void execNewSnapshot();
+	void execInputEvent();
+	EmuTime::param getCurrentTime() const { return syncNewSnapshot.getCurrentTime(); }
 
 	// EventListener
 	int signalEvent(const std::shared_ptr<const Event>& event) override;

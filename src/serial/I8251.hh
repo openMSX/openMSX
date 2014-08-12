@@ -6,6 +6,7 @@
 #include "ClockPin.hh"
 #include "SerialDataInterface.hh"
 #include "Schedulable.hh"
+#include "serialize_meta.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -25,7 +26,7 @@ protected:
 	~I8251Interface() {}
 };
 
-class I8251 final : public SerialDataInterface, public Schedulable
+class I8251 final : public SerialDataInterface
 {
 public:
 	I8251(Scheduler& scheduler, I8251Interface& interf, EmuTime::param time);
@@ -45,7 +46,26 @@ public:
 	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	struct SyncBase : public Schedulable {
+		SyncBase(Scheduler& s, I8251& i8251_)
+			: Schedulable(s), i8251(i8251_) {}
+		I8251& i8251;
+		friend class I8251;
+	};
+	struct SyncRecv : public SyncBase {
+		SyncRecv(Scheduler& s, I8251& i) : SyncBase(s, i) {}
+		void executeUntil(EmuTime::param time) override {
+			i8251.execRecv(time);
+		}
+	} syncRecv;
+	struct SyncTrans : public SyncBase {
+		SyncTrans(Scheduler& s, I8251& i) : SyncBase(s, i) {}
+		void executeUntil(EmuTime::param time) override {
+			i8251.execTrans(time);
+		}
+	} syncTrans;
+	void execRecv(EmuTime::param time);
+	void execTrans(EmuTime::param time);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -83,6 +103,7 @@ private:
 	byte mode;
 	byte sync1, sync2;
 };
+SERIALIZE_CLASS_VERSION(I8251, 2);
 
 } // namespace openmsx
 

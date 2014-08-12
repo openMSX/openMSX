@@ -163,13 +163,9 @@ REGISTER_POLYMORPHIC_CLASS(StateChange, EndLogEvent, "EndLog");
 
 // class ReverseManager
 
-enum SyncType {
-	NEW_SNAPSHOT,
-	INPUT_EVENT
-};
-
 ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
-	: Schedulable(motherBoard_.getScheduler())
+	: syncNewSnapshot(motherBoard_.getScheduler(), *this)
+	, syncInputEvent (motherBoard_.getScheduler(), *this)
 	, motherBoard(motherBoard_)
 	, eventDistributor(motherBoard.getReactor().getEventDistributor())
 	, reverseCmd(make_unique<ReverseCmd>(
@@ -214,8 +210,8 @@ void ReverseManager::stop()
 {
 	if (isCollecting()) {
 		motherBoard.getStateChangeDistributor().unregisterRecorder(*this);
-		removeSyncPoint(NEW_SNAPSHOT); // don't schedule new snapshot takings
-		removeSyncPoint(INPUT_EVENT); // stop any pending replay actions
+		syncNewSnapshot.removeSyncPoint(); // don't schedule new snapshot takings
+		syncInputEvent .removeSyncPoint(); // stop any pending replay actions
 		history.clear();
 		replayIndex = 0;
 		collecting = false;
@@ -762,56 +758,54 @@ void ReverseManager::transferHistory(ReverseHistory& oldHistory,
 	replayNextEvent();
 }
 
-void ReverseManager::executeUntil(EmuTime::param /*time*/, int userData)
+void ReverseManager::execNewSnapshot()
 {
-	switch (userData) {
-	case NEW_SNAPSHOT:
-		// During record we should take regular snapshots, and 'now'
-		// it's been a while since the last snapshot. But 'now' can be
-		// in the middle of a CPU instruction (1). However the CPU
-		// emulation code cannot handle taking snapshots at arbitrary
-		// moments in EmuTime (2)(3)(4). So instead we send out an
-		// event that indicates we want to take a snapshot (5).
-		// (1) Schedulables are executed at the exact requested
-		//     EmuTime, even in the middle of a Z80 instruction.
-		// (2) The CPU code serializes all registers, current time and
-		//     various other status info, but not enough info to be
-		//     able to resume in the middle of an instruction.
-		// (3) Only the CPU has this limitation of not being able to
-		//     take a snapshot at any EmuTime, all other devices can.
-		//     This is because in our emulation model the CPU 'drives
-		//     time forward'. It's the only device code that can be
-		//     interrupted by other emulation code (via Schedulables).
-		// (4) In the past we had a CPU core that could execute/resume
-		//     partial instructions (search SVN history). Though it was
-		//     much more complex and it also ran slower than the
-		//     current code.
-		// (5) Events are delivered from the Reactor code. That code
-		//     only runs when the CPU code has exited (meaning no
-		//     longer active in any stackframe). So it's executed right
-		//     after the CPU has finished the current instruction. And
-		//     that's OK, we only require regular snapshots here, they
-		//     should not be *exactly* equally far apart in time.
-		pendingTakeSnapshot = true;
-		eventDistributor.distributeEvent(
-			std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
-		break;
-	case INPUT_EVENT:
-		auto event = history.events[replayIndex];
-		try {
-			// deliver current event at current time
-			motherBoard.getStateChangeDistributor().distributeReplay(event);
-		} catch (MSXException&) {
-			// can throw in case we replay a command that fails
-			// ignore
-		}
-		if (!dynamic_cast<const EndLogEvent*>(event.get())) {
-			++replayIndex;
-			replayNextEvent();
-		} else {
-			assert(!isReplaying()); // stopped by replay of EndLogEvent
-		}
-		break;
+	// During record we should take regular snapshots, and 'now'
+	// it's been a while since the last snapshot. But 'now' can be
+	// in the middle of a CPU instruction (1). However the CPU
+	// emulation code cannot handle taking snapshots at arbitrary
+	// moments in EmuTime (2)(3)(4). So instead we send out an
+	// event that indicates we want to take a snapshot (5).
+	// (1) Schedulables are executed at the exact requested
+	//     EmuTime, even in the middle of a Z80 instruction.
+	// (2) The CPU code serializes all registers, current time and
+	//     various other status info, but not enough info to be
+	//     able to resume in the middle of an instruction.
+	// (3) Only the CPU has this limitation of not being able to
+	//     take a snapshot at any EmuTime, all other devices can.
+	//     This is because in our emulation model the CPU 'drives
+	//     time forward'. It's the only device code that can be
+	//     interrupted by other emulation code (via Schedulables).
+	// (4) In the past we had a CPU core that could execute/resume
+	//     partial instructions (search SVN history). Though it was
+	//     much more complex and it also ran slower than the
+	//     current code.
+	// (5) Events are delivered from the Reactor code. That code
+	//     only runs when the CPU code has exited (meaning no
+	//     longer active in any stackframe). So it's executed right
+	//     after the CPU has finished the current instruction. And
+	//     that's OK, we only require regular snapshots here, they
+	//     should not be *exactly* equally far apart in time.
+	pendingTakeSnapshot = true;
+	eventDistributor.distributeEvent(
+		std::make_shared<SimpleEvent>(OPENMSX_TAKE_REVERSE_SNAPSHOT));
+}
+
+void ReverseManager::execInputEvent()
+{
+	auto event = history.events[replayIndex];
+	try {
+		// deliver current event at current time
+		motherBoard.getStateChangeDistributor().distributeReplay(event);
+	} catch (MSXException&) {
+		// can throw in case we replay a command that fails
+		// ignore
+	}
+	if (!dynamic_cast<const EndLogEvent*>(event.get())) {
+		++replayIndex;
+		replayNextEvent();
+	} else {
+		assert(!isReplaying()); // stopped by replay of EndLogEvent
 	}
 }
 
@@ -868,7 +862,7 @@ void ReverseManager::replayNextEvent()
 {
 	// schedule next event at its own time
 	assert(replayIndex < history.events.size());
-	setSyncPoint(history.events[replayIndex]->getTime(), INPUT_EVENT);
+	syncInputEvent.setSyncPoint(history.events[replayIndex]->getTime());
 }
 
 void ReverseManager::signalStateChange(const shared_ptr<StateChange>& event)
@@ -901,7 +895,7 @@ void ReverseManager::stopReplay(EmuTime::param time)
 {
 	if (isReplaying()) {
 		// if we're replaying, stop it and erase remainder of event log
-		removeSyncPoint(INPUT_EVENT);
+		syncInputEvent.removeSyncPoint();
 		Events& events = history.events;
 		events.erase(begin(events) + replayIndex, end(events));
 		// search snapshots that are newer than 'time' and erase them
@@ -943,7 +937,7 @@ void ReverseManager::dropOldSnapshots(unsigned count)
 
 void ReverseManager::schedule(EmuTime::param time)
 {
-	setSyncPoint(time + EmuDuration(SNAPSHOT_PERIOD), NEW_SNAPSHOT);
+	syncNewSnapshot.setSyncPoint(time + EmuDuration(SNAPSHOT_PERIOD));
 }
 
 

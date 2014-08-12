@@ -3,11 +3,29 @@
 
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
 
 class Scheduler;
+
+// For backwards-compatible savestates
+struct SyncPointBW
+{
+	SyncPointBW() : time(EmuTime::zero), userData(0) {}
+
+	template <typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/) {
+		assert(ar.isLoader());
+		ar.serialize("time", time);
+		ar.serialize("type", userData);
+	}
+
+	EmuTime time;
+	int userData;
+};
 
 /**
  * Every class that wants to get scheduled at some point must inherit from
@@ -18,10 +36,9 @@ class Schedulable : private noncopyable
 public:
 	/**
 	 * When the previously registered syncPoint is reached, this
-	 * method gets called. The parameter "userData" is the same
-	 * as passed to setSyncPoint().
+	 * method gets called.
 	 */
-	virtual void executeUntil(EmuTime::param time, int userData) = 0;
+	virtual void executeUntil(EmuTime::param time) = 0;
 
 	/**
 	 * Just before the the Scheduler is deleted, it calls this method of
@@ -45,15 +62,38 @@ public:
 	template <typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
+	template <typename Archive>
+	static std::vector<SyncPointBW> serializeBW(Archive& ar) {
+		assert(ar.isLoader());
+		ar.beginTag("Schedulable");
+		std::vector<SyncPointBW> result;
+		ar.serialize("syncPoints", result);
+		ar.endTag("Schedulable");
+		return result;
+	}
+	template <typename Archive>
+	static void restoreOld(Archive& ar, std::vector<Schedulable*> schedulables) {
+		assert(ar.isLoader());
+		for (auto* s : schedulables) {
+			assert(!s->pendingSyncPoint()); (void)s;
+		}
+		for (auto& old : serializeBW(ar)) {
+			unsigned i = old.userData;
+			if (i < schedulables.size()) {
+				schedulables[i]->setSyncPoint(old.time);
+			}
+		}
+	}
+
 protected:
 	explicit Schedulable(Scheduler& scheduler);
 	~Schedulable();
 
-	void setSyncPoint(EmuTime::param timestamp, int userData = 0);
-	bool removeSyncPoint(int userData = 0);
+	void setSyncPoint(EmuTime::param timestamp);
+	bool removeSyncPoint();
 	void removeSyncPoints();
-	bool pendingSyncPoint(int userData = 0) const;
-	bool pendingSyncPoint(int userData, EmuTime& result) const;
+	bool pendingSyncPoint() const;
+	bool pendingSyncPoint(EmuTime& result) const;
 
 private:
 	Scheduler& scheduler;

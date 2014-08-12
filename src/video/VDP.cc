@@ -91,8 +91,7 @@ public:
 	void execute(array_ref<TclObject> /*tokens*/,
 	                     TclObject& result) const override
 	{
-		const Schedulable& schedulable = vdp; // resolve ambiguity
-		result.setInt(calc(schedulable.getCurrentTime()));
+		result.setInt(calc(vdp.getCurrentTime()));
 	}
 	string help(const vector<string>& /*tokens*/) const override
 	{
@@ -224,7 +223,14 @@ public:
 
 VDP::VDP(const DeviceConfig& config)
 	: MSXDevice(config)
-	, Schedulable(MSXDevice::getScheduler())
+	, syncVSync(*this)
+	, syncDisplayStart(*this)
+	, syncVScan(*this)
+	, syncHScan(*this)
+	, syncHorAdjust(*this)
+	, syncSetMode(*this)
+	, syncSetBlank(*this)
+	, syncCpuVramAccess(*this)
 	, display(getReactor().getDisplay())
 	, cmdTiming    (display.getRenderSettings().getCmdTiming())
 	, tooFastAccess(display.getRenderSettings().getTooFastAccess())
@@ -239,12 +245,12 @@ VDP::VDP(const DeviceConfig& config)
 	, msxYPosInfo      (make_unique<MsxYPosInfo>      (*this))
 	, msxX256PosInfo   (make_unique<MsxX256PosInfo>   (*this))
 	, msxX512PosInfo   (make_unique<MsxX512PosInfo>   (*this))
-	, frameStartTime(Schedulable::getCurrentTime())
+	, frameStartTime(getCurrentTime())
 	, irqVertical  (getMotherBoard(), getName() + ".IRQvertical",   config)
 	, irqHorizontal(getMotherBoard(), getName() + ".IRQhorizontal", config)
-	, displayStartSyncTime(Schedulable::getCurrentTime())
-	, vScanSyncTime(Schedulable::getCurrentTime())
-	, hScanSyncTime(Schedulable::getCurrentTime())
+	, displayStartSyncTime(getCurrentTime())
+	, vScanSyncTime(getCurrentTime())
+	, hScanSyncTime(getCurrentTime())
 	, tooFastCallback(make_unique<TclCallback>(
 		getCommandController(),
 		getName() + ".too_fast_vram_access_callback",
@@ -296,7 +302,7 @@ VDP::VDP(const DeviceConfig& config)
 	resetInit(); // must be done early to avoid UMRs
 
 	// Video RAM.
-	EmuTime::param time = Schedulable::getCurrentTime();
+	EmuTime::param time = getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
@@ -434,14 +440,14 @@ void VDP::powerUp(EmuTime::param time)
 
 void VDP::reset(EmuTime::param time)
 {
-	removeSyncPoint(VSYNC);
-	removeSyncPoint(DISPLAY_START);
-	removeSyncPoint(VSCAN);
-	removeSyncPoint(HSCAN);
-	removeSyncPoint(HOR_ADJUST);
-	removeSyncPoint(SET_MODE);
-	removeSyncPoint(SET_BLANK);
-	removeSyncPoint(CPU_VRAM_ACCESS);
+	syncVSync        .removeSyncPoint();
+	syncDisplayStart .removeSyncPoint();
+	syncVScan        .removeSyncPoint();
+	syncHScan        .removeSyncPoint();
+	syncHorAdjust    .removeSyncPoint();
+	syncSetMode      .removeSyncPoint();
+	syncSetBlank     .removeSyncPoint();
+	syncCpuVramAccess.removeSyncPoint();
 	pendingCpuAccess = false;
 
 	// Reset subsystems.
@@ -460,96 +466,88 @@ void VDP::reset(EmuTime::param time)
 	assert(frameCount == 0);
 }
 
-void VDP::executeUntil(EmuTime::param time, int userData)
+void VDP::execVSync(EmuTime::param time)
 {
-	/*
-	int ticksThisFrame = getTicksThisFrame(time);
-	cout << (userData == VSYNC ? "VSYNC" :
-		     (userData == VSCAN ? "VSCAN" :
-		     (userData == HSCAN ? "HSCAN" : "DISPLAY_START")))
-		<< " at (" << (ticksThisFrame % TICKS_PER_LINE)
-		<< ',' << ((ticksThisFrame - displayStart) / TICKS_PER_LINE)
-		<< "), IRQ_H = " << (int)irqHorizontal.getState()
-		<< " IRQ_V = " << (int)irqVertical.getState()
-		//<< ", frame = " << frameStartTime
-		<< "\n";
-	*/
+	// This frame is finished.
+	// Inform VDP subcomponents.
+	// TODO: Do this via VDPVRAM?
+	renderer->frameEnd(time);
+	spriteChecker->frameEnd(time);
+	// Start next frame.
+	frameStart(time);
+}
 
-	// Handle the various sync types.
-	switch (userData) {
-	case VSYNC:
-		// This frame is finished.
-		// Inform VDP subcomponents.
-		// TODO: Do this via VDPVRAM?
-		renderer->frameEnd(time);
-		spriteChecker->frameEnd(time);
-		// Start next frame.
-		frameStart(time);
-		break;
-	case DISPLAY_START:
-		// Display area starts here, unless we're doing overscan and it
-		// was already active.
-		if (!isDisplayArea) {
-			if (displayEnabled) {
-				vram->updateDisplayEnabled(true, time);
-			}
-			isDisplayArea = true;
+void VDP::execDisplayStart(EmuTime::param time)
+{
+	// Display area starts here, unless we're doing overscan and it
+	// was already active.
+	if (!isDisplayArea) {
+		if (displayEnabled) {
+			vram->updateDisplayEnabled(true, time);
 		}
-		break;
-	case VSCAN:
-		// VSCAN is the end of display.
-		// This will generate a VBLANK IRQ. Typically MSX software will
-		// poll the keyboard/joystick on this IRQ. So now is a good
-		// time to also poll for host events.
-		getReactor().enterMainLoop();
+		isDisplayArea = true;
+	}
+}
 
-		if (isDisplayEnabled()) {
-			vram->updateDisplayEnabled(false, time);
-		}
-		isDisplayArea = false;
+void VDP::execVScan(EmuTime::param time)
+{
+	// VSCAN is the end of display.
+	// This will generate a VBLANK IRQ. Typically MSX software will
+	// poll the keyboard/joystick on this IRQ. So now is a good
+	// time to also poll for host events.
+	getReactor().enterMainLoop();
 
-		// Vertical scanning occurs.
-		statusReg0 |= 0x80;
-		if (controlRegs[1] & 0x20) {
-			irqVertical.set();
-		}
-		break;
-	case HSCAN:
-		// Horizontal scanning occurs.
-		if (controlRegs[0] & 0x10) {
-			irqHorizontal.set();
-		}
-		break;
-	case HOR_ADJUST: {
-		int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
-		if (controlRegs[25] & 0x08) {
-			newHorAdjust += 4;
-		}
-		renderer->updateHorizontalAdjust(newHorAdjust, time);
-		horizontalAdjust = newHorAdjust;
-		break;
+	if (isDisplayEnabled()) {
+		vram->updateDisplayEnabled(false, time);
 	}
-	case SET_MODE:
-		updateDisplayMode(
-			DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
-			time);
-		break;
-	case SET_BLANK: {
-		bool newDisplayEnabled = (controlRegs[1] & 0x40) != 0;
-		if (isDisplayArea) {
-			vram->updateDisplayEnabled(newDisplayEnabled, time);
-		}
-		displayEnabled = newDisplayEnabled;
-		break;
+	isDisplayArea = false;
+
+	// Vertical scanning occurs.
+	statusReg0 |= 0x80;
+	if (controlRegs[1] & 0x20) {
+		irqVertical.set();
 	}
-	case CPU_VRAM_ACCESS:
-		assert(!allowTooFastAccess);
-		pendingCpuAccess = false;
-		executeCpuVramAccess(time);
-		break;
-	default:
-		UNREACHABLE;
+}
+
+void VDP::execHScan()
+{
+	// Horizontal scanning occurs.
+	if (controlRegs[0] & 0x10) {
+		irqHorizontal.set();
 	}
+}
+
+void VDP::execHorAdjust(EmuTime::param time)
+{
+	int newHorAdjust = (controlRegs[18] & 0x0F) ^ 0x07;
+	if (controlRegs[25] & 0x08) {
+		newHorAdjust += 4;
+	}
+	renderer->updateHorizontalAdjust(newHorAdjust, time);
+	horizontalAdjust = newHorAdjust;
+}
+
+void VDP::execSetMode(EmuTime::param time)
+{
+	updateDisplayMode(
+		DisplayMode(controlRegs[0], controlRegs[1], controlRegs[25]),
+		time);
+}
+
+void VDP::execSetBlank(EmuTime::param time)
+{
+	bool newDisplayEnabled = (controlRegs[1] & 0x40) != 0;
+	if (isDisplayArea) {
+		vram->updateDisplayEnabled(newDisplayEnabled, time);
+	}
+	displayEnabled = newDisplayEnabled;
+}
+
+void VDP::execCpuVramAccess(EmuTime::param time)
+{
+	assert(!allowTooFastAccess);
+	pendingCpuAccess = false;
+	executeCpuVramAccess(time);
 }
 
 // TODO: This approach assumes that an overscan-like approach can be used
@@ -559,7 +557,7 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 {
 	// Remove pending DISPLAY_START sync point, if any.
 	if (displayStartSyncTime > time) {
-		removeSyncPoint(DISPLAY_START);
+		syncDisplayStart.removeSyncPoint();
 		//cerr << "removing predicted DISPLAY_START sync point\n";
 	}
 
@@ -580,7 +578,7 @@ void VDP::scheduleDisplayStart(EmuTime::param time)
 
 	// Register new DISPLAY_START sync point.
 	if (displayStartSyncTime > time) {
-		setSyncPoint(displayStartSyncTime, DISPLAY_START);
+		syncDisplayStart.setSyncPoint(displayStartSyncTime);
 		//cerr << "inserting new DISPLAY_START sync point\n";
 	}
 
@@ -602,7 +600,7 @@ void VDP::scheduleVScan(EmuTime::param time)
 
 	// Remove pending VSCAN sync point, if any.
 	if (vScanSyncTime > time) {
-		removeSyncPoint(VSCAN);
+		syncVScan.removeSyncPoint();
 		//cerr << "removing predicted VSCAN sync point\n";
 	}
 
@@ -613,7 +611,7 @@ void VDP::scheduleVScan(EmuTime::param time)
 
 	// Register new VSCAN sync point.
 	if (vScanSyncTime > time) {
-		setSyncPoint(vScanSyncTime, VSCAN);
+		syncVScan.setSyncPoint(vScanSyncTime);
 		//cerr << "inserting new VSCAN sync point\n";
 	}
 }
@@ -622,7 +620,7 @@ void VDP::scheduleHScan(EmuTime::param time)
 {
 	// Remove pending HSCAN sync point, if any.
 	if (hScanSyncTime > time) {
-		removeSyncPoint(HSCAN);
+		syncHScan.removeSyncPoint();
 		hScanSyncTime = time;
 	}
 
@@ -658,7 +656,7 @@ void VDP::scheduleHScan(EmuTime::param time)
 		*/
 		hScanSyncTime = frameStartTime + horizontalScanOffset;
 		if (hScanSyncTime > time) {
-			setSyncPoint(hScanSyncTime, HSCAN);
+			syncHScan.setSyncPoint(hScanSyncTime);
 		}
 	}
 }
@@ -711,7 +709,7 @@ void VDP::frameStart(EmuTime::param time)
 
 	// Schedule next VSYNC.
 	frameStartTime.reset(time);
-	setSyncPoint(frameStartTime + getTicksPerFrame(), VSYNC);
+	syncVSync.setSyncPoint(frameStartTime + getTicksPerFrame());
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);
 
@@ -894,7 +892,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 			pendingCpuAccess = true;
 			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_28
 						 : VDPAccessSlots::DELTA_16;
-			setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
+			syncCpuVramAccess.setSyncPoint(getAccessSlot(time, delta));
 		}
 	}
 }
@@ -1104,7 +1102,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	switch (reg) {
 	case 0:
 		if (change & DisplayMode::REG0_MASK) {
-			syncAtNextLine(SET_MODE, time);
+			syncAtNextLine(syncSetMode, time);
 		}
 		break;
 	case 1:
@@ -1114,10 +1112,10 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		}
 		// TODO: Reset vertical IRQ if IE0 is reset?
 		if (change & DisplayMode::REG1_MASK) {
-			syncAtNextLine(SET_MODE, time);
+			syncAtNextLine(syncSetMode, time);
 		}
 		if (change & 0x40) {
-			syncAtNextLine(SET_BLANK, time);
+			syncAtNextLine(syncSetBlank, time);
 		}
 		break;
 	case 2: {
@@ -1174,7 +1172,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 		break;
 	case 18:
 		if (change & 0x0F) {
-			syncAtNextLine(HOR_ADJUST, time);
+			syncAtNextLine(syncHorAdjust, time);
 		}
 		break;
 	case 23:
@@ -1187,7 +1185,7 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 			                  time);
 		}
 		if (change & 0x08) {
-			syncAtNextLine(HOR_ADJUST, time);
+			syncAtNextLine(syncHorAdjust, time);
 		}
 		if (change & 0x02) {
 			renderer->updateBorderMask((val & 0x02) != 0, time);
@@ -1297,12 +1295,12 @@ void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 	}
 }
 
-void VDP::syncAtNextLine(SyncType type, EmuTime::param time)
+void VDP::syncAtNextLine(SyncBase& type, EmuTime::param time)
 {
 	int line = getTicksThisFrame(time) / TICKS_PER_LINE;
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
-	setSyncPoint(nextTime, type);
+	type.setSyncPoint(nextTime);
 }
 
 void VDP::updateNameBase(EmuTime::param time)
@@ -1471,9 +1469,9 @@ void VDP::update(const Setting& setting)
 
 	if (unlikely(allowTooFastAccess && pendingCpuAccess)) {
 		// in allowTooFastAccess-mode, don't schedule CPU-VRAM access
-		removeSyncPoint(CPU_VRAM_ACCESS);
+		syncCpuVramAccess.removeSyncPoint();
 		pendingCpuAccess = false;
-		executeCpuVramAccess(Schedulable::getCurrentTime());
+		executeCpuVramAccess(getCurrentTime());
 	}
 }
 
@@ -1581,11 +1579,27 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 // version 5: replace readAhead->cpuVramData, added cpuVramReqIsRead
 // version 6: added cpuVramReqAddr to solve too_fast_vram_access issue
 // version 7: removed cpuVramReqAddr again, fixed issue in a different way
+// version 8: removed 'userData' from Schedulable
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned version)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	ar.template serializeBase<Schedulable>(*this);
+
+	if (ar.versionAtLeast(version, 8)) {
+		ar.serialize("syncVSync",         syncVSync);
+		ar.serialize("syncDisplayStart",  syncDisplayStart);
+		ar.serialize("syncVScan",         syncVScan);
+		ar.serialize("syncHScan",         syncHScan);
+		ar.serialize("syncHorAdjust",     syncHorAdjust);
+		ar.serialize("syncSetMode",       syncSetMode);
+		ar.serialize("syncSetBlank",      syncSetBlank);
+		ar.serialize("syncCpuVramAccess", syncCpuVramAccess);
+	} else {
+		Schedulable::restoreOld(ar,
+			{&syncVSync, &syncDisplayStart, &syncVScan,
+			 &syncHScan, &syncHorAdjust, &syncSetMode,
+			 &syncSetBlank, &syncCpuVramAccess});
+	}
 
 	// not serialized
 	//    std::unique_ptr<Renderer> renderer;
@@ -1633,7 +1647,7 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
 	if (ar.isLoader()) {
-		pendingCpuAccess = pendingSyncPoint(CPU_VRAM_ACCESS);
+		pendingCpuAccess = syncCpuVramAccess.pendingSyncPoint();
 		update(tooFastAccess);
 	}
 

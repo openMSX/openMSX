@@ -683,10 +683,9 @@ void TC8566AF::doSeek(EmuTime::param time)
 	setSyncPoint(time + getSeekDelay());
 }
 
-void TC8566AF::executeUntil(EmuTime::param time, int /*userData*/)
+void TC8566AF::executeUntil(EmuTime::param time)
 {
-	if ((command == CMD_SEEK) ||
-	    (command == CMD_RECALIBRATE)) {
+	if ((command == CMD_SEEK) || (command == CMD_RECALIBRATE)) {
 		doSeek(time);
 	}
 }

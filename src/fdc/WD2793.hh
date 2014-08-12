@@ -64,7 +64,7 @@ public:
 	};
 
 private:
-	void executeUntil(EmuTime::param time, int state) override;
+	void executeUntil(EmuTime::param time) override;
 
 	void startType1Cmd(EmuTime::param time);
 
@@ -136,7 +136,7 @@ private:
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 7);
+SERIALIZE_CLASS_VERSION(WD2793, 8);
 
 } // namespace openmsx
 

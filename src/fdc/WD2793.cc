@@ -35,12 +35,6 @@ static const int R2N_IRQ    = 0x02;
 static const int IDX_IRQ    = 0x04;
 static const int IMM_IRQ    = 0x08;
 
-// Sync point types
-enum SyncPointType {
-	SCHED_FSM,    // this is the only one in active use, so we could remove this enum
-	SCHED_IDX_IRQ // but this one is still used for backwards compatible savestates
-};
-
 
 /** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
  * the only emulated difference between WD1770 and WD{12}793 is that WD1770
@@ -68,7 +62,7 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
 
 void WD2793::reset(EmuTime::param time)
 {
-	removeSyncPoint(SCHED_FSM);
+	removeSyncPoint();
 	fsmState = FSM_NONE;
 
 	statusReg = 0;
@@ -119,7 +113,7 @@ bool WD2793::isReady() const
 
 void WD2793::setCommandReg(byte value, EmuTime::param time)
 {
-	removeSyncPoint(SCHED_FSM);
+	removeSyncPoint();
 
 	commandReg = value;
 	irqTime = EmuTime::infinity; // INTRQ = false;
@@ -365,14 +359,13 @@ byte WD2793::peekDataReg(EmuTime::param time)
 
 void WD2793::schedule(FSMState state, EmuTime::param time)
 {
-	assert(!pendingSyncPoint(SCHED_FSM));
+	assert(!pendingSyncPoint());
 	fsmState = state;
-	setSyncPoint(time, SCHED_FSM);
+	setSyncPoint(time);
 }
 
-void WD2793::executeUntil(EmuTime::param time, int userData)
+void WD2793::executeUntil(EmuTime::param time)
 {
-	assert(userData == SCHED_FSM); (void)userData;
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;
 	switch (state) {
@@ -974,10 +967,26 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 // version 5: added 'pulse5' and 'sectorInfo'
 // version 6: no layout changes, only added new enum value 'FSM_CHECK_WRITE'
 // version 7: replaced 'bool INTRQ' with 'EmuTime irqTime'
+// version 8: removed 'userData' from Schedulable
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<Schedulable>(*this);
+	EmuTime bw_irqTime = EmuTime::zero;
+	if (ar.versionAtLeast(version, 8)) {
+		ar.template serializeBase<Schedulable>(*this);
+	} else {
+		static const int SCHED_FSM     = 0;
+		static const int SCHED_IDX_IRQ = 1;
+		assert(ar.isLoader());
+		assert(!pendingSyncPoint());
+		for (auto& old : Schedulable::serializeBW(ar)) {
+			if (old.userData == SCHED_FSM) {
+				setSyncPoint(old.time);
+			} else if (old.userData == SCHED_IDX_IRQ) {
+				bw_irqTime = old.time;
+			}
+		}
+	}
 
 	ar.serialize("fsmState", fsmState);
 	ar.serialize("statusReg", statusReg);
@@ -1066,11 +1075,8 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		bool INTRQ = false; // dummy init to avoid warning
 		ar.serialize("INTRQ", INTRQ);
 		irqTime = INTRQ ? EmuTime::zero : EmuTime::infinity;
-
-		auto schedTime = EmuTime::dummy();
-		if (pendingSyncPoint(SCHED_IDX_IRQ, schedTime)) {
-			removeSyncPoint(SCHED_IDX_IRQ);
-			irqTime = schedTime;
+		if (bw_irqTime != EmuTime::zero) {
+			irqTime = bw_irqTime;
 		}
 	}
 }

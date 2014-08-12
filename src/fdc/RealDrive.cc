@@ -17,17 +17,10 @@ using std::vector;
 
 namespace openmsx {
 
-enum {
-	// Turn off 'loading indicator' (even if the MSX program keeps the
-	// drive motor turning)
-	LOADING_TIMEOUT = 0, // must be zero for backwards compatibility
-	// Delayed motor off
-	MOTOR_TIMEOUT,
-};
-
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided)
-	: Schedulable(motherBoard_.getScheduler())
+	: syncLoadingTimeout(motherBoard_.getScheduler(), *this)
+	, syncMotorTimeout  (motherBoard_.getScheduler(), *this)
 	, motherBoard(motherBoard_)
 	, loadingIndicator(make_unique<LoadingIndicator>(
 		motherBoard.getReactor().getGlobalSettings().getThrottleManager()))
@@ -154,7 +147,7 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 	//
 	if (status) {
 		// (Try to) remove scheduled action to turn motor off.
-		if (removeSyncPoint(MOTOR_TIMEOUT)) {
+		if (syncMotorTimeout.removeSyncPoint()) {
 			// If there actually was such an action scheduled, we
 			// need to turn on the loading indicator.
 			assert(motorStatus);
@@ -174,7 +167,7 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 			// Motor was already off, we're done.
 			return;
 		}
-		if (pendingSyncPoint(MOTOR_TIMEOUT)) {
+		if (syncMotorTimeout.pendingSyncPoint()) {
 			// We had already scheduled an action to turn the motor
 			// off, we're done.
 			return;
@@ -183,11 +176,11 @@ void RealDrive::setMotor(bool status, EmuTime::param time)
 		//  Immediately react to 'logical' motor status, even if the
 		//  motor will (possibly) still keep rotating for a few
 		//  seconds.
-		removeSyncPoint(LOADING_TIMEOUT);
+		syncLoadingTimeout.removeSyncPoint();
 		loadingIndicator->update(false);
 
 		// Turn the motor off after some timeout (timeout could be 0)
-		setSyncPoint(time + motorTimeout, MOTOR_TIMEOUT);
+		syncMotorTimeout.setSyncPoint(time + motorTimeout);
 	}
 }
 
@@ -223,18 +216,18 @@ void RealDrive::setLoading(EmuTime::param time)
 	// ThrottleManager heuristic:
 	//  We want to avoid getting stuck in 'loading state' when the MSX
 	//  program forgets to turn off the motor.
-	removeSyncPoint(LOADING_TIMEOUT);
-	setSyncPoint(time + EmuDuration::sec(1), LOADING_TIMEOUT);
+	syncLoadingTimeout.removeSyncPoint();
+	syncLoadingTimeout.setSyncPoint(time + EmuDuration::sec(1));
 }
 
-void RealDrive::executeUntil(EmuTime::param time, int userData)
+void RealDrive::execLoadingTimeout()
 {
-	if (userData == LOADING_TIMEOUT) {
-		loadingIndicator->update(false);
-	} else {
-		assert(userData == MOTOR_TIMEOUT);
-		doSetMotor(false, time);
-	}
+	loadingIndicator->update(false);
+}
+
+void RealDrive::execMotorTimeout(EmuTime::param time)
+{
+	doSetMotor(false, time);
 }
 
 bool RealDrive::indexPulse(EmuTime::param time)
@@ -322,10 +315,16 @@ bool RealDrive::isDummyDrive() const
 // version 1: initial version
 // version 2: removed 'timeOut', added MOTOR_TIMEOUT schedulable
 // version 3: added 'startAngle'
+// version 4: removed 'userData' from Schedulable
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeBase<Schedulable>(*this);
+	if (ar.versionAtLeast(version, 4)) {
+		ar.serialize("syncLoadingTimeout", syncLoadingTimeout);
+		ar.serialize("syncMotorTimeout",   syncMotorTimeout);
+	} else {
+		Schedulable::restoreOld(ar, {&syncLoadingTimeout, &syncMotorTimeout});
+	}
 	ar.serialize("motorTimer", motorTimer);
 	ar.serialize("headLoadTimer", headLoadTimer);
 	ar.serialize("changer", *changer);

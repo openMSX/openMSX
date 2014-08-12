@@ -64,8 +64,8 @@ namespace VDPAccessSlots {
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP final : public MSXDevice, public Schedulable
-                , private VideoSystemChangeListener, Observer<Setting>
+class VDP final : public MSXDevice, private VideoSystemChangeListener
+                , private Observer<Setting>
 {
 public:
 	/** Number of VDP clock ticks per second.
@@ -85,7 +85,6 @@ public:
 	byte readIO(word port, EmuTime::param time) override;
 	byte peekIO(word port, EmuTime::param time) const override;
 	void writeIO(word port, byte value, EmuTime::param time) override;
-	void executeUntil(EmuTime::param time, int userData) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -585,26 +584,60 @@ private:
 		V9958      = VM_YJK,
 	};
 
-	/** Types of VDP sync points that can be scheduled.
-	  */
-	enum SyncType {
-		/** Vertical sync: the transition from one frame to the next. */
-		VSYNC,
-		/** Start of display. */
-		DISPLAY_START,
-		/** Vertical scanning: end of display. */
-		VSCAN,
-		/** Horizontal scanning: line interrupt. */
-		HSCAN,
-		/** Horizontal adjust change. */
-		HOR_ADJUST,
-		/** Change mode. */
-		SET_MODE,
-		/** Enable/disable screen. */
-		SET_BLANK,
-		/** CPU read/write VRAM access. */
-		CPU_VRAM_ACCESS,
+	struct SyncBase : public Schedulable {
+		SyncBase(VDP& vdp_) : Schedulable(vdp_.getScheduler()), vdp(vdp_) {}
+		VDP& vdp;
+		friend class VDP;
 	};
+
+	struct SyncVSync : public SyncBase {
+		SyncVSync(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execVSync(time); }
+	} syncVSync;
+
+	struct SyncDisplayStart : public SyncBase {
+		SyncDisplayStart(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execDisplayStart(time); }
+	} syncDisplayStart;
+
+	struct SyncVScan : public SyncBase {
+		SyncVScan(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execVScan(time); }
+	} syncVScan;
+
+	struct SyncHScan : public SyncBase {
+		SyncHScan(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param /*time*/) { vdp.execHScan(); }
+	} syncHScan;
+
+	struct SyncHorAdjust : public SyncBase {
+		SyncHorAdjust(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execHorAdjust(time); }
+	} syncHorAdjust;
+
+	struct SyncSetMode : public SyncBase {
+		SyncSetMode(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execSetMode(time); }
+	} syncSetMode;
+
+	struct SyncSetBlank : public SyncBase {
+		SyncSetBlank(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execSetBlank(time); }
+	} syncSetBlank;
+
+	struct SyncCpuVramAccess : public SyncBase {
+		SyncCpuVramAccess(VDP& vdp) : SyncBase(vdp) {}
+		virtual void executeUntil(EmuTime::param time) { vdp.execCpuVramAccess(time); }
+	} syncCpuVramAccess;
+
+	void execVSync(EmuTime::param time);
+	void execDisplayStart(EmuTime::param time);
+	void execVScan(EmuTime::param time);
+	void execHScan();
+	void execHorAdjust(EmuTime::param time);
+	void execSetMode(EmuTime::param time);
+	void execSetBlank(EmuTime::param time);
+	void execCpuVramAccess(EmuTime::param time);
 
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
@@ -718,7 +751,7 @@ private:
 
 	/** Schedule a sync point at the start of the next line.
 	  */
-	void syncAtNextLine(SyncType type, EmuTime::param time);
+	void syncAtNextLine(SyncBase& type, EmuTime::param time);
 
 	/** Create a new renderer.
 	  */
@@ -991,7 +1024,7 @@ private:
 	bool brokenCmdTiming;
 	bool allowTooFastAccess;
 };
-SERIALIZE_CLASS_VERSION(VDP, 7);
+SERIALIZE_CLASS_VERSION(VDP, 8);
 
 } // namespace openmsx
 

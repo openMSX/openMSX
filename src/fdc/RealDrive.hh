@@ -16,7 +16,7 @@ class LoadingIndicator;
 
 /** This class implements a real drive, single or double sided.
  */
-class RealDrive final : public DiskDrive, public Schedulable
+class RealDrive final : public DiskDrive
 {
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
@@ -47,7 +47,30 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	void executeUntil(EmuTime::param time, int userData) override;
+	struct SyncBase : public Schedulable {
+		SyncBase(Scheduler& s, RealDrive& drive_)
+			: Schedulable(s), drive(drive_) {}
+		RealDrive& drive;
+		friend class RealDrive;
+	};
+	struct SyncLoadingTimeout : public SyncBase {
+		SyncLoadingTimeout(Scheduler& s, RealDrive& d) : SyncBase(s, d) {}
+		void executeUntil(EmuTime::param /*time*/) override {
+			drive.execLoadingTimeout();
+		}
+	} syncLoadingTimeout;
+
+	struct SyncMotorTimeout : public SyncBase {
+		SyncMotorTimeout(Scheduler& s, RealDrive& d) : SyncBase(s, d) {}
+		void executeUntil(EmuTime::param time) override {
+			drive.execMotorTimeout(time);
+		}
+	} syncMotorTimeout;
+
+	void execLoadingTimeout();
+	void execMotorTimeout(EmuTime::param time);
+	EmuTime::param getCurrentTime() const { return syncLoadingTimeout.getCurrentTime(); }
+
 	void doSetMotor(bool status, EmuTime::param time);
 	void setLoading(EmuTime::param time);
 	unsigned getCurrentAngle(EmuTime::param time) const;
@@ -76,7 +99,7 @@ private:
 	typedef std::bitset<MAX_DRIVES> DrivesInUse;
 	std::shared_ptr<DrivesInUse> drivesInUse;
 };
-SERIALIZE_CLASS_VERSION(RealDrive, 3);
+SERIALIZE_CLASS_VERSION(RealDrive, 4);
 
 } // namespace openmsx
 

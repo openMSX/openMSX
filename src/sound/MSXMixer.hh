@@ -136,7 +136,7 @@ private:
 	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	// Observer<Setting>
 	void update(const Setting& setting) override;

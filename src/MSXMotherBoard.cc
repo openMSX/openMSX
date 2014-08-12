@@ -138,7 +138,7 @@ public:
 	FastForwardHelper(MSXMotherBoard& msxMotherBoardImpl);
 	void setTarget(EmuTime::param targetTime);
 private:
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 	MSXMotherBoard& motherBoard;
 };
 
@@ -973,7 +973,7 @@ void FastForwardHelper::setTarget(EmuTime::param targetTime)
 	setSyncPoint(targetTime);
 }
 
-void FastForwardHelper::executeUntil(EmuTime::param /*time*/, int /*userData*/)
+void FastForwardHelper::executeUntil(EmuTime::param /*time*/)
 {
 	motherBoard.exitCPULoopSync();
 }

@@ -84,7 +84,7 @@ public:
 
 private:
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 	std::deque<shared_ptr<const Event>> eventQueue;
 	Keyboard& keyboard;
 	Interpreter& interp;
@@ -110,7 +110,7 @@ private:
 	void tabCompletion(vector<string>& tokens) const override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	Keyboard& keyboard;
 	string text_utf8;
@@ -138,7 +138,7 @@ private:
 	int signalEvent(const shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData) override;
+	void executeUntil(EmuTime::param time) override;
 
 	void alignCapsLock(EmuTime::param time);
 
@@ -516,7 +516,7 @@ void Keyboard::processCapslockEvent(EmuTime::param time, bool down)
 	}
 }
 
-void Keyboard::executeUntil(EmuTime::param time, int /*userData*/)
+void Keyboard::executeUntil(EmuTime::param time)
 {
 	debug("Releasing CAPS lock\n");
 	updateKeyMatrix(time, false, 6, CAPS_MASK);
@@ -1061,7 +1061,7 @@ void MsxKeyEventQueue::process_asap(EmuTime::param time,
 	bool processImmediately = eventQueue.empty();
 	eventQueue.push_back(event);
 	if (processImmediately) {
-		executeUntil(time, 0);
+		executeUntil(time);
 	}
 }
 
@@ -1071,7 +1071,7 @@ void MsxKeyEventQueue::clear()
 	removeSyncPoint();
 }
 
-void MsxKeyEventQueue::executeUntil(EmuTime::param time, int /*userData*/)
+void MsxKeyEventQueue::executeUntil(EmuTime::param time)
 {
 	// Get oldest event from the queue and process it
 	shared_ptr<const Event> event = eventQueue.front();
@@ -1195,7 +1195,7 @@ void KeyInserter::type(string_ref str)
 	text_utf8.append(str.data(), str.size());
 }
 
-void KeyInserter::executeUntil(EmuTime::param time, int /*userData*/)
+void KeyInserter::executeUntil(EmuTime::param time)
 {
 	if (lockKeysMask != 0) {
 		// release CAPS and/or Code/Kana Lock keys
@@ -1309,7 +1309,7 @@ int CapsLockAligner::signalEvent(const shared_ptr<const Event>& event)
 	return 0;
 }
 
-void CapsLockAligner::executeUntil(EmuTime::param time, int /*userData*/)
+void CapsLockAligner::executeUntil(EmuTime::param time)
 {
 	switch (state) {
 		case MUST_ALIGN_CAPSLOCK:

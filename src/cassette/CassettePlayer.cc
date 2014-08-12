@@ -62,11 +62,6 @@ namespace openmsx {
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
 
-enum SyncType {
-	END_OF_TAPE,
-	SYNC_AUDIO_EMU
-};
-
 class TapeCommand final : public RecordedCommand
 {
 public:
@@ -93,7 +88,8 @@ static XMLElement createXML()
 
 CassettePlayer::CassettePlayer(const HardwareConfig& hwConf)
 	: ResampledSoundDevice(hwConf.getMotherBoard(), getName(), getDescription(), 1)
-	, Schedulable(hwConf.getMotherBoard().getScheduler())
+	, syncEndOfTape(hwConf.getMotherBoard().getScheduler(), *this)
+	, syncAudioEmu (hwConf.getMotherBoard().getScheduler(), *this)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
@@ -320,9 +316,9 @@ void CassettePlayer::updateLoadingState(EmuTime::param time)
 	// note: we don't use isRolling()
 	loadingIndicator->update(motor && (getState() == PLAY));
 
-	removeSyncPoint(END_OF_TAPE);
+	syncEndOfTape.removeSyncPoint();
 	if (isRolling() && (getState() == PLAY)) {
-		setSyncPoint(time + (playImage->getEndTime() - tapePos), END_OF_TAPE);
+		syncEndOfTape.setSyncPoint(time + (playImage->getEndTime() - tapePos));
 	}
 }
 
@@ -477,7 +473,7 @@ void CassettePlayer::updateTapePosition(
 	if ((getState() == PLAY) && !syncScheduled) {
 		// don't sync too often, this improves sound quality
 		syncScheduled = true;
-		setSyncPoint(time + EmuDuration::sec(1), SYNC_AUDIO_EMU);
+		syncAudioEmu.setSyncPoint(time + EmuDuration::sec(1));
 	}
 }
 
@@ -602,31 +598,29 @@ int CassettePlayer::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void CassettePlayer::executeUntil(EmuTime::param time, int userData)
+void CassettePlayer::execEndOfTape(EmuTime::param time)
 {
-	switch (userData) {
-	case END_OF_TAPE:
-		// tape ended
+	// tape ended
+	sync(time);
+	assert(tapePos == playImage->getEndTime());
+	motherBoard.getMSXCliComm().printWarning(
+		"Tape end reached... stopping. "
+		"You may need to insert another tape image "
+		"that contains side B. (Or you used the wrong "
+		"loading command.)");
+	setState(STOP, getImageName(), time); // keep current image
+}
+
+void CassettePlayer::execSyncAudioEmu(EmuTime::param time)
+{
+	if (getState() == PLAY) {
+		updateStream(time);
 		sync(time);
-		assert(tapePos == playImage->getEndTime());
-		motherBoard.getMSXCliComm().printWarning(
-			"Tape end reached... stopping. "
-			"You may need to insert another tape image "
-			"that contains side B. (Or you used the wrong "
-			"loading command.)");
-		setState(STOP, getImageName(), time); // keep current image
-		break;
-	case SYNC_AUDIO_EMU:
-		if (getState() == PLAY) {
-			updateStream(time);
-			sync(time);
-			DynamicClock clk(EmuTime::zero);
-			clk.setFreq(playImage->getFrequency());
-			audioPos = clk.getTicksTill(tapePos);
-		}
-		syncScheduled = false;
-		break;
+		DynamicClock clk(EmuTime::zero);
+		clk.setFreq(playImage->getFrequency());
+		audioPos = clk.getTicksTill(tapePos);
 	}
+	syncScheduled = false;
 }
 
 

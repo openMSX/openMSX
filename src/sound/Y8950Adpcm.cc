@@ -143,7 +143,7 @@ void Y8950Adpcm::schedule()
 	}
 }
 
-void Y8950Adpcm::executeUntil(EmuTime::param time, int /*userData*/)
+void Y8950Adpcm::executeUntil(EmuTime::param time)
 {
 	assert(isPlaying());
 	sync(time); // should set STATUS_EOS

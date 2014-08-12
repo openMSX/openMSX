@@ -892,7 +892,7 @@ void MSXMixer::updateMasterVolume()
 	}
 }
 
-void MSXMixer::executeUntil(EmuTime::param time, int /*userData*/)
+void MSXMixer::executeUntil(EmuTime::param time)
 {
 	updateStream(time);
 	reschedule2();
