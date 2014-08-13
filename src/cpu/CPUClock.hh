@@ -91,12 +91,7 @@ protected:
 		if (limitEnabled) {
 			sync();
 			assert(remaining == limit);
-			int newLimit = std::min(15000u, clock.getTicksTillUp(time) - 1);
-			if (limit < 0) {
-				limit = newLimit;
-			} else {
-				limit = std::min(limit, newLimit);
-			}
+			limit = clock.getTicksTillUp(time) - 1;
 			remaining = limit;
 		} else {
 			assert(limit < 0);
