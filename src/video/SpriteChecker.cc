@@ -97,6 +97,22 @@ void SpriteChecker::updateSprites1(int limit)
 
 inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 {
+	// This implementation contains a double for-loop. The outer loop goes
+	// over the sprites, the inner loop over the to-be-checked lines. This
+	// is not the order in which the real VDP performs this operation: the
+	// real VDP renders line-per-line and for each line checks all 32
+	// sprites.
+	//
+	// Though this 'reverse' order allows to skip over very large regions
+	// of the inner loop: we only have to process the lines were a
+	// particular sprite is actually visible. I measured this makes this
+	// routine 4x-5x faster!
+	//
+	// This routine also needs to detect the sprite number of the 'first'
+	// 5th-sprite-condition. With 'first' meaning the first line where this
+	// condition occurs. Because our loops are swapped compared to the real
+	// VDP, we need some extra fixup logic to correctly detect this.
+
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
@@ -109,46 +125,62 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	int magSize = (mag + 1) * size;
 	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
+	int fifthSpriteNum  = -1;  // no 5th sprite detected yet
+	int fifthSpriteLine = 999; // larger than any possible valid line
+
 	int sprite = 0;
-	for (/**/; sprite < 32; sprite++, attributePtr += 4) {
-		int y = attributePtr[0];
+	for (/**/; sprite < 32; ++sprite) {
+		int y = attributePtr[4 * sprite + 0];
 		if (y == 208) break;
+
 		for (int line = minLine; line < maxLine; ++line) {
 			// Calculate line number within the sprite.
 			int displayLine = line + displayDelta;
 			int spriteLine = (displayLine - y) & 0xFF;
 			if (spriteLine >= magSize) {
-				// skip ahead till sprite becomes visible
+				// Skip ahead till sprite becomes visible.
 				line += 256 - spriteLine - 1; // -1 because of for-loop
 				continue;
 			}
+
 			int visibleIndex = spriteCount[line];
 			if (visibleIndex == 4) {
-				// Five sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero.
-				byte status = vdp.getStatusReg0();
-				if ((status & 0xC0) == 0) {
-					vdp.setSpriteStatus(
-					     0x40 | (status & 0x20) | sprite);
+				// Find earliest line where this condition occurs.
+				if (line < fifthSpriteLine) {
+					fifthSpriteLine = line;
+					fifthSpriteNum = sprite;
 				}
 				if (limitSprites) continue;
 			}
-			++spriteCount[line];
+
 			SpriteInfo& sip = spriteBuffer[line][visibleIndex];
-			int patternIndex = attributePtr[2] & patternIndexMask;
+			int patternIndex = attributePtr[4 * sprite + 2] & patternIndexMask;
 			if (mag) spriteLine /= 2;
 			sip.pattern = calculatePatternNP(patternIndex, spriteLine);
-			sip.x = attributePtr[1];
-			if (attributePtr[3] & 0x80) sip.x -= 32;
-			sip.colorAttrib = attributePtr[3];
+			sip.x = attributePtr[4 * sprite + 1];
+			byte colorAttrib = attributePtr[4 * sprite + 3];
+			if (colorAttrib & 0x80) sip.x -= 32;
+			sip.colorAttrib = colorAttrib;
+
+			spriteCount[line] = visibleIndex + 1;
 		}
 	}
+
+	// Update status register.
 	byte status = vdp.getStatusReg0();
+	if (fifthSpriteNum != -1) {
+		// Five sprites on a line.
+		// According to TMS9918.pdf 5th sprite detection is only
+		// active when F flag is zero.
+		if ((status & 0xC0) == 0) {
+			status = 0x40 | (status & 0x20) | fifthSpriteNum;
+		}
+	}
 	if (~status & 0x40) {
 		// No 5th sprite detected, store number of latest sprite processed.
-		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
+		status = (status & 0x20) | std::min(sprite, 31);
 	}
+	vdp.setSpriteStatus(status);
 
 	// Optimisation:
 	// If collision already occurred,
@@ -235,6 +267,8 @@ void SpriteChecker::updateSprites2(int limit)
 
 inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 {
+	// See comment in checkSprites1() about order of inner and outer loops.
+
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
@@ -246,9 +280,11 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
 	int patternIndexMask = (size == 16) ? 0xFC : 0xFF;
+	int ninthSpriteNum  = -1;  // no 9th sprite detected yet
+	int ninthSpriteLine = 999; // larger than any possible valid line
 
-	// because it gave a measurable performance boost, we duplicated the
-	// code for planar and non-planar modes
+	// Because it gave a measurable performance boost, we duplicated the
+	// code for planar and non-planar modes.
 	int sprite = 0;
 	if (planar) {
 		const byte* attributePtr0;
@@ -259,28 +295,27 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[2 * sprite + 0];
 			if (y == 216) break;
+
 			for (int line = minLine; line < maxLine; ++line) {
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
 				if (spriteLine >= magSize) {
-					// skip ahead till sprite is visible
+					// Skip ahead till sprite is visible.
 					line += 256 - spriteLine - 1;
 					continue;
 				}
+
 				int visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
-					// Nine sprites on a line.
-					// According to TMS9918.pdf 5th sprite detection is only
-					// active when F flag is zero. Stuck to this for V9938.
-					// Dragon Quest 2 needs this
-					byte status = vdp.getStatusReg0();
-					if ((status & 0xC0) == 0) {
-						vdp.setSpriteStatus(
-						     0x40 | (status & 0x20) | sprite);
+					// Find earliest line where this condition occurs.
+					if (line < ninthSpriteLine) {
+						ninthSpriteLine = line;
+						ninthSpriteNum = sprite;
 					}
 					if (limitSprites) continue;
 				}
+
 				if (mag) spriteLine /= 2;
 				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
@@ -288,15 +323,17 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				spriteCount[line] = visibleIndex + 1;
+
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
 				sip.pattern = calculatePatternPlanar(patternIndex, spriteLine);
 				sip.x = attributePtr1[2 * sprite + 0];
 				if (colorAttrib & 0x80) sip.x -= 32;
 				sip.colorAttrib = colorAttrib;
+
 				// set sentinel (see below)
 				spriteBuffer[line][visibleIndex + 1].colorAttrib = 0;
+				spriteCount[line] = visibleIndex + 1;
 			}
 		}
 	} else {
@@ -306,28 +343,27 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[4 * sprite + 0];
 			if (y == 216) break;
+
 			for (int line = minLine; line < maxLine; ++line) {
 				// Calculate line number within the sprite.
 				int displayLine = line + displayDelta;
 				int spriteLine = (displayLine - y) & 0xFF;
 				if (spriteLine >= magSize) {
-					// skip ahead till sprite is visible
+					// Skip ahead till sprite is visible.
 					line += 256 - spriteLine - 1;
 					continue;
 				}
+
 				int visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
-					// Nine sprites on a line.
-					// According to TMS9918.pdf 5th sprite detection is only
-					// active when F flag is zero. Stuck to this for V9938.
-					// Dragon Quest 2 needs this
-					byte status = vdp.getStatusReg0();
-					if ((status & 0xC0) == 0) {
-						vdp.setSpriteStatus(
-						     0x40 | (status & 0x20) | sprite);
+					// Find earliest line where this condition occurs.
+					if (line < ninthSpriteLine) {
+						ninthSpriteLine = line;
+						ninthSpriteNum = sprite;
 					}
 					if (limitSprites) continue;
 				}
+
 				if (mag) spriteLine /= 2;
 				int colorIndex = (~0u << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
@@ -335,13 +371,14 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				spriteCount[line] = visibleIndex + 1;
+
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
 				sip.pattern = calculatePatternNP(patternIndex, spriteLine);
 				sip.x = attributePtr0[4 * sprite + 1];
 				if (colorAttrib & 0x80) sip.x -= 32;
 				sip.colorAttrib = colorAttrib;
+
 				// Set sentinel. Sentinel is actually only
 				// needed for sprites with CC=1.
 				// In the past we set the sentinel (for all
@@ -351,15 +388,27 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// overwritten a couple of times for lines with
 				// many sprites).
 				spriteBuffer[line][visibleIndex + 1].colorAttrib = 0;
+				spriteCount[line] = visibleIndex + 1;
 			}
 		}
 	}
 
+	// Update status register.
 	byte status = vdp.getStatusReg0();
+	if (ninthSpriteNum != -1) {
+		// Nine sprites on a line.
+		// According to TMS9918.pdf 5th sprite detection is only
+		// active when F flag is zero. Stuck to this for V9938.
+		// Dragon Quest 2 needs this.
+		if ((status & 0xC0) == 0) {
+			status = 0x40 | (status & 0x20) | ninthSpriteNum;
+		}
+	}
 	if (~status & 0x40) {
 		// No 9th sprite detected, store number of latest sprite processed.
-		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
+		status = (status & 0x20) | std::min(sprite, 31);
 	}
+	vdp.setSpriteStatus(status);
 
 	// Optimisation:
 	// If collision already occurred,
