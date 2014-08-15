@@ -7,6 +7,7 @@
 #include "CommandException.hh"
 #include "Timer.hh"
 #include "xrange.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::string;
