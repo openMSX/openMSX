@@ -97,49 +97,49 @@ public:
 	  *   False otherwise.
 	  */
 	inline bool isMSX1VDP() const {
-		return version & VM_MSX1;
+		return (version & VM_MSX1) != 0;
 	}
 
 	/** Is this a VDP only capable of PAL?
 	  * @return True iff this is a PAL only VDP
 	  */
 	inline bool isVDPwithPALonly() const {
-		return version & VM_PAL;
+		return (version & VM_PAL) != 0;
 	}
 
 	/** Is this a VDP that lacks mirroring?
 	  * @return True iff this VDP lacks the screen 2 mirrored mode
 	  */
 	inline bool vdpLacksMirroring() const {
-		return version & VM_NO_MIRRORING;
+		return (version & VM_NO_MIRRORING) != 0;
 	}
 
 	/** Is this a VDP that has pattern/colortable mirroring?
 	 * @return True iff this VDP has pattern/colortable mirroring
 	 */
 	inline bool vdpHasPatColMirroring() const {
-		return version & VM_PALCOL_MIRRORING;
+		return (version & VM_PALCOL_MIRRORING) != 0;
 	}
 
 	/** Does this VDP have VRAM remapping when switching from 4k to 8/16k mode?
 	  * @return True iff this is a VDP with VRAM remapping
 	  */
 	inline bool isVDPwithVRAMremapping() const {
-		return version & VM_VRAM_REMAPPING;
+		return (version & VM_VRAM_REMAPPING) != 0;
 	}
 
 	/** Is this a VDP with a Toshiba palette?
 	  * @return True iff this VDP has the Toshiba palette
 	  */
 	inline bool hasToshibaPalette() const {
-		return version & VM_TOSHIBA_PALETTE;
+		return (version & VM_TOSHIBA_PALETTE) != 0;
 	}
 
 	/** Does this VDP support YJK display?
 	  * @return True for V9958, false otherwise.
 	  */
 	inline bool hasYJK() const {
-		return version & VM_YJK;
+		return (version & VM_YJK) != 0;
 	}
 
 	/** Get the display mode the VDP is in.
