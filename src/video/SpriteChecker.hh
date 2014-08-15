@@ -7,6 +7,7 @@
 #include "DisplayMode.hh"
 #include "serialize_meta.hh"
 #include "unreachable.hh"
+#include <cstdint>
 
 namespace openmsx {
 
@@ -21,7 +22,7 @@ public:
 	  * If the sprite is less than 32 pixels wide,
 	  * the lower bits are unused.
 	  */
-	typedef unsigned SpritePattern;
+	typedef uint32_t SpritePattern;
 
 	/** Contains all the information to draw a line of a sprite.
 	  */
@@ -31,7 +32,7 @@ public:
 		SpritePattern pattern;
 		/** X-coordinate of sprite, corrected for early clock.
 		  */
-		short int x;
+		int16_t x;
 		/** Bit 3..0 are index in palette.
 		  * Bit 6 is 0 for sprite mode 1 like behaviour,
 		  * or 1 for OR-ing of sprite colors.
@@ -361,7 +362,7 @@ private:
 	  * In other words, spriteCount[i] is the number of sprites
 	  * in spriteBuffer[i].
 	  */
-	int spriteCount[313];
+	uint8_t spriteCount[313];
 
 	/** Is current display mode planar or not?
 	  * TODO: Introduce separate update methods for planar/nonplanar modes.

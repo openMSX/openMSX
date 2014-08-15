@@ -207,7 +207,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	*/
 	for (int line = minLine; line < maxLine; ++line) {
 		int minXCollision = 999;
-		for (int i = std::min(4, spriteCount[line]); --i >= 1; /**/) {
+		for (int i = std::min<int>(4, spriteCount[line]); --i >= 1; /**/) {
 			int x_i = spriteBuffer[line][i].x;
 			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
 			for (int j = i; --j >= 0; ) {
@@ -438,7 +438,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 	for (int line = minLine; line < maxLine; ++line) {
 		int minXCollision = 999; // no collision
 		SpriteInfo* visibleSprites = spriteBuffer[line];
-		for (int i = std::min(8, spriteCount[line]); --i >= 1; /**/) {
+		for (int i = std::min<int>(8, spriteCount[line]); --i >= 1; /**/) {
 			// If CC or IC is set, this sprite cannot collide.
 			if (visibleSprites[i].colorAttrib & 0x60) continue;
 
