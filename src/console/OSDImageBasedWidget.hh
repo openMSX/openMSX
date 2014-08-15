@@ -36,7 +36,7 @@ protected:
 	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) = 0;
 	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output) = 0;
 
-	void setError(const std::string& message);
+	void setError(std::string message);
 	bool hasError() const { return error; }
 
 	std::unique_ptr<BaseImage> image;

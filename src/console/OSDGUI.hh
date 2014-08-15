@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class OSDWidget;
+class OSDTopWidget;
 class OSDCommand;
 class Display;
 class CommandController;
@@ -17,8 +17,8 @@ public:
 	OSDGUI(CommandController& commandController, Display& display);
 	~OSDGUI();
 
-	Display& getDisplay() const;
-	OSDWidget& getTopWidget() const;
+	Display& getDisplay() const { return display; }
+	OSDTopWidget& getTopWidget() const { return *topWidget; }
 	void refresh() const;
 
 	void setOpenGL(bool openGL_) { openGL = openGL_; }
@@ -27,7 +27,7 @@ public:
 private:
 	Display& display;
 	const std::unique_ptr<OSDCommand> osdCommand;
-	const std::unique_ptr<OSDWidget> topWidget;
+	const std::unique_ptr<OSDTopWidget> topWidget;
 	bool openGL;
 };
 

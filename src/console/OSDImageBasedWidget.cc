@@ -1,9 +1,8 @@
 #include "OSDImageBasedWidget.hh"
+#include "OSDTopWidget.hh"
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
 #include "OutputSurface.hh"
-#include "Display.hh"
-#include "CliComm.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Timer.hh"
@@ -223,7 +222,7 @@ void OSDImageBasedWidget::getTransformedXY(const OutputRectangle& output,
 	parent->transformXY(output, x, y, getRelX(), getRelY(), outx, outy);
 }
 
-void OSDImageBasedWidget::setError(const string& message)
+void OSDImageBasedWidget::setError(string message)
 {
 	error = true;
 
@@ -235,7 +234,7 @@ void OSDImageBasedWidget::setError(const string& message)
 	// the OSD widgets get created, but only the next frame, when this new
 	// widget is actually drawn the next error occurs.
 	if (!needSuppressErrors()) {
-		gui.getDisplay().getCliComm().printWarning(message);
+		gui.getTopWidget().queueError(std::move(message));
 	}
 }
 

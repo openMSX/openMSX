@@ -13,7 +13,7 @@
 #include <cassert>
 
 using std::string;
-using std::shared_ptr;
+using std::unique_ptr;
 using std::vector;
 
 namespace openmsx {
@@ -32,7 +32,7 @@ private:
 	void info     (array_ref<TclObject> tokens, TclObject& result);
 	void exists   (array_ref<TclObject> tokens, TclObject& result);
 	void configure(array_ref<TclObject> tokens, TclObject& result);
-	shared_ptr<OSDWidget> create(string_ref type, const string& name) const;
+	unique_ptr<OSDWidget> create(string_ref type, const string& name) const;
 	void configure(OSDWidget& widget, array_ref<TclObject> tokens,
 	               unsigned skip);
 
@@ -47,22 +47,12 @@ private:
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
 	, osdCommand(make_unique<OSDCommand>(*this, commandController))
-	, topWidget(make_unique<OSDTopWidget>())
+	, topWidget(make_unique<OSDTopWidget>(*this))
 {
 }
 
 OSDGUI::~OSDGUI()
 {
-}
-
-Display& OSDGUI::getDisplay() const
-{
-	return display;
-}
-
-OSDWidget& OSDGUI::getTopWidget() const
-{
-	return *topWidget;
 }
 
 void OSDGUI::refresh() const
@@ -116,7 +106,7 @@ void OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 	StringOp::splitOnLast(fullname, '.', parentname, name);
 	if (name.empty()) std::swap(parentname, name);
 
-	OSDWidget* parent = gui.getTopWidget().findSubWidget(parentname);
+	auto* parent = gui.getTopWidget().findSubWidget(parentname);
 	if (!parent) {
 		throw CommandException(
 			"Parent widget doesn't exist yet:" + parentname);
@@ -127,20 +117,20 @@ void OSDCommand::create(array_ref<TclObject> tokens, TclObject& result)
 			fullname);
 	}
 
-	shared_ptr<OSDWidget> widget = create(type, name.str());
+	auto widget = create(type, name.str());
 	configure(*widget, tokens, 4);
-	parent->addWidget(widget);
+	parent->addWidget(std::move(widget));
 
 	result.setString(fullname);
 }
 
-shared_ptr<OSDWidget> OSDCommand::create(
+unique_ptr<OSDWidget> OSDCommand::create(
 		string_ref type, const string& name) const
 {
 	if (type == "rectangle") {
-		return std::make_shared<OSDRectangle>(gui, name);
+		return make_unique<OSDRectangle>(gui, name);
 	} else if (type == "text") {
-		return std::make_shared<OSDText>(gui, name);
+		return make_unique<OSDText>(gui, name);
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "
@@ -153,13 +143,13 @@ void OSDCommand::destroy(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
+	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	if (!widget) {
 		// widget not found, not an error
 		result.setBoolean(false);
 		return;
 	}
-	OSDWidget* parent = widget->getParent();
+	auto* parent = widget->getParent();
 	if (!parent) {
 		throw CommandException("Can't destroy the top widget.");
 	}
@@ -179,13 +169,13 @@ void OSDCommand::info(array_ref<TclObject> tokens, TclObject& result)
 	}
 	case 3: {
 		// list properties for given widget
-		const OSDWidget& widget = getWidget(tokens[2].getString());
+		const auto& widget = getWidget(tokens[2].getString());
 		result.addListElements(widget.getProperties());
 		break;
 	}
 	case 4: {
 		// get current value for given widget/property
-		const OSDWidget& widget = getWidget(tokens[2].getString());
+		const auto& widget = getWidget(tokens[2].getString());
 		widget.getProperty(tokens[3].getString(), result);
 		break;
 	}
@@ -199,7 +189,7 @@ void OSDCommand::exists(array_ref<TclObject> tokens, TclObject& result)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	OSDWidget* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
+	auto* widget = gui.getTopWidget().findSubWidget(tokens[2].getString());
 	result.setBoolean(widget != nullptr);
 }
 
@@ -310,11 +300,11 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 		try {
 			vector<string_ref> properties;
 			if (tokens[1] == "create") {
-				shared_ptr<OSDWidget> widget = create(tokens[2], "");
+				auto widget = create(tokens[2], "");
 				properties = widget->getProperties();
 			} else if ((tokens[1] == "configure") ||
 			           (tokens[1] == "info")) {
-				const OSDWidget& widget = getWidget(tokens[2]);
+				const auto& widget = getWidget(tokens[2]);
 				properties = widget.getProperties();
 			}
 			completeString(tokens, properties);
@@ -326,7 +316,7 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 
 OSDWidget& OSDCommand::getWidget(string_ref name) const
 {
-	OSDWidget* widget = gui.getTopWidget().findSubWidget(name);
+	auto* widget = gui.getTopWidget().findSubWidget(name);
 	if (!widget) {
 		throw CommandException("No widget with name " + name);
 	}

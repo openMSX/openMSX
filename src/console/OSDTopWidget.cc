@@ -1,10 +1,14 @@
 #include "OSDTopWidget.hh"
+#include "OSDGUI.hh"
 #include "OutputRectangle.hh"
+#include "Display.hh"
+#include "CliComm.hh"
 
 namespace openmsx {
 
-OSDTopWidget::OSDTopWidget()
+OSDTopWidget::OSDTopWidget(OSDGUI& gui_)
 	: OSDWidget("")
+	, gui(gui_)
 {
 }
 
@@ -33,6 +37,20 @@ void OSDTopWidget::paintSDL(OutputSurface& /*output*/)
 void OSDTopWidget::paintGL (OutputSurface& /*output*/)
 {
 	// nothing
+}
+
+void OSDTopWidget::queueError(std::string message)
+{
+	errors.push_back(std::move(message));
+}
+
+void OSDTopWidget::showAllErrors()
+{
+	auto& cliComm = gui.getDisplay().getCliComm();
+	for (const auto& message : errors) {
+		cliComm.printWarning(std::move(message));
+	}
+	errors.clear();
 }
 
 } // namespace openmsx

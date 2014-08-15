@@ -12,7 +12,7 @@
 
 using std::string;
 using std::vector;
-using std::shared_ptr;
+using std::unique_ptr;
 
 namespace openmsx {
 
@@ -169,7 +169,7 @@ const OSDWidget* OSDWidget::findSubWidget(string_ref name) const
 	return const_cast<OSDWidget*>(this)->findSubWidget(name);
 }
 
-void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
+void OSDWidget::addWidget(unique_ptr<OSDWidget> widget)
 {
 	widget->setParent(this);
 	subWidgetsMap[widget->getName()] = widget.get();
@@ -184,11 +184,11 @@ void OSDWidget::addWidget(const shared_ptr<OSDWidget>& widget)
 	// created in sorted Z-order) a binary search would be faster.
 	double z = widget->getZ();
 	if (subWidgets.empty() || (subWidgets.back()->getZ() <= z)) {
-		subWidgets.push_back(widget);
+		subWidgets.push_back(std::move(widget));
 	} else {
 		auto it = begin(subWidgets);
 		while ((*it)->getZ() <= z) ++it;
-		subWidgets.insert(it, widget);
+		subWidgets.insert(it, std::move(widget));
 
 	}
 }
@@ -209,8 +209,8 @@ void OSDWidget::deleteWidget(OSDWidget& widget)
 
 #ifdef DEBUG
 struct AscendingZ {
-	bool operator()(const shared_ptr<OSDWidget>& lhs,
-	                const shared_ptr<OSDWidget>& rhs) const {
+	bool operator()(const unique_ptr<OSDWidget>& lhs,
+	                const unique_ptr<OSDWidget>& rhs) const {
 		return lhs->getZ() < rhs->getZ();
 	}
 };
@@ -372,12 +372,7 @@ void OSDWidget::paintSDLRecursive(OutputSurface& output)
 		scopedClip = make_unique<SDLScopedClip>(output, x, y, w, h);
 	}
 
-	// Iterate over a copy because drawing could cause errors (e.g. can't
-	// load font or image), those error are (indirectly via CliComm) passed
-	// to a Tcl callback and that callback can destroy or create extra
-	// widgets.
-	auto copy = subWidgets;
-	for (auto& s : copy) {
+	for (auto& s : subWidgets) {
 		s->paintSDLRecursive(output);
 	}
 }
@@ -395,8 +390,7 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 		scopedClip = make_unique<GLScopedClip>(output, x, y, w, h);
 	}
 
-	auto copy = subWidgets;
-	for (auto& s : copy) {
+	for (auto& s : subWidgets) {
 		s->paintGLRecursive(output);
 	}
 #endif

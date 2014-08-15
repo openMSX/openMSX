@@ -1,6 +1,6 @@
 #include "OSDGUILayer.hh"
 #include "OSDGUI.hh"
-#include "OSDWidget.hh"
+#include "OSDTopWidget.hh"
 
 namespace openmsx {
 
@@ -33,7 +33,9 @@ SDLOSDGUILayer::SDLOSDGUILayer(OSDGUI& gui)
 
 void SDLOSDGUILayer::paint(OutputSurface& output)
 {
-	getGUI().getTopWidget().paintSDLRecursive(output);
+	auto& top = getGUI().getTopWidget();
+	top.paintSDLRecursive(output);
+	top.showAllErrors();
 }
 
 
@@ -47,7 +49,9 @@ GLOSDGUILayer::GLOSDGUILayer(OSDGUI& gui)
 
 void GLOSDGUILayer::paint(OutputSurface& output)
 {
-	getGUI().getTopWidget().paintGLRecursive(output);
+	auto& top = getGUI().getTopWidget();
+	top.paintGLRecursive(output);
+	top.showAllErrors();
 }
 
 } // namespace openmsx

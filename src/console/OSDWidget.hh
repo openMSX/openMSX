@@ -29,7 +29,7 @@ public:
 	const OSDWidget* getParent() const;
 	OSDWidget* findSubWidget(string_ref name);
 	const OSDWidget* findSubWidget(string_ref name) const;
-	void addWidget(const std::shared_ptr<OSDWidget>& widget);
+	void addWidget(std::unique_ptr<OSDWidget> widget);
 	void deleteWidget(OSDWidget& widget);
 
 	virtual std::vector<string_ref> getProperties() const;
@@ -76,8 +76,7 @@ private:
 
 	/** Direct child widgets of this widget, sorted by z-coordinate.
 	  */
-	// note: must be shared_ptr (not unique_ptr), see OSDWidget::paintSDLRecursive()
-	std::vector<std::shared_ptr<OSDWidget>> subWidgets;
+	std::vector<std::unique_ptr<OSDWidget>> subWidgets;
 
 	/** Contains the same widgets as "subWidgets", but stored with their name
 	  * the key, so lookup by name is fast.
