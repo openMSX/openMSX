@@ -40,14 +40,15 @@ section of the previous document.</p>
 engine speed, we also obtained information about what happens when the CPU
 (Z80) reads or writes the VRAM too fast, and what exactly is "too fast". This
 behaviour is now also implemented in openMSX, though only (yet) for the V9938
-bitmap screen modes.</p>
+bitmap screen modes (the information in this text should allow us to also
+implement the timing for the other screen modes).</p>
 
 <p>Because the focus was the command engine and because a V9938 can only
 execute commands in bitmap screen modes (screen 5-8), our measurements were
 mostly focused on those screen modes. And especially the analysis of the
 results was initially focused on the bitmap screen modes. In this text we will
-now look at the other screen modes (even though there is less measurement data
-available for those modes).</p>
+now look at the other screen modes, even though there is less measurement data
+available for those modes.</p>
 
 <h5>TMS9918</h5>
 
@@ -82,7 +83,7 @@ of these periods are not exactly the same between the two VDP types.</p>
 types, I had to make a choice in how to align the results of both VDPs. I
 choose to align the display cycle (the period where the actual pixels are
 shown). Though this means that 'cycle 0' is not located in exactly the same
-horizontal position for both VDPs. But this doesn't matter, as explained in the
+horizontal position for both VDPs. But this doesn't matter: as explained in the
 previous article, 'cycle 0' is anyway an arbitrary choice. Just keep it in mind
 when comparing the results.</p>
 
@@ -108,7 +109,7 @@ see, from a VRAM access point of view, these 3 modes are closely related.</p>
 <h5>refresh</h5>
 <p>The VRAM needs to be regularly refreshed. The V9938 does this by regular
 reads (from all banks of the DRAM chips). Those reads are located at the
-following moment in time (VDP cycle counts within one display line). Remember
+following moments in time (VDP cycle counts within one display line). Remember
 that one display line has 1368 VDP cycles and that cycle 0 is semi-arbitrarily
 chosen within the line (so only relative numbers matter).</p>
 <table>
@@ -227,7 +228,8 @@ dummy reads at these moments in time:</p>
 name-, pattern-, color-, and sprite-attribute-table if you'd extend a display
 line to 33 instead of 32 characters. This is similar to how in the bitmap
 screen modes there is a dummy preamble for the bitmap data and a dummy
-postamble for the sprite y-coordinate.</p>
+postamble for the sprite y-coordinate. All 4 dummy reads read address
+0x1ffff.</p>
 
 <h5>CPU/command-engine access slots</h5>
 <p>These are the available CPU/cmd access slots:</p>
@@ -250,9 +252,10 @@ are slightly shifted when comparing both modes.</p>
 <h4>Graphics mode 1 (aka screen 1)</h4>
 
 <p>From a VRAM access point of view this mode is quasi identical to Graphics
-mode 2. It does exactly the same number of VRAM read as Graphics mode 2 at
+mode 2. It does exactly the same number of VRAM reads as Graphics mode 2 at
 exactly the same moments in time. Only the addresses in the color-table are a
-bit different.</p>
+bit different. So it does re-read the same color information for all 8 lines
+in a character.</p>
 
 
 <h4>Multi-color mode (aka screen 3)</h4>
@@ -296,7 +299,7 @@ command execution slightly faster.</i></p>
 <p>The text rendering itself is pretty straight-forward. We need to read 80
 bytes from the name-table and also 80 bytes from the pattern-table (the
 pattern-addresses depend on the values read from the name-table). For the blink
-color feature we also need 80 bits (or 10 bytes) from the color-table.</p>
+color feature we also need 80 bits (10 bytes) from the color-table.</p>
 
 <p>Rendering is performed in 20 groups of 4 characters. Each group starts
 reading 4 bytes from the name-table using a burst read, these reads are
@@ -344,7 +347,9 @@ characters of each 6 pixels take 48 cycles).</p>
 <p>There are 47 access slots, but they are very unevenly distributed. Often the
 distance between two slots is 96 cycles, and one time even 100 VDP cycles! This
 means that, even though there are more slots compared to bitmap/character mode,
-the Z80 must access the VRAM more slowly in this mode!</p>
+the Z80 must access the VRAM more slowly in this mode! So to be safe there must
+be 20 Z80 cycles between two CPU-VRAM accesses (see previous article for the
+details of this calculation).</p>
 
 
 <h4>Text mode 1 (aka screen 0, width 40)</h4>
@@ -370,7 +375,7 @@ seem strange because Text mode 1 logically needs a lot less data than Text mode
 the case, the available VRAM bandwidth for CPU accesses (or commands on V9958)
 could have been a lot higher. Especially because the Z80 already cannot access
 VRAM very fast in this mode. And also because, as we'll see below, on TMS9918
-there's no such limitation for this mode.</i></p>
+there's no such timing constraint for this mode.</i></p>
 
 
 
@@ -394,7 +399,7 @@ remain identical. <i>The existence of this screen mode might have been
 strange way.</i></p>
 
 <h4>Character modes with sprites disabled</h4>
-<p>In bitmap mode, when sprite rendering is disabled, the VRAM bandwidth that
+<p>In bitmap modes, when sprite rendering is disabled, the VRAM bandwidth that
 was allocated to sprite rendering becomes available for CPU/cmd accesses. Likely
 the same is true for character modes (and text modes never have sprites).
 Unfortunately since we didn't measure this combination we don't know exactly
@@ -466,7 +471,7 @@ above.</p>
 documentation. But because it requires the same number of reads from VRAM as
 Graphics mode 2, it's logical to assume the timing is identical.</p>
 
-<h5>Multi-color mode 1 (aka screen 3)</h5>
+<h5>Multi-color mode (aka screen 3)</h5>
 <p>The documentation also doesn't have specific timing information for this
 mode. In this mode the color-table isn't used, so one possibility is that
 accesses to the color-table are replaced by CPU access slots (not the case on
@@ -477,7 +482,8 @@ sprite-accesses in the horizontal border area this quote isn't true: there's
 still one location where there are 15 memory cycles between 2 CPU access slots!
 <i>On the other hand, it would be possible to distribute the sprite and cpu
 accesses more evenly in the horizontal border. So maybe that hand-drawn timing
-picture is wrong? Or maybe not for the final TMS9918 design?</i></p>
+picture is wrong? Or maybe it doesn't correspond to the final TMS9918
+design?</i></p>
 
 <h5>Text mode 1 (aka screen 0, width 40)</h5>
 <p>Again see the big timing diagram. There's nothing really special about this
@@ -503,16 +509,17 @@ refreshed during each display line, but instead it's refreshed during the
 vertical border.</p>
 
 <p>On V9938 each display line performs 8 refresh reads (only 7 in text mode),
-so it takes 64 lines or about 4ms to refresh 128kB VRAM. On TMS9918 each
-vertical border line performs 32 refresh reads. So during the whole vertical
-border the full 16kB VRAM is fully refreshed multiple times. Though between two
-vertical borders there are 192 display lines or about 12ms. So RAM chips
-connected to TMS9918 have to be able to retain their content longer without
-refresh than those connected to V9938. The TMS9918 refresh schema does make
-more efficient use of the available VRAM bandwidth (only do refresh when
-there's plenty of bandwidth available). On the other hand the TMS9918 schema
-would make something like the V9938-overscan-trick impossible (overscan = show
-display lines everywhere, 'skip' the vertical border).</p>
+so it takes 64 lines or about 4ms to refresh 128kB VRAM (and only 2ms if you
+rely on RAS-without-CAS refresh). On TMS9918 each vertical border line performs
+32 refresh reads. So during the whole vertical border the full 16kB VRAM is
+fully refreshed multiple times. Though between two vertical borders there are
+192 display lines or about 12ms. So DRAM chips connected to TMS9918 have to be
+able to retain their content longer without refresh than those connected to
+V9938. The TMS9918 refresh schema does make more efficient use of the available
+VRAM bandwidth (only do refresh when there's plenty of bandwidth available). On
+the other hand the TMS9918 schema would make something like the
+V9938-overscan-trick impossible (overscan = show display lines everywhere,
+'skip' the vertical border).</p>
 
 <h5>MSX1 CPU-VRAM access</h5>
 <p>So what do the above timings mean for a MSX1 Z80 programmer? In various fora
@@ -557,10 +564,10 @@ more. But unfortunately some details will remain unclear.</p>
      manual also mentions an additional CPU-access waiting time of 2&micro;s.
      Though as explained above that could be anywhere from
      1.5&micro;s to 2.5&micro;s, this is between 8 to 13 VDP cycles or 5 to 9
-     Z80 cycles. <i>It's not clear where this time is coming from, maybe
-     something similar to the V9938 'slot-reservation' delay of 16 cycles</i>).
-     Combined this gives between 26.7 and 30.2 Z80 cycles. Unfortunately this
-     isn't more accurate than the range we already found above.</p>
+     Z80 cycles. <i>(It's not clear where this time is coming from, maybe
+     something similar to the V9938 'slot-reservation' delay of 16 cycles).</i>
+     Combined this gives between 26.7 and 30.2 Z80 cycles. But unfortunately
+     this isn't more accurate than the range we already found above.</p>
      <p>In this <a href="http://www.msx.org/forum/development/msx-development/bitbuster-depack-vram?page=6">
      post</a> dvik suggests it's OK to use tighter timings when "sprites aren't
      used". This would mean that the memory slots that are otherwise used for
@@ -576,25 +583,25 @@ more. But unfortunately some details will remain unclear.</p>
      V9938 does not), but without further tests I personally wouldn't trust
      this. It would be nice if someone could confirm or reject this
      theory.</p></li>
- <li>In the best case (the vertical border), there are only 4 VDP cycles
+ <li><p>In the best case (the vertical border), there are only 4 VDP cycles
      between CPU slots. Taking the uncertainty of those '2&micro;s' into
      account, that results in a minimum distance of 8-12 Z80 cycles between two
      VRAM accesses. The fastest Z80 I/O instruction takes 12 cycles (on MSX,
      taking the extra Z80 wait cycle into account). So this confirms that in
-     the vertical border you can indeed access VRAM as fast as you want.</li>
- <li>Text mode has maximum 6 VDP cycles between CPU slots. So rounded that's
+     the vertical border you can indeed access VRAM as fast as you want.</p></li>
+ <li><p>Text mode has maximum 6 VDP cycles between CPU slots. So rounded that's
      somewhere between 10 and 13 Z80 cycles. So it's <i>likely</i> OK to also
      in text mode access the VRAM as fast as you want, but we can only be
      certain if we know a more accurate value for those '2&micro;s'. It's worth
      repeating that on V9938 you can <b>not</b> access VRAM as fast in this
-     mode. Keep that in mind when writing MSX1 software that needs to be upward
-     compatible with MSX2.</li>
- <li>Multi-color mode is unclear: the application manual says there's a CPU
+     mode. Keep that in mind when writing MSX1 software that needs to be upwards
+     compatible with MSX2.</p></li>
+ <li><p>Multi-color mode is unclear: the application manual says there's a CPU
      slot at least every 4 memory accesses. But as explained above I don't
      believe this (it's true for the display area, but not for the horizontal
      border). If it were true you only need 11-15 Z80 cycles between two
      CPU-VRAM accesses. But if you do take the border into account you get
-     26-29 Z80 cycles, thus only slightly better than Graphics mode 2.</li>
+     26-29 Z80 cycles, thus only slightly better than Graphics mode 2.</p></li>
 </ul>
 
 <hr/>
