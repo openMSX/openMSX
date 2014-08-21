@@ -5,6 +5,7 @@
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "DynamicClock.hh"
+#include <cstdint>
 #include <vector>
 #include <memory>
 
@@ -132,7 +133,7 @@ private:
 	void updateMasterVolume();
 	void reschedule();
 	void reschedule2();
-	void generate(short* buffer, EmuTime::param time, unsigned samples);
+	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
 
 	// Schedulable
 	void executeUntil(EmuTime::param time, int userData);
@@ -167,8 +168,8 @@ private:
 	unsigned synchronousCounter;
 
 	unsigned muteCount;
-	int prevLeft, prevRight;
-	int outLeft, outRight;
+	int32_t prevLeft, prevRight;
+	int32_t outLeft, outRight;
 };
 
 } // namespace openmsx

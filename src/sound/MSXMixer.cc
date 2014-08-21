@@ -224,7 +224,7 @@ void MSXMixer::updateStream(EmuTime::param time)
 	unsigned count = prevTime.getTicksTill(time);
 
 	// call generate() even if count==0 and even if muted
-	short mixBuffer[8192 * 2];
+	int16_t mixBuffer[8192 * 2];
 	assert(count <= 8192);
 	generate(mixBuffer, time, count);
 
@@ -247,11 +247,11 @@ void MSXMixer::updateStream(EmuTime::param time)
 // we skip the accumulation step.
 
 // buf[0:n] *= f
-static inline void mul(int* buf, int n, int f)
+static inline void mul(int32_t* buf, int n, int f)
 {
 #ifdef __arm__
 	// ARM assembly version
-	unsigned dummy1, dummy2;
+	int32_t dummy1, dummy2;
 	asm volatile (
 	"0:\n\t"
 		"ldmia	%[buf],{r3-r6}\n\t"
@@ -280,11 +280,12 @@ static inline void mul(int* buf, int n, int f)
 }
 
 // acc[0:n] += mul[0:n] * f
-static inline void mulAcc(int* __restrict acc, const int* __restrict mul, int n, int f)
+static inline void mulAcc(
+	int32_t* __restrict acc, const int32_t* __restrict mul, int n, int f)
 {
 #ifdef __arm__
 	// ARM assembly version
-	unsigned dummy1, dummy2, dummy3;
+	int32_t dummy1, dummy2, dummy3;
 	asm volatile (
 	"0:\n\t"
 		"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
@@ -319,12 +320,12 @@ static inline void mulAcc(int* __restrict acc, const int* __restrict mul, int n,
 
 // buf[0:2n+0:2] = buf[0:n] * l
 // buf[1:2n+1:2] = buf[0:n] * r
-static inline void mulExpand(int* buf, int n, int l, int r)
+static inline void mulExpand(int32_t* buf, int n, int l, int r)
 {
 	int i = n;
 	do {
 		--i; // back-to-front
-		int t = buf[i];
+		auto t = buf[i];
 		buf[2 * i + 0] = l * t;
 		buf[2 * i + 1] = r * t;
 	} while (i != 0);
@@ -333,11 +334,12 @@ static inline void mulExpand(int* buf, int n, int l, int r)
 // acc[0:2n+0:2] += mul[0:n] * l
 // acc[1:2n+1:2] += mul[0:n] * r
 static inline void mulExpandAcc(
-	int* __restrict acc, const int* __restrict mul, int n, int l, int r)
+	int32_t* __restrict acc, const int32_t* __restrict mul, int n,
+	int l, int r)
 {
 	int i = 0;
 	do {
-		int t = mul[i];
+		auto t = mul[i];
 		acc[2 * i + 0] += l * t;
 		acc[2 * i + 1] += r * t;
 	} while (++i < n);
@@ -345,12 +347,12 @@ static inline void mulExpandAcc(
 
 // buf[0:2n+0:2] = buf[0:2n+0:2] * l1 + buf[1:2n+1:2] * l2
 // buf[1:2n+1:2] = buf[0:2n+0:2] * r1 + buf[1:2n+1:2] * r2
-static inline void mulMix2(int* buf, int n, int l1, int l2, int r1, int r2)
+static inline void mulMix2(int32_t* buf, int n, int l1, int l2, int r1, int r2)
 {
 	int i = 0;
 	do {
-		int t1 = buf[2 * i + 0];
-		int t2 = buf[2 * i + 1];
+		auto t1 = buf[2 * i + 0];
+		auto t2 = buf[2 * i + 1];
 		buf[2 * i + 0] = l1 * t1 + l2 * t2;
 		buf[2 * i + 1] = r1 * t1 + r2 * t2;
 	} while (++i < n);
@@ -359,13 +361,13 @@ static inline void mulMix2(int* buf, int n, int l1, int l2, int r1, int r2)
 // acc[0:2n+0:2] += mul[0:2n+0:2] * l1 + mul[1:2n+1:2] * l2
 // acc[1:2n+1:2] += mul[0:2n+0:2] * r1 + mul[1:2n+1:2] * r2
 static inline void mulMix2Acc(
-	int* __restrict acc, const int* __restrict mul, int n,
+	int32_t* __restrict acc, const int32_t* __restrict mul, int n,
 	int l1, int l2, int r1, int r2)
 {
 	int i = 0;
 	do {
-		int t1 = mul[2 * i + 0];
-		int t2 = mul[2 * i + 1];
+		auto t1 = mul[2 * i + 0];
+		auto t2 = mul[2 * i + 1];
 		acc[2 * i + 0] += l1 * t1 + l2 * t2;
 		acc[2 * i + 1] += r1 * t1 + r2 * t2;
 	} while (++i < n);
@@ -385,16 +387,17 @@ static inline void mulMix2Acc(
 //       to round towards zero (shift rounds to -inf).
 
 // No new input, previous output was (non-zero) mono.
-static inline int filterMonoNull(int x0, int y, short* out, int n)
+static inline int32_t filterMonoNull(
+	int32_t x0, int32_t y, int16_t* out, int n)
 {
 	assert(n > 0);
 	y = ((511 * y) / 512) - x0;
-	short s0 = Math::clipIntToShort(y);
+	auto s0 = Math::clipIntToShort(y);
 	out[0] = s0;
 	out[1] = s0;
 	for (int i = 1; i < n; ++i) {
 		y = (511 * y) / 512;
-		short s = Math::clipIntToShort(y);
+		auto s = Math::clipIntToShort(y);
 		out[2 * i + 0] = s;
 		out[2 * i + 1] = s;
 	}
@@ -402,8 +405,8 @@ static inline int filterMonoNull(int x0, int y, short* out, int n)
 }
 
 // No new input, previous output was (non-zero) stereo.
-static inline std::tuple<int, int> filterStereoNull(
-	int xl0, int xr0, int yl, int yr, short* out, int n)
+static inline std::tuple<int32_t, int32_t> filterStereoNull(
+	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr, int16_t* out, int n)
 {
 	assert(n > 0);
 	yl = ((511 * yl) / 512) - xl0;
@@ -420,8 +423,8 @@ static inline std::tuple<int, int> filterStereoNull(
 }
 
 // New input is mono, previous output was also mono.
-static inline std::tuple<int, int> filterMonoMono(
-	int x0, int y, const int* in, short* out, int n)
+static inline std::tuple<int32_t, int32_t> filterMonoMono(
+	int32_t x0, int32_t y, const int32_t* in, int16_t* out, int n)
 {
 	assert(n > 0);
 #ifdef __arm__
@@ -432,7 +435,7 @@ static inline std::tuple<int, int> filterMonoMono(
 	//  - the outLeft variable is set to the clipped value
 	// Though this difference is very small, and we need
 	// the extra speed.
-	unsigned dummy1, dummy2, dummy3, dummy4;
+	int32_t dummy1, dummy2, dummy3, dummy4;
 	asm volatile (
 	"0:\n\t"
 		"rsb	%[y],%[y],%[y],LSL #9\n\t"
@@ -468,10 +471,10 @@ static inline std::tuple<int, int> filterMonoMono(
 	// C++ version
 	int i = 0;
 	do {
-		int x = in[i] >> 8;
+		auto x = in[i] >> 8;
 		y = x - x0 + ((511 * y) / 512);
 		x0 = x;
-		short s = Math::clipIntToShort(y);
+		auto s = Math::clipIntToShort(y);
 		out[2 * i + 0] = s;
 		out[2 * i + 1] = s;
 	} while (++i < n);
@@ -479,17 +482,18 @@ static inline std::tuple<int, int> filterMonoMono(
 }
 
 // New input is mono, previous output was stereo
-static inline std::tuple<int, int, int> filterStereoMono(
-	int xl0, int xr0, int yl, int yr, const int* in, short* out, int n)
+static inline std::tuple<int32_t, int32_t, int32_t> filterStereoMono(
+	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
+	const int32_t* in, int16_t* out, int n)
 {
 	assert(n > 0);
-	int x = in[0] >> 8;
+	auto x = in[0] >> 8;
 	yl = x - xl0 + ((511 * yl) / 512);
 	yr = x - xr0 + ((511 * yr) / 512);
 	out[0] = Math::clipIntToShort(yl);
 	out[1] = Math::clipIntToShort(yr);
 	for (int i = 1; i < n; ++i) {
-		int x1 = in[i] >> 8;
+		auto x1 = in[i] >> 8;
 		yl = x1 - x + ((511 * yl) / 512);
 		yr = x1 - x + ((511 * yr) / 512);
 		x = x1;
@@ -500,14 +504,15 @@ static inline std::tuple<int, int, int> filterStereoMono(
 }
 
 // New input is stereo, (previous output either mono/stereo)
-static inline std::tuple<int, int, int, int> filterStereoStereo(
-	int xl0, int xr0, int yl, int yr, const int* in, short* out, int n)
+static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterStereoStereo(
+	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
+	const int32_t* in, int16_t* out, int n)
 {
 	assert(n > 0);
 	int i = 0;
 	do {
-		int xl = in[2 * i + 0] >> 8;
-		int xr = in[2 * i + 1] >> 8;
+		auto xl = in[2 * i + 0] >> 8;
+		auto xr = in[2 * i + 1] >> 8;
 		yl = xl - xl0 + ((511 * yl) / 512);
 		yr = xr - xr0 + ((511 * yr) / 512);
 		xl0 = xl;
@@ -519,15 +524,16 @@ static inline std::tuple<int, int, int, int> filterStereoStereo(
 }
 
 // We have both mono and stereo input (and produce stereo output)
-static inline std::tuple<int, int, int, int> filterBothStereo(
-	int xl0, int xr0, int yl, int yr, const int* inM, const int* inS, short* out, int n)
+static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterBothStereo(
+	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
+	const int32_t* inM, const int32_t* inS, int16_t* out, int n)
 {
 	assert(n > 0);
 	int i = 0;
 	do {
-		int m = inM[i];
-		int xl = (inS[2 * i + 0] + m) >> 8;
-		int xr = (inS[2 * i + 1] + m) >> 8;
+		auto m = inM[i];
+		auto xl = (inS[2 * i + 0] + m) >> 8;
+		auto xr = (inS[2 * i + 1] + m) >> 8;
 		yl = xl - xl0 + ((511 * yl) / 512);
 		yr = xr - xr0 + ((511 * yr) / 512);
 		xl0 = xl;
@@ -539,7 +545,7 @@ static inline std::tuple<int, int, int, int> filterBothStereo(
 }
 
 
-void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
+void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 {
 	// The code below is specialized for a lot of cases (before this
 	// routine was _much_ shorter). This is done because this routine
@@ -551,16 +557,16 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 	// When samples==0, call updateBuffer() but skip all further processing
 	// (handling this as a special case allows to simply the code below).
 	if (samples == 0) {
-		int dummyBuf[4];
+		int32_t dummyBuf[4];
 		for (auto& info : infos) {
 			info.device->updateBuffer(0, dummyBuf, time);
 		}
 		return;
 	}
 
-	VLA(int, stereoBuf, 2 * samples + 3);
-	VLA(int, monoBuf, samples + 3);
-	VLA_SSE_ALIGNED(int, tmpBuf, 2 * samples + 3);
+	VLA(int32_t, stereoBuf, 2 * samples + 3);
+	VLA(int32_t, monoBuf, samples + 3);
+	VLA_SSE_ALIGNED(int32_t, tmpBuf, 2 * samples + 3);
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;
@@ -634,7 +640,7 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 			if ((outLeft == 0) && (prevLeft == 0)) {
 				// Output was zero, new input is zero,
 				// after DC-filter output will still be zero.
-				memset(output, 0, 2 * samples * sizeof(short));
+				memset(output, 0, 2 * samples * sizeof(int16_t));
 			} else {
 				// Output was not zero, but it was the same left and right.
 				outLeft = filterMonoNull(prevLeft, outLeft, output, samples);
