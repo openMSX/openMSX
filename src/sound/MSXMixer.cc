@@ -20,6 +20,7 @@
 #include "unreachable.hh"
 #include "vla.hh"
 #include <algorithm>
+#include <tuple>
 #include <cmath>
 #include <cstring>
 #include <cassert>
@@ -238,6 +239,310 @@ void MSXMixer::updateStream(EmuTime::param time)
 	prevTime += count;
 }
 
+
+// Various (inner) loops that multiply one buffer by a constant and add the
+// result to a second buffer. Either buffer can be mono or stereo, so if
+// necessary the mono buffer is expanded to stereo. It's possible the
+// accumulation buffer is still empty (as-if it contains zeros), in that case
+// we skip the accumulation step.
+
+// acc[0:n] = mul[0:n] * f
+static inline void mul(int* __restrict acc, const int* __restrict mul, int n, int f)
+{
+#ifdef __arm__
+	// ARM assembly version
+	unsigned dummy1, dummy2, dummy3;
+	asm volatile (
+	"0:\n\t"
+		"ldmia	%[in]!,{r3-r6}\n\t"
+		"mul	r3,%[f],r3\n\t"
+		"mul	r4,%[f],r4\n\t"
+		"mul	r5,%[f],r5\n\t"
+		"mul	r6,%[f],r6\n\t"
+		"stmia	%[out]!,{r3-r6}\n\t"
+		"subs	%[n],%[n],#4\n\t"
+		"bgt	0b\n\t"
+		: [in]  "=r"    (dummy1)
+		, [out] "=r"    (dummy2)
+		, [n]   "=r"    (dummy3)
+		:       "[in]"  (mul)
+		,       "[out]" (acc)
+		,       "[n]"   (n)
+		, [f]   "r"     (f)
+		: "memory", "r3","r4","r5","r6"
+	);
+	return;
+#endif
+
+	// C++ version
+	int i = 0;
+	do {
+		acc[i] = mul[i] * f;
+	} while (++i < n);
+}
+
+// acc[0:n] += mul[0:n] * f
+static inline void mulAcc(int* __restrict acc, const int* __restrict mul, int n, int f)
+{
+#ifdef __arm__
+	// ARM assembly version
+	unsigned dummy1, dummy2, dummy3;
+	asm volatile (
+	"0:\n\t"
+		"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
+		"ldmia	%[out],{r8,r9,r10,r12}\n\t"
+		"mla	r3,%[f],r3,r8\n\t"
+		"mla	r4,%[f],r4,r9\n\t"
+		"mla	r5,%[f],r5,r10\n\t"
+		"mla	r6,%[f],r6,r12\n\t"
+		"stmia	%[out]!,{r3,r4,r5,r6}\n\t"
+		"subs	%[n],%[n],#4\n\t"
+		"bgt	0b\n\t"
+		: [in]  "=r"    (dummy1)
+		, [out] "=r"    (dummy2)
+		, [n]   "=r"    (dummy3)
+		:       "[in]"  (mul)
+		,       "[out]" (acc)
+		,       "[n]"   (n)
+		, [f]   "r"     (f)
+		: "memory"
+		, "r3","r4","r5","r6"
+		, "r8","r9","r10","r12"
+	);
+	return;
+#endif
+
+	// C++ version
+	int i = 0;
+	do {
+		acc[i] += mul[i] * f;
+	} while (++i < n);
+}
+
+// acc[0:2n+0:2] = mul[0:n] * l
+// acc[1:2n+1:2] = mul[0:n] * r
+static inline void mulExpand(
+	int* __restrict acc, const int* __restrict mul, int n, int l, int r)
+{
+	int i = 0;
+	do {
+		int t = mul[i];
+		acc[2 * i + 0] = l * t;
+		acc[2 * i + 1] = r * t;
+	} while (++i < n);
+}
+
+// acc[0:2n+0:2] += mul[0:n] * l
+// acc[1:2n+1:2] += mul[0:n] * r
+static inline void mulExpandAcc(
+	int* __restrict acc, const int* __restrict mul, int n, int l, int r)
+{
+	int i = 0;
+	do {
+		int t = mul[i];
+		acc[2 * i + 0] += l * t;
+		acc[2 * i + 1] += r * t;
+	} while (++i < n);
+}
+
+// acc[0:2n+0:2] = mul[0:2n+0:2] * l1 + mul[1:2n+1:2] * l2
+// acc[1:2n+1:2] = mul[0:2n+0:2] * r1 + mul[1:2n+1:2] * r2
+static inline void mulMix2(
+	int* __restrict acc, const int* __restrict mul, int n,
+	int l1, int l2, int r1, int r2)
+{
+	int i = 0;
+	do {
+		int t1 = mul[2 * i + 0];
+		int t2 = mul[2 * i + 1];
+		acc[2 * i + 0] = l1 * t1 + l2 * t2;
+		acc[2 * i + 1] = r1 * t1 + r2 * t2;
+	} while (++i < n);
+}
+
+// acc[0:2n+0:2] += mul[0:2n+0:2] * l1 + mul[1:2n+1:2] * l2
+// acc[1:2n+1:2] += mul[0:2n+0:2] * r1 + mul[1:2n+1:2] * r2
+static inline void mulMix2Acc(
+	int* __restrict acc, const int* __restrict mul, int n,
+	int l1, int l2, int r1, int r2)
+{
+	int i = 0;
+	do {
+		int t1 = mul[2 * i + 0];
+		int t2 = mul[2 * i + 1];
+		acc[2 * i + 0] += l1 * t1 + l2 * t2;
+		acc[2 * i + 1] += r1 * t1 + r2 * t2;
+	} while (++i < n);
+}
+
+
+// DC removal filter routines:
+//
+//  formula:
+//     y(n) = x(n) - x(n-1) + R * y(n-1)
+//  with:
+//     R = 1 - (2*pi * cut-off-frequency / samplerate)
+//  we take R = 511/512
+//   44100Hz --> cutt-off freq = 14Hz
+//   22050Hz                     7Hz
+// Note: we divide by 512 iso shift-right by 9 because we want
+//       to round towards zero (shift rounds to -inf).
+
+// No new input, previous output was (non-zero) mono.
+static inline int filterMonoNull(int x0, int y, short* out, int n)
+{
+	assert(n > 0);
+	y = ((511 * y) / 512) - x0;
+	short s0 = Math::clipIntToShort(y);
+	out[0] = s0;
+	out[1] = s0;
+	for (int i = 1; i < n; ++i) {
+		y = (511 * y) / 512;
+		short s = Math::clipIntToShort(y);
+		out[2 * i + 0] = s;
+		out[2 * i + 1] = s;
+	}
+	return y;
+}
+
+// No new input, previous output was (non-zero) stereo.
+static inline std::tuple<int, int> filterStereoNull(
+	int xl0, int xr0, int yl, int yr, short* out, int n)
+{
+	assert(n > 0);
+	yl = ((511 * yl) / 512) - xl0;
+	yr = ((511 * yr) / 512) - xr0;
+	out[0] = Math::clipIntToShort(yl);
+	out[1] = Math::clipIntToShort(yr);
+	for (int i = 1; i < n; ++i) {
+		yl = (511 * yl) / 512;
+		yr = (511 * yr) / 512;
+		out[2 * i + 0] = Math::clipIntToShort(yl);
+		out[2 * i + 1] = Math::clipIntToShort(yr);
+	}
+	return std::make_tuple(yl, yr);
+}
+
+// New input is mono, previous output was also mono.
+static inline std::tuple<int, int> filterMonoMono(
+	int x0, int y, const int* in, short* out, int n)
+{
+	assert(n > 0);
+#ifdef __arm__
+	// Note: there are two functional differences in the
+	//       asm and c++ code below:
+	//  - divide by 512 is replaced by ASR #9
+	//    (different for negative numbers)
+	//  - the outLeft variable is set to the clipped value
+	// Though this difference is very small, and we need
+	// the extra speed.
+	unsigned dummy1, dummy2, dummy3, dummy4;
+	asm volatile (
+	"0:\n\t"
+		"rsb	%[y],%[y],%[y],LSL #9\n\t"
+		"rsb	%[y],%[x],%[y],ASR #9\n\t"
+		"ldr	%[x],[%[in]],#4\n\t"
+		"asrs	%[x],%[x],#8\n\t"
+		"add	%[y],%[y],%[x]\n\t"
+		"lsls	%[t],%[y],#16\n\t"
+		"cmp	%[y],%[t],ASR #16\n\t"
+		"it ne\n\t"
+		"subne	%[y],%[m],%[y],ASR #31\n\t"
+		"strh	%[y],[%[out]],#2\n\t"
+		"strh	%[y],[%[out]],#2\n\t"
+		"subs	%[n],%[n],#1\n\t"
+		"bne	0b\n\t"
+		: [y]   "=r"    (y)
+		, [x]   "=r"    (x0)
+		, [in]  "=r"    (dummy1)
+		, [out] "=r"    (dummy2)
+		, [n]   "=r"    (dummy3)
+		, [t]   "=&r"   (dummy4)
+		:       "[y]"   (y)
+		,       "[x]"   (x0)
+		,       "[in]"  (in)
+		,       "[out]" (out)
+		,       "[n]"   (n)
+		, [m]   "r"     (0x7FFF)
+		: "memory"
+	);
+	return std::make_tuple(x0, y);
+#endif
+
+	// C++ version
+	int i = 0;
+	do {
+		int x = in[i] >> 8;
+		y = x - x0 + ((511 * y) / 512);
+		x0 = x;
+		short s = Math::clipIntToShort(y);
+		out[2 * i + 0] = s;
+		out[2 * i + 1] = s;
+	} while (++i < n);
+	return std::make_tuple(x0, y);
+}
+
+// New input is mono, previous output was stereo
+static inline std::tuple<int, int, int> filterStereoMono(
+	int xl0, int xr0, int yl, int yr, const int* in, short* out, int n)
+{
+	assert(n > 0);
+	int x = in[0] >> 8;
+	yl = x - xl0 + ((511 * yl) / 512);
+	yr = x - xr0 + ((511 * yr) / 512);
+	out[0] = Math::clipIntToShort(yl);
+	out[1] = Math::clipIntToShort(yr);
+	for (int i = 1; i < n; ++i) {
+		int x1 = in[i] >> 8;
+		yl = x1 - x + ((511 * yl) / 512);
+		yr = x1 - x + ((511 * yr) / 512);
+		x = x1;
+		out[2 * i + 0] = Math::clipIntToShort(yl);
+		out[2 * i + 1] = Math::clipIntToShort(yr);
+	}
+	return std::make_tuple(x, yl, yr);
+}
+
+// New input is stereo, (previous output either mono/stereo)
+static inline std::tuple<int, int, int, int> filterStereoStereo(
+	int xl0, int xr0, int yl, int yr, const int* in, short* out, int n)
+{
+	assert(n > 0);
+	int i = 0;
+	do {
+		int xl = in[2 * i + 0] >> 8;
+		int xr = in[2 * i + 1] >> 8;
+		yl = xl - xl0 + ((511 * yl) / 512);
+		yr = xr - xr0 + ((511 * yr) / 512);
+		xl0 = xl;
+		xr0 = xr;
+		out[2 * i + 0] = Math::clipIntToShort(yl);
+		out[2 * i + 1] = Math::clipIntToShort(yr);
+	} while (++i < n);
+	return std::make_tuple(xl0, xr0, yl, yr);
+}
+
+// We have both mono and stereo input (and produce stereo output)
+static inline std::tuple<int, int, int, int> filterBothStereo(
+	int xl0, int xr0, int yl, int yr, const int* inM, const int* inS, short* out, int n)
+{
+	assert(n > 0);
+	int i = 0;
+	do {
+		int m = inM[i];
+		int xl = (inS[2 * i + 0] + m) >> 8;
+		int xr = (inS[2 * i + 1] + m) >> 8;
+		yl = xl - xl0 + ((511 * yl) / 512);
+		yr = xr - xr0 + ((511 * yr) / 512);
+		xl0 = xl;
+		xr0 = xr;
+		out[2 * i + 0] = Math::clipIntToShort(yl);
+		out[2 * i + 1] = Math::clipIntToShort(yr);
+	} while (++i < n);
+	return std::make_tuple(xl0, xr0, yl, yr);
+}
+
+
 void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 {
 	// The code below is specialized for a lot of cases (before this
@@ -262,264 +567,80 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 		SoundDevice& device = *info.device;
 		if (device.updateBuffer(samples, tmpBuf, time) &&
 		    (samples > 0)) {
+			int l1 = info.left1;
+			int r1 = info.right1;
 			if (!device.isStereo()) {
-				int l1 = info.left1;
-				int r1 = info.right1;
 				if (l1 == r1) {
 					if (!(usedBuffers & HAS_MONO_FLAG)) {
 						usedBuffers |= HAS_MONO_FLAG;
-#ifdef __arm__
-						unsigned dummy1, dummy2, dummy3;
-						asm volatile (
-						"0:\n\t"
-							"ldmia	%[in]!,{r3-r6}\n\t"
-							"mul	r3,%[f],r3\n\t"
-							"mul	r4,%[f],r4\n\t"
-							"mul	r5,%[f],r5\n\t"
-							"mul	r6,%[f],r6\n\t"
-							"stmia	%[out]!,{r3-r6}\n\t"
-							"subs	%[n],%[n],#4\n\t"
-							"bgt	0b\n\t"
-							: [in]  "=r"    (dummy1)
-							, [out] "=r"    (dummy2)
-							, [n]   "=r"    (dummy3)
-							:       "[in]"  (tmpBuf)
-							,       "[out]" (monoBuf)
-							,       "[n]"   (samples)
-							, [f]   "r"     (l1)
-							: "memory", "r3","r4","r5","r6"
-						);
-#else
-						for (unsigned i = 0; i < samples; ++i) {
-							int tmp = l1 * tmpBuf[i];
-							monoBuf[i] = tmp;
-						}
-#endif
+						mul(monoBuf, tmpBuf, samples, l1);
 					} else {
-#ifdef __arm__
-						unsigned dummy1, dummy2, dummy3;
-						asm volatile (
-						"0:\n\t"
-							"ldmia	%[in]!,{r3,r4,r5,r6}\n\t"
-							"ldmia	%[out],{r8,r9,r10,r12}\n\t"
-							"mla	r3,%[f],r3,r8\n\t"
-							"mla	r4,%[f],r4,r9\n\t"
-							"mla	r5,%[f],r5,r10\n\t"
-							"mla	r6,%[f],r6,r12\n\t"
-							"stmia	%[out]!,{r3,r4,r5,r6}\n\t"
-							"subs	%[n],%[n],#4\n\t"
-							"bgt	0b\n\t"
-							: [in]  "=r"    (dummy1)
-							, [out] "=r"    (dummy2)
-							, [n]   "=r"    (dummy3)
-							:       "[in]"  (tmpBuf)
-							,       "[out]" (monoBuf)
-							,       "[n]"   (samples)
-							, [f]   "r"     (l1)
-							: "memory"
-							, "r3","r4","r5","r6"
-							, "r8","r9","r10","r12"
-						);
-#else
-						for (unsigned i = 0; i < samples; ++i) {
-							int tmp = l1 * tmpBuf[i];
-							monoBuf[i] += tmp;
-						}
-#endif
+						mulAcc(monoBuf, tmpBuf, samples, l1);
 					}
 				} else {
 					if (!(usedBuffers & HAS_STEREO_FLAG)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						for (unsigned i = 0; i < samples; ++i) {
-							int l = l1 * tmpBuf[i];
-							int r = r1 * tmpBuf[i];
-							stereoBuf[2 * i + 0] = l;
-							stereoBuf[2 * i + 1] = r;
-						}
+						mulExpand(stereoBuf, tmpBuf, samples, l1, r1);
 					} else {
-						for (unsigned i = 0; i < samples; ++i) {
-							int l = l1 * tmpBuf[i];
-							int r = r1 * tmpBuf[i];
-							stereoBuf[2 * i + 0] += l;
-							stereoBuf[2 * i + 1] += r;
-						}
+						mulExpandAcc(stereoBuf, tmpBuf, samples, l1, r1);
 					}
 				}
 			} else {
-				int l1 = info.left1;
-				int r1 = info.right1;
 				int l2 = info.left2;
 				int r2 = info.right2;
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
 					usedBuffers |= HAS_STEREO_FLAG;
-					for (unsigned i = 0; i < samples; ++i) {
-						int in1 = tmpBuf[2 * i + 0];
-						int in2 = tmpBuf[2 * i + 1];
-						int l = l1 * in1 + l2 * in2;
-						int r = r1 * in1 + r2 * in2;
-						stereoBuf[2 * i + 0] = l;
-						stereoBuf[2 * i + 1] = r;
-					}
+					mulMix2(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
 				} else {
-					for (unsigned i = 0; i < samples; ++i) {
-						int in1 = tmpBuf[2 * i + 0];
-						int in2 = tmpBuf[2 * i + 1];
-						int l = l1 * in1 + l2 * in2;
-						int r = r1 * in1 + r2 * in2;
-						stereoBuf[2 * i + 0] += l;
-						stereoBuf[2 * i + 1] += r;
-					}
+					mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
 				}
 			}
 		}
 	}
 
 	// DC removal filter
-	//   y(n) = x(n) - x(n-1) + R * y(n-1)
-	//   R = 1 - (pi*2 * cut-off-frequency / samplerate)
-	// take R = 511/512
-	//   44100Hz --> cutt-off freq = 14Hz
-	//   22050Hz                     7Hz
-	// Note: we divide by 512 iso shift-right by 9 because we want
-	//       to round towards zero.
 	switch (usedBuffers) {
-	case 0:
-		// no new input
+	case 0: // no new input
 		if (samples == 0) break;
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			if ((outLeft == 0) && (prevLeft == 0)) {
-				// output was already zero, after DC-filter
-				// it will still be zero
+				// Output was zero, new input is zero,
+				// after DC-filter output will still be zero.
 				memset(output, 0, 2 * samples * sizeof(short));
 			} else {
-				// output was not zero, but it was the same
-				// left and right
-				assert(samples > 0);
-				outLeft  = -prevLeft + ((511 * outLeft) / 512);
-				prevLeft = 0;
-				short out = Math::clipIntToShort(outLeft);
-				output[0] = out;
-				output[1] = out;
-				for (unsigned j = 1; j < samples; ++j) {
-					outLeft = ((511 * outLeft) / 512);
-					out = Math::clipIntToShort(outLeft);
-					output[2 * j + 0] = out;
-					output[2 * j + 1] = out;
-				}
+				// Output was not zero, but it was the same left and right.
+				outLeft = filterMonoNull(prevLeft, outLeft, output, samples);
+				outRight = outLeft;
 			}
-			outRight = outLeft;
-			prevRight = prevLeft;
 		} else {
-			assert(samples > 0);
-			outLeft   = -prevLeft  + ((511 * outLeft ) / 512);
-			outRight  = -prevRight + ((511 * outRight) / 512);
-			prevLeft  = 0;
-			prevRight = 0;
-			output[0] = Math::clipIntToShort(outLeft);
-			output[1] = Math::clipIntToShort(outRight);
-			for (unsigned j = 1; j < samples; ++j) {
-				outLeft   = ((511 *  outLeft) / 512);
-				outRight  = ((511 * outRight) / 512);
-				output[2 * j + 0] = Math::clipIntToShort(outLeft);
-				output[2 * j + 1] = Math::clipIntToShort(outRight);
-			}
+			std::tie(outLeft, outRight) = filterStereoNull(
+				prevLeft, prevRight, outLeft, outRight, output, samples);
 		}
+		prevLeft = prevRight = 0;
 		break;
 
-	case HAS_MONO_FLAG:
-		// only mono
+	case HAS_MONO_FLAG: // only mono
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			// previous output was also mono
-#ifdef __arm__
-			// Note: there are two functional differences in the
-			//       asm and c++ code below:
-			//  - divide by 512 is replaced by ASR #9
-			//    (different for negative numbers)
-			//  - the outLeft variable is set to the clipped value
-			// Though this difference is very small, and we need
-			// the extra speed.
-			unsigned dummy1, dummy2, dummy3, dummy4;
-			asm volatile (
-			"0:\n\t"
-				"rsb	%[o],%[o],%[o],LSL #9\n\t"
-				"rsb	%[o],%[p],%[o],ASR #9\n\t"
-				"ldr	%[p],[%[in]],#4\n\t"
-				"asrs	%[p],%[p],#8\n\t"
-				"add	%[o],%[o],%[p]\n\t"
-				"lsls	%[t],%[o],#16\n\t"
-				"cmp	%[o],%[t],ASR #16\n\t"
-				"it ne\n\t"
-				"subne	%[o],%[m],%[o],ASR #31\n\t"
-				"strh	%[o],[%[out]],#2\n\t"
-				"strh	%[o],[%[out]],#2\n\t"
-				"subs	%[n],%[n],#1\n\t"
-				"bne	0b\n\t"
-				: [o]   "=r"    (outLeft)
-				, [p]   "=r"    (prevLeft)
-				, [in]  "=r"    (dummy1)
-				, [out] "=r"    (dummy2)
-				, [n]   "=r"    (dummy3)
-				, [t]   "=&r"   (dummy4)
-				:       "[o]"   (outLeft)
-				,       "[p]"   (prevLeft)
-				,       "[in]"  (monoBuf)
-				,       "[out]" (output)
-				,       "[n]"   (samples)
-				, [m]   "r"     (0x7FFF)
-				: "memory"
-			);
-#else
-			for (unsigned j = 0; j < samples; ++j) {
-				int mono = monoBuf[j] >> 8;
-				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
-				prevLeft  = mono;
-				short out = Math::clipIntToShort(outLeft);
-				output[2 * j + 0] = out;
-				output[2 * j + 1] = out;
-			}
-#endif
+			std::tie(prevLeft, outLeft) = filterMonoMono(
+				prevLeft, outLeft, monoBuf, output, samples);
 			outRight = outLeft;
-			prevRight = prevLeft;
 		} else {
-			for (unsigned j = 0; j < samples; ++j) {
-				int mono = monoBuf[j] >> 8;
-				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
-				prevLeft  = mono;
-				outRight  = mono - prevRight + ((511 * outRight) / 512);
-				prevRight = mono;
-				output[2 * j + 0] = Math::clipIntToShort(outLeft);
-				output[2 * j + 1] = Math::clipIntToShort(outRight);
-			}
+			// previous output was stereo, rarely triggers but needed for correctness
+			std::tie(prevLeft, outLeft, outRight) = filterStereoMono(
+				prevLeft, prevRight, outLeft, outRight, monoBuf, output, samples);
 		}
+		prevRight = prevLeft;
 		break;
 
-	case HAS_STEREO_FLAG:
-		// only stereo
-		for (unsigned j = 0; j < samples; ++j) {
-			int left  = stereoBuf[2 * j + 0] >> 8;
-			int right = stereoBuf[2 * j + 1] >> 8;
-			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
-			prevLeft  =  left;
-			outRight  = right - prevRight + ((511 * outRight) / 512);
-			prevRight = right;
-			output[2 * j + 0] = Math::clipIntToShort(outLeft);
-			output[2 * j + 1] = Math::clipIntToShort(outRight);
-		}
+	case HAS_STEREO_FLAG: // only stereo
+		std::tie(prevLeft, prevRight, outLeft, outRight) = filterStereoStereo(
+			prevLeft, prevRight, outLeft, outRight, stereoBuf, output, samples);
 		break;
 
-	default:
-		// mono + stereo
-		for (unsigned j = 0; j < samples; ++j) {
-			int mono = monoBuf[j] >> 8;
-			int left  = (stereoBuf[2 * j + 0] >> 8) + mono;
-			int right = (stereoBuf[2 * j + 1] >> 8) + mono;
-			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
-			prevLeft  =  left;
-			outRight  = right - prevRight + ((511 * outRight) / 512);
-			prevRight = right;
-			output[2 * j + 0] = Math::clipIntToShort(outLeft);
-			output[2 * j + 1] = Math::clipIntToShort(outRight);
-		}
+	default: // mono + stereo
+		std::tie(prevLeft, prevRight, outLeft, outRight) = filterBothStereo(
+			prevLeft, prevRight, outLeft, outRight, monoBuf, stereoBuf, output, samples);
 	}
 }
 
