@@ -246,27 +246,25 @@ void MSXMixer::updateStream(EmuTime::param time)
 // accumulation buffer is still empty (as-if it contains zeros), in that case
 // we skip the accumulation step.
 
-// acc[0:n] = mul[0:n] * f
-static inline void mul(int* __restrict acc, const int* __restrict mul, int n, int f)
+// buf[0:n] *= f
+static inline void mul(int* buf, int n, int f)
 {
 #ifdef __arm__
 	// ARM assembly version
-	unsigned dummy1, dummy2, dummy3;
+	unsigned dummy1, dummy2;
 	asm volatile (
 	"0:\n\t"
-		"ldmia	%[in]!,{r3-r6}\n\t"
+		"ldmia	%[buf],{r3-r6}\n\t"
 		"mul	r3,%[f],r3\n\t"
 		"mul	r4,%[f],r4\n\t"
 		"mul	r5,%[f],r5\n\t"
 		"mul	r6,%[f],r6\n\t"
-		"stmia	%[out]!,{r3-r6}\n\t"
+		"stmia	%[buf]!,{r3-r6}\n\t"
 		"subs	%[n],%[n],#4\n\t"
 		"bgt	0b\n\t"
-		: [in]  "=r"    (dummy1)
-		, [out] "=r"    (dummy2)
-		, [n]   "=r"    (dummy3)
-		:       "[in]"  (mul)
-		,       "[out]" (acc)
+		: [buf] "=r"    (dummy1)
+		, [n]   "=r"    (dummy2)
+		:       "[buf]" (buf)
 		,       "[n]"   (n)
 		, [f]   "r"     (f)
 		: "memory", "r3","r4","r5","r6"
@@ -277,7 +275,7 @@ static inline void mul(int* __restrict acc, const int* __restrict mul, int n, in
 	// C++ version
 	int i = 0;
 	do {
-		acc[i] = mul[i] * f;
+		buf[i] *= f;
 	} while (++i < n);
 }
 
@@ -319,17 +317,17 @@ static inline void mulAcc(int* __restrict acc, const int* __restrict mul, int n,
 	} while (++i < n);
 }
 
-// acc[0:2n+0:2] = mul[0:n] * l
-// acc[1:2n+1:2] = mul[0:n] * r
-static inline void mulExpand(
-	int* __restrict acc, const int* __restrict mul, int n, int l, int r)
+// buf[0:2n+0:2] = buf[0:n] * l
+// buf[1:2n+1:2] = buf[0:n] * r
+static inline void mulExpand(int* buf, int n, int l, int r)
 {
-	int i = 0;
+	int i = n;
 	do {
-		int t = mul[i];
-		acc[2 * i + 0] = l * t;
-		acc[2 * i + 1] = r * t;
-	} while (++i < n);
+		--i; // back-to-front
+		int t = buf[i];
+		buf[2 * i + 0] = l * t;
+		buf[2 * i + 1] = r * t;
+	} while (i != 0);
 }
 
 // acc[0:2n+0:2] += mul[0:n] * l
@@ -345,18 +343,16 @@ static inline void mulExpandAcc(
 	} while (++i < n);
 }
 
-// acc[0:2n+0:2] = mul[0:2n+0:2] * l1 + mul[1:2n+1:2] * l2
-// acc[1:2n+1:2] = mul[0:2n+0:2] * r1 + mul[1:2n+1:2] * r2
-static inline void mulMix2(
-	int* __restrict acc, const int* __restrict mul, int n,
-	int l1, int l2, int r1, int r2)
+// buf[0:2n+0:2] = buf[0:2n+0:2] * l1 + buf[1:2n+1:2] * l2
+// buf[1:2n+1:2] = buf[0:2n+0:2] * r1 + buf[1:2n+1:2] * r2
+static inline void mulMix2(int* buf, int n, int l1, int l2, int r1, int r2)
 {
 	int i = 0;
 	do {
-		int t1 = mul[2 * i + 0];
-		int t2 = mul[2 * i + 1];
-		acc[2 * i + 0] = l1 * t1 + l2 * t2;
-		acc[2 * i + 1] = r1 * t1 + r2 * t2;
+		int t1 = buf[2 * i + 0];
+		int t2 = buf[2 * i + 1];
+		buf[2 * i + 0] = l1 * t1 + l2 * t2;
+		buf[2 * i + 1] = r1 * t1 + r2 * t2;
 	} while (++i < n);
 }
 
@@ -563,45 +559,66 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 	// FIXME: The Infos should be ordered such that all the mono
 	// devices are handled first
 	for (auto& info : infos) {
-		// When samples==0, call updateBuffer() but skip mixing
+		// When samples==0, still call updateBuffer() but skip mixing
 		SoundDevice& device = *info.device;
-		if (device.updateBuffer(samples, tmpBuf, time) &&
-		    (samples > 0)) {
-			int l1 = info.left1;
-			int r1 = info.right1;
-			if (!device.isStereo()) {
-				if (l1 == r1) {
-					if (!(usedBuffers & HAS_MONO_FLAG)) {
+		int l1 = info.left1;
+		int r1 = info.right1;
+		if (!device.isStereo()) {
+			if (l1 == r1) {
+				if (!(usedBuffers & HAS_MONO_FLAG)) {
+					if (device.updateBuffer(samples, monoBuf, time) &&
+					    (samples > 0)) {
 						usedBuffers |= HAS_MONO_FLAG;
-						mul(monoBuf, tmpBuf, samples, l1);
-					} else {
-						mulAcc(monoBuf, tmpBuf, samples, l1);
+						mul(monoBuf, samples, l1);
 					}
 				} else {
-					if (!(usedBuffers & HAS_STEREO_FLAG)) {
-						usedBuffers |= HAS_STEREO_FLAG;
-						mulExpand(stereoBuf, tmpBuf, samples, l1, r1);
-					} else {
-						mulExpandAcc(stereoBuf, tmpBuf, samples, l1, r1);
+					if (device.updateBuffer(samples, tmpBuf, time) &&
+					    (samples > 0)) {
+						mulAcc(monoBuf, tmpBuf, samples, l1);
 					}
 				}
 			} else {
-				int l2 = info.left2;
-				int r2 = info.right2;
-				if (l1 == r2) {
-					assert(l2 == 0);
-					assert(r1 == 0);
-					if (!(usedBuffers & HAS_STEREO_FLAG)) {
+				if (!(usedBuffers & HAS_STEREO_FLAG)) {
+					if (device.updateBuffer(samples, stereoBuf, time) &&
+					    (samples > 0)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						mul(stereoBuf, tmpBuf, 2 * samples, l1);
-					} else {
-						mulAcc(stereoBuf, tmpBuf, 2 * samples, l1);
+						mulExpand(stereoBuf, samples, l1, r1);
 					}
 				} else {
-					if (!(usedBuffers & HAS_STEREO_FLAG)) {
+					if (device.updateBuffer(samples, tmpBuf, time) &&
+					    (samples > 0)) {
+						mulExpandAcc(stereoBuf, tmpBuf, samples, l1, r1);
+					}
+				}
+			}
+		} else {
+			int l2 = info.left2;
+			int r2 = info.right2;
+			if (l1 == r2) {
+				assert(l2 == 0);
+				assert(r1 == 0);
+				if (!(usedBuffers & HAS_STEREO_FLAG)) {
+					if (device.updateBuffer(samples, stereoBuf, time) &&
+					    (samples > 0)) {
 						usedBuffers |= HAS_STEREO_FLAG;
-						mulMix2(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
-					} else {
+						mul(stereoBuf, 2 * samples, l1);
+					}
+				} else {
+					if (device.updateBuffer(samples, tmpBuf, time) &&
+					    (samples > 0)) {
+						mulAcc(stereoBuf, tmpBuf, 2 * samples, l1);
+					}
+				}
+			} else {
+				if (!(usedBuffers & HAS_STEREO_FLAG)) {
+					if (device.updateBuffer(samples, stereoBuf, time) &&
+					    (samples > 0)) {
+						usedBuffers |= HAS_STEREO_FLAG;
+						mulMix2(stereoBuf, samples, l1, l2, r1, r2);
+					}
+				} else {
+					if (device.updateBuffer(samples, tmpBuf, time) &&
+					    (samples > 0)) {
 						mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
 					}
 				}
