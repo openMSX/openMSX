@@ -17,6 +17,7 @@
 #include "StringOp.hh"
 #include "memory.hh"
 #include "stl.hh"
+#include "aligned.hh"
 #include "unreachable.hh"
 #include "vla.hh"
 #include <algorithm>
@@ -283,11 +284,18 @@ static inline void mul(int32_t* buf, int n, int f)
 	return;
 #endif
 
-	// C++ version
+	// C++ version, unrolled 4x,
+	//   this allows gcc/clang to do much better auto-vectorization
+	// Note that this can process upto 3 samples too many, but that's OK.
+	assume_SSE_aligned(buf);
 	int i = 0;
 	do {
-		buf[i] *= f;
-	} while (++i < n);
+		buf[i + 0] *= f;
+		buf[i + 1] *= f;
+		buf[i + 2] *= f;
+		buf[i + 3] *= f;
+		i += 4;
+	} while (i < n);
 }
 
 // acc[0:n] += mul[0:n] * f
@@ -322,11 +330,17 @@ static inline void mulAcc(
 	return;
 #endif
 
-	// C++ version
+	// C++ version, unrolled 4x, see comments above.
+	assume_SSE_aligned(acc);
+	assume_SSE_aligned(mul);
 	int i = 0;
 	do {
-		acc[i] += mul[i] * f;
-	} while (++i < n);
+		acc[i + 0] += mul[i + 0] * f;
+		acc[i + 1] += mul[i + 1] * f;
+		acc[i + 2] += mul[i + 2] * f;
+		acc[i + 3] += mul[i + 3] * f;
+		i += 4;
+	} while (i < n);
 }
 
 // buf[0:2n+0:2] = buf[0:n] * l
@@ -578,6 +592,8 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 		return;
 	}
 
+	// +3 to allow processing samples in groups of 4 (and upto 3 samples
+	// more than requested).
 	VLA_SSE_ALIGNED(int32_t, stereoBuf, 2 * samples + 3);
 	VLA_SSE_ALIGNED(int32_t, tmpBuf,    2 * samples + 3);
 	// reuse 'output' as temporary storage
