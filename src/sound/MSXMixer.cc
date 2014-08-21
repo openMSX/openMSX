@@ -25,6 +25,10 @@
 #include <cstring>
 #include <cassert>
 
+#ifdef __SSE2__
+#include "emmintrin.h"
+#endif
+
 using std::remove;
 using std::string;
 using std::vector;
@@ -221,11 +225,18 @@ double MSXMixer::getEffectiveSpeed() const
 
 void MSXMixer::updateStream(EmuTime::param time)
 {
+	union {
+		int16_t mixBuffer[8192 * 2];
+		int32_t dummy1; // make sure mixBuffer is also 32-bit aligned
+#ifdef __SSE2__
+		__m128i dummy2; // and optionally also 128-bit
+#endif
+	};
+
 	unsigned count = prevTime.getTicksTill(time);
+	assert(count <= 8192);
 
 	// call generate() even if count==0 and even if muted
-	int16_t mixBuffer[8192 * 2];
-	assert(count <= 8192);
 	generate(mixBuffer, time, count);
 
 	if (!muteCount && fragmentSize) {
@@ -424,7 +435,7 @@ static inline std::tuple<int32_t, int32_t> filterStereoNull(
 
 // New input is mono, previous output was also mono.
 static inline std::tuple<int32_t, int32_t> filterMonoMono(
-	int32_t x0, int32_t y, const int32_t* in, int16_t* out, int n)
+	int32_t x0, int32_t y, void* buf, int n)
 {
 	assert(n > 0);
 #ifdef __arm__
@@ -435,32 +446,30 @@ static inline std::tuple<int32_t, int32_t> filterMonoMono(
 	//  - the outLeft variable is set to the clipped value
 	// Though this difference is very small, and we need
 	// the extra speed.
-	int32_t dummy1, dummy2, dummy3, dummy4;
+	int32_t dummy1, dummy2, dummy3;
 	asm volatile (
 	"0:\n\t"
 		"rsb	%[y],%[y],%[y],LSL #9\n\t"
 		"rsb	%[y],%[x],%[y],ASR #9\n\t"
-		"ldr	%[x],[%[in]],#4\n\t"
+		"ldr	%[x],[%[buf]]\n\t"
 		"asrs	%[x],%[x],#8\n\t"
 		"add	%[y],%[y],%[x]\n\t"
 		"lsls	%[t],%[y],#16\n\t"
 		"cmp	%[y],%[t],ASR #16\n\t"
 		"it ne\n\t"
 		"subne	%[y],%[m],%[y],ASR #31\n\t"
-		"strh	%[y],[%[out]],#2\n\t"
-		"strh	%[y],[%[out]],#2\n\t"
+		"strh	%[y],[%[buf]],#2\n\t"
+		"strh	%[y],[%[buf]],#2\n\t"
 		"subs	%[n],%[n],#1\n\t"
 		"bne	0b\n\t"
 		: [y]   "=r"    (y)
 		, [x]   "=r"    (x0)
-		, [in]  "=r"    (dummy1)
-		, [out] "=r"    (dummy2)
-		, [n]   "=r"    (dummy3)
-		, [t]   "=&r"   (dummy4)
+		, [buf]  "=r"   (dummy1)
+		, [n]   "=r"    (dummy2)
+		, [t]   "=&r"   (dummy3)
 		:       "[y]"   (y)
 		,       "[x]"   (x0)
-		,       "[in]"  (in)
-		,       "[out]" (out)
+		,       "[buf]" (buf)
 		,       "[n]"   (n)
 		, [m]   "r"     (0x7FFF)
 		: "memory"
@@ -469,6 +478,8 @@ static inline std::tuple<int32_t, int32_t> filterMonoMono(
 #endif
 
 	// C++ version
+	const auto* in  = static_cast<const int32_t*>(buf);
+	      auto* out = static_cast<      int16_t*>(buf);
 	int i = 0;
 	do {
 		auto x = in[i] >> 8;
@@ -483,10 +494,11 @@ static inline std::tuple<int32_t, int32_t> filterMonoMono(
 
 // New input is mono, previous output was stereo
 static inline std::tuple<int32_t, int32_t, int32_t> filterStereoMono(
-	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
-	const int32_t* in, int16_t* out, int n)
+	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr, void* buf, int n)
 {
 	assert(n > 0);
+	const auto* in  = static_cast<const int32_t*>(buf);
+	      auto* out = static_cast<      int16_t*>(buf);
 	auto x = in[0] >> 8;
 	yl = x - xl0 + ((511 * yl) / 512);
 	yr = x - xr0 + ((511 * yr) / 512);
@@ -526,9 +538,11 @@ static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterStereoStereo(
 // We have both mono and stereo input (and produce stereo output)
 static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterBothStereo(
 	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr,
-	const int32_t* inM, const int32_t* inS, int16_t* out, int n)
+	const int32_t* inS, void* buf, int n)
 {
 	assert(n > 0);
+	const auto* inM = static_cast<const int32_t*>(buf);
+	      auto* out = static_cast<      int16_t*>(buf);
 	int i = 0;
 	do {
 		auto m = inM[i];
@@ -564,9 +578,10 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 		return;
 	}
 
-	VLA(int32_t, stereoBuf, 2 * samples + 3);
-	VLA(int32_t, monoBuf, samples + 3);
-	VLA_SSE_ALIGNED(int32_t, tmpBuf, 2 * samples + 3);
+	VLA_SSE_ALIGNED(int32_t, stereoBuf, 2 * samples + 3);
+	VLA_SSE_ALIGNED(int32_t, tmpBuf,    2 * samples + 3);
+	// reuse 'output' as temporary storage
+	auto* monoBuf = reinterpret_cast<int32_t*>(output);
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;
@@ -654,15 +669,16 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 		break;
 
 	case HAS_MONO_FLAG: // only mono
+		assert(static_cast<void*>(monoBuf) == static_cast<void*>(output));
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			// previous output was also mono
 			std::tie(prevLeft, outLeft) = filterMonoMono(
-				prevLeft, outLeft, monoBuf, output, samples);
+				prevLeft, outLeft, output, samples);
 			outRight = outLeft;
 		} else {
 			// previous output was stereo, rarely triggers but needed for correctness
 			std::tie(prevLeft, outLeft, outRight) = filterStereoMono(
-				prevLeft, prevRight, outLeft, outRight, monoBuf, output, samples);
+				prevLeft, prevRight, outLeft, outRight, output, samples);
 		}
 		prevRight = prevLeft;
 		break;
@@ -673,8 +689,9 @@ void MSXMixer::generate(int16_t* output, EmuTime::param time, unsigned samples)
 		break;
 
 	default: // mono + stereo
+		assert(static_cast<void*>(monoBuf) == static_cast<void*>(output));
 		std::tie(prevLeft, prevRight, outLeft, outRight) = filterBothStereo(
-			prevLeft, prevRight, outLeft, outRight, monoBuf, stereoBuf, output, samples);
+			prevLeft, prevRight, outLeft, outRight, stereoBuf, output, samples);
 	}
 }
 
