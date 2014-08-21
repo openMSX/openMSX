@@ -588,11 +588,22 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 			} else {
 				int l2 = info.left2;
 				int r2 = info.right2;
-				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					usedBuffers |= HAS_STEREO_FLAG;
-					mulMix2(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
+				if (l1 == r2) {
+					assert(l2 == 0);
+					assert(r1 == 0);
+					if (!(usedBuffers & HAS_STEREO_FLAG)) {
+						usedBuffers |= HAS_STEREO_FLAG;
+						mul(stereoBuf, tmpBuf, 2 * samples, l1);
+					} else {
+						mulAcc(stereoBuf, tmpBuf, 2 * samples, l1);
+					}
 				} else {
-					mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
+					if (!(usedBuffers & HAS_STEREO_FLAG)) {
+						usedBuffers |= HAS_STEREO_FLAG;
+						mulMix2(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
+					} else {
+						mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
+					}
 				}
 			}
 		}
