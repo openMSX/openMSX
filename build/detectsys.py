@@ -2,6 +2,8 @@
 # Actually we rely on the Python "platform" module and map its output to names
 # that the openMSX build understands.
 
+from executils import captureStdout
+
 from platform import architecture, machine, system
 from subprocess import PIPE, STDOUT, Popen
 import sys
@@ -80,6 +82,15 @@ def detectOS():
 	else:
 		raise ValueError('Unsupported or unrecognised OS "%s"' % os)
 
+def getCompilerMachine():
+	# Note: Recent GCC and Clang versions support this option.
+	machine = captureStdout(sys.stderr, 'cc -dumpmachine')
+	if machine is not None:
+		machineParts = machine.split('-')
+		if len(machineParts) >= 3:
+			return machineParts[0], machineParts[2]
+	return None, None
+
 def detectMaemo5():
 	try:
 		proc = Popen(
@@ -96,6 +107,19 @@ def detectMaemo5():
 if __name__ == '__main__':
 	try:
 		hostCPU = detectCPU()
+		if hostCPU == 'mips':
+			# Little endian MIPS is reported as just "mips" by Linux Python.
+			compilerCPU, compilerOS = getCompilerMachine()
+			if compilerCPU == 'mips':
+				pass
+			elif compilerCPU == 'mipsel':
+				hostCPU = compilerCPU
+			else:
+				print >>sys.stderr, (
+						'Warning: Unabling to determine endianess; '
+						'compiling for big endian'
+						)
+
 		hostOS = detectOS()
 		if hostOS == 'mingw32' and hostCPU == 'x86_64':
 			# It is possible to run MinGW on 64-bit Windows, but producing
@@ -111,6 +135,7 @@ if __name__ == '__main__':
 			# Detect maemo5 environment, e.g. Nokia N900
 			if detectMaemo5():
 				hostOS = 'maemo5'
+
 		print '%s-%s' % (hostCPU, hostOS)
 	except ValueError, ex:
 		print >> sys.stderr, ex
