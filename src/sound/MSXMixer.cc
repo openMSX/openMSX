@@ -548,6 +548,16 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 	// faster for the common cases (mono output or no sound at all).
 	// In total emulation time this gave a speedup of about 2%.
 
+	// When samples==0, call updateBuffer() but skip all further processing
+	// (handling this as a special case allows to simply the code below).
+	if (samples == 0) {
+		int dummyBuf[4];
+		for (auto& info : infos) {
+			info.device->updateBuffer(0, dummyBuf, time);
+		}
+		return;
+	}
+
 	VLA(int, stereoBuf, 2 * samples + 3);
 	VLA(int, monoBuf, samples + 3);
 	VLA_SSE_ALIGNED(int, tmpBuf, 2 * samples + 3);
@@ -559,34 +569,29 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 	// FIXME: The Infos should be ordered such that all the mono
 	// devices are handled first
 	for (auto& info : infos) {
-		// When samples==0, still call updateBuffer() but skip mixing
 		SoundDevice& device = *info.device;
 		int l1 = info.left1;
 		int r1 = info.right1;
 		if (!device.isStereo()) {
 			if (l1 == r1) {
 				if (!(usedBuffers & HAS_MONO_FLAG)) {
-					if (device.updateBuffer(samples, monoBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, monoBuf, time)) {
 						usedBuffers |= HAS_MONO_FLAG;
 						mul(monoBuf, samples, l1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, tmpBuf, time)) {
 						mulAcc(monoBuf, tmpBuf, samples, l1);
 					}
 				}
 			} else {
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, stereoBuf, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
 						mulExpand(stereoBuf, samples, l1, r1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, tmpBuf, time)) {
 						mulExpandAcc(stereoBuf, tmpBuf, samples, l1, r1);
 					}
 				}
@@ -598,27 +603,23 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 				assert(l2 == 0);
 				assert(r1 == 0);
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, stereoBuf, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
 						mul(stereoBuf, 2 * samples, l1);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, tmpBuf, time)) {
 						mulAcc(stereoBuf, tmpBuf, 2 * samples, l1);
 					}
 				}
 			} else {
 				if (!(usedBuffers & HAS_STEREO_FLAG)) {
-					if (device.updateBuffer(samples, stereoBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, stereoBuf, time)) {
 						usedBuffers |= HAS_STEREO_FLAG;
 						mulMix2(stereoBuf, samples, l1, l2, r1, r2);
 					}
 				} else {
-					if (device.updateBuffer(samples, tmpBuf, time) &&
-					    (samples > 0)) {
+					if (device.updateBuffer(samples, tmpBuf, time)) {
 						mulMix2Acc(stereoBuf, tmpBuf, samples, l1, l2, r1, r2);
 					}
 				}
@@ -629,7 +630,6 @@ void MSXMixer::generate(short* output, EmuTime::param time, unsigned samples)
 	// DC removal filter
 	switch (usedBuffers) {
 	case 0: // no new input
-		if (samples == 0) break;
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			if ((outLeft == 0) && (prevLeft == 0)) {
 				// Output was zero, new input is zero,
