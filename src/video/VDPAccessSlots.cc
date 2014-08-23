@@ -3,10 +3,12 @@
 namespace openmsx {
 namespace VDPAccessSlots {
 
-// TODO the following 3 tables are correct for bitmap screen modes,
-//      still need to investigate character and text modes.
 // These tables must contain at least one value that is bigger or equal
 // to 1368+136. So we extend the data with some cyclic duplicates.
+
+// Screen rendering disabled (or vertical border).
+// This is correct (measured on real V9938) for bitmap and character mode.
+// TODO also correct for text mode? See 'vdp-timing-2.html for more details.
 static const int16_t slotsScreenOff[154 + 17] = {
 	   0,    8,   16,   24,   32,   40,   48,   56,   64,   72,
 	  80,   88,   96,  104,  112,  120,  164,  172,  180,  188,
@@ -30,6 +32,7 @@ static const int16_t slotsScreenOff[154 + 17] = {
 	1368+120, 1368+164
 };
 
+// Bitmap mode, sprites disabled.
 static const int16_t slotsSpritesOff[88 + 16] = {
 	   6,   14,   22,   30,   38,   46,   54,   62,   70,   78,
 	  86,   94,  102,  110,  118,  162,  170,  182,  188,  214,
@@ -46,6 +49,28 @@ static const int16_t slotsSpritesOff[88 + 16] = {
 	1368+162,
 };
 
+// Character mode, sprites disabled.
+// TODO these are not actually measured! See 'vdp-timing-2.html'.
+//  [166,1212] is likely correct
+//  [1270,122] is an educated guess, the amount of slots is likely correct,
+//             but they might be shifted a few cycles forwards or backwards.
+static const int16_t slotsCharSpritesOff[88 + 17] = {
+	   2,   10,   18,   26,   34,   42,   50,   58,   66,   74,
+	  82,   90,   98,  106,  114,  122,  166,  174,  188,  194,
+	 220,  226,  252,  258,  290,  316,  322,  348,  354,  380,
+	 386,  418,  444,  450,  476,  482,  508,  514,  546,  572,
+	 578,  604,  610,  636,  642,  674,  700,  706,  732,  738,
+	 764,  770,  802,  828,  834,  860,  866,  892,  898,  930,
+	 956,  962,  988,  994, 1020, 1026, 1058, 1084, 1090, 1116,
+	1122, 1148, 1154, 1186, 1212, 1218, 1270, 1278, 1286, 1294,
+	1302, 1310, 1318, 1326, 1336, 1346, 1354, 1362,
+	1368+  2, 1368+ 10, 1368+18, 1368+ 26, 1368+ 34,
+	1368+ 42, 1368+ 50, 1368+58, 1368+ 66, 1368+ 74,
+	1368+ 82, 1368+ 90, 1368+98, 1368+106, 1368+114,
+	1368+122, 1368+166,
+};
+
+// Bitmap mode, sprites enabled.
 static const int16_t slotsSpritesOn[31 + 3] = {
 	  28,   92,  162,  170,  188,  220,  252,  316,  348,  380,
 	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
@@ -54,10 +79,34 @@ static const int16_t slotsSpritesOn[31 + 3] = {
 	1368+28, 1368+92, 1368+162,
 };
 
-static uint8_t tabSpritesOn [NUM_DELTAS * TICKS];
-static uint8_t tabSpritesOff[NUM_DELTAS * TICKS];
-static uint8_t tabScreenOff [NUM_DELTAS * TICKS];
-static uint8_t tabBroken    [NUM_DELTAS * TICKS];
+// Character mode, sprites enabled.
+static const int16_t slotsCharSpritesOn[31 + 3] = {
+	  32,   96,  166,  174,  188,  220,  252,  316,  348,  380,
+	 444,  476,  508,  572,  604,  636,  700,  732,  764,  828,
+	 860,  892,  956,  988, 1020, 1084, 1116, 1148, 1212, 1268,
+	1334,
+	1368+32, 1368+96, 1368+166,
+};
+
+// Text mode.
+static const int16_t slotsText[47 + 10] = {
+	   2,   10,   18,   26,   34,   42,   50,   58,   66,  166,
+	 174,  182,  190,  198,  206,  214,  222,  312,  408,  504,
+	 600,  696,  792,  888,  984, 1080, 1176, 1206, 1214, 1222,
+	1230, 1238, 1246, 1254, 1262, 1270, 1278, 1286, 1294, 1302,
+	1310, 1318, 1326, 1336, 1346, 1354, 1362,
+	1368+ 2, 1368+10, 1368+18, 1368+26, 1368+ 34,
+	1368+42, 1368+50, 1368+58, 1368+66, 1368+166,
+};
+
+// Derived data from the tables above.
+static uint8_t tabSpritesOn     [NUM_DELTAS * TICKS];
+static uint8_t tabSpritesOff    [NUM_DELTAS * TICKS];
+static uint8_t tabCharSpritesOn [NUM_DELTAS * TICKS];
+static uint8_t tabCharSpritesOff[NUM_DELTAS * TICKS];
+static uint8_t tabText          [NUM_DELTAS * TICKS];
+static uint8_t tabScreenOff     [NUM_DELTAS * TICKS];
+static uint8_t tabBroken        [NUM_DELTAS * TICKS];
 
 static void initTable(const int16_t* slots, uint8_t* output)
 {
@@ -84,36 +133,48 @@ void initTables()
 	if (init) return;
 	init = true;
 
-	initTable(slotsSpritesOn,  tabSpritesOn);
-	initTable(slotsSpritesOff, tabSpritesOff);
-	initTable(slotsScreenOff,  tabScreenOff);
+	initTable(slotsSpritesOn,      tabSpritesOn);
+	initTable(slotsSpritesOff,     tabSpritesOff);
+	initTable(slotsCharSpritesOn,  tabCharSpritesOn);
+	initTable(slotsCharSpritesOff, tabCharSpritesOff);
+	initTable(slotsText,           tabText);
+	initTable(slotsScreenOff,      tabScreenOff);
 	for (int i = 0; i < NUM_DELTAS * TICKS; ++i) {
 		tabBroken[i] = 0;
 	}
 }
 
-static const uint8_t* getTab(bool display, bool sprites, bool broken)
+static inline const uint8_t* getTab(const VDP& vdp)
 {
-	return broken ? tabBroken
-	              : (display ? (sprites ? tabSpritesOn : tabSpritesOff)
-	                         : tabScreenOff);
+	if (vdp.getBrokenCmdTiming()) return tabBroken;
+	if (!vdp.isDisplayEnabled())  return tabScreenOff;
+
+	bool sprites = vdp.spritesEnabledRegister();
+	auto mode    = vdp.getDisplayMode();
+	bool bitmap  = mode.isBitmapMode();
+	bool text    = mode.isTextMode();
+	return bitmap ? (sprites ? tabSpritesOn
+	                         : tabSpritesOff)
+	              : (text ? tabText
+	                      : (sprites ? tabCharSpritesOn
+	                                 : tabCharSpritesOff));
 }
 
 EmuTime getAccessSlot(
 	EmuTime::param frame_, EmuTime::param time, Delta delta,
-	bool display, bool sprites, bool broken)
+	const VDP& vdp)
 {
 	VDP::VDPClock frame(frame_);
 	unsigned ticks = frame.getTicksTill_fast(time) % TICKS;
-	auto* tab = getTab(display, sprites, broken);
+	auto* tab = getTab(vdp);
 	return time + VDP::VDPClock::duration(tab[delta + ticks]);
 }
 
 Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
-	bool display, bool sprites, bool broken)
+	const VDP& vdp)
 {
-	auto* tab = getTab(display, sprites, broken);
+	auto* tab = getTab(vdp);
 	return Calculator(frame, time, limit, tab);
 }
 

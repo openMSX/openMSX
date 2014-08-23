@@ -922,19 +922,15 @@ bool VDP::cpuAccessScheduled() const
 
 EmuTime VDP::getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const
 {
-	bool display = isDisplayEnabled();
-	bool sprites = (controlRegs[8] & 2) == 0;
 	return VDPAccessSlots::getAccessSlot(
-		getFrameStartTime(), time, delta, display, sprites, brokenCmdTiming);
+		getFrameStartTime(), time, delta, *this);
 }
 
 VDPAccessSlots::Calculator VDP::getAccessSlotCalculator(
 	EmuTime::param time, EmuTime::param limit) const
 {
-	bool display = isDisplayEnabled();
-	bool sprites = (controlRegs[8] & 2) == 0;
 	return VDPAccessSlots::getCalculator(
-		getFrameStartTime(), time, limit, display, sprites, brokenCmdTiming);
+		getFrameStartTime(), time, limit, *this);
 }
 
 byte VDP::peekStatusReg(byte reg, EmuTime::param time) const

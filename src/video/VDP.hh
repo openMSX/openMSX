@@ -263,6 +263,13 @@ public:
 		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Still faster variant (just looks at the sprite-enabled-bit).
+	  * But only valid in sprite mode 1/2 with screen enabled.
+	  */
+	inline bool spritesEnabledRegister() const {
+		return (controlRegs[8] & 0x02) == 0x00;
+	}
+
 	/** Gets the current vertical scroll (line displayed at Y=0).
 	  * @return Vertical scroll register value.
 	  */
@@ -496,6 +503,12 @@ public:
 	/** Enable superimposing
 	  */
 	void setExternalVideoSource(const RawFrame* externalSource);
+
+	/** Value of the cmdTiming setting, true means commands have infinite speed.
+	 */
+	bool getBrokenCmdTiming() const {
+		return brokenCmdTiming;
+	}
 
 	/** Get the earliest access slot that is at least 'delta' cycles in
 	  * the future. */

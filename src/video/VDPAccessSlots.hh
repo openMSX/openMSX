@@ -92,13 +92,13 @@ void initTables();
   * cycles later than 'time'. The start of the current 'frame' is needed for
   * reference. */
 EmuTime getAccessSlot(EmuTime::param frame, EmuTime::param time, Delta delta,
-                      bool display, bool sprites, bool broken);
+                      const VDP& vdp);
 
 /** When many calls to getAccessSlot() are needed, it's more efficient to
   * instead use this function. */
 Calculator getCalculator(
 	EmuTime::param frame, EmuTime::param time, EmuTime::param limit,
-	bool display, bool sprites, bool broken);
+	const VDP& vdp);
 
 } // namespace VDPAccessSlots
 } // namespace openmsx
