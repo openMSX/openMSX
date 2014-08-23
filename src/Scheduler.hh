@@ -115,7 +115,8 @@ private: // -> intended for Schedulable
 	/**
 	 * Is there a pending syncPoint for this device?
 	 */
-	bool pendingSyncPoint(const Schedulable& device, int userdata = 0) const;
+	bool pendingSyncPoint(const Schedulable& device, int userdata,
+	                      EmuTime& result) const;
 
 private:
 	void scheduleHelper(EmuTime::param limit, EmuTime next);

@@ -97,8 +97,6 @@ private:
 
 	void endCmd();
 
-	inline void resetIRQ();
-	inline void setIRQ();
 	void setDrqRate();
 	bool isReady() const;
 
@@ -108,10 +106,13 @@ private:
 	DiskDrive& drive;
 	CliComm& cliComm;
 
-	// DRQ is high iff current time is past this time
+	// DRQ is high iff current time is past this time.
 	//  This clock ticks at the 'byte-rate' of the current track,
 	//  typically '6250 bytes/rotation * 5 rotations/second'.
 	DynamicClock drqTime;
+
+	// INTRQ is high iff current time is past this time.
+	EmuTime irqTime;
 
 	EmuTime pulse5; // time at which the 5th index pulse will be received
 
@@ -130,13 +131,12 @@ private:
 	byte dataReg;
 
 	bool directionIn;
-	bool INTRQ;
 	bool immediateIRQ;
 	bool lastWasA1;
 
 	const bool isWD1770;
 };
-SERIALIZE_CLASS_VERSION(WD2793, 6);
+SERIALIZE_CLASS_VERSION(WD2793, 7);
 
 } // namespace openmsx
 

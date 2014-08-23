@@ -35,7 +35,10 @@ static const int IDX_IRQ    = 0x04;
 static const int IMM_IRQ    = 0x08;
 
 // Sync point types
-enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
+enum SyncPointType {
+	SCHED_FSM,    // this is the only one in active use, so we could remove this enum
+	SCHED_IDX_IRQ // but this one is still used for backwards compatible savestates
+};
 
 
 /** This class has emulation for WD1770, WD1793, WD2793. Though at the moment
@@ -49,6 +52,7 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
 	, drive(drive_)
 	, cliComm(cliComm_)
 	, drqTime(EmuTime::infinity)
+	, irqTime(EmuTime::infinity)
 	, pulse5(EmuTime::infinity)
 	, isWD1770(isWD1770_)
 {
@@ -64,7 +68,6 @@ WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, CliComm& cliComm_,
 void WD2793::reset(EmuTime::param time)
 {
 	removeSyncPoint(SCHED_FSM);
-	removeSyncPoint(SCHED_IDX_IRQ);
 	fsmState = FSM_NONE;
 
 	statusReg = 0;
@@ -73,7 +76,7 @@ void WD2793::reset(EmuTime::param time)
 	directionIn = true;
 
 	drqTime.reset(EmuTime::infinity); // DRQ = false
-	resetIRQ();
+	irqTime = EmuTime::infinity;      // INTRQ = false;
 	immediateIRQ = false;
 
 	// Execute Restore command
@@ -96,25 +99,14 @@ void WD2793::setDrqRate()
 	drqTime.setFreq(trackData.getLength() * DiskDrive::ROTATIONS_PER_SECOND);
 }
 
-bool WD2793::getIRQ(EmuTime::param /*time*/)
+bool WD2793::getIRQ(EmuTime::param time)
 {
-	//PRT_DEBUG("WD2793::getIRQ() " << INTRQ);
-	return INTRQ || immediateIRQ;
+	return immediateIRQ || (irqTime <= time);
 }
 
 bool WD2793::peekIRQ(EmuTime::param time)
 {
 	return getIRQ(time);
-}
-
-void WD2793::setIRQ()
-{
-	INTRQ = true;
-}
-
-void WD2793::resetIRQ()
-{
-	INTRQ = false;
 }
 
 bool WD2793::isReady() const
@@ -130,7 +122,7 @@ void WD2793::setCommandReg(byte value, EmuTime::param time)
 	removeSyncPoint(SCHED_FSM);
 
 	commandReg = value;
-	resetIRQ();
+	irqTime = EmuTime::infinity; // INTRQ = false;
 	switch (commandReg & 0xF0) {
 		case 0x00: // restore
 		case 0x10: // seek
@@ -194,7 +186,11 @@ byte WD2793::getStatusReg(EmuTime::param time)
 		statusReg |=  NOT_READY;
 	}
 
-	resetIRQ();
+	// Reset INTRQ only if it's not scheduled to turn on in the future.
+	if (irqTime <= time) { // if (INTRQ == true)
+		irqTime = EmuTime::infinity; // INTRQ = false;
+	}
+
 	//PRT_DEBUG("WD2793::getStatusReg() 0x" << std::hex << (int)statusReg);
 	return statusReg;
 }
@@ -380,11 +376,6 @@ void WD2793::schedule(FSMState state, EmuTime::param time)
 
 void WD2793::executeUntil(EmuTime::param time, int userData)
 {
-	if (userData == SCHED_IDX_IRQ) {
-		INTRQ = true;
-		return;
-	}
-
 	assert(userData == SCHED_FSM);
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;
@@ -935,9 +926,9 @@ void WD2793::startType4Cmd(EmuTime::param time)
 		immediateIRQ = false;
 	}
 	if ((flags & IDX_IRQ) && isReady()) {
-		setSyncPoint(drive.getTimeTillIndexPulse(time), SCHED_IDX_IRQ);
+		irqTime = drive.getTimeTillIndexPulse(time);
 	} else {
-		removeSyncPoint(SCHED_IDX_IRQ);
+		assert(irqTime == EmuTime::infinity); // INTRQ = false
 	}
 	if (flags & IMM_IRQ) {
 		immediateIRQ = true;
@@ -949,8 +940,8 @@ void WD2793::startType4Cmd(EmuTime::param time)
 
 void WD2793::endCmd()
 {
-	drqTime.reset(EmuTime::infinity); // DRQ = false
-	setIRQ();
+	drqTime.reset(EmuTime::infinity); // DRQ   = false
+	irqTime = EmuTime::zero;          // INTRQ = true;
 	statusReg &= ~BUSY;
 }
 
@@ -989,6 +980,7 @@ SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
 // version 4: changed type of drqTime from Clock to DynamicClock
 // version 5: added 'pulse5' and 'sectorInfo'
 // version 6: no layout changes, only added new enum value 'FSM_CHECK_WRITE'
+// version 7: replaced 'bool INTRQ' with 'EmuTime irqTime'
 template<typename Archive>
 void WD2793::serialize(Archive& ar, unsigned version)
 {
@@ -1002,7 +994,6 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	ar.serialize("dataReg", dataReg);
 
 	ar.serialize("directionIn", directionIn);
-	ar.serialize("INTRQ", INTRQ);
 	ar.serialize("immediateIRQ", immediateIRQ);
 
 	ar.serialize("dataCurrent", dataCurrent);
@@ -1073,6 +1064,21 @@ void WD2793::serialize(Archive& ar, unsigned version)
 	} else {
 		// leave pulse5 at EmuTime::infinity
 		// leave sectorInfo uninitialized
+	}
+
+	if (ar.versionAtLeast(version, 7)) {
+		ar.serialize("irqTime", irqTime);
+	} else {
+		assert(ar.isLoader());
+		bool INTRQ;
+		ar.serialize("INTRQ", INTRQ);
+		irqTime = INTRQ ? EmuTime::zero : EmuTime::infinity;
+
+		auto schedTime = EmuTime::dummy();
+		if (pendingSyncPoint(SCHED_IDX_IRQ, schedTime)) {
+			removeSyncPoint(SCHED_IDX_IRQ);
+			irqTime = schedTime;
+		}
 	}
 }
 INSTANTIATE_SERIALIZE_METHODS(WD2793);

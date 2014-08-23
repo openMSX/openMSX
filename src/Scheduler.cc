@@ -87,11 +87,18 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 	queue.remove_all(FindSchedulable(device));
 }
 
-bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData) const
+bool Scheduler::pendingSyncPoint(const Schedulable& device, int userData,
+                                 EmuTime& result) const
 {
 	assert(Thread::isMainThread());
-	return std::find_if(std::begin(queue), std::end(queue),
-	                    EqualSchedulable(device, userData)) != std::end(queue);
+	auto it = std::find_if(std::begin(queue), std::end(queue),
+	                       EqualSchedulable(device, userData));
+	if (it != std::end(queue)) {
+		result = it->getTime();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 EmuTime::param Scheduler::getCurrentTime() const

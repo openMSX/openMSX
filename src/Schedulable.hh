@@ -53,6 +53,7 @@ protected:
 	bool removeSyncPoint(int userData = 0);
 	void removeSyncPoints();
 	bool pendingSyncPoint(int userData = 0) const;
+	bool pendingSyncPoint(int userData, EmuTime& result) const;
 
 private:
 	Scheduler& scheduler;

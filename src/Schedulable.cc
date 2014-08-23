@@ -39,7 +39,13 @@ void Schedulable::removeSyncPoints()
 
 bool Schedulable::pendingSyncPoint(int userData) const
 {
-	return scheduler.pendingSyncPoint(*this, userData);
+	auto dummy = EmuTime::dummy();
+	return scheduler.pendingSyncPoint(*this, userData, dummy);
+}
+
+bool Schedulable::pendingSyncPoint(int userData, EmuTime& result) const
+{
+	return scheduler.pendingSyncPoint(*this, userData, result);
 }
 
 EmuTime::param Schedulable::getCurrentTime() const
