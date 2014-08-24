@@ -408,15 +408,17 @@ static inline void mulMix2Acc(
 //  we take R = 511/512
 //   44100Hz --> cutt-off freq = 14Hz
 //   22050Hz                     7Hz
-// Note: we divide by 512 iso shift-right by 9 because we want
-//       to round towards zero (shift rounds to -inf).
+// Note1: we divide by 512 iso shift-right by 9 because we want
+//        to round towards zero (shift rounds to -inf).
+// Note2: the input still needs to be divided by 512 (because of balance-
+//        multiplication), can be done together with the above division.
 
 // No new input, previous output was (non-zero) mono.
 static inline int32_t filterMonoNull(
 	int32_t x0, int32_t y, int16_t* out, int n)
 {
 	assert(n > 0);
-	y = ((511 * y) / 512) - x0;
+	y = ((511 * y) - x0) / 512;
 	auto s0 = Math::clipIntToShort(y);
 	out[0] = s0;
 	out[1] = s0;
@@ -434,8 +436,8 @@ static inline std::tuple<int32_t, int32_t> filterStereoNull(
 	int32_t xl0, int32_t xr0, int32_t yl, int32_t yr, int16_t* out, int n)
 {
 	assert(n > 0);
-	yl = ((511 * yl) / 512) - xl0;
-	yr = ((511 * yr) / 512) - xr0;
+	yl = ((511 * yl) - xl0) / 512;
+	yr = ((511 * yr) - xr0) / 512;
 	out[0] = Math::clipIntToShort(yl);
 	out[1] = Math::clipIntToShort(yr);
 	for (int i = 1; i < n; ++i) {
@@ -463,19 +465,19 @@ static inline std::tuple<int32_t, int32_t> filterMonoMono(
 	int32_t dummy1, dummy2, dummy3;
 	asm volatile (
 	"0:\n\t"
-		"rsb	%[y],%[y],%[y],LSL #9\n\t"
-		"rsb	%[y],%[x],%[y],ASR #9\n\t"
-		"ldr	%[x],[%[buf]]\n\t"
-		"asrs	%[x],%[x],#8\n\t"
-		"add	%[y],%[y],%[x]\n\t"
-		"lsls	%[t],%[y],#16\n\t"
-		"cmp	%[y],%[t],ASR #16\n\t"
-		"it ne\n\t"
-		"subne	%[y],%[m],%[y],ASR #31\n\t"
-		"strh	%[y],[%[buf]],#2\n\t"
-		"strh	%[y],[%[buf]],#2\n\t"
-		"subs	%[n],%[n],#1\n\t"
-		"bne	0b\n\t"
+		"rsb	%[y],%[y],%[y],LSL #9\n\t"  // y = (y0<<9)-y = 511y0
+		"rsb	%[y],%[x],%[y]\n\t"         // y = 511y0 - x0
+		"ldr	%[x],[%[buf]]\n\t"          // x = *(int*)buf
+		"add	%[y],%[y],%[x]\n\t"         // y = x - x0 + 511y0
+		"asrs	%[y],%[y],#9\n\t"           // y = (x-x0+511y0) >> 9
+		"lsls	%[t],%[y],#16\n\t"          // t = y << 16
+		"cmp	%[y],%[t],ASR #16\n\t"      // cond = y != (t >> 16)
+		"it ne\n\t"                         // if (cond)
+		"subne	%[y],%[m],%[y],ASR #31\n\t" // then y = m - y>>31
+		"strh	%[y],[%[buf]],#2\n\t"       // *(short*)buf = y; buf += 2
+		"strh	%[y],[%[buf]],#2\n\t"       // *(short*)buf = y; buf += 2
+		"subs	%[n],%[n],#1\n\t"           // --n
+		"bne	0b\n\t"                     // while (n)
 		: [y]   "=r"    (y)
 		, [x]   "=r"    (x0)
 		, [buf]  "=r"   (dummy1)
@@ -496,8 +498,8 @@ static inline std::tuple<int32_t, int32_t> filterMonoMono(
 	      auto* out = static_cast<      int16_t*>(buf);
 	int i = 0;
 	do {
-		auto x = in[i] >> 8;
-		y = x - x0 + ((511 * y) / 512);
+		auto x = in[i];
+		y = (x - x0 + (511 * y)) / 512;
 		x0 = x;
 		auto s = Math::clipIntToShort(y);
 		out[2 * i + 0] = s;
@@ -513,15 +515,15 @@ static inline std::tuple<int32_t, int32_t, int32_t> filterStereoMono(
 	assert(n > 0);
 	const auto* in  = static_cast<const int32_t*>(buf);
 	      auto* out = static_cast<      int16_t*>(buf);
-	auto x = in[0] >> 8;
-	yl = x - xl0 + ((511 * yl) / 512);
-	yr = x - xr0 + ((511 * yr) / 512);
+	auto x = in[0];
+	yl = (x - xl0 + (511 * yl)) / 512;
+	yr = (x - xr0 + (511 * yr)) / 512;
 	out[0] = Math::clipIntToShort(yl);
 	out[1] = Math::clipIntToShort(yr);
 	for (int i = 1; i < n; ++i) {
-		auto x1 = in[i] >> 8;
-		yl = x1 - x + ((511 * yl) / 512);
-		yr = x1 - x + ((511 * yr) / 512);
+		auto x1 = in[i];
+		yl = (x1 - x + (511 * yl)) / 512;
+		yr = (x1 - x + (511 * yr)) / 512;
 		x = x1;
 		out[2 * i + 0] = Math::clipIntToShort(yl);
 		out[2 * i + 1] = Math::clipIntToShort(yr);
@@ -537,10 +539,10 @@ static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterStereoStereo(
 	assert(n > 0);
 	int i = 0;
 	do {
-		auto xl = in[2 * i + 0] >> 8;
-		auto xr = in[2 * i + 1] >> 8;
-		yl = xl - xl0 + ((511 * yl) / 512);
-		yr = xr - xr0 + ((511 * yr) / 512);
+		auto xl = in[2 * i + 0];
+		auto xr = in[2 * i + 1];
+		yl = (xl - xl0 + (511 * yl)) / 512;
+		yr = (xr - xr0 + (511 * yr)) / 512;
 		xl0 = xl;
 		xr0 = xr;
 		out[2 * i + 0] = Math::clipIntToShort(yl);
@@ -560,10 +562,10 @@ static inline std::tuple<int32_t, int32_t, int32_t, int32_t> filterBothStereo(
 	int i = 0;
 	do {
 		auto m = inM[i];
-		auto xl = (inS[2 * i + 0] + m) >> 8;
-		auto xr = (inS[2 * i + 1] + m) >> 8;
-		yl = xl - xl0 + ((511 * yl) / 512);
-		yr = xr - xr0 + ((511 * yr) / 512);
+		auto xl = inS[2 * i + 0] + m;
+		auto xr = inS[2 * i + 1] + m;
+		yl = (xl - xl0 + (511 * yl)) / 512;
+		yr = (xr - xr0 + (511 * yr)) / 512;
 		xl0 = xl;
 		xr0 = xr;
 		out[2 * i + 0] = Math::clipIntToShort(yl);
@@ -884,7 +886,9 @@ void MSXMixer::updateVolumeParams(SoundDeviceInfo& info)
 		r1 = volume * sqrt(std::max(0.0,       b));
 		l2 = r2 = 0.0; // dummy
 	}
-	int amp = 256 * info.device->getAmplificationFactor();
+	// 512 (9 bits) because in the DC filter we also have a factor 512, and
+	// using the same allows to fold both (later) divisions into one.
+	int amp = 512 * info.device->getAmplificationFactor();
 	info.left1  = int(l1 * amp);
 	info.right1 = int(r1 * amp);
 	info.left2  = int(l2 * amp);
