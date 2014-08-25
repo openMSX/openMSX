@@ -124,6 +124,7 @@
         <li><a class="internal" href="#interleave_black_frame">interleave_black_frame</a></li>
         <li><a class="internal" href="#invalid_psg_directions_callback">invalid_psg_directions_callback</a></li>
         <li><a class="internal" href="#joystickN_config">joystick&lt;n&gt;_config</a></li>
+        <li><a class="internal" href="#joystickN_deadcenter">joystick&lt;n&gt;_deadcenter</a></li>
         <li><a class="internal" href="#kbd_auto_toggle_code_kana_lock">kbd_auto_toggle_code_kana_lock</a></li>
         <li><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></li>
         <li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
@@ -3730,6 +3731,27 @@
                 dict set joystick1_config UP    {-axis1 -axis3 button12}<br/>
                 dict set joystick1_config DOWN  {+axis1 +axis3 button13}</code></td>
       <td>Map 2 pairs of axis and 1 keypad (4 buttons) to the MSX direction inputs.</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="joystickN_deadcenter">joystick&lt;n&gt;_deadcenter</a></h3>
+
+  <p>This setting configures how big the dead center zone of an (analogue)
+  joystick is. This is expressed as a percentage: 0 means no dead zone, 100
+  means everything falls inside the dead zone.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set joystick1_deadcenter</code></td>
+      <td>Shows the current size of the dead zone of the first joystick</td>
+    </tr>
+    <tr>
+      <td><code>set joystick1_deadcenter 25</code></td>
+      <td>Set the size of the dead zone to &frac14; of the total range</td>
     </tr>
   </table>
 

@@ -8,6 +8,7 @@
 #include "StateChange.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"
+#include "IntegerSetting.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "serialize.hh"
@@ -20,12 +21,6 @@ using std::string;
 using std::shared_ptr;
 
 namespace openmsx {
-
-#if PLATFORM_ANDROID
-static const int THRESHOLD = 32768 / 4;
-#else
-static const int THRESHOLD = 32768 / 10;
-#endif
 
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,
@@ -164,6 +159,11 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	configSetting = make_unique<StringSetting>(
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
+	deadSetting = make_unique<IntegerSetting>(
+		commandController, name + "_deadcenter",
+		"size (as a percentage) of the dead center zone",
+		PLATFORM_ANDROID ? 25 : 10,
+		0, 100);
 	auto& interp = commandController.getInterpreter();
 	configSetting->setChecker([&interp](TclObject& newValue) {
 		checkJoystickConfig(interp, newValue); });
@@ -230,19 +230,21 @@ byte Joystick::calcState()
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
+		int threshold = (deadSetting->getInt() * 32768) / 100;
 		auto& interp = configSetting->getInterpreter();
 		auto& dict   = configSetting->getValue();
-		if (getState(interp, dict, "A"    )) result &= ~JOY_BUTTONA;
-		if (getState(interp, dict, "B"    )) result &= ~JOY_BUTTONB;
-		if (getState(interp, dict, "UP"   )) result &= ~JOY_UP;
-		if (getState(interp, dict, "DOWN" )) result &= ~JOY_DOWN;
-		if (getState(interp, dict, "LEFT" )) result &= ~JOY_LEFT;
-		if (getState(interp, dict, "RIGHT")) result &= ~JOY_RIGHT;
+		if (getState(interp, dict, "A"    , threshold)) result &= ~JOY_BUTTONA;
+		if (getState(interp, dict, "B"    , threshold)) result &= ~JOY_BUTTONB;
+		if (getState(interp, dict, "UP"   , threshold)) result &= ~JOY_UP;
+		if (getState(interp, dict, "DOWN" , threshold)) result &= ~JOY_DOWN;
+		if (getState(interp, dict, "LEFT" , threshold)) result &= ~JOY_LEFT;
+		if (getState(interp, dict, "RIGHT", threshold)) result &= ~JOY_RIGHT;
 	}
 	return result;
 }
 
-bool Joystick::getState(Interpreter& interp, const TclObject& dict, string_ref key)
+bool Joystick::getState(Interpreter& interp, const TclObject& dict,
+                        string_ref key, int threshold)
 {
 	try {
 		const auto& list = dict.getDictValue(interp, TclObject(key));
@@ -255,12 +257,12 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict, string_ref k
 				}
 			} else if (elem.starts_with("+axis")) {
 				int n = stoi(elem.substr(5));
-				if (SDL_JoystickGetAxis(joystick, n) > THRESHOLD) {
+				if (SDL_JoystickGetAxis(joystick, n) > threshold) {
 					return true;
 				}
 			} else if (elem.starts_with("-axis")) {
 				int n = stoi(elem.substr(5));
-				if (SDL_JoystickGetAxis(joystick, n) < -THRESHOLD) {
+				if (SDL_JoystickGetAxis(joystick, n) < -threshold) {
 					return true;
 				}
 			}

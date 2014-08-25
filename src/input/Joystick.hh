@@ -15,6 +15,7 @@ class StateChangeDistributor;
 class CommandController;
 class PluggingController;
 class StringSetting;
+class IntegerSetting;
 class TclObject;
 class Interpreter;
 
@@ -56,7 +57,8 @@ public:
 private:
 	void plugHelper2();
 	byte calcState();
-	bool getState(Interpreter& interp, const TclObject& dict, string_ref key);
+	bool getState(Interpreter& interp, const TclObject& dict, string_ref key,
+	              int threshold);
 	void createEvent(EmuTime::param time, byte newStatus);
 
 	// MSXEventListener
@@ -70,6 +72,7 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	std::unique_ptr<StringSetting> configSetting;
+	std::unique_ptr<IntegerSetting> deadSetting;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
 	const std::string name;
