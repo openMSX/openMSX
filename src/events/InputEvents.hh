@@ -178,6 +178,20 @@ private:
 	const short value;
 };
 
+class JoystickHatEvent : public JoystickEvent
+{
+public:
+	JoystickHatEvent(unsigned joystick, unsigned hat, unsigned value);
+	unsigned getHat()   const { return hat; }
+	unsigned getValue() const { return value; }
+
+private:
+	virtual void toStringImpl(TclObject& result) const;
+	virtual bool lessImpl(const JoystickEvent& other) const;
+	const unsigned hat;
+	const unsigned value;
+};
+
 
 class FocusEvent : public Event
 {

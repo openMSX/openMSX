@@ -111,10 +111,15 @@ void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 			string_ref host = value.getListIndex(interp, j).getString();
 			if (!host.starts_with("button") &&
 			    !host.starts_with("+axis") &&
-			    !host.starts_with("-axis")) {
+			    !host.starts_with("-axis") &&
+			    !host.starts_with("L_hat") &&
+			    !host.starts_with("R_hat") &&
+			    !host.starts_with("U_hat") &&
+			    !host.starts_with("D_hat")) {
 				throw CommandException(
 					"Invalid host joystick action: must be "
-					"one of 'button<N>', '+axis<N>', '-axis<N>'");
+					"one of 'button<N>', '+axis<N>', '-axis<N>', "
+					"'L_hat<N>', 'R_hat<N>', 'U_hat<N>', 'D_hat<N>'");
 			}
 		}
 	}
@@ -263,6 +268,26 @@ bool Joystick::getState(Interpreter& interp, const TclObject& dict,
 			} else if (elem.starts_with("-axis")) {
 				int n = stoi(elem.substr(5));
 				if (SDL_JoystickGetAxis(joystick, n) < -threshold) {
+					return true;
+				}
+			} else if (elem. starts_with("L_hat")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_LEFT) {
+					return true;
+				}
+			} else if (elem.starts_with("R_hat")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_RIGHT) {
+					return true;
+				}
+			} else if (elem.starts_with("U_hat")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_UP) {
+					return true;
+				}
+			} else if (elem.starts_with("D_hat")) {
+				int n = stoi(elem.substr(5));
+				if (SDL_JoystickGetHat(joystick, n) & SDL_HAT_DOWN) {
 					return true;
 				}
 			}

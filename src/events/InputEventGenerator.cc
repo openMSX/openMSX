@@ -192,6 +192,19 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 	}
 }
 
+void InputEventGenerator::triggerOsdControlEventsFromJoystickHat(
+	int value, const EventPtr& origEvent)
+{
+	unsigned dir = 0;
+	if (!(value & SDL_HAT_UP   )) dir |= 1 << OsdControlEvent::UP_BUTTON;
+	if (!(value & SDL_HAT_DOWN )) dir |= 1 << OsdControlEvent::DOWN_BUTTON;
+	if (!(value & SDL_HAT_LEFT )) dir |= 1 << OsdControlEvent::LEFT_BUTTON;
+	if (!(value & SDL_HAT_RIGHT)) dir |= 1 << OsdControlEvent::RIGHT_BUTTON;
+	unsigned ab = osdControlButtonsState & ((1 << OsdControlEvent::A_BUTTON) |
+	                                        (1 << OsdControlEvent::B_BUTTON));
+	setNewOsdControlButtonState(ab | dir, origEvent);
+}
+
 void InputEventGenerator::osdControlChangeButton(
 	bool up, unsigned changedButtonMask, const EventPtr& origEvent)
 {
@@ -316,6 +329,11 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			evt.jaxis.which, evt.jaxis.axis, evt.jaxis.value);
 		triggerOsdControlEventsFromJoystickAxisMotion(
 			evt.jaxis.axis, evt.jaxis.value, event);
+		break;
+	case SDL_JOYHATMOTION:
+		event = make_shared<JoystickHatEvent>(
+			evt.jhat.which, evt.jhat.hat, evt.jhat.value);
+		triggerOsdControlEventsFromJoystickHat(evt.jhat.value, event);
 		break;
 
 	case SDL_ACTIVEEVENT:

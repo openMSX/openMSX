@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "Interpreter.hh"
 #include "openmsx.hh"
+#include <SDL.h>
 
 using std::string;
 using std::vector;
@@ -165,6 +166,26 @@ static EventPtr parseJoystickEvent(
 			throw CommandException("Invalid value: " + components[2]);
 		}
 		return make_shared<JoystickAxisMotionEvent>(joystick, axis, value);
+	} else if (StringOp::startsWith(components[1], "hat")) {
+		int hat, value;
+		string hatString = components[1].substr(3);
+		if (!StringOp::stringToInt(hatString, hat)) {
+			throw CommandException("Invalid hat number: " + hatString);
+		}
+		const string& valueStr = components[2];
+		if      (valueStr == "up")        value = SDL_HAT_UP;
+		else if (valueStr == "right")     value = SDL_HAT_RIGHT;
+		else if (valueStr == "down")      value = SDL_HAT_DOWN;
+		else if (valueStr == "left")      value = SDL_HAT_LEFT;
+		else if (valueStr == "rightup")   value = SDL_HAT_RIGHTUP;
+		else if (valueStr == "rightdown") value = SDL_HAT_RIGHTDOWN;
+		else if (valueStr == "leftup")    value = SDL_HAT_LEFTUP;
+		else if (valueStr == "leftdown")  value = SDL_HAT_LEFTDOWN;
+		else if (valueStr == "center")    value = SDL_HAT_CENTERED;
+		else {
+			throw CommandException("Invalid hat value: " + valueStr);
+		}
+		return make_shared<JoystickHatEvent>(joystick, hat, value);
 	} else {
 		throw CommandException("Invalid joystick event: " + str);
 	}

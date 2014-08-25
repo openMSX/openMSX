@@ -44,6 +44,8 @@ EventDelay::EventDelay(Scheduler& scheduler,
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
+		OPENMSX_JOY_HAT_EVENT,         *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
@@ -67,6 +69,8 @@ EventDelay::~EventDelay()
 
 	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_JOY_HAT_EVENT,         *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(

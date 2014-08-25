@@ -122,6 +122,8 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 	eventDistributor.registerEventListener(
 		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
+		OPENMSX_JOY_HAT_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
 		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
 	eventDistributor.registerEventListener(
 		OPENMSX_OSD_CONTROL_RELEASE_EVENT, *this, EventDistributor::HOTKEY);
@@ -137,6 +139,7 @@ HotKey::~HotKey()
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_JOY_HAT_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_MOTION_EVENT, *this);

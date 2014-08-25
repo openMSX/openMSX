@@ -80,6 +80,8 @@ private:
 		unsigned newState, const EventPtr& origEvent);
 	void triggerOsdControlEventsFromJoystickAxisMotion(
 		unsigned axis, short value, const EventPtr& origEvent);
+	void triggerOsdControlEventsFromJoystickHat(
+		int value, const EventPtr& origEvent);
 	void osdControlChangeButton(
 		bool up, unsigned changedButtonMask, const EventPtr& origEvent);
 	void triggerOsdControlEventsFromJoystickButtonEvent(

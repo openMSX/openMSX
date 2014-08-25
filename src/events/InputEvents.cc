@@ -6,6 +6,7 @@
 #include "checked_cast.hh"
 #include <string>
 #include <tuple>
+#include <SDL.h>
 
 using std::make_tuple;
 using std::string;
@@ -340,6 +341,41 @@ bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
 	auto& o = checked_cast<const JoystickAxisMotionEvent&>(other);
 	return make_tuple(  getAxis(),   getValue()) <
 	       make_tuple(o.getAxis(), o.getValue());
+}
+
+
+// class JoystickHatEvent
+
+JoystickHatEvent::JoystickHatEvent(unsigned joystick, unsigned hat_, unsigned value_)
+	: JoystickEvent(OPENMSX_JOY_HAT_EVENT, joystick)
+	, hat(hat_), value(value_)
+{
+}
+
+void JoystickHatEvent::toStringImpl(TclObject& result) const
+{
+	toStringHelper(result);
+	result.addListElement(StringOp::Builder() << "hat" << getHat());
+	const char* str;
+	switch (getValue()) {
+		case SDL_HAT_UP:        str = "up";        break;
+		case SDL_HAT_RIGHT:     str = "right";     break;
+		case SDL_HAT_DOWN:      str = "down";      break;
+		case SDL_HAT_LEFT:      str = "left";      break;
+		case SDL_HAT_RIGHTUP:   str = "rightup";   break;
+		case SDL_HAT_RIGHTDOWN: str = "rightdown"; break;
+		case SDL_HAT_LEFTUP:    str = "leftup";    break;
+		case SDL_HAT_LEFTDOWN:  str = "leftdown";  break;
+		default:                str = "center";    break;
+	}
+	result.addListElement(str);
+}
+
+bool JoystickHatEvent::lessImpl(const JoystickEvent& other) const
+{
+	auto& o = checked_cast<const JoystickHatEvent&>(other);
+	return make_tuple(  getHat(),   getValue()) <
+	       make_tuple(o.getHat(), o.getValue());
 }
 
 

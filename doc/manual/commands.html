@@ -413,6 +413,10 @@
     <code>bind PAGEUP   -repeat "incr speed  1"</code><br />
     <code>bind PAGEDOWN -repeat "incr speed -1"</code><br />
     <br />
+    Use Joystick hat left/right to increase/decrease volume.<br/>
+    <code>bind "joy1 hat0 left"  -repeat "incr speed -5"</code><br />
+    <code>bind "joy1 hat0 right" -repeat "incr speed  5"</code><br />
+    <br />
     Toggle fullscreen with ALT and ENTER.<br/>
     <code>bind ALT+RETURN toggle fullscreen</code><br />
     <br />
@@ -3675,8 +3679,8 @@
   <code>RIGHT</code>, <code>UP</code>, <code>DOWN</code>, <code>A</code> and
   <code>B</code>. The corresponding dictionary-values are lists of host
   joystick inputs. Possible elements for these lists are
-  <code>button&lt;n&gt;</code>, <code>+axis&lt;n&gt;</code> and
-  <code>-axis&lt;n&gt;</code>.</p>
+  <code>button&lt;n&gt;</code>, <code>+axis&lt;n&gt;</code>,
+  <code>-axis&lt;n&gt;</code> and <code>{L,R,U,D}_hat&lt;n&gt;</code>.</p>
 
   <p>Let's explain this with an example. The following is the default value for
   this setting:<br/>
@@ -3731,6 +3735,13 @@
                 dict set joystick1_config UP    {-axis1 -axis3 button12}<br/>
                 dict set joystick1_config DOWN  {+axis1 +axis3 button13}</code></td>
       <td>Map 2 pairs of axis and 1 keypad (4 buttons) to the MSX direction inputs.</td>
+    </tr>
+    <tr>
+      <td><code>dict lappend joystick1_config LEFT  L_hat0<br/>
+                dict lappend joystick1_config RIGHT R_hat0<br/>
+                dict lappend joystick1_config UP    U_hat0<br/>
+                dict lappend joystick1_config DOWN  D_hat0</code></td>
+      <td>Additionally map hat0 to the 4 MSX directions.</td>
     </tr>
   </table>
 
