@@ -74,13 +74,15 @@ public:
 	byte RR; // 0-15
 };
 
+enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+
 class Y8950Slot {
 public:
 	void reset();
 
 	inline bool isActive() const;
-	inline void slotOn();
-	inline void slotOff();
+	inline void slotOn (KeyPart part);
+	inline void slotOff(KeyPart part);
 
 	inline unsigned calc_phase(int lfo_pm);
 	inline unsigned calc_envelope(int lfo_am);
@@ -117,7 +119,7 @@ public:
 	EnvPhaseIndex eg_dphase;// Phase increment amount
 
 	Y8950Patch patch;
-	bool slotStatus;
+	byte key;
 };
 
 static const unsigned MOD = 0;
@@ -127,8 +129,8 @@ public:
 	Y8950Channel();
 	void reset();
 	inline void setFreq(unsigned freq);
-	inline void keyOn();
-	inline void keyOff();
+	inline void keyOn (KeyPart part);
+	inline void keyOff(KeyPart part);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -178,6 +180,7 @@ private:
 	inline void keyOff_HH();
 	inline void keyOff_CYM();
 	inline void setRythmMode(int data);
+	void update_key_status();
 
 	bool checkMuteHelper();
 
@@ -552,7 +555,7 @@ void Y8950Slot::reset()
 	feedback = 0;
 	eg_mode = FINISH;
 	eg_phase = EG_DP_MAX;
-	slotStatus = false;
+	key = 0;
 	patch.reset();
 
 	// this initializes:
@@ -621,25 +624,27 @@ bool Y8950Slot::isActive() const
 }
 
 // Slot key on
-void Y8950Slot::slotOn()
+void Y8950Slot::slotOn(KeyPart part)
 {
-	if (!slotStatus) {
-		slotStatus = true;
+	if (!key) {
 		eg_mode = ATTACK;
 		phase = 0;
 		eg_phase = EnvPhaseIndex(RA_ADJUST_TABLE[eg_phase.toInt()]);
 	}
+	key |= part;
 }
 
 // Slot key off
-void Y8950Slot::slotOff()
+void Y8950Slot::slotOff(KeyPart part)
 {
-	if (slotStatus) {
-		slotStatus = false;
-		if (eg_mode == ATTACK) {
-			eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
+	if (key) {
+		key &= ~part;
+		if (!key) {
+			if (eg_mode == ATTACK) {
+				eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
+			}
+			eg_mode = RELEASE;
 		}
-		eg_mode = RELEASE;
 	}
 }
 
@@ -665,16 +670,16 @@ void Y8950Channel::setFreq(unsigned freq_)
 	freq = freq_;
 }
 
-void Y8950Channel::keyOn()
+void Y8950Channel::keyOn(KeyPart part)
 {
-	slot[MOD].slotOn();
-	slot[CAR].slotOn();
+	slot[MOD].slotOn(part);
+	slot[CAR].slotOn(part);
 }
 
-void Y8950Channel::keyOff()
+void Y8950Channel::keyOff(KeyPart part)
 {
-	slot[MOD].slotOff();
-	slot[CAR].slotOff();
+	slot[MOD].slotOff(part);
+	slot[CAR].slotOff(part);
 }
 
 
@@ -766,18 +771,18 @@ void Y8950::Impl::reset(EmuTime::param time)
 
 
 // Drum key on
-void Y8950::Impl::keyOn_BD()  { ch[6].keyOn(); }
-void Y8950::Impl::keyOn_HH()  { ch[7].slot[MOD].slotOn(); }
-void Y8950::Impl::keyOn_SD()  { ch[7].slot[CAR].slotOn(); }
-void Y8950::Impl::keyOn_TOM() { ch[8].slot[MOD].slotOn(); }
-void Y8950::Impl::keyOn_CYM() { ch[8].slot[CAR].slotOn(); }
+void Y8950::Impl::keyOn_BD()  { ch[6].keyOn(KEY_RHYTHM); }
+void Y8950::Impl::keyOn_HH()  { ch[7].slot[MOD].slotOn(KEY_RHYTHM); }
+void Y8950::Impl::keyOn_SD()  { ch[7].slot[CAR].slotOn(KEY_RHYTHM); }
+void Y8950::Impl::keyOn_TOM() { ch[8].slot[MOD].slotOn(KEY_RHYTHM); }
+void Y8950::Impl::keyOn_CYM() { ch[8].slot[CAR].slotOn(KEY_RHYTHM); }
 
 // Drum key off
-void Y8950::Impl::keyOff_BD() { ch[6].keyOff(); }
-void Y8950::Impl::keyOff_HH() { ch[7].slot[MOD].slotOff(); }
-void Y8950::Impl::keyOff_SD() { ch[7].slot[CAR].slotOff(); }
-void Y8950::Impl::keyOff_TOM(){ ch[8].slot[MOD].slotOff(); }
-void Y8950::Impl::keyOff_CYM(){ ch[8].slot[CAR].slotOff(); }
+void Y8950::Impl::keyOff_BD() { ch[6].keyOff(KEY_RHYTHM); }
+void Y8950::Impl::keyOff_HH() { ch[7].slot[MOD].slotOff(KEY_RHYTHM); }
+void Y8950::Impl::keyOff_SD() { ch[7].slot[CAR].slotOff(KEY_RHYTHM); }
+void Y8950::Impl::keyOff_TOM(){ ch[8].slot[MOD].slotOff(KEY_RHYTHM); }
+void Y8950::Impl::keyOff_CYM(){ ch[8].slot[CAR].slotOff(KEY_RHYTHM); }
 
 // Change Rhythm Mode
 void Y8950::Impl::setRythmMode(int data)
@@ -787,19 +792,30 @@ void Y8950::Impl::setRythmMode(int data)
 		rythm_mode = newMode;
 		if (!rythm_mode) {
 			// ON->OFF
-			ch[6].slot[MOD].eg_mode = FINISH; // BD1
-			ch[6].slot[MOD].slotStatus = false;
-			ch[6].slot[CAR].eg_mode = FINISH; // BD2
-			ch[6].slot[CAR].slotStatus = false;
-			ch[7].slot[MOD].eg_mode = FINISH; // HH
-			ch[7].slot[MOD].slotStatus = false;
-			ch[7].slot[CAR].eg_mode = FINISH; // SD
-			ch[7].slot[CAR].slotStatus = false;
-			ch[8].slot[MOD].eg_mode = FINISH; // TOM
-			ch[8].slot[MOD].slotStatus = false;
-			ch[8].slot[CAR].eg_mode = FINISH; // CYM
-			ch[8].slot[CAR].slotStatus = false;
+			keyOff_BD();  // TODO keyOff() or immediately to FINISH?
+			keyOff_HH();  //      other variants use keyOff(), but
+			keyOff_SD();  //      verify on real HW
+			keyOff_TOM();
+			keyOff_CYM();
 		}
+	}
+}
+
+// recalculate 'key' from register settings
+void Y8950::Impl::update_key_status()
+{
+	for (unsigned i = 0; i < 9; ++i) {
+		int main = (reg[0xb0 + i] & 0x20) ? KEY_MAIN : 0;
+		ch[i].slot[MOD].key = main;
+		ch[i].slot[CAR].key = main;
+	}
+	if (rythm_mode) {
+		ch[6].slot[MOD].key |= (reg[0xbd] & 0x10) ? KEY_RHYTHM : 0; // BD1
+		ch[6].slot[CAR].key |= (reg[0xbd] & 0x10) ? KEY_RHYTHM : 0; // BD2
+		ch[7].slot[MOD].key |= (reg[0xbd] & 0x01) ? KEY_RHYTHM : 0; // HH
+		ch[7].slot[CAR].key |= (reg[0xbd] & 0x08) ? KEY_RHYTHM : 0; // SD
+		ch[8].slot[MOD].key |= (reg[0xbd] & 0x04) ? KEY_RHYTHM : 0; // TOM
+		ch[8].slot[CAR].key |= (reg[0xbd] & 0x02) ? KEY_RHYTHM : 0; // CYM
 	}
 }
 
@@ -1280,9 +1296,9 @@ void Y8950::Impl::writeReg(byte rg, byte data, EmuTime::param time)
 		} else {
 			// 0xb0-0xb8
 			if (data & 0x20) {
-				ch[c].keyOn();
+				ch[c].keyOn (KEY_MAIN);
 			} else {
-				ch[c].keyOff();
+				ch[c].keyOff(KEY_MAIN);
 			}
 			freq = reg[rg - 0x10] | ((data & 0x1F) << 8);
 		}
@@ -1421,6 +1437,9 @@ void Y8950Patch::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("RR", RR);
 }
 
+// version 1: initial version
+// version 2: 'slotStatus' is replaced with 'key' and no longer serialized
+//            instead it's recalculated via update_key_status()
 template<typename Archive>
 void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 {
@@ -1430,10 +1449,11 @@ void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("eg_mode", eg_mode);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("patch", patch);
-	ar.serialize("slotStatus", slotStatus);
 
 	// These are restored by call to updateAll() in Y8950Channel::serialize()
 	//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
+	// These are restored by update_key_status():
+	//  key
 }
 
 template<typename Archive>
@@ -1480,6 +1500,7 @@ void Y8950::Impl::serialize(Archive& ar, unsigned /*version*/)
 		15,      // dac13
 	};
 	if (ar.isLoader()) {
+		update_key_status();
 		EmuTime::param time = motherBoard.getCurrentTime();
 		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
 			byte r = rewriteRegs[i];
@@ -1584,5 +1605,6 @@ void Y8950::serialize(Archive& ar, unsigned version)
 	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(Y8950);
+SERIALIZE_CLASS_VERSION(Y8950Slot, 2);
 
 } // namespace openmsx
