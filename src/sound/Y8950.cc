@@ -75,6 +75,7 @@ public:
 };
 
 enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+enum EnvelopeState { ATTACK, DECAY, SUSTAIN, RELEASE, FINISH };
 
 class Y8950Slot {
 public:
@@ -114,7 +115,7 @@ public:
 	EnvPhaseIndex* dphaseARTableRks;
 	EnvPhaseIndex* dphaseDRTableRks;
 	int tll;		// Total Level + Key scale level
-	int eg_mode;		// Current state
+	EnvelopeState eg_mode;  // Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
 
@@ -266,8 +267,6 @@ static int tllTable[16 * 8][4];
 static unsigned AR_ADJUST_TABLE[EG_MUTE];
 static unsigned RA_ADJUST_TABLE[EG_MUTE + 1];
 
-// Definition of envelope mode
-enum { ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
 // Dynamic range
 static const int DB_BITS = 9;
 static const int DB_MUTE = 1 << DB_BITS;
@@ -597,13 +596,10 @@ void Y8950Slot::updateEG()
 	case DECAY:
 		eg_dphase = dphaseDRTableRks[patch.DR];
 		break;
-	case SUSTINE:
+	case SUSTAIN:
+	case RELEASE:
 		eg_dphase = dphaseDRTableRks[patch.RR];
 		break;
-	case RELEASE:
-		eg_dphase = dphaseDRTableRks[patch.EG ? patch.RR : 7];
-		break;
-	case SUSHOLD:
 	case FINISH:
 		eg_dphase = EnvPhaseIndex(0);
 		break;
@@ -866,21 +862,24 @@ unsigned Y8950Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		if (eg_phase >= SL[patch.SL]) {
 			eg_phase = SL[patch.SL];
-			eg_mode = patch.EG ? SUSHOLD : SUSTINE;
+			eg_mode = SUSTAIN;
 			updateEG();
 		}
 		egout = eg_phase.toInt();
 		break;
 
-	case SUSHOLD:
-		egout = eg_phase.toInt();
+	case SUSTAIN:
 		if (!patch.EG) {
-			eg_mode = SUSTINE;
-			updateEG();
+			eg_phase += eg_dphase;
+		}
+		egout = eg_phase.toInt();
+		if (egout >= EG_MUTE) {
+			eg_phase = EG_DP_MAX;
+			eg_mode = FINISH;
+			egout = EG_MUTE - 1;
 		}
 		break;
 
-	case SUSTINE:
 	case RELEASE:
 		eg_phase += eg_dphase;
 		egout = eg_phase.toInt();
@@ -1437,18 +1436,43 @@ void Y8950Patch::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("RR", RR);
 }
 
+static enum_string<EnvelopeState> envelopeStateInfo[]= {
+	{ "ATTACK",  ATTACK  },
+	{ "DECAY",   DECAY   },
+	{ "SUSTAIN", SUSTAIN },
+	{ "RELEASE", RELEASE },
+	{ "FINISH",  FINISH  }
+};
+SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+
 // version 1: initial version
 // version 2: 'slotStatus' is replaced with 'key' and no longer serialized
 //            instead it's recalculated via update_key_status()
+// version 3: serialize 'eg_mode' as an enum instead of an int, also merged
+//            the 2 enum values SUSHOLD and SUSTINE into SUSTAIN
 template<typename Archive>
-void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
+void Y8950Slot::serialize(Archive& ar, unsigned version)
 {
 	ar.serialize("feedback", feedback);
 	ar.serialize("output", output);
 	ar.serialize("phase", phase);
-	ar.serialize("eg_mode", eg_mode);
 	ar.serialize("eg_phase", eg_phase);
 	ar.serialize("patch", patch);
+	if (ar.versionAtLeast(version, 3)) {
+		ar.serialize("eg_mode", eg_mode);
+	} else {
+		assert(ar.isLoader());
+		int tmp;
+		ar.serialize("eg_mode", tmp);
+		switch (tmp) {
+			case 0:  eg_mode = ATTACK;  break;
+			case 1:  eg_mode = DECAY;   break;
+			case 2:  eg_mode = SUSTAIN; break; // was SUSHOLD
+			case 3:  eg_mode = SUSTAIN; break; // was SUSTINE
+			case 4:  eg_mode = RELEASE; break;
+			default: eg_mode = FINISH;  break;
+		}
+	}
 
 	// These are restored by call to updateAll() in Y8950Channel::serialize()
 	//  dphase, tll, dphaseARTableRks, dphaseDRTableRks, eg_dphase
@@ -1605,6 +1629,6 @@ void Y8950::serialize(Archive& ar, unsigned version)
 	pimpl->serialize(ar, version);
 }
 INSTANTIATE_SERIALIZE_METHODS(Y8950);
-SERIALIZE_CLASS_VERSION(Y8950Slot, 2);
+SERIALIZE_CLASS_VERSION(Y8950Slot, 3);
 
 } // namespace openmsx
