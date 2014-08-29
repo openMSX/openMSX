@@ -4,9 +4,9 @@
 #include "RendererFactory.hh"
 #include "EventListener.hh"
 #include "LayerListener.hh"
+#include "RTSchedulable.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
-#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 #include <cstdint>
@@ -21,7 +21,6 @@ class CommandConsole;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
-class AlarmEvent;
 class ScreenShotCmd;
 class FpsInfoTopic;
 class OSDGUI;
@@ -31,7 +30,7 @@ class OutputSurface;
   * A display contains several layers.
   */
 class Display : public EventListener, private Observer<Setting>,
-                private LayerListener, private noncopyable
+                private LayerListener, private RTSchedulable
 {
 public:
 	typedef std::vector<Layer*> Layers;
@@ -69,6 +68,9 @@ private:
 	// EventListener interface
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
 
+	// RTSchedulable
+	void executeRT();
+
 	// Observer<Setting> interface
 	virtual void update(const Setting& setting);
 
@@ -95,7 +97,6 @@ private:
 	uint64_t prevTimeStamp;
 
 	friend class FpsInfoTopic;
-	const std::unique_ptr<AlarmEvent> alarm; // delayed repaint
 	const std::unique_ptr<ScreenShotCmd> screenShotCmd;
 	const std::unique_ptr<FpsInfoTopic> fpsInfo;
 	const std::unique_ptr<OSDGUI> osdGui;

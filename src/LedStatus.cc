@@ -1,5 +1,4 @@
 #include "LedStatus.hh"
-#include "AlarmEvent.hh"
 #include "MSXCliComm.hh"
 #include "ReadOnlySetting.hh"
 #include "CommandController.hh"
@@ -17,13 +16,12 @@ static std::string getLedName(LedStatus::Led led)
 }
 
 LedStatus::LedStatus(
-		EventDistributor& eventDistributor,
+		RTScheduler& rtScheduler,
 		CommandController& commandController,
 		MSXCliComm& msxCliComm_)
-	: msxCliComm(msxCliComm_)
+	: RTSchedulable(rtScheduler)
+	, msxCliComm(msxCliComm_)
 	, interp(commandController.getInterpreter())
-	, alarm(make_unique<AlarmEvent>(
-		eventDistributor, *this, OPENMSX_THROTTLE_LED_EVENT))
 {
 	lastTime = Timer::getTime();
 	for (int i = 0; i < NUM_LEDS; ++i) {
@@ -56,8 +54,8 @@ void LedStatus::setLed(Led led, bool status)
 		handleEvent(led);
 	} else {
 		// schedule to handle it later, if we didn't plan to do so already
-		if (!alarm->pending()) {
-			alarm->schedule(10000 - diff);
+		if (!isPendingRT()) {
+			scheduleRT(10000 - diff);
 		}
 	}
 }
@@ -72,16 +70,14 @@ void LedStatus::handleEvent(Led led)
 	msxCliComm.update(CliComm::LED, getLedName(led), str);
 }
 
-int LedStatus::signalEvent(const std::shared_ptr<const Event>& /*event*/)
+void LedStatus::executeRT()
 {
-	// Runs in main thread.
 	for (int i = 0; i < NUM_LEDS; ++i) {
 		if (ledValue[i] != ledStatus[i]->getValue().getBoolean(interp)) {
 			handleEvent(static_cast<Led>(i));
 		}
 	}
 	lastTime = Timer::getTime();
-	return 0;
 }
 
 } // namespace openmsx

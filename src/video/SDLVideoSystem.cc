@@ -281,8 +281,9 @@ OutputSurface* SDLVideoSystem::getOutputSurface()
 
 void SDLVideoSystem::resize()
 {
-	EventDistributor& eventDistributor = reactor.getEventDistributor();
-	InputEventGenerator& inputEventGenerator = reactor.getInputEventGenerator();
+	auto& rtScheduler         = reactor.getRTScheduler();
+	auto& eventDistributor    = reactor.getEventDistributor();
+	auto& inputEventGenerator = reactor.getInputEventGenerator();
 
 	unsigned width, height;
 	getWindowSize(width, height);
@@ -292,27 +293,27 @@ void SDLVideoSystem::resize()
 	switch (renderSettings.getRenderer().getEnum()) {
 	case RendererFactory::SDL:
 		screen = make_unique<SDLVisibleSurface>(
-			width, height, renderSettings,
+			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
 #if COMPONENT_GL
 	case RendererFactory::SDLGL_PP:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings,
+			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm());
 		break;
 	case RendererFactory::SDLGL_FB16:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings,
+			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_16BPP);
 		break;
 	case RendererFactory::SDLGL_FB32:
 		screen = make_unique<SDLGLVisibleSurface>(
-			width, height, renderSettings,
+			width, height, renderSettings, rtScheduler,
 			eventDistributor, inputEventGenerator,
 			reactor.getCliComm(),
 			SDLGLVisibleSurface::FB_32BPP);

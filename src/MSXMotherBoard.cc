@@ -668,7 +668,7 @@ LedStatus& MSXMotherBoard::Impl::getLedStatus()
 	if (!ledStatus) {
 		getMSXCliComm(); // force init, to be on the safe side
 		ledStatus = make_unique<LedStatus>(
-			reactor.getEventDistributor(),
+			reactor.getRTScheduler(),
 			*msxCommandController,
 			*msxCliComm);
 	}

@@ -4,6 +4,7 @@
 #include "OutputSurface.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "RTSchedulable.hh"
 #include <string>
 #include <memory>
 
@@ -12,7 +13,6 @@ namespace openmsx {
 class Layer;
 class Reactor;
 class CommandConsole;
-class AlarmEvent;
 class EventDistributor;
 class InputEventGenerator;
 class RenderSettings;
@@ -27,7 +27,7 @@ class CliComm;
   * no matter whether the back-end is plain SDL or SDL+OpenGL.
   */
 class VisibleSurface : public OutputSurface, public EventListener,
-                       private Observer<Setting>
+                       private Observer<Setting>, private RTSchedulable
 {
 public:
 	virtual ~VisibleSurface();
@@ -53,9 +53,10 @@ public:
 
 protected:
 	VisibleSurface(RenderSettings& renderSettings,
+	               RTScheduler& rtScheduler,
 	               EventDistributor& eventDistributor,
 	               InputEventGenerator& inputEventGenerator,
-		       CliComm& cliComm);
+	               CliComm& cliComm);
 	void createSurface(unsigned width, unsigned height, int flags);
 
 private:
@@ -65,11 +66,12 @@ private:
 	virtual void update(const Setting& setting);
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	// RTSchedulable
+	void executeRT();
 
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;
 	InputEventGenerator& inputEventGenerator;
-	const std::unique_ptr<AlarmEvent> alarm;
 };
 
 } // namespace openmsx

@@ -51,10 +51,11 @@ public:
 	static int joystickNumButtons(SDL_Joystick* joystick);
 	static bool joystickGetButton(SDL_Joystick* joystick, int button);
 
+	void poll();
+
 private:
 	typedef std::shared_ptr<const Event> EventPtr;
 
-	void poll();
 	void handle(const SDL_Event& event);
 	void setGrabInput(bool grab);
 

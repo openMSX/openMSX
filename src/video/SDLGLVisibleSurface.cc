@@ -14,11 +14,12 @@ namespace openmsx {
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height,
 		RenderSettings& renderSettings,
+		RTScheduler& rtScheduler,
 		EventDistributor& eventDistributor,
 		InputEventGenerator& inputEventGenerator,
 		CliComm& cliComm,
 		FrameBuffer frameBuffer)
-	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator,
+	: VisibleSurface(renderSettings, rtScheduler, eventDistributor, inputEventGenerator,
 			cliComm)
 	, SDLGLOutputSurface(frameBuffer)
 {

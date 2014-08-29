@@ -9,7 +9,6 @@
 #include "XMLElement.hh"
 #include "TclObject.hh"
 #include "SettingsConfig.hh"
-#include "AlarmEvent.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
@@ -83,9 +82,11 @@ private:
 };
 
 
-HotKey::HotKey(GlobalCommandController& commandController_,
+HotKey::HotKey(RTScheduler& rtScheduler,
+               GlobalCommandController& commandController_,
                EventDistributor& eventDistributor_)
-	: bindCmd(make_unique<BindCmd>(
+	: RTSchedulable(rtScheduler)
+	, bindCmd(make_unique<BindCmd>(
 		commandController_, *this, false))
 	, unbindCmd(make_unique<UnbindCmd>(
 		commandController_, *this, false))
@@ -97,9 +98,6 @@ HotKey::HotKey(GlobalCommandController& commandController_,
 		commandController_, *this))
 	, deactivateCmd(make_unique<DeactivateCmd>(
 		commandController_, *this))
-	, repeatAlarm(make_unique<AlarmEvent>(
-		eventDistributor_, *this, OPENMSX_REPEAT_HOTKEY,
-		EventDistributor::HOTKEY))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
@@ -362,14 +360,14 @@ static HotKey::BindMap::const_iterator findMatch(
 			return p.first->matches(event); });
 }
 
-int HotKey::signalEvent(const EventPtr& event_)
+void HotKey::executeRT()
 {
-	// Convert special 'repeat' event into the actual to-be-repeated event.
-	EventPtr event = event_;
-	if (event->getType() == OPENMSX_REPEAT_HOTKEY) {
-		if (!lastEvent) return 0;
-		event = lastEvent;
-	} else if (lastEvent != event) {
+	if (lastEvent) executeEvent(lastEvent);
+}
+
+int HotKey::signalEvent(const EventPtr& event)
+{
+	if (lastEvent != event) {
 		// If the newly received event is different from the repeating
 		// event, we stop the repeat process.
 		// Except when we're repeating a OsdControlEvent and the
@@ -382,7 +380,11 @@ int HotKey::signalEvent(const EventPtr& event_)
 			stopRepeat();
 		}
 	}
+	return executeEvent(event);
+}
 
+int HotKey::executeEvent(const EventPtr& event)
+{
 	// First search in active layers (from back to front)
 	bool blocking = false;
 	for (auto it = activeLayers.rbegin(); it != activeLayers.rend(); ++it) {
@@ -439,13 +441,13 @@ void HotKey::startRepeat(const EventPtr& event)
 
 	unsigned delay = (lastEvent ? PERIOD : DELAY) * 1000;
 	lastEvent = event;
-	repeatAlarm->schedule(delay);
+	scheduleRT(delay);
 }
 
 void HotKey::stopRepeat()
 {
 	lastEvent.reset();
-	repeatAlarm->cancel();
+	cancelRT();
 }
 
 

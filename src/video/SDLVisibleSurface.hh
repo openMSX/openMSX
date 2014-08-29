@@ -10,6 +10,7 @@ class SDLVisibleSurface : public VisibleSurface
 public:
 	SDLVisibleSurface(unsigned width, unsigned height,
 	                  RenderSettings& renderSettings,
+	                  RTScheduler& rtScheduler,
 	                  EventDistributor& eventDistributor,
 	                  InputEventGenerator& inputEventGenerator,
 	                  CliComm& cliComm);

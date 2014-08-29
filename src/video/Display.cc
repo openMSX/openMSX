@@ -7,7 +7,6 @@
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "InputEvents.hh"
-#include "AlarmEvent.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
@@ -63,9 +62,7 @@ private:
 
 
 Display::Display(Reactor& reactor_)
-	: alarm(make_unique<AlarmEvent>(
-		reactor_.getEventDistributor(), *this,
-		OPENMSX_DELAYED_REPAINT_EVENT))
+	: RTSchedulable(reactor_.getRTScheduler())
 	, screenShotCmd(make_unique<ScreenShotCmd>(
 		reactor_.getCommandController(), *this))
 	, fpsInfo(make_unique<FpsInfoTopic>(
@@ -218,6 +215,11 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
+void Display::executeRT()
+{
+	repaint();
+}
+
 int Display::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
@@ -228,8 +230,6 @@ int Display::signalEvent(const std::shared_ptr<const Event>& event)
 				std::make_shared<SimpleEvent>(
 					OPENMSX_FRAME_DRAWN_EVENT));
 		}
-	} else if (event->getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
-		repaint();
 	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
 		doRendererSwitch();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
@@ -375,7 +375,7 @@ void Display::repaint()
 		return;
 	}
 
-	alarm->cancel(); // cancel delayed repaint
+	cancelRT(); // cancel delayed repaint
 
 	if (!renderFrozen) {
 		assert(videoSystem);
@@ -404,11 +404,11 @@ void Display::repaint(OutputSurface& surface)
 
 void Display::repaintDelayed(uint64_t delta)
 {
-	if (alarm->pending()) {
+	if (isPendingRT()) {
 		// already a pending repaint
 		return;
 	}
-	alarm->schedule(unsigned(delta));
+	scheduleRT(unsigned(delta));
 }
 
 void Display::addLayer(Layer& layer)

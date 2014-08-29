@@ -1,5 +1,6 @@
 #include "Reactor.hh"
 #include "CommandLineParser.hh"
+#include "RTScheduler.hh"
 #include "EventDistributor.hh"
 #include "GlobalCommandController.hh"
 #include "InputEventGenerator.hh"
@@ -22,7 +23,6 @@
 #include "Display.hh"
 #include "Mixer.hh"
 #include "AviRecorder.hh"
-#include "Alarm.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -148,17 +148,6 @@ private:
 	Reactor& reactor;
 };
 
-class PollEventGenerator : private Alarm
-{
-public:
-	explicit PollEventGenerator(EventDistributor& eventDistributor);
-	virtual ~PollEventGenerator();
-	void pollNow();
-private:
-	virtual bool alarm();
-	EventDistributor& eventDistributor;
-};
-
 class ConfigInfo : public InfoTopic
 {
 public:
@@ -198,6 +187,7 @@ Reactor::Reactor()
 
 void Reactor::init()
 {
+	rtScheduler = make_unique<RTScheduler>();
 	eventDistributor = make_unique<EventDistributor>(*this);
 	globalCliComm = make_unique<GlobalCliComm>();
 	globalCommandController = make_unique<GlobalCommandController>(
@@ -273,6 +263,11 @@ Reactor::~Reactor()
 	eventDistributor->unregisterEventListener(OPENMSX_DELETE_BOARDS, *this);
 
 	getGlobalSettings().getPauseSetting().detach(*this);
+}
+
+RTScheduler& Reactor::getRTScheduler()
+{
+	return *rtScheduler;
 }
 
 EventDistributor& Reactor::getEventDistributor()
@@ -563,11 +558,6 @@ void Reactor::enterMainLoop()
 	}
 }
 
-void Reactor::pollNow()
-{
-	pollEventGenerator->pollNow();
-}
-
 void Reactor::run(CommandLineParser& parser)
 {
 	auto& commandController = *globalCommandController;
@@ -606,8 +596,6 @@ void Reactor::run(CommandLineParser& parser)
 			activeBoard->powerUp();
 		}
 	}
-
-	pollEventGenerator = make_unique<PollEventGenerator>(*eventDistributor);
 
 	while (running) {
 		eventDistributor->deliverEvents();
@@ -1071,36 +1059,6 @@ void RestoreMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	// TODO: add the default files (state files in user's savestates dir)
 	completeFileName(tokens, UserFileContext());
-}
-
-
-// class PollEventGenerator
-
-PollEventGenerator::PollEventGenerator(EventDistributor& eventDistributor_)
-	: eventDistributor(eventDistributor_)
-{
-	pollNow();
-}
-
-PollEventGenerator::~PollEventGenerator()
-{
-	prepareDelete();
-}
-
-void PollEventGenerator::pollNow()
-{
-	PollEventGenerator::alarm();
-	// The MSX (when not paused) will call this method at 50/60Hz rate.
-	// Though in case the MSX is paused (or emulated very slowly), we
-	// still want to be responsive to host events.
-	schedule(25 * 1000); // 40 times per second (preferably less than 50)
-}
-
-bool PollEventGenerator::alarm()
-{
-	eventDistributor.distributeEvent(
-		make_shared<SimpleEvent>(OPENMSX_POLL_EVENT));
-	return true; // reschedule
 }
 
 

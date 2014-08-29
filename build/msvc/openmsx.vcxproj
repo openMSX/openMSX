@@ -581,8 +581,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF262.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\Alarm.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\AlarmEvent.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\CondVar.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Semaphore.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\thread\Thread.cc" />
@@ -789,6 +787,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ReplayCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ReverseManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RP5C01.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\RTSchedulable.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\RTScheduler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SaveStateCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Scheduler.cc" />
@@ -1120,8 +1120,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\YM2413Okazaki.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF262.hh" />
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh" />
-    <None Include="$(OpenMSXSrcDir)\thread\Alarm.hh" />
-    <None Include="$(OpenMSXSrcDir)\thread\AlarmEvent.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\CondVar.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Semaphore.hh" />
     <None Include="$(OpenMSXSrcDir)\thread\Thread.hh" />
@@ -1494,6 +1492,8 @@ popd</Command>
     <None Include="$(OpenMSXSrcDir)\ReplayCLI.hh" />
     <None Include="$(OpenMSXSrcDir)\ReverseManager.hh" />
     <None Include="$(OpenMSXSrcDir)\RP5C01.hh" />
+    <None Include="$(OpenMSXSrcDir)\RTSchedulable.hh" />
+    <None Include="$(OpenMSXSrcDir)\RTScheduler.hh" />
     <None Include="$(OpenMSXSrcDir)\SaveState.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />
     <None Include="$(OpenMSXSrcDir)\Scheduler.hh" />

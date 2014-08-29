@@ -5,7 +5,6 @@
 #include "SDLSurfacePtr.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
-#include "AlarmEvent.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
@@ -79,15 +78,16 @@ static void setMaemo5WMHints(bool fullscreen)
 }
 #endif
 
-VisibleSurface::VisibleSurface(RenderSettings& renderSettings_,
+VisibleSurface::VisibleSurface(
+		RenderSettings& renderSettings_,
+		RTScheduler& rtScheduler,
 		EventDistributor& eventDistributor_,
 		InputEventGenerator& inputEventGenerator_,
 		CliComm& cliComm)
-	: renderSettings(renderSettings_)
+	: RTSchedulable(rtScheduler)
+	, renderSettings(renderSettings_)
 	, eventDistributor(eventDistributor_)
 	, inputEventGenerator(inputEventGenerator_)
-	, alarm(make_unique<AlarmEvent>(
-		eventDistributor, *this, OPENMSX_POINTER_TIMER_EVENT))
 {
 	(void)cliComm; // avoid unused parameter warning on _WIN32
 
@@ -259,25 +259,26 @@ void VisibleSurface::update(const Setting& /*setting*/)
 	updateCursor();
 }
 
+void VisibleSurface::executeRT()
+{
+	// timer expired, hide cursor
+	SDL_ShowCursor(SDL_DISABLE);
+}
+
 int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 {
 	EventType type = event->getType();
-	if (type == OPENMSX_POINTER_TIMER_EVENT) {
-		// timer expired, hide cursor
-		SDL_ShowCursor(SDL_DISABLE);
-	} else {
-		// mouse action
-		assert((type == OPENMSX_MOUSE_MOTION_EVENT) ||
-		       (type == OPENMSX_MOUSE_BUTTON_UP_EVENT) ||
-		       (type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
-		updateCursor();
-	}
+	assert((type == OPENMSX_MOUSE_MOTION_EVENT) ||
+	       (type == OPENMSX_MOUSE_BUTTON_UP_EVENT) ||
+	       (type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT));
+	(void)type;
+	updateCursor();
 	return 0;
 }
 
 void VisibleSurface::updateCursor()
 {
-	alarm->cancel();
+	cancelRT();
 	if (renderSettings.getFullScreen().getBoolean() ||
 	    inputEventGenerator.getGrabInput().getBoolean()) {
 		// always hide cursor in fullscreen or grabinput mode
@@ -290,7 +291,7 @@ void VisibleSurface::updateCursor()
 	} else {
 		SDL_ShowCursor(SDL_ENABLE);
 		if (delay > 0.0) {
-			alarm->schedule(int(delay * 1e6)); // delay in s, schedule in us
+			scheduleRT(int(delay * 1e6)); // delay in s, schedule in us
 		}
 	}
 }

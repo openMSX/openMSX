@@ -882,12 +882,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\sound\YMF278.cc">
       <Filter>sound</Filter>
     </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\Alarm.cc">
-      <Filter>thread</Filter>
-    </ClCompile>
-    <ClCompile Include="$(OpenMSXSrcDir)\thread\AlarmEvent.cc">
-      <Filter>thread</Filter>
-    </ClCompile>
     <ClCompile Include="$(OpenMSXSrcDir)\thread\CondVar.cc">
       <Filter>thread</Filter>
     </ClCompile>
@@ -1277,6 +1271,8 @@
     <ClCompile Include="$(OpenMSXSrcDir)\ReplayCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\ReverseManager.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\RP5C01.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\RTSchedulable.cc" />
+    <ClCompile Include="$(OpenMSXSrcDir)\RTScheduler.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\SaveStateCLI.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Schedulable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Scheduler.cc" />
@@ -2236,12 +2232,6 @@
     <None Include="$(OpenMSXSrcDir)\sound\YMF278.hh">
       <Filter>sound</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\thread\Alarm.hh">
-      <Filter>thread</Filter>
-    </None>
-    <None Include="$(OpenMSXSrcDir)\thread\AlarmEvent.hh">
-      <Filter>thread</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\thread\CondVar.hh">
       <Filter>thread</Filter>
     </None>
@@ -2733,6 +2723,8 @@
     <None Include="$(OpenMSXSrcDir)\ReplayCLI.hh" />
     <None Include="$(OpenMSXSrcDir)\ReverseManager.hh" />
     <None Include="$(OpenMSXSrcDir)\RP5C01.hh" />
+    <None Include="$(OpenMSXSrcDir)\RTSchedulable.hh" />
+    <None Include="$(OpenMSXSrcDir)\RTScheduler.hh" />
     <None Include="$(OpenMSXSrcDir)\Schedulable.hh" />
     <None Include="$(OpenMSXSrcDir)\Scheduler.hh" />
     <None Include="$(OpenMSXSrcDir)\serialize.hh" />

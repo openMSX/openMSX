@@ -102,17 +102,12 @@ Interpreter::Interpreter(EventDistributor& eventDistributor_)
 
 	setVariable("env(OPENMSX_USER_DATA)", FileOperations::getUserDataDir());
 	setVariable("env(OPENMSX_SYSTEM_DATA)", FileOperations::getSystemDataDir());
-
-	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT, *this);
-
 }
 
 Interpreter::~Interpreter()
 {
 	// see comment in MSXCPUInterface::cleanup()
 	MSXCPUInterface::cleanup();
-
-	eventDistributor.unregisterEventListener(OPENMSX_POLL_EVENT, *this);
 
 	if (!Tcl_InterpDeleted(interp)) {
 		Tcl_DeleteInterp(interp);
@@ -452,14 +447,6 @@ vector<string> Interpreter::splitList(const string& list, Tcl_Interp* interp)
 	vector<string> result(argv, argv + argc);
 	Tcl_Free(reinterpret_cast<char*>(argv));
 	return result;
-}
-
-int Interpreter::signalEvent(const std::shared_ptr<const Event>& event)
-{
-	(void)event;
-	assert(event->getType() == OPENMSX_POLL_EVENT);
-	poll();
-	return 0;
 }
 
 void Interpreter::poll()

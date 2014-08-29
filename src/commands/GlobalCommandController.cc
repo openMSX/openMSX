@@ -1,4 +1,5 @@
 #include "GlobalCommandController.hh"
+#include "Reactor.hh"
 #include "Command.hh"
 #include "Setting.hh"
 #include "ProxyCommand.hh"
@@ -87,7 +88,7 @@ GlobalCommandController::GlobalCommandController(
 	, reactor(reactor_)
 	, interpreter(make_unique<Interpreter>(eventDistributor))
 	, openMSXInfoCommand(make_unique<InfoCommand>(*this, "openmsx_info"))
-	, hotKey(make_unique<HotKey>(*this, eventDistributor))
+	, hotKey(make_unique<HotKey>(reactor.getRTScheduler(), *this, eventDistributor))
 	, helpCmd(make_unique<HelpCmd>(*this))
 	, tabCompletionCmd(make_unique<TabCompletionCmd>(*this))
 	, platformInfo(make_unique<PlatformInfo>(getOpenMSXInfoCommand()))

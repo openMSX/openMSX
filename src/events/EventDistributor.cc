@@ -1,6 +1,9 @@
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "Reactor.hh"
+#include "RTScheduler.hh"
+#include "Interpreter.hh"
+#include "InputEventGenerator.hh"
 #include "Thread.hh"
 #include "KeyRange.hh"
 #include "stl.hh"
@@ -77,6 +80,10 @@ bool EventDistributor::isRegistered(EventType type, EventListener* listener) con
 void EventDistributor::deliverEvents()
 {
 	assert(Thread::isMainThread());
+
+	reactor.getInputEventGenerator().poll();
+	reactor.getInterpreter().poll();
+	reactor.getRTScheduler().execute();
 
 	ScopedLock lock(sem);
 	// It's possible that executing an event triggers scheduling of another

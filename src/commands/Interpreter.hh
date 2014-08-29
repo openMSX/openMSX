@@ -2,7 +2,6 @@
 #define INTERPRETER_HH
 
 #include "TclParser.hh"
-#include "EventListener.hh"
 #include "StringMap.hh"
 #include "string_ref.hh"
 #include "noncopyable.hh"
@@ -16,7 +15,7 @@ class Command;
 class BaseSetting;
 class InterpreterOutput;
 
-class Interpreter : private EventListener, private noncopyable
+class Interpreter : private noncopyable
 {
 public:
 	explicit Interpreter(EventDistributor& eventDistributor);
@@ -54,12 +53,9 @@ public:
 
 	TclParser parse(string_ref command);
 
-private:
-	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
-
 	void poll();
 
+private:
 	static int outputProc(ClientData clientData, const char* buf,
 	        int toWrite, int* errorCodePtr);
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,

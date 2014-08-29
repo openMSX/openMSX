@@ -13,6 +13,7 @@ class SDLGLVisibleSurface : public VisibleSurface, public SDLGLOutputSurface
 public:
 	SDLGLVisibleSurface(unsigned width, unsigned height,
 	                    RenderSettings& renderSettings,
+	                    RTScheduler& rtScheduler,
 	                    EventDistributor& eventDistributor,
 	                    InputEventGenerator& inputEventGenerator,
 	                    CliComm& cliComm,

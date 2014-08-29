@@ -1,21 +1,19 @@
 #ifndef LEDSTATUS_HH
 #define LEDSTATUS_HH
 
-#include "EventListener.hh"
-#include "noncopyable.hh"
+#include "RTSchedulable.hh"
 #include <memory>
 #include <cstdint>
 
 namespace openmsx {
 
-class AlarmEvent;
 class CommandController;
-class EventDistributor;
 class MSXCliComm;
 class ReadOnlySetting;
+class RTScheduler;
 class Interpreter;
 
-class LedStatus : public EventListener, private noncopyable
+class LedStatus : public RTSchedulable
 {
 public:
 	enum Led {
@@ -28,10 +26,9 @@ public:
 		NUM_LEDS // must be last
 	};
 
-	explicit LedStatus(
-		EventDistributor& eventDistributor,
-		CommandController& commandController,
-		MSXCliComm& msxCliComm);
+	LedStatus(RTScheduler& rtScheduler,
+	          CommandController& commandController,
+	          MSXCliComm& msxCliComm);
 	~LedStatus();
 
 	void setLed(Led led, bool status);
@@ -39,12 +36,11 @@ public:
 private:
 	void handleEvent(Led led);
 
-	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	// RTSchedulable
+	virtual void executeRT();
 
 	MSXCliComm& msxCliComm;
 	Interpreter& interp;
-	const std::unique_ptr<AlarmEvent> alarm;
 	std::unique_ptr<ReadOnlySetting> ledStatus[NUM_LEDS];
 	uint64_t lastTime;
 	bool ledValue[NUM_LEDS];

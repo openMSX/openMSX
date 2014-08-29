@@ -16,11 +16,12 @@ namespace openmsx {
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height,
 		RenderSettings& renderSettings,
+		RTScheduler& rtScheduler,
 		EventDistributor& eventDistributor,
 		InputEventGenerator& inputEventGenerator,
 		CliComm& cliComm)
-	: VisibleSurface(renderSettings, eventDistributor, inputEventGenerator,
-			cliComm)
+	: VisibleSurface(renderSettings, rtScheduler, eventDistributor,
+	                 inputEventGenerator, cliComm)
 {
 #if PLATFORM_DINGUX
 	// The OpenDingux kernel supports double buffering, while the legacy

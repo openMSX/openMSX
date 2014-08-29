@@ -1,8 +1,8 @@
 #ifndef HOTKEY_HH
 #define HOTKEY_HH
 
+#include "RTSchedulable.hh"
 #include "EventListener.hh"
-#include "noncopyable.hh"
 #include "stl.hh"
 #include "string_ref.hh"
 #include <map>
@@ -14,6 +14,7 @@
 namespace openmsx {
 
 class Event;
+class RTScheduler;
 class GlobalCommandController;
 class EventDistributor;
 class XMLElement;
@@ -21,9 +22,8 @@ class BindCmd;
 class UnbindCmd;
 class ActivateCmd;
 class DeactivateCmd;
-class AlarmEvent;
 
-class HotKey : public EventListener, private noncopyable
+class HotKey : public RTSchedulable, public EventListener
 {
 public:
 	struct HotKeyInfo {
@@ -37,7 +37,8 @@ public:
 	typedef std::map<EventPtr, HotKeyInfo, LessDeref> BindMap;
 	typedef std::set<EventPtr,             LessDeref> KeySet;
 
-	HotKey(GlobalCommandController& commandController,
+	HotKey(RTScheduler& rtScheduler,
+	       GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);
 	virtual ~HotKey();
 
@@ -62,12 +63,15 @@ private:
 	void activateLayer  (std::string layer, bool blocking);
 	void deactivateLayer(string_ref layer);
 
+	int executeEvent(const EventPtr& event);
 	void executeBinding(const EventPtr& event, const HotKeyInfo& info);
 	void startRepeat  (const EventPtr& event);
 	void stopRepeat();
 
 	// EventListener
 	virtual int signalEvent(const EventPtr& event);
+	// RTSchedulable
+	virtual void executeRT();
 
 	friend class BindCmd;
 	friend class UnbindCmd;
@@ -79,7 +83,6 @@ private:
 	const std::unique_ptr<UnbindCmd>     unbindDefaultCmd;
 	const std::unique_ptr<ActivateCmd>   activateCmd;
 	const std::unique_ptr<DeactivateCmd> deactivateCmd;
-	const std::unique_ptr<AlarmEvent>    repeatAlarm;
 
 	BindMap cmdMap;
 	BindMap defaultMap;

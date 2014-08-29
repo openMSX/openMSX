@@ -6,7 +6,7 @@
 #include "InputEventFactory.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
-#include "Alarm.hh"
+#include "RTSchedulable.hh"
 #include "EmuTime.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -104,19 +104,15 @@ private:
 	AfterCommand::EventPtr event;
 };
 
-class AfterRealTimeCmd : public AfterCmd, private Alarm
+class AfterRealTimeCmd : public AfterCmd, private RTSchedulable
 {
 public:
-	AfterRealTimeCmd(AfterCommand& afterCommand,
+	AfterRealTimeCmd(RTScheduler& rtScheduler, AfterCommand& afterCommand,
 	                 const TclObject& command, double time);
-	virtual ~AfterRealTimeCmd();
 	virtual string getType() const;
-	bool hasExpired() const;
 
 private:
-	virtual bool alarm();
-
-	bool expired;
+	virtual void executeRT();
 };
 
 
@@ -158,8 +154,6 @@ AfterCommand::AfterCommand(Reactor& reactor_,
 	eventDistributor.registerEventListener(
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_AFTER_REALTIME_EVENT, *this);
-	eventDistributor.registerEventListener(
 		OPENMSX_AFTER_TIMED_EVENT, *this);
 }
 
@@ -167,8 +161,6 @@ AfterCommand::~AfterCommand()
 {
 	eventDistributor.unregisterEventListener(
 		OPENMSX_AFTER_TIMED_EVENT, *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_AFTER_REALTIME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MACHINE_LOADED_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -270,7 +262,7 @@ void AfterCommand::afterRealTime(array_ref<TclObject> tokens, TclObject& result)
 	}
 	double time = getTime(getInterpreter(), tokens[2]);
 	auto cmd = make_unique<AfterRealTimeCmd>(
-		*this, tokens[3], time);
+		reactor.getRTScheduler(), *this, tokens[3], time);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
 }
@@ -281,7 +273,7 @@ void AfterCommand::afterTclTime(
 	TclObject command;
 	command.addListElements(std::begin(tokens) + 2, std::end(tokens));
 	auto cmd = make_unique<AfterRealTimeCmd>(
-		*this, command, ms / 1000.0);
+		reactor.getRTScheduler(), *this, command, ms / 1000.0);
 	result.setString(cmd->getId());
 	afterCmds.push_back(move(cmd));
 }
@@ -417,17 +409,6 @@ template<EventType T> void AfterCommand::executeEvents()
 	executeMatches(AfterEventPred<T>());
 }
 
-struct AfterTimePred {
-	bool operator()(const unique_ptr<AfterCmd>& x) const {
-		if (auto* cmd = dynamic_cast<AfterRealTimeCmd*>(x.get())) {
-			if (cmd->hasExpired()) {
-				return false;
-			}
-		}
-		return true;
-	}
-};
-
 struct AfterEmuTimePred {
 	bool operator()(const unique_ptr<AfterCmd>& x) const {
 		if (auto* cmd = dynamic_cast<AfterTimedCmd*>(x.get())) {
@@ -463,8 +444,6 @@ int AfterCommand::signalEvent(const std::shared_ptr<const Event>& event)
 		executeEvents<OPENMSX_QUIT_EVENT>();
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
-	} else if (event->getType() == OPENMSX_AFTER_REALTIME_EVENT) {
-		executeMatches(AfterTimePred());
 	} else if (event->getType() == OPENMSX_AFTER_TIMED_EVENT) {
 		executeMatches(AfterEmuTimePred());
 	} else {
@@ -632,17 +611,12 @@ string AfterInputEventCmd::getType() const
 // class AfterRealTimeCmd
 
 AfterRealTimeCmd::AfterRealTimeCmd(
-		AfterCommand& afterCommand,
+		RTScheduler& rtScheduler, AfterCommand& afterCommand,
 		const TclObject& command, double time)
 	: AfterCmd(afterCommand, command)
-	, expired(false)
+	, RTSchedulable(rtScheduler)
 {
-	schedule(unsigned(time * 1000000)); // micro seconds
-}
-
-AfterRealTimeCmd::~AfterRealTimeCmd()
-{
-	prepareDelete();
+	scheduleRT(uint64_t(time * 1e6)); // micro seconds
 }
 
 string AfterRealTimeCmd::getType() const
@@ -650,19 +624,10 @@ string AfterRealTimeCmd::getType() const
 	return "realtime";
 }
 
-bool AfterRealTimeCmd::alarm()
+void AfterRealTimeCmd::executeRT()
 {
-	// this runs in a different thread, so we can't directly execute the
-	// command here
-	expired = true;
-	afterCommand.eventDistributor.distributeEvent(
-		std::make_shared<SimpleEvent>(OPENMSX_AFTER_REALTIME_EVENT));
-	return false; // don't repeat alarm
-}
-
-bool AfterRealTimeCmd::hasExpired() const
-{
-	return expired;
+	execute();
+	removeSelf();
 }
 
 } // namespace openmsx

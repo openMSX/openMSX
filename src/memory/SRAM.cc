@@ -6,7 +6,6 @@
 #include "FileNotFoundException.hh"
 #include "Reactor.hh"
 #include "CliComm.hh"
-#include "AlarmEvent.hh"
 #include "serialize.hh"
 #include "openmsx.hh"
 #include "vla.hh"
@@ -25,34 +24,28 @@ namespace openmsx {
  */
 SRAM::SRAM(const std::string& name, const std::string& description,
            int size, const DeviceConfig& config, DontLoad)
-	: ram(config, name, description, size)
+	: RTSchedulable(config.getReactor().getRTScheduler())
+	, ram(config, name, description, size)
 	, header(nullptr) // not used
-	, sramSync(make_unique<AlarmEvent>(
-		config.getReactor().getEventDistributor(),
-		*this, OPENMSX_SAVE_SRAM)) // used, but not needed
 {
 }
 
 SRAM::SRAM(const string& name, int size,
            const DeviceConfig& config_, const char* header_, bool* loaded)
-	: config(config_)
+	: RTSchedulable(config_.getReactor().getRTScheduler())
+	, config(config_)
 	, ram(config, name, "sram", size)
 	, header(header_)
-	, sramSync(make_unique<AlarmEvent>(
-		config.getReactor().getEventDistributor(),
-		*this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
 
 SRAM::SRAM(const string& name, const string& description, int size,
 	   const DeviceConfig& config_, const char* header_, bool* loaded)
-	: config(config_)
+	: RTSchedulable(config_.getReactor().getRTScheduler())
+	, config(config_)
 	, ram(config, name, description, size)
 	, header(header_)
-	, sramSync(make_unique<AlarmEvent>(
-		config.getReactor().getEventDistributor(),
-		*this, OPENMSX_SAVE_SRAM))
 {
 	load(loaded);
 }
@@ -64,8 +57,8 @@ SRAM::~SRAM()
 
 void SRAM::write(unsigned addr, byte value)
 {
-	if (!sramSync->pending()) {
-		sramSync->schedule(5000000); // sync to disk after 5s
+	if (!isPendingRT()) {
+		scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert(addr < getSize());
 	ram[addr] = value;
@@ -73,8 +66,8 @@ void SRAM::write(unsigned addr, byte value)
 
 void SRAM::memset(unsigned addr, byte c, unsigned size)
 {
-	if (!sramSync->pending()) {
-		sramSync->schedule(5000000); // sync to disk after 5s
+	if (!isPendingRT()) {
+		scheduleRT(5000000); // sync to disk after 5s
 	}
 	assert((addr + size) <= getSize());
 	::memset(&ram[addr], c, size);
@@ -134,15 +127,9 @@ void SRAM::save()
 	}
 }
 
-int SRAM::signalEvent(const std::shared_ptr<const Event>& event)
+void SRAM::executeRT()
 {
-	// Event is received by all SRAM instances, so it will trigger a save
-	// of all SRAMs. Could be optimized if it turns out to be a problem.
-	assert(event->getType() == OPENMSX_SAVE_SRAM);
-	(void)event;
-
 	save();
-	return 0;
 }
 
 template<typename Archive>

@@ -500,7 +500,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		// This will generate a VBLANK IRQ. Typically MSX software will
 		// poll the keyboard/joystick on this IRQ. So now is a good
 		// time to also poll for host events.
-		getReactor().pollNow();
+		getReactor().enterMainLoop();
 
 		if (isDisplayEnabled()) {
 			vram->updateDisplayEnabled(false, time);

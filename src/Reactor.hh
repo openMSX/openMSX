@@ -13,6 +13,7 @@
 
 namespace openmsx {
 
+class RTScheduler;
 class EventDistributor;
 class CommandController;
 class InfoCommand;
@@ -48,7 +49,6 @@ class RestoreMachineCommand;
 class AviRecorder;
 class ConfigInfo;
 class RealTimeInfo;
-class PollEventGenerator;
 template <typename T> class EnumSetting;
 
 /**
@@ -74,8 +74,8 @@ public:
 	void run(CommandLineParser& parser);
 
 	void enterMainLoop();
-	void pollNow();
 
+	RTScheduler& getRTScheduler();
 	EventDistributor& getEventDistributor();
 	GlobalCliComm& getGlobalCliComm();
 	GlobalCommandController& getGlobalCommandController();
@@ -130,6 +130,7 @@ private:
 	                 // the destructors of the unique_ptr below
 
 	// note: order of unique_ptr's is important
+	std::unique_ptr<RTScheduler> rtScheduler;
 	std::unique_ptr<EventDistributor> eventDistributor;
 	std::unique_ptr<GlobalCliComm> globalCliComm;
 	std::unique_ptr<GlobalCommandController> globalCommandController;
@@ -167,7 +168,6 @@ private:
 	std::unique_ptr<ConfigInfo> machineInfo;
 	std::unique_ptr<RealTimeInfo> realTimeInfo;
 	std::unique_ptr<TclCallbackMessages> tclCallbackMessages;
-	std::unique_ptr<PollEventGenerator> pollEventGenerator;
 
 	// Locking rules for activeBoard access:
 	//  - main thread can always access activeBoard without taking a lock

@@ -45,7 +45,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	setGrabInput(grabInput->getBoolean());
 	grabInput->attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT,  *this);
 
 	reinit();
 
@@ -54,7 +53,6 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 
 InputEventGenerator::~InputEventGenerator()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_POLL_EVENT,  *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	grabInput->detach(*this);
 }
@@ -378,28 +376,24 @@ void InputEventGenerator::update(const Setting& setting)
 
 int InputEventGenerator::signalEvent(const std::shared_ptr<const Event>& event)
 {
-	if (event->getType() == OPENMSX_FOCUS_EVENT) {
-		auto& focusEvent = checked_cast<const FocusEvent&>(*event);
-		switch (escapeGrabState) {
-			case ESCAPE_GRAB_WAIT_CMD:
-				// nothing
-				break;
-			case ESCAPE_GRAB_WAIT_LOST:
-				if (focusEvent.getGain() == false) {
-					escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
-				}
-				break;
-			case ESCAPE_GRAB_WAIT_GAIN:
-				if (focusEvent.getGain() == true) {
-					escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-				}
-				setGrabInput(true);
-				break;
-			default:
-				UNREACHABLE;
-		}
-	} else if (event->getType() == OPENMSX_POLL_EVENT) {
-		poll();
+	auto& focusEvent = checked_cast<const FocusEvent&>(*event);
+	switch (escapeGrabState) {
+		case ESCAPE_GRAB_WAIT_CMD:
+			// nothing
+			break;
+		case ESCAPE_GRAB_WAIT_LOST:
+			if (focusEvent.getGain() == false) {
+				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+			}
+			break;
+		case ESCAPE_GRAB_WAIT_GAIN:
+			if (focusEvent.getGain() == true) {
+				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+			}
+			setGrabInput(true);
+			break;
+		default:
+			UNREACHABLE;
 	}
 	return 0;
 }

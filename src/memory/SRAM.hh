@@ -3,15 +3,11 @@
 
 #include "Ram.hh"
 #include "DeviceConfig.hh"
-#include "EventListener.hh"
-#include "noncopyable.hh"
-#include <memory>
+#include "RTSchedulable.hh"
 
 namespace openmsx {
 
-class AlarmEvent;
-
-class SRAM : public EventListener, private noncopyable
+class SRAM : public RTSchedulable
 {
 public:
 	enum DontLoad { DONT_LOAD };
@@ -40,8 +36,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	// RTSchedulable
+	virtual void executeRT();
 
 	void load(bool* loaded);
 	void save();
@@ -49,8 +45,6 @@ private:
 	const DeviceConfig config;
 	Ram ram;
 	const char* const header;
-
-	const std::unique_ptr<AlarmEvent> sramSync;
 };
 
 } // namespace openmsx
