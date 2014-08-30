@@ -91,13 +91,11 @@ static inline void assume_aligned(T* __restrict & ptr)
 #endif
 }
 
-template<typename T> static inline void assume_SSE_aligned(T* __restrict & ptr)
-{
+template<typename T> static inline void assume_SSE_aligned(
 #ifdef __SSE2__
-	assume_aligned<16>(ptr);
+		T* __restrict & ptr) { assume_aligned<16>(ptr); }
 #else
-	// nothing
+		T* __restrict & /*ptr*/) { /* nothing */ }
 #endif
-}
 
 #endif // ALIGNED_HH
