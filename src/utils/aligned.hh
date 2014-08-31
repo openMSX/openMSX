@@ -87,7 +87,7 @@ static inline void assume_aligned(T* __restrict & ptr)
 #if __has_builtin(__builtin_assume_aligned) || GNUC_PREREQ(4, 7)
 	ptr = static_cast<T* __restrict>(__builtin_assume_aligned(ptr, A));
 #else
-	// nothing
+	(void)ptr; // nothing
 #endif
 }
 
