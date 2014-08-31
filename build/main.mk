@@ -331,6 +331,9 @@ ifneq ($(filter %clang++,$(CXX))$(filter clang++%,$(CXX)),)
   COMPILE_FLAGS+=-Wall -Wextra -Wundef
   # TODO: Remove the overloading from the code instead.
   COMPILE_FLAGS+=-Wno-overloaded-virtual
+  # Hardware descriptions can contain constants that are not used in the code
+  # but still useful as documentation.
+  COMPILE_FLAGS+=-Wno-unused-const-variable
   CC:=$(subst clang++,clang,$(CXX))
   LD:=ld
   DEPEND_FLAGS+=-MP
