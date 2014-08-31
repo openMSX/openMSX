@@ -49,7 +49,7 @@ public:
 	 * consistently, so that the initialized-administration will be always
 	 * up to date!
 	 */
-	Ram& getUncheckedRam() const;
+	Ram& getUncheckedRam() const { return *ram; }
 
 	// TODO
 	//template<typename Archive>

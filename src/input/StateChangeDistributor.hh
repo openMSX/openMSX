@@ -63,8 +63,8 @@ public:
 	 * to stop replaying and go to live events (value=true).
 	 * @param value false if new events stop replay mode
 	 */
-	void setViewOnlyMode(bool value);
-	bool isViewOnlyMode() const;
+	void setViewOnlyMode(bool value) { viewOnlyMode = value; }
+	bool isViewOnlyMode() const { return viewOnlyMode; }
 
 	bool isReplaying() const;
 

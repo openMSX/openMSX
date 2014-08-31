@@ -13,14 +13,4 @@ BreakPoint::BreakPoint(GlobalCliComm& cliComm, Interpreter& interp,
 {
 }
 
-word BreakPoint::getAddress() const
-{
-	return address;
-}
-
-unsigned BreakPoint::getId() const
-{
-	return id;
-}
-
 } // namespace openmsx

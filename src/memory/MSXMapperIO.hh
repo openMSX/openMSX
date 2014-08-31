@@ -30,7 +30,7 @@ public:
 	/**
 	 * Returns the actual selected page for the given bank.
 	 */
-	byte getSelectedPage(byte bank) const;
+	byte getSelectedPage(byte bank) const {	return registers[bank]; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

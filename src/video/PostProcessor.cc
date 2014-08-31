@@ -212,16 +212,6 @@ void PostProcessor::executeUntil(EmuTime::param /*time*/, int /*userData*/)
 			getVideoSource(), getVideoSourceSetting(), false));
 }
 
-void PostProcessor::setSuperimposeVideoFrame(const RawFrame* videoSource)
-{
-	superImposeVideoFrame = videoSource;
-}
-
-void PostProcessor::setSuperimposeVdpFrame(const FrameSource* vdpSource)
-{
-	superImposeVdpFrame = vdpSource;
-}
-
 void PostProcessor::getScaledFrame(unsigned height, const void** lines,
                                    std::vector<void*>& workBuffer)
 {
@@ -280,16 +270,6 @@ void PostProcessor::takeRawScreenShot(unsigned height, const std::string& filena
 	for (void* p : workBuffer) {
 		MemoryOps::freeAligned(p);
 	}
-}
-
-void PostProcessor::setRecorder(AviRecorder* recorder_)
-{
-	recorder = recorder_;
-}
-
-bool PostProcessor::isRecording() const
-{
-	return recorder != nullptr;
 }
 
 unsigned PostProcessor::getBpp() const

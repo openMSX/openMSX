@@ -265,26 +265,6 @@ Reactor::~Reactor()
 	getGlobalSettings().getPauseSetting().detach(*this);
 }
 
-RTScheduler& Reactor::getRTScheduler()
-{
-	return *rtScheduler;
-}
-
-EventDistributor& Reactor::getEventDistributor()
-{
-	return *eventDistributor;
-}
-
-GlobalCommandController& Reactor::getGlobalCommandController()
-{
-	return *globalCommandController;
-}
-
-GlobalCliComm& Reactor::getGlobalCliComm()
-{
-	return *globalCliComm;
-}
-
 CliComm& Reactor::getCliComm()
 {
 	return *globalCliComm;
@@ -293,52 +273,6 @@ CliComm& Reactor::getCliComm()
 Interpreter& Reactor::getInterpreter()
 {
 	return getGlobalCommandController().getInterpreter();
-}
-
-InputEventGenerator& Reactor::getInputEventGenerator()
-{
-	return *inputEventGenerator;
-}
-
-Display& Reactor::getDisplay()
-{
-	assert(display);
-	return *display;
-}
-
-RomDatabase& Reactor::getSoftwareDatabase()
-{
-	return *softwareDatabase;
-}
-
-Mixer& Reactor::getMixer()
-{
-	return *mixer;
-}
-
-DiskFactory& Reactor::getDiskFactory()
-{
-	return *diskFactory;
-}
-
-FilePool& Reactor::getFilePool()
-{
-	return *filePool;
-}
-
-DiskManipulator& Reactor::getDiskManipulator()
-{
-	return *diskManipulator;
-}
-
-EnumSetting<int>& Reactor::getMachineSetting()
-{
-	return *machineSetting;
-}
-
-GlobalSettings& Reactor::getGlobalSettings()
-{
-	return *globalSettings;
 }
 
 CommandController& Reactor::getCommandController()

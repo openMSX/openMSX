@@ -395,11 +395,6 @@ const string getName(KeyCode keyCode)
 	return result;
 }
 
-KeyCode combine(KeyCode key, KeyCode modifier)
-{
-	return static_cast<KeyCode>(int(key) | int(modifier));
-}
-
 } // namespace Keys
 
 } // namespace openmsx

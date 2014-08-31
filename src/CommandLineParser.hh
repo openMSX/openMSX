@@ -114,7 +114,6 @@ private:
 	ParseStatus parseStatus;
 	bool haveConfig;
 	bool haveSettings;
-	bool hiddenStartup;
 
 	friend class ControlOption;
 	friend class HelpOption;

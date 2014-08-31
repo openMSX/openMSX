@@ -37,11 +37,11 @@ public:
 	  * characters are counted as a single character. */
 	unsigned numChars() const;
 	/** Get the total string, ignoring color differences. */
-	const std::string& str() const;
+	const std::string& str() const { return line; }
 
 	/** Get the number of different chunks. Each chunk is a a part of the
 	  * line that has the same color. */
-	unsigned numChunks() const;
+	unsigned numChunks() const { return unsigned(chunks.size()); }
 	/** Get the color for the i-th chunk. */
 	unsigned chunkColor(unsigned i) const;
 	/** Get the text for the i-th chunk. */
@@ -71,16 +71,16 @@ public:
 	               Display& display);
 	virtual ~CommandConsole();
 
-	BooleanSetting& getConsoleSetting();
+	BooleanSetting& getConsoleSetting() { return *consoleSetting; }
 
-	unsigned getScrollBack() const;
+	unsigned getScrollBack() const { return consoleScrollBack; }
 	ConsoleLine getLine(unsigned line) const;
 	void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
 
-	void setColumns(unsigned columns);
-	unsigned getColumns() const;
-	void setRows(unsigned rows);
-	unsigned getRows() const;
+	void setColumns(unsigned columns_) { columns = columns_; }
+	unsigned getColumns() const { return columns; }
+	void setRows(unsigned rows_) { rows = rows_; }
+	unsigned getRows() const { return rows; }
 
 private:
 	// InterpreterOutput

@@ -77,11 +77,6 @@ Setting* UserSettings::findSetting(string_ref name) const
 	return nullptr;
 }
 
-const UserSettings::Settings& UserSettings::getSettings() const
-{
-	return settings;
-}
-
 
 // class UserSettingCommand
 

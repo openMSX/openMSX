@@ -27,7 +27,7 @@ public:
 
 	/** Is the given directory valid (does it exist)?
 	  */
-	bool isValid() const;
+	bool isValid() const { return dir != nullptr; }
 
 private:
 	DIR* dir;

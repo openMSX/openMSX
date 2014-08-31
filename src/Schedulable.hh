@@ -36,7 +36,7 @@ public:
 	 */
 	virtual void schedulerDeleted();
 
-	Scheduler& getScheduler() const;
+	Scheduler& getScheduler() const { return scheduler; }
 
 	/** Convenience method:
 	  * This is the same as getScheduler().getCurrentTime(). */

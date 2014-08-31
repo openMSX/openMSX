@@ -68,7 +68,7 @@ protected:
 	  * By default the mask is set up to wrap at the end of the ROM image,
 	  * meaning the entire ROM is reachable and there is no unmapped memory.
 	  */
-	void setBlockMask(int mask);
+	void setBlockMask(int mask) { blockMask = mask; }
 
 	/** Inform this base class of extra mapable memory block.
 	 * This is needed for serialization of mappings in this block.

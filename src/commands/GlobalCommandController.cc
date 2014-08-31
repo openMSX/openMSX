@@ -218,11 +218,6 @@ Interpreter& GlobalCommandController::getInterpreter()
 	return *interpreter;
 }
 
-InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
-{
-	return *openMSXInfoCommand;
-}
-
 SettingsConfig& GlobalCommandController::getSettingsConfig()
 {
 	if (!settingsConfig) {

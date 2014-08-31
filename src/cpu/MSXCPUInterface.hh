@@ -192,7 +192,7 @@ public:
 	inline bool isExpanded(int ps) const { return expanded[ps] != 0; }
 	void changeExpanded(bool isExpanded);
 
-	DummyDevice& getDummyDevice();
+	DummyDevice& getDummyDevice() { return *dummyDevice; }
 
 	static void insertBreakPoint(const std::shared_ptr<BreakPoint>& bp);
 	static void removeBreakPoint(const BreakPoint& bp);
@@ -205,13 +205,13 @@ public:
 	void removeWatchPoint(std::shared_ptr<WatchPoint> watchPoint);
 	// note: must be shared_ptr (not unique_ptr), see WatchIO::doReadCallback()
 	typedef std::vector<std::shared_ptr<WatchPoint>> WatchPoints;
-	const WatchPoints& getWatchPoints() const;
+	const WatchPoints& getWatchPoints() const { return watchPoints; }
 
 	static void setCondition(const std::shared_ptr<DebugCondition>& cond);
 	static void removeCondition(const DebugCondition& cond);
 	// note: must be shared_ptr (not unique_ptr), see checkBreakPoints()
 	typedef std::vector<std::shared_ptr<DebugCondition>> Conditions;
-	static const Conditions& getConditions();
+	static const Conditions& getConditions() { return conditions; }
 
 	static bool isBreaked() { return breaked; }
 	void doBreak();

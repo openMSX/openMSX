@@ -339,11 +339,6 @@ template<class T> CPUCore<T>::CPUCore(
 	initTables();
 }
 
-template<class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
-{
-	interface = interf;
-}
-
 template<class T> void CPUCore<T>::warp(EmuTime::param time)
 {
 	assert(T::getTimeFast() <= time);

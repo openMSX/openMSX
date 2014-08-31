@@ -75,24 +75,9 @@ void MSXDevice::staticInit()
 	memset(unmappedRead, 0xFF, sizeof(unmappedRead));
 }
 
-const HardwareConfig& MSXDevice::getHardwareConfig() const
-{
-	return deviceConfig.getHardwareConfig();
-}
-
 MSXMotherBoard& MSXDevice::getMotherBoard() const
 {
-	return getHardwareConfig().getMotherBoard();
-}
-
-const XMLElement& MSXDevice::getDeviceConfig() const
-{
-	return *deviceConfig.getXML();
-}
-
-const DeviceConfig& MSXDevice::getDeviceConfig2() const
-{
-	return deviceConfig;
+       return getHardwareConfig().getMotherBoard();
 }
 
 void MSXDevice::testRemove(Devices removed) const

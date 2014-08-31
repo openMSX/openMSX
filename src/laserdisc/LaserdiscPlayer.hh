@@ -36,7 +36,7 @@ public:
 
 	// Called from PioneerLDControl
 	void setMuting(bool left, bool right, EmuTime::param time);
-	bool extAck(EmuTime::param time) const;
+	bool extAck(EmuTime::param /*time*/) const { return ack; }
 	void extControl(bool bit, EmuTime::param time);
 	const RawFrame* getRawFrame() const;
 
@@ -81,7 +81,7 @@ public:
 	};
 private:
 	void setImageName(std::string newImage, EmuTime::param time);
-	const Filename& getImageName() const;
+	const Filename& getImageName() const { return oggImage; }
 	void autoRun();
 
 	/** Laserdisc player commands

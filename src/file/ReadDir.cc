@@ -22,9 +22,4 @@ struct dirent* ReadDir::getEntry()
 	return readdir(dir);
 }
 
-bool ReadDir::isValid() const
-{
-	return dir != nullptr;
-}
-
 } // namespace openmsx

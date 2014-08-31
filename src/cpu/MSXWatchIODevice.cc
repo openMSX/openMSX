@@ -81,11 +81,6 @@ MSXWatchIODevice::MSXWatchIODevice(
 {
 }
 
-MSXDevice*& MSXWatchIODevice::getDevicePtr()
-{
-	return device;
-}
-
 std::string MSXWatchIODevice::getName() const
 {
 	assert(device);

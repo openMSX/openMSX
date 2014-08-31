@@ -12,8 +12,8 @@ class Debugger;
 class ProbeBase : public Subject<ProbeBase>
 {
 public:
-	const std::string& getName() const;
-	const std::string& getDescription() const;
+	const std::string& getName() const { return name; }
+	const std::string& getDescription() const { return description; }
 	virtual std::string getValue() const = 0;
 
 protected:

@@ -30,7 +30,7 @@ public:
 	 * when accessing Ram in DRAM mode or via the ROM mapper!
 	 */
 	byte* getRamBlock(unsigned block);
-	unsigned getRamSize() const;
+	unsigned getRamSize() const { return ramSize; }
 	void setDRAM(bool dram);
 	bool isWritable(unsigned address) const;
 

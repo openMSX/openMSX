@@ -23,8 +23,8 @@ public:
 	explicit HD(const DeviceConfig& config);
 	virtual ~HD();
 
-	const std::string& getName() const;
-	const Filename& getImageName() const;
+	const std::string& getName() const { return name; }
+	const Filename& getImageName() const { return filename; }
 	void switchImage(const Filename& filename);
 
 	std::string getTigerTreeHash();

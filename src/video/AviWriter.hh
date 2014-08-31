@@ -21,7 +21,7 @@ public:
 	          unsigned bpp, unsigned channels, unsigned freq);
 	~AviWriter();
 	void addFrame(FrameSource* frame, unsigned samples, short* sampleData);
-	void setFps(double fps);
+	void setFps(double fps_) { fps = fps_; }
 
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);

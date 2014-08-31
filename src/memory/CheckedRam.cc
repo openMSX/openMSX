@@ -109,11 +109,6 @@ unsigned CheckedRam::getSize() const
 	return ram->getSize();
 }
 
-Ram& CheckedRam::getUncheckedRam() const
-{
-	return *ram;
-}
-
 void CheckedRam::update(const Setting& setting)
 {
 	assert(&setting == &umrCallback->getSetting());

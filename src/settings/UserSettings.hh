@@ -23,7 +23,7 @@ public:
 	void addSetting(std::unique_ptr<Setting> setting);
 	void deleteSetting(Setting& setting);
 	Setting* findSetting(string_ref name) const;
-	const Settings& getSettings() const;
+	const Settings& getSettings() const { return settings; }
 
 private:
 	const std::unique_ptr<UserSettingCommand> userSettingCommand;

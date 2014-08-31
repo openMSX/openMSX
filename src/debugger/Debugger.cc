@@ -94,11 +94,6 @@ Debugger::~Debugger()
 	assert(debuggables.empty());
 }
 
-void Debugger::setCPU(MSXCPU* cpu_)
-{
-	cpu = cpu_;
-}
-
 void Debugger::registerDebuggable(string_ref name, Debuggable& debuggable)
 {
 	assert(debuggables.find(name) == end(debuggables));

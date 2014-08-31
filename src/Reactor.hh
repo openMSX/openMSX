@@ -75,18 +75,18 @@ public:
 
 	void enterMainLoop();
 
-	RTScheduler& getRTScheduler();
-	EventDistributor& getEventDistributor();
-	GlobalCliComm& getGlobalCliComm();
-	GlobalCommandController& getGlobalCommandController();
-	InputEventGenerator& getInputEventGenerator();
-	Display& getDisplay();
-	Mixer& getMixer();
-	DiskFactory& getDiskFactory();
-	DiskManipulator& getDiskManipulator();
-	EnumSetting<int>& getMachineSetting();
-	RomDatabase& getSoftwareDatabase();
-	FilePool& getFilePool();
+	RTScheduler& getRTScheduler() { return *rtScheduler; }
+	EventDistributor& getEventDistributor() { return *eventDistributor; }
+	GlobalCliComm& getGlobalCliComm() { return *globalCliComm; }
+	GlobalCommandController& getGlobalCommandController() { return *globalCommandController; }
+	InputEventGenerator& getInputEventGenerator() { return *inputEventGenerator; }
+	Display& getDisplay() { assert(display); return *display; }
+	Mixer& getMixer() { return *mixer; }
+	DiskFactory& getDiskFactory() { return *diskFactory; }
+	DiskManipulator& getDiskManipulator() { return *diskManipulator; }
+	EnumSetting<int>& getMachineSetting() { return *machineSetting; }
+	RomDatabase& getSoftwareDatabase() { return *softwareDatabase; }
+	FilePool& getFilePool() { return *filePool; }
 
 	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
@@ -97,7 +97,7 @@ public:
 	void unblock();
 
 	// convenience methods
-	GlobalSettings& getGlobalSettings();
+	GlobalSettings& getGlobalSettings() { return *globalSettings; }
 	InfoCommand& getOpenMSXInfoCommand();
 	CommandController& getCommandController();
 	CliComm& getCliComm();

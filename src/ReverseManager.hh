@@ -32,16 +32,22 @@ public:
 	// Keyboard is special because we need to transfer the host keyboard
 	// state on 'reverse goto' to be able to resynchronize when replay
 	// stops. See Keyboard::transferHostKeyMatrix() for more info.
-	void registerKeyboard(Keyboard& keyboard);
+	void registerKeyboard(Keyboard& keyboard_) {
+		keyboard = &keyboard_;
+	}
 
 	// To not loose any events we need to flush delayed events before
 	// switching machine. See comments in goTo() for more info.
-	void registerEventDelay(EventDelay& eventDelay);
+	void registerEventDelay(EventDelay& eventDelay_) {
+		eventDelay = &eventDelay_;
+	}
 
 	// Should only be used by MSXMotherBoard to be able to transfer
 	// reRecordCount to ReverseManager for version 2 of MSXMotherBoard
 	// serializers.
-	void setReRecordCount(unsigned reRecordCount);
+	void setReRecordCount(unsigned count) {
+		reRecordCount = count;
+	}
 
 private:
 	struct ReverseChunk {
@@ -69,7 +75,7 @@ private:
 		Events events;
 	};
 
-	bool isCollecting() const;
+	bool isCollecting() const { return collecting; }
 
 	void start();
 	void stop();

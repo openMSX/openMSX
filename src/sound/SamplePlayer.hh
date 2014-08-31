@@ -36,10 +36,10 @@ public:
 	 * be started.
 	 * @see repeat()
 	 */
-	void stopRepeat();
+	void stopRepeat() { nextSampleNum = unsigned(-1); }
 
 	/** Is there currently playing a sample. */
-	bool isPlaying() const;
+	bool isPlaying() const { return currentSampleNum != unsigned(-1); }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

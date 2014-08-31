@@ -47,7 +47,7 @@ public:
 	unsigned getSampleRate() const { return vi.rate; }
 	void getFrameNo(RawFrame& frame, size_t frameno);
 	const AudioFragment* getAudio(size_t sample);
-	size_t getFrames() const;
+	size_t getFrames() const { return totalFrames; }
 	int getFrameRate() const { return frameRate; }
 
 	// metadata

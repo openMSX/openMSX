@@ -14,7 +14,7 @@ public:
 	std::string getResolved() const;
 	void updateAfterLoadState();
 	bool empty() const;
-	const Filename& getFilename() const;
+	const Filename& getFilename() const { return name; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

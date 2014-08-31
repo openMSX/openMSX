@@ -50,9 +50,9 @@ public:
 	 * enable protection of the first two sectors. (As for example in
 	 * Numonix/Micron M29W640FB/M29W640GB.)
 	 */
-	void setVppWpPinLow(bool value);
+	void setVppWpPinLow(bool value) { vppWpPinLow = value; }
 
-	unsigned getSize() const;
+	unsigned getSize() const { return size; }
 	byte read(unsigned address);
 	byte peek(unsigned address) const;
 	void write(unsigned address, byte value);

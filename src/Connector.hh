@@ -24,7 +24,7 @@ public:
 	/**
 	 * Name that identifies this connector.
 	 */
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 
 	/**
 	 * Get a description for this connector
@@ -54,7 +54,7 @@ public:
 	/**
 	 * Returns the Pluggable currently plugged in.
 	 */
-	Pluggable& getPlugged() const;
+	Pluggable& getPlugged() const { return *plugged; }
 
 	PluggingController& getPluggingController() const {
 		return pluggingController;

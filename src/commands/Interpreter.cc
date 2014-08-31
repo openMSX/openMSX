@@ -117,11 +117,6 @@ Interpreter::~Interpreter()
 	Tcl_Finalize();
 }
 
-void Interpreter::setOutput(InterpreterOutput* output_)
-{
-	output = output_;
-}
-
 int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {

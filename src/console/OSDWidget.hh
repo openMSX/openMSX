@@ -18,15 +18,15 @@ class OSDWidget
 public:
 	virtual ~OSDWidget();
 
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 	double getX()    const { return x; }
 	double getY()    const { return y; }
 	double getZ()    const { return z; }
 	double getRelX() const { return relx; }
 	double getRelY() const { return rely; }
 
-	OSDWidget* getParent();
-	const OSDWidget* getParent() const;
+	      OSDWidget* getParent()       { return parent; }
+	const OSDWidget* getParent() const { return parent; }
 	OSDWidget* findSubWidget(string_ref name);
 	const OSDWidget* findSubWidget(string_ref name) const;
 	void addWidget(std::unique_ptr<OSDWidget> widget);
@@ -66,7 +66,7 @@ private:
 	void transformReverse(const OutputRectangle& output,
 	                      double x, double y,
 	                      double& outx, double& outy) const;
-	void setParent(OSDWidget* parent);
+	void setParent(OSDWidget* parent_) { parent = parent_; }
 	void resortUp  (OSDWidget* elem);
 	void resortDown(OSDWidget* elem);
 

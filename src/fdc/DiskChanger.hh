@@ -40,11 +40,11 @@ public:
 
 	void createCommand();
 
-	const std::string& getDriveName() const;
+	const std::string& getDriveName() const { return driveName; }
 	const DiskName& getDiskName() const;
-	bool peekDiskChanged() const;
-	void forceDiskChange();
-	Disk& getDisk();
+	bool peekDiskChanged() const { return diskChangedFlag; }
+	void forceDiskChange() { diskChangedFlag = true; }
+	Disk& getDisk() { return *disk; }
 
 	// DiskContainer
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();

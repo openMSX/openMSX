@@ -25,9 +25,15 @@ public:
 	                     const std::string& machineID);
 	~MSXCommandController();
 
-	GlobalCommandController& getGlobalCommandController();
-	InfoCommand& getMachineInfoCommand();
-	MSXMotherBoard& getMSXMotherBoard() const;
+	GlobalCommandController& getGlobalCommandController() {
+		return globalCommandController;
+	}
+	InfoCommand& getMachineInfoCommand() {
+		return *machineInfoCommand;
+	}
+	MSXMotherBoard& getMSXMotherBoard() const {
+		return motherboard;
+	}
 
 	Command* findCommand(string_ref name) const;
 

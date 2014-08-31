@@ -54,26 +54,30 @@ public:
 	  * unchanged, though exceptions are e.g. scalers that render
 	  * scanlines, those are preferably also visible in the video frame.
 	  */
-	void setSuperimposeVideoFrame(const RawFrame* videoSource);
+	void setSuperimposeVideoFrame(const RawFrame* videoSource) {
+		superImposeVideoFrame = videoSource;
+	}
 
 	/** Set the VDP frame on which to superimpose the 'normal' output of
 	  * this PostProcessor. This is similar to the method above, except
 	  * that now the superimposing is done before scaling. IOW both frames
 	  * get scaled.
 	  */
-	void setSuperimposeVdpFrame(const FrameSource* vdpSource);
+	void setSuperimposeVdpFrame(const FrameSource* vdpSource) {
+		superImposeVdpFrame = vdpSource;
+	}
 
 	/** Start/stop recording.
 	  * @param recorder Finished frames should be pushed to this
 	  *                 AviRecorder. Can also be nullptr, meaning
 	  *                 recording is stopped.
 	  */
-	void setRecorder(AviRecorder* recorder);
+	void setRecorder(AviRecorder* recorder_) { recorder = recorder_; }
 
 	/** Is recording active.
 	  * ATM used to keep frameskip constant during recording.
 	  */
-	bool isRecording() const;
+	bool isRecording() const { return recorder != nullptr; }
 
 	/** Get the number of bits per pixel for the pixels in these frames.
 	  * @return Possible values are 15, 16 or 32

@@ -23,8 +23,8 @@ public:
 
 	virtual void draw(OutputSurface& output, int x, int y,
 	                  byte alpha = 255);
-	virtual int getWidth() const;
-	virtual int getHeight() const;
+	virtual int getWidth()  const { return width; }
+	virtual int getHeight() const { return height; }
 
 private:
 	gl::Texture texture;

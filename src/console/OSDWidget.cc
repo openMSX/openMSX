@@ -133,26 +133,6 @@ OSDWidget::~OSDWidget()
 {
 }
 
-const string& OSDWidget::getName() const
-{
-	return name;
-}
-
-OSDWidget* OSDWidget::getParent()
-{
-	return parent;
-}
-
-const OSDWidget* OSDWidget::getParent() const
-{
-	return parent;
-}
-
-void OSDWidget::setParent(OSDWidget* parent_)
-{
-	parent = parent_;
-}
-
 OSDWidget* OSDWidget::findSubWidget(string_ref name)
 {
 	if (name.empty()) {

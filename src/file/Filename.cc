@@ -46,11 +46,6 @@ bool Filename::empty() const
 	return getOriginal().empty();
 }
 
-void Filename::setResolved(const std::string& resolved)
-{
-	resolvedFilename = resolved;
-}
-
 template<typename Archive>
 void Filename::serialize(Archive& ar, unsigned /*version*/)
 {

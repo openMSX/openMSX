@@ -96,16 +96,6 @@ CliConnection::~CliConnection()
 	xmlFreeParserCtxt(parser_context);
 }
 
-void CliConnection::setUpdateEnable(CliComm::UpdateType type, bool value)
-{
-	updateEnabled[type] = value;
-}
-
-bool CliConnection::getUpdateEnable(CliComm::UpdateType type) const
-{
-	return updateEnabled[type];
-}
-
 void CliConnection::log(CliComm::LogLevel level, string_ref message)
 {
 	auto levelStr = CliComm::getLevelStrings();

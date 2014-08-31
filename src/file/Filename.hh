@@ -41,7 +41,9 @@ public:
 	 * E.g. on loadstate when we didn't find the original file, but another
 	 * file with a matching checksum.
 	 */
-	void setResolved(const std::string& resolved);
+	void setResolved(const std::string& resolved) {
+		resolvedFilename = resolved;
+	}
 
 	// Do both Filename objects point to the same file?
 	bool operator==(const Filename& other) const {

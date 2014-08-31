@@ -64,11 +64,6 @@ WavWriter::~WavWriter()
 	}
 }
 
-bool WavWriter::isEmpty() const
-{
-	return bytes == 0;
-}
-
 void WavWriter::flush()
 {
 	// TODO For now (before C++11) this needs separate definition and

@@ -22,12 +22,12 @@ public:
 	/** Get the unique name that identifies this sound device.
 	  * Used to create setting names.
 	  */
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 
 	/** Gets a description of this sound device,
 	  * to be presented to the user.
 	  */
-	const std::string& getDescription() const;
+	const std::string& getDescription() const { return description; }
 
 	/** Is this a stereo device?
 	  * This is set in the constructor and cannot be changed anymore
@@ -76,7 +76,7 @@ protected:
 	/** @see Mixer::updateStream */
 	void updateStream(EmuTime::param time);
 
-	void setInputRate(unsigned sampleRate);
+	void setInputRate(unsigned sampleRate) { inputSampleRate = sampleRate; }
 	unsigned getInputRate() const { return inputSampleRate; }
 
 public: // Will be called by Mixer:

@@ -32,7 +32,7 @@ public:
 	ProbeBase* findProbe(string_ref name);
 
 	void removeProbeBreakPoint(ProbeBreakPoint& bp);
-	void setCPU(MSXCPU* cpu);
+	void setCPU(MSXCPU* cpu_) { cpu = cpu_; }
 
 	void transfer(Debugger& other);
 

@@ -35,7 +35,7 @@ public:
 	        const BooleanSetting& traceSetting,
 	        TclCallback& diHaltCallback, EmuTime::param time);
 
-	void setInterface(MSXCPUInterface* interf);
+	void setInterface(MSXCPUInterface* interf) { interface = interf; }
 
 	/**
 	 * Reset the CPU.

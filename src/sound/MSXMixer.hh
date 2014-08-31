@@ -93,14 +93,14 @@ public:
 	  * the requested speed or because the 'speed' setting is different
 	  * from 100.
 	  */
-	const DynamicClock& getHostSampleClock() const;
+	const DynamicClock& getHostSampleClock() const { return prevTime; }
 
 	// Called by AviRecorder
 	bool needStereoRecording() const;
 	void setRecorder(AviRecorder* recorder);
 
 	// Returns the nominal host sample rate (not adjusted for speed setting)
-	unsigned getSampleRate() const;
+	unsigned getSampleRate() const { return hostSampleRate; }
 
 	SoundDevice* findDevice(string_ref name) const;
 

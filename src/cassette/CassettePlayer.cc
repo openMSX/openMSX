@@ -203,11 +203,6 @@ void CassettePlayer::autoRun()
 	}
 }
 
-CassettePlayer::State CassettePlayer::getState() const
-{
-	return state;
-}
-
 string CassettePlayer::getStateString() const
 {
 	switch (getState()) {
@@ -336,11 +331,6 @@ void CassettePlayer::setImageName(const Filename& newImage)
 	casImage = newImage;
 	motherBoard.getMSXCliComm().update(
 		CliComm::MEDIA, "cassetteplayer", casImage.getResolved());
-}
-
-const Filename& CassettePlayer::getImageName() const
-{
-	return casImage;
 }
 
 void CassettePlayer::insertTape(const Filename& filename)

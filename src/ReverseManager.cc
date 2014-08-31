@@ -190,27 +190,7 @@ ReverseManager::ReverseManager(MSXMotherBoard& motherBoard_)
 ReverseManager::~ReverseManager()
 {
 	stop();
-
 	eventDistributor.unregisterEventListener(OPENMSX_TAKE_REVERSE_SNAPSHOT, *this);
-}
-
-void ReverseManager::registerKeyboard(Keyboard& keyboard_)
-{
-	keyboard = &keyboard_;
-}
-void ReverseManager::registerEventDelay(EventDelay& eventDelay_)
-{
-	eventDelay = &eventDelay_;
-}
-
-void ReverseManager::setReRecordCount(unsigned reRecordCount_)
-{
-	reRecordCount = reRecordCount_;
-}
-
-bool ReverseManager::isCollecting() const
-{
-	return collecting;
 }
 
 bool ReverseManager::isReplaying() const

@@ -204,14 +204,4 @@ void GLImage::draw(OutputSurface& /*output*/, int x, int y, byte alpha)
 	glDisable(GL_BLEND);
 }
 
-int GLImage::getWidth() const
-{
-	return width;
-}
-
-int GLImage::getHeight() const
-{
-	return height;
-}
-
 } // namespace openmsx

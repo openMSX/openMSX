@@ -76,40 +76,10 @@ KeyboardSettings::~KeyboardSettings()
 {
 }
 
-EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey() const
-{
-	return *codeKanaHostKey;
-}
-
 Keys::KeyCode KeyboardSettings::getDeadkeyHostKey(unsigned n) const
 {
 	assert(n < 3);
 	return deadkeyHostKey[n]->getEnum();
-}
-
-EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode() const
-{
-	return *kpEnterMode;
-}
-
-EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode() const
-{
-	return *mappingMode;
-}
-
-BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad() const
-{
-	return *alwaysEnableKeypad;
-}
-
-BooleanSetting& KeyboardSettings::getTraceKeyPresses() const
-{
-	return *traceKeyPresses;
-}
-
-BooleanSetting& KeyboardSettings::getAutoToggleCodeKanaLock() const
-{
-	return *autoToggleCodeKanaLock;
 }
 
 } // namespace openmsx

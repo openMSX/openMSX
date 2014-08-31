@@ -13,7 +13,7 @@ class Pluggable : private noncopyable
 {
 public:
 	Pluggable();
-	virtual ~Pluggable();
+	virtual ~Pluggable() {}
 
 	/** Name used to identify this pluggable.
 	  */
@@ -42,7 +42,7 @@ public:
 	/** Get the connector this Pluggable is plugged into. Returns nullptr
 	  * if this Pluggable is not plugged.
 	  */
-	Connector* getConnector() const;
+	Connector* getConnector() const { return connector; }
 
 	/** Returns true if this pluggable is currently plugged into a connector.
 	  * The method getConnector() can also be used, but this is more
@@ -56,7 +56,7 @@ protected:
 	virtual void unplugHelper(EmuTime::param time) = 0;
 
 	friend class Connector; // for de-serialization
-	void setConnector(Connector* conn);
+	void setConnector(Connector* conn) { connector = conn; }
 
 private:
 	Connector* connector;

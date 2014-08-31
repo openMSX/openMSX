@@ -291,11 +291,6 @@ void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 	ack = true;
 }
 
-bool LaserdiscPlayer::extAck(EmuTime::param /*time*/) const
-{
-	return ack;
-}
-
 void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 {
 #ifdef DEBUG
@@ -678,11 +673,6 @@ void LaserdiscPlayer::setImageName(string newImage, EmuTime::param time)
 		setInputRate(inputRate);
 		createResampler();
 	}
-}
-
-const Filename& LaserdiscPlayer::getImageName() const
-{
-	return oggImage;
 }
 
 int LaserdiscPlayer::signalEvent(const std::shared_ptr<const Event>& event)

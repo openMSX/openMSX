@@ -30,7 +30,7 @@ public:
 	 * also on the fullspeedwhenfastloading setting and if the MSX has
 	 * notified us that it is loading... To be used for the timing.
 	 */
-	bool isThrottled() const;
+	bool isThrottled() const { return throttle; }
 
 private:
 	friend class LoadingIndicator;

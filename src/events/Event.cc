@@ -5,20 +5,6 @@ namespace openmsx {
 
 // class Event
 
-Event::Event(EventType type_)
-	: type(type_)
-{
-}
-
-Event::~Event()
-{
-}
-
-EventType Event::getType() const
-{
-	return type;
-}
-
 std::string Event::toString() const
 {
 	TclObject result;

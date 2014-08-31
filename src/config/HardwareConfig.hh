@@ -36,7 +36,7 @@ public:
 
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
-	const FileContext& getFileContext() const;
+	const FileContext& getFileContext() const { return *context; }
 	void setFileContext(std::unique_ptr<FileContext> context);
 
 	const XMLElement& getConfig() const { return config; }

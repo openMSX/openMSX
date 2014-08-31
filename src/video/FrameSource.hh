@@ -34,7 +34,7 @@ public:
 	/** (Re)initialize an existing FrameSource. This method sets the
 	  * Fieldtype and flushes the 'getLinePtr' buffers.
 	  */
-	void init(FieldType fieldType);
+	void init(FieldType fieldType_) { fieldType = fieldType_; }
 
 	/** Gets the role this frame plays in interlacing.
 	  */
@@ -199,7 +199,7 @@ public:
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);
 
-	void setHeight(unsigned height);
+	void setHeight(unsigned height_) { height = height_; }
 
 	/** Returns true when two consecutive rows are also consecutive in
 	  * memory.

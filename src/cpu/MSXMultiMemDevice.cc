@@ -70,11 +70,6 @@ void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 	ranges.erase(find_unguarded(ranges, Range(base, size, device)));
 }
 
-bool MSXMultiMemDevice::empty() const
-{
-	return ranges.size() == 1;
-}
-
 std::vector<MSXDevice*> MSXMultiMemDevice::getDevices() const
 {
 	std::vector<MSXDevice*> result;

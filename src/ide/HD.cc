@@ -95,16 +95,6 @@ HD::~HD()
 	}
 }
 
-const string& HD::getName() const
-{
-	return name;
-}
-
-const Filename& HD::getImageName() const
-{
-	return filename;
-}
-
 void HD::openImage()
 {
 	if (file) return;

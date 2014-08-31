@@ -44,11 +44,6 @@ void V9990VRAM::writeVRAMCPU(unsigned address, byte value, EmuTime::param time)
 	data[mapAddress(address)] = value;
 }
 
-void V9990VRAM::setCmdEngine(V9990CmdEngine& cmdEngine_)
-{
-	cmdEngine = &cmdEngine_;
-}
-
 
 template<typename Archive>
 void V9990VRAM::serialize(Archive& ar, unsigned /*version*/)

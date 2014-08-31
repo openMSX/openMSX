@@ -915,11 +915,6 @@ void VDP::executeCpuVramAccess(EmuTime::param time)
 	}
 }
 
-bool VDP::cpuAccessScheduled() const
-{
-	return pendingCpuAccess; // pendingSyncPoint(CPU_VRAM_ACCESS)
-}
-
 EmuTime VDP::getAccessSlot(EmuTime::param time, VDPAccessSlots::Delta delta) const
 {
 	return VDPAccessSlots::getAccessSlot(
@@ -1444,11 +1439,6 @@ void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 	// which affects the moment hscan occurs.
 	// TODO: Why didn't I implement this yet?
 	//       It's one line of code and overhead is not huge either.
-}
-
-void VDP::setExternalVideoSource(const RawFrame* externalSource)
-{
-	externalVideo = externalSource;
 }
 
 void VDP::update(const Setting& setting)

@@ -194,10 +194,6 @@ void HardwareConfig::testRemove() const
 	}
 }
 
-const FileContext& HardwareConfig::getFileContext() const
-{
-	return *context;
-}
 void HardwareConfig::setFileContext(unique_ptr<FileContext> context_)
 {
 	context = move(context_);

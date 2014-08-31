@@ -20,11 +20,6 @@ BaseSetting::BaseSetting(string_ref name_)
 {
 }
 
-const string& BaseSetting::getName() const
-{
-	return name;
-}
-
 void BaseSetting::info(TclObject& result) const
 {
 	result.addListElement(getTypeString());
@@ -146,11 +141,6 @@ void Setting::setDontSaveValue(const std::string& dontSaveValue_)
 	dontSaveValue = dontSaveValue_;
 }
 
-CommandController& Setting::getCommandController() const
-{
-	return commandController;
-}
-
 GlobalCommandController& Setting::getGlobalCommandController() const
 {
 	if (auto* globalCommandController =
@@ -180,11 +170,6 @@ void Setting::additionalInfo(TclObject& /*result*/) const
 void Setting::setRestoreValue(const string& value)
 {
 	restoreValue = value;
-}
-
-void Setting::setChecker(std::function<void(TclObject&)> checkFunc_)
-{
-	checkFunc = checkFunc_;
 }
 
 

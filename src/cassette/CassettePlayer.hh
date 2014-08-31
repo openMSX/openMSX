@@ -48,12 +48,12 @@ public:
 	enum State { PLAY, RECORD, STOP }; // public for serialization
 
 private:
-	State getState() const;
+	State getState() const { return state; }
 	std::string getStateString() const;
 	void setState(State newState, const Filename& newImage,
 	              EmuTime::param time);
 	void setImageName(const Filename& newImage);
-	const Filename& getImageName() const;
+	const Filename& getImageName() const { return casImage; }
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.

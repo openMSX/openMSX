@@ -14,7 +14,7 @@ class InterpreterOutput;
 class Completer : private noncopyable
 {
 public:
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 
 	/** Print help for this command.
 	  */
@@ -39,11 +39,11 @@ public:
 	                             const FileContext& context);
 
 	// should only be called by CommandConsole
-	static void setOutput(InterpreterOutput* output);
+	static void setOutput(InterpreterOutput* output_) { output = output_; }
 
 protected:
 	explicit Completer(string_ref name);
-	virtual ~Completer();
+	~Completer() {}
 
 private:
 	static bool equalHead(string_ref s1, string_ref s2, bool caseSensitive);

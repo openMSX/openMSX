@@ -770,22 +770,12 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	}
 }
 
-const DynamicClock& MSXMixer::getHostSampleClock() const
-{
-	return prevTime;
-}
-
 void MSXMixer::setRecorder(AviRecorder* newRecorder)
 {
 	if ((recorder != nullptr) != (newRecorder != nullptr)) {
 		setSynchronousMode(newRecorder != nullptr);
 	}
 	recorder = newRecorder;
-}
-
-unsigned MSXMixer::getSampleRate() const
-{
-	return hostSampleRate;
 }
 
 void MSXMixer::update(const Setting& setting)

@@ -26,10 +26,10 @@ public:
 
 	void loadSetting(const FileContext& context, string_ref filename);
 	void saveSetting(string_ref filename = "");
-	void setSaveSettings(bool save);
+	void setSaveSettings(bool save) { mustSaveSettings = save; }
 	void setSaveFilename(const FileContext& context, string_ref filename);
 
-	SettingsManager& getSettingsManager();
+	SettingsManager& getSettingsManager() { return *settingsManager; }
 	XMLElement& getXMLElement() { return xmlElement; }
 
 private:

@@ -23,7 +23,7 @@ protected:
 public:
 	/** Get the name of this setting.
 	  */
-	const std::string& getName() const;
+	const std::string& getName() const { return name; }
 
 	/** For SettingInfo
 	  */
@@ -128,7 +128,9 @@ public:
 	 * new value is the same as the current value. However the callback
 	 * is not immediately executed once it's set (via this method).
 	 */
-	void setChecker(std::function<void(TclObject&)> checkFunc);
+	void setChecker(std::function<void(TclObject&)> checkFunc_) {
+		checkFunc = checkFunc_;
+	}
 
 	// BaseSetting
 	virtual void setString(const std::string& value);
@@ -144,7 +146,7 @@ public:
 	virtual void setDontSaveValue(const std::string& dontSaveValue);
 
 	// convenience functions
-	CommandController& getCommandController() const;
+	CommandController& getCommandController() const { return commandController; }
 	Interpreter& getInterpreter() const;
 
 protected:

@@ -106,16 +106,6 @@ void SettingsConfig::saveSetting(string_ref filename)
 	file.write(data.data(), data.size());
 }
 
-void SettingsConfig::setSaveSettings(bool save)
-{
-	mustSaveSettings = save;
-}
-
-SettingsManager& SettingsConfig::getSettingsManager()
-{
-	return *settingsManager; // ***
-}
-
 
 // class SaveSettingsCommand
 

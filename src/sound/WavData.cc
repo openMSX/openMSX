@@ -49,29 +49,4 @@ WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFre
 	length = unsigned(audioCVT.len * audioCVT.len_ratio) / 2;
 }
 
-unsigned WavData::getFreq() const
-{
-	return freq;
-}
-
-unsigned WavData::getBits() const
-{
-	return bits;
-}
-
-unsigned WavData::getSize() const
-{
-	return length;
-}
-
-unsigned WavData::getChannels() const
-{
-	return channels;
-}
-
-const void* WavData::getData() const
-{
-	return buffer.data();
-}
-
 } // namespace openmsx

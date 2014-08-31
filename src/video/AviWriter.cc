@@ -223,11 +223,6 @@ AviWriter::~AviWriter()
 	}
 }
 
-void AviWriter::setFps(double fps_)
-{
-	fps = fps_;
-}
-
 void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned flags)
 {
 	struct {

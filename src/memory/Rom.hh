@@ -32,8 +32,8 @@ public:
 	unsigned getSize() const { return size; }
 
 	std::string getFilename() const;
-	const std::string& getName() const;
-	const std::string& getDescription() const;
+	const std::string& getName() const { return name; }
+	const std::string& getDescription() const { return description; }
 	const Sha1Sum& getOriginalSHA1() const;
 	const Sha1Sum& getPatchedSHA1() const;
 

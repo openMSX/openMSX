@@ -15,7 +15,7 @@ public:
 	bool canAdd(int base, int size);
 	void add(MSXDevice& device, int base, int size);
 	void remove(MSXDevice& device, int base, int size);
-	bool empty() const;
+	bool empty() const { return ranges.size() == 1; }
 	std::vector<MSXDevice*> getDevices() const;
 
 	// MSXDevice

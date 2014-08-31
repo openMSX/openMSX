@@ -38,7 +38,9 @@ public:
 
 	/** Returns the hardwareconfig this device belongs to.
 	  */
-	const HardwareConfig& getHardwareConfig() const;
+	const HardwareConfig& getHardwareConfig() const {
+		return deviceConfig.getHardwareConfig();
+	}
 
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
@@ -205,8 +207,12 @@ public:
 	/** Get the configuration section for this device.
 	  * This was passed as a constructor argument.
 	  */
-	const XMLElement& getDeviceConfig() const;
-	const DeviceConfig& getDeviceConfig2() const; // TODO
+	const XMLElement& getDeviceConfig() const {
+		return *deviceConfig.getXML();
+	}
+	const DeviceConfig& getDeviceConfig2() const { // TODO
+		return deviceConfig;
+	}
 
 	/** Get the device references that are specified for this device
 	 */

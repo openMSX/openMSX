@@ -12,13 +12,13 @@ class CassetteImage
 public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
 
-	virtual ~CassetteImage();
+	virtual ~CassetteImage() {}
 	virtual short getSampleAt(EmuTime::param time) = 0;
 	virtual EmuTime getEndTime() const = 0;
 	virtual unsigned getFrequency() const = 0;
 	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const = 0;
 
-	FileType getFirstFileType() const;
+	FileType getFirstFileType() const { return firstFileType; }
 	std::string getFirstFileTypeAsString() const;
 
 	/** Get sha1sum for this image.
@@ -32,7 +32,7 @@ public:
 
 protected:
 	CassetteImage();
-	void setFirstFileType(FileType type);
+	void setFirstFileType(FileType type) { firstFileType = type; }
 	void setSha1Sum(const Sha1Sum& sha1sum);
 
 private:

@@ -42,11 +42,6 @@ bool Schedulable::pendingSyncPoint(int userData) const
 	return scheduler.pendingSyncPoint(*this, userData);
 }
 
-Scheduler& Schedulable::getScheduler() const
-{
-	return scheduler;
-}
-
 EmuTime::param Schedulable::getCurrentTime() const
 {
 	return scheduler.getCurrentTime();

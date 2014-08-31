@@ -293,22 +293,6 @@ void I8251::writeTrans(byte value, EmuTime::param time)
 	}
 }
 
-ClockPin& I8251::getClockPin()
-{
-	return clock;
-}
-
-
-void I8251::setDataBits(DataBits bits)
-{
-	recvDataBits = bits;
-}
-
-void I8251::setStopBits(StopBits bits)
-{
-	recvStopBits = bits;
-}
-
 void I8251::setParityBit(bool enable, ParityBit parity)
 {
 	recvParityEnabled = enable;
@@ -333,10 +317,6 @@ void I8251::recvByte(byte value, EmuTime::param time)
 	}
 }
 
-bool I8251::isRecvReady()
-{
-	return recvReady;
-}
 bool I8251::isRecvEnabled()
 {
 	return (command & CMD_RXE) != 0;

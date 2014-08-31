@@ -31,13 +31,13 @@ public:
 	byte readIO(word port, EmuTime::param time);
 	byte peekIO(word port, EmuTime::param time) const;
 	void writeIO(word port, byte value, EmuTime::param time);
-	ClockPin& getClockPin();
-	bool isRecvReady();
+	ClockPin& getClockPin() { return clock; }
+	bool isRecvReady() { return recvReady; }
 	bool isRecvEnabled();
 
 	// SerialDataInterface
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
+	virtual void setDataBits(DataBits bits) { recvDataBits = bits; }
+	virtual void setStopBits(StopBits bits) { recvStopBits = bits; }
 	virtual void setParityBit(bool enable, ParityBit parity);
 	virtual void recvByte(byte value, EmuTime::param time);
 

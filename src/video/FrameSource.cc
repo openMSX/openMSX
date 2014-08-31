@@ -17,16 +17,6 @@ FrameSource::FrameSource(const SDL_PixelFormat& format)
 {
 }
 
-void FrameSource::init(FieldType fieldType_)
-{
-	fieldType = fieldType_;
-}
-
-void FrameSource::setHeight(unsigned height_)
-{
-	height = height_;
-}
-
 template <typename Pixel>
 const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* buf0) const
 {

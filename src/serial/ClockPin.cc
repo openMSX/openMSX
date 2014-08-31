@@ -64,11 +64,6 @@ bool ClockPin::getState(EmuTime::param time) const
 	}
 }
 
-bool ClockPin::isPeriodic() const
-{
-	return periodic;
-}
-
 EmuDuration::param ClockPin::getTotalDuration() const
 {
 	assert(periodic);

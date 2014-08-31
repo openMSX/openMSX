@@ -101,11 +101,6 @@ DiskChanger::~DiskChanger()
 	manipulator.unregisterDrive(*this);
 }
 
-const string& DiskChanger::getDriveName() const
-{
-	return driveName;
-}
-
 const DiskName& DiskChanger::getDiskName() const
 {
 	return disk->getName();
@@ -116,21 +111,6 @@ bool DiskChanger::diskChanged()
 	bool ret = diskChangedFlag;
 	diskChangedFlag = false;
 	return ret;
-}
-
-bool DiskChanger::peekDiskChanged() const
-{
-	return diskChangedFlag;
-}
-
-void DiskChanger::forceDiskChange()
-{
-	diskChangedFlag = true;
-}
-
-Disk& DiskChanger::getDisk()
-{
-	return *disk;
 }
 
 SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()

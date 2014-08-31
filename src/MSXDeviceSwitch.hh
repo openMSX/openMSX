@@ -61,7 +61,7 @@ public:
 	// (un)register methods for devices
 	void registerDevice(byte id, MSXSwitchedDevice* device);
 	void unregisterDevice(byte id);
-	bool hasRegisteredDevices() const;
+	bool hasRegisteredDevices() const { return count != 0; }
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

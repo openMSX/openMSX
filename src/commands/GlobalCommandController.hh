@@ -34,7 +34,7 @@ public:
 	                        Reactor& reactor);
 	~GlobalCommandController();
 
-	InfoCommand& getOpenMSXInfoCommand();
+	InfoCommand& getOpenMSXInfoCommand() { return *openMSXInfoCommand; }
 
 	/**
 	 * Executes all defined auto commands

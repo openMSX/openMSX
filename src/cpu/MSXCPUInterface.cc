@@ -771,12 +771,6 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-DummyDevice& MSXCPUInterface::getDummyDevice()
-{
-	return *dummyDevice;
-}
-
-
 void MSXCPUInterface::insertBreakPoint(const shared_ptr<BreakPoint>& bp)
 {
 	auto it = upper_bound(begin(breakPoints), end(breakPoints),
@@ -860,12 +854,6 @@ void MSXCPUInterface::removeWatchPoint(shared_ptr<WatchPoint> watchPoint)
 	}
 }
 
-const MSXCPUInterface::WatchPoints& MSXCPUInterface::getWatchPoints() const
-{
-	return watchPoints;
-}
-
-
 void MSXCPUInterface::setCondition(const shared_ptr<DebugCondition>& cond)
 {
 	conditions.push_back(cond);
@@ -876,12 +864,6 @@ void MSXCPUInterface::removeCondition(const DebugCondition& cond)
 	conditions.erase(find_if_unguarded(conditions,
 		[&](std::shared_ptr<DebugCondition>& e) { return e.get() == &cond; }));
 }
-
-const MSXCPUInterface::Conditions& MSXCPUInterface::getConditions()
-{
-	return conditions;
-}
-
 
 void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {

@@ -59,21 +59,6 @@ MSXCommandController::~MSXCommandController()
 	globalCommandController.getInterpreter().deleteNamespace(machineID);
 }
 
-GlobalCommandController& MSXCommandController::getGlobalCommandController()
-{
-	return globalCommandController;
-}
-
-InfoCommand& MSXCommandController::getMachineInfoCommand()
-{
-	return *machineInfoCommand;
-}
-
-MSXMotherBoard& MSXCommandController::getMSXMotherBoard() const
-{
-	return motherboard;
-}
-
 string MSXCommandController::getFullName(string_ref name)
 {
 	return "::" + machineID + "::" + name;

@@ -17,7 +17,7 @@ class WavWriter : private noncopyable
 public:
 	/** Returns false if there has been data written to the wav image.
 	 */
-	bool isEmpty() const;
+	bool isEmpty() const { return bytes == 0; }
 
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.

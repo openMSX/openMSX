@@ -42,9 +42,9 @@ public:
 	VideoSystem& getVideoSystem();
 
 	CliComm& getCliComm() const;
-	RenderSettings& getRenderSettings() const;
-	OSDGUI& getOSDGUI() const;
-	CommandConsole& getCommandConsole();
+	RenderSettings& getRenderSettings() const { return *renderSettings; }
+	OSDGUI& getOSDGUI() const { return *osdGui; }
+	CommandConsole& getCommandConsole() { return *commandConsole; }
 
 	/** Redraw the display.
 	  */

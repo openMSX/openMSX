@@ -16,7 +16,7 @@ public:
 
 	void addDevice(MSXDevice* device);
 	void removeDevice(MSXDevice* device);
-	Devices& getDevices();
+	Devices& getDevices() { return devices; }
 
 	// MSXDevice
 	virtual std::string getName() const;

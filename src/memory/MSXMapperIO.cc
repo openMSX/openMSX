@@ -95,11 +95,6 @@ void MSXMapperIO::writeIO(word port, byte value, EmuTime::param /*time*/)
 	write(port & 0x03, value);
 }
 
-byte MSXMapperIO::getSelectedPage(byte bank) const
-{
-	return registers[bank];
-}
-
 void MSXMapperIO::write(unsigned address, byte value)
 {
 	registers[address] = value;

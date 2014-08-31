@@ -49,26 +49,6 @@ NowindHost::~NowindHost()
 {
 }
 
-
-void NowindHost::setAllowOtherDiskroms(bool allow)
-{
-	allowOtherDiskroms = allow;
-}
-bool NowindHost::getAllowOtherDiskroms() const
-{
-	return allowOtherDiskroms;
-}
-
-void NowindHost::setEnablePhantomDrives(bool enable)
-{
-	enablePhantomDrives = enable;
-}
-bool NowindHost::getEnablePhantomDrives() const
-{
-	return enablePhantomDrives;
-}
-
-
 byte NowindHost::peek() const
 {
 	return isDataAvailable() ? hostToMsxFifo.front() : 0xFF;

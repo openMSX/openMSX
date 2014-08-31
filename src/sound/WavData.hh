@@ -35,11 +35,11 @@ public:
 		return *this;
 	}
 
-	unsigned getFreq() const;
-	unsigned getBits() const;
-	unsigned getSize() const;
-	unsigned getChannels() const;
-	const void* getData() const;
+	unsigned getFreq() const { return freq; }
+	unsigned getBits() const { return bits; }
+	unsigned getSize() const { return length; }
+	unsigned getChannels() const { return channels; }
+	const void* getData() const { return buffer.data(); }
 
 private:
 #if defined(_MSC_VER)

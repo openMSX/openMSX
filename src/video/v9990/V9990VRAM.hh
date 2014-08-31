@@ -82,7 +82,7 @@ public:
 	byte readVRAMCPU(unsigned address, EmuTime::param time);
 	void writeVRAMCPU(unsigned address, byte val, EmuTime::param time);
 
-	void setCmdEngine(V9990CmdEngine& cmdEngine);
+	void setCmdEngine(V9990CmdEngine& cmdEngine_) { cmdEngine = &cmdEngine_; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

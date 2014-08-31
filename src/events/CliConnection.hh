@@ -21,8 +21,12 @@ class CliConnection : public CliListener, private EventListener,
 public:
 	virtual ~CliConnection();
 
-	void setUpdateEnable(CliComm::UpdateType type, bool value);
-	bool getUpdateEnable(CliComm::UpdateType type) const;
+	void setUpdateEnable(CliComm::UpdateType type, bool value) {
+		updateEnabled[type] = value;
+	}
+	bool getUpdateEnable(CliComm::UpdateType type) const {
+		return updateEnabled[type];
+	}
 
 	/** Starts the helper thread.
 	  * Called when this CliConnection is added to GlobalCliComm (and

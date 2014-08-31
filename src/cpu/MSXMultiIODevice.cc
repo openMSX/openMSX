@@ -27,11 +27,6 @@ void MSXMultiIODevice::removeDevice(MSXDevice* device)
 	devices.erase(find_unguarded(devices, device));
 }
 
-MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
-{
-	return devices;
-}
-
 std::string MSXMultiIODevice::getName() const
 {
 	TclObject list;

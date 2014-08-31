@@ -20,15 +20,6 @@ Completer::Completer(string_ref name_)
 {
 }
 
-Completer::~Completer()
-{
-}
-
-const string& Completer::getName() const
-{
-	return name;
-}
-
 static bool formatHelper(const vector<string_ref>& input, size_t columnLimit,
                          vector<string>& result)
 {
@@ -179,11 +170,6 @@ void Completer::completeFileNameImpl(vector<string>& tokens,
 		// completed filename, start new token
 		tokens.emplace_back();
 	}
-}
-
-void Completer::setOutput(InterpreterOutput* output_)
-{
-	output = output_;
 }
 
 } // namespace openmsx

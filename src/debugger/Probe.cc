@@ -17,16 +17,6 @@ ProbeBase::~ProbeBase()
 	debugger.unregisterProbe(name, *this);
 }
 
-const std::string& ProbeBase::getName() const
-{
-	return name;
-}
-
-const std::string& ProbeBase::getDescription() const
-{
-	return description;
-}
-
 
 Probe<void>::Probe(Debugger& debugger, const std::string& name,
                    const std::string& description)

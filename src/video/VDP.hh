@@ -502,7 +502,9 @@ public:
 
 	/** Enable superimposing
 	  */
-	void setExternalVideoSource(const RawFrame* externalSource);
+	void setExternalVideoSource(const RawFrame* externalSource) {
+		externalVideo = externalSource;
+	}
 
 	/** Value of the cmdTiming setting, true means commands have infinite speed.
 	 */
@@ -527,7 +529,9 @@ public:
 		EmuTime::param time, EmuTime::param limit) const;
 
 	/** Is there a CPU-VRAM access scheduled. */
-	bool cpuAccessScheduled() const;
+	bool cpuAccessScheduled() const {
+		return pendingCpuAccess; // pendingSyncPoint(CPU_VRAM_ACCESS)
+	}
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

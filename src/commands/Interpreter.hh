@@ -21,7 +21,7 @@ public:
 	explicit Interpreter(EventDistributor& eventDistributor);
 	~Interpreter();
 
-	void setOutput(InterpreterOutput* output);
+	void setOutput(InterpreterOutput* output_) { output = output_; }
 
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);

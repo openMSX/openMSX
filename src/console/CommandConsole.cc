@@ -53,16 +53,6 @@ unsigned ConsoleLine::numChars() const
 	return unsigned(utf8::unchecked::size(line));
 }
 
-const string& ConsoleLine::str() const
-{
-	return line;
-}
-
-unsigned ConsoleLine::numChunks() const
-{
-	return unsigned(chunks.size());
-}
-
 unsigned ConsoleLine::chunkColor(unsigned i) const
 {
 	assert(i < chunks.size());
@@ -214,21 +204,11 @@ void CommandConsole::loadHistory()
 	}
 }
 
-BooleanSetting& CommandConsole::getConsoleSetting()
-{
-	return *consoleSetting;
-}
-
 void CommandConsole::getCursorPosition(unsigned& xPosition, unsigned& yPosition) const
 {
 	xPosition = cursorPosition % getColumns();
 	unsigned num = lines[0].numChars() / getColumns();
 	yPosition = num - (cursorPosition / getColumns());
-}
-
-unsigned CommandConsole::getScrollBack() const
-{
-	return consoleScrollBack;
 }
 
 ConsoleLine CommandConsole::getLine(unsigned line) const
@@ -381,26 +361,6 @@ bool CommandConsole::handleEvent(const KeyEvent& keyEvent)
 		// Skip CTRL-<X> combinations, but still return true.
 	}
 	return true;
-}
-
-void CommandConsole::setColumns(unsigned columns_)
-{
-	columns = columns_;
-}
-
-unsigned CommandConsole::getColumns() const
-{
-	return columns;
-}
-
-void CommandConsole::setRows(unsigned rows_)
-{
-	rows = rows_;
-}
-
-unsigned CommandConsole::getRows() const
-{
-	return rows;
 }
 
 void CommandConsole::output(string_ref text)

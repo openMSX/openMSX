@@ -386,13 +386,11 @@ void CommandLineParser::parse(int argc, char** argv)
 			"Error parsing command line: " + cmdLine.front() + "\n" +
 			"Use \"openmsx -h\" to see a list of available options" );
 	}
-
-	hiddenStartup = (parseStatus == CONTROL || parseStatus == TEST );
 }
 
 bool CommandLineParser::isHiddenStartup() const
 {
-	return hiddenStartup;
+	return (parseStatus == CONTROL) || (parseStatus == TEST);
 }
 
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const

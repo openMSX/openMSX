@@ -79,12 +79,6 @@ void RomBlocks<BANK_SIZE>::setUnmapped(byte region)
 }
 
 template <unsigned BANK_SIZE>
-void RomBlocks<BANK_SIZE>::setBlockMask(int mask)
-{
-	blockMask = mask;
-}
-
-template <unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
 {
 	extraMem = mem;

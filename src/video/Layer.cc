@@ -12,20 +12,10 @@ Layer::~Layer()
 {
 }
 
-void Layer::setCoverage(Coverage coverage_)
-{
-	coverage = coverage_;
-}
-
 void Layer::setZ(ZIndex z_)
 {
 	z = z_;
 	if (display) display->updateZ(*this);
-}
-
-void Layer::setDisplay(LayerListener& display_)
-{
-	display = &display_;
 }
 
 

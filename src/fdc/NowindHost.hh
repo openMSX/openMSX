@@ -34,11 +34,11 @@ public:
 	// time, usbhost can pass real time.
 	void write(byte value, unsigned time);
 
-	void setAllowOtherDiskroms(bool allow);
-	bool getAllowOtherDiskroms() const;
+	void setAllowOtherDiskroms(bool allow) { allowOtherDiskroms = allow; }
+	bool getAllowOtherDiskroms() const { return allowOtherDiskroms; }
 
-	void setEnablePhantomDrives(bool enable);
-	bool getEnablePhantomDrives() const;
+	void setEnablePhantomDrives(bool enable) { enablePhantomDrives = enable; }
+	bool getEnablePhantomDrives() const { return enablePhantomDrives; }
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -12,9 +12,9 @@ class RawTrack;
 class Disk : public SectorAccessibleDisk
 {
 public:
-	virtual ~Disk();
+	virtual ~Disk() {}
 
-	const DiskName& getName() const;
+	const DiskName& getName() const { return name; }
 
 	/** Replace a full track in this image with the given track. */
 	        void writeTrack(byte track, byte side, const RawTrack& input);
@@ -32,9 +32,9 @@ protected:
 	virtual void detectGeometry();
 	virtual void detectGeometryFallback();
 
-	void setSectorsPerTrack(unsigned num);
+	void setSectorsPerTrack(unsigned num) { sectorsPerTrack = num; }
 	unsigned getSectorsPerTrack();
-	void setNbSides(unsigned num);
+	void setNbSides(unsigned num) {	nbSides = num; }
 
 	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input) = 0;
 

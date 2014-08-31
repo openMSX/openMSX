@@ -30,7 +30,7 @@ public:
 
 	// output side
 	bool getState(EmuTime::param time) const;
-	bool isPeriodic() const;
+	bool isPeriodic() const { return periodic; }
 	EmuDuration::param getTotalDuration() const;
 	EmuDuration::param getHighDuration() const;
 	int getTicksBetween(EmuTime::param begin,

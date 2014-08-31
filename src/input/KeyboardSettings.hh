@@ -20,12 +20,24 @@ public:
 	~KeyboardSettings();
 
 	Keys::KeyCode getDeadkeyHostKey(unsigned n) const;
-	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() const;
-	EnumSetting<KpEnterMode>& getKpEnterMode() const;
-	EnumSetting<MappingMode>& getMappingMode() const;
-	BooleanSetting& getAlwaysEnableKeypad() const;
-	BooleanSetting& getTraceKeyPresses() const;
-	BooleanSetting& getAutoToggleCodeKanaLock() const;
+	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() const {
+		return *codeKanaHostKey;
+	}
+	EnumSetting<KpEnterMode>& getKpEnterMode() const {
+		return *kpEnterMode;
+	}
+	EnumSetting<MappingMode>& getMappingMode() const {
+		return *mappingMode;
+	}
+	BooleanSetting& getAlwaysEnableKeypad() const {
+		return *alwaysEnableKeypad;
+	}
+	BooleanSetting& getTraceKeyPresses() const {
+		return *traceKeyPresses;
+	}
+	BooleanSetting& getAutoToggleCodeKanaLock() const {
+		return *autoToggleCodeKanaLock;
+	}
 
 private:
 	std::unique_ptr<EnumSetting<Keys::KeyCode>> deadkeyHostKey[3];

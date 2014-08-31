@@ -35,11 +35,6 @@ TclCallback::~TclCallback()
 {
 }
 
-StringSetting& TclCallback::getSetting() const
-{
-	return callbackSetting;
-}
-
 string TclCallback::getValue() const
 {
 	return getSetting().getString();

@@ -37,7 +37,7 @@ class MSXWatchIODevice : public MSXMultiDevice
 public:
 	MSXWatchIODevice(const HardwareConfig& hwConf, WatchIO& watchIO);
 
-	MSXDevice*& getDevicePtr();
+	MSXDevice*& getDevicePtr() { return device; }
 
 private:
 	// MSXDevice

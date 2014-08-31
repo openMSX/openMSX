@@ -16,8 +16,8 @@ public:
 	BreakPoint(GlobalCliComm& CliComm, Interpreter& interp, word address,
 	           TclObject command, TclObject condition);
 
-	word getAddress() const;
-	unsigned getId() const;
+	word getAddress() const { return address; }
+	unsigned getId() const { return id; }
 
 private:
 	const unsigned id;

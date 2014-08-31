@@ -10,15 +10,6 @@ Disk::Disk(const DiskName& name_)
 {
 }
 
-Disk::~Disk()
-{
-}
-
-const DiskName& Disk::getName() const
-{
-	return name;
-}
-
 void Disk::writeTrack(byte track, byte side, const RawTrack& input)
 {
 	if (isWriteProtected()) {
@@ -68,20 +59,12 @@ void Disk::logToPhys(size_t log, byte& track, byte& side, byte& sector)
 	sector = byte((log % sectorsPerTrack) + 1);
 }
 
-void Disk::setSectorsPerTrack(unsigned num)
-{
-	sectorsPerTrack = num;
-}
 unsigned Disk::getSectorsPerTrack()
 {
 	if (!nbSides) {
 		detectGeometry();
 	}
 	return sectorsPerTrack;
-}
-void Disk::setNbSides(unsigned num)
-{
-	nbSides = num;
 }
 
 void Disk::detectGeometryFallback() // if all else fails, use statistics

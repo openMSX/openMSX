@@ -856,11 +856,6 @@ size_t OggReader::bisection(
 	}
 }
 
-size_t OggReader::getFrames() const
-{
-	return totalFrames;
-}
-
 size_t OggReader::findOffset(size_t frame, size_t sample)
 {
 	static const size_t STEP = 32 * 1024;

@@ -45,7 +45,7 @@ public:
 	 */
 	void uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len);
 
-	IntegerSetting& getMasterVolume() const;
+	IntegerSetting& getMasterVolume() const { return *masterVolume; }
 
 private:
 	void reloadDriver();

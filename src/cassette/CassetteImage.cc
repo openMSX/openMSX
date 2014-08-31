@@ -8,20 +8,6 @@ CassetteImage::CassetteImage()
 {
 }
 
-CassetteImage::~CassetteImage()
-{
-}
-
-CassetteImage::FileType CassetteImage::getFirstFileType() const
-{
-	return firstFileType;
-}
-
-void CassetteImage::setFirstFileType(FileType type)
-{
-	firstFileType = type;
-}
-
 std::string CassetteImage::getFirstFileTypeAsString() const
 {
 	if (firstFileType == ASCII) {

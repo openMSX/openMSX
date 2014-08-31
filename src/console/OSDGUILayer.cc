@@ -17,11 +17,6 @@ OSDGUILayer::~OSDGUILayer()
 	getGUI().getTopWidget().invalidateRecursive();
 }
 
-OSDGUI& OSDGUILayer::getGUI()
-{
-	return gui;
-}
-
 
 // class SDLOSDGUILayer
 

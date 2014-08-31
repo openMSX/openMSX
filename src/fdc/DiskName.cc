@@ -31,11 +31,6 @@ bool DiskName::empty() const
 	return name.empty() && extra.empty();
 }
 
-const Filename& DiskName::getFilename() const
-{
-	return name;
-}
-
 template<typename Archive>
 void DiskName::serialize(Archive& ar, unsigned /*version*/)
 {

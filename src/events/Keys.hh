@@ -314,7 +314,9 @@ const std::string getName(KeyCode keyCode);
 /**
  * Convenience method to create key combinations (hides ugly casts).
  */
-KeyCode combine(KeyCode key, KeyCode modifier);
+inline KeyCode combine(KeyCode key, KeyCode modifier) {
+	return static_cast<KeyCode>(int(key) | int(modifier));
+}
 
 } // namespace Keys
 } // namespace openmsx

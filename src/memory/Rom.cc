@@ -340,16 +340,6 @@ string Rom::getFilename() const
 	return file ? file->getURL() : "";
 }
 
-const string& Rom::getName() const
-{
-	return name;
-}
-
-const string& Rom::getDescription() const
-{
-	return description;
-}
-
 const Sha1Sum& Rom::getOriginalSHA1() const
 {
 	if (originalSha1.empty()) {

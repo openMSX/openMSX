@@ -135,11 +135,6 @@ void AmdFlash::setState(State newState)
 	motherBoard.getCPU().invalidateMemCache(0x0000, 0x10000);
 }
 
-unsigned AmdFlash::getSize() const
-{
-	return size;
-}
-
 byte AmdFlash::peek(unsigned address) const
 {
 	unsigned sector, sectorSize, offset;
@@ -315,11 +310,6 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 	return true;
 }
 
-
-void AmdFlash::setVppWpPinLow(bool value)
-{
-	vppWpPinLow = value;
-}
 
 static enum_string<AmdFlash::State> stateInfo[] = {
 	{ "IDLE",  AmdFlash::ST_IDLE  },

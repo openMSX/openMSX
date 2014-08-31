@@ -56,7 +56,7 @@ public:
 	/** Store pointer to Display.
 	  * Will be called by Display::addLayer().
 	  */
-	void setDisplay(LayerListener& display);
+	void setDisplay(LayerListener& display_) { display = &display_; }
 
 protected:
 	/** Construct a layer. */
@@ -64,7 +64,7 @@ protected:
 
 	/** Changes the current coverage of this layer.
 	  */
-	void setCoverage(Coverage coverage);
+	void setCoverage(Coverage coverage_) { coverage = coverage_; }
 
 	/** Changes the current Z-index of this layer.
 	  */

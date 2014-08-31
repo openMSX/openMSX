@@ -91,16 +91,6 @@ void StateChangeDistributor::stopReplay(EmuTime::param time)
 	}
 }
 
-void StateChangeDistributor::setViewOnlyMode(bool value)
-{
-	viewOnlyMode = value;
-}
-
-bool StateChangeDistributor::isViewOnlyMode() const
-{
-	return viewOnlyMode;
-}
-
 bool StateChangeDistributor::isReplaying() const
 {
 	if (recorder) {

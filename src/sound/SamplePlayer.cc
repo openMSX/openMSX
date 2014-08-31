@@ -62,11 +62,6 @@ void SamplePlayer::reset()
 	stopRepeat();
 }
 
-void SamplePlayer::stopRepeat()
-{
-	nextSampleNum = unsigned(-1);
-}
-
 void SamplePlayer::play(unsigned sampleNum)
 {
 	assert(sampleNum < samples.size());
@@ -107,11 +102,6 @@ void SamplePlayer::repeat(unsigned sampleNum)
 	if (!isPlaying()) {
 		doRepeat();
 	}
-}
-
-bool SamplePlayer::isPlaying() const
-{
-	return currentSampleNum != unsigned(-1);
 }
 
 inline int SamplePlayer::getSample(unsigned index)

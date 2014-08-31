@@ -160,21 +160,6 @@ CliComm& Display::getCliComm() const
 	return reactor.getCliComm();
 }
 
-RenderSettings& Display::getRenderSettings() const
-{
-	return *renderSettings;
-}
-
-OSDGUI& Display::getOSDGUI() const
-{
-	return *osdGui;
-}
-
-CommandConsole& Display::getCommandConsole()
-{
-	return *commandConsole;
-}
-
 void Display::attach(VideoSystemChangeListener& listener)
 {
 	assert(!contains(listeners, &listener));

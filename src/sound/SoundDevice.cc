@@ -68,16 +68,6 @@ SoundDevice::~SoundDevice()
 {
 }
 
-const std::string& SoundDevice::getName() const
-{
-	return name;
-}
-
-const std::string& SoundDevice::getDescription() const
-{
-	return description;
-}
-
 bool SoundDevice::isStereo() const
 {
 	return stereo == 2 || !balanceCenter;
@@ -138,11 +128,6 @@ void SoundDevice::unregisterSound()
 void SoundDevice::updateStream(EmuTime::param time)
 {
 	mixer.updateStream(time);
-}
-
-void SoundDevice::setInputRate(unsigned sampleRate)
-{
-	inputSampleRate = sampleRate;
 }
 
 void SoundDevice::recordChannel(unsigned channel, const Filename& filename)

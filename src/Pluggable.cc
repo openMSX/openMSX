@@ -13,10 +13,6 @@ Pluggable::Pluggable()
 	setConnector(nullptr);
 }
 
-Pluggable::~Pluggable()
-{
-}
-
 const string& Pluggable::getName() const
 {
 	static const string name("--empty--");
@@ -43,16 +39,6 @@ void Pluggable::unplug(EmuTime::param time)
 		UNREACHABLE;
 	}
 	setConnector(nullptr);
-}
-
-Connector* Pluggable::getConnector() const
-{
-	return connector;
-}
-
-void Pluggable::setConnector(Connector* conn)
-{
-	connector = conn;
 }
 
 } // namespace openmsx

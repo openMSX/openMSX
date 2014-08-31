@@ -21,11 +21,6 @@ Connector::~Connector()
 	pluggingController.unregisterConnector(*this);
 }
 
-const std::string& Connector::getName() const
-{
-	return name;
-}
-
 void Connector::plug(Pluggable& device, EmuTime::param time)
 {
 	device.plug(*this, time);
@@ -36,11 +31,6 @@ void Connector::unplug(EmuTime::param time)
 {
 	plugged->unplug(time);
 	plugged = dummy.get();
-}
-
-Pluggable& Connector::getPlugged() const
-{
-	return *plugged;
 }
 
 template<typename Archive>

@@ -155,11 +155,6 @@ void Mixer::muteHelper()
 	}
 }
 
-IntegerSetting& Mixer::getMasterVolume() const
-{
-	return *masterVolume;
-}
-
 void Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 {
 	// can only handle one MSXMixer ATM

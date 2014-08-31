@@ -35,11 +35,6 @@ void ThrottleManager::updateStatus()
 	}
 }
 
-bool ThrottleManager::isThrottled() const
-{
-	return throttle;
-}
-
 void ThrottleManager::indicateLoadingState(bool state)
 {
 	if (state) {
