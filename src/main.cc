@@ -123,6 +123,8 @@ static int main(int argc, char **argv)
 			));
 #endif
 
+		initializeSDL();
+
 		Thread::setMainThread();
 		Reactor reactor;
 #ifdef _WIN32
@@ -134,7 +136,6 @@ static int main(int argc, char **argv)
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
 		if (parseStatus != CommandLineParser::EXIT) {
-			initializeSDL();
 			if (!parser.isHiddenStartup()) {
 				auto& render = reactor.getDisplay().getRenderSettings(). getRenderer();
 				render.setString(render.getRestoreValue());
