@@ -99,6 +99,66 @@ static const int16_t slotsText[47 + 10] = {
 	1368+42, 1368+50, 1368+58, 1368+66, 1368+166,
 };
 
+
+// TMS9918 (MSX1) cycle numbers translated to V99x8 cycles (multiplied by 4).
+// MSX1 screen off.
+static const int16_t slotsMsx1ScreenOff[107 + 18] = {
+	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
+	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
+	 164,  172,  180,  188,  196,  204,  220,  236,  252,  268,
+	 284,  300,  316,  332,  348,  364,  380,  396,  412,  428,
+	 444,  460,  476,  492,  508,  524,  540,  556,  572,  588,
+	 604,  620,  636,  652,  668,  684,  700,  716,  732,  748,
+	 764,  780,  796,  812,  828,  844,  860,  876,  892,  908,
+	 924,  940,  956,  972,  988, 1004, 1020, 1036, 1052, 1068,
+	1084, 1100, 1116, 1132, 1148, 1164, 1180, 1196, 1212, 1228,
+	1236, 1244, 1252, 1260, 1268, 1276, 1284, 1292, 1300, 1308,
+	1316, 1324, 1332, 1340, 1348, 1356, 1364,
+	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+ 36,
+	1368+ 44, 1368+ 52, 1368+ 60, 1368+ 68, 1368+ 76,
+	1368+ 84, 1368+ 92, 1368+100, 1368+108, 1368+116,
+	1368+124, 1368+132, 1368+140,
+};
+
+// MSX1 graphic mode 1 and 2 (aka screen 1 and 2).
+static const int16_t slotsMsx1Gfx12[19 + 8] = {
+	   4,   12,   20,   28,  116,  124,  132,  140,  220,  348,
+	 476,  604,  732,  860,  988, 1116, 1236, 1244, 1364,
+	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+116,
+	1368+124, 1368+132, 1368+140,
+};
+
+// MSX1 graphic mode 3 (aka screen 3).
+static const int16_t slotsMsx1Gfx3[51 + 8] = {
+	   4,   12,   20,   28,  116,  124,  132,  140,  220,  228,
+	 260,  292,  324,  348,  356,  388,  420,  452,  476,  484,
+	 516,  548,  580,  604,  612,  644,  676,  708,  732,  740,
+	 772,  804,  836,  860,  868,  900,  932,  964,  988,  996,
+	1028, 1060, 1092, 1116, 1124, 1156, 1188, 1220, 1236, 1244,
+	1364,
+	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+116,
+	1368+124, 1368+132, 1368+140,
+};
+
+
+// MSX1 text mode 1 (aka screen 0 width 40).
+static const int16_t slotsMsx1Text[91 + 18] = {
+	   4,   12,   20,   28,   36,   44,   52,   60,   68,   76,
+	  84,   92,  100,  108,  116,  124,  132,  140,  148,  156,
+	 164,  172,  180,  188,  196,  204,  212,  220,  228,  244,
+	 268,  292,  316,  340,  364,  388,  412,  436,  460,  484,
+	 508,  532,  556,  580,  604,  628,  652,  676,  700,  724,
+	 748,  772,  796,  820,  844,  868,  892,  916,  940,  964,
+	 988, 1012, 1036, 1060, 1084, 1108, 1132, 1156, 1180, 1196,
+	1204, 1212, 1220, 1228, 1236, 1244, 1252, 1260, 1268, 1276,
+	1284, 1292, 1300, 1308, 1316, 1324, 1332, 1340, 1348, 1356,
+	1364,
+	1368+  4, 1368+ 12, 1368+ 20, 1368+ 28, 1368+ 36,
+	1368+ 44, 1368+ 52, 1368+ 60, 1368+ 68, 1368+ 76,
+	1368+ 84, 1368+ 92, 1368+100, 1368+108, 1368+116,
+	1368+124, 1368+132, 1368+140,
+};
+
 // Derived data from the tables above.
 static uint8_t tabSpritesOn     [NUM_DELTAS * TICKS];
 static uint8_t tabSpritesOff    [NUM_DELTAS * TICKS];
@@ -106,9 +166,13 @@ static uint8_t tabCharSpritesOn [NUM_DELTAS * TICKS];
 static uint8_t tabCharSpritesOff[NUM_DELTAS * TICKS];
 static uint8_t tabText          [NUM_DELTAS * TICKS];
 static uint8_t tabScreenOff     [NUM_DELTAS * TICKS];
+static uint8_t tabMsx1Gfx12     [NUM_DELTAS * TICKS];
+static uint8_t tabMsx1Gfx3      [NUM_DELTAS * TICKS];
+static uint8_t tabMsx1Text      [NUM_DELTAS * TICKS];
+static uint8_t tabMsx1ScreenOff [NUM_DELTAS * TICKS];
 static uint8_t tabBroken        [NUM_DELTAS * TICKS];
 
-static void initTable(const int16_t* slots, uint8_t* output)
+static void initTable(bool msx1, const int16_t* slots, uint8_t* output)
 {
 	// !!! Keep this in sync with the 'Delta' enum !!!
 	static const int delta[NUM_DELTAS] = {
@@ -122,7 +186,11 @@ static void initTable(const int16_t* slots, uint8_t* output)
 			if ((slots[p] - i) < step) ++p;
 			assert((slots[p] - i) >= step);
 			unsigned t = slots[p] - i;
-			assert(t < 256);
+			if (msx1) {
+				if (step <= 40) assert(t < 256);
+			} else {
+				assert(t < 256);
+			}
 			*output++ = t;
 		}
 	}
@@ -133,12 +201,16 @@ void initTables()
 	if (init) return;
 	init = true;
 
-	initTable(slotsSpritesOn,      tabSpritesOn);
-	initTable(slotsSpritesOff,     tabSpritesOff);
-	initTable(slotsCharSpritesOn,  tabCharSpritesOn);
-	initTable(slotsCharSpritesOff, tabCharSpritesOff);
-	initTable(slotsText,           tabText);
-	initTable(slotsScreenOff,      tabScreenOff);
+	initTable(false, slotsSpritesOn,      tabSpritesOn);
+	initTable(false, slotsSpritesOff,     tabSpritesOff);
+	initTable(false, slotsCharSpritesOn,  tabCharSpritesOn);
+	initTable(false, slotsCharSpritesOff, tabCharSpritesOff);
+	initTable(false, slotsText,           tabText);
+	initTable(false, slotsScreenOff,      tabScreenOff);
+	initTable(true,  slotsMsx1Gfx12,      tabMsx1Gfx12);
+	initTable(true,  slotsMsx1Gfx3,       tabMsx1Gfx3);
+	initTable(true,  slotsMsx1Text,       tabMsx1Text);
+	initTable(true,  slotsMsx1ScreenOff,  tabMsx1ScreenOff);
 	for (int i = 0; i < NUM_DELTAS * TICKS; ++i) {
 		tabBroken[i] = 0;
 	}
@@ -147,17 +219,27 @@ void initTables()
 static inline const uint8_t* getTab(const VDP& vdp)
 {
 	if (vdp.getBrokenCmdTiming()) return tabBroken;
-	if (!vdp.isDisplayEnabled())  return tabScreenOff;
-
+	bool enabled = vdp.isDisplayEnabled();
 	bool sprites = vdp.spritesEnabledRegister();
 	auto mode    = vdp.getDisplayMode();
 	bool bitmap  = mode.isBitmapMode();
 	bool text    = mode.isTextMode();
-	return bitmap ? (sprites ? tabSpritesOn
-	                         : tabSpritesOff)
-	              : (text ? tabText
-	                      : (sprites ? tabCharSpritesOn
-	                                 : tabCharSpritesOff));
+	bool gfx3    = mode.getBase() == DisplayMode::GRAPHIC3;
+
+	if (vdp.isMSX1VDP()) {
+		if (!enabled) return tabMsx1ScreenOff;
+		return text ? tabMsx1Text
+		            : (gfx3 ? tabMsx1Gfx3
+		                    : tabMsx1Gfx12);
+		// TODO undocumented modes
+	} else {
+		if (!enabled) return tabScreenOff;
+		return bitmap ? (sprites ? tabSpritesOn
+		                         : tabSpritesOff)
+		              : (text ? tabText
+		                      : (sprites ? tabCharSpritesOn
+		                                 : tabCharSpritesOff));
+	}
 }
 
 EmuTime getAccessSlot(

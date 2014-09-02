@@ -852,9 +852,14 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 	} else {
+		// TODO how many extra cycles on TMS99x8?
+		//  To be on the save side, I picked 10 cycles, translated to
+		//  V99x8 that's x4 = 40cycles.
+		// See doc/internal/vdp-vram-timing/vdp-timing-2.html for details.
 		pendingCpuAccess = true;
-		setSyncPoint(getAccessSlot(time, VDPAccessSlots::DELTA_16),
-		             CPU_VRAM_ACCESS);
+		auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_40
+		                         : VDPAccessSlots::DELTA_16;
+		setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
 	}
 }
 
