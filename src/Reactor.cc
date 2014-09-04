@@ -543,7 +543,7 @@ void Reactor::run(CommandLineParser& parser)
 			// to also use a sleep/poll loop, with even shorter
 			// sleep periods as we use here. Maybe in future
 			// SDL implementations this will be improved.
-			eventDistributor->sleep(100 * 1000);
+			eventDistributor->sleep(20 * 1000);
 		}
 	}
 }
