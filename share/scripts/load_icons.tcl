@@ -35,11 +35,12 @@ proc trace_icon_status {name1 name2 op} {
 	variable last_change
 	global $name1
 	set icon [string trimleft $name1 ":"]
-	set last_change($icon) [openmsx_info realtime]
-	redraw_osd_icons $icon
+	set now [openmsx_info realtime]
+	set last_change($icon) $now
+	redraw_osd_icons $icon $now
 }
 
-proc redraw_osd_icons {icon} {
+proc redraw_osd_icons {icon now} {
 	variable last_change
 	variable current_fade_delay_active
 	variable current_fade_delay_non_active
@@ -60,21 +61,22 @@ proc redraw_osd_icons {icon} {
 	}
 	osd configure $widget2 -fadeCurrent 0 -fadeTarget 0
 
+	catch {after cancel $fade_id($icon)}
 	if {$fade_delay == 0} {
-		# no fading yet
+		# remains permanently visible (no fading)
 		osd configure $widget -fadeCurrent 1 -fadeTarget 1
 	} else {
-		set diff [expr {[openmsx_info realtime] - $last_change($icon)}]
-		if {$diff < $fade_delay} {
-			# no fading yet
+		set target [expr {$last_change($icon) + $fade_delay}] ;# at this time we start fading out
+		set remaining [expr {$target - $now}] ;# time remaining from now to target
+		set cmd "osd configure $widget -fadeTarget 0"
+		if {$remaining > 0} {
+			# before target time, no fading yet (still fully visible)
 			osd configure $widget -fadeCurrent 1 -fadeTarget 1
-			catch {
-				after cancel $fade_id($icon)
-			}
-			set fade_id($icon) [after realtime [expr {$fade_delay - $diff}] "load_icons::redraw_osd_icons $icon"]
+			# schedule fade-out in the future
+			set fade_id($icon) [after realtime $remaining $cmd]
 		} else {
-			# fading out
-			osd configure $widget -fadeTarget 0
+			# already after target, fade-out now
+			eval $cmd
 		}
 	}
 }
@@ -249,10 +251,10 @@ proc load_icons {{set_name "-show"} {position_param "default"}} {
 	}
 
 	# Force redrawing of all icons
+	set now [openmsx_info realtime]
 	foreach icon $icon_list {
-		redraw_osd_icons $icon
+		redraw_osd_icons $icon $now
 	}
-
 	return ""
 }
 
@@ -272,10 +274,11 @@ proc trace_osd_icon_vars {name1 name2 op} {
 proc machine_switch_osd_icons {} {
 	variable icon_list
 
+	set now [openmsx_info realtime]
 	foreach icon $icon_list {
 		trace remove variable ::$icon "write unset" [namespace code trace_icon_status]
 		trace add    variable ::$icon "write unset" [namespace code trace_icon_status]
-		redraw_osd_icons $icon
+		redraw_osd_icons $icon $now
 	}
 	after machine_switch [namespace code machine_switch_osd_icons]
 }
@@ -286,12 +289,13 @@ set icon_list [list "led_power" "led_caps" "led_kana" "led_pause" "led_turbo" "l
 
 # create OSD widgets
 osd create rectangle osd_icons -scaled true -alpha 0 -z 1
+set now [openmsx_info realtime]
 foreach icon $icon_list {
 	variable last_change
 	osd create rectangle osd_icons.${icon}_on  -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	osd create rectangle osd_icons.${icon}_off -fadeCurrent 0 -fadeTarget 0 -fadePeriod 5.0
 	trace add variable ::$icon "write unset" load_icons::trace_icon_status
-	set last_change($icon) [openmsx_info realtime]
+	set last_change($icon) $now
 }
 
 namespace export load_icons
@@ -302,7 +306,7 @@ namespace import load_icons::*
 
 # Restore settings from previous session
 # default is set1, but if only scale_factor 1 is supported, use handheld
-if {[lindex [lindex [openmsx_info setting scale_factor] 2] 1] == 1} {
+if {[lindex [openmsx_info setting scale_factor] 2 1] == 1} {
 	user_setting create string osd_leds_set "Name of the OSD icon set" "handheld"
 } else {
 	user_setting create string osd_leds_set "Name of the OSD icon set" "set1"

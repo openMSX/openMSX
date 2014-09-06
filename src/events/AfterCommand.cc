@@ -626,8 +626,11 @@ string AfterRealTimeCmd::getType() const
 
 void AfterRealTimeCmd::executeRT()
 {
+	// Remove self before executing, but keep self alive till the end of
+	// this method. Otherwise execute could execute 'after cancel ..' and
+	// removeSelf() asserts that it can't find itself anymore.
+	auto self = removeSelf();
 	execute();
-	removeSelf();
 }
 
 } // namespace openmsx
