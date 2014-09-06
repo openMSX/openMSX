@@ -67,22 +67,11 @@ private:
 
 CliConnection::CliConnection(CommandController& commandController_,
                              EventDistributor& eventDistributor_)
-	: thread(this)
+	: parser([this](const std::string& cmd) { execute(cmd); })
+	, thread(this)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 {
-	user_data.state = START;
-	user_data.unknownLevel = 0;
-	user_data.object = this;
-	memset(&sax_handler, 0, sizeof(sax_handler));
-	sax_handler.startElementNs = cb_start_element;
-	sax_handler.endElementNs   = cb_end_element;
-	sax_handler.characters     = cb_text;
-	sax_handler.initialized    = XML_SAX2_MAGIC;
-
-	parser_context = xmlCreatePushParserCtxt(
-		&sax_handler, &user_data, nullptr, 0, nullptr);
-
 	for (auto& en : updateEnabled) {
 		en = false;
 	}
@@ -93,7 +82,6 @@ CliConnection::CliConnection(CommandController& commandController_,
 CliConnection::~CliConnection()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
-	xmlFreeParserCtxt(parser_context);
 }
 
 void CliConnection::log(CliComm::LogLevel level, string_ref message)
@@ -170,75 +158,6 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 	return 0;
 }
 
-void CliConnection::cb_start_element(
-	void* user_data,
-	const xmlChar* localname, const xmlChar* /*prefix*/, const xmlChar* /*uri*/,
-	int /*nb_namespaces*/, const xmlChar** /*namespaces*/,
-	int /*nb_attributes*/, int /*nb_defaulted*/, const xmlChar** /*attrs*/
-	)
-{
-	auto parseState = static_cast<ParseState*>(user_data);
-	if (parseState->unknownLevel) {
-		++(parseState->unknownLevel);
-		return;
-	}
-	switch (parseState->state) {
-		case START:
-			if (strcmp(reinterpret_cast<const char*>(localname),
-					"openmsx-control") == 0) {
-				parseState->state = TAG_OPENMSX;
-			} else {
-				++(parseState->unknownLevel);
-			}
-			break;
-		case TAG_OPENMSX:
-			if (strcmp(reinterpret_cast<const char*>(localname),
-					"command") == 0) {
-				parseState->state = TAG_COMMAND;
-			} else {
-				++(parseState->unknownLevel);
-			}
-			break;
-		default:
-			++(parseState->unknownLevel);
-			break;
-	}
-	parseState->content.clear();
-}
-
-void CliConnection::cb_end_element(
-	void* user_data,
-	const xmlChar* /*localname*/, const xmlChar* /*prefix*/,
-	const xmlChar* /*uri*/
-	)
-{
-	auto parseState = static_cast<ParseState*>(user_data);
-	if (parseState->unknownLevel) {
-		--(parseState->unknownLevel);
-		return;
-	}
-	switch (parseState->state) {
-		case TAG_OPENMSX:
-			parseState->object->end();
-			parseState->state = END;
-			break;
-		case TAG_COMMAND:
-			parseState->object->execute(parseState->content);
-			parseState->state = TAG_OPENMSX;
-			break;
-		default:
-			break;
-	}
-}
-
-void CliConnection::cb_text(void* user_data, const xmlChar* chars, int len)
-{
-	auto parseState = static_cast<ParseState*>(user_data);
-	if (parseState->state == TAG_COMMAND) {
-		parseState->content.append(reinterpret_cast<const char*>(chars), len);
-	}
-}
-
 
 // class StdioConnection
 
@@ -263,7 +182,7 @@ void StdioConnection::run()
 		char buf[BUF_SIZE];
 		int n = read(STDIN_FILENO, buf, sizeof(buf));
 		if (n > 0) {
-			xmlParseChunk(parser_context, buf, n, 0);
+			parser.parse(buf, n);
 		} else if (n < 0) {
 			close();
 			break;
@@ -438,7 +357,7 @@ void SocketConnection::run()
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
-			xmlParseChunk(parser_context, buf, n, 0);
+			parser.parse(buf, n);
 		} else if (n < 0) {
 			close();
 			break;

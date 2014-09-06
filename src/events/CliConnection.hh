@@ -7,7 +7,7 @@
 #include "EventListener.hh"
 #include "Socket.hh"
 #include "CliComm.hh"
-#include <libxml/parser.h>
+#include "AdhocCliCommParser.hh"
 #include <string>
 
 namespace openmsx {
@@ -59,7 +59,7 @@ protected:
 	  */
 	void startOutput();
 
-	xmlParserCtxt* parser_context;
+	AdhocCliCommParser parser;
 	Thread thread; // TODO: Possible to make this private?
 
 private:
@@ -72,28 +72,6 @@ private:
 
 	// EventListener
 	virtual int signalEvent(const std::shared_ptr<const Event>& event);
-
-	enum State {
-		START, TAG_OPENMSX, TAG_COMMAND, END
-	};
-	struct ParseState {
-		State state;
-		unsigned unknownLevel;
-		std::string content;
-		CliConnection* object;
-	};
-
-	static void cb_start_element(void* user_data, const xmlChar* localname,
-	                             const xmlChar* prefix, const xmlChar* uri,
-	                             int nb_namespaces, const xmlChar** namespaces,
-	                             int nb_attributes, int nb_defaulted,
-	                             const xmlChar** attrs);
-	static void cb_end_element(void* user_data, const xmlChar* localname,
-	                           const xmlChar* prefix, const xmlChar* uri);
-	static void cb_text(void* user_data, const xmlChar* chars, int len);
-
-	xmlSAXHandler sax_handler;
-	ParseState user_data;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
