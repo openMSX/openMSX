@@ -326,6 +326,7 @@ variable overlay_counter
 variable prev_x 0
 variable prev_y 0
 variable overlayOffset
+variable invisibleTime +inf ;# bar is invisble past this time, +inf means it's permanently visible
 
 set_help_text toggle_reversebar \
 {Enable/disable an on-screen reverse bar.
@@ -416,6 +417,8 @@ proc update_reversebar2 {} {
 	catch {lassign [osd info "reverse.int" -mousecoord] x y}
 	set mouseInside [expr {0 <= $x && $x <= 1 && 0 <= $y && $y <= 1}]
 
+	variable invisibleTime
+	set now [openmsx_info realtime]
 	switch [dict get $stats status] {
 		"disabled" {
 			disable_reversebar
@@ -425,16 +428,26 @@ proc update_reversebar2 {} {
 			osd configure reverse -fadeTarget 1.0 -fadeCurrent 1.0
 			osd configure reverse.int.bar \
 				-rgba "0x0044aaa0 0x2266dda0 0x0055cca0 0x55eeffa0"
+			set invisibleTime +inf
 		}
 		"enabled" {
 			osd configure reverse.int.bar \
 				-rgba "0xff4400a0 0xdd3300a0 0xbb2200a0 0xcccc11a0"
 			if {$mouseInside || $::reversebar_fadeout_time == 0.0} {
 				osd configure reverse -fadePeriod 0.5 -fadeTarget 1.0
+				set invisibleTime +inf
 			} else {
 				osd configure reverse -fadePeriod $::reversebar_fadeout_time -fadeTarget 0.0
+				if {$invisibleTime == +inf} {
+					set invisibleTime [expr {$now + $::reversebar_fadeout_time}]
+				}
 			}
 		}
+	}
+	if {$now > $invisibleTime} {
+		# Optimization: reverse bar is completely faded out,
+		#  don't bother keeping it up to date.
+		return
 	}
 
 	set snapshots [dict get $stats snapshots]
