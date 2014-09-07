@@ -279,7 +279,7 @@ void PipeConnection::run()
 			if (!GetOverlappedResult(pipeHandle, &overlapped, &bytesRead, TRUE)) {
 				break; // Pipe broke
 			}
-			xmlParseChunk(parser_context, buf, bytesRead, 0);
+			parser.parse(buf, bytesRead);
 		}
 		else if (wait == WAIT_OBJECT_0) {
 			break; // Shutdown
