@@ -153,6 +153,7 @@ private:
 	const std::unique_ptr<FileBase> file;
 
 	FilePool* filepool;
+	Sha1Sum cachedSha1;
 };
 
 } // namespace openmsx

@@ -73,6 +73,7 @@ void File::read(void* buffer, size_t num)
 void File::write(const void* buffer, size_t num)
 {
 	if (filepool) {
+		cachedSha1.clear();
 		filepool->removeSha1Sum(*this);
 	}
 	file->write(buffer, num);
@@ -142,7 +143,10 @@ time_t File::getModificationDate()
 Sha1Sum File::getSha1Sum()
 {
 	assert(filepool); // must be set
-	return filepool->getSha1Sum(*this);
+	if (cachedSha1.empty()) {
+		cachedSha1 = filepool->getSha1Sum(*this);
+	}
+	return cachedSha1;
 }
 
 void File::setFilePool(FilePool& filepool_)
