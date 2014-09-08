@@ -74,7 +74,7 @@ private:
 	Reactor& reactor;
 
 	typedef std::vector<std::pair<Priority, EventListener*>> PriorityMap;
-	std::vector<PriorityMap> listeners; // indexed by EventType
+	PriorityMap listeners[NUM_EVENT_TYPES];
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

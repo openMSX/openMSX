@@ -17,7 +17,6 @@ namespace openmsx {
 
 EventDistributor::EventDistributor(Reactor& reactor_)
 	: reactor(reactor_)
-	, listeners(NUM_EVENT_TYPES)
 	, sem(1)
 {
 }
