@@ -142,8 +142,8 @@ void AdhocCliCommParser::parse(char c)
 		} else {
 			unicode *= 16;
 			if      (('0' <= c) && (c <= '9')) unicode += c - '0';
-			else if (('a' <= c) && (c <= 'f')) unicode += c - 'a';
-			else if (('A' <= c) && (c <= 'F')) unicode += c - 'A';
+			else if (('a' <= c) && (c <= 'f')) unicode += c - 'a' + 10;
+			else if (('A' <= c) && (c <= 'F')) unicode += c - 'A' + 10;
 			else state = O0;
 		}
 		break;
