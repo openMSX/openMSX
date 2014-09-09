@@ -376,7 +376,7 @@ void WD2793::schedule(FSMState state, EmuTime::param time)
 
 void WD2793::executeUntil(EmuTime::param time, int userData)
 {
-	assert(userData == SCHED_FSM);
+	assert(userData == SCHED_FSM); (void)userData;
 	FSMState state = fsmState;
 	fsmState = FSM_NONE;
 	switch (state) {
