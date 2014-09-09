@@ -820,11 +820,11 @@ private:
 
 	/** Manages vertical scanning interrupt request.
 	  */
-	IRQHelper irqVertical;
+	OptionalIRQHelper irqVertical;
 
 	/** Manages horizontal scanning interrupt request.
 	  */
-	IRQHelper irqHorizontal;
+	OptionalIRQHelper irqHorizontal;
 
 	/** Time of last set DISPLAY_START sync point.
 	  */

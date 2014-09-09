@@ -2,13 +2,16 @@
 #define IRQHELPER_HH
 
 #include "Probe.hh"
+#include "MSXMotherBoard.hh"
 #include "noncopyable.hh"
+#include "serialize.hh"
 #include <string>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPU;
+class DeviceConfig;
 
 /** Helper class for doing interrupt request (IRQ) administration.
   * IRQ is either enabled or disabled; when enabled it contributes
@@ -28,31 +31,17 @@ private:
 	MSXCPU& cpu;
 };
 
-// policy class for NMI source
-class NMISource
+// supports <optional_irq> tag in hardware config
+class OptionalIRQ
 {
 protected:
-	explicit NMISource(MSXCPU& cpu);
+	OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config);
 	void raise();
 	void lower();
 private:
-	MSXCPU& cpu;
+	MSXCPU* const cpu;
 };
 
-// policy class that can dynamically switch between IRQ and NMI
-class DynamicSource
-{
-public:
-	enum IntType { IRQ, NMI };
-	void setIntType(IntType type_) { type = type_; }
-protected:
-	explicit DynamicSource(MSXCPU& cpu);
-	void raise();
-	void lower();
-private:
-	MSXCPU& cpu;
-	IntType type;
-};
 
 // generic implementation
 template <typename SOURCE> class IntHelper : public SOURCE, private noncopyable
@@ -61,7 +50,19 @@ public:
 	/** Create a new IntHelper.
 	  * Initially there is no interrupt request on the bus.
 	  */
-	explicit IntHelper(MSXMotherBoard& motherboard, const std::string& name);
+	IntHelper(MSXMotherBoard& motherboard, const std::string& name)
+		: SOURCE(motherboard.getCPU())
+		, request(motherboard.getDebugger(), name,
+		          "Outgoing IRQ signal.", false)
+	{
+	}
+	IntHelper(MSXMotherBoard& motherboard, const std::string& name,
+	          const DeviceConfig& config)
+		: SOURCE(motherboard.getCPU(), config)
+		, request(motherboard.getDebugger(), name,
+		          "Outgoing IRQ signal.", false)
+	{
+	}
 
 	/** Destroy this IntHelper.
 	  * Resets interrupt request if it is active.
@@ -96,7 +97,18 @@ public:
 	}
 
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/);
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		bool pending = request;
+		ar.serialize("pending", pending);
+		if (ar.isLoader()) {
+			if (pending) {
+				set();
+			} else {
+				reset();
+			}
+		}
+	}
 
 private:
 	Probe<bool> request;
@@ -104,8 +116,7 @@ private:
 
 // convenience types
 typedef IntHelper<IRQSource> IRQHelper;
-//typedef IntHelper<NMISource> NMIHelper;
-//typedef IntHelper<DynamicSource> IRQNMIHelper;
+typedef IntHelper<OptionalIRQ> OptionalIRQHelper;
 
 } // namespace openmsx
 

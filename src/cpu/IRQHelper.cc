@@ -1,7 +1,6 @@
 #include "IRQHelper.hh"
-#include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include "serialize.hh"
+#include "DeviceConfig.hh"
 
 namespace openmsx {
 
@@ -23,78 +22,21 @@ void IRQSource::lower()
 }
 
 
-// class NMISource
+// class OptionalIRQ
 
-NMISource::NMISource(MSXCPU& cpu_)
-	: cpu(cpu_)
+OptionalIRQ::OptionalIRQ(MSXCPU& cpu, const DeviceConfig& config)
+	: cpu(config.getChildDataAsBool("irq_connected", true) ? &cpu : nullptr)
 {
 }
 
-void NMISource::raise()
+void OptionalIRQ::raise()
 {
-	cpu.raiseNMI();
+	if (cpu) cpu->raiseIRQ();
 }
 
-void NMISource::lower()
+void OptionalIRQ::lower()
 {
-	cpu.lowerNMI();
+	if (cpu) cpu->lowerIRQ();
 }
-
-
-// class DynamicSource
-
-DynamicSource::DynamicSource(MSXCPU& cpu_)
-	: cpu(cpu_), type(IRQ)
-{
-}
-
-void DynamicSource::raise()
-{
-	if (type == IRQ) {
-		cpu.raiseIRQ();
-	} else {
-		cpu.raiseNMI();
-	}
-}
-
-void DynamicSource::lower()
-{
-	if (type == NMI) {
-		cpu.lowerIRQ();
-	} else {
-		cpu.lowerNMI();
-	}
-}
-
-
-// class IntHelper
-
-template<typename SOURCE>
-IntHelper<SOURCE>::IntHelper(MSXMotherBoard& motherboard, const std::string& name)
-	: SOURCE(motherboard.getCPU())
-	, request(motherboard.getDebugger(), name, "Outgoing IRQ signal.", false)
-{
-}
-
-template<typename SOURCE>
-template<typename Archive>
-void IntHelper<SOURCE>::serialize(Archive& ar, unsigned /*version*/)
-{
-	bool pending = request;
-	ar.serialize("pending", pending);
-	if (ar.isLoader()) {
-		if (pending) {
-			set();
-		} else {
-			reset();
-		}
-	}
-}
-INSTANTIATE_SERIALIZE_METHODS(IRQHelper);
-
-// Force template instantiation
-template class IntHelper<IRQSource>;
-//template class IntHelper<NMISource>;
-//template class IntHelper<DynamicSource>;
 
 } // namespace openmsx
