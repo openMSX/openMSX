@@ -179,9 +179,6 @@ private:
 	/** Noise Generator */
 	unsigned noise_seed;
 
-	/** Number of samples the output was completely silent. */
-	unsigned idleSamples;
-
 	/** Voice Data */
 	Patch patches[19][2];
 

@@ -426,7 +426,6 @@ void YM2413::reset()
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xFFFF;
-	idleSamples = 0;
 
 	for (unsigned i = 0; i < 9; ++i) {
 		channels[i].reset(*this);
@@ -847,72 +846,13 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 {
 	assert(num != 0);
 
-	// TODO make channelActiveBits a member and
-	//      keep it up-to-date all the time
-
-	// bits 0-8  -> ch[0-8].car
-	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 are used)
-	unsigned channelActiveBits = 0;
-
 	unsigned m = isRhythm() ? 6 : 9;
-	for (unsigned ch = 0; ch < m; ++ch) {
-		if (channels[ch].car.isActive()) {
-			channelActiveBits |= 1 << ch;
-		} else {
-			bufs[ch] = nullptr;
-		}
-	}
-
-	if (isRhythm()) {
-		bufs[6] = nullptr;
-		bufs[7] = nullptr;
-		bufs[8] = nullptr;
-		for (unsigned ch = 6; ch < 9; ++ch) {
-			if (channels[ch].car.isActive()) {
-				channelActiveBits |= 1 << ch;
-			} else {
-				bufs[ch + 3] = nullptr;
-			}
-		}
-		if (channels[7].mod.isActive()) {
-			channelActiveBits |= 1 << (7 + 9);
-		} else {
-			bufs[12] = nullptr;
-		}
-		if (channels[8].mod.isActive()) {
-			channelActiveBits |= 1 << (8 + 9);
-		} else {
-			bufs[13] = nullptr;
-		}
-	} else {
-		bufs[ 9] = nullptr;
-		bufs[10] = nullptr;
-		bufs[11] = nullptr;
-		bufs[12] = nullptr;
-		bufs[13] = nullptr;
-	}
-
-	if (channelActiveBits) {
-		idleSamples = 0;
-	} else {
-		if (idleSamples > (CLOCK_FREQ / (72 * 5))) {
-			// Optimization:
-			//   idle for over 1/5s = 200ms
-			//   we don't care that noise / AM / PM isn't exactly
-			//   in sync with the real HW when music resumes
-			// Alternative:
-			//   implement an efficient advance(n) method
-			return;
-		}
-		idleSamples += num;
-	}
-
 	for (unsigned i = 0; i < m; ++i) {
-		if (channelActiveBits & (1 << i)) {
-			// below we choose between 32 specialized versions of
-			// calcChannel() this allows to move a lot of
-			// conditional code out of the inner-loop
-			Channel& ch = channels[i];
+		Channel& ch = channels[i];
+		if (ch.car.isActive()) {
+			// Below we choose between 128 specialized versions of
+			// calcChannel(). This allows to move a lot of
+			// conditional code out of the inner-loop.
 			bool carFixedEnv = (ch.car.state == SUSHOLD) ||
 			                   (ch.car.state == FINISH);
 			bool modFixedEnv = (ch.mod.state == SUSHOLD) ||
@@ -1056,6 +996,8 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 			case 127: calcChannel<127>(ch, bufs[i], num); break;
 			default: UNREACHABLE;
 			}
+		} else {
+			bufs[i] = nullptr;
 		}
 	}
 	// update AM, PM unit
@@ -1063,19 +1005,30 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 	am_phase = (am_phase + num) % (LFO_AM_TAB_ELEMENTS * 64);
 
 	if (isRhythm()) {
-		if (channelActiveBits & (1 << 6)) {
-			Channel& ch6 = channels[6];
+		bufs[6] = nullptr;
+		bufs[7] = nullptr;
+		bufs[8] = nullptr;
+
+		Channel& ch6 = channels[6];
+		Channel& ch7 = channels[7];
+		Channel& ch8 = channels[8];
+
+		unsigned old_noise = noise_seed;
+		unsigned old_cphase7 = ch7.mod.cphase;
+		unsigned old_cphase8 = ch8.car.cphase;
+
+		if (ch6.car.isActive()) {
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[ 9][sample] += 2 *
 				    ch6.car.calc_slot_car<false, false>(
 				        0, 0, ch6.mod.calc_slot_mod<
 				                false, false, false>(0, 0, 0), 0);
 			}
+		} else {
+			bufs[9] = nullptr;
 		}
-		Channel& ch7 = channels[7];
-		Channel& ch8 = channels[8];
-		unsigned old_noise = noise_seed;
-		if (channelActiveBits & (1 << 7)) {
+
+		if (ch7.car.isActive()) {
 			for (unsigned sample = 0; sample < num; ++sample) {
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
@@ -1083,18 +1036,22 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 				bufs[10][sample] +=
 					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
+		} else {
+			bufs[10] = nullptr;
 		}
-		unsigned old_cphase7 = ch7.mod.cphase;
-		unsigned old_cphase8 = ch8.car.cphase;
-		if (channelActiveBits & (1 << 8)) {
+
+		if (ch8.car.isActive()) {
 			for (unsigned sample = 0; sample < num; ++sample) {
 				unsigned phase7 = ch7.mod.calc_phase(0);
 				unsigned phase8 = ch8.car.calc_phase(0);
 				bufs[11][sample] +=
 					-2 * ch8.car.calc_slot_cym(phase7, phase8);
 			}
+		} else {
+			bufs[11] = nullptr;
 		}
-		if (channelActiveBits & (1 << (7 + 9))) {
+
+		if (ch7.mod.isActive()) {
 			// restore noise, ch7/8 cphase
 			noise_seed = old_noise;
 			ch7.mod.cphase = old_cphase7;
@@ -1108,12 +1065,23 @@ void YM2413::generateChannels(int* bufs[9 + 5], unsigned num)
 				bufs[12][sample] +=
 					2 * ch7.mod.calc_slot_hat(phase7, phase8, noise_bit);
 			}
+		} else {
+			bufs[12] = nullptr;
 		}
-		if (channelActiveBits & (1 << (8 + 9))) {
+
+		if (ch8.mod.isActive()) {
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[13][sample] += 2 * ch8.mod.calc_slot_tom();
 			}
+		} else {
+			bufs[13] = nullptr;
 		}
+	} else {
+		bufs[ 9] = nullptr;
+		bufs[10] = nullptr;
+		bufs[11] = nullptr;
+		bufs[12] = nullptr;
+		bufs[13] = nullptr;
 	}
 }
 
@@ -1399,7 +1367,6 @@ void YM2413::serialize(Archive& ar, unsigned version)
 	ar.serialize("pm_phase", pm_phase);
 	ar.serialize("am_phase", am_phase);
 	ar.serialize("noise_seed", noise_seed);
-	// don't serialize idleSamples, is only an optimization
 
 	if (ar.isLoader()) {
 		patches[0][0].initModulator(&reg[0]);
