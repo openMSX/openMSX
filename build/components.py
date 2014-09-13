@@ -16,7 +16,7 @@ class Component(object):
 class EmulationCore(Component):
 	niceName = 'Emulation core'
 	makeName = 'CORE'
-	dependsOn = ('SDL', 'SDL_TTF', 'PNG', 'TCL', 'XML', 'ZLIB')
+	dependsOn = ('SDL', 'SDL_TTF', 'PNG', 'TCL', 'ZLIB')
 
 class GLRenderer(Component):
 	niceName = 'GL renderer'

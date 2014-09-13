@@ -281,20 +281,6 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 		CFLAGS="$(_CFLAGS)" \
 		LDFLAGS="$(_LDFLAGS)"
 
-# Configure libxml2.
-$(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_XML)
-	mkdir -p $(@D)
-	cd $(@D) && $(PWD)/$</configure \
-		--with-minimum \
-		--with-push \
-		--without-lzma \
-		--disable-shared \
-		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)" \
-		LDFLAGS="$(_LDFLAGS)"
-
 # Configure Ogg, Vorbis and Theora for Laserdisc emulation.
 
 $(BUILD_DIR)/$(PACKAGE_OGG)/Makefile: \

@@ -257,28 +257,6 @@ class LibPNG(Library):
 	def isSystemLibrary(cls, platform):
 		return platform in ('android', 'dingux')
 
-class LibXML2(Library):
-	libName = 'xml2'
-	makeName = 'XML'
-	header = '<libxml/parser.h>'
-	configScriptName = 'xml2-config'
-	function = 'xmlParseDocument'
-	dependsOn = ('ZLIB', )
-
-	@classmethod
-	def isSystemLibrary(cls, platform):
-		return platform in ('android',)
-
-	@classmethod
-	def getCompileFlags(cls, platform, linkStatic, distroRoot):
-		flags = super(LibXML2, cls).getCompileFlags(
-			platform, linkStatic, distroRoot
-			)
-		if not linkStatic or cls.isSystemLibrary(platform):
-			return flags
-		else:
-			return flags + ' -DLIBXML_STATIC'
-
 class OGG(Library):
 	libName = 'ogg'
 	makeName = 'OGG'

@@ -101,21 +101,6 @@ class LibPNG(DownloadablePackage):
 	def getMakeName(cls):
 		return 'PNG'
 
-class LibXML2(DownloadablePackage):
-	downloadURL = 'http://xmlsoft.org/sources'
-	niceName = 'libxml2'
-	sourceName = 'libxml2'
-	version = '2.8.0' # 2.9.0 and 2.9.1 do not seem to compile...
-	fileLength = 4915203
-	checksums = {
-		'sha256':
-			'f2e2d0e322685193d1affec83b21dc05d599e17a7306d7b90de95bb5b9ac622a',
-		}
-
-	@classmethod
-	def getMakeName(cls):
-		return 'XML'
-
 class OGG(DownloadablePackage):
 	downloadURL = 'http://downloads.xiph.org/releases/ogg'
 	niceName = 'libogg'
