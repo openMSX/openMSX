@@ -2,8 +2,10 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
-  <!-- Thanks to Werner Kai for the details! -->
-  <!-- Has a Toshiba Z80 -->
+  <!-- Thanks to Werner Kai for the details!
+       Has a Toshiba Z80
+       Based on machine with serial 205093
+  -->
 
   <info>
     <manufacturer>Toshiba</manufacturer>
