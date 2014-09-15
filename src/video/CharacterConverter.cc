@@ -357,7 +357,8 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* __restrict pixelPtr, int line)
 {
-	bool misAligned; uint32_t partial;
+	bool misAligned = false; // initialize with dummy
+	uint32_t partial = 0;    // values to avoid warning
 #ifdef __arm__
 	misAligned = sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
 	if (misAligned) pixelPtr--;
@@ -389,7 +390,8 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* __restrict pixelPtr, int line)
 {
-	bool misAligned; uint32_t partial;
+	bool misAligned = false; // initialize with dummy
+	uint32_t partial = 0;    // values to avoid warning
 #ifdef __arm__
 	misAligned = sizeof(Pixel) == 2 && (reinterpret_cast<uintptr_t>(pixelPtr) & 3);
 	if (misAligned) pixelPtr--;
