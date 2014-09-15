@@ -1379,12 +1379,13 @@ proc menu_create_disk_list {path drive} {
 		header { text "Disks $::osd_disk_path" \
 			font-size 10 \
 			post-spacing 6 }]
+	set cur_image [lindex [$drive] 1]
 	set extensions "dsk|zip|gz|xsa|dmk|di1|di2"
 	set items [list]
 	set presentation [list]
 	if {[lindex [$drive] 2] ne "empty readonly"} {
 		lappend items "--eject--"
-		lappend presentation "--eject-- [file tail [lindex [$drive] 1]]"
+		lappend presentation "--eject-- [file tail $cur_image]"
 	}
 	set i 1
 	foreach pool_path [filepool::get_paths_for_type disk] {
@@ -1394,6 +1395,11 @@ proc menu_create_disk_list {path drive} {
 			lappend presentation "\[Disk Pool $i\]"
 		}
 		incr i
+	}
+
+	if {$cur_image ne $path} {
+		lappend items "."
+		lappend presentation "--insert this dir as disk--"
 	}
 
 	set files [ls $path $extensions]
@@ -1406,12 +1412,13 @@ proc menu_create_disk_list {path drive} {
 
 proc menu_select_disk {drive item} {
 	if {$item eq "--eject--"} {
+		set cur_image [lindex [$drive] 1]
 		menu_close_all
 		$drive eject
-		osd::display_message "Disk $item ejected!"
+		osd::display_message "Disk $cur_image ejected!"
 	} else {
-		set fullname [file join $::osd_disk_path $item]
-		if {[file isdirectory $fullname]} {
+		set fullname [file normalize [file join $::osd_disk_path $item]]
+		if {[file isdirectory $fullname] && $item ne "."} {
 			menu_close_top
 			set ::osd_disk_path [file normalize $fullname]
 			menu_create [menu_create_disk_list $::osd_disk_path $drive]
@@ -1420,6 +1427,7 @@ proc menu_select_disk {drive item} {
 				osd::display_message "Can't insert disk: $errorText" error
 			} else {
 				menu_close_all
+				if {$item eq "."} { set item $fullname }
 				osd::display_message "Disk $item inserted!"
 			}
 		}
