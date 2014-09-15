@@ -412,7 +412,7 @@ void DirAsDSK::checkDeletedHostFiles()
 		bool isMSXDirectory = (msxDir(dirIndex).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
-		if ((!FileOperations::getStat(fullHostName, fst) != 0) ||
+		if ((!FileOperations::getStat(fullHostName, fst)) ||
 		    (FileOperations::isDirectory(fst) != isMSXDirectory)) {
 			// TODO also check access permission
 			// Error stat-ing file, or directory/file type is not
@@ -495,7 +495,7 @@ void DirAsDSK::checkModifiedHostFiles()
 		bool isMSXDirectory = (msxDir(dirIndex).attrib &
 		                       MSXDirEntry::ATT_DIRECTORY) != 0;
 		FileOperations::Stat fst;
-		if ((!FileOperations::getStat(fullHostName, fst) == 0) &&
+		if (FileOperations::getStat(fullHostName, fst) &&
 		    (FileOperations::isDirectory(fst) == isMSXDirectory)) {
 			// Detect changes in host file.
 			// Heuristic: we use filesize and modification time to detect
