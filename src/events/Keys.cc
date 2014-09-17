@@ -318,7 +318,6 @@ KeyCode getCode(string_ref name)
 KeyCode getCode(SDLKey key, SDLMod mod, Uint8 scancode, bool release)
 {
 	auto result = static_cast<KeyCode>(key);
-	printf("scancode: %d\n", scancode);
 	if (result == 0) {
 		// Assume it is a Japanese keyboard and check
 		// scancode to recognize a few japanese
