@@ -14,7 +14,7 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-class KeyJoyState : public StateChange
+class KeyJoyState final : public StateChange
 {
 public:
 	KeyJoyState() {} // for serialize

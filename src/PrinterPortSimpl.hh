@@ -9,7 +9,7 @@ namespace openmsx {
 class HardwareConfig;
 class DACSound8U;
 
-class PrinterPortSimpl : public PrinterPortDevice
+class PrinterPortSimpl final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortSimpl(const HardwareConfig& hwConf);

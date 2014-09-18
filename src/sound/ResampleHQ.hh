@@ -10,7 +10,7 @@ namespace openmsx {
 class ResampledSoundDevice;
 
 template <unsigned CHANNELS>
-class ResampleHQ : public ResampleAlgo
+class ResampleHQ final : public ResampleAlgo
 {
 public:
 	ResampleHQ(ResampledSoundDevice& input,

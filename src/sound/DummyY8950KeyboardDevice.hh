@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyY8950KeyboardDevice : public Y8950KeyboardDevice
+class DummyY8950KeyboardDevice final : public Y8950KeyboardDevice
 {
 public:
 	virtual void write(byte data, EmuTime::param time);

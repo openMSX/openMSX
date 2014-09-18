@@ -28,7 +28,7 @@ private:
 };
 
 
-template<typename T> class Probe : public ProbeBase
+template<typename T> class Probe final : public ProbeBase
 {
 public:
 	Probe(Debugger& debugger, const std::string& name,
@@ -67,7 +67,7 @@ std::string Probe<T>::getValue() const
 }
 
 // specialization for void
-template<> class Probe<void> : public ProbeBase
+template<> class Probe<void> final : public ProbeBase
 {
 public:
 	Probe(Debugger& debugger, const std::string& name,

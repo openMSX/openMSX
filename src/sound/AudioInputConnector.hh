@@ -7,7 +7,7 @@ namespace openmsx {
 
 class AudioInputDevice;
 
-class AudioInputConnector : public Connector
+class AudioInputConnector final : public Connector
 {
 public:
 	AudioInputConnector(PluggingController& pluggingController,

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class HDImageCLI : public CLIOption
+class HDImageCLI final : public CLIOption
 {
 public:
 	explicit HDImageCLI(CommandLineParser& cmdLineParser);

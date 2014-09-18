@@ -62,8 +62,8 @@ private:
 };
 
 
-class CommandConsole : private EventListener,
-                       private InterpreterOutput, private noncopyable
+class CommandConsole final : private EventListener
+                           , private InterpreterOutput, private noncopyable
 {
 public:
 	CommandConsole(GlobalCommandController& commandController,

@@ -18,7 +18,7 @@ using std::vector;
 
 namespace openmsx {
 
-class OSDCommand : public Command
+class OSDCommand final : public Command
 {
 public:
 	OSDCommand(OSDGUI& gui, CommandController& commandController);

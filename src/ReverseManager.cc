@@ -93,7 +93,7 @@ struct Replay
 };
 SERIALIZE_CLASS_VERSION(Replay, 4);
 
-class ReverseCmd : public Command
+class ReverseCmd final : public Command
 {
 public:
 	ReverseCmd(ReverseManager& manager, CommandController& controller);
@@ -145,7 +145,7 @@ ReverseManager::ReverseChunk& ReverseManager::ReverseChunk::operator=(
 }
 
 
-class EndLogEvent : public StateChange
+class EndLogEvent final : public StateChange
 {
 public:
 	EndLogEvent() {} // for serialize

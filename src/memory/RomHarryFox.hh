@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomHarryFox : public Rom16kBBlocks
+class RomHarryFox final : public Rom16kBBlocks
 {
 public:
 	RomHarryFox(const DeviceConfig& config, std::unique_ptr<Rom> rom);

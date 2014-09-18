@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomSuperSwangi : public Rom16kBBlocks
+class RomSuperSwangi final : public Rom16kBBlocks
 {
 public:
 	RomSuperSwangi(const DeviceConfig& config, std::unique_ptr<Rom> rom);

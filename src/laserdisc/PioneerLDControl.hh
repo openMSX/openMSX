@@ -13,7 +13,7 @@ class LaserdiscPlayer;
 class MSXPPI;
 class VDP;
 
-class PioneerLDControl : public MSXDevice
+class PioneerLDControl final : public MSXDevice
 {
 public:
 	explicit PioneerLDControl(const DeviceConfig& config);

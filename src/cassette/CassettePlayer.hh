@@ -21,8 +21,8 @@ class LoadingIndicator;
 class BooleanSetting;
 class TapeCommand;
 
-class CassettePlayer : public CassetteDevice, public ResampledSoundDevice
-                     , private EventListener, private Schedulable
+class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
+                           , private EventListener, private Schedulable
 {
 public:
 	explicit CassettePlayer(const HardwareConfig& hwConf);

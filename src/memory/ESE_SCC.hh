@@ -11,7 +11,7 @@ class SCC;
 class MB89352;
 class RomBlockDebuggable;
 
-class ESE_SCC : public MSXDevice
+class ESE_SCC final : public MSXDevice
 {
 public:
 	ESE_SCC(const DeviceConfig& config, bool withSCSI);

@@ -17,7 +17,7 @@ public:
 	}
 };
 
-class RomBlockDebuggable : public RomBlockDebuggableBase
+class RomBlockDebuggable final : public RomBlockDebuggableBase
 {
 public:
 	RomBlockDebuggable(const MSXDevice& device, const byte* blockNr_,

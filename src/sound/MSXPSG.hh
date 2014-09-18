@@ -13,7 +13,7 @@ class CassettePortInterface;
 class RenShaTurbo;
 class JoystickPortIf;
 
-class MSXPSG : public MSXDevice, public AY8910Periphery
+class MSXPSG final : public MSXDevice, public AY8910Periphery
 {
 public:
 	explicit MSXPSG(const DeviceConfig& config);

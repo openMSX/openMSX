@@ -11,7 +11,7 @@ namespace openmsx {
 class DiskChanger;
 class MSXMotherBoard;
 
-class NowindCommand : public Command
+class NowindCommand final : public Command
 {
 public:
 	NowindCommand(const std::string& basename,

@@ -13,7 +13,7 @@
 
 namespace openmsx {
 
-class DirectXSoundDriver : public SoundDriver, private noncopyable
+class DirectXSoundDriver final : public SoundDriver, private noncopyable
 {
 public:
 	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class XMLException : public MSXException
+class XMLException final : public MSXException
 {
 public:
 	explicit XMLException(string_ref message)

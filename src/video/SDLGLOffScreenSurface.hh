@@ -12,7 +12,7 @@ class SDLGLVisibleSurface;
 /** This class installs a FrameBufferObject (FBO). So as long as this object
   * is live, all openGL draw commands will be redirected to this FBO.
   */
-class SDLGLOffScreenSurface : public OutputSurface, private SDLGLOutputSurface
+class SDLGLOffScreenSurface final : public OutputSurface, private SDLGLOutputSurface
 {
 public:
 	explicit SDLGLOffScreenSurface(const SDLGLVisibleSurface& output);

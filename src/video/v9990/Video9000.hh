@@ -12,10 +12,10 @@ class VDP;
 class V9990;
 class PostProcessor;
 
-class Video9000 : public MSXDevice
-                , private VideoSystemChangeListener
-                , private VideoLayer
-                , private EventListener
+class Video9000 final : public MSXDevice
+                      , private VideoSystemChangeListener
+                      , private VideoLayer
+                      , private EventListener
 {
 public:
 	explicit Video9000(const DeviceConfig& config);

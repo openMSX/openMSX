@@ -9,7 +9,7 @@ namespace openmsx {
 
 class Rom;
 
-class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
+class MSXKanji12 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXKanji12(const DeviceConfig& config);

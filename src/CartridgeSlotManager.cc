@@ -19,7 +19,7 @@ using std::vector;
 
 namespace openmsx {
 
-class CartCmd : public RecordedCommand
+class CartCmd final : public RecordedCommand
 {
 public:
 	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
@@ -35,7 +35,7 @@ private:
 	CliComm& cliComm;
 };
 
-class CartridgeSlotInfo : public InfoTopic
+class CartridgeSlotInfo final : public InfoTopic
 {
 public:
 	CartridgeSlotInfo(InfoCommand& machineInfoCommand,

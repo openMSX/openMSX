@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class SDLVisibleSurface : public VisibleSurface
+class SDLVisibleSurface final : public VisibleSurface
 {
 public:
 	SDLVisibleSurface(unsigned width, unsigned height,

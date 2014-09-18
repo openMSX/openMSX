@@ -39,7 +39,7 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-class MemoryDebug : public SimpleDebuggable
+class MemoryDebug final : public SimpleDebuggable
 {
 public:
 	MemoryDebug(MSXCPUInterface& interface,
@@ -50,7 +50,7 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class SlottedMemoryDebug : public SimpleDebuggable
+class SlottedMemoryDebug final : public SimpleDebuggable
 {
 public:
 	SlottedMemoryDebug(MSXCPUInterface& interface,
@@ -61,7 +61,7 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class IODebug : public SimpleDebuggable
+class IODebug final : public SimpleDebuggable
 {
 public:
 	IODebug(MSXCPUInterface& interface,
@@ -72,7 +72,7 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class SlotInfo : public InfoTopic
+class SlotInfo final : public InfoTopic
 {
 public:
 	SlotInfo(InfoCommand& machineInfoCommand,
@@ -84,7 +84,7 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class SubSlottedInfo : public InfoTopic
+class SubSlottedInfo final : public InfoTopic
 {
 public:
 	SubSlottedInfo(InfoCommand& machineInfoCommand,
@@ -96,7 +96,7 @@ private:
 	MSXCPUInterface& interface;
 };
 
-class ExternalSlotInfo : public InfoTopic
+class ExternalSlotInfo final : public InfoTopic
 {
 public:
 	ExternalSlotInfo(InfoCommand& machineInfoCommand,
@@ -108,7 +108,7 @@ private:
 	CartridgeSlotManager& manager;
 };
 
-class IOInfo : public InfoTopic
+class IOInfo final : public InfoTopic
 {
 public:
 	IOInfo(InfoCommand& machineInfoCommand,

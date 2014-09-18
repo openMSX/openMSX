@@ -8,7 +8,7 @@ namespace openmsx {
 
 class RenderSettings;
 
-class GLSimpleScaler: public GLScaler, private noncopyable
+class GLSimpleScaler final : public GLScaler, private noncopyable
 {
 public:
 	GLSimpleScaler(RenderSettings& renderSettings, GLScaler& fallback);

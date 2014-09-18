@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyAY8910Periphery : public AY8910Periphery
+class DummyAY8910Periphery final : public AY8910Periphery
 {
 public:
 	static DummyAY8910Periphery& instance()

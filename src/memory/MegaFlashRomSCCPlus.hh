@@ -10,7 +10,7 @@ class SCC;
 class AY8910;
 class AmdFlash;
 
-class MegaFlashRomSCCPlus : public MSXRom
+class MegaFlashRomSCCPlus final : public MSXRom
 {
 public:
 	MegaFlashRomSCCPlus(const DeviceConfig& config, std::unique_ptr<Rom> rom);

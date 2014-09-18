@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class S1990Debuggable : public SimpleDebuggable
+class S1990Debuggable final : public SimpleDebuggable
 {
 public:
 	S1990Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990);

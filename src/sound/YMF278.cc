@@ -24,7 +24,7 @@
 
 namespace openmsx {
 
-class DebugRegisters : public SimpleDebuggable
+class DebugRegisters final : public SimpleDebuggable
 {
 public:
 	DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard,
@@ -35,7 +35,7 @@ private:
 	YMF278& ymf278;
 };
 
-class DebugMemory : public SimpleDebuggable
+class DebugMemory final : public SimpleDebuggable
 {
 public:
 	DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard,
@@ -101,7 +101,7 @@ public:
 };
 SERIALIZE_CLASS_VERSION(YMF278Slot, 3);
 
-class YMF278::Impl : public ResampledSoundDevice
+class YMF278::Impl final : public ResampledSoundDevice
 {
 public:
 	Impl(YMF278& self, const std::string& name, int ramSize,

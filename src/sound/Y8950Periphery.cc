@@ -21,7 +21,7 @@ namespace openmsx {
 
 // Subclass declarations:
 
-class MusicModulePeriphery : public Y8950Periphery
+class MusicModulePeriphery final : public Y8950Periphery
 {
 public:
 	explicit MusicModulePeriphery(MSXAudio& audio);
@@ -38,7 +38,7 @@ private:
 };
 REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, MusicModulePeriphery, "MusicModule");
 
-class PanasonicAudioPeriphery : public Y8950Periphery
+class PanasonicAudioPeriphery final : public Y8950Periphery
 {
 public:
 	PanasonicAudioPeriphery(
@@ -73,7 +73,7 @@ private:
 };
 REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, PanasonicAudioPeriphery, "Panasonic");
 
-class ToshibaAudioPeriphery : public Y8950Periphery
+class ToshibaAudioPeriphery final : public Y8950Periphery
 {
 public:
 	explicit ToshibaAudioPeriphery(MSXAudio& audio);

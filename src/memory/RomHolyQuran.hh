@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomHolyQuran : public Rom8kBBlocks
+class RomHolyQuran final : public Rom8kBBlocks
 {
 public:
 	RomHolyQuran(const DeviceConfig& config, std::unique_ptr<Rom> rom);

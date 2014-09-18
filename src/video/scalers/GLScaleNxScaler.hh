@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class GLScaleNxScaler : public GLScaler, private noncopyable
+class GLScaleNxScaler final : public GLScaler, private noncopyable
 {
 public:
 	explicit GLScaleNxScaler(GLScaler& fallback);

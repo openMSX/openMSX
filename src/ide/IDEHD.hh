@@ -10,7 +10,7 @@ namespace openmsx {
 class DeviceConfig;
 class DiskManipulator;
 
-class IDEHD : public HD, public AbstractIDEDevice, private noncopyable
+class IDEHD final : public HD, public AbstractIDEDevice, private noncopyable
 {
 public:
 	explicit IDEHD(const DeviceConfig& config);

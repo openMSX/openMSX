@@ -11,7 +11,7 @@ class Display;
 
 /** Snow effect for background layer.
   */
-class GLSnow : public Layer, private noncopyable
+class GLSnow final : public Layer, private noncopyable
 {
 public:
 	GLSnow(Display& display);

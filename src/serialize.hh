@@ -571,7 +571,7 @@ protected:
 };
 
 
-class MemOutputArchive : public OutputArchiveBase<MemOutputArchive>
+class MemOutputArchive final : public OutputArchiveBase<MemOutputArchive>
 {
 public:
 	MemOutputArchive()
@@ -628,7 +628,7 @@ private:
 	std::vector<size_t> openSections;
 };
 
-class MemInputArchive : public InputArchiveBase<MemInputArchive>
+class MemInputArchive final : public InputArchiveBase<MemInputArchive>
 {
 public:
 	MemInputArchive(const byte* data, size_t size)
@@ -679,7 +679,7 @@ private:
 
 ////
 
-class XmlOutputArchive : public OutputArchiveBase<XmlOutputArchive>
+class XmlOutputArchive final : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
 	XmlOutputArchive(const std::string& filename);
@@ -734,7 +734,7 @@ private:
 	std::vector<XMLElement*> current;
 };
 
-class XmlInputArchive : public InputArchiveBase<XmlInputArchive>
+class XmlInputArchive final : public InputArchiveBase<XmlInputArchive>
 {
 public:
 	XmlInputArchive(const std::string& filename);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomCrossBlaim : public Rom16kBBlocks
+class RomCrossBlaim final : public Rom16kBBlocks
 {
 public:
 	RomCrossBlaim(const DeviceConfig& config, std::unique_ptr<Rom> rom);

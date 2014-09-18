@@ -28,7 +28,7 @@ enum Reg16 : int;
 class CPUBase {}; // only for bw-compat savestates
 
 template<class CPU_POLICY>
-class CPUCore : public CPUBase, public CPURegs, public CPU_POLICY
+class CPUCore final : public CPUBase, public CPURegs, public CPU_POLICY
 {
 public:
 	CPUCore(MSXMotherBoard& motherboard, const std::string& name,

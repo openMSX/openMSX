@@ -23,7 +23,8 @@ class EventDistributor;
 class Scheduler;
 class PluggingController;
 
-class MidiInWindows : public MidiInDevice, private Runnable, private EventListener
+class MidiInWindows final : public MidiInDevice, private Runnable
+                          , private EventListener
 {
 public:
 	/** Register all available native Windows midi in devices

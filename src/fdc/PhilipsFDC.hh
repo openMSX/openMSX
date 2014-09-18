@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class PhilipsFDC : public WD2793BasedFDC
+class PhilipsFDC final : public WD2793BasedFDC
 {
 public:
 	explicit PhilipsFDC(const DeviceConfig& config);

@@ -12,7 +12,7 @@ namespace openmsx {
 class YM2413Core;
 class YM2413Debuggable;
 
-class YM2413 : public ResampledSoundDevice
+class YM2413 final : public ResampledSoundDevice
 {
 public:
 	YM2413(const std::string& name, const DeviceConfig& config);

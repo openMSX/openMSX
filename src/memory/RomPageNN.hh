@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomPageNN : public Rom8kBBlocks
+class RomPageNN final : public Rom8kBBlocks
 {
 public:
 	RomPageNN(const DeviceConfig& config, std::unique_ptr<Rom> rom, byte pages);

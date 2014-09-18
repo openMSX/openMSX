@@ -67,7 +67,7 @@ enum SyncType {
 	SYNC_AUDIO_EMU
 };
 
-class TapeCommand : public RecordedCommand
+class TapeCommand final : public RecordedCommand
 {
 public:
 	TapeCommand(CommandController& commandController,

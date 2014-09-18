@@ -17,7 +17,7 @@ protected:
 };
 
 
-class EmuTimer : public Schedulable
+class EmuTimer final : public Schedulable
 {
 public:
 	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb,

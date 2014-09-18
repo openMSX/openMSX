@@ -20,7 +20,7 @@ private:
 	OSDGUI& gui;
 };
 
-class SDLOSDGUILayer : public OSDGUILayer
+class SDLOSDGUILayer final : public OSDGUILayer
 {
 public:
 	explicit SDLOSDGUILayer(OSDGUI& gui);
@@ -29,7 +29,7 @@ public:
 	virtual void paint(OutputSurface& output);
 };
 
-class GLOSDGUILayer : public OSDGUILayer
+class GLOSDGUILayer final : public OSDGUILayer
 {
 public:
 	explicit GLOSDGUILayer(OSDGUI& gui);

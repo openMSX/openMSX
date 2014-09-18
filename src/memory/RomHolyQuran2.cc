@@ -17,7 +17,7 @@
 
 namespace openmsx {
 
-class Quran2RomBlocks : public RomBlockDebuggableBase
+class Quran2RomBlocks final : public RomBlockDebuggableBase
 {
 public:
 	Quran2RomBlocks(RomHolyQuran2& device);

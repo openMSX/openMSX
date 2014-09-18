@@ -8,7 +8,7 @@ namespace openmsx {
 
 class Rom;
 
-class MSXBunsetsu : public MSXDevice
+class MSXBunsetsu final : public MSXDevice
 {
 public:
 	explicit MSXBunsetsu(const DeviceConfig& DeviceConfig);

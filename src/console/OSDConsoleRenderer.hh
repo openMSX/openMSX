@@ -22,8 +22,8 @@ class IntegerSetting;
 class FilenameSetting;
 template <typename T> class EnumSetting;
 
-class OSDConsoleRenderer : public Layer, private Observer<Setting>,
-                           private noncopyable
+class OSDConsoleRenderer final : public Layer, private Observer<Setting>
+                               , private noncopyable
 {
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,

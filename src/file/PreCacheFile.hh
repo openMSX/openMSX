@@ -12,7 +12,7 @@ namespace openmsx {
  * sticks in the OS cache. Mainly useful to avoid CDROM spinups or to
  * speed up real floppy disk (/dev/fd0) reads.
  */
-class PreCacheFile : private Runnable
+class PreCacheFile final : private Runnable
 {
 public:
 	explicit PreCacheFile(const std::string& name);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomPadial8kB : public RomAscii8kB
+class RomPadial8kB final : public RomAscii8kB
 {
 public:
 	RomPadial8kB(const DeviceConfig& config, std::unique_ptr<Rom> rom);

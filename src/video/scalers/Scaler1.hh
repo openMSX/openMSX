@@ -7,7 +7,7 @@
 namespace openmsx {
 
 template <typename Pixel>
-class Scaler1 : public Scaler<Pixel>
+class Scaler1 final : public Scaler<Pixel>
 {
 public:
 	explicit Scaler1(const PixelOperations<Pixel>& pixelOps);

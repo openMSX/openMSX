@@ -7,7 +7,7 @@ namespace openmsx {
 
 class DACSound8U;
 
-class RomSynthesizer : public Rom16kBBlocks
+class RomSynthesizer final : public Rom16kBBlocks
 {
 public:
 	RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom);

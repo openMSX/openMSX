@@ -13,7 +13,7 @@ class CommandController;
 class FilenameSetting;
 class Setting;
 
-class WavAudioInput : public AudioInputDevice, private Observer<Setting>
+class WavAudioInput final : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	explicit WavAudioInput(CommandController& commandController);

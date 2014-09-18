@@ -10,7 +10,7 @@ class MB89352;
 class SRAM;
 class RomBlockDebuggable;
 
-class MegaSCSI : public MSXDevice
+class MegaSCSI final : public MSXDevice
 {
 public:
 	explicit MegaSCSI(const DeviceConfig& config);

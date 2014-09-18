@@ -9,7 +9,7 @@ namespace openmsx {
 class RawFrame;
 
 template<typename Pixel>
-class SuperImposeScalerOutput : public ScalerOutput<Pixel>
+class SuperImposeScalerOutput final : public ScalerOutput<Pixel>
 {
 public:
 	SuperImposeScalerOutput(ScalerOutput<Pixel>& output,

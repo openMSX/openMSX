@@ -29,7 +29,7 @@ static const int POS_CENTER = 236; // approx. middle used by games
 static const int SCALE = 2;
 
 
-class ArkanoidState : public StateChange
+class ArkanoidState final : public StateChange
 {
 public:
 	ArkanoidState() {} // for serialize

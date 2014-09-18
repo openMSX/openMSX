@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class GLSaIScaler : public GLScaler, private noncopyable
+class GLSaIScaler final : public GLScaler, private noncopyable
 {
 public:
 	GLSaIScaler();

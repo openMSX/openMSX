@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomNational : public Rom16kBBlocks
+class RomNational final : public Rom16kBBlocks
 {
 public:
 	RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom);

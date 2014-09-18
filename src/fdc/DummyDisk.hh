@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyDisk : public SectorBasedDisk
+class DummyDisk final : public SectorBasedDisk
 {
 public:
 	DummyDisk();

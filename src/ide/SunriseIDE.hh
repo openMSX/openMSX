@@ -10,7 +10,7 @@ class IDEDevice;
 class Rom;
 class RomBlockDebuggable;
 
-class SunriseIDE : public MSXDevice
+class SunriseIDE final : public MSXDevice
 {
 public:
 	explicit SunriseIDE(const DeviceConfig& config);

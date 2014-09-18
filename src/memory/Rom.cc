@@ -28,7 +28,7 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-class RomDebuggable : public Debuggable
+class RomDebuggable final : public Debuggable
 {
 public:
 	RomDebuggable(Debugger& debugger, Rom& rom);

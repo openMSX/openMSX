@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class OSDText : public OSDImageBasedWidget
+class OSDText final : public OSDImageBasedWidget
 {
 public:
 	OSDText(const OSDGUI& gui, const std::string& name);

@@ -15,8 +15,8 @@ namespace openmsx {
 class CommandController;
 class EventDistributor;
 
-class CliConnection : public CliListener, private EventListener,
-                      protected Runnable
+class CliConnection : public CliListener, private EventListener
+                    , protected Runnable
 {
 public:
 	virtual ~CliConnection();
@@ -79,7 +79,7 @@ private:
 	bool updateEnabled[CliComm::NUM_UPDATES];
 };
 
-class StdioConnection : public CliConnection
+class StdioConnection final : public CliConnection
 {
 public:
 	StdioConnection(CommandController& commandController,
@@ -96,7 +96,7 @@ private:
 };
 
 #ifdef _WIN32
-class PipeConnection : public CliConnection
+class PipeConnection final : public CliConnection
 {
 public:
 	PipeConnection(CommandController& commandController,
@@ -115,7 +115,7 @@ private:
 };
 #endif
 
-class SocketConnection : public CliConnection
+class SocketConnection final : public CliConnection
 {
 public:
 	SocketConnection(CommandController& commandController,

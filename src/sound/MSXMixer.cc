@@ -36,7 +36,7 @@ using std::vector;
 
 namespace openmsx {
 
-class SoundDeviceInfoTopic : public InfoTopic
+class SoundDeviceInfoTopic final : public InfoTopic
 {
 public:
 	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);

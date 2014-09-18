@@ -19,7 +19,7 @@ using std::vector;
 
 namespace openmsx {
 
-class SoftwareInfoTopic : public InfoTopic
+class SoftwareInfoTopic final : public InfoTopic
 {
 public:
         SoftwareInfoTopic(InfoCommand& openMSXInfoCommand, RomDatabase& romDatabase);

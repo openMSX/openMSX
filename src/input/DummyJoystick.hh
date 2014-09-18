@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyJoystick : public JoystickDevice
+class DummyJoystick final : public JoystickDevice
 {
 public:
 	virtual byte read(EmuTime::param time);

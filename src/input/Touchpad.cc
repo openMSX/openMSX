@@ -25,7 +25,7 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-class TouchpadState : public StateChange
+class TouchpadState final : public StateChange
 {
 public:
 	TouchpadState() {} // for serialize

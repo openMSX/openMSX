@@ -15,7 +15,7 @@ namespace openmsx {
 
 class File;
 
-class XSADiskImage : public SectorBasedDisk
+class XSADiskImage final : public SectorBasedDisk
 {
 public:
 	XSADiskImage(Filename& filename, File& file);

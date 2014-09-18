@@ -11,7 +11,7 @@ class CommandController;
 class EventDistributor;
 class GlobalCliComm;
 
-class CliServer : private Runnable
+class CliServer final : private Runnable
 {
 public:
 	CliServer(CommandController& commandController,

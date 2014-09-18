@@ -14,7 +14,7 @@ namespace openmsx {
 class RenderSettings;
 class BooleanSetting;
 
-class SpriteChecker: public VRAMObserver
+class SpriteChecker final : public VRAMObserver
 {
 public:
 	/** Bitmap of length 32 describing a sprite pattern.

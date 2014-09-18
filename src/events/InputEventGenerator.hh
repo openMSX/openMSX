@@ -16,8 +16,9 @@ class EventDistributor;
 class Setting;
 class EscapeGrabCmd;
 
-class InputEventGenerator : private Observer<Setting>, private EventListener,
-                            private noncopyable
+class InputEventGenerator final : private Observer<Setting>
+                                , private EventListener
+                                , private noncopyable
 {
 public:
 	InputEventGenerator(CommandController& commandController,

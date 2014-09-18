@@ -29,7 +29,7 @@ private:
 	BaseMap baseMap;
 };
 
-template<typename T> class EnumSetting : private EnumSettingBase, public Setting
+template<typename T> class EnumSetting final : private EnumSettingBase, public Setting
 {
 public:
 	typedef std::vector<std::pair<std::string, T>> Map;

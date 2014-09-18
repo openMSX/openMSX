@@ -16,7 +16,7 @@ namespace openmsx {
   * images that the original algorithm was designed for.
   */
 template <class Pixel>
-class MLAAScaler : public Scaler<Pixel>
+class MLAAScaler final : public Scaler<Pixel>
 {
 public:
 	MLAAScaler(unsigned dstWidth, const PixelOperations<Pixel>& pixelOps);

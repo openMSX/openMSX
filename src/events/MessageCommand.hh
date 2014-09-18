@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandController;
 
-class MessageCommand : public Command
+class MessageCommand final : public Command
 {
 public:
 	MessageCommand(CommandController& controller);

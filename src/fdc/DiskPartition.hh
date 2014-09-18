@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class DiskPartition : public SectorBasedDisk
+class DiskPartition final : public SectorBasedDisk
 {
 public:
 	/** Return a partition (as a SectorbasedDisk) from another Disk.

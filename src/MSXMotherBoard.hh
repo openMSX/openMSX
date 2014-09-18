@@ -178,7 +178,7 @@ private:
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
 
-class ExtCmd : public RecordedCommand
+class ExtCmd final : public RecordedCommand
 {
 public:
 	ExtCmd(MSXMotherBoard& motherBoard, string_ref commandName);

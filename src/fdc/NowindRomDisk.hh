@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class NowindRomDisk : public DiskContainer
+class NowindRomDisk final : public DiskContainer
 {
 public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();

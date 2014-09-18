@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class DACSound8U : public DACSound16S
+class DACSound8U final : public DACSound16S
 {
 public:
 	DACSound8U(string_ref name, string_ref desc,

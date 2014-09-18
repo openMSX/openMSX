@@ -7,7 +7,7 @@ namespace openmsx {
 
 class Ram;
 
-class RomMSXtra : public MSXRom
+class RomMSXtra final : public MSXRom
 {
 public:
 	RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom);

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class MSXCPUInterface;
 
-class MSXMirrorDevice : public MSXDevice
+class MSXMirrorDevice final : public MSXDevice
 {
 public:
 	explicit MSXMirrorDevice(const DeviceConfig& config);

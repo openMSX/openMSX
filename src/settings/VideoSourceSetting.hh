@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class VideoSourceSetting : public Setting
+class VideoSourceSetting final : public Setting
 {
 public:
 	explicit VideoSourceSetting(CommandController& commandController);

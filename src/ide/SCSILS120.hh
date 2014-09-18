@@ -23,8 +23,8 @@ class MSXMotherBoard;
 class LSXCommand;
 class File;
 
-class SCSILS120 : public SCSIDevice, public SectorAccessibleDisk,
-                  public DiskContainer, private noncopyable
+class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
+                      , public DiskContainer, private noncopyable
 {
 public:
 	SCSILS120(const DeviceConfig& targetconfig,

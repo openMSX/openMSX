@@ -26,7 +26,7 @@ class TclCallback;
 class TclObject;
 class Interpreter;
 
-class MSXCPU : private Observer<Setting>, private noncopyable
+class MSXCPU final : private Observer<Setting>, private noncopyable
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };

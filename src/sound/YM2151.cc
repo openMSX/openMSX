@@ -16,7 +16,7 @@
 
 namespace openmsx {
 
-class YM2151::Impl : public ResampledSoundDevice, private EmuTimerCallback
+class YM2151::Impl final : public ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Impl(const std::string& name, const std::string& desc,

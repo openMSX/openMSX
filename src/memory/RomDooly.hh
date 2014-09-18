@@ -7,7 +7,7 @@ namespace openmsx {
 
 class RomBlockDebuggable;
 
-class RomDooly : public MSXRom
+class RomDooly final : public MSXRom
 {
 public:
 	RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom);

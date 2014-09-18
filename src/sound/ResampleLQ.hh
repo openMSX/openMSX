@@ -32,7 +32,7 @@ protected:
 };
 
 template <unsigned CHANNELS>
-class ResampleLQDown : public ResampleLQ<CHANNELS>
+class ResampleLQDown final : public ResampleLQ<CHANNELS>
 {
 public:
 	ResampleLQDown(ResampledSoundDevice& input,
@@ -44,7 +44,7 @@ private:
 };
 
 template <unsigned CHANNELS>
-class ResampleLQUp : public ResampleLQ<CHANNELS>
+class ResampleLQUp final : public ResampleLQ<CHANNELS>
 {
 public:
 	ResampleLQUp(ResampledSoundDevice& input,

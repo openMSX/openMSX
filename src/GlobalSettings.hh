@@ -21,7 +21,7 @@ template <class T> class EnumSetting;
  * (including some singletons). This class was introduced to solve
  * lifetime management issues.
  */
-class GlobalSettings : private Observer<Setting>, private noncopyable
+class GlobalSettings final : private Observer<Setting>, private noncopyable
 {
 public:
 	explicit GlobalSettings(GlobalCommandController& commandController);

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class DiskImageCLI : public CLIOption, public CLIFileType
+class DiskImageCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit DiskImageCLI(CommandLineParser& cmdLineParser);

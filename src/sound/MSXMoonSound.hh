@@ -10,7 +10,7 @@ namespace openmsx {
 class YMF262;
 class YMF278;
 
-class MSXMoonSound : public MSXDevice
+class MSXMoonSound final : public MSXDevice
 {
 public:
 	explicit MSXMoonSound(const DeviceConfig& config);

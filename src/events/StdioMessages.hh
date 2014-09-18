@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class StdioMessages : public CliListener
+class StdioMessages final : public CliListener
 {
 public:
 	virtual void log(CliComm::LogLevel level, string_ref message);

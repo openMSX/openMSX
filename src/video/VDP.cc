@@ -44,7 +44,7 @@ using std::vector;
 
 namespace openmsx {
 
-class VDPRegDebug : public SimpleDebuggable
+class VDPRegDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPRegDebug(VDP& vdp);
@@ -54,7 +54,7 @@ private:
 	VDP& vdp;
 };
 
-class VDPStatusRegDebug : public SimpleDebuggable
+class VDPStatusRegDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPStatusRegDebug(VDP& vdp);
@@ -63,7 +63,7 @@ private:
 	VDP& vdp;
 };
 
-class VDPPaletteDebug : public SimpleDebuggable
+class VDPPaletteDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPPaletteDebug(VDP& vdp);
@@ -73,7 +73,7 @@ private:
 	VDP& vdp;
 };
 
-class VRAMPointerDebug : public SimpleDebuggable
+class VRAMPointerDebug final : public SimpleDebuggable
 {
 public:
 	explicit VRAMPointerDebug(VDP& vdp);
@@ -110,7 +110,7 @@ protected:
 	const string helpText;
 };
 
-class FrameCountInfo : public VDPInfo
+class FrameCountInfo final : public VDPInfo
 {
 public:
 	FrameCountInfo(VDP& vdp)
@@ -123,7 +123,7 @@ public:
 	}
 };
 
-class CycleInFrameInfo : public VDPInfo
+class CycleInFrameInfo final : public VDPInfo
 {
 public:
 	CycleInFrameInfo(VDP& vdp)
@@ -137,7 +137,7 @@ public:
 	}
 };
 
-class LineInFrameInfo : public VDPInfo
+class LineInFrameInfo final : public VDPInfo
 {
 public:
 	LineInFrameInfo(VDP& vdp)
@@ -153,7 +153,7 @@ public:
 	}
 };
 
-class CycleInLineInfo : public VDPInfo
+class CycleInLineInfo final : public VDPInfo
 {
 public:
 	CycleInLineInfo(VDP& vdp)
@@ -169,7 +169,7 @@ public:
 	}
 };
 
-class MsxYPosInfo : public VDPInfo
+class MsxYPosInfo final : public VDPInfo
 {
 public:
 	MsxYPosInfo(VDP& vdp)
@@ -185,7 +185,7 @@ public:
 	}
 };
 
-class MsxX256PosInfo : public VDPInfo
+class MsxX256PosInfo final : public VDPInfo
 {
 public:
 	MsxX256PosInfo(VDP& vdp)
@@ -202,7 +202,7 @@ public:
 	}
 };
 
-class MsxX512PosInfo : public VDPInfo
+class MsxX512PosInfo final : public VDPInfo
 {
 public:
 	MsxX512PosInfo(VDP& vdp)

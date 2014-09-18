@@ -8,7 +8,7 @@ namespace openmsx {
 
 /** Dummy Renderer
   */
-class DummyRenderer : public Renderer, public Layer
+class DummyRenderer final : public Renderer, public Layer
 {
 public:
 	// Renderer interface:

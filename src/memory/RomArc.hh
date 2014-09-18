@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomArc : public Rom16kBBlocks
+class RomArc final : public Rom16kBBlocks
 {
 public:
 	RomArc(const DeviceConfig& config, std::unique_ptr<Rom> rom);

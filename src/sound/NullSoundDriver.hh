@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class NullSoundDriver : public SoundDriver
+class NullSoundDriver final : public SoundDriver
 {
 public:
 	virtual void mute();

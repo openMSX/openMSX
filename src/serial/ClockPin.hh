@@ -18,7 +18,7 @@ protected:
 	virtual ~ClockPinListener() {}
 };
 
-class ClockPin : public Schedulable
+class ClockPin final : public Schedulable
 {
 public:
 	explicit ClockPin(Scheduler& scheduler, ClockPinListener* listener = nullptr);

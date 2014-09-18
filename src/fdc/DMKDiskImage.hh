@@ -13,7 +13,7 @@ class File;
   *   http://www.trs-80.com/wordpress/dsk-and-dmk-image-utilities/
   *   (at the bottom of the page)
   */
-class DMKDiskImage : public Disk
+class DMKDiskImage final : public Disk
 {
 public:
 	DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file);

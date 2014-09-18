@@ -14,7 +14,7 @@ template <class Pixel> class Blur_1on3;
 template <class Pixel> class PolyLineScaler;
 
 template <class Pixel>
-class Simple3xScaler : public Scaler3<Pixel>, private noncopyable
+class Simple3xScaler final : public Scaler3<Pixel>, private noncopyable
 {
 public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class LaserdiscPlayerCLI : public CLIOption, public CLIFileType
+class LaserdiscPlayerCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit LaserdiscPlayerCLI(CommandLineParser& commandLineParser);

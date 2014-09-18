@@ -8,7 +8,7 @@ namespace openmsx {
 
 class CheckedRam;
 
-class MSXRam : public MSXDevice
+class MSXRam final : public MSXDevice
 {
 public:
 	explicit MSXRam(const DeviceConfig& config);

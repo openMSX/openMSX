@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class RomMultiRom : public Rom16kBBlocks
+class RomMultiRom final : public Rom16kBBlocks
 {
 public:
 	RomMultiRom(const DeviceConfig& config, std::unique_ptr<Rom> rom);

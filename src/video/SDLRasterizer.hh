@@ -26,8 +26,8 @@ template <class Pixel> class SpriteConverter;
   * rectangular pixel buffer.
   */
 template <class Pixel>
-class SDLRasterizer : public Rasterizer, private noncopyable,
-                      private Observer<Setting>
+class SDLRasterizer final : public Rasterizer, private noncopyable
+                          , private Observer<Setting>
 {
 public:
 	SDLRasterizer(

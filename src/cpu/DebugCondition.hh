@@ -8,7 +8,7 @@ namespace openmsx {
 /** General debugger condition
  *  Like breakpoints, but not tied to a specifc address.
  */
-class DebugCondition : public BreakPointBase
+class DebugCondition final : public BreakPointBase
 {
 public:
 	DebugCondition(GlobalCliComm& CliComm, Interpreter& interp,

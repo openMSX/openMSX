@@ -26,9 +26,9 @@ class V9990PalDebug;
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
   */
-class V9990 : public MSXDevice,
-              public Schedulable,
-              private VideoSystemChangeListener
+class V9990 final : public MSXDevice
+                  , public Schedulable
+                  , private VideoSystemChangeListener
 {
 public:
 	explicit V9990(const DeviceConfig& config);

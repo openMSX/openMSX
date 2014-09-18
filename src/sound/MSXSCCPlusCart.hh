@@ -13,7 +13,7 @@ class SCC;
 class Ram;
 class RomBlockDebuggable;
 
-class MSXSCCPlusCart : public MSXDevice
+class MSXSCCPlusCart final : public MSXDevice
 {
 public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);

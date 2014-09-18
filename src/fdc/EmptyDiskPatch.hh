@@ -7,7 +7,7 @@ namespace openmsx {
 
 class SectorAccessibleDisk;
 
-class EmptyDiskPatch : public PatchInterface
+class EmptyDiskPatch final : public PatchInterface
 {
 public:
 	explicit EmptyDiskPatch(SectorAccessibleDisk& disk);

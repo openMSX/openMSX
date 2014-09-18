@@ -9,7 +9,7 @@ namespace openmsx {
 
 class RenderSettings;
 
-class GLTVScaler: public GLScaler, private noncopyable
+class GLTVScaler final : public GLScaler, private noncopyable
 {
 public:
 	explicit GLTVScaler(RenderSettings& renderSettings);

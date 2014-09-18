@@ -9,7 +9,7 @@ namespace openmsx {
 class WD33C93;
 class Rom;
 
-class GoudaSCSI : public MSXDevice
+class GoudaSCSI final : public MSXDevice
 {
 public:
 	explicit GoudaSCSI(const DeviceConfig& config);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class NationalFDC : public WD2793BasedFDC
+class NationalFDC final : public WD2793BasedFDC
 {
 public:
 	explicit NationalFDC(const DeviceConfig& config);

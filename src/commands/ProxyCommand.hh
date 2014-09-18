@@ -8,7 +8,7 @@ namespace openmsx {
 
 class Reactor;
 
-class ProxyCmd : public Command
+class ProxyCmd final : public Command
 {
 public:
 	ProxyCmd(Reactor& reactor, std::string name_);

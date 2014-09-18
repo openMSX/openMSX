@@ -15,7 +15,7 @@ namespace openmsx {
 
 class PreCacheFile;
 
-class LocalFile : public FileBase
+class LocalFile final : public FileBase
 {
 public:
 	LocalFile(string_ref filename, File::OpenMode mode);

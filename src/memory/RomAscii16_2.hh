@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomAscii16_2 : public RomAscii16kB
+class RomAscii16_2 final : public RomAscii16kB
 {
 public:
 	enum SubType { ASCII16_2, ASCII16_8 };

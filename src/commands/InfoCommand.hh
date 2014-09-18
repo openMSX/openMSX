@@ -8,7 +8,7 @@ namespace openmsx {
 
 class InfoTopic;
 
-class InfoCommand : public Command
+class InfoCommand final : public Command
 {
 public:
 	InfoCommand(CommandController& commandController, const std::string& name);

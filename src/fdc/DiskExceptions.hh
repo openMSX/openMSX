@@ -5,25 +5,25 @@
 
 namespace openmsx {
 
-class NoSuchSectorException : public MSXException {
+class NoSuchSectorException final : public MSXException {
 public:
 	explicit NoSuchSectorException(string_ref message)
 		: MSXException(message) {}
 };
 
-class DiskIOErrorException  : public MSXException {
+class DiskIOErrorException final : public MSXException {
 public:
 	explicit DiskIOErrorException(string_ref message)
 		: MSXException(message) {}
 };
 
-class DriveEmptyException  : public MSXException {
+class DriveEmptyException final : public MSXException {
 public:
 	explicit DriveEmptyException(string_ref message)
 		: MSXException(message) {}
 };
 
-class WriteProtectedException  : public MSXException {
+class WriteProtectedException final : public MSXException {
 public:
 	explicit WriteProtectedException(string_ref message)
 		: MSXException(message) {}

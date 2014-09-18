@@ -14,7 +14,7 @@ class EventDistributor;
 class CommandController;
 class AfterCmd;
 
-class AfterCommand : public Command, private EventListener
+class AfterCommand final : public Command, private EventListener
 {
 public:
 	typedef std::shared_ptr<const Event> EventPtr;

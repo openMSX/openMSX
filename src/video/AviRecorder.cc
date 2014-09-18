@@ -22,7 +22,7 @@ using std::vector;
 
 namespace openmsx {
 
-class RecordCommand : public Command
+class RecordCommand final : public Command
 {
 public:
 	RecordCommand(CommandController& commandController, AviRecorder& recorder);

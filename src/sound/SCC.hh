@@ -10,7 +10,7 @@ namespace openmsx {
 
 class SCCDebuggable;
 
-class SCC : public ResampledSoundDevice
+class SCC final : public ResampledSoundDevice
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};

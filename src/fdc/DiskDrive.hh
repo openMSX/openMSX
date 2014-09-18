@@ -96,7 +96,7 @@ public:
 /**
  * This class implements a not connected disk drive.
  */
-class DummyDrive : public DiskDrive
+class DummyDrive final : public DiskDrive
 {
 public:
 	virtual bool isDiskInserted() const;

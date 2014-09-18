@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomPlain : public Rom8kBBlocks
+class RomPlain final : public Rom8kBBlocks
 {
 public:
 	enum MirrorType { MIRRORED, NOT_MIRRORED };

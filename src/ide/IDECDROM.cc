@@ -21,7 +21,7 @@ using std::vector;
 
 namespace openmsx {
 
-class CDXCommand : public RecordedCommand
+class CDXCommand final : public RecordedCommand
 {
 public:
 	CDXCommand(CommandController& commandController,

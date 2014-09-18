@@ -89,7 +89,7 @@ static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE /
                                           SectorAccessibleDisk::SECTOR_SIZE;
 
-class LSXCommand : public RecordedCommand
+class LSXCommand final : public RecordedCommand
 {
 public:
 	LSXCommand(CommandController& commandController,

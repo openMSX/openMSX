@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-class MSXResetStatusRegister : public MSXDevice
+class MSXResetStatusRegister final : public MSXDevice
 {
 public:
 	explicit MSXResetStatusRegister(const DeviceConfig& config);

@@ -15,7 +15,7 @@ using std::string;
 
 namespace openmsx {
 
-class RamDebuggable : public SimpleDebuggable
+class RamDebuggable final : public SimpleDebuggable
 {
 public:
 	RamDebuggable(MSXMotherBoard& motherBoard, const string& name,

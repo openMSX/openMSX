@@ -8,7 +8,7 @@ namespace openmsx {
 
 class MidiOutDevice;
 
-class MidiOutConnector : public Connector, public SerialDataInterface
+class MidiOutConnector final : public Connector, public SerialDataInterface
 {
 public:
 	MidiOutConnector(PluggingController& pluggingController,

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class FilenameSetting : public Setting
+class FilenameSetting final : public Setting
 {
 public:
 	FilenameSetting(CommandController& commandController,

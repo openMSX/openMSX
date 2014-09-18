@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class SDLImage : public BaseImage
+class SDLImage final : public BaseImage
 {
 public:
 	explicit SDLImage(const std::string& filename);

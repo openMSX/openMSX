@@ -70,7 +70,7 @@ class DeviceInfo;
 class FastForwardHelper;
 class JoyPortDebuggable;
 
-class MSXMotherBoard::Impl : private Observer<Setting>, private noncopyable
+class MSXMotherBoard::Impl final : private Observer<Setting>, private noncopyable
 {
 public:
 	Impl(MSXMotherBoard& self, Reactor& reactor);
@@ -226,7 +226,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class ResetCmd : public RecordedCommand
+class ResetCmd final : public RecordedCommand
 {
 public:
 	ResetCmd(MSXMotherBoard::Impl& motherBoard);
@@ -237,7 +237,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class LoadMachineCmd : public Command
+class LoadMachineCmd final : public Command
 {
 public:
 	LoadMachineCmd(MSXMotherBoard& motherBoard);
@@ -248,7 +248,7 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
-class ListExtCmd : public Command
+class ListExtCmd final : public Command
 {
 public:
 	ListExtCmd(MSXMotherBoard::Impl& motherBoard);
@@ -258,7 +258,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class RemoveExtCmd : public RecordedCommand
+class RemoveExtCmd final : public RecordedCommand
 {
 public:
 	RemoveExtCmd(MSXMotherBoard::Impl& motherBoard);
@@ -270,7 +270,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class MachineNameInfo : public InfoTopic
+class MachineNameInfo final : public InfoTopic
 {
 public:
 	MachineNameInfo(MSXMotherBoard::Impl& motherBoard);
@@ -281,7 +281,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class DeviceInfo : public InfoTopic
+class DeviceInfo final : public InfoTopic
 {
 public:
 	DeviceInfo(MSXMotherBoard::Impl& motherBoard);
@@ -293,7 +293,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class FastForwardHelper : private Schedulable
+class FastForwardHelper final : private Schedulable
 {
 public:
 	FastForwardHelper(MSXMotherBoard::Impl& msxMotherBoardImpl);
@@ -303,7 +303,7 @@ private:
 	MSXMotherBoard::Impl& motherBoard;
 };
 
-class JoyPortDebuggable : public SimpleDebuggable
+class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
 	JoyPortDebuggable(MSXMotherBoard& motherBoard);

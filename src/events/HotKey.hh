@@ -23,7 +23,7 @@ class UnbindCmd;
 class ActivateCmd;
 class DeactivateCmd;
 
-class HotKey : public RTSchedulable, public EventListener
+class HotKey final : public RTSchedulable, public EventListener
 {
 public:
 	struct HotKeyInfo {

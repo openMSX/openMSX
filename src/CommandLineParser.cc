@@ -47,7 +47,7 @@ using std::vector;
 
 namespace openmsx {
 
-class HelpOption : public CLIOption
+class HelpOption final : public CLIOption
 {
 public:
 	explicit HelpOption(CommandLineParser& parser);
@@ -57,7 +57,7 @@ private:
 	CommandLineParser& parser;
 };
 
-class VersionOption : public CLIOption
+class VersionOption final : public CLIOption
 {
 public:
 	explicit VersionOption(CommandLineParser& parser);
@@ -67,7 +67,7 @@ private:
 	CommandLineParser& parser;
 };
 
-class ControlOption : public CLIOption
+class ControlOption final : public CLIOption
 {
 public:
 	explicit ControlOption(CommandLineParser& parser);
@@ -77,7 +77,7 @@ private:
 	CommandLineParser& parser;
 };
 
-class ScriptOption : public CLIOption, public CLIFileType
+class ScriptOption final : public CLIOption, public CLIFileType
 {
 public:
 	const CommandLineParser::Scripts& getScripts() const;
@@ -91,7 +91,7 @@ private:
 	CommandLineParser::Scripts scripts;
 };
 
-class MachineOption : public CLIOption
+class MachineOption final : public CLIOption
 {
 public:
 	explicit MachineOption(CommandLineParser& parser);
@@ -101,7 +101,7 @@ private:
 	CommandLineParser& parser;
 };
 
-class SettingOption : public CLIOption
+class SettingOption final : public CLIOption
 {
 public:
 	explicit SettingOption(CommandLineParser& parser);
@@ -111,13 +111,13 @@ private:
 	CommandLineParser& parser;
 };
 
-class NoPBOOption : public CLIOption {
+class NoPBOOption final : public CLIOption {
 public:
 	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
 	virtual string_ref optionHelp() const;
 };
 
-class TestConfigOption : public CLIOption
+class TestConfigOption final : public CLIOption
 {
 public:
 	explicit TestConfigOption(CommandLineParser& parser);
@@ -127,7 +127,7 @@ private:
 	CommandLineParser& parser;
 };
 
-class BashOption : public CLIOption
+class BashOption final : public CLIOption
 {
 public:
 	explicit BashOption(CommandLineParser& parser);

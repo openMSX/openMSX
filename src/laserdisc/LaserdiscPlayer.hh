@@ -21,10 +21,10 @@ class LDRenderer;
 class RawFrame;
 class LoadingIndicator;
 
-class LaserdiscPlayer : public ResampledSoundDevice
-		      , public Schedulable
-		      , private EventListener
-		      , private VideoSystemChangeListener
+class LaserdiscPlayer final : public ResampledSoundDevice
+                            , public Schedulable
+                            , private EventListener
+                            , private VideoSystemChangeListener
 {
 public:
 	LaserdiscPlayer(const HardwareConfig& hwConf,

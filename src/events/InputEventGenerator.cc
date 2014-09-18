@@ -16,7 +16,7 @@ using std::make_shared;
 
 namespace openmsx {
 
-class EscapeGrabCmd : public Command
+class EscapeGrabCmd final : public Command
 {
 public:
 	EscapeGrabCmd(CommandController& commandController,

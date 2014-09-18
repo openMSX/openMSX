@@ -8,7 +8,7 @@ namespace openmsx {
 
 class YMF262;
 
-class MSXOPL3Cartridge : public MSXDevice
+class MSXOPL3Cartridge final : public MSXDevice
 {
 public:
 	explicit MSXOPL3Cartridge(const DeviceConfig& config);

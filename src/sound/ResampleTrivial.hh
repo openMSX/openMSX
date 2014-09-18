@@ -7,7 +7,7 @@ namespace openmsx {
 
 class ResampledSoundDevice;
 
-class ResampleTrivial : public ResampleAlgo
+class ResampleTrivial final : public ResampleAlgo
 {
 public:
 	ResampleTrivial(ResampledSoundDevice& input);

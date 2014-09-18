@@ -38,7 +38,7 @@ using std::vector;
 
 namespace openmsx {
 
-class ScreenShotCmd : public Command
+class ScreenShotCmd final : public Command
 {
 public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
@@ -49,7 +49,7 @@ private:
 	Display& display;
 };
 
-class FpsInfoTopic : public InfoTopic
+class FpsInfoTopic final : public InfoTopic
 {
 public:
 	FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);

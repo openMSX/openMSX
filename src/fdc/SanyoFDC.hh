@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class SanyoFDC : public WD2793BasedFDC
+class SanyoFDC final : public WD2793BasedFDC
 {
 public:
 	explicit SanyoFDC(const DeviceConfig& config);

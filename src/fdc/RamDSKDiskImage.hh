@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class RamDSKDiskImage : public SectorBasedDisk
+class RamDSKDiskImage final : public SectorBasedDisk
 {
 public:
 	explicit RamDSKDiskImage(size_t size = 720 * 1024);

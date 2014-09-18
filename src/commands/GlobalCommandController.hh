@@ -26,7 +26,7 @@ class RomInfoTopic;
 class ProxySetting;
 class SettingsConfig;
 
-class GlobalCommandController : public CommandController, private noncopyable
+class GlobalCommandController final : public CommandController, private noncopyable
 {
 public:
 	GlobalCommandController(EventDistributor& eventDistributor,

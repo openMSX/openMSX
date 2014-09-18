@@ -12,7 +12,7 @@ public:
 	static std::string getStorageDirectory();
 };
 
-class JniException : public MSXException
+class JniException final : public MSXException
 {
 public:
 	explicit JniException(string_ref message)

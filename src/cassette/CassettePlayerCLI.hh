@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class CassettePlayerCLI : public CLIOption, public CLIFileType
+class CassettePlayerCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit CassettePlayerCLI(CommandLineParser& commandLineParser);

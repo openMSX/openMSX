@@ -11,8 +11,8 @@ namespace openmsx {
 class MSXEventDistributor;
 class StateChangeDistributor;
 
-class ArkanoidPad : public JoystickDevice, private MSXEventListener
-                  , private StateChangeListener
+class ArkanoidPad final : public JoystickDevice, private MSXEventListener
+                        , private StateChangeListener
 {
 public:
 	explicit ArkanoidPad(MSXEventDistributor& eventDistributor,

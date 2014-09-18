@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXCPUInterface;
 class MSXWatchIODevice;
 
-class WatchIO : public WatchPoint
+class WatchIO final : public WatchPoint
 {
 public:
 	WatchIO(MSXMotherBoard& motherboard,
@@ -32,7 +32,7 @@ private:
 	friend class MSXWatchIODevice;
 };
 
-class MSXWatchIODevice : public MSXMultiDevice
+class MSXWatchIODevice final : public MSXMultiDevice
 {
 public:
 	MSXWatchIODevice(const HardwareConfig& hwConf, WatchIO& watchIO);

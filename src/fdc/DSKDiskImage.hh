@@ -8,7 +8,7 @@ namespace openmsx {
 
 class File;
 
-class DSKDiskImage : public SectorBasedDisk
+class DSKDiskImage final : public SectorBasedDisk
 {
 public:
 	explicit DSKDiskImage(const Filename& filename);

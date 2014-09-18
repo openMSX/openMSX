@@ -10,7 +10,7 @@ namespace openmsx {
 
 class Reactor;
 
-class SDLSoundDriver : public SoundDriver, private noncopyable
+class SDLSoundDriver final : public SoundDriver, private noncopyable
 {
 public:
 	SDLSoundDriver(Reactor& reactor,

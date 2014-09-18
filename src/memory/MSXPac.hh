@@ -8,7 +8,7 @@ namespace openmsx {
 
 class SRAM;
 
-class MSXPac : public MSXDevice
+class MSXPac final : public MSXDevice
 {
 public:
 	explicit MSXPac(const DeviceConfig& config);

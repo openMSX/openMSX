@@ -9,7 +9,7 @@ namespace openmsx {
 /** Runs the hq2x scaler algorithm.
   */
 template <class Pixel>
-class HQ2xScaler : public Scaler2<Pixel>
+class HQ2xScaler final : public Scaler2<Pixel>
 {
 public:
 	explicit HQ2xScaler(const PixelOperations<Pixel>& pixelOps);

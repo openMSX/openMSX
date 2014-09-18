@@ -9,7 +9,7 @@ namespace openmsx {
 class Rom;
 class AmdFlash;
 
-class RomMatraInk : public MSXRom
+class RomMatraInk final : public MSXRom
 {
 public:
 	RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom);

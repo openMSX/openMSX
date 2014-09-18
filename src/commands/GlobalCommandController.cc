@@ -29,7 +29,7 @@ using std::vector;
 
 namespace openmsx {
 
-class HelpCmd : public Command
+class HelpCmd final : public Command
 {
 public:
 	explicit HelpCmd(GlobalCommandController& controller);
@@ -40,7 +40,7 @@ private:
 	GlobalCommandController& controller;
 };
 
-class TabCompletionCmd : public Command
+class TabCompletionCmd final : public Command
 {
 public:
 	explicit TabCompletionCmd(GlobalCommandController& controller);
@@ -50,7 +50,7 @@ private:
 	GlobalCommandController& controller;
 };
 
-class UpdateCmd : public Command
+class UpdateCmd final : public Command
 {
 public:
 	explicit UpdateCmd(CommandController& commandController);
@@ -61,7 +61,7 @@ private:
 	CliConnection& getConnection();
 };
 
-class PlatformInfo : public InfoTopic
+class PlatformInfo final : public InfoTopic
 {
 public:
 	explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
@@ -70,7 +70,7 @@ public:
 	virtual string help(const vector<string>& tokens) const;
 };
 
-class VersionInfo : public InfoTopic
+class VersionInfo final : public InfoTopic
 {
 public:
 	explicit VersionInfo(InfoCommand& openMSXInfoCommand);

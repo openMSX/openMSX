@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class EmptyPatch : public PatchInterface, private noncopyable
+class EmptyPatch final : public PatchInterface, private noncopyable
 {
 public:
 	EmptyPatch(const byte* block, size_t size);

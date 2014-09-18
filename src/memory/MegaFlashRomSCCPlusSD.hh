@@ -12,7 +12,7 @@ class AmdFlash;
 class CheckedRam;
 class SdCard;
 
-class MegaFlashRomSCCPlusSD : public MSXRom
+class MegaFlashRomSCCPlusSD final : public MSXRom
 {
 public:
 	MegaFlashRomSCCPlusSD(const DeviceConfig& config, std::unique_ptr<Rom> rom);
@@ -115,7 +115,6 @@ private:
 
 	byte selectedCard;
 	std::unique_ptr<SdCard> sdCard[2];
-
 };
 
 } // namespace openmsx

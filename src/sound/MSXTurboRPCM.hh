@@ -11,7 +11,7 @@ class MSXMixer;
 class AudioInputConnector;
 class DACSound8U;
 
-class MSXTurboRPCM : public MSXDevice
+class MSXTurboRPCM final : public MSXDevice
 {
 public:
 	explicit MSXTurboRPCM(const DeviceConfig& config);

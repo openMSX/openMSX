@@ -31,7 +31,7 @@ namespace openmsx {
 
 typedef MSXCPUInterface::BreakPoints BreakPoints;
 
-class DebugCmd : public RecordedCommand
+class DebugCmd final : public RecordedCommand
 {
 public:
 	DebugCmd(CommandController& commandController,

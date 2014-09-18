@@ -21,7 +21,7 @@ using std::vector;
 
 namespace openmsx {
 
-class TimeInfoTopic : public InfoTopic
+class TimeInfoTopic final : public InfoTopic
 {
 public:
 	TimeInfoTopic(InfoCommand& machineInfoCommand,
@@ -33,7 +33,7 @@ private:
 	MSXCPU& msxcpu;
 };
 
-class CPUFreqInfoTopic : public InfoTopic
+class CPUFreqInfoTopic final : public InfoTopic
 {
 public:
 	CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
@@ -45,7 +45,7 @@ private:
 	CPUClock& clock;
 };
 
-class MSXCPUDebuggable : public SimpleDebuggable
+class MSXCPUDebuggable final : public SimpleDebuggable
 {
 public:
 	MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);

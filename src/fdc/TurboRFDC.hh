@@ -9,7 +9,7 @@ namespace openmsx {
 class TC8566AF;
 class RomBlockDebuggable;
 
-class TurboRFDC : public MSXFDC
+class TurboRFDC final : public MSXFDC
 {
 public:
 	enum Type { BOTH, R7FF2, R7FF8 };

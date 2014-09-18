@@ -9,7 +9,7 @@ namespace openmsx {
 
 class FilenameSetting;
 
-class DebugDevice : public MSXDevice
+class DebugDevice final : public MSXDevice
 {
 public:
 	explicit DebugDevice(const DeviceConfig& config);

@@ -15,7 +15,7 @@ class LoadingIndicator;
 
 /** This class implements a real drive, single or double sided.
  */
-class RealDrive : public DiskDrive, public Schedulable
+class RealDrive final : public DiskDrive, public Schedulable
 {
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,

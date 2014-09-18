@@ -58,7 +58,7 @@ public:
 #endif
 };
 
-class CassettePort : public CassettePortInterface, public Connector
+class CassettePort final : public CassettePortInterface, public Connector
 {
 public:
 	explicit CassettePort(const HardwareConfig& hwConf);
@@ -92,7 +92,7 @@ private:
 	bool motorControl;
 };
 
-class DummyCassettePort : public CassettePortInterface
+class DummyCassettePort final : public CassettePortInterface
 {
 public:
 	virtual void setMotor(bool status, EmuTime::param time);

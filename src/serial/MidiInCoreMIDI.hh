@@ -19,7 +19,7 @@ class PluggingController;
 
 /** Sends MIDI events to an existing CoreMIDI destination.
   */
-class MidiInCoreMIDI : public MidiInDevice, private EventListener
+class MidiInCoreMIDI final : public MidiInDevice, private EventListener
 {
 public:
 	static void registerAll(EventDistributor& eventDistributor,
@@ -70,7 +70,7 @@ private:
   * to a MIDI output. It is similar to using an IAC bus, but doesn't require
   * prior configuration to work.
   */
-class MidiInCoreMIDIVirtual : public MidiInDevice, private EventListener
+class MidiInCoreMIDIVirtual final : public MidiInDevice, private EventListener
 {
 public:
 	explicit MidiInCoreMIDIVirtual(EventDistributor& eventDistributor_,

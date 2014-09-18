@@ -117,7 +117,7 @@ can decide for itself how many bytes to read.
 
 */
 
-class DummyVRAMOBserver : public VRAMObserver
+class DummyVRAMOBserver final : public VRAMObserver
 {
 public:
 	virtual void updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) {}

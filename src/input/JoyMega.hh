@@ -12,7 +12,7 @@ class MSXEventDistributor;
 class StateChangeDistributor;
 class PluggingController;
 
-class JoyMega
+class JoyMega final
 #ifndef SDL_JOYSTICK_DISABLED
 	: public JoystickDevice, private MSXEventListener, private StateChangeListener
 #endif

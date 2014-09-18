@@ -22,7 +22,7 @@ class Setting;
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
  */
-class Autofire : private Observer<Setting>, private noncopyable
+class Autofire final : private Observer<Setting>, private noncopyable
 {
 public:
 	Autofire(CommandController& commandController,

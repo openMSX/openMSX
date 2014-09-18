@@ -7,7 +7,7 @@ namespace openmsx {
 
 class SCC;
 
-class RomKonamiSCC : public Rom8kBBlocks
+class RomKonamiSCC final : public Rom8kBBlocks
 {
 public:
 	RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom);

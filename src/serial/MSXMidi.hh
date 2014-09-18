@@ -14,7 +14,7 @@ class I8254;
 class I8251;
 class MidiOutConnector;
 
-class MSXMidi: public MSXDevice, public MidiInConnector
+class MSXMidi final : public MSXDevice, public MidiInConnector
 {
 public:
 	explicit MSXMidi(const DeviceConfig& config);

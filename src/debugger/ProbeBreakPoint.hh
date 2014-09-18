@@ -9,7 +9,8 @@ namespace openmsx {
 class Debugger;
 class ProbeBase;
 
-class ProbeBreakPoint : public BreakPointBase, private Observer<ProbeBase>
+class ProbeBreakPoint final : public BreakPointBase
+                            , private Observer<ProbeBase>
 {
 public:
 	ProbeBreakPoint(GlobalCliComm& CliComm,

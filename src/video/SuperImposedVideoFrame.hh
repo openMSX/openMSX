@@ -17,7 +17,7 @@ namespace openmsx {
   * way whether superimpose is enabled or not.
   */
 template <typename Pixel>
-class SuperImposedVideoFrame : public FrameSource
+class SuperImposedVideoFrame final : public FrameSource
 {
 public:
 	SuperImposedVideoFrame(const FrameSource& src, const FrameSource& super,

@@ -19,7 +19,8 @@ class Scheduler;
 class CommandController;
 class FilenameSetting;
 
-class RS232Tester : public RS232Device, private Runnable, private EventListener
+class RS232Tester final : public RS232Device, private Runnable
+                        , private EventListener
 {
 public:
 	RS232Tester(EventDistributor& eventDistributor, Scheduler& scheduler,

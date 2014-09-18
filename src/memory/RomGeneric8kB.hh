@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomGeneric8kB : public Rom8kBBlocks
+class RomGeneric8kB final : public Rom8kBBlocks
 {
 public:
 	RomGeneric8kB(const DeviceConfig& config, std::unique_ptr<Rom> rom);

@@ -7,7 +7,7 @@ namespace openmsx {
 
 /** Thrown when a plug action fails.
   */
-class PlugException : public MSXException
+class PlugException final : public MSXException
 {
 public:
 	explicit PlugException(string_ref message)

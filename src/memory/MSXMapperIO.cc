@@ -13,7 +13,7 @@ using std::string;
 
 namespace openmsx {
 
-class MapperIODebuggable : public SimpleDebuggable
+class MapperIODebuggable final : public SimpleDebuggable
 {
 public:
 	MapperIODebuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);

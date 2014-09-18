@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class PasswordCart : public MSXDevice
+class PasswordCart final : public MSXDevice
 {
 public:
 	explicit PasswordCart(const DeviceConfig& config);

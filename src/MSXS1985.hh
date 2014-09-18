@@ -18,7 +18,7 @@ namespace openmsx {
 
 class SRAM;
 
-class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
+class MSXS1985 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXS1985(const DeviceConfig& config);

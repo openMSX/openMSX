@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class GLHQLiteScaler : public GLScaler, private noncopyable
+class GLHQLiteScaler final : public GLScaler, private noncopyable
 {
 public:
 	explicit GLHQLiteScaler(GLScaler& fallback);

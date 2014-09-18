@@ -21,7 +21,7 @@ class Interpreter;
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings : private Observer<Setting>, private noncopyable
+class RenderSettings final : private Observer<Setting>, private noncopyable
 {
 public:
 	/** Render accuracy: granularity of the rendered area.

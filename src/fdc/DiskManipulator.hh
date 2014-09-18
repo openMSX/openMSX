@@ -15,7 +15,7 @@ class DiskPartition;
 class MSXtar;
 class Reactor;
 
-class DiskManipulator : public Command
+class DiskManipulator final : public Command
 {
 public:
 	explicit DiskManipulator(CommandController& commandController,

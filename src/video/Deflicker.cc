@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-template<typename Pixel> class DeflickerImpl : public Deflicker
+template<typename Pixel> class DeflickerImpl final : public Deflicker
 {
 public:
 	DeflickerImpl(const SDL_PixelFormat& format,

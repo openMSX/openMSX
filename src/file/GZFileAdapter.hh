@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class GZFileAdapter : public CompressedFileAdapter
+class GZFileAdapter final : public CompressedFileAdapter
 {
 public:
 	explicit GZFileAdapter(std::unique_ptr<FileBase> file);

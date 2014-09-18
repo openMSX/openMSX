@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MC6850 : public MSXDevice
+class MC6850 final : public MSXDevice
 {
 public:
 	explicit MC6850(const DeviceConfig& config);

@@ -17,7 +17,7 @@ namespace openmsx {
 
 // SettingsManager implementation:
 
-class SettingInfo : public InfoTopic
+class SettingInfo final : public InfoTopic
 {
 public:
 	SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
@@ -29,7 +29,7 @@ private:
 	SettingsManager& manager;
 };
 
-class SetCompleter : public CommandCompleter
+class SetCompleter final : public CommandCompleter
 {
 public:
 	SetCompleter(CommandController& commandController,
@@ -40,7 +40,7 @@ private:
 	SettingsManager& manager;
 };
 
-class SettingCompleter : public CommandCompleter
+class SettingCompleter final : public CommandCompleter
 {
 public:
 	SettingCompleter(CommandController& commandController,

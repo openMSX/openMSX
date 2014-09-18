@@ -7,7 +7,7 @@ namespace openmsx {
 
 class PanasonicMemory;
 
-class PanasonicRam : public MSXMemoryMapper
+class PanasonicRam final : public MSXMemoryMapper
 {
 public:
 	explicit PanasonicRam(const DeviceConfig& config);

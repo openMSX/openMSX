@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyAudioInputDevice : public AudioInputDevice
+class DummyAudioInputDevice final : public AudioInputDevice
 {
 public:
 	virtual string_ref getDescription() const;

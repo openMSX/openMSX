@@ -22,8 +22,8 @@ class Setting;
 class StringSetting;
 class CliComm;
 
-class FilePool : private Observer<Setting>, private EventListener,
-                 private noncopyable
+class FilePool final : private Observer<Setting>, private EventListener
+                     , private noncopyable
 {
 public:
 	FilePool(CommandController& controler, EventDistributor& distributor);

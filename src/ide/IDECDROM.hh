@@ -11,7 +11,7 @@ class DeviceConfig;
 class File;
 class CDXCommand;
 
-class IDECDROM : public AbstractIDEDevice, private noncopyable
+class IDECDROM final : public AbstractIDEDevice, private noncopyable
 {
 public:
 	explicit IDECDROM(const DeviceConfig& config);

@@ -11,7 +11,7 @@ namespace openmsx {
 
 class CliListener;
 
-class GlobalCliComm : public CliComm, private noncopyable
+class GlobalCliComm final : public CliComm, private noncopyable
 {
 public:
 	GlobalCliComm();

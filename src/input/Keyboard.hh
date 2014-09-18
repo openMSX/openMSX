@@ -32,8 +32,8 @@ class StateChange;
 class TclObject;
 class Interpreter;
 
-class Keyboard : private MSXEventListener, private StateChangeListener,
-                 private Schedulable
+class Keyboard final : private MSXEventListener, private StateChangeListener
+                     , private Schedulable
 {
 public:
 	static const unsigned NR_KEYROWS = 16;

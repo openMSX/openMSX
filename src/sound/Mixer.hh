@@ -17,7 +17,7 @@ class BooleanSetting;
 template <typename T> class EnumSetting;
 class Setting;
 
-class Mixer : private Observer<Setting>, private noncopyable
+class Mixer final : private Observer<Setting>, private noncopyable
 {
 public:
 	Mixer(Reactor& reactor, CommandController& commandController);

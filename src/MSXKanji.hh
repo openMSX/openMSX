@@ -8,7 +8,7 @@ namespace openmsx {
 
 class Rom;
 
-class MSXKanji : public MSXDevice
+class MSXKanji final : public MSXDevice
 {
 public:
 	explicit MSXKanji(const DeviceConfig& config);

@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class MSXMultiMemDevice : public MSXMultiDevice
+class MSXMultiMemDevice final : public MSXMultiDevice
 {
 public:
 	MSXMultiMemDevice(const HardwareConfig& hwConf);

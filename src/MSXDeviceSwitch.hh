@@ -52,7 +52,7 @@ namespace openmsx {
 
 class MSXSwitchedDevice;
 
-class MSXDeviceSwitch : public MSXDevice
+class MSXDeviceSwitch final : public MSXDevice
 {
 public:
 	explicit MSXDeviceSwitch(const DeviceConfig& config);

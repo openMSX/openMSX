@@ -22,7 +22,7 @@ struct V9958RasterizerBorderInfo
 /** A video frame as output by the VDP scanline conversion unit,
   * before any postprocessing filters are applied.
   */
-class RawFrame : public FrameSource
+class RawFrame final : public FrameSource
 {
 public:
 	RawFrame(const SDL_PixelFormat& format, unsigned maxWidth, unsigned height);

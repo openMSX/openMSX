@@ -8,7 +8,7 @@ namespace openmsx {
 class OutputSurface;
 
 template<typename Pixel>
-class DirectScalerOutput : public ScalerOutput<Pixel>
+class DirectScalerOutput final : public ScalerOutput<Pixel>
 {
 public:
 	DirectScalerOutput(OutputSurface& output);

@@ -17,9 +17,9 @@ class Setting;
  * notified us that it is loading... If you want to know about the throttle
  * status of openMSX, attach to me! (And not just to throttleSetting!)
  */
-class ThrottleManager : public Subject<ThrottleManager>,
-                        private Observer<Setting>,
-                        private noncopyable
+class ThrottleManager final : public Subject<ThrottleManager>
+                            , private Observer<Setting>
+                            , private noncopyable
 {
 public:
 	explicit ThrottleManager(CommandController& commandController);

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class SamplePlayer;
 
-class RomPlayBall : public Rom16kBBlocks
+class RomPlayBall final : public Rom16kBBlocks
 {
 public:
 	RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom);

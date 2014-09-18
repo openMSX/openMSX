@@ -7,7 +7,7 @@ namespace openmsx {
 
 class PanasonicMemory;
 
-class RomDRAM : public MSXRom
+class RomDRAM final : public MSXRom
 {
 public:
 	RomDRAM(const DeviceConfig& config, std::unique_ptr<Rom> rom);

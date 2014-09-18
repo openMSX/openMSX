@@ -24,8 +24,8 @@ template <class Pixel> class V9990P2Converter;
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable,
-                           private Observer<Setting>
+class V9990SDLRasterizer final : public V9990Rasterizer, private noncopyable
+                               , private Observer<Setting>
 {
 public:
 	V9990SDLRasterizer(

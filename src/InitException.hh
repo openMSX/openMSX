@@ -8,7 +8,7 @@ namespace openmsx {
 /** Thrown when a subsystem initialisation fails.
   * For example: opening video surface, opening audio output etc.
   */
-class InitException: public MSXException
+class InitException final : public MSXException
 {
 public:
 	explicit InitException(string_ref message)

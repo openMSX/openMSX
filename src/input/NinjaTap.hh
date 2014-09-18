@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class NinjaTap : public JoyTap
+class NinjaTap final : public JoyTap
 {
 public:
 	NinjaTap(PluggingController& pluggingController,

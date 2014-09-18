@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class SRAM : public RTSchedulable
+class SRAM final : private RTSchedulable
 {
 public:
 	enum DontLoad { DONT_LOAD };

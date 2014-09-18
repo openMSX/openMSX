@@ -10,7 +10,7 @@ namespace openmsx {
 class FirmwareSwitch;
 class SRAM;
 
-class MSXMatsushita : public MSXDevice, public MSXSwitchedDevice
+class MSXMatsushita final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXMatsushita(const DeviceConfig& config);

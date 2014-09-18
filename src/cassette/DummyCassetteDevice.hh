@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyCassetteDevice : public CassetteDevice
+class DummyCassetteDevice final : public CassetteDevice
 {
 public:
 	virtual void setMotor(bool status, EmuTime::param time);

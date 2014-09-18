@@ -23,8 +23,8 @@ class DiskCommand;
 class TclObject;
 class DiskName;
 
-class DiskChanger : public DiskContainer, private StateChangeListener,
-                    private noncopyable
+class DiskChanger final : public DiskContainer, private StateChangeListener
+                        , private noncopyable
 {
 public:
 	DiskChanger(MSXMotherBoard& board,

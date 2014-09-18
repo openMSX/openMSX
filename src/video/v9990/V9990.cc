@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-class V9990RegDebug : public SimpleDebuggable
+class V9990RegDebug final : public SimpleDebuggable
 {
 public:
 	explicit V9990RegDebug(V9990& v9990);
@@ -24,7 +24,7 @@ private:
 	V9990& v9990;
 };
 
-class V9990PalDebug : public SimpleDebuggable
+class V9990PalDebug final : public SimpleDebuggable
 {
 public:
 	explicit V9990PalDebug(V9990& v9990);

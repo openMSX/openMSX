@@ -19,7 +19,7 @@ protected:
 	JoystickPortIf() {}
 };
 
-class JoystickPort : public JoystickPortIf, public Connector
+class JoystickPort final : public JoystickPortIf, public Connector
 {
 public:
 	JoystickPort(PluggingController& pluggingController,
@@ -46,7 +46,7 @@ private:
 	const std::string description;
 };
 
-class DummyJoystickPort : public JoystickPortIf
+class DummyJoystickPort final : public JoystickPortIf
 {
 public:
 	virtual byte read(EmuTime::param time);

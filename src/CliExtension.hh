@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class CliExtension : public CLIOption
+class CliExtension final : public CLIOption
 {
 public:
 	explicit CliExtension(CommandLineParser& cmdLineParser);

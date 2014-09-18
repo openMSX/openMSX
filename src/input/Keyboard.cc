@@ -45,7 +45,7 @@ static const byte GRAPH_MASK = 0x04;
 static const byte CAPS_MASK  = 0x08;
 static const byte CODE_MASK  = 0x10;
 
-class KeyMatrixUpCmd : public RecordedCommand
+class KeyMatrixUpCmd final : public RecordedCommand
 {
 public:
 	KeyMatrixUpCmd(CommandController& commandController,
@@ -58,7 +58,7 @@ private:
 	Keyboard& keyboard;
 };
 
-class KeyMatrixDownCmd : public RecordedCommand
+class KeyMatrixDownCmd final : public RecordedCommand
 {
 public:
 	KeyMatrixDownCmd(CommandController& commandController,
@@ -71,7 +71,7 @@ private:
 	Keyboard& keyboard;
 };
 
-class MsxKeyEventQueue : public Schedulable
+class MsxKeyEventQueue final : public Schedulable
 {
 public:
 	MsxKeyEventQueue(Scheduler& scheduler, Keyboard& keyboard);
@@ -87,7 +87,7 @@ private:
 	Keyboard& keyboard;
 };
 
-class KeyInserter : public RecordedCommand, public Schedulable
+class KeyInserter final : public RecordedCommand, public Schedulable
 {
 public:
 	KeyInserter(CommandController& commandController,
@@ -122,7 +122,7 @@ private:
 	unsigned typingFrequency;
 };
 
-class CapsLockAligner : private EventListener, private Schedulable
+class CapsLockAligner final : private EventListener, private Schedulable
 {
 public:
 	CapsLockAligner(EventDistributor& eventDistributor,
@@ -148,7 +148,7 @@ private:
 	} state;
 };
 
-class KeybDebuggable : public SimpleDebuggable
+class KeybDebuggable final : public SimpleDebuggable
 {
 public:
 	KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
@@ -159,7 +159,7 @@ private:
 };
 
 
-class KeyMatrixState : public StateChange
+class KeyMatrixState final : public StateChange
 {
 public:
 	KeyMatrixState() {} // for serialize

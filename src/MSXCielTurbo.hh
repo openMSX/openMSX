@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MSXCielTurbo : public MSXDevice
+class MSXCielTurbo final : public MSXDevice
 {
 public:
 	explicit MSXCielTurbo(const DeviceConfig& config);

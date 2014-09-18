@@ -21,7 +21,7 @@ class Interpreter;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
-class Joystick
+class Joystick final
 #ifndef SDL_JOYSTICK_DISABLED
 	: public JoystickDevice, private MSXEventListener, private StateChangeListener
 #endif

@@ -16,7 +16,7 @@ class Display;
 
 /** Rasterizer using SDL.
   */
-class GLPostProcessor : public PostProcessor
+class GLPostProcessor final : public PostProcessor
 {
 public:
 	GLPostProcessor(

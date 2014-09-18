@@ -22,8 +22,8 @@ class VideoSourceSetting;
   *
   * @see PixelRenderer.cc
   */
-class V9990PixelRenderer : public V9990Renderer, private Observer<Setting>,
-                           private noncopyable
+class V9990PixelRenderer final : public V9990Renderer
+                               , private Observer<Setting>, private noncopyable
 {
 public:
 	explicit V9990PixelRenderer(V9990& vdp);

@@ -12,7 +12,7 @@ namespace openmsx {
 class DiskChanger;
 class CliComm;
 
-class DirAsDSK : public SectorBasedDisk
+class DirAsDSK final : public SectorBasedDisk
 {
 public:
 	enum SyncMode { SYNC_READONLY, SYNC_FULL };

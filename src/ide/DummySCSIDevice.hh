@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummySCSIDevice : public SCSIDevice
+class DummySCSIDevice final : public SCSIDevice
 {
 public:
 	virtual void reset();

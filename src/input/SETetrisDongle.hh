@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class SETetrisDongle : public JoystickDevice
+class SETetrisDongle final : public JoystickDevice
 {
 public:
 	SETetrisDongle();

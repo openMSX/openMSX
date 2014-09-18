@@ -7,7 +7,7 @@ namespace openmsx {
 
 /** A Setting with a floating point value.
   */
-class FloatSetting : public Setting
+class FloatSetting final : public Setting
 {
 public:
 	FloatSetting(CommandController& commandController,

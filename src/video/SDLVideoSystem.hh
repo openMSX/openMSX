@@ -18,8 +18,8 @@ class VisibleSurface;
 class Layer;
 class Setting;
 
-class SDLVideoSystem : public VideoSystem, private EventListener,
-                       private Observer<Setting>, private noncopyable
+class SDLVideoSystem final : public VideoSystem, private EventListener
+                           , private Observer<Setting>, private noncopyable
 {
 public:
 	/** Activates this video system.

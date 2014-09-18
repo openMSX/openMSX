@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class StringSetting : public Setting
+class StringSetting final : public Setting
 {
 public:
 	StringSetting(CommandController& commandController,

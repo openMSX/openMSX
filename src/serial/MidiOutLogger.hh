@@ -10,7 +10,7 @@ namespace openmsx {
 class CommandController;
 class FilenameSetting;
 
-class MidiOutLogger : public MidiOutDevice
+class MidiOutLogger final : public MidiOutDevice
 {
 public:
 	explicit MidiOutLogger(CommandController& commandController);

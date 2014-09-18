@@ -59,10 +59,9 @@ template <typename T> class EnumSetting;
  * This class serializes all incoming requests so they can be handled by the
  * main thread.
  */
-class Reactor : private Observer<Setting>, private EventListener,
-                private noncopyable
+class Reactor final : private Observer<Setting>, private EventListener
+                    , private noncopyable
 {
-
 public:
 	Reactor();
 	void init();

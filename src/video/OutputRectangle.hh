@@ -13,7 +13,7 @@ protected:
 };
 
 
-class DummyOutputRectangle : public OutputRectangle
+class DummyOutputRectangle final : public OutputRectangle
 {
 public:
 	DummyOutputRectangle(unsigned width_, unsigned height_)

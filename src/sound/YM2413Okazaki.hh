@@ -132,7 +132,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 };
 
-class YM2413 : public YM2413Core
+class YM2413 final : public YM2413Core
 {
 public:
 	YM2413();

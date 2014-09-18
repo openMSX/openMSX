@@ -87,7 +87,7 @@ chirp 12-..: vokume   0   : silent
 
 namespace openmsx {
 
-class VLM5030::Impl : public ResampledSoundDevice
+class VLM5030::Impl final : public ResampledSoundDevice
 {
 public:
 	Impl(const std::string& name, const std::string& desc,

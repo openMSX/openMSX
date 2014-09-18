@@ -13,7 +13,7 @@ class ReadOnlySetting;
 class RTScheduler;
 class Interpreter;
 
-class LedStatus : public RTSchedulable
+class LedStatus final : public RTSchedulable
 {
 public:
 	enum Led {

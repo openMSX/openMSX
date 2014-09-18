@@ -11,7 +11,7 @@ namespace openmsx {
 class Filename;
 class FilePool;
 
-class WavImage : public CassetteImage, private noncopyable
+class WavImage final : public CassetteImage, private noncopyable
 {
 public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);

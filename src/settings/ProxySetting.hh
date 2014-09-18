@@ -7,7 +7,7 @@ namespace openmsx {
 
 class Reactor;
 
-class ProxySetting : public BaseSetting
+class ProxySetting final : public BaseSetting
 {
 public:
 	ProxySetting(Reactor& reactor, string_ref name);

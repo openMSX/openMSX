@@ -35,7 +35,7 @@ typedef FixedPoint<EG_DP_BITS - EG_BITS> EnvPhaseIndex;
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(EG_MUTE);
 
 
-class Y8950Debuggable : public SimpleDebuggable
+class Y8950Debuggable final : public SimpleDebuggable
 {
 public:
 	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950,
@@ -141,7 +141,7 @@ public:
 	bool alg;
 };
 
-class Y8950::Impl : private ResampledSoundDevice, private EmuTimerCallback
+class Y8950::Impl final : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Impl(Y8950& self, const std::string& name, const DeviceConfig& config,

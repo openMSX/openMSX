@@ -21,7 +21,7 @@ using std::vector;
 
 namespace openmsx {
 
-class PlugCmd : public RecordedCommand
+class PlugCmd final : public RecordedCommand
 {
 public:
 	PlugCmd(CommandController& commandController,
@@ -37,7 +37,7 @@ private:
 	PluggingController& pluggingController;
 };
 
-class UnplugCmd : public RecordedCommand
+class UnplugCmd final : public RecordedCommand
 {
 public:
 	UnplugCmd(CommandController& commandController,
@@ -52,7 +52,7 @@ private:
 	PluggingController& pluggingController;
 };
 
-class PluggableInfo : public InfoTopic
+class PluggableInfo final : public InfoTopic
 {
 public:
 	PluggableInfo(InfoCommand& machineInfoCommand,
@@ -65,7 +65,7 @@ private:
 	PluggingController& pluggingController;
 };
 
-class ConnectorInfo : public InfoTopic
+class ConnectorInfo final : public InfoTopic
 {
 public:
 	ConnectorInfo(InfoCommand& machineInfoCommand,
@@ -78,7 +78,7 @@ private:
 	PluggingController& pluggingController;
 };
 
-class ConnectionClassInfo : public InfoTopic
+class ConnectionClassInfo final : public InfoTopic
 {
 public:
 	ConnectionClassInfo(InfoCommand& machineInfoCommand,

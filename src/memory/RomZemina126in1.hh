@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomZemina126in1 : public Rom16kBBlocks
+class RomZemina126in1 final : public Rom16kBBlocks
 {
 public:
 	RomZemina126in1(const DeviceConfig& config, std::unique_ptr<Rom> rom);

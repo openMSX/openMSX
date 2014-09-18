@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class SaveStateCLI : public CLIOption, public CLIFileType
+class SaveStateCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit SaveStateCLI(CommandLineParser& commandLineParser);

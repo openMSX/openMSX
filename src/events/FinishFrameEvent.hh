@@ -19,7 +19,7 @@ namespace openmsx {
  * if the corresponding video layer for a device is not active, the rendered
  * frame may still be displayed as part of a superimposed video layer.
  */
-class FinishFrameEvent : public Event
+class FinishFrameEvent final : public Event
 {
 public:
 	FinishFrameEvent(int thisSource_, int selectedSource_,

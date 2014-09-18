@@ -62,7 +62,7 @@ private:
 	             // be able to reschedule for 'after idle').
 };
 
-class AfterTimeCmd : public AfterTimedCmd
+class AfterTimeCmd final : public AfterTimedCmd
 {
 public:
 	AfterTimeCmd(Scheduler& scheduler,
@@ -71,7 +71,7 @@ public:
 	virtual string getType() const;
 };
 
-class AfterIdleCmd : public AfterTimedCmd
+class AfterIdleCmd final : public AfterTimedCmd
 {
 public:
 	AfterIdleCmd(Scheduler& scheduler,
@@ -81,7 +81,7 @@ public:
 };
 
 template<EventType T>
-class AfterEventCmd : public AfterCmd
+class AfterEventCmd final : public AfterCmd
 {
 public:
 	AfterEventCmd(AfterCommand& afterCommand,
@@ -92,7 +92,7 @@ private:
 	const string type;
 };
 
-class AfterInputEventCmd : public AfterCmd
+class AfterInputEventCmd final : public AfterCmd
 {
 public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
@@ -104,7 +104,7 @@ private:
 	AfterCommand::EventPtr event;
 };
 
-class AfterRealTimeCmd : public AfterCmd, private RTSchedulable
+class AfterRealTimeCmd final : public AfterCmd, private RTSchedulable
 {
 public:
 	AfterRealTimeCmd(RTScheduler& rtScheduler, AfterCommand& afterCommand,

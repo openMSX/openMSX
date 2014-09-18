@@ -17,7 +17,7 @@ class Ram;
 class Rom;
 class BooleanSetting;
 
-class MSXRS232 : public MSXDevice, public RS232Connector
+class MSXRS232 final : public MSXDevice, public RS232Connector
 {
 public:
 	explicit MSXRS232(const DeviceConfig& config);

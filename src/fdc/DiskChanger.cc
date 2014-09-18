@@ -30,7 +30,7 @@ using std::vector;
 
 namespace openmsx {
 
-class DiskCommand : public Command
+class DiskCommand final : public Command
 {
 public:
 	DiskCommand(CommandController& commandController,

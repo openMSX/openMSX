@@ -17,8 +17,8 @@ class BooleanSetting;
 class VideoSourceSetting;
 class VideoSourceActivator;
 
-class VideoLayer: public Layer, protected Observer<Setting>,
-                  private MSXEventListener, private noncopyable
+class VideoLayer : public Layer, protected Observer<Setting>
+                 , private MSXEventListener, private noncopyable
 {
 public:
 	virtual ~VideoLayer();

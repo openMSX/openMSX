@@ -7,7 +7,7 @@ namespace openmsx {
 
 /** A Setting with an integer value.
   */
-class IntegerSetting : public Setting
+class IntegerSetting final : public Setting
 {
 public:
 	IntegerSetting(CommandController& commandController,

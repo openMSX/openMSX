@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomMSXDOS2 : public Rom16kBBlocks
+class RomMSXDOS2 final : public Rom16kBBlocks
 {
 public:
 	RomMSXDOS2(const DeviceConfig& config, std::unique_ptr<Rom> rom);

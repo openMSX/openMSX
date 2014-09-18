@@ -12,7 +12,7 @@ class VDPVRAM;
   * Direito &agrave; Vram is a rare hardware modification that allows the
   * CPU to access the video ram in the same way as ordinary ram.
   */
-class ADVram : public MSXDevice
+class ADVram final : public MSXDevice
 {
 public:
 	explicit ADVram(const DeviceConfig& config);

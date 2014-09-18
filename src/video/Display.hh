@@ -29,8 +29,8 @@ class OutputSurface;
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
   */
-class Display : public EventListener, private Observer<Setting>,
-                private LayerListener, private RTSchedulable
+class Display final : public EventListener, private Observer<Setting>
+                    , private LayerListener, private RTSchedulable
 {
 public:
 	typedef std::vector<Layer*> Layers;

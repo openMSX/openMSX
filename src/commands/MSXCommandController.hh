@@ -15,8 +15,9 @@ class MSXMotherBoard;
 class MSXEventDistributor;
 class InfoCommand;
 
-class MSXCommandController : public CommandController, private MSXEventListener,
-                             private noncopyable
+class MSXCommandController final
+	: public CommandController, private MSXEventListener
+	, private noncopyable
 {
 public:
 	MSXCommandController(GlobalCommandController& globalCommandController,

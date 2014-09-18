@@ -18,7 +18,7 @@ class File;
 class FileContext;
 class RomDebuggable;
 
-class Rom : private noncopyable
+class Rom final : private noncopyable
 {
 public:
 	Rom(const std::string& name, const std::string& description,

@@ -9,7 +9,7 @@ namespace openmsx {
 
 class BaseImage;
 
-class OSDRectangle : public OSDImageBasedWidget
+class OSDRectangle final : public OSDImageBasedWidget
 {
 public:
 	OSDRectangle(const OSDGUI& gui, const std::string& name);

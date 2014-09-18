@@ -15,8 +15,8 @@ class StringSetting;
 class TclObject;
 class Interpreter;
 
-class Touchpad : public JoystickDevice, private MSXEventListener
-               , private StateChangeListener
+class Touchpad final : public JoystickDevice, private MSXEventListener
+                     , private StateChangeListener
 {
 public:
 	Touchpad(MSXEventDistributor& eventDistributor,

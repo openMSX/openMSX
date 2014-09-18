@@ -18,7 +18,7 @@ class Scheduler;
   * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
   * event because the recording needs to see these.
   */
-class MSXCommandEvent : public StateChange
+class MSXCommandEvent final : public StateChange
 {
 public:
 	MSXCommandEvent() {} // for serialize

@@ -10,7 +10,7 @@ class Ram;
 class Rom;
 class RomBlockDebuggable;
 
-class MSXMegaRam : public MSXDevice
+class MSXMegaRam final : public MSXDevice
 {
 public:
 	explicit MSXMegaRam(const DeviceConfig& config);

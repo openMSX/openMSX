@@ -17,7 +17,7 @@ using std::unique_ptr;
 
 namespace openmsx {
 
-class UserSettingCommand : public Command
+class UserSettingCommand final : public Command
 {
 public:
 	UserSettingCommand(UserSettings& userSettings,

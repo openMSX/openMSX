@@ -18,7 +18,7 @@ using std::vector;
 
 namespace openmsx {
 
-class SaveSettingsCommand : public Command
+class SaveSettingsCommand final : public Command
 {
 public:
 	SaveSettingsCommand(CommandController& commandController,
@@ -30,7 +30,7 @@ private:
 	SettingsConfig& settingsConfig;
 };
 
-class LoadSettingsCommand : public Command
+class LoadSettingsCommand final : public Command
 {
 public:
 	LoadSettingsCommand(CommandController& commandController,

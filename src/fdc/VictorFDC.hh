@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class VictorFDC : public WD2793BasedFDC
+class VictorFDC final : public WD2793BasedFDC
 {
 public:
 	explicit VictorFDC(const DeviceConfig& config);

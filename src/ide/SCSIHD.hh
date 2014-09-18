@@ -18,7 +18,7 @@ namespace openmsx {
 
 class DeviceConfig;
 
-class SCSIHD : public HD, public SCSIDevice, private noncopyable
+class SCSIHD final : public HD, public SCSIDevice, private noncopyable
 {
 public:
 	SCSIHD(const DeviceConfig& targetconfig,

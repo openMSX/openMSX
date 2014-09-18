@@ -14,8 +14,8 @@ class KeyCodeSetting;
 class MSXEventDistributor;
 class StateChangeDistributor;
 
-class KeyJoystick : public JoystickDevice, private MSXEventListener
-                  , private StateChangeListener
+class KeyJoystick final : public JoystickDevice, private MSXEventListener
+                        , private StateChangeListener
 {
 public:
 	KeyJoystick(CommandController& commandController,

@@ -14,7 +14,7 @@ class FilePool;
 /**
  * Code based on "cas2wav" tool by Vincent van Dam
  */
-class CasImage : public CassetteImage
+class CasImage final : public CassetteImage
 {
 public:
 	CasImage(const Filename& fileName, FilePool& filePool, CliComm& cliComm);

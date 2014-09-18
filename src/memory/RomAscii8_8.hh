@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomAscii8_8 : public Rom8kBBlocks
+class RomAscii8_8 final : public Rom8kBBlocks
 {
 public:
 	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2 };

@@ -7,7 +7,7 @@ namespace openmsx {
 
 class VLM5030;
 
-class RomKonamiKeyboardMaster : public Rom16kBBlocks
+class RomKonamiKeyboardMaster final : public Rom16kBBlocks
 {
 public:
 	RomKonamiKeyboardMaster(const DeviceConfig& config, std::unique_ptr<Rom> rom);

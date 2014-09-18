@@ -8,7 +8,7 @@ namespace openmsx {
 
 class PrinterPortDevice;
 
-class MSXPrinterPort : public MSXDevice, public Connector
+class MSXPrinterPort final : public MSXDevice, public Connector
 {
 public:
 	explicit MSXPrinterPort(const DeviceConfig& config);

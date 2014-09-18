@@ -17,7 +17,7 @@ const unsigned RAM_OFFSET = 0x2000;
 const unsigned RAM_SIZE = 0x800;
 
 
-class Counter0 : public ClockPinListener
+class Counter0 final : public ClockPinListener
 {
 public:
 	explicit Counter0(MSXRS232& rs232);
@@ -28,7 +28,7 @@ private:
 	MSXRS232& rs232;
 };
 
-class Counter1 : public ClockPinListener
+class Counter1 final : public ClockPinListener
 {
 public:
 	explicit Counter1(MSXRS232& rs232);
@@ -39,7 +39,7 @@ private:
 	MSXRS232& rs232;
 };
 
-class I8251Interf : public I8251Interface
+class I8251Interf final : public I8251Interface
 {
 public:
 	explicit I8251Interf(MSXRS232& rs232);

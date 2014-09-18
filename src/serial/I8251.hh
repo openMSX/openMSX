@@ -22,7 +22,7 @@ public:
 	virtual void signal(EmuTime::param time) = 0;
 };
 
-class I8251 : public SerialDataInterface, public Schedulable
+class I8251 final : public SerialDataInterface, public Schedulable
 {
 public:
 	I8251(Scheduler& scheduler, I8251Interface& interf, EmuTime::param time);

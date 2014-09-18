@@ -7,7 +7,7 @@ namespace openmsx {
 
 class PanasonicMemory;
 
-class RomPanasonic : public Rom8kBBlocks
+class RomPanasonic final : public Rom8kBBlocks
 {
 public:
 	RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom);

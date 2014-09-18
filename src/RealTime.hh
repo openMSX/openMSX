@@ -18,8 +18,9 @@ class BooleanSetting;
 class ThrottleManager;
 class Setting;
 
-class RealTime : private Schedulable, private EventListener,
-                 private Observer<Setting>, private Observer<ThrottleManager>
+class RealTime final : private Schedulable, private EventListener
+                     , private Observer<Setting>
+                     , private Observer<ThrottleManager>
 {
 public:
 	explicit RealTime(

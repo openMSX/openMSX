@@ -9,7 +9,7 @@ namespace openmsx {
 
 class PluggingController;
 
-class MidiOutWindows : public MidiOutDevice
+class MidiOutWindows final : public MidiOutDevice
 {
 public:
 	static void registerAll(PluggingController& controller);

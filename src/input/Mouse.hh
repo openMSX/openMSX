@@ -11,8 +11,8 @@ namespace openmsx {
 class MSXEventDistributor;
 class StateChangeDistributor;
 
-class Mouse : public JoystickDevice, private MSXEventListener
-            , private StateChangeListener
+class Mouse final : public JoystickDevice, private MSXEventListener
+                  , private StateChangeListener
 {
 public:
 	Mouse(MSXEventDistributor& eventDistributor,

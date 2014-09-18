@@ -7,7 +7,7 @@ namespace openmsx {
 
 class DACSound8U;
 
-class RomMajutsushi : public RomKonami
+class RomMajutsushi final : public RomKonami
 {
 public:
 	RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom);

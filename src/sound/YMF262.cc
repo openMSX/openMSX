@@ -52,7 +52,7 @@
 
 namespace openmsx {
 
-class YMF262Debuggable : public SimpleDebuggable
+class YMF262Debuggable final : public SimpleDebuggable
 {
 public:
 	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262,
@@ -178,7 +178,7 @@ public:
 	               // channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262::Impl : private ResampledSoundDevice, private EmuTimerCallback
+class YMF262::Impl final : private ResampledSoundDevice, private EmuTimerCallback
 {
 public:
 	Impl(YMF262& self, const std::string& name, const DeviceConfig& config,

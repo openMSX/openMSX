@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyIDEDevice : public IDEDevice
+class DummyIDEDevice final : public IDEDevice
 {
 public:
 	virtual void reset(EmuTime::param time);

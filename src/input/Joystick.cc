@@ -62,7 +62,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 }
 
 
-class JoyState : public StateChange
+class JoyState final : public StateChange
 {
 public:
 	JoyState() {} // for serialize

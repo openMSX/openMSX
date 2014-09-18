@@ -28,7 +28,7 @@ using std::string;
 
 namespace openmsx {
 
-class AY8910Debuggable : public SimpleDebuggable
+class AY8910Debuggable final : public SimpleDebuggable
 {
 public:
 	AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);

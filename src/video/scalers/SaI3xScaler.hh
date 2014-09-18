@@ -10,7 +10,7 @@ namespace openmsx {
   * Algorithm was developed by Derek Liauw Kie Fa.
   */
 template <typename Pixel>
-class SaI3xScaler: public Scaler3<Pixel>
+class SaI3xScaler final : public Scaler3<Pixel>
 {
 public:
 	explicit SaI3xScaler(const PixelOperations<Pixel>& pixelOps);

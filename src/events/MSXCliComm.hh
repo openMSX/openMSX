@@ -10,7 +10,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class GlobalCliComm;
 
-class MSXCliComm : public CliComm, private noncopyable
+class MSXCliComm final : public CliComm, private noncopyable
 {
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);

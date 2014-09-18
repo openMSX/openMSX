@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class SamplePlayer : public ResampledSoundDevice
+class SamplePlayer final : public ResampledSoundDevice
 {
 public:
 	SamplePlayer(const std::string& name, const std::string& desc,

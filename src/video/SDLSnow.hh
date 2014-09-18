@@ -12,7 +12,7 @@ class Display;
 /** Snow effect for background layer.
   */
 template <class Pixel>
-class SDLSnow : public Layer, private noncopyable
+class SDLSnow final : public Layer, private noncopyable
 {
 public:
 	SDLSnow(OutputSurface& output, Display& display);

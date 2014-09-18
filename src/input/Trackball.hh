@@ -10,8 +10,8 @@ namespace openmsx {
 class MSXEventDistributor;
 class StateChangeDistributor;
 
-class Trackball : public JoystickDevice, private MSXEventListener
-                , private StateChangeListener
+class Trackball final : public JoystickDevice, private MSXEventListener
+                      , private StateChangeListener
 {
 public:
 	Trackball(MSXEventDistributor& eventDistributor,

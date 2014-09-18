@@ -108,7 +108,7 @@ using std::string;
 
 namespace openmsx {
 
-class SCCDebuggable : public SimpleDebuggable
+class SCCDebuggable final : public SimpleDebuggable
 {
 public:
 	SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc);

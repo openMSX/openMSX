@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyMidiOutDevice : public MidiOutDevice
+class DummyMidiOutDevice final : public MidiOutDevice
 {
 public:
 	// SerialDataInterface (part)

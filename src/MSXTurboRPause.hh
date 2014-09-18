@@ -25,7 +25,7 @@ class Setting;
  *   bit 0 indicates the status (1 = pause active)
  *   all other bits read 0
  */
-class MSXTurboRPause : public MSXDevice, private Observer<Setting>
+class MSXTurboRPause final : public MSXDevice, private Observer<Setting>
 {
 public:
 	explicit MSXTurboRPause(const DeviceConfig& config);

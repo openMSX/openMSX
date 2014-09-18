@@ -13,7 +13,7 @@ template<typename Pixel> class PolyLineScaler;
 /** TODO
   */
 template <class Pixel>
-class RGBTriplet3xScaler : public Scaler3<Pixel>
+class RGBTriplet3xScaler final : public Scaler3<Pixel>
 {
 public:
 	RGBTriplet3xScaler(const PixelOperations<Pixel>& pixelOps,

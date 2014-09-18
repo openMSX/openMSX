@@ -18,7 +18,7 @@ class BooleanSetting;
 
 /** Command engine.
   */
-class V9990CmdEngine : private Observer<Setting>, private noncopyable
+class V9990CmdEngine final : private Observer<Setting>, private noncopyable
 {
 public:
 	// status bits

@@ -35,7 +35,7 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
-class BindCmd : public Command
+class BindCmd final : public Command
 {
 public:
 	BindCmd(CommandController& commandController, HotKey& hotKey,
@@ -49,7 +49,7 @@ private:
 	const bool defaultCmd;
 };
 
-class UnbindCmd : public Command
+class UnbindCmd final : public Command
 {
 public:
 	UnbindCmd(CommandController& commandController, HotKey& hotKey,
@@ -61,7 +61,7 @@ private:
 	const bool defaultCmd;
 };
 
-class ActivateCmd : public Command
+class ActivateCmd final : public Command
 {
 public:
 	ActivateCmd(CommandController& commandController, HotKey& hotKey);
@@ -71,7 +71,7 @@ private:
 	HotKey& hotKey;
 };
 
-class DeactivateCmd : public Command
+class DeactivateCmd final : public Command
 {
 public:
 	DeactivateCmd(CommandController& commandController, HotKey& hotKey);

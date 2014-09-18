@@ -58,7 +58,7 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 #endif
 }
 
-class JoyMegaState : public StateChange
+class JoyMegaState final : public StateChange
 {
 public:
 	JoyMegaState() {} // for serialize

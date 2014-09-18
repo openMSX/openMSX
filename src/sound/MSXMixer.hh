@@ -25,8 +25,8 @@ class Setting;
 class SoundDeviceInfoTopic;
 class AviRecorder;
 
-class MSXMixer : private Schedulable, private Observer<Setting>
-               , private Observer<ThrottleManager>
+class MSXMixer final : private Schedulable, private Observer<Setting>
+                     , private Observer<ThrottleManager>
 {
 public:
 	MSXMixer(Mixer& mixer, Scheduler& scheduler,

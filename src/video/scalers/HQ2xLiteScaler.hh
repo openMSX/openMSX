@@ -6,7 +6,7 @@
 namespace openmsx {
 
 template <class Pixel>
-class HQ2xLiteScaler : public Scaler2<Pixel>
+class HQ2xLiteScaler final : public Scaler2<Pixel>
 {
 public:
 	explicit HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps);

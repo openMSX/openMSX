@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class IPSPatch : public PatchInterface, private noncopyable
+class IPSPatch final : public PatchInterface, private noncopyable
 {
 public:
 	typedef std::vector<std::pair<size_t, std::vector<byte>>> PatchMap;

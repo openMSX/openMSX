@@ -26,7 +26,7 @@ class TclCallback;
  * accessed in DRAM mode or via the ROM mapper are unchecked! Note that there
  * is basically no overhead for using CheckedRam over Ram, thanks to Wouter.
  */
-class CheckedRam : private Observer<Setting>, private noncopyable
+class CheckedRam final : private Observer<Setting>, private noncopyable
 {
 public:
 	CheckedRam(const DeviceConfig& config, const std::string& name,

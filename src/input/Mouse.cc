@@ -25,7 +25,7 @@ static const int PHASE_YLOW  = 3;
 static const int STROBE = 0x04;
 
 
-class MouseState: public StateChange
+class MouseState final : public StateChange
 {
 public:
 	MouseState() {} // for serialize

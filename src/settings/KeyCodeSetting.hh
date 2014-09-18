@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class KeyCodeSetting : public Setting
+class KeyCodeSetting final : public Setting
 {
 public:
 	KeyCodeSetting(CommandController& commandController,

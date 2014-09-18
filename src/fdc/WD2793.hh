@@ -13,7 +13,7 @@ class Scheduler;
 class DiskDrive;
 class CliComm;
 
-class WD2793 : public Schedulable
+class WD2793 final : public Schedulable
 {
 public:
 	WD2793(Scheduler& scheduler, DiskDrive& drive, CliComm& cliComm,

@@ -9,7 +9,7 @@ namespace openmsx {
 class SRAM;
 class RomBlockDebuggable;
 
-class ESE_RAM : public MSXDevice
+class ESE_RAM final : public MSXDevice
 {
 public:
 	ESE_RAM(const DeviceConfig& config);

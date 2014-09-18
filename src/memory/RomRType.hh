@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomRType : public Rom16kBBlocks
+class RomRType final : public Rom16kBBlocks
 {
 public:
 	RomRType(const DeviceConfig& config, std::unique_ptr<Rom> rom);

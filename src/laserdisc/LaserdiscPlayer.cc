@@ -31,7 +31,7 @@ namespace openmsx {
 
 // LaserdiscCommand
 
-class LaserdiscCommand : public RecordedCommand
+class LaserdiscCommand final : public RecordedCommand
 {
 public:
 	LaserdiscCommand(CommandController& commandController,

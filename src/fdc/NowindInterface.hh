@@ -14,7 +14,7 @@ class AmdFlash;
 class DiskContainer;
 class NowindHost;
 
-class NowindInterface : public MSXDevice
+class NowindInterface final : public MSXDevice
 {
 public:
 	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;

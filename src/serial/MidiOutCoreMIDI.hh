@@ -36,7 +36,7 @@ private:
 
 /** Sends MIDI events to an existing CoreMIDI destination.
   */
-class MidiOutCoreMIDI : public MidiOutMessageBuffer
+class MidiOutCoreMIDI final : public MidiOutMessageBuffer
 {
 public:
 	static void registerAll(PluggingController& controller);
@@ -71,7 +71,7 @@ private:
   * to a MIDI output. It is similar to using an IAC bus, but doesn't require
   * prior configuration to work.
   */
-class MidiOutCoreMIDIVirtual : public MidiOutMessageBuffer
+class MidiOutCoreMIDIVirtual final : public MidiOutMessageBuffer
 {
 public:
 	explicit MidiOutCoreMIDIVirtual();

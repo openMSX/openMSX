@@ -16,7 +16,7 @@ class PostProcessor;
   * rectangular pixel buffer.
   */
 template <class Pixel>
-class LDSDLRasterizer : public LDRasterizer, private noncopyable
+class LDSDLRasterizer final : public LDRasterizer, private noncopyable
 {
 public:
 	LDSDLRasterizer(

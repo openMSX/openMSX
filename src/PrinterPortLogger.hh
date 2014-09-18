@@ -10,7 +10,7 @@ class CommandController;
 class File;
 class FilenameSetting;
 
-class PrinterPortLogger : public PrinterPortDevice
+class PrinterPortLogger final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortLogger(CommandController& commandController);

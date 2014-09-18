@@ -10,7 +10,7 @@ class SDLSurfacePtr;
 
 namespace openmsx {
 
-class GLImage : public BaseImage
+class GLImage final : public BaseImage
 {
 public:
 	explicit GLImage(const std::string& filename);

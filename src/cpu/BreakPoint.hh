@@ -10,7 +10,7 @@ namespace openmsx {
  *  For performance reasons every bp is associated with exactly one
  *  (immutable) address.
  */
-class BreakPoint : public BreakPointBase
+class BreakPoint final : public BreakPointBase
 {
 public:
 	BreakPoint(GlobalCliComm& CliComm, Interpreter& interp, word address,

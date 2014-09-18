@@ -14,7 +14,7 @@ class TclObject;
 class HD;
 class BooleanSetting;
 
-class HDCommand : public RecordedCommand
+class HDCommand final : public RecordedCommand
 {
 public:
 	HDCommand(CommandController& commandController,

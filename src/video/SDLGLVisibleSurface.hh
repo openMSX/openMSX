@@ -8,7 +8,8 @@ namespace openmsx {
 
 /** Visible surface for openGL renderers, both SDLGL-PP and SDLGL-FBxx
  */
-class SDLGLVisibleSurface : public VisibleSurface, public SDLGLOutputSurface
+class SDLGLVisibleSurface final : public VisibleSurface
+                                , public SDLGLOutputSurface
 {
 public:
 	SDLGLVisibleSurface(unsigned width, unsigned height,

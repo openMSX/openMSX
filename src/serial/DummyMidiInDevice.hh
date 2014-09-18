@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyMidiInDevice : public MidiInDevice
+class DummyMidiInDevice final : public MidiInDevice
 {
 public:
 	virtual void signal(EmuTime::param time);

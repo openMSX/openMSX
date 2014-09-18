@@ -37,7 +37,7 @@ class CassettePortInterface;
 class RenShaTurbo;
 class Keyboard;
 
-class MSXPPI: public MSXDevice, public I8255Interface
+class MSXPPI final : public MSXDevice, public I8255Interface
 {
 public:
 	explicit MSXPPI(const DeviceConfig& config);

@@ -22,7 +22,7 @@ using std::shared_ptr;
 
 namespace openmsx {
 
-class TrackballState : public StateChange
+class TrackballState final : public StateChange
 {
 public:
 	TrackballState() {} // for serialize

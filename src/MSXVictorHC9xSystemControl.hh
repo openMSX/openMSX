@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MSXVictorHC9xSystemControl : public MSXDevice
+class MSXVictorHC9xSystemControl final : public MSXDevice
 {
 public:
 	explicit MSXVictorHC9xSystemControl(const DeviceConfig& config);

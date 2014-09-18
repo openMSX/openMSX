@@ -11,7 +11,7 @@ public:
 	explicit CommandException(string_ref message);
 };
 
-class SyntaxError : public CommandException
+class SyntaxError final : public CommandException
 {
 public:
 	SyntaxError();

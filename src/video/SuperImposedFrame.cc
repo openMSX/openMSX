@@ -11,7 +11,7 @@
 namespace openmsx {
 
 template <typename Pixel>
-class SuperImposedFrameImpl : public SuperImposedFrame
+class SuperImposedFrameImpl final : public SuperImposedFrame
 {
 public:
 	SuperImposedFrameImpl(const SDL_PixelFormat& format);

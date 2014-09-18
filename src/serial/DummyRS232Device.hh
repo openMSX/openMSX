@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyRS232Device : public RS232Device
+class DummyRS232Device final : public RS232Device
 {
 public:
 	virtual void signal(EmuTime::param time);

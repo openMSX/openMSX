@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MicrosolFDC : public WD2793BasedFDC
+class MicrosolFDC final : public WD2793BasedFDC
 {
 public:
 	explicit MicrosolFDC(const DeviceConfig& config);

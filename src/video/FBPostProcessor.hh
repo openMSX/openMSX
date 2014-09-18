@@ -15,7 +15,7 @@ template<typename Pixel> class Scaler;
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class FBPostProcessor : public PostProcessor
+class FBPostProcessor final : public PostProcessor
 {
 public:
 	FBPostProcessor(

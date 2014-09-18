@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class BooleanSetting : public Setting
+class BooleanSetting final : public Setting
 {
 public:
 	BooleanSetting(CommandController& commandController,

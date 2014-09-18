@@ -41,7 +41,7 @@ VRAMWindow::VRAMWindow(Ram& vram)
  *   size of this debuggable would have to be 256kB to be able to access the
  *   complete extended VRAM in interleaved mode.
  */
-class LogicalVRAMDebuggable : public SimpleDebuggable
+class LogicalVRAMDebuggable final : public SimpleDebuggable
 {
 public:
 	explicit LogicalVRAMDebuggable(VDP& vdp);
@@ -82,7 +82,7 @@ void LogicalVRAMDebuggable::write(unsigned address, byte value, EmuTime::param t
 
 // class PhysicalVRAMDebuggable
 
-class PhysicalVRAMDebuggable : public SimpleDebuggable
+class PhysicalVRAMDebuggable final : public SimpleDebuggable
 {
 public:
 	PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);

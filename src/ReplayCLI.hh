@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class ReplayCLI : public CLIOption, public CLIFileType
+class ReplayCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit ReplayCLI(CommandLineParser& commandLineParser);

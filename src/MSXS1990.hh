@@ -14,7 +14,7 @@ class S1990Debuggable;
  *
  * TODO explanation
  */
-class MSXS1990 : public MSXDevice
+class MSXS1990 final : public MSXDevice
 {
 public:
 	explicit MSXS1990(const DeviceConfig& config);

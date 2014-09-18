@@ -10,7 +10,7 @@ class Rom;
 class YM2151;
 class YM2148;
 
-class MSXYamahaSFG : public MSXDevice
+class MSXYamahaSFG final : public MSXDevice
 {
 public:
 	explicit MSXYamahaSFG(const DeviceConfig& config);

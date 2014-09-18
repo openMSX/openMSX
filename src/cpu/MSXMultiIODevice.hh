@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-class MSXMultiIODevice : public MSXMultiDevice
+class MSXMultiIODevice final : public MSXMultiDevice
 {
 public:
 	typedef std::vector<MSXDevice*> Devices;

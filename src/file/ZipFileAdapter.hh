@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class ZipFileAdapter : public CompressedFileAdapter
+class ZipFileAdapter final : public CompressedFileAdapter
 {
 public:
 	explicit ZipFileAdapter(std::unique_ptr<FileBase> file);

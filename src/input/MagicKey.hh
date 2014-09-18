@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class MagicKey : public JoystickDevice
+class MagicKey final : public JoystickDevice
 {
 public:
 	// Pluggable

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class AVTFDC : public WD2793BasedFDC
+class AVTFDC final : public WD2793BasedFDC
 {
 public:
 	explicit AVTFDC(const DeviceConfig& config);

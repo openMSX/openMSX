@@ -10,7 +10,7 @@ namespace openmsx {
 
 // YM2413Debuggable
 
-class YM2413Debuggable : public SimpleDebuggable
+class YM2413Debuggable final : public SimpleDebuggable
 {
 public:
 	YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413);

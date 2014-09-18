@@ -8,7 +8,7 @@ namespace openmsx {
 
 class Y8950KeyboardDevice;
 
-class Y8950KeyboardConnector : public Connector
+class Y8950KeyboardConnector final : public Connector
 {
 public:
 	explicit Y8950KeyboardConnector(PluggingController& pluggingController);

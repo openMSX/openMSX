@@ -9,7 +9,7 @@ namespace openmsx {
   * (typically two RawFrames) containing the even and odd field.
   * This class does not copy the data from the input FrameSources.
   */
-class DeinterlacedFrame : public FrameSource
+class DeinterlacedFrame final : public FrameSource
 {
 public:
 	explicit DeinterlacedFrame(const SDL_PixelFormat& format);

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomHalnote : public Rom8kBBlocks
+class RomHalnote final : public Rom8kBBlocks
 {
 public:
 	RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom);

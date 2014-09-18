@@ -52,7 +52,7 @@ using std::make_shared;
 
 namespace openmsx {
 
-class QuitCommand : public Command
+class QuitCommand final : public Command
 {
 public:
 	QuitCommand(CommandController& commandController, EventDistributor& distributor);
@@ -62,7 +62,7 @@ private:
 	EventDistributor& distributor;
 };
 
-class MachineCommand : public Command
+class MachineCommand final : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
@@ -73,7 +73,7 @@ private:
 	Reactor& reactor;
 };
 
-class TestMachineCommand : public Command
+class TestMachineCommand final : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -84,7 +84,7 @@ private:
 	Reactor& reactor;
 };
 
-class CreateMachineCommand : public Command
+class CreateMachineCommand final : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -94,7 +94,7 @@ private:
 	Reactor& reactor;
 };
 
-class DeleteMachineCommand : public Command
+class DeleteMachineCommand final : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -105,7 +105,7 @@ private:
 	Reactor& reactor;
 };
 
-class ListMachinesCommand : public Command
+class ListMachinesCommand final : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
@@ -115,7 +115,7 @@ private:
 	Reactor& reactor;
 };
 
-class ActivateMachineCommand : public Command
+class ActivateMachineCommand final : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -126,7 +126,7 @@ private:
 	Reactor& reactor;
 };
 
-class StoreMachineCommand : public Command
+class StoreMachineCommand final : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -137,7 +137,7 @@ private:
 	Reactor& reactor;
 };
 
-class RestoreMachineCommand : public Command
+class RestoreMachineCommand final : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
@@ -148,7 +148,7 @@ private:
 	Reactor& reactor;
 };
 
-class ConfigInfo : public InfoTopic
+class ConfigInfo final : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
@@ -160,7 +160,7 @@ private:
 	const string configName;
 };
 
-class RealTimeInfo : public InfoTopic
+class RealTimeInfo final : public InfoTopic
 {
 public:
 	RealTimeInfo(InfoCommand& openMSXInfoCommand);

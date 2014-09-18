@@ -7,7 +7,7 @@ namespace openmsx {
 
 class SamplePlayer;
 
-class RomNettouYakyuu : public Rom8kBBlocks
+class RomNettouYakyuu final : public Rom8kBBlocks
 {
 public:
 	RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom);

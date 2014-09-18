@@ -168,7 +168,7 @@ private:
 };
 
 // emulated MSX printer
-class ImagePrinterMSX : public ImagePrinter
+class ImagePrinterMSX final : public ImagePrinter
 {
 public:
 	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
@@ -192,7 +192,7 @@ private:
 };
 
 // emulated Epson printer
-class ImagePrinterEpson : public ImagePrinter
+class ImagePrinterEpson final : public ImagePrinter
 {
 public:
 	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);

@@ -11,7 +11,7 @@ class Y8950;
 class Y8950Periphery;
 class DACSound8U;
 
-class MSXAudio : public MSXDevice
+class MSXAudio final : public MSXDevice
 {
 public:
 	explicit MSXAudio(const DeviceConfig& config);

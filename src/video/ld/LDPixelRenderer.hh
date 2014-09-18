@@ -16,7 +16,7 @@ class LaserdiscPlayer;
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
-class LDPixelRenderer : public LDRenderer, private noncopyable
+class LDPixelRenderer final : public LDRenderer, private noncopyable
 {
 public:
 	LDPixelRenderer(LaserdiscPlayer& ld, Display& display);

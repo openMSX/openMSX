@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomInfoTopic : public InfoTopic
+class RomInfoTopic final : public InfoTopic
 {
 public:
 	explicit RomInfoTopic(InfoCommand& openMSXInfoCommand);

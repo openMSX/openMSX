@@ -9,7 +9,7 @@ namespace openmsx {
 class MSXCPU;
 class MSXCPUInterface;
 
-class VDPIODelay : public MSXDevice
+class VDPIODelay final : public MSXDevice
 {
 public:
 	VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface);

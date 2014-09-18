@@ -9,7 +9,7 @@ namespace openmsx {
 
 class MapperIODebuggable;
 
-class MSXMapperIO : public MSXDevice
+class MSXMapperIO final : public MSXDevice
 {
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);

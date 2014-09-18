@@ -63,8 +63,8 @@ namespace VDPAccessSlots {
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXDevice, public Schedulable,
-            private VideoSystemChangeListener, Observer<Setting>
+class VDP final : public MSXDevice, public Schedulable
+                , private VideoSystemChangeListener, Observer<Setting>
 {
 public:
 	/** Number of VDP clock ticks per second.

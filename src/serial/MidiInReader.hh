@@ -18,7 +18,8 @@ class Scheduler;
 class CommandController;
 class FilenameSetting;
 
-class MidiInReader : public MidiInDevice, private Runnable, private EventListener
+class MidiInReader final : public MidiInDevice, private Runnable
+                         , private EventListener
 {
 public:
 	MidiInReader(EventDistributor& eventDistributor, Scheduler& scheduler,

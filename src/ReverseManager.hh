@@ -22,8 +22,8 @@ class ReverseCmd;
 class TclObject;
 class Interpreter;
 
-class ReverseManager : private Schedulable, private EventListener
-                     , private StateChangeRecorder
+class ReverseManager final : private Schedulable, private EventListener
+                           , private StateChangeRecorder
 {
 public:
 	ReverseManager(MSXMotherBoard& motherBoard);

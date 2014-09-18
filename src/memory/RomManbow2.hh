@@ -13,7 +13,7 @@ class AY8910;
 class AmdFlash;
 class RomBlockDebuggable;
 
-class RomManbow2 : public MSXRom
+class RomManbow2 final : public MSXRom
 {
 public:
 	RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom,

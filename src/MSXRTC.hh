@@ -9,7 +9,7 @@ namespace openmsx {
 class SRAM;
 class RP5C01;
 
-class MSXRTC : public MSXDevice
+class MSXRTC final : public MSXDevice
 {
 public:
 	explicit MSXRTC(const DeviceConfig& config);

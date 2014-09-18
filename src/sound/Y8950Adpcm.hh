@@ -13,7 +13,7 @@ namespace openmsx {
 class DeviceConfig;
 class Ram;
 
-class Y8950Adpcm : public Schedulable
+class Y8950Adpcm final : public Schedulable
 {
 public:
 	Y8950Adpcm(Y8950& y8950, const DeviceConfig& config,

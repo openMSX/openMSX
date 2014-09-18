@@ -17,7 +17,7 @@ class TclCallback;
   * Only the AY-3-8910 is emulated, no surrounding hardware,
   * use the class AY8910Periphery to connect peripherals.
   */
-class AY8910 : public ResampledSoundDevice
+class AY8910 final : public ResampledSoundDevice
 {
 public:
 	AY8910(const std::string& name, AY8910Periphery& periphery,

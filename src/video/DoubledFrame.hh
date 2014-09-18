@@ -9,7 +9,7 @@ namespace openmsx {
   * plus a number of black lines at the top.
   * This class does not copy the data from the input FrameSource.
   */
-class DoubledFrame : public FrameSource
+class DoubledFrame final : public FrameSource
 {
 public:
 	explicit DoubledFrame(const SDL_PixelFormat& format);

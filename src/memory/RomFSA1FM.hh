@@ -20,7 +20,7 @@ protected:
 	SRAM* fsSram;
 };
 
-class RomFSA1FM1 : public MSXRom, private RomFSA1FMSram
+class RomFSA1FM1 final : public MSXRom, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
@@ -41,7 +41,7 @@ private:
 	const std::unique_ptr<FirmwareSwitch> firmwareSwitch;
 };
 
-class RomFSA1FM2 : public Rom8kBBlocks, private RomFSA1FMSram
+class RomFSA1FM2 final : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom);

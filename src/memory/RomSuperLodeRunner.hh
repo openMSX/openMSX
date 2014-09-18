@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomSuperLodeRunner : public Rom16kBBlocks
+class RomSuperLodeRunner final : public Rom16kBBlocks
 {
 public:
 	RomSuperLodeRunner(const DeviceConfig& config, std::unique_ptr<Rom> rom);

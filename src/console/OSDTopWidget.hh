@@ -9,7 +9,7 @@ namespace openmsx {
 
 class OSDGUI;
 
-class OSDTopWidget : public OSDWidget
+class OSDTopWidget final : public OSDWidget
 {
 public:
 	OSDTopWidget(OSDGUI& gui);

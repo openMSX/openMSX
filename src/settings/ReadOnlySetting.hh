@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class ReadOnlySetting : public Setting
+class ReadOnlySetting final : public Setting
 {
 public:
 	ReadOnlySetting(CommandController& commandController,

@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyPrinterPortDevice : public PrinterPortDevice
+class DummyPrinterPortDevice final : public PrinterPortDevice
 {
 public:
 	virtual bool getStatus(EmuTime::param time);

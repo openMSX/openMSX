@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class DummyDevice : public MSXDevice
+class DummyDevice final : public MSXDevice
 {
 public:
 	explicit DummyDevice(const DeviceConfig& config);

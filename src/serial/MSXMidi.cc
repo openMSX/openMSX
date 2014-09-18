@@ -16,7 +16,7 @@ namespace openmsx {
 static const byte LIMITED_RANGE_VALUE = 0x01; // b0 = "E8" => determines port range
 static const byte DISABLED_VALUE      = 0x80; // b7 = EN
 
-class MSXMidiCounter0 : public ClockPinListener
+class MSXMidiCounter0 final : public ClockPinListener
 {
 public:
 	explicit MSXMidiCounter0(MSXMidi& midi);
@@ -27,7 +27,7 @@ private:
 	MSXMidi& midi;
 };
 
-class MSXMidiCounter2 : public ClockPinListener
+class MSXMidiCounter2 final : public ClockPinListener
 {
 public:
 	explicit MSXMidiCounter2(MSXMidi& midi);
@@ -38,7 +38,7 @@ private:
 	MSXMidi& midi;
 };
 
-class MSXMidiI8251Interf : public I8251Interface
+class MSXMidiI8251Interf final : public I8251Interface
 {
 public:
 	explicit MSXMidiI8251Interf(MSXMidi& midi);

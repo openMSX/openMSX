@@ -7,7 +7,7 @@ namespace openmsx {
 
 class CommandLineParser;
 
-class MSXRomCLI : public CLIOption, public CLIFileType
+class MSXRomCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit MSXRomCLI(CommandLineParser& cmdLineParser);
@@ -26,12 +26,12 @@ private:
 
 	CommandLineParser& cmdLineParser;
 
-	class IpsOption : public CLIOption {
+	class IpsOption final : public CLIOption {
 		virtual void parseOption(const std::string& option,
 		                         array_ref<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;
 	} ipsOption;
-	class RomTypeOption : public CLIOption {
+	class RomTypeOption final : public CLIOption {
 		virtual void parseOption(const std::string& option,
 		                         array_ref<std::string>& cmdLine);
 		virtual string_ref optionHelp() const;

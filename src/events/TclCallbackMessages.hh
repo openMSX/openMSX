@@ -10,7 +10,7 @@ class GlobalCliComm;
 class CommandController;
 class TclCallback;
 
-class TclCallbackMessages : public CliListener
+class TclCallbackMessages final : public CliListener
 {
 public:
 	TclCallbackMessages(GlobalCliComm& cliComm, CommandController& controller);

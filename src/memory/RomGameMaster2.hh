@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class RomGameMaster2 : public Rom4kBBlocks
+class RomGameMaster2 final : public Rom4kBBlocks
 {
 public:
 	RomGameMaster2(const DeviceConfig& config, std::unique_ptr<Rom> rom);

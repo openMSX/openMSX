@@ -14,7 +14,7 @@ class Scheduler;
 class DiskDrive;
 class CliComm;
 
-class TC8566AF : public Schedulable /* private noncopyable */
+class TC8566AF final : public Schedulable /* private noncopyable */
 {
 public:
 	TC8566AF(Scheduler& scheduler, DiskDrive* drive[4], CliComm& cliComm,

@@ -15,7 +15,7 @@
 
 namespace openmsx {
 
-class MSXE6Timer : public MSXDevice
+class MSXE6Timer final : public MSXDevice
 {
 public:
 	explicit MSXE6Timer(const DeviceConfig& config);
