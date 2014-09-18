@@ -852,12 +852,26 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 	} else {
-		// TODO how many extra cycles on TMS99x8?
-		//  To be on the save side, I picked 10 cycles, translated to
-		//  V99x8 that's x4 = 40cycles.
-		// See doc/internal/vdp-vram-timing/vdp-timing-2.html for details.
+		// For V99x8 there are 16 extra cycles, for details see:
+		//    doc/internal/vdp-vram-timing/vdp-timing.html
+		// For TMS99x8 the situation is less clear, see
+		//    doc/internal/vdp-vram-timing/vdp-timing-2.html
+		// Additional measurements(*) show that picking either 8 or 9
+		// TMS cycles (equivalent to 32 or 36 V99x8 cycles) gives the
+		// same result as on a real MSX. This corresponds to
+		// respectively 1.49us or 1.68us, the TMS documentation
+		// specifies 2us for this value.
+		//  (*) In this test we did a lot of OUT operations (writes to
+		//  VRAM) that are exactly N cycles apart. After the writes we
+		//  detect whether all were successful by reading VRAM
+		//  (slowly). We vary N and found that you get corruption for
+		//  N<=26 cycles, but no corruption occurs for N>=27. This test
+		//  was done in screen 2 with 4 sprites visible on one line
+		//  (though the sprites did not seem to make a difference).
+		// So this test could not decide between 8 or 9 TMS cycles.
+		// To be on the safe side we picked 8.
 		pendingCpuAccess = true;
-		auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_40
+		auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
 		                         : VDPAccessSlots::DELTA_16;
 		setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
 	}
