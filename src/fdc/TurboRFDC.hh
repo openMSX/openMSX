@@ -15,7 +15,7 @@ public:
 	enum Type { BOTH, R7FF2, R7FF8 };
 
 	explicit TurboRFDC(const DeviceConfig& config);
-	virtual ~TurboRFDC();
+	~TurboRFDC();
 
 	virtual void reset(EmuTime::param time);
 

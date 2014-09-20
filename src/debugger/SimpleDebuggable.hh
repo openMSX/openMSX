@@ -11,10 +11,6 @@ class MSXMotherBoard;
 class SimpleDebuggable : public Debuggable
 {
 public:
-	SimpleDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
-	                 const std::string& description, unsigned size);
-	virtual ~SimpleDebuggable();
-
 	virtual unsigned getSize() const final;
 	virtual const std::string& getDescription() const final;
 
@@ -25,6 +21,11 @@ public:
 
 	const std::string& getName() const { return name; }
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
+
+protected:
+	SimpleDebuggable(MSXMotherBoard& motherBoard, const std::string& name,
+	                 const std::string& description, unsigned size);
+	~SimpleDebuggable();
 
 private:
 	MSXMotherBoard& motherBoard;

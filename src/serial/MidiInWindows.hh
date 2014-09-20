@@ -35,7 +35,7 @@ public:
 
 	MidiInWindows(EventDistributor& eventDistributor, Scheduler& scheduler,
 	             unsigned num);
-	virtual ~MidiInWindows();
+	~MidiInWindows();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);

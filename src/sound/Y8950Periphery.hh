@@ -14,7 +14,7 @@ namespace openmsx {
 class Y8950Periphery
 {
 public:
-	virtual ~Y8950Periphery();
+	virtual ~Y8950Periphery() {}
 
 	virtual void reset();
 

@@ -11,7 +11,7 @@ class RomKonamiSCC final : public Rom8kBBlocks
 {
 public:
 	RomKonamiSCC(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomKonamiSCC();
+	~RomKonamiSCC();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

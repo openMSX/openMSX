@@ -18,7 +18,7 @@ public:
 
 protected:
 	MSXSwitchedDevice(MSXMotherBoard& motherBoard, byte id);
-	virtual ~MSXSwitchedDevice();
+	~MSXSwitchedDevice();
 
 private:
 	MSXMotherBoard& motherBoard;

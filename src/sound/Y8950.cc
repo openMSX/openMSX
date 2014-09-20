@@ -147,7 +147,7 @@ public:
 	Impl(Y8950& self, const std::string& name, const DeviceConfig& config,
 	     unsigned sampleRam, MSXAudio& audio);
 	void init(const DeviceConfig& config, EmuTime::param time);
-	virtual ~Impl();
+	~Impl();
 
 	void setEnabled(bool enabled, EmuTime::param time);
 	void clearRam();

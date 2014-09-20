@@ -3,10 +3,6 @@
 
 namespace openmsx {
 
-VideoSystem::~VideoSystem()
-{
-}
-
 bool VideoSystem::checkSettings()
 {
 	return true;

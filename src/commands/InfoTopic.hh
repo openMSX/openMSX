@@ -44,7 +44,7 @@ public:
 
 protected:
 	InfoTopic(InfoCommand& infoCommand, const std::string& name);
-	virtual ~InfoTopic();
+	~InfoTopic();
 
 private:
 	InfoCommand& infoCommand;

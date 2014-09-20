@@ -14,7 +14,7 @@ class SunriseIDE final : public MSXDevice
 {
 public:
 	explicit SunriseIDE(const DeviceConfig& config);
-	virtual ~SunriseIDE();
+	~SunriseIDE();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

@@ -32,7 +32,7 @@ public:
 	MSXMixer(Mixer& mixer, Scheduler& scheduler,
 	         MSXCommandController& msxCommandController,
 	         GlobalSettings& globalSettings);
-	virtual ~MSXMixer();
+	~MSXMixer();
 
 	/**
 	 * Use this method to register a given sounddevice.

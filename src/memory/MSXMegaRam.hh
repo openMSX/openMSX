@@ -14,7 +14,7 @@ class MSXMegaRam final : public MSXDevice
 {
 public:
 	explicit MSXMegaRam(const DeviceConfig& config);
-	virtual ~MSXMegaRam();
+	~MSXMegaRam();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

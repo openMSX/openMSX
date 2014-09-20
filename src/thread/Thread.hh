@@ -11,8 +11,9 @@ class Runnable : private noncopyable
 {
 public:
 	virtual void run() = 0;
+
 protected:
-	virtual ~Runnable() {}
+	~Runnable() {}
 };
 
 class Thread : private noncopyable

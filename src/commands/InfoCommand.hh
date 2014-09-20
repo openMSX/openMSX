@@ -12,7 +12,7 @@ class InfoCommand final : public Command
 {
 public:
 	InfoCommand(CommandController& commandController, const std::string& name);
-	virtual ~InfoCommand();
+	~InfoCommand();
 
 	void   registerTopic(InfoTopic& topic, string_ref name);
 	void unregisterTopic(InfoTopic& topic, string_ref name);

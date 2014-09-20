@@ -31,7 +31,7 @@ public:
 	           EventDistributor& eventDistributor,
 	           MSXEventDistributor& msxEventDistributor,
 	           ReverseManager& reverseManager);
-	virtual ~EventDelay();
+	~EventDelay();
 
 	void sync(EmuTime::param time);
 	void flush();

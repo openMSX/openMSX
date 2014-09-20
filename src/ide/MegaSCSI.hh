@@ -14,7 +14,7 @@ class MegaSCSI final : public MSXDevice
 {
 public:
 	explicit MegaSCSI(const DeviceConfig& config);
-	virtual ~MegaSCSI();
+	~MegaSCSI();
 
 	virtual void reset(EmuTime::param time);
 

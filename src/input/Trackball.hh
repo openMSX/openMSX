@@ -16,7 +16,7 @@ class Trackball final : public JoystickDevice, private MSXEventListener
 public:
 	Trackball(MSXEventDistributor& eventDistributor,
 	          StateChangeDistributor& stateChangeDistributor);
-	virtual ~Trackball();
+	~Trackball();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

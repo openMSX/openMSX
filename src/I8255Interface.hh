@@ -23,7 +23,7 @@ public:
 	virtual void writeC1(nibble value, EmuTime::param time) = 0;
 
 protected:
-	virtual ~I8255Interface() {}
+	~I8255Interface() {}
 };
 
 } // namespace openmsx

@@ -11,10 +11,6 @@ SectorBasedDisk::SectorBasedDisk(const DiskName& name)
 {
 }
 
-SectorBasedDisk::~SectorBasedDisk()
-{
-}
-
 void SectorBasedDisk::writeTrackImpl(byte track, byte side, const RawTrack& input)
 {
 	for (auto& s : input.decodeAll()) {

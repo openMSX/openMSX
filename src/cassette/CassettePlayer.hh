@@ -26,7 +26,7 @@ class CassettePlayer final : public CassetteDevice, public ResampledSoundDevice
 {
 public:
 	explicit CassettePlayer(const HardwareConfig& hwConf);
-	virtual ~CassettePlayer();
+	~CassettePlayer();
 
 	// CassetteDevice
 	virtual void setMotor(bool status, EmuTime::param time);

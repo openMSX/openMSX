@@ -19,7 +19,7 @@ public:
 	                    InputEventGenerator& inputEventGenerator,
 	                    CliComm& cliComm,
 	                    FrameBuffer frameBuffer = FB_NONE);
-	virtual ~SDLGLVisibleSurface();
+	~SDLGLVisibleSurface();
 
 private:
 	// OutputSurface

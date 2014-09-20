@@ -9,7 +9,7 @@ class MSXCielTurbo final : public MSXDevice
 {
 public:
 	explicit MSXCielTurbo(const DeviceConfig& config);
-	virtual ~MSXCielTurbo();
+	~MSXCielTurbo();
 
 	// MSXDevice
 	virtual void reset(EmuTime::param time);

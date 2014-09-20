@@ -13,7 +13,7 @@ class MSXKanji12 final : public MSXDevice, public MSXSwitchedDevice
 {
 public:
 	explicit MSXKanji12(const DeviceConfig& config);
-	virtual ~MSXKanji12();
+	~MSXKanji12();
 
 	// MSXDevice
 	virtual void reset(EmuTime::param time);

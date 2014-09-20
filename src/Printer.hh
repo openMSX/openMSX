@@ -36,7 +36,7 @@ public:
 
 protected:
 	PrinterCore();
-	virtual ~PrinterCore();
+	~PrinterCore();
 	virtual void write(byte data) = 0;
 	virtual void forceFormFeed() = 0;
 

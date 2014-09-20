@@ -10,7 +10,7 @@ class RamDSKDiskImage final : public SectorBasedDisk
 {
 public:
 	explicit RamDSKDiskImage(size_t size = 720 * 1024);
-	virtual ~RamDSKDiskImage();
+	~RamDSKDiskImage();
 
 private:
 	// SectorBasedDisk

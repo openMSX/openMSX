@@ -11,7 +11,7 @@ class RomPanasonic final : public Rom8kBBlocks
 {
 public:
 	RomPanasonic(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomPanasonic();
+	~RomPanasonic();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

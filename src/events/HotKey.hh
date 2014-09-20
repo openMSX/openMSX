@@ -40,7 +40,7 @@ public:
 	HotKey(RTScheduler& rtScheduler,
 	       GlobalCommandController& commandController,
 	       EventDistributor& eventDistributor);
-	virtual ~HotKey();
+	~HotKey();
 
 	void loadBindings(const XMLElement& config);
 	void saveBindings(XMLElement& config) const;

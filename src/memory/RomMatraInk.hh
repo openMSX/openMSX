@@ -13,7 +13,7 @@ class RomMatraInk final : public MSXRom
 {
 public:
 	RomMatraInk(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomMatraInk();
+	~RomMatraInk();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

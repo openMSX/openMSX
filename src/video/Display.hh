@@ -36,7 +36,7 @@ public:
 	typedef std::vector<Layer*> Layers;
 
 	explicit Display(Reactor& reactor);
-	virtual ~Display();
+	~Display();
 
 	void createVideoSystem();
 	VideoSystem& getVideoSystem();

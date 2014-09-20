@@ -9,6 +9,7 @@ class RomKonami : public Rom8kBBlocks
 {
 public:
 	RomKonami(const DeviceConfig& config, std::unique_ptr<Rom> rom);
+	virtual ~RomKonami() {}
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

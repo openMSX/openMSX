@@ -20,7 +20,7 @@ class MSXMidiCounter0 final : public ClockPinListener
 {
 public:
 	explicit MSXMidiCounter0(MSXMidi& midi);
-	virtual ~MSXMidiCounter0();
+	~MSXMidiCounter0();
 	virtual void signal(ClockPin& pin, EmuTime::param time);
 	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
@@ -31,7 +31,7 @@ class MSXMidiCounter2 final : public ClockPinListener
 {
 public:
 	explicit MSXMidiCounter2(MSXMidi& midi);
-	virtual ~MSXMidiCounter2();
+	~MSXMidiCounter2();
 	virtual void signal(ClockPin& pin, EmuTime::param time);
 	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
@@ -42,7 +42,7 @@ class MSXMidiI8251Interf final : public I8251Interface
 {
 public:
 	explicit MSXMidiI8251Interf(MSXMidi& midi);
-	virtual ~MSXMidiI8251Interf();
+	~MSXMidiI8251Interf();
 	virtual void setRxRDY(bool status, EmuTime::param time);
 	virtual void setDTR(bool status, EmuTime::param time);
 	virtual void setRTS(bool status, EmuTime::param time);

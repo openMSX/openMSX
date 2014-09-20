@@ -37,7 +37,7 @@ protected:
 	static const byte ABORT = 0x04;
 
 	explicit AbstractIDEDevice(MSXMotherBoard& motherBoard);
-	virtual ~AbstractIDEDevice();
+	~AbstractIDEDevice();
 
 	/** Is this device a packet (ATAPI) device?
 	  * @return True iff this device supports the packet commands.

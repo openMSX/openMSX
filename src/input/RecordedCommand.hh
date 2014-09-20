@@ -65,7 +65,7 @@ protected:
 	                StateChangeDistributor& stateChangeDistributor,
 	                Scheduler& scheduler,
 	                string_ref name);
-	virtual ~RecordedCommand();
+	~RecordedCommand();
 
 private:
 	// Command

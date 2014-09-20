@@ -29,7 +29,7 @@ class PixelRenderer final : public Renderer, private Observer<Setting>
 {
 public:
 	PixelRenderer(VDP& vdp, Display& display);
-	virtual ~PixelRenderer();
+	~PixelRenderer();
 
 	// Renderer interface:
 	virtual PostProcessor* getPostProcessor() const;

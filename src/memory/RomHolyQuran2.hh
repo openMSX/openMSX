@@ -11,7 +11,7 @@ class RomHolyQuran2 : public MSXRom
 {
 public:
 	RomHolyQuran2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomHolyQuran2();
+	~RomHolyQuran2();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

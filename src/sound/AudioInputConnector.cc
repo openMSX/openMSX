@@ -14,10 +14,6 @@ AudioInputConnector::AudioInputConnector(PluggingController& pluggingController,
 {
 }
 
-AudioInputConnector::~AudioInputConnector()
-{
-}
-
 const std::string AudioInputConnector::getDescription() const
 {
 	return "Audio input connector";

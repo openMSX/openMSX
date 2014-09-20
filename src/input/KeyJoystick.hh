@@ -22,7 +22,7 @@ public:
 	            MSXEventDistributor& eventDistributor,
 	            StateChangeDistributor& stateChangeDistributor,
 	            const std::string& name);
-	virtual ~KeyJoystick();
+	~KeyJoystick();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

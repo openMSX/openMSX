@@ -11,7 +11,7 @@ class RomPlayBall final : public Rom16kBBlocks
 {
 public:
 	RomPlayBall(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomPlayBall();
+	~RomPlayBall();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

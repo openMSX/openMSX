@@ -10,8 +10,6 @@ class Event;
 class EventListener
 {
 public:
-	virtual ~EventListener() {}
-
 	/**
 	 * This method gets called when an event you are subscribed to occurs.
 	 * @result Must return a bitmask of EventListener priorities. When a
@@ -25,6 +23,7 @@ public:
 
 protected:
 	EventListener() {}
+	~EventListener() {}
 };
 
 } // namespace openmsx

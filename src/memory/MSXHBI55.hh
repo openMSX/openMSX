@@ -15,7 +15,7 @@ class MSXHBI55 final : public MSXDevice, public I8255Interface
 // MSXDevice
 public:
 	explicit MSXHBI55(const DeviceConfig& config);
-	virtual ~MSXHBI55();
+	~MSXHBI55();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

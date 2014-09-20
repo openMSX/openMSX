@@ -12,7 +12,7 @@ class MSXKanji final : public MSXDevice
 {
 public:
 	explicit MSXKanji(const DeviceConfig& config);
-	virtual ~MSXKanji();
+	~MSXKanji();
 
 	virtual byte readIO(word port, EmuTime::param time);
 	virtual byte peekIO(word port, EmuTime::param time) const;

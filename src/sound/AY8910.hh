@@ -22,7 +22,7 @@ class AY8910 final : public ResampledSoundDevice
 public:
 	AY8910(const std::string& name, AY8910Periphery& periphery,
 	       const DeviceConfig& config, EmuTime::param time);
-	virtual ~AY8910();
+	~AY8910();
 
 	byte readRegister(unsigned reg, EmuTime::param time);
 	byte peekRegister(unsigned reg, EmuTime::param time) const;

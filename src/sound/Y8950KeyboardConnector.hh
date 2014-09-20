@@ -12,7 +12,6 @@ class Y8950KeyboardConnector final : public Connector
 {
 public:
 	explicit Y8950KeyboardConnector(PluggingController& pluggingController);
-	virtual ~Y8950KeyboardConnector();
 
 	void write(byte data, EmuTime::param time);
 	byte read(EmuTime::param time);

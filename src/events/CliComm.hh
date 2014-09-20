@@ -51,7 +51,7 @@ public:
 
 protected:
 	CliComm();
-	virtual ~CliComm();
+	~CliComm();
 
 private:
 	static const char* const levelStr [NUM_LEVELS];

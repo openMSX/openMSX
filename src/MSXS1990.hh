@@ -18,7 +18,7 @@ class MSXS1990 final : public MSXDevice
 {
 public:
 	explicit MSXS1990(const DeviceConfig& config);
-	virtual ~MSXS1990();
+	~MSXS1990();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

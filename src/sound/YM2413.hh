@@ -16,7 +16,7 @@ class YM2413 final : public ResampledSoundDevice
 {
 public:
 	YM2413(const std::string& name, const DeviceConfig& config);
-	virtual ~YM2413();
+	~YM2413();
 
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte value, EmuTime::param time);

@@ -11,7 +11,7 @@ class RomMajutsushi final : public RomKonami
 {
 public:
 	RomMajutsushi(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomMajutsushi();
+	~RomMajutsushi();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

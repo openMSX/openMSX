@@ -11,8 +11,6 @@ class Event;
 class MSXEventListener
 {
 public:
-	virtual ~MSXEventListener() {}
-
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
 	virtual void signalEvent(const std::shared_ptr<const Event>& event,
@@ -20,6 +18,7 @@ public:
 
 protected:
 	MSXEventListener() {}
+	~MSXEventListener() {}
 };
 
 } // namespace openmsx

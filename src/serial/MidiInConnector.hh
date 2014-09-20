@@ -12,10 +12,6 @@ class MidiInDevice;
 class MidiInConnector : public Connector, public SerialDataInterface
 {
 public:
-	MidiInConnector(PluggingController& pluggingController,
-	                string_ref name);
-	virtual ~MidiInConnector();
-
 	MidiInDevice& getPluggedMidiInDev() const;
 
 	// Connector
@@ -27,6 +23,11 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+protected:
+	MidiInConnector(PluggingController& pluggingController,
+	                string_ref name);
+	~MidiInConnector();
 };
 
 REGISTER_BASE_CLASS(MidiInConnector, "inConnector");

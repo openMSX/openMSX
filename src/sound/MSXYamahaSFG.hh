@@ -14,7 +14,7 @@ class MSXYamahaSFG final : public MSXDevice
 {
 public:
 	explicit MSXYamahaSFG(const DeviceConfig& config);
-	virtual ~MSXYamahaSFG();
+	~MSXYamahaSFG();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

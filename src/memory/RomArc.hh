@@ -9,7 +9,7 @@ class RomArc final : public Rom16kBBlocks
 {
 public:
 	RomArc(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomArc();
+	~RomArc();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);

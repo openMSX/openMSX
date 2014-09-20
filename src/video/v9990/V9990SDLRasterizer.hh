@@ -31,7 +31,7 @@ public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, VisibleSurface& screen,
 		std::unique_ptr<PostProcessor> postProcessor);
-	virtual ~V9990SDLRasterizer();
+	~V9990SDLRasterizer();
 
 	// Rasterizer interface:
 	virtual PostProcessor* getPostProcessor() const;

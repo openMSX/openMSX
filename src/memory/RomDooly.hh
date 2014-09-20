@@ -11,7 +11,7 @@ class RomDooly final : public MSXRom
 {
 public:
 	RomDooly(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomDooly();
+	~RomDooly();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

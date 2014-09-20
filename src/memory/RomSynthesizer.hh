@@ -11,7 +11,7 @@ class RomSynthesizer final : public Rom16kBBlocks
 {
 public:
 	RomSynthesizer(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomSynthesizer();
+	~RomSynthesizer();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

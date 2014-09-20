@@ -15,11 +15,13 @@ class SectorBasedDisk : public Disk, private noncopyable
 {
 protected:
 	explicit SectorBasedDisk(const DiskName& name);
-	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
 	virtual void flushCaches();
 
 	void setNbSectors(size_t num);
+
+protected:
+	~SectorBasedDisk() {}
 
 private:
 	// Disk

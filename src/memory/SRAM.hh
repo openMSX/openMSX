@@ -19,7 +19,7 @@ public:
 	SRAM(const std::string& name, const std::string& description,
 	     int size, const DeviceConfig& config, const char* header = nullptr,
 	     bool* loaded = nullptr);
-	virtual ~SRAM();
+	~SRAM();
 
 	const byte& operator[](unsigned addr) const {
 		assert(addr < getSize());

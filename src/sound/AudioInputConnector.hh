@@ -12,7 +12,6 @@ class AudioInputConnector final : public Connector
 public:
 	AudioInputConnector(PluggingController& pluggingController,
 	                    string_ref name);
-	virtual ~AudioInputConnector();
 
 	AudioInputDevice& getPluggedAudioDev() const;
 

@@ -73,7 +73,7 @@ protected:
 	Connector(PluggingController& pluggingController,
 	          string_ref name, std::unique_ptr<Pluggable> dummy);
 
-	virtual ~Connector();
+	~Connector();
 
 private:
 	PluggingController& pluggingController;

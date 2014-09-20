@@ -300,7 +300,7 @@ public:
 	virtual bool isCopy() const = 0;
 
 protected:
-	virtual ~PolyLineScaler() {}
+	~PolyLineScaler() {}
 };
 
 /** Polymorphic wrapper around another line scaler.

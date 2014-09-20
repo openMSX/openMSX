@@ -209,13 +209,14 @@ private:
 	  */
 	class V9990Cmd {
 	public:
-		V9990Cmd(V9990CmdEngine& engine, V9990VRAM& vram);
 		virtual ~V9990Cmd();
 
 		virtual void start(EmuTime::param time) = 0;
 		virtual void execute(EmuTime::param time) = 0;
 
 	protected:
+		V9990Cmd(V9990CmdEngine& engine, V9990VRAM& vram);
+
 		V9990CmdEngine& engine;
 		V9990VRAM&      vram;
 	};

@@ -11,7 +11,7 @@ class RomMSXtra final : public MSXRom
 {
 public:
 	RomMSXtra(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomMSXtra();
+	~RomMSXtra();
 
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual const byte* getReadCacheLine(word address) const;

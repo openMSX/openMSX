@@ -24,7 +24,7 @@ class MidiInReader final : public MidiInDevice, private Runnable
 public:
 	MidiInReader(EventDistributor& eventDistributor, Scheduler& scheduler,
 	             CommandController& commandController);
-	virtual ~MidiInReader();
+	~MidiInReader();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);

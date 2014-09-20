@@ -19,7 +19,7 @@ public:
 protected:
 	ProbeBase(Debugger& debugger, const std::string& name,
 	          const std::string& description);
-	virtual ~ProbeBase();
+	~ProbeBase();
 
 private:
 	Debugger& debugger;

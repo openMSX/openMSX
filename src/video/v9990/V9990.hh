@@ -32,7 +32,7 @@ class V9990 final : public MSXDevice
 {
 public:
 	explicit V9990(const DeviceConfig& config);
-	virtual ~V9990();
+	~V9990();
 
 	// MSXDevice interface:
 	virtual void powerUp(EmuTime::param time);

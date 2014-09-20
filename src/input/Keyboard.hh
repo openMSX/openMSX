@@ -63,7 +63,7 @@ public:
 	         bool keyGhostingSGCprotected, bool codeKanaLocks,
 	         bool graphLocks);
 
-	virtual ~Keyboard();
+	~Keyboard();
 
 	/** Returns a pointer to the current KeyBoard matrix
 	 */

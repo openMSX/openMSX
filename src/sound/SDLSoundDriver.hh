@@ -15,7 +15,7 @@ class SDLSoundDriver final : public SoundDriver, private noncopyable
 public:
 	SDLSoundDriver(Reactor& reactor,
 	               unsigned frequency, unsigned samples);
-	virtual ~SDLSoundDriver();
+	~SDLSoundDriver();
 
 	virtual void mute();
 	virtual void unmute();

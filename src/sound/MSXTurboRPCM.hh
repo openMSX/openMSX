@@ -15,7 +15,7 @@ class MSXTurboRPCM final : public MSXDevice
 {
 public:
 	explicit MSXTurboRPCM(const DeviceConfig& config);
-	virtual ~MSXTurboRPCM();
+	~MSXTurboRPCM();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

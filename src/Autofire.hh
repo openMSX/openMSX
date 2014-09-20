@@ -28,7 +28,7 @@ public:
 	Autofire(CommandController& commandController,
 	         unsigned newMinInts, unsigned newMaxInts,
 	         string_ref name);
-	virtual ~Autofire();
+	~Autofire();
 
 	/** Get the output signal in negative logic.
 	  * @result When auto-fire is on, result will alternate between true

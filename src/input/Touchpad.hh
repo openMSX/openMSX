@@ -22,7 +22,7 @@ public:
 	Touchpad(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         CommandController& commandController);
-	virtual ~Touchpad();
+	~Touchpad();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

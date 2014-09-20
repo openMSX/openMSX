@@ -15,7 +15,7 @@ class IDECDROM final : public AbstractIDEDevice, private noncopyable
 {
 public:
 	explicit IDECDROM(const DeviceConfig& config);
-	virtual ~IDECDROM();
+	~IDECDROM();
 
 	void eject();
 	void insert(const std::string& filename);

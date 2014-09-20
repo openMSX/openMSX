@@ -16,7 +16,7 @@ class LaserdiscPlayer;
 class CassettePortInterface
 {
 public:
-	virtual ~CassettePortInterface();
+	virtual ~CassettePortInterface() {}
 
 	/**
 	* Sets the cassette motor relay
@@ -62,7 +62,7 @@ class CassettePort final : public CassettePortInterface, public Connector
 {
 public:
 	explicit CassettePort(const HardwareConfig& hwConf);
-	virtual ~CassettePort();
+	~CassettePort();
 	virtual void setMotor(bool status, EmuTime::param time);
 	virtual void cassetteOut(bool output, EmuTime::param time);
 	virtual bool cassetteIn(EmuTime::param time);

@@ -22,7 +22,7 @@ public:
 	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
-	virtual ~AfterCommand();
+	~AfterCommand();
 
 	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;

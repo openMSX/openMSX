@@ -11,7 +11,7 @@ public:
 	enum SubType { ASCII16_2, ASCII16_8 };
 	RomAscii16_2(const DeviceConfig& config,
 			std::unique_ptr<Rom> rom, SubType subType);
-	virtual ~RomAscii16_2();
+	~RomAscii16_2();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

@@ -11,7 +11,7 @@ public:
 	enum SubType { ASCII8_8, KOEI_8, KOEI_32, WIZARDRY, ASCII8_2 };
 	RomAscii8_8(const DeviceConfig& config,
 	            std::unique_ptr<Rom> rom, SubType subType);
-	virtual ~RomAscii8_8();
+	~RomAscii8_8();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

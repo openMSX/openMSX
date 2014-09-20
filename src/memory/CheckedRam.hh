@@ -31,7 +31,7 @@ class CheckedRam final : private Observer<Setting>, private noncopyable
 public:
 	CheckedRam(const DeviceConfig& config, const std::string& name,
 	           const std::string& description, unsigned size);
-	virtual ~CheckedRam();
+	~CheckedRam();
 
 	byte read(unsigned addr);
 	byte peek(unsigned addr) const;

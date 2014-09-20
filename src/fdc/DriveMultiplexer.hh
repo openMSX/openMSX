@@ -22,7 +22,7 @@ public:
 
 	// Multiplexer interface
 	explicit DriveMultiplexer(DiskDrive* drive[4]);
-	virtual ~DriveMultiplexer();
+	~DriveMultiplexer();
 	void selectDrive(DriveNum num, EmuTime::param time);
 
 	// DiskDrive interface

@@ -94,10 +94,6 @@ REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, ToshibaAudioPeriphery, "Toshiba
 
 // Base class implementation:
 
-Y8950Periphery::~Y8950Periphery()
-{
-}
-
 void Y8950Periphery::reset()
 {
 	// nothing

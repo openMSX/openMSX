@@ -17,7 +17,7 @@ class MSXSCCPlusCart final : public MSXDevice
 {
 public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
-	virtual ~MSXSCCPlusCart();
+	~MSXSCCPlusCart();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

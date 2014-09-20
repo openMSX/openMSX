@@ -9,7 +9,7 @@ class MSXVictorHC9xSystemControl final : public MSXDevice
 {
 public:
 	explicit MSXVictorHC9xSystemControl(const DeviceConfig& config);
-	virtual ~MSXVictorHC9xSystemControl();
+	~MSXVictorHC9xSystemControl();
 
 	virtual byte readMem(word address, EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

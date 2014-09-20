@@ -9,7 +9,7 @@ class RomZemina90in1 final : public Rom8kBBlocks
 {
 public:
 	RomZemina90in1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomZemina90in1();
+	~RomZemina90in1();
 
 	virtual void reset(EmuTime::param time);
 	void writeIO(word port, byte value, EmuTime::param time);

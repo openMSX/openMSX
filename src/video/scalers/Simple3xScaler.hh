@@ -19,7 +19,7 @@ class Simple3xScaler final : public Scaler3<Pixel>, private noncopyable
 public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,
 	               const RenderSettings& renderSettings);
-	virtual ~Simple3xScaler();
+	~Simple3xScaler();
 
 protected:
 	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,

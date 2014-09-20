@@ -19,8 +19,6 @@ class CliConnection : public CliListener, private EventListener
                     , protected Runnable
 {
 public:
-	virtual ~CliConnection();
-
 	void setUpdateEnable(CliComm::UpdateType type, bool value) {
 		updateEnabled[type] = value;
 	}
@@ -38,6 +36,7 @@ public:
 protected:
 	CliConnection(CommandController& commandController,
 	              EventDistributor& eventDistributor);
+	~CliConnection();
 
 	virtual void output(string_ref message) = 0;
 
@@ -84,7 +83,7 @@ class StdioConnection final : public CliConnection
 public:
 	StdioConnection(CommandController& commandController,
 	                EventDistributor& eventDistributor);
-	virtual ~StdioConnection();
+	~StdioConnection();
 
 	virtual void output(string_ref message);
 
@@ -102,7 +101,7 @@ public:
 	PipeConnection(CommandController& commandController,
 	               EventDistributor& eventDistributor,
 	               string_ref name);
-	virtual ~PipeConnection();
+	~PipeConnection();
 
 	virtual void output(string_ref message);
 
@@ -121,7 +120,7 @@ public:
 	SocketConnection(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
 	                 SOCKET sd);
-	virtual ~SocketConnection();
+	~SocketConnection();
 
 	virtual void output(string_ref message);
 

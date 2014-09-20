@@ -16,7 +16,7 @@ public:
 
 protected:
 	Debuggable() {}
-	virtual ~Debuggable() {}
+	~Debuggable() {}
 };
 
 } // namespace openmsx

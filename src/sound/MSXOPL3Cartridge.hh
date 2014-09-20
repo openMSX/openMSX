@@ -12,7 +12,7 @@ class MSXOPL3Cartridge final : public MSXDevice
 {
 public:
 	explicit MSXOPL3Cartridge(const DeviceConfig& config);
-	virtual ~MSXOPL3Cartridge();
+	~MSXOPL3Cartridge();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

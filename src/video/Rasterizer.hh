@@ -103,6 +103,9 @@ public:
 	/** Is video recording active?
 	  */
 	virtual bool isRecording() const = 0;
+
+protected:
+	Rasterizer() {}
 };
 
 } // namespace openmsx

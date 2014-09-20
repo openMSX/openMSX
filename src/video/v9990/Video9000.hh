@@ -19,7 +19,7 @@ class Video9000 final : public MSXDevice
 {
 public:
 	explicit Video9000(const DeviceConfig& config);
-	virtual ~Video9000();
+	~Video9000();
 
 	// MSXDevice
 	virtual void init();

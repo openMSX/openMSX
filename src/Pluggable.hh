@@ -12,7 +12,6 @@ class Connector;
 class Pluggable : private noncopyable
 {
 public:
-	Pluggable();
 	virtual ~Pluggable() {}
 
 	/** Name used to identify this pluggable.
@@ -51,6 +50,7 @@ public:
 	bool isPluggedIn() const { return getConnector() != nullptr; }
 
 protected:
+	Pluggable();
 	virtual void plugHelper(Connector& newConnector, EmuTime::param time) = 0;
 	/* implementations of unplugHelper() may not throw exceptions. */
 	virtual void unplugHelper(EmuTime::param time) = 0;

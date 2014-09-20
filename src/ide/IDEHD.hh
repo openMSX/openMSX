@@ -14,7 +14,7 @@ class IDEHD final : public HD, public AbstractIDEDevice, private noncopyable
 {
 public:
 	explicit IDEHD(const DeviceConfig& config);
-	virtual ~IDEHD();
+	~IDEHD();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

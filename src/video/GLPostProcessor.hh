@@ -23,7 +23,7 @@ public:
 		MSXMotherBoard& motherBoard, Display& display,
 		OutputSurface& screen, const std::string& videoSource,
 		unsigned maxWidth, unsigned height, bool canDoInterlace);
-	virtual ~GLPostProcessor();
+	~GLPostProcessor();
 
 	// Layer interface:
 	virtual void paint(OutputSurface& output);

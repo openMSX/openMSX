@@ -36,7 +36,7 @@ public:
 	virtual void updateWindow(bool enabled, EmuTime::param time) = 0;
 
 protected:
-	virtual ~VRAMObserver() {}
+	~VRAMObserver() {}
 };
 
 } // namespace openmsx

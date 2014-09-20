@@ -20,7 +20,7 @@ public:
 	typedef std::vector<std::unique_ptr<DiskContainer>> Drives;
 
 	explicit NowindInterface(const DeviceConfig& config);
-	virtual ~NowindInterface();
+	~NowindInterface();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peek(word address, EmuTime::param time) const;

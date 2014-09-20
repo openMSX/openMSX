@@ -29,7 +29,7 @@ public:
 
 	/** Deactivates this video system.
 	  */
-	virtual ~SDLVideoSystem();
+	~SDLVideoSystem();
 
 	// VideoSystem interface:
 	virtual std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp);

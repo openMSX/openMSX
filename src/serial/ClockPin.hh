@@ -14,8 +14,9 @@ class ClockPinListener
 public:
 	virtual void signal(ClockPin& pin, EmuTime::param time) = 0;
 	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time) = 0;
+
 protected:
-	virtual ~ClockPinListener() {}
+	~ClockPinListener() {}
 };
 
 class ClockPin final : public Schedulable

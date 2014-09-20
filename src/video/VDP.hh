@@ -77,7 +77,7 @@ public:
 	static const int TICKS_PER_LINE = 1368;
 
 	explicit VDP(const DeviceConfig& config);
-	virtual ~VDP();
+	~VDP();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

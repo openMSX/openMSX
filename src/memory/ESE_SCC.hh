@@ -15,7 +15,7 @@ class ESE_SCC final : public MSXDevice
 {
 public:
 	ESE_SCC(const DeviceConfig& config, bool withSCSI);
-	virtual ~ESE_SCC();
+	~ESE_SCC();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

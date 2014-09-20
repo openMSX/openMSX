@@ -15,7 +15,7 @@ class ResampleHQ final : public ResampleAlgo
 public:
 	ResampleHQ(ResampledSoundDevice& input,
 	           const DynamicClock& hostClock, unsigned emuSampleRate);
-	virtual ~ResampleHQ();
+	~ResampleHQ();
 
 	virtual bool generateOutput(int* dataOut, unsigned num,
 	                            EmuTime::param time);

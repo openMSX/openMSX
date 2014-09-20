@@ -24,7 +24,7 @@ class JoystickPort final : public JoystickPortIf, public Connector
 public:
 	JoystickPort(PluggingController& pluggingController,
 	             string_ref name, const std::string& description);
-	virtual ~JoystickPort();
+	~JoystickPort();
 
 	JoystickDevice& getPluggedJoyDev() const;
 

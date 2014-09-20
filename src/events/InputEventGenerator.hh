@@ -23,7 +23,7 @@ class InputEventGenerator final : private Observer<Setting>
 public:
 	InputEventGenerator(CommandController& commandController,
 	                    EventDistributor& eventDistributor);
-	virtual ~InputEventGenerator();
+	~InputEventGenerator();
 
 	/** Wait for event(s) and handle it.
 	  * This method should be called from the main thread.

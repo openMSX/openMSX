@@ -57,7 +57,7 @@ protected:
 	  */
 	SoundDevice(MSXMixer& mixer, string_ref name, string_ref description,
 	            unsigned numChannels, bool stereo = false);
-	virtual ~SoundDevice();
+	~SoundDevice();
 
 	/**
 	 * Registers this sound device with the Mixer.

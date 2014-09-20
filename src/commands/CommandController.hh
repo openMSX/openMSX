@@ -58,7 +58,7 @@ public:
 
 protected:
 	CommandController() {}
-	virtual ~CommandController() {}
+	~CommandController() {}
 };
 
 } // namespace openmsx

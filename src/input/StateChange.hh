@@ -14,7 +14,8 @@ namespace openmsx {
 class StateChange : private noncopyable
 {
 public:
-	virtual ~StateChange() {}
+	virtual ~StateChange() {} // must be polymorhpic
+
 	EmuTime::param getTime() const
 	{
 		return time;

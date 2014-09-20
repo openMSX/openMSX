@@ -74,7 +74,7 @@ class MSXMotherBoard::Impl final : private Observer<Setting>, private noncopyabl
 {
 public:
 	Impl(MSXMotherBoard& self, Reactor& reactor);
-	virtual ~Impl();
+	~Impl();
 
 	const string& getMachineID();
 	const string& getMachineName() const;

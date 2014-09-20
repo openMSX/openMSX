@@ -69,7 +69,7 @@ public:
 	CommandConsole(GlobalCommandController& commandController,
 	               EventDistributor& eventDistributor,
 	               Display& display);
-	virtual ~CommandConsole();
+	~CommandConsole();
 
 	BooleanSetting& getConsoleSetting() { return *consoleSetting; }
 

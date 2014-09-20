@@ -12,10 +12,6 @@ class RS232Device;
 class RS232Connector : public Connector, public SerialDataInterface
 {
 public:
-	RS232Connector(PluggingController& pluggingController,
-	               string_ref name);
-	virtual ~RS232Connector();
-
 	RS232Device& getPluggedRS232Dev() const;
 
 	// Connector
@@ -32,6 +28,11 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+protected:
+	RS232Connector(PluggingController& pluggingController,
+	               string_ref name);
+	~RS232Connector();
 };
 
 REGISTER_BASE_CLASS(RS232Connector, "rs232connector");

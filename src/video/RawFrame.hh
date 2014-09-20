@@ -26,7 +26,7 @@ class RawFrame final : public FrameSource
 {
 public:
 	RawFrame(const SDL_PixelFormat& format, unsigned maxWidth, unsigned height);
-	virtual ~RawFrame();
+	~RawFrame();
 
 	template<typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {

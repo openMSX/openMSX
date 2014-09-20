@@ -14,7 +14,7 @@ class TclCallbackMessages final : public CliListener
 {
 public:
 	TclCallbackMessages(GlobalCliComm& cliComm, CommandController& controller);
-	virtual ~TclCallbackMessages();
+	~TclCallbackMessages();
 
 	virtual void log(CliComm::LogLevel level, string_ref message);
 

@@ -13,7 +13,6 @@ class MidiOutConnector final : public Connector, public SerialDataInterface
 public:
 	MidiOutConnector(PluggingController& pluggingController,
 	                 string_ref name);
-	virtual ~MidiOutConnector();
 
 	MidiOutDevice& getPluggedMidiOutDev() const;
 

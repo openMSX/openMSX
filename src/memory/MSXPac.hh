@@ -12,7 +12,7 @@ class MSXPac final : public MSXDevice
 {
 public:
 	explicit MSXPac(const DeviceConfig& config);
-	virtual ~MSXPac();
+	~MSXPac();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

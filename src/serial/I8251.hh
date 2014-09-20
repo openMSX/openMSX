@@ -13,13 +13,16 @@ namespace openmsx {
 class I8251Interface : public SerialDataInterface
 {
 public:
-	virtual ~I8251Interface() {}
 	virtual void setRxRDY(bool status, EmuTime::param time) = 0;
 	virtual void setDTR(bool status, EmuTime::param time) = 0;
 	virtual void setRTS(bool status, EmuTime::param time) = 0;
 	virtual bool getDSR(EmuTime::param time) = 0;
 	virtual bool getCTS(EmuTime::param time) = 0; // TODO use this
 	virtual void signal(EmuTime::param time) = 0;
+
+protected:
+	I8251Interface() {}
+	~I8251Interface() {}
 };
 
 class I8251 final : public SerialDataInterface, public Schedulable

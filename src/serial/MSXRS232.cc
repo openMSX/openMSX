@@ -21,7 +21,7 @@ class Counter0 final : public ClockPinListener
 {
 public:
 	explicit Counter0(MSXRS232& rs232);
-	virtual ~Counter0();
+	~Counter0();
 	virtual void signal(ClockPin& pin, EmuTime::param time);
 	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
@@ -32,7 +32,7 @@ class Counter1 final : public ClockPinListener
 {
 public:
 	explicit Counter1(MSXRS232& rs232);
-	virtual ~Counter1();
+	~Counter1();
 	virtual void signal(ClockPin& pin, EmuTime::param time);
 	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
 private:
@@ -43,7 +43,7 @@ class I8251Interf final : public I8251Interface
 {
 public:
 	explicit I8251Interf(MSXRS232& rs232);
-	virtual ~I8251Interf();
+	~I8251Interf();
 	virtual void setRxRDY(bool status, EmuTime::param time);
 	virtual void setDTR(bool status, EmuTime::param time);
 	virtual void setRTS(bool status, EmuTime::param time);

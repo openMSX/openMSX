@@ -18,7 +18,7 @@ class RomManbow2 final : public MSXRom
 public:
 	RomManbow2(const DeviceConfig& config, std::unique_ptr<Rom> rom,
 	           RomType type);
-	virtual ~RomManbow2();
+	~RomManbow2();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

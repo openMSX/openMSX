@@ -15,7 +15,7 @@ class WavImage final : public CassetteImage, private noncopyable
 {
 public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);
-	virtual ~WavImage();
+	~WavImage();
 
 	virtual short getSampleAt(EmuTime::param time);
 	virtual EmuTime getEndTime() const;

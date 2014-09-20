@@ -21,7 +21,7 @@ class MSXRS232 final : public MSXDevice, public RS232Connector
 {
 public:
 	explicit MSXRS232(const DeviceConfig& config);
-	virtual ~MSXRS232();
+	~MSXRS232();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

@@ -17,7 +17,7 @@ class MSXPSG final : public MSXDevice, public AY8910Periphery
 {
 public:
 	explicit MSXPSG(const DeviceConfig& config);
-	virtual ~MSXPSG();
+	~MSXPSG();
 
 	virtual void reset(EmuTime::param time);
 	virtual void powerDown(EmuTime::param time);

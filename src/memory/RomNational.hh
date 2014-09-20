@@ -9,7 +9,7 @@ class RomNational final : public Rom16kBBlocks
 {
 public:
 	RomNational(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomNational();
+	~RomNational();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

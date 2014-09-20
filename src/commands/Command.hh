@@ -22,7 +22,7 @@ public:
 
 protected:
 	CommandCompleter(CommandController& controller, string_ref name);
-	virtual ~CommandCompleter();
+	~CommandCompleter();
 
 	GlobalCommandController& getGlobalCommandController() const;
 	CliComm& getCliComm() const;
@@ -59,7 +59,7 @@ public:
 
 protected:
 	Command(CommandController& controller, string_ref name);
-	virtual ~Command();
+	~Command();
 
 private:
 	bool allowInEmptyMachine;

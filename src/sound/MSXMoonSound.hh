@@ -14,7 +14,7 @@ class MSXMoonSound final : public MSXDevice
 {
 public:
 	explicit MSXMoonSound(const DeviceConfig& config);
-	virtual ~MSXMoonSound();
+	~MSXMoonSound();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

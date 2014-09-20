@@ -14,7 +14,7 @@ class MSXFmPac final : public MSXMusic
 {
 public:
 	explicit MSXFmPac(const DeviceConfig& config);
-	virtual ~MSXFmPac();
+	~MSXFmPac();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);

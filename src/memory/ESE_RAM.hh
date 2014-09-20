@@ -13,7 +13,7 @@ class ESE_RAM final : public MSXDevice
 {
 public:
 	ESE_RAM(const DeviceConfig& config);
-	virtual ~ESE_RAM();
+	~ESE_RAM();
 
 	virtual void reset(EmuTime::param time);
 

@@ -20,7 +20,7 @@ class LocalFile final : public FileBase
 public:
 	LocalFile(string_ref filename, File::OpenMode mode);
 	LocalFile(string_ref filename, const char* mode);
-	virtual ~LocalFile();
+	~LocalFile();
 	virtual void read (void* buffer, size_t num);
 	virtual void write(const void* buffer, size_t num);
 #if HAVE_MMAP || defined _WIN32

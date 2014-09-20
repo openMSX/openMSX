@@ -29,7 +29,7 @@ class SCSILS120 final : public SCSIDevice, public SectorAccessibleDisk
 public:
 	SCSILS120(const DeviceConfig& targetconfig,
 	          AlignedBuffer& buf, unsigned mode);
-	virtual ~SCSILS120();
+	~SCSILS120();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

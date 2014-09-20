@@ -13,7 +13,7 @@ class MSXMapperIO final : public MSXDevice
 {
 public:
 	explicit MSXMapperIO(const DeviceConfig& config);
-	virtual ~MSXMapperIO();
+	~MSXMapperIO();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readIO(word port, EmuTime::param time);

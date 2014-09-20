@@ -21,8 +21,6 @@ class VideoLayer : public Layer, protected Observer<Setting>
                  , private MSXEventListener, private noncopyable
 {
 public:
-	virtual ~VideoLayer();
-
 	/** Returns the ID for this videolayer.
 	  * These IDs are globally unique. The 'videosource' setting uses
 	  * these IDs as possible values.
@@ -51,6 +49,7 @@ public:
 protected:
 	VideoLayer(MSXMotherBoard& motherBoard,
 	           const std::string& videoSource);
+	~VideoLayer();
 
 	// Observer<Setting> interface:
 	virtual void update(const Setting& setting);

@@ -17,7 +17,7 @@ class ArkanoidPad final : public JoystickDevice, private MSXEventListener
 public:
 	explicit ArkanoidPad(MSXEventDistributor& eventDistributor,
 	                     StateChangeDistributor& stateChangeDistributor);
-	virtual ~ArkanoidPad();
+	~ArkanoidPad();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -29,7 +29,7 @@ namespace openmsx {
 class AfterCmd
 {
 public:
-	virtual ~AfterCmd();
+	virtual ~AfterCmd() {}
 	string_ref getCommand() const;
 	const string& getId() const;
 	virtual string getType() const = 0;
@@ -468,10 +468,6 @@ AfterCmd::AfterCmd(AfterCommand& afterCommand_, const TclObject& command_)
 	ostringstream str;
 	str << "after#" << ++lastAfterId;
 	id = str.str();
-}
-
-AfterCmd::~AfterCmd()
-{
 }
 
 string_ref AfterCmd::getCommand() const

@@ -15,7 +15,7 @@ class GlobalCliComm final : public CliComm, private noncopyable
 {
 public:
 	GlobalCliComm();
-	virtual ~GlobalCliComm();
+	~GlobalCliComm();
 
 	void addListener(CliListener* listener);
 	void removeListener(CliListener* listener);

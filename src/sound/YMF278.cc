@@ -106,7 +106,7 @@ class YMF278::Impl final : public ResampledSoundDevice
 public:
 	Impl(YMF278& self, const std::string& name, int ramSize,
 	     const DeviceConfig& config);
-	virtual ~Impl();
+	~Impl();
 	void clearRam();
 	void reset(EmuTime::param time);
 	void writeReg(byte reg, byte data, EmuTime::param time);

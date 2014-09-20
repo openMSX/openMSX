@@ -21,7 +21,7 @@ public:
 
 private:
 	DummyAY8910Periphery() {}
-	virtual ~DummyAY8910Periphery() {}
+	~DummyAY8910Periphery() {}
 };
 
 }; // namespace openmsx

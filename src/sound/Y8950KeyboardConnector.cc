@@ -15,10 +15,6 @@ Y8950KeyboardConnector::Y8950KeyboardConnector(
 {
 }
 
-Y8950KeyboardConnector::~Y8950KeyboardConnector()
-{
-}
-
 void Y8950KeyboardConnector::write(byte newData, EmuTime::param time)
 {
 	if (newData != data) {

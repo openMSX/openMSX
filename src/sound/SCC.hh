@@ -17,7 +17,7 @@ public:
 
 	SCC(const std::string& name, const DeviceConfig& config,
 	    EmuTime::param time, ChipMode mode = SCC_Real);
-	virtual ~SCC();
+	~SCC();
 
 	// interaction with realCartridge
 	void powerUp(EmuTime::param time);

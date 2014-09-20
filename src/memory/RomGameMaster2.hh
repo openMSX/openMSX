@@ -9,7 +9,7 @@ class RomGameMaster2 final : public Rom4kBBlocks
 {
 public:
 	RomGameMaster2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomGameMaster2();
+	~RomGameMaster2();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

@@ -16,6 +16,9 @@ public:
 	virtual void frameStart(EmuTime::param time) = 0;
 	virtual void drawBlank(int r, int g, int b) = 0;
 	virtual RawFrame* getRawFrame() = 0;
+
+protected:
+	LDRasterizer() {}
 };
 
 } // namespace openmsx

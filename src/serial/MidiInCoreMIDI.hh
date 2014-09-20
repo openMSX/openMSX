@@ -30,7 +30,7 @@ public:
 	  */
 	explicit MidiInCoreMIDI(EventDistributor& eventDistributor_,
                             Scheduler& scheduler_, MIDIEndpointRef endpoint);
-	virtual ~MidiInCoreMIDI();
+	~MidiInCoreMIDI();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);
@@ -75,7 +75,7 @@ class MidiInCoreMIDIVirtual final : public MidiInDevice, private EventListener
 public:
 	explicit MidiInCoreMIDIVirtual(EventDistributor& eventDistributor_,
                                    Scheduler& scheduler_);
-	virtual ~MidiInCoreMIDIVirtual();
+	~MidiInCoreMIDIVirtual();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);

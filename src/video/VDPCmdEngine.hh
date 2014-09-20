@@ -43,7 +43,7 @@ class VDPCmdEngine : private noncopyable
 public:
 	VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
 	             CommandController& commandController);
-	virtual ~VDPCmdEngine();
+	~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
 	  * @param time The moment in time the reset occurs.

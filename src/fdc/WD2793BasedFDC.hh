@@ -19,7 +19,7 @@ public:
 
 protected:
 	explicit WD2793BasedFDC(const DeviceConfig& config);
-	virtual ~WD2793BasedFDC();
+	~WD2793BasedFDC();
 
 	const std::unique_ptr<DriveMultiplexer> multiplexer;
 	const std::unique_ptr<WD2793> controller;

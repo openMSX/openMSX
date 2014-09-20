@@ -29,8 +29,6 @@ public:
 		FIELD_ODD
 	};
 
-	virtual ~FrameSource() {}
-
 	/** (Re)initialize an existing FrameSource. This method sets the
 	  * Fieldtype and flushes the 'getLinePtr' buffers.
 	  */
@@ -198,6 +196,7 @@ public:
 
 protected:
 	explicit FrameSource(const SDL_PixelFormat& format);
+	~FrameSource() {}
 
 	void setHeight(unsigned height_) { height = height_; }
 

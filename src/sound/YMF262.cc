@@ -183,7 +183,7 @@ class YMF262::Impl final : private ResampledSoundDevice, private EmuTimerCallbac
 public:
 	Impl(YMF262& self, const std::string& name, const DeviceConfig& config,
 	     bool isYMF278);
-	virtual ~Impl();
+	~Impl();
 
 	void reset(EmuTime::param time);
 	void writeReg   (unsigned r, byte v, EmuTime::param time);

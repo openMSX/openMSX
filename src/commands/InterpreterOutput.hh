@@ -8,9 +8,11 @@ namespace openmsx {
 class InterpreterOutput
 {
 public:
-	virtual ~InterpreterOutput() {}
 	virtual void output(string_ref text) = 0;
 	virtual unsigned getOutputColumns() const = 0;
+
+protected:
+	~InterpreterOutput() {}
 };
 
 } // namespace openmsx

@@ -23,7 +23,7 @@ class Rom final : private noncopyable
 public:
 	Rom(const std::string& name, const std::string& description,
 	    const DeviceConfig& config, const std::string& id = "");
-	virtual ~Rom();
+	~Rom();
 
 	const byte& operator[](unsigned address) const {
 		assert(address < size);

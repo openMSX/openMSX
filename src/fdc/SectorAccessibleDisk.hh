@@ -16,8 +16,6 @@ class SectorAccessibleDisk
 public:
 	static const size_t SECTOR_SIZE = sizeof(SectorBuffer);
 
-	virtual ~SectorAccessibleDisk();
-
 	// sector stuff
 	void readSector (size_t sector,       SectorBuffer& buf);
 	void writeSector(size_t sector, const SectorBuffer& buf);
@@ -50,6 +48,7 @@ public:
 
 protected:
 	SectorAccessibleDisk();
+	~SectorAccessibleDisk();
 
 	// Peek-mode changes the behaviour of readSector(). ATM it only has
 	// an effect on DirAsDSK. See comment in DirAsDSK::readSectorImpl()

@@ -13,8 +13,6 @@ class BaseImage;
 class OSDImageBasedWidget : public OSDWidget
 {
 public:
-	virtual ~OSDImageBasedWidget();
-
 	unsigned getRGBA(unsigned corner) const { return rgba[corner]; }
 	const unsigned* getRGBA4() const { return rgba; }
 
@@ -28,6 +26,7 @@ public:
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
+	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);
 	virtual void invalidateLocal();

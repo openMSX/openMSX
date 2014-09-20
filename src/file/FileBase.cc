@@ -7,10 +7,6 @@ using std::string;
 
 namespace openmsx {
 
-FileBase::FileBase()
-{
-}
-
 FileBase::~FileBase()
 {
 	munmap();

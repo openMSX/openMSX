@@ -9,8 +9,9 @@ class LayerListener
 {
 public:
 	virtual void updateZ(Layer& layer) = 0;
+
 protected:
-	virtual ~LayerListener() {}
+	~LayerListener() {}
 };
 
 } // namespace openmsx

@@ -75,8 +75,6 @@ enum EventType
 class Event : private noncopyable
 {
 public:
-	virtual ~Event() {}
-
 	EventType getType() const { return type; }
 	std::string toString() const;
 	bool operator< (const Event& other) const;
@@ -99,6 +97,7 @@ public:
 
 protected:
 	explicit Event(EventType type_) : type(type_) {}
+	~Event() {}
 
 private:
 	virtual void toStringImpl(TclObject& result) const = 0;

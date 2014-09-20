@@ -13,7 +13,7 @@ class GoudaSCSI final : public MSXDevice
 {
 public:
 	explicit GoudaSCSI(const DeviceConfig& config);
-	virtual ~GoudaSCSI();
+	~GoudaSCSI();
 
 	virtual void reset(EmuTime::param time);
 

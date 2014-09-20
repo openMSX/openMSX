@@ -12,7 +12,7 @@ class MSXBunsetsu final : public MSXDevice
 {
 public:
 	explicit MSXBunsetsu(const DeviceConfig& DeviceConfig);
-	virtual ~MSXBunsetsu();
+	~MSXBunsetsu();
 
 	virtual void reset(EmuTime::param time);
 

@@ -14,7 +14,7 @@ class PrinterPortLogger final : public PrinterPortDevice
 {
 public:
 	explicit PrinterPortLogger(CommandController& commandController);
-	virtual ~PrinterPortLogger();
+	~PrinterPortLogger();
 
 	// PrinterPortDevice
 	virtual bool getStatus(EmuTime::param time);

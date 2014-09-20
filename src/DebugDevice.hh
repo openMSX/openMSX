@@ -13,7 +13,7 @@ class DebugDevice final : public MSXDevice
 {
 public:
 	explicit DebugDevice(const DeviceConfig& config);
-	virtual ~DebugDevice();
+	~DebugDevice();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);

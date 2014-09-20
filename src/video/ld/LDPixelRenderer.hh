@@ -20,7 +20,7 @@ class LDPixelRenderer final : public LDRenderer, private noncopyable
 {
 public:
 	LDPixelRenderer(LaserdiscPlayer& ld, Display& display);
-	virtual ~LDPixelRenderer();
+	~LDPixelRenderer();
 
 	// Renderer interface:
 	virtual void frameStart(EmuTime::param time);

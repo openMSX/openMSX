@@ -17,7 +17,7 @@ class DirectXSoundDriver final : public SoundDriver, private noncopyable
 {
 public:
 	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);
-	virtual ~DirectXSoundDriver();
+	~DirectXSoundDriver();
 
 	virtual void mute();
 	virtual void unmute();

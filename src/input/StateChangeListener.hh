@@ -29,7 +29,7 @@ public:
 
 protected:
 	StateChangeListener() {}
-	virtual ~StateChangeListener() {}
+	~StateChangeListener() {}
 };
 
 class StateChangeRecorder : public StateChangeListener

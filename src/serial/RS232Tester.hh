@@ -25,7 +25,7 @@ class RS232Tester final : public RS232Device, private Runnable
 public:
 	RS232Tester(EventDistributor& eventDistributor, Scheduler& scheduler,
 	            CommandController& commandController);
-	virtual ~RS232Tester();
+	~RS232Tester();
 
 	// Pluggable
 	virtual void plugHelper(Connector& connector, EmuTime::param time);

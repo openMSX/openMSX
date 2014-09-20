@@ -9,7 +9,7 @@ class RomHalnote final : public Rom8kBBlocks
 {
 public:
 	RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomHalnote();
+	~RomHalnote();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

@@ -17,7 +17,7 @@ class WavAudioInput final : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	explicit WavAudioInput(CommandController& commandController);
-	virtual ~WavAudioInput();
+	~WavAudioInput();
 
 	// AudioInputDevice
 	virtual const std::string& getName() const;

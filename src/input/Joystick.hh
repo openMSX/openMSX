@@ -38,7 +38,7 @@ public:
 	         StateChangeDistributor& stateChangeDistributor,
 	         CommandController& commandController,
 	         SDL_Joystick* joystick);
-	virtual ~Joystick();
+	~Joystick();
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable

@@ -12,7 +12,7 @@ public:
 	typedef std::vector<MSXDevice*> Devices;
 
 	explicit MSXMultiIODevice(const HardwareConfig& hwConf);
-	virtual ~MSXMultiIODevice();
+	~MSXMultiIODevice();
 
 	void addDevice(MSXDevice* device);
 	void removeDevice(MSXDevice* device);

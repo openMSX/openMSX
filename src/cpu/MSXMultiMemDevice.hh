@@ -10,7 +10,7 @@ class MSXMultiMemDevice final : public MSXMultiDevice
 {
 public:
 	MSXMultiMemDevice(const HardwareConfig& hwConf);
-	virtual ~MSXMultiMemDevice();
+	~MSXMultiMemDevice();
 
 	bool canAdd(int base, int size);
 	void add(MSXDevice& device, int base, int size);

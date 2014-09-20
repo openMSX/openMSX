@@ -24,7 +24,7 @@ class RomFSA1FM1 final : public MSXRom, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomFSA1FM1();
+	~RomFSA1FM1();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;
@@ -45,7 +45,7 @@ class RomFSA1FM2 final : public Rom8kBBlocks, private RomFSA1FMSram
 {
 public:
 	RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomFSA1FM2();
+	~RomFSA1FM2();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte peekMem(word address, EmuTime::param time) const;

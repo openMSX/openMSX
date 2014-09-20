@@ -22,7 +22,7 @@ public:
 
 protected:
 	explicit MSXFDC(const DeviceConfig& config);
-	virtual ~MSXFDC();
+	~MSXFDC();
 
 	const std::unique_ptr<Rom> rom;
 	std::unique_ptr<DiskDrive> drives[4];

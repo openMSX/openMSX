@@ -20,7 +20,7 @@ class RealDrive final : public DiskDrive, public Schedulable
 public:
 	RealDrive(MSXMotherBoard& motherBoard, EmuDuration::param motorTimeout,
 	          bool signalsNeedMotorOn, bool doubleSided);
-	virtual ~RealDrive();
+	~RealDrive();
 
 	// DiskDrive interface
 	virtual bool isDiskInserted() const;

@@ -128,7 +128,7 @@ public:
 	CapsLockAligner(EventDistributor& eventDistributor,
 	                MSXEventDistributor& msxEventDistributor,
 	                Scheduler& scheduler, Keyboard& keyboard);
-	virtual ~CapsLockAligner();
+	~CapsLockAligner();
 
 private:
 	// EventListener

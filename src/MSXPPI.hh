@@ -41,7 +41,7 @@ class MSXPPI final : public MSXDevice, public I8255Interface
 {
 public:
 	explicit MSXPPI(const DeviceConfig& config);
-	virtual ~MSXPPI();
+	~MSXPPI();
 
 	virtual void reset(EmuTime::param time);
 	virtual void powerDown(EmuTime::param time);

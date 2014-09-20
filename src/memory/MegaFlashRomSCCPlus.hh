@@ -14,7 +14,7 @@ class MegaFlashRomSCCPlus final : public MSXRom
 {
 public:
 	MegaFlashRomSCCPlus(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~MegaFlashRomSCCPlus();
+	~MegaFlashRomSCCPlus();
 
 	virtual void powerUp(EmuTime::param time);
 	virtual void reset(EmuTime::param time);

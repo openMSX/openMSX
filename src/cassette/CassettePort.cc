@@ -18,13 +18,6 @@ using std::string;
 
 namespace openmsx {
 
-// CassettePortInterface
-
-CassettePortInterface::~CassettePortInterface()
-{
-}
-
-
 // DummyCassettePort
 
 void DummyCassettePort::setMotor(bool /*status*/, EmuTime::param /*time*/)

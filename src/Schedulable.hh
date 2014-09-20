@@ -47,7 +47,7 @@ public:
 
 protected:
 	explicit Schedulable(Scheduler& scheduler);
-	virtual ~Schedulable();
+	~Schedulable();
 
 	void setSyncPoint(EmuTime::param timestamp, int userData = 0);
 	bool removeSyncPoint(int userData = 0);

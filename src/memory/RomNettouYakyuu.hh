@@ -11,7 +11,7 @@ class RomNettouYakyuu final : public Rom8kBBlocks
 {
 public:
 	RomNettouYakyuu(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomNettouYakyuu();
+	~RomNettouYakyuu();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeMem(word address, byte value, EmuTime::param time);

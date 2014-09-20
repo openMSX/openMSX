@@ -11,7 +11,6 @@ namespace openmsx {
 class FileBase : private noncopyable
 {
 public:
-	FileBase();
 	virtual ~FileBase();
 
 	virtual void read(void* buffer, size_t num) = 0;

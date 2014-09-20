@@ -17,7 +17,7 @@ class PioneerLDControl final : public MSXDevice
 {
 public:
 	explicit PioneerLDControl(const DeviceConfig& config);
-	virtual ~PioneerLDControl();
+	~PioneerLDControl();
 
 	virtual void reset(EmuTime::param time);
 	virtual byte readMem(word address, EmuTime::param time);

@@ -11,7 +11,7 @@ class RomKonamiKeyboardMaster final : public Rom16kBBlocks
 {
 public:
 	RomKonamiKeyboardMaster(const DeviceConfig& config, std::unique_ptr<Rom> rom);
-	virtual ~RomKonamiKeyboardMaster();
+	~RomKonamiKeyboardMaster();
 
 	virtual void reset(EmuTime::param time);
 	virtual void writeIO(word port, byte value, EmuTime::param time);

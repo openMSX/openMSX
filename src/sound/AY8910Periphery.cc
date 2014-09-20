@@ -2,14 +2,6 @@
 
 namespace openmsx {
 
-AY8910Periphery::AY8910Periphery()
-{
-}
-
-AY8910Periphery::~AY8910Periphery()
-{
-}
-
 byte AY8910Periphery::readA(EmuTime::param /*time*/)
 {
 	return 0xFF; // unused bits are 1

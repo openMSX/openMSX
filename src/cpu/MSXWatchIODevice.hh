@@ -18,7 +18,7 @@ public:
 	        unsigned beginAddr, unsigned endAddr,
 	        TclObject command, TclObject condition,
 	        unsigned newId = -1);
-	virtual ~WatchIO();
+	~WatchIO();
 
 	MSXWatchIODevice& getDevice(byte port);
 
