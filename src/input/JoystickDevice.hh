@@ -28,7 +28,7 @@ public:
 	 */
 	virtual void write(byte value, EmuTime::param time) = 0;
 
-	virtual string_ref getClass() const;
+	virtual string_ref getClass() const final;
 
 	/* Missing pin descriptions
 	 * pin 5 : +5V

@@ -15,15 +15,15 @@ public:
 	                 const std::string& description, unsigned size);
 	virtual ~SimpleDebuggable();
 
-	virtual unsigned getSize() const;
-	virtual const std::string& getName() const;
-	virtual const std::string& getDescription() const;
+	virtual unsigned getSize() const final;
+	virtual const std::string& getDescription() const final;
 
 	virtual byte read(unsigned address);
 	virtual byte read(unsigned address, EmuTime::param time);
 	virtual void write(unsigned address, byte value);
 	virtual void write(unsigned address, byte value, EmuTime::param time);
 
+	const std::string& getName() const { return name; }
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
 private:

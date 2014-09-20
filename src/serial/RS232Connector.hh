@@ -19,8 +19,8 @@ public:
 	RS232Device& getPluggedRS232Dev() const;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
+	virtual const std::string getDescription() const final;
+	virtual string_ref getClass() const final;
 
 	// input (SerialDataInterface)
 	virtual void setDataBits(DataBits bits) = 0;

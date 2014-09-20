@@ -10,7 +10,7 @@ class RS232Device : public Pluggable, public SerialDataInterface
 {
 public:
 	// Pluggable (part)
-	virtual string_ref getClass() const;
+	virtual string_ref getClass() const final;
 
 	// input
 	virtual void signal(EmuTime::param time) = 0;

@@ -14,7 +14,7 @@ public:
 	virtual short readSample(EmuTime::param time) = 0;
 
 	// Pluggable
-	virtual string_ref getClass() const;
+	virtual string_ref getClass() const final;
 };
 
 } // namespace openmsx

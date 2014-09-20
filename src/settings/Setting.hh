@@ -133,17 +133,17 @@ public:
 	}
 
 	// BaseSetting
-	virtual void setString(const std::string& value);
-	virtual std::string getDescription() const;
-	virtual std::string getString() const;
-	virtual std::string getDefaultValue() const;
-	virtual std::string getRestoreValue() const;
-	virtual void setStringDirect(const std::string& value);
+	virtual void setString(const std::string& value) final;
+	virtual std::string getDescription() const final;
+	virtual std::string getString() const final;
+	virtual std::string getDefaultValue() const final;
+	virtual std::string getRestoreValue() const final;
+	virtual void setStringDirect(const std::string& value) final;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	virtual bool needLoadSave() const;
+	virtual bool needLoadSave() const final;
 	virtual void additionalInfo(TclObject& result) const;
-	virtual bool needTransfer() const;
-	virtual void setDontSaveValue(const std::string& dontSaveValue);
+	virtual bool needTransfer() const final;
+	virtual void setDontSaveValue(const std::string& dontSaveValue) final;
 
 	// convenience functions
 	CommandController& getCommandController() const { return commandController; }

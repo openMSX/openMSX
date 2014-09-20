@@ -33,7 +33,7 @@ public:
 	virtual void writeData(byte data, EmuTime::param time) = 0;
 
 	// Pluggable
-	virtual string_ref getClass() const;
+	virtual string_ref getClass() const final;
 };
 
 } // namespace openmsx

@@ -17,8 +17,8 @@ public:
 	AudioInputDevice& getPluggedAudioDev() const;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
+	virtual const std::string getDescription() const final;
+	virtual string_ref getClass() const final;
 
 	short readSample(EmuTime::param time) const;
 

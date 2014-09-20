@@ -19,8 +19,8 @@ public:
 	MidiInDevice& getPluggedMidiInDev() const;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
+	virtual const std::string getDescription() const final;
+	virtual string_ref getClass() const final;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
