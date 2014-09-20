@@ -21,9 +21,9 @@ class MLAAScaler final : public Scaler<Pixel>
 public:
 	MLAAScaler(unsigned dstWidth, const PixelOperations<Pixel>& pixelOps);
 
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+	void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
 	const PixelOperations<Pixel> pixelOps;

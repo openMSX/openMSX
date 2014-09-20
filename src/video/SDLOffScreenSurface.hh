@@ -14,8 +14,8 @@ public:
 
 private:
 	// OutputSurface
-	virtual void saveScreenshot(const std::string& filename);
-	virtual void clearScreen();
+	void saveScreenshot(const std::string& filename) override;
+	void clearScreen() override;
 
 	SDLSurfacePtr surface;
 	void* buffer;

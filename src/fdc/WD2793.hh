@@ -64,7 +64,7 @@ public:
 	};
 
 private:
-	virtual void executeUntil(EmuTime::param time, int state);
+	void executeUntil(EmuTime::param time, int state) override;
 
 	void startType1Cmd(EmuTime::param time);
 

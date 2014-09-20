@@ -9,12 +9,12 @@ class DummyDisk final : public SectorBasedDisk
 {
 public:
 	DummyDisk();
-	virtual bool isDummyDisk() const;
+	bool isDummyDisk() const override;
 
 private:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual bool isWriteProtectedImpl() const;
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	bool isWriteProtectedImpl() const override;
 };
 
 } // namespace openmsx

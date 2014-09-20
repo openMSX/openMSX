@@ -40,10 +40,10 @@ private:
 	typedef std::shared_ptr<const Event> EventPtr;
 
 	// EventListener
-	virtual int signalEvent(const EventPtr& event);
+	int signalEvent(const EventPtr& event) override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	EventDistributor& eventDistributor;
 	MSXEventDistributor& msxEventDistributor;

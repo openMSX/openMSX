@@ -224,32 +224,32 @@ private:
 	class CmdSTOP: public V9990Cmd {
 	public:
 		CmdSTOP(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdLMMC: public V9990Cmd {
 	public:
 		CmdLMMC(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdLMMV: public V9990Cmd {
 	public:
 		CmdLMMV(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdLMCM: public V9990Cmd {
 	public:
 		CmdLMCM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	private:
 		typename Mode::Type getData(EmuTime::param time);
 	};
@@ -258,96 +258,96 @@ private:
 	class CmdLMMM: public V9990Cmd {
 	public:
 		CmdLMMM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdCMMC: public V9990Cmd {
 	public:
 		CmdCMMC(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdCMMK: public V9990Cmd {
 	public:
 		CmdCMMK(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdCMMM: public V9990Cmd {
 	public:
 		CmdCMMM(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdBMXL: public V9990Cmd {
 	public:
 		CmdBMXL(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdBMLX: public V9990Cmd {
 	public:
 		CmdBMLX(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdBMLL: public V9990Cmd {
 	public:
 		CmdBMLL(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdLINE: public V9990Cmd {
 	public:
 		CmdLINE(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdSRCH: public V9990Cmd {
 	public:
 		CmdSRCH(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdPOINT: public V9990Cmd {
 	public:
 		CmdPOINT(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdPSET: public V9990Cmd {
 	public:
 		CmdPSET(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	template <class Mode>
 	class CmdADVN: public V9990Cmd {
 	public:
 		CmdADVN(V9990CmdEngine& engine, V9990VRAM& vram);
-		virtual void start(EmuTime::param time);
-		virtual void execute(EmuTime::param time);
+		void start(EmuTime::param time) override;
+		void execute(EmuTime::param time) override;
 	};
 
 	RenderSettings& settings;
@@ -428,7 +428,7 @@ private:
 	void reportV9990Command();
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void setCurrentCommand();
 	EmuDuration getTiming(const unsigned table[4][3][4]) const;

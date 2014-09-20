@@ -120,8 +120,8 @@ can decide for itself how many bytes to read.
 class DummyVRAMOBserver final : public VRAMObserver
 {
 public:
-	virtual void updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) {}
-	virtual void updateWindow(bool /*enabled*/, EmuTime::param /*time*/) {}
+	void updateVRAM(unsigned /*offset*/, EmuTime::param /*time*/) override {}
+	void updateWindow(bool /*enabled*/, EmuTime::param /*time*/) override {}
 };
 
 /** Specifies an address range in the VRAM.

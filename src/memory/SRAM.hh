@@ -37,7 +37,7 @@ public:
 
 private:
 	// RTSchedulable
-	virtual void executeRT();
+	void executeRT() override;
 
 	void load(bool* loaded);
 	void save();

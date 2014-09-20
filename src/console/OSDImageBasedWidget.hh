@@ -18,20 +18,20 @@ public:
 
 	virtual byte getFadedAlpha() const = 0;
 
-	virtual std::vector<string_ref> getProperties() const;
-	virtual void setProperty(Interpreter& interp,
-	                         string_ref name, const TclObject& value);
-	virtual void getProperty(string_ref name, TclObject& result) const;
-	virtual double getRecursiveFadeValue() const;
+	std::vector<string_ref> getProperties() const override;
+	void setProperty(Interpreter& interp,
+	                 string_ref name, const TclObject& value) override;
+	void getProperty(string_ref name, TclObject& result) const override;
+	double getRecursiveFadeValue() const override;
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
 	~OSDImageBasedWidget();
 	bool hasConstantAlpha() const;
 	void createImage(OutputRectangle& output);
-	virtual void invalidateLocal();
-	virtual void paintSDL(OutputSurface& output);
-	virtual void paintGL (OutputSurface& output);
+	void invalidateLocal() override;
+	void paintSDL(OutputSurface& output) override;
+	void paintGL (OutputSurface& output) override;
 	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) = 0;
 	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output) = 0;
 

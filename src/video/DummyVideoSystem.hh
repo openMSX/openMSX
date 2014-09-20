@@ -10,15 +10,15 @@ class DummyVideoSystem final : public VideoSystem
 {
 public:
 	// VideoSystem interface:
-	virtual std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp);
-	virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
-		V9990& vdp);
+	std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
+	std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
+		V9990& vdp) override;
 #if COMPONENT_LASERDISC
-	virtual std::unique_ptr<LDRasterizer> createLDRasterizer(
-		LaserdiscPlayer& ld);
+	std::unique_ptr<LDRasterizer> createLDRasterizer(
+		LaserdiscPlayer& ld) override;
 #endif
-	virtual void flush();
-	virtual OutputSurface* getOutputSurface();
+	void flush() override;
+	OutputSurface* getOutputSurface() override;
 };
 
 } // namespace openmsx

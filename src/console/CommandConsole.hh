@@ -84,11 +84,11 @@ public:
 
 private:
 	// InterpreterOutput
-	virtual void output(string_ref text);
-	virtual unsigned getOutputColumns() const;
+	void output(string_ref text) override;
+	unsigned getOutputColumns() const override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	bool handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();

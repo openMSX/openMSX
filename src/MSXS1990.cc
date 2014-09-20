@@ -14,8 +14,8 @@ class S1990Debuggable final : public SimpleDebuggable
 {
 public:
 	S1990Debuggable(MSXMotherBoard& motherBoard, MSXS1990& s1990);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	MSXS1990& s1990;
 };

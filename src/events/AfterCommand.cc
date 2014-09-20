@@ -55,8 +55,8 @@ protected:
 		      AfterCommand& afterCommand,
 		      const TclObject& command, double time);
 private:
-	virtual void executeUntil(EmuTime::param time, int userData);
-	virtual void schedulerDeleted();
+	void executeUntil(EmuTime::param time, int userData) override;
+	void schedulerDeleted() override;
 
 	double time; // Zero when expired, otherwise the original duration (to
 	             // be able to reschedule for 'after idle').
@@ -68,7 +68,7 @@ public:
 	AfterTimeCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     const TclObject& command, double time);
-	virtual string getType() const;
+	string getType() const override;
 };
 
 class AfterIdleCmd final : public AfterTimedCmd
@@ -77,7 +77,7 @@ public:
 	AfterIdleCmd(Scheduler& scheduler,
 		     AfterCommand& afterCommand,
 		     const TclObject& command, double time);
-	virtual string getType() const;
+	string getType() const override;
 };
 
 template<EventType T>
@@ -87,7 +87,7 @@ public:
 	AfterEventCmd(AfterCommand& afterCommand,
 		      const TclObject& type,
 		      const TclObject& command);
-	virtual string getType() const;
+	string getType() const override;
 private:
 	const string type;
 };
@@ -98,7 +98,7 @@ public:
 	AfterInputEventCmd(AfterCommand& afterCommand,
 	                   AfterCommand::EventPtr event,
 	                   const TclObject& command);
-	virtual string getType() const;
+	string getType() const override;
 	AfterCommand::EventPtr getEvent() const { return event; }
 private:
 	AfterCommand::EventPtr event;
@@ -109,10 +109,10 @@ class AfterRealTimeCmd final : public AfterCmd, private RTSchedulable
 public:
 	AfterRealTimeCmd(RTScheduler& rtScheduler, AfterCommand& afterCommand,
 	                 const TclObject& command, double time);
-	virtual string getType() const;
+	string getType() const override;
 
 private:
-	virtual void executeRT();
+	void executeRT() override;
 };
 
 

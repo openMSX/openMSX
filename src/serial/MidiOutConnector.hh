@@ -17,14 +17,14 @@ public:
 	MidiOutDevice& getPluggedMidiOutDev() const;
 
 	// Connector
-	virtual const std::string getDescription() const final;
-	virtual string_ref getClass() const final;
+	const std::string getDescription() const final override;
+	string_ref getClass() const final override;
 
 	// SerialDataInterface
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
-	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, EmuTime::param time);
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

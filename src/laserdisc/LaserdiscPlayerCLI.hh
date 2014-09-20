@@ -11,12 +11,12 @@ class LaserdiscPlayerCLI final : public CLIOption, public CLIFileType
 {
 public:
 	explicit LaserdiscPlayerCLI(CommandLineParser& commandLineParser);
-	virtual void parseOption(const std::string& option,
-	                         array_ref<std::string>& cmdLine);
-	virtual string_ref optionHelp() const;
-	virtual void parseFileType(const std::string& filename,
-	                           array_ref<std::string>& cmdLine);
-	virtual string_ref fileTypeHelp() const;
+	void parseOption(const std::string& option,
+	                 array_ref<std::string>& cmdLine) override;
+	string_ref optionHelp() const override;
+	void parseFileType(const std::string& filename,
+	                   array_ref<std::string>& cmdLine) override;
+	string_ref fileTypeHelp() const override;
 
 private:
 	CommandLineParser& parser;

@@ -40,8 +40,8 @@ class Y8950Debuggable final : public SimpleDebuggable
 public:
 	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950,
 	                const std::string& name);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	Y8950& y8950;
 };
@@ -167,8 +167,8 @@ public:
 
 private:
 	// SoundDevice
-	virtual int getAmplificationFactor() const;
-	virtual void generateChannels(int** bufs, unsigned num);
+	int getAmplificationFactor() const override;
+	void generateChannels(int** bufs, unsigned num) override;
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();
@@ -187,7 +187,7 @@ private:
 
 	void changeStatusMask(byte newMask);
 
-	void callback(byte flag);
+	void callback(byte flag) override;
 
 
 	MSXMotherBoard& motherBoard;

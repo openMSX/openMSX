@@ -24,10 +24,10 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
-	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-	                          EmuTime::param time);
+	void setOutputRate(unsigned sampleRate) override;
+	void generateChannels(int** bufs, unsigned num) override;
+	bool updateBuffer(unsigned length, int* buffer,
+	                  EmuTime::param time) override;
 
 	BlipBuffer blip;
 	int16_t lastWrittenValue;

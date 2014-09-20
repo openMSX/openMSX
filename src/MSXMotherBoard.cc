@@ -149,7 +149,7 @@ private:
 	void deleteMachine();
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	Reactor& reactor;
 	string machineID;
@@ -230,9 +230,9 @@ class ResetCmd final : public RecordedCommand
 {
 public:
 	ResetCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard::Impl& motherBoard;
 };
@@ -241,9 +241,9 @@ class LoadMachineCmd final : public Command
 {
 public:
 	LoadMachineCmd(MSXMotherBoard& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -252,8 +252,8 @@ class ListExtCmd final : public Command
 {
 public:
 	ListExtCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard::Impl& motherBoard;
 };
@@ -262,10 +262,10 @@ class RemoveExtCmd final : public RecordedCommand
 {
 public:
 	RemoveExtCmd(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard::Impl& motherBoard;
 };
@@ -274,9 +274,9 @@ class MachineNameInfo final : public InfoTopic
 {
 public:
 	MachineNameInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXMotherBoard::Impl& motherBoard;
 };
@@ -285,10 +285,10 @@ class DeviceInfo final : public InfoTopic
 {
 public:
 	DeviceInfo(MSXMotherBoard::Impl& motherBoard);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMotherBoard::Impl& motherBoard;
 };
@@ -299,7 +299,7 @@ public:
 	FastForwardHelper(MSXMotherBoard::Impl& msxMotherBoardImpl);
 	void setTarget(EmuTime::param targetTime);
 private:
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 	MSXMotherBoard::Impl& motherBoard;
 };
 
@@ -307,8 +307,8 @@ class JoyPortDebuggable final : public SimpleDebuggable
 {
 public:
 	JoyPortDebuggable(MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value) override;
 };
 
 

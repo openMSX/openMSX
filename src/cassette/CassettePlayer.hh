@@ -29,18 +29,18 @@ public:
 	~CassettePlayer();
 
 	// CassetteDevice
-	virtual void setMotor(bool status, EmuTime::param time);
-	virtual short readSample(EmuTime::param time);
-	virtual void setSignal(bool output, EmuTime::param time);
+	void setMotor(bool status, EmuTime::param time) override;
+	short readSample(EmuTime::param time) override;
+	void setSignal(bool output, EmuTime::param time) override;
 
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
+	void generateChannels(int** bufs, unsigned num) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -110,10 +110,10 @@ private:
 	void autoRun();
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	static const size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];

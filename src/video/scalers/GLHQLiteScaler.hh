@@ -13,14 +13,14 @@ class GLHQLiteScaler final : public GLScaler, private noncopyable
 public:
 	explicit GLHQLiteScaler(GLScaler& fallback);
 
-	virtual void scaleImage(
+	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-		unsigned logSrcHeight);
-	virtual void uploadBlock(
+		unsigned logSrcHeight) override;
+	void uploadBlock(
 		unsigned srcStartY, unsigned srcEndY,
-		unsigned lineWidth, FrameSource& paintFrame);
+		unsigned lineWidth, FrameSource& paintFrame) override;
 
 private:
 	GLScaler& fallback;

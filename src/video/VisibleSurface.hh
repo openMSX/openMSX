@@ -63,11 +63,11 @@ private:
 	void updateCursor();
 
 	// Observer
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 	// RTSchedulable
-	void executeRT();
+	void executeRT() override;
 
 	RenderSettings& renderSettings;
 	EventDistributor& eventDistributor;

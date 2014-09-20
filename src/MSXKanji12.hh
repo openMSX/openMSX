@@ -16,12 +16,12 @@ public:
 	~MSXKanji12();
 
 	// MSXDevice
-	virtual void reset(EmuTime::param time);
+	void reset(EmuTime::param time) override;
 
 	// MSXSwitchedDevice
-	virtual byte readSwitchedIO(word port, EmuTime::param time);
-	virtual byte peekSwitchedIO(word port, EmuTime::param time) const;
-	virtual void writeSwitchedIO(word port, byte value, EmuTime::param time);
+	byte readSwitchedIO(word port, EmuTime::param time) override;
+	byte peekSwitchedIO(word port, EmuTime::param time) const override;
+	void writeSwitchedIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

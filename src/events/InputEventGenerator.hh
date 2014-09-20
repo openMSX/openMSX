@@ -61,10 +61,10 @@ private:
 	void setGrabInput(bool grab);
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	EventDistributor& eventDistributor;
 	const std::unique_ptr<BooleanSetting> grabInput;

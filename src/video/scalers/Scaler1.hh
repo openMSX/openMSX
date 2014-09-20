@@ -12,9 +12,9 @@ class Scaler1 final : public Scaler<Pixel>
 public:
 	explicit Scaler1(const PixelOperations<Pixel>& pixelOps);
 
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+	void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 protected:
 	void dispatchScale(FrameSource& src,

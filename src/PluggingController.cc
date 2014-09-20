@@ -28,11 +28,11 @@ public:
 	        StateChangeDistributor& stateChangeDistributor,
 	        Scheduler& scheduler,
 	        PluggingController& pluggingController);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help   (const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-	virtual bool needRecord(array_ref<TclObject> tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help   (const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+	bool needRecord(array_ref<TclObject> tokens) const override;
 private:
 	PluggingController& pluggingController;
 };
@@ -44,10 +44,10 @@ public:
 	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler,
 	          PluggingController& pluggingController);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help   (const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help   (const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	PluggingController& pluggingController;
 };
@@ -57,10 +57,10 @@ class PluggableInfo final : public InfoTopic
 public:
 	PluggableInfo(InfoCommand& machineInfoCommand,
 	              PluggingController& pluggingController);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	PluggingController& pluggingController;
 };
@@ -70,10 +70,10 @@ class ConnectorInfo final : public InfoTopic
 public:
 	ConnectorInfo(InfoCommand& machineInfoCommand,
 	              PluggingController& pluggingController);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	PluggingController& pluggingController;
 };
@@ -83,10 +83,10 @@ class ConnectionClassInfo final : public InfoTopic
 public:
 	ConnectionClassInfo(InfoCommand& machineInfoCommand,
 	                    PluggingController& pluggingController);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	PluggingController& pluggingController;
 };

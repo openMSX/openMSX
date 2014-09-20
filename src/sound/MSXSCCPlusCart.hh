@@ -19,13 +19,13 @@ public:
 	explicit MSXSCCPlusCart(const DeviceConfig& config);
 	~MSXSCCPlusCart();
 
-	virtual void powerUp(EmuTime::param time);
-	virtual void reset(EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual byte peekMem(word address, EmuTime::param time) const;
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word start) const;
+	void powerUp(EmuTime::param time) override;
+	void reset(EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

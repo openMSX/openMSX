@@ -17,15 +17,15 @@ public:
 	PrinterPortDevice& getPluggedPrintDev() const;
 
 	// MSXDevice
-	virtual void reset(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
-	virtual void plug(Pluggable& dev, EmuTime::param time);
+	const std::string getDescription() const override;
+	string_ref getClass() const override;
+	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

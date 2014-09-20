@@ -66,13 +66,13 @@ private:
 	void setWindowTitle();
 
 	// EventListener interface
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// RTSchedulable
-	void executeRT();
+	void executeRT() override;
 
 	// Observer<Setting> interface
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void checkRendererSwitch();
 	void doRendererSwitch();
@@ -83,7 +83,7 @@ private:
 	Layers::iterator baseLayer();
 
 	// LayerListener interface
-	virtual void updateZ(Layer& layer);
+	void updateZ(Layer& layer) override;
 
 	Layers layers;
 	std::unique_ptr<VideoSystem> videoSystem;

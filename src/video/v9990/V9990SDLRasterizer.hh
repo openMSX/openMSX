@@ -34,20 +34,20 @@ public:
 	~V9990SDLRasterizer();
 
 	// Rasterizer interface:
-	virtual PostProcessor* getPostProcessor() const;
-	virtual bool isActive();
-	virtual void reset();
-	virtual void frameStart();
-	virtual void frameEnd(EmuTime::param time);
-	virtual void setDisplayMode(V9990DisplayMode displayMode);
-	virtual void setColorMode(V9990ColorMode colorMode);
-	virtual void setPalette(int index, byte r, byte g, byte b, bool ys);
-	virtual void setSuperimpose(bool enabled);
-	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
-	virtual void drawDisplay(int fromX, int fromY, int toX, int toY,
-	                         int displayX,
-	                         int displayY, int displayYA, int displayYB);
-	virtual bool isRecording() const;
+	PostProcessor* getPostProcessor() const override;
+	bool isActive() override;
+	void reset() override;
+	void frameStart() override;
+	void frameEnd(EmuTime::param time) override;
+	void setDisplayMode(V9990DisplayMode displayMode) override;
+	void setColorMode(V9990ColorMode colorMode) override;
+	void setPalette(int index, byte r, byte g, byte b, bool ys) override;
+	void setSuperimpose(bool enabled) override;
+	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
+	void drawDisplay(int fromX, int fromY, int toX, int toY,
+	                 int displayX,
+	                 int displayY, int displayYA, int displayYB) override;
+	bool isRecording() const override;
 
 private:
 	/** screen width for SDLLo
@@ -140,7 +140,7 @@ private:
 	                int displayWidth, int displayHeight, bool drawSprites);
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 };
 
 } // namespace openmsx

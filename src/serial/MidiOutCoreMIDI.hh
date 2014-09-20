@@ -19,7 +19,7 @@ class MidiOutMessageBuffer : public MidiOutDevice
 {
 public:
 	// SerialDataInterface (part)
-	virtual void recvByte(byte value, EmuTime::param time) override;
+	void recvByte(byte value, EmuTime::param time) override;
 
 protected:
 	explicit MidiOutMessageBuffer();
@@ -47,13 +47,13 @@ public:
 	explicit MidiOutCoreMIDI(MIDIEndpointRef endpoint);
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time) override;
-	virtual void unplugHelper(EmuTime::param time) override;
-	virtual const std::string& getName() const override;
-	virtual string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
 
 	// MidiOutMessageBuffer
-	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
+	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -77,13 +77,13 @@ public:
 	explicit MidiOutCoreMIDIVirtual();
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time) override;
-	virtual void unplugHelper(EmuTime::param time) override;
-	virtual const std::string& getName() const override;
-	virtual string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
 
 	// MidiOutMessageBuffer
-	virtual OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
+	OSStatus sendPacketList(MIDIPacketList *myPacketList) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

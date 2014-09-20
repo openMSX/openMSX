@@ -25,10 +25,10 @@ public:
 	~FBPostProcessor();
 
 	// Layer interface:
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 
-	virtual std::unique_ptr<RawFrame> rotateFrames(
-		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
+	std::unique_ptr<RawFrame> rotateFrames(
+		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time) override;
 
 private:
 	void preCalcNoise(float factor);
@@ -37,7 +37,7 @@ private:
 	                   unsigned long width);
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	/** The currently active scaler.
 	  */

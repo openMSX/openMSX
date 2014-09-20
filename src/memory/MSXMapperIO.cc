@@ -17,8 +17,8 @@ class MapperIODebuggable final : public SimpleDebuggable
 {
 public:
 	MapperIODebuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	MSXMapperIO& mapperIO;
 };

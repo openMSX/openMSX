@@ -11,11 +11,11 @@ public:
 	RomHalnote(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	~RomHalnote();
 
-	virtual void reset(EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word address) const;
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual byte* getWriteCacheLine(word address) const;
+	void reset(EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	const byte* getReadCacheLine(word address) const override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

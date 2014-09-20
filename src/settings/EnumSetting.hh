@@ -38,9 +38,9 @@ public:
 	            string_ref description, T initialValue,
 	            Map& map_, SaveSetting save = SAVE);
 
-	virtual string_ref getTypeString() const;
-	virtual void additionalInfo(TclObject& result) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	string_ref getTypeString() const override;
+	void additionalInfo(TclObject& result) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	T getEnum() const;
 	void setEnum(T value);

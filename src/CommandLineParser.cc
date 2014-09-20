@@ -51,8 +51,8 @@ class HelpOption final : public CLIOption
 {
 public:
 	explicit HelpOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
@@ -61,8 +61,8 @@ class VersionOption final : public CLIOption
 {
 public:
 	explicit VersionOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
@@ -71,8 +71,8 @@ class ControlOption final : public CLIOption
 {
 public:
 	explicit ControlOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
@@ -81,11 +81,11 @@ class ScriptOption final : public CLIOption, public CLIFileType
 {
 public:
 	const CommandLineParser::Scripts& getScripts() const;
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
-	virtual void parseFileType(const std::string& filename,
-                                   array_ref<std::string>& cmdLine);
-	virtual string_ref fileTypeHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
+	void parseFileType(const std::string& filename,
+                           array_ref<std::string>& cmdLine) override;
+	string_ref fileTypeHelp() const override;
 
 private:
 	CommandLineParser::Scripts scripts;
@@ -95,8 +95,8 @@ class MachineOption final : public CLIOption
 {
 public:
 	explicit MachineOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
@@ -105,24 +105,24 @@ class SettingOption final : public CLIOption
 {
 public:
 	explicit SettingOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
 
 class NoPBOOption final : public CLIOption {
 public:
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 };
 
 class TestConfigOption final : public CLIOption
 {
 public:
 	explicit TestConfigOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };
@@ -131,8 +131,8 @@ class BashOption final : public CLIOption
 {
 public:
 	explicit BashOption(CommandLineParser& parser);
-	virtual void parseOption(const string& option, array_ref<string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const string& option, array_ref<string>& cmdLine) override;
+	string_ref optionHelp() const override;
 private:
 	CommandLineParser& parser;
 };

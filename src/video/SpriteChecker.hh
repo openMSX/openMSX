@@ -237,11 +237,11 @@ public:
 
 	// VRAMObserver implementation:
 
-	void updateVRAM(unsigned /*offset*/, EmuTime::param time) {
+	void updateVRAM(unsigned /*offset*/, EmuTime::param time) override {
 		checkUntil(time);
 	}
 
-	void updateWindow(bool /*enabled*/, EmuTime::param time) {
+	void updateWindow(bool /*enabled*/, EmuTime::param time) override {
 		sync(time);
 	}
 

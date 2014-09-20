@@ -19,9 +19,9 @@ public:
 	              std::unique_ptr<RawFrame>* lastFrames);
 
 private:
-	virtual const void* getLineInfo(
+	const void* getLineInfo(
 		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const;
+		void* buf, unsigned bufWidth) const override;
 
 	PixelOperations<Pixel> pixelOps;
 };

@@ -13,11 +13,11 @@ public:
 	            std::unique_ptr<Rom> rom, SubType subType);
 	~RomAscii8_8();
 
-	virtual void reset(EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word address) const;
+	void reset(EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word address) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

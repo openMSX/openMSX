@@ -12,9 +12,9 @@ class CliExtension final : public CLIOption
 public:
 	explicit CliExtension(CommandLineParser& cmdLineParser);
 
-	virtual void parseOption(const std::string& option,
-	                         array_ref<std::string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const std::string& option,
+	                 array_ref<std::string>& cmdLine) override;
+	string_ref optionHelp() const override;
 
 private:
 	CommandLineParser& cmdLineParser;

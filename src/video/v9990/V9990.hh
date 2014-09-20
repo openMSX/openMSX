@@ -35,11 +35,11 @@ public:
 	~V9990();
 
 	// MSXDevice interface:
-	virtual void powerUp(EmuTime::param time);
-	virtual void reset(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void powerUp(EmuTime::param time) override;
+	void reset(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -354,11 +354,11 @@ public:
 
 private:
 	// Schedulable interface:
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	// VideoSystemChangeListener interface:
-	virtual void preVideoSystemChange();
-	virtual void postVideoSystemChange();
+	void preVideoSystemChange() override;
+	void postVideoSystemChange() override;
 
 	// --- types ------------------------------------------------------
 

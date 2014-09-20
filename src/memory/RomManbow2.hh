@@ -20,17 +20,17 @@ public:
 	           RomType type);
 	~RomManbow2();
 
-	virtual void powerUp(EmuTime::param time);
-	virtual void reset(EmuTime::param time);
-	virtual byte peekMem(word address, EmuTime::param time) const;
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word address) const;
-	virtual byte* getWriteCacheLine(word address) const;
+	void powerUp(EmuTime::param time) override;
+	void reset(EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	byte readMem(word address, EmuTime::param time) override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word address) const override;
+	byte* getWriteCacheLine(word address) const override;
 
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

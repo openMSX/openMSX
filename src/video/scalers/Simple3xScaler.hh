@@ -21,54 +21,53 @@ public:
 	               const RenderSettings& renderSettings);
 	~Simple3xScaler();
 
-protected:
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleBlank1to3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleBlank2to3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy);
-	virtual void scale2x2to9x3(FrameSource& src,
-		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
-		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy);
-	virtual void scale1x1to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x2to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x1to9x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x2to9x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x1to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale2x2to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale8x1to9x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale8x2to9x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x1to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale4x2to3x3(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-
 private:
+	void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scaleBlank1to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scaleBlank2to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale2x1to9x3(FrameSource& src,
+		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+	void scale2x2to9x3(FrameSource& src,
+		unsigned srcstarty, unsigned srcendy, unsigned srcwidth,
+		ScalerOutput<Pixel>& dst, unsigned dststarty, unsigned dstendy) override;
+	void scale1x1to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale1x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale4x1to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale4x2to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale2x1to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale2x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale8x1to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale8x2to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale4x1to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale4x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+
 	void doScale1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY,

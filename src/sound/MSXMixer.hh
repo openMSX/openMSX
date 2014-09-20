@@ -136,12 +136,12 @@ private:
 	void generate(int16_t* buffer, EmuTime::param time, unsigned samples);
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 	// Observer<ThrottleManager>
-	virtual void update(const ThrottleManager& throttleManager);
+	void update(const ThrottleManager& throttleManager) override;
 
 	void changeRecordSetting(const Setting& setting);
 	void changeMuteSetting(const Setting& setting);

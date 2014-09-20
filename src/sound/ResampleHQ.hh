@@ -17,8 +17,8 @@ public:
 	           const DynamicClock& hostClock, unsigned emuSampleRate);
 	~ResampleHQ();
 
-	virtual bool generateOutput(int* dataOut, unsigned num,
-	                            EmuTime::param time);
+	bool generateOutput(int* dataOut, unsigned num,
+	                    EmuTime::param time) override;
 
 private:
 	void calcOutput(float pos, int* output);

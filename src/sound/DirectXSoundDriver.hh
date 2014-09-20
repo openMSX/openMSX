@@ -19,13 +19,13 @@ public:
 	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);
 	~DirectXSoundDriver();
 
-	virtual void mute();
-	virtual void unmute();
+	void mute() override;
+	void unmute() override;
 
-	virtual unsigned getFrequency() const;
-	virtual unsigned getSamples() const;
+	unsigned getFrequency() const override;
+	unsigned getSamples() const override;
 
-	virtual void uploadBuffer(short* buffer, unsigned len);
+	void uploadBuffer(short* buffer, unsigned len) override;
 
 private:
 	void dxClear();

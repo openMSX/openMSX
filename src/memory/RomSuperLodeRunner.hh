@@ -11,8 +11,8 @@ public:
 	RomSuperLodeRunner(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	~RomSuperLodeRunner();
 
-	virtual void reset(EmuTime::param time);
-	virtual void globalWrite(word address, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	void globalWrite(word address, byte value, EmuTime::param time) override;
 };
 
 } // namespace openmsx

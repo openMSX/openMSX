@@ -318,11 +318,11 @@ public:
 		: scaler(pixelOps)
 	{
 	}
-	virtual void operator()(const Pixel* in, Pixel* out, size_t outWidth)
+	void operator()(const Pixel* in, Pixel* out, size_t outWidth) override
 	{
 		scaler(in, out, outWidth);
 	}
-	virtual bool isCopy() const
+	bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}
@@ -341,11 +341,11 @@ public:
 		: scaler(scaler_)
 	{
 	}
-	virtual void operator()(const Pixel* in, Pixel* out, size_t outWidth)
+	void operator()(const Pixel* in, Pixel* out, size_t outWidth) override
 	{
 		scaler(in, out, outWidth);
 	}
-	virtual bool isCopy() const
+	bool isCopy() const override
 	{
 		return IsTagged<Scaler, TagCopy>::value;
 	}

@@ -20,7 +20,7 @@ public:
 
 private:
 	// Runnable
-	virtual void run();
+	void run() override;
 
 	const std::string name;
 	Thread thread;

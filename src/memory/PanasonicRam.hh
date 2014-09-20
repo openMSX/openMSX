@@ -12,8 +12,8 @@ class PanasonicRam final : public MSXMemoryMapper
 public:
 	explicit PanasonicRam(const DeviceConfig& config);
 
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual byte* getWriteCacheLine(word start) const;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	byte* getWriteCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

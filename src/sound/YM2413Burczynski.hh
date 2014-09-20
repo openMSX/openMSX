@@ -230,11 +230,11 @@ public:
 
 private:
 	// YM2413Core
-	virtual void reset();
-	virtual void writeReg(byte reg, byte value);
-	virtual byte peekReg(byte reg) const;
-	virtual void generateChannels(int* bufs[9 + 5], unsigned num);
-	virtual int getAmplificationFactor() const;
+	void reset() override;
+	void writeReg(byte reg, byte value) override;
+	byte peekReg(byte reg) const override;
+	void generateChannels(int* bufs[9 + 5], unsigned num) override;
+	int getAmplificationFactor() const override;
 
 	/** Reset operator parameters.
 	 */

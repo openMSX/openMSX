@@ -11,16 +11,15 @@ public:
 	explicit MSXVictorHC9xSystemControl(const DeviceConfig& config);
 	~MSXVictorHC9xSystemControl();
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual byte peekMem(word address, EmuTime::param time) const;
-	virtual void writeMem(word address, byte value, EmuTime::param time);
+	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte systemControlRegister;
-
 };
 
 } // namespace openmsx

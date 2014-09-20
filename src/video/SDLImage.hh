@@ -18,10 +18,10 @@ public:
 	SDLImage(int width, int height, const unsigned* rgba,
 	         unsigned borderSize, unsigned borderRGBA);
 
-	virtual void draw(OutputSurface& output, int x, int y,
-	                  byte alpha = 255);
-	virtual int getWidth() const;
-	virtual int getHeight() const;
+	void draw(OutputSurface& output, int x, int y,
+	                  byte alpha = 255) override;
+	int getWidth() const override;
+	int getHeight() const override;
 
 private:
 	void initSolid(int width, int height, unsigned rgba,

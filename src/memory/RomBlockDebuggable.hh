@@ -40,7 +40,7 @@ public:
 	{
 	}
 
-	virtual byte read(unsigned address)
+	byte read(unsigned address) override
 	{
 		unsigned addr = address - startAddress;
 		if (addr < mappedSize) {

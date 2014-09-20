@@ -11,8 +11,8 @@ public:
 	BooleanSetting(CommandController& commandController,
 	               string_ref name, string_ref description,
 	               bool initialValue, SaveSetting save = SAVE);
-	virtual string_ref getTypeString() const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	string_ref getTypeString() const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	bool getBoolean() const { return getValue().getBoolean(getInterpreter()); }
 	void setBoolean(bool b) { setString(toString(b)); }

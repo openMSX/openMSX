@@ -10,9 +10,9 @@ class RomHolyQuran final : public Rom8kBBlocks
 public:
 	RomHolyQuran(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual byte* getWriteCacheLine(word address) const;
+	void reset(EmuTime::param time) override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	byte* getWriteCacheLine(word address) const override;
 };
 
 } // namespace openmsx

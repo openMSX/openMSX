@@ -25,10 +25,10 @@ public:
 	~LDSDLRasterizer();
 
 	// Rasterizer interface:
-	virtual PostProcessor* getPostProcessor() const;
-	virtual void frameStart(EmuTime::param time);
-	virtual void drawBlank(int r, int g, int b);
-	virtual RawFrame* getRawFrame();
+	PostProcessor* getPostProcessor() const override;
+	void frameStart(EmuTime::param time) override;
+	void drawBlank(int r, int g, int b) override;
+	RawFrame* getRawFrame() override;
 
 private:
 	/** The video post processor which displays the frames produced by this

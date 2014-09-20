@@ -12,9 +12,9 @@ class VideoSourceSetting final : public Setting
 public:
 	explicit VideoSourceSetting(CommandController& commandController);
 
-	virtual string_ref getTypeString() const;
-	virtual void additionalInfo(TclObject& result) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	string_ref getTypeString() const override;
+	void additionalInfo(TclObject& result) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	int registerVideoSource(const std::string& source);
 	void unregisterVideoSource(int source);

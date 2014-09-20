@@ -19,11 +19,11 @@ public:
 	Devices& getDevices() { return devices; }
 
 	// MSXDevice
-	virtual std::string getName() const;
-	virtual void getNameList(TclObject& result) const;
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	std::string getName() const override;
+	void getNameList(TclObject& result) const override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 private:
 	Devices devices;

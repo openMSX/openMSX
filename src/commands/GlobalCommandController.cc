@@ -33,9 +33,9 @@ class HelpCmd final : public Command
 {
 public:
 	explicit HelpCmd(GlobalCommandController& controller);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	GlobalCommandController& controller;
 };
@@ -44,8 +44,8 @@ class TabCompletionCmd final : public Command
 {
 public:
 	explicit TabCompletionCmd(GlobalCommandController& controller);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	GlobalCommandController& controller;
 };
@@ -54,9 +54,9 @@ class UpdateCmd final : public Command
 {
 public:
 	explicit UpdateCmd(CommandController& commandController);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	CliConnection& getConnection();
 };
@@ -65,18 +65,18 @@ class PlatformInfo final : public InfoTopic
 {
 public:
 	explicit PlatformInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 };
 
 class VersionInfo final : public InfoTopic
 {
 public:
 	explicit VersionInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 };
 
 

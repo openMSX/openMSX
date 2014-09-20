@@ -69,11 +69,11 @@ protected:
 
 private:
 	// Command
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
 
 	// StateChangeListener
-	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
-	virtual void stopReplay(EmuTime::param time);
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) override;
 
 	StateChangeDistributor& stateChangeDistributor;
 	Scheduler& scheduler;

@@ -16,10 +16,10 @@ public:
 	explicit MSXMusic(const DeviceConfig& config);
 	virtual ~MSXMusic();
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
+	void reset(EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

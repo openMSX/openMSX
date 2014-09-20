@@ -57,8 +57,8 @@ class YMF262Debuggable final : public SimpleDebuggable
 public:
 	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262,
 	                 const std::string& name);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	YMF262& ymf262;
 };
@@ -198,10 +198,10 @@ public:
 
 private:
 	// SoundDevice
-	virtual int getAmplificationFactor() const;
-	virtual void generateChannels(int** bufs, unsigned num);
+	int getAmplificationFactor() const override;
+	void generateChannels(int** bufs, unsigned num) override;
 
-	void callback(byte flag);
+	void callback(byte flag) override;
 
 	void writeRegDirect(unsigned r, byte v, EmuTime::param time);
 	void init_tables();

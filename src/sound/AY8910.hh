@@ -160,10 +160,10 @@ private:
 	};
 
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
+	void generateChannels(int** bufs, unsigned num) override;
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void wrtReg(unsigned reg, byte value, EmuTime::param time);
 

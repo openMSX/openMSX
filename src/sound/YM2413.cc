@@ -14,8 +14,8 @@ class YM2413Debuggable final : public SimpleDebuggable
 {
 public:
 	YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	YM2413& ym2413;
 };

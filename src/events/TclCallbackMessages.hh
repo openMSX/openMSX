@@ -16,10 +16,10 @@ public:
 	TclCallbackMessages(GlobalCliComm& cliComm, CommandController& controller);
 	~TclCallbackMessages();
 
-	virtual void log(CliComm::LogLevel level, string_ref message);
+	void log(CliComm::LogLevel level, string_ref message) override;
 
-	virtual void update(CliComm::UpdateType type, string_ref machine,
-	                    string_ref name, string_ref value);
+	void update(CliComm::UpdateType type, string_ref machine,
+	            string_ref name, string_ref value) override;
 
 private:
 	GlobalCliComm& cliComm;

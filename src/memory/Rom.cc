@@ -33,10 +33,10 @@ class RomDebuggable final : public Debuggable
 public:
 	RomDebuggable(Debugger& debugger, Rom& rom);
 	~RomDebuggable();
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	unsigned getSize() const override;
+	const std::string& getDescription() const override;
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	Debugger& debugger;
 	Rom& rom;

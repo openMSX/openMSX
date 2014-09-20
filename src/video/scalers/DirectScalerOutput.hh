@@ -13,11 +13,11 @@ class DirectScalerOutput final : public ScalerOutput<Pixel>
 public:
 	DirectScalerOutput(OutputSurface& output);
 
-	virtual unsigned getWidth()  const;
-	virtual unsigned getHeight() const;
-	virtual Pixel* acquireLine(unsigned y);
-	virtual void   releaseLine(unsigned y, Pixel* buf);
-	virtual void   fillLine   (unsigned y, Pixel color);
+	unsigned getWidth()  const override;
+	unsigned getHeight() const override;
+	Pixel* acquireLine(unsigned y) override;
+	void   releaseLine(unsigned y, Pixel* buf) override;
+	void   fillLine   (unsigned y, Pixel color) override;
 
 private:
 	OutputSurface& output;

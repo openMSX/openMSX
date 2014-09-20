@@ -65,12 +65,12 @@ private:
 	void execute(const std::string& command);
 
 	// CliListener
-	virtual void log(CliComm::LogLevel level, string_ref message);
-	virtual void update(CliComm::UpdateType type, string_ref machine,
-	                    string_ref name, string_ref value);
+	void log(CliComm::LogLevel level, string_ref message) override;
+	void update(CliComm::UpdateType type, string_ref machine,
+	            string_ref name, string_ref value) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
@@ -85,11 +85,11 @@ public:
 	                EventDistributor& eventDistributor);
 	~StdioConnection();
 
-	virtual void output(string_ref message);
+	void output(string_ref message) override;
 
 private:
-	virtual void close();
-	virtual void run();
+	void close() override;
+	void run() override;
 
 	bool ok;
 };
@@ -103,11 +103,11 @@ public:
 	               string_ref name);
 	~PipeConnection();
 
-	virtual void output(string_ref message);
+	void output(string_ref message) override;
 
 private:
-	virtual void close();
-	virtual void run();
+	void close() override;
+	void run() override;
 
 	HANDLE pipeHandle;
 	HANDLE shutdownEvent;
@@ -122,11 +122,11 @@ public:
 	                 SOCKET sd);
 	~SocketConnection();
 
-	virtual void output(string_ref message);
+	void output(string_ref message) override;
 
 private:
-	virtual void close();
-	virtual void run();
+	void close() override;
+	void run() override;
 
 	Semaphore sem;
 	SOCKET sd;

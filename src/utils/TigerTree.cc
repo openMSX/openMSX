@@ -194,7 +194,7 @@ TigerTree::Node TigerTree::getRightChild(Node node) const
 class TTTestData : public openmsx::TTData
 {
 public:
-	virtual uint8_t* getData(size_t offset, size_t size)
+	uint8_t* getData(size_t offset, size_t size) override
 	{
 		return buffer + offset;
 	}

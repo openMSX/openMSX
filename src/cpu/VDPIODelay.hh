@@ -14,9 +14,9 @@ class VDPIODelay final : public MSXDevice
 public:
 	VDPIODelay(const DeviceConfig& config, MSXCPUInterface& cpuInterface);
 
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	const MSXDevice& getInDevice(byte port) const;
 	MSXDevice*& getInDevicePtr (byte port);

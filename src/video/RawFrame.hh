@@ -51,18 +51,18 @@ public:
 		lineWidths[line] = 1;
 	}
 
-	virtual unsigned getRowLength() const;
+	unsigned getRowLength() const override;
 
 	// RawFrame is mostly agnostic of the border info struct. The only
 	// thing it does is store the information and give access to it.
 	V9958RasterizerBorderInfo& getBorderInfo() { return borderInfo; }
 
 protected:
-	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(
+	unsigned getLineWidth(unsigned line) const override;
+	const void* getLineInfo(
 		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const;
-	virtual bool hasContiguousStorage() const;
+		void* buf, unsigned bufWidth) const override;
+	bool hasContiguousStorage() const override;
 
 private:
 	char* data;

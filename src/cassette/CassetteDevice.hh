@@ -26,7 +26,7 @@ public:
 	virtual void setSignal(bool output, EmuTime::param time) = 0;
 
 	// Pluggable
-	virtual string_ref getClass() const final;
+	string_ref getClass() const final override;
 };
 
 } // namespace openmsx

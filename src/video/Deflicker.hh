@@ -21,7 +21,7 @@ protected:
 	Deflicker(const SDL_PixelFormat& format,
 	          std::unique_ptr<RawFrame>* lastFrames);
 
-	virtual unsigned getLineWidth(unsigned line) const;
+	unsigned getLineWidth(unsigned line) const override;
 	virtual const void* getLineInfo(
 		unsigned line, unsigned& width,
 		void* buf, unsigned bufWidth) const = 0;

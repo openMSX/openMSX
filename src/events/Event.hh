@@ -111,8 +111,8 @@ class SimpleEvent : public Event
 {
 public:
 	SimpleEvent(EventType type) : Event(type) {}
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 };
 
 } // namespace openmsx

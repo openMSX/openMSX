@@ -36,21 +36,21 @@ public:
 
 private:
 	// SectorAccessibleDisk:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual size_t getNbSectorsImpl() const;
-	virtual bool isWriteProtectedImpl() const;
-	virtual Sha1Sum getSha1Sum();
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	size_t getNbSectorsImpl() const override;
+	bool isWriteProtectedImpl() const override;
+	Sha1Sum getSha1Sum() override;
 
 	// Diskcontainer:
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
-	virtual const std::string& getContainerName() const;
-	virtual bool diskChanged();
-	virtual int insertDisk(string_ref filename);
+	SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	const std::string& getContainerName() const override;
+	bool diskChanged() override;
+	int insertDisk(string_ref filename) override;
 
 	// TTData
-	virtual uint8_t* getData(size_t offset, size_t size);
-	virtual bool isCacheStillValid(time_t& time);
+	uint8_t* getData(size_t offset, size_t size) override;
+	bool isCacheStillValid(time_t& time) override;
 
 	void openImage();
 

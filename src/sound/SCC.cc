@@ -112,8 +112,8 @@ class SCCDebuggable final : public SimpleDebuggable
 {
 public:
 	SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	SCC& scc;
 };
@@ -179,6 +179,7 @@ void SCC::powerUp(EmuTime::param time)
 	for (unsigned i = 0; i < 5; ++i) {
 		pos[i] = 0;
 	}
+
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
 	for (int i = 0; i < 2 * 5; ++i) {
 		setFreqVol(i, 0, time);

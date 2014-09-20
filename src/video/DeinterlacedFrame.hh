@@ -16,10 +16,10 @@ public:
 	void init(FrameSource* evenField, FrameSource* oddField);
 
 private:
-	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(
+	unsigned getLineWidth(unsigned line) const override;
+	const void* getLineInfo(
 		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const;
+		void* buf, unsigned bufWidth) const override;
 
 	/** The original frames whose data will be deinterlaced.
 	  * The even frame is at index 0, the odd frame at index 1.

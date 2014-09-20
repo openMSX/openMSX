@@ -12,8 +12,8 @@ public:
 	                string_ref name, string_ref description,
 	                string_ref initialValue);
 
-	virtual string_ref getTypeString() const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	string_ref getTypeString() const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 };
 
 } // namespace openmsx

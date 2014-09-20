@@ -169,7 +169,7 @@ public:
 
 private:
 	// Observer:
-	void update(const Setting&);
+	void update(const Setting&) override;
 
 	/** Sets the "brightness" and "contrast" fields according to the setting
 	  * values.

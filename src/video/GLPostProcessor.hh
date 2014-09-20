@@ -26,14 +26,14 @@ public:
 	~GLPostProcessor();
 
 	// Layer interface:
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 
-	virtual std::unique_ptr<RawFrame> rotateFrames(
-		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time);
+	std::unique_ptr<RawFrame> rotateFrames(
+		std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time) override;
 
 protected:
 	// Observer<Setting> interface:
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 private:
 	void createRegions();

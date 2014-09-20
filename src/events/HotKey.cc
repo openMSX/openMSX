@@ -40,8 +40,8 @@ class BindCmd final : public Command
 public:
 	BindCmd(CommandController& commandController, HotKey& hotKey,
 	        bool defaultCmd);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	string formatBinding(const HotKey::BindMap::value_type& p);
 
@@ -54,8 +54,8 @@ class UnbindCmd final : public Command
 public:
 	UnbindCmd(CommandController& commandController, HotKey& hotKey,
 	          bool defaultCmd);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	HotKey& hotKey;
 	const bool defaultCmd;
@@ -65,8 +65,8 @@ class ActivateCmd final : public Command
 {
 public:
 	ActivateCmd(CommandController& commandController, HotKey& hotKey);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	HotKey& hotKey;
 };
@@ -75,8 +75,8 @@ class DeactivateCmd final : public Command
 {
 public:
 	DeactivateCmd(CommandController& commandController, HotKey& hotKey);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	HotKey& hotKey;
 };

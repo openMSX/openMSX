@@ -8,10 +8,10 @@ namespace openmsx {
 class NowindRomDisk final : public DiskContainer
 {
 public:
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
-	virtual const std::string& getContainerName() const;
-	virtual bool diskChanged();
-	virtual int insertDisk(string_ref filename);
+	SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	const std::string& getContainerName() const override;
+	bool diskChanged() override;
+	int insertDisk(string_ref filename) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

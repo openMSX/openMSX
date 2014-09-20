@@ -17,7 +17,7 @@ public:
 	GLSnow(Display& display);
 
 	// Layer interface:
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 
 private:
 	Display& display;

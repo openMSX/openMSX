@@ -43,29 +43,29 @@ public:
 	explicit MSXPPI(const DeviceConfig& config);
 	~MSXPPI();
 
-	virtual void reset(EmuTime::param time);
-	virtual void powerDown(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	void powerDown(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// I8255Interface
-	virtual byte readA(EmuTime::param time);
-	virtual byte readB(EmuTime::param time);
-	virtual nibble readC0(EmuTime::param time);
-	virtual nibble readC1(EmuTime::param time);
-	virtual byte peekA(EmuTime::param time) const;
-	virtual byte peekB(EmuTime::param time) const;
-	virtual nibble peekC0(EmuTime::param time) const;
-	virtual nibble peekC1(EmuTime::param time) const;
-	virtual void writeA(byte value, EmuTime::param time);
-	virtual void writeB(byte value, EmuTime::param time);
-	virtual void writeC0(nibble value, EmuTime::param time);
-	virtual void writeC1(nibble value, EmuTime::param time);
+	byte readA(EmuTime::param time) override;
+	byte readB(EmuTime::param time) override;
+	nibble readC0(EmuTime::param time) override;
+	nibble readC1(EmuTime::param time) override;
+	byte peekA(EmuTime::param time) const override;
+	byte peekB(EmuTime::param time) const override;
+	nibble peekC0(EmuTime::param time) const override;
+	nibble peekC1(EmuTime::param time) const override;
+	void writeA(byte value, EmuTime::param time) override;
+	void writeB(byte value, EmuTime::param time) override;
+	void writeC0(nibble value, EmuTime::param time) override;
+	void writeC1(nibble value, EmuTime::param time) override;
 
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;

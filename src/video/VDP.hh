@@ -79,12 +79,12 @@ public:
 	explicit VDP(const DeviceConfig& config);
 	~VDP();
 
-	virtual void powerUp(EmuTime::param time);
-	virtual void reset(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void powerUp(EmuTime::param time) override;
+	void reset(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	/** Used by Video9000 to be able to couple the VDP and V9990 output.
 	 * Can return nullptr in case of renderer=none. This value can change
@@ -651,8 +651,8 @@ private:
 	}
 
 	// VideoSystemChangeListener interface:
-	virtual void preVideoSystemChange();
-	virtual void postVideoSystemChange();
+	void preVideoSystemChange() override;
+	void postVideoSystemChange() override;
 
 	/** Called both on init and on reset.
 	  * Puts VDP into reset state.
@@ -762,7 +762,7 @@ private:
 	void setPalette(int index, word grb, EmuTime::param time);
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 private:
 	Display& display;

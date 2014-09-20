@@ -87,7 +87,7 @@ void NowindInterface::reset(EmuTime::param /*time*/)
 	//flash->reset();
 }
 
-byte NowindInterface::peek(word address, EmuTime::param /*time*/) const
+byte NowindInterface::peekMem(word address, EmuTime::param /*time*/) const
 {
 	if (((0x2000 <= address) && (address < 0x4000)) ||
 	    ((0x8000 <= address) && (address < 0xA000))) {

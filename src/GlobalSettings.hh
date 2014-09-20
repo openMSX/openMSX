@@ -57,7 +57,7 @@ public:
 
 private:
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	GlobalCommandController& commandController;
 

@@ -17,13 +17,13 @@ public:
 	~MidiOutLogger();
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
 
 	// SerialDataInterface (part)
-	virtual void recvByte(byte value, EmuTime::param time);
+	void recvByte(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

@@ -39,13 +39,13 @@ public:
 	bool isRecvEnabled();
 
 	// SerialDataInterface
-	virtual void setDataBits(DataBits bits) { recvDataBits = bits; }
-	virtual void setStopBits(StopBits bits) { recvStopBits = bits; }
-	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, EmuTime::param time);
+	void setDataBits(DataBits bits) override { recvDataBits = bits; }
+	void setStopBits(StopBits bits) override { recvStopBits = bits; }
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

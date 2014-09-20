@@ -16,10 +16,10 @@ public:
 	~DSKDiskImage();
 
 private:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual bool isWriteProtectedImpl() const;
-	virtual Sha1Sum getSha1Sum();
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	bool isWriteProtectedImpl() const override;
+	Sha1Sum getSha1Sum() override;
 
 	const std::shared_ptr<File> file;
 };

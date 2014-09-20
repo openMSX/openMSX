@@ -21,12 +21,12 @@ public:
 
 private:
 	// AbstractIDEDevice:
-	virtual bool isPacketDevice();
-	virtual const std::string& getDeviceName();
-	virtual void fillIdentifyBlock (AlignedBuffer& buffer);
-	virtual unsigned readBlockStart(AlignedBuffer& buffer, unsigned count);
-	virtual void writeBlockComplete(AlignedBuffer& buffer, unsigned count);
-	virtual void executeCommand(byte cmd);
+	bool isPacketDevice() override;
+	const std::string& getDeviceName() override;
+	void fillIdentifyBlock (AlignedBuffer& buffer) override;
+	unsigned readBlockStart(AlignedBuffer& buffer, unsigned count) override;
+	void writeBlockComplete(AlignedBuffer& buffer, unsigned count) override;
+	void executeCommand(byte cmd) override;
 
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber;

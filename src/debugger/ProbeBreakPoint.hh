@@ -27,8 +27,8 @@ public:
 
 private:
 	// Observer<ProbeBase>
-	virtual void update(const ProbeBase& subject);
-	virtual void subjectDeleted(const ProbeBase& subject);
+	void update(const ProbeBase& subject) override;
+	void subjectDeleted(const ProbeBase& subject) override;
 
 	Debugger& debugger;
 	ProbeBase& probe;

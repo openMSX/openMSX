@@ -21,8 +21,8 @@ class MSXMidiCounter0 final : public ClockPinListener
 public:
 	explicit MSXMidiCounter0(MSXMidi& midi);
 	~MSXMidiCounter0();
-	virtual void signal(ClockPin& pin, EmuTime::param time);
-	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
+	void signal(ClockPin& pin, EmuTime::param time) override;
+	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
 private:
 	MSXMidi& midi;
 };
@@ -32,8 +32,8 @@ class MSXMidiCounter2 final : public ClockPinListener
 public:
 	explicit MSXMidiCounter2(MSXMidi& midi);
 	~MSXMidiCounter2();
-	virtual void signal(ClockPin& pin, EmuTime::param time);
-	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
+	void signal(ClockPin& pin, EmuTime::param time) override;
+	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
 private:
 	MSXMidi& midi;
 };
@@ -43,16 +43,16 @@ class MSXMidiI8251Interf final : public I8251Interface
 public:
 	explicit MSXMidiI8251Interf(MSXMidi& midi);
 	~MSXMidiI8251Interf();
-	virtual void setRxRDY(bool status, EmuTime::param time);
-	virtual void setDTR(bool status, EmuTime::param time);
-	virtual void setRTS(bool status, EmuTime::param time);
-	virtual bool getDSR(EmuTime::param time);
-	virtual bool getCTS(EmuTime::param time);
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
-	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, EmuTime::param time);
-	virtual void signal(EmuTime::param time);
+	void setRxRDY(bool status, EmuTime::param time) override;
+	void setDTR(bool status, EmuTime::param time) override;
+	void setRTS(bool status, EmuTime::param time) override;
+	bool getDSR(EmuTime::param time) override;
+	bool getCTS(EmuTime::param time) override;
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
+	void signal(EmuTime::param time) override;
 private:
 	MSXMidi& midi;
 };

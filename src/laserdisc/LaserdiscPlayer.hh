@@ -107,19 +107,19 @@ private:
 	void createRenderer();
 
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-	                          EmuTime::param time);
+	void generateChannels(int** bufs, unsigned num) override;
+	bool updateBuffer(unsigned length, int* buffer,
+	                  EmuTime::param time) override;
 
 	// Schedulable
-	void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// VideoSystemChangeListener interface:
-	void preVideoSystemChange();
-	void postVideoSystemChange();
+	void preVideoSystemChange() override;
+	void postVideoSystemChange() override;
 
 	MSXMotherBoard& motherBoard;
 	PioneerLDControl& ldcontrol;

@@ -13,10 +13,10 @@ class MSXRom : public MSXDevice
 public:
 	~MSXRom();
 
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual byte* getWriteCacheLine(word address) const;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	byte* getWriteCacheLine(word address) const override;
 
-	virtual void getExtraDeviceInfo(TclObject& result) const;
+	void getExtraDeviceInfo(TclObject& result) const override;
 
 protected:
 	MSXRom(const DeviceConfig& config, std::unique_ptr<Rom> rom);

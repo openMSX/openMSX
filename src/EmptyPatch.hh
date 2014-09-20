@@ -11,10 +11,10 @@ class EmptyPatch final : public PatchInterface, private noncopyable
 public:
 	EmptyPatch(const byte* block, size_t size);
 
-	virtual void copyBlock(size_t src, byte* dst, size_t num) const;
-	virtual size_t getSize() const;
-	virtual std::vector<Filename> getFilenames() const;
-	virtual bool isEmptyPatch() const { return true; }
+	void copyBlock(size_t src, byte* dst, size_t num) const override;
+	size_t getSize() const override;
+	std::vector<Filename> getFilenames() const override;
+	bool isEmptyPatch() const override { return true; }
 
 private:
 	const byte* block;

@@ -8,11 +8,11 @@ namespace openmsx {
 class DummyJoystick final : public JoystickDevice
 {
 public:
-	virtual byte read(EmuTime::param time);
-	virtual void write(byte value, EmuTime::param time);
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	byte read(EmuTime::param time) override;
+	void write(byte value, EmuTime::param time) override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 };
 
 } // namespace openmsx

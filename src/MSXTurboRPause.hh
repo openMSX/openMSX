@@ -31,20 +31,19 @@ public:
 	explicit MSXTurboRPause(const DeviceConfig& config);
 	~MSXTurboRPause();
 
-	virtual void reset(EmuTime::param time);
-	virtual void powerDown(EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	void powerDown(EmuTime::param time) override;
 
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-
 private:
 	// Observer<Setting>
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void updatePause();
 

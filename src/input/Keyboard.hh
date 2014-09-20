@@ -76,14 +76,14 @@ public:
 
 private:
 	// MSXEventListener
-	virtual void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time);
+	void signalEvent(const std::shared_ptr<const Event>& event,
+	                 EmuTime::param time) override;
 	// StateChangeListener
-	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
-	virtual void stopReplay(EmuTime::param time);
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	void pressKeyMatrixEvent  (EmuTime::param time, byte row, byte press);
 	void releaseKeyMatrixEvent(EmuTime::param time, byte row, byte release);

@@ -26,7 +26,7 @@ public:
 	explicit SDLOSDGUILayer(OSDGUI& gui);
 
 	// Layer
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 };
 
 class GLOSDGUILayer final : public OSDGUILayer
@@ -35,7 +35,7 @@ public:
 	explicit GLOSDGUILayer(OSDGUI& gui);
 
 	// Layer
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 };
 
 } // namespace openmsx

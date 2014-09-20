@@ -15,13 +15,13 @@ public:
 	explicit GoudaSCSI(const DeviceConfig& config);
 	~GoudaSCSI();
 
-	virtual void reset(EmuTime::param time);
+	void reset(EmuTime::param time) override;
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
+	byte readMem(word address, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte readIO(word port, EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

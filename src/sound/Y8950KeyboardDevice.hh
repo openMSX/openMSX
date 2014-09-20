@@ -28,7 +28,7 @@ public:
 	virtual byte read(EmuTime::param time) = 0;
 
 	// pluggable
-	virtual string_ref getClass() const final;
+	string_ref getClass() const final override;
 };
 
 } // namespace openmsx

@@ -36,33 +36,33 @@ public:
 
 private:
 	// SectorAccessibleDisk:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual size_t getNbSectorsImpl() const;
-	virtual bool isWriteProtectedImpl() const;
-	virtual Sha1Sum getSha1Sum();
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	size_t getNbSectorsImpl() const override;
+	bool isWriteProtectedImpl() const override;
+	Sha1Sum getSha1Sum() override;
 
 	// Diskcontainer:
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
-	virtual const std::string& getContainerName() const;
-	virtual bool diskChanged();
-	virtual int insertDisk(string_ref filename);
+	SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	const std::string& getContainerName() const override;
+	bool diskChanged() override;
+	int insertDisk(string_ref filename) override;
 
 	// SCSI Device
-	virtual void reset();
-	virtual bool isSelected();
-	virtual unsigned executeCmd(const byte* cdb, SCSI::Phase& phase, unsigned& blocks);
-	virtual unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks);
-	virtual byte getStatusCode();
-	virtual int msgOut(byte value);
-	virtual byte msgIn();
-	virtual void disconnect();
-	virtual void busReset();
-	virtual void eject();
-	virtual void insert(string_ref filename);
+	void reset() override;
+	bool isSelected() override;
+	unsigned executeCmd(const byte* cdb, SCSI::Phase& phase, unsigned& blocks) override;
+	unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
+	byte getStatusCode() override;
+	int msgOut(byte value) override;
+	byte msgIn() override;
+	void disconnect() override;
+	void busReset() override;
+	unsigned dataIn(unsigned& blocks) override;
+	unsigned dataOut(unsigned& blocks) override;
 
-	virtual unsigned dataIn(unsigned& blocks);
-	virtual unsigned dataOut(unsigned& blocks);
+	void eject();
+	void insert(string_ref filename);
 
 	bool getReady();
 	void testUnitReady();

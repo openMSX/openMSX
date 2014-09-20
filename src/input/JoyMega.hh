@@ -29,14 +29,14 @@ public:
 
 #ifndef SDL_JOYSTICK_DISABLED
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	virtual byte read(EmuTime::param time);
-	virtual void write(byte value, EmuTime::param time);
+	byte read(EmuTime::param time) override;
+	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -49,11 +49,11 @@ private:
 	void createEvent(EmuTime::param time, unsigned newStatus);
 
 	// MSXEventListener
-	virtual void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time);
+	void signalEvent(const std::shared_ptr<const Event>& event,
+	                 EmuTime::param time) override;
 	// StateChangeListener
-	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
-	virtual void stopReplay(EmuTime::param time);
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) override;
 
 	MSXEventDistributor& eventDistributor;
 	StateChangeDistributor& stateChangeDistributor;

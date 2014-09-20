@@ -8,10 +8,10 @@ namespace openmsx {
 class DummyMidiInDevice final : public MidiInDevice
 {
 public:
-	virtual void signal(EmuTime::param time);
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	void signal(EmuTime::param time) override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 };
 
 } // namespace openmsx

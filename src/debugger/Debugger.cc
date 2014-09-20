@@ -38,11 +38,11 @@ public:
 	         StateChangeDistributor& stateChangeDistributor,
 	         Scheduler& scheduler, GlobalCliComm& cliComm,
 	         Debugger& debugger);
-	virtual bool needRecord(array_ref<TclObject> tokens) const;
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result, EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	bool needRecord(array_ref<TclObject> tokens) const override;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result, EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 
 private:
 	void list(TclObject& result);

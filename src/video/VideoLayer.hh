@@ -52,7 +52,7 @@ protected:
 	~VideoLayer();
 
 	// Observer<Setting> interface:
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 private:
 	/** Calculates the current Z coordinate of this layer. */
@@ -61,8 +61,8 @@ private:
 	void calcCoverage();
 
 	// MSXEventListener
-	virtual void signalEvent(const std::shared_ptr<const Event>& event,
-	                         EmuTime::param time);
+	void signalEvent(const std::shared_ptr<const Event>& event,
+	                         EmuTime::param time) override;
 
 	/** This layer belongs to a specific machine. */
 	MSXMotherBoard& motherBoard;

@@ -12,13 +12,13 @@ class MSXRomCLI final : public CLIOption, public CLIFileType
 public:
 	explicit MSXRomCLI(CommandLineParser& cmdLineParser);
 
-	virtual void parseOption(const std::string& option,
-	                         array_ref<std::string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const std::string& option,
+	                 array_ref<std::string>& cmdLine) override;
+	string_ref optionHelp() const override;
 
-	virtual void parseFileType(const std::string& filename,
-	                           array_ref<std::string>& cmdLine);
-	virtual string_ref fileTypeHelp() const;
+	void parseFileType(const std::string& filename,
+	                   array_ref<std::string>& cmdLine) override;
+	string_ref fileTypeHelp() const override;
 
 private:
 	void parse(const std::string& arg, const std::string& slotname,
@@ -27,14 +27,14 @@ private:
 	CommandLineParser& cmdLineParser;
 
 	class IpsOption final : public CLIOption {
-		virtual void parseOption(const std::string& option,
-		                         array_ref<std::string>& cmdLine);
-		virtual string_ref optionHelp() const;
+		void parseOption(const std::string& option,
+		                 array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
 	} ipsOption;
 	class RomTypeOption final : public CLIOption {
-		virtual void parseOption(const std::string& option,
-		                         array_ref<std::string>& cmdLine);
-		virtual string_ref optionHelp() const;
+		void parseOption(const std::string& option,
+		                 array_ref<std::string>& cmdLine) override;
+		string_ref optionHelp() const override;
 	} romTypeOption;
 };
 

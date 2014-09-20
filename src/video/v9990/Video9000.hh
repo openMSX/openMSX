@@ -22,9 +22,9 @@ public:
 	~Video9000();
 
 	// MSXDevice
-	virtual void init();
-	virtual void reset(EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void init() override;
+	void reset(EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -34,18 +34,18 @@ private:
 	void recalcVideoSource();
 
 	// VideoSystemChangeListener
-	virtual void preVideoSystemChange();
-	virtual void postVideoSystemChange();
+	void preVideoSystemChange() override;
+	void postVideoSystemChange() override;
 
 	// VideoLayer
-	virtual void paint(OutputSurface& output);
-	virtual void takeRawScreenShot(unsigned height, const std::string& filename);
+	void paint(OutputSurface& output) override;
+	void takeRawScreenShot(unsigned height, const std::string& filename) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Observer<Setting>
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	VideoSourceSetting& videoSourceSetting;
 	VDP* vdp;

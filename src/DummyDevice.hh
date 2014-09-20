@@ -9,8 +9,8 @@ class DummyDevice final : public MSXDevice
 {
 public:
 	explicit DummyDevice(const DeviceConfig& config);
-	virtual void reset(EmuTime::param time);
-	virtual void getNameList(TclObject& result) const;
+	void reset(EmuTime::param time) override;
+	void getNameList(TclObject& result) const override;
 };
 
 } // namespace openmsx

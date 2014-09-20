@@ -23,10 +23,10 @@ public:
 	~LDPixelRenderer();
 
 	// Renderer interface:
-	virtual void frameStart(EmuTime::param time);
-	virtual void frameEnd();
-	virtual void drawBlank(int r, int g, int b);
-	virtual RawFrame* getRawFrame();
+	void frameStart(EmuTime::param time) override;
+	void frameEnd() override;
+	void drawBlank(int r, int g, int b) override;
+	RawFrame* getRawFrame() override;
 
 private:
 	bool isActive() const;

@@ -20,18 +20,18 @@ public:
 	~WavAudioInput();
 
 	// AudioInputDevice
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
-	virtual short readSample(EmuTime::param time);
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	short readSample(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	void loadWave();
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	const std::unique_ptr<FilenameSetting> audioInputFilenameSetting;
 

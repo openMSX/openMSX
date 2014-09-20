@@ -20,11 +20,11 @@ public:
 	HDCommand(CommandController& commandController,
 	          StateChangeDistributor& stateChangeDistributor,
 	          Scheduler& scheduler, HD& hd, BooleanSetting& powerSetting);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result, EmuTime::param time);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	virtual bool needRecord(array_ref<TclObject> tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result, EmuTime::param time) override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
+	bool needRecord(array_ref<TclObject> tokens) const override;
 private:
 	HD& hd;
 	const BooleanSetting& powerSetting;

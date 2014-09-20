@@ -8,13 +8,13 @@ namespace openmsx {
 class NullSoundDriver final : public SoundDriver
 {
 public:
-	virtual void mute();
-	virtual void unmute();
+	void mute() override;
+	void unmute() override;
 
-	virtual unsigned getFrequency() const;
-	virtual unsigned getSamples() const;
+	unsigned getFrequency() const override;
+	unsigned getSamples() const override;
 
-	virtual void uploadBuffer(short* buffer, unsigned len);
+	void uploadBuffer(short* buffer, unsigned len) override;
 };
 
 } // namespace openmsx

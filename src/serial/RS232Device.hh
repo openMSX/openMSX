@@ -10,15 +10,15 @@ class RS232Device : public Pluggable, public SerialDataInterface
 {
 public:
 	// Pluggable (part)
-	virtual string_ref getClass() const final;
+	string_ref getClass() const final override;
 
 	// input
 	virtual void signal(EmuTime::param time) = 0;
 
 	// SerialDataInterface (part) (output)
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
-	virtual void setParityBit(bool enable, ParityBit parity);
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
 
 	// control
 	virtual bool getCTS(EmuTime::param time) const;

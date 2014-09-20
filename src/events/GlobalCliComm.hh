@@ -25,9 +25,9 @@ public:
 	void setAllowExternalCommands();
 
 	// CliComm
-	virtual void log(LogLevel level, string_ref message);
-	virtual void update(UpdateType type, string_ref name,
-	                    string_ref value);
+	void log(LogLevel level, string_ref message) override;
+	void update(UpdateType type, string_ref name,
+	            string_ref value) override;
 
 private:
 	void updateHelper(UpdateType type, string_ref machine,

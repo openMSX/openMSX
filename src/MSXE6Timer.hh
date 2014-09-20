@@ -20,16 +20,16 @@ class MSXE6Timer final : public MSXDevice
 public:
 	explicit MSXE6Timer(const DeviceConfig& config);
 
-	virtual void reset(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
+	void reset(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	Clock<3579545, 14> reference; // (3.58 / 14)Mhz
+	Clock<3579545, 14> reference; // (3.58 / 14)MHz
 };
 
 } // namespace openmsx

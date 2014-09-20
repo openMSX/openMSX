@@ -36,29 +36,29 @@ public:
 	~SDLRasterizer();
 
 	// Rasterizer interface:
-	virtual PostProcessor* getPostProcessor() const;
-	virtual bool isActive();
-	virtual void reset();
-	virtual void frameStart(EmuTime::param time);
-	virtual void frameEnd();
-	virtual void setDisplayMode(DisplayMode mode);
-	virtual void setPalette(int index, int grb);
-	virtual void setBackgroundColor(int index);
-	virtual void setHorizontalAdjust(int adjust);
-	virtual void setHorizontalScrollLow(byte scroll);
-	virtual void setBorderMask(bool masked);
-	virtual void setTransparency(bool enabled);
-	virtual void setSuperimposeVideoFrame(const RawFrame* videoSource);
-	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
-	virtual void drawDisplay(
+	PostProcessor* getPostProcessor() const override;
+	bool isActive() override;
+	void reset() override;
+	void frameStart(EmuTime::param time) override;
+	void frameEnd() override;
+	void setDisplayMode(DisplayMode mode) override;
+	void setPalette(int index, int grb) override;
+	void setBackgroundColor(int index) override;
+	void setHorizontalAdjust(int adjust) override;
+	void setHorizontalScrollLow(byte scroll) override;
+	void setBorderMask(bool masked) override;
+	void setTransparency(bool enabled) override;
+	void setSuperimposeVideoFrame(const RawFrame* videoSource) override;
+	void drawBorder(int fromX, int fromY, int limitX, int limitY) override;
+	void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight);
-	virtual void drawSprites(
+		int displayWidth, int displayHeight) override;
+	void drawSprites(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight);
-	virtual bool isRecording() const;
+		int displayWidth, int displayHeight) override;
+	bool isRecording() const override;
 
 private:
 	/** Translate from absolute VDP coordinates to screen coordinates:
@@ -95,7 +95,7 @@ private:
 	void getBorderColors(Pixel& border0, Pixel& border1);
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	/** The VDP of which the video output is being rendered.
 	  */

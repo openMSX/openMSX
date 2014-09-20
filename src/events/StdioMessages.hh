@@ -8,10 +8,10 @@ namespace openmsx {
 class StdioMessages final : public CliListener
 {
 public:
-	virtual void log(CliComm::LogLevel level, string_ref message);
+	void log(CliComm::LogLevel level, string_ref message) override;
 
-	virtual void update(CliComm::UpdateType type, string_ref machine,
-	                    string_ref name, string_ref value);
+	void update(CliComm::UpdateType type, string_ref machine,
+	            string_ref name, string_ref value) override;
 };
 
 } // namespace openmsx

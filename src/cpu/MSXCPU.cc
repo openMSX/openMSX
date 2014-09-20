@@ -26,9 +26,9 @@ class TimeInfoTopic final : public InfoTopic
 public:
 	TimeInfoTopic(InfoCommand& machineInfoCommand,
 	              MSXCPU& msxcpu);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help (const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help (const vector<string>& tokens) const override;
 private:
 	MSXCPU& msxcpu;
 };
@@ -38,9 +38,9 @@ class CPUFreqInfoTopic final : public InfoTopic
 public:
 	CPUFreqInfoTopic(InfoCommand& machineInfoCommand,
 	                 const string& name, CPUClock& clock);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help (const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help (const vector<string>& tokens) const override;
 private:
 	CPUClock& clock;
 };
@@ -49,8 +49,8 @@ class MSXCPUDebuggable final : public SimpleDebuggable
 {
 public:
 	MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	MSXCPU& cpu;
 };

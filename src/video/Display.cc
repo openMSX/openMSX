@@ -42,9 +42,9 @@ class ScreenShotCmd final : public Command
 {
 public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Display& display;
 };
@@ -53,9 +53,9 @@ class FpsInfoTopic final : public InfoTopic
 {
 public:
 	FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
-	virtual void execute(array_ref<TclObject> tokens,
-			     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	Display& display;
 };

@@ -24,9 +24,9 @@ public:
 	             CommandController& commandController);
 	~AfterCommand();
 
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 private:
 	template<typename PRED> void executeMatches(PRED pred);
@@ -44,7 +44,7 @@ private:
 	void afterCancel  (array_ref<TclObject> tokens, TclObject& result);
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	typedef std::vector<std::unique_ptr<AfterCmd>> AfterCmds;
 	AfterCmds afterCmds;

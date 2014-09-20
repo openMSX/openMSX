@@ -13,9 +13,9 @@ class Scale3xScaler final : public Scaler3<Pixel>
 public:
 	explicit Scale3xScaler(const PixelOperations<Pixel>& pixelOps);
 
-	virtual void scale1x1to3x3(FrameSource& src,
+	void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
 	void scaleLine1on3Half(Pixel* dst,

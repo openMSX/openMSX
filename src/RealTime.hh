@@ -57,15 +57,15 @@ private:
 	void sync(EmuTime::param time, bool allowSleep);
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// Observer<Setting>
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 	// Observer<ThrottleManager>
-	void update(const ThrottleManager& throttleManager);
+	void update(const ThrottleManager& throttleManager) override;
 
 	void internalSync(EmuTime::param time, bool allowSleep);
 

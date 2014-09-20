@@ -19,13 +19,13 @@ public:
 	explicit PioneerLDControl(const DeviceConfig& config);
 	~PioneerLDControl();
 
-	virtual void reset(EmuTime::param time);
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual byte peekMem(word address, EmuTime::param time) const;
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word address) const;
-	virtual void init();
+	void reset(EmuTime::param time) override;
+	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word address) const override;
+	void init() override;
 
 	void videoIn(bool enabled);
 

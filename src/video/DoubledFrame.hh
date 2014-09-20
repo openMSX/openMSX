@@ -16,10 +16,10 @@ public:
 	void init(FrameSource* field, unsigned skip);
 
 private:
-	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(
+	unsigned getLineWidth(unsigned line) const override;
+	const void* getLineInfo(
 		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const;
+		void* buf, unsigned bufWidth) const override;
 
 	/** The original frame whose data will be doubled.
 	  */

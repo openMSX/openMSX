@@ -22,8 +22,8 @@ class Counter0 final : public ClockPinListener
 public:
 	explicit Counter0(MSXRS232& rs232);
 	~Counter0();
-	virtual void signal(ClockPin& pin, EmuTime::param time);
-	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
+	void signal(ClockPin& pin, EmuTime::param time) override;
+	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
 private:
 	MSXRS232& rs232;
 };
@@ -33,8 +33,8 @@ class Counter1 final : public ClockPinListener
 public:
 	explicit Counter1(MSXRS232& rs232);
 	~Counter1();
-	virtual void signal(ClockPin& pin, EmuTime::param time);
-	virtual void signalPosEdge(ClockPin& pin, EmuTime::param time);
+	void signal(ClockPin& pin, EmuTime::param time) override;
+	void signalPosEdge(ClockPin& pin, EmuTime::param time) override;
 private:
 	MSXRS232& rs232;
 };
@@ -44,16 +44,16 @@ class I8251Interf final : public I8251Interface
 public:
 	explicit I8251Interf(MSXRS232& rs232);
 	~I8251Interf();
-	virtual void setRxRDY(bool status, EmuTime::param time);
-	virtual void setDTR(bool status, EmuTime::param time);
-	virtual void setRTS(bool status, EmuTime::param time);
-	virtual bool getDSR(EmuTime::param time);
-	virtual bool getCTS(EmuTime::param time);
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
-	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, EmuTime::param time);
-	virtual void signal(EmuTime::param time);
+	void setRxRDY(bool status, EmuTime::param time) override;
+	void setDTR(bool status, EmuTime::param time) override;
+	void setRTS(bool status, EmuTime::param time) override;
+	bool getDSR(EmuTime::param time) override;
+	bool getCTS(EmuTime::param time) override;
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
+	void signal(EmuTime::param time) override;
 private:
 	MSXRS232& rs232;
 };

@@ -97,9 +97,9 @@ class ReverseCmd final : public Command
 {
 public:
 	ReverseCmd(ReverseManager& manager, CommandController& controller);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	ReverseManager& manager;
 };

@@ -45,7 +45,7 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 	void schedule(EmuTime::param time);
 	void unschedule();
 

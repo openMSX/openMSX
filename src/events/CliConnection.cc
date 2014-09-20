@@ -47,12 +47,12 @@ public:
 	{
 		return id;
 	}
-	virtual void toStringImpl(TclObject& result) const
+	void toStringImpl(TclObject& result) const override
 	{
 		result.addListElement("CliCmd");
 		result.addListElement(getCommand());
 	}
-	virtual bool lessImpl(const Event& other) const
+	bool lessImpl(const Event& other) const override
 	{
 		auto& otherCmdEvent = checked_cast<const CliCommandEvent&>(other);
 		return getCommand() < otherCmdEvent.getCommand();

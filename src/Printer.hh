@@ -26,13 +26,13 @@ class PrinterCore : public PrinterPortDevice
 {
 public:
 	// PrinterPortDevice
-	virtual bool getStatus(EmuTime::param time);
-	virtual void setStrobe(bool strobe, EmuTime::param time);
-	virtual void writeData(byte data, EmuTime::param time);
+	bool getStatus(EmuTime::param time) override;
+	void setStrobe(bool strobe, EmuTime::param time) override;
+	void writeData(byte data, EmuTime::param time) override;
 
 	// Pluggable
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 
 protected:
 	PrinterCore();
@@ -56,8 +56,8 @@ public:
 	void write(byte data);
 	void forceFormFeed();
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual const std::string getDescription() const;
+	const std::string& getName() const override;
+	const std::string getDescription() const override;
 
 private:
 	HANDLE hFile;
@@ -68,8 +68,8 @@ private:
 class ImagePrinter : public PrinterCore
 {
 public:
-	virtual void write(byte data);
-	virtual void forceFormFeed();
+	void write(byte data) override;
+	void forceFormFeed() override;
 
 protected:
 	ImagePrinter(MSXMotherBoard& motherBoard, bool graphicsHiLo);
@@ -174,8 +174,8 @@ public:
 	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -184,11 +184,11 @@ private:
 	void msxPrnSetFont(const byte* msxBits);
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	virtual void getNumberOfDots(unsigned& dotsX, unsigned& dotsY);
-	virtual void resetSettings();
-	virtual unsigned calcEscSequenceLength(byte character);
-	virtual void processEscSequence();
-	virtual void processCharacter(byte data);
+	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	void resetSettings() override;
+	unsigned calcEscSequenceLength(byte character) override;
+	void processEscSequence() override;
+	void processCharacter(byte data) override;
 };
 
 // emulated Epson printer
@@ -198,8 +198,8 @@ public:
 	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);
 
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -207,11 +207,11 @@ public:
 private:
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
-	virtual void getNumberOfDots(unsigned& dotsX, unsigned& dotsY);
-	virtual void resetSettings();
-	virtual unsigned calcEscSequenceLength(byte character);
-	virtual void processEscSequence();
-	virtual void processCharacter(byte data);
+	void getNumberOfDots(unsigned& dotsX, unsigned& dotsY) override;
+	void resetSettings() override;
+	unsigned calcEscSequenceLength(byte character) override;
+	void processEscSequence() override;
+	void processCharacter(byte data) override;
 };
 
 } // namespace openmsx

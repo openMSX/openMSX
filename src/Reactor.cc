@@ -56,8 +56,8 @@ class QuitCommand final : public Command
 {
 public:
 	QuitCommand(CommandController& commandController, EventDistributor& distributor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	EventDistributor& distributor;
 };
@@ -66,9 +66,9 @@ class MachineCommand final : public Command
 {
 public:
 	MachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -77,9 +77,9 @@ class TestMachineCommand final : public Command
 {
 public:
 	TestMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -88,8 +88,8 @@ class CreateMachineCommand final : public Command
 {
 public:
 	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -98,9 +98,9 @@ class DeleteMachineCommand final : public Command
 {
 public:
 	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -109,8 +109,8 @@ class ListMachinesCommand final : public Command
 {
 public:
 	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -119,9 +119,9 @@ class ActivateMachineCommand final : public Command
 {
 public:
 	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -130,9 +130,9 @@ class StoreMachineCommand final : public Command
 {
 public:
 	StoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -141,9 +141,9 @@ class RestoreMachineCommand final : public Command
 {
 public:
 	RestoreMachineCommand(CommandController& commandController, Reactor& reactor);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	Reactor& reactor;
 };
@@ -152,10 +152,10 @@ class ConfigInfo final : public InfoTopic
 {
 public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	const string configName;
 };
@@ -164,9 +164,9 @@ class RealTimeInfo final : public InfoTopic
 {
 public:
 	RealTimeInfo(InfoCommand& openMSXInfoCommand);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	const uint64_t reference;
 };

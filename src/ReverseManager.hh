@@ -101,15 +101,15 @@ private:
 	template<unsigned N> void dropOldSnapshots(unsigned count);
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	// StateChangeRecorder
-	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
-	virtual void stopReplay(EmuTime::param time);
-	virtual bool isReplaying() const;
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) override;
+	bool isReplaying() const override;
 
 	MSXMotherBoard& motherBoard;
 	EventDistributor& eventDistributor;

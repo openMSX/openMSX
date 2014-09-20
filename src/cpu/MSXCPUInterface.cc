@@ -44,8 +44,8 @@ class MemoryDebug final : public SimpleDebuggable
 public:
 	MemoryDebug(MSXCPUInterface& interface,
 	            MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	MSXCPUInterface& interface;
 };
@@ -55,8 +55,8 @@ class SlottedMemoryDebug final : public SimpleDebuggable
 public:
 	SlottedMemoryDebug(MSXCPUInterface& interface,
 	                   MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	MSXCPUInterface& interface;
 };
@@ -66,8 +66,8 @@ class IODebug final : public SimpleDebuggable
 public:
 	IODebug(MSXCPUInterface& interface,
 	        MSXMotherBoard& motherBoard);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	MSXCPUInterface& interface;
 };
@@ -77,9 +77,9 @@ class SlotInfo final : public InfoTopic
 public:
 	SlotInfo(InfoCommand& machineInfoCommand,
 	         MSXCPUInterface& interface);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXCPUInterface& interface;
 };
@@ -89,9 +89,9 @@ class SubSlottedInfo final : public InfoTopic
 public:
 	SubSlottedInfo(InfoCommand& machineInfoCommand,
 		       MSXCPUInterface& interface);
-	virtual void execute(array_ref<TclObject> tokens,
-			     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXCPUInterface& interface;
 };
@@ -101,9 +101,9 @@ class ExternalSlotInfo final : public InfoTopic
 public:
 	ExternalSlotInfo(InfoCommand& machineInfoCommand,
 			 CartridgeSlotManager& manager);
-	virtual void execute(array_ref<TclObject> tokens,
-			     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	CartridgeSlotManager& manager;
 };
@@ -113,9 +113,9 @@ class IOInfo final : public InfoTopic
 public:
 	IOInfo(InfoCommand& machineInfoCommand,
 	       MSXCPUInterface& interface, bool input);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
 private:
 	MSXCPUInterface& interface;
 	bool input;

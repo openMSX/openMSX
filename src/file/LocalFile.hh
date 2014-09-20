@@ -21,23 +21,23 @@ public:
 	LocalFile(string_ref filename, File::OpenMode mode);
 	LocalFile(string_ref filename, const char* mode);
 	~LocalFile();
-	virtual void read (void* buffer, size_t num);
-	virtual void write(const void* buffer, size_t num);
+	void read (void* buffer, size_t num) override;
+	void write(const void* buffer, size_t num) override;
 #if HAVE_MMAP || defined _WIN32
-	virtual const byte* mmap(size_t& size);
-	virtual void munmap();
+	const byte* mmap(size_t& size) override;
+	void munmap() override;
 #endif
-	virtual size_t getSize();
-	virtual void seek(size_t pos);
-	virtual size_t getPos();
+	size_t getSize() override;
+	void seek(size_t pos) override;
+	size_t getPos() override;
 #if HAVE_FTRUNCATE
-	virtual void truncate(size_t size);
+	void truncate(size_t size) override;
 #endif
-	virtual void flush();
-	virtual const std::string getURL() const;
-	virtual const std::string getLocalReference();
-	virtual bool isReadOnly() const;
-	virtual time_t getModificationDate();
+	void flush() override;
+	const std::string getURL() const override;
+	const std::string getLocalReference() override;
+	bool isReadOnly() const override;
+	time_t getModificationDate() override;
 
 	void preCacheFile();
 

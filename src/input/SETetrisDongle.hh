@@ -11,14 +11,14 @@ public:
 	SETetrisDongle();
 
 	// Pluggable
-	virtual const std::string& getName() const;
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
+	const std::string& getName() const override;
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
 
 	// JoystickDevice
-	virtual byte read(EmuTime::param time);
-	virtual void write(byte value, EmuTime::param time);
+	byte read(EmuTime::param time) override;
+	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

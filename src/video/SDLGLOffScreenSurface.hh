@@ -20,9 +20,9 @@ public:
 
 private:
 	// OutputSurface
-	virtual void saveScreenshot(const std::string& filename);
-	virtual void flushFrameBuffer();
-	virtual void clearScreen();
+	void saveScreenshot(const std::string& filename) override;
+	void flushFrameBuffer() override;
+	void clearScreen() override;
 
 	gl::Texture fboTex;
 	gl::FrameBufferObject fbo;

@@ -12,35 +12,35 @@ class DummyRenderer final : public Renderer, public Layer
 {
 public:
 	// Renderer interface:
-	PostProcessor* getPostProcessor() const;
-	void reInit();
-	void frameStart(EmuTime::param time);
-	void frameEnd(EmuTime::param time);
-	void updateTransparency(bool enabled, EmuTime::param time);
-	void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time);
-	void updateForegroundColor(int color, EmuTime::param time);
-	void updateBackgroundColor(int color, EmuTime::param time);
-	void updateBlinkForegroundColor(int color, EmuTime::param time);
-	void updateBlinkBackgroundColor(int color, EmuTime::param time);
-	void updateBlinkState(bool enabled, EmuTime::param time);
-	void updatePalette(int index, int grb, EmuTime::param time);
-	void updateVerticalScroll(int scroll, EmuTime::param time);
-	void updateHorizontalScrollLow(byte scroll, EmuTime::param time);
-	void updateHorizontalScrollHigh(byte scroll, EmuTime::param time);
-	void updateBorderMask(bool masked, EmuTime::param time);
-	void updateMultiPage(bool multiPage, EmuTime::param time);
-	void updateHorizontalAdjust(int adjust, EmuTime::param time);
-	void updateDisplayEnabled(bool enabled, EmuTime::param time);
-	void updateDisplayMode(DisplayMode mode, EmuTime::param time);
-	void updateNameBase(int addr, EmuTime::param time);
-	void updatePatternBase(int addr, EmuTime::param time);
-	void updateColorBase(int addr, EmuTime::param time);
-	void updateSpritesEnabled(bool enabled, EmuTime::param time);
-	void updateVRAM(unsigned offset, EmuTime::param time);
-	void updateWindow(bool enabled, EmuTime::param time);
+	PostProcessor* getPostProcessor() const override;
+	void reInit() override;
+	void frameStart(EmuTime::param time) override;
+	void frameEnd(EmuTime::param time) override;
+	void updateTransparency(bool enabled, EmuTime::param time) override;
+	void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time) override;
+	void updateForegroundColor(int color, EmuTime::param time) override;
+	void updateBackgroundColor(int color, EmuTime::param time) override;
+	void updateBlinkForegroundColor(int color, EmuTime::param time) override;
+	void updateBlinkBackgroundColor(int color, EmuTime::param time) override;
+	void updateBlinkState(bool enabled, EmuTime::param time) override;
+	void updatePalette(int index, int grb, EmuTime::param time) override;
+	void updateVerticalScroll(int scroll, EmuTime::param time) override;
+	void updateHorizontalScrollLow(byte scroll, EmuTime::param time) override;
+	void updateHorizontalScrollHigh(byte scroll, EmuTime::param time) override;
+	void updateBorderMask(bool masked, EmuTime::param time) override;
+	void updateMultiPage(bool multiPage, EmuTime::param time) override;
+	void updateHorizontalAdjust(int adjust, EmuTime::param time) override;
+	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;
+	void updateDisplayMode(DisplayMode mode, EmuTime::param time) override;
+	void updateNameBase(int addr, EmuTime::param time) override;
+	void updatePatternBase(int addr, EmuTime::param time) override;
+	void updateColorBase(int addr, EmuTime::param time) override;
+	void updateSpritesEnabled(bool enabled, EmuTime::param time) override;
+	void updateVRAM(unsigned offset, EmuTime::param time) override;
+	void updateWindow(bool enabled, EmuTime::param time) override;
 
 	// Layer interface:
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 };
 
 } // namespace openmsx

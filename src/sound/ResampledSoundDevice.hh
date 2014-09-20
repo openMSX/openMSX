@@ -30,12 +30,12 @@ protected:
 	~ResampledSoundDevice();
 
 	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-	                          EmuTime::param time);
+	void setOutputRate(unsigned sampleRate) override;
+	bool updateBuffer(unsigned length, int* buffer,
+	                  EmuTime::param time) override;
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void createResampler();
 

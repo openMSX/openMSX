@@ -22,21 +22,20 @@ public:
 		const PixelOperations<Pixel>& pixelOps,
 		RenderSettings& renderSettings);
 
-protected:
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scaleBlank1to2(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to2x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x2(FrameSource& src,
-		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-
 private:
+	void scaleImage(FrameSource& src, const RawFrame* superImpose,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scaleBlank1to2(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale1x1to2x2(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale1x1to1x2(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+
 	void drawScanline(const Pixel* in1, const Pixel* in2, Pixel* out,
 	                  int factor, unsigned dstWidth);
 	void blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,

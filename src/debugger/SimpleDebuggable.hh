@@ -11,12 +11,12 @@ class MSXMotherBoard;
 class SimpleDebuggable : public Debuggable
 {
 public:
-	virtual unsigned getSize() const final;
-	virtual const std::string& getDescription() const final;
+	unsigned getSize() const final override;
+	const std::string& getDescription() const final override;
 
-	virtual byte read(unsigned address);
+	byte read(unsigned address) override;
 	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value);
+	void write(unsigned address, byte value) override;
 	virtual void write(unsigned address, byte value, EmuTime::param time);
 
 	const std::string& getName() const { return name; }

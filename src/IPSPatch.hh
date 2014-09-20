@@ -18,9 +18,9 @@ public:
 	IPSPatch(const Filename& filename,
 	         std::unique_ptr<const PatchInterface> parent);
 
-	virtual void copyBlock(size_t src, byte* dst, size_t num) const;
-	virtual size_t getSize() const;
-	virtual std::vector<Filename> getFilenames() const;
+	void copyBlock(size_t src, byte* dst, size_t num) const override;
+	size_t getSize() const override;
+	std::vector<Filename> getFilenames() const override;
 
 private:
 	const Filename filename;

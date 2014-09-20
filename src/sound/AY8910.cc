@@ -32,8 +32,8 @@ class AY8910Debuggable final : public SimpleDebuggable
 {
 public:
 	AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	AY8910& ay8910;
 };

@@ -3,7 +3,7 @@
 
 
 AdhocCliCommParser::AdhocCliCommParser(std::function<void(const std::string&)> callback_)
-	: callback(callback_)
+	: callback(std::move(callback_))
 	, state(O0)
 {
 }

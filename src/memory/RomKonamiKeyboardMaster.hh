@@ -13,10 +13,10 @@ public:
 	RomKonamiKeyboardMaster(const DeviceConfig& config, std::unique_ptr<Rom> rom);
 	~RomKonamiKeyboardMaster();
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
+	void reset(EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

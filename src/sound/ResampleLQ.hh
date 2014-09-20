@@ -38,8 +38,8 @@ public:
 	ResampleLQDown(ResampledSoundDevice& input,
 	               const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	virtual bool generateOutput(int* dataOut, unsigned num,
-	                            EmuTime::param time);
+	bool generateOutput(int* dataOut, unsigned num,
+	                    EmuTime::param time) override;
 	typedef typename ResampleLQ<CHANNELS>::FP FP;
 };
 
@@ -50,8 +50,8 @@ public:
 	ResampleLQUp(ResampledSoundDevice& input,
 	             const DynamicClock& hostClock, unsigned emuSampleRate);
 private:
-	virtual bool generateOutput(int* dataOut, unsigned num,
-	                            EmuTime::param time);
+	bool generateOutput(int* dataOut, unsigned num,
+	                    EmuTime::param time) override;
 	typedef typename ResampleLQ<CHANNELS>::FP FP;
 };
 

@@ -50,35 +50,38 @@ public:
 	void changeSetting(const std::string& name, const std::string& value);
 
 	// CommandController
-	virtual void   registerCompleter(CommandCompleter& completer,
-	                                 string_ref str);
-	virtual void unregisterCompleter(CommandCompleter& completer,
-	                                 string_ref str);
-	virtual void   registerCommand(Command& command,
-	                               const std::string& str);
-	virtual void unregisterCommand(Command& command,
-	                               string_ref str);
-	virtual bool hasCommand(string_ref command) const;
-	virtual std::string executeCommand(const std::string& command,
-	                                   CliConnection* connection = nullptr);
+	void   registerCompleter(CommandCompleter& completer,
+	                         string_ref str) override;
+	void unregisterCompleter(CommandCompleter& completer,
+	                         string_ref str) override;
+	void   registerCommand(Command& command,
+	                       const std::string& str) override;
+	void unregisterCommand(Command& command,
+	                       string_ref str) override;
+	bool hasCommand(string_ref command) const override;
+	std::string executeCommand(const std::string& command,
+	                           CliConnection* connection = nullptr) override;
+	std::vector<std::string> splitList(const std::string& list) override;
+	void registerSetting(Setting& setting) override;
+	void unregisterSetting(Setting& setting) override;
+	BaseSetting* findSetting(string_ref name) override;
+	void changeSetting(Setting& setting, const std::string& value) override;
+	CliComm& getCliComm() override;
+	Interpreter& getInterpreter() override;
+
 	/**
 	 * Complete the given command.
 	 */
-	virtual std::string tabCompletion(string_ref command);
+	std::string tabCompletion(string_ref command);
+
 	/**
 	 * Returns true iff the command is complete (all braces, quotes etc. are
 	 * balanced).
 	 */
-	virtual bool isComplete(const std::string& command);
-	virtual std::vector<std::string> splitList(const std::string& list);
-	virtual void registerSetting(Setting& setting);
-	virtual void unregisterSetting(Setting& setting);
-	virtual BaseSetting* findSetting(string_ref name);
-	virtual void changeSetting(Setting& setting, const std::string& value);
-	virtual CliComm& getCliComm();
-	virtual Interpreter& getInterpreter();
-	virtual SettingsConfig& getSettingsConfig();
-	virtual CliConnection* getConnection() const;
+	bool isComplete(const std::string& command);
+
+	SettingsConfig& getSettingsConfig();
+	CliConnection* getConnection() const;
 
 private:
 	void split(string_ref str,

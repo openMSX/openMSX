@@ -14,19 +14,19 @@ public:
 	OSDText(const OSDGUI& gui, const std::string& name);
 	~OSDText();
 
-	virtual std::vector<string_ref> getProperties() const;
-	virtual void setProperty(Interpreter& interp,
-	                         string_ref name, const TclObject& value);
-	virtual void getProperty(string_ref name, TclObject& result) const;
-	virtual string_ref getType() const;
+	std::vector<string_ref> getProperties() const override;
+	void setProperty(Interpreter& interp,
+	                 string_ref name, const TclObject& value) override;
+	void getProperty(string_ref name, TclObject& result) const override;
+	string_ref getType() const override;
 
 private:
-	virtual void invalidateLocal();
-	virtual void getWidthHeight(const OutputRectangle& output,
-	                            double& width, double& height) const;
-	virtual byte getFadedAlpha() const;
-	virtual std::unique_ptr<BaseImage> createSDL(OutputRectangle& output);
-	virtual std::unique_ptr<BaseImage> createGL (OutputRectangle& output);
+	void invalidateLocal() override;
+	void getWidthHeight(const OutputRectangle& output,
+	                    double& width, double& height) const override;
+	byte getFadedAlpha() const override;
+	std::unique_ptr<BaseImage> createSDL(OutputRectangle& output) override;
+	std::unique_ptr<BaseImage> createGL (OutputRectangle& output) override;
 	template <typename IMAGE> std::unique_ptr<BaseImage> create(
 		OutputRectangle& output);
 

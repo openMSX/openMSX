@@ -21,7 +21,7 @@ class Quran2RomBlocks final : public RomBlockDebuggableBase
 {
 public:
 	Quran2RomBlocks(RomHolyQuran2& device);
-	virtual byte read(unsigned address);
+	byte read(unsigned address) override;
 private:
 	RomHolyQuran2& device;
 };

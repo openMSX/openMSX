@@ -32,10 +32,10 @@ public:
 
 private:
 	// Layer
-	virtual void paint(OutputSurface& output);
+	void paint(OutputSurface& output) override;
 
 	// Observer
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	void adjustColRow();
 	void setActive(bool active);

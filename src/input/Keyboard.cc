@@ -51,9 +51,9 @@ public:
 	KeyMatrixUpCmd(CommandController& commandController,
 	               StateChangeDistributor& stateChangeDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	Keyboard& keyboard;
 };
@@ -64,9 +64,9 @@ public:
 	KeyMatrixDownCmd(CommandController& commandController,
 	                 StateChangeDistributor& stateChangeDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	Keyboard& keyboard;
 };
@@ -82,7 +82,7 @@ public:
 
 private:
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 	std::deque<shared_ptr<const Event>> eventQueue;
 	Keyboard& keyboard;
 };
@@ -101,13 +101,13 @@ private:
 	void reschedule(EmuTime::param time);
 
 	// Command
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result,
-	                     EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result,
+	             EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	Keyboard& keyboard;
 	string text_utf8;
@@ -132,10 +132,10 @@ public:
 
 private:
 	// EventListener
-	virtual int signalEvent(const shared_ptr<const Event>& event);
+	int signalEvent(const shared_ptr<const Event>& event) override;
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	void alignCapsLock(EmuTime::param time);
 
@@ -152,8 +152,8 @@ class KeybDebuggable final : public SimpleDebuggable
 {
 public:
 	KeybDebuggable(MSXMotherBoard& motherBoard, Keyboard& keyboard);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	Keyboard& keyboard;
 };

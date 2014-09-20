@@ -21,8 +21,8 @@ public:
 		: width(width_), height(height_)
 	{
 	}
-	virtual unsigned getOutputWidth()  const { return width;  }
-	virtual unsigned getOutputHeight() const { return height; }
+	unsigned getOutputWidth()  const override { return width;  }
+	unsigned getOutputHeight() const override { return height; }
 
 private:
 	const unsigned width;

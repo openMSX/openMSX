@@ -44,7 +44,7 @@ public:
 	StretchScalerOutput(unique_ptr<ScalerOutput<Pixel>> output,
 	                    const PixelOperations<Pixel>& pixelOps,
 	                    unsigned inWidth);
-	virtual void releaseLine(unsigned y, Pixel* buf);
+	void releaseLine(unsigned y, Pixel* buf) override;
 
 private:
 	unsigned inWidth;
@@ -56,7 +56,7 @@ class StretchScalerOutputN : public StretchScalerOutputBase<Pixel>
 public:
 	StretchScalerOutputN(unique_ptr<ScalerOutput<Pixel>> output,
 	                       const PixelOperations<Pixel>& pixelOps);
-	virtual void releaseLine(unsigned y, Pixel* buf);
+	void releaseLine(unsigned y, Pixel* buf) override;
 };
 
 template<typename Pixel>

@@ -20,18 +20,18 @@ public:
 	explicit MSXMidi(const DeviceConfig& config);
 	~MSXMidi();
 
-	virtual void reset(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	// MidiInConnector
-	virtual bool ready();
-	virtual bool acceptsData();
-	virtual void setDataBits(DataBits bits);
-	virtual void setStopBits(StopBits bits);
-	virtual void setParityBit(bool enable, ParityBit parity);
-	virtual void recvByte(byte value, EmuTime::param time);
+	bool ready() override;
+	bool acceptsData() override;
+	void setDataBits(DataBits bits) override;
+	void setStopBits(StopBits bits) override;
+	void setParityBit(bool enable, ParityBit parity) override;
+	void recvByte(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

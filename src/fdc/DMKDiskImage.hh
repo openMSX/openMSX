@@ -18,18 +18,18 @@ class DMKDiskImage final : public Disk
 public:
 	DMKDiskImage(Filename& filename, const std::shared_ptr<File>& file);
 
-	virtual void readTrack(byte track, byte side, RawTrack& output);
-	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
+	void readTrack(byte track, byte side, RawTrack& output) override;
+	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;
 
 	// logical sector emulation for SectorAccessibleDisk
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual size_t getNbSectorsImpl() const;
-	virtual bool isWriteProtectedImpl() const;
-	virtual Sha1Sum getSha1Sum();
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	size_t getNbSectorsImpl() const override;
+	bool isWriteProtectedImpl() const override;
+	Sha1Sum getSha1Sum() override;
 
 private:
-	virtual void detectGeometryFallback();
+	void detectGeometryFallback() override;
 
 	void seekTrack(byte track, byte side);
 

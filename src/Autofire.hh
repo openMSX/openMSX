@@ -42,7 +42,7 @@ private:
 	  */
 	void setClock();
 
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	// Following two values specify the range of the autofire
 	// as measured by the test program:

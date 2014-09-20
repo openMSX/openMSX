@@ -32,8 +32,8 @@ public:
 
 private:
 	// SoundDevice
-	virtual int getAmplificationFactor() const;
-	virtual void generateChannels(int** bufs, unsigned num);
+	int getAmplificationFactor() const override;
+	void generateChannels(int** bufs, unsigned num) override;
 
 	inline int adjust(signed char wav, byte vol);
 	byte readWave(unsigned channel, unsigned address, EmuTime::param time) const;

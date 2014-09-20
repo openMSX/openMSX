@@ -108,7 +108,7 @@ private:
 	void setST (bool pin);
 
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
+	void generateChannels(int** bufs, unsigned num) override;
 
 	void setupParameter(byte param);
 	int getBits(unsigned sbit, unsigned bits);

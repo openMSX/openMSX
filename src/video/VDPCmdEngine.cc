@@ -678,8 +678,8 @@ typedef TransparentOp<NotOp> TNotOp;
   */
 struct AbortCmd : public VDPCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 void AbortCmd::start(EmuTime::param time, VDPCmdEngine& engine)
@@ -695,11 +695,11 @@ void AbortCmd::execute(EmuTime::param /*limit*/, VDPCmdEngine& /*engine*/)
   */
 struct PointBaseCmd : public VDPCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template<typename Mode> struct PointCmd : public PointBaseCmd
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 void PointBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
@@ -729,11 +729,11 @@ void PointCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 struct PsetBaseCmd : public VDPCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template<typename Mode, typename LogOp> struct PsetCmd : public PsetBaseCmd
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 void PsetBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
@@ -780,11 +780,11 @@ void PsetCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 struct SrchBaseCmd : public VDPCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template <typename Mode> struct SrchCmd : public SrchBaseCmd
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 void SrchBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
@@ -834,11 +834,11 @@ void SrchCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 struct LineBaseCmd : public VDPCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template <typename Mode, typename LogOp> struct LineCmd : public LineBaseCmd
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 void LineBaseCmd::start(EmuTime::param time, VDPCmdEngine& engine)
@@ -954,11 +954,11 @@ void BlockCmd::calcFinishTime(VDPCmdEngine& engine,
   */
 template <typename Mode> struct LmmvBaseCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template <typename Mode, typename LogOp> struct LmmvCmd : public LmmvBaseCmd<Mode>
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1089,11 +1089,11 @@ loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
   */
 template <typename Mode> struct LmmmBaseCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template <typename Mode, typename LogOp> struct LmmmCmd : public LmmmBaseCmd<Mode>
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1245,8 +1245,8 @@ loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
   */
 template <typename Mode> struct LmcmCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1303,11 +1303,11 @@ void LmcmCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 template <typename Mode> struct LmmcBaseCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
 };
 template <typename Mode, typename LogOp> struct LmmcCmd : public LmmcBaseCmd<Mode>
 {
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1374,8 +1374,8 @@ void LmmcCmd<Mode, LogOp>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 template <typename Mode> struct HmmvCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1486,8 +1486,8 @@ void HmmvCmd<Mode>::execute(EmuTime::param limit, VDPCmdEngine& engine)
   */
 template <typename Mode> struct HmmmCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1628,8 +1628,8 @@ loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
   */
 template <typename Mode> struct YmmmCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>
@@ -1764,8 +1764,8 @@ loop:		if (unlikely(calculator.limitReached())) { engine.phase = 0; break; }
   */
 template <typename Mode> struct HmmcCmd : public BlockCmd
 {
-	virtual void start(EmuTime::param time, VDPCmdEngine& engine);
-	virtual void execute(EmuTime::param limit, VDPCmdEngine& engine);
+	void start(EmuTime::param time, VDPCmdEngine& engine) override;
+	void execute(EmuTime::param limit, VDPCmdEngine& engine) override;
 };
 
 template <typename Mode>

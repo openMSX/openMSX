@@ -14,8 +14,8 @@ public:
 	             string_ref name, string_ref description,
 	             double initialValue, double minValue, double maxValue);
 
-	virtual string_ref getTypeString() const;
-	virtual void additionalInfo(TclObject& result) const;
+	string_ref getTypeString() const override;
+	void additionalInfo(TclObject& result) const override;
 
 	double getDouble() const { return getValue().getDouble(getInterpreter()); }
 	void setDouble (double d);

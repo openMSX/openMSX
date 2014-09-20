@@ -25,9 +25,9 @@ public:
 	              size_t start, size_t length);
 
 private:
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual bool isWriteProtectedImpl() const;
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	bool isWriteProtectedImpl() const override;
 
 	SectorAccessibleDisk& parent;
 	std::shared_ptr<SectorAccessibleDisk> owned;

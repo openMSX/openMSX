@@ -24,10 +24,10 @@ public:
 	                       const PixelOperations<Pixel>& pixelOps);
 
 	// FrameSource
-	virtual unsigned getLineWidth(unsigned line) const;
-	virtual const void* getLineInfo(
+	unsigned getLineWidth(unsigned line) const override;
+	const void* getLineInfo(
 		unsigned line, unsigned& width,
-		void* buf, unsigned bufWidth) const;
+		void* buf, unsigned bufWidth) const override;
 
 private:
 	const FrameSource& src;

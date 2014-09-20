@@ -164,7 +164,7 @@ public:
 		: name(name_)
 	{
 	}
-	virtual void save(Archive& ar, const void* v) const
+	void save(Archive& ar, const void* v) const override
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		auto base = static_cast<const BaseType*>(v);
@@ -180,7 +180,7 @@ template<typename Archive, typename T>
 class PolymorphicLoader : public PolymorphicLoaderBase<Archive>
 {
 public:
-	virtual void* load(Archive& ar, unsigned id, const void* args) const
+	void* load(Archive& ar, unsigned id, const void* args) const override
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		typedef typename PolymorphicConstructorArgs<BaseType>::type TUPLEIn;
@@ -198,7 +198,7 @@ template<typename Archive, typename T>
 class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
 {
 public:
-	virtual void init(Archive& ar, void* v, unsigned id) const
+	void init(Archive& ar, void* v, unsigned id) const override
 	{
 		typedef typename PolymorphicBaseClass<T>::type BaseType;
 		auto base = static_cast<BaseType*>(v);

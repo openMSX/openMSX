@@ -40,10 +40,10 @@ class SoundDeviceInfoTopic final : public InfoTopic
 {
 public:
 	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, MSXMixer& mixer);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	MSXMixer& mixer;
 };

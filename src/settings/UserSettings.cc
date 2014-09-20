@@ -22,10 +22,10 @@ class UserSettingCommand final : public Command
 public:
 	UserSettingCommand(UserSettings& userSettings,
 	                   CommandController& commandController);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 
 private:
 	void create (array_ref<TclObject> tokens, TclObject& result);

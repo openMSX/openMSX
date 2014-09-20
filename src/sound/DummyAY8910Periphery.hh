@@ -14,10 +14,10 @@ public:
 		return oneInstance;
 	}
 
-	virtual byte readA(EmuTime::param /*time*/) { return 255; }
-	virtual byte readB(EmuTime::param /*time*/) { return 255; }
-	virtual void writeA(byte /*value*/, EmuTime::param /*time*/) {}
-	virtual void writeB(byte /*value*/, EmuTime::param /*time*/) {}
+	byte readA(EmuTime::param /*time*/) override { return 255; }
+	byte readB(EmuTime::param /*time*/) override { return 255; }
+	void writeA(byte /*value*/, EmuTime::param /*time*/) override {}
+	void writeB(byte /*value*/, EmuTime::param /*time*/) override {}
 
 private:
 	DummyAY8910Periphery() {}

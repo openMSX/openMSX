@@ -19,10 +19,10 @@ public:
 
 private:
 	// Command
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	StringMap<const InfoTopic*> infoTopics;
 };

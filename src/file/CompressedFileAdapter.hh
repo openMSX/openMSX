@@ -17,19 +17,19 @@ public:
 		time_t cachedModificationDate;
 	};
 
-	virtual void read(void* buffer, size_t num) final;
-	virtual void write(const void* buffer, size_t num) final;
-	virtual const byte* mmap(size_t& size) final;
-	virtual void munmap() final;
-	virtual size_t getSize() final;
-	virtual void seek(size_t pos) final;
-	virtual size_t getPos() final;
-	virtual void truncate(size_t size) final;
-	virtual void flush() final;
-	virtual const std::string getURL() const final;
-	virtual const std::string getOriginalName() final;
-	virtual bool isReadOnly() const final;
-	virtual time_t getModificationDate() final;
+	void read(void* buffer, size_t num) final override;
+	void write(const void* buffer, size_t num) final override;
+	const byte* mmap(size_t& size) final override;
+	void munmap() final override;
+	size_t getSize() final override;
+	void seek(size_t pos) final override;
+	size_t getPos() final override;
+	void truncate(size_t size) final override;
+	void flush() final override;
+	const std::string getURL() const final override;
+	const std::string getOriginalName() final override;
+	bool isReadOnly() const final override;
+	time_t getModificationDate() final override;
 
 protected:
 	explicit CompressedFileAdapter(std::unique_ptr<FileBase> file);

@@ -21,8 +21,8 @@ class EscapeGrabCmd final : public Command
 public:
 	EscapeGrabCmd(CommandController& commandController,
 		      InputEventGenerator& inputEventGenerator);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
 private:
 	InputEventGenerator& inputEventGenerator;
 };

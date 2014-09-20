@@ -133,7 +133,7 @@ private:
 	EmuTime::param getCurrentTime() const;
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	MSXMotherBoard& motherboard;
 	const std::unique_ptr<BooleanSetting> traceSetting;

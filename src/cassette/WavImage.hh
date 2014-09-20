@@ -17,10 +17,10 @@ public:
 	explicit WavImage(const Filename& filename, FilePool& filePool);
 	~WavImage();
 
-	virtual short getSampleAt(EmuTime::param time);
-	virtual EmuTime getEndTime() const;
-	virtual unsigned getFrequency() const;
-	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const;
+	short getSampleAt(EmuTime::param time) override;
+	EmuTime getEndTime() const override;
+	unsigned getFrequency() const override;
+	void fillBuffer(unsigned pos, int** bufs, unsigned num) const override;
 
 private:
 	int getSample(unsigned pos) const;

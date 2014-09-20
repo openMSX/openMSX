@@ -11,9 +11,9 @@ class CDImageCLI final : public CLIOption
 {
 public:
 	explicit CDImageCLI(CommandLineParser& cmdLineParser);
-	virtual void parseOption(const std::string& option,
-	                         array_ref<std::string>& cmdLine);
-	virtual string_ref optionHelp() const;
+	void parseOption(const std::string& option,
+	                 array_ref<std::string>& cmdLine) override;
+	string_ref optionHelp() const override;
 
 private:
 	CommandLineParser& parser;

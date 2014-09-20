@@ -18,9 +18,9 @@ public:
 	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
-	virtual const std::string getDescription() const final;
-	virtual string_ref getClass() const final;
-	virtual void plug(Pluggable& dev, EmuTime::param time);
+	const std::string getDescription() const final override;
+	string_ref getClass() const final override;
+	void plug(Pluggable& dev, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

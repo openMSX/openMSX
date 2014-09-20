@@ -128,8 +128,9 @@ protected:
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
-	virtual unsigned getOutputWidth()  const { return getWidth(); }
-	virtual unsigned getOutputHeight() const { return getHeight(); }
+	// OutputRectangle
+	unsigned getOutputWidth()  const override { return getWidth(); }
+	unsigned getOutputHeight() const override { return getHeight(); }
 
 	SDL_Surface* surface;
 	SDL_PixelFormat format;

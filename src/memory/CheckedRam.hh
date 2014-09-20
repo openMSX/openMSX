@@ -59,7 +59,7 @@ private:
 	void init();
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CacheLine::SIZE>> uninitialized;

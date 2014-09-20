@@ -21,7 +21,7 @@ public:
 
 private:
 	// Runnable
-	virtual void run();
+	void run() override;
 
 	void mainLoop();
 	void createSocket();

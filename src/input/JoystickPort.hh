@@ -29,12 +29,12 @@ public:
 	JoystickDevice& getPluggedJoyDev() const;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
-	virtual void plug(Pluggable& device, EmuTime::param time);
+	const std::string getDescription() const override;
+	string_ref getClass() const override;
+	void plug(Pluggable& device, EmuTime::param time) override;
 
-	virtual byte read(EmuTime::param time);
-	virtual void write(byte value, EmuTime::param time);
+	byte read(EmuTime::param time) override;
+	void write(byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -49,8 +49,8 @@ private:
 class DummyJoystickPort final : public JoystickPortIf
 {
 public:
-	virtual byte read(EmuTime::param time);
-	virtual void write(byte value, EmuTime::param time);
+	byte read(EmuTime::param time) override;
+	void write(byte value, EmuTime::param time) override;
 };
 
 } // namespace openmsx

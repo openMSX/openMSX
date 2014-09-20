@@ -48,8 +48,8 @@ class VDPRegDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPRegDebug(VDP& vdp);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	VDP& vdp;
 };
@@ -58,7 +58,7 @@ class VDPStatusRegDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPStatusRegDebug(VDP& vdp);
-	virtual byte read(unsigned address, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
 private:
 	VDP& vdp;
 };
@@ -67,8 +67,8 @@ class VDPPaletteDebug final : public SimpleDebuggable
 {
 public:
 	explicit VDPPaletteDebug(VDP& vdp);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	VDP& vdp;
 };
@@ -77,8 +77,8 @@ class VRAMPointerDebug final : public SimpleDebuggable
 {
 public:
 	explicit VRAMPointerDebug(VDP& vdp);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	VDP& vdp;
 };
@@ -87,13 +87,13 @@ private:
 class VDPInfo : public InfoTopic
 {
 public:
-	virtual void execute(array_ref<TclObject> /*tokens*/,
-	                     TclObject& result) const
+	void execute(array_ref<TclObject> /*tokens*/,
+	                     TclObject& result) const override
 	{
 		const Schedulable& schedulable = vdp; // resolve ambiguity
 		result.setInt(calc(schedulable.getCurrentTime()));
 	}
-	virtual string help(const vector<string>& /*tokens*/) const
+	string help(const vector<string>& /*tokens*/) const override
 	{
 		return helpText;
 	}
@@ -117,7 +117,7 @@ public:
 		: VDPInfo(vdp, "frame_count",
 			  "The current frame number, starts counting at 0 "
 			  "when MSX is powered up or reset.") {}
-	virtual int calc(const EmuTime& /*time*/) const
+	int calc(const EmuTime& /*time*/) const override
 	{
 		return vdp.frameCount;
 	}
@@ -131,7 +131,7 @@ public:
 			  "The number of VDP cycles since the beginning of "
 			  "the current frame. The VDP runs at 6 times the Z80 "
 			  "clock frequency, so at approximately 21.5MHz.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return vdp.getTicksThisFrame(time);
 	}
@@ -147,7 +147,7 @@ public:
 			  "313 (PAL). Note that this number includes the "
 			  "border lines, use 'msx_y_pos' to get MSX "
 			  "coordinates.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE;
 	}
@@ -163,7 +163,7 @@ public:
 			  "Note that this includes the cycles in the border, "
 			  "use 'msx_x256_pos' or 'msx_x512_pos' to get MSX "
 			  "coordinates.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE;
 	}
@@ -178,7 +178,7 @@ public:
 			  "coordinates. So lines in the top border have "
 			  "negative coordinates, lines in the bottom border "
 			  "have coordinates bigger or equal to 192 or 212.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return (vdp.getTicksThisFrame(time) / VDP::TICKS_PER_LINE) -
 			vdp.getLineZero();
@@ -195,7 +195,7 @@ public:
 			  "a negative coordinate and a position in the right "
 			  "border has a coordinated bigger or equal to 256. "
 			  "See also 'msx_x512_pos'.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
 			 vdp.getLeftSprites()) / 4;
@@ -212,7 +212,7 @@ public:
 			  "in the left border has a negative coordinate and "
 			  "a position in the right border has a coordinated "
 			  "bigger or equal to 512. See also 'msx_x256_pos'.") {}
-	virtual int calc(const EmuTime& time) const
+	int calc(const EmuTime& time) const override
 	{
 		return ((vdp.getTicksThisFrame(time) % VDP::TICKS_PER_LINE) -
 			 vdp.getLeftSprites()) / 2;

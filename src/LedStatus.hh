@@ -37,7 +37,7 @@ private:
 	void handleEvent(Led led);
 
 	// RTSchedulable
-	virtual void executeRT();
+	void executeRT() override;
 
 	MSXCliComm& msxCliComm;
 	Interpreter& interp;

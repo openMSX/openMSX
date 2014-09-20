@@ -8,10 +8,10 @@ namespace openmsx {
 class DummyAudioInputDevice final : public AudioInputDevice
 {
 public:
-	virtual string_ref getDescription() const;
-	virtual void plugHelper(Connector& connector, EmuTime::param time);
-	virtual void unplugHelper(EmuTime::param time);
-	virtual short readSample(EmuTime::param time);
+	string_ref getDescription() const override;
+	void plugHelper(Connector& connector, EmuTime::param time) override;
+	void unplugHelper(EmuTime::param time) override;
+	short readSample(EmuTime::param time) override;
 };
 
 } // namespace openmsx

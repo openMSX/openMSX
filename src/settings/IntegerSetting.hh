@@ -14,8 +14,8 @@ public:
 	               string_ref name, string_ref description,
 	               int initialValue, int minValue, int maxValue);
 
-	virtual string_ref getTypeString() const;
-	virtual void additionalInfo(TclObject& result) const;
+	string_ref getTypeString() const override;
+	void additionalInfo(TclObject& result) const override;
 
 	int getInt() const { return getValue().getInt(getInterpreter()); }
 	void setInt(int i);

@@ -11,9 +11,9 @@ namespace openmsx {
 template <class Pixel> class Scaler3 : public Scaler<Pixel>
 {
 public:
-	virtual void scaleImage(FrameSource& src, const RawFrame* superImpose,
+	void scaleImage(FrameSource& src, const RawFrame* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 protected:
 	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);

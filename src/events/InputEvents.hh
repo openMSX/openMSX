@@ -30,8 +30,8 @@ protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode, uint16_t unicode);
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 	const Keys::KeyCode keyCode;
 	const uint16_t unicode;
 };
@@ -67,7 +67,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const Event& other) const;
+	bool lessImpl(const Event& other) const override;
 	const unsigned button;
 };
 
@@ -76,7 +76,7 @@ class MouseButtonUpEvent : public MouseButtonEvent
 public:
 	explicit MouseButtonUpEvent(unsigned button);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 class MouseButtonDownEvent : public MouseButtonEvent
@@ -84,7 +84,7 @@ class MouseButtonDownEvent : public MouseButtonEvent
 public:
 	explicit MouseButtonDownEvent(unsigned button);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 class MouseMotionEvent : public TimedEvent
@@ -96,8 +96,8 @@ public:
 	int getAbsX() const { return xabs; }
 	int getAbsY() const { return yabs; }
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 	const int xrel;
 	const int yrel;
 	const int xabs;
@@ -110,9 +110,9 @@ public:
 	MouseMotionGroupEvent();
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
-	virtual bool matches(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
+	bool matches(const Event& other) const override;
 };
 
 
@@ -126,7 +126,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const Event& other) const;
+	bool lessImpl(const Event& other) const override;
 	virtual bool lessImpl(const JoystickEvent& other) const = 0;
 	const unsigned joystick;
 };
@@ -141,7 +141,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const JoystickEvent& other) const;
+	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned button;
 };
 
@@ -150,7 +150,7 @@ class JoystickButtonUpEvent : public JoystickButtonEvent
 public:
 	JoystickButtonUpEvent(unsigned joystick, unsigned button);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 class JoystickButtonDownEvent : public JoystickButtonEvent
@@ -158,7 +158,7 @@ class JoystickButtonDownEvent : public JoystickButtonEvent
 public:
 	JoystickButtonDownEvent(unsigned joystick, unsigned button);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 class JoystickAxisMotionEvent : public JoystickEvent
@@ -172,8 +172,8 @@ public:
 	short getValue() const { return value; }
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const JoystickEvent& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned axis;
 	const short value;
 };
@@ -186,8 +186,8 @@ public:
 	unsigned getValue() const { return value; }
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const JoystickEvent& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const JoystickEvent& other) const override;
 	const unsigned hat;
 	const unsigned value;
 };
@@ -201,8 +201,8 @@ public:
 	bool getGain() const { return gain; }
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 	const bool gain;
 };
 
@@ -216,8 +216,8 @@ public:
 	unsigned getY() const { return y; }
 
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 	const unsigned x;
 	const unsigned y;
 };
@@ -228,8 +228,8 @@ class QuitEvent : public Event
 public:
 	QuitEvent();
 private:
-	virtual void toStringImpl(TclObject& result) const;
-	virtual bool lessImpl(const Event& other) const;
+	void toStringImpl(TclObject& result) const override;
+	bool lessImpl(const Event& other) const override;
 };
 
 /** OSD events are triggered by other events. They aggregate keyboard and
@@ -255,7 +255,7 @@ public:
 	 *  - if the original host event is a joystick motion event, we
 	 *    should not stop repeat for 'small' relative new joystick events.
 	 */
-	virtual bool isRepeatStopper(const Event& other) const;
+	bool isRepeatStopper(const Event& other) const override;
 
 protected:
 	OsdControlEvent(EventType type, unsigned button_,
@@ -263,7 +263,7 @@ protected:
 	void toStringHelper(TclObject& result) const;
 
 private:
-	virtual bool lessImpl(const Event& other) const;
+	bool lessImpl(const Event& other) const override;
 	const std::shared_ptr<const Event> origEvent;
 	const unsigned button;
 };
@@ -274,7 +274,7 @@ public:
 	OsdControlReleaseEvent(unsigned button,
 	                       const std::shared_ptr<const Event>& origEvent);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 class OsdControlPressEvent : public OsdControlEvent
@@ -283,7 +283,7 @@ public:
 	OsdControlPressEvent(unsigned button,
 	                     const std::shared_ptr<const Event>& origEvent);
 private:
-	virtual void toStringImpl(TclObject& result) const;
+	void toStringImpl(TclObject& result) const override;
 };
 
 } // namespace openmsx

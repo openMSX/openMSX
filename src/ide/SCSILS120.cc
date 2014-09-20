@@ -95,10 +95,10 @@ public:
 	LSXCommand(CommandController& commandController,
 	           StateChangeDistributor& stateChangeDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result, EmuTime::param time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result, EmuTime::param time) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SCSILS120& ls;
 };

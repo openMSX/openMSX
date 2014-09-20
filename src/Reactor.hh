@@ -117,10 +117,10 @@ private:
 	std::vector<string_ref> getMachineIDs() const;
 
 	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	void unpause();
 	void pause();

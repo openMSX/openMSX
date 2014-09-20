@@ -17,9 +17,9 @@ public:
 	NowindCommand(const std::string& basename,
 	              CommandController& commandController,
 	              NowindInterface& interface);
-	virtual void execute(array_ref<TclObject> tokens, TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	void execute(array_ref<TclObject> tokens, TclObject& result) override;
+	std::string help(const std::vector<std::string>& tokens) const override;
+	void tabCompletion(std::vector<std::string>& tokens) const override;
 
 	std::unique_ptr<DiskChanger> createDiskChanger(
 		const std::string& basename, unsigned n,

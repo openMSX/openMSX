@@ -18,8 +18,8 @@ class V9990RegDebug final : public SimpleDebuggable
 {
 public:
 	explicit V9990RegDebug(V9990& v9990);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	V9990& v9990;
 };
@@ -28,8 +28,8 @@ class V9990PalDebug final : public SimpleDebuggable
 {
 public:
 	explicit V9990PalDebug(V9990& v9990);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	V9990& v9990;
 };

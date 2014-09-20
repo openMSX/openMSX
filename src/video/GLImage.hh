@@ -21,10 +21,10 @@ public:
 	GLImage(int width, int height, const unsigned* rgba,
 	        int borderSize, unsigned borderRGBA);
 
-	virtual void draw(OutputSurface& output, int x, int y,
-	                  byte alpha = 255);
-	virtual int getWidth()  const { return width; }
-	virtual int getHeight() const { return height; }
+	void draw(OutputSurface& output, int x, int y,
+	          byte alpha = 255) override;
+	int getWidth()  const override { return width; }
+	int getHeight() const override { return height; }
 
 private:
 	gl::Texture texture;

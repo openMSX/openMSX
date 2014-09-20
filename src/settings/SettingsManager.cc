@@ -21,10 +21,10 @@ class SettingInfo final : public InfoTopic
 {
 public:
 	SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result) const;
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) const override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SettingsManager& manager;
 };
@@ -34,8 +34,8 @@ class SetCompleter final : public CommandCompleter
 public:
 	SetCompleter(CommandController& commandController,
 	             SettingsManager& manager);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SettingsManager& manager;
 };
@@ -46,8 +46,8 @@ public:
 	SettingCompleter(CommandController& commandController,
 	                 SettingsManager& manager,
 	                 const string& name);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
 private:
 	SettingsManager& manager;
 };

@@ -16,8 +16,8 @@ public:
 	ResampleBlip(ResampledSoundDevice& input,
 	             const DynamicClock& hostClock, unsigned emuSampleRate);
 
-	virtual bool generateOutput(int* dataOut, unsigned num,
-	                            EmuTime::param time);
+	bool generateOutput(int* dataOut, unsigned num,
+	                    EmuTime::param time) override;
 
 private:
 	BlipBuffer blip[CHANNELS];

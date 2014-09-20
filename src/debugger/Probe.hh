@@ -47,7 +47,7 @@ public:
 	}
 
 private:
-	virtual std::string getValue() const;
+	std::string getValue() const override;
 
 	T value;
 };
@@ -75,7 +75,7 @@ public:
 	void signal();
 
 private:
-	virtual std::string getValue() const;
+	std::string getValue() const override;
 };
 
 } // namespace openmsx

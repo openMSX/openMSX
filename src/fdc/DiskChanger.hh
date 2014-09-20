@@ -47,10 +47,10 @@ public:
 	Disk& getDisk() { return *disk; }
 
 	// DiskContainer
-	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
-	virtual const std::string& getContainerName() const;
-	virtual bool diskChanged();
-	virtual int insertDisk(string_ref filename);
+	SectorAccessibleDisk* getSectorAccessibleDisk() override;
+	const std::string& getContainerName() const override;
+	bool diskChanged() override;
+	int insertDisk(string_ref filename) override;
 
 	// for NowindCommand
 	void changeDisk(std::unique_ptr<Disk> newDisk);
@@ -69,8 +69,8 @@ private:
 	void sendChangeDiskEvent(array_ref<std::string> args);
 
 	// StateChangeListener
-	virtual void signalStateChange(const std::shared_ptr<StateChange>& event);
-	virtual void stopReplay(EmuTime::param time);
+	void signalStateChange(const std::shared_ptr<StateChange>& event) override;
+	void stopReplay(EmuTime::param time) override;
 
 	CommandController& controller;
 	StateChangeDistributor* stateChangeDistributor;

@@ -91,7 +91,7 @@ public:
 	FrameSource* getPaintFrame() const { return paintFrame; }
 
 	// VideoLayer
-	virtual void takeRawScreenShot(unsigned height, const std::string& filename);
+	void takeRawScreenShot(unsigned height, const std::string& filename) override;
 
 
 	CliComm& getCliComm();
@@ -151,7 +151,7 @@ private:
 	                    std::vector<void*>& workBuffer);
 
 	// Schedulable
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 
 	Display& display;
 

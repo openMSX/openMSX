@@ -23,30 +23,30 @@ public:
 	~RealDrive();
 
 	// DiskDrive interface
-	virtual bool isDiskInserted() const;
-	virtual bool isWriteProtected() const;
-	virtual bool isDoubleSided() const;
-	virtual bool isTrack00() const;
-	virtual void setSide(bool side);
-	virtual void step(bool direction, EmuTime::param time);
-	virtual void setMotor(bool status, EmuTime::param time);
-	virtual bool indexPulse(EmuTime::param time);
-	virtual EmuTime getTimeTillIndexPulse(EmuTime::param time, int count);
-	virtual void setHeadLoaded(bool status, EmuTime::param time);
-	virtual bool headLoaded(EmuTime::param time);
-	virtual void writeTrack(const RawTrack& track);
-	virtual void readTrack (      RawTrack& track);
-	virtual EmuTime getNextSector(EmuTime::param time, RawTrack& track,
-	                              RawTrack::Sector& sector);
-	virtual bool diskChanged();
-	virtual bool peekDiskChanged() const;
-	virtual bool isDummyDrive() const;
+	bool isDiskInserted() const override;
+	bool isWriteProtected() const override;
+	bool isDoubleSided() const override;
+	bool isTrack00() const override;
+	void setSide(bool side) override;
+	void step(bool direction, EmuTime::param time) override;
+	void setMotor(bool status, EmuTime::param time) override;
+	bool indexPulse(EmuTime::param time) override;
+	EmuTime getTimeTillIndexPulse(EmuTime::param time, int count) override;
+	void setHeadLoaded(bool status, EmuTime::param time) override;
+	bool headLoaded(EmuTime::param time) override;
+	void writeTrack(const RawTrack& track) override;
+	void readTrack (      RawTrack& track) override;
+	EmuTime getNextSector(EmuTime::param time, RawTrack& track,
+	                      RawTrack::Sector& sector) override;
+	bool diskChanged() override;
+	bool peekDiskChanged() const override;
+	bool isDummyDrive() const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void executeUntil(EmuTime::param time, int userData);
+	void executeUntil(EmuTime::param time, int userData) override;
 	void doSetMotor(bool status, EmuTime::param time);
 	void setLoading(EmuTime::param time);
 	unsigned getCurrentAngle(EmuTime::param time) const;

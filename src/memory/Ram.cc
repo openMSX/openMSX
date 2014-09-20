@@ -20,8 +20,8 @@ class RamDebuggable final : public SimpleDebuggable
 public:
 	RamDebuggable(MSXMotherBoard& motherBoard, const string& name,
 	              const string& description, Ram& ram);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	Ram& ram;
 };

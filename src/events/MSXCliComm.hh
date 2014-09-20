@@ -15,9 +15,9 @@ class MSXCliComm final : public CliComm, private noncopyable
 public:
 	MSXCliComm(MSXMotherBoard& motherBoard, GlobalCliComm& cliComm);
 
-	virtual void log(LogLevel level, string_ref message);
-	virtual void update(UpdateType type, string_ref name,
-	                    string_ref value);
+	void log(LogLevel level, string_ref message) override;
+	void update(UpdateType type, string_ref name,
+	            string_ref value) override;
 
 private:
 	MSXMotherBoard& motherBoard;

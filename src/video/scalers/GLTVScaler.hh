@@ -14,11 +14,11 @@ class GLTVScaler final : public GLScaler, private noncopyable
 public:
 	explicit GLTVScaler(RenderSettings& renderSettings);
 
-	virtual void scaleImage(
+	void scaleImage(
 		gl::ColorTexture& src, gl::ColorTexture* superImpose,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth,
-		unsigned logSrcHeight);
+		unsigned logSrcHeight) override;
 
 private:
 	RenderSettings& renderSettings;

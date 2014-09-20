@@ -17,8 +17,8 @@ public:
 	static const unsigned NUM_BANKS = 0x10000 / BANK_SIZE;
 	static const unsigned BANK_MASK = BANK_SIZE - 1;
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
+	byte readMem(word address, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

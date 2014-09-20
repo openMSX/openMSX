@@ -24,10 +24,10 @@ public:
 	         BootSectorType bootSectorType);
 
 	// SectorBasedDisk
-	virtual void readSectorImpl (size_t sector,       SectorBuffer& buf);
-	virtual void writeSectorImpl(size_t sector, const SectorBuffer& buf);
-	virtual bool isWriteProtectedImpl() const;
-	virtual void checkCaches();
+	void readSectorImpl (size_t sector,       SectorBuffer& buf) override;
+	void writeSectorImpl(size_t sector, const SectorBuffer& buf) override;
+	bool isWriteProtectedImpl() const override;
+	void checkCaches() override;
 
 private:
 	struct DirIndex {
@@ -139,7 +139,6 @@ private:
 
 	// Storage for the whole virtual disk.
 	std::vector<SectorBuffer> sectors;
-
 };
 
 } // namespace openmsx

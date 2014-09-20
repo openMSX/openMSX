@@ -45,8 +45,8 @@ class LogicalVRAMDebuggable final : public SimpleDebuggable
 {
 public:
 	explicit LogicalVRAMDebuggable(VDP& vdp);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	unsigned transform(unsigned address);
 	VDP& vdp;
@@ -86,8 +86,8 @@ class PhysicalVRAMDebuggable final : public SimpleDebuggable
 {
 public:
 	PhysicalVRAMDebuggable(VDP& vdp, VDPVRAM& vram, unsigned actualSize);
-	virtual byte read(unsigned address, EmuTime::param time);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address, EmuTime::param time) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	VDPVRAM& vram;
 };

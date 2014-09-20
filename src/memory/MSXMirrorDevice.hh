@@ -12,11 +12,11 @@ class MSXMirrorDevice final : public MSXDevice
 public:
 	explicit MSXMirrorDevice(const DeviceConfig& config);
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word start) const;
-	virtual byte peekMem(word address, EmuTime::param time) const;
+	byte readMem(word address, EmuTime::param time) override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word start) const override;
+	byte peekMem(word address, EmuTime::param time) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

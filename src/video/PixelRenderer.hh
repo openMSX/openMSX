@@ -32,39 +32,39 @@ public:
 	~PixelRenderer();
 
 	// Renderer interface:
-	virtual PostProcessor* getPostProcessor() const;
-	virtual void reInit();
-	virtual void frameStart(EmuTime::param time);
-	virtual void frameEnd(EmuTime::param time);
-	virtual void updateHorizontalScrollLow(byte scroll, EmuTime::param time);
-	virtual void updateHorizontalScrollHigh(byte scroll, EmuTime::param time);
-	virtual void updateBorderMask(bool masked, EmuTime::param time);
-	virtual void updateMultiPage(bool multiPage, EmuTime::param time);
-	virtual void updateTransparency(bool enabled, EmuTime::param time);
-	virtual void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time);
-	virtual void updateForegroundColor(int color, EmuTime::param time);
-	virtual void updateBackgroundColor(int color, EmuTime::param time);
-	virtual void updateBlinkForegroundColor(int color, EmuTime::param time);
-	virtual void updateBlinkBackgroundColor(int color, EmuTime::param time);
-	virtual void updateBlinkState(bool enabled, EmuTime::param time);
-	virtual void updatePalette(int index, int grb, EmuTime::param time);
-	virtual void updateVerticalScroll(int scroll, EmuTime::param time);
-	virtual void updateHorizontalAdjust(int adjust, EmuTime::param time);
-	virtual void updateDisplayEnabled(bool enabled, EmuTime::param time);
-	virtual void updateDisplayMode(DisplayMode mode, EmuTime::param time);
-	virtual void updateNameBase(int addr, EmuTime::param time);
-	virtual void updatePatternBase(int addr, EmuTime::param time);
-	virtual void updateColorBase(int addr, EmuTime::param time);
-	virtual void updateSpritesEnabled(bool enabled, EmuTime::param time);
-	virtual void updateVRAM(unsigned offset, EmuTime::param time);
-	virtual void updateWindow(bool enabled, EmuTime::param time);
+	PostProcessor* getPostProcessor() const override;
+	void reInit() override;
+	void frameStart(EmuTime::param time) override;
+	void frameEnd(EmuTime::param time) override;
+	void updateHorizontalScrollLow(byte scroll, EmuTime::param time) override;
+	void updateHorizontalScrollHigh(byte scroll, EmuTime::param time) override;
+	void updateBorderMask(bool masked, EmuTime::param time) override;
+	void updateMultiPage(bool multiPage, EmuTime::param time) override;
+	void updateTransparency(bool enabled, EmuTime::param time) override;
+	void updateSuperimposing(const RawFrame* videoSource, EmuTime::param time) override;
+	void updateForegroundColor(int color, EmuTime::param time) override;
+	void updateBackgroundColor(int color, EmuTime::param time) override;
+	void updateBlinkForegroundColor(int color, EmuTime::param time) override;
+	void updateBlinkBackgroundColor(int color, EmuTime::param time) override;
+	void updateBlinkState(bool enabled, EmuTime::param time) override;
+	void updatePalette(int index, int grb, EmuTime::param time) override;
+	void updateVerticalScroll(int scroll, EmuTime::param time) override;
+	void updateHorizontalAdjust(int adjust, EmuTime::param time) override;
+	void updateDisplayEnabled(bool enabled, EmuTime::param time) override;
+	void updateDisplayMode(DisplayMode mode, EmuTime::param time) override;
+	void updateNameBase(int addr, EmuTime::param time) override;
+	void updatePatternBase(int addr, EmuTime::param time) override;
+	void updateColorBase(int addr, EmuTime::param time) override;
+	void updateSpritesEnabled(bool enabled, EmuTime::param time) override;
+	void updateVRAM(unsigned offset, EmuTime::param time) override;
+	void updateWindow(bool enabled, EmuTime::param time) override;
 
 private:
 	/** Indicates whether the area to be drawn is border or display. */
 	enum DrawType { DRAW_BORDER, DRAW_DISPLAY };
 
 	// Observer<Setting> interface:
-	virtual void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	/** Call the right draw method in the subclass,
 	  * depending on passed drawType.

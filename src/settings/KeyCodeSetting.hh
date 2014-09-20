@@ -13,7 +13,7 @@ public:
 	               string_ref name, string_ref description,
 	               Keys::KeyCode initialValue);
 
-	virtual string_ref getTypeString() const;
+	string_ref getTypeString() const override;
 
 	Keys::KeyCode getKey() const;
 };

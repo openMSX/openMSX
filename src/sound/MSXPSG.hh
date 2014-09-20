@@ -19,19 +19,19 @@ public:
 	explicit MSXPSG(const DeviceConfig& config);
 	~MSXPSG();
 
-	virtual void reset(EmuTime::param time);
-	virtual void powerDown(EmuTime::param time);
-	virtual byte readIO(word port, EmuTime::param time);
-	virtual byte peekIO(word port, EmuTime::param time) const;
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	void powerDown(EmuTime::param time) override;
+	byte readIO(word port, EmuTime::param time) override;
+	byte peekIO(word port, EmuTime::param time) const override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
 	// AY8910Periphery: port A input, port B output
-	virtual byte readA(EmuTime::param time);
-	virtual void writeB(byte value, EmuTime::param time);
+	byte readA(EmuTime::param time) override;
+	void writeB(byte value, EmuTime::param time) override;
 
 	std::unique_ptr<AY8910> ay8910;
 	JoystickPortIf* ports[2];

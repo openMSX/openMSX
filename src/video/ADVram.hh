@@ -21,35 +21,35 @@ public:
 	 * the planar bit, if the device is configured with an enable bit
 	 * then that bit is reset as well.
 	 */
-	virtual void reset(EmuTime::param time);
+	void reset(EmuTime::param time) override;
 
 	/** Read a byte from an IO port, change mode bits.  The planar bit
 	 * and possibly the enable bit are set according to address lines
 	 * that are normally ignored for IO reads.  Returns 255.
 	 */
-	virtual byte readIO(word port, EmuTime::param time);
+	byte readIO(word port, EmuTime::param time) override;
 	// default peekIO() implementation is ok.
 
 	/** Write a byte to a given IO port, set mapper register.  */
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	/** Read a byte from a location in the video ram at a certain
 	 * time.  If the device is enabled then the value returned comes
 	 * from the video ram, otherwise it returns 255.
 	 */
-	virtual byte readMem(word address, EmuTime::param time);
+	byte readMem(word address, EmuTime::param time) override;
 
 	/** Write a given byte at a certain time to a given location in
 	 * the video ram.  If the device is enabled then the write is
 	 * redirected to the video ram, if it is not, nothing happens.
 	 */
-	virtual void writeMem(word address, byte value, EmuTime::param time);
+	void writeMem(word address, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	virtual void init();
+	void init() override;
 	inline unsigned calcAddress(word address) const;
 
 	VDP* vdp;

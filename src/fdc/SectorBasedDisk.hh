@@ -15,8 +15,8 @@ class SectorBasedDisk : public Disk, private noncopyable
 {
 protected:
 	explicit SectorBasedDisk(const DiskName& name);
-	virtual void detectGeometry();
-	virtual void flushCaches();
+	void detectGeometry() override;
+	void flushCaches() override;
 
 	void setNbSectors(size_t num);
 
@@ -25,9 +25,9 @@ protected:
 
 private:
 	// Disk
-	virtual size_t getNbSectorsImpl() const;
-	virtual void readTrack(byte track, byte side, RawTrack& output);
-	virtual void writeTrackImpl(byte track, byte side, const RawTrack& input);
+	size_t getNbSectorsImpl() const override;
+	void readTrack(byte track, byte side, RawTrack& output) override;
+	void writeTrackImpl(byte track, byte side, const RawTrack& input) override;
 
 	size_t nbSectors;
 

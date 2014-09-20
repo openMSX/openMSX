@@ -29,8 +29,8 @@ class DebugRegisters final : public SimpleDebuggable
 public:
 	DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard,
 	               const std::string& name);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, EmuTime::param time);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value, EmuTime::param time) override;
 private:
 	YMF278& ymf278;
 };
@@ -40,8 +40,8 @@ class DebugMemory final : public SimpleDebuggable
 public:
 	DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard,
 	            const std::string& name);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
+	byte read(unsigned address) override;
+	void write(unsigned address, byte value) override;
 private:
 	YMF278& ymf278;
 };
@@ -120,7 +120,7 @@ public:
 
 private:
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
+	void generateChannels(int** bufs, unsigned num) override;
 
 	void writeRegDirect(byte reg, byte data, EmuTime::param time);
 	unsigned getRamAddress(unsigned addr) const;

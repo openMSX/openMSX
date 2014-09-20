@@ -11,7 +11,7 @@ public:
 	explicit ZipFileAdapter(std::unique_ptr<FileBase> file);
 
 private:
-	virtual void decompress(FileBase& file, Decompressed& decompressed);
+	void decompress(FileBase& file, Decompressed& decompressed) override;
 };
 
 } // namespace openmsx

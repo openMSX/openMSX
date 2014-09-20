@@ -63,18 +63,18 @@ class CassettePort final : public CassettePortInterface, public Connector
 public:
 	explicit CassettePort(const HardwareConfig& hwConf);
 	~CassettePort();
-	virtual void setMotor(bool status, EmuTime::param time);
-	virtual void cassetteOut(bool output, EmuTime::param time);
-	virtual bool cassetteIn(EmuTime::param time);
+	void setMotor(bool status, EmuTime::param time) override;
+	void cassetteOut(bool output, EmuTime::param time) override;
+	bool cassetteIn(EmuTime::param time) override;
 #if COMPONENT_LASERDISC
-	virtual void setLaserdiscPlayer(LaserdiscPlayer *laserdisc);
+	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
 #endif
-	virtual bool lastOut() const;
+	bool lastOut() const override;
 
 	// Connector
-	virtual const std::string getDescription() const;
-	virtual string_ref getClass() const;
-	virtual void unplug(EmuTime::param time);
+	const std::string getDescription() const override;
+	string_ref getClass() const override;
+	void unplug(EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
@@ -95,13 +95,13 @@ private:
 class DummyCassettePort final : public CassettePortInterface
 {
 public:
-	virtual void setMotor(bool status, EmuTime::param time);
-	virtual void cassetteOut(bool output, EmuTime::param time);
-	virtual bool cassetteIn(EmuTime::param time);
+	void setMotor(bool status, EmuTime::param time) override;
+	void cassetteOut(bool output, EmuTime::param time) override;
+	bool cassetteIn(EmuTime::param time) override;
 #if COMPONENT_LASERDISC
-	virtual void setLaserdiscPlayer(LaserdiscPlayer *laserdisc);
+	void setLaserdiscPlayer(LaserdiscPlayer *laserdisc) override;
 #endif
-	virtual bool lastOut() const;
+	bool lastOut() const override;
 };
 
 } // namespace openmsx

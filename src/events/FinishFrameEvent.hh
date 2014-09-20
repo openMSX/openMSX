@@ -35,14 +35,14 @@ public:
 	bool isSkipped() const { return skipped; }
 	bool needRender() const { return !skipped && (thisSource == selectedSource); }
 
-	virtual void toStringImpl(TclObject& result) const
+	void toStringImpl(TclObject& result) const override
 	{
 		result.addListElement("finishframe");
 		result.addListElement(int(thisSource));
 		result.addListElement(int(selectedSource));
 		result.addListElement(skipped);
 	}
-	virtual bool lessImpl(const Event& other) const
+	bool lessImpl(const Event& other) const override
 	{
 		auto& e = checked_cast<const FinishFrameEvent&>(other);
 		auto t1 = std::make_tuple(

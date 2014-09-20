@@ -30,16 +30,16 @@ using std::vector;
 
 namespace openmsx {
 
-class DiskCommand final : public Command
+class DiskCommand final : public Command // TODO RecordedCommand
 {
 public:
 	DiskCommand(CommandController& commandController,
 	            DiskChanger& diskChanger);
-	virtual void execute(array_ref<TclObject> tokens,
-	                     TclObject& result);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-	virtual bool needRecord(array_ref<TclObject> tokens) const;
+	void execute(array_ref<TclObject> tokens,
+	             TclObject& result) override;
+	string help(const vector<string>& tokens) const override;
+	void tabCompletion(vector<string>& tokens) const override;
+	bool needRecord(array_ref<TclObject> tokens) const /*override*/;
 private:
 	DiskChanger& diskChanger;
 };

@@ -12,7 +12,7 @@ public:
 	              string_ref name, string_ref description,
 	              string_ref initialValue, SaveSetting save = SAVE);
 
-	virtual string_ref getTypeString() const;
+	string_ref getTypeString() const override;
 };
 
 } // namespace openmsx

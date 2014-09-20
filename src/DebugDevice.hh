@@ -15,8 +15,8 @@ public:
 	explicit DebugDevice(const DeviceConfig& config);
 	~DebugDevice();
 
-	virtual void reset(EmuTime::param time);
-	virtual void writeIO(word port, byte value, EmuTime::param time);
+	void reset(EmuTime::param time) override;
+	void writeIO(word port, byte value, EmuTime::param time) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

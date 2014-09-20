@@ -50,7 +50,7 @@ private:
 	void doRepeat();
 
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
+	void generateChannels(int** bufs, unsigned num) override;
 
 	std::vector<WavData> samples;
 

@@ -47,7 +47,7 @@ private:
 	void updateStatus();
 
 	// Observer<Setting>
-	void update(const Setting& setting);
+	void update(const Setting& setting) override;
 
 	const std::unique_ptr<BooleanSetting> throttleSetting;
 	const std::unique_ptr<BooleanSetting> fullSpeedLoadingSetting;

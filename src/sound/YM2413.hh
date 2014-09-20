@@ -26,8 +26,8 @@ public:
 
 private:
 	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
-	virtual int getAmplificationFactor() const;
+	void generateChannels(int** bufs, unsigned num) override;
+	int getAmplificationFactor() const override;
 
 	const std::unique_ptr<YM2413Core> core;
 	const std::unique_ptr<YM2413Debuggable> debuggable;

@@ -23,17 +23,17 @@ public:
 
 private:
 	// OutputSurface
-	virtual void flushFrameBuffer();
-	virtual void saveScreenshot(const std::string& filename);
-	virtual void clearScreen();
+	void flushFrameBuffer() override;
+	void saveScreenshot(const std::string& filename) override;
+	void clearScreen() override;
 
 	// VisibleSurface
-	virtual void finish();
-	virtual std::unique_ptr<Layer> createSnowLayer(Display& display);
-	virtual std::unique_ptr<Layer> createConsoleLayer(
-		Reactor& reactor, CommandConsole& console);
-	virtual std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
-	virtual std::unique_ptr<OutputSurface> createOffScreenSurface();
+	void finish() override;
+	std::unique_ptr<Layer> createSnowLayer(Display& display) override;
+	std::unique_ptr<Layer> createConsoleLayer(
+		Reactor& reactor, CommandConsole& console) override;
+	std::unique_ptr<Layer> createOSDGUILayer(OSDGUI& gui) override;
+	std::unique_ptr<OutputSurface> createOffScreenSurface() override;
 };
 
 } // namespace openmsx

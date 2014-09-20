@@ -8,19 +8,19 @@ namespace openmsx {
 class DummySCSIDevice final : public SCSIDevice
 {
 public:
-	virtual void reset();
-	virtual bool isSelected();
-	virtual unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
-	                            unsigned& blocks);
-	virtual unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks);
-	virtual byte getStatusCode();
-	virtual int msgOut(byte value);
-	virtual byte msgIn();
-	virtual void disconnect();
-	virtual void busReset(); // only used in MB89352 controller
+	void reset() override;
+	bool isSelected() override;
+	unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
+	                    unsigned& blocks) override;
+	unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks) override;
+	byte getStatusCode() override;
+	int msgOut(byte value) override;
+	byte msgIn() override;
+	void disconnect() override;
+	void busReset() override; // only used in MB89352 controller
 
-	virtual unsigned dataIn(unsigned& blocks);
-	virtual unsigned dataOut(unsigned& blocks);
+	unsigned dataIn(unsigned& blocks) override;
+	unsigned dataOut(unsigned& blocks) override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

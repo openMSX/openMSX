@@ -69,9 +69,9 @@ private:
 	void stopRepeat();
 
 	// EventListener
-	virtual int signalEvent(const EventPtr& event);
+	int signalEvent(const EventPtr& event) override;
 	// RTSchedulable
-	virtual void executeRT();
+	void executeRT() override;
 
 	friend class BindCmd;
 	friend class UnbindCmd;

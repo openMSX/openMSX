@@ -16,13 +16,13 @@ public:
 	explicit MegaSCSI(const DeviceConfig& config);
 	~MegaSCSI();
 
-	virtual void reset(EmuTime::param time);
+	void reset(EmuTime::param time) override;
 
-	virtual byte readMem(word address, EmuTime::param time);
-	virtual byte peekmem(word address, EmuTime::param time) const;
-	virtual void writeMem(word address, byte value, EmuTime::param time);
-	virtual const byte* getReadCacheLine(word start) const;
-	virtual byte* getWriteCacheLine(word start) const;
+	byte readMem(word address, EmuTime::param time) override;
+	byte peekMem(word address, EmuTime::param time) const override;
+	void writeMem(word address, byte value, EmuTime::param time) override;
+	const byte* getReadCacheLine(word start) const override;
+	byte* getWriteCacheLine(word start) const override;
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

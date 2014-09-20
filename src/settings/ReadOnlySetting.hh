@@ -15,7 +15,7 @@ public:
 	const TclObject& getValue() const { return Setting::getValue(); }
 	void setReadOnlyValue(const std::string& value);
 
-	virtual string_ref getTypeString() const;
+	string_ref getTypeString() const override;
 
 private:
 	std::string roValue;

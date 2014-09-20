@@ -32,24 +32,24 @@ public:
 	~SDLVideoSystem();
 
 	// VideoSystem interface:
-	virtual std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp);
-	virtual std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
-		V9990& vdp);
+	std::unique_ptr<Rasterizer> createRasterizer(VDP& vdp) override;
+	std::unique_ptr<V9990Rasterizer> createV9990Rasterizer(
+		V9990& vdp) override;
 #if COMPONENT_LASERDISC
-	virtual std::unique_ptr<LDRasterizer> createLDRasterizer(
-		LaserdiscPlayer& ld);
+	std::unique_ptr<LDRasterizer> createLDRasterizer(
+		LaserdiscPlayer& ld) override;
 #endif
-	virtual bool checkSettings();
-	virtual void flush();
-	virtual void takeScreenShot(const std::string& filename, bool withOsd);
-	virtual void setWindowTitle(const std::string& title);
-	virtual OutputSurface* getOutputSurface();
+	bool checkSettings() override;
+	void flush() override;
+	void takeScreenShot(const std::string& filename, bool withOsd) override;
+	void setWindowTitle(const std::string& title) override;
+	OutputSurface* getOutputSurface() override;
 
 private:
 	// EventListener
-	virtual int signalEvent(const std::shared_ptr<const Event>& event);
+	int signalEvent(const std::shared_ptr<const Event>& event) override;
 	// Observer
-	void update(const Setting& subject);
+	void update(const Setting& subject) override;
 
 	void getWindowSize(unsigned& width, unsigned& height);
 	void resize();

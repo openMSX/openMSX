@@ -13,12 +13,12 @@ class Scale2xScaler final : public Scaler2<Pixel>
 public:
 	explicit Scale2xScaler(const PixelOperations<Pixel>& pixelOps);
 
-	virtual void scale1x1to2x2(FrameSource& src,
+	void scale1x1to2x2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
-	virtual void scale1x1to1x2(FrameSource& src,
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
+	void scale1x1to1x2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY);
+		ScalerOutput<Pixel>& dst, unsigned dstStartY, unsigned dstEndY) override;
 
 private:
 	void scaleLine_1on2(Pixel* dst0, Pixel* dst1,

@@ -13,17 +13,17 @@ class OSDTopWidget final : public OSDWidget
 {
 public:
 	OSDTopWidget(OSDGUI& gui);
-	virtual string_ref getType() const;
-	virtual void getWidthHeight(const OutputRectangle& output,
-	                            double& width, double& height) const;
+	string_ref getType() const override;
+	void getWidthHeight(const OutputRectangle& output,
+	                    double& width, double& height) const override;
 
 	void queueError(std::string message);
 	void showAllErrors();
 
 protected:
-	virtual void invalidateLocal();
-	virtual void paintSDL(OutputSurface& output);
-	virtual void paintGL (OutputSurface& output);
+	void invalidateLocal() override;
+	void paintSDL(OutputSurface& output) override;
+	void paintGL (OutputSurface& output) override;
 
 private:
 	OSDGUI& gui;
