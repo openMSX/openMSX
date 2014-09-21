@@ -1043,10 +1043,8 @@ YM2151::Impl::~Impl()
 
 bool YM2151::Impl::checkMuteHelper()
 {
-	for (int i = 0; i < 32; ++i) {
-		if (oper[i].state != EG_OFF) {
-			return false;
-		}
+	for (auto& op : oper) {
+		if (op.state != EG_OFF) return false;
 	}
 	return true;
 }
@@ -1054,10 +1052,10 @@ bool YM2151::Impl::checkMuteHelper()
 void YM2151::Impl::reset(EmuTime::param time)
 {
 	// initialize hardware registers
-	for (int i = 0; i < 32; ++i) {
-		memset(&oper[i], '\0', sizeof(oper[i]));
-		oper[i].volume = MAX_ATT_INDEX;
-		oper[i].kc_i = 768; // min kc_i value
+	for (auto& op : oper) {
+		memset(&op, '\0', sizeof(op));
+		op.volume = MAX_ATT_INDEX;
+		op.kc_i = 768; // min kc_i value
 	}
 
 	eg_timer = 0;
@@ -1435,8 +1433,7 @@ void YM2151::Impl::advanceEG()
 	eg_cnt++;
 
 	// envelope generator
-	for (int i = 0; i < 32; ++i) {
-		YM2151Operator& op = oper[i];
+	for (auto& op : oper) {
 		switch (op.state) {
 		case EG_ATT: // attack phase
 			if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {

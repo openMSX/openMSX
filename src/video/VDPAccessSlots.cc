@@ -211,9 +211,7 @@ void initTables()
 	initTable(true,  slotsMsx1Gfx3,       tabMsx1Gfx3);
 	initTable(true,  slotsMsx1Text,       tabMsx1Text);
 	initTable(true,  slotsMsx1ScreenOff,  tabMsx1ScreenOff);
-	for (int i = 0; i < NUM_DELTAS * TICKS; ++i) {
-		tabBroken[i] = 0;
-	}
+	for (auto & elem : tabBroken) elem = 0;
 }
 
 static inline const uint8_t* getTab(const VDP& vdp)

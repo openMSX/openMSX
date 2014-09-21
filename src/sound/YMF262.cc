@@ -745,8 +745,7 @@ void YMF262::Impl::advance()
 	unsigned lfo_pm = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 
 	++eg_cnt;
-	for (int c = 0; c < 18; ++c) {
-		YMF262Channel& ch = channel[c];
+	for (auto& ch : channel) {
 		for (int s = 0; s < 2; ++s) {
 			YMF262Slot& op = ch.slot[s];
 			op.advanceEnvelopeGenerator(eg_cnt);
@@ -1649,8 +1648,7 @@ void YMF262::Impl::reset(EmuTime::param time)
 	}
 
 	// reset operator parameters
-	for (int c = 0; c < 9 * 2; c++) {
-		YMF262Channel& ch = channel[c];
+	for (auto& ch : channel) {
 		for (int s = 0; s < 2; s++) {
 			ch.slot[s].state  = EG_OFF;
 			ch.slot[s].volume = MAX_ATT_INDEX;
@@ -1716,9 +1714,9 @@ byte YMF262::Impl::peekStatus() const
 bool YMF262::Impl::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
-	for (int i = 0; i < 18; i++) {
+	for (auto& ch : channel) {
 		for (int j = 0; j < 2; j++) {
-			YMF262Slot& sl = channel[i].slot[j];
+			YMF262Slot& sl = ch.slot[j];
 			if (!((sl.state == EG_OFF) ||
 			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {

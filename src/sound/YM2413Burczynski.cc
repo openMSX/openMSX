@@ -1026,9 +1026,9 @@ void YM2413::reset()
 
 void YM2413::resetOperators()
 {
-	for (int ch = 0; ch < 9; ++ch) {
-		channels[ch].mod.resetOperators();
-		channels[ch].car.resetOperators();
+	for (auto& ch : channels) {
+		ch.mod.resetOperators();
+		ch.car.resetOperators();
 	}
 }
 

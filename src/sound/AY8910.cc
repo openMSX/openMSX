@@ -504,9 +504,7 @@ AY8910::AY8910(const std::string& name, AY8910Periphery& periphery_,
 	vibratoPercent->attach(*this);
 	detunePercent ->attach(*this);
 
-	for (int chan = 0; chan < 3; ++chan) {
-		tone[chan].setParent(*this);
-	}
+	for (auto& t : tone) t.setParent(*this);
 
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
@@ -527,9 +525,7 @@ AY8910::~AY8910()
 void AY8910::reset(EmuTime::param time)
 {
 	// Reset generators and envelope.
-	for (unsigned chan = 0; chan < 3; ++chan) {
-		tone[chan].reset(0);
-	}
+	for (auto& t : tone) t.reset(0);
 	noise.reset();
 	envelope.reset();
 	// Reset registers and values derived from them.

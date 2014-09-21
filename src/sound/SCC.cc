@@ -134,9 +134,7 @@ SCC::SCC(const string& name, const DeviceConfig& config,
 	, currentChipMode(mode)
 {
 	// Make valgrind happy
-	for (int i = 0; i < 5; ++i) {
-		orgPeriod[i] = 0;
-	}
+	for (auto& op : orgPeriod) op = 0;
 
 	double input = 3579545.0 / 32;
 	setInputRate(int(input + 0.5));
@@ -176,9 +174,7 @@ void SCC::powerUp(EmuTime::param time)
 	}
 	// Actual initial value is difficult to measure, assume zero
 	// (initialize before period)
-	for (unsigned i = 0; i < 5; ++i) {
-		pos[i] = 0;
-	}
+	for (auto& p : pos) p = 0;
 
 	// Initialize period (sets members orgPeriod, period, incr, count, out)
 	for (int i = 0; i < 2 * 5; ++i) {

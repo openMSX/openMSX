@@ -389,9 +389,7 @@ void YMF278Slot::set_lfo(int newlfo)
 void YMF278::Impl::advance()
 {
 	eg_cnt++;
-	for (int i = 0; i < 24; ++i) {
-		YMF278Slot& op = slots[i];
-
+	for (auto& op : slots) {
 		if (op.lfo_active) {
 			op.lfo_cnt++;
 			if (op.lfo_cnt < op.lfo_max) {
@@ -573,10 +571,8 @@ short YMF278::Impl::getSample(YMF278Slot& op)
 
 bool YMF278::Impl::anyActive()
 {
-	for (int i = 0; i < 24; ++i) {
-		if (slots[i].active) {
-			return true;
-		}
+	for (auto& op : slots) {
+		if (op.active) return true;
 	}
 	return false;
 }
@@ -933,8 +929,8 @@ void YMF278::Impl::reset(EmuTime::param time)
 
 	eg_cnt = 0;
 
-	for (int i = 0; i < 24; ++i) {
-		slots[i].reset();
+	for (auto& op : slots) {
+		op.reset();
 	}
 	regs[2] = 0; // avoid UMR
 	for (int i = 255; i >= 0; --i) { // reverse order to avoid UMR
@@ -1171,9 +1167,8 @@ void YMF278::Impl::serialize(Archive& ar, unsigned version)
 	};
 	if (ar.isLoader()) {
 		EmuTime::param time = motherBoard.getCurrentTime();
-		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
-			byte reg = rewriteRegs[i];
-			writeRegDirect(reg, regs[reg], time);
+		for (auto r : rewriteRegs) {
+			writeRegDirect(r, regs[r], time);
 		}
 	}
 }

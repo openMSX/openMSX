@@ -41,9 +41,7 @@ ResampleLQ<CHANNELS>::ResampleLQ(
 	, emuClock(hostClock.getTime(), emuSampleRate)
 	, step(FP::roundRatioDown(emuSampleRate, hostClock.getFreq()))
 {
-	for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
-		lastInput[j] = 0;
-	}
+	for (auto& l : lastInput) l = 0;
 }
 
 template <unsigned CHANNELS>
@@ -74,9 +72,7 @@ bool ResampleLQ<CHANNELS>::fetchData(EmuTime::param time, unsigned& valid)
 	if (!input.generateInput(&buffer[2 * CHANNELS], emuNum)) {
 		// New input is all zero
 		int last = 0;
-		for (unsigned j = 0; j < 2 * CHANNELS; ++j) {
-			last |= lastInput[j];
-		}
+		for (auto& l : lastInput) last |= l;
 		if (last == 0) {
 			// Old input was also all zero, then the resampled
 			// output will be all zero as well.

@@ -147,7 +147,7 @@ void Patch::setSL(byte value)
 void Slot::reset()
 {
 	cphase = 0;
-	for (int i = 0; i < 8; ++i) dphase[i] = 0;
+	for (auto& dp : dphase) dp = 0;
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
@@ -427,8 +427,8 @@ void YM2413::reset()
 	am_phase = 0;
 	noise_seed = 0xFFFF;
 
-	for (unsigned i = 0; i < 9; ++i) {
-		channels[i].reset(*this);
+	for (auto& ch : channels) {
+		ch.reset(*this);
 	}
 	for (unsigned i = 0; i < 0x40; ++i) {
 		writeReg(i, 0);

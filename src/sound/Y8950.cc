@@ -735,9 +735,7 @@ void Y8950::Impl::clearRam()
 // Reset whole of opl except patch datas.
 void Y8950::Impl::reset(EmuTime::param time)
 {
-	for (int i = 0; i < 9; ++i) {
-		ch[i].reset();
-	}
+	for (auto& c : ch) c.reset();
 
 	rythm_mode = false;
 	am_mode = false;
@@ -752,9 +750,7 @@ void Y8950::Impl::reset(EmuTime::param time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	for (int i = 0; i < 0x100; ++i) {
-		reg[i] = 0x00;
-	}
+	for (auto& r : reg) r = 0x00;
 
 	reg[0x04] = 0x18;
 	reg[0x19] = 0x0F; // fixes 'Thunderbirds are Go'
@@ -1526,8 +1522,7 @@ void Y8950::Impl::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		update_key_status();
 		EmuTime::param time = motherBoard.getCurrentTime();
-		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
-			byte r = rewriteRegs[i];
+		for (auto r : rewriteRegs) {
 			writeReg(r, reg[r], time);
 		}
 	}
