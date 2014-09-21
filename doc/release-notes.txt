@@ -1,61 +1,68 @@
-Release Notes for openMSX 0.10.1 (2014-05-01)
+Release Notes for openMSX 0.1x.x (2014-10-xx)
 =============================================
 
-This release fixes mostly bugs we introduced with 0.10.0 or were already
-present for a bit longer... sorry for those, but most should be fixed now :)
-There are also some small but nice additions...
+This release ... {TODO}
 
 Here's the list with all highlights:
 
 MSX device support:
-- fixed bug in YM2413 (FMPAC), that was audible in BPS Tetris
-- added Sharp/Epcom HB-4000 80 column cartridge extension
+- added VDP I/O port mirroring to machines of which we are certain it exists
+- added emulation of MegaFlashROM SCC+ SD. Note: the implementation is such
+  that existing software works on it, but do not fully rely on it when
+  developing for this cartridge!
+- improved Sony HBI-55 emulation
+- fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is now
+  finally fixed ;-)
+- fixed handling of key-off for percussive tones
+- fixed bug in 5th sprite detection status register
+- implemented VDP access timing also for character and text modes (both for
+  MSX1 VDP's and V99x8): too fast VDP access will now cause corruption on
+  openMSX too
+- fixed some details in several machine configurations
+- added support for specific MSX1 VDP's:
+  - the exact VDP type can now be specified in the config file
+  - differences between Toshiba, TMS99xx and TMS91xx VDP's are now emulated
+    (except sprite cloning)
+  - updated many machine configs with the proper MSX1 VDP type (where known)
+- implemented that V99x8 does not support undocumented mixed modes
+- added the following machines: Daewoo CPC-51 Zemmix V, Toshiba HX-51I, Yamaha
+  YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10), Yamaha CX5MII, Fujitsu
+  FM-X (thanks to NYYRIKKI, Werner Kai and Maxim Vlasov)
+- added the following extensions: Casio KB-7 and KB-10 docking stations (note:
+  they only work with the Casio PV-7 and MX-10 respectively; do not be worried
+  when they appear to be not working according to Catapult!), Gradiente CT-80E
 
 
 New or improved emulator features:
-- extended save_msx_screen script to take VDP(24) into acount
-- fixed crash on Visual Studio build when using wav files (e.g. in the
-  cassetteplayer)
-- fixed crash on 32-bit Visual Studio build when recording videos without
-  the -doublesize option
-- fixed crash on 32-bit Visual Studio build when using scale_factor 3 and SDL
-  renderer
-- fixed waves shown upside-down in the SCC Viewer OSD widget
-- fixed crash when loading a savestate that has JoyTap plugged in
+- added de-flicker video filter via new 'deflicker' setting. Use this to remove
+  flickering in cases like the dvik demos where 105 colors are simulated on
+  MSX1 by alternating different native colors. It's disabled by default.
 - performance improvements:
-  - several improvements that result in shorter start up time
-  - fixed reverse-performance when using hard disks
-- fixed handling of corrupt hardware configuration XML file
-- fixed crash when MSX with TC8566AF FDC (e.g. turboR) crashed
-- fixed possible hang up when reversing with harddisks
-- fixed Tcl error when changing horizontal stretch in OSD menu
-- fixed displaying of error messages on OSD
-- Mac OS X MIDI support:
-  - fixed MIDI output on Mac OS X (was not working for some applications)
-  - added support for running status
-  - added support for system realtime messages
-  - added support for MIDI in
-- fixed issues with on-screen-keyboard on Android 4.4
-- added default keybindings for controllers targeted at gaming
-- added mapping of B-control button to press CTRL or SHIFT in OSD keyboard
-- added fine grained control in which slots carts and extensions will end up
-- added support for single sided disk drives for dir-as-disk
-- added support for hard disk images to the OSD menu
-- added warning if ROM images with larger size than supported on real Konami
-  and Konami SCC mappers are used
+  - speed up execution of Tcl scripts
+  - many various other optimizations
+- fixed auto_enable_reverse (set/unset auto enabling reverse at startup)
+- rewrote many OpenGL 2 stuff to be more compatible with OpenGL ES
+- improved guessing of mapper type for 64kB ROMs
+- fixed a bug with watch_points affecting the execution flow
+- added NYYRIKKI's fast CAS loading/saving script, enable with setting the
+  'fast_cas_load_hack_enabled' setting to on
+- added setting to configure dead zone for joysticks
+- added support for joystick hats (can be used just like buttons)
+- added dir-as-disk support for the OSD menu
+- removed experimental libao sound driver
 
 
 Build system, packaging, documentation:
-- updated Windows build to Visual Studio 2013
-- made compilation faster by removing more than 250 unnecessary includes
-- even more use of C++11 features
-- upgraded Tcl to 8.5.15
-- added build support for 64-bit ARM
-- added 256x256 pixel openMSX logo image and use it e.g. for Mac OS X icon
-- fixed staticbindist build with more recent clang releases and for Mac OS 10.9
-  SDK
-- do not link against libraries in /usr/lib anymore on Mac OS X, only link
-  against frameworks. This enables to compile against the default SDK.
+- even more use of C++11 features, when using gcc use 4.7 or higher
+- removed build dependency on libxml2
+- removed many/all unused features/libs from the build system
+- added support to cross compile with MinGW-w64 for (at least) 32 bit Windows
+  using Linux
+- cleaned up the stuff in the doc directory - you now get what we really wanted
+  you to get :)
+- changed packaging method to include stuff by default instead of exclude stuff
+  by default
+- fixed native compilation on mipsel
 
 And of course the usual various bug fixes.
 
