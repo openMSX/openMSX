@@ -1,6 +1,12 @@
 namespace eval cashandler {
 
-user_setting create boolean fast_cas_load_hack_enabled "Whether you want to enable a hack that enables you to quickly load CAS files with the cassetteplayer, without converting them to WAV first. This is not recommended and several cassetteplayer functions will not work anymore (motor control, position indication, size indication). Also note that this hack only works when inserting cassettes when the MSX is already started up, not when inserting them via the openMSX command line." false
+user_setting create boolean fast_cas_load_hack_enabled \
+"Whether you want to enable a hack that enables you to quickly load CAS files
+with the cassetteplayer, without converting them to WAV first. This is not
+recommended and several cassetteplayer functions will not work anymore (motor
+control, position indication, size indication). Also note that this hack only
+works when inserting cassettes when the MSX is already started up, not when
+inserting them via the openMSX command line." false
 
 variable old_value $::fast_cas_load_hack_enabled
 
