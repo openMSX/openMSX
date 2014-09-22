@@ -181,6 +181,7 @@
         <li><a class="internal" href="#videosource">videosource</a></li>
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
         <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
+        <li><a class="internal" href="#othersettings">other</a></li>
       </ol>
     </li>
   </ol>
@@ -2285,7 +2286,7 @@
   <table>
     <tr>
       <td><code>about</code></td>
-      <td>Search command help-texts for given keyword</td>
+      <td>Search command and setting help-texts for given keyword</td>
     </tr>
     <tr>
       <td><code>cpuregs</code></td>
@@ -5421,5 +5422,18 @@
     <code>bind F8 "toggle z80_freq_locked"</code><br />
   </div>
 
-</body>
+  <h3><a id="othersettings">other settings</a></h3>
+
+  <p>Like with the commands, there are also some specialized settings, for which we only list a very brief overview. As always execute "<code>help setting &lt;setting-name&gt;</code>" to get a more detailed description of the setting.</p>
+
+  <table>
+    <tr>
+      <td><code>fast_cas_load_hack_enabled</code></td>
+      <td>Enable a hack that lets you quickly load CAS files, without having openMSX convert them to WAV</td>
+    </tr>
+  </table>
+
+  <p>The source code of all these scripts is located in <code>share/scripts</code> directory. Feel free to inspect these scripts and modify them to suit your needs.</p>
+
+ </body>
 </html>
