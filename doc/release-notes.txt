@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.1x.x (2014-10-xx)
+Release Notes for openMSX 0.11.0 (2014-10-xx)
 =============================================
 
 This release brings you the following important new features: VDP access timing
@@ -22,7 +22,7 @@ MSX device support:
 - fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is now
   finally fixed!
 - fixed handling of key-off for percussive tones
-- fixed bug in 5th sprite detection status register
+- fixed bug in 5/9th sprite detection status register
 - implemented VDP access timing also for character and text modes (both for
   MSX1 VDP's and V99x8): too fast VDP access will now cause corruption on
   openMSX too
@@ -30,9 +30,10 @@ MSX device support:
 - added support for specific MSX1 VDP's (mostly thanks to hap for all the
   research):
   - the exact VDP type can now be specified in the config file
-  - differences between Toshiba, TMS99xx and TMS91xx VDP's are now emulated
-    (except sprite cloning)
-  - updated many machine configs with the proper MSX1 VDP type (where known)
+  - differences between Toshiba T6950/T7937A, TMS99xx and TMS91xx MSX1 VDP's
+    are now emulated (except sprite cloning)
+  - updated many machine configs with the proper MSX1 VDP type (where known,
+    additions/corrections are welcome!)
 - implemented that V99x8 does not support undocumented mixed modes
 - added the following machines: Daewoo CPC-51 Zemmix V, Toshiba HX-51I, Yamaha
   YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10), Yamaha CX5MII, Fujitsu
@@ -60,6 +61,7 @@ New or improved emulator features:
 - added support for joystick hats (can be used just like buttons)
 - added dir-as-disk support for the OSD menu
 - removed experimental libao sound driver
+- added support for R-ALT on Korean keyboard (thanks to Miso Kim)
 
 
 Build system, packaging, documentation:
