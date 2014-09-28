@@ -4,9 +4,9 @@
 
   <info>
     <manufacturer>Gradiente</manufacturer>
-    <code>Expert 1.1</code>
-    <release_year>1984</release_year>
-    <description/>
+    <code>Expert DD Plus</code>
+    <release_year>1989</release_year>
+    <description>Same as Gradiente Expert Plus, but also includes 3.5" disk drive</description>
     <type>MSX</type>
   </info>
 
@@ -28,7 +28,7 @@
     </PPI>
 
     <VDP id="VDP">
-      <version>TMS9128</version>
+      <version>T7937ANTSC</version>
       <io base="0x98" num="2"/>
     </VDP>
 
@@ -47,7 +47,7 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>expert_1.1_basic-bios1.rom</filename>
+          <filename>expert_ddplus_basic-bios1.rom</filename>
           <sha1>d6720845928ee848cfa88a86accb067397685f02</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
@@ -56,13 +56,33 @@
 
     <primary external="true" slot="1"/>
 
-    <primary slot="2">
-      <RAM id="Main RAM">
-        <mem base="0x0000" size="0x10000"/>
-      </RAM>
-    </primary>
+    <primary external="true" slot="2"/>
 
-    <primary external="true" slot="3"/>
+    <primary slot="3">
+
+      <secondary slot="0">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+        </RAM>
+      </secondary>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2"/>
+
+      <secondary slot="3">
+        <WD2793 id="Memory Mapped FDC">
+          <connectionstyle>National</connectionstyle>
+          <drives>1</drives>
+          <rom>
+            <filename>expert_ddplus_disk.rom</filename>
+            <sha1>f1525de4e0b60a6687156c2a96f8a8b2044b6c56</sha1>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </WD2793>
+      </secondary>
+
+    </primary>
 
   </devices>
 

@@ -4,9 +4,9 @@
 
   <info>
     <manufacturer>Gradiente</manufacturer>
-    <code>Expert DDPlus</code>
+    <code>Expert XP-800</code>
     <release_year>1985</release_year>
-    <description/>
+    <description>Brazillian MSX1 based on the National CF-3000, also known as the Expert 1.0</description>
     <type>MSX</type>
   </info>
 
@@ -20,15 +20,16 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>br_gradiente_1_1</keyboard_type> <!-- rom-bios keyboard type indicates international but the actual mapping tables are brazilian -->
+      <keyboard_type>br_gradiente_1_0</keyboard_type> <!-- rom-bios keyboard type indicates international but the actual mapping tables are brazilian -->
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
       <code_kana_locks>false</code_kana_locks>
       <graph_locks>false</graph_locks>
+      <!-- Note that this machine does not have a CAPS lock LED -->
     </PPI>
 
     <VDP id="VDP">
-      <version>T7937ANTSC</version>
+      <version>TMS9128</version>
       <io base="0x98" num="2"/>
     </VDP>
 
@@ -47,8 +48,8 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>expert_ddplus_basic-bios1.rom</filename>
-          <sha1>d6720845928ee848cfa88a86accb067397685f02</sha1>
+          <filename>expert_1.0_basic-bios1.rom</filename>
+          <sha1>ef3e010eb57e4476700a3bbff9d2119ab3acdf62</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -56,33 +57,13 @@
 
     <primary external="true" slot="1"/>
 
-    <primary external="true" slot="2"/>
-
-    <primary slot="3">
-
-      <secondary slot="0">
-        <RAM id="Main RAM">
-          <mem base="0x0000" size="0x10000"/>
-        </RAM>
-      </secondary>
-
-      <secondary slot="1"/>
-
-      <secondary slot="2"/>
-
-      <secondary slot="3">
-        <WD2793 id="Memory Mapped FDC">
-          <connectionstyle>National</connectionstyle>
-          <drives>1</drives>
-          <rom>
-            <filename>expert_ddplus_disk.rom</filename>
-            <sha1>f1525de4e0b60a6687156c2a96f8a8b2044b6c56</sha1>
-          </rom>
-          <mem base="0x4000" size="0x8000"/>
-        </WD2793>
-      </secondary>
-
+    <primary slot="2">
+      <RAM id="Main RAM">
+        <mem base="0x0000" size="0x10000"/>
+      </RAM>
     </primary>
+
+    <primary external="true" slot="3"/>
 
   </devices>
 
