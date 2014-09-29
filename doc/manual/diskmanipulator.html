@@ -205,10 +205,11 @@
   files will be added in the MSX directory structure is selected
   by the <code><a class="internal" href="#chdir">chdir</a></code> command.</p>
 
-  <p>If you want to use wildcards when importing files, you will
-  have to use the Tcl <code>glob</code> command. This command will perform the
-  wildcard expansion and return a Tcl list. Enclose the <code>glob</code>
-  command in between '[' and ']':</p>
+  <p>If you want to use wildcards when importing files, you will have to use
+  the Tcl <a class="external" href="http://www.tcl.tk/man/tcl8.5/TclCmd/glob.htm">
+  <code>glob</code></a> command. This command will perform the wildcard
+  expansion and return a Tcl list. Enclose the <code>glob</code> command in
+  between '[' and ']':</p>
 
   <p><code>diskmanipulator import hda1 [glob *.txt] [glob
   *.asc]</code></p>
