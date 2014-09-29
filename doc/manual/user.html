@@ -1056,6 +1056,17 @@ The <code><a class="external" href="commands.html#deinterlace">deinterlace</a></
 it can be on (enabled) or off (disabled); it is enabled by default. This feature needs a scaling factor of at least 2.
 </dd>
 
+<dt><code><a class="external" href="commands.html#deflicker">deflicker</a></code></dt>
+<dd>
+This filter detects pixels that alternate each frame between two different
+colors and replaces those alternations with the average color. Such
+'flickering' pixels can occur in software that rapidly changes between colors
+to create the illusion of a wider color palette. It can also occur because of
+'sprite flickering'. This setting is disabled by default because there aren't
+that many situations where it really improves video quality but it does have
+a performance cost.
+</dd>
+
 <dt><code><a class="external" href="commands.html#scanline">scanline</a></code></dt>
 <dd>
 On TV's and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
