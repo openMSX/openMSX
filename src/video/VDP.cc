@@ -542,6 +542,7 @@ void VDP::executeUntil(EmuTime::param time, int userData)
 		break;
 	}
 	case CPU_VRAM_ACCESS:
+		assert(!allowTooFastAccess);
 		pendingCpuAccess = false;
 		executeCpuVramAccess(time);
 		break;
@@ -832,71 +833,60 @@ byte VDP::vramRead(EmuTime::param time)
 
 void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 {
-	if (unlikely(allowTooFastAccess)) {
-		// If VRAM is accessed too fast, meaning a new request arrives
-		// before the previous one is handled. Then (in this mode)
-		// execute the previous one right now.
-		if (unlikely(cpuAccessScheduled())) {
-			removeSyncPoint(CPU_VRAM_ACCESS);
-			pendingCpuAccess = false;
-			executeCpuVramAccess(time);
-		}
-	}
-
 	// Tested on real V9938: 'cpuVramData' is shared between read and write.
 	// E.g. OUT (#98),A followed by IN A,(#98) returns the just written value.
 	if (!isRead) cpuVramData = write;
 	cpuVramReqIsRead = isRead;
-	cpuVramReqAddr = (controlRegs[14] << 14) | vramPointer; // see below
-	if (unlikely(cpuAccessScheduled())) {
+	if (unlikely(pendingCpuAccess)) {
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
+		assert(!allowTooFastAccess);
 	} else {
-		// For V99x8 there are 16 extra cycles, for details see:
-		//    doc/internal/vdp-vram-timing/vdp-timing.html
-		// For TMS99x8 the situation is less clear, see
-		//    doc/internal/vdp-vram-timing/vdp-timing-2.html
-		// Additional measurements(*) show that picking either 8 or 9
-		// TMS cycles (equivalent to 32 or 36 V99x8 cycles) gives the
-		// same result as on a real MSX. This corresponds to
-		// respectively 1.49us or 1.68us, the TMS documentation
-		// specifies 2us for this value.
-		//  (*) In this test we did a lot of OUT operations (writes to
-		//  VRAM) that are exactly N cycles apart. After the writes we
-		//  detect whether all were successful by reading VRAM
-		//  (slowly). We vary N and found that you get corruption for
-		//  N<=26 cycles, but no corruption occurs for N>=27. This test
-		//  was done in screen 2 with 4 sprites visible on one line
-		//  (though the sprites did not seem to make a difference).
-		// So this test could not decide between 8 or 9 TMS cycles.
-		// To be on the safe side we picked 8.
-		pendingCpuAccess = true;
-		auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
-		                         : VDPAccessSlots::DELTA_16;
-		setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
+		if (unlikely(allowTooFastAccess)) {
+			// Immediately execute request.
+			// In the past, in allowTooFastAccess-mode, we would
+			// still schedule the actual access, but process
+			// pending requests early when a new one arrives before
+			// the old one was handled. Though this would still go
+			// wrong because of the delayed update of
+			// 'vramPointer'. We could _only_ _partly_ work around
+			// that by calculating the actual vram address early
+			// (likely not what the real VDP does). But because
+			// allowTooFastAccess is anyway an artifical situation
+			// we now solve this in a simpler way: simply not
+			// schedule CPU-VRAM accesses.
+			assert(!pendingCpuAccess);
+			executeCpuVramAccess(time);
+		} else {
+			// For V99x8 there are 16 extra cycles, for details see:
+			//    doc/internal/vdp-vram-timing/vdp-timing.html
+			// For TMS99x8 the situation is less clear, see
+			//    doc/internal/vdp-vram-timing/vdp-timing-2.html
+			// Additional measurements(*) show that picking either 8 or 9
+			// TMS cycles (equivalent to 32 or 36 V99x8 cycles) gives the
+			// same result as on a real MSX. This corresponds to
+			// respectively 1.49us or 1.68us, the TMS documentation
+			// specifies 2us for this value.
+			//  (*) In this test we did a lot of OUT operations (writes to
+			//  VRAM) that are exactly N cycles apart. After the writes we
+			//  detect whether all were successful by reading VRAM
+			//  (slowly). We vary N and found that you get corruption for
+			//  N<=26 cycles, but no corruption occurs for N>=27. This test
+			//  was done in screen 2 with 4 sprites visible on one line
+			//  (though the sprites did not seem to make a difference).
+			// So this test could not decide between 8 or 9 TMS cycles.
+			// To be on the safe side we picked 8.
+			pendingCpuAccess = true;
+			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
+						 : VDPAccessSlots::DELTA_16;
+			setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
+		}
 	}
 }
 
 void VDP::executeCpuVramAccess(EmuTime::param time)
 {
-	// We don't know whether the vram address is calculated now or already
-	// when the vram request gets scheduled. It's also not possible to test
-	// this difference on real HW (AFAIK). Though it does make a difference
-	// when e.g. emulating an overclocked Z80 (40Mhz) in combination with
-	// 'too_fast_vram_access=ignore'. See also this forum post:
-	//     http://www.msx.org/forum/msx-talk/openmsx/wanted-feedback-mac-os-x-users?pa
-	//     sd_snatcher's post of 29-12-2013, 01:02
-	// If I have to guess then I'd say the address is only calculated at
-	// this moment because that saves some hardware registers, and looking
-	// at the rest of the VDP design, the Yamaha engineers really tried to
-	// save registers whenever possible.
-	// Still, to fix the artificial turbo-Z80 scenario, we now calculate
-	// the address early.
-	// It's possible that once we emulate proper turbo-Z80 emulation (switch
-	// back to 3.5MHz speed when accessing the VDP) we can remove this part
-	// again from the VDP emulation.
-	//int addr = (controlRegs[14] << 14) | vramPointer;
-	int addr = cpuVramReqAddr;
+	int addr = (controlRegs[14] << 14) | vramPointer;
 	if (displayMode.isPlanar()) {
 		// note: also extended VRAM is interleaved,
 		//       because there is only 64kB it's interleaved
@@ -1467,6 +1457,13 @@ void VDP::update(const Setting& setting)
 	(void)setting;
 	brokenCmdTiming    = cmdTiming    .getEnum();
 	allowTooFastAccess = tooFastAccess.getEnum();
+
+	if (unlikely(allowTooFastAccess && pendingCpuAccess)) {
+		// in allowTooFastAccess-mode, don't schedule CPU-VRAM access
+		removeSyncPoint(CPU_VRAM_ACCESS);
+		pendingCpuAccess = false;
+		executeCpuVramAccess(Schedulable::getCurrentTime());
+	}
 }
 
 // VDPRegDebug
@@ -1571,6 +1568,8 @@ void VRAMPointerDebug::write(unsigned address, byte value, EmuTime::param /*time
 // version 3: removed verticalAdjust
 // version 4: removed lineZero
 // version 5: replace readAhead->cpuVramData, added cpuVramReqIsRead
+// version 6: added cpuVramReqAddr to solve too_fast_vram_access issue
+// version 7: removed cpuVramReqAddr again, fixed issue in a different way
 template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned version)
 {
@@ -1613,12 +1612,6 @@ void VDP::serialize(Archive& ar, unsigned version)
 	} else {
 		ar.serialize("readAhead", cpuVramData);
 	}
-	if (ar.versionAtLeast(version, 6)) {
-		ar.serialize("cpuVramReqAddr", cpuVramReqAddr);
-	}
-	if (ar.isLoader()) {
-		pendingCpuAccess = pendingSyncPoint(CPU_VRAM_ACCESS);
-	}
 	ar.serialize("cpuExtendedVram", cpuExtendedVram);
 	ar.serialize("displayEnabled", displayEnabled);
 	byte mode = displayMode.getByte();
@@ -1628,6 +1621,10 @@ void VDP::serialize(Archive& ar, unsigned version)
 	ar.serialize("cmdEngine", *cmdEngine);
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 	ar.serialize("vram", *vram); // must come after controlRegs and after spriteChecker
+	if (ar.isLoader()) {
+		pendingCpuAccess = pendingSyncPoint(CPU_VRAM_ACCESS);
+		update(tooFastAccess);
+	}
 
 	if (ar.versionAtLeast(version, 2)) {
 		ar.serialize("frameCount", frameCount);
