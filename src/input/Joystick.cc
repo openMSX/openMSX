@@ -165,7 +165,7 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
 	deadSetting = make_unique<IntegerSetting>(
-		commandController, name + "_deadcenter",
+		commandController, name + "_deadzone",
 		"size (as a percentage) of the dead center zone",
 		PLATFORM_ANDROID ? 25 : 10,
 		0, 100);
