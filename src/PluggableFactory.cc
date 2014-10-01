@@ -37,14 +37,12 @@ using std::unique_ptr;
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
 {
-	EventDistributor& eventDistributor =
-		motherBoard.getReactor().getEventDistributor();
-	Scheduler& scheduler = motherBoard.getScheduler();
-	CommandController& commandController = motherBoard.getCommandController();
-	MSXEventDistributor& msxEventDistributor =
-		motherBoard.getMSXEventDistributor();
-	StateChangeDistributor& stateChangeDistributor =
-		motherBoard.getStateChangeDistributor();
+	auto& reactor                = motherBoard.getReactor();
+	auto& scheduler              = motherBoard.getScheduler();
+	auto& commandController      = motherBoard.getCommandController();
+	auto& msxEventDistributor    = motherBoard.getMSXEventDistributor();
+	auto& stateChangeDistributor = motherBoard.getStateChangeDistributor();
+	auto& eventDistributor       = reactor.getEventDistributor();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
