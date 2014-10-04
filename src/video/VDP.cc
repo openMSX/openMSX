@@ -826,9 +826,14 @@ void VDP::vramWrite(byte value, EmuTime::param time)
 
 byte VDP::vramRead(EmuTime::param time)
 {
+	// Return the result from a previous read. In case
+	// allowTooFastAccess==true, the call to scheduleCpuVramAccess()
+	// already overwrites that variable, so make a local copy first.
+	byte result = cpuVramData;
+
 	byte dummy = 0;
 	scheduleCpuVramAccess(true, dummy, time); // schedule next read
-	return cpuVramData; // this is the data from the previous read
+	return result;
 }
 
 void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
