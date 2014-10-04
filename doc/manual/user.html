@@ -1241,8 +1241,18 @@ such as a MIDI out port or the internal synthesizer of your sound card.
 On Linux, you can use the <code>midi-out-logger</code> and set a MIDI
 device node, for example <code>/dev/midi</code>, as its output file. This is
 done by default. To play with this setting, use <code>set
-<a class="external" href="commands.html#midi-out-logfilename">midi-out-logfilename</a></code>.  On Windows, real MIDI devices are separate
-pluggables.
+<a class="external" href="commands.html#midi-out-logfilename">midi-out-logfilename</a></code>.
+On Windows and Mac OS X, real MIDI devices are separate pluggables. On OS X, you
+can also select <code>Virtual OUT</code> to provide a port to external software.
+</p>
+
+<p>
+Vice versa, MSX-MIDI can also receive input from the system by plugging a device
+into <code>msx-midi-in</code>. Analogous to the above mentioned outputs you can
+connect a <code>midi-in-reader</code> which reads from a file or
+<code>/dev/midi</code> on Linux. On Windows and Mac OS X available MIDI devices
+show up as separate pluggables. On OS X a <code>Virtual IN</code> port is
+available as well.
 </p>
 
 <p>On Linux, it might be useful to route the MIDI events to a software synthesizer as well. On MSX Resource Center there is <a class="external" href="http://www.msx.org/forum/semi-msx-talk/emulation/openmsx-timidity">a forum thread</a> which describes how to do this.</p>
