@@ -15,7 +15,7 @@ void GLScaleNxScaler::scaleImage(
 	unsigned logSrcHeight)
 {
 	if (srcWidth == 320) {
-		setup(superImpose);
+		setup(superImpose != nullptr);
 		execute(src, superImpose,
 		        srcStartY, srcEndY, srcWidth,
 		        dstStartY, dstEndY, dstWidth,

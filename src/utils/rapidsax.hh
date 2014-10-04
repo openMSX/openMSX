@@ -115,7 +115,7 @@ extern const u8 lutDigits[256]; // Digits
 
 // Detect whitespace character (space \n \r \t)
 struct WhitespacePred {
-	static bool test(char ch) { return lutChar[u8(ch)] & 0x02; }
+	static bool test(char ch) { return (lutChar[u8(ch)] & 0x02) != 0; }
 };
 
 // Detect node name character (anything but space \n \r \t / > ? \0)

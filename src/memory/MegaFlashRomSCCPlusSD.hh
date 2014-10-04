@@ -69,20 +69,20 @@ private:
 	byte mapperReg;
 	bool is64KmapperConfigured()               const { return (mapperReg & 0xC0) == 0x40; }
 	bool isKonamiSCCmapperConfigured()         const { return (mapperReg & 0xE0) == 0x00; }
-	bool isWritingKonamiBankRegisterDisabled() const { return mapperReg & 0x08; }
-	bool isMapperRegisterDisabled()            const { return mapperReg & 0x04; }
-	bool areBankRegsAndOffsetRegsDisabled()    const { return mapperReg & 0x02; }
-	bool areKonamiMapperLimitsEnabled()        const { return mapperReg & 0x01; }
+	bool isWritingKonamiBankRegisterDisabled() const { return (mapperReg & 0x08) != 0; }
+	bool isMapperRegisterDisabled()            const { return (mapperReg & 0x04) != 0; }
+	bool areBankRegsAndOffsetRegsDisabled()    const { return (mapperReg & 0x02) != 0; }
+	bool areKonamiMapperLimitsEnabled()        const { return (mapperReg & 0x01) != 0; }
 	unsigned offsetReg;
 
 	byte configReg;
-	bool isConfigRegDisabled()           const { return   configReg & 0x80;  }
-	bool isMemoryMapperEnabled()         const { return !(configReg & 0x20) && checkedRam; }
-	bool isDSKmodeEnabled()              const { return   configReg & 0x10;  }
-	bool isPSGalsoMappedToNormalPorts()  const { return   configReg & 0x08;  }
-	bool isSlotExpanderEnabled()         const { return !(configReg & 0x04); }
-	bool isFlashRomBlockProtectEnabled() const { return   configReg & 0x02;  }
-	bool isFlashRomWriteEnabled()        const { return   configReg & 0x01;  }
+	bool isConfigRegDisabled()           const { return  (configReg & 0x80) != 0; }
+	bool isMemoryMapperEnabled()         const { return ((configReg & 0x20) == 0) && checkedRam; }
+	bool isDSKmodeEnabled()              const { return  (configReg & 0x10) != 0; }
+	bool isPSGalsoMappedToNormalPorts()  const { return  (configReg & 0x08) != 0; }
+	bool isSlotExpanderEnabled()         const { return  (configReg & 0x04) == 0; }
+	bool isFlashRomBlockProtectEnabled() const { return  (configReg & 0x02) != 0; }
+	bool isFlashRomWriteEnabled()        const { return  (configReg & 0x01) != 0; }
 
 	byte bankRegsSubSlot1[4];
 	byte psgLatch;

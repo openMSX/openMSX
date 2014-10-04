@@ -791,7 +791,7 @@ byte MegaFlashRomSCCPlusSD::readMemSubSlot3(word addr, EmuTime::param /*time*/)
 {
 	if (((bankRegsSubSlot3[0] & 0xC0) == 0x40) && ((0x4000 <= addr) && (addr < 0x6000))) {
 		// transfer from SD card
-		return sdCard[selectedCard]->transfer(0xFF, addr & 0x1000);
+		return sdCard[selectedCard]->transfer(0xFF, (addr & 0x1000) != 0);
 	}
 
 	if ((0x4000 <= addr) && (addr < 0xC000)) {
@@ -843,7 +843,7 @@ void MegaFlashRomSCCPlusSD::writeMemSubSlot3(word addr, byte value, EmuTime::par
 			selectedCard = value & 1;
 		} else {
 			// transfer to SD card
-			/*byte tmpval = */sdCard[selectedCard]->transfer(value, addr & 0x1000); // use tmpval in your logging to find which value was discarded
+			sdCard[selectedCard]->transfer(value, (addr & 0x1000) != 0); // ignore return value
 		}
 	}
 
