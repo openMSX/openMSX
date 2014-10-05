@@ -8,43 +8,61 @@
 #include "noncopyable.hh"
 #include "RecordedCommand.hh"
 #include <memory>
+#include <set>
+#include <vector>
 
 namespace openmsx {
 
-class Reactor;
-class MSXDevice;
-class HardwareConfig;
-class CliComm;
-class MSXCommandController;
-class Scheduler;
+class AddRemoveUpdate;
+class BooleanSetting;
 class CartridgeSlotManager;
-class MSXEventDistributor;
-class StateChangeDistributor;
-class RealTime;
+class CassettePortInterface;
+class CliComm;
+class CommandController;
 class Debugger;
-class MSXMixer;
-class PluggingController;
+class DeviceInfo;
+class EventDelay;
+class ExtCmd;
+class FastForwardHelper;
+class HardwareConfig;
+class InfoCommand;
+class JoyPortDebuggable;
+class JoystickPortIf;
+class LedStatus;
+class ListExtCmd;
+class LoadMachineCmd;
+class MachineNameInfo;
+class MSXCliComm;
+class MSXCommandController;
 class MSXCPU;
 class MSXCPUInterface;
-class PanasonicMemory;
+class MSXDevice;
 class MSXDeviceSwitch;
-class CassettePortInterface;
-class JoystickPortIf;
-class RenShaTurbo;
-class LedStatus;
-class ReverseManager;
-class CommandController;
-class InfoCommand;
+class MSXEventDistributor;
 class MSXMapperIO;
+class MSXMixer;
+class PanasonicMemory;
+class PluggingController;
+class Reactor;
+class RealTime;
+class RemoveExtCmd;
+class RenShaTurbo;
+class ResetCmd;
+class ReverseManager;
+class SettingObserver;
+class Scheduler;
+class Setting;
+class StateChangeDistributor;
 class VideoSourceSetting;
 
-class MSXMotherBoard : private noncopyable
+class MSXMotherBoard final : private noncopyable
 {
 public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
 	const std::string& getMachineID();
+	const std::string& getMachineName() const;
 
 	/** Run emulation.
 	 * @return True if emulation steps were done,
@@ -68,6 +86,7 @@ public:
 
 	void powerUp();
 
+	void doReset();
 	void activate(bool active);
 	bool isActive() const;
 	bool isFastForwarding() const;
@@ -80,6 +99,8 @@ public:
 
 	std::string loadMachine(const std::string& machine);
 
+	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
+	const Extensions& getExtensions() const;
 	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(string_ref extensionName, string_ref slotname);
 	std::string insertExtension(string_ref name,
@@ -117,8 +138,7 @@ public:
 	  * This is the same as getScheduler().getCurrentTime(). */
 	EmuTime::param getCurrentTime();
 
-	/**
-	 * All MSXDevices should be registered by the MotherBoard.
+	/** All MSXDevices should be registered by the MotherBoard.
 	 */
 	void addDevice(MSXDevice& device);
 	void removeDevice(MSXDevice& device);
@@ -144,11 +164,11 @@ public:
 		void* stuff;
 		unsigned counter;
 	};
-	SharedStuff& getSharedStuff(string_ref name);
+	MSXMotherBoard::SharedStuff& getSharedStuff(string_ref name);
 
 	/** All memory mappers in one MSX machine share the same four (logical)
-	  * memory mapper registers. These two methods handle this sharing.
-	  */
+	 * memory mapper registers. These two methods handle this sharing.
+	 */
 	MSXMapperIO* createMapperIO();
 	void destroyMapperIO();
 
@@ -160,21 +180,80 @@ public:
 	 * we might allow really user specified names.
 	 */
 	std::string getUserName(const std::string& hwName);
-	void freeUserName(const std::string& hwName,
-	                  const std::string& userName);
+	void freeUserName(const std::string& hwName, const std::string& userName);
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
-	class Impl;
 private:
-#if UNIQUE_PTR_BUG // see openmsx.hh
-	std::unique_ptr<Impl> pimpl2;
-	Impl* pimpl;
-#else
-	std::unique_ptr<Impl> pimpl;
-#endif
-	friend class Impl;
+	void powerDown();
+	void deleteMachine();
+
+	Reactor& reactor;
+	std::string machineID;
+	std::string machineName;
+
+	std::vector<MSXDevice*> availableDevices; // no ownership
+
+	StringMap<MSXMotherBoard::SharedStuff> sharedStuffMap;
+	StringMap<std::set<std::string>> userNames;
+
+	std::unique_ptr<MSXMapperIO> mapperIO;
+	unsigned mapperIOCounter;
+
+	// These two should normally be the same, only during savestate loading
+	// machineConfig will already be filled in, but machineConfig2 not yet.
+	// This is important when an exception happens during loading of
+	// machineConfig2 (otherwise machineConfig2 gets deleted twice).
+	// See also HardwareConfig::serialize() and setMachineConfig()
+	std::unique_ptr<HardwareConfig> machineConfig2;
+	HardwareConfig* machineConfig;
+
+	Extensions extensions;
+
+	// order of unique_ptr's is important!
+	std::unique_ptr<AddRemoveUpdate> addRemoveUpdate;
+	std::unique_ptr<MSXCliComm> msxCliComm;
+	std::unique_ptr<MSXEventDistributor> msxEventDistributor;
+	std::unique_ptr<StateChangeDistributor> stateChangeDistributor;
+	std::unique_ptr<MSXCommandController> msxCommandController;
+	std::unique_ptr<Scheduler> scheduler;
+	std::unique_ptr<EventDelay> eventDelay;
+	std::unique_ptr<RealTime> realTime;
+	std::unique_ptr<Debugger> debugger;
+	std::unique_ptr<MSXMixer> msxMixer;
+	std::unique_ptr<PluggingController> pluggingController;
+	std::unique_ptr<MSXCPU> msxCpu;
+	std::unique_ptr<MSXCPUInterface> msxCpuInterface;
+	std::unique_ptr<PanasonicMemory> panasonicMemory;
+	std::unique_ptr<MSXDeviceSwitch> deviceSwitch;
+	std::unique_ptr<CassettePortInterface> cassettePort;
+	std::unique_ptr<JoystickPortIf> joystickPort[2];
+	std::unique_ptr<JoyPortDebuggable> joyPortDebuggable;
+	std::unique_ptr<RenShaTurbo> renShaTurbo;
+	std::unique_ptr<LedStatus> ledStatus;
+	std::unique_ptr<VideoSourceSetting> videoSourceSetting;
+
+	std::unique_ptr<CartridgeSlotManager> slotManager;
+	std::unique_ptr<ReverseManager> reverseManager;
+	std::unique_ptr<ResetCmd>     resetCommand;
+	std::unique_ptr<LoadMachineCmd> loadMachineCommand;
+	std::unique_ptr<ListExtCmd>   listExtCommand;
+	std::unique_ptr<ExtCmd>       extCommand;
+	std::unique_ptr<RemoveExtCmd> removeExtCommand;
+	std::unique_ptr<MachineNameInfo> machineNameInfo;
+	std::unique_ptr<DeviceInfo>   deviceInfo;
+	friend class DeviceInfo;
+
+	std::unique_ptr<FastForwardHelper> fastForwardHelper;
+
+	std::unique_ptr<SettingObserver> settingObserver;
+	friend class SettingObserver;
+	BooleanSetting& powerSetting;
+
+	bool powered;
+	bool active;
+	bool fastForwarding;
 };
 SERIALIZE_CLASS_VERSION(MSXMotherBoard, 4);
 
