@@ -17,7 +17,11 @@ public:
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
+
+private:
+	byte control;
 };
+SERIALIZE_CLASS_VERSION(MC6850, 2);
 
 } // namespace openmsx
 
