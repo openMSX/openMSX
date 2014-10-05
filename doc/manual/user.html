@@ -58,10 +58,11 @@
 				</ol>
 			</li>
 
-			<li><a class="internal" href="#harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a>
+			<li><a class="internal" href="#harddisks">4.4 Emulating MSX Harddisks, SD interfaces and CD-ROM</a>
 				<ol class="toc">
 					<li><a class="internal" href="#ide">4.4.1 Sunrise IDE</a></li>
 					<li><a class="internal" href="#scsi">4.4.2 SCSI devices</a></li>
+					<li><a class="internal" href="#sd">4.4.3 Mega Flash ROM SCC+ SD</a></li>
 				</ol>
 
 			</li>
@@ -479,7 +480,7 @@ A: as disk image to use it.
 
 <p>
 openMSX has a special command with functionality to perform file
-imports and exports, with support for harddisk images with partitions and normal
+imports and exports, with support for Sunrise harddisk images (FAT12 only) with partitions and normal
 disk images. Please see the separate manual for this, called
 <a class="external" href="diskmanipulator.html">Using diskmanipulator</a>.
 </p>
@@ -556,7 +557,7 @@ Note that saving to CAS files (new or existing ones) is not possible; one can on
 <h3><a id="harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a></h3>
 
 <p>
-openMSX supports mostly the emulation of the Sunrise IDE interface, but there is also some experimental support for two types of SCSI interfaces: the Gouda/Novaxis SCSI interface and the MEGA-SCSI.
+openMSX supports mostly the emulation of the Sunrise IDE interface, but there is also some experimental support for two types of SCSI interfaces: the Gouda/Novaxis SCSI interface and the MEGA-SCSI. Nowadays, openMSX also emulates the SD interface MegaFlashROM SCC+ SD.
 </p>
 
 <p>
@@ -565,7 +566,7 @@ configuration, in the form of a 100MB sized disk image. This is the default size
 not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
 </p>
 
-<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the IDE extension at the moment.
+<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to initialise them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the Sunrise IDE extension at the moment.
 </p>
 
 <p>
@@ -638,11 +639,13 @@ set <a class="external" href="commands.html#power">power</a> off<br/>
 set <a class="external" href="commands.html#power">power</a> on
 </div>
 
+<p>Note that the diskmanipulator can only handle hard disk images that work with the Sunrise IDE interface!</p>
+
 <p>
 As announced above, there is (limited) support for CD-ROM with the 'ide' extension. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
 </p>
 
-<h4><a id="scsi">4.4.2 SCSI</a></h4>
+<h4><a id="scsi">4.4.2 SCSI devices</a></h4>
 
 <p>First of all: the SCSI emulation is experimental! There is a lot bigger chance that you may lose data on your emulated harddisk images with SCSI than with IDE! When we tried it, everything seemed fine, but you are warned.</p>
 
@@ -659,6 +662,15 @@ To change the disk image of the LS-120 device, use the <code>lsa</code> (LS driv
 </p>
 
 <p>For the Gouda (Novaxis) SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://msx.hansotten.com/index.php?page=msxscsi">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the <code>NFDISK</code> utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+</p>
+
+<h4><a id="sd">4.4.3 Mega Flash ROM SCC+ SD</a></h4>
+
+<p>Currently there is only on SD interface emulated: the Mega Flash ROM SCC+ SD. All features of this cartridge are emulated in the sense that all currently working software with it runs on openMSX too. It is not emulated accurately enough to rely on it for development.</p>
+
+<p>Usage is idential to using the Sunrise hard disk interface: you can use the <a class="external" href="commands.html#hd">hda/hdb</a> commands and the matching command line parameters <code>-hda</code> and <code>-hdb</code> to control which image will be used for the first and second SD card.</p>
+
+<p>Currently, by default, the first SD card is 8MB and the 2nd SD card is 100MB size. You can change these defaults by editing the extension file in <code>share/extensions/MegaFlashROM_SCC+_SD.xml</code>. For formatting and managing the SD cards, please refer to its manual and tools on the Flash part of the <a class="external" href="http://www.msxcartridgeshop.com/">MSX Cartridge Shop</a>.
 </p>
 
 <h3><a id="laserdisc">4.5 Running Laserdisc software</a></h3>
