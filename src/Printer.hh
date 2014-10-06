@@ -162,7 +162,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::unique_ptr<Paper> paper;
 
-	IntegerSetting* dpiSetting;
+	std::shared_ptr<IntegerSetting> dpiSetting;
 
 	const bool graphicsHiLo;
 };

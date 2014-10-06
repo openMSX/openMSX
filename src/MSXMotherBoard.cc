@@ -716,12 +716,6 @@ MSXDevice* MSXMotherBoard::findDevice(string_ref name)
 	return nullptr;
 }
 
-MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(
-	string_ref name)
-{
-	return sharedStuffMap[name];
-}
-
 MSXMapperIO* MSXMotherBoard::createMapperIO()
 {
 	if (mapperIOCounter == 0) {

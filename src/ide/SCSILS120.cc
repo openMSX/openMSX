@@ -37,7 +37,6 @@
 #include "memory.hh"
 #include <algorithm>
 #include <vector>
-#include <bitset>
 #include <cstring>
 
 using std::string;
@@ -95,9 +94,6 @@ private:
 	SCSILS120& ls;
 };
 
-static const unsigned MAX_LS = 26;
-typedef std::bitset<MAX_LS> LSInUse;
-
 SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
                      AlignedBuffer& buf, unsigned mode_)
 	: motherBoard(targetconfig.getMotherBoard())
@@ -106,23 +102,17 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 	, mode(mode_)
 	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
-	auto& info = motherBoard.getSharedStuff("lsInUse");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new LSInUse();
-	}
-	++info.counter;
-	auto& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
+	lsInUse = motherBoard.getSharedStuff<LSInUse>("lsInUse");
 
 	unsigned id = 0;
-	while (lsInUse[id]) {
+	while ((*lsInUse)[id]) {
 		++id;
 		if (id == MAX_LS) {
 			throw MSXException("Too many LSs");
 		}
 	}
 	name[2] = char('a' + id);
-	lsInUse[id] = true;
+	(*lsInUse)[id] = true;
 	lsxCommand = make_unique<LSXCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
@@ -133,22 +123,11 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 
 SCSILS120::~SCSILS120()
 {
-	auto& info = motherBoard.getSharedStuff("lsInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	auto& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
-
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
-	unsigned id = name[2] - 'a';
-	assert(lsInUse[id]);
-	lsInUse[id] = false;
 
-	--info.counter;
-	if (info.counter == 0) {
-		assert(lsInUse.none());
-		delete &lsInUse;
-		info.stuff = nullptr;
-	}
+	unsigned id = name[2] - 'a';
+	assert((*lsInUse)[id]);
+	(*lsInUse)[id] = false;
 }
 
 void SCSILS120::reset()

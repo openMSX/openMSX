@@ -2,6 +2,7 @@
 #define NOWINDINTERFACE_HH
 
 #include "MSXDevice.hh"
+#include <bitset>
 #include <memory>
 #include <vector>
 #include <string>
@@ -40,6 +41,10 @@ private:
 	Drives drives;
 	std::string basename;
 	byte bank;
+
+	static const unsigned MAX_NOWINDS = 8; // a-h
+	typedef std::bitset<MAX_NOWINDS> NowindsInUse;
+	std::shared_ptr<NowindsInUse> nowindsInUse;
 
 	friend class NowindCommand;
 };

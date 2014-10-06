@@ -46,31 +46,11 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-RomFSA1FMSram::RomFSA1FMSram(const DeviceConfig& config)
-	: motherBoard(config.getMotherBoard())
+std::shared_ptr<SRAM> getSram(const DeviceConfig& config)
 {
-	auto& info = motherBoard.getSharedStuff("FSA1FM-sram");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new SRAM(config.getAttribute("id") + " SRAM",
-		                      0x2000, config);
-	}
-	++info.counter;
-	fsSram = reinterpret_cast<SRAM*>(info.stuff);
-}
-
-RomFSA1FMSram::~RomFSA1FMSram()
-{
-	auto& info = motherBoard.getSharedStuff("FSA1FM-sram");
-	auto* sram = reinterpret_cast<SRAM*>(info.stuff);
-	assert(info.counter);
-	assert(sram);
-	assert(sram == fsSram);
-	--info.counter;
-	if (info.counter == 0) {
-		delete sram;
-		info.stuff = nullptr;
-	}
+	return config.getMotherBoard().getSharedStuff<SRAM>(
+		"FSA1FM-sram",
+		config.getAttribute("id") + " SRAM", 0x2000, config);
 }
 
 
@@ -78,7 +58,7 @@ RomFSA1FMSram::~RomFSA1FMSram()
 
 RomFSA1FM1::RomFSA1FM1(const DeviceConfig& config, std::unique_ptr<Rom> rom_)
 	: MSXRom(config, std::move(rom_))
-	, RomFSA1FMSram(config)
+	, fsSram(getSram(config))
 	, firmwareSwitch(make_unique<FirmwareSwitch>(config))
 {
 	if ((rom->getSize() != 0x100000) &&
@@ -185,7 +165,7 @@ REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 RomFSA1FM2::RomFSA1FM2(const DeviceConfig& config, std::unique_ptr<Rom> rom)
 	: Rom8kBBlocks(config, std::move(rom))
-	, RomFSA1FMSram(config)
+	, fsSram(getSram(config))
 {
 	reset(EmuTime::dummy());
 }

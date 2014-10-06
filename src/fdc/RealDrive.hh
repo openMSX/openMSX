@@ -5,6 +5,7 @@
 #include "Clock.hh"
 #include "Schedulable.hh"
 #include "serialize_meta.hh"
+#include <bitset>
 #include <memory>
 
 namespace openmsx {
@@ -70,6 +71,10 @@ private:
 	bool headLoadStatus;
 	const bool doubleSizedDrive;
 	const bool signalsNeedMotorOn;
+
+	static const unsigned MAX_DRIVES = 26; // a-z
+	typedef std::bitset<MAX_DRIVES> DrivesInUse;
+	std::shared_ptr<DrivesInUse> drivesInUse;
 };
 SERIALIZE_CLASS_VERSION(RealDrive, 3);
 

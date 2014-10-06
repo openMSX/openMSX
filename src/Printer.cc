@@ -122,16 +122,11 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 	: motherBoard(motherBoard_)
 	, graphicsHiLo(graphicsHiLo_)
 {
-	auto& info = motherBoard.getSharedStuff("print-resolution");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new IntegerSetting(
-		    motherBoard.getCommandController(), "print-resolution",
-		    "resolution of the output image of emulated dot matrix printer in DPI",
-		    300, 72, 1200);
-	}
-	++info.counter;
-	dpiSetting = reinterpret_cast<IntegerSetting*>(info.stuff);
+	dpiSetting = motherBoard.getSharedStuff<IntegerSetting>(
+		"print-resolution",
+		motherBoard.getCommandController(), "print-resolution",
+		"resolution of the output image of emulated dot matrix printer in DPI",
+		300, 72, 1200);
 
 	letterQuality = false;
 	bold = false;
@@ -168,16 +163,6 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_, bool graphicsHiLo_)
 ImagePrinter::~ImagePrinter()
 {
 	flushEmulatedPrinter();
-
-	auto& info = motherBoard.getSharedStuff("print-resolution");
-	assert(info.counter);
-	assert(dpiSetting);
-	assert(dpiSetting == info.stuff);
-	--info.counter;
-	if (info.counter == 0) {
-		delete dpiSetting;
-		info.stuff = nullptr;
-	}
 }
 
 void ImagePrinter::write(byte data)

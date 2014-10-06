@@ -3,6 +3,7 @@
 
 #include "AbstractIDEDevice.hh"
 #include "noncopyable.hh"
+#include <bitset>
 #include <memory>
 
 namespace openmsx {
@@ -62,6 +63,10 @@ private:
 	// Removable Media Status Notification Feature Set
 	bool remMedStatNotifEnabled;
 	bool mediaChanged;
+
+	static const unsigned MAX_CD = 26;
+	typedef std::bitset<MAX_CD> CDInUse;
+	std::shared_ptr<CDInUse> cdInUse;
 
 	friend class CDXCommand;
 };

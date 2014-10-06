@@ -354,7 +354,7 @@ private:
 
 	/** Only call reportV9990Command() when this setting is turned on
 	  */
-	BooleanSetting* cmdTraceSetting;
+	std::shared_ptr<BooleanSetting> cmdTraceSetting;
 
 	/** V9990 VDP this engine belongs to
 	  */

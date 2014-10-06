@@ -6,6 +6,7 @@
 #include "DiskContainer.hh"
 #include "TigerTree.hh"
 #include "serialize_meta.hh"
+#include <bitset>
 #include <string>
 #include <memory>
 
@@ -63,6 +64,10 @@ private:
 	Filename filename;
 	size_t filesize;
 	bool alreadyTried;
+
+	static const unsigned MAX_HD = 26;
+	typedef std::bitset<MAX_HD> HDInUse;
+	std::shared_ptr<HDInUse> hdInUse;
 };
 
 REGISTER_BASE_CLASS(HD, "HD");

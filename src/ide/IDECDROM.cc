@@ -12,7 +12,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include <algorithm>
-#include <bitset>
 #include <cassert>
 #include <cstdio>
 
@@ -36,30 +35,21 @@ private:
 };
 
 
-static const unsigned MAX_CD = 26;
-typedef std::bitset<MAX_CD> CDInUse;
-
 IDECDROM::IDECDROM(const DeviceConfig& config)
 	: AbstractIDEDevice(config.getMotherBoard())
 	, name("cdX")
 {
-	auto& info = getMotherBoard().getSharedStuff("cdInUse");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new CDInUse();
-	}
-	++info.counter;
-	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
+	cdInUse = getMotherBoard().getSharedStuff<CDInUse>("cdInUse");
 
 	unsigned id = 0;
-	while (cdInUse[id]) {
+	while ((*cdInUse)[id]) {
 		++id;
 		if (id == MAX_CD) {
 			throw MSXException("Too many CDs");
 		}
 	}
 	name[2] = char('a' + id);
-	cdInUse[id] = true;
+	(*cdInUse)[id] = true;
 	cdxCommand = make_unique<CDXCommand>(
 		getMotherBoard().getCommandController(),
 		getMotherBoard().getStateChangeDistributor(),
@@ -75,22 +65,11 @@ IDECDROM::IDECDROM(const DeviceConfig& config)
 
 IDECDROM::~IDECDROM()
 {
-	auto& info = getMotherBoard().getSharedStuff("cdInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	auto& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
-
 	getMotherBoard().getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
-	unsigned id = name[2] - 'a';
-	assert(cdInUse[id]);
-	cdInUse[id] = false;
 
-	--info.counter;
-	if (info.counter == 0) {
-		assert(cdInUse.none());
-		delete &cdInUse;
-		info.stuff = nullptr;
-	}
+	unsigned id = name[2] - 'a';
+	assert((*cdInUse)[id]);
+	(*cdInUse)[id] = false;
 }
 
 bool IDECDROM::isPacketDevice()

@@ -14,6 +14,7 @@
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "noncopyable.hh"
+#include <bitset>
 #include <memory>
 
 namespace openmsx {
@@ -92,6 +93,10 @@ private:
 	byte message;
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
+
+	static const unsigned MAX_LS = 26;
+	typedef std::bitset<MAX_LS> LSInUse;
+	std::shared_ptr<LSInUse> lsInUse;
 
 	friend class LSXCommand;
 };

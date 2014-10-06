@@ -10,7 +10,6 @@
 #include "serialize.hh"
 #include "serialize_stl.hh"
 #include "memory.hh"
-#include <bitset>
 #include <cassert>
 #include <functional>
 
@@ -18,8 +17,6 @@ using std::string;
 
 namespace openmsx {
 
-static const unsigned MAX_NOWINDS = 8; // a-h
-typedef std::bitset<MAX_NOWINDS> NowindsInUse;
 
 NowindInterface::NowindInterface(const DeviceConfig& config)
 	: MSXDevice(config)
@@ -30,21 +27,15 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 	, host(make_unique<NowindHost>(drives))
 	, basename("nowindX")
 {
-	auto& info = getMotherBoard().getSharedStuff("nowindsInUse");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new NowindsInUse();
-	}
-	++info.counter;
-	auto& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
+	nowindsInUse = getMotherBoard().getSharedStuff<NowindsInUse>("nowindsInUse");
 
 	unsigned i = 0;
-	while (nowindsInUse[i]) {
+	while ((*nowindsInUse)[i]) {
 		if (++i == MAX_NOWINDS) {
 			throw MSXException("Too many nowind interfaces.");
 		}
 	}
-	nowindsInUse[i] = true;
+	(*nowindsInUse)[i] = true;
 	basename[6] = char('a' + i);
 
 	command = make_unique<NowindCommand>(
@@ -60,21 +51,9 @@ NowindInterface::NowindInterface(const DeviceConfig& config)
 
 NowindInterface::~NowindInterface()
 {
-	auto& info = getMotherBoard().getSharedStuff("nowindsInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	auto& nowindsInUse = *reinterpret_cast<NowindsInUse*>(info.stuff);
-
 	unsigned i = basename[6] - 'a';
-	assert(nowindsInUse[i]);
-	nowindsInUse[i] = false;
-
-	--info.counter;
-	if (info.counter == 0) {
-		assert(nowindsInUse.none());
-		delete &nowindsInUse;
-		info.stuff = nullptr;
-	}
+	assert((*nowindsInUse)[i]);
+	(*nowindsInUse)[i] = false;
 }
 
 void NowindInterface::reset(EmuTime::param /*time*/)

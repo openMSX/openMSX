@@ -11,7 +11,6 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "memory.hh"
-#include <bitset>
 
 using std::string;
 using std::vector;
@@ -25,9 +24,6 @@ enum {
 	// Delayed motor off
 	MOTOR_TIMEOUT,
 };
-
-static const unsigned MAX_DRIVES = 26; // a-z
-typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeout_,
                      bool signalsNeedMotorOn_, bool doubleSided)
@@ -43,21 +39,15 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, EmuDuration::param motorTimeo
 	, doubleSizedDrive(doubleSided)
 	, signalsNeedMotorOn(signalsNeedMotorOn_)
 {
-	auto& info = motherBoard.getSharedStuff("drivesInUse");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new DrivesInUse();
-	}
-	++info.counter;
-	auto& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
+	drivesInUse = motherBoard.getSharedStuff<DrivesInUse>("drivesInUse");
 
 	unsigned i = 0;
-	while (drivesInUse[i]) {
+	while ((*drivesInUse)[i]) {
 		if (++i == MAX_DRIVES) {
 			throw MSXException("Too many disk drives.");
 		}
 	}
-	drivesInUse[i] = true;
+	(*drivesInUse)[i] = true;
 	string driveName = "diskX"; driveName[4] = char('a' + i);
 
 	if (motherBoard.getCommandController().hasCommand(driveName)) {
@@ -71,23 +61,12 @@ RealDrive::~RealDrive()
 {
 	doSetMotor(false, getCurrentTime()); // to send LED event
 
-	auto& info = motherBoard.getSharedStuff("drivesInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	auto& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
-
 	const auto& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
-	unsigned driveNum = driveName[4] - 'a';
-	assert(drivesInUse[driveNum]);
-	drivesInUse[driveNum] = false;
 
-	--info.counter;
-	if (info.counter == 0) {
-		assert(drivesInUse.none());
-		delete &drivesInUse;
-		info.stuff = nullptr;
-	}
+	unsigned driveNum = driveName[4] - 'a';
+	assert((*drivesInUse)[driveNum]);
+	(*drivesInUse)[driveNum] = false;
 }
 
 bool RealDrive::isDiskInserted() const

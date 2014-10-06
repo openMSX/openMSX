@@ -159,12 +159,17 @@ public:
 	  *      mappers don't use this mechanism anymore because of this.
 	  *      Maybe this method can be removed when savestates are finished.
 	  */
-	struct SharedStuff {
-		SharedStuff() : stuff(nullptr), counter(0) {}
-		void* stuff;
-		unsigned counter;
-	};
-	MSXMotherBoard::SharedStuff& getSharedStuff(string_ref name);
+	template<typename T, typename ... Args>
+	std::shared_ptr<T> getSharedStuff(string_ref name, Args&& ...args)
+	{
+		auto& weak = sharedStuffMap[name];
+		auto shared = std::static_pointer_cast<T>(weak.lock());
+		if (shared) return shared;
+
+		shared = std::make_shared<T>(std::forward<Args>(args)...);
+		weak = shared;
+		return shared;
+	}
 
 	/** All memory mappers in one MSX machine share the same four (logical)
 	 * memory mapper registers. These two methods handle this sharing.
@@ -195,7 +200,7 @@ private:
 
 	std::vector<MSXDevice*> availableDevices; // no ownership
 
-	StringMap<MSXMotherBoard::SharedStuff> sharedStuffMap;
+	StringMap<std::weak_ptr<void>> sharedStuffMap;
 	StringMap<std::set<std::string>> userNames;
 
 	std::unique_ptr<MSXMapperIO> mapperIO;

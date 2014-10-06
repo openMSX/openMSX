@@ -665,15 +665,10 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
                                RenderSettings& settings_)
 	: settings(settings_), vdp(vdp_), time(time_)
 {
-	auto& info = vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new BooleanSetting(
-			vdp.getCommandController(),
-			"v9990cmdtrace", "V9990 command tracing on/off", false);
-	}
-	++info.counter;
-	cmdTraceSetting = reinterpret_cast<BooleanSetting*>(info.stuff);
+	cmdTraceSetting = vdp.getMotherBoard().getSharedStuff<BooleanSetting>(
+		"v9990cmdtrace",
+		vdp.getCommandController(), "v9990cmdtrace",
+		"V9990 command tracing on/off", false);
 
 	initBitTab();
 
@@ -734,16 +729,6 @@ V9990CmdEngine::~V9990CmdEngine()
 		for (int mode = 0; mode < 6; ++mode) {
 			delete commands[cmd][mode];
 		}
-	}
-
-	auto& info = vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
-	assert(info.counter);
-	assert(cmdTraceSetting);
-	assert(cmdTraceSetting == info.stuff);
-	--info.counter;
-	if (info.counter == 0) {
-		delete cmdTraceSetting;
-		info.stuff = nullptr;
 	}
 }
 

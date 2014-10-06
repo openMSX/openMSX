@@ -12,7 +12,6 @@
 #include "serialize.hh"
 #include "memory.hh"
 #include "xrange.hh"
-#include <bitset>
 #include <cassert>
 
 namespace openmsx {
@@ -20,23 +19,14 @@ namespace openmsx {
 using std::string;
 using std::vector;
 
-static const unsigned MAX_HD = 26;
-typedef std::bitset<MAX_HD> HDInUse;
-
 HD::HD(const DeviceConfig& config)
 	: motherBoard(config.getMotherBoard())
 	, name("hdX")
 {
-	auto& info = motherBoard.getSharedStuff("hdInUse");
-	if (info.counter == 0) {
-		assert(!info.stuff);
-		info.stuff = new HDInUse();
-	}
-	++info.counter;
-	auto& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
+	hdInUse = motherBoard.getSharedStuff<HDInUse>("hdInUse");
 
 	unsigned id = 0;
-	while (hdInUse[id]) {
+	while ((*hdInUse)[id]) {
 		++id;
 		if (id == MAX_HD) {
 			throw MSXException("Too many HDs");
@@ -64,7 +54,7 @@ HD::HD(const DeviceConfig& config)
 	}
 	alreadyTried = false;
 
-	hdInUse[id] = true;
+	(*hdInUse)[id] = true;
 	hdCommand = make_unique<HDCommand>(
 		motherBoard.getCommandController(),
 		motherBoard.getStateChangeDistributor(),
@@ -77,22 +67,11 @@ HD::HD(const DeviceConfig& config)
 
 HD::~HD()
 {
-	auto& info = motherBoard.getSharedStuff("hdInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	auto& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
-
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
-	unsigned id = name[2] - 'a';
-	assert(hdInUse[id]);
-	hdInUse[id] = false;
 
-	--info.counter;
-	if (info.counter == 0) {
-		assert(hdInUse.none());
-		delete &hdInUse;
-		info.stuff = nullptr;
-	}
+	unsigned id = name[2] - 'a';
+	assert((*hdInUse)[id]);
+	(*hdInUse)[id] = false;
 }
 
 void HD::openImage()
