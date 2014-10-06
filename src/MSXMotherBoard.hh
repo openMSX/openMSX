@@ -61,8 +61,8 @@ public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 
-	const std::string& getMachineID();
-	const std::string& getMachineName() const;
+	const std::string& getMachineID()   const { return machineID; }
+	const std::string& getMachineName() const { return machineName; }
 
 	/** Run emulation.
 	 * @return True if emulation steps were done,
@@ -88,19 +88,19 @@ public:
 
 	void doReset();
 	void activate(bool active);
-	bool isActive() const;
-	bool isFastForwarding() const;
+	bool isActive() const { return active; }
+	bool isFastForwarding() const { return fastForwarding; }
 
 	byte readIRQVector();
 
-	const HardwareConfig* getMachineConfig() const;
+	const HardwareConfig* getMachineConfig() const { return machineConfig; }
 	void setMachineConfig(HardwareConfig* machineConfig);
 	bool isTurboR() const;
 
 	std::string loadMachine(const std::string& machine);
 
 	typedef std::vector<std::unique_ptr<HardwareConfig>> Extensions;
-	const Extensions& getExtensions() const;
+	const Extensions& getExtensions() const { return extensions; }
 	HardwareConfig* findExtension(string_ref extensionName);
 	std::string loadExtension(string_ref extensionName, string_ref slotname);
 	std::string insertExtension(string_ref name,
@@ -109,14 +109,14 @@ public:
 
 	// The following classes are unique per MSX machine
 	CliComm& getMSXCliComm();
-	MSXCommandController& getMSXCommandController();
-	Scheduler& getScheduler();
-	MSXEventDistributor& getMSXEventDistributor();
-	StateChangeDistributor& getStateChangeDistributor();
-	CartridgeSlotManager& getSlotManager();
-	RealTime& getRealTime();
-	Debugger& getDebugger();
-	MSXMixer& getMSXMixer();
+	MSXCommandController& getMSXCommandController() { return *msxCommandController; }
+	Scheduler& getScheduler() { return *scheduler; }
+	MSXEventDistributor& getMSXEventDistributor() { return *msxEventDistributor; }
+	StateChangeDistributor& getStateChangeDistributor() { return *stateChangeDistributor; }
+	CartridgeSlotManager& getSlotManager() { return *slotManager; }
+	RealTime& getRealTime() { return *realTime; }
+	Debugger& getDebugger() { return *debugger; }
+	MSXMixer& getMSXMixer() { return *msxMixer; }
 	PluggingController& getPluggingController();
 	MSXCPU& getCPU();
 	MSXCPUInterface& getCPUInterface();
@@ -126,9 +126,9 @@ public:
 	JoystickPortIf& getJoystickPort(unsigned port);
 	RenShaTurbo& getRenShaTurbo();
 	LedStatus& getLedStatus();
-	ReverseManager& getReverseManager();
-	Reactor& getReactor();
-	VideoSourceSetting& getVideoSource();
+	ReverseManager& getReverseManager() { return *reverseManager; }
+	Reactor& getReactor() { return reactor; }
+	VideoSourceSetting& getVideoSource() { return *videoSourceSetting; }
 
 	// convenience methods
 	CommandController& getCommandController();

@@ -246,21 +246,6 @@ void MSXMotherBoard::deleteMachine()
 	machineConfig = nullptr;
 }
 
-const string& MSXMotherBoard::getMachineID()
-{
-	return machineID;
-}
-
-const string& MSXMotherBoard::getMachineName() const
-{
-	return machineName;
-}
-
-const HardwareConfig* MSXMotherBoard::getMachineConfig() const
-{
-	return machineConfig;
-}
-
 void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig_)
 {
 	assert(!getMachineConfig());
@@ -349,11 +334,6 @@ HardwareConfig* MSXMotherBoard::findExtension(string_ref extensionName)
 	return (it != end(extensions)) ? it->get() : nullptr;
 }
 
-const MSXMotherBoard::Extensions& MSXMotherBoard::getExtensions() const
-{
-	return extensions;
-}
-
 void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
@@ -366,46 +346,6 @@ void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 CliComm& MSXMotherBoard::getMSXCliComm()
 {
 	return *msxCliComm;
-}
-
-MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
-{
-	return *msxEventDistributor;
-}
-
-StateChangeDistributor& MSXMotherBoard::getStateChangeDistributor()
-{
-	return *stateChangeDistributor;
-}
-
-MSXCommandController& MSXMotherBoard::getMSXCommandController()
-{
-	return *msxCommandController;
-}
-
-Scheduler& MSXMotherBoard::getScheduler()
-{
-	return *scheduler;
-}
-
-CartridgeSlotManager& MSXMotherBoard::getSlotManager()
-{
-	return *slotManager;
-}
-
-RealTime& MSXMotherBoard::getRealTime()
-{
-	return *realTime;
-}
-
-Debugger& MSXMotherBoard::getDebugger()
-{
-	return *debugger;
-}
-
-MSXMixer& MSXMotherBoard::getMSXMixer()
-{
-	return *msxMixer;
 }
 
 PluggingController& MSXMotherBoard::getPluggingController()
@@ -512,21 +452,6 @@ LedStatus& MSXMotherBoard::getLedStatus()
 			*msxCliComm);
 	}
 	return *ledStatus;
-}
-
-ReverseManager& MSXMotherBoard::getReverseManager()
-{
-	return *reverseManager;
-}
-
-Reactor& MSXMotherBoard::getReactor()
-{
-	return reactor;
-}
-
-VideoSourceSetting& MSXMotherBoard::getVideoSource()
-{
-	return *videoSourceSetting;
 }
 
 CommandController& MSXMotherBoard::getCommandController()
@@ -684,14 +609,6 @@ void MSXMotherBoard::activate(bool active_)
 	if (active) {
 		realTime->resync();
 	}
-}
-bool MSXMotherBoard::isActive() const
-{
-	return active;
-}
-bool MSXMotherBoard::isFastForwarding() const
-{
-	return fastForwarding;
 }
 
 void MSXMotherBoard::exitCPULoopAsync()
