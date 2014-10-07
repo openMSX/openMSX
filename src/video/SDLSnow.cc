@@ -2,6 +2,7 @@
 #include "OutputSurface.hh"
 #include "Display.hh"
 #include "build-info.hh"
+#include "random.hh"
 #include <cstring>
 #include <cstdint>
 
@@ -19,25 +20,12 @@ SDLSnow<Pixel>::SDLSnow(OutputSurface& output, Display& display_)
 	}
 }
 
-// random routine, less random than libc rand(), but a lot faster
-static int random()
-{
-	static int seed = 1;
-
-	const int IA = 16807;
-	const int IM = 2147483647;
-	const int IQ = 127773;
-	const int IR = 2836;
-
-	int k = seed / IQ;
-	seed = IA * (seed - k * IQ) - IR * k;
-	if (seed < 0) seed += IM;
-	return seed;
-}
-
 template <class Pixel>
 void SDLSnow<Pixel>::paint(OutputSurface& output)
 {
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
+	std::uniform_int_distribution<int> distribution(0, 255);
+
 	output.lock();
 	const unsigned width = output.getWidth();
 	const unsigned height = output.getHeight();
@@ -45,8 +33,7 @@ void SDLSnow<Pixel>::paint(OutputSurface& output)
 		Pixel* p0 = output.getLinePtrDirect<Pixel>(y + 0);
 		Pixel* p1 = output.getLinePtrDirect<Pixel>(y + 1);
 		for (unsigned x = 0; x < width; x += 2) {
-			unsigned a = random() & 255;
-			p0[x + 0] = p0[x + 1] = gray[a];
+			p0[x + 0] = p0[x + 1] = gray[distribution(generator)];
 		}
 		memcpy(p1, p0, width * sizeof(Pixel));
 	}

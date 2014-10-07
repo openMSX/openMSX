@@ -12,9 +12,9 @@
 #include "EnumSetting.hh"
 #include "Math.hh"
 #include "aligned.hh"
+#include "random.hh"
 #include "xrange.hh"
 #include <algorithm>
-#include <random>
 #include <cassert>
 #include <cstdint>
 #ifdef __SSE2__
@@ -62,7 +62,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(float factor)
 		scale[3] = 0.0;
 	}
 
-	std::minstd_rand generator; // fast (non-cryptographic) random numbers
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 4) {
 		float r = distribution(generator);
@@ -336,8 +336,10 @@ template <class Pixel>
 std::unique_ptr<RawFrame> FBPostProcessor<Pixel>::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
+	std::uniform_int_distribution<int> distribution(0, NOISE_SHIFT / 16 - 1);
 	for (auto y : xrange(screen.getHeight())) {
-		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;
+		noiseShift[y] = distribution(generator) * 16;
 	}
 
 	return PostProcessor::rotateFrames(std::move(finishedFrame), time);

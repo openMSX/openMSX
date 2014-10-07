@@ -4,12 +4,12 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
+#include "random.hh"
 #include "statp.hh"
 #include <string>
 
 #ifdef _WIN32
 #include <fstream>
-#include <cstdlib>
 #include <ctime>
 #else
 #include <pwd.h>
@@ -100,8 +100,7 @@ static int openPort(SOCKET listenSock)
 	const int BASE = 9938;
 	const int RANGE = 64;
 
-	srand(unsigned(time(nullptr))); // easily predicatble, but doesn't matter
-	int first = rand();
+	int first = random_int(0, RANGE - 1); // [0, RANGE)
 
 	for (int n = 0; n < RANGE; ++n) {
 		int port = BASE + ((first + n) % RANGE);

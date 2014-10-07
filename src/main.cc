@@ -16,6 +16,7 @@
 #include "StringOp.hh"
 #include "Thread.hh"
 #include "build-info.hh"
+#include "random.hh"
 #include <iostream>
 #include <exception>
 #include <ctime>
@@ -125,7 +126,7 @@ static int main(int argc, char **argv)
 #endif
 			));
 #endif
-
+		randomize(); // seed global random generator
 		initializeSDL();
 
 		Thread::setMainThread();

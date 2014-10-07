@@ -20,6 +20,7 @@
 #include "serialize.hh"
 #include "likely.hh"
 #include "memory.hh"
+#include "random.hh"
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -61,8 +62,11 @@ static float n[256 + 3];
 
 static void initDetune()
 {
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
+	std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+
 	for (int i = 0; i < 256; ++i) {
-		n[i] = float(rand()) / (RAND_MAX / 2) - 1.0f;
+		n[i] = distribution(generator);
 	}
 	n[256] = n[0];
 	n[257] = n[1];

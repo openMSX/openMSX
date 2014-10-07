@@ -4,7 +4,7 @@
 #include "Display.hh"
 #include "gl_vec.hh"
 #include "openmsx.hh"
-#include <cstdlib>
+#include "random.hh"
 
 using namespace gl;
 
@@ -16,9 +16,11 @@ GLSnow::GLSnow(Display& display_)
 	, noiseTexture(true, true) // enable interpolation + wrapping
 {
 	// Create noise texture.
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
+	std::uniform_int_distribution<int> distribution(0, 255);
 	byte buf[128 * 128];
 	for (auto& b : buf) {
-		b = byte(rand());
+		b = distribution(generator);
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 128, 0,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf);
@@ -41,7 +43,7 @@ void GLSnow::paint(OutputSurface& /*output*/)
 	static unsigned cnt = 0;
 	cnt = (cnt + 1) % 8;
 
-	vec2 offset(float(rand()) / RAND_MAX, float(rand()) / RAND_MAX);
+	vec2 offset(random_float(0.0f, 1.0f) ,random_float(0.0f, 1.0f));
 	const vec2 tex[4] = {
 		offset + vec2(0.0f, 2.0f),
 		offset + vec2(2.0f, 2.0f),

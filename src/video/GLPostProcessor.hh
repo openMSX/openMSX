@@ -58,8 +58,7 @@ private:
 	// Noise effect:
 	gl::Texture noiseTextureA;
 	gl::Texture noiseTextureB;
-	double noiseX;
-	double noiseY;
+	float noiseX, noiseY;
 
 	struct TextureData {
 		TextureData();

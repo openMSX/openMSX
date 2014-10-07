@@ -82,8 +82,8 @@ chirp 12-..: vokume   0   : silent
 #include "FileOperations.hh"
 #include "serialize.hh"
 #include "memory.hh"
+#include "random.hh"
 #include <cstring>
-#include <cstdlib>
 
 namespace openmsx {
 
@@ -374,8 +374,8 @@ void VLM5030::Impl::generateChannels(int** bufs, unsigned length)
 				current_val = 0x00;
 			} else if (old_pitch <= 1) {
 				// generate unvoiced samples here
-				current_val = (rand() & 1) ?  int(current_energy)
-				                           : -int(current_energy);
+				current_val = random_bool() ?  int(current_energy)
+				                            : -int(current_energy);
 			} else {
 				// generate voiced samples here
 				current_val = (pitch_count == 0) ? current_energy : 0;

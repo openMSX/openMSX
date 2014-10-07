@@ -11,10 +11,10 @@
 #include "Math.hh"
 #include "InitException.hh"
 #include "gl_transform.hh"
+#include "random.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include <algorithm>
-#include <random>
 #include <cassert>
 
 using namespace gl;
@@ -56,8 +56,7 @@ GLPostProcessor::GLPostProcessor(
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
 	frameCounter = 0;
-	noiseX = 0.0;
-	noiseY = 0.0;
+	noiseX = noiseY = 0.0f;
 	preCalcNoise(renderSettings.getNoise().getDouble());
 
 	storedFrame = false;
@@ -253,8 +252,8 @@ std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
 		PostProcessor::rotateFrames(std::move(finishedFrame), time);
 	uploadFrame();
 	++frameCounter;
-	noiseX = double(rand()) / RAND_MAX;
-	noiseY = double(rand()) / RAND_MAX;
+	noiseX = random_float(0.0f, 1.0f);
+	noiseY = random_float(0.0f, 1.0f);
 	return reuseFrame;
 }
 
@@ -433,7 +432,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 {
 	GLbyte buf1[256 * 256];
 	GLbyte buf2[256 * 256];
-	std::minstd_rand generator; // fast (non-cryptographic) random numbers
+	auto& generator = global_urng(); // fast (non-cryptographic) random numbers
 	std::normal_distribution<float> distribution(0.0f, 1.0f);
 	for (int i = 0; i < 256 * 256; ++i) {
 		float r = distribution(generator);

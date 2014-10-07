@@ -4,7 +4,7 @@
 #include "StringOp.hh"
 #include "BootBlocks.hh"
 #include "endian.hh"
-#include <cstdlib>
+#include "random.hh"
 #include <cstring>
 #include <cassert>
 #include <ctime>
@@ -175,12 +175,7 @@ static void setBootSector(MSXBootSector& boot, size_t nbSectors,
 
 	if (!dos1) {
 		// set random volume id
-		static bool init = false;
-		if (!init) {
-			init = true;
-			srand(unsigned(time(nullptr)));
-		}
-		boot.vol_id = rand() & 0x7F7F7F7F; // why are bits masked?
+		boot.vol_id = random_32bit() & 0x7F7F7F7F; // why are bits masked?
 	}
 	unsigned nbRootDirSectors = nbDirEntry / 16;
 	unsigned rootDirStart = 1 + nbFats * nbSectorsPerFat;
