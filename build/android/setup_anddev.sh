@@ -74,6 +74,8 @@ if [ -d "${tcl_sdl_dir}" ]; then
 		exit 1
 	fi
 fi
+export GCCVER=4.8
+export NDK_TOOLCHAIN_VERSION=${GCCVER}
 if [ ! -d "${tcl_sdl_dir}" ]; then
     if [ ! -f "${tcl_archive}" ]; then
 		cd "${my_home_dir}"
