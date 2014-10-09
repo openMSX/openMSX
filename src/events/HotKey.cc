@@ -418,8 +418,20 @@ void HotKey::executeBinding(const EventPtr& event, const HotKeyInfo& info)
 		startRepeat(event);
 	}
 	try {
+		// Make a copy of the command string because executing the
+		// command could potentially execute (un)bind commands so
+		// that the original string becomes invalid.
+		// Valgrind complained about this in the following scenario:
+		//  - open the OSD menu
+		//  - activate the 'Exit openMSX' item
+		// The latter is triggered from e.g. a 'OSDControl A PRESS'
+		// event. The Tcl script bound to that event closes the main
+		// menu and reopens a new quit_menu. This will re-bind the
+		// action for the 'OSDControl A PRESS' event.
+		string copy = info.command;
+
 		// ignore return value
-		commandController.executeCommand(info.command);
+		commandController.executeCommand(copy);
 	} catch (CommandException& e) {
 		commandController.getCliComm().printWarning(
 			"Error executing hot key command: " + e.getMessage());
