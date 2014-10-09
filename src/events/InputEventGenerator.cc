@@ -49,6 +49,10 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 	reinit();
 
 	osdControlButtonsState = unsigned(~0); // 0 is pressed, 1 is released
+
+#ifndef SDL_JOYSTICK_DISABLED
+	SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
+#endif
 }
 
 InputEventGenerator::~InputEventGenerator()

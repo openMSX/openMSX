@@ -47,6 +47,9 @@ namespace openmsx {
 static void initializeSDL()
 {
 	int flags = 0;
+#ifndef SDL_JOYSTICK_DISABLED
+	flags |= SDL_INIT_JOYSTICK;
+#endif
 #ifndef NDEBUG
 	flags |= SDL_INIT_NOPARACHUTE;
 #endif

@@ -32,11 +32,6 @@ void JoyMega::registerAll(MSXEventDistributor& eventDistributor,
 	(void)stateChangeDistributor;
 	(void)controller;
 #else
-	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
-		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-		SDL_JoystickEventState(SDL_ENABLE); // joysticks generate events
-	}
-
 	unsigned numJoysticks = SDL_NumJoysticks();
 	for (unsigned i = 0; i < numJoysticks; i++) {
 		if (SDL_Joystick* joystick = SDL_JoystickOpen(i)) {
