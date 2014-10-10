@@ -14,6 +14,7 @@ class MSXEventDistributor;
 class StateChangeDistributor;
 class CommandController;
 class PluggingController;
+class GlobalSettings;
 class StringSetting;
 class IntegerSetting;
 class TclObject;
@@ -32,11 +33,13 @@ public:
 	static void registerAll(MSXEventDistributor& eventDistributor,
 	                        StateChangeDistributor& stateChangeDistributor,
 	                        CommandController& commandController,
+	                        GlobalSettings& globalSettings,
 	                        PluggingController& controller);
 
 	Joystick(MSXEventDistributor& eventDistributor,
 	         StateChangeDistributor& stateChangeDistributor,
 	         CommandController& commandController,
+		 GlobalSettings& globalSettings,
 	         SDL_Joystick* joystick);
 	~Joystick();
 
@@ -72,9 +75,9 @@ private:
 	StateChangeDistributor& stateChangeDistributor;
 
 	std::unique_ptr<StringSetting> configSetting;
-	std::unique_ptr<IntegerSetting> deadSetting;
 	SDL_Joystick* const joystick;
 	const unsigned joyNum;
+	IntegerSetting& deadSetting; // must come after joyNum
 	const std::string name;
 	const std::string desc;
 

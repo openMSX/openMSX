@@ -13,6 +13,7 @@ namespace openmsx {
 class CommandController;
 class BooleanSetting;
 class EventDistributor;
+class GlobalSettings;
 class Setting;
 class EscapeGrabCmd;
 
@@ -22,7 +23,8 @@ class InputEventGenerator final : private Observer<Setting>
 {
 public:
 	InputEventGenerator(CommandController& commandController,
-	                    EventDistributor& eventDistributor);
+	                    EventDistributor& eventDistributor,
+	                    GlobalSettings& globalSettings);
 	~InputEventGenerator();
 
 	/** Wait for event(s) and handle it.
@@ -67,6 +69,7 @@ private:
 	int signalEvent(const std::shared_ptr<const Event>& event) override;
 
 	EventDistributor& eventDistributor;
+	GlobalSettings& globalSettings;
 	const std::unique_ptr<BooleanSetting> grabInput;
 	const std::unique_ptr<EscapeGrabCmd> escapeGrabCmd;
 	friend class EscapeGrabCmd;

@@ -5,6 +5,7 @@
 #include "noncopyable.hh"
 #include "ResampledSoundDevice.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -49,7 +50,10 @@ public:
 		return *invalidPsgDirectionsSetting;
 	}
 	EnumSetting<ResampledSoundDevice::ResampleType>& getResampleSetting() const {
-		return * resampleSetting;
+		return *resampleSetting;
+	}
+	IntegerSetting& getJoyDeadzoneSetting(int i) const {
+		return *deadzoneSettings[i];
 	}
 	ThrottleManager& getThrottleManager() const {
 		return *throttleManager;
@@ -69,6 +73,7 @@ private:
 	std::unique_ptr<StringSetting>  umrCallBackSetting;
 	std::unique_ptr<StringSetting>  invalidPsgDirectionsSetting;
 	std::unique_ptr<EnumSetting<ResampledSoundDevice::ResampleType>> resampleSetting;
+	std::vector<std::unique_ptr<IntegerSetting>> deadzoneSettings;
 	std::unique_ptr<ThrottleManager> throttleManager;
 };
 

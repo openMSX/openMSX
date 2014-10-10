@@ -3,6 +3,8 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
+#include "GlobalSettings.hh"
 #include "Keys.hh"
 #include "checked_cast.hh"
 #include "memory.hh"
@@ -32,8 +34,10 @@ bool InputEventGenerator::androidButtonA = false;
 bool InputEventGenerator::androidButtonB = false;
 
 InputEventGenerator::InputEventGenerator(CommandController& commandController,
-                                         EventDistributor& eventDistributor_)
+                                         EventDistributor& eventDistributor_,
+                                         GlobalSettings& globalSettings_)
 	: eventDistributor(eventDistributor_)
+	, globalSettings(globalSettings_)
 	, grabInput(make_unique<BooleanSetting>(
 		commandController, "grabinput",
 		"This setting controls if openMSX takes over mouse and keyboard input",
@@ -122,13 +126,6 @@ void InputEventGenerator::setKeyRepeat(bool enable)
 }
 
 
-#if PLATFORM_ANDROID
-//TODO: make JOYVALUE_THRESHOLD dynamic, depending on virtual key size
-static const int JOYVALUE_THRESHOLD = 4 * 32768 / 10;
-#else
-static const int JOYVALUE_THRESHOLD = 32768 / 10;
-#endif
-
 void InputEventGenerator::setNewOsdControlButtonState(
 		unsigned newState, const EventPtr& origEvent)
 {
@@ -153,11 +150,7 @@ void InputEventGenerator::setNewOsdControlButtonState(
 void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 	unsigned axis, short value, const EventPtr& origEvent)
 {
-	short normalized_value = (value < -JOYVALUE_THRESHOLD
-	                       ? -1
-	                       : (value > JOYVALUE_THRESHOLD ? 1 : 0));
 	unsigned neg_button, pos_button;
-
 	switch (axis) {
 	case 0:
 		neg_button = 1 << OsdControlEvent::LEFT_BUTTON;
@@ -172,25 +165,22 @@ void InputEventGenerator::triggerOsdControlEventsFromJoystickAxisMotion(
 		// have more than 2 axis)
 		return;
 	}
-	switch (normalized_value) {
-	case 0:
-		// release both buttons
-		setNewOsdControlButtonState(
-			osdControlButtonsState | neg_button | pos_button,
-			origEvent);
-		break;
-	case 1:
+
+	if (value > 0) {
 		// release negative button, press positive button
 		setNewOsdControlButtonState(
 			(osdControlButtonsState | neg_button) & ~pos_button,
 			origEvent);
-		break;
-	case -1:
+	} else if (value < 0) {
 		// press negative button, release positive button
 		setNewOsdControlButtonState(
 			(osdControlButtonsState | pos_button) & ~neg_button,
 			origEvent);
-		break;
+	} else {
+		// release both buttons
+		setNewOsdControlButtonState(
+			osdControlButtonsState | neg_button | pos_button,
+			origEvent);
 	}
 }
 
@@ -326,12 +316,18 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		triggerOsdControlEventsFromJoystickButtonEvent(
 			evt.jbutton.button, false, event);
 		break;
-	case SDL_JOYAXISMOTION:
+	case SDL_JOYAXISMOTION: {
+		auto& setting = globalSettings.getJoyDeadzoneSetting(evt.jaxis.which);
+		int threshold = (setting.getInt() * 32768) / 100;
+		auto value = (evt.jaxis.value < -threshold) ? evt.jaxis.value
+		           : (evt.jaxis.value >  threshold) ? evt.jaxis.value
+		                                            : 0;
 		event = make_shared<JoystickAxisMotionEvent>(
-			evt.jaxis.which, evt.jaxis.axis, evt.jaxis.value);
+			evt.jaxis.which, evt.jaxis.axis, value);
 		triggerOsdControlEventsFromJoystickAxisMotion(
-			evt.jaxis.axis, evt.jaxis.value, event);
+			evt.jaxis.axis, value, event);
 		break;
+	}
 	case SDL_JOYHATMOTION:
 		event = make_shared<JoystickHatEvent>(
 			evt.jhat.which, evt.jhat.hat, evt.jhat.value);

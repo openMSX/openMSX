@@ -7,7 +7,9 @@
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
 #include "memory.hh"
+#include "xrange.hh"
 #include "build-info.hh"
+#include <SDL.h>
 
 namespace openmsx {
 
@@ -50,6 +52,15 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #endif
 		resampleMap);
+
+	for (auto i : xrange(SDL_NumJoysticks())) {
+		std::string name = "joystick" + std::to_string(i) + "_deadzone";
+		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
+			commandController, name,
+			"size (as a percentage) of the dead center zone",
+			PLATFORM_ANDROID ? 25 : 10,
+			0, 100));
+	}
 
 	throttleManager = make_unique<ThrottleManager>(commandController);
 

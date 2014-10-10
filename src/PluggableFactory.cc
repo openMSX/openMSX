@@ -43,6 +43,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	auto& msxEventDistributor    = motherBoard.getMSXEventDistributor();
 	auto& stateChangeDistributor = motherBoard.getStateChangeDistributor();
 	auto& eventDistributor       = reactor.getEventDistributor();
+	auto& globalSettings         = reactor.getGlobalSettings();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
@@ -67,7 +68,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 		commandController, msxEventDistributor,
 		stateChangeDistributor, "keyjoystick2"));
 	Joystick::registerAll(msxEventDistributor, stateChangeDistributor,
-	                      commandController, controller);
+	                      commandController, globalSettings, controller);
 	JoyMega::registerAll(msxEventDistributor, stateChangeDistributor,
 	                      controller);
 

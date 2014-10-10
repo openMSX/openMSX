@@ -195,7 +195,7 @@ void Reactor::init()
 	globalSettings = make_unique<GlobalSettings>(
 		*globalCommandController);
 	inputEventGenerator = make_unique<InputEventGenerator>(
-		*globalCommandController, *eventDistributor);
+		*globalCommandController, *eventDistributor, *globalSettings);
 	mixer = make_unique<Mixer>(
 		*this, *globalCommandController);
 	diskFactory = make_unique<DiskFactory>(

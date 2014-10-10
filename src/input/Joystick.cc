@@ -7,6 +7,7 @@
 #include "InputEventGenerator.hh"
 #include "StateChange.hh"
 #include "TclObject.hh"
+#include "GlobalSettings.hh"
 #include "StringSetting.hh"
 #include "IntegerSetting.hh"
 #include "CommandController.hh"
@@ -25,6 +26,7 @@ namespace openmsx {
 void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            StateChangeDistributor& stateChangeDistributor,
                            CommandController& commandController,
+                           GlobalSettings& globalSettings,
                            PluggingController& controller)
 {
 #ifdef SDL_JOYSTICK_DISABLED
@@ -49,6 +51,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 						eventDistributor,
 						stateChangeDistributor,
 						commandController,
+						globalSettings,
 						joystick));
 			}
 		}
@@ -129,11 +132,13 @@ void checkJoystickConfig(Interpreter& interp, TclObject& newValue)
 Joystick::Joystick(MSXEventDistributor& eventDistributor_,
                    StateChangeDistributor& stateChangeDistributor_,
                    CommandController& commandController,
+                   GlobalSettings& globalSettings,
                    SDL_Joystick* joystick_)
 	: eventDistributor(eventDistributor_)
 	, stateChangeDistributor(stateChangeDistributor_)
 	, joystick(joystick_)
 	, joyNum(SDL_JoystickIndex(joystick_))
+	, deadSetting(globalSettings.getJoyDeadzoneSetting(joyNum))
 	, name("joystickX") // 'X' is filled in below
 	, desc(string(SDL_JoystickName(joyNum)))
 {
@@ -159,11 +164,6 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_,
 	configSetting = make_unique<StringSetting>(
 		commandController, name + "_config", "joystick configuration",
 		value.getString());
-	deadSetting = make_unique<IntegerSetting>(
-		commandController, name + "_deadzone",
-		"size (as a percentage) of the dead center zone",
-		PLATFORM_ANDROID ? 25 : 10,
-		0, 100);
 	auto& interp = commandController.getInterpreter();
 	configSetting->setChecker([&interp](TclObject& newValue) {
 		checkJoystickConfig(interp, newValue); });
@@ -230,7 +230,7 @@ byte Joystick::calcState()
 	byte result = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	              JOY_BUTTONA | JOY_BUTTONB;
 	if (joystick) {
-		int threshold = (deadSetting->getInt() * 32768) / 100;
+		int threshold = (deadSetting.getInt() * 32768) / 100;
 		auto& interp = configSetting->getInterpreter();
 		auto& dict   = configSetting->getValue();
 		if (getState(interp, dict, "A"    , threshold)) result &= ~JOY_BUTTONA;
