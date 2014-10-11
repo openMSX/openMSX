@@ -6,6 +6,7 @@
 #include "GlobalCommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
+#include "StringOp.hh"
 #include "memory.hh"
 #include "xrange.hh"
 #include "build-info.hh"
@@ -53,7 +54,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}});
 
 	for (auto i : xrange(SDL_NumJoysticks())) {
-		std::string name = "joystick" + std::to_string(i) + "_deadzone";
+		std::string name = "joystick" + StringOp::toString(i) + "_deadzone";
 		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
 			commandController, name,
 			"size (as a percentage) of the dead center zone",
