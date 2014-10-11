@@ -58,8 +58,7 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		deadzoneSettings.emplace_back(make_unique<IntegerSetting>(
 			commandController, name,
 			"size (as a percentage) of the dead center zone",
-			PLATFORM_ANDROID ? 25 : 10,
-			0, 100));
+			25, 0, 100));
 	}
 
 	throttleManager = make_unique<ThrottleManager>(commandController);
