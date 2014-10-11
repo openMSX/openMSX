@@ -325,7 +325,7 @@ void Reactor::createMachineSetting()
 	machineSetting = make_unique<EnumSetting<int>>(
 		*globalCommandController, "default_machine",
 		"default machine (takes effect next time openMSX is started)",
-		0, machines);
+		0, std::move(machines));
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const

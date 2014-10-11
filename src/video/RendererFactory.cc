@@ -114,7 +114,7 @@ unique_ptr<RendererSetting> createRendererSetting(
 #endif
 	auto setting = make_unique<RendererSetting>(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
-		SDL, rendererMap);
+		SDL, std::move(rendererMap));
 
 	// Make sure the value 'none' never gets saved in settings.xml.
 	// This happened in the following scenario:

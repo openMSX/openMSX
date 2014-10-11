@@ -18,12 +18,12 @@ namespace openmsx {
 
 RenderSettings::RenderSettings(CommandController& commandController)
 {
-	EnumSetting<Accuracy>::Map accMap = {
-		{ "screen", ACC_SCREEN },
-		{ "line",   ACC_LINE },
-		{ "pixel",  ACC_PIXEL } };
 	accuracySetting = make_unique<EnumSetting<Accuracy>>(commandController,
-		"accuracy", "rendering accuracy", ACC_PIXEL, accMap);
+		"accuracy", "rendering accuracy", ACC_PIXEL,
+		EnumSetting<Accuracy>::Map{
+			{"screen", ACC_SCREEN},
+			{"line",   ACC_LINE},
+			{"pixel",  ACC_PIXEL}});
 
 	deinterlaceSetting = make_unique<BooleanSetting>(commandController,
 		"deinterlace", "deinterlacing on/off", true);
@@ -109,7 +109,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	}
 	scaleAlgorithmSetting = make_unique<EnumSetting<ScaleAlgorithm>>(
 		commandController, "scale_algorithm", "scale algorithm",
-		SCALER_SIMPLE, scalerMap);
+		SCALER_SIMPLE, std::move(scalerMap));
 
 	scaleFactorSetting = make_unique<IntegerSetting>(commandController,
 		"scale_factor", "scale factor",
@@ -127,31 +127,28 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"disablesprites", "disable sprite rendering",
 		false, Setting::DONT_SAVE);
 
-	EnumSetting<bool>::Map cmdMap = {
-		{ "real",   false },
-		{ "broken", true } };
 	cmdTimingSetting = make_unique<EnumSetting<bool>>(commandController,
-		"cmdtiming", "VDP command timing", false, cmdMap,
+		"cmdtiming", "VDP command timing", false,
+		EnumSetting<bool>::Map{{"real", false}, {"broken", true}},
 		Setting::DONT_SAVE);
 
-	EnumSetting<bool>::Map accessMap = {
-		{ "real",   false },
-		{ "ignore", true } };
 	tooFastAccessSetting = make_unique<EnumSetting<bool>>(commandController,
 		"too_fast_vram_access",
 		"Should too fast VDP VRAM access be correctly emulated.\n"
 		"Possible values are:\n"
 		" real -> too fast accesses are dropped\n"
 		" ignore -> access speed is ignored, all accesses are executed",
-		false, accessMap, Setting::DONT_SAVE);
+		false,
+		EnumSetting<bool>::Map{{"real", false }, {"ignore", true}},
+		Setting::DONT_SAVE);
 
-	EnumSetting<DisplayDeform>::Map deformMap = {
-		{ "normal", DEFORM_NORMAL },
-		{ "3d",     DEFORM_3D } };
 	displayDeformSetting = make_unique<EnumSetting<DisplayDeform>>(
 		commandController,
 		"display_deform", "Display deform (for the moment this only "
-		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap);
+		"works with the SDLGL-PP renderer", DEFORM_NORMAL,
+		EnumSetting<DisplayDeform>::Map{
+			{"normal", DEFORM_NORMAL},
+			{"3d",     DEFORM_3D}});
 
 	// Many android devices are relatively low powered. Therefore use
 	// no stretch (value 320) as default for Android because it gives

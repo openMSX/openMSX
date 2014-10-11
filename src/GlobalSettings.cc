@@ -35,10 +35,6 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		"invalid_psg_directions_callback",
 		"Tcl proc called when the MSX program has set invalid PSG port directions",
 		"");
-	EnumSetting<ResampledSoundDevice::ResampleType>::Map resampleMap = {
-		{ "hq",   ResampledSoundDevice::RESAMPLE_HQ },
-		{ "fast", ResampledSoundDevice::RESAMPLE_LQ },
-		{ "blip", ResampledSoundDevice::RESAMPLE_BLIP } };
 	resampleSetting = make_unique<EnumSetting<ResampledSoundDevice::ResampleType>>(
 		commandController, "resampler", "Resample algorithm",
 #if PLATFORM_DINGUX
@@ -51,7 +47,10 @@ GlobalSettings::GlobalSettings(GlobalCommandController& commandController_)
 		// For other platforms, default setting may be changed in future
 		ResampledSoundDevice::RESAMPLE_BLIP,
 #endif
-		resampleMap);
+		EnumSetting<ResampledSoundDevice::ResampleType>::Map{
+			{"hq",   ResampledSoundDevice::RESAMPLE_HQ},
+			{"fast", ResampledSoundDevice::RESAMPLE_LQ},
+			{"blip", ResampledSoundDevice::RESAMPLE_BLIP}});
 
 	for (auto i : xrange(SDL_NumJoysticks())) {
 		std::string name = "joystick" + std::to_string(i) + "_deadzone";

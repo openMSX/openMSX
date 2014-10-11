@@ -36,7 +36,7 @@ public:
 
 	EnumSetting(CommandController& commandController, string_ref name,
 	            string_ref description, T initialValue,
-	            Map& map_, SaveSetting save = SAVE);
+	            Map&& map_, SaveSetting save = SAVE);
 
 	string_ref getTypeString() const override;
 	void additionalInfo(TclObject& result) const override;
@@ -57,7 +57,7 @@ template <typename T>
 EnumSetting<T>::EnumSetting(
 		CommandController& commandController, string_ref name,
 		string_ref description, T initialValue,
-		Map& map, SaveSetting save)
+		Map&& map, SaveSetting save)
 	: EnumSettingBase(BaseMap(std::make_move_iterator(begin(map)),
 	                          std::make_move_iterator(end(map))))
 	, Setting(commandController, name, description,

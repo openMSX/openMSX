@@ -20,56 +20,55 @@ KeyboardSettings::KeyboardSettings(CommandController& commandController)
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true))
 {
-	EnumSetting<Keys::KeyCode>::Map allowedKeys = {
-		{ "RALT",        Keys::K_RALT },
-		{ "MENU",        Keys::K_MENU },
-		{ "RCTRL",       Keys::K_RCTRL },
-		{ "HENKAN_MODE", Keys::K_HENKAN_MODE },
-		{ "RSHIFT",      Keys::K_RSHIFT },
-		{ "RMETA",       Keys::K_RMETA },
-		{ "LMETA",       Keys::K_LMETA },
-		{ "LSUPER",      Keys::K_LSUPER },
-		{ "RSUPER",      Keys::K_RSUPER },
-		{ "HELP",        Keys::K_HELP },
-		{ "UNDO",        Keys::K_UNDO },
-		{ "END",         Keys::K_END },
-		{ "PAGEUP",      Keys::K_PAGEUP },
-		{ "PAGEDOWN",    Keys::K_PAGEDOWN } };
+	typedef EnumSetting<Keys::KeyCode>::Map KeyMap;
+	KeyMap allowedKeys = {
+		{"RALT",        Keys::K_RALT},
+		{"MENU",        Keys::K_MENU},
+		{"RCTRL",       Keys::K_RCTRL},
+		{"HENKAN_MODE", Keys::K_HENKAN_MODE},
+		{"RSHIFT",      Keys::K_RSHIFT},
+		{"RMETA",       Keys::K_RMETA},
+		{"LMETA",       Keys::K_LMETA},
+		{"LSUPER",      Keys::K_LSUPER},
+		{"RSUPER",      Keys::K_RSUPER},
+		{"HELP",        Keys::K_HELP},
+		{"UNDO",        Keys::K_UNDO},
+		{"END",         Keys::K_END},
+		{"PAGEUP",      Keys::K_PAGEUP},
+		{"PAGEDOWN",    Keys::K_PAGEDOWN}};
 	codeKanaHostKey = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
-		Keys::K_RALT, allowedKeys);
+		Keys::K_RALT, KeyMap(allowedKeys));
 
 	deadkeyHostKey[0] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey1_host_key",
 		"Host key that maps to deadkey 1. Not applicable to Japanese and Korean MSX models",
-		Keys::K_RCTRL, allowedKeys);
+		Keys::K_RCTRL, KeyMap(allowedKeys));
 
 	deadkeyHostKey[1] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey2_host_key",
 		"Host key that maps to deadkey 2. Only applicable to Brazilian MSX models (Sharp Hotbit and Gradiente)",
-		Keys::K_PAGEUP, allowedKeys);
+		Keys::K_PAGEUP, KeyMap(allowedKeys));
 
 	deadkeyHostKey[2] = make_unique<EnumSetting<Keys::KeyCode>>(
 		commandController, "kbd_deadkey3_host_key",
 		"Host key that maps to deadkey 3. Only applicable to Brazilian Sharp Hotbit MSX models",
-		Keys::K_PAGEDOWN, allowedKeys);
+		Keys::K_PAGEDOWN, std::move(allowedKeys));
 
-	EnumSetting<KpEnterMode>::Map kpEnterModeMap = {
-		{ "KEYPAD_COMMA", MSX_KP_COMMA },
-		{ "ENTER",        MSX_ENTER } };
 	kpEnterMode = make_unique<EnumSetting<KpEnterMode>>(
 		commandController, "kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",
-		MSX_KP_COMMA, kpEnterModeMap);
+		MSX_KP_COMMA, EnumSetting<KpEnterMode>::Map{
+			{"KEYPAD_COMMA", MSX_KP_COMMA},
+			{"ENTER",        MSX_ENTER}});
 
-	EnumSetting<MappingMode>::Map mappingModeMap = {
-		{ "KEY",       KEY_MAPPING },
-		{ "CHARACTER", CHARACTER_MAPPING } };
 	mappingMode = make_unique<EnumSetting<MappingMode>>(
 		commandController, "kbd_mapping_mode",
 		"Keyboard mapping mode",
-		CHARACTER_MAPPING, mappingModeMap);
+		CHARACTER_MAPPING, EnumSetting<MappingMode>::Map{
+			{"KEY",       KEY_MAPPING},
+			{"CHARACTER", CHARACTER_MAPPING}});
 }
 
 KeyboardSettings::~KeyboardSettings()

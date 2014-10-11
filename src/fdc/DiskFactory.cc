@@ -22,20 +22,18 @@ DiskFactory::DiskFactory(Reactor& reactor_)
 {
 	CommandController& controller = reactor.getCommandController();
 
-	EnumSetting<DirAsDSK::SyncMode>::Map syncDirAsDSKMap = {
-		{ "read_only", DirAsDSK::SYNC_READONLY },
-		{ "full",      DirAsDSK::SYNC_FULL } };
 	syncDirAsDSKSetting = make_unique<EnumSetting<DirAsDSK::SyncMode>>(
 		controller, "DirAsDSKmode",
 		"type of syncronisation between host directory and dir-as-dsk diskimage",
-		DirAsDSK::SYNC_FULL, syncDirAsDSKMap);
+		DirAsDSK::SYNC_FULL, EnumSetting<DirAsDSK::SyncMode>::Map{
+			{"read_only", DirAsDSK::SYNC_READONLY},
+			{"full",      DirAsDSK::SYNC_FULL}});
 
-	EnumSetting<DirAsDSK::BootSectorType>::Map bootsectorMap = {
-		{ "DOS1", DirAsDSK::BOOTSECTOR_DOS1 },
-		{ "DOS2", DirAsDSK::BOOTSECTOR_DOS2 } };
 	bootSectorSetting = make_unique<EnumSetting<DirAsDSK::BootSectorType>>(
 		controller, "bootsector", "boot sector type for dir-as-dsk",
-		DirAsDSK::BOOTSECTOR_DOS2, bootsectorMap);
+		DirAsDSK::BOOTSECTOR_DOS2, EnumSetting<DirAsDSK::BootSectorType>::Map{
+			{"DOS1", DirAsDSK::BOOTSECTOR_DOS1},
+			{"DOS2", DirAsDSK::BOOTSECTOR_DOS2}});
 }
 
 std::unique_ptr<Disk> DiskFactory::createDisk(

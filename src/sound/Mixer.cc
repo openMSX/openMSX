@@ -54,7 +54,7 @@ Mixer::Mixer(Reactor& reactor_, CommandController& commandController_)
 	soundDriverSetting = make_unique<EnumSetting<SoundDriverType>>(
 		commandController, "sound_driver",
 		"select the sound output driver",
-		defaultSoundDriver, soundDriverMap);
+		defaultSoundDriver, std::move(soundDriverMap));
 
 	muteSetting->attach(*this);
 	frequencySetting->attach(*this);
