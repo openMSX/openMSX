@@ -239,11 +239,16 @@ to build the Android version on a Windows host, then you must install a virtual 
 <p>The Android build depends on following toolkits and libraries that must first be installed:</p>
 <dl>
 	<dt>The Android SDK</dt>
-	<dd>Download the Android SDK from the <a href="http://developer.android.com/sdk/index.html">Android SDK site</a> (e.g. current package is <a class="external" href="http://dl.google.com/android/android-sdk_r21.0.1-linux.tgz">Android SDK R21.0.1 Linux</a>)
-	, unpack it to your favourite location and add following Android SDK directories to your PATH environment
-	parameter: <code>${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools</code>. It is advisable to do this in your <code>~/.profile</code>
-	script so that the setting remains available on each login. Note that <code>$ANDROID_SDK</code> stands for the
-	directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code>.</dd>
+	<dd>Download the Android SDK from the <a href="http://developer.android.com/sdk/index.html">Android SDK site</a>It is sufficient to download
+    the SDK Tools only package; For openMSX you do not need the so-called ADT bundle. The current SDK Tools only package is
+    <a class="external" href="http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz">Android SDK R23.0.2 Linux</a>.
+	After downloading it, unpack it to your favourite location and add following Android SDK directories to your PATH environment
+	parameter: <code>${ANDROID_SDK}/tools:${ANDROID_SDK}/platform-tools:${ANDROID_SDK}/build-tools/${ANDROID_SDK_VERSION}</code>. 
+	It is advisable to do this in your <code>~/.profile</code>
+	script so that the setting remains available on each login. Note that <code>${ANDROID_SDK}</code> stands for the
+	directory in which you installed the Android SDK, for example <code>/opt/android/android-sdk-linux</code> 
+	and <code>${ANDROID_SDK_VERSION}</code> stands for the version of the SDK, for example <code>20.0.0</code>.
+	See the README in the ${ANDROID-SDK} directory for further instructions on how to download extra tools and libraries</dd>
 	<dt>The Android NDK</dt>
 	<dd>Download the Android NDK from the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK site</a>,
 	unpack it to your favourite location and add following Android NDK directory to your PATH environment
