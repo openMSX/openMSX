@@ -21,7 +21,8 @@ MSX device support:
 - improved Sony HBI-55 emulation
 - fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is now
   finally fixed!
-- fixed handling of key-off for percussive tones
+- fixed handling of key-off for percussive tones on MSX-AUDIO
+- fixed detection of Philips Music Module in Tetris II Special Edition
 - fixed bug in 5/9th sprite detection status register
 - implemented VDP access timing also for character and text modes (both for
   MSX1 VDP's and V99x8): too fast VDP access will now cause corruption on
@@ -35,9 +36,11 @@ MSX device support:
   - updated many machine configs with the proper MSX1 VDP type (where known,
     additions/corrections are welcome!)
 - implemented that V99x8 does not support undocumented mixed modes
-- added the following machines: Daewoo CPC-51 Zemmix V, Toshiba HX-51I, Yamaha
-  YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10), Yamaha CX5MII, Fujitsu
-  FM-X (thanks to NYYRIKKI, Werner Kai and Maxim Vlasov)
+- fixed KANA/CODE key not working in CHARACTER input mode
+- added the following machines: Daewoo CPC-51 Zemmix V, Daewoo CPC-300E,
+  Toshiba HX-51I, Yamaha YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10),
+  Yamaha CX5MII, Fujitsu FM-X (thanks to NYYRIKKI, Werner Kai, Maxim Vlasov and
+  Alex Krasivsky)
 - added the Casio KB-7 and KB-10 docking stations (note: these extensions only
   work with the Casio PV-7 and MX-10 respectively; do not be worried
   when they appear to be not working according to Catapult!)
@@ -62,6 +65,7 @@ New or improved emulator features:
 - added dir-as-disk support for the OSD menu
 - removed experimental libao sound driver
 - added support for R-ALT on Korean keyboard (thanks to Miso Kim)
+- improved joystick support in OSD menu (take deadzone into account)
 
 
 Build system, packaging, documentation:
