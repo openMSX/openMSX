@@ -1161,7 +1161,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\MemBuffer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\MemoryOps.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\my_auto_ptr.hh" />
-    <None Include="$(OpenMSXSrcDir)\utils\noncopyable.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\Observer.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\ref.hh" />
     <None Include="$(OpenMSXSrcDir)\utils\ScopedAssign.hh" />

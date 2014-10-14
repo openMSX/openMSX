@@ -2,10 +2,9 @@
 #define SCHEDULABLE_HH
 
 #include "EmuTime.hh"
-#include "serialize_meta.hh"
 #include "serialize.hh"
+#include "serialize_meta.hh"
 #include "serialize_stl.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -31,9 +30,12 @@ struct SyncPointBW
  * Every class that wants to get scheduled at some point must inherit from
  * this class.
  */
-class Schedulable : private noncopyable
+class Schedulable
 {
 public:
+	Schedulable(const Schedulable&) = delete;
+	Schedulable& operator=(const Schedulable&) = delete;
+
 	/**
 	 * When the previously registered syncPoint is reached, this
 	 * method gets called.

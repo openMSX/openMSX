@@ -10,7 +10,6 @@
 #include "SettingsConfig.hh"
 #include "RomInfoTopic.hh"
 #include "hash_map.hh"
-#include "noncopyable.hh"
 #include "xxhash.hh"
 #include <string>
 #include <vector>
@@ -34,9 +33,12 @@ protected:
 };
 
 class GlobalCommandController final : private GlobalCommandControllerBase
-                                    , public CommandController, private noncopyable
+                                    , public CommandController
 {
 public:
+	GlobalCommandController(const GlobalCommandController&) = delete;
+	GlobalCommandController& operator=(const GlobalCommandController&) = delete;
+
 	GlobalCommandController(EventDistributor& eventDistributor,
 	                        GlobalCliComm& cliComm,
 	                        Reactor& reactor);

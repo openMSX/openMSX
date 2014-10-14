@@ -2,7 +2,6 @@
 #define MSXEVENTDISTRIBUTOR_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 
@@ -11,12 +10,15 @@ namespace openmsx {
 class MSXEventListener;
 class Event;
 
-class MSXEventDistributor : private noncopyable
+class MSXEventDistributor
 {
 public:
 	using EventPtr = std::shared_ptr<const Event>;
 
-	MSXEventDistributor();
+	MSXEventDistributor(const MSXEventDistributor&) = delete;
+	MSXEventDistributor& operator=(const MSXEventDistributor&) = delete;
+
+	MSXEventDistributor() = default;
 	~MSXEventDistributor();
 
 	/**

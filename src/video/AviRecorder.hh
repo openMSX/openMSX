@@ -4,7 +4,6 @@
 #include "Command.hh"
 #include "EmuTime.hh"
 #include "array_ref.hh"
-#include "noncopyable.hh"
 #include <vector>
 #include <memory>
 
@@ -19,7 +18,7 @@ class FrameSource;
 class MSXMixer;
 class TclObject;
 
-class AviRecorder : private noncopyable
+class AviRecorder
 {
 public:
 	explicit AviRecorder(Reactor& reactor);

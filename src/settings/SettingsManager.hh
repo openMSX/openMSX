@@ -6,7 +6,6 @@
 #include "Setting.hh"
 #include "hash_set.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
 #include "xxhash.hh"
 
 namespace openmsx {
@@ -17,9 +16,12 @@ class XMLElement;
 
 /** Manages all settings.
   */
-class SettingsManager : private noncopyable
+class SettingsManager
 {
 public:
+	SettingsManager(const SettingsManager&) = delete;
+	SettingsManager& operator=(const SettingsManager&) = delete;
+
 	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
 

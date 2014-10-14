@@ -2,7 +2,6 @@
 #define SOUNDDEVICE_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <memory>
 
@@ -14,7 +13,7 @@ class Wav16Writer;
 class Filename;
 class DynamicClock;
 
-class SoundDevice : private noncopyable
+class SoundDevice
 {
 public:
 	static const unsigned MAX_CHANNELS = 24;

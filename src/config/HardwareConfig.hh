@@ -5,7 +5,6 @@
 #include "FileContext.hh"
 #include "serialize_meta.hh"
 #include "serialize_constr.hh"
-#include "noncopyable.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
 #include <string>
@@ -18,9 +17,12 @@ class MSXMotherBoard;
 class MSXDevice;
 class TclObject;
 
-class HardwareConfig : private noncopyable
+class HardwareConfig
 {
 public:
+	HardwareConfig(const HardwareConfig&) = delete;
+	HardwareConfig& operator=(const HardwareConfig&) = delete;
+
 	static XMLElement loadConfig(string_ref type, string_ref name);
 
 	static std::unique_ptr<HardwareConfig> createMachineConfig(

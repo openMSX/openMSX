@@ -5,7 +5,6 @@
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
-#include "noncopyable.hh"
 #include <vector>
 #include <memory>
 
@@ -16,7 +15,7 @@ class Reactor;
 class CommandController;
 class MSXMixer;
 
-class Mixer final : private Observer<Setting>, private noncopyable
+class Mixer final : private Observer<Setting>
 {
 public:
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };

@@ -8,7 +8,6 @@
 #include "BreakPoint.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "likely.hh"
 #include <algorithm>
 #include <bitset>
@@ -38,9 +37,12 @@ struct CompareBreakpoints {
 	}
 };
 
-class MSXCPUInterface : private noncopyable
+class MSXCPUInterface
 {
 public:
+	MSXCPUInterface(const MSXCPUInterface&) = delete;
+	MSXCPUInterface& operator=(const MSXCPUInterface&) = delete;
+
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
 	~MSXCPUInterface();
 

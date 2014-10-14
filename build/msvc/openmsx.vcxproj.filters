@@ -2305,9 +2305,6 @@
     <None Include="$(OpenMSXSrcDir)\utils\my_auto_ptr.hh">
       <Filter>utils</Filter>
     </None>
-    <None Include="$(OpenMSXSrcDir)\utils\noncopyable.hh">
-      <Filter>utils</Filter>
-    </None>
     <None Include="$(OpenMSXSrcDir)\utils\Observer.hh">
       <Filter>utils</Filter>
     </None>

@@ -3,14 +3,13 @@
 
 #include "PatchInterface.hh"
 #include "Filename.hh"
-#include "noncopyable.hh"
 #include <utility>
 #include <vector>
 #include <memory>
 
 namespace openmsx {
 
-class IPSPatch final : public PatchInterface, private noncopyable
+class IPSPatch final : public PatchInterface
 {
 public:
 	using PatchMap = std::vector<std::pair<size_t, std::vector<byte>>>;

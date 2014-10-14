@@ -8,7 +8,6 @@
 #include "StringSetting.hh"
 #include "ThrottleManager.hh"
 #include "ResampledSoundDevice.hh"
-#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 
@@ -21,7 +20,7 @@ class GlobalCommandController;
  * (including some singletons). This class was introduced to solve
  * lifetime management issues.
  */
-class GlobalSettings final : private Observer<Setting>, private noncopyable
+class GlobalSettings final : private Observer<Setting>
 {
 public:
 	explicit GlobalSettings(GlobalCommandController& commandController);

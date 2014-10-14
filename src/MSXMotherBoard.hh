@@ -8,7 +8,6 @@
 #include "string_ref.hh"
 #include "xxhash.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "RecordedCommand.hh"
 #include <memory>
 #include <vector>
@@ -56,9 +55,12 @@ class Scheduler;
 class Setting;
 class StateChangeDistributor;
 
-class MSXMotherBoard final : private noncopyable
+class MSXMotherBoard final
 {
 public:
+	MSXMotherBoard(const MSXMotherBoard&) = delete;
+	MSXMotherBoard& operator=(const MSXMotherBoard&) = delete;
+
 	explicit MSXMotherBoard(Reactor& reactor);
 	~MSXMotherBoard();
 

@@ -15,7 +15,6 @@
 #endif
 
 #include "MemBuffer.hh"
-#include "noncopyable.hh"
 #include "build-info.hh"
 #include <string>
 #include <cassert>
@@ -36,6 +35,9 @@ struct Null {};
 class Texture
 {
 public:
+	Texture(const Texture&) = delete;
+	Texture& operator=(const Texture&) = delete;
+
 	/** Allocate a openGL texture name and enable/disable interpolation. */
 	explicit Texture(bool interpolation = false, bool wrap = false);
 
@@ -86,11 +88,6 @@ public:
 protected:
 	GLuint textureId;
 
-private:
-	// Disable copy, assign.
-	Texture(const Texture&) = delete;
-	Texture& operator=(const Texture&) = delete;
-
 	friend class FrameBufferObject;
 };
 
@@ -114,7 +111,7 @@ private:
 	GLsizei height;
 };
 
-class FrameBufferObject //: public noncopyable
+class FrameBufferObject
 {
 public:
 	FrameBufferObject();
@@ -149,7 +146,7 @@ struct PixelBuffers
   * otherwise.
   * The pixel type is templatized T.
   */
-template <typename T> class PixelBuffer //: public noncopyable
+template <typename T> class PixelBuffer
 {
 public:
 	PixelBuffer();
@@ -393,9 +390,12 @@ public:
 /** Wrapper around an OpenGL program:
   * a collection of vertex and fragment shaders.
   */
-class ShaderProgram : public noncopyable
+class ShaderProgram
 {
 public:
+	ShaderProgram(const ShaderProgram&) = delete;
+	ShaderProgram& operator=(const ShaderProgram&) = delete;
+
 	/** Create handler and allocate underlying openGL object. */
 	ShaderProgram() { allocate(); }
 
@@ -452,7 +452,7 @@ private:
 	GLuint handle;
 };
 
-class BufferObject //: public noncopyable
+class BufferObject
 {
 public:
 	BufferObject();

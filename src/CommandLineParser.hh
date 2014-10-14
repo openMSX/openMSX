@@ -12,7 +12,6 @@
 #include "CDImageCLI.hh"
 #include "array_ref.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
 #include "components.hh"
 #include <string>
 #include <vector>
@@ -29,7 +28,7 @@ class MSXMotherBoard;
 class GlobalCommandController;
 class Interpreter;
 
-class CommandLineParser : private noncopyable
+class CommandLineParser
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };

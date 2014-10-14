@@ -9,7 +9,6 @@
 #include "Clock.hh"
 #include "EnumSetting.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -17,7 +16,7 @@ namespace openmsx {
 class CommandController;
 class SRAM;
 
-class RP5C01 : private noncopyable
+class RP5C01
 {
 public:
 	enum RTCMode { EMUTIME, REALTIME };

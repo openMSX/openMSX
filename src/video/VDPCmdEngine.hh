@@ -7,7 +7,6 @@
 #include "TclCallback.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include "likely.hh"
 #include <memory>
 
@@ -21,7 +20,7 @@ class CommandController;
 /** VDP command engine by Alex Wulms.
   * Implements command execution unit of V9938/58.
   */
-class VDPCmdEngine : private noncopyable
+class VDPCmdEngine
 {
 public:
 	VDPCmdEngine(VDP& vdp, CommandController& commandController);

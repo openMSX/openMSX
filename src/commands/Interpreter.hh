@@ -4,7 +4,6 @@
 #include "TclParser.hh"
 #include "TclObject.hh"
 #include "string_ref.hh"
-#include "noncopyable.hh"
 #include <vector>
 #include <tcl.h>
 
@@ -15,9 +14,12 @@ class Command;
 class BaseSetting;
 class InterpreterOutput;
 
-class Interpreter : private noncopyable
+class Interpreter
 {
 public:
+	Interpreter(const Interpreter&) = delete;
+	Interpreter& operator=(const Interpreter&) = delete;
+
 	explicit Interpreter(EventDistributor& eventDistributor);
 	~Interpreter();
 

@@ -15,7 +15,6 @@
 #include "MemBuffer.hh"
 #include "countof.hh"
 #include "likely.hh"
-#include "noncopyable.hh"
 #include "stl.hh"
 #include "vla.hh"
 #include "build-info.hh"
@@ -42,7 +41,7 @@ static const int COEFF_LEN = countof(coeffs);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
 
-class ResampleCoeffs : private noncopyable
+class ResampleCoeffs
 {
 public:
 	static ResampleCoeffs& instance();

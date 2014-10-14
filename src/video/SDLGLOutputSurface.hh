@@ -3,7 +3,6 @@
 
 #include "GLUtil.hh"
 #include "MemBuffer.hh"
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -14,7 +13,7 @@ class OutputSurface;
   * SDLGLOffScreenSurface. It's only purpose is to have a place to put common
   * code.
   */
-class SDLGLOutputSurface : private noncopyable
+class SDLGLOutputSurface
 {
 public:
 	/** These correspond respectively with the renderers:

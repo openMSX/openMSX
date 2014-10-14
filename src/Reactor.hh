@@ -3,7 +3,6 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include "openmsx.hh"
 #include <string>
@@ -60,7 +59,6 @@ template <typename T> class EnumSetting;
  * main thread.
  */
 class Reactor final : private Observer<Setting>, private EventListener
-                    , private noncopyable
 {
 public:
 	Reactor();

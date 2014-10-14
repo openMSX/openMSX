@@ -4,7 +4,6 @@
 #include "hash_map.hh"
 #include "likely.hh"
 #include "memory.hh"
-#include "noncopyable.hh"
 #include "type_traits.hh"
 #include "xxhash.hh"
 #include <tuple>
@@ -214,7 +213,7 @@ public:
 
 
 template<typename Archive>
-class PolymorphicSaverRegistry : private noncopyable
+class PolymorphicSaverRegistry
 {
 public:
 	static PolymorphicSaverRegistry& instance();
@@ -254,7 +253,7 @@ private:
 };
 
 template<typename Archive>
-class PolymorphicLoaderRegistry : private noncopyable
+class PolymorphicLoaderRegistry
 {
 public:
 	static PolymorphicLoaderRegistry& instance();
@@ -283,7 +282,7 @@ private:
 };
 
 template<typename Archive>
-class PolymorphicInitializerRegistry : private noncopyable
+class PolymorphicInitializerRegistry
 {
 public:
 	static PolymorphicInitializerRegistry& instance();

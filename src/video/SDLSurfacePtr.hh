@@ -31,6 +31,9 @@
 class SDLSurfacePtr
 {
 public:
+	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
+	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
+
 	/** Create a (software) surface with uninitialized pixel content.
 	  * throws: bad_alloc (no need to check for nullptr). */
 	SDLSurfacePtr(unsigned width, unsigned height, unsigned depth,
@@ -46,14 +49,11 @@ public:
 		if (!surface) throw std::bad_alloc();
 	}
 
-	// don't allow copy and assign
-	SDLSurfacePtr(const SDLSurfacePtr&) = delete;
-	SDLSurfacePtr& operator=(const SDLSurfacePtr&) = delete;
-
 	explicit SDLSurfacePtr(SDL_Surface* surface_ = nullptr)
 		: surface(surface_)
 	{
 	}
+
 	SDLSurfacePtr(SDLSurfacePtr&& other) noexcept
 		: surface(other.surface)
 		, buffer(std::move(other.buffer))

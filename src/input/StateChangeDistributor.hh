@@ -2,7 +2,6 @@
 #define STATECHANGEDISTRIBUTOR_HH
 
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 
@@ -12,7 +11,7 @@ class StateChangeListener;
 class StateChangeRecorder;
 class StateChange;
 
-class StateChangeDistributor : private noncopyable
+class StateChangeDistributor
 {
 public:
 	using EventPtr = std::shared_ptr<StateChange>;

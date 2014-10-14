@@ -3,7 +3,6 @@
 
 #include "Disk.hh"
 #include "RawTrack.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -11,7 +10,7 @@ namespace openmsx {
   * information (so not the raw track data that is sometimes needed for
   * copy-protected disks).
   */
-class SectorBasedDisk : public Disk, private noncopyable
+class SectorBasedDisk : public Disk
 {
 protected:
 	explicit SectorBasedDisk(const DiskName& name);

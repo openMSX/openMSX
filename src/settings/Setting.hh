@@ -3,7 +3,6 @@
 
 #include "Subject.hh"
 #include "TclObject.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <functional>
 #include <vector>
@@ -14,7 +13,7 @@ class CommandController;
 class GlobalCommandController;
 class Interpreter;
 
-class BaseSetting : private noncopyable
+class BaseSetting
 {
 protected:
 	BaseSetting(string_ref name);
@@ -118,6 +117,9 @@ private:
 class Setting : public BaseSetting, public Subject<Setting>
 {
 public:
+	Setting(const Setting&) = delete;
+	Setting& operator=(const Setting&) = delete;
+
 	enum SaveSetting {
 		SAVE,          //    save,    transfer
 		DONT_SAVE,     // no-save,    transfer

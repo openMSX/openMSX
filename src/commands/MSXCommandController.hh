@@ -6,7 +6,6 @@
 #include "MSXEventListener.hh"
 #include "Setting.hh"
 #include "hash_set.hh"
-#include "noncopyable.hh"
 #include "xxhash.hh"
 #include <memory>
 
@@ -20,9 +19,11 @@ class InfoCommand;
 
 class MSXCommandController final
 	: public CommandController, private MSXEventListener
-	, private noncopyable
 {
 public:
+	MSXCommandController(const MSXCommandController&) = delete;
+	MSXCommandController& operator=(const MSXCommandController&) = delete;
+
 	MSXCommandController(GlobalCommandController& globalCommandController,
 	                     Reactor& reactor, MSXMotherBoard& motherboard,
 	                     MSXEventDistributor& msxEventDistributor,

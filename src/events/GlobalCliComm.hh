@@ -3,7 +3,6 @@
 
 #include "CliComm.hh"
 #include "hash_map.hh"
-#include "noncopyable.hh"
 #include "xxhash.hh"
 #include <memory>
 #include <mutex>
@@ -13,9 +12,12 @@ namespace openmsx {
 
 class CliListener;
 
-class GlobalCliComm final : public CliComm, private noncopyable
+class GlobalCliComm final : public CliComm
 {
 public:
+	GlobalCliComm(const GlobalCliComm&) = delete;
+	GlobalCliComm& operator=(const GlobalCliComm&) = delete;
+
 	GlobalCliComm();
 	~GlobalCliComm();
 

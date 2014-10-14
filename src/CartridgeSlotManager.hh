@@ -3,7 +3,6 @@
 
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
-#include "noncopyable.hh"
 #include "string_ref.hh"
 #include <memory>
 
@@ -13,7 +12,7 @@ class MSXMotherBoard;
 class ExtCmd;
 class HardwareConfig;
 
-class CartridgeSlotManager : private noncopyable
+class CartridgeSlotManager
 {
 public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);

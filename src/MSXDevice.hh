@@ -5,7 +5,6 @@
 #include "EmuTime.hh"
 #include "openmsx.hh"
 #include "serialize_meta.hh"
-#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <utility> // for pair
@@ -29,9 +28,12 @@ class TclObject;
   * of the emulated MSX. There is no communication among devices, only
   * between devices and the CPU.
   */
-class MSXDevice : private noncopyable
+class MSXDevice
 {
 public:
+	MSXDevice(const MSXDevice&) = delete;
+	MSXDevice& operator=(const MSXDevice&) = delete;
+
 	using Devices = std::vector<MSXDevice*>;
 
 	virtual ~MSXDevice() = 0;

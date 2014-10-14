@@ -2,11 +2,10 @@
 #define GLDEFAULTSCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
-class GLDefaultScaler final : public GLScaler, private noncopyable
+class GLDefaultScaler final : public GLScaler
 {
 public:
 	GLDefaultScaler();

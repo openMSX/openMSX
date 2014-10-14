@@ -6,10 +6,6 @@
 
 namespace openmsx {
 
-MSXEventDistributor::MSXEventDistributor()
-{
-}
-
 MSXEventDistributor::~MSXEventDistributor()
 {
 	assert(listeners.empty());

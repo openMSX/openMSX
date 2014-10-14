@@ -10,7 +10,6 @@
 #include "string_ref.hh"
 #include "gl_vec.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 #include <list>
 #include <memory>
 
@@ -23,7 +22,6 @@ class BaseImage;
 class BooleanSetting;
 
 class OSDConsoleRenderer final : public Layer, private Observer<Setting>
-                               , private noncopyable
 {
 public:
 	OSDConsoleRenderer(Reactor& reactor, CommandConsole& console,

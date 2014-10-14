@@ -4,15 +4,17 @@
 #include "SoundDriver.hh"
 #include "MemBuffer.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
 class Reactor;
 
-class SDLSoundDriver final : public SoundDriver, private noncopyable
+class SDLSoundDriver final : public SoundDriver
 {
 public:
+	SDLSoundDriver(const SDLSoundDriver&) = delete;
+	SDLSoundDriver& operator=(const SDLSoundDriver&) = delete;
+
 	SDLSoundDriver(Reactor& reactor,
 	               unsigned frequency, unsigned samples);
 	~SDLSoundDriver();

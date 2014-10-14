@@ -2,11 +2,10 @@
 #define GLSAISCALER_HH
 
 #include "GLScaler.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
-class GLSaIScaler final : public GLScaler, private noncopyable
+class GLSaIScaler final : public GLScaler
 {
 public:
 	GLSaIScaler();

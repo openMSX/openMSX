@@ -1,7 +1,6 @@
 #ifndef MEMBUFFER_HH
 #define MEMBUFFER_HH
 
-#include "noncopyable.hh"
 #include "MemoryOps.hh"
 #include "alignof.hh"
 #include <algorithm>
@@ -35,7 +34,7 @@ static const size_t SSE2_ALIGNMENT = 0;
   * optimized for this case (it doesn't keep track of extra capacity). If you
   * need frequent resizing prefer to use vector instead of this class.
   */
-template<typename T, size_t ALIGNMENT = 0> class MemBuffer //: private noncopyable
+template<typename T, size_t ALIGNMENT = 0> class MemBuffer
 {
 public:
 	/** Construct an empty MemBuffer, no memory is allocated.

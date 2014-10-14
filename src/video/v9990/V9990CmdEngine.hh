@@ -6,7 +6,6 @@
 #include "EmuTime.hh"
 #include "serialize_meta.hh"
 #include "openmsx.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -18,7 +17,7 @@ class BooleanSetting;
 
 /** Command engine.
   */
-class V9990CmdEngine final : private Observer<Setting>, private noncopyable
+class V9990CmdEngine final : private Observer<Setting>
 {
 public:
 	// status bits
