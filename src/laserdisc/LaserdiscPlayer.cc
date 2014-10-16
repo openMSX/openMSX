@@ -22,6 +22,7 @@
 #include "likely.hh"
 #include "memory.hh"
 #include <cstdint>
+#include <cstdlib>
 
 using std::unique_ptr;
 using std::string;
@@ -947,7 +948,7 @@ void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 			//
 			// This calculation is based on measurements on
 			// a Pioneer LD-92000.
-			auto dist = abs(int64_t(toframe) - int64_t(currentFrame));
+			auto dist = std::abs(int64_t(toframe) - int64_t(currentFrame));
 			int seektime; // time in ms
 
 			if (dist < 1000) {

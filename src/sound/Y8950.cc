@@ -1458,7 +1458,7 @@ void Y8950Slot::serialize(Archive& ar, unsigned version)
 		ar.serialize("eg_mode", eg_mode);
 	} else {
 		assert(ar.isLoader());
-		int tmp;
+		int tmp = 0; // dummy init to avoid warning
 		ar.serialize("eg_mode", tmp);
 		switch (tmp) {
 			case 0:  eg_mode = ATTACK;  break;

@@ -1070,7 +1070,7 @@ void WD2793::serialize(Archive& ar, unsigned version)
 		ar.serialize("irqTime", irqTime);
 	} else {
 		assert(ar.isLoader());
-		bool INTRQ;
+		bool INTRQ = false; // dummy init to avoid warning
 		ar.serialize("INTRQ", INTRQ);
 		irqTime = INTRQ ? EmuTime::zero : EmuTime::infinity;
 
