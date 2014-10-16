@@ -14,28 +14,30 @@ even better performance and preparations for the future.
 Here's the list with all highlights:
 
 MSX device support:
-- added VDP I/O port mirroring to machines of which we are certain it exists
+- VDP:
+  - implemented access timing also for character and text modes (both for MSX1
+    VDP's and V99x8): too fast VDP access will now cause corruption on openMSX
+    too
+  - added support for specific MSX1 VDP's (mostly thanks to hap for all the
+    research):
+    - the exact VDP type can now be specified in the config file
+    - differences between Toshiba T6950/T7937A, TMS99xx and TMS91xx MSX1 VDP's
+      are now emulated (except sprite cloning)
+    - updated many machine configs with the proper MSX1 VDP type (where known,
+      additions/corrections are welcome!)
+  - implemented that V99x8 does not support undocumented mixed modes
+  - fixed bug in 5/9th sprite detection status register
+  - added I/O port mirroring to machines of which we are certain it exists
+- MSX-AUDIO (Y8950) and related:
+  - fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is
+    now finally fixed!
+  - fixed handling of key-off for percussive tones
+  - fixed detection of Philips Music Module in Tetris II Special Edition
 - added emulation of MegaFlashROM SCC+ SD. Note: the implementation is such
   that existing software works on it, but do not fully rely on it when
   developing for this cartridge!
 - improved Sony HBI-55 emulation
-- fixed envelope for MSX-AUDIO (Y8950), the infamous legato-envelope bug is now
-  finally fixed!
-- fixed handling of key-off for percussive tones on MSX-AUDIO
-- fixed detection of Philips Music Module in Tetris II Special Edition
-- fixed bug in 5/9th sprite detection status register
-- implemented VDP access timing also for character and text modes (both for
-  MSX1 VDP's and V99x8): too fast VDP access will now cause corruption on
-  openMSX too
 - fixed some details in several machine configurations
-- added support for specific MSX1 VDP's (mostly thanks to hap for all the
-  research):
-  - the exact VDP type can now be specified in the config file
-  - differences between Toshiba T6950/T7937A, TMS99xx and TMS91xx MSX1 VDP's
-    are now emulated (except sprite cloning)
-  - updated many machine configs with the proper MSX1 VDP type (where known,
-    additions/corrections are welcome!)
-- implemented that V99x8 does not support undocumented mixed modes
 - fixed KANA/CODE key not working in CHARACTER input mode
 - added the following machines: Daewoo CPC-51 Zemmix V, Daewoo CPC-300E,
   Toshiba HX-51I, Yamaha YIS-503IIR, Toshiba FS-TM1, Sanyo MPC-10 (Wavy 10),
@@ -44,6 +46,7 @@ MSX device support:
 - added the Casio KB-7 and KB-10 docking stations (note: these extensions only
   work with the Casio PV-7 and MX-10 respectively; do not be worried
   when they appear to be not working according to Catapult!)
+- added the MSX Acid Test machines, contributed by FRS
 - added the Gradiente CT-80E 80 column card extension, thanks to Maurício Braga
 
 
@@ -60,12 +63,13 @@ New or improved emulator features:
 - fixed a bug with watch_points affecting the execution flow
 - added NYYRIKKI's fast CAS loading/saving script, enable with setting the
   'fast_cas_load_hack_enabled' setting to on
-- added setting to configure dead zone for joysticks
-- added support for joystick hats (can be used just like buttons)
+- joysticks/controllers:
+  - added setting to configure dead zone for joysticks
+  - added support for joystick hats (can be used just like buttons)
+  - improved support in OSD menu (take deadzone into account)
 - added dir-as-disk support for the OSD menu
 - removed experimental libao sound driver
 - added support for R-ALT on Korean keyboard (thanks to Miso Kim)
-- improved joystick support in OSD menu (take deadzone into account)
 
 
 Build system, packaging, documentation:
