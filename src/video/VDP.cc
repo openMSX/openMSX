@@ -881,8 +881,16 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 			//  (though the sprites did not seem to make a difference).
 			// So this test could not decide between 8 or 9 TMS cycles.
 			// To be on the safe side we picked 8.
+			//
+			// Update: 8 cycles (DELTA_32) causes corruption in
+			// 'Chase HQ', see
+			//    http://www.msx.org/forum/msx-talk/openmsx/openmsx-about-release-testing-help-wanted
+			// lowering it to 7 cycles seems fine. TODO needs more
+			// investigation. (Just guessing) possibly there are
+			// other variables that influence the exact timing (7
+			// vs 8 cycles).
 			pendingCpuAccess = true;
-			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_32
+			auto delta = isMSX1VDP() ? VDPAccessSlots::DELTA_28
 						 : VDPAccessSlots::DELTA_16;
 			setSyncPoint(getAccessSlot(time, delta), CPU_VRAM_ACCESS);
 		}

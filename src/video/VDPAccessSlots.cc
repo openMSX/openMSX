@@ -176,7 +176,7 @@ static void initTable(bool msx1, const int16_t* slots, uint8_t* output)
 {
 	// !!! Keep this in sync with the 'Delta' enum !!!
 	static const int delta[NUM_DELTAS] = {
-		0, 1, 16, 24, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
+		0, 1, 16, 24, 28, 32, 40, 48, 64, 72, 88, 104, 120, 128, 136
 	};
 
 	for (auto step : delta) {
