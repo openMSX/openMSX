@@ -29,6 +29,7 @@ class CycleInLineInfo;
 class MsxYPosInfo;
 class MsxX256PosInfo;
 class MsxX512PosInfo;
+class TclCallback;
 class Display;
 class RawFrame;
 class Setting;
@@ -837,6 +838,8 @@ private:
 	/** Time of last set HSCAN sync point.
 	  */
 	EmuTime hScanSyncTime;
+
+	std::unique_ptr<TclCallback> tooFastCallback;
 
 	/** VDP version.
 	  */

@@ -1,3 +1,4 @@
+# Callback on read from uninitialized memory (UMR). Not enabled by default.
 set_help_text umrcallback \
 {This is an example of a UMR callback function. You can set the "umr_callback"
 setting in openMSX to "umrcallback" and this function will be called whenever
@@ -12,8 +13,11 @@ what is going on which has caused the UMR.
 proc umrcallback {addr name} {
 	puts stderr [format "UMR detected in RAM device \"$name\", offset: 0x%04X, PC: 0x%04X" $addr [reg PC]]
 }
+#set umr_callback umrcallback
 
 
+# Callback on changing the VDP command registers while a command is still in
+# progress. Not enabled by default.
 set_help_text vdpcmdinprogresscallback \
 {This is an example of a vdpcmdinprogress callback function. To use it execute
     set vdpcmdinprogress_callback vdpcmdinprogresscallback
@@ -35,8 +39,10 @@ so that you can easily examine what is going on.
 proc vdpcmdinprogresscallback {reg val} {
 	puts stderr [format "Write to VDP command engine detected while there's still a command in progress: reg = %d, val = %d, PC = 0x%04X" [expr {$reg + 32}] $val [reg PC]]
 }
+#set vdpcmdinprogress_callback vdpcmdinprogresscallback
 
 
+# Callback on setting invalid PSG port directions.
 set psg_directions_warning_printed false
 proc psgdirectioncallback {} {
 	if {$::psg_directions_warning_printed} return
@@ -47,10 +53,24 @@ Real (older) MSX machines can get damaged by this.} warning
 set invalid_psg_directions_callback psgdirectioncallback
 
 
+# Callback on DI;HALT.
 proc dihaltcallback {} {
 	message "DI; HALT detected, which means a hang. You can just as well reset the MSX now..." warning
 }
 set di_halt_callback dihaltcallback
+
+
+# Callback on too fast VRAM read/write, not enabled by default
+proc warn_too_fast_vram_access {} {
+	message [format "Too fast VRAM access PC=0x%04x Y-pos=%d" [reg PC] [machine_info VDP_msx_y_pos]] warning
+}
+proc debug_too_fast_vram_access {} {
+	warn_too_fast_vram_access
+	debug break
+}
+#set too_fast_vram_access_callback debug_too_fast_vram_access
+#set too_fast_vram_access_callback warn_too_fast_vram_access
+
 
 # show message (also) as OSD message
 set message_callback osd::display_message

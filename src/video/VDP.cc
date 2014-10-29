@@ -33,6 +33,7 @@ TODO:
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include "CliComm.hh"
+#include "TclCallback.hh"
 #include "StringOp.hh"
 #include "unreachable.hh"
 #include "memory.hh"
@@ -244,6 +245,9 @@ VDP::VDP(const DeviceConfig& config)
 	, displayStartSyncTime(Schedulable::getCurrentTime())
 	, vScanSyncTime(Schedulable::getCurrentTime())
 	, hScanSyncTime(Schedulable::getCurrentTime())
+	, tooFastCallback(make_unique<TclCallback>(
+		getCommandController(), "too_fast_vram_access_callback",
+		"Tcl proc called when the VRAM is read or written too fast"))
 	, warningPrinted(false)
 {
 	VDPAccessSlots::initTables();
@@ -846,6 +850,7 @@ void VDP::scheduleCpuVramAccess(bool isRead, byte write, EmuTime::param time)
 		// Already scheduled. Do nothing.
 		// The old request has been overwritten by the new request!
 		assert(!allowTooFastAccess);
+		tooFastCallback->execute();
 	} else {
 		if (unlikely(allowTooFastAccess)) {
 			// Immediately execute request.

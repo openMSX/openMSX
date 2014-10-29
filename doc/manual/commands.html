@@ -173,6 +173,7 @@
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
         <li><a class="internal" href="#throttle">throttle</a></li>
         <li><a class="internal" href="#too_fast_vram_access">too_fast_vram_access</a></li>
+        <li><a class="internal" href="#too_fast_vram_access_callback">too_fast_vram_access_callback</a></li>
         <li><a class="internal" href="#touchpad_transform_matrix">touchpad_transform_matrix</a></li>
         <li><a class="internal" href="#turborpause">turborpause</a></li>
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
@@ -5186,6 +5187,47 @@
     <tr>
       <td><code>set too_fast_vram_access ignore</code></td>
       <td>All VRAM accesses are executed, so timing of VRAM access is ignored.</td>
+    </tr>
+  </table>
+
+
+  <h3><a id="too_fast_vram_access_callback">too_fast_vram_access_callback</a></h3>
+
+  <p>Selects the Tcl procedure to be called when a too-fast-VRAM-access (read
+  or write) has been detected. This is useful for debugging MSX programs that
+  show certain kinds of VRAM corruption, especially on MSX1.</p>
+
+  <p>By default this setting is empty, which means that nothing is done when a
+  too-fast-VRAM-access is detected. We ship a few example procedures called
+  <code>warn_too_fast_vram_access</code> and
+  <code>debug_too_fast_vram_access</code> which respectively print a warning or
+  break CPU emulation when this condition occurs. You can find the source code
+  for these procedures in <code>scripts/umrcallback.tcl</code>. Feel free to
+  write your own procedure that does exactly what you need.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+  <table>
+    <tr>
+      <td><code>set too_fast_vram_access_callback</code></td>
+      <td>Shows the currently installed callback</td>
+    </tr>
+    <tr>
+      <td><code>set too_fast_vram_access_callback warn_too_fast_vram_access</code></td>
+      <td>Print warning when too fast VRAM access is detected</td>
+    </tr>
+    <tr>
+      <td><code>set too_fast_vram_access_callback debug_too_fast_vram_access</code></td>
+      <td>Print warning and also break emulation right after the Z80 instruction that triggered this callback</td>
+    </tr>
+    <tr>
+      <td><code>set too_fast_vram_access_callback my_custom_callback_handler</code></td>
+      <td>Install a custom callback handler</td>
+    </tr>
+    <tr>
+      <td><code>set too_fast_vram_access_callback ""</code></td>
+      <td>Remove any installed callback handler</td>
     </tr>
   </table>
 
