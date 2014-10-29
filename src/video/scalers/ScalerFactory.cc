@@ -28,14 +28,14 @@ template <class Pixel>
 unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
-	switch (renderSettings.getScaleFactor().getInt()) {
+	switch (renderSettings.getScaleFactor()) {
 #if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
 		return make_unique<Scaler1<Pixel>>(pixelOps);
 #endif
 #if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
-		switch (renderSettings.getScaleAlgorithm().getEnum()) {
+		switch (renderSettings.getScaleAlgorithm()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return make_unique<Simple2xScaler<Pixel>>(
 				pixelOps, renderSettings);
@@ -60,7 +60,7 @@ unique_ptr<Scaler<Pixel>> ScalerFactory<Pixel>::createScaler(
 #if (MIN_SCALE_FACTOR <= 4) && (MAX_SCALE_FACTOR >= 3)
 	case 3:
 	case 4: // fallback
-		switch (renderSettings.getScaleAlgorithm().getEnum()) {
+		switch (renderSettings.getScaleAlgorithm()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return make_unique<Simple3xScaler<Pixel>>(
 				pixelOps, renderSettings);

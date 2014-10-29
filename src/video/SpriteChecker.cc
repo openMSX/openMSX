@@ -20,7 +20,7 @@ namespace openmsx {
 SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings,
                              EmuTime::param time)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, limitSpritesSetting(renderSettings.getLimitSprites())
+	, limitSpritesSetting(renderSettings.getLimitSpritesSetting())
 	, frameStartTime(time)
 {
 	vram.spriteAttribTable.setObserver(this);

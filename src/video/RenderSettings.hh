@@ -1,14 +1,12 @@
 #ifndef RENDERSETTINGS_HH
 #define RENDERSETTINGS_HH
 
-#include "RendererFactory.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
 #include "Observer.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -19,7 +17,7 @@ class Interpreter;
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings final : private Observer<Setting>, private noncopyable
+class RenderSettings final : private Observer<Setting>
 {
 public:
 	/** Enumeration of Renderers known to openMSX.
@@ -49,63 +47,77 @@ public:
 	~RenderSettings();
 
 	/** Accuracy [screen, line, pixel]. */
-	EnumSetting<Accuracy>& getAccuracy() { return accuracySetting; }
+	Accuracy getAccuracy() const { return accuracySetting.getEnum(); }
 
 	/** Deinterlacing [on, off]. */
-	BooleanSetting& getDeinterlace() { return deinterlaceSetting; }
+	bool getDeinterlace() const { return deinterlaceSetting.getBoolean(); }
 
 	/** Deflicker [on, off]. */
-	BooleanSetting& getDeflicker() { return deflickerSetting; }
+	bool getDeflicker() const { return deflickerSetting.getBoolean(); }
 
 	/** The current max frameskip. */
-	IntegerSetting& getMaxFrameSkip() { return maxFrameSkipSetting; }
+	IntegerSetting& getMaxFrameSkipSetting() { return maxFrameSkipSetting; }
+	int getMaxFrameSkip() const { return maxFrameSkipSetting.getInt(); }
 
 	/** The current min frameskip. */
-	IntegerSetting& getMinFrameSkip() { return minFrameSkipSetting; }
+	IntegerSetting& getMinFrameSkipSetting() { return minFrameSkipSetting; }
+	int getMinFrameSkip() const { return minFrameSkipSetting.getInt(); }
 
 	/** Full screen [on, off]. */
-	BooleanSetting& getFullScreen() { return fullScreenSetting; }
+	BooleanSetting& getFullScreenSetting() { return fullScreenSetting; }
+	bool getFullScreen() const { return fullScreenSetting.getBoolean(); }
 
 	/** The amount of gamma correction. */
-	FloatSetting& getGamma() { return gammaSetting; }
+	FloatSetting& getGammaSetting() { return gammaSetting; }
+	double getGamma() const { return gammaSetting.getDouble(); }
 
 	/** Brightness video setting. */
-	FloatSetting& getBrightness() { return brightnessSetting; }
+	FloatSetting& getBrightnessSetting() { return brightnessSetting; }
+	double getBrightness() const { return brightnessSetting.getDouble(); }
 
 	/** Contrast video setting. */
-	FloatSetting& getContrast() { return contrastSetting; }
+	FloatSetting& getContrastSetting() { return contrastSetting; }
+	double getContrast() const { return contrastSetting.getDouble(); }
 
 	/** Color matrix setting. */
-	StringSetting& getColorMatrix() { return colorMatrixSetting; }
-
+	StringSetting& getColorMatrixSetting() { return colorMatrixSetting; }
 	/** Returns true iff the current color matrix is the identity matrix. */
-	bool isColorMatrixIdentity() const { return cmIdentity; }
+	bool isColorMatrixIdentity() { return cmIdentity; }
 
 	/** The amount of glow [0..100]. */
-	IntegerSetting& getGlow() { return glowSetting; }
+	int getGlow() const { return glowSetting.getInt(); }
 
 	/** The amount of noise to add to the frame. */
-	FloatSetting& getNoise() { return noiseSetting; }
+	FloatSetting& getNoiseSetting() { return noiseSetting; }
+	double getNoise() const { return noiseSetting.getDouble(); }
 
 	/** The amount of horizontal blur [0..256]. */
-	int getBlurFactor() const;
+	int getBlurFactor() const {
+		return (horizontalBlurSetting.getInt()) * 256 / 100;
+	}
 
 	/** The alpha value [0..255] of the gap between scanlines. */
-	int getScanlineFactor() const;
+	int getScanlineFactor() const {
+		return 255 - ((scanlineAlphaSetting.getInt() * 255) / 100);
+	}
 
 	/** The amount of space [0..1] between scanlines. */
-	float getScanlineGap() const;
+	float getScanlineGap() const {
+		return scanlineAlphaSetting.getInt() * 0.01f;
+	}
 
 	/** The current renderer. */
-	RendererSetting& getRenderer() { return rendererSetting; }
+	RendererSetting& getRendererSetting() { return rendererSetting; }
+	RendererID getRenderer() const { return rendererSetting.getEnum(); }
 
 	/** The current scaling algorithm. */
-	EnumSetting<ScaleAlgorithm>& getScaleAlgorithm() {
-		return scaleAlgorithmSetting;
+	ScaleAlgorithm getScaleAlgorithm() const {
+		return scaleAlgorithmSetting.getEnum();
 	}
 
 	/** The current scaling factor. */
-	IntegerSetting& getScaleFactor() { return scaleFactorSetting; }
+	IntegerSetting& getScaleFactorSetting() { return scaleFactorSetting; }
+	int getScaleFactor() const { return scaleFactorSetting.getInt(); }
 
 	/** Limit number of sprites per line?
 	  * If true, limit number of sprites per line as real VDP does.
@@ -113,44 +125,47 @@ public:
 	  * For accurate emulation, this setting should be on.
 	  * Turning it off can improve games with a lot of flashing sprites,
 	  * such as Aleste. */
-	BooleanSetting& getLimitSprites() { return limitSpritesSetting; }
+	BooleanSetting& getLimitSpritesSetting() { return limitSpritesSetting; }
 
 	/** Disable sprite rendering? */
-	BooleanSetting& getDisableSprites() { return disableSpritesSetting; }
+	bool getDisableSprites() const { return disableSpritesSetting.getBoolean(); }
 
 	/** CmdTiming [real, broken].
 	  * This setting is intended for debugging only, not for users. */
-	EnumSetting<bool>& getCmdTiming() { return cmdTimingSetting; }
+	EnumSetting<bool>& getCmdTimingSetting() { return cmdTimingSetting; }
 
 	/** TooFastAccess [real, ignored].
 	  * Indicates whether too fast VDP VRAM access should be correctly
 	  * emulated (= some accesses are dropped) or ignored (= all accesses
 	  * are correctly executed). */
-	EnumSetting<bool>& getTooFastAccess() { return tooFastAccessSetting; }
+	EnumSetting<bool>& getTooFastAccessSetting() { return tooFastAccessSetting; }
 
 	/** Display deformation (normal, 3d)
 	  * ATM this only works when using the SDLGL-PP renderer. */
-	EnumSetting<DisplayDeform>& getDisplayDeform() {
-		return displayDeformSetting;
-	}
+	DisplayDeform getDisplayDeform() { return displayDeformSetting.getEnum(); }
 
 	/** Amount of horizontal stretch.
 	  * This number represents the amount of MSX pixels (normal width) that
-	  * will be stretched to the complete width of the host window.
-	  * ATM this setting only has effect when using the SDLGL-PP renderer. */
-	FloatSetting& getHorizontalStretch() {
+	  * will be stretched to the complete width of the host window. */
+	FloatSetting& getHorizontalStretchSetting() {
 		return horizontalStretchSetting;
+	}
+	double getHorizontalStretch() const {
+		return horizontalStretchSetting.getDouble();
 	}
 
 	/** The amount of time until the pointer is hidden in the openMSX
 	  * window. negative means: no hiding, 0 means immediately. */
-	FloatSetting& getPointerHideDelay() {
+	FloatSetting& getPointerHideDelaySetting() {
 		return pointerHideDelaySetting;
+	}
+	double getPointerHideDelay() const {
+		return pointerHideDelaySetting.getDouble();
 	}
 
 	/** Is black frame interleaving enabled? */
-	BooleanSetting& getInterleaveBlackFrame() {
-		return interleaveBlackFrameSetting;
+	bool getInterleaveBlackFrame() const {
+		return interleaveBlackFrameSetting.getBoolean();
 	}
 
 	/** Apply brightness, contrast and gamma transformation on the input

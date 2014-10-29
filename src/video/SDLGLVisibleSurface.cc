@@ -6,7 +6,6 @@
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
 #include "RenderSettings.hh"
-#include "BooleanSetting.hh"
 #include "memory.hh"
 
 namespace openmsx {
@@ -27,8 +26,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 0);
 	int flags = SDL_OPENGL | SDL_HWSURFACE | SDL_DOUBLEBUF |
-	            (renderSettings.getFullScreen().getBoolean() ?
-			SDL_FULLSCREEN : 0);
+	            (renderSettings.getFullScreen() ? SDL_FULLSCREEN : 0);
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 

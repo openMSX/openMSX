@@ -48,7 +48,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor, CommandConsole& console)
 	display.addLayer(*snowLayer);
 	display.addLayer(*osdGuiLayer);
 
-	renderSettings.getScaleFactor().attach(*this);
+	renderSettings.getScaleFactorSetting().attach(*this);
 
 	reactor.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
@@ -71,7 +71,7 @@ SDLVideoSystem::~SDLVideoSystem()
 	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
-	renderSettings.getScaleFactor().detach(*this);
+	renderSettings.getScaleFactorSetting().detach(*this);
 
 	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*snowLayer);
@@ -84,7 +84,7 @@ std::unique_ptr<Rasterizer> SDLVideoSystem::createRasterizer(VDP& vdp)
 	                        ? "MSX" // for backwards compatibility
 	                        : vdp.getName();
 	auto& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer().getEnum()) {
+	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 	case RenderSettings::SDLGL_FB16:
 	case RenderSettings::SDLGL_FB32:
@@ -128,7 +128,7 @@ std::unique_ptr<V9990Rasterizer> SDLVideoSystem::createV9990Rasterizer(
 	                        ? "GFX9000" // for backwards compatibility
 	                        : vdp.getName();
 	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
-	switch (renderSettings.getRenderer().getEnum()) {
+	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 	case RenderSettings::SDLGL_FB16:
 	case RenderSettings::SDLGL_FB32:
@@ -171,7 +171,7 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 {
 	std::string videoSource = "Laserdisc"; // TODO handle multiple???
 	MSXMotherBoard& motherBoard = ld.getMotherBoard();
-	switch (renderSettings.getRenderer().getEnum()) {
+	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 	case RenderSettings::SDLGL_FB16:
 	case RenderSettings::SDLGL_FB32:
@@ -211,8 +211,8 @@ std::unique_ptr<LDRasterizer> SDLVideoSystem::createLDRasterizer(
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
-	unsigned factor = renderSettings.getScaleFactor().getInt();
-	switch (renderSettings.getRenderer().getEnum()) {
+	unsigned factor = renderSettings.getScaleFactor();
+	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 	case RenderSettings::SDLGL_FB16:
 	case RenderSettings::SDLGL_FB32:
@@ -244,8 +244,7 @@ bool SDLVideoSystem::checkSettings()
 	}
 
 	// Check fullscreen.
-	const bool fullScreenTarget = renderSettings.getFullScreen().getBoolean();
-	return screen->setFullScreen(fullScreenTarget);
+	return screen->setFullScreen(renderSettings.getFullScreen());
 }
 
 void SDLVideoSystem::flush()
@@ -290,7 +289,7 @@ void SDLVideoSystem::resize()
 	// Destruct existing output surface before creating a new one.
 	screen.reset();
 
-	switch (renderSettings.getRenderer().getEnum()) {
+	switch (renderSettings.getRenderer()) {
 	case RenderSettings::SDL:
 		screen = make_unique<SDLVisibleSurface>(
 			width, height, renderSettings, rtScheduler,
@@ -327,7 +326,7 @@ void SDLVideoSystem::resize()
 
 void SDLVideoSystem::update(const Setting& subject)
 {
-	if (&subject == &renderSettings.getScaleFactor()) {
+	if (&subject == &renderSettings.getScaleFactorSetting()) {
 		// TODO: This is done via checkSettings instead,
 		//       but is that still needed?
 		//resize();

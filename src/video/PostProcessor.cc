@@ -7,7 +7,6 @@
 #include "SuperImposedFrame.hh"
 #include "PNG.hh"
 #include "RenderSettings.hh"
-#include "BooleanSetting.hh"
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
@@ -94,7 +93,7 @@ unsigned PostProcessor::getLineWidth(
 std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	std::unique_ptr<RawFrame> finishedFrame, EmuTime::param time)
 {
-	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+	if (renderSettings.getInterleaveBlackFrame()) {
 		auto delta = time - lastRotate; // time between last two calls
 		auto middle = time + delta / 2; // estimate for middle between now
 		                                // and next call
@@ -110,13 +109,13 @@ std::unique_ptr<RawFrame> PostProcessor::rotateFrames(
 	auto currType = finishedFrame->getField();
 	if (canDoInterlace) {
 		if (currType != FrameSource::FIELD_NONINTERLACED) {
-			if (renderSettings.getDeinterlace().getBoolean()) {
+			if (renderSettings.getDeinterlace()) {
 				doDeinterlace = true;
 				numRequired = 2;
 			} else {
 				doInterlace = true;
 			}
-		} else if (renderSettings.getDeflicker().getBoolean()) {
+		} else if (renderSettings.getDeflicker()) {
 			doDeflicker = true;
 			numRequired = 4;
 		}

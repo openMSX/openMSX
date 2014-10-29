@@ -4,6 +4,7 @@
 #include "Version.hh"
 #include "unreachable.hh"
 #include "build-info.hh"
+#include "components.hh"
 #include <algorithm>
 #include <iostream>
 #include <cmath>
@@ -227,21 +228,6 @@ RenderSettings::~RenderSettings()
 	contrastSetting  .detach(*this);
 }
 
-int RenderSettings::getBlurFactor() const
-{
-	return (horizontalBlurSetting.getInt()) * 256 / 100;
-}
-
-int RenderSettings::getScanlineFactor() const
-{
-	return 255 - ((scanlineAlphaSetting.getInt() * 255) / 100);
-}
-
-float RenderSettings::getScanlineGap() const
-{
-	return scanlineAlphaSetting.getInt() * 0.01f;
-}
-
 void RenderSettings::update(const Setting& setting)
 {
 	if (&setting == &brightnessSetting) {
@@ -255,11 +241,10 @@ void RenderSettings::update(const Setting& setting)
 
 void RenderSettings::updateBrightnessAndContrast()
 {
-	double contrastValue = getContrast().getDouble();
+	double contrastValue = getContrast();
 	contrast = (contrastValue >= 0.0) ? (1.0 + contrastValue / 25.0)
 	                                  : (1.0 + contrastValue / 125.0);
-	double brightnessValue = getBrightness().getDouble();
-	brightness = (brightnessValue / 100.0 - 0.5) * contrast + 0.5;
+	brightness = (getBrightness() / 100.0 - 0.5) * contrast + 0.5;
 }
 
 static double conv2(double x, double gamma)
@@ -270,8 +255,7 @@ static double conv2(double x, double gamma)
 double RenderSettings::transformComponent(double c) const
 {
 	double c2 = c * contrast + brightness;
-	double gamma = 1.0 / gammaSetting.getDouble();
-	return conv2(c2, gamma);
+	return conv2(c2, 1.0 / getGamma());
 }
 
 void RenderSettings::transformRGB(double& r, double& g, double& b) const
@@ -284,7 +268,7 @@ void RenderSettings::transformRGB(double& r, double& g, double& b) const
 	double g2 = cm[1][0] * rbc + cm[1][1] * gbc + cm[1][2] * bbc;
 	double b2 = cm[2][0] * rbc + cm[2][1] * gbc + cm[2][2] * bbc;
 
-	double gamma = 1.0 / gammaSetting.getDouble();
+	double gamma = 1.0 / getGamma();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);

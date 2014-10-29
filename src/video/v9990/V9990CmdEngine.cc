@@ -693,8 +693,9 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, EmuTime::param time_,
 	createEngines<CmdPSET> (0x0E);
 	createEngines<CmdADVN> (0x0F);
 
-	update(settings.getCmdTiming());
-	settings.getCmdTiming().attach(*this);
+	auto& cmdTimingSetting = settings.getCmdTimingSetting();
+	update(cmdTimingSetting);
+	cmdTimingSetting.attach(*this);
 
 	reset(time);
 
@@ -721,7 +722,7 @@ void V9990CmdEngine::createEngines(int cmd)
 
 V9990CmdEngine::~V9990CmdEngine()
 {
-	settings.getCmdTiming().detach(*this);
+	settings.getCmdTimingSetting().detach(*this);
 
 	delete commands[0][0]; // Delete the STOP cmd
 

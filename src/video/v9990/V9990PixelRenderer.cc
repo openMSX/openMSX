@@ -15,8 +15,6 @@
 #include "Reactor.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "unreachable.hh"
 
 namespace openmsx {
@@ -37,14 +35,14 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 
 	reset(vdp.getMotherBoard().getCurrentTime());
 
-	renderSettings.getMaxFrameSkip().attach(*this);
-	renderSettings.getMinFrameSkip().attach(*this);
+	renderSettings.getMaxFrameSkipSetting().attach(*this);
+	renderSettings.getMinFrameSkipSetting().attach(*this);
 }
 
 V9990PixelRenderer::~V9990PixelRenderer()
 {
-	renderSettings.getMaxFrameSkip().detach(*this);
-	renderSettings.getMinFrameSkip().detach(*this);
+	renderSettings.getMaxFrameSkipSetting().detach(*this);
+	renderSettings.getMinFrameSkipSetting().detach(*this);
 }
 
 PostProcessor* V9990PixelRenderer::getPostProcessor() const
@@ -70,16 +68,14 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 		return;
 	}
 	prevDrawFrame = drawFrame;
-	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getBoolean() &&
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace() &&
 	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// deinterlaced odd frame, do same as even frame
 	} else {
-		if (frameSkipCounter <
-		              renderSettings.getMinFrameSkip().getInt()) {
+		if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
 			++frameSkipCounter;
 			drawFrame = false;
-		} else if (frameSkipCounter >=
-		              renderSettings.getMaxFrameSkip().getInt()) {
+		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
 			frameSkipCounter = 0;
 			drawFrame = true;
 		} else {
@@ -97,7 +93,7 @@ void V9990PixelRenderer::frameStart(EmuTime::param time)
 	}
 	if (!drawFrame) return;
 
-	accuracy = renderSettings.getAccuracy().getEnum();
+	accuracy = renderSettings.getAccuracy();
 	lastX = 0;
 	lastY = 0;
 	verticalOffsetA = verticalOffsetB = vdp.getTopBorder();
@@ -123,7 +119,7 @@ void V9990PixelRenderer::frameEnd(EmuTime::param time)
 		                      current * ALPHA;
 
 		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
-		    renderSettings.getDeinterlace().getBoolean() &&
+		    renderSettings.getDeinterlace() &&
 		    !prevDrawFrame) {
 			// dont send event in deinterlace mode when
 			// previous frame was not rendered
@@ -318,8 +314,8 @@ void V9990PixelRenderer::updateScrollBYLow(EmuTime::param time)
 
 void V9990PixelRenderer::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getMinFrameSkip() ||
-	    &setting == &renderSettings.getMaxFrameSkip()) {
+	if (&setting == &renderSettings.getMinFrameSkipSetting() ||
+	    &setting == &renderSettings.getMaxFrameSkipSetting()) {
 		// Force drawing of frame
 		frameSkipCounter = 999;
 	} else {

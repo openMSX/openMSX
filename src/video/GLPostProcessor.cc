@@ -57,7 +57,7 @@ GLPostProcessor::GLPostProcessor(
 
 	frameCounter = 0;
 	noiseX = noiseY = 0.0f;
-	preCalcNoise(renderSettings.getNoise().getDouble());
+	preCalcNoise(renderSettings.getNoise());
 
 	storedFrame = false;
 	for (int i = 0; i < 2; ++i) {
@@ -83,16 +83,16 @@ GLPostProcessor::GLPostProcessor(
 	monitor3DProg.bindAttribLocation(1, "a_normal");
 	monitor3DProg.bindAttribLocation(2, "a_texCoord");
 	monitor3DProg.link();
-	preCalcMonitor3D(renderSettings.getHorizontalStretch().getDouble());
+	preCalcMonitor3D(renderSettings.getHorizontalStretch());
 
-	renderSettings.getNoise().attach(*this);
-	renderSettings.getHorizontalStretch().attach(*this);
+	renderSettings.getNoiseSetting().attach(*this);
+	renderSettings.getHorizontalStretchSetting().attach(*this);
 }
 
 GLPostProcessor::~GLPostProcessor()
 {
-	renderSettings.getHorizontalStretch().detach(*this);
-	renderSettings.getNoise().detach(*this);
+	renderSettings.getHorizontalStretchSetting().detach(*this);
+	renderSettings.getNoiseSetting().detach(*this);
 }
 
 void GLPostProcessor::createRegions()
@@ -137,7 +137,7 @@ void GLPostProcessor::createRegions()
 
 void GLPostProcessor::paint(OutputSurface& /*output*/)
 {
-	if (renderSettings.getInterleaveBlackFrame().getBoolean()) {
+	if (renderSettings.getInterleaveBlackFrame()) {
 		interleaveCount ^= 1;
 		if (interleaveCount) {
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -146,10 +146,9 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 		}
 	}
 
-	RenderSettings::DisplayDeform deform =
-		renderSettings.getDisplayDeform().getEnum();
-	double horStretch = renderSettings.getHorizontalStretch().getDouble();
-	int glow = renderSettings.getGlow().getInt();
+	auto deform = renderSettings.getDisplayDeform();
+	double horStretch = renderSettings.getHorizontalStretch();
+	int glow = renderSettings.getGlow();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (horStretch != 320.0) ||
 	                       (glow != 0);
@@ -163,8 +162,7 @@ void GLPostProcessor::paint(OutputSurface& /*output*/)
 	}
 
 	// New scaler algorithm selected?
-	RenderSettings::ScaleAlgorithm algo =
-		renderSettings.getScaleAlgorithm().getEnum();
+	auto algo = renderSettings.getScaleAlgorithm();
 	if (scaleAlgorithm != algo) {
 		scaleAlgorithm = algo;
 		currScaler = GLScalerFactory::createScaler(renderSettings);
@@ -260,8 +258,8 @@ std::unique_ptr<RawFrame> GLPostProcessor::rotateFrames(
 void GLPostProcessor::update(const Setting& setting)
 {
 	VideoLayer::update(setting);
-	FloatSetting& noiseSetting = renderSettings.getNoise();
-	FloatSetting& horizontalStretch = renderSettings.getHorizontalStretch();
+	auto& noiseSetting = renderSettings.getNoiseSetting();
+	auto& horizontalStretch = renderSettings.getHorizontalStretchSetting();
 	if (&setting == &noiseSetting) {
 		preCalcNoise(noiseSetting.getDouble());
 	} else if (&setting == &horizontalStretch) {
@@ -468,7 +466,7 @@ void GLPostProcessor::preCalcNoise(float factor)
 
 void GLPostProcessor::drawNoise()
 {
-	if (renderSettings.getNoise().getDouble() == 0) return;
+	if (renderSettings.getNoise() == 0.0) return;
 
 	// Rotate and mirror noise texture in consecutive frames to avoid
 	// seeing 'patterns' in the noise.

@@ -15,6 +15,7 @@
 #include "PioneerLDControl.hh"
 #include "OggReader.hh"
 #include "LDRenderer.hh"
+#include "RendererFactory.hh"
 #include "Math.hh"
 #include "likely.hh"
 #include "memory.hh"

@@ -40,7 +40,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 #else
 	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
 #endif
-	if (renderSettings.getFullScreen().getBoolean()) flags |= SDL_FULLSCREEN;
+	if (renderSettings.getFullScreen()) flags |= SDL_FULLSCREEN;
 
 	createSurface(width, height, flags);
 	SDL_Surface* surface = getSDLSurface();

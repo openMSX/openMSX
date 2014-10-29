@@ -11,8 +11,6 @@ TODO:
 #include "RenderSettings.hh"
 #include "VideoSourceSetting.hh"
 #include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "EnumSetting.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
@@ -65,8 +63,7 @@ void PixelRenderer::draw(
 			displayX - vdp.getHorizontalScrollLow() * 2, displayY,
 			displayWidth, displayHeight
 			);
-		if (vdp.spritesEnabled() &&
-		    !renderSettings.getDisableSprites().getBoolean()) {
+		if (vdp.spritesEnabled() && !renderSettings.getDisableSprites()) {
 			rasterizer->drawSprites(
 				startX, startY,
 				displayX / 2, displayY,
@@ -126,14 +123,14 @@ PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	frameSkipCounter = 999; // force drawing of frame
 	prevRenderFrame = false;
 
-	renderSettings.getMaxFrameSkip().attach(*this);
-	renderSettings.getMinFrameSkip().attach(*this);
+	renderSettings.getMaxFrameSkipSetting().attach(*this);
+	renderSettings.getMinFrameSkipSetting().attach(*this);
 }
 
 PixelRenderer::~PixelRenderer()
 {
-	renderSettings.getMinFrameSkip().detach(*this);
-	renderSettings.getMaxFrameSkip().detach(*this);
+	renderSettings.getMinFrameSkipSetting().detach(*this);
+	renderSettings.getMaxFrameSkipSetting().detach(*this);
 }
 
 PostProcessor* PixelRenderer::getPostProcessor() const
@@ -167,16 +164,14 @@ void PixelRenderer::frameStart(EmuTime::param time)
 		return;
 	}
 	prevRenderFrame = renderFrame;
-	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getBoolean() &&
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace() &&
 	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
 		// deinterlaced odd frame, do same as even frame
 	} else {
-		if (frameSkipCounter <
-		              renderSettings.getMinFrameSkip().getInt()) {
+		if (frameSkipCounter < renderSettings.getMinFrameSkip()) {
 			++frameSkipCounter;
 			renderFrame = false;
-		} else if (frameSkipCounter >=
-		              renderSettings.getMaxFrameSkip().getInt()) {
+		} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip()) {
 			frameSkipCounter = 0;
 			renderFrame = true;
 		} else {
@@ -196,7 +191,7 @@ void PixelRenderer::frameStart(EmuTime::param time)
 
 	rasterizer->frameStart(time);
 
-	accuracy = renderSettings.getAccuracy().getEnum();
+	accuracy = renderSettings.getAccuracy();
 
 	nextX = 0;
 	nextY = 0;
@@ -222,7 +217,7 @@ void PixelRenderer::frameEnd(EmuTime::param time)
 		                      current * ALPHA;
 
 		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
-		    renderSettings.getDeinterlace().getBoolean() &&
+		    renderSettings.getDeinterlace() &&
 		    !prevRenderFrame) {
 			// dont send event in deinterlace mode when
 			// previous frame was not rendered
@@ -604,8 +599,8 @@ void PixelRenderer::renderUntil(EmuTime::param time)
 
 void PixelRenderer::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getMinFrameSkip()
-	|| &setting == &renderSettings.getMaxFrameSkip() ) {
+	if (&setting == &renderSettings.getMinFrameSkipSetting() ||
+	    &setting == &renderSettings.getMaxFrameSkipSetting()) {
 		// Force drawing of frame.
 		frameSkipCounter = 999;
 	} else {

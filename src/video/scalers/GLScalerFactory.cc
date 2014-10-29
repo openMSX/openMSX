@@ -8,7 +8,6 @@
 #include "GLHQLiteScaler.hh"
 #include "GLContext.hh"
 #include "RenderSettings.hh"
-#include "EnumSetting.hh"
 #include "memory.hh"
 #include "unreachable.hh"
 
@@ -20,7 +19,7 @@ namespace GLScalerFactory {
 unique_ptr<GLScaler> createScaler(RenderSettings& renderSettings)
 {
 	GLScaler& fallback = gl::context->getFallbackScaler();
-	switch (renderSettings.getScaleAlgorithm().getEnum()) {
+	switch (renderSettings.getScaleAlgorithm()) {
 	case RenderSettings::SCALER_SAI:
 		// disabled for now:
 		//   - it doesn't work (yet) on ATI cards

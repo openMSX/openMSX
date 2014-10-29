@@ -127,12 +127,12 @@ VisibleSurface::VisibleSurface(
 	// Note: this is duplicated from InputEventGenerator::setGrabInput
 	// in order to keep the settings in sync (grab when fullscreen)
 	SDL_WM_GrabInput((inputEventGenerator_.getGrabInput().getBoolean() ||
-			renderSettings.getFullScreen().getBoolean())
+			  renderSettings.getFullScreen())
 			?  SDL_GRAB_ON : SDL_GRAB_OFF);
 
 	inputEventGenerator_.getGrabInput().attach(*this);
-	renderSettings.getPointerHideDelay().attach(*this);
-	renderSettings.getFullScreen().attach(*this);
+	renderSettings.getPointerHideDelaySetting().attach(*this);
+	renderSettings.getFullScreenSetting().attach(*this);
 	eventDistributor.registerEventListener(
 		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
@@ -209,8 +209,8 @@ VisibleSurface::~VisibleSurface()
 	eventDistributor.unregisterEventListener(
 		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	inputEventGenerator.getGrabInput().detach(*this);
-	renderSettings.getPointerHideDelay().detach(*this);
-	renderSettings.getFullScreen().detach(*this);
+	renderSettings.getPointerHideDelaySetting().detach(*this);
+	renderSettings.getFullScreenSetting().detach(*this);
 
 #ifdef _WIN32
 	// Find our current location.
@@ -279,13 +279,13 @@ int VisibleSurface::signalEvent(const std::shared_ptr<const Event>& event)
 void VisibleSurface::updateCursor()
 {
 	cancelRT();
-	if (renderSettings.getFullScreen().getBoolean() ||
+	if (renderSettings.getFullScreen() ||
 	    inputEventGenerator.getGrabInput().getBoolean()) {
 		// always hide cursor in fullscreen or grabinput mode
 		SDL_ShowCursor(SDL_DISABLE);
 		return;
 	}
-	double delay = renderSettings.getPointerHideDelay().getDouble();
+	double delay = renderSettings.getPointerHideDelay();
 	if (delay == 0.0) {
 		SDL_ShowCursor(SDL_DISABLE);
 	} else {

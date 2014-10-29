@@ -1,4 +1,5 @@
 #include "Display.hh"
+#include "RendererFactory.hh"
 #include "Layer.hh"
 #include "VideoSystem.hh"
 #include "VideoLayer.hh"
@@ -64,17 +65,17 @@ Display::Display(Reactor& reactor_)
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT,
 			*this);
 #endif
-	renderSettings.getRenderer().attach(*this);
-	renderSettings.getFullScreen().attach(*this);
-	renderSettings.getScaleFactor().attach(*this);
+	renderSettings.getRendererSetting().attach(*this);
+	renderSettings.getFullScreenSetting().attach(*this);
+	renderSettings.getScaleFactorSetting().attach(*this);
 	renderFrozen = false;
 }
 
 Display::~Display()
 {
-	renderSettings.getRenderer().detach(*this);
-	renderSettings.getFullScreen().detach(*this);
-	renderSettings.getScaleFactor().detach(*this);
+	renderSettings.getRendererSetting().detach(*this);
+	renderSettings.getFullScreenSetting().detach(*this);
+	renderSettings.getScaleFactorSetting().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
 #if PLATFORM_ANDROID
@@ -100,7 +101,7 @@ void Display::createVideoSystem()
 	assert(!videoSystem);
 	assert(currentRenderer == RenderSettings::UNINITIALIZED);
 	assert(!switchInProgress);
-	currentRenderer = renderSettings.getRenderer().getEnum();
+	currentRenderer = renderSettings.getRenderer();
 	switchInProgress = true;
 	doRendererSwitch();
 }
@@ -231,11 +232,11 @@ void Display::setWindowTitle()
 
 void Display::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getRenderer()) {
+	if (&setting == &renderSettings.getRendererSetting()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getFullScreen()) {
+	} else if (&setting == &renderSettings.getFullScreenSetting()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getScaleFactor()) {
+	} else if (&setting == &renderSettings.getScaleFactorSetting()) {
 		checkRendererSwitch();
 	} else {
 		UNREACHABLE;
@@ -250,7 +251,7 @@ void Display::checkRendererSwitch()
 		// queued we don't need to do it again.
 		return;
 	}
-	auto newRenderer = renderSettings.getRenderer().getEnum();
+	auto newRenderer = renderSettings.getRenderer();
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;
@@ -274,19 +275,21 @@ void Display::doRendererSwitch()
 			doRendererSwitch2();
 			success = true;
 		} catch (MSXException& e) {
+			auto& rendererSetting = renderSettings.getRendererSetting();
 			string errorMsg = "Couldn't activate renderer " +
-				renderSettings.getRenderer().getString() +
+				rendererSetting.getString() +
 				": " + e.getMessage();
 			// now try some things that might work against this:
-			if (renderSettings.getRenderer().getEnum() != RenderSettings::SDL) {
+			if (rendererSetting.getEnum() != RenderSettings::SDL) {
 				errorMsg += "\nTrying to switch to SDL renderer instead...";
-				renderSettings.getRenderer().setEnum(RenderSettings::SDL);
+				rendererSetting.setEnum(RenderSettings::SDL);
 				currentRenderer = RenderSettings::SDL;
 			} else {
-				unsigned curval = renderSettings.getScaleFactor().getInt();
+				auto& scaleFactorSetting = renderSettings.getScaleFactorSetting();
+				unsigned curval = scaleFactorSetting.getInt();
 				if (curval == 1) throw MSXException(e.getMessage() + " (and I have no other ideas to try...)"); // give up and die... :(
 				errorMsg += "\nTrying to decrease scale_factor setting from " + StringOp::toString(curval) + " to " + StringOp::toString(curval - 1) + "...";
-				renderSettings.getScaleFactor().setInt(curval - 1);
+				scaleFactorSetting.setInt(curval - 1);
 			}
 			getCliComm().printWarning(errorMsg);
 		}

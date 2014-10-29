@@ -89,19 +89,19 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 		}
 	}
 
-	renderSettings.getGamma()      .attach(*this);
-	renderSettings.getBrightness() .attach(*this);
-	renderSettings.getContrast()   .attach(*this);
-	renderSettings.getColorMatrix().attach(*this);
+	renderSettings.getGammaSetting()      .attach(*this);
+	renderSettings.getBrightnessSetting() .attach(*this);
+	renderSettings.getContrastSetting()   .attach(*this);
+	renderSettings.getColorMatrixSetting().attach(*this);
 }
 
 template <class Pixel>
 SDLRasterizer<Pixel>::~SDLRasterizer()
 {
-	renderSettings.getColorMatrix().detach(*this);
-	renderSettings.getGamma()      .detach(*this);
-	renderSettings.getBrightness() .detach(*this);
-	renderSettings.getContrast()   .detach(*this);
+	renderSettings.getColorMatrixSetting().detach(*this);
+	renderSettings.getGammaSetting()      .detach(*this);
+	renderSettings.getBrightnessSetting() .detach(*this);
+	renderSettings.getContrastSetting()   .detach(*this);
 }
 
 template <class Pixel>
@@ -678,10 +678,10 @@ bool SDLRasterizer<Pixel>::isRecording() const
 template <class Pixel>
 void SDLRasterizer<Pixel>::update(const Setting& setting)
 {
-	if ((&setting == &renderSettings.getGamma()) ||
-	    (&setting == &renderSettings.getBrightness()) ||
-	    (&setting == &renderSettings.getContrast()) ||
-	    (&setting == &renderSettings.getColorMatrix())) {
+	if ((&setting == &renderSettings.getGammaSetting()) ||
+	    (&setting == &renderSettings.getBrightnessSetting()) ||
+	    (&setting == &renderSettings.getContrastSetting()) ||
+	    (&setting == &renderSettings.getColorMatrixSetting())) {
 		precalcPalette();
 		resetPalette();
 	}
