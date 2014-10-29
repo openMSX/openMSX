@@ -23,24 +23,23 @@ public:
 		assert(n < 3);
 		return deadkeyHostKey[n]->getEnum();
 	}
-
-	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey() {
-		return codeKanaHostKey;
+	Keys::KeyCode getCodeKanaHostKey() const {
+		return codeKanaHostKey.getEnum();
 	}
-	EnumSetting<KpEnterMode>& getKpEnterMode() {
-		return kpEnterMode;
+	KpEnterMode getKpEnterMode() const {
+		return kpEnterMode.getEnum();
 	}
-	EnumSetting<MappingMode>& getMappingMode() {
-		return mappingMode;
+	MappingMode getMappingMode() const {
+		return mappingMode.getEnum();
 	}
-	BooleanSetting& getAlwaysEnableKeypad() {
-		return alwaysEnableKeypad;
+	bool getAlwaysEnableKeypad() const {
+		return alwaysEnableKeypad.getBoolean();
 	}
-	BooleanSetting& getTraceKeyPresses() {
-		return traceKeyPresses;
+	bool getTraceKeyPresses() const {
+		return traceKeyPresses.getBoolean();
 	}
-	BooleanSetting& getAutoToggleCodeKanaLock() {
-		return autoToggleCodeKanaLock;
+	bool getAutoToggleCodeKanaLock() const {
+		return autoToggleCodeKanaLock.getBoolean();
 	}
 
 private:
