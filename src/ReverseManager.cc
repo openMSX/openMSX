@@ -271,6 +271,14 @@ void ReverseManager::status(TclObject& result) const
 		snapshots.addListElement((time - EmuTime::zero).toDouble());
 	}
 	result.addListElement(snapshots);
+
+	result.addListElement("last_event");
+	auto lastEvent = history.events.rbegin();
+	if (lastEvent != history.events.rend() && dynamic_cast<const EndLogEvent*>(lastEvent->get())) {
+		++lastEvent;
+	}
+	EmuTime le(isCollecting() && (lastEvent != history.events.rend()) ? (*lastEvent)->getTime() : EmuTime::zero);
+	result.addListElement((le - EmuTime::zero).toDouble());
 }
 
 void ReverseManager::debugInfo(TclObject& result) const
