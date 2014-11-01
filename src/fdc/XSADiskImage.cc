@@ -156,8 +156,10 @@ void XSAExtractor::unLz77()
 					"Invalid XSA image: too small output buffer");
 			}
 			remaining -= strLen;
-			memmove(&out[outIdx], &out[outIdx - strPos], strLen);
-			outIdx += strLen;
+			while (strLen--) {
+				out[outIdx] = out[outIdx - strPos];
+				++outIdx;
+			}
 		} else {
 			// 0-bit
 			if (remaining == 0) {
