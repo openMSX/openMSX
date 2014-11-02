@@ -90,7 +90,7 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>cbios-msx2.cmos</sramname>
+      <sramname>cbios-msx2_br.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">
