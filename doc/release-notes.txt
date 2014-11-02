@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.11.0 (2014-10-xx)
+Release Notes for openMSX 0.11.0 (2014-11-xx)
 =============================================
 
 This release brings you the following important new features: VDP access timing
@@ -61,6 +61,7 @@ New or improved emulator features:
 - rewrote most OpenGL 2 code to be more compatible with OpenGL ES
 - improved guessing of mapper type for 64kB ROMs
 - fixed a bug with watch_points affecting the execution flow
+- fixed corruption in XSA disk images
 - added NYYRIKKI's fast CAS loading/saving script, enable with setting the
   'fast_cas_load_hack_enabled' setting to on
 - joysticks/controllers:
@@ -70,6 +71,8 @@ New or improved emulator features:
 - added dir-as-disk support for the OSD menu
 - removed experimental libao sound driver
 - added support for R-ALT on Korean keyboard (thanks to Miso Kim)
+- TAS: added possibility to query the length of the current replay (defined as
+  the time stamp of the last input)
 
 
 Build system, packaging, documentation:
@@ -83,6 +86,7 @@ Build system, packaging, documentation:
 - changed packaging method to include stuff by default instead of exclude stuff
   by default
 - fixed native compilation on mipsel
+- upgraded C-BIOS to release 0.26
 
 And of course the usual various bug fixes.
 
