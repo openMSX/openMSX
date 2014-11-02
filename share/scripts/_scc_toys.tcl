@@ -431,7 +431,6 @@ namespace export toggle_scc_editor
 namespace export toggle_psg2scc
 namespace export set_scc_wave
 namespace export toggle_scc_viewer
-namespace export toggle_psg_tones
 
 } ;# namespace scc_toys
 
