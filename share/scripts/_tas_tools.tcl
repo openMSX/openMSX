@@ -118,7 +118,8 @@ proc get_start_of_frame_time {} {
 
 set_help_text prev_frame \
 {Rewind to the (start of) the previous frame. Useful
-to bind to a key in combination with next_frame.}
+to bind to a key in combination with next_frame. You can also
+go back N frames if you add N as the optional argument.}
 proc prev_frame {{count 1}} {
 	set t [expr {[get_start_of_frame_time] - $count * [get_frame_duration]}]
 	if {$t < 0} {set t 0}
@@ -127,7 +128,8 @@ proc prev_frame {{count 1}} {
 
 set_help_text next_frame \
 {Emulates until the (start of) the next frame, then pause emulation.
-Useful to bind to a key and emulate frame by frame.}
+Useful to bind to a key and emulate frame by frame. You can also
+go over the next N frames if you add N as the optional argument.}
 proc next_frame {{count 1}} {
 	set t [expr {[get_start_of_frame_time] + $count * [get_frame_duration]}]
 	after time [expr {$t - [machine_info time]}] "set ::pause on"
@@ -144,7 +146,8 @@ proc start_of_frame {} {
 
 set_help_text advance_frame \
 {Emulate forward for the duration of one frame. The relative
-timing position within the frame remains unchanged.}
+timing position within the frame remains unchanged. You can also
+advance N frames if you add N as the optional argument.}
 proc advance_frame {{count 1}} {
 	after time [expr {$count * [get_frame_duration]}] "set ::pause on"
 	set ::pause off
@@ -153,7 +156,8 @@ proc advance_frame {{count 1}} {
 
 set_help_text reverse_frame \
 {Emulate backward for the duration of one frame. The relative
-timing position within the frame remains unchanged.}
+timing position within the frame remains unchanged. You can also
+reverse N frames if you add N as the optional argument.}
 proc reverse_frame {{count 1}} {
 	set t [expr {[machine_info time] - $count * [get_frame_duration]}]
 	if {$t < 0} {set t 0}
