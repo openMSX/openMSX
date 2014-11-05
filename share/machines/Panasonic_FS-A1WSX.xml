@@ -98,7 +98,7 @@
       <secondary slot="1"/>
 
       <secondary slot="2">
-        <MSX-MUSIC id="MSX Music">
+        <MSX-MUSIC-WX id="MSX Music">
           <rom>
             <filename>fs-a1wsx_fmbasic.rom</filename>
             <sha1>aad42ba4289b33d8eed225d42cea930b7fc5c228</sha1>

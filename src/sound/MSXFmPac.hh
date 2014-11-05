@@ -10,7 +10,7 @@ namespace openmsx {
 class SRAM;
 class RomBlockDebuggable;
 
-class MSXFmPac final : public MSXMusic
+class MSXFmPac final : public MSXMusicBase
 {
 public:
 	explicit MSXFmPac(const DeviceConfig& config);
@@ -36,7 +36,7 @@ private:
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };
-SERIALIZE_CLASS_VERSION(MSXFmPac, 2); // must be in-sync with MSXMusic
+SERIALIZE_CLASS_VERSION(MSXFmPac, 2); // must be in-sync with MSXMusicBase
 
 } // namespace openmsx
 

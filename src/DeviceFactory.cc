@@ -126,6 +126,8 @@ unique_ptr<MSXDevice> DeviceFactory::create(const DeviceConfig& conf)
 		result = make_unique<MSXPSG>(conf);
 	} else if (type == "MSX-MUSIC") {
 		result = make_unique<MSXMusic>(conf);
+	} else if (type == "MSX-MUSIC-WX") {
+		result = make_unique<MSXMusicWX>(conf);
 	} else if (type == "FMPAC") {
 		result = make_unique<MSXFmPac>(conf);
 	} else if (type == "MSX-AUDIO") {

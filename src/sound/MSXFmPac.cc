@@ -11,7 +11,7 @@ namespace openmsx {
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
 MSXFmPac::MSXFmPac(const DeviceConfig& config)
-	: MSXMusic(config)
+	: MSXMusicBase(config)
 	, sram(make_unique<SRAM>(
 		getName() + " SRAM", 0x1FFE, config, PAC_Header))
 	, romBlockDebug(make_unique<RomBlockDebuggable>(
@@ -26,7 +26,7 @@ MSXFmPac::~MSXFmPac()
 
 void MSXFmPac::reset(EmuTime::param time)
 {
-	MSXMusic::reset(time);
+	MSXMusicBase::reset(time);
 	enable = 0;
 	sramEnabled = false;
 	bank = 0;
@@ -37,7 +37,7 @@ void MSXFmPac::reset(EmuTime::param time)
 void MSXFmPac::writeIO(word port, byte value, EmuTime::param time)
 {
 	if (enable & 1) {
-		MSXMusic::writeIO(port, value, time);
+		MSXMusicBase::writeIO(port, value, time);
 	}
 }
 
@@ -160,7 +160,7 @@ void MSXFmPac::checkSramEnable()
 template<typename Archive>
 void MSXFmPac::serialize(Archive& ar, unsigned version)
 {
-	ar.template serializeInlinedBase<MSXMusic>(*this, version);
+	ar.template serializeInlinedBase<MSXMusicBase>(*this, version);
 	ar.serialize("sram", *sram);
 	ar.serialize("enable", enable);
 	ar.serialize("bank", bank);

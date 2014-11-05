@@ -34,7 +34,7 @@
       </secondary>
 
       <secondary slot="2">
-        <MSX-MUSIC id="MSX Music">
+        <MSX-MUSIC-WX id="MSX Music">
           <mem base="0x4000" size="0x4000"/>
           <io base="0x7C" num="2" type="O"/>
           <rom>
