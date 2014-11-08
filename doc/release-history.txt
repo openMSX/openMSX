@@ -3,7 +3,7 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
-openMSX 0.11.0 (2014-11-03)
+openMSX 0.11.0 (2014-11-08)
 ---------------------------
 
 This release brings you the following important new features: VDP access timing
@@ -89,7 +89,7 @@ Build system, packaging, documentation:
 - changed packaging method to include stuff by default instead of exclude stuff
   by default
 - fixed native compilation on mipsel
-- upgraded C-BIOS to release 0.26
+- upgraded C-BIOS to release 0.27
 
 openMSX 0.10.1 (2014-05-01)
 ---------------------------

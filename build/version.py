@@ -21,7 +21,7 @@ packageVersionNumber = '0.11.0'
 androidReleaseVersionCode=4
 
 # Note: suffix should be empty or with dash, like "-rc1" or "-test1"
-packageVersionSuffix = '-rc1'
+packageVersionSuffix = ''
 packageVersion = packageVersionNumber + packageVersionSuffix
 
 # Is this a release version ("True") or development version ("False").
