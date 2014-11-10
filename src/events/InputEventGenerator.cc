@@ -11,6 +11,7 @@
 #include "unreachable.hh"
 #include "build-info.hh"
 #include <cassert>
+#include <iostream>
 
 using std::string;
 using std::vector;
@@ -87,7 +88,7 @@ void InputEventGenerator::poll()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) == 1) {
-#ifdef DEBUG
+#if 0
 		string t;
 		switch (event.type) {
 			case SDL_ACTIVEEVENT:     t = "SDL_ACTIVEEVENT";     break;
@@ -108,7 +109,7 @@ void InputEventGenerator::poll()
 			case SDL_USEREVENT:       t = "SDL_USEREVENT";       break;
 			default:                  t = "UNKNOWN";             break;
 		}
-		PRT_DEBUG("SDL event received, type: " + t);
+		std::cerr << "SDL event received, type: " << t << std::endl;
 #endif
 		handle(event);
 	}
@@ -354,11 +355,11 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	}
 
-#ifdef DEBUG
+#if 0
 	if (event) {
-		PRT_DEBUG("SDL event converted to: " + event->toString());
+		std::cerr << "SDL event converted to: " + event->toString() << std::endl;
 	} else {
-		PRT_DEBUG("SDL event was of unknown type, not converted to an openMSX event");
+		std::cerr << "SDL event was of unknown type, not converted to an openMSX event" << std::endl;
 	}
 #endif
 

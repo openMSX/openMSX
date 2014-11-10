@@ -162,14 +162,12 @@ void WD33C93::disconnect()
 		phase = SCSI::BUS_FREE;
 	}
 	tc = 0;
-
-	PRT_DEBUG("busfree()");
 }
 
 void WD33C93::execCmd(byte value)
 {
 	if (regs[REG_AUX_STATUS] & AS_CIP) {
-		PRT_DEBUG("wd33c93ExecCmd() CIP error");
+		// CIP error
 		return;
 	}
 	//regs[REG_AUX_STATUS] |= AS_CIP;
@@ -178,7 +176,6 @@ void WD33C93::execCmd(byte value)
 	bool atn = false;
 	switch (value) {
 	case 0x00: // Reset controller (software reset)
-		PRT_DEBUG("wd33c93 [CMD] Reset controller");
 		memset(regs + 1, 0, 0x1a);
 		disconnect();
 		latch = 0; // TODO: is this correct? Some doc says: reset to zero by masterreset-signal but not by reset command.
@@ -187,11 +184,9 @@ void WD33C93::execCmd(byte value)
 		break;
 
 	case 0x02: // Assert ATN
-		PRT_DEBUG("wd33c93 [CMD] Assert ATN");
 		break;
 
 	case 0x04: // Disconnect
-		PRT_DEBUG("wd33c93 [CMD] Disconnect");
 		disconnect();
 		break;
 
@@ -199,7 +194,6 @@ void WD33C93::execCmd(byte value)
 		atn = true;
 		// fall-through
 	case 0x07: // Select Without ATN (Lv2)
-		PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ')');
 		targetId = regs[REG_DST_ID] & 7;
 		regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
 		tc = 0;
@@ -210,7 +204,6 @@ void WD33C93::execCmd(byte value)
 		atn = true;
 		// fall-through
 	case 0x09: // Select without ATN and Transfer (Lv2)
-		PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ')');
 		targetId = regs[REG_DST_ID] & 7;
 
 		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */
@@ -243,7 +236,7 @@ void WD33C93::execCmd(byte value)
 			}
 			//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
 		} else {
-			PRT_DEBUG("wd33c93 timeout on target " << int(targetId));
+			// timeout
 			tc = 0;
 			regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
 			regs[REG_AUX_STATUS]  = AS_INT;
@@ -252,14 +245,13 @@ void WD33C93::execCmd(byte value)
 
 	case 0x18: // Translate Address (Lv2)
 	default:
-		PRT_DEBUG("wd33c93 [CMD] unsupport command " << int(value));
+		// unsupport command
 		break;
 	}
 }
 
 void WD33C93::writeAdr(byte value)
 {
-	//PRT_DEBUG("WriteAdr value " << std::hex << (int)value);
 	latch = value & 0x1f;
 }
 
@@ -267,12 +259,10 @@ void WD33C93::writeAdr(byte value)
 // except for the address-, aux.status-, data- and command registers.
 void WD33C93::writeCtrl(byte value)
 {
-	//PRT_DEBUG("wd33c93 write #" << std::hex << (int)latch << ", " << (int)value);
 	switch (latch) {
 	case REG_OWN_ID:
 		regs[REG_OWN_ID] = value;
 		myId = value & 7;
-		PRT_DEBUG("wd33c93 myid = " << int(myId));
 		break;
 
 	case REG_TCH:
@@ -288,7 +278,6 @@ void WD33C93::writeCtrl(byte value)
 		break;
 
 	case REG_CMD_PHASE:
-		PRT_DEBUG("wd33c93 CMD_PHASE = " << int(value));
 		regs[REG_CMD_PHASE] = value;
 		break;
 
@@ -349,7 +338,6 @@ byte WD33C93::readAuxStatus()
 			regs[REG_AUX_STATUS] |= AS_DBR;
 		}
 	}
-	//PRT_DEBUG("readAuxStatus returning " << std::hex << (int)rv);
 	return rv;
 }
 
@@ -357,13 +345,10 @@ byte WD33C93::readAuxStatus()
 // except for the address-, aux.status-, data- and command registers.
 byte WD33C93::readCtrl()
 {
-	//PRT_DEBUG("ReadCtrl");
 	byte rv;
-
 	switch (latch) {
 	case REG_SCSI_STATUS:
 		rv = regs[REG_SCSI_STATUS];
-		//PRT_DEBUG1("wd33c93 SCSI_STATUS = %X\n", rv);
 		if (rv != SS_XFER_END) {
 			regs[REG_AUX_STATUS] &= ~AS_INT;
 		} else {
@@ -417,7 +402,6 @@ byte WD33C93::readCtrl()
 		rv = regs[latch];
 		break;
 	}
-	//PRT_DEBUG2("wd33c93 read #%X, %X\n", latch, rv);
 
 	latch = (latch + 1) & 0x1f;
 	return rv;
@@ -444,8 +428,6 @@ byte WD33C93::peekCtrl() const
 
 void WD33C93::reset(bool scsireset)
 {
-	PRT_DEBUG("wd33c93 reset");
-
 	// initialized register
 	memset(regs, 0, 0x1b);
 	memset(regs + 0x1b, 0xff, 4);

@@ -4,7 +4,7 @@
 #include "MSXException.hh"
 #include <sddl.h>
 #include <cassert>
-#include "openmsx.hh"
+#include <iostream>
 
 //
 // NOTE: This file MUST be kept in sync between the openmsx and openmsx-debugger projects
@@ -44,8 +44,7 @@ void InitTokenContextBuffer(PSecBufferDesc pSecBufferDesc, PSecBuffer pSecBuffer
 
 void ClearContextBuffers(PSecBufferDesc pSecBufferDesc)
 {
-	for (ULONG i = 0; i < pSecBufferDesc->cBuffers; i ++)
-	{
+	for (ULONG i = 0; i < pSecBufferDesc->cBuffers; i ++) {
 		FreeContextBuffer(pSecBufferDesc->pBuffers[i].pvBuffer);
 		pSecBufferDesc->pBuffers[i].cbBuffer = 0;
 		pSecBufferDesc->pBuffers[i].pvBuffer = nullptr;
@@ -56,29 +55,28 @@ void DebugPrintSecurityStatus(const char* context, SECURITY_STATUS ss)
 {
 	(void)&context;
 	(void)&ss;
-#ifdef DEBUG
-	switch (ss)
-	{
+#if 0
+	switch (ss) {
 	case SEC_E_OK:
-		PRT_DEBUG(context << ": SEC_E_OK");
+		std::cerr << context << ": SEC_E_OK" << std::endl;
 		break;
 	case SEC_I_CONTINUE_NEEDED:
-		PRT_DEBUG(context << ": SEC_I_CONTINUE_NEEDED");
+		std::cerr << context << ": SEC_I_CONTINUE_NEEDED" << std::endl;
 		break;
 	case SEC_E_INVALID_TOKEN:
-		PRT_DEBUG(context << ": SEC_E_INVALID_TOKEN");
+		std::cerr << context << ": SEC_E_INVALID_TOKEN" << std::endl;
 		break;
 	case SEC_E_BUFFER_TOO_SMALL:
-		PRT_DEBUG(context << ": SEC_E_BUFFER_TOO_SMALL");
+		std::cerr << context << ": SEC_E_BUFFER_TOO_SMALL" << std::endl;
 		break;
 	case SEC_E_INVALID_HANDLE:
-		PRT_DEBUG(context << ": SEC_E_INVALID_HANDLE");
+		std::cerr << context << ": SEC_E_INVALID_HANDLE" << std::endl;
 		break;
 	case SEC_E_WRONG_PRINCIPAL:
-		PRT_DEBUG(context << ": SEC_E_WRONG_PRINCIPAL");
+		std::cerr << context << ": SEC_E_WRONG_PRINCIPAL" << std::endl;
 		break;
 	default:
-		PRT_DEBUG(context << ": " << ss);
+		std::cerr << context << ": " << ss << std::endl;
 		break;
 	}
 #endif
@@ -88,11 +86,11 @@ void DebugPrintSecurityBool(const char* context, BOOL ret)
 {
 	(void)&context;
 	(void)&ret;
-#ifdef DEBUG
+#if 0
 	if (ret) {
-		PRT_DEBUG(context << ": true");
+		std::cerr << context << ": true" << std::endl;
 	} else {
-		PRT_DEBUG(context << ": false - " << GetLastError());
+		std::cerr << context << ": false - " << GetLastError() << std::endl;
 	}
 #endif
 }
@@ -100,11 +98,11 @@ void DebugPrintSecurityBool(const char* context, BOOL ret)
 void DebugPrintSecurityPackageName(PCtxtHandle phContext)
 {
 	(void)&phContext;
-#ifdef DEBUG
+#if 0
 	SecPkgContext_PackageInfoA package;
 	SECURITY_STATUS ss = QueryContextAttributesA(phContext, SECPKG_ATTR_PACKAGE_INFO, &package);
 	if (ss == SEC_E_OK) {
-		PRT_DEBUG("Using " << package.PackageInfo->Name << " package");
+		std::cerr << "Using " << package.PackageInfo->Name << " package" << std::endl;
 	}
 #endif
 }
@@ -112,11 +110,11 @@ void DebugPrintSecurityPackageName(PCtxtHandle phContext)
 void DebugPrintSecurityPrincipalName(PCtxtHandle phContext)
 {
 	(void)&phContext;
-#ifdef DEBUG
+#if 0
 	SecPkgContext_NamesA name;
 	SECURITY_STATUS ss = QueryContextAttributesA(phContext, SECPKG_ATTR_NAMES, &name);
 	if (ss == SEC_E_OK) {
-		PRT_DEBUG("Client principal " << name.sUserName);
+		std::cerr << "Client principal " << name.sUserName << std::endl;
 	}
 #endif
 }
@@ -124,7 +122,7 @@ void DebugPrintSecurityPrincipalName(PCtxtHandle phContext)
 void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 {
 	(void)&psd;
-#ifdef DEBUG
+#if 0
 	char* sddl;
 	BOOL ret = ConvertSecurityDescriptorToStringSecurityDescriptorA(
 		psd,
@@ -134,7 +132,7 @@ void DebugPrintSecurityDescriptor(PSECURITY_DESCRIPTOR psd)
 		&sddl,
 		nullptr);
 	if (ret) {
-		PRT_DEBUG("SecurityDescriptor: " << sddl);
+		std::cerr << "SecurityDescriptor: " << sddl << std::endl;
 		LocalFree(sddl);
 	}
 #endif
@@ -150,7 +148,6 @@ PTOKEN_USER GetProcessToken()
 	BOOL ret = OpenProcessToken(GetCurrentProcess(), TOKEN_READ, &hProcessToken);
 	DebugPrintSecurityBool("OpenProcessToken", ret);
 	if (ret) {
-
 		DWORD cbToken;
 		ret = GetTokenInformation(hProcessToken, TokenUser, nullptr, 0, &cbToken);
 		assert(!ret && GetLastError() == ERROR_INSUFFICIENT_BUFFER && cbToken);
@@ -164,10 +161,8 @@ PTOKEN_USER GetProcessToken()
 				pToken = nullptr;
 			}
 		}
-
 		CloseHandle(hProcessToken);
 	}
-
 	return pToken;
 }
 
@@ -190,22 +185,19 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 			PACL pacl = (PACL)(buffer + SECURITY_DESCRIPTOR_MIN_LENGTH);
 			PACCESS_ALLOWED_ACE pUserAce;
 			if (InitializeSecurityDescriptor(psd, SECURITY_DESCRIPTOR_REVISION) &&
-				InitializeAcl(pacl, cbACL, ACL_REVISION) &&
-				AddAccessAllowedAce(pacl, ACL_REVISION, ACCESS_ALL, pUserSid) &&
-				SetSecurityDescriptorDacl(psd, TRUE, pacl, FALSE) &&
-				// Need to set the Group and Owner on the SD in order to use it with AccessCheck()
-				GetAce(pacl, 0, (void**)&pUserAce) &&
-				SetSecurityDescriptorGroup(psd, &pUserAce->SidStart, FALSE) &&
-				SetSecurityDescriptorOwner(psd, &pUserAce->SidStart, FALSE))
-			{
+			    InitializeAcl(pacl, cbACL, ACL_REVISION) &&
+			    AddAccessAllowedAce(pacl, ACL_REVISION, ACCESS_ALL, pUserSid) &&
+			    SetSecurityDescriptorDacl(psd, TRUE, pacl, FALSE) &&
+			    // Need to set the Group and Owner on the SD in order to use it with AccessCheck()
+			    GetAce(pacl, 0, (void**)&pUserAce) &&
+			    SetSecurityDescriptorGroup(psd, &pUserAce->SidStart, FALSE) &&
+			    SetSecurityDescriptorOwner(psd, &pUserAce->SidStart, FALSE)) {
 				buffer = nullptr;
 			} else {
 				psd = nullptr;
 			}
-
 			LocalFree(buffer);
 		}
-
 		LocalFree(pToken);
 	}
 
@@ -213,7 +205,6 @@ PSECURITY_DESCRIPTOR CreateCurrentUserSecurityDescriptor()
 		assert(IsValidSecurityDescriptor(psd));
 		DebugPrintSecurityDescriptor(psd);
 	}
-
 	return psd;
 }
 
@@ -222,9 +213,7 @@ unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package)
 	PSecPkgInfoW pkgInfo;
 	SECURITY_STATUS ss = QuerySecurityPackageInfoW(const_cast<SEC_WCHAR*>(package), &pkgInfo);
 	DebugPrintSecurityStatus("QuerySecurityPackageInfoW", ss);
-	if (ss != SEC_E_OK) {
-		return 0;
-	}
+	if (ss != SEC_E_OK) return 0;
 
 	unsigned long cbMaxToken = pkgInfo->cbMaxToken;
 	FreeContextBuffer(pkgInfo);
@@ -234,12 +223,9 @@ unsigned long GetPackageMaxTokenSize(const SEC_WCHAR* package)
 bool Send(StreamWrapper& stream, void* buffer, uint32_t cb)
 {
 	uint32_t sent = 0;
-	while (sent < cb)
-	{
+	while (sent < cb) {
 		uint32_t ret = stream.Write((char*)buffer + sent, cb - sent);
-		if (ret == STREAM_ERROR) {
-			return false;
-		}
+		if (ret == STREAM_ERROR) return false;
 		sent += ret;
 	}
 	return true;
@@ -259,12 +245,9 @@ bool Recv(StreamWrapper& stream, void* buffer, uint32_t cb)
 	uint32_t recvd = 0;
 	while (recvd < cb) {
 		uint32_t ret = stream.Read((char*)buffer + recvd, cb - recvd);
-		if (ret == STREAM_ERROR) {
-			return false;
-		}
+		if (ret == STREAM_ERROR) return false;
 		recvd += ret;
 	}
-
 	return true;
 }
 

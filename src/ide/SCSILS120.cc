@@ -40,14 +40,6 @@
 #include <bitset>
 #include <cstring>
 
-//#include <iostream>
-//#undef PRT_DEBUG
-/*
-#define  PRT_DEBUG(mes)                          \
-	do {                                    \
-	        std::cout << mes << std::endl;  \
-	} while (0)
-*/
 using std::string;
 using std::vector;
 
@@ -141,7 +133,6 @@ SCSILS120::SCSILS120(const DeviceConfig& targetconfig,
 
 SCSILS120::~SCSILS120()
 {
-	PRT_DEBUG("ls120 close for ls120 " << int(scsiId));
 	auto& info = motherBoard.getSharedStuff("lsInUse");
 	assert(info.counter);
 	assert(info.stuff);
@@ -170,7 +161,6 @@ void SCSILS120::reset()
 
 void SCSILS120::busReset()
 {
-	PRT_DEBUG("SCSI: bus reset on " << int(scsiId));
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION) != 0;
 }
@@ -210,14 +200,12 @@ void SCSILS120::startStopUnit()
 	switch (cdb[4]) {
 	case 2: // Eject
 		eject();
-		PRT_DEBUG("eject disk " << int(scsiId));
 		break;
 	case 3: // Insert  TODO: how can this happen?
 		//if (!diskPresent(diskId)) {
 		//	*disk = disk;
 		//	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 		//	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
-			PRT_DEBUG("insert ls120 " << int(scsiId));
 		//}
 		break;
 	}
@@ -345,7 +333,6 @@ unsigned SCSILS120::requestSense()
 	unsigned tmpKeycode = unitAttention ? SCSI::SENSE_POWER_ON : keycode;
 	unitAttention = false;
 
-	PRT_DEBUG("Request Sense: keycode = " << tmpKeycode);
 	keycode = SCSI::SENSE_NO_SENSE;
 
 	memset(buffer + 1, 0, 17);
@@ -380,12 +367,10 @@ unsigned SCSILS120::readCapacity()
 	unsigned block = unsigned(getNbSectors());
 
 	if (block == 0) {
+		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("ls120 " << int(scsiId) << ": drive not ready");
 		return 0;
 	}
-
-	PRT_DEBUG("total block: " << block);
 
 	--block;
 	Endian::writeB32(&buffer[0], block);
@@ -398,15 +383,14 @@ bool SCSILS120::checkAddress()
 {
 	unsigned total = unsigned(getNbSectors());
 	if (total == 0) {
+		// drive not ready
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("ls120 " << int(scsiId) << ": drive not ready");
 		return false;
 	}
 
 	if ((currentLength > 0) && (currentSector + currentLength <= total)) {
 		return true;
 	}
-	PRT_DEBUG("ls120 " << int(scsiId) << ": IllegalBlockAddress");
 	keycode = SCSI::SENSE_ILLEGAL_BLOCK_ADDRESS;
 	return false;
 }
@@ -419,7 +403,6 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
 
-	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << ' ' << numSectors);
 	try {
 		// TODO: somehow map this to SectorAccessibleDisk::readSector?
 		file->seek(SECTOR_SIZE * currentSector);
@@ -443,7 +426,7 @@ unsigned SCSILS120::dataIn(unsigned& blocks)
 			return counter;
 		}
 	}
-	PRT_DEBUG("dataIn error " << int(cdb[0]));
+	// error
 	blocks = 0;
 	return 0;
 }
@@ -455,7 +438,6 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << ' ' << numSectors);
 	// TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
 		file->seek(SECTOR_SIZE * currentSector);
@@ -479,7 +461,7 @@ unsigned SCSILS120::dataOut(unsigned& blocks)
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
 	}
-	PRT_DEBUG("dataOut error " << int(cdb[0]));
+	// error
 	blocks = 0;
 	return 0;
 }
@@ -502,9 +484,7 @@ void SCSILS120::formatUnit()
 
 byte SCSILS120::getStatusCode()
 {
-	byte result = keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
-	PRT_DEBUG("SCSI status code: \n" << int(result));
-	return result;
+	return keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
 }
 
 void SCSILS120::eject()
@@ -530,7 +510,6 @@ void SCSILS120::insert(string_ref filename)
 
 unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	PRT_DEBUG("SCSI Command: " << int(cdb[0]));
 	memcpy(cdb, cdb_, sizeof(cdb));
 	message = 0;
 	phase = SCSI::STATUS;
@@ -544,7 +523,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		if (cdb[0] == SCSI::OP_TEST_UNIT_READY) {
 			mediaChanged = false;
 		}
-		PRT_DEBUG("Unit Attention. This command is not executed.");
+		// Unit Attention. This command is not executed.
 		return 0;
 	}
 
@@ -552,7 +531,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 	if (((cdb[1] & 0xe0) || lun) && (cdb[0] != SCSI::OP_REQUEST_SENSE) &&
 	    !(cdb[0] == SCSI::OP_INQUIRY && !(mode & MODE_NOVAXIS))) {
 		keycode = SCSI::SENSE_INVALID_LUN;
-		PRT_DEBUG("check LUN error");
+		// check LUN error
 		return 0;
 	}
 
@@ -566,12 +545,10 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 
 		switch (cdb[0]) {
 		case SCSI::OP_TEST_UNIT_READY:
-			PRT_DEBUG("TestUnitReady");
 			testUnitReady();
 			return 0;
 
 		case SCSI::OP_INQUIRY: {
-			PRT_DEBUG("Inquiry " << currentLength);
 			unsigned counter = inquiry();
 			if (counter) {
 				phase = SCSI::DATA_IN;
@@ -579,7 +556,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return counter;
 		}
 		case SCSI::OP_REQUEST_SENSE: {
-			PRT_DEBUG("RequestSense");
 			unsigned counter = requestSense();
 			if (counter) {
 				phase = SCSI::DATA_IN;
@@ -587,7 +563,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return counter;
 		}
 		case SCSI::OP_READ6:
-			PRT_DEBUG("Read6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE >> 1;
 			}
@@ -602,7 +577,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_WRITE6:
-			PRT_DEBUG("Write6: " << currentSector << ' ' << currentLength);
 			if (currentLength == 0) {
 				currentLength = SECTOR_SIZE >> 1;
 			}
@@ -618,14 +592,12 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_SEEK6:
-			PRT_DEBUG("Seek6: " << currentSector);
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
 			checkAddress();
 			return 0;
 
 		case SCSI::OP_MODE_SENSE: {
-			PRT_DEBUG("ModeSense: " << currentLength);
 			unsigned counter = modeSense();
 			if (counter) {
 				phase = SCSI::DATA_IN;
@@ -633,12 +605,10 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return counter;
 		}
 		case SCSI::OP_FORMAT_UNIT:
-			PRT_DEBUG("FormatUnit");
 			formatUnit();
 			return 0;
 
 		case SCSI::OP_START_STOP_UNIT:
-			PRT_DEBUG("StartStopUnit");
 			startStopUnit();
 			return 0;
 
@@ -647,7 +617,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		case SCSI::OP_RESERVE_UNIT:
 		case SCSI::OP_RELEASE_UNIT:
 		case SCSI::OP_SEND_DIAGNOSTIC:
-			PRT_DEBUG("SCSI_Group0 dummy");
+			// SCSI_Group0 dummy
 			return 0;
 		}
 	} else {
@@ -656,8 +626,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 
 		switch (cdb[0]) {
 		case SCSI::OP_READ10:
-			PRT_DEBUG("Read10: " << currentSector << ' ' << currentLength);
-
 			if (checkAddress()) {
 				unsigned counter = readSector(blocks);
 				if (counter) {
@@ -668,8 +636,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_WRITE10:
-			PRT_DEBUG("Write10: " << currentSector << ' ' << currentLength);
-
 			if (checkAddress() && !checkReadOnly()) {
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
@@ -680,7 +646,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return 0;
 
 		case SCSI::OP_READ_CAPACITY: {
-			PRT_DEBUG("ReadCapacity");
 			unsigned counter = readCapacity();
 			if (counter) {
 				phase = SCSI::DATA_IN;
@@ -688,7 +653,6 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 			return counter;
 		}
 		case SCSI::OP_SEEK10:
-			PRT_DEBUG("Seek10: " << currentSector);
 			motherBoard.getLedStatus().setLed(LedStatus::FDD, true);
 			currentLength = 1;
 			checkAddress();
@@ -696,7 +660,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		}
 	}
 
-	PRT_DEBUG("unsupported command " << cdb[0]);
+	// unsupported command
 	keycode = SCSI::SENSE_INVALID_COMMAND_CODE;
 	return 0;
 }
@@ -712,7 +676,6 @@ byte SCSILS120::msgIn()
 {
 	byte result = message;
 	message = 0;
-	//PRT_DEBUG("SCSIDevice " << scsiId << " msgIn returning " << result);
 	return result;
 }
 
@@ -727,7 +690,6 @@ Notes:
 */
 int SCSILS120::msgOut(byte value)
 {
-	PRT_DEBUG("SCSI #" << int(scsiId) << " message out: " << int(value));
 	if (value & 0x80) {
 		lun = value & 7;
 		return 0;

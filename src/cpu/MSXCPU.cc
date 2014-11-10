@@ -127,18 +127,9 @@ void MSXCPU::doReset(EmuTime::param time)
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
+	if (cpu == CPU_R800) assert(r800);
+
 	bool tmp = cpu == CPU_Z80;
-	switch (cpu) {
-		case CPU_Z80:
-			PRT_DEBUG("Active CPU: Z80");
-			break;
-		case CPU_R800:
-			PRT_DEBUG("Active CPU: R800");
-			assert(r800);
-			break;
-		default:
-			UNREACHABLE;
-	}
 	if (tmp != z80Active) {
 		exitCPULoopSync();
 		newZ80Active = tmp;

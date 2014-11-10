@@ -37,8 +37,6 @@ LocalFile::LocalFile(string_ref filename_, File::OpenMode mode)
 #endif
 	, readOnly(false)
 {
-	PRT_DEBUG("LocalFile: " << filename);
-
 	if (mode == File::SAVE_PERSISTENT) {
 		auto pos = filename.find_last_of('/');
 		if (pos != string::npos) {

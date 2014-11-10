@@ -93,19 +93,16 @@ void RealTime::internalSync(EmuTime::param time, bool allowSleep)
 		auto currentRealTime = Timer::getTime();
 		int64_t sleep = idealRealTime - currentRealTime;
 		if (allowSleep) {
-			//PRT_DEBUG("RT: want to sleep " << sleep << "us");
+			// want to sleep for 'sleep' us
 			sleep += static_cast<int64_t>(sleepAdjust);
 			int64_t delta = 0;
 			if (sleep > 0) {
-				//PRT_DEBUG("RT: Sleeping for " << sleep << "us");
-				Timer::sleep(sleep);
+				Timer::sleep(sleep); // request to sleep for 'sleep+sleepAdjust'
 				int64_t slept = Timer::getTime() - currentRealTime;
-				//PRT_DEBUG("RT: Realy slept for " << slept << "us");
-				delta = sleep - slept;
+				delta = sleep - slept; // actually slept for 'slept' us
 			}
 			const double ALPHA = 0.2;
 			sleepAdjust = sleepAdjust * (1 - ALPHA) + delta * ALPHA;
-			//PRT_DEBUG("RT: SleepAdjust: " << sleepAdjust);
 		}
 		if (-sleep > MAX_LAG) {
 			idealRealTime = currentRealTime - MAX_LAG / 2;

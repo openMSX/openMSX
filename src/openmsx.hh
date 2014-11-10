@@ -3,12 +3,6 @@
 
 #include "build-info.hh"
 
-// don't just always include this, saves about 1 minute build time!!
-#ifdef DEBUG
-#include <iostream>
-#include <sstream>
-#endif
-
 #if PLATFORM_ANDROID
 #include <android/log.h>
 #define ad_printf(...) __android_log_print(ANDROID_LOG_INFO, "openMSX", __VA_ARGS__)
@@ -36,39 +30,6 @@ typedef unsigned char byte;
 typedef short signed_word;
 /** 16 bit unsigned integer */
 typedef unsigned short word;
-
-#ifdef DEBUG
-
-#ifdef _WIN32
-
-void DebugPrint(const char* output);
-
-#define PRT_DEBUG(mes)				\
-	do {					\
-		std::ostringstream output;			\
-		output << mes;						\
-		std::cout << output.str() << std::endl;	\
-		::openmsx::DebugPrint(output.str().c_str());	\
-	} while (0)
-#elif PLATFORM_ANDROID
-#define PRT_DEBUG(mes)				\
-	do {					\
-		std::ostringstream output;			\
-		output << mes;						\
-		std::cout << output << std::endl;	\
-		__android_log_write(ANDROID_LOG_DEBUG, "openMSX", output.str().c_str()); \
-	} while (0)
-#else
-#define PRT_DEBUG(mes)				\
-	do {					\
-		std::cout << mes << std::endl;	\
-	} while (0)
-#endif
-#else
-
-#define PRT_DEBUG(mes)
-
-#endif
 
 
 #if defined(__GNUC__) && \

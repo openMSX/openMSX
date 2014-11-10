@@ -51,7 +51,6 @@ static vector<string> getPathsHelper(const vector<string>& input)
 static string resolveHelper(const vector<string>& pathList,
                             string_ref filename)
 {
-	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
 	filepath = FileOperations::expandTilde(filepath);
 	if (FileOperations::isAbsolutePath(filepath)) {
@@ -62,7 +61,6 @@ static string resolveHelper(const vector<string>& pathList,
 	for (auto& p : pathList) {
 		string name = FileOperations::join(p, filename);
 		name = FileOperations::expandTilde(name);
-		PRT_DEBUG("Context: try " << name);
 		if (FileOperations::exists(name)) {
 			return name;
 		}
@@ -89,9 +87,8 @@ const string FileContext::resolveCreate(string_ref filename) const
 		string path = pathList.front();
 		try {
 			FileOperations::mkdirp(path);
-		} catch (FileException& e) {
-			PRT_DEBUG(e.getMessage());
-			(void)&e; // Prevent warning
+		} catch (FileException&) {
+			// ignore
 		}
 		result = FileOperations::join(path, filename);
 	}

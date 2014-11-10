@@ -23,6 +23,7 @@
 #include "memory.hh"
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
 
 using std::unique_ptr;
 using std::string;
@@ -260,9 +261,6 @@ void LaserdiscPlayer::extControl(bool bit, EmuTime::param time)
 
 void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 {
-	PRT_DEBUG("Laserdisc::submitRemote(" << std::hex << protocol << ", "
-			<< code << ')');
-
 	// The END command for seeking/waiting acknowledges repeats,
 	// Esh's Aurunmilla needs play as well.
 	if (protocol != remoteProtocol || code != remoteCode ||
@@ -272,8 +270,7 @@ void LaserdiscPlayer::submitRemote(RemoteProtocol protocol, unsigned code)
 		remoteVblanksBack = 0;
 		remoteExecuteDelayed = true;
 	} else {
-		PRT_DEBUG("Laserdisc::remote ignored after " << std::dec
-			  << remoteVblanksBack << " vblanks");
+		// remote ignored
 		remoteVblanksBack = 0;
 		remoteExecuteDelayed = false;
 	}
@@ -286,7 +283,7 @@ const RawFrame* LaserdiscPlayer::getRawFrame() const
 
 void LaserdiscPlayer::setAck(EmuTime::param time, int wait)
 {
-	PRT_DEBUG("Laserdisc::Lowering ACK for " << std::dec << wait << "ms");
+	// activate ACK for 'wait' milliseconds
 	removeSyncPoint(ACK);
 	setSyncPoint(time + EmuDuration::msec(wait), ACK);
 	ack = true;
@@ -332,9 +329,9 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 	}
 
 	if (!f.empty()) {
-		PRT_DEBUG("LaserdiscPlayer::remote " << f);
+		std::cerr << "LaserdiscPlayer::remote " << f << std::endl;
 	} else {
-		PRT_DEBUG("LaserdiscPlayer::remote unknown " << std::hex << code);
+		std::cerr << "LaserdiscPlayer::remote unknown " << std::hex << code << std::endl;
 	}
 #endif
 	// When not playing the following buttons work
@@ -425,8 +422,6 @@ void LaserdiscPlayer::remoteButtonNEC(unsigned code, EmuTime::param time)
 						int(waitFrame - 100));
 					if (frame) waitFrame = frame;
 				}
-				PRT_DEBUG("Wait frame set to " << std::dec <<
-								waitFrame);
 				break;
 			default:
 				seekState = SEEK_NONE;
@@ -517,19 +512,14 @@ void LaserdiscPlayer::executeUntil(EmuTime::param time, int userdata)
 		if (seeking && playerState == PLAYER_PLAYING) {
 			sampleClock.advance(time);
 		}
-
-		if (seeking) {
-			PRT_DEBUG("Laserdisc: seek complete");
-		}
-
+		// seek complete
 		ack = false;
 		seeking = false;
-		PRT_DEBUG("Laserdisc: ACK cleared");
 		break;
+
 	case ODD_FRAME:
 		if (!video || video->getFrameRate() != 60)
 			break;
-
 	case EVEN_FRAME:
 		if ((playerState != PLAYER_STOPPED) &&
 		    (currentFrame > video->getFrames())) {
@@ -616,9 +606,6 @@ void LaserdiscPlayer::setFrameStep()
 void LaserdiscPlayer::nextFrame(EmuTime::param time)
 {
 	if (waitFrame && waitFrame == currentFrame) {
-		PRT_DEBUG("LaserdiscPlayer: wait frame " << std::dec <<
-						waitFrame << " reached");
-
 		// Leave ACK raised until the next command
 		ack = true;
 		waitFrame = 0;
@@ -654,9 +641,7 @@ void LaserdiscPlayer::nextFrame(EmuTime::param time)
 	// freeze if stop frame
 	if ((playerState == PLAYER_PLAYING || playerState == PLAYER_MULTISPEED)
 	     && video->stopFrame(currentFrame)) {
-		PRT_DEBUG("LaserdiscPlayer: stopFrame " << std::dec <<
-						currentFrame << " reached");
-
+		// stop frame reached
 		playingFromSample = getCurrentSample(time);
 		playerState = PLAYER_STILL;
 	}
@@ -739,9 +724,8 @@ void LaserdiscPlayer::generateChannels(int** buffers, unsigned num)
 	unsigned drift = video->getSampleRate() / 30;
 
 	if (currentSample > (lastPlayedSample + drift) ||
-			(currentSample + drift) < lastPlayedSample) {
-		PRT_DEBUG("Laserdisc audio drift: " << std::dec <<
-				lastPlayedSample << ' ' << currentSample);
+	    (currentSample + drift) < lastPlayedSample) {
+		// audio drift
 		lastPlayedSample = currentSample;
 	}
 
@@ -787,22 +771,17 @@ bool LaserdiscPlayer::updateBuffer(unsigned length, int* buffer,
 void LaserdiscPlayer::setMuting(bool left, bool right, EmuTime::param time)
 {
 	updateStream(time);
-	PRT_DEBUG("Laserdisc::setMuting L:" << (left  ? "on" : "off")
-				   << " R:" << (right ? "on" : "off"));
 	muteLeft = left;
 	muteRight = right;
 }
 
 void LaserdiscPlayer::play(EmuTime::param time)
 {
-	PRT_DEBUG("Laserdisc::Play");
-
 	if (video) {
 		updateStream(time);
 
 		if (seeking) {
-			// Do not ACK
-			PRT_DEBUG("play while seeking");
+			// Do not ACK, play while seeking
 		} else if (playerState == PLAYER_STOPPED) {
 			// Disk needs to spin up, which takes 9.6s on
 			// my Pioneer LD-92000. Also always seek to
@@ -853,8 +832,6 @@ size_t LaserdiscPlayer::getCurrentSample(EmuTime::param time)
 void LaserdiscPlayer::pause(EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
-		PRT_DEBUG("Laserdisc::Pause");
-
 		updateStream(time);
 
 		if (playerState == PLAYER_PLAYING) {
@@ -873,10 +850,7 @@ void LaserdiscPlayer::pause(EmuTime::param time)
 void LaserdiscPlayer::stop(EmuTime::param time)
 {
 	if (playerState != PLAYER_STOPPED) {
-		PRT_DEBUG("Laserdisc::Stop");
-
 		updateStream(time);
-
 		playerState = PLAYER_STOPPED;
 	}
 }
@@ -923,71 +897,54 @@ void LaserdiscPlayer::stepFrame(bool forwards)
 
 void LaserdiscPlayer::seekFrame(size_t toframe, EmuTime::param time)
 {
-	if (playerState != PLAYER_STOPPED) {
-		PRT_DEBUG("Laserdisc::SeekFrame " << std::dec << toframe);
+	if ((playerState != PLAYER_STOPPED) && video) {
+		updateStream(time);
 
-		if (seeking) {
-			PRT_DEBUG("FIXME: seek command while still seeking");
+		if (toframe <= 0) toframe = 1;
+		if (toframe > video->getFrames()) toframe = video->getFrames();
+
+		// Seek time needs to be emulated correctly since
+		// e.g. Astron Belt does not wait for the seek
+		// to complete, it simply assumes a certain
+		// delay.
+		//
+		// This calculation is based on measurements on
+		// a Pioneer LD-92000.
+		auto dist = std::abs(int64_t(toframe) - int64_t(currentFrame));
+		int seektime; // time in ms
+
+		if (dist < 1000) {
+			seektime = dist + 300;
+		} else {
+			seektime = 1800 + dist / 12;
 		}
 
-		if (video) {
-			updateStream(time);
+		int64_t samplePos = (toframe - 1ll) * 1001ll *
+				    video->getSampleRate() / 30000ll;
 
-			if (toframe <= 0)  {
-				toframe = 1;
-			}
-
-			if (toframe > video->getFrames()) {
-				toframe = video->getFrames();
-			}
-
-			// Seek time needs to be emulated correctly since
-			// e.g. Astron Belt does not wait for the seek
-			// to complete, it simply assumes a certain
-			// delay.
-			//
-			// This calculation is based on measurements on
-			// a Pioneer LD-92000.
-			auto dist = std::abs(int64_t(toframe) - int64_t(currentFrame));
-			int seektime; // time in ms
-
-			if (dist < 1000) {
-				seektime = dist + 300;
-			} else {
-				seektime = 1800 + dist / 12;
-			}
-
-			int64_t samplePos = (toframe - 1ll) * 1001ll *
-			                    video->getSampleRate() / 30000ll;
-
-			if (video->getFrameRate() == 60)
-				video->seek(toframe * 2, samplePos);
-			else
-				video->seek(toframe, samplePos);
-
-			playerState = PLAYER_STILL;
-			playingFromSample = samplePos;
-			currentFrame = toframe;
-
-			// Seeking clears the frame to wait for
-			waitFrame = 0;
-
-			seeking = true;
-			setAck(time, seektime);
+		if (video->getFrameRate() == 60) {
+			video->seek(toframe * 2, samplePos);
+		} else {
+			video->seek(toframe, samplePos);
 		}
+		playerState = PLAYER_STILL;
+		playingFromSample = samplePos;
+		currentFrame = toframe;
+
+		// Seeking clears the frame to wait for
+		waitFrame = 0;
+
+		seeking = true;
+		setAck(time, seektime);
 	}
 }
 
 void LaserdiscPlayer::seekChapter(int chapter, EmuTime::param time)
 {
-	if (playerState != PLAYER_STOPPED) {
-		if (video) {
-			auto frameno = video->chapter(chapter);
-			if (!frameno) {
-				return;
-			}
-			seekFrame(frameno, time);
-		}
+	if ((playerState != PLAYER_STOPPED) && video) {
+		auto frameno = video->chapter(chapter);
+		if (!frameno) return;
+		seekFrame(frameno, time);
 	}
 }
 

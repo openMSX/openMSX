@@ -187,10 +187,6 @@ void CommandConsole::loadHistory()
 		UserFileContext context("console");
 		std::ifstream inputfile(
 		        context.resolveCreate("history.txt").c_str());
-		if (!inputfile) {
-			throw FileException(
-				"Error while loading the console history.");
-		}
 		string line;
 		while (inputfile) {
 			getline(inputfile, line);
@@ -198,9 +194,8 @@ void CommandConsole::loadHistory()
 				putCommandHistory(prompt + line);
 			}
 		}
-	} catch (FileException& e) {
-		PRT_DEBUG(e.getMessage());
-		(void)&e; // Prevent warning
+	} catch (FileException&) {
+		// Error while loading the console history, ignore
 	}
 }
 

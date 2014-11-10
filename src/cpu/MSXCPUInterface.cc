@@ -427,9 +427,6 @@ void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 void MSXCPUInterface::register_IO(int port, bool isIn,
                                   MSXDevice*& devicePtr, MSXDevice* device)
 {
-	PRT_DEBUG(device->getName() << " registers " << (isIn ? "In" : "Out") <<
-	          "-port " << std::hex << port << std::dec);
-
 	if (devicePtr == dummyDevice.get()) {
 		// first, replace DummyDevice
 		devicePtr = device;
@@ -509,9 +506,6 @@ void MSXCPUInterface::testRegisterSlot(
 void MSXCPUInterface::registerSlot(
 	MSXDevice& device, int ps, int ss, int base, int size)
 {
-	PRT_DEBUG(device.getName() << " registers at " <<
-	          std::dec << ps << ' ' << ss << " 0x" <<
-	          std::hex << base << "-0x" << (base + size - 1));
 	int page = base >> 14;
 	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {

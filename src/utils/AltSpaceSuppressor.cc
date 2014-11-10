@@ -103,8 +103,6 @@ void AltSpaceSuppressor::Stop()
 LRESULT AltSpaceSuppressor::InterceptorWndProc(
 	HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	//PRT_DEBUG("message = " << message << ", wParam = " << wParam << ", lParam = " << lParam);
-
 	LRESULT lResult = 0;
 	if (SuppressAltSpace(hWnd, message, wParam, lParam, &lResult)) {
 		// Message processed
@@ -129,7 +127,7 @@ bool AltSpaceSuppressor::SuppressAltSpace(
 	if (message == WM_SYSCOMMAND &&
 	    wParam == SC_KEYMENU &&
 	    lParam == LPARAM(' ')) {
-		PRT_DEBUG("Suppressed ALT+SPACE	message");
+		// Suppressed ALT+SPACE message
 		*outResult = 0;
 		return true; // processed
 	}

@@ -462,10 +462,6 @@ void VDP::reset(EmuTime::param time)
 void VDP::executeUntil(EmuTime::param time, int userData)
 {
 	/*
-	PRT_DEBUG("Executing VDP at time " << time
-		<< ", sync type " << userData);
-	*/
-	/*
 	int ticksThisFrame = getTicksThisFrame(time);
 	cout << (userData == VSYNC ? "VSYNC" :
 		     (userData == VSCAN ? "VSCAN" :
@@ -1065,8 +1061,6 @@ byte VDP::peekIO(word /*port*/, EmuTime::param /*time*/) const
 
 void VDP::changeRegister(byte reg, byte val, EmuTime::param time)
 {
-	//PRT_DEBUG("VDP[" << (int)reg << "] = " << hex << (int)val << dec);
-
 	if (reg >= 32) {
 		// MXC belongs to CPU interface;
 		// other bits in this register belong to command engine.
@@ -1429,8 +1423,6 @@ void VDP::updateSpritePatternBase(EmuTime::param time)
 
 void VDP::updateDisplayMode(DisplayMode newMode, EmuTime::param time)
 {
-	//PRT_DEBUG("VDP: mode " << newMode);
-
 	// Synchronise subsystems.
 	vram->updateDisplayMode(newMode, time);
 

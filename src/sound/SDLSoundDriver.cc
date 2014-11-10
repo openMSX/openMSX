@@ -120,7 +120,6 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 {
 	assert((len & 1) == 0); // stereo
 	unsigned available = getBufferFilled();
-	//PRT_DEBUG("DEBUG callback: " << available);
 	unsigned num = std::min(len, available);
 	if ((readIdx + num) < mixBuffer.size()) {
 		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
@@ -135,7 +134,6 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 	int missing = len - available;
 	if (missing > 0) {
 		// buffer underrun
-		//PRT_DEBUG("DEBUG underrun: " << missing);
 		memset(&stream[available], 0, missing * sizeof(short));
 	}
 }

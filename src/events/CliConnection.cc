@@ -129,7 +129,6 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
-	PRT_DEBUG("CliConnection::execute: " << command);
 	eventDistributor.distributeEvent(
 		std::make_shared<CliCommandEvent>(command, this));
 }
@@ -148,7 +147,6 @@ int CliConnection::signalEvent(const std::shared_ptr<const Event>& event)
 		try {
 			string result = commandController.executeCommand(
 				commandEvent.getCommand(), this);
-			PRT_DEBUG("CliConnection::signalEvent result: " << result);
 			output(reply(result, true));
 		} catch (CommandException& e) {
 			string result = e.getMessage() + '\n';

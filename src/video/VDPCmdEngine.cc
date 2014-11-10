@@ -2136,7 +2136,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, EmuTime::param time)
 	if (newScrMode != scrMode) {
 		sync(time);
 		if (currentCommand) {
-			PRT_DEBUG("VDP mode switch while command in progress");
+			// VDP mode switch while command in progress
 			if (newScrMode == -1) {
 				// TODO: For now abort cmd in progress,
 				//       later find out what really happens.

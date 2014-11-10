@@ -124,9 +124,7 @@ Display::~Display()
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
 			*this);
 
-	PRT_DEBUG("Reset video system...");
 	resetVideoSystem();
-	PRT_DEBUG("Reset video system... DONE!");
 
 	assert(listeners.empty());
 }

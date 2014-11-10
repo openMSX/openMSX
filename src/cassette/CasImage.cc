@@ -209,8 +209,7 @@ void CasImage::convert(const Filename& filename, FilePool& filePool, CliComm& cl
 			}
 			firstFile = false;
 		} else {
-			// should not occur
-			PRT_DEBUG("CAS2WAV: skipping unhandled data");
+			// skipping unhandled data, shouldn't occur in normal cas file
 			pos++;
 			issueWarning = true;
 		}

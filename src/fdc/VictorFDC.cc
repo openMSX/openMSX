@@ -107,7 +107,6 @@ byte VictorFDC::peekMem(word address, EmuTime::param time) const
 		}
 		break;
 	}
-	//PRT_DEBUG("VictorFDC read 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	return value;
 }
 
@@ -126,7 +125,6 @@ const byte* VictorFDC::getReadCacheLine(word start) const
 
 void VictorFDC::writeMem(word address, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("VictorFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address) {
 	case 0x7FF8:
 		controller->setCommandReg(value, time);

@@ -47,7 +47,6 @@ void MSXMusicBase::writeRegisterPort(byte value, EmuTime::param /*time*/)
 
 void MSXMusicBase::writeDataPort(byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("YM2413: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2413->writeReg(registerLatch, value, time);
 }
 

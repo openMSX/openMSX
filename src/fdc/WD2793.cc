@@ -5,6 +5,7 @@
 #include "MSXException.hh"
 #include "serialize.hh"
 #include "unreachable.hh"
+#include <iostream>
 
 namespace openmsx {
 
@@ -118,7 +119,6 @@ bool WD2793::isReady() const
 
 void WD2793::setCommandReg(byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("WD2793::setCommandReg() 0x" << std::hex << (int)value);
 	removeSyncPoint(SCHED_FSM);
 
 	commandReg = value;
@@ -191,7 +191,6 @@ byte WD2793::getStatusReg(EmuTime::param time)
 		irqTime = EmuTime::infinity; // INTRQ = false;
 	}
 
-	//PRT_DEBUG("WD2793::getStatusReg() 0x" << std::hex << (int)statusReg);
 	return statusReg;
 }
 
@@ -202,7 +201,6 @@ byte WD2793::peekStatusReg(EmuTime::param time)
 
 void WD2793::setTrackReg(byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("WD2793::setTrackReg() 0x" << std::hex << (int)value);
 	trackReg = value;
 }
 
@@ -218,7 +216,6 @@ byte WD2793::peekTrackReg (EmuTime::param time)
 
 void WD2793::setSectorReg(byte value, EmuTime::param /*time*/)
 {
-	//PRT_DEBUG("WD2793::setSectorReg() 0x" << std::hex << (int)value);
 	sectorReg = value;
 }
 
@@ -234,7 +231,6 @@ byte WD2793::peekSectorReg(EmuTime::param time)
 
 void WD2793::setDataReg(byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("WD2793::setDataReg() 0x" << std::hex << (int)value);
 	dataReg = value;
 
 	if (!getDTRQ(time)) return;
@@ -583,7 +579,6 @@ void WD2793::type2Loaded(EmuTime::param time)
 {
 	if (((commandReg & 0xE0) == 0xA0) && (drive.isWriteProtected())) {
 		// write command and write protected
-		PRT_DEBUG("WD2793: write protected");
 		statusReg |= WRITE_PROTECTED;
 		endCmd();
 		return;
@@ -758,7 +753,6 @@ void WD2793::doneWriteSector()
 
 void WD2793::startType3Cmd(EmuTime::param time)
 {
-	//PRT_DEBUG("WD2793 start type 3 command");
 	statusReg &= ~(LOST_DATA | RECORD_NOT_FOUND | RECORD_TYPE);
 	statusReg |= BUSY;
 
@@ -809,8 +803,8 @@ void WD2793::type3Loaded(EmuTime::param time)
 			}
 			dataCurrent = sector.addrIdx;
 			dataAvailable = 6;
-		} catch (MSXException& e) {
-			PRT_DEBUG("WD2793: read addr failed: " << e.getMessage()); (void)&e;
+		} catch (MSXException&) {
+			// read addr failed
 			statusReg |= RECORD_NOT_FOUND;
 			endCmd();
 			return;
@@ -857,9 +851,8 @@ void WD2793::readTrackCmd(EmuTime::param time)
 		schedule(FSM_READ_TRACK, drqTime + dataAvailable);
 
 		drqTime += 1; // (first) byte can be read in a moment
-	} catch (MSXException& e) {
-		PRT_DEBUG("WD2793: read track failed: " << e.getMessage()); (void)&e;
-		// TODO status bits?
+	} catch (MSXException&) {
+		// read track failed, TODO status bits?
 		endCmd();
 	}
 }
@@ -914,12 +907,12 @@ void WD2793::doneWriteTrack()
 void WD2793::startType4Cmd(EmuTime::param time)
 {
 	// Force interrupt
-	PRT_DEBUG("WD2793 command: Force interrupt");
-
 	byte flags = commandReg & 0x0F;
 	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
-		PRT_DEBUG("WD2793 type 4 cmd, unimplemented bits " << int(flags));
+		#ifdef DEBUG
+		std::cerr << "WD2793 type 4 cmd, unimplemented bits " << int(flags) << std::endl;
+		#endif
 	}
 
 	if (flags == 0x00) {

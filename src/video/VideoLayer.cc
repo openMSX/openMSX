@@ -33,13 +33,11 @@ VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
 
 VideoLayer::~VideoLayer()
 {
-	PRT_DEBUG("Destructing VideoLayer...");
 	motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
 	powerSetting.detach(*this);
 	videoSourceSetting.detach(*this);
 
 	display.removeLayer(*this);
-	PRT_DEBUG("Destructing VideoLayer... DONE!");
 }
 
 int VideoLayer::getVideoSource() const

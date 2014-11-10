@@ -141,7 +141,6 @@ void RealDrive::step(bool direction, EmuTime::param time)
 			headPos--;
 		}
 	}
-	PRT_DEBUG("DiskDrive track " << headPos);
 	// ThrottleManager heuristic:
 	//  If the motor is turning and there is head movement, assume the
 	//  MSX program is (still) loading/saving to disk

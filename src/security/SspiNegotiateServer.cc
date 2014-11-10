@@ -51,15 +51,9 @@ bool SspiNegotiateServer::Authenticate()
 	std::vector<char> buffer;
 	PCtxtHandle phContext = nullptr;
 	while (true) {
-
 		// Receive another buffer from the client
-		PRT_DEBUG("Receiving client chunk");
 		bool ret = RecvChunk(stream, buffer, cbMaxTokenSize);
-		if (!ret) {
-			PRT_DEBUG("RecvChunk failed");
-			return false;
-		}
-		PRT_DEBUG("Received " << buffer.size() << " bytes");
+		if (!ret) return false;
 
 		secClientBuffer.cbBuffer = static_cast<unsigned long>(buffer.size());
 		secClientBuffer.pvBuffer = &buffer[0];
@@ -83,15 +77,10 @@ bool SspiNegotiateServer::Authenticate()
 		}
 
 		// If we have something for the client, send it
-		if (secServerBuffer.cbBuffer)
-		{
-			PRT_DEBUG("Sending " << secServerBuffer.cbBuffer << " bytes to client");
+		if (secServerBuffer.cbBuffer) {
 			bool ret = SendChunk(stream, secServerBuffer.pvBuffer, secServerBuffer.cbBuffer);
 			ClearContextBuffers(&secServerBufferDesc);
-			if (!ret) {
-				PRT_DEBUG("SendChunk failed");
-				return false;
-			}
+			if (!ret) return false;
 		}
 
 		// SEC_E_OK means that we're done
@@ -145,7 +134,6 @@ bool SspiNegotiateServer::Authorize()
 		&fAccess);
 
 	DebugPrintSecurityBool("AccessCheck", ret);
-	PRT_DEBUG("Access " << (ret && fAccess ? "granted" : "denied"));
 	DebugPrintSecurityPrincipalName(&hContext);
 
 	CloseHandle(hClientToken);

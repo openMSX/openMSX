@@ -52,8 +52,7 @@ static size_t midiMessageLength(uint8_t status)
 		case 0xF5:
 		case 0xF9:
 		case 0xFD:
-			PRT_DEBUG("Data size unknown for MIDI status"
-			          "0x" << std::hex << int(status) << std::dec);
+			// Data size unknown
 			return 1;
 		default:
 			return 1;
@@ -82,7 +81,7 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 				message.push_back(value);
 				messageComplete(time, message.data(), message.size());
 			} else {
-				PRT_DEBUG("Ignoring SysEx end without start");
+				// Ignoring SysEx end without start
 			}
 			message.clear();
 			isSysEx = false;
@@ -96,20 +95,21 @@ void MidiOutMessageBuffer::recvByte(byte value, EmuTime::param time)
 		} else {
 			// Replace any message in progress.
 			if (isSysEx) {
-				PRT_DEBUG("Discarding incomplete MIDI SysEx message");
+				// Discarding incomplete MIDI SysEx message
 			} else if (message.size() >= 2) {
-				PRT_DEBUG("Discarding incomplete MIDI message with status "
-						"0x" << std::hex << int(message[0]) << std::dec <<
-						", at " << message.size() << " of " <<
-						midiMessageLength(message[0]) << " bytes");
+				#if 0
+				std::cerr << "Discarding incomplete MIDI message with status "
+				             "0x" << std::hex << int(message[0]) << std::dec <<
+				             ", at " << message.size() << " of " <<
+				             midiMessageLength(message[0]) << " bytes" << std::endl;
+				#endif
 			}
 			message = { value };
 			isSysEx = value == MIDI_MSG_SYSEX;
 		}
 	} else { // data byte
 		if (message.empty() && !isSysEx) {
-			PRT_DEBUG("Ignoring MIDI data without preceding status: "
-			          "0x" << std::hex << int(value) << std::dec);
+			// Ignoring MIDI data without preceding status
 		} else {
 			message.push_back(value);
 		}

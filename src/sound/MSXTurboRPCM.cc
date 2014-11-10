@@ -109,14 +109,9 @@ void MSXTurboRPCM::writeIO(word port, byte value, EmuTime::param time)
 
 byte MSXTurboRPCM::getSample(EmuTime::param time) const
 {
-	byte result;
-	if (status & 0x04) {
-		result = (connector->readSample(time) / 256) + 0x80;
-	} else {
-		result = 0x80; // TODO check
-	}
-	//PRT_DEBUG("PCM: read " << (int)result);
-	return result;
+	return (status & 0x04)
+		? (connector->readSample(time) / 256) + 0x80
+		: 0x80; // TODO check
 }
 
 bool MSXTurboRPCM::getComp(EmuTime::param time) const

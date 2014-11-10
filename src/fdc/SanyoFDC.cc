@@ -85,7 +85,6 @@ byte SanyoFDC::peekMem(word address, EmuTime::param time) const
 		}
 		break;
 	}
-	//PRT_DEBUG("SanyoFDC read 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	return value;
 }
 
@@ -104,7 +103,6 @@ const byte* SanyoFDC::getReadCacheLine(word start) const
 
 void SanyoFDC::writeMem(word address, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("SanyoFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address) {
 	case 0x7FF8:
 		controller->setCommandReg(value, time);

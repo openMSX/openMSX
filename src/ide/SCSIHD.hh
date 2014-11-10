@@ -23,7 +23,6 @@ class SCSIHD final : public HD, public SCSIDevice, private noncopyable
 public:
 	SCSIHD(const DeviceConfig& targetconfig,
 	       AlignedBuffer& buf, unsigned mode);
-	~SCSIHD();
 
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);

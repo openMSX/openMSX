@@ -83,7 +83,6 @@ void MSXYamahaSFG::writeRegisterPort(byte value, EmuTime::param /*time*/)
 
 void MSXYamahaSFG::writeDataPort(byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("YM2151: reg "<<(int)registerLatch<<" val "<<(int)value);
 	ym2151->writeReg(registerLatch, value, time);
 }
 

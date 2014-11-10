@@ -93,7 +93,6 @@ static const unsigned MAX_DEV = 8;
 
 MB89352::MB89352(const DeviceConfig& config)
 {
-	PRT_DEBUG("spc create");
 	// TODO: devBusy = false;
 
 	// ALMOST COPY PASTED FROM WD33C93:
@@ -175,7 +174,6 @@ void MB89352::softReset()
 
 void MB89352::reset(bool scsireset)
 {
-	//PRT_DEBUG("MB89352 reset");
 	regs[REG_BDID] = 0x80;     // Initial value
 	regs[REG_SCTL] = 0x80;
 	rst  = false;
@@ -195,7 +193,7 @@ void MB89352::setACKREQ(byte& value)
 {
 	// REQ check
 	if ((regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY)) != (PSNS_REQ | PSNS_BSY)) {
-		PRT_DEBUG("set ACK/REQ: REQ/BSY check error");
+		// set ACK/REQ: REQ/BSY check error
 		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC
 			value = 0xFF;
 		}
@@ -204,7 +202,7 @@ void MB89352::setACKREQ(byte& value)
 
 	// phase check
 	if (regs[FIX_PCTL] != (regs[REG_PSNS] & 7)) {
-		PRT_DEBUG("set ACK/REQ: phase check error");
+		// set ACK/REQ: phase check error
 		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC
 			value = 0xFF;
 		}
@@ -254,7 +252,7 @@ void MB89352::setACKREQ(byte& value)
 		break;
 
 	default:
-		PRT_DEBUG("set ACK/REQ code error");
+		// set ACK/REQ code error
 		break;
 	}
 }
@@ -263,13 +261,13 @@ void MB89352::resetACKREQ()
 {
 	// ACK check
 	if ((regs[REG_PSNS] & (PSNS_ACK | PSNS_BSY)) != (PSNS_ACK | PSNS_BSY)) {
-		PRT_DEBUG("reset ACK/REQ: ACK/BSY check error");
+		// reset ACK/REQ: ACK/BSY check error
 		return;
 	}
 
 	// phase check
 	if (regs[FIX_PCTL] != (regs[REG_PSNS] & 7)) {
-		PRT_DEBUG("reset ACK/REQ: phase check error");
+		// reset ACK/REQ: phase check error
 		if (isTransfer) {
 			regs[REG_INTS] |= INTS_ServiceRequited;
 		}
@@ -330,7 +328,7 @@ void MB89352::resetACKREQ()
 				regs[REG_PSNS] = PSNS_BSY;
 				return; // note: return iso break
 			default:
-				PRT_DEBUG("phase error");
+				// phase error
 				break;
 			}
 			// TODO: devBusy = false;
@@ -396,14 +394,14 @@ void MB89352::resetACKREQ()
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_MSGIN;
 			break;
 		default:
-			PRT_DEBUG("MsgOut code error");
+			// MsgOut code error
 			break;
 		}
 		return;
 
 	default:
 		//UNREACHABLE;
-		PRT_DEBUG("reset ACK/REQ code error");
+		// reset ACK/REQ code error
 		break;
 	}
 
@@ -419,7 +417,6 @@ byte MB89352::readDREG()
 	if (isTransfer && (tc > 0)) {
 		setACKREQ(regs[REG_DREG]);
 		resetACKREQ();
-		//PRT_DEBUG("DREG read: " << tc << ' ' << std::hex << (int)regs[REG_DREG]);
 
 		--tc;
 		if (tc == 0) {
@@ -436,8 +433,6 @@ byte MB89352::readDREG()
 void MB89352::writeDREG(byte value)
 {
 	if (isTransfer && (tc > 0)) {
-		//PRT_DEBUG("DREG write: " << tc << ' ' << std::hex << (int)value);
-
 		setACKREQ(value);
 		resetACKREQ();
 
@@ -452,7 +447,6 @@ void MB89352::writeDREG(byte value)
 
 void MB89352::writeRegister(byte reg, byte value)
 {
-	//PRT_DEBUG("SPC write register: " << std::hex << (int)reg << ' ' << std::hex << (int)value);
 	switch (reg) {
 	case REG_DREG: // write data Register
 		writeDREG(value);
@@ -466,7 +460,6 @@ void MB89352::writeRegister(byte reg, byte value)
 		// bus reset
 		if (value & 0x10) {
 			if (((regs[REG_SCMD] & 0x10) == 0) & (regs[REG_SCTL] == 0)) {
-				PRT_DEBUG("SPC: bus reset");
 				rst = true;
 				regs[REG_INTS] |= INTS_ResetCondition;
 				for (auto& d : dev) {
@@ -505,7 +498,7 @@ void MB89352::writeRegister(byte reg, byte value)
 			}
 
 			if (regs[REG_PCTL] & 1) {
-				PRT_DEBUG("reselection error " << std::hex << int(regs[REG_TEMPWR]));
+				// reselection error
 				regs[REG_INTS] |= INTS_TimeOut;
 				disconnect();
 				break;
@@ -525,7 +518,7 @@ void MB89352::writeRegister(byte reg, byte value)
 				}
 
 				if (/*!TODO: devBusy &&*/ dev[targetId]->isSelected()) {
-					PRT_DEBUG("selection OK of target " << int(targetId));
+					// target selection OK
 					regs[REG_INTS] |= INTS_CommandComplete;
 					isBusy  = true;
 					msgin   =  0;
@@ -548,7 +541,7 @@ void MB89352::writeRegister(byte reg, byte value)
 			}
 
 			if (err) {
-				PRT_DEBUG("selection error on target " << int(targetId));
+				// target selection error
 				regs[REG_INTS] |= INTS_TimeOut;
 				disconnect();
 			}
@@ -556,34 +549,29 @@ void MB89352::writeRegister(byte reg, byte value)
 		}
 		// hardware transfer
 		case CMD_Transfer:
-			PRT_DEBUG("CMD_Transfer " << tc << " ( " << (tc/512) << ')');
 			if ((regs[FIX_PCTL] == (regs[REG_PSNS] & 7)) &&
 			    (regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY))) {
 				isTransfer = true; // set Xfer in Progress
 			} else {
+				// phase error
 				regs[REG_INTS] |= INTS_ServiceRequited;
-				PRT_DEBUG("phase error");
 			}
 			break;
 
 		case CMD_BusRelease:
-			PRT_DEBUG("CMD_BusRelease");
 			disconnect();
 			break;
 
 		case CMD_SetATN:
-			PRT_DEBUG("CMD_SetATN");
 			atn = PSNS_ATN;
 			break;
 
 		case CMD_ResetATN:
-			PRT_DEBUG("CMD_ResetATN");
 			atn = 0;
 			break;
 
 		case CMD_TransferPause:
 			// nothing is done in the initiator.
-			PRT_DEBUG("CMD_TransferPause");
 			break;
 		}
 		break;  // end of REG_SCMD
@@ -593,7 +581,6 @@ void MB89352::writeRegister(byte reg, byte value)
 		if (rst) {
 			regs[REG_INTS] |= INTS_ResetCondition;
 		}
-		//PRT_DEBUG2("INTS reset: %x %x\n", value, regs[REG_INTS]);
 		break;
 
 	case REG_TEMP:
@@ -602,17 +589,14 @@ void MB89352::writeRegister(byte reg, byte value)
 
 	case REG_TCL:
 		tc = (tc & 0xFFFF00) + (value <<  0);
-		//PRT_DEBUG1("set tcl: %d\n", tc);
 		break;
 
 	case REG_TCM:
 		tc = (tc & 0xFF00FF) + (value <<  8);
-		//PRT_DEBUG1("set tcm: %d\n", tc);
 		break;
 
 	case REG_TCH:
 		tc = (tc & 0x00FFFF) + (value << 16);
-		//PRT_DEBUG1("set tch: %d\n", tc);
 		break;
 
 	case REG_PCTL:
@@ -684,12 +668,9 @@ byte MB89352::getSSTS() const
 
 byte MB89352::readRegister(byte reg)
 {
-	//PRT_DEBUG("MB89352: Read register " << (int)reg);
-	byte result;
 	switch (reg) {
 	case REG_DREG:
-		result = readDREG();
-		break;
+		return readDREG();
 
 	case REG_PSNS:
 		if (phase == SCSI::EXECUTE) {
@@ -713,18 +694,16 @@ byte MB89352::readRegister(byte reg)
 					regs[REG_PSNS] = PSNS_BSY;
 					break;
 				default:
-					PRT_DEBUG("phase error");
+					// phase error
 					break;
 				}
 			}
 		}
-		result = regs[REG_PSNS] | atn;
-		break;
+		return regs[REG_PSNS] | atn;
+
 	default:
-		result = peekRegister(reg);
+		return peekRegister(reg);
 	}
-	//PRT_DEBUG2("SPC reg read: %x %x\n", reg, result);
-	return result;
 }
 
 byte MB89352::peekDREG() const

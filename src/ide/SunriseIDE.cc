@@ -139,13 +139,11 @@ byte SunriseIDE::readDataHigh(EmuTime::param /*time*/)
 word SunriseIDE::readData(EmuTime::param time)
 {
 	word result = device[selectedDevice]->readData(time);
-	//PRT_DEBUG("IDE read data: 0x" << std::hex << int(result) << std::dec);
 	return result;
 }
 
 byte SunriseIDE::readReg(nibble reg, EmuTime::param time)
 {
-	//PRT_DEBUG("IDE read reg: " << (int)reg);
 	byte result;
 	if (reg == 14) {
 		// alternate status register

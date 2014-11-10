@@ -82,7 +82,6 @@ byte NationalFDC::peekMem(word address, EmuTime::param time) const
 		}
 		break;
 	}
-	//PRT_DEBUG("NationalFDC read 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	return value;
 }
 
@@ -101,7 +100,6 @@ const byte* NationalFDC::getReadCacheLine(word start) const
 
 void NationalFDC::writeMem(word address, byte value, EmuTime::param time)
 {
-	//PRT_DEBUG("NationalFDC write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	switch (address & 0x3FC7) {
 	case 0x3F80:
 		controller->setCommandReg(value, time);

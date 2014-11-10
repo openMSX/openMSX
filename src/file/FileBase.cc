@@ -32,7 +32,7 @@ void FileBase::truncate(size_t newSize)
 {
 	auto oldSize = getSize();
 	if (newSize < oldSize) {
-		PRT_DEBUG("Default truncate() can't shrink file!");
+		// default truncate() can't shrink file
 		return;
 	}
 	auto remaining = newSize - oldSize;

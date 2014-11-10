@@ -393,22 +393,15 @@ void MSXDevice::getExtraDeviceInfo(TclObject& /*result*/) const
 }
 
 
-byte MSXDevice::readIO(word port, EmuTime::param /*time*/)
+byte MSXDevice::readIO(word /*port*/, EmuTime::param /*time*/)
 {
-	(void)port;
-	PRT_DEBUG("MSXDevice::readIO (0x" << std::hex << int(port & 0xFF)
-	          << std::dec << ") : No device implementation.");
+	// read from unmapped IO
 	return 0xFF;
 }
 
-void MSXDevice::writeIO(word port, byte value, EmuTime::param /*time*/)
+void MSXDevice::writeIO(word /*port*/, byte /*value*/, EmuTime::param /*time*/)
 {
-	(void)port;
-	(void)value;
-	PRT_DEBUG("MSXDevice::writeIO(port 0x" << std::hex << int(port & 0xFF)
-	          << std::dec << ",value " << int(value)
-	          << ") : No device implementation.");
-	// do nothing
+	// write to unmapped IO, do nothing
 }
 
 byte MSXDevice::peekIO(word /*port*/, EmuTime::param /*time*/) const
@@ -417,11 +410,9 @@ byte MSXDevice::peekIO(word /*port*/, EmuTime::param /*time*/) const
 }
 
 
-byte MSXDevice::readMem(word address, EmuTime::param /*time*/)
+byte MSXDevice::readMem(word /*address*/, EmuTime::param /*time*/)
 {
-	(void)address;
-	PRT_DEBUG("MSXDevice: read from unmapped memory " << std::hex <<
-	          int(address) << std::dec);
+	// read from unmapped memory
 	return 0xFF;
 }
 
@@ -430,13 +421,10 @@ const byte* MSXDevice::getReadCacheLine(word /*start*/) const
 	return nullptr; // uncacheable
 }
 
-void MSXDevice::writeMem(word address, byte /*value*/,
-                            EmuTime::param /*time*/)
+void MSXDevice::writeMem(word /*address*/, byte /*value*/,
+                         EmuTime::param /*time*/)
 {
-	(void)address;
-	PRT_DEBUG("MSXDevice: write to unmapped memory " << std::hex <<
-	          int(address) << std::dec);
-	// do nothing
+	// write to unmapped memory, do nothing
 }
 
 byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
@@ -446,7 +434,7 @@ byte MSXDevice::peekMem(word address, EmuTime::param /*time*/) const
 		word offset = address & CacheLine::LOW;
 		return cache[offset];
 	} else {
-		PRT_DEBUG("MSXDevice: peek not supported for this device");
+		// peek not supported for this device
 		return 0xFF;
 	}
 }

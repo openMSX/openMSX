@@ -47,9 +47,7 @@ void MSXPSG::powerDown(EmuTime::param /*time*/)
 
 byte MSXPSG::readIO(word /*port*/, EmuTime::param time)
 {
-	byte result = ay8910->readRegister(registerLatch, time);
-	//PRT_DEBUG("PSG read R#"<<(int)registerLatch<<" = "<<(int)result);
-	return result;
+	return ay8910->readRegister(registerLatch, time);
 }
 
 byte MSXPSG::peekIO(word /*port*/, EmuTime::param time) const
@@ -64,7 +62,6 @@ void MSXPSG::writeIO(word port, byte value, EmuTime::param time)
 		registerLatch = value & 0x0F;
 		break;
 	case 1:
-		//PRT_DEBUG("PSG write R#"<<(int)registerLatch<<" = "<<(int)value);
 		ay8910->writeRegister(registerLatch, value, time);
 		break;
 	}
