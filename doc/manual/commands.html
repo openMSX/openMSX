@@ -3879,7 +3879,7 @@
   <p>Host key that maps to the (1st) dead key. By default right-CTRL (RCTRL) key.</p>
   <p>Some MSX models have one dead key that can be used to enter accented charachters. For example the MSX
   models sold in the Netherlands have a dead key that has following four accents printed on it: ` &#xb4; ^ &#xa8;.
-  On the other hand, the Brazilian Gradiente Expert XP-800 has following four accents on it's
+  On the other hand, the Brazilian Gradiente Expert XP-800 has following four accents on its
   dead key: ` &#xb4; ^ <sup>~</sup>.</p>
   <p>There are also some MSX models with multiple dead keys like for example the Brazilian Gradiente Expert Plus,
   which has two dead keys and the different Sharp Hotbit models that have three dead keys. On such machines,
@@ -3890,19 +3890,19 @@
   <p>Following table shows for example how to
   enter respectively &#xf9;, &#xfa;, &#xfb; or &#xfc; on the MSX models sold in the Netherlands:</p>
   <table>
-	  <tr><th>Key presses</th><th>Charachter</th></tr> 
-	  <tr><td>DEAD_KEY1 followed by u</td><td>&#xf9;</td></tr> 
-	  <tr><td>DEAD_KEY1+SHIFT followed by u</td><td>&#xfa;</td></tr> 
-	  <tr><td>DEAD_KEY1+CODE followed by u</td><td>&#xfb;</td></tr> 
-	  <tr><td>DEAD_KEY1+SHIFT+CODE followed by u</td><td>&#xfc;</td></tr> 
+	  <tr><th>Key presses</th><th>Charachter</th></tr>
+	  <tr><td>DEAD_KEY1 followed by u</td><td>&#xf9;</td></tr>
+	  <tr><td>DEAD_KEY1+SHIFT followed by u</td><td>&#xfa;</td></tr>
+	  <tr><td>DEAD_KEY1+CODE followed by u</td><td>&#xfb;</td></tr>
+	  <tr><td>DEAD_KEY1+SHIFT+CODE followed by u</td><td>&#xfc;</td></tr>
   </table>
-  <p>In order to use the dead key in openMSX, you must map an approriate host key to the DEAD_KEY1 of the MSX and
-  another one to the CODE key of the MSX with respectively this kbd_deadkey1_host_key setting and the above
-  documented kbd_code_kana_host_key setting.</p>
+  <p>In order to use the dead key in openMSX, you must map an appropriate host key to the DEAD_KEY1 of the MSX and
+  another one to the CODE key of the MSX with respectively this <code>kbd_deadkey1_host_key</code> setting and the above
+  documented <code><a class="internal" href="#kbd_code_kana_host_key">kbd_code_kana_host_key</a></code> setting.</p>
   <p>Note that especially the last key combination (DEAD_KEY1+SHIFT+CODE) can be impossible to enter on some
   host systems; depending on the host operating system, keyboard type and keyboard driver it may be impossible
   for the host system to send a combination of three keys at once to an application like openMSX. Unfortunately
-  openMSX or it's developers can't do anything about that.</p>
+  openMSX or its developers can't do anything about that.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3921,10 +3921,10 @@
       <td>Binds the PAGEUP key on the host keyboard to the 1st dead key</td>
     </tr>
   </table>
-  <p>Note that to use for example PAGEUP as 1st dead key you will have to unbind it from the "go_back_one_step"
-   command in the console; by default openMSX has bound the PAGEUP key to the "go_back_one_step" command and such
+  <p>Note that to use for example PAGEUP as 1st dead key you will have to unbind it from the <code>go_back_one_step</code>
+   command in the console; by default openMSX has bound the PAGEUP key to the <code>go_back_one_step</code> command and such
    a binding takes precedence over keyboard mappings, so if you want to use PAGEUP as the 1st dead key you will have
-   to enter following additional command in the console: <code>unbind PAGEUP</code></p> 
+   to enter following additional command in the console: <code>unbind PAGEUP</code>.</p>
 
 
   <h3><a id="kbd_deadkey2_host_key">kbd_deadkey2_host_key</a></h3>
@@ -3932,7 +3932,7 @@
   <p>Host key that maps to the 2nd dead key. By default Page Up (PAGEUP) key.</p>
   <p>This is only applicable to MSX models that have at least two dead keys, like the Brazilian Hotbit models
   or the Brazilian Gradiente Expert Plus or other Gradiente models with Gradiente basic version 1.1.</p>
-  <p>On the Hotbit models, the second dead key can be used to enter accent &#xa8; while on the gradiente 1.1
+  <p>On the Hotbit models, the second dead key can be used to enter accent &#xa8; while on the Gradiente 1.1
   models, the second dead key can be used to enter following accents: <sup>~</sup> ^.</p>
   <p>It can be used in the same manner as the first dead key, explained in previous section.</p>
 
@@ -3955,17 +3955,17 @@
   </table>
   <p>Note that to use for example PAGEUP or PAGEDOWN as a dead key you will have to unbind them from the
    default functions in openMSX using the console; by default openMSX has bound the PAGEUP key to the
-   "go_back_one_step" command and the PAGEDOWN key to the "go_forward_one_step" command. Such a binding
+   <code>go_back_one_step</code> command and the PAGEDOWN key to the <code>go_forward_one_step</code> command. Such a binding
    takes precedence over keyboard mappings, so if you want to use PAGEUP or PAGEDOWN as the second dead key
    you will have to enter following additional commands in the console: <code>unbind PAGEUP</code> or
-  <code>unbind PAGEDOWN</code></p> 
+  <code>unbind PAGEDOWN</code>.</p>
 
 
   <h3><a id="kbd_deadkey3_host_key">kbd_deadkey3_host_key</a></h3>
 
   <p>Host key that maps to the 3rd dead key. By default Page Down (PAGEDOWN) key.</p>
-  <p>This is only applicable to MSX models with at least three dead keys, like the Sharp Hotbit models</p>
-  <p>On the Hotbit models, the third dead key can be used to enter following two accents: <sup>~</sup> ^</p>
+  <p>This is only applicable to MSX models with at least three dead keys, like the Sharp Hotbit models.</p>
+  <p>On the Hotbit models, the third dead key can be used to enter following two accents: <sup>~</sup> ^.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3985,11 +3985,11 @@
     </tr>
   </table>
   <p>Note that to use for example PAGEDOWN (default setting!) as the 3rd dead key you will have to unbind
-   it from the "go_forward_one_step" command in openMSX using the console; by default openMSX has bound
-   the PAGEUP key to the "go_back_one_step" command. It is a very usefull setting for many openMSX users when
+   it from the <code>go_forward_one_step</code> command in openMSX using the console; by default openMSX has bound
+   the PAGEUP key to the <code>go_back_one_step</code> command. It is a very useful setting for many openMSX users when
    playing games but unfortunately it conflicts with the default set-up for the third dead key. Such a command
    binding takes precedence over keyboard mappings, so if you want to use PAGEDOWN as the third dead key you
-   will have to enter following additional command in the console: <code>unbind PAGEDOWN</code></p> 
+   will have to enter following additional command in the console: <code>unbind PAGEDOWN</code>.</p>
 
 
   <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
