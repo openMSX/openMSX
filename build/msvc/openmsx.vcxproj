@@ -773,7 +773,6 @@
     <ClCompile Include="$(OpenMSXSrcDir)\MSXS1990.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXSwitchedDevice.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\MSXTurboRPause.cc" />
-    <ClCompile Include="$(OpenMSXSrcDir)\openmsx.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PasswordCart.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\Pluggable.cc" />
     <ClCompile Include="$(OpenMSXSrcDir)\PluggableFactory.cc" />
