@@ -68,9 +68,9 @@ public:
 	}
 
 	/** Start/stop recording.
-	  * @param recorder Finished frames should be pushed to this
-	  *                 AviRecorder. Can also be nullptr, meaning
-	  *                 recording is stopped.
+	  * @param recorder_ Finished frames should be pushed to this
+	  *                  AviRecorder. Can also be nullptr, meaning
+	  *                  recording is stopped.
 	  */
 	void setRecorder(AviRecorder* recorder_) { recorder = recorder_; }
 
