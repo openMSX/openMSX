@@ -20,6 +20,7 @@ bindist: install $(BINDIST_OPENMSX_START)
 	mksquashfs \
 		$(PACKAGE_SUPPORT_DIR)/default.gcw0.desktop \
 		share/icons/openMSX-logo-32.png \
+		$(PACKAGE_SUPPORT_DIR)/manual.man.txt \
 		$(BINDIST_DIR)/* \
 		$(BINDIST_DIR)/../$(BINDIST_PACKAGE) \
 		-noappend -comp gzip -all-root
