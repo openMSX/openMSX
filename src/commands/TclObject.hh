@@ -53,7 +53,7 @@ public:
 	bool evalBool(Interpreter& interp) const;
 
 	/** Interpret this TclObject as a command and execute it.
-	  * @param interpreter The Tcl interpreter
+	  * @param interp The Tcl interpreter
 	  * @param compile Should the command be compiled to bytecode? The
 	  *           bytecode is stored inside the TclObject can speed up
 	  *           future invocations of the same command. Only set this
