@@ -462,6 +462,7 @@ proc ram_watch_add {addr_str args} {
 	# (possibly) add one extra entry
 	if {!$addr_already_watched} {
 		ram_watch_add_to_widget $old_nof_watches
+		ram_watch_update_widget_size
 	}
 
 	ram_watch_update_addresses
@@ -479,6 +480,12 @@ proc ram_watch_init_widget {} {
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 		-borderrgba 0x00000040 -bordersize 0.5
 	osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 1 -size 4 -rgba 0xffffffff
+}
+
+proc ram_watch_update_widget_size {} {
+	variable addr_watches
+	set nr [dict size $addr_watches]
+	osd configure ram_watch.addr -h [expr {8 + ($nr * 6)}]
 }
 
 proc ram_watch_add_to_widget {nr} {
@@ -524,6 +531,7 @@ proc ram_watch_remove {addr_str} {
 		osd destroy ram_watch
 	} else {
 		ram_watch_update_addresses
+		ram_watch_update_widget_size
 	}
 	return ""
 }
