@@ -70,11 +70,6 @@ static void initializeSDL()
 #endif
 }
 
-static void unexpectedExceptionHandler()
-{
-	cerr << "Unexpected exception." << endl;
-}
-
 static int main(int argc, char **argv)
 {
 #if LOG_TO_FILE
@@ -98,7 +93,6 @@ static int main(int argc, char **argv)
 	cout << msg << endl;
 	cerr << msg << endl;
 #endif
-	std::set_unexpected(unexpectedExceptionHandler);
 
 	int err = 0;
 	try {
