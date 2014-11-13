@@ -76,6 +76,10 @@ proc format_time {time} {
 	format "%02d:%02d:%02d" [expr {int($time / 3600)}] [expr {int($time / 60) % 60}] [expr {int($time) % 60}]
 }
 
+proc format_time_subseconds {time} {
+	format "%02d:%02d.%02d" [expr {int($time / 60)}] [expr {int($time) % 60}] [expr {int(fmod($time,1) * 100)}]
+}
+
 proc get_ordered_machine_list {} {
 	lsort -dictionary [list_machines]
 }

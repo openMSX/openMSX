@@ -62,8 +62,8 @@ register_lazy "_sprites.tcl" {sprite_viewer draw_matrix}
 register_lazy "_stack.tcl" stack
 register_lazy "_tas_tools.tcl" {
 	toggle_frame_counter prev_frame next_frame start_of_frame
-	advance_frame reverse_frame enable_tas_mode toggle_cursors ram_watch
-	toggle_lag_counter reset_lag_counter}
+	advance_frame reverse_frame toggle_cursors ram_watch
+	toggle_lag_counter reset_lag_counter toggle_movie_length_display}
 register_lazy "_test_machines_and_extensions.tcl" {
 	test_all_machines test_all_extensions}
 register_lazy "_text_echo.tcl" text_echo
@@ -75,8 +75,8 @@ register_lazy "_utils.tcl" {
 	get_machine_display_name get_machine_display_name_by_config_name
 	get_extension_display_name_by_config_name
 	get_display_name_by_config_name get_machine_time format_time
-	get_ordered_machine_list get_random_number clip file_completion
-	filename_clean}
+	format_time_subseconds get_ordered_machine_list get_random_number clip
+	file_completion filename_clean}
 register_lazy "_vdp.tcl" {
 	getcolor setcolor get_screen_mode get_screen_mode_number vdpreg vdpregs
 	v9990regs vpeek vpoke palette}

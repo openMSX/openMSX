@@ -75,6 +75,9 @@ proc enter_tas_mode {} {
 	if {![osd exists cursors]} {
 		toggle_cursors
 	}
+	if {![osd exists movielength]} {
+		toggle_movie_length_display
+	}
 	reverse_widgets::enable_reversebar false
 
 	# load/select/save reverse slot

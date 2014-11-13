@@ -89,10 +89,10 @@ proc toggle_frame_counter {} {
 	}
 
 	osd create rectangle framecount \
-		-x 269 -y 223 -h 10 -w 50 -scaled true \
+		-x 269 -y 227 -h 7 -w 42 -scaled true \
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 		-borderrgba 0x00000040 -bordersize 0.5
-	osd create text framecount.text -x 3 -y 2 -size 4 -rgba 0xffffffff
+	osd create text framecount.text -x 3 -y 1 -size 4 -rgba 0xffffffff
 	enable_periodic framecount_update
 	return ""
 }
@@ -251,10 +251,10 @@ proc show_key_press {key state} {
 }
 
 proc create_key {name x y} {
-	osd create rectangle cursors.$name -x $x -y $y -w 16 -h 10 \
+	osd create rectangle cursors.$name -x $x -y $y -w 16 -h 7 \
 	-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 	-bordersize 0.5 -borderrgba 0x00000040
-	osd create text cursors.$name.text -x 2 -y 2 -text $name -size 4 -rgba 0xffffffff
+	osd create text cursors.$name.text -x 2 -y 1 -text $name -size 4 -rgba 0xffffffff
 }
 
 # you can setup your own key definitions by loading a script which defines a proc like this:
@@ -283,7 +283,7 @@ proc toggle_cursors {} {
 		disable_periodic show_keys
 		osd destroy cursors
 	} else {
-		osd create rectangle cursors -x 64 -y 215 -h 26 -w 204 -scaled true -rgba 0x00000000
+		osd create rectangle cursors -x 64 -y 219 -h 26 -w 204 -scaled true -rgba 0x00000000
 		if {[info procs ::define_custom_keys] eq "::define_custom_keys"} {
 			define_custom_keys
 		} else {
@@ -478,7 +478,7 @@ proc ram_watch_init_widget {} {
 		-x 257 -y 1 -w 62 -h 221 \
 		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
 		-borderrgba 0x00000040 -bordersize 0.5
-	osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 2 -size 4 -rgba 0xffffffff
+	osd create text ram_watch.addr.title -text "RAM Watch" -x 2 -y 1 -size 4 -rgba 0xffffffff
 }
 
 proc ram_watch_add_to_widget {nr} {
@@ -707,9 +707,9 @@ proc toggle_lag_counter {} {
 	set lag_counter_wp [debug set_watchpoint read_io 0xa9 {[expr [debug read ioports 0xaa] & 0x0f] == 0x08} {tas::space_read}]
 
 	osd create rectangle lag_counter \
-		-x 269 -y 213 -h 10 -w 50 -scaled true \
+		-x 269 -y 220 -h 7 -w 42 -scaled true \
 		-borderrgba 0x00000040 -bordersize 0.5
-	osd create text lag_counter.text -x 3 -y 2 -size 4 -rgba 0xffffffff
+	osd create text lag_counter.text -x 3 -y 1 -size 4 -rgba 0xffffffff
 	update_lag_counter ;# can't use enable_periodic
 	return ""
 }
@@ -742,7 +742,7 @@ proc update_lag_counter2 {} {
 
 		if {!$input_read_in_frame} {
 			incr lag_counter
-			osd configure lag_counter.text -text "Lag frames: $lag_counter"
+			osd configure lag_counter.text -text "Lag fr.: $lag_counter"
 		} else {
 			set input_read_in_frame false
 		}
@@ -756,17 +756,42 @@ proc reset_lag_counter {} {
 	return ""
 }
 
+### movie length display ###
+
+set_help_text toggle_movie_length_display\
+{Toggles display of the movie length in the upper right corner.}
+
+proc toggle_movie_length_display {} {
+	if {[osd exists movielength]} {
+		disable_periodic movielength_update
+		osd destroy movielength
+		return ""
+	}
+
+	osd create rectangle movielength \
+		-x 269 -y 234 -h 7 -w 42 -scaled true \
+		-rgba "0x0044aa80 0x2266dd80 0x0055cc80 0x44aaff80" \
+		-borderrgba 0x00000040 -bordersize 0.5
+	osd create text movielength.text -x 3 -y 1 -size 4 -rgba 0xffffffff
+	enable_periodic movielength_update
+	return ""
+}
+
+proc movielength_update {} {
+	osd configure movielength.text -text "Length: [utils::format_time_subseconds [dict get [reverse status] last_event]]"
+}
+
 namespace export toggle_frame_counter
 namespace export prev_frame
 namespace export next_frame
 namespace export start_of_frame
 namespace export advance_frame
 namespace export reverse_frame
-namespace export enable_tas_mode
 namespace export toggle_cursors
 namespace export ram_watch
 namespace export toggle_lag_counter
 namespace export reset_lag_counter
+namespace export toggle_movie_length_display
 }
 
 namespace import tas::*
