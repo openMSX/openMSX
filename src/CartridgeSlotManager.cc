@@ -92,27 +92,22 @@ CartridgeSlotManager::~CartridgeSlotManager()
 
 int CartridgeSlotManager::getSlotNum(string_ref slot)
 {
-	if ((slot.size() == 1) && ('a' <= slot[0]) && (slot[0] <= 'p')) {
-		return -(1 + slot[0] - 'a');
+	if (slot.size() == 1) {
+		if (('0' <= slot[0]) && (slot[0] <= '3')) {
+			return slot[0] - '0';
+		} else if (('a' <= slot[0]) && (slot[0] <= 'p')) {
+			return -(1 + slot[0] - 'a');
+		} else if (slot[0] == 'X') {
+			return -256;
+		}
+	} else if (slot.size() == 2) {
+		if ((slot[0] == '?') && ('0' <= slot[1]) && (slot[1] <= '3')) {
+			return slot[1] - '0' - 128;
+		}
 	} else if (slot == "any") {
 		return -256;
-	} else if (slot == "X") {
-		return -256;
-	} else if ((slot.size() == 2) && (slot[0] == '?')) {
-		int result = slot[1] - '0';
-		if ((result < 0) || (4 <= result)) {
-			throw MSXException(
-				"Invalid slot specification: " + slot);
-		}
-		return result - 128;
-	} else {
-		int result = stoi(slot);
-		if ((result < 0) || (4 <= result)) {
-			throw MSXException(
-				"Invalid slot specification: " + slot);
-		}
-		return result;
 	}
+	throw MSXException("Invalid slot specification: " + slot);
 }
 
 void CartridgeSlotManager::createExternalSlot(int ps)
